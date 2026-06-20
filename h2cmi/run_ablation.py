@@ -15,7 +15,7 @@ import json
 import numpy as np
 
 from h2cmi.config import H2Config
-from h2cmi.domains import DomainDAG, DomainFactor, DomainLabels
+from h2cmi.domains import DomainDAG, DomainFactor, DomainLabels, compact_domain_labels
 from h2cmi.data.eeg_simulator import EEGSimulator, ShiftSpec, train_target_split
 from h2cmi.train.trainer import train_h2, reference_prior
 from h2cmi.eval.harness import evaluate_strict_dg, evaluate_offline_tta
@@ -31,10 +31,17 @@ def base_config(args) -> H2Config:
 
 
 def flat_domain_labels(domains: DomainLabels) -> tuple[DomainDAG, DomainLabels]:
-    """Collapse the DAG to a single flat 'domain' = site (review: flat-ID baseline)."""
-    site = domains.factor("site")
-    dag = DomainDAG([DomainFactor("site", int(site.max()) + 1, (), "invariant", 0.02)])
-    return dag, DomainLabels(dag, site.reshape(-1, 1))
+    """Collapse the DAG to a single flat JOINT 'domain' = (site,subject,session) tuple,
+    relabelled contiguously (review: a true flat-joint baseline, not site-only)."""
+    import numpy as np
+    keys = domains.levels  # [N, n_factors]
+    # encode the full tuple as one categorical, then relabel to 0..K-1
+    enc = np.zeros(domains.n, dtype=np.int64)
+    for j, f in enumerate(domains.dag.factors):
+        enc = enc * f.n_levels + keys[:, j]
+    _, inv = np.unique(enc, return_inverse=True)
+    dag = DomainDAG([DomainFactor("domain", int(inv.max()) + 1, (), "invariant", 0.02)])
+    return dag, DomainLabels(dag, inv.reshape(-1, 1))
 
 
 # each ablation: name -> (config-mutator, use_flat_D)
@@ -69,11 +76,13 @@ def run_one(name, mutate, use_flat, sim, src_idx, tgt_idx, base, args):
     cfg = copy.deepcopy(base)
     mutate(cfg)
     Xs, ys = sim.X[src_idx], sim.y[src_idx]
-    src_dom = sim.domains.subset(src_idx)
-    dag, dom_for_train = (sim.dag, src_dom)
-    align_factor = "site"
+    src_raw = sim.domains.subset(src_idx)
     if use_flat:
-        dag, dom_for_train = flat_domain_labels(src_dom)
+        dag, dom_for_train = flat_domain_labels(src_raw)     # true flat-joint baseline
+        align_factor = "domain"
+    else:
+        dag, dom_for_train, _ = compact_domain_labels(src_raw)   # source-only compact DAG (P0-1)
+        align_factor = "site"
     model, hcmi, dual, hist = train_h2(Xs, ys, dom_for_train, dag, cfg,
                                        align_factor=align_factor, verbose=False)
     pi_star = reference_prior(ys, args.classes, cfg.align.reference_prior)

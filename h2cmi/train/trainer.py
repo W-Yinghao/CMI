@@ -127,7 +127,7 @@ def train_h2(X: np.ndarray, y: np.ndarray, domains: DomainLabels, dag: DomainDAG
         if disent: disent.train()
         if sslaux: sslaux.train()
         ep_ihat = {f: [] for f in hcmi.factors}
-        ep_log = dict(hybrid=[], cmi=[], align=[], disent=[], ssl=[])
+        ep_log = dict(hybrid=[], cmi=[], align=[], disent=[], ssl=[], critic_ce=[])
         lam_warm = min(1.0, (ep + 1) / max(1, cfg.train.warmup))
         for xb, yb, db, ib in dl:
             xb, yb, db = xb.to(dev), yb.to(dev), db.to(dev)
@@ -139,15 +139,20 @@ def train_h2(X: np.ndarray, y: np.ndarray, domains: DomainLabels, dag: DomainDAG
 
             # ---- Step A: fit critics on detached z_c ----
             z_det = z_c.detach()
+            la = None
             for _ in range(cfg.cmi.critic_inner):
                 la = hcmi.critic_loss(z_det, yb, lev, pk)
                 opt_critic.zero_grad(); la.backward(); opt_critic.step()
+            if la is not None and hcmi.factors:
+                ep_log["critic_ce"].append(float(la.detach()) / len(hcmi.factors))
 
-            # ---- Step B: encoder + head + penalties ----
+            # ---- Step B: encoder + head + penalties (critics FROZEN: envelope theorem) ----
+            for p in hcmi.parameters():
+                p.requires_grad_(False)
             loss, info = model.head.loss(z_c, yb)
             ep_log["hybrid"].append(float(loss.detach()))
 
-            terms = hcmi.estimate(z_c, yb, lev, pk)         # frozen critics (opt_main excludes them)
+            terms = hcmi.estimate(z_c, yb, lev, pk)         # backprops only to the encoder
             lambdas = dual.as_tensors(dev)
             cmi_pen = hcmi.total_penalty(terms, lambdas) * lam_warm
             loss = loss + cmi_pen
@@ -173,6 +178,8 @@ def train_h2(X: np.ndarray, y: np.ndarray, domains: DomainLabels, dag: DomainDAG
             if cfg.train.grad_clip:
                 torch.nn.utils.clip_grad_norm_(main_params, cfg.train.grad_clip)
             opt_main.step()
+            for p in hcmi.parameters():           # unfreeze critics for the next Step A
+                p.requires_grad_(True)
             if cfg.density.ema > 0:
                 model.head.density.ema_update(z_c.detach(), yb, cfg.density.ema)
 
