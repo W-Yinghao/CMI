@@ -334,16 +334,22 @@ control, and a dev-frozen threshold — the detector never seeing target labels/
 - **Boundary-rotation (low-margin) concept shift:** the changed samples sit between the old/new boundary ⟹ they
   are low-confidence ⟹ **MSP/entropy already catch them (AUROC 0.74–1.00)**; the gate is NOT needed here.
 - **Confident-but-wrong concept shift** (a high-margin pocket flipped + covariate signature — the *dangerous*
-  case): on REAL EEG features, **MSP/entropy/energy collapse to AUROC 0.00** (the mislabeled samples are
-  maximally confident, so confidence rejection is blind), while a **covariate-density-aware detector — the domain
-  discriminator `P(target|z)`, a CMI-family `I(D;Z)` quantity — gets AUROC 0.87–1.00** across all PD/SCZ folds.
-  ⟹ **the CMI gate IS load-bearing exactly where confidence rejection fails catastrophically.**
-**Honest caveats:** (i) the *working* detector is the density/domain score, not the bespoke geometry-margin
-"cmi" score (inconsistent, 0.10–0.79) — the gate should be formulated as the CMI/leakage-probe density score;
-(ii) it requires the concept shift to carry a **covariate signature** (pure relabeling with identical marginals
-is undetectable by *every* label-free method — a fundamental limit); realistic EEG state-change does move
-features, so this is reasonable but must be stated; (iii) one degenerate fold (PD/ds002778, native≈chance) breaks
-the geometry score. **Full rigor completed on real features (honest, mixed):** (1) **detection load-bearing** — domain-density gate
+  case). **Score-direction audit (precise wording — AUROC 0 is REVERSE ranking, not "no information"):** with an
+  orthogonal covariate signature decoupling margin from density, the *pre-specified* "reject-low-confidence"
+  orientation gives MSP/energy **AUROC 1.00 in the low-margin regime but 0.11 in the high-margin regime** — it
+  *reverses* and **preferentially retains the confidently-wrong samples** (oracle `max(AUC,1−AUC)` ≈ 0.89–1.00, so
+  the information is present; the fixed orientation is what fails). A **two-sided confidence-anomaly baseline**
+  (reject both tails) restores consistency (0.68 low / 0.84 high) but is weaker. The **CMI density gate
+  `P(target|z)` (a CMI-family `I(D;Z)` quantity) keeps ONE pre-specified orientation across both regimes (0.90 low
+  / 0.98 high) and is strongest in both.**
+  ⟹ **No single pre-specified confidence orientation works in both regimes; the CMI gate does — a unified safety
+  layer, not a CORAL appendage.**
+**Honest caveats:** (i) the working detector is the density/domain score, not the geometry-margin "cmi" score
+(inconsistent, 0.10–0.79); (ii) **mechanistically narrowed:** this is a *density screen* — it identifies target
+feature-geometry regions **vulnerable to a controlled boundary shift on real EEG features**; it does NOT detect
+arbitrary pure `P(y|x)` shift that leaves `P(x)` untouched (no label-free density gate can — a fundamental limit).
+Claim it as **"controlled boundary shift on real EEG feature geometry"**, not universal concept-shift detection;
+(iii) one degenerate fold (PD/ds002778, native≈chance) breaks the geometry score. **Full rigor completed on real features (honest, mixed):** (1) **detection load-bearing** — domain-density gate
 AUROC **0.97** vs MSP **0.02** (confident-but-wrong, frac 0.15, pooled folds); (2) **random-noise control** — the
 source-side decoder-CMI screen responds more to structured concept shift (+0.009) than to equal-rate random label
 noise (+0.005), but *weakly*; (3) **dev-frozen threshold** — freeze the gate threshold on dev folds, evaluate on
