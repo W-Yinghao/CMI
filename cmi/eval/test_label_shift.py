@@ -179,6 +179,41 @@ def run():
     return fails
 
 
+def run_serialization():
+    """Strict source-free serialization (reviewer R8 §6.1): the deployment path consumes only the SourceState +
+    unlabeled target features and reproduces the online transport to <1e-6. Also asserts the deployment API
+    cannot receive source examples/labels (no z_src/y_src parameter), and the state hash is deterministic."""
+    import inspect
+    from sklearn.linear_model import LogisticRegression
+    from cmi.eval.label_shift import pmct_transport
+    from cmi.eval.source_state import fit_source_state, pmct_predict_serialized, source_state_hash
+    print("=== Source-state serialization (strict source-free) — online vs serialized equivalence ===")
+    rng = np.random.default_rng(3); d, n = 8, 800
+    mu = np.stack([rng.normal(0, 1, d), rng.normal(2, 1, d)]); ys = rng.integers(0, 2, n)
+    zs = mu[ys] + rng.normal(0, 1, (n, d))
+    yt = rng.integers(0, 2, n); zt = mu[yt] @ (np.eye(d) + 0.3 * rng.normal(0, 1, (d, d)) / np.sqrt(d)) \
+        + rng.normal(0, 1, (n, d))
+    clf = LogisticRegression(max_iter=2000, C=1.0).fit(zs, ys)              # SAME readout for both paths
+    fails = 0
+    for ref in ("prior_matched", "pooled"):
+        for tmap in ("wc", "ot"):
+            _, p_on, _ = pmct_transport(zs, ys, zt, 2, clf=clf, ref=ref, tmap=tmap)
+            state = fit_source_state(zs, ys, 2, clf=clf)
+            p_se, _ = pmct_predict_serialized(state, zt, ref=ref, tmap=tmap)
+            err = float(np.abs(p_on - p_se).max()); ok = err < 1e-6; fails += (not ok)
+            print(f"  ref={ref:13} tmap={tmap}: max|p_online-p_serialized|={err:.2e}  {'PASS' if ok else 'FAIL'}")
+    # API guard: the deployment function must NOT accept source examples/labels
+    params = set(inspect.signature(pmct_predict_serialized).parameters)
+    no_src = not (params & {"z_src", "y_src", "x_src"}); fails += (not no_src)
+    print(f"  deployment API rejects source args (no z_src/y_src): {'PASS' if no_src else 'FAIL'}  params={sorted(params)}")
+    # hash determinism
+    h1 = source_state_hash(fit_source_state(zs, ys, 2, clf=clf))
+    h2 = source_state_hash(fit_source_state(zs, ys, 2, clf=clf))
+    det = h1 == h2; fails += (not det)
+    print(f"  state hash deterministic: {'PASS' if det else 'FAIL'}  ({h1[:16]}...)")
+    return fails
+
+
 if __name__ == "__main__":
     f1 = run()
     print()
@@ -187,5 +222,8 @@ if __name__ == "__main__":
     f3 = run_stress()
     print()
     f4 = run_nullsafety()
-    print(f"\n{'ALL PASS' if (f1 + f2 + f3 + f4) == 0 else f'{f1 + f2 + f3 + f4} FAILURES'}")
+    print()
+    f5 = run_serialization()
+    tot = f1 + f2 + f3 + f4 + f5
+    print(f"\n{'ALL PASS' if tot == 0 else f'{tot} FAILURES'}")
     raise SystemExit(1 if (f1 + f2 + f3) else 0)
