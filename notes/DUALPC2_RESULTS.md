@@ -343,9 +343,16 @@ control, and a dev-frozen threshold — the detector never seeing target labels/
 (ii) it requires the concept shift to carry a **covariate signature** (pure relabeling with identical marginals
 is undetectable by *every* label-free method — a fundamental limit); realistic EEG state-change does move
 features, so this is reasonable but must be stated; (iii) one degenerate fold (PD/ds002778, native≈chance) breaks
-the geometry score. **Still TODO for the full claim:** monotonic-strength + risk-coverage + random-noise control
-+ dev-frozen-threshold *on real features with the domain-density gate* (the synthetic versions pass; the
-real-feature confident-but-wrong AUROC is the decisive piece and it holds).
+the geometry score. **Full rigor completed on real features (honest, mixed):** (1) **detection load-bearing** — domain-density gate
+AUROC **0.97** vs MSP **0.02** (confident-but-wrong, frac 0.15, pooled folds); (2) **random-noise control** — the
+source-side decoder-CMI screen responds more to structured concept shift (+0.009) than to equal-rate random label
+noise (+0.005), but *weakly*; (3) **dev-frozen threshold** — freeze the gate threshold on dev folds, evaluate on
+held-out test folds → **+1.8 selective accuracy** from abstaining on flagged samples (clean, no peeking); (4)
+**but risk-coverage is muted** — selective *risk* stays ~50% across coverage because the base predictor is
+near-chance on these hard cross-site cohorts, so detecting the injected 15% barely moves overall accuracy.
+**Net:** the gate **detects** what confidence rejection cannot (the decisive, clean result), the methodology is
+sound (frozen threshold), but the **selective-prediction accuracy *value* needs a base task well above chance** to
+be visible — a real, stated limitation, not hidden.
 
 ## 7. Limitations / open
 - **Single-class-target LOSO is ill-posed for feature-space transport (R6 finding).** On within-dataset SCPS
