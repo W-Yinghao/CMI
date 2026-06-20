@@ -156,9 +156,20 @@ def run(args):
             keep = np.concatenate([r2.choice(i0, min(n0, len(i0)), replace=False),
                                    r2.choice(i1, min(n - n0, len(i1)), replace=False)])
             Xte, yte = Xte[keep], yte[keep]
-        # source-internal split for the leakage probe
-        rng = np.random.default_rng(args.seed); idx = rng.permutation(len(Xtr)); cut = int(0.7 * len(idx))
-        pi, ei = idx[:cut], idx[cut:]
+        # source-internal split for the leakage probe. RANDOM (window) splits let the probe exploit
+        # within-recording EEG autocorrelation -> inflates measured I(Z;D|Y). GROUPED assigns whole
+        # subjects/recordings to probe-train vs probe-eval, so the probe must generalize to unseen recordings.
+        rng = np.random.default_rng(args.seed)
+        if args.leakage_split == "grouped":
+            subj_tr = subj[tr]; usub = np.unique(subj_tr); rng.shuffle(usub)
+            cut_s = max(1, int(0.7 * len(usub)))
+            pi_sub = set(usub[:cut_s].tolist())
+            pi = np.where(np.isin(subj_tr, list(pi_sub)))[0]
+            ei = np.where(~np.isin(subj_tr, list(pi_sub)))[0]
+            if len(ei) == 0 or len(pi) == 0:                  # too few subjects -> fall back to window split
+                idx = rng.permutation(len(Xtr)); cut = int(0.7 * len(idx)); pi, ei = idx[:cut], idx[cut:]
+        else:
+            idx = rng.permutation(len(Xtr)); cut = int(0.7 * len(idx)); pi, ei = idx[:cut], idx[cut:]
         # NESTED SOURCE-DOMAIN SELECTOR (reviewer §1): inner leave-one-source-cohort-out cross-validation.
         # The model is NEVER trained on its validation domain (fixes the in-sample sv_bacc). val bAcc measures
         # cross-DOMAIN generalization (the real selection target); leakage (lk_rw) is the tie-break within eps.
@@ -341,6 +352,8 @@ def main():
                     help="lambda selector: insample (legacy sv_bacc) | nested (leave-one-source-cohort-out CV, no oracle)")
     ap.add_argument("--select_eps", type=float, default=0.02,
                     help="nested selector: keep configs within eps of best val bAcc, then pick lowest leakage")
+    ap.add_argument("--leakage_split", default="random", choices=["random", "grouped"],
+                    help="probe train/eval split: random (window) | grouped (by subject/recording; honest leakage)")
     ap.add_argument("--dump_features", default=None,
                     help="dir to dump per-fold {z_se,y_se,z_ev,y_ev,z_te,y_te}.npz (for the concept-shift study)")
     ap.add_argument("--target_prior", type=float, default=-1.0,
