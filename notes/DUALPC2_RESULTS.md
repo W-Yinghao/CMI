@@ -12,14 +12,17 @@ validated) → a **nested source-domain λ selector** fixes the representation (
 covariate alignment** (CORAL/matched-CORAL) moves only the *unlabeled target covariates* onto the source
 class-conditional geometry, with a **frozen** source readout. **Transductive / test-time**, not strict DG.
 
-**★ HEADLINE (Round-8, RIGOROUS) — `CITA-nested + transductive alignment` vs ERM** (nested leave-one-source-cohort-out
-selector ⟹ no oracle, no target labels, no in-sample selection; 2 seeds):
-| | ERM | **CITA-nested + align** | gain |
-|---|---|---|---|
-| SCZ cross-site | 52.4 | **55.4** | **+3.0** |
-| PD cross-site | 58.0 | **61.0** | **+3.0** |
-*(The earlier in-sample-selector "+5.5 SCZ" deflated to +3.0 under proper nested CV — the audit caught real
-selection optimism.)* The aligner is **CORAL ≈ matched-CORAL ≈ PMCT on real EEG** (see PMCT note below).
+**★ HEADLINE (Round-8, RIGOROUS, 5-seed) — `CITA-nested + transductive alignment` vs ERM** (nested
+leave-one-source-cohort-out selector ⟹ no oracle, no target labels, no in-sample selection):
+| | ERM | **CITA-nested + align** | gain (5 seeds) | all seeds + ? |
+|---|---|---|---|---|
+| SCZ cross-site | 51.9±1.0 | **55.1±1.1** | **+3.1±1.3** | yes (1.4…5.1) |
+| PD cross-site | 58.3±0.8 | **61.0±0.9** | **+2.7±1.0** | yes (1.7…4.7) |
+*(±=seed std. The earlier in-sample-selector "+5.5 SCZ" deflated to +3 under proper nested CV — the audit caught
+real selection optimism.)* **Honest caveat:** seeds are NOT independent clinical domains; with only 2–4 cohorts
+per disease the **cohort-clustered paired-bootstrap CI will be wider** than the seed std — must be the reported CI.
+The aligner is **CORAL ≈ matched-CORAL ≈ PMCT on real EEG**; and **SPDIM ties/slightly beats CITA** (§6i) ⟹ the
+gain is over ERM, not over the strongest baseline.
 
 **PMCT verdict (Round-8 de-confounding):** once compared against **matched-CORAL** (PMCT's *exact* shrink/gate/
 interpolation machinery, pooled reference), **PMCT ≈ matched-CORAL on real EEG** (Δ = −0.3…+0.3, natural prior AND
