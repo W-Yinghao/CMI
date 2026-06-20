@@ -326,6 +326,27 @@ subject` on disease and med-state. **Nuanced, honest verdict:**
 correct→wrong flips so the 17–23% flips are shown to be net error-correction, not reshuffling (captured from the
 next run on).
 
+## 6h. Semi-synthetic concept-shift study — IS the gate load-bearing? (`cmi/eval/concept_shift_study.py`)
+The R8 review's bar: not "accuracy dropped + abstention rose", but a controlled injection with monotonic
+strengths, detector enrichment vs the injection mask, risk-coverage vs MSP/entropy/energy, a random-noise
+control, and a dev-frozen threshold — the detector never seeing target labels/mask. Built the harness; ran it on
+**real EEG features** (dumped from trained EEGNet, `--dump_features`). Two regimes, two honest verdicts:
+- **Boundary-rotation (low-margin) concept shift:** the changed samples sit between the old/new boundary ⟹ they
+  are low-confidence ⟹ **MSP/entropy already catch them (AUROC 0.74–1.00)**; the gate is NOT needed here.
+- **Confident-but-wrong concept shift** (a high-margin pocket flipped + covariate signature — the *dangerous*
+  case): on REAL EEG features, **MSP/entropy/energy collapse to AUROC 0.00** (the mislabeled samples are
+  maximally confident, so confidence rejection is blind), while a **covariate-density-aware detector — the domain
+  discriminator `P(target|z)`, a CMI-family `I(D;Z)` quantity — gets AUROC 0.87–1.00** across all PD/SCZ folds.
+  ⟹ **the CMI gate IS load-bearing exactly where confidence rejection fails catastrophically.**
+**Honest caveats:** (i) the *working* detector is the density/domain score, not the bespoke geometry-margin
+"cmi" score (inconsistent, 0.10–0.79) — the gate should be formulated as the CMI/leakage-probe density score;
+(ii) it requires the concept shift to carry a **covariate signature** (pure relabeling with identical marginals
+is undetectable by *every* label-free method — a fundamental limit); realistic EEG state-change does move
+features, so this is reasonable but must be stated; (iii) one degenerate fold (PD/ds002778, native≈chance) breaks
+the geometry score. **Still TODO for the full claim:** monotonic-strength + risk-coverage + random-noise control
++ dev-frozen-threshold *on real features with the domain-density gate* (the synthetic versions pass; the
+real-feature confident-but-wrong AUROC is the decisive piece and it holds).
+
 ## 7. Limitations / open
 - **Single-class-target LOSO is ill-posed for feature-space transport (R6 finding).** On within-dataset SCPS
   with `leave-one-subject-out`, the held-out target is ONE class (`Y=g(subject)`). Real-data R6 (`--transduct all`

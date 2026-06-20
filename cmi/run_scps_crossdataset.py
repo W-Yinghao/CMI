@@ -196,6 +196,13 @@ def run(args):
             prob = predict(bb, Xte, device)
             ba = balanced_accuracy_score(yte, prob.argmax(1))
             sv_bacc = float(balanced_accuracy_score(ytr[ei], predict(bb, Xtr[ei], device).argmax(1)))  # source-only val (for selector)
+            if args.dump_features:                        # dump REAL features for the semi-synthetic concept-shift study (a)
+                from cmi.train.trainer import embed as _emb
+                os.makedirs(args.dump_features, exist_ok=True)
+                np.savez(f"{args.dump_features}/feat_{args.condition}_{hold}_{lbl.replace(':', '_')}.npz",
+                         z_se=_emb(bb, Xtr[pi], device), y_se=ytr[pi],
+                         z_ev=_emb(bb, Xtr[ei], device), y_ev=ytr[ei],
+                         z_te=_emb(bb, Xte, device), y_te=yte)
             ts = {}
             if args.transduct != "off":               # CIPC cohort-level transductive correction (target=held-out cohort)
                 from cmi.train.trainer import embed
@@ -334,6 +341,8 @@ def main():
                     help="lambda selector: insample (legacy sv_bacc) | nested (leave-one-source-cohort-out CV, no oracle)")
     ap.add_argument("--select_eps", type=float, default=0.02,
                     help="nested selector: keep configs within eps of best val bAcc, then pick lowest leakage")
+    ap.add_argument("--dump_features", default=None,
+                    help="dir to dump per-fold {z_se,y_se,z_ev,y_ev,z_te,y_te}.npz (for the concept-shift study)")
     ap.add_argument("--target_prior", type=float, default=-1.0,
                     help="stress test: subsample held-out cohort (binary) to this majority-class fraction")
     ap.add_argument("--dec_margin", type=float, default=None,
