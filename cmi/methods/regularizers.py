@@ -2,7 +2,12 @@
 from synthetic/sanity_check.py.
 
 The trainable criterion is the conditional domain leakage I(Z;D|Y), estimated as a
-variational posterior-KL upper bound:  L_CMI = E_i KL( q_psi(D|z_i,y_i) || pi_{y_i}(D) ).
+posterior-KL PLUG-IN surrogate:  L_CMI = E_i KL( q_psi(D|z_i,y_i) || pi_{y_i}(D) ).
+NOTE (not an upper bound): with the variational posterior q_psi this EQUALS I(Z;D|Y)
+only when q_psi = p(D|z,y) (Step-A convergence); for a sub-optimal critic it generally
+UNDER-estimates the true CMI (it is NOT >= I for arbitrary q_psi -- e.g. q_psi = pi_y(D)
+gives L_CMI = 0 while I(Z;D|Y) can be > 0). So: a consistent plug-in estimator, tight at
+convergence, not a Barber-Agakov-style bound. Report critic capacity / convergence gap.
 Variants share the same posterior machinery and only change the conditioning / prior:
 
   lpc_prior   E KL(q(D|Z,Y) || pi_y(D))   <- ours (I(Z;D|Y), label-prior corrected)
@@ -89,9 +94,11 @@ class DomainPosteriors(nn.Module):
         self.u_yz = _mlp(z_dim, n_cls)
         self.b_d = nn.Parameter(torch.zeros(n_dom, n_cls))
         pi_y, p_d, p_dy = priors
-        # After GLS label correction to a uniform class reference, the matching domain
-        # marginal is sum_y pi*(y) p(D|Y=y), not necessarily the raw trial marginal p(D).
-        p_d_ref = pi_y.mean(0)
+        # GLS reference domain marginal (P0-5 fix). The GLS weight w(d,y)=pi*(y)/p(y|d) reweights to
+        # p~(d,y) ∝ p(d) pi*(y), hence p~(d) = p(d) EXACTLY — the raw domain marginal, NOT sum_y pi*(y) p(d|y)
+        # (the old `pi_y.mean(0)`, which equals p(d) only when the source is class-balanced). Use p_d so the
+        # training reference, the GLS-induced measure, and the evaluation reference share one probability measure.
+        p_d_ref = np.asarray(p_d, dtype=float)
         p_d_ref = p_d_ref / np.maximum(p_d_ref.sum(), 1e-12)
         self.register_buffer("log_pi_y", torch.log(torch.tensor(pi_y, dtype=torch.float32)))
         self.register_buffer("log_pd", torch.log(torch.tensor(p_d, dtype=torch.float32)))

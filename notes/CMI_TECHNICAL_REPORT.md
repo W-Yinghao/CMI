@@ -48,24 +48,27 @@ condition `D_S(Z|Y) = D_T(Z|Y)` in information-theoretic clothing.
 
 ## I.3 The variational estimator — `q_ψ(D|Z,Y)` against a counted prior `π_y(D)`
 
-The true posterior `p(D|z,y)` is intractable; replace it with a learned MLP classifier
-`q_ψ(D|z,y)`. By Barber–Agakov, **for any** `q_ψ`:
+The true posterior `p(D|z,y)` is intractable; replace it with a learned MLP classifier `q_ψ(D|z,y)` and define
+the **plug-in surrogate**
 
 ```
-E_{z,y} KL( q_ψ(D|z,y) || π_y(D) ) = I(Z;D|Y) + E KL( p(D|z,y) || q_ψ(D|z,y) ) ≥ I(Z;D|Y).
+L_enc := E_{z,y~p} KL( q_ψ(D|z,y) || π_y(D) ) = E_{z,y~p} Σ_d q_ψ(d|z,y) log[ q_ψ(d|z,y) / π_y(d) ].
 ```
 
-So `L_enc := E KL(q_ψ || π_y)` is an **upper bound**, tight iff `q_ψ = p(D|z,y)`. Two design
-choices make it honest:
+**P0-2 — this is a CONSISTENT plug-in ESTIMATOR, not an upper bound.** Properties:
+- `L_enc = I(Z;D|Y)` **iff** `q_ψ = p(D|z,y)` (Step-A convergence). Then the surrogate equals the true CMI.
+- For a sub-optimal `q_ψ` it is **neither ≥ nor ≤** `I(Z;D|Y)` in general — the inner sum is over `q_ψ`, not the
+  true `p(D|z,y)`, so the old "`= I + KL(p‖q_ψ) ≥ I`" identity is **false** (that identity would need the inner
+  sum under `p`). Concrete refutation: `q_ψ = π_y` gives `L_enc = 0` while `I(Z;D|Y)` can be `> 0`. So it is
+  **not** an upper bound; and it is a forward-KL/cross-entropy fit, **not** a Barber–Agakov lower bound either.
+- Trained by cross-entropy (`min_ψ CE`), `q_ψ → p(D|z,y)`; an **under-fit `q_ψ` tends to UNDER-estimate** the
+  dependence (reports the encoder *cleaner* than it is) — the opposite of "conservative". Honesty therefore
+  requires running Step A to near-convergence **and reporting**: critic-capacity sweep, train/held-out critic
+  gap, cross-fitted estimate, and a within-class permutation null.
 
-- **Learned `q_ψ`, counted `π_y(D)`.** Only the posterior is learned; the prior `π_y(D)` is a
-  plug-in count (Laplace-smoothed empirical / subject / effective frequencies). Putting the
-  learned object in the numerator of the KL is what makes the bound *upper* (safe to minimize:
-  driving `L_enc → 0` forces the true CMI to 0).
-- **Bias direction is conservative.** An under-fit `q_ψ` *inflates* the bound rather than
-  hiding leakage — so the estimator never reports a falsely-clean encoder, provided Step A is
-  run to near-convergence. Numpy check: optimal `q_ψ` gives `E KL = I(Z;D|Y) = 0.194167`
-  exactly; perturbing `q_ψ` only raises it.
+Design choices: only the posterior `q_ψ` is learned; the prior `π_y(D)` is a Laplace-smoothed count
+(empirical/subject/effective). Numpy check: with the **optimal** `q_ψ`, `L_enc = I(Z;D|Y) = 0.194167` exactly
+(equality at convergence) — but this is consistency at the optimum, **not** a bound away from it.
 
 **Estimator trustworthiness (audit).** Permutation-null ≈ 0 (−0.005..+0.018) everywhere; all
 six independent probes (linear/MLP/RF/HGBM/kNN) agree on the leakage ranking; proxy-validated
@@ -285,7 +288,7 @@ if is_dual:
     loss  = loss + lam_t * r_enc + gamma_t * r_dec
 ```
 
-- `r_enc` = posterior-KL **upper bound** on `I(Z;D|Y)` (safe to minimize).
+- `r_enc` = posterior-KL **plug-in estimator** of `I(Z;D|Y)` (consistent at convergence, NOT an upper bound) (safe to minimize).
 - `r_dec` = entropy-gap **consistent plug-in** for `I(Y;D|Z)` (exact at the joint optimum
   `q=p(y|z), h=p(y|z,d)`; over-estimate if `q` loose, under-estimate if `h` under-fit — so
   Step A must converge). Note `r_dec` is **two-sided**, not a clean single-sided bound.

@@ -362,8 +362,10 @@ be visible — a real, stated limitation, not hidden.
 
 ## 6i. Source-free TTA baselines (protocol-matched) + gate-on-top + batch-size (`cmi/eval/tta_baselines.py`)
 All baselines consume the **serialized SourceState + unlabeled target only** (no source examples), same frozen
-checkpoint/target batches as CITA. (Protocol-matched multi-seed run `results/r10base_dualpc2/` in flight; numbers
-below are single-seed per-fold sanity on dumped real features.)
+checkpoint/target batches as CITA. **Protocol-matched multi-seed table (2 seeds, `results/r10base_dualpc2/`):**
+SCZ erm/lpc — native 50.7/52.2, T3A 50.4/52.4, **SPDIM 54.2/55.4, CITA 54.0/55.8**; PD erm/lpc — native
+58.4/59.1, T3A 59.3/58.2, **SPDIM 63.6/62.3, CITA 62.2/60.8**. ⟹ **SPDIM ties or slightly beats CITA across
+seeds; CITA does NOT out-accuracy the strongest baseline.** (Detail below is single-seed per-fold sanity.)
 - **T3A** (classifier-template adjustment): **≈ native** (54.2 vs 54.4) — template adjustment barely moves
   cross-site EEG features.
 - **SPDIM** (information-maximization recentering — *Euclidean analog* on the shared embedding; the literal SPDIM

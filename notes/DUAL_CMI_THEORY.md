@@ -76,12 +76,17 @@ attributions must agree — which couples the encoder and decoder leakages.
 > `I(Z;D)=I(Y;D)`. Driving the encoder leakage to zero *forces* the decoder
 > leakage *up* by exactly the label-shift gap.
 
-> **A3 (escape).** Both CMIs vanish jointly **iff** `I(Z;D)=I(Y;D)`. Under a
-> Markov chain `D→Y→Z` (which conditional invariance imposes) the DPI gives
-> `I(Z;D) ≤ I(Y;D)`, with equality **iff** `p(z|y)` is label-invertible, i.e.
-> `Y=f(Z)` deterministically — **zero Bayes error**. With irreducible clinical
-> label noise (`H(Y|Z)>0`, overlapping class-conditionals, non-separable
-> physiology) the escape is unreachable, so the two terms **must fight**.
+> **A3 (escape) — CORRECTED (P0-3).** Both CMIs vanish jointly **iff** `I(Z;D)=I(Y;D)`. Under a
+> Markov chain `D→Y→Z` the DPI gives `I(Z;D) ≤ I(Y;D)`, with **equality iff `D ⊥ Y | Z`** — i.e. `Z` is
+> *sufficient for the `D`-relevant part of `Y`*. This is **NOT** the same as `Y=f(Z)` (zero Bayes error); the
+> earlier "iff zero Bayes error" claim was **wrong**.
+> *Counterexample:* `A,B` independent, `D=A`, `Y=(A,B)`, `Z=A`. Then `D→Y→Z` holds, `I(Z;D|Y)=I(Y;D|Z)=0`
+> (both vanish) and `I(Z;D)=I(Y;D)=H(A)`, yet `H(Y|Z)=H(B)>0`, so `Y` is **not** a function of `Z`. ⟹ joint
+> vanishing does **not** require zero Bayes error — only that `Z` carry all of `Y`'s information *about `D`*.
+> What survives: the two CMIs are still coupled by the chain-rule identity `I(Z;D|Y)−I(Y;D|Z)=I(Z;D)−I(Y;D)`;
+> under **label-prior shift** raw-marginal invariance and class-conditional invariance genuinely conflict; and a
+> *stronger* (binary-`Y` / minimal-sufficient-`Z` / no-redundant-label-component) assumption is needed before
+> any zero-Bayes-error statement. The general "must fight ⟺ irreducible label noise" claim is **retracted**.
 
 ### Verified numbers — anchor **A2** (`verify_tension.py [iv]`, re-run, exact)
 
@@ -128,11 +133,13 @@ differ across sites (e.g., one clinic enrolls 60% depressed, another 30%).
    part of the label-prior shift the invariant encoder could not absorb resurfaces
    in the decoder.
 
-4. **The only escape (A3) is zero Bayes error** — `z` determines `y` outright, so
-   the prior-reweighting of an *ambiguous* posterior never happens because there is
-   no ambiguity. In **noisy clinical EEG** (overlapping AD/HC or depressed/healthy
-   spectra, montage and impedance noise, irreducible `H(Y|Z)>0`) this is
-   **unattainable**. Hence the fight is real on exactly the data we care about.
+4. **The escape (A3, CORRECTED) is `D ⊥ Y | Z`** — `Z` is *sufficient for the `D`-relevant part of `Y`* (so the
+   same `z` implies the same label posterior at every site), **NOT** zero Bayes error. This is the GLS
+   sufficiency condition and is weaker than `Y=f(Z)`; `H(Y|Z)>0` does **not** by itself block it. So the
+   honest statement is: the **raw** dual objective fights under label shift (A2), and the resolution is the GLS
+   label correction (A4), which sends `I(Y;D)→0` and **decouples** the two terms — *not* "the fight is
+   unavoidable in noisy EEG." (The earlier "only escape = zero Bayes error / fight is real on our data"
+   framing is **retracted**; the GLS decoupling, already the paper's stated contribution, is the resolution.)
 
 **Plain English:** an invariant encoder pushes the domain signal out of the feature
 *shapes* and into the feature *prevalences*; the decoder, which sees prevalences,
@@ -206,7 +213,7 @@ if is_dual:                                  # DUAL: encoder I(Z;D|Y) + decoder 
     r_dec = ce_q - post.iib_ce_h(z, yb, db)  # CE_q(Y|Z) − CE_h(Y|Z,D) = H(Y|Z)−H(Y|Z,D) = Î(Y;D|Z)
     loss = loss + lam_t * r_enc + gamma_t * r_dec
 ```
-- `r_enc` = posterior-KL **upper bound** on `I(Z;D|Y)` (Barber–Agakov; safe to
+- `r_enc` = posterior-KL **plug-in estimator** of `I(Z;D|Y)` (consistent at convergence, NOT an upper bound) (Barber–Agakov; safe to
   minimize — driving it to 0 forces the true CMI to 0). Verified: `E KL ≥ I(Z;D|Y)`
   for all perturbed `q`, equality at optimum `0.194167` (`03_estimators.md` §a).
 - `r_dec` = entropy-gap **consistent plug-in** for `I(Y;D|Z)` (exact at the joint
