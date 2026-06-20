@@ -125,12 +125,18 @@ class ClassConditionalTTA:
         ev = self._log_evidence(z, log_pi) + T.logdet()
         return float((-ev).mean())
 
-    def _fit_transform(self, U: torch.Tensor):
+    def _fit_transform(self, U: torch.Tensor, fixed_prior: torch.Tensor | None = None,
+                       fixed_resp: torch.Tensor | None = None):
         """Run the EM (transform + target prior) on U. Density must already be frozen.
-        Returns (Transform, pi_T tensor)."""
+
+        ``fixed_prior`` (tensor [K]) freezes pi_T (skip the prior M-step) -- the oracle-prior
+        diagnostic. ``fixed_resp`` (tensor [N,K]) freezes the responsibilities (skip the
+        E-step) -- the oracle-labels / supervised-transform diagnostic. Both default None =
+        the unsupervised behaviour. Returns (Transform, pi_T tensor)."""
         d = U.shape[1]
         T = Transform(d, self.cfg.transform, self.cfg.lowrank, self.device)
-        pi_T = torch.tensor(self.pi_S, dtype=torch.float32, device=self.device)
+        pi_T = (fixed_prior.clone() if fixed_prior is not None
+                else torch.tensor(self.pi_S, dtype=torch.float32, device=self.device))
         opt = torch.optim.Adam(T.params, lr=self.cfg.em_lr)
         # Dirichlet pseudo-count anchor toward pi_S (penalises H(pi_S,pi_T)=KL(pi_S||pi_T)
         # +const; NOT a forward KL(pi_T||pi_S)):
@@ -138,11 +144,15 @@ class ClassConditionalTTA:
                               dtype=torch.float32, device=self.device)
         for _ in range(self.cfg.em_iters):
             with torch.no_grad():
-                z = T.apply(U)
-                logits = self.density.log_prob_all(z) + torch.log(pi_T.clamp_min(1e-8)).view(1, -1)
-                r = F.softmax(logits, dim=1)                        # E-step responsibilities
-                counts = r.sum(0)
-                pi_T = (counts + anchor) / (counts.sum() + anchor.sum())   # M-step prior
+                if fixed_resp is not None:
+                    r = fixed_resp                                  # supervised responsibilities
+                else:
+                    z = T.apply(U)
+                    logits = self.density.log_prob_all(z) + torch.log(pi_T.clamp_min(1e-8)).view(1, -1)
+                    r = F.softmax(logits, dim=1)                    # E-step
+                if fixed_prior is None:
+                    counts = r.sum(0)
+                    pi_T = (counts + anchor) / (counts.sum() + anchor.sum())   # M-step prior
             log_piT = torch.log(pi_T.clamp_min(1e-8))
             for _ in range(3):                                      # M-step transform
                 z = T.apply(U)
@@ -159,6 +169,7 @@ class ClassConditionalTTA:
         Fit the transform on one half, score the *other* half's NLL improvement over
         identity; average both directions. The same data never both fits and judges.
         """
+        U = U.detach()
         n = U.shape[0]
         perm = torch.randperm(n, device=U.device)
         half = n // 2

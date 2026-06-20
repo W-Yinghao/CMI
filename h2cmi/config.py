@@ -47,6 +47,9 @@ class DensityConfig:
 @dataclass
 class CMIConfig:
     """Hierarchical neural conditional-entropy CMI (review 5.4 / P0-2)."""
+    # When False the trainer skips the critics, dual variables and CMI penalty ENTIRELY
+    # (not merely lambda=0) -- the clean CMI-off arm for the M0/M2 vs M1/M3 factorial.
+    enabled: bool = True
     critic_hidden: int = 128
     critic_inner: int = 1               # Step-A critic updates per Step-B encoder update
     critic_lr: float = 2e-3
