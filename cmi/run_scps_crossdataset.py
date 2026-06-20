@@ -259,6 +259,12 @@ def run(args):
                               probe_balanced_acc=float(balanced_accuracy_score(yte, tp["prob_probe_raw"].argmax(1))),
                               ts_pi_T=tp["pi_T"])
             lk = leakage_probe(bb, Xtr[pi], ytr[pi], dtr[pi], Xtr[ei], ytr[ei], dtr[ei], n_cls, device=device)
+            mc = {}                                           # P2.5: multi-capacity probes -> max detectable leakage
+            if args.leakage_multicap:
+                for cap in ("linear", "mlp", "strong"):
+                    mc[f"leakage_kl_{cap}"] = leakage_probe(bb, Xtr[pi], ytr[pi], dtr[pi], Xtr[ei], ytr[ei],
+                                                            dtr[ei], n_cls, device=device, cap=cap)["leakage_kl"]
+                mc["leakage_kl_maxcap"] = max(mc.values())
             lk_rw = leakage_probe(bb, Xtr[pi], ytr[pi], dtr[pi], Xtr[ei], ytr[ei], dtr[ei],
                                   n_cls, device=device, reweight=True)
             mlk = marginal_leakage_probe(bb, Xtr[pi], ytr[pi], dtr[pi], Xtr[ei], ytr[ei], dtr[ei],
@@ -298,7 +304,7 @@ def run(args):
                        inloop_dec_loss=diag.get("inloop_dec_loss", 0.0),
                        train_dec_margin=diag.get("dec_margin", resolve_dec_margin(method, args.dec_margin)),
                        train_sampler=diag.get("sampler", args.sampler), n_test=int(te.sum()),
-                       source_val_bacc=sv_bacc, nested_val_bacc=inner_val.get(lbl), **ts)
+                       source_val_bacc=sv_bacc, nested_val_bacc=inner_val.get(lbl), **mc, **ts)
             for src, prefix, key in ((dlk, "decoder_cmi_res", "decoder_cmi_res"),
                                      (dlk_rw, "decoder_cmi_res_rw", "decoder_cmi_res"),
                                      (dlk, "decoder_js_res", "decoder_js_res"),
@@ -365,6 +371,8 @@ def main():
                     help="nested selector: keep configs within eps of best val bAcc, then pick lowest leakage")
     ap.add_argument("--leakage_split", default="random", choices=["random", "grouped"],
                     help="probe train/eval split: random (window) | grouped (by subject/recording; honest leakage)")
+    ap.add_argument("--leakage_multicap", action="store_true",
+                    help="P2.5: also fit linear/mlp/strong probes -> max detectable leakage (anti-underfit)")
     ap.add_argument("--dump_features", default=None,
                     help="dir to dump per-fold {z_se,y_se,z_ev,y_ev,z_te,y_te}.npz (for the concept-shift study)")
     ap.add_argument("--target_prior", type=float, default=-1.0,

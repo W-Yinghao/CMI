@@ -48,3 +48,7 @@ Status snapshot at start of this batch (all pushed to `github.com/W-Yinghao/CMI`
 - (P2.2 ✅) seed py/np/torch/cuda BEFORE build_backbone (`_seed_all`) in config loop + nested `_train_on` — all methods/folds now share initialization (paired comparison, order-independent).
 - (P2.4 ✅) `drop_last` now only when the tail batch would be size 1 (BN-safe); otherwise keep it so rare domain×class cells survive.
 - NOTE: P2.2 changes initialization → the final frozen confirmatory run will re-derive the +3 numbers (robust across seeds, expected within noise). r11leak (P1.1) launched on OLD code is unaffected (it compares splits, not init).
+
+- (P2.3 ✅) raw sampler now forced for ALL GLS methods (dualpc* AND dualc/dual+reweight) — no double-balancing. Headline (lpc_prior/erm) uses no GLS → unaffected.
+- (P2.5 ✅) `leakage_probe(cap=...)` linear|mlp|strong + `--leakage_multicap` → report MAX detectable leakage (anti-underfit). r11mc (grouped split + multicap) launched.
+- (P2.6) signed-MI + CIs handled at HARVEST time (report signed values + CI, truncate only in plots) — applied in the r11leak/r11mc harvesters.

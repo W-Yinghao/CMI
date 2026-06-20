@@ -89,8 +89,19 @@ def _ece(prob, y_true, n_bins=15):
     return e
 
 
+def _probe_net(din, dout, cap="mlp"):
+    """P2.5: probe of varying capacity — a low-capacity probe can UNDER-report leakage (underfitting), so we
+    report the MAX over capacities. linear (no hidden) | mlp (1x64, default) | strong (2x256)."""
+    import torch.nn as nn
+    if cap == "linear":
+        return nn.Linear(din, dout)
+    if cap == "strong":
+        return nn.Sequential(nn.Linear(din, 256), nn.ReLU(), nn.Linear(256, 256), nn.ReLU(), nn.Linear(256, dout))
+    return _mlp(din, dout)
+
+
 def leakage_probe(backbone, Xprobe, yprobe, dprobe, Xeval, yeval, deval, n_cls,
-                  device="cpu", epochs=150, lr=2e-3, seed=0, reweight=False):
+                  device="cpu", epochs=150, lr=2e-3, seed=0, reweight=False, cap="mlp"):
     """Freeze backbone, fit a fresh q_probe(D|Z,Y) on a held-out source split, then on a
     second source split report mean KL(q_probe || pi_y) (residual I(Z;D|Y)) and the
     conditional-domain-prediction advantage over the label-only prior baseline.
@@ -118,7 +129,7 @@ def leakage_probe(backbone, Xprobe, yprobe, dprobe, Xeval, yeval, deval, n_cls,
         wp = torch.ones(len(dprobe), dtype=torch.float32, device=device)
         we = torch.ones(len(deval), dtype=torch.float32, device=device)
         log_ref = None
-    q = _mlp(backbone.z_dim + n_cls, n_dom).to(device)
+    q = _probe_net(backbone.z_dim + n_cls, n_dom, cap).to(device)
     opt = torch.optim.Adam(q.parameters(), lr=lr)
     inp_p = torch.cat([Zp, F.one_hot(yp, n_cls).float()], 1)
     for _ in range(epochs):

@@ -164,7 +164,10 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         wtr = np.ones(len(ytr), dtype="float32")
     ds = TensorDataset(torch.tensor(Xtr), torch.tensor(ytr), torch.tensor(dtr),
                        torch.tensor(wtr))
-    effective_sampler = "raw" if (is_dualpc or is_dualpc_hinge or is_dualpc_marginal) else sampler
+    # P2.3: any method applying GLS importance weights must use the RAW sampler — a class/domain-balanced sampler
+    # would impose a SECOND, implicit reference measure and double-balance. (dualc/dual+reweight also apply GLS.)
+    _uses_gls = is_dualpc or is_dualpc_hinge or is_dualpc_marginal or is_dualc or rw_dual
+    effective_sampler = "raw" if _uses_gls else sampler
     # dualpc variants apply explicit GLS weights to the P(Z) and P(Y|Z) CMI estimators. A class/domain-
     # balanced sampler would impose a second, implicit reference distribution and break those semantics.
     smp = _make_sampler(ytr, dtr, effective_sampler)
