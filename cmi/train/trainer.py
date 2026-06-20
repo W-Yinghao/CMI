@@ -168,7 +168,10 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     # dualpc variants apply explicit GLS weights to the P(Z) and P(Y|Z) CMI estimators. A class/domain-
     # balanced sampler would impose a second, implicit reference distribution and break those semantics.
     smp = _make_sampler(ytr, dtr, effective_sampler)
-    dl = DataLoader(ds, batch_size=bs, sampler=smp, shuffle=smp is None, drop_last=True)
+    # P2.4: drop_last only when the tail batch would be size 1 (which breaks BatchNorm); otherwise KEEP it so
+    # rare domain×class cells are not dropped (CMI is sensitive to them).
+    drop_last = (len(ds) % bs == 1)
+    dl = DataLoader(ds, batch_size=bs, sampler=smp, shuffle=smp is None, drop_last=drop_last)
 
     diag = dict(stepA_dom_correct=0, stepA_dom_total=0, inloop_reg=[],
                 sampler=effective_sampler)  # q_psi diagnostics

@@ -108,10 +108,20 @@ def _xs_save(out_path, args, cohorts, results):
     return out, summary
 
 
+def _seed_all(seed):
+    """P2.2: seed py/np/torch/cuda BEFORE build_backbone so every method/fold builds from the SAME init
+    (paired comparison; independent of config run order)."""
+    import random
+    random.seed(seed); np.random.seed(seed); torch.manual_seed(seed)
+    if torch.cuda.is_available():
+        torch.cuda.manual_seed_all(seed)
+
+
 def _train_on(args, X, y, dom_all, mask, cfg, n_cls, device):
     """Train a backbone on the subset X[mask] with config cfg (used by the nested source-domain selector)."""
     _, method, lam, gamma, z_margin, dec_scale = cfg
     d, _ = _remap(dom_all[mask])
+    _seed_all(args.seed)
     bb = build_backbone(args.backbone, X.shape[1], X.shape[2], n_cls, device=device)
     if args.beta > 0:
         from cmi.methods.vib import VIBBackbone
@@ -192,6 +202,7 @@ def run(args):
                 print(f"  [nested hold={hold}] only {len(src_cohorts)} source cohort(s) -> skip nested selection",
                       flush=True)
         for lbl, method, lam, gamma, z_margin, dec_scale in configs:
+            _seed_all(args.seed)                              # P2.2: same init across methods (paired comparison)
             bb = build_backbone(args.backbone, X.shape[1], X.shape[2], n_cls, device=device)
             if args.beta > 0:
                 from cmi.methods.vib import VIBBackbone

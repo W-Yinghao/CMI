@@ -44,3 +44,7 @@ Status snapshot at start of this batch (all pushed to `github.com/W-Yinghao/CMI`
 ## Decisions / findings log (appended as the batch runs)
 - (start) Beginning P1.1 recording-grouped leakage split: add `--leakage_split {random,grouped}` to
   `run_scps_crossdataset`; grouped assigns whole subjects to the probe-train vs probe-eval split.
+
+- (P2.2 ✅) seed py/np/torch/cuda BEFORE build_backbone (`_seed_all`) in config loop + nested `_train_on` — all methods/folds now share initialization (paired comparison, order-independent).
+- (P2.4 ✅) `drop_last` now only when the tail batch would be size 1 (BN-safe); otherwise keep it so rare domain×class cells survive.
+- NOTE: P2.2 changes initialization → the final frozen confirmatory run will re-derive the +3 numbers (robust across seeds, expected within noise). r11leak (P1.1) launched on OLD code is unaffected (it compares splits, not init).
