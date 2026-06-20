@@ -82,7 +82,7 @@ def run_stress():
     A = np.eye(8) + 0.6 * rng.normal(0, 1, (8, 8)) / np.sqrt(8); b = rng.normal(0, 2.0, 8)  # the SAME covariate shift
     zs, ys = sample(mu, np.ones(n_cls) / n_cls, 6000, seed=2)
     pi_S = np.ones(n_cls) / n_cls
-    print(f"  {'pi_T':14}{'native':>8}{'globalCORAL':>12}{'PMCT':>8}")
+    print(f"  {'pi_T':14}{'native':>8}{'plainCORAL':>11}{'matchCORAL':>11}{'PMCT':>8}  (decisive: PMCT vs matchCORAL)")
     fails = 0
     for p0 in [0.5, 0.8, 0.95, 1.0]:
         piT = np.array([p0, 1 - p0])
@@ -90,16 +90,43 @@ def run_stress():
         zt = zt_raw @ A.T + b
         nat = transduct_predict(zs, ys, zt, pi_S, n_cls, mode="probe")["prob"]
         cor = transduct_predict(zs, ys, zt, pi_S, n_cls, mode="coral")["prob"]
+        mco = transduct_predict(zs, ys, zt, pi_S, n_cls, mode="matched_coral")["prob"]   # de-confounded baseline
         pmc = transduct_predict(zs, ys, zt, pi_S, n_cls, mode="pmct")["prob"]
         bn = balanced_acc(nat.argmax(1), yt, n_cls); bc = balanced_acc(cor.argmax(1), yt, n_cls)
-        bp = balanced_acc(pmc.argmax(1), yt, n_cls)
+        bm = balanced_acc(mco.argmax(1), yt, n_cls); bp = balanced_acc(pmc.argmax(1), yt, n_cls)
         tag = ""
-        if p0 == 0.8 and not (bp > bc + 0.02):        # must clearly beat global-CORAL under moderate prior shift
-            fails += 1; tag = " <-- FAIL (no PMCT win)"
-        if p0 < 1.0 and bp < bc - 0.01:               # must never be worse than global-CORAL (except the unident. extreme)
-            fails += 1; tag = " <-- FAIL (worse than CORAL)"
-        print(f"  ({p0:.2f},{1-p0:.2f})  {bn:8.3f}{bc:12.3f}{bp:8.3f}{tag}")
-    print("  PMCT≈CORAL@balanced, >CORAL@prior-shift; (1.0,0.0)+strong-covariate = identifiability limit (any method fails)")
+        # the ONLY admissible PMCT claim: it beats MATCHED-CORAL (same shrink/gate/interp) under prior shift —
+        # isolating the prior-matched reference from the shrinkage/gate machinery.
+        if p0 == 0.8 and not (bp > bm + 0.01):
+            fails += 1; tag = " <-- FAIL (no PMCT-over-matchedCORAL win)"
+        if p0 < 1.0 and bp < bm - 0.02:
+            fails += 1; tag = " <-- FAIL (worse than matchedCORAL)"
+        print(f"  ({p0:.2f},{1-p0:.2f})  {bn:8.3f}{bc:11.3f}{bm:11.3f}{bp:8.3f}{tag}")
+    print("  decisive comparison is PMCT vs MATCHED-CORAL (identical machinery, ref-only difference); plainCORAL shown for context")
+    return fails
+
+
+def run_nullsafety():
+    """Exact null-safety regression test (reviewer §2.2): when the reference moments equal the target moments,
+    the whiten-color map must be EXACTLY the identity (same shrink operator applied to both sides). Also checks
+    the reliability gate does not over-damp a confident skewed target (the entropy-gate bug, reviewer §2.3)."""
+    from cmi.eval.label_shift import pmct_transport
+    print("=== Exact null-safety + reliability-gate regression ===")
+    rng = np.random.default_rng(1); d, n = 8, 500
+    mu = np.stack([rng.normal(0, 1, d), rng.normal(2, 1, d)]); y = rng.integers(0, 2, n)
+    z = mu[y] + rng.normal(0, 1, (n, d))
+    fails = 0
+    zt, _, _ = pmct_transport(z, y, z, 2, alpha=1.0, ref="pooled", gate="off")   # target==source ref => identity
+    err = float(np.abs(zt - z).max())
+    ok = err < 1e-7; fails += (not ok)
+    print(f"  exact identity when ref==target moments: max|T(z)-z|={err:.2e}  {'PASS' if ok else 'FAIL (not null-safe)'}")
+    # confident, well-separated, 90/10 skewed target: gate must NOT collapse alpha (prior is real, not unreliable)
+    mu2 = np.stack([rng.normal(0, 1, d), rng.normal(7, 1, d)])
+    ys = np.r_[np.zeros(450, int), np.ones(50, int)]; zs = mu2[ys] + rng.normal(0, 1, (500, d))
+    yb = rng.integers(0, 2, 500); zb = mu2[yb] + rng.normal(0, 1, (500, d))      # balanced source
+    ztk, _, pik = pmct_transport(zb, yb, zs, 2, alpha=1.0)
+    moved = float(np.abs(ztk - zs).mean()); ok2 = moved > 0.05; fails += (not ok2)
+    print(f"  confident-skewed target NOT over-damped: mean|Δz|={moved:.3f}  {'PASS' if ok2 else 'FAIL (gate killed a real prior)'}")
     return fails
 
 
@@ -158,5 +185,7 @@ if __name__ == "__main__":
     f2 = run_covariate()
     print()
     f3 = run_stress()
-    print(f"\n{'ALL PASS' if (f1 + f2 + f3) == 0 else f'{f1 + f2 + f3} FAILURES'}")
+    print()
+    f4 = run_nullsafety()
+    print(f"\n{'ALL PASS' if (f1 + f2 + f3 + f4) == 0 else f'{f1 + f2 + f3 + f4} FAILURES'}")
     raise SystemExit(1 if (f1 + f2 + f3) else 0)

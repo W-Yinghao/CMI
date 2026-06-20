@@ -2,8 +2,42 @@
 
 *Consolidated record of all code changes + experiments done after the review (the dualpc/Zhao positioning +
 the goal "develop a new algorithm that beats vanilla ERM on accuracy, not just leakage"). Companions:
-`notes/DUALPC2_RESULTS.md` (clean results), `notes/DUALPC2_DESIGN.md` (round log), `notes/DUALPC_SUMMARY.md`
-(old dualpc). Date: 2026-06-20.*
+`notes/DUALPC2_RESULTS.md` (clean results — AUTHORITATIVE), `notes/DUALPC2_DESIGN.md` (round log),
+`notes/DUALPC_SUMMARY.md` (old dualpc). Date: 2026-06-20.*
+
+---
+
+## LATEST STATE (R7–R9, authoritative — supersedes §1/§5/§6 below)
+Three review rounds later, the honest, audit-survived position is:
+
+**Headline (5-seed confirmatory running):** `CITA-nested + transductive alignment` (CMI-screened, nested
+leave-one-source-cohort-out selection — no oracle, no target labels, no in-sample leakage) beats ERM by **+3.0
+balanced accuracy on SCZ and PD** cross-site. The accuracy lever is the **transductive covariate alignment**
+(CORAL/matched-CORAL); the CMI/LPC component is the leakage controller + the applicability screen.
+
+**What each review round changed:**
+- **R1 deciding experiments (§6c–6e in RESULTS):** LPC×alignment interaction ≈0 (LPC not necessary for the gain);
+  fixed source-only selector; covariate-repair not mass-flip; gain is genuinely transductive (`ea_strict`).
+- **R2 implementation audit (§6f):** de-confounded PMCT vs **matched-CORAL** ⟹ **PMCT ≈ matched-CORAL on real EEG**
+  (the prior-matching wasn't the lever; the earlier edge was shrink/gate machinery) ⟹ **PMCT DEMOTED to a
+  prior-robustness ablation**. Plus exact null-safety, uncertainty (not entropy) gate, same-classifier diagnostic,
+  nested selector. The in-sample selector's +5.5 SCZ deflated to a rigorous +3.0.
+- **R3 "why not ERM+CORAL?" (§6g):** (a) selector ablation — CMI-guided selection ≈ accuracy-only on accuracy but
+  **2–3× lower leakage** (Pareto-safe, not an accuracy booster); (b) abstention — the residual-decoder-CMI screen
+  **detects** concept shift (disease ENABLE vs med-state ABSTAIN) and the **harm mechanism is real** (synthetic:
+  unconditional alignment costs −14 bAcc under a rotated boundary), but real med-state's shift is too mild for
+  abstention to be accuracy-protective yet.
+- **Gaussian-OT map (§5 of R2 review):** ≈ whiten-color (displacement is mean-dominated) ⟹ keep WC.
+
+**Honest framing:** a **CMI-screened transductive covariate-alignment framework** — modest accuracy gain over
+ERM+CORAL (+0.2…+1.1) but **2–3× lower deployment leakage** and a **validated concept-shift screen** (detector +
+mechanism). PMCT, prior-correction, single-class feature transport, and the OT map are documented negative/ablation
+controls. **Terminology: CMI-screened / CMI-guided, NOT "CMI-certified".** Remaining must-do: source-state
+serialization (source-free claim), 5-seed CIs (running), SPDIM/T3A baselines, batch-size curve, TUAB lockbox, and a
+real large-concept-shift task to make the abstention protective value load-bearing.
+
+*(The sections below are the original R0–R7 record, kept for history; where they conflict with the above, the
+above wins.)*
 
 ---
 

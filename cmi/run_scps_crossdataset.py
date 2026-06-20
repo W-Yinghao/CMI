@@ -89,7 +89,8 @@ def _xs_save(out_path, args, cohorts, results):
             summary[lbl]["probe_balanced_acc_mean"] = float(np.mean([x["probe_balanced_acc"] for x in r]))
             for k in [kk for kk in r[0] if kk.startswith("ts_") and kk.endswith("_balanced_acc")]:
                 summary[lbl][k + "_mean"] = float(np.mean([x[k] for x in r]))
-            for k in ("pmct_js_vs_native", "pmct_flip_frac", "pmct_conf_change"):   # predictor diagnostics (#4)
+            for k in ("pmct_js_vs_probe", "pmct_flip_frac", "pmct_conf_change", "probe_vs_head_agree",
+                      "pmct_w2c", "pmct_c2w", "pmct_net_correction"):                  # diagnostics (#4)
                 if k in r[0]:
                     summary[lbl][k] = float(np.mean([x[k] for x in r]))
         add_decoder_valid_means(summary[lbl], r)
@@ -107,6 +108,23 @@ def _xs_save(out_path, args, cohorts, results):
     return out, summary
 
 
+def _train_on(args, X, y, dom_all, mask, cfg, n_cls, device):
+    """Train a backbone on the subset X[mask] with config cfg (used by the nested source-domain selector)."""
+    _, method, lam, gamma, z_margin, dec_scale = cfg
+    d, _ = _remap(dom_all[mask])
+    bb = build_backbone(args.backbone, X.shape[1], X.shape[2], n_cls, device=device)
+    if args.beta > 0:
+        from cmi.methods.vib import VIBBackbone
+        bb = VIBBackbone(bb, n_cls).to(device)
+    bb, _, _ = train_model(bb, X[mask], y[mask], d, n_cls, method=method, lam=lam, gamma=gamma, beta=args.beta,
+                           balance=args.balance, dec_margin=resolve_dec_margin(method, args.dec_margin),
+                           z_margin=z_margin, dec_scale=dec_scale, label_correct=args.label_correct,
+                           reweight_dual=args.reweight_dual, epochs=args.epochs, bs=args.bs, warmup=args.warmup,
+                           n_inner=args.n_inner, sampler=args.sampler, prior_mode=args.prior,
+                           device=device, seed=args.seed)
+    return bb
+
+
 def run(args):
     if args.device == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("--device cuda requested, but CUDA is not available")
@@ -118,6 +136,8 @@ def run(args):
           f"y={np.bincount(y)} domain={args.domain}", flush=True)
     configs = [parse_cfg(c) for c in args.configs]
     results = {lbl: [] for lbl, *_ in configs}
+    if args.select == "nested":
+        results["CITA_nested"] = []                       # fixed selector picks lambda* per fold (no oracle)
 
     for hold in cohorts:                                  # leave-one-cohort-out
         te = coh == hold; tr = ~te
@@ -139,6 +159,27 @@ def run(args):
         # source-internal split for the leakage probe
         rng = np.random.default_rng(args.seed); idx = rng.permutation(len(Xtr)); cut = int(0.7 * len(idx))
         pi, ei = idx[:cut], idx[cut:]
+        # NESTED SOURCE-DOMAIN SELECTOR (reviewer §1): inner leave-one-source-cohort-out cross-validation.
+        # The model is NEVER trained on its validation domain (fixes the in-sample sv_bacc). val bAcc measures
+        # cross-DOMAIN generalization (the real selection target); leakage (lk_rw) is the tie-break within eps.
+        inner_val = {}
+        if args.select == "nested":
+            src_cohorts = [c for c in cohorts if c != hold]
+            dom_all = subj if args.domain == "subject" else coh
+            if len(src_cohorts) >= 2:
+                acc = {lbl: [] for lbl, *_ in configs}
+                for dv in src_cohorts:                    # hold out one SOURCE cohort, train on the rest
+                    fit = (coh != hold) & (coh != dv); ev = (coh == dv)
+                    for cfg in configs:
+                        bbv = _train_on(args, X, y, dom_all, fit, cfg, n_cls, device)
+                        acc[cfg[0]].append(float(balanced_accuracy_score(y[ev],
+                                                                         predict(bbv, X[ev], device).argmax(1))))
+                inner_val = {lbl: float(np.mean(v)) for lbl, v in acc.items()}
+                print(f"  [nested hold={hold}] inner LOSDO val bAcc: " +
+                      " ".join(f"{l}={inner_val[l]*100:.1f}" for l in inner_val), flush=True)
+            else:
+                print(f"  [nested hold={hold}] only {len(src_cohorts)} source cohort(s) -> skip nested selection",
+                      flush=True)
         for lbl, method, lam, gamma, z_margin, dec_scale in configs:
             bb = build_backbone(args.backbone, X.shape[1], X.shape[2], n_cls, device=device)
             if args.beta > 0:
@@ -167,13 +208,21 @@ def run(args):
                           for md, p in probs.items()}
                     ts["ts_balanced_acc"] = ts["ts_coral_balanced_acc"]
                     ts["probe_balanced_acc"] = ts["ts_probe_balanced_acc"]
-                    # PREDICTOR DIAGNOSTICS (#4): how much does PMCT *change* the native predictions?
-                    pm, pr0 = probs["pmct"], np.clip(prob, 1e-9, 1)
-                    pmc = np.clip(pm, 1e-9, 1); mid = 0.5 * (pr0 + pmc)
-                    ts["pmct_js_vs_native"] = float((0.5 * (pr0 * np.log(pr0 / mid)).sum(1)
-                                                     + 0.5 * (pmc * np.log(pmc / mid)).sum(1)).mean())
-                    ts["pmct_flip_frac"] = float((prob.argmax(1) != pm.argmax(1)).mean())
-                    ts["pmct_conf_change"] = float(pm.max(1).mean() - prob.max(1).mean())
+                    # PREDICTOR DIAGNOSTICS (#4) — SAME-CLASSIFIER (reviewer §1.2): compare the frozen source
+                    # readout on z (probe) vs on T(z) (pmct), so flips isolate the TRANSPORT, not a classifier
+                    # swap. (Also report probe-vs-EEGNet-head agreement so 'predictor-preserving' is honest.)
+                    pr0 = np.clip(probs["probe"], 1e-9, 1); pm = np.clip(probs["pmct"], 1e-9, 1)
+                    mid = 0.5 * (pr0 + pm)
+                    ts["pmct_js_vs_probe"] = float((0.5 * (pr0 * np.log(pr0 / mid)).sum(1)
+                                                    + 0.5 * (pm * np.log(pm / mid)).sum(1)).mean())
+                    bp_, ap_ = probs["probe"].argmax(1), probs["pmct"].argmax(1)
+                    ts["pmct_flip_frac"] = float((bp_ != ap_).mean())
+                    ts["pmct_conf_change"] = float(probs["pmct"].max(1).mean() - probs["probe"].max(1).mean())
+                    ts["probe_vs_head_agree"] = float((bp_ == prob.argmax(1)).mean())
+                    # NET CORRECTION (reviewer): is the alignment FIXING errors or just reshuffling predictions?
+                    ts["pmct_w2c"] = float(((bp_ != yte) & (ap_ == yte)).mean())     # wrong -> correct
+                    ts["pmct_c2w"] = float(((bp_ == yte) & (ap_ != yte)).mean())     # correct -> wrong
+                    ts["pmct_net_correction"] = ts["pmct_w2c"] - ts["pmct_c2w"]
                 else:
                     tp = transduct_predict(z_se, ytr[ei], z_te, pi_S, n_cls, mode=args.transduct,
                                            shrink=args.transduct_shrink, gate_l1=args.transduct_gate)
@@ -220,7 +269,7 @@ def run(args):
                        inloop_dec_loss=diag.get("inloop_dec_loss", 0.0),
                        train_dec_margin=diag.get("dec_margin", resolve_dec_margin(method, args.dec_margin)),
                        train_sampler=diag.get("sampler", args.sampler), n_test=int(te.sum()),
-                       source_val_bacc=sv_bacc, **ts)
+                       source_val_bacc=sv_bacc, nested_val_bacc=inner_val.get(lbl), **ts)
             for src, prefix, key in ((dlk, "decoder_cmi_res", "decoder_cmi_res"),
                                      (dlk_rw, "decoder_cmi_res_rw", "decoder_cmi_res"),
                                      (dlk, "decoder_js_res", "decoder_js_res"),
@@ -230,6 +279,15 @@ def run(args):
                     rec[f"{prefix}_excess"] = src[f"{key}_excess"]
             results[lbl].append(rec)
             print(f"  hold={hold:9s} {lbl:14s} bAcc={ba*100:5.1f} leakKL={lk['leakage_kl']:.3f}", flush=True)
+        if args.select == "nested" and inner_val:     # FIXED selection: lambda* = argmin leakage s.t. valBAcc >= max-eps
+            recs = {lbl: results[lbl][-1] for lbl, *_ in configs}
+            best = max(inner_val.values())
+            cand = [lbl for lbl in inner_val if inner_val[lbl] >= best - args.select_eps]
+            lam_star = min(cand, key=lambda l: recs[l].get("leakage_advantage_rw", 0.0))
+            sel = dict(recs[lam_star]); sel["selected_lbl"] = lam_star
+            results["CITA_nested"].append(sel)
+            print(f"  [nested hold={hold}] -> selected '{lam_star}' (cand={cand}, "
+                  f"valBAcc={inner_val[lam_star]*100:.1f})", flush=True)
         if args.out:                                  # INCREMENTAL: persist after each held-out cohort
             _xs_save(args.out, args, cohorts, results)
             print(f"  [ckpt] cohort {hold} done -> {args.out}", flush=True)
@@ -272,6 +330,10 @@ def main():
                     help="CIPC transductive correction (coral=balanced-acc lever; all=ablation ladder)")
     ap.add_argument("--transduct_shrink", type=float, default=0.1)
     ap.add_argument("--transduct_gate", type=float, default=0.0)
+    ap.add_argument("--select", default="insample", choices=["insample", "nested"],
+                    help="lambda selector: insample (legacy sv_bacc) | nested (leave-one-source-cohort-out CV, no oracle)")
+    ap.add_argument("--select_eps", type=float, default=0.02,
+                    help="nested selector: keep configs within eps of best val bAcc, then pick lowest leakage")
     ap.add_argument("--target_prior", type=float, default=-1.0,
                     help="stress test: subsample held-out cohort (binary) to this majority-class fraction")
     ap.add_argument("--dec_margin", type=float, default=None,

@@ -86,3 +86,19 @@ baseline IS `native` (any feature recenter needs target stats), so the full cora
 Target balanced accuracy **> ERM** by a clear margin with non-overlapping seed CIs, on ≥2 real datasets, while
 leakage stays at the `lpc_prior` floor. Round-1 clears it on MI (BNCI2014_001 +3.2, Cho +2.1, Lee +1.7);
 Round-2 must extend it to the SCPS disease regime.
+
+## Round log R3–R9 (compact — full detail in `DUALPC2_RESULTS.md` §5–§6g + memory `cmi-experiment-log.md`)
+- **R3** ablation ladder: `coral`≫`native`, `probe`≈`native`, `prior`≪`native` (BBSE re-prior hurts BA). CORAL is the lever.
+- **R4/R6** within-dataset SCPS: raw EA works on single-class targets; feature-CORAL/PMCT collapse (single-class = ill-posed).
+- **R5/R7.1** PMCT introduced + cohort-level cross-site (PMCT≥CORAL synthetic, ≈CORAL real — early/confounded).
+- **R7.3/7.4/diag** real-data prior stress; fixed source-only (in-sample) selector → +2.1/+5.5; predictor diagnostics; `ea_strict` ⟹ gain is transductive.
+- **R8 audit:** de-confounded PMCT vs **matched-CORAL** ⟹ **PMCT≈matched-CORAL on real EEG (DEMOTED)**; exact null-safety; uncertainty gate (not entropy); same-classifier diagnostics; **nested source-domain selector** ⟹ rigorous **+3.0 SCZ/PD** (in-sample +5.5 deflated). OT map ≈ WC (kept WC).
+- **R8-review:** selector ablation ⟹ CMI-guided selection = Pareto-safe (≈acc, 2–3× lower leakage), not accuracy booster.
+- **R9 abstention:** CMI screen DETECTS concept shift (disease ENABLE / med-state ABSTAIN) + synthetic harm-mechanism (align −14 bAcc under rotated boundary); real med-state too mild for abstention to be accuracy-protective yet.
+
+## Current method (post-R8): *diagnose → SELECT → preserve → align*
+**CMI-screened transductive covariate alignment.** Diagnose concept-null on source domains; **nested
+leave-one-source-cohort-out** select ERM-vs-CMI-regularized representation (λ*=argmin leakage s.t. valBAcc≥max−ε,
+no oracle); freeze the predictor; align unlabeled target covariates with shrink-gated CORAL/matched-CORAL. PMCT =
+prior-robustness ablation, not the method. Headline **+3.0 over ERM** (SCZ/PD), Pareto-safe low-leakage selection,
+validated concept-shift screen. (Terminology: **CMI-screened/CMI-guided**, not "CMI-certified".)

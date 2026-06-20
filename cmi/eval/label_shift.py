@@ -143,17 +143,19 @@ def transduct_predict(z_src, y_src, z_tgt, pi_S, n_cls, mode="coral", shrink=0.1
     def full(p):                                          # pad to n_cls columns if a class is absent in source-eval
         out = np.zeros((len(p), n_cls)); out[:, cls] = p; return out
     prob_raw = full(clf.predict_proba(z_tgt))
-    pi_T = None
-    if mode == "pmct":                                    # prior-matched conditional transport (unified)
-        _, prob, pi_T = pmct_transport(z_src, y_src, z_tgt, n_cls, clf=clf)
-        return dict(prob=prob, prob_probe_raw=prob_raw, pi_T=pi_T.tolist())
-    z_in = feature_coral_recenter(z_src, z_tgt) if mode in ("coral", "coral_prior") else z_tgt
-    prob = full(clf.predict_proba(z_in))
+    pi_T, z_tilde = None, z_tgt
+    if mode in ("pmct", "matched_coral"):                 # whiten-color transport (shared machinery; ref differs)
+        ref = "pooled" if mode == "matched_coral" else "prior_matched"
+        z_tilde, prob, pi_T = pmct_transport(z_src, y_src, z_tgt, n_cls, rho=shrink, clf=clf, ref=ref)
+        return dict(prob=prob, prob_probe_raw=prob_raw, pi_T=pi_T.tolist(), z_tilde=z_tilde)
+    z_tilde = feature_coral_recenter(z_src, z_tgt) if mode in ("coral", "coral_prior") else z_tgt
+    prob = full(clf.predict_proba(z_tilde))
     if mode in ("prior", "coral_prior"):
         prob_se = full(clf.predict_proba(z_src))
         pi_T = bbse_prior(prob_se, y_src, prob, pi_S, n_cls, method="em", shrink=shrink)
         prob = apply_correction(prob, pi_T, pi_S, gate_l1=gate_l1)
-    return dict(prob=prob, prob_probe_raw=prob_raw, pi_T=(pi_T.tolist() if pi_T is not None else None))
+    return dict(prob=prob, prob_probe_raw=prob_raw, pi_T=(pi_T.tolist() if pi_T is not None else None),
+                z_tilde=z_tilde)
 
 
 def _shrink_cov(C, rho, eps):
@@ -162,44 +164,62 @@ def _shrink_cov(C, rho, eps):
 
 
 def pmct_transport(z_src, y_src, z_tgt, n_cls, alpha=1.0, eps=1e-3, rho=0.2, em_iters=3, clf=None,
-                   support_gate=True):
-    """Prior-Matched Conditional Transport. Align the target to a PRIOR-MATCHED source mixture (not the pooled
-    source), so label-prior shift is not mistaken for covariate shift. Unifies CORAL/EA: one-hot pi_hat_T ->
-    single-class reference (no catastrophic single-class collapse); mixed pi -> mixture-matched CORAL. Uses the
-    SOURCE class-conditional moments {mu_y^S, Sigma_y^S} (the same P(z|y) lpc_prior makes invariant) — the shared
-    statistic that couples Stage 1 and Stage 2. EM-iterates pi_hat_T (align -> re-estimate -> re-align) since the
-    prior estimate on a shifted target is itself biased. Returns (z_tilde, prob, pi_T)."""
+                   gate="reliability", kappa=8.0, ref="prior_matched", tmap="wc"):
+    """Prior-Matched Covariance Transport (PMCT). Whiten-color the target onto a source reference, with the
+    reference built from the SOURCE class-conditional moments {mu_y^S, Sigma_y^S} matched to the estimated
+    target prior pi_hat_T — so label-prior shift is not mistaken for covariate shift.
+      ref='prior_matched' : (mu_R,Sig_R) = sum_y pi_hat_T(y) [mu_y^S, Sig_y^S+(mu_y^S-mu_R)(.)^T]  (PMCT)
+      ref='pooled'        : (mu_R,Sig_R) = pooled source (mu_S,Sig_S)                               (MATCHED-CORAL:
+                            identical shrink/gate/interp machinery, ONLY the reference differs — isolates the
+                            prior-matching effect for the causal ablation).
+    EXACT null-safety: the SAME shrink operator S_rho is applied to BOTH the reference and the target covariance,
+    so raw-moment equality => T(z)=z (unit-tested). RELIABILITY GATE (replaces the old entropy gate, which wrongly
+    damped genuinely-skewed priors): alpha_eff = alpha * g_cov * g_unc, where g_unc=exp(-kappa*trace(Cov(soft preds)))
+    keys on prior-ESTIMATE uncertainty (low when the estimate is confident, even if skewed), NOT on prior skew.
+    Returns (z_tilde, prob, pi_T)."""
     from sklearn.linear_model import LogisticRegression
     z_src, z_tgt = np.asarray(z_src, float), np.asarray(z_tgt, float)
-    d = z_src.shape[1]
+    d, n_T = z_src.shape[1], len(z_tgt)
     mu_y = np.stack([z_src[y_src == c].mean(0) if (y_src == c).any() else z_src.mean(0) for c in range(n_cls)])
-    Sig_y = [_shrink_cov(np.cov(z_src[y_src == c], rowvar=False), rho, eps) if (y_src == c).sum() > d
-             else np.eye(d) for c in range(n_cls)]
-    mu_T = z_tgt.mean(0)
-    Wt_inv = _sqrtm(_shrink_cov(np.cov(z_tgt, rowvar=False), rho, eps), eps, inv=True)   # (Sigma_T)^{-1/2}
+    Sig_y0 = [np.cov(z_src[y_src == c], rowvar=False) if (y_src == c).sum() > d else np.eye(d)   # RAW (unshrunk)
+              for c in range(n_cls)]
+    mu_pool, Sig_pool0 = z_src.mean(0), np.cov(z_src, rowvar=False)
+    mu_T, Sig_T0 = z_tgt.mean(0), np.cov(z_tgt, rowvar=False)
+    bar_Sig_T = _shrink_cov(Sig_T0, rho, eps)                              # target cov, shrunk ONCE
+    Wt_inv = _sqrtm(bar_Sig_T, eps, inv=True)                              # Sigma_T^{-1/2}
+    St_half = _sqrtm(bar_Sig_T, eps) if tmap == "ot" else None             # Sigma_T^{1/2} (Gaussian-OT map only)
     if clf is None:
         clf = LogisticRegression(max_iter=2000, C=1.0).fit(z_src, y_src)
     cls = clf.classes_
 
     def _full(p):
         out = np.zeros((len(p), n_cls)); out[:, cls] = p; return out
-    # bootstrap pi_hat_T from a COVARIATE-corrected (global-CORAL) classification, not the raw (miscalibrated)
-    # target — avoids the chicken-and-egg where a strongly-shifted target gives a wrong prior.
-    pi = _simplex_clip(_full(clf.predict_proba(feature_coral_recenter(z_src, z_tgt))).mean(0))
-    # SUPPORT-AWARE GATE alpha_T = alpha0 * g_support * g_cov: when the target support collapses toward a single
-    # class (H(pi_hat_T)->0) or there are too few target samples for a reliable d-dim covariance, alpha_T->0 and
-    # PMCT degrades to IDENTITY (null-safe) instead of distorting the single-class target (the R6/MUMTAZ crash).
-    g_cov = float(np.clip(len(z_tgt) / (2.0 * d), 0.0, 1.0)) if support_gate else 1.0
-    z_tilde, prob, alpha_eff = z_tgt, None, alpha
+    # bootstrap pi_hat_T from a COVARIATE-corrected (global-CORAL) classification (not the raw miscalibrated target)
+    P0 = _full(clf.predict_proba(feature_coral_recenter(z_src, z_tgt)))
+    pi = _simplex_clip(P0.mean(0))
+    # ---- reliability gate (uncertainty of the prior estimate + covariance sample size), NOT entropy ----
+    if gate == "off":
+        g = 1.0
+    else:
+        g_cov = float(np.clip(n_T / (2.0 * d), 0.0, 1.0))
+        se = float(np.trace(np.cov(P0, rowvar=False)) / max(n_T, 1))       # var of the mean soft-pred (prior SE)
+        g_unc = float(np.exp(-kappa * se * n_T)) if gate == "entropy" else float(np.exp(-kappa * se))
+        g = g_cov * g_unc
+    z_tilde, prob, alpha_eff = z_tgt, None, alpha * g
     for _ in range(max(1, em_iters)):
-        if support_gate:
-            H = float(-(pi * np.log(np.clip(pi, 1e-12, 1.0))).sum())
-            g_support = (H / np.log(n_cls)) if n_cls > 1 else 1.0        # 1 at balanced, ->0 at single-class
-            alpha_eff = alpha * g_support * g_cov
-        mu_R = (pi[:, None] * mu_y).sum(0)
-        Sig_R = sum(pi[c] * (Sig_y[c] + np.outer(mu_y[c] - mu_R, mu_y[c] - mu_R)) for c in range(n_cls))
-        M = _sqrtm(Sig_R + eps * np.eye(d), eps) @ Wt_inv                     # Sigma_R^{1/2} Sigma_T^{-1/2}
+        if ref == "pooled":
+            mu_R, Sig_R0 = mu_pool, Sig_pool0                              # matched-CORAL reference
+        else:
+            mu_R = (pi[:, None] * mu_y).sum(0)
+            Sig_R0 = sum(pi[c] * (Sig_y0[c] + np.outer(mu_y[c] - mu_R, mu_y[c] - mu_R)) for c in range(n_cls))
+        bar_Sig_R = _shrink_cov(Sig_R0, rho, eps)                          # SAME operator as target => exact null-safe
+        if tmap == "ot":                                                   # Gaussian-OT (Bures) map: MIN mean-sq
+            inner = _sqrtm(St_half @ bar_Sig_R @ St_half, eps)             # displacement among maps matching Sig_R;
+            M = Wt_inv @ inner @ Wt_inv                                    # A_OT=Sig_T^{-1/2}(Sig_T^{1/2}Sig_R Sig_T^{1/2})^{1/2}Sig_T^{-1/2}
+        else:                                                              # whiten-color (default)
+            M = _sqrtm(bar_Sig_R, eps) @ Wt_inv                           # bar_Sig_R^{1/2} bar_Sig_T^{-1/2}
         Tz = mu_R + (z_tgt - mu_T) @ M.T
+        alpha_eff = alpha * g
         z_tilde = (1 - alpha_eff) * z_tgt + alpha_eff * Tz
         p = clf.predict_proba(z_tilde)
         prob = np.zeros((len(p), n_cls)); prob[:, cls] = p
@@ -210,13 +230,15 @@ def pmct_transport(z_src, y_src, z_tgt, n_cls, alpha=1.0, eps=1e-3, rho=0.2, em_
     return z_tilde, prob, pi
 
 
-def transduct_all(z_src, y_src, z_tgt, pi_S, n_cls, shrink=0.1):
+def transduct_all(z_src, y_src, z_tgt, pi_S, n_cls, shrink=0.1, return_ztilde=False):
     """Compute the predictions for ALL transduct modes from one (z_src, z_tgt) embedding — the ablation ladder
-    in a single pass. Returns {mode: prob} for probe/coral/prior/coral_prior."""
-    out = {}
-    for mode in ("probe", "coral", "prior", "coral_prior", "pmct"):
-        out[mode] = transduct_predict(z_src, y_src, z_tgt, pi_S, n_cls, mode=mode, shrink=shrink)["prob"]
-    return out
+    in a single pass. Returns {mode: prob}; if return_ztilde, also {mode: z_tilde} for the original-head path.
+    Includes matched_coral (PMCT machinery with a POOLED reference) — the de-confounded CORAL baseline."""
+    out, ztil = {}, {}
+    for mode in ("probe", "coral", "prior", "coral_prior", "matched_coral", "pmct"):
+        r = transduct_predict(z_src, y_src, z_tgt, pi_S, n_cls, mode=mode, shrink=shrink)
+        out[mode] = r["prob"]; ztil[mode] = r.get("z_tilde")
+    return (out, ztil) if return_ztilde else out
 
 
 def cipc_predict(prob_src_eval, y_src_eval, prob_tgt, pi_S, n_cls,

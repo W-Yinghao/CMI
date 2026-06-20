@@ -8,36 +8,49 @@ prior-correction component is now a negative ablation, not part of the method.)*
 
 ## 0. COMPLETE RESULTS AT A GLANCE (the authoritative summary)
 **Method (one line):** CMI verifies the source decision rule is domain-stable (`I(Y;D|Z)≈0`, positive-control
-validated) → a **source-only λ selector** fixes the representation (λ=0=ERM) → **PMCT** aligns only the
-*unlabeled target covariates* to a prior-matched source conditional geometry. **Transductive / test-time**, not
-strict DG.
+validated) → a **nested source-domain λ selector** fixes the representation (λ=0=ERM) → **closed-form transductive
+covariate alignment** (CORAL/matched-CORAL) moves only the *unlabeled target covariates* onto the source
+class-conditional geometry, with a **frozen** source readout. **Transductive / test-time**, not strict DG.
 
-**★ HEADLINE — fixed algorithm `CITA-selected + PMCT` vs vanilla ERM (no target labels, no per-dataset picking):**
-| | ERM | **CITA-selected+PMCT** | gain |
+**★ HEADLINE (Round-8, RIGOROUS) — `CITA-nested + transductive alignment` vs ERM** (nested leave-one-source-cohort-out
+selector ⟹ no oracle, no target labels, no in-sample selection; 2 seeds):
+| | ERM | **CITA-nested + align** | gain |
 |---|---|---|---|
-| SCZ cross-site | 50.3 | **55.8** | **+5.5** |
-| PD cross-site | 59.2 | **61.3** | **+2.1** |
+| SCZ cross-site | 52.4 | **55.4** | **+3.0** |
+| PD cross-site | 58.0 | **61.0** | **+3.0** |
+*(The earlier in-sample-selector "+5.5 SCZ" deflated to +3.0 under proper nested CV — the audit caught real
+selection optimism.)* The aligner is **CORAL ≈ matched-CORAL ≈ PMCT on real EEG** (see PMCT note below).
+
+**PMCT verdict (Round-8 de-confounding):** once compared against **matched-CORAL** (PMCT's *exact* shrink/gate/
+interpolation machinery, pooled reference), **PMCT ≈ matched-CORAL on real EEG** (Δ = −0.3…+0.3, natural prior AND
+at moderate prior shift 0.7). The earlier "+0.5…+0.9 PMCT>CORAL" was the **machinery, not the prior-matching**.
+⟹ **PMCT is DEMOTED to a prior-robustness ablation** (its prior-matched reference helps only under large, clean,
+estimable prior shift — synthetic: +5.9 @(.8,.2); real EEG prior shift is too modest/noisy to exploit). The
+real-data headline aligner is plain/matched-CORAL.
 
 **Main results by regime (best transductive-aligned vs ERM, multi-seed):**
 | regime (target class support) | datasets | gain over ERM |
 |---|---|---|
 | MI, leave-1-subject-out (multi-class) — feature-CORAL | BNCI2014_001 **+3.2**, Cho2017 +2.1, Lee2019 +1.7 | (BNCI2014_004 flat) |
-| Disease cross-site, leave-1-cohort-out (multi-class) — CORAL/PMCT | SCZ **+3.7**, PD **+2.6** | all seeds + |
+| Disease cross-site, leave-1-cohort-out (multi-class) — CORAL | SCZ **+3.0**, PD **+3.0** (nested) | both seeds + |
 | Within-dataset SCPS, leave-1-subject-out (single-class) — raw EA | MUMTAZ **+3.6**, ADFTD +2.6 | feature-CORAL invalid here (negative control) |
 
 **Mechanism (ablation ladder):** `coral` ≫ `native` (+1.9…+4.3); `probe` ≈ `native` (gain is the alignment, not
-the probe); **`prior` ≪ `native`** (BBSE re-prior HURTS balanced acc — negative control); single-class
-feature-CORAL collapses −8…−32 (negative control).
+the probe); **`prior` ≪ `native`** (BBSE re-prior HURTS balanced acc — negative control); **`matched_coral` ≈
+`coral`** (the shrink/gate machinery isn't the lever); single-class feature-CORAL collapses −8…−32 (negative control).
 
-**Review-round deciding experiments — 4/4 done:** (1) LPC×alignment interaction ≈0 → **LPC not necessary**
-(alignment is the lever, LPC = independent leakage component); (2) real-data prior stress → **PMCT > CORAL
-+0.5…+0.9** at moderate shift; (3) **fixed source-only selector** = the headline above; (4) predictor
-diagnostics → PMCT flips only 17–27% of preds (Δconf±0.02) while acc ↑ ⟹ **repairs covariate displacement,
-not mass-flip**. Plus: `ea_strict` (strict-DG) is +1.3…+5.7 *worse* than `ea` ⟹ **the gain is genuinely
-transductive**.
+**Predictor diagnostics (Round-8, same-classifier):** alignment flips only **17–23%** of predictions (JS 0.05–0.08),
+and the frozen readout agrees with the EEGNet head **94–96%** of the time ⟹ **predictor-preserving is honest** (the
+readout ≈ the trained head) and the alignment **repairs covariate-displaced samples, not mass-flips** them.
 
-**Raw results:** `results/r{1,2,3,4,6,7,7stress,7sel,7diag}_dualpc2/*.json`. Detailed sections below (§1 method,
-§4 main, §5 ablation, §6–6e review-response, §7 limitations, §9 next).
+**Review rounds — both addressed:** R1 deciding experiments (LPC not necessary; fixed selector; covariate-repair;
+transductive) + R2 implementation audit (de-confounded PMCT vs matched-CORAL; exact null-safety; reliability gate;
+nested selector). Net: the honest contribution is **CMI-screened transductive covariate alignment that beats ERM
++3.0 with a no-oracle selector**; PMCT is an ablation, not the hero. *(Terminology: "CMI-screened" / "CMI-guided"
+— NOT "CMI-certified": the source-domain concept-null screen does not guarantee any unseen target is concept-shift-free.)*
+
+**Raw results:** `results/r{1,2,3,4,6,7,7stress,7sel,7diag,8}_dualpc2/*.json`. Detailed sections below (§1 method,
+§4 main, §5 ablation, §6–6f review-response + audit, §7 limitations, §9 next).
 
 ---
 
@@ -218,6 +231,100 @@ mass-flip), Δconf±0.02, while bAcc rises +2.7…+4.3 ⟹ the moderate targeted
 samples, not wholesale relabeling (PD erm 58.9→63.1 flip 25.9% JS 0.107; SCZ lpc 51.6→54.3 flip 17.4% JS 0.053).
 Plus the transductive-vs-strict-DG ablation (§6): `ea_strict` +1.3…+5.7 worse than `ea` ⟹ gain is genuinely
 transductive. The method is de-risked against this review round.
+
+## 6f. Round-8 — implementation–claim AUDIT (second review round; code fixes before new modules)
+A code-audit review found three implementation gaps where the code under-delivered the claims. **All fixed in
+code (CPU-tested) AND re-validated on real EEG (`results/r8_dualpc2/`, 8 jobs, 2 seeds, DONE).**
+
+**REAL-DATA VERDICT (the decisive outcome):**
+- **PMCT ≈ matched-CORAL on real EEG.** De-confounded ladder (natural prior): `PMCT − matchedCORAL` = −0.2/−0.1/−0.2
+  (PD erm/lpc/nested), −0.1/+0.1/−0.2 (SCZ). Stress at prior 0.7: −0.3/−0.2 (PD), +0.3/−0.3 (SCZ). The earlier
+  "+0.5…+0.9 PMCT>CORAL" was the shrink/gate/interp machinery, **not** the prior-matched reference. ⟹ **PMCT
+  demoted to a prior-robustness ablation** (helps only under large clean prior shift; synthetic de-confounded
+  test: PMCT > matched-CORAL +5.9 @(.8,.2), but real EEG prior shift is too modest/noisy to exploit).
+- **Nested-selected headline HOLDS and is now rigorous:** `CITA_nested` (inner leave-one-source-cohort-out, no
+  oracle/in-sample) + alignment beats ERM **+3.0 SCZ / +3.0 PD**. The in-sample selector's +5.5 SCZ deflated to
+  +3.0 — the audit caught genuine selection optimism. Selector picks `lpc_prior:0.3` on shifted folds.
+- **Same-classifier diagnostics (confound removed):** flip 17–23%, JS 0.05–0.08, **probe=head agreement 94–96%**
+  ⟹ predictor-preserving is honest (the frozen readout reproduces the EEGNet head) and the alignment is
+  covariate-repair, not mass-flip — now established with ONE classifier (z vs T(z)), not head-vs-probe.
+
+**Gaussian-OT (Bures) map ablation (reviewer §5):** added `tmap='ot'` — the minimal-mean-square-displacement
+Monge map `A_OT=Σ_T^{−1/2}(Σ_T^{1/2}Σ_RΣ_T^{1/2})^{1/2}Σ_T^{−1/2}` (also exactly null-safe, 1.4e-14). On the
+synthetic stress it is **indistinguishable from whiten-color** in bAcc, mean displacement, AND flip-rate (e.g.
+prior 0.8: bAcc .924 vs .925, |Δz| 1.863=1.863, flips 63.9% vs 64.2%) — because the displacement is dominated by
+the **mean recenter** `μ_R−μ_T` (identical for both maps); OT's covariance-displacement gain is second-order. ⟹
+**keep WC** (per the reviewer's contingency; doubly moot since PMCT is already demoted to an ablation).
+
+**Code fixes (all retained):**
+1. **De-confounded PMCT vs CORAL.** The old `coral` differed from `pmct` in shrinkage+gate+interpolation, not
+   just the reference (and `--transduct_shrink` was never wired to PMCT's `rho`). Added **`matched_coral`**:
+   PMCT's *exact* machinery (same `rho`, gate, interpolation) with a **pooled** reference instead of the
+   prior-matched one — so the only difference is the reference. Now the admissible claim is **PMCT > matched-CORAL**.
+   *Synthetic de-confounded stress (CPU): matched-CORAL ≈ plain-CORAL (0.866 vs 0.865), while PMCT beats
+   matched-CORAL by +5.9 @ prior (0.8,0.2), +2.6 @ (0.95,0.05)* — the shrink/gate machinery does NOT explain
+   PMCT's edge synthetically; real-data verdict pending R8.
+2. **Reliability gate replaces the entropy gate (my error).** The old `g_support=H(π̂_T)/logC` damped PMCT for
+   *genuinely* skewed priors (low entropy = real prior, not unreliable) — likely why the p=0.9 advantage
+   vanished. Replaced with **`g_unc=exp(−κ·Var(π̂_T))`** (keys on prior-estimate *uncertainty*, not skew) × `g_cov`.
+3. **Exact null-safety.** The same shrink operator `S_ρ` is now applied to BOTH the reference and target
+   covariance ⟹ raw-moment equality gives `T(z)=z` to **8.9e-15** (unit-tested, `test_label_shift.run_nullsafety`).
+4. **Same-classifier predictor diagnostic.** #4's flip/JS now compares the *frozen source readout* on `z` vs
+   `T(z)` (`probe`→`pmct`), not EEGNet-head-on-`z` vs probe-on-`T(z)` — isolating the TRANSPORT from a
+   classifier swap. Also logs `probe_vs_head_agree` so "predictor-preserving" is honest. (EEGNet's conv head
+   can't consume a pooled transported `z`; we preserve a frozen linear readout on the alignment embedding and
+   verify it matches the head's accuracy.)
+5. **Nested source-domain selector replaces in-sample `sv_bacc`.** `--select nested`: inner
+   leave-one-source-cohort-out CV — the model is **never trained on its validation domain**; `λ*=argmin leakage`
+   s.t. `valBAcc ≥ max−ε`. Emits a `CITA_nested` pseudo-config = the no-oracle, no-target-leakage headline.
+**Honest stance going in:** if real-data PMCT ≈ matched-CORAL, the headline becomes *"CMI-screened transductive
+alignment (matched-CORAL)"* with PMCT demoted to a prior-robustness ablation — the diagnose→preserve→align chain
+and the transductive ERM-beating gain stand regardless. (Still TODO: source-state serialization for strict
+source-free; pooled single-class metric; `Prior-Matched **Covariance** Transport` rename; doc HISTORY split.)
+
+## 6g. Round-8 review → "why is this not just ERM+CORAL?" — the CMI-value ablations
+The R8 reviewer accepted the demotion and sharpened everything to one question: *what is CMI's irreplaceable
+role?* Two ablations answer it.
+
+**(A) Selector ablation (GPU-free, from r8sel JSONs; aligner = matched-CORAL throughout):**
+| | SCZ bAcc | SCZ leak | PD bAcc | PD leak |
+|---|---|---|---|---|
+| ERM + matched-CORAL (fixed) | 54.4 | 0.308 | 61.0 | 0.147 |
+| accuracy-selector (nested bAcc) | 55.1 | 0.157 | 61.2 | 0.112 |
+| **CMI-selector = CITA** (nested bAcc + leakage tie-break) | **55.5** | **0.148** | **61.2** | **0.053** |
+| CMI-selector + native (no align) | 52.7 | — | 59.1 | — |
+
+⟹ **CMI-guided selection ≈ accuracy-only selection on accuracy, but Pareto-better on leakage** (PD 0.053 vs 0.112,
+≈2× lower at equal bAcc). **CMI is a Pareto-safe selection rule, NOT an accuracy booster.** The accuracy lever is
+the alignment (native→matched-CORAL = +2.8 SCZ / +2.1 PD, shared with ERM+CORAL). So *"why not ERM+CORAL?"* →
+**CITA gives a small accuracy gain (+1.1 SCZ / +0.2 PD) AND 2–3× lower deployment leakage** (Pareto), not a large
+accuracy jump. This is honest "outcome #2."
+
+**(B) Abstention control — CMI decides *when not to align* (Round-9 DONE, `results/r9_dualpc2/`).** A source-side
+gate `R_dec ≤ q^null_0.95 → align, else abstain`, same `--transduct all --decoder_null_perms 200 --dec_domain
+subject` on disease and med-state. **Nuanced, honest verdict:**
+- *Detection works (real):* residual decoder-CMI vs its permutation null **cleanly separates** the task families —
+  disease excess −0.005…−0.008 (≤null ⟹ **ENABLE**, alignment helps +1.6…+2.9), med-state excess +0.013/+0.028
+  (>null ⟹ **ABSTAIN**, concept shift detected). CMI is a valid concept-shift *detector*.
+- *But abstention is not yet accuracy-justified on real data:* med-state alignment **still helps** (+2.1 erm,
+  +0.5 lpc) — its concept shift is too mild for covariate alignment to turn harmful (covariate shift still
+  dominates). So the binary gate is *conservative* here, not protective. (Only hint of the mechanism: the
+  highest-excess fold, PDMED-lpc +0.028, has the smallest gain +0.5.)
+- *Mechanism shown synthetically (the regime where it matters):* covariate-shifted target + a decision boundary
+  **rotated by θ** — alignment flips from neutral to **harmful** as θ grows (Δ_align: +0.1 → −4.5 → −11.3 →
+  **−13.7** bAcc at θ=30/45/60°), and the decoder-CMI residual rises **monotonically** (0.001→0.027) tracking the
+  harm. ⟹ the *mechanism* justifying abstention is real; **when concept shift is large, unconditional alignment
+  (= ERM+CORAL) costs up to ~14 points, and the CMI residual flags it.**
+- **Honest claim:** CMI is a **validated concept-shift screen** (real-data detection + synthetic
+  harm-mechanism). The binary gate's *real-data harm-prevention* value awaits a real task with large concept shift
+  + covariate shift (med-state is mild; future work / boundary-injection task). This answers *"why not ERM+CORAL?"*:
+  ERM+CORAL aligns unconditionally; there exist regimes where that hurts ~14 pts, and CMI is the screen that
+  detects them — but on the two real disease tasks tested, both are concept-null so the screen's protective value
+  is latent, not yet load-bearing.
+
+**Net-correction diagnostic** added (`pmct_w2c`/`pmct_c2w`/`pmct_net_correction`): reports wrong→correct vs
+correct→wrong flips so the 17–23% flips are shown to be net error-correction, not reshuffling (captured from the
+next run on).
 
 ## 7. Limitations / open
 - **Single-class-target LOSO is ill-posed for feature-space transport (R6 finding).** On within-dataset SCPS
