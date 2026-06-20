@@ -144,10 +144,11 @@ def transduct_predict(z_src, y_src, z_tgt, pi_S, n_cls, mode="coral", shrink=0.1
         out = np.zeros((len(p), n_cls)); out[:, cls] = p; return out
     prob_raw = full(clf.predict_proba(z_tgt))
     pi_T, z_tilde = None, z_tgt
-    if mode == "t3a":                                     # TTA baseline (source-free classifier adjustment)
+    if mode in ("t3a", "spdim"):                          # TTA baselines (source-free, serialized-state + target)
         from cmi.eval.source_state import fit_source_state
-        from cmi.eval.tta_baselines import t3a_predict
-        prob = t3a_predict(fit_source_state(z_src, y_src, n_cls, clf=clf), z_tgt)
+        from cmi.eval.tta_baselines import t3a_predict, spdim_predict
+        st = fit_source_state(z_src, y_src, n_cls, clf=clf)
+        prob = (t3a_predict if mode == "t3a" else spdim_predict)(st, z_tgt)
         return dict(prob=prob, prob_probe_raw=prob_raw, pi_T=None, z_tilde=z_tgt)
     if mode in ("pmct", "matched_coral"):                 # whiten-color transport (shared machinery; ref differs)
         ref = "pooled" if mode == "matched_coral" else "prior_matched"
@@ -240,7 +241,7 @@ def transduct_all(z_src, y_src, z_tgt, pi_S, n_cls, shrink=0.1, return_ztilde=Fa
     in a single pass. Returns {mode: prob}; if return_ztilde, also {mode: z_tilde} for the original-head path.
     Includes matched_coral (PMCT machinery with a POOLED reference) — the de-confounded CORAL baseline."""
     out, ztil = {}, {}
-    for mode in ("probe", "coral", "prior", "coral_prior", "matched_coral", "pmct", "t3a"):
+    for mode in ("probe", "coral", "prior", "coral_prior", "matched_coral", "pmct", "t3a", "spdim"):
         r = transduct_predict(z_src, y_src, z_tgt, pi_S, n_cls, mode=mode, shrink=shrink)
         out[mode] = r["prob"]; ztil[mode] = r.get("z_tilde")
     return (out, ztil) if return_ztilde else out

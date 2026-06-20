@@ -51,3 +51,38 @@ def t3a_predict(state, z_tgt, filter_M=20, use_prototype=False):
     centroids = np.stack(centroids)
     logits = z_tgt @ centroids.T                            # adjusted nearest-template classification
     return _softmax(logits)
+
+
+def spdim_predict(state, z_tgt, steps=100, lr=0.05, div_w=1.0):
+    """SPDIM information-maximization core (Iwasawa-style SFUDA), Euclidean analog on the shared alignment
+    embedding. SPDIM learns ONE manifold-constrained recentering parameter per target domain by Information
+    Maximization; here we learn a single per-target recentering bias b on z (z -> z+b) minimizing the frozen
+    readout's prediction entropy while maximizing marginal diversity (so it cannot collapse to one class):
+        L_IM = mean_i H(p_i)  -  div_w * H(mean_i p_i).
+    Gradient-based, source-free (reads only `state` + unlabeled target), backbone frozen. NOTE: the *literal*
+    SPDIM operates on SPD covariance features via Riemannian recentering — a separate representation; this is the
+    protocol-matched IM-on-embedding analog (stated as such in the paper)."""
+    import torch
+    z_tgt = np.asarray(z_tgt, float)
+    clf, n_cls = state["clf"], state["n_cls"]
+    cls = clf.classes_
+    W, c = np.atleast_2d(clf.coef_), np.atleast_1d(clf.intercept_)
+    if W.shape[0] == 1 and n_cls == 2:                      # binary LR -> 2-row logits
+        W = np.vstack([-W[0], W[0]]); c = np.array([-c[0], c[0]])
+    Z = torch.tensor(z_tgt, dtype=torch.float64)
+    Wt = torch.tensor(W, dtype=torch.float64); ct = torch.tensor(c, dtype=torch.float64)
+    b = torch.zeros(z_tgt.shape[1], dtype=torch.float64, requires_grad=True)
+    opt = torch.optim.Adam([b], lr=lr)
+    for _ in range(steps):
+        opt.zero_grad()
+        logits = (Z + b) @ Wt.T + ct
+        p = torch.softmax(logits, 1)
+        ent = -(p * torch.log(p.clamp_min(1e-9))).sum(1).mean()
+        pm = p.mean(0)
+        div = -(pm * torch.log(pm.clamp_min(1e-9))).sum()    # marginal entropy (diversity)
+        (ent - div_w * div).backward()
+        opt.step()
+    with torch.no_grad():
+        p = torch.softmax((Z + b) @ Wt.T + ct, 1).numpy()
+    out = np.zeros((len(z_tgt), n_cls)); out[:, cls] = p[:, :len(cls)]
+    return out
