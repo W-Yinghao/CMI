@@ -1,0 +1,36 @@
+{
+  "condition": "SCZ",
+  "dvar": "race",
+  "domains": [
+    "rest",
+    "White"
+  ],
+  "shifted_dom": 1,
+  "alpha": 0.5,
+  "seed": 0,
+  "n_swapped": 1660,
+  "feat": "pc1",
+  "route_c": {
+    "raw": 0.009630352258682251,
+    "residual": 0.011269718408584595,
+    "null_mean": 0.0,
+    "null_std": 0.001,
+    "z_score": 11.269718408584595,
+    "p_value": 0.01639344262295082,
+    "fired": true,
+    "n_perm": 60
+  },
+  "route_a": {
+    "observed_gain": -0.0903940200805664,
+    "elbo_shared": -8.082050323486328,
+    "elbo_delta": -8.172444343566895,
+    "null_mean": 0.01600187619527181,
+    "null_std": 0.08910595390668061,
+    "null_min": -0.1872577667236328,
+    "null_max": 0.24002456665039062,
+    "n_perm": 60,
+    "z_score": -1.1940380144211813,
+    "p_value": 0.9180327868852459,
+    "concept_shift_detected": false
+  }
+}

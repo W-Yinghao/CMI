@@ -1,0 +1,172 @@
+{
+  "config": {
+    "dataset": "BNCI2014_001",
+    "backbone": "EEGNet",
+    "configs": [
+      "erm:0",
+      "lpc_prior:0.1",
+      "lpc_prior:0.3",
+      "cdann:1"
+    ],
+    "epochs": 300,
+    "bs": 64,
+    "warmup": 40,
+    "n_inner": 2,
+    "weight_decay": 0.0001,
+    "protocol": "cross_session",
+    "tmin": 0.5,
+    "tmax": 3.5,
+    "resample": 128,
+    "seed": 0,
+    "max_subjects": 0,
+    "out": "results/BNCI2014_001_EEGNet_xsess.json"
+  },
+  "classes": [
+    "feet",
+    "left_hand",
+    "right_hand",
+    "tongue"
+  ],
+  "summary": {
+    "erm:0": {
+      "balanced_acc_mean": 0.5462962962962963,
+      "balanced_acc_std": 0.0,
+      "worst_subject": 0.5462962962962963,
+      "macro_f1": 0.5434653936764656,
+      "leakage_kl": 1.1958280801773071,
+      "leakage_advantage": 0.7377892030848329,
+      "label_sep": 0.5989717223650386,
+      "per_target": [
+        {
+          "target": "0train",
+          "balanced_acc": 0.5462962962962963,
+          "macro_f1": 0.5460612215279077,
+          "nll": 1.0501365661621094,
+          "ece": 0.06100741367971087,
+          "leakage_kl": 1.2242382764816284,
+          "cond_dom_acc": 0.8380462724935732,
+          "prior_dom_acc": 0.07583547557840617,
+          "leakage_advantage": 0.762210796915167,
+          "label_sep": 0.6066838046272494
+        },
+        {
+          "target": "1test",
+          "balanced_acc": 0.5462962962962963,
+          "macro_f1": 0.5408695658250235,
+          "nll": 1.0593022108078003,
+          "ece": 0.07906944914088572,
+          "leakage_kl": 1.1674178838729858,
+          "cond_dom_acc": 0.7904884318766067,
+          "prior_dom_acc": 0.07712082262210797,
+          "leakage_advantage": 0.7133676092544987,
+          "label_sep": 0.5912596401028277
+        }
+      ]
+    },
+    "lpc_prior:0.1": {
+      "balanced_acc_mean": 0.537229938271605,
+      "balanced_acc_std": 0.0001929012345678882,
+      "worst_subject": 0.5370370370370371,
+      "macro_f1": 0.5338462281243656,
+      "leakage_kl": 0.29906441271305084,
+      "leakage_advantage": 0.32069408740359895,
+      "label_sep": 0.6259640102827764,
+      "per_target": [
+        {
+          "target": "0train",
+          "balanced_acc": 0.5370370370370371,
+          "macro_f1": 0.535368918161416,
+          "nll": 1.0881240367889404,
+          "ece": 0.07457239588975538,
+          "leakage_kl": 0.3293132483959198,
+          "cond_dom_acc": 0.4087403598971722,
+          "prior_dom_acc": 0.07583547557840617,
+          "leakage_advantage": 0.3329048843187661,
+          "label_sep": 0.6388174807197944
+        },
+        {
+          "target": "1test",
+          "balanced_acc": 0.5374228395061729,
+          "macro_f1": 0.5323235380873151,
+          "nll": 1.098375916481018,
+          "ece": 0.07791362254431955,
+          "leakage_kl": 0.2688155770301819,
+          "cond_dom_acc": 0.3856041131105398,
+          "prior_dom_acc": 0.07712082262210797,
+          "leakage_advantage": 0.30848329048843187,
+          "label_sep": 0.6131105398457584
+        }
+      ]
+    },
+    "lpc_prior:0.3": {
+      "balanced_acc_mean": 0.49517746913580246,
+      "balanced_acc_std": 0.001736111111111105,
+      "worst_subject": 0.49344135802469136,
+      "macro_f1": 0.4872531387035167,
+      "leakage_kl": 0.13815848529338837,
+      "leakage_advantage": 0.2474293059125964,
+      "label_sep": 0.589974293059126,
+      "per_target": [
+        {
+          "target": "0train",
+          "balanced_acc": 0.49344135802469136,
+          "macro_f1": 0.4834410496654491,
+          "nll": 1.1652971506118774,
+          "ece": 0.06369014886886247,
+          "leakage_kl": 0.15249474346637726,
+          "cond_dom_acc": 0.37275064267352187,
+          "prior_dom_acc": 0.07583547557840617,
+          "leakage_advantage": 0.2969151670951157,
+          "label_sep": 0.6079691516709511
+        },
+        {
+          "target": "1test",
+          "balanced_acc": 0.49691358024691357,
+          "macro_f1": 0.49106522774158434,
+          "nll": 1.141137719154358,
+          "ece": 0.04750494349655915,
+          "leakage_kl": 0.12382222712039948,
+          "cond_dom_acc": 0.2750642673521851,
+          "prior_dom_acc": 0.07712082262210797,
+          "leakage_advantage": 0.19794344473007713,
+          "label_sep": 0.5719794344473008
+        }
+      ]
+    },
+    "cdann:1": {
+      "balanced_acc_mean": 0.4648919753086419,
+      "balanced_acc_std": 0.005401234567901231,
+      "worst_subject": 0.4594907407407407,
+      "macro_f1": 0.4584461282263142,
+      "leakage_kl": 0.09648586064577103,
+      "leakage_advantage": 0.12853470437017994,
+      "label_sep": 0.550771208226221,
+      "per_target": [
+        {
+          "target": "0train",
+          "balanced_acc": 0.4594907407407407,
+          "macro_f1": 0.44923350860968125,
+          "nll": 1.2162091732025146,
+          "ece": 0.048211372549427166,
+          "leakage_kl": 0.116275854408741,
+          "cond_dom_acc": 0.21979434447300772,
+          "prior_dom_acc": 0.07583547557840617,
+          "leakage_advantage": 0.14395886889460155,
+          "label_sep": 0.5616966580976864
+        },
+        {
+          "target": "1test",
+          "balanced_acc": 0.47029320987654316,
+          "macro_f1": 0.46765874784294714,
+          "nll": 1.1933505535125732,
+          "ece": 0.057099526943523944,
+          "leakage_kl": 0.07669586688280106,
+          "cond_dom_acc": 0.19023136246786632,
+          "prior_dom_acc": 0.07712082262210797,
+          "leakage_advantage": 0.11311053984575835,
+          "label_sep": 0.5398457583547558
+        }
+      ]
+    }
+  }
+}

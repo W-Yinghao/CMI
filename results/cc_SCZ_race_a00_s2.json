@@ -1,0 +1,38 @@
+{
+  "condition": "SCZ",
+  "dvar": "race",
+  "domains": [
+    "Asian",
+    "Black",
+    "Mixed",
+    "White"
+  ],
+  "shifted_dom": 3,
+  "alpha": 0.0,
+  "seed": 2,
+  "n_swapped": 0,
+  "feat": "pc1",
+  "route_c": {
+    "raw": 0.014920324087142944,
+    "residual": 0.006859719753265381,
+    "null_mean": 0.0,
+    "null_std": 0.001,
+    "z_score": 6.859719753265381,
+    "p_value": 0.01639344262295082,
+    "fired": true,
+    "n_perm": 60
+  },
+  "route_a": {
+    "observed_gain": -0.06576061248779297,
+    "elbo_shared": -8.629685401916504,
+    "elbo_delta": -8.695446014404297,
+    "null_mean": 0.005557044347127279,
+    "null_std": 0.07901140748020667,
+    "null_min": -0.18254852294921875,
+    "null_max": 0.20164012908935547,
+    "n_perm": 60,
+    "z_score": -0.9026248121549563,
+    "p_value": 0.8688524590163934,
+    "concept_shift_detected": false
+  }
+}

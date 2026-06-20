@@ -1,0 +1,132 @@
+{
+  "condition": "PD",
+  "domain": "subject",
+  "cohorts": [
+    "ds002778",
+    "ds003490",
+    "ds004584"
+  ],
+  "config": {
+    "condition": "PD",
+    "cohorts": null,
+    "backbone": "EEGNet",
+    "domain": "subject",
+    "configs": [
+      "erm:0",
+      "lpc_prior:0.1",
+      "cdann:1"
+    ],
+    "epochs": 120,
+    "bs": 64,
+    "warmup": 30,
+    "n_inner": 2,
+    "sampler": "classbal",
+    "prior": "empirical",
+    "beta": 0.0,
+    "seed": 0,
+    "out": "results/scps_PD.json"
+  },
+  "summary": {
+    "erm": {
+      "per_target_balanced_acc_mean": 0.5860823180620717,
+      "worst_target_balanced_acc": 0.51484375,
+      "leakage_kl": 1.0713742971420288,
+      "per_cohort": {
+        "ds002778": 51.5,
+        "ds003490": 63.7,
+        "ds004584": 60.6
+      }
+    },
+    "lpc_prior": {
+      "per_target_balanced_acc_mean": 0.5691886535465671,
+      "worst_target_balanced_acc": 0.5055208333333333,
+      "leakage_kl": 0.09203131248553593,
+      "per_cohort": {
+        "ds002778": 50.6,
+        "ds003490": 58.7,
+        "ds004584": 61.6
+      }
+    },
+    "cdann": {
+      "per_target_balanced_acc_mean": 0.5579542617832117,
+      "worst_target_balanced_acc": 0.4877083333333333,
+      "leakage_kl": 0.3774069547653198,
+      "per_cohort": {
+        "ds002778": 48.8,
+        "ds003490": 59.2,
+        "ds004584": 59.4
+      }
+    }
+  },
+  "folds": {
+    "erm": [
+      {
+        "held_out": "ds002778",
+        "balanced_acc": 0.51484375,
+        "macro_f1": 0.4338975867570802,
+        "leakage_kl": 1.1701722145080566,
+        "n_test": 1240
+      },
+      {
+        "held_out": "ds003490",
+        "balanced_acc": 0.6375,
+        "macro_f1": 0.6373323568819687,
+        "leakage_kl": 1.040807843208313,
+        "n_test": 2000
+      },
+      {
+        "held_out": "ds004584",
+        "balanced_acc": 0.6059032041862149,
+        "macro_f1": 0.5577991286881955,
+        "leakage_kl": 1.0031428337097168,
+        "n_test": 5283
+      }
+    ],
+    "lpc_prior": [
+      {
+        "held_out": "ds002778",
+        "balanced_acc": 0.5055208333333333,
+        "macro_f1": 0.36536493067402837,
+        "leakage_kl": 0.056557200849056244,
+        "n_test": 1240
+      },
+      {
+        "held_out": "ds003490",
+        "balanced_acc": 0.5865,
+        "macro_f1": 0.5832357985834553,
+        "leakage_kl": 0.09352828562259674,
+        "n_test": 2000
+      },
+      {
+        "held_out": "ds004584",
+        "balanced_acc": 0.6155451273063681,
+        "macro_f1": 0.5783151667799941,
+        "leakage_kl": 0.12600845098495483,
+        "n_test": 5283
+      }
+    ],
+    "cdann": [
+      {
+        "held_out": "ds002778",
+        "balanced_acc": 0.4877083333333333,
+        "macro_f1": 0.37732187954015817,
+        "leakage_kl": 0.17383411526679993,
+        "n_test": 1240
+      },
+      {
+        "held_out": "ds003490",
+        "balanced_acc": 0.5920000000000001,
+        "macro_f1": 0.5751765672392412,
+        "leakage_kl": 0.421459823846817,
+        "n_test": 2000
+      },
+      {
+        "held_out": "ds004584",
+        "balanced_acc": 0.5941544520163019,
+        "macro_f1": 0.5598495532866734,
+        "leakage_kl": 0.5369269251823425,
+        "n_test": 5283
+      }
+    ]
+  }
+}

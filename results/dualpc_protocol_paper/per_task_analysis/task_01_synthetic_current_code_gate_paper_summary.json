@@ -1,0 +1,14 @@
+{
+  "counts": {
+    "PASS": 0,
+    "WARN": 0,
+    "FAIL": 0
+  },
+  "method_rows": [],
+  "method_summary": [],
+  "comparison_rows": [],
+  "comparison_summary": [],
+  "selector_records": [],
+  "selector_summary": [],
+  "parse_errors": []
+}

@@ -1,0 +1,212 @@
+{
+  "counts": {
+    "PASS": 2,
+    "WARN": 0,
+    "FAIL": 0
+  },
+  "method_rows": [
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s1",
+      "task": "loso:BNCI2014_001",
+      "seed": 1,
+      "method": "erm:0",
+      "family": "erm",
+      "acc": 0.42997685185185186,
+      "cond_kl_rw": 1.1695235835181341,
+      "pz_kl_rw": 1.1134119166268244,
+      "py_js_rw": 0.004646736145433452,
+      "decoder_valid_n": 9.0,
+      "n_folds": 9.0
+    },
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s1",
+      "task": "loso:BNCI2014_001",
+      "seed": 1,
+      "method": "lpc_prior:0.1",
+      "family": "lpc_prior",
+      "acc": 0.3998842592592593,
+      "cond_kl_rw": 0.3030721777015262,
+      "pz_kl_rw": 0.2606048468086455,
+      "py_js_rw": 0.001639608067408618,
+      "decoder_valid_n": 9.0,
+      "n_folds": 9.0
+    },
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s1",
+      "task": "loso:BNCI2014_001",
+      "seed": 1,
+      "method": "dualc:0.1:0.05",
+      "family": "dualc",
+      "acc": 0.40123456790123463,
+      "cond_kl_rw": 0.30155591169993085,
+      "pz_kl_rw": 0.26150110695097184,
+      "py_js_rw": 0.0016047245201965172,
+      "decoder_valid_n": 9.0,
+      "n_folds": 9.0
+    },
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s1",
+      "task": "loso:BNCI2014_001",
+      "seed": 1,
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "acc": 0.412229938271605,
+      "cond_kl_rw": 0.29873042305310565,
+      "pz_kl_rw": 0.25420478151904213,
+      "py_js_rw": 0.0016365423669210738,
+      "decoder_valid_n": 9.0,
+      "n_folds": 9.0
+    },
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s1",
+      "task": "loso:BNCI2014_001",
+      "seed": 1,
+      "method": "dualpc_marginal:0.1:0.05",
+      "family": "dualpc_marginal",
+      "acc": 0.4106867283950617,
+      "cond_kl_rw": 0.3061306443479326,
+      "pz_kl_rw": 0.2573390652736028,
+      "py_js_rw": 0.00162123278197315,
+      "decoder_valid_n": 9.0,
+      "n_folds": 9.0
+    }
+  ],
+  "method_summary": [
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualc:0.1:0.05",
+      "family": "dualc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.40123456790123463,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.30155591169993085,
+      "pz_kl_rw_mean": 0.26150110695097184,
+      "py_js_rw_mean": 0.0016047245201965172,
+      "decoder_valid_n_mean": 9.0
+    },
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.412229938271605,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.29873042305310565,
+      "pz_kl_rw_mean": 0.25420478151904213,
+      "py_js_rw_mean": 0.0016365423669210738,
+      "decoder_valid_n_mean": 9.0
+    },
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualpc_marginal:0.1:0.05",
+      "family": "dualpc_marginal",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.4106867283950617,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.3061306443479326,
+      "pz_kl_rw_mean": 0.2573390652736028,
+      "py_js_rw_mean": 0.00162123278197315,
+      "decoder_valid_n_mean": 9.0
+    },
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "erm:0",
+      "family": "erm",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.42997685185185186,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 1.1695235835181341,
+      "pz_kl_rw_mean": 1.1134119166268244,
+      "py_js_rw_mean": 0.004646736145433452,
+      "decoder_valid_n_mean": 9.0
+    },
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "lpc_prior:0.1",
+      "family": "lpc_prior",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.3998842592592593,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.3030721777015262,
+      "pz_kl_rw_mean": 0.2606048468086455,
+      "py_js_rw_mean": 0.001639608067408618,
+      "decoder_valid_n_mean": 9.0
+    }
+  ],
+  "comparison_rows": [
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s1",
+      "task": "loso:BNCI2014_001",
+      "seed": 1,
+      "method": "dualpc:0.1:0.05",
+      "baseline": "erm:0",
+      "acc": 0.412229938271605,
+      "baseline_acc": 0.42997685185185186,
+      "delta_acc": -0.01774691358024688,
+      "delta_cond_kl_rw": -0.8707931604650285,
+      "delta_pz_kl_rw": -0.8592071351077822,
+      "delta_py_js_rw": -0.0030101937785123782,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    },
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s1",
+      "task": "loso:BNCI2014_001",
+      "seed": 1,
+      "method": "dualpc:0.1:0.05",
+      "baseline": "lpc_prior:0.1",
+      "acc": 0.412229938271605,
+      "baseline_acc": 0.3998842592592593,
+      "delta_acc": 0.012345679012345678,
+      "delta_cond_kl_rw": -0.0043417546484205705,
+      "delta_pz_kl_rw": -0.006400065289603352,
+      "delta_py_js_rw": -3.0657004875442838e-06,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    }
+  ],
+  "comparison_summary": [
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualpc:0.1:0.05",
+      "baseline": "erm:0",
+      "n": 1,
+      "files": 1,
+      "pass_rate": 1.0,
+      "acc_mean": 0.412229938271605,
+      "baseline_acc_mean": 0.42997685185185186,
+      "delta_acc_mean": -0.01774691358024688,
+      "delta_acc_std": 0.0,
+      "delta_cond_kl_rw_mean": -0.8707931604650285,
+      "delta_pz_kl_rw_mean": -0.8592071351077822,
+      "delta_py_js_rw_mean": -0.0030101937785123782,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    },
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualpc:0.1:0.05",
+      "baseline": "lpc_prior:0.1",
+      "n": 1,
+      "files": 1,
+      "pass_rate": 1.0,
+      "acc_mean": 0.412229938271605,
+      "baseline_acc_mean": 0.3998842592592593,
+      "delta_acc_mean": 0.012345679012345678,
+      "delta_acc_std": 0.0,
+      "delta_cond_kl_rw_mean": -0.0043417546484205705,
+      "delta_pz_kl_rw_mean": -0.006400065289603352,
+      "delta_py_js_rw_mean": -3.0657004875442838e-06,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    }
+  ],
+  "selector_records": [],
+  "selector_summary": [],
+  "parse_errors": []
+}

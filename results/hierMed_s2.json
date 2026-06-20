@@ -1,0 +1,152 @@
+{
+  "condition": "PDMED",
+  "domain": "cohort",
+  "dec_domain": "subject",
+  "cohorts": [
+    "ds002778",
+    "ds003490"
+  ],
+  "config": {
+    "condition": "PDMED",
+    "cohorts": [
+      "ds002778",
+      "ds003490"
+    ],
+    "backbone": "EEGNet",
+    "domain": "cohort",
+    "dec_domain": "subject",
+    "configs": [
+      "erm:0",
+      "lpc_prior:0.1",
+      "dualc:0.1:0.1"
+    ],
+    "epochs": 120,
+    "bs": 64,
+    "warmup": 30,
+    "n_inner": 2,
+    "sampler": "classbal",
+    "prior": "empirical",
+    "beta": 0.0,
+    "seed": 2,
+    "balance": false,
+    "label_correct": false,
+    "reweight_dual": false,
+    "dec_margin": 0.02,
+    "out": "results/hierMed_s2.json"
+  },
+  "summary": {
+    "erm:0": {
+      "per_target_balanced_acc_mean": 0.5420833333333334,
+      "worst_target_balanced_acc": 0.5241666666666667,
+      "leakage_kl": 0.0,
+      "decoder_cmi": 0.02997049316763878,
+      "decoder_cmi_rw": 0.03205940127372742,
+      "decoder_cmi_res": 0.022015821188688278,
+      "decoder_cmi_res_rw": 0.021713636815547943,
+      "per_cohort": {
+        "ds002778": 52.4,
+        "ds003490": 56.0
+      }
+    },
+    "lpc_prior:0.1": {
+      "per_target_balanced_acc_mean": 0.5140833333333333,
+      "worst_target_balanced_acc": 0.5041666666666667,
+      "leakage_kl": 0.0,
+      "decoder_cmi": 0.028733447194099426,
+      "decoder_cmi_rw": 0.0282185897231102,
+      "decoder_cmi_res": 0.02146243304014206,
+      "decoder_cmi_res_rw": 0.019875243306159973,
+      "per_cohort": {
+        "ds002778": 50.4,
+        "ds003490": 52.4
+      }
+    },
+    "dualc:0.1:0.1": {
+      "per_target_balanced_acc_mean": 0.5140833333333333,
+      "worst_target_balanced_acc": 0.5041666666666667,
+      "leakage_kl": 0.0,
+      "decoder_cmi": 0.028912801295518875,
+      "decoder_cmi_rw": 0.02821202576160431,
+      "decoder_cmi_res": 0.021649856120347977,
+      "decoder_cmi_res_rw": 0.019896551966667175,
+      "per_cohort": {
+        "ds002778": 50.4,
+        "ds003490": 52.4
+      }
+    }
+  },
+  "folds": {
+    "erm:0": [
+      {
+        "held_out": "ds002778",
+        "balanced_acc": 0.5241666666666667,
+        "macro_f1": 0.42754548849535196,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.03388240933418274,
+        "decoder_cmi_rw": 0.03817388415336609,
+        "decoder_cmi_res": 0.023294270038604736,
+        "decoder_cmi_res_rw": 0.024547860026359558,
+        "n_test": 1200
+      },
+      {
+        "held_out": "ds003490",
+        "balanced_acc": 0.56,
+        "macro_f1": 0.5567978645715292,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.026058577001094818,
+        "decoder_cmi_rw": 0.025944918394088745,
+        "decoder_cmi_res": 0.02073737233877182,
+        "decoder_cmi_res_rw": 0.018879413604736328,
+        "n_test": 2000
+      }
+    ],
+    "lpc_prior:0.1": [
+      {
+        "held_out": "ds002778",
+        "balanced_acc": 0.5041666666666667,
+        "macro_f1": 0.4485800937413841,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.011794686317443848,
+        "decoder_cmi_rw": 0.015051335096359253,
+        "decoder_cmi_res": 0.00481492280960083,
+        "decoder_cmi_res_rw": 0.005594402551651001,
+        "n_test": 1200
+      },
+      {
+        "held_out": "ds003490",
+        "balanced_acc": 0.524,
+        "macro_f1": 0.5236265231941842,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.045672208070755005,
+        "decoder_cmi_rw": 0.041385844349861145,
+        "decoder_cmi_res": 0.03810994327068329,
+        "decoder_cmi_res_rw": 0.034156084060668945,
+        "n_test": 2000
+      }
+    ],
+    "dualc:0.1:0.1": [
+      {
+        "held_out": "ds002778",
+        "balanced_acc": 0.5041666666666667,
+        "macro_f1": 0.4485800937413841,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.011839441955089569,
+        "decoder_cmi_rw": 0.015076443552970886,
+        "decoder_cmi_res": 0.004866190254688263,
+        "decoder_cmi_res_rw": 0.0056625306606292725,
+        "n_test": 1200
+      },
+      {
+        "held_out": "ds003490",
+        "balanced_acc": 0.524,
+        "macro_f1": 0.5236265231941842,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.04598616063594818,
+        "decoder_cmi_rw": 0.04134760797023773,
+        "decoder_cmi_res": 0.03843352198600769,
+        "decoder_cmi_res_rw": 0.03413057327270508,
+        "n_test": 2000
+      }
+    ]
+  }
+}

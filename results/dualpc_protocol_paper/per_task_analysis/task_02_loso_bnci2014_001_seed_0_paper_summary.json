@@ -1,0 +1,212 @@
+{
+  "counts": {
+    "PASS": 2,
+    "WARN": 0,
+    "FAIL": 0
+  },
+  "method_rows": [
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s0",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "method": "erm:0",
+      "family": "erm",
+      "acc": 0.4295910493827161,
+      "cond_kl_rw": 1.1719572411643133,
+      "pz_kl_rw": 1.1234071122275457,
+      "py_js_rw": 0.0042380233191781575,
+      "decoder_valid_n": 9.0,
+      "n_folds": 9.0
+    },
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s0",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "method": "lpc_prior:0.1",
+      "family": "lpc_prior",
+      "acc": 0.425733024691358,
+      "cond_kl_rw": 0.31071295009719,
+      "pz_kl_rw": 0.26316773725880516,
+      "py_js_rw": 0.0014719599017149045,
+      "decoder_valid_n": 9.0,
+      "n_folds": 9.0
+    },
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s0",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "method": "dualc:0.1:0.05",
+      "family": "dualc",
+      "acc": 0.42418981481481477,
+      "cond_kl_rw": 0.3089077091879315,
+      "pz_kl_rw": 0.259994270073043,
+      "py_js_rw": 0.001381889147321797,
+      "decoder_valid_n": 9.0,
+      "n_folds": 9.0
+    },
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s0",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "acc": 0.4220679012345679,
+      "cond_kl_rw": 0.3081132239765591,
+      "pz_kl_rw": 0.2605004691415363,
+      "py_js_rw": 0.001503505330118868,
+      "decoder_valid_n": 9.0,
+      "n_folds": 9.0
+    },
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s0",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "method": "dualpc_marginal:0.1:0.05",
+      "family": "dualpc_marginal",
+      "acc": 0.4187885802469136,
+      "cond_kl_rw": 0.31656134128570557,
+      "pz_kl_rw": 0.2638431290785472,
+      "py_js_rw": 0.0017421604263492757,
+      "decoder_valid_n": 9.0,
+      "n_folds": 9.0
+    }
+  ],
+  "method_summary": [
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualc:0.1:0.05",
+      "family": "dualc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.42418981481481477,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.3089077091879315,
+      "pz_kl_rw_mean": 0.259994270073043,
+      "py_js_rw_mean": 0.001381889147321797,
+      "decoder_valid_n_mean": 9.0
+    },
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.4220679012345679,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.3081132239765591,
+      "pz_kl_rw_mean": 0.2605004691415363,
+      "py_js_rw_mean": 0.001503505330118868,
+      "decoder_valid_n_mean": 9.0
+    },
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualpc_marginal:0.1:0.05",
+      "family": "dualpc_marginal",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.4187885802469136,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.31656134128570557,
+      "pz_kl_rw_mean": 0.2638431290785472,
+      "py_js_rw_mean": 0.0017421604263492757,
+      "decoder_valid_n_mean": 9.0
+    },
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "erm:0",
+      "family": "erm",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.4295910493827161,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 1.1719572411643133,
+      "pz_kl_rw_mean": 1.1234071122275457,
+      "py_js_rw_mean": 0.0042380233191781575,
+      "decoder_valid_n_mean": 9.0
+    },
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "lpc_prior:0.1",
+      "family": "lpc_prior",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.425733024691358,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.31071295009719,
+      "pz_kl_rw_mean": 0.26316773725880516,
+      "py_js_rw_mean": 0.0014719599017149045,
+      "decoder_valid_n_mean": 9.0
+    }
+  ],
+  "comparison_rows": [
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s0",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "method": "dualpc:0.1:0.05",
+      "baseline": "erm:0",
+      "acc": 0.4220679012345679,
+      "baseline_acc": 0.4295910493827161,
+      "delta_acc": -0.0075231481481481954,
+      "delta_cond_kl_rw": -0.8638440171877542,
+      "delta_pz_kl_rw": -0.8629066430860095,
+      "delta_py_js_rw": -0.0027345179890592894,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    },
+    {
+      "file": "dualpc_paper_loso_BNCI2014_001_s0",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "method": "dualpc:0.1:0.05",
+      "baseline": "lpc_prior:0.1",
+      "acc": 0.4220679012345679,
+      "baseline_acc": 0.425733024691358,
+      "delta_acc": -0.003665123456790098,
+      "delta_cond_kl_rw": -0.0025997261206309186,
+      "delta_pz_kl_rw": -0.0026672681172688617,
+      "delta_py_js_rw": 3.154542840396357e-05,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    }
+  ],
+  "comparison_summary": [
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualpc:0.1:0.05",
+      "baseline": "erm:0",
+      "n": 1,
+      "files": 1,
+      "pass_rate": 1.0,
+      "acc_mean": 0.4220679012345679,
+      "baseline_acc_mean": 0.4295910493827161,
+      "delta_acc_mean": -0.0075231481481481954,
+      "delta_acc_std": 0.0,
+      "delta_cond_kl_rw_mean": -0.8638440171877542,
+      "delta_pz_kl_rw_mean": -0.8629066430860095,
+      "delta_py_js_rw_mean": -0.0027345179890592894,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    },
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualpc:0.1:0.05",
+      "baseline": "lpc_prior:0.1",
+      "n": 1,
+      "files": 1,
+      "pass_rate": 1.0,
+      "acc_mean": 0.4220679012345679,
+      "baseline_acc_mean": 0.425733024691358,
+      "delta_acc_mean": -0.003665123456790098,
+      "delta_acc_std": 0.0,
+      "delta_cond_kl_rw_mean": -0.0025997261206309186,
+      "delta_pz_kl_rw_mean": -0.0026672681172688617,
+      "delta_py_js_rw_mean": 3.154542840396357e-05,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    }
+  ],
+  "selector_records": [],
+  "selector_summary": [],
+  "parse_errors": []
+}

@@ -1,0 +1,98 @@
+{
+  "created_at": "2026-06-18T04:36:50",
+  "done": true,
+  "tasks": {
+    "0": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T06:31:54",
+      "completed_at": "2026-06-18T06:31:53",
+      "err_log": "",
+      "label": "phase3b_bnci_selector_guard_s0_retry",
+      "out_json": "results/dualpc_phase3/dualpc_p3_select_BNCI2014_001_guard_s0.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_phase3b/per_task_analysis/task_00_phase3b_bnci_selector_guard_s0_retry_paper_summary.json",
+      "readiness": "results/dualpc_phase3b/per_task_analysis/task_00_phase3b_bnci_selector_guard_s0_retry_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T04:36:50"
+    },
+    "1": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T06:41:55",
+      "completed_at": "2026-06-18T06:41:55",
+      "err_log": "",
+      "label": "phase3b_bnci_selector_guard_s1",
+      "out_json": "results/dualpc_phase3b/dualpc_p3b_select_BNCI2014_001_guard_s1.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_phase3b/per_task_analysis/task_01_phase3b_bnci_selector_guard_s1_paper_summary.json",
+      "readiness": "results/dualpc_phase3b/per_task_analysis/task_01_phase3b_bnci_selector_guard_s1_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T04:36:50"
+    },
+    "2": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T06:31:54",
+      "completed_at": "2026-06-18T06:31:54",
+      "err_log": "",
+      "label": "phase3b_bnci_selector_guard_s2",
+      "out_json": "results/dualpc_phase3b/dualpc_p3b_select_BNCI2014_001_guard_s2.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_phase3b/per_task_analysis/task_02_phase3b_bnci_selector_guard_s2_paper_summary.json",
+      "readiness": "results/dualpc_phase3b/per_task_analysis/task_02_phase3b_bnci_selector_guard_s2_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T04:36:50"
+    },
+    "3": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T05:26:51",
+      "completed_at": "2026-06-18T05:26:51",
+      "err_log": "",
+      "label": "phase3b_scps_pd_hinge_grid_s1",
+      "out_json": "results/dualpc_phase3b/dualpc_p3b_scps_PD_hinge_s1.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_phase3b/per_task_analysis/task_03_phase3b_scps_pd_hinge_grid_s1_paper_summary.json",
+      "readiness": "results/dualpc_phase3b/per_task_analysis/task_03_phase3b_scps_pd_hinge_grid_s1_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T04:36:50"
+    },
+    "4": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T05:26:52",
+      "completed_at": "2026-06-18T05:26:51",
+      "err_log": "",
+      "label": "phase3b_scps_pd_hinge_grid_s2",
+      "out_json": "results/dualpc_phase3b/dualpc_p3b_scps_PD_hinge_s2.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_phase3b/per_task_analysis/task_04_phase3b_scps_pd_hinge_grid_s2_paper_summary.json",
+      "readiness": "results/dualpc_phase3b/per_task_analysis/task_04_phase3b_scps_pd_hinge_grid_s2_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T04:36:50"
+    },
+    "5": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T06:41:55",
+      "completed_at": "2026-06-18T06:41:55",
+      "err_log": "",
+      "label": "phase3b_scps_scz_hinge_grid_s1",
+      "out_json": "results/dualpc_phase3b/dualpc_p3b_scps_SCZ_hinge_s1.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_phase3b/per_task_analysis/task_05_phase3b_scps_scz_hinge_grid_s1_paper_summary.json",
+      "readiness": "results/dualpc_phase3b/per_task_analysis/task_05_phase3b_scps_scz_hinge_grid_s1_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T04:36:50"
+    },
+    "6": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T06:36:54",
+      "completed_at": "2026-06-18T06:36:54",
+      "err_log": "",
+      "label": "phase3b_scps_scz_hinge_grid_s2",
+      "out_json": "results/dualpc_phase3b/dualpc_p3b_scps_SCZ_hinge_s2.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_phase3b/per_task_analysis/task_06_phase3b_scps_scz_hinge_grid_s2_paper_summary.json",
+      "readiness": "results/dualpc_phase3b/per_task_analysis/task_06_phase3b_scps_scz_hinge_grid_s2_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T04:36:50"
+    }
+  },
+  "updated_at": "2026-06-18T06:41:55"
+}

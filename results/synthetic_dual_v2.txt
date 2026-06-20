@@ -1,0 +1,56 @@
+
+=== EXACT discrete MI tension sweep (closed form numpy) ===
+Construction: Z conditionally invariant given Y  =>  I(Z;D|Y)=0 by design.
+Identity checked:  I(Z;D|Y) - I(Y;D|Z)  ==  I(Z;D) - I(Y;D)
+
+ alpha lblshift  I(Z;D|Y)  I(Y;D|Z)   I(Z;D)   I(Y;D)  identity_resid
+  0.70     0.00  -0.00000  -0.00000  0.00000  0.00000        0.00e+00
+  0.85     0.00   0.00000   0.00000  0.00000  0.00000        0.00e+00
+  0.95     0.00  -0.00000  -0.00000  0.00000  0.00000        0.00e+00
+  1.00     0.00   0.00000   0.00000  0.00000  0.00000        0.00e+00
+  0.70     0.15   0.00000   0.03848  0.00722  0.04570        1.11e-16
+  0.85     0.15   0.00000   0.02349  0.02221  0.04570        0.00e+00
+  0.95     0.15   0.00000   0.00879  0.03691  0.04570        2.22e-16
+  1.00     0.15   0.00000   0.00000  0.04570  0.04570        0.00e+00
+  0.70     0.30  -0.00000   0.16366  0.02908  0.19274       -4.44e-16
+  0.85     0.30  -0.00000   0.10175  0.09100  0.19274       -6.94e-17
+  0.95     0.30   0.00000   0.03887  0.15387  0.19274       -1.11e-16
+  1.00     0.30   0.00000   0.00000  0.19274  0.19274        0.00e+00
+
+Reading: with label shift (lblshift>0) and irreducible noise (alpha<1),
+I(Z;D|Y)=0 forces I(Y;D|Z)=I(Y;D)-I(Z;D)>0  (anchor A2).  Only at alpha=1
+(zero Bayes error) can both CMIs vanish together (anchor A3).
+
+==============================================================================
+DUAL-CMI v2  --  held-out CMI measurement, strong concept arm, GLS label-correction
+core_snr=0.55  cov_snr=1.1  con_snr=2.2  (concept dominates core on purpose)
+==============================================================================
+DGP              method     tgtAcc    +-  I(Z;D|Y)  I(Y;D|Z)
+------------------------------------------------------------------------------
+covariate-only   erm         74.8  13.7    0.6888    0.1422
+covariate-only   enc         75.9   9.7    0.6027    0.1340
+covariate-only   dec         74.6  13.0    0.7096    0.1482
+covariate-only   dual        76.8  11.4    0.6377    0.1400
+covariate-only   dual+LC     76.9  10.6    0.6378    0.1460
+------------------------------------------------------------------------------
+concept-only     erm         53.9   0.7    0.5941    0.4066
+concept-only     enc         58.9   4.5    0.5723    0.3845
+concept-only     dec         56.1   1.1    0.6447    0.4538
+concept-only     dual        60.5   4.5    0.5999    0.4056
+concept-only     dual+LC     58.4   2.2    0.6085    0.4201
+------------------------------------------------------------------------------
+all-three        erm         59.1  23.0    0.9540    0.1547
+all-three        enc         65.8  15.9    0.8900    0.1588
+all-three        dec         60.3  21.1    0.9655    0.1790
+all-three        dual        61.1  22.0    0.9342    0.1560
+all-three        dual+LC     60.9  24.3    0.9278    0.1573
+------------------------------------------------------------------------------
+
+=== LEARNED tension: forcing I(Z;D|Y)->0 raises I(Y;D|Z) under label shift ===
+(covariate+label shift DGP; no decoder term, no LC -> the encoder-only
+ pressure should re-route domain info into the decoder gap)
+ lam_enc  I(Z;D|Y)  I(Y;D|Z)  tgtAcc
+     0.0    0.6420    0.1622   73.8
+     0.5    0.5928    0.1651   74.8
+     1.5    0.5663    0.1675   72.8
+     4.0    0.5406    0.1718   77.8

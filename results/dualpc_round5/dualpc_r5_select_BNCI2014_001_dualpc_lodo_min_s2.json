@@ -1,0 +1,2932 @@
+{
+  "config": {
+    "dataset": "BNCI2014_001",
+    "backbone": "EEGNet",
+    "method": "dualpc",
+    "lams": [
+      "0",
+      "0.025",
+      "0.05"
+    ],
+    "gammas": [
+      "0",
+      "0.02"
+    ],
+    "dec_margin": null,
+    "dec_margins": null,
+    "z_margins": null,
+    "dec_scales": null,
+    "select_rule": "guarded_probe",
+    "select_tolerance": 0.01,
+    "erm_guard": true,
+    "erm_guard_min_source_gain": 0.02,
+    "erm_guard_min_probe_drop": 0.2,
+    "erm_guard_max_selected_penalty": 0.25,
+    "select_probe_frac": 0.3,
+    "select_probe_epochs": 50,
+    "final_probe_epochs": 60,
+    "select_cond_weight": 1.0,
+    "select_pz_weight": 1.0,
+    "select_py_weight": 1.0,
+    "val_frac": 0.3,
+    "select_repeats": 1,
+    "select_agg": "min",
+    "select_cv_mode": "leave_one_domain",
+    "epochs": 160,
+    "select_epochs": 50,
+    "bs": 64,
+    "warmup": 32,
+    "n_inner": 2,
+    "sampler": "classbal",
+    "device": "cuda",
+    "tmin": 0.5,
+    "tmax": 3.5,
+    "resample": 128,
+    "seed": 2,
+    "max_subjects": 0,
+    "out": "results/dualpc_round5/dualpc_r5_select_BNCI2014_001_dualpc_lodo_min_s2.json"
+  },
+  "classes": [
+    "feet",
+    "left_hand",
+    "right_hand",
+    "tongue"
+  ],
+  "selected_config": [
+    "erm:0",
+    "erm:0",
+    "erm:0",
+    "erm:0",
+    "erm:0",
+    "erm:0",
+    "erm:0",
+    "erm:0",
+    "erm:0"
+  ],
+  "selected_lambda": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "selected_gamma": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "selected_dec_margin": [
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "config_hist": {
+    "erm:0": 9
+  },
+  "selection_records": [
+    {
+      "target": "1",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2586805555555556,
+          "source_val_bacc_mean": 0.3832465277777778,
+          "source_val_bacc_min": 0.2586805555555556,
+          "source_val_bacc_repeats": [
+            0.27951388888888884,
+            0.5052083333333333,
+            0.3333333333333333,
+            0.2586805555555556,
+            0.2690972222222222,
+            0.3559027777777778,
+            0.5538194444444444,
+            0.5104166666666666
+          ],
+          "source_val_domains": [
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.701284980867058,
+          "select_cond_kl": 0.35837748646736145,
+          "select_cond_kl_rw": 0.36340126395225525,
+          "select_pz_kl_rw": 0.33388543128967285,
+          "select_py_res_rw": 0.038027405738830566,
+          "select_py_js_rw": 0.003998285625129938,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0",
+          "lam": 0.025,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2569444444444444,
+          "source_val_bacc_mean": 0.3606770833333333,
+          "source_val_bacc_min": 0.2569444444444444,
+          "source_val_bacc_repeats": [
+            0.28125,
+            0.44791666666666663,
+            0.3038194444444444,
+            0.2621527777777778,
+            0.2569444444444444,
+            0.3506944444444444,
+            0.5086805555555556,
+            0.47395833333333337
+          ],
+          "source_val_domains": [
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.2217148469062522,
+          "select_cond_kl": 0.12428173422813416,
+          "select_cond_kl_rw": 0.1236918494105339,
+          "select_pz_kl_rw": 0.09626653790473938,
+          "select_py_res_rw": 0.0,
+          "select_py_js_rw": 0.0017564595909789205,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0.02",
+          "lam": 0.025,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2569444444444444,
+          "source_val_bacc_mean": 0.3706597222222222,
+          "source_val_bacc_min": 0.2569444444444444,
+          "source_val_bacc_repeats": [
+            0.3072916666666667,
+            0.5034722222222222,
+            0.3038194444444444,
+            0.2621527777777778,
+            0.2569444444444444,
+            0.3489583333333333,
+            0.5086805555555556,
+            0.47395833333333337
+          ],
+          "source_val_domains": [
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.33764120982959867,
+          "select_cond_kl": 0.17550133168697357,
+          "select_cond_kl_rw": 0.17365650832653046,
+          "select_pz_kl_rw": 0.1613403558731079,
+          "select_py_res_rw": 0.024404406547546387,
+          "select_py_js_rw": 0.0026443456299602985,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0",
+          "lam": 0.05,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2552083333333333,
+          "source_val_bacc_mean": 0.3736979166666667,
+          "source_val_bacc_min": 0.2552083333333333,
+          "source_val_bacc_repeats": [
+            0.3142361111111111,
+            0.5295138888888888,
+            0.296875,
+            0.2569444444444444,
+            0.2552083333333333,
+            0.3715277777777778,
+            0.5086805555555556,
+            0.45659722222222227
+          ],
+          "source_val_domains": [
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.1587397699477151,
+          "select_cond_kl": 0.08025464415550232,
+          "select_cond_kl_rw": 0.08123445510864258,
+          "select_pz_kl_rw": 0.07608149945735931,
+          "select_py_res_rw": 0.0032379627227783203,
+          "select_py_js_rw": 0.0014238153817132115,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0.02",
+          "lam": 0.05,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2586805555555556,
+          "source_val_bacc_mean": 0.3687065972222222,
+          "source_val_bacc_min": 0.2586805555555556,
+          "source_val_bacc_repeats": [
+            0.3142361111111111,
+            0.4809027777777778,
+            0.2986111111111111,
+            0.2586805555555556,
+            0.2586805555555556,
+            0.3732638888888889,
+            0.5086805555555556,
+            0.45659722222222227
+          ],
+          "source_val_domains": [
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.1329742108937353,
+          "select_cond_kl": 0.06578051298856735,
+          "select_cond_kl_rw": 0.0674833208322525,
+          "select_pz_kl_rw": 0.06346843391656876,
+          "select_py_res_rw": 0.012320876121520996,
+          "select_py_js_rw": 0.002022456144914031,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        }
+      ],
+      "erm_guard_reason": "source_gain=0<min",
+      "target_bacc": 0.6024305555555556,
+      "target_erm_bacc": 0.6024305555555556,
+      "final_selected_probe_valid": true,
+      "final_selected_probe_penalty": 0.7418176799546927,
+      "final_selected_cond_kl": 0.3954862952232361,
+      "final_selected_cond_kl_rw": 0.39899563789367676,
+      "final_selected_pz_kl_rw": 0.33967897295951843,
+      "final_selected_py_res_rw": 0.017055034637451172,
+      "final_selected_py_js_rw": 0.003143069101497531,
+      "final_selected_decoder_valid": true,
+      "final_selected_decoder_min_domain_classes": 4,
+      "final_selected_decoder_single_class_frac": 0.0,
+      "final_erm_probe_valid": true,
+      "final_erm_probe_penalty": 0.7418176799546927,
+      "final_erm_cond_kl": 0.3954862952232361,
+      "final_erm_cond_kl_rw": 0.39899563789367676,
+      "final_erm_pz_kl_rw": 0.33967897295951843,
+      "final_erm_py_res_rw": 0.017055034637451172,
+      "final_erm_py_js_rw": 0.003143069101497531,
+      "final_erm_decoder_valid": true,
+      "final_erm_decoder_min_domain_classes": 4,
+      "final_erm_decoder_single_class_frac": 0.0
+    },
+    {
+      "target": "2",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2638888888888889,
+          "source_val_bacc_mean": 0.4600694444444444,
+          "source_val_bacc_min": 0.2638888888888889,
+          "source_val_bacc_repeats": [
+            0.564236111111111,
+            0.6753472222222222,
+            0.3350694444444445,
+            0.2638888888888889,
+            0.3020833333333333,
+            0.3298611111111111,
+            0.6319444444444444,
+            0.578125
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.4414474847726524,
+          "select_cond_kl": 0.2304307222366333,
+          "select_cond_kl_rw": 0.2293386161327362,
+          "select_pz_kl_rw": 0.20837198197841644,
+          "select_py_res_rw": 0.03951108455657959,
+          "select_py_js_rw": 0.0037368866614997387,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0",
+          "lam": 0.025,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2690972222222222,
+          "source_val_bacc_mean": 0.44943576388888884,
+          "source_val_bacc_min": 0.2690972222222222,
+          "source_val_bacc_repeats": [
+            0.5989583333333334,
+            0.6510416666666667,
+            0.3385416666666667,
+            0.2690972222222222,
+            0.2795138888888889,
+            0.3524305555555555,
+            0.5746527777777778,
+            0.53125
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.23420221079140902,
+          "select_cond_kl": 0.11642791330814362,
+          "select_cond_kl_rw": 0.1186646819114685,
+          "select_pz_kl_rw": 0.11411263048648834,
+          "select_py_res_rw": 0.010094881057739258,
+          "select_py_js_rw": 0.0014248983934521675,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0.02",
+          "lam": 0.025,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2690972222222222,
+          "source_val_bacc_mean": 0.4392361111111111,
+          "source_val_bacc_min": 0.2690972222222222,
+          "source_val_bacc_repeats": [
+            0.5815972222222223,
+            0.5868055555555556,
+            0.3402777777777778,
+            0.2690972222222222,
+            0.2795138888888889,
+            0.3524305555555555,
+            0.5729166666666666,
+            0.53125
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.3165531591512263,
+          "select_cond_kl": 0.16503430902957916,
+          "select_cond_kl_rw": 0.16532889008522034,
+          "select_pz_kl_rw": 0.1486111730337143,
+          "select_py_res_rw": 0.024028420448303223,
+          "select_py_js_rw": 0.0026130960322916508,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0",
+          "lam": 0.05,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2673611111111111,
+          "source_val_bacc_mean": 0.42556423611111116,
+          "source_val_bacc_min": 0.2673611111111111,
+          "source_val_bacc_repeats": [
+            0.5763888888888888,
+            0.4861111111111111,
+            0.3454861111111111,
+            0.2673611111111111,
+            0.2725694444444444,
+            0.3663194444444444,
+            0.5815972222222223,
+            0.5086805555555556
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.13176214881241322,
+          "select_cond_kl": 0.06663275510072708,
+          "select_cond_kl_rw": 0.06769227981567383,
+          "select_pz_kl_rw": 0.06248072162270546,
+          "select_py_res_rw": 0.018860936164855957,
+          "select_py_js_rw": 0.001589147374033928,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0.02",
+          "lam": 0.05,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.265625,
+          "source_val_bacc_mean": 0.4366319444444444,
+          "source_val_bacc_min": 0.265625,
+          "source_val_bacc_repeats": [
+            0.5763888888888888,
+            0.5746527777777778,
+            0.34375,
+            0.265625,
+            0.2743055555555556,
+            0.3663194444444444,
+            0.5833333333333334,
+            0.5086805555555556
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.1411344986408949,
+          "select_cond_kl": 0.07442329078912735,
+          "select_cond_kl_rw": 0.07499616593122482,
+          "select_pz_kl_rw": 0.06363587826490402,
+          "select_py_res_rw": 0.033159613609313965,
+          "select_py_js_rw": 0.0025024544447660446,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        }
+      ],
+      "erm_guard_reason": "source_gain=0.003472<min",
+      "target_bacc": 0.296875,
+      "target_erm_bacc": 0.296875,
+      "final_selected_probe_valid": true,
+      "final_selected_probe_penalty": 0.6380970471072942,
+      "final_selected_cond_kl": 0.35439854860305786,
+      "final_selected_cond_kl_rw": 0.35170453786849976,
+      "final_selected_pz_kl_rw": 0.28390592336654663,
+      "final_selected_py_res_rw": 0.005945920944213867,
+      "final_selected_py_js_rw": 0.002486585872247815,
+      "final_selected_decoder_valid": true,
+      "final_selected_decoder_min_domain_classes": 4,
+      "final_selected_decoder_single_class_frac": 0.0,
+      "final_erm_probe_valid": true,
+      "final_erm_probe_penalty": 0.6380970471072942,
+      "final_erm_cond_kl": 0.35439854860305786,
+      "final_erm_cond_kl_rw": 0.35170453786849976,
+      "final_erm_pz_kl_rw": 0.28390592336654663,
+      "final_erm_py_res_rw": 0.005945920944213867,
+      "final_erm_py_js_rw": 0.002486585872247815,
+      "final_erm_decoder_valid": true,
+      "final_erm_decoder_min_domain_classes": 4,
+      "final_erm_decoder_single_class_frac": 0.0
+    },
+    {
+      "target": "3",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2569444444444444,
+          "source_val_bacc_mean": 0.3943142361111111,
+          "source_val_bacc_min": 0.2569444444444444,
+          "source_val_bacc_repeats": [
+            0.5416666666666666,
+            0.27604166666666663,
+            0.30208333333333337,
+            0.2569444444444444,
+            0.28125,
+            0.3315972222222222,
+            0.5763888888888888,
+            0.5885416666666666
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.673035638872534,
+          "select_cond_kl": 0.34662744402885437,
+          "select_cond_kl_rw": 0.3466809391975403,
+          "select_pz_kl_rw": 0.3244054317474365,
+          "select_py_res_rw": 0.014698028564453125,
+          "select_py_js_rw": 0.00194926792755723,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0",
+          "lam": 0.025,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2465277777777778,
+          "source_val_bacc_mean": 0.3851996527777778,
+          "source_val_bacc_min": 0.2465277777777778,
+          "source_val_bacc_repeats": [
+            0.625,
+            0.2829861111111111,
+            0.3003472222222222,
+            0.2517361111111111,
+            0.2465277777777778,
+            0.3229166666666667,
+            0.5763888888888888,
+            0.4756944444444444
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.33445939130615443,
+          "select_cond_kl": 0.17006774246692657,
+          "select_cond_kl_rw": 0.17002056539058685,
+          "select_pz_kl_rw": 0.16270528733730316,
+          "select_py_res_rw": 0.005280733108520508,
+          "select_py_js_rw": 0.0017335385782644153,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0.02",
+          "lam": 0.025,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2465277777777778,
+          "source_val_bacc_mean": 0.37369791666666663,
+          "source_val_bacc_min": 0.2465277777777778,
+          "source_val_bacc_repeats": [
+            0.5538194444444445,
+            0.2621527777777778,
+            0.3003472222222222,
+            0.2517361111111111,
+            0.2465277777777778,
+            0.3229166666666667,
+            0.5763888888888888,
+            0.4756944444444444
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.39494554162956774,
+          "select_cond_kl": 0.216336190700531,
+          "select_cond_kl_rw": 0.2164960354566574,
+          "select_pz_kl_rw": 0.17643627524375916,
+          "select_py_res_rw": 0.016253352165222168,
+          "select_py_js_rw": 0.0020132309291511774,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0",
+          "lam": 0.05,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2534722222222222,
+          "source_val_bacc_mean": 0.37630208333333337,
+          "source_val_bacc_min": 0.2534722222222222,
+          "source_val_bacc_repeats": [
+            0.529513888888889,
+            0.3090277777777778,
+            0.2916666666666667,
+            0.2534722222222222,
+            0.2569444444444445,
+            0.3385416666666667,
+            0.5694444444444444,
+            0.4618055555555555
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.18490400398150086,
+          "select_cond_kl": 0.0902022272348404,
+          "select_cond_kl_rw": 0.0909615084528923,
+          "select_pz_kl_rw": 0.09268718957901001,
+          "select_py_res_rw": 0.0031250715255737305,
+          "select_py_js_rw": 0.0012553059495985508,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0.02",
+          "lam": 0.05,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2534722222222222,
+          "source_val_bacc_mean": 0.3752170138888889,
+          "source_val_bacc_min": 0.2534722222222222,
+          "source_val_bacc_repeats": [
+            0.5312500000000001,
+            0.2986111111111111,
+            0.2916666666666667,
+            0.2534722222222222,
+            0.2569444444444445,
+            0.3385416666666667,
+            0.5694444444444445,
+            0.4618055555555555
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.2006397993536666,
+          "select_cond_kl": 0.10064998269081116,
+          "select_cond_kl_rw": 0.10143806040287018,
+          "select_pz_kl_rw": 0.09775876253843307,
+          "select_py_res_rw": 0.0,
+          "select_py_js_rw": 0.0014429764123633504,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        }
+      ],
+      "erm_guard_reason": "source_gain=-0.003472<min",
+      "target_bacc": 0.5538194444444444,
+      "target_erm_bacc": 0.5538194444444444,
+      "final_selected_probe_valid": true,
+      "final_selected_probe_penalty": 0.6814740581903607,
+      "final_selected_cond_kl": 0.36049625277519226,
+      "final_selected_cond_kl_rw": 0.35899221897125244,
+      "final_selected_pz_kl_rw": 0.3200080692768097,
+      "final_selected_py_res_rw": 0.020653724670410156,
+      "final_selected_py_js_rw": 0.0024737699422985315,
+      "final_selected_decoder_valid": true,
+      "final_selected_decoder_min_domain_classes": 4,
+      "final_selected_decoder_single_class_frac": 0.0,
+      "final_erm_probe_valid": true,
+      "final_erm_probe_penalty": 0.6814740581903607,
+      "final_erm_cond_kl": 0.36049625277519226,
+      "final_erm_cond_kl_rw": 0.35899221897125244,
+      "final_erm_pz_kl_rw": 0.3200080692768097,
+      "final_erm_py_res_rw": 0.020653724670410156,
+      "final_erm_py_js_rw": 0.0024737699422985315,
+      "final_erm_decoder_valid": true,
+      "final_erm_decoder_min_domain_classes": 4,
+      "final_erm_decoder_single_class_frac": 0.0
+    },
+    {
+      "target": "4",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2586805555555555,
+          "source_val_bacc_mean": 0.4522569444444445,
+          "source_val_bacc_min": 0.2586805555555555,
+          "source_val_bacc_repeats": [
+            0.6319444444444445,
+            0.3038194444444445,
+            0.6024305555555556,
+            0.2586805555555555,
+            0.2604166666666667,
+            0.3402777777777778,
+            0.6684027777777778,
+            0.5520833333333333
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.587911827256903,
+          "select_cond_kl": 0.2879470884799957,
+          "select_cond_kl_rw": 0.29057592153549194,
+          "select_pz_kl_rw": 0.2949492037296295,
+          "select_py_res_rw": 0.029228925704956055,
+          "select_py_js_rw": 0.0023867019917815924,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0",
+          "lam": 0.025,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.25520833333333337,
+          "source_val_bacc_mean": 0.4461805555555556,
+          "source_val_bacc_min": 0.25520833333333337,
+          "source_val_bacc_repeats": [
+            0.6232638888888888,
+            0.2951388888888889,
+            0.6336805555555556,
+            0.265625,
+            0.25520833333333337,
+            0.3784722222222222,
+            0.5868055555555556,
+            0.53125
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.3071157231461257,
+          "select_cond_kl": 0.16103002429008484,
+          "select_cond_kl_rw": 0.16323290765285492,
+          "select_pz_kl_rw": 0.14077948033809662,
+          "select_py_res_rw": 0.023918628692626953,
+          "select_py_js_rw": 0.003103335155174136,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0.02",
+          "lam": 0.025,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.25520833333333337,
+          "source_val_bacc_mean": 0.4431423611111111,
+          "source_val_bacc_min": 0.25520833333333337,
+          "source_val_bacc_repeats": [
+            0.6145833333333334,
+            0.28125,
+            0.6336805555555556,
+            0.265625,
+            0.25520833333333337,
+            0.3784722222222222,
+            0.5850694444444444,
+            0.53125
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.567129829665646,
+          "select_cond_kl": 0.2867102324962616,
+          "select_cond_kl_rw": 0.28610560297966003,
+          "select_pz_kl_rw": 0.2783381938934326,
+          "select_py_res_rw": 0.03019082546234131,
+          "select_py_js_rw": 0.0026860327925533056,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0",
+          "lam": 0.05,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.24479166666666669,
+          "source_val_bacc_mean": 0.4364149305555556,
+          "source_val_bacc_min": 0.24479166666666669,
+          "source_val_bacc_repeats": [
+            0.6180555555555556,
+            0.296875,
+            0.6128472222222222,
+            0.2604166666666667,
+            0.24479166666666669,
+            0.3836805555555555,
+            0.5659722222222222,
+            0.5086805555555556
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.3587257656035945,
+          "select_cond_kl": 0.16890564560890198,
+          "select_cond_kl_rw": 0.17140613496303558,
+          "select_pz_kl_rw": 0.18610480427742004,
+          "select_py_res_rw": 0.009627699851989746,
+          "select_py_js_rw": 0.0012148263631388545,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0.02",
+          "lam": 0.05,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.24479166666666669,
+          "source_val_bacc_mean": 0.4333767361111111,
+          "source_val_bacc_min": 0.24479166666666669,
+          "source_val_bacc_repeats": [
+            0.6180555555555556,
+            0.2708333333333333,
+            0.6128472222222222,
+            0.2604166666666667,
+            0.24479166666666669,
+            0.3854166666666667,
+            0.5642361111111112,
+            0.5104166666666667
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.3383043233770877,
+          "select_cond_kl": 0.1681949645280838,
+          "select_cond_kl_rw": 0.16769422590732574,
+          "select_pz_kl_rw": 0.1686374992132187,
+          "select_py_res_rw": 0.016509413719177246,
+          "select_py_js_rw": 0.0019725982565432787,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        }
+      ],
+      "erm_guard_reason": "source_gain=-0.003472<min;selected_penalty=0.3071>max",
+      "target_bacc": 0.3940972222222222,
+      "target_erm_bacc": 0.3940972222222222,
+      "final_selected_probe_valid": true,
+      "final_selected_probe_penalty": 0.8092290032655001,
+      "final_selected_cond_kl": 0.42104923725128174,
+      "final_selected_cond_kl_rw": 0.41896408796310425,
+      "final_selected_pz_kl_rw": 0.3868834972381592,
+      "final_selected_py_res_rw": 0.021570563316345215,
+      "final_selected_py_js_rw": 0.003381418064236641,
+      "final_selected_decoder_valid": true,
+      "final_selected_decoder_min_domain_classes": 4,
+      "final_selected_decoder_single_class_frac": 0.0,
+      "final_erm_probe_valid": true,
+      "final_erm_probe_penalty": 0.8092290032655001,
+      "final_erm_cond_kl": 0.42104923725128174,
+      "final_erm_cond_kl_rw": 0.41896408796310425,
+      "final_erm_pz_kl_rw": 0.3868834972381592,
+      "final_erm_py_res_rw": 0.021570563316345215,
+      "final_erm_py_js_rw": 0.003381418064236641,
+      "final_erm_decoder_valid": true,
+      "final_erm_decoder_min_domain_classes": 4,
+      "final_erm_decoder_single_class_frac": 0.0
+    },
+    {
+      "target": "5",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2795138888888889,
+          "source_val_bacc_mean": 0.45920138888888895,
+          "source_val_bacc_min": 0.2795138888888889,
+          "source_val_bacc_repeats": [
+            0.529513888888889,
+            0.2795138888888889,
+            0.6579861111111112,
+            0.3836805555555555,
+            0.2829861111111111,
+            0.296875,
+            0.6614583333333334,
+            0.5815972222222222
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.534939871635288,
+          "select_cond_kl": 0.2736808955669403,
+          "select_cond_kl_rw": 0.2758588492870331,
+          "select_pz_kl_rw": 0.2566717267036438,
+          "select_py_res_rw": 0.028273344039916992,
+          "select_py_js_rw": 0.0024092956446111202,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0",
+          "lam": 0.025,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2586805555555556,
+          "source_val_bacc_mean": 0.4487847222222222,
+          "source_val_bacc_min": 0.2586805555555556,
+          "source_val_bacc_repeats": [
+            0.6232638888888888,
+            0.2934027777777778,
+            0.6475694444444444,
+            0.3368055555555555,
+            0.2586805555555556,
+            0.3090277777777778,
+            0.5885416666666667,
+            0.5329861111111112
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.31300367694348097,
+          "select_cond_kl": 0.15438392758369446,
+          "select_cond_kl_rw": 0.1561369150876999,
+          "select_pz_kl_rw": 0.15428470075130463,
+          "select_py_res_rw": 0.009396553039550781,
+          "select_py_js_rw": 0.002582061104476452,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0.02",
+          "lam": 0.025,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.26041666666666663,
+          "source_val_bacc_mean": 0.4513888888888889,
+          "source_val_bacc_min": 0.26041666666666663,
+          "source_val_bacc_repeats": [
+            0.6180555555555556,
+            0.3194444444444444,
+            0.6458333333333333,
+            0.3368055555555555,
+            0.26041666666666663,
+            0.31076388888888895,
+            0.5885416666666667,
+            0.53125
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.32542977575212717,
+          "select_cond_kl": 0.1668020635843277,
+          "select_cond_kl_rw": 0.16527700424194336,
+          "select_pz_kl_rw": 0.15790332853794098,
+          "select_py_res_rw": 0.02073371410369873,
+          "select_py_js_rw": 0.002249442972242832,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0",
+          "lam": 0.05,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.265625,
+          "source_val_bacc_mean": 0.4416232638888889,
+          "source_val_bacc_min": 0.265625,
+          "source_val_bacc_repeats": [
+            0.6197916666666666,
+            0.28645833333333337,
+            0.6302083333333333,
+            0.3402777777777778,
+            0.265625,
+            0.3159722222222222,
+            0.5590277777777778,
+            0.515625
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.1480141100473702,
+          "select_cond_kl": 0.07524993270635605,
+          "select_cond_kl_rw": 0.07536470890045166,
+          "select_pz_kl_rw": 0.07129740715026855,
+          "select_py_res_rw": 0.015964746475219727,
+          "select_py_js_rw": 0.0013519939966499805,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0.02",
+          "lam": 0.05,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.265625,
+          "source_val_bacc_mean": 0.4411892361111111,
+          "source_val_bacc_min": 0.265625,
+          "source_val_bacc_repeats": [
+            0.6180555555555555,
+            0.2795138888888889,
+            0.6336805555555556,
+            0.3402777777777778,
+            0.265625,
+            0.3159722222222222,
+            0.5607638888888888,
+            0.515625
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.14717970532365143,
+          "select_cond_kl": 0.08302018791437149,
+          "select_cond_kl_rw": 0.08276230096817017,
+          "select_pz_kl_rw": 0.0631476491689682,
+          "select_py_res_rw": 0.010030150413513184,
+          "select_py_js_rw": 0.0012697551865130663,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        }
+      ],
+      "erm_guard_reason": "",
+      "target_bacc": 0.3055555555555556,
+      "target_erm_bacc": 0.3055555555555556,
+      "final_selected_probe_valid": true,
+      "final_selected_probe_penalty": 0.614094051765278,
+      "final_selected_cond_kl": 0.33238279819488525,
+      "final_selected_cond_kl_rw": 0.33084937930107117,
+      "final_selected_pz_kl_rw": 0.28045156598091125,
+      "final_selected_py_res_rw": 0.016759932041168213,
+      "final_selected_py_js_rw": 0.00279310648329556,
+      "final_selected_decoder_valid": true,
+      "final_selected_decoder_min_domain_classes": 4,
+      "final_selected_decoder_single_class_frac": 0.0,
+      "final_erm_probe_valid": true,
+      "final_erm_probe_penalty": 0.614094051765278,
+      "final_erm_cond_kl": 0.33238279819488525,
+      "final_erm_cond_kl_rw": 0.33084937930107117,
+      "final_erm_pz_kl_rw": 0.28045156598091125,
+      "final_erm_py_res_rw": 0.016759932041168213,
+      "final_erm_py_js_rw": 0.00279310648329556,
+      "final_erm_decoder_valid": true,
+      "final_erm_decoder_min_domain_classes": 4,
+      "final_erm_decoder_single_class_frac": 0.0
+    },
+    {
+      "target": "6",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2743055555555555,
+          "source_val_bacc_mean": 0.435546875,
+          "source_val_bacc_min": 0.2743055555555555,
+          "source_val_bacc_repeats": [
+            0.6145833333333334,
+            0.29166666666666663,
+            0.5208333333333334,
+            0.3385416666666667,
+            0.2743055555555555,
+            0.3298611111111111,
+            0.5972222222222223,
+            0.5173611111111112
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.668516360456124,
+          "select_cond_kl": 0.3567768931388855,
+          "select_cond_kl_rw": 0.35768112540245056,
+          "select_pz_kl_rw": 0.30785736441612244,
+          "select_py_res_rw": 0.027567386627197266,
+          "select_py_js_rw": 0.00297787063755095,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0",
+          "lam": 0.025,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2586805555555556,
+          "source_val_bacc_mean": 0.4353298611111111,
+          "source_val_bacc_min": 0.2586805555555556,
+          "source_val_bacc_repeats": [
+            0.625,
+            0.26215277777777773,
+            0.5295138888888888,
+            0.35937500000000006,
+            0.2586805555555556,
+            0.3854166666666667,
+            0.5590277777777778,
+            0.5034722222222222
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.4850403843447566,
+          "select_cond_kl": 0.24202579259872437,
+          "select_cond_kl_rw": 0.23981373012065887,
+          "select_pz_kl_rw": 0.24217109382152557,
+          "select_py_res_rw": 0.02294480800628662,
+          "select_py_js_rw": 0.003055560402572155,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0.02",
+          "lam": 0.025,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2586805555555556,
+          "source_val_bacc_mean": 0.4353298611111111,
+          "source_val_bacc_min": 0.2586805555555556,
+          "source_val_bacc_repeats": [
+            0.6024305555555556,
+            0.2847222222222222,
+            0.5295138888888888,
+            0.35937500000000006,
+            0.2586805555555556,
+            0.3854166666666667,
+            0.5590277777777778,
+            0.5034722222222222
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.5150567593518645,
+          "select_cond_kl": 0.26143884658813477,
+          "select_cond_kl_rw": 0.26247474551200867,
+          "select_pz_kl_rw": 0.24892593920230865,
+          "select_py_res_rw": 0.03769493103027344,
+          "select_py_js_rw": 0.0036560746375471354,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0",
+          "lam": 0.05,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2638888888888889,
+          "source_val_bacc_mean": 0.4318576388888889,
+          "source_val_bacc_min": 0.2638888888888889,
+          "source_val_bacc_repeats": [
+            0.6041666666666667,
+            0.2899305555555555,
+            0.5086805555555556,
+            0.359375,
+            0.2638888888888889,
+            0.3836805555555556,
+            0.5590277777777778,
+            0.4861111111111111
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.2968786680139601,
+          "select_cond_kl": 0.15207083523273468,
+          "select_cond_kl_rw": 0.15279701352119446,
+          "select_pz_kl_rw": 0.14081460237503052,
+          "select_py_res_rw": 0.028700828552246094,
+          "select_py_js_rw": 0.0032670521177351475,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0.02",
+          "lam": 0.05,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2638888888888889,
+          "source_val_bacc_mean": 0.4294704861111111,
+          "source_val_bacc_min": 0.2638888888888889,
+          "source_val_bacc_repeats": [
+            0.5989583333333334,
+            0.27604166666666663,
+            0.5086805555555556,
+            0.3576388888888889,
+            0.2638888888888889,
+            0.3836805555555556,
+            0.560763888888889,
+            0.4861111111111111
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.2444718200713396,
+          "select_cond_kl": 0.13571208715438843,
+          "select_cond_kl_rw": 0.13659030199050903,
+          "select_pz_kl_rw": 0.1046101450920105,
+          "select_py_res_rw": 0.02422797679901123,
+          "select_py_js_rw": 0.003271372988820076,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        }
+      ],
+      "erm_guard_reason": "",
+      "target_bacc": 0.265625,
+      "target_erm_bacc": 0.265625,
+      "final_selected_probe_valid": true,
+      "final_selected_probe_penalty": 0.8409222634509206,
+      "final_selected_cond_kl": 0.45685699582099915,
+      "final_selected_cond_kl_rw": 0.4620976150035858,
+      "final_selected_pz_kl_rw": 0.37551766633987427,
+      "final_selected_py_res_rw": 0.0215681791305542,
+      "final_selected_py_js_rw": 0.003306982107460499,
+      "final_selected_decoder_valid": true,
+      "final_selected_decoder_min_domain_classes": 4,
+      "final_selected_decoder_single_class_frac": 0.0,
+      "final_erm_probe_valid": true,
+      "final_erm_probe_penalty": 0.8409222634509206,
+      "final_erm_cond_kl": 0.45685699582099915,
+      "final_erm_cond_kl_rw": 0.4620976150035858,
+      "final_erm_pz_kl_rw": 0.37551766633987427,
+      "final_erm_py_res_rw": 0.0215681791305542,
+      "final_erm_py_js_rw": 0.003306982107460499,
+      "final_erm_decoder_valid": true,
+      "final_erm_decoder_min_domain_classes": 4,
+      "final_erm_decoder_single_class_frac": 0.0
+    },
+    {
+      "target": "7",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2552083333333333,
+          "source_val_bacc_mean": 0.4565972222222222,
+          "source_val_bacc_min": 0.2552083333333333,
+          "source_val_bacc_repeats": [
+            0.5815972222222222,
+            0.29166666666666663,
+            0.703125,
+            0.3211805555555556,
+            0.2552083333333333,
+            0.27083333333333337,
+            0.6701388888888888,
+            0.5590277777777778
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.6916601511184126,
+          "select_cond_kl": 0.35187867283821106,
+          "select_cond_kl_rw": 0.35251566767692566,
+          "select_pz_kl_rw": 0.3367287218570709,
+          "select_py_res_rw": 0.023282647132873535,
+          "select_py_js_rw": 0.002415761584416032,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0",
+          "lam": 0.025,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.265625,
+          "source_val_bacc_mean": 0.4279513888888889,
+          "source_val_bacc_min": 0.265625,
+          "source_val_bacc_repeats": [
+            0.6024305555555556,
+            0.28125,
+            0.609375,
+            0.3454861111111111,
+            0.265625,
+            0.2760416666666667,
+            0.5746527777777778,
+            0.46875
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.4281464311061427,
+          "select_cond_kl": 0.23150020837783813,
+          "select_cond_kl_rw": 0.2313803732395172,
+          "select_pz_kl_rw": 0.1949361115694046,
+          "select_py_res_rw": 0.01878225803375244,
+          "select_py_js_rw": 0.0018299462972208858,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0.02",
+          "lam": 0.025,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.265625,
+          "source_val_bacc_mean": 0.4351128472222222,
+          "source_val_bacc_min": 0.265625,
+          "source_val_bacc_repeats": [
+            0.6475694444444444,
+            0.2899305555555556,
+            0.609375,
+            0.3489583333333333,
+            0.265625,
+            0.2760416666666667,
+            0.5746527777777778,
+            0.46875
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.4349665275076404,
+          "select_cond_kl": 0.23505082726478577,
+          "select_cond_kl_rw": 0.2362159639596939,
+          "select_pz_kl_rw": 0.19753025472164154,
+          "select_py_res_rw": 0.016335725784301758,
+          "select_py_js_rw": 0.0012203088263049722,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0",
+          "lam": 0.05,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2604166666666667,
+          "source_val_bacc_mean": 0.4303385416666667,
+          "source_val_bacc_min": 0.2604166666666667,
+          "source_val_bacc_repeats": [
+            0.6371527777777779,
+            0.2795138888888889,
+            0.5954861111111112,
+            0.34375,
+            0.2604166666666667,
+            0.2725694444444444,
+            0.5677083333333334,
+            0.4861111111111111
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.17369500186759979,
+          "select_cond_kl": 0.0841413363814354,
+          "select_cond_kl_rw": 0.08343305438756943,
+          "select_pz_kl_rw": 0.08887176215648651,
+          "select_py_res_rw": 0.006444454193115234,
+          "select_py_js_rw": 0.0013901853235438466,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0.02",
+          "lam": 0.05,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2604166666666667,
+          "source_val_bacc_mean": 0.4338107638888889,
+          "source_val_bacc_min": 0.2604166666666667,
+          "source_val_bacc_repeats": [
+            0.6354166666666667,
+            0.3090277777777778,
+            0.5972222222222222,
+            0.3454861111111111,
+            0.2604166666666667,
+            0.2725694444444444,
+            0.5659722222222222,
+            0.484375
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "7"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.1771796633838676,
+          "select_cond_kl": 0.08373179286718369,
+          "select_cond_kl_rw": 0.08481068909168243,
+          "select_pz_kl_rw": 0.09146957099437714,
+          "select_py_res_rw": 0.00638127326965332,
+          "select_py_js_rw": 0.0008994032978080213,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        }
+      ],
+      "erm_guard_reason": "source_gain=0.005208<min",
+      "target_bacc": 0.2951388888888889,
+      "target_erm_bacc": 0.2951388888888889,
+      "final_selected_probe_valid": true,
+      "final_selected_probe_penalty": 0.9103034308645874,
+      "final_selected_cond_kl": 0.47186851501464844,
+      "final_selected_cond_kl_rw": 0.4730004668235779,
+      "final_selected_pz_kl_rw": 0.4343109130859375,
+      "final_selected_py_res_rw": 0.02910691499710083,
+      "final_selected_py_js_rw": 0.0029920509550720453,
+      "final_selected_decoder_valid": true,
+      "final_selected_decoder_min_domain_classes": 4,
+      "final_selected_decoder_single_class_frac": 0.0,
+      "final_erm_probe_valid": true,
+      "final_erm_probe_penalty": 0.9103034308645874,
+      "final_erm_cond_kl": 0.47186851501464844,
+      "final_erm_cond_kl_rw": 0.4730004668235779,
+      "final_erm_pz_kl_rw": 0.4343109130859375,
+      "final_erm_py_res_rw": 0.02910691499710083,
+      "final_erm_py_js_rw": 0.0029920509550720453,
+      "final_erm_decoder_valid": true,
+      "final_erm_decoder_min_domain_classes": 4,
+      "final_erm_decoder_single_class_frac": 0.0
+    },
+    {
+      "target": "8",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2534722222222222,
+          "source_val_bacc_mean": 0.3832465277777778,
+          "source_val_bacc_min": 0.2534722222222222,
+          "source_val_bacc_repeats": [
+            0.6059027777777778,
+            0.2638888888888889,
+            0.4809027777777778,
+            0.3125,
+            0.265625,
+            0.2534722222222222,
+            0.3680555555555555,
+            0.515625
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.5657509311567992,
+          "select_cond_kl": 0.29397571086883545,
+          "select_cond_kl_rw": 0.29490095376968384,
+          "select_pz_kl_rw": 0.26743483543395996,
+          "select_py_res_rw": 0.027481794357299805,
+          "select_py_js_rw": 0.0034151419531553984,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0",
+          "lam": 0.025,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.26041666666666663,
+          "source_val_bacc_mean": 0.37934027777777773,
+          "source_val_bacc_min": 0.26041666666666663,
+          "source_val_bacc_repeats": [
+            0.5833333333333333,
+            0.28125,
+            0.5486111111111112,
+            0.33333333333333337,
+            0.265625,
+            0.26041666666666663,
+            0.3194444444444444,
+            0.4427083333333333
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.31780375936068594,
+          "select_cond_kl": 0.16111961007118225,
+          "select_cond_kl_rw": 0.16008593142032623,
+          "select_pz_kl_rw": 0.15410642325878143,
+          "select_py_res_rw": 0.016672730445861816,
+          "select_py_js_rw": 0.0036114046815782785,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0.02",
+          "lam": 0.025,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.26041666666666663,
+          "source_val_bacc_mean": 0.37760416666666663,
+          "source_val_bacc_min": 0.26041666666666663,
+          "source_val_bacc_repeats": [
+            0.578125,
+            0.2760416666666667,
+            0.546875,
+            0.33333333333333337,
+            0.265625,
+            0.26041666666666663,
+            0.3194444444444444,
+            0.4409722222222222
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.4183896007016301,
+          "select_cond_kl": 0.22511295974254608,
+          "select_cond_kl_rw": 0.2234659343957901,
+          "select_pz_kl_rw": 0.19084012508392334,
+          "select_py_res_rw": 0.01736891269683838,
+          "select_py_js_rw": 0.004083541221916676,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0",
+          "lam": 0.05,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2621527777777778,
+          "source_val_bacc_mean": 0.3821614583333333,
+          "source_val_bacc_min": 0.2621527777777778,
+          "source_val_bacc_repeats": [
+            0.579861111111111,
+            0.3107638888888889,
+            0.5329861111111112,
+            0.33854166666666663,
+            0.265625,
+            0.2621527777777778,
+            0.3229166666666667,
+            0.4444444444444445
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.15421262313611805,
+          "select_cond_kl": 0.07357437908649445,
+          "select_cond_kl_rw": 0.0744464322924614,
+          "select_pz_kl_rw": 0.07773465663194656,
+          "select_py_res_rw": 0.0169525146484375,
+          "select_py_js_rw": 0.0020315342117100954,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0.02",
+          "lam": 0.05,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2621527777777778,
+          "source_val_bacc_mean": 0.3778211805555556,
+          "source_val_bacc_min": 0.2621527777777778,
+          "source_val_bacc_repeats": [
+            0.579861111111111,
+            0.2777777777777778,
+            0.53125,
+            0.3368055555555556,
+            0.265625,
+            0.2621527777777778,
+            0.3246527777777778,
+            0.4444444444444444
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "8"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.17022669687867165,
+          "select_cond_kl": 0.08757634460926056,
+          "select_cond_kl_rw": 0.08914165943861008,
+          "select_pz_kl_rw": 0.07875680923461914,
+          "select_py_res_rw": 0.007473468780517578,
+          "select_py_js_rw": 0.0023282282054424286,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        }
+      ],
+      "erm_guard_reason": "source_gain=0.008681<min",
+      "target_bacc": 0.625,
+      "target_erm_bacc": 0.625,
+      "final_selected_probe_valid": true,
+      "final_selected_probe_penalty": 0.7226725327782333,
+      "final_selected_cond_kl": 0.3743140399456024,
+      "final_selected_cond_kl_rw": 0.37852486968040466,
+      "final_selected_pz_kl_rw": 0.3412507474422455,
+      "final_selected_py_res_rw": 0.019233107566833496,
+      "final_selected_py_js_rw": 0.0028969156555831432,
+      "final_selected_decoder_valid": true,
+      "final_selected_decoder_min_domain_classes": 4,
+      "final_selected_decoder_single_class_frac": 0.0,
+      "final_erm_probe_valid": true,
+      "final_erm_probe_penalty": 0.7226725327782333,
+      "final_erm_cond_kl": 0.3743140399456024,
+      "final_erm_cond_kl_rw": 0.37852486968040466,
+      "final_erm_pz_kl_rw": 0.3412507474422455,
+      "final_erm_py_res_rw": 0.019233107566833496,
+      "final_erm_py_js_rw": 0.0028969156555831432,
+      "final_erm_decoder_valid": true,
+      "final_erm_decoder_min_domain_classes": 4,
+      "final_erm_decoder_single_class_frac": 0.0
+    },
+    {
+      "target": "9",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2638888888888889,
+          "source_val_bacc_mean": 0.4029947916666667,
+          "source_val_bacc_min": 0.2638888888888889,
+          "source_val_bacc_repeats": [
+            0.5121527777777778,
+            0.3020833333333333,
+            0.5954861111111112,
+            0.3628472222222222,
+            0.28125,
+            0.2638888888888889,
+            0.3472222222222222,
+            0.5590277777777778
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.4418092321138829,
+          "select_cond_kl": 0.23262301087379456,
+          "select_cond_kl_rw": 0.23496034741401672,
+          "select_pz_kl_rw": 0.20410826802253723,
+          "select_py_res_rw": 0.027574777603149414,
+          "select_py_js_rw": 0.002740616677328944,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0",
+          "lam": 0.025,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.25520833333333337,
+          "source_val_bacc_mean": 0.3973524305555556,
+          "source_val_bacc_min": 0.25520833333333337,
+          "source_val_bacc_repeats": [
+            0.5729166666666666,
+            0.2986111111111111,
+            0.4982638888888889,
+            0.31770833333333337,
+            0.2621527777777778,
+            0.25520833333333337,
+            0.34895833333333337,
+            0.625
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.2905979269417003,
+          "select_cond_kl": 0.15528956055641174,
+          "select_cond_kl_rw": 0.15560396015644073,
+          "select_pz_kl_rw": 0.1338551789522171,
+          "select_py_res_rw": 0.011552572250366211,
+          "select_py_js_rw": 0.0011387878330424428,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.025:0.02",
+          "lam": 0.025,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.25520833333333337,
+          "source_val_bacc_mean": 0.3975694444444445,
+          "source_val_bacc_min": 0.25520833333333337,
+          "source_val_bacc_repeats": [
+            0.5989583333333333,
+            0.27604166666666663,
+            0.4982638888888889,
+            0.31770833333333337,
+            0.2621527777777778,
+            0.25520833333333337,
+            0.34895833333333337,
+            0.623263888888889
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.28360170184168965,
+          "select_cond_kl": 0.14680908620357513,
+          "select_cond_kl_rw": 0.14685410261154175,
+          "select_pz_kl_rw": 0.13519597053527832,
+          "select_py_res_rw": 0.013421416282653809,
+          "select_py_js_rw": 0.0015516286948695779,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0",
+          "lam": 0.05,
+          "gamma": 0.0,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2552083333333333,
+          "source_val_bacc_mean": 0.3988715277777778,
+          "source_val_bacc_min": 0.2552083333333333,
+          "source_val_bacc_repeats": [
+            0.5868055555555556,
+            0.2881944444444444,
+            0.49652777777777773,
+            0.328125,
+            0.2552083333333333,
+            0.25520833333333337,
+            0.35763888888888884,
+            0.623263888888889
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.12242415081709623,
+          "select_cond_kl": 0.0692133903503418,
+          "select_cond_kl_rw": 0.07090236246585846,
+          "select_pz_kl_rw": 0.050314005464315414,
+          "select_py_res_rw": 0.01134347915649414,
+          "select_py_js_rw": 0.0012077828869223595,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        },
+        {
+          "config": "dualpc:0.05:0.02",
+          "lam": 0.05,
+          "gamma": 0.02,
+          "dec_margin": 0.0,
+          "z_margin": 0.0,
+          "dec_scale": 1.0,
+          "source_val_bacc": 0.2552083333333333,
+          "source_val_bacc_mean": 0.3975694444444444,
+          "source_val_bacc_min": 0.2552083333333333,
+          "source_val_bacc_repeats": [
+            0.5868055555555556,
+            0.27604166666666663,
+            0.49652777777777773,
+            0.3263888888888889,
+            0.2552083333333333,
+            0.25520833333333337,
+            0.359375,
+            0.625
+          ],
+          "source_val_domains": [
+            [
+              "0"
+            ],
+            [
+              "1"
+            ],
+            [
+              "2"
+            ],
+            [
+              "3"
+            ],
+            [
+              "4"
+            ],
+            [
+              "5"
+            ],
+            [
+              "6"
+            ],
+            [
+              "7"
+            ]
+          ],
+          "selection_probe_valid": true,
+          "selector_penalty": 0.12561850354541093,
+          "select_cond_kl": 0.06287813186645508,
+          "select_cond_kl_rw": 0.06484739482402802,
+          "select_pz_kl_rw": 0.05940129980444908,
+          "select_py_res_rw": 0.007226467132568359,
+          "select_py_js_rw": 0.0013698089169338346,
+          "select_decoder_valid": true,
+          "select_decoder_min_domain_classes": 4,
+          "select_decoder_single_class_frac": 0.0
+        }
+      ],
+      "erm_guard_reason": "source_gain=-0.008681<min",
+      "target_bacc": 0.5208333333333334,
+      "target_erm_bacc": 0.5208333333333334,
+      "final_selected_probe_valid": true,
+      "final_selected_probe_penalty": 0.6132119947578758,
+      "final_selected_cond_kl": 0.3370222747325897,
+      "final_selected_cond_kl_rw": 0.3414366543292999,
+      "final_selected_pz_kl_rw": 0.26814669370651245,
+      "final_selected_py_res_rw": 0.017481446266174316,
+      "final_selected_py_js_rw": 0.003628646722063422,
+      "final_selected_decoder_valid": true,
+      "final_selected_decoder_min_domain_classes": 4,
+      "final_selected_decoder_single_class_frac": 0.0,
+      "final_erm_probe_valid": true,
+      "final_erm_probe_penalty": 0.6132119947578758,
+      "final_erm_cond_kl": 0.3370222747325897,
+      "final_erm_cond_kl_rw": 0.3414366543292999,
+      "final_erm_pz_kl_rw": 0.26814669370651245,
+      "final_erm_py_res_rw": 0.017481446266174316,
+      "final_erm_py_js_rw": 0.003628646722063422,
+      "final_erm_decoder_valid": true,
+      "final_erm_decoder_min_domain_classes": 4,
+      "final_erm_decoder_single_class_frac": 0.0
+    }
+  ],
+  "acc_constrained": 42.88194444444444,
+  "acc_erm": 42.88194444444444
+}

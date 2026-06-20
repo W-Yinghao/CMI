@@ -1,0 +1,1117 @@
+On Learning Invariant Representations for Domain Adaptation
+Han Zhao 1 Remi Tachet des Combes 2 Kun Zhang 1 Geoffrey J. Gordon 1 2
+Abstract
+Due to the ability of deep neural nets to learn
+rich representations, recent advances in unsuper-
+vised domain adaptation have focused on learning
+domain-invariant features that achieve a small er-
+ror on the source domain. The hope is that the
+learnt representation, together with the hypothesis
+learnt from the source domain, can generalize to
+the target domain. In this paper, we ﬁrst construct
+a simple counterexample showing that, contrary
+to common belief, the above conditions are not
+sufﬁcient to guarantee successful domain adapta-
+tion. In particular, the counterexample exhibits
+conditional shift: the class-conditional distribu-
+tions of input features change between source and
+target domains. To give a sufﬁcient condition for
+domain adaptation, we propose a natural and in-
+terpretable generalization upper bound that explic-
+itly takes into account the aforementioned shift.
+Moreover, we shed new light on the problem by
+proving an information-theoretic lower bound on
+the joint error of any domain adaptation method
+that attempts to learn invariant representations.
+Our result characterizes a fundamental tradeoff
+between learning invariant representations and
+achieving small joint error on both domains when
+the marginal label distributions differ from source
+to target. Finally, we conduct experiments on
+real-world datasets that corroborate our theoreti-
+cal ﬁndings. We believe these insights are helpful
+in guiding the future design of domain adaptation
+and representation learning algorithms.
+1. Introduction
+The recent successes of supervised deep learning methods
+have been partially attributed to rich datasets and increasing
+1Machine Learning Department, Carnegie Mellon University,
+Pittsburgh, PA, USA 2Microsoft Research, Montreal, Canada. Cor-
+respondence to: Han Zhao <han.zhao@cs.cmu.edu>.
+Proceedings of the 36 th International Conference on Machine
+Learning, Long Beach, California, PMLR 97, 2019. Copyright
+2019 by the author(s).
+computational power. However, in many critical applica-
+tions, e.g., self-driving cars or personal healthcare, it is often
+prohibitively expensive and time-consuming to collect large-
+scale supervised training data. Unsupervised domain adap-
+tation (DA) focuses on such limitations by trying to transfer
+knowledge from a labeled source domain to an unlabeled tar-
+get domain, and a large body of work tries to achieve this by
+exploring domain-invariant structures and representations
+to bridge the gap. Theoretical results (Ben-David et al.,
+2010; Mansour et al., 2009a; Mansour & Schain, 2012) and
+algorithms (Glorot et al., 2011; Becker et al., 2013; Ajakan
+et al., 2014; Adel et al., 2017; Pei et al., 2018) under this
+setting are abundant.
+Due to the ability of deep neural nets to learn rich feature
+representations, recent advances in domain adaptation have
+focused on using these networks to learn invariant repre-
+sentations, i.e., intermediate features whose distribution is
+the same in source and target domains, while at the same
+time achieving small error on the source domain. The hope
+is that the learnt intermediate representation, together with
+the hypothesis learnt using labeled data from the source
+domain, can generalize to the target domain. Nevertheless,
+from a theoretical standpoint, it is not at all clear whether
+aligned representations and small source error are sufﬁcient
+to guarantee good generalization on the target domain. In
+fact, despite being successfully applied in various applica-
+tions (Zhang et al., 2017; Hoffman et al., 2017), it has also
+been reported that such methods fail to generalize in certain
+closely related source/target pairs, e.g., digit classiﬁcation
+from MNIST to SVHN (Ganin et al., 2016).
+Given the wide application of domain adaptation methods
+based on learning invariant representations, we attempt in
+this paper to answer the following important and intriguing
+question:
+Is ﬁnding invariant representations while at the
+same time achieving a small source error sufﬁ-
+cient to guarantee a small target error? If not,
+under what conditions is it?
+Contrary to common belief, we give a negative answer to
+the above question by constructing a simple example show-
+ing that these two conditions are not sufﬁcient to guarantee
+target generalization, even in the case of perfectly aligned
+representations between the source and target domains. In
+
+On Learning Invariant Representations for Domain Adaptation
+x
+−1
+−0.5
+0
+0.5
+1
+1.5
+2
+y = 0
+y = 1
+source domain
+y = 1
+y = 0
+target domain
+x
+−1
+−0.5
+0
+0.5
+1
+1.5
+2
+y = 0
+y = 1
+source domain
+y = 1
+y = 0
+target domain
+g(x) = Ix0(x) · (x + 1)
++ Ix>0(x) · (x −1)
+Figure 1. A counterexample where invariant representations lead to large joint error on source and target domains. Before transformation
+of g(·), h∗(x) = 1 iff x ∈(−1/2, 3/2) achieves perfect classiﬁcation on both domains. After transformation, source and target
+distributions are perfectly aligned, but no hypothesis can achieve a small joint error.
+fact, our example shows that the objective of learning invari-
+ant representations while minimizing the source error can
+actually be hurtful, in the sense that the better the objective,
+the larger the target error. At a colloquial level, this hap-
+pens because learning invariant representations can break
+the originally favorable underlying problem structure, i.e.,
+close labeling functions and conditional distributions. To
+understand when such methods work, we propose a general-
+ization upper bound as a sufﬁcient condition that explicitly
+takes into account the conditional shift between source and
+target domains. The proposed upper bound admits a natural
+interpretation and decomposition in domain adaptation; we
+show that it is tighter than existing results in certain cases.
+Simultaneously, to understand what the necessary condi-
+tions for representation based approaches to work are, we
+prove an information-theoretic lower bound on the joint
+error of both domains for any algorithm based on learning
+invariant representations. Our result complements the above
+upper bound and also extends the constructed example to
+more general settings. The lower bound sheds new light
+on this problem by characterizing a fundamental tradeoff
+between learning invariant representations and achieving
+small joint error on both domains when the marginal label
+distributions differ from source to target. Our lower bound
+directly implies that minimizing source error while achiev-
+ing invariant representation will only increase the target
+error. We conduct experiments on real-world datasets that
+corroborate this theoretical implication. Together with the
+generalization upper bound, our results suggest that adap-
+tation should be designed to align the label distribution as
+well when learning an invariant representation (c.f. Sec. 4.3).
+We believe these insights will be helpful to guide the future
+design of domain adaptation and representation learning
+algorithms.
+2. Preliminary
+We ﬁrst introduce the notations used throughout this pa-
+per and review a theoretical model for domain adaptation
+(DA) (Kifer et al., 2004; Ben-David et al., 2007; Blitzer
+et al., 2008; Ben-David et al., 2010).
+Notations We use X and Y to denote the input and output
+space, respectively. Similarly, Z stands for the represen-
+tation space induced from X by a feature transformation
+g : X 7→Z. Accordingly, we use X, Y, Z to denote the
+random variables which take values in X, Y, Z, respectively.
+In this work, domain corresponds to a distribution D on the
+input space X and a labeling function f : X →[0, 1]. In the
+domain adaptation setting, we use ⟨DS, fS⟩and ⟨DT , fT ⟩
+to denote the source and target domains, respectively. A
+hypothesis is a function h : X →{0, 1}. The error of a
+hypothesis h w.r.t. the labeling function f under distribu-
+tion DS is deﬁned as: εS(h, f) := Ex∼DS[|h(x) −f(x)|].
+When f and h are binary classiﬁcation functions, this deﬁni-
+tion reduces to the probability that h disagrees with f under
+DS: Ex∼DS[|h(x) −f(x)|] = Ex∼DS[I(f(x) ̸= h(x))] =
+Prx∼DS(f(x) ̸= h(x)). In this work, we focus on the de-
+terministic setting where the output Y = f(X) is given by a
+deterministic labeling function f deﬁned on the correspond-
+ing domain. For two functions g and h with compatible
+domains and ranges, we use h ◦g to denote the function
+composition h(g(·)). Other notations will be introduced in
+the context when necessary.
+2.1. Problem Setup
+We consider the unsupervised domain adaptation problem
+where the learning algorithm has access to a set of n labeled
+points {(xi, yi)}n
+i=1 ∈(X × Y)n sampled i.i.d. from the
+source domain and a set of unlabeled points {xj}m
+j=1 ∈X m
+sampled i.i.d. from the target domain. At a colloquial level,
+the goal of an unsupervised domain adaptation algorithm
+is to generalize well on the target domain by learning from
+labeled samples from the source domain as well as unla-
+beled samples from the target domain. Formally, let the
+risk of hypothesis h be the error of h w.r.t. the true labeling
+function under domain DS, i.e., εS(h) := εS(h, fS). As
+commonly used in computational learning theory, we de-
+note by bεS(h) the empirical risk of h on the source domain.
+Similarly, we use εT (h) and bεT (h) to mean the true risk
+and the empirical risk on the target domain. The problem
+of domain adaptation considered in this work can be stated
+as: under what conditions and by what algorithms can we
+
+On Learning Invariant Representations for Domain Adaptation
+guarantee that a small training error bεS(h) implies a small
+test error εT (h)? Clearly, this goal is not always possible if
+the source and target domains are far away from each other.
+2.2. A Theoretical Model for Domain Adaptation
+To measure the similarity between two domains, it is crucial
+to deﬁne a discrepancy measure between them. To this
+end, Ben-David et al. (2010) proposed the H-divergence to
+measure the distance between two distributions:
+Deﬁnition 2.1 (H-divergence). Let H be a hypothesis class
+on input space X, and AH be the collection of subsets
+of X that are the support of some hypothesis in H, i.e.,
+AH := {h−1(1) | h ∈H}. The distance between two
+distributions D and D′ based on H is: dH(D, D′) :=
+supA∈AH | PrD(A) −PrD′(A)|. 1
+H-divergence is particularly favorable in the analysis of
+domain adaptation with binary classiﬁcation problems,
+and it had also been generalized to the discrepancy dis-
+tance (Cortes et al., 2008; Mansour et al., 2009a;b; Cortes &
+Mohri, 2014) for general loss functions, including the one
+for regression problems. Both H-divergence and the discrep-
+ancy distance can be estimated using ﬁnite unlabeled sam-
+ples from both domains when H has a ﬁnite VC-dimension.
+One ﬂexibility of the H-divergence is that its power on
+measuring the distance between two distributions can be
+controlled by the richness of the hypothesis class H. To
+see this, ﬁrst consider the situation where H is very restric-
+tive so that it only contains the constant functions h ≡0
+and h ≡1. In this case, it can be readily veriﬁed by the
+deﬁnition that dH(D, D′) = 0, ∀D, D′. On the other ex-
+treme, if H contains all the measurable binary functions,
+then dH(D, D′) = 0 iff D(·) = D′(·) almost surely. In
+this case the H-divergence reduces to the total variation, or
+equivalently the L1 distance, between the two distributions.
+Given a hypothesis class H, we deﬁne its symmetric differ-
+ence w.r.t. itself as: H∆H = {h(x) ⊕h′(x) | h, h′ ∈H},
+where ⊕is the xor operation. Let h∗be the optimal hypoth-
+esis that achieves the minimum joint risk on both the source
+and target domains: h∗:= arg minh∈H εS(h) + εT (h),
+and let λ∗denote the joint risk of the optimal hypothesis h∗:
+λ∗:= εS(h∗)+εT (h∗). Ben-David et al. (2007) proved the
+following generalization bound on the target risk in terms of
+the empirical source risk and the discrepancy between the
+source and target domains:
+Theorem 2.1 (Ben-David et al. (2007)). Let H be a hypoth-
+esis space of VC-dimension d and bDS (resp. bDT ) be the
+empirical distribution induced by a sample of size n drawn
+1To be precise, Ben-David et al. (2007)’s original deﬁnition of
+H-divergence has a factor of 2, we choose the current deﬁnition as
+the constant factor is inessential.
+from DS (resp. DT ). Then w.p. at least 1 −δ, ∀h ∈H,
+εT (h) ≤bεS(h) + 1
+2dH∆H( bDS, bDT )
++ λ∗+ O
+ r
+d log n + log(1/δ)
+n
+!
+.
+(1)
+The bound depends on λ∗, the optimal joint risk that can
+be achieved by the hypotheses in H. The intuition is the
+following: if λ∗is large, we cannot hope for a successful
+domain adaptation. Later in Sec. 4.3, we shall get back to
+this term to show an information-theoretic lower bound on it
+for any approach based on learning invariant representations.
+Theorem 2.1 is the foundation of many recent works on
+unsupervised domain adaptation via learning invariant rep-
+resentations (Ajakan et al., 2014; Ganin et al., 2016; Zhao
+et al., 2018b; Pei et al., 2018; Zhao et al., 2018a). It has
+also inspired various applications of domain adaptation with
+adversarial learning, e.g., video analysis (Hoffman et al.,
+2016; Shrivastava et al., 2016; Hoffman et al., 2017; Tzeng
+et al., 2017), natural language understanding (Zhang et al.,
+2017; Fu et al., 2017), speech recognition (Zhao et al., 2019;
+Hosseini-Asl et al., 2018), to name a few.
+At a high level, the key idea is to learn a rich and
+parametrized feature transformation g : X 7→Z such that
+the induced source and target distributions (on Z) are close,
+as measured by the H-divergence. We call g an invariant
+representation w.r.t. H if dH(Dg
+S, Dg
+T ) = 0, where Dg
+S/Dg
+T
+is the induced source/target distribution. At the same time,
+these algorithms also try to ﬁnd new hypothesis (on the
+representation space Z) to achieve a small empirical error
+on the source domain. As a whole algorithm, these two
+procedures corresponds to simultaneously ﬁnding invariant
+representations and hypothesis to minimize the ﬁrst two
+terms in the generalization upper bound of Theorem 2.1.
+3. Related Work
+A number of adaptation approaches based on learning in-
+variant representations have been proposed in recent years.
+Although in this paper we mainly focus on using the H-
+divergence to characterize the discrepancy between two
+distributions, other distance measures can be used as well,
+e.g., the maximum mean discrepancy (MMD) (Long et al.,
+2014; 2015; 2016), the Wasserstein distance (Courty et al.,
+2017b;a; Shen et al., 2018; Lee & Raginsky, 2018), etc.
+Under the theoretical framework of the H-divergence, Ganin
+et al. (2016) propose a domain adversarial neural network
+(DANN) to learn the domain invariant features. Adversarial
+training techniques that aim to build feature representations
+that are indistinguishable between source and target do-
+mains have been proposed in the last few years (Ajakan
+
+On Learning Invariant Representations for Domain Adaptation
+et al., 2014; Ganin et al., 2016). Speciﬁcally, one of the
+central ideas is to use neural networks, which are powerful
+function approximators, to approximate the H-divergence
+between two domains (Kifer et al., 2004; Ben-David et al.,
+2007; 2010). The overall algorithm can be viewed as a zero-
+sum two-player game: one network tries to learn feature
+representations that can fool the other network, whose goal
+is to distinguish the representations generated on the source
+domain from those generated on the target domain. In a
+concurrent work, Johansson et al. (2019) also identiﬁed the
+insufﬁciency of learning domain-invariant representation
+for successful adaptation. They further analyzed the infor-
+mation loss of non-invertible transformations, and proposed
+a generalization upper bound that directly takes it into ac-
+count. In our work, by showing an information-theoretic
+lower bound on the joint error of these methods, we show
+that although invariant representations can be achieved, it
+does not necessarily translate to good generalization on the
+target domain, in particular when the label distributions of
+the two domains differ signiﬁcantly.
+Causal approaches based on conditional and label shifts for
+domain adaptation also exist (Zhang et al., 2013; Gong et al.,
+2016; Lipton et al., 2018; Azizzadenesheli et al., 2018). One
+typical assumption made to simplify the analysis in this line
+of work is that the source and target domains share the same
+generative distribution and only differ at the marginal label
+distributions. It is worth noting that Zhang et al. (2013) and
+Gong et al. (2016) showed that both label and conditional
+shift can be successfully corrected when the changes in the
+generative distribution follow some parametric families. In
+this work we focus on representation learning and do not
+make such explicit assumptions.
+4. Theoretical Analysis
+Is ﬁnding invariant representations alone a sufﬁcient con-
+dition for the success of domain adaptation? Clearly it is
+not. Consider the following simple counterexample: let
+gc : X 7→Z be a constant function, where ∀x ∈X,
+gc(x) = c ∈Z. Then for any discrepancy distance d(·, ·)
+over two distributions, including the H-divergence, MMD,
+and the Wasserstein distance, and for any distributions
+DS, DT over the input space X, we have d(Dgc
+S , Dgc
+T ) = 0,
+where we use Dgc
+S (resp. Dgc
+T ) to mean the induced source
+(resp. target) distribution by the transformation gc over the
+representation space Z. Furthermore, it is fairly easy to
+construct source and target domains ⟨DS, fS⟩, ⟨DT , fT ⟩,
+such that for any hypothesis h : Z 7→Y, εT (h ◦gc) ≥1/2,
+while there exists a classiﬁcation function f : X →Y that
+achieves small error, e.g., the labeling function.
+One may argue, with good reason, that in the counterex-
+ample above, the empirical source error bεS(h ◦gc) is also
+large with high probability. Intuitively, this is because the
+simple constant transformation function gc fails to retain
+the discriminative information about the classiﬁcation task
+at hand, despite the fact that it can construct invariant repre-
+sentations.
+Is ﬁnding invariant representations and achieving a small
+source error sufﬁcient to guarantee small target error? In
+this section we ﬁrst give a negative answer to this question
+by constructing a counterexample where there exists a non-
+trivial transformation function g : X 7→Z and hypothesis
+h : Z 7→Y such that both εS(h ◦g) and dH∆H(Dg
+S, Dg
+T )
+are small, while at the same time the target error εT (h◦g) is
+large. Motivated by this negative result, we proceed to prove
+a generalization upper bound that explicitly characterizes
+a sufﬁcient condition for the success of domain adapta-
+tion. We then complement the upper bound by showing
+an information-theoretic lower bound on the joint error of
+any domain adaptation approach based on learning invariant
+representations.
+4.1. Invariant Representation and Small Source Risk
+are Not Sufﬁcient
+In this section, we shall construct a simple 1-dimensional
+example where there exists a function h∗: R 7→{0, 1}
+that achieves zero error on both source and target domains.
+Simultaneously, we show that there exists a transformation
+function g : R 7→R under which the induced source and
+target distributions are perfectly aligned, but every hypothe-
+sis h : R 7→{0, 1} incurs a large joint error on the induced
+source and target domains. The latter further implies that
+if we ﬁnd a hypothesis that achieves small error on the
+source domain, then it has to incur a large error on the target
+domain. We illustrate this example in Fig. 1.
+Let X = Z = R and Y = {0, 1}. For a ≤b, we use U(a, b)
+to denote the uniform distribution over [a, b]. Consider the
+following source and target domains:
+DS = U(−1, 0),
+fS(x) =
+(
+0,
+x ≤−1/2
+1,
+x > −1/2
+DT = U(1, 2),
+fT (x) =
+(
+0,
+x ≥3/2
+1,
+x < 3/2
+In the above example, it is easy to verify that the interval
+hypothesis h∗(x) = 1 iff x ∈(−1/2, 3/2) achieves perfect
+classiﬁcation on both domains.
+Now consider the following transformation:
+g(x) = Ix≤0(x) · (x + 1) + Ix>0(x) · (x −1).
+Since g(·) is a piecewise linear function, it follows that
+DZ
+S = DZ
+T = U(0, 1), and for any distance metric d(·, ·)
+over distributions, we have d(DZ
+S , DZ
+T ) = 0. But now for
+any hypothesis h : R 7→{0, 1}, and ∀x ∈[0, 1], h(x) will
+
+On Learning Invariant Representations for Domain Adaptation
+make an error in exactly one of the domains, hence
+∀h : R 7→{0, 1},
+εS(h ◦g) + εT (h ◦g) = 1.
+In other words, under the above invariant transformation g,
+the smaller the source error, the larger the target error.
+One may argue that this example seems to contradict the
+generalization upper bound from Theorem 2.1, where the
+ﬁrst two terms correspond exactly to a small source error
+and an invariant representation. The key to explain this
+apparent contradiction lies in the third term of the upper
+bound, λ∗, i.e., the optimal joint error achievable on both
+domains. In our example, when there is no transformation
+applied to the input space, we show that h∗achieves 0 error
+on both domains, hence λ∗= minh∈H εS(h) + εT (h) =
+0. However, when the transformation g is applied to the
+original input space, we prove that every hypothesis has joint
+error 1 on the representation space, hence λ∗
+g = 1. Since
+we usually do not have access to the optimal hypothesis
+on both domains, although the generalization bound still
+holds on the representation space, it becomes vacuous in
+our example.
+An alternative way to interpret the failure of the constructed
+example is that the labeling functions (or conditional dis-
+tributions in the stochastic setting) of source and target
+domains are far away from each other in the representation
+space. Speciﬁcally, in the induced representation space, the
+optimal labeling function on the source and target domains
+are:
+f ′
+S(x) =
+(
+0,
+x ≤1/2
+1,
+x > 1/2 ,
+f ′
+T (x) =
+(
+0,
+x > 1/2
+1,
+x ≤1/2 ,
+and we have ||f ′
+S −f ′
+T ||1 = Ex∼U(0,1)[|f ′
+S(x) −f ′
+T (x)|] =
+1.
+4.2. A Generalization Upper Bound
+For most of the practical hypothesis spaces H, e.g., half
+spaces, it is usually intractable to compute the optimal joint
+error λ∗from Theorem 2.1. Furthermore, the fact that λ∗
+contains errors from both domains makes the bound very
+conservative and loose in many cases. In this section, in-
+spired by the constructed example from Sec. 4.1, we aim
+to provide a general, intuitive, and interpretable generaliza-
+tion upper bound for domain adaptation that is free of the
+pessimistic λ∗term. Ideally, the bound should also explic-
+itly characterize how the shift between labeling functions
+of both domains affects domain adaptation. Due to space
+constraints, we refer the interested reader to the Appendix
+for the proofs of our technical lemmas, and mainly focus in
+the following on interpretations and results.
+Because of its ﬂexibility in choosing the witness function
+class H and its natural interpretation as adversarial binary
+classiﬁcation, we still adopt the H-divergence to measure
+the discrepancy between two distributions. For any hypoth-
+esis space H, it can be readily veriﬁed that dH(·, ·) satisﬁes
+the triangular inequality:
+dH(D, D′) ≤dH(D, D′′) + dH(D′′, D′),
+where D, D′, D′′ are any distributions over the same space.
+We now introduce a technical lemma that will be helpful in
+proving results related to the H-divergence:
+Lemma 4.1. Let H ⊆[0, 1]X and D, D′ be two distribu-
+tions over X. Then ∀h, h′ ∈H, |εD(h, h′) −εD′(h, h′)| ≤
+d ˜
+H(D, D′), where ˜H := {sgn(|h(x)−h′(x)|−t) | h, h′ ∈
+H, 0 ≤t ≤1}.
+As a matter of fact, the above lemma also holds for any
+function class H (not necessarily a hypothesis space) where
+there exists a constant M > 0, such that ||h||∞≤M for all
+h ∈H. Another useful lemma is the following triangular
+inequality:
+Lemma 4.2. Let H ⊆[0, 1]X and D be any distribution
+over X. For any h, h′, h′′ ∈H, we have εD(h, h′) ≤
+εD(h, h′′) + εD(h′′, h′).
+Let fS : X →[0, 1] and fT : X →[0, 1] be the optimal
+labeling functions on the source and target domains, respec-
+tively. In the stochastic setting, fS(x) = PrS(y = 1 | x)
+corresponds to the optimal Bayes classiﬁer. With these
+notations, the following theorem holds:
+Theorem 4.1. Let ⟨DS, fS⟩and ⟨DT , fT ⟩be the source
+and target domains, respectively. For any function class
+H ⊆[0, 1]X , and ∀h ∈H, the following inequality holds:
+εT (h) ≤εS(h) + d ˜
+H(DS, DT )
++ min{EDS[|fS −fT |], EDT [|fS −fT |]}.
+Remark The three terms in the upper bound have natural
+interpretations: the ﬁrst term is the source error, the second
+one corresponds to the discrepancy between the marginal
+distributions, and the third measures the distance between
+the labeling functions from the source and target domains.
+Altogether, they form a sufﬁcient condition for the success
+of domain adaptation: besides a small source error, not only
+do the marginal distributions need to be close, but so do the
+labeling functions.
+Comparison with Theorem 2.1. It is instructive to com-
+pare the bound in Theorem 4.1 with the one in Theo-
+rem 2.1.
+The main difference lies in the λ∗in Theo-
+rem 2.1 and the min{EDS[|fS −fT |], EDT [|fS −fT |]}
+in Theorem 4.1.
+λ∗depends on the choice of the hy-
+pothesis class H, while our term does not. In fact, our
+quantity reﬂects the underlying structure of the problem,
+i.e., the conditional shift. Finally, consider the example
+given in the left panel of Fig. 1. It is easy to verify that
+
+On Learning Invariant Representations for Domain Adaptation
+we have min{EDS[|fS −fT |], EDT [|fS −fT |]} = 1/2
+in this case, while for a natural class of hypotheses, i.e.,
+H := {h(x) = 0 ⇔a ≤x ≤b | a < b}, we have
+λ∗= 1. In that case, our bound is tighter than the one in
+Theorem 2.1.
+In the covariate shift setting, where we assume the condi-
+tional distributions of Y | X between the source and target
+domains are the same, the third term in the upper bound
+vanishes. In that case the above theorem says that to guar-
+antee successful domain adaptation, it sufﬁces to match the
+marginal distributions while achieving small error on the
+source domain. In general settings where the optimal label-
+ing functions of the source and target domains differ, the
+above bound says that it is not sufﬁcient to simply match the
+marginal distributions and achieve small error on the source
+domain. At the same time, we should also guarantee that the
+optimal labeling functions (or the conditional distributions
+of both domains) are not too far away from each other. As
+a side note, it is easy to see that EDS[|fS −fT |] = εS(fT )
+and EDT [|fS −fT |] = εT (fS). In other words, they are
+essentially the cross-domain errors. When the cross-domain
+error is small, it implies that the optimal source (resp. tar-
+get) labeling function generalizes well on the target (resp.
+source) domain.
+Both the error term εS(h) and the divergence d ˜
+H(DS, DT )
+in Theorem 4.1 are with respect to the true underlying dis-
+tributions DS and DT , which are not available to us during
+training. In the following, we shall use the Rademacher com-
+plexity to provide for both terms a data-dependent bound
+from empirical samples from DS and DT .
+Deﬁnition 4.1 (Empirical Rademacher Complexity). Let
+H be a family of functions mapping from X to [a, b] and
+S = {xi}n
+i=1 a ﬁxed sample of size n with elements in
+X. Then, the empirical Rademacher complexity of H with
+respect to the sample X is deﬁned as
+RadS(H) := Eσ
+
+sup
+h∈H
+1
+n
+n
+X
+i=1
+σih(xi)
+
+,
+where σ = {σi}n
+i=1 and σi are i.i.d. uniform random vari-
+ables taking values in {+1, −1}.
+With the empirical Rademacher complexity, we can show
+that w.h.p., the empirical source error bεS(h) cannot be too
+far away from the population error εS(h) for all h ∈H:
+Lemma 4.3. Let H ⊆[0, 1]X , then for all δ > 0, w.p. at
+least 1 −δ, the following inequality holds for all h ∈H:
+εS(h) ≤bεS(h) + 2RadS(H) + 3
+p
+log(2/δ)/2n.
+Similarly, for any distribution D over X, let bD be its empiri-
+cal distribution from sample S ∼Dn of size n. Then for any
+two distributions D and D′, we can also use the empirical
+Rademacher complexity to provide a data-dependent bound
+for the perturbation between dH(D, D′) and dH( bD, bD′):
+Lemma 4.4. Let ˜H, D and bD be deﬁned above, then for
+all δ > 0, w.p. at least 1 −δ, the following inequality
+holds for all h ∈˜H: ED[Ih] ≤E b
+D[Ih] + 2RadS( ˜H) +
+3
+p
+log(2/δ)/2n.
+Since ˜H is a hypothesis class, by deﬁnition we have:
+d ˜
+H(D, bD) = sup
+A∈A ˜
+H
+| Pr
+D (A) −Pr
+b
+D
+(A)|
+= sup
+h∈˜
+H
+|ED[Ih] −E b
+D[Ih]|.
+Hence combining the above identity with Lemma 4.4, we
+immediately have w.p. at least 1 −δ:
+d ˜
+H(D, bD) ≤2RadS( ˜H) + 3
+p
+log(2/δ)/2n.
+(2)
+Now use a union bound and the fact that d ˜
+H(·, ·) satisﬁes
+the triangle inequality, we have:
+Lemma 4.5. Let ˜H, D, D′ and bD, bD′ be deﬁned above,
+then for ∀δ > 0, w.p. at least 1 −δ, for ∀h ∈˜H:
+d ˜
+H(D, D′) ≤d ˜
+H( bD, bD′) + 4RadS( ˜H) + 6
+p
+log(4/δ)/2n.
+Combine Lemma 4.3, Lemma 4.5 and Theorem 4.1 with a
+union bound argument, we get the following main theorem
+that characterizes an upper bound for domain adaptation:
+Theorem 4.2. Let ⟨DS, fS⟩and ⟨DT , fT ⟩be the source and
+target domains, and let bDS, bDT be the empirical source and
+target distributions constructed from sample S = {SS, ST },
+each of size n. Then for any H ⊆[0, 1]X and ∀h ∈H:
+εT (h) ≤bεS(h) + d ˜
+H( bDS, bDT ) + 2RadS(H) + 4RadS( ˜H)
++ min{EDS[|fS −fT |], EDT [|fS −fT |]}
++ O
+p
+log(1/δ)/n
+
+,
+where ˜H := {sgn(|h(x)−h′(x)|−t)|h, h′ ∈H, t ∈[0, 1]}.
+Essentially, the generalization upper bound can be decom-
+posed into three parts: the ﬁrst part comes from the domain
+adaptation setting, including the empirical source error, the
+empirical H-divergence, and the shift between labeling func-
+tions. The second part corresponds to complexity measures
+of our hypothesis space H and ˜H, and the last part describes
+the error caused by ﬁnite samples.
+4.3. An Information-Theoretic Lower Bound
+In Sec. 4.1, we constructed an example to demonstrate that
+learning invariant representations could lead to a feature
+space where the joint error on both domains is large. In this
+section, we extend the example by showing that a similar
+result holds in more general settings. Speciﬁcally, we shall
+prove that for any approach based on learning invariant rep-
+resentations, there is an intrinsic lower bound on the joint
+
+On Learning Invariant Representations for Domain Adaptation
+error of source and target domains, due to the discrepancy
+between their marginal label distributions. Our result hence
+highlights the need to take into account task related infor-
+mation when designing domain adaptation algorithms based
+on learning invariant representations.
+Before we proceed to the lower bound, we ﬁrst deﬁne several
+information-theoretic concepts that will be used in the anal-
+ysis. For two distributions D and D′, the Jensen-Shannon
+(JS) divergence DJS(D || D′) is deﬁned as:
+DJS(D || D′) := 1
+2DKL(D || DM) + 1
+2DKL(D′ || DM),
+where DKL(· || ·) is the Kullback–Leibler (KL) divergence
+and DM := (D + D′)/2. The JS divergence can be viewed
+as a symmetrized and smoothed version of the KL diver-
+gence, and it is closely related to the L1 distance between
+two distributions through Lin’s lemma (Lin, 1991).
+Unlike the KL divergence, the JS divergence is bounded:
+0 ≤DJS(D || D′) ≤1. Additionally, from the JS di-
+vergence, we can deﬁne a distance metric between two
+distributions as well, known as the JS distance (Endres &
+Schindelin, 2003):
+dJS(D, D′) :=
+p
+DJS(D || D′).
+With respect to the JS distance and for any (stochastic)
+mapping h : Z 7→Y, we can prove the following lemma
+via the celebrated data processing inequality:
+Lemma 4.6. Let DZ
+S and DZ
+T be two distributions over Z
+and let DY
+S and DY
+T be the induced distributions over Y by
+function h : Z 7→Y, then
+dJS(DY
+S , DY
+T ) ≤dJS(DZ
+S , DZ
+T ).
+(3)
+For methods that aim to learn invariant representations for
+domain adaptation, an intermediate representation space Z
+is found through feature transformation g, based on which
+a common hypothesis h : Z 7→Y is shared between both
+domains (Ganin et al., 2016; Tzeng et al., 2017; Zhao et al.,
+2018b). Through this process, the following Markov chain
+holds:
+X
+g
+−→Z
+h
+−→ˆY ,
+(4)
+where ˆY
+= h(g(X)) is the predicted random variable
+of interest.
+Hence for any distribution D over X, this
+Markov chain also induces a distribution DZ over Z and
+D ˆY over Y. By Lemma 4.6, we know that dJS(D ˆY
+S , D ˆY
+T ) ≤
+dJS(DZ
+S , DZ
+T ). With these notations, noting that the JS dis-
+tance is a metric, the following inequality holds:
+dJS(DY
+S , DY
+T ) ≤dJS(DY
+S , D
+ˆY
+S )+dJS(D
+ˆY
+S , D
+ˆY
+T )+dJS(D
+ˆY
+T , DY
+T ).
+Combining the above inequality with Lemma 4.6, we imme-
+diately have:
+dJS(DY
+S , DY
+T ) ≤dJS(DZ
+S , DZ
+T )
++ dJS(DY
+S , D
+ˆY
+S ) + dJS(DY
+T , D
+ˆY
+T ).
+(5)
+Intuitively, dJS(DY
+S , D ˆY
+S ) and dJS(DY
+T , D ˆY
+T ) measure the
+distance between the predicted label distribution and the
+ground truth label distribution on the source and target do-
+main, respectively. With the help of Lemma ??, the follow-
+ing result establishes a relationship between dJS(DY , D ˆY )
+and the accuracy of the prediction function h:
+Lemma 4.7. Let Y = f(X) ∈{0, 1} where f(·) is the
+labeling function and ˆY = h(g(X)) ∈{0, 1} be the predic-
+tion function, then dJS(DY , D ˆY ) ≤
+p
+ε(h ◦g).
+We are now ready to present the key lemma of the section:
+Lemma 4.8. Suppose the Markov chain X
+g
+−→Z
+h
+−→ˆY
+holds, then
+dJS(DY
+S , DY
+T ) ≤dJS(DZ
+S , DZ
+T ) +
+p
+εS(h ◦g) +
+p
+εT (h ◦g).
+Remark This lemma shows that if the marginal label dis-
+tributions are signiﬁcantly different between the source and
+target domains, then in order to achieve a small joint error,
+the induced distributions over Z from source and target do-
+mains have to be signiﬁcantly different as well. Put another
+way, if we are able to ﬁnd an invariant representation such
+that dJS(DZ
+S , DZ
+T ) = 0, then the joint error of the composi-
+tion function h ◦g has to be large:
+Theorem 4.3. Suppose the condition in Lemma 4.8 holds
+and dJS(DY
+S , DY
+T ) ≥dJS(DZ
+S , DZ
+T ), then:
+εS(h◦g)+εT (h◦g) ≥1
+2
+ dJS(DY
+S , DY
+T ) −dJS(DZ
+S , DZ
+T )
+2 .
+Remark The lower bound gives us a necessary condition
+on the success of any domain adaptation approach based
+on learning invariant representations: if the marginal la-
+bel distributions are signiﬁcantly different between source
+and target domains, then minimizing dJS(DZ
+S , DZ
+T ) and the
+source error εS(h ◦g) will only increase the target error.
+In fact, Theorem 4.3 can be extended to hold in the set-
+ting where different transformation functions are applied in
+source and target domains:
+Corollary 4.1. Let gS, gT be the source and target transfor-
+mation functions from X to Z. Suppose the condition in
+Lemma 4.8 holds and dJS(DY
+S , DY
+T ) ≥dJS(DZ
+S , DZ
+T ), then:
+εS(h◦gS)+εT (h◦gT ) ≥1
+2
+ dJS(DY
+S , DY
+T ) −dJS(DZ
+S , DZ
+T )
+2 .
+Recent work has also explored using different transforma-
+tion functions to achieve invariant representations (Bous-
+malis et al., 2016; Tzeng et al., 2017), but Corollary 4.1
+shows that this is not going to help if the marginal label
+distributions differ between two domains.
+We conclude this section by noting that our bound on the
+joint error of both domains is not necessarily the tightest
+one. This can be seen from the example in Sec. 4.1, where
+dJS(DZ
+S , DZ
+T ) = dJS(DY
+S , DY
+T ) = 0, and we have εS(h◦g)+
+
+On Learning Invariant Representations for Domain Adaptation
+(a) USPS →MNIST
+(b) USPS →SVHN
+(c) SVHN →MNIST
+(d) SVHN →USPS
+Figure 2. Digit classiﬁcation on MNIST, USPS and SVHN. The horizontal solid line corresponds to the target domain test accuracy
+without adaptation. The green solid line is the target domain test accuracy under domain adaptation with DANN. We also plot the least
+square ﬁt (dashed line) of the DANN adaptation results to emphasize the negative slope.
+εT (h◦g) = 1, but in this case our result gives a trivial lower
+bound of 0. Nevertheless, our result still sheds new light
+on the importance of matching marginal label distributions
+in learning invariant representation for domain adaptation,
+which we believe to be a promising direction for the design
+of better adaptation algorithms.
+5. Experiments
+Our theoretical results on the lower bound of the joint error
+imply that over-training the feature transformation function
+and the discriminator may hurt generalization on the target
+domain. In this section, we conduct experiments on real-
+world datasets to verify our theoretical ﬁndings. The task is
+digit classiﬁcation on three datasets of 10 classes: MNIST,
+USPS and SVHN. MNIST contains 60,000/10,000 train/test
+instances; USPS contains 7,291/2,007 train/test instances,
+and SVHN contains 73,257/26,032 train/test instances. We
+show the label distribution of these three datasets in Fig. 3.
+Figure 3. The label distributions of MNIST, USPS and SVHN.
+Before training, we preprocess all the samples into gray
+scale single-channel images of size 16 × 16, so they can be
+used by the same network. In our experiments, to ensure a
+fair comparison, we use the same network structure for all
+the experiments: 2 convolutional layers, one fully connected
+hidden layer, followed by a softmax output layer with 10
+units. The convolution kernels in both layers are of size 5×5,
+with 10 and 20 channels, respectively. The hidden layer
+has 1280 units connected to 100 units before classiﬁcation.
+For domain adaptation, we use the original DANN (Ganin
+et al., 2016) with gradient reversal implementation. The
+discriminator in DANN takes the output of convolutional
+layers as its feature input, followed by a 500 × 100 fully
+connected layer, and a one-unit binary classiﬁcation output.
+We plot four adaptation trajectories in Fig. 2. Among the
+four adaptation tasks, we can observe two phases in the
+adaptation accuracy. In the ﬁrst phase, the test set accu-
+racy rapidly grows, in less than 10 iterations. In the second
+phase, it gradually decreases after reaching its peak, despite
+the fact that the source training accuracy keeps increasing
+smoothly. Those phase transitions can be veriﬁed from
+the negative slopes of the least squares ﬁt of the adapta-
+tion curves (dashed lines in Fig. 2). We observe similar
+phenomenons on additional experiments using artiﬁcially
+unbalanced datasets trained on more powerful networks in
+Appendix ??. The above experimental results imply that
+over-training the feature transformation and discriminator
+does not help generalization on the target domain, but can
+instead hurt it when the label distributions differ (as shown
+in Fig. 3). These experimental results are consistent with
+our theoretical ﬁndings.
+6. Conclusion and Future Work
+In this paper we theoretically and empirically study the im-
+portant problem of learning invariant representations for
+domain adaptation. We show that learning an invariant rep-
+resentation and achieving a small source error is not enough
+to guarantee target generalization. We then prove both up-
+per and lower bounds for the target and joint errors, which
+directly translate to sufﬁcient and necessary conditions for
+the success of adaptation. We believe our results take an im-
+portant step towards understanding deep domain adaptation,
+and also stimulate future work on the design of stronger
+deep domain adaptation algorithms that align conditional
+distributions. Another interesting direction for future work
+is to characterize what properties the feature transformation
+function should have in order to decrease the conditional
+shift. It is also worth investigating under which conditions
+the label distributions can be aligned without explicit labeled
+data from the target domain.
+
+On Learning Invariant Representations for Domain Adaptation
+Acknowledgements
+HZ thank Yifan Wu for inspiring discussion on possible
+failure cases of deep domain adaptation, and Jeremy Cohen
+for reviewing drafts of this work. HZ and GG would like to
+acknowledge the support from DARPA XAI project, con-
+tract #FA87501720152. KZ would like to acknowledge the
+support by National Institutes of Health (NIH) under Con-
+tract No. NIH-1R01EB022858-01, FAINR01EB022858,
+NIH-1R01LM012087, NIH-5U54HG008540-02, and FAIN-
+U54HG008540, by the United States Air Force under Con-
+tract No. FA8650-17-C-7715, and by National Science Foun-
+dation (NSF) EAGER Grant No. IIS-1829681. The NIH,
+the U.S. Air Force, and the NSF are not responsible for the
+views reported in this article.
+References
+Adel, T., Zhao, H., and Wong, A. Unsupervised domain
+adaptation with a relaxed covariate shift assumption. In
+AAAI, pp. 1691–1697, 2017.
+Ajakan, H., Germain, P., Larochelle, H., Laviolette, F.,
+and Marchand, M. Domain-adversarial neural networks.
+arXiv preprint arXiv:1412.4446, 2014.
+Azizzadenesheli, K., Liu, A., Yang, F., and Anandkumar, A.
+Regularized learning for domain adaptation under label
+shifts. 2018.
+Becker, C. J., Christoudias, C. M., and Fua, P. Non-linear
+domain adaptation with boosting. In Advances in Neural
+Information Processing Systems, pp. 485–493, 2013.
+Ben-David, S., Blitzer, J., Crammer, K., Pereira, F., et al.
+Analysis of representations for domain adaptation. Ad-
+vances in neural information processing systems, 19:137,
+2007.
+Ben-David, S., Blitzer, J., Crammer, K., Kulesza, A.,
+Pereira, F., and Vaughan, J. W. A theory of learning from
+different domains. Machine learning, 79(1-2):151–175,
+2010.
+Blitzer, J., Crammer, K., Kulesza, A., Pereira, F., and Wort-
+man, J. Learning bounds for domain adaptation. In
+Advances in neural information processing systems, pp.
+129–136, 2008.
+Bousmalis, K., Trigeorgis, G., Silberman, N., Krishnan, D.,
+and Erhan, D. Domain separation networks. In Advances
+in Neural Information Processing Systems, pp. 343–351,
+2016.
+Cortes, C. and Mohri, M. Domain adaptation and sam-
+ple bias correction theory and algorithm for regression.
+Theoretical Computer Science, 519:103–126, 2014.
+Cortes, C., Mohri, M., Riley, M., and Rostamizadeh, A.
+Sample selection bias correction theory. In International
+Conference on Algorithmic Learning Theory, pp. 38–53.
+Springer, 2008.
+Courty, N., Flamary, R., Habrard, A., and Rakotomamonjy,
+A. Joint distribution optimal transportation for domain
+adaptation. In Advances in Neural Information Process-
+ing Systems, pp. 3730–3739, 2017a.
+Courty, N., Flamary, R., Tuia, D., and Rakotomamonjy, A.
+Optimal transport for domain adaptation. IEEE transac-
+tions on pattern analysis and machine intelligence, 39(9):
+1853–1865, 2017b.
+Endres, D. M. and Schindelin, J. E. A new metric for prob-
+ability distributions. IEEE Transactions on Information
+theory, 2003.
+Fu, L., Nguyen, T. H., Min, B., and Grishman, R. Domain
+adaptation for relation extraction with domain adversarial
+neural network. In Proceedings of the Eighth Interna-
+tional Joint Conference on Natural Language Processing
+(Volume 2: Short Papers), volume 2, pp. 425–429, 2017.
+Ganin, Y., Ustinova, E., Ajakan, H., Germain, P., Larochelle,
+H., Laviolette, F., Marchand, M., and Lempitsky, V.
+Domain-adversarial training of neural networks. Journal
+of Machine Learning Research, 17(59):1–35, 2016.
+Glorot, X., Bordes, A., and Bengio, Y. Domain adaptation
+for large-scale sentiment classiﬁcation: A deep learning
+approach. In Proceedings of the 28th international con-
+ference on machine learning (ICML-11), pp. 513–520,
+2011.
+Gong, M., Zhang, K., Liu, T., Tao, D., Glymour, C., and
+Schölkopf, B. Domain adaptation with conditional trans-
+ferable components. In International conference on ma-
+chine learning, pp. 2839–2848, 2016.
+Hoffman, J., Wang, D., Yu, F., and Darrell, T. Fcns in
+the wild: Pixel-level adversarial and constraint-based
+adaptation. arXiv preprint arXiv:1612.02649, 2016.
+Hoffman, J., Tzeng, E., Park, T., Zhu, J.-Y., Isola, P.,
+Saenko, K., Efros, A. A., and Darrell, T. Cycada: Cycle-
+consistent adversarial domain adaptation. arXiv preprint
+arXiv:1711.03213, 2017.
+Hosseini-Asl, E., Zhou, Y., Xiong, C., and Socher, R. Aug-
+mented cyclic adversarial learning for domain adaptation.
+arXiv preprint arXiv:1807.00374, 2018.
+Johansson, F. D., Ranganath, R., and Sontag, D. Support and
+invertibility in domain-invariant representations. arXiv
+preprint arXiv:1903.03448, 2019.
+
+On Learning Invariant Representations for Domain Adaptation
+Kifer, D., Ben-David, S., and Gehrke, J. Detecting change in
+data streams. In Proceedings of the Thirtieth international
+conference on Very large data bases-Volume 30, pp. 180–
+191. VLDB Endowment, 2004.
+Lee, J. and Raginsky, M. Minimax statistical learning with
+wasserstein distances. In Advances in Neural Information
+Processing Systems, pp. 2692–2701, 2018.
+Lin, J. Divergence measures based on the Shannon entropy.
+IEEE Transactions on Information Theory, 37(1):145–
+151, 1991.
+Lipton, Z. C., Wang, Y.-X., and Smola, A. Detecting and
+correcting for label shift with black box predictors. arXiv
+preprint arXiv:1802.03916, 2018.
+Long, M., Wang, J., Ding, G., Sun, J., and Yu, P. S. Transfer
+joint matching for unsupervised domain adaptation. In
+Proceedings of the IEEE conference on computer vision
+and pattern recognition, pp. 1410–1417, 2014.
+Long, M., Cao, Y., Wang, J., and Jordan, M. Learning
+transferable features with deep adaptation networks. In
+International Conference on Machine Learning, pp. 97–
+105, 2015.
+Long, M., Zhu, H., Wang, J., and Jordan, M. I. Unsupervised
+domain adaptation with residual transfer networks. In
+Advances in Neural Information Processing Systems, pp.
+136–144, 2016.
+Mansour, Y. and Schain, M. Robust domain adaptation. In
+ISAIM, 2012.
+Mansour, Y., Mohri, M., and Rostamizadeh, A. Domain
+adaptation: Learning bounds and algorithms.
+arXiv
+preprint arXiv:0902.3430, 2009a.
+Mansour, Y., Mohri, M., and Rostamizadeh, A. Multiple
+source adaptation and the rényi divergence. In Proceed-
+ings of the Twenty-Fifth Conference on Uncertainty in
+Artiﬁcial Intelligence, pp. 367–374. AUAI Press, 2009b.
+Pei, Z., Cao, Z., Long, M., and Wang, J. Multi-adversarial
+domain adaptation. 2018.
+Shen, J., Qu, Y., Zhang, W., and Yu, Y. Wasserstein distance
+guided representation learning for domain adaptation. In
+Thirty-Second AAAI Conference on Artiﬁcial Intelligence,
+2018.
+Shrivastava, A., Pﬁster, T., Tuzel, O., Susskind, J., Wang,
+W., and Webb, R. Learning from simulated and unsuper-
+vised images through adversarial training. arXiv preprint
+arXiv:1612.07828, 2016.
+Tzeng, E., Hoffman, J., Saenko, K., and Darrell, T. Adver-
+sarial discriminative domain adaptation. arXiv preprint
+arXiv:1702.05464, 2017.
+Zhang, K., Schölkopf, B., Muandet, K., and Wang, Z. Do-
+main adaptation under target and conditional shift. In
+International Conference on Machine Learning, pp. 819–
+827, 2013.
+Zhang, Y., Barzilay, R., and Jaakkola, T. Aspect-augmented
+adversarial networks for domain adaptation.
+arXiv
+preprint arXiv:1701.00188, 2017.
+Zhao, H., Zhang, S., Wu, G., Gordon, G. J., et al. Multiple
+source domain adaptation with adversarial learning. In
+International Conference on Learning Representations,
+2018a.
+Zhao, H., Zhang, S., Wu, G., Moura, J. M., Costeira, J. P.,
+and Gordon, G. J. Adversarial multiple source domain
+adaptation. In Advances in Neural Information Process-
+ing Systems, pp. 8568–8579, 2018b.
+Zhao, H., Hu, J., Zhu, Z., Coates, A., and Gordon, G. J.
+Deep generative and discriminative domain adaptation.
+In Proceedings of the 18th International Conference on
+Autonomous Agents and MultiAgent Systems, 2019.

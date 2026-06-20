@@ -1,0 +1,57 @@
+{
+  "decision": "NEEDS_REVIEW",
+  "status": "WARN",
+  "note": "DualPC evidence is complete enough to inspect but has warnings",
+  "checks": [
+    {
+      "status": "PASS",
+      "check": "dualpc_readiness.json_exists",
+      "note": "results/dualpc_protocol_paper/dualpc_readiness.json"
+    },
+    {
+      "status": "PASS",
+      "check": "dualpc_paper_summary.json_exists",
+      "note": "results/dualpc_protocol_paper/dualpc_paper_summary.json"
+    },
+    {
+      "status": "PASS",
+      "check": "readiness_failures",
+      "note": "0"
+    },
+    {
+      "status": "WARN",
+      "check": "readiness_nonbaseline_warns",
+      "note": "334 (runner:dualpc:0.1:0.05,runner:dualpc_marginal:0.1:0.05,runner:dualpc:0.1:0.05,runner:dualpc_marginal:0.1:0.05,runner_compare:dualpc:0.1:0.05)"
+    },
+    {
+      "status": "PASS",
+      "check": "synthetic_group_coverage",
+      "note": "null_prior,concept,all_three"
+    },
+    {
+      "status": "PASS",
+      "check": "comparison_task_count",
+      "note": "4 tasks: ['loso:BNCI2014_001', 'loso:MUMTAZ', 'scps:PD:D=cohort:decD=cohort', 'scps:SCZ:D=cohort:decD=cohort']"
+    },
+    {
+      "status": "PASS",
+      "check": "comparison_baseline_coverage",
+      "note": "erm,lpc_prior"
+    },
+    {
+      "status": "WARN",
+      "check": "comparison_warnings",
+      "note": "3 (loso:MUMTAZ:lpc_prior:0.1,scps:PD:D=cohort:decD=cohort:lpc_prior:0.1,scps:SCZ:D=cohort:decD=cohort:lpc_prior:0.1)"
+    },
+    {
+      "status": "PASS",
+      "check": "selector_task_count",
+      "note": "2 tasks: ['loso:BNCI2014_001', 'loso:MUMTAZ']"
+    },
+    {
+      "status": "WARN",
+      "check": "selector_warnings",
+      "note": "warn=1 incomplete=1"
+    }
+  ]
+}

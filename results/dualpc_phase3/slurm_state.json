@@ -1,0 +1,15 @@
+{
+  "created_at": "2026-06-18T04:14:45",
+  "done": false,
+  "groups": [
+    {
+      "array": "0-3%8",
+      "job_id": "855086",
+      "name": "p3",
+      "submitted_at": "2026-06-18T04:14:45"
+    }
+  ],
+  "post_job_id": "855092",
+  "post_submitted_at": "2026-06-18T04:14:45",
+  "updated_at": "2026-06-18T13:10:03"
+}

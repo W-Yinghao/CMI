@@ -1,0 +1,128 @@
+{
+  "counts": {
+    "PASS": 1,
+    "WARN": 0,
+    "FAIL": 0
+  },
+  "method_rows": [
+    {
+      "file": "dualpc_condrw_loso3_smoke",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "acc": 0.38310185185185186,
+      "cond_kl_rw": 0.6323583722114563,
+      "pz_kl_rw": 0.619702955087026,
+      "py_js_rw": 0.001935191733840232,
+      "decoder_valid_n": 3.0,
+      "n_folds": 3.0
+    }
+  ],
+  "method_summary": [
+    {
+      "task": "loso:BNCI2014_001",
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.38310185185185186,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6323583722114563,
+      "pz_kl_rw_mean": 0.619702955087026,
+      "py_js_rw_mean": 0.001935191733840232,
+      "decoder_valid_n_mean": 3.0
+    }
+  ],
+  "comparison_rows": [],
+  "comparison_summary": [],
+  "selector_records": [
+    {
+      "file": "dualpc_finalprobe_lamsel_smoke",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "target": "1",
+      "selected": "dualpc:0.05:0.05",
+      "target_bacc": 0.2881944444444445,
+      "target_erm_bacc": 0.2569444444444444,
+      "delta_target_bacc_vs_erm": 0.031250000000000056,
+      "probe_valid": true,
+      "selector_penalty": 0.006947018904611468,
+      "cond_kl_rw": 0.002428020816296339,
+      "pz_kl_rw": 0.0021188578102737665,
+      "py_js_rw": 0.0024001402780413628,
+      "final": true
+    },
+    {
+      "file": "dualpc_finalprobe_lamsel_smoke",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "target": "2",
+      "selected": "erm:0",
+      "target_bacc": 0.2465277777777778,
+      "target_erm_bacc": 0.2465277777777778,
+      "delta_target_bacc_vs_erm": 0.0,
+      "probe_valid": true,
+      "selector_penalty": 0.011673917062580585,
+      "cond_kl_rw": 0.0051461029797792435,
+      "pz_kl_rw": 0.003986856900155544,
+      "py_js_rw": 0.0025409571826457977,
+      "final": true
+    },
+    {
+      "file": "dualpc_finalprobe_lamsel_smoke",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "target": "3",
+      "selected": "dualpc:0.05:0.05",
+      "target_bacc": 0.26041666666666663,
+      "target_erm_bacc": 0.2517361111111111,
+      "delta_target_bacc_vs_erm": 0.008680555555555525,
+      "probe_valid": true,
+      "selector_penalty": 0.013191841077059507,
+      "cond_kl_rw": 0.004142242018133402,
+      "pz_kl_rw": 0.004439778625965118,
+      "py_js_rw": 0.004609820432960987,
+      "final": true
+    },
+    {
+      "file": "dualpc_finalprobe_lamsel_smoke",
+      "task": "loso:BNCI2014_001",
+      "seed": 0,
+      "target": "4",
+      "selected": "erm:0",
+      "target_bacc": 0.2760416666666667,
+      "target_erm_bacc": 0.2760416666666667,
+      "delta_target_bacc_vs_erm": 0.0,
+      "probe_valid": true,
+      "selector_penalty": 0.012142476392909884,
+      "cond_kl_rw": 0.005383772775530815,
+      "pz_kl_rw": 0.0034712504129856825,
+      "py_js_rw": 0.003287453204393387,
+      "final": true
+    }
+  ],
+  "selector_summary": [
+    {
+      "task": "loso:BNCI2014_001",
+      "n": 4,
+      "files": 1,
+      "selected_hist": {
+        "dualpc:0.05:0.05": 2,
+        "erm:0": 2
+      },
+      "target_bacc_mean": 0.2677951388888889,
+      "target_bacc_std": 0.01817396845768775,
+      "delta_target_bacc_vs_erm_mean": 0.009982638888888895,
+      "final_record_frac": 1.0,
+      "final_probe_valid_frac": 1.0,
+      "selector_penalty_mean": 0.010988813359290361,
+      "cond_kl_rw_mean": 0.00427503464743495,
+      "pz_kl_rw_mean": 0.003504185937345028,
+      "py_js_rw_mean": 0.0032095927745103836,
+      "status": "PASS",
+      "note": "selector final probes complete"
+    }
+  ],
+  "parse_errors": []
+}

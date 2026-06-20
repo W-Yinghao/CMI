@@ -1,0 +1,187 @@
+{
+  "config": {
+    "dataset": "BNCI2014_001",
+    "backbone": "LogCov",
+    "method": "dualpc",
+    "lams": [
+      "0",
+      "0.05"
+    ],
+    "gammas": [
+      "0.05"
+    ],
+    "dec_margin": 0.02,
+    "dec_margins": [
+      0.0
+    ],
+    "select_rule": "guarded_probe",
+    "select_tolerance": 0.05,
+    "select_probe_frac": 0.3,
+    "select_probe_epochs": 1,
+    "select_cond_weight": 1.0,
+    "select_pz_weight": 1.0,
+    "select_py_weight": 1.0,
+    "val_frac": 0.3,
+    "epochs": 1,
+    "select_epochs": 1,
+    "bs": 64,
+    "warmup": 1,
+    "n_inner": 1,
+    "sampler": "classbal",
+    "device": "cpu",
+    "tmin": 0.5,
+    "tmax": 3.5,
+    "resample": 32,
+    "seed": 0,
+    "max_subjects": 3,
+    "out": "results/dualpc_validity_lamsel_smoke.json"
+  },
+  "classes": [
+    "feet",
+    "left_hand",
+    "right_hand",
+    "tongue"
+  ],
+  "selected_config": [
+    "erm:0",
+    "erm:0",
+    "dualpc:0.05:0.05:tau=0"
+  ],
+  "selected_lambda": [
+    0.0,
+    0.0,
+    0.05
+  ],
+  "selected_gamma": [
+    0.0,
+    0.0,
+    0.05
+  ],
+  "selected_dec_margin": [
+    0.02,
+    0.02,
+    0.0
+  ],
+  "config_hist": {
+    "dualpc:0.05:0.05:tau=0": 1,
+    "erm:0": 2
+  },
+  "selection_records": [
+    {
+      "target": "1",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.02,
+          "source_val_bacc": 0.2638888888888889,
+          "selection_probe_valid": false,
+          "selector_penalty": 0.0,
+          "select_cond_kl": 0.0,
+          "select_pz_kl_rw": 0.0,
+          "select_py_res_rw": 0.0,
+          "select_py_js_rw": 0.0,
+          "select_decoder_valid": false,
+          "select_decoder_min_domain_classes": 0,
+          "select_decoder_single_class_frac": 1.0
+        },
+        {
+          "config": "dualpc:0.05:0.05:tau=0",
+          "lam": 0.05,
+          "gamma": 0.05,
+          "dec_margin": 0.0,
+          "source_val_bacc": 0.22916666666666666,
+          "selection_probe_valid": false,
+          "selector_penalty": 0.0,
+          "select_cond_kl": 0.0,
+          "select_pz_kl_rw": 0.0,
+          "select_py_res_rw": 0.0,
+          "select_py_js_rw": 0.0,
+          "select_decoder_valid": false,
+          "select_decoder_min_domain_classes": 0,
+          "select_decoder_single_class_frac": 1.0
+        }
+      ]
+    },
+    {
+      "target": "2",
+      "selected": "erm:0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.02,
+          "source_val_bacc": 0.2708333333333333,
+          "selection_probe_valid": false,
+          "selector_penalty": 0.0,
+          "select_cond_kl": 0.0,
+          "select_pz_kl_rw": 0.0,
+          "select_py_res_rw": 0.0,
+          "select_py_js_rw": 0.0,
+          "select_decoder_valid": false,
+          "select_decoder_min_domain_classes": 0,
+          "select_decoder_single_class_frac": 1.0
+        },
+        {
+          "config": "dualpc:0.05:0.05:tau=0",
+          "lam": 0.05,
+          "gamma": 0.05,
+          "dec_margin": 0.0,
+          "source_val_bacc": 0.2621527777777778,
+          "selection_probe_valid": false,
+          "selector_penalty": 0.0,
+          "select_cond_kl": 0.0,
+          "select_pz_kl_rw": 0.0,
+          "select_py_res_rw": 0.0,
+          "select_py_js_rw": 0.0,
+          "select_decoder_valid": false,
+          "select_decoder_min_domain_classes": 0,
+          "select_decoder_single_class_frac": 1.0
+        }
+      ]
+    },
+    {
+      "target": "3",
+      "selected": "dualpc:0.05:0.05:tau=0",
+      "candidates": [
+        {
+          "config": "erm:0",
+          "lam": 0.0,
+          "gamma": 0.0,
+          "dec_margin": 0.02,
+          "source_val_bacc": 0.2569444444444444,
+          "selection_probe_valid": false,
+          "selector_penalty": 0.0,
+          "select_cond_kl": 0.0,
+          "select_pz_kl_rw": 0.0,
+          "select_py_res_rw": 0.0,
+          "select_py_js_rw": 0.0,
+          "select_decoder_valid": false,
+          "select_decoder_min_domain_classes": 0,
+          "select_decoder_single_class_frac": 1.0
+        },
+        {
+          "config": "dualpc:0.05:0.05:tau=0",
+          "lam": 0.05,
+          "gamma": 0.05,
+          "dec_margin": 0.0,
+          "source_val_bacc": 0.26388888888888884,
+          "selection_probe_valid": false,
+          "selector_penalty": 0.0,
+          "select_cond_kl": 0.0,
+          "select_pz_kl_rw": 0.0,
+          "select_py_res_rw": 0.0,
+          "select_py_js_rw": 0.0,
+          "select_decoder_valid": false,
+          "select_decoder_min_domain_classes": 0,
+          "select_decoder_single_class_frac": 1.0
+        }
+      ]
+    }
+  ],
+  "acc_constrained": 23.78472222222222,
+  "acc_erm": 23.958333333333336
+}

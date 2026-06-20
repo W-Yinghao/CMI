@@ -1,0 +1,37 @@
+{
+  "condition": "PDMED",
+  "dvar": "cohort",
+  "domains": [
+    "ds002778",
+    "ds003490"
+  ],
+  "shifted_dom": 1,
+  "alpha": 0.0,
+  "seed": 1,
+  "n_swapped": 0,
+  "feat": "pc1",
+  "route_c": {
+    "raw": 0.0038805603981018066,
+    "residual": 0.004344195127487183,
+    "acc": 0.8793948888778687,
+    "null_mean": 0.0002810115615526835,
+    "null_std": 0.001,
+    "z_score": 4.0631835659345,
+    "p_value": 0.01639344262295082,
+    "fired": true,
+    "n_perm": 60
+  },
+  "route_a": {
+    "observed_gain": -0.011148452758789062,
+    "elbo_shared": -8.908963203430176,
+    "elbo_delta": -8.920111656188965,
+    "null_mean": 0.03478411038716634,
+    "null_std": 0.12917371631702473,
+    "null_min": -0.23205089569091797,
+    "null_max": 0.3515663146972656,
+    "n_perm": 60,
+    "z_score": -0.35558753325038167,
+    "p_value": 0.6885245901639344,
+    "concept_shift_detected": false
+  }
+}

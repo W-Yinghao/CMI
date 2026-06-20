@@ -1,0 +1,186 @@
+{
+  "condition": "PD",
+  "domain": "cohort",
+  "dec_domain": "cohort",
+  "cohorts": [
+    "ds002778",
+    "ds003490",
+    "ds004584"
+  ],
+  "config": {
+    "condition": "PD",
+    "cohorts": null,
+    "backbone": "EEGNet",
+    "domain": "cohort",
+    "dec_domain": "",
+    "configs": [
+      "erm:0",
+      "lpc_prior:0.1",
+      "scldgn:1"
+    ],
+    "epochs": 120,
+    "bs": 64,
+    "warmup": 30,
+    "n_inner": 2,
+    "sampler": "classbal",
+    "prior": "empirical",
+    "beta": 0.0,
+    "seed": 2,
+    "balance": false,
+    "label_correct": false,
+    "reweight_dual": false,
+    "dec_margin": 0.02,
+    "out": "results/scl_xsite_PD_s2.json"
+  },
+  "summary": {
+    "erm:0": {
+      "per_target_balanced_acc_mean": 0.5938766005882804,
+      "worst_target_balanced_acc": 0.5113020833333334,
+      "leakage_kl": 0.194779763619105,
+      "decoder_cmi": 0.0005781203508377075,
+      "decoder_cmi_rw": 0.0024124830961227417,
+      "decoder_cmi_res": 0.00018001596132914224,
+      "decoder_cmi_res_rw": 0.0007373392581939697,
+      "per_cohort": {
+        "ds002778": 51.1,
+        "ds003490": 65.6,
+        "ds004584": 61.4
+      }
+    },
+    "lpc_prior:0.1": {
+      "per_target_balanced_acc_mean": 0.5955719708460537,
+      "worst_target_balanced_acc": 0.5302083333333333,
+      "leakage_kl": 0.03524061664938927,
+      "decoder_cmi": 0.0003744835654894511,
+      "decoder_cmi_rw": 0.002009401718775431,
+      "decoder_cmi_res": 0.0002622678875923157,
+      "decoder_cmi_res_rw": 0.00014340877532958984,
+      "per_cohort": {
+        "ds002778": 53.0,
+        "ds003490": 65.5,
+        "ds004584": 60.2
+      }
+    },
+    "scldgn:1": {
+      "per_target_balanced_acc_mean": 0.596808240399866,
+      "worst_target_balanced_acc": 0.55015625,
+      "leakage_kl": 0.12724866345524788,
+      "decoder_cmi": 0.00045115997393925983,
+      "decoder_cmi_rw": 9.125967820485432e-05,
+      "decoder_cmi_res": 0.0,
+      "decoder_cmi_res_rw": 0.0,
+      "per_cohort": {
+        "ds002778": 55.0,
+        "ds003490": 62.7,
+        "ds004584": 61.3
+      }
+    }
+  },
+  "folds": {
+    "erm:0": [
+      {
+        "held_out": "ds002778",
+        "balanced_acc": 0.5113020833333334,
+        "macro_f1": 0.3941750670535331,
+        "leakage_kl": 0.20932695269584656,
+        "decoder_cmi": 0.0010147690773010254,
+        "decoder_cmi_rw": 0.002899855375289917,
+        "decoder_cmi_res": 0.0005367696285247803,
+        "decoder_cmi_res_rw": 0.002212017774581909,
+        "n_test": 1240
+      },
+      {
+        "held_out": "ds003490",
+        "balanced_acc": 0.656,
+        "macro_f1": 0.648402325859498,
+        "leakage_kl": 0.14859344065189362,
+        "decoder_cmi": 0.0007195919752120972,
+        "decoder_cmi_rw": 0.004056587815284729,
+        "decoder_cmi_res": 3.2782554626464844e-06,
+        "decoder_cmi_res_rw": 0.0,
+        "n_test": 2000
+      },
+      {
+        "held_out": "ds004584",
+        "balanced_acc": 0.6143277184315079,
+        "macro_f1": 0.587435836689568,
+        "leakage_kl": 0.2264188975095749,
+        "decoder_cmi": 0.0,
+        "decoder_cmi_rw": 0.0002810060977935791,
+        "decoder_cmi_res": 0.0,
+        "decoder_cmi_res_rw": 0.0,
+        "n_test": 5283
+      }
+    ],
+    "lpc_prior:0.1": [
+      {
+        "held_out": "ds002778",
+        "balanced_acc": 0.5302083333333333,
+        "macro_f1": 0.42497178619062276,
+        "leakage_kl": 0.036429956555366516,
+        "decoder_cmi": 0.0008890479803085327,
+        "decoder_cmi_rw": 0.0038824081420898438,
+        "decoder_cmi_res": 0.0007755160331726074,
+        "decoder_cmi_res_rw": 0.00043022632598876953,
+        "n_test": 1240
+      },
+      {
+        "held_out": "ds003490",
+        "balanced_acc": 0.655,
+        "macro_f1": 0.6458192815983097,
+        "leakage_kl": 0.01943623274564743,
+        "decoder_cmi": 0.0,
+        "decoder_cmi_rw": 0.0020249783992767334,
+        "decoder_cmi_res": 1.12876296043396e-05,
+        "decoder_cmi_res_rw": 0.0,
+        "n_test": 2000
+      },
+      {
+        "held_out": "ds004584",
+        "balanced_acc": 0.6015075792048279,
+        "macro_f1": 0.573068790841529,
+        "leakage_kl": 0.049855660647153854,
+        "decoder_cmi": 0.00023440271615982056,
+        "decoder_cmi_rw": 0.0001208186149597168,
+        "decoder_cmi_res": 0.0,
+        "decoder_cmi_res_rw": 0.0,
+        "n_test": 5283
+      }
+    ],
+    "scldgn:1": [
+      {
+        "held_out": "ds002778",
+        "balanced_acc": 0.55015625,
+        "macro_f1": 0.4947494569695154,
+        "leakage_kl": 0.1291443556547165,
+        "decoder_cmi": 0.0009621977806091309,
+        "decoder_cmi_rw": 0.0,
+        "decoder_cmi_res": 0.0,
+        "decoder_cmi_res_rw": 0.0,
+        "n_test": 1240
+      },
+      {
+        "held_out": "ds003490",
+        "balanced_acc": 0.6275,
+        "macro_f1": 0.6142253995550387,
+        "leakage_kl": 0.20007401704788208,
+        "decoder_cmi": 0.0,
+        "decoder_cmi_rw": 0.0,
+        "decoder_cmi_res": 0.0,
+        "decoder_cmi_res_rw": 0.0,
+        "n_test": 2000
+      },
+      {
+        "held_out": "ds004584",
+        "balanced_acc": 0.612768471199598,
+        "macro_f1": 0.5735081145030495,
+        "leakage_kl": 0.052527617663145065,
+        "decoder_cmi": 0.0003912821412086487,
+        "decoder_cmi_rw": 0.000273779034614563,
+        "decoder_cmi_res": 0.0,
+        "decoder_cmi_res_rw": 0.0,
+        "n_test": 5283
+      }
+    ]
+  }
+}

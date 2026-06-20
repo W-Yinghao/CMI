@@ -1,0 +1,59 @@
+{
+  "summary": {
+    "erm:0": {
+      "per_target_balanced_acc_mean": 0.7254761904761905,
+      "worst_target_balanced_acc": 0.57,
+      "leakage_kl": 0.39766666666666667,
+      "label_sep": 80.69047619047619,
+      "n_folds": 21
+    },
+    "lpc_prior:0.05": {
+      "per_target_balanced_acc_mean": 0.7302380952380952,
+      "worst_target_balanced_acc": 0.53,
+      "leakage_kl": 0.12271428571428572,
+      "label_sep": 81.53333333333333,
+      "n_folds": 21
+    },
+    "lpc_prior:0.1": {
+      "per_target_balanced_acc_mean": 0.715,
+      "worst_target_balanced_acc": 0.56,
+      "leakage_kl": 0.07425,
+      "label_sep": 81.535,
+      "n_folds": 20
+    },
+    "dann:1": {
+      "per_target_balanced_acc_mean": 0.68075,
+      "worst_target_balanced_acc": 0.57,
+      "leakage_kl": 0.05895,
+      "label_sep": 80.11,
+      "n_folds": 20
+    },
+    "cdann:1": {
+      "per_target_balanced_acc_mean": 0.6717500000000001,
+      "worst_target_balanced_acc": 0.505,
+      "leakage_kl": 0.04485,
+      "label_sep": 79.59,
+      "n_folds": 20
+    }
+  },
+  "partial": true,
+  "n_folds_completed": 21,
+  "total_folds": 54,
+  "note": "job 844533 (Lee2019_MI --align ea) CANCELLED at ~21/54 folds \u2014 won't finish in time limit. Partial means over completed folds.",
+  "config": {
+    "dataset": "Lee2019_MI",
+    "backbone": "EEGNet",
+    "align": "ea",
+    "configs": [
+      "erm:0",
+      "lpc_prior:0.05",
+      "lpc_prior:0.1",
+      "dann:1",
+      "cdann:1"
+    ],
+    "resample": 250,
+    "tmin": 0.5,
+    "tmax": 3.5,
+    "epochs": 200
+  }
+}

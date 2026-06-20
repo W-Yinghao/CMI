@@ -1,0 +1,212 @@
+{
+  "counts": {
+    "PASS": 2,
+    "WARN": 0,
+    "FAIL": 0
+  },
+  "method_rows": [
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s2",
+      "task": "loso:MUMTAZ",
+      "seed": 2,
+      "method": "erm:0",
+      "family": "erm",
+      "acc": 0.8543956043956045,
+      "cond_kl_rw": 2.245555383187753,
+      "pz_kl_rw": 2.193561902752629,
+      "py_js_rw": 0.00036165848750560717,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s2",
+      "task": "loso:MUMTAZ",
+      "seed": 2,
+      "method": "lpc_prior:0.1",
+      "family": "lpc_prior",
+      "acc": 0.8543956043956045,
+      "cond_kl_rw": 0.6737227472994063,
+      "pz_kl_rw": 0.626184673221023,
+      "py_js_rw": 0.004193614806152052,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s2",
+      "task": "loso:MUMTAZ",
+      "seed": 2,
+      "method": "dualc:0.1:0.05",
+      "family": "dualc",
+      "acc": 0.8543956043956045,
+      "cond_kl_rw": 0.6730882050814452,
+      "pz_kl_rw": 0.6263517869843377,
+      "py_js_rw": 0.004154220262231926,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s2",
+      "task": "loso:MUMTAZ",
+      "seed": 2,
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "acc": 0.8722527472527473,
+      "cond_kl_rw": 0.6762556908307252,
+      "pz_kl_rw": 0.6285344616130546,
+      "py_js_rw": 0.004114209355234548,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s2",
+      "task": "loso:MUMTAZ",
+      "seed": 2,
+      "method": "dualpc_marginal:0.1:0.05",
+      "family": "dualpc_marginal",
+      "acc": 0.8543956043956045,
+      "cond_kl_rw": 0.6694543858369192,
+      "pz_kl_rw": 0.6087649177621912,
+      "py_js_rw": 0.004914270933820969,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    }
+  ],
+  "method_summary": [
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualc:0.1:0.05",
+      "family": "dualc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8543956043956045,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6730882050814452,
+      "pz_kl_rw_mean": 0.6263517869843377,
+      "py_js_rw_mean": 0.004154220262231926,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8722527472527473,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6762556908307252,
+      "pz_kl_rw_mean": 0.6285344616130546,
+      "py_js_rw_mean": 0.004114209355234548,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc_marginal:0.1:0.05",
+      "family": "dualpc_marginal",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8543956043956045,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6694543858369192,
+      "pz_kl_rw_mean": 0.6087649177621912,
+      "py_js_rw_mean": 0.004914270933820969,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "erm:0",
+      "family": "erm",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8543956043956045,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 2.245555383187753,
+      "pz_kl_rw_mean": 2.193561902752629,
+      "py_js_rw_mean": 0.00036165848750560717,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "lpc_prior:0.1",
+      "family": "lpc_prior",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8543956043956045,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6737227472994063,
+      "pz_kl_rw_mean": 0.626184673221023,
+      "py_js_rw_mean": 0.004193614806152052,
+      "decoder_valid_n_mean": 0.0
+    }
+  ],
+  "comparison_rows": [
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s2",
+      "task": "loso:MUMTAZ",
+      "seed": 2,
+      "method": "dualpc:0.1:0.05",
+      "baseline": "erm:0",
+      "acc": 0.8722527472527473,
+      "baseline_acc": 0.8543956043956045,
+      "delta_acc": 0.017857142857142794,
+      "delta_cond_kl_rw": -1.5692996923570277,
+      "delta_pz_kl_rw": -1.5650274411395744,
+      "delta_py_js_rw": 0.003752550867728941,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s2",
+      "task": "loso:MUMTAZ",
+      "seed": 2,
+      "method": "dualpc:0.1:0.05",
+      "baseline": "lpc_prior:0.1",
+      "acc": 0.8722527472527473,
+      "baseline_acc": 0.8543956043956045,
+      "delta_acc": 0.017857142857142794,
+      "delta_cond_kl_rw": 0.002532943531318943,
+      "delta_pz_kl_rw": 0.002349788392031593,
+      "delta_py_js_rw": -7.940545091750413e-05,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    }
+  ],
+  "comparison_summary": [
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc:0.1:0.05",
+      "baseline": "erm:0",
+      "n": 1,
+      "files": 1,
+      "pass_rate": 1.0,
+      "acc_mean": 0.8722527472527473,
+      "baseline_acc_mean": 0.8543956043956045,
+      "delta_acc_mean": 0.017857142857142794,
+      "delta_acc_std": 0.0,
+      "delta_cond_kl_rw_mean": -1.5692996923570277,
+      "delta_pz_kl_rw_mean": -1.5650274411395744,
+      "delta_py_js_rw_mean": 0.003752550867728941,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc:0.1:0.05",
+      "baseline": "lpc_prior:0.1",
+      "n": 1,
+      "files": 1,
+      "pass_rate": 1.0,
+      "acc_mean": 0.8722527472527473,
+      "baseline_acc_mean": 0.8543956043956045,
+      "delta_acc_mean": 0.017857142857142794,
+      "delta_acc_std": 0.0,
+      "delta_cond_kl_rw_mean": 0.002532943531318943,
+      "delta_pz_kl_rw_mean": 0.002349788392031593,
+      "delta_py_js_rw_mean": -7.940545091750413e-05,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    }
+  ],
+  "selector_records": [],
+  "selector_summary": [],
+  "parse_errors": []
+}

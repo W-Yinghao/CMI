@@ -1,0 +1,212 @@
+{
+  "counts": {
+    "PASS": 2,
+    "WARN": 0,
+    "FAIL": 0
+  },
+  "method_rows": [
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s0",
+      "task": "loso:MUMTAZ",
+      "seed": 0,
+      "method": "erm:0",
+      "family": "erm",
+      "acc": 0.8901098901098901,
+      "cond_kl_rw": 2.225803088258814,
+      "pz_kl_rw": 2.1831859526810824,
+      "py_js_rw": 0.00026602640153012343,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s0",
+      "task": "loso:MUMTAZ",
+      "seed": 0,
+      "method": "lpc_prior:0.1",
+      "family": "lpc_prior",
+      "acc": 0.8901098901098901,
+      "cond_kl_rw": 0.6760766329588713,
+      "pz_kl_rw": 0.6199406418535445,
+      "py_js_rw": 0.004409832897147647,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s0",
+      "task": "loso:MUMTAZ",
+      "seed": 0,
+      "method": "dualc:0.1:0.05",
+      "family": "dualc",
+      "acc": 0.8901098901098901,
+      "cond_kl_rw": 0.6769718152505381,
+      "pz_kl_rw": 0.6193006049703669,
+      "py_js_rw": 0.004447455233376887,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s0",
+      "task": "loso:MUMTAZ",
+      "seed": 0,
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "acc": 0.8901098901098901,
+      "cond_kl_rw": 0.6720413532521989,
+      "pz_kl_rw": 0.6226430193141654,
+      "py_js_rw": 0.0042655786016473065,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s0",
+      "task": "loso:MUMTAZ",
+      "seed": 0,
+      "method": "dualpc_marginal:0.1:0.05",
+      "family": "dualpc_marginal",
+      "acc": 0.8901098901098901,
+      "cond_kl_rw": 0.6722354193528494,
+      "pz_kl_rw": 0.6108566599863546,
+      "py_js_rw": 0.004594706947466842,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    }
+  ],
+  "method_summary": [
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualc:0.1:0.05",
+      "family": "dualc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8901098901098901,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6769718152505381,
+      "pz_kl_rw_mean": 0.6193006049703669,
+      "py_js_rw_mean": 0.004447455233376887,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8901098901098901,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6720413532521989,
+      "pz_kl_rw_mean": 0.6226430193141654,
+      "py_js_rw_mean": 0.0042655786016473065,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc_marginal:0.1:0.05",
+      "family": "dualpc_marginal",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8901098901098901,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6722354193528494,
+      "pz_kl_rw_mean": 0.6108566599863546,
+      "py_js_rw_mean": 0.004594706947466842,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "erm:0",
+      "family": "erm",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8901098901098901,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 2.225803088258814,
+      "pz_kl_rw_mean": 2.1831859526810824,
+      "py_js_rw_mean": 0.00026602640153012343,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "lpc_prior:0.1",
+      "family": "lpc_prior",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8901098901098901,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6760766329588713,
+      "pz_kl_rw_mean": 0.6199406418535445,
+      "py_js_rw_mean": 0.004409832897147647,
+      "decoder_valid_n_mean": 0.0
+    }
+  ],
+  "comparison_rows": [
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s0",
+      "task": "loso:MUMTAZ",
+      "seed": 0,
+      "method": "dualpc:0.1:0.05",
+      "baseline": "erm:0",
+      "acc": 0.8901098901098901,
+      "baseline_acc": 0.8901098901098901,
+      "delta_acc": 0.0,
+      "delta_cond_kl_rw": -1.553761735006615,
+      "delta_pz_kl_rw": -1.560542933366917,
+      "delta_py_js_rw": 0.003999552200117183,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s0",
+      "task": "loso:MUMTAZ",
+      "seed": 0,
+      "method": "dualpc:0.1:0.05",
+      "baseline": "lpc_prior:0.1",
+      "acc": 0.8901098901098901,
+      "baseline_acc": 0.8901098901098901,
+      "delta_acc": 0.0,
+      "delta_cond_kl_rw": -0.00403527970667239,
+      "delta_pz_kl_rw": 0.002702377460620964,
+      "delta_py_js_rw": -0.00014425429550034025,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    }
+  ],
+  "comparison_summary": [
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc:0.1:0.05",
+      "baseline": "erm:0",
+      "n": 1,
+      "files": 1,
+      "pass_rate": 1.0,
+      "acc_mean": 0.8901098901098901,
+      "baseline_acc_mean": 0.8901098901098901,
+      "delta_acc_mean": 0.0,
+      "delta_acc_std": 0.0,
+      "delta_cond_kl_rw_mean": -1.553761735006615,
+      "delta_pz_kl_rw_mean": -1.560542933366917,
+      "delta_py_js_rw_mean": 0.003999552200117183,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc:0.1:0.05",
+      "baseline": "lpc_prior:0.1",
+      "n": 1,
+      "files": 1,
+      "pass_rate": 1.0,
+      "acc_mean": 0.8901098901098901,
+      "baseline_acc_mean": 0.8901098901098901,
+      "delta_acc_mean": 0.0,
+      "delta_acc_std": 0.0,
+      "delta_cond_kl_rw_mean": -0.00403527970667239,
+      "delta_pz_kl_rw_mean": 0.002702377460620964,
+      "delta_py_js_rw_mean": -0.00014425429550034025,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    }
+  ],
+  "selector_records": [],
+  "selector_summary": [],
+  "parse_errors": []
+}

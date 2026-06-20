@@ -1,0 +1,59 @@
+{
+  "created_at": "2026-06-17T23:07:57",
+  "done": true,
+  "tasks": {
+    "0": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T01:18:02",
+      "completed_at": "2026-06-18T01:18:02",
+      "err_log": "logs/dualpc-paper-r2-854970_0.err",
+      "label": "round2_bnci_selector_strict_s0",
+      "out_json": "results/dualpc_opt_round2/dualpc_r2_select_BNCI2014_001_strict_s0.json",
+      "out_log": "logs/dualpc-paper-r2-854970_0.out",
+      "paper_summary": "results/dualpc_opt_round2/per_task_analysis/task_00_round2_bnci_selector_strict_s0_paper_summary.json",
+      "readiness": "results/dualpc_opt_round2/per_task_analysis/task_00_round2_bnci_selector_strict_s0_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-17T23:07:57"
+    },
+    "1": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T03:43:08",
+      "completed_at": "2026-06-18T03:43:07",
+      "err_log": "logs/dualpc-paper-r2-854970_1.err",
+      "label": "round2_bnci_fixed_grid_s0",
+      "out_json": "results/dualpc_opt_round2/dualpc_r2_loso_BNCI2014_001_grid_s0.json",
+      "out_log": "logs/dualpc-paper-r2-854970_1.out",
+      "paper_summary": "results/dualpc_opt_round2/per_task_analysis/task_01_round2_bnci_fixed_grid_s0_paper_summary.json",
+      "readiness": "results/dualpc_opt_round2/per_task_analysis/task_01_round2_bnci_fixed_grid_s0_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-17T23:07:57"
+    },
+    "2": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T00:13:00",
+      "completed_at": "2026-06-18T00:12:59",
+      "err_log": "logs/dualpc-paper-r2-854970_2.err",
+      "label": "round2_scps_pd_fixed_grid_s0",
+      "out_json": "results/dualpc_opt_round2/dualpc_r2_scps_PD_grid_s0.json",
+      "out_log": "logs/dualpc-paper-r2-854970_2.out",
+      "paper_summary": "results/dualpc_opt_round2/per_task_analysis/task_02_round2_scps_pd_fixed_grid_s0_paper_summary.json",
+      "readiness": "results/dualpc_opt_round2/per_task_analysis/task_02_round2_scps_pd_fixed_grid_s0_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-17T23:07:57"
+    },
+    "3": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T01:23:03",
+      "completed_at": "2026-06-18T01:23:03",
+      "err_log": "logs/dualpc-paper-r2-854970_3.err",
+      "label": "round2_scps_scz_fixed_grid_s0",
+      "out_json": "results/dualpc_opt_round2/dualpc_r2_scps_SCZ_grid_s0.json",
+      "out_log": "logs/dualpc-paper-r2-854970_3.out",
+      "paper_summary": "results/dualpc_opt_round2/per_task_analysis/task_03_round2_scps_scz_fixed_grid_s0_paper_summary.json",
+      "readiness": "results/dualpc_opt_round2/per_task_analysis/task_03_round2_scps_scz_fixed_grid_s0_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-17T23:07:57"
+    }
+  },
+  "updated_at": "2026-06-18T03:43:08"
+}

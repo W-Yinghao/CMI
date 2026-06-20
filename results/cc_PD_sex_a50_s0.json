@@ -1,0 +1,36 @@
+{
+  "condition": "PD",
+  "dvar": "sex",
+  "domains": [
+    "F",
+    "M"
+  ],
+  "shifted_dom": 1,
+  "alpha": 0.5,
+  "seed": 0,
+  "n_swapped": 2615,
+  "feat": "pc1",
+  "route_c": {
+    "raw": 0.04443618655204773,
+    "residual": 0.04415389895439148,
+    "null_mean": 0.0006176258126894633,
+    "null_std": 0.001,
+    "z_score": 43.53627314170202,
+    "p_value": 0.01639344262295082,
+    "fired": true,
+    "n_perm": 60
+  },
+  "route_a": {
+    "observed_gain": -0.011692047119140625,
+    "elbo_shared": -9.176759719848633,
+    "elbo_delta": -9.188451766967773,
+    "null_mean": 0.006536467870076498,
+    "null_std": 0.06823560434763504,
+    "null_min": -0.14059925079345703,
+    "null_max": 0.1959972381591797,
+    "n_perm": 60,
+    "z_score": -0.26714081546562723,
+    "p_value": 0.6065573770491803,
+    "concept_shift_detected": false
+  }
+}

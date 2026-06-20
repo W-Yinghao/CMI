@@ -1,0 +1,20 @@
+{
+  "seed": 0,
+  "n_dom": 40,
+  "observed_residual": 0.051153913140296936,
+  "observed_acc": 0.8909956514835358,
+  "fake_subject": {
+    "null_mean": 0.0,
+    "null_std": 1e-09,
+    "z": 51153913.140296936,
+    "p": 0.009900990099009901,
+    "confirm": true
+  },
+  "within_subj_yperm": {
+    "null_mean": 0.0,
+    "null_std": 1e-09,
+    "z": 51153913.140296936,
+    "p": 0.009900990099009901,
+    "confirm": true
+  }
+}

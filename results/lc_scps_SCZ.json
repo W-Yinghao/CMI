@@ -1,0 +1,89 @@
+{
+  "condition": "SCZ",
+  "domain": "subject",
+  "cohorts": [
+    "ds004000",
+    "ds004367"
+  ],
+  "config": {
+    "condition": "SCZ",
+    "cohorts": null,
+    "backbone": "EEGNet",
+    "domain": "subject",
+    "configs": [
+      "erm:0",
+      "dual:0.1:0.1"
+    ],
+    "epochs": 120,
+    "bs": 64,
+    "warmup": 30,
+    "n_inner": 2,
+    "sampler": "classbal",
+    "prior": "empirical",
+    "beta": 0.0,
+    "seed": 0,
+    "balance": false,
+    "label_correct": true,
+    "out": "results/lc_scps_SCZ.json"
+  },
+  "summary": {
+    "erm:0": {
+      "per_target_balanced_acc_mean": 0.6302078893151464,
+      "worst_target_balanced_acc": 0.5829861111111111,
+      "leakage_kl": 1.594032883644104,
+      "decoder_cmi": 0.008034020778723061,
+      "per_cohort": {
+        "ds004000": 58.3,
+        "ds004367": 67.7
+      }
+    },
+    "dual:0.1:0.1": {
+      "per_target_balanced_acc_mean": 0.5853787031116795,
+      "worst_target_balanced_acc": 0.5255208333333334,
+      "leakage_kl": 0.285003237426281,
+      "decoder_cmi": 0.015205956296995282,
+      "per_cohort": {
+        "ds004000": 52.6,
+        "ds004367": 64.5
+      }
+    }
+  },
+  "folds": {
+    "erm:0": [
+      {
+        "held_out": "ds004000",
+        "balanced_acc": 0.5829861111111111,
+        "macro_f1": 0.5713315003755746,
+        "leakage_kl": 1.587887167930603,
+        "decoder_cmi": 0.01460942579433322,
+        "n_test": 1680
+      },
+      {
+        "held_out": "ds004367",
+        "balanced_acc": 0.6774296675191815,
+        "macro_f1": 0.6612367670612134,
+        "leakage_kl": 1.600178599357605,
+        "decoder_cmi": 0.0014586157631129026,
+        "n_test": 1600
+      }
+    ],
+    "dual:0.1:0.1": [
+      {
+        "held_out": "ds004000",
+        "balanced_acc": 0.5255208333333334,
+        "macro_f1": 0.5207971085278891,
+        "leakage_kl": 0.3788861036300659,
+        "decoder_cmi": 0.02345390897244215,
+        "n_test": 1680
+      },
+      {
+        "held_out": "ds004367",
+        "balanced_acc": 0.6452365728900256,
+        "macro_f1": 0.575252533359345,
+        "leakage_kl": 0.19112037122249603,
+        "decoder_cmi": 0.006958003621548414,
+        "n_test": 1600
+      }
+    ]
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "condition": "SCZ",
+  "dvar": "age",
+  "domains": [
+    "age0",
+    "age1"
+  ],
+  "shifted_dom": 1,
+  "alpha": 0.0,
+  "seed": 0,
+  "n_swapped": 0,
+  "feat": "pc1",
+  "route_c": {
+    "raw": 0.0065860748291015625,
+    "residual": 0.004714876413345337,
+    "null_mean": 4.2908390363057454e-05,
+    "null_std": 0.001,
+    "z_score": 4.67196802298228,
+    "p_value": 0.01639344262295082,
+    "fired": true,
+    "n_perm": 60
+  },
+  "route_a": {
+    "observed_gain": -0.0386199951171875,
+    "elbo_shared": -8.045604705810547,
+    "elbo_delta": -8.084224700927734,
+    "null_mean": 0.00834644635518392,
+    "null_std": 0.08451261191068067,
+    "null_min": -0.16395950317382812,
+    "null_max": 0.22649765014648438,
+    "n_perm": 60,
+    "z_score": -0.5557329303939761,
+    "p_value": 0.7213114754098361,
+    "concept_shift_detected": false
+  }
+}

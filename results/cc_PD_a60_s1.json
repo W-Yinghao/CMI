@@ -1,0 +1,36 @@
+{
+  "condition": "PD",
+  "cohorts": [
+    "ds002778",
+    "ds003490",
+    "ds004584"
+  ],
+  "shifted_dom": 2,
+  "alpha": 0.6,
+  "seed": 1,
+  "n_swapped": 3170,
+  "feat": "pc1",
+  "route_c": {
+    "raw": 0.02182185649871826,
+    "residual": 0.01991024613380432,
+    "null_mean": 1.1167426904042561e-05,
+    "null_std": 0.001,
+    "z_score": 19.899078706900276,
+    "p_value": 0.01639344262295082,
+    "fired": true,
+    "n_perm": 60
+  },
+  "route_a": {
+    "observed_gain": 0.02555084228515625,
+    "elbo_shared": -8.253623008728027,
+    "elbo_delta": -8.228072166442871,
+    "null_mean": -0.007908296585083009,
+    "null_std": 0.06299184340772593,
+    "null_min": -0.15232276916503906,
+    "null_max": 0.1373128890991211,
+    "n_perm": 60,
+    "z_score": 0.5311662123248088,
+    "p_value": 0.3114754098360656,
+    "concept_shift_detected": false
+  }
+}

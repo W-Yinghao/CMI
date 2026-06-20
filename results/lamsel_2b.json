@@ -1,0 +1,48 @@
+{
+  "config": {
+    "dataset": "BNCI2014_004",
+    "backbone": "EEGNet",
+    "lams": [
+      "0",
+      "0.05",
+      "0.1",
+      "0.3"
+    ],
+    "val_frac": 0.3,
+    "epochs": 250,
+    "select_epochs": 120,
+    "bs": 64,
+    "warmup": 40,
+    "n_inner": 2,
+    "sampler": "classbal",
+    "tmin": 0.5,
+    "tmax": 3.5,
+    "resample": 250,
+    "seed": 0,
+    "max_subjects": 0,
+    "out": "results/lamsel_2b.json"
+  },
+  "classes": [
+    "left_hand",
+    "right_hand"
+  ],
+  "selected_lambda": [
+    0.0,
+    0.3,
+    0.1,
+    0.1,
+    0.0,
+    0.0,
+    0.1,
+    0.05,
+    0.1
+  ],
+  "lambda_hist": {
+    "0.0": 3,
+    "0.05": 1,
+    "0.1": 4,
+    "0.3": 1
+  },
+  "acc_constrained": 65.90490797546012,
+  "acc_erm": 66.1963190184049
+}

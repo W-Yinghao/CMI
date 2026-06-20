@@ -1,0 +1,1188 @@
+Domain Generalization via Entropy Regularization
+Shanshan Zhao
+The University of Sydney
+Australia
+szha4333@uni.sydney.edu.au
+Mingming Gong
+University of Melbourne
+Australia
+mingming.gong@unimelb.edu.au
+Tongliang Liu
+The University of Sydney
+Australia
+tongliang.liu@sydney.edu.au
+Huan Fu
+Alibaba Group
+China
+fuhuan.fh@alibaba-inc.com
+Dacheng Tao
+The University of Sydney
+Australia
+dacheng.tao@sydney.edu.au
+Abstract
+Domain generalization aims to learn from multiple source domains a predictive
+model that can generalize to unseen target domains. One essential problem in do-
+main generalization is to learn discriminative domain-invariant features. To arrive at
+this, some methods introduce a domain discriminator through adversarial learning
+to match the feature distributions in multiple source domains. However, adversarial
+training can only guarantee that the learned features have invariant marginal dis-
+tributions, while the invariance of conditional distributions is more important for
+prediction in new domains. To ensure the conditional invariance of learned features,
+we propose an entropy regularization term that measures the dependency between
+the learned features and the class labels. Combined with the typical task-related
+loss, e.g., cross-entropy loss for classiﬁcation, and adversarial loss for domain
+discrimination, our overall objective is guaranteed to learn conditional-invariant
+features across all source domains and thus can learn classiﬁers with better gen-
+eralization capabilities. We demonstrate the effectiveness of our method through
+comparison with state-of-the-art methods on both simulated and real-world datasets.
+Code is available at: https://github.com/sshan-zhao/DG_via_ER.
+1
+Introduction
+Recent years have witnessed the remarkable success of modern machine learning techniques in
+various applications. However, a fundamental problem machine learning suffers from is that the
+model learned from training data often does not generalize well on data sampled from a different
+distribution, due to the existence of data bias [1, 2] between the training and test data. To tackle this
+issue, a signiﬁcant effort has been made in domain adaptation, which reduces the discrepancy between
+source and target domains [3–8]. The main drawback of this approach is that one has to repeat training
+for each new dataset, which can be time-consuming. Therefore, domain generalization [9] is proposed
+to learn generalizable models by leveraging information from multiple source domains [10–13].
+Since there is no prior information about the distribution of the target domain during training, it
+is difﬁcult to match the distributions between source and target domains, which makes domain
+34th Conference on Neural Information Processing Systems (NeurIPS 2020), Vancouver, Canada.
+
+generalization more challenging. To improve the generalization capabilities of learned models,
+various solutions have been developed from different perspectives. A classic but effective solution to
+domain generalization is learning a domain-invariant feature representation [11, 12, 14, 10, 15, 14]
+across source domains. Muandet et al. [10] presented a kernel-based optimization algorithm, called
+Domain-Invariant Component Analysis, to learn an invariant transformation by minimizing the
+dissimilarity across domains. Ghifary et al. [11] proposed to learn features robust to variations across
+domains by introducing multi-task auto-encoders. Another line of research explores various data
+augmentation strategies [16–18]. For example, Shankar et al. [16] presented a gradient-based domain
+perturbation strategy to perturb the input data. By augmenting the original feature space, Blanchard
+et al. [19] viewed the problem of domain generalization as a kind of supervised learning problem.
+Then, they developed a kernel-based method that predicts classiﬁers from the augmented feature
+space. To make theoretical complementary to these empirically supported approaches, Deshmukh
+et al. [20] proved the ﬁrst known generalization error bound for multi-class domain generalization
+through studying a kernel-based learning algorithm. Apart from the clues aforementioned, some
+recent works [21–24] attempted to exploit meta-learning for domain generalization. A latest work,
+MASF [21], proposed a model-agnostic episodic learning procedure to regularize the semantic
+structure of the feature space.
+In this paper, we revisit the domain-invariant feature representation learning methods. Most of exist-
+ing methods assume that the marginal distribution P(X) changes while the conditional distribution
+P(Y |X) stays stable across domains. Therefore, signiﬁcant effort has been made in learning a
+feature representation F(X) that has invariant P(F(X)), either by traditional moment matching
+[25] or modern adversarial training [15, 14]. To ensure the universality of F(X) and also make it
+discriminative, a joint classiﬁcation model is trained on all the source domains and can be used for
+prediction in new datasets. However, the stability of P(Y |X) is often violated in real applications,
+leading to sub-optimal solutions. Li et al. [14] proposed to learn invariant class-conditional distribu-
+tion (P(F(X)|Y )) by doing adversarial training for each class. However, the method becomes less
+effective as the number of classes increases.
+To tackle the aforementioned issues, we propose an entropy-regularization approach which directly
+learns features that have invariant P(Y |F(X)) across domains. In speciﬁc, the conditional entropy
+term H(Y |F(X)) measures the dependency between F(X) and class label Y , and we aim to
+minimize the dependency by maximizing the conditional entropy. We show theoretically that our
+entropy-regularization together with the cross-entropy classiﬁcation loss effectively minimize the
+divergence between P(Y |F(X)) in all source domains. In addition, we show that H(Y |F(X))
+can be effectively estimated by assuming a multinomial distribution for P(Y |F(X)), which is a
+weak assumption for discrete class labels. Together with the adversarial training on P(F(X)), our
+approach can guarantee the invariance of the joint distribution P(F(X), Y ) and thus has a better
+generalization capability. We demonstrate the effectiveness of our approach through conducting
+comprehensive experiments on several benchmark datasets.
+2
+Method
+2.1
+Problem Deﬁnition
+Let X and Y be the feature and label spaces, respectively. In the domain generalization subject, there
+are K source domains {Di}K
+i=1 and L target domains1 {Di}L+K
+i=K+1. The goal is to generalize the
+model learned using data samples of source domains to unseen target domains. In the following,
+we denote the joint distribution of domain i by Pi(X, Y ) (deﬁned on X × Y). During the training
+process, there are K datasets {Si}K
+i=1 available, where Si = {(x(i)
+j , y(i)
+j )}Ni
+j=1. Here, Ni is the
+number of samples of Si, which are sampled from the ith domain. In the test stage, we evaluate the
+generalization capabilities of the learned model on L datasets sampled from the L target domains,
+respectively. This paper mainly studies domain generalization for image classiﬁcation, where the
+label space Y contains C discrete labels {1, 2, · · · , C}.
+1Source/Target: seen/unseen during training.
+2
+
+2.2
+Domain Generalization Through Adversarial Learning
+We ﬁrst present how domain generalization can be learned in an adversarial learning framework.
+For the classiﬁcation subject, the model consists of one feature extractor F parameterized by θ and
+one classiﬁer T parameterized by φ. We can optimize θ and φ on the K source datasets by minimizing
+a cross-entropy loss:
+min
+F,T Lcls(θ, φ) = −
+K
+X
+i=1
+E
+(X,Y )∼Pi(X,Y )[log(QT (Y |F(X)))]
+= −
+K
+X
+i=1
+Ni
+X
+j=1
+y(i)
+j
+· log(T(F(x(i)
+j )),
+(1)
+where y(i)
+j
+is the one-hot vector of the class label y(i)
+j , “·” represents the dot product operation,
+and QT (Y |F(X)) denotes the predicted label distribution (conditioned on F(X)) corresponding to
+domain i.
+However, optimized by the classiﬁcation loss solely, the model cannot learn domain-invariant features,
+and thus shows limitations in generalizing to the unseen domains. By exploiting the adversarial
+learning [26], we can alleviate the issue. Speciﬁcally, we further introduce a domain discriminator D
+parameterized by ψ, and train D and F in a minimax game as follows:
+min
+F max
+D Ladv(θ, ψ) =
+K
+X
+i=1
+E
+X∼Pi(X)[log D(F(X))]
+=
+K
+X
+i=1
+Ni
+X
+j=1
+d(i)
+j
+· log(D(F(x(i)
+j ))),
+(2)
+where d(i)
+j
+is the one-hot representation of the domain label i.
+Although optimizing Eq. 2 can lead to invariant marginal distributions i.e., P1(F(X))
+=
+P2(F(X)) = · · · = PK(F(X)), it cannot guarantee the conditional distribution P(Y |F(X)) is
+invariant across domains. This would degrade the generalization capabilities of the model. Even
+though the classiﬁer attempts to cluster the samples from the same category together in the feature
+space, which beneﬁts to the learning of the invariant conditional distribution, there still exists an
+issue. We take the simulated data for example. Firstly, we sample data from two 2D-distributions
+(shown in Figure 1) as the Domain_0 and Domain_1, respectively. The marginal distributions of
+the ﬁrst dimension (x0) in the two domain are the same, while the second (x1) comes from different
+marginal distributions. Each domain consists of three components. We take each dimension as the
+input to train a classiﬁer using Eq. 1 and Eq. 2, and we ﬁnd that the classiﬁer distinguishes the second
+dimension better than the ﬁrst (loss: −0.34 v.s. −0.16). This indicates that the classiﬁer might not
+select the domain-invariant feature, but select the features easier to discriminate. Therefore, it is
+challenging for the typical classiﬁcation loss to achieve a balance between learning domain-invariant
+features and discriminative features.
+2.3
+Entropy Regularization
+Description. To address the issues aforementioned, we propose to regularize the distributions of the
+features by minimizing the KL divergence between the conditional distribution Pi(Y |F(X)) in the
+ith domain and the conditional distribution QT (Y |X). Pi(Y |F(X)) denotes the predicted label dis-
+tribution conditioned on the learned features. By matching any conditional distribution Pi(Y |F(X))
+to a common distribution QT (Y |F(X)), we can obtain the domain-invariant conditional distribution
+P(Y |F(X)). For the purpose, we deﬁne an optimization problem as follows:
+min
+F,T
+K
+X
+i=1
+KL(Pi(Y |F(X))||QT (Y |F(X))).
+(3)
+3
+
+Figure 1: Simulated data. We create two domains from the two 2D-distributions (left and right),
+respectively. The data in Domain_0 and Domain_1 is two-dimensional. In speciﬁc, the ﬁrst dimen-
+sions in two domains are both sampled from Marginal_0 (top-middle), while the second dimension in
+Domain_0 and Domain_1 is sampled from Marginal_0 and Marginal_1 (bottom-middle), respectively.
+By using the deﬁnition of the KL divergence, we have:
+min
+F,T
+K
+X
+i=1
+KL(Pi(Y |F(X))||QT (Y |F(X))) =
+K
+X
+i=1
+E
+(X,Y )∼Pi(X,Y )[log Pi(Y |F(X))
+QT (Y |F(X))]
+=
+K
+X
+i=1
+E
+(X,Y )∼Pi(X,Y )[log Pi(Y |F(X))] −
+K
+X
+i=1
+E
+(X,Y )∼Pi(X,Y )[log QT (Y |F(X))].
+(4)
+The second term is actually the cross-entropy classiﬁcation loss (Eq. 1), while the ﬁrst one is the
+sum of K negative conditional entropy terms PK
+i=1 −HPi(Y |F(X)). However, it is difﬁcult to
+optimize −HPi(Y |F(X)) directly, since we do not know the conditional distribution Pi(Y |F(X)).
+To overcome this issue, we ﬁrst provide the following theorem to exploit the relationship between the
+negative conditional entropy term and the Jensen-Shannon divergence (JSD) between the conditional
+distributions {Pi(F(X)|Y = c)}C
+c=1.
+Theorem 1. Assuming that all classes are equally likely, minimizing −HPi(Y |F(X)) is equivalent
+to minimizing the JSD between the conditional distributions {Pi(F(X)|Y = c)}C
+c=1. The global
+minimum is achieved if and only if Pi(F(X)|Y = 1) = Pi(F(X)|Y = 2) = · · · = Pi(F(X)|Y =
+C). Note that, if the dataset is balanced, it is easy to make the assumption satisﬁed. Otherwise, we
+can enforce it through biased batch sampling.
+The proof is given in Sec. S1 of the Supplementary Materials. Inspired by Theorem 1 and the minimax
+game proposed in GAN [26] and conditional GAN [27], we introduce K additional classiﬁers
+{T ′
+i}K
+i=1, and then present the following minimax game:
+min
+F
+max
+{T ′
+i }K
+i=1
+V (F, T ′
+1, T ′
+2, · · · , T ′
+K) =
+K
+X
+i=1
+E
+(X,Y )∼Pi(X,Y )[log QT ′
+i
+i (Y |F(X))],
+(5)
+where T ′
+i parameterized by φ′
+i represents a classiﬁer trained on data sampled from domain Di, and
+QT ′
+i
+i (Y |F(X)) denotes the conditional distribution induced by T ′
+i. The following theorem (the proof
+can be found in Sec. S2 of the Supplementary Materials) shows that the minimax game is equal to
+minimizing the JSD between the conditional distributions {Pi(F(X)|Y = c)}C
+c=1. According to
+Theorem 1, we can thus achieve the optimization of PK
+i=1 −HPi(Y |F(X)).
+Theorem 2. If U(F) is the maximum value of V (F, T ′
+1, T ′
+2, · · · , T ′
+K), i.e.,
+U(F) = max
+{T ′
+i }K
+i=1
+V (F, T ′
+1, T ′
+2, · · · , T ′
+K),
+(6)
+the global minimum of the minimax game is attained if and only if Pi(F(X)|Y
+= 1) =
+Pi(F(X)|Y = 2) = · · · = Pi(F(X)|Y = C). At this point, U(F) attains the value −KC log C.
+Therefore, our proposed entropy regularization loss can be deﬁned as:
+min
+F
+max
+{T ′
+i }K
+i=1
+Ler(θ, {φ′
+i}K
+i=1) =
+K
+X
+i=1
+E
+(X,Y )∼Pi(X,Y )[log QT ′
+i
+i (Y |F(X))].
+(7)
+4
+
+Combining Eq. 7 with the classiﬁcation loss (Eq. 1) and the domain discrimination loss (Eq. 2), we
+obtain the training objective:
+min
+F,T
+max
+D,{T ′
+i }K
+i=1
+L(θ, φ, ψ, {φ′
+i}K
+i=1) = Lcls(θ, φ) + α1Ladv(θ, ψ) + α2Ler(θ, {φ′
+i}K
+i=1),
+(8)
+where α1 and α2 are trade-off parameters.
+Algorithm. In our experiments, we observed that directly optimizing the loss Eq. 8 may show
+instability, since the minimax game in Eq. 7 encourages the learned features not to be distinguished
+by the classiﬁers. That may impede the optimization of the classiﬁcation loss. To alleviate this issue,
+we introduce additional classiﬁers {Ti}K
+i=1 and add a new cross-entropy loss Lcel:
+min
+F,{Ti}K
+i=1
+Lcel(θ, {φi}K
+i=1) = −
+K
+X
+i=1
+E
+(X,Y )∼Pi(X,Y )[log QTi
+i (Y | ¯F(X))]
+−
+K
+X
+i=1
+K
+X
+j=1,j̸=i
+E
+(X,Y )∼Pj(X,Y )[log Q
+¯Ti
+i (Y |F(X))],
+(9)
+where QTi
+i (Y |F(X)) denotes the conditional distribution induced by Ti. Here, ¯F and ¯Ti mean that
+we ﬁx the parameters of F and T during the training procedure, respectively. Speciﬁcally, we feed
+the learned features in the ith domain into Ti to optimize its parameters φi. Additionally, we expect
+the feature extractor can map the data in domains {Dj}K
+j=1,j̸=i to a representation, which can be
+distinguished by Ti accurately. This strategy, on the one hand, can impose regularization on the
+feature distribution of domains {Dj}K
+j=1,j̸=i. On the other hand, the new loss can be considered as a
+complementary of Lcls.
+Thus, our ﬁnal objective is formulated as:
+min
+F,T,{Ti}K
+i=1
+max
+D,{T ′
+i }K
+i=1
+L(θ, φ, ψ, {φi}K
+i=1, {φ′
+i}K
+i=1) = Lcls + α1Ladv + α2Ler + α3Lcel,
+(10)
+where α3 is a weighting factor. To illustrate the training process clearly, we provide the pseudo-code
+of our algorithm in Alg. 1. We also provide the framework in the Supplementary Materials.
+Algorithm 1: Training algorithm for domain generalization via entropy regularization.
+Input: {Si}K
+i=1: K source training datasets
+Input: α1, α2, α3: weighting factors
+Output: F: feature extractor; T, {Ti}K
+i=1, {T ′
+i}K
+i=1: classiﬁer; D: discriminator
+while training is not end do
+Sample data from each training dataset respectively
+Update θ, φ, and ψ by optimizing the ﬁrst and second terms of Eq. 10
+for i in 1 : K do
+Sample data from the ith dataset Si
+Update {φi}K
+i=1 by optimizing the forth term of Eq. 10
+Update θ, and {φ′
+i}K
+i=1 by optimizing the third term of Eq. 10
+Sample data from datasets {Sj}K
+j=1,j̸=i
+Update θ by optimizing the forth term of Eq. 10.
+end
+end
+Discussion. In comparison with the typical classiﬁcation loss, our entropy regularization loss can
+push the network to learn domain-invariant features. For instance, in the example of simulated data in
+Figure 1, the summation of the classiﬁcation loss, the regularization loss and the domain adversarial
+loss is −0.16 in classifying the ﬁrst dimension, and is −0.02 in classifying the second dimension.
+Therefore, our training objective can enforce the learned features to be domain-invariant.
+3
+Experiments
+In this section, we study domain generalization on four datasets, including two simulated datasets
+(i.e., Rotated MNIST [11] and Rotated CIFAR-10) and two real-world datasets (i.e., VLCS [11],
+5
+
+Table 1: Results on MNIST dataset with object recognition accuracy (%) averaged over 10 runs.
+Target
+CrossGrad [16]
+MetaReg [23]
+Reptile [34]
+Feature-Critic [30]
+DeepAll
+Basic-Adv
+Ours
+M0
+86.03
+85.70
+87.78
+87.04
+88.37 ± 1.19
+88.88 ± 1.08
+90.09 ± 1.25
+M15
+98.92
+98.87
+99.44
+99.53
+99.13 ± 0.41
+99.10 ± 0.19
+99.24 ± 0.37
+M30
+98.60
+98.32
+98.42
+99.41
+99.28 ± 0.27
+99.25 ± 0.14
+99.27 ± 0.16
+M45
+98.39
+98.58
+98.80
+99.52
+99.09 ± 0.29
+99.25 ± 0.17
+99.31 ± 0.21
+M60
+98.68
+98.93
+99.03
+99.23
+99.14 ± 0.28
+99.16 ± 0.32
+99.45 ± 0.19
+M75
+88.94
+89.44
+87.42
+91.52
+87.48 ± 1.01
+89.06 ± 1.54
+90.81 ± 1.35
+Avg.
+94.93
+94.97
+95.15
+96.04
+95.42
+95.78
+96.36
+Table 2: Results on CIFAR-10 dataset with object recognition accuracy (%) averaged over 5 runs.
+Method
+M0
+M15
+M30
+M45
+M60
+M75
+Avg.
+DeepAll
+71.28 ± 1.59
+97.94 ± 0.32
+99.14 ± 0.04
+99.06 ± 0.19
+99.07 ± 0.40
+76.59 ± 0.89
+90.51
+Basic-Adv
+75.85 ± 1.45
+99.03 ± 0.18
+99.16 ± 0.06
+99.14 ± 0.11
+99.29 ± 0.13
+81.14 ± 1.34
+92.27
+Ours
+77.91 ± 0.83
+99.05 ± 0.22
+99.33 ± 0.09
+99.39 ± 0.14
+99.40 ± 0.29
+80.12 ± 0.60
+92.53
+PACS [28]). We make comparisons against state-of-the-art methods to demonstrate the effectiveness
+of the proposed algorithm. We conduct extensive ablations to discuss our method comprehensively.
+3.1
+Simulated Datasets
+Rotated MNIST. Following the setting in [11], we ﬁrst randomly choose 100 samples per category
+(1000 in total) from the original dataset [29] to form the domain M0. Then, we create 5 rotating
+domains {M15, M30, M45, M60, M75} by rotating each image in M0 ﬁve times with 15 degrees
+intervals in clock-wise direction. As done by previous works [30, 16], we conduct leave-one-domain-
+out experiments by selecting one domain to hold out as the target. For fair comparisons, we exploit
+the standard MNIST CNN, where the feature network consists of two convolutional layers and one
+fully-connected (FC) layer, and the classiﬁer has one FC layer. We train our model with the learning
+rate of 1e −4 (F, T, and D), and 1e −5 ({Ti, T ′
+i}5
+i=1) for 3, 000 iterations. We set the weighting
+factors to 0.5 (α1), 0.005 (α2), and 0.01 (α3), respectively. We repeat all of the experiments 10 times,
+and report the average mean and standard deviation of recognition accuracy in Table 1.
+Rotated CIFAR-10. We randomly choose 500 samples per category (5000 in total) from the original
+CIFAR-10 dataset [31], and then create additional 5 domains using the same strategy as stated in
+Rotated MNIST. We use AlexNet [32] as our backbone network. In speciﬁc, the feature extractor F
+consists of the top layers of AlexNet model till the POOL5 layer, while T contains FC6, FC7, and an
+additional FC layer. For {Ti, T ′
+i}5
+i=1 and D, we use a similar architecture to T. We train the whole
+network from scratch with the learning rate of 1e −3 (F, T, and D) and 1e −4 ({Ti, T ′
+i}5
+i=1) using
+the Adam optimizer [33] for 2000 iterations. The weighting factors (α1, α2, α3) are set to 0.5, 0.001,
+and 0.1, respectively. We repeat all experiments 5 times, and provide the results in Table 2.
+Results. We make comparisons against several recent works, e.g., CrossGrad [16], MetaReg [23],
+Reptile [34], and Feature-Critic [30], on Rotated MNIST. To better illustrate the generalization
+capabilities of our model, we also evaluate the performance of two additional models, i.e., DeepAll
+and Basic-Adv, on both Rotated MNIST and Rotated CIFAR-10. DeepAll trains F and T on all
+of the source domains without performing any domain generalization (Eq. 1), while Basic-Adv is
+the basic solution through adversarial learning (Eq. 1 and Eq. 2). We can ﬁnd all of the algorithms
+perform well on Rotated MNIST from Table 1, which means the generated domains have similar
+distributions. Nevertheless, our approach still performs better than existing approaches. Furthermore,
+the higher accuracy compared with DeepAll and Basic-Adv on both Rotated MNIST and Rotated
+CIFAR-10 shows the better generalization capabilities of the proposed algorithm.
+3.2
+Real-World Datasets
+VLCS. VLCS [11] contains images from four well-known datasets, i.e., Pascal VOC2007 (V) [37],
+LabelMe (L) [38], Caltech (C) [39], and SUN09 (S) [40]. There are ﬁve categories, including bird, car,
+chair, dog, and person. Following previous works [11, 22, 21], we randomly split each domain data
+into training (70%) and test (30%) sets, and do the leave-one-out evaluation. For the conﬁguration of
+the network, we consider two cases, i.e., MLP and E2E. In speciﬁc, in MLP, we use the pre-extracted
+DeCAF6 features (4096-dimensional vector) as the input, and F consists of two FC layers with latent
+6
+
+Table 3: Results on VLCS dataset with object recognition accuracy (%) averaged over 20 runs.
+Method
+Pascal VOC2007
+LabelMe
+Caltech
+SUN09
+Average
+MLP
+D-MATE [11]
+63.90
+60.13
+89.05
+61.33
+68.60
+DBADG [28]
+65.58
+58.74
+92.43
+61.85
+69.65
+CCSA [35]
+67.10
+62.10
+92.30
+59.10
+70.15
+MetaReg [23]
+65.00
+60.20
+92.30
+64.20
+70.43
+CrossGrad [16]
+65.50
+60.00
+92.00
+64.70
+70.55
+DANN [36]
+66.40
+64.00
+92.60
+63.60
+71.65
+MMD-AAE [12]
+67.70
+62.60
+94.40
+64.40
+72.28
+MLDG [24]
+67.70
+61.30
+94.40
+65.90
+72.33
+Epi-FCR [22]
+67.10
+64.30
+94.10
+65.90
+72.85
+DeepAll
+70.07 ± 0.79
+60.54 ± 1.02
+93.83 ± 1.08
+65.95 ± 1.13
+72.60
+Basic-Adv
+70.47 ± 0.59
+60.94 ± 0.94
+93.84 ± 1.00
+66.05 ± 0.91
+72.82
+Ours
+70.54 ± 0.55
+60.81 ± 1.38
+94.44 ± 0.98
+66.11 ± 0.75
+72.97
+E2E
+DBADG [28]
+69.99
+63.49
+93.64
+61.32
+72.11
+JiGen [18]
+70.62
+60.90
+96.93
+64.30
+73.19
+MMLD [15]
+71.96
+58.77
+96.66
+68.13
+73.88
+CIDDG [14]
+73.00
+58.30
+97.02
+68.89
+74.30
+DeepAll
+73.11 ± 0.67
+58.07 ± 0.52
+97.15 ± 0.40
+68.79 ± 0.44
+74.28
+Basic-Adv
+72.79 ± 0.67
+58.53 ± 0.69
+97.00 ± 0.50
+68.70 ± 0.69
+74.26
+Ours
+73.24 ± 0.49
+58.26 ± 0.82
+96.92 ± 0.40
+69.10 ± 0.46
+74.38
+Table 4: Results on PACS dataset with object recognition accuracy (%) averaged over 5 runs.
+Method
+Art Painting
+Cartoon
+Photo
+Sketch
+Average
+D-MATE [11]
+60.27
+58.65
+91.12
+47.68
+64.48
+CrossGrad [16]
+61.00
+67.20
+87.60
+55.90
+67.93
+DBADG [28]
+62.86
+66.97
+89.50
+57.51
+69.21
+MLDG [24]
+66.23
+66.88
+88.00
+58.96
+70.01
+Epi-FCR [22]
+64.70
+72.30
+86.10
+65.00
+72.03
+Feature-Critic [30]
+64.89
+71.72
+89.94
+61.85
+71.20
+CIDDG [14]
+66.99
+68.62
+90.19
+62.88
+72.20
+MetaReg [23]
+69.82
+70.35
+91.07
+59.26
+72.62
+JiGen [18]
+67.63
+71.71
+89.00
+65.18
+73.38
+MMLD [15]
+69.27
+72.83
+88.98
+66.44
+74.38
+MASF [21]
+70.35
+72.46
+90.68
+67.33
+75.21
+DeepAll
+68.35 ± 0.80
+70.14 ± 0.87
+90.83 ± 0.32
+64.98 ± 1.92
+73.57
+Basic-Adv
+71.34 ± 0.81
+70.11 ± 1.18
+88.86 ± 0.50
+70.91 ± 0.94
+75.31
+Ours
+71.34 ± 0.87
+70.29 ± 0.77
+89.92 ± 0.42
+71.15 ± 1.01
+75.67
+dimensions of 1024 and 128. For the classiﬁers T and {Ti, T ′
+i}3
+i=1, we use one FC layer, respectively.
+For the discriminator D, we utilize three FC layers with the output dimensions of 128, 64, and 3 (the
+number of source domains). In this case, we train our model with the learning rate of 1e −3 for 30
+epochs using the SGD optimizer. We set all trade-off parameters to 0.1. In another setting (E2E), we
+employ the same network conﬁguration as used on Rotated CIFAR-10, but use the model pre-trained
+on ImageNet [32]. We set the learning rate to 1e −4, and the weighting factors α1, α2, and α3 to 0.1,
+0.001, and 0.05, respectively. We train the model with the batch size of 64 for each source domain
+for 60 epochs and repeat all of the experiments 20 times.
+PACS. PACS [28] is proposed specially for domain generalization. It contains four domains, i.e.,
+Photo (P), Art Painting (A), Cartoon (C), and Sketch (S), and seven categories: dog, elephant, giraffe,
+guitar, house, horse, and person. For a fair comparison, we use the same training and validation split
+as presented in [28]. Our network conﬁguration is the same as that used for VLCS (E2E), and we set
+the weighting factors to 0.5 (α1), 0.01 (α2), and 0.05 (α3), respectively. Then we train the model
+with the learning rate of 1e −3 (F, T, D) and 1e −4 ({Ti, T ′
+i}3
+i=1) for 60 epochs. We repeat all
+experiments 5 times, and report the results in Tabel 4.
+Results. As shown in Table 3, although the baselines (DeepAll and Basic-Adv) are competitive with
+previous methods in both cases (MLP and E2E), our proposed entropy regularization still improves
+the performance further on VLCS. Furthermore, the highest average score and the highest score
+on several domains of PACS can also demonstrate the effectiveness of our approach. For example,
+Table 4 shows that our method improves the average accuracy by 2.1% on PACS over DeepAll, and
+improves 6.17% and 2.99% on Sketch and Art Painting, respectively. In addition, from the results
+in Table 3 and Table 4, we can observe that the performance (Ours v.s. DeepAll and Basic-Adv v.s.
+DeepAll) gains obtained by our regularization policy on PACS are more notable than those on VLCS.
+A possible reason we guess is that only one domain (C) in VLCS is object-centric, while others are
+7
+
+Table 5: Results with different weighting factors on PACS.
+α1, α2, α3
+Art Painting
+Cartoon
+Photo
+Sketch
+Average
+- , - , -
+68.35 ± 0.80
+70.14 ± 0.87
+90.83 ± 0.32
+64.98 ± 1.92
+73.57
+1.0 , - , -
+64.46 ± 3.80
+64.07 ± 3.01
+83.48 ± 1.39
+66.70 ± 2.64
+69.68
+0.5 , - , -
+71.35 ± 0.81
+70.11 ± 1.18
+88.86 ± 0.50
+70.91 ± 0.94
+75.31
+0.1 , - , -
+68.22 ± 0.89
+70.13 ± 0.67
+90.60 ± 0.37
+64.61 ± 1.93
+73.39
+0.5 , 0.05 , -
+70.83 ± 1.35
+70.06 ± 0.98
+89.25 ± 0.38
+71.34 ± 0.82
+75.37
+0.5 , 0.01 , -
+71.05 ± 1.62
+70.29 ± 0.88
+89.44 ± 0.36
+70.06 ± 1.80
+75.21
+0.5 , 0.001 , -
+71.72 ± 0.77
+69.84 ± 1.65
+88.88 ± 0.42
+70.85 ± 0.83
+75.32
+0.5 , - , 0.5
+68.92 ± 0.59
+69.62 ± 0.51
+89.99 ± 0.38
+70.04 ± 0.63
+74.74
+0.5 , - , 0.1
+71.04 ± 0.96
+69.78 ± 0.98
+89.68 ± 0.51
+70.95 ± 0.81
+75.36
+0.5 , - , 0.05
+71.59 ± 1.01
+68.97 ± 1.42
+89.57 ± 0.23
+69.81 ± 3.45
+74.99
+0.5 , 0.05 , 0.1
+71.09 ± 1.10
+69.55 ± 0.54
+89.56 ± 0.33
+71.31 ± 0.90
+75.37
+0.5 , 0.01 , 0.1
+70.91 ± 0.81
+70.05 ± 1.33
+89.80 ± 0.44
+71.46 ± 0.46
+75.56
+0.5 , 0.005 , 0.1
+70.95 ± 0.77
+69.78 ± 0.91
+89.56 ± 0.64
+71.00 ± 1.12
+75.32
+0.5 , 0.05 , 0.05
+70.55 ± 1.17
+69.57 ± 1.14
+89.33 ± 0.55
+70.40 ± 2.88
+74.96
+0.5 , 0.01 , 0.05
+71.34 ± 0.87
+70.29 ± 0.77
+89.92 ± 0.42
+71.15 ± 1.02
+75.67
+0.5 , 0.005 , 0.05
+70.51 ± 2.26
+69.60 ± 0.58
+89.69 ± 0.39
+71.51 ± 0.84
+75.33
+Table 6: Results of deeper networks on PACS dataset with object recognition accuracy (%) averaged
+over 5 runs.
+Method
+Art Painting
+Cartoon
+Photo
+Sketch
+Average
+ResNet-18
+DeepAll
+78.93 ± 0.46
+75.02 ± 0.89
+96.60 ± 0.16
+70.48 ± 0.84
+80.25
+Basic-Adv
+80.54 ± 1.71
+75.21 ± 0.92
+96.67 ± 0.21
+70.65 ± 1.91
+80.77
+Ours
+80.70 ± 0.71
+76.40 ± 0.34
+96.65 ± 0.21
+71.77 ± 1.27
+81.38
+ResNet-50
+DeepAll
+86.18 ± 0.34
+76.79 ± 0.33
+98.14 ± 0.15
+74.66 ± 0.93
+83.94
+Basic-Adv
+87.11 ± 1.08
+78.65 ± 1.13
+98.22 ± 0.17
+76.48 ± 1.09
+85.11
+Ours
+87.51 ± 1.03
+79.31 ± 1.40
+98.25 ± 0.12
+76.30 ± 0.65
+85.34
+all scene-centric. This makes the generalization of the model difﬁcult, although the domain shifts
+in VLCS are small [28]. In contrast, the images in all domains of PACS are mostly object-centric,
+and objects in different domains mainly have different styles and shapes. This can better evaluate the
+generalization capabilities of the model.
+3.3
+Ablation Studies
+The experimental results above have demonstrated the effectiveness of our proposed algorithm for
+domain generalization. Here, we provide the ablation studies on the designed loss and network
+backbone to analyze the contributions of the proposed entropy regularization further.
+Different Weighting Factors. We conduct various experiments with different weighting factors
+on PACS to examine their impacts. We report the average accuracy of 5 trials in Table 5. The
+results marked by the “gray” color correspond to the results reported in Table 4. “-” means the
+corresponding loss term is ignored. As shown in Table 5, in most cases, our proposed conditional
+entropy regularization (α2 ̸= 0) can yield some improvements. Besides, by optimizing the full
+objective, our approach can further improve the generalization capabilities of the model.
+Deeper Networks. We further study the generalization capabilities of our model by taking deeper
+networks, e.g., ResNet-18 and RestNet-50 [41], as the backbone network. The models are pre-trained
+on ImageNet, and ﬁne-tuned on PACS using the proposed loss. In speciﬁc, we take the last FC
+layer as our task network T, and other layers as the feature extractor F. We use three FC layers
+with output dimensions of 1024, 256, and the number of source domains / categories to construct
+the discriminator D and classiﬁers {Ti, T ′
+i}3
+i=1, respectively. For both ResNet-18 and ResNet-50,
+we use the same hyper-parameters, i.e., α1 = 0.1, α2 = 0.001, α3 = 0.05, and the learning rate of
+1e −3 (F, T, D) and 1e −4 ({Ti, T ′
+i}3
+i=1). We learn models for 100 epochs, and report the average
+scores of 5 trials. As shown in Table 6, even though we take deeper networks as our backbones, our
+approach still yield higher scores than the two baselines.
+Class Imbalance. We address the class imbalance issue by using the weighted cross-entropy loss
+according to the number of each class in each batch. If not using the weighted loss i.e., setting the
+8
+
+dog
+elephant
+giraffe
+guitar
+horse
+house
+person
+DeepAll (Classes)
+art painting
+cartoon
+sketch
+photo
+DeepAll (Domains)
+guitar
+giraffe
+horse
+elephant
+person
+house
+dog
+Basic-Adv (Classes)
+art painting
+cartoon
+sketch
+photo
+Basic-Adv (Domains)
+elephant
+horse
+dog
+guitar
+house
+giraffe
+person
+Ours (Classes)
+art painting
+cartoon
+sketch
+photo
+Ours (Domains)
+Figure 2: Feature visualization. Left: different colors represent different classes; Right: different colors indicate
+different domains (Target: Photo). Best viewed in color (Zoom in for details).
+weight to 1 for each class, the model yields a lower average accuracy of 75.58% (weighted loss used:
+75.67%) on PACS, but still has better generalization capabilities.
+Feature Visualization. To better understand the distribution of the learned features, we exploit
+t-SNE [42] to analyze the feature space learned by DeepAll, Basic-Adv, and Ours, respectively. We
+conduct this study on PACS, and in speciﬁc, we take the Photo dataset as the target, and others as
+the source. As shown in Figure 2, both Ours and Basic-Adv are capable of minimizing the distance
+between the distributions of the domains. For example, in DeepAll (Domains), we can observe that the
+Sketch (Green) is far away from other domains, while in Ours (Domains) and Basic-Adv (Domain),
+domains are clustered better. Furthermore, the comparison between Ours (Classes, Domains) and
+Basic-Adv (Classes, Domains) can show that our approach also discriminates the data from different
+categories better than Basic-Adv.
+4
+Conclusion
+In this paper, we aim at learning the domain-invariant conditional distribution, which the basic
+adversarial learning based solutions cannot reach. We analyze the issues existed in related works,
+and propose an entropy regularization term, i.e., the conditional entropy H(Y |F(X)), as the remedy.
+Our approach can produce domain-invariant features by optimizing the proposed regularization term
+coupled with the cross-entropy loss and the domain adversarial loss, and thus has a better generaliza-
+tion capability. The experimental results on both simulated and real-world datasets demonstrate the
+effectiveness of our proposed method. In the future, we can extend our approach to other challenging
+tasks, like semantic segmentation.
+9
+
+5
+Acknowledgement
+This research was supported by Australian Research Council Projects FL-170100117, DP-180103424,
+IH-180100002, and DE190101473.
+Broader Impact
+Model generalization is a signiﬁcant subject, since it is almost impossible for us to train a model for
+each scenario. However, due to the domain bias, the model trained on a domain often performs worse
+on other domains. Through exploiting the domain generalization techniques, we can train a model
+on the publicly available datasets, and then deploy it on other related scenarios directly or with few
+adaptations. Therefore, the industries can reduce their costs in repeating training the models. On
+the other hand, since the model is trained on multiple datasets sampled from different domains, the
+domain generalization techniques can reduce over-ﬁtting, and thus courage the model generate fair
+results. Based on our knowledge, our work may not have an adverse impact on ethical aspects and
+future societal consequences.
+References
+[1] Antonio Torralba and Alexei A Efros. Unbiased look at dataset bias. In CVPR 2011, pages
+1521–1528. IEEE, 2011.
+[2] Tongtong Fang, Nan Lu, Gang Niu, and Masashi Sugiyama. Rethinking importance weighting
+for deep learning under distribution shift. arXiv preprint arXiv:2006.04662, 2020.
+[3] Kun Zhang, Bernhard Schölkopf, Krikamol Muandet, and Zhikun Wang. Domain adaptation
+under target and conditional shift. In International Conference on Machine Learning, pages
+819–827, 2013.
+[4] Eric Tzeng, Judy Hoffman, Ning Zhang, Kate Saenko, and Trevor Darrell. Deep domain
+confusion: Maximizing for domain invariance. arXiv preprint arXiv:1412.3474, 2014.
+[5] Yaroslav Ganin and Victor S. Lempitsky. Unsupervised domain adaptation by backpropagation.
+In ICML, 2015.
+[6] Baochen Sun and Kate Saenko. Deep coral: Correlation alignment for deep domain adaptation.
+In European conference on computer vision, pages 443–450. Springer, 2016.
+[7] Konstantinos Bousmalis, George Trigeorgis, Nathan Silberman, Dilip Krishnan, and Dumitru
+Erhan. Domain separation networks. In Advances in neural information processing systems,
+pages 343–351, 2016.
+[8] Han Zhao, Shanghang Zhang, Guanhang Wu, José MF Moura, Joao P Costeira, and Geoffrey J
+Gordon. Adversarial multiple source domain adaptation. In Advances in neural information
+processing systems, pages 8559–8570, 2018.
+[9] Gilles Blanchard, Gyemin Lee, and Clayton Scott. Generalizing from several related classiﬁca-
+tion tasks to a new unlabeled sample. In Advances in neural information processing systems,
+pages 2178–2186, 2011.
+[10] Krikamol Muandet, David Balduzzi, and Bernhard Schölkopf. Domain generalization via
+invariant feature representation. In International Conference on Machine Learning, pages
+10–18, 2013.
+[11] Muhammad Ghifary, W Bastiaan Kleijn, Mengjie Zhang, and David Balduzzi. Domain gen-
+eralization for object recognition with multi-task autoencoders. In Proceedings of the IEEE
+international conference on computer vision, pages 2551–2559, 2015.
+[12] Haoliang Li, Sinno Jialin Pan, Shiqi Wang, and Alex C Kot. Domain generalization with
+adversarial feature learning. In Proceedings of the IEEE Conference on Computer Vision and
+Pattern Recognition, pages 5400–5409, 2018.
+10
+
+[13] Martin Arjovsky, Léon Bottou, Ishaan Gulrajani, and David Lopez-Paz. Invariant risk mini-
+mization. arXiv preprint arXiv:1907.02893, 2019.
+[14] Ya Li, Xinmei Tian, Mingming Gong, Yajing Liu, Tongliang Liu, Kun Zhang, and Dacheng Tao.
+Deep domain generalization via conditional invariant adversarial networks. In Proceedings of
+the European Conference on Computer Vision (ECCV), pages 624–639, 2018.
+[15] Toshihiko Matsuura and Tatsuya Harada. Domain generalization using a mixture of multiple
+latent domains. In AAAI, 2020.
+[16] Shiv Shankar, Vihari Piratla, Soumen Chakrabarti, Siddhartha Chaudhuri, Preethi Jyothi, and
+Sunita Sarawagi. Generalizing across domains via cross-gradient training. In International
+Conference on Learning Representations (ICLR), 2018.
+[17] Riccardo Volpi, Hongseok Namkoong, Ozan Sener, John C Duchi, Vittorio Murino, and Silvio
+Savarese. Generalizing to unseen domains via adversarial data augmentation. In Advances in
+Neural Information Processing Systems, pages 5334–5344, 2018.
+[18] Fabio M Carlucci, Antonio D’Innocente, Silvia Bucci, Barbara Caputo, and Tatiana Tommasi.
+Domain generalization by solving jigsaw puzzles. In Proceedings of the IEEE Conference on
+Computer Vision and Pattern Recognition, pages 2229–2238, 2019.
+[19] Gilles Blanchard, Aniket Anand Deshmukh, Urun Dogan, Gyemin Lee, and Clayton Scott.
+Domain generalization by marginal transfer learning. arXiv preprint arXiv:1711.07910, 2017.
+[20] Aniket Anand Deshmukh, Yunwen Lei, Srinagesh Sharma, Urun Dogan, James W Cutler, and
+Clayton Scott. A generalization error bound for multi-class domain generalization. arXiv
+preprint arXiv:1905.10392, 2019.
+[21] Qi Dou, Daniel Coelho de Castro, Konstantinos Kamnitsas, and Ben Glocker. Domain general-
+ization via model-agnostic learning of semantic features. In Advances in Neural Information
+Processing Systems, pages 6447–6458, 2019.
+[22] Da Li, Jianshu Zhang, Yongxin Yang, Cong Liu, Yi-Zhe Song, and Timothy M Hospedales.
+Episodic training for domain generalization. In Proceedings of the IEEE International Confer-
+ence on Computer Vision, pages 1446–1455, 2019.
+[23] Yogesh Balaji, Swami Sankaranarayanan, and Rama Chellappa. Metareg: Towards domain
+generalization using meta-regularization.
+In Advances in Neural Information Processing
+Systems, pages 998–1008, 2018.
+[24] Da Li, Yongxin Yang, Yi-Zhe Song, and Timothy Hospedales. Learning to generalize: Meta-
+learning for domain generalization. In AAAI Conference on Artiﬁcial Intelligence, 2018.
+[25] Xingchao Peng, Qinxun Bai, Xide Xia, Zijun Huang, Kate Saenko, and Bo Wang. Moment
+matching for multi-source domain adaptation.
+In Proceedings of the IEEE International
+Conference on Computer Vision, pages 1406–1415, 2019.
+[26] Ian Goodfellow, Jean Pouget-Abadie, Mehdi Mirza, Bing Xu, David Warde-Farley, Sherjil
+Ozair, Aaron Courville, and Yoshua Bengio. Generative adversarial nets. In Advances in neural
+information processing systems, pages 2672–2680, 2014.
+[27] Mingming Gong, Yanwu Xu, Chunyuan Li, Kun Zhang, and Kayhan Batmanghelich. Twin
+auxilary classiﬁers gan. In Advances in Neural Information Processing Systems, pages 1328–
+1337, 2019.
+[28] Da Li, Yongxin Yang, Yi-Zhe Song, and Timothy M Hospedales. Deeper, broader and artier
+domain generalization. In Proceedings of the IEEE international conference on computer vision,
+pages 5542–5550, 2017.
+[29] Yann LeCun, Léon Bottou, Yoshua Bengio, and Patrick Haffner. Gradient-based learning
+applied to document recognition. Proceedings of the IEEE, 86(11):2278–2324, 1998.
+11
+
+[30] Yiying Li, Yongxin Yang, Wei Zhou, and Timothy Hospedales. Feature-critic networks for
+heterogeneous domain generalisation. In The Thirty-sixth International Conference on Machine
+Learning, 2019.
+[31] Alex Krizhevsky, Geoffrey Hinton, et al. Learning multiple layers of features from tiny images.
+2009.
+[32] Alex Krizhevsky, Ilya Sutskever, and Geoffrey E Hinton. Imagenet classiﬁcation with deep
+convolutional neural networks. In Advances in neural information processing systems, pages
+1097–1105, 2012.
+[33] Diederik Kingma and Jimmy Ba. Adam: A method for stochastic optimization. International
+Conference on Learning Representations, 12 2014.
+[34] Alex Nichol, Joshua Achiam, and John Schulman. On ﬁrst-order meta-learning algorithms.
+arXiv preprint arXiv:1803.02999, 2018.
+[35] Saeid Motiian, Marco Piccirilli, Donald A Adjeroh, and Gianfranco Doretto. Uniﬁed deep
+supervised domain adaptation and generalization. In Proceedings of the IEEE International
+Conference on Computer Vision, pages 5715–5725, 2017.
+[36] Yaroslav Ganin, Evgeniya Ustinova, Hana Ajakan, Pascal Germain, Hugo Larochelle, François
+Laviolette, Mario Marchand, and Victor Lempitsky. Domain-adversarial training of neural
+networks. The Journal of Machine Learning Research, 17(1):2096–2030, 2016.
+[37] Mark Everingham, Luc Van Gool, Christopher KI Williams, John Winn, and Andrew Zisserman.
+The pascal visual object classes (voc) challenge. International journal of computer vision,
+88(2):303–338, 2010.
+[38] Bryan C Russell, Antonio Torralba, Kevin P Murphy, and William T Freeman. Labelme: a
+database and web-based tool for image annotation. International journal of computer vision,
+77(1-3):157–173, 2008.
+[39] Li Fei-Fei, Rob Fergus, and Pietro Perona. Learning generative visual models from few
+training examples: An incremental bayesian approach tested on 101 object categories. In 2004
+conference on computer vision and pattern recognition workshop, pages 178–178. IEEE, 2004.
+[40] Myung Jin Choi, Joseph J Lim, Antonio Torralba, and Alan S Willsky. Exploiting hierarchical
+context on a large database of object categories. In 2010 IEEE Computer Society Conference on
+Computer Vision and Pattern Recognition, pages 129–136. IEEE, 2010.
+[41] Kaiming He, Xiangyu Zhang, Shaoqing Ren, and Jian Sun. Deep residual learning for image
+recognition. In Proceedings of the IEEE conference on computer vision and pattern recognition,
+pages 770–778, 2016.
+[42] Laurens van der Maaten and Geoffrey Hinton. Visualizing data using t-sne. Journal of machine
+learning research, 9(Nov):2579–2605, 2008.
+12

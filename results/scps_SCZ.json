@@ -1,0 +1,107 @@
+{
+  "condition": "SCZ",
+  "domain": "subject",
+  "cohorts": [
+    "ds004000",
+    "ds004367"
+  ],
+  "config": {
+    "condition": "SCZ",
+    "cohorts": null,
+    "backbone": "EEGNet",
+    "domain": "subject",
+    "configs": [
+      "erm:0",
+      "lpc_prior:0.1",
+      "cdann:1"
+    ],
+    "epochs": 120,
+    "bs": 64,
+    "warmup": 30,
+    "n_inner": 2,
+    "sampler": "classbal",
+    "prior": "empirical",
+    "beta": 0.0,
+    "seed": 0,
+    "out": "results/scps_SCZ.json"
+  },
+  "summary": {
+    "erm": {
+      "per_target_balanced_acc_mean": 0.6083886135976129,
+      "worst_target_balanced_acc": 0.5067708333333333,
+      "leakage_kl": 1.6845808029174805,
+      "per_cohort": {
+        "ds004000": 50.7,
+        "ds004367": 71.0
+      }
+    },
+    "lpc_prior": {
+      "per_target_balanced_acc_mean": 0.6559702685421995,
+      "worst_target_balanced_acc": 0.59375,
+      "leakage_kl": 0.23823238909244537,
+      "per_cohort": {
+        "ds004000": 59.4,
+        "ds004367": 71.8
+      }
+    },
+    "cdann": {
+      "per_target_balanced_acc_mean": 0.6085884217817562,
+      "worst_target_balanced_acc": 0.6041560102301791,
+      "leakage_kl": 0.622638463973999,
+      "per_cohort": {
+        "ds004000": 61.3,
+        "ds004367": 60.4
+      }
+    }
+  },
+  "folds": {
+    "erm": [
+      {
+        "held_out": "ds004000",
+        "balanced_acc": 0.5067708333333333,
+        "macro_f1": 0.4414569805194805,
+        "leakage_kl": 1.7853561639785767,
+        "n_test": 1680
+      },
+      {
+        "held_out": "ds004367",
+        "balanced_acc": 0.7100063938618926,
+        "macro_f1": 0.6955906350365334,
+        "leakage_kl": 1.5838054418563843,
+        "n_test": 1600
+      }
+    ],
+    "lpc_prior": [
+      {
+        "held_out": "ds004000",
+        "balanced_acc": 0.59375,
+        "macro_f1": 0.5747721993925317,
+        "leakage_kl": 0.3146437108516693,
+        "n_test": 1680
+      },
+      {
+        "held_out": "ds004367",
+        "balanced_acc": 0.718190537084399,
+        "macro_f1": 0.6871477609151085,
+        "leakage_kl": 0.16182106733322144,
+        "n_test": 1600
+      }
+    ],
+    "cdann": [
+      {
+        "held_out": "ds004000",
+        "balanced_acc": 0.6130208333333333,
+        "macro_f1": 0.6092334893267144,
+        "leakage_kl": 0.5960763096809387,
+        "n_test": 1680
+      },
+      {
+        "held_out": "ds004367",
+        "balanced_acc": 0.6041560102301791,
+        "macro_f1": 0.5703754949763944,
+        "leakage_kl": 0.6492006182670593,
+        "n_test": 1600
+      }
+    ]
+  }
+}

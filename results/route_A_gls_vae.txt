@@ -1,0 +1,45 @@
+============================================================================================
+ROUTE A : GLS-VAE vs naive dual  --  SAME data, SAME held-out CMI probes
+  erm/dual         = dual_cmi_v2 baselines (penalty co-minimization)
+  glsvae           = partitioned latent + GLS decode, NO encoder penalty
+  glsvae+inv       = + single encoder invariance penalty lam_inv=2.0
+                     (GLS decode dissolves the label tension -> fight-free)
+  CMIs on held-out SOURCE (z_y for glsvae); tgtAcc on held-out TARGET.
+============================================================================================
+--------------------------------------------------------------------------------------------
+DGP              method        tgtAcc    +-  I(Z;D|Y)  I(Y;D|Z)
+--------------------------------------------------------------------------------------------
+covariate-only   erm            76.9  14.5    0.6701    0.1305
+covariate-only   dual           77.0  12.2    0.6327    0.1405
+covariate-only   glsvae         76.2  13.0    0.4850    0.0639
+covariate-only   glsvae+inv     75.8  13.1    0.4714    0.0591
+--------------------------------------------------------------------------------------------
+DGP              method        tgtAcc    +-  I(Z;D|Y)  I(Y;D|Z)
+--------------------------------------------------------------------------------------------
+covariate+label  erm            76.7  13.7    0.6237    0.1788
+covariate+label  dual           78.6   9.9    0.5742    0.1894
+covariate+label  glsvae         76.9  13.1    0.4450    0.1134
+covariate+label  glsvae+inv     76.4  12.9    0.3711    0.1055
+--------------------------------------------------------------------------------------------
+DGP              method        tgtAcc    +-  I(Z;D|Y)  I(Y;D|Z)
+--------------------------------------------------------------------------------------------
+all-three        erm            59.0  25.7    0.9172    0.1491
+all-three        dual           60.4  24.9    0.9038    0.1493
+all-three        glsvae         54.6  18.6    0.8255    0.1618
+all-three        glsvae+inv     57.1  19.4    0.7087    0.1339
+--------------------------------------------------------------------------------------------
+DGP              method        tgtAcc    +-  I(Z;D|Y)  I(Y;D|Z)
+--------------------------------------------------------------------------------------------
+concept-only     erm            53.9   0.9    0.5976    0.3971
+concept-only     dual           60.7   4.2    0.6017    0.4045
+concept-only     glsvae         37.7  10.5    0.6328    0.4382
+concept-only     glsvae+inv     39.8   9.9    0.6273    0.4371
+--------------------------------------------------------------------------------------------
+
+============================================================================================
+ROUTE A : THE 'NO FIGHT' TEST under label shift (covariate+label DGP)
+  push encoder pressure UP; does the DECODER leakage I(Y;D|Z) get forced up?
+============================================================================================
+model        enc_pressure  I(Z;D|Y)  I(Y;D|Z)  tgtAcc
+--------------------------------------------------------------------------------------------
+naive-enc             0.0    0.6237    0.1788   76.7

@@ -1,0 +1,212 @@
+{
+  "counts": {
+    "PASS": 1,
+    "WARN": 1,
+    "FAIL": 0
+  },
+  "method_rows": [
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s1",
+      "task": "loso:MUMTAZ",
+      "seed": 1,
+      "method": "erm:0",
+      "family": "erm",
+      "acc": 0.853021978021978,
+      "cond_kl_rw": 2.265842216986197,
+      "pz_kl_rw": 2.208174780563072,
+      "py_js_rw": 0.00034135704859013287,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s1",
+      "task": "loso:MUMTAZ",
+      "seed": 1,
+      "method": "lpc_prior:0.1",
+      "family": "lpc_prior",
+      "acc": 0.8708791208791209,
+      "cond_kl_rw": 0.6716042690806918,
+      "pz_kl_rw": 0.6238974001672533,
+      "py_js_rw": 0.004331840210835691,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s1",
+      "task": "loso:MUMTAZ",
+      "seed": 1,
+      "method": "dualc:0.1:0.05",
+      "family": "dualc",
+      "acc": 0.8708791208791209,
+      "cond_kl_rw": 0.6715374522738986,
+      "pz_kl_rw": 0.6245286950358638,
+      "py_js_rw": 0.004324525715438304,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s1",
+      "task": "loso:MUMTAZ",
+      "seed": 1,
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "acc": 0.8365384615384616,
+      "cond_kl_rw": 0.6749492243484214,
+      "pz_kl_rw": 0.6322206623024411,
+      "py_js_rw": 0.004132881338052728,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s1",
+      "task": "loso:MUMTAZ",
+      "seed": 1,
+      "method": "dualpc_marginal:0.1:0.05",
+      "family": "dualpc_marginal",
+      "acc": 0.8365384615384616,
+      "cond_kl_rw": 0.6684219748885544,
+      "pz_kl_rw": 0.6139598411542398,
+      "py_js_rw": 0.00488783183283414,
+      "decoder_valid_n": 0.0,
+      "n_folds": 54.0
+    }
+  ],
+  "method_summary": [
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualc:0.1:0.05",
+      "family": "dualc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8708791208791209,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6715374522738986,
+      "pz_kl_rw_mean": 0.6245286950358638,
+      "py_js_rw_mean": 0.004324525715438304,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc:0.1:0.05",
+      "family": "dualpc",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8365384615384616,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6749492243484214,
+      "pz_kl_rw_mean": 0.6322206623024411,
+      "py_js_rw_mean": 0.004132881338052728,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc_marginal:0.1:0.05",
+      "family": "dualpc_marginal",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8365384615384616,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6684219748885544,
+      "pz_kl_rw_mean": 0.6139598411542398,
+      "py_js_rw_mean": 0.00488783183283414,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "erm:0",
+      "family": "erm",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.853021978021978,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 2.265842216986197,
+      "pz_kl_rw_mean": 2.208174780563072,
+      "py_js_rw_mean": 0.00034135704859013287,
+      "decoder_valid_n_mean": 0.0
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "lpc_prior:0.1",
+      "family": "lpc_prior",
+      "n": 1,
+      "files": 1,
+      "acc_mean": 0.8708791208791209,
+      "acc_std": 0.0,
+      "cond_kl_rw_mean": 0.6716042690806918,
+      "pz_kl_rw_mean": 0.6238974001672533,
+      "py_js_rw_mean": 0.004331840210835691,
+      "decoder_valid_n_mean": 0.0
+    }
+  ],
+  "comparison_rows": [
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s1",
+      "task": "loso:MUMTAZ",
+      "seed": 1,
+      "method": "dualpc:0.1:0.05",
+      "baseline": "erm:0",
+      "acc": 0.8365384615384616,
+      "baseline_acc": 0.853021978021978,
+      "delta_acc": -0.016483516483516425,
+      "delta_cond_kl_rw": -1.5908929926377757,
+      "delta_pz_kl_rw": -1.575954118260631,
+      "delta_py_js_rw": 0.003791524289462595,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    },
+    {
+      "file": "dualpc_paper_loso_MUMTAZ_s1",
+      "task": "loso:MUMTAZ",
+      "seed": 1,
+      "method": "dualpc:0.1:0.05",
+      "baseline": "lpc_prior:0.1",
+      "acc": 0.8365384615384616,
+      "baseline_acc": 0.8708791208791209,
+      "delta_acc": -0.03434065934065933,
+      "delta_cond_kl_rw": 0.003344955267729599,
+      "delta_pz_kl_rw": 0.008323262135187859,
+      "delta_py_js_rw": -0.00019895887278296304,
+      "status": "WARN",
+      "note": "probe(s) raised: pz"
+    }
+  ],
+  "comparison_summary": [
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc:0.1:0.05",
+      "baseline": "erm:0",
+      "n": 1,
+      "files": 1,
+      "pass_rate": 1.0,
+      "acc_mean": 0.8365384615384616,
+      "baseline_acc_mean": 0.853021978021978,
+      "delta_acc_mean": -0.016483516483516425,
+      "delta_acc_std": 0.0,
+      "delta_cond_kl_rw_mean": -1.5908929926377757,
+      "delta_pz_kl_rw_mean": -1.575954118260631,
+      "delta_py_js_rw_mean": 0.003791524289462595,
+      "status": "PASS",
+      "note": "accuracy/probe deltas ok"
+    },
+    {
+      "task": "loso:MUMTAZ",
+      "method": "dualpc:0.1:0.05",
+      "baseline": "lpc_prior:0.1",
+      "n": 1,
+      "files": 1,
+      "pass_rate": 0.0,
+      "acc_mean": 0.8365384615384616,
+      "baseline_acc_mean": 0.8708791208791209,
+      "delta_acc_mean": -0.03434065934065933,
+      "delta_acc_std": 0.0,
+      "delta_cond_kl_rw_mean": 0.003344955267729599,
+      "delta_pz_kl_rw_mean": 0.008323262135187859,
+      "delta_py_js_rw_mean": -0.00019895887278296304,
+      "status": "WARN",
+      "note": "probe(s) raised: pz"
+    }
+  ],
+  "selector_records": [],
+  "selector_summary": [],
+  "parse_errors": []
+}

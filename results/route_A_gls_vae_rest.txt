@@ -1,0 +1,32 @@
+
+============================================================================================
+ROUTE A : THE 'NO FIGHT' TEST under label shift (covariate+label DGP)
+  push encoder pressure UP; does the DECODER leakage I(Y;D|Z) get forced up?
+============================================================================================
+model        enc_pressure  I(Z;D|Y)  I(Y;D|Z)  tgtAcc
+--------------------------------------------------------------------------------------------
+naive-enc             0.0    0.4742    0.1493   75.9
+naive-enc             1.0    0.3986    0.1501   75.7
+naive-enc             4.0    0.4059    0.1749   82.8
+--------------------------------------------------------------------------------------------
+glsvae+inv            0.0    0.4257    0.1362   75.2
+glsvae+inv            2.0    0.3528    0.1249   75.0
+glsvae+inv            6.0    0.4279    0.1272   71.2
+--------------------------------------------------------------------------------------------
+
+============================================================================================
+ROUTE A : VARIATIONAL CONCEPT-SHIFT TEST  (delta_d held-out ELBO gain)
+  delta_d corrects p(z_y|y) per domain; gain is large ONLY when the
+  class-conditional latent law genuinely differs by site == concept shift.
+============================================================================================
+DGP               ELBO(shared)  ELBO(+delta)     gain     +-  verdict
+--------------------------------------------------------------------------------------------
+covariate-only          -6.776        -6.560    0.216  0.009  CONCEPT SHIFT
+covariate+label         -6.621        -6.448    0.172  0.051  no concept shift
+all-three               -8.117        -7.704    0.413  0.016  CONCEPT SHIFT
+concept-only            -7.514        -7.032    0.482  0.067  CONCEPT SHIFT
+--------------------------------------------------------------------------------------------
+Reading: the test fires (CONCEPT SHIFT) on concept-bearing DGPs and stays
+quiet on pure covariate / covariate+label DGPs -> a usable concept diagnostic.
+
+[rest done in 1081s]

@@ -1,0 +1,35 @@
+# --- large / binary / transient: keep the repo to code + docs + result JSONs ---
+# third-party papers (copyrighted PDFs, 147M)
+papers/
+*.pdf
+
+# SLURM logs (transient, 13M)
+logs/
+*.out
+*.err
+*.pid
+
+# third-party cloned repos (have their own upstream/licenses)
+repos/
+
+# large binary result/data files (keep the .json, drop the arrays)
+*.npz
+*.preds.npz
+*.npy
+*.pt
+*.pth
+*.ckpt
+
+# python caches
+__pycache__/
+*.py[cod]
+*.egg-info/
+.ipynb_checkpoints/
+
+# editor / os
+.DS_Store
+.vscode/
+*.swp
+
+# slurm generated packages that reference local paths (optional; keep templates)
+slurm-*.out

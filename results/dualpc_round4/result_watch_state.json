@@ -1,0 +1,85 @@
+{
+  "created_at": "2026-06-18T13:33:38",
+  "done": true,
+  "tasks": {
+    "0": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T17:28:45",
+      "completed_at": "2026-06-18T17:28:44",
+      "err_log": "",
+      "label": "round4_bnci_dualpc_repcv_mean_seed_0",
+      "out_json": "results/dualpc_round4/dualpc_r4_select_BNCI2014_001_dualpc_repcv_mean_s0.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_round4/per_task_analysis/task_00_round4_bnci_dualpc_repcv_mean_seed_0_paper_summary.json",
+      "readiness": "results/dualpc_round4/per_task_analysis/task_00_round4_bnci_dualpc_repcv_mean_seed_0_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T13:33:38"
+    },
+    "1": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T17:43:46",
+      "completed_at": "2026-06-18T17:43:46",
+      "err_log": "",
+      "label": "round4_bnci_dualpc_repcv_mean_seed_1",
+      "out_json": "results/dualpc_round4/dualpc_r4_select_BNCI2014_001_dualpc_repcv_mean_s1.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_round4/per_task_analysis/task_01_round4_bnci_dualpc_repcv_mean_seed_1_paper_summary.json",
+      "readiness": "results/dualpc_round4/per_task_analysis/task_01_round4_bnci_dualpc_repcv_mean_seed_1_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T13:33:38"
+    },
+    "2": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T17:33:45",
+      "completed_at": "2026-06-18T17:33:45",
+      "err_log": "",
+      "label": "round4_bnci_dualpc_repcv_mean_seed_2",
+      "out_json": "results/dualpc_round4/dualpc_r4_select_BNCI2014_001_dualpc_repcv_mean_s2.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_round4/per_task_analysis/task_02_round4_bnci_dualpc_repcv_mean_seed_2_paper_summary.json",
+      "readiness": "results/dualpc_round4/per_task_analysis/task_02_round4_bnci_dualpc_repcv_mean_seed_2_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T13:33:38"
+    },
+    "3": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T17:28:45",
+      "completed_at": "2026-06-18T17:28:45",
+      "err_log": "",
+      "label": "round4_bnci_dualpc_repcv_min_seed_0",
+      "out_json": "results/dualpc_round4/dualpc_r4_select_BNCI2014_001_dualpc_repcv_min_s0.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_round4/per_task_analysis/task_03_round4_bnci_dualpc_repcv_min_seed_0_paper_summary.json",
+      "readiness": "results/dualpc_round4/per_task_analysis/task_03_round4_bnci_dualpc_repcv_min_seed_0_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T13:33:38"
+    },
+    "4": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T17:38:46",
+      "completed_at": "2026-06-18T17:38:46",
+      "err_log": "",
+      "label": "round4_bnci_dualpc_repcv_min_seed_1",
+      "out_json": "results/dualpc_round4/dualpc_r4_select_BNCI2014_001_dualpc_repcv_min_s1.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_round4/per_task_analysis/task_04_round4_bnci_dualpc_repcv_min_seed_1_paper_summary.json",
+      "readiness": "results/dualpc_round4/per_task_analysis/task_04_round4_bnci_dualpc_repcv_min_seed_1_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T13:33:38"
+    },
+    "5": {
+      "analysis_ok": true,
+      "analyzed_at": "2026-06-18T17:13:44",
+      "completed_at": "2026-06-18T17:13:44",
+      "err_log": "",
+      "label": "round4_bnci_dualpc_repcv_min_seed_2",
+      "out_json": "results/dualpc_round4/dualpc_r4_select_BNCI2014_001_dualpc_repcv_min_s2.json",
+      "out_log": "",
+      "paper_summary": "results/dualpc_round4/per_task_analysis/task_05_round4_bnci_dualpc_repcv_min_seed_2_paper_summary.json",
+      "readiness": "results/dualpc_round4/per_task_analysis/task_05_round4_bnci_dualpc_repcv_min_seed_2_readiness.json",
+      "status": "analyzed",
+      "updated_at": "2026-06-18T13:33:38"
+    }
+  },
+  "updated_at": "2026-06-18T17:43:46"
+}

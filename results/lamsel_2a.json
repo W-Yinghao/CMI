@@ -1,0 +1,50 @@
+{
+  "config": {
+    "dataset": "BNCI2014_001",
+    "backbone": "EEGNet",
+    "lams": [
+      "0",
+      "0.05",
+      "0.1",
+      "0.3"
+    ],
+    "val_frac": 0.3,
+    "epochs": 250,
+    "select_epochs": 120,
+    "bs": 64,
+    "warmup": 40,
+    "n_inner": 2,
+    "sampler": "classbal",
+    "tmin": 0.5,
+    "tmax": 3.5,
+    "resample": 250,
+    "seed": 0,
+    "max_subjects": 0,
+    "out": "results/lamsel_2a.json"
+  },
+  "classes": [
+    "feet",
+    "left_hand",
+    "right_hand",
+    "tongue"
+  ],
+  "selected_lambda": [
+    0.0,
+    0.0,
+    0.05,
+    0.0,
+    0.1,
+    0.05,
+    0.0,
+    0.0,
+    0.0
+  ],
+  "lambda_hist": {
+    "0.0": 6,
+    "0.05": 2,
+    "0.1": 1,
+    "0.3": 0
+  },
+  "acc_constrained": 41.222993827160494,
+  "acc_erm": 42.30324074074075
+}

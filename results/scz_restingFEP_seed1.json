@@ -1,0 +1,151 @@
+{
+  "condition": "SCZ",
+  "domain": "cohort",
+  "cohorts": [
+    "ds003944",
+    "ds003947"
+  ],
+  "config": {
+    "condition": "SCZ",
+    "cohorts": [
+      "ds003944",
+      "ds003947"
+    ],
+    "backbone": "EEGNet",
+    "domain": "cohort",
+    "configs": [
+      "erm:0",
+      "lpc_prior:0.1",
+      "iib:0.1",
+      "dual:0.1:0.1"
+    ],
+    "epochs": 120,
+    "bs": 64,
+    "warmup": 30,
+    "n_inner": 2,
+    "sampler": "classbal",
+    "prior": "empirical",
+    "beta": 0.0,
+    "seed": 1,
+    "balance": false,
+    "label_correct": false,
+    "reweight_dual": false,
+    "out": "results/scz_restingFEP_seed1.json"
+  },
+  "summary": {
+    "erm:0": {
+      "per_target_balanced_acc_mean": 0.5250157090053764,
+      "worst_target_balanced_acc": 0.5119220430107527,
+      "leakage_kl": 0.0,
+      "decoder_cmi": 1.280754804611206e-05,
+      "per_cohort": {
+        "ds003944": 53.8,
+        "ds003947": 51.2
+      }
+    },
+    "lpc_prior:0.1": {
+      "per_target_balanced_acc_mean": 0.5178680275537635,
+      "worst_target_balanced_acc": 0.5017204301075269,
+      "leakage_kl": 0.0,
+      "decoder_cmi": 0.0004476085305213928,
+      "per_cohort": {
+        "ds003944": 53.4,
+        "ds003947": 50.2
+      }
+    },
+    "iib:0.1": {
+      "per_target_balanced_acc_mean": 0.5184782426075268,
+      "worst_target_balanced_acc": 0.5059408602150537,
+      "leakage_kl": 0.0,
+      "decoder_cmi": 2.8058886528015137e-05,
+      "per_cohort": {
+        "ds003944": 53.1,
+        "ds003947": 50.6
+      }
+    },
+    "dual:0.1:0.1": {
+      "per_target_balanced_acc_mean": 0.5184782426075268,
+      "worst_target_balanced_acc": 0.5059408602150537,
+      "leakage_kl": 0.0,
+      "decoder_cmi": 2.8058886528015137e-05,
+      "per_cohort": {
+        "ds003944": 53.1,
+        "ds003947": 50.6
+      }
+    }
+  },
+  "folds": {
+    "erm:0": [
+      {
+        "held_out": "ds003944",
+        "balanced_acc": 0.538109375,
+        "macro_f1": 0.538109375,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 2.561509609222412e-05,
+        "n_test": 3280
+      },
+      {
+        "held_out": "ds003947",
+        "balanced_acc": 0.5119220430107527,
+        "macro_f1": 0.502207047366771,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.0,
+        "n_test": 2440
+      }
+    ],
+    "lpc_prior:0.1": [
+      {
+        "held_out": "ds003944",
+        "balanced_acc": 0.534015625,
+        "macro_f1": 0.5340107967249524,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.0008952170610427856,
+        "n_test": 3280
+      },
+      {
+        "held_out": "ds003947",
+        "balanced_acc": 0.5017204301075269,
+        "macro_f1": 0.49538486970917395,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.0,
+        "n_test": 2440
+      }
+    ],
+    "iib:0.1": [
+      {
+        "held_out": "ds003944",
+        "balanced_acc": 0.531015625,
+        "macro_f1": 0.5309513010170734,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 5.6117773056030273e-05,
+        "n_test": 3280
+      },
+      {
+        "held_out": "ds003947",
+        "balanced_acc": 0.5059408602150537,
+        "macro_f1": 0.5004853769021959,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.0,
+        "n_test": 2440
+      }
+    ],
+    "dual:0.1:0.1": [
+      {
+        "held_out": "ds003944",
+        "balanced_acc": 0.531015625,
+        "macro_f1": 0.5309513010170734,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 5.6117773056030273e-05,
+        "n_test": 3280
+      },
+      {
+        "held_out": "ds003947",
+        "balanced_acc": 0.5059408602150537,
+        "macro_f1": 0.5004853769021959,
+        "leakage_kl": 0.0,
+        "decoder_cmi": 0.0,
+        "n_test": 2440
+      }
+    ]
+  }
+}
