@@ -360,6 +360,29 @@ near-chance on these hard cross-site cohorts, so detecting the injected 15% bare
 sound (frozen threshold), but the **selective-prediction accuracy *value* needs a base task well above chance** to
 be visible — a real, stated limitation, not hidden.
 
+## 6i. Source-free TTA baselines (protocol-matched) + gate-on-top + batch-size (`cmi/eval/tta_baselines.py`)
+All baselines consume the **serialized SourceState + unlabeled target only** (no source examples), same frozen
+checkpoint/target batches as CITA. (Protocol-matched multi-seed run `results/r10base_dualpc2/` in flight; numbers
+below are single-seed per-fold sanity on dumped real features.)
+- **T3A** (classifier-template adjustment): **≈ native** (54.2 vs 54.4) — template adjustment barely moves
+  cross-site EEG features.
+- **SPDIM** (information-maximization recentering — *Euclidean analog* on the shared embedding; the literal SPDIM
+  uses SPD covariance features, a separate pipeline, stated as such): **strong, ≈ CITA** (58.2 vs 57.5). ⟹ **CITA
+  does NOT out-accuracy SPDIM.** CITA's edge is **(i) closed-form (no test-time gradient/IM optimization), (ii)
+  the CMI applicability gate, (iii) lower leakage** — *not* a raw accuracy win. Honest "methodological/diagnostic"
+  positioning, exactly as the review anticipated.
+- **Gate-on-top (orthogonal safety layer):** for EVERY adapter (native/T3A/SPDIM/CITA), the CMI density gate
+  detects that adapter's confident-but-wrong errors at AUROC **0.60–0.62** (≈constant — the gate is feature-based,
+  adapter-independent) while each adapter's *own* confidence reverses to **0.40–0.43**. ⟹ the gate stacks on ANY
+  adapter, catching errors its confidence misses — a safety layer, not a CORAL appendage. (0.60 vs the injected
+  region's 0.97 because scored against the adapter's *full* error set, mostly base-task hardness.)
+- **Batch-size curve** (B∈{1,4,8,16,32,64,full}, frozen config): **CITA degrades gracefully** — B=1 → native
+  (49.5, no collapse, via the gate + an n_T<2 identity guard), near-full by **B≈16–32**; **SPDIM strong/stable
+  throughout** (56–58, slightly more sample-efficient at small B). Natural vs class-spanning diagnostic batches
+  similar. ⟹ the shrink/reliability gate gives CITA safe small-batch behavior (no catastrophic drop).
+**Still to do (then unseal TUAB):** the protocol-matched multi-seed baseline table + CIs (run in flight),
+5-seed confirmatory CIs, and freezing all configs. TUAB remains **sealed** per `notes/TUAB_LOCKBOX.md`.
+
 ## 7. Limitations / open
 - **Single-class-target LOSO is ill-posed for feature-space transport (R6 finding).** On within-dataset SCPS
   with `leave-one-subject-out`, the held-out target is ONE class (`Y=g(subject)`). Real-data R6 (`--transduct all`

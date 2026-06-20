@@ -186,6 +186,11 @@ def pmct_transport(z_src, y_src, z_tgt, n_cls, alpha=1.0, eps=1e-3, rho=0.2, em_
     from sklearn.linear_model import LogisticRegression
     z_src, z_tgt = np.asarray(z_src, float), np.asarray(z_tgt, float)
     d, n_T = z_src.shape[1], len(z_tgt)
+    if n_T < 2:                                                           # batch too small to estimate a covariance
+        if clf is None:                                                  # -> graceful identity (native), the gate's intent
+            clf = LogisticRegression(max_iter=2000, C=1.0).fit(z_src, y_src)
+        p = clf.predict_proba(z_tgt); prob = np.zeros((len(p), n_cls)); prob[:, clf.classes_] = p
+        return z_tgt, prob, _simplex_clip(prob.mean(0))
     mu_y = np.stack([z_src[y_src == c].mean(0) if (y_src == c).any() else z_src.mean(0) for c in range(n_cls)])
     Sig_y0 = [np.cov(z_src[y_src == c], rowvar=False) if (y_src == c).sum() > d else np.eye(d)   # RAW (unshrunk)
               for c in range(n_cls)]
