@@ -99,10 +99,12 @@ class TTAConfig:
     trust_region: float = 1.0           # tau: ||A - I||_F^2 penalty
     trust_region_b: float = 1.0         # tau_b: ||b||^2 penalty
     logdet_weight: float = 1.0          # n*log|det A| anti-collapse term
-    # Dirichlet-anchor concentrations on pi_T (a KL-toward-pi_S MAP regulariser): the
-    # M-step prior uses pseudo-counts (dirichlet + prior_kl) * pi_S, so `prior_kl` is the
-    # genuine pull toward the source prior and `dirichlet` the anti-collapse floor.
-    prior_kl: float = 1.0
+    # Dirichlet pseudo-count anchor on pi_T: the M-step prior uses pseudo-counts
+    # (dirichlet + prior_anchor_strength) * pi_S. This penalises the cross-entropy
+    # H(pi_S, pi_T) = KL(pi_S || pi_T) + const (the REVERSE direction), NOT a forward
+    # KL(pi_T || pi_S). `prior_anchor_strength` is the pull toward the source prior and
+    # `dirichlet` the anti-collapse floor.
+    prior_anchor_strength: float = 1.0
     dirichlet: float = 5.0
     em_iters: int = 20
     em_lr: float = 5e-2

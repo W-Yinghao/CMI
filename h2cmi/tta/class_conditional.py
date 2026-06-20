@@ -6,7 +6,8 @@ Objective (maximise over A, b, pi_T):
   sum_i log sum_y pi_T(y) p_phi(A u_i + b | y)
       + n log|det A|                    anti-collapse (Jacobian volume)
       - tau ||A - I||_F^2 - tau_b ||b||^2   trust region (stay near identity)
-      - kappa KL(pi_T || pi_S)          prior stays near source (via Dirichlet anchor)
+      + Dirichlet pseudo-count anchor on pi_T toward pi_S (penalises H(pi_S,pi_T) =
+        KL(pi_S||pi_T)+const, the REVERSE direction -- NOT a forward KL(pi_T||pi_S))
 
 solved by EM: E-step responsibilities r_iy ∝ pi_T(y) p_phi(A u_i+b|y); M-step updates
 pi_T in closed form (Dirichlet-anchored at pi_S) and (A,b) by a few gradient ascent steps.
@@ -131,8 +132,9 @@ class ClassConditionalTTA:
         T = Transform(d, self.cfg.transform, self.cfg.lowrank, self.device)
         pi_T = torch.tensor(self.pi_S, dtype=torch.float32, device=self.device)
         opt = torch.optim.Adam(T.params, lr=self.cfg.em_lr)
-        # Dirichlet-anchor toward pi_S = a KL(pi_T||pi_S) MAP regulariser (P0-4 naming):
-        anchor = torch.tensor((self.cfg.dirichlet + self.cfg.prior_kl) * self.pi_S,
+        # Dirichlet pseudo-count anchor toward pi_S (penalises H(pi_S,pi_T)=KL(pi_S||pi_T)
+        # +const; NOT a forward KL(pi_T||pi_S)):
+        anchor = torch.tensor((self.cfg.dirichlet + self.cfg.prior_anchor_strength) * self.pi_S,
                               dtype=torch.float32, device=self.device)
         for _ in range(self.cfg.em_iters):
             with torch.no_grad():
