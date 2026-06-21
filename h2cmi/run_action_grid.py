@@ -90,7 +90,7 @@ def main():
              else [int(s) for s in args.target_sites.split(",")])
     cfg_off, cfg_on = build_cfgs(args)
     sha, chash = git_sha(), config_hash(cfg_on, args)
-    done = load_done_keys(args.out)
+    done = load_done_keys(args.out, item_field="action")
     print(f"[action-grid] sha={sha} scenarios={scenarios} seeds={seeds} sites={sites} "
           f"-> {args.out} ({len(done)} done)", flush=True)
 

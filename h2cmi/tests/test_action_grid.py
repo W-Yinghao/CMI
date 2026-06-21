@@ -92,7 +92,68 @@ def test_action_attribution():
         assert abs(rep["actions"]["prior"]["prior_effect_acc"]["seed_mean"] - 0.10) < 0.01
 
 
+# ----- strict resume loader (the action/method field bug) ---------------------------------
+def _write(path, rows):
+    with open(path, "w") as f:
+        for r in rows:
+            f.write(json.dumps(r) + "\n")
+
+
+def _action_row(action="identity", cmi="off", seed=0, site=0, scen="cov"):
+    return dict(data_seed=seed, target_site=site, scenario=scen, action=action, cmi=cmi)
+
+
+def test_loader_indexes_action_rows():
+    from h2cmi.run_shift_grid import load_done_keys
+    with tempfile.TemporaryDirectory() as d:
+        p = str(Path(d) / "a.jsonl")
+        _write(p, [_action_row("identity"), _action_row("joint")])
+        # correct field -> 2 keys; the OLD bug (item_field='method') now FAILS LOUDLY
+        assert len(load_done_keys(p, item_field="action")) == 2
+        try:
+            load_done_keys(p, item_field="method")
+            assert False, "should raise on missing 'method'"
+        except KeyError:
+            pass
+
+
+def test_loader_rejects_duplicate():
+    from h2cmi.run_shift_grid import load_done_keys
+    with tempfile.TemporaryDirectory() as d:
+        p = str(Path(d) / "a.jsonl")
+        _write(p, [_action_row("joint"), _action_row("joint")])     # identical key twice
+        try:
+            load_done_keys(p, item_field="action")
+            assert False, "should raise on duplicate key"
+        except ValueError:
+            pass
+
+
+def test_loader_rejects_schema_error():
+    from h2cmi.run_shift_grid import load_done_keys
+    with tempfile.TemporaryDirectory() as d:
+        p = str(Path(d) / "a.jsonl")
+        bad = _action_row("joint"); del bad["cmi"]
+        _write(p, [bad])
+        try:
+            load_done_keys(p, item_field="action")
+            assert False, "should raise on missing field"
+        except KeyError:
+            pass
+        # malformed JSON
+        with open(p, "w") as f:
+            f.write("{not json}\n")
+        try:
+            load_done_keys(p, item_field="action")
+            assert False, "should raise on malformed json"
+        except ValueError:
+            pass
+
+
 if __name__ == "__main__":
     test_prior_only_invariant_under_uniform_decision()
     test_action_attribution()
+    test_loader_indexes_action_rows()
+    test_loader_rejects_duplicate()
+    test_loader_rejects_schema_error()
     print("test_action_grid PASSED")

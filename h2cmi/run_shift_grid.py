@@ -72,17 +72,35 @@ def config_hash(cfg: H2Config, args) -> str:
 
 
 # --------------------------------------------------------------------- io / resume
-def load_done_keys(path: str) -> set:
-    keys = set()
-    if os.path.exists(path):
-        with open(path) as f:
-            for line in f:
-                try:
-                    r = json.loads(line)
-                    keys.add((r["data_seed"], r["target_site"], r["scenario"],
-                              r["method"], r["cmi"]))
-                except Exception:
-                    continue
+def load_done_keys(path: str, item_field: str = "method") -> set:
+    """Strict resume index keyed by (data_seed, target_site, scenario, item_field, cmi).
+
+    ``item_field`` is the row's unit column ("method" for the shift grid, "action" for the
+    action grid). FAILS LOUDLY on malformed JSON, missing fields or duplicate keys instead
+    of silently skipping (the old broad ``except`` made the action grid non-resumable: it
+    read "method", action-grid rows have "action", so every row was dropped and re-runs
+    appended duplicates)."""
+    keys: set = set()
+    if not os.path.exists(path):
+        return keys
+    with open(path) as f:
+        for line_no, line in enumerate(f, start=1):
+            line = line.strip()
+            if not line:
+                continue
+            try:
+                row = json.loads(line)
+            except json.JSONDecodeError as exc:
+                raise ValueError(f"Malformed JSON at {path}:{line_no}") from exc
+            required = {"data_seed", "target_site", "scenario", item_field, "cmi"}
+            missing = required - row.keys()
+            if missing:
+                raise KeyError(f"{path}:{line_no} missing fields {sorted(missing)}")
+            key = (row["data_seed"], row["target_site"], row["scenario"],
+                   row[item_field], row["cmi"])
+            if key in keys:
+                raise ValueError(f"Duplicate result key at {path}:{line_no}: {key}")
+            keys.add(key)
     return keys
 
 
@@ -200,7 +218,7 @@ def main():
              else [int(s) for s in args.target_sites.split(",")])
     cfg_off, cfg_on = build_cfgs(args)
     sha = git_sha(); chash = config_hash(cfg_on, args)
-    done = load_done_keys(args.out)
+    done = load_done_keys(args.out, item_field="method")
     print(f"[shift-grid] sha={sha} scenarios={scenarios} seeds={seeds} sites={sites} "
           f"-> {args.out} ({len(done)} units already done)", flush=True)
 
