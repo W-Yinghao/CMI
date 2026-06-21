@@ -44,12 +44,17 @@ from h2cmi.eval.metrics import classification_metrics, _ece
 from h2cmi.eval.harness import _predict_transform, _embed
 from h2cmi.tta.class_conditional import ClassConditionalTTA, Transform
 from h2cmi.run_shift_grid import build_cfgs
-from h2cmi.grid_io import (load_done_keys, append_row, hash_array, hash_state, full_sha,
-                           config_signature, build_manifest, validate_or_create_manifest,
-                           expected_keys, source_bundle_path, save_source_bundle,
-                           load_source_bundle)
+from h2cmi.grid_io import (load_done_keys, append_row, hash_state, full_sha, require_clean_git,
+                           source_data_hash, source_training_signature, build_manifest,
+                           validate_or_create_manifest, bundle_expected_keys,
+                           source_bundle_paths, save_source_bundle, load_source_bundle)
 
 ACTIONS = ("identity", "prior_only", "geometry_only", "joint")
+CMI_ARMS = ("off", "on")
+
+
+def _parse_int_list(s, n_default):
+    return list(range(n_default)) if s == "all" else [int(x) for x in s.split(",") if x != ""]
 
 
 @torch.no_grad()
@@ -70,8 +75,12 @@ def _multihead_strict(model, U, y, device):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--scenarios", default="population_null,matched_domain_null,cov,prior,conditional_rotation")
-    ap.add_argument("--seeds", default="0")
-    ap.add_argument("--target-sites", default="all")
+    # GLOBAL grid (defines the experiment identity, shared by every shard)
+    ap.add_argument("--grid-seeds", default="0")
+    ap.add_argument("--grid-target-sites", default="all")
+    # THIS shard's subset (default: the whole grid -> a single non-sharded run)
+    ap.add_argument("--shard-seeds", default="")
+    ap.add_argument("--shard-target-sites", default="")
     ap.add_argument("--sites", type=int, default=5)
     ap.add_argument("--subjects", type=int, default=3)
     ap.add_argument("--sessions", type=int, default=2)
@@ -82,66 +91,80 @@ def main():
     ap.add_argument("--epochs", type=int, default=20)
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--fast", action="store_true")
+    ap.add_argument("--allow-dirty", action="store_true", help="dev only: skip the clean-git guard")
     ap.add_argument("--out", default="results/h2cmi/action_grid.jsonl")
-    ap.add_argument("--bundle-dir", default="", help="source-checkpoint cache (default: <out>.bundles)")
+    ap.add_argument("--bundle-root", default="", help="provenance-keyed source cache (default: <out>.bundles)")
     args = ap.parse_args()
 
+    runner_commit = require_clean_git(allow_dirty=args.allow_dirty)
     scenarios = [s for s in args.scenarios.split(",") if s]
     for s in scenarios:
         if s not in PRESET_SCENARIOS:
             raise ValueError(f"unknown scenario {s}; have {sorted(PRESET_SCENARIOS)}")
-    scen_canon = [PRESET_SCENARIOS[s].name for s in scenarios]
-    seeds = [int(s) for s in args.seeds.split(",") if s != ""]
-    sites = (list(range(args.sites)) if args.target_sites == "all"
-             else [int(s) for s in args.target_sites.split(",")])
+    scen_canon = sorted({PRESET_SCENARIOS[s].name for s in scenarios})
+    global_seeds = _parse_int_list(args.grid_seeds, args.sites)
+    global_sites = _parse_int_list(args.grid_target_sites, args.sites)
+    shard_seeds = _parse_int_list(args.shard_seeds, args.sites) if args.shard_seeds else global_seeds
+    shard_sites = _parse_int_list(args.shard_target_sites, args.sites) if args.shard_target_sites else global_sites
+    if not set(shard_seeds) <= set(global_seeds) or not set(shard_sites) <= set(global_sites):
+        raise ValueError("shard seeds/sites must be subsets of the global grid")
     cfg_off, cfg_on = build_cfgs(args)
-    sha = full_sha()[:12]
-    bundle_dir = args.bundle_dir or (args.out + ".bundles")
-    # run manifest: a re-run with a different config/commit/scenario set into the same --out aborts
-    cli = {k: getattr(args, k) for k in ("scenarios", "seeds", "target_sites", "sites",
-            "subjects", "sessions", "trials", "classes", "chans", "times", "epochs", "fast")}
-    manifest = build_manifest(cfg_on, scen_canon, "action", cli)
+    bundle_root = args.bundle_root or (args.out + ".bundles")
+
+    cli = {k: getattr(args, k) for k in ("scenarios", "grid_seeds", "grid_target_sites",
+            "shard_seeds", "shard_target_sites", "sites", "subjects", "sessions", "trials",
+            "classes", "chans", "times", "epochs", "fast")}
+    manifest = build_manifest(cfg_on, global_seeds=global_seeds, global_sites=global_sites,
+                              scenarios=scen_canon, items=sorted(ACTIONS), item_field="action",
+                              cmi_arms=sorted(CMI_ARMS),
+                              shard_spec={"seeds": sorted(shard_seeds), "sites": sorted(shard_sites)},
+                              cli=cli)
     validate_or_create_manifest(args.out, manifest)
     done = load_done_keys(args.out, item_field="action")
-    print(f"[action-grid] sha={sha} run_sig={manifest['run_signature']} scenarios={scen_canon} "
-          f"seeds={seeds} sites={sites} -> {args.out} ({len(done)} done)", flush=True)
+    print(f"[action-grid] commit={runner_commit[:12]} exp_sig={manifest['experiment_signature']} "
+          f"shard={manifest['shard_spec']} scenarios={scen_canon} -> {args.out} ({len(done)} done)",
+          flush=True)
 
     uni = np.full(args.classes, 1.0 / args.classes)
-    for seed in seeds:
-        for tsite in sites:
+    for seed in shard_seeds:
+        for tsite in shard_sites:
             sim = PairedEEGSimulator(args.classes, args.chans, args.times, data_seed=seed)
             full = sim.sample(args.sites, args.subjects, args.sessions, args.trials,
                               target_site=tsite, scenario="population_null")
             src = full.site != tsite
             Xs, ys = full.X[src], full.y[src]
             src_dag, src_dom, _ = compact_domain_labels(full.domains.subset(np.where(src)[0]))
-            src_hash = hash_array(Xs) + "_" + hash_array(ys)
+            src_dhash = source_data_hash(Xs, ys, src_dom)        # X + y + domain levels + DAG
             pi_star = reference_prior(ys, args.classes, "uniform")
             for cfg, cmi in ((cfg_off, "off"), (cfg_on, "on")):
                 cfg.train.seed = seed
                 # compute-resume: if every result key for this source bundle is done, skip
                 # training entirely (do not load data/build model/train).
-                if expected_keys(seed, tsite, cmi, scen_canon, ACTIONS) <= done:
+                if bundle_expected_keys(seed, tsite, cmi, scen_canon, ACTIONS) <= done:
                     print(f"  seed={seed} site={tsite} cmi={cmi} complete -> skip train", flush=True)
                     continue
-                csig = config_signature(cfg)
-                bpath = source_bundle_path(bundle_dir, seed, tsite, cmi)
-                if os.path.exists(bpath):                    # reuse the exact frozen source model
-                    model, _ = load_source_bundle(
-                        bpath, build_model=lambda c=cfg: H2Model(c, pi_star).to(args.device),
-                        expected_data_hash=src_hash, expected_config_signature=csig)
+                tsig = source_training_signature(cfg, seed, tsite, cmi)   # provenance key
+                pt_path, json_path = source_bundle_paths(bundle_root, tsig, seed, tsite, cmi)
+                if os.path.exists(pt_path) and os.path.exists(json_path):
+                    model, bmeta = load_source_bundle(
+                        pt_path, json_path, build_model=lambda c=cfg: H2Model(c, pi_star).to(args.device),
+                        expected_training_signature=tsig, expected_source_data_hash=src_dhash)
+                    src_commit = bmeta.get("source_training_commit_sha")
                 else:
                     model, _, _, hist = train_h2(Xs, ys, src_dom, src_dag, cfg, align_factor="site")
-                    save_source_bundle(bpath, model, cfg, pi_star, src_hash, full_sha(), hist)
+                    save_source_bundle(pt_path, json_path, model, training_signature=tsig,
+                                       source_data_hash=src_dhash, pi_star=pi_star,
+                                       commit_sha=runner_commit, history=hist)
+                    src_commit = runner_commit
                 ckpt = hash_state(model)
-                common = dict(commit_sha=sha, run_signature=manifest["run_signature"],
-                              config_signature=csig, data_seed=seed, train_seed=seed,
-                              tta_seed=seed, target_site=tsite, cmi=cmi,
-                              source_checkpoint_hash=ckpt, source_data_hash=src_hash)
-                for scen in scenarios:
-                    scen_c = PRESET_SCENARIOS[scen].name
+                common = dict(runner_commit_sha=runner_commit, source_training_commit_sha=src_commit,
+                              source_training_signature=tsig,
+                              experiment_signature=manifest["experiment_signature"],
+                              data_seed=seed, train_seed=seed, tta_seed=seed, target_site=tsite,
+                              cmi=cmi, source_checkpoint_hash=ckpt, source_data_hash=src_dhash)
+                for scen_c in scen_canon:                     # canonical, deduped scenario names
                     tf = sim.sample(args.sites, args.subjects, args.sessions, args.trials,
-                                    target_site=tsite, scenario=scen)
+                                    target_site=tsite, scenario=scen_c)
                     tm = tf.site == tsite
                     Xt, yt = tf.X[tm], tf.y[tm]
                     U = _embed(model, Xt, args.device)

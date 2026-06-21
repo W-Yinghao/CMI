@@ -20,9 +20,9 @@ from h2cmi import run_action_grid
 
 
 def _run(out_path):
-    argv = ["run_action_grid", "--scenarios", "population_null,cov", "--seeds", "0",
-            "--target-sites", "all", "--sites", "2", "--subjects", "1", "--sessions", "1",
-            "--trials", "8", "--epochs", "1", "--fast", "--out", out_path]
+    argv = ["run_action_grid", "--scenarios", "population_null,cov", "--grid-seeds", "0",
+            "--grid-target-sites", "all", "--sites", "2", "--subjects", "1", "--sessions", "1",
+            "--trials", "8", "--epochs", "1", "--fast", "--allow-dirty", "--out", out_path]
     old = sys.argv
     sys.argv = argv
     try:
