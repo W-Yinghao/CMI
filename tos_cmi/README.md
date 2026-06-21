@@ -77,9 +77,11 @@ conda run -n icml python -m tos_cmi.run_synthetic --out results/tos_cmi_syntheti
   (precision≈1, recall partial) and removing it keeps linear label accuracy while removing
   the linear conditional-domain advantage; as task/domain entangle the deletable subspace
   shrinks toward identity. Estimated on selector-train, read on a disjoint probe-test.
-* **stability gate** — across **sample draws of one fixed world**, selection is the same
-  object by **projection distance** (the dimension-sensitive metric), with consistent
-  identity decisions; pure noise → identity on every draw.
+* **stability gate** — across **sample draws of one fixed world**, selection is
+  **core-stable** (nested spans, bounded k-flicker, consistent identity decisions); the
+  **strict projection-distance bar is NOT yet met** (`proj_dist_strict_pass=false`, k
+  flickers 2↔3 — eigengap/hysteresis is future work, surfaced not hidden); pure noise →
+  identity on every draw.
 * **train compare** — ERM vs global LPC vs selective, over **multiple seeds and λ**, reporting
   **both** test bAcc **and** post-training linear domain advantage: global LPC trades accuracy
   for leakage reduction once subspaces touch; selective aims to keep the label-bearing part.

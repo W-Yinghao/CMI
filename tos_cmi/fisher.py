@@ -1,17 +1,17 @@
-"""Label Fisher F_Y and conditional-domain Fisher F_{D|Y}.
+"""Label scatter F_Y and conditional-domain scatter F_{D|Y} (FROZEN mean-scatter baseline,
+tag `mean-scatter-v2`).
 
-These are the two quadratic forms whose generalized spectrum defines the
-domain-rich / label-light directions (see `subspace.py`). Both are *between-group
-scatter* matrices: how far the group means sit from the (conditional) grand mean,
-weighted by the group probability.
+FIRST-MOMENT proxies only. These are *between-group MEAN scatter* matrices: how far the
+group means sit from the (conditional) grand mean, weighted by the group probability.
 
     F_Y     = sum_y  p(y)  (mu_y - mu)(mu_y - mu)^T                       [d, d]
     F_{D|Y} = sum_y  p(y)  sum_d p(d|y) (mu_{d,y} - mu_y)(mu_{d,y} - mu_y)^T
 
-`F_{D|Y}` is the class-CONDITIONAL between-domain scatter: it only sees how the
-*within-class* domain means spread, so a direction with high `v^T F_{D|Y} v` carries
-domain information that survives after conditioning on the label -- exactly the
-leakage `I(Z;D|Y)` is meant to remove.
+`F_{D|Y}` is the class-CONDITIONAL between-domain MEAN scatter: a first-moment LINEAR proxy
+for `I(Z;D|Y)`, NOT the CMI and not a bound on it. It vanishes whenever domains differ only
+in covariance/higher moments even if `I(Z;D|Y)>0` (see `tests/test_limits.py`). The
+covariance-/nonlinear-aware version lives in `score_fisher.py`; this module is kept frozen
+as the honest baseline.
 
 Estimation is empirical and ridge-free here; the ridge lives on F_Y inside the
 generalized eig. Cells (a class, or a (domain,class) pair) with fewer than

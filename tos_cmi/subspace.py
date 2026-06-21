@@ -1,7 +1,14 @@
-"""The task-orthogonal nuisance subspace: the generalized eigenproblem and the
-risk-feasible selection that decides *what* (if anything) is safe to make invariant.
+"""Mean-scatter nuisance-subspace selector (FROZEN baseline, tag `mean-scatter-v2`): the
+generalized eigenproblem and the selection that decides *what* (if anything) to make
+invariant.
 
-Given the two Fishers from `fisher.py` we solve
+CAVEATS (this is the first-moment baseline, not the aspirational method): the selected
+subspace is **label-mean-scatter-light**, not provably task-orthogonal; the `label-light`
+test below is a relative label-scatter threshold, NOT a source-risk bound. The
+score-Fisher version (`score_fisher.py`) replaces both with gradient/score Fishers and a
+real risk gate. Read "risk-feasibility" here as "label-mean-scatter-light".
+
+Given the two scatters from `fisher.py` we solve
 
     F_{D|Y} v_j = rho_j (F_Y + eta I) v_j .
 
