@@ -53,27 +53,42 @@ def test_subthreshold_contrast_flagged_false():
     assert not cs["C_feedback"]["meets_threshold"]
 
 
-def test_hard_null_safety_pass_and_fail():
-    def hrows(delta, disagree, occ, nll, best):
+def test_hard_null_safety_uses_mean_oof_tolerance_not_single_win():
+    def by_variant(delta, disagree, occ, nll, best, oof_other):
         rows = []
         for s in (0, 1, 2):
             for t in (0, 1):
                 for v in BACC:
+                    is_id = v == "identity"
                     rows.append(dict(difficulty="hard", scenario="matched_domain_null",
-                                     data_seed=s, target_site=t, variant=v,
-                                     bacc_uniform=BACC[v], grouped_oof_bacc=OOF[v],
-                                     delta_bacc_uniform=(0.0 if v == "identity" else delta),
-                                     prediction_disagreement=(0.0 if v == "identity" else disagree),
-                                     final_class_occupancy=(0.33 if v == "identity" else occ),
-                                     grouped_oof_nll=(0.9 if v == "identity" else nll),
+                                     data_seed=s, target_site=t, variant=v, bacc_uniform=BACC[v],
+                                     grouped_oof_bacc=(0.78 if is_id else oof_other),
+                                     delta_bacc_uniform=(0.0 if is_id else delta),
+                                     prediction_disagreement=(0.0 if is_id else disagree),
+                                     final_class_occupancy=(0.33 if is_id else occ),
+                                     grouped_oof_nll=(0.9 if is_id else nll),
                                      oracle_best_variant=best))
-        return rows
-    safe = hard_null_safety({v: [r for r in hrows(0.005, 0.01, 0.30, 0.9, "identity") if r["variant"] == v]
-                             for v in BACC})
-    assert safe["all_safe"] and safe["identity_in_oracle_best"]
-    bad = hard_null_safety({v: [r for r in hrows(0.05, 0.10, 0.0, 1.5, "gen_oneshot_diag") if r["variant"] == v]
-                            for v in BACC})
-    assert not bad["all_safe"] and not bad["identity_in_oracle_best"]
+        return {v: [r for r in rows if r["variant"] == v] for v in BACC}
+    # SAFE: all OOF ~equal (nothing beats doing nothing), adaptation near-inert
+    safe = hard_null_safety(by_variant(0.005, 0.01, 0.30, 0.9, "identity", 0.775))
+    assert safe["all_safe"] and safe["identity_within_tol"]
+    # FAIL: a variant's mean OOF clearly beats identity (0.90 vs 0.78) AND adaptation perturbs --
+    # even if identity won a few units, identity_within_tol (the gate) is False
+    bad = hard_null_safety(by_variant(0.05, 0.10, 0.0, 1.5, "gen_oneshot_diag", 0.90))
+    assert not bad["identity_within_tol"] and not bad["all_safe"]
+    assert "identity_best_fraction" in bad                          # reported, but not the gate
+
+
+def test_c_family_one_directional():
+    rows = _rows()
+    for r in rows:                                                  # lowrank <= diag under oracle
+        if r["variant"] == "oracle_oneshot_lowrank":
+            r["grouped_oof_bacc"] = 0.745                           # diag oof is 0.75 -> C_family = -0.005
+    cs = analyze(rows, n_boot=200)["contrasts"]["standard/cov"]
+    fam = cs["C_family"]
+    assert not fam["expected_direction_met"] and fam["inconclusive"]   # NOT "diagonal adequate"
+    assert not fam["large_opposite_effect"]
+    assert "off-diagonal" in fam["hypothesis"]
 
 
 def test_contrast_registry_is_the_five_questions():

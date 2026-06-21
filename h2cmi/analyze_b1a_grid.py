@@ -35,7 +35,11 @@ import numpy as np
 THRESH = 0.02
 IDENTITY = "identity"
 
-# (name, variant_a, variant_b, flavour) -- contrast = metric[a] - metric[b]
+# (name, variant_a, variant_b, flavour) -- contrast = metric[a] - metric[b]. EVERY contrast is
+# ONE-DIRECTIONAL: mean >= +THRESH supports its hypothesis; |mean| < THRESH is inconclusive (NOT
+# evidence for the null). C_family is emphatically one-directional: the diagonal (A=diag(exp a))
+# and low-rank (A=I+UV^T) families are NOT nested, so lowrank<=diag does NOT show the diagonal
+# family is adequate -- only lowrank>=diag+THRESH shows off-diagonal structure has added value.
 CONTRASTS = (
     ("C_feedback",        "gen_oneshot_diag",       "gen_iterative_diag",    "full"),
     ("C_responsibility",  "oracle_oneshot_diag",    "gen_oneshot_diag",      "oof"),
@@ -44,6 +48,14 @@ CONTRASTS = (
     ("C_family",          "oracle_oneshot_lowrank", "oracle_oneshot_diag",   "oof"),
     ("C_prior_coupling",  "gen_iterative_diag",     "joint_iterative_diag",  "full"),
 )
+HYPOTHESIS = {
+    "C_feedback": "iterative responsibility feedback is harmful",
+    "C_responsibility": "responsibility ESTIMATION is the bottleneck",
+    "C_class_cond_full": "p(z|y) is load-bearing vs a class-free pooled match (full-target)",
+    "C_class_cond_oof": "p(z|y) is load-bearing vs a class-free pooled match (held-out)",
+    "C_family": "off-diagonal/low-rank structure adds value (one-directional; <THRESH=inconclusive)",
+    "C_prior_coupling": "the prior M-step coupling is harmful (geometry-only beats joint)",
+}
 _METRIC = {"full": "bacc_uniform", "oof": "grouped_oof_bacc"}
 
 
@@ -91,14 +103,25 @@ def _contrast(rows_by_variant, a, b, metric, *, n_boot, seed):
     return _cluster_bootstrap(per, n_boot=n_boot, seed=seed)
 
 
-def hard_null_safety(rows_by_variant, *, occ_floor=0.05) -> dict:
+def hard_null_safety(rows_by_variant, *, occ_floor=0.05, identity_tol=0.01) -> dict:
     """Safety panel for difficulty=hard matched_domain_null (NOT the contrasts). All adaptation
     must be near-inert: |delta bAcc|<=0.01, prediction_disagreement<=0.02, no OOF NLL worsening,
-    no responsibility/occupancy collapse, and identity must be in the OOF oracle-best set."""
+    no responsibility/occupancy collapse, and -- the binding identity criterion -- identity's MEAN
+    OOF bAcc must be within `identity_tol` of the BEST mean OOF bAcc (i.e. nothing meaningfully
+    beats doing nothing). identity_best_fraction (how often identity wins per unit) is reported as
+    a descriptive statistic only, NOT the gate (a single lucky win must not pass the panel)."""
     out = {}
     id_rows = rows_by_variant.get(IDENTITY, [])
     id_oof_nll = np.nanmean([r.get("grouped_oof_nll", np.nan) for r in id_rows]) if id_rows else np.nan
-    identity_best = any(r.get("oracle_best_variant") == IDENTITY for r in id_rows)
+    mean_oof = {v: float(np.nanmean([r.get("grouped_oof_bacc", np.nan) for r in rows]))
+                for v, rows in rows_by_variant.items() if rows}
+    finite = [x for x in mean_oof.values() if x == x]
+    best_mean = max(finite) if finite else float("nan")
+    id_mean = mean_oof.get(IDENTITY, float("nan"))
+    identity_within_tol = bool(id_mean == id_mean and best_mean == best_mean
+                               and id_mean >= best_mean - identity_tol)
+    identity_best_fraction = (float(np.mean([r.get("oracle_best_variant") == IDENTITY for r in id_rows]))
+                              if id_rows else 0.0)
     for v, rows in rows_by_variant.items():
         if v == IDENTITY:
             continue
@@ -112,9 +135,11 @@ def hard_null_safety(rows_by_variant, *, occ_floor=0.05) -> dict:
             ok_delta_bacc=bool(dbacc <= 0.01), ok_disagreement=bool(disagree <= 0.02),
             ok_oof_nll=bool(not (oof_nll > id_oof_nll + 1e-9)),
             ok_no_collapse=bool(occ >= occ_floor))
-    return dict(identity_in_oracle_best=bool(identity_best),
+    return dict(identity_within_tol=identity_within_tol,
+                identity_best_fraction=identity_best_fraction,
+                identity_mean_oof_bacc=float(id_mean), best_mean_oof_bacc=float(best_mean),
                 identity_oof_nll=float(id_oof_nll), per_variant=out,
-                all_safe=bool(identity_best and all(
+                all_safe=bool(identity_within_tol and all(
                     all(x.get(k) for k in ("ok_delta_bacc", "ok_disagreement", "ok_oof_nll", "ok_no_collapse"))
                     for x in out.values())))
 
@@ -132,8 +157,15 @@ def analyze(rows, *, n_boot=10000, boot_seed=0) -> dict:
         cs = {}
         for name, a, b, flav in CONTRASTS:
             mean, lo, hi, ns = _contrast(rbv, a, b, _METRIC[flav], n_boot=n_boot, seed=boot_seed)
+            finite = mean == mean
             cs[name] = dict(flavour=flav, a=a, b=b, mean=mean, ci_lo=lo, ci_hi=hi, n_seeds=ns,
-                            meets_threshold=bool(abs(mean) >= THRESH) if mean == mean else False,
+                            hypothesis=HYPOTHESIS[name],
+                            # ONE-DIRECTIONAL: only mean>=+THRESH supports the hypothesis; the
+                            # opposite tail is reported but never read as evidence for the null.
+                            expected_direction_met=bool(finite and mean >= THRESH),
+                            large_opposite_effect=bool(finite and mean <= -THRESH),
+                            inconclusive=bool(finite and abs(mean) < THRESH),
+                            meets_threshold=bool(finite and mean >= THRESH),
                             ci_excludes_zero=bool(lo == lo and (lo > 0 or hi < 0)))
         report["contrasts"][key] = cs
     return report
@@ -153,11 +185,14 @@ def main():
     for scen, cs in rep["contrasts"].items():
         print(f"[{scen}]")
         for name, c in cs.items():
-            flag = "*" if c["meets_threshold"] else " "
-            print(f"  {flag} {name:18s} {c['mean']:+.3f} [{c['ci_lo']:+.3f},{c['ci_hi']:+.3f}] "
+            flag = "YES" if c["expected_direction_met"] else ("OPP" if c["large_opposite_effect"] else " - ")
+            print(f"  [{flag}] {name:18s} {c['mean']:+.3f} [{c['ci_lo']:+.3f},{c['ci_hi']:+.3f}] "
                   f"n_seeds={c['n_seeds']} ({c['flavour']})")
     for scen, s in rep["hard_null_safety"].items():
-        print(f"[{scen}] HARD-NULL SAFETY: all_safe={s['all_safe']} identity_best={s['identity_in_oracle_best']}")
+        print(f"[{scen}] HARD-NULL SAFETY: all_safe={s['all_safe']} "
+              f"identity_within_tol={s['identity_within_tol']} "
+              f"id_mean_oof={s['identity_mean_oof_bacc']:.3f} best_mean_oof={s['best_mean_oof_bacc']:.3f} "
+              f"id_best_frac={s['identity_best_fraction']:.2f}")
     if args.out:
         print(f"-> {args.out}")
 
