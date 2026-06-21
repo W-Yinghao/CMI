@@ -1,0 +1,21 @@
+{
+  "refers_to": "results/p15_audit/4c7f495d8e48b930",
+  "branch_role": "CITA+LPC-fixed-lambda0.3-audit",
+  "verdict": "DROP_LPC_COLLAPSE",
+  "status": "FINAL for fixed lambda=0.3 (pre-registered; NOT re-interpreted, thresholds NOT adjusted)",
+  "freeze_a1_selected_lambda_seed0": {
+    "PD": {
+      "ds002778": "lpc_prior:0.1",
+      "ds003490": "lpc_prior:0.1",
+      "ds004584": "lpc_prior:0.1"
+    },
+    "SCZ": {
+      "ds003944": "lpc_prior:0.3",
+      "ds003947": "lpc_prior:0.3",
+      "ds004000": "lpc_prior:0.3",
+      "ds004367": "lpc_prior:0.3"
+    }
+  },
+  "coverage": "Covers the SCZ deployment branch (selected 0.3); does NOT cover the PD deployment branch (selected 0.1). Deployment-branch verdict is pending the mixture audit (PD@0.1 + SCZ@0.3).",
+  "note": "lambda=0.3 leakage suppression is genuine+robust but violates pre-registered utility(-4.5pp)/eff_rank(-18.9%) gates."
+}

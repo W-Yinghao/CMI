@@ -1,0 +1,182 @@
+{
+  "deployment_verdict": {
+    "decision": "DROP_LPC_COLLAPSE",
+    "predicates": [
+      {
+        "predicate": "leakage_reduction_strong_probe",
+        "value": 0.1603,
+        "threshold": ">0",
+        "pass_": true,
+        "provenance": "FREEZE_PROTOCOL \u00a74.1"
+      },
+      {
+        "predicate": "alt_probe_not_recovering",
+        "value": 1.031,
+        "threshold": "<= leaves >50% suppressed",
+        "pass_": true,
+        "provenance": "FREEZE_PROTOCOL \u00a74.2"
+      },
+      {
+        "predicate": "task_utility_loss_pp",
+        "value": 3.813,
+        "threshold": "<= 2.0",
+        "pass_": false,
+        "provenance": "FREEZE_PROTOCOL \u00a74.3"
+      },
+      {
+        "predicate": "eff_rank_drop_frac",
+        "value": 0.1731,
+        "threshold": "<= 0.15",
+        "pass_": false,
+        "provenance": "FREEZE_PROTOCOL \u00a74.4"
+      },
+      {
+        "predicate": "scatter_drop_frac",
+        "value": 0.1518,
+        "threshold": "<= 0.15",
+        "pass_": false,
+        "provenance": "FREEZE_PROTOCOL \u00a74.4"
+      },
+      {
+        "predicate": "feat_var_not_zero",
+        "value": 0.0157,
+        "threshold": ">= 0.0001",
+        "pass_": true,
+        "provenance": "FREEZE_PROTOCOL \u00a74.4"
+      },
+      {
+        "predicate": "probe_saturation_met",
+        "value": 1.0,
+        "threshold": "==1",
+        "pass_": true,
+        "provenance": "FREEZE_PROTOCOL \u00a74 saturation"
+      }
+    ],
+    "n_cohorts": 7,
+    "deployment_selection_seed0": {
+      "PD/ds002778": "lpc_prior:0.1",
+      "PD/ds003490": "lpc_prior:0.1",
+      "PD/ds004584": "lpc_prior:0.1",
+      "SCZ/ds003944": "lpc_prior:0.3",
+      "SCZ/ds003947": "lpc_prior:0.3",
+      "SCZ/ds004000": "lpc_prior:0.3",
+      "SCZ/ds004367": "lpc_prior:0.3"
+    },
+    "leakage": {
+      "strong_probe": "mlp256x2",
+      "erm": 0.7084649824287033,
+      "lpc": 0.5481244457709308,
+      "alt_erm": 0.6756836282202967,
+      "alt_lpc": 0.510373722188384,
+      "tier_ladder": {
+        "linear": 0.7048262974547824,
+        "mlp64": 0.717980784831596,
+        "mlp256x2": 0.7084649824287033
+      }
+    },
+    "representation": {
+      "erm": {
+        "eff_rank": 10.342445567961603,
+        "stable_rank": 2.090691630864913,
+        "scatter_ratio": 0.03878071743542823,
+        "feat_var": 0.04061483242792844,
+        "task_bacc": 65.41627010961786
+      },
+      "lpc": {
+        "eff_rank": 8.552153570144219,
+        "stable_rank": 1.5507935373487243,
+        "scatter_ratio": 0.03289459580227846,
+        "feat_var": 0.01565636402153693,
+        "task_bacc": 61.60325154453154
+      }
+    }
+  },
+  "dose_response_fixed_lambda01": {
+    "decision": "DROP_LPC_COLLAPSE",
+    "predicates": [
+      {
+        "predicate": "leakage_reduction_strong_probe",
+        "value": 0.1604,
+        "threshold": ">0",
+        "pass_": true,
+        "provenance": "FREEZE_PROTOCOL \u00a74.1"
+      },
+      {
+        "predicate": "alt_probe_not_recovering",
+        "value": 0.9442,
+        "threshold": "<= leaves >50% suppressed",
+        "pass_": true,
+        "provenance": "FREEZE_PROTOCOL \u00a74.2"
+      },
+      {
+        "predicate": "task_utility_loss_pp",
+        "value": 1.409,
+        "threshold": "<= 2.0",
+        "pass_": true,
+        "provenance": "FREEZE_PROTOCOL \u00a74.3"
+      },
+      {
+        "predicate": "eff_rank_drop_frac",
+        "value": 0.1794,
+        "threshold": "<= 0.15",
+        "pass_": false,
+        "provenance": "FREEZE_PROTOCOL \u00a74.4"
+      },
+      {
+        "predicate": "scatter_drop_frac",
+        "value": 0.1218,
+        "threshold": "<= 0.15",
+        "pass_": true,
+        "provenance": "FREEZE_PROTOCOL \u00a74.4"
+      },
+      {
+        "predicate": "feat_var_not_zero",
+        "value": 0.0262,
+        "threshold": ">= 0.0001",
+        "pass_": true,
+        "provenance": "FREEZE_PROTOCOL \u00a74.4"
+      },
+      {
+        "predicate": "probe_saturation_met",
+        "value": 1.0,
+        "threshold": "==1",
+        "pass_": true,
+        "provenance": "FREEZE_PROTOCOL \u00a74 saturation"
+      }
+    ],
+    "n_cohorts": 7,
+    "note": "dose-response only; does NOT decide the deployment branch",
+    "leakage": {
+      "strong_probe": "mlp256x2",
+      "erm": 0.7084649824287033,
+      "lpc": 0.5480917904525602,
+      "alt_erm": 0.6756836282202967,
+      "alt_lpc": 0.524258519449779,
+      "tier_ladder": {
+        "linear": 0.7048262974547824,
+        "mlp64": 0.717980784831596,
+        "mlp256x2": 0.7084649824287033
+      }
+    },
+    "representation": {
+      "erm": {
+        "eff_rank": 10.342445567961603,
+        "stable_rank": 2.090691630864913,
+        "scatter_ratio": 0.03878071743542823,
+        "feat_var": 0.04061483242792844,
+        "task_bacc": 65.41627010961786
+      },
+      "lpc": {
+        "eff_rank": 8.486842822358339,
+        "stable_rank": 1.5018824038110545,
+        "scatter_ratio": 0.0340587299419463,
+        "feat_var": 0.026168819233349877,
+        "task_bacc": 64.00728615820337
+      }
+    }
+  },
+  "fixed_lambda03_prior_verdict": "DROP_LPC_COLLAPSE (results/p15_audit/4c7f495d8e48b930; FINAL for fixed 0.3)",
+  "freeze_a1_hash": "4c7f495d8e48b9306f2a0e13ad2c55b7a9cae5955f8c247b69b3ab00a77646e6",
+  "bind_manifest_hash": "04080906cc0f7c2f447202c31ed23fecabf5dc5837fce6d9274f1f355d4f425f",
+  "instrumentation_commit": "3027f4a"
+}

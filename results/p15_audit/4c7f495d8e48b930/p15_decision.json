@@ -1,0 +1,86 @@
+{
+  "decision": "DROP_LPC_COLLAPSE",
+  "predicates": [
+    {
+      "predicate": "leakage_reduction_strong_probe",
+      "value": 0.1591,
+      "threshold": ">0",
+      "pass_": true,
+      "provenance": "FREEZE_PROTOCOL \u00a74.1"
+    },
+    {
+      "predicate": "alt_probe_not_recovering",
+      "value": 1.0561,
+      "threshold": "<= leaves >50% suppressed",
+      "pass_": true,
+      "provenance": "FREEZE_PROTOCOL \u00a74.2"
+    },
+    {
+      "predicate": "task_utility_loss_pp",
+      "value": 4.5132,
+      "threshold": "<= 2.0",
+      "pass_": false,
+      "provenance": "FREEZE_PROTOCOL \u00a74.3"
+    },
+    {
+      "predicate": "eff_rank_drop_frac",
+      "value": 0.1892,
+      "threshold": "<= 0.15",
+      "pass_": false,
+      "provenance": "FREEZE_PROTOCOL \u00a74.4"
+    },
+    {
+      "predicate": "scatter_drop_frac",
+      "value": 0.1317,
+      "threshold": "<= 0.15",
+      "pass_": true,
+      "provenance": "FREEZE_PROTOCOL \u00a74.4"
+    },
+    {
+      "predicate": "feat_var_not_zero",
+      "value": 0.0137,
+      "threshold": ">= 0.0001",
+      "pass_": true,
+      "provenance": "FREEZE_PROTOCOL \u00a74.4"
+    },
+    {
+      "predicate": "probe_saturation_met",
+      "value": 1.0,
+      "threshold": "==1",
+      "pass_": true,
+      "provenance": "FREEZE_PROTOCOL \u00a74 saturation"
+    }
+  ],
+  "freeze_a1_hash": "4c7f495d8e48b9306f2a0e13ad2c55b7a9cae5955f8c247b69b3ab00a77646e6",
+  "instrumentation_commit": "f38819a",
+  "bind_manifest_hash": "6ebbb3a1a61e944a286f801697f8413a7bfe616a3367807824f01f6bdf3f2291",
+  "n_shards": 14,
+  "leakage": {
+    "strong_probe": "mlp256x2",
+    "erm": 0.7084649824287033,
+    "lpc": 0.5493499423221639,
+    "alt_erm": 0.6756836282202967,
+    "alt_lpc": 0.5076434126952412,
+    "tier_ladder": {
+      "linear": 0.7048262974547824,
+      "mlp64": 0.717980784831596,
+      "mlp256x2": 0.7084649824287033
+    }
+  },
+  "representation": {
+    "erm": {
+      "eff_rank": 10.342445567961603,
+      "stable_rank": 2.090691630864913,
+      "scatter_ratio": 0.03878071743542823,
+      "feat_var": 0.04061483242792844,
+      "task_bacc": 65.41627010961786
+    },
+    "lpc": {
+      "eff_rank": 8.385663179669477,
+      "stable_rank": 1.5274086832910008,
+      "scatter_ratio": 0.03367149001252747,
+      "feat_var": 0.013709583383350437,
+      "task_bacc": 60.90308132823229
+    }
+  }
+}

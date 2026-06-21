@@ -1,0 +1,58 @@
+{
+  "status": "FROZEN",
+  "freeze": "A1",
+  "hash": "4c7f495d8e48b9306f2a0e13ad2c55b7a9cae5955f8c247b69b3ab00a77646e6",
+  "code_commit": "76a7732",
+  "protocol_hash": "324edeea91400ba0",
+  "frozen": {
+    "deterministic": true,
+    "select": "nested",
+    "select_pipeline": "full",
+    "domain": "cohort",
+    "transduct": "all",
+    "leakage_split": "grouped",
+    "configs": [
+      "erm:0",
+      "lpc_prior:0.1",
+      "lpc_prior:0.3"
+    ],
+    "branches": [
+      "CITA+LPC",
+      "CITA-no-LPC"
+    ],
+    "aligner": {
+      "mode": "matched_coral",
+      "tmap": "wc",
+      "rho": 0.2,
+      "eps": 0.001,
+      "gate": "reliability",
+      "kappa": 8.0,
+      "alpha": 1.0,
+      "em_iters": 3
+    },
+    "selector": {
+      "rule": "argmin leakage s.t. valBAcc>=max-eps",
+      "eps": 0.02
+    },
+    "eval": {
+      "metric": "per_target_balanced_acc + ts_matched_coral",
+      "uncertainty_unit": "cohort"
+    }
+  },
+  "evidence": {
+    "decomposition_gate": "pred-hash equivalence PASSED",
+    "per_cond": {
+      "PD": {
+        "n": 18,
+        "mismatches": 0
+      },
+      "SCZ": {
+        "n": 24,
+        "mismatches": 0
+      }
+    },
+    "total": 42,
+    "mismatches": 0
+  },
+  "note": "Process frozen (magnitude accepted as-is). Both branches frozen; P1.5 decides Freeze B. feat_dump_v2 is NOT co-source (pre-determinism, encoder-selection) -> P1.5 domain-leakage needs a metadata-enriched frozen redump (REQUIRES_FROZEN_REDUMP)."
+}
