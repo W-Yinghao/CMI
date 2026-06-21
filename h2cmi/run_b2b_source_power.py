@@ -61,9 +61,13 @@ def main():
                     help="device baked into the bundle SIGNATURE (default: --device). Set 'cuda' to "
                          "reuse cuda-trained bundles on a CPU node (evaluation only; no training here).")
     ap.add_argument("--allow-dirty", action="store_true")
+    ap.add_argument("--cross-node-reuse", action="store_true",
+                    help="reuse bundles trained on a different node: skip the BLAS-sensitive "
+                         "regenerated source_data_hash check (weights still strictly verified)")
     ap.add_argument("--bundle-root", required=True)
     ap.add_argument("--out", default="results/h2cmi/b2b_source_power.jsonl")
     args = ap.parse_args()
+    n_data_hash_mismatch = 0
 
     out_dir = os.path.dirname(args.out) or "."
     commit = require_clean_git(allow_dirty=args.allow_dirty, ignore_prefixes=[out_dir, args.bundle_root])
@@ -99,9 +103,12 @@ def main():
             pt, jsf = source_bundle_paths(args.bundle_root, tsig, seed, 100 + a * 10 + b, "off")
             if not (os.path.exists(pt) and os.path.exists(jsf)):
                 raise FileNotFoundError(f"missing nested bundle {pt}")
-            model, _ = load_source_bundle(pt, jsf, build_model=lambda c=cfg: H2Model(c, pi_star).to(args.device),
-                                          expected_training_signature=tsig, expected_source_data_hash=src_dhash,
+            model, bmeta = load_source_bundle(pt, jsf, build_model=lambda c=cfg: H2Model(c, pi_star).to(args.device),
+                                          expected_training_signature=tsig,
+                                          expected_source_data_hash=(None if args.cross_node_reuse else src_dhash),
                                           expected_source_code_signature=code_sig, expected_pi_star=pi_star)
+            if args.cross_node_reuse and bmeta.get("source_data_hash") != src_dhash:
+                n_data_hash_mismatch += 1                  # BLAS/CPU-arch artifact; weights verified
             tta = ClassConditionalTTA(model.head.density, pi_star, cfg.tta, args.classes, args.device)
             Us = _embed(model, Xs, args.device)
             pooled_ref = reference_weighted_source_moments(Us, ys, pi_star)
@@ -151,7 +158,8 @@ def main():
     decision = "PROCEED_TO_TARGET_EVAL" if agg >= RETENTION_MIN else "B2B_SOURCE_POWER_FAIL"
     record = dict(marker="B2B_SOURCE_POWER_CHECKPOINT", alpha=ALPHA, retention_min=RETENTION_MIN,
                   per_route=per_route, aggregate_crossfit_retention=agg, decision=decision,
-                  code_sha=commit, source_code_signature=code_sig, rows_sha256=sha256_file(args.out), n_rows=len(rows))
+                  code_sha=commit, source_code_signature=code_sig, rows_sha256=sha256_file(args.out), n_rows=len(rows),
+                  cross_node_reuse=bool(args.cross_node_reuse), n_source_data_hash_mismatch=int(n_data_hash_mismatch))
     rec_path = args.out.replace(".jsonl", ".checkpoint.json")
     json.dump(record, open(rec_path, "w"), indent=2)
     print("SOURCE-POWER CHECKPOINT:", json.dumps(record, indent=2), flush=True)

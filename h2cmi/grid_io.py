@@ -460,7 +460,12 @@ def load_source_bundle(pt_path: str, json_path: str, *, build_model,
         raise RuntimeError(f"{json_path}: schema_version {meta.get('schema_version')} != {SCHEMA_VERSION}")
     if meta.get("source_training_signature") != expected_training_signature:
         raise RuntimeError(f"{json_path}: source_training_signature mismatch")
-    if meta.get("source_data_hash") != expected_source_data_hash:
+    # expected_source_data_hash=None SKIPS the regenerated-data integrity check. The numpy/BLAS
+    # simulator is not bit-reproducible across CPU architectures, so this hash differs when a bundle
+    # is REUSED on a different node than it was trained on -- a node artifact, NOT a data change. The
+    # weights remain strictly verified below by the device-independent checkpoint hash; callers doing
+    # cross-node reuse pass None and record stored-vs-regenerated themselves.
+    if expected_source_data_hash is not None and meta.get("source_data_hash") != expected_source_data_hash:
         raise RuntimeError(f"{json_path}: source_data_hash mismatch")
     if (expected_source_code_signature is not None
             and meta.get("source_code_signature") != expected_source_code_signature):
