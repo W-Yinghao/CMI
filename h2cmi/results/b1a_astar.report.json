@@ -1,0 +1,128 @@
+{
+  "pass_criteria": {
+    "false_adapt_max": 0.1,
+    "hardnull_harm_max": 0.1,
+    "hardnull_dbacc_min": -0.005,
+    "disagreement_max": 0.02,
+    "nonnull_harm_max": 0.2,
+    "top1_min": 0.5,
+    "regret_max": 0.02,
+    "coverage_min": 0.25
+  },
+  "by_router": {
+    "N1": {
+      "hard": {
+        "n_units": 15,
+        "adaptation_rate": 0.0,
+        "coverage": 0.0,
+        "false_adaptation_rate_null": 0.0,
+        "harm_rate_full": 0.0,
+        "nonnull_harm_rate": NaN,
+        "mean_dbacc_full_shift": NaN,
+        "top1_oracle_full": 0.2,
+        "mean_regret_full": 0.015502202952544224,
+        "mean_selected_disagreement": 0.0,
+        "hardnull_harm_full": 0.0,
+        "hardnull_mean_dbacc_full": 0.0,
+        "selection_frequency_shift": {
+          "identity": 0,
+          "pooled_empirical_diag": 0,
+          "gen_oneshot_diag": 0,
+          "gen_iterative_diag": 0
+        }
+      },
+      "standard": {
+        "n_units": 105,
+        "adaptation_rate": 0.3619047619047619,
+        "coverage": 0.3619047619047619,
+        "false_adaptation_rate_null": 0.03333333333333333,
+        "harm_rate_full": 0.0761904761904762,
+        "nonnull_harm_rate": 0.10666666666666667,
+        "mean_dbacc_full_shift": 0.04425978109524195,
+        "top1_oracle_full": 0.4,
+        "mean_regret_full": 0.037945898874708596,
+        "mean_selected_disagreement": 0.21337719773873687,
+        "hardnull_harm_full": 0.0,
+        "hardnull_mean_dbacc_full": 0.0005156090521944138,
+        "selection_frequency_shift": {
+          "identity": 38,
+          "pooled_empirical_diag": 20,
+          "gen_oneshot_diag": 5,
+          "gen_iterative_diag": 12
+        }
+      },
+      "pass": {
+        "std_false_adapt": true,
+        "shift_utility": true,
+        "nonnull_harm": true,
+        "top1": false,
+        "regret": false,
+        "coverage": true,
+        "hard_false_adapt": true,
+        "hard_harm": true,
+        "hard_dbacc": true,
+        "hard_disagreement": true,
+        "ALL": false
+      }
+    },
+    "N2": {
+      "hard": {
+        "n_units": 15,
+        "adaptation_rate": 0.0,
+        "coverage": 0.0,
+        "false_adaptation_rate_null": 0.0,
+        "harm_rate_full": 0.0,
+        "nonnull_harm_rate": NaN,
+        "mean_dbacc_full_shift": NaN,
+        "top1_oracle_full": 0.2,
+        "mean_regret_full": 0.015502202952544224,
+        "mean_selected_disagreement": 0.0,
+        "hardnull_harm_full": 0.0,
+        "hardnull_mean_dbacc_full": 0.0,
+        "selection_frequency_shift": {
+          "identity": 0,
+          "pooled_empirical_diag": 0,
+          "gen_oneshot_diag": 0,
+          "gen_iterative_diag": 0
+        }
+      },
+      "standard": {
+        "n_units": 105,
+        "adaptation_rate": 0.047619047619047616,
+        "coverage": 0.047619047619047616,
+        "false_adaptation_rate_null": 0.0,
+        "harm_rate_full": 0.0,
+        "nonnull_harm_rate": 0.0,
+        "mean_dbacc_full_shift": 0.009033275065359964,
+        "top1_oracle_full": 0.3333333333333333,
+        "mean_regret_full": 0.06325500576810843,
+        "mean_selected_disagreement": 0.05583333366860945,
+        "hardnull_harm_full": 0.0,
+        "hardnull_mean_dbacc_full": 0.0,
+        "selection_frequency_shift": {
+          "identity": 70,
+          "pooled_empirical_diag": 2,
+          "gen_oneshot_diag": 1,
+          "gen_iterative_diag": 2
+        }
+      },
+      "pass": {
+        "std_false_adapt": true,
+        "shift_utility": true,
+        "nonnull_harm": true,
+        "top1": false,
+        "regret": false,
+        "coverage": false,
+        "hard_false_adapt": true,
+        "hard_harm": true,
+        "hard_dbacc": true,
+        "hard_disagreement": true,
+        "ALL": false
+      }
+    }
+  },
+  "decision": {
+    "outcome": "A_STAR_FAIL -> pivot to B (metadata-conditioned)",
+    "chosen": null
+  }
+}

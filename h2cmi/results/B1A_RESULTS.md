@@ -51,6 +51,32 @@ prediction equality / logit differences were NOT verified (B0 stored no per-tria
 so we do not claim decision-equivalence. The byte-level checkpoint-hash divergence (CPU `e56d`,
 A40 `8c8d`, B0 `0f80`) is therefore at least bAcc-inert; `--b0-ref` ran in soft mode.
 
+## 5. A* terminal target-only router test (nested canonical-site null) — DECOMPOSITION RESULT
+Proper nested null (30 LOSO-site models/difficulty, cached by unordered pair; 60 null units),
+other-seed empirical max-null calibration, C dropped, B as veto. Two routers, frozen criteria.
+
+**N1 (nested-null gate) passes every clause EXCEPT action-selection:**
+- WHEN-to-adapt is solved: false-adaptation **0.03** (std) / **0.00** (hard) [was 1.00 raw],
+  coverage **0.36** (≥0.25 — not a trivial always-identity), shift ΔbAcc **+0.044** (>0),
+  non-null harm 0.11 (≤0.20), hard-null harm 0.00, hard ΔbAcc ok, disagreement ok. **All PASS.**
+- WHICH-action FAILS: top-1 oracle agreement **0.40** (<0.50) and action regret **0.038** (>0.02).
+  The three diagonal actions {pooled_empirical, gen_oneshot, gen_iterative} are too similar for a
+  target-only signal to rank (N1 shift selection: identity 38, pooled 20, gen_iter 12, gen_oneshot 5).
+- N2 (+B veto) over-abstains (coverage 0.05) and is strictly worse.
+
+Per the pre-registered rule (both routers fail ALL) the decision is **A_STAR_FAIL → pivot to B**.
+But this is a *decomposition*, not a flat wall: A* VALIDATES the **source-calibrated abstention**
+component of the B mainline (the nested-null gate is safe, covering and useful) and FALSIFIES
+**target-only action selection** (top-1 0.40) — which is exactly why B routes the OPERATOR choice
+through metadata, not target statistics. The earlier raw/prototype-null router (false-adapt 1.00,
+coverage 0.01) failed because of the training-included null + dead C signals; the proper nested
+null removed those confounds and isolated the residual, genuine limit: choosing *which* operator
+from unlabeled target data alone.
+
+Terminal: no further target-only score is developed. Next is the B mainline
+(fixed-prior geometry adaptation + source-calibrated abstention + metadata-conditioned operator
+selection), with the nested-null gate carried forward as the validated abstention rule.
+
 ## Provenance / code
 Tags `h2cmi-b1a-code-v1`/`v2`; CUDA fix `1583878`; hard re-freeze `bb42d3a` (frozen on identity
 ONLY, before any hard variant). Analysis: `analyze_b1a_grid.py` (5 contrasts + hard-null safety),
