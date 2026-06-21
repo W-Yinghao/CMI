@@ -29,6 +29,37 @@ def _arrays(recs_per_domain, per_cell, n_domains=2, n_classes=2):
     return np.array(y), np.array(d), np.array(g)
 
 
+def _single_label_arrays(groups_per_cell=2, per_group=25, n_domains=2, n_classes=2):
+    """Clinical-style layout: each recording carries ONE class (one (d,y) cell)."""
+    y, d, g = [], [], []
+    gid = 0
+    for dom in range(n_domains):
+        for c in range(n_classes):
+            for _ in range(groups_per_cell):
+                y += [c] * per_group; d += [dom] * per_group; g += [gid] * per_group
+                gid += 1
+    return np.array(y), np.array(d), np.array(g)
+
+
+def test_cell_aware_grouped_folds():
+    # Each recording is a single (d,y) cell. Cell-aware assignment must put EVERY eligible cell
+    # in EVERY fold (domain-only round-robin could strand a whole cell in one fold).
+    y, d, g = _single_label_arrays(groups_per_cell=2, per_group=25)
+    counts = counts_from_labels(d, y, n_domains=2, n_classes=2)
+    sg = build_support_graph(counts, m=20, reference_prior=empirical_class_prior(counts))
+    feat = FrozenFeatures(np.zeros((y.size, 2)), y, d, g)
+    for seed in range(4):
+        plan = make_fold_plan(feat, sg, n_folds=2, seed=seed)
+        # collect folds occupied by each eligible cell's groups
+        cell_folds = {}
+        for gid in np.unique(g):
+            dom = int(d[g == gid][0]); cls = int(y[g == gid][0])
+            cell_folds.setdefault((dom, cls), set()).add(plan.fold_of_group[int(gid)])
+        for y_ in sg.comparable_classes:
+            for d_ in sg.support_of_class[y_]:
+                assert cell_folds[(d_, y_)] == {0, 1}, (seed, (d_, y_), cell_folds[(d_, y_)])
+
+
 def test_group_memorization_does_not_register_as_leakage():
     # Z encodes recording identity only (no shared domain signal). A grouped probe must read ~0
     # because held-out recordings' identities are unseen; a sample-level split would over-flag.

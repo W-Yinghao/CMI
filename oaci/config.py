@@ -65,12 +65,13 @@ class RiskConfig:
     """Risk-feasible noninferiority constraint (THEORY §2): min UCB[L_Q^ov] s.t. R_src<=R_ERM+ε."""
     epsilon: float = 0.01            # source-risk slack over the ERM lower bound R_ERM
     risk_metric: str = "balanced_ce"  # 'ce' | 'balanced_ce' | 'balanced_err'
-    lexicographic: bool = True       # stage 1: fit ERM for R_ERM; stage 2: constrained min
-    # primal–dual multiplier on the leakage term (Lagrange knob; not a modelling choice)
-    dual_lr: float = 0.5
-    lambda_init: float = 0.0
+    lexicographic: bool = True       # stage 1: fit ERM for R̂_ERM; stage 2: constrained min
+    # dual multiplier of the RISK CONSTRAINT R_src <= τ (NOT a weight on the leakage term):
+    # λ ← Π_[0,λmax]( λ + η_λ (R̂_guard − τ) ). It is a Lagrange knob, not a modelling choice.
+    dual_lr: float = 0.5             # η_λ
+    lambda_init: float = 1.0         # start > 0 so risk is anchored from the first encoder step
     lambda_max: float = 20.0
-    constraint_warmup: int = 5       # epochs before the dual variable starts moving
+    constraint_warmup: int = 5       # critic-only warmup (encoder frozen) before the min–max game
 
 
 @dataclass

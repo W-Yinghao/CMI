@@ -74,6 +74,61 @@ def _domain_of_each_group(feat: FrozenFeatures) -> dict[int, int]:
     return dom
 
 
+def _cell_aware_fold_assignment(
+    feat: FrozenFeatures,
+    support_graph: SupportGraph,
+    dom_of_group: dict[int, int],
+    n_folds: int,
+    seed: int,
+) -> dict[int, int]:
+    """Greedily assign each recording group to a fold, balancing every eligible ``(d,y)`` cell
+    across folds (stratified-group-K-fold style). A group is atomic (one fold). With the
+    feasibility guarantee (each used cell has >= n_folds groups), a single-cell (clinical)
+    group's cells are spread to distinct least-loaded folds, so every cell appears in EVERY
+    fold's train and test; multi-class groups are balanced jointly.
+    """
+    # per-group: the eligible comparable cells it touches (its domain x each comparable class
+    # present), with sample counts; plus its total size (for size balancing).
+    group_cells: dict[int, dict[tuple, int]] = {}
+    group_total: dict[int, int] = {}
+    for g in np.unique(feat.group):
+        g = int(g)
+        gm = feat.group == g
+        dom = dom_of_group[g]
+        cells: dict[tuple, int] = {}
+        for y in support_graph.comparable_classes:
+            if dom in support_graph.support_of_class[y]:
+                cnt = int(np.sum(gm & (feat.y == y)))
+                if cnt > 0:
+                    cells[(dom, y)] = cnt
+        group_cells[g] = cells
+        group_total[g] = int(gm.sum())
+
+    rng = np.random.default_rng(seed)
+    order = list(group_cells)
+    rng.shuffle(order)                                   # seed breaks ties
+    order.sort(key=lambda g: -sum(group_cells[g].values()))  # stable: heaviest cells first
+
+    fold_cell = [defaultdict(int) for _ in range(n_folds)]
+    fold_size = [0] * n_folds
+    fold_of_group: dict[int, int] = {}
+    for g in order:
+        cells = group_cells[g]
+        # pick the fold that is currently least loaded for THIS group's cells (ties -> smaller
+        # fold, then lower index) so each cell's groups fan out across folds.
+        best_key, best_k = None, 0
+        for k in range(n_folds):
+            cost = sum(fold_cell[k][c] for c in cells)
+            key = (cost, fold_size[k], k)
+            if best_key is None or key < best_key:
+                best_key, best_k = key, k
+        fold_of_group[g] = best_k
+        for c, cnt in cells.items():
+            fold_cell[best_k][c] += cnt
+        fold_size[best_k] += group_total[g]
+    return fold_of_group
+
+
 def make_fold_plan(
     feat: FrozenFeatures,
     support_graph: SupportGraph,
@@ -107,17 +162,10 @@ def make_fold_plan(
         scarce = min(groups_per_cell, key=groups_per_cell.get)
         notes.append(f"reduced n_folds {n_folds}->{n_eff}: cell {scarce} has only {groups_per_cell[scarce]} groups")
 
-    # assign: within each domain, seeded-shuffle its groups then round-robin across folds.
-    rng = np.random.default_rng(seed)
-    by_dom: dict[int, list[int]] = defaultdict(list)
-    for g, dom in dom_of_group.items():
-        by_dom[dom].append(g)
-    fold_of_group: dict[int, int] = {}
-    for dom in sorted(by_dom):
-        gs = sorted(by_dom[dom])
-        rng.shuffle(gs)
-        for i, g in enumerate(gs):
-            fold_of_group[g] = i % n_eff
+    # cell-aware grouped assignment (regression fix): feasibility is measured per (d,y) cell,
+    # so the ASSIGNMENT must stratify per cell too — a recording carrying a single clinical
+    # label would otherwise let a whole cell land in one fold under domain-only round-robin.
+    fold_of_group = _cell_aware_fold_assignment(feat, support_graph, dom_of_group, n_eff, seed)
 
     return FoldPlan(
         fold_of_group=fold_of_group,

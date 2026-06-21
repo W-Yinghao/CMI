@@ -109,9 +109,14 @@ Adding a risk constraint to a DG penalty already exists. The novelty is the comb
 | Strict recording/subject-grouped **cross-fit** (domain-stratified folds, feasibility, OOF NLL) | **implemented + tested** | [`leakage/crossfit.py`](leakage/crossfit.py) |
 | **Point estimate** `L_abs`/`L_cond` (`Ĥ_y−NLL^OOF`, capacity sup after aggregation) | **implemented + tested** | [`leakage/estimate.py`](leakage/estimate.py) |
 | Recording-clustered **bootstrap UCB** (within-domain resample, in-replicate capacity reselection, basic one-sided + percentile) | **implemented + tested** | [`leakage/ucb.py`](leakage/ucb.py) |
-| Lexicographic / primal–dual risk-feasible trainer | TODO | `train/` |
-| Rare-cell batch sampler (keeps comparable cells eligible per step) | TODO | `data/sampler.py` |
+| **Risk-feasible trainer** — PyTorch conditional adversary `C_D`, primal–dual `min(H_ref−C_D)+λ(R_src−τ)`, dual on the risk constraint, feasibility selector + byte-exact ERM fallback | **implemented + tested** | [`train/`](train/) |
+| Rare-cell batch sampler (keeps comparable cells eligible per step; per-example weights reserved) | TODO | `data/sampler.py` |
 | Eval: mean/worst bAcc, ECE/NLL, noninferiority CI | TODO | `eval/` |
+
+The trainer's inner game uses a **PyTorch** conditional-domain adversary (`train/adversary.py`),
+deliberately distinct from the non-differentiable sklearn `extractable_LQ_ov` estimator in
+`leakage/` (used only as an injected outer `score_fn` on frozen representations — never
+back-propagated through).
 
 ## Run what exists
 
@@ -125,6 +130,11 @@ $PY -m oaci.tests.test_missing_cell       # missing-cell harness tests
 $PY -m oaci.tests.test_leakage_estimate   # estimator: null / perfect / exclusion / capacity / no-trunc
 $PY -m oaci.tests.test_leakage_crossfit   # grouped cross-fit: group-memorisation, feasibility
 $PY -m oaci.tests.test_leakage_ucb        # bootstrap UCB: reselection, formulas, reproducibility
+$PY -m oaci.train.synthetic               # risk-feasible trainer acceptance report (feasible + leakage↓)
+$PY -m oaci.tests.test_train_risk         # primal metric: balanced_ce partition-invariant, balanced_err rejected
+$PY -m oaci.tests.test_train_adversary    # adversary: grad signs, ineligible no-grad, fixed p_ref, no-op
+$PY -m oaci.tests.test_train_primal_dual  # dual direction, ERM immutability, seed reproducibility
+$PY -m oaci.tests.test_train_selector     # feasibility selection + byte-exact ERM fallback
 $PY -m oaci.config                        # config validation
 ```
 
