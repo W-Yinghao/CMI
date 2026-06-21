@@ -9,9 +9,10 @@ warnings.filterwarnings("ignore")
 from h2cmi.analyze_b1a_router import route_units, router_report, DEPLOYABLE
 
 
-def _row(diff, scen, seed, site, variant, evid, oof):
+def _row(diff, scen, seed, site, variant, evid, oof, full=None):
     return dict(difficulty=diff, scenario=scen, data_seed=seed, target_site=site, variant=variant,
-                grouped_crossfit_evidence_gain=evid, grouped_oof_bacc=oof)
+                grouped_crossfit_evidence_gain=evid, grouped_oof_bacc=oof,
+                bacc_uniform=(oof if full is None else full))
 
 
 def _shift_unit(seed, site, *, win="gen_oneshot_diag"):
@@ -52,9 +53,10 @@ def test_router_report_metrics():
     d = rep["by_difficulty"]["standard"]
     assert d["false_adaptation_rate_null"] == 0.0            # never adapt on the null
     assert d["adaptation_rate_shift"] == 1.0                 # always adapt on the shift
-    assert d["harm_rate"] == 0.0                             # the winning action never hurts
-    assert abs(d["delta_bacc_router_shift"]["mean"] - 0.10) < 1e-9   # 0.70 - 0.60
-    assert d["top1_oracle_agreement"] == 1.0
+    assert d["harm_rate_oof"] == 0.0 and d["harm_rate_full"] == 0.0   # winner never hurts
+    assert abs(d["delta_bacc_router_shift_oof"]["mean"] - 0.10) < 1e-9   # 0.70 - 0.60
+    assert abs(d["delta_bacc_router_shift_full"]["mean"] - 0.10) < 1e-9  # full mirrors oof here
+    assert d["top1_oracle_agreement_oof"] == 1.0 and d["top1_oracle_agreement_full"] == 1.0
     assert d["evidence_accuracy_spearman"] > 0.5            # evidence predicts accuracy gain
     assert list(DEPLOYABLE)[0] == "identity"
 
