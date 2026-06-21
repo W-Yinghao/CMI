@@ -1,0 +1,99 @@
+{
+  "pass_criteria": {
+    "false_adapt_max": 0.1,
+    "coverage_min": 0.25,
+    "nonnull_harm_max": 0.2,
+    "top1_min": 0.5,
+    "regret_max": 0.02
+  },
+  "by_comparator": {
+    "identity": {
+      "n_episodes": 180,
+      "coverage": 0.0,
+      "false_adaptation_rate": 0.0,
+      "harm_rate": 0.0,
+      "mean_dbacc_diag": 0.0,
+      "mean_dbacc_all": 0.0,
+      "nonnull_harm_rate": 0.0,
+      "top1_oracle": 0.32222222222222224,
+      "mean_regret": 0.051199928546558415
+    },
+    "always_pooled": {
+      "n_episodes": 180,
+      "coverage": 1.0,
+      "false_adaptation_rate": 1.0,
+      "harm_rate": 0.2611111111111111,
+      "mean_dbacc_diag": 0.03183739147008526,
+      "mean_dbacc_all": 0.03401973994272844,
+      "nonnull_harm_rate": 0.20930232558139536,
+      "top1_oracle": 0.43333333333333335,
+      "mean_regret": 0.017180188603829975
+    },
+    "always_canonical": {
+      "n_episodes": 180,
+      "coverage": 1.0,
+      "false_adaptation_rate": 1.0,
+      "harm_rate": 0.32222222222222224,
+      "mean_dbacc_diag": 0.029685917250183207,
+      "mean_dbacc_all": 0.027115618747024468,
+      "nonnull_harm_rate": 0.27906976744186046,
+      "top1_oracle": 0.07777777777777778,
+      "mean_regret": 0.024084309799533948
+    },
+    "n1_target_ranking": {
+      "n_episodes": 180,
+      "coverage": 0.2388888888888889,
+      "false_adaptation_rate": 0.2846715328467153,
+      "harm_rate": 0.11666666666666667,
+      "mean_dbacc_diag": -0.0034542610267083444,
+      "mean_dbacc_all": 0.009016024117298094,
+      "nonnull_harm_rate": 0.046511627906976744,
+      "top1_oracle": 0.2611111111111111,
+      "mean_regret": 0.04218390442926032
+    },
+    "metadata_gated": {
+      "n_episodes": 180,
+      "coverage": 0.016666666666666666,
+      "false_adaptation_rate": 0.0,
+      "harm_rate": 0.0,
+      "mean_dbacc_diag": 0.0032097316613080794,
+      "mean_dbacc_all": 0.0007667692302013745,
+      "nonnull_harm_rate": 0.0,
+      "top1_oracle": 0.3277777777777778,
+      "mean_regret": 0.05043315931635704,
+      "gate_positive_operator_regret": 0.012960999175209173,
+      "metadata_op_veto_fail_rate": 0.17222222222222222,
+      "missing_metadata_abstention_rate": 1.0,
+      "pooled_vs_cc_confusion": {
+        "oracle=pooled_empirical_diag|meta=identity": 18,
+        "oracle=identity|meta=identity": 10,
+        "oracle=gen_iterative_diag|meta=identity": 7,
+        "oracle=gen_oneshot_diag|meta=identity": 5,
+        "oracle=gen_oneshot_diag|meta=gen_oneshot_diag": 1,
+        "oracle=gen_iterative_diag|meta=pooled_empirical_diag": 1,
+        "oracle=gen_iterative_diag|meta=gen_oneshot_diag": 1
+      },
+      "passes": {
+        "false_adapt": true,
+        "coverage": false,
+        "shift_utility": true,
+        "nonnull_harm": true,
+        "top1": false,
+        "regret": false,
+        "ALL": false
+      }
+    },
+    "metadata_oracle": {
+      "n_episodes": 180,
+      "coverage": 0.6777777777777778,
+      "false_adaptation_rate": 0.6496350364963503,
+      "harm_rate": 0.0,
+      "mean_dbacc_diag": 0.05558862658478394,
+      "mean_dbacc_all": 0.051199928546558415,
+      "nonnull_harm_rate": 0.0,
+      "top1_oracle": 1.0,
+      "mean_regret": 0.0
+    }
+  },
+  "decision": "B2A_FAIL -> selection architecture insufficient on dev seeds"
+}

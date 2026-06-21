@@ -83,6 +83,32 @@ Terminal: no further target-only score is developed. Next is the B mainline
 (fixed-prior geometry adaptation + source-calibrated abstention + metadata-conditioned operator
 selection), with the nested-null gate carried forward as the validated abstention rule.
 
+## 6. B2a dev (metadata-conditioned operator selection) — FAIL, localized to the frozen gate
+Action set identity / pooled_empirical_diag / canonical(=gen_oneshot_diag, frozen). Six comparators,
+dev seeds 0–2 (1080 rows), frozen A* nested-null gate (other-seed max-null), no re-tuning.
+
+| comparator | cov | false-adapt | ΔbAcc_diag | harm | top-1 | regret |
+|---|---|---|---|---|---|---|
+| always_pooled | 1.00 | 1.00 | +0.032 | 0.26 | 0.43 | 0.017 |
+| always_canonical | 1.00 | 1.00 | +0.030 | 0.32 | 0.08 | 0.024 |
+| n1_target_ranking | 0.24 | 0.28 | −0.003 | 0.12 | 0.26 | 0.042 |
+| **metadata_gated** | **0.02** | **0.00** | +0.003 | 0.00 | 0.33 | 0.050 |
+| metadata_oracle | 0.68 | 0.65 | +0.056 | 0.00 | 1.00 | 0.000 |
+
+**B2A_FAIL** (metadata_gated fails coverage 0.02«0.25, top-1, regret). But the cause is NOT the
+metadata routing — it is the FROZEN GATE not transferring:
+- the **metadata map works**: on DIAG episodes it proposes adaptation **0.79** of the time, and it
+  abstains **1.00** of the time when metadata is UNKNOWN (missing-metadata abstention rate 1.0);
+- the **frozen A* gate over-vetoes**: it passes only **0.07** of those DIAG proposals (veto-fail
+  rate 0.17 overall) — so metadata_gated collapses to ~identity (safe but no coverage);
+- it is a magnitude-transfer failure: the gate was calibrated on the larger B1a cov shifts and is
+  too strict for B2a's smaller gain-based geometry shifts. The architecture's ceiling is strong
+  (metadata_oracle cov 0.68, ΔbAcc +0.056), and a fixed pooled operator already gets ΔbAcc_diag
+  +0.032 but harms 0.26 with no gate.
+
+Per pre-registration the gate/threshold/acceptance are NOT re-tuned mid-B2a; B2A_FAIL stands on dev
+seeds. The bottleneck is now isolated to the gate's calibration regime, not the metadata selector.
+
 ## Provenance / code
 Tags `h2cmi-b1a-code-v1`/`v2`; CUDA fix `1583878`; hard re-freeze `bb42d3a` (frozen on identity
 ONLY, before any hard variant). Analysis: `analyze_b1a_grid.py` (5 contrasts + hard-null safety),
