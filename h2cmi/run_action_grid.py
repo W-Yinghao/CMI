@@ -44,8 +44,9 @@ from h2cmi.eval.metrics import classification_metrics, _ece
 from h2cmi.eval.harness import _predict_transform, _embed
 from h2cmi.tta.class_conditional import ClassConditionalTTA, Transform
 from h2cmi.run_shift_grid import build_cfgs
-from h2cmi.grid_io import (load_done_keys, append_row, hash_state, full_sha, require_clean_git,
-                           source_data_hash, source_training_signature, build_manifest,
+from h2cmi.grid_io import (SCHEMA_VERSION, load_done_keys, append_row, hash_state,
+                           require_clean_git, source_data_hash, source_training_signature,
+                           source_code_signature, build_data_spec, build_manifest,
                            validate_or_create_manifest, bundle_expected_keys,
                            source_bundle_paths, save_source_bundle, load_source_bundle)
 
@@ -96,7 +97,13 @@ def main():
     ap.add_argument("--bundle-root", default="", help="provenance-keyed source cache (default: <out>.bundles)")
     args = ap.parse_args()
 
-    runner_commit = require_clean_git(allow_dirty=args.allow_dirty)
+    bundle_root = args.bundle_root or (args.out + ".bundles")
+    out_dir = os.path.dirname(args.out) or "."
+    # the run writes untracked result artifacts under its out dir + bundle root; exclude those
+    # from the clean-git guard, but still reject any other dirty/untracked file (e.g. code).
+    runner_commit = require_clean_git(allow_dirty=args.allow_dirty,
+                                      ignore_prefixes=[out_dir, bundle_root])
+    code_sig = source_code_signature()
     scenarios = [s for s in args.scenarios.split(",") if s]
     for s in scenarios:
         if s not in PRESET_SCENARIOS:
@@ -109,8 +116,13 @@ def main():
     if not set(shard_seeds) <= set(global_seeds) or not set(shard_sites) <= set(global_sites):
         raise ValueError("shard seeds/sites must be subsets of the global grid")
     cfg_off, cfg_on = build_cfgs(args)
-    bundle_root = args.bundle_root or (args.out + ".bundles")
 
+    data_spec = build_data_spec(simulator="PairedEEGSimulator", n_sites=args.sites,
+                                subjects_per_site=args.subjects, sessions_per_subject=args.sessions,
+                                trials_per_session=args.trials, n_classes=args.classes,
+                                n_chans=args.chans, n_times=args.times,
+                                source_scenario="population_null",
+                                train_seed_policy="train_seed=data_seed", difficulty="standard")
     cli = {k: getattr(args, k) for k in ("scenarios", "grid_seeds", "grid_target_sites",
             "shard_seeds", "shard_target_sites", "sites", "subjects", "sessions", "trials",
             "classes", "chans", "times", "epochs", "fast")}
@@ -118,9 +130,9 @@ def main():
                               scenarios=scen_canon, items=sorted(ACTIONS), item_field="action",
                               cmi_arms=sorted(CMI_ARMS),
                               shard_spec={"seeds": sorted(shard_seeds), "sites": sorted(shard_sites)},
-                              cli=cli)
+                              cli=cli, data_spec=data_spec)
     validate_or_create_manifest(args.out, manifest)
-    done = load_done_keys(args.out, item_field="action")
+    done = load_done_keys(args.out, item_field="action", manifest=manifest)
     print(f"[action-grid] commit={runner_commit[:12]} exp_sig={manifest['experiment_signature']} "
           f"shard={manifest['shard_spec']} scenarios={scen_canon} -> {args.out} ({len(done)} done)",
           flush=True)
@@ -143,22 +155,26 @@ def main():
                 if bundle_expected_keys(seed, tsite, cmi, scen_canon, ACTIONS) <= done:
                     print(f"  seed={seed} site={tsite} cmi={cmi} complete -> skip train", flush=True)
                     continue
-                tsig = source_training_signature(cfg, seed, tsite, cmi)   # provenance key
+                tsig = source_training_signature(cfg, seed, tsite, cmi,            # provenance key
+                                                 source_code_signature=code_sig, data_spec=data_spec)
                 pt_path, json_path = source_bundle_paths(bundle_root, tsig, seed, tsite, cmi)
                 if os.path.exists(pt_path) and os.path.exists(json_path):
                     model, bmeta = load_source_bundle(
                         pt_path, json_path, build_model=lambda c=cfg: H2Model(c, pi_star).to(args.device),
-                        expected_training_signature=tsig, expected_source_data_hash=src_dhash)
+                        expected_training_signature=tsig, expected_source_data_hash=src_dhash,
+                        expected_source_code_signature=code_sig, expected_pi_star=pi_star)
                     src_commit = bmeta.get("source_training_commit_sha")
                 else:
                     model, _, _, hist = train_h2(Xs, ys, src_dom, src_dag, cfg, align_factor="site")
                     save_source_bundle(pt_path, json_path, model, training_signature=tsig,
-                                       source_data_hash=src_dhash, pi_star=pi_star,
-                                       commit_sha=runner_commit, history=hist)
+                                       source_data_hash=src_dhash, source_code_signature=code_sig,
+                                       pi_star=pi_star, commit_sha=runner_commit, history=hist)
                     src_commit = runner_commit
                 ckpt = hash_state(model)
-                common = dict(runner_commit_sha=runner_commit, source_training_commit_sha=src_commit,
-                              source_training_signature=tsig,
+                common = dict(schema_version=SCHEMA_VERSION, runner_commit_sha=runner_commit,
+                              source_training_commit_sha=src_commit, source_training_signature=tsig,
+                              source_code_signature=code_sig,
+                              config_signature=manifest["config_signature"],
                               experiment_signature=manifest["experiment_signature"],
                               data_seed=seed, train_seed=seed, tta_seed=seed, target_site=tsite,
                               cmi=cmi, source_checkpoint_hash=ckpt, source_data_hash=src_dhash)
