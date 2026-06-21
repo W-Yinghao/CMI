@@ -59,6 +59,8 @@ reported, not renormalised away. (THEORY §Estimand.)
   capacity sup over the probe family `Q`, cross-fit, permutation null. This is the operational
   *lower bound* on `I_ov` (THEORY §4); the optimization target is ``UCB_{1-α}[L_Q^ov]`` with
   capacity selection inside each bootstrap resample. (Never reported as "precise CMI".)
+  Implemented in [`leakage/`](leakage/) — `estimate_extractable_leakage` (point `L_abs`/`L_cond`)
+  and `bootstrap_ucb` (`bootstrap_ucl`, basic one-sided; `percentile_ucl` as sensitivity).
 * **Mean** and **worst-domain** balanced accuracy. Worst-domain is a primary endpoint.
 * **ECE / NLL** — calibration, source-only (no target temperature). Watch for the LPC trap:
   a calibration "win" that is just global confidence rescaling (oracle-T deconfound).

@@ -105,18 +105,26 @@ Adding a risk constraint to a DG penalty already exists. The novelty is the comb
 | Support graph: `S_y`, eligibility vs presence, **per-class** identifiable pairs, coupling components, fixed-prior `L_abs`/`L_cond` | **implemented + tested** | [`support_graph.py`](support_graph.py) |
 | Config: support threshold, UCB on `L_Q^ov` (cross-fit/bootstrap/probe), risk constraint | **implemented** | [`config.py`](config.py) |
 | Controlled missing-cell harness — deletion schedule, fixed cell mask / reference weights / group IDs | **implemented + tested** | [`data/missing_cell.py`](data/missing_cell.py) |
-| Extractable-leakage critic (`L_Q^ov` point estimate, per-class, comparable cells) | TODO | `leakage/` |
-| Clustered-bootstrap UCB with in-resample capacity selection | TODO | `leakage/ucb.py` |
+| Per-class conditional-domain **probe** (frozen Z, label space `S_y`, in-fold preprocessing, capacity family) | **implemented + tested** | [`leakage/critic.py`](leakage/critic.py) |
+| Strict recording/subject-grouped **cross-fit** (domain-stratified folds, feasibility, OOF NLL) | **implemented + tested** | [`leakage/crossfit.py`](leakage/crossfit.py) |
+| **Point estimate** `L_abs`/`L_cond` (`Ĥ_y−NLL^OOF`, capacity sup after aggregation) | **implemented + tested** | [`leakage/estimate.py`](leakage/estimate.py) |
+| Recording-clustered **bootstrap UCB** (within-domain resample, in-replicate capacity reselection, basic one-sided + percentile) | **implemented + tested** | [`leakage/ucb.py`](leakage/ucb.py) |
 | Lexicographic / primal–dual risk-feasible trainer | TODO | `train/` |
 | Rare-cell batch sampler (keeps comparable cells eligible per step) | TODO | `data/sampler.py` |
-| Eval: grouped capacity-sup leakage, mean/worst bAcc, ECE/NLL, noninferiority CI | TODO | `eval/` |
+| Eval: mean/worst bAcc, ECE/NLL, noninferiority CI | TODO | `eval/` |
 
 ## Run what exists
 
 ```bash
 PY=/home/infres/yinwang/anaconda3/envs/icml/bin/python
 $PY -m oaci.support_graph                 # worked disconnected-support example
-$PY -m oaci.tests.test_support_graph      # 9 support-graph tests (standalone / pytest)
+$PY -m oaci.data.missing_cell             # missing-cell deletion sweep
+$PY -m oaci.leakage.synthetic             # leakage demo: null (~0) vs perfect (≈Ĥ) extractable_LQ_ov
+$PY -m oaci.tests.test_support_graph      # support-graph tests
+$PY -m oaci.tests.test_missing_cell       # missing-cell harness tests
+$PY -m oaci.tests.test_leakage_estimate   # estimator: null / perfect / exclusion / capacity / no-trunc
+$PY -m oaci.tests.test_leakage_crossfit   # grouped cross-fit: group-memorisation, feasibility
+$PY -m oaci.tests.test_leakage_ucb        # bootstrap UCB: reselection, formulas, reproducibility
 $PY -m oaci.config                        # config validation
 ```
 

@@ -52,7 +52,7 @@ class UCBConfig:
     alpha: float = 0.1                                  # UCB level -> report the (1-α) bound
     cross_fit_folds: int = 5                            # held-out critic estimate (no upward bias)
     n_bootstrap: int = 200                              # clustered bootstrap resamples
-    cluster_by: str = "domain_class"                    # 'domain' | 'class' | 'domain_class' | 'recording'
+    cluster_by: str = "recording"                       # dependence unit, resampled WITHIN domain: 'recording' (default) | 'domain' | 'class' | 'domain_class'
     probe_capacities: tuple[int, ...] = (32, 128, 512)  # the probe family Q (sup over these)
     capacity_selection_in_resample: bool = True         # re-select capacity per resample (else biased)
     weighting: str = "absolute"                         # 'absolute' (L_abs, fixed p_ref) | 'conditional' (L_cond, diag)
@@ -62,7 +62,7 @@ class UCBConfig:
 
 @dataclass
 class RiskConfig:
-    """Risk-feasible noninferiority constraint (THEORY §2): min UCB[I_ov] s.t. R_src<=R_ERM+ε."""
+    """Risk-feasible noninferiority constraint (THEORY §2): min UCB[L_Q^ov] s.t. R_src<=R_ERM+ε."""
     epsilon: float = 0.01            # source-risk slack over the ERM lower bound R_ERM
     risk_metric: str = "balanced_ce"  # 'ce' | 'balanced_ce' | 'balanced_err'
     lexicographic: bool = True       # stage 1: fit ERM for R_ERM; stage 2: constrained min
