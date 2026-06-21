@@ -22,9 +22,11 @@ occurs (some sites short on a class); MI sets give a controlled baseline with fu
 
 ## Main experiment — controlled missing-cell stress test
 
-Start from a fully-supported configuration, then **systematically delete site×class cells**
-(`(d,y)` pairs) to sweep the support graph from connected → disconnected. At each deletion
-level, compare four methods on identical splits/seeds:
+Driven by [`data/missing_cell.py`](data/missing_cell.py) (`make_schedule`): start from a
+fully-supported configuration, then **systematically delete site×class cells** (`(d,y)`
+pairs) to sweep the support graph from connected → fragmented. The harness fixes the cell
+mask, reference weights, group IDs and deletion schedule that all four methods share. At each
+deletion level, compare on identical splits/seeds:
 
 1. **ERM** (no invariance penalty),
 2. **global LPC** (conditional invariance over *all* cells, smoothing the missing ones — the
@@ -37,13 +39,26 @@ worst-domain accuracy / calibration / label separability) as cells are deleted a
 support graph fragments — because global/uniform routes erase `Y` on the unsupported cells
 (THEORY §3) while OACI leaves them free.
 
-Report the deletion level at which the support graph first disconnects (from
-[`support_graph.py`](support_graph.py)) and align it with where global/uniform start to hurt.
+Report the deletion level at which the support graph first **fragments**
+(`MissingCellSchedule.first_fragmentation_level()`) and align it with where global/uniform
+start to hurt worst-domain accuracy / calibration.
+
+## Estimand (fixed across the sweep)
+
+Report the **primary** ``L_abs = Σ_{y∈C_cmp} p_ref(y) L_y`` paired with the identifiable mass
+fraction ``Σ_{y∈C_cmp} p_ref(y)``, both under a **fixed** reference prior ``p_ref`` computed
+once on the full pre-deletion configuration (so the estimand does not drift as cells are
+deleted). ``L_cond`` (renormalised over comparable classes) is **diagnostic only** — its
+weights move with support fragmentation. As cells are deleted, ``L_abs`` falls because
+comparable mass leaves the sum; that drop is the honest consequence of non-identifiability,
+reported, not renormalised away. (THEORY §Estimand.)
 
 ## Metrics
 
-* **Grouped max-probe conditional leakage** — recording/subject-grouped, multi-capacity
-  probe, cross-fit, permutation null. (The honest measurement; the UCB target.)
+* **Grouped capacity-sup extractable leakage ``L_Q^ov``** — recording/subject-grouped,
+  capacity sup over the probe family `Q`, cross-fit, permutation null. This is the operational
+  *lower bound* on `I_ov` (THEORY §4); the optimization target is ``UCB_{1-α}[L_Q^ov]`` with
+  capacity selection inside each bootstrap resample. (Never reported as "precise CMI".)
 * **Mean** and **worst-domain** balanced accuracy. Worst-domain is a primary endpoint.
 * **ECE / NLL** — calibration, source-only (no target temperature). Watch for the LPC trap:
   a calibration "win" that is just global confidence rescaling (oracle-T deconfound).

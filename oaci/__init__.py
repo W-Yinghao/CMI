@@ -23,10 +23,12 @@ from .support_graph import (
     SupportGraph,
     build_support_graph,
     counts_from_labels,
+    empirical_class_prior,
 )
 
 __all__ = [
     "SupportGraph",
     "build_support_graph",
     "counts_from_labels",
+    "empirical_class_prior",
 ]

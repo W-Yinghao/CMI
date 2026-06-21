@@ -42,9 +42,13 @@ I_ov(Z;D|Y) = Σ_y p(y) · I( Z ; D_{S_y} | Y=y, D ∈ S_y ).
 ```
 
 Cells with zero / too-low effective sample size are **not** smoothed into existence — they
-are explicitly marked **non-identifiable**. This bookkeeping is the [`support_graph`](support_graph.py)
-module (already implemented + tested): it builds `S_y`, the comparable classes
-(`|S_y| ≥ 2`), the domain–domain support graph, and its connected components.
+are explicitly marked **ineligible** (a finite-sample *estimator-eligibility* flag, not a
+population claim — see THEORY §0). This bookkeeping is the [`support_graph`](support_graph.py)
+module (implemented + tested): it builds `S_y`, the comparable classes (`|S_y| ≥ 2`), the
+**per-class** identifiable pairs (`is_identifiable_pair(d,d',y)` — both in `S_y`; there is
+**no** cross-class transitive reach), and the domain–domain **coupling** components — which
+describe only how the constraint system *decomposes*, NOT which equalities are identifiable
+(THEORY §1).
 
 ## The objective: risk-feasible, honestly-bounded
 
@@ -52,14 +56,18 @@ Two-stage **lexicographic constrained** optimization. First fit ERM for the sour
 lower bound `R_ERM`; then
 
 ```
-min_θ   UCB_{1-α}[ I_ov(Z;D|Y) ]
+min_θ   UCB_{1-α}[ L_Q^ov ]          (NOT UCB[I_ov] — see below)
 s.t.    R_src(θ) <= R_ERM + ε.
 ```
 
-* **`UCB_{1-α}[·]` is a real statistical upper confidence bound** — cross-fit critic +
-  domain/class-clustered bootstrap + multi-capacity probe — **not** a posterior-KL
-  relabelled "upper bound" (the precise error the LPC line made; see the naming
-  corrections in [`notes/EVIDENCE_LEDGER.md`](../notes/EVIDENCE_LEDGER.md)).
+* **The target is the probe-class-*extractable* leakage `L_Q^ov`, not the true `I_ov`.** A
+  finite probe `q` gives `E[-log q(D|Z,Y)] = H(D|Z,Y) + E·KL(p‖q)`, so the probe entropy-gap
+  is a *lower* bound on `I_ov` (THEORY §4). We minimise/bound `L_Q^ov = sup_{q∈Q}(Ĥ(D|Y) −
+  E[-log q])` — "extractable conditional domain information", the project's binding name.
+* **`UCB_{1-α}[L_Q^ov]` is a real upper confidence bound on that functional** — cross-fit
+  critic + domain/recording-clustered bootstrap + a capacity sup **selected inside each
+  resample** — **not** a posterior-KL relabelled "upper bound" (the precise LPC error; see
+  [`notes/EVIDENCE_LEDGER.md`](../notes/EVIDENCE_LEDGER.md)).
 * **`λ` is a primal–dual multiplier** that enforces the risk constraint automatically. It
   is a Lagrange knob, **not** part of the model's meaning.
 * The constraint is **noninferiority** w.r.t. ERM: we never trade away source accuracy past
@@ -79,26 +87,29 @@ Adding a risk constraint to a DG penalty already exists. The novelty is the comb
 
 ## Three theory targets (see [`THEORY.md`](THEORY.md))
 
-1. **Support theorem** — only invariance on observed `(d,y)` cells is data-identifiable;
-   when the support graph is disconnected, cross-component global invariance requires extra
-   untestable assumptions.
-2. **No-excess empirical risk** — at an exact feasible solution, stage 2 adds at most `ε`
-   to source risk over ERM.
-3. **Label-preservation proposition** — not aligning unsupported cells avoids the forced
-   `Y`-erasure of the uniform / marginal / chain routes.
+1. **Support theorem** — the equality `p(z|y,d)=p(z|y,d')` is identifiable iff both cells are
+   eligible for that **same** class `y` (`d,d'∈S_y`); there is no cross-class transitive
+   reach, and graph connectivity is only *decomposability*, not identifiability (THEORY §1).
+2. **No-excess empirical risk** — at an exact feasible solution stage 2 adds at most `ε` to
+   source risk over ERM (reported with the realized gap; the optimality+penalty pairing is
+   the safety floor, not the novelty).
+3. **Label-preservation proposition** — not aligning ineligible cells avoids the *explicit*
+   forced `Y`-erasure of the uniform/marginal/chain routes; the stronger "representation left
+   free" holds only under a cell-separable parametrization (shared encoders still couple via
+   gradients — THEORY §3).
 
 ## Component map (proposal → module)
 
 | Concept | Status | Module |
 |---|---|---|
-| Domain–class support graph, `S_y`, components, non-identifiable cells | **implemented + tested** | [`support_graph.py`](support_graph.py) |
-| Config: support threshold, UCB (cross-fit/bootstrap/probe), risk constraint | **implemented** | [`config.py`](config.py) |
-| Support-aware conditional-MI critic + cross-fit point estimate | TODO | `leakage/` |
-| Clustered-bootstrap + multi-capacity UCB | TODO | `leakage/ucb.py` |
+| Support graph: `S_y`, eligibility vs presence, **per-class** identifiable pairs, coupling components, fixed-prior `L_abs`/`L_cond` | **implemented + tested** | [`support_graph.py`](support_graph.py) |
+| Config: support threshold, UCB on `L_Q^ov` (cross-fit/bootstrap/probe), risk constraint | **implemented** | [`config.py`](config.py) |
+| Controlled missing-cell harness — deletion schedule, fixed cell mask / reference weights / group IDs | **implemented + tested** | [`data/missing_cell.py`](data/missing_cell.py) |
+| Extractable-leakage critic (`L_Q^ov` point estimate, per-class, comparable cells) | TODO | `leakage/` |
+| Clustered-bootstrap UCB with in-resample capacity selection | TODO | `leakage/ucb.py` |
 | Lexicographic / primal–dual risk-feasible trainer | TODO | `train/` |
-| Rare-cell batch sampler (keeps comparable cells estimable) | TODO | `data/` |
-| Controlled missing-cell stress test (delete site×class cells) | TODO | `data/missing_cell.py` |
-| Eval: grouped max-probe leakage, mean/worst bAcc, ECE/NLL, noninferiority CI | TODO | `eval/` |
+| Rare-cell batch sampler (keeps comparable cells eligible per step) | TODO | `data/sampler.py` |
+| Eval: grouped capacity-sup leakage, mean/worst bAcc, ECE/NLL, noninferiority CI | TODO | `eval/` |
 
 ## Run what exists
 

@@ -1,32 +1,40 @@
-"""Domain–class support graph: which conditional-invariance constraints are *identifiable*.
+"""Domain–class support graph: which conditional-invariance constraints are *identifiable*,
+and how the constraint system *decomposes*.
 
-This is the formal core of OACI. The overlap-aware objective compares ``p(z|y,d)`` only on
-cells the data can actually estimate. This module turns a table of per-``(domain,class)``
-effective counts into exactly that bookkeeping — and refuses to fabricate support where
-there is none:
+This is the formal core of OACI. Two distinct notions, kept separate on purpose (the v1
+scaffold conflated them — see THEORY §1):
 
-* ``observed[d,y]``      — ``n_{d,y} >= m``. Cells below threshold are **non-identifiable**
-                           and are surfaced, never smoothed.
-* ``S_y``                — domains with estimable support for class ``y`` (``{d : n_{d,y}>=m}``).
-* comparable classes     — ``|S_y| >= 2``: a within-``y`` cross-domain comparison exists.
-* singleton classes      — ``|S_y| == 1``: present, but invariance is identifiable *nowhere*.
-* the domain–domain support graph — ``d ~ d'`` iff they co-observe some class with support.
-* connected components   — conditional invariance propagates **transitively** within a
-                           component (a chain of shared-class constraints jointly pins the
-                           representation across those domains); **across** components there
-                           is no data path, so cross-component invariance is an untestable
-                           extrapolation (the *Support theorem*, ``THEORY.md`` §1).
+* **Per-class identifiability.** The equality ``p(z|y,d) = p(z|y,d')`` for a FIXED class
+  ``y`` is identifiable iff both cells are estimable, i.e. ``d, d' ∈ S_y``. A path of
+  *other* classes does NOT transfer a fixed-``y`` equality — there is no transitive reach
+  across classes. Use :meth:`SupportGraph.is_identifiable_pair` (takes ``y``).
+* **Coupling / decomposability.** The domain–domain graph ``d ~ d'`` iff they co-observe
+  *some* class ties domains into **coupling components**. Within a component the per-class
+  constraints share parameters (a single encoder is jointly constrained), so the problem
+  does NOT decompose into independent subproblems; across components it does. This is about
+  optimization structure, NOT about identifiability of any particular equality. Use
+  :meth:`SupportGraph.coupled` / :attr:`coupling_components`.
 
-Estimate the leakage / enforce alignment ONLY on the identifiable terms returned by
-``overlap_terms()``; report ``non_identifiable_pairs()`` and
-``1 - identifiable_mass_fraction()`` so the gap is explicit.
+Three support notions are also kept distinct (THEORY §1, point 2):
 
-numpy-only, no EEG required. Run ``python -m oaci.support_graph`` for a worked
-disconnected-support example.
+* **present** (``n_{d,y} > 0``)   — observed support;
+* **eligible** (``n_{d,y} ≥ m``)  — *estimator-eligibility* at finite sample (what gates
+  whether we form a leakage/alignment term — a variance guard, not a population fact);
+* structural support (can the DGP produce ``y`` in ``d`` at all) is unobservable and is
+  never asserted here.
+
+The overlap-aware estimand is reported under a **fixed reference prior** ``p_ref(y)`` so it
+does not drift as cells are deleted in the missing-cell sweep (THEORY §Estimand):
+
+* ``L_abs  = Σ_{y∈C_cmp} p_ref(y)            · L_y``   (primary; report with the
+  identifiable mass fraction ``Σ_{y∈C_cmp} p_ref(y)``),
+* ``L_cond = Σ_{y∈C_cmp} p_ref(y|y∈C_cmp)    · L_y``   (diagnostic only).
+
+numpy-only, no EEG required. Run ``python -m oaci.support_graph`` for a worked example.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 import numpy as np
 
@@ -52,6 +60,17 @@ def counts_from_labels(
     return counts
 
 
+def empirical_class_prior(counts) -> np.ndarray:
+    """``p_ref(y) = N_y / N`` from a count table (uniform if empty)."""
+    counts = np.asarray(counts, dtype=np.float64)
+    per_class = counts.sum(axis=0)
+    total = per_class.sum()
+    if total <= 0:
+        n_y = counts.shape[1]
+        return np.full(n_y, 1.0 / n_y) if n_y else per_class
+    return per_class / total
+
+
 def _connected_components(n_nodes: int, edges: list[tuple[int, int]]) -> list[list[int]]:
     """Union–find connected components over ``n_nodes`` (isolated nodes are singletons)."""
     parent = list(range(n_nodes))
@@ -70,7 +89,6 @@ def _connected_components(n_nodes: int, edges: list[tuple[int, int]]) -> list[li
     groups: dict[int, list[int]] = {}
     for i in range(n_nodes):
         groups.setdefault(find(i), []).append(i)
-    # deterministic ordering: by smallest member
     return sorted((sorted(v) for v in groups.values()), key=lambda c: c[0])
 
 
@@ -79,24 +97,22 @@ def _connected_components(n_nodes: int, edges: list[tuple[int, int]]) -> list[li
 # --------------------------------------------------------------------------------------
 @dataclass
 class SupportGraph:
-    """Identifiability bookkeeping for overlap-aware conditional invariance.
-
-    All fields below are *derived* by :func:`build_support_graph`; construct via that
-    function rather than by hand.
-    """
+    """Identifiability + decomposability bookkeeping. Build via :func:`build_support_graph`."""
 
     counts: np.ndarray                       # [n_domains, n_classes] effective counts
-    m: int                                   # min count for a cell to be identifiable
+    m: int                                   # eligibility threshold (n_{d,y} >= m)
+    reference_prior: np.ndarray              # FIXED p_ref(y), len n_classes, sums to 1
     domain_names: list[str]
     class_names: list[str]
 
-    observed: np.ndarray                     # bool [n_domains, n_classes]
-    support_of_class: dict[int, list[int]]   # y -> S_y (sorted domain indices)
-    comparable_classes: list[int]            # |S_y| >= 2
-    singleton_classes: list[int]             # |S_y| == 1  (non-identifiable everywhere)
+    present: np.ndarray                      # bool [D,C]  n > 0   (observed support)
+    eligible: np.ndarray                     # bool [D,C]  n >= m  (estimator-eligibility)
+    support_of_class: dict[int, list[int]]   # y -> S_y (eligible domains, sorted)
+    comparable_classes: list[int]            # |S_y| >= 2  (a within-y comparison exists)
+    singleton_classes: list[int]             # |S_y| == 1
     empty_classes: list[int]                 # |S_y| == 0
-    components: list[list[int]]              # connected components (domain indices)
-    component_of: np.ndarray                 # [n_domains] -> component id
+    coupling_components: list[list[int]]     # decomposition structure, NOT identifiability
+    component_of: np.ndarray                 # [D] -> coupling-component id
 
     # ---- shapes ----
     @property
@@ -108,72 +124,98 @@ class SupportGraph:
         return self.counts.shape[1]
 
     # ---- cell / class queries ----
-    def is_observed(self, d: int, y: int) -> bool:
-        return bool(self.observed[d, y])
+    def is_present(self, d: int, y: int) -> bool:
+        return bool(self.present[d, y])
+
+    def is_eligible(self, d: int, y: int) -> bool:
+        """Estimator-eligibility (``n_{d,y} >= m``) — gates term formation, not a population
+        identifiability statement."""
+        return bool(self.eligible[d, y])
 
     def is_comparable(self, y: int) -> bool:
         return y in self.comparable_classes
 
-    def unobserved_cells(self) -> list[tuple[int, int]]:
-        """All ``(d, y)`` below the support threshold — explicitly non-identifiable cells."""
-        ds, ys = np.where(~self.observed)
+    def ineligible_cells(self) -> list[tuple[int, int]]:
+        """Cells below the eligibility threshold — no term is formed on these."""
+        ds, ys = np.where(~self.eligible)
         return list(zip(ds.tolist(), ys.tolist()))
 
-    # ---- domain-pair identifiability ----
-    def identifiable_pair(self, d: int, dp: int) -> bool:
-        """True iff cross-domain conditional invariance between ``d`` and ``dp`` is reachable
-        from data (same component → a chain of shared-class constraints links them)."""
+    # ---- per-class identifiability (the corrected primitive) ----
+    def is_identifiable_pair(self, d: int, dp: int, y: int) -> bool:
+        """Is the fixed-``y`` equality ``p(z|y,d)=p(z|y,d')`` identifiable from data?
+
+        Iff both cells are eligible for THIS class (``d, d' ∈ S_y``). No cross-class
+        transitivity: a chain through other classes does not transfer a fixed-``y`` equality.
+        """
         if d == dp:
             return True
+        return bool(self.eligible[d, y] and self.eligible[dp, y])
+
+    def identifiable_pairs(self, y: int) -> list[tuple[int, int]]:
+        """All identifiable within-class-``y`` domain pairs (the directly enforceable
+        conditional-invariance constraints for class ``y``)."""
+        s = self.support_of_class[y]
+        return [(s[i], s[j]) for i in range(len(s)) for j in range(i + 1, len(s))]
+
+    def all_identifiable_constraints(self) -> list[tuple[int, int, int]]:
+        """Every identifiable constraint as ``(y, d, d')`` over comparable classes."""
+        return [(y, d, dp) for y in self.comparable_classes for (d, dp) in self.identifiable_pairs(y)]
+
+    # ---- coupling / decomposability (NOT identifiability) ----
+    def coupled(self, d: int, dp: int) -> bool:
+        """True iff ``d`` and ``d'`` lie in the same coupling component, i.e. the constraint
+        system does not decompose across them. This is an OPTIMIZATION-structure statement;
+        it does NOT imply any particular ``p(z|y,·)`` equality between them is identifiable."""
         return bool(self.component_of[d] == self.component_of[dp])
 
-    def identifiable_pairs(self) -> list[tuple[int, int]]:
+    def decoupled_pairs(self) -> list[tuple[int, int]]:
+        """Domain pairs that share no class — fully independent subproblems."""
         return [
             (d, dp)
             for d in range(self.n_domains)
             for dp in range(d + 1, self.n_domains)
-            if self.identifiable_pair(d, dp)
+            if not self.coupled(d, dp)
         ]
 
-    def non_identifiable_pairs(self) -> list[tuple[int, int]]:
-        """Domain pairs in different components — cross-component invariance is untestable."""
-        return [
-            (d, dp)
-            for d in range(self.n_domains)
-            for dp in range(d + 1, self.n_domains)
-            if not self.identifiable_pair(d, dp)
-        ]
-
-    # ---- the overlap-aware objective's identifiable terms ----
+    # ---- the overlap-aware estimand's identifiable terms (fixed reference prior) ----
     def overlap_terms(self) -> list[dict]:
-        """The identifiable terms of ``I_ov(Z;D|Y)`` — one per comparable class.
+        """One term per comparable class ``y``, weighted by the FIXED reference prior.
 
-        Each term is ``{y, support: S_y, n_obs, weight}`` where ``weight`` is the class
-        prior ``p(y)`` renormalised over the comparable classes (the mass the objective
-        actually constrains). Unsupported / singleton classes contribute **no** term.
+        ``w_abs = p_ref(y)`` (primary, L_abs; mass that is NOT comparable is simply absent,
+        so Σ w_abs = identifiable_mass_fraction <= 1). ``w_cond = p_ref(y|y∈C_cmp)``
+        (renormalised over comparable classes; diagnostic only, L_cond — it moves the
+        estimand as support fragments, so never the headline).
         """
-        n_obs = {y: int(self.counts[self.support_of_class[y], y].sum()) for y in self.comparable_classes}
-        total = sum(n_obs.values())
-        return [
-            {
-                "y": y,
-                "class_name": self.class_names[y],
-                "support": list(self.support_of_class[y]),
-                "n_obs": n_obs[y],
-                "weight": (n_obs[y] / total) if total > 0 else 0.0,
-            }
-            for y in self.comparable_classes
-        ]
+        z = float(sum(self.reference_prior[y] for y in self.comparable_classes))
+        out = []
+        for y in self.comparable_classes:
+            n_obs = int(self.counts[self.support_of_class[y], y].sum())
+            out.append(
+                {
+                    "y": y,
+                    "class_name": self.class_names[y],
+                    "support": list(self.support_of_class[y]),
+                    "n_obs": n_obs,
+                    "w_abs": float(self.reference_prior[y]),
+                    "w_cond": float(self.reference_prior[y] / z) if z > 0 else 0.0,
+                }
+            )
+        return out
 
     def identifiable_mass_fraction(self) -> float:
-        """Fraction of all samples that live in a constrained ``(d,y)`` cell (observed AND
-        in a comparable class). ``1 - this`` is the honest non-identifiable remainder."""
+        """``Σ_{y∈C_cmp} p_ref(y)`` — reference-prior mass the objective actually constrains.
+        Stable under the missing-cell sweep because ``p_ref`` is fixed; ``1 - this`` is the
+        honest non-identifiable remainder. Report this alongside ``L_abs``."""
+        return float(sum(self.reference_prior[y] for y in self.comparable_classes))
+
+    def observed_mass_fraction(self) -> float:
+        """Sample-based companion (descriptive): fraction of *current* samples in a
+        comparable, eligible cell. Unlike :meth:`identifiable_mass_fraction` this moves with
+        the counts, so it is a description of the data, not the estimand weight."""
         total = float(self.counts.sum())
         if total <= 0:
             return 0.0
-        constrained = 0
-        for y in self.comparable_classes:
-            constrained += int(self.counts[self.support_of_class[y], y].sum())
+        constrained = sum(int(self.counts[self.support_of_class[y], y].sum()) for y in self.comparable_classes)
         return constrained / total
 
     # ---- reporting ----
@@ -182,49 +224,58 @@ class SupportGraph:
             "n_domains": self.n_domains,
             "n_classes": self.n_classes,
             "m": self.m,
-            "n_observed_cells": int(self.observed.sum()),
+            "n_eligible_cells": int(self.eligible.sum()),
+            "n_present_cells": int(self.present.sum()),
             "n_cells": self.n_domains * self.n_classes,
             "comparable_classes": list(self.comparable_classes),
             "singleton_classes": list(self.singleton_classes),
             "empty_classes": list(self.empty_classes),
-            "n_components": len(self.components),
-            "components": [list(c) for c in self.components],
+            "n_coupling_components": len(self.coupling_components),
+            "coupling_components": [list(c) for c in self.coupling_components],
             "identifiable_mass_fraction": self.identifiable_mass_fraction(),
-            "n_non_identifiable_domain_pairs": len(self.non_identifiable_pairs()),
+            "observed_mass_fraction": self.observed_mass_fraction(),
+            "n_decoupled_domain_pairs": len(self.decoupled_pairs()),
         }
 
     def report(self) -> str:
         s = self.summary()
-        lines = [
-            f"Support graph (m={self.m}): {s['n_domains']} domains x {s['n_classes']} classes",
-            f"  observed cells: {s['n_observed_cells']}/{s['n_cells']}"
-            f"   identifiable mass: {s['identifiable_mass_fraction']:.3f} of N={int(self.counts.sum())}",
-            f"  comparable classes (|S_y|>=2): {s['comparable_classes']}",
-            f"  singleton-support classes (|S_y|==1, NON-IDENTIFIABLE): {s['singleton_classes']}",
-            f"  empty classes (|S_y|==0): {s['empty_classes']}",
-            f"  components: {s['n_components']} -> {s['components']}",
-            f"  cross-component (NON-IDENTIFIABLE) domain pairs: {self.non_identifiable_pairs()}",
-        ]
-        return "\n".join(lines)
+        return "\n".join(
+            [
+                f"Support graph (m={self.m}): {s['n_domains']} domains x {s['n_classes']} classes",
+                f"  eligible cells: {s['n_eligible_cells']}/{s['n_cells']}"
+                f"  (present: {s['n_present_cells']})",
+                f"  identifiable mass (Σ p_ref over comparable): {s['identifiable_mass_fraction']:.3f}"
+                f"   observed mass: {s['observed_mass_fraction']:.3f}",
+                f"  comparable classes (|S_y|>=2): {s['comparable_classes']}",
+                f"  singleton-support classes (|S_y|==1): {s['singleton_classes']}",
+                f"  empty classes (|S_y|==0): {s['empty_classes']}",
+                f"  coupling components (decomposition, NOT identifiability):"
+                f" {s['n_coupling_components']} -> {s['coupling_components']}",
+                f"  fully-decoupled domain pairs (share no class): {self.decoupled_pairs()}",
+            ]
+        )
 
 
 def build_support_graph(
     counts,
     m: int,
+    reference_prior=None,
     domain_names: list[str] | None = None,
     class_names: list[str] | None = None,
 ) -> SupportGraph:
     """Build the support graph from a ``[n_domains, n_classes]`` effective-count table.
 
-    ``m`` is the minimum effective sample count for a ``(d,y)`` cell to be treated as
-    estimable. Pass *effective* sample sizes if counts are correlated within a domain
-    (e.g. trials from one recording); ``m`` then guards estimator variance, not raw n.
+    ``m`` is the estimator-eligibility threshold (a finite-sample variance guard, not a
+    population fact). ``reference_prior`` is the FIXED ``p_ref(y)`` used for the overlap
+    estimand — pass the SAME prior (e.g. the pre-deletion empirical one) across a
+    missing-cell sweep so the estimand does not drift; ``None`` defaults to the empirical
+    prior of THIS ``counts`` table (correct for a one-off graph, wrong for a sweep).
     """
     counts = np.asarray(counts)
     if counts.ndim != 2:
         raise ValueError(f"counts must be 2D [n_domains, n_classes], got shape {counts.shape}")
     if m < 1:
-        raise ValueError(f"m must be >= 1 (a cell needs at least one sample to be observed), got {m}")
+        raise ValueError(f"m must be >= 1, got {m}")
     n_d, n_y = counts.shape
 
     domain_names = list(domain_names) if domain_names is not None else [f"d{d}" for d in range(n_d)]
@@ -232,14 +283,27 @@ def build_support_graph(
     if len(domain_names) != n_d or len(class_names) != n_y:
         raise ValueError("domain_names / class_names length must match counts shape")
 
-    observed = counts >= m
-    support_of_class = {y: sorted(np.where(observed[:, y])[0].tolist()) for y in range(n_y)}
+    if reference_prior is None:
+        p_ref = empirical_class_prior(counts)
+    else:
+        p_ref = np.asarray(reference_prior, dtype=np.float64).ravel()
+        if p_ref.shape != (n_y,):
+            raise ValueError(f"reference_prior must have length n_classes={n_y}, got {p_ref.shape}")
+        if np.any(p_ref < 0):
+            raise ValueError("reference_prior must be non-negative")
+        tot = p_ref.sum()
+        if tot <= 0:
+            raise ValueError("reference_prior must have positive mass")
+        p_ref = p_ref / tot  # defensive normalisation to a proper prior
+
+    present = counts > 0
+    eligible = counts >= m
+    support_of_class = {y: sorted(np.where(eligible[:, y])[0].tolist()) for y in range(n_y)}
     comparable = [y for y in range(n_y) if len(support_of_class[y]) >= 2]
     singleton = [y for y in range(n_y) if len(support_of_class[y]) == 1]
     empty = [y for y in range(n_y) if len(support_of_class[y]) == 0]
 
-    # domain–domain edges: a star within each comparable class's support is enough for
-    # union–find connectivity (cheaper than all pairs, same components).
+    # coupling edges: a star within each comparable class's support suffices for union–find.
     edges: list[tuple[int, int]] = []
     for y in comparable:
         s = support_of_class[y]
@@ -255,46 +319,51 @@ def build_support_graph(
     return SupportGraph(
         counts=counts,
         m=int(m),
+        reference_prior=p_ref,
         domain_names=domain_names,
         class_names=class_names,
-        observed=observed,
+        present=present,
+        eligible=eligible,
         support_of_class=support_of_class,
         comparable_classes=comparable,
         singleton_classes=singleton,
         empty_classes=empty,
-        components=components,
+        coupling_components=components,
         component_of=component_of,
     )
 
 
 # --------------------------------------------------------------------------------------
-# self-demo: a deliberately disconnected support pattern
+# self-demo
 # --------------------------------------------------------------------------------------
 def _demo() -> None:
-    # 4 domains (sites), 3 classes. Sites 0,1 co-observe class 0; sites 2,3 co-observe
-    # class 1; class 2 lives only in site 0 (singleton); site 3 is short on class 1.
+    # 4 domains, 3 classes. Sites 0,1 co-observe class 0; sites 2,3 co-observe class 1;
+    # class 2 only in site 0 (singleton); site 3 short on class 1 (below threshold).
     counts = np.array(
         [
             # y0   y1   y2
-            [120, 0, 40],   # site 0
-            [110, 0, 0],    # site 1
-            [0, 90, 0],     # site 2
-            [0, 5, 0],      # site 3  (class-1 count below threshold)
+            [120, 0, 40],
+            [110, 0, 0],
+            [0, 90, 0],
+            [0, 5, 0],
         ]
     )
     sites = ["BNCI-2a-s1", "BNCI-2a-s2", "PD-cohort", "SCZ-cohort"]
     classes = ["rest", "task", "rare-event"]
     sg = build_support_graph(counts, m=20, domain_names=sites, class_names=classes)
     print(sg.report())
-    print("\nidentifiable overlap terms (only these enter I_ov):")
+    print("\nidentifiable overlap terms (fixed p_ref):")
     for t in sg.overlap_terms():
         names = [sites[d] for d in t["support"]]
-        print(f"  y={t['class_name']:<10} S_y={names}  n_obs={t['n_obs']:<5} weight={t['weight']:.3f}")
+        print(f"  y={t['class_name']:<10} S_y={names}  n_obs={t['n_obs']:<5}"
+              f" w_abs={t['w_abs']:.3f}  w_cond={t['w_cond']:.3f}")
     print(
-        "\nidentifiable_pair(site0,site1) =", sg.identifiable_pair(0, 1),
-        "| identifiable_pair(site0,site2) =", sg.identifiable_pair(0, 2),
-        "(cross-component → non-identifiable)",
+        "\nper-class identifiability — is_identifiable_pair(s0,s1,y=rest) =",
+        sg.is_identifiable_pair(0, 1, 0),
+        "| (s0,s2,y=rest) =", sg.is_identifiable_pair(0, 2, 0),
     )
+    print("coupling (decomposition) — coupled(s0,s2) =", sg.coupled(0, 2),
+          "(no shared class -> independent subproblems)")
 
 
 if __name__ == "__main__":
