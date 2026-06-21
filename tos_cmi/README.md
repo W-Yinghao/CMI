@@ -1,83 +1,102 @@
-# TOS-CMI — Task-Orthogonal Selective Conditional MI for EEG
+# TOS-CMI — (aspirationally) Task-Orthogonal Selective Conditional MI for EEG
 
-> Selective Conditional Invariance in Task-Orthogonal EEG Subspaces.
+> Working title: *Selective Conditional Invariance in Task-Orthogonal EEG Subspaces.*
+> **Current status: a synthetic-only proof-of-concept of the selection + projection
+> scaffold.** It is not yet EEG-validated and not yet wired into the trainer/TSMNet — see
+> "Honest status" below and [`THEORY.md`](THEORY.md) §8.
 
-An **isolated** research package (peer to `h2cmi/`; it does not import-with-side-effects
-or mutate the AAAI `cmi/` package). The whole method runs without real EEG on a
-controllable feature simulator, so every component is exercised by a unit test.
+An **isolated** research package (peer to `h2cmi/`; does not import-with-side-effects or
+mutate the AAAI `cmi/` package). The whole pipeline runs without real EEG on a controllable
+feature simulator, so every component is exercised by a unit test.
 
 ## The idea in one line
 
-Don't erase **all** conditional domain information `I(Z;D|Y)` (global LPC — which
-collapses TSMNet, is λ-fragile on 2a, and ignores that leakage is uneven). Instead
-estimate a **label Fisher** `F_Y` and a **class-conditional domain Fisher** `F_{D|Y}`,
-take the generalized spectrum `F_{D|Y} v = ρ (F_Y + ηI) v`, and apply the leakage
-penalty **only on the domain-rich / label-light subspace** it selects — **refusing**
-(identity) when no such subspace is risk-feasible.
+Don't erase **all** conditional domain information `I(Z;D|Y)` (global LPC — which collapses
+TSMNet, is λ-fragile on 2a, and ignores that leakage is uneven). Instead estimate a label
+scatter `F_Y` and a class-conditional domain scatter `F_{D|Y}`, take the generalized spectrum
+`F_{D|Y} v = ρ (F_Y + ηI) v`, and apply the leakage penalty **only on the domain-rich /
+label-light subspace** it selects — **refusing** (identity) when no such subspace is
+risk-feasible.
 
 ```
 L = CE(Z) + λ · I( P_N Z ; D | Y )         # invariance only on the nuisance subspace P_N
 ```
 
-## Why this is not "just disentanglement"
+## Two honesty caveats up front (the things the name overclaims)
 
-The novelty is concentrated in five places (THEORY.md):
+* **First-moment only.** `F_Y`, `F_{D|Y}` are between-group **mean** scatters. They are blind
+  to task/domain information in covariance/SPD geometry, higher moments, or nonlinear
+  interactions, so the selected subspace is **label-mean-scatter-light**, not provably
+  task-orthogonal. [`tests/test_limits.py`](tests/test_limits.py) is the explicit
+  covariance-only counterexample where the selector (correctly, given what it measures)
+  no-ops. The "task-orthogonal" name needs the **score-Fisher / gradient-conflict** version
+  (THEORY §8), which is **not implemented yet**.
+* **`F_{D|Y}` is a proxy, not CMI.** It is a first-moment linear surrogate for `I(Z;D|Y)`,
+  not the CMI nor a bound on it. `domadv_*` in the eval is a *linear-probe advantage*, not
+  mutual information.
 
-1. the domain Fisher is **conditional on `Y`** (`F_{D|Y}`, not `F_D`);
-2. the deletable subspace is decided by a **domain-vs-label generalized eigenproblem**;
-3. CMI is estimated **only on the label-light subspace**, never globally;
-4. a **risk-feasibility gate** + **within-`Y` permutation-null floor** make the method
-   **degrade to identity** when no safe subspace exists (the falsifiable "refuse to
-   delete" — what global LPC structurally cannot do);
-5. channel / layer / graph-node use **one** CMI budget on the same selected subspace.
+## Relation to prior work (the novelty is conditional, see THEORY §8)
+
+Class-conditional scatter + a generalized eigenproblem ≈ **Scatter Component Analysis**;
+class-conditional first moments for invariant/spurious subspaces ≈ **ISR**; minimal-damage
+linear concept erasure ≈ **LEACE**; task-covariance-preserving erasure ≈ **SPLINCE**. On its
+own the mean-scatter selector here is *not* a new contribution. The defensible delta is the
+**score-Fisher task/domain gradient-conflict subspace + a source-risk upper-bound gate +
+parameter-level conflict projection + one budget across layer/channel/node/edge to cure the
+observed global-CMI collapse** — items still to build (THEORY §8).
 
 ## Run it
 
 ```bash
-# unit tests (standalone; pytest-compatible too)
-for t in test_fisher test_subspace_identity_fallback test_proposition \
-         test_stability test_smoke; do
+# unit tests (standalone; pytest-compatible too) — env: conda `icml` (py3.9, torch 2.8, scipy)
+for t in test_fisher test_subspace_identity_fallback test_projection_ablation \
+         test_stability test_limits test_smoke; do
   conda run -n icml python -m tos_cmi.tests.$t
 done
 
-# end-to-end demo: overlap sweep + stability gate + ERM/global-LPC/selective compare
-conda run -n icml python -m tos_cmi.run_synthetic
+# end-to-end demo (writes a results artifact with env + seeds + numbers)
+conda run -n icml python -m tos_cmi.run_synthetic --out results/tos_cmi_synthetic.json
 ```
 
 ## Component map
 
 | Concept (THEORY §) | Module | Key surface |
 |---|---|---|
-| Two Fishers `F_Y`, `F_{D\|Y}` (§1) + permutation-null floor (§4) | [`fisher.py`](fisher.py) | `label_fisher`, `conditional_domain_fisher`, `fisher_pair`, `null_domain_energy_floor` |
-| Generalized eig + risk-feasible selection + identity fallback (§2,§4) | [`subspace.py`](subspace.py) | `solve_generalized`, `select_nuisance`, `SubspaceSelector` |
+| Mean Fishers `F_Y`, `F_{D\|Y}` (§1) + within-Y permutation-null floor (§4) | [`fisher.py`](fisher.py) | `label_fisher`, `conditional_domain_fisher`, `fisher_pair`, `null_domain_energy_floor` |
+| Generalized eig + risk-feasible selection + identity fallback (§2,§4) | [`subspace.py`](subspace.py) | `solve_generalized`, `select_nuisance`, `SubspaceSelector` (`nn.Module`, buffered `P`) |
 | Selective penalty `λ·I(P_N Z;D\|Y)` (§3) | [`selective_cmi.py`](selective_cmi.py) | `SelectivePenalty`, `ConditionalDomainCritic`, `label_prior` |
-| Controllable `(Z_Y,Z_N,overlap)` world | [`data/synthetic.py`](data/synthetic.py) | `SynthSpec`, `make`, `make_collinear` |
-| Bayes-risk-preservation check (§5) | [`eval/proposition.py`](eval/proposition.py) | `bayes_risk_check` |
-| Stability / termination gate (§6) | [`eval/stability.py`](eval/stability.py) | `principal_angles`, `subspace_overlap`, `selection_stability` |
+| Controllable worlds | [`data/synthetic.py`](data/synthetic.py) | `make` (overlap), `make_collinear` (no-safe-subspace), `make_covariance_only` (first-moment blind spot) |
+| Leakage-free projection ablation (§5) | [`eval/projection_ablation.py`](eval/projection_ablation.py) | `linear_probe_projection_ablation` (3-way split) |
+| Stability / recovery / termination gate (§6) | [`eval/stability.py`](eval/stability.py) | `projection_distance`, `precision_recall`, `selection_stability` |
 | Config dataclasses | [`config.py`](config.py) | `FisherConfig`, `SubspaceConfig`, `PenaltyConfig`, `TOSConfig` |
-| Run on TSMNet / 2a / GraphCMI | [`INTEGRATION.md`](INTEGRATION.md) | wiring into `cmi/` + the hardest counterexamples |
+| Run on TSMNet / 2a / GraphCMI (PLAN, not done) | [`INTEGRATION.md`](INTEGRATION.md) | wiring into `cmi/` + the hardest counterexamples |
 
-## What `run_synthetic` shows
+## What `run_synthetic` shows (synthetic, aligned with the method's assumptions)
 
-* **overlap sweep** — at `overlap=0` the selector recovers the planted nuisance subspace
-  (principal-angle overlap ≈ 1) and removing it preserves label accuracy while removing
-  the leakage (the proposition); as task/domain entangle, the deletable subspace shrinks.
-* **stability gate** — across seeds the selected subspace is the same object (overlap
-  > 0.9) under a clear signal; pure noise yields identity on every seed (no false
-  subspace). Instability here is the stated **stop** condition.
-* **train compare** — ERM vs global LPC vs selective: global LPC over-erases once the
-  subspaces touch; selective keeps the label-bearing directions.
+* **overlap sweep** — `overlap=0`: selection sits inside the planted nuisance span
+  (precision≈1, recall partial) and removing it keeps linear label accuracy while removing
+  the linear conditional-domain advantage; as task/domain entangle the deletable subspace
+  shrinks toward identity. Estimated on selector-train, read on a disjoint probe-test.
+* **stability gate** — across **sample draws of one fixed world**, selection is the same
+  object by **projection distance** (the dimension-sensitive metric), with consistent
+  identity decisions; pure noise → identity on every draw.
+* **train compare** — ERM vs global LPC vs selective, over **multiple seeds and λ**, reporting
+  **both** test bAcc **and** post-training linear domain advantage: global LPC trades accuracy
+  for leakage reduction once subspaces touch; selective aims to keep the label-bearing part.
 
 ## The bar this direction must clear (and when to stop)
 
 A real-EEG win is: at matched source-only-selected λ, TOS-CMI **beats global LPC on the
-TSMNet collapse case**, the selected subspace is **stable** across seed/probe/fold, and
-it is **λ-robust** on 2a. If the domain-rich/label-light ranking is unstable, or it can't
-save the clearest collapse case, this is "a more complicated regularizer" — abandon it.
-See [`THEORY.md`](THEORY.md) §6 and [`INTEGRATION.md`](INTEGRATION.md).
+TSMNet collapse case**, the selected subspace is **stable** (projection distance) across
+seed/probe/fold, and it is **λ-robust** on 2a. If the ranking is unstable or it can't save
+the clearest collapse case, this is "a more complicated regularizer" — abandon it
+(THEORY §6/§8, [`INTEGRATION.md`](INTEGRATION.md)).
 
-## Status / honesty
+## Honest status
 
-Research implementation on a **simulator**: every piece is correct, differentiable,
-null-calibrated, and composes end-to-end, and the proposition is what the code computes.
-It is **not** a real-EEG SOTA claim. The confirmatory protocol is in `INTEGRATION.md`.
+Synthetic-only research prototype. The selection/projection/null-floor/identity-fallback
+machinery is implemented and unit-tested; the projection ablation is leakage-free and the
+stability metrics are dimension-sensitive. **Not** done: a true source-risk gate, the
+score-Fisher gradient-conflict core, the conditional-on-task objective, harder synthetic
+stressors, and any EEG/trainer/TSMNet wiring. `repos/TSMNet` referenced in INTEGRATION is an
+**untracked external checkout**, not part of this branch.

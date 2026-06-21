@@ -130,3 +130,35 @@ def make_collinear(n=4000, n_dom=6, d=24, sep_label=2.0, sep_dom=2.5, noise=1.0,
     return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": d_lab.astype(np.int64),
             "nuisance_basis": nuis_basis.astype(np.float32),
             "label_basis": nuis_basis.astype(np.float32), "spec": spec}
+
+
+def make_covariance_only(n=6000, n_dom=6, d=24, sep_label=2.0, dom_var=2.0, noise=1.0,
+                         rotate=True, seed=0):
+    """Honest limitation case: the label is a MEAN shift (along u) but the domain leakage is
+    a *covariance* shift -- each domain scales the variance along a fixed axis w (orthogonal
+    to u), with ZERO domain mean. The between-domain MEAN scatter F_{D|Y} ~ 0, so the
+    first-moment selector is BLIND to it and (correctly, given what it measures) returns
+    identity -- even though D is decodable from Z|Y by a quadratic/covariance probe. This is
+    why the current method is `label-mean-scatter-light`, NOT `task/domain-orthogonal`."""
+    rng = np.random.default_rng(seed)
+    basis = _random_orthonormal(d, 2, rng)
+    u, w = basis[:, 0], basis[:, 1]                           # label-mean axis / domain-var axis
+    y = rng.integers(0, 2, size=n)
+    d_lab = rng.integers(0, n_dom, size=n)
+    sign = (2 * y - 1).astype(float)
+    std_w = np.linspace(0.4, dom_var, n_dom)                  # per-domain std along w (mean 0)
+    base = noise * rng.standard_normal((n, d))
+    base = base - (base @ w)[:, None] * w[None, :]            # strip the isotropic w-component
+    w_comp = (std_w[d_lab] * rng.standard_normal(n))[:, None] * w[None, :]   # domain-specific variance
+    Z = sep_label * sign[:, None] * u[None, :] + base + w_comp
+    nuis_basis = w[:, None].copy()                           # TRUE covariance carrier (invisible to means)
+    label_basis = u[:, None].copy()
+    if rotate:
+        Q = _random_orthonormal(d, d, rng)
+        Z = Z @ Q.T
+        nuis_basis = Q @ nuis_basis
+        label_basis = Q @ label_basis
+    spec = SimpleNamespace(n_cls=2, n_dom=n_dom, d=d)
+    return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": d_lab.astype(np.int64),
+            "nuisance_basis": nuis_basis.astype(np.float32),
+            "label_basis": label_basis.astype(np.float32), "spec": spec}

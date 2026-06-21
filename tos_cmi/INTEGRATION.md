@@ -1,9 +1,19 @@
-# Integrating TOS-CMI with the real EEG stack
+# Integrating TOS-CMI with the real EEG stack — **a PLAN, not a result**
+
+> **Status.** None of this is wired yet: there is **no `tos_cmi` branch in
+> `cmi/train/trainer.py`**, the selector has not run on a single real trial, and
+> **`repos/TSMNet/` is an UNTRACKED external checkout** — it is not part of this git branch.
+> Before any EEG run, pin it (git submodule at a fixed commit, or vendor a patch) so results
+> are reproducible. Also note `TSMNetBackbone.forward` currently calls only
+> `return_latent=True`; the `return_prebn/return_postbn` API exists in the upstream
+> `tsmnet.py` but is not exercised by the wrapper. Treat the steps below as the build order,
+> and prefer the **score-Fisher redesign (THEORY §8) before** investing in EEG runs — the
+> mean-scatter selector is unlikely to beat global LPC on SPD geometry it cannot see.
 
 The package is self-contained on the synthetic. To run on EEG it needs (a) a
 representation `Z` and (b) class/domain labels `(y, d)` per trial. Everything below
-points at code that already exists in `cmi/` and `repos/TSMNet/`; nothing here mutates
-those packages.
+points at code that exists in `cmi/` (tracked) and `repos/TSMNet/` (untracked, must be
+pinned); nothing here mutates those packages.
 
 The trainer discipline is two-step, matching `cmi/train/trainer.py`:
 
@@ -32,12 +42,14 @@ tangent vector `Z` and collapses the SPD geometry. Two attach points:
 
 * **tangent `Z` (default).** `forward(x, return_latent=True)` returns the LogEig vector.
   Run the selector on it; `P_N` lives in tangent space. Lowest-friction starting point.
-* **pre/post-BN SPD matrices.** `forward(..., return_prebn=True, return_postbn=True)`
-  returns the `[B,1,s,s]` SPD matrices. Flatten the upper triangle (or use the tangent
-  map) to get a vector for the Fishers; the selected `P_N` then identifies *which SPD
-  eigen-directions* are domain-rich/label-light. This is the version that can plausibly
-  survive where global LPC collapses, because it never touches the task-entangled
-  directions.
+* **pre/post-BN SPD matrices** (needs a wrapper change to pass `return_prebn=True,
+  return_postbn=True`, which currently it does not). These `[B,1,s,s]` SPD matrices would let
+  the selector act on SPD eigen-directions — but a *mean-scatter* selector on flattened SPD
+  entries is exactly the first-moment blind spot (`make_covariance_only`): SPD/covariance
+  leakage is second-order. This attach point only becomes meaningful with the score-Fisher /
+  SPD-aware version (THEORY §8). **Phase 1 should use the LogEig tangent latent only**, so a
+  positive/negative result isolates the selection algorithm rather than confounding it with
+  an SPD attach-point change.
 
 **Pass/fail:** TOS-CMI must beat global `lpc_prior` on TSMNet LOSO (2a) at matched
 source-only-selected λ, *and* the selected subspace must be stable across seeds

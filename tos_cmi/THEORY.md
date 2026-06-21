@@ -4,6 +4,17 @@ Task-Orthogonal Selective CMI. The one-line idea: do not erase **all** condition
 domain information `I(Z;D|Y)`; erase it only on the subspace that is **domain-rich and
 label-light**, and **refuse** (identity) when no such subspace is risk-feasible.
 
+> **Scope / naming caveat (read first).** The *current implementation* selects the subspace
+> from **first-moment (between-group mean) scatter** statistics. So what it actually
+> certifies is a **label-mean-scatter-light** subspace, not a fully **task-orthogonal** one:
+> it is blind to task/domain information carried in covariance/SPD geometry, higher moments,
+> or nonlinear interactions ([`tests/test_limits.py`](tests/test_limits.py) is the explicit
+> covariance-only counterexample where it correctly no-ops). The aspirational
+> "task-orthogonal" name requires the **score-Fisher / gradient-conflict** version (§8,
+> deferred). Read every "Fisher" below as a *first-moment linear proxy*, every `domadv` as a
+> *linear-probe advantage*, and the whole package as a **synthetic proof-of-concept**, not
+> EEG evidence.
+
 This is a direct algorithmic response to three established negative results in this repo
 (see `archive/lpc-cmi-failed/` and `notes/EVIDENCE_LEDGER.md`):
 
@@ -26,11 +37,14 @@ F_Y     = Σ_y p(y)  (μ_y − μ)(μ_y − μ)^T                               
 F_{D|Y} = Σ_y p(y)  Σ_d p(d|y) (μ_{d,y} − μ_y)(μ_{d,y} − μ_y)^T           [d×d]
 ```
 
-`F_Y` is the usual class between-scatter (label signal). `F_{D|Y}` is the **class-
-conditional** between-domain scatter: it only sees domain spread *after conditioning on
-the label*, which is exactly the quantity `I(Z;D|Y)` penalises. A unit direction `v`
-with large `v^T F_{D|Y} v` carries conditional domain information; with large
-`v^T F_Y v` it carries label information. Code: [`fisher.py`](fisher.py).
+`F_Y` is the class between-MEAN scatter (a first-moment label-signal proxy). `F_{D|Y}` is
+the **class-conditional between-domain MEAN scatter** — a **first-moment linear proxy for**
+`I(Z;D|Y)`, **not** the CMI itself (it equals neither `I(Z;D|Y)` nor a bound on it; it
+vanishes whenever domains differ only in covariance/higher moments, even if `I(Z;D|Y)>0`).
+A unit direction `v` with large `v^T F_{D|Y} v` carries *mean-shift* conditional domain
+information; with large `v^T F_Y v` it carries *mean-shift* label information. Both miss
+covariance/nonlinear/synergistic structure (the score-Fisher version in §8 targets that).
+Code: [`fisher.py`](fisher.py).
 
 ## 2. The generalized eigenproblem
 
@@ -64,6 +78,15 @@ so label-bearing domain structure there is left intact. The leakage term is the 
 label-prior-corrected posterior-KL plug-in used by the AAAI core
 (`E_i KL(q_ψ(D|z_{N,i}, y_i) ‖ π_{y_i}(D))`, tight at the Step-A critic optimum). Code:
 [`selective_cmi.py`](selective_cmi.py).
+
+> **Algorithm–theorem gap (honest).** §5 reasons about *removing* `Z_N`, but training keeps
+> the full `Z` and only penalises `I(Z_N;D|Y)`. These differ: the exact chain rule is
+> `I(Z;D|Y) = I(Z_T;D|Y) + I(Z_N;D|Y,Z_T)`, so even with `I(Z_T;D|Y)=I(Z_N;D|Y)=0` the joint
+> `Z` can still leak `D` through *synergy*. The theoretically-aligned objective is therefore
+> `I(P_N Z; D | Y, sg(P_T Z))` — the critic conditioned on the (stop-gradient) task component
+> as context — which needs a full critic plus a task-only baseline critic, not a plain KL to
+> `p(D|Y)`. The current code implements the simpler `I(P_N Z;D|Y)`; the conditional-on-task
+> form is part of the §8 redesign.
 
 ## 4. Risk-feasibility, the null floor, and the identity fallback
 
@@ -106,39 +129,86 @@ R*(Z_Y) = R*(Z_Y, Z_N)        and        I(Z_Y; D | Y) = 0.
 and its risk are identical whether or not `Z_N` is observed: `R*(Z_Y) = R*(Z_Y, Z_N)`.
 Leakage-freeness of the kept part is (B). ∎
 
-**Converse / why selection (not global erasure) is necessary.** If (A) fails — task and
-domain subspaces *overlap*, so `Z_N` carries label information given `Z_Y` — then
-`H(Y | Z_Y) > H(Y | Z_Y, Z_N)` and removing `Z_N` **raises** the Bayes risk. A global
-penalty that drives `I(Z;D|Y)→0` pays this cost unconditionally (the TSMNet collapse).
-The risk-feasibility gate (§4.2) detects exactly this overlap — the domain-rich
-directions are then also label-rich, fail `label-light`, and the method returns identity
-instead of paying the risk.
+**Loss-dependence of the converse (corrected).** The forward claim above holds for any
+proper loss. The *converse* — "if (A) fails, removing `Z_N` strictly raises risk" — is
+loss-dependent:
 
-**Empirical instrument.** [`eval/proposition.py`](eval/proposition.py) `bayes_risk_check`
-reports, on a held-out split, label accuracy on `Z` vs `(I−P_N)Z` (should be equal at
-overlap 0) and conditional-domain leakage on `P_N Z` vs `(I−P_N)Z` (high vs ≈0). Under
-overlap the selector returns identity, so accuracy is preserved by construction. The
-synthetic world [`data/synthetic.py`](data/synthetic.py) realises (A)+(B) at
-`overlap=0` and the worst case (B-confinement broken, domain collinear with the class
-discriminant) in `make_collinear`.
+* **log-loss** is exact: `R*_log(Z_Y) − R*_log(Z_Y,Z_N) = I(Y; Z_N | Z_Y) ≥ 0`, with strict
+  inequality iff (A) fails.
+* **0–1 risk** gives only `R*_01(Z_Y) ≥ R*_01(Z_Y,Z_N)`, **not** necessarily strict: extra
+  information can change the posterior without changing the `argmax`, so the Bayes decision —
+  and its 0–1 risk — may be unchanged even when `I(Y;Z_N|Z_Y)>0`.
+
+Either way the *direction* is right: removing a label-bearing `Z_N` never *helps* and can
+hurt. A global penalty that drives `I(Z;D|Y)→0` pays this cost unconditionally (the TSMNet
+collapse); the risk-feasibility gate (§4.2) detects the overlap (domain-rich directions are
+then also label-rich, fail `label-light`) and returns identity.
+
+**Empirical instrument.** [`eval/projection_ablation.py`](eval/projection_ablation.py)
+`linear_probe_projection_ablation` estimates `P_N` on a **selector-train** split and reports,
+on a **disjoint probe-test** split (this is the fix for the earlier selection-leakage bug —
+test labels/domains no longer enter `P_N`), linear label accuracy on `Z` vs `(I−P_N)Z` and a
+linear conditional-domain *advantage* on `P_N Z` vs `(I−P_N)Z`. These are linear-probe
+diagnostics, **not** CMI. The synthetic world [`data/synthetic.py`](data/synthetic.py)
+realises (A)+(B) at `overlap=0`, the worst case (domain collinear with the class
+discriminant) in `make_collinear`, and the **first-moment blind spot** (covariance-only
+domain leakage) in `make_covariance_only`.
 
 ## 6. The termination gate (when to abandon this direction)
 
 The selected subspace must be **the same object** across seeds, probes and folds — else
-we are fitting noise. [`eval/stability.py`](eval/stability.py) measures pairwise
-principal-angle overlap between selected `P_N` bases. The stated termination conditions:
+we are fitting noise. [`eval/stability.py`](eval/stability.py) gates on the **dimension-
+sensitive projection distance** `‖P_1 − P_2‖_F` (a true metric; 0 iff identical projectors),
+plus dimension spread and identity-decision consistency. It also reports a containment-biased
+`cos²`-similarity for context only — that one is *not* a metric and reads 1 when a smaller
+span sits inside a larger one (so `0.99` cos²-similarity with `k∈{2,3}` is **not** "stable").
+Recovery vs a known span is reported as **precision/recall** (`precision_recall`), since
+selecting 2 of a planted 4-D span is precision≈1 but recall≈0.5 — not "recovered the
+subspace". The stated termination conditions:
 
-* selection unstable (`mean pairwise subspace overlap` low, or `n_identity` mixed across
+* selection unstable (large `proj_dist_max`, `k_spread` wide, or `n_identity` mixed across
   seeds) — **stop**, this is just a more complicated regularizer;
 * cannot beat global LPC on the clearest collapse case (TSMNet) — **stop**.
 
-The synthetic suite already exercises the gate: a clear signal gives `overlap > 0.9`
-across 5 seeds; a pure-noise world gives identity on every seed (no false subspace).
-
 ## 7. What this is and is not
 
-A **research implementation on a simulator**: every piece is correct, differentiable,
-null-calibrated, composes end-to-end, and the proposition is what the code computes. It
-is **not** a real-EEG result. The confirmatory protocol lives in
-[`INTEGRATION.md`](INTEGRATION.md) (TSMNet/2a/GraphCMI, the hardest counterexamples,
-LOSO × seeds, source-only λ selection).
+A **synthetic-only research prototype**: every piece is correct, differentiable,
+null-calibrated, composes end-to-end, and the proposition (§5) is what the code computes —
+on a simulator whose structure matches the method's first-moment assumptions. It is **not**
+a real-EEG result, and **not** yet wired into the trainer/TSMNet/2a/GraphCMI (that is a
+plan in [`INTEGRATION.md`](INTEGRATION.md), not a result). The confirmatory protocol there
+requires LOSO × seeds, source-only λ selection, and beating global LPC on the collapse case.
+
+## 8. Known limitations and the path to actual novelty
+
+The reviewer's points, recorded so they are respected rather than glossed:
+
+1. **First-moment only.** `F_Y`, `F_{D|Y}` are mean scatters; they miss covariance/SPD,
+   higher-moment, and nonlinear task/domain information ([`tests/test_limits.py`](tests/test_limits.py)).
+   ⇒ "label-mean-scatter-light", not "task-orthogonal".
+2. **The "risk-feasible" gate is not yet a risk bound.** `lab_j ≤ ε·max lab` is a relative
+   label-scatter threshold: it is per-direction (not span-level), coordinate-sensitive, and
+   constrains no CE/accuracy/source-risk quantity. A real gate is a source-only validation
+   bound, e.g. `UCB_{1−α}[ R_val((I−P_N)Z) − R_val(Z) ] ≤ δ`, checked on data **not** used
+   for the Fisher estimation.
+3. **Gradient conflict is not implemented.** The original vision ("task/domain gradient
+   conflict decides the deletable subspace") needs *score* Fishers
+   `G_Y=E[g_Y g_Y^T]`, `G_{D|Y}=E_Y E[g_D g_D^T|Y]` from `g_Y=∇_z log p_θ(Y|z)`,
+   `g_D=∇_z log q_ψ(D|z,Y)`, solved as `G_{D|Y} v = ρ (G_Y + η M) v` with a whitening metric
+   `M` (representation covariance) instead of bare `I`; plus a **parameter-level** conflict
+   step (PCGrad-style projection of the CMI gradient off the task gradient), since a
+   representation-space `P_N` does not guarantee the shared encoder update spares the task.
+4. **Conditional-on-task objective.** `I(P_N Z; D | Y, sg(P_T Z))` (§3 gap), not `I(P_N Z;D|Y)`.
+5. **Synthetic is too aligned.** Needs class-specific domain shift, imbalanced/missing
+   `(d,y)` cells, covariance-only and nonlinear/XOR leakage, classifier-preserving
+   rescalings, a rotating carrier during training, and `rank(nuisance) ⋛ k`.
+
+**Prior-art delta (why this is not just SCA/ISR/LEACE).** Class-conditional scatter +
+generalized eigenproblem is Scatter Component Analysis; class-conditional first moments for
+invariant/spurious subspaces is ISR; minimal-damage linear concept erasure is LEACE, and
+task-covariance-preserving erasure is SPLINCE. The defensible contribution must therefore be
+the **conditional-leakage subspace defined by task/domain score-Fisher conflict, gated by a
+source-risk upper bound, with parameter-level conflict projection, applied under one budget
+across layer/channel/node/edge specifically to cure the observed global-CMI collapse** — i.e.
+items 1–4 above, on EEG. Until those land, this package is the *measurement + selection
+scaffold*, honestly labelled.

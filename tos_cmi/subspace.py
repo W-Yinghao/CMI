@@ -30,6 +30,7 @@ from typing import Optional
 
 import numpy as np
 import torch
+import torch.nn as nn
 from scipy.linalg import eigh
 
 from .config import FisherConfig, SubspaceConfig
@@ -48,6 +49,7 @@ class SubspaceReport:
     is_identity: bool          # True iff nothing was selected (projector is zero)
     eta: float
     dom_floor_abs: float = 0.0 # absolute domain-energy floor from the within-Y null
+    eigengap: float = 0.0      # ratio gap at the selection boundary (separation quality)
 
     @property
     def k(self) -> int:
@@ -112,17 +114,28 @@ def select_nuisance(F_DgY, F_Y, fcfg: FisherConfig, scfg: SubspaceConfig,
     if scfg.min_dim > 0 and selected.size < scfg.min_dim:
         selected = np.array([], dtype=int)              # not enough safe room -> identity
 
+    # eigengap: ratio separation between the lowest selected and the highest rejected
+    # direction -- a clean selection has a large gap; a borderline one a small gap.
+    ratio_sorted = np.sort(ratio)[::-1]
+    k = selected.size
+    eigengap = float(ratio_sorted[k - 1] - ratio_sorted[k]) if 0 < k < ratio_sorted.size else 0.0
+
     basis_cols = Vn[:, selected] if selected.size else np.zeros((d, 0))
     _, Q = _orthonormal_projector(basis_cols)
     return SubspaceReport(
         rho=rho, dom_energy=dom, lab_energy=lab, ratio=ratio,
         selected=np.sort(selected), basis=Q, is_identity=(Q.shape[1] == 0), eta=fcfg.eta,
-        dom_floor_abs=float(dom_floor_abs),
+        dom_floor_abs=float(dom_floor_abs), eigengap=eigengap,
     )
 
 
-class SubspaceSelector:
+class SubspaceSelector(nn.Module):
     """Stateful holder of the current nuisance projector P_N, refreshed from data.
+
+    An nn.Module so the projector is a registered BUFFER: it enters `state_dict`, moves with
+    `.to(device)`, and survives checkpoint/DDP (the previous plain-attribute version did
+    not). `Q` (the [d,k] orthonormal basis) is kept as a python attribute since k varies
+    across refreshes; the fixed [d,d] projector `P` is the buffer.
 
     Usage (mirrors the project's Step-A / Step-B discipline):
         sel = SubspaceSelector(z_dim, n_cls, n_dom)
@@ -135,12 +148,14 @@ class SubspaceSelector:
                  fcfg: Optional[FisherConfig] = None,
                  scfg: Optional[SubspaceConfig] = None,
                  device="cpu"):
+        super().__init__()
         self.z_dim, self.n_cls, self.n_dom = z_dim, n_cls, n_dom
         self.fcfg = fcfg or FisherConfig()
         self.scfg = scfg or SubspaceConfig()
-        self.device = device
-        self.P = torch.zeros(z_dim, z_dim, device=device)   # nuisance projector
+        self.register_buffer("P", torch.zeros(z_dim, z_dim))   # nuisance projector (in state_dict)
+        self.Q = None                                          # [d,k] basis (k varies)
         self.report: Optional[SubspaceReport] = None
+        self.to(device)
 
     @property
     def is_identity(self) -> bool:
@@ -154,13 +169,22 @@ class SubspaceSelector:
                                          n_perm=self.scfg.n_perm, seed=seed)
         rep = select_nuisance(F_DgY, F_Y, self.fcfg, self.scfg, dom_floor_abs=floor)
         self.report = rep
-        P = rep.basis @ rep.basis.T                          # [d,d], zeros if identity
-        self.P = torch.tensor(P, dtype=torch.float32, device=self.device)
+        dev = self.P.device
+        self.Q = torch.tensor(rep.basis, dtype=torch.float32, device=dev)   # [d,k]
+        P = rep.basis @ rep.basis.T                                          # [d,d], zeros if identity
+        self.P = torch.tensor(P, dtype=torch.float32, device=dev)           # updates the buffer
         return rep
 
     def project(self, Z: torch.Tensor) -> torch.Tensor:
         """Z @ P_N : the nuisance component of Z (grad flows; P_N is a constant buffer)."""
-        return Z @ self.P.to(Z.dtype).to(Z.device)
+        return Z @ self.P.to(Z.dtype)
+
+    def project_k(self, Z: torch.Tensor) -> torch.Tensor:
+        """Z @ Q_N : the nuisance coordinates in R^k (k = current selected dim). Cleaner
+        critic input than the ambient-dim P_N Z; returns shape [B,0] under identity."""
+        if self.Q is None or self.Q.shape[1] == 0:
+            return Z.new_zeros((Z.shape[0], 0))
+        return Z @ self.Q.to(Z.dtype)
 
     def summary(self) -> dict:
         if self.report is None:
@@ -171,6 +195,7 @@ class SubspaceSelector:
             "is_identity": r.is_identity,
             "selected": r.selected.tolist(),
             "dom_floor_abs": float(r.dom_floor_abs),
+            "eigengap": float(r.eigengap),
             "rho_top": [float(x) for x in r.rho[:5]],
             "ratio_selected": [float(r.ratio[i]) for i in r.selected],
             "lab_share_selected": [float(r.lab_energy[i] / (r.lab_energy.max() + 1e-12))

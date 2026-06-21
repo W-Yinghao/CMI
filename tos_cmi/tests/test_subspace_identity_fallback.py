@@ -1,10 +1,15 @@
-"""The selector recovers the planted nuisance subspace when one is risk-feasible, and
-degrades to identity (refuses to delete) when task and domain subspaces fully overlap."""
+"""The selector's selected directions lie inside the planted nuisance span (precision~1)
+when one is risk-feasible, and it degrades to identity (refuses to delete) when the domain
+shift is collinear with the class discriminant.
+
+Honest framing (reviewer's point): the default planted nuisance rank is 4 but the selector
+keeps only the highest-ratio few, so this is a PRECISION claim (selection is real), NOT full
+recovery (recall can be < 1). Both are reported."""
 import torch
 
 from tos_cmi.data.synthetic import SynthSpec, make, make_collinear
 from tos_cmi.subspace import SubspaceSelector
-from tos_cmi.eval.stability import subspace_overlap
+from tos_cmi.eval.stability import precision_recall
 
 
 def _fit(data):
@@ -18,13 +23,14 @@ def _select(overlap, seed=0):
     return _fit(make(SynthSpec(n=4000, overlap=overlap), seed=seed))
 
 
-def test_recovers_nuisance_when_orthogonal():
+def test_selection_precise_within_planted_span():
     sel, data = _select(0.0)
     assert not sel.is_identity
     assert sel.report.k > 0
-    assert subspace_overlap(sel.report.basis, data["nuisance_basis"]) > 0.80
-    print("test_recovers_nuisance_when_orthogonal: OK  k=%d  recov=%.3f"
-          % (sel.report.k, subspace_overlap(sel.report.basis, data["nuisance_basis"])))
+    pr = precision_recall(sel.report.basis, data["nuisance_basis"])
+    assert pr["precision"] > 0.85, pr      # what we DELETE is genuinely nuisance
+    print("test_selection_precise_within_planted_span: OK  k=%d  precision=%.3f recall=%.3f"
+          % (sel.report.k, pr["precision"], pr["recall"]))
 
 
 def test_identity_when_collinear():
@@ -46,7 +52,7 @@ def test_deletable_subspace_does_not_grow_with_overlap():
 
 
 if __name__ == "__main__":
-    test_recovers_nuisance_when_orthogonal()
+    test_selection_precise_within_planted_span()
     test_identity_when_collinear()
     test_deletable_subspace_does_not_grow_with_overlap()
     print("ALL SUBSPACE/IDENTITY TESTS PASSED")

@@ -1,0 +1,174 @@
+{
+  "env": {
+    "python": "3.9.25",
+    "torch": "2.8.0+cu128",
+    "numpy": "1.26.4",
+    "scipy": "1.13.1",
+    "utc": "2026-06-21T22:24:09+00:00"
+  },
+  "seed": 0,
+  "seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "overlap_traincmp": 0.5,
+  "overlap_sweep": [
+    {
+      "overlap": 0.0,
+      "is_identity": false,
+      "k": 2,
+      "acc_full": 0.9541056497044149,
+      "acc_task": 0.9496477162857566,
+      "domadv_full": 0.6114413698350952,
+      "domadv_nuis": 0.5990961303201376,
+      "domadv_task": 0.061409787324604115,
+      "acc_drop": 0.0044579334186583,
+      "risk_val_acc_drop": 0.0013471177944861523,
+      "precision": 0.9954273434909704,
+      "recall": 0.4977136717454852
+    },
+    {
+      "overlap": 0.2,
+      "is_identity": false,
+      "k": 2,
+      "acc_full": 0.9432937265379644,
+      "acc_task": 0.9431501721308442,
+      "domadv_full": 0.6303129071490987,
+      "domadv_nuis": 0.5829364242144176,
+      "domadv_task": 0.20589235563204947,
+      "acc_drop": 0.0001435544071202166,
+      "risk_val_acc_drop": 0.005654761904761996,
+      "precision": 0.9777018532278459,
+      "recall": 0.39108074129113835
+    },
+    {
+      "overlap": 0.4,
+      "is_identity": false,
+      "k": 2,
+      "acc_full": 0.921207928414632,
+      "acc_task": 0.908263553117933,
+      "domadv_full": 0.6373789787913667,
+      "domadv_nuis": 0.5016003301893275,
+      "domadv_task": 0.3718089042511803,
+      "acc_drop": 0.012944375296698896,
+      "risk_val_acc_drop": 0.007330827067669188,
+      "precision": 0.9363608414412234,
+      "recall": 0.3745443365764894
+    },
+    {
+      "overlap": 0.6,
+      "is_identity": false,
+      "k": 2,
+      "acc_full": 0.8902480915140341,
+      "acc_task": 0.867746608438977,
+      "domadv_full": 0.6180696597373228,
+      "domadv_nuis": 0.3784964464912266,
+      "domadv_task": 0.4773166452697173,
+      "acc_drop": 0.02250148307505706,
+      "risk_val_acc_drop": 0.02490601503759393,
+      "precision": 0.893282816746275,
+      "recall": 0.35731312669851
+    },
+    {
+      "overlap": 0.8,
+      "is_identity": false,
+      "k": 2,
+      "acc_full": 0.841358931993035,
+      "acc_task": 0.8276040433736795,
+      "domadv_full": 0.5845432348114232,
+      "domadv_nuis": 0.17253546075572349,
+      "domadv_task": 0.5534380700258557,
+      "acc_drop": 0.013754888619355476,
+      "risk_val_acc_drop": 0.02664473684210522,
+      "precision": 0.8270054647525986,
+      "recall": 0.33080218590103944
+    },
+    {
+      "overlap": 1.0,
+      "is_identity": true,
+      "k": 0,
+      "acc_full": 0.8118041736373717,
+      "acc_task": 0.8118041736373717,
+      "domadv_full": 0.5644241005175457,
+      "domadv_nuis": 0.0,
+      "domadv_task": 0.5644241005175457,
+      "acc_drop": 0.0,
+      "risk_val_acc_drop": 0.0,
+      "precision": 0.0,
+      "recall": 0.0
+    }
+  ],
+  "stability_gate": {
+    "cos2_similarity_mean": 0.9915560227788836,
+    "cos2_similarity_min": 0.9823403586872459,
+    "proj_dist_mean": 0.5219092955740339,
+    "proj_dist_max": 1.0143094149809533,
+    "k_values": [
+      2,
+      2,
+      2,
+      3,
+      2
+    ],
+    "k_spread": 1,
+    "n_identity": 0,
+    "identity_consistent": true,
+    "nested": true,
+    "passed": true,
+    "proj_dist_strict_pass": false
+  },
+  "train_compare": [
+    {
+      "mode": "erm",
+      "lam": null,
+      "bAcc_mean": 0.9310328616263094,
+      "bAcc_std": 0.026766316042148665,
+      "domadv_mean": 0.6092916932211982
+    },
+    {
+      "mode": "global",
+      "lam": 0.3,
+      "bAcc_mean": 0.9297802434167763,
+      "bAcc_std": 0.0250828749942399,
+      "domadv_mean": 0.610075744489371
+    },
+    {
+      "mode": "global",
+      "lam": 1.0,
+      "bAcc_mean": 0.9127027441807037,
+      "bAcc_std": 0.025736107688783906,
+      "domadv_mean": 0.5946746735821001
+    },
+    {
+      "mode": "global",
+      "lam": 3.0,
+      "bAcc_mean": 0.8939095477291952,
+      "bAcc_std": 0.023015236715270115,
+      "domadv_mean": 0.6037573472063875
+    },
+    {
+      "mode": "selective",
+      "lam": 0.3,
+      "bAcc_mean": 0.9310091878491761,
+      "bAcc_std": 0.026611769848507046,
+      "domadv_mean": 0.5226847997285365
+    },
+    {
+      "mode": "selective",
+      "lam": 1.0,
+      "bAcc_mean": 0.9310211518546939,
+      "bAcc_std": 0.02568656185626717,
+      "domadv_mean": 0.5467979705097874
+    },
+    {
+      "mode": "selective",
+      "lam": 3.0,
+      "bAcc_mean": 0.9312677324503845,
+      "bAcc_std": 0.024397526660682886,
+      "domadv_mean": 0.5274571945114717
+    }
+  ]
+}
