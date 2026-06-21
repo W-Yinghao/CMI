@@ -70,15 +70,33 @@ def main():
                 sids = [str(s) for s in o["sample_id_te"]]
                 if len(sids) != len(set(sids)):
                     problems.append(f"DUPLICATE sample_id in te {cond}/{cohort}/{lbl}"); continue
-                # (d) provenance
+                # (d) provenance: freeze + RUNTIME code immutability (no dirty tree)
                 if str(o["freeze_a1_hash"]) != FREEZE["hash"] or str(o["scientific_code_commit"]) != FREEZE["code_commit"]:
                     problems.append(f"PROVENANCE MISMATCH {cond}/{cohort}/{lbl}"); continue
-                # (e) content checksums recorded in the shard (canonical, not .npz bytes)
+                if bool(o["tree_dirty"]) if "tree_dirty" in o else True:
+                    problems.append(f"DIRTY/UNRECORDED TREE {cond}/{cohort}/{lbl} (runner not a clean commit)"); continue
+                # (e) content checksums + runtime code fingerprints (verified consistent across ALL shards below)
                 shards.append(dict(cond=cond, cohort=cohort, config=lbl, role=role,
                                    instrumentation_commit=str(o["instrumentation_commit"]),
+                                   head_commit=str(o.get("head_commit")), runner_file_sha=str(o.get("runner_file_sha")),
+                                   env_sha=str(o.get("env_sha")), sample_ids_te=tuple(sids),
                                    feat_hash_te=str(o["feat_hash_te"]), feat_hash_se=str(o["feat_hash_se"]),
-                                   feat_hash_ev=str(o["feat_hash_ev"]), pred_hash_te=got_ph,
-                                   n_te=int(len(sids))))
+                                   feat_hash_ev=str(o["feat_hash_ev"]), pred_hash_te=got_ph, n_te=int(len(sids))))
+    # ---- cross-shard CODE-IMMUTABILITY: every shard must share one runner-file/commit/env (detects a mid-run switch) ----
+    for k in ("instrumentation_commit", "head_commit", "runner_file_sha", "env_sha"):
+        vals = set(s[k] for s in shards)
+        if len(vals) > 1:
+            problems.append(f"INCONSISTENT {k} across shards (working tree changed mid-run): {sorted(vals)}")
+    # ---- two P1.5 invariants: identical sample-ID set+ORDER across branches; complete pre-gate set (erm==lpc) ----
+    by_fold = {}
+    for s in shards:
+        by_fold.setdefault((s["cond"], s["cohort"]), {})[s["role"]] = s
+    for (cond, cohort), bs in by_fold.items():
+        if set(bs) != {"CITA-no-LPC", "CITA+LPC"}:
+            problems.append(f"branch incomplete {cond}/{cohort}: {set(bs)}"); continue
+        if bs["CITA-no-LPC"]["sample_ids_te"] != bs["CITA+LPC"]["sample_ids_te"]:
+            problems.append(f"SAMPLE-ID set/ORDER DIFFERS across branches {cond}/{cohort} "
+                            "(leakage diff could be sample-selection, not LPC)")
     n_expected = sum(len(expected_cohorts(c)) * len(CONFIGS) for c in ("PD", "SCZ"))
     if problems or len(shards) != n_expected:
         print(f"REDUMP NOT COMPLETE — {len(shards)}/{n_expected} shards bound; {len(problems)} problems:")
@@ -86,10 +104,19 @@ def main():
             print(f"  - {p}")
         print("NO FEATURE_BOUND manifest written. (Re-run failed jobs with IDENTICAL config; do NOT relax.)")
         sys.exit(1)
+    # strip the (large) sample-ID lists from the persisted manifest; verified above, summarized by a hash
+    slim = []
+    for s in shards:
+        d = {k: v for k, v in s.items() if k != "sample_ids_te"}
+        d["sample_ids_te_hash"] = hashlib.sha256(repr(s["sample_ids_te"]).encode()).hexdigest()[:16]
+        slim.append(d)
     manifest = dict(status="FEATURE_BOUND", freeze_a1_hash=FREEZE["hash"], scientific_code_commit=FREEZE["code_commit"],
-                    instrumentation_commit=shards[0]["instrumentation_commit"], n_shards=len(shards),
+                    instrumentation_commit=shards[0]["instrumentation_commit"], head_commit=shards[0]["head_commit"],
+                    runner_file_sha=shards[0]["runner_file_sha"], env_sha=shards[0]["env_sha"], n_shards=len(shards),
+                    code_immutability="all shards share runner_file_sha + commit + env; no dirty tree; verified",
+                    sampleid_branch_identity="CITA-no-LPC sample-ID set+order == CITA+LPC per fold; verified",
                     algorithm_roles={lbl: dict(role=ROLE[lbl][0], definition=ROLE[lbl][1]) for lbl in CONFIGS},
-                    shards=shards)
+                    shards=slim)
     manifest["manifest_hash"] = hashlib.sha256(json.dumps(manifest, sort_keys=True).encode()).hexdigest()
     tmp = OUT + ".tmp"
     json.dump(manifest, open(tmp, "w"), indent=2)

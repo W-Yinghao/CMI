@@ -201,13 +201,20 @@ def run(args):
           f"y={np.bincount(y)} domain={args.domain}", flush=True)
     configs = [parse_cfg(c) for c in args.configs]
     _audit_provenance = None
-    if args.dump_audit:                                   # provenance: separate scientific vs instrumentation commits
-        import subprocess as _sp
-        _instr = _sp.run(["git", "rev-parse", "--short", "HEAD"], capture_output=True, text=True).stdout.strip() or "nogit"
+    if args.dump_audit:                                   # RUNTIME provenance self-recorded at process start, so the
+        import subprocess as _sp, hashlib as _hh        # binder can verify code IMMUTABILITY per shard (a switched
+        def _g(*a): return _sp.run(["git", *a], capture_output=True, text=True).stdout.strip()  # working tree is detectable)
+        _instr = _g("rev-parse", "--short", "HEAD") or "nogit"
+        _runner = os.path.join(os.path.dirname(__file__), "run_scps_crossdataset.py")
+        _runner_sha = _hh.sha256(open(_runner, "rb").read()).hexdigest()    # ACTUAL runner-file content hash
+        _env_sha = _hh.sha256((__import__("sys").version + torch.__version__ + np.__version__).encode()).hexdigest()[:16]
         _fz = json.load(open("results/freeze_a1/manifest.json")) if os.path.exists("results/freeze_a1/manifest.json") else {}
         _audit_provenance = dict(scientific_code_commit=_fz.get("code_commit", "unknown"),
                                  instrumentation_commit=_instr, freeze_a1_hash=_fz.get("hash", "unknown"),
-                                 deterministic=bool(getattr(args, "deterministic", False)))
+                                 deterministic=bool(getattr(args, "deterministic", False)),
+                                 head_commit=_g("rev-parse", "HEAD") or "nogit",
+                                 tree_dirty=bool(_g("status", "--porcelain")),   # uncommitted changes present?
+                                 runner_file_sha=_runner_sha, env_sha=_env_sha)
     results = {lbl: [] for lbl, *_ in configs}
     if args.select == "nested":
         results["CITA_nested"] = []                       # fixed selector picks lambda* per fold (no oracle)
