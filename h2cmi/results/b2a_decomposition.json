@@ -1,0 +1,15 @@
+{
+  "binary_adapt_oracle_shift": 0.8133333333333334,
+  "binary_adapt_oracle_null": 0.36666666666666664,
+  "action_confusion_oracle_best": {
+    "pooled_empirical_diag": 38,
+    "gen_iterative_diag": 14,
+    "gen_oneshot_diag": 9
+  },
+  "always_action_mean_dbacc_shift": {
+    "pooled_empirical_diag": 0.05270442096860171,
+    "gen_oneshot_diag": 0.04502714565549297,
+    "gen_iterative_diag": 0.0442474610260063
+  },
+  "oracle_mean_gain_shift": 0.08900436064659722
+}

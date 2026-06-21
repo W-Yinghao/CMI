@@ -55,16 +55,22 @@ A40 `8c8d`, B0 `0f80`) is therefore at least bAcc-inert; `--b0-ref` ran in soft 
 Proper nested null (30 LOSO-site models/difficulty, cached by unordered pair; 60 null units),
 other-seed empirical max-null calibration, C dropped, B as veto. Two routers, frozen criteria.
 
-**N1 (nested-null gate) passes every clause EXCEPT action-selection:**
-- WHEN-to-adapt is solved: false-adaptation **0.03** (std) / **0.00** (hard) [was 1.00 raw],
-  coverage **0.36** (≥0.25 — not a trivial always-identity), shift ΔbAcc **+0.044** (>0),
-  non-null harm 0.11 (≤0.20), hard-null harm 0.00, hard ΔbAcc ok, disagreement ok. **All PASS.**
-- WHICH-action FAILS: top-1 oracle agreement **0.40** (<0.50) and action regret **0.038** (>0.02).
-  The three diagonal actions {pooled_empirical, gen_oneshot, gen_iterative} are too similar for a
-  target-only signal to rank (N1 shift selection: identity 38, pooled 20, gen_iter 12, gen_oneshot 5).
-- N2 (+B veto) over-abstains (coverage 0.05) and is strictly worse.
+**Neither N1 nor N2 satisfies the complete preregistered acceptance set.** N1 passes every clause
+EXCEPT the two action-selection clauses; N2 mainly fails coverage.
+- ELIGIBILITY detection passes development-stage validation as a COMPONENT (not a solved problem
+  — it has not yet faced fresh seeds, an extended action family, or real EEG): standard null
+  false-adaptation **0.03** (was 1.00 raw), coverage **0.36** (≥0.25 — not a trivial always-
+  identity), non-null mean ΔbAcc **+0.044**, harm 0.11, hard-null all safe (false-adapt/harm 0.00).
+- ACTION SELECTION fails, and it is a real failure (not a top-1 tie artifact): top-1 oracle
+  **0.40** (<0.50) AND regret **0.038** (>0.02) — many wrong picks carry real performance cost
+  (N1 shift selection: identity 38, pooled 20, gen_iter 12, gen_oneshot 5).
+- N2 (+B veto) over-abstains (coverage 0.05); stability signals add no conditional information
+  worth their coverage cost → **N2 retired**.
 
-Per the pre-registered rule (both routers fail ALL) the decision is **A_STAR_FAIL → pivot to B**.
+Per the pre-registered rule the decision is **A_STAR_FAIL → pivot to B**. Frozen takeaway:
+*nested source-null calibration recovers a safe, nontrivial adaptation gate, but unlabeled target
+statistics fail to identify the best operator within the tested diagonal family* — NOT a claim
+that no target statistic could ever select an operator.
 But this is a *decomposition*, not a flat wall: A* VALIDATES the **source-calibrated abstention**
 component of the B mainline (the nested-null gate is safe, covering and useful) and FALSIFIES
 **target-only action selection** (top-1 0.40) — which is exactly why B routes the OPERATOR choice
