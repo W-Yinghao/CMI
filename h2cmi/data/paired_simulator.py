@@ -77,9 +77,12 @@ PRESET_SCENARIOS.update({old: PRESET_SCENARIOS[new] for old, new in _ALIASES.ite
 # +2.5 discriminative bump; base_noise/subj_anatomy are the original defaults).
 DIFFICULTY_PRESETS = {
     "standard": dict(class_signal_scale=1.0, base_noise=0.3, subj_anatomy=0.3),
-    # `hard` frozen by an identity-only calibration (epochs=12, 3 sites, seed 0): strict
-    # matched_domain_null bAcc 0.789, per-site [0.73, 0.84] -- inside the 0.70-0.85 band.
-    "hard":     dict(class_signal_scale=0.20, base_noise=1.30, subj_anatomy=0.3),
+    # `hard` frozen by an identity-ONLY calibration at the EXACT B1a config (epochs=20, 5 sites,
+    # seed 0) -- the earlier epochs=12 calibration (0.20/1.30) reached 0.935 at the real config,
+    # too easy. Interpolated from a seed-0 sweep (0.12/2.0->0.823, 0.10/2.4->0.732) to centre the
+    # mean ~0.77, then confirmed by the 3-seed hard identity preflight. Frozen BEFORE any hard
+    # variant was run, so no adaptation result informed it.
+    "hard":     dict(class_signal_scale=0.11, base_noise=2.20, subj_anatomy=0.3),
 }
 
 
