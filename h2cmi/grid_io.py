@@ -138,6 +138,15 @@ def sha256_file(path: str) -> str:
     return h.hexdigest()
 
 
+def stable_hash_int(*parts, bits: int = 63) -> int:
+    """Deterministic non-negative int from arbitrary parts (process- and order-independent,
+    unlike Python's salted hash()). Used to derive per-unit TTA seeds so a fit's randomness
+    (low-rank init, fold order) depends only on the experiment coordinates, never on the order
+    variants/folds happen to run in."""
+    blob = "|".join(str(p) for p in parts).encode()
+    return int.from_bytes(hashlib.sha256(blob).digest()[:8], "big") & ((1 << bits) - 1)
+
+
 def hash_array(x: np.ndarray) -> str:
     x = np.ascontiguousarray(x)
     return _sha256(str(x.dtype).encode(), str(x.shape).encode(), x.tobytes())
@@ -195,14 +204,21 @@ def config_signature(cfg) -> str:
 def build_data_spec(*, simulator: str, n_sites: int, subjects_per_site: int,
                     sessions_per_subject: int, trials_per_session: int, n_classes: int,
                     n_chans: int, n_times: int, source_scenario: str, train_seed_policy: str,
-                    difficulty: str = "standard") -> dict:
+                    difficulty: str = "standard", difficulty_spec: dict | None = None) -> dict:
     """Normalised description of the data-generating protocol; folded into the experiment
-    signature + bundle identity so it cannot silently differ across resumes/shards."""
-    return dict(simulator=simulator, n_sites=int(n_sites), subjects_per_site=int(subjects_per_site),
+    signature + bundle identity so it cannot silently differ across resumes/shards. When a
+    difficulty preset changes the SNR (class_signal_scale/base_noise/subj_anatomy), the actual
+    parameters are stored in `difficulty_spec` so two different `hard` settings get distinct
+    signatures. `difficulty_spec` is omitted entirely when None, so the standard B0 protocol's
+    data_spec is byte-identical to before this field existed."""
+    spec = dict(simulator=simulator, n_sites=int(n_sites), subjects_per_site=int(subjects_per_site),
                 sessions_per_subject=int(sessions_per_subject),
                 trials_per_session=int(trials_per_session), n_classes=int(n_classes),
                 n_chans=int(n_chans), n_times=int(n_times), source_scenario=source_scenario,
                 train_seed_policy=train_seed_policy, difficulty=difficulty)
+    if difficulty_spec is not None:
+        spec["difficulty_spec"] = {k: float(v) for k, v in sorted(difficulty_spec.items())}
+    return spec
 
 
 def _spec_blob(data_spec) -> bytes:
@@ -325,20 +341,18 @@ def validate_result_row(row: dict, manifest: dict, *, item_field: str | None = N
     config_signature + runner commit), and return its key. Raises on any foreign/stale row."""
     item_field = item_field or manifest["item_field"]
     where = f" at {line_ref}" if line_ref else ""
-    missing = ({*_ROW_KEY_FIELDS, item_field, "experiment_signature"} - row.keys())
+    required = {*_ROW_KEY_FIELDS, item_field, "schema_version", "experiment_signature",
+                "config_signature", "runner_commit_sha"}
+    missing = required - row.keys()
     if missing:
-        raise KeyError(f"result row{where} missing fields {sorted(missing)}")
-    checks = (("schema_version", manifest.get("schema_version")),
-              ("experiment_signature", manifest.get("experiment_signature")),
-              ("config_signature", manifest.get("config_signature")),
-              ("runner_commit_sha", manifest.get("commit_sha")))
-    for field, expected in checks:
-        if field in row and row.get(field) != expected:
+        raise KeyError(f"result row{where} missing provenance fields {sorted(missing)}")
+    for field, expected in (("schema_version", manifest.get("schema_version")),
+                            ("experiment_signature", manifest.get("experiment_signature")),
+                            ("config_signature", manifest.get("config_signature")),
+                            ("runner_commit_sha", manifest.get("commit_sha"))):
+        if row.get(field) != expected:
             raise ValueError(f"foreign result row{where}: {field}={row.get(field)!r} "
                              f"!= experiment {expected!r}")
-    if row.get("experiment_signature") != manifest.get("experiment_signature"):
-        raise ValueError(f"foreign result row{where}: experiment_signature "
-                         f"{row.get('experiment_signature')!r} != {manifest.get('experiment_signature')!r}")
     return row_key(row, item_field)
 
 

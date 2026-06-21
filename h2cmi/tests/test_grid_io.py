@@ -215,6 +215,18 @@ def _prow(man, seed, site, action, cmi, scen="cov"):
                 data_seed=seed, target_site=site, scenario=scen, action=action, cmi=cmi)
 
 
+def test_result_row_rejects_missing_provenance_fields():
+    man = build_manifest(_cfg(), shard_spec={"seeds": [0], "sites": [0]}, cli={}, **GLOBAL)
+    full = _prow(man, 0, 0, "identity", "off")
+    assert validate_result_row(full, man, item_field="action") == (0, 0, "cov", "identity", "off")
+    for drop in ("schema_version", "experiment_signature", "config_signature", "runner_commit_sha"):
+        bad = {k: v for k, v in full.items() if k != drop}
+        try:
+            validate_result_row(bad, man, item_field="action"); assert False, f"accepted row missing {drop}"
+        except KeyError:
+            pass
+
+
 def test_done_index_rejects_foreign_experiment_row():
     g = dict(global_seeds=[0], global_sites=[0], scenarios=["cov"], items=["identity", "joint"],
              item_field="action", cmi_arms=["off"], data_spec=DSPEC)

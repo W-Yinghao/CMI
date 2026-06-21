@@ -68,10 +68,31 @@ _ALIASES = {"no_shift": "population_null", "concept": "conditional_rotation",
 PRESET_SCENARIOS.update({old: PRESET_SCENARIOS[new] for old, new in _ALIASES.items()})
 
 
+# Difficulty is a GLOBAL data-generating regime, NOT a per-target scenario: it scales the
+# class-discriminative signal and raises sensor noise for SOURCE *and* target alike, so a hard
+# `matched_domain_null` stays a true identity-null (target reuses source anatomy, no site gap)
+# while pushing strict (identity) bAcc down into the calibration band. The actual parameters
+# are recorded in data_spec.difficulty_spec so two `hard` settings are distinguishable.
+# `standard` reproduces the Stage-B0 simulator EXACTLY (class_signal_scale=1.0 is a no-op on the
+# +2.5 discriminative bump; base_noise/subj_anatomy are the original defaults).
+DIFFICULTY_PRESETS = {
+    "standard": dict(class_signal_scale=1.0, base_noise=0.3, subj_anatomy=0.3),
+    # `hard` frozen by an identity-only calibration (epochs=12, 3 sites, seed 0): strict
+    # matched_domain_null bAcc 0.789, per-site [0.73, 0.84] -- inside the 0.70-0.85 band.
+    "hard":     dict(class_signal_scale=0.20, base_noise=1.30, subj_anatomy=0.3),
+}
+
+
+def difficulty_kwargs(difficulty: str) -> dict:
+    if difficulty not in DIFFICULTY_PRESETS:
+        raise ValueError(f"unknown difficulty {difficulty!r}; have {sorted(DIFFICULTY_PRESETS)}")
+    return dict(DIFFICULTY_PRESETS[difficulty])
+
+
 class PairedEEGSimulator:
     def __init__(self, n_classes=3, n_chans=16, n_times=128, fs=128.0, n_sources=8,
                  n_disc=None, bands=((4, 8), (8, 13), (13, 30), (30, 45)),
-                 base_noise=0.3, subj_anatomy=0.3, data_seed=0):
+                 base_noise=0.3, subj_anatomy=0.3, class_signal_scale=1.0, data_seed=0):
         self.n_classes = int(n_classes)
         self.n_chans = int(n_chans)
         self.n_times = int(n_times)
@@ -81,6 +102,7 @@ class PairedEEGSimulator:
         self.bands = bands
         self.base_noise = float(base_noise)
         self.subj_anatomy = float(subj_anatomy)
+        self.class_signal_scale = float(class_signal_scale)
         self.data_seed = int(data_seed)
 
         rs = _rng(data_seed, "struct")
@@ -90,7 +112,7 @@ class PairedEEGSimulator:
             [rs.uniform(*bands[k % len(bands)]) for k in range(self.n_sources)], dtype=np.float32)
         base = rs.standard_normal((self.n_classes, self.n_disc)).astype(np.float32)
         for c in range(self.n_classes):
-            base[c, c % self.n_disc] += 2.5
+            base[c, c % self.n_disc] += 2.5 * self.class_signal_scale   # 1.0 == B0 exactly
         self.class_power = base
         self.uniform_prior = np.full(self.n_classes, 1.0 / self.n_classes)
 
