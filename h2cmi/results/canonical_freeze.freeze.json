@@ -1,0 +1,23 @@
+{
+  "marker": "CANONICAL_CC_ESTIMATOR_FROZEN",
+  "selection_data": "source-only nested pseudo-target episodes",
+  "target_data_used": false,
+  "target_labels_used": false,
+  "selected": "gen_oneshot_diag",
+  "substantive_threshold": 0.01,
+  "tie_break_triggered": true,
+  "metric": "bacc_uniform_full_refit",
+  "in_seed_aggregation": "mean_over_pair_pseudosite_episode",
+  "per_seed_delta_oneshot_minus_iterative": {
+    "0": -0.006684753342644845,
+    "1": -0.0028875968592041446,
+    "2": 0.007825013633096067
+  },
+  "overall_delta": -0.0005824455229176406,
+  "code_sha": "341ac8be676eae1e32343df5bd4200ea04a53f1c",
+  "source_code_signature": "763bf49d4e500a47241c9bc8a78628a8",
+  "input_bundle_checkpoint_hashes_sha256": "2b7a2600ddde539eaa99847b15682aa18fcb0036edd0c9a3797191e69236f94a",
+  "rows_sha256": "8c9151c430657e92721b357c01d0c9ddecdd4dcc4bae65b68bfd81575f77894f",
+  "n_rows": 960,
+  "n_episodes_per_site": 8
+}
