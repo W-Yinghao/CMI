@@ -127,6 +127,17 @@ def test_unsupervised_fold_does_not_read_labels():
     assert g_ora["grouped_n_groups_scored"] == 1          # oracle skips the single-class fit fold
 
 
+def test_source_moments_accepts_numpy_and_tensor():
+    # _embed returns a tensor on args.device (CUDA in production) -> the helper must accept a
+    # tensor, not only numpy (regression: np.asarray on a CUDA tensor raises).
+    rng = np.random.default_rng(0)
+    ys = rng.integers(0, 3, 200)
+    Us_t = torch.randn(200, 6)
+    mu_t, sd_t = reference_weighted_source_moments(Us_t, ys, np.full(3, 1 / 3))
+    mu_n, sd_n = reference_weighted_source_moments(Us_t.numpy(), ys, np.full(3, 1 / 3))
+    assert torch.allclose(mu_t, mu_n, atol=1e-5) and torch.allclose(sd_t, sd_n, atol=1e-5)
+
+
 def test_pooled_empirical_diag_matches_source_moments():
     tta, U, yt, _, pref = _toy()
     mu_S, sd_S = pref

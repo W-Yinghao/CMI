@@ -154,7 +154,8 @@ def reference_weighted_source_moments(Us, ys, pi_star) -> tuple[torch.Tensor, to
     (NOT the density's parametric moments). This makes `pooled_empirical_diag` a baseline that is
     genuinely independent of p_phi(z|y), so C_class-cond measures the value of the class-
     conditional density, not a re-parameterisation of it."""
-    Us = torch.as_tensor(np.asarray(Us), dtype=torch.float32)
+    Us = (Us.detach().to(device="cpu", dtype=torch.float32) if isinstance(Us, torch.Tensor)
+          else torch.as_tensor(np.asarray(Us), dtype=torch.float32))   # accept a CUDA embedding
     ys = np.asarray(ys)
     K = len(np.asarray(pi_star))
     d = Us.shape[1]
