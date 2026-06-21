@@ -111,7 +111,7 @@ Adding a risk constraint to a DG penalty already exists. The novelty is the comb
 | Recording-clustered **bootstrap UCB** (within-domain resample, in-replicate capacity reselection, basic one-sided + percentile) | **implemented + tested** | [`leakage/ucb.py`](leakage/ucb.py) |
 | **Risk-feasible trainer** — PyTorch conditional adversary `C_D`, primal–dual `min(H_ref−C_D)+λ(R_src−τ)`, dual on the risk constraint, feasibility selector + byte-exact ERM fallback | **implemented + tested** | [`train/`](train/) |
 | **Rare-cell paired-stream sampler** — task stream (incl. ineligible cells) + adversary stream (eligible cells, covers all per logical step); importance weights restore fixed `p(d\|y)`/`p(y)`; microbatch accumulation normalised by fixed `N_ov` | **implemented + tested** | [`data/sampler.py`](data/sampler.py), [`data/batch.py`](data/batch.py) |
-| Eval: mean/worst bAcc, ECE/NLL, noninferiority CI | TODO | `eval/` |
+| **Eval** — fixed-estimand pooled/mean/worst-domain bAcc + worst-paired-Δ, NLL/ECE (no target calibration), paired clustered bootstrap (one plan reused; whole-group, no row fallback; invalid-rate; too-few-clusters→non-estimable), noninferiority rules, missing-cell sweep scalar `ΔA_post` | **implemented + tested** | [`eval/`](eval/) |
 
 The sampler never redefines eligibility/`S_y`/`p_ref`/`n_{d,y}` (fixed full-data support graph);
 a batch only guarantees eligible-cell **coverage**. `w^adv=n_{d,y}/m` restores the fixed empirical
@@ -137,7 +137,11 @@ $PY -m oaci.tests.test_leakage_crossfit   # grouped cross-fit: group-memorisatio
 $PY -m oaci.tests.test_leakage_ucb        # bootstrap UCB: reselection, formulas, reproducibility
 $PY -m oaci.train.synthetic               # risk-feasible trainer acceptance report (feasible + leakage↓)
 $PY -m oaci.data.sampler_demo             # rare-cell sampler report (50:1 imbalance; weighted p(d|y) restored)
+$PY -m oaci.eval.synthetic                # eval panel: pooled looks fine but a small domain is harmed
 $PY -m oaci.tests.test_rare_cell_sampler  # sampler: coverage, exact priors, microbatch invariance, fixes
+$PY -m oaci.tests.test_eval               # eval: estimands, in-bootstrap worst-domain, NI rules, fixed pop
+# all of the above, in parallel on a CPU compute node (off the login node):
+sbatch oaci/slurm_ci.sh
 $PY -m oaci.tests.test_train_risk         # primal metric: balanced_ce partition-invariant, balanced_err rejected
 $PY -m oaci.tests.test_train_adversary    # adversary: grad signs, ineligible no-grad, fixed p_ref, no-op
 $PY -m oaci.tests.test_train_primal_dual  # dual direction, ERM immutability, seed reproducibility
@@ -156,6 +160,13 @@ relabel a proxy as a bound.
 
 ## Status / honesty
 
-Day-0 scaffold. The **support-graph identifiability core is real and tested**; everything
-downstream (critic, UCB, trainer, stress test, eval) is specified but not yet implemented.
-No empirical claim is made yet.
+The full pipeline is **implemented and unit-tested on synthetic data** (support graph,
+missing-cell harness, extractable-leakage estimator + bootstrap UCB, rare-cell paired-stream
+sampler, risk-feasible primal–dual trainer, and the evaluation stack). It is a *research
+implementation*: every component is correct, deterministic, and composes, and the synthetic
+demos exercise the intended behaviours (e.g. the trainer stays risk-feasible; the eval panel
+exposes a small-domain harm that pooled accuracy hides). It is **not** a real-EEG result — that
+requires the confirmatory protocol in [`EXPERIMENTS.md`](EXPERIMENTS.md) (unified preprocessing,
+5–10 seeds, recording/subject-clustered inference, the controlled missing-cell stress test) and
+the pre-registered kill criteria K1/K2. Run everything off the login node with
+`sbatch oaci/slurm_ci.sh`.

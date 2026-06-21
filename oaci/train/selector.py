@@ -31,7 +31,9 @@ def state_hash(state: dict) -> str:
 
 @dataclass
 class Selection:
-    used_erm_fallback: bool
+    used_erm_fallback: bool            # True iff NO feasible Stage-2 checkpoint existed
+    selected_erm: bool                 # True iff the ERM checkpoint won the lexicographic score
+    selection_reason: str              # 'erm_best' | 'stage2_best' | 'no_stage2_feasible'
     selected_epoch: int                # -1 == ERM checkpoint
     enc_state: dict
     head_state: dict
@@ -42,23 +44,22 @@ class Selection:
 
 
 def select_checkpoint(result, numerical_tol=None, score_fn=None, score_name="leakage_surrogate") -> Selection:
-    """Select per the risk-feasibility rule. ``result`` is a ``TrainResult``."""
+    """Risk-feasible lexicographic selection. ERM is ALWAYS in the candidate set (it is feasible:
+    ``R̂_ERM ≤ τ``) and is scored by the SAME ``score_fn`` as the feasible Stage-2 checkpoints; the
+    minimum-score candidate wins. So a Stage-2 checkpoint that is risk-feasible but has WORSE
+    leakage than ERM never displaces ERM. If no Stage-2 checkpoint is feasible, ERM is restored
+    byte-exactly (the ``erm_record`` carries the ERM checkpoint's states)."""
     tol = result.cfg.numerical_tol if numerical_tol is None else numerical_tol
+    erm = result.erm_record
     feasible = [c for c in result.trajectory if c.R_src <= result.tau + tol]
-
-    if not feasible:
-        # byte-exact ERM restore
-        return Selection(
-            used_erm_fallback=True, selected_epoch=-1,
-            enc_state=result.erm_ckpt["enc"], head_state=result.erm_ckpt["head"],
-            R_src=result.R_ERM_hat, selection_score=None, n_feasible=0, score_name=score_name,
-        )
-
     key = score_fn if score_fn is not None else (lambda c: c.leakage_surrogate)
-    best = min(feasible, key=key)
+
+    best = min(feasible + [erm], key=key)            # ERM always competes
+    selected_erm = best is erm
+    reason = "no_stage2_feasible" if not feasible else ("erm_best" if selected_erm else "stage2_best")
     return Selection(
-        used_erm_fallback=False, selected_epoch=best.epoch,
-        enc_state=best.enc_state, head_state=best.head_state,
+        used_erm_fallback=(not feasible), selected_erm=selected_erm, selection_reason=reason,
+        selected_epoch=best.epoch, enc_state=best.enc_state, head_state=best.head_state,
         R_src=best.R_src, selection_score=float(key(best)), n_feasible=len(feasible),
         score_name=score_name,
     )

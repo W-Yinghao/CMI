@@ -112,12 +112,35 @@ class SamplerConfig:
 
 
 @dataclass
+class EvalConfig:
+    """Evaluation: fixed-estimand metrics + paired clustered bootstrap + noninferiority.
+
+    ``delta_bacc`` (the target balanced-accuracy noninferiority margin) has NO default — it must
+    be set explicitly per experiment so it is never silently reused / mistaken for ``ε`` (which
+    is the source-risk slack only, and only when the audit metric matches the training metric).
+    """
+    n_ece_bins: int = 15                 # FIXED pre-registered equal-width bins, shared everywhere
+    alpha: float = 0.05                  # one-sided CI level
+    n_boot: int = 2000                   # paired clustered bootstrap replicates
+    invalid_threshold: float = 0.2       # CI non-estimable if invalid_draw_rate exceeds this
+    min_clusters: int = 2                # an eval domain needs >= this many recording groups
+    delta_bacc: float | None = None      # target-bAcc NI margin — REQUIRED (no paper-threshold default)
+    risk_metric: str = "balanced_ce"     # MUST equal the training constraint metric to reuse ε
+
+    def require_delta_bacc(self) -> float:
+        if self.delta_bacc is None:
+            raise ValueError("EvalConfig.delta_bacc must be set explicitly (it is not ε; no default).")
+        return float(self.delta_bacc)
+
+
+@dataclass
 class OACIConfig:
     """Top-level OACI configuration."""
     support: SupportConfig = field(default_factory=SupportConfig)
     ucb: UCBConfig = field(default_factory=UCBConfig)
     risk: RiskConfig = field(default_factory=RiskConfig)
     sampler: SamplerConfig = field(default_factory=SamplerConfig)
+    eval: EvalConfig = field(default_factory=EvalConfig)
     seed: int = 0
 
     def validate(self) -> "OACIConfig":

@@ -7,7 +7,8 @@ scaffold conflated them — see THEORY §1):
 * **Per-class identifiability.** The equality ``p(z|y,d) = p(z|y,d')`` for a FIXED class
   ``y`` is identifiable iff both cells are estimable, i.e. ``d, d' ∈ S_y``. A path of
   *other* classes does NOT transfer a fixed-``y`` equality — there is no transitive reach
-  across classes. Use :meth:`SupportGraph.is_identifiable_pair` (takes ``y``).
+  across classes. Use :meth:`SupportGraph.is_estimable_pair` (takes ``y``) — note this is
+  finite-sample *estimability* (the ``m``-gate), NOT population identifiability (THEORY §0/§1).
 * **Coupling / decomposability.** The domain–domain graph ``d ~ d'`` iff they co-observe
   *some* class ties domains into **coupling components**. Within a component the per-class
   constraints share parameters (a single encoder is jointly constrained), so the problem
@@ -140,26 +141,38 @@ class SupportGraph:
         ds, ys = np.where(~self.eligible)
         return list(zip(ds.tolist(), ys.tolist()))
 
-    # ---- per-class identifiability (the corrected primitive) ----
-    def is_identifiable_pair(self, d: int, dp: int, y: int) -> bool:
-        """Is the fixed-``y`` equality ``p(z|y,d)=p(z|y,d')`` identifiable from data?
+    # ---- per-class ESTIMABILITY (finite-sample, m-gated) — NOT population identifiability ----
+    def is_estimable_pair(self, d: int, dp: int, y: int) -> bool:
+        """Is the fixed-``y`` two-sample comparison of ``p(z|y,d)`` vs ``p(z|y,d')`` ESTIMABLE
+        at this sample size, i.e. both cells eligible for THIS class (``d, d' ∈ S_y``, the
+        finite-sample ``m``-gate)? No cross-class transitivity.
 
-        Iff both cells are eligible for THIS class (``d, d' ∈ S_y``). No cross-class
-        transitivity: a chain through other classes does not transfer a fixed-``y`` equality.
+        This is an *operational estimability* statement, NOT population identifiability: the
+        population theorem (THEORY §1) conditions on positive-probability **structural**
+        support; this method reports whether we have enough samples (``m``) to estimate it.
         """
         if d == dp:
             return True
         return bool(self.eligible[d, y] and self.eligible[dp, y])
 
-    def identifiable_pairs(self, y: int) -> list[tuple[int, int]]:
-        """All identifiable within-class-``y`` domain pairs (the directly enforceable
-        conditional-invariance constraints for class ``y``)."""
+    def estimable_pairs(self, y: int) -> list[tuple[int, int]]:
+        """All within-class-``y`` domain pairs estimable at this sample size (both in ``S_y``)."""
         s = self.support_of_class[y]
         return [(s[i], s[j]) for i in range(len(s)) for j in range(i + 1, len(s))]
 
+    def all_estimable_constraints(self) -> list[tuple[int, int, int]]:
+        """Every estimable constraint as ``(y, d, d')`` over comparable classes."""
+        return [(y, d, dp) for y in self.comparable_classes for (d, dp) in self.estimable_pairs(y)]
+
+    # deprecated aliases (do NOT use in paper output — they imply identifiability, not estimability)
+    def is_identifiable_pair(self, d: int, dp: int, y: int) -> bool:
+        return self.is_estimable_pair(d, dp, y)
+
+    def identifiable_pairs(self, y: int) -> list[tuple[int, int]]:
+        return self.estimable_pairs(y)
+
     def all_identifiable_constraints(self) -> list[tuple[int, int, int]]:
-        """Every identifiable constraint as ``(y, d, d')`` over comparable classes."""
-        return [(y, d, dp) for y in self.comparable_classes for (d, dp) in self.identifiable_pairs(y)]
+        return self.all_estimable_constraints()
 
     # ---- coupling / decomposability (NOT identifiability) ----
     def coupled(self, d: int, dp: int) -> bool:
@@ -202,16 +215,22 @@ class SupportGraph:
             )
         return out
 
-    def identifiable_mass_fraction(self) -> float:
-        """``Σ_{y∈C_cmp} p_ref(y)`` — reference-prior mass the objective actually constrains.
-        Stable under the missing-cell sweep because ``p_ref`` is fixed; ``1 - this`` is the
-        honest non-identifiable remainder. Report this alongside ``L_abs``."""
+    def eligible_comparable_mass_fraction(self) -> float:
+        """``Σ_{y∈C_cmp} p_ref(y)`` — the reference-prior mass on classes with an estimable
+        cross-domain comparison (``|S_y|≥2`` under the ``m``-gate). Stable under the missing-cell
+        sweep (``p_ref`` fixed). ``1 - this`` is the mass excluded for **low sample size** — it
+        is NOT (necessarily) population-non-identifiable mass; report it alongside ``L_abs``."""
         return float(sum(self.reference_prior[y] for y in self.comparable_classes))
+
+    def identifiable_mass_fraction(self) -> float:
+        """Deprecated alias of :meth:`eligible_comparable_mass_fraction` — do NOT use in paper
+        output (the excluded mass is low-sample, not proven non-identifiable)."""
+        return self.eligible_comparable_mass_fraction()
 
     def observed_mass_fraction(self) -> float:
         """Sample-based companion (descriptive): fraction of *current* samples in a
-        comparable, eligible cell. Unlike :meth:`identifiable_mass_fraction` this moves with
-        the counts, so it is a description of the data, not the estimand weight."""
+        comparable, eligible cell. Unlike :meth:`eligible_comparable_mass_fraction` this moves
+        with the counts, so it is a description of the data, not the estimand weight."""
         total = float(self.counts.sum())
         if total <= 0:
             return 0.0
@@ -232,7 +251,7 @@ class SupportGraph:
             "empty_classes": list(self.empty_classes),
             "n_coupling_components": len(self.coupling_components),
             "coupling_components": [list(c) for c in self.coupling_components],
-            "identifiable_mass_fraction": self.identifiable_mass_fraction(),
+            "eligible_comparable_mass_fraction": self.eligible_comparable_mass_fraction(),
             "observed_mass_fraction": self.observed_mass_fraction(),
             "n_decoupled_domain_pairs": len(self.decoupled_pairs()),
         }
@@ -244,7 +263,7 @@ class SupportGraph:
                 f"Support graph (m={self.m}): {s['n_domains']} domains x {s['n_classes']} classes",
                 f"  eligible cells: {s['n_eligible_cells']}/{s['n_cells']}"
                 f"  (present: {s['n_present_cells']})",
-                f"  identifiable mass (Σ p_ref over comparable): {s['identifiable_mass_fraction']:.3f}"
+                f"  eligible-comparable mass (Σ p_ref over comparable): {s['eligible_comparable_mass_fraction']:.3f}"
                 f"   observed mass: {s['observed_mass_fraction']:.3f}",
                 f"  comparable classes (|S_y|>=2): {s['comparable_classes']}",
                 f"  singleton-support classes (|S_y|==1): {s['singleton_classes']}",
@@ -358,9 +377,9 @@ def _demo() -> None:
         print(f"  y={t['class_name']:<10} S_y={names}  n_obs={t['n_obs']:<5}"
               f" w_abs={t['w_abs']:.3f}  w_cond={t['w_cond']:.3f}")
     print(
-        "\nper-class identifiability — is_identifiable_pair(s0,s1,y=rest) =",
-        sg.is_identifiable_pair(0, 1, 0),
-        "| (s0,s2,y=rest) =", sg.is_identifiable_pair(0, 2, 0),
+        "\nper-class estimability (m-gate, not identifiability) — is_estimable_pair(s0,s1,y=rest) =",
+        sg.is_estimable_pair(0, 1, 0),
+        "| (s0,s2,y=rest) =", sg.is_estimable_pair(0, 2, 0),
     )
     print("coupling (decomposition) — coupled(s0,s2) =", sg.coupled(0, 2),
           "(no shared class -> independent subproblems)")

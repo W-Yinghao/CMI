@@ -69,6 +69,38 @@ reported, not renormalised away. (THEORY §Estimand.)
 * **Noninferiority CI vs ERM** — paired, domain/subject-clustered bootstrap CI on the
   source-risk gap (the §2 realized-`ε` check) and on the target balanced-accuracy delta.
 
+## Fixed evaluation conventions (implemented in [`eval/`](eval/))
+
+Three DISTINCT, never-conflated accuracy estimands: `pooled_bAcc` (supplementary), and the two
+PRIMARY DG metrics `mean_domain_bAcc` (equal-domain mean) and `worst_domain_bAcc = min_d`. Plus
+the stricter paired endpoint `worst_paired_delta_bAcc = min_d[bAcc^OACI_d − bAcc^ERM_d]` (catches
+a harmed domain that a difference-of-minima hides). `worst_domain` and the worst-paired-Δ are
+**recomputed inside every bootstrap replicate**. A domain missing a pre-registered class →
+`reference_bAcc` non-estimable (report `observed_bAcc` + coverage; never silently drop a class).
+
+Calibration: **NLL** (from a stable `log_softmax`) is the formal K2 calibration endpoint
+(`pooled` / `mean_domain` / `worst_domain = max_d`); **top-label ECE** with FIXED 15-bin edges is
+auxiliary. **No** target-fit temperature/binning (an oracle target-T is a labelled diagnostic
+only, never in the main table).
+
+Inference: ONE paired clustered `BootstrapPlan` (resample whole recording groups WITHIN domain,
+same multiplicities for all methods; never row-level) is reused across methods / deletion levels /
+metrics. One-sided basic limits `LCL=2Δ̂−Q_{1−α}(Δ*)`, `UCL=2Δ̂−Q_α(Δ*)` (+ percentile sensitivity;
+no clipping). Invalid replicates (a domain loses a reference class) are redrawn and
+`invalid_draw_rate` reported; too-high rate or `<2` clusters in a domain → CI non-estimable (NO
+row-level fallback). Repeated seeds are blocked (per-seed Δ̂ then averaged), not counted as trials.
+
+Noninferiority on Δ=OACI−ERM: higher-better NI ⟺ `LCL>−δ`; lower-better NI ⟺ `UCL<+δ`. The
+source-risk decision reuses `ε` ONLY when the audit metric equals the training metric; the target
+bAcc margin `delta_bacc` is set explicitly (it is NOT `ε`). The realized constraint gap (trainer
+guard set) and the audit noninferiority CI (independent source audit) are reported separately.
+
+The controlled missing-cell sweep keeps the target/source **audit population byte-identical**
+across all deletion levels and methods (the cell mask deletes only source-TRAINING rows). Main
+stress-test scalar: post-fragmentation worst-domain curve average
+`A_post = mean_{ℓ≥ℓ_f} worst_domain_bAcc_ℓ`; report `ΔA_post` (OACI vs each baseline) and/or the
+same-resample simultaneous band — not a hand-picked level.
+
 ## Ablations
 
 * support threshold `m` sweep (cell estimability vs coverage trade-off);

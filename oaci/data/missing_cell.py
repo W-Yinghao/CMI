@@ -66,8 +66,12 @@ class DeletionStep:
         return len(self.support_graph.coupling_components)
 
     @property
-    def identifiable_mass_fraction(self) -> float:
-        return self.support_graph.identifiable_mass_fraction()
+    def eligible_comparable_mass_fraction(self) -> float:
+        return self.support_graph.eligible_comparable_mass_fraction()
+
+    @property
+    def identifiable_mass_fraction(self) -> float:   # deprecated alias
+        return self.eligible_comparable_mass_fraction
 
     @property
     def n_comparable_classes(self) -> int:
@@ -114,7 +118,7 @@ class MissingCellSchedule:
                 "deleted_cell": s.deleted_cell,
                 "n_components": s.n_components,
                 "fragmented": s.n_components > base,
-                "identifiable_mass_fraction": round(s.identifiable_mass_fraction, 4),
+                "eligible_comparable_mass_fraction": round(s.eligible_comparable_mass_fraction, 4),
                 "n_comparable_classes": s.n_comparable_classes,
             }
             for s in self.steps
@@ -269,7 +273,7 @@ def _demo() -> None:
     print(f"first fragmentation at level: {sched.first_fragmentation_level()}")
     for row in sched.as_table():
         print(f"  L{row['level']}: del={row['deleted_cell']} comps={row['n_components']}"
-              f" frag={row['fragmented']} id-mass={row['identifiable_mass_fraction']}"
+              f" frag={row['fragmented']} elig-mass={row['eligible_comparable_mass_fraction']}"
               f" #cmp-classes={row['n_comparable_classes']}")
 
 

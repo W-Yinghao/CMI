@@ -34,14 +34,18 @@ that the algorithm actually keys on; an eligibility-driven "non-identifiable" fl
 
 **Statement.**
 1. **Per-class identifiability.** The conditional-invariance equality
-   ``p(z|y,d) = p(z|y,d')`` for a **fixed** class ``y`` is identifiable / testable from data
-   **iff** both cells are eligible for that class, ``d, d' ∈ S_y``. (Module:
-   `is_identifiable_pair(d, d', y)`.)
+   ``p(z|y,d) = p(z|y,d')`` for a **fixed** class ``y`` is **population-identifiable** iff both
+   cells have **positive structural support** for class ``y`` (``p(y,d)>0`` and ``p(y,d')>0``);
+   it is **estimable at finite sample** iff both cells clear the operational ``m``-gate
+   (``d, d' ∈ S_y``). Identifiability is the population property; eligibility (``S_y``) is the
+   algorithm's finite-sample proxy for it. (Module: `is_estimable_pair(d, d', y)` — the
+   ``m``-gate; deprecated alias `is_identifiable_pair`.)
 2. **No cross-class transitive reach.** A path of *other* classes does **not** transfer a
-   fixed-``y`` equality. If ``d, d' ∉ S_y`` jointly, then ``p(z|y,d)=p(z|y,d')`` is not
-   identifiable even when ``d`` and ``d'`` are linked through shared *other* classes. The
-   set of identifiable equalities is exactly ``⋃_y { (d,d') : d,d' ∈ S_y }`` — **not** its
-   transitive closure across classes.
+   fixed-``y`` equality. If neither ``d`` nor ``d'`` has structural support for ``y`` jointly,
+   then ``p(z|y,d)=p(z|y,d')`` is not identifiable even when ``d`` and ``d'`` are linked through
+   shared *other* classes. The set of identifiable equalities is exactly
+   ``⋃_y { (d,d') : p(y,d),p(y,d')>0 }`` — **not** its transitive closure across classes; the
+   estimable subset replaces ``>0`` with the ``m``-gate.
 3. **Coupling ≠ identifiability.** The domain–domain graph (``d ~ d'`` iff they co-observe
    some eligible class) and its connected components describe only **decomposability**: a
    single shared encoder makes the per-class constraints in one component share parameters,
@@ -49,13 +53,13 @@ that the algorithm actually keys on; an eligibility-driven "non-identifiable" fl
    is an optimization-structure statement and carries **no** identifiability content for any
    particular equality. (Module: `coupled(d, d')`, `coupling_components`.)
 
-**Proof obligation.** (1): with no jointly-eligible sample of ``(d,y)`` and ``(d',y)`` the
-two conditionals have no consistent two-sample estimator, so the equality is neither
-testable nor enforceable; with both eligible, a grouped two-sample divergence is consistent
-as ``min(n_{d,y}, n_{d',y}) → ∞``. (2): exhibit two laws agreeing on every eligible cell
-(equal likelihood) but disagreeing on a fixed-``y`` cross-pair where one domain is
-ineligible for ``y`` — no test separates them, so the equality is non-identifiable
-regardless of connectivity. (3): the encoder ties parameters along graph edges; show the
+**Proof obligation.** (1): with no structural support for ``(d,y)`` the conditional
+``p(z|y,d)`` is undefined, so the equality is not even stated; with positive support for both,
+a grouped two-sample divergence is consistent as ``min(n_{d,y}, n_{d',y}) → ∞`` — and the
+``m``-gate is just the finite-sample decision of *when we have enough samples to run that test*.
+(2): exhibit two laws agreeing on every structurally-supported cell (equal likelihood) but
+disagreeing on a fixed-``y`` cross-pair where one domain has zero support for ``y`` — no test
+separates them, so the equality is non-identifiable regardless of connectivity. (3): the encoder ties parameters along graph edges; show the
 KKT system block-diagonalises across components (independent duals), while within a
 component the identifiable-constraint set is still only the per-class pairs of (1)–(2).
 **This is the core paper theorem; [`support_graph.py`](support_graph.py) is its constructive

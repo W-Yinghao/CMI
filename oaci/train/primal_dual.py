@@ -101,6 +101,7 @@ class TrainResult:
     R_ERM_hat: float
     tau: float
     H_ref_bar: float
+    erm_record: CheckpointRecord | None = None   # ERM as a scorable candidate (epoch=-1)
     trajectory: list[CheckpointRecord] = field(default_factory=list)
     in_dim: int = 0
     cfg: TrainConfig | None = None
@@ -173,10 +174,15 @@ def train_risk_feasible(
     tau = R_ERM_hat + cfg.epsilon
     erm_ckpt = {"enc": _clone_state(enc), "head": _clone_state(head)}   # immutable fallback target
 
+    def _erm_record(surrogate: float) -> CheckpointRecord:
+        return CheckpointRecord(epoch=-1, enc_state=erm_ckpt["enc"], head_state=erm_ckpt["head"],
+                                R_src=R_ERM_hat, balanced_err=guard_balerr(),
+                                leakage_surrogate=surrogate, lam=0.0)
+
     # ---- no comparable class -> Stage-2 is a byte-exact no-op (return ERM, empty trajectory) ----
     if not support_graph.comparable_classes:
         return TrainResult(erm_ckpt=erm_ckpt, R_ERM_hat=R_ERM_hat, tau=tau, H_ref_bar=H_ref_bar,
-                           trajectory=[], in_dim=in_dim, cfg=cfg)
+                           erm_record=_erm_record(H_ref_bar), trajectory=[], in_dim=in_dim, cfg=cfg)
 
     # ---- Stage 2: adversarial invariance under the risk constraint (warm start from ERM) ----
     adv = ConditionalDomainAdversary(cfg.z_dim, support_graph, hidden=cfg.adv_hidden)
@@ -198,6 +204,10 @@ def train_risk_feasible(
             opt_adv.zero_grad(); critic_loss_full().backward(); opt_adv.step()
         else:
             critic_step_stream()
+
+    # ERM as a scorable candidate: surrogate measured with the warmed critic while enc == ERM
+    with torch.no_grad():
+        erm_record = _erm_record(H_ref_bar - float(adv.domain_ce(enc(X), y, d).item()))
 
     lam = cfg.lambda_init
     trajectory: list[CheckpointRecord] = []
@@ -237,5 +247,5 @@ def train_risk_feasible(
 
     return TrainResult(
         erm_ckpt=erm_ckpt, R_ERM_hat=R_ERM_hat, tau=tau, H_ref_bar=H_ref_bar,
-        trajectory=trajectory, in_dim=in_dim, cfg=cfg,
+        erm_record=erm_record, trajectory=trajectory, in_dim=in_dim, cfg=cfg,
     )
