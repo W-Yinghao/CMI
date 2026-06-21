@@ -1,3 +1,5 @@
+> ⛔ **RETRACTED / SUPERSEDED (2026-06-21).** TUAB is **NOT** a clean pre-registered lockbox: 13 TUAB result files exist in the root commit `fb2a878` — a full LOSO method comparison (`erm/lpc_prior/cdann/dann`) — predating this file (`1de7a12`), and the numbers fed calibration + the SCPS scorecard. This frozen spec also pins the now-DROPPED LPC selector + residual-CMI gate. **Do NOT open TUAB on this spec.** See `notes/TUAB_EXPOSURE_AUDIT.md` and `notes/EVIDENCE_LEDGER.md`.
+
 # TUAB LOCKBOX — pre-registered held-out evaluation (DO NOT OPEN until method + baselines are frozen)
 
 **Purpose.** TUAB is reserved as a *lockbox* test set to mitigate the benchmark-overfitting risk of a

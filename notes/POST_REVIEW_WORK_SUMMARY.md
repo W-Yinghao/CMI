@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED (2026-06-21) by `notes/EVIDENCE_LEDGER.md`.** The "CMI-screened ... beats ERM by +3.0" headline is RETRACTED (deflated to ~+1.8/+2.3 2-seed; the lever is matched-CORAL, not CMI/LPC; CITA ties SPDIM). LPC is DROPPED as a deployment mechanism (P1.5), the CMI/residual-CMI gate is report-only DIAGNOSTIC, and the harm-gate/rollback/abstention line closed to `DIAGNOSTIC_ONLY` (A0-PILOT). Read the ledger for current status.
+
 # Post-review work summary — from "dualpc is null-safe but accuracy-parity" to a transductive method that beats ERM
 
 *Consolidated record of all code changes + experiments done after the review (the dualpc/Zhao positioning +

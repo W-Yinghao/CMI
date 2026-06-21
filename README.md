@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED (2026-06-21)** — authoritative claim status is now `notes/EVIDENCE_LEDGER.md`. Statements below about a CMI/density **safety gate**, **protective abstention**, **"CMI-screened" CITA**, the **+3.0** accuracy headline, or **TUAB as a lockbox** are RETRACTED or revised: the harm-gate/rollback/abstention direction closed to `DIAGNOSTIC_ONLY` (A0-PILOT), LPC is DROPPED as a deployment mechanism (P1.5 collapse), and TUAB is an already-examined benchmark (`notes/TUAB_EXPOSURE_AUDIT.md`).
+
 # Tri-CMI — Label-Prior-Corrected Conditional Mutual Information for Calibration-Free EEG Domain Generalization
 
 **Target:** AAAI-27 Main Technical Track (abstract 2026-07-21, full paper 2026-07-28, supplement/code 2026-07-31, all AoE).

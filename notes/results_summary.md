@@ -1,3 +1,5 @@
+> ⚠️ **SUPERSEDED (2026-06-21) by `notes/EVIDENCE_LEDGER.md`** — any CMI safety-gate / abstention / "+3.0 beats ERM" / TUAB-lockbox content here is retracted or revised.
+
 # Tri-CMI — Auto-generated Results Summary
 
 _Generated 2026-06-09 18:41 from 117 result files (`python -m analysis.summarize_results`). Metric: subject-level bAcc for SCPS, per-target for MCPS._

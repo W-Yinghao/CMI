@@ -1,3 +1,5 @@
+> ⚠️ **UNDER RE-AUDIT (2026-06-21), claim status OPEN.** The LPC calibration win is NOT yet deconfounded vs source-only **temperature scaling** / **scalar logit shrinkage** / accuracy-matched controls — P1.5 shows LPC trades representation compression, so this may be a compression side-effect (see `notes/EVIDENCE_LEDGER.md` #9). The **TUAB** row reflects an **EXPOSED** dataset, not a holdout (`notes/TUAB_EXPOSURE_AUDIT.md`).
+
 # Calibration (ECE% / NLL) — ERM vs lpc_prior, from saved `*.preds.npz` (no GPU/retrain)
 
 _Lower is better. lpc_prior = smallest-λ (no-cost) config. Hypothesis: less subject-shortcut → better calibration._
