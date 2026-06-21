@@ -29,6 +29,7 @@ conditional_rotation --seeds 0 --target-sites all --sites 3 --subjects 2 --sessi
 from __future__ import annotations
 
 import argparse
+import os
 
 import numpy as np
 import torch
@@ -38,12 +39,15 @@ from sklearn.metrics import balanced_accuracy_score
 from h2cmi.config import H2Config, core_config
 from h2cmi.domains import compact_domain_labels
 from h2cmi.data.paired_simulator import PairedEEGSimulator, PRESET_SCENARIOS
-from h2cmi.train.trainer import train_h2, reference_prior
+from h2cmi.train.trainer import train_h2, reference_prior, H2Model
 from h2cmi.eval.metrics import classification_metrics, _ece
 from h2cmi.eval.harness import _predict_transform, _embed
 from h2cmi.tta.class_conditional import ClassConditionalTTA, Transform
-from h2cmi.run_shift_grid import (git_sha, config_hash, hash_array, hash_state,
-                                  load_done_keys, append_row, build_cfgs)
+from h2cmi.run_shift_grid import build_cfgs
+from h2cmi.grid_io import (load_done_keys, append_row, hash_array, hash_state, full_sha,
+                           config_signature, build_manifest, validate_or_create_manifest,
+                           expected_keys, source_bundle_path, save_source_bundle,
+                           load_source_bundle)
 
 ACTIONS = ("identity", "prior_only", "geometry_only", "joint")
 
@@ -79,20 +83,28 @@ def main():
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--fast", action="store_true")
     ap.add_argument("--out", default="results/h2cmi/action_grid.jsonl")
+    ap.add_argument("--bundle-dir", default="", help="source-checkpoint cache (default: <out>.bundles)")
     args = ap.parse_args()
 
     scenarios = [s for s in args.scenarios.split(",") if s]
     for s in scenarios:
         if s not in PRESET_SCENARIOS:
             raise ValueError(f"unknown scenario {s}; have {sorted(PRESET_SCENARIOS)}")
+    scen_canon = [PRESET_SCENARIOS[s].name for s in scenarios]
     seeds = [int(s) for s in args.seeds.split(",") if s != ""]
     sites = (list(range(args.sites)) if args.target_sites == "all"
              else [int(s) for s in args.target_sites.split(",")])
     cfg_off, cfg_on = build_cfgs(args)
-    sha, chash = git_sha(), config_hash(cfg_on, args)
+    sha = full_sha()[:12]
+    bundle_dir = args.bundle_dir or (args.out + ".bundles")
+    # run manifest: a re-run with a different config/commit/scenario set into the same --out aborts
+    cli = {k: getattr(args, k) for k in ("scenarios", "seeds", "target_sites", "sites",
+            "subjects", "sessions", "trials", "classes", "chans", "times", "epochs", "fast")}
+    manifest = build_manifest(cfg_on, scen_canon, "action", cli)
+    validate_or_create_manifest(args.out, manifest)
     done = load_done_keys(args.out, item_field="action")
-    print(f"[action-grid] sha={sha} scenarios={scenarios} seeds={seeds} sites={sites} "
-          f"-> {args.out} ({len(done)} done)", flush=True)
+    print(f"[action-grid] sha={sha} run_sig={manifest['run_signature']} scenarios={scen_canon} "
+          f"seeds={seeds} sites={sites} -> {args.out} ({len(done)} done)", flush=True)
 
     uni = np.full(args.classes, 1.0 / args.classes)
     for seed in seeds:
@@ -107,9 +119,23 @@ def main():
             pi_star = reference_prior(ys, args.classes, "uniform")
             for cfg, cmi in ((cfg_off, "off"), (cfg_on, "on")):
                 cfg.train.seed = seed
-                model, *_ = train_h2(Xs, ys, src_dom, src_dag, cfg, align_factor="site")
+                # compute-resume: if every result key for this source bundle is done, skip
+                # training entirely (do not load data/build model/train).
+                if expected_keys(seed, tsite, cmi, scen_canon, ACTIONS) <= done:
+                    print(f"  seed={seed} site={tsite} cmi={cmi} complete -> skip train", flush=True)
+                    continue
+                csig = config_signature(cfg)
+                bpath = source_bundle_path(bundle_dir, seed, tsite, cmi)
+                if os.path.exists(bpath):                    # reuse the exact frozen source model
+                    model, _ = load_source_bundle(
+                        bpath, build_model=lambda c=cfg: H2Model(c, pi_star).to(args.device),
+                        expected_data_hash=src_hash, expected_config_signature=csig)
+                else:
+                    model, _, _, hist = train_h2(Xs, ys, src_dom, src_dag, cfg, align_factor="site")
+                    save_source_bundle(bpath, model, cfg, pi_star, src_hash, full_sha(), hist)
                 ckpt = hash_state(model)
-                common = dict(commit_sha=sha, config_hash=chash, data_seed=seed, train_seed=seed,
+                common = dict(commit_sha=sha, run_signature=manifest["run_signature"],
+                              config_signature=csig, data_seed=seed, train_seed=seed,
                               tta_seed=seed, target_site=tsite, cmi=cmi,
                               source_checkpoint_hash=ckpt, source_data_hash=src_hash)
                 for scen in scenarios:

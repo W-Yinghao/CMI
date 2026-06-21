@@ -41,74 +41,14 @@ from h2cmi.tta.oracles import (oracle_prior, oracle_labels, oracle_supervised_oo
                                crossfit_supervised_gain)
 
 
-# --------------------------------------------------------------------- hashing
-def git_sha() -> str:
-    try:
-        return subprocess.check_output(["git", "rev-parse", "--short", "HEAD"],
-                                       cwd=os.path.dirname(__file__) or ".").decode().strip()
-    except Exception:
-        return "unknown"
-
-
-def _hash(obj) -> str:
-    return hashlib.sha1(repr(obj).encode()).hexdigest()[:12]
-
-
-def hash_array(x: np.ndarray) -> str:
-    return hashlib.sha1(np.ascontiguousarray(x).tobytes()).hexdigest()[:12]
-
-
-def hash_state(model) -> str:
-    h = hashlib.sha1()
-    for k, v in model.state_dict().items():
-        h.update(k.encode()); h.update(v.detach().cpu().numpy().tobytes())
-    return h.hexdigest()[:12]
+# hashing / strict resume io -- single source of truth in grid_io
+from h2cmi.grid_io import (hash_array, hash_state, load_done_keys, append_row,  # noqa: E402
+                           short_sha as git_sha, config_signature)
 
 
 def config_hash(cfg: H2Config, args) -> str:
-    return _hash((cfg.n_classes, cfg.encoder.z_c_dim, cfg.encoder.use_spd, cfg.density.df,
-                  cfg.tta.transform, cfg.train.epochs, args.sites, args.subjects,
-                  args.sessions, args.trials))
-
-
-# --------------------------------------------------------------------- io / resume
-def load_done_keys(path: str, item_field: str = "method") -> set:
-    """Strict resume index keyed by (data_seed, target_site, scenario, item_field, cmi).
-
-    ``item_field`` is the row's unit column ("method" for the shift grid, "action" for the
-    action grid). FAILS LOUDLY on malformed JSON, missing fields or duplicate keys instead
-    of silently skipping (the old broad ``except`` made the action grid non-resumable: it
-    read "method", action-grid rows have "action", so every row was dropped and re-runs
-    appended duplicates)."""
-    keys: set = set()
-    if not os.path.exists(path):
-        return keys
-    with open(path) as f:
-        for line_no, line in enumerate(f, start=1):
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                row = json.loads(line)
-            except json.JSONDecodeError as exc:
-                raise ValueError(f"Malformed JSON at {path}:{line_no}") from exc
-            required = {"data_seed", "target_site", "scenario", item_field, "cmi"}
-            missing = required - row.keys()
-            if missing:
-                raise KeyError(f"{path}:{line_no} missing fields {sorted(missing)}")
-            key = (row["data_seed"], row["target_site"], row["scenario"],
-                   row[item_field], row["cmi"])
-            if key in keys:
-                raise ValueError(f"Duplicate result key at {path}:{line_no}: {key}")
-            keys.add(key)
-    return keys
-
-
-def append_row(path: str, row: dict):
-    os.makedirs(os.path.dirname(path) or ".", exist_ok=True)
-    with open(path, "a") as f:
-        f.write(json.dumps(row, default=float) + "\n")
-        f.flush(); os.fsync(f.fileno())
+    # kept for the (already-run) shift-grid rows; new grids should use config_signature.
+    return config_signature(cfg)[:12]
 
 
 # --------------------------------------------------------------------- config
