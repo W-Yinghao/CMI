@@ -42,20 +42,30 @@ class ScenarioSpec:
     name: str
     target_cov: float = 0.0
     target_prior: float = 0.0
-    target_concept: float = 0.0
+    target_concept: float = 0.0           # shared rotation of the class->source-power map
     target_montage: float = 0.0
     target_noise_delta: float = 0.0
+    matched_domain: bool = False          # target subjects reuse SOURCE anatomy (identity-null)
 
 
-# first-batch scenarios (no montage/noise/label-corruption yet)
+# canonical scenario names (review Stage-A renames). ``concept`` is a conditional GEOMETRY
+# rotation, not a label mechanism, so it is named ``conditional_rotation``. ``no_shift`` keeps
+# unseen-subject anatomy (a real random effect), so it is the ``population_null``;
+# ``matched_domain_null`` is the true identity-null for calibrating the rollback threshold.
 PRESET_SCENARIOS = {
-    "no_shift":    ScenarioSpec("no_shift"),
-    "cov":         ScenarioSpec("cov", target_cov=1.0),
-    "prior":       ScenarioSpec("prior", target_prior=1.0),
-    "concept":     ScenarioSpec("concept", target_concept=0.6),
-    "cov_prior":   ScenarioSpec("cov_prior", target_cov=1.0, target_prior=1.0),
-    "cov_concept": ScenarioSpec("cov_concept", target_cov=1.0, target_concept=0.6),
+    "population_null":          ScenarioSpec("population_null"),
+    "matched_domain_null":      ScenarioSpec("matched_domain_null", matched_domain=True),
+    "cov":                      ScenarioSpec("cov", target_cov=1.0),
+    "prior":                    ScenarioSpec("prior", target_prior=1.0),
+    "conditional_rotation":     ScenarioSpec("conditional_rotation", target_concept=0.6),
+    "cov_prior":                ScenarioSpec("cov_prior", target_cov=1.0, target_prior=1.0),
+    "cov_conditional_rotation": ScenarioSpec("cov_conditional_rotation",
+                                             target_cov=1.0, target_concept=0.6),
 }
+# back-compat: old names resolve to the SAME canonical spec (so output is always canonical)
+_ALIASES = {"no_shift": "population_null", "concept": "conditional_rotation",
+            "cov_concept": "cov_conditional_rotation"}
+PRESET_SCENARIOS.update({old: PRESET_SCENARIOS[new] for old, new in _ALIASES.items()})
 
 
 class PairedEEGSimulator:
@@ -166,13 +176,22 @@ class PairedEEGSimulator:
         self.trials = int(trials_per_session)
         dag = DomainDAG.hierarchical_site_subject_session(
             n_sites, subjects_per_site, sessions_per_subject)
+        # source subjects (for matched_domain_null: target subjects reuse these anatomies)
+        src_subjects = [s for s in range(n_sites * subjects_per_site)
+                        if s // subjects_per_site != target_site]
         Xs, ys, lv_site, lv_subj, lv_sess = [], [], [], [], []
         sess_id = 0
         for site in range(n_sites):
             prior, rot, site_dM, gain, ndelta = self._site_params(site, target_site, scenario)
             for sj in range(subjects_per_site):
                 subject = site * subjects_per_site + sj
-                M_d = self.M0 + self._subj_dM(subject) + site_dM
+                if scenario.matched_domain and site == target_site:
+                    # match a source subject's mixing/anatomy; canonical site params; trial
+                    # seeds (phase/noise/labels) stay keyed to THIS subject -> independent resample
+                    anatomy_subject = src_subjects[sj % len(src_subjects)]
+                    M_d = self.M0 + self._subj_dM(anatomy_subject)
+                else:
+                    M_d = self.M0 + self._subj_dM(subject) + site_dM
                 for ss in range(sessions_per_subject):
                     x, ystar = self._gen_session(site, subject, sess_id, prior, rot, M_d, gain, ndelta)
                     Xs.append(x); ys.append(ystar)
@@ -190,16 +209,19 @@ class PairedEEGSimulator:
 
 if __name__ == "__main__":
     sim = PairedEEGSimulator(n_classes=3, n_chans=12, n_times=128, data_seed=0)
-    a = sim.sample(3, 2, 2, 16, target_site=0, scenario="no_shift")
+    a = sim.sample(3, 2, 2, 16, target_site=0, scenario="population_null")
     b = sim.sample(3, 2, 2, 16, target_site=0, scenario="cov")
-    src_a = a.site != 0
-    src_b = b.site != 0
+    src_a, src_b = a.site != 0, b.site != 0
     same = np.array_equal(a.X[src_a], b.X[src_b]) and np.array_equal(a.y[src_a], b.y[src_b])
     print("source identical across scenarios:", same)
     tgt_diff = not np.array_equal(a.X[a.site == 0], b.X[b.site == 0])
-    print("target differs (cov vs no_shift):", tgt_diff)
-    # prior scenario only changes target labels, not source
+    print("target differs (cov vs population_null):", tgt_diff)
     c = sim.sample(3, 2, 2, 16, target_site=0, scenario="prior")
     print("prior leaves source identical:", np.array_equal(a.X[src_a], c.X[c.site != 0]))
+    # back-compat alias resolves to canonical
+    print("alias no_shift->population_null:", PRESET_SCENARIOS["no_shift"].name == "population_null")
+    # matched_domain_null: source still identical; target uses source anatomy (no site shift)
+    m = sim.sample(3, 2, 2, 16, target_site=0, scenario="matched_domain_null")
+    print("matched_domain_null source identical:", np.array_equal(a.X[src_a], m.X[m.site != 0]))
     assert same and tgt_diff, "pairing broken"
     print("paired_simulator self-test PASSED")

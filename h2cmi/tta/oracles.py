@@ -102,9 +102,50 @@ def crossfit_supervised_gain(tta: ClassConditionalTTA, U: torch.Tensor, labels: 
     return float(np.mean(gains))
 
 
+def oracle_supervised_oof(tta: ClassConditionalTTA, U: torch.Tensor, labels: np.ndarray,
+                          groups: np.ndarray | None = None):
+    """TRUE out-of-fold supervised predictions (review blocker #2).
+
+    Split into two folds by ``groups`` (target SUBJECT ids -> held-out-subject folds, not a
+    random trial split); fit the supervised transform with labels on one fold, PREDICT the
+    other; concatenate. The returned probabilities are genuinely held-out, so their bAcc/NLL
+    is an honest supervised ceiling -- unlike the transductive ``oracle_labels`` whose
+    full-data refit shares responsibilities with its own predictions.
+
+    Returns (proba [N,K], info).
+    """
+    U = U.detach().to(tta.device)
+    y = np.asarray(labels)
+    n = U.shape[0]
+    if groups is None or len(np.unique(groups)) < 2:
+        groups = np.arange(n) % 2                      # fallback: random-ish trial split
+    groups = np.asarray(groups)
+    uniq = np.unique(groups)
+    foldA_g = set(uniq[::2].tolist())
+    inA = np.isin(groups, list(foldA_g))
+    proba = np.full((n, tta.n_classes), 1.0 / tta.n_classes, dtype=np.float64)
+    with _frozen_density(tta):
+        for fit_mask, pred_mask in ((~inA, inA), (inA, ~inA)):
+            if fit_mask.sum() < 2 or pred_mask.sum() < 1:
+                continue
+            fm = torch.as_tensor(fit_mask, device=tta.device)
+            pm = torch.as_tensor(pred_mask, device=tta.device)
+            resp = F.one_hot(torch.as_tensor(y[fit_mask], dtype=torch.long, device=tta.device),
+                             tta.n_classes).float()
+            pi_fit = torch.tensor(_empirical_prior(y[fit_mask], tta.n_classes),
+                                  dtype=torch.float32, device=tta.device)
+            T, pi = tta._fit_transform(U[fm], fixed_prior=pi_fit, fixed_resp=resp)
+            with torch.no_grad():
+                z = T.apply(U[pm])
+                proba[pred_mask] = tta.density.class_posterior(
+                    z, torch.log(pi.clamp_min(1e-8))).cpu().numpy()
+    return proba, dict(oof_groups=int(len(uniq)))
+
+
 def oracle_supervised_transform(tta: ClassConditionalTTA, U: torch.Tensor, labels: np.ndarray) -> TTAResult:
     """Cross-fitted supervised transform: reports the held-out evidence ceiling and a
-    full-data refit (with labels) to apply."""
+    full-data refit (with labels) to apply. (Transductive proxy; prefer oracle_supervised_oof
+    for the accuracy ceiling.)"""
     gain = crossfit_supervised_gain(tta, U, labels)
     U = U.detach().to(tta.device)
     y = torch.as_tensor(labels, dtype=torch.long, device=tta.device)

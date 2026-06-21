@@ -47,6 +47,19 @@ def test_order_independent_and_deterministic():
     assert np.array_equal(a.X, b.X) and np.array_equal(a.y, b.y), "sampling not deterministic"
 
 
+def test_matched_domain_null_keeps_source_and_aliases():
+    from h2cmi.data.paired_simulator import PRESET_SCENARIOS
+    # canonical names + back-compat aliases resolve to the same spec
+    assert PRESET_SCENARIOS["no_shift"].name == "population_null"
+    assert PRESET_SCENARIOS["concept"].name == "conditional_rotation"
+    base = _sample("population_null", target=1)
+    matched = _sample("matched_domain_null", target=1)
+    src = base.site != 1
+    assert np.array_equal(base.X[src], matched.X[matched.site != 1]), "matched_domain perturbed source"
+    # matched-domain target differs from population_null target (reuses source anatomy)
+    assert not np.array_equal(base.X[base.site == 1], matched.X[matched.site == 1])
+
+
 if __name__ == "__main__":
     test_source_identical_across_scenarios()
     test_mechanisms_are_orthogonal()

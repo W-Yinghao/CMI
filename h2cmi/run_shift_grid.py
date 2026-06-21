@@ -37,7 +37,8 @@ from h2cmi.eval.metrics import classification_metrics
 from h2cmi.eval.harness import _predict_generative, _predict_transform, _embed
 from h2cmi.eval.leakage import crossfit_conditional_leakage
 from h2cmi.tta.class_conditional import ClassConditionalTTA
-from h2cmi.tta.oracles import oracle_prior, oracle_labels, oracle_supervised_transform
+from h2cmi.tta.oracles import (oracle_prior, oracle_labels, oracle_supervised_oof,
+                               crossfit_supervised_gain)
 
 
 # --------------------------------------------------------------------- hashing
@@ -129,7 +130,7 @@ def _transform_fields(res):
 
 
 def run_unit(model, U, y_tgt, strict_bacc, pi_star, true_prior, base_row, cmi_tag,
-             tta_cfg, n_classes, device, out_path, done, factorial=None):
+             tta_cfg, n_classes, device, out_path, done, groups=None):
     """Emit identity / tta / oracle rows for one source model on one target."""
     def emit(method, p, extra=None, factorial_cell=None):
         key = (base_row["data_seed"], base_row["target_site"], base_row["scenario"], method, cmi_tag)
@@ -156,16 +157,19 @@ def run_unit(model, U, y_tgt, strict_bacc, pi_star, true_prior, base_row, cmi_ta
               prior_l1_error=float(np.abs(np.asarray(res.pi_T) - true_prior).sum()))
     emit("tta", p_ad, extra=tf, factorial_cell=("M3" if cmi_tag == "on" else "M2"))
 
-    # oracles (diagnostics; need true labels)
-    for name, fn in (("oracle_prior", oracle_prior), ("oracle_labels", oracle_labels),
-                     ("oracle_supervised", oracle_supervised_transform)):
+    # transductive oracles (apply a full-data transform): true prior / true responsibilities
+    for name, fn in (("oracle_prior", oracle_prior), ("oracle_labels", oracle_labels)):
         ores = fn(tta, U, y_tgt)
         p_or = _predict_transform(model, U, ores.transform, ores.pi_T)
         of = _transform_fields(ores)
         of.update(estimated_prior=list(np.asarray(ores.pi_T)),
-                  prior_l1_error=float(np.abs(np.asarray(ores.pi_T) - true_prior).sum()),
-                  crossfit_supervised_gain=ores.diagnostics.get("crossfit_supervised_gain", float("nan")))
+                  prior_l1_error=float(np.abs(np.asarray(ores.pi_T) - true_prior).sum()))
         emit(name, p_or, extra=of)
+    # TRUE held-out supervised ceiling (out-of-fold by subject) -- the honest accuracy ceiling
+    proba_oof, oof_info = oracle_supervised_oof(tta, U, y_tgt, groups=groups)
+    emit("oracle_supervised_oof", proba_oof,
+         extra=dict(crossfit_supervised_gain=crossfit_supervised_gain(tta, U, y_tgt),
+                    oof_groups=oof_info["oof_groups"], oof=True))
 
 
 def main():
@@ -228,16 +232,18 @@ def main():
                                    final_lambdas=last.get("lambda_", {}), critic_ce=last.get("critic_ce", 0.0),
                                    **leak_fields)
                 for scen in scenarios:
+                    scen_canon = PRESET_SCENARIOS[scen].name        # write canonical names only
                     tgt_full = sim.sample(args.sites, args.subjects, args.sessions, args.trials,
                                           target_site=tsite, scenario=scen)
                     tm = tgt_full.site == tsite
                     Xt, yt = tgt_full.X[tm], tgt_full.y[tm]
+                    groups = tgt_full.domains.subset(np.where(tm)[0]).factor("subject")  # OOF folds
                     U = _embed(model, Xt, args.device)
                     strict = balanced_accuracy_score(yt, _predict_generative(model, U, pi_star).argmax(1))
                     true_prior = np.bincount(yt, minlength=args.classes) / len(yt)
-                    base_row = dict(base_common, scenario=scen, target_size=int(len(yt)))
+                    base_row = dict(base_common, scenario=scen_canon, target_size=int(len(yt)))
                     run_unit(model, U, yt, strict, pi_star, true_prior, base_row, cmi_tag,
-                             cfg.tta, args.classes, args.device, args.out, done)
+                             cfg.tta, args.classes, args.device, args.out, done, groups=groups)
                 print(f"  seed={seed} site={tsite} cmi={cmi_tag} ckpt={ckpt_hash} done", flush=True)
     print(f"[shift-grid] complete: {len(done)} units in {args.out}", flush=True)
 
