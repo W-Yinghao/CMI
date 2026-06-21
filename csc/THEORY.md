@@ -1,187 +1,218 @@
-# THEORY — Falsifiable Concept-Shift Certificates with Abstention
+# THEORY — Partial-Identification Concept-Shift Certificates with Abstention
 
-*When can an unlabeled EEG target tell you the label rule `P(Y|Z)` has changed — and when
+*When can an unlabeled EEG target reveal that the label rule `P(Y|Z)` changed — and when
 must you refuse to answer?*
 
-This file states the framework formally. It is deliberately built **on top of this
-project's negative results**, not around them: the A0 falsification
-([`notes/A0_FALSIFICATION_FROZEN.md`](../notes/A0_FALSIFICATION_FROZEN.md),
-[`notes/A0_SAMPLE_ABSTENTION_PILOT_FROZEN.md`](../notes/A0_SAMPLE_ABSTENTION_PILOT_FROZEN.md))
-showed that density / CMI scores are **anti-aligned with adaptation harm**, and the
-Evidence Ledger ([`notes/EVIDENCE_LEDGER.md`](../notes/EVIDENCE_LEDGER.md)) names the next
-defensible phase as *"identifiability / counterexample theory — a NEW phase, not a seventh
-gate score."* That is exactly what this is. We do **not** try to build a universal
-concept detector; we characterise the boundary of detectability and **abstain past it**.
+This direction is the **identifiability / counterexample phase** the Evidence Ledger named
+as the way forward after the gate line closed
+([`notes/EVIDENCE_LEDGER.md`](../notes/EVIDENCE_LEDGER.md)); A0 proved density/CMI scores
+are *anti-aligned* with adaptation harm
+([`notes/A0_FALSIFICATION_FROZEN.md`](../notes/A0_FALSIFICATION_FROZEN.md)). We do **not**
+build a universal concept detector; we characterise the boundary of detectability and
+**abstain past it**.
 
 ---
 
-## 0. Setup and notation
+## 0. Setup
 
-We observe a representation `Z ∈ R^d`, a label `Y ∈ {1..K}`, and a domain index `D`.
+Representation `Z ∈ R^d`, label `Y ∈ {1..K}`, domain `D`. Source: several class-spanning,
+labelled domains. Target (deployment): a batch of `Z` only — **no target labels, no source
+examples at scoring** (the A0 constraint).
 
-* **Source**: multiple *class-spanning* domains with labels, `{(z_i, y_i, d_i)}`. (Real:
-  PD medication ON/OFF, or several same-disease cohorts. Synthetic: the simulator.)
-* **Target (deployment)**: a batch of `Z` only — **no labels, no source examples** at
-  scoring time (the deployment constraint inherited from A0 §1).
-
-A *shift* is a change from the source law of `(Y, Z)` to the target law. We decompose any
-shift into a change in the marginal `P(Z)` and a change in the posterior `P(Y|Z)`.
+A shift changes the source law of `(Y, Z)`. Decompose it into a change in the marginal
+`P(Z)` and a change in the posterior `P(Y|Z)`.
 
 ---
 
-## 1. The shift taxonomy (three observable classes + the blind one)
+## 1. The impossibility result (general form)
 
-| name | `P(Z)` | `P(Y|Z)` | observable from target `Z` alone? |
-|---|---|---|---|
-| **covariate** | changes | invariant | **yes** — visible marginal signature |
-| **boundary-coupled concept** | changes | changes | **yes** — concept leaves a marginal trace |
-| **pure conditional concept** | **invariant** | changes | **NO** — invisible to any `Z`-only detector |
+The v0 note only argued that a *pure conditional* shift is invisible. The correct statement
+is stronger and frames the entire method as **partial identification**:
 
-The first two are *support-visible*. The third is the crux.
+> **Proposition 1 (no Z-only concept identification).** Fix any target marginal `Q_Z`. There
+> exist two joint target laws `Q_0, Q_1` with `Q_0(Z) = Q_1(Z) = Q_Z` but
+> `Q_0(Y|Z) = P_S(Y|Z)` and `Q_1(Y|Z) ≠ P_S(Y|Z)`. Any certificate that is a function of the
+> unlabeled target (a function of `Q_Z`) returns the same value on `Q_0` and `Q_1`. Hence no
+> Z-only certificate can decide "`P(Y|Z)` unchanged" vs "concept shift" — for **any** observed
+> marginal, not only when `Q_Z = P_S(Z)`.
 
-### 1.1 The impossibility result (why abstention is mandatory)
+*Proof.* Pick any `Q_Z` with full support on the source `Z`-support. Set `Q_0(Y|Z)=P_S(Y|Z)`.
+For `Q_1`, perturb the posterior on a positive-measure set (e.g. swap two classes' posteriors
+on a region) while keeping the same `Q_Z`; both are valid joints with marginal `Q_Z`. A
+`Z`-only `f` sees `Q_Z` in both cases, so `f(Q_0)=f(Q_1)`; it is wrong on at least one. ∎
 
-> **Claim.** Let `f` be any certificate that reads only the unlabeled target marginal
-> `P_T(Z)` (no target labels, no fresh source labels at deployment). If two target laws
-> `Q_1, Q_2` satisfy `Q_1(Z) = Q_2(Z)` but `Q_1(Y|Z) ≠ Q_2(Y|Z)`, then `f` returns the
-> same output on both. Hence no `Z`-only `f` can distinguish "`P(Y|Z)` unchanged" from a
-> pure conditional shift. Any `f` that outputs a definite safety verdict here is wrong on
-> at least one of `Q_1, Q_2`.
+**Consequence.** "The target marginal landed in a concept direction" is, on its own, **not**
+identification of concept shift. It can only be *evidence* under an extra, explicit
+assumption that ties what the source showed to what the target is doing:
 
-*Proof.* `f` is a function of `P_T(Z)`; `P_T(Z)` is identical under `Q_1, Q_2`; so
-`f(Q_1)=f(Q_2)`. ∎
+> **Assumption T (atlas transportability + signature separability).** (i) The target shift
+> is generated by the same mechanism family the source spans — its marginal signature lies
+> in the span of the source covariate / concept / label signatures (no novel mechanism);
+> and (ii) those signature subspaces are separable (a covariate-only move and a
+> boundary-moving concept change leave *distinguishable* marginal traces).
 
-This is the formal version of the A0 finding "you cannot extrapolate a support statistic
-into a universal concept detector." The **only** correct output in the regime where the
-target marginal is indistinguishable from source is `UNIDENTIFIABLE`. A low density/CMI
-reading there is a *false* certificate of safety — precisely the failure A0 documented.
+Under Assumption T the certificate is a **conditional, abstention-equipped partial-
+identification** statement. Without it, `CONCEPT_SUSPECT` is only **source-anchored
+suspicion**, never distribution-free identification — and the certificate says so by
+abstaining whenever the target leaves the atlas (Proposition 1's "novel direction" branch).
 
-Consequently the certificate is **three-state**, never binary:
+This is why the output is **three-state**, never binary:
 
 ```
-COVARIATE_ADAPTABLE   visible shift in the covariate atlas; boundary did not move there
-CONCEPT_SUSPECT       visible shift aligned with where the source boundary DID move
-UNIDENTIFIABLE        abstain: invisible / out-of-atlas / no valid concept atlas
+COVARIATE_COMPATIBLE   visible, in-atlas, label-free shift in the covariate subspace where
+                       the source boundary is stable  (a COMPATIBILITY claim — see §5)
+CONCEPT_SUSPECT        visible shift aligned with DIRECTION-LINKED concept evidence
+UNIDENTIFIABLE         abstain: invisible, label-confounded, out-of-atlas, ambiguous, or no
+                       valid concept atlas
 ```
 
 ---
 
-## 2. Source-side: is there any concept structure to calibrate against?
+## 2. The shift taxonomy
 
-The certificate can only claim concept evidence if the **source** demonstrates that
-`P(Y|Z)` genuinely varies across domains *beyond label shift*. We test this with a
-cross-fitted, permutation-calibrated **residual-decoder** statistic.
+| name | `P(Z)` | `P(Y|Z)` | target-only observable? | certificate |
+|---|---|---|---|---|
+| covariate | changes (nuisance) | invariant | yes | COVARIATE_COMPATIBLE |
+| boundary-coupled concept | changes | changes | yes (marginal trace) | CONCEPT_SUSPECT |
+| pure conditional concept | invariant | changes | **no** (Prop. 1) | UNIDENTIFIABLE |
+| **label (target) shift** | changes | changes (Bayes) | yes (class-mean subspace) | UNIDENTIFIABLE |
 
-### 2.1 The statistic
-
-```
-T  =  CE( h0(Y | Z, D) )  −  CE( h(Y | Z, D) )
-```
-
-* `h0` — **domain-intercept only**: features `[Z, onehot(D)]`. The domain may change the
-  per-class prior (label shift) but the `Z→Y` boundary is *shared*.
-* `h`  — **domain-dependent boundary**: features `[Z, onehot(D), Z ⊗ onehot(D)]`. The
-  interaction lets the boundary move per domain.
-
-`T > 0` (evaluated **out-of-fold**) means: after absorbing per-domain label shift, the
-domains still carry domain-dependent *boundary* structure → evidence of genuine concept
-variation. Cross-fitting removes the in-sample advantage a richer model would otherwise
-get; in practice `T` is a small signed number and we compare it to its null (below).
-
-### 2.2 Permutation calibration
-
-Under the null "no domain-dependent boundary", we permute `D` **within each `Y` stratum**
-(destroying `Z|D`-within-class structure while preserving class counts) and recompute `T`.
-Significance is `p = (1 + #{T_perm ≥ T}) / (1 + n_perm) ≤ α`. This is the honest threshold;
-it accounts for the (negative) cross-fit bias of the richer model.
-
-### 2.3 The support-graph validity gate (the single-class trap)
-
-The residual test is only interpretable as *concept* when the domain–label support graph
-is qualified:
-
-* every domain spans `≥ 2` classes (else `D ⇒ Y` and `I(Y;D|Z)` collapses onto label
-  predictability `H(Y|Z)` — the **clinical degeneracy** of H2-CMI's P0-4);
-* every class appears in `≥ 2` domains (else the boundary is not comparably estimable).
-
-If the gate fails → `status = INVALID` → the certifier **abstains** (no concept atlas can
-be built). This is the "single-class subject-domain as an invalid case to reject" from the
-proposal, enforced in code.
-
-### 2.4 What `T` is, and is not
-
-`T` is the increment from a *domain-dependent boundary* over a *domain-intercept* decoder.
-Per H2-CMI P0-4, the raw `I(Y;D|Z)` is a **predictive-insufficiency diagnostic** that can
-fire from `Z` discarding task info, misspecification, incomplete label-shift correction, or
-thin support — *not* only from true `p(y|x,d)` change. The intercept-vs-boundary split +
-the support gate are exactly what remove the label-shift and degeneracy confounds, leaving
-`T` interpretable as boundary movement **conditional on the validity gate**. We make no
-claim that `T` is "precise CMI" (the naming correction in the Evidence Ledger is binding).
+The **label-shift row is the sharpest trap** (the review's counterexample): a change of
+`P(Y)` with `P(Z|Y)` fixed moves the pooled mean along the class-mean subspace `U_π`, which
+a naive detector reads as concept movement. It is *identifiable in principle* (with a
+label-shift model and a target-prior estimate) but **not** from the marginal alone without
+that model, so the certificate abstains. The certifier carries an explicit `U_π` and a label
+gate (§3, §4).
 
 ---
 
-## 3. The source shift atlas
+## 3. Source-side concept evidence
 
-From the source we estimate the *directions* it actually moved along, split to mirror the
-`h0`/`h` decomposition. For domain `d`, class `y`, with pooled class mean `μ_y`:
-
+### 3.1 The statistic
 ```
-a_d      = mean_y ( μ_{d,y} − μ_y )           common (covariate) part: P(Z) moved, boundary did not
-r_{d,y}  = (μ_{d,y} − μ_y) − a_d              class-specific residual: the boundary moved
+T = CE(h0(Y|Z,D)) - CE(h(Y|Z,D))      (cross-fitted, out-of-fold)
+  h0 : [Z, D_dummies]                 shared boundary + per-domain intercept (label shift)
+  h  : [Z, D_dummies, Z(x)D_dummies]  domain-dependent boundary
 ```
+`T>0` out-of-fold = boundary structure beyond label shift = concept variation. Per H2-CMI
+P0-4 the raw `I(Y;D|Z)` is a *predictive-insufficiency diagnostic*; the intercept-vs-boundary
+split + the support gate are what make `T` interpretable as boundary movement. We do **not**
+call it "precise CMI" (Evidence-Ledger naming rule).
 
-* `cov_dirs`     = principal axes of `{a_d}` — where covariate shift is *identifiable*.
-* `concept_dirs` = principal axes of `{r_{d,y}}` (with the covariate subspace projected
-  out) — where a concept change leaves a *marginal trace*.
-* `σ_cov, σ_concept` = the source between-domain spreads (the scale of "normal wobble").
+### 3.2 Reference coding (identifiability of the design)
+A full domain one-hot is collinear with the LR intercept, and a full `Z⊗D` block with the
+shared `Z` — the v0 designs had rank deficiency 1 and 1+d, so L2 silently re-weighted the
+penalty. We **drop the reference domain column** in both the dummy and interaction blocks:
+the reference domain's boundary is the shared-`Z` coefficient; other domains add identified
+adjustments. The designs are then full column rank (`tests/test_design_and_pairs.py`).
 
-A target shift smaller than that wobble is, by the impossibility result, not
-distinguishable from an invisible conditional shift.
+### 3.3 A valid null = parametric bootstrap under fitted `h0`
+The v0 within-`Y` permutation of `D` assumed `D ⊥ everything | Y`, which **fails under
+covariate shift** (`Z` and `D` are dependent given `Y`), so it was not exchangeable. Instead
+we **condition on `(Z, D)`** and resample `Y* ~ p̂0(y|z,d)` from the fitted domain-intercept
+model — exactly the null "the boundary is domain-independent" with the observed `P(Z,D)`
+fixed. Recomputing `T*` gives a calibrated one-sided p-value. The same null prunes concept
+directions (§4).
+
+### 3.4 Support gate = identifiability, not degree
+The v0 gate only required ≥2 classes/domain and ≥2 domains/class — it **passed a
+disconnected graph** (domains {0,1}↔classes{0,1}, domains {2,3}↔classes{2,3}: every degree
+condition holds, yet the boundary is not jointly identifiable). The gate now also checks:
+* bipartite `(domain,class)` **connectivity** (union-find);
+* a minimum occupied-cell sample count;
+* the **condition number** of the interaction design.
+Any failure ⇒ `INVALID` ⇒ the certifier abstains (the single-class / disconnected / ill-posed
+cases all become honest abstentions).
 
 ---
 
-## 4. The three-state certifier
+## 4. Atlas, direction-linked evidence, and the certifier
 
-Given the atlas, the source residual test, and unlabeled target `Z_T`, let
-`δ = mean(Z_T) − pooled_mean`, with components `n_cov, n_concept, n_resid` = the norms of
-`δ` projected onto `cov_dirs`, `concept_dirs`, and the orthogonal complement, each scaled
-by the matching source spread.
-
+From the source we estimate three **mutually orthogonal** subspaces, in order of estimation
+quality so cross-leakage flows away from the dangerous mistakes:
 ```
-if source_test.status != VALID:              -> UNIDENTIFIABLE   (no concept atlas)
-if max(n_cov,n_concept,n_resid) < τ_detect:  -> UNIDENTIFIABLE   (invisible: pure conditional not excludable)
-if n_resid dominates (out of atlas):         -> UNIDENTIFIABLE   (novel direction, identifiability not established)
-if n_concept dominates AND source significant:-> CONCEPT_SUSPECT
-if n_cov dominates:                          -> COVARIATE_ADAPTABLE
-otherwise (ambiguous mix):                   -> UNIDENTIFIABLE
+cov_dirs     <- a_d = mean_y(mu_{d,y}-mu_y)          highest SNR; nuisance
+concept_dirs <- r_{d,y} = (mu_{d,y}-mu_y) - a_d      label-INVARIANT; orthog. vs cov
+label_dirs U_pi <- span{mu_y - mean_y mu_y}          orthog. vs {cov, concept} -> pure task
 ```
+(The v0 estimated `label_dirs` first from contaminated class means, so a huge covariate or
+concept move leaked into it and the label gate over-fired; the reordering fixes that.)
 
-The asymmetry is deliberate: the certifier issues `COVARIATE_ADAPTABLE` (a *positive*
-safety statement) **only** for a visible shift that lands in the covariate atlas where the
-source proved the boundary is stable. Everywhere it cannot see — invisible, out-of-atlas,
-ambiguous, or no valid atlas — it abstains. It can be wrong by abstaining too often (low
-power); it is designed to never be wrong by **falsely certifying safety**.
+**Direction-linked evidence.** Global "some boundary moved somewhere" must not license
+`CONCEPT_SUSPECT`. Each candidate concept direction is kept only if its boundary-movement
+loading exceeds the §3.3 parametric-bootstrap null (parallel-analysis style). The certifier
+requires the target to load on a *surviving* (evidenced) concept direction.
+
+**Decision** (`δ = mean(Z_T) − pooled_mean`, components normalised by their source spreads):
+```
+0. invalid support                           -> UNIDENTIFIABLE
+1. n_label >= tau_label                       -> UNIDENTIFIABLE   (label-shift signature)
+2. max(n_cov,n_con,n_res) < tau_detect        -> UNIDENTIFIABLE   (invisible / pure conditional)
+3. out-of-atlas residual dominates            -> UNIDENTIFIABLE   (novel direction; Prop. 1)
+4. concept dominant AND direction-evidenced   -> CONCEPT_SUSPECT
+5. covariate dominant                         -> COVARIATE_COMPATIBLE
+6. ambiguous mix                              -> UNIDENTIFIABLE
+```
+The asymmetry is deliberate: a *positive* statement is issued only inside the atlas, label-
+free, with a dominant evidenced component. Everywhere else it abstains. It may err by
+over-abstaining (low power); it is built to never err by **false certification**.
+
+**Confidence-region decision (Γ_T, CSC-P1).** A single target-mean point is replaced by a
+block-bootstrap of the target rows: a definite state is emitted only if a consensus fraction
+of replicates agree (the bootstrap region maps to a single attribution — `Γ_T` a singleton);
+otherwise abstain (`certify_robust`).
 
 ---
 
-## 5. What is proven vs assumed (honesty)
+## 5. `COVARIATE_COMPATIBLE` is a compatibility claim, NOT an adaptation guarantee
 
-* **Proven** (§1.1): a `Z`-only certificate *cannot* identify pure conditional shift;
-  abstention there is necessary, not conservative.
-* **Calibrated** (§2.2): the source concept-evidence test has a permutation null →
-  controllable false-positive rate (a *property of the test*, validated on synthetic).
-* **Assumed / to-be-validated**:
-  * the linear/mean-shift atlas (§3) captures the relevant geometry. Real EEG concept
-    shift may move higher moments or be non-linear in `Z`; the atlas then under-detects
-    (more abstention), but the §1.1 guarantee still holds.
-  * the thresholds `τ_detect, τ_margin` are currently **hand-set on synthetic** and must
-    be calibrated by leave-one-source-domain-out so that a held-out *source* domain is
-    rarely mis-certified (this is open work, see PREREGISTRATION §4).
-  * "boundary-coupled" concept shift is detectable **only** to the extent the concept
-    change perturbs the *observed* marginal; a concept shift that is invisible in `Z` is,
-    correctly, `UNIDENTIFIABLE`.
+The certificate does **not** name an adaptation operator and does **not** prove any
+adaptation lowers target risk. "Aligned with the source covariate subspace" ⇏ "adaptation
+helps" — assuming it would re-opens exactly the A0-closed error of inferring adaptation harm
+from a support statistic. So the state is named **COMPATIBLE** (the shift is of a kind the
+source showed leaves the boundary fixed), and any *operational* "ADAPTABLE" claim would
+require, separately: a named operator `A`, a risk estimand, and a bound
+`R_T(A(h)) − R_T(h) ≤ ε` validated on held-out outcomes. That is out of scope here and
+deferred to a future phase.
 
-The contribution is therefore not higher average accuracy. It is a **falsifiable formal
-boundary**: a certificate that says *when you can diagnose concept shift and when you must
-refuse to* — with the refusal proven necessary, and the diagnosis calibrated and
+---
+
+## 6. Calibration: nested, oracle-labeled LODO (CSC-P1)
+
+The v0 plan "a held-out source domain must never be CONCEPT_SUSPECT" would **calibrate away
+real power** (the source contains genuine concept domains). Instead, for each held-out
+domain `d`:
+1. build the atlas + evidence on the **other** domains (no leakage);
+2. certify `d` as an unlabeled pseudo-target;
+3. compute an **oracle boundary-effect** on `d` with `d`'s labels (calibration only), as an
+   **equivalence test** with a bootstrap CI. The oracle isolates boundary from label shift
+   by prior-correcting the pooled model to `d`'s oracle class frequencies before comparing
+   its CE to a `d`-specific refit:
+   ```
+   oracle_lb(d) > eps_concept  -> VISIBLE_CONCEPT
+   oracle_ub(d) < eps_stable   -> COVARIATE_STABLE   (equivalence: stability PROVEN, not just "not rejected")
+   otherwise                   -> AMBIGUOUS          (excluded from the forced binary)
+   ```
+4. score the label-blind certificate against the oracle verdict on non-ambiguous domains.
+
+`tau_detect` is calibrated from **block-resampled pseudo-targets** within the training
+domains (the finite-sample fluctuation of a held-out-domain mean), not hand-set. "Not
+rejecting a boundary shift is not proving stability" — hence two-sided equivalence bands.
+
+---
+
+## 7. What is proven vs assumed (honesty)
+
+* **Proven** (Prop. 1): a Z-only certificate cannot identify concept shift for any marginal;
+  abstention in the invisible / out-of-atlas regions is necessary, not conservative.
+* **Calibrated**: the source concept-evidence test has a conditional (parametric-bootstrap)
+  null; tau_detect is data-calibrated; concept directions are evidence-pruned.
+* **Assumed / open**: Assumption T (transportability + separability); the atlas is
+  mean/low-moment (a concept shift that moves only higher moments returns `UNIDENTIFIABLE` —
+  safe but low power); the equivalence bands `eps_concept, eps_stable` need domain values;
+  all real-data claims await the PREREGISTRATION §2 protocol.
+
+The contribution is **not** higher accuracy. It is a falsifiable, partially-identified
+boundary: *when unlabeled EEG can reveal concept shift, and when it must refuse* — with the
+refusal proven necessary and the diagnosis calibrated, label-deconfounded, and
 positive-controlled.

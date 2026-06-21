@@ -6,11 +6,16 @@ Produces a multi-domain *source* (Z, Y, D) with class-spanning domains, plus a *
 shift type in the taxonomy:
 
   clean              P(Z) ~ source,  P(Y|Z) ~ source                   false-alarm control
-  covariate          P(Z) shifts along a NUISANCE direction,           -> COVARIATE_ADAPTABLE
+  covariate          P(Z) shifts along a NUISANCE direction,           -> COVARIATE_COMPATIBLE
                      P(Y|Z) invariant
   boundary_coupled   P(Y|Z) shifts WITH a visible marginal signature   -> CONCEPT_SUSPECT
   pure_conditional   P(Y|Z) shifts, Z statistically identical to clean  -> UNIDENTIFIABLE
                      (relabel-only; certifier sees no marginal signature)
+  label_shift        P(Y) shifts, P(Z|Y) fixed (target shift)          -> UNIDENTIFIABLE
+                     (moves the pooled mean along the class-mean subspace; NOT separable
+                      from concept without an identifiable label-shift model)
+  label_covariate_mixed   label shift + a covariate offset             -> UNIDENTIFIABLE
+                     (confounded: the label component blocks attribution)
 
 Generative model (the key design is an explicit nuisance/discriminative split):
 
@@ -154,7 +159,15 @@ _TRUTH = {
     "covariate": "COVARIATE",
     "boundary_coupled": "CONCEPT_VISIBLE",
     "pure_conditional": "CONCEPT_INVISIBLE",
+    "label_shift": "LABEL_SHIFT",
+    "label_covariate_mixed": "LABEL_COVARIATE",
 }
+
+
+def _skewed_prior(K: int, peak: float = 0.8) -> np.ndarray:
+    p = np.full(K, (1.0 - peak) / (K - 1))
+    p[0] = peak
+    return p
 
 
 def make_target(kind: str,
@@ -164,6 +177,7 @@ def make_target(kind: str,
                 cov_target_scale: float = 8.0,
                 concept_target_scale: float = 4.0,
                 relabel_frac: float = 0.35,
+                label_peak: float = 0.8,
                 seed: int = 123) -> TargetBundle:
     """Generate a target deployment batch under one shift type. Requires the SAME `geom`
     used for the source (pass `source.geom`)."""
@@ -172,31 +186,65 @@ def make_target(kind: str,
     rng = np.random.default_rng(seed)
     if kind not in _TRUTH:
         raise ValueError(f"unknown shift kind {kind!r}; choose from {list(_TRUTH)}")
+    unif = np.full(cfg.K, 1.0 / cfg.K)
 
     if kind == "clean":
-        spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0, prior=np.full(cfg.K, 1.0 / cfg.K))
+        spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0, prior=unif)
         Z, Y = _sample_domain(cfg, geom, spec, n, rng)
 
     elif kind == "covariate":
         # move along a NUISANCE direction: P(Z) changes, P(Y|Z) invariant
         u = rng.standard_normal(cfg.cov_dim); u /= np.linalg.norm(u)
-        spec = DomainSpec(b=cov_target_scale * u, c=0.0, prior=np.full(cfg.K, 1.0 / cfg.K))
+        spec = DomainSpec(b=cov_target_scale * u, c=0.0, prior=unif)
         Z, Y = _sample_domain(cfg, geom, spec, n, rng)
 
     elif kind == "boundary_coupled":
         # move class means along the concept direction: P(Y|Z) changes, visible signature
-        spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=concept_target_scale,
-                          prior=np.full(cfg.K, 1.0 / cfg.K))
+        spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=concept_target_scale, prior=unif)
         Z, Y = _sample_domain(cfg, geom, spec, n, rng)
 
-    else:  # pure_conditional
+    elif kind == "pure_conditional":
         # generate CLEAN Z, then relabel within a near-boundary band: P(Z) identical,
         # P(Y|Z) changed. The certifier sees Z only -> indistinguishable from clean.
-        spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0, prior=np.full(cfg.K, 1.0 / cfg.K))
+        spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0, prior=unif)
         Z, Y = _sample_domain(cfg, geom, spec, n, rng)
         Y = _relabel_invisible(Z, Y, geom, relabel_frac, rng)
 
+    elif kind == "label_shift":
+        # P(Y) skewed, P(Z|Y) unchanged: pooled mean moves along the class-mean subspace.
+        # This is a TARGET shift, NOT a boundary change -- but it leaves a marginal trace
+        # the certifier must NOT mistake for concept (it must abstain).
+        spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0,
+                          prior=_skewed_prior(cfg.K, label_peak))
+        Z, Y = _sample_domain(cfg, geom, spec, n, rng)
+
+    else:  # label_covariate_mixed
+        u = rng.standard_normal(cfg.cov_dim); u /= np.linalg.norm(u)
+        spec = DomainSpec(b=0.5 * cov_target_scale * u, c=0.0,
+                          prior=_skewed_prior(cfg.K, label_peak))
+        Z, Y = _sample_domain(cfg, geom, spec, n, rng)
+
     return TargetBundle(Z=Z, Y=Y, kind=kind, truth=_TRUTH[kind])
+
+
+def make_paired_clean_pure(cfg: Optional[SimConfig] = None,
+                           geom: GenGeom = None,
+                           n: int = 1500,
+                           relabel_frac: float = 0.35,
+                           seed: int = 123) -> tuple:
+    """Return (clean, pure_conditional) targets that share BYTE-IDENTICAL Z and differ
+    ONLY in labels. The certifier (Z-only) MUST return the same state for both -- this is
+    the operational proof of the impossibility result (THEORY §1.1)."""
+    cfg = cfg or SimConfig()
+    assert geom is not None, "pass geom=source.geom"
+    rng = np.random.default_rng(seed)
+    spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0, prior=np.full(cfg.K, 1.0 / cfg.K))
+    Z, Y = _sample_domain(cfg, geom, spec, n, rng)
+    Y_relabel = _relabel_invisible(Z, Y, geom, relabel_frac, rng)
+    clean = TargetBundle(Z=Z, Y=Y, kind="clean", truth=_TRUTH["clean"])
+    pure = TargetBundle(Z=Z.copy(), Y=Y_relabel, kind="pure_conditional",
+                        truth=_TRUTH["pure_conditional"])
+    return clean, pure
 
 
 def _relabel_invisible(Z, Y, geom: GenGeom, frac, rng) -> np.ndarray:

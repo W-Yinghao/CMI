@@ -1,25 +1,26 @@
 """
-csc.certificate.certifier — the three-state concept-shift certificate with abstention.
+csc.certificate.certifier — the three-state concept-shift certificate with abstention
+(CSC-P0 rewrite).
 
-Given (a) the source-side residual test (is there *any* identifiable concept structure to
-calibrate against?) and (b) the source shift atlas, decide, from UNLABELED target Z only,
-one of three states:
+From a SourceAnalysis (atlas + residual evidence) and UNLABELED target Z, return one of:
 
-  COVARIATE_ADAPTABLE   the target's marginal shift lies in the covariate (nuisance)
-                        atlas and the source shows no domain-dependent boundary there:
-                        adaptation is in-scope.
-  CONCEPT_SUSPECT       the target's marginal shift aligns with directions where the
-                        source DID exhibit boundary movement (and the residual test is
-                        significant): a concept change left a visible signature.
-  UNIDENTIFIABLE        the certificate ABSTAINS. Either there is no visible shift
-                        (a pure conditional shift cannot be excluded -> the impossibility
-                        result), the shift is in a direction the source never spanned
-                        (out of the identifiable atlas), or the source support graph is
-                        invalid (no concept atlas can be built).
+  COVARIATE_COMPATIBLE   visible shift that lies in the covariate (nuisance) atlas, with no
+                         label-shift signature and no boundary movement there. NOTE: this is
+                         a *compatibility* statement (the shift is of a kind the source
+                         showed leaves the boundary fixed), NOT a guarantee that any specific
+                         adaptation lowers risk -- that would require naming the operator and
+                         bounding R_T(A(h)) - R_T(h) (see THEORY §5 / PREREGISTRATION).
+  CONCEPT_SUSPECT        visible shift aligned with DIRECTION-LINKED concept evidence
+                         (a source boundary actually moved along that direction).
+  UNIDENTIFIABLE         abstain: no visible shift (pure conditional not excludable), a
+                         label-shift signature (not separable without a label-shift model),
+                         an out-of-atlas direction, an ambiguous mix, or no valid atlas.
 
-The whole point: the certifier NEVER reads target labels and NEVER returns "safe" for a
-shift it cannot see. A naive low-marginal-shift = safe rule would FALSE-CERTIFY a pure
-conditional shift; this returns UNIDENTIFIABLE instead. That abstention is the product.
+Hard guarantees by construction:
+  * the certifier never reads target labels;
+  * it never emits a positive verdict for a shift it cannot see (clean / pure-conditional
+    -> UNIDENTIFIABLE);
+  * a pure label shift -> UNIDENTIFIABLE (it is not concept, and not separable here).
 """
 from __future__ import annotations
 
@@ -27,11 +28,10 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 
-from .atlas import ShiftAtlas
-from .residual_test import ResidualTestResult
+from .atlas import SourceAnalysis
 
 
-COVARIATE_ADAPTABLE = "COVARIATE_ADAPTABLE"
+COVARIATE_COMPATIBLE = "COVARIATE_COMPATIBLE"
 CONCEPT_SUSPECT = "CONCEPT_SUSPECT"
 UNIDENTIFIABLE = "UNIDENTIFIABLE"
 
@@ -39,129 +39,172 @@ UNIDENTIFIABLE = "UNIDENTIFIABLE"
 @dataclass
 class CertifierConfig:
     tau_detect: float = 1.5       # shift must exceed this * source spread to count as visible
-    tau_resid: float = 0.6        # if out-of-atlas component dominates by this margin -> abstain
-    tau_margin: float = 1.15      # dominance margin between concept vs covariate components
+    tau_label: float = 1.0        # label-shift signature beyond this * source label spread -> abstain
+    tau_resid: float = 0.6        # out-of-atlas dominance margin -> abstain
+    tau_margin: float = 1.15      # dominance margin between concept and covariate
 
 
 @dataclass
 class Certificate:
     state: str
     reason: str
-    n_cov: float                  # covariate component, in units of source covariate spread
-    n_concept: float              # concept component, in units of source concept spread
-    n_resid: float                # out-of-atlas component, in covariate-spread units
+    n_label: float
+    n_cov: float
+    n_concept: float
+    n_resid: float
     visible: bool
-    source_significant: bool
+    concept_evidenced: bool
     detail: dict
 
 
-def _proj_norm(delta, basis) -> float:
+def _proj(delta, basis):
     if basis.shape[1] == 0:
-        return 0.0
-    return float(np.linalg.norm(basis.T @ delta))
+        return np.zeros_like(delta)
+    return basis @ (basis.T @ delta)
 
 
-def certify(atlas: ShiftAtlas,
-            source_test: ResidualTestResult,
+def certify(analysis: SourceAnalysis,
             Z_target: np.ndarray,
             cfg: Optional[CertifierConfig] = None) -> Certificate:
     cfg = cfg or CertifierConfig()
+    atlas = analysis.atlas
     Z_target = np.asarray(Z_target, float)
     delta = Z_target.mean(0) - atlas.pooled_mean
 
-    # --- decompose the observed marginal shift onto the atlas ---------------------------
-    proj_cov = atlas.cov_dirs @ (atlas.cov_dirs.T @ delta) if atlas.cov_dirs.shape[1] else np.zeros_like(delta)
-    proj_con = atlas.concept_dirs @ (atlas.concept_dirs.T @ delta) if atlas.concept_dirs.shape[1] else np.zeros_like(delta)
-    resid = delta - proj_cov - proj_con
+    p_lab = _proj(delta, atlas.label_dirs)
+    p_cov = _proj(delta, atlas.cov_dirs)
+    p_con = _proj(delta, atlas.concept_dirs)
+    resid = delta - p_lab - p_cov - p_con
 
-    c_cov = float(np.linalg.norm(proj_cov))
-    c_con = float(np.linalg.norm(proj_con))
-    c_res = float(np.linalg.norm(resid))
+    c_lab, c_cov, c_con, c_res = (float(np.linalg.norm(v)) for v in (p_lab, p_cov, p_con, resid))
+    s_lab = atlas.sigma_label if atlas.sigma_label > 1e-8 else 1.0
+    s_cov = atlas.sigma_cov if atlas.sigma_cov > 1e-8 else 1.0
+    s_con = atlas.sigma_concept if atlas.sigma_concept > 1e-8 else 1.0
+    n_lab, n_cov, n_con, n_res = c_lab / s_lab, c_cov / s_cov, c_con / s_con, c_res / s_cov
 
-    sc = atlas.sigma_cov if atlas.sigma_cov > 1e-8 else 1.0
-    scon = atlas.sigma_concept if atlas.sigma_concept > 1e-8 else 1.0
-    n_cov, n_con, n_res = c_cov / sc, c_con / scon, c_res / sc
     detail = dict(delta_norm=float(np.linalg.norm(delta)),
-                  c_cov=c_cov, c_concept=c_con, c_resid=c_res,
-                  sigma_cov=atlas.sigma_cov, sigma_concept=atlas.sigma_concept)
+                  c_label=c_lab, c_cov=c_cov, c_concept=c_con, c_resid=c_res,
+                  sigma_label=atlas.sigma_label, sigma_cov=atlas.sigma_cov,
+                  sigma_concept=atlas.sigma_concept)
+    ev = analysis.concept_evidenced
 
-    # --- (0) no valid concept atlas: cannot calibrate -> abstain ------------------------
-    if source_test.status != "VALID":
-        return Certificate(UNIDENTIFIABLE,
-                           "source support graph invalid -> no concept atlas: "
-                           + "; ".join(source_test.support.reasons),
-                           n_cov, n_con, n_res, False, False, detail)
+    def cert(state, reason, visible):
+        return Certificate(state, reason, n_lab, n_cov, n_con, n_res, visible, ev, detail)
 
-    sig = source_test.significant
+    # (0) no valid concept atlas -> abstain
+    if analysis.test.status != "VALID":
+        return cert(UNIDENTIFIABLE,
+                    "source support graph invalid -> no concept atlas: "
+                    + "; ".join(analysis.test.support.reasons), False)
 
-    # --- (1) no visible marginal shift: pure conditional shift cannot be excluded -------
+    # (1) label-shift signature -> abstain (not concept; not separable without a label model)
+    if n_lab >= cfg.tau_label:
+        return cert(UNIDENTIFIABLE,
+                    "marginal shift carries a LABEL-shift signature (moves along the "
+                    "class-mean subspace); not separable from concept without an "
+                    "identifiable label-shift model", True)
+
+    # (2) no visible shift -> abstain (pure conditional / clean cannot be excluded)
     visible = max(n_cov, n_con, n_res) >= cfg.tau_detect
     if not visible:
-        return Certificate(UNIDENTIFIABLE,
-                           "no marginal signature above source between-domain spread; "
-                           "a pure conditional (invisible) shift cannot be excluded",
-                           n_cov, n_con, n_res, False, sig, detail)
+        return cert(UNIDENTIFIABLE,
+                    "no marginal signature above the source between-domain spread; a pure "
+                    "conditional (invisible) shift cannot be excluded", False)
 
-    # --- (2) shift in a direction the source never spanned: out of identifiable range ---
+    # (3) out-of-atlas direction -> abstain
     if n_res >= cfg.tau_resid * max(n_cov, n_con) and n_res >= cfg.tau_detect:
-        return Certificate(UNIDENTIFIABLE,
-                           "marginal shift lies outside the source atlas (novel direction); "
-                           "identifiability of its label effect is not established",
-                           n_cov, n_con, n_res, True, sig, detail)
+        return cert(UNIDENTIFIABLE,
+                    "marginal shift lies outside the source atlas (novel direction); its "
+                    "label effect is not identifiable from the source", True)
 
-    # --- (3) classify the visible, in-atlas shift --------------------------------------
+    # (4) classify the visible, in-atlas, label-free shift
     if n_con >= cfg.tau_margin * n_cov:
-        if sig:
-            return Certificate(CONCEPT_SUSPECT,
-                               "marginal shift aligns with source concept directions and "
-                               "the residual test is significant (T>0)",
-                               n_cov, n_con, n_res, True, sig, detail)
-        return Certificate(UNIDENTIFIABLE,
-                           "shift aligns with concept directions but the source residual "
-                           "test is not significant -> concept atlas not trustworthy",
-                           n_cov, n_con, n_res, True, sig, detail)
+        if ev:
+            return cert(CONCEPT_SUSPECT,
+                        "shift aligns with a direction carrying significant boundary "
+                        "evidence (direction-linked, not global)", True)
+        return cert(UNIDENTIFIABLE,
+                    "shift aligns with concept directions but none carry significant "
+                    "boundary evidence -> concept claim not supported", True)
 
     if n_cov >= cfg.tau_margin * n_con:
-        return Certificate(COVARIATE_ADAPTABLE,
-                           "marginal shift lies in the covariate (nuisance) atlas where the "
-                           "source boundary did not move",
-                           n_cov, n_con, n_res, True, sig, detail)
+        return cert(COVARIATE_COMPATIBLE,
+                    "shift lies in the covariate (nuisance) atlas where the source boundary "
+                    "did not move", True)
 
-    # ambiguous mix of covariate and concept components -> abstain
+    return cert(UNIDENTIFIABLE,
+                "shift mixes covariate and concept components without a dominant one -> "
+                "cannot attribute the marginal change", True)
+
+
+def certify_robust(analysis: SourceAnalysis,
+                   Z_target: np.ndarray,
+                   cfg: Optional[CertifierConfig] = None,
+                   n_boot: int = 200,
+                   consensus: float = 0.9,
+                   seed: int = 0) -> Certificate:
+    """Confidence-region decision (CSC-P1). Instead of trusting a single target-mean point,
+    block-bootstrap the target rows, certify each replicate, and emit a DEFINITE state only
+    if a `consensus` fraction of the replicates agree on it (the bootstrap region C_T maps
+    to a single atlas attribution, i.e. Gamma_T is a singleton). Otherwise abstain.
+
+    This makes COVARIATE_COMPATIBLE / CONCEPT_SUSPECT robust to finite-target sampling: a
+    shift whose attribution flips under resampling is, honestly, UNIDENTIFIABLE."""
+    cfg = cfg or CertifierConfig()
+    base = certify(analysis, Z_target, cfg)
+    Z = np.asarray(Z_target, float)
+    rng = np.random.default_rng(seed)
+    counts = {}
+    for _ in range(n_boot):
+        bs = rng.integers(0, len(Z), len(Z))
+        st = certify(analysis, Z[bs], cfg).state
+        counts[st] = counts.get(st, 0) + 1
+    top = max(counts, key=counts.get)
+    frac = counts[top] / n_boot
+    base.detail["consensus"] = frac
+    base.detail["state_counts"] = counts
+    if base.state != UNIDENTIFIABLE and base.state == top and frac >= consensus:
+        return base
+    if base.state == UNIDENTIFIABLE:
+        return base
     return Certificate(UNIDENTIFIABLE,
-                       "shift mixes covariate and concept directions without a clear "
-                       "dominant component -> cannot attribute the marginal change",
-                       n_cov, n_con, n_res, True, sig, detail)
+                       f"bootstrap confidence region is not a single definite attribution "
+                       f"(top={top}:{frac:.2f} < consensus {consensus}); abstain",
+                       base.n_label, base.n_cov, base.n_concept, base.n_resid,
+                       base.visible, base.concept_evidenced, base.detail)
 
 
-# scoring: map ground-truth shift class -> the acceptable certificate(s) --------------
+# scoring: ground-truth shift class -> acceptable / forbidden certificate(s) ------------
 ACCEPTABLE = {
-    "NONE": {UNIDENTIFIABLE, COVARIATE_ADAPTABLE},   # clean: abstain or "safe", never CONCEPT_SUSPECT
-    "COVARIATE": {COVARIATE_ADAPTABLE},
+    "NONE": {UNIDENTIFIABLE},                       # clean: MUST abstain (impossibility result)
+    "COVARIATE": {COVARIATE_COMPATIBLE},
     "CONCEPT_VISIBLE": {CONCEPT_SUSPECT},
-    "CONCEPT_INVISIBLE": {UNIDENTIFIABLE},           # the false-certification guard
+    "CONCEPT_INVISIBLE": {UNIDENTIFIABLE},
+    "LABEL_SHIFT": {UNIDENTIFIABLE},
+    "LABEL_COVARIATE": {UNIDENTIFIABLE},
 }
 
-# the one outcome that must NEVER happen per truth class (a *false certification*)
+# outcomes that must NEVER happen per truth class (a *false certification*)
 FORBIDDEN = {
-    "NONE": {CONCEPT_SUSPECT},
-    "COVARIATE": {CONCEPT_SUSPECT},                  # crying wolf on a benign covariate shift
-    "CONCEPT_VISIBLE": {COVARIATE_ADAPTABLE},        # certifying a real concept shift as safe
-    "CONCEPT_INVISIBLE": {COVARIATE_ADAPTABLE, CONCEPT_SUSPECT},  # MUST abstain
+    "NONE": {COVARIATE_COMPATIBLE, CONCEPT_SUSPECT},
+    "COVARIATE": {CONCEPT_SUSPECT},
+    "CONCEPT_VISIBLE": {COVARIATE_COMPATIBLE},
+    "CONCEPT_INVISIBLE": {COVARIATE_COMPATIBLE, CONCEPT_SUSPECT},
+    "LABEL_SHIFT": {COVARIATE_COMPATIBLE, CONCEPT_SUSPECT},
+    "LABEL_COVARIATE": {COVARIATE_COMPATIBLE, CONCEPT_SUSPECT},
 }
 
 
 if __name__ == "__main__":
     from csc.sim.shift_simulator import SimConfig, make_source, make_target, _TRUTH
-    from .atlas import build_atlas
-    from .residual_test import residual_decoder_test
+    from .atlas import analyze_source
     cfg = SimConfig(seed=3)
     src = make_source(cfg, n_domains=8, concept_domains=3)
-    atl = build_atlas(src.Z, src.Y, src.D)
-    rt = residual_decoder_test(src.Z, src.Y, src.D, n_perm=60)
-    print(f"source residual test: T={rt.T:+.3f} p={rt.p_value:.3f} sig={rt.significant}")
+    sa = analyze_source(src.Z, src.Y, src.D, n_boot=60, n_dir_boot=120)
+    print(f"source: T={sa.test.T:+.3f} p={sa.test.p_value:.3f} "
+          f"concept_evidenced={sa.concept_evidenced}")
     for kind in _TRUTH:
         tb = make_target(kind, cfg, geom=src.geom)
-        cert = certify(atl, rt, tb.Z)
-        print(f"  {kind:18s} truth={tb.truth:18s} -> {cert.state:20s} "
-              f"(cov={cert.n_cov:.2f} con={cert.n_concept:.2f} res={cert.n_resid:.2f})")
+        c = certify(sa, tb.Z)
+        print(f"  {kind:22s} truth={tb.truth:16s} -> {c.state:20s} "
+              f"(lab={c.n_label:.2f} cov={c.n_cov:.2f} con={c.n_concept:.2f} res={c.n_resid:.2f})")

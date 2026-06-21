@@ -1,104 +1,129 @@
-# csc — Falsifiable Concept-Shift Certificates with Abstention
+# csc — Partial-Identification Concept-Shift Certificates with Abstention
 
-**When is EEG concept shift detectable? Conditional-MI certificates with abstention.**
+**When can unlabeled EEG reveal concept shift? Partial-identification certificates with
+abstention.**
 
-A self-contained research package (it does **not** import or mutate the AAAI `cmi/` or the
-`h2cmi/` packages — the three coexist). It runs entirely on a controllable shift simulator,
-so every component is exercised by a fast unit test.
+A self-contained research package (it does **not** import or mutate the AAAI `cmi/`,
+`h2cmi/`, or `oaci/` packages — they coexist). It runs entirely on a controllable shift
+simulator, so every component is exercised by a self-test.
 
-This direction is the **identifiability / counterexample phase** the project's Evidence
-Ledger named as the way forward after the gate line closed
-([`notes/EVIDENCE_LEDGER.md`](../notes/EVIDENCE_LEDGER.md)). The A0 work proved that
-density / CMI scores are *anti-aligned* with adaptation harm
+This is the **identifiability / counterexample phase** the Evidence Ledger named as the way
+forward after the gate line closed
+([`notes/EVIDENCE_LEDGER.md`](../notes/EVIDENCE_LEDGER.md)). A0 proved density / CMI scores
+are *anti-aligned* with adaptation harm
 ([`notes/A0_FALSIFICATION_FROZEN.md`](../notes/A0_FALSIFICATION_FROZEN.md)); csc turns that
 negative result into a positive, falsifiable object — a certificate that **abstains where
 detection is provably impossible**.
 
 ## The one idea
 
-You **cannot** build a universal concept-shift detector from unlabeled target data: a
-pure conditional shift (`P(Y|Z)` changes, `P(Z)` fixed) is invisible to any `Z`-only
-detector (proof in [`THEORY.md`](THEORY.md) §1.1). So instead of a binary detector, csc
-emits a **three-state certificate**:
+For **any** observed target marginal `Q_Z` there are two joint laws with that same marginal
+but different `P(Y|Z)` (one equal to the source posterior, one not). So no `Z`-only
+certificate can identify concept shift — *not just* in the pure-conditional case
+([`THEORY.md`](THEORY.md) §1, Proposition 1). The honest object is therefore a **three-state
+partial-identification certificate**:
 
 | state | meaning |
 |---|---|
-| `COVARIATE_ADAPTABLE` | visible marginal shift inside the covariate atlas; the source proved the boundary is stable there → adaptation is in scope |
-| `CONCEPT_SUSPECT` | visible shift aligned with where the source boundary *did* move, and the source residual test is significant |
-| `UNIDENTIFIABLE` | **abstain** — invisible / out-of-atlas / ambiguous / no valid concept atlas |
+| `COVARIATE_COMPATIBLE` | visible, label-free, in-atlas shift in the covariate subspace where the source boundary is stable. A **compatibility** claim — NOT a guarantee any adaptation lowers risk (THEORY §5). |
+| `CONCEPT_SUSPECT` | visible shift aligned with a **direction-linked** evidenced concept direction (a source boundary actually moved there). |
+| `UNIDENTIFIABLE` | **abstain** — invisible, label-confounded, out-of-atlas, ambiguous, or no valid concept atlas. |
 
-It never returns a positive safety verdict for a shift it cannot see. Being wrong by
-over-abstaining (low power) is allowed; being wrong by **false-certifying safety** is not.
+It never issues a positive verdict for a shift it cannot see. Over-abstaining (low power) is
+allowed; **false certification is not.**
+
+## What changed from the v0 scaffold (review fixes)
+
+* **Stronger impossibility result** (partial identification for *any* marginal) + an explicit
+  **transportability/separability assumption** named for what `CONCEPT_SUSPECT` requires.
+* **Label shift handled.** The v0 fired `CONCEPT_SUSPECT` 31–53 % of the time under a skewed
+  target prior; csc now carries a label subspace `U_π` and **abstains** (regression test).
+* **`COVARIATE_ADAPTABLE` → `COVARIATE_COMPATIBLE`** (no adaptation operator / risk bound is
+  claimed).
+* **Valid null**: parametric bootstrap under fitted `h0` (conditions on `(Z,D)`), replacing
+  the non-exchangeable within-`Y` permutation.
+* **Reference-coded designs** (no rank deficiency) + **direction-linked** concept evidence.
+* **Support gate** checks bipartite connectivity + cell counts + design conditioning (not
+  just degree).
+* **Clean must abstain** (scoring fixed); **nested oracle-labeled LODO** calibration with
+  equivalence tests; **confidence-region** decision (`certify_robust`).
 
 ## Layout
 
 ```
 csc/
-  THEORY.md              formal framework: taxonomy, impossibility result, T statistic, certifier
-  PREREGISTRATION.md     data design + falsification / termination (kill) criteria
-  sim/shift_simulator.py controllable generator: clean / covariate / boundary-coupled / pure-conditional
+  THEORY.md              partial-identification framework, taxonomy, T-statistic, certifier, calibration
+  PREREGISTRATION.md     data design + Rule-of-Three honesty + kill criteria
+  sim/shift_simulator.py clean / covariate / boundary_coupled / pure_conditional / label_shift / label_covariate_mixed
   certificate/
-    residual_test.py     cross-fitted, permutation-calibrated residual-decoder test T + support-graph gate
-    atlas.py             source shift atlas (covariate vs concept directions, between-domain spread)
-    certifier.py         the three-state certificate + scoring maps (ACCEPTABLE / FORBIDDEN)
-  run_synthetic.py       multi-seed eval: the two pre-registered numbers (false-cert rate, power)
-  tests/                 test_validity_gate / test_null_calibration / test_power
+    residual_test.py     reference-coded T, parametric-bootstrap null, identifiability support gate
+    atlas.py             3 orthogonal subspaces (cov / concept / label U_pi) + analyze_source (direction-linked evidence)
+    certifier.py         certify (3-state) + certify_robust (confidence region) + ACCEPTABLE/FORBIDDEN
+  calibration/lodo.py    nested oracle-labeled LODO + equivalence tests + tau_detect calibration
+  run_synthetic.py       multi-seed eval with Rule-of-Three upper bounds
+  tests/                 validity_gate / null_calibration / power / design_and_pairs
 ```
 
 ## Quickstart
 
 ```bash
-# component smoke tests (each module is runnable):
+# runnable components:
 conda run -n icml python -m csc.sim.shift_simulator
 conda run -n icml python -m csc.certificate.residual_test
 conda run -n icml python -m csc.certificate.atlas
 conda run -n icml python -m csc.certificate.certifier
+conda run -n icml python -m csc.calibration.lodo
 
-# correctness unit tests:
+# self-tests:
 conda run -n icml python -m csc.tests.test_validity_gate
 conda run -n icml python -m csc.tests.test_null_calibration
 conda run -n icml python -m csc.tests.test_power
+conda run -n icml python -m csc.tests.test_design_and_pairs
 
-# the pre-registered evaluation:
-conda run -n icml python -m csc.run_synthetic --seeds 30 --n_perm 100
+# multi-seed evaluation (prints Rule-of-Three bounds, not "rate<=0.05"):
+conda run -n icml python -m csc.run_synthetic --seeds 30 --n_boot 80
 ```
 
-## Synthetic result so far (12 seeds; see PREREGISTRATION §3)
+## Synthetic result so far (10 seeds; PREREGISTRATION §3)
 
 ```
-                                COVARIATE  CONCEPT  UNIDENTIFIABLE
-clean            (NONE)                 0        0        12
-covariate        (COVARIATE)          11        1         0
-boundary_coupled (CONCEPT_VISIBLE)     0       11         1
-pure_conditional (CONCEPT_INVISIBLE)   0        0        12
+                                COVARI  CONCEP  UNIDEN  forbid
+clean            (NONE)              0       0      10       0
+covariate        (COVARIATE)         7       0       3       0
+boundary_coupled (CONCEPT_VISIBLE)   0       9       1       0
+pure_conditional (CONCEPT_INVISIBLE) 0       0      10       0
+label_shift      (LABEL_SHIFT)       0       0      10       0
+label_covariate_mixed (LABEL_COV)    0       0      10       0
 
-false-certification on INVISIBLE concept shift : 0.000   (strict 0.000)
-power on VISIBLE concept positive control       : 0.917
-false concept alarm on CLEAN                    : 0.000
+false certifications, total : 0 / 60     (95% upper bound on must-abstain rate = 0.072)
+power on VISIBLE concept    : 0.90
+covariate -> COMPATIBLE     : 0.70
 ```
 
-The invisible-shift guard is the headline: a relabel-only target (`Z` byte-identical to
-clean) is **always** `UNIDENTIFIABLE` — a naive low-marginal-shift = "safe" rule would
-false-certify it. That is the abstention the impossibility result demands, working.
+**Honesty:** 0 observed false certifications does **not** prove the rate ≤ 0.05 — with 0/40
+the 95% upper bound is ≈ 0.072 (Rule of Three); reaching 0.05 needs ≥ 59 zero-failure
+trials. The headline is *"simulator smoke passed; control & power not yet statistically
+established."* Covariate → COMPATIBLE at 0.70 is the soft spot (conservative abstention, not
+a false cert); CSC-P1 calibration is the route to tightening it.
 
 ## Scaling to real EEG
 
-`certify(atlas, source_test, Z_target)` and `residual_decoder_test(Z, Y, D)` take ordinary
-`(Z[n,d], y, D)` arrays. Point them at the AAAI loaders (`cmi/data/*.py`) or the audited
-deployment-encoder dumps (the A0 `erm:0 = CITA-no-LPC` embeddings) to run the real-data
-conditions in PREREGISTRATION §2 — **PD medication ON/OFF** (the positive control) and
-**SCZ/PD cross-site** (the real null). Those, not the simulator, are the actual test.
+`analyze_source(Z, Y, D)`, `certify(analysis, Z_target)`, `certify_robust(...)`, and
+`nested_lodo(Z, Y, D)` take ordinary `(Z[n,d], y, D)` arrays. Point them at the AAAI loaders
+(`cmi/data/*.py`) or the audited deployment-encoder dumps (A0 `erm:0 = CITA-no-LPC`) to run
+PREREGISTRATION §2 — **PD medication ON/OFF** (a positive-control *candidate*, oracle-gated)
+and **SCZ/PD cross-site** (the real null). Those, not the simulator, are the actual test.
 
 ## Status / honesty
 
-This is a **research implementation on a simulator**: it demonstrates the framework is
-correct, calibrated, and composes, and that the impossibility-driven abstention works. It
-is **not** a real-EEG result. The thresholds are hand-set on synthetic and need
-leave-one-source-domain-out calibration (PREREGISTRATION §4); the atlas is mean-shift only
-(higher-moment concept shifts currently return `UNIDENTIFIABLE`, which is safe but
-low-power). The direction is **killed** if it cannot control false-certification on real
-invisible/null shift, or has no power on PD ON/OFF — see PREREGISTRATION §5.
+A **research implementation on a simulator**. It demonstrates the framework is correct,
+calibrated, label-deconfounded, and composes, and that the impossibility-driven abstention
+works. It is **not** a real-EEG result. Equivalence bands (`eps_concept, eps_stable`) need
+domain values; the atlas is mean/low-moment (shape-only concept shifts return
+`UNIDENTIFIABLE` — safe, low power). The direction is **killed** if it cannot control
+false-certification on real invisible/label/null shift, or has no power on an oracle-confirmed
+PD ON/OFF positive control — see PREREGISTRATION §7.
 
-Naming discipline (binding, per the Evidence Ledger): the source statistic is "extractable
-conditional domain information" / a residual-decoder concept-evidence test — **not** "precise
-CMI". The certificate is a diagnostic with abstention, **not** a "safety gate".
+Naming discipline (binding, Evidence Ledger): the source statistic is a residual-decoder
+concept-evidence test / "extractable conditional domain information" — **not** "precise CMI";
+the certificate is a diagnostic with abstention, **not** a "safety gate".
