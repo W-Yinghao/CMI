@@ -103,14 +103,18 @@ class VariantSpec:
         identity geometry and frozen (Q0), re-estimated every EM round (U2 feedback), or the
         true labels (the responsibility ceiling).
       update         : 'identity' | 'pooled' | 'prior_fixed' | 'joint'
-        what moves -- nothing, a classless diagonal moment match, the transform with the prior
-        pinned at pi_S (geometry-only), or transform + prior M-step (the current joint).
+        what moves -- nothing, a classless EMPIRICAL diagonal moment match, the transform with
+        the prior pinned at pi_S (geometry-only), or transform + prior M-step (the joint).
       kind           : 'diag_affine' | 'lowrank_affine'   (transform family)
+      restarts       : deterministic restarts; the low-rank fit is non-convex, so >1 restart
+        (selected by the TRAINING-fold objective, never held-out labels) guards a `lowrank<=diag`
+        result against being mere optimisation failure rather than family adequacy.
     """
     name: str
     responsibility: str
     update: str
     kind: str = "diag_affine"
+    restarts: int = 1
 
 
 # The frozen Stage-B1a matrix (CMI-off main experiment; a CMI-on retention arm is added only
@@ -118,31 +122,58 @@ class VariantSpec:
 # (diagonal vs low-rank under the responsibility ceiling) for conditional rotation.
 B1A_VARIANTS = (
     VariantSpec("identity",               "none",          "identity",    "diag_affine"),
-    VariantSpec("pooled_diag",            "none",          "pooled",      "diag_affine"),
-    VariantSpec("gen_oneshot_diag",       "gen_oneshot",   "prior_fixed", "diag_affine"),   # Q0_U0
-    VariantSpec("gen_iterative_diag",     "gen_iterative", "prior_fixed", "diag_affine"),   # Q0_U2
-    VariantSpec("oracle_oneshot_diag",    "oracle",        "prior_fixed", "diag_affine"),   # ceiling / diag-OOF
-    VariantSpec("oracle_oneshot_lowrank", "oracle",        "prior_fixed", "lowrank_affine"),# lowrank-OOF
-    VariantSpec("joint_iterative_diag",   "gen_iterative", "joint",       "diag_affine"),   # current_joint
+    VariantSpec("pooled_empirical_diag",  "none",          "pooled",      "diag_affine"),    # empirical CORAL-diag
+    VariantSpec("gen_oneshot_diag",       "gen_oneshot",   "prior_fixed", "diag_affine"),    # Q0_U0
+    VariantSpec("gen_iterative_diag",     "gen_iterative", "prior_fixed", "diag_affine"),    # Q0_U2
+    VariantSpec("oracle_oneshot_diag",    "oracle",        "prior_fixed", "diag_affine"),    # ceiling / diag-OOF
+    VariantSpec("oracle_oneshot_lowrank", "oracle",        "prior_fixed", "lowrank_affine", 3),  # lowrank-OOF
+    VariantSpec("joint_iterative_diag",   "gen_iterative", "joint",       "diag_affine"),    # current_joint
 )
 B1A_VARIANTS_BY_NAME = {v.name: v for v in B1A_VARIANTS}
 
 
+@dataclass
+class VariantFit:
+    """Result of one variant fit. r_* expose the responsibilities ACTUALLY in play (review §3):
+    r_initial   the identity-geometry posterior generated at the start (None for pooled/identity);
+    r_last_used the responsibility the FINAL transform M-step consumed (== r_initial for one-shot
+                and oracle; the last E-step for iterative; None for pooled/identity);
+    r_final     the model posterior AFTER the fitted transform (always present)."""
+    transform: Transform
+    pi_T: torch.Tensor
+    r_initial: torch.Tensor | None
+    r_last_used: torch.Tensor | None
+    r_final: torch.Tensor
+    objective: float
+
+
 @torch.no_grad()
-def pooled_source_moments(density, pi_S) -> tuple[torch.Tensor, torch.Tensor]:
-    """Pooled SOURCE mean and per-dim std under the mixture sum_y pi_S(y) sum_k w_yk N(mu,Sigma).
-    Variance uses the scale-matrix diagonal (low-rank^2 + softplus(diag) + floor) -- a moment
-    proxy that needs no df>2 assumption -- so `pooled_diag` is a genuinely class-free baseline."""
-    dev, dt = density.mu.device, density.mu.dtype
-    w = F.softmax(density.mix_logits, dim=1)                       # [C, K]
-    pi = torch.as_tensor(np.asarray(pi_S), dtype=dt, device=dev)   # [C]
-    cw = (pi.view(-1, 1) * w).reshape(-1)                          # [C*K], sums to 1
-    mu = density.mu.reshape(-1, density.dim)                       # [C*K, d]
-    diag = F.softplus(density.log_s) + density.eig_floor          # [C, K, d]
-    var = (diag + (density.L ** 2).sum(-1)).reshape(-1, density.dim)   # scale diag [C*K, d]
-    mean = (cw.view(-1, 1) * mu).sum(0)                            # [d]
-    second = (cw.view(-1, 1) * (var + mu ** 2)).sum(0)            # [d]
-    return mean, (second - mean ** 2).clamp_min(1e-6).sqrt()
+def reference_weighted_source_moments(Us, ys, pi_star) -> tuple[torch.Tensor, torch.Tensor]:
+    """EMPIRICAL pooled SOURCE-latent mean/std under the reference prior pi*: mu* = sum_y pi*(y)
+    E[z|y], sigma*^2 = sum_y pi*(y) E[z^2|y] - mu*^2, estimated directly from source embeddings
+    (NOT the density's parametric moments). This makes `pooled_empirical_diag` a baseline that is
+    genuinely independent of p_phi(z|y), so C_class-cond measures the value of the class-
+    conditional density, not a re-parameterisation of it."""
+    Us = torch.as_tensor(np.asarray(Us), dtype=torch.float32)
+    ys = np.asarray(ys)
+    K = len(np.asarray(pi_star))
+    d = Us.shape[1]
+    mu_y = torch.zeros(K, d)
+    m2_y = torch.zeros(K, d)
+    present = torch.zeros(K)
+    for c in range(K):
+        m = ys == c
+        if m.sum() == 0:
+            continue
+        z = Us[m]
+        mu_y[c] = z.mean(0)
+        m2_y[c] = (z ** 2).mean(0)
+        present[c] = 1.0
+    pi = torch.as_tensor(np.asarray(pi_star), dtype=torch.float32) * present
+    pi = (pi / pi.sum().clamp_min(1e-8)).view(-1, 1)              # renormalise over present classes
+    mu = (pi * mu_y).sum(0)
+    var = (pi * m2_y).sum(0) - mu ** 2
+    return mu, var.clamp_min(1e-6).sqrt()
 
 
 class ClassConditionalTTA:
@@ -179,15 +210,17 @@ class ClassConditionalTTA:
         return float((-ev).mean())
 
     def _fit_transform(self, U: torch.Tensor, fixed_prior: torch.Tensor | None = None,
-                       fixed_resp: torch.Tensor | None = None, kind: str | None = None):
+                       fixed_resp: torch.Tensor | None = None, kind: str | None = None,
+                       return_resp: bool = False):
         """Run the EM (transform + target prior) on U. Density must already be frozen.
 
         ``fixed_prior`` (tensor [K]) freezes pi_T (skip the prior M-step) -- the oracle-prior
         diagnostic. ``fixed_resp`` (tensor [N,K]) freezes the responsibilities (skip the
         E-step) -- the oracle-labels / supervised-transform diagnostic. Both default None =
         the unsupervised behaviour. ``kind`` overrides the transform family (default
-        ``self.cfg.transform``) so a single TTA can fit diag- and lowrank-affine variants
-        without mutating shared config. Returns (Transform, pi_T tensor)."""
+        ``self.cfg.transform``). With ``return_resp`` returns (T, pi_T, r_initial, r_last) where
+        r_initial is the first E-step's responsibilities and r_last is the responsibility the
+        final M-step consumed; else (T, pi_T)."""
         d = U.shape[1]
         T = Transform(d, kind or self.cfg.transform, self.cfg.lowrank, self.device)
         pi_T = (fixed_prior.clone() if fixed_prior is not None
@@ -197,7 +230,8 @@ class ClassConditionalTTA:
         # +const; NOT a forward KL(pi_T||pi_S)):
         anchor = torch.tensor((self.cfg.dirichlet + self.cfg.prior_anchor_strength) * self.pi_S,
                               dtype=torch.float32, device=self.device)
-        for _ in range(self.cfg.em_iters):
+        r_initial = r_last = None
+        for it in range(self.cfg.em_iters):
             with torch.no_grad():
                 if fixed_resp is not None:
                     r = fixed_resp                                  # supervised responsibilities
@@ -208,6 +242,9 @@ class ClassConditionalTTA:
                 if fixed_prior is None:
                     counts = r.sum(0)
                     pi_T = (counts + anchor) / (counts.sum() + anchor.sum())   # M-step prior
+            if it == 0:
+                r_initial = r.detach().clone()
+            r_last = r.detach()
             log_piT = torch.log(pi_T.clamp_min(1e-8))
             for _ in range(3):                                      # M-step transform
                 z = T.apply(U)
@@ -216,7 +253,20 @@ class ClassConditionalTTA:
                        - self.cfg.trust_region * T.trust() / d
                        - self.cfg.trust_region_b * (T.b ** 2).sum() / d)
                 opt.zero_grad(); (-obj).backward(); opt.step()
+        if return_resp:
+            return T, pi_T.detach(), r_initial, r_last
         return T, pi_T.detach()
+
+    @torch.no_grad()
+    def _fit_objective(self, U, T, pi_T, r) -> float:
+        """The (weighted) EM objective on U with responsibilities r -- used to SELECT among
+        deterministic restarts by the TRAINING-fold fit, never held-out labels."""
+        d = U.shape[1]
+        log_piT = torch.log(pi_T.clamp_min(1e-8))
+        ll = (r * (self.density.log_prob_all(T.apply(U)) + log_piT.view(1, -1))).sum(1).mean()
+        return float(ll + self.cfg.logdet_weight * T.logdet()
+                     - self.cfg.trust_region * T.trust() / d
+                     - self.cfg.trust_region_b * (T.b ** 2).sum() / d)
 
     def _crossfit_evidence_gain(self, U: torch.Tensor) -> float:
         """2-fold cross-fitted held-out change-of-variable NLL improvement (review P0-4).
@@ -317,10 +367,13 @@ class ClassConditionalTTA:
                 p.requires_grad_(req)
 
     # -- Stage-B1a variant decomposition (responsibility x update x family) -------
-    def _fit_pooled_diag(self, U: torch.Tensor):
-        """Classless diagonal moment match: A,b so transformed U matches the SOURCE pooled
-        per-dim mean/std (CORAL-diagonal). Uses NO class structure -> the p(z|y) ablation."""
-        mu_S, sd_S = pooled_source_moments(self.density, self.pi_S)
+    def _fit_pooled_diag(self, U: torch.Tensor, pooled_ref):
+        """Classless diagonal moment match: A,b so transformed U matches the EMPIRICAL source
+        pooled per-dim mean/std (CORAL-diagonal). pooled_ref=(mu*, sigma*) comes from source
+        embeddings (reference_weighted_source_moments), NOT the density -> the p(z|y) ablation."""
+        if pooled_ref is None:
+            raise ValueError("pooled_empirical_diag requires pooled_ref=(source_mu, source_std)")
+        mu_S, sd_S = (torch.as_tensor(x, dtype=torch.float32, device=self.device) for x in pooled_ref)
         mu_T = U.mean(0)
         sd_T = U.std(0, unbiased=False).clamp_min(1e-6)
         a = torch.log((sd_S / sd_T).clamp_min(1e-6))
@@ -328,16 +381,17 @@ class ClassConditionalTTA:
         with torch.no_grad():
             T.a.copy_(a)
             T.b.copy_(mu_S - torch.exp(a) * mu_T)
-        return T, torch.tensor(self.pi_S, dtype=torch.float32, device=self.device)
+        return T, torch.tensor(self.pi_S, dtype=torch.float32, device=self.device), None, None
 
-    def _variant_core(self, U, spec: VariantSpec, oracle_labels):
+    def _variant_core(self, U, spec: VariantSpec, oracle_labels, pooled_ref):
+        """Returns (T, pi_T, r_initial, r_last_used); r_* are None for identity/pooled."""
         d = U.shape[1]
         pi_S_t = torch.tensor(self.pi_S, dtype=torch.float32, device=self.device)
         log_piS = torch.log(pi_S_t.clamp_min(1e-8))
         if spec.update == "identity":
-            return Transform(d, "diag_affine", device=self.device), pi_S_t
+            return Transform(d, "diag_affine", device=self.device), pi_S_t, None, None
         if spec.update == "pooled":
-            return self._fit_pooled_diag(U)
+            return self._fit_pooled_diag(U, pooled_ref)
         if spec.responsibility == "gen_oneshot":
             with torch.no_grad():                                   # generate r once on identity
                 fixed_resp = F.softmax(self.density.log_prob_all(U) + log_piS.view(1, -1), dim=1)
@@ -349,74 +403,105 @@ class ClassConditionalTTA:
         else:                                                       # gen_iterative: re-estimate
             fixed_resp = None
         fixed_prior = pi_S_t if spec.update == "prior_fixed" else None
-        return self._fit_transform(U, fixed_prior=fixed_prior, fixed_resp=fixed_resp, kind=spec.kind)
+        return self._fit_transform(U, fixed_prior=fixed_prior, fixed_resp=fixed_resp,
+                                   kind=spec.kind, return_resp=True)
 
     def fit_variant(self, U: torch.Tensor, spec: VariantSpec, *, oracle_labels=None,
-                    tta_seed: int | None = None):
-        """Fit ONE B1a variant (density frozen). Returns (Transform, pi_T tensor, r tensor),
-        r = final responsibilities under the fit (for diagnostics). DETERMINISTIC: with a
-        tta_seed the fit's randomness (low-rank init) is forked + seeded, so the result depends
-        only on the seed -- never on call order or ambient RNG state (variant-order invariance)."""
+                    pooled_ref=None, tta_seed: int | None = None) -> VariantFit:
+        """Fit ONE B1a variant (density frozen) -> VariantFit exposing the responsibilities
+        ACTUALLY used (r_initial/r_last_used) plus the post-fit posterior (r_final). DETERMINISTIC:
+        with a tta_seed the fit randomness (low-rank init) is forked + seeded, so the result
+        depends only on the seed -- never on call order or ambient RNG (variant-order invariance).
+        spec.restarts>1 (low-rank) runs that many seeded restarts and keeps the one with the best
+        TRAINING-fold objective (never held-out labels)."""
         U = U.detach().to(self.device)
         frozen = [(p, p.requires_grad) for p in self.density.parameters()]
         for p, _ in frozen:
             p.requires_grad_(False)
         try:
-            if tta_seed is not None:
-                fork = [U.device.index] if (U.is_cuda and U.device.index is not None) else []
-                with torch.random.fork_rng(devices=fork):
-                    torch.manual_seed(int(tta_seed))
-                    T, pi_T = self._variant_core(U, spec, oracle_labels)
-            else:
-                T, pi_T = self._variant_core(U, spec, oracle_labels)
+            best = None
+            for ri in range(max(1, spec.restarts)):
+                if tta_seed is not None:
+                    seed = stable_hash_int(int(tta_seed), "restart", ri)
+                    fork = [U.device.index] if (U.is_cuda and U.device.index is not None) else []
+                    with torch.random.fork_rng(devices=fork):
+                        torch.manual_seed(seed)
+                        T, pi_T, r_init, r_last = self._variant_core(U, spec, oracle_labels, pooled_ref)
+                else:
+                    T, pi_T, r_init, r_last = self._variant_core(U, spec, oracle_labels, pooled_ref)
+                obj = (self._fit_objective(U, T, pi_T, r_last) if r_last is not None
+                       else -self._change_of_var_nll(U, T, pi_T))   # pooled/identity: more evidence better
+                if best is None or obj > best[0]:
+                    best = (obj, T, pi_T, r_init, r_last)
+            obj, T, pi_T, r_init, r_last = best
             with torch.no_grad():
-                r = self.density.class_posterior(T.apply(U), torch.log(pi_T.clamp_min(1e-8)))
-            return T, pi_T.detach(), r.detach()
+                r_final = self.density.class_posterior(T.apply(U), torch.log(pi_T.clamp_min(1e-8)))
+            return VariantFit(T, pi_T.detach(),
+                              None if r_init is None else r_init.detach(),
+                              None if r_last is None else r_last.detach(),
+                              r_final.detach(), float(obj))
         finally:
             for p, req in frozen:
                 p.requires_grad_(req)
 
     def grouped_heldout(self, U: torch.Tensor, subject_ids, spec: VariantSpec, *, true_labels,
-                        oracle_labels=None, decision_prior=None, seed_parts=()) -> dict:
-        """Per-target-SUBJECT LOSO: fit the variant on the OTHER subjects, score the held-out
-        subject (never used to fit). Aggregates held-out change-of-variable evidence gain over
-        identity, and out-of-fold balanced accuracy / NLL under the (uniform) decision prior.
-        NaN with grouped_n_groups<2 (LOSO undefined, e.g. a single target subject)."""
+                        oracle_labels=None, pooled_ref=None, decision_prior=None, seed_parts=()) -> dict:
+        """Per-target-SUBJECT LOSO held-out evidence. identity is scored as an ACTION (predict
+        every trial with identity, evidence-gain 0). For non-identity, fit on the OTHER subjects
+        and score the held-out one; a fold is skipped only when its fit set is below min_target,
+        and ONLY oracle variants may read fit-set labels to require >=2 classes -- unsupervised
+        variants never condition on yt[fit]. Reports coverage so a partial LOSO is not read as
+        complete. Returns NaN metrics when LOSO is undefined (a single target subject)."""
         U = U.detach().to(self.device)
         subj = np.asarray(subject_ids)
         yt = np.asarray(true_labels)
         groups = np.unique(subj)
-        nan = dict(grouped_crossfit_evidence_gain=float("nan"), grouped_oof_bacc=float("nan"),
-                   grouped_oof_nll=float("nan"), grouped_n_groups=int(len(groups)))
-        if spec.name == "identity" or len(groups) < 2:
-            return nan
+        n_total = int(len(groups))
         K = self.n_classes
         dp = np.full(K, 1.0 / K) if decision_prior is None else np.asarray(decision_prior, float)
         log_dp = torch.log(torch.tensor(dp, dtype=torch.float32, device=self.device).clamp_min(1e-8))
         pi_S_t = torch.tensor(self.pi_S, dtype=torch.float32, device=self.device)
         Tid = Transform(U.shape[1], "diag_affine", device=self.device)
+        nan = dict(grouped_crossfit_evidence_gain=float("nan"), grouped_oof_bacc=float("nan"),
+                   grouped_oof_nll=float("nan"), grouped_n_groups=n_total,
+                   grouped_n_groups_total=n_total, grouped_n_groups_scored=0, grouped_oof_coverage=0.0)
+        if n_total < 1 or (spec.name != "identity" and n_total < 2):
+            return nan
         frozen = [(p, p.requires_grad) for p in self.density.parameters()]
         for p, _ in frozen:
             p.requires_grad_(False)
         oof_pred = np.full(len(yt), -1, dtype=np.int64)
         oof_nll = np.full(len(yt), np.nan)
-        gains = []
+        gains: list[float] = []
+        n_scored = 0
         try:
-            for g in groups:
-                ev = subj == g
-                fit = ~ev
-                if fit.sum() < self.cfg.min_target or _effective_classes(yt[fit], K) < 2:
-                    continue
-                ol = yt[fit] if spec.responsibility == "oracle" else None
-                seed = stable_hash_int(*seed_parts, spec.name, "fold", int(g))
-                Tg, pig, _ = self.fit_variant(U[fit], spec, oracle_labels=ol, tta_seed=seed)
-                gains.append(self._change_of_var_nll(U[ev], Tid, pi_S_t)   # identity
-                             - self._change_of_var_nll(U[ev], Tg, pig))    # adapted
+            if spec.name == "identity":                            # identity is an action, not a fit
                 with torch.no_grad():
-                    p = self.density.class_posterior(Tg.apply(U[ev]), log_dp).cpu().numpy()
-                idx = np.where(ev)[0]
-                oof_pred[idx] = p.argmax(1)
-                oof_nll[idx] = -np.log(np.clip(p[np.arange(len(idx)), yt[ev]], 1e-8, None))
+                    p = self.density.class_posterior(U, log_dp).cpu().numpy()
+                oof_pred[:] = p.argmax(1)
+                oof_nll[:] = -np.log(np.clip(p[np.arange(len(yt)), yt], 1e-8, None))
+                gains.append(0.0); n_scored = n_total
+            else:
+                for g in groups:
+                    ev = subj == g
+                    fit = ~ev
+                    if fit.sum() < self.cfg.min_target:
+                        continue
+                    if spec.responsibility == "oracle" and _effective_classes(yt[fit], K) < 2:
+                        continue                                    # ONLY oracle may read fit labels
+                    ol = yt[fit] if spec.responsibility == "oracle" else None
+                    seed = stable_hash_int(*seed_parts, spec.name, "fold", int(g))
+                    fitres = self.fit_variant(U[fit], spec, oracle_labels=ol, pooled_ref=pooled_ref,
+                                              tta_seed=seed)
+                    Tg, pig = fitres.transform, fitres.pi_T
+                    gains.append(self._change_of_var_nll(U[ev], Tid, pi_S_t)   # identity
+                                 - self._change_of_var_nll(U[ev], Tg, pig))    # adapted
+                    with torch.no_grad():
+                        p = self.density.class_posterior(Tg.apply(U[ev]), log_dp).cpu().numpy()
+                    idx = np.where(ev)[0]
+                    oof_pred[idx] = p.argmax(1)
+                    oof_nll[idx] = -np.log(np.clip(p[np.arange(len(idx)), yt[ev]], 1e-8, None))
+                    n_scored += 1
         finally:
             for p, req in frozen:
                 p.requires_grad_(req)
@@ -426,7 +511,9 @@ class ClassConditionalTTA:
         return dict(grouped_crossfit_evidence_gain=float(np.mean(gains)),
                     grouped_oof_bacc=float(balanced_accuracy_score(yt[scored], oof_pred[scored])),
                     grouped_oof_nll=float(np.nanmean(oof_nll[scored])),
-                    grouped_n_groups=int(len(groups)))
+                    grouped_n_groups=n_total, grouped_n_groups_total=n_total,
+                    grouped_n_groups_scored=int(n_scored),
+                    grouped_oof_coverage=float(scored.sum()) / len(yt))
 
     # -- online streaming TTA ----------------------------------------------------
     @torch.no_grad()

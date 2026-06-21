@@ -163,6 +163,25 @@ def hash_state(model) -> str:
     return h.hexdigest()
 
 
+def legacy_b0_checkpoint_hash(model) -> str:
+    """The Stage-B0 checkpoint hash: SHA-1 over state_dict in INSERTION order (key + raw bytes,
+    no dtype/shape, NOT sorted), truncated to 12 hex. Kept ONLY so a B0 `source_checkpoint_hash`
+    (12 hex) can be reproduced for the `--b0-ref` adaptation-only invariant; all new artifacts
+    use the stronger `hash_state` (64 hex)."""
+    h = hashlib.sha1()
+    for k, v in model.state_dict().items():
+        h.update(k.encode()); h.update(v.detach().cpu().numpy().tobytes())
+    return h.hexdigest()[:12]
+
+
+def checkpoint_hash_for_scheme(model, expected: str) -> tuple[str, str]:
+    """Return (hash, scheme) matching the width of `expected`: 12 -> legacy SHA-1 (B0),
+    else the current SHA-256 hash_state."""
+    if len(expected) == 12:
+        return legacy_b0_checkpoint_hash(model), "sha1_12"
+    return hash_state(model), "sha256_full"
+
+
 def source_data_hash(X: np.ndarray, y: np.ndarray, domains) -> str:
     """Source identity = X + y + domain levels + DAG factor metadata (not just X,y)."""
     dag_meta = [(f.name, int(f.n_levels), tuple(f.parents), f.handling, float(f.budget))

@@ -19,7 +19,9 @@ from h2cmi.grid_io import (config_signature, source_training_signature, source_d
                            source_code_signature, build_data_spec, build_manifest,
                            validate_or_create_manifest, validate_result_row, load_done_keys,
                            manifest_path, sha256_file, save_source_bundle, load_source_bundle,
-                           source_bundle_paths, variant_id, require_clean_git, global_expected_keys)
+                           source_bundle_paths, variant_id, require_clean_git, global_expected_keys,
+                           stable_hash_int, legacy_b0_checkpoint_hash, checkpoint_hash_for_scheme,
+                           hash_state)
 from h2cmi.domains import DomainDAG, DomainFactor, DomainLabels
 from h2cmi.train.trainer import H2Model
 from h2cmi.merge_grid_shards import merge_shards
@@ -72,6 +74,24 @@ def test_source_training_signature_ignores_tta_not_source():
 def test_variant_id_normalised():
     assert variant_id(resp="gen", update="oneshot", alpha=0.5, prior=None) == \
         "alpha=0.5__resp=gen__update=oneshot"
+
+
+def test_stable_hash_int_deterministic():
+    assert stable_hash_int(0, 1, "cov", "hard", "gen_oneshot_diag") == \
+        stable_hash_int(0, 1, "cov", "hard", "gen_oneshot_diag")
+    assert stable_hash_int(0, 1, "cov") != stable_hash_int(0, 2, "cov")
+    assert 0 <= stable_hash_int("x") < (1 << 63)
+
+
+def test_legacy_b0_hash_scheme_selection():
+    pi = np.full(3, 1 / 3); model = H2Model(_cfg(), pi)
+    legacy = legacy_b0_checkpoint_hash(model)
+    full = hash_state(model)
+    assert len(legacy) == 12 and len(full) == 64 and legacy != full[:12]
+    assert legacy_b0_checkpoint_hash(model) == legacy                      # deterministic
+    # scheme picked by the WIDTH of the recorded value (12 -> legacy SHA-1, else SHA-256)
+    assert checkpoint_hash_for_scheme(model, "0" * 12) == (legacy, "sha1_12")
+    assert checkpoint_hash_for_scheme(model, "0" * 64) == (full, "sha256_full")
 
 
 # ---- experiment vs shard ----
