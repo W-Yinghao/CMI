@@ -19,7 +19,7 @@ Branch of record: `exp/lpc-cmi`. All audit artifacts committed under `results/` 
 | 6 | **Sample abstention** via post-alignment `s_sep` reduces deployed loss | **DIAGNOSTIC_ONLY** (closed) | A0-PILOT closed-loop: retained NLL WORSE than random; net-protection ≈ random vs oracle +6; harm-flip AUROC 0.7 does not translate to loss reduction |
 | 7 | **CITA accuracy** (+3.0 over ERM cross-site) | **RETRACTED** (magnitude) → **OPEN** (scoped) | deflated to ~+1.8/+2.3 (2-seed, deterministic); the lever is **matched-CORAL**, not CMI/LPC; CITA ties SPDIM. Needs the frozen survivor matrix |
 | 8 | **PMCT** (prior-matched) beats matched-CORAL | **DROPPED** | PMCT ≈ matched-CORAL on real EEG → demoted to a prior-robustness ablation |
-| 9 | **LPC calibration** (ECE/NLL improvement, "principled confidence regulariser") | **OPEN** | not yet deconfounded vs source-only temperature scaling / logit shrinkage / accuracy-matched controls; P1.5 shows LPC trades representation compression — calibration may be a compression side-effect |
+| 9 | **LPC calibration** ("principled confidence regulariser") | **DROPPED** → temperature/compression side-effect | deconfound (`results/calibration_deconfound/`, 130 datasets, TUAB excluded): a single **oracle temperature** on ERM beats LPC NLL on **123/130** (LPC wins 7/130, median +0.254 NLL worse); LPC beats *raw* ERM (115/130) but trivial rescaling does MORE on 115/130, with acc ≈ ERM. So the effect is global confidence rescaling, not structured recalibration. Caveat: oracle-T is the temperature UPPER BOUND (target-fit; a deployable source-only T was untestable — no source-val in the saved preds), which makes the "not principled/structured" conclusion conclusive but leaves "is rescaling deployable under shift" unanswered |
 | 10 | **TUAB** as a pre-registered disjoint lockbox holdout | **RETRACTED** | TUAB exposure audit (`notes/TUAB_EXPOSURE_AUDIT.md`): TUAB was run as a full LOSO method comparison in root commit `fb2a878` BEFORE `TUAB_LOCKBOX.md` (`1de7a12`); numbers fed calibration + the SCPS scorecard; the lockbox still freezes the now-dropped LPC selector + residual-CMI gate |
 
 ## Net scientific finding (most consistent statement)
@@ -41,5 +41,9 @@ signal; a 0.7 harm-AUROC still worsened retained NLL by ignoring harm magnitude.
 
 ## Standing constraints
 No new gate / LPC / coverage / cohort / score search (per the frozen A0-PILOT rule). Deployment control uses no
-target labels and no source examples. TUAB stays sealed pending the exposure audit's disposition. Open items to
-resolve next: #9 (calibration deconfound) and #7 (survivor matrix).
+target labels and no source examples. TUAB stays sealed pending the exposure audit's disposition. **#9 calibration
+RESOLVED → temperature/compression side-effect (DROPPED).** Only OPEN item: **#7 — the frozen survivor matrix**
+(ERM / plain matched-CORAL / SPDIM / CITA-no-LPC; does CITA-no-LPC beat plain matched-CORAL or SPDIM on worst-case /
+calibration / stability, or is the contribution the measurement→control gap?). With LPC's three pillars now
+collapsed (leakage = via-collapse, calibration = temperature, accuracy = matched-CORAL not CMI), the survivor matrix
+is what decides between a (thin) positive-method line and the diagnostic→control-gap line.

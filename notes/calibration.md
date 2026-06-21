@@ -1,4 +1,4 @@
-> ⚠️ **UNDER RE-AUDIT (2026-06-21), claim status OPEN.** The LPC calibration win is NOT yet deconfounded vs source-only **temperature scaling** / **scalar logit shrinkage** / accuracy-matched controls — P1.5 shows LPC trades representation compression, so this may be a compression side-effect (see `notes/EVIDENCE_LEDGER.md` #9). The **TUAB** row reflects an **EXPOSED** dataset, not a holdout (`notes/TUAB_EXPOSURE_AUDIT.md`).
+> ⛔ **DEMOTED (2026-06-21) — temperature/compression side-effect, NOT principled calibration.** Deconfound (`results/calibration_deconfound/`, 130 datasets): a single oracle temperature on ERM beats LPC NLL on **123/130** (LPC wins 7); LPC beats *raw* ERM (the table below, 115/130) but trivial rescaling does more, with acc ≈ ERM. The table's raw "ERM vs lpc" ΔECE/ΔNLL stands as recorded but does NOT support a "principled confidence regulariser" claim. The **TUAB** row is an **EXPOSED** dataset (`notes/TUAB_EXPOSURE_AUDIT.md`). See `notes/EVIDENCE_LEDGER.md` #9.
 
 # Calibration (ECE% / NLL) — ERM vs lpc_prior, from saved `*.preds.npz` (no GPU/retrain)
 
