@@ -1,0 +1,29 @@
+{
+  "marker": "B2B_SOURCE_POWER_CHECKPOINT",
+  "alpha": 0.1,
+  "retention_min": 0.25,
+  "per_route": {
+    "pooled": {
+      "crossfit_route_null_fpr": 0.08333333333333333,
+      "crossfit_route_retention": 0.15333333333333332,
+      "roc_ceiling_retention_at_fpr10": 0.15666666666666668,
+      "n_null": 900,
+      "n_power": 900
+    },
+    "cc": {
+      "crossfit_route_null_fpr": 0.11666666666666668,
+      "crossfit_route_retention": 0.17666666666666667,
+      "roc_ceiling_retention_at_fpr10": 0.15888888888888889,
+      "n_null": 900,
+      "n_power": 900
+    }
+  },
+  "aggregate_crossfit_retention": 0.16499999999999998,
+  "decision": "B2B_SOURCE_POWER_FAIL",
+  "code_sha": "1cc1ffe3be1358444d6719a1b8e82a72ebfc8165",
+  "source_code_signature": "763bf49d4e500a47241c9bc8a78628a8",
+  "rows_sha256": "e0643222052f776f904c90b4217abf24d05288d04d049c9594697d8917543fde",
+  "n_rows": 3600,
+  "cross_node_reuse": true,
+  "n_source_data_hash_mismatch": 30
+}
