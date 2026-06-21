@@ -311,11 +311,57 @@ def run_representation_half():
     return out
 
 
+def _canon_hash_full(z):
+    return hashlib.sha256(np.ascontiguousarray(np.asarray(z, dtype="<f8")).tobytes()).hexdigest()
+
 def run_full_audit(manifest, rep_partial, base):
-    """Post-Freeze-A1 + verified sidecar: domain-probe (grouped, multi-capacity + alt-bias) using sidecar group/
-    domain ids, representation metrics, then the pre-registered decision_engine. (Body wired; executes only when a
-    verified sidecar exists — i.e. after the replay-bind step.)"""
-    raise NotImplementedError("requires verified sidecar (domain+group ids); bind via p15_metadata_replay post-Freeze-A1")
+    """Post-Freeze-A1 P1.5 audit consuming ONLY the hash-verified FEATURE_BOUND redump (feat_dump_v3). Verifies the
+    bind-manifest hash AND re-hashes every shard's content (point 4); ANY mismatch -> hard stop, NO partial decision.
+    Then grouped multi-capacity + alt-bias domain-leakage probes (D=source-cohort, grouped by cohort::subject,
+    conditioned on Y), representation/utility metrics (z_te, erm vs lpc), and the pre-registered decision_engine."""
+    from sklearn.preprocessing import LabelEncoder
+    V3 = "results/feat_dump_v3"
+    bm = json.load(open(f"{V3}/FEATURE_BOUND.json"))
+    if bm.get("status") != "FEATURE_BOUND":
+        raise RuntimeError(f"redump not FEATURE_BOUND ({bm.get('status')})")
+    mh = bm.pop("manifest_hash")
+    if hashlib.sha256(json.dumps(bm, sort_keys=True).encode()).hexdigest() != mh:
+        raise RuntimeError("FEATURE_BOUND manifest hash mismatch")
+    bm["manifest_hash"] = mh
+    if bm["freeze_a1_hash"] != manifest["hash"]:
+        raise RuntimeError("bind freeze hash != current Freeze A1 hash")
+    rng = np.random.default_rng(0); ERM, LPC = "erm:0", "lpc_prior:0.3"
+    leak = {ERM: defaultdict(list), LPC: defaultdict(list)}; rep = {ERM: [], LPC: []}
+    for sh in bm["shards"]:
+        fn = f"{V3}/audit_{sh['cond']}_{sh['cohort']}_{sh['config'].replace(':', '_')}.npz"
+        o = np.load(fn, allow_pickle=True)
+        if _canon_hash_full(o["z_te"]) != sh["feat_hash_te"] or _canon_hash_full(o["z_se"]) != sh["feat_hash_se"]:
+            raise RuntimeError(f"CONTENT HASH MISMATCH {fn} — hard stop, no partial decision")
+        cfg = sh["config"]; rep[cfg].append(representation_metrics(o["z_te"], o["y_te"], np.random.default_rng(0)))
+        D = LabelEncoder().fit_transform([str(c) for c in o["cohort_id_se"]])
+        if len(set(D)) < 2:
+            continue
+        Y = np.asarray(o["y_se"]); G = np.array([str(g) for g in o["group_id_se"]])
+        Zin = np.c_[np.asarray(o["z_se"], float), np.eye(int(Y.max()) + 1)[Y]]      # condition on Y
+        for t, v in domain_probe_audit(Zin, D, Y, G, PROBE_TIERS + PROBE_ALT, rng).items():
+            leak[cfg][t].append(v["heldout_bacc"])
+    m = lambda c, t: float(np.mean(leak[c][t])) if leak[c].get(t) else float("nan")
+    rmk = lambda c, k: float(np.mean([r[k] for r in rep[c]])) if rep[c] else float("nan")
+    strong = "mlp256x2"
+    rep_erm = {k: rmk(ERM, k) for k in ("eff_rank", "stable_rank", "scatter_ratio", "feat_var", "task_bacc")}
+    rep_lpc = {k: rmk(LPC, k) for k in ("eff_rank", "stable_rank", "scatter_ratio", "feat_var", "task_bacc")}
+    tier_leak = [m(ERM, t) for t in PROBE_TIERS]
+    decision, predicates = decision_engine(m(ERM, strong), m(LPC, strong), max(m(ERM, "gbt"), m(ERM, "knn")),
+                                           max(m(LPC, "gbt"), m(LPC, "knn")), rep_erm, rep_lpc,
+                                           saturation_met([abs(x) for x in tier_leak]))
+    dec = dict(decision=decision, predicates=predicates, freeze_a1_hash=manifest["hash"],
+               instrumentation_commit=bm["instrumentation_commit"], bind_manifest_hash=mh, n_shards=len(bm["shards"]),
+               leakage=dict(strong_probe=strong, erm=m(ERM, strong), lpc=m(LPC, strong),
+                            alt_erm=max(m(ERM, "gbt"), m(ERM, "knn")), alt_lpc=max(m(LPC, "gbt"), m(LPC, "knn")),
+                            tier_ladder=dict(zip(PROBE_TIERS, tier_leak))),
+               representation=dict(erm=rep_erm, lpc=rep_lpc))
+    checks = "\n".join(f"{sh['cond']}/{sh['cohort']}/{sh['config']}  {sh['feat_hash_te'][:16]}" for sh in bm["shards"])
+    return dict(decision=dec, manifest=dict(base, bind_manifest_hash=mh, V3=V3), checksums=checks)
 
 
 if __name__ == "__main__":
