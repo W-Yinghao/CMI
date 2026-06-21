@@ -62,7 +62,7 @@ def source_state_hash(state):
 
 
 def pmct_predict_serialized(state, z_tgt, alpha=1.0, gate="reliability", kappa=8.0,
-                            ref="prior_matched", tmap="wc", em_iters=3):
+                            ref="prior_matched", tmap="wc", em_iters=3, return_ztilde=False):
     """STRICT source-free PMCT/CORAL transport+predict. Mirrors `label_shift.pmct_transport` EXACTLY but reads
     only `state` + the unlabeled target features. NO z_src / y_src argument — source data is unreachable here."""
     z_tgt = np.asarray(z_tgt, float)
@@ -108,4 +108,4 @@ def pmct_predict_serialized(state, z_tgt, alpha=1.0, gate="reliability", kappa=8
         if np.abs(pi_new - pi).max() < 1e-3:
             pi = pi_new; break
         pi = pi_new
-    return prob, pi
+    return (prob, pi, z_tilde) if return_ztilde else (prob, pi)
