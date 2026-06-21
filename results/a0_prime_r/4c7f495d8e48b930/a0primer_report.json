@@ -1,0 +1,312 @@
+{
+  "flips": {
+    "PD": {
+      "harmful": 0.181076415078527,
+      "beneficial": 0.10529826855064447,
+      "net": 0.07577814652788253
+    },
+    "SCZ": {
+      "harmful": 0.14934603174603175,
+      "beneficial": 0.13165079365079366,
+      "net": 0.017695238095238097
+    }
+  },
+  "within_batch_auc": {
+    "g_unc": {
+      "harm_flip": {
+        "PD": 0.6776229680977658,
+        "SCZ": 0.7048519299847309
+      },
+      "base_err": {
+        "PD": 0.4282454638866152,
+        "SCZ": 0.5021379545581495
+      },
+      "adapt_err": {
+        "PD": 0.4947721749632011,
+        "SCZ": 0.5042729470076827
+      }
+    },
+    "s_support": {
+      "harm_flip": {
+        "PD": 0.48294840682963974,
+        "SCZ": 0.45482674080362073
+      },
+      "base_err": {
+        "PD": 0.5375291046897795,
+        "SCZ": 0.5057524490764191
+      },
+      "adapt_err": {
+        "PD": 0.5040005363920813,
+        "SCZ": 0.5036512685100578
+      }
+    },
+    "s_sep": {
+      "harm_flip": {
+        "PD": 0.6922683776363118,
+        "SCZ": 0.7325538902804644
+      },
+      "base_err": {
+        "PD": 0.4324123976337163,
+        "SCZ": 0.5026805241750212
+      },
+      "adapt_err": {
+        "PD": 0.49642887183541934,
+        "SCZ": 0.5115126284389688
+      }
+    },
+    "pr_cmi_proxy": {
+      "harm_flip": {
+        "PD": 0.39113876867025316,
+        "SCZ": 0.3830314024168301
+      },
+      "base_err": {
+        "PD": 0.5591709628699736,
+        "SCZ": 0.49706446286607614
+      },
+      "adapt_err": {
+        "PD": 0.5076998262380257,
+        "SCZ": 0.4951784279607246
+      }
+    }
+  },
+  "family_macro_cohort_equal": {
+    "g_unc": {
+      "PD/lowmargin_rot": 0.6416060442475024,
+      "PD/highmargin_cbw": 0.6263788083227958,
+      "SCZ/lowmargin_rot": 0.7052441841992241,
+      "SCZ/highmargin_cbw": 0.6860611859748764
+    },
+    "s_support": {
+      "PD/lowmargin_rot": 0.47191511527604324,
+      "PD/highmargin_cbw": 0.4778838103648222,
+      "SCZ/lowmargin_rot": 0.44830267060521595,
+      "SCZ/highmargin_cbw": 0.45188110103661117
+    },
+    "s_sep": {
+      "PD/lowmargin_rot": 0.6997531950775686,
+      "PD/highmargin_cbw": 0.675639866023413,
+      "SCZ/lowmargin_rot": 0.7199926953860517,
+      "SCZ/highmargin_cbw": 0.707479154952458
+    },
+    "pr_cmi_proxy": {
+      "PD/lowmargin_rot": 0.4108698009379396,
+      "PD/highmargin_cbw": 0.4379259469821056,
+      "SCZ/lowmargin_rot": 0.38680557846055885,
+      "SCZ/highmargin_cbw": 0.38093201174854974
+    }
+  },
+  "family_pooled": {
+    "g_unc": {
+      "PD/lowmargin_rot": 0.6877676740741909,
+      "PD/highmargin_cbw": 0.664427195322107,
+      "SCZ/lowmargin_rot": 0.7155886558170714,
+      "SCZ/highmargin_cbw": 0.6911716270071796
+    },
+    "s_support": {
+      "PD/lowmargin_rot": 0.47929599308380294,
+      "PD/highmargin_cbw": 0.48769930074265794,
+      "SCZ/lowmargin_rot": 0.45313011908606293,
+      "SCZ/highmargin_cbw": 0.4569885077609712
+    },
+    "s_sep": {
+      "PD/lowmargin_rot": 0.7047272107682704,
+      "PD/highmargin_cbw": 0.6760624933611805,
+      "SCZ/lowmargin_rot": 0.7378203299121654,
+      "SCZ/highmargin_cbw": 0.7258436053295683
+    },
+    "pr_cmi_proxy": {
+      "PD/lowmargin_rot": 0.3773334181843275,
+      "PD/highmargin_cbw": 0.4090961415624739,
+      "SCZ/lowmargin_rot": 0.38419323315073245,
+      "SCZ/highmargin_cbw": 0.3815510445594525
+    }
+  },
+  "selective": {
+    "PD": {
+      "s_sep": {
+        "retained_nll": 2.248400411305159,
+        "retained_01": 0.49347903340440663,
+        "retained_harmflip": 0.20840602844833242,
+        "achieved_coverage": 0.8132773631840796
+      },
+      "g_unc": {
+        "retained_nll": 2.2600612637052433,
+        "retained_01": 0.4935741621562518,
+        "retained_harmflip": 0.21266139670124543,
+        "achieved_coverage": 0.8132773631840796
+      },
+      "random": {
+        "retained_nll": 1.989561048891741,
+        "retained_01": 0.4965305341424745,
+        "retained_harmflip": 0.24107568375412447,
+        "achieved_coverage": 0.8132773631840796
+      },
+      "oracle": {
+        "retained_nll": 1.3165658542967427,
+        "retained_01": 0.3792294024383576,
+        "retained_harmflip": 0.11598169878453518,
+        "achieved_coverage": 0.8132773631840796
+      },
+      "no_abstain": {
+        "retained_nll": 1.979796757197413,
+        "retained_01": 0.49472836709310586
+      }
+    },
+    "SCZ": {
+      "s_sep": {
+        "retained_nll": 2.5501996411507353,
+        "retained_01": 0.4972119753038481,
+        "retained_harmflip": 0.18493341848846834,
+        "achieved_coverage": 0.8127208480565371
+      },
+      "g_unc": {
+        "retained_nll": 2.58031610642008,
+        "retained_01": 0.49999667167764095,
+        "retained_harmflip": 0.19312327559805956,
+        "achieved_coverage": 0.8127208480565371
+      },
+      "random": {
+        "retained_nll": 2.247522082824332,
+        "retained_01": 0.5027991191040156,
+        "retained_harmflip": 0.22201568012158526,
+        "achieved_coverage": 0.8127208480565371
+      },
+      "oracle": {
+        "retained_nll": 1.5065192654394226,
+        "retained_01": 0.387775071974971,
+        "retained_harmflip": 0.09625352012458874,
+        "achieved_coverage": 0.8127208480565371
+      },
+      "no_abstain": {
+        "retained_nll": 2.245024405846346,
+        "retained_01": 0.5017099949520444
+      }
+    }
+  },
+  "top20_enrichment": {
+    "PD": {
+      "base_rate": 0.3117986608173632,
+      "global_top20": 0.47965250519510505,
+      "withinbatch_top20": 0.3984573868213308
+    },
+    "SCZ": {
+      "base_rate": 0.289341287902085,
+      "global_top20": 0.5149148164093733,
+      "withinbatch_top20": 0.3949824925930201
+    }
+  },
+  "coverage_accounting": {
+    "PD/ds002778/lowmargin_rot": {
+      "n_batches": 780,
+      "eligible_batches": 419,
+      "fallback_frac": 0.0,
+      "harm_events": 6428
+    },
+    "PD/ds002778/highmargin_cbw": {
+      "n_batches": 585,
+      "eligible_batches": 325,
+      "fallback_frac": 0.0,
+      "harm_events": 4205
+    },
+    "PD/ds003490/lowmargin_rot": {
+      "n_batches": 1260,
+      "eligible_batches": 1006,
+      "fallback_frac": 0.0,
+      "harm_events": 6549
+    },
+    "PD/ds003490/highmargin_cbw": {
+      "n_batches": 945,
+      "eligible_batches": 766,
+      "fallback_frac": 0.0,
+      "harm_events": 4792
+    },
+    "PD/ds004584/lowmargin_rot": {
+      "n_batches": 3320,
+      "eligible_batches": 2195,
+      "fallback_frac": 0.006024096385542169,
+      "harm_events": 18180
+    },
+    "PD/ds004584/highmargin_cbw": {
+      "n_batches": 2490,
+      "eligible_batches": 1692,
+      "fallback_frac": 0.006024096385542169,
+      "harm_events": 13862
+    },
+    "SCZ/ds003944/lowmargin_rot": {
+      "n_batches": 2060,
+      "eligible_batches": 1417,
+      "fallback_frac": 0.0,
+      "harm_events": 9221
+    },
+    "SCZ/ds003944/highmargin_cbw": {
+      "n_batches": 1545,
+      "eligible_batches": 1093,
+      "fallback_frac": 0.0,
+      "harm_events": 7510
+    },
+    "SCZ/ds003947/lowmargin_rot": {
+      "n_batches": 1540,
+      "eligible_batches": 1176,
+      "fallback_frac": 0.0,
+      "harm_events": 7559
+    },
+    "SCZ/ds003947/highmargin_cbw": {
+      "n_batches": 1155,
+      "eligible_batches": 941,
+      "fallback_frac": 0.0,
+      "harm_events": 6036
+    },
+    "SCZ/ds004000/lowmargin_rot": {
+      "n_batches": 1060,
+      "eligible_batches": 510,
+      "fallback_frac": 0.0,
+      "harm_events": 4541
+    },
+    "SCZ/ds004000/highmargin_cbw": {
+      "n_batches": 795,
+      "eligible_batches": 392,
+      "fallback_frac": 0.0,
+      "harm_events": 3661
+    },
+    "SCZ/ds004367/lowmargin_rot": {
+      "n_batches": 1000,
+      "eligible_batches": 536,
+      "fallback_frac": 0.0,
+      "harm_events": 4797
+    },
+    "SCZ/ds004367/highmargin_cbw": {
+      "n_batches": 750,
+      "eligible_batches": 430,
+      "fallback_frac": 0.0,
+      "harm_events": 3719
+    }
+  },
+  "no_harm_guard": {
+    "clean/PD": {
+      "prevented_per_batch": 1.7462686567164178,
+      "lost_per_batch": 0.9776119402985075,
+      "net": 0.7686567164179104
+    },
+    "clean/SCZ": {
+      "prevented_per_batch": 1.4840989399293287,
+      "lost_per_batch": 1.2897526501766785,
+      "net": 0.19434628975265017
+    },
+    "covariate_shift_beneficial/PD": {
+      "prevented_per_batch": 1.7840796019900498,
+      "lost_per_batch": 0.9893034825870647,
+      "net": 0.7947761194029851
+    },
+    "covariate_shift_beneficial/SCZ": {
+      "prevented_per_batch": 1.484570082449941,
+      "lost_per_batch": 1.299882214369847,
+      "net": 0.18468786808009424
+    }
+  },
+  "serialized_equivalence": {
+    "max_abs": 0.0,
+    "batches_checked": 550,
+    "all_7_cohorts": true
+  },
+  "note": "reporting-completeness only; decision (POST_ALIGN_ABSTENTION_ONLY, hash 82719b20f12a2bbc) is from a0_prime_r.py and unchanged. base-error AUROC ~0.52-0.53 = WEAKLY aligned w/ base difficulty."
+}
