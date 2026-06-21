@@ -17,7 +17,7 @@ Branch of record: `exp/lpc-cmi`. All audit artifacts committed under `results/` 
 | 4 | **CMI domain-density gate** as a deployable harm-controller | **DIAGNOSTIC_ONLY** (closed) | A0: density/CMI anti-aligned with adaptation harm (weakly aligned with base difficulty) |
 | 5 | **Batch rollback eligibility** via uncertainty/separability | **RETRACTED** | A0′-R: the A0′ positive was a P0 target-label-leakage artifact; whole-batch label-blind score → signal collapses (g_unc ρ→−0.40) |
 | 6 | **Sample abstention** via post-alignment `s_sep` reduces deployed loss | **DIAGNOSTIC_ONLY** (closed) | A0-PILOT closed-loop: retained NLL WORSE than random; net-protection ≈ random vs oracle +6; harm-flip AUROC 0.7 does not translate to loss reduction |
-| 7 | **CITA accuracy** (+3.0 over ERM cross-site) | **RETRACTED** (magnitude) → **OPEN** (scoped) | deflated to ~+1.8/+2.3 (2-seed, deterministic); the lever is **matched-CORAL**, not CMI/LPC; CITA ties SPDIM. Needs the frozen survivor matrix |
+| 7 | **CITA as a distinct positive method** | **RESOLVED → no novel method; STOP positive-method line** | survivor matrix (`results/survivor_matrix/`): CITA-no-LPC **IS** plain matched-CORAL (serialized-equiv \|Δbacc\|=0); vs **SPDIM** same accuracy (58.4 vs 58.6, CI [−2.0,+1.2]); +2.6 over ERM is the generic transductive lever (CI touches 0). matched-CORAL is better-calibrated than SPDIM TTA (NLL 1.80 vs 2.93, CI [−2.69,0.00]) + better worst-cohort (52.0 vs 49.8) — a *supporting* note (matched-CORAL > overfit TTA on calibration), not a project contribution. → contribution = the measurement→control gap |
 | 8 | **PMCT** (prior-matched) beats matched-CORAL | **DROPPED** | PMCT ≈ matched-CORAL on real EEG → demoted to a prior-robustness ablation |
 | 9 | **LPC calibration** ("principled confidence regulariser") | **DROPPED** → temperature/compression side-effect | deconfound (`results/calibration_deconfound/`, 130 datasets, TUAB excluded): a single **oracle temperature** on ERM beats LPC NLL on **123/130** (LPC wins 7/130, median +0.254 NLL worse); LPC beats *raw* ERM (115/130) but trivial rescaling does MORE on 115/130, with acc ≈ ERM. So the effect is global confidence rescaling, not structured recalibration. Caveat: oracle-T is the temperature UPPER BOUND (target-fit; a deployable source-only T was untestable — no source-val in the saved preds), which makes the "not principled/structured" conclusion conclusive but leaves "is rescaling deployable under shift" unanswered |
 | 10 | **TUAB** as a pre-registered disjoint lockbox holdout | **RETRACTED** | TUAB exposure audit (`notes/TUAB_EXPOSURE_AUDIT.md`): TUAB was run as a full LOSO method comparison in root commit `fb2a878` BEFORE `TUAB_LOCKBOX.md` (`1de7a12`); numbers fed calibration + the SCPS scorecard; the lockbox still freezes the now-dropped LPC selector + residual-CMI gate |
@@ -41,9 +41,15 @@ signal; a 0.7 harm-AUROC still worsened retained NLL by ignoring harm magnitude.
 
 ## Standing constraints
 No new gate / LPC / coverage / cohort / score search (per the frozen A0-PILOT rule). Deployment control uses no
-target labels and no source examples. TUAB stays sealed pending the exposure audit's disposition. **#9 calibration
-RESOLVED → temperature/compression side-effect (DROPPED).** Only OPEN item: **#7 — the frozen survivor matrix**
-(ERM / plain matched-CORAL / SPDIM / CITA-no-LPC; does CITA-no-LPC beat plain matched-CORAL or SPDIM on worst-case /
-calibration / stability, or is the contribution the measurement→control gap?). With LPC's three pillars now
-collapsed (leakage = via-collapse, calibration = temperature, accuracy = matched-CORAL not CMI), the survivor matrix
-is what decides between a (thin) positive-method line and the diagnostic→control-gap line.
+target labels and no source examples. TUAB stays sealed pending the exposure audit's disposition.
+
+**SURVIVOR AUDIT COMPLETE (steps 1–4 done; NO open items).** LPC's three pillars all collapsed (leakage = via
+representation collapse, calibration = a single-temperature side-effect, accuracy = the generic matched-CORAL
+transductive lever, not CMI/LPC). The harm-gate/rollback/abstention direction is closed (DIAGNOSTIC_ONLY,
+closed-loop). CITA-no-LPC is plain matched-CORAL with no distinct advantage over SPDIM. **There is no positive-method
+contribution.** The defensible contribution is the **measurement→control gap**: *source-free adaptation diagnostics
+are not deployment controllers* — leakage reduction can be collapse, shift/density detection inverts vs adaptation
+harm, outcome-conditioned evaluation fabricates safety signals, and a 0.7 harm-ranking AUROC need not improve
+closed-loop risk. Strengthening that = pre-registered cross-adapter / cross-task replication + identifiability /
+counterexample theory (a NEW phase, not a seventh gate score). TUAB requires the exposure-audit disposition (demote
+to external benchmark, or a hash-proven disjoint split on the CURRENT method) before any use.
