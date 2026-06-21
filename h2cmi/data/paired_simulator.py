@@ -28,7 +28,7 @@ from h2cmi.data.eeg_simulator import SimulatedEEG
 # Independent RNG streams (stable integer ids -> reproducible, non-interfering SeedSequences)
 _STREAMS = {name: i for i, name in enumerate([
     "struct", "subj_perturb", "labels", "phase", "noise", "session_noise",
-    "target_cov", "target_concept", "target_prior", "target_montage",
+    "target_cov", "target_concept", "target_prior", "target_montage", "target_gain",
 ])}
 
 
@@ -44,6 +44,7 @@ class ScenarioSpec:
     target_prior: float = 0.0
     target_concept: float = 0.0           # shared rotation of the class->source-power map
     target_montage: float = 0.0
+    target_gain: float = 0.0              # pure channel-wise diagonal gain (no dropout/mixing)
     target_noise_delta: float = 0.0
     matched_domain: bool = False          # target subjects reuse SOURCE anatomy (identity-null)
 
@@ -175,6 +176,9 @@ class PairedEEGSimulator:
                 gain = (1.0 + scenario.target_montage * r.standard_normal(self.n_chans)).astype(np.float32)
                 drop = r.random(self.n_chans) < (0.15 * scenario.target_montage)
                 gain[drop] *= 0.1
+            if scenario.target_gain > 0:                  # clean diagonal channel gain (DIAG_COMPATIBLE)
+                r = _rng(self.data_seed, "target_gain", site)
+                gain = gain * (1.0 + scenario.target_gain * r.standard_normal(self.n_chans)).astype(np.float32)
             noise_delta = scenario.target_noise_delta
         return prior, rot, site_dM, gain, noise_delta
 
