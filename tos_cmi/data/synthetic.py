@@ -162,3 +162,41 @@ def make_covariance_only(n=6000, n_dom=6, d=24, sep_label=2.0, dom_var=2.0, nois
     return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": d_lab.astype(np.int64),
             "nuisance_basis": nuis_basis.astype(np.float32),
             "label_basis": label_basis.astype(np.float32), "spec": spec}
+
+
+def make_xor_leakage(n=6000, d=24, sep_label=2.0, scale=1.5, noise=1.0, rotate=True, seed=0):
+    """Nonlinear (XOR) domain leakage: domain = sign(a·b) for two latent coords a,b along
+    w1,w2; the label is a mean shift along u. Mean scatter sees no domain-mean shift (a,b are
+    symmetric) -> blind; an MLP critic decodes the XOR -> score-Fisher can find the (w1,w2)
+    plane. 2 classes, 2 domains."""
+    rng = np.random.default_rng(seed)
+    B = _random_orthonormal(d, 3, rng)
+    u, w1, w2 = B[:, 0], B[:, 1], B[:, 2]
+    y = rng.integers(0, 2, size=n)
+    a = rng.standard_normal(n); b = rng.standard_normal(n)
+    dom = (a * b < 0).astype(np.int64)                       # XOR of the two sign bits
+    Z = (sep_label * (2 * y - 1)[:, None] * u[None, :]
+         + scale * (a[:, None] * w1[None, :] + b[:, None] * w2[None, :])
+         + noise * rng.standard_normal((n, d)))
+    nuis_basis = np.stack([w1, w2], 1)
+    label_basis = u[:, None].copy()
+    if rotate:
+        Q = _random_orthonormal(d, d, rng)
+        Z = Z @ Q.T; nuis_basis = Q @ nuis_basis; label_basis = Q @ label_basis
+    spec = SimpleNamespace(n_cls=2, n_dom=2, d=d)
+    return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": dom,
+            "nuisance_basis": nuis_basis.astype(np.float32),
+            "label_basis": label_basis.astype(np.float32), "spec": spec}
+
+
+def apply_linear_transform(data, A):
+    """Return a copy with Z' = Z @ A^T (i.e. z' = A z) and the ground-truth bases mapped
+    covariantly (basis' = A @ basis). Used to test coordinate-rescaling invariance of the
+    selection: a metric-aware selector should pick A^{-1}-mapped-back the same subspace."""
+    A = np.asarray(A, dtype=np.float32)
+    out = dict(data)
+    out["Z"] = (np.asarray(data["Z"], dtype=np.float32) @ A.T).astype(np.float32)
+    for k in ("nuisance_basis", "label_basis"):
+        if k in data:
+            out[k] = (A @ np.asarray(data[k], dtype=np.float32)).astype(np.float32)
+    return out
