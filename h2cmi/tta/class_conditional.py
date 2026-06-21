@@ -214,6 +214,53 @@ class ClassConditionalTTA:
             for p, req in frozen:
                 p.requires_grad_(req)
 
+    # -- action decomposition (Stage B0) -----------------------------------------
+    def _fit_prior_only(self, U: torch.Tensor) -> torch.Tensor:
+        """Estimate pi_T with the transform held at IDENTITY (prior-only action)."""
+        pi_T = torch.tensor(self.pi_S, dtype=torch.float32, device=self.device)
+        anchor = torch.tensor((self.cfg.dirichlet + self.cfg.prior_anchor_strength) * self.pi_S,
+                              dtype=torch.float32, device=self.device)
+        logp = self.density.log_prob_all(U)                     # T = I, constant across iters
+        for _ in range(self.cfg.em_iters):
+            r = F.softmax(logp + torch.log(pi_T.clamp_min(1e-8)).view(1, -1), dim=1)
+            counts = r.sum(0)
+            pi_T = (counts + anchor) / (counts.sum() + anchor.sum())
+        return pi_T.detach()
+
+    def fit_action(self, U: torch.Tensor, action: str) -> TTAResult:
+        """Run ONE adaptation action UNCONDITIONALLY (no rollback) for decomposition:
+        'identity' | 'prior_only' (T=I, estimate pi_T) | 'geometry_only' (fit T, hold pi=pi_S)
+        | 'joint' (fit T and pi_T). Returns a TTAResult whose pi_T is the FIT prior (the
+        caller chooses the DECISION prior separately -- review §3 confound fix)."""
+        U = U.detach().to(self.device)
+        d = U.shape[1]
+        log_piS = torch.log(torch.tensor(self.pi_S, dtype=torch.float32, device=self.device).clamp_min(1e-8))
+        nll_before = self._identity_diagnostics(U, log_piS)
+        frozen = [(p, p.requires_grad) for p in self.density.parameters()]
+        for p, _ in frozen:
+            p.requires_grad_(False)
+        try:
+            if action == "identity":
+                T = Transform(d, "diag_affine", device=self.device)
+                pi = torch.tensor(self.pi_S, dtype=torch.float32, device=self.device)
+            elif action == "prior_only":
+                T = Transform(d, "diag_affine", device=self.device)
+                pi = self._fit_prior_only(U)
+            elif action == "geometry_only":
+                T, pi = self._fit_transform(
+                    U, fixed_prior=torch.tensor(self.pi_S, dtype=torch.float32, device=self.device))
+            elif action == "joint":
+                T, pi = self._fit_transform(U)
+            else:
+                raise ValueError(f"unknown action {action}")
+            diag = self._diagnostics(U, T, pi, log_piS, nll_before)
+            diag["action"] = action
+            return TTAResult(T, pi.detach().cpu().numpy(), adapted=(action != "identity"),
+                             diagnostics=diag)
+        finally:
+            for p, req in frozen:
+                p.requires_grad_(req)
+
     # -- online streaming TTA ----------------------------------------------------
     @torch.no_grad()
     def fit_online(self, batches) -> TTAResult:
