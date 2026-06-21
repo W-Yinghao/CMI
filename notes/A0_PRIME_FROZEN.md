@@ -55,6 +55,22 @@ assert): *density/CMI identify shifted geometry yet are anti-aligned with adapta
 boundary fragility predicts harmful transitions.* This is recorded as a mechanism-separation hypothesis; project
 re-direction waits on A0′ reproduction AND the later closed-loop pilot.
 
+## POST-RUN CORRECTIONS (transparency; admissibility CRITERIA unchanged/frozen)
+1. The 4-outcome tree above OMITTED the symmetric **batch-only** case (batch-admissible, sample-not). Added
+   `ROLLBACK_ELIGIBILITY_ONLY` for it. The frozen `adm_batch`/`adm_sample` criteria were NOT changed; this is a
+   label-completeness fix, not a relaxation.
+2. `base_err`/`adapt_err` adaptation-specificity AUROC must be computed on the FULL batch (not the base-correct
+   subset, where base-error is trivially absent). Fixed; harm-flip stays on the base-correct subset.
+3. Added a cohort-macro robustness flag for the batch test (per-cohort Spearman sign-consistency) — STRICTER than
+   the disease-pooled primary, to expose any cohort-driven batch signal. g_unc/s_sep pass it (`robust=True`).
+
+## RESULT (2026-06-21, unseen realizations): ROLLBACK_ELIGIBILITY_ONLY
+- BATCH rollback eligibility CONFIRMS: g_unc (PD ρ+0.34/auc0.64, SCZ ρ+0.31/auc0.69) and s_sep (PD ρ+0.22/auc0.57,
+  SCZ ρ+0.55/auc0.80) — both diseases, LOGFO-positive, cohort-robust, adaptation-specific (target Δℓ is base-subtracted).
+- SAMPLE within-batch abstention does NOT confirm (PD strong ~0.7–0.78, SCZ chance ~0.49–0.55; disease-inconsistent).
+- MECHANISM SEPARATION confirmed: s_support/cmi predict BASE difficulty (base_err AUROC 0.55–0.56) but are
+  ANTI-aligned with adaptation harm (harm AUROC 0.40–0.44); g_unc/s_sep are the opposite (harm 0.64–0.67, base_err 0.43).
+
 ## Output (immutable)
 ```
 results/a0_prime/<freeze_hash16>/
