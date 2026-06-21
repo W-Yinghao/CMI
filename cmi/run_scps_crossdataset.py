@@ -213,7 +213,7 @@ def run(args):
                                  instrumentation_commit=_instr, freeze_a1_hash=_fz.get("hash", "unknown"),
                                  deterministic=bool(getattr(args, "deterministic", False)),
                                  head_commit=_g("rev-parse", "HEAD") or "nogit",
-                                 tree_dirty=bool(_g("status", "--porcelain")),   # uncommitted changes present?
+                                 tree_dirty=bool(_g("status", "--porcelain", "-uno")),   # uncommitted TRACKED changes (untracked outputs don't count)
                                  runner_file_sha=_runner_sha, env_sha=_env_sha)
     results = {lbl: [] for lbl, *_ in configs}
     if args.select == "nested":

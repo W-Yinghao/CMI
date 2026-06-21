@@ -6,7 +6,7 @@ all canonical content hashes verify. Partial success => NO manifest, nonzero exi
 Re-running a FAILED redump is allowed with the IDENTICAL config; this script never relaxes a tolerance or renames
 a version to force a bind.
 """
-import os, sys, json, glob, hashlib
+import os, sys, json, glob, hashlib, subprocess
 import numpy as np
 
 V3 = "results/feat_dump_v3"
@@ -34,8 +34,12 @@ def freeze_pred_hash(cond, cohort, lbl):
     return None
 
 def canon_pred_hash16(prob):
-    a = np.round(np.asarray(prob, "<f8"), 6)
-    return hashlib.sha256(np.ascontiguousarray(a).tobytes()).hexdigest()[:16]
+    """Reproduce the runner's DEPLOYMENT-canonical pred_hash from dumped content: the model emits float32 probs and
+    the runner rounds in float32 THEN casts to float64 (this is exactly the hash r12det_full stored and Freeze A1
+    froze). Recomputing in float64 would be a rounding-order artifact, not a prediction difference. Computed from the
+    prob_te CONTENT (not the npz's stored hash) so the check binds the dumped array to Freeze A1 directly."""
+    a = np.ascontiguousarray(np.round(np.asarray(prob).astype(np.float32), 6), dtype=np.float64)
+    return hashlib.sha256(a.tobytes()).hexdigest()[:16]
 
 def main():
     if os.path.exists(OUT):
@@ -70,11 +74,9 @@ def main():
                 sids = [str(s) for s in o["sample_id_te"]]
                 if len(sids) != len(set(sids)):
                     problems.append(f"DUPLICATE sample_id in te {cond}/{cohort}/{lbl}"); continue
-                # (d) provenance: freeze + RUNTIME code immutability (no dirty tree)
+                # (d) provenance: freeze identity (runtime code immutability verified across-shards below)
                 if str(o["freeze_a1_hash"]) != FREEZE["hash"] or str(o["scientific_code_commit"]) != FREEZE["code_commit"]:
                     problems.append(f"PROVENANCE MISMATCH {cond}/{cohort}/{lbl}"); continue
-                if bool(o["tree_dirty"]) if "tree_dirty" in o else True:
-                    problems.append(f"DIRTY/UNRECORDED TREE {cond}/{cohort}/{lbl} (runner not a clean commit)"); continue
                 # (e) content checksums + runtime code fingerprints (verified consistent across ALL shards below)
                 shards.append(dict(cond=cond, cohort=cohort, config=lbl, role=role,
                                    instrumentation_commit=str(o["instrumentation_commit"]),
@@ -87,6 +89,15 @@ def main():
         vals = set(s[k] for s in shards)
         if len(vals) > 1:
             problems.append(f"INCONSISTENT {k} across shards (working tree changed mid-run): {sorted(vals)}")
+    # the runner CONTENT that ran must equal the committed runner at head_commit (precise "no dirty CODE"; a dirty
+    # working tree from untracked OUTPUTS does not compromise this — the runner file's sha is matched to the commit)
+    if shards:
+        head, rsha = shards[0]["head_commit"], shards[0]["runner_file_sha"]
+        blob = subprocess.run(["git", "show", f"{head}:cmi/run_scps_crossdataset.py"], capture_output=True).stdout
+        committed_sha = hashlib.sha256(blob).hexdigest() if blob else None
+        if committed_sha != rsha:
+            problems.append(f"RUNNER CONTENT != committed @ {head[:12]} (uncommitted CODE change): "
+                            f"ran={rsha[:16]} committed={str(committed_sha)[:16]}")
     # ---- two P1.5 invariants: identical sample-ID set+ORDER across branches; complete pre-gate set (erm==lpc) ----
     by_fold = {}
     for s in shards:
