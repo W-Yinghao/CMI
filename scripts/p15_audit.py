@@ -277,19 +277,21 @@ def main():
 
 
 def check_sidecar_bound(manifest):
-    """Bound sidecar requires status==FEATURE_BOUND (both ERM+LPC branches) AND a matching Freeze A1 hash.
-    REQUIRES_FROZEN_REDUMP / METADATA_BINDING_FAILED are reported verbatim (they are NOT scientific INCONCLUSIVE)."""
-    p = "results/feat_dump_v2_sidecar/bound_manifest.json"
+    """The bound artifact is the self-describing FROZEN REDUMP (feat_dump_v3/FEATURE_BOUND.json), produced by
+    p15_bind_redump only when EVERY shard exists, is unique, pred-hash-aligns Freeze A1, and content-hash-verifies.
+    REQUIRES_FROZEN_REDUMP / incomplete are reported verbatim (NOT scientific INCONCLUSIVE)."""
+    p = "results/feat_dump_v3/FEATURE_BOUND.json"
     if not os.path.exists(p):
-        return False, "no bound sidecar (run p15_metadata_replay replay_and_bind post-Freeze-A1)"
+        return False, "no FEATURE_BOUND redump (run p15_bind_redump after the frozen redump completes)"
     try:
         m = json.load(open(p))
     except Exception as e:
-        return False, f"bound sidecar unreadable: {e}"
+        return False, f"FEATURE_BOUND manifest unreadable: {e}"
     if m.get("status") != "FEATURE_BOUND":
-        return False, f"sidecar status={m.get('status')} (not FEATURE_BOUND): {m.get('detail')}"
-    if not (m.get("erm_bound") and m.get("lpc_bound")):
-        return False, f"sidecar not bound for BOTH branches (erm={m.get('erm_bound')}, lpc={m.get('lpc_bound')})"
+        return False, f"redump status={m.get('status')} (not FEATURE_BOUND)"
+    roles = set(s.get("role") for s in m.get("shards", []))
+    if roles != {"CITA-no-LPC", "CITA+LPC"}:
+        return False, f"both branches not bound (roles={roles})"
     if m.get("freeze_a1_hash") != manifest.get("hash"):
         return False, "sidecar freeze hash != current Freeze A1 hash (version mismatch)"
     return True, "FEATURE_BOUND (erm+lpc) + version-matched"
