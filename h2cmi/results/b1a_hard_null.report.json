@@ -1,0 +1,77 @@
+{
+  "threshold": 0.02,
+  "n_rows": 105,
+  "contrasts": {},
+  "hard_null_safety": {
+    "hard/matched_domain_null": {
+      "identity_within_tol": true,
+      "identity_best_fraction": 0.4,
+      "identity_mean_oof_bacc": 0.7627621071694698,
+      "best_mean_oof_bacc": 0.7634176589313754,
+      "identity_oof_nll": 0.9991459363795715,
+      "per_variant": {
+        "pooled_empirical_diag": {
+          "abs_delta_bacc": 0.01576221404517601,
+          "pred_disagreement": 0.05888888888888889,
+          "oof_nll": 1.1817028077507823,
+          "min_class_occupancy": 0.22690749168395996,
+          "ok_delta_bacc": false,
+          "ok_disagreement": false,
+          "ok_oof_nll": false,
+          "ok_no_collapse": true
+        },
+        "gen_oneshot_diag": {
+          "abs_delta_bacc": 0.01770694342642225,
+          "pred_disagreement": 0.05499999999999998,
+          "oof_nll": 1.6114366161300366,
+          "min_class_occupancy": 0.19736619293689728,
+          "ok_delta_bacc": false,
+          "ok_disagreement": false,
+          "ok_oof_nll": false,
+          "ok_no_collapse": true
+        },
+        "gen_iterative_diag": {
+          "abs_delta_bacc": 0.029124667853669368,
+          "pred_disagreement": 0.1225,
+          "oof_nll": 1.92248576156808,
+          "min_class_occupancy": 0.09716116636991501,
+          "ok_delta_bacc": false,
+          "ok_disagreement": false,
+          "ok_oof_nll": false,
+          "ok_no_collapse": true
+        },
+        "oracle_oneshot_diag": {
+          "abs_delta_bacc": 0.019388106985625653,
+          "pred_disagreement": 0.08194444444444443,
+          "oof_nll": 1.591513020197055,
+          "min_class_occupancy": 0.22734612226486206,
+          "ok_delta_bacc": false,
+          "ok_disagreement": false,
+          "ok_oof_nll": false,
+          "ok_no_collapse": true
+        },
+        "oracle_oneshot_lowrank": {
+          "abs_delta_bacc": 0.02175838066220214,
+          "pred_disagreement": 0.09305555555555554,
+          "oof_nll": 1.3580816902945307,
+          "min_class_occupancy": 0.09678804874420166,
+          "ok_delta_bacc": false,
+          "ok_disagreement": false,
+          "ok_oof_nll": false,
+          "ok_no_collapse": true
+        },
+        "joint_iterative_diag": {
+          "abs_delta_bacc": 0.030886458427747027,
+          "pred_disagreement": 0.1313888888888889,
+          "oof_nll": 1.9595368792016934,
+          "min_class_occupancy": 0.03697682544589043,
+          "ok_delta_bacc": false,
+          "ok_disagreement": false,
+          "ok_oof_nll": false,
+          "ok_no_collapse": false
+        }
+      },
+      "all_safe": false
+    }
+  }
+}

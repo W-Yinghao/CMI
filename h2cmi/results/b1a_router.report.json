@@ -1,0 +1,91 @@
+{
+  "deployable": [
+    "identity",
+    "pooled_empirical_diag",
+    "gen_oneshot_diag",
+    "gen_iterative_diag"
+  ],
+  "n_units": 120,
+  "by_difficulty": {
+    "hard": {
+      "n_units": 15,
+      "delta_bacc_router_shift": {
+        "mean": NaN,
+        "ci_lo": NaN,
+        "ci_hi": NaN,
+        "n_seeds": 0
+      },
+      "action_regret_shift": {
+        "mean": NaN,
+        "ci_lo": NaN,
+        "ci_hi": NaN
+      },
+      "harm_rate": 0.9333333333333333,
+      "mean_delta_bacc_all": -0.02919894216438908,
+      "false_adaptation_rate_null": 1.0,
+      "adaptation_rate_shift": NaN,
+      "top1_oracle_agreement": 0.0,
+      "evidence_accuracy_spearman": -0.3828722002635046,
+      "spearman_n": 45,
+      "selection_frequency": {
+        "matched_domain_null": {
+          "gen_iterative_diag": 10,
+          "gen_oneshot_diag": 5
+        }
+      }
+    },
+    "standard": {
+      "n_units": 105,
+      "delta_bacc_router_shift": {
+        "mean": 0.012010015498727428,
+        "ci_lo": -0.038894734250505214,
+        "ci_hi": 0.0626936325374656,
+        "n_seeds": 3
+      },
+      "action_regret_shift": {
+        "mean": 0.050334489565663186,
+        "ci_lo": 0.028816968143908498,
+        "ci_hi": 0.0924157735693038
+      },
+      "harm_rate": 0.4095238095238095,
+      "mean_delta_bacc_all": 0.007166276695396921,
+      "false_adaptation_rate_null": 1.0,
+      "adaptation_rate_shift": 1.0,
+      "top1_oracle_agreement": 0.12380952380952381,
+      "evidence_accuracy_spearman": 0.3072705144300726,
+      "spearman_n": 315,
+      "selection_frequency": {
+        "conditional_rotation": {
+          "gen_oneshot_diag": 13,
+          "gen_iterative_diag": 2
+        },
+        "cov": {
+          "gen_oneshot_diag": 8,
+          "gen_iterative_diag": 7
+        },
+        "cov_conditional_rotation": {
+          "gen_iterative_diag": 9,
+          "gen_oneshot_diag": 4,
+          "pooled_empirical_diag": 2
+        },
+        "cov_prior": {
+          "gen_oneshot_diag": 9,
+          "gen_iterative_diag": 5,
+          "pooled_empirical_diag": 1
+        },
+        "matched_domain_null": {
+          "gen_oneshot_diag": 10,
+          "gen_iterative_diag": 5
+        },
+        "population_null": {
+          "gen_oneshot_diag": 13,
+          "gen_iterative_diag": 2
+        },
+        "prior": {
+          "gen_oneshot_diag": 11,
+          "gen_iterative_diag": 4
+        }
+      }
+    }
+  }
+}

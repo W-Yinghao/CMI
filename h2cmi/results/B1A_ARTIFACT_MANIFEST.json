@@ -1,0 +1,70 @@
+{
+  "stage": "B1a",
+  "b0_reference": "soft (byte-exact b0_match=False on A40; device divergence, behaviorally inert per bridge)",
+  "environment": {
+    "gpu": "NVIDIA A40 (driver 610.43.02)",
+    "torch": "2.8.0+cu128",
+    "cuda": "12.8",
+    "cudnn": "91002",
+    "python": "3.9"
+  },
+  "artifacts": [
+    {
+      "filename": "b1a_standard.jsonl",
+      "sha256": "418b17f423448725fb67e94344de3a4f59f6a750c91b75bf5c475b1288a2b4eb",
+      "rows": 735,
+      "runner_commit": "1583878367c0dcd0c3bd4d7f7353c2f3d1417032",
+      "experiment_signature": "e467e6e1291b5d61",
+      "slurm_job": "858496",
+      "command": "run_b1a_grid --difficulty standard --grid-seeds 0,1,2 --grid-target-sites all --sites 5 --subjects 3 --sessions 2 --trials 40 --epochs 20 --device cuda --b0-ref <action_grid_dev.jsonl> --b0-ref-soft --bundle-root results/h2cmi/b1a_bundles_standard"
+    },
+    {
+      "filename": "b1a_standard.jsonl.manifest.json",
+      "sha256": "623712e2e6e8c619ac2fac7ecf98dcf65e55d4825b44973a1e694a6dc0d2ef0f",
+      "rows": null
+    },
+    {
+      "filename": "b1a_hard_null.jsonl",
+      "sha256": "acf772457d2ede89199f4e549a726d90cd535329800a1ad2ff7eb97bd560f85e",
+      "rows": 105,
+      "runner_commit": "bb42d3a4732bed88a4e8c4dddb0d57d770e742d3",
+      "experiment_signature": "b8a11674915aafe4",
+      "slurm_job": "858507",
+      "command": "run_b1a_grid --difficulty hard --scenarios matched_domain_null --grid-seeds 0,1,2 --grid-target-sites all --sites 5 --subjects 3 --sessions 2 --trials 40 --epochs 20 --device cuda --bundle-root results/h2cmi/b1a_bundles_hard"
+    },
+    {
+      "filename": "b1a_hard_null.jsonl.manifest.json",
+      "sha256": "bf56bf6966d541e22abdbbb07c3af1dbee19df726835a32821e41356af3e5802",
+      "rows": null
+    },
+    {
+      "filename": "b1a_hard_identity_preflight.jsonl",
+      "sha256": "679e27d5e19e8494485cf68b56a83bf1f985e0d870e6080e01919da0777d2359",
+      "rows": 15,
+      "runner_commit": "bb42d3a4732bed88a4e8c4dddb0d57d770e742d3",
+      "experiment_signature": "4f9e577e0c306995",
+      "slurm_job": "858506",
+      "command": "run_b1a_grid --difficulty hard --scenarios matched_domain_null --variants identity --grid-seeds 0,1,2 --grid-target-sites all --sites 5 --subjects 3 --sessions 2 --trials 40 --epochs 20 --device cuda --bundle-root results/h2cmi/b1a_bundles_hard"
+    },
+    {
+      "filename": "b1a_hard_identity_preflight.jsonl.manifest.json",
+      "sha256": "48d6749eb3a9250b9e6032aebf1adb2a1be5999f53611a0928e170c2f2058320",
+      "rows": null
+    },
+    {
+      "filename": "b1a_standard.report.json",
+      "sha256": "7c53450b4809c17b9c2922ba4b967d6791b59990b7f96b1334c9514da4368673",
+      "rows": null
+    },
+    {
+      "filename": "b1a_hard_null.report.json",
+      "sha256": "17fa40448e59002ea580224a49f33dddf2c362bf5a4559a914b177a888da4d38",
+      "rows": null
+    },
+    {
+      "filename": "b1a_router.report.json",
+      "sha256": "bac2f858bee32171125800ec3e8cea37f4538506ad67b110c2d509e6cb9c2033",
+      "rows": null
+    }
+  ]
+}
