@@ -99,6 +99,27 @@ def test_missingness_present_and_routes_identity():
     assert all(metadata_to_operator(e.delta) == "identity" for e in unk_g)
 
 
+def test_route_bank_episodes():
+    from h2cmi.data.metadata_substrate import route_bank_episode, ROUTE_VARIANT, metadata_to_operator
+    rng = np.random.default_rng(0)
+    # null bank: route-positive metadata, ZERO net geometry
+    for route in ("pooled", "cc"):
+        nulls = [route_bank_episode(rng, route, "null") for _ in range(50)]
+        assert all(e.scenario.target_gain == 0.0 for e in nulls)                 # true null geometry
+        assert all(metadata_to_operator(e.delta) == ROUTE_VARIANT_OP[route] for e in nulls)
+        powers = [route_bank_episode(rng, route, "power") for _ in range(50)]
+        assert any(e.scenario.target_gain > 0 for e in powers)                   # power has real gain
+    # cc null lets the prior vary; pooled null keeps prior fixed
+    cc_nulls = [route_bank_episode(rng, "cc", "null") for _ in range(50)]
+    assert any(e.scenario.target_prior > 0 for e in cc_nulls)
+    pooled_nulls = [route_bank_episode(rng, "pooled", "null") for _ in range(50)]
+    assert all(e.scenario.target_prior == 0.0 for e in pooled_nulls)
+
+
+ROUTE_VARIANT_OP = {"pooled": "pooled_empirical_diag",
+                    "cc": "canonical_fixed_prior_class_conditional_diag"}
+
+
 if __name__ == "__main__":
     for n, f in sorted(globals().items()):
         if n.startswith("test_") and callable(f):

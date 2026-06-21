@@ -159,3 +159,31 @@ def sample_episode(rng, *, geom_probs=(0.30, 0.30, 0.40), prev_probs=(0.55, 0.45
     stratum = f"g={_bin(geom_mag)}/p={_bin(prior_mag)}"
     return B2aEpisode(d, scen, stratum, geom_mag, prior_mag, intended_geom,
                       meta=dict(eff_geom=eff_geom, observed=(g, p)))
+
+
+# Route alias: which deployable variant each metadata route maps to (canonical = the FROZEN choice).
+ROUTE_VARIANT = {"pooled": "pooled_empirical_diag", "cc": "gen_oneshot_diag"}
+
+
+def route_bank_episode(rng, route: str, bank: str) -> B2aEpisode:
+    """Source-only calibration bank for the route-CONDITIONED single-action gate. Builds a
+    metadata-ROUTE-POSITIVE episode (geometry DIAG_COMPATIBLE so g(Δm) != identity; no missingness)
+    with the NET GEOMETRY EFFECT controlled by `bank`:
+      route 'pooled' -> DIAG x SAME ;  route 'cc' -> DIAG x DIFFERENT.
+      bank 'null'  -> target_gain = 0 (true null); the CC route still lets the prior vary per the
+                      frozen prevalence mechanism (so the CC action cannot auto-pass on pure prior).
+      bank 'power' -> target_gain ~ the frozen B2a gain distribution.
+    Used ONLY for source-only route-null FPR / route-alternative retention / ROC ceiling -- never to
+    pick a threshold from target data."""
+    assert route in ROUTE_VARIANT and bank in ("null", "power")
+    prev = "SAME" if route == "pooled" else "DIFFERENT"
+    d = finalize(_raw_for("DIAG_COMPATIBLE", prev, rng))
+    scen = ScenarioSpec(name=f"b2b_{route}_{bank}", target_noise_delta=_RESIDUAL_DRIFT)
+    geom_mag = 0.0
+    if bank == "power":
+        geom_mag = float(rng.uniform(0, _GAIN_MAX)); scen.target_gain = geom_mag
+    prior_mag = 0.0
+    if route == "cc" and rng.random() < 0.7:           # frozen prevalence mechanism varies the prior
+        prior_mag = float(rng.uniform(0, _PRIOR_MAX)); scen.target_prior = prior_mag
+    return B2aEpisode(d, scen, f"route={route}/bank={bank}", geom_mag, prior_mag, "DIAG_COMPATIBLE",
+                      meta=dict(route=route, bank=bank, variant=ROUTE_VARIANT[route]))
