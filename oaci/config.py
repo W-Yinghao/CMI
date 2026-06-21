@@ -62,8 +62,10 @@ class UCBConfig:
 
 @dataclass
 class RiskConfig:
-    """Risk-feasible noninferiority constraint (THEORY §2): min UCB[L_Q^ov] s.t. R_src<=R_ERM+ε."""
-    epsilon: float = 0.01            # source-risk slack over the ERM lower bound R_ERM
+    """Risk-feasible noninferiority constraint (THEORY §2): min UCB[L_Q^ov] s.t. R_src<=τ."""
+    # τ = R̂_ERM + ε, where R̂_ERM is the REALISED empirical risk of the frozen Stage-1
+    # checkpoint (NOT an "ERM lower bound"). ε is the noninferiority slack over R̂_ERM.
+    epsilon: float = 0.01            # source-risk slack over the realised Stage-1 risk R̂_ERM
     risk_metric: str = "balanced_ce"  # 'ce' | 'balanced_ce' | 'balanced_err'
     lexicographic: bool = True       # stage 1: fit ERM for R̂_ERM; stage 2: constrained min
     # dual multiplier of the RISK CONSTRAINT R_src <= τ (NOT a weight on the leakage term):
@@ -75,11 +77,47 @@ class RiskConfig:
 
 
 @dataclass
+class SamplerConfig:
+    """Paired-stream rare-cell sampler. Eligibility, S_y, p_ref and n_{d,y} are FIXED (the
+    full-data support graph); a batch only guarantees eligible-cell COVERAGE and never
+    redefines eligibility. Importance weights restore the FIXED empirical priors, not the
+    sampler-induced near-uniform ones (see `oaci/data/sampler.py`)."""
+    task_batch_size: int = 256          # task stream: stratified by class; includes ineligible cells
+    adv_microbatch_size: int = 256      # adversary-stream microbatch (memory cap)
+    adv_accumulation_steps: int = 1     # microbatches per logical adv batch (optimiser steps once)
+    min_per_eligible_cell: int = 8      # k_min: rows drawn per eligible (d,y) cell per logical batch
+    steps_per_epoch: int = 20
+    replacement_mode: str = "auto"      # 'auto' (no repeat until exhausted) | 'always' | 'never'
+    seed: int = 0
+
+    def validate(self) -> "SamplerConfig":
+        if self.replacement_mode not in {"auto", "always", "never"}:
+            raise ValueError(f"replacement_mode must be auto|always|never, got {self.replacement_mode!r}")
+        for f in ("task_batch_size", "adv_microbatch_size", "adv_accumulation_steps", "min_per_eligible_cell"):
+            if getattr(self, f) < 1:
+                raise ValueError(f"SamplerConfig.{f} must be >= 1")
+        return self
+
+    def assert_capacity(self, n_eligible_cells: int) -> None:
+        """B_min = K_ov · k_min must fit in adv_microbatch_size · adv_accumulation_steps."""
+        b_min = n_eligible_cells * self.min_per_eligible_cell
+        cap = self.adv_microbatch_size * self.adv_accumulation_steps
+        if cap < b_min:
+            raise ValueError(
+                f"adversary capacity {cap} (= adv_microbatch_size {self.adv_microbatch_size} x "
+                f"adv_accumulation_steps {self.adv_accumulation_steps}) < logical batch B_min {b_min} "
+                f"(= K_ov {n_eligible_cells} x k_min {self.min_per_eligible_cell}). "
+                f"Raise the capacity or lower min_per_eligible_cell; cells must not be dropped."
+            )
+
+
+@dataclass
 class OACIConfig:
     """Top-level OACI configuration."""
     support: SupportConfig = field(default_factory=SupportConfig)
     ucb: UCBConfig = field(default_factory=UCBConfig)
     risk: RiskConfig = field(default_factory=RiskConfig)
+    sampler: SamplerConfig = field(default_factory=SamplerConfig)
     seed: int = 0
 
     def validate(self) -> "OACIConfig":
@@ -93,6 +131,7 @@ class OACIConfig:
             raise ValueError(f"unknown ucb.cluster_by: {self.ucb.cluster_by}")
         if self.ucb.weighting not in {"absolute", "conditional"}:
             raise ValueError(f"ucb.weighting must be 'absolute' or 'conditional', got {self.ucb.weighting}")
+        self.sampler.validate()
         return self
 
 

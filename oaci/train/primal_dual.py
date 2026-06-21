@@ -76,7 +76,11 @@ class TrainConfig:
     dual_lr: float = 0.5                 # η_λ
     lambda_init: float = 0.3             # start modest so leakage can fall; dual raises it on violation
     lambda_max: float = 20.0
-    lambda_floor: float = 0.02           # anti-collapse floor (keeps the task anchored at λ→0)
+    # MAIN PATH: lambda_floor = 0 -> the encoder's risk coefficient is EXACTLY the dual λ
+    # (the exact Lagrangian). A nonzero floor adds a fixed risk regulariser so the effective
+    # primal coefficient no longer equals λ; keep it ONLY as a clearly-labelled stabilisation
+    # ablation (it makes the problem a relaxation, not the constrained Lagrangian).
+    lambda_floor: float = 0.0            # 0 = exact Lagrangian; >0 = stabilisation ablation only
     seed: int = 0
 
 
@@ -110,6 +114,13 @@ def dual_update(lam: float, R_guard: float, tau: float, eta: float, lam_max: flo
     return float(min(max(lam + eta * (R_guard - tau), 0.0), lam_max))
 
 
+def effective_risk_weight(lam: float, lambda_floor: float) -> float:
+    """The encoder's primal coefficient on ``R_src``. With ``lambda_floor == 0`` this is EXACTLY
+    the dual ``λ`` (the exact Lagrangian); a nonzero floor is a stabilisation ablation that adds
+    a fixed risk regulariser (so the coefficient no longer equals λ)."""
+    return max(lam, lambda_floor)
+
+
 def _clone_state(module: nn.Module) -> dict:
     return copy.deepcopy({k: v.detach().clone() for k, v in module.state_dict().items()})
 
@@ -118,11 +129,18 @@ def _clone_state(module: nn.Module) -> dict:
 # trainer
 # --------------------------------------------------------------------------------------
 def train_risk_feasible(
-    X, y, d, group, support_graph: SupportGraph, cfg: TrainConfig, sample_weight=None
+    X, y, d, group, support_graph: SupportGraph, cfg: TrainConfig, sampler=None
 ) -> TrainResult:
-    """Two-stage trainer. Returns the ERM checkpoint, τ, and the Stage-2 trajectory of
-    checkpoints (each with its realised guard risk + leakage surrogate). Selection is a
-    separate step (``selector.select_checkpoint``)."""
+    """Two-stage trainer. Returns the ERM checkpoint, τ, and the Stage-2 trajectory.
+
+    If ``sampler`` (a ``RareCellSampler``) is given, Stage-2 runs on its paired streams
+    (task stream incl. ineligible cells; adversary stream over eligible cells only, with
+    microbatch accumulation normalised by the fixed ``N_ov``); otherwise it is full-batch.
+
+    If the support graph has **no comparable class** the adversary is undefined, so Stage-2 is
+    a TRUE byte-exact no-op: the trainer returns the frozen ERM checkpoint with an empty
+    trajectory (the selector then restores ERM exactly), running NO Stage-2 task updates.
+    """
     assert_differentiable_primal(cfg.metric)
     torch.manual_seed(cfg.seed)
     np.random.seed(cfg.seed)
@@ -145,7 +163,7 @@ def train_risk_feasible(
         with torch.no_grad():
             return balanced_error(head(enc(X)), y, nc)
 
-    # ---- Stage 1: ERM ----
+    # ---- Stage 1: ERM (realised empirical risk of the frozen checkpoint) ----
     opt1 = torch.optim.Adam(list(enc.parameters()) + list(head.parameters()), lr=cfg.lr_task)
     for _ in range(cfg.stage1_epochs):
         opt1.zero_grad()
@@ -153,49 +171,67 @@ def train_risk_feasible(
         opt1.step()
     R_ERM_hat = guard_risk()
     tau = R_ERM_hat + cfg.epsilon
-    erm_ckpt = {"enc": _clone_state(enc), "head": _clone_state(head)}   # immutable
+    erm_ckpt = {"enc": _clone_state(enc), "head": _clone_state(head)}   # immutable fallback target
+
+    # ---- no comparable class -> Stage-2 is a byte-exact no-op (return ERM, empty trajectory) ----
+    if not support_graph.comparable_classes:
+        return TrainResult(erm_ckpt=erm_ckpt, R_ERM_hat=R_ERM_hat, tau=tau, H_ref_bar=H_ref_bar,
+                           trajectory=[], in_dim=in_dim, cfg=cfg)
 
     # ---- Stage 2: adversarial invariance under the risk constraint (warm start from ERM) ----
     adv = ConditionalDomainAdversary(cfg.z_dim, support_graph, hidden=cfg.adv_hidden)
-    has_adv = any(True for _ in adv.parameters())          # False iff no comparable class (no-op)
     opt_enc = torch.optim.Adam(list(enc.parameters()) + list(head.parameters()), lr=cfg.lr_enc)
-    opt_adv = torch.optim.Adam(adv.parameters(), lr=cfg.lr_critic) if has_adv else None
+    opt_adv = torch.optim.Adam(adv.parameters(), lr=cfg.lr_critic)
 
-    # critic warmup: encoder FROZEN, train only the critic
-    if has_adv:
-        for _ in range(cfg.warmup_steps):
-            opt_adv.zero_grad()
-            with torch.no_grad():
-                Z = enc(X)
-            adv.domain_ce(Z, y, d, sample_weight).backward()
-            opt_adv.step()
+    def critic_loss_full():
+        return adv.domain_ce(enc(X).detach(), y, d)
+
+    def critic_step_stream():
+        opt_adv.zero_grad()
+        for mb in sampler.adv_logical_batch().microbatches:
+            adv.domain_ce_contribution(enc(X[mb.idx]).detach(), y[mb.idx], d[mb.idx], mb.weight).backward()
+        opt_adv.step()
+
+    # critic warmup: encoder FROZEN
+    for _ in range(cfg.warmup_steps):
+        if sampler is None:
+            opt_adv.zero_grad(); critic_loss_full().backward(); opt_adv.step()
+        else:
+            critic_step_stream()
 
     lam = cfg.lambda_init
     trajectory: list[CheckpointRecord] = []
     for epoch in range(cfg.stage2_epochs):
-        # critic step(s): minimise C_D with the encoder detached
-        if has_adv:
+        n_inner = 1 if sampler is None else sampler.cfg.steps_per_epoch
+        for _ in range(n_inner):
+            # critic step(s)
             for _ in range(cfg.critic_steps):
-                opt_adv.zero_grad()
-                Z = enc(X).detach()
-                adv.domain_ce(Z, y, d, sample_weight).backward()
-                opt_adv.step()
-        # encoder+head step: minimise -C_D + max(λ, floor)·R_src  (constants dropped)
-        opt_enc.zero_grad()
-        Z = enc(X)
-        risk_weight = max(lam, cfg.lambda_floor)
-        loss = -adv.domain_ce(Z, y, d, sample_weight) + risk_weight * source_risk(head(Z), y, cfg.metric, nc)
-        loss.backward()
-        opt_enc.step()
-        # dual ascent on the full source guard set
-        R_guard = guard_risk()
-        lam = dual_update(lam, R_guard, tau, cfg.dual_lr, cfg.lambda_max)
+                if sampler is None:
+                    opt_adv.zero_grad(); critic_loss_full().backward(); opt_adv.step()
+                else:
+                    critic_step_stream()
+            # encoder+head step: -C_D + max(λ, floor)·R_src  (floor=0 -> coefficient == λ exactly)
+            risk_weight = effective_risk_weight(lam, cfg.lambda_floor)
+            opt_enc.zero_grad()
+            if sampler is None:
+                Z = enc(X)
+                loss = -adv.domain_ce(Z, y, d) + risk_weight * source_risk(head(Z), y, cfg.metric, nc)
+                loss.backward()
+            else:
+                for mb in sampler.adv_logical_batch().microbatches:          # -C_D (accumulated)
+                    (-adv.domain_ce_contribution(enc(X[mb.idx]), y[mb.idx], d[mb.idx], mb.weight)).backward()
+                tb = sampler.task_batch()                                    # weighted task risk
+                task = source_risk(head(enc(X[tb.idx])), y[tb.idx], cfg.metric, nc, weight=tb.weight)
+                (risk_weight * task).backward()
+            opt_enc.step()
+            R_guard = guard_risk()                                          # full source guard set
+            lam = dual_update(lam, R_guard, tau, cfg.dual_lr, cfg.lambda_max)
         with torch.no_grad():
-            surrogate = H_ref_bar - float(adv.domain_ce(enc(X), y, d, sample_weight).item())
+            surrogate = H_ref_bar - float(adv.domain_ce(enc(X), y, d).item())
         trajectory.append(
             CheckpointRecord(
                 epoch=epoch, enc_state=_clone_state(enc), head_state=_clone_state(head),
-                R_src=R_guard, balanced_err=guard_balerr(), leakage_surrogate=surrogate, lam=lam,
+                R_src=guard_risk(), balanced_err=guard_balerr(), leakage_surrogate=surrogate, lam=lam,
             )
         )
 

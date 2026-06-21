@@ -110,8 +110,13 @@ Adding a risk constraint to a DG penalty already exists. The novelty is the comb
 | **Point estimate** `L_abs`/`L_cond` (`Ĥ_y−NLL^OOF`, capacity sup after aggregation) | **implemented + tested** | [`leakage/estimate.py`](leakage/estimate.py) |
 | Recording-clustered **bootstrap UCB** (within-domain resample, in-replicate capacity reselection, basic one-sided + percentile) | **implemented + tested** | [`leakage/ucb.py`](leakage/ucb.py) |
 | **Risk-feasible trainer** — PyTorch conditional adversary `C_D`, primal–dual `min(H_ref−C_D)+λ(R_src−τ)`, dual on the risk constraint, feasibility selector + byte-exact ERM fallback | **implemented + tested** | [`train/`](train/) |
-| Rare-cell batch sampler (keeps comparable cells eligible per step; per-example weights reserved) | TODO | `data/sampler.py` |
+| **Rare-cell paired-stream sampler** — task stream (incl. ineligible cells) + adversary stream (eligible cells, covers all per logical step); importance weights restore fixed `p(d\|y)`/`p(y)`; microbatch accumulation normalised by fixed `N_ov` | **implemented + tested** | [`data/sampler.py`](data/sampler.py), [`data/batch.py`](data/batch.py) |
 | Eval: mean/worst bAcc, ECE/NLL, noninferiority CI | TODO | `eval/` |
+
+The sampler never redefines eligibility/`S_y`/`p_ref`/`n_{d,y}` (fixed full-data support graph);
+a batch only guarantees eligible-cell **coverage**. `w^adv=n_{d,y}/m` restores the fixed empirical
+`p(d|y, d∈S_y)` (not the sampler's near-uniform per-cell draw); `w^task=n_y/m_y` restores `p(y)`.
+The trainer integrates it via [`train_risk_feasible(..., sampler=...)`](train/primal_dual.py).
 
 The trainer's inner game uses a **PyTorch** conditional-domain adversary (`train/adversary.py`),
 deliberately distinct from the non-differentiable sklearn `extractable_LQ_ov` estimator in
@@ -131,6 +136,8 @@ $PY -m oaci.tests.test_leakage_estimate   # estimator: null / perfect / exclusio
 $PY -m oaci.tests.test_leakage_crossfit   # grouped cross-fit: group-memorisation, feasibility
 $PY -m oaci.tests.test_leakage_ucb        # bootstrap UCB: reselection, formulas, reproducibility
 $PY -m oaci.train.synthetic               # risk-feasible trainer acceptance report (feasible + leakage↓)
+$PY -m oaci.data.sampler_demo             # rare-cell sampler report (50:1 imbalance; weighted p(d|y) restored)
+$PY -m oaci.tests.test_rare_cell_sampler  # sampler: coverage, exact priors, microbatch invariance, fixes
 $PY -m oaci.tests.test_train_risk         # primal metric: balanced_ce partition-invariant, balanced_err rejected
 $PY -m oaci.tests.test_train_adversary    # adversary: grad signs, ineligible no-grad, fixed p_ref, no-op
 $PY -m oaci.tests.test_train_primal_dual  # dual direction, ERM immutability, seed reproducibility

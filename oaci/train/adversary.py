@@ -41,6 +41,9 @@ class ConditionalDomainAdversary(nn.Module):
         self.comparable = list(support_graph.comparable_classes)
         self.support_of_class = {y: list(support_graph.support_of_class[y]) for y in self.comparable}
         self.p_ref = {y: float(support_graph.reference_prior[y]) for y in self.comparable}
+        # fixed N_y^ov = Σ_{d∈S_y} n_{d,y} (the SAME cell counts the reference entropy uses);
+        # the importance-weighted streamed C_D is normalised by these, never by the batch.
+        self.n_ov = {y: float(support_graph.counts[self.support_of_class[y], y].sum()) for y in self.comparable}
         self.dmap = {y: {int(d): i for i, d in enumerate(self.support_of_class[y])} for y in self.comparable}
         self.heads = nn.ModuleDict()
         for y in self.comparable:
@@ -61,9 +64,12 @@ class ConditionalDomainAdversary(nn.Module):
             dm |= d == dom
         return m & dm
 
-    def domain_ce(self, Z, y, d, sample_weight=None) -> torch.Tensor:
-        """``C_D = Σ_y p_ref(y) · (weighted) mean CE`` over eligible class-``y`` rows. Rows in
-        unsupported cells contribute nothing. Returns a 0-d tensor (0 if no comparable class)."""
+    def domain_ce(self, Z, y, d, importance_weight=None) -> torch.Tensor:
+        """``C_D = Σ_y p_ref(y) · (weighted) mean CE`` over eligible class-``y`` rows — for
+        FULL-batch evaluation. ``importance_weight`` is the adversary-stream weight (distinct
+        from the task weight). Rows in unsupported cells contribute nothing. Returns a 0-d
+        tensor (0 if no comparable class). For MICROBATCH accumulation use
+        :meth:`domain_ce_contribution` (which normalises by the fixed ``N_ov``, not the batch)."""
         y = torch.as_tensor(y, device=Z.device)
         d = torch.as_tensor(d, device=Z.device)
         total = Z.new_zeros(())
@@ -74,10 +80,33 @@ class ConditionalDomainAdversary(nn.Module):
             Zc = Z[mask]
             labels = torch.tensor([self.dmap[yy][int(dd)] for dd in d[mask].tolist()], device=Z.device)
             ce = F.cross_entropy(self.heads[str(yy)](Zc), labels, reduction="none")
-            if sample_weight is not None:
-                w = torch.as_tensor(sample_weight, device=Z.device, dtype=ce.dtype)[mask]
+            if importance_weight is not None:
+                w = torch.as_tensor(importance_weight, device=Z.device, dtype=ce.dtype)[mask]
                 ce_mean = (ce * w).sum() / w.sum().clamp_min(1e-12)
             else:
                 ce_mean = ce.mean()
             total = total + self.p_ref[yy] * ce_mean
+        return total
+
+    def domain_ce_contribution(self, Z_mb, y_mb, d_mb, w_mb) -> torch.Tensor:
+        """One microbatch's contribution to the logical ``C_D``, normalised by the FIXED
+        ``N_y^ov`` (NOT the microbatch's own weight sum):
+
+            ``contrib = Σ_y (p_ref(y)/N_y^ov) · Σ_{i∈mb, d_i∈S_y} w_i · CE_i`` .
+
+        Summing contributions over a logical batch's microbatches equals the importance-weighted
+        ``C_D`` (because Σ w over a full logical batch = N_y^ov per class), so ``.backward()`` per
+        microbatch accumulates the exact gradient — partition-invariant. Do NOT instead average
+        per-microbatch self-normalised means."""
+        y_mb = torch.as_tensor(y_mb, device=Z_mb.device)
+        d_mb = torch.as_tensor(d_mb, device=Z_mb.device)
+        w_mb = torch.as_tensor(w_mb, device=Z_mb.device, dtype=Z_mb.dtype)
+        total = Z_mb.new_zeros(())
+        for yy in self.comparable:
+            mask = self._eligible_mask(y_mb, d_mb, yy)
+            if not bool(mask.any()):
+                continue
+            labels = torch.tensor([self.dmap[yy][int(dd)] for dd in d_mb[mask].tolist()], device=Z_mb.device)
+            ce = F.cross_entropy(self.heads[str(yy)](Z_mb[mask]), labels, reduction="none")
+            total = total + (self.p_ref[yy] / self.n_ov[yy]) * (w_mb[mask] * ce).sum()
         return total

@@ -10,6 +10,15 @@ from .missing_cell import (
     apply_to_samples,
     make_group_ids,
 )
+from .batch import (
+    AdvLogicalBatch,
+    WeightedBatch,
+    effective_prior_domain_given_y,
+    effective_prior_y,
+    fixed_prior_domain_given_y,
+    weighted_ess,
+)
+from .sampler import RareCellSampler
 
 __all__ = [
     "CellMask",
@@ -18,4 +27,11 @@ __all__ = [
     "make_schedule",
     "apply_to_samples",
     "make_group_ids",
+    "AdvLogicalBatch",
+    "WeightedBatch",
+    "effective_prior_domain_given_y",
+    "effective_prior_y",
+    "fixed_prior_domain_given_y",
+    "weighted_ess",
+    "RareCellSampler",
 ]

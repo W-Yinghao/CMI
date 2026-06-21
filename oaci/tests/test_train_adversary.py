@@ -91,7 +91,7 @@ def test_fixed_p_ref_under_batch_reweighting():
 
     assert abs(adv.domain_ce(Z, y, d).item() - manual()) < 1e-5
     w = np.ones(y.size); w[y == 0] *= 5.0                  # reweight within class 0
-    assert abs(adv.domain_ce(Z, y, d, sample_weight=w).item() - manual(w)) < 1e-5
+    assert abs(adv.domain_ce(Z, y, d, importance_weight=w).item() - manual(w)) < 1e-5
     assert adv.class_weights() == {0: 0.7, 1: 0.3}         # class weights still fixed p_ref
 
 

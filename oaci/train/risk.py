@@ -46,22 +46,36 @@ def per_class_ce_sums(logits: torch.Tensor, y: torch.Tensor, n_classes: int):
     return sums, counts
 
 
-def balanced_ce(logits: torch.Tensor, y: torch.Tensor, n_classes: int | None = None) -> torch.Tensor:
-    """Class-balanced CE on the FULL set: mean over present classes of per-class mean CE."""
+def balanced_ce(logits: torch.Tensor, y: torch.Tensor, n_classes: int | None = None, weight=None) -> torch.Tensor:
+    """Class-balanced CE: mean over present classes of per-class (optionally weighted) mean CE.
+    A per-example ``weight`` reweights WITHIN each class only (the class equal-weighting is
+    inherent to balanced_ce), so a class-stratified task sampler's weights leave it invariant."""
     nc = _n_classes(y, n_classes)
     per = F.cross_entropy(logits, y, reduction="none")
+    w = None if weight is None else torch.as_tensor(weight, dtype=per.dtype, device=per.device)
     losses = []
     for c in range(nc):
         m = y == c
         if m.any():
-            losses.append(per[m].mean())
+            losses.append(per[m].mean() if w is None else (w[m] * per[m]).sum() / w[m].sum())
     return torch.stack(losses).mean()
 
 
-def source_risk(logits: torch.Tensor, y: torch.Tensor, metric: str, n_classes: int | None = None) -> torch.Tensor:
-    """Differentiable primal source risk (``ce`` or ``balanced_ce``)."""
+def source_risk(logits: torch.Tensor, y: torch.Tensor, metric: str, n_classes: int | None = None, weight=None) -> torch.Tensor:
+    """Differentiable primal source risk (``ce`` or ``balanced_ce``).
+
+    ``weight`` is the per-example TASK weight (distinct from the adversary's importance weight;
+    they do not share a target distribution). ``ce`` uses a global weighted mean — the weight
+    ``w^task_i = n_y/m_y^(b)`` restores the fixed class prior ``p(y)``; ``balanced_ce`` uses a
+    per-class weighted mean (the constant within-class weight cancels)."""
     assert_differentiable_primal(metric)
-    return task_ce(logits, y) if metric == "ce" else balanced_ce(logits, y, n_classes)
+    if metric == "ce":
+        if weight is None:
+            return task_ce(logits, y)
+        w = torch.as_tensor(weight, dtype=logits.dtype, device=logits.device)
+        ce = F.cross_entropy(logits, y, reduction="none")
+        return (w * ce).sum() / w.sum()
+    return balanced_ce(logits, y, n_classes, weight=weight)
 
 
 def balanced_error(logits: torch.Tensor, y: torch.Tensor, n_classes: int | None = None) -> float:
