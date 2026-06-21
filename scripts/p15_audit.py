@@ -13,6 +13,7 @@ status BLOCKED_ON_FREEZE_A1 (nonzero is NOT used for the block — block is a cl
 Decision is exactly one of: RETAIN_LPC | DROP_LPC_COLLAPSE | INCONCLUSIVE.
 """
 import os, sys, json, glob, hashlib, tempfile, shutil
+from collections import defaultdict
 import numpy as np
 
 PROTOCOL = "notes/FREEZE_PROTOCOL.md"
@@ -260,6 +261,7 @@ def main():
         print("  representation half -> results/p15_audit_partial/representation_partial.json (NO retain/drop, NO decision file)")
         return
     # ---- sidecar verified: full audit (atomic temp dir; rename only after every stage succeeds) ----
+    os.makedirs("results/p15_audit", exist_ok=True)          # parent must exist for the atomic rename
     out_final = f"results/p15_audit/{manifest['hash'][:16]}"
     if os.path.exists(out_final):
         print(f"output {out_final} exists — refusing to overwrite (immutable)"); sys.exit(4)
