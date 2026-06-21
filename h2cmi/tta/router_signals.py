@@ -22,6 +22,7 @@ import torch
 import torch.nn.functional as F
 
 from h2cmi.tta.class_conditional import Transform
+from h2cmi.grid_io import stable_hash_int
 
 EPS = 1e-8
 
@@ -67,7 +68,7 @@ def source_null_scores(tta, Us, src_subjects, spec, *, pooled_ref=None, n_draws=
         return np.array([], dtype=float)
     out = []
     for d in range(n_draws):
-        rng = np.random.default_rng((int(base_seed), d, hash(spec.name) & 0xffff))
+        rng = np.random.default_rng((int(base_seed), d, stable_hash_int(spec.name) % 65536))
         held = uq[rng.integers(0, len(uq))]
         others = uq[uq != held]
         fit_subj = rng.choice(others, size=fit_subjects, replace=False)

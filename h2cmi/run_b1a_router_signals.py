@@ -56,7 +56,7 @@ def _source_calibration(tta, model, Us, ys, src_subj, pooled_ref, sd_S, log_uni,
         spec = B1A_VARIANTS_BY_NAME[an]
         cos, pst, etn, anc, dsnd = [], [], [], [], []
         for d in range(n_draws):
-            rng = np.random.default_rng((seed, d, hash(an) & 0xffff))
+            rng = np.random.default_rng((seed, d, stable_hash_int(an) % 65536))
             grp = rng.choice(uq, size=min(3, len(uq)), replace=False)
             m = np.isin(src_subj, grp)
             if m.sum() < tta.cfg.min_target:
