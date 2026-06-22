@@ -44,12 +44,18 @@ def cell_mass(domain, y, base, n_domains, n_classes) -> np.ndarray:
     return out
 
 
-def aggregate_mean_prob(logits, eval_unit_id, prob_floor=1e-6):
-    """Aggregate window logits to eval units by mean softmax. Returns
+def aggregate_mean_prob(logits, eval_unit_id, prob_floor=1e-6, sample_mass=None):
+    """Aggregate window logits to eval units by MASS-weighted mean softmax. Returns
     (unit_ids, agg_logits[U,C], unit_y_index_into_rows) — the first row index per unit (labels are
-    constant within a unit, so any row's y is the unit label)."""
+    constant within a unit, so any row's y is the unit label). With ``sample_mass=None`` this is the
+    arithmetic mean; with the natural ``b_i = 1/|u|`` it is identical, and duplicating a window while
+    splitting its mass leaves the aggregate unchanged."""
     logits = np.asarray(logits, dtype=np.float64)
     u = np.asarray(eval_unit_id, dtype=object)
+    b = (np.ones(logits.shape[0]) if sample_mass is None
+         else np.asarray(sample_mass, dtype=np.float64).ravel())
+    if b.shape[0] != logits.shape[0]:
+        raise ValueError("sample_mass length != logits")
     z = logits - logits.max(axis=1, keepdims=True)
     p = np.exp(z); p /= p.sum(axis=1, keepdims=True)
     units = sorted(set(u.tolist()), key=str)
@@ -57,7 +63,8 @@ def aggregate_mean_prob(logits, eval_unit_id, prob_floor=1e-6):
     rep = np.zeros(len(units), dtype=int)
     for i, uu in enumerate(units):
         idx = np.where(u == uu)[0]
-        pbar = p[idx].mean(axis=0)
+        w = b[idx]
+        pbar = (w[:, None] * p[idx]).sum(axis=0) / w.sum()    # MASS-weighted unit posterior
         pbar = np.clip(pbar, prob_floor, None)
         pbar = pbar / pbar.sum()                 # RENORMALISE after the floor (proper distribution)
         agg[i] = np.log(pbar)

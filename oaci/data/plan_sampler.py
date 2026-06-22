@@ -8,6 +8,8 @@ groups and cannot make a task stream without a comparable class). All ids — ``
 """
 from __future__ import annotations
 
+import hashlib
+
 import numpy as np
 
 from ..train.rng import derive_seed
@@ -51,6 +53,21 @@ class UnitIndex:
         for u in self.units:
             self.class_units.setdefault(self.unit_class[u], []).append(u)
             self.cell_units.setdefault(self.unit_cell[u], []).append(u)
+
+    def design_hash(self) -> str:
+        """Binds the ACTUAL ``mass_unit_id -> (sample_id, group, cell, mass)`` mapping (canonical
+        order), so two different unit partitions never share a sampling design identity."""
+        h = hashlib.sha256()
+        for u in self.units:
+            dom, cls = self.unit_cell[u]
+            ub = u.encode(); h.update(len(ub).to_bytes(8, "little")); h.update(ub)
+            h.update(f"{dom},{cls}|".encode())
+            for i in self.unit_rows[u]:
+                sb = self.sample_id[i].encode(); gb = self.group[i].encode()
+                h.update(len(sb).to_bytes(8, "little")); h.update(sb)
+                h.update(len(gb).to_bytes(8, "little")); h.update(gb)
+                h.update(np.asarray(self.b[i], dtype=np.float64).tobytes())
+        return h.hexdigest()
 
     def present_classes(self) -> list:
         return sorted(self.class_units)

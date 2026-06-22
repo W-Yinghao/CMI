@@ -268,7 +268,9 @@ def train_stage2(model_factory, erm_stage: ERMStage, data, objective, task_plan,
     index = data.index()
     nc = int(data.n_classes)
 
-    model = model_factory().to(device)
+    with forked_rng(derive_seed(cfg.base_seed, "model_factory"), device):   # factory init must not touch caller RNG
+        model = model_factory()
+    model = model.to(device)
     model.load_state_dict(erm_ckpt.model_state)
     initial_hash = model_state_hash(model)
     if initial_hash != erm_ckpt.model_hash:

@@ -186,6 +186,17 @@ def test_stage2_bn_buffers_equal_erm_at_every_checkpoint():
             assert torch.equal(c.model_state[k], v)           # running stats frozen at ERM
 
 
+def test_stage2_model_factory_restores_global_rng():
+    data = _eeg_data()
+    s1 = build_full_batch_task_plan(data, "stage1_task", 2, 1, 0, "stage1_task_dropout")
+    erm = train_stage1(_shallow(), data, s1, _cfg(stage1_epochs=2), torch.device("cpu"))
+    t = build_full_batch_task_plan(data, "stage2_task", 2, 1, 0, "stage2_task_dropout")
+    a = build_full_batch_alignment_plan(data, 2, 2, 1, 0)
+    rng = torch.random.get_rng_state()
+    train_stage2(_shallow, erm, data, QuadraticPenaltyObjective(0.5), t, a, _cfg(stage2_epochs=2), torch.device("cpu"))
+    assert torch.equal(torch.random.get_rng_state(), rng)   # factory + training forked; caller RNG intact
+
+
 def test_stage2_bn_affine_parameters_can_still_change():
     data = _eeg_data()
     m = _shallow()
