@@ -29,16 +29,16 @@ import numpy as np
 
 from ..support_graph import SupportGraph
 from .critic import CriticConfig
-from .crossfit import FoldPlan, FrozenFeatures, feature_population_hash
+from .crossfit import FoldPlan, FrozenFeatures, feat_population_hash
 from .design import LeakageDesign, population_hash
 from .estimate import estimate_extractable_leakage
 from .plan import make_leakage_bootstrap_plan
 
 
-def _group_to_rows(feat: FrozenFeatures) -> dict[int, np.ndarray]:
-    rows: dict[int, list[int]] = defaultdict(list)
+def _group_to_rows(feat: FrozenFeatures) -> dict:
+    rows: dict = defaultdict(list)
     for i, g in enumerate(feat.group):
-        rows[int(g)].append(i)
+        rows[g].append(i)           # STRING group key — never int-cast
     return {g: np.array(ix, dtype=int) for g, ix in rows.items()}
 
 
@@ -55,19 +55,21 @@ def within_domain_group_bootstrap(fold_plan: FoldPlan, rng) -> list[int]:
     return resampled
 
 
-def _rebuild(feat: FrozenFeatures, group_rows: dict[int, np.ndarray], resampled_groups: list[int]) -> FrozenFeatures:
+def _rebuild(feat: FrozenFeatures, group_rows: dict, resampled_groups: list) -> FrozenFeatures:
     # a group drawn r times contributes its rows r times, EACH at its original base mass (the
-    # replicate mass is r x the base mass; never renormalised back to a single copy).
+    # replicate mass is r x the base mass; never renormalised back to a single copy). A replicate
+    # gets fresh synthetic sample ids (duplicate rows need distinct ids).
     take = np.concatenate([group_rows[g] for g in resampled_groups])
     return FrozenFeatures(Z=feat.Z[take], y=feat.y[take], d=feat.d[take], group=feat.group[take],
-                          sample_mass=feat.sample_mass[take])
+                          sample_mass=feat.sample_mass[take],
+                          sample_id=tuple(f"b{i}" for i in range(take.size)))
 
 
 def _design_from_feat(feat: FrozenFeatures, support_graph: SupportGraph) -> LeakageDesign:
-    """A LeakageDesign for the legacy entry point (synthetic sample ids; skips the cell-mass
-    cross-check, which the formal ``make_leakage_design`` performs)."""
-    sid = tuple(f"f{i}" for i in range(feat.n))
-    grp = tuple(str(int(g)) for g in feat.group.tolist())
+    """A LeakageDesign for the legacy entry point — reuses the feature's OWN string sample/group ids
+    (no int round-trip); skips the cell-mass cross-check the formal ``make_leakage_design`` does."""
+    sid = tuple(feat.sample_id)
+    grp = tuple(str(g) for g in feat.group.tolist())
     y = np.asarray(feat.y, dtype=np.int64); d = np.asarray(feat.d, dtype=np.int64)
     mass = np.asarray(feat.sample_mass, dtype=np.float64)
     return LeakageDesign(sid, y, d, grp, mass, population_hash(sid, y, d, grp, mass),
@@ -95,9 +97,12 @@ def bootstrap_ucb(
             requested_replicates=n_bootstrap, seed=seed, max_candidate_multiplier=5,
             max_invalid_draw_rate=1.0)
 
-    # validate the plan matches THIS feature set / support / fold map / alpha
-    if feature_population_hash(feat.y, feat.d, feat.group, feat.sample_mass) != fold_plan.population_hash:
-        raise ValueError("features do not match the fold plan's population")
+    # validate the plan matches THIS feature set / support / fold map / population / alpha
+    feat_pop = feat_population_hash(feat)
+    if feat_pop != fold_plan.population_hash:
+        raise ValueError("features do not match the fold plan's population (sample_id-bound)")
+    if feat_pop != bootstrap_plan.population_hash:
+        raise ValueError("features do not match the bootstrap plan's population")
     if support_graph.support_hash() != bootstrap_plan.support_hash:
         raise ValueError("support graph does not match the bootstrap plan")
     if fold_plan.plan_hash != bootstrap_plan.fold_plan_hash:
@@ -110,7 +115,7 @@ def bootstrap_ucb(
 
     reps, rep_caps = [], []
     for cid in bootstrap_plan.accepted_candidate_ids:
-        resampled = [int(g) for g, m in by_id[cid].group_multiplicities for _ in range(int(m))]
+        resampled = [g for g, m in by_id[cid].group_multiplicities for _ in range(int(m))]   # str groups
         feat_b = _rebuild(feat, group_rows, resampled)
         try:
             est_b = estimate_extractable_leakage(feat_b, support_graph, fold_plan, cfg)

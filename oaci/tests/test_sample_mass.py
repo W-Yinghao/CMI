@@ -253,10 +253,10 @@ def test_extractable_LQ_ov_is_invariant_to_window_duplication():
 def test_bootstrap_multiplicity_multiplies_base_mass():
     Z, y, d, g, b, unit = _base(per_cell=4)
     feat = FrozenFeatures(Z, y, d, g, b)
-    rebuilt = _rebuild(feat, _group_to_rows(feat), [0, 0, 1])   # group 0 drawn twice
-    rows0 = feat.group == 0
+    rebuilt = _rebuild(feat, _group_to_rows(feat), ["0", "0", "1"])   # group "0" drawn twice (str id)
+    rows0 = feat.group == "0"
     base_mass0 = float(feat.sample_mass[rows0].sum())
-    rep_mass0 = float(rebuilt.sample_mass[rebuilt.group == 0].sum())
+    rep_mass0 = float(rebuilt.sample_mass[rebuilt.group == "0"].sum())
     assert abs(rep_mass0 - 2 * base_mass0) < 1e-12              # multiplicity 2 -> 2x base mass
 
 

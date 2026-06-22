@@ -40,33 +40,44 @@ class LeakageScoreKey:
     critic_config_hash: str
 
 
-def _read_only(result: dict) -> dict:
-    out = {}
-    for k, v in result.items():
-        if isinstance(v, np.ndarray):
-            vv = np.array(v, copy=True); vv.setflags(write=False); out[k] = vv
-        else:
-            out[k] = v
-    return out
+def _deep_freeze(v):
+    """Defensive deep copy with every NumPy array set read-only (recurses into dict/list/tuple)."""
+    if isinstance(v, np.ndarray):
+        a = np.array(v, copy=True); a.setflags(write=False); return a
+    if isinstance(v, dict):
+        return {k: _deep_freeze(x) for k, x in v.items()}
+    if isinstance(v, (list, tuple)):
+        return type(v)(_deep_freeze(x) for x in v)
+    return v
 
 
 class LeakageScoreCache:
     def __init__(self):
         self._store: dict = {}
-        self._counts: dict = defaultdict(int)
+        self._compute: dict = defaultdict(int)
+        self._request: dict = defaultdict(int)
+        self._hit: dict = defaultdict(int)
 
     def get(self, key: LeakageScoreKey):
         return self._store.get(key)
 
     def put(self, key: LeakageScoreKey, result: dict) -> None:
-        self._store[key] = _read_only(result)
+        self._store[key] = _deep_freeze(result)
 
     def get_or_compute(self, key: LeakageScoreKey, fn):
+        self._request[key] += 1
         if key in self._store:
+            self._hit[key] += 1
             return self._store[key]
-        self._counts[key] += 1
-        self._store[key] = _read_only(fn())
+        self._compute[key] += 1
+        self._store[key] = _deep_freeze(fn())
         return self._store[key]
 
+    def request_count(self, key: LeakageScoreKey) -> int:
+        return int(self._request[key])
+
     def compute_count(self, key: LeakageScoreKey) -> int:
-        return int(self._counts[key])
+        return int(self._compute[key])
+
+    def hit_count(self, key: LeakageScoreKey) -> int:
+        return int(self._hit[key])

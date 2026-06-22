@@ -178,6 +178,30 @@ def test_method_activity_rules():
     assert not method_status("OACI", sg_single, 1, 1).active
 
 
+def test_oaci_uses_full_support_graph_hash():
+    data, sg = _setup()
+    obj = OACIObjective(sg)
+    assert obj.support_hash == sg.support_hash()                          # FULL graph identity
+    assert obj.diagnostics()["support_hash"] == sg.support_hash()
+
+
+def test_method_full_surrogates_are_chunked_and_mode_safe():
+    from oaci.train.checkpoint import model_state_hash
+    data, sg = _setup()
+    m = build_model("mlp", in_dim=5, n_classes=2)
+    obj = OACIObjective(sg); obj.build_critic(m.feat_dim, torch.device("cpu"))
+    m.train(); h0 = model_state_hash(m); rng = torch.random.get_rng_state()
+    s_full = obj.full_surrogate(m, data, torch.device("cpu"), None)
+    s_chunk = obj.full_surrogate(m, data, torch.device("cpu"), 5)
+    assert abs(s_full - s_chunk) < 1e-5                                   # chunked == full
+    assert m.training and model_state_hash(m) == h0                       # mode + state unchanged
+    assert torch.equal(torch.random.get_rng_state(), rng)                # RNG unchanged
+    gl = GlobalLPCObjective([0, 1, 2], sg.cell_mass, _class_mass(data), sg.reference_prior, [0, 1], alpha=1.0)
+    gl.build_critic(m.feat_dim, torch.device("cpu")); m.train()
+    gl.full_surrogate(m, data, torch.device("cpu"), None)
+    assert m.training and model_state_hash(m) == h0                       # posterior path is mode/state-safe
+
+
 def test_full_surrogate_restores_model_and_critic_modes():
     data, sg = _setup()
     obj = OACIObjective(sg)

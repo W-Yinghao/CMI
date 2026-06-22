@@ -54,7 +54,7 @@ def test_cell_aware_grouped_folds():
         cell_folds = {}
         for gid in np.unique(g):
             dom = int(d[g == gid][0]); cls = int(y[g == gid][0])
-            cell_folds.setdefault((dom, cls), set()).add(plan.fold_of_group[int(gid)])
+            cell_folds.setdefault((dom, cls), set()).add(plan.fold_of_group[str(int(gid))])
         for y_ in sg.comparable_classes:
             for d_ in sg.support_of_class[y_]:
                 assert cell_folds[(d_, y_)] == {0, 1}, (seed, (d_, y_), cell_folds[(d_, y_)])
@@ -99,7 +99,7 @@ def test_each_recording_in_exactly_one_fold():
     counts = counts_from_labels(d, y, n_domains=2, n_classes=2)
     sg = build_support_graph(counts, m=8, reference_prior=empirical_class_prior(counts))
     plan = make_fold_plan(FrozenFeatures(np.zeros((y.size, 2)), y, d, g), sg, n_folds=2, seed=0)
-    assert set(plan.fold_of_group) == set(np.unique(g).tolist())   # every group assigned
+    assert set(plan.fold_of_group) == {str(int(x)) for x in np.unique(g)}   # every group assigned (str keys)
     assert all(0 <= f < plan.n_folds for f in plan.fold_of_group.values())
 
 
@@ -114,7 +114,7 @@ def test_duplicated_bootstrap_groups_share_one_fold():
     feat_b = _rebuild(feat, _group_to_rows(feat), resampled)
     # every row of a given (original) group id maps to the same fold
     for gid in np.unique(feat_b.group):
-        folds = {plan.fold_of_group[int(gg)] for gg in feat_b.group[feat_b.group == gid]}
+        folds = {plan.fold_of_group[gg] for gg in feat_b.group[feat_b.group == gid]}   # str group keys
         assert len(folds) == 1
     # within-domain resampling holds each domain's group count fixed
     for dom in set(plan.domain_of_group.values()):

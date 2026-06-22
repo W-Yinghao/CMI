@@ -7,8 +7,6 @@ correct runner. The denominator is the fixed ``M_y^ov``; the task risk still use
 """
 from __future__ import annotations
 
-import hashlib
-
 import torch
 
 from ..train.adversary import ConditionalDomainAdversary, reference_entropy_bar
@@ -17,10 +15,9 @@ from ..train.objective import ActiveStatus
 
 
 def support_hash(support_graph) -> str:
-    h = hashlib.sha256()
-    for y in support_graph.comparable_classes:
-        h.update(f"{int(y)}:{sorted(int(d) for d in support_graph.support_of_class[y])}".encode())
-    return h.hexdigest()
+    """The FULL support-graph identity (counts/cell-mass/m/prior/names/eligible), not a weaker
+    comparable-class-only digest."""
+    return support_graph.support_hash()
 
 
 class OACIObjective:
@@ -30,7 +27,7 @@ class OACIObjective:
         self.sg = support_graph
         self.adv_hidden = adv_hidden
         self.H_ref = reference_entropy_bar(support_graph)
-        self.support_hash = support_hash(support_graph)
+        self.support_hash = support_graph.support_hash()
         self._critic = None
         self._eligible_rows = 0
         self._rejected = 0

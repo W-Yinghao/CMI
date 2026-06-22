@@ -27,33 +27,25 @@ import numpy as np
 
 from ..support_graph import SupportGraph
 from .critic import CriticConfig, DomainProbe
-from .design import hash_strings
+from .design import population_hash as _population_hash
 
 
-def feature_population_hash(y, d, group, sample_mass) -> str:
-    """Row-order INVARIANT population identity of a FrozenFeatures set (no Z, no sample_id):
-    binds each row's (group, y, d, b_i)."""
-    y = np.asarray(y); d = np.asarray(d); grp = [str(g) for g in np.asarray(group).tolist()]
-    mass = np.asarray(sample_mass, dtype=np.float64)
-    order = sorted(range(len(grp)), key=lambda i: (grp[i], int(y[i]), int(d[i]), float(mass[i])))
-    h = hashlib.sha256()
-    for i in order:
-        hash_strings(h, [grp[i]])
-        h.update(int(y[i]).to_bytes(8, "little", signed=True))
-        h.update(int(d[i]).to_bytes(8, "little", signed=True))
-        h.update(np.asarray(mass[i]).tobytes())
-    return h.hexdigest()
+def feat_population_hash(feat) -> str:
+    """Unified population identity (binds sample_id + (y, d, group, b_i)); equals the matching
+    ``LeakageDesign.population_hash`` row-for-row."""
+    return _population_hash(feat.sample_id, feat.y, feat.d, feat.group, feat.sample_mass)
 
 
 def fold_plan_hash(population_hash, support_hash, n_folds_requested, n_folds,
                    fold_of_group, domain_of_group) -> str:
     """Binds population/support, requested+effective fold counts and the sorted
-    group→domain→fold map. Free-text ``notes`` are NOT part of the scientific identity."""
+    group→domain→fold map (groups are STABLE STRINGS). Free-text ``notes`` are not part of the
+    scientific identity."""
     h = hashlib.sha256()
     h.update(population_hash.encode()); h.update(support_hash.encode())
     h.update(f"{int(n_folds_requested)}|{int(n_folds)}".encode())
     for g in sorted(fold_of_group):
-        h.update(f"{int(g)}->{int(domain_of_group[g])}->{int(fold_of_group[g])};".encode())
+        h.update(f"{g}->{int(domain_of_group[g])}->{int(fold_of_group[g])};".encode())
     return h.hexdigest()
 
 
@@ -64,18 +56,23 @@ class FrozenFeatures:
     ``sample_mass``; never re-infer mass from row counts inside the estimator."""
     Z: np.ndarray              # [N, dim]
     y: np.ndarray              # [N] class label (int)
-    d: np.ndarray              # [N] domain label (int)
-    group: np.ndarray          # [N] recording-group id (the dependence unit)
+    d: np.ndarray              # [N] domain label (canonical contiguous int)
+    group: np.ndarray          # [N] recording-group id — STABLE STRING (never int-cast internally)
     sample_mass: np.ndarray = None   # [N] base mass b_i > 0
+    sample_id: tuple = None    # [N] stable string id (default synthetic f"f{i}" for back-compat)
 
     def __post_init__(self):
         self.Z = np.asarray(self.Z, dtype=np.float64)
         self.y = np.asarray(self.y, dtype=int).ravel()
         self.d = np.asarray(self.d, dtype=int).ravel()
-        self.group = np.asarray(self.group, dtype=int).ravel()
         n = self.Z.shape[0]
+        self.group = np.asarray([str(g) for g in np.asarray(self.group).ravel().tolist()], dtype=object)
         if not (self.y.shape[0] == self.d.shape[0] == self.group.shape[0] == n):
             raise ValueError("Z/y/d/group length mismatch")
+        sid = tuple(f"f{i}" for i in range(n)) if self.sample_id is None else tuple(str(s) for s in self.sample_id)
+        if len(sid) != n or len(set(sid)) != n or any(s == "" for s in sid):
+            raise ValueError("sample_id must be length-N, unique, non-empty")
+        self.sample_id = sid
         if self.sample_mass is None:
             self.sample_mass = np.ones(n, dtype=np.float64)
         else:
@@ -93,10 +90,10 @@ class FrozenFeatures:
 @dataclass
 class FoldPlan:
     """Original-group -> fold map (fixed across bootstrap), plus the feasibility record."""
-    fold_of_group: dict[int, int]
+    fold_of_group: dict              # str group -> fold int
     n_folds: int                  # effective fold count actually used
     n_folds_requested: int
-    domain_of_group: dict[int, int]
+    domain_of_group: dict            # str group -> domain int
     notes: list[str] = field(default_factory=list)
     population_hash: str = ""
     support_hash: str = ""
@@ -107,13 +104,13 @@ class FoldPlan:
         return self.n_folds < self.n_folds_requested
 
 
-def _domain_of_each_group(feat: FrozenFeatures) -> dict[int, int]:
-    dom: dict[int, int] = {}
+def _domain_of_each_group(feat: FrozenFeatures) -> dict:
+    dom: dict = {}
     for g in np.unique(feat.group):
         ds = np.unique(feat.d[feat.group == g])
         if ds.size != 1:
             raise ValueError(f"group {g} spans multiple domains {ds.tolist()} (a recording must be one domain)")
-        dom[int(g)] = int(ds[0])
+        dom[g] = int(ds[0])
     return dom
 
 
@@ -133,10 +130,9 @@ def _cell_aware_fold_assignment(
     # per-group: the eligible comparable cells it touches, balanced by SAMPLE-MASS sums (not row
     # counts) so duplicating windows with split mass leaves the fold plan unchanged.
     b = feat.sample_mass
-    group_cells: dict[int, dict[tuple, float]] = {}
-    group_total: dict[int, float] = {}
+    group_cells: dict = {}
+    group_total: dict = {}
     for g in np.unique(feat.group):
-        g = int(g)
         gm = feat.group == g
         dom = dom_of_group[g]
         cells: dict[tuple, float] = {}
@@ -155,7 +151,7 @@ def _cell_aware_fold_assignment(
 
     fold_cell = [defaultdict(int) for _ in range(n_folds)]
     fold_size = [0] * n_folds
-    fold_of_group: dict[int, int] = {}
+    fold_of_group: dict = {}
     for g in order:
         cells = group_cells[g]
         # pick the fold that is currently least loaded for THIS group's cells (ties -> smaller
@@ -211,7 +207,7 @@ def make_fold_plan(
     # label would otherwise let a whole cell land in one fold under domain-only round-robin.
     fold_of_group = _cell_aware_fold_assignment(feat, support_graph, dom_of_group, n_eff, seed)
 
-    pop = feature_population_hash(feat.y, feat.d, feat.group, feat.sample_mass)
+    pop = feat_population_hash(feat)
     sup = support_graph.support_hash()
     return FoldPlan(
         fold_of_group=fold_of_group,
@@ -223,6 +219,15 @@ def make_fold_plan(
         support_hash=sup,
         plan_hash=fold_plan_hash(pop, sup, n_folds, n_eff, fold_of_group, dom_of_group),
     )
+
+
+def make_fold_plan_from_design(design, support_graph: SupportGraph, n_folds: int, seed: int = 0) -> FoldPlan:
+    """Build the fold plan directly from a :class:`LeakageDesign` (no Z), so its ``population_hash``
+    equals ``design.population_hash`` byte-for-byte (fold assignment never uses Z)."""
+    feat = FrozenFeatures(Z=np.zeros((len(design.sample_id), 1)), y=design.y, d=design.d,
+                          group=np.asarray(design.group_id, dtype=object), sample_mass=design.sample_mass,
+                          sample_id=design.sample_id)
+    return make_fold_plan(feat, support_graph, n_folds, seed)
 
 
 def oof_nll_by_class(
@@ -240,7 +245,7 @@ def oof_nll_by_class(
     over OOF rows — the weighted numerator over the FIXED mass denominator (NOT a self-normalised
     per-fold mean), so window duplication with split mass is a no-op.
     """
-    fold = np.array([fold_plan.fold_of_group[int(g)] for g in feat.group])
+    fold = np.array([fold_plan.fold_of_group[g] for g in feat.group])
     b_all = feat.sample_mass
     out: dict[int, dict] = {}
     for y in support_graph.comparable_classes:
