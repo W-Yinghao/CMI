@@ -29,8 +29,17 @@ PHASE 1.1 corrections vs the first cut:
      Adam+weight-decay are not equivariant) -- see tests.
 Selector buffers `P` and `active_k`, so `is_identity` survives a checkpoint reload.
 
-Deferred (NOT here): source-risk UCB rank gate; conditional-on-task critic
-`I(P_N Z;D|Y,sg(P_T Z))`; PCGrad; EEG wiring.
+PHASE 1.2 adds the SOURCE-RISK UCB RANK GATE (the rank decision; the eigengap is now only a
+diagnostic). Four-way split: S_sel ranks candidate directions; S_gate runs a cross-fitted
+dual gate over nested prefixes P_N^(k) -- task NLL cost UCB(Delta_Y) <= delta_Y AND domain
+BRIER gain LCB(Delta_D) > gamma_D, with a simultaneous (Bonferroni) cluster-bootstrap band;
+k* = argmax_{feasible} LCB(Delta_D) (ties -> smaller k); empty -> identity. The domain critic
+in the gate is q_k = sg(logit q0(D|Y)) + zero-init residual r(P_k Z, Y). The leakage prefilter
+gate compares q0(D|Y) vs q1(D|Z,Y) on the BRIER score (bounded; NLL kept diagnostic only).
+GROUP-aware cross-fitting (whole clusters per fold) + fold-coverage abstention.
+
+Deferred (NOT here): conditional-on-task TRAINING critic `I(P_N Z;D|Y,sg(P_T Z))` as an
+encoder penalty; PCGrad; EEG wiring. (The gate's residual q_k is eval-only, not the trainer.)
 """
 from __future__ import annotations
 from dataclasses import dataclass
@@ -61,9 +70,14 @@ class ScoreFisherConfig:
     n_perm_null: int = 3            # within-Y permutations for the noise-energy prefilter
     null_safety: float = 1.25       # a direction must exceed null_safety x the null energy quantile
     null_q: float = 0.95            # quantile of the pooled null energy distribution
-    gate_gamma: float = 0.0         # leakage gate: domain NLL gain must exceed this (nats)
+    gate_gamma: float = 0.0         # leakage gate: domain BRIER gain LCB must exceed this
     gate_alpha: float = 0.05        # one-sided level for the leakage gate
     gate_boot: int = 300            # cluster-bootstrap resamples
+    boot_estimand: str = "sample"   # sample (trial-weighted) | cluster_equal (subject-equal)
+    # --- source-risk UCB rank gate (Phase 1.2) ---
+    gate_split: float = 0.45        # fraction of refresh data held out as S_gate
+    delta_Y: float = 0.03           # max tolerated task NLL/Brier increase from removing P_N (UCB)
+    gamma_D: float = 0.0            # min per-prefix domain Brier gain (LCB) to count as domain-rich
     dtype64: bool = True
 
 
@@ -93,19 +107,61 @@ class _Probe(nn.Module):
         return self.net(f)
 
 
-def _build_and_train(z_dim, n_out, cond_dim, Z, target, cond, cfg, seed):
-    """Seed BEFORE construction (fix 1) so weight init is reproducible; then train with CE."""
+import copy as _copy
+
+
+def _fit_temperature(logits, target, iters=100):
+    """Scalar temperature minimizing held-out NLL (calibration); returns T>0."""
+    logT = torch.zeros(1, requires_grad=True)
+    opt = torch.optim.LBFGS([logT], lr=0.1, max_iter=iters)
+    L = logits.detach(); t = target
+
+    def closure():
+        opt.zero_grad(); loss = F.cross_entropy(L / logT.exp(), t); loss.backward(); return loss
+    try:
+        opt.step(closure)
+    except Exception:
+        return 1.0
+    return float(logT.exp().clamp(0.2, 5.0))
+
+
+def _build_and_train(z_dim, n_out, cond_dim, Z, target, cond, cfg, seed, want_temp=False):
+    """Seed BEFORE construction (fix 1); train with CE + EARLY STOPPING on a val sub-split
+    (prevents the confident-wrong overfit that wrecks held-out Brier/NLL on weak signals). If
+    want_temp, also returns a temperature fit on the val split for calibrated probabilities."""
     torch.manual_seed(seed)
     probe = _Probe(z_dim, n_out, cond_dim, cfg.probe_family, cfg.hidden)
     opt = torch.optim.Adam(probe.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
     Zt = torch.tensor(Z, dtype=torch.float32)
     tt = torch.tensor(target, dtype=torch.long)
     ct = None if cond is None else torch.tensor(cond, dtype=torch.float32)
-    for _ in range(cfg.epochs):
+    n = len(target)
+    nval = int(0.15 * n) if n >= 40 else 0
+    g = torch.Generator().manual_seed(seed + 1)
+    perm = torch.randperm(n, generator=g)
+    val, trn = (perm[:nval], perm[nval:]) if nval else (perm[:0], perm)
+    cv = None if ct is None else ct[val]
+    best, best_state, bad, patience = float("inf"), None, 0, max(8, cfg.epochs // 5)
+    for ep in range(cfg.epochs):
         opt.zero_grad()
-        F.cross_entropy(probe(Zt, ct), tt).backward()
+        F.cross_entropy(probe(Zt[trn], None if ct is None else ct[trn]), tt[trn]).backward()
         opt.step()
-    return probe
+        if nval and ep % 3 == 0:
+            with torch.no_grad():
+                v = F.cross_entropy(probe(Zt[val], cv), tt[val]).item()
+            if v < best - 1e-4:
+                best, best_state, bad = v, _copy.deepcopy(probe.state_dict()), 0
+            else:
+                bad += 1
+                if bad >= patience:
+                    break
+    if best_state is not None:
+        probe.load_state_dict(best_state)
+    if not want_temp:
+        return probe
+    with torch.no_grad():
+        T = _fit_temperature(probe(Zt[val], cv), tt[val]) if nval else 1.0
+    return probe, T
 
 
 def _expected_score_fisher(probe, Z, cond, n_out):
@@ -124,14 +180,36 @@ def _expected_score_fisher(probe, Z, cond, n_out):
 
 
 class _SplitPlan:
-    """Deterministic K-fold index plan shared across task/domain/null probes (fix 1)."""
-    def __init__(self, n, n_folds, seed):
-        self.idx = np.random.default_rng(seed).permutation(n)
-        self.folds = np.array_split(self.idx, n_folds)
+    """Deterministic GROUP-aware K-fold plan shared across task/domain/null probes. Whole
+    `group_id` units are assigned to a single fold (round-robin over shuffled groups), so a
+    recording/session/block never straddles train and held-out -- cluster bootstrap alone
+    cannot fix that train/eval leakage (Phase 1.2 preflight 1). group_id=None => per-sample."""
+    def __init__(self, n, n_folds, seed, group_id=None):
+        rng = np.random.default_rng(seed)
+        if group_id is None:
+            units = [np.array([i]) for i in range(n)]
+        else:
+            group_id = np.asarray(group_id)
+            units = [np.where(group_id == g)[0] for g in np.unique(group_id)]
+        order = rng.permutation(len(units))
+        buckets = [[] for _ in range(n_folds)]
+        for j, u in enumerate(order):
+            buckets[j % n_folds].append(units[u])
+        self.folds = [np.concatenate(b) if b else np.array([], dtype=int) for b in buckets]
+        self.idx = np.arange(n)
 
     def iter(self):
         for f, hold in enumerate(self.folds):
             yield f, np.setdiff1d(self.idx, hold), hold
+
+    def coverage_ok(self, target, n_classes):
+        """True iff every TRAIN fold sees all classes (else the cross-fit probe can't learn
+        them -> the selector should abstain with FOLD_COVERAGE_FAILURE)."""
+        target = np.asarray(target)
+        for _, tr, _ in self.iter():
+            if len(np.unique(target[tr])) < n_classes:
+                return False
+        return True
 
 
 def _cross_fit_fisher(Z, target, cond, n_out, z_dim, cond_dim, cfg, plan, seed):
@@ -147,10 +225,10 @@ def _cross_fit_fisher(Z, target, cond, n_out, z_dim, cond_dim, cfg, plan, seed):
 
 
 def _crossfit_heldout(Zfeat, target, cond, n_out, cfg, plan, seed):
-    """Per-sample held-out NLL and prediction of a cross-fit probe. Zfeat may have 0 columns
-    (e.g. q0(D|Y) uses only the Y conditioner)."""
+    """Per-sample held-out NLL, prediction and multiclass BRIER of a cross-fit probe. Zfeat
+    may have 0 columns (e.g. q0(D|Y) uses only the Y conditioner)."""
     target = np.asarray(target)
-    nll = np.zeros(len(target)); pred = np.zeros(len(target), dtype=int)
+    nll = np.zeros(len(target)); pred = np.zeros(len(target), dtype=int); brier = np.zeros(len(target))
     z_dim = Zfeat.shape[1]
     cond_dim = 0 if cond is None else cond.shape[1]
     for f, tr, hold in plan.iter():
@@ -159,9 +237,49 @@ def _crossfit_heldout(Zfeat, target, cond, n_out, cfg, plan, seed):
         with torch.no_grad():
             ct = None if cond is None else torch.tensor(cond[hold], dtype=torch.float32)
             logp = F.log_softmax(probe(torch.tensor(Zfeat[hold], dtype=torch.float32), ct), 1)
-        nll[hold] = -logp[np.arange(len(hold)), target[hold]].numpy()
-        pred[hold] = logp.argmax(1).numpy()
-    return nll, pred
+        p = logp.exp().numpy()
+        t = target[hold]
+        nll[hold] = -logp[np.arange(len(hold)), t].numpy()
+        pred[hold] = p.argmax(1)
+        brier[hold] = (p ** 2).sum(1) - 2 * p[np.arange(len(hold)), t] + 1.0   # Σ_c (p_c-1[c=t])^2
+    return nll, pred, brier
+
+
+def _groups_of(cluster_id, n):
+    if cluster_id is None:
+        return [np.array([i]) for i in range(n)]
+    cluster_id = np.asarray(cluster_id)
+    return [np.where(cluster_id == c)[0] for c in np.unique(cluster_id)]
+
+
+def _boot_estimates(values, groups, n_boot, rng, estimand):
+    """Cluster bootstrap estimates of E[values]. values [N] or [N,K]. estimand:
+      'sample'        -> mean over all resampled trials (trial-weighted);
+      'cluster_equal' -> mean of per-cluster means (cluster/subject-equal weighting)."""
+    G = len(groups)
+    cmeans = np.stack([values[g].mean(0) for g in groups])   # [G] or [G,K]
+    csizes = np.array([len(g) for g in groups], dtype=float)
+    out = []
+    for _ in range(n_boot):
+        pick = rng.integers(0, G, G)
+        if estimand == "cluster_equal":
+            out.append(cmeans[pick].mean(0))
+        else:
+            w = csizes[pick]; w = w / w.sum()
+            out.append((cmeans[pick] * (w[:, None] if cmeans.ndim == 2 else w)).sum(0))
+    return np.stack(out)
+
+
+def _one_sided_bound(values, cluster_id, alpha, side, n_boot, seed, estimand):
+    """One-sided bound on E[values]. If values is 2D [N,K], returns a per-column SIMULTANEOUS
+    band via Bonferroni (level alpha/K) -- a valid (conservative) simultaneous reference."""
+    values = np.asarray(values, dtype=float)
+    boot = _boot_estimates(values, _groups_of(cluster_id, len(values)), n_boot,
+                           np.random.default_rng(seed), estimand)
+    K = boot.shape[1] if boot.ndim == 2 else 1
+    lvl = alpha / K
+    q = lvl if side == "lower" else 1 - lvl
+    return np.quantile(boot, q, axis=0)
 
 
 def _shuffle_within_y(y, d, rng):
@@ -183,7 +301,16 @@ def _metric(Z, y, n_cls, cfg):
         if len(Zc) > 1:
             Sw += (len(Zc) / len(Z)) * np.cov(Zc, rowvar=False)
     Sref = np.cov(Z, rowvar=False)
-    A = 0.5 * (Sw + Sw.T) + cfg.eps_ref * 0.5 * (Sref + Sref.T) + 1e-9 * np.eye(d)
+    # NO fixed `eps*I` jitter: an isotropic ridge does NOT transform as A·Aᵀ under z->Az, so it
+    # would break the exact coordinate-covariance the transported-probe test certifies. Both
+    # terms here are data covariances (covariant). For n >> d this is well-conditioned; for
+    # d >= n one must restrict to the empirical support of Σ_ref and claim covariance only
+    # there (not yet needed on synthetic) -- do NOT reintroduce a fixed I-ridge.
+    A = 0.5 * (Sw + Sw.T) + cfg.eps_ref * 0.5 * (Sref + Sref.T)
+    cond = np.linalg.cond(A)
+    if not np.isfinite(cond) or cond > 1e10:
+        raise np.linalg.LinAlgError(f"metric ill-conditioned (cond={cond:.2e}); restrict to "
+                                    "Σ_ref support (d>=n regime) rather than adding an I-ridge")
     return np.linalg.inv(A)
 
 
@@ -196,55 +323,35 @@ def metric_projector(V_sel, M):
     return V_sel @ np.linalg.solve(G, V_sel.T @ M)
 
 
-def _cluster_boot_lcb(values, cluster_id, alpha, n_boot, seed):
-    """One-sided lower confidence bound on E[values] by clustered bootstrap (resample whole
-    clusters). `cluster_id` per-sample; None -> per-sample iid."""
-    values = np.asarray(values, dtype=float)
-    rng = np.random.default_rng(seed)
-    if cluster_id is None:
-        groups = [np.array([i]) for i in range(len(values))]
-    else:
-        cluster_id = np.asarray(cluster_id)
-        groups = [np.where(cluster_id == c)[0] for c in np.unique(cluster_id)]
-    means = []
-    G = len(groups)
-    for _ in range(n_boot):
-        pick = rng.integers(0, G, G)
-        sel = np.concatenate([groups[i] for i in pick])
-        means.append(values[sel].mean())
-    return float(np.quantile(means, alpha))
-
-
 def leakage_gate(Z, y, d, n_cls, n_dom, cfg, plan, seed, cluster_id=None):
-    """Cross-fit q0(D|Y) vs q1(D|Z,Y) gate (fix 3): proper q0(D|Y) baseline (not an
-    eval-data majority), cross-fit, with a CLUSTER-aware one-sided bound. The DECISION is the
-    paired held-out ACCURACY advantage (robust to critic miscalibration); the paired NLL gain
-    is kept as a diagnostic only, because an over-confident MLP critic on a weak covariance
-    signal has poor held-out NLL even when its score-Fisher recovers the direction. Returns
-    (acc_gain_mean, acc_gain_lcb, open, nll_gain_mean)."""
+    """Leakage prefilter (Phase 1.2): does Z carry conditional-domain info beyond Y? Compares
+    q0(D|Y) to the RESIDUAL critic q1 = sg(logit q0) + zero-init r(Z,Y) -- the full-Z case of
+    the same residual+Brier construction used per-prefix. Starting q1 AT q0 is what makes the
+    held-out BRIER gain robust: a plain q1(D|Z,Y) MLP overfits a weak covariance signal and
+    gets WORSE held-out Brier than q0 (observed -0.5), even though the signal is real; the
+    residual can only help if the signal generalizes. GROUP-aware cross-fit, CLUSTER one-sided
+    bound. Returns dict(brier_gain, brier_lcb, open)."""
     y_oh = np.eye(n_cls)[y]
-    nll0, pred0 = _crossfit_heldout(np.zeros((len(Z), 0)), d, y_oh, n_dom, cfg, plan, seed + 11)
-    nll1, pred1 = _crossfit_heldout(Z, d, y_oh, n_dom, cfg, plan, seed + 22)
-    acc_gain = (pred1 == d).astype(float) - (pred0 == d).astype(float)   # paired, per-sample
-    lcb = _cluster_boot_lcb(acc_gain, cluster_id, cfg.gate_alpha, cfg.gate_boot, seed + 33)
-    return float(acc_gain.mean()), lcb, bool(lcb > cfg.gate_gamma), float((nll0 - nll1).mean())
+    br0, br1 = _crossfit_residual_domain_brier(Z, d, y_oh, n_dom, n_cls, cfg, plan, seed + 11)
+    gain = br0 - br1                                       # >0 iff Z helps predict D beyond Y
+    lcb = float(_one_sided_bound(gain, cluster_id, cfg.gate_alpha, "lower",
+                                 cfg.gate_boot, seed + 33, cfg.boot_estimand))
+    return {"brier_gain": float(gain.mean()), "brier_lcb": lcb, "open": bool(lcb > cfg.gate_gamma)}
 
 
 @dataclass
 class ScoreFisherReport:
-    rho: np.ndarray
-    dom_energy: np.ndarray
-    lab_energy: np.ndarray
-    ratio: np.ndarray
-    selected: np.ndarray
-    basis: np.ndarray            # [d,k] selected generalized eigenvectors (raw)
+    rho: np.ndarray              # generalized eigenvalues on S_sel (descending)
+    cand_order: np.ndarray       # eligible candidate eigen-indices, ranked (the prefix order)
+    basis: np.ndarray            # [d,k*] SELECTED generalized eigenvectors (= cand_order[:k*])
     P: np.ndarray                # [d,d] metric-aware (oblique) projector
     is_identity: bool
-    leak_gain: float             # mean cross-fit q1-q0 paired ACCURACY advantage (decision)
-    leak_lcb: float              # clustered one-sided lower bound on the accuracy advantage
-    gate_open: bool              # leakage significant?
-    leak_nll_gain: float = 0.0   # mean q0-q1 NLL gain (diagnostic only; NLL-fragile)
+    k_star: int                  # rank chosen by the UCB gate
+    gate: dict                   # leakage-prefilter gate dict (brier_gain/lcb/open/nll/acc)
+    rank_records: list           # per-prefix structured records (task UCB / domain LCB / reason)
+    decision_reason: str         # ACCEPTED | NO_CANDIDATE | DOMAIN_GATE_CLOSED | ...
     dom_floor_abs: float = 0.0   # within-Y permutation-null energy prefilter floor
+    eigengap_k: int = 0          # interim eigengap rank (DIAGNOSTIC only now)
 
     @property
     def k(self):
@@ -305,38 +412,206 @@ def _null_floor(Z, y, d, y_oh, U, n_cls, n_dom, z_dim, cfg, plan, seed):
     return cfg.null_safety * float(np.quantile(np.concatenate(energies), cfg.null_q))
 
 
-def select_score_fisher(Z, y, d, n_cls, n_dom, cfg: ScoreFisherConfig, seed=0, cluster_id=None):
-    Z = np.asarray(Z, dtype=np.float64)
-    y = np.asarray(y); d = np.asarray(d)
-    z_dim = Z.shape[1]
-    y_oh = np.eye(n_cls)[y]
-    plan = _SplitPlan(len(Z), cfg.n_folds, seed + 1)
-
-    G_Y = _cross_fit_fisher(Z, y, None, n_cls, z_dim, 0, cfg, plan, seed)
-    G_DgY = _cross_fit_fisher(Z, d, y_oh, n_dom, z_dim, n_cls, cfg, plan, seed + 100)
-    M = _metric(Z, y, n_cls, cfg)
-
-    leak_gain, leak_lcb, gate_open, leak_nll = leakage_gate(Z, y, d, n_cls, n_dom, cfg, plan, seed + 500, cluster_id)
-
-    # M-unit eigenvectors needed to evaluate the null energies on a fixed basis
+def candidate_order(G_DgY, G_Y, M, cfg, floor_abs=0.0):
+    """Ordered candidate eigenvectors for the UCB gate: eligible (domain-rich + label-light +
+    above the null-energy prefilter) directions ranked by rho. NO eigengap cut here -- the UCB
+    gate decides the rank over nested prefixes. Returns (V_cand[d,K], rho, dom, lab, ratio,
+    eigengap_k(diagnostic))."""
+    z_dim = G_Y.shape[0]
     B = 0.5 * ((G_Y + cfg.eta * M) + (G_Y + cfg.eta * M).T)
     w, V = eigh(0.5 * (G_DgY + G_DgY.T), B)
-    V = V[:, np.argsort(w)[::-1]]
+    order = np.argsort(w)[::-1]
+    rho, V = w[order], V[:, order]
     U = V / np.sqrt(np.maximum(np.einsum("ij,jk,ik->i", V.T, M, V.T), 1e-18))
-    floor_abs = _null_floor(Z, y, d, y_oh, U, n_cls, n_dom, z_dim, cfg, plan, seed + 700)
+    dom = np.clip(np.einsum("ij,jk,ik->i", U.T, G_DgY, U.T), 0, None)
+    lab = np.clip(np.einsum("ij,jk,ik->i", U.T, G_Y, U.T), 0, None)
+    ratio = dom / (lab + cfg.eta)
+    dom_max = dom.max() if dom.size and dom.max() > 0 else 1.0
+    lab_max = lab.max() if lab.size and lab.max() > 0 else 1.0
+    eligible = ((ratio >= cfg.tau_ratio) & (lab <= cfg.eps_label * lab_max)
+                & (dom >= max(cfg.dom_floor * dom_max, floor_abs)))
+    elig = np.where(eligible)[0]
+    elig = elig[np.argsort(rho[elig])[::-1]][: cfg.max_dim]
+    # interim eigengap rank (diagnostic only): first big multiplicative rho-drop among eligible
+    egk = elig.size
+    if elig.size > 1:
+        re = np.maximum(rho[elig], 1e-12)
+        over = np.where(re[:-1] / re[1:] >= cfg.rank_gap)[0]
+        if over.size:
+            egk = int(over[0]) + 1
+    return V[:, elig], rho, dom, lab, ratio, int(egk)
 
-    cand, V, rho, dom, lab, ratio, P = select_from_fishers(G_DgY, G_Y, M, cfg, floor_abs, gate_open)
-    V_sel = V[:, cand] if cand.size else np.zeros((z_dim, 0))
-    return ScoreFisherReport(rho=rho, dom_energy=dom, lab_energy=lab, ratio=ratio,
-                             selected=cand, basis=V_sel, P=P, is_identity=(cand.size == 0),
-                             leak_gain=leak_gain, leak_lcb=leak_lcb, gate_open=gate_open,
-                             leak_nll_gain=leak_nll, dom_floor_abs=floor_abs)
+
+def _zero_last_layer(probe):
+    last = probe.net[-1] if isinstance(probe.net, nn.Sequential) else probe.net
+    nn.init.zeros_(last.weight); nn.init.zeros_(last.bias)
+    return probe
+
+
+def _crossfit_residual_domain_brier(Zfeat, d, y_oh, n_dom, n_cls, cfg, plan, seed):
+    """Per-sample held-out Brier for q0(D|Y) and q_k(D|Y,Zfeat) where
+    logit q_k = sg(logit q0) + r(Zfeat,Y) with r a ZERO-INIT residual (so q_k starts AT q0 --
+    avoids two-unrelated-MLP optimization noise polluting the paired comparison). Returns
+    (brier_q0[N], brier_qk[N])."""
+    def _brier(p, t):
+        return (p ** 2).sum(1) - 2 * p[np.arange(len(t)), t] + 1.0
+
+    N = len(d); br0 = np.zeros(N); brk = np.zeros(N)
+    z_dim = Zfeat.shape[1]
+    for f, tr, hold in plan.iter():
+        # q0(D|Y): early-stopped + temperature-calibrated (probe over the Y conditioner only)
+        q0, T0 = _build_and_train(0, n_dom, n_cls, np.zeros((len(tr), 0)), d[tr], y_oh[tr],
+                                  cfg, seed + f, want_temp=True)
+        with torch.no_grad():
+            L0_tr = q0(torch.zeros(len(tr), 0), torch.tensor(y_oh[tr], dtype=torch.float32))
+            L0_ho = q0(torch.zeros(len(hold), 0), torch.tensor(y_oh[hold], dtype=torch.float32))
+        br0[hold] = _brier(torch.softmax(L0_ho / T0, 1).numpy(), d[hold])
+        # residual r(Zfeat,Y): zero-init, EARLY-STOPPED on an inner val split, then temperature
+        torch.manual_seed(seed + f + 7)
+        r = _zero_last_layer(_Probe(z_dim, n_dom, n_cls, cfg.probe_family, cfg.hidden))
+        opt = torch.optim.Adam(r.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+        Ztr = torch.tensor(Zfeat[tr], dtype=torch.float32); ytr = torch.tensor(y_oh[tr], dtype=torch.float32)
+        dtr = torch.tensor(d[tr], dtype=torch.long); off = L0_tr.detach()
+        nval = int(0.15 * len(tr)) if len(tr) >= 40 else 0
+        gperm = torch.randperm(len(tr), generator=torch.Generator().manual_seed(seed + f + 9))
+        vi, ti = gperm[:nval], gperm[nval:]
+        best, best_state, bad, patience = float("inf"), None, 0, max(8, cfg.epochs // 5)
+        for ep in range(cfg.epochs):
+            opt.zero_grad()
+            F.cross_entropy((off + r(Ztr, ytr))[ti], dtr[ti]).backward(); opt.step()
+            if nval and ep % 3 == 0:
+                with torch.no_grad():
+                    v = F.cross_entropy((off + r(Ztr, ytr))[vi], dtr[vi]).item()
+                if v < best - 1e-4:
+                    best, best_state, bad = v, _copy.deepcopy(r.state_dict()), 0
+                else:
+                    bad += 1
+                    if bad >= patience:
+                        break
+        if best_state is not None:
+            r.load_state_dict(best_state)
+        with torch.no_grad():
+            Tk = _fit_temperature((off + r(Ztr, ytr))[vi], dtr[vi]) if nval else 1.0
+            Lk_ho = L0_ho + r(torch.tensor(Zfeat[hold], dtype=torch.float32),
+                              torch.tensor(y_oh[hold], dtype=torch.float32))
+        brk[hold] = _brier(torch.softmax(Lk_ho / Tk, 1).numpy(), d[hold])
+    return br0, brk
+
+
+_REASONS = ("ACCEPTED", "NO_CANDIDATE", "DOMAIN_GATE_CLOSED", "DOMAIN_GAIN_TOO_SMALL",
+            "TASK_RISK_UCB", "FOLD_COVERAGE_FAILURE", "NUMERICAL_FAILURE")
+
+
+def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=None):
+    """Source-risk dual-gate rank selection on the gate split. For each nested prefix
+    P_N^(k)=proj(V_cand[:, :k]): task cost Delta_Y(k)=NLL(h_k((I-P_k)Z)) - NLL(h_0(Z)) (matched
+    heads) and domain gain Delta_D(k)=Brier(q0(D|Y)) - Brier(q_k(D|Y,P_k Z)). Feasible iff
+    simultaneous UCB Delta_Y(k) <= delta_Y AND simultaneous LCB Delta_D(k) > gamma_D.
+    k* = argmax_{feasible} LCB Delta_D(k) (ties -> smaller k); empty -> 0.
+    Returns (k_star, records, reason). NOTE prefix-search limitation: if a dangerous direction
+    is ranked before a safe one, no prefix can isolate the safe direction (recorded, not tuned away)."""
+    K = V_cand.shape[1]
+    plan_g = _SplitPlan(len(Zg), cfg.n_folds, seed + 3, group_id=cluster_id)
+    if K == 0:
+        return 0, [], "NO_CANDIDATE"
+    if not (plan_g.coverage_ok(yg, n_cls) and plan_g.coverage_ok(dg, n_dom)):
+        return 0, [], "FOLD_COVERAGE_FAILURE"
+    yg_oh = np.eye(n_cls)[yg]
+    try:
+        nll_h0, _, _ = _crossfit_heldout(Zg, yg, None, n_cls, cfg, plan_g, seed + 10)   # h0(Y|Z)
+        dY, dD = [], []
+        for k in range(1, K + 1):
+            Pk = metric_projector(V_cand[:, :k], M)
+            Zt = Zg - Zg @ Pk.T                      # task complement (I-P_N)Z
+            Zn = Zg @ Pk.T                           # nuisance P_N Z
+            nll_hk, _, _ = _crossfit_heldout(Zt, yg, None, n_cls, cfg, plan_g, seed + 20 + k)
+            br_q0, br_qk = _crossfit_residual_domain_brier(Zn, dg, yg_oh, n_dom, n_cls, cfg, plan_g, seed + 40 + k)
+            dY.append(nll_hk - nll_h0)               # task NLL cost (per-sample)
+            dD.append(br_q0 - br_qk)                 # domain Brier gain (per-sample)
+        dY = np.stack(dY, 1); dD = np.stack(dD, 1)   # [N, K]
+    except np.linalg.LinAlgError:
+        return 0, [], "NUMERICAL_FAILURE"
+    ucb_Y = _one_sided_bound(dY, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot, seed + 60, cfg.boot_estimand)
+    lcb_D = _one_sided_bound(dD, cluster_id, cfg.gate_alpha, "lower", cfg.gate_boot, seed + 70, cfg.boot_estimand)
+    feasible = (ucb_Y <= cfg.delta_Y) & (lcb_D > cfg.gamma_D)
+    records = []
+    for k in range(1, K + 1):
+        i = k - 1
+        rsn = ("ACCEPTED" if feasible[i] else
+               "TASK_RISK_UCB" if ucb_Y[i] > cfg.delta_Y else "DOMAIN_GAIN_TOO_SMALL")
+        records.append({"k": k, "task_delta_mean": float(dY[:, i].mean()), "task_ucb": float(ucb_Y[i]),
+                        "domain_gain_mean": float(dD[:, i].mean()), "domain_lcb": float(lcb_D[i]),
+                        "risk_feasible": bool(feasible[i]), "decision_reason": rsn})
+    feas = np.where(feasible)[0]
+    if feas.size == 0:
+        reason = "TASK_RISK_UCB" if np.any(ucb_Y > cfg.delta_Y) else "DOMAIN_GAIN_TOO_SMALL"
+        return 0, records, reason
+    best = feas[np.argmax(lcb_D[feas])]              # ties: argmax returns the first => smaller k
+    return int(best + 1), records, "ACCEPTED"
+
+
+def select_score_fisher(Z, y, d, n_cls, n_dom, cfg: ScoreFisherConfig, seed=0, cluster_id=None):
+    """Four-way isolation: S_sel (candidate ordering) | S_gate (UCB rank gate). S_test is the
+    caller's (eval only). The projector is built from S_sel candidates + S_sel metric."""
+    Z = np.asarray(Z, dtype=np.float64); y = np.asarray(y); d = np.asarray(d)
+    z_dim = Z.shape[1]
+    rng = np.random.default_rng(seed + 9)
+    # group-aware top split into S_sel / S_gate
+    groups = _groups_of(cluster_id, len(Z))
+    gperm = rng.permutation(len(groups))
+    n_sel = max(1, int(round((1 - cfg.gate_split) * len(groups))))
+    sel = np.concatenate([groups[i] for i in gperm[:n_sel]])
+    gat = np.concatenate([groups[i] for i in gperm[n_sel:]]) if n_sel < len(groups) else sel
+    cid_g = None if cluster_id is None else np.asarray(cluster_id)[gat]
+
+    y_oh = np.eye(n_cls)[y]
+    plan = _SplitPlan(len(sel), cfg.n_folds, seed + 1)
+    blank = lambda reason: ScoreFisherReport(
+        rho=np.zeros(z_dim), cand_order=np.array([], int), basis=np.zeros((z_dim, 0)),
+        P=np.zeros((z_dim, z_dim)), is_identity=True, k_star=0, gate={},
+        rank_records=[], decision_reason=reason)
+    if not (plan.coverage_ok(y[sel], n_cls) and plan.coverage_ok(d[sel], n_dom)):
+        return blank("FOLD_COVERAGE_FAILURE")
+
+    try:
+        G_Y = _cross_fit_fisher(Z[sel], y[sel], None, n_cls, z_dim, 0, cfg, plan, seed)
+        G_DgY = _cross_fit_fisher(Z[sel], d[sel], y_oh[sel], n_dom, z_dim, n_cls, cfg, plan, seed + 100)
+        M = _metric(Z[sel], y[sel], n_cls, cfg)
+    except np.linalg.LinAlgError:
+        return blank("NUMERICAL_FAILURE")
+
+    gate = leakage_gate(Z[sel], y[sel], d[sel], n_cls, n_dom, cfg, plan, seed + 500,
+                        None if cluster_id is None else np.asarray(cluster_id)[sel])
+
+    # null-energy prefilter floor (diagnostic/prefilter; not the decision)
+    B = 0.5 * ((G_Y + cfg.eta * M) + (G_Y + cfg.eta * M).T)
+    w, V0 = eigh(0.5 * (G_DgY + G_DgY.T), B)
+    V0 = V0[:, np.argsort(w)[::-1]]
+    U = V0 / np.sqrt(np.maximum(np.einsum("ij,jk,ik->i", V0.T, M, V0.T), 1e-18))
+    floor_abs = _null_floor(Z[sel], y[sel], d[sel], y_oh[sel], U, n_cls, n_dom, z_dim, cfg, plan, seed + 700)
+
+    V_cand, rho, dom, lab, ratio, egk = candidate_order(G_DgY, G_Y, M, cfg, floor_abs)
+    if not gate["open"]:
+        return ScoreFisherReport(
+            rho=rho, cand_order=np.array([], int), basis=np.zeros((z_dim, 0)),
+            P=np.zeros((z_dim, z_dim)), is_identity=True, k_star=0, gate=gate,
+            rank_records=[], decision_reason="DOMAIN_GATE_CLOSED",
+            dom_floor_abs=floor_abs, eigengap_k=egk)
+
+    # UCB rank gate on S_gate (with S_gate candidates' projectors using the S_sel metric M)
+    kstar, records, reason = ucb_rank_gate(Z[gat], y[gat], d[gat], V_cand, M,
+                                           n_cls, n_dom, cfg, seed + 2000, cid_g)
+    V_sel = V_cand[:, :kstar] if kstar else np.zeros((z_dim, 0))
+    P = metric_projector(V_sel, M)
+    return ScoreFisherReport(rho=rho, cand_order=np.arange(V_cand.shape[1]), basis=V_sel, P=P,
+                             is_identity=(kstar == 0), k_star=kstar, gate=gate,
+                             rank_records=records, decision_reason=reason,
+                             dom_floor_abs=floor_abs, eigengap_k=egk)
 
 
 class ScoreFisherSelector(nn.Module):
-    """Static score-Fisher selector (no encoder training). Mirrors SubspaceSelector's API.
-    Buffers `P` AND `active_k` so `is_identity` survives a checkpoint reload (fix: previously
-    `report=None` after reload made `is_identity` wrongly True)."""
+    """Static score-Fisher selector (no encoder training). Buffers `P` AND `active_k` so
+    `is_identity` survives a checkpoint reload."""
     def __init__(self, z_dim, n_cls, n_dom, cfg: Optional[ScoreFisherConfig] = None, device="cpu"):
         super().__init__()
         self.z_dim, self.n_cls, self.n_dom = z_dim, n_cls, n_dom
@@ -354,7 +629,7 @@ class ScoreFisherSelector(nn.Module):
         rep = select_score_fisher(f(Z), f(y), f(d), self.n_cls, self.n_dom, self.cfg, seed, cluster_id)
         self.report = rep
         self.P = torch.tensor(rep.P, dtype=torch.float32, device=self.P.device)
-        self.active_k = torch.tensor(rep.k, dtype=torch.long, device=self.active_k.device)
+        self.active_k = torch.tensor(rep.k_star, dtype=torch.long, device=self.active_k.device)
         return rep
 
     def project(self, Z):
@@ -364,7 +639,7 @@ class ScoreFisherSelector(nn.Module):
         if self.report is None:
             return {"k": int(self.active_k), "is_identity": self.is_identity}
         r = self.report
-        return {"k": r.k, "is_identity": r.is_identity, "selected": r.selected.tolist(),
-                "leak_acc_adv": round(r.leak_gain, 4), "leak_acc_lcb": round(r.leak_lcb, 4),
-                "leak_nll_gain": round(r.leak_nll_gain, 4), "gate_open": r.gate_open,
-                "rho_top": [float(x) for x in r.rho[:5]]}
+        return {"k": r.k_star, "is_identity": r.is_identity, "decision_reason": r.decision_reason,
+                "gate": {kk: (round(vv, 4) if isinstance(vv, float) else vv) for kk, vv in r.gate.items()},
+                "eigengap_k_diag": r.eigengap_k,
+                "rank_records": r.rank_records}

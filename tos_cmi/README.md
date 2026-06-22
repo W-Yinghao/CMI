@@ -29,8 +29,11 @@ L = CE(Z) + λ · I( P_N Z ; D | Y )         # invariance only on the nuisance s
   interactions, so the selected subspace is **label-mean-scatter-light**, not provably
   task-orthogonal. [`tests/test_limits.py`](tests/test_limits.py) is the explicit
   covariance-only counterexample where the selector (correctly, given what it measures)
-  no-ops. The "task-orthogonal" name needs the **score-Fisher / gradient-conflict** version
-  (THEORY §8), which is **not implemented yet**.
+  no-ops. The "task-orthogonal" name needs the **score-Fisher** version
+  ([`score_fisher.py`](score_fisher.py), now implemented through Phase 1.2: model-expected
+  score Fishers + coordinate-covariant metric + source-risk UCB rank gate). The
+  parameter-level gradient-conflict (PCGrad) and the conditional-on-task training critic
+  remain future work.
 * **`F_{D|Y}` is a proxy, not CMI.** It is a first-moment linear surrogate for `I(Z;D|Y)`,
   not the CMI nor a bound on it. `domadv_*` in the eval is a *linear-probe advantage*, not
   mutual information.
@@ -41,9 +44,10 @@ Class-conditional scatter + a generalized eigenproblem ≈ **Scatter Component A
 class-conditional first moments for invariant/spurious subspaces ≈ **ISR**; minimal-damage
 linear concept erasure ≈ **LEACE**; task-covariance-preserving erasure ≈ **SPLINCE**. On its
 own the mean-scatter selector here is *not* a new contribution. The defensible delta is the
-**score-Fisher task/domain gradient-conflict subspace + a source-risk upper-bound gate +
-parameter-level conflict projection + one budget across layer/channel/node/edge to cure the
-observed global-CMI collapse** — items still to build (THEORY §8).
+**score-Fisher task/domain subspace + a source-risk upper-bound rank gate** (both implemented
+in [`score_fisher.py`](score_fisher.py), Phase 1.1–1.2, synthetic-only), plus the still-to-build
+**parameter-level conflict projection + one budget across layer/channel/node/edge to cure the
+observed global-CMI collapse** (THEORY §8).
 
 ## Run it
 

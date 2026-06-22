@@ -189,6 +189,66 @@ def make_xor_leakage(n=6000, d=24, sep_label=2.0, scale=1.5, noise=1.0, rotate=T
             "label_basis": label_basis.astype(np.float32), "spec": spec}
 
 
+def make_partial_overlap(n=6000, d=24, n_dom=6, sep_label=2.0, sep_safe=2.6, sep_over=1.2,
+                         noise=1.0, rotate=True, seed=0):
+    """Partial case (3 classes): a 4-D domain carrier = 2 SAFE dirs (w1,w2, orthogonal to the
+    label) + 2 OVERLAP dirs (t1,t2, the class-discriminant axes). A correct selective method
+    deletes ONLY the safe 2-D span (k=2): removing w1,w2 costs no label info and removes domain
+    leakage, while removing t1,t2 would wreck the task. Returns nuisance_basis=[w1,w2] (safe,
+    expected selection) and task_overlap_basis=[t1,t2]."""
+    rng = np.random.default_rng(seed)
+    B = _random_orthonormal(d, 4, rng)
+    t1, t2, w1, w2 = B[:, 0], B[:, 1], B[:, 2], B[:, 3]
+    L = np.stack([t1, t2], 1)                                  # label discriminant axes
+    Wsafe = np.stack([w1, w2], 1)
+    cls = rng.standard_normal((3, 2))
+    class_means = sep_label * (cls @ L.T)                     # [3, d]
+    dom_safe = rng.standard_normal((n_dom, 2))
+    dom_over = rng.standard_normal((n_dom, 2))
+    off = sep_safe * (dom_safe @ Wsafe.T) + sep_over * (dom_over @ L.T)   # [n_dom, d]
+    y = rng.integers(0, 3, size=n)
+    dd = rng.integers(0, n_dom, size=n)
+    Z = class_means[y] + off[dd] + noise * rng.standard_normal((n, d))
+    nuis_basis = Wsafe.copy()                                 # SAFE deletable span (expect k=2)
+    task_overlap = L.copy()
+    if rotate:
+        Q = _random_orthonormal(d, d, rng)
+        Z = Z @ Q.T; nuis_basis = Q @ nuis_basis; task_overlap = Q @ task_overlap
+    spec = SimpleNamespace(n_cls=3, n_dom=n_dom, d=d)
+    return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": dd.astype(np.int64),
+            "nuisance_basis": nuis_basis.astype(np.float32),
+            "task_overlap_basis": task_overlap.astype(np.float32),
+            "label_basis": task_overlap.astype(np.float32), "spec": spec}
+
+
+def make_saturated_danger(n=6000, d=24, n_dom=6, sep_high=8.0, sep_low=1.2, sep_dom=2.5,
+                          noise=1.0, rotate=True, seed=0):
+    """The case that PROVES the source-risk gate is necessary (task-margin saturation). 4
+    classes = 2 binary factors: factor `a` is separated along t1 with a HUGE margin (sep_high)
+    -> the task posterior on `a` is saturated -> the model-EXPECTED label Fisher along t1 is
+    SMALL, so t1 looks 'label-light' to the score heuristic; and the DOMAIN shift is ALSO
+    along t1 -> t1 is domain-rich. So `candidate_order` wrongly PROPOSES t1. But deleting t1
+    destroys the `a` factor -> the source-risk UCB must reject it (TASK_RISK_UCB) -> identity.
+    Factor `b` along t2 has a small margin (high label Fisher) so t1 is *relatively* label-light."""
+    rng = np.random.default_rng(seed)
+    B = _random_orthonormal(d, 2, rng)
+    t1, t2 = B[:, 0], B[:, 1]
+    a = rng.integers(0, 2, n); b = rng.integers(0, 2, n)
+    y = (2 * a + b).astype(np.int64)
+    dd = rng.integers(0, n_dom, n)
+    dom_off = np.linspace(-1.0, 1.0, n_dom)
+    Z = (sep_high * a[:, None] * t1[None, :] + sep_low * b[:, None] * t2[None, :]
+         + sep_dom * dom_off[dd][:, None] * t1[None, :] + noise * rng.standard_normal((n, d)))
+    danger_basis = t1[:, None].copy()                 # what the heuristic proposes; UCB must reject
+    if rotate:
+        Q = _random_orthonormal(d, d, rng)
+        Z = Z @ Q.T; danger_basis = Q @ danger_basis
+    spec = SimpleNamespace(n_cls=4, n_dom=n_dom, d=d)
+    return {"Z": Z.astype(np.float32), "y": y, "d": dd.astype(np.int64),
+            "danger_basis": danger_basis.astype(np.float32),
+            "nuisance_basis": danger_basis.astype(np.float32), "spec": spec}
+
+
 def apply_linear_transform(data, A):
     """Return a copy with Z' = Z @ A^T (i.e. z' = A z) and the ground-truth bases mapped
     covariantly (basis' = A @ basis). Used to test coordinate-rescaling invariance of the
