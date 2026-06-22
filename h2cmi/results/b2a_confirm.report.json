@@ -1,0 +1,104 @@
+{
+  "pass_criteria": {
+    "false_adapt_max": 0.1,
+    "coverage_min": 0.25,
+    "nonnull_harm_max": 0.2,
+    "top1_min": 0.5,
+    "regret_max": 0.02
+  },
+  "by_comparator": {
+    "identity": {
+      "n_episodes": 1200,
+      "coverage": 0.0,
+      "false_adaptation_rate": 0.0,
+      "harm_rate": 0.0,
+      "mean_dbacc_diag": 0.0,
+      "mean_dbacc_all": 0.0,
+      "nonnull_harm_rate": 0.0,
+      "top1_oracle": 0.30666666666666664,
+      "mean_regret": 0.05995776372300277
+    },
+    "always_pooled": {
+      "n_episodes": 1200,
+      "coverage": 1.0,
+      "false_adaptation_rate": 1.0,
+      "harm_rate": 0.20666666666666667,
+      "mean_dbacc_diag": 0.024654811338459624,
+      "mean_dbacc_all": 0.04526340374217172,
+      "nonnull_harm_rate": 0.27977839335180055,
+      "top1_oracle": 0.47583333333333333,
+      "mean_regret": 0.014694359980831054
+    },
+    "always_canonical": {
+      "n_episodes": 1200,
+      "coverage": 1.0,
+      "false_adaptation_rate": 1.0,
+      "harm_rate": 0.19583333333333333,
+      "mean_dbacc_diag": 0.018062139376895072,
+      "mean_dbacc_all": 0.030165515758537337,
+      "nonnull_harm_rate": 0.2520775623268698,
+      "top1_oracle": 0.08916666666666667,
+      "mean_regret": 0.029792247964465435
+    },
+    "n1_target_ranking": {
+      "n_episodes": 1200,
+      "coverage": 0.25833333333333336,
+      "false_adaptation_rate": 0.2789034564958284,
+      "harm_rate": 0.03333333333333333,
+      "mean_dbacc_diag": 0.010760211660960464,
+      "mean_dbacc_all": 0.021004180742443233,
+      "nonnull_harm_rate": 0.0443213296398892,
+      "top1_oracle": 0.33166666666666667,
+      "mean_regret": 0.03895358298055954
+    },
+    "metadata_gated": {
+      "n_episodes": 1200,
+      "coverage": 0.0425,
+      "false_adaptation_rate": 0.0,
+      "harm_rate": 0.006666666666666667,
+      "mean_dbacc_diag": 0.009128479727609237,
+      "mean_dbacc_all": 0.0027461509847224457,
+      "nonnull_harm_rate": 0.0221606648199446,
+      "top1_oracle": 0.31583333333333335,
+      "mean_regret": 0.057211612738280335,
+      "gate_positive_operator_regret": 0.015524071530823011,
+      "metadata_op_veto_fail_rate": 0.18166666666666667,
+      "missing_metadata_abstention_rate": 1.0,
+      "pooled_vs_cc_confusion": {
+        "oracle=identity|meta=identity": 140,
+        "oracle=pooled_empirical_diag|meta=identity": 120,
+        "oracle=gen_oneshot_diag|meta=identity": 20,
+        "oracle=gen_iterative_diag|meta=gen_oneshot_diag": 3,
+        "oracle=gen_iterative_diag|meta=pooled_empirical_diag": 2,
+        "oracle=pooled_empirical_diag|meta=pooled_empirical_diag": 17,
+        "oracle=identity|meta=gen_oneshot_diag": 7,
+        "oracle=pooled_empirical_diag|meta=gen_oneshot_diag": 5,
+        "oracle=identity|meta=pooled_empirical_diag": 7,
+        "oracle=gen_oneshot_diag|meta=gen_oneshot_diag": 8,
+        "oracle=gen_oneshot_diag|meta=pooled_empirical_diag": 2,
+        "oracle=gen_iterative_diag|meta=identity": 30
+      },
+      "passes": {
+        "false_adapt": true,
+        "coverage": false,
+        "shift_utility": true,
+        "nonnull_harm": true,
+        "top1": false,
+        "regret": false,
+        "ALL": false
+      }
+    },
+    "metadata_oracle": {
+      "n_episodes": 1200,
+      "coverage": 0.6933333333333334,
+      "false_adaptation_rate": 0.7449344457687723,
+      "harm_rate": 0.0,
+      "mean_dbacc_diag": 0.04022197939596277,
+      "mean_dbacc_all": 0.05995776372300277,
+      "nonnull_harm_rate": 0.0,
+      "top1_oracle": 1.0,
+      "mean_regret": 0.0
+    }
+  },
+  "decision": "B2A_FAIL -> selection architecture insufficient on dev seeds"
+}

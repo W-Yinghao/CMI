@@ -34,3 +34,10 @@ prior+ (full +0.037/oof +0.068) and cov/rotation- (pooled wins); C_family + on r
 significant on the cov-family (+0.028..+0.048, CIs excl 0) -> oracle (labeled) responsibilities give a
 modest held-out gain; orthogonal to the prior-M-step claim and does not touch the deployable
 (label-free) method. b1a_confirm.report.json.
+
+## V1 claim 4: metadata_only on confirm seeds 100-119 (7200 rows)
+The DEPLOYED policy (metadata_only, no gate) replicates as SAFE + modestly useful: false-adaptation
+on should-abstain (non-DIAG) episodes = 0.00, harm 0.05, ΔbAcc on DIAG +0.020, coverage 0.22, top-1
+0.27, regret 0.054. always_pooled is useful-but-unsafe (ΔbAcc_diag +0.025, harm 0.21, false-adapt
+1.00); the cross-regime frozen gate over-vetoes (metadata_gated cov 0.04); metadata_oracle ceiling
+ΔbAcc_diag +0.040 (cov 0.69). b2a_confirm.report.json.
