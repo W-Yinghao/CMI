@@ -107,7 +107,7 @@ def get_sleep_source(bundle_root, tag, cfg, code_sig, data_fn):
         model.load_state_dict(torch.load(pt, map_location=cfg.train.device)); model.eval()
         m = np.load(npz)
         return model, (torch.tensor(m["mu"]), torch.tensor(m["sd"])), m["R_src"], pi_unif, m["rho_S"]
-    X, y, subject = data_fn()
+    X, y, subject, _night = data_fn()
     pi_star = reference_prior(y, NC, "uniform")
     dag, dom = _domains(subject)
     model, *_ = train_h2(X, y, dom, dag, cfg, align_factor="site")
