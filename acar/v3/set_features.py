@@ -195,15 +195,16 @@ def _canonicalize(z, window_keys):
     return z[order], [keys[i] for i in order]
 
 
-def _extract_canonical(state, z, keys, action, p0, z0) -> WindowActionSet:
-    """Build the set for ONE action; assumes z/keys already canonical and identity (p0,z0) already computed."""
+def _build_was(state, z, keys, action, p0, z0, pa, za) -> WindowActionSet:
+    """Feature computation from PRECOMPUTED outputs (identity p0,z0 and action pa,za). The single-execution loader path
+    captures the adapter outputs ONCE and calls this directly, so a WindowActionSet and the ΔR computed elsewhere are
+    guaranteed to derive from the same execution (no second adapter pass)."""
     n, n_cls = len(z), state["n_cls"]
     if not (MIN_BATCH <= n <= B):
         raise ValueError(f"eligible batch n_windows must be in [{MIN_BATCH}, {B}]; got {n}")
-    pa, za = apply_action(action, state, z)
     if (za is not None) != ACTION_GEOMETRY[action]:
         raise ValueError(f"action capability drift: {action} geometry={za is not None}, expected {ACTION_GEOMETRY[action]}")
-    _validate_proba(pa, n, n_cls, "pa")
+    _validate_proba(p0, n, n_cls, "p0"); _validate_proba(pa, n, n_cls, "pa")
     if za is not None and np.asarray(za).shape != z.shape:
         raise ValueError("embedding shape mismatch")
     geom = za is not None
@@ -222,6 +223,16 @@ def _extract_canonical(state, z, keys, action, p0, z0) -> WindowActionSet:
         raise ValueError("non-finite available feature value")
     values = np.where(mask == 1, values, 0.0); cvals = np.where(cmask == 1, cvals, 0.0)
     return WindowActionSet(values, mask, cvals, cmask, action, action_index(action), tuple(keys))
+
+
+def _extract_canonical(state, z, keys, action, p0, z0) -> WindowActionSet:
+    """Build the set for ONE action; assumes z/keys already canonical and identity (p0,z0) already computed. Re-executes
+    the adapter (used by the feature-only API); the loader uses _build_was on captured outputs instead."""
+    n = len(z)
+    if not (MIN_BATCH <= n <= B):
+        raise ValueError(f"eligible batch n_windows must be in [{MIN_BATCH}, {B}]; got {n}")
+    pa, za = apply_action(action, state, z)
+    return _build_was(state, z, keys, action, p0, z0, pa, za)
 
 
 def extract_action_set(state, z, window_keys, action) -> WindowActionSet:

@@ -110,6 +110,8 @@ class DeploymentBatch:
             if wk in seen:
                 raise ValueError("duplicate window key")
             seen.add(wk)
+        order = sorted(range(n), key=lambda i: int(keys[i].window_index))   # ONE canonical row order; z follows keys
+        keys = tuple(keys[i] for i in order); z = np.ascontiguousarray(z[order])
         object.__setattr__(self, "window_keys", keys)
         object.__setattr__(self, "z", frozen_array(z))
 
@@ -142,6 +144,22 @@ def deployment_batch_digest(b: DeploymentBatch) -> str:
     h.update(b"DBHDR\x00"); h.update(head)
     order = sorted(range(len(b.window_keys)), key=lambda i: int(b.window_keys[i].window_index))
     for i in order:
+        wk = b.window_keys[i]
+        h.update(json.dumps([str(wk.dataset_id), str(wk.subject_id), str(wk.recording_id), int(wk.window_index)],
+                            separators=(",", ":")).encode())
+        h.update(np.ascontiguousarray(b.z[i], dtype="<f8").tobytes())
+    return h.hexdigest()
+
+
+def canonical_row_digest(b: DeploymentBatch) -> str:
+    """Order-SENSITIVE digest over the batch's STORED (canonical) row order. Binds the exact (WindowKey, z-row) sequence
+    an adapter executes on, so probabilities produced in this order cannot be re-paired with a different order. Distinct
+    from deployment_batch_digest() (which re-sorts and is order-insensitive)."""
+    h = hashlib.sha256()
+    h.update(b"DBROW\x00")
+    h.update(json.dumps({"schema": DATA_SCHEMA, "subject": canon_subject(b.subject),
+                         "n": int(b.z.shape[0]), "d": int(b.z.shape[1])}, sort_keys=True).encode())
+    for i in range(len(b.window_keys)):                       # STORED order — NOT re-sorted
         wk = b.window_keys[i]
         h.update(json.dumps([str(wk.dataset_id), str(wk.subject_id), str(wk.recording_id), int(wk.window_index)],
                             separators=(",", ":")).encode())

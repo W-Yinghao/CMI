@@ -57,6 +57,8 @@ class DeploymentFeatureRecord:
     subject_key: SubjectKey
     deployment_batch_digest: str
     per_action: tuple        # ((action, window_action_set, delta_r), ...) covering NON_IDENTITY
+    execution_sha256: str = None        # set by the single-execution loader path (features+ΔR share one execution)
+    action_outputs_sha256: str = None
 
     def __post_init__(self):
         if self.disease not in ("PD", "SCZ"):
@@ -65,6 +67,9 @@ class DeploymentFeatureRecord:
             raise TypeError("subject_key must be a SubjectKey")
         if not _is_hex64(self.deployment_batch_digest):
             raise ValueError("deployment_batch_digest must be a full lowercase hex SHA-256")
+        if (self.execution_sha256 is not None) or (self.action_outputs_sha256 is not None):
+            if not (_is_hex64(self.execution_sha256 or "") and _is_hex64(self.action_outputs_sha256 or "")):
+                raise ValueError("execution_sha256/action_outputs_sha256 must both be full lowercase hex when bound")
         per = tuple((a, was, float(dr)) for a, was, dr in self.per_action)     # materialize + coerce dr to float
         if tuple(a for a, _, _ in per) != NON_IDENTITY:
             raise ValueError(f"per_action must be in canonical order {NON_IDENTITY}")

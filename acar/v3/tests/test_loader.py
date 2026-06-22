@@ -1,16 +1,16 @@
-"""Structural real-loader guards for acar/v3/loader.py. SYNTHETIC .npz FIXTURES ONLY (mirror the erm_0 dump schema);
-NO real DEV cohort is read. Proves: strict dtypes (no coercion), label firewall (deployment path never reads y_te),
-WindowKey-aligned ΔR, ActionOutputsRecord/LabeledRiskRecord binding, v3 source-state ref, PD-on-SCZ disease gate.
+"""Structural real-loader BINDING guards for acar/v3/loader.py. SYNTHETIC .npz FIXTURES ONLY (mirror the erm_0 dump
+schema); NO real DEV cohort is read. Proves: field-separated provenance (y_te never touches deployment identity),
+immutable SourceStateArtifact gating, canonical row identity, single-execution derivation, manifest, disease gate.
 Run: python -m acar.v3.tests.test_loader
 """
 import os
 import tempfile
 import numpy as np
 
-from acar.config import MIN_BATCH, N_CLS
-from acar.v3.set_features import NON_IDENTITY, build_action_sets
-from acar.v3.data import deployment_batch_digest, SubjectKey
-from acar.v3.training import DeploymentFeatureRecord, fit_candidate_earlystop
+from acar.config import N_CLS
+from acar.v3.set_features import NON_IDENTITY
+from acar.v3.data import deployment_batch_digest, canonical_row_digest
+from acar.v3.training import fit_candidate_earlystop
 from acar.v3 import loader as L
 
 
@@ -23,7 +23,7 @@ def _expect(exc, fn):
 
 
 def _arrays(seed=0, d=6):
-    """Clean fixture arrays. 6 full subjects (48 windows -> 32+16 eligible batches) + 1 tiny subject (fallback)."""
+    """6 full subjects (48 windows -> 32+16 eligible) + 1 tiny subject (fallback)."""
     rng = np.random.default_rng(seed)
     n_ev = 240
     yev = np.tile([0, 1], n_ev // 2).astype(np.int64)
@@ -32,7 +32,7 @@ def _arrays(seed=0, d=6):
     for s in range(6):
         for k in range(48):
             sub.append(f"sub-{s:03d}"); rec.append("rec-00"); win.append(k)
-    for k in range(4):                                              # tiny subject -> fallback batch
+    for k in range(4):
         sub.append("sub-006"); rec.append("rec-00"); win.append(k)
     n = len(sub)
     zte = rng.standard_normal((n, d))
@@ -46,22 +46,33 @@ def _write(path, arrays):
     np.savez(path, **arrays)
 
 
-def test_source_state_ref_and_deployment_build():
+def _fit_artifact(state_art, batches, labels):
+    exs = []
+    for b in [x for x in batches if not x.fallback]:
+        exe = state_art.execute(b)
+        exs += exe.deployment_feature_record(state_art, b, labels).to_train_examples()
+    subs = sorted({e.subject_key for e in exs}, key=lambda s: s.subject_id)
+    tr = [e for e in exs if e.subject_key in set(subs[:4])]; va = [e for e in exs if e.subject_key in set(subs[4:])]
+    art, _ = fit_candidate_earlystop("C1", "PD", tr, va, seed=0)
+    return art
+
+
+def test_field_separated_and_source_state_ref():
     with tempfile.TemporaryDirectory() as tmp:
         p = os.path.join(tmp, "audit_PD_dsX_erm_0.npz"); _write(p, _arrays())
-        state, src_hash = L.load_source_state(p)
-        assert L._is_hex64(src_hash)
-        env = L.env_versions()
-        ref = L.v3_source_state_ref(state, src_hash, env)
-        assert L._is_hex64(ref) and ref == L.v3_source_state_ref(state, src_hash, env)        # deterministic, lowercase-64
-        assert ref != L.v3_source_state_ref(state, "b" * 64, env)                              # source-dump-hash sensitive
-        batches = L.load_deployment_batches(p, disease="PD", dataset_id="dsX", source_state_ref=ref)
-        assert all(b.disease == "PD" and b.source_state_ref == ref for b in batches)
-        assert any(b.fallback for b in batches) and any(not b.fallback for b in batches)        # tiny subject -> fallback
-        # window order within a batch is the canonical acquisition order
-        big = [b for b in batches if not b.fallback][0]
-        assert [wk.window_index for wk in big.window_keys] == sorted(wk.window_index for wk in big.window_keys)
-    print("  [ok] load_source_state + v3 source-state ref (64-hex, deterministic, dump-hash sensitive); deployment build")
+        sa = L.load_source_artifact_from_dump(p, disease="PD")
+        assert L._is_hex64(sa.source_state_ref) and L._is_hex64(sa.source_fit_sha256)
+        sa.verify_integrity()
+        batches = L.load_deployment_batches(p, disease="PD", dataset_id="dsX", source_state_ref=sa.source_state_ref)
+        labels = L.load_labels_by_window(p, dataset_id="dsX")
+        man = L.build_manifest(p, dataset_id="dsX", disease="PD", source_artifact=sa, batches=batches,
+                               labels_by_window=labels)
+        # five DISTINCT provenance fields
+        hs = {man.full_dump_sha256, man.source_fit_sha256, man.deployment_input_sha256, man.label_sha256,
+              man.subject_list_sha256}
+        assert len(hs) == 5 and man.n_subjects == 7 and man.embedding_dim == 6
+        assert any(b.fallback for b in batches) and any(not b.fallback for b in batches)
+    print("  [ok] field-separated provenance manifest (5 distinct hashes); source-state ref from source_fit only")
 
 
 def test_strict_dtypes_no_coercion():
@@ -70,112 +81,160 @@ def test_strict_dtypes_no_coercion():
         def run(mutate):
             a = dict(base); mutate(a); p = os.path.join(tmp, "m.npz"); _write(p, a)
             return L.load_deployment_batches(p, disease="PD", dataset_id="d", source_state_ref="a" * 64)
-        _expect(ValueError, lambda: run(lambda a: a.__setitem__("window_index_te", a["window_index_te"].astype(float))))  # float idx
-        _expect(ValueError, lambda: run(lambda a: a.__setitem__("window_index_te", a["window_index_te"].astype(bool))))   # bool idx
+        _expect(ValueError, lambda: run(lambda a: a.__setitem__("window_index_te", a["window_index_te"].astype(float))))
+        _expect(ValueError, lambda: run(lambda a: a.__setitem__("window_index_te", a["window_index_te"].astype(bool))))
         _expect(ValueError, lambda: run(lambda a: a.__setitem__("window_index_te",
-                                                                np.array([str(x) for x in a["window_index_te"]]))))       # str idx
+                                                                np.array([str(x) for x in a["window_index_te"]]))))
         _expect(ValueError, lambda: run(lambda a: a.__setitem__("subject_id_te",
-                                                                np.arange(len(a["subject_id_te"])))))                     # numeric id
-        _expect(ValueError, lambda: run(lambda a: a.__setitem__("z_te", a["z_te"][:5])))                                 # length mismatch
-        _expect(ValueError, lambda: run(lambda a: a.pop("window_index_te")))                                             # missing field
-    print("  [ok] window index must be true int (float/bool/str rejected); ids must be str (numeric rejected); length/field checks")
+                                                                np.arange(len(a["subject_id_te"])))))
+        _expect(ValueError, lambda: run(lambda a: a.__setitem__("z_te", a["z_te"][:5])))
+        _expect(ValueError, lambda: run(lambda a: a.pop("window_index_te")))
+    print("  [ok] window index true-int only; ids str only (no coercion); length/field checks")
 
 
-def test_action_outputs_and_labeled_risk_binding():
-    with tempfile.TemporaryDirectory() as tmp:
-        p = os.path.join(tmp, "audit_PD_dsX_erm_0.npz"); _write(p, _arrays())
-        state, src = L.load_source_state(p); ref = L.v3_source_state_ref(state, src, L.env_versions())
-        batches = L.load_deployment_batches(p, disease="PD", dataset_id="dsX", source_state_ref=ref)
-        labels = L.load_labels_by_window(p, dataset_id="dsX")
-        b = [x for x in batches if not x.fallback][0]
-        ao = L.compute_action_outputs(state, b)
-        assert L._is_hex64(ao.action_outputs_sha256); ao.verify_integrity()
-        # immutability of stored probabilities
-        def _w():
-            ao.p0.flags.writeable = True
-        _expect(ValueError, _w)
-        lrr = L.labeled_risk_record(b, ao, labels)
-        assert lrr.deployment_batch_digest == deployment_batch_digest(b) == ao.deployment_batch_digest
-        assert lrr.action_outputs_sha256 == ao.action_outputs_sha256                            # ΔR bound to exact outputs
-        assert tuple(a for a, _ in lrr.delta_r_by_action) == NON_IDENTITY
-        # fallback batch has no action outputs
-        fb = [x for x in batches if x.fallback][0]
-        _expect(ValueError, lambda: L.compute_action_outputs(state, fb))
-        # ΔR aligned by WindowKey: a permuted-but-consistent label dict yields the SAME record;
-        # a label dict missing a key fails closed.
-        permuted = {k: labels[k] for k in reversed(list(labels))}
-        assert L.labeled_risk_record(b, ao, permuted).delta_r_by_action == lrr.delta_r_by_action
-        _expect(ValueError, lambda: L.labeled_risk_record(b, ao, {k: v for k, v in labels.items()
-                                                                  if k != b.window_keys[0]}))
-    print("  [ok] ActionOutputsRecord 64-hex+immutable; LabeledRiskRecord binds digest+outputs; ΔR aligned by WindowKey")
-
-
-def test_label_firewall_poison_proxy():
-    """The deployment path (batches -> action outputs -> predictions) must be byte-identical whether y_te is clean or
-    adversarially flipped. Only the labeled risk record (which legitimately reads y_te) may change."""
+def test_label_firewall_full_pipeline():
+    """GUARD 1 + 8: run the WHOLE workflow on two .npz differing ONLY in y_te. Everything on the deployment path must be
+    bit-identical; only full_dump/label hashes and ΔR may move."""
     clean = _arrays(); poison = dict(clean); poison["y_te"] = (N_CLS - 1 - clean["y_te"]).astype(np.int64)
     assert not np.array_equal(clean["y_te"], poison["y_te"])
     with tempfile.TemporaryDirectory() as tmp:
-        pc = os.path.join(tmp, "clean.npz"); pp = os.path.join(tmp, "poison.npz")
-        _write(pc, clean); _write(pp, poison)
-        state, src = L.load_source_state(pc); ref = L.v3_source_state_ref(state, src, L.env_versions())
-        bc = L.load_deployment_batches(pc, disease="PD", dataset_id="dsX", source_state_ref=ref)
-        bp = L.load_deployment_batches(pp, disease="PD", dataset_id="dsX", source_state_ref=ref)
-        # train ONE real artifact from the clean deployment path, then deploy on both
-        exs = []
-        labels = L.load_labels_by_window(pc, dataset_id="dsX")
-        for b in [x for x in bc if not x.fallback]:
-            ao = L.compute_action_outputs(state, b); lrr = L.labeled_risk_record(b, ao, labels)
-            dr = dict(lrr.delta_r_by_action); sets = build_action_sets(state, np.asarray(b.z, float), b.window_keys)
-            exs += DeploymentFeatureRecord("PD", b.subject, deployment_batch_digest(b),
-                                           tuple((a, sets[a], dr[a]) for a in NON_IDENTITY)).to_train_examples()
-        subs = sorted({e.subject_key for e in exs}, key=lambda s: s.subject_id)
-        tr_subj = set(subs[:4]); tr = [e for e in exs if e.subject_key in tr_subj]
-        va = [e for e in exs if e.subject_key not in tr_subj]
-        artifact, _ = fit_candidate_earlystop("C1", "PD", tr, va, seed=0)
+        pc = os.path.join(tmp, "clean.npz"); pp = os.path.join(tmp, "poison.npz"); _write(pc, clean); _write(pp, poison)
+        # build EACH side from scratch (refs derived independently — not reusing the clean ref)
+        sac = L.load_source_artifact_from_dump(pc, disease="PD"); sap = L.load_source_artifact_from_dump(pp, disease="PD")
+        assert sac.source_fit_sha256 == sap.source_fit_sha256 and sac.source_state_ref == sap.source_state_ref
+        bc = L.load_deployment_batches(pc, disease="PD", dataset_id="dsX", source_state_ref=sac.source_state_ref)
+        bp = L.load_deployment_batches(pp, disease="PD", dataset_id="dsX", source_state_ref=sap.source_state_ref)
+        manc = L.build_manifest(pc, dataset_id="dsX", disease="PD", source_artifact=sac, batches=bc,
+                                labels_by_window=L.load_labels_by_window(pc, dataset_id="dsX"))
+        manp = L.build_manifest(pp, dataset_id="dsX", disease="PD", source_artifact=sap, batches=bp,
+                                labels_by_window=L.load_labels_by_window(pp, dataset_id="dsX"))
+        assert manc.deployment_input_sha256 == manp.deployment_input_sha256
+        assert manc.subject_list_sha256 == manp.subject_list_sha256
+        assert manc.full_dump_sha256 != manp.full_dump_sha256 and manc.label_sha256 != manp.label_sha256
+        art = _fit_artifact(sac, bc, L.load_labels_by_window(pc, dataset_id="dsX"))
         for b1, b2 in zip(bc, bp):
-            assert deployment_batch_digest(b1) == deployment_batch_digest(b2)                   # batch identity y_te-independent
-            p1, p2 = L.predict_batch(artifact, state, b1), L.predict_batch(artifact, state, b2)
-            assert p1 == p2                                                                     # predictions y_te-independent
-        # but the labeled risk DOES change when labels are poisoned
-        bclean = [x for x in bc if not x.fallback][0]
-        ao = L.compute_action_outputs(state, bclean)
-        lc = L.labeled_risk_record(bclean, ao, L.load_labels_by_window(pc, dataset_id="dsX"))
-        lp = L.labeled_risk_record(bclean, ao, L.load_labels_by_window(pp, dataset_id="dsX"))
+            assert deployment_batch_digest(b1) == deployment_batch_digest(b2)
+            if b1.fallback:
+                assert L.predict_batch(art, sac, b1) is None and L.predict_batch(art, sap, b2) is None
+                continue
+            e1, e2 = sac.execute(b1), sap.execute(b2)
+            assert e1.execution_sha256 == e2.execution_sha256 and e1.action_outputs_sha256 == e2.action_outputs_sha256
+            assert L.predict_batch(art, sac, b1) == L.predict_batch(art, sap, b2)
+        # ΔR DOES change with poisoned labels
+        bclean = [x for x in bc if not x.fallback][0]; exe = sac.execute(bclean)
+        lc = exe.labeled_risk_record(L.load_labels_by_window(pc, dataset_id="dsX"))
+        lp = exe.labeled_risk_record(L.load_labels_by_window(pp, dataset_id="dsX"))
         assert lc.delta_r_by_action != lp.delta_r_by_action
-    print("  [ok] label firewall: deployment digests + predictions byte-identical under y_te poisoning; only ΔR changes")
+    print("  [ok] label firewall: deployment input/digests/executions/predictions bit-identical under y_te poison; full_dump changes don't propagate")
+
+
+def test_state_and_disease_binding():
+    """GUARD 2 + 3: a batch whose source_state_ref / disease / embedding_dim doesn't match the source artifact fails
+    BEFORE any adapter."""
+    with tempfile.TemporaryDirectory() as tmp:
+        p = os.path.join(tmp, "a.npz"); _write(p, _arrays())
+        sa = L.load_source_artifact_from_dump(p, disease="PD")
+        good = [b for b in L.load_deployment_batches(p, disease="PD", dataset_id="dsX",
+                                                     source_state_ref=sa.source_state_ref) if not b.fallback][0]
+        sa.execute(good)                                                              # ok
+        wrong_ref = [b for b in L.load_deployment_batches(p, disease="PD", dataset_id="dsX",
+                                                          source_state_ref="b" * 64) if not b.fallback][0]
+        _expect(ValueError, lambda: sa.execute(wrong_ref))                            # declared state B, artifact A
+        scz = [b for b in L.load_deployment_batches(p, disease="SCZ", dataset_id="dsX",
+                                                    source_state_ref=sa.source_state_ref) if not b.fallback][0]
+        _expect(ValueError, lambda: sa.execute(scz))                                  # disease mismatch
+    # embedding-dim mismatch: artifact at d=6, batch at d=8
+    with tempfile.TemporaryDirectory() as tmp:
+        p6 = os.path.join(tmp, "d6.npz"); _write(p6, _arrays(d=6))
+        p8 = os.path.join(tmp, "d8.npz"); _write(p8, _arrays(d=8))
+        sa6 = L.load_source_artifact_from_dump(p6, disease="PD")
+        b8 = [b for b in L.load_deployment_batches(p8, disease="PD", dataset_id="dsX",
+                                                   source_state_ref=sa6.source_state_ref) if not b.fallback][0]
+        _expect(ValueError, lambda: sa6.execute(b8))                                  # dim mismatch before forward pass
+    print("  [ok] SourceStateArtifact gates ref/disease/embedding_dim before any forward pass")
+
+
+def test_external_load_never_fits():
+    """GUARD 7: the external/deployment path rebuilds f_0 from frozen params and does NOT call fit_source_state; the DEV
+    path does. Reproduces the same source_state_ref."""
+    import acar.v3.loader as M
+    with tempfile.TemporaryDirectory() as tmp:
+        p = os.path.join(tmp, "a.npz"); _write(p, _arrays())
+        sa = M.load_source_artifact_from_dump(p, disease="PD")
+        blob = M.freeze_source_state_artifact(sa)
+        orig = M.fit_source_state
+        M.fit_source_state = lambda *a, **k: (_ for _ in ()).throw(AssertionError("external path fit!"))
+        try:
+            ext = M.load_frozen_source_state_artifact(blob)                           # must NOT fit
+            assert ext.source_state_ref == sa.source_state_ref and ext.source_fit_sha256 == sa.source_fit_sha256
+            _expect(AssertionError, lambda: M.load_source_artifact_from_dump(p, disease="PD"))   # DEV path DOES fit
+        finally:
+            M.fit_source_state = orig
+    print("  [ok] external load rebuilds frozen f_0 without fit_source_state (same ref); DEV path fits")
+
+
+def test_single_execution_binding():
+    """GUARD 4 + 5 + 6: features and ΔR come from ONE execution (shared execution/action-outputs hashes); cross-pairing
+    a record with the wrong batch or wrong source artifact fails; canonical row identity holds."""
+    with tempfile.TemporaryDirectory() as tmp:
+        p = os.path.join(tmp, "a.npz"); _write(p, _arrays())
+        sa = L.load_source_artifact_from_dump(p, disease="PD")
+        batches = [b for b in L.load_deployment_batches(p, disease="PD", dataset_id="dsX",
+                                                        source_state_ref=sa.source_state_ref) if not b.fallback]
+        labels = L.load_labels_by_window(p, dataset_id="dsX")
+        b0, b1 = batches[0], batches[1]
+        exe = sa.execute(b0); exe.verify_integrity()
+        dfr = exe.deployment_feature_record(sa, b0, labels)
+        assert dfr.execution_sha256 == exe.execution_sha256 and dfr.action_outputs_sha256 == exe.action_outputs_sha256
+        ao = exe.action_outputs_record()
+        assert ao.action_outputs_sha256 == exe.action_outputs_sha256
+        # cross-pairing this execution with a DIFFERENT batch fails (digest/row mismatch)
+        _expect(ValueError, lambda: exe.deployment_feature_record(sa, b1, labels))
+        # canonical row identity: digest unchanged, row digest defined and bound into the execution
+        assert canonical_row_digest(b0) == exe.canonical_row_digest
+        # immutability of captured probabilities
+        def _w():
+            np.asarray(exe.p0).flags.writeable = True
+        _expect(ValueError, _w)
+        # GUARD 6: end-to-end call count — identity + 3 actions EXACTLY once; features/ΔR do NOT re-execute
+        import acar.v3.loader as M
+        calls = []
+        orig = M.apply_action
+        M.apply_action = lambda name, st, zz: calls.append(name) or orig(name, st, zz)
+        try:
+            e2 = sa.execute(b0)
+            e2.window_action_sets(sa); e2.labeled_risk_record(labels); e2.deployment_feature_record(sa, b0, labels)
+        finally:
+            M.apply_action = orig
+        assert sorted(calls) == sorted(["identity", *NON_IDENTITY]), calls          # 4 calls total, no second pass
+        # GUARD 9: subject-list hash permutation-insensitive (incl. duplicates) but add/remove sensitive
+        subs = [b.subject for b in batches]
+        uniq = sorted({b.subject for b in batches}, key=lambda s: s.subject_id)
+        assert L.hash_subject_list(subs) == L.hash_subject_list(list(reversed(subs))) == L.hash_subject_list(uniq)
+        assert L.hash_subject_list(uniq) != L.hash_subject_list(uniq[:-1])           # drop a whole subject -> changes
+    print("  [ok] one execution -> features+ΔR share hashes; exactly 4 adapter calls (no re-exec); subject-list hash perm-insensitive/add-sensitive; wrong-batch rejected")
 
 
 def test_disease_gate_before_prediction():
     with tempfile.TemporaryDirectory() as tmp:
-        p = os.path.join(tmp, "audit_PD_dsX_erm_0.npz"); _write(p, _arrays())
-        state, src = L.load_source_state(p); ref = L.v3_source_state_ref(state, src, L.env_versions())
-        bpd = L.load_deployment_batches(p, disease="PD", dataset_id="dsX", source_state_ref=ref)
-        bscz = L.load_deployment_batches(p, disease="SCZ", dataset_id="dsX", source_state_ref=ref)
-        exs = []; labels = L.load_labels_by_window(p, dataset_id="dsX")
-        for b in [x for x in bpd if not x.fallback]:
-            ao = L.compute_action_outputs(state, b); dr = dict(L.labeled_risk_record(b, ao, labels).delta_r_by_action)
-            sets = build_action_sets(state, np.asarray(b.z, float), b.window_keys)
-            exs += DeploymentFeatureRecord("PD", b.subject, deployment_batch_digest(b),
-                                           tuple((a, sets[a], dr[a]) for a in NON_IDENTITY)).to_train_examples()
-        subs = sorted({e.subject_key for e in exs}, key=lambda s: s.subject_id)
-        tr = [e for e in exs if e.subject_key in set(subs[:4])]; va = [e for e in exs if e.subject_key in set(subs[4:])]
-        pd_artifact, _ = fit_candidate_earlystop("C1", "PD", tr, va, seed=0)
-        scz_eligible = [x for x in bscz if not x.fallback][0]
-        _expect(ValueError, lambda: pd_artifact.predict(build_action_sets(state, np.asarray(scz_eligible.z, float),
-                                                                          scz_eligible.window_keys)) if False else
-                pd_artifact.assert_disease(scz_eligible.disease))                               # gate raises...
-        _expect(ValueError, lambda: L.predict_batch(pd_artifact, state, scz_eligible))          # ...before any forward pass
-        assert L.predict_batch(pd_artifact, state, [x for x in bpd if not x.fallback][0]) is not None
-        assert L.predict_batch(pd_artifact, state, [x for x in bpd if x.fallback][0]) is None   # fallback -> identity
-    print("  [ok] PD artifact rejects SCZ batch via assert_disease BEFORE any prediction; fallback -> None")
+        p = os.path.join(tmp, "a.npz"); _write(p, _arrays())
+        sa = L.load_source_artifact_from_dump(p, disease="PD")
+        bpd = L.load_deployment_batches(p, disease="PD", dataset_id="dsX", source_state_ref=sa.source_state_ref)
+        art = _fit_artifact(sa, bpd, L.load_labels_by_window(p, dataset_id="dsX"))
+        scz = [b for b in L.load_deployment_batches(p, disease="SCZ", dataset_id="dsX",
+                                                    source_state_ref=sa.source_state_ref) if not b.fallback][0]
+        _expect(ValueError, lambda: art.assert_disease(scz.disease))
+        _expect(ValueError, lambda: L.predict_batch(art, sa, scz))                    # gate before any forward pass
+        assert L.predict_batch(art, sa, [b for b in bpd if not b.fallback][0]) is not None
+        assert L.predict_batch(art, sa, [b for b in bpd if b.fallback][0]) is None
+    print("  [ok] PD artifact rejects SCZ batch before any prediction; fallback -> None")
 
 
 def main():
-    print("ACAR v3 structural loader guards (synthetic fixtures only):")
-    for t in (test_source_state_ref_and_deployment_build, test_strict_dtypes_no_coercion,
-              test_action_outputs_and_labeled_risk_binding, test_label_firewall_poison_proxy,
-              test_disease_gate_before_prediction):
+    print("ACAR v3 structural loader-binding guards (synthetic fixtures only):")
+    for t in (test_field_separated_and_source_state_ref, test_strict_dtypes_no_coercion,
+              test_label_firewall_full_pipeline, test_state_and_disease_binding, test_external_load_never_fits,
+              test_single_execution_binding, test_disease_gate_before_prediction):
         t()
     print("ALL V3 LOADER GUARDS PASS")
 
