@@ -14,6 +14,11 @@ EVAL subject-event coverage (frozen v2 §A5 requires ≥ 1−α = 0.90):
 - **PD = 0.900** exactly (207 / 230 subject clusters) — meets nominal.
 - **SCZ = 0.8933** (201 / 225 subject clusters) — **below** nominal: a literal pre-registered **diagnostic miss**.
 
+Exact, copy-safe wording (use verbatim; do NOT write "misses by 24/225" — 24/225 is the *uncovered-subject* count,
+not the shortfall in coverage):
+> **SCZ coverage was 201/225 = 0.8933, with 24 subjects uncovered; this is 0.67 percentage points below 0.90 and
+> two covered subjects short of the integer pass threshold of 203/225.**
+
 Caveats (do not over- or under-claim): the implementation **reports** the A5 coverage diagnostic but does **not
 enforce** it in the decision function. A realized test proportion can fall below 0.90 even when the marginal
 conformal theorem holds (finite-sample sampling variation), so SCZ=0.8933 is **not by itself** evidence that the
@@ -65,8 +70,8 @@ These do **not** affect the `MEASUREMENT_ONLY` endpoint (the conformal `m` was c
 > **Predicting Negative Transfer Is Not Enough: The Measurement–Control Gap in EEG Test-Time Adaptation.**
 
 Defensible claim = a *label-free, action-conditional paired-harm **predictor** of negative transfer* (G1, validated
-out-of-fold on PD & SCZ) with a *subject-clustered conformal coverage construction* (PD meets nominal; SCZ misses by
-24/225). **Not** a deployable conservative router (G2 fails; three-link gap above).
+out-of-fold on PD & SCZ) with a *subject-clustered conformal coverage construction* (PD meets nominal; SCZ
+201/225 = 0.8933, 0.67 pp below 0.90). **Not** a deployable conservative router (G2 fails; three-link gap above).
 
 ## 7. Disposition
 
