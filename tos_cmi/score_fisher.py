@@ -717,7 +717,11 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
     Delta_D(k)=Brier(q0(D|Y)) - Brier(q_k(D|Y,P_k Z)). Feasible iff simultaneous UCB Delta_Y(k)
     <= delta_Y AND simultaneous LCB Delta_D(k) > gamma_D; k* = argmax_{feasible} LCB Delta_D(k)
     (ties -> smaller k); empty -> 0. If a prefix's span intersects span(T_task) (no direct sum)
-    that prefix and all larger ones are infeasible (TASK_SUBSPACE_INTERSECTION)."""
+    that prefix and all larger ones are infeasible (TASK_SUBSPACE_INTERSECTION).
+
+    NB: the task UCB (record `probe_task_gain_ucb`) bounds the PROBE's conditional task gain to
+    finite-sample noise -- it is NOT a Bayes-risk upper bound (a misspecified/low-capacity critic
+    can under-detect conditional task info; eval.bayes_oracle is the certification ground truth)."""
     K = V_cand.shape[1]
     if K == 0:
         return 0, [], "NO_CANDIDATE"
@@ -771,7 +775,11 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
                         "task_deployment_delta": float(dY_dep[:, i].mean()),
                         "task_residual_alpha": task_diag[i]["alpha"],
                         "task_base_nll": task_diag[i]["base_mean"], "task_full_nll": task_diag[i]["full_mean"],
-                        "task_ucb": float(ucb_Y[i]),  # alias (binding task statistic)
+                        # binding task statistic: a finite-sample UPPER bound on the PROBE's
+                        # conditional task gain -- NOT a Bayes-risk bound (the critic can
+                        # under-detect; see eval.bayes_oracle for the certification ground truth).
+                        "probe_task_gain_ucb": float(ucb_Y[i]),
+                        "task_ucb": float(ucb_Y[i]),  # back-compat alias
                         "domain_gain_mean": float(dD[:, i].mean()), "domain_lcb": float(lcb_D[i]),
                         "risk_feasible": bool(feasible[i]), "decision_reason": rsn})
     if intersect_at is not None:

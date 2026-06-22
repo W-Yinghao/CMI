@@ -236,14 +236,20 @@ def _make_partial(n, d, n_dom, sep_label, sep_safe, sep_over, noise, rotate, see
     y = rng.integers(0, 3, size=n); dd = rng.integers(0, n_dom, size=n)
     Z = class_means[y] + off[dd] + noise * rng.standard_normal((n, d))
     nuis_basis, task_overlap = Wsafe.copy(), L.copy()
+    cell_means = class_means[:, None, :] + off[None, :, :]    # [n_cls,n_dom,d] TRUE means
     if rotate:
         Q = _random_orthonormal(d, d, rng)
         Z = Z @ Q.T; nuis_basis = Q @ nuis_basis; task_overlap = Q @ task_overlap
+        cell_means = cell_means @ Q.T
     spec = SimpleNamespace(n_cls=3, n_dom=n_dom, d=d)
+    # TRUE generative params so the Bayes oracle can draw an INDEPENDENT MC set (not a same-sample
+    # empirical plug-in): z|y,d ~ N(cell_means[y,d], noise^2 I), y~Unif, d~Unif (indep of y).
+    truth = {"mu_yd": cell_means.astype(np.float64), "sigma": float(noise),
+             "py": np.full(3, 1 / 3), "pdy": np.full((3, n_dom), 1 / n_dom)}
     return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": dd.astype(np.int64),
             "nuisance_basis": nuis_basis.astype(np.float32),
             "task_overlap_basis": task_overlap.astype(np.float32),
-            "label_basis": task_overlap.astype(np.float32), "spec": spec}
+            "label_basis": task_overlap.astype(np.float32), "truth": truth, "spec": spec}
 
 
 make_partial_overlap = make_partial_synergy        # back-compat alias (current tests)
