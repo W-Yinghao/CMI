@@ -14,6 +14,8 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .errors import BootstrapPlanNonEstimable
+
 
 @dataclass(frozen=True)
 class BootstrapDraw:
@@ -102,10 +104,10 @@ def make_leakage_bootstrap_plan(design, support_graph, fold_plan, *, alpha, requ
     n_cand = len(candidates)
     invalid_rate = 0.0 if n_cand == 0 else (n_cand - len(accepted)) / n_cand
     if len(accepted) < requested_replicates:
-        raise ValueError(f"only {len(accepted)}/{requested_replicates} structurally-valid bootstrap "
-                         f"draws within {budget} candidates; too few clusters for a leakage CI")
+        raise BootstrapPlanNonEstimable(f"only {len(accepted)}/{requested_replicates} structurally-valid "
+                                        f"bootstrap draws within {budget} candidates; too few clusters")
     if invalid_rate > max_invalid_draw_rate:
-        raise ValueError(f"invalid_draw_rate {invalid_rate:.3f} > {max_invalid_draw_rate}")
+        raise BootstrapPlanNonEstimable(f"invalid_draw_rate {invalid_rate:.3f} > {max_invalid_draw_rate}")
     candidate_draws = tuple(candidates); accepted = tuple(accepted)
     return LeakageBootstrapPlan(
         population_hash=design.population_hash, support_hash=design.support_hash,

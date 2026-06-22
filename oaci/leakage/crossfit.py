@@ -28,6 +28,7 @@ import numpy as np
 from ..support_graph import SupportGraph
 from .critic import CriticConfig, DomainProbe
 from .design import population_hash as _population_hash
+from .errors import FoldPlanNonEstimable, NoComparableSupport
 
 
 def feat_population_hash(feat) -> str:
@@ -183,7 +184,7 @@ def make_fold_plan(
     # cells actually used by the estimator: eligible cells of comparable classes.
     used_cells = [(d, y) for y in support_graph.comparable_classes for d in support_graph.support_of_class[y]]
     if not used_cells:
-        raise ValueError("no comparable classes with eligible support -> nothing to cross-fit")
+        raise NoComparableSupport("no comparable classes with eligible support -> nothing to cross-fit")
 
     # groups-per-cell determines how finely each cell can be grouped-split.
     groups_per_cell = {
@@ -194,7 +195,7 @@ def make_fold_plan(
     notes: list[str] = []
     if n_eff < 2:
         scarce = min(groups_per_cell, key=groups_per_cell.get)
-        raise ValueError(
+        raise FoldPlanNonEstimable(
             f"eligible cell {scarce} has only {groups_per_cell[scarce]} recording group(s); "
             f"cannot form >=2 grouped folds. Refusing to fall back to a sample-level split."
         )

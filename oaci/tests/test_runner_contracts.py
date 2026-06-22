@@ -180,10 +180,14 @@ def test_feature_extraction_restores_rng_and_model_state():
     data, design = _feat_setup()
     model = _model_factory(); mh = model_state_hash(model); state = model.state_dict()
     rng = torch.random.get_rng_state()
-    a = extract_frozen_features(state, mh, _model_factory, data, design, factory_seed=1, chunk_size=None, device=torch.device("cpu"))
-    assert torch.equal(torch.random.get_rng_state(), rng)             # caller RNG unchanged
-    b = extract_frozen_features(state, mh, _model_factory, data, design, factory_seed=1, chunk_size=3, device=torch.device("cpu"))
-    assert a.feature_hash == b.feature_hash                           # chunking does not change the result
+    cpu = torch.device("cpu")
+    a = extract_frozen_features(state, mh, _model_factory, data, design, factory_seed=1, chunk_size=None, device=cpu)
+    assert torch.equal(torch.random.get_rng_state(), rng)            # caller RNG unchanged
+    a2 = extract_frozen_features(state, mh, _model_factory, data, design, factory_seed=1, chunk_size=None, device=cpu)
+    assert a.feature_hash == a2.feature_hash                         # SAME chunk size -> byte-identical
+    # across chunk sizes the float matmul is batch-size dependent (BLAS), so compare within tolerance
+    b = extract_frozen_features(state, mh, _model_factory, data, design, factory_seed=1, chunk_size=3, device=cpu)
+    assert np.allclose(a.features.Z, b.features.Z, atol=1e-5)
 
 
 def _run_all() -> None:

@@ -4,8 +4,10 @@ NOT non-estimability — they propagate as ordinary errors."""
 from __future__ import annotations
 
 
-class LeakageNonEstimableError(RuntimeError):
-    """Structural non-estimability of a leakage quantity."""
+class LeakageNonEstimableError(ValueError):
+    """Structural non-estimability of a leakage quantity. Subclasses ValueError for back-compat (a
+    plain ValueError from a hash mismatch / numerical failure is NOT an instance of this, so the
+    runner's ``except LeakageNonEstimableError`` lets those propagate)."""
 
 
 class NoComparableSupport(LeakageNonEstimableError):

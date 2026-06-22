@@ -43,25 +43,25 @@ def extract_frozen_features(model_state, expected_model_hash, model_factory, tra
     n = len(training_data)
     order = sorted(range(n), key=lambda i: training_data.sample_id[i])     # canonical sample-id order
 
-    with forked_rng(factory_seed, device):                                 # factory must not touch caller RNG
-        model = model_factory()
-    model = model.to(device)
-    model.load_state_dict(model_state)
-    mh = model_state_hash(model)
-    if mh != expected_model_hash:
-        raise ValueError("model hash mismatch after loading the checkpoint for feature extraction")
+    rng_entry = torch.random.get_rng_state()                               # belt+suspenders: guarantee restore
+    try:
+        with forked_rng(factory_seed, device):                             # factory must not touch caller RNG
+            model = model_factory()
+        model = model.to(device)
+        model.load_state_dict(model_state)
+        mh = model_state_hash(model)
+        if mh != expected_model_hash:
+            raise ValueError("model hash mismatch after loading the checkpoint for feature extraction")
 
-    rng_before = torch.random.get_rng_state()
-    cs = n if chunk_size is None else int(chunk_size)
-    chunks = []
-    with all_eval(model), torch.inference_mode():
-        for a in range(0, n, cs):
-            idx = torch.as_tensor(order[a:a + cs], dtype=torch.long)
-            chunks.append(np.asarray(model(training_data.X[idx].to(device)).z.cpu(), dtype=np.float64))
-    Z = np.concatenate(chunks, axis=0)
-
-    if not torch.equal(torch.random.get_rng_state(), rng_before):
-        raise RuntimeError("feature extraction perturbed the caller RNG")
+        cs = n if chunk_size is None else int(chunk_size)
+        chunks = []
+        with all_eval(model), torch.inference_mode():
+            for a in range(0, n, cs):
+                idx = torch.as_tensor(order[a:a + cs], dtype=torch.long)
+                chunks.append(np.asarray(model(training_data.X[idx].to(device)).z.cpu(), dtype=np.float64))
+        Z = np.concatenate(chunks, axis=0)
+    finally:
+        torch.random.set_rng_state(rng_entry)                              # caller RNG byte-exact regardless
     if model_state_hash(model) != mh:
         raise RuntimeError("feature extraction mutated the model state")
 
