@@ -12,7 +12,7 @@ import torch
 from ..config import SamplerConfig
 from ..support_graph import build_support_graph, counts_from_labels, empirical_class_prior
 from ..train.adversary import ConditionalDomainAdversary
-from ..train.primal_dual import Encoder, TaskHead
+from ..models import build_model
 from ..train.risk import source_risk
 from .batch import (
     effective_prior_domain_given_y,
@@ -62,25 +62,25 @@ def _demo() -> None:
     # fixed model: full vs minibatch task risk and C_D
     Xt, yt = torch.tensor(X), torch.tensor(y, dtype=torch.long)
     torch.manual_seed(0)
-    enc, head = Encoder(X.shape[1], 8, 16), TaskHead(8, 2)
-    opt = torch.optim.Adam(list(enc.parameters()) + list(head.parameters()), lr=5e-3)
+    model = build_model("mlp", in_dim=X.shape[1], n_classes=2, z_dim=8, hidden=16)
+    opt = torch.optim.Adam(model.parameters(), lr=5e-3)
     for _ in range(80):
-        opt.zero_grad(); source_risk(head(enc(Xt)), yt, "balanced_ce").backward(); opt.step()
+        opt.zero_grad(); source_risk(model(Xt).logits, yt, "balanced_ce").backward(); opt.step()
     adv = ConditionalDomainAdversary(8, sg, hidden=16)
     optd = torch.optim.Adam(adv.parameters(), lr=1e-2)
     with torch.no_grad():
-        Zf = enc(Xt)
+        Zf = model(Xt).z
     for _ in range(150):
         optd.zero_grad(); adv.domain_ce(Zf, y, d).backward(); optd.step()
 
     with torch.no_grad():
-        full_task = float(source_risk(head(enc(Xt)), yt, "balanced_ce").item())
+        full_task = float(source_risk(model(Xt).logits, yt, "balanced_ce").item())
         tb = sampler.task_batch()
-        mb_task = float(source_risk(head(enc(Xt[tb.idx])), yt[tb.idx], "balanced_ce",
+        mb_task = float(source_risk(model(Xt[tb.idx]).logits, yt[tb.idx], "balanced_ce",
                                     weight=torch.tensor(tb.weight)).item())
-        full_cd = float(adv.domain_ce(enc(Xt), y, d).item())
+        full_cd = float(adv.domain_ce(model(Xt).z, y, d).item())
         lb2 = sampler.adv_logical_batch()
-        mb_cd = float(sum(adv.domain_ce_contribution(enc(Xt[mb.idx]), y[mb.idx], d[mb.idx], mb.weight)
+        mb_cd = float(sum(adv.domain_ce_contribution(model(Xt[mb.idx]).z, y[mb.idx], d[mb.idx], mb.weight)
                           for mb in lb2.microbatches).item())
 
     print("Rare-cell sampler — acceptance report (50:1 cell imbalance)")

@@ -14,9 +14,11 @@ import torch
 from ..leakage.critic import CriticConfig
 from ..leakage.crossfit import FrozenFeatures, make_fold_plan
 from ..leakage.ucb import bootstrap_ucb
+from ..models import build_model
 from ..support_graph import build_support_graph, counts_from_labels, empirical_class_prior
 from .adversary import ConditionalDomainAdversary, reference_entropy_bar
-from .primal_dual import Encoder, TrainConfig, train_risk_feasible
+from .bn import all_eval
+from .primal_dual import TrainConfig, train_risk_feasible
 from .selector import select_checkpoint
 
 
@@ -45,11 +47,15 @@ def make_covariate_shift(seed=0, n_domains=2, n_classes=2, recs_per_domain=4, pe
     return X.astype(np.float32), y, d, g, sg
 
 
-def _frozen_Z(enc_state, in_dim, cfg, X) -> np.ndarray:
-    enc = Encoder(in_dim, cfg.z_dim, cfg.enc_hidden)
-    enc.load_state_dict(enc_state)
-    with torch.no_grad():
-        return enc(torch.as_tensor(np.asarray(X), dtype=torch.float32)).numpy()
+def _factory(in_dim, cfg):
+    return lambda: build_model("mlp", in_dim=in_dim, n_classes=cfg.n_classes, z_dim=cfg.z_dim, hidden=cfg.enc_hidden)
+
+
+def _frozen_Z(model_state, factory, X) -> np.ndarray:
+    m = factory()
+    m.load_state_dict(model_state)
+    with all_eval(m), torch.no_grad():
+        return m(torch.as_tensor(np.asarray(X), dtype=torch.float32)).z.numpy()
 
 
 def evaluate_surrogate(Z, y, d, sg, cfg, steps=300) -> float:
@@ -76,10 +82,10 @@ def _outer_leakage(Z, y, d, g, sg, B):
     return res["extractable_LQ_ov"], res["bootstrap_ucl"]
 
 
-def _outer_point(enc_state, in_dim, cfg, X, y, d, g, sg) -> float:
+def _outer_point(model_state, factory, X, y, d, g, sg) -> float:
     """Best-critic outer leakage POINT estimate on a candidate's frozen Z (no bootstrap)."""
     from ..leakage.estimate import estimate_extractable_leakage
-    Z = _frozen_Z(enc_state, in_dim, cfg, X)
+    Z = _frozen_Z(model_state, factory, X)
     feat = FrozenFeatures(Z, y, d, g)
     plan = make_fold_plan(feat, sg, n_folds=4, seed=0)
     return estimate_extractable_leakage(feat, sg, plan, CriticConfig(capacities=_OUTER_CAPS))["extractable_LQ_ov"]
@@ -90,26 +96,27 @@ def acceptance_report(seed=0, B=100, candidate_stride=15) -> dict:
     X, y, d, g, sg = make_covariate_shift(seed=seed)
     cfg = TrainConfig(seed=seed)
     res = train_risk_feasible(X, y, d, g, sg, cfg)
+    factory = _factory(X.shape[1], cfg)
     # honest selection: rank FEASIBLE checkpoints by the best-critic OUTER leakage (injected
     # score_fn on the frozen representation), not the optimistic co-trained surrogate. Scoring
     # every epoch is costly, so subsample the trajectory (stride) + always keep the last epoch.
     cands = res.trajectory[::candidate_stride] + [res.trajectory[-1]]
     res_sub = dataclasses.replace(res, trajectory=cands)
-    score_fn = lambda c: _outer_point(c.enc_state, res.in_dim, cfg, X, y, d, g, sg)
+    score_fn = lambda c: _outer_point(c.model_state, factory, X, y, d, g, sg)
     sel = select_checkpoint(res_sub, score_fn=score_fn, score_name="extractable_LQ_ov_point")
 
-    Z_erm = _frozen_Z(res.erm_ckpt["enc"], res.in_dim, cfg, X)
-    Z_sel = _frozen_Z(sel.enc_state, res.in_dim, cfg, X)
+    Z_erm = _frozen_Z(res.erm_record.model_state, factory, X)
+    Z_sel = _frozen_Z(sel.model_state, factory, X)
     sur_before = evaluate_surrogate(Z_erm, y, d, sg, cfg)
     sur_after = evaluate_surrogate(Z_sel, y, d, sg, cfg)
     lq_before, ucl_before = _outer_leakage(Z_erm, y, d, g, sg, B)
     lq_after, ucl_after = _outer_leakage(Z_sel, y, d, g, sg, B)
 
     rep = {
-        "R_ERM_hat": res.R_ERM_hat,
-        "tau": res.tau,
+        "R_ERM_hat": res.erm_stage.R_ERM_hat,
+        "tau": res.erm_stage.tau,
         "selected_R_src": sel.R_src,
-        "realized_risk_gap": sel.R_src - res.R_ERM_hat,
+        "realized_risk_gap": sel.R_src - res.erm_stage.R_ERM_hat,
         "train_leakage_surrogate_before": sur_before,
         "train_leakage_surrogate_after": sur_after,
         "extractable_LQ_ov_before": lq_before,

@@ -171,11 +171,11 @@ def test_no_comparable_classes_is_byte_exact_erm_noop():
     X, y, d, g, sg = make_covariate_shift(seed=0, n_domains=1)
     assert sg.comparable_classes == []
     res = train_risk_feasible(X, y, d, g, sg, TrainConfig(seed=0, stage1_epochs=20, stage2_epochs=10))
-    assert res.trajectory == []                            # NO Stage-2 updates ran
+    assert res.active is False and res.trajectory == []   # NO Stage-2 updates ran
     sel = select_checkpoint(res)
     assert sel.used_erm_fallback and sel.selected_epoch == -1
-    assert state_hash(sel.enc_state) == state_hash(res.erm_ckpt["enc"])
-    assert state_hash(sel.head_state) == state_hash(res.erm_ckpt["head"])
+    assert sel.model_hash == res.erm_record.model_hash
+    assert state_hash(sel.model_state) == state_hash(res.erm_record.model_state)
 
 
 def test_lambda_floor_zero_matches_exact_lagrangian():
@@ -217,7 +217,7 @@ def test_minibatch_trainer_integration_runs():
                       adv_hidden=8, z_dim=8, enc_hidden=16)
     res = train_risk_feasible(X, y, d, g, sg, cfg, sampler=sampler)
     assert len(res.trajectory) == 3
-    assert select_checkpoint(res).enc_state is not None
+    assert select_checkpoint(res).model_state is not None
 
 
 def _run_all() -> None:
