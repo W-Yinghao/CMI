@@ -19,6 +19,7 @@ Guarantees (the no-leakage backbone, with ``critic.py``):
 """
 from __future__ import annotations
 
+import hashlib
 from collections import defaultdict
 from dataclasses import dataclass, field
 
@@ -26,6 +27,34 @@ import numpy as np
 
 from ..support_graph import SupportGraph
 from .critic import CriticConfig, DomainProbe
+from .design import hash_strings
+
+
+def feature_population_hash(y, d, group, sample_mass) -> str:
+    """Row-order INVARIANT population identity of a FrozenFeatures set (no Z, no sample_id):
+    binds each row's (group, y, d, b_i)."""
+    y = np.asarray(y); d = np.asarray(d); grp = [str(g) for g in np.asarray(group).tolist()]
+    mass = np.asarray(sample_mass, dtype=np.float64)
+    order = sorted(range(len(grp)), key=lambda i: (grp[i], int(y[i]), int(d[i]), float(mass[i])))
+    h = hashlib.sha256()
+    for i in order:
+        hash_strings(h, [grp[i]])
+        h.update(int(y[i]).to_bytes(8, "little", signed=True))
+        h.update(int(d[i]).to_bytes(8, "little", signed=True))
+        h.update(np.asarray(mass[i]).tobytes())
+    return h.hexdigest()
+
+
+def fold_plan_hash(population_hash, support_hash, n_folds_requested, n_folds,
+                   fold_of_group, domain_of_group) -> str:
+    """Binds population/support, requested+effective fold counts and the sorted
+    group→domain→fold map. Free-text ``notes`` are NOT part of the scientific identity."""
+    h = hashlib.sha256()
+    h.update(population_hash.encode()); h.update(support_hash.encode())
+    h.update(f"{int(n_folds_requested)}|{int(n_folds)}".encode())
+    for g in sorted(fold_of_group):
+        h.update(f"{int(g)}->{int(domain_of_group[g])}->{int(fold_of_group[g])};".encode())
+    return h.hexdigest()
 
 
 @dataclass
@@ -69,6 +98,9 @@ class FoldPlan:
     n_folds_requested: int
     domain_of_group: dict[int, int]
     notes: list[str] = field(default_factory=list)
+    population_hash: str = ""
+    support_hash: str = ""
+    plan_hash: str = ""
 
     @property
     def reduced(self) -> bool:
@@ -179,12 +211,17 @@ def make_fold_plan(
     # label would otherwise let a whole cell land in one fold under domain-only round-robin.
     fold_of_group = _cell_aware_fold_assignment(feat, support_graph, dom_of_group, n_eff, seed)
 
+    pop = feature_population_hash(feat.y, feat.d, feat.group, feat.sample_mass)
+    sup = support_graph.support_hash()
     return FoldPlan(
         fold_of_group=fold_of_group,
         n_folds=n_eff,
         n_folds_requested=n_folds,
         domain_of_group=dom_of_group,
         notes=notes,
+        population_hash=pop,
+        support_hash=sup,
+        plan_hash=fold_plan_hash(pop, sup, n_folds, n_eff, fold_of_group, dom_of_group),
     )
 
 

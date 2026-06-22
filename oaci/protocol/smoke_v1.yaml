@@ -42,7 +42,7 @@ methods:
   names: [ERM, OACI, global_lpc, uniform]
   global_lpc_laplace_smoothing: 1.0
   critic_capacity: 8
-evaluation: {alpha: 0.05, delta_bacc: 0.02, ece_bins: 15}
+evaluation: {alpha: 0.05, delta_bacc: 0.02, ece_bins: 15, paired_bootstrap: 100, invalid_draw_threshold: 0.5, min_clusters: 2}
 optimizer:
   name: adam
   lr_stage1: 5.0e-3
@@ -54,10 +54,12 @@ optimizer:
   lambda_max: 20.0
   lambda_floor: 0.0
   gradient_clip: 0.0
+  critic_gradient_clip: 0.0
 training:
   stage1_epochs: 8
   stage2_epochs: 6
-  steps_per_epoch: 4
+  stage1_steps_per_epoch: 1
+  stage2_steps_per_epoch: 4
   task_batch_size: 64
   warmup_steps: 8
   critic_steps: 2
@@ -77,6 +79,12 @@ probe:
   folds: 4
   selection_bootstrap: 50
   audit_bootstrap: 100
+  l2_C: 1.0
+  max_iter: 200
+  prob_floor: 1.0e-6
+  feature_seed_base: 10000
+  max_candidate_multiplier: 5
+  max_invalid_draw_rate: 0.5
 smoke:
   subjects: [1, 2, 3, 4, 5, 6]
   target_subjects: [1]
@@ -84,5 +92,5 @@ smoke:
   source_train_subjects: [4, 5, 6]
   deletion_levels: [0, 1]
   deleted_cell_level1: {domain_subject: 4, class: feet}   # explicit, reproducible level-1 deletion
-k1: {statistic: smoke, grouped_permutation_scheme: smoke, decision_rule: smoke}
+k1: {statistic: smoke, grouped_permutation_scheme: smoke, n_permutations: 100, decision_rule: smoke}
 k2: {endpoints: [worst_domain_bacc], decision_rule: smoke}

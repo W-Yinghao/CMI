@@ -59,13 +59,15 @@ class OptimizerBlock:
     lambda_max: float | None = None
     lambda_floor: float | None = None
     gradient_clip: float | None = None
+    critic_gradient_clip: float | None = None
 
 
 @dataclass
 class TrainingBlock:
     stage1_epochs: int | None = None
     stage2_epochs: int | None = None
-    steps_per_epoch: int | None = None
+    stage1_steps_per_epoch: int | None = None
+    stage2_steps_per_epoch: int | None = None
     task_batch_size: int | None = None
     warmup_steps: int | None = None
     critic_steps: int | None = None
@@ -91,6 +93,12 @@ class ProbeBlock:
     folds: int | None = None
     selection_bootstrap: int | None = None
     audit_bootstrap: int | None = None
+    l2_C: float | None = None
+    max_iter: int | None = None
+    prob_floor: float | None = None
+    feature_seed_base: int | None = None
+    max_candidate_multiplier: int | None = None
+    max_invalid_draw_rate: float | None = None
 
 
 @dataclass
@@ -98,6 +106,36 @@ class MethodBlock:
     names: list | None = None
     global_lpc_laplace_smoothing: float | None = None
     critic_capacity: int | None = None
+
+
+@dataclass
+class RiskBlock:
+    metric: str | None = None
+    epsilon: float | None = None
+
+
+@dataclass
+class EvaluationBlock:
+    alpha: float | None = None
+    delta_bacc: float | None = None
+    ece_bins: int | None = None
+    paired_bootstrap: int | None = None
+    invalid_draw_threshold: float | None = None
+    min_clusters: int | None = None
+
+
+@dataclass
+class K1Block:
+    statistic: str | None = None
+    grouped_permutation_scheme: str | None = None
+    n_permutations: int | None = None
+    decision_rule: str | None = None
+
+
+@dataclass
+class K2Block:
+    endpoints: list | None = None
+    decision_rule: str | None = None
 
 
 @dataclass
@@ -154,10 +192,10 @@ class ProtocolManifestV2:
     methods: MethodBlock | None = None
     smoke: SmokeBlock | None = None
     datasets: dict | None = None          # name -> DatasetBlock
-    risk: dict | None = None
-    evaluation: dict | None = None
-    k1: dict | None = None
-    k2: dict | None = None
+    risk: RiskBlock | None = None
+    evaluation: EvaluationBlock | None = None
+    k1: K1Block | None = None
+    k2: K2Block | None = None
 
     def enabled_datasets(self) -> dict:
         return {k: v for k, v in (self.datasets or {}).items() if getattr(v, "enabled", False)}
@@ -175,7 +213,33 @@ class ProtocolManifestV2:
             miss = blk.missing()
             if miss:
                 raise ValueError(f"dataset block {name!r} incomplete: {miss}")
+        self.validate_ranges()
         return self
+
+    def validate_ranges(self) -> None:
+        def _chk(cond, msg):
+            if not cond:
+                raise ValueError(f"manifest value out of range: {msg}")
+        r, e, o, t, p, mb = self.risk, self.evaluation, self.optimizer, self.training, self.probe, self.methods
+        _chk(r.metric in ("ce", "balanced_ce"), f"risk.metric={r.metric!r}")
+        _chk(r.epsilon is not None and r.epsilon >= 0, "epsilon >= 0")
+        _chk(e.alpha is not None and 0 < e.alpha < 1, "0 < alpha < 1")
+        _chk(e.delta_bacc is not None and e.delta_bacc >= 0, "delta_bacc >= 0")
+        _chk(e.ece_bins is not None and e.ece_bins >= 2, "ece_bins >= 2")
+        _chk(e.paired_bootstrap is not None and e.paired_bootstrap >= 1, "paired_bootstrap >= 1")
+        _chk(p.folds is not None and p.folds >= 2, "folds >= 2")
+        caps = list(p.capacities or [])
+        _chk(len(caps) > 0 and len(set(caps)) == len(caps) and all(c >= 0 for c in caps),
+             "capacities non-empty/unique/>=0")
+        _chk(p.l2_C is not None and p.l2_C > 0, "l2_C > 0")
+        _chk(p.max_iter is not None and p.max_iter >= 1, "max_iter >= 1")
+        _chk(p.prob_floor is not None and 0 < p.prob_floor < 1, "0 < prob_floor < 1")
+        _chk(p.max_candidate_multiplier is not None and p.max_candidate_multiplier >= 1, "max_candidate_multiplier >= 1")
+        _chk(p.max_invalid_draw_rate is not None and 0 <= p.max_invalid_draw_rate < 1, "0 <= max_invalid_draw_rate < 1")
+        _chk(mb.global_lpc_laplace_smoothing is not None and mb.global_lpc_laplace_smoothing > 0,
+             "global_lpc_laplace_smoothing > 0")
+        _chk(o.lambda_floor == 0, "lambda_floor == 0 (main protocol)")
+        _chk(t.stage2_bn_mode == "frozen_erm_running_stats", "stage2_bn_mode == frozen_erm_running_stats")
 
     def assert_confirmatory(self) -> "ProtocolManifestV2":
         if self.status == "smoke":
@@ -203,8 +267,9 @@ class ProtocolManifestV2:
 
 _BLOCK_TYPES = {"seeds": SeedBlock, "backbone": BackboneBlock, "optimizer": OptimizerBlock,
                 "training": TrainingBlock, "sampler": SamplerBlock, "probe": ProbeBlock,
-                "methods": MethodBlock, "smoke": SmokeBlock}
-_PASSTHROUGH = {"protocol_id", "status", "risk", "evaluation", "k1", "k2"}
+                "methods": MethodBlock, "smoke": SmokeBlock, "risk": RiskBlock,
+                "evaluation": EvaluationBlock, "k1": K1Block, "k2": K2Block}
+_PASSTHROUGH = {"protocol_id", "status"}
 
 
 def load_v2(path: str) -> ProtocolManifestV2:

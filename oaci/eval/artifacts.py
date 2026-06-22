@@ -12,19 +12,31 @@ from dataclasses import dataclass
 import numpy as np
 
 
-def _hash(*arrays) -> str:
-    h = hashlib.sha256()
-    for a in arrays:
-        a = np.ascontiguousarray(np.asarray(a))
-        h.update(str(a.dtype).encode()); h.update(str(a.shape).encode()); h.update(a.tobytes())
-    return h.hexdigest()[:16]
+def _feed_strs(h, strs) -> None:
+    """Length-prefixed UTF-8 — never hash a NumPy object-array's pointer bytes."""
+    for s in strs:
+        b = str(s).encode("utf-8"); h.update(len(b).to_bytes(8, "little")); h.update(b)
+
+
+def _feed_arr(h, a) -> None:
+    a = np.ascontiguousarray(np.asarray(a))
+    h.update(str(a.dtype).encode()); h.update(str(a.shape).encode()); h.update(a.tobytes())
 
 
 def population_hash(sample_id, y, domain, group) -> str:
-    """Order-independent hash of the evaluation population (sorted by sample_id)."""
-    order = np.argsort(np.asarray(sample_id))
-    return _hash(np.asarray(sample_id)[order], np.asarray(y)[order],
-                 np.asarray(domain)[order], np.asarray(group)[order])
+    """Order-INDEPENDENT hash of the evaluation population (sorted by string sample_id); strings are
+    length-prefixed UTF-8, integer columns hashed as bytes."""
+    sid = [str(s) for s in np.asarray(sample_id).tolist()]
+    order = sorted(range(len(sid)), key=lambda i: sid[i])
+    y = np.asarray(y).astype(np.int64); d = np.asarray(domain).astype(np.int64)
+    g = np.asarray(group).astype(np.int64)
+    h = hashlib.sha256()
+    for i in order:
+        _feed_strs(h, [sid[i]])
+        h.update(int(y[i]).to_bytes(8, "little", signed=True))
+        h.update(int(d[i]).to_bytes(8, "little", signed=True))
+        h.update(int(g[i]).to_bytes(8, "little", signed=True))
+    return h.hexdigest()[:16]
 
 
 @dataclass
@@ -48,11 +60,40 @@ class PredictionBundle:
     preprocess_hash: str = ""
 
     def __post_init__(self):
-        self.sample_id = np.asarray(self.sample_id)
+        self.sample_id = np.asarray([str(s) for s in np.asarray(self.sample_id).tolist()])
         self.logits = np.asarray(self.logits, dtype=np.float64)
         self.y = np.asarray(self.y, dtype=int).ravel()
         self.domain = np.asarray(self.domain, dtype=int).ravel()
         self.group = np.asarray(self.group, dtype=int).ravel()
+        N = self.logits.shape[0]
+        if self.logits.ndim != 2:
+            raise ValueError("logits must be [N, C]")
+        C = self.logits.shape[1]
+        if not np.all(np.isfinite(self.logits)):
+            raise ValueError("logits must be finite")
+        if not (len(self.sample_id) == self.y.shape[0] == self.domain.shape[0]
+                == self.group.shape[0] == N):
+            raise ValueError("sample_id / y / domain / group length disagree with logits")
+        if len(set(self.sample_id.tolist())) != N or any(s == "" for s in self.sample_id.tolist()):
+            raise ValueError("sample_id must be unique and non-empty")
+        cn = list(self.class_names)
+        if len(cn) == 0 or len(set(cn)) != len(cn) or any((not isinstance(c, str)) or c == "" for c in cn):
+            raise ValueError("class_names must be non-empty, unique, non-empty strings")
+        if C != len(cn):
+            raise ValueError(f"logits second dim {C} != len(class_names) {len(cn)}")
+        if int(self.y.min()) < 0 or int(self.y.max()) >= C:
+            raise ValueError("y out of [0, C)")
+        g2d = {}
+        for g, dv in zip(self.group.tolist(), self.domain.tolist()):
+            if g in g2d and g2d[g] != dv:
+                raise ValueError(f"group {g} spans domains {g2d[g]} and {dv}")
+            g2d[g] = dv
+        if not str(self.method) or not str(self.split_id):
+            raise ValueError("method and split_id must be non-empty")
+        if self.split_role not in ("source_guard", "source_audit", "target_audit"):
+            raise ValueError(f"invalid split_role {self.split_role!r}")
+        if int(self.deletion_level) < 0:
+            raise ValueError("deletion_level must be >= 0")
 
     @property
     def n(self) -> int:
@@ -81,6 +122,20 @@ class PredictionBundle:
             audit_tensor_hash=self.audit_tensor_hash, split_manifest_hash=self.split_manifest_hash,
             preprocess_hash=self.preprocess_hash,
         )
+
+    def prediction_content_hash(self) -> str:
+        """Byte identity of the prediction: sorted IDs + logits + labels + domain/group + class map +
+        checkpoint hash + split metadata."""
+        sid = [str(s) for s in self.sample_id.tolist()]
+        order = sorted(range(len(sid)), key=lambda i: sid[i])
+        h = hashlib.sha256()
+        _feed_strs(h, [sid[i] for i in order])
+        for arr in (self.logits[order], self.y[order], self.domain[order], self.group[order]):
+            _feed_arr(h, arr)
+        _feed_strs(h, list(self.class_names))
+        _feed_strs(h, [self.method, self.split_id, self.split_role, str(int(self.deletion_level)),
+                       self.checkpoint_hash, self.risk_metric])
+        return h.hexdigest()[:16]
 
     def audit_signature(self) -> tuple:
         """Full byte-identity signature (population + actual tensor + split + preprocessing)."""

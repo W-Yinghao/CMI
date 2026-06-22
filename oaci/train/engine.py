@@ -54,32 +54,38 @@ class EngineConfig:
     base_seed: int = 0
 
 
-def engine_config_from_manifest(manifest, steps_per_epoch: int, base_seed: int = 0) -> "EngineConfig":
+def engine_config_from_manifest(manifest, base_seed: int = 0) -> "EngineConfig":
     """Fill EVERY EngineConfig field from the frozen manifest optimizer/training/risk blocks — no
-    reliance on EngineConfig's Python defaults. A missing consumed field is a hard error."""
-    o, t, r = manifest.optimizer, manifest.training, (manifest.risk or {})
+    reliance on EngineConfig's Python defaults and no externally-supplied step counts (the manifest
+    provides stage1/stage2 steps_per_epoch explicitly). gradient_clip and critic_gradient_clip map
+    separately. A missing consumed field is a hard error."""
+    o, t, r = manifest.optimizer, manifest.training, manifest.risk
     need = {"optimizer.name": o.name, "optimizer.lr_stage1": o.lr_stage1, "optimizer.lr_encoder": o.lr_encoder,
             "optimizer.lr_critic": o.lr_critic, "optimizer.weight_decay": o.weight_decay,
             "optimizer.dual_lr": o.dual_lr, "optimizer.lambda_init": o.lambda_init,
             "optimizer.lambda_max": o.lambda_max, "optimizer.lambda_floor": o.lambda_floor,
-            "optimizer.gradient_clip": o.gradient_clip, "training.stage1_epochs": t.stage1_epochs,
-            "training.stage2_epochs": t.stage2_epochs, "training.warmup_steps": t.warmup_steps,
-            "training.critic_steps": t.critic_steps, "training.checkpoint_every": t.checkpoint_every,
-            "training.numerical_tol": t.numerical_tol, "training.stage2_bn_mode": t.stage2_bn_mode,
+            "optimizer.gradient_clip": o.gradient_clip, "optimizer.critic_gradient_clip": o.critic_gradient_clip,
+            "training.stage1_epochs": t.stage1_epochs, "training.stage2_epochs": t.stage2_epochs,
+            "training.stage1_steps_per_epoch": t.stage1_steps_per_epoch,
+            "training.stage2_steps_per_epoch": t.stage2_steps_per_epoch,
+            "training.warmup_steps": t.warmup_steps, "training.critic_steps": t.critic_steps,
+            "training.checkpoint_every": t.checkpoint_every, "training.numerical_tol": t.numerical_tol,
+            "training.stage2_bn_mode": t.stage2_bn_mode,
             "training.deterministic_algorithms": t.deterministic_algorithms,
-            "risk.metric": r.get("metric"), "risk.epsilon": r.get("epsilon")}
+            "risk.metric": r.metric, "risk.epsilon": r.epsilon}
     missing = [k for k, v in need.items() if v is None]
     if missing:
         raise ValueError(f"manifest cannot fill the engine config; missing: {missing}")
     return EngineConfig(
-        metric=r["metric"], epsilon=float(r["epsilon"]), numerical_tol=float(t.numerical_tol),
-        stage1_epochs=int(t.stage1_epochs), stage1_steps_per_epoch=1, stage2_epochs=int(t.stage2_epochs),
-        steps_per_epoch=int(steps_per_epoch), warmup_steps=int(t.warmup_steps), critic_steps=int(t.critic_steps),
+        metric=r.metric, epsilon=float(r.epsilon), numerical_tol=float(t.numerical_tol),
+        stage1_epochs=int(t.stage1_epochs), stage1_steps_per_epoch=int(t.stage1_steps_per_epoch),
+        stage2_epochs=int(t.stage2_epochs), steps_per_epoch=int(t.stage2_steps_per_epoch),
+        warmup_steps=int(t.warmup_steps), critic_steps=int(t.critic_steps),
         checkpoint_every=int(t.checkpoint_every), guard_chunk_size=t.guard_chunk_size,
         optimizer_name=o.name, weight_decay=float(o.weight_decay), lr_stage1=float(o.lr_stage1),
         lr_encoder=float(o.lr_encoder), lr_critic=float(o.lr_critic), dual_lr=float(o.dual_lr),
         lambda_init=float(o.lambda_init), lambda_max=float(o.lambda_max), lambda_floor=float(o.lambda_floor),
-        gradient_clip=float(o.gradient_clip), critic_gradient_clip=float(o.gradient_clip),
+        gradient_clip=float(o.gradient_clip), critic_gradient_clip=float(o.critic_gradient_clip),
         deterministic_algorithms=bool(t.deterministic_algorithms), stage2_bn_mode=t.stage2_bn_mode,
         base_seed=int(base_seed))
 
@@ -97,7 +103,7 @@ def make_optimizer(params, lr, cfg: "EngineConfig"):
 
 def _apply_determinism(cfg: "EngineConfig") -> None:
     if cfg.deterministic_algorithms:
-        torch.use_deterministic_algorithms(True, warn_only=True)
+        torch.use_deterministic_algorithms(True, warn_only=False)   # FAIL on a nondeterministic op
     if cfg.stage2_bn_mode != "frozen_erm_running_stats":
         raise ValueError(f"unsupported stage2_bn_mode {cfg.stage2_bn_mode!r}; "
                          "only 'frozen_erm_running_stats' is implemented")

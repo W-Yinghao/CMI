@@ -35,6 +35,7 @@ numpy-only, no EEG required. Run ``python -m oaci.support_graph`` for a worked e
 """
 from __future__ import annotations
 
+import hashlib
 from dataclasses import dataclass
 
 import numpy as np
@@ -124,6 +125,21 @@ class SupportGraph:
     @property
     def n_classes(self) -> int:
         return self.counts.shape[1]
+
+    def support_hash(self) -> str:
+        """Stable identity of the support structure: eligibility counts, cell mass, m,
+        reference prior, domain/class names (length-prefixed UTF-8) and the eligible mask / S_y."""
+        h = hashlib.sha256()
+        for arr in (np.ascontiguousarray(self.counts), np.ascontiguousarray(self.cell_mass),
+                    np.ascontiguousarray(self.reference_prior), np.ascontiguousarray(self.eligible).astype(np.int8)):
+            h.update(str(arr.dtype).encode()); h.update(str(arr.shape).encode()); h.update(arr.tobytes())
+        h.update(str(int(self.m)).encode())
+        for names in (self.domain_names, self.class_names):
+            for s in names:
+                b = str(s).encode(); h.update(len(b).to_bytes(8, "little")); h.update(b)
+        for y in sorted(self.support_of_class):
+            h.update(f"{int(y)}:{sorted(int(d) for d in self.support_of_class[y])}".encode())
+        return h.hexdigest()
 
     # ---- cell / class queries ----
     def is_present(self, d: int, y: int) -> bool:

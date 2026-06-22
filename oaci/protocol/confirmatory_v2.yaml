@@ -79,10 +79,12 @@ optimizer:
   lambda_max: 20.0
   lambda_floor: 0.0
   gradient_clip: 0.0
+  critic_gradient_clip: 0.0
 training:
   stage1_epochs: 200
   stage2_epochs: 200
-  steps_per_epoch: 20
+  stage1_steps_per_epoch: 1
+  stage2_steps_per_epoch: 20
   task_batch_size: 256
   warmup_steps: 60
   critic_steps: 5
@@ -93,7 +95,7 @@ training:
   selection_score_tolerance: 1.0e-8
   deterministic_algorithms: true
 sampler: {min_per_eligible_cell: 8, adv_microbatch_size: 256, adv_accumulation_steps: 4, replacement_mode: auto}
-probe: {capacities: [0, 64], folds: 5, selection_bootstrap: 200, audit_bootstrap: 2000}
+probe: {capacities: [0, 64], folds: 5, selection_bootstrap: 200, audit_bootstrap: 2000, l2_C: 1.0, max_iter: 500, prob_floor: 1.0e-6, feature_seed_base: 10000, max_candidate_multiplier: 8, max_invalid_draw_rate: 0.5}
 methods:
   names: [ERM, OACI, global_lpc, uniform]
   global_lpc_laplace_smoothing: 1.0
@@ -102,9 +104,13 @@ evaluation:
   alpha: 0.05
   delta_bacc: 0.02
   ece_bins: 15
+  paired_bootstrap: 2000
+  invalid_draw_threshold: 0.5
+  min_clusters: 2
 k1:
   statistic: grouped_max_probe_extractable_LQ_ov_OACI_minus_ERM
   grouped_permutation_scheme: within_(Y,recording_group)
+  n_permutations: 2000
   decision_rule: "within permutation null band -> stop (no extractable grouped domain info)"
 k2:
   endpoints: [worst_domain_bacc, worst_domain_nll]

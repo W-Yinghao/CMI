@@ -361,14 +361,17 @@ def test_manifest_values_map_exactly_to_engine_config():
     from oaci.protocol.freeze import default_confirmatory_path
     from oaci.protocol.manifest_v2 import load_v2
     m = load_v2(os.path.join(os.path.dirname(default_confirmatory_path()), "smoke_v1.yaml"))
-    ec = engine_config_from_manifest(m, steps_per_epoch=2, base_seed=7)
+    ec = engine_config_from_manifest(m, base_seed=7)
     assert ec.lr_encoder == m.optimizer.lr_encoder and ec.lr_critic == m.optimizer.lr_critic
     assert ec.weight_decay == m.optimizer.weight_decay and ec.lambda_floor == m.optimizer.lambda_floor
+    assert ec.critic_gradient_clip == m.optimizer.critic_gradient_clip      # separate from gradient_clip
     assert ec.stage2_epochs == m.training.stage2_epochs and ec.warmup_steps == m.training.warmup_steps
+    assert ec.stage1_steps_per_epoch == m.training.stage1_steps_per_epoch    # from the manifest, not external
+    assert ec.steps_per_epoch == m.training.stage2_steps_per_epoch
     assert ec.stage2_bn_mode == "frozen_erm_running_stats"
     assert ec.deterministic_algorithms == m.training.deterministic_algorithms
-    assert ec.metric == m.risk["metric"] and ec.epsilon == m.risk["epsilon"]
-    assert ec.steps_per_epoch == 2 and ec.base_seed == 7
+    assert ec.metric == m.risk.metric and ec.epsilon == m.risk.epsilon       # RiskBlock attributes
+    assert ec.base_seed == 7
 
 
 def test_plan_cardinality_mismatch_fails_before_training():
@@ -402,6 +405,45 @@ def test_encoder_step_freezes_critic_parameters_and_state():
         assert all(not p.requires_grad for p in critic.parameters())
         assert all(p.grad is None for p in critic.parameters())
     assert all(p.requires_grad for p in critic.parameters()) and critic.training == mode   # restored
+
+
+def _smoke_manifest():
+    import os
+    from oaci.protocol.freeze import default_confirmatory_path
+    from oaci.protocol.manifest_v2 import load_v2
+    return load_v2(os.path.join(os.path.dirname(default_confirmatory_path()), "smoke_v1.yaml"))
+
+
+def test_engine_config_has_no_external_steps_per_epoch():
+    import inspect
+    assert "steps_per_epoch" not in inspect.signature(engine_config_from_manifest).parameters
+
+
+def test_stage1_and_stage2_step_counts_come_from_manifest():
+    m = _smoke_manifest()
+    ec = engine_config_from_manifest(m)
+    assert ec.stage1_steps_per_epoch == m.training.stage1_steps_per_epoch
+    assert ec.steps_per_epoch == m.training.stage2_steps_per_epoch
+    assert ec.stage1_steps_per_epoch != ec.steps_per_epoch              # they are independent in smoke
+
+
+def test_critic_gradient_clip_is_independently_frozen():
+    m = _smoke_manifest()
+    m.optimizer.gradient_clip = 0.7
+    m.optimizer.critic_gradient_clip = 0.3
+    ec = engine_config_from_manifest(m)
+    assert ec.gradient_clip == 0.7 and ec.critic_gradient_clip == 0.3   # mapped from separate fields
+
+
+def test_deterministic_algorithms_fail_instead_of_warn():
+    from oaci.train.engine import _apply_determinism
+    try:
+        _apply_determinism(_cfg(deterministic_algorithms=True))
+        assert torch.are_deterministic_algorithms_enabled()
+        if hasattr(torch, "is_deterministic_algorithms_warn_only_enabled"):
+            assert not torch.is_deterministic_algorithms_warn_only_enabled()
+    finally:
+        torch.use_deterministic_algorithms(False)                       # reset for other tests
 
 
 # ---------------- helpers used above ----------------

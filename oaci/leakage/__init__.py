@@ -11,9 +11,13 @@ Pipeline:
 """
 from __future__ import annotations
 
+from .cache import LeakageScoreCache, LeakageScoreKey, critic_config_hash, frozen_feature_hash
 from .critic import CriticConfig, DomainProbe
-from .crossfit import FoldPlan, FrozenFeatures, make_fold_plan, oof_nll_by_class
+from .crossfit import (FoldPlan, FrozenFeatures, feature_population_hash, make_fold_plan,
+                       oof_nll_by_class)
+from .design import LeakageDesign, make_leakage_design, population_hash
 from .estimate import estimate_extractable_leakage, reference_conditional_entropy
+from .plan import BootstrapDraw, LeakageBootstrapPlan, make_leakage_bootstrap_plan
 from .ucb import bootstrap_ucb, within_domain_group_bootstrap
 
 __all__ = [
@@ -21,10 +25,21 @@ __all__ = [
     "DomainProbe",
     "FrozenFeatures",
     "FoldPlan",
+    "feature_population_hash",
     "make_fold_plan",
     "oof_nll_by_class",
     "estimate_extractable_leakage",
     "reference_conditional_entropy",
     "bootstrap_ucb",
     "within_domain_group_bootstrap",
+    "LeakageDesign",
+    "make_leakage_design",
+    "population_hash",
+    "BootstrapDraw",
+    "LeakageBootstrapPlan",
+    "make_leakage_bootstrap_plan",
+    "LeakageScoreCache",
+    "LeakageScoreKey",
+    "frozen_feature_hash",
+    "critic_config_hash",
 ]
