@@ -81,6 +81,20 @@ def test_build_window_order_fallback_and_dup_index():
     print("  [ok] build: window-ordered, fallback retained, duplicate window-index rejected (no chunk-boundary escape)")
 
 
+def test_structured_identity_and_build_locks():
+    rows = [("s1", "r1", w, np.zeros(4)) for w in range(10)]
+    _expect(TypeError, lambda: build_deployment_batches("ds", "PD", rows, HEX, batch_size=4))   # batching is frozen B
+    _expect(ValueError, lambda: build_deployment_batches("ds", "PD", [(1, "r", 0, np.zeros(4))], HEX))   # int id, no coercion
+    _expect(ValueError, lambda: build_deployment_batches("ds", "PD", [("s", "r", True, np.zeros(4))], HEX))  # bool index
+    _expect(ValueError, lambda: build_deployment_batches("ds", "PD",
+            [("s", "r", 0, np.zeros(4)), ("s", "r", 1, np.zeros(5))], HEX))                     # mixed embedding dim
+    _expect(ValueError, lambda: build_deployment_batches("ds", "PD", [], HEX))                  # empty
+    # plain tuples rejected as keys
+    _expect(TypeError, lambda: DeploymentBatch("PD", ("ds", "s"), RecordingKey("ds", "s", "r"),
+            tuple(WindowKey("ds", "s", "r", i) for i in range(MIN_BATCH)), np.zeros((MIN_BATCH, 4)), False, HEX))
+    print("  [ok] frozen-B batching (no batch_size); no id coercion; consistent dim; plain-tuple keys rejected")
+
+
 def test_digest_order_insensitive_value_sensitive():
     r1 = [("s", "r", w, np.full(4, float(w))) for w in range(10)]
     d1 = deployment_batch_digest(build_deployment_batches("ds", "PD", r1, HEX)[0])
@@ -97,7 +111,7 @@ def main():
     print("ACAR v3 data-layer guards:")
     for t in (test_subjectkey_disambiguation, test_no_label_field_and_immutable, test_batching_protocol_validation,
               test_labeled_risk_record, test_build_window_order_fallback_and_dup_index,
-              test_digest_order_insensitive_value_sensitive):
+              test_structured_identity_and_build_locks, test_digest_order_insensitive_value_sensitive):
         t()
     print("ALL V3 DATA-LAYER GUARDS PASS")
 

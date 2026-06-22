@@ -16,14 +16,15 @@ import math
 import numpy as np
 import torch
 
-from .set_features import WindowActionSet, NON_IDENTITY
+from .set_features import WindowActionSet, WindowKey, NON_IDENTITY
 from .normalizers import InputNormalizer, TargetNormalizer
 from .predictors import DeepSetsNet, make_artifact, HP, env_versions, CANDIDATES
-from .data import SubjectKey
+from .data import SubjectKey, subject_of, _is_hex64
 
 
 @dataclass(frozen=True, slots=True)
 class TrainExample:
+    disease: str
     subject_key: SubjectKey
     deployment_batch_digest: str
     action: str
@@ -31,14 +32,19 @@ class TrainExample:
     delta_r: float
 
     def __post_init__(self):
+        if self.disease not in ("PD", "SCZ"):
+            raise ValueError("disease must be PD or SCZ")
         if not isinstance(self.subject_key, SubjectKey):
             raise TypeError("subject_key must be a SubjectKey")
         if self.action not in NON_IDENTITY:
             raise ValueError("action must be non-identity")
         if self.window_action_set.action_name != self.action:
             raise ValueError("window_action_set.action_name != action")
-        if len(self.deployment_batch_digest) != 64:
-            raise ValueError("deployment_batch_digest must be a full SHA-256")
+        for wk in self.window_action_set.window_keys:        # structured identity consistency
+            if not isinstance(wk, WindowKey) or subject_of(wk) != self.subject_key:
+                raise ValueError("every window key must be a WindowKey under this example's SubjectKey")
+        if not _is_hex64(self.deployment_batch_digest):
+            raise ValueError("deployment_batch_digest must be a full hex SHA-256")
         if not math.isfinite(float(self.delta_r)):
             raise ValueError("delta_r must be finite")
 
@@ -75,6 +81,8 @@ def _validate(examples, disease):
     for e in examples:
         if not isinstance(e, TrainExample):
             raise TypeError("examples must be TrainExample")
+        if e.disease != disease:
+            raise ValueError(f"example disease {e.disease!r} != requested {disease!r}")
         key = (e.deployment_batch_digest, e.action)
         if key in dup:
             raise ValueError(f"duplicate (batch_digest, action): {key}")
@@ -185,7 +193,8 @@ def fit_candidate_earlystop(candidate, disease, train_examples, val_examples, se
         net.load_state_dict(best_state); net.eval()
         fit_all = _prep({**tr_by, **va_by}, inorm, tnorm)     # full fold FIT = TRAIN∪VAL
         sm = _sigma_min(net, fit_all, tnorm) if candidate == "C2" else {}
-        return make_artifact(candidate, disease, net, inorm, tnorm, sm, best_epoch, env_versions())
+        art = make_artifact(candidate, disease, net, inorm, tnorm, sm, best_epoch + 1, env_versions())
+        return art, best_epoch                                 # n_epochs_trained = best_epoch+1; best_epoch (0-based) for fold diagnostics
     finally:
         torch.use_deterministic_algorithms(pdet); torch.set_num_threads(pth)
 
@@ -216,7 +225,7 @@ def refit_candidate_fixed_epochs(candidate, disease, all_dev_examples, n_epochs,
                 raise ValueError("refit requires a complete, positive OOF sigma_min")
         else:
             sm = {}
-        return make_artifact(candidate, disease, net, inorm, tnorm, sm, n_epochs - 1, env_versions())
+        return make_artifact(candidate, disease, net, inorm, tnorm, sm, n_epochs, env_versions())
     finally:
         torch.use_deterministic_algorithms(pdet); torch.set_num_threads(pth)
 

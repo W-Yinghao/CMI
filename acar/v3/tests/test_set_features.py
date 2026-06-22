@@ -241,22 +241,29 @@ def test_contract_validation_and_immutability():
         was.values[0, 0] = 1.0; raise AssertionError("values writable after freeze")
     except ValueError:
         pass
-    # illegal constructions
-    F = len(PER_WINDOW_FEATURES)
-    good = (np.zeros((4, F)), np.ones((4, F), np.uint8), np.zeros(len(CONTEXT_FEATURES)),
-            np.ones(len(CONTEXT_FEATURES), np.uint8), "matched_coral", 1, ("a", "b", "c", "d"))
+    # illegal constructions (n=MIN_BATCH rows; WAS requires n in [MIN_BATCH,B])
+    F = len(PER_WINDOW_FEATURES); n = MIN_BATCH; K = tuple(f"k{i}" for i in range(n))
+    good = (np.zeros((n, F)), np.ones((n, F), np.uint8), np.zeros(len(CONTEXT_FEATURES)),
+            np.ones(len(CONTEXT_FEATURES), np.uint8), "matched_coral", 1, K)
     WindowActionSet(*good)                                                            # valid
-    _expect(ValueError, lambda: WindowActionSet(np.zeros((4, F + 1)), np.ones((4, F + 1), np.uint8), *good[2:]), needle="features")
-    _expect(ValueError, lambda: WindowActionSet(np.zeros((4, F)), np.ones((3, F), np.uint8), *good[2:]), needle="same shape")
-    badmask = np.full((4, F), 2, np.uint8)
+    _expect(ValueError, lambda: WindowActionSet(np.zeros((n, F + 1)), np.ones((n, F + 1), np.uint8), *good[2:]), needle="features")
+    _expect(ValueError, lambda: WindowActionSet(np.zeros((n, F)), np.ones((n - 1, F), np.uint8), *good[2:]), needle="same shape")
+    _expect(ValueError, lambda: WindowActionSet(np.zeros((MIN_BATCH - 1, F)), np.ones((MIN_BATCH - 1, F), np.uint8),
+                                                *good[2:5], 1, tuple(f"k{i}" for i in range(MIN_BATCH - 1))), needle="n_windows")
+    badmask = np.full((n, F), 2, np.uint8)
     _expect(ValueError, lambda: WindowActionSet(good[0], badmask, *good[2:]), needle="binary")
-    nz = np.zeros((4, F)); nz[0, 0] = 1.0; mm = np.ones((4, F), np.uint8); mm[0, 0] = 0
+    nz = np.zeros((n, F)); nz[0, 0] = 1.0; mm = np.ones((n, F), np.uint8); mm[0, 0] = 0
     _expect(ValueError, lambda: WindowActionSet(nz, mm, *good[2:]), needle="exactly 0")
     _expect(ValueError, lambda: WindowActionSet(*good[:5], 2, good[6]), needle="inconsistent")
-    _expect(ValueError, lambda: WindowActionSet(*good[:6], ("a", "a", "c", "d")), needle="duplicate")
-    nf = np.zeros((4, F)); nf[0, 0] = np.inf
+    _expect(ValueError, lambda: WindowActionSet(*good[:6], ("a",) * n), needle="duplicate")
+    nf = np.zeros((n, F)); nf[0, 0] = np.inf
     _expect(ValueError, lambda: WindowActionSet(nf, *good[1:]), needle="non-finite")
-    print("  [ok] WindowActionSet validates shape/mask/masked-zero/action/keys/finite; arrays immutable")
+    # WindowKey + FallbackBatchRecord validation
+    _expect(ValueError, lambda: WindowKey("ds", "", "r", 0))                          # empty id
+    _expect(ValueError, lambda: WindowKey("ds", "s", "r", -1))                        # negative index
+    _expect(ValueError, lambda: FallbackBatchRecord(False, "x", (), "a" * 64, 0))     # forced_identity must be True
+    _expect(ValueError, lambda: FallbackBatchRecord(True, "x", ("k",), "zz", 1))      # bad digest
+    print("  [ok] WindowActionSet validates shape/mask/zero/action/keys/finite + n∈[MIN_BATCH,B]; WindowKey + Fallback validated; immutable")
 
 
 def test_structured_window_key():

@@ -34,7 +34,7 @@ HP = dict(
     pooling=("mean", "std"), dropout=0.0,
     optimizer="adam", lr=1e-3, weight_decay=1e-4, grad_clip=1.0,
     max_epochs=200, patience=20, min_delta=1e-4, batch_subjects=32,
-    target_sd_floor=1e-6, huber_delta=1.0, beta_nll=0.5, eps=EPS,
+    target_sd_floor=1e-3, input_sd_floor=1e-6, huber_delta=1.0, beta_nll=0.5, eps=EPS,
     sigma_min_quantile=0.05, seed_outer=0, seed_fitcal=1, seed_es=2,
     k_folds=5, fit_frac=0.70, train_frac=0.80,
 )
@@ -117,6 +117,8 @@ class CandidatePrediction:
                     raise ValueError(f"C2 {nm} must be finite")
             if not (self.scale_raw > 0 and self.scale_used > 0):
                 raise ValueError("C2 scale_raw/scale_used must be > 0")
+            if self.scale_floor < 0:
+                raise ValueError("C2 scale_floor must be >= 0")
             if abs(self.scale_used - max(self.scale_raw, self.scale_floor)) > 1e-12:
                 raise ValueError("C2 scale_used must equal max(scale_raw, scale_floor)")
 
@@ -140,22 +142,41 @@ def upper_bound(pred: CandidatePrediction, q: float) -> float:
 
 
 def state_items(net) -> tuple:
-    """Canonical, immutable snapshot of a net's parameters: sorted (name, dtype, shape, float64-LE bytes)."""
+    """Canonical, immutable snapshot: sorted-by-name (name, canonical little-endian dtype, shape, raw LE bytes).
+    Preserves native precision but normalizes byte order so the hash is platform-canonical."""
     sd = net.state_dict()
-    return tuple((name, str(sd[name].detach().cpu().numpy().dtype), tuple(sd[name].shape),
-                  np.ascontiguousarray(sd[name].detach().cpu().numpy()).tobytes())
-                 for name in sorted(sd))
+    items = []
+    for name in sorted(sd):
+        a = sd[name].detach().cpu().numpy()
+        le = np.ascontiguousarray(a.astype(a.dtype.newbyteorder("<")))   # explicit little-endian, same precision
+        items.append((name, le.dtype.str, tuple(int(s) for s in le.shape), le.tobytes()))
+    return tuple(items)
+
+
+def _validate_items(items):
+    names = [n for n, _, _, _ in items]
+    if len(set(names)) != len(names) or names != sorted(names):
+        raise ValueError("state_items must have unique, sorted names")
+    for name, dt, shape, buf in items:
+        if not (isinstance(dt, str) and dt.startswith("<")):
+            raise ValueError("state_items dtype must be explicit little-endian")
+        n = int(np.prod(shape)) if shape else 1
+        if len(buf) != n * np.dtype(dt).itemsize:
+            raise ValueError(f"state_items byte length mismatch for {name}")
+        if not np.all(np.isfinite(np.frombuffer(buf, dtype=np.dtype(dt)))):
+            raise ValueError(f"non-finite parameter bytes in {name}")
 
 
 def build_net(candidate, items, seed=0):
     """Rebuild a deterministic net from canonical state bytes. Raises on architecture/candidate mismatch."""
+    _validate_items(items)
     net = DeepSetsNet(candidate, seed)
     sd = net.state_dict()
     if {n for n, _, _, _ in items} != set(sd):
         raise ValueError("state_items keys do not match the candidate architecture")
     new = {}
     for name, dt, shape, buf in items:
-        arr = np.frombuffer(buf, dtype=np.dtype(dt)).reshape(shape).copy()
+        arr = np.frombuffer(buf, dtype=np.dtype(dt)).reshape(shape).astype(np.float32).copy()
         new[name] = torch.tensor(arr)
     try:
         net.load_state_dict(new)
@@ -165,9 +186,6 @@ def build_net(candidate, items, seed=0):
     for p in net.parameters():
         p.requires_grad_(False)
     return net
-
-
-_NET_CACHE = {}
 
 
 @dataclass(frozen=True, slots=True)
@@ -180,7 +198,7 @@ class FittedCandidateArtifact:
     input_norm: InputNormalizer
     target_norm: TargetNormalizer
     sigma_min: tuple        # (action, floor) raw units; C2 must cover all NON_IDENTITY with finite floors > 0
-    training_epochs: int
+    n_epochs_trained: int    # epochs actually trained (= best_epoch_zero_based + 1 for earlystop; = n_epochs for refit)
     env: tuple
     arch_schema: str = SCHEMA_VERSION
     artifact_sha256: str = ""
@@ -188,6 +206,9 @@ class FittedCandidateArtifact:
     def __post_init__(self):
         if self.candidate not in CANDIDATES or self.disease not in ("PD", "SCZ"):
             raise ValueError("bad candidate/disease")
+        if not (isinstance(self.n_epochs_trained, int) and not isinstance(self.n_epochs_trained, bool)
+                and self.n_epochs_trained >= 1):
+            raise ValueError("n_epochs_trained must be a positive int")
         sm = dict(self.sigma_min)
         if self.candidate == "C2":
             if set(sm) != set(NON_IDENTITY):
@@ -198,10 +219,9 @@ class FittedCandidateArtifact:
         elif sm:
             raise ValueError(f"{self.candidate} must have empty sigma_min")
         object.__setattr__(self, "artifact_sha256", self._hash())
-        net = build_net(self.candidate, self.state_items)     # architecture / candidate cross-check
+        net = build_net(self.candidate, self.state_items)     # architecture / candidate cross-check (discarded)
         if net.candidate != self.candidate or set(net.heads.keys()) != set(NON_IDENTITY):
             raise ValueError("net candidate/heads inconsistent with artifact")
-        _NET_CACHE[self.artifact_sha256] = net
 
     def _hash(self):
         h = hashlib.sha256()
@@ -209,7 +229,7 @@ class FittedCandidateArtifact:
                            "action_vocab": list(ACTION_VOCAB),
                            "feature_schema": {"per_window": list(PER_WINDOW_FEATURES), "context": list(CONTEXT_FEATURES)},
                            "hp": {k: HP[k] for k in sorted(HP)}, "env": dict(self.env),
-                           "training_epochs": int(self.training_epochs)}, sort_keys=True).encode()
+                           "n_epochs_trained": int(self.n_epochs_trained)}, sort_keys=True).encode()
         h.update(b"META\x00"); h.update(meta)
         self.input_norm.digest_update(h); self.target_norm.digest_update(h)
         for a, v in sorted(dict(self.sigma_min).items()):     # raw float64 bytes — NO rounding
@@ -219,11 +239,11 @@ class FittedCandidateArtifact:
         return h.hexdigest()
 
     def verify_integrity(self):
+        """Recompute the hash from the IMMUTABLE bytes and rebuild a FRESH net (no shared mutable cache, so a
+        mutated live module cannot bypass the check). Returns the freshly-built net."""
         if self._hash() != self.artifact_sha256:
             raise ValueError("artifact integrity failure: recomputed hash != stored artifact_sha256")
-        net = _NET_CACHE.get(self.artifact_sha256)
-        if net is None:
-            net = build_net(self.candidate, self.state_items); _NET_CACHE[self.artifact_sha256] = net
+        net = build_net(self.candidate, self.state_items)
         if net.candidate != self.candidate or set(net.heads.keys()) != set(NON_IDENTITY):
             raise ValueError("artifact integrity failure: net architecture mismatch")
         return net
@@ -252,6 +272,6 @@ class FittedCandidateArtifact:
         return CandidatePrediction("C3", self.disease, was.action_name, q50, q90)
 
 
-def make_artifact(candidate, disease, net, input_norm, target_norm, sigma_min, training_epochs, env) -> FittedCandidateArtifact:
+def make_artifact(candidate, disease, net, input_norm, target_norm, sigma_min, n_epochs_trained, env) -> FittedCandidateArtifact:
     return FittedCandidateArtifact(candidate, disease, state_items(net), input_norm, target_norm,
-                                   tuple(sorted(dict(sigma_min).items())), int(training_epochs), tuple(sorted(dict(env).items())))
+                                   tuple(sorted(dict(sigma_min).items())), int(n_epochs_trained), tuple(sorted(dict(env).items())))

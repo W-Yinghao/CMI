@@ -11,7 +11,7 @@ Type-level label firewall + batching-protocol validation:
 """
 from __future__ import annotations
 from dataclasses import dataclass
-from collections import namedtuple, defaultdict
+from collections import defaultdict
 import hashlib
 import json
 import string
@@ -21,8 +21,27 @@ from acar.config import MIN_BATCH, B
 from .set_features import WindowKey, NON_IDENTITY
 
 DATA_SCHEMA = "acar-v3-data/1"
-SubjectKey = namedtuple("SubjectKey", "dataset_id subject_id")
-RecordingKey = namedtuple("RecordingKey", "dataset_id subject_id recording_id")
+
+
+@dataclass(frozen=True, slots=True)
+class SubjectKey:
+    dataset_id: str
+    subject_id: str
+
+    def __post_init__(self):
+        if not all(isinstance(x, str) and x for x in (self.dataset_id, self.subject_id)):
+            raise ValueError("SubjectKey ids must be non-empty str (no coercion)")
+
+
+@dataclass(frozen=True, slots=True)
+class RecordingKey:
+    dataset_id: str
+    subject_id: str
+    recording_id: str
+
+    def __post_init__(self):
+        if not all(isinstance(x, str) and x for x in (self.dataset_id, self.subject_id, self.recording_id)):
+            raise ValueError("RecordingKey ids must be non-empty str (no coercion)")
 
 
 def _is_hex64(s):
@@ -64,6 +83,8 @@ class DeploymentBatch:
     def __post_init__(self):
         if self.disease not in ("PD", "SCZ"):
             raise ValueError("disease must be PD or SCZ")
+        if not isinstance(self.subject, SubjectKey) or not isinstance(self.recording, RecordingKey):
+            raise TypeError("subject/recording must be SubjectKey/RecordingKey (no plain tuples)")
         z = np.ascontiguousarray(np.asarray(self.z, float))
         n = len(self.window_keys)
         if z.ndim != 2 or z.shape[0] != n:
@@ -120,23 +141,38 @@ def deployment_batch_digest(b: DeploymentBatch) -> str:
     return h.hexdigest()
 
 
-def build_deployment_batches(dataset_id, disease, rows, source_state_ref, batch_size=B):
-    """rows: (subject_id, recording_id, window_index, z_row). Window-ordered, recording-grouped, chunked. Window
-    indices MUST be unique within a recording (checked before chunking, so a duplicate cannot hide across a chunk
-    boundary). fallback derived from chunk size. Keys canonical WindowKey; grouping by SubjectKey/RecordingKey."""
-    by_rec = defaultdict(list)
+def build_deployment_batches(dataset_id, disease, rows, source_state_ref):
+    """rows: (subject_id:str, recording_id:str, window_index:int, z_row). Window-ordered, recording-grouped, chunked
+    at the FROZEN B=32 (no alternative batching). NO str/int coercion (so 1 and "1" never merge). Window indices
+    MUST be unique within a recording (checked before chunking). All z rows must share one embedding dimension."""
+    if not isinstance(dataset_id, str) or not dataset_id:
+        raise ValueError("dataset_id must be a non-empty str")
+    rows = list(rows)
+    if not rows:
+        raise ValueError("empty rows")
+    by_rec = defaultdict(list); dims = set()
     for subj, rec, win, zr in rows:
-        by_rec[(str(subj), str(rec))].append((int(win), np.asarray(zr, float)))
+        if not (isinstance(subj, str) and subj and isinstance(rec, str) and rec):
+            raise ValueError("subject_id/recording_id must be non-empty str (no coercion)")
+        if isinstance(win, bool) or not isinstance(win, int) or win < 0:
+            raise ValueError("window_index must be a non-negative int (no bool/coercion)")
+        z = np.asarray(zr, float)
+        if z.ndim != 1:
+            raise ValueError("z_row must be 1-D")
+        dims.add(int(z.shape[0]))
+        by_rec[(subj, rec)].append((win, z))
+    if len(dims) != 1:
+        raise ValueError(f"inconsistent embedding dimension across rows: {sorted(dims)}")
     out = []
     for (subj, rec) in sorted(by_rec):
         items = sorted(by_rec[(subj, rec)], key=lambda t: t[0])
         idx = [w for w, _ in items]
         if len(set(idx)) != len(idx):
             raise ValueError(f"duplicate window_index within recording {(dataset_id, subj, rec)}")
-        sk = SubjectKey(str(dataset_id), subj); rk = RecordingKey(str(dataset_id), subj, rec)
-        for s in range(0, len(items), batch_size):
-            chunk = items[s:s + batch_size]
-            wks = tuple(WindowKey(str(dataset_id), subj, rec, w) for w, _ in chunk)
+        sk = SubjectKey(dataset_id, subj); rk = RecordingKey(dataset_id, subj, rec)
+        for s in range(0, len(items), B):                    # FROZEN B
+            chunk = items[s:s + B]
+            wks = tuple(WindowKey(dataset_id, subj, rec, w) for w, _ in chunk)
             z = np.stack([zr for _, zr in chunk], 0)
             out.append(DeploymentBatch(disease, sk, rk, wks, z, len(chunk) < MIN_BATCH, source_state_ref))
     return out

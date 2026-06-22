@@ -29,14 +29,14 @@ def _ex(state, ds, subjects, nwin=12, d=8, seed=1):
         sets = build_action_sets(state, z, [WindowKey(ds, s, "r", w) for w in range(nwin)])
         dg = hashlib.sha256(f"{ds}{s}".encode()).hexdigest(); sk = SubjectKey(ds, s)
         for a in NON_IDENTITY:
-            ex.append(TrainExample(sk, dg, a, sets[a], float(z.mean() + 0.1 * rng.standard_normal())))
+            ex.append(TrainExample("PD", sk, dg, a, sets[a], float(z.mean() + 0.1 * rng.standard_normal())))
     return ex
 
 
 def _fit(state, candidate, seed=0):
     tr = _ex(state, "ds", [f"s{i:02d}" for i in range(12)], seed=1)
     va = _ex(state, "ds", [f"s{i:02d}" for i in range(12, 18)], seed=2)
-    return fit_candidate_earlystop(candidate, "PD", tr, va, seed=seed)
+    return fit_candidate_earlystop(candidate, "PD", tr, va, seed=seed)[0]      # (artifact, best_epoch) -> artifact
 
 
 def _expect(exc, fn):
@@ -99,6 +99,13 @@ def test_c2_scale_qclamp_c3_nocross():
     for a in NON_IDENTITY:
         pp = fc3.predict(sets[a]); assert pp.upper_center > pp.point
     print("  [ok] C2 scale_raw/floor/used + q⁺; C1/C3 no clamp; C3 no crossing")
+
+
+def test_scale_floor_and_rank_types():
+    _expect(ValueError, lambda: CandidatePrediction("C2", "PD", "spdim", 1.0, 1.0, 1.0, 1.0, -0.5))   # negative floor
+    _expect(ValueError, lambda: conformal_rank(2.0, 0.1))                                             # float m
+    _expect(ValueError, lambda: conformal_rank(True, 0.1))                                            # bool m
+    print("  [ok] C2 scale_floor>=0; conformal_rank rejects float/bool m")
 
 
 def test_conformal_rank_inf_alpha_shape():
@@ -173,7 +180,8 @@ def test_harmful_rate_tie_aware():
 
 def main():
     print("ACAR v3 predictors/conformal guards:")
-    for t in (test_candidate_prediction_validation, test_predict_perm_and_action_order, test_mask_change_changes_prediction,
+    for t in (test_candidate_prediction_validation, test_scale_floor_and_rank_types,
+              test_predict_perm_and_action_order, test_mask_change_changes_prediction,
               test_c2_scale_qclamp_c3_nocross, test_conformal_rank_inf_alpha_shape, test_subject_joint_failclosed,
               test_route_failclosed, test_cal_vs_eval_isolation, test_serialize_and_disease_bind, test_harmful_rate_tie_aware):
         t()

@@ -18,7 +18,7 @@ import hashlib
 import json
 import numpy as np
 
-from acar.config import MIN_BATCH
+from acar.config import MIN_BATCH, B
 from acar.actions import apply_action
 from acar.features import (_entropy, _margin, _jsd, _bures_w2, _fisher_ratio, _ess, _maha2, _shrink)
 
@@ -34,7 +34,19 @@ GEOM_WINDOW_FEATURES = ("embed_disp",)
 CONTEXT_FEATURES = ("bures", "post_sep", "n_eff", "g_unc", "s_support", "s_sep", "pr_cmi_proxy")
 GEOM_CONTEXT_FEATURES = ("bures", "post_sep", "s_support", "s_sep", "pr_cmi_proxy")
 
-WindowKey = namedtuple("WindowKey", "dataset_id subject_id recording_id window_index")
+@dataclass(frozen=True, slots=True)
+class WindowKey:
+    dataset_id: str
+    subject_id: str
+    recording_id: str
+    window_index: int
+
+    def __post_init__(self):
+        for f in (self.dataset_id, self.subject_id, self.recording_id):
+            if not isinstance(f, str) or f == "":
+                raise ValueError("WindowKey ids must be non-empty str")
+        if isinstance(self.window_index, bool) or not isinstance(self.window_index, int) or self.window_index < 0:
+            raise ValueError("window_index must be a non-negative int (no bool, no coercion)")
 
 
 def canon_key(k) -> str:
@@ -80,6 +92,9 @@ class WindowActionSet:
             raise ValueError("values/availability_mask must be 2-D and same shape")
         if v.shape[1] != len(PER_WINDOW_FEATURES):
             raise ValueError(f"values must have {len(PER_WINDOW_FEATURES)} per-window features")
+        if not (MIN_BATCH <= v.shape[0] <= B):
+            raise ValueError(f"WindowActionSet n_windows must be in [{MIN_BATCH}, {B}] (got {v.shape[0]}) — a real "
+                             f"eligible batch; <MIN_BATCH is a FallbackBatchRecord, not a WindowActionSet")
         cv = np.ascontiguousarray(np.asarray(self.context_values, dtype=np.float64))
         cm = _as_bin(self.context_mask)
         if cv.shape != (len(CONTEXT_FEATURES),) or cm.shape != (len(CONTEXT_FEATURES),):
@@ -116,6 +131,15 @@ class FallbackBatchRecord:
     window_keys: tuple
     canonical_input_digest: str
     n_windows: int
+
+    def __post_init__(self):
+        if self.forced_identity is not True:
+            raise ValueError("FallbackBatchRecord.forced_identity must be True")
+        if not (isinstance(self.canonical_input_digest, str) and len(self.canonical_input_digest) == 64
+                and all(c in "0123456789abcdef" for c in self.canonical_input_digest)):
+            raise ValueError("canonical_input_digest must be a full hex SHA-256")
+        if self.n_windows != len(self.window_keys) or not (0 <= self.n_windows < MIN_BATCH):
+            raise ValueError(f"FallbackBatchRecord n_windows must equal len(window_keys) and be < {MIN_BATCH}")
 
 
 def _input_digest(z, keys):

@@ -56,9 +56,9 @@ def subject_joint_score(subject_batches) -> float:
 def conformal_rank(m, alpha):
     if not (0.0 < alpha < 1.0):
         raise ValueError("alpha must be in (0,1)")
-    if m < 0:
-        raise ValueError("m must be >= 0")
-    return math.ceil((m + 1) * (1 - alpha))
+    if isinstance(m, bool) or not isinstance(m, (int, np.integer)) or m < 0:
+        raise ValueError("m must be a non-negative integer (no bool/float)")
+    return math.ceil((int(m) + 1) * (1 - alpha))
 
 
 def conformal_q(subject_scores, alpha):
