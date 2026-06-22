@@ -13,6 +13,7 @@ from dataclasses import dataclass, field
 import hashlib
 import json
 import math
+import struct
 import sys
 import numpy as np
 import torch
@@ -230,6 +231,7 @@ class FittedCandidateArtifact:
     n_epochs_executed: int       # optimizer epochs actually run (>= checkpoint_epoch_count; == for refit)
     env: tuple
     arch_schema: str = SCHEMA_VERSION
+    hp_snapshot: str = field(default="", init=False)   # immutable HP snapshot (hash never reads global HP)
     artifact_sha256: str = field(default="", init=False)
 
     def __post_init__(self):
@@ -245,37 +247,44 @@ class FittedCandidateArtifact:
             raise ValueError("inconsistent epoch provenance fields")
         object.__setattr__(self, "sigma_min", _canon_pairs(self.sigma_min, "sigma_min"))
         object.__setattr__(self, "env", _canon_pairs(self.env, "env"))
+        for a, v in self.env:
+            if not (isinstance(a, str) and isinstance(v, str)):
+                raise ValueError("env entries must be (str, str)")
         sm = dict(self.sigma_min)
         if self.candidate == "C2":
             if set(sm) != set(NON_IDENTITY):
                 raise ValueError("C2 sigma_min must cover EXACTLY the non-identity actions")
             for a, v in sm.items():
+                if not isinstance(v, float):
+                    raise ValueError("C2 sigma_min floors must be Python float")
                 if not (math.isfinite(v) and v > 0):
                     raise ValueError(f"C2 sigma_min[{a}] must be finite and > 0 (got {v})")
         elif sm:
             raise ValueError(f"{self.candidate} must have empty sigma_min")
         _validate_items(self.state_items, self.candidate)     # exact name/dtype(<f4)/shape vs frozen arch
+        object.__setattr__(self, "hp_snapshot", json.dumps({k: HP[k] for k in sorted(HP)}, sort_keys=True))
         object.__setattr__(self, "artifact_sha256", self._hash())
         build_net(self.candidate, self.state_items)           # loadability cross-check (discarded)
 
     def _hash(self):
+        def lp(b):                                            # length-prefixed (injective) field encoding
+            h.update(struct.pack(">Q", len(b))); h.update(b)
         h = hashlib.sha256()
         meta = json.dumps({"schema": self.arch_schema, "candidate": self.candidate, "disease": self.disease,
                            "action_vocab": list(ACTION_VOCAB),
                            "feature_schema": {"per_window": list(PER_WINDOW_FEATURES), "context": list(CONTEXT_FEATURES)},
-                           "hp": {k: HP[k] for k in sorted(HP)},
+                           "hp_snapshot": self.hp_snapshot,    # the artifact's OWN snapshot, not global HP
                            "best_epoch_zero_based": int(self.best_epoch_zero_based),
                            "checkpoint_epoch_count": int(self.checkpoint_epoch_count),
                            "n_epochs_executed": int(self.n_epochs_executed)}, sort_keys=True).encode()
-        h.update(b"META\x00"); h.update(meta)
+        h.update(b"META"); lp(meta)
         self.input_norm.digest_update(h); self.target_norm.digest_update(h)
-        for a, v in self.env:                                 # canonical tuple (length-prefixed)
-            h.update(b"E\x00"); h.update(a.encode()); h.update(b"\x00"); h.update(str(v).encode()); h.update(b"\x00")
+        for a, v in self.env:                                 # length-prefixed -> injective (no NUL collision)
+            h.update(b"E"); lp(a.encode()); lp(v.encode())
         for a, v in self.sigma_min:                           # raw float64 bytes — NO rounding
-            h.update(b"S\x00"); h.update(a.encode()); h.update(b"\x00"); h.update(np.array([v], dtype="<f8").tobytes())
+            h.update(b"S"); lp(a.encode()); lp(np.array([v], dtype="<f8").tobytes())
         for name, dt, shape, buf in self.state_items:         # already sorted, dtype '<f4'
-            h.update(b"T\x00"); h.update(name.encode()); h.update(b"\x00"); h.update(dt.encode())
-            h.update(str(shape).encode()); h.update(b"\x00"); h.update(buf)
+            h.update(b"T"); lp(name.encode()); lp(dt.encode()); lp(str(shape).encode()); lp(buf)
         return h.hexdigest()
 
     def verify_integrity(self):
@@ -317,6 +326,15 @@ class FittedCandidateArtifact:
 
 def make_artifact(candidate, disease, net, input_norm, target_norm, sigma_min,
                   best_epoch_zero_based, n_epochs_executed, env) -> FittedCandidateArtifact:
+    if candidate not in CANDIDATES:
+        raise ValueError("bad candidate")
+    if getattr(net, "candidate", None) != candidate or set(getattr(net, "heads", {}).keys()) != set(NON_IDENTITY):
+        raise ValueError("net.candidate / heads do not match the requested candidate")
+    for nm, v in (("best_epoch_zero_based", best_epoch_zero_based), ("n_epochs_executed", n_epochs_executed)):
+        if isinstance(v, bool) or not isinstance(v, int):
+            raise ValueError(f"{nm} must be a non-bool int (no float/bool coercion)")
+    # dict input has unique keys; a sequence-of-pairs is passed through UNCHANGED so duplicates are caught downstream.
+    sm = tuple(sigma_min.items()) if isinstance(sigma_min, dict) else tuple(sigma_min)
+    ev = tuple(env.items()) if isinstance(env, dict) else tuple(env)
     return FittedCandidateArtifact(candidate, disease, state_items(net), input_norm, target_norm,
-                                   tuple(dict(sigma_min).items()), int(best_epoch_zero_based),
-                                   int(best_epoch_zero_based) + 1, int(n_epochs_executed), tuple(dict(env).items()))
+                                   sm, best_epoch_zero_based, best_epoch_zero_based + 1, n_epochs_executed, ev)

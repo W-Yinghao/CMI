@@ -59,13 +59,27 @@ class DeploymentFeatureRecord:
     per_action: tuple        # ((action, window_action_set, delta_r), ...) covering NON_IDENTITY
 
     def __post_init__(self):
-        acts = tuple(a for a, _, _ in self.per_action)
-        if acts != NON_IDENTITY:
+        if self.disease not in ("PD", "SCZ"):
+            raise ValueError("disease must be PD or SCZ")
+        if not isinstance(self.subject_key, SubjectKey):
+            raise TypeError("subject_key must be a SubjectKey")
+        if not _is_hex64(self.deployment_batch_digest):
+            raise ValueError("deployment_batch_digest must be a full lowercase hex SHA-256")
+        per = tuple((a, was, float(dr)) for a, was, dr in self.per_action)     # materialize + coerce dr to float
+        if tuple(a for a, _, _ in per) != NON_IDENTITY:
             raise ValueError(f"per_action must be in canonical order {NON_IDENTITY}")
-        keys = self.per_action[0][1].window_keys
-        for _, was, _ in self.per_action:
+        keys = per[0][1].window_keys
+        for a, was, dr in per:
+            if was.action_name != a:
+                raise ValueError("window_action_set.action_name != action")
             if was.window_keys != keys:
                 raise ValueError("all actions of a deployment batch must share identical window_keys")
+            for wk in was.window_keys:
+                if not isinstance(wk, WindowKey) or subject_of(wk) != self.subject_key:
+                    raise ValueError("window keys must be WindowKey under this subject")
+            if not math.isfinite(dr):
+                raise ValueError("non-finite ΔR")
+        object.__setattr__(self, "per_action", per)
 
     def to_train_examples(self):
         return [TrainExample(self.disease, self.subject_key, self.deployment_batch_digest, a, was, dr)
@@ -148,8 +162,22 @@ def _subject_balanced_loss(net, by_subject, candidate, subjects):
     return loss
 
 
-def _opt_step(net, opt, loss):
-    opt.zero_grad(); loss.backward()
+def _epoch_optimize(net, opt, data, candidate, order):
+    """EXACT per-subject-equal weighting (Amendment 7): one optimizer step per epoch via deterministic gradient
+    ACCUMULATION — each subject contributes mean(its example losses)/n_subjects, so the final gradient is the exact
+    mean over ALL subjects regardless of minibatch boundaries. (Previously the last partial minibatch over-weighted
+    its subjects.)"""
+    n = len(order)
+    opt.zero_grad()
+    for s in range(0, n, HP["batch_subjects"]):
+        losses = []
+        for sk in order[s:s + HP["batch_subjects"]]:
+            el = [_example_loss(net, w, c, a, y, candidate) for (w, c, a, y) in data[sk]]
+            losses.append(torch.stack(el).mean())
+        contrib = torch.stack(losses).sum() / n
+        if not torch.isfinite(contrib):
+            raise ValueError("non-finite loss")
+        contrib.backward()                                    # accumulate
     for p in net.parameters():
         if p.grad is not None and not torch.all(torch.isfinite(p.grad)):
             raise ValueError("non-finite gradient")
@@ -212,8 +240,7 @@ def fit_candidate_earlystop(candidate, disease, train_examples, val_examples, se
         for epoch in range(HP["max_epochs"]):
             executed = epoch + 1
             net.train(); order = list(tr_subj); rng.shuffle(order)
-            for s in range(0, len(order), HP["batch_subjects"]):
-                _opt_step(net, opt, _subject_balanced_loss(net, tr, candidate, order[s:s + HP["batch_subjects"]]))
+            _epoch_optimize(net, opt, tr, candidate, order)   # one step/epoch; exact per-subject mean
             net.eval()
             with torch.no_grad():
                 vl = float(_subject_balanced_loss(net, va, candidate, va_subj))
@@ -253,8 +280,7 @@ def refit_candidate_fixed_epochs(candidate, disease, all_dev_examples, n_epochs,
         rng = np.random.default_rng(seed)
         for _epoch in range(n_epochs):                        # fixed epochs; NO early stopping / no new validation
             net.train(); order = list(subj); rng.shuffle(order)
-            for s in range(0, len(order), HP["batch_subjects"]):
-                _opt_step(net, opt, _subject_balanced_loss(net, data, candidate, order[s:s + HP["batch_subjects"]]))
+            _epoch_optimize(net, opt, data, candidate, order)  # one step/epoch; exact per-subject mean
         net.eval()
         if candidate == "C2":
             sm = dict(sigma_min_oof)

@@ -33,6 +33,7 @@ def subject_joint_score(subject_batches) -> float:
     """max over a subject's eligible batches × all non-identity actions of the candidate score. FAIL-CLOSED:
     non-empty; each batch carries EXACTLY the non-identity actions; ΔR/scores finite; action keys + candidate/disease
     consistent."""
+    subject_batches = tuple(subject_batches)                  # materialize: an empty generator is truthy otherwise
     if not subject_batches:
         raise ValueError("subject has no eligible batches")
     seen = {"cand": set(), "dis": set()}

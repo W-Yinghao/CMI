@@ -131,6 +131,27 @@ def test_fallback_record_no_adapter():
     print(f"  [ok] len(B)<MIN_BATCH ({MIN_BATCH}) -> immutable FallbackBatchRecord, NO adapter call, full input digest")
 
 
+def test_small_extract_and_malformed_identity_no_adapter():
+    state, z, keys = _toy(n=MIN_BATCH - 1)
+    orig = sf.apply_action
+    sf.apply_action = lambda *a, **k: (_ for _ in ()).throw(AssertionError("adapter ran on <MIN_BATCH extract"))
+    try:
+        _expect(ValueError, lambda: extract_action_set(state, z, keys, "matched_coral"))   # rejected before any adapter
+    finally:
+        sf.apply_action = orig
+    # malformed identity z0 -> build_action_sets raises before non-identity actions
+    s2, z2, k2 = _toy(n=12)
+    def patched(name, st, zz):
+        p, zt = orig(name, st, zz)
+        return (p, zt[:, :1]) if name == "identity" else (p, zt)
+    sf.apply_action = patched
+    try:
+        _expect(ValueError, lambda: build_action_sets(s2, z2, k2))
+    finally:
+        sf.apply_action = orig
+    print("  [ok] <MIN_BATCH extract rejected pre-adapter; malformed identity z0 rejected")
+
+
 def test_frozen_object_rebind():
     state, z, keys = _toy()
     was = build_action_sets(state, z, keys)["matched_coral"]
@@ -284,7 +305,8 @@ def main():
     print("ACAR v3 set_features synthetic guards (hardened):")
     for t in (test_label_free_api, test_window_permutation_path_invariance, test_action_order_invariance_and_canonical_keys,
               test_missing_zero_vs_genuine_zero, test_variable_cardinality, test_duplicate_and_duplication,
-              test_fallback_record_no_adapter, test_frozen_object_rebind, test_identity_computed_once,
+              test_fallback_record_no_adapter, test_small_extract_and_malformed_identity_no_adapter,
+              test_frozen_object_rebind, test_identity_computed_once,
               test_window_key_encoding, test_serialization_roundtrip,
               test_digest_sensitivity_single_ulp_and_more, test_t3a_geometry_masked, test_action_capability_contract,
               test_nan_inf_rejected, test_proba_validation, test_contract_validation_and_immutability,

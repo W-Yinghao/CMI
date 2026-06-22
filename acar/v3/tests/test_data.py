@@ -51,6 +51,7 @@ def test_batching_protocol_validation():
     _expect(ValueError, lambda: _batch(n=MIN_BATCH - 1, fallback=False))        # tiny but not fallback
     _expect(ValueError, lambda: _batch(n=MIN_BATCH, fallback=True))             # big but fallback
     _expect(ValueError, lambda: _batch(src="z" * 64))                          # source not hex
+    _expect(ValueError, lambda: _batch(src="A" * 64))                          # uppercase hex rejected
     _expect(ValueError, lambda: _batch(neg=True))                              # negative window index
     _expect(ValueError, lambda: _batch(empty_id=True))                        # empty id
     _expect(ValueError, lambda: DeploymentBatch("PD", SubjectKey("ds", "s"), RecordingKey("ds", "s", "r"),
@@ -69,6 +70,7 @@ def test_labeled_risk_record():
     _expect(ValueError, lambda: LabeledRiskRecord(HEX, good[:-1]))                              # missing action
     _expect(ValueError, lambda: LabeledRiskRecord(HEX, tuple(reversed(good))))                  # non-canonical order
     _expect(ValueError, lambda: LabeledRiskRecord("z" * 64, good))                             # non-hex digest
+    _expect(ValueError, lambda: LabeledRiskRecord("A" * 64, good))                             # uppercase hex rejected
     _expect(ValueError, lambda: LabeledRiskRecord("short", good))
     print("  [ok] LabeledRiskRecord requires canonical action order, full-hex digest, finite ΔR")
 

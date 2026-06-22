@@ -14,7 +14,6 @@ from dataclasses import dataclass
 from collections import defaultdict
 import hashlib
 import json
-import string
 import numpy as np
 
 from acar.config import MIN_BATCH, B
@@ -46,7 +45,7 @@ class RecordingKey:
 
 
 def _is_hex64(s):
-    return isinstance(s, str) and len(s) == 64 and all(c in string.hexdigits for c in s)
+    return isinstance(s, str) and len(s) == 64 and all(c in "0123456789abcdef" for c in s)   # lowercase only
 
 
 def canon_subject(sk: SubjectKey) -> str:

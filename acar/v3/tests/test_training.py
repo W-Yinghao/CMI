@@ -164,6 +164,53 @@ def test_deployment_feature_record_consistency():
     print("  [ok] DeploymentFeatureRecord enforces one window_key set across the 3 actions -> consistent TrainExamples")
 
 
+def test_amendment7_artifact_strictness():
+    import acar.v3.predictors as P
+    state = _state(); tr, va = _split(state)
+    a, _ = fit_candidate_earlystop("C1", "PD", tr, va, seed=0)
+    c2net = build_net("C2", fit_candidate_earlystop("C2", "PD", tr, va, seed=0)[0].state_items)
+    c1net = build_net("C1", a.state_items)
+    _expect(ValueError, lambda: make_artifact("C3", "PD", c2net, a.input_norm, a.target_norm, {}, 0, 1, dict(a.env)))  # C2 net as C3
+    _expect(ValueError, lambda: make_artifact("C1", "PD", c1net, a.input_norm, a.target_norm, {}, 0.9, 1, dict(a.env)))  # float epoch
+    _expect(ValueError, lambda: make_artifact("C1", "PD", c1net, a.input_norm, a.target_norm, {}, True, 1, dict(a.env)))  # bool epoch
+    _expect(ValueError, lambda: FittedCandidateArtifact("C1", "PD", a.state_items, a.input_norm, a.target_norm, (),
+                                                        0, 1, 1, (("k", "1"), ("k", "2"))))                            # env dup
+    e1 = FittedCandidateArtifact("C1", "PD", a.state_items, a.input_norm, a.target_norm, (), 0, 1, 1, (("a", "b\x00c"),))
+    e2 = FittedCandidateArtifact("C1", "PD", a.state_items, a.input_norm, a.target_norm, (), 0, 1, 1, (("a\x00b", "c"),))
+    assert e1.artifact_sha256 != e2.artifact_sha256                          # NUL not a delimiter -> injective
+    old = P.HP["lr"]; P.HP["lr"] = old + 1.0
+    try:
+        a.verify_integrity()                                                # global HP mutation does NOT alter an existing artifact
+    finally:
+        P.HP["lr"] = old
+    print("  [ok] make_artifact net/epoch strictness; env dup rejected; NUL-injective hash; HP-snapshot integrity")
+
+
+def test_epoch_optimize_minibatch_invariant():
+    import acar.v3.predictors as P
+    state = _state(); rng = np.random.default_rng(0); data = {}
+    for s in range(3):
+        z = rng.standard_normal((12, 8))
+        was = build_action_sets(state, z, [WindowKey("d", f"s{s}", "r", w) for w in range(12)])["matched_coral"]
+        win = torch.tensor(np.concatenate([was.values, was.availability_mask.astype(np.float64)], 1), dtype=torch.float32)
+        ctx = torch.tensor(np.concatenate([was.context_values, was.context_mask.astype(np.float64)]), dtype=torch.float32)
+        data[f"s{s}"] = [(win, ctx, "matched_coral", torch.tensor(0.3))]
+    order = ["s0", "s1", "s2"]
+
+    def grads(batch):
+        ob, og = P.HP["batch_subjects"], P.HP["grad_clip"]; P.HP["batch_subjects"] = batch; P.HP["grad_clip"] = 1e9
+        try:
+            net = DeepSetsNet("C1", 0); opt = torch.optim.SGD(net.parameters(), 0.0)
+            T._epoch_optimize(net, opt, data, "C1", order)
+            return [None if p.grad is None else p.grad.clone() for p in net.parameters()]  # unused heads -> None
+        finally:
+            P.HP["batch_subjects"], P.HP["grad_clip"] = ob, og
+    g2, g3 = grads(2), grads(3)                                             # partial minibatch (2) vs single (3)
+    assert all((x is None and y is None) or torch.allclose(x, y, atol=1e-6) for x, y in zip(g2, g3))
+    assert any(x is not None for x in g2)                                   # some grads actually populated
+    print("  [ok] _epoch_optimize gradient invariant to minibatch size (exact per-subject mean; partial-batch safe)")
+
+
 def test_normalizers():
     state = _state()
     sets = [build_action_sets(state, np.random.default_rng(s).standard_normal((12, 8)),
@@ -180,7 +227,8 @@ def main():
     for t in (test_loss_exactness, test_beta_nll_stop_gradient, test_subject_balanced,
               test_disease_binding_and_subject_disjoint, test_deterministic_earlystop_and_epoch_semantics,
               test_canonical_bytes_and_integrity, test_nonfinite_loss_failclosed, test_refit_and_final_epochs,
-              test_deployment_feature_record_consistency, test_normalizers):
+              test_deployment_feature_record_consistency, test_amendment7_artifact_strictness,
+              test_epoch_optimize_minibatch_invariant, test_normalizers):
         t()
     print("ALL V3 TRAINING GUARDS PASS")
 

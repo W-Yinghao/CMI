@@ -198,6 +198,8 @@ def _canonicalize(z, window_keys):
 def _extract_canonical(state, z, keys, action, p0, z0) -> WindowActionSet:
     """Build the set for ONE action; assumes z/keys already canonical and identity (p0,z0) already computed."""
     n, n_cls = len(z), state["n_cls"]
+    if not (MIN_BATCH <= n <= B):
+        raise ValueError(f"eligible batch n_windows must be in [{MIN_BATCH}, {B}]; got {n}")
     pa, za = apply_action(action, state, z)
     if (za is not None) != ACTION_GEOMETRY[action]:
         raise ValueError(f"action capability drift: {action} geometry={za is not None}, expected {ACTION_GEOMETRY[action]}")
@@ -227,11 +229,13 @@ def extract_action_set(state, z, window_keys, action) -> WindowActionSet:
     if action not in NON_IDENTITY:
         raise ValueError(f"extract_action_set is for non-identity actions; got {action!r}")
     z, keys = _canonicalize(z, window_keys)
+    if not (MIN_BATCH <= len(z) <= B):                          # reject BEFORE any adapter (incl. identity)
+        raise ValueError(f"extract_action_set requires {MIN_BATCH} <= n_windows <= {B}; got {len(z)}")
     p0, z0 = apply_action("identity", state, z)
     _validate_proba(p0, len(z), state["n_cls"], "p0")
     z0 = np.asarray(z0, float)
-    if z0.shape != z.shape:
-        raise ValueError("identity embedding shape mismatch")
+    if z0.shape != z.shape or not np.all(np.isfinite(z0)):
+        raise ValueError("identity embedding malformed (shape/finiteness)")
     return _extract_canonical(state, z, keys, action, p0, z0)
 
 
@@ -262,10 +266,14 @@ def build_action_sets(state, z, window_keys, actions=NON_IDENTITY):
         raise ValueError("duplicate window_keys")
     if len(z) < MIN_BATCH:
         return FallbackBatchRecord(True, f"n_windows<{MIN_BATCH}", tuple(keys), _input_digest(z, keys), int(len(z)))
+    if len(z) > B:
+        raise ValueError(f"n_windows {len(z)} > B={B}")
     zc, kc = _canonicalize(z, keys)
     p0, z0 = apply_action("identity", state, zc)              # identity computed exactly ONCE
     _validate_proba(p0, len(zc), state["n_cls"], "p0")
     z0 = np.asarray(z0, float)
+    if z0.shape != zc.shape or not np.all(np.isfinite(z0)):
+        raise ValueError("identity embedding malformed (shape/finiteness)")
     return {a: _extract_canonical(state, zc, kc, a, p0, z0) for a in ordered}
 
 

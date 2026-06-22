@@ -125,6 +125,7 @@ def test_subject_joint_failclosed():
     full = {a: (_pred("C1", action=a), 0.1) for a in NON_IDENTITY}
     assert abs(subject_joint_score([full]) - max(score(_pred("C1", action=a), 0.1) for a in NON_IDENTITY)) < 1e-12
     _expect(ValueError, lambda: subject_joint_score([]))
+    _expect(ValueError, lambda: subject_joint_score(iter(())))                        # empty generator (truthy) rejected
     _expect(ValueError, lambda: subject_joint_score([{a: (_pred("C1", action=a), 0.1) for a in NON_IDENTITY[:-1]}]))
     _expect(ValueError, lambda: subject_joint_score([{**full, "identity": (_pred("C1"), 0.1)}]))
     _expect(ValueError, lambda: subject_joint_score([{a: (_pred("C1", action=a), float("inf")) for a in NON_IDENTITY}]))
