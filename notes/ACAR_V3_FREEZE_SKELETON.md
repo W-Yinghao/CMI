@@ -1,9 +1,12 @@
-# ACAR v3 — FREEZE SKELETON (NON-BINDING) — incorporates Amendment 1 (2026-06-22)
+# ACAR v3 — FREEZE SKELETON (NON-BINDING) — incorporates Amendments 1–6 (2026-06-22)
 
-**Status:** `DRAFT / NON-BINDING / NOT ACAR_FROZEN_v3.md / NO LOCKBOX ENDPOINT ACCESSED`
-**Date:** 2026-06-22 (Amendment 1 folded in; see `notes/ACAR_V3_AMENDMENT_1.md` for the changelog)
-**Parent:** ACAR v2 `MEASUREMENT_ONLY` (`acar-v2-protocol` @ `9b2f0c1`; result `1528a94`; audit `6a0c3d0`/`ce5c330`)
-**Companion:** `notes/ACAR_V3_DESIGN_DRAFT.md` (rationale; its V3.4–V3.6 are superseded by this file).
+**Status:** `DRAFT / NON-BINDING / NOT ACAR_FROZEN_v3.md / NO LOCKBOX ENDPOINT ACCESSED / NOT TAGGED`
+**Date:** 2026-06-22 (Amendments 1–6 folded in; changelogs `notes/ACAR_V3_AMENDMENT_{1..6}.md`)
+**Commit chain (acar):** skeleton+audit `50adbc1` → Amd1 `43294cb` → set_features `93f417c` → hardening `685a526`
+→ Amd2 `1a86b80` → predictors/conformal `2303d5c` → Amd3 `747e717` → completion `2e32ff7`/data `03fbf8b`
+→ Amd4 `dfb6075` → Amd5 `2526827`/`7188a2a` → Amd6 (this commit).
+**Parent:** ACAR v2 `MEASUREMENT_ONLY` (`acar-v2-protocol` @ `9b2f0c1`; result `1528a94`; audit `6a0c3d0`/`ce5c330`).
+**Companion:** `notes/ACAR_V3_DESIGN_DRAFT.md` (rationale-only; all normative rules live here).
 
 This skeleton pre-commits the protocol RULES. It is **not** a freeze. Two distinct locks gate execution (§S0). It
 leaves `<<TBD-after-DEV>>` / `<<TBD-after-audit>>` only for values that must come from the DEV gate or the
@@ -277,12 +280,17 @@ Frozen DEV-design rules now enforced in code (15 synthetic guards pass):
   `normalizers.py` (FIT-only mask-aware input + target, floors 1e-6/1e-3); `conformal.py` (fail-closed everywhere;
   1-D CAL-score shape; route full-set/canonical/q∈finite∪{+∞}/δ≥0; ONE Wilcoxon harmful estimand);
   `data.py` (`SubjectKey`/`RecordingKey`/`WindowKey`; `DeploymentBatch`(no y, fallback⇔n<MIN_BATCH, 1≤n≤B, 64-hex
-  source) vs `LabeledRiskRecord`). **41→ all v3 synthetic guards pass** (set-feature/data/training/predictor-conformal).
+  source) vs `LabeledRiskRecord`). **All v3 synthetic suites pass** (set-feature / data / training / predictor-conformal).
   **Still NOT tagged** `acar-v3-dev-design-v1` — pending the real v3 loader (building `DeploymentBatch` from dumps),
   `develop.py` (S5 split orchestration + S2/S4 + C0/v2 replay), env lock, and a full green re-run; no DEV cohort read.
-- **Amendment 5 tag-prep hardening (commit pending):** artifact stores immutable bytes with **no live-net cache**
-  (verify_integrity rebuilds a fresh net); training is **disease-bound** (`TrainExample.disease`); canonical
-  **little-endian** parameter bytes; `HP.target_sd_floor=1e-3`; `SubjectKey/RecordingKey/WindowKey` validated frozen
-  dataclasses; `build_deployment_batches` chunks at the frozen **B** with **no id coercion** + consistent embedding
-  dim; artifact `n_epochs_trained` (= best_epoch+1 / n_epochs); `FallbackBatchRecord`/`WindowActionSet` bounds, C2
-  `scale_floor≥0`, `conformal_rank` int-`m` all fail-closed. (notes/ACAR_V3_AMENDMENT_5.md)
+- **Amendments 5 (`2526827`) + 6 tag-prep hardening:** artifact stores immutable bytes with **no live-net cache**
+  (`verify_integrity` returns None; `predict` builds an ephemeral net; integrity covers a unique canonical repr —
+  `sigma_min`/`env` validated no-dup, `<f4` state bytes exact-vs-frozen-arch, `arch_schema==SCHEMA_VERSION`);
+  training is **disease-bound** (`TrainExample.disease`; `_validate` rejects mismatch/mixed; eligible-batch shares one
+  `window_keys`; `DeploymentFeatureRecord` derives the 3 examples); **subject-balanced** target normalization;
+  `HP.target_sd_floor=1e-3`; `SubjectKey/RecordingKey/WindowKey` validated frozen dataclasses; **all stored arrays are
+  bytes-backed (writeable cannot be re-enabled)**; sequence fields canonicalized to tuples; `build_deployment_batches`
+  frozen-**B**, no id coercion, consistent embedding dim; epoch provenance = `best_epoch_zero_based /
+  checkpoint_epoch_count / n_epochs_executed` (strict non-bool int); fail-closed `FallbackBatchRecord`/`WindowActionSet`
+  n-bounds, `CandidatePrediction.disease∈{PD,SCZ}`, C2 `scale_floor>0`, `DeploymentBatch d≥1`, `conformal_rank` int-`m`.
+  (notes/ACAR_V3_AMENDMENT_5.md, ACAR_V3_AMENDMENT_6.md)
