@@ -13,12 +13,25 @@ from ..leakage.cache import _deep_freeze
 from ..leakage.errors import LeakageNonEstimableError  # re-export (canonical definition in leakage.errors)
 from ..leakage.ucb import bootstrap_ucb
 
-__all__ = ["LeakageNonEstimableError", "SelectionScoringSession", "compute_leakage_score"]
+__all__ = ["LeakageNonEstimableError", "SelectionScoringSession", "compute_leakage_score",
+           "overlap_probe_sample_ids"]
 
 
 def compute_leakage_score(feat, support_graph, fold_plan, bootstrap_plan, cfg) -> dict:
     """Replay the explicit bootstrap plan into a leakage score (point + ``bootstrap_ucl``)."""
     return bootstrap_ucb(feat, support_graph, fold_plan, cfg, bootstrap_plan=bootstrap_plan)
+
+
+def overlap_probe_sample_ids(design, support_graph) -> tuple:
+    """Canonical-sorted stable ids of the rows that actually enter the overlap leakage probe:
+    ``{i : y_i ∈ C_cmp, d_i ∈ S_{y_i}}`` — shared by selection AND audit. Empty when there is no
+    comparable class; never redefined by row count / fold / bootstrap replicate."""
+    sup = {y: set(int(d) for d in support_graph.support_of_class[y]) for y in support_graph.comparable_classes}
+    out = sorted(sid for sid, yy, dd in zip(design.sample_id, design.y.tolist(), design.d.tolist())
+                 if int(yy) in sup and int(dd) in sup[int(yy)])
+    if len(set(out)) != len(out):
+        raise ValueError("duplicate overlap-probe sample id")
+    return tuple(out)
 
 
 class SelectionScoringSession:

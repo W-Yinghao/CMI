@@ -81,3 +81,12 @@ class LeakageScoreCache:
 
     def hit_count(self, key: LeakageScoreKey) -> int:
         return int(self._hit[key])
+
+    def total_requests(self) -> int:
+        return int(sum(self._request.values()))
+
+    def total_computes(self) -> int:
+        return int(sum(self._compute.values()))
+
+    def total_hits(self) -> int:
+        return int(sum(self._hit.values()))

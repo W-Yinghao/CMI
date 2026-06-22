@@ -63,3 +63,14 @@ def run_level_training_selection(run_key, fold_data, support_state, level_popula
                                         selected_methods=selected, leakage_cache_stats=leak_stats,
                                         feature_cache_stats=feat_stats, provenance=prov,
                                         phase=RunnerPhase.SELECTION, invariants=inv)
+
+
+def run_level_through_audit(run_key, fold_data, support_state, level_population, fold_scope, level_plans,
+                            execution_cfg, model_spec, model_factory, device, method_order=DEFAULT_METHOD_ORDER):
+    """Thin entry: train + source-train select, then lock selection and run the fixed source-audit
+    leakage. Stops at AUDIT (no predictions / metrics / finalize -- those are A2b-1b-ii-b)."""
+    from .audit import run_post_selection_audit
+    ts = run_level_training_selection(run_key, fold_data, support_state, level_population, fold_scope,
+                                      level_plans, execution_cfg, model_spec, model_factory, device,
+                                      method_order=method_order)
+    return run_post_selection_audit(ts, fold_data, fold_scope, execution_cfg, model_spec, model_factory, device)

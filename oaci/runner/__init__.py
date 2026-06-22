@@ -21,7 +21,12 @@ from .stage2 import train_four_methods
 from .provenance import IllegalPhaseTransition, ProvenanceEvent, RunnerPhase, RunProvenance
 from .scope import (AuditScope, FoldScope, LevelPopulation, ScopePlanConfig, build_audit_scope,
                     build_fold_scope, build_level_population)
-from .scoring import SelectionScoringSession, compute_leakage_score
+from .scoring import SelectionScoringSession, compute_leakage_score, overlap_probe_sample_ids
+from .scientific_hash import scientific_value_hash
+from .audit_results import (AuditCacheStats, AuditMethodResult, LevelAuditIntermediate,
+                            MethodSelectionSnapshot, SelectionSnapshot)
+from .audit import build_training_data_for_design, make_selection_snapshot, run_post_selection_audit
+from .fold import run_level_through_audit
 from .support import (DeletionCell, DeletionSchedule, LevelSupportState, build_level_support,
                       level0_reference_prior, make_deletion_schedule)
 
@@ -40,5 +45,8 @@ __all__ = [
     "FeatureArtifactCache", "FeatureArtifactKey", "run_level_training_selection", "DEFAULT_METHOD_ORDER",
     "Stage1Run", "ObjectiveSpec", "TrainedMethod", "SelectedMethod", "LevelTrainingSelectionResult",
     "LeakageNonEstimableError", "NoComparableSupport", "FoldPlanNonEstimable", "BootstrapPlanNonEstimable",
-    "SelectionScoringSession", "compute_leakage_score",
+    "SelectionScoringSession", "compute_leakage_score", "overlap_probe_sample_ids",
+    "scientific_value_hash", "make_selection_snapshot", "build_training_data_for_design",
+    "run_post_selection_audit", "run_level_through_audit", "MethodSelectionSnapshot", "SelectionSnapshot",
+    "AuditMethodResult", "AuditCacheStats", "LevelAuditIntermediate",
 ]

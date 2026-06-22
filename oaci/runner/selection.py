@@ -14,7 +14,7 @@ from ..train.rng import derive_seed
 from ..train.selector import Selection, select_checkpoint
 from .features import extract_frozen_features
 from .results import SelectedMethod
-from .scoring import SelectionScoringSession, compute_leakage_score
+from .scoring import SelectionScoringSession, compute_leakage_score, overlap_probe_sample_ids
 
 _STAGE2 = ("OACI", "global_lpc", "uniform")
 
@@ -64,7 +64,9 @@ class FeatureArtifactCache:
     def request_count(self, key): return int(self._req[key])
     def compute_count(self, key): return int(self._comp[key])
     def hit_count(self, key): return int(self._hit[key])
+    def total_requests(self): return int(sum(self._req.values()))
     def total_computes(self): return int(sum(self._comp.values()))
+    def total_hits(self): return int(sum(self._hit.values()))
 
 
 def make_leakage_score_key(feature_artifact, support_graph, fold_plan, bootstrap_plan, critic_cfg) -> LeakageScoreKey:
@@ -74,12 +76,6 @@ def make_leakage_score_key(feature_artifact, support_graph, fold_plan, bootstrap
                            support_hash=support_graph.support_hash(), fold_plan_hash=fold_plan.plan_hash,
                            bootstrap_plan_hash=bootstrap_plan.plan_hash,
                            critic_config_hash=critic_config_hash(critic_cfg))
-
-
-def _overlap_rows(design, support_graph):
-    sup = {y: set(int(d) for d in support_graph.support_of_class[y]) for y in support_graph.comparable_classes}
-    return [sid for sid, yy, dd in zip(design.sample_id, design.y.tolist(), design.d.tolist())
-            if int(yy) in sup and int(dd) in sup[int(yy)]]
 
 
 def _erm_only_selection(erm_stage, score):
@@ -144,7 +140,7 @@ def select_methods(run_key, trained_methods, stage1_run, level_population, level
         selected[name] = SelectedMethod(tm, sel, "estimable", session.result(sel.model_hash),
                                         tuple(c.model_hash for c in feasible))
 
-    provenance.record_fit("selection", _overlap_rows(design, sg))
+    provenance.record_fit("selection", overlap_probe_sample_ids(design, sg))
     stats = {"erm_request": leakage_cache.request_count(erm_key), "erm_compute": leakage_cache.compute_count(erm_key),
              "erm_hit": leakage_cache.hit_count(erm_key)}
     return selected, stats, {"erm_feature_computes": feat_cache.total_computes()}
