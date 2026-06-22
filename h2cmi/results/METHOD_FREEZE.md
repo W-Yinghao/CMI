@@ -25,3 +25,12 @@ Remaining pre-submission work = Stage V (frozen validation), NOT method search:
       labels evaluation-only; unit = target dataset/site (subject nested).
 Deferred (separate future work, NOT a rescue): few-labeled-target eligibility calibration
   (k in {1,2,4,8}).
+
+## V1 fresh-seed confirmatory (seeds 100-119, 4900 rows, frozen analyzer)
+Claims 1,2,3,6 REPLICATE (CIs exclude 0): C_prior_coupling + on cov/cov_prior/cov_cond_rot (modest,
++0.012..+0.032; smaller than the 3-seed dev); C_feedback null/neg (feedback not the harm); C_class_cond
+prior+ (full +0.037/oof +0.068) and cov/rotation- (pooled wins); C_family + on rotation only
+(+0.027..+0.032). Nulls exactly 0. REFINEMENT (dev did not replicate): C_responsibility is now
+significant on the cov-family (+0.028..+0.048, CIs excl 0) -> oracle (labeled) responsibilities give a
+modest held-out gain; orthogonal to the prior-M-step claim and does not touch the deployable
+(label-free) method. b1a_confirm.report.json.
