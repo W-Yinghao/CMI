@@ -1,4 +1,38 @@
-# H²-CMI — Hierarchical Class-Conditional Mutual-Information Adaptation for EEG
+# H²-CMI — Stage V TERMINAL (read this first)
+
+> **⛔ This package reached a frozen terminal state. The README below the line is the original
+> design narrative and is RETAINED FOR CODE-MAP PURPOSES ONLY — several of its components
+> (target-prior EM TTA, the source-only safety gate, online transform) were FALSIFIED or frozen
+> during the program. Do not read it as the method's claims. The authoritative status is the
+> result index.**
+
+**Terminal result index** (`results/`, each with its own frozen pre-registration + sha256):
+[`METHOD_FREEZE.md`](results/METHOD_FREEZE.md) ·
+[`B1A_RESULTS.md`](results/B1A_RESULTS.md) ·
+[`B2A_TERMINAL.md`](results/B2A_TERMINAL.md) ·
+[`B2B_TERMINAL.md`](results/B2B_TERMINAL.md) ·
+[`V2_FROZEN.md`](results/V2_FROZEN.md) · [`V2_RESULTS.md`](results/V2_RESULTS.md) ·
+[`V2P_FROZEN.md`](results/V2P_FROZEN.md) · [`V2P_RESULTS.md`](results/V2P_RESULTS.md).
+Immutable tags: `H2CMI_METHOD_FREEZE`, `h2cmi-stage-v-terminal` (+ `h2cmi-b1a-astar-terminal`,
+`h2cmi-b2a-terminal`, `h2cmi-b2b-source-power-fail`).
+
+**What the program actually found (one paragraph).** The contribution is a *measurement→control
+gap*, not a winning adaptation method. (1) The factorial decomposition falsifies "CMI improves
+TTA"; the joint EM's harm is the **prior M-step**, so geometry-only / fixed-prior beats the joint
+(V1 claims, confirmed on fresh seeds 100–119; **the joint's harm replicates on real EEG**). (2) The
+**deployed policy is metadata-only operator routing + identity-by-default** — NO target-statistic
+eligibility gate (the source-calibrated gate's evidence score lacks transferable power: B2B ROC
+ceiling < 0.25 at 10% false-adaptation). (3) On **real EEG** (V2, offline MOABB L/R): the
+operator-support **safety** half holds — metadata abstains under acquisition mismatch (18/18
+identity, exact equivalence) — but the **utility** half does NOT reach the bar (supported-regime
+paired Δ +0.001, CI includes 0). (4) The controlled prevalence intervention (V2P) shows even
+**fixed-prior CC is not prevalence-invariant** (occupancy slope −0.020, CI excludes 0; pooled −0.062,
+joint −0.042) — supporting the revised bias theorem. Net: we can correctly *detect when not to adapt*;
+unlabeled source-calibrated adaptation is *safe but marginal*. **Experiment search is closed.**
+
+---
+
+# H²-CMI — Hierarchical Class-Conditional Mutual-Information Adaptation for EEG  *(original design narrative — code map only)*
 
 A self-contained implementation of the post-review (ICLR-direction) redesign. It is
 **isolated** from the AAAI `cmi/` package — nothing here imports-with-side-effects or
@@ -119,10 +153,14 @@ to run on MOABB / cross-site clinical data. Increase `H2Config` capacity (`z_c_d
 `spd_rank`, `density.n_components`, `train.epochs`) accordingly; the smoke defaults are
 sized for CPU.
 
-## Status / honesty
+## Status / honesty  *(superseded — see the terminal banner at the top)*
 
-This is a **research implementation** of the proposed method on a **simulator**: it
-demonstrates that every piece is correct, differentiable, and composes end-to-end, and that
-the corrected theory (P0-2…P0-5) is what the code computes. It is **not** a claim of
-real-EEG SOTA — that requires the confirmatory protocol in review §10.4 (unified
-preprocessing, 5–10 seeds, subject/site-clustered inference, external lockbox).
+The confirmatory protocol this section once deferred to **was carried out** (Stage V): fresh-seed
+confirmation (seeds 100–119) and a frozen real-EEG external-validation block (offline MOABB cross-
+dataset + cross-session L/R). Outcome, in brief: the safety/abstention behaviour holds on real EEG
+but unlabeled source-calibrated adaptation yields no reliable utility, and the joint EM's prior-M-step
+harm replicates. The deployed policy is **metadata-only routing + identity-by-default** (no target-
+only eligibility gate). See [`results/V2_RESULTS.md`](results/V2_RESULTS.md),
+[`results/V2P_RESULTS.md`](results/V2P_RESULTS.md), and [`results/METHOD_FREEZE.md`](results/METHOD_FREEZE.md).
+The target-prior EM TTA, the source-only safety gate, and the online transform listed below are
+**diagnostic / falsified**, not deployed.
