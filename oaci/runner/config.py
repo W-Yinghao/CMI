@@ -41,6 +41,7 @@ class RunnerExecutionConfig:
     selection_score_tolerance: float
     feature_chunk_size: int | None
     prediction_chunk_size: int | None
+    prediction_prob_floor: float
     execution_config_hash: str
 
     def engine_config_for(self, run_key) -> EngineConfig:
@@ -65,10 +66,12 @@ class RunnerExecutionConfig:
             "global_lpc_alpha": float(manifest.methods.global_lpc_laplace_smoothing),
             "selection_score_tolerance": float(manifest.training.selection_score_tolerance),
             "feature_chunk_size": manifest.training.feature_chunk_size,
-            "prediction_chunk_size": manifest.training.prediction_chunk_size})
+            "prediction_chunk_size": manifest.training.prediction_chunk_size,
+            "prediction_prob_floor": float(manifest.evaluation.prediction_prob_floor)})
         return RunnerExecutionConfig(
             engine_template=eng, critic=critic, method_critic_hidden=int(manifest.methods.critic_capacity),
             global_lpc_alpha=float(manifest.methods.global_lpc_laplace_smoothing),
             selection_score_tolerance=float(manifest.training.selection_score_tolerance),
             feature_chunk_size=manifest.training.feature_chunk_size,
-            prediction_chunk_size=manifest.training.prediction_chunk_size, execution_config_hash=h)
+            prediction_chunk_size=manifest.training.prediction_chunk_size,
+            prediction_prob_floor=float(manifest.evaluation.prediction_prob_floor), execution_config_hash=h)

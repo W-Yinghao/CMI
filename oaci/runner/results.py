@@ -35,6 +35,7 @@ class TrainedMethod:
     shared_stage2_task_plan_hash: str
     objective_spec: ObjectiveSpec
     train_result: object             # TrainResult
+    training_diagnostics: dict
 
 
 @dataclass(frozen=True)

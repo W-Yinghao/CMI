@@ -42,7 +42,7 @@ methods:
   names: [ERM, OACI, global_lpc, uniform]
   global_lpc_laplace_smoothing: 1.0
   critic_capacity: 8
-evaluation: {alpha: 0.05, delta_bacc: 0.02, ece_bins: 15, paired_bootstrap: 100, invalid_draw_threshold: 0.5, min_clusters: 2}
+evaluation: {alpha: 0.05, delta_bacc: 0.02, ece_bins: 15, paired_bootstrap: 100, invalid_draw_threshold: 0.5, min_clusters: 2, prediction_prob_floor: 1.0e-6}
 optimizer:
   name: adam
   lr_stage1: 5.0e-3

@@ -169,6 +169,21 @@ def test_prediction_hashes_are_full_sha256():
         assert len(h) == 64 and all(c in "0123456789abcdef" for c in h)
 
 
+def test_prediction_content_hash_binds_all_scientific_metadata():
+    base = _pb().prediction_content_hash()
+    for over in (dict(seed=99), dict(checkpoint_hash="ck"), dict(support_mask_hash="sm"),
+                 dict(audit_tensor_hash="tt"), dict(split_manifest_hash="sm2"), dict(preprocess_hash="pp")):
+        assert _pb(**over).prediction_content_hash() != base
+    pb = _pb()
+    assert pb.input_tensor_hash == pb.audit_tensor_hash             # semantic alias
+    try:
+        pb.logits[0, 0] = 9.0                                       # arrays are read-only
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("PredictionBundle arrays must be read-only")
+
+
 def _run_all() -> None:
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     for fn in fns:

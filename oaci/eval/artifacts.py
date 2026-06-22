@@ -97,6 +97,8 @@ class PredictionBundle:
             raise ValueError(f"invalid split_role {self.split_role!r}")
         if int(self.deletion_level) < 0:
             raise ValueError("deletion_level must be >= 0")
+        for a in (self.sample_id, self.logits, self.y, self.domain, self.group):
+            a.setflags(write=False)                                  # immutable scientific arrays
 
     @property
     def n(self) -> int:
@@ -114,6 +116,11 @@ class PredictionBundle:
     def eval_population_hash(self) -> str:
         return population_hash(self.sample_id, self.y, self.domain, self.group)
 
+    @property
+    def input_tensor_hash(self) -> str:
+        """Semantic alias: the role's input tensor hash (frozen at construction)."""
+        return self.audit_tensor_hash
+
     def reorder(self, order) -> "PredictionBundle":
         order = np.asarray(order)
         return PredictionBundle(
@@ -128,7 +135,7 @@ class PredictionBundle:
 
     def prediction_content_hash(self) -> str:
         """Byte identity of the prediction: sorted IDs + logits + labels + domain/group + class map +
-        checkpoint hash + split metadata."""
+        checkpoint hash + ALL scientific metadata (seed, support mask, role tensor, split + preprocess)."""
         sid = [str(s) for s in self.sample_id.tolist()]
         order = sorted(range(len(sid)), key=lambda i: sid[i])
         h = hashlib.sha256()
@@ -138,13 +145,19 @@ class PredictionBundle:
         _feed_strs(h, [str(self.group[i]) for i in order])          # string group: never pointer-hash
         _feed_strs(h, list(self.class_names))
         _feed_strs(h, [self.method, self.split_id, self.split_role, str(int(self.deletion_level)),
-                       self.checkpoint_hash, self.risk_metric])
+                       str(int(self.seed)), self.checkpoint_hash, self.support_mask_hash,
+                       self.audit_tensor_hash, self.split_manifest_hash, self.preprocess_hash, self.risk_metric])
         return h.hexdigest()
 
+    def _class_map_hash(self) -> str:
+        h = hashlib.sha256(); _feed_strs(h, list(self.class_names)); return h.hexdigest()
+
     def audit_signature(self) -> tuple:
-        """Full byte-identity signature (population + actual tensor + split + preprocessing)."""
-        return (self.eval_population_hash, self.audit_tensor_hash,
-                self.split_manifest_hash, self.preprocess_hash)
+        """Byte-identity of the FIXED audit/target population (so it can be checked invariant across
+        deletion levels): population + role tensor + split + preprocess + class map + split role.
+        Deliberately excludes the current training support hash."""
+        return (self.eval_population_hash, self.audit_tensor_hash, self.split_manifest_hash,
+                self.preprocess_hash, self._class_map_hash(), self.split_role)
 
 
 def align_pair(a: PredictionBundle, b: PredictionBundle):

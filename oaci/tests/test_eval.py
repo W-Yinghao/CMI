@@ -20,11 +20,13 @@ from oaci.eval.bootstrap import (
     paired_ci,
     point_delta_over_seeds,
 )
-from oaci.eval.calibration import fit_temperature, nll_per_sample, pooled_nll, top_label_ece
+from oaci.eval.calibration import (domain_eces, fit_temperature, mean_domain_ece, nll_per_sample,
+                                   pooled_nll, top_label_ece, worst_domain_ece)
 from oaci.eval.metrics import (
     domain_baccs,
     mean_domain_bacc,
     pooled_bacc,
+    pooled_bacc_summary,
     worst_domain_bacc,
     worst_paired_delta_bacc,
 )
@@ -296,6 +298,25 @@ def test_simultaneous_band_is_point_estimate_centered():
     band = simultaneous_band(plan, fns, point_curve=point, alpha=0.05)
     assert band["centre"] == point                              # centered on the POINT curve, not bootstrap mean
     assert abs(band["half_width"] - 0.4) < 1e-9                 # max(|0.5-0.1|, |-0.5+0.2|)
+
+
+def test_strict_pooled_reference_bacc_is_nan_when_class_missing():
+    # class 1 entirely absent -> reference NaN, observed finite, coverage 0.5
+    y = np.array([0, 0, 0, 0]); pred = np.array([0, 0, 1, 0])
+    s = pooled_bacc_summary(y, pred, [0, 1])
+    assert np.isnan(s["reference"]) and s["reference_status"] == "nonestimable_missing_class"
+    assert not np.isnan(s["observed"]) and s["class_coverage"] == 0.5
+    s2 = pooled_bacc_summary(np.array([0, 1, 0, 1]), np.array([0, 1, 0, 1]), [0, 1])
+    assert s2["reference"] == 1.0 and s2["reference_status"] == "estimable"
+
+
+def test_domain_ece_mean_and_worst_match_known_values():
+    rng = np.random.default_rng(0)
+    logits = rng.standard_normal((40, 2)); y = rng.integers(0, 2, 40); dom = np.array([0] * 20 + [1] * 20)
+    eces = domain_eces(logits, y, dom, n_bins=5)
+    assert set(eces) == {0, 1}
+    assert abs(mean_domain_ece(logits, y, dom, n_bins=5) - np.mean(list(eces.values()))) < 1e-12
+    assert abs(worst_domain_ece(logits, y, dom, n_bins=5) - max(eces.values())) < 1e-12
 
 
 def _run_all() -> None:

@@ -125,6 +125,7 @@ class EvaluationBlock:
     paired_bootstrap: int | None = None
     invalid_draw_threshold: float | None = None
     min_clusters: int | None = None
+    prediction_prob_floor: float | None = None   # eval-unit aggregation floor (affects logits/NLL/ECE)
 
 
 @dataclass
@@ -230,6 +231,7 @@ class ProtocolManifestV2:
         _chk(e.delta_bacc is not None and e.delta_bacc >= 0, "delta_bacc >= 0")
         _chk(e.ece_bins is not None and e.ece_bins >= 2, "ece_bins >= 2")
         _chk(e.paired_bootstrap is not None and e.paired_bootstrap >= 1, "paired_bootstrap >= 1")
+        _chk(e.prediction_prob_floor is not None and 0 < e.prediction_prob_floor < 1, "0 < prediction_prob_floor < 1")
         _chk(p.folds is not None and p.folds >= 2, "folds >= 2")
         caps = list(p.capacities or [])
         _chk(len(caps) > 0 and len(set(caps)) == len(caps) and all(c >= 0 for c in caps),

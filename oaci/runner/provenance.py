@@ -43,6 +43,24 @@ class ProvenanceEvent:
     n_ids: int
 
 
+# a fit category may only be recorded in its own phase (fail-fast, not at the end)
+_CATEGORY_PHASE = {"preprocess": RunnerPhase.PREPARED, "optimization": RunnerPhase.TRAINING,
+                   "selection": RunnerPhase.SELECTION, "audit_estimator": RunnerPhase.AUDIT}
+
+
+@dataclass(frozen=True)
+class ProvenanceSnapshot:
+    phase: RunnerPhase
+    preprocess_fit_ids: frozenset
+    optimization_fit_ids: frozenset
+    selection_fit_ids: frozenset
+    audit_estimator_fit_ids: frozenset
+    target_fit_ids: frozenset
+    ordered_events: tuple
+    selection_locked_event_index: int | None
+    provenance_hash: str
+
+
 class IllegalPhaseTransition(RuntimeError):
     pass
 
@@ -83,8 +101,30 @@ class RunProvenance:
     def record_fit(self, category: str, ids) -> ProvenanceEvent:
         if category not in self.FIT_CATEGORIES:
             raise ValueError(f"unknown fit category {category!r}")
+        if category == "target":
+            raise ValueError("target fits are forbidden (target is prediction-only)")
+        if self.phase != _CATEGORY_PHASE[category]:                 # fail-fast on a wrong-phase fit
+            raise ValueError(f"{category} fit can only be recorded in {_CATEGORY_PHASE[category].value}, "
+                             f"not {self.phase.value}")
         getattr(self, f"{category}_fit_ids").update(str(i) for i in ids)
         return self._event(self.phase, f"fit:{category}", ids)
+
+    def snapshot(self) -> ProvenanceSnapshot:
+        h = hashlib.sha256(); feed_string(h, self.phase.value)
+        for cat in self.FIT_CATEGORIES:
+            feed_string(h, cat)
+            for s in sorted(getattr(self, f"{cat}_fit_ids")):
+                feed_string(h, s)
+        for ev in self.ordered_events:
+            feed_string(h, f"{ev.index}|{ev.phase}|{ev.kind}|{ev.ids_hash}|{ev.n_ids}")
+        feed_string(h, str(self.selection_locked_event_index))
+        return ProvenanceSnapshot(
+            phase=self.phase, preprocess_fit_ids=frozenset(self.preprocess_fit_ids),
+            optimization_fit_ids=frozenset(self.optimization_fit_ids),
+            selection_fit_ids=frozenset(self.selection_fit_ids),
+            audit_estimator_fit_ids=frozenset(self.audit_estimator_fit_ids),
+            target_fit_ids=frozenset(self.target_fit_ids), ordered_events=tuple(self.ordered_events),
+            selection_locked_event_index=self.selection_locked_event_index, provenance_hash=h.hexdigest())
 
     # ---- final assertions ----
     def assert_invariants(self, level0_source_train_ids, current_source_train_ids, source_audit_ids) -> None:

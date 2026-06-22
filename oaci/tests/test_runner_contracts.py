@@ -119,25 +119,49 @@ def test_provenance_rejects_source_audit_in_selection():
 
 def test_provenance_rejects_audit_before_selection_lock():
     p = RunProvenance(); p.transition(RunnerPhase.TRAINING); p.transition(RunnerPhase.SELECTION)
-    p.record_fit("audit_estimator", ["a0"])                          # BEFORE lock
-    p.lock_selection()
     try:
-        p.assert_invariants(["s0"], ["s0"], ["a0"])
+        p.record_fit("audit_estimator", ["a0"])                      # audit fit outside the AUDIT phase
     except ValueError:
         pass
     else:
-        raise AssertionError("an audit fit before the selection lock must be rejected")
+        raise AssertionError("an audit fit before the AUDIT phase must be rejected immediately")
+
+
+def test_provenance_fit_category_is_phase_checked_immediately():
+    p = RunProvenance()
+    try:
+        p.record_fit("selection", ["s0"])                            # selection fit in PREPARED phase
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a wrong-phase fit must fail immediately")
+    p.transition(RunnerPhase.TRAINING)
+    try:
+        p.record_fit("preprocess", ["s0"])                           # preprocess fit outside PREPARED
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("preprocess fit outside PREPARED must fail")
+
+
+def test_provenance_snapshot_is_immutable_and_full_sha256():
+    p = RunProvenance(); p.record_fit("preprocess", ["a"]); p.transition(RunnerPhase.TRAINING)
+    p.record_fit("optimization", ["a", "b"])
+    snap = p.snapshot()
+    assert len(snap.provenance_hash) == 64 and isinstance(snap.optimization_fit_ids, frozenset)
+    assert p.snapshot().provenance_hash == snap.provenance_hash      # deterministic
+    p.record_fit("optimization", ["c"])                              # mutate live -> snapshot unchanged
+    assert p.snapshot().provenance_hash != snap.provenance_hash and snap.optimization_fit_ids == frozenset({"a", "b"})
 
 
 def test_provenance_rejects_any_target_fit_id():
     p = RunProvenance(); p.transition(RunnerPhase.TRAINING)
-    p.record_fit("target", ["t0"])
     try:
-        p.assert_invariants(["s0"], ["s0"], [])
+        p.record_fit("target", ["t0"])
     except ValueError:
         pass
     else:
-        raise AssertionError("any target fit id must be rejected")
+        raise AssertionError("any target fit must be rejected immediately")
 
 
 # ---------------- canonical feature extraction ----------------

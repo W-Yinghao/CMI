@@ -64,6 +64,21 @@ def top_label_ece(logits, y, n_bins: int = 15, bin_edges=None) -> float:
     return float(ece)
 
 
+def domain_eces(logits, y, domain, n_bins: int = 15, bin_edges=None) -> dict:
+    """Per-domain top-label ECE with the SAME fixed equal-width bins for every domain."""
+    logits, y, d = np.asarray(logits), np.asarray(y), np.asarray(domain)
+    edges = fixed_bin_edges(n_bins) if bin_edges is None else np.asarray(bin_edges, float)
+    return {int(dd): top_label_ece(logits[d == dd], y[d == dd], bin_edges=edges) for dd in np.unique(d)}
+
+
+def mean_domain_ece(logits, y, domain, n_bins: int = 15, bin_edges=None) -> float:
+    return float(np.mean(list(domain_eces(logits, y, domain, n_bins, bin_edges).values())))
+
+
+def worst_domain_ece(logits, y, domain, n_bins: int = 15, bin_edges=None) -> float:
+    return float(np.max(list(domain_eces(logits, y, domain, n_bins, bin_edges).values())))   # higher = worse
+
+
 def fit_temperature(logits, y, role: str = "target") -> float:
     """REFUSED outside an explicit diagnostic. Source-only evaluation forbids target-fit
     calibration parameters (temperature/binning); an oracle target temperature is a labelled

@@ -72,7 +72,7 @@ def _exec_cfg():
     eng = EngineConfig(metric="ce", epsilon=0.03, numerical_tol=1e-4, stage1_epochs=2, stage1_steps_per_epoch=1,
                        stage2_epochs=2, steps_per_epoch=1, warmup_steps=1, critic_steps=1, checkpoint_every=1,
                        lr_stage1=0.05, lr_encoder=0.1, lr_critic=0.05)
-    return RunnerExecutionConfig(eng, CriticConfig(capacities=(0, 8), max_iter=50), 8, 1.0, 1e-8, None, None, "exec1")
+    return RunnerExecutionConfig(eng, CriticConfig(capacities=(0, 8), max_iter=50), 8, 1.0, 1e-8, None, None, 1e-6, "exec1")
 
 
 def _factory():
@@ -231,6 +231,26 @@ def test_permuted_method_order_reproduces_training_and_selection():
         assert a.trained_methods[m].train_result.initial_model_hash == b.trained_methods[m].train_result.initial_model_hash
         assert ([c.model_hash for c in a.trained_methods[m].train_result.trajectory]
                 == [c.model_hash for c in b.trained_methods[m].train_result.trajectory])
+
+
+def test_prediction_prob_floor_is_explicit_and_manifest_hashed():
+    import os
+    from oaci.protocol.freeze import default_confirmatory_path
+    from oaci.protocol.manifest_v2 import load_v2
+    p = os.path.join(os.path.dirname(default_confirmatory_path()), "smoke_v1.yaml")
+    m = load_v2(p)
+    assert RunnerExecutionConfig.from_manifest(m).prediction_prob_floor == m.evaluation.prediction_prob_floor
+    base = load_v2(p).freeze()["sha256"]
+    m2 = load_v2(p); m2.evaluation.prediction_prob_floor = 1e-4
+    assert m2.freeze()["sha256"] != base
+
+
+def test_trained_method_retains_real_objective_diagnostics():
+    res, _ = _default()
+    od = res.trained_methods["OACI"].training_diagnostics
+    assert od["rejected_ineligible_rows"] == 0 and "support_hash" in od and od["eligible_alignment_rows"] > 0
+    gd = res.trained_methods["global_lpc"].training_diagnostics
+    assert gd["observed_alignment_rows"] > 0 and "prior_matrix_hash" in gd and "domain_universe" in gd
 
 
 def _run_all() -> None:

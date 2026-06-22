@@ -32,7 +32,7 @@ def _level_invariants(stage1, trained, selected, level_plans, leakage_stats) -> 
         "selection_status": level_plans.selection_status,
     }
     if trained["OACI"].active:
-        inv["oaci_rejected_ineligible_rows"] = 0   # train_four_methods already asserted it is 0
+        inv["oaci_rejected_ineligible_rows"] = trained["OACI"].training_diagnostics["rejected_ineligible_rows"]
     if level_plans.selection_status == "estimable":
         inv["erm_cache_request_compute_hit"] = (leakage_stats.get("erm_request"),
                                                 leakage_stats.get("erm_compute"), leakage_stats.get("erm_hit"))

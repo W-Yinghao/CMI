@@ -31,6 +31,17 @@ def pooled_bacc(y, pred, classes) -> float:
     return float(np.mean(vals)) if vals else np.nan
 
 
+def pooled_bacc_summary(y, pred, classes) -> dict:
+    """Strict pooled bAcc: ``reference`` is NaN if ANY pre-registered class is absent (never silently
+    averaged over present classes); ``observed`` is over present classes; plus class coverage."""
+    r = per_class_recall(y, pred, classes)
+    present = [c for c in classes if not np.isnan(r[c])]
+    reference = float(np.mean([r[c] for c in classes])) if len(present) == len(classes) else np.nan
+    observed = float(np.mean([r[c] for c in present])) if present else np.nan
+    return {"reference": reference, "observed": observed, "class_coverage": len(present) / len(classes),
+            "reference_status": "estimable" if not np.isnan(reference) else "nonestimable_missing_class"}
+
+
 def domain_bacc(y, pred, classes):
     """Return (reference_bacc, observed_bacc, class_coverage) for a single domain. reference is
     NaN (non-estimable) if any pre-registered class is absent."""
