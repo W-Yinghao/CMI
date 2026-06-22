@@ -17,6 +17,7 @@ partial PREFERS the safe span (exact-k WIP per prefix-search note); noise gate s
 probe rescaling stability. Anything stronger (clean TASK_RISK_UCB on a LEARNED candidate,
 exact partial k=2) depends on resolving the projector fork and is NOT asserted here.
 """
+from dataclasses import replace
 import numpy as np
 import torch
 
@@ -25,7 +26,7 @@ from tos_cmi.data.synthetic import (SynthSpec, make, make_collinear, make_covari
                                      apply_linear_transform)
 from tos_cmi.score_fisher import (ScoreFisherConfig, ScoreFisherSelector, metric_projector,
                                    task_protected_projector, select_from_fishers, ucb_rank_gate,
-                                   _metric)
+                                   _metric, _nested_residual_score, _SplitPlan, _GatePlan)
 from tos_cmi.subspace import SubspaceSelector
 from tos_cmi.eval.stability import precision_recall, projection_distance
 
@@ -94,6 +95,39 @@ def test_task_protected_projector_contracts():
     print("test_task_protected_projector_contracts: OK")
 
 
+# ------------------------------------------- Phase 1.2.3: nested conditional task-info gate
+def test_nested_task_gate_label_independent_extra():
+    # extra ⟂ Y given base -> I(Y;extra|base)=0 -> nested delta ~0 and alpha~0 (strict nesting),
+    # even though an ambient retrain on rank-reduced input could charge a spurious cost.
+    rng = np.random.default_rng(0); N = 4000
+    y = rng.integers(0, 3, N)
+    base = (np.eye(3)[y] * 2.0 + 0.3 * rng.standard_normal((N, 3))).astype(np.float64)  # carries Y
+    extra = rng.standard_normal((N, 4))                                                  # pure noise
+    gplan = _GatePlan(_SplitPlan(N, 2, 1), 5)
+    d, diag = _nested_residual_score(base, extra, y, 3, _cfg(), gplan, 0, "nll")
+    print("label-independent extra:", {"delta": round(d.mean(), 4), "alpha": round(diag["alpha"], 3)})
+    assert abs(d.mean()) < 0.02 and diag["alpha"] <= 0.5, (d.mean(), diag)
+    print("test_nested_task_gate_label_independent_extra: OK")
+
+
+def test_nested_task_gate_detects_nonlinear_info():
+    # extra carries Y NONLINEARLY (y = |a| > median): a LINEAR gate misses it (would wrongly mark
+    # the direction safe to delete), the NESTED MLP gate detects it -> proves nonlinearity needed.
+    rng = np.random.default_rng(0); N = 5000
+    a = rng.standard_normal(N)
+    y = (np.abs(a) > 0.6745).astype(int)                       # balanced 2-class, nonlinear in a
+    base = (0.3 * rng.standard_normal((N, 3))).astype(np.float64)          # base carries NO Y info
+    extra = np.stack([a, rng.standard_normal(N)], 1)                       # extra carries a
+    gplan = _GatePlan(_SplitPlan(N, 2, 1), 5)
+    d_mlp, _ = _nested_residual_score(base, extra, y, 2, _cfg(), gplan, 0, "nll")
+    d_lin, _ = _nested_residual_score(base, extra, y, 2, replace(_cfg(), probe_family="linear"),
+                                      gplan, 0, "nll")
+    print("nonlinear info:", {"mlp_delta": round(d_mlp.mean(), 4), "lin_delta": round(d_lin.mean(), 4)})
+    assert d_mlp.mean() > 0.10, d_mlp.mean()                   # nested MLP detects nonlinear task info
+    assert d_lin.mean() < 0.03, d_lin.mean()                   # linear gate misses it (would pass)
+    print("test_nested_task_gate_detects_nonlinear_info: OK")
+
+
 # ----------------------------------------------------------------- ORACLE gate certification
 # Inject the TRUE directions into the UCB gate (bypassing candidate_order) to isolate the gate
 # from the selection (per the design decision: certify the gate, don't tune the generator).
@@ -119,24 +153,24 @@ def test_oracle_danger_basis_binds_task_ucb():
     print("test_oracle_danger_basis_binds_task_ucb: OK")
 
 
-def test_oracle_partial_safe_protected_algebra_vs_head():
-    """FINDING (Phase 1.2.2): the task-protected projector preserves the task span ALGEBRAICALLY
-    ((I-P)t=t exactly, certified in test_task_protected_projector_contracts), so the IDEAL is to
-    ACCEPT the safe span [w1,w2] at k=2. But the nonlinear MLP task-risk head still charges a
-    residual NLL cost on the rank-reduced (I-P)Z (a predictive-vs-algebraic gap, like the domain
-    critic), so the UCB may still refuse. We RECORD this (task UCB per prefix) rather than tune
-    delta_Y -- the faithful-task-cost measurement is the open task-head-fidelity decision."""
-    data = make_partial_overlap(n=6000, seed=0); s = data["spec"]; cfg = _cfg()
-    Z = data["Z"].astype(np.float64); M = _metric(Z, data["y"], s.n_cls, cfg)
-    W = data["nuisance_basis"] / np.linalg.norm(data["nuisance_basis"], axis=0, keepdims=True)
-    T = data["task_overlap_basis"] / np.linalg.norm(data["task_overlap_basis"], axis=0, keepdims=True)
-    P, info = task_protected_projector(W, T, M); I = np.eye(s.d)
-    assert np.allclose((I - P) @ T, T, atol=1e-6)         # task ALGEBRAICALLY preserved
-    assert np.allclose((I - P) @ W, 0, atol=1e-6)         # nuisance removed
+def test_oracle_partial_safe_protected_improves_but_biased():
+    """Phase 1.2.3: protecting T=[t1,t2] and scoring task cost as the nested INCREMENTAL info
+    I(Y;deleted|kept) on intrinsic coords, the gate now ACCEPTS the safe span (k>=1, up from k=0
+    under the ambient artifact). FINDING: the nested MLP still has a small POSITIVE BIAS on the
+    genuinely-safe span (nonlinear-probe variance + OOD g(u,0)), so task_info > task_linear(~0)
+    and it stops short of the ideal k=2. The LINEAR gate is ~0 here but misses nonlinear info
+    (test_nested_task_gate_detects_nonlinear_info) -- a bias/variance trade recorded, not tuned.
+    Hierarchy verified: linear ~0 < nested_info < ambient_deployment."""
+    data = make_partial_overlap(n=6000, seed=0)
     k, recs, reason = _oracle(data, data["nuisance_basis"], T=data["task_overlap_basis"])
-    print("oracle partial safe (protected): algebra-preserved task; gate ->",
-          {"k": k, "reason": reason, "task_ucb_per_k": [round(r["task_ucb"], 4) for r in recs]})
-    print("test_oracle_partial_safe_protected_algebra_vs_head: OK")
+    r0 = recs[0]
+    print("oracle partial safe (protected):", {"k": k, "reason": reason,
+          "task_linear": round(r0["task_linear_delta"], 4),
+          "task_info": round(r0["task_info_delta_mean"], 4),
+          "task_deployment": round(r0["task_deployment_delta"], 4)})
+    assert k >= 1, (k, recs)                              # accepts the safe span (was k=0)
+    assert r0["task_linear_delta"] < r0["task_info_delta_mean"] < r0["task_deployment_delta"] + 1e-9
+    print("test_oracle_partial_safe_protected_improves_but_biased: OK (k=%d, ideal=2)" % k)
 
 
 def test_oracle_partial_unsafe_intersection():
@@ -235,8 +269,10 @@ if __name__ == "__main__":
     test_select_from_fishers_exactly_covariant()
     test_checkpoint_preserves_identity()
     test_task_protected_projector_contracts()
+    test_nested_task_gate_label_independent_extra()
+    test_nested_task_gate_detects_nonlinear_info()
     test_oracle_danger_basis_binds_task_ucb()
-    test_oracle_partial_safe_protected_algebra_vs_head()
+    test_oracle_partial_safe_protected_improves_but_biased()
     test_oracle_partial_unsafe_intersection()
     test_all_safe_accepts_and_recovers()
     test_learned_dangerous_gate_safety_invariant()

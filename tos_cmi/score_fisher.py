@@ -42,7 +42,7 @@ Deferred (NOT here): conditional-on-task TRAINING critic `I(P_N Z;D|Y,sg(P_T Z))
 encoder penalty; PCGrad; EEG wiring. (The gate's residual q_k is eval-only, not the trainer.)
 """
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from typing import Optional
 
 import numpy as np
@@ -336,17 +336,22 @@ def _m_proj(B, M):
     return B @ np.linalg.solve(B.T @ M @ B, B.T @ M)
 
 
+def _m_orthonormal(B, M):
+    """M-orthonormal basis of span(B): Q with Qᵀ M Q = I (via Cholesky of BᵀMB)."""
+    L = np.linalg.cholesky(B.T @ M @ B + 1e-12 * np.eye(B.shape[1]))
+    return B @ np.linalg.inv(L).T
+
+
 def _direct_sum_min_sin(V, T, M):
-    """Per-nuisance-direction sin-angle to span(T) in the M-metric = ||(I-Pi_T^M) v||_M/||v||_M.
-    Min over columns ~ sin of the smallest principal angle between span(V) and span(T); ->0 iff
-    a nuisance direction lies in T (the direct-sum condition N∩T={0} fails)."""
-    if V.shape[1] == 0:
+    """sin of the SMALLEST principal angle between span(V) and span(T) in the M-metric:
+        s_min = sqrt(1 - sigma_max(Q_Vᵀ M Q_T)^2),   Q_V,Q_T M-orthonormal.
+    This is a true SUBSPACE quantity (basis-independent) -> ~0 iff some linear combination of V
+    lies in T (direct-sum condition N∩T={0} fails), unlike a per-column residual ratio."""
+    if V.shape[1] == 0 or T is None or T.shape[1] == 0:
         return 1.0
-    PiT = _m_proj(T, M)
-    Vp = V - PiT @ V
-    vn = np.sqrt(np.maximum(np.einsum("ij,jk,ik->i", V.T, M, V.T), 1e-18))
-    vpn = np.sqrt(np.maximum(np.einsum("ij,jk,ik->i", Vp.T, M, Vp.T), 0.0))
-    return float((vpn / vn).min())
+    Qv, Qt = _m_orthonormal(V, M), _m_orthonormal(T, M)
+    smax = float(np.clip(np.linalg.svd(Qv.T @ M @ Qt, compute_uv=False).max(), 0.0, 1.0))
+    return float(np.sqrt(max(0.0, 1.0 - smax ** 2)))
 
 
 def task_protected_projector(V, T, M, min_sin=0.05):
@@ -636,6 +641,70 @@ def _domain_residual_brier(Zfeat, dg, yg_oh, cache, n_dom, n_cls, cfg, seed):
     return brk
 
 
+def _intrinsic_coords(Zg, P):
+    """Full-rank intrinsic coordinates of the KEPT and DELETED components, so the task gate
+    measures incremental INFORMATION, not the rank/conditioning artifact of feeding a
+    rank-deficient ambient (I-P)Z to an MLP. u = kept comp in an orthobasis of range(I-P)
+    [N, d-k]; n = deleted comp in an orthobasis of range(P) [N, k]. (u,n) <-> Z information."""
+    d = P.shape[0]; I = np.eye(d)
+    Un, sn, _ = np.linalg.svd(P);      BN = Un[:, sn > 1e-8]
+    Ur, sr, _ = np.linalg.svd(I - P);  BR = Ur[:, sr > 1e-8]
+    u = (Zg @ (I - P).T) @ BR
+    n = (Zg @ P.T) @ BN
+    return u, n
+
+
+def _nested_residual_score(base, extra, target, n_out, cfg, gplan, seed, score="nll"):
+    """Strictly-nested conditional critic measuring the INCREMENTAL utility of `extra` given
+    `base`: c0(target|base) calibrated once; q1 = softmax(L~0 + alpha*[g([base,extra]) -
+    g([base,0])]), g zero-init, alpha>=0 on inner-val (alpha=0 -> q1==c0 EXACTLY). Per-sample
+    delta = score(c0) - score(q1) >= 0 estimates I(target; extra | base) under `score`
+    (nll -> log-loss / conditional MI; brier -> bounded proper). Returns (delta[N], diag)."""
+    N = len(target); delta = np.zeros(N); base_l = np.zeros(N); full_l = np.zeros(N); alphas = []
+    bd, ed = base.shape[1], extra.shape[1]
+    sc = ((lambda p, t: (p ** 2).sum(1) - 2 * p[np.arange(len(t)), t] + 1.0) if score == "brier"
+          else (lambda p, t: -np.log(np.clip(p[np.arange(len(t)), t], 1e-8, 1.0))))
+    Bt = torch.tensor(base, dtype=torch.float32); Et = torch.tensor(extra, dtype=torch.float32)
+    Zc = torch.cat([Bt, Et], 1); Z0 = torch.cat([Bt, torch.zeros_like(Et)], 1)
+    tt = torch.tensor(target, dtype=torch.long)
+    for (tr, hold, itr, iva, iseed) in gplan.folds:
+        c0 = _train_head(bd, n_out, 0, base, target, None, cfg, iseed + 5, itr, iva)
+        with torch.no_grad():
+            T0 = (_fit_temperature(c0(Bt[torch.as_tensor(iva)]), tt[torch.as_tensor(iva)])
+                  if len(iva) else 1.0)
+            L0 = c0(Bt) / T0
+        base_l[hold] = sc(torch.softmax(L0[hold], 1).numpy(), target[hold])
+        torch.manual_seed(iseed + 7)
+        g = _zero_last_layer(_Probe(bd + ed, n_out, 0, cfg.probe_family, cfg.hidden))
+        opt = torch.optim.Adam(g.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+        off = L0.detach()
+        itl, ivl = torch.as_tensor(itr), torch.as_tensor(iva)
+        best, bs, bad, pat = float("inf"), None, 0, max(8, cfg.epochs // 5)
+        for ep in range(cfg.epochs):
+            opt.zero_grad()
+            F.cross_entropy((off + (g(Zc) - g(Z0)))[itl], tt[itl]).backward(); opt.step()
+            if len(ivl) and ep % 3 == 0:
+                with torch.no_grad():
+                    v = F.cross_entropy((off + (g(Zc) - g(Z0)))[ivl], tt[ivl]).item()
+                if v < best - 1e-4:
+                    best, bs, bad = v, _copy.deepcopy(g.state_dict()), 0
+                else:
+                    bad += 1
+                    if bad >= pat:
+                        break
+        if bs is not None:
+            g.load_state_dict(bs)
+        with torch.no_grad():
+            R = g(Zc) - g(Z0)
+            alpha = _fit_nonneg_scale(off[ivl], R[ivl], tt[ivl]) if len(ivl) else 1.0
+            L1 = off + alpha * R
+        full_l[hold] = sc(torch.softmax(L1[hold], 1).numpy(), target[hold])
+        delta[hold] = base_l[hold] - full_l[hold]
+        alphas.append(alpha)
+    return delta, {"alpha": float(np.mean(alphas)) if alphas else 0.0,
+                   "base_mean": float(base_l.mean()), "full_mean": float(full_l.mean())}
+
+
 _REASONS = ("ACCEPTED", "NO_CANDIDATE", "DOMAIN_GATE_CLOSED", "DOMAIN_GAIN_TOO_SMALL",
             "TASK_RISK_UCB", "FOLD_COVERAGE_FAILURE", "INSUFFICIENT_GROUPS",
             "TASK_SUBSPACE_INTERSECTION", "NUMERICAL_FAILURE")
@@ -669,10 +738,21 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
     if Kv == 0:
         return 0, [{"k": 1, "risk_feasible": False, "decision_reason": "TASK_SUBSPACE_INTERSECTION"}], \
                "TASK_SUBSPACE_INTERSECTION"
+    lin_cfg = replace(cfg, probe_family="linear")
     try:
-        transforms = [Zg] + [Zg - Zg @ Pk.T for Pk in Ps]
-        nll = _paired_task_nll(Zg, yg, transforms, n_cls, cfg, gplan)
-        dY = np.stack([nll[k] - nll[0] for k in range(1, Kv + 1)], 1)       # [N,Kv]
+        # TASK arm: nested CONDITIONAL info gate on intrinsic coords -> delta_Y(k)=I(Y;deleted|kept)
+        dY, task_diag, dY_lin = [], [], []
+        for k in range(1, Kv + 1):
+            u, n = _intrinsic_coords(Zg, Ps[k - 1])
+            dk, diag = _nested_residual_score(u, n, yg, n_cls, cfg, gplan, seed + 100 + k, "nll")
+            dY.append(dk); task_diag.append(diag)
+            dl, _ = _nested_residual_score(u, n, yg, n_cls, lin_cfg, gplan, seed + 100 + k, "nll")
+            dY_lin.append(dl)                                # linear diagnostic
+        dY = np.stack(dY, 1)
+        # ambient rank-reduced retrain difference: a DEPLOYMENT-difficulty diagnostic only
+        amb = _paired_task_nll(Zg, yg, [Zg] + [Zg - Zg @ Pk.T for Pk in Ps], n_cls, cfg, gplan)
+        dY_dep = np.stack([amb[k] - amb[0] for k in range(1, Kv + 1)], 1)
+        # DOMAIN arm: calibrated q0 once, residual per prefix (Brier)
         br0, q0cache = _domain_q0(dg, yg_oh, n_dom, n_cls, cfg, gplan, seed + 30)
         dD = np.stack([br0 - _domain_residual_brier(Zg @ Ps[k - 1].T, dg, yg_oh, q0cache,
                        n_dom, n_cls, cfg, seed + 40 + k) for k in range(1, Kv + 1)], 1)
@@ -686,7 +766,12 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
         i = k - 1
         rsn = ("ACCEPTED" if feasible[i] else
                "TASK_RISK_UCB" if ucb_Y[i] > cfg.delta_Y else "DOMAIN_GAIN_TOO_SMALL")
-        records.append({"k": k, "task_delta_mean": float(dY[:, i].mean()), "task_ucb": float(ucb_Y[i]),
+        records.append({"k": k, "task_info_delta_mean": float(dY[:, i].mean()),
+                        "task_info_ucb": float(ucb_Y[i]), "task_linear_delta": float(dY_lin[i].mean()),
+                        "task_deployment_delta": float(dY_dep[:, i].mean()),
+                        "task_residual_alpha": task_diag[i]["alpha"],
+                        "task_base_nll": task_diag[i]["base_mean"], "task_full_nll": task_diag[i]["full_mean"],
+                        "task_ucb": float(ucb_Y[i]),  # alias (binding task statistic)
                         "domain_gain_mean": float(dD[:, i].mean()), "domain_lcb": float(lcb_D[i]),
                         "risk_feasible": bool(feasible[i]), "decision_reason": rsn})
     if intersect_at is not None:
