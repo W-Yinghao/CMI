@@ -17,7 +17,7 @@ echo "host=$(hostname) job=$SLURM_JOB_ID cpus=$SLURM_CPUS_PER_TASK started=$(dat
 mkdir -p csc/results
 /home/infres/yinwang/anaconda3/bin/conda run -n icml --no-capture-output \
     python -m csc.run_audit --out csc/results/audit.json \
-    --seeds 10 --n_boot 40 --n_dir_boot 120 --oracle_boot 150 --lodo_seeds 4
+    --seeds 10 --n_boot 40 --n_dir_boot 120 --target_n_boot 120 --oracle_boot 150 --bank_seeds 4
 echo "finished=$(date -Is)"
 # committable stdout provenance: copy the run log + record its SHA256
 LOG="logs/csc_audit_${SLURM_JOB_ID}.out"

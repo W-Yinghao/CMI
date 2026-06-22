@@ -52,9 +52,14 @@ shifts. `certify`, `certify_robust`, `analyze_source`, `nested_lodo` take ordina
 
 ---
 
-## 3. Synthetic validation obtained (CSC-P0, this commit)
+## 3. Synthetic validation (CSC-P1.3 — FROZEN PATH)
 
-`conda run -n icml python -m csc.run_synthetic --seeds 10 --n_boot 50` (CPU):
+The authoritative, machine-readable result is `csc/results/audit.json` (produced on SLURM via
+`csc/run_audit.sbatch`): it records the `ProtocolConfig` manifest hash, both validity banks,
+the cluster-level exact-Clopper-Pearson endpoints, and full provenance. ALL numbers there come
+through `run_frozen_protocol` (calibrated `certify_robust`), not `certify(...)`. The block
+below is an earlier CSC-P0 POINT-certificate smoke retained only for historical contrast — it
+is NOT the frozen-path result.
 
 ```
 source concept evidence valid: 10/10
@@ -94,10 +99,12 @@ target (α / eps / bootstrap budget), not a gate to weaken.
 ## 4. Self-tests (all passing)
 
 `tests/test_validity_gate` (single-class + disconnected + ill-posed → INVALID → abstain),
-`tests/test_design_and_pairs` (reference coding full rank; identical-Z → identical
-certificate), `tests/test_null_calibration` (clean/invisible/label-shift abstain; covariate-
-only source shows no concept evidence), `tests/test_power` (covariate → COMPATIBLE; visible
-concept → SUSPECT; concept evidence detected).
+`tests/test_design_and_pairs` (reference coding full rank; complement(A,A)→0; dup-feature →
+INVALID; identical-Z → identical certificate), `tests/test_null_calibration` (clean / invisible
+/ label-shift abstain; covariate-only source shows no concept evidence), `tests/test_power`
+(covariate → COMPATIBLE; visible concept → SUSPECT; concept evidence detected), `tests/
+test_protocol` (frozen-path taxonomy with 0 forbidden; `calibrate_tau_detect` keyword
+regression; cluster-aware path; deterministic manifest hash).
 
 ---
 
@@ -119,52 +126,61 @@ The CSC-P1.1 calibration machinery is implemented and self-consistent, but **not
 
 ---
 
-## 6. Calibration & freeze protocol (CSC-P1.1, `nested_lodo`)
+## 6. Frozen path, two banks, manifest & selection (CSC-P1.3)
 
-For each held-out **domain group** `g` (mechanism-group-out, not just one domain): build
-atlas+evidence on the others (no leakage); calibrate the certifier's thresholds on the
-TRAINING domains using the **exact certificate statistic** `visibility_statistic =
-max(n_cov,n_concept,n_resid)` over block-resampled pseudo-targets; `dataclasses.replace`
-them into the config and call **`certify_robust`** on `g`. Then compute an **oracle
-boundary-effect** on `g` with `g`'s labels — bootstrapped WITH REFITTING (resample `g`,
-refit the group boundary, evaluate OOB), label-shift corrected — as a **two-sided
-equivalence test**:
+### 6.0 ONE certification path
+Every certificate — dev sweep, unit tests, audit, confirmatory — goes through
+`csc.protocol.run_frozen_protocol(Z_src,Y_src,D_src, Z_tgt, cfg, src_group_ids, tgt_group_ids)`:
 ```
-oracle_lb > eps_concept                  -> VISIBLE_CONCEPT
--eps_stable < oracle_lb and oracle_ub < eps_stable  -> COVARIATE_STABLE (stability PROVEN)
-otherwise                                -> AMBIGUOUS (excluded from the forced binary)
+analyze_source (cluster-aware)  ->  calibrate_thresholds (SOURCE ONLY, target-size + group matched)
+                                ->  certify_robust (consensus confidence region, cluster-aware)
 ```
-with pre-registered `0 < eps_stable < eps_concept`. Report **separately**: concept power on
-*fair* visible folds (those whose training pool still had a concept atlas), false-concept
-rate on stable folds, compatible coverage on stable folds, abstention. **No aggregate
-agreement when the bank lacks either class** (`valid_bank`).
+parameterised by ONE serializable `csc.protocol.ProtocolConfig` whose canonical-JSON **hash**
+identifies the method. There is no other way to certify (the v0 measured `certify(...)`
+directly, which is NOT the deployable path).
 
-**Power is NOT validated on in-distribution LODO folds.** A held-out source domain's marginal
-shift is within normal source spread, and leave-ALL-concept-out leaves no training atlas — so
-LODO validates *false-concept control* + *threshold calibration*; deployment **power** is
-validated on out-of-distribution synthetic targets (`run_synthetic`) and on the oracle-
-confirmed real PD ON/OFF control (§2). PD ON/OFF qualifies as a positive control only if its
-oracle verdict is `VISIBLE_CONCEPT`.
+### 6.1 TWO separate validity banks (never one `valid_bank` for both)
+* **CALIBRATION_NULL_BANK** (`csc.calibration.nested_lodo`, leave-one-domain-out): validates
+  **false-concept control** on oracle-`COVARIATE_STABLE` folds and supplies threshold
+  calibration. `calibration_null_bank_valid` ⇔ enough oracle-stable folds. It does **not**
+  measure power (in-distribution folds have within-spread shifts; leave-all-concept-out leaves
+  no training atlas).
+* **OOD_POWER_BANK** (`csc.protocol.ood_power_bank`): validates **deployment power** on
+  GENERATOR-TRUTH out-of-distribution targets through the *same frozen path*, with the FULL
+  source (training retains its concept atlas). `ood_power_bank_valid` ⇔ enough fair visible
+  targets. The real positive control is oracle-confirmed PD ON/OFF (§2).
 
-### Freeze list (ALL of these are frozen before the real run; none tuned on the target)
+### 6.2 Oracle bands are frozen INDEPENDENTLY of certificate performance
+`oracle_eps_concept_ce`, `oracle_eps_stable_ce` (`0 < eps_stable < eps_concept`, CE/nats)
+define the oracle TRUTH (two-sided equivalence with a refit-OOB bootstrap CI). They are fixed
+BEFORE any certificate sweep. **Synthetic parameter selection uses GENERATOR TRUTH** (we built
+the targets); the oracle is only an estimator sanity-check on the null bank. Widening
+`eps_stable` to manufacture `COVARIATE_STABLE` folds is forbidden — if the bank has no stable
+samples the result is `BANK_INVALID`, not a re-defined label. (Raising `oracle_boot` only
+reduces Monte-Carlo error of the quantile, never the CI width from sample size / estimator
+variance.)
+
+### 6.3 Endpoints (cluster level; exact Clopper-Pearson)
+* **PRIMARY** `any_forbidden_full_suite` — per source seed, ANY forbidden outcome over ALL
+  shift kinds (covariate→`CONCEPT_SUSPECT` and visible-concept→`COVARIATE_COMPATIBLE` are
+  forbidden too, not only must-abstain misses).
+* secondary `any_false_positive_must_abstain`.
+
+### 6.4 Freeze list — EXACT status of every parameter (`ProtocolConfig`)
 | parameter | EXACT status |
 |---|---|
-| `tau_detect`, `tau_label` | **nested-LODO-calibrated** — `1−α` quantile of the *exact certifier statistic* over training-only, target-size-matched (and block/subject-matched on real data) pseudo-targets |
-| `tau_margin` | **fixed pre-registered constant** (structural dominance ratio between concept and covariate components); swept on source LODO, frozen before the real run |
-| `tau_resid` | **fixed pre-registered constant** (out-of-atlas dominance margin); swept on source LODO, frozen before the real run |
-| `eps_concept`, `eps_stable` (oracle, `0<eps_stable<eps_concept`) | **pre-registered equivalence bands** (CE/nats) |
-| `cov_stable_margin` (κ) | **pre-registered negligibility multiplier** (default 1.5), swept in freeze; the equivalence margin is `κ × noise_scale` where `noise_scale` = the data-driven `1−α` quantile of the cov-subspace loading under the h0 NULL |
-| `consensus` (`certify_robust`) | swept on source LODO, frozen before the real run |
-| `MIN_PRINCIPAL_ANGLE_DEG` (signature separability) | fixed pre-registered constant |
-| `alpha` | fixed pre-registered constant |
+| `tau_detect`, `tau_label` | **calibration RULE** (not a number): `training_only_pseudotarget_quantile` at `tau_quantile`, target-size + (real) subject-block matched; recomputed per source |
+| `tau_margin`, `tau_resid` | **fixed pre-registered constants** (dominance margins); swept on source, frozen before the real run |
+| `oracle_eps_concept_ce`, `oracle_eps_stable_ce` | **pre-registered equivalence bands** (CE/nats), frozen INDEPENDENTLY (§6.2) |
+| `cov_loading_margin_kappa` (κ) | **pre-registered negligibility multiplier** (default 1.5); margin = `κ × cov_loading_null_scale` where the null scale = h0-null `1−α` quantile of the cov-subspace loading |
+| `consensus`, `target_n_boot` | swept on source, frozen before the real run |
+| `n_boot`, `n_dir_boot`, `oracle_boot`, `source_cv_folds`, `tau_n_pseudotargets`, `var_keep`, `C`, `MIN_PRINCIPAL_ANGLE_DEG`, `alpha`, `quantile_convention`, `group_aware` | recorded in the manifest hash |
 
-`cov_stable` semantics: the covariate-subspace boundary loading is a **non-negative** norm, so
-stability is the explicit TOST-style one-sided test `U_cov < eps_stable` where `U_cov` is the
-loading's data-bootstrap upper CI and `eps_stable = κ × noise_scale` (κ = `cov_stable_margin`,
-pre-registered; `noise_scale` = the dimensionally-matched h0-null `1−α` quantile of the SAME
-loading). It is an AFFIRMATIVE equivalence test ("cov-boundary ≤ κ× noise = negligible"), not a
-`< 0` test and not a "failed to reject". Empirically the h0-null quantile ≈ the observed point
-(a well-calibrated noise floor), and κ>1 provides the negligibility headroom.
+`cov_stable` is a full-estimator equivalence test: `U_cov` is the **cluster-bootstrap** upper
+CI of the cov-subspace loading (each replicate resamples whole clusters and RE-ESTIMATES cell
+means, pooled means, `(A,R)` and the cov subspace), compared to `κ × cov_loading_null_scale`.
+Source-side `cov_loading_*` (Z-units) are named distinctly from the oracle `eps_stable_ce`
+(CE/nats) to avoid unit confusion.
 
 ### Selection rule (LEXICOGRAPHIC — never accuracy or aggregate agreement)
 1. **first** satisfy the cluster-level false-certification upper bound ≤ `α`;

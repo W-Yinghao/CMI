@@ -39,7 +39,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedKFold, StratifiedGroupKFold
 from sklearn.metrics import log_loss
 
 
@@ -195,12 +195,21 @@ def _features(Z, D, domains, interaction: bool) -> np.ndarray:
     return np.concatenate([Z, O, inter], axis=1)
 
 
-def _xfit_ce(Zs, Y, D, domains, interaction, classes, n_folds, C, seed) -> float:
+def _splits(X, Y, n_folds, seed, groups=None):
+    """Cross-fit splits. With `groups` (subject/session ids) use StratifiedGroupKFold so no
+    cluster is split across train/test -- the cluster-aware path needed for real EEG."""
+    if groups is not None:
+        ng = len(np.unique(groups))
+        k = max(2, min(n_folds, ng))
+        return StratifiedGroupKFold(n_splits=k).split(X, Y, groups=groups)
+    return StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed).split(X, Y)
+
+
+def _xfit_ce(Zs, Y, D, domains, interaction, classes, n_folds, C, seed, groups=None) -> float:
     X = _features(Zs, D, domains, interaction)
-    skf = StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed)
     ce_sum, n = 0.0, 0
     cl = list(classes)
-    for tr, te in skf.split(X, Y):
+    for tr, te in _splits(X, Y, n_folds, seed, groups):
         clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs")
         clf.fit(X[tr], Y[tr])
         proba = clf.predict_proba(X[te])
@@ -251,9 +260,11 @@ def residual_decoder_test(Z, Y, D,
                           n_boot: int = 100,
                           alpha: float = 0.05,
                           C: float = 1.0,
+                          group_ids=None,
                           seed: int = 0) -> ResidualTestResult:
     Y = np.asarray(Y); D = np.asarray(D)
     Zs = _standardise(Z)
+    groups = None if group_ids is None else np.asarray(group_ids)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
 
     support = check_support_graph(Y, D, Z=Zs)
@@ -261,8 +272,8 @@ def residual_decoder_test(Z, Y, D,
         return ResidualTestResult("INVALID", float("nan"), 1.0, False,
                                   float("nan"), float("nan"), support)
 
-    ce_h0 = _xfit_ce(Zs, Y, D, domains, False, classes, n_folds, C, seed)
-    ce_h = _xfit_ce(Zs, Y, D, domains, True, classes, n_folds, C, seed)
+    ce_h0 = _xfit_ce(Zs, Y, D, domains, False, classes, n_folds, C, seed, groups)
+    ce_h = _xfit_ce(Zs, Y, D, domains, True, classes, n_folds, C, seed, groups)
     T = ce_h0 - ce_h
 
     p0 = fit_h0_proba(Zs, Y, D, domains, classes, C)
@@ -274,8 +285,8 @@ def residual_decoder_test(Z, Y, D,
         if counts.min() < n_folds:                # keep stratified folds well-defined
             null[b] = -np.inf
             continue
-        c0 = _xfit_ce(Zs, Yb, D, domains, False, classes, n_folds, C, seed)
-        c1 = _xfit_ce(Zs, Yb, D, domains, True, classes, n_folds, C, seed)
+        c0 = _xfit_ce(Zs, Yb, D, domains, False, classes, n_folds, C, seed, groups)
+        c1 = _xfit_ce(Zs, Yb, D, domains, True, classes, n_folds, C, seed, groups)
         null[b] = c0 - c1
     valid_null = null[np.isfinite(null)]
     p_value = (1.0 + np.sum(valid_null >= T)) / (1.0 + valid_null.size)

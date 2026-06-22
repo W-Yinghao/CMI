@@ -195,6 +195,16 @@ deferred to a future phase.
 
 ---
 
+> **CSC-P1.3 operational note.** There is a SINGLE certification path,
+> `csc.protocol.run_frozen_protocol` (analyze_source → source-only `calibrate_thresholds` →
+> `certify_robust`), driven by one serializable `ProtocolConfig` (canonical-JSON hash =
+> method id). Validity is split into TWO banks: the **CALIBRATION_NULL_BANK** (LODO below;
+> false-concept control + calibration) and the **OOD_POWER_BANK** (`ood_power_bank`,
+> generator-truth out-of-distribution targets) — never one bank for both. Oracle bands are
+> frozen INDEPENDENTLY of certificate performance; synthetic parameter selection uses
+> generator truth. The deployment path is cluster-aware (subject/session `group_ids`). Full
+> protocol details: PREREGISTRATION §6.
+
 ## 6. Calibration: nested, oracle-labeled LODO (CSC-P1.1)
 
 For each held-out **domain group** `g` (mechanism-group-out, so the oracle gets genuine

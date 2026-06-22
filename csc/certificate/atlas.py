@@ -191,6 +191,17 @@ def build_atlas(Z, Y, D, var_keep: float = 0.95) -> ShiftAtlas:
                       min_principal_angle_deg=min_angle)
 
 
+def _cov_loading(Z, Y, D, classes, domains, var_keep, cov_dirs=None):
+    """Top singular value of the class-residuals R projected onto the covariate subspace. If
+    `cov_dirs` is None it is RE-ESTIMATED from this (sub)sample (full estimator)."""
+    A, R, _ = _offsets_residuals(Z, Y, D, classes, domains)
+    cd = cov_dirs if cov_dirs is not None else _pca_dirs(A, var_keep)
+    if cd.shape[1] == 0:
+        return 0.0
+    Rc = R - R.mean(0, keepdims=True)
+    return float(np.linalg.svd(Rc @ cd, compute_uv=False)[0])
+
+
 def analyze_source(Z, Y, D,
                    n_boot: int = 80,
                    n_dir_boot: int = 200,
@@ -198,14 +209,20 @@ def analyze_source(Z, Y, D,
                    var_keep: float = 0.95,
                    C: float = 1.0,
                    min_angle_deg: float = MIN_PRINCIPAL_ANGLE_DEG,
-                   cov_stable_margin: float = 1.5,
+                   cov_loading_margin_kappa: float = 1.5,
+                   n_folds: int = 4,
+                   group_ids=None,
                    seed: int = 0) -> SourceAnalysis:
-    """Atlas + (a) FULL-bootstrap max-statistic concept evidence (no post-selection bias),
-    (b) covariate equivalence-stability, (c) signature-overlap separability flag."""
+    """Atlas + (a) h0-NULL max-statistic concept evidence (keeps ONLY the global-max-passing
+    direction -> strong-FWER for 'any direction'), (b) covariate equivalence-stability via a
+    FULL cluster bootstrap, (c) signature-overlap flag. `group_ids` (subject/session) makes
+    the residual test and the cov-stability bootstrap CLUSTER-aware."""
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D)
+    groups = None if group_ids is None else np.asarray(group_ids)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
 
-    test = residual_decoder_test(Z, Y, D, n_boot=n_boot, alpha=alpha, C=C, seed=seed)
+    test = residual_decoder_test(Z, Y, D, n_folds=n_folds, n_boot=n_boot, alpha=alpha, C=C,
+                                 group_ids=group_ids, seed=seed)
     atlas = build_atlas(Z, Y, D, var_keep=var_keep)
     overlap = atlas.min_principal_angle_deg < min_angle_deg
 
@@ -213,78 +230,78 @@ def analyze_source(Z, Y, D,
         return SourceAnalysis(atlas, test, False, False, overlap, [],
                               detail=dict(reason="invalid support graph"))
 
-    # observed cov-removed concept spectrum + directions
     cov_dirs, Rperp, s_obs, Vt_obs, A, R, _ = _concept_geometry(Z, Y, D, classes, domains, var_keep)
     n_rank = s_obs.size
 
     # NULL bootstrap under fitted h0 (NOT a row bootstrap): each replicate draws Y* ~ p_hat0
-    # (boundary domain-independent) and RE-RUNS the whole concept pipeline -- re-estimating
-    # cov/concept subspaces and the singular spectrum. A row bootstrap would resample the
-    # OBSERVED (alternative) data and could not calibrate the Type-I error of "any direction".
+    # and RE-RUNS the whole concept pipeline (re-estimating subspaces + spectrum).
     Zs = _standardise(Z)
     p0 = fit_h0_proba(Zs, Y, D, domains, classes, C)
     rng = np.random.default_rng(seed + 7)
-    null_spec = np.zeros((n_dir_boot, n_rank))
-    cov_load_null = np.zeros(n_dir_boot)               # h0-null loading onto the cov subspace
+    null_top = np.zeros(n_dir_boot)                    # h0-null TOP singular value (max stat)
+    cov_load_null = np.zeros(n_dir_boot)               # h0-null cov-subspace loading (noise scale)
     for b in range(n_dir_boot):
         Yb = sample_labels(p0, classes, rng)
         _, _, s_b, _, _, R_b = _concept_geometry(Z, Yb, D, classes, domains, var_keep)[:6]
-        null_spec[b, : min(n_rank, s_b.size)] = s_b[:n_rank]
+        null_top[b] = s_b[0] if s_b.size else 0.0
         if atlas.cov_dirs.shape[1]:
             Rcb = R_b - R_b.mean(0, keepdims=True)
             cov_load_null[b] = float(np.linalg.svd(Rcb @ atlas.cov_dirs, compute_uv=False)[0])
 
-    # step-down: keep leading ranks whose observed s_k beats the (1-alpha) null quantile of
-    # the RE-ESTIMATED s_k (s_0 is the FWER-controlled max statistic for "any direction").
-    pvals, n_keep = [], 0
-    for k in range(n_rank):
-        pk = float((1.0 + np.sum(null_spec[:, k] >= s_obs[k])) / (1.0 + n_dir_boot))
-        pvals.append(pk)
-        if k == n_keep and pk <= alpha:
-            n_keep += 1
-    concept_evidenced = n_keep > 0
+    # GLOBAL max-statistic test (strong-FWER for "is there ANY concept direction"): compare the
+    # observed TOP singular value to the h0-null TOP singular value. We keep ONLY this first
+    # direction if it passes -- a per-rank sequential test would need a rank-k null per rank
+    # (deferred); keeping >1 direction off the rank-0 null would NOT control FWER.
+    p_global = float((1.0 + np.sum(null_top >= s_obs[0])) / (1.0 + n_dir_boot)) if n_rank else 1.0
+    concept_evidenced = (p_global <= alpha)
+    n_keep = 1 if concept_evidenced else 0
     if concept_evidenced:
-        cum = np.cumsum(s_obs ** 2) / np.sum(s_obs ** 2)
-        kmax = int(np.searchsorted(cum, var_keep) + 1)
-        atlas.concept_dirs = Vt_obs[:min(n_keep, kmax)].T
+        atlas.concept_dirs = Vt_obs[:1].T
     else:
         atlas.concept_dirs = np.zeros((Z.shape[1], 0))
         atlas.sigma_concept = 1e-6
 
-    # COVARIATE equivalence-stability -- an explicit TOST-style  U_cov < eps_stable  test
-    # (both >= 0):
-    #   statistic  = top singular value of R projected onto the cov subspace (a non-negative
-    #                loading); its DATA-bootstrap upper CI is U_cov.
-    #   noise scale = (1-alpha) quantile of the SAME loading under the h0 NULL (dimensionally
-    #                matched cov-subspace null; empirically ~ the observed point, i.e. a
-    #                well-calibrated noise floor).
-    #   margin     = eps_stable = cov_stable_margin * noise_scale  -> a PRE-REGISTERED
-    #                negligibility multiplier (>1), so the test genuinely AFFIRMS "cov-boundary
-    #                movement <= cov_stable_margin x noise = negligible" (equivalence), rather
-    #                than "failed to reject". cov_stable_margin is swept in the freeze.
-    #   cov_stable iff  U_cov  <  eps_stable.
-    noise_scale_cov = float(np.quantile(cov_load_null, 1 - alpha)) if atlas.cov_dirs.shape[1] else np.inf
-    eps_stable_cov = cov_stable_margin * noise_scale_cov
+    # COVARIATE equivalence-stability -- TOST-style  U_cov < eps_stable  (both >= 0):
+    #   U_cov = FULL cluster-bootstrap upper CI of the cov-subspace loading. Each replicate
+    #           resamples whole CLUSTERS (subjects if group_ids, else domains) WITH replacement
+    #           and RE-ESTIMATES cell means, pooled means, (A,R) and the cov subspace -> a valid
+    #           upper confidence bound for the full estimator (not a fixed-subspace row boot).
+    #   noise_scale = (1-alpha) quantile of the SAME loading under the h0 NULL (dimensionally
+    #           matched; empirically ~ the observed point -> a calibrated noise floor).
+    #   eps_stable = cov_loading_margin_kappa (kappa, PRE-REGISTERED >1) * noise_scale.
+    #   cov_stable iff U_cov < eps_stable  (affirmative equivalence, not "failed to reject").
+    cov_noise_scale = float(np.quantile(cov_load_null, 1 - alpha)) if atlas.cov_dirs.shape[1] else np.inf
+    eps_stable = cov_loading_margin_kappa * cov_noise_scale
     if atlas.cov_dirs.shape[1]:
-        Rc = R - R.mean(0, keepdims=True)
-        s_cov_obs = float(np.linalg.svd(Rc @ atlas.cov_dirs, compute_uv=False)[0])
+        s_cov_obs = _cov_loading(Z, Y, D, classes, domains, var_keep, atlas.cov_dirs)
+        clusters = groups if groups is not None else D
+        uniq = np.unique(clusters)
+        idx_by = {c: np.where(clusters == c)[0] for c in uniq}
         rng2 = np.random.default_rng(seed + 11)
-        nrow = Rc.shape[0]
-        cov_load_boot = np.array([
-            float(np.linalg.svd(Rc[rng2.integers(0, nrow, nrow)] @ atlas.cov_dirs,
-                                compute_uv=False)[0]) for _ in range(n_dir_boot)])
-        cov_ub = float(np.quantile(cov_load_boot, 1 - alpha))
-        cov_stable = cov_ub < eps_stable_cov
+        boot = np.empty(n_dir_boot)
+        for b in range(n_dir_boot):
+            pick = rng2.choice(uniq, size=len(uniq), replace=True)
+            idx = np.concatenate([idx_by[c] for c in pick])
+            try:
+                boot[b] = _cov_loading(Z[idx], Y[idx], D[idx], classes,
+                                       list(np.unique(D[idx])), var_keep)   # cov RE-estimated
+            except Exception:
+                boot[b] = np.nan
+        boot = boot[np.isfinite(boot)]
+        cov_ub = float(np.quantile(boot, 1 - alpha)) if boot.size else np.inf
+        cov_stable = cov_ub < eps_stable
     else:
         s_cov_obs, cov_ub, cov_stable = 0.0, 0.0, True
 
     return SourceAnalysis(atlas, test, concept_evidenced, bool(cov_stable), bool(overlap),
-                          pvals,
-                          detail=dict(n_concept_kept=n_keep, obs_spectrum=s_obs.tolist(),
+                          [p_global],
+                          detail=dict(n_concept_kept=n_keep, p_global=p_global,
+                                      obs_top_singular=float(s_obs[0]) if n_rank else 0.0,
                                       cov_loading=s_cov_obs, cov_loading_ub=cov_ub,
-                                      cov_noise_scale=noise_scale_cov,
-                                      cov_stable_margin=cov_stable_margin,
-                                      eps_stable_cov=eps_stable_cov,
+                                      cov_loading_null_scale=cov_noise_scale,
+                                      cov_loading_margin_kappa=cov_loading_margin_kappa,
+                                      eps_stable_cov_units=eps_stable,
+                                      cluster_aware=(groups is not None),
                                       min_principal_angle_deg=atlas.min_principal_angle_deg,
                                       global_significant=test.significant))
 

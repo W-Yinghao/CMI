@@ -79,47 +79,50 @@ def _aligned_proba(clf, Z, classes):
 # --------------------------------------------------------------------------------------
 def calibrate_thresholds(Z_tr, Y_tr, D_tr, atlas, base_cfg: CertifierConfig,
                          target_size=None, block_ids_tr=None,
-                         alpha=0.05, n_block=240, seed=0) -> CertifierConfig:
-    """tau_detect / tau_label = (1-alpha) quantile of the certifier's OWN statistics over
-    pseudo-targets resampled from the TRAINING domains only (fold-isolated; held-out labels
-    never enter). Each pseudo-target MATCHES the held-out target's `target_size` (and, on
-    real data, its `block_ids_tr` subject/session structure) so the calibrated detection
-    floor reflects the right finite-sample fluctuation. tau_resid / tau_margin are
-    pre-registered constants passed through to the freeze sweep (NOT calibrated here)."""
+                         alpha=0.05, n_block=240, quantile=None, seed=0) -> CertifierConfig:
+    """tau_detect / tau_label = `quantile` (default 1-alpha) of the certifier's OWN statistics
+    over pseudo-targets resampled from the TRAINING domains only (fold-isolated; held-out
+    labels never enter). Each pseudo-target MATCHES the held-out target's `target_size` (and,
+    on real data, its `block_ids_tr` subject/session structure -- WHOLE blocks, never split)
+    so the floor reflects the right finite-sample fluctuation. tau_resid / tau_margin are
+    pre-registered constants passed through (NOT calibrated here)."""
     from ..certificate.atlas import components
+    q = (1 - alpha) if quantile is None else quantile
     Z_tr = np.asarray(Z_tr, float); D_tr = np.asarray(D_tr)
+    bids = None if block_ids_tr is None else np.asarray(block_ids_tr)
     domains = list(np.unique(D_tr))
     rng = np.random.default_rng(seed + 13)
     vis, lab = [], []
     reps = max(1, n_block // len(domains))
     for d in domains:
         idx = np.where(D_tr == d)[0]
-        if block_ids_tr is not None:
-            blocks = [idx[block_ids_tr[idx] == b] for b in np.unique(block_ids_tr[idx])]
+        blocks = ([idx[bids[idx] == b] for b in np.unique(bids[idx])]
+                  if bids is not None else None)
+        tgt = target_size or len(idx)
         for _ in range(reps):
-            if block_ids_tr is not None:
-                # resample whole blocks (subjects) until >= target_size, then trim
+            if blocks is not None:
+                # WHOLE-block (subject) resampling: add whole blocks until >= target_size; NO
+                # mid-block truncation (the v0 trimmed the last block, breaking clustering).
                 picks, n = [], 0
-                tgt = target_size or len(idx)
-                while n < tgt and blocks:
+                while n < tgt:
                     blk = blocks[rng.integers(0, len(blocks))]
                     picks.append(blk); n += len(blk)
-                bs = np.concatenate(picks)[:tgt] if picks else idx
+                bs = np.concatenate(picks)
             else:
-                k = target_size or len(idx)
-                bs = idx[rng.integers(0, len(idx), k)]   # match held-out target SIZE
-            delta = Z_tr[bs].mean(0) - atlas.pooled_mean
-            c = components(atlas, delta)
+                bs = idx[rng.integers(0, len(idx), tgt)]    # IID rows, match target SIZE
+            c = components(atlas, Z_tr[bs].mean(0) - atlas.pooled_mean)
             vis.append(max(c["n_cov"], c["n_concept"], c["n_resid"]))
             lab.append(c["n_label"])
     return dataclasses.replace(base_cfg,
-                               tau_detect=float(np.quantile(vis, 1 - alpha)),
-                               tau_label=float(np.quantile(lab, 1 - alpha)))
+                               tau_detect=float(np.quantile(vis, q)),
+                               tau_label=float(np.quantile(lab, q)))
 
 
-# backwards-compatible scalar helper
 def calibrate_tau_detect(Z, Y, D, atlas, alpha=0.05, n_block=240, seed=0) -> float:
-    cfg = calibrate_thresholds(Z, Y, D, atlas, CertifierConfig(), alpha, n_block, seed)
+    """Scalar convenience wrapper -- KEYWORD args (the v0 passed alpha/n_block/seed
+    positionally into target_size/block_ids_tr/alpha, a real bug)."""
+    cfg = calibrate_thresholds(Z, Y, D, atlas, CertifierConfig(),
+                               alpha=alpha, n_block=n_block, seed=seed)
     return cfg.tau_detect
 
 
@@ -172,16 +175,23 @@ def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
 
 
 # --------------------------------------------------------------------------------------
-# (#6) nested LODO with group-out folds + diagnostic scorecard
+# (#1) CALIBRATION_NULL_BANK: leave-one-domain-out, validates FALSE-CONCEPT control + supplies
+#      threshold calibration. It does NOT (and structurally CANNOT) validate deployment power
+#      -- in-distribution held-out domains have within-source-spread shifts, and leave-all-
+#      concept-out leaves no training atlas. Power lives in the separate OOD_POWER_BANK
+#      (csc.protocol.ood_power_bank), on generator-truth OOD targets.
 # --------------------------------------------------------------------------------------
-def nested_lodo(Z, Y, D, folds=None,
+def nested_lodo(Z, Y, D, folds=None, group_ids=None,
                 n_boot=60, n_dir_boot=150, oracle_boot=150,
                 cert_cfg: Optional[CertifierConfig] = None, consensus=0.85,
-                eps_concept=0.03, eps_stable=0.01, alpha=0.05, seed=0) -> LodoResult:
-    """folds: list of held-out domain GROUPS (each a list of domain ids). Default =
-    leave-one-domain-out. For real diagnostic power pass mechanism groups (e.g. all concept
-    domains as one fold), so the oracle yields genuine VISIBLE_CONCEPT folds."""
+                eps_concept=0.03, eps_stable=0.01, alpha=0.05,
+                min_stable=2, seed=0) -> LodoResult:
+    """Calibration/null bank. `eps_concept`, `eps_stable` are FROZEN INDEPENDENTLY before this
+    runs -- they define the oracle TRUTH and are NEVER chosen from certificate performance.
+    Goes through the cluster-aware calibrated path (analyze_source -> calibrate_thresholds ->
+    certify_robust). `group_ids` = subject/session ids for cluster-aware resampling."""
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D)
+    gid = None if group_ids is None else np.asarray(group_ids)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
     cert_cfg = cert_cfg or CertifierConfig()
     if folds is None:
@@ -189,66 +199,59 @@ def nested_lodo(Z, Y, D, folds=None,
 
     records = []
     for g in folds:
-        tr = ~np.isin(D, g)
-        te = np.isin(D, g)
+        tr = ~np.isin(D, g); te = np.isin(D, g)
         if len(np.unique(D[tr])) < 2:
             continue
+        gtr = None if gid is None else gid[tr]
+        gte = None if gid is None else gid[te]
         sa = analyze_source(Z[tr], Y[tr], D[tr], n_boot=n_boot, n_dir_boot=n_dir_boot,
-                            alpha=alpha, seed=seed)
+                            alpha=alpha, group_ids=gtr, seed=seed)
         cfg_d = calibrate_thresholds(Z[tr], Y[tr], D[tr], sa.atlas, cert_cfg,
-                                     target_size=int(te.sum()),   # match held-out fold size
+                                     target_size=int(te.sum()), block_ids_tr=gtr,
                                      alpha=alpha, seed=seed)
-        cert = certify_robust(sa, Z[te], cfg=cfg_d, consensus=consensus, seed=seed)
+        cert = certify_robust(sa, Z[te], cfg=cfg_d, consensus=consensus,
+                              group_ids=gte, seed=seed)
         oracle = oracle_boundary_effect(Z[tr], Y[tr], Z[te], Y[te], classes,
                                         n_boot=oracle_boot, alpha=alpha,
-                                        eps_concept=eps_concept, eps_stable=eps_stable,
-                                        seed=seed)
+                                        eps_concept=eps_concept, eps_stable=eps_stable, seed=seed)
         records.append(LodoRecord(fold=list(g), cert_state=cert.state, n_label=cert.n_label,
                                   n_cov=cert.n_cov, n_concept=cert.n_concept,
                                   tau_detect=cfg_d.tau_detect,
                                   concept_atlas=sa.concept_evidenced, oracle=oracle))
 
-    visible = [r for r in records if r.oracle.verdict == VISIBLE_CONCEPT]
     stable = [r for r in records if r.oracle.verdict == COVARIATE_STABLE]
+    visible = [r for r in records if r.oracle.verdict == VISIBLE_CONCEPT]
     amb = [r for r in records if r.oracle.verdict == AMBIGUOUS]
-    # a FAIR power test needs an oracle-visible fold whose TRAINING pool still had a concept
-    # atlas. Leave-ALL-concept-out folds are oracle-visible but leave no atlas -> not fair.
-    fair_visible = [r for r in visible if r.concept_atlas]
 
     def rate(rs, pred):
         return (sum(pred(r) for r in rs) / len(rs)) if rs else None
 
     scorecard = dict(
-        n_folds=len(records), n_visible=len(visible), n_visible_fair=len(fair_visible),
-        n_stable=len(stable), n_ambiguous=len(amb),
-        concept_power_fair=rate(fair_visible, lambda r: r.cert_state == CONCEPT_SUSPECT),
+        bank="CALIBRATION_NULL_BANK", n_folds=len(records),
+        n_stable=len(stable), n_visible=len(visible), n_ambiguous=len(amb),
         false_concept_on_stable=rate(stable, lambda r: r.cert_state == CONCEPT_SUSPECT),
         compatible_coverage_on_stable=rate(stable, lambda r: r.cert_state == COVARIATE_COMPATIBLE),
         abstention=rate(records, lambda r: r.cert_state == UNIDENTIFIABLE),
     )
-    # the bank can validate FALSE-CONCEPT control (needs stable folds); deployment POWER is
-    # validated on out-of-distribution targets (run_synthetic), not in-distribution LODO.
-    valid_bank = len(stable) > 0 and len(fair_visible) > 0
+    # this bank is VALID for false-concept control iff it has enough oracle-stable folds.
+    calibration_null_bank_valid = len(stable) >= min_stable
     taus = [r.tau_detect for r in records]
-    return LodoResult(records=records, tau_detect_mean=float(np.mean(taus)) if taus else float("nan"),
-                      scorecard=scorecard, valid_bank=valid_bank,
-                      detail=dict(eps_concept=eps_concept, eps_stable=eps_stable, consensus=consensus))
+    return LodoResult(records=records,
+                      tau_detect_mean=float(np.mean(taus)) if taus else float("nan"),
+                      scorecard=scorecard, valid_bank=calibration_null_bank_valid,
+                      detail=dict(bank="CALIBRATION_NULL_BANK", eps_concept=eps_concept,
+                                  eps_stable=eps_stable, consensus=consensus,
+                                  min_stable=min_stable,
+                                  note="power is NOT measured here; see ood_power_bank"))
 
 
 if __name__ == "__main__":
     import warnings; warnings.filterwarnings("ignore")
     from csc.sim.shift_simulator import SimConfig, make_source
-    cfg = SimConfig(seed=4)
-    src = make_source(cfg, n_domains=8, concept_domains=3, seed=4)
-    concept_doms = [i for i, s in enumerate(src.domains) if s.c != 0]
-    cov_doms = [i for i, s in enumerate(src.domains) if s.c == 0]
-    # mechanism-group-out: all concept domains vs covariate-only halves -> oracle gets both
-    folds = [concept_doms, cov_doms[:len(cov_doms)//2], cov_doms[len(cov_doms)//2:]]
-    print(f"folds (concept={concept_doms}): {folds}")
-    res = nested_lodo(src.Z, src.Y, src.D, folds=folds, n_boot=40, n_dir_boot=120,
-                      oracle_boot=120, seed=4)
+    src = make_source(SimConfig(seed=4), n_domains=8, concept_domains=3, seed=4)
+    res = nested_lodo(src.Z, src.Y, src.D, n_boot=30, n_dir_boot=100, oracle_boot=120, seed=4)
     for r in res.records:
         o = r.oracle
-        print(f"  fold {str(r.fold):>12} tau={r.tau_detect:.2f} -> {r.cert_state:>22} "
+        print(f"  fold {str(r.fold):>8} tau={r.tau_detect:.2f} -> {r.cert_state:>22} "
               f"| oracle {o.point:+.3f} [{o.lb:+.3f},{o.ub:+.3f}] {o.verdict}")
-    print(f"valid_bank={res.valid_bank}  scorecard={res.scorecard}")
+    print(f"CALIBRATION_NULL_BANK_VALID={res.valid_bank}  scorecard={res.scorecard}")

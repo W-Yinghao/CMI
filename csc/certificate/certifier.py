@@ -41,7 +41,8 @@ class CertifierConfig:
     tau_detect: float = 1.5       # shift must exceed this * source spread to count as visible
     tau_label: float = 1.0        # label-shift signature beyond this * source label spread -> abstain
     tau_resid: float = 0.6        # out-of-atlas dominance margin -> abstain
-    tau_margin: float = 1.15      # dominance margin between concept and covariate
+    tau_margin: float = 2.0       # concept must DOMINATE covariate 2:1 (true concept ~12:1;
+                                  # covariate->concept leakage ~1:1) -> kills covariate crying-wolf
 
 
 @dataclass
@@ -140,21 +141,31 @@ def certify_robust(analysis: SourceAnalysis,
                    cfg: Optional[CertifierConfig] = None,
                    n_boot: int = 200,
                    consensus: float = 0.9,
+                   group_ids=None,
                    seed: int = 0) -> Certificate:
     """Confidence-region decision (CSC-P1). Instead of trusting a single target-mean point,
-    block-bootstrap the target rows, certify each replicate, and emit a DEFINITE state only
-    if a `consensus` fraction of the replicates agree on it (the bootstrap region C_T maps
-    to a single atlas attribution, i.e. Gamma_T is a singleton). Otherwise abstain.
+    bootstrap the target, certify each replicate, and emit a DEFINITE state only if a
+    `consensus` fraction agree (the bootstrap region C_T maps to a single atlas attribution,
+    i.e. Gamma_T is a singleton). Otherwise abstain. With `group_ids` (subject/session) the
+    bootstrap resamples WHOLE CLUSTERS, not IID rows -- the cluster-aware deployment path.
 
-    This makes COVARIATE_COMPATIBLE / CONCEPT_SUSPECT robust to finite-target sampling: a
-    shift whose attribution flips under resampling is, honestly, UNIDENTIFIABLE."""
+    Makes COVARIATE_COMPATIBLE / CONCEPT_SUSPECT robust to finite-target sampling: a shift
+    whose attribution flips under resampling is, honestly, UNIDENTIFIABLE."""
     cfg = cfg or CertifierConfig()
     base = certify(analysis, Z_target, cfg)
     Z = np.asarray(Z_target, float)
     rng = np.random.default_rng(seed)
+    groups = None if group_ids is None else np.asarray(group_ids)
+    if groups is not None:
+        uniq = np.unique(groups)
+        idx_by = {g: np.where(groups == g)[0] for g in uniq}
     counts = {}
     for _ in range(n_boot):
-        bs = rng.integers(0, len(Z), len(Z))
+        if groups is not None:                         # whole-cluster (subject) resampling
+            pick = rng.choice(uniq, size=len(uniq), replace=True)
+            bs = np.concatenate([idx_by[g] for g in pick])
+        else:
+            bs = rng.integers(0, len(Z), len(Z))       # IID row bootstrap (no clustering)
         st = certify(analysis, Z[bs], cfg).state
         counts[st] = counts.get(st, 0) + 1
     top = max(counts, key=counts.get)
