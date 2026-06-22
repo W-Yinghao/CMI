@@ -107,14 +107,17 @@ DEV pre-lock criteria (PASS/FAIL): S2 calibration gate · ≥1 PD action OOF har
 global, but PD and SCZ have their own weights, target normalizer, and `σ_min,d,a`). The pipeline below runs **within
 each disease** on that disease's pooled DEV subjects.
 
-**Pinned DeepSets/training hyperparameters (Amendment 3; `acar/v3/predictors.HP`, frozen pre-DEV):** ψ = 2-layer MLP
-(hidden 64, ReLU) per window over `concat(values, mask)` [2F]; pooling = **mean ⊕ std** (permutation-invariant);
-context = `concat(context_values, context_mask)` [2C]; action embedding dim 8; ρ = 2-layer MLP (hidden 64) → heads
-(C1: μ; C2: μ, softplus v→σ; C3: q̂₅₀, softplus gap); dropout 0; Adam lr 1e-3, weight_decay 1e-4, grad-clip max-norm
-1.0; max_epochs 200, patience 20, min_delta 1e-4; target_sd_floor 1e-3; β-NLL β=0.5; ε=1e-6; seeds
-(outer 0, fit/cal 1, early-stop 2); K=5 folds; FIT_FRAC 0.70; TRAIN_FRAC 0.80; CPU + `use_deterministic_algorithms`.
-**Final all-DEV refit epoch = median of the outer folds' best-epoch (round half-up), fixed in advance — no new
-validation observed at refit.**
+**Pinned DeepSets/training hyperparameters (Amendment 3/4; `acar/v3/predictors.HP`, frozen pre-DEV):** shared ψ =
+2-layer MLP (hidden 64, ReLU) per window over `concat(values, mask)` [2F]; pooling = **mean ⊕ std**
+(permutation-invariant); context = `concat(context_values, context_mask)` [2C]; shared ρ = 2-layer MLP (hidden 64);
+**per-action `ModuleDict` heads — NO action embedding** (Amendment 4: heads keyed by NON_IDENTITY; head = Linear→
+{C1: μ; C2: μ, softplus v→σ; C3: q̂₅₀, softplus gap}); dropout 0; Adam lr 1e-3, weight_decay 1e-4, grad-clip max-norm
+1.0; max_epochs 200, patience 20, min_delta 1e-4; **target SD floor 1e-3, input-feature SD floor 1e-6** (Amendment 4);
+β-NLL β=0.5 with weight `v.detach()**β`; ε=1e-6; seeds (outer 0, fit/cal 1, early-stop 2); K=5 folds; FIT_FRAC 0.70;
+TRAIN_FRAC 0.80; CPU + 1 thread + `use_deterministic_algorithms`. **Normalizers fit on TRAIN only (VAL uses TRAIN
+stats).** Per-fold C2 `σ_min` = `Q₀.₀₅` of raw σ̂ over the **full fold FIT = TRAIN∪VAL** after best-state restoration;
+the **final** artifact uses the **OOF** `σ_min`. **Final all-DEV refit epoch = `round_half_up(median_k(best_epoch_k +
+1))`** (best_epoch is 0-based ⇒ +1), fixed in advance — no new validation at refit.
 
 **The DEV OOF estimator is one unique algorithm (Amendment 2):**
 1. Partition the disease's subjects into **K pre-declared outer subject-disjoint folds** (seed `S_outer`). Each fold
@@ -266,9 +269,14 @@ Frozen DEV-design rules now enforced in code (15 synthetic guards pass):
   `FrozenInstanceError` (not just read-only buffers). `<MIN_BATCH` returns an immutable **`FallbackBatchRecord`**
   (forced_identity, reason, window_keys, `canonical_input_digest` full-64, n_windows) — no adapter called. The
   **identity reference is computed exactly once per batch** (call-count guard).
-- **Predictors/conformal implemented (Amendment 3, commit 2303d5c):** `predictors.py` (frozen `CandidatePrediction`;
-  DeepSets C1/C2/C3 with pinned `HP`; `score()`/`upper_bound()` per the S1 formulas incl. C2 `q⁺`, C1/C3 no-clamp) and
-  `conformal.py` (subject joint max; `conformal_rank`/`conformal_q` strict `+∞`; `route`; tie-aware
-  `harmful_rate_test`). 19 set-feature + 11 predictor/conformal synthetic guards pass. **Still NOT tagged**
-  `acar-v3-dev-design-v1` — pending the v3 data layer (emitting `WindowKey`), the DEV develop harness (`develop.py`
-  wiring S5's split-as-one-algorithm), and a full green re-run; no DEV cohort is read before the tag.
+- **Predictors/training/conformal/data implemented (Amendments 3+4):** `predictors.py` (per-action `ModuleDict`
+  heads; validated `CandidatePrediction`; **immutable `FittedCandidateArtifact` storing canonical parameter BYTES**,
+  rebuilt via `build_net`, with `verify_integrity()` (no-rounding floor hash; candidate/arch cross-check) and
+  `assert_disease`); `training.py` (`fit_candidate_earlystop` + `refit_candidate_fixed_epochs` + `final_epochs`;
+  exact Huber/β-NLL(stop-grad)/pinball; subject-balanced; TRAIN/VAL subject-disjoint; deterministic fail-closed);
+  `normalizers.py` (FIT-only mask-aware input + target, floors 1e-6/1e-3); `conformal.py` (fail-closed everywhere;
+  1-D CAL-score shape; route full-set/canonical/q∈finite∪{+∞}/δ≥0; ONE Wilcoxon harmful estimand);
+  `data.py` (`SubjectKey`/`RecordingKey`/`WindowKey`; `DeploymentBatch`(no y, fallback⇔n<MIN_BATCH, 1≤n≤B, 64-hex
+  source) vs `LabeledRiskRecord`). **41→ all v3 synthetic guards pass** (set-feature/data/training/predictor-conformal).
+  **Still NOT tagged** `acar-v3-dev-design-v1` — pending the real v3 loader (building `DeploymentBatch` from dumps),
+  `develop.py` (S5 split orchestration + S2/S4 + C0/v2 replay), env lock, and a full green re-run; no DEV cohort read.
