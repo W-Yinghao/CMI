@@ -74,7 +74,10 @@ def population_signature_hash(data: TrainingData) -> str:
         h.update(len(sid).to_bytes(8, "little")); h.update(sid)
         h.update(int(y[i]).to_bytes(8, "little", signed=True))
         h.update((b"-" if d is None else int(d[i]).to_bytes(8, "little", signed=True)))
-        h.update((b"-" if data.group is None else str(data.group[i]).encode()))
+        if data.group is None:                       # group: LENGTH-PREFIXED UTF-8 (match LeakageDesign)
+            h.update(b"-")
+        else:
+            gb = str(data.group[i]).encode(); h.update(len(gb).to_bytes(8, "little")); h.update(gb)
         h.update(np.asarray(sm[i]).tobytes())
     return h.hexdigest()
 

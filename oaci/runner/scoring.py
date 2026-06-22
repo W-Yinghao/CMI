@@ -10,13 +10,10 @@ memoises every Stage-2 checkpoint by ``model_hash``, so per deletion level the E
 from __future__ import annotations
 
 from ..leakage.cache import _deep_freeze
+from ..leakage.errors import LeakageNonEstimableError  # re-export (canonical definition in leakage.errors)
 from ..leakage.ucb import bootstrap_ucb
 
-
-class LeakageNonEstimableError(Exception):
-    """A selection leakage score is structurally non-estimable (no comparable class / no valid
-    grouped folds / too few accepted bootstrap draws). NOT for numerical/probe failures, which must
-    propagate."""
+__all__ = ["LeakageNonEstimableError", "SelectionScoringSession", "compute_leakage_score"]
 
 
 def compute_leakage_score(feat, support_graph, fold_plan, bootstrap_plan, cfg) -> dict:
