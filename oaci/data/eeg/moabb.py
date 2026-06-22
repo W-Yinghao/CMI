@@ -127,15 +127,55 @@ def raw_file_fingerprint(paths, logical_paths=None, confirmatory: bool = True) -
     return hashlib.sha256("\n".join(items).encode()).hexdigest()
 
 
-def _data_paths(ds, subjects) -> list:
-    paths = []
-    for s in subjects:
+def subject_logical_paths(dataset_id, subject, raw_paths) -> list:
+    """Dataset-relative logical identity for each raw file of a subject:
+    ``{dataset_id}/subject-{id}/{file-index}/{basename}`` — stable across the datalake mount root,
+    and unique per (subject, file index) so two same-basename files never collide."""
+    sid = int(subject)
+    return [f"{dataset_id}/subject-{sid}/{i}/{os.path.basename(str(p))}" for i, p in enumerate(raw_paths)]
+
+
+def _data_paths(ds, dataset_id, subjects, confirmatory: bool = True):
+    """Return ``(paths, logical_paths)`` over ALL subjects (canonical-sorted). In confirmatory/smoke
+    mode a ``data_path()`` failure is a hard error — never swallowed (a partial file set would
+    silently corrupt the raw fingerprint)."""
+    paths, logical = [], []
+    for s in sorted(subjects, key=lambda a: int(a)):
         try:
             pp = ds.data_path(int(s))
-            paths.extend(pp if isinstance(pp, (list, tuple)) else [pp])
-        except Exception:
-            pass
-    return paths
+        except Exception as e:
+            if confirmatory:
+                raise OfflineDownloadError(f"data_path failed for {dataset_id} subject {s}: {e}")
+            continue
+        pp = list(pp) if isinstance(pp, (list, tuple)) else [pp]
+        paths.extend(pp)
+        logical.extend(subject_logical_paths(dataset_id, s, pp))
+    return paths, logical
+
+
+def scan_subject_channels(ds, subjects, confirmatory: bool = True):
+    """Read EACH subject's EEG header and require an IDENTICAL channel order across all of them
+    (the loader must never trust only the first subject). In confirmatory mode an unreadable header
+    or any cross-subject mismatch is a hard FAIL. Returns the common channel order."""
+    orders = {}
+    for s in sorted(subjects, key=lambda a: int(a)):
+        try:
+            chs = [c for c in _first_raw(ds.get_data(subjects=[int(s)])).copy().pick("eeg").ch_names]
+        except Exception as e:
+            if confirmatory:
+                raise OfflineDownloadError(f"channel header unreadable for subject {s}: {e}")
+            chs = None
+        orders[int(s)] = chs
+    present = [v for v in orders.values() if v is not None]
+    if not present:
+        if confirmatory:
+            raise ValueError("no readable channel header across subjects")
+        return None
+    ref = present[0]
+    for s, chs in orders.items():
+        if chs is not None and list(chs) != list(ref):
+            raise ValueError(f"subject {s} channel order {list(chs)} != reference {list(ref)}")
+    return list(ref)
 
 
 # ---- the loader ------------------------------------------------------------------------
@@ -173,11 +213,7 @@ def load_moabb(dataset_id: str, subjects, spec: PreprocessSpec | None = None,
     y_idx = map_classes(np.asarray(y, dtype=object), entry.classes)   # frozen registry order
     site = np.array([dataset_id] * len(y), dtype=object)
 
-    try:
-        raws = ds.get_data(subjects=[int(list(subjects)[0])])
-        raw_ch = [c for c in _first_raw(raws).copy().pick("eeg").ch_names]
-    except Exception:
-        raw_ch = None
+    raw_ch = scan_subject_channels(ds, subjects, confirmatory=confirmatory)   # ALL subjects, not just [0]
     ch_names = resolve_channels(raw_ch, X.shape[1], confirmatory=confirmatory)
     if spec.channels:                                    # exact frozen channel order required
         validate_channel_order(ch_names, spec.channels, confirmatory=confirmatory)
@@ -185,7 +221,8 @@ def load_moabb(dataset_id: str, subjects, spec: PreprocessSpec | None = None,
     if spec.normalization == "zscore_sample":            # actually APPLY the declared transform
         X = apply_normalization(X, None, spec)
 
-    fp = raw_file_fingerprint(_data_paths(ds, subjects), confirmatory=confirmatory)
+    paths, logical = _data_paths(ds, dataset_id, subjects, confirmatory=confirmatory)
+    fp = raw_file_fingerprint(paths, logical_paths=logical, confirmatory=confirmatory)
     return EEGBundle(
         X=X, y=y_idx, sample_id=trial, dataset_id=dataset_id, site_id=site, subject_id=subj,
         session_id=sess, run_id=run, recording_id=rec, trial_id=trial, support_unit_id=trial,

@@ -59,12 +59,45 @@ datasets:
 risk:
   metric: balanced_ce
   epsilon: 0.03
+seeds: {split: 20260622, deletion: 70260622, model: [0, 1, 2, 3, 4], selection_bootstrap: 303, audit_bootstrap: 404}
+backbone:
+  name: shallow_convnet
+  temporal_filters: 40
+  temporal_kernel_samples: 25
+  pool_kernel_samples: 75
+  pool_stride_samples: 15
+  dropout: 0.5
+  safe_log_eps: 1.0e-6
+optimizer:
+  name: adam
+  lr_stage1: 5.0e-3
+  lr_encoder: 1.0e-2
+  lr_critic: 1.0e-2
+  weight_decay: 0.0
+  dual_lr: 0.5
+  lambda_init: 0.3
+  lambda_max: 20.0
+  lambda_floor: 0.0
+  gradient_clip: 0.0
+training:
+  stage1_epochs: 200
+  stage2_epochs: 200
+  steps_per_epoch: 20
+  task_batch_size: 256
+  warmup_steps: 60
+  critic_steps: 5
+  checkpoint_every: 5
+  guard_chunk_size: 1024
+  numerical_tol: 1.0e-4
+  stage2_bn_mode: frozen_erm_running_stats
+  selection_score_tolerance: 1.0e-8
+  deterministic_algorithms: true
+sampler: {min_per_eligible_cell: 8, adv_microbatch_size: 256, adv_accumulation_steps: 4, replacement_mode: auto}
+probe: {capacities: [0, 64], folds: 5, selection_bootstrap: 200, audit_bootstrap: 2000}
 methods:
   names: [ERM, OACI, global_lpc, uniform]
   global_lpc_laplace_smoothing: 1.0
   critic_capacity: 16
-  selection_bootstrap: 200
-  audit_bootstrap: 2000
 evaluation:
   alpha: 0.05
   delta_bacc: 0.02

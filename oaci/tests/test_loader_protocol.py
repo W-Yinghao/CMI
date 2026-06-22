@@ -13,15 +13,19 @@ import tempfile
 import numpy as np
 
 from oaci.data.eeg.moabb import (
+    _data_paths,
     map_classes,
     paradigm_kwargs,
     raw_file_fingerprint,
     resolve_channels,
+    scan_subject_channels,
+    subject_logical_paths,
     trial_ids,
     validate_channel_order,
     validate_epoch_n_times,
 )
 from oaci.data.eeg.preprocess import PreprocessSpec
+from oaci.data.eeg.registry import OfflineDownloadError
 from oaci.protocol.manifest_v2 import DatasetBlock
 from oaci.data.eeg.preprocess import PreprocessSpec, apply_normalization
 from oaci.data.eeg.seed import scan_seed
@@ -190,6 +194,88 @@ def test_raw_fingerprint_distinguishes_same_basename_files():
     a2, b2 = os.path.join(d2, "a_r.fif"), os.path.join(d2, "b_r.fif")
     open(a2, "wb").write(b"AAAA"); open(b2, "wb").write(b"BBBB")
     assert raw_file_fingerprint([a2, b2], logical_paths=lp) == fp
+
+
+class _FakeRaw:
+    def __init__(self, chs): self._chs = list(chs)
+    def copy(self): return self
+    def pick(self, kind): return self
+    @property
+    def ch_names(self): return self._chs
+
+
+class _FakeDS:
+    def __init__(self, ch_by_subj=None, fail=()):
+        self.ch_by_subj = ch_by_subj or {}
+        self.fail = set(fail)
+    def data_path(self, s):
+        if s in self.fail:
+            raise RuntimeError("file absent")
+        return [f"/d/s{s}/a.gdf"]
+    def get_data(self, subjects=None):
+        s = subjects[0]
+        if s in self.fail:
+            raise RuntimeError("header absent")
+        return {s: {"0": {"0": _FakeRaw(self.ch_by_subj.get(s, ["Fz", "C3"]))}}}
+
+
+def test_loader_scans_all_subjects_and_binds_logical_paths():
+    assert subject_logical_paths("BNCI2014_001", 4, ["/x/a.gdf", "/y/a.gdf"]) == \
+        ["BNCI2014_001/subject-4/0/a.gdf", "BNCI2014_001/subject-4/1/a.gdf"]
+    # the loader requires an IDENTICAL channel order across ALL subjects, not just the first
+    assert scan_subject_channels(_FakeDS({1: ["Fz", "C3"], 2: ["Fz", "C3"]}), [1, 2]) == ["Fz", "C3"]
+    try:
+        scan_subject_channels(_FakeDS({1: ["Fz", "C3"], 2: ["C3", "Fz"]}), [1, 2])   # subject 2 differs
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a cross-subject channel mismatch must fail")
+    # _data_paths must NOT swallow a missing subject in confirmatory mode
+    miss = _FakeDS({1: ["Fz"]}, fail={2})
+    try:
+        _data_paths(miss, "BNCI2014_001", [1, 2], confirmatory=True)
+    except OfflineDownloadError:
+        pass
+    else:
+        raise AssertionError("a missing data_path must hard-fail in confirmatory mode")
+    paths, logical = _data_paths(miss, "BNCI2014_001", [1, 2], confirmatory=False)     # non-conf: skip
+    assert len(paths) == 1 and logical == ["BNCI2014_001/subject-1/0/a.gdf"]
+
+
+def _smoke_path():
+    return os.path.join(os.path.dirname(default_confirmatory_path()), "smoke_v1.yaml")
+
+
+def test_smoke_manifest_roundtrip_preserves_all_blocks():
+    m = load_v2(_smoke_path())
+    for blk in ("seeds", "backbone", "optimizer", "training", "sampler", "probe", "smoke", "methods"):
+        assert getattr(m, blk) is not None, f"smoke manifest dropped block {blk}"
+    assert m.backbone.name == "shallow_convnet" and m.training.stage2_bn_mode == "frozen_erm_running_stats"
+    assert m.smoke.deleted_cell_level1 == {"domain_subject": 4, "class": "feet"}
+    canon = m.to_canonical_json()
+    for key in ("lr_encoder", "guard_chunk_size", "selection_score_tolerance", "deleted_cell_level1"):
+        assert key in canon                                            # blocks are folded into the hash input
+
+
+def test_manifest_hash_binds_training_and_probe_blocks():
+    base = load_v2(_smoke_path()).freeze()["sha256"]
+    m = load_v2(_smoke_path()); m.training.steps_per_epoch += 1         # a training change...
+    assert m.freeze()["sha256"] != base                                # ...moves the manifest hash
+    m = load_v2(_smoke_path()); m.probe.folds += 1                      # a probe change...
+    assert m.freeze()["sha256"] != base
+    m = load_v2(_smoke_path()); m.optimizer.lr_encoder *= 2            # a learning-rate change...
+    assert m.freeze()["sha256"] != base
+
+
+def test_manifest_rejects_unknown_or_misspelled_scientific_key():
+    d = tempfile.mkdtemp(); p = os.path.join(d, "typo.yaml")
+    open(p, "w").write("protocol_id: t\nstatus: smoke\ntraining: {stage1_epoch: 5}\n")   # stage1_epoch[s]
+    try:
+        load_v2(p)
+    except ValueError as e:
+        assert "stage1_epoch" in str(e)
+    else:
+        raise AssertionError("a misspelled scientific key must be rejected, not silently filtered")
 
 
 def _run_all() -> None:

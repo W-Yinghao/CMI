@@ -43,6 +43,17 @@ methods:
   global_lpc_laplace_smoothing: 1.0
   critic_capacity: 8
 evaluation: {alpha: 0.05, delta_bacc: 0.02, ece_bins: 15}
+optimizer:
+  name: adam
+  lr_stage1: 5.0e-3
+  lr_encoder: 1.0e-2
+  lr_critic: 1.0e-2
+  weight_decay: 0.0
+  dual_lr: 0.5
+  lambda_init: 0.3
+  lambda_max: 20.0
+  lambda_floor: 0.0
+  gradient_clip: 0.0
 training:
   stage1_epochs: 8
   stage2_epochs: 6
@@ -51,8 +62,11 @@ training:
   warmup_steps: 8
   critic_steps: 2
   checkpoint_every: 1
+  guard_chunk_size: 512
+  numerical_tol: 1.0e-4
   stage2_bn_mode: frozen_erm_running_stats
   selection_score_tolerance: 1.0e-8
+  deterministic_algorithms: true
 sampler:
   min_per_eligible_cell: 4
   adv_microbatch_size: 64
