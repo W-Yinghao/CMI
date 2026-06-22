@@ -48,13 +48,16 @@ def sweep(task_margins, dom_margins, ns, seeds, gens, cfg, n_mc):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--smoke", action="store_true")
+    ap.add_argument("--power", default="", help="path to power table -> enable the power floor")
     ap.add_argument("--out", default="tos_cmi/results/phase_diagram.json")
     args = ap.parse_args()
     cfg = replace(ScoreFisherConfig(), task_protect=True,
                   epochs=120 if args.smoke else 200, gate_boot=150 if args.smoke else 250,
-                  n_perm_null=2)
+                  n_perm_null=2,
+                  task_power_floor=bool(args.power), task_power_table=args.power)
     if args.smoke:
-        rows = sweep([1.5, 2.5], [2.6], [3000], [0], ["synergy", "factorized"], cfg, n_mc=8000)
+        # re-test the previously-failing small-n injection regime under the capacity-bumped gate
+        rows = sweep([2.0], [2.6], [2000, 3000, 6000], [0], ["synergy", "factorized"], cfg, n_mc=10000)
     else:
         rows = sweep(task_margins=[1.0, 2.0, 3.5], dom_margins=[1.5, 2.6, 4.0],
                      ns=[2000, 6000, 18000], seeds=[0, 1, 2],

@@ -82,6 +82,20 @@ class ScoreFisherConfig:
                                     # task carrier). OFF by default pending the task-head-fidelity
                                     # decision (the nonlinear task-risk head charges a residual
                                     # cost on rank-reduced (I-P)Z even when (I-P)T=T exactly).
+    # --- Phase 1.3.1: capacity-qualified task-risk certification ---
+    # The TASK safety critic gets its OWN capacity/optimization budget (the diagnosis showed the
+    # synergy under-detection is finite-sample + capacity, not structural). This is deliberately
+    # scoped to the SAFETY certifier ONLY -- the score-Fisher probe and the domain gate keep
+    # `hidden`/`epochs` -- so the conclusion is "a stronger certifier", not "a bigger net helps
+    # everything". Restarts are selected on INNER VALIDATION only; the outer fold is scored once.
+    task_gate_hidden: int = 256
+    task_gate_epochs: int = 600
+    task_gate_restarts: int = 3
+    # --- power floor (competence certificate; capacity alone is insufficient for k=1 small-n) ---
+    task_power_floor: bool = False  # require the critic to be POWER-qualified before ACCEPTING a
+                                    # deletion; else abstain (TASK_POWER_INSUFFICIENT). Uses an
+                                    # OFFLINE table (run_power_table) of matched positive controls.
+    task_power_table: str = ""      # path to the pre-built competence table JSON
     dtype64: bool = True
 
 
@@ -654,13 +668,16 @@ def _intrinsic_coords(Zg, P):
     return u, n
 
 
-def _nested_residual_score(base, extra, target, n_out, cfg, gplan, seed, score="nll"):
+def _nested_residual_score(base, extra, target, n_out, cfg, gplan, seed, score="nll", restarts=1):
     """Strictly-nested conditional critic measuring the INCREMENTAL utility of `extra` given
     `base`: c0(target|base) calibrated once; q1 = softmax(L~0 + alpha*[g([base,extra]) -
     g([base,0])]), g zero-init, alpha>=0 on inner-val (alpha=0 -> q1==c0 EXACTLY). Per-sample
     delta = score(c0) - score(q1) >= 0 estimates I(target; extra | base) under `score`
-    (nll -> log-loss / conditional MI; brier -> bounded proper). Returns (delta[N], diag)."""
-    N = len(target); delta = np.zeros(N); base_l = np.zeros(N); full_l = np.zeros(N); alphas = []
+    (nll -> log-loss / conditional MI; brier -> bounded proper). `restarts` independent inits
+    are trained per fold; the best on INNER VALIDATION is kept (the outer hold fold is scored
+    ONCE, never used to pick the critic). Returns (delta[N], diag)."""
+    N = len(target); delta = np.zeros(N); base_l = np.zeros(N); full_l = np.zeros(N)
+    alphas = []; best_eps = []
     bd, ed = base.shape[1], extra.shape[1]
     sc = ((lambda p, t: (p ** 2).sum(1) - 2 * p[np.arange(len(t)), t] + 1.0) if score == "brier"
           else (lambda p, t: -np.log(np.clip(p[np.arange(len(t)), t], 1e-8, 1.0))))
@@ -674,26 +691,34 @@ def _nested_residual_score(base, extra, target, n_out, cfg, gplan, seed, score="
                   if len(iva) else 1.0)
             L0 = c0(Bt) / T0
         base_l[hold] = sc(torch.softmax(L0[hold], 1).numpy(), target[hold])
-        torch.manual_seed(iseed + 7)
-        g = _zero_last_layer(_Probe(bd + ed, n_out, 0, cfg.probe_family, cfg.hidden))
-        opt = torch.optim.Adam(g.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
         off = L0.detach()
         itl, ivl = torch.as_tensor(itr), torch.as_tensor(iva)
-        best, bs, bad, pat = float("inf"), None, 0, max(8, cfg.epochs // 5)
-        for ep in range(cfg.epochs):
-            opt.zero_grad()
-            F.cross_entropy((off + (g(Zc) - g(Z0)))[itl], tt[itl]).backward(); opt.step()
-            if len(ivl) and ep % 3 == 0:
-                with torch.no_grad():
-                    v = F.cross_entropy((off + (g(Zc) - g(Z0)))[ivl], tt[ivl]).item()
-                if v < best - 1e-4:
-                    best, bs, bad = v, _copy.deepcopy(g.state_dict()), 0
-                else:
-                    bad += 1
-                    if bad >= pat:
-                        break
-        if bs is not None:
-            g.load_state_dict(bs)
+        pat = max(8, cfg.epochs // 5)
+        # INNER-VAL model selection across restarts: keep the init with the lowest inner-val loss.
+        sel_state, sel_val, sel_ep = None, float("inf"), 0
+        for r in range(max(1, restarts)):
+            torch.manual_seed(iseed + 7 + 1000 * r)
+            g = _zero_last_layer(_Probe(bd + ed, n_out, 0, cfg.probe_family, cfg.hidden))
+            opt = torch.optim.Adam(g.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+            best, bs, bad, bep = float("inf"), None, 0, 0
+            for ep in range(cfg.epochs):
+                opt.zero_grad()
+                F.cross_entropy((off + (g(Zc) - g(Z0)))[itl], tt[itl]).backward(); opt.step()
+                if len(ivl) and ep % 3 == 0:
+                    with torch.no_grad():
+                        v = F.cross_entropy((off + (g(Zc) - g(Z0)))[ivl], tt[ivl]).item()
+                    if v < best - 1e-4:
+                        best, bs, bad, bep = v, _copy.deepcopy(g.state_dict()), 0, ep
+                    else:
+                        bad += 1
+                        if bad >= pat:
+                            break
+            if bs is None:                                    # no inner-val -> last state
+                bs, best, bep = _copy.deepcopy(g.state_dict()), 0.0, cfg.epochs - 1
+            if best < sel_val:
+                sel_state, sel_val, sel_ep = bs, best, bep
+        g = _zero_last_layer(_Probe(bd + ed, n_out, 0, cfg.probe_family, cfg.hidden))
+        g.load_state_dict(sel_state); best_eps.append(sel_ep)
         with torch.no_grad():
             R = g(Zc) - g(Z0)
             alpha = _fit_nonneg_scale(off[ivl], R[ivl], tt[ivl]) if len(ivl) else 1.0
@@ -702,12 +727,13 @@ def _nested_residual_score(base, extra, target, n_out, cfg, gplan, seed, score="
         delta[hold] = base_l[hold] - full_l[hold]
         alphas.append(alpha)
     return delta, {"alpha": float(np.mean(alphas)) if alphas else 0.0,
-                   "base_mean": float(base_l.mean()), "full_mean": float(full_l.mean())}
+                   "base_mean": float(base_l.mean()), "full_mean": float(full_l.mean()),
+                   "best_epoch": float(np.mean(best_eps)) if best_eps else 0.0}
 
 
 _REASONS = ("ACCEPTED", "NO_CANDIDATE", "DOMAIN_GATE_CLOSED", "DOMAIN_GAIN_TOO_SMALL",
-            "TASK_RISK_UCB", "FOLD_COVERAGE_FAILURE", "INSUFFICIENT_GROUPS",
-            "TASK_SUBSPACE_INTERSECTION", "NUMERICAL_FAILURE")
+            "TASK_RISK_UCB", "TASK_POWER_INSUFFICIENT", "FOLD_COVERAGE_FAILURE",
+            "INSUFFICIENT_GROUPS", "TASK_SUBSPACE_INTERSECTION", "NUMERICAL_FAILURE")
 
 
 def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=None, T_task=None):
@@ -743,12 +769,17 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
         return 0, [{"k": 1, "risk_feasible": False, "decision_reason": "TASK_SUBSPACE_INTERSECTION"}], \
                "TASK_SUBSPACE_INTERSECTION"
     lin_cfg = replace(cfg, probe_family="linear")
+    # capacity-qualified TASK certifier (Phase 1.3.1): its OWN hidden/epochs/restarts; domain arm
+    # and score-Fisher keep cfg.hidden -- the bump is scoped to the safety certifier only.
+    task_cfg = replace(cfg, hidden=cfg.task_gate_hidden, epochs=cfg.task_gate_epochs)
     try:
         # TASK arm: nested CONDITIONAL info gate on intrinsic coords -> delta_Y(k)=I(Y;deleted|kept)
-        dY, task_diag, dY_lin = [], [], []
+        dY, task_diag, dY_lin, dims = [], [], [], []
         for k in range(1, Kv + 1):
             u, n = _intrinsic_coords(Zg, Ps[k - 1])
-            dk, diag = _nested_residual_score(u, n, yg, n_cls, cfg, gplan, seed + 100 + k, "nll")
+            dims.append((u.shape[1], n.shape[1]))            # (d_base, d_extra) for power lookup
+            dk, diag = _nested_residual_score(u, n, yg, n_cls, task_cfg, gplan, seed + 100 + k,
+                                              "nll", restarts=cfg.task_gate_restarts)
             dY.append(dk); task_diag.append(diag)
             dl, _ = _nested_residual_score(u, n, yg, n_cls, lin_cfg, gplan, seed + 100 + k, "nll")
             dY_lin.append(dl)                                # linear diagnostic
@@ -764,12 +795,28 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
         return 0, [], "NUMERICAL_FAILURE"
     ucb_Y = _one_sided_bound(dY, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot, seed + 60, cfg.boot_estimand)
     lcb_D = _one_sided_bound(dD, cluster_id, cfg.gate_alpha, "lower", cfg.gate_boot, seed + 70, cfg.boot_estimand)
-    feasible = (ucb_Y <= cfg.delta_Y) & (lcb_D > cfg.gamma_D)
+    n_eff = len(Zg)
+    n_clusters = int(len(np.unique(cluster_id))) if cluster_id is not None else n_eff
+    # POWER FLOOR: a deletion may be ACCEPTED only if the critic is power-qualified at this prefix
+    # shape/sample size (capacity alone is insufficient for k=1 small-n). Uncovered -> abstain.
+    power_ok = np.ones(Kv, bool); power_info = [{} for _ in range(Kv)]
+    if cfg.task_power_floor:
+        try:
+            from .eval.power_certificate import load_table, lookup_power
+            tbl = load_table(cfg.task_power_table)
+            for i in range(Kv):
+                ok, inf = lookup_power(tbl, n_eff, dims[i][0], dims[i][1], n_cls)
+                power_ok[i] = ok; power_info[i] = inf
+        except (FileNotFoundError, KeyError, ValueError):
+            power_ok[:] = False                              # no table -> cannot certify -> abstain
+            power_info = [{"covered": False, "reason": "no_table"} for _ in range(Kv)]
+    feasible = (ucb_Y <= cfg.delta_Y) & (lcb_D > cfg.gamma_D) & power_ok
     records = []
     for k in range(1, Kv + 1):
         i = k - 1
         rsn = ("ACCEPTED" if feasible[i] else
-               "TASK_RISK_UCB" if ucb_Y[i] > cfg.delta_Y else "DOMAIN_GAIN_TOO_SMALL")
+               "TASK_RISK_UCB" if ucb_Y[i] > cfg.delta_Y else
+               "TASK_POWER_INSUFFICIENT" if not power_ok[i] else "DOMAIN_GAIN_TOO_SMALL")
         records.append({"k": k, "task_info_delta_mean": float(dY[:, i].mean()),
                         "task_info_ucb": float(ucb_Y[i]), "task_linear_delta": float(dY_lin[i].mean()),
                         "task_deployment_delta": float(dY_dep[:, i].mean()),
@@ -780,6 +827,12 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
                         # under-detect; see eval.bayes_oracle for the certification ground truth).
                         "probe_task_gain_ucb": float(ucb_Y[i]),
                         "task_ucb": float(ucb_Y[i]),  # back-compat alias
+                        "task_gate_hidden": int(cfg.task_gate_hidden),
+                        "task_gate_best_epoch": float(task_diag[i].get("best_epoch", 0.0)),
+                        "task_gate_n_effective": int(n_eff), "task_gate_n_clusters": int(n_clusters),
+                        "task_power_ok": bool(power_ok[i]), "task_power_mde": power_info[i].get("mde"),
+                        "task_power_family": ("gaussian_explaining_away" if cfg.task_power_floor
+                                              else None),
                         "domain_gain_mean": float(dD[:, i].mean()), "domain_lcb": float(lcb_D[i]),
                         "risk_feasible": bool(feasible[i]), "decision_reason": rsn})
     if intersect_at is not None:
@@ -787,7 +840,8 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
                         "decision_reason": "TASK_SUBSPACE_INTERSECTION"})
     feas = np.where(feasible)[0]
     if feas.size == 0:
-        reason = "TASK_RISK_UCB" if np.any(ucb_Y > cfg.delta_Y) else "DOMAIN_GAIN_TOO_SMALL"
+        reason = ("TASK_RISK_UCB" if np.any(ucb_Y > cfg.delta_Y) else
+                  "TASK_POWER_INSUFFICIENT" if not np.all(power_ok) else "DOMAIN_GAIN_TOO_SMALL")
         return 0, records, reason
     best = feas[np.argmax(lcb_D[feas])]              # ties: argmax returns the first => smaller k
     return int(best + 1), records, "ACCEPTED"

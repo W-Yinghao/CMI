@@ -43,22 +43,25 @@ def _gaussian_logpost_entropy(X, mu_cells, cov_inv, py):
 
 def bayes_conditional_task_delta(mu_yd, sigma, py, pdy, P, n_mc=20000, n_boot=300, seed=0):
     """EXACT Delta_Y* = H(Y|U) - H(Y|Z) on an INDEPENDENT MC draw from the true mixture, with a
-    bootstrap CI. mu_yd [n_cls,n_dom,D] (true, rotated), sigma scalar, py [n_cls], pdy [n_cls,n_dom].
+    bootstrap CI. mu_yd [n_cls,n_dom,D] (true, rotated), `sigma` a scalar OR a per-dim std vector
+    [D] (diagonal covariance diag(sigma^2)), py [n_cls], pdy [n_cls,n_dom].
     Returns dict(delta, ci_lo, ci_hi, H_YU, H_YZ)."""
     mu_yd = np.asarray(mu_yd, float); py = np.asarray(py, float); pdy = np.asarray(pdy, float)
     n_cls, n_dom, Dd = mu_yd.shape
+    std = np.broadcast_to(np.asarray(sigma, float), (Dd,)).copy()             # per-dim std
+    covZ = np.diag(std ** 2)
     rng = np.random.default_rng(seed)
     ys = rng.choice(n_cls, n_mc, p=py / py.sum())
     ds = np.array([rng.choice(n_dom, p=pdy[c] / pdy[c].sum()) for c in ys])
-    Z = mu_yd[ys, ds] + sigma * rng.standard_normal((n_mc, Dd))
+    Z = mu_yd[ys, ds] + std * rng.standard_normal((n_mc, Dd))
 
-    H_YZ = _gaussian_logpost_entropy(Z, mu_yd, np.eye(Dd) / sigma ** 2, py)   # [N]
+    H_YZ = _gaussian_logpost_entropy(Z, mu_yd, np.diag(1.0 / std ** 2), py)   # [N]
     Ur, sr, _ = np.linalg.svd(np.eye(Dd) - P)
     B_R = Ur[:, sr > 1e-8]
     A = B_R.T @ (np.eye(Dd) - P)
     U = Z @ A.T
     muU = np.einsum("md,ced->cem", A, mu_yd)
-    covU_inv = np.linalg.pinv(sigma ** 2 * (A @ A.T))
+    covU_inv = np.linalg.pinv(A @ covZ @ A.T)
     H_YU = _gaussian_logpost_entropy(U, muU, covU_inv, py)                    # [N]
 
     dper = H_YU - H_YZ                                        # per-sample H(Y|u_i)-H(Y|z_i)
