@@ -235,10 +235,14 @@ def test_proba_validation():
 def test_contract_validation_and_immutability():
     state, z, keys = _toy()
     was = build_action_sets(state, z, keys)["matched_coral"]
-    # immutability
+    # strong immutability: read-only AND writeable cannot be re-enabled (bytes-backed)
     assert not was.values.flags.writeable
     try:
         was.values[0, 0] = 1.0; raise AssertionError("values writable after freeze")
+    except ValueError:
+        pass
+    try:
+        was.values.flags.writeable = True; raise AssertionError("re-enabled writeable flag")
     except ValueError:
         pass
     # illegal constructions (n=MIN_BATCH rows; WAS requires n in [MIN_BATCH,B])

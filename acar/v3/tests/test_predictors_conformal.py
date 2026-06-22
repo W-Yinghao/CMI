@@ -53,6 +53,8 @@ def _pred(candidate="C1", disease="PD", action="matched_coral", point=0.0, uc=No
 
 def test_candidate_prediction_validation():
     _pred("C1")
+    _expect(ValueError, lambda: CandidatePrediction("C1", "FLU", "matched_coral", 0.0, 0.0))   # bad disease
+    _expect(ValueError, lambda: CandidatePrediction("C2", "PD", "spdim", 1.0, 1.0, 1.0, 1.0, 0.0))  # floor must be >0
     _expect(ValueError, lambda: _pred("C1", scale_used=1.0))
     _expect(ValueError, lambda: CandidatePrediction("C2", "PD", "spdim", 1.0, 1.0, 5.0, 2.0, 3.0))   # used!=max
     _expect(ValueError, lambda: CandidatePrediction("C3", "PD", "t3a", 1.0, 1.0))                     # uc>point
@@ -147,14 +149,19 @@ def test_route_failclosed():
 
 
 def test_cal_vs_eval_isolation():
-    preds = {a: _pred("C2", action=a, point=0.0, uc=0.0, scale_used=1.0, scale_raw=1.0, scale_floor=0.5) for a in NON_IDENTITY}
+    import inspect
+    preds = {a: _pred("C2", action=a, point=0.0, uc=0.0, scale_used=2.0, scale_raw=2.0, scale_floor=0.5) for a in NON_IDENTITY}
     rng = np.random.default_rng(0)
     cal = [subject_joint_score([{a: (preds[a], float(rng.normal())) for a in NON_IDENTITY}]) for _ in range(12)]
     cal2 = [subject_joint_score([{a: (preds[a], float(rng.normal()) + 1.0) for a in NON_IDENTITY}]) for _ in range(12)]
-    q1, _ = conformal_q(cal, 0.1); assert math.isfinite(q1)
-    assert route(preds, q1) == route(preds, q1)
-    assert conformal_q(cal2, 0.1)[0] != q1
-    print("  [ok] CAL labels move only q; EVAL labels enter neither q nor routing")
+    q1, _ = conformal_q(cal, 0.1); q2, _ = conformal_q(cal2, 0.1)
+    assert math.isfinite(q1) and q2 != q1                                   # CAL labels MOVE q
+    # routing/U depend ONLY on (preds, q): EVAL labels are not even an argument to route
+    assert "dr" not in inspect.signature(route).parameters and "delta_r" not in inspect.signature(route).parameters
+    _, U1 = route(preds, max(q1, 0.0)); _, U2 = route(preds, max(q2, 0.0))   # U shifts by q only (C2 q⁺·scale)
+    for a in NON_IDENTITY:
+        assert abs((U2[a] - U1[a]) - (max(q2, 0.0) - max(q1, 0.0)) * preds[a].scale_used) < 1e-9
+    print("  [ok] CAL labels move only q; route/U a function of (preds,q) only — EVAL labels not in the path")
 
 
 def test_serialize_and_disease_bind():

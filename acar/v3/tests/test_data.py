@@ -41,7 +41,10 @@ def test_no_label_field_and_immutable():
     assert not (fnames & {"y", "label", "labels", "delta_r", "target"})
     assert "disease" in fnames
     b = _batch(); _expect(FrozenInstanceError, lambda: setattr(b, "fallback", True)); assert not b.z.flags.writeable
-    print("  [ok] DeploymentBatch has disease + NO label field; frozen + z read-only")
+    def _reenable():
+        b.z.flags.writeable = True
+    _expect(ValueError, _reenable)                                            # bytes-backed: cannot re-enable
+    print("  [ok] DeploymentBatch has disease + NO label field; frozen + z strongly read-only")
 
 
 def test_batching_protocol_validation():
@@ -55,7 +58,9 @@ def test_batching_protocol_validation():
                                                 np.zeros((B + 1, 4)), False, HEX))   # n>B
     _expect(ValueError, lambda: DeploymentBatch("FLU", SubjectKey("ds", "s"), RecordingKey("ds", "s", "r"),
                                                 (WindowKey("ds", "s", "r", 0),), np.zeros((1, 4)), True, HEX))  # bad disease
-    print("  [ok] DeploymentBatch validates fallback<=>n<MIN_BATCH, n in [1,B], hex source, keys, disease")
+    _expect(ValueError, lambda: DeploymentBatch("PD", SubjectKey("ds", "s"), RecordingKey("ds", "s", "r"),
+            tuple(WindowKey("ds", "s", "r", i) for i in range(MIN_BATCH)), np.zeros((MIN_BATCH, 0)), False, HEX))  # d==0
+    print("  [ok] DeploymentBatch validates fallback<=>n<MIN_BATCH, n in [1,B], d>=1, hex source, keys, disease")
 
 
 def test_labeled_risk_record():

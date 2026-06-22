@@ -20,6 +20,7 @@ import numpy as np
 
 from acar.config import MIN_BATCH, B
 from acar.actions import apply_action
+from ._util import frozen_array
 from acar.features import (_entropy, _margin, _jsd, _bures_w2, _fisher_ratio, _ess, _maha2, _shrink)
 
 SCHEMA_VERSION = "acar-v3-set/2"
@@ -115,13 +116,11 @@ class WindowActionSet:
         ck = [canon_key(k) for k in keys]
         if len(set(ck)) != len(ck):
             raise ValueError("duplicate window_keys")
-        v.flags.writeable = False; m.flags.writeable = False
-        cv.flags.writeable = False; cm.flags.writeable = False
-        object.__setattr__(self, "values", v)
-        object.__setattr__(self, "availability_mask", m)
-        object.__setattr__(self, "context_values", cv)
-        object.__setattr__(self, "context_mask", cm)
-        object.__setattr__(self, "window_keys", keys)
+        object.__setattr__(self, "values", frozen_array(v))
+        object.__setattr__(self, "availability_mask", frozen_array(m))
+        object.__setattr__(self, "context_values", frozen_array(cv))
+        object.__setattr__(self, "context_mask", frozen_array(cm))
+        object.__setattr__(self, "window_keys", tuple(keys))
 
 
 @dataclass(frozen=True, slots=True)
@@ -138,8 +137,10 @@ class FallbackBatchRecord:
         if not (isinstance(self.canonical_input_digest, str) and len(self.canonical_input_digest) == 64
                 and all(c in "0123456789abcdef" for c in self.canonical_input_digest)):
             raise ValueError("canonical_input_digest must be a full hex SHA-256")
-        if self.n_windows != len(self.window_keys) or not (0 <= self.n_windows < MIN_BATCH):
-            raise ValueError(f"FallbackBatchRecord n_windows must equal len(window_keys) and be < {MIN_BATCH}")
+        keys = tuple(self.window_keys)
+        if self.n_windows != len(keys) or not (1 <= self.n_windows < MIN_BATCH):
+            raise ValueError(f"FallbackBatchRecord n_windows must equal len(window_keys) and be in [1, {MIN_BATCH})")
+        object.__setattr__(self, "window_keys", keys)
 
 
 def _input_digest(z, keys):

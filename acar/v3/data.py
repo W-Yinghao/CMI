@@ -19,6 +19,7 @@ import numpy as np
 
 from acar.config import MIN_BATCH, B
 from .set_features import WindowKey, NON_IDENTITY
+from ._util import frozen_array
 
 DATA_SCHEMA = "acar-v3-data/1"
 
@@ -85,29 +86,33 @@ class DeploymentBatch:
             raise ValueError("disease must be PD or SCZ")
         if not isinstance(self.subject, SubjectKey) or not isinstance(self.recording, RecordingKey):
             raise TypeError("subject/recording must be SubjectKey/RecordingKey (no plain tuples)")
+        keys = tuple(self.window_keys)
         z = np.ascontiguousarray(np.asarray(self.z, float))
-        n = len(self.window_keys)
+        n = len(keys)
         if z.ndim != 2 or z.shape[0] != n:
             raise ValueError("z must be [n_windows, d] aligned with window_keys")
         if not (1 <= n <= B):
             raise ValueError(f"n_windows must be in [1, {B}] (got {n})")
+        if z.shape[1] < 1:
+            raise ValueError("embedding dimension d must be >= 1")
         if not np.all(np.isfinite(z)):
             raise ValueError("non-finite z")
-        if bool(self.fallback) != (n < MIN_BATCH):
+        if not isinstance(self.fallback, bool):
+            raise TypeError("fallback must be a bool")
+        if self.fallback != (n < MIN_BATCH):
             raise ValueError(f"fallback ({self.fallback}) must equal n_windows<{MIN_BATCH} ({n < MIN_BATCH})")
         if not _is_hex64(self.source_state_ref):
             raise ValueError("source_state_ref must be a 64-char hex SHA-256")
         seen = set()
-        for wk in self.window_keys:
+        for wk in keys:
             _validate_window_key(wk)
             if subject_of(wk) != self.subject or recording_of(wk) != self.recording:
                 raise ValueError("window key subject/recording mismatch")
             if wk in seen:
                 raise ValueError("duplicate window key")
             seen.add(wk)
-        z.flags.writeable = False
-        object.__setattr__(self, "z", z)
-        object.__setattr__(self, "fallback", bool(self.fallback))
+        object.__setattr__(self, "window_keys", keys)
+        object.__setattr__(self, "z", frozen_array(z))
 
 
 @dataclass(frozen=True, slots=True)
@@ -118,11 +123,12 @@ class LabeledRiskRecord:
     def __post_init__(self):
         if not _is_hex64(self.deployment_batch_digest):
             raise ValueError("deployment_batch_digest must be a full hex SHA-256")
-        acts = tuple(a for a, _ in self.delta_r_by_action)
-        if acts != NON_IDENTITY:
-            raise ValueError(f"delta_r_by_action must be in canonical order {NON_IDENTITY}; got {acts}")
-        if any(not np.isfinite(v) for _, v in self.delta_r_by_action):
+        items = tuple((a, float(v)) for a, v in self.delta_r_by_action)
+        if tuple(a for a, _ in items) != NON_IDENTITY:
+            raise ValueError(f"delta_r_by_action must be in canonical order {NON_IDENTITY}")
+        if any(not np.isfinite(v) for _, v in items):
             raise ValueError("non-finite ΔR")
+        object.__setattr__(self, "delta_r_by_action", items)
 
 
 def deployment_batch_digest(b: DeploymentBatch) -> str:

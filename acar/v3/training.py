@@ -17,7 +17,7 @@ import numpy as np
 import torch
 
 from .set_features import WindowActionSet, WindowKey, NON_IDENTITY
-from .normalizers import InputNormalizer, TargetNormalizer
+from .normalizers import InputNormalizer, TargetNormalizer, TARGET_SD_FLOOR
 from .predictors import DeepSetsNet, make_artifact, HP, env_versions, CANDIDATES
 from .data import SubjectKey, subject_of, _is_hex64
 
@@ -49,6 +49,29 @@ class TrainExample:
             raise ValueError("delta_r must be finite")
 
 
+@dataclass(frozen=True, slots=True)
+class DeploymentFeatureRecord:
+    """One natural eligible batch -> the 3 action TrainExamples, guaranteed consistent. Prefer this over hand-built
+    TrainExamples (review): it enforces a single window_key set / subject / digest across all non-identity actions."""
+    disease: str
+    subject_key: SubjectKey
+    deployment_batch_digest: str
+    per_action: tuple        # ((action, window_action_set, delta_r), ...) covering NON_IDENTITY
+
+    def __post_init__(self):
+        acts = tuple(a for a, _, _ in self.per_action)
+        if acts != NON_IDENTITY:
+            raise ValueError(f"per_action must be in canonical order {NON_IDENTITY}")
+        keys = self.per_action[0][1].window_keys
+        for _, was, _ in self.per_action:
+            if was.window_keys != keys:
+                raise ValueError("all actions of a deployment batch must share identical window_keys")
+
+    def to_train_examples(self):
+        return [TrainExample(self.disease, self.subject_key, self.deployment_batch_digest, a, was, dr)
+                for a, was, dr in self.per_action]
+
+
 def _huber(p, y, d):
     e = p - y; ae = torch.abs(e)
     return torch.where(ae <= d, 0.5 * e * e, d * (ae - 0.5 * d))
@@ -77,7 +100,7 @@ def _validate(examples, disease):
     """Return {subject_key: list[TrainExample]}; FAIL-CLOSED on malformed structure."""
     if not examples:
         raise ValueError("empty example set")
-    by_subj = defaultdict(list); by_batch = defaultdict(set); dup = set()
+    by_subj = defaultdict(list); by_batch = defaultdict(set); by_batch_keys = {}; dup = set()
     for e in examples:
         if not isinstance(e, TrainExample):
             raise TypeError("examples must be TrainExample")
@@ -88,13 +111,15 @@ def _validate(examples, disease):
             raise ValueError(f"duplicate (batch_digest, action): {key}")
         dup.add(key)
         by_subj[e.subject_key].append(e)
-        by_batch[(e.subject_key, e.deployment_batch_digest)].add(e.action)
+        bk = (e.subject_key, e.deployment_batch_digest)
+        by_batch[bk].add(e.action)
+        wkeys = tuple(e.window_action_set.window_keys)
+        if bk in by_batch_keys and by_batch_keys[bk] != wkeys:
+            raise ValueError(f"eligible batch {bk}: the 3 actions must share identical window_keys (same natural batch)")
+        by_batch_keys[bk] = wkeys
     for b, acts in by_batch.items():
         if acts != set(NON_IDENTITY):
             raise ValueError(f"eligible batch {b} actions {sorted(acts)} != {sorted(NON_IDENTITY)}")
-    for sk, exs in by_subj.items():
-        if not any(True for _ in exs):
-            raise ValueError(f"subject {sk} has no complete eligible batch")
     return by_subj
 
 
@@ -152,6 +177,17 @@ def _sigma_min(net, by_subject, tnorm):
     return sm
 
 
+def _subject_balanced_target(by_subj):
+    """Subject-equal target moments (matches the subject-balanced loss): mean of per-subject means; SD from
+    subject-equal second moments. (Amendment 6 — replaces record-weighted target normalization.)"""
+    mu_s, sq_s = [], []
+    for exs in by_subj.values():
+        d = np.array([e.delta_r for e in exs], float)
+        mu_s.append(d.mean()); sq_s.append((d ** 2).mean())
+    mu = float(np.mean(mu_s)); var = float(np.mean(sq_s) - mu ** 2)
+    return TargetNormalizer(mu, float(max(math.sqrt(max(var, 0.0)), TARGET_SD_FLOOR)))
+
+
 def _det_ctx():
     return (torch.are_deterministic_algorithms_enabled(), torch.get_num_threads())
 
@@ -166,14 +202,15 @@ def fit_candidate_earlystop(candidate, disease, train_examples, val_examples, se
     try:
         torch.use_deterministic_algorithms(True); torch.set_num_threads(1); torch.manual_seed(seed)
         inorm = InputNormalizer.fit([e.window_action_set for e in train_examples])
-        tnorm = TargetNormalizer.fit([e.delta_r for e in train_examples])
+        tnorm = _subject_balanced_target(tr_by)               # subject-balanced (matches the loss)
         tr = _prep(tr_by, inorm, tnorm); va = _prep(va_by, inorm, tnorm)
         tr_subj = sorted(tr, key=str); va_subj = sorted(va, key=str)
         net = DeepSetsNet(candidate, seed)
         opt = torch.optim.Adam(net.parameters(), lr=HP["lr"], weight_decay=HP["weight_decay"])
         rng = np.random.default_rng(seed)
-        best_val = math.inf; best_state = None; best_epoch = -1; bad = 0
+        best_val = math.inf; best_state = None; best_epoch = -1; bad = 0; executed = 0
         for epoch in range(HP["max_epochs"]):
+            executed = epoch + 1
             net.train(); order = list(tr_subj); rng.shuffle(order)
             for s in range(0, len(order), HP["batch_subjects"]):
                 _opt_step(net, opt, _subject_balanced_loss(net, tr, candidate, order[s:s + HP["batch_subjects"]]))
@@ -193,8 +230,8 @@ def fit_candidate_earlystop(candidate, disease, train_examples, val_examples, se
         net.load_state_dict(best_state); net.eval()
         fit_all = _prep({**tr_by, **va_by}, inorm, tnorm)     # full fold FIT = TRAIN∪VAL
         sm = _sigma_min(net, fit_all, tnorm) if candidate == "C2" else {}
-        art = make_artifact(candidate, disease, net, inorm, tnorm, sm, best_epoch + 1, env_versions())
-        return art, best_epoch                                 # n_epochs_trained = best_epoch+1; best_epoch (0-based) for fold diagnostics
+        art = make_artifact(candidate, disease, net, inorm, tnorm, sm, best_epoch, executed, env_versions())
+        return art, best_epoch                                 # artifact: checkpoint=best_epoch+1, executed=epochs run
     finally:
         torch.use_deterministic_algorithms(pdet); torch.set_num_threads(pth)
 
@@ -202,14 +239,14 @@ def fit_candidate_earlystop(candidate, disease, train_examples, val_examples, se
 def refit_candidate_fixed_epochs(candidate, disease, all_dev_examples, n_epochs, sigma_min_oof, seed):
     if candidate not in CANDIDATES:
         raise ValueError("bad candidate")
-    if not (isinstance(n_epochs, int) and n_epochs >= 1):
-        raise ValueError("n_epochs must be a positive int")
+    if isinstance(n_epochs, bool) or not isinstance(n_epochs, int) or n_epochs < 1:
+        raise ValueError("n_epochs must be a positive non-bool int")
     by = _validate(all_dev_examples, disease)
     pdet, pth = _det_ctx()
     try:
         torch.use_deterministic_algorithms(True); torch.set_num_threads(1); torch.manual_seed(seed)
         inorm = InputNormalizer.fit([e.window_action_set for e in all_dev_examples])
-        tnorm = TargetNormalizer.fit([e.delta_r for e in all_dev_examples])
+        tnorm = _subject_balanced_target(by)                  # subject-balanced (matches the loss)
         data = _prep(by, inorm, tnorm); subj = sorted(data, key=str)
         net = DeepSetsNet(candidate, seed)
         opt = torch.optim.Adam(net.parameters(), lr=HP["lr"], weight_decay=HP["weight_decay"])
@@ -225,13 +262,17 @@ def refit_candidate_fixed_epochs(candidate, disease, all_dev_examples, n_epochs,
                 raise ValueError("refit requires a complete, positive OOF sigma_min")
         else:
             sm = {}
-        return make_artifact(candidate, disease, net, inorm, tnorm, sm, n_epochs, env_versions())
+        return make_artifact(candidate, disease, net, inorm, tnorm, sm, n_epochs - 1, n_epochs, env_versions())
     finally:
         torch.use_deterministic_algorithms(pdet); torch.set_num_threads(pth)
 
 
 def final_epochs(best_epochs_zero_based):
-    vals = [int(e) + 1 for e in best_epochs_zero_based]       # epochs trained = best_epoch(0-based)+1
+    vals = []
+    for e in best_epochs_zero_based:
+        if isinstance(e, bool) or not isinstance(e, int) or e < 0:
+            raise ValueError("best_epoch values must be non-negative non-bool ints")
+        vals.append(e + 1)                                     # epochs trained = best_epoch(0-based)+1
     if not vals:
         raise ValueError("no fold best-epochs")
     return int(math.floor(float(np.median(vals)) + 0.5))      # round half up

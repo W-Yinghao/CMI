@@ -12,7 +12,7 @@ from acar.v3.normalizers import InputNormalizer, TargetNormalizer, TARGET_SD_FLO
 from acar.v3.predictors import FittedCandidateArtifact, make_artifact, DeepSetsNet, state_items, build_net, HP
 from acar.v3 import training as T
 from acar.v3.training import (fit_candidate_earlystop, refit_candidate_fixed_epochs, final_epochs, TrainExample,
-                              _huber, _beta_nll, _pinball, _subject_balanced_loss)
+                              DeploymentFeatureRecord, _huber, _beta_nll, _pinball, _subject_balanced_loss)
 
 
 def _state(d=8, seed=0):
@@ -87,7 +87,7 @@ def test_disease_binding_and_subject_disjoint():
     _expect(ValueError, lambda: fit_candidate_earlystop("C1", "SCZ", tr, va, seed=0))   # examples are PD
     mixed = tr[:-1] + [TrainExample("SCZ", tr[-1].subject_key, tr[-1].deployment_batch_digest, tr[-1].action,
                                     tr[-1].window_action_set, tr[-1].delta_r)]
-    _expect(ValueError, lambda: fit_candidate_earlystop("PD", "PD", mixed, va, seed=0))  # mixed disease
+    _expect(ValueError, lambda: fit_candidate_earlystop("C1", "PD", mixed, va, seed=0))  # mixed disease (valid candidate)
     _expect(ValueError, lambda: fit_candidate_earlystop("C1", "PD", tr, tr[:6], seed=0)) # TRAIN/VAL overlap
     print("  [ok] training disease-bound (TrainExample.disease) + TRAIN/VAL subject-disjoint enforced")
 
@@ -97,29 +97,33 @@ def test_deterministic_earlystop_and_epoch_semantics():
     a1, be1 = fit_candidate_earlystop("C2", "PD", tr, va, seed=0)
     a2, be2 = fit_candidate_earlystop("C2", "PD", tr, va, seed=0)
     assert a1.artifact_sha256 == a2.artifact_sha256 and len(a1.artifact_sha256) == 64
-    assert a1.n_epochs_trained == be1 + 1 and 1 <= a1.n_epochs_trained <= HP["max_epochs"]   # 0-based best + 1
-    print(f"  [ok] deterministic earlystop; n_epochs_trained=best_epoch+1 ({a1.n_epochs_trained})")
+    assert a1.best_epoch_zero_based == be1 and a1.checkpoint_epoch_count == be1 + 1
+    assert a1.n_epochs_executed >= a1.checkpoint_epoch_count and a1.n_epochs_executed <= HP["max_epochs"]
+    print(f"  [ok] deterministic earlystop; checkpoint=best+1={a1.checkpoint_epoch_count}, executed={a1.n_epochs_executed}")
 
 
 def test_canonical_bytes_and_integrity():
     state = _state(); tr, va = _split(state)
     a, _ = fit_candidate_earlystop("C2", "PD", tr, va, seed=0)
-    assert all(dt.startswith("<") for _, dt, _, _ in a.state_items), "state bytes not explicit little-endian"
+    assert all(dt == "<f4" for _, dt, _, _ in a.state_items), "state bytes not canonical '<f4'"
     assert set(dict(a.sigma_min)) == set(NON_IDENTITY) and all(v > 0 for _, v in a.sigma_min)
     net = build_net("C2", a.state_items)
     sm = dict(a.sigma_min); k0 = sorted(sm)[0]; sm[k0] += 1e-13
-    b = make_artifact("C2", "PD", net, a.input_norm, a.target_norm, sm, a.n_epochs_trained, dict(a.env))
+    b = make_artifact("C2", "PD", net, a.input_norm, a.target_norm, sm, a.best_epoch_zero_based, a.n_epochs_executed, dict(a.env))
     assert b.artifact_sha256 != a.artifact_sha256                              # 1e-13 floor -> different hash
     _expect(ValueError, lambda: make_artifact("C2", "PD", net, a.input_norm, a.target_norm,
-                                              {kk: 0.0 for kk in NON_IDENTITY}, 1, dict(a.env)))   # floor<=0
-    _expect(ValueError, lambda: make_artifact("C1", "PD", net, a.input_norm, a.target_norm, {}, 1, dict(a.env)))  # arch mismatch
+                                              {kk: 0.0 for kk in NON_IDENTITY}, 0, 1, dict(a.env)))   # floor<=0
+    _expect(ValueError, lambda: make_artifact("C1", "PD", net, a.input_norm, a.target_norm, {}, 0, 1, dict(a.env)))  # arch mismatch
+    # duplicate sigma_min / env keys rejected (no dict() collision)
+    _expect(ValueError, lambda: FittedCandidateArtifact("C2", "PD", a.state_items, a.input_norm, a.target_norm,
+            (("matched_coral", 0.1), ("matched_coral", 0.1), ("spdim", 0.1), ("t3a", 0.1)), 0, 1, 1, tuple(a.env)))
     # tamper state bytes after construction -> integrity failure (no live cache to bypass)
     import copy
     t = copy.deepcopy(a); bad = list(t.state_items); nm, dt, sh, buf = bad[0]
-    arr = np.frombuffer(buf, dtype=np.dtype(dt)).copy(); arr[0] += 1.0
+    arr = np.frombuffer(buf, dtype=np.dtype(dt)).copy(); arr[0] += np.float32(1.0)
     bad[0] = (nm, dt, sh, arr.tobytes()); object.__setattr__(t, "state_items", tuple(bad))
     _expect(ValueError, lambda: t.verify_integrity())
-    print("  [ok] canonical LE bytes; hash covers 1e-13 floor; floor<=0/arch-mismatch reject; tamper->integrity fail")
+    print("  [ok] canonical '<f4'; hash covers 1e-13 floor + dup-key reject; floor<=0/arch reject; tamper->integrity fail")
 
 
 def test_nonfinite_loss_failclosed():
@@ -134,12 +138,30 @@ def test_nonfinite_loss_failclosed():
 
 def test_refit_and_final_epochs():
     assert final_epochs([0, 1, 2]) == 2 and final_epochs([0, 1, 2, 3]) == 3
+    for bad in ([True], [0.9], [-1]):                                          # strict non-bool, non-neg int
+        _expect(ValueError, lambda b=bad: final_epochs(b))
     state = _state(); tr, va = _split(state); oof = {a: 0.05 for a in NON_IDENTITY}
     r1 = refit_candidate_fixed_epochs("C2", "PD", tr + va, 3, oof, seed=0)
     r2 = refit_candidate_fixed_epochs("C2", "PD", tr + va, 3, oof, seed=0)
-    assert r1.artifact_sha256 == r2.artifact_sha256 and dict(r1.sigma_min) == oof and r1.n_epochs_trained == 3
+    assert r1.artifact_sha256 == r2.artifact_sha256 and dict(r1.sigma_min) == oof
+    assert r1.n_epochs_executed == 3 and r1.checkpoint_epoch_count == 3 and r1.best_epoch_zero_based == 2
     _expect(ValueError, lambda: refit_candidate_fixed_epochs("C2", "PD", tr + va, 3, {"matched_coral": 0.05}, 0))
-    print("  [ok] fixed-epoch refit deterministic; n_epochs_trained=n_epochs; OOF σ_min required; final_epochs round-half-up")
+    _expect(ValueError, lambda: refit_candidate_fixed_epochs("C2", "PD", tr + va, True, oof, 0))   # bool n_epochs
+    print("  [ok] fixed-epoch refit deterministic; epoch provenance fields; OOF σ_min required; final_epochs strict")
+
+
+def test_deployment_feature_record_consistency():
+    state = _state()
+    z = np.random.default_rng(0).standard_normal((12, 8)); keys = [WindowKey("ds", "s0", "r", w) for w in range(12)]
+    sets = build_action_sets(state, z, keys); dg = hashlib.sha256(b"b").hexdigest(); sk = SubjectKey("ds", "s0")
+    rec = DeploymentFeatureRecord("PD", sk, dg, tuple((a, sets[a], 0.1) for a in NON_IDENTITY))
+    exs = rec.to_train_examples(); assert len(exs) == 3 and all(e.subject_key == sk for e in exs)
+    # mismatched window_keys across actions -> raise (different natural batch)
+    z2 = np.random.default_rng(1).standard_normal((12, 8)); keys2 = [WindowKey("ds", "s0", "r", w + 100) for w in range(12)]
+    sets2 = build_action_sets(state, z2, keys2)
+    bad = (("matched_coral", sets["matched_coral"], 0.1), ("spdim", sets2["spdim"], 0.1), ("t3a", sets["t3a"], 0.1))
+    _expect(ValueError, lambda: DeploymentFeatureRecord("PD", sk, dg, bad))
+    print("  [ok] DeploymentFeatureRecord enforces one window_key set across the 3 actions -> consistent TrainExamples")
 
 
 def test_normalizers():
@@ -158,7 +180,7 @@ def main():
     for t in (test_loss_exactness, test_beta_nll_stop_gradient, test_subject_balanced,
               test_disease_binding_and_subject_disjoint, test_deterministic_earlystop_and_epoch_semantics,
               test_canonical_bytes_and_integrity, test_nonfinite_loss_failclosed, test_refit_and_final_epochs,
-              test_normalizers):
+              test_deployment_feature_record_consistency, test_normalizers):
         t()
     print("ALL V3 TRAINING GUARDS PASS")
 

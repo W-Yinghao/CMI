@@ -12,6 +12,7 @@ import hashlib
 import numpy as np
 
 from .set_features import (WindowActionSet, PER_WINDOW_FEATURES, CONTEXT_FEATURES, action_index)
+from ._util import frozen_array
 
 SD_FLOOR = 1e-6           # input-feature SD floor
 TARGET_SD_FLOOR = 1e-3    # target SD floor (skeleton-registered value; Amendment 4)
@@ -34,8 +35,7 @@ class InputNormalizer:
         if np.any(self.win_sd < SD_FLOOR) or np.any(self.ctx_sd < SD_FLOOR):
             raise ValueError("SD below floor — fit() must clamp")
         for f in ("win_mean", "win_sd", "ctx_mean", "ctx_sd"):
-            arr = np.ascontiguousarray(np.asarray(getattr(self, f), float)); arr.flags.writeable = False
-            object.__setattr__(self, f, arr)
+            object.__setattr__(self, f, frozen_array(np.asarray(getattr(self, f), float)))
 
     @staticmethod
     def fit(sets) -> "InputNormalizer":
