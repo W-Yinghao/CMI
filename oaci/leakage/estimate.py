@@ -30,7 +30,7 @@ def reference_conditional_entropy(support_graph: SupportGraph) -> dict[int, floa
     H: dict[int, float] = {}
     for y in support_graph.comparable_classes:
         S = support_graph.support_of_class[y]
-        n = support_graph.counts[S, y].astype(np.float64)
+        n = support_graph.cell_mass[S, y].astype(np.float64)   # estimand MASS, not unit counts
         p = n / n.sum()
         p = p[p > 0]
         H[y] = float(-np.sum(p * np.log(p)))

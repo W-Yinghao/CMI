@@ -43,6 +43,9 @@ class PredictionBundle:
     risk_metric: str = "balanced_ce"
     support_mask_hash: str = ""
     checkpoint_hash: str = ""
+    audit_tensor_hash: str = ""        # hash of the actual audit X (identical IDs alone insufficient)
+    split_manifest_hash: str = ""
+    preprocess_hash: str = ""
 
     def __post_init__(self):
         self.sample_id = np.asarray(self.sample_id)
@@ -75,7 +78,14 @@ class PredictionBundle:
             split_id=self.split_id, split_role=self.split_role, deletion_level=self.deletion_level,
             class_names=list(self.class_names), risk_metric=self.risk_metric,
             support_mask_hash=self.support_mask_hash, checkpoint_hash=self.checkpoint_hash,
+            audit_tensor_hash=self.audit_tensor_hash, split_manifest_hash=self.split_manifest_hash,
+            preprocess_hash=self.preprocess_hash,
         )
+
+    def audit_signature(self) -> tuple:
+        """Full byte-identity signature (population + actual tensor + split + preprocessing)."""
+        return (self.eval_population_hash, self.audit_tensor_hash,
+                self.split_manifest_hash, self.preprocess_hash)
 
 
 def align_pair(a: PredictionBundle, b: PredictionBundle):

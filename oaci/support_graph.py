@@ -100,11 +100,12 @@ def _connected_components(n_nodes: int, edges: list[tuple[int, int]]) -> list[li
 class SupportGraph:
     """Identifiability + decomposability bookkeeping. Build via :func:`build_support_graph`."""
 
-    counts: np.ndarray                       # [n_domains, n_classes] effective counts
-    m: int                                   # eligibility threshold (n_{d,y} >= m)
+    counts: np.ndarray                       # [D,C] ELIGIBILITY counts (unique support units; m-gate ONLY)
+    m: int                                   # eligibility threshold (n^elig_{d,y} >= m)
     reference_prior: np.ndarray              # FIXED p_ref(y), len n_classes, sums to 1
     domain_names: list[str]
     class_names: list[str]
+    cell_mass: np.ndarray                    # [D,C] ESTIMAND mass M_{d,y}: drives p(d|y), H_ref, weights
 
     present: np.ndarray                      # bool [D,C]  n > 0   (observed support)
     eligible: np.ndarray                     # bool [D,C]  n >= m  (estimator-eligibility)
@@ -202,7 +203,7 @@ class SupportGraph:
         z = float(sum(self.reference_prior[y] for y in self.comparable_classes))
         out = []
         for y in self.comparable_classes:
-            n_obs = int(self.counts[self.support_of_class[y], y].sum())
+            n_obs = float(self.cell_mass[self.support_of_class[y], y].sum())   # estimand MASS, not unit count
             out.append(
                 {
                     "y": y,
@@ -231,10 +232,10 @@ class SupportGraph:
         """Sample-based companion (descriptive): fraction of *current* samples in a
         comparable, eligible cell. Unlike :meth:`eligible_comparable_mass_fraction` this moves
         with the counts, so it is a description of the data, not the estimand weight."""
-        total = float(self.counts.sum())
+        total = float(self.cell_mass.sum())
         if total <= 0:
             return 0.0
-        constrained = sum(int(self.counts[self.support_of_class[y], y].sum()) for y in self.comparable_classes)
+        constrained = sum(float(self.cell_mass[self.support_of_class[y], y].sum()) for y in self.comparable_classes)
         return constrained / total
 
     # ---- reporting ----
@@ -276,13 +277,20 @@ class SupportGraph:
 
 
 def build_support_graph(
-    counts,
+    eligibility_counts,
     m: int,
+    cell_mass=None,
     reference_prior=None,
     domain_names: list[str] | None = None,
     class_names: list[str] | None = None,
 ) -> SupportGraph:
-    """Build the support graph from a ``[n_domains, n_classes]`` effective-count table.
+    """Build the support graph, SEPARATING the eligibility count from the estimand mass.
+
+    ``eligibility_counts[d,y]`` are **independent support units** (e.g. subjects/trials) and gate
+    *only* the ``m``-eligibility — never let dozens of correlated windows of one subject count as
+    independent support. ``cell_mass[d,y]`` (default = ``eligibility_counts``) is the estimand
+    MASS ``M_{d,y}`` that drives ``p(d|y)``, the reference entropy ``H_ref``, and the sampler
+    target. ``reference_prior`` defaults to the empirical prior of ``cell_mass``.
 
     ``m`` is the estimator-eligibility threshold (a finite-sample variance guard, not a
     population fact). ``reference_prior`` is the FIXED ``p_ref(y)`` used for the overlap
@@ -290,12 +298,15 @@ def build_support_graph(
     missing-cell sweep so the estimand does not drift; ``None`` defaults to the empirical
     prior of THIS ``counts`` table (correct for a one-off graph, wrong for a sweep).
     """
-    counts = np.asarray(counts)
+    counts = np.asarray(eligibility_counts)
     if counts.ndim != 2:
-        raise ValueError(f"counts must be 2D [n_domains, n_classes], got shape {counts.shape}")
+        raise ValueError(f"eligibility_counts must be 2D [n_domains, n_classes], got shape {counts.shape}")
     if m < 1:
         raise ValueError(f"m must be >= 1, got {m}")
     n_d, n_y = counts.shape
+    mass = counts.astype(np.float64) if cell_mass is None else np.asarray(cell_mass, dtype=np.float64)
+    if mass.shape != counts.shape:
+        raise ValueError(f"cell_mass shape {mass.shape} must match eligibility_counts {counts.shape}")
 
     domain_names = list(domain_names) if domain_names is not None else [f"d{d}" for d in range(n_d)]
     class_names = list(class_names) if class_names is not None else [f"y{y}" for y in range(n_y)]
@@ -303,7 +314,7 @@ def build_support_graph(
         raise ValueError("domain_names / class_names length must match counts shape")
 
     if reference_prior is None:
-        p_ref = empirical_class_prior(counts)
+        p_ref = empirical_class_prior(mass)          # estimand prior comes from MASS, not unit counts
     else:
         p_ref = np.asarray(reference_prior, dtype=np.float64).ravel()
         if p_ref.shape != (n_y,):
@@ -341,6 +352,7 @@ def build_support_graph(
         reference_prior=p_ref,
         domain_names=domain_names,
         class_names=class_names,
+        cell_mass=mass,
         present=present,
         eligible=eligible,
         support_of_class=support_of_class,

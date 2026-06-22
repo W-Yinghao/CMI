@@ -111,7 +111,9 @@ Adding a risk constraint to a DG penalty already exists. The novelty is the comb
 | Recording-clustered **bootstrap UCB** (within-domain resample, in-replicate capacity reselection, basic one-sided + percentile) | **implemented + tested** | [`leakage/ucb.py`](leakage/ucb.py) |
 | **Risk-feasible trainer** — PyTorch conditional adversary `C_D`, primal–dual `min(H_ref−C_D)+λ(R_src−τ)`, dual on the risk constraint, feasibility selector + byte-exact ERM fallback | **implemented + tested** | [`train/`](train/) |
 | **Rare-cell paired-stream sampler** — task stream (incl. ineligible cells) + adversary stream (eligible cells, covers all per logical step); importance weights restore fixed `p(d\|y)`/`p(y)`; microbatch accumulation normalised by fixed `N_ov` | **implemented + tested** | [`data/sampler.py`](data/sampler.py), [`data/batch.py`](data/batch.py) |
-| **Eval** — fixed-estimand pooled/mean/worst-domain bAcc + worst-paired-Δ, NLL/ECE (no target calibration), paired clustered bootstrap (one plan reused; whole-group, no row fallback; invalid-rate; too-few-clusters→non-estimable), noninferiority rules, missing-cell sweep scalar `ΔA_post` | **implemented + tested** | [`eval/`](eval/) |
+| **Eval** — fixed-estimand pooled/mean/worst-domain bAcc + worst-paired-Δ, NLL/ECE (no target calibration), paired clustered bootstrap (one plan reused; whole-group, no row fallback; fixed-domain + hierarchical; invalid-rate; too-few-clusters→non-estimable), noninferiority rules, point-centered simultaneous band, missing-cell sweep scalar `ΔA_post` | **implemented + tested** | [`eval/`](eval/) |
+| **Real-EEG data contract** — `EEGBundle` (stable string IDs), eval-unit aggregation + eligibility/mass split (`cell_mass` ≠ window count), strict 3-role split (seed-separated; missing-cell on source_train only), audit/cache hashes, offline-only loaders (real BNCI; SEED/clinical scanners) | **implemented + tested** | [`data/eeg/`](data/eeg/) |
+| **Protocol freeze** — confirmatory manifest (no paper-level defaults in code), canonical-JSON SHA freeze, runner refusal gate | **implemented + tested** | [`protocol/`](protocol/) |
 
 The sampler never redefines eligibility/`S_y`/`p_ref`/`n_{d,y}` (fixed full-data support graph);
 a batch only guarantees eligible-cell **coverage**. `w^adv=n_{d,y}/m` restores the fixed empirical
@@ -140,7 +142,9 @@ $PY -m oaci.data.sampler_demo             # rare-cell sampler report (50:1 imbal
 $PY -m oaci.eval.synthetic                # eval panel: pooled looks fine but a small domain is harmed
 $PY -m oaci.tests.test_rare_cell_sampler  # sampler: coverage, exact priors, microbatch invariance, fixes
 $PY -m oaci.tests.test_eval               # eval: estimands, in-bootstrap worst-domain, NI rules, fixed pop
-# all of the above, in parallel on a CPU compute node (off the login node):
+$PY -m oaci.tests.test_data_contract      # contract: units/mass, split roles, hashes, offline guards, no cmi import
+$PY -m oaci.data.eeg.smoke                # DATA PRE-CHECK (no training): reads 2 real BNCI subjects + scans others
+# all tests + demos + the data pre-check, in parallel on a CPU compute node (off the login node):
 sbatch oaci/slurm_ci.sh
 $PY -m oaci.tests.test_train_risk         # primal metric: balanced_ce partition-invariant, balanced_err rejected
 $PY -m oaci.tests.test_train_adversary    # adversary: grad signs, ineligible no-grad, fixed p_ref, no-op

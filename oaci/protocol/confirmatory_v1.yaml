@@ -1,0 +1,43 @@
+# OACI confirmatory protocol v1 — EXPLICIT values (no paper-level defaults live in code).
+# Freeze with: oaci.protocol.freeze.freeze(load_yaml_manifest(this_file)).
+protocol_id: oaci-confirmatory-v1
+datasets:
+  - BNCI2014_001
+  - BNCI2014_004
+  - Lee2019_MI
+  - Cho2017
+  - SEED
+  - PD_cross_site          # MAIN PD: same-paradigm resting cohorts, LOSO over sites
+  # SCZ_cross_site is method-inactive under rest-only LOSO (1 source site/fold) -> reported as no-op
+outer_target_factor: subject_id      # MI/SEED: LOSO subject; clinical override -> site_id per dataset
+domain_factor: subject_id            # clinical override -> site_id
+group_factor: recording_id           # clustered-inference unit
+support_unit: trial_id               # clinical/SEED override -> eval_unit_id (subject / film clip)
+eval_unit: trial_id                  # clinical -> subject_id ; SEED -> film clip
+channel_list: frozen_common_native   # header-scanned common native channels (no target interpolation)
+preprocessing:
+  l_freq: 4.0
+  h_freq: 40.0
+  resample_sfreq: 128.0
+  window_s: 2.0
+  window_stride_s: 1.0
+  normalization: zscore_sample
+  channel_interpolation: false
+  code_version: oaci-eeg-1
+support_m: 8
+risk_metric: balanced_ce
+epsilon: 0.03
+delta_bacc: 0.02
+alpha: 0.05
+n_bootstrap: 2000
+split_seed: 20260622
+deletion_seed: 70260622
+model_seeds: [0, 1, 2, 3, 4]
+methods: [ERM, OACI, global-LPC, uniform]
+backbone: shallow_convnet
+training_budget:
+  stage1_epochs: 200
+  stage2_epochs: 200
+  optimizer: adam
+k1_rule: "leakage difference OACI vs ERM within the recording-grouped permutation null -> stop"
+k2_rule: "no reproducible worst-domain bAcc OR calibration (NLL) gain across seeds/levels -> stop"

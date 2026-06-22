@@ -16,15 +16,17 @@ from __future__ import annotations
 import numpy as np
 
 
-def assert_fixed_audit_population(bundles_by_level: dict) -> str:
-    """Every (level, method) audit bundle must share one ``eval_population_hash``; returns it."""
-    hashes = set()
+def assert_fixed_audit_population(bundles_by_level: dict) -> tuple:
+    """Every (level, method) audit bundle must share one full audit signature — population hash
+    AND the actual tensor / split-manifest / preprocess hashes (identical sample IDs alone do not
+    prove byte-identical inputs). Returns the shared signature."""
+    sigs = set()
     for level, methods in bundles_by_level.items():
         for method, b in methods.items():
-            hashes.add(b.eval_population_hash)
-    if len(hashes) != 1:
-        raise ValueError(f"audit population is NOT fixed across levels/methods: {len(hashes)} distinct hashes")
-    return next(iter(hashes))
+            sigs.add(b.audit_signature())
+    if len(sigs) != 1:
+        raise ValueError(f"audit population/tensor is NOT fixed across levels/methods: {len(sigs)} distinct signatures")
+    return next(iter(sigs))
 
 
 def post_fragmentation_curve_average(levels, values, first_fragmentation_level) -> float:
@@ -35,16 +37,16 @@ def post_fragmentation_curve_average(levels, values, first_fragmentation_level) 
     return float(np.mean(sel)) if sel else float("nan")
 
 
-def simultaneous_band(plan, per_level_delta_fns, alpha: float = 0.05) -> dict:
-    """Same-resample simultaneous (1−α) band for a per-level Δ curve: for each replicate build the
-    vector of Δ across levels, take the max absolute deviation from the per-level bootstrap mean,
-    and use its (1−α) quantile as a uniform half-width."""
+def simultaneous_band(plan, per_level_delta_fns, point_curve, alpha: float = 0.05) -> dict:
+    """Same-resample simultaneous (1−α) band CENTERED on the POINT estimates ``Δ̂_ℓ`` (NOT the
+    bootstrap mean): ``q = Q_{1−α}[ max_ℓ |Δ*_ℓ − Δ̂_ℓ| ]``, band ``[Δ̂_ℓ − q, Δ̂_ℓ + q]``."""
     if not plan.estimable:
         return {"estimable": False, "reason": plan.reason}
-    L = len(per_level_delta_fns)
+    point = np.asarray(point_curve, dtype=float)
+    if len(point) != len(per_level_delta_fns):
+        raise ValueError("point_curve length must match the number of per-level delta functions")
     mat = np.array([[fn(idx) for fn in per_level_delta_fns] for idx in plan.replicates])  # [B, L]
-    centre = mat.mean(axis=0)
-    max_dev = np.max(np.abs(mat - centre), axis=1)                      # per replicate, across levels
-    half = float(np.quantile(max_dev, 1 - alpha))
-    return {"estimable": True, "centre": centre.tolist(), "half_width": half,
-            "lower": (centre - half).tolist(), "upper": (centre + half).tolist(), "n_boot": len(mat)}
+    max_dev = np.max(np.abs(mat - point[None, :]), axis=1)             # deviation from the POINT curve
+    q = float(np.quantile(max_dev, 1 - alpha))
+    return {"estimable": True, "centre": point.tolist(), "half_width": q,
+            "lower": (point - q).tolist(), "upper": (point + q).tolist(), "n_boot": len(mat)}

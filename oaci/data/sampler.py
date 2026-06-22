@@ -85,8 +85,9 @@ class RareCellSampler:
         if self.K_ov == 0:
             raise ValueError("no eligible (d,y) cells -> adversary stream is empty (no comparable class)")
         cfg.assert_capacity(self.K_ov)
-        # FIXED counts from the support graph (NOT recomputed from the row arrays).
-        self.n_cell = {c: int(support_graph.counts[c[0], c[1]]) for c in self.cells}
+        # FIXED estimand MASS from the support graph (cell_mass; NOT recomputed from the rows,
+        # NOT the eligibility unit counts). For window data this is the unit mass M_{d,y}.
+        self.n_cell = {c: float(support_graph.cell_mass[c[0], c[1]]) for c in self.cells}
         self.n_classes = int(support_graph.n_classes)
         self.n_class = {c: int((self.y == c).sum()) for c in range(self.n_classes)}
 

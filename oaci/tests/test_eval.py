@@ -29,7 +29,7 @@ from oaci.eval.metrics import (
     worst_paired_delta_bacc,
 )
 from oaci.eval.noninferiority import noninferiority, source_risk_noninferiority
-from oaci.eval.sweep import assert_fixed_audit_population
+from oaci.eval.sweep import assert_fixed_audit_population, simultaneous_band
 
 CLS = [0, 1]
 
@@ -258,6 +258,44 @@ def test_ci_job_exits_nonzero_when_test_or_demo_fails():
     assert subprocess.call(["bash", "-c", snip2]) == 0
     script = open(os.path.join(os.path.dirname(__file__), "..", "slurm_ci.sh")).read()
     assert 'exit "$fail"' in script and "demo_eval.rc" in script   # demos folded into the exit code
+
+
+def test_reference_mean_bacc_does_not_drop_missing_class_domain():
+    # domain 2 has ONLY class 0 (class 1 absent) -> reference mean non-estimable; observed finite
+    sid, y, dom, grp = _pop((2, 2, 2), per_group=20)
+    keep = ~((dom == 2) & (y == 1))
+    y2, dom2 = y[keep], dom[keep]
+    pred = _pred_with_acc(y2, dom2, {0: 0.8, 1: 0.8, 2: 0.8})
+    assert np.isnan(mean_domain_bacc(y2, pred, dom2, CLS, kind="reference"))
+    assert not np.isnan(mean_domain_bacc(y2, pred, dom2, CLS, kind="observed"))
+
+
+def test_hierarchical_bootstrap_resamples_targets_then_groups():
+    # 3 targets (sites), each 2 groups w/ both classes; domain == target here
+    y, dom, grp, tgt, gid = [], [], [], [], 0
+    for t in range(3):
+        for _ in range(2):
+            for lab in [0] * 10 + [1] * 10:
+                y.append(lab); dom.append(t); grp.append(gid); tgt.append(f"site{t}")
+            gid += 1
+    y, dom, grp, tgt = np.array(y), np.array(dom), np.array(grp), np.array(tgt, dtype=object)
+    plan = make_bootstrap_plan(dom, grp, y, CLS, n_boot=200, seed=0, mode="hierarchical", target=tgt)
+    assert plan.estimable
+    # OUTER target resampling can omit an entire target; INNER keeps whole groups
+    omitted = any(len(set(tgt[idx])) < 3 for idx in plan.replicates)
+    assert omitted
+    for idx in plan.replicates[:10]:
+        assert is_whole_group_resample(idx, grp, plan)
+
+
+def test_simultaneous_band_is_point_estimate_centered():
+    sid, y, dom, grp = _pop((3, 3), per_group=20)
+    plan = make_bootstrap_plan(dom, grp, y, CLS, n_boot=100, seed=0)
+    point = [0.10, -0.20]
+    fns = [lambda i: 0.5, lambda i: -0.5]                        # constant per-level Δ* (≠ point)
+    band = simultaneous_band(plan, fns, point_curve=point, alpha=0.05)
+    assert band["centre"] == point                              # centered on the POINT curve, not bootstrap mean
+    assert abs(band["half_width"] - 0.4) < 1e-9                 # max(|0.5-0.1|, |-0.5+0.2|)
 
 
 def _run_all() -> None:

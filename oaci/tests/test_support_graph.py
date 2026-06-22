@@ -145,10 +145,10 @@ def test_counts_from_labels_roundtrip():
 
 def test_input_validation():
     bad = [
-        dict(counts=np.zeros((2, 2)), m=0),
-        dict(counts=np.zeros(3), m=5),
-        dict(counts=np.ones((2, 2)), m=1, reference_prior=np.array([1.0, 2.0, 3.0])),  # wrong len
-        dict(counts=np.ones((2, 2)), m=1, reference_prior=np.array([-1.0, 1.0])),      # negative
+        dict(eligibility_counts=np.zeros((2, 2)), m=0),
+        dict(eligibility_counts=np.zeros(3), m=5),
+        dict(eligibility_counts=np.ones((2, 2)), m=1, reference_prior=np.array([1.0, 2.0, 3.0])),  # wrong len
+        dict(eligibility_counts=np.ones((2, 2)), m=1, reference_prior=np.array([-1.0, 1.0])),      # negative
     ]
     for kw in bad:
         try:

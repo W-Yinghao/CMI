@@ -32,8 +32,12 @@ class BootstrapPlan:
 
 
 def make_bootstrap_plan(domain, group, y, reference_classes, n_boot=1000, seed=0,
-                        mode="fixed_domain", invalid_threshold=0.2, min_clusters=2,
+                        mode="fixed_domain", target=None, invalid_threshold=0.2, min_clusters=2,
                         max_attempts_factor=10) -> BootstrapPlan:
+    """``mode='fixed_domain'``: resample whole groups within each domain (one fixed domain set).
+    ``mode='hierarchical'`` (LOSO aggregation): OUTER resample the held-out ``target`` units
+    (site/subject) with replacement, INNER resample whole groups within each chosen target — the
+    same multiplicities are reused across methods/levels/seed blocks (the plan is fixed)."""
     domain, group, y = np.asarray(domain, int), np.asarray(group, int), np.asarray(y, int)
     uniq = np.unique(group)
     grp_rows = {int(g): np.where(group == g)[0] for g in uniq}
@@ -42,26 +46,47 @@ def make_bootstrap_plan(domain, group, y, reference_classes, n_boot=1000, seed=0
     for g in uniq:
         by_dom.setdefault(grp_dom[int(g)], []).append(int(g))
     group_sizes = {g: int(len(r)) for g, r in grp_rows.items()}
-
-    for dd, gs in by_dom.items():
-        if len(gs) < min_clusters:
-            return BootstrapPlan([], n_boot, mode, seed, 0.0, False,
-                                 f"domain {dd} has {len(gs)} cluster(s) < {min_clusters}", group_sizes)
-
     rng = np.random.default_rng(seed)
     ref = list(reference_classes)
 
-    def draw_idx():
-        idx = []
+    if mode == "hierarchical":
+        if target is None:
+            raise ValueError("mode='hierarchical' requires a per-sample `target` (outer unit) array")
+        target = np.asarray(target)
+        grp_tgt = {int(g): target[group == g][0] for g in uniq}
+        tgts = sorted({grp_tgt[int(g)] for g in uniq}, key=str)
+        tgt_groups = {t: [int(g) for g in uniq if grp_tgt[int(g)] == t] for t in tgts}
+        if len(tgts) < min_clusters:
+            return BootstrapPlan([], n_boot, mode, seed, 0.0, False,
+                                 f"only {len(tgts)} target unit(s) < {min_clusters}", group_sizes)
+
+        def draw_idx():
+            idx = []
+            chosen = [tgts[i] for i in rng.integers(0, len(tgts), len(tgts))]   # OUTER: resample targets
+            for t in chosen:
+                gs = np.array(tgt_groups[t])
+                for gg in gs[rng.integers(0, len(gs), len(gs))]:                 # INNER: groups in target
+                    idx.append(grp_rows[int(gg)])
+            return np.concatenate(idx)
+    else:
         for dd, gs in by_dom.items():
-            gs = np.array(gs)
-            for gg in gs[rng.integers(0, len(gs), len(gs))]:
-                idx.append(grp_rows[int(gg)])
-        return np.concatenate(idx)
+            if len(gs) < min_clusters:
+                return BootstrapPlan([], n_boot, mode, seed, 0.0, False,
+                                     f"domain {dd} has {len(gs)} cluster(s) < {min_clusters}", group_sizes)
+
+        def draw_idx():
+            idx = []
+            for dd, gs in by_dom.items():
+                gs = np.array(gs)
+                for gg in gs[rng.integers(0, len(gs), len(gs))]:
+                    idx.append(grp_rows[int(gg)])
+            return np.concatenate(idx)
 
     def valid(idx):
+        # check only domains PRESENT in this resample (hierarchical outer resampling may
+        # legitimately drop a whole target); each present domain must keep all reference classes.
         dsub, ysub = domain[idx], y[idx]
-        for dd in by_dom:
+        for dd in np.unique(dsub):
             present = set(ysub[dsub == dd].tolist())
             if any(c not in present for c in ref):
                 return False

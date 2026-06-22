@@ -52,7 +52,13 @@ def domain_baccs(y, pred, domain, classes, kind="reference") -> dict:
 
 
 def mean_domain_bacc(y, pred, domain, classes, kind="reference") -> float:
-    v = [x for x in domain_baccs(y, pred, domain, classes, kind).values() if not np.isnan(x)]
+    """Equal-domain mean. For ``kind='reference'`` a single domain missing a pre-registered
+    class makes the WHOLE mean non-estimable (NaN) — we never silently drop a domain (that
+    would change the domain set). Use ``kind='observed'`` for the present-classes companion."""
+    vals = list(domain_baccs(y, pred, domain, classes, kind).values())
+    if kind == "reference" and any(np.isnan(x) for x in vals):
+        return np.nan
+    v = [x for x in vals if not np.isnan(x)]
     return float(np.mean(v)) if v else np.nan
 
 

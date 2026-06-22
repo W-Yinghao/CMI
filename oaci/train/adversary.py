@@ -43,7 +43,7 @@ class ConditionalDomainAdversary(nn.Module):
         self.p_ref = {y: float(support_graph.reference_prior[y]) for y in self.comparable}
         # fixed N_y^ov = Σ_{d∈S_y} n_{d,y} (the SAME cell counts the reference entropy uses);
         # the importance-weighted streamed C_D is normalised by these, never by the batch.
-        self.n_ov = {y: float(support_graph.counts[self.support_of_class[y], y].sum()) for y in self.comparable}
+        self.n_ov = {y: float(support_graph.cell_mass[self.support_of_class[y], y].sum()) for y in self.comparable}
         self.dmap = {y: {int(d): i for i, d in enumerate(self.support_of_class[y])} for y in self.comparable}
         self.heads = nn.ModuleDict()
         for y in self.comparable:

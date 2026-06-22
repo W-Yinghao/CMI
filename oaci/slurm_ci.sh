@@ -21,7 +21,7 @@ trap 'rm -rf "$WORK"' EXIT
 
 MODS="test_support_graph test_missing_cell test_leakage_estimate test_leakage_crossfit \
 test_leakage_ucb test_train_risk test_train_adversary test_train_primal_dual \
-test_train_selector test_rare_cell_sampler test_eval"
+test_train_selector test_rare_cell_sampler test_eval test_data_contract"
 
 echo "[oaci-ci] node=$(hostname) cpus=${SLURM_CPUS_PER_TASK:-?} commit=$(git rev-parse --short HEAD 2>/dev/null)"
 # every parallel job writes its return code to $WORK/<name>.rc; the final pass/fail folds ALL of them.
@@ -31,11 +31,12 @@ done
 ( $PY -m oaci.data.sampler_demo >"$WORK/demo_sampler.log" 2>&1; echo $? >"$WORK/demo_sampler.rc" ) &
 ( $PY -m oaci.train.synthetic   >"$WORK/demo_trainer.log" 2>&1; echo $? >"$WORK/demo_trainer.rc" ) &
 ( $PY -m oaci.eval.synthetic    >"$WORK/demo_eval.log"    2>&1; echo $? >"$WORK/demo_eval.rc" ) &
+( $PY -m oaci.data.eeg.smoke    >"$WORK/demo_data.log"    2>&1; echo $? >"$WORK/demo_data.rc" ) &
 wait
 
 echo "=== TEST RESULTS ==="
 for m in $MODS; do printf "%-26s rc=%s  %s\n" "$m" "$(cat "$WORK/$m.rc")" "$(tail -1 "$WORK/$m.log")"; done
-for dem in demo_sampler demo_trainer demo_eval; do
+for dem in demo_sampler demo_trainer demo_eval demo_data; do
   echo "=== $dem (rc=$(cat "$WORK/$dem.rc")) ==="; cat "$WORK/$dem.log"
 done
 
