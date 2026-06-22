@@ -111,8 +111,30 @@ The v0 within-`Y` permutation of `D` assumed `D ⊥ everything | Y`, which **fai
 covariate shift** (`Z` and `D` are dependent given `Y`), so it was not exchangeable. Instead
 we **condition on `(Z, D)`** and resample `Y* ~ p̂0(y|z,d)` from the fitted domain-intercept
 model — exactly the null "the boundary is domain-independent" with the observed `P(Z,D)`
-fixed. Recomputing `T*` gives a calibrated one-sided p-value. The same null prunes concept
-directions (§4).
+fixed. Recomputing `T*` gives a calibrated one-sided p-value.
+
+**Subject-level estimand (CSC-P1.4.1).** The analysis cluster is the biological subject, not the
+epoch. We fit the decoder on epochs (one-vote-per-subject weights `w_se = 1/n_s`, mean 1), but the
+estimand and inference are subject-level: the OOF loss is aggregated within subject first,
+`ℓ_s = (1/n_s) Σ_e −log p̂^{(−s)}(Y_s|z_se,d_se)`, and `T = mean_s(ℓ_{s,h0} − ℓ_{s,h})` with
+group-CV by subject (no cluster split across folds). The null is **cluster-consistent**: one label
+per subject `Y*_s ~ q_s`, where `q_s(y) ∝ exp[(1/n_s)Σ_e log p̂0,se(y)]` (per-subject geometric mean
+of the h0 epoch probabilities), broadcast to that subject's epochs. Degenerate null replicates are
+COUNTED, never silently dropped.
+
+**Both gates are required, and the inference unit is the subject (CSC-P1.4.1).** `concept_evidenced`
+needs BOTH the geometric global max-statistic (`p_global ≤ α`) AND the cross-fitted decoder `T`
+significant. The reason for the AND is type-I, and it is empirical: on a NO-concept (covariate-only)
+source the **geometric `p_global` has correct type-I** (the re-estimated `Y* ~ p̂0` spectrum matches
+the observed, so `p_global` stays high ~0.8), but a **decoder-only gate does NOT** — each synthetic
+subject carries a latent random effect and exactly one label, so the random effect is confounded with
+class and manufactures finite-sample class-conditional structure that a decoder-only test reads as
+concept (~50% false positives). The geometric gate controls type-I; the decoder confirms direction-
+linked boundary movement. The cost is LOW power at the subject level (the cluster-consistent null is
+conservative with few subjects per cell) — an honest difficulty-envelope quantity, not a flaw.
+A magnitude-only direction gate (`concept_top ≥ κ·cov_noise_scale`) was tried and REJECTED: it
+compares the full class-residual top singular to a cov-subspace projection and passes on pure noise
+(it is reported as a diagnostic only). See §4.
 
 ### 3.4 Support gate = identifiability, not degree
 The v0 gate only required ≥2 classes/domain and ≥2 domains/class — it **passed a
@@ -131,15 +153,22 @@ deficient / ill-conditioned cases all become honest abstentions).
 
 ## 4. Atlas, direction-linked evidence, and the certifier
 
-From the source we estimate three **mutually orthogonal** subspaces, in order of estimation
-quality so cross-leakage flows away from the dangerous mistakes:
+From the source we estimate three **mutually orthogonal** subspaces. **Concept is estimated FIRST
+(CSC-P1.4.1)**, reversing the earlier cov-first order:
 ```
-cov_dirs     <- a_d = mean_y(mu_{d,y}-mu_y)          highest SNR; nuisance
-concept_dirs <- r_{d,y} = (mu_{d,y}-mu_y) - a_d      label-INVARIANT; orthog. vs cov
-label_dirs U_pi <- span{mu_y - mean_y mu_y}          orthog. vs {cov, concept} -> pure task
+concept_dirs <- top dirs of R_c, R_{d,y} = (mu_{d,y}-mu_y) - a_d   class-CONDITIONAL residual
+cov_dirs     <- a_d = mean_y(mu_{d,y}-mu_y), ORTHOGONAL to concept   nuisance (concept removed)
+label_dirs U_pi <- span{mu_y - mean_y mu_y}, orthog. vs {cov, concept}   pure task
 ```
-(The v0 estimated `label_dirs` first from contaminated class means, so a huge covariate or
-concept move leaked into it and the label gate over-fired; the reordering fixes that.)
+Rationale: a covariate offset is **label-independent**, so it cancels in the class residual `R` and
+can appear only in `a_d`. The defining signature of a *concept* (boundary) shift is class-CONDITIONAL
+domain structure, i.e. structure in `R`. The earlier cov-first order had a fatal leak: a **visible**
+concept (asymmetric per-class movement, `mean_y(s_y) ≠ 0`) puts a label-mean component into `a_d`, so
+a cov-first `cov_dirs = PCA(a_d)` **absorbed the concept direction**, emptying `concept_dirs` and
+forcing abstention. Estimating concept first — "a direction with class-conditional structure is
+concept even if it also moves the label mean" — fixes this; `cov_dirs` then takes only the part of
+`a_d` orthogonal to concept (the pure nuisance). (The v0 separately estimated `label_dirs` first from
+contaminated class means and over-fired the label gate; both reorderings are now resolved.)
 
 Three CSC-P1.1 corrections live here:
 * **`_orthonormal_complement` uses the SVD rank** of the residualised matrix (the v0 QR
@@ -147,14 +176,15 @@ Three CSC-P1.1 corrections live here:
   silently unreliable). A **signature-overlap** flag (principal angle between the raw
   subspaces below `MIN_PRINCIPAL_ANGLE_DEG`) makes the certifier abstain rather than trust a
   forced Gram-Schmidt order on genuinely overlapping subspaces.
-* **Concept evidence IS the residual-decoder gate (CSC-P1.4).** `concept_evidenced` requires
-  BOTH (i) a **global max-statistic** test — the observed top singular value of the
-  re-estimated `Y* ~ p̂0` null spectrum (FWER-controlled for "is there ANY concept direction";
-  only this first direction is kept, no per-rank step-down off the rank-0 null) — AND (ii) the
-  cross-fitted **residual-decoder test `T`** itself significant. Geometry alone does not
-  license `CONCEPT_SUSPECT`. This makes the method the residual-decoder certificate the paper
-  claims, at the honest cost of LOWER power (the residual `T` is the binding, underpowered
-  gate ~0.5-0.7 at feasible budgets — a freeze-sweep quantity, not the inflated geometric 1.0).
+* **Concept evidence = geometric max-stat AND cross-fitted decoder (CSC-P1.4 / P1.4.1).**
+  `concept_evidenced` requires BOTH (i) the geometric **global max-statistic** `p_global ≤ α`
+  (the observed top singular of the re-estimated `Y* ~ p̂0` spectrum; type-I controlled, see §3.3)
+  AND (ii) the cross-fitted, subject-level **residual-decoder test `T`** significant. The
+  geometric gate controls type-I (a decoder-only gate over-fires on a covariate source's
+  finite-sample class-conditional noise); the decoder confirms direction-linked boundary
+  movement. Geometry is estimated **concept-first** (above), so a visible concept's direction is
+  no longer absorbed into `cov_dirs`. Power is the HONEST subject-level value (a difficulty-
+  envelope quantity, low because the cluster-consistent null is conservative), not geometric 1.0.
 * **`COVARIATE_COMPATIBLE` needs a covariate-loading STABILITY gate** (`cov_stable`): the
   covariate-subspace boundary loading's full cluster-bootstrap upper CI must be below
   `κ × (h0-null scale)`, where the null scale is computed through the IDENTICAL estimator
@@ -166,16 +196,19 @@ Three CSC-P1.1 corrections live here:
 ```
 0a. invalid support                           -> UNIDENTIFIABLE
 0b. signature subspaces not separable          -> UNIDENTIFIABLE   (attribution unreliable)
-1.  n_label >= tau_label                       -> UNIDENTIFIABLE   (label-shift signature)
+1.  n_label >= tau_label AND label NOT dominated by concept/cov  -> UNIDENTIFIABLE  (label shift)
 2.  max(n_cov,n_con,n_res) < tau_detect        -> UNIDENTIFIABLE   (invisible / pure conditional)
 3.  out-of-atlas residual dominates            -> UNIDENTIFIABLE   (novel direction; Prop. 1)
-4.  concept dominant AND residual-decoder-evidenced -> CONCEPT_SUSPECT
-5.  covariate dominant AND cov_stability gate        -> COVARIATE_COMPATIBLE
-6.  else (ambiguous / not stability-gated)           -> UNIDENTIFIABLE
+4.  n_con >= tau_margin*max(n_cov,n_lab) AND residual-decoder-evidenced -> CONCEPT_SUSPECT
+5.  n_cov >= tau_margin*max(n_con,n_lab) AND cov_stability gate         -> COVARIATE_COMPATIBLE
+6.  else (no dominant component / not stability-gated)                  -> UNIDENTIFIABLE
 ```
-The asymmetry is deliberate: a *positive* statement is issued only inside the atlas, label-
-free, separable, with a dominant residual-decoder-evidenced (concept) or stability-gated
-(covariate) component. The deployment path is cluster-aware (subject votes); the support gate,
+The asymmetry is deliberate: a *positive* statement is issued only inside the atlas, separable,
+with a component that **dominates BOTH others (incl. label) by `tau_margin`** and is residual-
+decoder-evidenced (concept) or stability-gated (covariate). The label gate is now **relative**
+(CSC-P1.4.1): a moderate label byproduct of a shift that is mostly along `concept_dirs` (e.g. a
+finite-target class-balance fluctuation) no longer vetoes a clearly concept-dominant shift — the
+old *absolute* `n_label ≥ tau_label` over-abstained genuine boundary shifts. The deployment path is cluster-aware (subject votes); the support gate,
 target mean, calibration pseudo-targets, bootstraps, and oracle OOB all use the same SUBJECT
 analysis unit. Everywhere else it abstains. It may err by over-abstaining (low power); it is built
 to never err by **false certification**. The certifier thresholds the **exact same** statistic

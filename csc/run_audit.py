@@ -27,7 +27,7 @@ from csc.sim.shift_simulator import SimConfig, make_source
 from csc.calibration.lodo import nested_lodo, VISIBLE_CONCEPT, COVARIATE_STABLE, AMBIGUOUS
 
 TEST_MODULES = ["test_design_and_pairs", "test_validity_gate", "test_null_calibration",
-                "test_power", "test_protocol"]
+                "test_power", "test_protocol", "test_cluster_inference"]
 
 
 def _git(*args):
@@ -131,6 +131,10 @@ def main():
         tests=tests, run_synthetic=syn, synthetic_null_bank=syn_null,
         calibration_null_bank=null_bank, ood_power_bank=power_bank,
     )
+    # provenance gate: an audit is only trustworthy if the tree is clean AND the audited commit
+    # is HEAD. Recorded in the artifact; ENFORCED by a nonzero exit (fail-closed).
+    head_match = (audited == _git("rev-parse", "HEAD"))
+    audit["provenance_ok"] = bool(tests["all_passed"] and csc_clean and head_match)
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w") as f:
         json.dump(audit, f, indent=2)
@@ -138,12 +142,16 @@ def main():
     print(f"[audit] SUMMARY tests={tests['all_passed']} manifest={cfg.hash()[:12]} clean={csc_clean}")
     print(f"  run_synthetic PRIMARY any_forbidden_full={syn['any_forbidden_full_suite']}/{syn['seeds']} "
           f"(CP-UB {syn['exact_cp_ub_full_suite']:.3f})")
-    print(f"  SYNTHETIC_NULL_BANK false-concept clusters={syn_null['seed_cluster_failures']}/"
-          f"{syn_null['n_source_clusters']} (CP-UB {syn_null['false_concept_cp_upper_cluster']:.3f}) "
-          f"valid={syn_null['synthetic_null_bank_valid']}")
-    print(f"  OOD_POWER_BANK power={power_bank['concept_power']} (CP-LB "
-          f"{power_bank['concept_power_cp_lower']:.3f}) atlas={power_bank['atlas_availability']} "
-          f"valid={power_bank['ood_power_bank_valid']} decomp={power_bank['binding_failure_decomposition']}")
+    print(f"  SYNTHETIC_NULL_BANK clusters_fail={syn_null['seed_cluster_failures']}/"
+          f"{syn_null['n_source_clusters']} CP-UB {syn_null['false_concept_cp_upper_cluster']:.3f} "
+          f"evaluable={syn_null['evaluable']} control_pass={syn_null['control_pass']}")
+    print(f"  OOD_POWER_BANK power={power_bank['concept_power']} CP-LB "
+          f"{power_bank['concept_power_cp_lower']:.3f} atlas={power_bank['atlas_availability']} "
+          f"evaluable={power_bank['evaluable']} decomp={power_bank['binding_failure_decomposition']}")
+    if not audit["provenance_ok"]:
+        print(f"[audit] FAIL-CLOSED: tests_all={tests['all_passed']} clean_csc={csc_clean} "
+              f"head_match={head_match} -> exit 1")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

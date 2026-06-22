@@ -86,8 +86,11 @@ def test_manifest_hash_deterministic_and_full():
     assert a.hash() == b.hash()
     assert len(a.hash()) == 64, "manifest hash must be the FULL sha256 (64 hex)"
     assert ProtocolConfig(consensus=0.9).hash() != a.hash()
-    # rng provenance is part of the method id
-    assert ProtocolConfig(master_seed=1).hash() != a.hash()
+    # the runtime root seed is NOT part of the method id (master_seed was removed from the
+    # manifest); the rng ALGORITHM is, since it is a method choice.
+    import dataclasses
+    assert "master_seed" not in {f.name for f in dataclasses.fields(ProtocolConfig)}
+    assert ProtocolConfig(rng_algorithm="x").hash() != a.hash()
     man = a.manifest()
     assert isinstance(man["tau_detect"], dict) and man["tau_detect"]["method"], "tau as RULE"
     print(f"OK manifest = FULL sha256 ({a.hash()[:12]}...); tau as RULE; rng in hash")

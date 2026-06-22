@@ -31,7 +31,8 @@ from typing import Optional
 import numpy as np
 
 from .residual_test import (
-    residual_decoder_test, ResidualTestResult, fit_h0_proba, sample_labels, _standardise,
+    residual_decoder_test, ResidualTestResult, fit_h0_proba, sample_labels,
+    subject_null_labels, _standardise,
 )
 
 # pre-registered geometry constant: raw signature subspaces closer than this principal angle
@@ -153,14 +154,26 @@ def _domain_pooled_means(Z, D, domains, g=None):
 
 
 def _concept_geometry(Z, Y, D, classes, domains, var_keep, g=None):
-    """Re-estimable concept pipeline (subject-vote when g given): cov_dirs from a_d, then the
-    class-residual matrix with the cov subspace removed."""
+    """Re-estimable CONCEPT-FIRST pipeline (subject-vote when g given).
+
+    A covariate offset is label-INDEPENDENT, so it cancels in the class residual r_{d,y} and can
+    only appear in a_d. The DEFINING signature of a concept (boundary) shift is class-CONDITIONAL
+    domain structure, i.e. structure in R. So we estimate concept from R FIRST, then take the
+    covariate subspace as the per-domain offsets a_d ORTHOGONAL to concept (the pure nuisance).
+    This fixes the asymmetric-signature leak: a VISIBLE concept (whose label-mean also enters a_d)
+    was previously absorbed into a cov-first cov_dirs, emptying concept_dirs."""
     A, R, mu_pool = _offsets_residuals(Z, Y, D, classes, domains, g)
-    cov_dirs = _pca_dirs(A, var_keep)
     Rc = R - R.mean(0, keepdims=True)
-    Rperp = Rc - (Rc @ cov_dirs) @ cov_dirs.T if cov_dirs.shape[1] else Rc
-    U, s, Vt = np.linalg.svd(Rperp, full_matrices=False)
-    return cov_dirs, Rperp, s, Vt, A, R, mu_pool
+    U, s, Vt = np.linalg.svd(Rc, full_matrices=False)            # concept candidates (class-cond.)
+    if s.sum() > 0:
+        cum = np.cumsum(s ** 2) / np.sum(s ** 2)
+        kc = int(np.searchsorted(cum, var_keep) + 1)
+        concept_raw = Vt[:max(kc, 1)].T
+    else:
+        concept_raw = np.zeros((Z.shape[1], 0))
+    A_perp = A - (A @ concept_raw) @ concept_raw.T if concept_raw.shape[1] else A
+    cov_dirs = _pca_dirs(A_perp, var_keep)                       # nuisance = a_d minus concept
+    return cov_dirs, concept_raw, s, Vt, A, R, mu_pool
 
 
 # --------------------------------------------------------------------------------------
@@ -171,15 +184,8 @@ def build_atlas(Z, Y, D, var_keep: float = 0.95, group_ids=None) -> ShiftAtlas:
     g = None if group_ids is None else np.asarray(group_ids)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
 
-    cov_dirs, Rperp, s, Vt, A, R, mu_pool = _concept_geometry(Z, Y, D, classes, domains, var_keep, g)
-    # raw concept directions (top var_keep of the cov-removed residual spectrum)
-    if s.sum() > 0:
-        cum = np.cumsum(s ** 2) / np.sum(s ** 2)
-        kc = int(np.searchsorted(cum, var_keep) + 1)
-        concept_raw = Vt[:max(kc, 1)].T
-    else:
-        concept_raw = np.zeros((Z.shape[1], 0))
-
+    cov_dirs, concept_raw, s, Vt, A, R, mu_pool = _concept_geometry(Z, Y, D, classes, domains,
+                                                                    var_keep, g)
     M = np.stack([mu_pool[c] for c in classes])
     label_raw = _pca_dirs(M - M.mean(0, keepdims=True), var_keep=0.999)
     label_dirs = _orthonormal_complement(_orthonormal_complement(label_raw, cov_dirs), concept_raw)
@@ -203,10 +209,11 @@ def build_atlas(Z, Y, D, var_keep: float = 0.95, group_ids=None) -> ShiftAtlas:
 
 
 def _cov_loading(Z, Y, D, classes, domains, var_keep, cov_dirs=None, g=None):
-    """Top singular value of the class-residuals R projected onto the covariate subspace
-    (subject-vote when g given). If `cov_dirs` is None it is RE-ESTIMATED (full estimator)."""
-    A, R, _ = _offsets_residuals(Z, Y, D, classes, domains, g)
-    cd = cov_dirs if cov_dirs is not None else _pca_dirs(A, var_keep)
+    """Top singular value of the class-residuals R projected onto the NUISANCE subspace (residual
+    class-conditional structure leaking into the covariate directions). cov subspace is the
+    concept-first nuisance (a_d orthogonal to concept); RE-ESTIMATED when `cov_dirs` is None."""
+    cd_est, _, _, _, A, R, _ = _concept_geometry(Z, Y, D, classes, domains, var_keep, g)
+    cd = cov_dirs if cov_dirs is not None else cd_est
     if cd.shape[1] == 0:
         return 0.0
     Rc = R - R.mean(0, keepdims=True)
@@ -241,18 +248,21 @@ def analyze_source(Z, Y, D,
         return SourceAnalysis(atlas, test, False, False, overlap, [],
                               detail=dict(reason="invalid support graph"))
 
-    cov_dirs, Rperp, s_obs, Vt_obs, A, R, _ = _concept_geometry(Z, Y, D, classes, domains, var_keep, groups)
+    cov_dirs, concept_raw, s_obs, Vt_obs, A, R, _ = _concept_geometry(Z, Y, D, classes, domains,
+                                                                      var_keep, groups)
     n_rank = s_obs.size
 
     # NULL bootstrap under fitted h0 (NOT a row bootstrap): each replicate draws Y* ~ p_hat0
     # and RE-RUNS the whole concept pipeline (re-estimating subspaces + spectrum).
     Zs = _standardise(Z)
-    p0 = fit_h0_proba(Zs, Y, D, domains, classes, C)
+    p0 = fit_h0_proba(Zs, Y, D, domains, classes, C, groups)
     rng = np.random.default_rng(seed + 7)
     null_top = np.zeros(n_dir_boot)                    # h0-null TOP singular value (max stat)
     cov_load_null = np.zeros(n_dir_boot)               # h0-null cov-subspace loading (noise scale)
     for b in range(n_dir_boot):
-        Yb = sample_labels(p0, classes, rng)
+        # cluster-consistent null: one label per subject (geom-mean q_s) when groups given
+        Yb = (subject_null_labels(p0, groups, classes, rng) if groups is not None
+              else sample_labels(p0, classes, rng))
         cov_dirs_b, _, s_b, _, _, R_b = _concept_geometry(Z, Yb, D, classes, domains, var_keep, groups)[:6]
         null_top[b] = s_b[0] if s_b.size else 0.0
         # cov null scale goes through the IDENTICAL estimator pipeline: cov subspace is
@@ -261,15 +271,23 @@ def analyze_source(Z, Y, D,
             Rcb = R_b - R_b.mean(0, keepdims=True)
             cov_load_null[b] = float(np.linalg.svd(Rcb @ cov_dirs_b, compute_uv=False)[0])
 
-    # GLOBAL max-statistic test (strong-FWER for "is there ANY concept direction"): compare the
-    # observed TOP singular value to the h0-null TOP singular value. We keep ONLY this first
-    # direction if it passes -- a per-rank sequential test would need a rank-k null per rank
-    # (deferred); keeping >1 direction off the rank-0 null would NOT control FWER.
+    # GEOMETRIC concept gate: h0-parametric-bootstrap global max-statistic. On a NO-concept source
+    # this has CORRECT type-I (the re-estimated Y*~p0 spectrum matches the observed -> p_global
+    # stays high); its power at the SUBJECT level is LOW (the cluster-consistent null is
+    # conservative with few subjects/cell) -- the honest difficulty-envelope cost, NOT a validity
+    # flaw. It is the type-I-controlling gate; the cross-fitted DECODER is the second required gate.
     p_global = float((1.0 + np.sum(null_top >= s_obs[0])) / (1.0 + n_dir_boot)) if n_rank else 1.0
-    # CONCEPT EVIDENCE == the residual-decoder gate: the geometric global max-statistic AND the
-    # cross-fitted residual-decoder test T must BOTH be significant. (Geometry alone is not the
-    # claimed residual-decoder certificate.)
-    concept_evidenced = (p_global <= alpha) and bool(test.significant)
+    cov_noise_scale = float(np.quantile(cov_load_null, 1 - alpha)) if cov_dirs.shape[1] else 0.0
+    concept_top = float(s_obs[0]) if n_rank else 0.0
+
+    # CONCEPT EVIDENCE = geometric global max-stat (p_global, type-I controlled) AND the
+    # cross-fitted, subject-level residual-DECODER T significant. BOTH required: geometry alone
+    # is direction-only; the decoder alone is NOT type-I-valid on a no-concept source (a covariate
+    # source's finite-sample class-conditional noise inflates a decoder-only gate). The earlier
+    # magnitude-only gate (concept_top >= kappa*cov_noise_scale) was UNCALIBRATED (full-R top vs a
+    # cov-subspace projection -> ~always passes); it is reported as a diagnostic, not a gate.
+    concept_geom_present = bool(concept_top >= cov_loading_margin_kappa * cov_noise_scale)  # diag
+    concept_evidenced = bool(p_global <= alpha) and bool(test.significant)
     n_keep = 1 if concept_evidenced else 0
     if concept_evidenced:
         atlas.concept_dirs = Vt_obs[:1].T
@@ -282,42 +300,54 @@ def analyze_source(Z, Y, D,
     #           resamples whole CLUSTERS (subjects if group_ids, else domains) WITH replacement
     #           and RE-ESTIMATES cell means, pooled means, (A,R) and the cov subspace -> a valid
     #           upper confidence bound for the full estimator (not a fixed-subspace row boot).
-    #   noise_scale = (1-alpha) quantile of the SAME loading under the h0 NULL (dimensionally
-    #           matched; empirically ~ the observed point -> a calibrated noise floor).
+    #   noise_scale = (1-alpha) quantile of the SAME loading under the h0 NULL (the floor above).
     #   eps_stable = cov_loading_margin_kappa (kappa, PRE-REGISTERED >1) * noise_scale.
     #   cov_stable iff U_cov < eps_stable  (affirmative equivalence, not "failed to reject").
-    cov_noise_scale = float(np.quantile(cov_load_null, 1 - alpha)) if atlas.cov_dirs.shape[1] else np.inf
-    eps_stable = cov_loading_margin_kappa * cov_noise_scale
+    eps_stable = cov_loading_margin_kappa * cov_noise_scale if cov_dirs.shape[1] else np.inf
     if atlas.cov_dirs.shape[1]:
         s_cov_obs = _cov_loading(Z, Y, D, classes, domains, var_keep, atlas.cov_dirs, g=groups)
         clusters = groups if groups is not None else D
-        uniq = np.unique(clusters)
-        idx_by = {c: np.where(clusters == c)[0] for c in uniq}
+        # cluster bootstrap, STRATIFIED WITHIN DOMAIN (preserves the atlas domain set), with a
+        # FRESH id per resampled cluster copy so a cluster drawn twice contributes TWICE (the
+        # v0 kept the original id -> _cell_mean re-merged duplicates, losing multiplicity).
+        dom_subjects = {dd: np.unique(clusters[D == dd]) for dd in domains}
+        idx_by = {c: np.where(clusters == c)[0] for c in np.unique(clusters)}
         rng2 = np.random.default_rng(seed + 11)
-        boot = np.empty(n_dir_boot)
+        boot, n_inv = [], 0
         for b in range(n_dir_boot):
-            pick = rng2.choice(uniq, size=len(uniq), replace=True)
-            idx = np.concatenate([idx_by[c] for c in pick])
-            gid_sub = None if groups is None else groups[idx]
-            try:
-                boot[b] = _cov_loading(Z[idx], Y[idx], D[idx], classes,
-                                       list(np.unique(D[idx])), var_keep, g=gid_sub)  # cov RE-estimated
-            except Exception:
-                boot[b] = np.nan
-        boot = boot[np.isfinite(boot)]
+            il, gl, gc = [], [], 0
+            for dd in domains:
+                subs = dom_subjects[dd]
+                for s in rng2.choice(subs, size=len(subs), replace=True):
+                    il.append(idx_by[s]); gl.append(np.full(len(idx_by[s]), gc)); gc += 1
+            idx = np.concatenate(il); gid = np.concatenate(gl)
+            val = _cov_loading(Z[idx], Y[idx], D[idx], classes,
+                               list(np.unique(D[idx])), var_keep, g=gid)   # cov RE-estimated
+            if np.isfinite(val):
+                boot.append(val)
+            else:
+                n_inv += 1
+        boot = np.array(boot)
         cov_ub = float(np.quantile(boot, 1 - alpha)) if boot.size else np.inf
-        cov_stable = cov_ub < eps_stable
+        cov_stable = bool(cov_ub < eps_stable)
     else:
-        s_cov_obs, cov_ub, cov_stable = 0.0, 0.0, True
+        s_cov_obs, cov_ub, cov_stable, n_inv = 0.0, 0.0, True, 0
 
     return SourceAnalysis(atlas, test, concept_evidenced, bool(cov_stable), bool(overlap),
                           [p_global],
                           detail=dict(n_concept_kept=n_keep, p_global=p_global,
                                       obs_top_singular=float(s_obs[0]) if n_rank else 0.0,
+                                      concept_top=concept_top,
+                                      concept_noise_floor=cov_loading_margin_kappa * cov_noise_scale,
+                                      concept_geom_present_diag=concept_geom_present,
+                                      geometric_maxstat_significant=bool(p_global <= alpha),
                                       cov_loading=s_cov_obs, cov_loading_ub=cov_ub,
                                       cov_loading_null_scale=cov_noise_scale,
                                       cov_loading_margin_kappa=cov_loading_margin_kappa,
                                       eps_stable_cov_units=eps_stable,
+                                      cov_boot_invalid=n_inv,
+                                      residual_T_significant=bool(test.significant),
+                                      null_invalid_replicates=test.null_invalid,
                                       cluster_aware=(groups is not None),
                                       min_principal_angle_deg=atlas.min_principal_angle_deg,
                                       global_significant=test.significant))

@@ -71,6 +71,7 @@ class ResidualTestResult:
     support: SupportGraph
     ce_h0: float = float("nan")
     ce_h: float = float("nan")
+    null_invalid: int = 0     # degenerate null replicates -- COUNTED, never silently dropped
 
 
 # ---------------------------------------------------------------------------------------
@@ -126,12 +127,21 @@ def check_support_graph(Y, D, Z=None, group_ids=None,
                         min_classes_per_domain: int = 2,
                         min_domains_per_class: int = 2,
                         min_cell: int = 10,
-                        min_cell_subjects: int = 3,
+                        min_cell_subjects: int = 1,   # per-cell = CONNECTIVITY (>=1 subject);
+                        min_subjects_per_class: int = 4,  # the substantive POWER gate is per-class
+                        n_folds: int = 4,
                         max_condition: float = 1e8) -> SupportGraph:
     Y = np.asarray(Y); D = np.asarray(D)
     g = None if group_ids is None else np.asarray(group_ids)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
     reasons = []
+    # grouped-fold feasibility: each class needs >= n_folds INDEPENDENT subjects so a
+    # StratifiedGroupKFold over subjects is well-defined (epoch count never substitutes).
+    if g is not None:
+        spc = min(int(np.unique(g[Y == c]).size) for c in classes)
+        if spc < max(min_subjects_per_class, n_folds):
+            reasons.append(f"a class has only {spc} independent subjects (need >= "
+                           f"{max(min_subjects_per_class, n_folds)} for grouped {n_folds}-fold CV)")
 
     cpd = min(int(np.unique(Y[D == d]).size) for d in domains)
     if cpd < min_classes_per_domain:
@@ -214,45 +224,80 @@ def _splits(X, Y, n_folds, seed, groups=None):
     return StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed).split(X, Y)
 
 
-def _xfit_ce(Zs, Y, D, domains, interaction, classes, n_folds, C, seed, groups=None) -> float:
-    X = _features(Zs, D, domains, interaction)
-    ce_sum, n = 0.0, 0
-    cl = list(classes)
-    for tr, te in _splits(X, Y, n_folds, seed, groups):
-        clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs")
-        clf.fit(X[tr], Y[tr])
-        proba = clf.predict_proba(X[te])
-        full = np.full((len(te), len(cl)), 1e-12)
-        for j, c in enumerate(clf.classes_):
-            full[:, cl.index(c)] = proba[:, j]
-        full /= full.sum(1, keepdims=True)
-        ce_sum += log_loss(Y[te], full, labels=cl) * len(te)
-        n += len(te)
-    return ce_sum / n
+def _subject_weights(groups):
+    """One-vote-per-subject epoch weights w_se = 1/n_s, normalised to MEAN 1 (so cluster size
+    does not change the effective L2 strength)."""
+    uniq, inv, counts = np.unique(groups, return_inverse=True, return_counts=True)
+    w = 1.0 / counts[inv]
+    return w * (len(w) / w.sum())
 
 
-def fit_h0_proba(Zs, Y, D, domains, classes, C=1.0) -> np.ndarray:
-    """Fit the domain-intercept model on ALL data; return p_hat0(y|z,d) aligned to
-    `classes` (used to resample Y* under the null)."""
-    X = _features(Zs, D, domains, interaction=False)
-    clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs")
-    clf.fit(X, Y)
+def _aligned(clf, X, cl):
     proba = clf.predict_proba(X)
-    cl = list(classes)
-    full = np.full((len(Zs), len(cl)), 1e-12)
+    full = np.full((len(X), len(cl)), 1e-12)
     for j, c in enumerate(clf.classes_):
         full[:, cl.index(c)] = proba[:, j]
-    full /= full.sum(1, keepdims=True)
-    return full
+    return full / full.sum(1, keepdims=True)
+
+
+def _xfit_subject_loss(Zs, Y, D, groups, domains, interaction, classes, n_folds, C, seed):
+    """Subject-level OOF loss  l_s = (1/n_s) sum_e -log p_hat^{(-s)}(Y_s | z_se, d_se).
+    Group-CV by subject (no leakage); 1/n_s fit weights (one vote per subject in the fit).
+    Returns (loss_per_subject_dict)."""
+    X = _features(Zs, D, domains, interaction)
+    cl = list(classes)
+    w = _subject_weights(groups)
+    subj_sum, subj_n = {}, {}
+    for tr, te in _splits(X, Y, n_folds, seed, groups):
+        clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs")
+        clf.fit(X[tr], Y[tr], sample_weight=w[tr])         # one-vote-per-subject fit
+        p = _aligned(clf, X[te], cl)
+        yi = np.searchsorted(cl, Y[te])
+        ll = -np.log(p[np.arange(len(te)), yi])            # per-epoch loss
+        for k, e in enumerate(te):
+            g = groups[e]
+            subj_sum[g] = subj_sum.get(g, 0.0) + ll[k]
+            subj_n[g] = subj_n.get(g, 0) + 1
+    return {g: subj_sum[g] / subj_n[g] for g in subj_sum}   # mean epoch loss within subject
+
+
+def _xfit_T(Zs, Y, D, groups, domains, classes, n_folds, C, seed):
+    """T = (1/S) sum_s (l_{s,h0} - l_{s,h}) -- subject-level cross-fitted risk difference."""
+    l0 = _xfit_subject_loss(Zs, Y, D, groups, domains, False, classes, n_folds, C, seed)
+    l1 = _xfit_subject_loss(Zs, Y, D, groups, domains, True, classes, n_folds, C, seed)
+    keys = [g for g in l0 if g in l1]
+    return float(np.mean([l0[g] - l1[g] for g in keys])) if keys else float("nan")
+
+
+def fit_h0_proba(Zs, Y, D, domains, classes, C=1.0, groups=None) -> np.ndarray:
+    """Domain-intercept model on ALL data (subject-weighted if groups given); aligned p0(y|z,d)."""
+    X = _features(Zs, D, domains, interaction=False)
+    w = None if groups is None else _subject_weights(groups)
+    clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(X, Y, sample_weight=w)
+    return _aligned(clf, X, list(classes))
+
+
+def subject_null_labels(p0, groups, classes, rng) -> np.ndarray:
+    """Cluster-consistent h0 null: ONE label per subject, q_s(y) ∝ exp[(1/n_s) sum_e log p0_se(y)]
+    (per-subject geometric mean of epoch probs), broadcast to all the subject's epochs."""
+    cl = np.asarray(classes)
+    g = np.asarray(groups)
+    out = np.empty(len(g), dtype=cl.dtype)
+    logp = np.log(np.clip(p0, 1e-12, 1.0))
+    for u in np.unique(g):
+        m = g == u
+        q = np.exp(logp[m].mean(0)); q = q / q.sum()       # geometric-mean subject proba
+        cdf = np.cumsum(q)
+        y = cl[int((rng.random() > cdf).sum())]
+        out[m] = y
+    return out
 
 
 def sample_labels(proba, classes, rng) -> np.ndarray:
-    """Vectorised categorical sampling Y* ~ proba (rows), returning values in `classes`."""
+    """Per-row categorical sampling Y* ~ proba (epoch-level fallback when no clusters)."""
     cl = np.asarray(classes)
     cdf = np.cumsum(proba, axis=1)
-    u = rng.random((proba.shape[0], 1))
-    idx = (u > cdf).sum(axis=1)
-    idx = np.clip(idx, 0, len(cl) - 1)
+    idx = np.clip((rng.random((proba.shape[0], 1)) > cdf).sum(axis=1), 0, len(cl) - 1)
     return cl[idx]
 
 
@@ -273,37 +318,39 @@ def residual_decoder_test(Z, Y, D,
                           seed: int = 0) -> ResidualTestResult:
     Y = np.asarray(Y); D = np.asarray(D)
     Zs = _standardise(Z)
-    groups = None if group_ids is None else np.asarray(group_ids)
+    # the inference cluster is the biological subject; with no group_ids each EPOCH is its own
+    # cluster (component/epoch-level fallback).
+    groups = np.asarray(group_ids) if group_ids is not None else np.arange(len(Y))
     classes = list(np.unique(Y)); domains = list(np.unique(D))
 
-    support = check_support_graph(Y, D, Z=Zs, group_ids=group_ids)
+    support = check_support_graph(Y, D, Z=Zs, group_ids=group_ids, n_folds=n_folds)
     if not support.valid:
         return ResidualTestResult("INVALID", float("nan"), 1.0, False,
                                   float("nan"), float("nan"), support)
 
-    ce_h0 = _xfit_ce(Zs, Y, D, domains, False, classes, n_folds, C, seed, groups)
-    ce_h = _xfit_ce(Zs, Y, D, domains, True, classes, n_folds, C, seed, groups)
-    T = ce_h0 - ce_h
+    T = _xfit_T(Zs, Y, D, groups, domains, classes, n_folds, C, seed)   # subject-level T
 
-    p0 = fit_h0_proba(Zs, Y, D, domains, classes, C)
+    # cluster-consistent NULL: ONE label per subject ~ q_s (geom-mean), refit & recompute T*.
+    p0 = fit_h0_proba(Zs, Y, D, domains, classes, C, groups)
     rng = np.random.default_rng(seed + 1)
-    null = np.empty(n_boot)
+    null, n_invalid = [], 0
     for b in range(n_boot):
-        Yb = sample_labels(p0, classes, rng)
-        counts = np.array([(Yb == c).sum() for c in classes])
-        if counts.min() < n_folds:                # keep stratified folds well-defined
-            null[b] = -np.inf
+        Yb = subject_null_labels(p0, groups, classes, rng)
+        if len(np.unique(Yb)) < 2:                  # degenerate replicate -> COUNTED, not dropped
+            n_invalid += 1
             continue
-        c0 = _xfit_ce(Zs, Yb, D, domains, False, classes, n_folds, C, seed, groups)
-        c1 = _xfit_ce(Zs, Yb, D, domains, True, classes, n_folds, C, seed, groups)
-        null[b] = c0 - c1
-    valid_null = null[np.isfinite(null)]
-    p_value = (1.0 + np.sum(valid_null >= T)) / (1.0 + valid_null.size)
-    null_q = float(np.quantile(valid_null, 1.0 - alpha)) if valid_null.size else float("nan")
+        try:
+            null.append(_xfit_T(Zs, Yb, D, groups, domains, classes, n_folds, C, seed))
+        except Exception:
+            n_invalid += 1
+    null = np.array([t for t in null if np.isfinite(t)])
+    p_value = (1.0 + np.sum(null >= T)) / (1.0 + null.size) if null.size else 1.0
+    null_q = float(np.quantile(null, 1.0 - alpha)) if null.size else float("nan")
     return ResidualTestResult("VALID", float(T), float(p_value),
-                              bool(p_value <= alpha),
-                              float(valid_null.mean()) if valid_null.size else float("nan"),
-                              null_q, support, float(ce_h0), float(ce_h))
+                              bool(p_value <= alpha and null.size > 0),
+                              float(null.mean()) if null.size else float("nan"),
+                              null_q, support, float("nan"), float("nan"),
+                              null_invalid=n_invalid)
 
 
 if __name__ == "__main__":

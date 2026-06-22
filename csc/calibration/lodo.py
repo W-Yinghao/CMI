@@ -78,39 +78,34 @@ def _aligned_proba(clf, Z, classes):
 # (#2/#3) calibrate the EXACT certificate statistic on training-domain pseudo-targets
 # --------------------------------------------------------------------------------------
 def calibrate_thresholds(Z_tr, Y_tr, D_tr, atlas, base_cfg: CertifierConfig,
-                         target_size=None, block_ids_tr=None,
+                         target_n_subjects=None, block_ids_tr=None,
                          alpha=0.05, n_block=240, quantile=None, seed=0) -> CertifierConfig:
-    """tau_detect / tau_label = `quantile` (default 1-alpha) of the certifier's OWN statistics
-    over pseudo-targets resampled from the TRAINING domains only (fold-isolated; held-out
-    labels never enter). Each pseudo-target MATCHES the held-out target's `target_size` (and,
-    on real data, its `block_ids_tr` subject/session structure -- WHOLE blocks, never split)
-    so the floor reflects the right finite-sample fluctuation. tau_resid / tau_margin are
-    pre-registered constants passed through (NOT calibrated here)."""
-    from ..certificate.atlas import components
+    """tau_detect / tau_label = `quantile` of the certifier's EXACT statistic over pseudo-targets
+    drawn from the TRAINING domains only (fold-isolated). Each pseudo-target draws
+    `target_n_subjects` WHOLE subjects (matching the held-out target's CLUSTER count) and its
+    visibility statistic is the SUBJECT-VOTE (cluster_mean) delta -- the SAME statistic the
+    certifier thresholds (the v0 used a row mean, a mismatch). tau_resid / tau_margin are
+    pre-registered constants passed through."""
+    from ..certificate.atlas import components, cluster_mean
     q = (1 - alpha) if quantile is None else quantile
     Z_tr = np.asarray(Z_tr, float); D_tr = np.asarray(D_tr)
-    bids = None if block_ids_tr is None else np.asarray(block_ids_tr)
+    bids = (np.asarray(block_ids_tr) if block_ids_tr is not None
+            else np.arange(len(Z_tr)))                       # each row its own cluster otherwise
     domains = list(np.unique(D_tr))
     rng = np.random.default_rng(seed + 13)
     vis, lab = [], []
     reps = max(1, n_block // len(domains))
     for d in domains:
         idx = np.where(D_tr == d)[0]
-        blocks = ([idx[bids[idx] == b] for b in np.unique(bids[idx])]
-                  if bids is not None else None)
-        tgt = target_size or len(idx)
+        subs = np.unique(bids[idx])
+        k = target_n_subjects or len(subs)
         for _ in range(reps):
-            if blocks is not None:
-                # WHOLE-block (subject) resampling: add whole blocks until >= target_size; NO
-                # mid-block truncation (the v0 trimmed the last block, breaking clustering).
-                picks, n = [], 0
-                while n < tgt:
-                    blk = blocks[rng.integers(0, len(blocks))]
-                    picks.append(blk); n += len(blk)
-                bs = np.concatenate(picks)
-            else:
-                bs = idx[rng.integers(0, len(idx), tgt)]    # IID rows, match target SIZE
-            c = components(atlas, Z_tr[bs].mean(0) - atlas.pooled_mean)
+            pick = rng.choice(subs, size=k, replace=True)    # match target SUBJECT count
+            # new cluster id per drawn copy (correct resampling-with-replacement multiplicity)
+            bs = np.concatenate([idx[bids[idx] == s] for s in pick])
+            gid = np.concatenate([np.full((bids[idx] == s).sum(), i) for i, s in enumerate(pick)])
+            delta = cluster_mean(Z_tr[bs], gid) - atlas.pooled_mean   # SUBJECT-VOTE, like certifier
+            c = components(atlas, delta)
             vis.append(max(c["n_cov"], c["n_concept"], c["n_resid"]))
             lab.append(c["n_label"])
     return dataclasses.replace(base_cfg,

@@ -102,30 +102,32 @@ conda run -n icml python -m csc.tests.test_design_and_pairs
 conda run -n icml python -m csc.run_synthetic --seeds 30 --n_boot 80
 ```
 
-## Synthetic result so far (10 seeds; PREREGISTRATION §3)
+## Synthetic result so far (SUBJECT-level, CSC-P1.4.1 DEV regime; one envelope point)
 
 ```
-                                COVARI  CONCEP  UNIDEN  forbid
-clean            (NONE)              0       0      10       0
-covariate        (COVARIATE)         5       0       5       0
-boundary_coupled (CONCEPT_VISIBLE)   0      10       0       0
-pure_conditional (CONCEPT_INVISIBLE) 0       0      10       0
-label_shift      (LABEL_SHIFT)       0       0      10       0
-label_covariate_mixed (LABEL_COV)    0       0      10       0
+clean            (NONE)              -> UNIDENTIFIABLE   (abstain)
+covariate        (COVARIATE)         -> COVARIATE_COMPATIBLE  ~4/4
+boundary_coupled (CONCEPT_VISIBLE)   -> CONCEPT_SUSPECT       ~2/4   (honest, LOW subject power)
+pure_conditional (CONCEPT_INVISIBLE) -> UNIDENTIFIABLE   (abstain)
+label_shift      (LABEL_SHIFT)       -> UNIDENTIFIABLE   (abstain)
+label_covariate_mixed (LABEL_COV)    -> UNIDENTIFIABLE   (abstain)
 
-false certifications, total : 0 / 60
-per-SEED clusters w/ a miss : 0 / 10   (95% cluster-level upper bound = 0.259)
-power on VISIBLE concept    : 1.00
-covariate -> COMPATIBLE     : 0.50     (conservative: now needs cov_stable evidence)
+false certifications                : 0           (across the must-abstain shifts)
+false concept-evidence (cov-only src): 0 / 6      (subject-level null; type-I controlled)
+concept power on VISIBLE concept    : ~0.5        (HONEST subject-level value, not geometric 1.0)
 ```
 
-**Honesty:** 0 observed false certifications does **not** prove the rate ≤ 0.05. The unit is
-an *independent source seed* (the 4 must-abstain targets share a source), so 0/10 → 95% upper
-bound ≈ 0.259 (Rule of Three) — **not** the 0.072 a wrong 40-independent-trials count gives;
-reaching 0.05 needs ≥ 59 independent clusters. The headline is *"simulator smoke passed;
-control & power not yet statistically established."* Covariate→COMPATIBLE at 0.50 is the soft
-spot — conservative abstention now that it requires positive `cov_stable` equivalence evidence
-(a safe miss, not a false cert); the freeze sweep is the route to tightening it.
+**Honesty (CSC-P1.4.1).** The inference unit is now the **subject** (cluster), not the epoch:
+the decoder estimand/inference, the atlas, calibration, bootstraps and the support gate all use
+the subject vote, with a cluster-consistent null. Concept evidence is the geometric global
+max-stat **AND** the cross-fitted decoder (the geometric gate controls type-I; a decoder-only
+gate over-fires ~50% on a covariate-only source because each synthetic subject's random effect
+is confounded with its single label). Power on visible concept is therefore **honestly low**
+(~0.5) — the conservative cost of cluster-valid inference, and a quantity of the **difficulty
+envelope** (PREREGISTRATION §6.7), not a single tuned number. 0 observed false certifications
+does **not** prove the rate ≤ 0.05; reaching 0.05 needs ≥ 59 independent clusters (these seeds
+are DEVELOPMENT). Headline: *"cluster-valid simulator smoke passed; control & power not yet
+statistically established; difficulty envelope + confirmatory run pending."*
 
 ## Scaling to real EEG
 

@@ -69,7 +69,7 @@ def sweep(seeds=6, base: ProtocolConfig = None, out=None, quiet=True):
             forbidden_full=syn["any_forbidden_full_suite"],
             cp_ub_full=syn["exact_cp_ub_full_suite"],
             concept_power=worst_power, cov_coverage=cov_cov,
-            ood_valid=ood["ood_power_bank_valid"], config=cfg.manifest()))
+            ood_valid=ood["evaluable"], config=cfg.manifest()))
 
     # lexicographic: (forbidden asc, -power, -coverage)
     ranked = sorted(results, key=lambda r: (r["forbidden_full"], -r["concept_power"],

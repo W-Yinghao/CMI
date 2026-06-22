@@ -60,9 +60,9 @@ def _concept_failure_reason(out, alpha):
     if sa.signature_overlap:
         return "signature_overlap"
     if sa.detail.get("p_global", 1.0) > alpha:
-        return "geometric_maxstat_not_sig"
+        return "geometric_maxstat_not_sig"                # geometric gate (type-I controlled)
     if not sa.test.significant:
-        return "residual_T_not_sig"
+        return "residual_T_not_sig"                       # cross-fitted decoder gate
     if not sa.concept_evidenced:
         return "concept_not_evidenced_other"
     return "not_dominant_or_robust_consensus_abstain"   # evidenced but certifier abstained
@@ -92,7 +92,8 @@ class ProtocolConfig:
     # source analysis
     alpha: float = 0.05
     var_keep: float = 0.95
-    C: float = 1.0
+    C: float = 0.5            # stronger L2 -> the high-dim Z(x)D interaction decoder does not
+                             # overfit at the subject level (epoch fit, subject-aggregated loss)
     source_cv_folds: int = 4
     n_boot: int = 80
     n_dir_boot: int = 200
@@ -110,10 +111,9 @@ class ProtocolConfig:
     analysis_unit: str = "subject"          # "subject" -> cluster-vote gates/bootstraps
     group_aware: bool = True                 # True -> group ids MANDATORY (fail closed)
     quantile_convention: str = "linear"
-    # rng provenance (part of the method id)
-    rng_algorithm: str = "numpy.default_rng(PCG64)"
-    master_seed: int = 0
-    seed_derivation: str = "per_call: rng=default_rng(master_seed+offset)"
+    rng_algorithm: str = "numpy.default_rng(PCG64)"   # method-level RNG choice (the runtime
+                                                      # root seed lives in ExecutionContext, NOT
+                                                      # in the method manifest)
 
     def validate(self):
         if self.tau_calibration_method not in _SUPPORTED_TAU_METHOD:
@@ -127,7 +127,24 @@ class ProtocolConfig:
         if not (0 < self.oracle_eps_stable_ce < self.oracle_eps_concept_ce):
             raise ProtocolError("require 0 < oracle_eps_stable_ce < oracle_eps_concept_ce")
         if not (0 < self.alpha < 1):
-            raise ProtocolError("alpha out of range")
+            raise ProtocolError(f"alpha {self.alpha} out of (0,1)")
+        if not (0 < self.tau_quantile < 1):
+            raise ProtocolError(f"tau_quantile {self.tau_quantile} out of (0,1)")
+        if not (0 < self.consensus <= 1):
+            raise ProtocolError(f"consensus {self.consensus} out of (0,1]")
+        if not (0 < self.var_keep <= 1):
+            raise ProtocolError(f"var_keep {self.var_keep} out of (0,1]")
+        if self.C <= 0:
+            raise ProtocolError(f"C must be > 0, got {self.C}")
+        if self.tau_resid < 0 or self.tau_margin < 1:
+            raise ProtocolError("require tau_resid >= 0 and tau_margin >= 1")
+        if self.cov_loading_margin_kappa <= 0:
+            raise ProtocolError("cov_loading_margin_kappa must be > 0")
+        if self.source_cv_folds < 2:
+            raise ProtocolError("source_cv_folds must be >= 2")
+        for nm in ("n_boot", "n_dir_boot", "target_n_boot", "oracle_boot", "tau_n_pseudotargets"):
+            if getattr(self, nm) < 1:
+                raise ProtocolError(f"{nm} must be >= 1, got {getattr(self, nm)}")
         return self
 
     def to_dict(self) -> dict:
@@ -150,6 +167,20 @@ class ProtocolConfig:
         return hashlib.sha256(self.canonical_json().encode()).hexdigest()   # FULL sha256
 
 
+def _stage_seed(root, stage):
+    """Stable named-stage RNG derivation: the runtime ROOT seed drives every stage via a named
+    hash, so changing the root changes all stage RNGs (no hand-written seed+7/seed+11), and the
+    root is execution context -- it is NOT part of the method manifest/hash."""
+    return int(hashlib.sha256(f"{int(root)}::{stage}".encode()).hexdigest()[:8], 16)
+
+
+@dataclass(frozen=True)
+class ExecutionContext:
+    root_seed: int = 0
+    def seed(self, stage: str) -> int:
+        return _stage_seed(self.root_seed, stage)
+
+
 # --------------------------------------------------------------------------------------
 # the ONE executor
 # --------------------------------------------------------------------------------------
@@ -159,24 +190,30 @@ def execute_protocol(Z_src, Y_src, D_src, Z_tgt, cfg: ProtocolConfig,
     if cfg.group_aware and (src_group_ids is None or tgt_group_ids is None):
         raise ProtocolError("group_aware=True requires BOTH src_group_ids and tgt_group_ids "
                             "(refusing to silently degrade to IID)")
+    ctx = ExecutionContext(root_seed=seed)
     quantile = cfg.tau_quantile if cfg.tau_calibration_method == \
         "training_only_pseudotarget_quantile" else None
-    tgt_size = len(np.asarray(Z_tgt)) if cfg.tau_target_size_matched else None
     cal_groups = src_group_ids if cfg.tau_group_resampling else None
     unit_groups_tgt = tgt_group_ids if cfg.analysis_unit == "subject" else None
     unit_groups_src = src_group_ids if cfg.analysis_unit == "subject" else None
+    # match the target's CLUSTER (subject) count, not its row count
+    tgt_n_subj = (len(np.unique(tgt_group_ids)) if (tgt_group_ids is not None and
+                  cfg.tau_target_size_matched) else None)
 
     sa = analyze_source(Z_src, Y_src, D_src, n_boot=cfg.n_boot, n_dir_boot=cfg.n_dir_boot,
                         alpha=cfg.alpha, var_keep=cfg.var_keep, C=cfg.C,
                         min_angle_deg=cfg.min_principal_angle_deg,
                         cov_loading_margin_kappa=cfg.cov_loading_margin_kappa,
-                        n_folds=cfg.source_cv_folds, group_ids=unit_groups_src, seed=seed)
+                        n_folds=cfg.source_cv_folds, group_ids=unit_groups_src,
+                        seed=ctx.seed("analyze_source"))
     base = CertifierConfig(tau_resid=cfg.tau_resid, tau_margin=cfg.tau_margin)
-    cal = calibrate_thresholds(Z_src, Y_src, D_src, sa.atlas, base, target_size=tgt_size,
-                               block_ids_tr=cal_groups, alpha=cfg.alpha,
-                               n_block=cfg.tau_n_pseudotargets, quantile=quantile, seed=seed)
+    cal = calibrate_thresholds(Z_src, Y_src, D_src, sa.atlas, base,
+                               target_n_subjects=tgt_n_subj, block_ids_tr=cal_groups,
+                               alpha=cfg.alpha, n_block=cfg.tau_n_pseudotargets,
+                               quantile=quantile, seed=ctx.seed("calibrate_thresholds"))
     cert = certify_robust(sa, Z_tgt, cfg=cal, n_boot=cfg.target_n_boot,
-                          consensus=cfg.consensus, group_ids=unit_groups_tgt, seed=seed)
+                          consensus=cfg.consensus, group_ids=unit_groups_tgt,
+                          seed=ctx.seed("certify_robust"))
     return dict(certificate=cert, analysis=sa, calibrated_cfg=cal,
                 tau_detect=cal.tau_detect, tau_label=cal.tau_label)
 
@@ -203,10 +240,18 @@ def ood_power_bank(cfg: ProtocolConfig, seeds, n_domains: int = 8, concept_domai
             out = execute_protocol(src.Z, src.Y, src.D, tb.Z, cfg,
                                    src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids,
                                    seed=s)
+            sa = out["analysis"]
             recs.append(dict(seed=s, kind=kind, gen_truth=truth,
                              cert=out["certificate"].state,
-                             concept_atlas=bool(out["analysis"].concept_evidenced),
-                             fail_reason=_concept_failure_reason(out, cfg.alpha)))
+                             concept_atlas=bool(sa.concept_evidenced),
+                             fail_reason=_concept_failure_reason(out, cfg.alpha),
+                             # separate evidence fields (not collapsed into one boolean)
+                             support_valid=(sa.test.status == "VALID"),
+                             signature_separable=(not sa.signature_overlap),
+                             geometry_maxstat_significant=(sa.detail.get("p_global", 1.0) <= cfg.alpha),
+                             residual_T_significant=bool(sa.test.significant),
+                             joint_concept_evidence=bool(sa.concept_evidenced),
+                             target_certificate_fired=(out["certificate"].state == CONCEPT_SUSPECT)))
     # UNCONDITIONAL: power denominator = ALL generator-visible clusters (atlas failures count
     # as power MISSES, reported separately as atlas_availability).
     vis = [r for r in recs if r["gen_truth"] == "CONCEPT_VISIBLE"]
@@ -224,10 +269,15 @@ def ood_power_bank(cfg: ProtocolConfig, seeds, n_domains: int = 8, concept_domai
                 # one-sided 95% LOWER Clopper-Pearson bound on concept power (per cluster)
                 concept_power_cp_lower=_cp_bound(n_fired, len(vis), side="lower"),
                 binding_failure_decomposition=decomp,
-                atlas_availability=rate(vis, lambda r: r["concept_atlas"]),
+                # separate availabilities (NOT one collapsed flag)
+                support_valid_rate=rate(vis, lambda r: r["support_valid"]),
+                signature_separable_rate=rate(vis, lambda r: r["signature_separable"]),
+                geometry_maxstat_sig_rate=rate(vis, lambda r: r["geometry_maxstat_significant"]),
+                residual_T_sig_rate=rate(vis, lambda r: r["residual_T_significant"]),
+                atlas_availability=rate(vis, lambda r: r["concept_atlas"]),   # = joint evidence
                 covariate_compatible_coverage=rate(cov, lambda r: r["cert"] == COVARIATE_COMPATIBLE),
                 false_concept_on_covariate=rate(cov, lambda r: r["cert"] == CONCEPT_SUSPECT),
-                ood_power_bank_valid=(len(vis) >= min_visible), records=recs)
+                evaluable=(len(vis) >= min_visible), records=recs)
 
 
 # --------------------------------------------------------------------------------------
@@ -258,13 +308,18 @@ def synthetic_null_bank(cfg: ProtocolConfig, seeds, n_domains: int = 8, concept_
         seed_cluster_fail += int(any_fc)
     n = len(recs)
     false_concept = sum(r["cert"] == CONCEPT_SUSPECT for r in recs)
+    cp_ub = _cp_bound(seed_cluster_fail, len(seeds), side="upper")
     return dict(bank="SYNTHETIC_NULL_BANK", n_stable_total=n, n_source_clusters=len(seeds),
                 false_concept_count=false_concept,
                 false_concept_rate=(false_concept / n if n else None),
-                # per-INDEPENDENT-cluster false-concept rate + exact one-sided 95% CP UPPER bound
                 seed_cluster_failures=seed_cluster_fail,
-                false_concept_cp_upper_cluster=_cp_bound(seed_cluster_fail, len(seeds), side="upper"),
-                synthetic_null_bank_valid=(n >= min_stable), records=recs)
+                false_concept_cp_upper_cluster=cp_ub,
+                # evaluable = enough INDEPENDENT clusters to even compute a bound; control_PASS =
+                # the cluster-level CP upper bound is at/below the pre-registered alpha. The two
+                # are distinct: an evaluable bank with CP_ub > alpha has NOT validated control.
+                evaluable=(len(seeds) >= min_stable),
+                control_pass=(cp_ub <= cfg.alpha),
+                records=recs)
 
 
 if __name__ == "__main__":

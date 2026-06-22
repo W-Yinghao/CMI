@@ -15,12 +15,15 @@ export OPENBLAS_NUM_THREADS=${SLURM_CPUS_PER_TASK:-8}
 export PYTHONWARNINGS=ignore
 echo "host=$(hostname) job=$SLURM_JOB_ID cpus=$SLURM_CPUS_PER_TASK started=$(date -Is)"
 mkdir -p csc/results
+AUDIT_RC=0
 /home/infres/yinwang/anaconda3/bin/conda run -n icml --no-capture-output \
     python -m csc.run_audit --out csc/results/audit.json \
-    --seeds 10 --n_boot 40 --n_dir_boot 120 --target_n_boot 120 --oracle_boot 150 --bank_seeds 4
-echo "finished=$(date -Is)"
+    --seeds 10 --n_boot 40 --n_dir_boot 120 --target_n_boot 120 --oracle_boot 150 --bank_seeds 4 \
+    || AUDIT_RC=$?
+echo "finished=$(date -Is) audit_rc=$AUDIT_RC"
 # committable stdout provenance: copy the run log + record its SHA256
 LOG="logs/csc_audit_${SLURM_JOB_ID}.out"
 cp "$LOG" "csc/results/audit_run.log" 2>/dev/null || true
 sha256sum "csc/results/audit_run.log" > "csc/results/audit_run.log.sha256" 2>/dev/null || true
 echo "stdout_sha256=$(cut -d' ' -f1 csc/results/audit_run.log.sha256 2>/dev/null)"
+exit $AUDIT_RC          # fail-closed: nonzero if tests failed / tree dirty / commit mismatch

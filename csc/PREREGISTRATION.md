@@ -230,6 +230,49 @@ clusters**.
   guard is `csc/tools/check_commit_separation.sh` (install as `.git/hooks/pre-commit` or run in
   CI): it rejects any commit that mixes `csc/results/**` with other files.
 
+### 6.6 CSC-P1.4.1 (cluster-inference, executable RNG, concept-detection redesign)
+* **Subject-level decoder (estimand + inference).** Epoch fit with one-vote-per-subject weights
+  `1/n_s` (mean 1); OOF loss aggregated within subject (`ℓ_s`) then `T = mean_s(ℓ_{s,h0}−ℓ_{s,h})`;
+  group-CV by subject; cluster-consistent null `Y*_s ~ q_s` (per-subject geometric mean of `p̂0`)
+  broadcast to epochs; invalid null replicates COUNTED not dropped. Support gate adds
+  min-subjects-per-class + grouped-fold feasibility.
+* **Executable RNG.** `master_seed`/`seed_derivation` REMOVED from the manifest hash (they did
+  not drive computation — they faked the method id). The runtime root seed lives in an
+  `ExecutionContext` and drives every stage via a named hash (`_stage_seed(root, stage)`).
+  `validate()` now also enforces numeric ranges (fail-closed).
+* **Concept-FIRST geometry** (THEORY §4): concept estimated from the class-conditional residual
+  `R` first, `cov = a_d ⊥ concept`. Fixes the visible-concept (asymmetric `s_y`) leak that a
+  cov-first order absorbed into `cov_dirs`, emptying `concept_dirs`.
+* **Concept gate = geometric max-stat AND decoder, with type-I controlled by the geometric gate**
+  (THEORY §3.3/§4): `concept_evidenced = (p_global ≤ α) AND decoder-T significant`. Empirically the
+  geometric `p_global` has correct type-I on a covariate-only source (~0.8, never fires) while a
+  decoder-ONLY gate over-fires ~50% (the subject random effect is confounded with the subject's
+  single label → finite-sample class-conditional noise). A magnitude-only direction gate
+  (`concept_top ≥ κ·cov_noise_scale`) was tried and REJECTED (uncalibrated — passes on pure noise);
+  it is a diagnostic only. Honest subject-level power is LOW (cluster-consistent null is
+  conservative) — an envelope quantity, not a flaw.
+* **Relative (dominance) label gate** (THEORY §4): abstain for label only when `n_label` is NOT
+  dominated by concept/cov by `tau_margin`; the old absolute `n_label ≥ tau_label` over-abstained
+  genuine boundary shifts that carried a small finite-target label byproduct.
+* **Banks: evaluable vs control_pass; audit FAIL-CLOSED.** `evaluable` = enough independent
+  clusters to compute a bound; `control_pass` = the cluster-level CP bound meets `α` (DISTINCT).
+  The audit records `provenance_ok` and exits nonzero (sbatch propagates `$AUDIT_RC`) on failed
+  tests / dirty tree / `audited_code_commit ≠ HEAD`.
+* **Working DEV regime (ONE difficulty-envelope point, NOT confirmatory):** `sep=1.2`,
+  `subject_tau=0.2`, source `concept_scale=4`, 22 subjects/domain; target `concept_scale=14`,
+  `cov_target_scale=10` along a fixed source nuisance axis, 30 subjects. boundary→`CONCEPT_SUSPECT`
+  ≈3/4, covariate→`COVARIATE_COMPATIBLE` 4/4, clean/pure/label/label_cov→`UNIDENTIFIABLE`, **0
+  false certifications**. These seeds are DEVELOPMENT.
+
+### 6.7 Pre-registered DIFFICULTY ENVELOPE (required before any freeze/confirmatory)
+Power is NOT a single number; it is a surface. Before a confirmatory claim we will sweep, on
+UNSEEN seeds, a grid over: concept effect size (target `concept_scale`), independent cluster count
+(`subjects_per_domain` × `n_domains`), within-subject correlation (`subject_tau`), class separation
+(`sep`), covariate-leakage / principal-angle separation, class imbalance, and mechanism family. The
+deliverable is the boundary of the region where boundary→`CONCEPT_SUSPECT` power is non-trivial WHILE
+false-certification stays controlled — the partial-identification operating region, reported as a
+surface with exact cluster-level CP bounds, not one tuned regime.
+
 ---
 
 ## 7. Termination / kill criteria (falsify-first)

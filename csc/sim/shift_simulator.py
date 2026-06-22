@@ -42,11 +42,18 @@ class SimConfig:
     d: int = 12               # ambient dimension
     K: int = 3                # number of classes
     n_per_domain: int = 400
-    sep: float = 2.5          # class separation in the discriminative subspace
+    sep: float = 1.2          # class separation in task_dirs; kept MODEST so the concept axis
+                              # (w_concept) is genuinely NEEDED to classify in concept domains
+                              # (else the boundary move is redundant -> decoder-invisible)
     noise: float = 1.0
     cov_dim: int = 3          # dimension of the nuisance (covariate) subspace
     prior_alpha: float = 4.0  # Dirichlet conc. for per-domain label prior (label shift)
     min_per_class: int = 8    # guarantee class-spanning domains
+    subject_tau: float = 0.2  # subject random-effect scale (within-subject correlation); kept
+                              # modest so the identifiable-core signal survives subject-vote
+                              # aggregation (subject_tau is a difficulty-envelope axis for P1.5)
+    epochs_min: int = 8       # UNEQUAL epochs per subject
+    epochs_max: int = 22
     seed: int = 0
 
 
@@ -116,12 +123,36 @@ def _sample_domain(cfg, geom, spec: DomainSpec, n, rng) -> tuple:
     return z, y
 
 
+def _sample_subjects(cfg, geom, spec: DomainSpec, n_subjects, rng, subj_offset):
+    """SUBJECT-FIRST: each subject has ONE fixed label, a latent random effect (-> within-
+    subject correlation across its epochs), and an UNEQUAL number of epochs. Returns
+    (z, y, g) at the EPOCH level with y constant within subject and g = global subject id.
+    The first K subjects are pinned to distinct classes to keep the domain class-spanning."""
+    d = cfg.d
+    Zs, Ys, Gs = [], [], []
+    for j in range(n_subjects):
+        y_s = j % cfg.K if j < cfg.K else int(rng.choice(cfg.K, p=spec.prior))
+        eps_s = cfg.subject_tau * rng.standard_normal(d)   # subject random effect (shared)
+        n_e = int(rng.integers(cfg.epochs_min, cfg.epochs_max + 1))
+        z = np.tile(geom.mu[y_s], (n_e, 1))
+        z = z + spec.c * geom.s_y[y_s] * geom.w_concept[None, :]   # concept (boundary) move
+        z = z + (geom.U_cov @ spec.b)[None, :]                     # covariate offset
+        z = z + eps_s[None, :]                                     # subject random effect
+        z = z + geom.noise * rng.standard_normal((n_e, d))        # within-subject noise
+        Zs.append(z); Ys.append(np.full(n_e, y_s))
+        Gs.append(np.full(n_e, subj_offset + j))
+    return np.concatenate(Zs), np.concatenate(Ys), np.concatenate(Gs)
+
+
 def make_source(cfg: Optional[SimConfig] = None,
                 n_domains: int = 8,
                 concept_domains: int = 3,
                 cov_scale: float = 2.0,
-                concept_scale: float = 1.4,
-                subjects_per_domain: int = 5,
+                concept_scale: float = 4.0,    # source boundary movement -- the DECODER detects
+                                               # it at this strength (no longer the self-defeating
+                                               # geometric null); kept modest so it does not
+                                               # inflate the target visibility floor (tau_detect)
+                subjects_per_domain: int = 22,
                 geom: Optional[GenGeom] = None,
                 seed: Optional[int] = None) -> SourceBundle:
     """Class-spanning multi-domain source. `concept_domains` of `n_domains` carry genuine
@@ -143,12 +174,11 @@ def make_source(cfg: Optional[SimConfig] = None,
         domains.append(DomainSpec(b=b, c=float(c), prior=prior))
 
     Zs, Ys, Ds, Gs = [], [], [], []
+    subj_id = 0
     for d, spec in enumerate(domains):
-        z, y = _sample_domain(cfg, geom, spec, cfg.n_per_domain, rng)
-        Zs.append(z); Ys.append(y); Ds.append(np.full(len(y), d))
-        # subjects nested within domain: global id = d*1000 + subject index
-        subj = d * 1000 + (np.arange(len(y)) % subjects_per_domain)
-        Gs.append(subj)
+        z, y, g = _sample_subjects(cfg, geom, spec, subjects_per_domain, rng, subj_id)
+        subj_id += subjects_per_domain
+        Zs.append(z); Ys.append(y); Ds.append(np.full(len(y), d)); Gs.append(g)
     Z = np.concatenate(Zs); Y = np.concatenate(Ys); D = np.concatenate(Ds)
     G = np.concatenate(Gs)
     return SourceBundle(Z=Z, Y=Y, D=D, geom=geom, domains=domains,
@@ -184,15 +214,18 @@ def make_target(kind: str,
                 cfg: Optional[SimConfig] = None,
                 geom: GenGeom = None,
                 n: int = 1500,
-                cov_target_scale: float = 8.0,
-                concept_target_scale: float = 4.0,
+                cov_target_scale: float = 10.0,
+                concept_target_scale: float = 14.0,   # target boundary must move MORE than the
+                                                      # source's own concept domains (which set the
+                                                      # visibility floor via tau_detect) to read as
+                                                      # an anomaly, not in-source fluctuation
                 relabel_frac: float = 0.35,
                 label_peak: float = 0.8,
-                subjects: int = 8,
+                subjects: int = 30,
                 seed: int = 123) -> TargetBundle:
-    """Generate a target deployment batch under one shift type. Requires the SAME `geom`
-    used for the source (pass `source.geom`). Epochs are grouped into `subjects` target
-    clusters (`group_ids`) for cluster-aware certification."""
+    """Generate a target deployment batch (SUBJECT-FIRST) under one shift type. Requires the
+    SAME `geom` as the source. `subjects` biological clusters, each with one fixed label, a
+    latent random effect, and an unequal number of epochs; `group_ids` = subject id."""
     cfg = cfg or SimConfig()
     assert geom is not None, "pass geom=source.geom"
     rng = np.random.default_rng(seed)
@@ -200,43 +233,31 @@ def make_target(kind: str,
         raise ValueError(f"unknown shift kind {kind!r}; choose from {list(_TRUTH)}")
     unif = np.full(cfg.K, 1.0 / cfg.K)
 
+    # the covariate target moves along a FIXED nuisance axis the source actually exhibits
+    # (its per-domain b_d span U_cov), so the shift is IN-ATLAS -- a covariate compatibility
+    # claim is only meaningful for a direction the source showed (a novel nuisance axis is
+    # correctly out-of-atlas/UNIDENTIFIABLE, but that is a different cell of the envelope).
+    u_cov = np.zeros(cfg.cov_dim); u_cov[0] = 1.0
     if kind == "clean":
         spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0, prior=unif)
-        Z, Y = _sample_domain(cfg, geom, spec, n, rng)
-
     elif kind == "covariate":
-        # move along a NUISANCE direction: P(Z) changes, P(Y|Z) invariant
-        u = rng.standard_normal(cfg.cov_dim); u /= np.linalg.norm(u)
-        spec = DomainSpec(b=cov_target_scale * u, c=0.0, prior=unif)
-        Z, Y = _sample_domain(cfg, geom, spec, n, rng)
-
+        spec = DomainSpec(b=cov_target_scale * u_cov, c=0.0, prior=unif)   # P(Z) moves, P(Y|Z) fixed
     elif kind == "boundary_coupled":
-        # move class means along the concept direction: P(Y|Z) changes, visible signature
         spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=concept_target_scale, prior=unif)
-        Z, Y = _sample_domain(cfg, geom, spec, n, rng)
-
     elif kind == "pure_conditional":
-        # generate CLEAN Z, then relabel within a near-boundary band: P(Z) identical,
-        # P(Y|Z) changed. The certifier sees Z only -> indistinguishable from clean.
         spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0, prior=unif)
-        Z, Y = _sample_domain(cfg, geom, spec, n, rng)
-        Y = _relabel_invisible(Z, Y, geom, relabel_frac, rng)
-
     elif kind == "label_shift":
-        # P(Y) skewed, P(Z|Y) unchanged: pooled mean moves along the class-mean subspace.
-        # This is a TARGET shift, NOT a boundary change -- but it leaves a marginal trace
-        # the certifier must NOT mistake for concept (it must abstain).
-        spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0,
-                          prior=_skewed_prior(cfg.K, label_peak))
-        Z, Y = _sample_domain(cfg, geom, spec, n, rng)
-
+        spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0, prior=_skewed_prior(cfg.K, label_peak))
     else:  # label_covariate_mixed
-        u = rng.standard_normal(cfg.cov_dim); u /= np.linalg.norm(u)
-        spec = DomainSpec(b=0.5 * cov_target_scale * u, c=0.0,
+        spec = DomainSpec(b=0.5 * cov_target_scale * u_cov, c=0.0,
                           prior=_skewed_prior(cfg.K, label_peak))
-        Z, Y = _sample_domain(cfg, geom, spec, n, rng)
 
-    G = np.arange(len(Y)) % subjects                       # target subject clusters
+    Z, Y, G = _sample_subjects(cfg, geom, spec, subjects, rng, 0)
+    if kind == "pure_conditional":
+        # relabel near-boundary epochs: P(Z) identical to clean, P(Y|Z) changed (certifier
+        # sees Z only). Target labels are oracle-only; the per-subject label is no longer
+        # constant here, which is exactly the invisible-conditional construction.
+        Y = _relabel_invisible(Z, Y, geom, relabel_frac, rng)
     return TargetBundle(Z=Z, Y=Y, kind=kind, truth=_TRUTH[kind], group_ids=G)
 
 
@@ -252,9 +273,8 @@ def make_paired_clean_pure(cfg: Optional[SimConfig] = None,
     assert geom is not None, "pass geom=source.geom"
     rng = np.random.default_rng(seed)
     spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0, prior=np.full(cfg.K, 1.0 / cfg.K))
-    Z, Y = _sample_domain(cfg, geom, spec, n, rng)
+    Z, Y, G = _sample_subjects(cfg, geom, spec, 20, rng, 0)
     Y_relabel = _relabel_invisible(Z, Y, geom, relabel_frac, rng)
-    G = np.arange(len(Y)) % 8
     clean = TargetBundle(Z=Z, Y=Y, kind="clean", truth=_TRUTH["clean"], group_ids=G)
     pure = TargetBundle(Z=Z.copy(), Y=Y_relabel, kind="pure_conditional",
                         truth=_TRUTH["pure_conditional"], group_ids=G.copy())

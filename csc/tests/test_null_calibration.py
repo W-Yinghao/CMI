@@ -64,15 +64,21 @@ def test_label_shift_must_abstain():
 
 
 def test_residual_null_rarely_significant():
+    # NULL CALIBRATION is only valid at the CLUSTER (subject) unit: subjects carry a random
+    # effect and each subject has ONE label, so the random effect is confounded with class ->
+    # at the epoch level it manufactures spurious class-conditional domain structure that the
+    # epoch null cannot remove. Passing group_ids uses the subject-coherent null (the P1.4.1
+    # inference unit), under which a covariate-only source rarely shows false concept evidence.
     sigs, n = 0, 6
     for s in range(n):
         cfg = SimConfig(seed=400 + s)
         src = make_source(cfg, n_domains=6, concept_domains=0, seed=400 + s)
-        sa = analyze_source(src.Z, src.Y, src.D, n_boot=NB, n_dir_boot=NDB, seed=400 + s)
+        sa = analyze_source(src.Z, src.Y, src.D, n_boot=NB, n_dir_boot=NDB,
+                            group_ids=src.group_ids, seed=400 + s)
         sigs += int(sa.concept_evidenced)
     rate = sigs / n
     assert rate <= 0.34, f"covariate-only source false concept-evidence rate {rate}"
-    print(f"OK covariate-only source: concept evidence {sigs}/{n} (<=0.34)")
+    print(f"OK covariate-only source (subject-level null): concept evidence {sigs}/{n} (<=0.34)")
 
 
 if __name__ == "__main__":

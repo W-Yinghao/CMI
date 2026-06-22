@@ -92,12 +92,19 @@ def certify(analysis: SourceAnalysis,
                     f"(min principal angle {atlas.min_principal_angle_deg:.1f} deg); "
                     "covariate/concept/label attribution is unreliable", False)
 
-    # (1) label-shift signature -> abstain (not concept; not separable without a label model)
-    if n_lab >= cfg.tau_label:
+    # (1) label-shift signature -> abstain, but RELATIVELY: a label component blocks attribution
+    # only when it is significant AND is NOT dominated by a concept/covariate explanation. A
+    # shift that is mostly along concept_dirs (n_con >= tau_margin * n_lab) cannot be *explained*
+    # by a label shift, so a moderate co-occurring n_lab must not veto it. (The absolute gate
+    # over-abstained: a boundary shift with a small label byproduct was killed.)
+    label_dominates = (n_lab >= cfg.tau_label
+                       and n_lab >= n_con / cfg.tau_margin
+                       and n_lab >= n_cov / cfg.tau_margin)
+    if label_dominates:
         return cert(UNIDENTIFIABLE,
                     "marginal shift carries a LABEL-shift signature (moves along the "
-                    "class-mean subspace); not separable from concept without an "
-                    "identifiable label-shift model", True)
+                    "class-mean subspace) not dominated by a concept/covariate explanation; "
+                    "not separable from concept without an identifiable label-shift model", True)
 
     # (2) no visible shift -> abstain (pure conditional / clean cannot be excluded)
     visible = max(n_cov, n_con, n_res) >= cfg.tau_detect
@@ -112,8 +119,9 @@ def certify(analysis: SourceAnalysis,
                     "marginal shift lies outside the source atlas (novel direction); its "
                     "label effect is not identifiable from the source", True)
 
-    # (4) classify the visible, in-atlas, label-free shift
-    if n_con >= cfg.tau_margin * n_cov:
+    # (4) classify the visible, in-atlas shift by DOMINANCE (concept/cov must dominate BOTH the
+    # other in-atlas component AND any residual label component by tau_margin).
+    if n_con >= cfg.tau_margin * n_cov and n_con >= cfg.tau_margin * n_lab:
         if ev:
             return cert(CONCEPT_SUSPECT,
                         "shift aligns with a direction carrying significant boundary "
@@ -122,7 +130,7 @@ def certify(analysis: SourceAnalysis,
                     "shift aligns with concept directions but none carry significant "
                     "boundary evidence -> concept claim not supported", True)
 
-    if n_cov >= cfg.tau_margin * n_con:
+    if n_cov >= cfg.tau_margin * n_con and n_cov >= cfg.tau_margin * n_lab:
         # COVARIATE_COMPATIBLE needs POSITIVE stability evidence, not absence-of-concept:
         # the boundary movement along the covariate subspace must be equivalence-certified
         # indistinguishable from the no-boundary null (cov_stable).
@@ -135,7 +143,7 @@ def certify(analysis: SourceAnalysis,
                     "equivalence-certified -> cannot claim compatible", True)
 
     return cert(UNIDENTIFIABLE,
-                "shift mixes covariate and concept components without a dominant one -> "
+                "shift mixes covariate/concept/label components without a dominant one -> "
                 "cannot attribute the marginal change", True)
 
 

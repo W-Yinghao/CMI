@@ -19,9 +19,12 @@ NB, NDB = 20, 150     # concept evidence is direction-linked -> spend budget on 
 
 
 def _analyze(seed):
+    # SUBJECT-level (group_ids): the valid inference unit -- subjects carry a random effect
+    # confounded with their single label, so epoch-level concept detection is not type-I valid.
     cfg = SimConfig(seed=seed)
     src = make_source(cfg, n_domains=8, concept_domains=3, seed=seed)
-    sa = analyze_source(src.Z, src.Y, src.D, n_boot=NB, n_dir_boot=NDB, seed=seed)
+    sa = analyze_source(src.Z, src.Y, src.D, n_boot=NB, n_dir_boot=NDB,
+                        group_ids=src.group_ids, seed=seed)
     return cfg, src, sa
 
 
@@ -34,8 +37,11 @@ def test_residual_detects_concept():
     for s in range(n):
         _, _, sa = _analyze(500 + s)
         sigs += int(sa.concept_evidenced)
-    assert sigs / n >= 0.5, f"concept evidence power implausibly low: {sigs/n}"
-    print(f"OK source concept evidence (residual-decoder gate) {sigs}/{n} (>=0.5 smoke)")
+    # SUBJECT-level power is honestly LOW (geometric max-stat AND decoder, conservative cluster
+    # null). This is a smoke floor only; the precise power surface is the OOD_POWER_BANK /
+    # difficulty envelope (PREREGISTRATION §6.7), NOT this test.
+    assert sigs / n >= 0.25, f"concept evidence power implausibly low: {sigs/n}"
+    print(f"OK source concept evidence (geom-maxstat AND decoder, subject-level) {sigs}/{n} (>=0.25 smoke)")
 
 
 def test_covariate_compatible():
@@ -48,7 +54,7 @@ def test_covariate_compatible():
     for s in range(n):
         cfg, src, sa = _analyze(600 + s)
         tb = make_target("covariate", cfg, geom=src.geom, seed=6000 + s)
-        st = certify(sa, tb.Z).state
+        st = certify(sa, tb.Z, group_ids=tb.group_ids).state
         ok += int(st == COVARIATE_COMPATIBLE)
         forbidden += int(st == CONCEPT_SUSPECT)        # the forbidden outcome for covariate
     # HARD: never false-certify covariate as concept. Coverage is DESCRIPTIVE (the full-cluster
@@ -62,10 +68,11 @@ def test_visible_concept_suspect():
     for s in range(n):
         cfg, src, sa = _analyze(700 + s)
         tb = make_target("boundary_coupled", cfg, geom=src.geom, seed=7000 + s)
-        ok += int(certify(sa, tb.Z).state == CONCEPT_SUSPECT)
-    # honest residual-decoder power (see test_residual_detects_concept); smoke floor only.
-    assert ok / n >= 0.5, f"visible-concept power implausibly low: {ok/n}"
-    print(f"OK visible concept -> CONCEPT_SUSPECT {ok}/{n} (>=0.5 smoke; residual-decoder gate)")
+        ok += int(certify(sa, tb.Z, group_ids=tb.group_ids).state == CONCEPT_SUSPECT)
+    # honest, LOW subject-level power (see test_residual_detects_concept); smoke floor only --
+    # the power surface is the OOD_POWER_BANK / difficulty envelope, not this test.
+    assert ok / n >= 0.25, f"visible-concept power implausibly low: {ok/n}"
+    print(f"OK visible concept -> CONCEPT_SUSPECT {ok}/{n} (>=0.25 smoke; geom AND decoder)")
 
 
 if __name__ == "__main__":
