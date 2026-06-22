@@ -41,3 +41,16 @@ on should-abstain (non-DIAG) episodes = 0.00, harm 0.05, ΔbAcc on DIAG +0.020, 
 0.27, regret 0.054. always_pooled is useful-but-unsafe (ΔbAcc_diag +0.025, harm 0.21, false-adapt
 1.00); the cross-regime frozen gate over-vetoes (metadata_gated cov 0.04); metadata_oracle ceiling
 ΔbAcc_diag +0.040 (cov 0.69). b2a_confirm.report.json.
+
+## V1 claim 5: eligibility score-power on fresh seeds 100-102 (B2b source-power, A40, clean)
+B2B_SOURCE_POWER_FAIL REPLICATES: pooled retention 0.249 (FPR 0.117, ROC ceiling 0.203), cc 0.186
+(FPR 0.112, ROC ceiling 0.179), aggregate 0.217 < 0.25; both ROC ceilings < 0.25. The frozen
+change-of-variable evidence cannot reach 0.25 route retention at a 10% false-adaptation rate in the
+small-gain regime, confirmed on held-out seeds. n_source_data_hash_mismatch=0 (same-arch).
+
+## V1 COMPLETE — all six claims confirmed on fresh seeds 100-119
+1 prior-coupling (modest, CIs excl 0) | 2 feedback-not-the-harm | 3 pooled<->class-cond split |
+4 metadata_only safe+modestly-useful (false-adapt 0.00, ΔbAcc_diag +0.020) | 5 eligibility ROC/
+retention < 0.25 (score-power limit) | 6 low-rank rotation (oracle, rotation-specific).
+Refinement: C_responsibility significant with 20 seeds (oracle labels help modestly; label-free
+method unchanged). Next = V2 frozen real-EEG external validation.
