@@ -280,3 +280,9 @@ Frozen DEV-design rules now enforced in code (15 synthetic guards pass):
   source) vs `LabeledRiskRecord`). **41→ all v3 synthetic guards pass** (set-feature/data/training/predictor-conformal).
   **Still NOT tagged** `acar-v3-dev-design-v1` — pending the real v3 loader (building `DeploymentBatch` from dumps),
   `develop.py` (S5 split orchestration + S2/S4 + C0/v2 replay), env lock, and a full green re-run; no DEV cohort read.
+- **Amendment 5 tag-prep hardening (commit pending):** artifact stores immutable bytes with **no live-net cache**
+  (verify_integrity rebuilds a fresh net); training is **disease-bound** (`TrainExample.disease`); canonical
+  **little-endian** parameter bytes; `HP.target_sd_floor=1e-3`; `SubjectKey/RecordingKey/WindowKey` validated frozen
+  dataclasses; `build_deployment_batches` chunks at the frozen **B** with **no id coercion** + consistent embedding
+  dim; artifact `n_epochs_trained` (= best_epoch+1 / n_epochs); `FallbackBatchRecord`/`WindowActionSet` bounds, C2
+  `scale_floor≥0`, `conformal_rank` int-`m` all fail-closed. (notes/ACAR_V3_AMENDMENT_5.md)
