@@ -62,7 +62,14 @@ class TrainingData:
 
 def population_signature_hash(data: TrainingData) -> str:
     """Order-INVARIANT signature: canonical-sort by ``sample_id`` and bind id, y, d, group and the
-    sample-mass dtype/bytes. Reordering input rows must NOT change this hash."""
+    sample mass. Reordering input rows must NOT change this hash. When domain AND group are both
+    present this delegates to ``LeakageDesign.population_hash`` so the engine population identity and
+    the leakage design identity are byte-exact (the runner relies on this)."""
+    if data.d is not None and data.group is not None:
+        from ..leakage.design import population_hash as _leakage_pop
+        return _leakage_pop(data.sample_id, data.y.detach().cpu().numpy(),
+                            data.d.detach().cpu().numpy(), data.group,
+                            data.sample_mass.detach().cpu().numpy())
     order = sorted(range(len(data)), key=lambda i: data.sample_id[i])
     h = hashlib.sha256()
     y = data.y.detach().cpu().numpy()

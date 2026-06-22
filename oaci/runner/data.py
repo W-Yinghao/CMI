@@ -38,7 +38,7 @@ def _subset_population_hash(rows, role, sid, y, dom, grp, su, mu, eu, mass, clas
         for s in (sid[i], dom[i], grp[i], su[i], mu[i], eu[i]):
             feed_string(h, s)
         feed_int64(h, int(y[i])); feed_float64(h, float(mass[i]))
-    return h.hexdigest()[:16]
+    return h.hexdigest()
 
 
 def _subset_tensor_hash(rows, pop_hash, X, sid):
@@ -47,7 +47,7 @@ def _subset_tensor_hash(rows, pop_hash, X, sid):
     h.update(str(X.dtype).encode()); h.update(str(tuple(X.shape[1:])).encode())
     for i in rows:
         h.update(np.ascontiguousarray(X[i].detach().cpu().numpy()).tobytes())
-    return h.hexdigest()[:16]
+    return h.hexdigest()
 
 
 @dataclass(frozen=True)
@@ -101,8 +101,14 @@ class FoldData:
                 raise ValueError(f"{name} length {len(seq)} != X rows {n}")
         if len(set(sid)) != n or any(s == "" for s in sid):
             raise ValueError("sample_id must be unique and non-empty")
-        if len(cn) == 0 or len(set(cn)) != len(cn):
-            raise ValueError("class_names must be non-empty and unique")
+        for nm, seq in (("domain_id", dom), ("group_id", grp), ("support_unit_id", su),
+                        ("mass_unit_id", mu), ("eval_unit_id", eu)):
+            if any(s == "" for s in seq):
+                raise ValueError(f"{nm} has an empty id")
+        if len(cn) == 0 or len(set(cn)) != len(cn) or any(c == "" for c in cn):
+            raise ValueError("class_names must be non-empty, unique, and individually non-empty")
+        if not str(preprocess_hash) or not str(split_manifest_hash):
+            raise ValueError("preprocess_hash and split_manifest_hash must be non-empty")
         if not torch.isfinite(X).all() or not np.all(np.isfinite(mass)) or np.any(mass <= 0):
             raise ValueError("X/sample_mass must be finite and mass strictly positive")
         if int(y.min()) < 0 or int(y.max()) >= len(cn):
@@ -165,6 +171,6 @@ class FoldData:
         ta_pop = pop(ta.tolist(), "target_audit"); ta_t = _subset_tensor_hash(ta.tolist(), ta_pop, X, sid)
         integ = _subset_tensor_hash(range(n), "all", X, sid)
         dch = hashlib.sha256("|".join([st_pop, sa_pop, sa_t, ta_pop, ta_t, preprocess_hash,
-                                       split_manifest_hash, ",".join(cn)]).encode()).hexdigest()[:16]
+                                       split_manifest_hash, ",".join(cn)]).encode()).hexdigest()
         return FoldData(X, y, sid, dom, grp, su, mu, eu, mass, cn, st, sa, ta, preprocess_hash,
                         split_manifest_hash, fit, st_pop, sa_pop, sa_t, ta_pop, ta_t, dch, integ)

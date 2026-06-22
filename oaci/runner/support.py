@@ -48,9 +48,10 @@ def make_deletion_schedule(cells, fold_data, maps, require_deleted_domain_retain
             raise ValueError(f"deletion cell {(c.domain_id, c.class_name)} not observed in level-0 source train")
     h = hashlib.sha256(); h.update(maps.maps_hash.encode())
     h.update(fold_data.source_train_population_hash.encode())
+    h.update(b"retain1" if require_deleted_domain_retained else b"retain0")   # policy in the identity
     for c in cells:
         feed_string(h, c.domain_id); feed_string(h, c.class_name)
-    return DeletionSchedule(cells, h.hexdigest()[:16], bool(require_deleted_domain_retained))
+    return DeletionSchedule(cells, h.hexdigest(), bool(require_deleted_domain_retained))
 
 
 def level0_reference_prior(fold_data, maps) -> np.ndarray:
@@ -125,11 +126,11 @@ def build_level_support(fold_data, maps, level, schedule: DeletionSchedule, leve
     pop = hashlib.sha256(); feed_string(pop, "source_train_level")
     for s in sorted(sids):
         feed_string(pop, s)
-    st_pop = pop.hexdigest()[:16]
+    st_pop = pop.hexdigest()
     ms = tuple((m, all_method_status(sg, nd, len(observed_dom))[m]) for m in ("ERM", "OACI", "global_lpc", "uniform"))
     lh = hashlib.sha256(); lh.update(st_pop.encode()); lh.update(sg.support_hash().encode())
     feed_int64(lh, level)
     for c in deleted:
         feed_string(lh, c.domain_id); feed_string(lh, c.class_name)
     return LevelSupportState(level, keep, sids, st_pop, deleted, counts, mass, sg,
-                             tuple(sorted(observed_dom)), ms, sg.support_hash(), lh.hexdigest()[:16])
+                             tuple(sorted(observed_dom)), ms, sg.support_hash(), lh.hexdigest())
