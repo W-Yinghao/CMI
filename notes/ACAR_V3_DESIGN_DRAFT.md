@@ -7,6 +7,14 @@
 
 This file is a design-stage document. It is **not** `ACAR_FROZEN_v3.md` and must not authorize a binding held-out run.
 
+> **⚠ SUPERSEDED IN PART (Amendment 1, 2026-06-22).** Sections **V3.2–V3.6** here are **superseded by**
+> `notes/ACAR_V3_FREEZE_SKELETON.md` (which folds in `notes/ACAR_V3_AMENDMENT_1.md`). In particular, the obsolete
+> parts below: the candidate list is **C0/C1/C2/C3** (CQR added), not C0/C1/C2; calibration is **candidate-specific
+> + disease×action + subject-balanced** (not one Gaussian gate); the Arm-B split is a **random subject-hash** split
+> with coverage for **exchangeable same-site subjects** (drop "historical/future"); the success rule is the explicit
+> **two-site rule + single-site contingency** (drop the "≥3 cohorts → one may fail" clause). Read the skeleton, not
+> these sections, for the binding-eligible rules. This draft is retained for scientific rationale only.
+
 ## V3.0 Scientific question
 
 Can an action-conditioned, permutation-invariant predictor of the **conditional mean and scale** of batch incremental risk produce tighter subject-level simultaneous upper bounds than the v2 batch-summary HGB, while preserving label-free deployment and the same operating point (`alpha=0.10`, `delta=0`)?
