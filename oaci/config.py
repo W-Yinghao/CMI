@@ -23,11 +23,12 @@ from dataclasses import dataclass, field
 @dataclass
 class SupportConfig:
     """Domain–class support graph (THEORY §1)."""
-    m_min: int = 20                  # min effective count for a (d,y) cell to be estimable
-    use_effective_n: bool = True     # treat counts as effective sample sizes (within-domain
-    #                                  trial correlation) rather than raw trial counts
+    m_min: int = 20                  # min UNIQUE support units (subjects/trials/clips, NOT windows)
+    #                                  for a (d,y) cell to be estimable (the finite-sample m-gate)
     min_domains_per_class: int = 2   # |S_y| >= this for a class to contribute a leakage term
-    # cells below m_min are NEVER smoothed/imputed; they are reported as non-identifiable.
+    # Eligibility counts unique support UNITS; the estimand mass M_{d,y} (cell_mass) drives
+    # p(d|y)/H_ref/sampler weights. Cells below m_min are NEVER smoothed/imputed; they are reported
+    # as low-sample (non-estimable here), NOT proven population-non-identifiable.
 
 
 @dataclass

@@ -78,6 +78,21 @@ def test_injected_score_fn_overrides_default_ranking():
     assert sel.selected_epoch == 1
 
 
+def test_erm_wins_exact_or_tolerance_ties():
+    tau = 0.5
+    # exact tie (Stage-2 score == ERM score) -> ERM kept
+    sel = select_checkpoint(_result([_ckpt(0, R=0.4, leak=0.50)], tau, 0.4, erm_leak=0.50))
+    assert sel.selected_erm and sel.selection_reason == "erm_best"
+    # within tolerance (Stage-2 only 0.01 better, tol 0.05) -> ERM kept
+    sel = select_checkpoint(_result([_ckpt(0, R=0.4, leak=0.49)], tau, 0.4, erm_leak=0.50),
+                            selection_score_tolerance=0.05)
+    assert sel.selected_erm
+    # beats ERM by MORE than tolerance -> Stage-2 chosen
+    sel = select_checkpoint(_result([_ckpt(0, R=0.4, leak=0.40)], tau, 0.4, erm_leak=0.50),
+                            selection_score_tolerance=0.05)
+    assert not sel.selected_erm and sel.selection_reason == "stage2_best"
+
+
 def _run_all() -> None:
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     for fn in fns:

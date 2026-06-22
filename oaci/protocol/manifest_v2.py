@@ -29,9 +29,18 @@ class DatasetBlock:
     support_m: int | None = None
     channels: list | None = None
     preprocessing: dict | None = None
+    expected_sfreq: float | None = None        # optional verification targets (smoke/audit)
+    expected_epoch_seconds: float | None = None
+    expected_n_times: int | None = None
 
     def missing(self) -> list:
-        return [f for f in DATASET_REQUIRED if getattr(self, f) in (None, [], {}, "")]
+        miss = [f for f in DATASET_REQUIRED if getattr(self, f) in (None, [], {}, "")]
+        # channels must be an explicit ordered LIST of channel names, never a placeholder token
+        if self.channels is not None and not isinstance(self.channels, list):
+            miss.append("channels(not a list: explicit ordered channel names required)")
+        if isinstance(self.support_m, str) or isinstance(self.support_m, bool):
+            miss.append("support_m(must be int)")
+        return miss
 
 
 @dataclass
@@ -85,7 +94,9 @@ def load_v2(path: str) -> ProtocolManifestV2:
         raise RuntimeError(f"PyYAML required to load {path}: {e}")
     with open(path) as f:
         d = yaml.safe_load(f) or {}
-    ds = {name: DatasetBlock(**blk) for name, blk in (d.get("datasets") or {}).items()}
+    fields = set(DatasetBlock.__dataclass_fields__)
+    ds = {name: DatasetBlock(**{k: v for k, v in (blk or {}).items() if k in fields})
+          for name, blk in (d.get("datasets") or {}).items()}
     return ProtocolManifestV2(
         protocol_id=d.get("protocol_id"), status=d.get("status"), datasets=ds,
         risk=d.get("risk"), methods=d.get("methods"), evaluation=d.get("evaluation"),

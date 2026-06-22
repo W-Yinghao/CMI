@@ -21,7 +21,10 @@ class PreprocessSpec:
     resample_sfreq: float = 128.0
     window_s: float = 2.0
     window_stride_s: float = 1.0
-    normalization: str = "zscore_sample"     # 'none' | 'zscore_sample' | 'zscore_channel_source'
+    epoch_tmin: float | None = None           # trial epoch window (s) — passed to MOABB
+    epoch_tmax: float | None = None
+    channels: list | None = None              # frozen common native channel ORDER (no interpolation)
+    normalization: str = "zscore_sample"      # 'none' | 'zscore_sample' | 'zscore_channel_source'
     channel_interpolation: bool = False       # main protocol: False (sensitivity analysis only)
     code_version: str = "oaci-eeg-1"
 

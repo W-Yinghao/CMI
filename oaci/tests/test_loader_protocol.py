@@ -12,7 +12,17 @@ import tempfile
 
 import numpy as np
 
-from oaci.data.eeg.moabb import map_classes, raw_file_fingerprint, resolve_channels, trial_ids
+from oaci.data.eeg.moabb import (
+    map_classes,
+    paradigm_kwargs,
+    raw_file_fingerprint,
+    resolve_channels,
+    trial_ids,
+    validate_channel_order,
+    validate_epoch_n_times,
+)
+from oaci.data.eeg.preprocess import PreprocessSpec
+from oaci.protocol.manifest_v2 import DatasetBlock
 from oaci.data.eeg.preprocess import PreprocessSpec, apply_normalization
 from oaci.data.eeg.seed import scan_seed
 from oaci.protocol.confirmatory import RunEvidence, _git_tree_clean, collect_evidence, confirmatory_refusals
@@ -129,6 +139,57 @@ def test_confirmatory_gate_derives_evidence_internally():
     assert _git_tree_clean(d, ".") is True
     open(os.path.join(d, "f"), "w").write("b")                   # dirty
     assert _git_tree_clean(d, ".") is False
+
+
+def test_moabb_applies_tmin_tmax_events_and_frozen_channels():
+    spec = PreprocessSpec(l_freq=4.0, h_freq=38.0, resample_sfreq=128.0,
+                          epoch_tmin=0.5, epoch_tmax=3.5, channels=["Fz", "C3", "Cz"])
+    classes = ["left_hand", "right_hand", "feet", "tongue"]
+    kw = paradigm_kwargs(spec, classes)
+    assert kw["tmin"] == 0.5 and kw["tmax"] == 3.5 and kw["channels"] == ["Fz", "C3", "Cz"]
+    assert kw["events"] == classes and kw["n_classes"] == 4
+    assert validate_epoch_n_times(385, 128, 0.5, 3.5, tol=1) == 384      # 3.0 s @128 Hz, ±1
+    try:
+        validate_epoch_n_times(420, 128, 0.5, 3.5, tol=1)
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a wrong epoch length must be rejected")
+
+
+def test_all_selected_subjects_share_exact_channel_order():
+    assert validate_channel_order(["Fz", "C3", "Cz"], ["Fz", "C3", "Cz"]) is True
+    try:
+        validate_channel_order(["C3", "Fz", "Cz"], ["Fz", "C3", "Cz"])    # reordered -> reject
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a different channel order must be rejected in confirmatory mode")
+
+
+def test_manifest_rejects_channel_token_in_frozen_smoke():
+    common = dict(enabled=True, cohort_ids=["x"], class_names=["a", "b"], outer_target_factor="subject_id",
+                  domain_factor="subject_id", group_factor="recording_id", support_unit_factor="trial_id",
+                  eval_unit_factor="trial_id", support_m=8, preprocessing={"fmin": 4.0})
+    bad = DatasetBlock(channels="frozen_common_native", **common)        # a TOKEN, not a list
+    assert any("channels" in m for m in bad.missing())
+    ok = DatasetBlock(channels=["Fz", "C3"], **common)
+    assert ok.missing() == []
+
+
+def test_raw_fingerprint_distinguishes_same_basename_files():
+    d = tempfile.mkdtemp()
+    a, b = os.path.join(d, "a_r.fif"), os.path.join(d, "b_r.fif")
+    open(a, "wb").write(b"AAAA"); open(b, "wb").write(b"BBBB")          # same basename pattern, diff bytes
+    lp = ["sub-01/r.fif", "sub-02/r.fif"]
+    fp = raw_file_fingerprint([a, b], logical_paths=lp)
+    fp_swap = raw_file_fingerprint([b, a], logical_paths=lp)            # which logical file holds which bytes
+    assert fp != fp_swap                                               # logical identity is bound to content
+    # mount-root stability: same logical paths + same bytes at a different root -> same fingerprint
+    d2 = tempfile.mkdtemp()
+    a2, b2 = os.path.join(d2, "a_r.fif"), os.path.join(d2, "b_r.fif")
+    open(a2, "wb").write(b"AAAA"); open(b2, "wb").write(b"BBBB")
+    assert raw_file_fingerprint([a2, b2], logical_paths=lp) == fp
 
 
 def _run_all() -> None:

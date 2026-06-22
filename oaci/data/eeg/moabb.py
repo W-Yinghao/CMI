@@ -49,6 +49,38 @@ def map_classes(y_str, frozen_classes) -> np.ndarray:
     return np.array([idx[str(v)] for v in y_str], dtype=int)
 
 
+def paradigm_kwargs(spec, classes) -> dict:
+    """MotorImagery kwargs from the FROZEN spec — frequency band, resample, full class map
+    (events + n_classes), trial epoch window (tmin/tmax) and the frozen channel order."""
+    kw = dict(fmin=float(spec.l_freq), fmax=float(spec.h_freq), resample=float(spec.resample_sfreq),
+              n_classes=len(classes), events=list(classes))
+    if spec.epoch_tmin is not None:
+        kw["tmin"] = float(spec.epoch_tmin)
+    if spec.epoch_tmax is not None:
+        kw["tmax"] = float(spec.epoch_tmax)
+    if spec.channels:
+        kw["channels"] = list(spec.channels)
+    return kw
+
+
+def validate_epoch_n_times(n_times: int, sfreq: float, tmin: float, tmax: float, tol: int = 1) -> int:
+    """Verify the produced epoch length matches the frozen window (±tol samples for MOABB's
+    endpoint convention)."""
+    expected = int(round((tmax - tmin) * sfreq))
+    if abs(int(n_times) - expected) > tol:
+        raise ValueError(f"epoch n_times {n_times} != expected {expected} (±{tol}) for "
+                         f"[{tmin},{tmax}]s @ {sfreq}Hz")
+    return expected
+
+
+def validate_channel_order(ch_names, frozen, confirmatory: bool = True) -> bool:
+    if list(ch_names) != list(frozen):
+        if confirmatory:
+            raise ValueError(f"channel order {list(ch_names)} != frozen {list(frozen)}")
+        return False
+    return True
+
+
 def resolve_channels(raw_ch_names, n_channels: int, confirmatory: bool = True) -> list:
     """Channel names must be readable and consistent with X. In confirmatory mode a mismatch is a
     hard FAIL (no generic ``ch0..`` fallback)."""
@@ -71,22 +103,27 @@ def _file_content_sha(path: str, chunk: int = 1 << 20) -> str:
     return h.hexdigest()
 
 
-def raw_file_fingerprint(paths, confirmatory: bool = True) -> str:
-    """SHA-256 of a canonical manifest of ``basename|size|content_sha256`` over the actual raw
-    files — hashes the raw BYTES (independent of the datalake mount root and of the preprocessing
-    spec). In confirmatory mode an empty path list or an unreadable file is a hard FAIL (no silent
-    swallow)."""
+def raw_file_fingerprint(paths, logical_paths=None, confirmatory: bool = True) -> str:
+    """SHA-256 of a canonical manifest of ``logical_path|size|content_sha256`` over the actual raw
+    files. ``logical_paths`` are caller-provided DATASET-RELATIVE keys (e.g. ``sub-01/eeg.fif``):
+    stable across the datalake mount root, and they keep two files that share a basename DISTINCT.
+    With no logical paths the basename is used (back-compat). In confirmatory mode an empty list or
+    an unreadable file is a hard FAIL."""
     paths = [str(p) for p in paths]
     if confirmatory and not paths:
         raise ValueError("no raw files to fingerprint; refusing an empty confirmatory fingerprint")
+    keys = ([str(k) for k in logical_paths] if logical_paths is not None
+            else [os.path.basename(p) for p in paths])
+    if len(keys) != len(paths):
+        raise ValueError("logical_paths length must match paths")
     items = []
-    for p in sorted(paths):
+    for key, p in sorted(zip(keys, paths)):
         try:
-            items.append(f"{os.path.basename(p)}|{os.path.getsize(p)}|{_file_content_sha(p)}")
+            items.append(f"{key}|{os.path.getsize(p)}|{_file_content_sha(p)}")
         except OSError as e:
             if confirmatory:
                 raise ValueError(f"raw file unreadable in confirmatory mode: {p} ({e})")
-            items.append(f"{os.path.basename(p)}|?|?")
+            items.append(f"{key}|?|?")
     return hashlib.sha256("\n".join(items).encode()).hexdigest()
 
 
@@ -120,11 +157,13 @@ def load_moabb(dataset_id: str, subjects, spec: PreprocessSpec | None = None,
         raise OfflineDownloadError(f"moabb unavailable: {e}")
 
     ds = getattr(mds, entry.moabb_id)()
-    paradigm = MotorImagery(fmin=spec.l_freq, fmax=spec.h_freq, resample=spec.resample_sfreq)
+    paradigm = MotorImagery(**paradigm_kwargs(spec, entry.classes))   # tmin/tmax/events/channels
     try:
         X, y, meta = paradigm.get_data(dataset=ds, subjects=list(subjects))
     except Exception as e:
         raise OfflineDownloadError(f"offline load failed for {dataset_id} subjects={subjects}: {e}")
+    if spec.epoch_tmin is not None and spec.epoch_tmax is not None:
+        validate_epoch_n_times(np.asarray(X).shape[2], spec.resample_sfreq, spec.epoch_tmin, spec.epoch_tmax)
 
     X = np.asarray(X, dtype=np.float32)
     subj = meta["subject"].astype(str).to_numpy()
@@ -140,6 +179,8 @@ def load_moabb(dataset_id: str, subjects, spec: PreprocessSpec | None = None,
     except Exception:
         raw_ch = None
     ch_names = resolve_channels(raw_ch, X.shape[1], confirmatory=confirmatory)
+    if spec.channels:                                    # exact frozen channel order required
+        validate_channel_order(ch_names, spec.channels, confirmatory=confirmatory)
 
     if spec.normalization == "zscore_sample":            # actually APPLY the declared transform
         X = apply_normalization(X, None, spec)

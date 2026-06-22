@@ -43,20 +43,26 @@ class Selection:
     score_name: str
 
 
-def select_checkpoint(result, numerical_tol=None, score_fn=None, score_name="leakage_surrogate") -> Selection:
-    """Risk-feasible lexicographic selection. ERM is ALWAYS in the candidate set (it is feasible:
-    ``R̂_ERM ≤ τ``) and is scored by the SAME ``score_fn`` as the feasible Stage-2 checkpoints; the
-    minimum-score candidate wins. So a Stage-2 checkpoint that is risk-feasible but has WORSE
-    leakage than ERM never displaces ERM. If no Stage-2 checkpoint is feasible, ERM is restored
-    byte-exactly (the ``erm_record`` carries the ERM checkpoint's states)."""
+def select_checkpoint(result, numerical_tol=None, score_fn=None, score_name="leakage_surrogate",
+                      selection_score_tolerance=0.0) -> Selection:
+    """Risk-feasible lexicographic selection. ERM is ALWAYS a candidate (feasible: ``R̂_ERM ≤ τ``),
+    scored by the SAME ``score_fn`` as the feasible Stage-2 checkpoints. ERM is selected UNLESS a
+    feasible Stage-2 checkpoint is BETTER (lower score) by MORE than ``selection_score_tolerance``
+    — so an exact OR within-tolerance tie conservatively keeps the (byte-exact) ERM checkpoint."""
     tol = result.cfg.numerical_tol if numerical_tol is None else numerical_tol
     erm = result.erm_record
     feasible = [c for c in result.trajectory if c.R_src <= result.tau + tol]
     key = score_fn if score_fn is not None else (lambda c: c.leakage_surrogate)
+    erm_score = key(erm)
 
-    best = min(feasible + [erm], key=key)            # ERM always competes
-    selected_erm = best is erm
-    reason = "no_stage2_feasible" if not feasible else ("erm_best" if selected_erm else "stage2_best")
+    if feasible:
+        best_s2 = min(feasible, key=key)
+        if key(best_s2) < erm_score - selection_score_tolerance:   # Stage-2 must BEAT ERM by > tol
+            best, selected_erm, reason = best_s2, False, "stage2_best"
+        else:
+            best, selected_erm, reason = erm, True, "erm_best"
+    else:
+        best, selected_erm, reason = erm, True, "no_stage2_feasible"
     return Selection(
         used_erm_fallback=(not feasible), selected_erm=selected_erm, selection_reason=reason,
         selected_epoch=best.epoch, enc_state=best.enc_state, head_state=best.head_state,

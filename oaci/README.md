@@ -28,8 +28,9 @@ LPC line produced *via-collapse* "invariance" and forced *Y-erasure* on unsuppor
 
 ## The idea: only compare what the data can estimate
 
-Let `n_{d,y}` be the effective sample count and fix a support threshold `m`. Define the
-per-class **support set**
+Let `n^elig_{d,y}` be the number of unique **support units** (subjects/trials/clips — NOT
+windows) and fix a support threshold `m`; let `M_{d,y}` be the estimand **mass** (Σ base mass).
+Define the per-class **support set**
 
 ```
 S_y = { d : n_{d,y} >= m }.
@@ -117,8 +118,9 @@ Adding a risk constraint to a DG penalty already exists. The novelty is the comb
 | **Protocol freeze** — confirmatory manifest (no paper-level defaults in code), canonical-JSON SHA freeze, runner refusal gate | **implemented + tested** | [`protocol/`](protocol/) |
 
 The sampler never redefines eligibility/`S_y`/`p_ref`/`n_{d,y}` (fixed full-data support graph);
-a batch only guarantees eligible-cell **coverage**. `w^adv=n_{d,y}/m` restores the fixed empirical
-`p(d|y, d∈S_y)` (not the sampler's near-uniform per-cell draw); `w^task=n_y/m_y` restores `p(y)`.
+a batch only guarantees eligible-cell **coverage**. It samples mass UNITS (not windows): `w^adv =
+U_cell/m` restores the fixed empirical `p(d|y, d∈S_y) = M_{d,y}/M_y^ov` (the cell **mass**, not the
+sampler's near-uniform per-cell draw); `w^task = U_class/m` restores `p(y)`.
 The trainer integrates it via [`train_risk_feasible(..., sampler=...)`](train/primal_dual.py).
 
 The trainer's inner game uses a **PyTorch** conditional-domain adversary (`train/adversary.py`),
