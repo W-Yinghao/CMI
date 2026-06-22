@@ -247,6 +247,15 @@ New isolated `acar/v3/`: `set_features.py` (per-window paired tensor + **availab
 `reg.predict()+q`), `conformal.py` (subject joint score per candidate), `develop.py` (DEV bake-off + S2/S4 gates).
 v2 router code is left untouched.
 
+**Implemented (synthetic-only, NON-BINDING, NOT tagged):** `_util.py`, `set_features.py`, `data.py`, `normalizers.py`,
+`predictors.py`, `conformal.py`, `training.py` (Amendments 1–7); `loader.py` (structural real loader + Amendment-8
+loader-binding: field-separated provenance, immutable `SourceStateArtifact`, canonical row identity, single-execution
+`BatchActionExecutionRecord`, `LoadedDumpManifest`); `splits.py` (S5 split-as-one-algorithm); `develop.py` (synthetic
+OOF orchestration: FIT→predictor / CAL→one-score/subject→q / EVAL→route, fallback retained, refit on the frozen
+eligible set, C0/v2 pool-identity). Six v3 suites + the v2 guard suite pass on synthetic fixtures (NO real DEV value
+read). Remaining before `acar-v3-dev-design-v1`: env lock → single `ACAR_V3_DEV_DESIGN_SPEC.md` consolidation →
+clean-worktree verify → tag → first real DEV read + S2/S4/S6 binding gate.
+
 ## S13. Set-contract canon (Amendment 2 — IMPLEMENTED + tested in `acar/v3/set_features.py`, 685a526)
 
 Frozen DEV-design rules now enforced in code (15 synthetic guards pass):
