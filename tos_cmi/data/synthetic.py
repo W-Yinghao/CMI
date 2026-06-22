@@ -189,28 +189,53 @@ def make_xor_leakage(n=6000, d=24, sep_label=2.0, scale=1.5, noise=1.0, rotate=T
             "label_basis": label_basis.astype(np.float32), "spec": spec}
 
 
-def make_partial_overlap(n=6000, d=24, n_dom=6, sep_label=2.0, sep_safe=2.6, sep_over=1.2,
+def make_partial_synergy(n=6000, d=24, n_dom=6, sep_label=2.0, sep_safe=2.6, sep_over=1.2,
                          noise=1.0, rotate=True, seed=0):
-    """Partial case (3 classes): a 4-D domain carrier = 2 SAFE dirs (w1,w2, orthogonal to the
-    label) + 2 OVERLAP dirs (t1,t2, the class-discriminant axes). A correct selective method
-    deletes ONLY the safe 2-D span (k=2): removing w1,w2 costs no label info and removes domain
-    leakage, while removing t1,t2 would wreck the task. Returns nuisance_basis=[w1,w2] (safe,
-    expected selection) and task_overlap_basis=[t1,t2]."""
+    """SYNERGY partial case (3 classes): a 4-D domain carrier = 2 safe-axis dirs (w1,w2 ⟂ label)
+    + 2 overlap dirs (t1,t2, the discriminant axes), BOTH driven by the SAME domain index dd.
+    So w1,w2 are geometrically task-orthogonal AND marginally I(Y;W)=0, but given the
+    domain-contaminated Z_T, knowing W reveals D -> reveals the t-contamination -> helps separate
+    Y: I(Y; W | Z_T) > 0 (explaining-away). The IDEAL k is NOT necessarily 2 -- it is set by the
+    Bayes Delta_Y* (eval.bayes_oracle) vs delta_Y; this case shows direct-sum geometry alone does
+    NOT guarantee safety, so the source-risk gate is necessary. Returns the generative params
+    (cell means + sigma) so the Bayes oracle can compute Delta_Y* exactly."""
+    return _make_partial(n, d, n_dom, sep_label, sep_safe, sep_over, noise, rotate, seed,
+                         factorized=False)
+
+
+def make_partial_factorized(n=6000, d=24, n_safe_dom=3, n_over_dom=2, sep_label=2.0,
+                            sep_safe=2.6, sep_over=1.2, noise=1.0, rotate=True, seed=0):
+    """FACTORIZED partial case: independent domain factors D=(D_s, D_o), encoded as one index.
+    Z = mu_Y + W a_{D_s} + T b_{D_o} + eps -- the safe carrier W reveals only D_s, which is
+    INDEPENDENT of the D_o that contaminates the task axes T. So W carries NO incremental label
+    info given the kept component: I(Y; W | Z_T) = 0 (Bayes Delta_Y* ~ 0) -> a correct gate
+    stably ACCEPTS the safe span (k=2). This is the genuinely-safe counterpart of the synergy
+    case; the two together calibrate the gate against ground truth."""
+    return _make_partial(n, d, n_safe_dom * n_over_dom, sep_label, sep_safe, sep_over, noise,
+                         rotate, seed, factorized=True, n_safe_dom=n_safe_dom, n_over_dom=n_over_dom)
+
+
+def _make_partial(n, d, n_dom, sep_label, sep_safe, sep_over, noise, rotate, seed,
+                  factorized, n_safe_dom=None, n_over_dom=None):
     rng = np.random.default_rng(seed)
     B = _random_orthonormal(d, 4, rng)
     t1, t2, w1, w2 = B[:, 0], B[:, 1], B[:, 2], B[:, 3]
-    L = np.stack([t1, t2], 1)                                  # label discriminant axes
-    Wsafe = np.stack([w1, w2], 1)
-    cls = rng.standard_normal((3, 2))
-    class_means = sep_label * (cls @ L.T)                     # [3, d]
-    dom_safe = rng.standard_normal((n_dom, 2))
-    dom_over = rng.standard_normal((n_dom, 2))
-    off = sep_safe * (dom_safe @ Wsafe.T) + sep_over * (dom_over @ L.T)   # [n_dom, d]
-    y = rng.integers(0, 3, size=n)
-    dd = rng.integers(0, n_dom, size=n)
+    L = np.stack([t1, t2], 1); Wsafe = np.stack([w1, w2], 1)
+    class_means = sep_label * (rng.standard_normal((3, 2)) @ L.T)        # [3, d]
+    if factorized:
+        safe_coef = rng.standard_normal((n_safe_dom, 2))                  # depends on D_s
+        over_coef = rng.standard_normal((n_over_dom, 2))                  # depends on D_o (indep)
+        off = np.zeros((n_dom, d))
+        for ds in range(n_safe_dom):
+            for do in range(n_over_dom):
+                off[ds * n_over_dom + do] = (sep_safe * (safe_coef[ds] @ Wsafe.T)
+                                             + sep_over * (over_coef[do] @ L.T))
+    else:
+        dom_safe = rng.standard_normal((n_dom, 2)); dom_over = rng.standard_normal((n_dom, 2))
+        off = sep_safe * (dom_safe @ Wsafe.T) + sep_over * (dom_over @ L.T)   # SAME dd both terms
+    y = rng.integers(0, 3, size=n); dd = rng.integers(0, n_dom, size=n)
     Z = class_means[y] + off[dd] + noise * rng.standard_normal((n, d))
-    nuis_basis = Wsafe.copy()                                 # SAFE deletable span (expect k=2)
-    task_overlap = L.copy()
+    nuis_basis, task_overlap = Wsafe.copy(), L.copy()
     if rotate:
         Q = _random_orthonormal(d, d, rng)
         Z = Z @ Q.T; nuis_basis = Q @ nuis_basis; task_overlap = Q @ task_overlap
@@ -219,6 +244,9 @@ def make_partial_overlap(n=6000, d=24, n_dom=6, sep_label=2.0, sep_safe=2.6, sep
             "nuisance_basis": nuis_basis.astype(np.float32),
             "task_overlap_basis": task_overlap.astype(np.float32),
             "label_basis": task_overlap.astype(np.float32), "spec": spec}
+
+
+make_partial_overlap = make_partial_synergy        # back-compat alias (current tests)
 
 
 def make_saturated_danger(n=6000, d=24, n_dom=6, sep_high=8.0, sep_low=1.2, sep_dom=2.5,
