@@ -37,47 +37,86 @@ from ..score_fisher import (_metric, _SplitPlan, _GatePlan, _nested_residual_sco
 from .bayes_oracle import bayes_conditional_task_delta, classify_safety
 
 
-def make_control(d_base, d_extra, n_eff, n_cls, n_dom, base_sep, conf_c, sigma, seed, sigma_n=0.2):
-    """Gaussian explaining-away control in intrinsic coords. The deleted carrier `n` reveals the
-    domain at LOW noise (sigma_n) so the de-confounding (and hence I(Y;n|u)) is controllable via
-    the confound scale conf_c. Returns (u, n, y, d, bayes_delta). NB the oracle uses a per-block
-    diagonal covariance (sigma on u, sigma_n on n)."""
-    rng = np.random.default_rng(seed)
-    muY = np.zeros((n_cls, d_base))
-    muY[:, 0] = base_sep * np.linspace(-1, 1, n_cls)          # class signal on e0
-    a = rng.standard_normal(n_dom)                            # per-domain confound scalar
-    y = rng.integers(0, n_cls, n_eff); d = rng.integers(0, n_dom, n_eff)
-    u = muY[y] + sigma * rng.standard_normal((n_eff, d_base))
-    u[:, 0] += conf_c * a[d]                                  # contaminate the class signal
-    n = sigma_n * rng.standard_normal((n_eff, d_extra))
-    n[:, 0] += a[d]                                           # reveals the domain (low noise)
+def _control_geometry(d_base, d_extra, n_cls, n_dom, base_sep, conf_c, sigma, sigma_n, geom_seed):
+    """FIXED geometry (class means muY + per-domain confound a) -> the Bayes Delta* depends ONLY
+    on the geometry, NOT on the resampled observations, so every replicate at a given (geom_seed,
+    conf_c) has EXACTLY the same effect size (fixes the per-replicate effect drift)."""
+    grng = np.random.default_rng(geom_seed)
+    muY = np.zeros((n_cls, d_base)); muY[:, 0] = base_sep * np.linspace(-1, 1, n_cls)
+    a = grng.standard_normal(n_dom)
     Dd = d_base + d_extra
     mu_yd = np.zeros((n_cls, n_dom, Dd))
     for c in range(n_cls):
         for e in range(n_dom):
             mu_yd[c, e, :d_base] = muY[c]; mu_yd[c, e, 0] += conf_c * a[e]
             mu_yd[c, e, d_base] = a[e]
+    return muY, a, mu_yd
+
+
+def bayes_delta_of_geometry(d_base, d_extra, n_cls, n_dom, base_sep, conf_c, sigma, sigma_n,
+                            geom_seed):
+    """Exact Bayes Delta* = I(Y;n|u) for the FIXED control geometry (no observations needed)."""
+    _, _, mu_yd = _control_geometry(d_base, d_extra, n_cls, n_dom, base_sep, conf_c, sigma,
+                                    sigma_n, geom_seed)
+    Dd = d_base + d_extra
     P = np.zeros((Dd, Dd))
     for j in range(d_base, Dd):
-        P[j, j] = 1.0                                         # delete n-block
+        P[j, j] = 1.0
     std = np.concatenate([np.full(d_base, sigma), np.full(d_extra, sigma_n)])
     py = np.full(n_cls, 1 / n_cls); pdy = np.full((n_cls, n_dom), 1 / n_dom)
-    b = bayes_conditional_task_delta(mu_yd, std, py, pdy, P, n_mc=12000, seed=seed + 1)["delta"]
+    return bayes_conditional_task_delta(mu_yd, std, py, pdy, P, n_mc=14000, seed=geom_seed + 1)["delta"]
+
+
+def make_control(d_base, d_extra, n_eff, n_cls, n_dom, base_sep, conf_c, sigma, sample_seed,
+                 sigma_n=0.2, geom_seed=0):
+    """Gaussian explaining-away control: kept `u` carries a class signal on e0 contaminated by a
+    per-domain confound; deleted `n` reveals the domain at low noise. Geometry is FIXED by
+    geom_seed (so Bayes Delta* is exact); only (y, d, noise) vary with sample_seed. Returns
+    (u, n, y, d, bayes_delta)."""
+    muY, a, mu_yd = _control_geometry(d_base, d_extra, n_cls, n_dom, base_sep, conf_c, sigma,
+                                      sigma_n, geom_seed)
+    srng = np.random.default_rng(sample_seed)
+    y = srng.integers(0, n_cls, n_eff); d = srng.integers(0, n_dom, n_eff)
+    u = muY[y] + sigma * srng.standard_normal((n_eff, d_base)); u[:, 0] += conf_c * a[d]
+    n = sigma_n * srng.standard_normal((n_eff, d_extra)); n[:, 0] += a[d]
+    b = bayes_delta_of_geometry(d_base, d_extra, n_cls, n_dom, base_sep, conf_c, sigma, sigma_n,
+                                geom_seed)
     return u, n, y, d, b
 
 
-def tune_confound(target_delta, d_base, d_extra, n_eff, n_cls, n_dom, base_sep, sigma, seed,
-                  sigma_n=0.2, lo=0.0, hi=10.0, iters=20):
-    """Bisection on the confound scale c so the control's Bayes Delta* ~ target_delta."""
+def tune_confound(target_delta, d_base, d_extra, n_cls, n_dom, base_sep, sigma,
+                  sigma_n=0.2, geom_seed=0, lo=0.0, hi=10.0, iters=22):
+    """Bisection on the confound scale c so the FIXED-geometry Bayes Delta* ~ target_delta."""
     for _ in range(iters):
         mid = 0.5 * (lo + hi)
-        _, _, _, _, b = make_control(d_base, d_extra, max(n_eff, 4000), n_cls, n_dom,
-                                     base_sep, mid, sigma, seed, sigma_n=sigma_n)
+        b = bayes_delta_of_geometry(d_base, d_extra, n_cls, n_dom, base_sep, mid, sigma, sigma_n,
+                                    geom_seed)
         if b < target_delta:
             lo = mid
         else:
             hi = mid
     return 0.5 * (lo + hi)
+
+
+def wilson_lcb(det, R, z=1.64):
+    """One-sided Wilson lower bound on a binomial proportion det/R."""
+    if R == 0:
+        return 0.0
+    p = det / R
+    denom = 1 + z * z / R
+    centre = p + z * z / (2 * R)
+    half = z * np.sqrt(p * (1 - p) / R + z * z / (4 * R * R))
+    return max(0.0, (centre - half) / denom)
+
+
+def assert_power_feasible(R, beta, z=1.64):
+    """Fail-fast: the Wilson LCB ceiling (at det=R) is R/(R+z^2); if it is below 1-beta the
+    certificate can NEVER pass regardless of n -> a configuration bug, not a finding."""
+    max_lcb = R / (R + z * z)
+    if max_lcb < 1.0 - beta - 1e-9:
+        raise ValueError("Power certificate infeasible: max Wilson LCB at det=R is %.3f < 1-beta="
+                         "%.3f (R=%d, z=%.2f). Increase R (>=%d needed)."
+                         % (max_lcb, 1 - beta, R, z, int(np.ceil(z * z * (1 - beta) / beta)) + 1))
 
 
 def _critic_ucb(u, n, y, n_cls, cfg, seed, cluster_id=None):
@@ -94,26 +133,23 @@ def _critic_ucb(u, n, y, n_cls, cfg, seed, cluster_id=None):
 
 
 def estimate_power(target_delta, d_base, d_extra, n_eff, n_cls, n_dom, base_sep, sigma, cfg,
-                   R=6, seed=0):
-    """pi(Delta)=Pr[UCB>delta_Y] over R matched controls + Wilson LCB."""
-    c = tune_confound(target_delta, d_base, d_extra, n_eff, n_cls, n_dom, base_sep, sigma, seed)
-    det = 0; used = 0; deltas = []
+                   R=30, seed=0, geom_seed=0, cluster_id=None):
+    """pi(Delta)=Pr[UCB>delta_Y] over R matched controls (FIXED geometry -> exact effect) with
+    one-sided Wilson LCB. Reports raw detection counts + the exact Bayes effect (delta_real)."""
+    c = tune_confound(target_delta, d_base, d_extra, n_cls, n_dom, base_sep, sigma,
+                      geom_seed=geom_seed)
+    delta_real = bayes_delta_of_geometry(d_base, d_extra, n_cls, n_dom, base_sep, c, sigma,
+                                         0.2, geom_seed)       # exact, same for every replicate
+    det = 0; used = 0
     for r in range(R):
-        u, n, y, d, b = make_control(d_base, d_extra, n_eff, n_cls, n_dom, base_sep, c, sigma,
-                                     seed + 17 * (r + 1))
-        ucb = _critic_ucb(u, n, y, n_cls, cfg, seed + 211 * (r + 1))
+        u, n, y, d, _ = make_control(d_base, d_extra, n_eff, n_cls, n_dom, base_sep, c, sigma,
+                                     sample_seed=seed + 17 * (r + 1), geom_seed=geom_seed)
+        ucb = _critic_ucb(u, n, y, n_cls, cfg, seed + 211 * (r + 1), cluster_id=cluster_id)
         if ucb is None:
             continue
-        used += 1; deltas.append(b); det += int(ucb > cfg.delta_Y)
-    if used == 0:
-        return {"pi": 0.0, "lcb": 0.0, "delta_real": target_delta, "used": 0}
-    p = det / used
-    z = 1.64                                                  # one-sided ~95% Wilson lower bound
-    denom = 1 + z * z / used
-    centre = p + z * z / (2 * used)
-    half = z * np.sqrt(p * (1 - p) / used + z * z / (4 * used * used))
-    lcb = max(0.0, (centre - half) / denom)
-    return {"pi": p, "lcb": float(lcb), "delta_real": float(np.mean(deltas)), "used": used}
+        used += 1; det += int(ucb > cfg.delta_Y)
+    return {"pi": (det / used if used else 0.0), "lcb": float(wilson_lcb(det, used)),
+            "det": det, "used": used, "delta_real": float(delta_real)}
 
 
 def load_table(path):
@@ -137,17 +173,18 @@ def lookup_power(table, n_eff, d_base, d_extra, n_cls):
                       "power_ok_cell": best["power_ok"]}
 
 
-def prefix_mde(d_base, d_extra, n_eff, n_cls, n_dom, base_sep, sigma, cfg, R=6, beta=0.2, seed=0,
-               grid=None):
-    """MDE_k(1-beta) over a target grid; power_ok iff MDE <= delta_Y."""
+def prefix_mde(d_base, d_extra, n_eff, n_cls, n_dom, base_sep, sigma, cfg, R=30, beta=0.2, seed=0,
+               grid=None, geom_seed=0, cluster_id=None):
+    """MDE_k(1-beta) over a target grid; power_ok iff MDE <= delta_Y. Fail-fast if (R,beta) make
+    the Wilson LCB ceiling unreachable (would force power_ok=False at every n -- a config bug)."""
+    assert_power_feasible(R, beta)
     if grid is None:
         eps = 0.3 * cfg.delta_Y
         grid = [cfg.delta_Y, cfg.delta_Y + eps, 2 * cfg.delta_Y]
-    rows = []
-    mde = float("inf")
+    rows = []; mde = float("inf")
     for g in grid:
         r = estimate_power(g, d_base, d_extra, n_eff, n_cls, n_dom, base_sep, sigma, cfg,
-                           R=R, seed=seed)
+                           R=R, seed=seed, geom_seed=geom_seed, cluster_id=cluster_id)
         rows.append({"target": g, **r})
         if r["lcb"] >= 1 - beta and g < mde:
             mde = g
