@@ -110,14 +110,24 @@ def _principal_angle_cos(B1, B2) -> float:
 
 
 # --------------------------------------------------------------------------------------
-# source moments
+# source moments -- SAME voting convention everywhere: a (domain,class) cell mean is the
+# mean over its SUBJECTS' cell means (one vote per subject) when group_ids are given, so a
+# subject with many epochs does not dominate the atlas (matching the target / gate / bootstrap
+# / oracle units). Epoch mean when no group_ids.
 # --------------------------------------------------------------------------------------
-def _means(Z, Y, classes):
-    return {c: Z[Y == c].mean(0) for c in classes}
+def _cell_mean(Z, mask, g=None):
+    if g is None:
+        return Z[mask].mean(0)
+    gm = g[mask]
+    return np.stack([Z[mask][gm == u].mean(0) for u in np.unique(gm)]).mean(0)
 
 
-def _offsets_residuals(Z, Y, D, classes, domains):
-    mu_pool = _means(Z, Y, classes)
+def _means(Z, Y, classes, g=None):
+    return {c: _cell_mean(Z, Y == c, g) for c in classes}
+
+
+def _offsets_residuals(Z, Y, D, classes, domains, g=None):
+    mu_pool = _means(Z, Y, classes, g)
     a_list, r_list = [], []
     for dd in domains:
         dev = {}
@@ -125,7 +135,7 @@ def _offsets_residuals(Z, Y, D, classes, domains):
             m = (D == dd) & (Y == c)
             if m.sum() == 0:
                 continue
-            dev[c] = Z[m].mean(0) - mu_pool[c]
+            dev[c] = _cell_mean(Z, m, g) - mu_pool[c]      # subject-vote cell mean
         if not dev:
             continue
         a_d = np.mean(np.stack(list(dev.values())), axis=0)
@@ -138,14 +148,14 @@ def _offsets_residuals(Z, Y, D, classes, domains):
     return A, R, mu_pool
 
 
-def _domain_pooled_means(Z, D, domains):
-    return np.stack([Z[D == dd].mean(0) for dd in domains])
+def _domain_pooled_means(Z, D, domains, g=None):
+    return np.stack([_cell_mean(Z, D == dd, g) for dd in domains])
 
 
-def _concept_geometry(Z, Y, D, classes, domains, var_keep):
-    """Re-estimable concept pipeline: cov_dirs from a_d, then the class-residual matrix with
-    the cov subspace removed; returns (cov_dirs, Rperp, singular_values, right_vectors)."""
-    A, R, mu_pool = _offsets_residuals(Z, Y, D, classes, domains)
+def _concept_geometry(Z, Y, D, classes, domains, var_keep, g=None):
+    """Re-estimable concept pipeline (subject-vote when g given): cov_dirs from a_d, then the
+    class-residual matrix with the cov subspace removed."""
+    A, R, mu_pool = _offsets_residuals(Z, Y, D, classes, domains, g)
     cov_dirs = _pca_dirs(A, var_keep)
     Rc = R - R.mean(0, keepdims=True)
     Rperp = Rc - (Rc @ cov_dirs) @ cov_dirs.T if cov_dirs.shape[1] else Rc
@@ -156,11 +166,12 @@ def _concept_geometry(Z, Y, D, classes, domains, var_keep):
 # --------------------------------------------------------------------------------------
 # atlas + analysis
 # --------------------------------------------------------------------------------------
-def build_atlas(Z, Y, D, var_keep: float = 0.95) -> ShiftAtlas:
+def build_atlas(Z, Y, D, var_keep: float = 0.95, group_ids=None) -> ShiftAtlas:
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D)
+    g = None if group_ids is None else np.asarray(group_ids)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
 
-    cov_dirs, Rperp, s, Vt, A, R, mu_pool = _concept_geometry(Z, Y, D, classes, domains, var_keep)
+    cov_dirs, Rperp, s, Vt, A, R, mu_pool = _concept_geometry(Z, Y, D, classes, domains, var_keep, g)
     # raw concept directions (top var_keep of the cov-removed residual spectrum)
     if s.sum() > 0:
         cum = np.cumsum(s ** 2) / np.sum(s ** 2)
@@ -179,8 +190,8 @@ def build_atlas(Z, Y, D, var_keep: float = 0.95) -> ShiftAtlas:
                   _principal_angle_cos(concept_raw, label_raw))
     min_angle = float(np.degrees(np.arccos(min(cos_max, 1.0)))) if cos_max > 0 else 90.0
 
-    pooled = Z.mean(0)
-    Mden = _domain_pooled_means(Z, D, domains) - pooled
+    pooled = cluster_mean(Z, g)                            # subject-vote pooled mean
+    Mden = _domain_pooled_means(Z, D, domains, g) - pooled
     sigma_label = float(np.sqrt(((Mden @ label_dirs) ** 2).sum(1).mean())) if label_dirs.shape[1] else 0.0
     sigma_cov = float(np.sqrt(((A @ cov_dirs) ** 2).sum(1).mean())) if cov_dirs.shape[1] else 0.0
     sigma_concept = float(np.sqrt(((R @ concept_raw) ** 2).sum(1).mean())) if concept_raw.shape[1] else 0.0
@@ -191,10 +202,10 @@ def build_atlas(Z, Y, D, var_keep: float = 0.95) -> ShiftAtlas:
                       min_principal_angle_deg=min_angle)
 
 
-def _cov_loading(Z, Y, D, classes, domains, var_keep, cov_dirs=None):
-    """Top singular value of the class-residuals R projected onto the covariate subspace. If
-    `cov_dirs` is None it is RE-ESTIMATED from this (sub)sample (full estimator)."""
-    A, R, _ = _offsets_residuals(Z, Y, D, classes, domains)
+def _cov_loading(Z, Y, D, classes, domains, var_keep, cov_dirs=None, g=None):
+    """Top singular value of the class-residuals R projected onto the covariate subspace
+    (subject-vote when g given). If `cov_dirs` is None it is RE-ESTIMATED (full estimator)."""
+    A, R, _ = _offsets_residuals(Z, Y, D, classes, domains, g)
     cd = cov_dirs if cov_dirs is not None else _pca_dirs(A, var_keep)
     if cd.shape[1] == 0:
         return 0.0
@@ -223,14 +234,14 @@ def analyze_source(Z, Y, D,
 
     test = residual_decoder_test(Z, Y, D, n_folds=n_folds, n_boot=n_boot, alpha=alpha, C=C,
                                  group_ids=group_ids, seed=seed)
-    atlas = build_atlas(Z, Y, D, var_keep=var_keep)
+    atlas = build_atlas(Z, Y, D, var_keep=var_keep, group_ids=groups)
     overlap = atlas.min_principal_angle_deg < min_angle_deg
 
     if test.status != "VALID":
         return SourceAnalysis(atlas, test, False, False, overlap, [],
                               detail=dict(reason="invalid support graph"))
 
-    cov_dirs, Rperp, s_obs, Vt_obs, A, R, _ = _concept_geometry(Z, Y, D, classes, domains, var_keep)
+    cov_dirs, Rperp, s_obs, Vt_obs, A, R, _ = _concept_geometry(Z, Y, D, classes, domains, var_keep, groups)
     n_rank = s_obs.size
 
     # NULL bootstrap under fitted h0 (NOT a row bootstrap): each replicate draws Y* ~ p_hat0
@@ -242,18 +253,23 @@ def analyze_source(Z, Y, D,
     cov_load_null = np.zeros(n_dir_boot)               # h0-null cov-subspace loading (noise scale)
     for b in range(n_dir_boot):
         Yb = sample_labels(p0, classes, rng)
-        _, _, s_b, _, _, R_b = _concept_geometry(Z, Yb, D, classes, domains, var_keep)[:6]
+        cov_dirs_b, _, s_b, _, _, R_b = _concept_geometry(Z, Yb, D, classes, domains, var_keep, groups)[:6]
         null_top[b] = s_b[0] if s_b.size else 0.0
-        if atlas.cov_dirs.shape[1]:
+        # cov null scale goes through the IDENTICAL estimator pipeline: cov subspace is
+        # RE-ESTIMATED per replicate (cov_dirs_b), not projected onto the fixed observed dirs.
+        if cov_dirs_b.shape[1]:
             Rcb = R_b - R_b.mean(0, keepdims=True)
-            cov_load_null[b] = float(np.linalg.svd(Rcb @ atlas.cov_dirs, compute_uv=False)[0])
+            cov_load_null[b] = float(np.linalg.svd(Rcb @ cov_dirs_b, compute_uv=False)[0])
 
     # GLOBAL max-statistic test (strong-FWER for "is there ANY concept direction"): compare the
     # observed TOP singular value to the h0-null TOP singular value. We keep ONLY this first
     # direction if it passes -- a per-rank sequential test would need a rank-k null per rank
     # (deferred); keeping >1 direction off the rank-0 null would NOT control FWER.
     p_global = float((1.0 + np.sum(null_top >= s_obs[0])) / (1.0 + n_dir_boot)) if n_rank else 1.0
-    concept_evidenced = (p_global <= alpha)
+    # CONCEPT EVIDENCE == the residual-decoder gate: the geometric global max-statistic AND the
+    # cross-fitted residual-decoder test T must BOTH be significant. (Geometry alone is not the
+    # claimed residual-decoder certificate.)
+    concept_evidenced = (p_global <= alpha) and bool(test.significant)
     n_keep = 1 if concept_evidenced else 0
     if concept_evidenced:
         atlas.concept_dirs = Vt_obs[:1].T
@@ -273,7 +289,7 @@ def analyze_source(Z, Y, D,
     cov_noise_scale = float(np.quantile(cov_load_null, 1 - alpha)) if atlas.cov_dirs.shape[1] else np.inf
     eps_stable = cov_loading_margin_kappa * cov_noise_scale
     if atlas.cov_dirs.shape[1]:
-        s_cov_obs = _cov_loading(Z, Y, D, classes, domains, var_keep, atlas.cov_dirs)
+        s_cov_obs = _cov_loading(Z, Y, D, classes, domains, var_keep, atlas.cov_dirs, g=groups)
         clusters = groups if groups is not None else D
         uniq = np.unique(clusters)
         idx_by = {c: np.where(clusters == c)[0] for c in uniq}
@@ -282,9 +298,10 @@ def analyze_source(Z, Y, D,
         for b in range(n_dir_boot):
             pick = rng2.choice(uniq, size=len(uniq), replace=True)
             idx = np.concatenate([idx_by[c] for c in pick])
+            gid_sub = None if groups is None else groups[idx]
             try:
                 boot[b] = _cov_loading(Z[idx], Y[idx], D[idx], classes,
-                                       list(np.unique(D[idx])), var_keep)   # cov RE-estimated
+                                       list(np.unique(D[idx])), var_keep, g=gid_sub)  # cov RE-estimated
             except Exception:
                 boot[b] = np.nan
         boot = boot[np.isfinite(boot)]
@@ -309,6 +326,16 @@ def analyze_source(Z, Y, D,
 # --------------------------------------------------------------------------------------
 # shared decomposition used by BOTH the certifier and the calibrator (same statistic!)
 # --------------------------------------------------------------------------------------
+def cluster_mean(Z, group_ids=None):
+    """Target mean as ONE VOTE PER CLUSTER (subject): mean of per-group means, so a subject
+    with many epochs does not dominate. Row mean when no group_ids."""
+    Z = np.asarray(Z, float)
+    if group_ids is None:
+        return Z.mean(0)
+    g = np.asarray(group_ids)
+    return np.stack([Z[g == u].mean(0) for u in np.unique(g)]).mean(0)
+
+
 def _proj(delta, basis):
     if basis.shape[1] == 0:
         return np.zeros_like(delta)

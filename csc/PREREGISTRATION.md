@@ -190,7 +190,45 @@ Source-side `cov_loading_*` (Z-units) are named distinctly from the oracle `eps_
 ### Cluster-level inference (§3 honesty, enforced)
 The unit is an **independent source–target cluster** (a seed / a real source pool), NOT a
 per-target certificate: the must-abstain targets share one source and are correlated. The
-Rule-of-Three "≥ N zero-failure trials" refers to N **independent clusters**.
+exact one-sided Clopper-Pearson bound "≥ N zero-failure trials" refers to N **independent
+clusters**.
+
+### 6.5 CSC-P1.4 hardening (executable manifest, unified path, cluster-valid inference)
+* **Executable manifest.** `ProtocolConfig.validate()` rejects unsupported field values and
+  the executor **fails closed** (`group_aware=True` ⇒ both source and target group ids are
+  mandatory; never silently IID). Every field drives behaviour (`quantile_convention`,
+  `tau_target_size_matched`, `tau_group_resampling`, `analysis_unit`, rng/seed derivation).
+  The manifest hash is the **FULL SHA-256** of the canonical manifest and includes the rng
+  algorithm + `master_seed` + seed-derivation rule.
+* **One executor.** `csc.protocol.execute_protocol` is the only certification path;
+  `run_frozen_protocol`, `nested_lodo`, `ood_power_bank`, `synthetic_null_bank`, the sweep and
+  the audit ALL call it (no LODO parameter drift). Tests that call `certify()`/`analyze_source`
+  directly (`test_power`, `test_null_calibration`, `test_validity_gate`, `test_design_and_pairs`)
+  are **component** tests; only `test_protocol` exercises the frozen path.
+* **Three banks, distinct roles, each with a one-sided exact Clopper-Pearson bound at the
+  INDEPENDENT-cluster level.** `SYNTHETIC_NULL_BANK` (generator-truth-stable targets) validates
+  **false-concept control** directly and reports per-source-cluster false-concept failures + a
+  **CP UPPER bound**; `CALIBRATION_NULL_BANK` (LODO + oracle) is an **estimator sanity** check
+  only; `OOD_POWER_BANK` validates **power** on generator-truth OOD targets with an
+  **unconditional** denominator (atlas failures = power misses; `atlas_availability` reported),
+  a **CP LOWER bound** on concept power, and a **binding-failure decomposition**
+  (`residual_T_not_sig` / `geometric_maxstat_not_sig` / `support_invalid` / `signature_overlap`
+  / `not_dominant_or_robust_consensus_abstain`).
+* **Cluster-valid inference, ONE analysis unit throughout.** The **source atlas itself** (cell
+  means `a_d`/`r_{d,y}`, pooled mean, all bootstraps), source CV (StratifiedGroupKFold),
+  support-gate cell counts, target mean (one **cluster vote** per subject), calibration
+  pseudo-targets (whole-subject blocks), and the oracle OOB ALL use the **subject** vote — not
+  merely "all receive `group_ids`". (Synthetic epochs are i.i.d. within subject, so this
+  exercises the convention; genuine within-subject correlation matters only on real EEG.)
+* **Residual decoder IS the concept gate** (THEORY §4): `concept_evidenced` = global
+  max-statistic AND residual-`T` significant → honest, lower power (~0.5–0.7), not the inflated
+  geometric 1.0. **Difficulty envelope** (concept effect size × cluster count × principal-angle
+  separation × covariate-leakage × class imbalance × mechanism family) is a freeze-sweep
+  requirement for a confirmatory power claim — framework present, full envelope deferred.
+* **Commit separation by HOOK, not gitignore.** A `.gitignore` only blocks *untracked* files;
+  it does NOT stop already-tracked audit files from being re-staged by `git add csc/`. The real
+  guard is `csc/tools/check_commit_separation.sh` (install as `.git/hooks/pre-commit` or run in
+  CI): it rejects any commit that mixes `csc/results/**` with other files.
 
 ---
 

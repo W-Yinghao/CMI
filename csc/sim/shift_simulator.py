@@ -75,6 +75,7 @@ class SourceBundle:
     geom: GenGeom
     domains: list             # list[DomainSpec]
     pooled_mean: np.ndarray   # overall mean of Z (deployment reference)
+    group_ids: np.ndarray = None   # subject id per epoch (subjects nested within domains)
 
 
 def _orthonormal(rng: np.random.Generator, d: int, k: int) -> np.ndarray:
@@ -120,10 +121,14 @@ def make_source(cfg: Optional[SimConfig] = None,
                 concept_domains: int = 3,
                 cov_scale: float = 2.0,
                 concept_scale: float = 1.4,
+                subjects_per_domain: int = 5,
                 geom: Optional[GenGeom] = None,
                 seed: Optional[int] = None) -> SourceBundle:
     """Class-spanning multi-domain source. `concept_domains` of `n_domains` carry genuine
-    boundary movement (the source concept *atlas*); the rest are covariate-only."""
+    boundary movement (the source concept *atlas*); the rest are covariate-only. Epochs are
+    grouped into SUBJECTS nested within domains (`group_ids`) so cluster-aware inference can be
+    exercised. (Synthetic epochs are i.i.d. within subject, so the clustering exercises the
+    CODE PATH; genuine within-subject correlation only matters on real EEG.)"""
     cfg = cfg or SimConfig()
     rng = np.random.default_rng(cfg.seed if seed is None else seed)
     geom = geom or make_geom(cfg, rng)
@@ -137,13 +142,17 @@ def make_source(cfg: Optional[SimConfig] = None,
         prior = rng.dirichlet(np.full(cfg.K, cfg.prior_alpha))
         domains.append(DomainSpec(b=b, c=float(c), prior=prior))
 
-    Zs, Ys, Ds = [], [], []
+    Zs, Ys, Ds, Gs = [], [], [], []
     for d, spec in enumerate(domains):
         z, y = _sample_domain(cfg, geom, spec, cfg.n_per_domain, rng)
         Zs.append(z); Ys.append(y); Ds.append(np.full(len(y), d))
+        # subjects nested within domain: global id = d*1000 + subject index
+        subj = d * 1000 + (np.arange(len(y)) % subjects_per_domain)
+        Gs.append(subj)
     Z = np.concatenate(Zs); Y = np.concatenate(Ys); D = np.concatenate(Ds)
+    G = np.concatenate(Gs)
     return SourceBundle(Z=Z, Y=Y, D=D, geom=geom, domains=domains,
-                        pooled_mean=Z.mean(0))
+                        pooled_mean=Z.mean(0), group_ids=G)
 
 
 @dataclass
@@ -152,6 +161,7 @@ class TargetBundle:
     Y: np.ndarray             # ground-truth labels (oracle/eval ONLY; certifier ignores)
     kind: str
     truth: str                # ground-truth certificate class for scoring
+    group_ids: np.ndarray = None   # subject id per epoch (target clusters)
 
 
 _TRUTH = {
@@ -178,9 +188,11 @@ def make_target(kind: str,
                 concept_target_scale: float = 4.0,
                 relabel_frac: float = 0.35,
                 label_peak: float = 0.8,
+                subjects: int = 8,
                 seed: int = 123) -> TargetBundle:
     """Generate a target deployment batch under one shift type. Requires the SAME `geom`
-    used for the source (pass `source.geom`)."""
+    used for the source (pass `source.geom`). Epochs are grouped into `subjects` target
+    clusters (`group_ids`) for cluster-aware certification."""
     cfg = cfg or SimConfig()
     assert geom is not None, "pass geom=source.geom"
     rng = np.random.default_rng(seed)
@@ -224,7 +236,8 @@ def make_target(kind: str,
                           prior=_skewed_prior(cfg.K, label_peak))
         Z, Y = _sample_domain(cfg, geom, spec, n, rng)
 
-    return TargetBundle(Z=Z, Y=Y, kind=kind, truth=_TRUTH[kind])
+    G = np.arange(len(Y)) % subjects                       # target subject clusters
+    return TargetBundle(Z=Z, Y=Y, kind=kind, truth=_TRUTH[kind], group_ids=G)
 
 
 def make_paired_clean_pure(cfg: Optional[SimConfig] = None,
@@ -241,9 +254,10 @@ def make_paired_clean_pure(cfg: Optional[SimConfig] = None,
     spec = DomainSpec(b=np.zeros(cfg.cov_dim), c=0.0, prior=np.full(cfg.K, 1.0 / cfg.K))
     Z, Y = _sample_domain(cfg, geom, spec, n, rng)
     Y_relabel = _relabel_invisible(Z, Y, geom, relabel_frac, rng)
-    clean = TargetBundle(Z=Z, Y=Y, kind="clean", truth=_TRUTH["clean"])
+    G = np.arange(len(Y)) % 8
+    clean = TargetBundle(Z=Z, Y=Y, kind="clean", truth=_TRUTH["clean"], group_ids=G)
     pure = TargetBundle(Z=Z.copy(), Y=Y_relabel, kind="pure_conditional",
-                        truth=_TRUTH["pure_conditional"])
+                        truth=_TRUTH["pure_conditional"], group_ids=G.copy())
     return clean, pure
 
 

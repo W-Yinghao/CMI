@@ -122,12 +122,14 @@ def _design_rank_cond(Zs, D, domains):
     return rank, ncols, cond
 
 
-def check_support_graph(Y, D, Z=None,
+def check_support_graph(Y, D, Z=None, group_ids=None,
                         min_classes_per_domain: int = 2,
                         min_domains_per_class: int = 2,
                         min_cell: int = 10,
+                        min_cell_subjects: int = 3,
                         max_condition: float = 1e8) -> SupportGraph:
     Y = np.asarray(Y); D = np.asarray(D)
+    g = None if group_ids is None else np.asarray(group_ids)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
     reasons = []
 
@@ -146,12 +148,19 @@ def check_support_graph(Y, D, Z=None,
         reasons.append(f"domain-class support graph is DISCONNECTED ({n_comp} components); "
                        "the boundary is not jointly identifiable across the partition")
 
-    cells = [int(((D == d) & (Y == c)).sum()) for d in domains for c in classes]
+    # cell count uses the ANALYSIS UNIT: independent SUBJECTS per (domain,class) when
+    # group_ids are given (rows otherwise). On real EEG epochs-per-cell overstates evidence.
+    def _cell(d, c):
+        m = (D == d) & (Y == c)
+        return int(np.unique(g[m]).size) if g is not None else int(m.sum())
+    cells = [_cell(d, c) for d in domains for c in classes]
+    unit = "subjects" if g is not None else "samples"
+    thr = min_cell_subjects if g is not None else min_cell
     nonempty = [n for n in cells if n > 0]
     min_cell_count = min(nonempty) if nonempty else 0
-    if nonempty and min(nonempty) < min_cell:
-        reasons.append(f"smallest occupied (domain,class) cell has {min(nonempty)} samples "
-                       f"(need >= {min_cell}); per-cell boundary estimate is unreliable")
+    if nonempty and min(nonempty) < thr:
+        reasons.append(f"smallest occupied (domain,class) cell has {min(nonempty)} {unit} "
+                       f"(need >= {thr}); per-cell boundary estimate is unreliable")
 
     cond = float("nan")
     design_rank, design_ncols, full_rank = -1, -1, True
@@ -267,7 +276,7 @@ def residual_decoder_test(Z, Y, D,
     groups = None if group_ids is None else np.asarray(group_ids)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
 
-    support = check_support_graph(Y, D, Z=Zs)
+    support = check_support_graph(Y, D, Z=Zs, group_ids=group_ids)
     if not support.valid:
         return ResidualTestResult("INVALID", float("nan"), 1.0, False,
                                   float("nan"), float("nan"), support)

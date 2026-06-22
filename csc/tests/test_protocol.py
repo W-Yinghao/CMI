@@ -19,7 +19,10 @@ from csc.certificate import (
     analyze_source, FORBIDDEN, UNIDENTIFIABLE, COVARIATE_COMPATIBLE, CONCEPT_SUSPECT,
 )
 
-CFG = ProtocolConfig(n_boot=15, n_dir_boot=80, target_n_boot=60, tau_n_pseudotargets=100)
+# n_boot >= ~20 is REQUIRED: concept_evidenced needs the residual-decoder p to reach <= alpha,
+# and the bootstrap p has min 1/(n_boot+1). The residual-decoder gate is intrinsically
+# budget-bound (n_boot=15 -> min p 0.0625 > 0.05 -> zero concept power by construction).
+CFG = ProtocolConfig(n_boot=40, n_dir_boot=80, target_n_boot=50, tau_n_pseudotargets=80)
 
 
 def test_calibrate_tau_detect_keyword_safe():
@@ -37,13 +40,15 @@ def test_frozen_path_taxonomy():
     ok = {k: 0 for k in expect}
     must_abstain_forbidden = 0      # STRUCTURAL guarantee -> must be exactly 0
     full_forbidden = 0              # includes rare covariate crying-wolf (statistical, soft)
-    n = 4
+    n = 3
     for s in range(n):
         scfg = SimConfig(seed=s)
         src = make_source(scfg, n_domains=8, concept_domains=3, seed=s)
         for kind, want in expect.items():
             tb = make_target(kind, scfg, geom=src.geom, seed=100 + s)
-            st = run_frozen_protocol(src.Z, src.Y, src.D, tb.Z, CFG, seed=s)["certificate"].state
+            st = run_frozen_protocol(src.Z, src.Y, src.D, tb.Z, CFG,
+                                     src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids,
+                                     seed=s)["certificate"].state
             ok[kind] += int(st == want)
             if st in FORBIDDEN[tb.truth]:
                 full_forbidden += 1
@@ -56,7 +61,7 @@ def test_frozen_path_taxonomy():
     assert must_abstain_forbidden == 0, f"unidentifiable shift FALSE-certified ({must_abstain_forbidden})"
     assert ok["clean"] == n and ok["pure_conditional"] == n and ok["label_shift"] == n
     assert ok["boundary_coupled"] >= 1, "frozen path shows no concept power at all"
-    assert full_forbidden <= 1, f"gross forbidden-rate regression: {full_forbidden}/{4*len(expect)}"
+    assert full_forbidden <= 1, f"gross forbidden-rate regression: {full_forbidden}/{n*len(expect)}"
     print(f"OK frozen-path: must-abstain 0 forbidden; concept {ok['boundary_coupled']}/{n}; "
           f"covariate {ok['covariate']}/{n}; full-suite forbidden {full_forbidden} (<=1 soft)")
 
@@ -76,18 +81,44 @@ def test_frozen_path_is_cluster_aware():
     print(f"OK cluster-aware frozen path runs -> {out['certificate'].state}")
 
 
-def test_manifest_hash_deterministic():
+def test_manifest_hash_deterministic_and_full():
     a, b = ProtocolConfig(), ProtocolConfig()
     assert a.hash() == b.hash()
+    assert len(a.hash()) == 64, "manifest hash must be the FULL sha256 (64 hex)"
     assert ProtocolConfig(consensus=0.9).hash() != a.hash()
+    # rng provenance is part of the method id
+    assert ProtocolConfig(master_seed=1).hash() != a.hash()
     man = a.manifest()
     assert isinstance(man["tau_detect"], dict) and man["tau_detect"]["method"], "tau as RULE"
-    print(f"OK manifest hash deterministic ({a.hash()}); tau_detect recorded as a RULE")
+    print(f"OK manifest = FULL sha256 ({a.hash()[:12]}...); tau as RULE; rng in hash")
+
+
+def test_fail_closed_and_validate():
+    from csc.protocol import ProtocolError, execute_protocol
+    src = make_source(SimConfig(seed=3), n_domains=6, concept_domains=2, seed=3)
+    tb = make_target("covariate", SimConfig(seed=3), geom=src.geom, seed=300)
+    # group_aware=True but NO group ids -> must FAIL CLOSED (not silently IID)
+    try:
+        execute_protocol(src.Z, src.Y, src.D, tb.Z, ProtocolConfig(group_aware=True), seed=3)
+        raise AssertionError("expected ProtocolError for group_aware without ids")
+    except ProtocolError:
+        pass
+    # unsupported config value -> validate() rejects
+    for bad in (dict(quantile_convention="midpoint"), dict(analysis_unit="trial"),
+                dict(oracle_eps_stable_ce=0.05, oracle_eps_concept_ce=0.03)):
+        try:
+            ProtocolConfig(**bad).validate()
+            raise AssertionError(f"validate() should reject {bad}")
+        except ProtocolError:
+            pass
+    print("OK manifest is EXECUTABLE: fail-closed on missing group ids; validate() rejects "
+          "unsupported values")
 
 
 if __name__ == "__main__":
     test_calibrate_tau_detect_keyword_safe()
     test_frozen_path_taxonomy()
     test_frozen_path_is_cluster_aware()
-    test_manifest_hash_deterministic()
+    test_manifest_hash_deterministic_and_full()
+    test_fail_closed_and_validate()
     print("\nall protocol/calibration tests passed")

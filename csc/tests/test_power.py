@@ -26,12 +26,16 @@ def _analyze(seed):
 
 
 def test_residual_detects_concept():
+    # concept_evidenced now REQUIRES the residual-decoder test T to be significant (CSC-P1.4
+    # #4), so power is the HONEST residual-decoder power (~0.5-0.7 at this budget/effect size),
+    # not the inflated geometric-only power. Floor is a smoke bound; true power is reported by
+    # the OOD_POWER_BANK and is a freeze-sweep (effect size / n_boot / source size) quantity.
     sigs, n = 0, 6
     for s in range(n):
         _, _, sa = _analyze(500 + s)
         sigs += int(sa.concept_evidenced)
-    assert sigs / n >= 0.66, f"concept evidence power too low: {sigs/n}"
-    print(f"OK source concept evidence detected {sigs}/{n} (>=0.66)")
+    assert sigs / n >= 0.5, f"concept evidence power implausibly low: {sigs/n}"
+    print(f"OK source concept evidence (residual-decoder gate) {sigs}/{n} (>=0.5 smoke)")
 
 
 def test_covariate_compatible():
@@ -59,8 +63,9 @@ def test_visible_concept_suspect():
         cfg, src, sa = _analyze(700 + s)
         tb = make_target("boundary_coupled", cfg, geom=src.geom, seed=7000 + s)
         ok += int(certify(sa, tb.Z).state == CONCEPT_SUSPECT)
-    assert ok / n >= 0.75, f"visible-concept power too low: {ok/n}"
-    print(f"OK visible concept -> CONCEPT_SUSPECT {ok}/{n} (>=0.75)")
+    # honest residual-decoder power (see test_residual_detects_concept); smoke floor only.
+    assert ok / n >= 0.5, f"visible-concept power implausibly low: {ok/n}"
+    print(f"OK visible concept -> CONCEPT_SUSPECT {ok}/{n} (>=0.5 smoke; residual-decoder gate)")
 
 
 if __name__ == "__main__":

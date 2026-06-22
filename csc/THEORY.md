@@ -147,16 +147,20 @@ Three CSC-P1.1 corrections live here:
   silently unreliable). A **signature-overlap** flag (principal angle between the raw
   subspaces below `MIN_PRINCIPAL_ANGLE_DEG`) makes the certifier abstain rather than trust a
   forced Gram-Schmidt order on genuinely overlapping subspaces.
-* **Direction-linked evidence with no post-selection bias.** Global "some boundary moved
-  somewhere" must not license `CONCEPT_SUSPECT`. Each bootstrap replicate **re-estimates**
-  the subspaces from `Y* ~ p̂0` and we compare the observed singular spectrum to the null of
-  the *re-estimated* spectrum — a **max-statistic** (FWER-controlled for "any direction") +
-  **step-down** for how many directions survive. (The v0 projected onto the directions chosen
-  from the same data, underestimating the null.)
-* **`COVARIATE_COMPATIBLE` needs positive equivalence evidence** (`cov_stable`): the boundary
-  movement loaded onto the covariate subspace must be statistically indistinguishable from
-  the no-boundary null (its bootstrap upper CI below the null's `1−α` quantile). "The concept
-  test didn't fire" is **not** sufficient.
+* **Concept evidence IS the residual-decoder gate (CSC-P1.4).** `concept_evidenced` requires
+  BOTH (i) a **global max-statistic** test — the observed top singular value of the
+  re-estimated `Y* ~ p̂0` null spectrum (FWER-controlled for "is there ANY concept direction";
+  only this first direction is kept, no per-rank step-down off the rank-0 null) — AND (ii) the
+  cross-fitted **residual-decoder test `T`** itself significant. Geometry alone does not
+  license `CONCEPT_SUSPECT`. This makes the method the residual-decoder certificate the paper
+  claims, at the honest cost of LOWER power (the residual `T` is the binding, underpowered
+  gate ~0.5-0.7 at feasible budgets — a freeze-sweep quantity, not the inflated geometric 1.0).
+* **`COVARIATE_COMPATIBLE` needs a covariate-loading STABILITY gate** (`cov_stable`): the
+  covariate-subspace boundary loading's full cluster-bootstrap upper CI must be below
+  `κ × (h0-null scale)`, where the null scale is computed through the IDENTICAL estimator
+  pipeline (cov subspace RE-ESTIMATED per null replicate). This is a noise-relative operational
+  stability gate, NOT a TOST with an independent scientific equivalence margin (so it is not
+  called "equivalence-certified"); "the concept test didn't fire" is **not** sufficient.
 
 **Decision** (`δ = mean(Z_T) − pooled_mean`, components normalised by their source spreads):
 ```
@@ -165,13 +169,15 @@ Three CSC-P1.1 corrections live here:
 1.  n_label >= tau_label                       -> UNIDENTIFIABLE   (label-shift signature)
 2.  max(n_cov,n_con,n_res) < tau_detect        -> UNIDENTIFIABLE   (invisible / pure conditional)
 3.  out-of-atlas residual dominates            -> UNIDENTIFIABLE   (novel direction; Prop. 1)
-4.  concept dominant AND direction-evidenced   -> CONCEPT_SUSPECT
-5.  covariate dominant AND cov_stable           -> COVARIATE_COMPATIBLE
-6.  else (ambiguous / not equivalence-certified) -> UNIDENTIFIABLE
+4.  concept dominant AND residual-decoder-evidenced -> CONCEPT_SUSPECT
+5.  covariate dominant AND cov_stability gate        -> COVARIATE_COMPATIBLE
+6.  else (ambiguous / not stability-gated)           -> UNIDENTIFIABLE
 ```
 The asymmetry is deliberate: a *positive* statement is issued only inside the atlas, label-
-free, separable, with a dominant evidenced (concept) or equivalence-certified (covariate)
-component. Everywhere else it abstains. It may err by over-abstaining (low power); it is built
+free, separable, with a dominant residual-decoder-evidenced (concept) or stability-gated
+(covariate) component. The deployment path is cluster-aware (subject votes); the support gate,
+target mean, calibration pseudo-targets, bootstraps, and oracle OOB all use the same SUBJECT
+analysis unit. Everywhere else it abstains. It may err by over-abstaining (low power); it is built
 to never err by **false certification**. The certifier thresholds the **exact same** statistic
 (`components`/`visibility_statistic`) the calibrator calibrates.
 

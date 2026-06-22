@@ -28,7 +28,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 
-from .atlas import SourceAnalysis, components, visibility_statistic
+from .atlas import SourceAnalysis, components, visibility_statistic, cluster_mean
 
 
 COVARIATE_COMPATIBLE = "COVARIATE_COMPATIBLE"
@@ -60,11 +60,14 @@ class Certificate:
 
 def certify(analysis: SourceAnalysis,
             Z_target: np.ndarray,
-            cfg: Optional[CertifierConfig] = None) -> Certificate:
+            cfg: Optional[CertifierConfig] = None,
+            group_ids=None) -> Certificate:
     cfg = cfg or CertifierConfig()
     atlas = analysis.atlas
     Z_target = np.asarray(Z_target, float)
-    delta = Z_target.mean(0) - atlas.pooled_mean
+    # cluster-vote target mean (one vote per subject) when group_ids given -> the same
+    # analysis unit the support gate / bootstraps use.
+    delta = cluster_mean(Z_target, group_ids) - atlas.pooled_mean
 
     comp = components(atlas, delta)                 # SAME statistic the calibrator thresholds
     n_lab, n_cov, n_con, n_res = comp["n_label"], comp["n_cov"], comp["n_concept"], comp["n_resid"]
@@ -152,7 +155,7 @@ def certify_robust(analysis: SourceAnalysis,
     Makes COVARIATE_COMPATIBLE / CONCEPT_SUSPECT robust to finite-target sampling: a shift
     whose attribution flips under resampling is, honestly, UNIDENTIFIABLE."""
     cfg = cfg or CertifierConfig()
-    base = certify(analysis, Z_target, cfg)
+    base = certify(analysis, Z_target, cfg, group_ids=group_ids)
     Z = np.asarray(Z_target, float)
     rng = np.random.default_rng(seed)
     groups = None if group_ids is None else np.asarray(group_ids)
@@ -164,9 +167,11 @@ def certify_robust(analysis: SourceAnalysis,
         if groups is not None:                         # whole-cluster (subject) resampling
             pick = rng.choice(uniq, size=len(uniq), replace=True)
             bs = np.concatenate([idx_by[g] for g in pick])
+            gid_bs = np.concatenate([np.full(len(idx_by[g]), i) for i, g in enumerate(pick)])
+            st = certify(analysis, Z[bs], cfg, group_ids=gid_bs).state    # cluster-vote
         else:
             bs = rng.integers(0, len(Z), len(Z))       # IID row bootstrap (no clustering)
-        st = certify(analysis, Z[bs], cfg).state
+            st = certify(analysis, Z[bs], cfg).state
         counts[st] = counts.get(st, 0) + 1
     top = max(counts, key=counts.get)
     frac = counts[top] / n_boot

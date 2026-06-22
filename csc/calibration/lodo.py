@@ -131,7 +131,7 @@ def calibrate_tau_detect(Z, Y, D, atlas, alpha=0.05, n_block=240, seed=0) -> flo
 # --------------------------------------------------------------------------------------
 def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
                            n_boot=150, C=1.0, alpha=0.05,
-                           eps_concept=0.03, eps_stable=0.01, seed=0) -> OracleEffect:
+                           eps_concept=0.03, eps_stable=0.01, group_g=None, seed=0) -> OracleEffect:
     assert 0 < eps_stable < eps_concept, "pre-register 0 < eps_stable < eps_concept"
     cl = list(classes)
     mu, sd = Z_tr.mean(0), Z_tr.std(0) + 1e-8
@@ -141,14 +141,23 @@ def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
 
     rng = np.random.default_rng(seed + 3)
     ng = len(Y_g)
+    gg = None if group_g is None else np.asarray(group_g)
+    uniq = None if gg is None else np.unique(gg)
+    idx_by = None if gg is None else {u: np.where(gg == u)[0] for u in uniq}
     boots = []
     for _ in range(n_boot):
-        bs = rng.integers(0, ng, ng)
-        oob = np.setdiff1d(np.arange(ng), np.unique(bs))
+        if gg is not None:                                  # whole-SUBJECT resample + OOB
+            pick = rng.choice(uniq, size=len(uniq), replace=True)
+            bs = np.concatenate([idx_by[u] for u in pick])
+            oob = np.concatenate([idx_by[u] for u in uniq if u not in set(pick.tolist())]) \
+                if set(uniq.tolist()) - set(pick.tolist()) else np.array([], dtype=int)
+        else:
+            bs = rng.integers(0, ng, ng)
+            oob = np.setdiff1d(np.arange(ng), np.unique(bs))
         if len(oob) < len(cl) + 2:
             continue
         ybs = Y_g[bs]
-        if len(np.unique(ybs)) < 2:
+        if len(np.unique(ybs)) < 2 or len(np.unique(Y_g[oob])) < 1:
             continue
         # group-specific boundary refit on the bootstrap sample
         clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(Zg[bs], ybs)
@@ -181,19 +190,16 @@ def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
 #      concept-out leaves no training atlas. Power lives in the separate OOD_POWER_BANK
 #      (csc.protocol.ood_power_bank), on generator-truth OOD targets.
 # --------------------------------------------------------------------------------------
-def nested_lodo(Z, Y, D, folds=None, group_ids=None,
-                n_boot=60, n_dir_boot=150, oracle_boot=150,
-                cert_cfg: Optional[CertifierConfig] = None, consensus=0.85,
-                eps_concept=0.03, eps_stable=0.01, alpha=0.05,
-                min_stable=2, seed=0) -> LodoResult:
-    """Calibration/null bank. `eps_concept`, `eps_stable` are FROZEN INDEPENDENTLY before this
-    runs -- they define the oracle TRUTH and are NEVER chosen from certificate performance.
-    Goes through the cluster-aware calibrated path (analyze_source -> calibrate_thresholds ->
-    certify_robust). `group_ids` = subject/session ids for cluster-aware resampling."""
+def nested_lodo(Z, Y, D, cfg=None, folds=None, group_ids=None, min_stable=2, seed=0) -> LodoResult:
+    """CALIBRATION/null bank via the SINGLE executor (csc.protocol.execute_protocol) -- so the
+    LODO path uses the EXACT same parameters as deployment (no drift). `cfg` is a ProtocolConfig;
+    its oracle bands (`oracle_eps_*`) are FROZEN INDEPENDENTLY and define the oracle TRUTH, never
+    chosen from certificate performance. The oracle CI is subject-OOB when group_ids are given."""
+    from ..protocol import execute_protocol, ProtocolConfig
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D)
     gid = None if group_ids is None else np.asarray(group_ids)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
-    cert_cfg = cert_cfg or CertifierConfig()
+    cfg = cfg or ProtocolConfig(group_aware=(gid is not None))
     if folds is None:
         folds = [[d] for d in domains]
 
@@ -204,19 +210,17 @@ def nested_lodo(Z, Y, D, folds=None, group_ids=None,
             continue
         gtr = None if gid is None else gid[tr]
         gte = None if gid is None else gid[te]
-        sa = analyze_source(Z[tr], Y[tr], D[tr], n_boot=n_boot, n_dir_boot=n_dir_boot,
-                            alpha=alpha, group_ids=gtr, seed=seed)
-        cfg_d = calibrate_thresholds(Z[tr], Y[tr], D[tr], sa.atlas, cert_cfg,
-                                     target_size=int(te.sum()), block_ids_tr=gtr,
-                                     alpha=alpha, seed=seed)
-        cert = certify_robust(sa, Z[te], cfg=cfg_d, consensus=consensus,
-                              group_ids=gte, seed=seed)
+        out = execute_protocol(Z[tr], Y[tr], D[tr], Z[te], cfg,
+                               src_group_ids=gtr, tgt_group_ids=gte, seed=seed)
+        cert, sa = out["certificate"], out["analysis"]
         oracle = oracle_boundary_effect(Z[tr], Y[tr], Z[te], Y[te], classes,
-                                        n_boot=oracle_boot, alpha=alpha,
-                                        eps_concept=eps_concept, eps_stable=eps_stable, seed=seed)
+                                        n_boot=cfg.oracle_boot, alpha=cfg.alpha,
+                                        eps_concept=cfg.oracle_eps_concept_ce,
+                                        eps_stable=cfg.oracle_eps_stable_ce,
+                                        group_g=gte, seed=seed)
         records.append(LodoRecord(fold=list(g), cert_state=cert.state, n_label=cert.n_label,
                                   n_cov=cert.n_cov, n_concept=cert.n_concept,
-                                  tau_detect=cfg_d.tau_detect,
+                                  tau_detect=out["tau_detect"],
                                   concept_atlas=sa.concept_evidenced, oracle=oracle))
 
     stable = [r for r in records if r.oracle.verdict == COVARIATE_STABLE]
@@ -239,17 +243,18 @@ def nested_lodo(Z, Y, D, folds=None, group_ids=None,
     return LodoResult(records=records,
                       tau_detect_mean=float(np.mean(taus)) if taus else float("nan"),
                       scorecard=scorecard, valid_bank=calibration_null_bank_valid,
-                      detail=dict(bank="CALIBRATION_NULL_BANK", eps_concept=eps_concept,
-                                  eps_stable=eps_stable, consensus=consensus,
-                                  min_stable=min_stable,
-                                  note="power is NOT measured here; see ood_power_bank"))
+                      detail=dict(bank="CALIBRATION_NULL_BANK", min_stable=min_stable,
+                                  note="estimator sanity only; false-concept control is "
+                                       "validated by synthetic_null_bank (generator truth)"))
 
 
 if __name__ == "__main__":
     import warnings; warnings.filterwarnings("ignore")
     from csc.sim.shift_simulator import SimConfig, make_source
+    from csc.protocol import ProtocolConfig
     src = make_source(SimConfig(seed=4), n_domains=8, concept_domains=3, seed=4)
-    res = nested_lodo(src.Z, src.Y, src.D, n_boot=30, n_dir_boot=100, oracle_boot=120, seed=4)
+    cfg = ProtocolConfig(n_boot=30, n_dir_boot=100, oracle_boot=120)
+    res = nested_lodo(src.Z, src.Y, src.D, cfg=cfg, group_ids=src.group_ids, seed=4)
     for r in res.records:
         o = r.oracle
         print(f"  fold {str(r.fold):>8} tau={r.tau_detect:.2f} -> {r.cert_state:>22} "

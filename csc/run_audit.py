@@ -21,7 +21,7 @@ import warnings
 
 import numpy as np
 
-from csc.protocol import ProtocolConfig, ood_power_bank
+from csc.protocol import ProtocolConfig, ood_power_bank, synthetic_null_bank
 from csc.run_synthetic import run as run_syn
 from csc.sim.shift_simulator import SimConfig, make_source
 from csc.calibration.lodo import nested_lodo, VISIBLE_CONCEPT, COVARIATE_STABLE, AMBIGUOUS
@@ -57,26 +57,24 @@ def run_tests():
 
 
 def calibration_null_bank(cfg: ProtocolConfig, seeds):
-    """Aggregate the LODO null bank (false-concept control + stability) over source seeds."""
+    """LODO ORACLE-SANITY bank (estimator sanity only). Goes through the SINGLE executor via
+    nested_lodo(cfg). False-concept CONTROL is validated by synthetic_null_bank, not here."""
     n_stable = n_visible = n_amb = 0
     false_concept = 0
     valid = 0
     for s in seeds:
         src = make_source(SimConfig(seed=s), n_domains=8, concept_domains=3, seed=s)
-        res = nested_lodo(src.Z, src.Y, src.D, n_boot=cfg.n_boot, n_dir_boot=cfg.n_dir_boot,
-                          oracle_boot=cfg.oracle_boot, consensus=cfg.consensus,
-                          eps_concept=cfg.oracle_eps_concept_ce,
-                          eps_stable=cfg.oracle_eps_stable_ce, alpha=cfg.alpha, seed=s)
+        res = nested_lodo(src.Z, src.Y, src.D, cfg=cfg, group_ids=src.group_ids, seed=s)
         sc = res.scorecard
         n_stable += sc["n_stable"]; n_visible += sc["n_visible"]; n_amb += sc["n_ambiguous"]
         if sc["n_stable"]:
             false_concept += int(round((sc["false_concept_on_stable"] or 0.0) * sc["n_stable"]))
         valid += int(res.valid_bank)
-    return dict(bank="CALIBRATION_NULL_BANK", n_source_seeds=len(seeds),
+    return dict(bank="CALIBRATION_NULL_BANK(oracle-sanity)", n_source_seeds=len(seeds),
                 n_stable=n_stable, n_visible=n_visible, n_ambiguous=n_amb,
                 false_concept_on_stable_count=false_concept,
                 seeds_with_valid_null_bank=valid,
-                note="validates false-concept control + threshold calibration; NOT power")
+                note="estimator sanity only; false-concept control = synthetic_null_bank")
 
 
 def main():
@@ -107,15 +105,17 @@ def main():
     print("[audit] run_synthetic via FROZEN PATH (DEVELOPMENT) ...")
     syn = run_syn(seeds=args.seeds, cfg=cfg, label="DEVELOPMENT", quiet=True)
 
-    print("[audit] CALIBRATION_NULL_BANK (LODO) ...")
+    print("[audit] SYNTHETIC_NULL_BANK (generator-truth-stable) ...")
+    syn_null = synthetic_null_bank(cfg, list(range(args.bank_seeds)),
+                                   min_stable=max(2, args.bank_seeds))
+    print("[audit] CALIBRATION_NULL_BANK (LODO oracle sanity) ...")
     null_bank = calibration_null_bank(cfg, list(range(args.bank_seeds)))
-
     print("[audit] OOD_POWER_BANK (generator-truth) ...")
     power_bank = ood_power_bank(cfg, list(range(args.bank_seeds)),
                                 min_visible=max(2, args.bank_seeds))
 
     audit = dict(
-        status="CSC-P1.3 DEVELOPMENT — frozen-path audit; NO FREEZE, NO CONFIRMATORY, NO P2",
+        status="CSC-P1.4 DEVELOPMENT — frozen-path audit; NO FREEZE, NO CONFIRMATORY, NO P2",
         audited_code_commit=audited, audited_code_commit_short=audited[:7],
         branch=_git("rev-parse", "--abbrev-ref", "HEAD"),
         git_status_clean_csc=csc_clean,
@@ -128,19 +128,22 @@ def main():
         start_time=start, end_time=datetime.datetime.now().isoformat(timespec="seconds"),
         seed_provenance="DEVELOPMENT (used during iteration; NOT confirmatory). A frozen "
                         "confirmatory run requires a separate, previously-unseen seed set.",
-        tests=tests, run_synthetic=syn,
+        tests=tests, run_synthetic=syn, synthetic_null_bank=syn_null,
         calibration_null_bank=null_bank, ood_power_bank=power_bank,
     )
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
     with open(args.out, "w") as f:
         json.dump(audit, f, indent=2)
     print(f"[audit] wrote {args.out}")
-    print(f"[audit] SUMMARY tests={tests['all_passed']} manifest={cfg.hash()} clean={csc_clean} "
-          f"primary_forbidden_full={syn['any_forbidden_full_suite']}/{syn['seeds']} "
-          f"(UB {syn['exact_cp_ub_full_suite']:.3f}) | null_bank stable={null_bank['n_stable']} "
-          f"valid={null_bank['seeds_with_valid_null_bank']}/{null_bank['n_source_seeds']} | "
-          f"power_bank power={power_bank['concept_power']} cov={power_bank['covariate_compatible_coverage']} "
-          f"valid={power_bank['ood_power_bank_valid']}")
+    print(f"[audit] SUMMARY tests={tests['all_passed']} manifest={cfg.hash()[:12]} clean={csc_clean}")
+    print(f"  run_synthetic PRIMARY any_forbidden_full={syn['any_forbidden_full_suite']}/{syn['seeds']} "
+          f"(CP-UB {syn['exact_cp_ub_full_suite']:.3f})")
+    print(f"  SYNTHETIC_NULL_BANK false-concept clusters={syn_null['seed_cluster_failures']}/"
+          f"{syn_null['n_source_clusters']} (CP-UB {syn_null['false_concept_cp_upper_cluster']:.3f}) "
+          f"valid={syn_null['synthetic_null_bank_valid']}")
+    print(f"  OOD_POWER_BANK power={power_bank['concept_power']} (CP-LB "
+          f"{power_bank['concept_power_cp_lower']:.3f}) atlas={power_bank['atlas_availability']} "
+          f"valid={power_bank['ood_power_bank_valid']} decomp={power_bank['binding_failure_decomposition']}")
 
 
 if __name__ == "__main__":
