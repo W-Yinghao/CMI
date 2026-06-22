@@ -76,7 +76,7 @@ def test_batch_never_redefines_support_or_p_ref():
         s.adv_logical_batch(); s.task_batch()
     assert {k: list(v) for k, v in sg.support_of_class.items()} == S_before
     assert np.array_equal(sg.reference_prior, pref)
-    assert s.n_cell[(0, 0)] == int(sg.counts[0, 0])       # fixed n from the graph, not the batch
+    assert s.U_cell[(0, 0)] == int(sg.cell_mass[0, 0])    # fixed unit count from the graph, not the batch
 
 
 def test_ineligible_cells_never_enter_adversary_stream():

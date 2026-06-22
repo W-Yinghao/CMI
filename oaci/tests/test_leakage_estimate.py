@@ -59,7 +59,7 @@ def test_unsupported_cell_excluded_from_labels_and_scoring():
     feat = FrozenFeatures(Z, y, d, g)
     plan = make_fold_plan(feat, sg, n_folds=2, seed=0)
     nll = oof_nll_by_class(feat, sg, plan, capacity=0, cfg=FAST)
-    assert nll[0]["n"] == 200                             # 2 domains x 4 recs x 25, NOT the +5
+    assert nll[0]["n_rows"] == 200                        # 2 domains x 4 recs x 25, NOT the +5
 
 
 def test_L_abs_uses_fixed_reference_prior_weighting():

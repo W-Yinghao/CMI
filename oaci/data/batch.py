@@ -56,11 +56,12 @@ def effective_prior_domain_given_y(idx, weight, y_all, d_all, support_graph: Sup
 
 
 def fixed_prior_domain_given_y(support_graph: SupportGraph) -> dict:
-    """The FIXED empirical ``p(d|y, d∈S_y) = n_{d,y}/N_y^ov`` from the support-graph counts."""
+    """The FIXED empirical ``p(d|y, d∈S_y) = M_{d,y}/M_y^ov`` from the estimand MASS (``cell_mass``),
+    NOT the eligibility unit counts (which only gate the ``m``-threshold)."""
     out = {}
     for yy in support_graph.comparable_classes:
         S = support_graph.support_of_class[yy]
-        n = support_graph.counts[S, yy].astype(float)
+        n = support_graph.cell_mass[S, yy].astype(float)
         out[yy] = (list(S), n / n.sum())
     return out
 

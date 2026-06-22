@@ -63,15 +63,30 @@ def resolve_channels(raw_ch_names, n_channels: int, confirmatory: bool = True) -
     return list(raw_ch_names)
 
 
-def raw_file_fingerprint(paths) -> str:
-    """SHA-256 over the sorted ``relpath|size`` listing of the actual raw files (raw bytes
-    provenance, independent of the preprocessing spec)."""
+def _file_content_sha(path: str, chunk: int = 1 << 20) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for blk in iter(lambda: f.read(chunk), b""):
+            h.update(blk)
+    return h.hexdigest()
+
+
+def raw_file_fingerprint(paths, confirmatory: bool = True) -> str:
+    """SHA-256 of a canonical manifest of ``basename|size|content_sha256`` over the actual raw
+    files — hashes the raw BYTES (independent of the datalake mount root and of the preprocessing
+    spec). In confirmatory mode an empty path list or an unreadable file is a hard FAIL (no silent
+    swallow)."""
+    paths = [str(p) for p in paths]
+    if confirmatory and not paths:
+        raise ValueError("no raw files to fingerprint; refusing an empty confirmatory fingerprint")
     items = []
-    for p in sorted(str(x) for x in paths):
+    for p in sorted(paths):
         try:
-            items.append(f"{os.path.basename(p)}|{os.path.getsize(p)}")
-        except OSError:
-            items.append(f"{os.path.basename(p)}|?")
+            items.append(f"{os.path.basename(p)}|{os.path.getsize(p)}|{_file_content_sha(p)}")
+        except OSError as e:
+            if confirmatory:
+                raise ValueError(f"raw file unreadable in confirmatory mode: {p} ({e})")
+            items.append(f"{os.path.basename(p)}|?|?")
     return hashlib.sha256("\n".join(items).encode()).hexdigest()
 
 
@@ -129,7 +144,7 @@ def load_moabb(dataset_id: str, subjects, spec: PreprocessSpec | None = None,
     if spec.normalization == "zscore_sample":            # actually APPLY the declared transform
         X = apply_normalization(X, None, spec)
 
-    fp = raw_file_fingerprint(_data_paths(ds, subjects))
+    fp = raw_file_fingerprint(_data_paths(ds, subjects), confirmatory=confirmatory)
     return EEGBundle(
         X=X, y=y_idx, sample_id=trial, dataset_id=dataset_id, site_id=site, subject_id=subj,
         session_id=sess, run_id=run, recording_id=rec, trial_id=trial, support_unit_id=trial,

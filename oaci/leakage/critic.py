@@ -57,24 +57,27 @@ class DomainProbe:
             return np.concatenate([Zs, np.maximum(Zs @ self._R, 0.0)], axis=1)
         return Zs
 
-    def fit(self, Z: np.ndarray, labels: np.ndarray) -> "DomainProbe":
+    def fit(self, Z: np.ndarray, labels: np.ndarray, sample_weight=None) -> "DomainProbe":
         Z = np.asarray(Z, dtype=np.float64)
         labels = np.asarray(labels, dtype=int)
-        self._mean = Z.mean(axis=0)
-        self._std = Z.std(axis=0) + 1e-8
+        w = np.ones(Z.shape[0]) if sample_weight is None else np.asarray(sample_weight, dtype=np.float64).ravel()
+        ws = w.sum()
+        # MASS-weighted standardisation (so duplicating a row with split mass is a no-op)
+        self._mean = (w[:, None] * Z).sum(axis=0) / ws
+        var = (w[:, None] * (Z - self._mean) ** 2).sum(axis=0) / ws
+        self._std = np.sqrt(var) + 1e-8
         if self.capacity > 0:
             rng = np.random.default_rng(self.cfg.feature_seed_base + self.capacity)
             self._R = rng.standard_normal((Z.shape[1], self.capacity)) / np.sqrt(Z.shape[1])
         uniq = np.unique(labels)
         if uniq.size < 2:
-            # degenerate train fold: only one domain present -> constant probe on that label
             self._only_label = int(uniq[0])
             self._model = None
         else:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
                 self._model = LogisticRegression(C=self.cfg.l2_C, max_iter=self.cfg.max_iter)
-                self._model.fit(self._features(Z), labels)
+                self._model.fit(self._features(Z), labels, sample_weight=w)   # weighted MLE
         return self
 
     def predict_proba(self, Z: np.ndarray) -> np.ndarray:

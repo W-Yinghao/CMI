@@ -62,12 +62,15 @@ def estimate_extractable_leakage(
 
     for c in cfg.capacities:
         nll = oof_nll_by_class(feat, support_graph, fold_plan, c, cfg)
+        for y in comparable:
+            if nll[y]["mass"] <= 0 or not np.isfinite(nll[y]["nll"]):
+                raise ValueError(f"comparable class {y} has zero OOF mass / non-finite NLL "
+                                 f"(capacity {c}); refusing to silently drop it from L_abs")
         L_y = {y: (H[y] - nll[y]["nll"]) for y in comparable}
         L_y_by_c[c] = L_y
         nll_by_c[c] = {y: nll[y]["nll"] for y in comparable}
-        # NaN guard: a class with no OOF rows cannot contribute (should not happen post-feasibility)
-        L_abs_by_c[c] = float(np.nansum([p_ref[y] * L_y[y] for y in comparable]))
-        L_cond_by_c[c] = float(np.nansum([w_cond[y] * L_y[y] for y in comparable]))
+        L_abs_by_c[c] = float(sum(p_ref[y] * L_y[y] for y in comparable))
+        L_cond_by_c[c] = float(sum(w_cond[y] * L_y[y] for y in comparable))
 
     sel = max(L_abs_by_c, key=L_abs_by_c.get)  # capacity sup AFTER aggregation
     return {

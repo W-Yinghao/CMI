@@ -30,11 +30,14 @@ from .critic import CriticConfig, DomainProbe
 
 @dataclass
 class FrozenFeatures:
-    """A frozen representation + the labels the probe conditions on."""
-    Z: np.ndarray         # [N, dim]
-    y: np.ndarray         # [N] class label (int)
-    d: np.ndarray         # [N] domain label (int)
-    group: np.ndarray     # [N] recording-group id (the dependence unit)
+    """A frozen representation + the labels the probe conditions on, plus per-row base mass
+    ``b_i`` (default = ones for synthetic back-compat). All leakage estimands are MASS-weighted by
+    ``sample_mass``; never re-infer mass from row counts inside the estimator."""
+    Z: np.ndarray              # [N, dim]
+    y: np.ndarray              # [N] class label (int)
+    d: np.ndarray              # [N] domain label (int)
+    group: np.ndarray          # [N] recording-group id (the dependence unit)
+    sample_mass: np.ndarray = None   # [N] base mass b_i > 0
 
     def __post_init__(self):
         self.Z = np.asarray(self.Z, dtype=np.float64)
@@ -44,6 +47,14 @@ class FrozenFeatures:
         n = self.Z.shape[0]
         if not (self.y.shape[0] == self.d.shape[0] == self.group.shape[0] == n):
             raise ValueError("Z/y/d/group length mismatch")
+        if self.sample_mass is None:
+            self.sample_mass = np.ones(n, dtype=np.float64)
+        else:
+            self.sample_mass = np.asarray(self.sample_mass, dtype=np.float64).ravel()
+            if self.sample_mass.shape[0] != n:
+                raise ValueError("sample_mass length mismatch")
+            if not np.all(np.isfinite(self.sample_mass)) or np.any(self.sample_mass <= 0):
+                raise ValueError("sample_mass must be finite and strictly positive")
 
     @property
     def n(self) -> int:
@@ -87,22 +98,23 @@ def _cell_aware_fold_assignment(
     group's cells are spread to distinct least-loaded folds, so every cell appears in EVERY
     fold's train and test; multi-class groups are balanced jointly.
     """
-    # per-group: the eligible comparable cells it touches (its domain x each comparable class
-    # present), with sample counts; plus its total size (for size balancing).
-    group_cells: dict[int, dict[tuple, int]] = {}
-    group_total: dict[int, int] = {}
+    # per-group: the eligible comparable cells it touches, balanced by SAMPLE-MASS sums (not row
+    # counts) so duplicating windows with split mass leaves the fold plan unchanged.
+    b = feat.sample_mass
+    group_cells: dict[int, dict[tuple, float]] = {}
+    group_total: dict[int, float] = {}
     for g in np.unique(feat.group):
         g = int(g)
         gm = feat.group == g
         dom = dom_of_group[g]
-        cells: dict[tuple, int] = {}
+        cells: dict[tuple, float] = {}
         for y in support_graph.comparable_classes:
             if dom in support_graph.support_of_class[y]:
-                cnt = int(np.sum(gm & (feat.y == y)))
-                if cnt > 0:
-                    cells[(dom, y)] = cnt
+                mss = float(b[gm & (feat.y == y)].sum())
+                if mss > 0:
+                    cells[(dom, y)] = mss
         group_cells[g] = cells
-        group_total[g] = int(gm.sum())
+        group_total[g] = float(b[gm].sum())
 
     rng = np.random.default_rng(seed)
     order = list(group_cells)
@@ -186,31 +198,37 @@ def oof_nll_by_class(
     """Out-of-fold mean NLL (nats) of ``q(D|Z,Y=y)`` for each comparable class ``y``.
 
     For class ``y``: keep only eligible class-``y`` rows (``d ∈ S_y``), relabel domains to the
-    ``S_y`` index space, train per fold on the other folds, score the held-out fold. Returns
-    ``{y: {nll, n}}`` with ``n`` the number of OOF-scored rows.
+    ``S_y`` index space, train per fold (weighted by ``sample_mass``) on the other folds, score the
+    held-out fold. Returns ``{y: {nll, n_rows, mass}}`` where ``nll = Σ b_i·[-log q] / M_y^ov``
+    over OOF rows — the weighted numerator over the FIXED mass denominator (NOT a self-normalised
+    per-fold mean), so window duplication with split mass is a no-op.
     """
     fold = np.array([fold_plan.fold_of_group[int(g)] for g in feat.group])
+    b_all = feat.sample_mass
     out: dict[int, dict] = {}
     for y in support_graph.comparable_classes:
         S = support_graph.support_of_class[y]
         dmap = {int(d): i for i, d in enumerate(S)}
         sel = (feat.y == y) & np.isin(feat.d, S)
         idx = np.where(sel)[0]
+        M_y_ov = float(support_graph.cell_mass[S, y].sum())     # FIXED denominator
         if idx.size == 0:
-            out[y] = {"nll": np.nan, "n": 0}
+            out[y] = {"nll": np.nan, "n_rows": 0, "mass": 0.0}
             continue
         Z = feat.Z[idx]
         labels = np.array([dmap[int(d)] for d in feat.d[idx]])
+        b = b_all[idx]
         f = fold[idx]
-        nll_sum, n = 0.0, 0
+        num, mass, n_rows = 0.0, 0.0, 0
         for k in range(fold_plan.n_folds):
             te = f == k
             tr = ~te
             if te.sum() == 0 or tr.sum() == 0:
                 continue
-            probe = DomainProbe(capacity, len(S), cfg).fit(Z[tr], labels[tr])
+            probe = DomainProbe(capacity, len(S), cfg).fit(Z[tr], labels[tr], sample_weight=b[tr])
             nll = probe.nll(Z[te], labels[te])
-            nll_sum += float(nll.sum())
-            n += int(te.sum())
-        out[y] = {"nll": (nll_sum / n if n > 0 else np.nan), "n": n}
+            num += float((b[te] * nll).sum())
+            mass += float(b[te].sum())
+            n_rows += int(te.sum())
+        out[y] = {"nll": (num / M_y_ov if M_y_ov > 0 else np.nan), "n_rows": n_rows, "mass": mass}
     return out

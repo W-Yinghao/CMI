@@ -10,9 +10,11 @@
   is ``-domain_ce + λ·task_risk``.
 * **λ is the dual multiplier of the RISK CONSTRAINT**, not a weight on the leakage term.
   Dual ascent on the full source guard set: ``λ ← Π_[0,λmax]( λ + η_λ (R̂_guard − τ) )``.
-* Critic **warmup freezes the encoder**; an anti-collapse floor ``λ_floor>0`` keeps the task
-  anchored so the encoder never maximises domain CE unconstrained at λ=0 (the dual λ itself is
-  reported pure). Stage-2 warm-starts from the feasible ERM checkpoint.
+* Critic **warmup freezes the encoder**. MAIN PATH: ``lambda_floor = 0`` -> the encoder's risk
+  coefficient is EXACTLY the dual λ (the exact Lagrangian). A nonzero ``lambda_floor`` is an
+  explicit, off-by-default **stabilisation ablation** (a fixed risk regulariser making the
+  problem a relaxation), never the main mechanism. Stage-2 warm-starts from the feasible ERM
+  checkpoint.
 * Unsupported cells still enter the **task risk** but never the adversary.
 * The ERM checkpoint is deep-copied once and never mutated (byte-exact fallback target).
 """
@@ -130,7 +132,7 @@ def _clone_state(module: nn.Module) -> dict:
 # trainer
 # --------------------------------------------------------------------------------------
 def train_risk_feasible(
-    X, y, d, group, support_graph: SupportGraph, cfg: TrainConfig, sampler=None
+    X, y, d, group, support_graph: SupportGraph, cfg: TrainConfig, sampler=None, sample_mass=None
 ) -> TrainResult:
     """Two-stage trainer. Returns the ERM checkpoint, τ, and the Stage-2 trajectory.
 
@@ -152,23 +154,27 @@ def train_risk_feasible(
     in_dim = X.shape[1]
     nc = cfg.n_classes
     H_ref_bar = reference_entropy_bar(support_graph)
+    # per-row base mass b_i (default ones): used for the FULL-BATCH risk/guard/surrogate; the
+    # minibatch (sampler) path uses the proposal-corrected WeightedBatch.weight instead.
+    sm = (torch.ones(X.shape[0]) if sample_mass is None
+          else torch.as_tensor(np.asarray(sample_mass), dtype=torch.float32))
 
     enc = Encoder(in_dim, cfg.z_dim, cfg.enc_hidden)
     head = TaskHead(cfg.z_dim, nc)
 
     def guard_risk() -> float:
         with torch.no_grad():
-            return float(source_risk(head(enc(X)), y, cfg.metric, nc).item())
+            return float(source_risk(head(enc(X)), y, cfg.metric, nc, weight=sm).item())
 
     def guard_balerr() -> float:
         with torch.no_grad():
-            return balanced_error(head(enc(X)), y, nc)
+            return balanced_error(head(enc(X)), y, nc, weight=sm)
 
-    # ---- Stage 1: ERM (realised empirical risk of the frozen checkpoint) ----
+    # ---- Stage 1: ERM (realised mass-weighted empirical risk of the frozen checkpoint) ----
     opt1 = torch.optim.Adam(list(enc.parameters()) + list(head.parameters()), lr=cfg.lr_task)
     for _ in range(cfg.stage1_epochs):
         opt1.zero_grad()
-        source_risk(head(enc(X)), y, cfg.metric, nc).backward()
+        source_risk(head(enc(X)), y, cfg.metric, nc, weight=sm).backward()
         opt1.step()
     R_ERM_hat = guard_risk()
     tau = R_ERM_hat + cfg.epsilon
@@ -190,7 +196,7 @@ def train_risk_feasible(
     opt_adv = torch.optim.Adam(adv.parameters(), lr=cfg.lr_critic)
 
     def critic_loss_full():
-        return adv.domain_ce(enc(X).detach(), y, d)
+        return adv.domain_ce(enc(X).detach(), y, d, importance_weight=sm)
 
     def critic_step_stream():
         opt_adv.zero_grad()
@@ -207,7 +213,7 @@ def train_risk_feasible(
 
     # ERM as a scorable candidate: surrogate measured with the warmed critic while enc == ERM
     with torch.no_grad():
-        erm_record = _erm_record(H_ref_bar - float(adv.domain_ce(enc(X), y, d).item()))
+        erm_record = _erm_record(H_ref_bar - float(adv.domain_ce(enc(X), y, d, importance_weight=sm).item()))
 
     lam = cfg.lambda_init
     trajectory: list[CheckpointRecord] = []
@@ -225,7 +231,8 @@ def train_risk_feasible(
             opt_enc.zero_grad()
             if sampler is None:
                 Z = enc(X)
-                loss = -adv.domain_ce(Z, y, d) + risk_weight * source_risk(head(Z), y, cfg.metric, nc)
+                loss = (-adv.domain_ce(Z, y, d, importance_weight=sm)
+                        + risk_weight * source_risk(head(Z), y, cfg.metric, nc, weight=sm))
                 loss.backward()
             else:
                 for mb in sampler.adv_logical_batch().microbatches:          # -C_D (accumulated)
@@ -237,7 +244,7 @@ def train_risk_feasible(
             R_guard = guard_risk()                                          # full source guard set
             lam = dual_update(lam, R_guard, tau, cfg.dual_lr, cfg.lambda_max)
         with torch.no_grad():
-            surrogate = H_ref_bar - float(adv.domain_ce(enc(X), y, d).item())
+            surrogate = H_ref_bar - float(adv.domain_ce(enc(X), y, d, importance_weight=sm).item())
         trajectory.append(
             CheckpointRecord(
                 epoch=epoch, enc_state=_clone_state(enc), head_state=_clone_state(head),

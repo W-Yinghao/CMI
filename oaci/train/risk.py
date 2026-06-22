@@ -31,19 +31,20 @@ def task_ce(logits: torch.Tensor, y: torch.Tensor) -> torch.Tensor:
     return F.cross_entropy(logits, y, reduction="mean")
 
 
-def per_class_ce_sums(logits: torch.Tensor, y: torch.Tensor, n_classes: int):
-    """Per-class (sum of CE, count) — the additive sufficient statistics for ``balanced_ce``.
-    Accumulating these across an arbitrary partition and then taking ``mean_c(sum/count)``
-    reproduces the full-set ``balanced_ce`` exactly (batch-partition invariant)."""
+def per_class_ce_sums(logits: torch.Tensor, y: torch.Tensor, n_classes: int, weight=None):
+    """Per-class (Σ wᵢℓᵢ, Σ wᵢ) — additive sufficient statistics for (mass-)weighted ``balanced_ce``
+    (default weight = 1). Accumulating across an arbitrary partition then ``mean_c(sum/mass)``
+    reproduces the full-set value exactly (partition- and window-duplication-invariant)."""
     per = F.cross_entropy(logits, y, reduction="none")
+    w = torch.ones_like(per) if weight is None else torch.as_tensor(weight, dtype=per.dtype, device=per.device)
     sums = torch.zeros(n_classes, dtype=per.dtype)
-    counts = torch.zeros(n_classes, dtype=per.dtype)
+    mass = torch.zeros(n_classes, dtype=per.dtype)
     for c in range(n_classes):
         m = y == c
         if m.any():
-            sums[c] = per[m].sum()
-            counts[c] = m.sum()
-    return sums, counts
+            sums[c] = (w[m] * per[m]).sum()
+            mass[c] = w[m].sum()
+    return sums, mass
 
 
 def balanced_ce(logits: torch.Tensor, y: torch.Tensor, n_classes: int | None = None, weight=None) -> torch.Tensor:
@@ -78,13 +79,16 @@ def source_risk(logits: torch.Tensor, y: torch.Tensor, metric: str, n_classes: i
     return balanced_ce(logits, y, n_classes, weight=weight)
 
 
-def balanced_error(logits: torch.Tensor, y: torch.Tensor, n_classes: int | None = None) -> float:
-    """Class-balanced 0/1 error — GUARD/REPORT ONLY (non-differentiable; never the primal)."""
+def balanced_error(logits: torch.Tensor, y: torch.Tensor, n_classes: int | None = None, weight=None) -> float:
+    """Class-balanced 0/1 error — GUARD/REPORT ONLY (non-differentiable; never the primal). The
+    per-class error is MASS-weighted (default weight = 1)."""
     nc = _n_classes(y, n_classes)
     pred = logits.argmax(dim=1)
+    wrong = (pred != y).float()
+    w = torch.ones_like(wrong) if weight is None else torch.as_tensor(weight, dtype=wrong.dtype, device=wrong.device)
     errs = []
     for c in range(nc):
         m = y == c
         if m.any():
-            errs.append((pred[m] != c).float().mean())
+            errs.append((w[m] * wrong[m]).sum() / w[m].sum())
     return float(torch.stack(errs).mean().item())

@@ -54,8 +54,11 @@ def within_domain_group_bootstrap(fold_plan: FoldPlan, rng) -> list[int]:
 
 
 def _rebuild(feat: FrozenFeatures, group_rows: dict[int, np.ndarray], resampled_groups: list[int]) -> FrozenFeatures:
+    # a group drawn r times contributes its rows r times, EACH at its original base mass (the
+    # replicate mass is r x the base mass; never renormalised back to a single copy).
     take = np.concatenate([group_rows[g] for g in resampled_groups])
-    return FrozenFeatures(Z=feat.Z[take], y=feat.y[take], d=feat.d[take], group=feat.group[take])
+    return FrozenFeatures(Z=feat.Z[take], y=feat.y[take], d=feat.d[take], group=feat.group[take],
+                          sample_mass=feat.sample_mass[take])
 
 
 def bootstrap_ucb(
@@ -73,15 +76,26 @@ def bootstrap_ucb(
 
     group_rows = _group_to_rows(feat)
     rng = np.random.default_rng(seed)
-    reps = np.empty(n_bootstrap, dtype=np.float64)
+    reps: list[float] = []
     rep_caps: list[int] = []
-    for b in range(n_bootstrap):
-        resampled = within_domain_group_bootstrap(fold_plan, rng)
-        feat_b = _rebuild(feat, group_rows, resampled)
-        est_b = estimate_extractable_leakage(feat_b, support_graph, fold_plan, cfg)
-        reps[b] = est_b["extractable_LQ_ov"]
-        rep_caps.append(est_b["selected_capacity"])
-
+    degenerate = 0
+    # try up to 5x replicates; a degenerate cluster-resample (a comparable class stranded in one
+    # fold -> zero OOF mass) is SKIPPED + counted (the point estimate still fails strictly).
+    for _ in range(n_bootstrap * 5):
+        if len(reps) >= n_bootstrap:
+            break
+        feat_b = _rebuild(feat, group_rows, within_domain_group_bootstrap(fold_plan, rng))
+        try:
+            est_b = estimate_extractable_leakage(feat_b, support_graph, fold_plan, cfg)
+        except ValueError:
+            degenerate += 1
+            continue
+        reps.append(est_b["extractable_LQ_ov"]); rep_caps.append(est_b["selected_capacity"])
+    if len(reps) < n_bootstrap:
+        raise ValueError(f"only {len(reps)}/{n_bootstrap} non-degenerate bootstrap replicates "
+                         f"({degenerate} stranded a class); too few clusters for a leakage CI")
+    reps = np.asarray(reps, dtype=np.float64)
+    degenerate_rate = degenerate / (degenerate + len(reps))
     q_low = float(np.quantile(reps, alpha))         # α-quantile (lower tail)
     bootstrap_ucl = float(2.0 * Lhat - q_low)       # basic one-sided upper limit
     percentile_ucl = float(np.quantile(reps, 1.0 - alpha))
@@ -97,6 +111,7 @@ def bootstrap_ucb(
         "n_bootstrap": int(n_bootstrap),
         "replicates": reps,
         "replicate_capacities": rep_caps,
+        "degenerate_replicate_rate": float(degenerate_rate),
         "reference_entropy": point["reference_entropy"],
         "fold_notes": fold_plan.notes,
     }
