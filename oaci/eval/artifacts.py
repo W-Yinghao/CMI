@@ -40,7 +40,7 @@ def population_hash(sample_id, y, domain, group) -> str:
     return h.hexdigest()
 
 
-@dataclass
+@dataclass(frozen=True)
 class PredictionBundle:
     sample_id: np.ndarray
     logits: np.ndarray            # [N, C]
@@ -52,7 +52,7 @@ class PredictionBundle:
     split_id: str
     split_role: str               # 'source_guard' | 'source_audit' | 'target_audit'
     deletion_level: int
-    class_names: list
+    class_names: tuple
     risk_metric: str = "balanced_ce"
     support_mask_hash: str = ""
     checkpoint_hash: str = ""
@@ -61,11 +61,13 @@ class PredictionBundle:
     preprocess_hash: str = ""
 
     def __post_init__(self):
-        self.sample_id = np.asarray([str(s) for s in np.asarray(self.sample_id).tolist()])
-        self.logits = np.asarray(self.logits, dtype=np.float64)
-        self.y = np.asarray(self.y, dtype=int).ravel()
-        self.domain = np.asarray(self.domain, dtype=int).ravel()                 # frozen contiguous int
-        self.group = np.asarray([str(g) for g in np.asarray(self.group).ravel().tolist()], dtype=object)
+        _set = object.__setattr__                                             # frozen: defensive copies
+        _set(self, "sample_id", np.asarray([str(s) for s in np.asarray(self.sample_id).tolist()]))
+        _set(self, "logits", np.asarray(self.logits, dtype=np.float64))
+        _set(self, "y", np.asarray(self.y, dtype=int).ravel())
+        _set(self, "domain", np.asarray(self.domain, dtype=int).ravel())         # frozen contiguous int
+        _set(self, "group", np.asarray([str(g) for g in np.asarray(self.group).ravel().tolist()], dtype=object))
+        _set(self, "class_names", tuple(str(c) for c in self.class_names))
         N = self.logits.shape[0]
         if N == 0:
             raise ValueError("prediction population is empty")
@@ -158,6 +160,16 @@ class PredictionBundle:
         Deliberately excludes the current training support hash."""
         return (self.eval_population_hash, self.audit_tensor_hash, self.split_manifest_hash,
                 self.preprocess_hash, self._class_map_hash(), self.split_role)
+
+    @property
+    def bundle_hash(self) -> str:
+        """Full byte identity of this method-specific bundle (== prediction_content_hash)."""
+        return self.prediction_content_hash()
+
+    @property
+    def audit_signature_hash(self) -> str:
+        """Full SHA-256 of the fixed-population audit signature (level-invariant for audit/target)."""
+        h = hashlib.sha256(); _feed_strs(h, [str(x) for x in self.audit_signature()]); return h.hexdigest()
 
 
 def align_pair(a: PredictionBundle, b: PredictionBundle):

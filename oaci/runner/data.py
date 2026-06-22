@@ -51,6 +51,21 @@ def _subset_tensor_hash(rows, pop_hash, X, sid):
 
 
 @dataclass(frozen=True)
+class RoleView:
+    role: str
+    row_indices: np.ndarray
+    X: torch.Tensor
+    y: np.ndarray
+    sample_id: tuple
+    domain_id: tuple
+    group_id: tuple
+    eval_unit_id: tuple
+    sample_mass: np.ndarray
+    population_hash: str
+    tensor_hash: str
+
+
+@dataclass(frozen=True)
 class FoldData:
     X: torch.Tensor
     y: np.ndarray
@@ -80,6 +95,47 @@ class FoldData:
         idx = {"source_train": self.source_train_idx, "source_audit": self.source_audit_idx,
                "target_audit": self.target_audit_idx}[role]
         return tuple(self.sample_id[i] for i in idx.tolist())
+
+    def make_role_view(self, role: str, row_indices=None) -> "RoleView":
+        """The strong, canonical input identity for one prediction role. ``source_guard`` MUST be
+        given the current ``support_state.source_train_idx``; the fixed audit/target roles use the
+        frozen FoldData indices (and the produced population/tensor hashes are verified byte-exact
+        equal to the frozen ones). Rows are canonical-sorted by sample_id, so a row permutation can
+        never change the identity. The population hash binds the full row metadata (incl. eval-unit
+        mapping); the tensor hash binds the population hash + actual X bytes."""
+        fold_role = {"source_guard": "source_train", "source_audit": "source_audit",
+                     "target_audit": "target_audit"}[role]
+        if role == "source_guard":
+            if row_indices is None:
+                raise ValueError("source_guard requires the current support_state.source_train_idx")
+            rows = [int(i) for i in np.asarray(row_indices).tolist()]
+        else:
+            frozen = {"source_audit": self.source_audit_idx, "target_audit": self.target_audit_idx}[role]
+            if row_indices is not None and [int(i) for i in np.asarray(row_indices).tolist()] != frozen.tolist():
+                raise ValueError(f"{role} must use the frozen FoldData indices")
+            rows = list(frozen.tolist())
+        if len(set(rows)) != len(rows):
+            raise ValueError("duplicate role row index")
+        rows = sorted(rows, key=lambda i: self.sample_id[i])             # canonical sample-id order
+        pop = _subset_population_hash(rows, fold_role, self.sample_id, self.y, self.domain_id,
+                                      self.group_id, self.support_unit_id, self.mass_unit_id,
+                                      self.eval_unit_id, self.sample_mass, self.class_names,
+                                      self.preprocess_hash, self.split_manifest_hash)
+        th = _subset_tensor_hash(rows, pop, self.X, self.sample_id)
+        if role == "source_audit" and (pop != self.source_audit_population_hash or th != self.source_audit_tensor_hash):
+            raise ValueError("source_audit role view does not match the frozen FoldData identity")
+        if role == "target_audit" and (pop != self.target_population_hash or th != self.target_tensor_hash):
+            raise ValueError("target_audit role view does not match the frozen FoldData identity")
+        ridx = np.array(rows, dtype=np.int64); ridx.setflags(write=False)
+        return RoleView(role=role, row_indices=ridx,
+                        X=self.X[torch.as_tensor(rows, dtype=torch.long)],
+                        y=_ro(np.array([int(self.y[i]) for i in rows]), np.int64),
+                        sample_id=tuple(self.sample_id[i] for i in rows),
+                        domain_id=tuple(self.domain_id[i] for i in rows),
+                        group_id=tuple(self.group_id[i] for i in rows),
+                        eval_unit_id=tuple(self.eval_unit_id[i] for i in rows),
+                        sample_mass=_ro(np.array([float(self.sample_mass[i]) for i in rows]), np.float64),
+                        population_hash=pop, tensor_hash=th)
 
     def assert_integrity(self) -> None:
         if _subset_tensor_hash(range(len(self.sample_id)), "all", self.X, self.sample_id) != self._integrity_hash:

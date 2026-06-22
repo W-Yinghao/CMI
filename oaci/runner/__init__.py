@@ -5,7 +5,7 @@ from __future__ import annotations
 
 from ..leakage.errors import (BootstrapPlanNonEstimable, FoldPlanNonEstimable, LeakageNonEstimableError,
                               NoComparableSupport)
-from .data import FoldData
+from .data import FoldData, RoleView
 from .features import FeatureArtifact, extract_frozen_features
 from .keys import FoldKey, RunKey, canonical_json_hash, feed_float64, feed_int64, feed_string
 from .maps import FrozenMaps, build_frozen_maps
@@ -26,7 +26,12 @@ from .scientific_hash import scientific_value_hash
 from .audit_results import (AuditCacheStats, AuditMethodResult, LevelAuditIntermediate,
                             MethodSelectionSnapshot, SelectionSnapshot)
 from .audit import build_training_data_for_design, make_selection_snapshot, run_post_selection_audit
-from .fold import run_level_through_audit
+from .predict import (PredictionCacheKey, RowPredictionArtifact, RowPredictionCache,
+                      aggregate_role_to_bundle, predict_checkpoint)
+from .metrics import EvaluationMetrics, evaluate_prediction_bundle
+from .final_results import FoldRunResult, LevelRunResult, MethodRunResult, PredictionCacheStats
+from .finalize import assemble_fold_run, finalize_level_run
+from .fold import run_level_complete, run_level_through_audit
 from .support import (DeletionCell, DeletionSchedule, LevelSupportState, build_level_support,
                       level0_reference_prior, make_deletion_schedule)
 
@@ -49,4 +54,8 @@ __all__ = [
     "scientific_value_hash", "make_selection_snapshot", "build_training_data_for_design",
     "run_post_selection_audit", "run_level_through_audit", "MethodSelectionSnapshot", "SelectionSnapshot",
     "AuditMethodResult", "AuditCacheStats", "LevelAuditIntermediate",
+    "RoleView", "predict_checkpoint", "RowPredictionArtifact", "RowPredictionCache", "PredictionCacheKey",
+    "aggregate_role_to_bundle", "EvaluationMetrics", "evaluate_prediction_bundle",
+    "MethodRunResult", "LevelRunResult", "FoldRunResult", "PredictionCacheStats",
+    "finalize_level_run", "assemble_fold_run", "run_level_complete",
 ]

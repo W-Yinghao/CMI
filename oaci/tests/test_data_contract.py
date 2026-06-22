@@ -222,12 +222,12 @@ def test_audit_tensor_hash_is_fixed_across_methods_and_levels():
     sid = np.arange(8); y = np.array([0, 1] * 4); dom = np.array([0, 0, 0, 0, 1, 1, 1, 1]); grp = dom
     th = tensor_hash(np.ones((8, 3)))
 
-    def pb(method, level):
+    def pb(method, level, audit_tensor_hash=th):
         return PredictionBundle(sid, np.zeros((8, 2)), y, dom, grp, method, 0, "s", "target_audit",
-                                level, ["A", "B"], audit_tensor_hash=th)
+                                level, ["A", "B"], audit_tensor_hash=audit_tensor_hash)
     assert_fixed_audit_population({0: {"ERM": pb("ERM", 0), "OACI": pb("OACI", 0)},
                                    1: {"ERM": pb("ERM", 1), "OACI": pb("OACI", 1)}})
-    bad = pb("ERM", 1); bad.audit_tensor_hash = "DIFFERENT"
+    bad = pb("ERM", 1, audit_tensor_hash="DIFFERENT")           # frozen: build the variant, don't mutate
     try:
         assert_fixed_audit_population({0: {"ERM": pb("ERM", 0)}, 1: {"ERM": bad}})
     except ValueError:
