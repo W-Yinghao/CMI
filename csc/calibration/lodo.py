@@ -1,41 +1,35 @@
 """
-csc.calibration.lodo — nested, oracle-labeled leave-one-domain-out calibration (CSC-P1).
+csc.calibration.lodo — nested, oracle-labeled leave-one-(group)-out calibration (CSC-P1.1).
 
-The v0 PREREGISTRATION asked that a held-out source domain "never be CONCEPT_SUSPECT".
-That is WRONG: the source CONTAINS genuine concept domains, so forcing a held-out concept
-domain to be null calibrates away the very power we need. This module instead:
+Review fixes over the P1 version:
 
-  for each held-out source domain d:
-    1. build the atlas + residual evidence on the OTHER domains only  (NO leakage);
-    2. certify d as an UNLABELED pseudo-target;
-    3. compute an ORACLE boundary-effect on d WITH d's labels (calibration only), as an
-       EQUIVALENCE test with a bootstrap CI:
-           oracle_lb(d) > eps_concept   -> d genuinely moved its boundary (VISIBLE_CONCEPT)
-           oracle_ub(d) < eps_stable    -> d's boundary == pooled (COVARIATE_STABLE)
-           otherwise                    -> AMBIGUOUS (excluded from the forced binary)
-    4. score the (label-blind) certificate against the (label-aware) oracle verdict.
-
-The oracle isolates BOUNDARY movement from LABEL shift: the pooled (shared-boundary) model
-is prior-corrected to d using d's ORACLE class frequencies before its CE is compared to a
-d-specific refit. So a pure label shift contributes ~0 to the oracle effect.
-
-tau_detect is calibrated from BLOCK-RESAMPLED pseudo-targets within the training domains
-(the finite-sample fluctuation of a held-out-domain mean), NOT hand-set.
-
-"Not rejecting a boundary shift is NOT proving stability" -> two-sided equivalence bands.
+* the calibrated `tau_detect` now ACTUALLY enters the certificate: per outer fold we build it
+  on the TRAINING domains only (no leakage), `dataclasses.replace` it into the config, and
+  call `certify_robust` (so the consensus level is exercised too).
+* it is calibrated on the EXACT certificate statistic `visibility_statistic = max(n_cov,
+  n_concept, n_resid)` (same units as the certifier), not a Euclidean-mean / RMS proxy.
+* MECHANISM-GROUP-OUT folds: leaving a whole concept family out gives the oracle genuine
+  VISIBLE_CONCEPT folds (leave-one-domain-out leaves concept structure in the pool, so the
+  oracle saw none -> the agreement was non-diagnostic).
+* the oracle effect is bootstrapped WITH REFITTING (resample the held-out group, refit the
+  group-specific boundary on the bootstrap sample, evaluate OOB) and uses a TWO-SIDED
+  equivalence band: COVARIATE_STABLE requires the WHOLE CI inside (-eps_stable, eps_stable),
+  not just ub<eps_stable; pre-registered 0 < eps_stable < eps_concept.
+* the scorecard reports concept power / false-concept / compatible-coverage / abstention
+  SEPARATELY, and refuses an aggregate agreement when the oracle bank lacks either class.
 """
 from __future__ import annotations
 
+import dataclasses
 from dataclasses import dataclass, field
 from typing import Optional
 import numpy as np
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold
-from sklearn.metrics import log_loss
 
-from ..certificate import analyze_source, certify, CertifierConfig
+from ..certificate import (
+    analyze_source, certify_robust, certify, CertifierConfig, visibility_statistic,
+)
 from ..certificate.certifier import CONCEPT_SUSPECT, COVARIATE_COMPATIBLE, UNIDENTIFIABLE
-
 
 VISIBLE_CONCEPT = "VISIBLE_CONCEPT"
 COVARIATE_STABLE = "COVARIATE_STABLE"
@@ -44,28 +38,30 @@ AMBIGUOUS = "AMBIGUOUS"
 
 @dataclass
 class OracleEffect:
-    point: float              # mean boundary-effect (nats), label-shift-corrected
-    lb: float                 # bootstrap lower CI
-    ub: float                 # bootstrap upper CI
-    verdict: str              # VISIBLE_CONCEPT | COVARIATE_STABLE | AMBIGUOUS
+    point: float
+    lb: float
+    ub: float
+    verdict: str
 
 
 @dataclass
 class LodoRecord:
-    domain: object
+    fold: object
     cert_state: str
     n_label: float
     n_cov: float
     n_concept: float
+    tau_detect: float
+    concept_atlas: bool          # did the TRAINING fold yield a concept atlas at all?
     oracle: OracleEffect
 
 
 @dataclass
 class LodoResult:
     records: list
-    tau_detect: float                 # calibrated detection floor (between-domain fluct.)
-    agreement: float                  # cert vs oracle on non-ambiguous domains
-    n_nonambiguous: int
+    tau_detect_mean: float
+    scorecard: dict
+    valid_bank: bool                  # oracle produced BOTH visible and stable folds
     detail: dict = field(default_factory=dict)
 
 
@@ -78,127 +74,181 @@ def _aligned_proba(clf, Z, classes):
     return full / full.sum(1, keepdims=True)
 
 
-def _persample_xfit_loss(Z, Y, classes, n_folds, C, seed):
-    """Per-sample cross-fitted -log p(y|z) for a d-specific (Z-only) boundary."""
-    cl = list(classes)
-    loss = np.zeros(len(Y))
-    counts = np.array([(Y == c).sum() for c in cl])
-    nf = int(min(n_folds, counts[counts > 0].min())) if (counts > 0).any() else 2
-    nf = max(nf, 2)
-    skf = StratifiedKFold(n_splits=nf, shuffle=True, random_state=seed)
-    for tr, te in skf.split(Z, Y):
-        clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(Z[tr], Y[tr])
-        p = _aligned_proba(clf, Z[te], cl)
-        yi = np.searchsorted(cl, Y[te])
-        loss[te] = -np.log(p[np.arange(len(te)), yi])
-    return loss
+# --------------------------------------------------------------------------------------
+# (#2/#3) calibrate the EXACT certificate statistic on training-domain pseudo-targets
+# --------------------------------------------------------------------------------------
+def calibrate_thresholds(Z_tr, Y_tr, D_tr, atlas, base_cfg: CertifierConfig,
+                         target_size=None, block_ids_tr=None,
+                         alpha=0.05, n_block=240, seed=0) -> CertifierConfig:
+    """tau_detect / tau_label = (1-alpha) quantile of the certifier's OWN statistics over
+    pseudo-targets resampled from the TRAINING domains only (fold-isolated; held-out labels
+    never enter). Each pseudo-target MATCHES the held-out target's `target_size` (and, on
+    real data, its `block_ids_tr` subject/session structure) so the calibrated detection
+    floor reflects the right finite-sample fluctuation. tau_resid / tau_margin are
+    pre-registered constants passed through to the freeze sweep (NOT calibrated here)."""
+    from ..certificate.atlas import components
+    Z_tr = np.asarray(Z_tr, float); D_tr = np.asarray(D_tr)
+    domains = list(np.unique(D_tr))
+    rng = np.random.default_rng(seed + 13)
+    vis, lab = [], []
+    reps = max(1, n_block // len(domains))
+    for d in domains:
+        idx = np.where(D_tr == d)[0]
+        if block_ids_tr is not None:
+            blocks = [idx[block_ids_tr[idx] == b] for b in np.unique(block_ids_tr[idx])]
+        for _ in range(reps):
+            if block_ids_tr is not None:
+                # resample whole blocks (subjects) until >= target_size, then trim
+                picks, n = [], 0
+                tgt = target_size or len(idx)
+                while n < tgt and blocks:
+                    blk = blocks[rng.integers(0, len(blocks))]
+                    picks.append(blk); n += len(blk)
+                bs = np.concatenate(picks)[:tgt] if picks else idx
+            else:
+                k = target_size or len(idx)
+                bs = idx[rng.integers(0, len(idx), k)]   # match held-out target SIZE
+            delta = Z_tr[bs].mean(0) - atlas.pooled_mean
+            c = components(atlas, delta)
+            vis.append(max(c["n_cov"], c["n_concept"], c["n_resid"]))
+            lab.append(c["n_label"])
+    return dataclasses.replace(base_cfg,
+                               tau_detect=float(np.quantile(vis, 1 - alpha)),
+                               tau_label=float(np.quantile(lab, 1 - alpha)))
 
 
-def oracle_boundary_effect(Z_tr, Y_tr, Z_d, Y_d, classes,
-                           n_boot=300, n_folds=4, C=1.0, alpha=0.05,
-                           eps_concept=0.02, eps_stable=0.02, seed=0) -> OracleEffect:
-    """Boundary movement of domain d vs the training pooled boundary, label-shift corrected,
-    with a bootstrap CI and an equivalence verdict."""
+# backwards-compatible scalar helper
+def calibrate_tau_detect(Z, Y, D, atlas, alpha=0.05, n_block=240, seed=0) -> float:
+    cfg = calibrate_thresholds(Z, Y, D, atlas, CertifierConfig(), alpha, n_block, seed)
+    return cfg.tau_detect
+
+
+# --------------------------------------------------------------------------------------
+# (#6) oracle boundary effect: refit bootstrap + two-sided equivalence band
+# --------------------------------------------------------------------------------------
+def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
+                           n_boot=150, C=1.0, alpha=0.05,
+                           eps_concept=0.03, eps_stable=0.01, seed=0) -> OracleEffect:
+    assert 0 < eps_stable < eps_concept, "pre-register 0 < eps_stable < eps_concept"
     cl = list(classes)
     mu, sd = Z_tr.mean(0), Z_tr.std(0) + 1e-8
-    Ztr = (Z_tr - mu) / sd
-    Zd = (Z_d - mu) / sd
-
+    Ztr, Zg = (Z_tr - mu) / sd, (Z_g - mu) / sd
     M = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(Ztr, Y_tr)
     pi_tr = np.array([(Y_tr == c).mean() for c in cl]) + 1e-9
-    pi_d = np.array([(Y_d == c).mean() for c in cl]) + 1e-9     # ORACLE prior (calibration)
-
-    p_share = _aligned_proba(M, Zd, cl)
-    adj = p_share * (pi_d / pi_tr)[None, :]
-    adj /= adj.sum(1, keepdims=True)
-    yi = np.searchsorted(cl, Y_d)
-    loss_pooled = -np.log(adj[np.arange(len(Y_d)), yi])         # pooled boundary @ d's prior
-    loss_dspec = _persample_xfit_loss(Zd, Y_d, cl, n_folds, C, seed)
-    Ti = loss_pooled - loss_dspec                              # >0 => boundary genuinely moved
 
     rng = np.random.default_rng(seed + 3)
-    boots = np.array([Ti[rng.integers(0, len(Ti), len(Ti))].mean() for _ in range(n_boot)])
-    lb, ub = np.quantile(boots, [alpha / 2, 1 - alpha / 2])
-    point = float(Ti.mean())
+    ng = len(Y_g)
+    boots = []
+    for _ in range(n_boot):
+        bs = rng.integers(0, ng, ng)
+        oob = np.setdiff1d(np.arange(ng), np.unique(bs))
+        if len(oob) < len(cl) + 2:
+            continue
+        ybs = Y_g[bs]
+        if len(np.unique(ybs)) < 2:
+            continue
+        # group-specific boundary refit on the bootstrap sample
+        clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(Zg[bs], ybs)
+        p_g = _aligned_proba(clf, Zg[oob], cl)
+        # pooled boundary, prior-corrected to the group's ORACLE prior (isolates boundary)
+        pi_g = np.array([(ybs == c).mean() for c in cl]) + 1e-9
+        p_sh = _aligned_proba(M, Zg[oob], cl) * (pi_g / pi_tr)[None, :]
+        p_sh /= p_sh.sum(1, keepdims=True)
+        yi = np.searchsorted(cl, Y_g[oob])
+        eff = (-np.log(p_sh[np.arange(len(oob)), yi])) - (-np.log(p_g[np.arange(len(oob)), yi]))
+        boots.append(float(eff.mean()))
+    if not boots:
+        return OracleEffect(float("nan"), float("nan"), float("nan"), AMBIGUOUS)
+    boots = np.array(boots)
+    point = float(np.median(boots))
+    lb, ub = (float(x) for x in np.quantile(boots, [alpha / 2, 1 - alpha / 2]))
     if lb > eps_concept:
         verdict = VISIBLE_CONCEPT
-    elif ub < eps_stable:
+    elif (-eps_stable < lb) and (ub < eps_stable):
         verdict = COVARIATE_STABLE
     else:
         verdict = AMBIGUOUS
-    return OracleEffect(point=point, lb=float(lb), ub=float(ub), verdict=verdict)
+    return OracleEffect(point, lb, ub, verdict)
 
 
-def calibrate_tau_detect(Z, Y, D, alpha=0.05, n_block=200, seed=0) -> float:
-    """Detection floor = high quantile of the (normalised) between-domain mean fluctuation,
-    estimated by block-resampling each training domain. A target shift below this is within
-    normal source wobble and must NOT count as 'visible'."""
-    Z = np.asarray(Z, float); D = np.asarray(D)
-    domains = list(np.unique(D))
-    pooled = Z.mean(0)
-    # scale = RMS domain-mean deviation (robust normaliser)
-    dm = np.stack([Z[D == d].mean(0) for d in domains])
-    scale = float(np.sqrt(((dm - pooled) ** 2).sum(1).mean())) + 1e-8
-    rng = np.random.default_rng(seed + 5)
-    fluct = []
-    for d in domains:
-        idx = np.where(D == d)[0]
-        for _ in range(max(1, n_block // len(domains))):
-            bs = idx[rng.integers(0, len(idx), len(idx))]
-            fluct.append(np.linalg.norm(Z[bs].mean(0) - pooled) / scale)
-    return float(np.quantile(fluct, 1 - alpha))
-
-
-def nested_lodo(Z, Y, D,
-                n_boot=80, n_dir_boot=150, oracle_boot=300,
-                cert_cfg: Optional[CertifierConfig] = None,
-                eps_concept=0.02, eps_stable=0.02, alpha=0.05, seed=0) -> LodoResult:
+# --------------------------------------------------------------------------------------
+# (#6) nested LODO with group-out folds + diagnostic scorecard
+# --------------------------------------------------------------------------------------
+def nested_lodo(Z, Y, D, folds=None,
+                n_boot=60, n_dir_boot=150, oracle_boot=150,
+                cert_cfg: Optional[CertifierConfig] = None, consensus=0.85,
+                eps_concept=0.03, eps_stable=0.01, alpha=0.05, seed=0) -> LodoResult:
+    """folds: list of held-out domain GROUPS (each a list of domain ids). Default =
+    leave-one-domain-out. For real diagnostic power pass mechanism groups (e.g. all concept
+    domains as one fold), so the oracle yields genuine VISIBLE_CONCEPT folds."""
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
     cert_cfg = cert_cfg or CertifierConfig()
-
-    tau = calibrate_tau_detect(Z, Y, D, alpha=alpha, seed=seed)
+    if folds is None:
+        folds = [[d] for d in domains]
 
     records = []
-    for d in domains:
-        tr = D != d
-        te = D == d
+    for g in folds:
+        tr = ~np.isin(D, g)
+        te = np.isin(D, g)
+        if len(np.unique(D[tr])) < 2:
+            continue
         sa = analyze_source(Z[tr], Y[tr], D[tr], n_boot=n_boot, n_dir_boot=n_dir_boot,
                             alpha=alpha, seed=seed)
-        cert = certify(sa, Z[te], cert_cfg)
+        cfg_d = calibrate_thresholds(Z[tr], Y[tr], D[tr], sa.atlas, cert_cfg,
+                                     target_size=int(te.sum()),   # match held-out fold size
+                                     alpha=alpha, seed=seed)
+        cert = certify_robust(sa, Z[te], cfg=cfg_d, consensus=consensus, seed=seed)
         oracle = oracle_boundary_effect(Z[tr], Y[tr], Z[te], Y[te], classes,
                                         n_boot=oracle_boot, alpha=alpha,
                                         eps_concept=eps_concept, eps_stable=eps_stable,
                                         seed=seed)
-        records.append(LodoRecord(domain=d, cert_state=cert.state, n_label=cert.n_label,
-                                  n_cov=cert.n_cov, n_concept=cert.n_concept, oracle=oracle))
+        records.append(LodoRecord(fold=list(g), cert_state=cert.state, n_label=cert.n_label,
+                                  n_cov=cert.n_cov, n_concept=cert.n_concept,
+                                  tau_detect=cfg_d.tau_detect,
+                                  concept_atlas=sa.concept_evidenced, oracle=oracle))
 
-    # agreement on NON-ambiguous oracle verdicts only (the forced-binary cases)
-    agree, n_na = 0, 0
-    for r in records:
-        if r.oracle.verdict == VISIBLE_CONCEPT:
-            n_na += 1
-            agree += int(r.cert_state == CONCEPT_SUSPECT)
-        elif r.oracle.verdict == COVARIATE_STABLE:
-            n_na += 1
-            # stable => certificate must NOT cry concept (abstain or compatible both ok)
-            agree += int(r.cert_state != CONCEPT_SUSPECT)
-    agreement = agree / n_na if n_na else float("nan")
-    return LodoResult(records=records, tau_detect=tau, agreement=agreement,
-                      n_nonambiguous=n_na,
-                      detail=dict(eps_concept=eps_concept, eps_stable=eps_stable))
+    visible = [r for r in records if r.oracle.verdict == VISIBLE_CONCEPT]
+    stable = [r for r in records if r.oracle.verdict == COVARIATE_STABLE]
+    amb = [r for r in records if r.oracle.verdict == AMBIGUOUS]
+    # a FAIR power test needs an oracle-visible fold whose TRAINING pool still had a concept
+    # atlas. Leave-ALL-concept-out folds are oracle-visible but leave no atlas -> not fair.
+    fair_visible = [r for r in visible if r.concept_atlas]
+
+    def rate(rs, pred):
+        return (sum(pred(r) for r in rs) / len(rs)) if rs else None
+
+    scorecard = dict(
+        n_folds=len(records), n_visible=len(visible), n_visible_fair=len(fair_visible),
+        n_stable=len(stable), n_ambiguous=len(amb),
+        concept_power_fair=rate(fair_visible, lambda r: r.cert_state == CONCEPT_SUSPECT),
+        false_concept_on_stable=rate(stable, lambda r: r.cert_state == CONCEPT_SUSPECT),
+        compatible_coverage_on_stable=rate(stable, lambda r: r.cert_state == COVARIATE_COMPATIBLE),
+        abstention=rate(records, lambda r: r.cert_state == UNIDENTIFIABLE),
+    )
+    # the bank can validate FALSE-CONCEPT control (needs stable folds); deployment POWER is
+    # validated on out-of-distribution targets (run_synthetic), not in-distribution LODO.
+    valid_bank = len(stable) > 0 and len(fair_visible) > 0
+    taus = [r.tau_detect for r in records]
+    return LodoResult(records=records, tau_detect_mean=float(np.mean(taus)) if taus else float("nan"),
+                      scorecard=scorecard, valid_bank=valid_bank,
+                      detail=dict(eps_concept=eps_concept, eps_stable=eps_stable, consensus=consensus))
 
 
 if __name__ == "__main__":
     import warnings; warnings.filterwarnings("ignore")
     from csc.sim.shift_simulator import SimConfig, make_source
-    src = make_source(SimConfig(seed=4), n_domains=8, concept_domains=3, seed=4)
-    res = nested_lodo(src.Z, src.Y, src.D, n_boot=50, n_dir_boot=100, oracle_boot=200, seed=4)
-    print(f"calibrated tau_detect = {res.tau_detect:.3f}")
-    print(f"{'domain':>6} {'cert':>22} {'oracle_pt':>10} {'oracle_CI':>18} {'verdict':>16}")
+    cfg = SimConfig(seed=4)
+    src = make_source(cfg, n_domains=8, concept_domains=3, seed=4)
+    concept_doms = [i for i, s in enumerate(src.domains) if s.c != 0]
+    cov_doms = [i for i, s in enumerate(src.domains) if s.c == 0]
+    # mechanism-group-out: all concept domains vs covariate-only halves -> oracle gets both
+    folds = [concept_doms, cov_doms[:len(cov_doms)//2], cov_doms[len(cov_doms)//2:]]
+    print(f"folds (concept={concept_doms}): {folds}")
+    res = nested_lodo(src.Z, src.Y, src.D, folds=folds, n_boot=40, n_dir_boot=120,
+                      oracle_boot=120, seed=4)
     for r in res.records:
         o = r.oracle
-        print(f"{str(r.domain):>6} {r.cert_state:>22} {o.point:>10.3f} "
-              f"[{o.lb:+.3f},{o.ub:+.3f}]   {o.verdict:>16}")
-    print(f"cert-vs-oracle agreement on {res.n_nonambiguous} non-ambiguous domains "
-          f"= {res.agreement:.2f}")
+        print(f"  fold {str(r.fold):>12} tau={r.tau_detect:.2f} -> {r.cert_state:>22} "
+              f"| oracle {o.point:+.3f} [{o.lb:+.3f},{o.ub:+.3f}] {o.verdict}")
+    print(f"valid_bank={res.valid_bank}  scorecard={res.scorecard}")

@@ -48,6 +48,24 @@ allowed; **false certification is not.**
 * **Clean must abstain** (scoring fixed); **nested oracle-labeled LODO** calibration with
   equivalence tests; **confidence-region** decision (`certify_robust`).
 
+### CSC-P1.1 (second review — calibration correctness)
+* `_orthonormal_complement` uses **SVD rank with an input-scaled tolerance** (the QR-norm
+  version kept spurious columns, silently invalidating the leakage fix) + a
+  **signature-overlap** abstention on small principal angles.
+* the rank gate is an **exact `rank([1,X])==ncols`** check (the condition-number gate dropped
+  exact-zero singular values and passed e.g. a duplicated feature).
+* the calibrated `tau_detect`/`tau_label` now **actually enter** `certify_robust` per fold
+  (`dataclasses.replace`), calibrated on the **exact certifier statistic** from training-only
+  block resamples (no leakage).
+* concept evidence is a **full-bootstrap max-statistic / step-down** (re-estimates subspaces
+  each replicate — fixes post-selection bias).
+* `COVARIATE_COMPATIBLE` requires positive **`cov_stable` equivalence** evidence, not
+  absence-of-concept.
+* LODO does **mechanism-group-out** with a diagnostic scorecard (no agreement when the oracle
+  bank lacks a class), two-sided equivalence bands + refit-OOB oracle CI.
+* the false-cert bound is **cluster-level** (per source seed), and all thresholds are in the
+  freeze list with a **lexicographic** selection rule.
+
 ## Layout
 
 ```
@@ -89,22 +107,25 @@ conda run -n icml python -m csc.run_synthetic --seeds 30 --n_boot 80
 ```
                                 COVARI  CONCEP  UNIDEN  forbid
 clean            (NONE)              0       0      10       0
-covariate        (COVARIATE)         7       0       3       0
-boundary_coupled (CONCEPT_VISIBLE)   0       9       1       0
+covariate        (COVARIATE)         5       0       5       0
+boundary_coupled (CONCEPT_VISIBLE)   0      10       0       0
 pure_conditional (CONCEPT_INVISIBLE) 0       0      10       0
 label_shift      (LABEL_SHIFT)       0       0      10       0
 label_covariate_mixed (LABEL_COV)    0       0      10       0
 
-false certifications, total : 0 / 60     (95% upper bound on must-abstain rate = 0.072)
-power on VISIBLE concept    : 0.90
-covariate -> COMPATIBLE     : 0.70
+false certifications, total : 0 / 60
+per-SEED clusters w/ a miss : 0 / 10   (95% cluster-level upper bound = 0.259)
+power on VISIBLE concept    : 1.00
+covariate -> COMPATIBLE     : 0.50     (conservative: now needs cov_stable evidence)
 ```
 
-**Honesty:** 0 observed false certifications does **not** prove the rate ≤ 0.05 — with 0/40
-the 95% upper bound is ≈ 0.072 (Rule of Three); reaching 0.05 needs ≥ 59 zero-failure
-trials. The headline is *"simulator smoke passed; control & power not yet statistically
-established."* Covariate → COMPATIBLE at 0.70 is the soft spot (conservative abstention, not
-a false cert); CSC-P1 calibration is the route to tightening it.
+**Honesty:** 0 observed false certifications does **not** prove the rate ≤ 0.05. The unit is
+an *independent source seed* (the 4 must-abstain targets share a source), so 0/10 → 95% upper
+bound ≈ 0.259 (Rule of Three) — **not** the 0.072 a wrong 40-independent-trials count gives;
+reaching 0.05 needs ≥ 59 independent clusters. The headline is *"simulator smoke passed;
+control & power not yet statistically established."* Covariate→COMPATIBLE at 0.50 is the soft
+spot — conservative abstention now that it requires positive `cov_stable` equivalence evidence
+(a safe miss, not a false cert); the freeze sweep is the route to tightening it.
 
 ## Scaling to real EEG
 

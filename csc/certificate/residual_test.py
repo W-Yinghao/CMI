@@ -55,6 +55,9 @@ class SupportGraph:
     n_components: int
     min_cell_count: int
     design_condition: float
+    design_rank: int = -1
+    design_ncols: int = -1
+    full_rank: bool = True
 
 
 @dataclass
@@ -102,15 +105,21 @@ def _connected_components(Y, D, classes, domains) -> int:
     return len(roots)
 
 
-def _interaction_condition(Zs, D, domains) -> float:
-    """Condition number of the (centred) reference-coded interaction design."""
+def _design_rank_cond(Zs, D, domains):
+    """Rank, #cols and condition number of the LR design [1, reference-coded interaction X].
+    The intercept is included (the LR fits it), so a column collinear with the intercept is a
+    genuine rank deficiency. RANK is on the actual (uncentered) design so exact-zero
+    directions DROP it (the v0 condition number dropped sub-1e-12 singular values and so
+    never reached inf); the condition number is on the centred feature block."""
     X = _features(Zs, D, domains, interaction=True)
-    X = X - X.mean(0, keepdims=True)
-    s = np.linalg.svd(X, compute_uv=False)
-    s = s[s > 1e-12]
-    if s.size == 0:
-        return np.inf
-    return float(s[0] / s[-1])
+    Xi = np.concatenate([np.ones((len(X), 1)), X], axis=1)
+    ncols = Xi.shape[1]
+    rank = int(np.linalg.matrix_rank(Xi))
+    Xc = X - X.mean(0, keepdims=True)
+    s = np.linalg.svd(Xc, compute_uv=False)
+    nz = s[s > max(Xc.shape) * np.finfo(float).eps * (s[0] if s.size else 0.0)]
+    cond = float(nz[0] / nz[-1]) if nz.size else np.inf
+    return rank, ncols, cond
 
 
 def check_support_graph(Y, D, Z=None,
@@ -145,10 +154,15 @@ def check_support_graph(Y, D, Z=None,
                        f"(need >= {min_cell}); per-cell boundary estimate is unreliable")
 
     cond = float("nan")
+    design_rank, design_ncols, full_rank = -1, -1, True
     if Z is not None:
         Zs = _standardise(Z)
-        cond = _interaction_condition(Zs, D, domains)
-        if cond > max_condition:
+        design_rank, design_ncols, cond = _design_rank_cond(Zs, D, domains)
+        full_rank = (design_rank == design_ncols)
+        if not full_rank:
+            reasons.append(f"interaction design is RANK-DEFICIENT (rank {design_rank} < "
+                           f"{design_ncols} cols); boundary contrasts not all identifiable")
+        elif cond > max_condition:
             reasons.append(f"interaction design is ill-conditioned (cond={cond:.1e} > "
                            f"{max_condition:.0e}); boundary contrasts numerically unstable")
 
@@ -156,7 +170,9 @@ def check_support_graph(Y, D, Z=None,
                         n_domains=len(domains), n_classes=len(classes),
                         min_classes_per_domain=cpd, min_domains_per_class=dpc,
                         connected=connected, n_components=n_comp,
-                        min_cell_count=min_cell_count, design_condition=cond)
+                        min_cell_count=min_cell_count, design_condition=cond,
+                        design_rank=design_rank, design_ncols=design_ncols,
+                        full_rank=full_rank)
 
 
 # ---------------------------------------------------------------------------------------

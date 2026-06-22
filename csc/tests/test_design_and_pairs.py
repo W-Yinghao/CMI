@@ -12,8 +12,41 @@ import numpy as np
 warnings.filterwarnings("ignore")
 
 from csc.sim.shift_simulator import SimConfig, make_source, make_paired_clean_pure
-from csc.certificate import analyze_source, certify
+from csc.certificate import analyze_source, certify, check_support_graph
 from csc.certificate.residual_test import _features, _standardise
+from csc.certificate.atlas import _orthonormal_complement
+
+
+def test_orthonormal_complement_of_self_is_empty():
+    """The CSC-P1.1 bug fix: complement(A, A) must be ZERO columns (the v0 QR-norm test kept
+    spurious unit-norm columns), and complement(A, B) must be orthogonal to B."""
+    rng = np.random.default_rng(0)
+    d = 10
+    A, _ = np.linalg.qr(rng.standard_normal((d, 3)))
+    A = A[:, :3]
+    comp_self = _orthonormal_complement(A, A)
+    assert comp_self.shape == (d, 0), f"complement(A,A) must be empty, got {comp_self.shape}"
+    B, _ = np.linalg.qr(rng.standard_normal((d, 4)))
+    B = B[:, :4]
+    comp = _orthonormal_complement(B, A)
+    assert comp.shape[1] >= 1
+    leak = float(np.abs(A.T @ comp).max())
+    assert leak < 1e-8, f"complement must be orthogonal to `against`, leak={leak}"
+    print(f"OK complement(A,A)->0 cols; complement(B,A)_|_A (max leak {leak:.1e})")
+
+
+def test_rank_gate_rejects_duplicate_feature():
+    """A duplicated Z feature makes the interaction design rank-deficient; the gate must
+    reject it even though connectivity + cell counts pass (the v0 condition-number gate
+    dropped exact-zero singular values and passed it)."""
+    src = make_source(SimConfig(seed=13), n_domains=4, concept_domains=2, seed=13)
+    Zdup = np.concatenate([src.Z, src.Z[:, :1]], axis=1)   # exact duplicate column
+    sg = check_support_graph(src.Y, src.D, Z=Zdup)
+    assert sg.connected and sg.min_classes_per_domain >= 2, "graph degree/connectivity ok"
+    assert not sg.full_rank and not sg.valid, \
+        f"duplicate feature must fail the rank gate (rank {sg.design_rank}/{sg.design_ncols})"
+    print(f"OK duplicate feature -> rank gate INVALID "
+          f"(rank {sg.design_rank} < {sg.design_ncols} cols)")
 
 
 def test_reference_coding_is_full_rank():
@@ -45,6 +78,8 @@ def test_paired_clean_pure_identical_certificate():
 
 
 if __name__ == "__main__":
+    test_orthonormal_complement_of_self_is_empty()
+    test_rank_gate_rejects_duplicate_feature()
     test_reference_coding_is_full_rank()
     test_paired_clean_pure_identical_certificate()
     print("\nall design/pairs tests passed")

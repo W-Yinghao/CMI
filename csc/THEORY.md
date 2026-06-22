@@ -120,9 +120,12 @@ disconnected graph** (domains {0,1}↔classes{0,1}, domains {2,3}↔classes{2,3}
 condition holds, yet the boundary is not jointly identifiable). The gate now also checks:
 * bipartite `(domain,class)` **connectivity** (union-find);
 * a minimum occupied-cell sample count;
-* the **condition number** of the interaction design.
-Any failure ⇒ `INVALID` ⇒ the certifier abstains (the single-class / disconnected / ill-posed
-cases all become honest abstentions).
+* the **rank** of the LR design `[1, X_interaction]` (`rank == ncols`) — an *exact* check, not
+  a condition number after dropping sub-`1e-12` singular values (the v0 version dropped exact
+  zeros and so never flagged a rank-deficient design, e.g. a duplicated feature), plus the
+  condition number on top.
+Any failure ⇒ `INVALID` ⇒ the certifier abstains (the single-class / disconnected / rank-
+deficient / ill-conditioned cases all become honest abstentions).
 
 ---
 
@@ -138,24 +141,39 @@ label_dirs U_pi <- span{mu_y - mean_y mu_y}          orthog. vs {cov, concept} -
 (The v0 estimated `label_dirs` first from contaminated class means, so a huge covariate or
 concept move leaked into it and the label gate over-fired; the reordering fixes that.)
 
-**Direction-linked evidence.** Global "some boundary moved somewhere" must not license
-`CONCEPT_SUSPECT`. Each candidate concept direction is kept only if its boundary-movement
-loading exceeds the §3.3 parametric-bootstrap null (parallel-analysis style). The certifier
-requires the target to load on a *surviving* (evidenced) concept direction.
+Three CSC-P1.1 corrections live here:
+* **`_orthonormal_complement` uses the SVD rank** of the residualised matrix (the v0 QR
+  version kept unit-norm columns even when the residual was zero, so the leakage fix was
+  silently unreliable). A **signature-overlap** flag (principal angle between the raw
+  subspaces below `MIN_PRINCIPAL_ANGLE_DEG`) makes the certifier abstain rather than trust a
+  forced Gram-Schmidt order on genuinely overlapping subspaces.
+* **Direction-linked evidence with no post-selection bias.** Global "some boundary moved
+  somewhere" must not license `CONCEPT_SUSPECT`. Each bootstrap replicate **re-estimates**
+  the subspaces from `Y* ~ p̂0` and we compare the observed singular spectrum to the null of
+  the *re-estimated* spectrum — a **max-statistic** (FWER-controlled for "any direction") +
+  **step-down** for how many directions survive. (The v0 projected onto the directions chosen
+  from the same data, underestimating the null.)
+* **`COVARIATE_COMPATIBLE` needs positive equivalence evidence** (`cov_stable`): the boundary
+  movement loaded onto the covariate subspace must be statistically indistinguishable from
+  the no-boundary null (its bootstrap upper CI below the null's `1−α` quantile). "The concept
+  test didn't fire" is **not** sufficient.
 
 **Decision** (`δ = mean(Z_T) − pooled_mean`, components normalised by their source spreads):
 ```
-0. invalid support                           -> UNIDENTIFIABLE
-1. n_label >= tau_label                       -> UNIDENTIFIABLE   (label-shift signature)
-2. max(n_cov,n_con,n_res) < tau_detect        -> UNIDENTIFIABLE   (invisible / pure conditional)
-3. out-of-atlas residual dominates            -> UNIDENTIFIABLE   (novel direction; Prop. 1)
-4. concept dominant AND direction-evidenced   -> CONCEPT_SUSPECT
-5. covariate dominant                         -> COVARIATE_COMPATIBLE
-6. ambiguous mix                              -> UNIDENTIFIABLE
+0a. invalid support                           -> UNIDENTIFIABLE
+0b. signature subspaces not separable          -> UNIDENTIFIABLE   (attribution unreliable)
+1.  n_label >= tau_label                       -> UNIDENTIFIABLE   (label-shift signature)
+2.  max(n_cov,n_con,n_res) < tau_detect        -> UNIDENTIFIABLE   (invisible / pure conditional)
+3.  out-of-atlas residual dominates            -> UNIDENTIFIABLE   (novel direction; Prop. 1)
+4.  concept dominant AND direction-evidenced   -> CONCEPT_SUSPECT
+5.  covariate dominant AND cov_stable           -> COVARIATE_COMPATIBLE
+6.  else (ambiguous / not equivalence-certified) -> UNIDENTIFIABLE
 ```
 The asymmetry is deliberate: a *positive* statement is issued only inside the atlas, label-
-free, with a dominant evidenced component. Everywhere else it abstains. It may err by
-over-abstaining (low power); it is built to never err by **false certification**.
+free, separable, with a dominant evidenced (concept) or equivalence-certified (covariate)
+component. Everywhere else it abstains. It may err by over-abstaining (low power); it is built
+to never err by **false certification**. The certifier thresholds the **exact same** statistic
+(`components`/`visibility_statistic`) the calibrator calibrates.
 
 **Confidence-region decision (Γ_T, CSC-P1).** A single target-mean point is replaced by a
 block-bootstrap of the target rows: a definite state is emitted only if a consensus fraction
@@ -177,27 +195,36 @@ deferred to a future phase.
 
 ---
 
-## 6. Calibration: nested, oracle-labeled LODO (CSC-P1)
+## 6. Calibration: nested, oracle-labeled LODO (CSC-P1.1)
 
-The v0 plan "a held-out source domain must never be CONCEPT_SUSPECT" would **calibrate away
-real power** (the source contains genuine concept domains). Instead, for each held-out
-domain `d`:
-1. build the atlas + evidence on the **other** domains (no leakage);
-2. certify `d` as an unlabeled pseudo-target;
-3. compute an **oracle boundary-effect** on `d` with `d`'s labels (calibration only), as an
-   **equivalence test** with a bootstrap CI. The oracle isolates boundary from label shift
-   by prior-correcting the pooled model to `d`'s oracle class frequencies before comparing
-   its CE to a `d`-specific refit:
+For each held-out **domain group** `g` (mechanism-group-out, so the oracle gets genuine
+positive folds — leave-one-domain-out leaves concept structure in the pool, so the oracle saw
+no visible concept and the agreement was non-diagnostic):
+1. build the atlas + evidence on the other domains (no leakage);
+2. **calibrate the thresholds on the training domains** (`tau_detect, tau_label` = `1−α`
+   quantile of the *exact certificate statistic* over block-resampled pseudo-targets),
+   `dataclasses.replace` them into the config, and certify `g` with **`certify_robust`**
+   (the v0 computed `tau` once over all domains — leaking the held-out group — and never put
+   it into the config, so the printed value was inert);
+3. compute an **oracle boundary-effect** on `g` with `g`'s labels, bootstrapped **with
+   refitting** (resample `g`, refit the group boundary, evaluate OOB), label-shift corrected,
+   as a **two-sided equivalence test** with pre-registered `0 < eps_stable < eps_concept`:
    ```
-   oracle_lb(d) > eps_concept  -> VISIBLE_CONCEPT
-   oracle_ub(d) < eps_stable   -> COVARIATE_STABLE   (equivalence: stability PROVEN, not just "not rejected")
-   otherwise                   -> AMBIGUOUS          (excluded from the forced binary)
+   lb > eps_concept                        -> VISIBLE_CONCEPT
+   -eps_stable < lb and ub < eps_stable    -> COVARIATE_STABLE  (stability PROVEN, whole CI in band)
+   otherwise                               -> AMBIGUOUS
    ```
-4. score the label-blind certificate against the oracle verdict on non-ambiguous domains.
+4. score SEPARATELY: concept power on *fair* visible folds (those whose training pool still had
+   a concept atlas), false-concept on stable folds, compatible coverage on stable folds,
+   abstention. **No aggregate agreement** when the bank lacks either class.
 
-`tau_detect` is calibrated from **block-resampled pseudo-targets** within the training
-domains (the finite-sample fluctuation of a held-out-domain mean), not hand-set. "Not
-rejecting a boundary shift is not proving stability" — hence two-sided equivalence bands.
+**Power is not validated on in-distribution LODO.** A held-out source domain's marginal shift
+is within normal source spread, and a leave-all-concept-out fold leaves no training atlas — so
+LODO validates *false-concept control* + *threshold calibration*; deployment **power** is
+validated on out-of-distribution synthetic targets and an oracle-confirmed real positive
+control (PREREGISTRATION §2, §6). Selection across the frozen grid is **lexicographic**:
+false-certification bound ≤ α first, then worst-case visible-concept power, then compatible
+coverage — never accuracy or aggregate agreement.
 
 ---
 

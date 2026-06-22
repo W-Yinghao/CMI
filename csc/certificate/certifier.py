@@ -28,7 +28,7 @@ from dataclasses import dataclass
 from typing import Optional
 import numpy as np
 
-from .atlas import SourceAnalysis
+from .atlas import SourceAnalysis, components, visibility_statistic
 
 
 COVARIATE_COMPATIBLE = "COVARIATE_COMPATIBLE"
@@ -57,12 +57,6 @@ class Certificate:
     detail: dict
 
 
-def _proj(delta, basis):
-    if basis.shape[1] == 0:
-        return np.zeros_like(delta)
-    return basis @ (basis.T @ delta)
-
-
 def certify(analysis: SourceAnalysis,
             Z_target: np.ndarray,
             cfg: Optional[CertifierConfig] = None) -> Certificate:
@@ -71,19 +65,9 @@ def certify(analysis: SourceAnalysis,
     Z_target = np.asarray(Z_target, float)
     delta = Z_target.mean(0) - atlas.pooled_mean
 
-    p_lab = _proj(delta, atlas.label_dirs)
-    p_cov = _proj(delta, atlas.cov_dirs)
-    p_con = _proj(delta, atlas.concept_dirs)
-    resid = delta - p_lab - p_cov - p_con
-
-    c_lab, c_cov, c_con, c_res = (float(np.linalg.norm(v)) for v in (p_lab, p_cov, p_con, resid))
-    s_lab = atlas.sigma_label if atlas.sigma_label > 1e-8 else 1.0
-    s_cov = atlas.sigma_cov if atlas.sigma_cov > 1e-8 else 1.0
-    s_con = atlas.sigma_concept if atlas.sigma_concept > 1e-8 else 1.0
-    n_lab, n_cov, n_con, n_res = c_lab / s_lab, c_cov / s_cov, c_con / s_con, c_res / s_cov
-
-    detail = dict(delta_norm=float(np.linalg.norm(delta)),
-                  c_label=c_lab, c_cov=c_cov, c_concept=c_con, c_resid=c_res,
+    comp = components(atlas, delta)                 # SAME statistic the calibrator thresholds
+    n_lab, n_cov, n_con, n_res = comp["n_label"], comp["n_cov"], comp["n_concept"], comp["n_resid"]
+    detail = dict(delta_norm=float(np.linalg.norm(delta)), **comp,
                   sigma_label=atlas.sigma_label, sigma_cov=atlas.sigma_cov,
                   sigma_concept=atlas.sigma_concept)
     ev = analysis.concept_evidenced
@@ -96,6 +80,13 @@ def certify(analysis: SourceAnalysis,
         return cert(UNIDENTIFIABLE,
                     "source support graph invalid -> no concept atlas: "
                     + "; ".join(analysis.test.support.reasons), False)
+
+    # (0b) signature subspaces not separable -> attribution unreliable -> abstain
+    if analysis.signature_overlap:
+        return cert(UNIDENTIFIABLE,
+                    f"source signature subspaces are not separable "
+                    f"(min principal angle {atlas.min_principal_angle_deg:.1f} deg); "
+                    "covariate/concept/label attribution is unreliable", False)
 
     # (1) label-shift signature -> abstain (not concept; not separable without a label model)
     if n_lab >= cfg.tau_label:
@@ -128,9 +119,16 @@ def certify(analysis: SourceAnalysis,
                     "boundary evidence -> concept claim not supported", True)
 
     if n_cov >= cfg.tau_margin * n_con:
-        return cert(COVARIATE_COMPATIBLE,
-                    "shift lies in the covariate (nuisance) atlas where the source boundary "
-                    "did not move", True)
+        # COVARIATE_COMPATIBLE needs POSITIVE stability evidence, not absence-of-concept:
+        # the boundary movement along the covariate subspace must be equivalence-certified
+        # indistinguishable from the no-boundary null (cov_stable).
+        if analysis.cov_stable:
+            return cert(COVARIATE_COMPATIBLE,
+                        "shift lies in the covariate atlas AND the source boundary is "
+                        "equivalence-certified stable there (cov_stable)", True)
+        return cert(UNIDENTIFIABLE,
+                    "shift lies in the covariate atlas but boundary stability there is NOT "
+                    "equivalence-certified -> cannot claim compatible", True)
 
     return cert(UNIDENTIFIABLE,
                 "shift mixes covariate and concept components without a dominant one -> "
