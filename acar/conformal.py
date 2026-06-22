@@ -1,89 +1,80 @@
-"""Leave-one-source-cohort-out, cohort-CLUSTERED split-conformal upper bound + conservative router.
+"""v2 subject-clustered split-conformal (notes/ACAR_FROZEN_v2.md A1). Replaces the v1 cohort-max heuristic.
 
-For deployment cohort c, the regressor and the conformal quantile are fit on the OTHER same-disease cohorts only.
-Residuals e = ΔR_a − ĝ_a are pooled with EQUAL WEIGHT PER COHORT (clustered): we take the per-cohort one-sided
-(1−α) residual quantile and use the max across cohorts — a clinical-cohort-level, not i.i.d.-per-batch, bound.
+Calibration unit = subject cluster. FIT / CAL subjects are disjoint. ĝ_a is fit on FIT batches; the conformal
+quantile q is computed from ONE joint nonconformity score per CAL subject:
 
-    U_a(B) = ĝ_a(φ_a(B)) + q_{1−α}        # P(ΔR_a ≤ U_a) ≥ 1−α (cohort-clustered)
+    s_i = max_{B in subject i}  max_{a in non-identity}  ( ΔR_a(B) - ĝ_a(φ_a(B)) )
 
-Router: among non-identity actions with U_a(B) < −δ, execute argmin U_a; else identity (abstain).
+q_{1-α} = the ⌈(m+1)(1-α)⌉-th smallest of {s_i} over the m CAL subjects; if the rank > m, q = +∞ (uninformative,
+NEVER clipped). The same q is added to every action's ĝ_a -> simultaneous one-sided coverage over all actions for
+an exchangeable new subject. Disease-stratified (PD/SCZ q computed separately by the caller).
+
+Fallback batches (n < MIN_BATCH, forced identity) are excluded from FIT and from CAL scoring (they are never
+adapted), but retained in EVAL deployment (routed to identity).
 """
 from __future__ import annotations
+import hashlib
+from collections import defaultdict
+import math
 import numpy as np
 
 from .regressor import ActionRegressor
+from .deploy import Routers
 
 
-def _onesided_quantile(residuals, alpha):
-    """Conformal (1−α) upper quantile with finite-sample correction."""
-    r = np.sort(np.asarray(residuals, float))
-    n = len(r)
-    if n == 0:
-        return 0.0
-    k = int(np.ceil((n + 1) * (1 - alpha))) - 1
-    k = min(max(k, 0), n - 1)
-    return float(r[k])
+def subject_fold(subject: str, k: int, seed: int) -> int:
+    """Stable subject->fold assignment (no Math.random; hash-based, reproducible)."""
+    h = hashlib.sha256(f"{seed}|{subject}".encode()).hexdigest()
+    return int(h[:8], 16) % k
 
 
-def fit_action_router(action, train_by_cohort, alpha, seed=0):
-    """train_by_cohort: {cohort: (X[n,f], dr[n])}. Returns (regressor, q_clustered)."""
-    Xs = np.vstack([v[0] for v in train_by_cohort.values()])
-    drs = np.concatenate([v[1] for v in train_by_cohort.values()])
-    reg = ActionRegressor(seed=seed).fit(Xs, drs)
-    per_cohort_q = []
-    for X, dr in train_by_cohort.values():
-        if len(X) == 0:
-            continue
-        res = dr - reg.predict(X)                              # one-sided residual ΔR − ĝ
-        per_cohort_q.append(_onesided_quantile(res, alpha))
-    q = float(max(per_cohort_q)) if per_cohort_q else 0.0      # clustered: conservative across cohorts
-    return reg, q
+def split_fit_cal(subjects, fit_frac, seed):
+    """Subject-disjoint FIT/CAL split of the given subjects (stable by hash)."""
+    ordered = sorted(subjects, key=lambda s: hashlib.sha256(f"{seed}|fc|{s}".encode()).hexdigest())
+    n_fit = int(round(fit_frac * len(ordered)))
+    return set(ordered[:n_fit]), set(ordered[n_fit:])
 
 
-def route(routers, phi_by_action, delta):
-    """routers: {action: (reg, q)}; phi_by_action: {action: feature_vector}. Returns (chosen_action, U_by_action)."""
-    U = {}
-    for a, (reg, q) in routers.items():
-        U[a] = float(reg.predict(phi_by_action[a][None])[0] + q)
-    eligible = {a: u for a, u in U.items() if u < -delta}
-    chosen = min(eligible, key=eligible.get) if eligible else "identity"
-    return chosen, U
+def conformal_rank(m, alpha):
+    """1-indexed split-conformal rank k = ceil((m+1)(1-α)). k>m => the (1-α) quantile is +inf (uninformative)."""
+    return math.ceil((m + 1) * (1 - alpha))
 
 
-# ---------- closed-loop replay (G2) ----------
-def replay(batches_eval, routers, delta, rng, fixed_adapter="matched_coral"):
-    """Replay the router on held-out cohort batches and compare deployed-loss reduction vs baselines.
+def onesided_quantile(scores, alpha):
+    """Conformal (1-α) one-sided upper quantile with finite-sample correction. HONEST: rank>m -> +inf.
+    NB: m is the number of CALIBRATION SUBJECTS in THIS fold (not the pooled total); k varies by fold."""
+    s = np.sort(np.asarray(scores, float))
+    m = len(s)
+    if m == 0:
+        return float("inf"), 0
+    k = conformal_rank(m, alpha)
+    if k > m:
+        return float("inf"), k                               # not enough calibration units -> uninformative
+    return float(s[k - 1]), k
 
-    Each item in batches_eval: dict(phi={action: fvec}, dr={action: ΔR_a}). All ΔR are realized (Phase-2).
-    Returns deployed-NLL-reduction (= −mean ΔR; higher is better) for never/always/random/router, plus retained
-    beneficial fraction of the router vs always_adapt.
-    """
-    n = len(batches_eval)
-    if n == 0:
-        return None
-    always = np.array([b["dr"][fixed_adapter] for b in batches_eval])     # ΔR of always applying the fixed adapter
-    routed = np.zeros(n); abstained = np.zeros(n, bool)
-    for i, b in enumerate(batches_eval):
-        chosen, _ = route(routers, b["phi"], delta)
-        routed[i] = 0.0 if chosen == "identity" else b["dr"][chosen]
-        abstained[i] = chosen == "identity"
-    cov = float(1.0 - abstained.mean())                                   # adaptation coverage of the router
-    # matched-coverage random abstention over the SAME fixed adapter
-    k = int(round(abstained.sum()))
-    rand_abst = np.zeros(n, bool)
-    if 0 < k <= n:
-        rand_abst[rng.choice(n, size=k, replace=False)] = True
-    random_dr = np.where(rand_abst, 0.0, always)
-    # beneficial alignment retained: sum of negative ΔR captured by router vs by always_adapt
-    benefit_always = -np.minimum(always, 0.0).sum()
-    benefit_router = -np.minimum(routed, 0.0).sum()
-    retained = float(benefit_router / benefit_always) if benefit_always > 1e-12 else np.nan
-    red = lambda x: float(-np.mean(x))                                    # NLL reduction = −mean ΔR
-    return dict(
-        n=n, coverage=cov, abstain_rate=float(abstained.mean()),
-        nll_red_never=0.0, nll_red_always=red(always),
-        nll_red_random=red(random_dr), nll_red_router=red(routed),
-        retained_benefit_frac=retained,
-        harmful_batches_always=int((always > 0).sum()),
-        harmful_batches_router=int((routed > 0).sum()),
-    )
+
+def fit_routers(fit_recs, cal_recs, actions, alpha, delta, seed):
+    """Fit ĝ_a on FIT batches; calibrate shared joint q on CAL subjects. Returns (Routers, diag)."""
+    regs = {}
+    for a in actions:
+        X = np.vstack([r["fvec"][a] for r in fit_recs]) if fit_recs else np.zeros((0, 1))
+        dr = np.array([r["dr"][a] for r in fit_recs], float)
+        regs[a] = ActionRegressor(seed=seed).fit(X, dr)
+    # one joint nonconformity score per CAL subject (max over batches and actions)
+    by_subj = defaultdict(list)
+    for r in cal_recs:
+        by_subj[r["subject"]].append(r)
+    scores = []
+    for subj, recs in by_subj.items():
+        s_subj = -np.inf
+        for r in recs:
+            for a in actions:
+                resid = r["dr"][a] - float(regs[a].predict(r["fvec"][a][None])[0])
+                if resid > s_subj:
+                    s_subj = resid
+        scores.append(s_subj)
+    q, k = onesided_quantile(scores, alpha)
+    routers = Routers(regs=regs, q=q, delta=delta, actions=tuple(actions))
+    diag = dict(n_fit=len(fit_recs), n_cal=len(scores), k=int(k), q=q, q_informative=bool(np.isfinite(q)),
+                cal_scores=[float(s) for s in scores])
+    return routers, diag
