@@ -1,0 +1,78 @@
+# OACI confirmatory protocol v2 (draft) — per-dataset blocks, machine-executable.
+protocol_id: oaci-confirmatory-v2
+status: draft
+datasets:
+  BNCI2014_001:
+    enabled: true
+    cohort_ids: [BNCI2014_001]
+    class_names: [left_hand, right_hand, feet, tongue]
+    outer_target_factor: subject_id
+    domain_factor: subject_id
+    group_factor: recording_id
+    support_unit_factor: trial_id
+    eval_unit_factor: trial_id
+    support_m: 8
+    channels: frozen_common_native
+    preprocessing:
+      fmin: 4.0
+      fmax: 38.0
+      resample_sfreq: 128
+      epoch_tmin: 0.5
+      epoch_tmax: 3.5
+      normalization: zscore_sample
+  BNCI2014_004:
+    enabled: true
+    cohort_ids: [BNCI2014_004]
+    class_names: [left_hand, right_hand]
+    outer_target_factor: subject_id
+    domain_factor: subject_id
+    group_factor: recording_id
+    support_unit_factor: trial_id
+    eval_unit_factor: trial_id
+    support_m: 8
+    channels: frozen_common_native
+    preprocessing: {fmin: 4.0, fmax: 38.0, resample_sfreq: 128, epoch_tmin: 0.5, epoch_tmax: 3.5, normalization: zscore_sample}
+  SEED:
+    enabled: false        # canonical 3-class SEED not present in this datalake (NOT SEED-V)
+    cohort_ids: [SEED]
+    class_names: [negative, neutral, positive]
+    outer_target_factor: subject_id
+    domain_factor: subject_id
+    group_factor: recording_id
+    support_unit_factor: eval_unit_id
+    eval_unit_factor: eval_unit_id     # film clip
+    support_m: 4
+    channels: frozen_common_native
+    preprocessing: {fmin: 1.0, fmax: 50.0, resample_sfreq: 200, window_s: 4.0, window_stride_s: 2.0, normalization: zscore_sample}
+  PD_cross_site:
+    enabled: false        # 3 resting cohorts not located in this datalake (require provisioning)
+    cohort_ids: [ds002778, ds003490, ds004584]
+    class_names: [HC, PD]
+    outer_target_factor: site_id
+    domain_factor: site_id
+    group_factor: subject_id
+    support_unit_factor: subject_id
+    eval_unit_factor: subject_id
+    support_m: 4
+    channels: frozen_common_native
+    preprocessing: {fmin: 1.0, fmax: 40.0, resample_sfreq: 128, window_s: 2.0, window_stride_s: 1.0, normalization: zscore_sample}
+risk:
+  metric: balanced_ce
+  epsilon: 0.03
+methods:
+  names: [ERM, OACI, global_lpc, uniform]
+  global_lpc_laplace_smoothing: 1.0
+  critic_capacity: 16
+  selection_bootstrap: 200
+  audit_bootstrap: 2000
+evaluation:
+  alpha: 0.05
+  delta_bacc: 0.02
+  ece_bins: 15
+k1:
+  statistic: grouped_max_probe_extractable_LQ_ov_OACI_minus_ERM
+  grouped_permutation_scheme: within_(Y,recording_group)
+  decision_rule: "within permutation null band -> stop (no extractable grouped domain info)"
+k2:
+  endpoints: [worst_domain_bacc, worst_domain_nll]
+  decision_rule: "no reproducible gain on either endpoint across seeds/levels -> stop"

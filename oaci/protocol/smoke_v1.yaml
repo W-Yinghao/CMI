@@ -1,0 +1,40 @@
+# OACI single-fold GPU smoke manifest — SEPARATE from the confirmatory protocol.
+# status='smoke' is rejected by ProtocolManifestV2.assert_confirmatory(): a smoke run must never be
+# a temporarily-shortened confirmatory manifest. Tiny budget; proves end-to-end + shared baseline +
+# no leakage ONLY (not an efficacy result).
+protocol_id: oaci-smoke-v1
+status: smoke
+datasets:
+  BNCI2014_001:
+    enabled: true
+    cohort_ids: [BNCI2014_001]
+    class_names: [left_hand, right_hand, feet, tongue]
+    outer_target_factor: subject_id
+    domain_factor: subject_id
+    group_factor: recording_id
+    support_unit_factor: trial_id
+    eval_unit_factor: trial_id
+    support_m: 4
+    channels: frozen_common_native
+    preprocessing: {fmin: 4.0, fmax: 38.0, resample_sfreq: 128, epoch_tmin: 0.5, epoch_tmax: 3.5, normalization: zscore_sample}
+risk:
+  metric: balanced_ce
+  epsilon: 0.05
+methods:
+  names: [ERM, OACI, global_lpc, uniform]
+  global_lpc_laplace_smoothing: 1.0
+  critic_capacity: 8
+  selection_bootstrap: 50
+  audit_bootstrap: 100
+evaluation: {alpha: 0.05, delta_bacc: 0.02, ece_bins: 15}
+smoke:
+  subjects: [1, 2, 3, 4, 5, 6]
+  target_subjects: [1]
+  source_audit_subjects: [2, 3]
+  source_train_subjects: [4, 5, 6]
+  deletion_levels: [0, 1]
+  model_seeds: [0]
+  stage1_epochs: 8
+  stage2_epochs: 6
+k1: {statistic: smoke, grouped_permutation_scheme: smoke, decision_rule: smoke}
+k2: {endpoints: [worst_domain_bacc], decision_rule: smoke}

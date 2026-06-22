@@ -58,6 +58,8 @@ def aggregate_mean_prob(logits, eval_unit_id, prob_floor=1e-6):
     for i, uu in enumerate(units):
         idx = np.where(u == uu)[0]
         pbar = p[idx].mean(axis=0)
-        agg[i] = np.log(np.clip(pbar, prob_floor, None))
+        pbar = np.clip(pbar, prob_floor, None)
+        pbar = pbar / pbar.sum()                 # RENORMALISE after the floor (proper distribution)
+        agg[i] = np.log(pbar)
         rep[i] = idx[0]
     return np.array(units, dtype=object), agg, rep

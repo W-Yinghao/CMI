@@ -21,7 +21,7 @@ trap 'rm -rf "$WORK"' EXIT
 
 MODS="test_support_graph test_missing_cell test_leakage_estimate test_leakage_crossfit \
 test_leakage_ucb test_train_risk test_train_adversary test_train_primal_dual \
-test_train_selector test_rare_cell_sampler test_eval test_data_contract"
+test_train_selector test_rare_cell_sampler test_eval test_data_contract test_loader_protocol"
 
 echo "[oaci-ci] node=$(hostname) cpus=${SLURM_CPUS_PER_TASK:-?} commit=$(git rev-parse --short HEAD 2>/dev/null)"
 # every parallel job writes its return code to $WORK/<name>.rc; the final pass/fail folds ALL of them.

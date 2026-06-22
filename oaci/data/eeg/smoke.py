@@ -28,7 +28,7 @@ def audit_bnci(subjects=(1, 2), spec: PreprocessSpec | None = None) -> dict:
     nelig = eligibility_counts(dom, b.y, b.support_unit_id, nd, nc)
     M = cell_mass(dom, b.y, base, nd, nc)
     # LOSO split (target = first source subject); MI -> domain=subject, whole-subject audit
-    split = make_loso_split(dom, b.subject_id, target_domain=0, split_seed=0, ensure_train_per_domain=False)
+    split = make_loso_split(dom, b.subject_id, target_domain=0, split_seed=0, mode="across_source_domains")
     target_seen_by_fit = bool(set(split.target_audit.tolist()) &
                               (set(split.source_train.tolist()) | set(split.source_audit.tolist())))
     return {

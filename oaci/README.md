@@ -45,15 +45,15 @@ Cells with zero / too-low effective sample size are **not** smoothed into existe
 are explicitly marked **ineligible** (a finite-sample *estimator-eligibility* flag, not a
 population claim — see THEORY §0). This bookkeeping is the [`support_graph`](support_graph.py)
 module (implemented + tested): it builds `S_y`, the comparable classes (`|S_y| ≥ 2`), the
-**per-class** identifiable pairs (`is_identifiable_pair(d,d',y)` — both in `S_y`; there is
+**per-class** ESTIMABLE pairs (`is_estimable_pair(d,d',y)` — both in `S_y` under the finite-sample m-gate, NOT population identifiability; there is
 **no** cross-class transitive reach), and the domain–domain **coupling** components — which
 describe only how the constraint system *decomposes*, NOT which equalities are identifiable
 (THEORY §1).
 
 ## The objective: risk-feasible, honestly-bounded
 
-Two-stage **lexicographic constrained** optimization. First fit ERM for the source-risk
-lower bound `R_ERM`; then
+Two-stage **lexicographic constrained** optimization. First fit ERM and take `R̂_ERM` = the
+**realized empirical risk of the frozen Stage-1 checkpoint** (not a lower bound); then
 
 ```
 min_θ   UCB_{1-α}[ L_Q^ov ]          (NOT UCB[I_ov] — see below)
@@ -87,9 +87,10 @@ Adding a risk constraint to a DG penalty already exists. The novelty is the comb
 
 ## Three theory targets (see [`THEORY.md`](THEORY.md))
 
-1. **Support theorem** — the equality `p(z|y,d)=p(z|y,d')` is identifiable iff both cells are
-   eligible for that **same** class `y` (`d,d'∈S_y`); there is no cross-class transitive
-   reach, and graph connectivity is only *decomposability*, not identifiability (THEORY §1).
+1. **Support theorem** — `p(z|y,d)=p(z|y,d')` is *population-identifiable* iff both cells have
+   positive **structural** support for the **same** class `y`, and *estimable* iff both clear the
+   finite-sample `m`-gate (`d,d'∈S_y`); no cross-class transitive reach, and graph connectivity
+   is only *decomposability*, not identifiability (THEORY §0/§1).
 2. **No-excess empirical risk** — at an exact feasible solution stage 2 adds at most `ε` to
    source risk over ERM (reported with the realized gap; the optimality+penalty pairing is
    the safety floor, not the novelty).
@@ -102,7 +103,7 @@ Adding a risk constraint to a DG penalty already exists. The novelty is the comb
 
 | Concept | Status | Module |
 |---|---|---|
-| Support graph: `S_y`, eligibility vs presence, **per-class** identifiable pairs, coupling components, fixed-prior `L_abs`/`L_cond` | **implemented + tested** | [`support_graph.py`](support_graph.py) |
+| Support graph: `S_y`, eligibility vs presence, **per-class** estimable pairs (m-gate, not identifiability), coupling components, fixed-prior `L_abs`/`L_cond` | **implemented + tested** | [`support_graph.py`](support_graph.py) |
 | Config: support threshold, UCB on `L_Q^ov` (cross-fit/bootstrap/probe), risk constraint | **implemented** | [`config.py`](config.py) |
 | Controlled missing-cell harness — deletion schedule, fixed cell mask / reference weights / group IDs | **implemented + tested** | [`data/missing_cell.py`](data/missing_cell.py) |
 | Per-class conditional-domain **probe** (frozen Z, label space `S_y`, in-fold preprocessing, capacity family) | **implemented + tested** | [`leakage/critic.py`](leakage/critic.py) |
@@ -167,7 +168,7 @@ relabel a proxy as a bound.
 The full pipeline is **implemented and unit-tested on synthetic data** (support graph,
 missing-cell harness, extractable-leakage estimator + bootstrap UCB, rare-cell paired-stream
 sampler, risk-feasible primal–dual trainer, and the evaluation stack). It is a *research
-implementation*: every component is correct, deterministic, and composes, and the synthetic
+implementation*: every component is unit-tested, deterministic, and composes, and the synthetic
 demos exercise the intended behaviours (e.g. the trainer stays risk-feasible; the eval panel
 exposes a small-domain harm that pooled accuracy hides). It is **not** a real-EEG result — that
 requires the confirmatory protocol in [`EXPERIMENTS.md`](EXPERIMENTS.md) (unified preprocessing,

@@ -120,13 +120,13 @@ def _toy_split_arrays():
 
 def test_split_roles_are_disjoint():
     dom, subj = _toy_split_arrays()
-    sp = make_loso_split(dom, subj, target_domain=2, split_seed=0, ensure_train_per_domain=False)
+    sp = make_loso_split(dom, subj, target_domain=2, split_seed=0, mode="across_source_domains")
     assert sp.roles_disjoint()
 
 
 def test_target_never_enters_fit_or_preprocessing_statistics():
     dom, subj = _toy_split_arrays()
-    sp = make_loso_split(dom, subj, target_domain=2, split_seed=0, ensure_train_per_domain=False)
+    sp = make_loso_split(dom, subj, target_domain=2, split_seed=0, mode="across_source_domains")
     fit = set(sp.source_train.tolist()) | set(sp.source_audit.tolist())
     assert not (fit & set(sp.target_audit.tolist()))
     assert_fit_excludes_target(sp.source_train, sp.target_audit)   # preprocessing guard agrees
@@ -135,15 +135,15 @@ def test_target_never_enters_fit_or_preprocessing_statistics():
 def test_split_and_deletion_do_not_depend_on_model_seed():
     dom, subj = _toy_split_arrays()
     # make_loso_split has NO model_seed parameter; same split_seed -> identical regardless of model
-    a = make_loso_split(dom, subj, 2, split_seed=7, ensure_train_per_domain=False)
-    b = make_loso_split(dom, subj, 2, split_seed=7, ensure_train_per_domain=False)
+    a = make_loso_split(dom, subj, 2, split_seed=7, mode="across_source_domains")
+    b = make_loso_split(dom, subj, 2, split_seed=7, mode="across_source_domains")
     assert np.array_equal(a.source_train, b.source_train) and np.array_equal(a.source_audit, b.source_audit)
 
 
 def test_missing_cell_mask_changes_source_train_only():
     dom = np.array([0, 0, 1, 1, 2, 2]); y = np.array([0, 1, 0, 1, 0, 1])
     subj = np.array([f"s{i}" for i in range(6)], dtype=object)
-    sp = make_loso_split(dom, subj, 2, split_seed=0, ensure_train_per_domain=False)
+    sp = make_loso_split(dom, subj, 2, split_seed=0, mode="across_source_domains")
     sp2 = apply_missing_cell_mask(sp, dom, y, deleted_cells={(0, 0)})
     assert np.array_equal(sp2.source_audit, sp.source_audit)         # audit unchanged
     assert np.array_equal(sp2.target_audit, sp.target_audit)         # target unchanged
@@ -154,17 +154,67 @@ def test_missing_cell_mask_changes_source_train_only():
 
 def test_single_source_domain_fold_is_flagged_method_inactive():
     dom = np.array([0, 0, 1, 1]); subj = np.array(["a", "b", "c", "d"], dtype=object)
-    sp = make_loso_split(dom, subj, target_domain=1, split_seed=0, ensure_train_per_domain=True)
+    sp = make_loso_split(dom, subj, target_domain=1, split_seed=0, mode="within_each_source_domain")
     assert sp.n_active_source_domains == 1 and sp.method_inactive    # one source domain -> no-op
 
 
 def test_seed_reproducibility():
-    dom = np.array([0, 0, 0, 1, 1, 1, 2, 2, 2]); subj = np.array([f"s{i}" for i in range(9)], dtype=object)
-    a = make_loso_split(dom, subj, 2, split_seed=5, ensure_train_per_domain=False)
-    b = make_loso_split(dom, subj, 2, split_seed=5, ensure_train_per_domain=False)
-    c = make_loso_split(dom, subj, 2, split_seed=6, ensure_train_per_domain=False)
-    assert np.array_equal(a.source_audit, b.source_audit)
-    assert a.audit_subjects == b.audit_subjects and a.audit_subjects != c.audit_subjects or len(subj) < 6
+    # within-site clinical split with several subjects per site (so an audit subject is actually held)
+    dom = np.repeat([0, 1, 2], 4)
+    subj = np.array([f"site{d}_sub{i}" for d in range(3) for i in range(4)], dtype=object)
+    a = make_loso_split(dom, subj, 2, split_seed=5, mode="within_each_source_domain")
+    b = make_loso_split(dom, subj, 2, split_seed=5, mode="within_each_source_domain")
+    c = make_loso_split(dom, subj, 2, split_seed=6, mode="within_each_source_domain")
+    assert np.array_equal(a.source_audit, b.source_audit) and a.audit_units == b.audit_units
+    assert a.audit_units != c.audit_units or len(a.audit_units) == 0
+
+
+def test_mi_audit_split_holds_out_complete_source_domains():
+    # MI: domain==subject; across mode audits WHOLE source subjects and keeps >=2 train domains
+    dom = np.arange(6).repeat(3)                                  # 6 subjects (domains), 3 trials each
+    subj = np.array([f"s{d}" for d in range(6) for _ in range(3)], dtype=object)
+    sp = make_loso_split(dom, subj, target_domain=5, split_seed=0, mode="across_source_domains")
+    assert sp.source_audit.size > 0                              # NOT degenerate-empty
+    audit_doms = set(dom[sp.source_audit].tolist())
+    train_doms = set(dom[sp.source_train].tolist())
+    assert audit_doms and not (audit_doms & train_doms)         # whole-domain audit, disjoint from train
+    assert len(train_doms) >= 2
+
+
+def test_clinical_audit_split_holds_subjects_within_each_site():
+    dom = np.repeat([0, 1, 2], 6)                                # 3 sites, 3 subjects/site, 2 rows each
+    subj = np.array([f"site{d}_sub{i}" for d in range(3) for i in range(3) for _ in range(2)], dtype=object)
+    sp = make_loso_split(dom, subj, target_domain=2, split_seed=0, mode="within_each_source_domain")
+    for dd in (0, 1):
+        site_subj = set(subj[sp.source_train][dom[sp.source_train] == dd].tolist())
+        assert len(site_subj) >= 1                               # each source site keeps a TRAIN subject
+    assert set(dom[sp.source_train].tolist()) == {0, 1}         # both sites still trained on
+
+
+def test_source_audit_has_two_domains_when_feasible():
+    dom = np.arange(6).repeat(3); subj = np.array([f"s{d}" for d in range(6) for _ in range(3)], dtype=object)
+    sp = make_loso_split(dom, subj, target_domain=5, split_seed=1, mode="across_source_domains", audit_frac=0.5)
+    assert sp.n_audit_domains >= 2 and sp.source_audit_estimable
+
+
+def test_same_local_subject_id_in_two_sites_does_not_collide():
+    # 'sub01' appears in both sites; composite (site,subject) must not chain them
+    dom = np.array([0, 0, 1, 1]); subj = np.array(["sub01", "sub02", "sub01", "sub02"], dtype=object)
+    sp = make_loso_split(dom, subj, target_domain=1, split_seed=0, mode="within_each_source_domain")
+    # only site-0 'sub01' could be audited; site-1 'sub01' is in the (target) fold -> never confused
+    assert all(dom[i] == 0 for i in sp.source_audit)
+
+
+def test_method_activity_depends_on_comparable_support():
+    from oaci.methods import method_activity
+    # 1 source domain -> OACI inactive (no comparable class) AND alignment baselines inactive
+    sg1 = build_support_graph(np.array([[5, 5]]), m=2)            # single domain
+    act1 = method_activity(sg1, n_source_domains=1)
+    assert act1["ERM"]["active"] and not act1["OACI"]["active"] and not act1["global_lpc"]["active"]
+    # 2 domains both eligible -> all active
+    sg2 = build_support_graph(np.array([[5, 5], [5, 5]]), m=2)
+    act2 = method_activity(sg2, n_source_domains=2)
+    assert act2["OACI"]["active"] and act2["global_lpc"]["active"] and act2["uniform"]["active"]
 
 
 # ---- audit hashes ----
