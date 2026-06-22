@@ -202,6 +202,20 @@ def test_method_full_surrogates_are_chunked_and_mode_safe():
     assert m.training and model_state_hash(m) == h0                       # posterior path is mode/state-safe
 
 
+def test_oaci_full_surrogate_is_additive_chunked_and_mode_safe():
+    from oaci.train.checkpoint import model_state_hash
+    data, sg = _setup()
+    m = build_model("mlp", in_dim=5, n_classes=2)
+    obj = OACIObjective(sg); obj.build_critic(m.feat_dim, torch.device("cpu"))
+    m.train(); h0 = model_state_hash(m); c0 = model_state_hash(obj._critic)
+    rng = torch.random.get_rng_state()
+    full = obj.full_surrogate(m, data, torch.device("cpu"), None)
+    for cs in (1, 3, 7):
+        assert abs(obj.full_surrogate(m, data, torch.device("cpu"), cs) - full) < 1e-5   # additive chunked
+    assert m.training and model_state_hash(m) == h0 and model_state_hash(obj._critic) == c0   # state safe
+    assert torch.equal(torch.random.get_rng_state(), rng)                                      # RNG safe
+
+
 def test_posterior_full_surrogate_is_chunked():
     data, sg = _setup()
     m = build_model("mlp", in_dim=5, n_classes=2)

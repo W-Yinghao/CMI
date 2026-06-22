@@ -37,7 +37,7 @@ def population_hash(sample_id, y, domain, group) -> str:
         h.update(int(y[i]).to_bytes(8, "little", signed=True))
         h.update(int(d[i]).to_bytes(8, "little", signed=True))
         _feed_strs(h, [g[i]])
-    return h.hexdigest()[:16]
+    return h.hexdigest()
 
 
 @dataclass
@@ -139,7 +139,7 @@ class PredictionBundle:
         _feed_strs(h, list(self.class_names))
         _feed_strs(h, [self.method, self.split_id, self.split_role, str(int(self.deletion_level)),
                        self.checkpoint_hash, self.risk_metric])
-        return h.hexdigest()[:16]
+        return h.hexdigest()
 
     def audit_signature(self) -> tuple:
         """Full byte-identity signature (population + actual tensor + split + preprocessing)."""

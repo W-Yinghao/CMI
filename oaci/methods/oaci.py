@@ -58,19 +58,19 @@ class OACIObjective:
         self._assert_eligible(batch)
         return -critic.domain_ce_contribution(z, batch.y, batch.d, batch.w)
 
-    def _extract_z(self, model, data, device, chunk_size):
-        n = int(data.X.shape[0]); cs = n if chunk_size is None else int(chunk_size)
-        zs = []
-        with all_eval(model), torch.no_grad():
-            for a in range(0, n, cs):
-                zs.append(model(data.X[a:a + cs].to(device)).z)
-        return torch.cat(zs, 0)
-
     def full_surrogate(self, model, data, device, chunk_size):
-        z = self._extract_z(model, data, device, chunk_size)
-        with torch.no_grad():
-            cd = float(self._critic.domain_ce(z, data.y.to(device), data.d.to(device),
-                                              importance_weight=data.sample_mass.to(device)).item())
+        """``H_ref - C_D^ov`` by ADDITIVE chunk accumulation under the fixed M_y^ov denominator (the
+        per-microbatch ``domain_ce_contribution`` already normalises by it), never holding all Z.
+        Model AND critic in eval + inference_mode; both submodule modes / state hashes and the caller
+        RNG are unchanged."""
+        n = int(data.X.shape[0]); cs = n if chunk_size is None else int(chunk_size)
+        cd = 0.0
+        with all_eval(model), all_eval(self._critic), torch.inference_mode():
+            for a in range(0, n, cs):
+                z = model(data.X[a:a + cs].to(device)).z
+                yb = data.y[a:a + cs].to(device); db = data.d[a:a + cs].to(device)
+                wb = data.sample_mass[a:a + cs].to(device)
+                cd += float(self._critic.domain_ce_contribution(z, yb, db, wb))
         return self.H_ref - cd
 
     def diagnostics(self):

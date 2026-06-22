@@ -243,6 +243,39 @@ def test_oaci_plan_contains_only_estimable_cells_and_full_domain_includes_low_sa
     assert (d_sd1, 1) in full_cells                                 # ...but IS in the full-domain plan
 
 
+# ---------------- residuals ----------------
+def test_audit_scope_uses_exact_fold_data_population_and_tensor_hashes():
+    fd, maps, cfg, sch, ss, lp, fs, plans = _build()
+    a = fs.source_audit
+    assert a.data_population_hash == fd.source_audit_population_hash
+    assert a.tensor_hash == fd.source_audit_tensor_hash
+    assert a.leakage_population_hash == a.design.population_hash
+
+
+def test_nonestimable_statuses_use_canonical_names():
+    from oaci.leakage.errors import (BootstrapPlanNonEstimable, FoldPlanNonEstimable,
+                                     NoComparableSupport, nonestimable_status)
+    assert nonestimable_status(NoComparableSupport()) == "nonestimable_no_comparable_support"
+    assert nonestimable_status(FoldPlanNonEstimable()) == "nonestimable_grouped_folds"
+    assert nonestimable_status(BootstrapPlanNonEstimable()) == "nonestimable_bootstrap"
+    # support_m=1 keeps the 1-unit cells eligible (comparable) but with 1 group -> can't form >=2 folds
+    a = build_audit_scope(_fold(_rows(audit_recs=1)), _maps(), _cfg(support_m=1), _fk())
+    assert a.status == "nonestimable_grouped_folds"
+
+
+def test_invocation_registry_reports_exact_count():
+    from oaci.train.engine import InvocationRegistry
+    r = InvocationRegistry(); r.claim("x")
+    assert r.count("x") == 1 and r.total_claims == 1
+    try:
+        r.claim("x")
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a duplicate claim must fail")
+    assert r.count("x") == 1 and r.total_claims == 1                  # failed claim does not increment
+
+
 def _run_all() -> None:
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     for fn in fns:

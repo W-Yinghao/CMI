@@ -20,3 +20,18 @@ class FoldPlanNonEstimable(LeakageNonEstimableError):
 
 class BootstrapPlanNonEstimable(LeakageNonEstimableError):
     """Cannot draw the requested number of structurally-valid bootstrap replicates."""
+
+
+_STATUS = {
+    NoComparableSupport: "nonestimable_no_comparable_support",
+    FoldPlanNonEstimable: "nonestimable_grouped_folds",
+    BootstrapPlanNonEstimable: "nonestimable_bootstrap",
+}
+
+
+def nonestimable_status(exc: LeakageNonEstimableError) -> str:
+    """Canonical status string for a typed structural failure (the only three allowed)."""
+    for cls, name in _STATUS.items():
+        if isinstance(exc, cls):
+            return name
+    raise TypeError(f"{type(exc).__name__} is not a typed structural non-estimability")

@@ -15,7 +15,7 @@ from ..data.plan_materialize import (materialize_full_domain_alignment_plan,
                                      materialize_oaci_alignment_plan, materialize_stage1_task_plan,
                                      materialize_stage2_task_plan)
 from ..leakage.crossfit import make_fold_plan_from_design
-from ..leakage.errors import LeakageNonEstimableError
+from ..leakage.errors import LeakageNonEstimableError, nonestimable_status
 from ..leakage.plan import make_leakage_bootstrap_plan
 from ..train.rng import derive_seed
 from .keys import feed_int64, feed_string
@@ -80,7 +80,7 @@ def build_level_plans(fold_scope, level, support_state, level_population, cfg, m
                                                max_candidate_multiplier=cfg.max_candidate_multiplier,
                                                max_invalid_draw_rate=cfg.max_invalid_draw_rate)
     except LeakageNonEstimableError as ex:
-        sel_status = f"nonestimable_{type(ex).__name__}"; sel_boot = None
+        sel_status = nonestimable_status(ex); sel_boot = None
 
     th = hashlib.sha256()
     for v in (s1.plan_hash, s2.plan_hash, oaci.plan_hash if oaci else "none",

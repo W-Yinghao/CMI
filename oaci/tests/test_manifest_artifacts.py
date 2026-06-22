@@ -163,6 +163,12 @@ def test_prediction_content_hash_changes_with_logits():
     assert a.prediction_content_hash() == _pb().prediction_content_hash()  # stable for identical content
 
 
+def test_prediction_hashes_are_full_sha256():
+    pb = _pb()
+    for h in (pb.eval_population_hash, pb.prediction_content_hash()):
+        assert len(h) == 64 and all(c in "0123456789abcdef" for c in h)
+
+
 def _run_all() -> None:
     fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
     for fn in fns:

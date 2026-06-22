@@ -138,15 +138,20 @@ def effective_risk_weight(lam: float, lambda_floor: float) -> float:
 
 
 class InvocationRegistry:
-    """Enforces 'Stage-1 trained once per (run-key, deletion level)'."""
+    """Enforces 'Stage-1 trained once per (run-key, deletion level)' with an auditable count."""
 
     def __init__(self):
-        self._seen: set = set()
+        self._counts: dict = {}
+        self.total_claims: int = 0
 
     def claim(self, invocation_id: str) -> None:
-        if invocation_id in self._seen:
+        if self._counts.get(invocation_id, 0) > 0:
             raise ValueError(f"Stage-1 already trained for invocation {invocation_id!r}")
-        self._seen.add(invocation_id)
+        self._counts[invocation_id] = self._counts.get(invocation_id, 0) + 1
+        self.total_claims += 1
+
+    def count(self, invocation_id: str) -> int:
+        return int(self._counts.get(invocation_id, 0))
 
 
 def _clip(params, clip):

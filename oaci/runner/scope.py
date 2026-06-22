@@ -12,7 +12,7 @@ import torch
 
 from ..data.plan_sampler import UnitIndex
 from ..leakage.design import LeakageDesign, make_leakage_design
-from ..leakage.errors import LeakageNonEstimableError
+from ..leakage.errors import LeakageNonEstimableError, nonestimable_status
 from ..leakage.crossfit import FoldPlan, make_fold_plan_from_design
 from ..leakage.plan import LeakageBootstrapPlan, make_leakage_bootstrap_plan
 from ..support_graph import build_support_graph
@@ -119,12 +119,12 @@ def build_audit_scope(fold_data, maps, cfg, fold_key) -> AuditScope:
                                            max_candidate_multiplier=cfg.max_candidate_multiplier,
                                            max_invalid_draw_rate=cfg.max_invalid_draw_rate)
     except LeakageNonEstimableError as e:
-        status = f"nonestimable_{type(e).__name__}"; boot = None
-    data_pop = hashlib.sha256(); feed_string(data_pop, "source_audit")
-    for s in sids:
-        feed_string(data_pop, s)
-    dp = data_pop.hexdigest()
-    th = _tensor_hash(design.population_hash, fold_data.X, rows)
+        status = nonestimable_status(e); boot = None
+    # reference FoldData's frozen source-audit identity — never invent a second one
+    if set(design.sample_id) != set(fold_data.role_ids("source_audit")):
+        raise ValueError("audit design sample ids != FoldData source_audit ids")
+    dp = fold_data.source_audit_population_hash
+    th = fold_data.source_audit_tensor_hash
     h = hashlib.sha256()
     for v in (dp, design.population_hash, th, sg.support_hash(), status):
         feed_string(h, v)
