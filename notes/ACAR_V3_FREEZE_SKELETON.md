@@ -46,6 +46,11 @@ negative (median incremental risk can be < 0). `q̂₀.₅₀` is the C3 point p
 Conformal: `S_s = max_{B∈𝓑(s)} max_a [ΔR_a(B) − q̂₀.₉₀,a(B)]`, `U_a(B) = q̂₀.₉₀,a(B) + q`. **C3 has no `w_min`** —
 the additive CQR keeps finite-sample coverage + heteroscedastic adaptivity without re-introducing C2's scale head.
 
+**C2 deployment uses `q⁺ = max(q, 0)` (Amendment 2):** `U_a = μ̂_a + q⁺·max(σ̂_a,σ_min,d,a)`. A negative standardized
+quantile would make larger uncertainty *lower* the bound (uncertainty inversion → preferring high-scale actions);
+clamping `q` at 0 only raises-or-keeps each `U_a`, so it **cannot reduce coverage** while removing the inversion. (C3
+additive `q` clamping is optional and recorded separately; C1's raw additive `q` likewise. The mandatory clamp is C2.)
+
 ## S2. DEV scale/quantile-calibration gate — CANDIDATE-SPECIFIC, subject-balanced, disease×action (Amendment 1)
 
 A first-class **prerequisite** (a failing candidate is ineligible regardless of width/utility). Computed on
@@ -58,14 +63,16 @@ validity assumptions (validity holds from FIT-frozen scores + exchangeability re
 
 **C3 (additive CQR):** NO variance≈1 / Gaussian condition. Instead —
 - OOF `q̂₀.₉₀` per-action **exceedance rate** `P(ΔR>q̂₀.₉₀)` ∈ `[0.05, 0.20]` (nominal 0.10);
-- positive-excess `max(ΔR−q̂₀.₉₀,0)` tail finite (95th percentile < `<<TBD-DEV-DESIGN>>` SD of OOF ΔR);
+- positive-excess `max(ΔR−q̂₀.₉₀,0)` tail finite: 95th percentile **≤ 2.0 × (OOF ΔR SD per disease×action)**
+  (threshold **pinned pre-DEV** in the DEV_DESIGN_LOCK — Amendment 2; no post-DEV fill);
 - zero quantile crossing; all predicted gaps `q̂₀.₉₀−q̂₀.₅₀` finite and positive.
 
-**`max_a` dominance (both candidates), subject-level + action-order invariant, fractional ties:**
-`M_{s,a}=max_{B∈𝓑(s)} r_{sBa}` (C2) or `=max_{B} [ΔR−q̂₀.₉₀]_{Ba}` (C3); `T_s = argmax_a M_{s,a}` (set);
-`share_a = (1/N) Σ_s 1[a∈T_s]/|T_s|`. Require `max_a share_a ≤ 0.60`. Fractional tie credit (not "first max"), so the
-gate is invariant to action ordering. (C0/C1 use the raw residual scaled by the global FIT residual SD for the
-diagnostic only.)
+**`max_a` dominance — applies to EVERY selectable candidate (C1, C2, C3); Amendment 2:** with the candidate's own
+nonconformity (`r_{sBa}=(ΔR−μ̂)/max(σ̂,σ_min,d,a)` for C2; `[ΔR−q̂₀.₉₀]_{Ba}` for C3; **raw `ΔR−μ̂` for C1**):
+`M_{s,a}=max_{B∈𝓑(s)} (score)_{sBa}`; `T_s=argmax_a M_{s,a}` (set); `share_a=(1/N)Σ_s 1[a∈T_s]/|T_s|`; require
+`max_a share_a ≤ 0.60` with **fractional tie credit** (action-order invariant). **C1 is selectable only if it passes
+this raw-residual dominance gate** (else C1 is ablation-only and cannot be SELECTed). **C0 is comparator-only** (its
+raw-residual dominance is reported as a diagnostic, never selectable).
 
 ## S3. FIT σ_min / β-NLL — exact (Amendment 1)
 
@@ -92,19 +99,32 @@ DEV pre-lock criteria (PASS/FAIL): S2 calibration gate · ≥1 PD action OOF har
 · OOF adaptation coverage (α=0.10,δ=0) **≥15%** · OOF `red_router>0` and **not below** C0 · all guards (S8) pass.
 **No passer ⇒ `DEV_STOP / NO_LOCKBOX_CONSUMED`** (no lockbox label read).
 
-## S5. Train-once / refit / serialize / hash / no-retrain-on-double-run (Amendment 1: unique procedure)
+## S5. DEV split-as-ONE-algorithm + train-once / refit / serialize / hash (Amendment 1 + 2)
 
-The "DEV FIT pool" is made unique:
-1. C1/C2/C3 produce OOF predictions over **pre-declared outer subject-disjoint folds** (seeded).
-2. Each fold's **inner** split is used **only** for early stopping + FIT-only normalization (never for thresholds).
-3. Select the single candidate via S2 + S4.
-4. **Retrain the selected candidate once on ALL S2-admissible DEV subjects** (CPU, fixed seed,
-   `torch.use_deterministic_algorithms(True)`).
-5. `σ_min,d,a` from the OOF scale predictions (S3), **not** from the final model's in-sample σ̂.
-6. Serialize + **full 64-char SHA-256** of predictor weights, normalizer, action vocabulary, source state.
-7. **v2 replay** is the **full v2 recipe** (HGB with Ridge/constant fallback exactly as in code — not "one HGB")
-   trained once on the identical final DEV pool, then run under the identical Arm-B protocol (S6).
-- The **double-run** re-runs only deployment + site-local CAL on the **loaded frozen** predictor (no retraining);
+**Models are disease-specific (Amendment 2):** train **separate** PD and SCZ predictors (a chosen candidate ID is
+global, but PD and SCZ have their own weights, target normalizer, and `σ_min,d,a`). The pipeline below runs **within
+each disease** on that disease's pooled DEV subjects.
+
+**The DEV OOF estimator is one unique algorithm (Amendment 2):**
+1. Partition the disease's subjects into **K pre-declared outer subject-disjoint folds** (seed `S_outer`). Each fold
+   in turn is **EVAL**.
+2. The non-EVAL subjects are hash-split (seed `S_fitcal`, ratio `FIT_FRAC=0.70`) into **FIT** and **CAL** (subject-
+   disjoint).
+3. FIT is further hash-split (seed `S_es`, ratio 0.80) into **TRAIN/VAL**, used **only** for early stopping +
+   FIT-only normalization (never thresholds).
+4. The **predictor sees FIT only**; the conformal **`q` sees CAL only**; **S2/S4 diagnostics aggregate on outer
+   EVAL** (out-of-fold). Fallback `<MIN_BATCH` batches are **retained and routed to identity** (included in EVAL loss
+   accounting, excluded from FIT/CAL fitting). Three seeds `(S_outer,S_fitcal,S_es)` + `K` + the ratios are frozen.
+5. Select the single candidate via S2 + S4.
+6. **Refit the selected candidate once on all PRE-SPECIFIED ELIGIBLE DEV subjects of that disease — eligibility is
+   by the frozen split/inclusion rule ONLY; subjects are NEVER excluded based on residuals, scale diagnostics, or
+   candidate performance** (CPU, fixed seed, `torch.use_deterministic_algorithms(True)`).
+7. `σ_min,d,a` from the **OOF** scale predictions (S3), not the final model's in-sample σ̂.
+8. Serialize + **full 64-char SHA-256** of each disease's predictor weights, normalizer, action vocabulary, source
+   state (two weights hashes: `predictor_weights_sha256.PD`, `.SCZ`).
+9. **v2 replay** = the **full v2 recipe** (HGB + Ridge/constant fallback exactly as in code) refit once per disease on
+   the identical eligible DEV pool, run under the identical Arm-B protocol (S6).
+- The **double-run** re-runs only deployment + site-local CAL on the **loaded frozen** predictors (no retraining);
   neural training is never on the binding-hash path.
 
 ## S6. Binding endpoints — Arm B only, exchangeable same-site subjects (Amendment 1)
@@ -128,10 +148,14 @@ improves over C0 by the frozen **subject-clustered MAE of `m_c` vs ΔR**.
 **G2 (per disease, ALL):** `red_router>0` · `>red_bestfixed` · `>red_v2_router` (identical EVAL) · oracle retention
 ≥0.50 · adaptation coverage ≥0.20 · **harmful adapted-batch test** passes (below) · **two-site rule** (below).
 
-**Harmful adapted-batch test (frozen):** denominator = router-adapted (non-identity) batches; per-subject harmful
-rate `= #(adapted batch with ΔR_chosen>0)/#(adapted batches)`; compare router vs best-fixed by a **one-sided Wilcoxon
-signed-rank across subjects**, `α=0.05`, **Holm across sites**; pass = router significantly lower (or ≤ with no site
-worse). Subjects with zero adapted batches are excluded from that subject's rate (recorded).
+**Harmful adapted-batch test (single executable statistic, Amendment 2):** for each subject, restrict to the **batches
+the ROUTER actually adapted (chose non-identity)**; on exactly those batches compute the harmful rate of (a) the
+router's chosen action and (b) the frozen **best-fixed** action: `rate = #(ΔR>0)/#(those batches)`. Subjects with
+**zero** router-adapted batches are **excluded and counted/reported**. Paired statistic = **one-sided Wilcoxon
+signed-rank** across the paired subjects (H1: router rate < best-fixed rate), `zero_method="wilcox"`, **minimum 10
+paired subjects** else the test is `not_evaluable` (→ G2 fail for that site), exact p for n<25 else asymptotic,
+**Holm across sites**. **PASS = Holm-adjusted p < 0.05** — the single condition; there is **no** secondary
+"≤ with no site worse" alternative.
 
 **Two-site rule:** with both admissible sites per disease, **BOTH** must individually satisfy {`red_router>0`,
 `>red_v2_router`, harmful-rate test}, **and** disease-macro pooled-EVAL retention ≥0.50 + adaptation coverage ≥0.20.
@@ -146,7 +170,12 @@ coverage."** Failure is recorded, never silently ignored.
 
 ## S7. External deployment substrate — frozen from DEV (Amendment 1, §二)
 
-For Arm B the supervised state is **frozen from DEV**; external diagnosis labels may compute **only** `q`:
+For Arm B the supervised state is **frozen from DEV**. Label access at an external site is split (Amendment 2):
+external **CAL labels** are used **only** to compute the site-local conformal `q`; external **EVAL labels** are
+**invisible to the entire deployment path** (predictor, features, `q`, `U`, routing) and are read **once**, after all
+of the above are frozen, solely for the one-shot endpoint scoring (G1/G2/coverage). (Earlier wording "external labels
+may compute only q" is corrected — it must not forbid computing G1/G2 from EVAL labels at scoring time.)
+Additionally:
 - **encoder, base classifier `f0`, source moments/readout, class prototypes, action state** = all DEV-frozen; no
   external label rebuilds any source state; nothing supervised is refit per external site.
 - **raw→feature pipeline frozen + fully hashed:** channel mapping, reference, filtering, resampling, window
@@ -187,14 +216,36 @@ Selection among admissible sites uses **only** these metadata criteria — never
 
 ## S11. `<<TBD>>` to fill only after DEV gate + audit (then → ACAR_FROZEN_v3.md)
 
-`<<TBD-after-DEV>>` selected predictor (C1/C2/C3) + weights hash; realized SELECT; frozen `σ_min,d,a`; frozen
-best-fixed per disease; the C3 positive-excess tail threshold. `<<TBD-after-audit>>` retained sites per disease (≤2,
-with acquisition-unit strata) + DOIs/versions + split seed + per-site/unit CAL/EVAL counts. `<<TBD-before-freeze>>`
-binding-run command + output path.
+`<<TBD-after-DEV>>` selected predictor (C1/C2/C3) + per-disease weights hashes; realized SELECT; frozen `σ_min,d,a`;
+frozen best-fixed per disease. (The C3 positive-excess tail threshold is **no longer TBD** — pinned pre-DEV at
+2.0×OOF ΔR SD, S2.) `<<TBD-after-audit>>` retained sites per disease (≤2, with acquisition-unit strata) +
+DOIs/versions + split seed + per-site/unit CAL/EVAL counts. `<<TBD-before-freeze>>` binding-run command + output path.
 
 ## S12. Module layout (design intent; implemented under DEV_DESIGN_LOCK)
 
-New isolated `acar/v3/`: `set_features.py` (per-window paired tensor + **availability masks** + batch context; reuses
-`score_actions()` which already returns `p` and `ztil`), `predictors.py` (C1/C2/C3 with a unified candidate-specific
-**`upper_bound()`** interface replacing v2's hardcoded `reg.predict()+q`), `conformal.py` (subject joint score per
-candidate), `develop.py` (DEV bake-off + S2/S4 gates). v2 router code is left untouched.
+New isolated `acar/v3/`: `set_features.py` (per-window paired tensor + **availability masks** + batch context),
+`predictors.py` (C1/C2/C3 with a unified candidate-specific **`upper_bound()`** interface replacing v2's hardcoded
+`reg.predict()+q`), `conformal.py` (subject joint score per candidate), `develop.py` (DEV bake-off + S2/S4 gates).
+v2 router code is left untouched.
+
+## S13. Set-contract canon (Amendment 2 — IMPLEMENTED + tested in `acar/v3/set_features.py`, 685a526)
+
+Frozen DEV-design rules now enforced in code (15 synthetic guards pass):
+- **`WindowActionSet`** = `values[n,F] + availability_mask[n,F]{0,1} + context_values[C] + context_mask[C] +
+  action_name + action_index + window_keys`. **Validated + immutable** (`__post_init__`: shapes, binary masks,
+  masked-slots-exactly-0, finiteness, `action_name∈NON_IDENTITY`, `action_index==ACTION_VOCAB.index(action_name)`,
+  unique non-empty keys; arrays read-only). Missing-zero (mask 0) is **distinct** from genuine-zero (mask 1).
+- **Canonical row order BEFORE adapters** — `(z, keys)` sorted by `canon_key` first ⇒ permutation invariance is
+  byte-identical at the path level (tested via `np.array_equal`), not a hash tolerance.
+- **`canonical_digest` = full 64-char SHA-256** over schema header (incl. `SCHEMA_VERSION`, action, ACTION_VOCAB,
+  feature lists, shapes) + raw float64-LE values/context + uint8 masks + canonical keys. No rounding (single-ULP
+  sensitive).
+- **Canonical action execution order** (ACTION_VOCAB, never caller order); selection validated (unknown/dup/identity/
+  empty rejected).
+- **Action capability map** `{matched_coral:geom, spdim:geom, t3a:no-geom}` asserted vs adapter output (drift guard);
+  T3A geometry features masked unavailable.
+- **Probability/shape validation** of `p0,pa,z0,za`; NaN/Inf rejected; `<MIN_BATCH` short-circuits to identity with
+  **no** adapter call (guard monkeypatches `apply_action`).
+- **Structured `WindowKey`** `(dataset_id, subject_id, recording_id, window_index)` with canonical serialization; the
+  real v3 loader must emit these (the v2 `Batch` lacks per-row window identity — to be added in the v3 data layer).
+- Does **not** call v2 `feature_vector()` (which collapses NaN→0).
