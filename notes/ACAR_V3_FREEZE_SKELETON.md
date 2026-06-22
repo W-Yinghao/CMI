@@ -48,8 +48,10 @@ the additive CQR keeps finite-sample coverage + heteroscedastic adaptivity witho
 
 **C2 deployment uses `q⁺ = max(q, 0)` (Amendment 2):** `U_a = μ̂_a + q⁺·max(σ̂_a,σ_min,d,a)`. A negative standardized
 quantile would make larger uncertainty *lower* the bound (uncertainty inversion → preferring high-scale actions);
-clamping `q` at 0 only raises-or-keeps each `U_a`, so it **cannot reduce coverage** while removing the inversion. (C3
-additive `q` clamping is optional and recorded separately; C1's raw additive `q` likewise. The mandatory clamp is C2.)
+clamping `q` at 0 only raises-or-keeps each `U_a`, so it **cannot reduce coverage** while removing the inversion.
+**C1 and C3 use the raw additive `q` with NO clamp (frozen, Amendment 3)** — their `q` enters additively (not as a
+multiplier on a scale), so there is no uncertainty inversion to fix. Only C2 clamps. The manifest records `q_raw` and
+`q_used`.
 
 ## S2. DEV scale/quantile-calibration gate — CANDIDATE-SPECIFIC, subject-balanced, disease×action (Amendment 1)
 
@@ -105,6 +107,15 @@ DEV pre-lock criteria (PASS/FAIL): S2 calibration gate · ≥1 PD action OOF har
 global, but PD and SCZ have their own weights, target normalizer, and `σ_min,d,a`). The pipeline below runs **within
 each disease** on that disease's pooled DEV subjects.
 
+**Pinned DeepSets/training hyperparameters (Amendment 3; `acar/v3/predictors.HP`, frozen pre-DEV):** ψ = 2-layer MLP
+(hidden 64, ReLU) per window over `concat(values, mask)` [2F]; pooling = **mean ⊕ std** (permutation-invariant);
+context = `concat(context_values, context_mask)` [2C]; action embedding dim 8; ρ = 2-layer MLP (hidden 64) → heads
+(C1: μ; C2: μ, softplus v→σ; C3: q̂₅₀, softplus gap); dropout 0; Adam lr 1e-3, weight_decay 1e-4, grad-clip max-norm
+1.0; max_epochs 200, patience 20, min_delta 1e-4; target_sd_floor 1e-3; β-NLL β=0.5; ε=1e-6; seeds
+(outer 0, fit/cal 1, early-stop 2); K=5 folds; FIT_FRAC 0.70; TRAIN_FRAC 0.80; CPU + `use_deterministic_algorithms`.
+**Final all-DEV refit epoch = median of the outer folds' best-epoch (round half-up), fixed in advance — no new
+validation observed at refit.**
+
 **The DEV OOF estimator is one unique algorithm (Amendment 2):**
 1. Partition the disease's subjects into **K pre-declared outer subject-disjoint folds** (seed `S_outer`). Each fold
    in turn is **EVAL**.
@@ -151,11 +162,13 @@ improves over C0 by the frozen **subject-clustered MAE of `m_c` vs ΔR**.
 **Harmful adapted-batch test (single executable statistic, Amendment 2):** for each subject, restrict to the **batches
 the ROUTER actually adapted (chose non-identity)**; on exactly those batches compute the harmful rate of (a) the
 router's chosen action and (b) the frozen **best-fixed** action: `rate = #(ΔR>0)/#(those batches)`. Subjects with
-**zero** router-adapted batches are **excluded and counted/reported**. Paired statistic = **one-sided Wilcoxon
-signed-rank** across the paired subjects (H1: router rate < best-fixed rate), `zero_method="wilcox"`, **minimum 10
-paired subjects** else the test is `not_evaluable` (→ G2 fail for that site), exact p for n<25 else asymptotic,
-**Holm across sites**. **PASS = Holm-adjusted p < 0.05** — the single condition; there is **no** secondary
-"≤ with no site worse" alternative.
+**zero** router-adapted batches are **excluded and counted/reported**. Paired statistic (H1: router rate < best-fixed)
+on the per-subject differences `d` — **tie-aware (Amendment 3, implemented in `conformal.harmful_rate_test`):** drop
+zero differences (recorded); require **≥10 nonzero** pairs else `NOT_EVALUABLE` (→ G2 fail for that site); **exact
+Wilcoxon** only when the remaining `|d|` are **all distinct and n<25** (where SciPy's exact null is valid), **else a
+deterministic sign-flip permutation test** (fixed `seed=0`, `n_perm=20000`); all-zero ⇒ `NOT_EVALUABLE`. Pin SciPy
+version + continuity convention in the env lock. **Holm across sites**; **PASS = Holm-adjusted p < 0.05** — the single
+condition; there is **no** secondary "≤ with no site worse" alternative.
 
 **Two-site rule:** with both admissible sites per disease, **BOTH** must individually satisfy {`red_router>0`,
 `>red_v2_router`, harmful-rate test}, **and** disease-macro pooled-EVAL retention ≥0.50 + adaptation coverage ≥0.20.
@@ -246,6 +259,16 @@ Frozen DEV-design rules now enforced in code (15 synthetic guards pass):
   T3A geometry features masked unavailable.
 - **Probability/shape validation** of `p0,pa,z0,za`; NaN/Inf rejected; `<MIN_BATCH` short-circuits to identity with
   **no** adapter call (guard monkeypatches `apply_action`).
-- **Structured `WindowKey`** `(dataset_id, subject_id, recording_id, window_index)` with canonical serialization; the
-  real v3 loader must emit these (the v2 `Batch` lacks per-row window identity — to be added in the v3 data layer).
-- Does **not** call v2 `feature_vector()` (which collapses NaN→0).
+- **Structured `WindowKey`** `(dataset_id, subject_id, recording_id, window_index)` with **disambiguated** canonical
+  serialization (WK structured-JSON / S string; non-key → TypeError); the real v3 loader must emit `WindowKey` (the
+  v2 `Batch` lacks per-row window identity — to be added in the v3 data layer). Does **not** call v2 `feature_vector()`.
+- **Object-level immutability (Amendment 3):** `WindowActionSet` is `@dataclass(frozen, slots)` → field rebind raises
+  `FrozenInstanceError` (not just read-only buffers). `<MIN_BATCH` returns an immutable **`FallbackBatchRecord`**
+  (forced_identity, reason, window_keys, `canonical_input_digest` full-64, n_windows) — no adapter called. The
+  **identity reference is computed exactly once per batch** (call-count guard).
+- **Predictors/conformal implemented (Amendment 3, commit 2303d5c):** `predictors.py` (frozen `CandidatePrediction`;
+  DeepSets C1/C2/C3 with pinned `HP`; `score()`/`upper_bound()` per the S1 formulas incl. C2 `q⁺`, C1/C3 no-clamp) and
+  `conformal.py` (subject joint max; `conformal_rank`/`conformal_q` strict `+∞`; `route`; tie-aware
+  `harmful_rate_test`). 19 set-feature + 11 predictor/conformal synthetic guards pass. **Still NOT tagged**
+  `acar-v3-dev-design-v1` — pending the v3 data layer (emitting `WindowKey`), the DEV develop harness (`develop.py`
+  wiring S5's split-as-one-algorithm), and a full green re-run; no DEV cohort is read before the tag.
