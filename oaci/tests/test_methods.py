@@ -202,6 +202,18 @@ def test_method_full_surrogates_are_chunked_and_mode_safe():
     assert m.training and model_state_hash(m) == h0                       # posterior path is mode/state-safe
 
 
+def test_posterior_full_surrogate_is_chunked():
+    data, sg = _setup()
+    m = build_model("mlp", in_dim=5, n_classes=2)
+    gl = GlobalLPCObjective([0, 1, 2], sg.cell_mass, _class_mass(data), sg.reference_prior, [0, 1], alpha=1.0)
+    gl.build_critic(m.feat_dim, torch.device("cpu"))
+    full = gl.full_surrogate(m, data, torch.device("cpu"), None)
+    for cs in (1, 3, 7):
+        assert abs(gl.full_surrogate(m, data, torch.device("cpu"), cs) - full) < 1e-5   # chunked == full
+    cd_full = gl.weighted_domain_ce(m, data, torch.device("cpu"), None)
+    assert abs(gl.weighted_domain_ce(m, data, torch.device("cpu"), 4) - cd_full) < 1e-5
+
+
 def test_full_surrogate_restores_model_and_critic_modes():
     data, sg = _setup()
     obj = OACIObjective(sg)

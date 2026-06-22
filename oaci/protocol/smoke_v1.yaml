@@ -71,6 +71,7 @@ training:
   deterministic_algorithms: true
 sampler:
   min_per_eligible_cell: 4
+  min_per_observed_cell: 4
   adv_microbatch_size: 64
   adv_accumulation_steps: 4
   replacement_mode: auto

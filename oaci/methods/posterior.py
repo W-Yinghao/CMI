@@ -21,7 +21,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 from ..train.bn import all_eval
-from ..train.objective import ActiveStatus, BatchView
+from ..train.objective import ActiveStatus
 
 
 class PosteriorDomainCritic(nn.Module):
@@ -96,19 +96,32 @@ class PosteriorObjective:
     def encoder_penalty(self, critic, z, batch):
         return self._accumulate(critic, z, batch, lambda lg, lab, yy: self._kl(lg, yy))
 
-    def full_surrogate(self, model, data, device, chunk_size):
-        with all_eval(model), torch.no_grad():
-            z = model(data.X.to(device)).z
-            bv = BatchView(data.y.to(device), data.d.to(device), data.sample_mass.to(device))
-            return float(self._accumulate(self._critic, z, bv, lambda lg, lab, yy: self._kl(lg, yy)))
+    def _chunked(self, model, data, device, chunk_size, fn) -> float:
+        """Additive chunked accumulation under a FIXED per-class denominator M_y — never an average
+        of chunk means. Model + critic in eval, inference_mode (no grad, no dropout RNG); every
+        submodule's training flag is restored and neither state hash moves."""
+        nums = {yy: 0.0 for yy in self.present}
+        n = int(data.X.shape[0]); cs = n if chunk_size is None else int(chunk_size)
+        with all_eval(model), all_eval(self._critic), torch.inference_mode():
+            for a in range(0, n, cs):
+                z = model(data.X[a:a + cs].to(device)).z
+                yb = data.y[a:a + cs].to(device); db = data.d[a:a + cs].to(device)
+                wb = data.sample_mass[a:a + cs].to(device)
+                for yy in self.present:
+                    m = yb == yy
+                    if not bool(m.any()) or self.M_y[yy] <= 0:
+                        continue
+                    labels = torch.tensor([self.dmap[int(dd)] for dd in db[m].tolist()], device=device)
+                    nums[yy] += float((wb[m].to(z.dtype) * fn(self._critic.logits_for(z[m], yy), labels, yy)).sum())
+        return sum((self.p_ref[yy] / self.M_y[yy]) * nums[yy] for yy in self.present if self.M_y[yy] > 0)
 
-    def weighted_domain_ce(self, model, data, device):
-        """Diagnostic ``C_D^full`` (the critic objective) over the full set."""
-        with all_eval(model), torch.no_grad():
-            z = model(data.X.to(device)).z
-            bv = BatchView(data.y.to(device), data.d.to(device), data.sample_mass.to(device))
-            return float(self._accumulate(self._critic, z, bv,
-                                          lambda lg, lab, yy: F.cross_entropy(lg, lab, reduction="none")))
+    def full_surrogate(self, model, data, device, chunk_size):
+        return self._chunked(model, data, device, chunk_size, lambda lg, lab, yy: self._kl(lg, yy))
+
+    def weighted_domain_ce(self, model, data, device, chunk_size=None):
+        """Diagnostic ``C_D^full`` (the critic objective), chunked + mode/state-safe."""
+        return self._chunked(model, data, device, chunk_size,
+                             lambda lg, lab, yy: F.cross_entropy(lg, lab, reduction="none"))
 
     def diagnostics(self):
         return {"name": self.name, "level0_domains": list(self.level0), "present_classes": list(self.present)}

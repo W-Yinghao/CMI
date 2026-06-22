@@ -59,6 +59,8 @@ class AlignmentPlan:
     game_steps: tuple                          # tuple[AlignmentGameStep, ...]
     population_signature_hash: str
     plan_hash: str
+    role: str = ""                             # oaci_alignment | full_domain_alignment
+    sampling_design_hash: str = ""             # binds role + cell list + sampler cfg + unit mapping
 
 
 # -------------------------------- hashing --------------------------------

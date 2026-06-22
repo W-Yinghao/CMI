@@ -81,7 +81,8 @@ class TrainingBlock:
 
 @dataclass
 class SamplerBlock:
-    min_per_eligible_cell: int | None = None
+    min_per_eligible_cell: int | None = None    # OACI alignment per-cell coverage
+    min_per_observed_cell: int | None = None    # full-domain alignment per-cell coverage (separate)
     adv_microbatch_size: int | None = None
     adv_accumulation_steps: int | None = None
     replacement_mode: str | None = None
