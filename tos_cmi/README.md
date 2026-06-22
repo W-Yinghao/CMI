@@ -100,9 +100,19 @@ the clearest collapse case, this is "a more complicated regularizer" — abandon
 
 ## Honest status
 
-Synthetic-only research prototype. The selection/projection/null-floor/identity-fallback
-machinery is implemented and unit-tested; the projection ablation is leakage-free and the
-stability metrics are dimension-sensitive. **Not** done: a true source-risk gate, the
-score-Fisher gradient-conflict core, the conditional-on-task objective, harder synthetic
-stressors, and any EEG/trainer/TSMNet wiring. `repos/TSMNet` referenced in INTEGRATION is an
-**untracked external checkout**, not part of this branch.
+Synthetic-only research prototype, two parallel lines:
+- **mean-scatter baseline** (`fisher.py`/`subspace.py`, tag `mean-scatter-v2`): frozen,
+  leakage-free ablation, dimension-sensitive stability — honest first-moment baseline.
+- **score-Fisher core** (`score_fisher.py`, Phase 1.1–1.2.1): model-expected score Fishers,
+  coordinate-covariant whitening metric, **source-risk UCB rank gate** (group-aware cross-fit,
+  calibrated residual domain critic, paired task heads, simultaneous cluster-bootstrap band),
+  oracle-certified (the task-risk arm fires on the true danger direction, costing ≈log2).
+
+**Known open issue (oracle-attributed, not yet resolved):** the metric-oblique projector is
+rescaling-covariant but **not task-preserving** — `(I−P_N^M)` distorts a Euclidean
+task-orthogonal subspace, so the gate refuses even safe deletions. Euclidean `QQᵀ` preserves
+the task but isn't rescaling-covariant. Projector design fork is open.
+
+**Not** done: resolve the projector fork; conditional-on-task training critic; parameter-level
+PCGrad; sequential subset search; any EEG/trainer/TSMNet wiring. `repos/TSMNet` referenced in
+INTEGRATION is an **untracked external checkout**, not part of this branch.

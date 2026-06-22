@@ -332,7 +332,9 @@ def leakage_gate(Z, y, d, n_cls, n_dom, cfg, plan, seed, cluster_id=None):
     residual can only help if the signal generalizes. GROUP-aware cross-fit, CLUSTER one-sided
     bound. Returns dict(brier_gain, brier_lcb, open)."""
     y_oh = np.eye(n_cls)[y]
-    br0, br1 = _crossfit_residual_domain_brier(Z, d, y_oh, n_dom, n_cls, cfg, plan, seed + 11)
+    gplan = _GatePlan(plan, seed + 5)
+    br0, cache = _domain_q0(d, y_oh, n_dom, n_cls, cfg, gplan, seed + 11)
+    br1 = _domain_residual_brier(Z, d, y_oh, cache, n_dom, n_cls, cfg, seed + 22)
     gain = br0 - br1                                       # >0 iff Z helps predict D beyond Y
     lcb = float(_one_sided_bound(gain, cluster_id, cfg.gate_alpha, "lower",
                                  cfg.gate_boot, seed + 33, cfg.boot_estimand))
@@ -448,40 +450,113 @@ def _zero_last_layer(probe):
     return probe
 
 
-def _crossfit_residual_domain_brier(Zfeat, d, y_oh, n_dom, n_cls, cfg, plan, seed):
-    """Per-sample held-out Brier for q0(D|Y) and q_k(D|Y,Zfeat) where
-    logit q_k = sg(logit q0) + r(Zfeat,Y) with r a ZERO-INIT residual (so q_k starts AT q0 --
-    avoids two-unrelated-MLP optimization noise polluting the paired comparison). Returns
-    (brier_q0[N], brier_qk[N])."""
-    def _brier(p, t):
-        return (p ** 2).sum(1) - 2 * p[np.arange(len(t)), t] + 1.0
+def _brier(p, t):
+    return (p ** 2).sum(1) - 2 * p[np.arange(len(t)), t] + 1.0
 
-    N = len(d); br0 = np.zeros(N); brk = np.zeros(N)
-    z_dim = Zfeat.shape[1]
-    for f, tr, hold in plan.iter():
-        # q0(D|Y): early-stopped + temperature-calibrated (probe over the Y conditioner only)
-        q0, T0 = _build_and_train(0, n_dom, n_cls, np.zeros((len(tr), 0)), d[tr], y_oh[tr],
-                                  cfg, seed + f, want_temp=True)
+
+def _fit_nonneg_scale(base_logits, resid, target, grid=(0.0, 0.25, 0.5, 1.0, 1.5, 2.0)):
+    """alpha >= 0 minimizing NLL(softmax(base + alpha*resid)) on a small grid; alpha=0 in the
+    grid means a zero-information residual EXACTLY recovers the baseline (strict nesting)."""
+    best_a, best_l = 0.0, float("inf")
+    for a in grid:
+        l = F.cross_entropy(base_logits + a * resid, target).item()
+        if l < best_l:
+            best_l, best_a = l, a
+    return best_a
+
+
+class _GatePlan:
+    """Per outer fold (from a GROUP-aware plan): a fixed (tr, hold), a fixed inner train/val
+    split of tr, and a fixed init seed -- ALL SHARED across the task heads h_0..h_K and the
+    domain q0/residual critics, so every paired comparison differs only in its INPUT, not in
+    init / splits / optimisation budget (Phase 1.2.1 fix 2)."""
+    def __init__(self, plan, seed):
+        self.folds = []
+        for f, tr, hold in plan.iter():
+            perm = np.random.default_rng(seed + f).permutation(len(tr))
+            nval = int(0.15 * len(tr)) if len(tr) >= 40 else 0
+            self.folds.append((tr, hold, tr[perm[nval:]], tr[perm[:nval]], int(seed + 1000 + f)))
+
+
+def _train_head(z_dim, n_out, cond_dim, Zf, target, cond, cfg, init_seed, itr, iva):
+    """Train a probe from a FIXED init (init_seed) on global indices `itr`, early-stop on
+    `iva`; restore best-val weights. Zf/target/cond are full arrays indexed by global ids."""
+    torch.manual_seed(init_seed)
+    probe = _Probe(z_dim, n_out, cond_dim, cfg.probe_family, cfg.hidden)
+    opt = torch.optim.Adam(probe.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
+    Zt = torch.tensor(Zf, dtype=torch.float32); tt = torch.tensor(target, dtype=torch.long)
+    ct = None if cond is None else torch.tensor(cond, dtype=torch.float32)
+    itr_t = torch.as_tensor(itr); iva_t = torch.as_tensor(iva)
+    best, best_state, bad, patience = float("inf"), None, 0, max(8, cfg.epochs // 5)
+    for ep in range(cfg.epochs):
+        opt.zero_grad()
+        F.cross_entropy(probe(Zt[itr_t], None if ct is None else ct[itr_t]), tt[itr_t]).backward()
+        opt.step()
+        if len(iva_t) and ep % 3 == 0:
+            with torch.no_grad():
+                v = F.cross_entropy(probe(Zt[iva_t], None if ct is None else ct[iva_t]), tt[iva_t]).item()
+            if v < best - 1e-4:
+                best, best_state, bad = v, _copy.deepcopy(probe.state_dict()), 0
+            else:
+                bad += 1
+                if bad >= patience:
+                    break
+    if best_state is not None:
+        probe.load_state_dict(best_state)
+    return probe
+
+
+def _paired_task_nll(Zg, yg, transforms, n_cls, cfg, gplan):
+    """Per-sample held-out NLL of task heads h_t(Y | transform_t), all sharing per-fold init +
+    inner splits so Delta_Y is a clean PAIRED difference (only the input differs)."""
+    nll = [np.zeros(len(yg)) for _ in transforms]
+    z_dim = Zg.shape[1]
+    for (tr, hold, itr, iva, iseed) in gplan.folds:
+        for t, Zf in enumerate(transforms):
+            probe = _train_head(z_dim, n_cls, 0, Zf, yg, None, cfg, iseed, itr, iva)
+            with torch.no_grad():
+                logp = F.log_softmax(probe(torch.tensor(Zf[hold], dtype=torch.float32)), 1)
+            nll[t][hold] = -logp[np.arange(len(hold)), yg[hold]].numpy()
+    return nll
+
+
+def _domain_q0(dg, yg_oh, n_dom, n_cls, cfg, gplan, seed):
+    """Train the calibrated baseline q0(D|Y) ONCE per fold; cache calibrated logits
+    L~0 = L0/T0 on tr and hold. Returns (br0[N], cache) with cache[f]=(tr,hold,itr,iva,L~0_tr,L~0_ho)."""
+    br0 = np.zeros(len(dg)); cache = []
+    for (tr, hold, itr, iva, iseed) in gplan.folds:
+        q0 = _train_head(0, n_dom, n_cls, np.zeros((len(dg), 0)), dg, yg_oh, cfg, iseed + 5, itr, iva)
         with torch.no_grad():
-            L0_tr = q0(torch.zeros(len(tr), 0), torch.tensor(y_oh[tr], dtype=torch.float32))
-            L0_ho = q0(torch.zeros(len(hold), 0), torch.tensor(y_oh[hold], dtype=torch.float32))
-        br0[hold] = _brier(torch.softmax(L0_ho / T0, 1).numpy(), d[hold])
-        # residual r(Zfeat,Y): zero-init, EARLY-STOPPED on an inner val split, then temperature
-        torch.manual_seed(seed + f + 7)
+            Lva = q0(torch.zeros(len(iva), 0), torch.tensor(yg_oh[iva], dtype=torch.float32))
+            T0 = _fit_temperature(Lva, torch.tensor(dg[iva], dtype=torch.long)) if len(iva) else 1.0
+            Ltr = q0(torch.zeros(len(tr), 0), torch.tensor(yg_oh[tr], dtype=torch.float32)) / T0
+            Lho = q0(torch.zeros(len(hold), 0), torch.tensor(yg_oh[hold], dtype=torch.float32)) / T0
+        br0[hold] = _brier(torch.softmax(Lho, 1).numpy(), dg[hold])
+        cache.append((tr, hold, itr, iva, Ltr.detach(), Lho.detach()))
+    return br0, cache
+
+
+def _domain_residual_brier(Zfeat, dg, yg_oh, cache, n_dom, n_cls, cfg, seed):
+    """Strictly-nested domain critic q_k = softmax(L~0 + alpha*r(Zfeat,Y)), r zero-init,
+    alpha>=0 fit on inner-val (alpha=0 recovers q0 EXACTLY -- so any Brier gain is from
+    P_k Z's increment, not recalibration). Shares the cached calibrated q0. Returns brk[N]."""
+    brk = np.zeros(len(dg)); z_dim = Zfeat.shape[1]
+    for (tr, hold, itr, iva, Ltr_cal, Lho_cal) in cache:
+        pos = {int(g): i for i, g in enumerate(tr)}
+        itr_l = np.array([pos[int(g)] for g in itr]); iva_l = np.array([pos[int(g)] for g in iva])
+        torch.manual_seed(seed)
         r = _zero_last_layer(_Probe(z_dim, n_dom, n_cls, cfg.probe_family, cfg.hidden))
         opt = torch.optim.Adam(r.parameters(), lr=cfg.lr, weight_decay=cfg.weight_decay)
-        Ztr = torch.tensor(Zfeat[tr], dtype=torch.float32); ytr = torch.tensor(y_oh[tr], dtype=torch.float32)
-        dtr = torch.tensor(d[tr], dtype=torch.long); off = L0_tr.detach()
-        nval = int(0.15 * len(tr)) if len(tr) >= 40 else 0
-        gperm = torch.randperm(len(tr), generator=torch.Generator().manual_seed(seed + f + 9))
-        vi, ti = gperm[:nval], gperm[nval:]
+        Ztr = torch.tensor(Zfeat[tr], dtype=torch.float32); ytr = torch.tensor(yg_oh[tr], dtype=torch.float32)
+        dtr = torch.tensor(dg[tr], dtype=torch.long)
+        itl = torch.as_tensor(itr_l); ivl = torch.as_tensor(iva_l)
         best, best_state, bad, patience = float("inf"), None, 0, max(8, cfg.epochs // 5)
         for ep in range(cfg.epochs):
             opt.zero_grad()
-            F.cross_entropy((off + r(Ztr, ytr))[ti], dtr[ti]).backward(); opt.step()
-            if nval and ep % 3 == 0:
+            F.cross_entropy((Ltr_cal + r(Ztr, ytr))[itl], dtr[itl]).backward(); opt.step()
+            if len(ivl) and ep % 3 == 0:
                 with torch.no_grad():
-                    v = F.cross_entropy((off + r(Ztr, ytr))[vi], dtr[vi]).item()
+                    v = F.cross_entropy((Ltr_cal + r(Ztr, ytr))[ivl], dtr[ivl]).item()
                 if v < best - 1e-4:
                     best, best_state, bad = v, _copy.deepcopy(r.state_dict()), 0
                 else:
@@ -491,15 +566,16 @@ def _crossfit_residual_domain_brier(Zfeat, d, y_oh, n_dom, n_cls, cfg, plan, see
         if best_state is not None:
             r.load_state_dict(best_state)
         with torch.no_grad():
-            Tk = _fit_temperature((off + r(Ztr, ytr))[vi], dtr[vi]) if nval else 1.0
-            Lk_ho = L0_ho + r(torch.tensor(Zfeat[hold], dtype=torch.float32),
-                              torch.tensor(y_oh[hold], dtype=torch.float32))
-        brk[hold] = _brier(torch.softmax(Lk_ho / Tk, 1).numpy(), d[hold])
-    return br0, brk
+            r_tr = r(Ztr, ytr)
+            alpha = (_fit_nonneg_scale(Ltr_cal[ivl], r_tr[ivl], dtr[ivl]) if len(ivl) else 1.0)
+            Lk_ho = Lho_cal + alpha * r(torch.tensor(Zfeat[hold], dtype=torch.float32),
+                                        torch.tensor(yg_oh[hold], dtype=torch.float32))
+        brk[hold] = _brier(torch.softmax(Lk_ho, 1).numpy(), dg[hold])
+    return brk
 
 
 _REASONS = ("ACCEPTED", "NO_CANDIDATE", "DOMAIN_GATE_CLOSED", "DOMAIN_GAIN_TOO_SMALL",
-            "TASK_RISK_UCB", "FOLD_COVERAGE_FAILURE", "NUMERICAL_FAILURE")
+            "TASK_RISK_UCB", "FOLD_COVERAGE_FAILURE", "INSUFFICIENT_GROUPS", "NUMERICAL_FAILURE")
 
 
 def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=None):
@@ -511,25 +587,24 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
     Returns (k_star, records, reason). NOTE prefix-search limitation: if a dangerous direction
     is ranked before a safe one, no prefix can isolate the safe direction (recorded, not tuned away)."""
     K = V_cand.shape[1]
-    plan_g = _SplitPlan(len(Zg), cfg.n_folds, seed + 3, group_id=cluster_id)
     if K == 0:
         return 0, [], "NO_CANDIDATE"
+    plan_g = _SplitPlan(len(Zg), cfg.n_folds, seed + 3, group_id=cluster_id)
     if not (plan_g.coverage_ok(yg, n_cls) and plan_g.coverage_ok(dg, n_dom)):
         return 0, [], "FOLD_COVERAGE_FAILURE"
+    gplan = _GatePlan(plan_g, seed + 5)
     yg_oh = np.eye(n_cls)[yg]
     try:
-        nll_h0, _, _ = _crossfit_heldout(Zg, yg, None, n_cls, cfg, plan_g, seed + 10)   # h0(Y|Z)
-        dY, dD = [], []
-        for k in range(1, K + 1):
-            Pk = metric_projector(V_cand[:, :k], M)
-            Zt = Zg - Zg @ Pk.T                      # task complement (I-P_N)Z
-            Zn = Zg @ Pk.T                           # nuisance P_N Z
-            nll_hk, _, _ = _crossfit_heldout(Zt, yg, None, n_cls, cfg, plan_g, seed + 20 + k)
-            br_q0, br_qk = _crossfit_residual_domain_brier(Zn, dg, yg_oh, n_dom, n_cls, cfg, plan_g, seed + 40 + k)
-            dY.append(nll_hk - nll_h0)               # task NLL cost (per-sample)
-            dD.append(br_q0 - br_qk)                 # domain Brier gain (per-sample)
-        dY = np.stack(dY, 1); dD = np.stack(dD, 1)   # [N, K]
-    except np.linalg.LinAlgError:
+        Ps = [metric_projector(V_cand[:, :k], M) for k in range(1, K + 1)]
+        # PAIRED task heads: identical init/splits, only the input transform differs
+        transforms = [Zg] + [Zg - Zg @ Pk.T for Pk in Ps]
+        nll = _paired_task_nll(Zg, yg, transforms, n_cls, cfg, gplan)
+        dY = np.stack([nll[k] - nll[0] for k in range(1, K + 1)], 1)        # [N,K] task NLL cost
+        # domain: calibrated q0 trained ONCE per fold, shared across prefixes; residual per P_kZ
+        br0, q0cache = _domain_q0(dg, yg_oh, n_dom, n_cls, cfg, gplan, seed + 30)
+        dD = np.stack([br0 - _domain_residual_brier(Zg @ Ps[k - 1].T, dg, yg_oh, q0cache,
+                       n_dom, n_cls, cfg, seed + 40 + k) for k in range(1, K + 1)], 1)  # [N,K]
+    except (np.linalg.LinAlgError, KeyError):
         return 0, [], "NUMERICAL_FAILURE"
     ucb_Y = _one_sided_bound(dY, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot, seed + 60, cfg.boot_estimand)
     lcb_D = _one_sided_bound(dD, cluster_id, cfg.gate_alpha, "lower", cfg.gate_boot, seed + 70, cfg.boot_estimand)
@@ -556,20 +631,25 @@ def select_score_fisher(Z, y, d, n_cls, n_dom, cfg: ScoreFisherConfig, seed=0, c
     Z = np.asarray(Z, dtype=np.float64); y = np.asarray(y); d = np.asarray(d)
     z_dim = Z.shape[1]
     rng = np.random.default_rng(seed + 9)
-    # group-aware top split into S_sel / S_gate
+    # group-aware top split into S_sel / S_gate (whole clusters per side)
     groups = _groups_of(cluster_id, len(Z))
     gperm = rng.permutation(len(groups))
     n_sel = max(1, int(round((1 - cfg.gate_split) * len(groups))))
     sel = np.concatenate([groups[i] for i in gperm[:n_sel]])
-    gat = np.concatenate([groups[i] for i in gperm[n_sel:]]) if n_sel < len(groups) else sel
-    cid_g = None if cluster_id is None else np.asarray(cluster_id)[gat]
-
-    y_oh = np.eye(n_cls)[y]
-    plan = _SplitPlan(len(sel), cfg.n_folds, seed + 1)
     blank = lambda reason: ScoreFisherReport(
         rho=np.zeros(z_dim), cand_order=np.array([], int), basis=np.zeros((z_dim, 0)),
         P=np.zeros((z_dim, z_dim)), is_identity=True, k_star=0, gate={},
         rank_records=[], decision_reason=reason)
+    # need a DISJOINT, non-trivial gate split (and enough groups per side for cross-fit)
+    if n_sel >= len(groups) or (len(groups) - n_sel) < cfg.n_folds or n_sel < cfg.n_folds:
+        return blank("INSUFFICIENT_GROUPS")
+    gat = np.concatenate([groups[i] for i in gperm[n_sel:]])
+    cid_sel = None if cluster_id is None else np.asarray(cluster_id)[sel]
+    cid_g = None if cluster_id is None else np.asarray(cluster_id)[gat]
+
+    y_oh = np.eye(n_cls)[y]
+    # S_sel cross-fit is GROUP-aware too (Phase 1.2.1 fix 1): pass the sel-subset cluster ids
+    plan = _SplitPlan(len(sel), cfg.n_folds, seed + 1, group_id=cid_sel)
     if not (plan.coverage_ok(y[sel], n_cls) and plan.coverage_ok(d[sel], n_dom)):
         return blank("FOLD_COVERAGE_FAILURE")
 
