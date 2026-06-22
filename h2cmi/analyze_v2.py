@@ -47,6 +47,23 @@ def _boot_ci(vals, n_boot=10000, seed=0):
     return float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))
 
 
+def _cluster_boot_ci(cluster_vals, n_boot=10000, seed=0):
+    """Subject-CLUSTERED bootstrap: cluster_vals = {cluster_key: [values]}. Resample CLUSTERS with
+    replacement (so repeated sessions of one subject move together), pool their values, take the mean.
+    Required because BNCI2014_004 contributes 3 cross-session units per subject (non-independent)."""
+    keys = list(cluster_vals)
+    if len(keys) < 2:
+        return float("nan"), float("nan")
+    rng = np.random.default_rng(seed)
+    arrs = {k: np.asarray(v, float) for k, v in cluster_vals.items()}
+    bs = []
+    for _ in range(n_boot):
+        pick = [keys[i] for i in rng.integers(0, len(keys), len(keys))]
+        pooled = np.concatenate([arrs[k] for k in pick])
+        bs.append(pooled.mean())
+    return float(np.percentile(bs, 2.5)), float(np.percentile(bs, 97.5))
+
+
 def method_stats(rows, method):
     d = [r["delta"] for r in rows if r["method"] == method]
     harm = [r["harm"] for r in rows if r["method"] == method]
@@ -83,9 +100,13 @@ def analyze_B(rows):
     out["methods"] = {}
     for m in METHODS:
         st = method_stats(rows, m)
-        d = [r["delta"] for r in rows if r["method"] == m]
-        lo, hi = _boot_ci(d)
-        st["delta_ci95"] = [lo, hi]
+        clus = defaultdict(list)
+        for r in rows:
+            if r["method"] == m:
+                clus[(r["source"], r["subject"])].append(r["delta"])   # cluster by dataset+subject
+        lo, hi = _cluster_boot_ci(clus)
+        st["delta_ci95_subjclustered"] = [lo, hi]
+        st["n_subject_clusters"] = len(clus)
         out["methods"][m] = st
     # metadata_only coverage (fraction that actually adapt -- DIAG -> pooled so ~1)
     md = [r for r in rows if r["method"] == "metadata_only"]
@@ -97,11 +118,12 @@ def analyze_B(rows):
         dr = [r for r in rows if r["source"] == ds]
         out["per_dataset"][ds] = {m: method_stats(dr, m) for m in ("metadata_only", "always_pooled",
                                                                    "euclidean_alignment", "current_joint")}
-    # B verdict
+    # B verdict (subject-clustered CI)
     mo = out["methods"]["metadata_only"]
+    ci = mo["delta_ci95_subjclustered"]
     out["verdict"] = dict(
         mean_paired_delta_positive=bool(mo["mean_delta"] > 0),
-        delta_ci_excludes_0=bool(mo["delta_ci95"][0] > 0),
+        delta_ci_excludes_0=bool(ci[0] > 0),
         harm_rate_within_0_20=bool(mo["harm_rate"] <= 0.20),
         coverage_near_1=bool(out["metadata_coverage"] >= 0.95))
     return out
@@ -136,7 +158,8 @@ def main():
     Bd = rep["B"]
     for m in METHODS:
         mm = Bd["methods"][m]
-        print(f"    {m:22s} {_fmt(mm)} ci95=[{mm['delta_ci95'][0]:+.3f},{mm['delta_ci95'][1]:+.3f}]")
+        ci = mm["delta_ci95_subjclustered"]
+        print(f"    {m:22s} {_fmt(mm)} clustCI95=[{ci[0]:+.3f},{ci[1]:+.3f}] (n_clust={mm['n_subject_clusters']})")
     print(f"  metadata coverage={Bd['metadata_coverage']:.2f} actions={Bd['metadata_actions']}")
     for ds, dd in Bd["per_dataset"].items():
         print(f"    [{ds}] metadata_only {_fmt(dd['metadata_only'])}")

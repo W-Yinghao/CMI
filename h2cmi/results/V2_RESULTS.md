@@ -35,3 +35,22 @@ architecture's two halves land differently on real MI: the SAFETY half (metadata
 joint's harm avoided) holds; the UTILITY half (positive gain when supported) does NOT reach the
 preregistered bar. Consistent with the program's measurement->control gap: source-calibrated /
 geometry-only adaptation is safe but its real-EEG utility is marginal.
+
+## AUDIT CORRECTION (post-hoc; supersedes the numbers above)
+Two bugs found in the public audit, both in MERGE/ANALYSIS only -- the raw per-pair JSONL was complete
+on disk:
+(1) V2-A merge: the orchestration monitor's `squeue -n` job names omitted underscores, so the merge
+    ran before the 4 slow pairs (Cho/Lee targets, 52-54 subjects each) wrote. The first report had only
+    2 pairs / 18 routes. CORRECTED full merge = all 6 directed pairs, 230 subject-routes.
+(2) V2-B CI: bootstrapped 90 rows directly; now SUBJECT-CLUSTERED (BNCI2014_004 = 3 cross-session
+    units/subject; 72 subject clusters).
+CORRECTED A (N=230, 6 pairs): metadata_only 0/230 unsupported-route adaptations (binomial upper95 =
+0.013, MUCH tighter), exact identity-equivalence 1.000. Comparators: always_pooled +0.097 (harm 0.22,
+wq -0.057); always_canonical_CC +0.070 (harm 0.21, wq -0.046); EA +0.070 (harm 0.27, wq -0.090).
+-> operator-support safety STRONGER (230/230, upper95 0.013); blind adaptation has a larger positive
+mean but ~21-27% subject-level harm with negative tails.
+CORRECTED B (subject-clustered, 72 clusters): metadata_only +0.001, harm 0.37, clustered CI95
+[-0.007,+0.009] (includes 0) -> utility STILL NOT established (DESCRIPTIVE interval). current_joint
+-0.005, harm 0.49, clustered CI [-0.015,+0.006] -> "real EEG confirms prior-M-step harm" is TIGHTENED
+to: in V2-B the joint is directionally consistent (negative) and has the HIGHEST harm rate, but its
+clustered CI includes 0.

@@ -1,54 +1,106 @@
 {
   "A": {
     "mode": "A",
-    "n_rows": 108,
+    "n_rows": 1380,
     "metadata": {
-      "N_units": 18,
+      "N_units": 230,
       "unsupported_route_adaptations": 0,
       "adaptation_rate": 0.0,
-      "adaptation_rate_upper95": 0.1533175539572782,
+      "adaptation_rate_upper95": 0.0129404657004664,
       "exact_identity_equivalence": 1.0,
       "geometry_all_unsupported": true
     },
     "methods": {
       "identity": {
-        "n": 18,
+        "n": 230,
         "mean_delta": 0.0,
         "harm_rate": 0.0,
         "worst_quartile": 0.0
       },
       "always_pooled": {
-        "n": 18,
-        "mean_delta": 0.03240740740740741,
-        "harm_rate": 0.1111111111111111,
-        "worst_quartile": -0.013888888888888923
+        "n": 230,
+        "mean_delta": 0.0967621477047362,
+        "harm_rate": 0.2217391304347826,
+        "worst_quartile": -0.057068129281759306
       },
       "always_canonical_CC": {
-        "n": 18,
-        "mean_delta": 0.030864197530864206,
-        "harm_rate": 0.1111111111111111,
-        "worst_quartile": -0.013888888888888895
+        "n": 230,
+        "mean_delta": 0.06950278226663403,
+        "harm_rate": 0.20869565217391303,
+        "worst_quartile": -0.04564631157643863
       },
       "metadata_only": {
-        "n": 18,
+        "n": 230,
         "mean_delta": 0.0,
         "harm_rate": 0.0,
         "worst_quartile": 0.0
       },
       "euclidean_alignment": {
-        "n": 18,
-        "mean_delta": 0.028549382716049405,
-        "harm_rate": 0.3333333333333333,
-        "worst_quartile": -0.04861111111111113
+        "n": 230,
+        "mean_delta": 0.0704746690899484,
+        "harm_rate": 0.26521739130434785,
+        "worst_quartile": -0.09045066078641395
       },
       "current_joint": {
-        "n": 18,
-        "mean_delta": 0.008487654320987668,
-        "harm_rate": 0.16666666666666666,
-        "worst_quartile": -0.05902777777777776
+        "n": 230,
+        "mean_delta": 0.07333700421105087,
+        "harm_rate": 0.23478260869565218,
+        "worst_quartile": -0.05453923588678579
       }
     },
     "per_pair": {
+      "BNCI2014_001>Cho2017": {
+        "metadata_only": {
+          "n": 52,
+          "mean_delta": 0.0,
+          "harm_rate": 0.0,
+          "worst_quartile": 0.0
+        },
+        "always_pooled": {
+          "n": 52,
+          "mean_delta": 0.265801282051282,
+          "harm_rate": 0.019230769230769232,
+          "worst_quartile": 0.08012820512820513
+        },
+        "always_canonical_CC": {
+          "n": 52,
+          "mean_delta": 0.16916666666666663,
+          "harm_rate": 0.038461538461538464,
+          "worst_quartile": 0.040897435897435885
+        },
+        "euclidean_alignment": {
+          "n": 52,
+          "mean_delta": 0.20855769230769236,
+          "harm_rate": 0.057692307692307696,
+          "worst_quartile": 0.03346153846153845
+        }
+      },
+      "BNCI2014_001>Lee2019_MI": {
+        "metadata_only": {
+          "n": 54,
+          "mean_delta": 0.0,
+          "harm_rate": 0.0,
+          "worst_quartile": 0.0
+        },
+        "always_pooled": {
+          "n": 54,
+          "mean_delta": 0.022929338316436423,
+          "harm_rate": 0.3148148148148148,
+          "worst_quartile": -0.04193507641783504
+        },
+        "always_canonical_CC": {
+          "n": 54,
+          "mean_delta": 0.017082957685573035,
+          "harm_rate": 0.3148148148148148,
+          "worst_quartile": -0.03018820260199572
+        },
+        "euclidean_alignment": {
+          "n": 54,
+          "mean_delta": 0.02846357532035526,
+          "harm_rate": 0.25925925925925924,
+          "worst_quartile": -0.04764057781299159
+        }
+      },
       "Cho2017>BNCI2014_001": {
         "metadata_only": {
           "n": 9,
@@ -73,6 +125,32 @@
           "mean_delta": 0.02777777777777782,
           "harm_rate": 0.3333333333333333,
           "worst_quartile": -0.013888888888888895
+        }
+      },
+      "Cho2017>Lee2019_MI": {
+        "metadata_only": {
+          "n": 54,
+          "mean_delta": 0.0,
+          "harm_rate": 0.0,
+          "worst_quartile": 0.0
+        },
+        "always_pooled": {
+          "n": 54,
+          "mean_delta": 0.03047116733953871,
+          "harm_rate": 0.3333333333333333,
+          "worst_quartile": -0.045506838249889804
+        },
+        "always_canonical_CC": {
+          "n": 54,
+          "mean_delta": 0.03369020958177768,
+          "harm_rate": 0.25925925925925924,
+          "worst_quartile": -0.03929895259470857
+        },
+        "euclidean_alignment": {
+          "n": 54,
+          "mean_delta": 0.044165159280865306,
+          "harm_rate": 0.2962962962962963,
+          "worst_quartile": -0.0420613868889731
         }
       },
       "Lee2019_MI>BNCI2014_001": {
@@ -100,6 +178,32 @@
           "harm_rate": 0.3333333333333333,
           "worst_quartile": -0.0763888888888889
         }
+      },
+      "Lee2019_MI>Cho2017": {
+        "metadata_only": {
+          "n": 52,
+          "mean_delta": 0.0,
+          "harm_rate": 0.0,
+          "worst_quartile": 0.0
+        },
+        "always_pooled": {
+          "n": 52,
+          "mean_delta": 0.09551282051282052,
+          "harm_rate": 0.25,
+          "worst_quartile": -0.13615384615384613
+        },
+        "always_canonical_CC": {
+          "n": 52,
+          "mean_delta": 0.07483974358974359,
+          "harm_rate": 0.25,
+          "worst_quartile": -0.11076923076923073
+        },
+        "euclidean_alignment": {
+          "n": 52,
+          "mean_delta": 0.0178525641025641,
+          "harm_rate": 0.4230769230769231,
+          "worst_quartile": -0.24307692307692313
+        }
       }
     }
   },
@@ -112,60 +216,66 @@
         "mean_delta": 0.0,
         "harm_rate": 0.0,
         "worst_quartile": 0.0,
-        "delta_ci95": [
+        "delta_ci95_subjclustered": [
           0.0,
           0.0
-        ]
+        ],
+        "n_subject_clusters": 72
       },
       "always_pooled": {
         "n": 90,
         "mean_delta": 0.0013010106347147523,
         "harm_rate": 0.36666666666666664,
         "worst_quartile": -0.04825222670050255,
-        "delta_ci95": [
-          -0.006946966314984023,
-          0.00941013612179259
-        ]
+        "delta_ci95_subjclustered": [
+          -0.006941783426579193,
+          0.00920573894084149
+        ],
+        "n_subject_clusters": 72
       },
       "always_canonical_CC": {
         "n": 90,
         "mean_delta": 0.002089456618099557,
         "harm_rate": 0.35555555555555557,
         "worst_quartile": -0.023467839631632726,
-        "delta_ci95": [
-          -0.0025873811830893754,
-          0.006906758043321821
-        ]
+        "delta_ci95_subjclustered": [
+          -0.002648135900298725,
+          0.007217429281119831
+        ],
+        "n_subject_clusters": 72
       },
       "metadata_only": {
         "n": 90,
         "mean_delta": 0.0013010106347147523,
         "harm_rate": 0.36666666666666664,
         "worst_quartile": -0.04825222670050255,
-        "delta_ci95": [
-          -0.006946966314984023,
-          0.00941013612179259
-        ]
+        "delta_ci95_subjclustered": [
+          -0.006941783426579193,
+          0.00920573894084149
+        ],
+        "n_subject_clusters": 72
       },
       "euclidean_alignment": {
         "n": 90,
         "mean_delta": 0.0017731194454405376,
         "harm_rate": 0.4444444444444444,
         "worst_quartile": -0.0442248364662158,
-        "delta_ci95": [
-          -0.006861898543707031,
-          0.010276016846451576
-        ]
+        "delta_ci95_subjclustered": [
+          -0.007107064016283645,
+          0.010556469921817808
+        ],
+        "n_subject_clusters": 72
       },
       "current_joint": {
         "n": 90,
         "mean_delta": -0.0049394489684626945,
         "harm_rate": 0.4888888888888889,
         "worst_quartile": -0.06875011920074617,
-        "delta_ci95": [
-          -0.01493503005629906,
-          0.0047998585710047285
-        ]
+        "delta_ci95_subjclustered": [
+          -0.015175982947269375,
+          0.006260684268142938
+        ],
+        "n_subject_clusters": 72
       }
     },
     "metadata_coverage": 1.0,

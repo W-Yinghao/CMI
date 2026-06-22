@@ -31,3 +31,19 @@ Controlled intervention (3:1/1:3 are builder-constructed from labels), NOT a nat
 benchmark, NOT in metadata-routing pass/fail. Does NOT change: STAGE_V_COMPLETE,
 V2_A_OPERATOR_SUPPORT_SAFETY_HOLDS, V2_B_SUPPORTED_UTILITY_NOT_ESTABLISHED. Experiment search STOPS
 here (no 7:1/9:1, no target-only gate, no per-dataset operator, no orthogonal estimator, no CC retune).
+
+## AUDIT CORRECTION (post-hoc; supersedes the numbers above)
+The analyzer unit key was (dataset, subject), which COLLAPSED BNCI2014_004's 3 cross-session units per
+subject (90 -> 72, with overwrite). FIXED: unit key = (pair, subject) [encodes session]; bootstrap is
+now SUBJECT-CLUSTERED. Raw v2p.jsonl was complete (90 units).
+CORRECTED (n_units=90, 72 subject clusters): occupancy slope vs signed pool log-odds --
+    identity              -0.000 [-0.000,-0.000]   (zero-control)
+    always_pooled         -0.063 [-0.073,-0.054]*  (CI excludes 0)
+    always_canonical_CC   -0.016 [-0.023,-0.009]*  (CI excludes 0)   <-- the KEY claim survives clustering
+    current_joint         -0.019 [-0.043,+0.005]   (CI now INCLUDES 0 -> joint sensitivity DESCRIPTIVE)
+(* CI excludes 0.) The fixed-prior-CC-MOVES claim (revised bias theorem) remains CONFIRMATORY after
+the unit-key fix + subject clustering: CC slope CI [-0.023,-0.009] excludes 0 and is ~1/4 of pooled
+(-0.063). The current_joint slope CI now includes 0 (its per-session variance, hidden by the old
+collapse, is large), so the joint's prevalence-sensitivity is DESCRIPTIVE, not confirmatory. Net:
+pooled & fixed-prior-CC are CI-confirmed prevalence-sensitive; CC is relatively-more-robust but not
+prevalence-invariant; the joint claim is descriptive.
