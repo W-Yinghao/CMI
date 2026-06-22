@@ -24,18 +24,19 @@ def _feed_arr(h, a) -> None:
 
 
 def population_hash(sample_id, y, domain, group) -> str:
-    """Order-INDEPENDENT hash of the evaluation population (sorted by string sample_id); strings are
-    length-prefixed UTF-8, integer columns hashed as bytes."""
+    """Order-INDEPENDENT hash of the evaluation population (sorted by string sample_id). sample_id
+    and the STABLE STRING group are length-prefixed UTF-8; y / domain (a frozen contiguous int) are
+    hashed as bytes. (An integer group stringifies, so integer-group inputs stay back-compatible.)"""
     sid = [str(s) for s in np.asarray(sample_id).tolist()]
     order = sorted(range(len(sid)), key=lambda i: sid[i])
     y = np.asarray(y).astype(np.int64); d = np.asarray(domain).astype(np.int64)
-    g = np.asarray(group).astype(np.int64)
+    g = [str(x) for x in np.asarray(group).tolist()]
     h = hashlib.sha256()
     for i in order:
         _feed_strs(h, [sid[i]])
         h.update(int(y[i]).to_bytes(8, "little", signed=True))
         h.update(int(d[i]).to_bytes(8, "little", signed=True))
-        h.update(int(g[i]).to_bytes(8, "little", signed=True))
+        _feed_strs(h, [g[i]])
     return h.hexdigest()[:16]
 
 
@@ -63,9 +64,11 @@ class PredictionBundle:
         self.sample_id = np.asarray([str(s) for s in np.asarray(self.sample_id).tolist()])
         self.logits = np.asarray(self.logits, dtype=np.float64)
         self.y = np.asarray(self.y, dtype=int).ravel()
-        self.domain = np.asarray(self.domain, dtype=int).ravel()
-        self.group = np.asarray(self.group, dtype=int).ravel()
+        self.domain = np.asarray(self.domain, dtype=int).ravel()                 # frozen contiguous int
+        self.group = np.asarray([str(g) for g in np.asarray(self.group).ravel().tolist()], dtype=object)
         N = self.logits.shape[0]
+        if N == 0:
+            raise ValueError("prediction population is empty")
         if self.logits.ndim != 2:
             raise ValueError("logits must be [N, C]")
         C = self.logits.shape[1]
@@ -130,8 +133,9 @@ class PredictionBundle:
         order = sorted(range(len(sid)), key=lambda i: sid[i])
         h = hashlib.sha256()
         _feed_strs(h, [sid[i] for i in order])
-        for arr in (self.logits[order], self.y[order], self.domain[order], self.group[order]):
+        for arr in (self.logits[order], self.y[order], self.domain[order]):
             _feed_arr(h, arr)
+        _feed_strs(h, [str(self.group[i]) for i in order])          # string group: never pointer-hash
         _feed_strs(h, list(self.class_names))
         _feed_strs(h, [self.method, self.split_id, self.split_role, str(int(self.deletion_level)),
                        self.checkpoint_hash, self.risk_metric])

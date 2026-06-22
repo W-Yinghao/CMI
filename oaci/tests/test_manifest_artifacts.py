@@ -133,6 +133,29 @@ def test_population_hash_is_stable_for_unicode_string_ids():
     assert population_hash(ids, [0, 1, 0, 1], [0, 0, 1, 1], [0, 0, 1, 1]) == a.eval_population_hash
 
 
+def test_prediction_bundle_preserves_string_group_ids():
+    pb = _pb(group=["recA", "recA", "recB", "recB"], domain=[0, 0, 1, 1])
+    assert pb.group.dtype == object and pb.group[0] == "recA"        # stable string recording id
+    assert pb.eval_population_hash == _pb(group=["recA", "recA", "recB", "recB"]).eval_population_hash
+
+
+def test_eval_bootstrap_accepts_noninteger_group_ids():
+    from oaci.eval.bootstrap import is_whole_group_resample, make_bootstrap_plan
+    dom = [0, 0, 0, 0, 1, 1, 1, 1]
+    group = ["A", "A", "B", "B", "C", "C", "D", "D"]                  # non-integer recording ids
+    y = [0, 1, 0, 1, 0, 1, 0, 1]
+    plan = make_bootstrap_plan(dom, group, y, reference_classes=[0, 1], n_boot=8, seed=0, min_clusters=2)
+    assert plan.estimable and len(plan.replicates) == 8
+    assert is_whole_group_resample(plan.replicates[0], group, plan)  # whole-group check on string keys
+
+
+def test_eval_population_hash_binds_string_group_mapping():
+    from oaci.eval.artifacts import population_hash
+    h = population_hash(["a", "b"], [0, 1], [0, 0], ["g0", "g1"])
+    assert population_hash(["a", "b"], [0, 1], [0, 0], ["g1", "g0"]) != h     # group->id mapping bound
+    assert population_hash(["b", "a"], [1, 0], [0, 0], ["g1", "g0"]) == h     # row-order invariant
+
+
 def test_prediction_content_hash_changes_with_logits():
     a = _pb()
     b = _pb(logits=a.logits + 0.5)

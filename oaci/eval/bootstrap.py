@@ -38,13 +38,14 @@ def make_bootstrap_plan(domain, group, y, reference_classes, n_boot=1000, seed=0
     ``mode='hierarchical'`` (LOSO aggregation): OUTER resample the held-out ``target`` units
     (site/subject) with replacement, INNER resample whole groups within each chosen target — the
     same multiplicities are reused across methods/levels/seed blocks (the plan is fixed)."""
-    domain, group, y = np.asarray(domain, int), np.asarray(group, int), np.asarray(y, int)
-    uniq = np.unique(group)
-    grp_rows = {int(g): np.where(group == g)[0] for g in uniq}
-    grp_dom = {int(g): int(domain[group == g][0]) for g in uniq}
-    by_dom: dict[int, list[int]] = {}
+    domain, y = np.asarray(domain, int), np.asarray(y, int)
+    group = np.asarray([str(g) for g in np.asarray(group).ravel().tolist()], dtype=object)  # STABLE STRING
+    uniq = sorted(set(group.tolist()))
+    grp_rows = {g: np.where(group == g)[0] for g in uniq}
+    grp_dom = {g: int(domain[group == g][0]) for g in uniq}
+    by_dom: dict = {}
     for g in uniq:
-        by_dom.setdefault(grp_dom[int(g)], []).append(int(g))
+        by_dom.setdefault(grp_dom[g], []).append(g)
     group_sizes = {g: int(len(r)) for g, r in grp_rows.items()}
     rng = np.random.default_rng(seed)
     ref = list(reference_classes)
@@ -53,9 +54,9 @@ def make_bootstrap_plan(domain, group, y, reference_classes, n_boot=1000, seed=0
         if target is None:
             raise ValueError("mode='hierarchical' requires a per-sample `target` (outer unit) array")
         target = np.asarray(target)
-        grp_tgt = {int(g): target[group == g][0] for g in uniq}
-        tgts = sorted({grp_tgt[int(g)] for g in uniq}, key=str)
-        tgt_groups = {t: [int(g) for g in uniq if grp_tgt[int(g)] == t] for t in tgts}
+        grp_tgt = {g: target[group == g][0] for g in uniq}
+        tgts = sorted({grp_tgt[g] for g in uniq}, key=str)
+        tgt_groups = {t: [g for g in uniq if grp_tgt[g] == t] for t in tgts}
         if len(tgts) < min_clusters:
             return BootstrapPlan([], n_boot, mode, seed, 0.0, False,
                                  f"only {len(tgts)} target unit(s) < {min_clusters}", group_sizes)
@@ -64,9 +65,9 @@ def make_bootstrap_plan(domain, group, y, reference_classes, n_boot=1000, seed=0
             idx = []
             chosen = [tgts[i] for i in rng.integers(0, len(tgts), len(tgts))]   # OUTER: resample targets
             for t in chosen:
-                gs = np.array(tgt_groups[t])
+                gs = np.array(tgt_groups[t], dtype=object)
                 for gg in gs[rng.integers(0, len(gs), len(gs))]:                 # INNER: groups in target
-                    idx.append(grp_rows[int(gg)])
+                    idx.append(grp_rows[gg])
             return np.concatenate(idx)
     else:
         for dd, gs in by_dom.items():
@@ -77,9 +78,9 @@ def make_bootstrap_plan(domain, group, y, reference_classes, n_boot=1000, seed=0
         def draw_idx():
             idx = []
             for dd, gs in by_dom.items():
-                gs = np.array(gs)
+                gs = np.array(gs, dtype=object)
                 for gg in gs[rng.integers(0, len(gs), len(gs))]:
-                    idx.append(grp_rows[int(gg)])
+                    idx.append(grp_rows[gg])
             return np.concatenate(idx)
 
     def valid(idx):
@@ -130,9 +131,9 @@ def paired_ci(plan: BootstrapPlan, delta_full: float, delta_fn, alpha: float = 0
 def is_whole_group_resample(idx, group, plan: BootstrapPlan) -> bool:
     """True iff every group's row-count in ``idx`` is an integer multiple of its size (i.e. the
     resample never split a group into rows)."""
-    group = np.asarray(group, int)
+    group = np.asarray([str(g) for g in np.asarray(group).ravel().tolist()], dtype=object)
     vals, counts = np.unique(group[idx], return_counts=True)
-    return all(int(c) % plan.group_sizes[int(g)] == 0 for g, c in zip(vals, counts))
+    return all(int(c) % plan.group_sizes[g] == 0 for g, c in zip(vals, counts))
 
 
 def point_delta_over_seeds(per_seed_deltas) -> float:

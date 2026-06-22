@@ -121,6 +121,19 @@ def test_erm_cache_counts_are_4_1_3():
     assert compute["n"] == 1
 
 
+def test_selection_session_retains_full_result():
+    cache = LeakageScoreCache()
+    key = LeakageScoreKey("erm", "z", "p", "s", "f", "b", "c")
+    erm_scorer = lambda: {"bootstrap_ucl": 0.5, "extractable_LQ_ov": 0.2, "replicate_capacities": [0, 8]}
+    ck = lambda r: {"bootstrap_ucl": 0.3, "extractable_LQ_ov": 0.1, "replicate_capacities": [8, 8]}
+    sess = SelectionScoringSession("OACI", cache, key, "erm", erm_scorer, ck)
+    rec = _ckpt(0, 0.3)
+    sess.score(rec)
+    full = sess.result(rec.model_hash)
+    assert full["extractable_LQ_ov"] == 0.1 and list(full["replicate_capacities"]) == [8, 8]
+    assert sess.erm_result()["extractable_LQ_ov"] == 0.2          # full ERM result retained too
+
+
 # ---------------- section 11: mass-weighted eval aggregation ----------------
 def test_mass_weighted_eval_aggregation_is_duplication_invariant():
     logits = np.array([[2.0, 0.0], [0.0, 2.0], [1.0, 1.0]])
