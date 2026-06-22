@@ -11,9 +11,10 @@ import numpy as np
 from cmi.eval.source_state import fit_source_state
 from acar.config import MIN_BATCH, N_CLS
 import acar.v3.set_features as sf
+from dataclasses import FrozenInstanceError
 from acar.v3.set_features import (
     extract_action_set, build_action_sets, canonical_digest, canonical_tie_break,
-    WindowActionSet, WindowKey, canon_key, action_index, _validate_proba,
+    WindowActionSet, WindowKey, FallbackBatchRecord, canon_key, action_index, _validate_proba,
     NON_IDENTITY, ACTION_VOCAB, ACTION_GEOMETRY, PER_WINDOW_FEATURES, CONTEXT_FEATURES)
 
 
@@ -117,16 +118,53 @@ def test_duplicate_and_duplication():
     print("  [ok] duplicate-key rejected; duplication (new keys) != permutation")
 
 
-def test_fallback_short_circuit_no_adapter():
+def test_fallback_record_no_adapter():
     state, z, keys = _toy(n=MIN_BATCH - 1)
     orig = sf.apply_action
     sf.apply_action = lambda *a, **k: (_ for _ in ()).throw(AssertionError("adapter called on fallback path"))
     try:
         out = build_action_sets(state, z, keys)
-        assert out == {"__fallback__": "identity"}
     finally:
         sf.apply_action = orig
-    print(f"  [ok] len(B)<MIN_BATCH ({MIN_BATCH}) short-circuits to identity with NO adapter call")
+    assert isinstance(out, FallbackBatchRecord) and out.forced_identity and out.n_windows == len(z)
+    assert out.window_keys == tuple(keys) and len(out.canonical_input_digest) == 64
+    print(f"  [ok] len(B)<MIN_BATCH ({MIN_BATCH}) -> immutable FallbackBatchRecord, NO adapter call, full input digest")
+
+
+def test_frozen_object_rebind():
+    state, z, keys = _toy()
+    was = build_action_sets(state, z, keys)["matched_coral"]
+    for assign in (lambda: setattr(was, "action_name", "spdim"),
+                   lambda: setattr(was, "values", was.values)):
+        try:
+            assign(); raise AssertionError("field rebind allowed on frozen WindowActionSet")
+        except FrozenInstanceError:
+            pass
+    print("  [ok] WindowActionSet is object-level immutable (FrozenInstanceError on field rebind)")
+
+
+def test_identity_computed_once():
+    state, z, keys = _toy()
+    orig = sf.apply_action; calls = []
+    def counting(name, st, zz):
+        calls.append(name); return orig(name, st, zz)
+    sf.apply_action = counting
+    try:
+        sf.build_action_sets(state, z, keys)
+    finally:
+        sf.apply_action = orig
+    assert calls.count("identity") == 1, calls
+    for a in NON_IDENTITY:
+        assert calls.count(a) == 1, calls
+    print("  [ok] identity reference computed exactly once; each requested action exactly once")
+
+
+def test_window_key_encoding():
+    assert canon_key(WindowKey("ds", "s1", "r1", 5)).startswith("WK")
+    assert canon_key("w001") == "Sw001"
+    assert canon_key(WindowKey("ds", "s1", "r1", 5)) != canon_key(WindowKey("ds", "s1", "r1", 6))
+    _expect(TypeError, lambda: canon_key(123))
+    print("  [ok] disambiguated window-key encoding (WK structured / S string); non-key rejected")
 
 
 def test_serialization_roundtrip():
@@ -235,7 +273,8 @@ def main():
     print("ACAR v3 set_features synthetic guards (hardened):")
     for t in (test_label_free_api, test_window_permutation_path_invariance, test_action_order_invariance_and_canonical_keys,
               test_missing_zero_vs_genuine_zero, test_variable_cardinality, test_duplicate_and_duplication,
-              test_fallback_short_circuit_no_adapter, test_serialization_roundtrip,
+              test_fallback_record_no_adapter, test_frozen_object_rebind, test_identity_computed_once,
+              test_window_key_encoding, test_serialization_roundtrip,
               test_digest_sensitivity_single_ulp_and_more, test_t3a_geometry_masked, test_action_capability_contract,
               test_nan_inf_rejected, test_proba_validation, test_contract_validation_and_immutability,
               test_structured_window_key):

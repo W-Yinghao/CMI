@@ -1,33 +1,18 @@
 """Per-window paired-set extraction for ACAR v3 (HSCR). DESIGN/DEV stage — SYNTHETIC inputs only until DEV_DESIGN_LOCK.
-Hardened per the 93f417c review (notes/ACAR_V3_AMENDMENT_2.md).
+Hardened per the 93f417c + 685a526 reviews (notes/ACAR_V3_AMENDMENT_2.md, _3.md).
 
 Data contract:
-    WindowActionSet (validated + immutable)
-      values:             [n, F]  per-window paired features (canonical row order)
-      availability_mask:  [n, F]  uint8 {0,1}; 1 = genuine value, 0 = structurally unavailable (slot forced exact 0)
-      context_values:     [C]     batch-level features
-      context_mask:       [C]     uint8 {0,1}
-      action_name:        canonical string in NON_IDENTITY
-      action_index:       == ACTION_VOCAB.index(action_name)
-      window_keys:        unique stable identifiers (str or WindowKey), in canonical row order
+    WindowActionSet (frozen + slots + validated; arrays read-only)
+      values [n,F], availability_mask [n,F]{0,1}, context_values [C], context_mask [C]{0,1},
+      action_name in NON_IDENTITY, action_index == ACTION_VOCAB.index(action_name), window_keys (unique).
+    FallbackBatchRecord (frozen): forced-identity provenance for <MIN_BATCH batches (no adapter is ever called).
 
-Hardening invariants:
-- **Canonical row order BEFORE adapters:** `(z, window_keys)` are stably sorted by `canon_key` *before* any adapter
-  runs, so EA/CORAL/SPDIM/covariance/reductions execute in a fixed order → permutation invariance is a property of
-  the execution path (byte-identical values), not of hash tolerance.
-- **Exact, full 64-char digest:** SHA-256 over the schema header + raw float64-LE value/context bytes + uint8 masks +
-  canonical keys. No rounding (single-ULP sensitive).
-- **Validated immutable contract:** `WindowActionSet.__post_init__` enforces shapes, binary masks, masked-slots-are-
-  exactly-0, finiteness, action_name/index consistency, unique keys; arrays are set read-only.
-- **Canonical action execution order:** actions are validated and iterated as `ACTION_VOCAB` order, never caller order.
-- **Action capability map:** matched_coral/spdim MUST yield geometry (z_tilde); t3a MUST NOT — asserted (drift guard).
-- **Probability/shape validation** of `p0,pa,z0,za`. NaN/Inf rejected. `<MIN_BATCH` short-circuits to identity BEFORE
-  any adapter. We do NOT call acar.features.feature_vector() (it collapses NaN->0).
-
-No target labels, no DEV labels, no ΔR, no candidate/width/AUROC/router metric are computed here.
+Hardening invariants: canonical row order BEFORE adapters; exact full-64 SHA-256 digest (no rounding); object-level
+immutability; canonical action execution order; action capability map; probability/shape validation; identity
+reference computed ONCE per batch; disambiguated structured WindowKey encoding. No labels, no ΔR, no metrics here.
 """
 from __future__ import annotations
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from collections import namedtuple
 import hashlib
 import json
@@ -37,11 +22,10 @@ from acar.config import MIN_BATCH
 from acar.actions import apply_action
 from acar.features import (_entropy, _margin, _jsd, _bures_w2, _fisher_ratio, _ess, _maha2, _shrink)
 
-SCHEMA_VERSION = "acar-v3-set/1"
+SCHEMA_VERSION = "acar-v3-set/2"
 
 ACTION_VOCAB = ("identity", "matched_coral", "spdim", "t3a")
 NON_IDENTITY = tuple(a for a in ACTION_VOCAB if a != "identity")
-# explicit capability map (geometry = returns a post-embedding z_tilde); drift here changes feature semantics.
 ACTION_GEOMETRY = {"matched_coral": True, "spdim": True, "t3a": False}
 
 PER_WINDOW_FEATURES = ("ent0", "enta", "d_ent", "margin0", "margina", "d_margin",
@@ -54,11 +38,14 @@ WindowKey = namedtuple("WindowKey", "dataset_id subject_id recording_id window_i
 
 
 def canon_key(k) -> str:
-    """Canonical serialization of a window identifier (for sorting + digest). Structured keys preferred for the real
-    loader: (dataset_id, subject_id, recording_id, window_index)."""
+    """Disambiguated canonical serialization. Structured WindowKey -> 'WK'+canonical JSON array (no delimiter
+    collision); toy string -> 'S'+string. The real loader must emit WindowKey (strings are toy-compat only)."""
     if isinstance(k, WindowKey):
-        return f"{k.dataset_id}|{k.subject_id}|{k.recording_id}|{int(k.window_index):09d}"
-    return str(k)
+        return "WK" + json.dumps([str(k.dataset_id), str(k.subject_id), str(k.recording_id), int(k.window_index)],
+                                 separators=(",", ":"))
+    if isinstance(k, str):
+        return "S" + k
+    raise TypeError(f"window key must be WindowKey or str; got {type(k).__name__}")
 
 
 def action_index(name: str) -> int:
@@ -66,7 +53,6 @@ def action_index(name: str) -> int:
 
 
 def canonical_tie_break(candidates):
-    """Deterministic action choice among tied candidates: lowest ACTION_VOCAB index (NOT caller order)."""
     return min(candidates, key=action_index)
 
 
@@ -74,10 +60,10 @@ def _as_bin(m):
     m = np.asarray(m)
     if not np.all(np.isin(m, (0, 1))):
         raise ValueError("availability mask must be binary {0,1}")
-    return m.astype(np.uint8)
+    return np.ascontiguousarray(m.astype(np.uint8))
 
 
-@dataclass
+@dataclass(frozen=True, slots=True)
 class WindowActionSet:
     values: np.ndarray
     availability_mask: np.ndarray
@@ -112,15 +98,33 @@ class WindowActionSet:
         if len(keys) != v.shape[0]:
             raise ValueError("window_keys length != n_windows")
         ck = [canon_key(k) for k in keys]
-        if any(s == "" for s in ck):
-            raise ValueError("empty window key")
         if len(set(ck)) != len(ck):
             raise ValueError("duplicate window_keys")
         v.flags.writeable = False; m.flags.writeable = False
         cv.flags.writeable = False; cm.flags.writeable = False
-        self.values, self.availability_mask = v, m
-        self.context_values, self.context_mask = cv, cm
-        self.window_keys = keys
+        object.__setattr__(self, "values", v)
+        object.__setattr__(self, "availability_mask", m)
+        object.__setattr__(self, "context_values", cv)
+        object.__setattr__(self, "context_mask", cm)
+        object.__setattr__(self, "window_keys", keys)
+
+
+@dataclass(frozen=True, slots=True)
+class FallbackBatchRecord:
+    forced_identity: bool
+    reason: str
+    window_keys: tuple
+    canonical_input_digest: str
+    n_windows: int
+
+
+def _input_digest(z, keys):
+    h = hashlib.sha256(); h.update(SCHEMA_VERSION.encode())
+    order = sorted(range(len(keys)), key=lambda i: canon_key(keys[i]))
+    for i in order:
+        h.update(b"K\x00"); h.update(canon_key(keys[i]).encode())
+        h.update(b"Z\x00"); h.update(np.ascontiguousarray(z[i], dtype="<f8").tobytes())
+    return h.hexdigest()
 
 
 def _validate_proba(p, n, n_cls, name):
@@ -153,10 +157,7 @@ def _context(state, z0, za, pa, geom):
     return vals, mask
 
 
-def extract_action_set(state, z, window_keys, action) -> WindowActionSet:
-    """Build the WindowActionSet for ONE non-identity action. Label-free. Canonicalizes row order before adapters."""
-    if action not in NON_IDENTITY:
-        raise ValueError(f"extract_action_set is for non-identity actions; got {action!r}")
+def _canonicalize(z, window_keys):
     z = np.asarray(z, float); keys = list(window_keys)
     if len(keys) != len(z):
         raise ValueError("window_keys length != n_windows")
@@ -165,25 +166,24 @@ def extract_action_set(state, z, window_keys, action) -> WindowActionSet:
     ck = [canon_key(k) for k in keys]
     if len(set(ck)) != len(ck):
         raise ValueError("duplicate window_keys are not allowed (window identity must be unique)")
-    order = sorted(range(len(keys)), key=lambda i: ck[i])      # CANONICAL ROW ORDER before any adapter
-    z = z[order]; keys = [keys[i] for i in order]
-    n = len(z); n_cls = state["n_cls"]
+    order = sorted(range(len(keys)), key=lambda i: ck[i])
+    return z[order], [keys[i] for i in order]
 
-    p0, z0 = apply_action("identity", state, z)
+
+def _extract_canonical(state, z, keys, action, p0, z0) -> WindowActionSet:
+    """Build the set for ONE action; assumes z/keys already canonical and identity (p0,z0) already computed."""
+    n, n_cls = len(z), state["n_cls"]
     pa, za = apply_action(action, state, z)
     if (za is not None) != ACTION_GEOMETRY[action]:
         raise ValueError(f"action capability drift: {action} geometry={za is not None}, expected {ACTION_GEOMETRY[action]}")
-    _validate_proba(p0, n, n_cls, "p0"); _validate_proba(pa, n, n_cls, "pa")
-    z0 = np.asarray(z0, float)
-    if z0.shape != z.shape or (za is not None and np.asarray(za).shape != z.shape):
+    _validate_proba(pa, n, n_cls, "pa")
+    if za is not None and np.asarray(za).shape != z.shape:
         raise ValueError("embedding shape mismatch")
     geom = za is not None
-
     ent0, enta = _entropy(p0), _entropy(pa)
     m0, ma = _margin(p0), _margin(pa)
     flip = (pa.argmax(1) != p0.argmax(1)).astype(float)
-    js = _jsd(p0, pa)
-    conf = pa.max(1) - p0.max(1)
+    js = _jsd(p0, pa); conf = pa.max(1) - p0.max(1)
     disp = np.linalg.norm(za - z0, axis=1) if geom else np.zeros(n)
     values = np.stack([ent0, enta, enta - ent0, m0, ma, ma - m0, flip, js, conf, disp], axis=1)
     mask = np.ones_like(values, np.uint8)
@@ -193,19 +193,24 @@ def extract_action_set(state, z, window_keys, action) -> WindowActionSet:
     cvals, cmask = _context(state, z0, za, pa, geom)
     if not np.all(np.isfinite(values[mask == 1])) or not np.all(np.isfinite(cvals[cmask == 1])):
         raise ValueError("non-finite available feature value")
-    values = np.where(mask == 1, values, 0.0)
-    cvals = np.where(cmask == 1, cvals, 0.0)
+    values = np.where(mask == 1, values, 0.0); cvals = np.where(cmask == 1, cvals, 0.0)
     return WindowActionSet(values, mask, cvals, cmask, action, action_index(action), tuple(keys))
 
 
-def build_action_sets(state, z, window_keys, actions=NON_IDENTITY):
-    """{action: WindowActionSet} in CANONICAL action order, OR {'__fallback__': 'identity'} when len(z) < MIN_BATCH
-    (short-circuit BEFORE any adapter runs). `actions` selects a subset; iteration order is always ACTION_VOCAB."""
-    z = np.asarray(z, float)
-    if not np.all(np.isfinite(z)):
-        raise ValueError("non-finite (NaN/Inf) input features")
-    if len(z) < MIN_BATCH:
-        return {"__fallback__": "identity"}
+def extract_action_set(state, z, window_keys, action) -> WindowActionSet:
+    """Single-action public API (canonicalizes + computes identity once for this call)."""
+    if action not in NON_IDENTITY:
+        raise ValueError(f"extract_action_set is for non-identity actions; got {action!r}")
+    z, keys = _canonicalize(z, window_keys)
+    p0, z0 = apply_action("identity", state, z)
+    _validate_proba(p0, len(z), state["n_cls"], "p0")
+    z0 = np.asarray(z0, float)
+    if z0.shape != z.shape:
+        raise ValueError("identity embedding shape mismatch")
+    return _extract_canonical(state, z, keys, action, p0, z0)
+
+
+def _validate_actions(actions):
     requested = list(actions)
     if not requested:
         raise ValueError("empty action selection")
@@ -215,14 +220,32 @@ def build_action_sets(state, z, window_keys, actions=NON_IDENTITY):
         raise ValueError("identity is the reference, not an extractable action")
     if len(set(requested)) != len(requested):
         raise ValueError("duplicate action requested")
-    ordered = tuple(a for a in NON_IDENTITY if a in set(requested))   # canonical execution order
-    return {a: extract_action_set(state, z, window_keys, a) for a in ordered}
+    return tuple(a for a in NON_IDENTITY if a in set(requested))   # canonical execution order
+
+
+def build_action_sets(state, z, window_keys, actions=NON_IDENTITY):
+    """{action: WindowActionSet} in canonical order, computing identity ONCE; OR a FallbackBatchRecord when
+    len(z) < MIN_BATCH (short-circuit BEFORE any adapter — actions/keys still validated)."""
+    z = np.asarray(z, float)
+    if not np.all(np.isfinite(z)):
+        raise ValueError("non-finite (NaN/Inf) input features")
+    ordered = _validate_actions(actions)
+    keys = list(window_keys)
+    if len(keys) != len(z):
+        raise ValueError("window_keys length != n_windows")
+    if len(set(canon_key(k) for k in keys)) != len(keys):
+        raise ValueError("duplicate window_keys")
+    if len(z) < MIN_BATCH:
+        return FallbackBatchRecord(True, f"n_windows<{MIN_BATCH}", tuple(keys), _input_digest(z, keys), int(len(z)))
+    zc, kc = _canonicalize(z, keys)
+    p0, z0 = apply_action("identity", state, zc)              # identity computed exactly ONCE
+    _validate_proba(p0, len(zc), state["n_cls"], "p0")
+    z0 = np.asarray(z0, float)
+    return {a: _extract_canonical(state, zc, kc, a, p0, z0) for a in ordered}
 
 
 def canonical_digest(was: WindowActionSet) -> str:
-    """Full 64-char SHA-256 over schema header + raw float64-LE values/context + uint8 masks + canonical keys.
-    Row-order-INSENSITIVE (rows sorted by canon_key), content-SENSITIVE to single-ULP value changes, mask flips,
-    key/action/schema changes. No rounding."""
+    """Full 64-char SHA-256 over schema header + raw float64-LE values/context + uint8 masks + canonical keys."""
     h = hashlib.sha256()
     header = json.dumps({"schema": SCHEMA_VERSION, "action_name": was.action_name,
                          "action_index": int(was.action_index), "vocab": list(ACTION_VOCAB),
