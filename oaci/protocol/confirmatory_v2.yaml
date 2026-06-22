@@ -90,6 +90,8 @@ training:
   critic_steps: 5
   checkpoint_every: 5
   guard_chunk_size: 1024
+  feature_chunk_size: 1024
+  prediction_chunk_size: 1024
   numerical_tol: 1.0e-4
   stage2_bn_mode: frozen_erm_running_stats
   selection_score_tolerance: 1.0e-8

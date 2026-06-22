@@ -73,6 +73,8 @@ class TrainingBlock:
     critic_steps: int | None = None
     checkpoint_every: int | None = None
     guard_chunk_size: int | None = None
+    feature_chunk_size: int | None = None       # selection/audit feature extraction (affects float path)
+    prediction_chunk_size: int | None = None     # prediction forward (A2b-1b-ii)
     numerical_tol: float | None = None
     stage2_bn_mode: str | None = None
     selection_score_tolerance: float | None = None
