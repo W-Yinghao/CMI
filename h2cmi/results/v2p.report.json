@@ -1,0 +1,103 @@
+{
+  "audit": "V2P",
+  "n_units": 72,
+  "methods": {
+    "identity": {
+      "n": 72,
+      "occ_slope": {
+        "mean": -9.928807670888744e-34,
+        "ci95": [
+          -1.9148414793856864e-33,
+          -7.092005479206249e-35
+        ],
+        "excludes_0": true
+      },
+      "signed_occ_move": {
+        "mean": 0.0,
+        "ci95": [
+          0.0,
+          0.0
+        ],
+        "excludes_0": false
+      },
+      "mean_disp_3to1": 0.0,
+      "mean_disp_1to3": 0.0,
+      "mean_tnorm_11": 0.0,
+      "dbacc_3to1": 0.0,
+      "dbacc_1to3": 0.0
+    },
+    "always_pooled": {
+      "n": 72,
+      "occ_slope": {
+        "mean": -0.061597419582702005,
+        "ci95": [
+          -0.0721627088629196,
+          -0.05119042132525094
+        ],
+        "excludes_0": true
+      },
+      "signed_occ_move": {
+        "mean": -0.13534336419753087,
+        "ci95": [
+          -0.15855767746913582,
+          -0.11247685185185187
+        ],
+        "excludes_0": true
+      },
+      "mean_disp_3to1": 0.7349686870140433,
+      "mean_disp_1to3": 0.7065683029849315,
+      "mean_tnorm_11": 3.1454642249478235,
+      "dbacc_3to1": -0.014527107630555916,
+      "dbacc_1to3": -0.00015771265771266565
+    },
+    "always_canonical_CC": {
+      "n": 72,
+      "occ_slope": {
+        "mean": -0.020285481840379784,
+        "ci95": [
+          -0.02769364218236508,
+          -0.01346733526391515
+        ],
+        "excludes_0": true
+      },
+      "signed_occ_move": {
+        "mean": -0.04457175925925926,
+        "ci95": [
+          -0.06084915123456792,
+          -0.029590760030864215
+        ],
+        "excludes_0": true
+      },
+      "mean_disp_3to1": 0.3087812717869725,
+      "mean_disp_1to3": 0.2966495817998298,
+      "mean_tnorm_11": 6.289130065176222,
+      "dbacc_3to1": -0.0005565920616207911,
+      "dbacc_1to3": -0.0001228837148377418
+    },
+    "current_joint": {
+      "n": 72,
+      "occ_slope": {
+        "mean": -0.04171051857694335,
+        "ci95": [
+          -0.058735802338437074,
+          -0.025279023686033984
+        ],
+        "excludes_0": true
+      },
+      "signed_occ_move": {
+        "mean": -0.09164737654320988,
+        "ci95": [
+          -0.12905574845679013,
+          -0.05554369212962963
+        ],
+        "excludes_0": true
+      },
+      "mean_disp_3to1": 0.6366187147949294,
+      "mean_disp_1to3": 0.5608207906929967,
+      "mean_tnorm_11": 6.3397314416037664,
+      "dbacc_3to1": -0.0027222435663527625,
+      "dbacc_1to3": -0.0009911307827974438
+    }
+  },
+  "verdict": "FIXED_PRIOR_CC_ALSO_MOVES -> supports revised bias theorem (fixed-prior != prevalence-invariant)"
+}
