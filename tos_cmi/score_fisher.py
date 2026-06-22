@@ -78,6 +78,10 @@ class ScoreFisherConfig:
     gate_split: float = 0.45        # fraction of refresh data held out as S_gate
     delta_Y: float = 0.03           # max tolerated task NLL/Brier increase from removing P_N (UCB)
     gamma_D: float = 0.0            # min per-prefix domain Brier gain (LCB) to count as domain-rich
+    task_protect: bool = False      # use the task-protected direct-sum projector (protect T=est.
+                                    # task carrier). OFF by default pending the task-head-fidelity
+                                    # decision (the nonlinear task-risk head charges a residual
+                                    # cost on rank-reduced (I-P)Z even when (I-P)T=T exactly).
     dtype64: bool = True
 
 
@@ -316,11 +320,69 @@ def _metric(Z, y, n_cls, cfg):
 
 def metric_projector(V_sel, M):
     """Oblique M-orthogonal projector onto span(V_sel): P = V (Vᵀ M V)^{-1} Vᵀ M. Covariant
-    under z->Az: P -> A P A^{-1} (similarity), so the selected subspace is rescaling-invariant."""
+    under z->Az: P -> A P A^{-1}. NOTE: range=span(V), kernel = M-orthogonal complement -- this
+    is NOT task-preserving in general (it distorts a Euclidean task-orthogonal subspace). Kept
+    as an ablation; the deployed projector is `task_protected_projector` (Phase 1.2.2)."""
     if V_sel.shape[1] == 0:
         return np.zeros((V_sel.shape[0], V_sel.shape[0]))
     G = V_sel.T @ M @ V_sel
     return V_sel @ np.linalg.solve(G, V_sel.T @ M)
+
+
+def _m_proj(B, M):
+    """M-orthogonal projector onto span(B): B (Bᵀ M B)^{-1} Bᵀ M (0 if empty)."""
+    if B is None or B.shape[1] == 0:
+        return np.zeros((M.shape[0], M.shape[0]))
+    return B @ np.linalg.solve(B.T @ M @ B, B.T @ M)
+
+
+def _direct_sum_min_sin(V, T, M):
+    """Per-nuisance-direction sin-angle to span(T) in the M-metric = ||(I-Pi_T^M) v||_M/||v||_M.
+    Min over columns ~ sin of the smallest principal angle between span(V) and span(T); ->0 iff
+    a nuisance direction lies in T (the direct-sum condition N∩T={0} fails)."""
+    if V.shape[1] == 0:
+        return 1.0
+    PiT = _m_proj(T, M)
+    Vp = V - PiT @ V
+    vn = np.sqrt(np.maximum(np.einsum("ij,jk,ik->i", V.T, M, V.T), 1e-18))
+    vpn = np.sqrt(np.maximum(np.einsum("ij,jk,ik->i", Vp.T, M, Vp.T), 0.0))
+    return float((vpn / vn).min())
+
+
+def task_protected_projector(V, T, M, min_sin=0.05):
+    """Coordinate-covariant DIRECT-SUM projector with range = span(V) and kernel ⊇ span(T):
+        Π_T^M = T(TᵀMT)^{-1}TᵀM ;  V⊥ = (I-Π_T^M)V ;  P = V (V⊥ᵀ M V⊥)^{-1} V⊥ᵀ M .
+    Satisfies P V = V, P T = 0, P² = P, and P(AV,AT,A^{-T}MA^{-1}) = A P A^{-1} (so deleting the
+    nuisance preserves the task carrier T EXACTLY while staying rescaling-covariant). Unifies
+    the earlier choices: T=∅ -> metric_projector; V ⟂_M T -> metric_projector; M=I & V⟂T -> QQᵀ.
+    If span(V) ∩ span(T) ≠ {0} (a direction is both nuisance and task), NO such projector exists
+    -> returns (None, info) and the caller abstains (TASK_SUBSPACE_INTERSECTION).
+    Returns (P [d,d] or None, info dict with min_sin / op_norm / cond / intersects)."""
+    d = M.shape[0]
+    if V.shape[1] == 0:
+        return np.zeros((d, d)), {"intersects": False, "min_sin": 1.0, "op_norm": 0.0, "cond": 1.0}
+    ms = _direct_sum_min_sin(V, T, M)
+    if ms < min_sin:
+        return None, {"intersects": True, "min_sin": ms, "op_norm": float("inf"), "cond": float("inf")}
+    Vp = V - _m_proj(T, M) @ V
+    G = Vp.T @ M @ Vp
+    P = V @ np.linalg.solve(G, Vp.T @ M)
+    return P, {"intersects": False, "min_sin": ms,
+               "op_norm": float(np.linalg.norm(P, 2)), "cond": float(np.linalg.cond(G))}
+
+
+def estimate_task_basis(G_Y, M, cfg, energy_frac=0.9):
+    """Protected task carrier T = top eigenvectors of the LABEL score-Fisher in the M-metric
+    (G_Y v = lambda M v), keeping directions up to `energy_frac` of total label energy (capped
+    at max_dim). These are the directions the task posterior is most sensitive to -- what the
+    deletion must preserve. Estimated on S_sel only."""
+    w, V = eigh(0.5 * (G_Y + G_Y.T), 0.5 * (M + M.T))
+    order = np.argsort(w)[::-1]
+    w, V = np.clip(w[order], 0, None), V[:, order]
+    if w.sum() <= 0:
+        return np.zeros((G_Y.shape[0], 0))
+    keep = int(np.searchsorted(np.cumsum(w) / w.sum(), energy_frac) + 1)
+    return V[:, : min(keep, cfg.max_dim)]
 
 
 def leakage_gate(Z, y, d, n_cls, n_dom, cfg, plan, seed, cluster_id=None):
@@ -575,17 +637,18 @@ def _domain_residual_brier(Zfeat, dg, yg_oh, cache, n_dom, n_cls, cfg, seed):
 
 
 _REASONS = ("ACCEPTED", "NO_CANDIDATE", "DOMAIN_GATE_CLOSED", "DOMAIN_GAIN_TOO_SMALL",
-            "TASK_RISK_UCB", "FOLD_COVERAGE_FAILURE", "INSUFFICIENT_GROUPS", "NUMERICAL_FAILURE")
+            "TASK_RISK_UCB", "FOLD_COVERAGE_FAILURE", "INSUFFICIENT_GROUPS",
+            "TASK_SUBSPACE_INTERSECTION", "NUMERICAL_FAILURE")
 
 
-def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=None):
-    """Source-risk dual-gate rank selection on the gate split. For each nested prefix
-    P_N^(k)=proj(V_cand[:, :k]): task cost Delta_Y(k)=NLL(h_k((I-P_k)Z)) - NLL(h_0(Z)) (matched
-    heads) and domain gain Delta_D(k)=Brier(q0(D|Y)) - Brier(q_k(D|Y,P_k Z)). Feasible iff
-    simultaneous UCB Delta_Y(k) <= delta_Y AND simultaneous LCB Delta_D(k) > gamma_D.
-    k* = argmax_{feasible} LCB Delta_D(k) (ties -> smaller k); empty -> 0.
-    Returns (k_star, records, reason). NOTE prefix-search limitation: if a dangerous direction
-    is ranked before a safe one, no prefix can isolate the safe direction (recorded, not tuned away)."""
+def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=None, T_task=None):
+    """Source-risk dual-gate rank selection on the gate split, with the TASK-PROTECTED
+    direct-sum projector P_N^(k) (range=span(V[:, :k]), kernel ⊇ span(T_task)). For each nested
+    prefix: task cost Delta_Y(k)=NLL(h_k((I-P_k)Z)) - NLL(h_0(Z)) (PAIRED heads) and domain gain
+    Delta_D(k)=Brier(q0(D|Y)) - Brier(q_k(D|Y,P_k Z)). Feasible iff simultaneous UCB Delta_Y(k)
+    <= delta_Y AND simultaneous LCB Delta_D(k) > gamma_D; k* = argmax_{feasible} LCB Delta_D(k)
+    (ties -> smaller k); empty -> 0. If a prefix's span intersects span(T_task) (no direct sum)
+    that prefix and all larger ones are infeasible (TASK_SUBSPACE_INTERSECTION)."""
     K = V_cand.shape[1]
     if K == 0:
         return 0, [], "NO_CANDIDATE"
@@ -594,29 +657,41 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
         return 0, [], "FOLD_COVERAGE_FAILURE"
     gplan = _GatePlan(plan_g, seed + 5)
     yg_oh = np.eye(n_cls)[yg]
+    # task-protected projectors for each nested prefix; stop at the first direct-sum failure
+    Ps, intersect_at = [], None
+    for k in range(1, K + 1):
+        Pk, info = task_protected_projector(V_cand[:, :k], T_task, M)
+        if Pk is None:
+            intersect_at = k
+            break
+        Ps.append(Pk)
+    Kv = len(Ps)
+    if Kv == 0:
+        return 0, [{"k": 1, "risk_feasible": False, "decision_reason": "TASK_SUBSPACE_INTERSECTION"}], \
+               "TASK_SUBSPACE_INTERSECTION"
     try:
-        Ps = [metric_projector(V_cand[:, :k], M) for k in range(1, K + 1)]
-        # PAIRED task heads: identical init/splits, only the input transform differs
         transforms = [Zg] + [Zg - Zg @ Pk.T for Pk in Ps]
         nll = _paired_task_nll(Zg, yg, transforms, n_cls, cfg, gplan)
-        dY = np.stack([nll[k] - nll[0] for k in range(1, K + 1)], 1)        # [N,K] task NLL cost
-        # domain: calibrated q0 trained ONCE per fold, shared across prefixes; residual per P_kZ
+        dY = np.stack([nll[k] - nll[0] for k in range(1, Kv + 1)], 1)       # [N,Kv]
         br0, q0cache = _domain_q0(dg, yg_oh, n_dom, n_cls, cfg, gplan, seed + 30)
         dD = np.stack([br0 - _domain_residual_brier(Zg @ Ps[k - 1].T, dg, yg_oh, q0cache,
-                       n_dom, n_cls, cfg, seed + 40 + k) for k in range(1, K + 1)], 1)  # [N,K]
+                       n_dom, n_cls, cfg, seed + 40 + k) for k in range(1, Kv + 1)], 1)
     except (np.linalg.LinAlgError, KeyError):
         return 0, [], "NUMERICAL_FAILURE"
     ucb_Y = _one_sided_bound(dY, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot, seed + 60, cfg.boot_estimand)
     lcb_D = _one_sided_bound(dD, cluster_id, cfg.gate_alpha, "lower", cfg.gate_boot, seed + 70, cfg.boot_estimand)
     feasible = (ucb_Y <= cfg.delta_Y) & (lcb_D > cfg.gamma_D)
     records = []
-    for k in range(1, K + 1):
+    for k in range(1, Kv + 1):
         i = k - 1
         rsn = ("ACCEPTED" if feasible[i] else
                "TASK_RISK_UCB" if ucb_Y[i] > cfg.delta_Y else "DOMAIN_GAIN_TOO_SMALL")
         records.append({"k": k, "task_delta_mean": float(dY[:, i].mean()), "task_ucb": float(ucb_Y[i]),
                         "domain_gain_mean": float(dD[:, i].mean()), "domain_lcb": float(lcb_D[i]),
                         "risk_feasible": bool(feasible[i]), "decision_reason": rsn})
+    if intersect_at is not None:
+        records.append({"k": intersect_at, "risk_feasible": False,
+                        "decision_reason": "TASK_SUBSPACE_INTERSECTION"})
     feas = np.where(feasible)[0]
     if feas.size == 0:
         reason = "TASK_RISK_UCB" if np.any(ucb_Y > cfg.delta_Y) else "DOMAIN_GAIN_TOO_SMALL"
@@ -671,6 +746,10 @@ def select_score_fisher(Z, y, d, n_cls, n_dom, cfg: ScoreFisherConfig, seed=0, c
     floor_abs = _null_floor(Z[sel], y[sel], d[sel], y_oh[sel], U, n_cls, n_dom, z_dim, cfg, plan, seed + 700)
 
     V_cand, rho, dom, lab, ratio, egk = candidate_order(G_DgY, G_Y, M, cfg, floor_abs)
+    # protected task carrier T (top label score-Fisher eigenspace), estimated on S_sel only.
+    # OFF by default (cfg.task_protect) -> T_task=None -> the projector reduces to the oblique
+    # metric_projector (Phase 1.2.1 behaviour) pending the task-head-fidelity decision.
+    T_task = estimate_task_basis(G_Y, M, cfg) if cfg.task_protect else None
     if not gate["open"]:
         return ScoreFisherReport(
             rho=rho, cand_order=np.array([], int), basis=np.zeros((z_dim, 0)),
@@ -678,11 +757,14 @@ def select_score_fisher(Z, y, d, n_cls, n_dom, cfg: ScoreFisherConfig, seed=0, c
             rank_records=[], decision_reason="DOMAIN_GATE_CLOSED",
             dom_floor_abs=floor_abs, eigengap_k=egk)
 
-    # UCB rank gate on S_gate (with S_gate candidates' projectors using the S_sel metric M)
+    # UCB rank gate on S_gate with the TASK-PROTECTED projector (S_sel metric M + task basis T)
     kstar, records, reason = ucb_rank_gate(Z[gat], y[gat], d[gat], V_cand, M,
-                                           n_cls, n_dom, cfg, seed + 2000, cid_g)
+                                           n_cls, n_dom, cfg, seed + 2000, cid_g, T_task=T_task)
     V_sel = V_cand[:, :kstar] if kstar else np.zeros((z_dim, 0))
-    P = metric_projector(V_sel, M)
+    P, _ = task_protected_projector(V_sel, T_task, M)
+    if P is None:
+        P = np.zeros((z_dim, z_dim)); kstar = 0; reason = "TASK_SUBSPACE_INTERSECTION"
+        V_sel = np.zeros((z_dim, 0))
     return ScoreFisherReport(rho=rho, cand_order=np.arange(V_cand.shape[1]), basis=V_sel, P=P,
                              is_identity=(kstar == 0), k_star=kstar, gate=gate,
                              rank_records=records, decision_reason=reason,

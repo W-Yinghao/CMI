@@ -24,7 +24,8 @@ from tos_cmi.data.synthetic import (SynthSpec, make, make_collinear, make_covari
                                      make_partial_overlap, make_saturated_danger,
                                      apply_linear_transform)
 from tos_cmi.score_fisher import (ScoreFisherConfig, ScoreFisherSelector, metric_projector,
-                                   select_from_fishers, ucb_rank_gate, _metric)
+                                   task_protected_projector, select_from_fishers, ucb_rank_gate,
+                                   _metric)
 from tos_cmi.subspace import SubspaceSelector
 from tos_cmi.eval.stability import precision_recall, projection_distance
 
@@ -68,65 +69,84 @@ def test_checkpoint_preserves_identity():
     print("test_checkpoint_preserves_identity: OK")
 
 
+# ------------------------------------------------- Phase 1.2.2: task-protected projector algebra
+def test_task_protected_projector_contracts():
+    """Direct-sum projector: P V=V, P T=0, P^2=P, covariant under z->Az; PRESERVES the task
+    span exactly (||(I-P)t||=1) where the oblique one distorts it; reduces to metric_projector
+    when V ⟂_M T; abstains (None) when span(V) ∩ span(T) != {0}."""
+    rng = np.random.default_rng(0); d = 8
+    B = np.linalg.qr(rng.standard_normal((d, d)))[0]
+    V, T = B[:, :2], B[:, 2:4]
+    Mh = rng.standard_normal((d, d)); M = Mh @ Mh.T + np.eye(d)
+    A = rng.standard_normal((d, d)) + 2 * np.eye(d); Ai = np.linalg.inv(A); I = np.eye(d)
+    P, info = task_protected_projector(V, T, M)
+    assert np.allclose(P @ V, V, atol=1e-8) and np.allclose(P @ T, 0, atol=1e-8)
+    assert np.allclose(P @ P, P, atol=1e-8)
+    P2, _ = task_protected_projector(A @ V, A @ T, Ai.T @ M @ Ai)
+    assert np.allclose(Ai @ P2 @ A, P, atol=1e-6)                 # covariant
+    assert np.allclose(np.linalg.norm((I - P) @ T, axis=0), 1.0, atol=1e-6)   # task PRESERVED
+    assert (np.linalg.norm((I - metric_projector(V, M)) @ T, axis=0) > 1.03).all()  # oblique distorts
+    Vom = V - T @ np.linalg.solve(T.T @ M @ T, T.T @ M @ V)       # M-orthogonalize V vs T
+    Pp, _ = task_protected_projector(Vom, T, M)
+    assert np.allclose(Pp, metric_projector(Vom, M), atol=1e-6)   # reduces to metric_projector
+    Pi, infi = task_protected_projector(np.concatenate([V[:, :1], T[:, :1]], 1), T, M)
+    assert Pi is None and infi["intersects"]                      # intersection -> abstain
+    print("test_task_protected_projector_contracts: OK")
+
+
 # ----------------------------------------------------------------- ORACLE gate certification
-# Inject the TRUE direction into the UCB gate (bypassing candidate_order) to isolate the gate
+# Inject the TRUE directions into the UCB gate (bypassing candidate_order) to isolate the gate
 # from the selection (per the design decision: certify the gate, don't tune the generator).
-def _oracle(data, V):
+def _oracle(data, V, T=None):
     s = data["spec"]; cfg = _cfg()
     Z = data["Z"].astype(np.float64)
     M = _metric(Z, data["y"], s.n_cls, cfg)
     Vn = V / (np.linalg.norm(V, axis=0, keepdims=True) + 1e-12)
-    P = metric_projector(Vn, M)
-    resid = np.linalg.norm((np.eye(s.d) - P) @ Vn)            # P V = V exactly => ~0
-    k, recs, reason = ucb_rank_gate(Z, data["y"], data["d"], Vn, M, s.n_cls, s.n_dom, cfg, seed=0)
-    return k, recs, reason, resid
+    Tn = None if T is None else T / (np.linalg.norm(T, axis=0, keepdims=True) + 1e-12)
+    k, recs, reason = ucb_rank_gate(Z, data["y"], data["d"], Vn, M, s.n_cls, s.n_dom, cfg,
+                                    seed=0, T_task=Tn)
+    return k, recs, reason
 
 
 def test_oracle_danger_basis_binds_task_ucb():
+    # T=None -> oblique projector removes t1 exactly; the UCB task arm must catch the task cost.
     data = make_saturated_danger(n=6000, seed=0)
-    k, recs, reason, resid = _oracle(data, data["danger_basis"])
-    print("oracle danger:", {"resid": round(resid, 6), "k": k, "reason": reason, "rec": recs[0]})
-    assert resid < 1e-6, resid                               # oblique projector excises t1 exactly
-    assert recs[0]["domain_lcb"] > 0.0, recs[0]              # t1 IS domain-rich (mean shift)
+    k, recs, reason = _oracle(data, data["danger_basis"], T=None)
+    print("oracle danger:", {"k": k, "reason": reason, "rec": recs[0]})
+    assert recs[0]["domain_lcb"] > 0.0, recs[0]              # t1 IS domain-rich
     assert recs[0]["task_ucb"] > _cfg().delta_Y, recs[0]     # deleting t1 hurts the task...
     assert k == 0 and reason == "TASK_RISK_UCB", (k, reason, recs[0])  # ...so the gate refuses
     print("test_oracle_danger_basis_binds_task_ucb: OK")
 
 
-def test_oracle_partial_unsafe_rejected():
-    # injecting the task-overlap span [t1,t2] must be rejected by the task arm
-    data = make_partial_overlap(n=6000, seed=0)
-    ku, ru, run_, _ = _oracle(data, data["task_overlap_basis"])
-    print("oracle partial unsafe:", {"k": ku, "reason": run_})
-    assert ku == 0, ("task-overlap span must be rejected", ru)
-    print("test_oracle_partial_unsafe_rejected: OK")
-
-
-def test_oracle_metric_projector_not_task_preserving():
-    """ATTRIBUTION FINDING (Phase 1.2.1): with the rescaling-covariant M-oblique projector, the
-    gate REFUSES even a genuinely safe (Euclidean task-orthogonal) span -- not a gate/generator
-    bug, but because (I - P_N^M) DISTORTS the task subspace while a Euclidean Q Q^T projector
-    preserves it. This certifies the cause and motivates the projector design fork."""
+def test_oracle_partial_safe_protected_algebra_vs_head():
+    """FINDING (Phase 1.2.2): the task-protected projector preserves the task span ALGEBRAICALLY
+    ((I-P)t=t exactly, certified in test_task_protected_projector_contracts), so the IDEAL is to
+    ACCEPT the safe span [w1,w2] at k=2. But the nonlinear MLP task-risk head still charges a
+    residual NLL cost on the rank-reduced (I-P)Z (a predictive-vs-algebraic gap, like the domain
+    critic), so the UCB may still refuse. We RECORD this (task UCB per prefix) rather than tune
+    delta_Y -- the faithful-task-cost measurement is the open task-head-fidelity decision."""
     data = make_partial_overlap(n=6000, seed=0); s = data["spec"]; cfg = _cfg()
     Z = data["Z"].astype(np.float64); M = _metric(Z, data["y"], s.n_cls, cfg)
-    W = data["nuisance_basis"]; T = data["task_overlap_basis"]
-    Wn = W / np.linalg.norm(W, axis=0, keepdims=True)
-    Tn = T / np.linalg.norm(T, axis=0, keepdims=True)
-    assert np.allclose(Wn.T @ Tn, 0, atol=1e-5)                   # safe span ⟂ task (Euclidean)
-    Pobl = metric_projector(Wn, M)
-    Q, _ = np.linalg.qr(Wn); Peu = Q @ Q.T
-    I = np.eye(s.d)
-    dmg_obl = np.linalg.norm((I - Pobl) @ Tn, axis=0)
-    dmg_eu = np.linalg.norm((I - Peu) @ Tn, axis=0)
-    assert np.allclose(np.linalg.norm((I - Pobl) @ Wn, axis=0), 0, atol=1e-6)   # both remove w
-    assert (dmg_obl > 1.03).all(), dmg_obl       # oblique DISTORTS task (norm > 1)
-    assert np.allclose(dmg_eu, 1.0, atol=1e-6)   # Euclidean PRESERVES task exactly
-    # consequently the UCB task arm charges a cost and refuses the safe span under oblique P
-    ks, rs, rn, _ = _oracle(data, W)
-    assert ks < 2 and rn == "TASK_RISK_UCB", (ks, rn)
-    print("test_oracle_metric_projector_not_task_preserving: OK  "
-          "(oblique task-damage=%s vs euclid=%s; gate refuses k=%d/%s)"
-          % (np.round(dmg_obl, 3), np.round(dmg_eu, 3), ks, rn))
+    W = data["nuisance_basis"] / np.linalg.norm(data["nuisance_basis"], axis=0, keepdims=True)
+    T = data["task_overlap_basis"] / np.linalg.norm(data["task_overlap_basis"], axis=0, keepdims=True)
+    P, info = task_protected_projector(W, T, M); I = np.eye(s.d)
+    assert np.allclose((I - P) @ T, T, atol=1e-6)         # task ALGEBRAICALLY preserved
+    assert np.allclose((I - P) @ W, 0, atol=1e-6)         # nuisance removed
+    k, recs, reason = _oracle(data, data["nuisance_basis"], T=data["task_overlap_basis"])
+    print("oracle partial safe (protected): algebra-preserved task; gate ->",
+          {"k": k, "reason": reason, "task_ucb_per_k": [round(r["task_ucb"], 4) for r in recs]})
+    print("test_oracle_partial_safe_protected_algebra_vs_head: OK")
+
+
+def test_oracle_partial_unsafe_intersection():
+    # injecting the task-overlap span [t1,t2] as nuisance while protecting [t1,t2] => the
+    # nuisance IS the task -> no direct sum -> TASK_SUBSPACE_INTERSECTION (clean geometric refuse)
+    data = make_partial_overlap(n=6000, seed=0)
+    k, recs, reason = _oracle(data, data["task_overlap_basis"], T=data["task_overlap_basis"])
+    print("oracle partial unsafe (intersection):", {"k": k, "reason": reason})
+    assert k == 0 and reason == "TASK_SUBSPACE_INTERSECTION", (k, reason)
+    print("test_oracle_partial_unsafe_intersection: OK")
 
 
 # ----------------------------------------------------------------- dual-gate stressors (learned)
@@ -214,9 +234,10 @@ if __name__ == "__main__":
     test_metric_projector_similarity_covariant()
     test_select_from_fishers_exactly_covariant()
     test_checkpoint_preserves_identity()
+    test_task_protected_projector_contracts()
     test_oracle_danger_basis_binds_task_ucb()
-    test_oracle_partial_unsafe_rejected()
-    test_oracle_metric_projector_not_task_preserving()
+    test_oracle_partial_safe_protected_algebra_vs_head()
+    test_oracle_partial_unsafe_intersection()
     test_all_safe_accepts_and_recovers()
     test_learned_dangerous_gate_safety_invariant()
     test_partial_prefers_safe_over_overlap()
