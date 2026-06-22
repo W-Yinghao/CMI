@@ -1,14 +1,23 @@
 # W1 + W2 results (frozen run; W1 690 rows/115 LOSO subjects, W2 140 rows/20 sleep subjects)
-# raw sha256: w1_all=03c9d4f4c6ea20c4  w2_all=52e174a44325a69f . W1-B native BTTA-DG = DEFERRED (repo not on disk, no network).
+# raw sha256: w1_all=03c9d4f4c6ea20c4  w2_all=52e174a44325a69f . W1-B native BTTA-DG = IN PROGRESS
+# (GitHub reachable after all; official luo-huan-123/BTTA-DG pinned at commit 5932d026, MIT; bounded
+# literature-comparability reproduction, separate panel, cannot change the W1/W2 verdict).
 
-## HEADLINE: the joint's prior-M-step harm is PREVALENCE-CONDITIONAL (real-data, both panels)
+## HEADLINE: joint geometry-prior adaptation is PREVALENCE-DEPENDENT (real-data, both panels)
 W1 balanced-prevalence MI LOSO  -> current_joint is BEST  (overall Δ +0.090, harm 0.17; Cho +0.180).
 W2 natural-prevalence sleep      -> current_joint is WORST (Δ -0.043 [-0.071,-0.017], CI EXCLUDES 0,
                                     harm 0.85, ΔmacroF1 -0.080).
-This is the first REAL natural-prevalence confirmation of the V1 simulator mechanism and sharpens it:
-the joint harms SPECIFICALLY under prevalence shift, not universally. When prevalence is balanced the
-prior M-step is harmless (the joint's capacity even helps); under prevalence shift it chases the wrong
-prevalence and harms.
+
+FRAMING (use this language; do NOT write "causally confirmed by natural prevalence" -- MI and sleep
+differ simultaneously in task, class count, signal structure and data-generating process):
+> The effect of joint geometry-prior adaptation is prevalence-dependent: estimating the target prior
+> can help when class composition is stable, but can drive severe negative transfer when prevalence
+> varies.
+The strongest evidence is the COMBINATION, supporting a PREVALENCE-CONDITIONAL FAILURE MECHANISM (not a
+single causal confirmation): (1) V1 controlled simulator localizes the prior M-step; (2) V2P shows
+fixed-prior CC still moves with pool prevalence on real EEG; (3) W1 shows the joint can be effective in
+near-balanced MI; (4) W2 shows the joint is significantly harmful under natural prevalence variation.
+So the headline is NOT "joint EM is harmful" but the prevalence-dependent statement above.
 
 ## W1-A unseen-subject MI LOSO benchmark (same-backbone; W1-B is a separate deferred external panel)
 OVERALL (n=115): identity bAcc 0.671 | EA +0.030 (harm 0.42, wq -0.081) | pooled +0.068 (harm 0.24) |
@@ -28,8 +37,10 @@ than pooled. MECHANISM: slope (Δ_CC-Δ_pooled) vs JS(rho_T,rho_S) = +0.42 [-0.4
 component slopes Δ_pooled vs JS = -1.11, Δ_CC vs JS = -0.69 -> both degrade as prevalence diverges, CC
 LESS steeply (directional support for CC relative robustness, not significant at n=20).
 
-## Conclusion bound (respected)
-CC is at most RELATIVELY more prevalence-robust than pooled (directional, n=20 underpowered), NEVER
-prevalence-invariant (V2P settled that). The clean confirmatory result is the JOINT'S PREVALENCE-
-CONDITIONAL HARM and that the fixed-prior metadata route AVOIDS it. Utility of unlabeled adaptation
-remains modest/marginal on real EEG. W1-A and W1-B are NOT cross-ranked (separate panels).
+## Conclusion bound (respected) + sleep metadata-route statement (use this language)
+> Metadata-selected fixed-prior CC substantially reduces harm relative to joint adaptation, but its
+> mean utility and advantage over pooled adaptation are not statistically established.
+(NOT a blanket "the metadata route succeeds".) CC is at most RELATIVELY more prevalence-robust than
+pooled (directional, n=20 underpowered), NEVER prevalence-invariant (V2P settled that). Utility of
+unlabeled adaptation remains modest/marginal on real EEG. W1-A and W1-B are NOT cross-ranked (separate
+panels).
