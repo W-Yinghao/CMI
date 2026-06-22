@@ -1,0 +1,340 @@
+{
+  "A": {
+    "mode": "A",
+    "n_rows": 108,
+    "metadata": {
+      "N_units": 18,
+      "unsupported_route_adaptations": 0,
+      "adaptation_rate": 0.0,
+      "adaptation_rate_upper95": 0.1533175539572782,
+      "exact_identity_equivalence": 1.0,
+      "geometry_all_unsupported": true
+    },
+    "methods": {
+      "identity": {
+        "n": 18,
+        "mean_delta": 0.0,
+        "harm_rate": 0.0,
+        "worst_quartile": 0.0
+      },
+      "always_pooled": {
+        "n": 18,
+        "mean_delta": 0.03240740740740741,
+        "harm_rate": 0.1111111111111111,
+        "worst_quartile": -0.013888888888888923
+      },
+      "always_canonical_CC": {
+        "n": 18,
+        "mean_delta": 0.030864197530864206,
+        "harm_rate": 0.1111111111111111,
+        "worst_quartile": -0.013888888888888895
+      },
+      "metadata_only": {
+        "n": 18,
+        "mean_delta": 0.0,
+        "harm_rate": 0.0,
+        "worst_quartile": 0.0
+      },
+      "euclidean_alignment": {
+        "n": 18,
+        "mean_delta": 0.028549382716049405,
+        "harm_rate": 0.3333333333333333,
+        "worst_quartile": -0.04861111111111113
+      },
+      "current_joint": {
+        "n": 18,
+        "mean_delta": 0.008487654320987668,
+        "harm_rate": 0.16666666666666666,
+        "worst_quartile": -0.05902777777777776
+      }
+    },
+    "per_pair": {
+      "Cho2017>BNCI2014_001": {
+        "metadata_only": {
+          "n": 9,
+          "mean_delta": 0.0,
+          "harm_rate": 0.0,
+          "worst_quartile": 0.0
+        },
+        "always_pooled": {
+          "n": 9,
+          "mean_delta": 0.027777777777777783,
+          "harm_rate": 0.1111111111111111,
+          "worst_quartile": -0.013888888888888895
+        },
+        "always_canonical_CC": {
+          "n": 9,
+          "mean_delta": 0.030864197530864206,
+          "harm_rate": 0.0,
+          "worst_quartile": 0.0069444444444444475
+        },
+        "euclidean_alignment": {
+          "n": 9,
+          "mean_delta": 0.02777777777777782,
+          "harm_rate": 0.3333333333333333,
+          "worst_quartile": -0.013888888888888895
+        }
+      },
+      "Lee2019_MI>BNCI2014_001": {
+        "metadata_only": {
+          "n": 9,
+          "mean_delta": 0.0,
+          "harm_rate": 0.0,
+          "worst_quartile": 0.0
+        },
+        "always_pooled": {
+          "n": 9,
+          "mean_delta": 0.03703703703703704,
+          "harm_rate": 0.1111111111111111,
+          "worst_quartile": -0.01388888888888895
+        },
+        "always_canonical_CC": {
+          "n": 9,
+          "mean_delta": 0.030864197530864206,
+          "harm_rate": 0.2222222222222222,
+          "worst_quartile": -0.02777777777777779
+        },
+        "euclidean_alignment": {
+          "n": 9,
+          "mean_delta": 0.02932098765432099,
+          "harm_rate": 0.3333333333333333,
+          "worst_quartile": -0.0763888888888889
+        }
+      }
+    }
+  },
+  "B": {
+    "mode": "B",
+    "n_rows": 540,
+    "methods": {
+      "identity": {
+        "n": 90,
+        "mean_delta": 0.0,
+        "harm_rate": 0.0,
+        "worst_quartile": 0.0,
+        "delta_ci95": [
+          0.0,
+          0.0
+        ]
+      },
+      "always_pooled": {
+        "n": 90,
+        "mean_delta": 0.0013010106347147523,
+        "harm_rate": 0.36666666666666664,
+        "worst_quartile": -0.04825222670050255,
+        "delta_ci95": [
+          -0.006946966314984023,
+          0.00941013612179259
+        ]
+      },
+      "always_canonical_CC": {
+        "n": 90,
+        "mean_delta": 0.002089456618099557,
+        "harm_rate": 0.35555555555555557,
+        "worst_quartile": -0.023467839631632726,
+        "delta_ci95": [
+          -0.0025873811830893754,
+          0.006906758043321821
+        ]
+      },
+      "metadata_only": {
+        "n": 90,
+        "mean_delta": 0.0013010106347147523,
+        "harm_rate": 0.36666666666666664,
+        "worst_quartile": -0.04825222670050255,
+        "delta_ci95": [
+          -0.006946966314984023,
+          0.00941013612179259
+        ]
+      },
+      "euclidean_alignment": {
+        "n": 90,
+        "mean_delta": 0.0017731194454405376,
+        "harm_rate": 0.4444444444444444,
+        "worst_quartile": -0.0442248364662158,
+        "delta_ci95": [
+          -0.006861898543707031,
+          0.010276016846451576
+        ]
+      },
+      "current_joint": {
+        "n": 90,
+        "mean_delta": -0.0049394489684626945,
+        "harm_rate": 0.4888888888888889,
+        "worst_quartile": -0.06875011920074617,
+        "delta_ci95": [
+          -0.01493503005629906,
+          0.0047998585710047285
+        ]
+      }
+    },
+    "metadata_coverage": 1.0,
+    "metadata_actions": [
+      "pooled_empirical_diag"
+    ],
+    "per_dataset": {
+      "BNCI2014_001": {
+        "metadata_only": {
+          "n": 9,
+          "mean_delta": 0.01234567901234566,
+          "harm_rate": 0.3333333333333333,
+          "worst_quartile": -0.02777777777777779
+        },
+        "always_pooled": {
+          "n": 9,
+          "mean_delta": 0.01234567901234566,
+          "harm_rate": 0.3333333333333333,
+          "worst_quartile": -0.02777777777777779
+        },
+        "euclidean_alignment": {
+          "n": 9,
+          "mean_delta": 0.02006172839506172,
+          "harm_rate": 0.3333333333333333,
+          "worst_quartile": -0.02083333333333337
+        },
+        "current_joint": {
+          "n": 9,
+          "mean_delta": 0.015432098765432056,
+          "harm_rate": 0.2222222222222222,
+          "worst_quartile": -0.01388888888888895
+        }
+      },
+      "BNCI2014_004": {
+        "metadata_only": {
+          "n": 27,
+          "mean_delta": 0.005169255754782901,
+          "harm_rate": 0.37037037037037035,
+          "worst_quartile": -0.030555555555555503
+        },
+        "always_pooled": {
+          "n": 27,
+          "mean_delta": 0.005169255754782901,
+          "harm_rate": 0.37037037037037035,
+          "worst_quartile": -0.030555555555555503
+        },
+        "euclidean_alignment": {
+          "n": 27,
+          "mean_delta": -0.0035670078680831367,
+          "harm_rate": 0.4444444444444444,
+          "worst_quartile": -0.029166666666666712
+        },
+        "current_joint": {
+          "n": 27,
+          "mean_delta": -0.0313397396452643,
+          "harm_rate": 0.6296296296296297,
+          "worst_quartile": -0.10121143871143869
+        }
+      },
+      "Lee2019_MI": {
+        "metadata_only": {
+          "n": 54,
+          "mean_delta": -0.0024738899882578067,
+          "harm_rate": 0.37037037037037035,
+          "worst_quartile": -0.061260578501957805
+        },
+        "always_pooled": {
+          "n": 54,
+          "mean_delta": -0.0024738899882578067,
+          "harm_rate": 0.37037037037037035,
+          "worst_quartile": -0.061260578501957805
+        },
+        "euclidean_alignment": {
+          "n": 54,
+          "mean_delta": 0.0013950816105988448,
+          "harm_rate": 0.46296296296296297,
+          "worst_quartile": -0.05654701178573858
+        },
+        "current_joint": {
+          "n": 54,
+          "mean_delta": 0.004865438414288982,
+          "harm_rate": 0.46296296296296297,
+          "worst_quartile": -0.053239863584691176
+        }
+      }
+    },
+    "verdict": {
+      "mean_paired_delta_positive": true,
+      "delta_ci_excludes_0": false,
+      "harm_rate_within_0_20": false,
+      "coverage_near_1": true
+    }
+  },
+  "A_severe": {
+    "mode": "A_severe",
+    "n_rows": 54,
+    "metadata": {
+      "N_units": 9,
+      "unsupported_route_adaptations": 0,
+      "adaptation_rate": 0.0,
+      "adaptation_rate_upper95": 0.28312883556311347,
+      "exact_identity_equivalence": 1.0,
+      "geometry_all_unsupported": true
+    },
+    "methods": {
+      "identity": {
+        "n": 9,
+        "mean_delta": 0.0,
+        "harm_rate": 0.0,
+        "worst_quartile": 0.0
+      },
+      "always_pooled": {
+        "n": 9,
+        "mean_delta": -0.007407407407407418,
+        "harm_rate": 0.4444444444444444,
+        "worst_quartile": -0.06666666666666665
+      },
+      "always_canonical_CC": {
+        "n": 9,
+        "mean_delta": -0.005555555555555573,
+        "harm_rate": 0.3333333333333333,
+        "worst_quartile": -0.033333333333333326
+      },
+      "metadata_only": {
+        "n": 9,
+        "mean_delta": 0.0,
+        "harm_rate": 0.0,
+        "worst_quartile": 0.0
+      },
+      "euclidean_alignment": {
+        "n": 9,
+        "mean_delta": 0.0023148148148148064,
+        "harm_rate": 0.3333333333333333,
+        "worst_quartile": -0.06458333333333333
+      },
+      "current_joint": {
+        "n": 9,
+        "mean_delta": -0.03425925925925926,
+        "harm_rate": 0.7777777777777778,
+        "worst_quartile": -0.08749999999999997
+      }
+    },
+    "per_pair": {
+      "BNCI2014_001>BNCI2014_004@C3CzC4": {
+        "metadata_only": {
+          "n": 9,
+          "mean_delta": 0.0,
+          "harm_rate": 0.0,
+          "worst_quartile": 0.0
+        },
+        "always_pooled": {
+          "n": 9,
+          "mean_delta": -0.007407407407407418,
+          "harm_rate": 0.4444444444444444,
+          "worst_quartile": -0.06666666666666665
+        },
+        "always_canonical_CC": {
+          "n": 9,
+          "mean_delta": -0.005555555555555573,
+          "harm_rate": 0.3333333333333333,
+          "worst_quartile": -0.033333333333333326
+        },
+        "euclidean_alignment": {
+          "n": 9,
+          "mean_delta": 0.0023148148148148064,
+          "harm_rate": 0.3333333333333333,
+          "worst_quartile": -0.06458333333333333
+        }
+      }
+    }
+  }
+}
