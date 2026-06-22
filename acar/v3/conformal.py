@@ -62,8 +62,11 @@ def conformal_rank(m, alpha):
 
 
 def conformal_q(subject_scores, alpha):
-    """(q, k). m = #CAL subjects. Empty CAL -> (+inf, k=1) (k>m via the frozen formula). STRICT +inf when k>m."""
-    s = np.asarray(list(subject_scores), float)
+    """(q, k) from a 1-D vector of ONE score per CAL subject. m=#subjects. Empty CAL -> (+inf, k=1). STRICT +inf when
+    k>m. FAIL-CLOSED on malformed shape (e.g. a nested 2-D object must NOT be miscounted as m subjects)."""
+    s = np.asarray(subject_scores, float)
+    if s.ndim != 1:
+        raise ValueError(f"subject_scores must be a 1-D per-subject vector; got ndim={s.ndim}")
     if s.size and not np.all(np.isfinite(s)):
         raise ValueError("non-finite CAL subject score")
     m = int(s.size)
@@ -78,8 +81,12 @@ def route(preds_by_action, q, delta=0.0):
     q may be +inf (uninformative -> identity); NaN q rejected."""
     _check_action_dict(preds_by_action, "route")
     _consistency(preds_by_action, {"cand": set(), "dis": set()})
-    if math.isnan(float(q)):
-        raise ValueError("q must not be NaN")
+    q = float(q)
+    if math.isnan(q) or q == -math.inf:
+        raise ValueError("q must be finite or +inf (not NaN / -inf)")
+    delta = float(delta)
+    if not math.isfinite(delta) or delta < 0:
+        raise ValueError("delta must be finite and >= 0")
     U = {a: upper_bound(preds_by_action[a], q) for a in NON_IDENTITY}     # canonical order
     eligible = [a for a in NON_IDENTITY if U[a] < -float(delta)]
     if not eligible:
@@ -98,6 +105,8 @@ def harmful_rate_test(router_rates, bestfixed_rates, *, min_pairs=10, exact_max_
         raise ValueError("router/bestfixed must be equal-length 1-D arrays (paired by subject)")
     if not (np.all(np.isfinite(router)) and np.all(np.isfinite(bestfixed))):
         raise ValueError("non-finite rate")
+    if np.any(router < 0) or np.any(router > 1) or np.any(bestfixed < 0) or np.any(bestfixed > 1):
+        raise ValueError("harmful rates must lie in [0,1]")
     d = router - bestfixed
     n_zero = int(np.sum(d == 0)); dnz = d[d != 0]
     if len(dnz) < min_pairs:

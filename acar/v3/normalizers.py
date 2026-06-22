@@ -13,7 +13,8 @@ import numpy as np
 
 from .set_features import (WindowActionSet, PER_WINDOW_FEATURES, CONTEXT_FEATURES, action_index)
 
-SD_FLOOR = 1e-6
+SD_FLOOR = 1e-6           # input-feature SD floor
+TARGET_SD_FLOOR = 1e-3    # target SD floor (skeleton-registered value; Amendment 4)
 _F = len(PER_WINDOW_FEATURES)
 _C = len(CONTEXT_FEATURES)
 
@@ -70,15 +71,15 @@ class TargetNormalizer:
     sd: float
 
     def __post_init__(self):
-        if not (np.isfinite(self.mean) and np.isfinite(self.sd)) or self.sd < SD_FLOOR:
-            raise ValueError("TargetNormalizer malformed (sd must be >= floor)")
+        if not (np.isfinite(self.mean) and np.isfinite(self.sd)) or self.sd < TARGET_SD_FLOOR:
+            raise ValueError("TargetNormalizer malformed (sd must be >= TARGET_SD_FLOOR)")
 
     @staticmethod
     def fit(delta_r_values) -> "TargetNormalizer":
         d = np.asarray(list(delta_r_values), float)
         if d.size == 0 or not np.all(np.isfinite(d)):
             raise ValueError("TargetNormalizer.fit needs finite ΔR values")
-        return TargetNormalizer(float(d.mean()), float(max(d.std(), SD_FLOOR)))
+        return TargetNormalizer(float(d.mean()), float(max(d.std(), TARGET_SD_FLOOR)))
 
     def standardize(self, y):
         return (np.asarray(y, float) - self.mean) / self.sd

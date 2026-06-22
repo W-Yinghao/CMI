@@ -139,67 +139,119 @@ def upper_bound(pred: CandidatePrediction, q: float) -> float:
     return pred.upper_center + q                              # C1/C3 (q may be +inf)
 
 
+def state_items(net) -> tuple:
+    """Canonical, immutable snapshot of a net's parameters: sorted (name, dtype, shape, float64-LE bytes)."""
+    sd = net.state_dict()
+    return tuple((name, str(sd[name].detach().cpu().numpy().dtype), tuple(sd[name].shape),
+                  np.ascontiguousarray(sd[name].detach().cpu().numpy()).tobytes())
+                 for name in sorted(sd))
+
+
+def build_net(candidate, items, seed=0):
+    """Rebuild a deterministic net from canonical state bytes. Raises on architecture/candidate mismatch."""
+    net = DeepSetsNet(candidate, seed)
+    sd = net.state_dict()
+    if {n for n, _, _, _ in items} != set(sd):
+        raise ValueError("state_items keys do not match the candidate architecture")
+    new = {}
+    for name, dt, shape, buf in items:
+        arr = np.frombuffer(buf, dtype=np.dtype(dt)).reshape(shape).copy()
+        new[name] = torch.tensor(arr)
+    try:
+        net.load_state_dict(new)
+    except RuntimeError as e:
+        raise ValueError(f"state_items incompatible with {candidate} architecture: {e}")
+    net.eval()
+    for p in net.parameters():
+        p.requires_grad_(False)
+    return net
+
+
+_NET_CACHE = {}
+
+
 @dataclass(frozen=True, slots=True)
-class FittedCandidate:
+class FittedCandidateArtifact:
+    """Immutable deployment artifact. Stores canonical parameter BYTES (NOT a live mutable module); the net is
+    rebuilt from bytes and verify_integrity() recomputes the hash before predict. Disease-bound."""
     candidate: str
     disease: str
-    net: nn.Module
+    state_items: tuple
     input_norm: InputNormalizer
     target_norm: TargetNormalizer
-    sigma_min: tuple        # (action, floor) pairs, raw units — must cover all NON_IDENTITY for C2
-    training_epoch: int
-    env: tuple              # (key,val) pairs
+    sigma_min: tuple        # (action, floor) raw units; C2 must cover all NON_IDENTITY with finite floors > 0
+    training_epochs: int
+    env: tuple
+    arch_schema: str = SCHEMA_VERSION
     artifact_sha256: str = ""
 
     def __post_init__(self):
         if self.candidate not in CANDIDATES or self.disease not in ("PD", "SCZ"):
             raise ValueError("bad candidate/disease")
         sm = dict(self.sigma_min)
-        if self.candidate == "C2" and set(sm) != set(NON_IDENTITY):
-            raise ValueError("C2 sigma_min must cover EXACTLY the non-identity actions")
-        self.net.eval()
-        for p in self.net.parameters():
-            p.requires_grad_(False)
-        object.__setattr__(self, "artifact_sha256", self._compute_hash())
+        if self.candidate == "C2":
+            if set(sm) != set(NON_IDENTITY):
+                raise ValueError("C2 sigma_min must cover EXACTLY the non-identity actions")
+            for a, v in sm.items():
+                if not (math.isfinite(v) and v > 0):
+                    raise ValueError(f"C2 sigma_min[{a}] must be finite and > 0 (got {v})")
+        elif sm:
+            raise ValueError(f"{self.candidate} must have empty sigma_min")
+        object.__setattr__(self, "artifact_sha256", self._hash())
+        net = build_net(self.candidate, self.state_items)     # architecture / candidate cross-check
+        if net.candidate != self.candidate or set(net.heads.keys()) != set(NON_IDENTITY):
+            raise ValueError("net candidate/heads inconsistent with artifact")
+        _NET_CACHE[self.artifact_sha256] = net
 
-    def _floor(self, action):
-        sm = dict(self.sigma_min)
-        if action not in sm:
-            raise KeyError(f"sigma_min missing action {action!r}")
-        return float(sm[action])
+    def _hash(self):
+        h = hashlib.sha256()
+        meta = json.dumps({"schema": self.arch_schema, "candidate": self.candidate, "disease": self.disease,
+                           "action_vocab": list(ACTION_VOCAB),
+                           "feature_schema": {"per_window": list(PER_WINDOW_FEATURES), "context": list(CONTEXT_FEATURES)},
+                           "hp": {k: HP[k] for k in sorted(HP)}, "env": dict(self.env),
+                           "training_epochs": int(self.training_epochs)}, sort_keys=True).encode()
+        h.update(b"META\x00"); h.update(meta)
+        self.input_norm.digest_update(h); self.target_norm.digest_update(h)
+        for a, v in sorted(dict(self.sigma_min).items()):     # raw float64 bytes — NO rounding
+            h.update(b"S\x00"); h.update(a.encode()); h.update(np.array([v], dtype="<f8").tobytes())
+        for name, dt, shape, buf in self.state_items:         # already sorted by name
+            h.update(b"T\x00"); h.update(name.encode()); h.update(dt.encode()); h.update(str(shape).encode()); h.update(buf)
+        return h.hexdigest()
+
+    def verify_integrity(self):
+        if self._hash() != self.artifact_sha256:
+            raise ValueError("artifact integrity failure: recomputed hash != stored artifact_sha256")
+        net = _NET_CACHE.get(self.artifact_sha256)
+        if net is None:
+            net = build_net(self.candidate, self.state_items); _NET_CACHE[self.artifact_sha256] = net
+        if net.candidate != self.candidate or set(net.heads.keys()) != set(NON_IDENTITY):
+            raise ValueError("artifact integrity failure: net architecture mismatch")
+        return net
+
+    def assert_disease(self, disease):
+        if disease != self.disease:
+            raise ValueError(f"disease mismatch: artifact is {self.disease}, batch is {disease}")
 
     def predict(self, was: WindowActionSet) -> CandidatePrediction:
+        net = self.verify_integrity()
         nw = self.input_norm.transform(was)
         win = torch.tensor(np.concatenate([nw.values, nw.availability_mask.astype(np.float64)], 1), dtype=torch.float32)
         ctx = torch.tensor(np.concatenate([nw.context_values, nw.context_mask.astype(np.float64)]), dtype=torch.float32)
         with torch.no_grad():
-            a, b = self.net(win, ctx, was.action_name)
+            a, b = net(win, ctx, was.action_name)
         if self.candidate == "C1":
             mu = float(self.target_norm.destandardize(float(a)))
             return CandidatePrediction("C1", self.disease, was.action_name, mu, mu)
         if self.candidate == "C2":
             mu = float(self.target_norm.destandardize(float(a)))
-            sig_raw = float(b) * self.target_norm.sd          # scale de-standardization (×sd only)
-            floor = self._floor(was.action_name)
-            used = max(sig_raw, floor)
-            return CandidatePrediction("C2", self.disease, was.action_name, mu, mu, used, sig_raw, floor)
+            sig_raw = float(b) * self.target_norm.sd
+            floor = float(dict(self.sigma_min)[was.action_name])
+            return CandidatePrediction("C2", self.disease, was.action_name, mu, mu, max(sig_raw, floor), sig_raw, floor)
         q50 = float(self.target_norm.destandardize(float(a)))
         q90 = q50 + float(b) * self.target_norm.sd
         return CandidatePrediction("C3", self.disease, was.action_name, q50, q90)
 
-    def _compute_hash(self):
-        h = hashlib.sha256()
-        meta = json.dumps({"schema": SCHEMA_VERSION, "candidate": self.candidate, "disease": self.disease,
-                           "action_vocab": list(ACTION_VOCAB),
-                           "feature_schema": {"per_window": list(PER_WINDOW_FEATURES), "context": list(CONTEXT_FEATURES)},
-                           "hp": {k: HP[k] for k in sorted(HP)}, "env": dict(self.env),
-                           "training_epoch": int(self.training_epoch),
-                           "sigma_min": {a: round(float(v), 12) for a, v in dict(self.sigma_min).items()}},
-                          sort_keys=True).encode()
-        h.update(b"META\x00"); h.update(meta)
-        self.input_norm.digest_update(h); self.target_norm.digest_update(h)
-        for name, t in self.net.state_dict().items():
-            h.update(b"T\x00"); h.update(name.encode()); h.update(str(t.dtype).encode())
-            h.update(str(tuple(t.shape)).encode())
-            h.update(np.ascontiguousarray(t.detach().cpu().numpy()).tobytes())
-        return h.hexdigest()
+
+def make_artifact(candidate, disease, net, input_norm, target_norm, sigma_min, training_epochs, env) -> FittedCandidateArtifact:
+    return FittedCandidateArtifact(candidate, disease, state_items(net), input_norm, target_norm,
+                                   tuple(sorted(dict(sigma_min).items())), int(training_epochs), tuple(sorted(dict(env).items())))
