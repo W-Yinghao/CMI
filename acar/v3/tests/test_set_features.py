@@ -1,22 +1,20 @@
-"""Synthetic invariance/guard tests for acar/v3/set_features.py. TOY INPUTS ONLY — no DEV cohorts, no candidate /
-width / AUROC / router metrics, no labels. Run: python -m acar.v3.tests.test_set_features
+"""Synthetic invariance/guard tests for acar/v3/set_features.py (hardened per the 93f417c review).
+TOY INPUTS ONLY — uses toy SOURCE labels to fit a frozen SourceState, so the precise claim is **no target labels,
+no DEV labels** (not "no labels"). No DEV cohorts, no candidate/width/AUROC/router metrics.
 
-Covers the 12 pre-registered guards (review): label-free API; window-permutation invariance; action-order
-invariance incl. exact ties; unavailable-geometry vs genuine-zero distinguishable; variable set cardinality;
-uniform full-set duplication behavior; single-window duplication ≠ permutation; fallback <MIN_BATCH short-circuit;
-serialization round-trip; canonical digest row-order-insensitive but content-sensitive; T3A geometry mask; NaN/Inf
-rejection.
+Run: python -m acar.v3.tests.test_set_features
 """
-import copy
 import inspect
 import pickle
 import numpy as np
 
 from cmi.eval.source_state import fit_source_state
 from acar.config import MIN_BATCH, N_CLS
+import acar.v3.set_features as sf
 from acar.v3.set_features import (
     extract_action_set, build_action_sets, canonical_digest, canonical_tie_break,
-    WindowActionSet, NON_IDENTITY, PER_WINDOW_FEATURES, CONTEXT_FEATURES, action_index)
+    WindowActionSet, WindowKey, canon_key, action_index, _validate_proba,
+    NON_IDENTITY, ACTION_VOCAB, ACTION_GEOMETRY, PER_WINDOW_FEATURES, CONTEXT_FEATURES)
 
 
 def _toy(n=20, d=8, seed=0):
@@ -29,6 +27,27 @@ def _toy(n=20, d=8, seed=0):
     return state, z, keys
 
 
+def _rebuild(was, values=None, mask=None, cvals=None, cmask=None, name=None, idx=None, keys=None):
+    return WindowActionSet(
+        was.values.copy() if values is None else values,
+        was.availability_mask.copy() if mask is None else mask,
+        was.context_values.copy() if cvals is None else cvals,
+        was.context_mask.copy() if cmask is None else cmask,
+        was.action_name if name is None else name,
+        was.action_index if idx is None else idx,
+        was.window_keys if keys is None else keys)
+
+
+def _expect(exc, fn, *a, needle=None):
+    try:
+        fn(*a)
+    except exc as e:
+        if needle and needle not in str(e):
+            raise AssertionError(f"wrong message: {e!r} (want {needle!r})")
+        return
+    raise AssertionError(f"expected {exc.__name__}")
+
+
 def test_label_free_api():
     for fn in (extract_action_set, build_action_sets):
         params = set(inspect.signature(fn).parameters)
@@ -36,98 +55,104 @@ def test_label_free_api():
     print("  [ok] set-extraction API is label-free")
 
 
-def test_window_permutation_invariance():
+def test_window_permutation_path_invariance():
     state, z, keys = _toy()
     sets = build_action_sets(state, z, keys)
     perm = np.random.default_rng(1).permutation(len(z))
-    zp, kp = z[perm], [keys[i] for i in perm]
-    setsp = build_action_sets(state, zp, kp)
+    setsp = build_action_sets(state, z[perm], [keys[i] for i in perm])
     for a in NON_IDENTITY:
-        assert canonical_digest(sets[a]) == canonical_digest(setsp[a]), f"{a}: digest changed under window permutation"
-    print("  [ok] window-permutation invariant (rows sorted by key)")
+        assert np.array_equal(sets[a].values, setsp[a].values), f"{a}: values differ under permutation (path)"
+        assert np.array_equal(sets[a].availability_mask, setsp[a].availability_mask)
+        assert np.array_equal(sets[a].context_values, setsp[a].context_values)
+        assert canonical_digest(sets[a]) == canonical_digest(setsp[a])
+    print("  [ok] window permutation: byte-identical values/masks/context (canonical order before adapters)")
 
 
-def test_action_order_invariance_and_ties():
+def test_action_order_invariance_and_canonical_keys():
     state, z, keys = _toy()
-    s1 = build_action_sets(state, z, keys, actions=("matched_coral", "spdim", "t3a"))
-    s2 = build_action_sets(state, z, keys, actions=("t3a", "spdim", "matched_coral"))
+    s1 = build_action_sets(state, z, keys, actions=("t3a", "matched_coral", "spdim"))
+    assert tuple(s1.keys()) == NON_IDENTITY, "dict not in canonical action order"
+    s2 = build_action_sets(state, z, keys, actions=("spdim", "t3a", "matched_coral"))
     for a in NON_IDENTITY:
-        assert canonical_digest(s1[a]) == canonical_digest(s2[a]), f"{a}: digest depends on action iteration order"
-    # exact-tie break ignores input order -> lowest ACTION_VOCAB index
+        assert canonical_digest(s1[a]) == canonical_digest(s2[a])
     assert canonical_tie_break(["t3a", "matched_coral"]) == "matched_coral"
     assert canonical_tie_break(["t3a", "spdim", "matched_coral"]) == "matched_coral"
-    assert canonical_tie_break(["t3a", "spdim"]) == "spdim"
-    print("  [ok] action-order invariant; ties broken by canonical vocabulary, not input order")
+    # action-selection validation
+    _expect(ValueError, lambda: build_action_sets(state, z, keys, actions=("bogus",)), needle="unknown")
+    _expect(ValueError, lambda: build_action_sets(state, z, keys, actions=("spdim", "spdim")), needle="duplicate")
+    _expect(ValueError, lambda: build_action_sets(state, z, keys, actions=("identity",)), needle="identity")
+    _expect(ValueError, lambda: build_action_sets(state, z, keys, actions=()), needle="empty")
+    print("  [ok] canonical action execution order; selection validated")
 
 
-def test_unavailable_geometry_vs_genuine_zero():
+def test_missing_zero_vs_genuine_zero():
     state, z, keys = _toy()
     was = build_action_sets(state, z, keys)["matched_coral"]
-    d0 = canonical_digest(was)
-    # genuine value 0 with mask 1  !=  structurally-missing 0 with mask 0
     j = PER_WINDOW_FEATURES.index("embed_disp")
-    flipped = copy.deepcopy(was); flipped.availability_mask[0, j] = 0.0   # same value (whatever), mask now "missing"
-    assert canonical_digest(flipped) != d0, "mask is not part of identity (missing-zero == genuine-zero)"
-    print("  [ok] missing-zero (mask 0) distinguishable from genuine-zero (mask 1)")
+    v = was.values.copy(); v[:, j] = 0.0                       # value identically zero in both objects
+    genuine = _rebuild(was, values=v, mask=was.availability_mask.copy())          # mask=1 -> genuine zero
+    m = was.availability_mask.copy(); m[:, j] = 0
+    missing = _rebuild(was, values=v, mask=m)                                      # mask=0 -> structurally missing
+    assert canonical_digest(genuine) != canonical_digest(missing), "missing-zero == genuine-zero"
+    print("  [ok] identical zero value, different availability -> different digest")
 
 
 def test_variable_cardinality():
     state, z, keys = _toy(n=24)
-    digs = set()
-    for n in (MIN_BATCH, MIN_BATCH + 1, 20):
-        s = build_action_sets(state, z[:n], keys[:n])
-        assert "__fallback__" not in s
-        digs.add(canonical_digest(s["matched_coral"]))
-    assert len(digs) == 3, "different cardinalities collided"
-    print("  [ok] variable set cardinality handled; distinct digests")
+    digs = {canonical_digest(build_action_sets(state, z[:n], keys[:n])["matched_coral"])
+            for n in (MIN_BATCH, MIN_BATCH + 1, 20)}
+    assert len(digs) == 3
+    print("  [ok] variable cardinality -> distinct digests")
 
 
-def test_duplicate_key_rejected():
-    state, z, keys = _toy(n=10)
-    bad = keys[:]; bad[5] = bad[4]                                    # duplicate window key
-    try:
-        extract_action_set(state, z, bad, "matched_coral"); raise AssertionError("duplicate key not rejected")
-    except ValueError:
-        pass
-    print("  [ok] duplicate window_keys rejected (window identity must be unique)")
-
-
-def test_duplication_is_not_permutation():
+def test_duplicate_and_duplication():
     state, z, keys = _toy(n=12)
+    bad = keys[:]; bad[5] = bad[4]
+    _expect(ValueError, lambda: extract_action_set(state, z, bad, "matched_coral"), needle="duplicate")
     base = canonical_digest(extract_action_set(state, z, keys, "matched_coral"))
-    # single-window duplication with a NEW key -> n+1 -> different set (not a permutation)
     z1 = np.vstack([z, z[0:1]]); k1 = keys + ["wDUP"]
-    assert canonical_digest(extract_action_set(state, z1, k1, "matched_coral")) != base, "single-window dup looked like permutation"
-    # uniform full-set duplication with new keys -> 2n windows -> different set (pre-registered: distinct, not equal)
+    assert canonical_digest(extract_action_set(state, z1, k1, "matched_coral")) != base
     z2 = np.vstack([z, z]); k2 = keys + [f"{k}_b" for k in keys]
-    assert canonical_digest(extract_action_set(state, z2, k2, "matched_coral")) != base, "uniform dup collided with original"
-    print("  [ok] duplication (new keys) yields a distinct set, never mistaken for permutation")
+    assert canonical_digest(extract_action_set(state, z2, k2, "matched_coral")) != base
+    print("  [ok] duplicate-key rejected; duplication (new keys) != permutation")
 
 
-def test_fallback_short_circuit():
+def test_fallback_short_circuit_no_adapter():
     state, z, keys = _toy(n=MIN_BATCH - 1)
-    out = build_action_sets(state, z, keys)
-    assert out == {"__fallback__": "identity"}, "small batch not short-circuited to identity"
-    print(f"  [ok] len(B)<MIN_BATCH ({MIN_BATCH}) short-circuits to identity before any adapter/extractor")
+    orig = sf.apply_action
+    sf.apply_action = lambda *a, **k: (_ for _ in ()).throw(AssertionError("adapter called on fallback path"))
+    try:
+        out = build_action_sets(state, z, keys)
+        assert out == {"__fallback__": "identity"}
+    finally:
+        sf.apply_action = orig
+    print(f"  [ok] len(B)<MIN_BATCH ({MIN_BATCH}) short-circuits to identity with NO adapter call")
 
 
 def test_serialization_roundtrip():
     state, z, keys = _toy()
     was = build_action_sets(state, z, keys)["spdim"]
-    was2 = pickle.loads(pickle.dumps(was))
-    assert canonical_digest(was) == canonical_digest(was2), "digest changed across serialize round-trip"
-    print("  [ok] serialization round-trip preserves canonical digest")
+    assert canonical_digest(was) == canonical_digest(pickle.loads(pickle.dumps(was)))
+    print("  [ok] serialization round-trip preserves digest")
 
 
-def test_digest_sensitivity():
+def test_digest_sensitivity_single_ulp_and_more():
     state, z, keys = _toy()
     was = build_action_sets(state, z, keys)["matched_coral"]; d0 = canonical_digest(was)
-    v = copy.deepcopy(was); v.values[3, 0] += 0.01
-    m = copy.deepcopy(was); m.availability_mask[2, 0] = 0.0
-    k = copy.deepcopy(was); k.window_keys = ("ZZZ",) + was.window_keys[1:]
-    c = copy.deepcopy(was); c.context_values[CONTEXT_FEATURES.index("n_eff")] += 0.01
-    assert canonical_digest(v) != d0 and canonical_digest(m) != d0 and canonical_digest(k) != d0 and canonical_digest(c) != d0
-    print("  [ok] digest sensitive to any value / mask / window-key / context change")
+    v = was.values.copy(); v[3, 0] = np.nextafter(v[3, 0], np.inf)        # single ULP
+    assert canonical_digest(_rebuild(was, values=v)) != d0, "single-ULP change collided"
+    k = ("ZZZ",) + tuple(was.window_keys[1:])
+    assert canonical_digest(_rebuild(was, keys=k)) != d0, "window-key change collided"
+    cv = was.context_values.copy(); ci = CONTEXT_FEATURES.index("n_eff")
+    cv[ci] = np.nextafter(cv[ci], np.inf)
+    assert canonical_digest(_rebuild(was, cvals=cv)) != d0, "context single-ULP collided"
+    # context-mask flip (zero that slot to keep the object legal)
+    cv2 = was.context_values.copy(); cm2 = was.context_mask.copy()
+    bi = CONTEXT_FEATURES.index("bures"); cv2[bi] = 0.0; cm2[bi] = 0
+    assert canonical_digest(_rebuild(was, cvals=cv2, cmask=cm2)) != d0, "context-mask flip collided"
+    # action identity in header: same arrays, different action_name
+    assert canonical_digest(_rebuild(was, name="spdim", idx=action_index("spdim"))) != d0, "action header not in digest"
+    print("  [ok] digest sensitive to single-ULP value, key, context value, context-mask, action header")
 
 
 def test_t3a_geometry_masked():
@@ -135,44 +160,90 @@ def test_t3a_geometry_masked():
     sets = build_action_sets(state, z, keys)
     t3a, mc = sets["t3a"], sets["matched_coral"]
     j = PER_WINDOW_FEATURES.index("embed_disp")
-    assert (t3a.availability_mask[:, j] == 0).all(), "t3a embed_disp should be unavailable"
-    assert (mc.availability_mask[:, j] == 1).all(), "matched_coral embed_disp should be available"
-    geom_ctx = ("bures", "post_sep", "s_support", "s_sep", "pr_cmi_proxy")
-    for f in geom_ctx:
-        assert t3a.context_mask[CONTEXT_FEATURES.index(f)] == 0, f"t3a {f} should be unavailable"
-        assert mc.context_mask[CONTEXT_FEATURES.index(f)] == 1, f"matched_coral {f} should be available"
+    assert (t3a.availability_mask[:, j] == 0).all() and (mc.availability_mask[:, j] == 1).all()
+    for f in ("bures", "post_sep", "s_support", "s_sep", "pr_cmi_proxy"):
+        assert t3a.context_mask[CONTEXT_FEATURES.index(f)] == 0 and mc.context_mask[CONTEXT_FEATURES.index(f)] == 1
     for f in ("n_eff", "g_unc"):
-        assert t3a.context_mask[CONTEXT_FEATURES.index(f)] == 1, f"t3a {f} should be available (prob-based)"
-    print("  [ok] T3A geometry features masked unavailable; prob-based features available")
+        assert t3a.context_mask[CONTEXT_FEATURES.index(f)] == 1
+    print("  [ok] T3A geometry masked; prob-based features available")
 
 
-def test_nan_inf_rejection():
+def test_action_capability_contract():
+    state, z, keys = _toy()
+    from acar.actions import apply_action
+    for a in NON_IDENTITY:
+        _, za = apply_action(a, state, z)
+        assert (za is not None) == ACTION_GEOMETRY[a], f"{a} geometry capability drifted"
+    print("  [ok] action capability map matches adapter behavior (no drift)")
+
+
+def test_nan_inf_rejected():
     state, z, keys = _toy()
     zbad = z.copy(); zbad[0, 0] = np.inf
-    for caller in (lambda: build_action_sets(state, zbad, keys),
-                   lambda: extract_action_set(state, zbad, keys, "matched_coral")):
-        try:
-            caller(); raise AssertionError("NaN/Inf input not rejected")
-        except ValueError:
-            pass
+    _expect(ValueError, lambda: build_action_sets(state, zbad, keys), needle="non-finite")
+    _expect(ValueError, lambda: extract_action_set(state, zbad, keys, "matched_coral"), needle="non-finite")
     print("  [ok] NaN/Inf inputs rejected")
 
 
+def test_proba_validation():
+    _expect(ValueError, lambda: _validate_proba(np.zeros((5, 3)), 5, 2, "p"), needle="shape")
+    _expect(ValueError, lambda: _validate_proba(np.full((5, 2), 0.4), 5, 2, "p"), needle="sum")
+    bad = np.full((5, 2), 0.5); bad[0, 0] = -0.1; bad[0, 1] = 1.1
+    _expect(ValueError, lambda: _validate_proba(bad, 5, 2, "p"), needle="negative")
+    _validate_proba(np.full((5, 2), 0.5), 5, 2, "p")          # valid passes
+    print("  [ok] probability validation (shape / sum / negativity)")
+
+
+def test_contract_validation_and_immutability():
+    state, z, keys = _toy()
+    was = build_action_sets(state, z, keys)["matched_coral"]
+    # immutability
+    assert not was.values.flags.writeable
+    try:
+        was.values[0, 0] = 1.0; raise AssertionError("values writable after freeze")
+    except ValueError:
+        pass
+    # illegal constructions
+    F = len(PER_WINDOW_FEATURES)
+    good = (np.zeros((4, F)), np.ones((4, F), np.uint8), np.zeros(len(CONTEXT_FEATURES)),
+            np.ones(len(CONTEXT_FEATURES), np.uint8), "matched_coral", 1, ("a", "b", "c", "d"))
+    WindowActionSet(*good)                                                            # valid
+    _expect(ValueError, lambda: WindowActionSet(np.zeros((4, F + 1)), np.ones((4, F + 1), np.uint8), *good[2:]), needle="features")
+    _expect(ValueError, lambda: WindowActionSet(np.zeros((4, F)), np.ones((3, F), np.uint8), *good[2:]), needle="same shape")
+    badmask = np.full((4, F), 2, np.uint8)
+    _expect(ValueError, lambda: WindowActionSet(good[0], badmask, *good[2:]), needle="binary")
+    nz = np.zeros((4, F)); nz[0, 0] = 1.0; mm = np.ones((4, F), np.uint8); mm[0, 0] = 0
+    _expect(ValueError, lambda: WindowActionSet(nz, mm, *good[2:]), needle="exactly 0")
+    _expect(ValueError, lambda: WindowActionSet(*good[:5], 2, good[6]), needle="inconsistent")
+    _expect(ValueError, lambda: WindowActionSet(*good[:6], ("a", "a", "c", "d")), needle="duplicate")
+    nf = np.zeros((4, F)); nf[0, 0] = np.inf
+    _expect(ValueError, lambda: WindowActionSet(nf, *good[1:]), needle="non-finite")
+    print("  [ok] WindowActionSet validates shape/mask/masked-zero/action/keys/finite; arrays immutable")
+
+
+def test_structured_window_key():
+    state, z, keys = _toy(n=10)
+    wk = [WindowKey("dsX", f"s{i%3}", f"r{i}", i) for i in range(10)]
+    was = extract_action_set(state, z, wk, "matched_coral")
+    assert canonical_digest(was) == canonical_digest(pickle.loads(pickle.dumps(was)))
+    dup = wk[:]; dup[3] = dup[2]
+    _expect(ValueError, lambda: extract_action_set(state, z, dup, "matched_coral"), needle="duplicate")
+    print("  [ok] structured WindowKey supported; canon_key serialization stable")
+
+
 def main():
-    print("ACAR v3 set_features synthetic guards:")
-    test_label_free_api()
-    test_window_permutation_invariance()
-    test_action_order_invariance_and_ties()
-    test_unavailable_geometry_vs_genuine_zero()
-    test_variable_cardinality()
-    test_duplicate_key_rejected()
-    test_duplication_is_not_permutation()
-    test_fallback_short_circuit()
-    test_serialization_roundtrip()
-    test_digest_sensitivity()
-    test_t3a_geometry_masked()
-    test_nan_inf_rejection()
-    print("ALL V3 SET-FEATURE GUARDS PASS")
+    print("ACAR v3 set_features synthetic guards (hardened):")
+    for t in (test_label_free_api, test_window_permutation_path_invariance, test_action_order_invariance_and_canonical_keys,
+              test_missing_zero_vs_genuine_zero, test_variable_cardinality, test_duplicate_and_duplication,
+              test_fallback_short_circuit_no_adapter, test_serialization_roundtrip,
+              test_digest_sensitivity_single_ulp_and_more, test_t3a_geometry_masked, test_action_capability_contract,
+              test_nan_inf_rejected, test_proba_validation, test_contract_validation_and_immutability,
+              test_structured_window_key):
+        t()
+    st, zz, kk = _toy()
+    dlen = len(canonical_digest(build_action_sets(st, zz, kk)["matched_coral"]))
+    assert dlen == 64, f"digest not full SHA-256 ({dlen})"
+    print(f"ALL V3 SET-FEATURE GUARDS PASS (full 64-char digest, len={dlen})")
 
 
 if __name__ == "__main__":
