@@ -16,8 +16,8 @@ from oaci.train.batch_plan import (BatchStep, MicrobatchPlan, _full_logical, ass
 from oaci.train.bn import bn_buffer_hash, freeze_bn_running_stats
 from oaci.train.checkpoint import (CheckpointRecord, clone_state_cpu, model_state_hash, state_hash)
 from oaci.train.data import TrainingData, population_signature_hash
-from oaci.train.engine import (EngineConfig, InvocationRegistry, _critic_update, train_stage1,
-                               train_stage2)
+from oaci.train.engine import (EngineConfig, InvocationRegistry, _critic_frozen, _critic_update,
+                               engine_config_from_manifest, train_stage1, train_stage2)
 from oaci.train.evaluate import evaluate_guard
 from oaci.train.objective import InactiveObjective, QuadraticPenaltyObjective
 from oaci.train.rng import derive_seed, forked_rng
@@ -177,7 +177,7 @@ def test_stage2_bn_buffers_equal_erm_at_every_checkpoint():
     erm = train_stage1(m, data, s1, _cfg(stage1_epochs=2), torch.device("cpu"))
     erm_bn = {k: v for k, v in erm.checkpoint.model_state.items() if "running_" in k or "num_batches" in k}
     t = build_full_batch_task_plan(data, "stage2_task", 3, 1, 0, "stage2_task_dropout")
-    a = build_full_batch_alignment_plan(data, 1, 3, 1, 0)
+    a = build_full_batch_alignment_plan(data, 2, 3, 1, 0)
     res = train_stage2(_shallow, erm, data, QuadraticPenaltyObjective(0.5), t, a,
                        _cfg(stage2_epochs=3, checkpoint_every=1), torch.device("cpu"))
     assert len(res.trajectory) == 3
@@ -192,7 +192,7 @@ def test_stage2_bn_affine_parameters_can_still_change():
     s1 = build_full_batch_task_plan(data, "stage1_task", 2, 1, 0, "stage1_task_dropout")
     erm = train_stage1(m, data, s1, _cfg(stage1_epochs=2), torch.device("cpu"))
     t = build_full_batch_task_plan(data, "stage2_task", 3, 1, 0, "stage2_task_dropout")
-    a = build_full_batch_alignment_plan(data, 1, 3, 1, 0)
+    a = build_full_batch_alignment_plan(data, 2, 3, 1, 0)
     res = train_stage2(_shallow, erm, data, QuadraticPenaltyObjective(1.0), t, a,
                        _cfg(stage2_epochs=3), torch.device("cpu"))
     bw = "bn.weight"
@@ -211,7 +211,7 @@ def test_inactive_objective_does_not_call_factory_or_optimizer():
         return _shallow()
 
     t = build_full_batch_task_plan(data, "stage2_task", 2, 1, 0, "stage2_task_dropout")
-    a = build_full_batch_alignment_plan(data, 1, 2, 1, 0)
+    a = build_full_batch_alignment_plan(data, 2, 2, 1, 0)
     res = train_stage2(factory, erm, data, InactiveObjective("test_inactive"), t, a, _cfg(), torch.device("cpu"))
     assert calls["n"] == 0 and res.active is False and res.trajectory == []
     assert res.erm_record.model_hash == erm.checkpoint.model_hash
@@ -317,7 +317,7 @@ def test_same_seed_reproduces_all_checkpoint_hashes():
     data = _eeg_data()
     s1 = build_full_batch_task_plan(data, "stage1_task", 2, 1, 0, "stage1_task_dropout")
     t = build_full_batch_task_plan(data, "stage2_task", 2, 1, 0, "stage2_task_dropout")
-    a = build_full_batch_alignment_plan(data, 1, 2, 1, 0)
+    a = build_full_batch_alignment_plan(data, 2, 2, 1, 0)
 
     def run():
         erm = train_stage1(_shallow_seeded(), data, s1, _cfg(stage1_epochs=2), torch.device("cpu"))
@@ -353,6 +353,55 @@ def test_train_risk_feasible_compatibility_wrapper_uses_new_engine():
     assert isinstance(res, TrainResult) and res.method_name == "OACI" and res.active
     assert res.task_plan_hash and res.alignment_plan_hash                     # plan-driven
     assert any(k.startswith("enc") for k in res.erm_record.model_state)       # MLP backbone state
+
+
+# ---------------- A2a engine 收口 ----------------
+def test_manifest_values_map_exactly_to_engine_config():
+    import os
+    from oaci.protocol.freeze import default_confirmatory_path
+    from oaci.protocol.manifest_v2 import load_v2
+    m = load_v2(os.path.join(os.path.dirname(default_confirmatory_path()), "smoke_v1.yaml"))
+    ec = engine_config_from_manifest(m, steps_per_epoch=2, base_seed=7)
+    assert ec.lr_encoder == m.optimizer.lr_encoder and ec.lr_critic == m.optimizer.lr_critic
+    assert ec.weight_decay == m.optimizer.weight_decay and ec.lambda_floor == m.optimizer.lambda_floor
+    assert ec.stage2_epochs == m.training.stage2_epochs and ec.warmup_steps == m.training.warmup_steps
+    assert ec.stage2_bn_mode == "frozen_erm_running_stats"
+    assert ec.deterministic_algorithms == m.training.deterministic_algorithms
+    assert ec.metric == m.risk["metric"] and ec.epsilon == m.risk["epsilon"]
+    assert ec.steps_per_epoch == 2 and ec.base_seed == 7
+
+
+def test_plan_cardinality_mismatch_fails_before_training():
+    data = _mlp_data()
+    plan = build_full_batch_task_plan(data, "stage1_task", 2, 1, 0, "stage1_task_dropout")   # 2 epochs
+    m = build_model("mlp", in_dim=5, n_classes=2)
+    try:
+        train_stage1(m, data, plan, _cfg(stage1_epochs=3), torch.device("cpu"))              # cfg wants 3
+    except ValueError as e:
+        assert "epochs" in str(e)
+    else:
+        raise AssertionError("a plan/cfg cardinality mismatch must fail before training")
+
+
+def test_critic_update_uses_logical_batch_seed():
+    data = _eeg_data()
+    m = _shallow(); m.train(); freeze_bn_running_stats(m)
+    obj = _TinyAdv(); critic = obj.build_critic(m.feat_dim, torch.device("cpu"))
+    opt = torch.optim.Adam(critic.parameters(), lr=0.1)
+    rng = torch.random.get_rng_state()
+    _critic_update(obj, critic, opt, m, _full_logical(data, 555), data.index(), data, torch.device("cpu"))
+    assert torch.equal(torch.random.get_rng_state(), rng)   # forked on the logical-batch seed; caller RNG intact
+
+
+def test_encoder_step_freezes_critic_parameters_and_state():
+    critic = nn.Linear(4, 2)
+    for p in critic.parameters():
+        p.grad = torch.ones_like(p)
+    mode = critic.training
+    with _critic_frozen(critic):
+        assert all(not p.requires_grad for p in critic.parameters())
+        assert all(p.grad is None for p in critic.parameters())
+    assert all(p.requires_grad for p in critic.parameters()) and critic.training == mode   # restored
 
 
 # ---------------- helpers used above ----------------

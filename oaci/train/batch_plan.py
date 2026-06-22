@@ -165,6 +165,57 @@ def _logical_from_sampler(sampler, sample_id, seed: int) -> LogicalBatchPlan:
     return LogicalBatchPlan(mbs, seed)
 
 
+# -------------------------------- split materialisers (independent streams) --------------------------------
+# These are used by the formal runner: the task plan and each method's alignment plan are drawn from
+# SEPARATE RNG namespaces, so adding critic steps or changing method order never perturbs the shared
+# task plan. (The legacy interleaved ``build_sampler_plans`` stays only for the compat wrapper.)
+def materialize_task_plan(data: TrainingData, n_epochs: int, steps_per_epoch: int, base_seed: int,
+                          role: str = "stage2_task", namespace: str = "stage2_task_dropout") -> TaskBatchPlan:
+    return build_full_batch_task_plan(data, role, n_epochs, steps_per_epoch, base_seed, namespace)
+
+
+def _logical_from_rows(data: TrainingData, rows, seed: int) -> LogicalBatchPlan:
+    ids = tuple(data.sample_id[i] for i in rows)
+    w = tuple(float(data.sample_mass[i]) for i in rows)
+    return LogicalBatchPlan((MicrobatchPlan(ids, w),), seed)
+
+
+def _alignment_over_rows(data: TrainingData, rows, warmup_steps, total_inner, critic_steps,
+                         base_seed, critic_ns, enc_ns) -> AlignmentPlan:
+    pop = population_signature_hash(data)
+    warmup = tuple(_logical_from_rows(data, rows, derive_seed(base_seed, critic_ns, "warmup", k))
+                   for k in range(warmup_steps))
+    game = tuple(AlignmentGameStep(
+        tuple(_logical_from_rows(data, rows, derive_seed(base_seed, critic_ns, t, c)) for c in range(critic_steps)),
+        _logical_from_rows(data, rows, derive_seed(base_seed, enc_ns, t))) for t in range(total_inner))
+    return AlignmentPlan(warmup, game, pop, _alignment_plan_hash(pop, warmup, game))
+
+
+def eligible_rows(data: TrainingData, support_graph) -> list:
+    """Rows with ``d ∈ S_y`` for a COMPARABLE class y — the only rows OACI may align over."""
+    out = []
+    y = data.y.detach().cpu().numpy(); d = data.d.detach().cpu().numpy()
+    for i in range(len(data)):
+        yy = int(y[i])
+        if yy in support_graph.comparable_classes and int(d[i]) in support_graph.support_of_class[yy]:
+            out.append(i)
+    return out
+
+
+def materialize_oaci_alignment_plan(data: TrainingData, support_graph, warmup_steps, total_inner,
+                                    critic_steps, base_seed) -> AlignmentPlan:
+    """OACI alignment over ELIGIBLE rows only (independent ``oaci_*`` RNG namespaces)."""
+    return _alignment_over_rows(data, eligible_rows(data, support_graph), warmup_steps, total_inner,
+                                critic_steps, base_seed, "oaci_critic", "oaci_align_dropout")
+
+
+def materialize_full_domain_alignment_plan(data: TrainingData, warmup_steps, total_inner,
+                                           critic_steps, base_seed) -> AlignmentPlan:
+    """Full-domain alignment over ALL observed rows (global_lpc & uniform SHARE this plan)."""
+    return _alignment_over_rows(data, list(range(len(data))), warmup_steps, total_inner,
+                                critic_steps, base_seed, "fulldomain_critic", "fulldomain_align_dropout")
+
+
 def build_sampler_plans(data: TrainingData, sampler, n_epochs: int, steps_per_epoch: int,
                         warmup_steps: int, critic_steps: int, base_seed: int):
     """Pre-materialise a (pre-seeded) ``RareCellSampler`` into immutable ID-based plans, in a FIXED

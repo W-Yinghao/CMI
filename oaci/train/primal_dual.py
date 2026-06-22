@@ -13,17 +13,17 @@ from dataclasses import dataclass
 import numpy as np
 import torch
 
+from ..methods.oaci import OACIObjective
 from ..models import build_model
 from ..support_graph import SupportGraph
-from .adversary import ConditionalDomainAdversary, reference_entropy_bar
-from .batch_plan import (build_full_batch_alignment_plan, build_full_batch_task_plan,
-                         build_sampler_plans)
-from .bn import all_eval
+from .batch_plan import (build_full_batch_task_plan, build_sampler_plans,
+                         materialize_oaci_alignment_plan)
 from .checkpoint import CheckpointRecord, ERMStage, TrainResult  # re-export (new ABI)
 from .data import TrainingData
 from .engine import EngineConfig, InvocationRegistry, dual_update, effective_risk_weight, train_stage1, train_stage2
-from .objective import ActiveStatus
 from .rng import derive_seed, forked_rng
+
+OaciObjective = OACIObjective  # back-compat alias (formal objective now lives in methods/)
 
 
 @dataclass
@@ -47,43 +47,6 @@ class TrainConfig:
     lambda_max: float = 20.0
     lambda_floor: float = 0.0
     seed: int = 0
-
-
-class OaciObjective:
-    """Conditional-domain adversarial objective (``A = -C_D``); active iff a comparable class
-    exists. The formal package adapter (``methods/oaci.py``) replaces this in A2."""
-    name = "OACI"
-
-    def __init__(self, support_graph: SupportGraph, adv_hidden: int = 16):
-        self.sg = support_graph
-        self.adv_hidden = adv_hidden
-        self.H_ref = reference_entropy_bar(support_graph)
-        self._critic = None
-
-    def active_status(self) -> ActiveStatus:
-        if self.sg.comparable_classes:
-            return ActiveStatus(True, None)
-        return ActiveStatus(False, "no_comparable_class")
-
-    def build_critic(self, feat_dim, device):
-        self._critic = ConditionalDomainAdversary(int(feat_dim), self.sg, hidden=self.adv_hidden).to(device)
-        return self._critic
-
-    def critic_loss(self, critic, z_detached, batch):                 # minimise C_D
-        return critic.domain_ce_contribution(z_detached, batch.y, batch.d, batch.w)
-
-    def encoder_penalty(self, critic, z, batch):                      # encoder maximises C_D -> -C_D
-        return -critic.domain_ce_contribution(z, batch.y, batch.d, batch.w)
-
-    def full_surrogate(self, model, data, device, chunk_size):
-        with all_eval(model), torch.no_grad():
-            z = model(data.X.to(device)).z
-            cd = float(self._critic.domain_ce(z, data.y.to(device), data.d.to(device),
-                                              importance_weight=data.sample_mass.to(device)).item())
-        return self.H_ref - cd
-
-    def diagnostics(self):
-        return {"H_ref_bar": self.H_ref}
 
 
 def _engine_cfg(cfg: TrainConfig, steps_per_epoch: int) -> EngineConfig:
@@ -130,11 +93,11 @@ def train_risk_feasible(X, y, d, group, support_graph: SupportGraph, cfg: TrainC
     if sampler is None:
         task_plan = build_full_batch_task_plan(data, "stage2_task", cfg.stage2_epochs, 1, cfg.seed,
                                                "stage2_task_dropout")
-        align = build_full_batch_alignment_plan(data, cfg.warmup_steps, cfg.stage2_epochs,
-                                                cfg.critic_steps, cfg.seed)
+        align = materialize_oaci_alignment_plan(data, support_graph, cfg.warmup_steps,
+                                                cfg.stage2_epochs, cfg.critic_steps, cfg.seed)
     else:
         task_plan, align = build_sampler_plans(data, sampler, cfg.stage2_epochs, steps_per_epoch,
                                                cfg.warmup_steps, cfg.critic_steps, cfg.seed)
 
-    objective = OaciObjective(support_graph, adv_hidden=cfg.adv_hidden)
+    objective = OACIObjective(support_graph, adv_hidden=cfg.adv_hidden)
     return train_stage2(factory, erm_stage, data, objective, task_plan, align, ecfg, device)
