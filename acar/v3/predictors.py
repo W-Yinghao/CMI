@@ -1,49 +1,48 @@
 """ACAR v3 candidate predictors (HSCR). DESIGN/DEV stage — SYNTHETIC only until DEV_DESIGN_LOCK.
 
-Disease-specific DeepSets over a WindowActionSet -> raw-ΔR-unit outputs. Three frozen candidates:
-  C1 mean-only (Huber)        : point=μ̂,  upper_center=μ̂,   scale=None        ; U=μ̂+q          ; score=ΔR−μ̂
-  C2 mean+scale (β-NLL)       : point=μ̂,  upper_center=μ̂,   scale=max(σ̂,σmin) ; U=μ̂+max(q,0)σ̃  ; score=(ΔR−μ̂)/σ̃
-  C3 additive CQR (pinball)   : point=q̂₅₀, upper_center=q̂₉₀, scale=None        ; U=q̂₉₀+q        ; score=ΔR−q̂₉₀
-Only C2 clamps q (q⁺=max(q,0)) — it is the only candidate with the negative-q × scale uncertainty inversion;
-C1/C3 use raw additive q. q_raw and q_used are both recorded by the caller. All hyperparameters are PINNED here
-(DEV_DESIGN_LOCK content); nothing is left to be chosen after seeing DEV numbers.
-
-This module computes NO ΔR target from labels itself; `fit()` is GIVEN the offline ΔR targets (Phase-2, DEV only).
+Disease-specific DeepSets (shared ψ trunk + shared ρ trunk + per-action ModuleDict heads) over a WindowActionSet ->
+raw-ΔR-unit outputs. Frozen formulas (notes/ACAR_V3_FREEZE_SKELETON.md S1):
+  C1 mean (Huber)      : point=μ̂,  upper_center=μ̂,  scale=None         ; U=μ̂+q          ; s=ΔR−μ̂
+  C2 mean+scale (β-NLL): point=μ̂,  upper_center=μ̂,  scale_used=max(σ̂,σmin) ; U=μ̂+max(q,0)σ̃ ; s=(ΔR−μ̂)/σ̃
+  C3 additive CQR      : point=q̂₅₀, upper_center=q̂₉₀, scale=None         ; U=q̂₉₀+q        ; s=ΔR−q̂₉₀
+score()/upper_bound() dispatch on the validated `candidate` field. Only C2 clamps q (q⁺); C1/C3 raw additive q.
+Training lives in training.py; `FittedCandidate` is the immutable, hashed artifact used at deploy.
 """
 from __future__ import annotations
 from dataclasses import dataclass
+import hashlib
+import json
+import math
+import sys
 import numpy as np
 import torch
 import torch.nn as nn
 
-from .set_features import (WindowActionSet, PER_WINDOW_FEATURES, CONTEXT_FEATURES, action_index)
+from .set_features import WindowActionSet, PER_WINDOW_FEATURES, CONTEXT_FEATURES, NON_IDENTITY, ACTION_VOCAB
+from .normalizers import InputNormalizer, TargetNormalizer
 
+SCHEMA_VERSION = "acar-v3-pred/1"
 CANDIDATES = ("C1", "C2", "C3")
 EPS = 1e-6
-
-# ---- PINNED hyperparameters (DEV_DESIGN_LOCK; do not tune post-DEV) ----
-HP = dict(
-    psi_hidden=64, psi_layers=2, rho_hidden=64, rho_layers=2, action_emb_dim=8, activation="relu",
-    pooling=("mean", "std"), dropout=0.0,
-    optimizer="adam", lr=1e-3, weight_decay=1e-4, grad_clip=1.0,
-    max_epochs=200, patience=20, min_delta=1e-4, batch_sets=64,
-    target_sd_floor=1e-3, huber_delta=1.0, beta_nll=0.5, eps=EPS,
-    seed_outer=0, seed_fitcal=1, seed_es=2, k_folds=5, fit_frac=0.70, train_frac=0.80,
-)
 _F = len(PER_WINDOW_FEATURES)
 _C = len(CONTEXT_FEATURES)
-_WIN_IN = 2 * _F            # values + mask
+_WIN_IN = 2 * _F
 _CTX_IN = 2 * _C
 
+HP = dict(
+    psi_hidden=64, psi_layers=2, rho_hidden=64, rho_layers=2, activation="relu",
+    pooling=("mean", "std"), dropout=0.0,
+    optimizer="adam", lr=1e-3, weight_decay=1e-4, grad_clip=1.0,
+    max_epochs=200, patience=20, min_delta=1e-4, batch_subjects=32,
+    target_sd_floor=1e-6, huber_delta=1.0, beta_nll=0.5, eps=EPS,
+    sigma_min_quantile=0.05, seed_outer=0, seed_fitcal=1, seed_es=2,
+    k_folds=5, fit_frac=0.70, train_frac=0.80,
+)
 
-@dataclass(frozen=True, slots=True)
-class CandidatePrediction:
-    candidate: str
-    disease: str
-    action: str
-    point: float            # G1 point predictor / width center (raw ΔR units): μ̂ (C1/C2) or q̂₅₀ (C3)
-    upper_center: float     # μ̂ (C1/C2) or q̂₉₀ (C3)
-    scale: float | None     # max(σ̂,σmin) for C2; None for C1/C3
+
+def env_versions():
+    return {"python": sys.version.split()[0], "torch": torch.__version__,
+            "numpy": np.__version__, "scipy": __import__("scipy").__version__}
 
 
 def _mlp(din, dh, dout, layers):
@@ -55,7 +54,7 @@ def _mlp(din, dh, dout, layers):
 
 
 class DeepSetsNet(nn.Module):
-    """Permutation-invariant set encoder + action-specific output head. Pinned architecture (HP)."""
+    """Shared ψ trunk + shared ρ trunk + per-action heads (ModuleDict keyed by NON_IDENTITY)."""
 
     def __init__(self, candidate: str, seed: int):
         super().__init__()
@@ -64,72 +63,143 @@ class DeepSetsNet(nn.Module):
         self.candidate = candidate
         torch.manual_seed(seed)
         self.psi = _mlp(_WIN_IN, HP["psi_hidden"], HP["psi_hidden"], HP["psi_layers"])
-        self.act_emb = nn.Embedding(len(("identity",) + CANDIDATES) - 1 + 1, HP["action_emb_dim"])  # >= n actions
         pooled = HP["psi_hidden"] * len(HP["pooling"])
+        self.rho = _mlp(pooled + _CTX_IN, HP["rho_hidden"], HP["rho_hidden"], HP["rho_layers"])
         out = 1 if candidate == "C1" else 2
-        self.rho = _mlp(pooled + _CTX_IN + HP["action_emb_dim"], HP["rho_hidden"], out, HP["rho_layers"])
-        self.eval()
+        self.heads = nn.ModuleDict({a: nn.Linear(HP["rho_hidden"], out) for a in NON_IDENTITY})
 
-    def forward(self, win, ctx, a_idx):
-        # win [n, 2F], ctx [2C], a_idx int
-        h = self.psi(win)                                     # [n, H]
-        pooled = torch.cat([h.mean(0), h.std(0, unbiased=False)], 0)   # mean+std (permutation-invariant)
-        a = self.act_emb(torch.tensor(int(a_idx)))
-        z = torch.cat([pooled, ctx, a], 0)
-        o = self.rho(z)
+    def trunk(self, win, ctx):
+        h = self.psi(win)
+        pooled = torch.cat([h.mean(0), h.std(0, unbiased=False)], 0)
+        return torch.relu(self.rho(torch.cat([pooled, ctx], 0)))
+
+    def forward(self, win, ctx, action):
+        r = self.trunk(win, ctx)
+        o = self.heads[action](r)
         if self.candidate == "C1":
             return o[0], None
         if self.candidate == "C2":
-            mu = o[0]; v = torch.nn.functional.softplus(o[1]) + EPS
-            return mu, torch.sqrt(v)                          # (mu, sigma) standardized units
-        q50 = o[0]; gap = torch.nn.functional.softplus(o[1]) + EPS
-        return q50, gap                                       # (q50, q90-q50) standardized units
+            return o[0], torch.sqrt(torch.nn.functional.softplus(o[1]) + EPS)   # (μ, σ) std units
+        return o[0], torch.nn.functional.softplus(o[1]) + EPS                   # (q50, gap) std units
 
 
-class Candidate:
-    """Wraps a disease-specific net + frozen target standardization (raw<->std) + σ_min per action."""
+@dataclass(frozen=True, slots=True)
+class CandidatePrediction:
+    candidate: str
+    disease: str
+    action: str
+    point: float
+    upper_center: float
+    scale_used: float | None = None
+    scale_raw: float | None = None
+    scale_floor: float | None = None
 
-    def __init__(self, candidate, disease, seed, target_mean=0.0, target_sd=1.0, sigma_min=None):
-        self.candidate = candidate; self.disease = disease
-        self.net = DeepSetsNet(candidate, seed)
-        self.target_mean = float(target_mean)
-        self.target_sd = float(max(target_sd, HP["target_sd_floor"]))
-        self.sigma_min = dict(sigma_min or {})               # {action: raw-unit floor}
-
-    def _inputs(self, was: WindowActionSet):
-        win = torch.tensor(np.concatenate([was.values, was.availability_mask.astype(np.float64)], axis=1),
-                           dtype=torch.float32)
-        ctx = torch.tensor(np.concatenate([was.context_values, was.context_mask.astype(np.float64)]),
-                           dtype=torch.float32)
-        return win, ctx
-
-    def predict(self, was: WindowActionSet) -> CandidatePrediction:
-        win, ctx = self._inputs(was)
-        with torch.no_grad():
-            a, b = self.net(win, ctx, action_index(was.action_name))
-        sd, mu0 = self.target_sd, self.target_mean
-        if self.candidate == "C1":
-            mu = float(a) * sd + mu0
-            return CandidatePrediction("C1", self.disease, was.action_name, mu, mu, None)
-        if self.candidate == "C2":
-            mu = float(a) * sd + mu0
-            sig = float(b) * sd                               # de-standardize scale
-            sig = max(sig, self.sigma_min.get(was.action_name, 0.0))
-            return CandidatePrediction("C2", self.disease, was.action_name, mu, mu, sig)
-        q50 = float(a) * sd + mu0
-        q90 = q50 + float(b) * sd                             # gap is positive (softplus) -> no crossing
-        return CandidatePrediction("C3", self.disease, was.action_name, q50, q90, None)
+    def __post_init__(self):
+        if self.candidate not in CANDIDATES:
+            raise ValueError("bad candidate")
+        if self.action not in NON_IDENTITY:
+            raise ValueError("bad action")
+        if not (math.isfinite(self.point) and math.isfinite(self.upper_center)):
+            raise ValueError("non-finite point/upper_center")
+        if self.candidate in ("C1", "C3"):
+            if self.scale_used is not None or self.scale_raw is not None or self.scale_floor is not None:
+                raise ValueError(f"{self.candidate} must have no scale")
+            if self.candidate == "C1" and self.upper_center != self.point:
+                raise ValueError("C1 upper_center must equal point")
+            if self.candidate == "C3" and not (self.upper_center > self.point):
+                raise ValueError("C3 requires q̂₉₀ > q̂₅₀")
+        else:  # C2
+            if self.upper_center != self.point:
+                raise ValueError("C2 upper_center must equal point (μ̂)")
+            for nm, val in (("scale_raw", self.scale_raw), ("scale_floor", self.scale_floor),
+                            ("scale_used", self.scale_used)):
+                if val is None or not math.isfinite(val):
+                    raise ValueError(f"C2 {nm} must be finite")
+            if not (self.scale_raw > 0 and self.scale_used > 0):
+                raise ValueError("C2 scale_raw/scale_used must be > 0")
+            if abs(self.scale_used - max(self.scale_raw, self.scale_floor)) > 1e-12:
+                raise ValueError("C2 scale_used must equal max(scale_raw, scale_floor)")
 
 
-# ---- per-candidate nonconformity score + upper bound (exact, frozen) ----
 def score(pred: CandidatePrediction, delta_r: float) -> float:
-    """Nonconformity: C1/C3 additive (ΔR − upper_center); C2 standardized (ΔR − μ̂)/σ̃."""
+    if not math.isfinite(float(delta_r)):
+        raise ValueError("ΔR must be finite")
     s = float(delta_r) - pred.upper_center
-    return s / pred.scale if pred.scale is not None else s
+    if pred.candidate == "C2":
+        return s / pred.scale_used
+    return s                                                 # C1/C3
 
 
 def upper_bound(pred: CandidatePrediction, q: float) -> float:
-    """U: C2 = μ̂ + max(q,0)·σ̃ (q⁺ clamp — uncertainty-inversion fix); C1/C3 = upper_center + q (NO clamp)."""
-    if pred.scale is not None:                                # C2
-        return pred.upper_center + max(float(q), 0.0) * pred.scale
-    return pred.upper_center + float(q)                       # C1/C3
+    q = float(q)
+    if math.isnan(q):
+        raise ValueError("q must not be NaN")
+    if pred.candidate == "C2":
+        return pred.upper_center + max(q, 0.0) * pred.scale_used    # q⁺ clamp
+    return pred.upper_center + q                              # C1/C3 (q may be +inf)
+
+
+@dataclass(frozen=True, slots=True)
+class FittedCandidate:
+    candidate: str
+    disease: str
+    net: nn.Module
+    input_norm: InputNormalizer
+    target_norm: TargetNormalizer
+    sigma_min: tuple        # (action, floor) pairs, raw units — must cover all NON_IDENTITY for C2
+    training_epoch: int
+    env: tuple              # (key,val) pairs
+    artifact_sha256: str = ""
+
+    def __post_init__(self):
+        if self.candidate not in CANDIDATES or self.disease not in ("PD", "SCZ"):
+            raise ValueError("bad candidate/disease")
+        sm = dict(self.sigma_min)
+        if self.candidate == "C2" and set(sm) != set(NON_IDENTITY):
+            raise ValueError("C2 sigma_min must cover EXACTLY the non-identity actions")
+        self.net.eval()
+        for p in self.net.parameters():
+            p.requires_grad_(False)
+        object.__setattr__(self, "artifact_sha256", self._compute_hash())
+
+    def _floor(self, action):
+        sm = dict(self.sigma_min)
+        if action not in sm:
+            raise KeyError(f"sigma_min missing action {action!r}")
+        return float(sm[action])
+
+    def predict(self, was: WindowActionSet) -> CandidatePrediction:
+        nw = self.input_norm.transform(was)
+        win = torch.tensor(np.concatenate([nw.values, nw.availability_mask.astype(np.float64)], 1), dtype=torch.float32)
+        ctx = torch.tensor(np.concatenate([nw.context_values, nw.context_mask.astype(np.float64)]), dtype=torch.float32)
+        with torch.no_grad():
+            a, b = self.net(win, ctx, was.action_name)
+        if self.candidate == "C1":
+            mu = float(self.target_norm.destandardize(float(a)))
+            return CandidatePrediction("C1", self.disease, was.action_name, mu, mu)
+        if self.candidate == "C2":
+            mu = float(self.target_norm.destandardize(float(a)))
+            sig_raw = float(b) * self.target_norm.sd          # scale de-standardization (×sd only)
+            floor = self._floor(was.action_name)
+            used = max(sig_raw, floor)
+            return CandidatePrediction("C2", self.disease, was.action_name, mu, mu, used, sig_raw, floor)
+        q50 = float(self.target_norm.destandardize(float(a)))
+        q90 = q50 + float(b) * self.target_norm.sd
+        return CandidatePrediction("C3", self.disease, was.action_name, q50, q90)
+
+    def _compute_hash(self):
+        h = hashlib.sha256()
+        meta = json.dumps({"schema": SCHEMA_VERSION, "candidate": self.candidate, "disease": self.disease,
+                           "action_vocab": list(ACTION_VOCAB),
+                           "feature_schema": {"per_window": list(PER_WINDOW_FEATURES), "context": list(CONTEXT_FEATURES)},
+                           "hp": {k: HP[k] for k in sorted(HP)}, "env": dict(self.env),
+                           "training_epoch": int(self.training_epoch),
+                           "sigma_min": {a: round(float(v), 12) for a, v in dict(self.sigma_min).items()}},
+                          sort_keys=True).encode()
+        h.update(b"META\x00"); h.update(meta)
+        self.input_norm.digest_update(h); self.target_norm.digest_update(h)
+        for name, t in self.net.state_dict().items():
+            h.update(b"T\x00"); h.update(name.encode()); h.update(str(t.dtype).encode())
+            h.update(str(tuple(t.shape)).encode())
+            h.update(np.ascontiguousarray(t.detach().cpu().numpy()).tobytes())
+        return h.hexdigest()
