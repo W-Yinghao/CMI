@@ -1,0 +1,38 @@
+{
+  "marker": "V2_COMMON_GRID",
+  "datasets": [
+    "BNCI2014_001",
+    "Cho2017",
+    "Lee2019_MI"
+  ],
+  "ordered_keys": [
+    "C1",
+    "C2",
+    "C3",
+    "C4",
+    "C5",
+    "C6",
+    "CP1",
+    "CP2",
+    "CP3",
+    "CP4",
+    "CPZ",
+    "CZ",
+    "FC1",
+    "FC2",
+    "FC3",
+    "FC4",
+    "FZ",
+    "P1",
+    "P2",
+    "POZ",
+    "PZ"
+  ],
+  "n": 21,
+  "sha256": "9bac2f43fc28cc5eca4d523041b5e348bd300952e45f1b0a001a60f3cfcb438f",
+  "per_dataset_nch": {
+    "BNCI2014_001": 22,
+    "Cho2017": 64,
+    "Lee2019_MI": 62
+  }
+}
