@@ -118,10 +118,13 @@ class DeploymentBatch:
 class LabeledRiskRecord:
     deployment_batch_digest: str
     delta_r_by_action: tuple        # MUST be in canonical NON_IDENTITY order
+    action_outputs_sha256: str      # binds ΔR to the EXACT frozen action outputs it was computed from
 
     def __post_init__(self):
         if not _is_hex64(self.deployment_batch_digest):
-            raise ValueError("deployment_batch_digest must be a full hex SHA-256")
+            raise ValueError("deployment_batch_digest must be a full lowercase hex SHA-256")
+        if not _is_hex64(self.action_outputs_sha256):
+            raise ValueError("action_outputs_sha256 must be a full lowercase hex SHA-256")
         items = tuple((a, float(v)) for a, v in self.delta_r_by_action)
         if tuple(a for a, _ in items) != NON_IDENTITY:
             raise ValueError(f"delta_r_by_action must be in canonical order {NON_IDENTITY}")

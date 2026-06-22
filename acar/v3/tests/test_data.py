@@ -65,14 +65,16 @@ def test_batching_protocol_validation():
 
 
 def test_labeled_risk_record():
-    good = tuple((a, 0.1) for a in NON_IDENTITY)
-    LabeledRiskRecord(HEX, good)
-    _expect(ValueError, lambda: LabeledRiskRecord(HEX, good[:-1]))                              # missing action
-    _expect(ValueError, lambda: LabeledRiskRecord(HEX, tuple(reversed(good))))                  # non-canonical order
-    _expect(ValueError, lambda: LabeledRiskRecord("z" * 64, good))                             # non-hex digest
-    _expect(ValueError, lambda: LabeledRiskRecord("A" * 64, good))                             # uppercase hex rejected
-    _expect(ValueError, lambda: LabeledRiskRecord("short", good))
-    print("  [ok] LabeledRiskRecord requires canonical action order, full-hex digest, finite ΔR")
+    good = tuple((a, 0.1) for a in NON_IDENTITY); AO = hashlib.sha256(b"ao").hexdigest()
+    LabeledRiskRecord(HEX, good, AO)
+    _expect(ValueError, lambda: LabeledRiskRecord(HEX, good[:-1], AO))                          # missing action
+    _expect(ValueError, lambda: LabeledRiskRecord(HEX, tuple(reversed(good)), AO))              # non-canonical order
+    _expect(ValueError, lambda: LabeledRiskRecord("z" * 64, good, AO))                          # non-hex digest
+    _expect(ValueError, lambda: LabeledRiskRecord("A" * 64, good, AO))                          # uppercase hex rejected
+    _expect(ValueError, lambda: LabeledRiskRecord("short", good, AO))
+    _expect(ValueError, lambda: LabeledRiskRecord(HEX, good, "A" * 64))                         # uppercase action_outputs hash
+    _expect(ValueError, lambda: LabeledRiskRecord(HEX, good, "short"))                          # bad action_outputs hash
+    print("  [ok] LabeledRiskRecord binds batch digest + action_outputs hash; canonical order, finite ΔR")
 
 
 def test_build_window_order_fallback_and_dup_index():
