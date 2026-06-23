@@ -33,9 +33,12 @@ FRONT_DIR = "tos_cmi/results/frontier_cells"
 CALIB_SEED, N_DOM, BASE_SEP, SIGMA, R, BETA = 9001, 6, 1.5, 1.0, 30, 0.2
 
 
-def run_cell(delta_Y, n_eff, d_base, d_extra, n_cls=3):
+def run_cell(delta_Y, n_eff, d_base, d_extra, n_cls=3, light=False):
     assert_power_feasible(R, BETA)
     cfg = replace(ScoreFisherConfig(), task_protect=True, n_perm_null=2, delta_Y=delta_Y)
+    if light:                                                # first-look config (plug-in is heavy);
+        cfg = replace(cfg, task_gate_hidden=128, task_gate_epochs=300,  # if it clears HERE the full
+                      task_gate_folds=3, task_gate_restarts=1)          # 256/600/5/3 only does better
     base = CALIB_SEED + int(1000 * delta_Y) + 7 * n_eff + d_base + d_extra
     out = {"delta_Y": delta_Y, "n_eff": n_eff, "d_base": d_base, "d_extra": d_extra, "n_cls": n_cls}
     for mult, tag in [(0.0, "null"), (1.0, "boundary")]:
@@ -53,12 +56,13 @@ def run_cell(delta_Y, n_eff, d_base, d_extra, n_cls=3):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cell", default="", help="'delta_Y,n_eff,d_base,d_extra'")
+    ap.add_argument("--light", action="store_true", help="first-look config (128/300/3/1)")
     ap.add_argument("--merge", action="store_true")
     ap.add_argument("--out", default="tos_cmi/results/frontier.json")
     args = ap.parse_args()
     if args.cell:
         dY, ne, db, de = args.cell.split(",")
-        c = run_cell(float(dY), int(ne), int(db), int(de))
+        c = run_cell(float(dY), int(ne), int(db), int(de), light=args.light)
         os.makedirs(FRONT_DIR, exist_ok=True)
         path = "%s/cell_%s_%s_%s_%s.json" % (FRONT_DIR, dY, ne, db, de)
         with open(path, "w") as f:

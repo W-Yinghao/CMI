@@ -117,7 +117,30 @@ inflated rates + no oracle baseline). Corollaries:
 larger n, NOT a relaxed δ_Y, NOT abstention. The safety mechanism (power floor) is sound; the
 gate's critic is the remediable bottleneck.
 
-## 5. Default-on gate (task_protect) — STAYS OFF
+## 4c. Phase 1.3.3 — cross-fitted efficient log-ratio plug-in critic (the bottleneck fix)
+
+Replaced the nested-residual critic with the cross-fitted one-step log-ratio estimator (the
+deployed analog of the oracle): q0(Y|U), q1tilde(Y|U,N) free calibrated classifiers, mixture
+q1=(1-a)q0+a*q1tilde (a on inner-val), s_i = log q1 - log q0, no max(0,.), clip-logged,
+task_gate_folds=5. First-look frontier (LIGHT config 128/300/3/1, R=30) vs the old nested:
+
+```
+δ_Y  k   nested LCB(det)   PLUG-IN LCB(det)   oracle LCB
+0.05 1   0.33 (14/30)      0.62 (23/30)       0.92
+0.05 2   0.21 (10/30)      0.36 (15/30)       0.92
+0.10 1   0.00 (0/30)       0.66 (24/30)       0.86
+0.10 2   0.00 (0/30)       0.66 (24/30)       0.86
+```
+
+The plug-in ~doubles detection and at δ_Y=0.10 goes from total failure (0/30) to 24/30 -- the
+estimator change is decisively the right lever. At the LIGHT config it reaches point power
+0.50-0.80 (LCB 0.36-0.66), narrowing but not yet clearing the stringent LCB≥0.80 bar (needs
+~28/30 at R=30). The full DEPLOYMENT config (256/600/5/3 -- more capacity, more folds = more data
+per fit, restarts) is expected to close the remaining gap; that certification is running
+(results/frontier_deploy). null FP stays 0/30. Full 11-file regression green with the plug-in as
+the deployed decision (nested kept as a diagnostic).
+
+## 5. Default-on gate (task_protect) — STAYS OFF (pending plug-in deployment-config certification)
 Default-on exit conditions NOT met (zero UNSAFE_ACCEPT ✓, non-degenerate SAFE_ACCEPT ✗ at all
 practical n). `task_protect` stays default OFF; `task_power_floor` stays opt-in.
 
