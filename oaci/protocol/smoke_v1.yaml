@@ -26,7 +26,18 @@ datasets:
     expected_sfreq: 128
     expected_epoch_seconds: 3.0
     expected_n_times: 385          # MOABB endpoint convention may give ±1
-    preprocessing: {fmin: 4.0, fmax: 38.0, resample_sfreq: 128, epoch_tmin: 0.5, epoch_tmax: 3.5, normalization: zscore_sample}
+    preprocessing:
+      kind: moabb_motor_imagery
+      fmin: 4.0
+      fmax: 38.0
+      resample_sfreq: 128.0
+      epoch_tmin: 0.5
+      epoch_tmax: 3.5
+      baseline: null
+      normalization: zscore_sample
+      normalization_eps: 1.0e-8
+      channel_interpolation: false
+      code_version: oaci-bnci-loader-v1
 risk:
   metric: balanced_ce
   epsilon: 0.05

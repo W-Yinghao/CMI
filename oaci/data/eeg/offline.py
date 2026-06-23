@@ -7,11 +7,39 @@ of a slow timeout or an actual fetch. It also counts attempts for the preflight 
 """
 from __future__ import annotations
 
+import os
 import socket
 import urllib.request
+import warnings
 from contextlib import contextmanager
 
 from .registry import OfflineDownloadError
+
+_MNE_ENV = ("MNE_DATA", "MNE_DATASETS_BNCI_PATH", "MNE_DATASETS_GIGADB_PATH",
+            "MNE_DATASETS_LEE2019_MI_PATH", "MOABB_OFFLINE")
+
+
+@contextmanager
+def moabb_offline_root(datalake_root):
+    """Point MNE/MOABB at the read-only datalake for the duration of a load, then restore the env and
+    the global warning filters exactly. Never writes an MNE user config and never changes HOME."""
+    root = str(datalake_root)
+    saved = {k: os.environ.get(k) for k in _MNE_ENV}
+    os.environ["MNE_DATA"] = root
+    os.environ["MNE_DATASETS_BNCI_PATH"] = root
+    os.environ["MNE_DATASETS_GIGADB_PATH"] = root
+    os.environ["MNE_DATASETS_LEE2019_MI_PATH"] = root
+    os.environ["MOABB_OFFLINE"] = "1"
+    with warnings.catch_warnings():                 # restore global warning filters on exit
+        warnings.simplefilter("ignore")
+        try:
+            yield root
+        finally:
+            for k, v in saved.items():
+                if v is None:
+                    os.environ.pop(k, None)
+                else:
+                    os.environ[k] = v
 
 
 class _Counter:

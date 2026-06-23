@@ -161,6 +161,30 @@ class DeletedCellBlock:
 
 
 @dataclass
+class MIPreprocessingBlock:
+    kind: str | None = None                  # "moabb_motor_imagery"
+    fmin: float | None = None
+    fmax: float | None = None
+    resample_sfreq: float | None = None
+    epoch_tmin: float | None = None
+    epoch_tmax: float | None = None
+    baseline: object | None = None           # null | [lo, hi]
+    normalization: str | None = None
+    normalization_eps: float | None = None
+    channel_interpolation: bool | None = None
+    code_version: str | None = None
+
+
+@dataclass
+class SyntheticPreprocessingBlock:
+    kind: str | None = None                  # "deterministic_synthetic_identity"
+
+
+_PREPROCESSING_KINDS = {"moabb_motor_imagery": MIPreprocessingBlock,
+                        "deterministic_synthetic_identity": SyntheticPreprocessingBlock}
+
+
+@dataclass
 class FakeFixtureBlock:
     source_domain_ids: list | None = None
     target_domain_ids: list | None = None
@@ -245,7 +269,35 @@ class ProtocolManifestV2:
         self.validate_ranges()
         self._validate_fake()
         self._validate_smoke_subjects()
+        self._validate_mi_preprocessing()
         return self
+
+    def _validate_mi_preprocessing(self) -> None:
+        for name, ds in self.enabled_datasets().items():
+            pp = ds.preprocessing
+            if not isinstance(pp, MIPreprocessingBlock):
+                continue
+            for f in fields(pp):
+                if f.name != "baseline" and getattr(pp, f.name) is None:
+                    raise ValueError(f"dataset {name} MI preprocessing missing {f.name}")
+            if not (0 <= pp.fmin < pp.fmax < pp.resample_sfreq / 2):
+                raise ValueError(f"{name}: 0 <= fmin < fmax < resample_sfreq/2")
+            if pp.epoch_tmax <= pp.epoch_tmin:
+                raise ValueError(f"{name}: epoch_tmax > epoch_tmin")
+            if pp.normalization != "zscore_sample":
+                raise ValueError(f"{name}: this smoke requires normalization == zscore_sample")
+            if pp.channel_interpolation is not False:
+                raise ValueError(f"{name}: channel_interpolation must be False (no target-driven interpolation)")
+            if pp.normalization_eps <= 0:
+                raise ValueError(f"{name}: normalization_eps > 0")
+            if ds.expected_sfreq is not None and float(ds.expected_sfreq) != float(pp.resample_sfreq):
+                raise ValueError(f"{name}: expected_sfreq must equal resample_sfreq")
+            if ds.expected_epoch_seconds is not None \
+                    and abs(float(ds.expected_epoch_seconds) - (pp.epoch_tmax - pp.epoch_tmin)) > 1e-9:
+                raise ValueError(f"{name}: expected_epoch_seconds must equal epoch_tmax - epoch_tmin")
+            exp_nt = int(round((pp.epoch_tmax - pp.epoch_tmin) * pp.resample_sfreq)) + 1
+            if ds.expected_n_times is not None and int(ds.expected_n_times) != exp_nt:
+                raise ValueError(f"{name}: expected_n_times must be {exp_nt} (MNE includes both endpoints)")
 
     def _validate_smoke_subjects(self) -> None:
         sm = self.smoke
@@ -393,4 +445,8 @@ def load_v2(path: str) -> ProtocolManifestV2:
     if m.smoke is not None and isinstance(m.smoke.deleted_cell_level1, dict):   # strict nested deleted cell
         m.smoke.deleted_cell_level1 = _strict(DeletedCellBlock, m.smoke.deleted_cell_level1,
                                               f"{path}:smoke.deleted_cell_level1")
+    for name, ds in (m.datasets or {}).items():                                # strict nested preprocessing by kind
+        pp = ds.preprocessing
+        if isinstance(pp, dict) and pp.get("kind") in _PREPROCESSING_KINDS:
+            ds.preprocessing = _strict(_PREPROCESSING_KINDS[pp["kind"]], pp, f"{path}:datasets.{name}.preprocessing")
     return m
