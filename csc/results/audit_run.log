@@ -1,0 +1,32 @@
+host=nodecpu10 job=860314 cpus=8 started=2026-06-23T03:50:39+02:00
+[audit] audited_code_commit=4896eee manifest=d49be61c0be3514211436409d95cd367b075ecb1e7fbe2c8c6d28f0444b38b06 clean=True
+[audit] self-tests ...
+[audit] tests all_passed=True
+[audit] run_synthetic via FROZEN PATH (DEVELOPMENT) ...
+
+=== csc FROZEN-PATH certificate [DEVELOPMENT] — 10 seeds 0..9, manifest=d49be61c0be3514211436409d95cd367b075ecb1e7fbe2c8c6d28f0444b38b06 ===
+truth / shift kind              COVARI  CONCEP  UNIDEN  forbid
+--------------------------------------------------------------
+clean (NONE)                         0       0      10       0
+covariate (COVARIATE)                5       0       5       0
+boundary_coupled (CONCEPT_VISIBLE)       0       4       6       0
+pure_conditional (CONCEPT_INVISIBLE)       0       0      10       0
+label_shift (LABEL_SHIFT)            0       0      10       0
+label_covariate_mixed (LABEL_COVARIATE)       0       0      10       0
+
+--- cluster-level (per independent seed) endpoints, exact 95% Clopper-Pearson ---
+PRIMARY any_forbidden_full_suite          : 0/10  -> UB 0.259
+        any_false_positive_must_abstain   : 0/10  -> UB 0.259
+descriptive: concept power 0.40 | covariate->COMPATIBLE 0.50
+NOTE: DEVELOPMENT seeds (informed tuning). >= 59 independent clusters needed for a 0.05 bound at 0 failures. Power is validated by ood_power_bank, not here.
+[audit] SYNTHETIC_NULL_BANK (generator-truth-stable) ...
+[audit] CALIBRATION_NULL_BANK (LODO oracle sanity) ...
+[audit] OOD_POWER_BANK (generator-truth) ...
+[audit] CSC-P1.4.2 diagnostics ...
+[audit] wrote csc/results/audit.json
+[audit] SUMMARY tests=True manifest=d49be61c0be3 clean=True
+  run_synthetic PRIMARY any_forbidden_full=0/10 (CP-UB 0.259)
+  SYNTHETIC_NULL_BANK clusters_fail=0/4 CP-UB 0.527 evaluable=True control_pass=False
+  OOD_POWER_BANK power=0.5 CP-LB 0.098 atlas=0.5 evaluable=True decomp={'geometric_maxstat_not_sig': 2, 'FIRED': 2}
+  P1.4.2 dup_invariance_delta=0.00e+00 paired_intact=True sep_response={90.0: 90.0, 60.0: 60.0, 30.0: 30.0, 10.0: 10.0} source_invalid=0/4
+finished=2026-06-23T04:58:59+02:00 audit_rc=0
