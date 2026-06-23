@@ -50,6 +50,13 @@ def fold_plan_hash(population_hash, support_hash, n_folds_requested, n_folds,
     return h.hexdigest()
 
 
+def validate_fold_plan(plan: "FoldPlan") -> None:
+    recomputed = fold_plan_hash(plan.population_hash, plan.support_hash, plan.n_folds_requested,
+                                plan.n_folds, plan.fold_of_group, plan.domain_of_group)
+    if recomputed != plan.plan_hash:
+        raise ValueError("fold plan hash does not recompute")
+
+
 @dataclass
 class FrozenFeatures:
     """A frozen representation + the labels the probe conditions on, plus per-row base mass

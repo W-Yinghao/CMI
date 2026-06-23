@@ -49,6 +49,17 @@ def _plan_hash(pop, sup, fold, alpha, requested, candidate_draws, accepted, inva
     return h.hexdigest()
 
 
+def bootstrap_plan_hash(plan: "LeakageBootstrapPlan") -> str:
+    return _plan_hash(plan.population_hash, plan.support_hash, plan.fold_plan_hash, plan.alpha,
+                      plan.requested_replicates, plan.candidate_draws, plan.accepted_candidate_ids,
+                      plan.invalid_draw_rate)
+
+
+def validate_bootstrap_plan(plan: "LeakageBootstrapPlan") -> None:
+    if bootstrap_plan_hash(plan) != plan.plan_hash:
+        raise ValueError("bootstrap plan hash does not recompute")
+
+
 def make_leakage_bootstrap_plan(design, support_graph, fold_plan, *, alpha, requested_replicates,
                                 seed, max_candidate_multiplier=8, max_invalid_draw_rate=0.5):
     if support_graph.support_hash() != design.support_hash:

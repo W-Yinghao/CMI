@@ -141,6 +141,16 @@ class SupportGraph:
             h.update(f"{int(y)}:{sorted(int(d) for d in self.support_of_class[y])}".encode())
         return h.hexdigest()
 
+    def validate(self) -> "SupportGraph":
+        """Rebuild from (counts, m, cell_mass, reference_prior, names) and require the same support
+        hash -- the derived eligible mask / S_y must be consistent with the stored fields."""
+        rebuilt = build_support_graph(self.counts, int(self.m), cell_mass=self.cell_mass,
+                                      reference_prior=self.reference_prior, domain_names=list(self.domain_names),
+                                      class_names=list(self.class_names))
+        if rebuilt.support_hash() != self.support_hash():
+            raise ValueError("support graph is internally inconsistent")
+        return self
+
     # ---- cell / class queries ----
     def is_present(self, d: int, y: int) -> bool:
         return bool(self.present[d, y])

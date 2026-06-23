@@ -1,0 +1,119 @@
+"""Atomic artifact-directory commit.
+
+Files are written into a sibling ``.tmp-oaci-artifact-*`` staging dir, each fsync'd, the index written,
+``COMMITTED.json`` written LAST, then the staging dir is renamed into place and the parent fsync'd. A
+directory without a valid ``COMMITTED.json`` is never a result. No symlink is followed; ``..`` / absolute
+/ empty path components are rejected; an existing destination is not overwritten unless asked.
+"""
+from __future__ import annotations
+
+import hashlib
+import os
+
+from .canonical_json import canonical_json_bytes
+
+COMMIT_MARKER = "COMMITTED.json"
+INDEX_NAME = "artifact_index.json"
+
+
+def safe_relpath(rel: str) -> str:
+    if os.path.isabs(rel):
+        raise ValueError(f"artifact path must be relative: {rel!r}")
+    parts = rel.split("/")
+    if any(p in ("", ".", "..") for p in parts):
+        raise ValueError(f"unsafe artifact path component in {rel!r}")
+    return rel
+
+
+def _fsync_dir(path) -> None:
+    fd = os.open(path, os.O_RDONLY)
+    try:
+        os.fsync(fd)
+    finally:
+        os.close(fd)
+
+
+def _sha256_file(path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+class StagingDir:
+    """Collects (relpath -> bytes|file-written) into a staging dir; commit() renames it into place."""
+
+    def __init__(self, final_path, *, overwrite=False):
+        self.final_path = os.path.abspath(final_path)
+        self.parent = os.path.dirname(self.final_path)
+        self.overwrite = overwrite
+        self._files = []                       # (relpath, abspath)
+        self._dirs = set()
+        self.staging = None
+
+    def __enter__(self):
+        if os.path.islink(self.final_path) or os.path.islink(self.parent):
+            raise ValueError("refusing to write through a symlink")
+        if os.path.exists(self.final_path) and not self.overwrite:
+            raise FileExistsError(f"artifact destination already exists: {self.final_path}")
+        os.makedirs(self.parent, exist_ok=True)
+        rnd = hashlib.sha256(self.final_path.encode()).hexdigest()[:16]
+        self.staging = os.path.join(self.parent, f".tmp-oaci-artifact-{rnd}")
+        if os.path.exists(self.staging):
+            _rmtree(self.staging)
+        os.makedirs(self.staging)
+        return self
+
+    def _abs(self, rel):
+        rel = safe_relpath(rel)
+        ap = os.path.join(self.staging, rel)
+        d = os.path.dirname(ap)
+        if d and d not in self._dirs:
+            os.makedirs(d, exist_ok=True); self._dirs.add(d)
+        return ap
+
+    def write_bytes(self, rel, data: bytes) -> None:
+        ap = self._abs(rel)
+        with open(ap, "wb") as f:
+            f.write(data); f.flush(); os.fsync(f.fileno())
+        self._files.append((rel, ap))
+
+    def file_path(self, rel) -> str:
+        """Reserve a path for a caller that writes the file itself (e.g. torch.save)."""
+        ap = self._abs(rel)
+        self._files.append((rel, ap))
+        return ap
+
+    def commit(self, index_entries: list, marker_body: dict):
+        # index lists every file except itself and the commit marker
+        index_doc = {"files": sorted(index_entries, key=lambda e: e["relative_path"])}
+        index_bytes = canonical_json_bytes(index_doc)
+        self.write_bytes(INDEX_NAME, index_bytes)
+        for rel, ap in self._files:
+            if rel == INDEX_NAME:
+                continue
+        # fsync all touched dirs
+        for d in sorted(self._dirs) + [self.staging]:
+            _fsync_dir(d)
+        marker = {**marker_body, "artifact_index_sha256": hashlib.sha256(index_bytes).hexdigest()}
+        self.write_bytes(COMMIT_MARKER, canonical_json_bytes(marker))
+        _fsync_dir(self.staging)
+        os.rename(self.staging, self.final_path)
+        _fsync_dir(self.parent)
+        self.staging = None
+        return self.final_path
+
+    def __exit__(self, exc_type, exc, tb):
+        if self.staging is not None and os.path.isdir(self.staging):
+            _rmtree(self.staging)          # any failure leaves no committed result
+        return False
+
+
+def _rmtree(path):
+    for root, dirs, files in os.walk(path, topdown=False):
+        for f in files:
+            os.remove(os.path.join(root, f))
+        for d in dirs:
+            os.rmdir(os.path.join(root, d))
+    os.rmdir(path)

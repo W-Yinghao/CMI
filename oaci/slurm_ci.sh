@@ -23,7 +23,7 @@ MODS="test_support_graph test_missing_cell test_leakage_estimate test_leakage_cr
 test_leakage_ucb test_train_risk test_train_adversary test_train_primal_dual \
 test_train_selector test_train_engine test_methods test_leakage_plan test_manifest_artifacts \
 test_plan_sampler test_runner_scoring test_runner_contracts test_runner_scope test_runner_plans \
-test_runner_train_select test_runner_audit test_runner_finalize test_scientific_hash test_rare_cell_sampler test_eval test_data_contract test_loader_protocol \
+test_runner_train_select test_runner_audit test_runner_finalize test_runner_artifacts test_scientific_hash test_rare_cell_sampler test_eval test_data_contract test_loader_protocol \
 test_sample_mass test_backbone"
 
 echo "[oaci-ci] node=$(hostname) cpus=${SLURM_CPUS_PER_TASK:-?} commit=$(git rev-parse --short HEAD 2>/dev/null)"

@@ -7,6 +7,7 @@ predictions; the target role is forward only. Phase reaches COMPLETE.
 """
 from __future__ import annotations
 
+from ..artifacts.result_payload import _erm_block, fold_payload, level_payload, method_payload_from_trained
 from ..eval.calibration import fixed_bin_edges
 from ..methods.activity import METHODS
 from ..train.rng import derive_seed
@@ -26,31 +27,9 @@ def _leak_hash(v):
 
 
 def method_result_hash(name, trained_method, selected_method, audit_result, bundle_by_role, metrics_by_role) -> str:
-    """Full logical identity of one method run: shared ERM/tau/task-plan, the trajectory metadata,
-    every selection field (risk / epoch / score / reason / status / leakage), the audit status +
-    leakage, the three prediction bundle hashes, the three metrics hashes, training diagnostics."""
-    tm, sm, sel, ar = trained_method, selected_method, selected_method.selection, audit_result
-    traj = [{"epoch": int(c.epoch), "optimizer_step": int(c.optimizer_step), "model_hash": c.model_hash,
-             "R_src": float(c.R_src), "balanced_err": float(c.balanced_err),
-             "train_surrogate": float(c.train_surrogate), "lambda": float(c.lam)}
-            for c in tm.train_result.trajectory]
-    payload = {
-        "method": name, "active": tm.active, "inactive_reason": tm.inactive_reason,
-        "shared_erm": tm.shared_erm_hash, "shared_tau": float(tm.shared_tau),
-        "shared_stage2_task_plan_hash": tm.shared_stage2_task_plan_hash, "initial_erm": tm.shared_erm_hash,
-        "trajectory": traj,
-        "selection": {"model_hash": sel.model_hash, "selected_epoch": int(sel.selected_epoch),
-                      "R_src": float(sel.R_src),
-                      "selection_score": None if sel.selection_score is None else float(sel.selection_score),
-                      "selected_erm": bool(sel.selected_erm), "used_erm_fallback": bool(sel.used_erm_fallback),
-                      "selection_reason": sel.selection_reason, "score_name": sel.score_name,
-                      "n_feasible": int(sel.n_feasible), "selection_status": sm.selection_status,
-                      "selection_leakage_hash": _leak_hash(sm.selection_leakage)},
-        "audit_status": ar.status, "audit_leakage_hash": ar.leakage_hash,
-        "preds": [bundle_by_role[r].prediction_content_hash() for r in _ROLES],
-        "metrics": [metrics_by_role[r].metrics_hash for r in _ROLES],
-        "training_diagnostics_hash": scientific_value_hash(dict(tm.training_diagnostics))}
-    return scientific_value_hash(payload)
+    """Full logical identity of one method run (delegates to the shared payload builder)."""
+    return scientific_value_hash(method_payload_from_trained(
+        name, trained_method, selected_method, audit_result, bundle_by_role, metrics_by_role))
 
 
 def finalize_level_run(audit_intermediate, fold_data, fold_scope, support_state, level_population,
@@ -138,19 +117,15 @@ def finalize_level_run(audit_intermediate, fold_data, fold_scope, support_state,
     inv = _level_invariants(prov, trained, selected, bundles, caches, snap0, snap_pred)
     inv_items = tuple(sorted(inv.items(), key=lambda kv: kv[0]))
     erm_stage = ts.stage1.erm_stage
-    lvl_payload = {
-        "run_key": run_key.run_key_hash, "support_hash": support_state.support_hash,
-        "level_support_hash": support_state.level_support_hash, "level_plans_hash": level_plans.level_plans_hash,
-        "execution_config_hash": execution_cfg.execution_config_hash, "model_spec_hash": model_spec.model_spec_hash,
-        "erm": {"checkpoint": erm_stage.checkpoint.model_hash, "R_ERM_hat": float(erm_stage.R_ERM_hat),
-                "tau": float(erm_stage.tau), "invocation_id": erm_stage.stage1_invocation_id,
-                "task_plan_hash": erm_stage.task_plan_hash},
-        "phase": prov.phase.value, "selection_snapshot_hash": snap0.snapshot_hash,
-        "methods": [m.method_result_hash for _, m in method_items],
-        "selection_cache": scientific_value_hash(ts.leakage_cache_stats),
-        "audit_cache": audit_intermediate.audit_cache_stats.stats_hash,
-        "prediction_cache": pc.stats_hash, "provenance": prov_snap.provenance_hash,
-        "invariants": [[k, (v if isinstance(v, (bool, int)) else str(v))] for k, v in inv_items]}
+    lvl_payload = level_payload(
+        run_key_hash=run_key.run_key_hash, support_hash=support_state.support_hash,
+        level_support_hash=support_state.level_support_hash, level_plans_hash=level_plans.level_plans_hash,
+        execution_config_hash=execution_cfg.execution_config_hash, model_spec_hash=model_spec.model_spec_hash,
+        erm=_erm_block(erm_stage), phase=prov.phase.value, selection_snapshot_hash=snap0.snapshot_hash,
+        method_hashes=[m.method_result_hash for _, m in method_items],
+        selection_cache_hash=scientific_value_hash(ts.leakage_cache_stats),
+        audit_cache_hash=audit_intermediate.audit_cache_stats.stats_hash,
+        prediction_cache_hash=pc.stats_hash, provenance_hash=prov_snap.provenance_hash, invariant_items=inv_items)
     return LevelRunResult(
         run_key=run_key, support_state=support_state, plans=level_plans, erm_stage=erm_stage,
         method_items=tuple(method_items), execution_config_hash=execution_cfg.execution_config_hash,
@@ -219,6 +194,7 @@ def assemble_fold_run(fold_scope, level_results) -> FoldRunResult:
         raise ValueError("target signature changed across methods/levels")
     if len(uni) > 1:
         raise ValueError("uniform prior matrix changed across levels")
-    payload = {"scope": fold_scope.fold_scope_hash, "levels": [[lvl, lr.level_result_hash] for lvl, lr in items]}
+    payload = fold_payload(fold_scope_hash=fold_scope.fold_scope_hash,
+                           level_hashes=[(lvl, lr.level_result_hash) for lvl, lr in items])
     return FoldRunResult(fold_scope=fold_scope, level_items=tuple(items),
                          fold_result_hash=scientific_value_hash(payload))

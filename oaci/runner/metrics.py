@@ -7,7 +7,7 @@ no non-inferiority / efficacy inference.
 """
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, fields as dataclasses_fields
 
 import numpy as np
 
@@ -15,6 +15,11 @@ from ..eval.calibration import (domain_eces, mean_domain_ece, mean_domain_nll, p
                                 top_label_ece, worst_domain_ece, worst_domain_nll)
 from ..eval.metrics import domain_bacc, mean_domain_bacc, pooled_bacc_summary, worst_domain_bacc
 from .scientific_hash import scientific_value_hash
+
+
+def metrics_payload(em) -> dict:
+    """The exact field dict whose scientific_value_hash equals ``em.metrics_hash`` (excludes the hash)."""
+    return {f.name: getattr(em, f.name) for f in dataclasses_fields(em) if f.name != "metrics_hash"}
 
 
 @dataclass(frozen=True)

@@ -102,6 +102,30 @@ def _alignment_plan_hash(pop_sig, warmup, game_steps) -> str:
     return h.hexdigest()
 
 
+# -------------------------------- public validators (artifact round-trips) --------------------------------
+def task_plan_hash(plan: TaskBatchPlan) -> str:
+    return _task_plan_hash(plan.role, plan.population_signature_hash, plan.epochs)
+
+
+def alignment_plan_hash(plan: AlignmentPlan) -> str:
+    """The FULL alignment plan identity (structure + role + sampling design) -- matches the hash the
+    materializer stores."""
+    h = hashlib.sha256()
+    h.update(_alignment_plan_hash(plan.population_signature_hash, plan.warmup_batches, plan.game_steps).encode())
+    h.update(b"|"); h.update(plan.role.encode()); h.update(b"|"); h.update(plan.sampling_design_hash.encode())
+    return h.hexdigest()
+
+
+def validate_task_plan(plan: TaskBatchPlan) -> None:
+    if task_plan_hash(plan) != plan.plan_hash:
+        raise ValueError("task plan hash does not recompute")
+
+
+def validate_alignment_plan(plan: AlignmentPlan) -> None:
+    if alignment_plan_hash(plan) != plan.plan_hash:
+        raise ValueError("alignment plan hash does not recompute")
+
+
 # -------------------------------- resolving --------------------------------
 @dataclass(frozen=True)
 class ResolvedBatch:
