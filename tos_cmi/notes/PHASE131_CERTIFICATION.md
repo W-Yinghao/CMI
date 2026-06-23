@@ -76,6 +76,40 @@ TOTAL: SAFE_REJECT 36 | UNSAFE_REJECT 12 | BAYES_AMBIGUOUS 2 | UNSAFE_ACCEPT 0  
   identity (certifying a δ_Y=0.03 effect needs n ≫ 24k). Exit condition #3 FAILS.
 - [unit] ceiling guard regression-tested (R=8 rejected, R=30 ok).
 
+## 4b. Phase 1.3.2 — operating frontier + ORACLE EFFICIENCY (the decisive correction)
+
+Before calling the conservatism "information-theoretic", compare the critic to the BEST-POSSIBLE
+detector at the same n: the oracle info-density test (exact per-sample log p(y|u,n)−log p(y|u)).
+Frontier at n=6000, R=30, boundary effect Δ*=δ_Y (one-sided Wilson LCB, bar = 1−β = 0.80):
+
+```
+δ_Y    k   critic_LCB   oracle_LCB   nullFP   verdict
+0.030  2     0.27         0.86        0/30    ESTIMATOR_BOTTLENECK
+0.050  1     0.33         0.92        0/30    ESTIMATOR_BOTTLENECK
+0.050  2     0.21         0.92        0/30    ESTIMATOR_BOTTLENECK
+0.075  1     0.27         0.86        0/30    ESTIMATOR_BOTTLENECK
+0.075  2     0.27         0.86        0/30    ESTIMATOR_BOTTLENECK
+0.100  1     0.00         0.86        0/30    ESTIMATOR_BOTTLENECK
+0.150  1     0.00         0.00        0/30    (control-tuning ceiling: Δ* capped ~0.072, NOT real)
+```
+
+**The oracle CERTIFIES a δ_Y-sized conditional effect at n=6000 (LCB 0.86–0.92) across the whole
+operating range, while the nested critic FAILS (LCB ≤0.33, and 0/30 once δ_Y≥0.10).** So the
+conservatism is an **ESTIMATOR BOTTLENECK, not intrinsic sample-complexity** — the information is
+present and detectable at moderate n; the nested-residual MLP critic is sample-inefficient. This
+REFUTES the Phase 1.3.1a "information-theoretic / needs n≫24k" reading (that came from the buggy
+inflated rates + no oracle baseline). Corollaries:
+- **n is sufficient** (oracle clears the bar at n=6000).
+- **Relaxing δ_Y does NOT help** — the boundary effect scales with δ_Y, so the critic stays at
+  ~0.27 (and DEGRADES to 0/30 at δ_Y≥0.10): a larger tolerance does not fix critic inefficiency.
+- **Null FP = 0/30 everywhere** (the critic is conservative, not trigger-happy).
+- δ_Y=0.15 is a control-tuning artifact (tune_confound hi-cap → Δ* only 0.072 < 0.15), not a real
+  INTRINSIC_HARD cell; the 0.03–0.10 range is the decisive, covered evidence.
+
+**Verdict: the lever is a LOWER-MDE conditional-MI estimator** (approach oracle efficiency), NOT a
+larger n, NOT a relaxed δ_Y, NOT abstention. The safety mechanism (power floor) is sound; the
+gate's critic is the remediable bottleneck.
+
 ## 5. Default-on gate (task_protect) — STAYS OFF
 Default-on exit conditions NOT met (zero UNSAFE_ACCEPT ✓, non-degenerate SAFE_ACCEPT ✗ at all
 practical n). `task_protect` stays default OFF; `task_power_floor` stays opt-in.
