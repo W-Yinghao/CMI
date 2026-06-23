@@ -32,52 +32,59 @@ PRE-REGISTERED explaining-away family, NOT a distribution-free guarantee.
 New reason `TASK_POWER_INSUFFICIENT` (distinct from `TASK_RISK_UCB`: "cannot certify safe" vs
 "found risk"). `task_power_floor` default OFF (opt-in via table path).
 
-## 4. Results
+## 4. Results (CORRECTED — see Phase 1.3.1a audit below; the first table was buggy)
 
-### Competence table (offline, calib seed 9001; π = one-sided LCB of detection prob at {δ_Y,1.3δ_Y,2δ_Y})
+### Phase 1.3.1a — power-certificate validity audit (the R=8 ceiling bug)
+The first competence table was built with R=8, z=1.64, 1-β=0.8. The MAX one-sided Wilson LCB even
+at det=R is R/(R+z²)=8/10.69=**0.748 < 0.8**, so `power_ok` could NEVER be True at ANY n — the
+all-False table was a CONFIGURATION ARTIFACT, not a finding. Worse, the control's effect size
+drifted per replicate (conf_c tuned once but domain offsets re-drawn each replicate), so the old
+"π at δ_Y" was a MIXTURE over effect sizes that INFLATED the apparent detection rate. Both bugs
+fixed (R=30 with fail-fast `assert_power_feasible`; fixed-geometry exact-effect controls).
+
+### Corrected competence audit (R=30, EXACT δ_Y=0.030 effect; det/30, one-sided Wilson LCB)
 ```
-n=1500  k=1 (23x1)  power_ok=False  pi=[0.09,0.09,0.25]
-n=3000  k=1 (23x1)  power_ok=False  pi=[0.03,0.16,0.35]
-n=6000  k=1 (23x1)  power_ok=False  pi=[0.09,0.16,0.46]
-n=12000 k=1 (23x1)  power_ok=False  pi=[0.46,0.75,0.75]
-n=1500  k=2 (22x2)  power_ok=False  pi=[0.03,0.16,0.25]
-n=3000  k=2 (22x2)  power_ok=False  pi=[0.03,0.25,0.46]
-n=6000  k=2 (22x2)  power_ok=False  pi=[0.09,0.16,0.35]
-n=12000 k=2 (22x2)  power_ok=False  pi=[0.46,0.59,0.75]
-n=1500  k=3 (21x3)  power_ok=False  pi=[0.09,0.16,0.46]
-n=3000  k=3 (21x3)  power_ok=False  pi=[0.16,0.35,0.46]
+n=3000   k=1 (23x1)  det=7/30  LCB=0.13   |  k=2 (22x2)  det=6/30  LCB=0.11
+n=6000   k=1 (23x1)  det=8/30  LCB=0.16   |  k=2 (22x2)  det=7/30  LCB=0.13
+n=12000  k=1 (23x1)  det=10/30 LCB=0.21   |  k=2 (22x2)  det=12/30 LCB=0.27
 ```
-π@2δ_Y climbs monotonically with n (0.25→0.35→0.46→0.75 for k=1) but does NOT cross the 1-β=0.8
-bar by n=12000. The n=24000 cells were cancelled for compute economy; by the monotone trend
-power_ok flips True at n≈24000 (extrapolated, NOT confirmed). So NO prefix is power-certified at
-n≤12000: certifying a δ_Y=0.03-scale conditional-leakage deletion needs LARGE n.
+The TRUE detection rate for a δ_Y=0.030-nat conditional effect is only ~0.20–0.40 even at
+n=12000, climbing far too slowly to reach the 90% (LCB≥0.8) bar — power_ok=False everywhere, and
+crossing 0.8 would need n ≫ 24000 (likely 50–100k+). The earlier "n≈24000" estimate was WRONG
+(too optimistic): it came from the inflated buggy rates. The conservatism is REAL and largely
+INFORMATION-THEORETIC — certifying 0.03 nats of conditional leakage is intrinsically sample-hungry.
 
 ### Injection re-validation with the power floor ON (n∈{2000,3000,6000})
+(run on the all-False table; with the corrected table ALSO all-False at these n, the gate still
+abstains -> identical result, not re-run)
 ```
 synergy (inject Bayes-unsafe span):  per cell {SAFE_REJECT:2, UNSAFE_REJECT:4 (+AMBIG:2 @n=2000)}
 factorized (genuinely safe):         per cell {SAFE_REJECT:10}
 TOTAL: SAFE_REJECT 36 | UNSAFE_REJECT 12 | BAYES_AMBIGUOUS 2 | UNSAFE_ACCEPT 0   => CLEAN
 ```
-- **Safety achieved:** ZERO UNSAFE_ACCEPT (vs 6 without the floor) — the gate ABSTAINS
-  (TASK_POWER_INSUFFICIENT) on the exact injection it used to wrongly accept.
-- **Conservatism (the trade-off):** at n≤6000 the floor is DEGENERATE — it also abstains on the
-  genuinely-safe factorized deletions (all SAFE_REJECT), because power_ok=False there. The method
-  is SAFE-BUT-CONSERVATIVE; non-degenerate acceptance requires n≳24000.
+- **Safety:** ZERO UNSAFE_ACCEPT (vs 6 without the floor) — the gate ABSTAINS
+  (TASK_POWER_INSUFFICIENT) on the exact injection it used to wrongly accept. (Phrase as: no
+  unsafe acceptance OBSERVED on the pre-registered explaining-away family + covered cells; NOT a
+  distribution-free guarantee.)
+- **Conservatism:** the floor is DEGENERATE at all practical n — it also abstains on the
+  genuinely-safe factorized deletions, because power_ok=False there.
 
 ### Test contract status
-- [confirmed] capacity change preserves all existing gate tests (11-file regression green; the
-  bigger critic detects MORE — oracle-danger task_info 0.28→0.60, still rejects).
+- [confirmed] capacity change preserves all existing gate tests (11-file regression green).
 - [confirmed] oracle-injected unsafe candidates → ZERO UNSAFE_ACCEPT across held-out n.
-- [confirmed, NEGATIVE] factorized safe cells do NOT get non-degenerate SAFE_ACCEPT at n≤6000 —
-  the floor degrades to identity at moderate n (the exit condition #3 FAILS at these n).
-- [pending] non-degenerate SAFE_ACCEPT demonstration at n≳24000 (compute-bound, not run).
+- [confirmed, NEGATIVE] no non-degenerate SAFE_ACCEPT at any practical n — the floor degrades to
+  identity (certifying a δ_Y=0.03 effect needs n ≫ 24k). Exit condition #3 FAILS.
+- [unit] ceiling guard regression-tested (R=8 rejected, R=30 ok).
 
 ## 5. Default-on gate (task_protect) — STAYS OFF
-The default-on exit conditions are NOT met: zero UNSAFE_ACCEPT ✓ but non-degenerate SAFE_ACCEPT ✗
-at typical n (the floor abstains on everything ≤12k). So `task_protect` stays default OFF.
+Default-on exit conditions NOT met (zero UNSAFE_ACCEPT ✓, non-degenerate SAFE_ACCEPT ✗ at all
+practical n). `task_protect` stays default OFF; `task_power_floor` stays opt-in.
 
-The honest operating-regime conclusion: the power floor makes the selective method **safe but
-conservative** — it refuses to certify δ_Y-scale conditional-leakage deletions until n≳24000, and
-abstains (identity) otherwise. To be USEFUL (non-degenerate) at typical EEG sample sizes one of:
-(a) accept the large-n regime; (b) relax δ_Y; (c) a lower-MDE conditional-MI estimator; or
-(d) keep the floor opt-in and report the conservatism. This is a genuine design decision.
+The honest, AUDITED operating-regime conclusion: the power floor makes the selective method SAFE
+(no unsafe acceptance observed) but, with δ_Y=0.03 and this critic, DEGENERATE at practical n —
+certifying a 0.03-nat conditional-leakage deletion is information-theoretically sample-hungry
+(needs n ≫ 24k). Levers, in order of leverage: (b) RELAX δ_Y to a task-justified non-inferiority
+margin (the dominant lever — larger effects certify at far smaller n); (c) a lower-MDE estimator
+(helps, but cannot beat the information floor for 0.03 nats); (a) accept a large-n-only regime;
+(d) keep the floor opt-in and report the conservatism. δ_Y must be set by a task non-inferiority
+argument, NOT to make the table pass.
