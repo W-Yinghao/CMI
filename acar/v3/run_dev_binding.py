@@ -2,43 +2,51 @@
 
     python -m acar.v3.run_dev_binding --input-manifest <seven-cohort.json> --output <new-dir> [--protocol-commit <sha>]
 
-Before ANY DEV metric it FAILS CLOSED unless: the output dir does not exist; the current git HEAD equals the protocol
-commit (and the immutable tag `acar-v3-dev-design-v1^{}` resolves to that HEAD); the environment lock verifies; and the
-seven input files exist with field-separated hashes (full_dump / source_fit / deployment_input / label / subject_list)
-matching those declared in the input manifest. Only then does it build the CohortInputs and call `freeze_dev_run`. The
-first real DEV run produces ONLY a SELECT (+ frozen artifacts) or `DEV_STOP / NO_LOCKBOX_CONSUMED`; it never touches an
-external Arm-B endpoint or a lockbox.
-
-Input-manifest schema:
-    {"protocol_commit": "<full-sha>",
-     "cohorts": [{"dataset_id": "...", "disease": "PD"|"SCZ", "path": "...",
-                  "full_dump_sha256": "...", "source_fit_sha256": "...", "deployment_input_sha256": "...",
-                  "label_sha256": "...", "subject_list_sha256": "..."}, ... x7]}
+STDLIB-ONLY BOOTSTRAP — the preflight runs before any heavy import or DEV file read, in this exact order:
+    parse manifest (stdlib) → output dir absent → validate manifest schema → verify repo: HEAD == protocol commit,
+    tag `acar-v3-dev-design-v1^{}` → HEAD, CLEAN worktree (`git status --porcelain` empty) → verify each input file
+    exists with declared `full_dump_sha256` (stdlib hashlib) → set single-thread runtime env → import numpy/torch/
+    sklearn + v3 modules → apply+verify the environment lock → build a VerifiedBindingContext → open cohort files
+    (`build_cohort_input`) and check the four remaining field hashes → `freeze_dev_run`.
+Only then does the first real DEV run produce a SELECT (+frozen artifacts) or `DEV_STOP / NO_LOCKBOX_CONSUMED`. No
+external Arm-B endpoint or lockbox is touched. There is NO verification-bypass flag.
 """
 from __future__ import annotations
 import argparse
+import hashlib
 import json
+import os
 import subprocess
 import sys
 
-from .loader import build_cohort_input, file_sha256
-from .develop import freeze_dev_run
-
 TAG = "acar-v3-dev-design-v1"
+_HEXSET = set("0123456789abcdef")
+_REQUIRED_HASHES = ("full_dump_sha256", "source_fit_sha256", "deployment_input_sha256", "label_sha256",
+                    "subject_list_sha256")
 
 
-def _git(args):
-    return subprocess.check_output(["git"] + args, stderr=subprocess.DEVNULL).decode().strip()
+def _repo_root():
+    return os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 
 
-def verify_protocol(protocol_commit, *, require_tag=True):
-    """HEAD must equal the spec's protocol commit AND the immutable tag must resolve to that HEAD."""
-    head = _git(["rev-parse", "HEAD"])
-    if not protocol_commit or head != protocol_commit:
+def _git(root, args):
+    return subprocess.check_output(["git", "-C", root] + args, stderr=subprocess.DEVNULL).decode().strip()
+
+
+def _is_hex(s, n):
+    return isinstance(s, str) and len(s) == n and all(c in _HEXSET for c in s)
+
+
+def verify_protocol(root, protocol_commit, *, require_tag=True):
+    """HEAD == the spec's protocol commit AND the immutable tag resolves to that HEAD."""
+    if not _is_hex(protocol_commit, 40):
+        raise ValueError("protocol_commit must be a full 40-char git SHA-1")
+    head = _git(root, ["rev-parse", "HEAD"])
+    if head != protocol_commit:
         raise ValueError(f"git HEAD {head} != protocol_commit {protocol_commit}")
     if require_tag:
         try:
-            tagged = _git(["rev-list", "-n", "1", TAG])
+            tagged = _git(root, ["rev-list", "-n", "1", TAG])
         except subprocess.CalledProcessError:
             raise ValueError(f"tag {TAG} not found")
         if tagged != head:
@@ -46,38 +54,90 @@ def verify_protocol(protocol_commit, *, require_tag=True):
     return head
 
 
-def _verify_declared_hashes(ci, decl):
-    m = ci.manifest
-    checks = {"full_dump_sha256": m.full_dump_sha256, "source_fit_sha256": m.source_fit_sha256,
-              "deployment_input_sha256": m.deployment_input_sha256, "label_sha256": m.label_sha256,
-              "subject_list_sha256": m.subject_list_sha256}
-    for k, v in checks.items():
-        if k in decl and decl[k] != v:
-            raise ValueError(f"{ci.dataset_id}: declared {k} != computed ({decl[k]} != {v})")
+def verify_clean_worktree(root):
+    """The worktree must be byte-clean: no modified tracked files, no untracked files."""
+    out = _git(root, ["status", "--porcelain=v1", "--untracked-files=all"])
+    if out.strip():
+        raise ValueError(f"worktree is not clean:\n{out}")
 
 
-def run(input_manifest_path, output, *, protocol_commit=None, require_tag=True, verify_git=True):
+def validate_input_manifest(spec):
+    """Exact required schema: protocol_commit (40-hex), exactly the seven config.DISEASE cohorts, each with a unique
+    dataset_id + path + disease and all five field-separated SHA-256 (lowercase 64-hex). FAIL-CLOSED (no optional hash)."""
+    from acar.config import DISEASE                              # config is stdlib-light (no numpy/torch)
+    if not _is_hex(spec.get("protocol_commit", ""), 40):
+        raise ValueError("input manifest: protocol_commit must be a 40-hex git SHA-1")
+    cohorts = spec.get("cohorts")
+    if not isinstance(cohorts, list):
+        raise ValueError("input manifest: cohorts must be a list")
+    by_d = {}
+    seen_ds, seen_path = set(), set()
+    for c in cohorts:
+        for k in ("dataset_id", "disease", "path", *_REQUIRED_HASHES):
+            if k not in c:
+                raise ValueError(f"input manifest cohort missing required field {k!r}")
+        if c["disease"] not in ("PD", "SCZ"):
+            raise ValueError("cohort disease must be PD or SCZ")
+        for hk in _REQUIRED_HASHES:
+            if not _is_hex(c[hk], 64):
+                raise ValueError(f"{c['dataset_id']}: {hk} must be lowercase 64-hex")
+        if c["dataset_id"] in seen_ds or c["path"] in seen_path:
+            raise ValueError("duplicate cohort dataset_id/path")
+        seen_ds.add(c["dataset_id"]); seen_path.add(c["path"])
+        by_d.setdefault(c["disease"], []).append(c["dataset_id"])
+    for d in ("PD", "SCZ"):
+        if sorted(by_d.get(d, [])) != sorted(DISEASE[d]):
+            raise ValueError(f"{d} cohorts {sorted(by_d.get(d, []))} != frozen {sorted(DISEASE[d])}")
+
+
+def input_manifest_sha256(spec):
+    return hashlib.sha256(json.dumps(spec, sort_keys=True, separators=(",", ":"), allow_nan=False).encode()).hexdigest()
+
+
+def _file_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def run(input_manifest_path, output, *, protocol_commit=None, repo_root=None):
+    """Full stdlib-first preflight, then the binding DEV gate. No bypass flags."""
+    root = repo_root or _repo_root()
     with open(input_manifest_path) as f:
         spec = json.load(f)
-    import os
-    if os.path.exists(output):
-        raise FileExistsError(f"output dir already exists: {output}")          # BEFORE anything else
-    cohorts = spec["cohorts"]
-    for c in cohorts:
+    if os.path.exists(output):                                  # (1) output absent — before anything else
+        raise FileExistsError(f"output dir already exists: {output}")
+    validate_input_manifest(spec)                              # (2) exact schema
+    commit = protocol_commit or spec["protocol_commit"]
+    verify_protocol(root, commit)                             # (3) HEAD == commit + tag -> HEAD
+    verify_clean_worktree(root)                               # (4) clean worktree
+    for c in spec["cohorts"]:                                 # (5) files exist + declared full-dump hash (stdlib)
         if not os.path.exists(c["path"]):
             raise FileNotFoundError(f"missing cohort dump: {c['path']}")
-        if "full_dump_sha256" in c and file_sha256(c["path"]) != c["full_dump_sha256"]:
+        if _file_sha256(c["path"]) != c["full_dump_sha256"]:
             raise ValueError(f"{c['dataset_id']}: file SHA-256 != declared full_dump_sha256")
-    if verify_git:
-        verify_protocol(protocol_commit or spec.get("protocol_commit"), require_tag=require_tag)
+    im_sha = input_manifest_sha256(spec)
+    os.environ["OMP_NUM_THREADS"] = "1"                       # (6) set runtime BEFORE importing heavy libs
+    from .envlock import apply_runtime, verify_env_lock       # (7) import heavy + apply/verify env lock
+    apply_runtime(); env_sha = verify_env_lock()
+    from .develop import BindingContext, freeze_dev_run
+    from .loader import build_cohort_input
+    cmd = "python -m acar.v3.run_dev_binding --input-manifest %s --output %s" % (
+        os.path.abspath(input_manifest_path), os.path.abspath(output))
+    ctx = BindingContext(commit, TAG, True, env_sha, im_sha, cmd, root)
     inputs = []
-    for c in cohorts:
-        ci = build_cohort_input(c["path"], disease=c["disease"], dataset_id=c["dataset_id"])
-        _verify_declared_hashes(ci, c)
+    for c in spec["cohorts"]:                                 # (8) open cohort files + check the 4 derived hashes
+        ci = build_cohort_input(c["path"], disease=c["disease"], dataset_id=c["dataset_id"],
+                                raw_pipeline_sha256=c.get("raw_pipeline_sha256"),
+                                dataset_version=c.get("dataset_version"))
+        m = ci.manifest
+        for hk in ("source_fit_sha256", "deployment_input_sha256", "label_sha256", "subject_list_sha256"):
+            if getattr(m, hk) != c[hk]:
+                raise ValueError(f"{c['dataset_id']}: declared {hk} != computed")
         inputs.append(ci)
-    cmd = "python -m acar.v3.run_dev_binding --input-manifest %s --output %s" % (input_manifest_path, output)
-    return freeze_dev_run(inputs, output, protocol_commit=(protocol_commit or spec.get("protocol_commit")),
-                          binding_command=cmd)
+    return freeze_dev_run(ctx, inputs, output)
 
 
 def main(argv=None):
@@ -91,5 +151,5 @@ def main(argv=None):
     return 0 if manifest["verdict"] in ("SELECT", "DEV_STOP") else 1
 
 
-if __name__ == "__main__":                                                     # pragma: no cover
+if __name__ == "__main__":                                   # pragma: no cover
     sys.exit(main())

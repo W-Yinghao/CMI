@@ -650,6 +650,10 @@ def run_dev(diseases_data, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0,
                    "per_candidate": {c: {"fold_qs": list(oofs[d][c].fold_qs),
                                          "n_cal_scores_per_fold": list(oofs[d][c].n_cal_scores_per_fold),
                                          "fold_provenance": list(oofs[d][c].fold_provenance),
+                                         "n_eval_eligible_batches": oofs[d][c].n_eval_eligible_batches,
+                                         "n_eval_fallback_batches": oofs[d][c].n_eval_fallback_batches,
+                                         "n_eval_batches_total": (oofs[d][c].n_eval_eligible_batches +
+                                                                  oofs[d][c].n_eval_fallback_batches),
                                          "oof_digest": oof_record_digest(oofs[d][c].records)} for c in candidates}}
     per_cand = {}
     for c in candidates:
@@ -712,12 +716,44 @@ def _group_cohorts(cohort_inputs):
     return out
 
 
-def run_binding_dev(cohort_inputs, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0) -> DevelopResult:
-    """The binding DEV entrypoint. Input is the list of immutable CohortInput objects (NOT loose registries). FAIL-CLOSED
-    on any deviation: candidates (C1,C2,C3), α=0.10, δ=0.0, the EXACT seven cohorts (one source-state ref each, dataset↔
-    source bound inside CohortInput), the applied+verified runtime lock. There is NO `verify_env` bypass — synthetic
-    orchestration tests must call the non-binding `run_dev` instead."""
+@dataclass(frozen=True)
+class BindingContext:
+    """Evidence that the FULL binding preflight passed (built ONLY by `run_dev_binding` after verifying HEAD == protocol
+    commit, tag → HEAD, a clean worktree, the env lock, and the input manifest). Every public binding/freeze call
+    REQUIRES one — there is no `verify_*=False` bypass. Synthetic guards use the private `_verified_context_for_tests`."""
+    protocol_commit: str
+    tag_target: str
+    clean_status_ok: bool
+    env_lock_sha256: str
+    input_manifest_sha256: str
+    binding_command: str
+    repo_root: str
+
+    def __post_init__(self):
+        from .data import _is_hex64
+        if not self.clean_status_ok:
+            raise ValueError("BindingContext requires a clean worktree")
+        if not _is_hex64(self.env_lock_sha256) or not _is_hex64(self.input_manifest_sha256):
+            raise ValueError("BindingContext hashes must be full lowercase hex SHA-256")
+        if not (isinstance(self.protocol_commit, str) and len(self.protocol_commit) == 40):
+            raise ValueError("protocol_commit must be a full 40-char git SHA-1")
+
+
+def _verified_context_for_tests(binding_command="TEST"):
+    """PRIVATE test-only helper: applies+verifies the REAL env lock (no git/clean/manifest enforcement). Synthetic
+    freeze-path guards use this; it is NOT a public binding API and cannot be reached through run_binding_dev/freeze."""
     from .envlock import apply_runtime, verify_env_lock
+    apply_runtime(); env_sha = verify_env_lock()
+    return BindingContext("0" * 40, "TEST", True, env_sha, "0" * 64, binding_command, "TEST")
+
+
+def run_binding_dev(context, cohort_inputs, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0) -> DevelopResult:
+    """The binding DEV entrypoint. REQUIRES a VerifiedBindingContext (no bypass) + the list of immutable CohortInput
+    objects. FAIL-CLOSED: candidates (C1,C2,C3), α=0.10, δ=0.0, the EXACT seven cohorts (one source-state ref each,
+    dataset↔source bound inside CohortInput), and the runtime lock re-verified to equal the context's env hash."""
+    from .envlock import apply_runtime, verify_env_lock
+    if not isinstance(context, BindingContext):
+        raise TypeError("run_binding_dev requires a VerifiedBindingContext")
     if tuple(candidates) != ("C1", "C2", "C3"):
         raise ValueError("binding DEV requires candidates (C1, C2, C3)")
     if float(alpha) != 0.10 or float(delta) != 0.0:
@@ -725,6 +761,8 @@ def run_binding_dev(cohort_inputs, candidates=("C1", "C2", "C3"), alpha=0.10, de
     grouped = _group_cohorts(cohort_inputs)
     apply_runtime()                                             # set the locked deterministic runtime, THEN verify it
     env_sha = verify_env_lock()
+    if env_sha != context.env_lock_sha256:
+        raise ValueError("env lock drifted from the verified binding context")
     diseases_data = {d: (reg, batches, labels) for d, (reg, batches, labels, _cis) in grouped.items()}
     return run_dev(diseases_data, candidates, alpha, delta, env_lock_sha256=env_sha)
 
@@ -752,7 +790,8 @@ def _cohort_json(ci):
             "subject_list_sha256": m.subject_list_sha256, "n_subjects": m.n_subjects, "n_recordings": m.n_recordings,
             "n_windows": m.n_windows, "embedding_dim": m.embedding_dim, "schema_version": m.schema_version,
             "source_state_ref": ci.source_artifact.source_state_ref,
-            "source_state_sha256": ci.source_artifact.source_state_sha256}
+            "source_state_sha256": ci.source_artifact.source_state_sha256,
+            "raw_pipeline_sha256": ci.raw_pipeline_sha256, "dataset_version": ci.dataset_version}
 
 
 def _json_safe(o):
@@ -783,20 +822,22 @@ def _write_json(path, obj):
     return core["manifest_sha256"]
 
 
-def freeze_dev_run(cohort_inputs, outdir, *, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0,
-                   protocol_commit=None, binding_command=None):
-    """Run the binding DEV gate on the seven CohortInputs and FREEZE the outcome to a NON-OVERWRITABLE directory via an
-    ATOMIC write (build in `<outdir>.tmp`, `os.rename` only on full success; temp removed on failure). This layer ONLY
-    serializes the predictor + C0 the run produced (refit EXACTLY ONCE inside the run) — it never re-executes adapters
-    or retrains. The S5/S6/S8/S9 manifest carries the env-lock hash, per-cohort LoadedDumpManifests, field-separated
-    hashes, per-fold FIT/CAL/EVAL hashes+counts+m/k/q, OOF digests, C2 σ_min, best-fixed per disease, per-candidate
-    diagnostics + S4 eligibility, source_state_sha256, predictor+C0 file SHA-256, protocol commit/tag/command, and its
-    OWN manifest_sha256 (JSON is allow_nan=False; non-finite -> NOT_EVALUABLE; no silent str-coercion). On DEV_STOP a
-    `DEV_STOP / NO_LOCKBOX_CONSUMED` marker is written and no artifacts."""
+def freeze_dev_run(context, cohort_inputs, outdir, *, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0):
+    """Run the binding DEV gate (REQUIRES a VerifiedBindingContext) on the seven CohortInputs and FREEZE the outcome to a
+    NON-OVERWRITABLE directory via an ATOMIC write (build in `<outdir>.tmp`, `os.rename` only on full success; temp
+    removed on failure). This layer ONLY serializes the predictor + C0 the run produced (refit EXACTLY ONCE inside the
+    run) — it never re-executes adapters or retrains. The S5/S6/S8/S9 manifest carries the context evidence (protocol
+    commit/tag/clean status/input_manifest_sha256/binding command), env-lock hash, per-cohort LoadedDumpManifests
+    (incl. raw_pipeline_sha256 / dataset_version), field-separated hashes, per-fold FIT/CAL/EVAL hashes+counts+m/k/q,
+    EVAL total/eligible/fallback batch counts, OOF digests, C2 σ_min, best-fixed per disease, per-candidate diagnostics
+    + S4 eligibility, source_state_sha256, predictor+C0 file SHA-256, and its OWN manifest_sha256 (JSON allow_nan=False;
+    non-finite -> NOT_EVALUABLE; no silent str-coercion). On DEV_STOP a `DEV_STOP / NO_LOCKBOX_CONSUMED` marker only."""
+    if not isinstance(context, BindingContext):
+        raise TypeError("freeze_dev_run requires a VerifiedBindingContext")
     if os.path.exists(outdir):
         raise FileExistsError(f"refusing to overwrite existing DEV output dir {outdir}")
     grouped = _group_cohorts(cohort_inputs)                     # validate cohorts before any run
-    res = run_binding_dev(cohort_inputs, candidates, alpha, delta)
+    res = run_binding_dev(context, cohort_inputs, candidates, alpha, delta)
     diseases = list(grouped)
     tmpdir = outdir + ".tmp"
     if os.path.exists(tmpdir):
@@ -809,8 +850,10 @@ def freeze_dev_run(cohort_inputs, outdir, *, candidates=("C1", "C2", "C3"), alph
                 "best_fixed": res.best_fixed, "provenance": res.provenance, "s4_inputs": res.s4_inputs,
                 "candidate_reports": {d: {c: _report_json(res.per_disease[d][c]) for c in candidates} for d in diseases},
                 "cohorts": {d: [_cohort_json(ci) for ci in grouped[d][3]] for d in diseases},
-                "protocol": {"commit": protocol_commit, "tag": "acar-v3-dev-design-v1",
-                             "binding_command": binding_command, "output_path": outdir}}
+                "protocol": {"commit": context.protocol_commit, "tag": context.tag_target,
+                             "clean_status_ok": context.clean_status_ok, "repo_root": context.repo_root,
+                             "input_manifest_sha256": context.input_manifest_sha256,
+                             "binding_command": context.binding_command, "output_path": outdir}}
     try:
         if res.verdict != "SELECT":
             manifest["reason"] = "NO_LOCKBOX_CONSUMED"

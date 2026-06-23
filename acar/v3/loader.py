@@ -615,7 +615,9 @@ class CohortInput:
     """One DEV cohort as a single immutable object binding dataset_id ↔ LoadedDumpManifest ↔ SourceStateArtifact ↔
     batches ↔ labels. __post_init__ verifies they are mutually consistent (so two cohorts' source states cannot be
     swapped undetected): manifest dataset/disease match; every batch's disease/dataset_id/source_state_ref match;
-    recomputed field hashes == manifest; counts == manifest; batch digests unique; labels cover all WindowKeys exactly."""
+    recomputed field hashes == manifest; counts == manifest; batch digests unique; labels cover all WindowKeys exactly.
+    `labels` is stored as an IMMUTABLE mapping (post-construction mutation that would desync the label hash is blocked).
+    `raw_pipeline_sha256` / `dataset_version` carry the upstream raw→feature provenance (None at the synthetic stage)."""
     dataset_id: str
     disease: str
     manifest: LoadedDumpManifest
@@ -623,9 +625,13 @@ class CohortInput:
     batches: tuple
     labels: dict
     full_dump_path: str
+    raw_pipeline_sha256: str = None
+    dataset_version: str = None
 
     def __post_init__(self):
         m, sa, batches = self.manifest, self.source_artifact, self.batches
+        if self.raw_pipeline_sha256 is not None and not _is_hex64(self.raw_pipeline_sha256):
+            raise ValueError("raw_pipeline_sha256 must be a full lowercase hex SHA-256 (or None)")
         if not (isinstance(self.dataset_id, str) and self.dataset_id):
             raise ValueError("dataset_id must be a non-empty str")
         if self.disease not in ("PD", "SCZ"):
@@ -658,9 +664,12 @@ class CohortInput:
         if set(self.labels) != all_wk:
             raise ValueError("labels do not cover the cohort WindowKeys exactly (missing/extra)")
         object.__setattr__(self, "batches", tuple(batches))
+        from types import MappingProxyType
+        object.__setattr__(self, "labels", MappingProxyType(dict(self.labels)))   # immutable; cannot desync label hash
 
 
-def build_cohort_input(path, *, disease, dataset_id, env=None) -> CohortInput:
+def build_cohort_input(path, *, disease, dataset_id, env=None, raw_pipeline_sha256=None,
+                       dataset_version=None) -> CohortInput:
     """Load one cohort dump into a fully-validated CohortInput (DEV substrate; reads y_ev for f_0 and y_te for ΔR, never
     a lockbox endpoint)."""
     sa = load_source_artifact_from_dump(path, disease=disease, env=env)
@@ -668,7 +677,7 @@ def build_cohort_input(path, *, disease, dataset_id, env=None) -> CohortInput:
     labels = load_labels_by_window(path, dataset_id=dataset_id)
     man = build_manifest(path, dataset_id=dataset_id, disease=disease, source_artifact=sa, batches=batches,
                          labels_by_window=labels)
-    return CohortInput(dataset_id, disease, man, sa, tuple(batches), labels, path)
+    return CohortInput(dataset_id, disease, man, sa, tuple(batches), labels, path, raw_pipeline_sha256, dataset_version)
 
 
 # ===================================================================================================== prediction gate
