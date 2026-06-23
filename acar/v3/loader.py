@@ -25,7 +25,7 @@ import json
 import struct
 import numpy as np
 
-from cmi.eval.source_state import fit_source_state, source_state_hash
+from cmi.eval.source_state import fit_source_state
 from acar.config import N_CLS, RHO
 from acar.actions import apply_action
 from .set_features import (WindowKey, ACTION_VOCAB, NON_IDENTITY, ACTION_GEOMETRY, _build_was, _validate_proba)
@@ -155,53 +155,111 @@ def _read_arrays(path, keys, *, forbidden=()):
         return {k: np.array(o[k], copy=True) for k in keys}, have
 
 
-# ============================================================================== source-state ref + immutable artifact
-def v3_source_state_ref(state, source_fit_sha256, env) -> str:
-    """Lowercase 64-hex over an injective encoding of: schema, action vocab, prob schema, the readout/moment hash, the
-    SOURCE-FIT hash (z_ev,y_ev only — NOT the whole dump), and library versions."""
-    if not _is_hex64(source_fit_sha256):
-        raise ValueError("source_fit_sha256 must be a full lowercase hex SHA-256")
-    ssh = source_state_hash(state)
-    if not _is_hex64(ssh):
-        raise ValueError("source_state_hash is not 64-hex")
+# ============================================================================== source-state: full immutable bytes artifact
+def _canon_env(env) -> tuple:
+    """Sorted, NO-DUPLICATE, (str,str) tuple — silent dict-collapse of duplicate keys is rejected."""
+    items = tuple(env.items()) if isinstance(env, dict) else tuple(env)
+    seen = set()
+    for k, v in items:
+        if not (isinstance(k, str) and isinstance(v, str)):
+            raise ValueError("env entries must be (str, str)")
+        if k in seen:
+            raise ValueError(f"duplicate env key {k!r}")
+        seen.add(k)
+    return tuple(sorted(items))
+
+
+def _source_state_items(coef, intercept, classes, mu_y, sig_y0, mu_pool, sig_pool0, pi_s,
+                        n_cls, d, rho, eps, env, source_fit_sha256):
+    """Injective length-prefixed byte items covering EVERY field that determines f_0 / the actions / ΔR — including
+    `classes_` (the predict_proba→class map) and the canonical env."""
     items = [SCHEMA_VERSION.encode()] + [a.encode() for a in ACTION_VOCAB] + [PROB_SCHEMA.encode(),
-             ssh.encode(), source_fit_sha256.encode()]
-    for k, v in sorted(env.items()):
-        items.append(str(k).encode()); items.append(str(v).encode())
-    return _digest(b"V3SS/1", items)
+             source_fit_sha256.encode()]
+    for name, arr, dt in (("coef", coef, "<f8"), ("intercept", intercept, "<f8"), ("classes", classes, "<i8"),
+                          ("mu_y", mu_y, "<f8"), ("mu_pool", mu_pool, "<f8"), ("Sig_pool0", sig_pool0, "<f8"),
+                          ("pi_S", pi_s, "<f8")):
+        a = np.ascontiguousarray(np.asarray(arr), dt)
+        items += [name.encode(), str(a.shape).encode(), a.tobytes()]
+    items += [b"Sig_y0", str(len(sig_y0)).encode()]
+    for s in sig_y0:
+        a = np.ascontiguousarray(np.asarray(s, float), "<f8"); items += [str(a.shape).encode(), a.tobytes()]
+    items += [np.array([n_cls, d], "<i8").tobytes(), np.array([rho, eps], "<f8").tobytes()]
+    for k, v in env:
+        items += [k.encode(), v.encode()]
+    return items
+
+
+def _v3_source_state_ref(source_state_sha256, source_fit_sha256) -> str:
+    return _digest(b"V3SS/2", [SCHEMA_VERSION.encode()] + [a.encode() for a in ACTION_VOCAB] +
+                   [PROB_SCHEMA.encode(), source_state_sha256.encode(), source_fit_sha256.encode()])
 
 
 @dataclass(frozen=True, slots=True)
 class SourceStateArtifact:
-    """Immutable frozen source readout (f_0). Carries the binding metadata; the fitted `state` is opaque and covered by
-    `source_state_sha256`. assert_compatible() gates disease / embedding_dim / source_state_ref before any forward
-    pass."""
+    """Immutable BYTES artifact for the frozen source readout f_0 — peer of FittedCandidateArtifact. No mutable sklearn
+    object is stored or exposed; predictions go through a private EPHEMERAL reconstruction. `source_state_sha256` covers
+    coef/intercept/**classes_**/all moments/priors/n_cls,d,rho,eps/schema/vocab/prob-schema/source_fit/env. tampering
+    any byte (incl. `classes_` or env) fails `verify_integrity()`. assert_compatible() gates ref/disease/dim before any
+    forward pass."""
     disease: str
     embedding_dim: int
     source_fit_sha256: str
-    source_state_sha256: str
-    source_state_ref: str
+    coef: np.ndarray
+    intercept: np.ndarray
+    classes: np.ndarray
+    mu_y: np.ndarray
+    sig_y0: tuple
+    mu_pool: np.ndarray
+    sig_pool0: np.ndarray
+    pi_s: np.ndarray
+    n_cls: int
+    d: int
+    rho: float
+    eps: float
     env: tuple
-    state: dict = field(repr=False)
+    source_state_sha256: str = field(default="", init=False)
+    source_state_ref: str = field(default="", init=False)
 
     def __post_init__(self):
         if self.disease not in ("PD", "SCZ"):
             raise ValueError("disease must be PD or SCZ")
         if isinstance(self.embedding_dim, bool) or not isinstance(self.embedding_dim, int) or self.embedding_dim < 1:
             raise ValueError("embedding_dim must be a positive int")
-        for h in (self.source_fit_sha256, self.source_state_sha256, self.source_state_ref):
-            if not _is_hex64(h):
-                raise ValueError("source artifact hashes must be full lowercase hex SHA-256")
-        if source_state_hash(self.state) != self.source_state_sha256:
-            raise ValueError("source_state_sha256 does not match the fitted state")
-        if int(self.state.get("d", -1)) != self.embedding_dim or int(self.state.get("n_cls", -1)) != N_CLS:
-            raise ValueError("state d/n_cls mismatch")
-        if v3_source_state_ref(self.state, self.source_fit_sha256, dict(self.env)) != self.source_state_ref:
-            raise ValueError("source_state_ref does not match (state, source_fit, env)")
+        if not _is_hex64(self.source_fit_sha256):
+            raise ValueError("source_fit_sha256 must be full lowercase hex SHA-256")
+        if int(self.n_cls) != N_CLS or int(self.d) != self.embedding_dim:
+            raise ValueError("n_cls/d mismatch")
+        object.__setattr__(self, "env", _canon_env(self.env))
+        for nm in ("coef", "intercept", "mu_y", "mu_pool", "sig_pool0", "pi_s"):
+            object.__setattr__(self, nm, frozen_array(np.ascontiguousarray(np.asarray(getattr(self, nm), float))))
+        object.__setattr__(self, "classes", frozen_array(np.ascontiguousarray(np.asarray(self.classes, np.int64))))
+        object.__setattr__(self, "sig_y0",
+                           tuple(frozen_array(np.ascontiguousarray(np.asarray(s, float))) for s in self.sig_y0))
+        sha = self._sha()
+        object.__setattr__(self, "source_state_sha256", sha)
+        object.__setattr__(self, "source_state_ref", _v3_source_state_ref(sha, self.source_fit_sha256))
+
+    def _sha(self):
+        return _digest(b"SRCSTATE/1", _source_state_items(self.coef, self.intercept, self.classes, self.mu_y,
+                       self.sig_y0, self.mu_pool, self.sig_pool0, self.pi_s, self.n_cls, self.d, self.rho, self.eps,
+                       self.env, self.source_fit_sha256))
 
     def verify_integrity(self):
-        if source_state_hash(self.state) != self.source_state_sha256:
+        if self._sha() != self.source_state_sha256 \
+                or _v3_source_state_ref(self.source_state_sha256, self.source_fit_sha256) != self.source_state_ref:
             raise ValueError("SourceStateArtifact integrity failure")
+
+    def _ephemeral_state(self):
+        """Private: rebuild an EPHEMERAL state dict (incl. a fresh classifier) that shares no mutable object with the
+        artifact. NEVER cached."""
+        from sklearn.linear_model import LogisticRegression
+        clf = LogisticRegression()
+        clf.coef_ = np.array(self.coef, float); clf.intercept_ = np.array(self.intercept, float)
+        clf.classes_ = np.array(self.classes, np.int64); clf.n_features_in_ = int(self.d)
+        return dict(clf=clf, mu_y=np.array(self.mu_y, float), Sig_y0=[np.array(s, float) for s in self.sig_y0],
+                    mu_pool=np.array(self.mu_pool, float), Sig_pool0=np.array(self.sig_pool0, float),
+                    pi_S=np.array(self.pi_s, float), n_cls=int(self.n_cls), d=int(self.d),
+                    rho=float(self.rho), eps=float(self.eps))
 
     def assert_compatible(self, batch: DeploymentBatch):
         self.verify_integrity()
@@ -213,19 +271,20 @@ class SourceStateArtifact:
             raise ValueError("embedding dimension mismatch between source artifact and batch")
 
     def execute(self, batch: DeploymentBatch) -> "BatchActionExecutionRecord":
-        """ONE forward pass: identity + the 3 actions, on the batch's canonical row order."""
+        """ONE forward pass: identity + the 3 actions, on the batch's canonical row order (ephemeral state)."""
         self.assert_compatible(batch)
         if batch.fallback:
             raise ValueError("fallback batch is forced to identity; it has no action execution")
+        state = self._ephemeral_state()
         z = np.ascontiguousarray(np.asarray(batch.z, float))
-        p0, z0 = apply_action("identity", self.state, z)
+        p0, z0 = apply_action("identity", state, z)
         p0 = np.ascontiguousarray(np.asarray(p0, float)); z0 = np.ascontiguousarray(np.asarray(z0, float))
         _validate_proba(p0, z.shape[0], N_CLS, "p0")
         if z0.shape != z.shape or not np.all(np.isfinite(z0)):
             raise ValueError("identity embedding malformed")
         per = []
         for a in NON_IDENTITY:
-            pa, za = apply_action(a, self.state, z)
+            pa, za = apply_action(a, state, z)
             pa = np.ascontiguousarray(np.asarray(pa, float))
             _validate_proba(pa, z.shape[0], N_CLS, f"pa[{a}]")
             za = None if za is None else np.ascontiguousarray(np.asarray(za, float))
@@ -234,12 +293,22 @@ class SourceStateArtifact:
                                           canonical_row_digest(batch), batch.window_keys, z0, p0, tuple(per))
 
 
+def _artifact_from_state(state, disease, source_fit_sha256, env) -> SourceStateArtifact:
+    clf = state["clf"]
+    return SourceStateArtifact(disease, int(state["d"]), source_fit_sha256,
+                               np.asarray(clf.coef_, float), np.asarray(clf.intercept_, float),
+                               np.asarray(clf.classes_, np.int64), np.asarray(state["mu_y"], float),
+                               tuple(np.asarray(s, float) for s in state["Sig_y0"]), np.asarray(state["mu_pool"], float),
+                               np.asarray(state["Sig_pool0"], float), np.asarray(state["pi_S"], float),
+                               int(state["n_cls"]), int(state["d"]), float(state["rho"]), float(state["eps"]),
+                               _canon_env(env))
+
+
 def fit_source_state_artifact(zev, yev, disease, source_fit_sha256, env) -> SourceStateArtifact:
     """DEV entry — the ONLY function that fits a source readout. External deployment uses load_frozen_*."""
-    zev = _z2d(zev, "z_ev"); yev = np.asarray(yev, int)
-    state = fit_source_state(zev, yev, N_CLS, rho=RHO)
-    return SourceStateArtifact(disease, int(zev.shape[1]), source_fit_sha256, source_state_hash(state),
-                               v3_source_state_ref(state, source_fit_sha256, env), tuple(sorted(env.items())), state)
+    zev = _z2d(zev, "z_ev")
+    state = fit_source_state(zev, np.asarray(yev, int), N_CLS, rho=RHO)
+    return _artifact_from_state(state, disease, source_fit_sha256, env)
 
 
 def load_source_artifact_from_dump(path, *, disease, env=None) -> SourceStateArtifact:
@@ -253,37 +322,70 @@ def load_source_artifact_from_dump(path, *, disease, env=None) -> SourceStateArt
 
 
 def freeze_source_state_artifact(art: SourceStateArtifact) -> dict:
-    """Serialize a SourceStateArtifact to plain numpy arrays (no pickle, no z_ev/y_ev) for the external path."""
-    clf = art.state["clf"]
+    """Serialize to plain numpy arrays (no pickle, no z_ev/y_ev), CARRYING the artifact's own hash + ref + env."""
     blob = {"disease": art.disease, "embedding_dim": art.embedding_dim, "source_fit_sha256": art.source_fit_sha256,
+            "source_state_sha256": art.source_state_sha256, "source_state_ref": art.source_state_ref,
             "env_keys": [k for k, _ in art.env], "env_vals": [v for _, v in art.env],
-            "coef_": np.asarray(clf.coef_, float), "intercept_": np.asarray(clf.intercept_, float),
-            "classes_": np.asarray(clf.classes_, int),
-            "mu_y": np.asarray(art.state["mu_y"], float), "mu_pool": np.asarray(art.state["mu_pool"], float),
-            "Sig_pool0": np.asarray(art.state["Sig_pool0"], float), "pi_S": np.asarray(art.state["pi_S"], float),
-            "rho": float(art.state["rho"]), "eps": float(art.state["eps"])}
-    for i, s in enumerate(art.state["Sig_y0"]):
+            "coef": np.asarray(art.coef, float), "intercept": np.asarray(art.intercept, float),
+            "classes": np.asarray(art.classes, np.int64), "mu_y": np.asarray(art.mu_y, float),
+            "mu_pool": np.asarray(art.mu_pool, float), "Sig_pool0": np.asarray(art.sig_pool0, float),
+            "pi_S": np.asarray(art.pi_s, float), "n_cls": int(art.n_cls), "d": int(art.d),
+            "rho": float(art.rho), "eps": float(art.eps), "n_Sig_y0": len(art.sig_y0)}
+    for i, s in enumerate(art.sig_y0):
         blob[f"Sig_y0_{i}"] = np.asarray(s, float)
-    blob["n_Sig_y0"] = len(art.state["Sig_y0"])
     return blob
 
 
-def load_frozen_source_state_artifact(blob, env=None) -> SourceStateArtifact:
-    """External/deployment entry — rebuilds f_0 from frozen params WITHOUT calling fit_source_state."""
-    from sklearn.linear_model import LogisticRegression
-    env = env or env_versions()
-    clf = LogisticRegression()
-    clf.coef_ = np.asarray(blob["coef_"], float); clf.intercept_ = np.asarray(blob["intercept_"], float)
-    clf.classes_ = np.asarray(blob["classes_"], int); clf.n_features_in_ = int(blob["embedding_dim"])
-    state = dict(clf=clf, mu_y=np.asarray(blob["mu_y"], float),
-                 Sig_y0=[np.asarray(blob[f"Sig_y0_{i}"], float) for i in range(int(blob["n_Sig_y0"]))],
-                 mu_pool=np.asarray(blob["mu_pool"], float), Sig_pool0=np.asarray(blob["Sig_pool0"], float),
-                 pi_S=np.asarray(blob["pi_S"], float), n_cls=N_CLS, d=int(blob["embedding_dim"]),
-                 rho=float(blob["rho"]), eps=float(blob["eps"]))
-    state["hash"] = source_state_hash(state)
-    sfh = str(blob["source_fit_sha256"])
-    return SourceStateArtifact(str(blob["disease"]), int(blob["embedding_dim"]), sfh, source_state_hash(state),
-                               v3_source_state_ref(state, sfh, env), tuple(sorted(env.items())), state)
+def load_frozen_source_state_artifact(blob) -> SourceStateArtifact:
+    """External/deployment entry — rebuilds f_0 from frozen params WITHOUT calling fit_source_state, then VERIFIES the
+    recomputed hash + ref against the blob's stored values (a new ref is NOT silently minted from the current env)."""
+    env = tuple(zip([str(k) for k in blob["env_keys"]], [str(v) for v in blob["env_vals"]]))
+    art = SourceStateArtifact(str(blob["disease"]), int(blob["embedding_dim"]), str(blob["source_fit_sha256"]),
+                              np.asarray(blob["coef"], float), np.asarray(blob["intercept"], float),
+                              np.asarray(blob["classes"], np.int64), np.asarray(blob["mu_y"], float),
+                              tuple(np.asarray(blob[f"Sig_y0_{i}"], float) for i in range(int(blob["n_Sig_y0"]))),
+                              np.asarray(blob["mu_pool"], float), np.asarray(blob["Sig_pool0"], float),
+                              np.asarray(blob["pi_S"], float), int(blob["n_cls"]), int(blob["d"]),
+                              float(blob["rho"]), float(blob["eps"]), env)
+    if art.source_state_sha256 != str(blob["source_state_sha256"]) \
+            or art.source_state_ref != str(blob["source_state_ref"]):
+        raise ValueError("frozen source-state blob fails its own stored hash/ref (tamper or env drift)")
+    return art
+
+
+class SourceStateRegistry:
+    """Per-disease registry of cohort SourceStateArtifacts. A pooled-disease DEV run holds several cohort source states
+    (e.g. 3 PD or 4 SCZ); each batch resolves to the UNIQUE artifact matching its source_state_ref. An unregistered ref
+    fails before any adapter; refs are unique; all artifacts share the registry's disease."""
+    def __init__(self, disease):
+        if disease not in ("PD", "SCZ"):
+            raise ValueError("disease must be PD or SCZ")
+        self.disease = disease
+        self._by_ref = {}
+
+    def add(self, art: SourceStateArtifact):
+        if not isinstance(art, SourceStateArtifact):
+            raise TypeError("registry holds SourceStateArtifact")
+        if art.disease != self.disease:
+            raise ValueError(f"artifact disease {art.disease} != registry disease {self.disease}")
+        art.verify_integrity()
+        if art.source_state_ref in self._by_ref:
+            raise ValueError("duplicate source_state_ref in registry")
+        self._by_ref[art.source_state_ref] = art
+        return self
+
+    @property
+    def refs(self):
+        return tuple(sorted(self._by_ref))
+
+    def resolve(self, batch: DeploymentBatch) -> SourceStateArtifact:
+        art = self._by_ref.get(batch.source_state_ref)
+        if art is None:
+            raise ValueError(f"unregistered source_state_ref for batch (disease {batch.disease})")
+        return art
+
+    def execute(self, batch: DeploymentBatch):
+        return self.resolve(batch).execute(batch)
 
 
 # ============================================================================================== deployment (no y_te)
@@ -412,9 +514,10 @@ class BatchActionExecutionRecord:
         if source_artifact.source_state_ref != self.source_state_ref:
             raise ValueError("execution record does not belong to this source artifact")
         source_artifact.verify_integrity()
+        state = source_artifact._ephemeral_state()
         out = {}
         for a, za, pa in self.per_action:
-            out[a] = _build_was(source_artifact.state, np.asarray(self.z0, float), self.window_keys,
+            out[a] = _build_was(state, np.asarray(self.z0, float), self.window_keys,
                                 a, np.asarray(self.p0, float), np.asarray(self.z0, float),
                                 np.asarray(pa, float), None if za is None else np.asarray(za, float))
         return out

@@ -81,15 +81,21 @@ def train_val_split(fit_subjects, train_frac=None, seed_es=None):
 
 
 def cv_assignment(subjects, k=None, seed_outer=None, fit_frac=None, seed_fitcal=None,
-                  train_frac=None, seed_es=None):
-    """The full S5 split as ONE object: per fold, (EVAL, FIT, CAL, TRAIN, VAL) — all subject-disjoint where required.
-    EVAL ⟂ (FIT∪CAL); FIT ⟂ CAL; TRAIN ⟂ VAL ⊆ FIT; every subject is EVAL exactly once across folds."""
+                  train_frac=None, seed_es=None, eligible=None):
+    """The full S5 split as ONE object: per fold, (EVAL, FIT, CAL, TRAIN, VAL).
+
+    Outer folds cover ALL `subjects` (every subject is EVAL exactly once — incl. fallback-only subjects, which stay in
+    EVAL accounting). When `eligible` (a set of canon_subject strings) is given, FIT/CAL are drawn ONLY from the
+    non-EVAL ELIGIBLE subjects — so fallback-only subjects never enter FIT/CAL/predictor. EVAL ⟂ (FIT∪CAL);
+    FIT ⟂ CAL; TRAIN ⟂ VAL ⊆ FIT."""
     folds = outer_folds(subjects, k, seed_outer)
     all_canon = {canon_subject(sk) for f in folds for sk in f}
     out = []
     for fi, eval_subs in enumerate(folds):
         eval_canon = {canon_subject(sk) for sk in eval_subs}
         non_eval = [sk for f in folds for sk in f if canon_subject(sk) not in eval_canon]
+        if eligible is not None:
+            non_eval = [sk for sk in non_eval if canon_subject(sk) in eligible]
         fit, cal = fit_cal_split(non_eval, fit_frac, seed_fitcal)
         train, val = train_val_split(fit, train_frac, seed_es)
         out.append(dict(fold=fi, eval=eval_subs, fit=fit, cal=cal, train=train, val=val))

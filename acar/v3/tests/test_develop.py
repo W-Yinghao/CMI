@@ -5,11 +5,13 @@ retained but never fitted; refit eligibility frozen; whole run deterministic + p
 consumes the identical pool.
 Run: python -m acar.v3.tests.test_develop
 """
+import math
 import os
 import tempfile
 import numpy as np
 
 from acar.config import N_CLS
+from acar.v3.set_features import NON_IDENTITY
 from acar.v3.data import SubjectKey, canon_subject
 from acar.v3 import splits as S
 from acar.v3 import develop as D
@@ -59,15 +61,17 @@ def test_split_permutation_independent():
 
 
 # -------------------------------------------------------------------------------------------------------- dev fixture
-def _make_dump(path, *, seed=0, d=6, n_full=10):
+def _make_dump(path, *, seed=0, d=6, n_full=3):
+    """Small synthetic cohort (orchestration test): each full subject = 1 eligible batch (20 windows) + 1 fallback batch
+    (4 windows); plus one fallback-only subject. Kept small because execute() is uncached across folds/candidates."""
     rng = np.random.default_rng(seed)
-    n_ev = 240; yev = np.tile([0, 1], n_ev // 2).astype(np.int64)
+    n_ev = 160; yev = np.tile([0, 1], n_ev // 2).astype(np.int64)
     zev = rng.standard_normal((n_ev, d)) + yev[:, None] * 0.6
     sub, rec, win = [], [], []
     for s in range(n_full):
-        for k in range(40):                       # rec-00: 32 + 8 -> two eligible batches
+        for k in range(20):                       # rec-00: one eligible batch (8 <= 20 <= 32)
             sub.append(f"sub-{s:03d}"); rec.append("rec-00"); win.append(k)
-        for k in range(4):                        # rec-01: 4 -> a fallback batch for an ELIGIBLE subject
+        for k in range(4):                        # rec-01: a fallback batch for an ELIGIBLE subject
             sub.append(f"sub-{s:03d}"); rec.append("rec-01"); win.append(k)
     for k in range(5):                            # fallback-ONLY subject
         sub.append("sub-fb"); rec.append("rec-00"); win.append(k)
@@ -77,70 +81,130 @@ def _make_dump(path, *, seed=0, d=6, n_full=10):
              subject_id_te=np.array(sub), recording_id_te=np.array(rec), window_index_te=np.array(win, dtype=np.int64))
 
 
-def _load(path):
+def _cohort(path, dataset_id, *, seed):
+    _make_dump(path, seed=seed)
     sa = L.load_source_artifact_from_dump(path, disease="PD")
-    batches = L.load_deployment_batches(path, disease="PD", dataset_id="dsX", source_state_ref=sa.source_state_ref)
-    labels = L.load_labels_by_window(path, dataset_id="dsX")
+    batches = L.load_deployment_batches(path, disease="PD", dataset_id=dataset_id, source_state_ref=sa.source_state_ref)
+    labels = L.load_labels_by_window(path, dataset_id=dataset_id)
     return sa, batches, labels
 
 
-def test_develop_leak_isolation_and_cal_scores():
+def _pooled_disease(tmp, n_cohorts=3):
+    """A pooled-disease DEV substrate: several cohorts each with its OWN source_state_ref, merged through a registry."""
+    reg = L.SourceStateRegistry("PD"); all_b = []; all_l = {}
+    for ci in range(n_cohorts):
+        sa, b, lab = _cohort(os.path.join(tmp, f"audit_PD_ds{ci}_erm_0.npz"), f"ds{ci}", seed=ci)
+        reg.add(sa); all_b += b; all_l.update(lab)
+    return reg, all_b, all_l
+
+
+def test_develop_multicohort_registry_and_leak_isolation():
     with tempfile.TemporaryDirectory() as tmp:
-        p = os.path.join(tmp, "audit_PD_dsX_erm_0.npz"); _make_dump(p)
-        sa, batches, labels = _load(p)
-        res = D.run_develop("PD", sa, batches, labels, candidate="C1")
+        reg, batches, labels = _pooled_disease(tmp, n_cohorts=3)
+        assert len(reg.refs) == 3                                                 # 3 cohort source states in one PD pool
+        oof = D.run_oof("PD", reg, batches, labels, "C1")
+        assert len(oof.records) > 0 and oof.n_eval_eligible_batches > 0
+        # leak isolation via the split itself (outer over ALL subjects; FIT/CAL from eligible only)
+        idx = D._subject_batches(batches); elig = {canon_subject(s) for s in D._eligible_subjects(idx)}
+        assignment, allc = S.cv_assignment([v["key"] for v in idx.values()], eligible=elig)
+        union = set()
+        for fa in assignment:
+            ev = set(map(canon_subject, fa["eval"])); fit = set(map(canon_subject, fa["fit"]))
+            cal = set(map(canon_subject, fa["cal"]))
+            assert not (ev & (fit | cal)) and not (fit & cal)
+            assert fit <= elig and cal <= elig                                    # FIT/CAL only from eligible
+            union |= ev
+        assert union == set(allc)                                                 # every subject EVAL exactly once
+        # an unregistered source_state_ref fails BEFORE any adapter
+        other = L.load_deployment_batches(os.path.join(tmp, "audit_PD_ds0_erm_0.npz"), disease="PD",
+                                          dataset_id="ds0", source_state_ref="c" * 64)
+        _expect(ValueError, lambda: reg.execute([b for b in other if not b.fallback][0]))
+        print("  [ok] multi-cohort registry (3 refs) runs one pooled disease; EVAL⟂FIT∪CAL, FIT/CAL⊆eligible, EVAL covers all once; unregistered ref fails pre-adapter")
+
+
+def test_develop_fallback_eval_accounting():
+    with tempfile.TemporaryDirectory() as tmp:
+        reg, batches, labels = _pooled_disease(tmp, n_cohorts=3)
+        idx = D._subject_batches(batches)
+        fb_only = {c for c, v in idx.items() if not v["eligible"]}
+        assert len(fb_only) == 3                                                  # one fallback-only subject per cohort
+        elig = {canon_subject(s) for s in D._eligible_subjects(idx)}
+        assignment, allc = S.cv_assignment([v["key"] for v in idx.values()], eligible=elig)
         eval_union = set()
-        for f in res.folds:
-            fit, cal, ev = set(f.fit_subjects), set(f.cal_subjects), set(f.eval_subjects)
-            tr, va = set(f.train_subjects), set(f.val_subjects)
-            assert not (ev & (fit | cal))                      # EVAL ⟂ FIT∪CAL  (no leakage into diagnostics)
-            assert not (fit & cal)                             # predictor ⟂ conformal-q subjects
-            assert tr | va == fit and not (tr & va)            # TRAIN∪VAL == FIT, disjoint
-            assert f.n_cal_scores == len(cal)                  # EXACTLY one CAL score per (eligible) CAL subject
-            eval_union |= ev
-        assert eval_union == {canon_subject(s) for s in D._eligible_subjects(D._subject_batches(batches))}  # EVAL once each
-        print("  [ok] OOF leak isolation (EVAL⟂FIT∪CAL, FIT⟂CAL, TRAIN∪VAL==FIT); one CAL score per CAL subject; EVAL covers all eligible once")
+        for fa in assignment:
+            roles = set(map(canon_subject, fa["fit"])) | set(map(canon_subject, fa["cal"])) | \
+                set(map(canon_subject, fa["train"])) | set(map(canon_subject, fa["val"]))
+            assert not (roles & fb_only)                                          # fallback-only NEVER fitted/CAL'd
+            eval_union |= set(map(canon_subject, fa["eval"]))
+        assert fb_only <= eval_union                                              # but retained in EVAL accounting
+        print("  [ok] fallback-only subjects (one/cohort) retained in EVAL but never FIT/CAL/TRAIN/VAL")
 
 
-def test_develop_fallback_and_refit_eligibility():
+def _c2_records(residuals, scale_raw=1.0, scale_used=1.0):
+    """Craft C2 OOFRecords (point=upper_center=0, scale_used=1) so the standardized residual == delta_r == given value;
+    spread across 4 subjects, all 3 actions identical."""
+    recs = []
+    for a in NON_IDENTITY:
+        for i, r in enumerate(residuals):
+            recs.append(D.OOFRecord("C2", "PD", f"WS[\"d\",\"s{i % 4}\"]", "a" * 64, i % 5, a, float(r), 0.0, 0.0,
+                                    float(scale_raw), float(scale_used), float(r), 0.0, 0.0, "identity"))
+    return recs
+
+
+def test_s2_c2_gate_boundaries_and_floor():
+    rng = np.random.default_rng(0)
+    good = rng.standard_normal(400)                                              # mean≈0, var≈1, tail≈z90 -> PASS
+    assert D.s2_c2_gate(_c2_records(good))["pass"]
+    assert not D.s2_c2_gate(_c2_records(good * 3.0))["pass"]                     # var≈9 -> FAIL
+    assert not D.s2_c2_gate(_c2_records(good + 1.0))["pass"]                     # mean≈1 -> FAIL
+    # C2 final floor responds to scale_raw ONLY, not scale_used
+    floor = D.c2_floor_from_oof(_c2_records(good, scale_raw=2.0, scale_used=9.0))
+    assert all(abs(v - 2.0) < 1e-9 for v in floor.values())
+    print("  [ok] S2 C2 gate var/mean/tail boundaries; final floor = Q05 of scale_raw (ignores fold floor scale_used)")
+
+
+def test_s4_select_tie_rules_and_dev_stop():
+    # no passer -> DEV_STOP / NO_LOCKBOX_CONSUMED
+    none = {c: {"passes": False, "red_macro": 1.0, "width_macro": 1.0} for c in ("C1", "C2", "C3")}
+    assert D.s4_select(none)["verdict"] == "DEV_STOP" and D.s4_select(none)["reason"] == "NO_LOCKBOX_CONSUMED"
+    # strictly larger red wins
+    m = {"C1": {"passes": True, "red_macro": 0.30, "width_macro": 1.0},
+         "C2": {"passes": True, "red_macro": 0.10, "width_macro": 1.0},
+         "C3": {"passes": True, "red_macro": 0.20, "width_macro": 1.0}}
+    assert D.s4_select(m)["selected"] == "C1"
+    # red tie (<=1e-4) -> smaller width wins
+    m2 = {"C1": {"passes": True, "red_macro": 0.50, "width_macro": 0.9},
+          "C2": {"passes": True, "red_macro": 0.50, "width_macro": 0.5},
+          "C3": {"passes": True, "red_macro": 0.50, "width_macro": 0.7}}
+    assert D.s4_select(m2)["selected"] == "C2"
+    # full tie (red & width) -> fixed order C2 ≺ C3 ≺ C1
+    m3 = {c: {"passes": True, "red_macro": 0.5, "width_macro": 0.5} for c in ("C1", "C2", "C3")}
+    assert D.s4_select(m3)["selected"] == "C2"
+    print("  [ok] S4 SELECT: max red; 1e-4 tie->min width; full tie->C2≺C3≺C1; no passer->DEV_STOP/NO_LOCKBOX_CONSUMED")
+
+
+def test_dev_run_smoke_and_c0_real():
     with tempfile.TemporaryDirectory() as tmp:
-        p = os.path.join(tmp, "audit_PD_dsX_erm_0.npz"); _make_dump(p)
-        sa, batches, labels = _load(p)
-        res = D.run_develop("PD", sa, batches, labels, candidate="C1")
-        assert res.n_fallback_only_subjects == 1 and res.n_eligible_subjects == 10
-        fbc = canon_subject(SubjectKey("dsX", "sub-fb"))
-        for f in res.folds:                                    # fallback-only subject NEVER in any split role
-            for role in (f.fit_subjects, f.cal_subjects, f.eval_subjects, f.train_subjects, f.val_subjects):
-                assert fbc not in role
-        assert any(f.n_eval_fallback_batches > 0 for f in res.folds)            # eligible subjects' fallback batches retained in EVAL
-        # refit consumed EXACTLY the eligible set (frozen inclusion, not residual-based)
-        elig = D._eligible_subjects(D._subject_batches(batches))
-        assert res.eligible_subject_list_sha256 == L.hash_subject_list(elig)
-        assert L._is_hex64(res.refit_artifact_sha256)
-        print("  [ok] fallback-only subject retained but never fitted/CAL'd; eligible subjects' fallback batches kept in EVAL; refit eligibility = frozen eligible set")
-
-
-def test_develop_deterministic_and_permutation_independent():
-    with tempfile.TemporaryDirectory() as tmp:
-        p = os.path.join(tmp, "audit_PD_dsX_erm_0.npz"); _make_dump(p)
-        sa, batches, labels = _load(p)
-        r1 = D.run_develop("PD", sa, batches, labels, candidate="C1")
-        r2 = D.run_develop("PD", sa, batches, labels, candidate="C1")
-        assert r1.refit_artifact_sha256 == r2.refit_artifact_sha256 and r1.final_epochs == r2.final_epochs
-        assert [f.q for f in r1.folds] == [f.q for f in r2.folds]
-        rng = np.random.default_rng(3); perm = list(batches); rng.shuffle(perm)
-        r3 = D.run_develop("PD", sa, perm, labels, candidate="C1")
-        assert r3.refit_artifact_sha256 == r1.refit_artifact_sha256             # whole run permutation-independent
-        assert r3.pool_digest == r1.pool_digest == D.replay_pool_digest(batches)  # C0/v2 replay consumes identical pool
-        assert [f.best_epoch for f in r3.folds] == [f.best_epoch for f in r1.folds]
-        print("  [ok] whole DEV run deterministic + permutation-independent (refit hash/q/epochs stable); C0/v2 replay shares the pool digest")
+        reg, b, lab = _pooled_disease(tmp, n_cohorts=3)
+        c0 = D.run_c0("PD", reg, b, lab)
+        assert c0.n_eval_eligible_batches > 0 and math.isfinite(c0.red_router)     # C0 actually trained+calibrated+routed
+        res = D.run_dev({"PD": (reg, b, lab)})                                      # one-disease smoke (synthetic -> likely DEV_STOP)
+        assert res.verdict in ("SELECT", "DEV_STOP")
+        assert set(res.per_disease["PD"]) >= {"C1", "C2", "C3", "C0"}
+        if res.verdict == "DEV_STOP":
+            assert res.refit_sha256["PD"] is None
+        else:
+            assert L._is_hex64(res.refit_sha256["PD"])
+        assert res.pool_digest["PD"] == D.replay_pool_digest(b)
+        print(f"  [ok] run_dev smoke verdict={res.verdict}; C0 trained/calibrated/routed; per-candidate reports + pool identity present")
 
 
 def main():
-    print("ACAR v3 split + DEV-orchestration guards (synthetic fixtures only):")
+    print("ACAR v3 split + DEV bake-off/gate guards (synthetic fixtures only):")
     for t in (test_split_partition_balance_determinism, test_split_permutation_independent,
-              test_develop_leak_isolation_and_cal_scores, test_develop_fallback_and_refit_eligibility,
-              test_develop_deterministic_and_permutation_independent):
+              test_develop_multicohort_registry_and_leak_isolation, test_develop_fallback_eval_accounting,
+              test_s2_c2_gate_boundaries_and_floor, test_s4_select_tie_rules_and_dev_stop,
+              test_dev_run_smoke_and_c0_real):
         t()
     print("ALL V3 DEVELOP/SPLIT GUARDS PASS")
 

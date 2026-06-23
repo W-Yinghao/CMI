@@ -167,10 +167,18 @@ def test_external_load_never_fits():
         try:
             ext = M.load_frozen_source_state_artifact(blob)                           # must NOT fit
             assert ext.source_state_ref == sa.source_state_ref and ext.source_fit_sha256 == sa.source_fit_sha256
+            sa.verify_integrity(); ext.verify_integrity()
             _expect(AssertionError, lambda: M.load_source_artifact_from_dump(p, disease="PD"))   # DEV path DOES fit
         finally:
             M.fit_source_state = orig
-    print("  [ok] external load rebuilds frozen f_0 without fit_source_state (same ref); DEV path fits")
+        # GUARD: tampering classes_ / env / any source-state byte fails the blob's own stored hash (repro #5 now closed)
+        bad = dict(blob); bad["classes"] = blob["classes"][::-1].copy()
+        _expect(ValueError, lambda: M.load_frozen_source_state_artifact(bad))
+        bad2 = dict(blob); bad2["env_vals"] = list(blob["env_vals"]); bad2["env_vals"][0] = "tampered"
+        _expect(ValueError, lambda: M.load_frozen_source_state_artifact(bad2))
+        bad3 = dict(blob); bad3["coef"] = np.asarray(blob["coef"], float) + 1.0
+        _expect(ValueError, lambda: M.load_frozen_source_state_artifact(bad3))
+    print("  [ok] external load rebuilds frozen f_0 without fit (same ref); DEV path fits; tampering classes_/env/coef fails the stored hash")
 
 
 def test_single_execution_binding():
