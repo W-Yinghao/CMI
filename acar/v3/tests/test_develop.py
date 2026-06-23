@@ -5,6 +5,7 @@ retained but never fitted; refit eligibility frozen; whole run deterministic + p
 consumes the identical pool.
 Run: python -m acar.v3.tests.test_develop
 """
+import json
 import math
 import os
 import tempfile
@@ -266,34 +267,63 @@ def test_subject_macro_mean_and_q_finite():
     print("  [ok] subject-macro mean (unequal batch counts); q_finite blocks on ANY +inf fold")
 
 
-def test_binding_cohort_binding():
+def _cohort_input(tmp, disease, ds, seed):
+    p = os.path.join(tmp, f"audit_{disease}_{ds}_erm_0.npz"); _make_dump(p, seed=seed)
+    return L.build_cohort_input(p, disease=disease, dataset_id=ds)
+
+
+def _seven(tmp):
+    from acar.config import DISEASE
+    return ([_cohort_input(tmp, "PD", ds, 100 + i) for i, ds in enumerate(DISEASE["PD"])] +
+            [_cohort_input(tmp, "SCZ", ds, 200 + i) for i, ds in enumerate(DISEASE["SCZ"])])
+
+
+def test_cohort_input_binding_and_swap():
+    import inspect
+    with tempfile.TemporaryDirectory() as tmp:
+        a = _cohort_input(tmp, "PD", "ds002778", 1); b = _cohort_input(tmp, "PD", "ds003490", 2)
+        a.source_artifact.verify_integrity()
+        # swapping two cohorts' source artifacts is rejected AT CONSTRUCTION (batch ref != artifact ref)
+        _expect(ValueError, lambda: L.CohortInput(a.dataset_id, a.disease, a.manifest, b.source_artifact,
+                                                  a.batches, a.labels, a.full_dump_path))
+        # dropping a label (missing WindowKey coverage) is rejected
+        bad_labels = {k: v for k, v in list(a.labels.items())[1:]}
+        _expect(ValueError, lambda: L.CohortInput(a.dataset_id, a.disease, a.manifest, a.source_artifact,
+                                                  a.batches, bad_labels, a.full_dump_path))
+        # run_binding_dev exposes NO verify_env bypass
+        assert "verify_env" not in inspect.signature(D.run_binding_dev).parameters
+    print("  [ok] CohortInput binds dataset/manifest/source/batches/labels; cohort-swap + missing-label rejected; no verify_env bypass")
+
+
+def test_binding_seven_cohorts():
     from acar.config import DISEASE
     with tempfile.TemporaryDirectory() as tmp:
-        regP, bP, lP = _pooled_disease(tmp, n_cohorts=3)                            # ids ds0/ds1/ds2 (WRONG)
-        regS, bS, lS = _pool_with_ids(tmp, "SCZ", DISEASE["SCZ"], seed0=20)
-        _expect(ValueError, lambda: D.run_binding_dev({"PD": (regP, bP, lP), "SCZ": (regS, bS, lS)}))   # wrong PD cohorts
-        # correct seven cohorts -> binding accepts (synthetic -> DEV_STOP)
-        regPok, bPok, lPok = _pool_with_ids(tmp, "PD", DISEASE["PD"], seed0=0)
-        res = D.run_binding_dev({"PD": (regPok, bPok, lPok), "SCZ": (regS, bS, lS)})
-        assert res.verdict in ("SELECT", "DEV_STOP")
-        # wrong cohort COUNT (drop one PD cohort) -> reject
-        regPbad, bPbad, lPbad = _pool_with_ids(tmp, "PD", DISEASE["PD"][:2], seed0=30)
-        _expect(ValueError, lambda: D.run_binding_dev({"PD": (regPbad, bPbad, lPbad), "SCZ": (regS, bS, lS)}))
-        print(f"  [ok] binding binds the EXACT 7 cohorts ({DISEASE}); wrong ids/count rejected; verdict={res.verdict}")
+        seven = _seven(tmp)
+        res = D.run_binding_dev(seven); assert res.verdict in ("SELECT", "DEV_STOP")   # correct 7 -> runs
+        assert L._is_hex64(res.env_lock_sha256)
+        _expect(ValueError, lambda: D.run_binding_dev(seven[:-1]))                      # 6 cohorts -> reject
+        wrong = [_cohort_input(tmp, "PD", "dsXXXXXX", 9)] + seven[1:]                   # wrong PD id -> reject
+        _expect(ValueError, lambda: D.run_binding_dev(wrong))
+        print(f"  [ok] binding binds the EXACT 7 cohorts {DISEASE}; wrong id/count rejected; env-lock verified; verdict={res.verdict}")
+
+
+def test_json_safety():
+    assert D._json_safe(float("nan")) == {"value": None, "status": "NOT_EVALUABLE"}
+    assert D._json_safe(np.float64("inf")) == {"value": None, "status": "NOT_EVALUABLE"}
+    assert D._json_safe(np.int64(3)) == 3 and D._json_safe(np.bool_(True)) is True
+    json.dumps(D._json_safe({"x": np.float64("nan"), "y": [np.int64(1), 2.5]}), allow_nan=False)   # must not raise
+    _expect(TypeError, lambda: D._json_safe(object()))                                  # no silent str-coercion
+    print("  [ok] JSON safety: non-finite -> NOT_EVALUABLE; numpy scalars coerced; unknown object rejected (no default=str)")
 
 
 def test_frozen_runner_forced_select():
     """Force SELECT (monkeypatch s4_eligible) to deterministically exercise the artifact-save path: atomic write,
-    refit/execute exactly once, saved==run artifact, verify_integrity on reload, file SHA-256, tamper fails."""
-    from acar.config import DISEASE
+    refit/execute exactly once, saved==run artifact, verify_integrity on reload, file SHA-256, manifest self-SHA, tamper."""
     import acar.v3.loader as LM
     with tempfile.TemporaryDirectory() as tmp:
-        regP, bP, lP = _pool_with_ids(tmp, "PD", DISEASE["PD"], seed0=0)
-        regS, bS, lS = _pool_with_ids(tmp, "SCZ", DISEASE["SCZ"], seed0=20)
-        data = {"PD": (regP, bP, lP), "SCZ": (regS, bS, lS)}
+        seven = _seven(tmp)
         n_exec = {"n": 0}; n_refit = {"n": 0}
-        orig_exec = LM.SourceStateArtifact.execute; orig_refit = D.refit_candidate_fixed_epochs
-        orig_elig = D.s4_eligible
+        orig_exec = LM.SourceStateArtifact.execute; orig_refit = D.refit_candidate_fixed_epochs; orig_elig = D.s4_eligible
         def counted_exec(self, batch):
             n_exec["n"] += 1; return orig_exec(self, batch)
         def counted_refit(*a, **k):
@@ -303,8 +333,8 @@ def test_frozen_runner_forced_select():
         D.s4_eligible = lambda m, **k: {"criteria": {"forced": True}, "eligible": True}    # force SELECT
         outdir = os.path.join(tmp, "out")
         try:
-            n_elig = sum(1 for b in (bP + bS) if not b.fallback)
-            res, man = D.freeze_dev_run(data, outdir)
+            n_elig = sum(1 for ci in seven for b in ci.batches if not b.fallback)
+            res, man = D.freeze_dev_run(seven, outdir)
             assert res.verdict == "SELECT" and man["verdict"] == "SELECT"
             assert n_refit["n"] == 2                                                # refit EXACTLY once per disease
             assert n_exec["n"] == n_elig                                            # each eligible batch executed ONCE
@@ -312,21 +342,64 @@ def test_frozen_runner_forced_select():
             LM.SourceStateArtifact.execute = orig_exec; D.refit_candidate_fixed_epochs = orig_refit
             D.s4_eligible = orig_elig
         assert os.path.exists(os.path.join(outdir, "manifest.json")) and not os.path.exists(outdir + ".tmp")  # atomic
-        _expect(FileExistsError, lambda: D.freeze_dev_run(data, outdir))            # non-overwrite
+        with open(os.path.join(outdir, "manifest.json")) as f:
+            disk = json.load(f)
+        assert L._is_hex64(disk["manifest_sha256"]) and disk["env_lock_sha256"] == res.env_lock_sha256
+        assert set(disk["cohorts"]) == {"PD", "SCZ"} and len(disk["cohorts"]["PD"]) == 3
+        _expect(FileExistsError, lambda: D.freeze_dev_run(seven, outdir))           # non-overwrite
         import pickle as pk
         for d in ("PD", "SCZ"):
             sv = man["saved"][d]
             assert L._is_hex64(sv["predictor_file_sha256"]) and L._is_hex64(sv["c0_file_sha256"])
             with open(sv["predictor_path"], "rb") as f:
                 art = pk.load(f)
-            art.verify_integrity()                                                  # cryptographic reload check
+            art.verify_integrity()
             assert art.artifact_sha256 == sv["predictor_sha256"] == res.refit_sha256[d]
-            # tamper (truncate the file) -> reload fails closed
             raw = open(sv["predictor_path"], "rb").read()
             with open(sv["predictor_path"], "wb") as f:
-                f.write(raw[:len(raw) // 2])
+                f.write(raw[:len(raw) // 2])                                        # truncate -> reload fails closed
             _expect(Exception, lambda p=sv["predictor_path"]: pk.load(open(p, "rb")).verify_integrity())
-        print("  [ok] forced-SELECT frozen runner: atomic write; refit/execute exactly once; saved==run artifact; verify_integrity + file SHA; tamper fails")
+        print("  [ok] forced-SELECT frozen runner: atomic; refit/execute once; saved==run; verify_integrity; file+manifest SHA; tamper fails")
+
+
+def test_binding_cli_fail_closed():
+    import subprocess
+    import acar.v3.run_dev_binding as RB
+    from acar.config import DISEASE
+    head = subprocess.check_output(["git", "-C", os.path.dirname(L.__file__) + "/../..", "rev-parse", "HEAD"]).decode().strip()
+    with tempfile.TemporaryDirectory() as tmp:
+        seven = _seven(tmp)
+        cohorts = []
+        for ci in seven:
+            m = ci.manifest
+            cohorts.append({"dataset_id": ci.dataset_id, "disease": ci.disease, "path": ci.full_dump_path,
+                            "full_dump_sha256": m.full_dump_sha256, "source_fit_sha256": m.source_fit_sha256,
+                            "deployment_input_sha256": m.deployment_input_sha256, "label_sha256": m.label_sha256,
+                            "subject_list_sha256": m.subject_list_sha256})
+        spec = {"protocol_commit": head, "cohorts": cohorts}
+        spec_path = os.path.join(tmp, "spec.json")
+        with open(spec_path, "w") as f:
+            json.dump(spec, f)
+        # existing output dir -> refuse before anything
+        existing = os.path.join(tmp, "exists"); os.makedirs(existing)
+        _expect(FileExistsError, lambda: RB.run(spec_path, existing, verify_git=False))
+        # missing cohort file -> refuse
+        bad = dict(spec); bad_c = [dict(c) for c in cohorts]; bad_c[0]["path"] = "/nope.npz"; bad["cohorts"] = bad_c
+        bp = os.path.join(tmp, "bad.json")
+        with open(bp, "w") as f:
+            json.dump(bad, f)
+        _expect(FileNotFoundError, lambda: RB.run(bp, os.path.join(tmp, "o1"), verify_git=False))
+        # git verification: HEAD matches but tag absent -> refuse BEFORE any DEV (no output created)
+        o2 = os.path.join(tmp, "o2")
+        _expect(ValueError, lambda: RB.run(spec_path, o2, verify_git=True))
+        assert not os.path.exists(o2)
+        # wrong protocol commit -> refuse
+        _expect(ValueError, lambda: RB.verify_protocol("deadbeef" * 5, require_tag=False))
+        # full pipeline w/o git gate (test-only) -> DEV_STOP written
+        o3 = os.path.join(tmp, "o3")
+        res, man = RB.run(spec_path, o3, verify_git=False)
+        assert man["verdict"] in ("SELECT", "DEV_STOP") and os.path.exists(o3)
+        print(f"  [ok] binding CLI fail-closed: existing-output/missing-file/absent-tag/wrong-commit refused before DEV; verdict={man['verdict']}")
 
 
 def main():
@@ -336,7 +409,8 @@ def main():
               test_s2_c2_gate_boundaries_and_floor, test_s4_eligible_each_criterion_gates,
               test_s4_select_max_first_tie_and_dev_stop, test_c0_vector_is_v2_exact,
               test_fallback_changes_denominators, test_subject_weighting_unequal_batches,
-              test_subject_macro_mean_and_q_finite, test_binding_cohort_binding, test_frozen_runner_forced_select):
+              test_subject_macro_mean_and_q_finite, test_cohort_input_binding_and_swap, test_binding_seven_cohorts,
+              test_json_safety, test_frozen_runner_forced_select, test_binding_cli_fail_closed):
         t()
     print("ALL V3 DEVELOP/SPLIT GUARDS PASS")
 

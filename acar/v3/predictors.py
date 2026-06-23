@@ -42,8 +42,14 @@ HP = dict(
 
 
 def env_versions():
-    return {"python": sys.version.split()[0], "torch": torch.__version__,
-            "numpy": np.__version__, "scipy": __import__("scipy").__version__}
+    v = {"python": sys.version.split()[0], "torch": torch.__version__,
+         "numpy": np.__version__, "scipy": __import__("scipy").__version__}
+    for pkg in ("sklearn", "joblib", "threadpoolctl"):           # C0 (HGB/Ridge/scaler) + source-state LogisticRegression
+        try:
+            v[pkg] = __import__(pkg).__version__
+        except Exception:                                        # pragma: no cover
+            v[pkg] = "MISSING"
+    return v
 
 
 def _mlp(din, dh, dout, layers):

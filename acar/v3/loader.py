@@ -609,6 +609,68 @@ def build_manifest(path, *, dataset_id, disease, source_artifact, batches, label
                               int(batches[0].z.shape[1]))
 
 
+# =================================================================================== immutable per-cohort binding input
+@dataclass(frozen=True, eq=False)
+class CohortInput:
+    """One DEV cohort as a single immutable object binding dataset_id ↔ LoadedDumpManifest ↔ SourceStateArtifact ↔
+    batches ↔ labels. __post_init__ verifies they are mutually consistent (so two cohorts' source states cannot be
+    swapped undetected): manifest dataset/disease match; every batch's disease/dataset_id/source_state_ref match;
+    recomputed field hashes == manifest; counts == manifest; batch digests unique; labels cover all WindowKeys exactly."""
+    dataset_id: str
+    disease: str
+    manifest: LoadedDumpManifest
+    source_artifact: SourceStateArtifact
+    batches: tuple
+    labels: dict
+    full_dump_path: str
+
+    def __post_init__(self):
+        m, sa, batches = self.manifest, self.source_artifact, self.batches
+        if not (isinstance(self.dataset_id, str) and self.dataset_id):
+            raise ValueError("dataset_id must be a non-empty str")
+        if self.disease not in ("PD", "SCZ"):
+            raise ValueError("disease must be PD or SCZ")
+        if m.dataset_id != self.dataset_id or m.disease != self.disease:
+            raise ValueError("manifest dataset/disease mismatch")
+        sa.verify_integrity()
+        if sa.disease != self.disease:
+            raise ValueError("source artifact disease mismatch")
+        if not batches:
+            raise ValueError("empty cohort")
+        for b in batches:
+            if b.disease != self.disease or b.subject.dataset_id != self.dataset_id:
+                raise ValueError("batch disease/dataset_id mismatch")
+            if b.source_state_ref != sa.source_state_ref:
+                raise ValueError("batch source_state_ref != cohort source artifact ref")
+        if hash_deployment_input(batches) != m.deployment_input_sha256 or hash_labels(self.labels) != m.label_sha256:
+            raise ValueError("manifest deployment_input/label hash mismatch")
+        subs = {b.subject for b in batches}
+        if hash_subject_list(subs) != m.subject_list_sha256:
+            raise ValueError("manifest subject_list hash mismatch")
+        recs = {(b.recording.subject_id, b.recording.recording_id) for b in batches}
+        if (m.n_subjects, m.n_recordings, m.n_windows, m.embedding_dim) != \
+                (len(subs), len(recs), sum(len(b.window_keys) for b in batches), int(batches[0].z.shape[1])):
+            raise ValueError("manifest counts mismatch")
+        digs = [deployment_batch_digest(b) for b in batches]
+        if len(set(digs)) != len(digs):
+            raise ValueError("duplicate batch digest within cohort")
+        all_wk = {wk for b in batches for wk in b.window_keys}
+        if set(self.labels) != all_wk:
+            raise ValueError("labels do not cover the cohort WindowKeys exactly (missing/extra)")
+        object.__setattr__(self, "batches", tuple(batches))
+
+
+def build_cohort_input(path, *, disease, dataset_id, env=None) -> CohortInput:
+    """Load one cohort dump into a fully-validated CohortInput (DEV substrate; reads y_ev for f_0 and y_te for ΔR, never
+    a lockbox endpoint)."""
+    sa = load_source_artifact_from_dump(path, disease=disease, env=env)
+    batches = load_deployment_batches(path, disease=disease, dataset_id=dataset_id, source_state_ref=sa.source_state_ref)
+    labels = load_labels_by_window(path, dataset_id=dataset_id)
+    man = build_manifest(path, dataset_id=dataset_id, disease=disease, source_artifact=sa, batches=batches,
+                         labels_by_window=labels)
+    return CohortInput(dataset_id, disease, man, sa, tuple(batches), labels, path)
+
+
 # ===================================================================================================== prediction gate
 def predict_batch(artifact, source_artifact: SourceStateArtifact, batch: DeploymentBatch):
     """Disease- AND state-gated deployment prediction. Both gates run BEFORE any forward pass. Returns

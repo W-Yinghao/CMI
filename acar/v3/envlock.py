@@ -21,12 +21,33 @@ ENV_LOCK_PATH = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__f
                              "notes", "ACAR_V3_ENV_LOCK.json")
 
 
+def apply_runtime():
+    """Apply the REQUIRED deterministic runtime to the CURRENT process (idempotent). Called by the lock generator AND
+    `run_binding_dev` BEFORE verifying the lock, so the binding run actually executes under the locked settings."""
+    import torch
+    torch.use_deterministic_algorithms(True)
+    torch.set_num_threads(1)
+
+
+def _runtime_state():
+    import torch
+    try:
+        from threadpoolctl import threadpool_info
+        backends = sorted({str(i.get("internal_api")) for i in threadpool_info()})
+    except Exception:                                            # pragma: no cover
+        backends = ["UNAVAILABLE"]
+    return {"torch_deterministic": bool(torch.are_deterministic_algorithms_enabled()),
+            "torch_num_threads": int(torch.get_num_threads()),
+            "threadpool_backends": backends,
+            "omp_num_threads": os.environ.get("OMP_NUM_THREADS", "")}
+
+
 def build_env_lock() -> dict:
-    """Deterministic lock payload for the CURRENT process (env_lock_sha256 last, computed over the rest)."""
+    """Deterministic lock payload reflecting the CURRENT process runtime (env_lock_sha256 last, over the rest)."""
     lock = {
         "env_versions": env_versions(),
         "platform": platform.platform(),
-        "torch_deterministic": True, "torch_num_threads": 1,
+        "runtime": _runtime_state(),
         "scipy_wilcoxon": {"exact_max_n": 25, "n_perm": 20000, "seed": 0,
                            "method": "PermutationMethod", "continuity": "wilcox zero_method"},
         "numpy_quantile_method": "linear",
@@ -45,6 +66,7 @@ def env_lock_sha256() -> str:
 
 
 def write_env_lock(path=ENV_LOCK_PATH) -> str:
+    apply_runtime()                                              # record the lock UNDER the required runtime
     lock = build_env_lock()
     with open(path, "w") as f:
         json.dump(lock, f, indent=2, sort_keys=True)
