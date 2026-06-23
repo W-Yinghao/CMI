@@ -10,6 +10,7 @@ the declared spec hash.
 """
 from __future__ import annotations
 
+import dataclasses
 import hashlib
 import os
 from dataclasses import dataclass
@@ -209,8 +210,9 @@ def load_moabb_confirmatory(dataset_id, subjects, preprocessing, *, frozen_class
         raise ValueError(f"loaded labels {bad} not in frozen class map {list(frozen_class_names)}")
     y = np.array([cls_index[c] for c in y_str], dtype=int)
 
-    if preprocessing.normalization == "zscore_sample":            # actually apply the declared transform
-        X = apply_normalization(X, None, PreprocessSpec(normalization="zscore_sample"))
+    if preprocessing.normalization == "zscore_sample":            # apply with the MANIFEST epsilon
+        X = apply_normalization(X, None, PreprocessSpec(normalization="zscore_sample",
+                                                        normalization_eps=float(preprocessing.normalization_eps)))
     if not np.isfinite(X).all():
         raise ValueError("non-finite values after normalization")
     Xd = X.astype(np.float64)                                     # float32 mean/std are noisy
@@ -248,9 +250,25 @@ def load_moabb_confirmatory(dataset_id, subjects, preprocessing, *, frozen_class
         actual_n_times=n_times, actual_shape=tuple(int(x) for x in X.shape), output_dtype=str(X.dtype),
         class_names=tuple(frozen_class_names), class_count_table=cct, recording_count_table=rct,
         library_versions=lib, declared_preprocess_hash=declared, resolved_preprocess_hash=resolved,
-        network_attempt_count=counter.attempts, excluded_recordings=(),
-        evidence_hash=_sha([dataset_id, subjects, fp_before, resolved, full_tensor]))
-    return MOABBLoadResult(bundle=bundle, evidence=ev)
+        network_attempt_count=counter.attempts, excluded_recordings=(), evidence_hash="")
+    return MOABBLoadResult(bundle=bundle, evidence=dataclasses.replace(ev, evidence_hash=_evidence_hash(ev, full_tensor)))
+
+
+def _evidence_hash(ev: MOABBLoadEvidence, full_tensor_hash) -> str:
+    from ..eeg.audit import canonical_hash
+    return canonical_hash({
+        "dataset_id": ev.dataset_id, "subjects": list(ev.subjects), "raw_logical_paths": list(ev.raw_logical_paths),
+        "raw_file_count": ev.raw_file_count, "raw_data_fingerprint": ev.raw_data_fingerprint,
+        "raw_data_fingerprint_after": ev.raw_data_fingerprint_after,
+        "header_hashes": [r.header_hash for r in ev.header_records], "header_record_count": ev.header_record_count,
+        "common_eeg_channels": list(ev.common_eeg_channels), "actual_sfreq": ev.actual_sfreq,
+        "actual_n_times": ev.actual_n_times, "actual_shape": list(ev.actual_shape), "output_dtype": ev.output_dtype,
+        "class_count_table": [list(x) for x in ev.class_count_table],
+        "recording_count_table": [list(x) for x in ev.recording_count_table],
+        "library_versions": [list(x) for x in ev.library_versions],
+        "declared_preprocess_hash": ev.declared_preprocess_hash, "resolved_preprocess_hash": ev.resolved_preprocess_hash,
+        "network_attempt_count": ev.network_attempt_count, "excluded_recordings": list(ev.excluded_recordings),
+        "full_tensor_hash": full_tensor_hash})
 
 
 def preprocessing_declared_hash(pp) -> str:

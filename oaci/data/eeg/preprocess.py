@@ -25,6 +25,7 @@ class PreprocessSpec:
     epoch_tmax: float | None = None
     channels: list | None = None              # frozen common native channel ORDER (no interpolation)
     normalization: str = "zscore_sample"      # 'none' | 'zscore_sample' | 'zscore_channel_source'
+    normalization_eps: float = 1e-8           # explicit (manifest-driven) std-floor; never hardcoded
     channel_interpolation: bool = False       # main protocol: False (sensitivity analysis only)
     code_version: str = "oaci-eeg-1"
 
@@ -46,7 +47,7 @@ def fit_normalization(X_source_train, spec: PreprocessSpec):
         return {"kind": spec.normalization}
     X = np.asarray(X_source_train, dtype=np.float64)         # [N,C,T]
     mu = X.mean(axis=(0, 2), keepdims=True)
-    sd = X.std(axis=(0, 2), keepdims=True) + 1e-8
+    sd = X.std(axis=(0, 2), keepdims=True) + spec.normalization_eps
     return {"kind": "zscore_channel_source", "mu": mu, "sd": sd}
 
 
@@ -56,7 +57,7 @@ def apply_normalization(X, stats, spec: PreprocessSpec) -> np.ndarray:
         return X
     if spec.normalization == "zscore_sample":                # sample-wise, no cross-trial stats
         mu = X.mean(axis=2, keepdims=True)
-        sd = X.std(axis=2, keepdims=True) + 1e-8
+        sd = X.std(axis=2, keepdims=True) + spec.normalization_eps
         return ((X - mu) / sd).astype(np.float32)
     mu, sd = stats["mu"], stats["sd"]                        # source-fit channel stats
     return ((X - mu) / sd).astype(np.float32)
