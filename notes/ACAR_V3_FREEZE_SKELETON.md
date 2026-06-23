@@ -248,13 +248,22 @@ New isolated `acar/v3/`: `set_features.py` (per-window paired tensor + **availab
 v2 router code is left untouched.
 
 **Implemented (synthetic-only, NON-BINDING, NOT tagged):** `_util.py`, `set_features.py`, `data.py`, `normalizers.py`,
-`predictors.py`, `conformal.py`, `training.py` (Amendments 1–7); `loader.py` (structural real loader + Amendment-8
-loader-binding: field-separated provenance, immutable `SourceStateArtifact`, canonical row identity, single-execution
-`BatchActionExecutionRecord`, `LoadedDumpManifest`); `splits.py` (S5 split-as-one-algorithm); `develop.py` (synthetic
-OOF orchestration: FIT→predictor / CAL→one-score/subject→q / EVAL→route, fallback retained, refit on the frozen
-eligible set, C0/v2 pool-identity). Six v3 suites + the v2 guard suite pass on synthetic fixtures (NO real DEV value
-read). Remaining before `acar-v3-dev-design-v1`: env lock → single `ACAR_V3_DEV_DESIGN_SPEC.md` consolidation →
-clean-worktree verify → tag → first real DEV read + S2/S4/S6 binding gate.
+`predictors.py`, `conformal.py`, `training.py` (Amendments 1–7); `loader.py` (structural real loader + Amendment-8/9
+binding: field-separated provenance, immutable BYTES `SourceStateArtifact` (covers `classes_`+env; ephemeral
+reconstruction; frozen blob carries+verifies its own hash/ref) + `SourceStateRegistry` (per-disease, multi-cohort;
+unregistered ref fails pre-adapter), canonical row identity, single-execution `BatchActionExecutionRecord`,
+`LoadedDumpManifest`); `splits.py` (S5 split-as-one-algorithm; outer over ALL subjects, FIT/CAL from non-EVAL
+eligible); `develop.py` (DEV bake-off: per-disease execution cache → OOF records → S2 candidate-specific gates +
+`max_a` dominance → C2 floor from OOF `scale_raw` → real C0/v2 ActionRegressor replay → disease-macro S4 SELECT with
+tie rules → `DEV_STOP / NO_LOCKBOX_CONSUMED` → refit on the frozen eligible set). Six v3 suites + the v2 guard suite
+pass on synthetic fixtures (NO real DEV value read).
+
+**Phase boundary (corrected):** the FIRST real DEV run computes ONLY the **S2 calibration admissibility + S4 selection
+gate** — its only outcomes are a SELECTed candidate + frozen DEV artifacts, or `DEV_STOP / NO_LOCKBOX_CONSUMED`. S6
+width/MAE/best-fixed may be computed on DEV as S4 inputs, but **binding G2, the site-local coverage diagnostic, the
+harmful-rate endpoint, and the two-site rule are LATER external Arm B** — DEV never emits a `PROCEED_SAFE_ROUTER` /
+`UTILITY_ONLY` / external-G2 verdict. Remaining before `acar-v3-dev-design-v1`: env lock → single
+`ACAR_V3_DEV_DESIGN_SPEC.md` consolidation → clean-worktree verify → tag → first real DEV read + **S2/S4 DEV gate**.
 
 ## S13. Set-contract canon (Amendment 2 — IMPLEMENTED + tested in `acar/v3/set_features.py`, 685a526)
 
