@@ -163,48 +163,127 @@ def test_s2_c2_gate_boundaries_and_floor():
     print("  [ok] S2 C2 gate var/mean/tail boundaries; final floor = Q05 of scale_raw (ignores fold floor scale_used)")
 
 
-def test_s4_select_tie_rules_and_dev_stop():
-    # no passer -> DEV_STOP / NO_LOCKBOX_CONSUMED
-    none = {c: {"passes": False, "red_macro": 1.0, "width_macro": 1.0} for c in ("C1", "C2", "C3")}
+def _ok_metric(**over):
+    m = dict(s2_pass=True, dominance_pass=True, pd_auroc=0.70, scz_mae=0.5, c0_scz_mae=0.5,
+             width_macro=0.5, c0_width_macro=1.0, coverage_macro=0.50, red_macro=0.30, c0_red_macro=0.10,
+             any_q_inf=False)
+    m.update(over); return m
+
+
+def test_s4_eligible_each_criterion_gates():
+    assert D.s4_eligible(_ok_metric())["eligible"]                                  # baseline passes
+    assert not D.s4_eligible(_ok_metric(red_macro=-0.01))["eligible"]               # negative red
+    assert not D.s4_eligible(_ok_metric(red_macro=0.05, c0_red_macro=0.10))["eligible"]   # red below C0
+    assert not D.s4_eligible(_ok_metric(coverage_macro=0.14))["eligible"]           # coverage < 0.15
+    assert not D.s4_eligible(_ok_metric(width_macro=0.71, c0_width_macro=1.0))["eligible"]  # <30% width reduction
+    assert not D.s4_eligible(_ok_metric(scz_mae=0.6, c0_scz_mae=0.5))["eligible"]   # SCZ MAE worse than C0
+    assert not D.s4_eligible(_ok_metric(pd_auroc=0.59))["eligible"]                 # PD center-AUROC < 0.60
+    assert not D.s4_eligible(_ok_metric(any_q_inf=True))["eligible"]                # q=+inf candidate
+    assert not D.s4_eligible(_ok_metric(s2_pass=False))["eligible"]
+    assert not D.s4_eligible(_ok_metric(dominance_pass=False))["eligible"]
+    print("  [ok] S4 eligibility: negative/below-C0 red, coverage<.15, <30% width, worse SCZ MAE, PD AUROC<.60, q=+inf, S2/dominance each block SELECT")
+
+
+def test_s4_select_max_first_tie_and_dev_stop():
+    none = {c: _ok_metric(eligible=False) for c in ("C1", "C2", "C3")}
     assert D.s4_select(none)["verdict"] == "DEV_STOP" and D.s4_select(none)["reason"] == "NO_LOCKBOX_CONSUMED"
-    # strictly larger red wins
-    m = {"C1": {"passes": True, "red_macro": 0.30, "width_macro": 1.0},
-         "C2": {"passes": True, "red_macro": 0.10, "width_macro": 1.0},
-         "C3": {"passes": True, "red_macro": 0.20, "width_macro": 1.0}}
-    assert D.s4_select(m)["selected"] == "C1"
-    # red tie (<=1e-4) -> smaller width wins
-    m2 = {"C1": {"passes": True, "red_macro": 0.50, "width_macro": 0.9},
-          "C2": {"passes": True, "red_macro": 0.50, "width_macro": 0.5},
-          "C3": {"passes": True, "red_macro": 0.50, "width_macro": 0.7}}
-    assert D.s4_select(m2)["selected"] == "C2"
-    # full tie (red & width) -> fixed order C2 ≺ C3 ≺ C1
-    m3 = {c: {"passes": True, "red_macro": 0.5, "width_macro": 0.5} for c in ("C1", "C2", "C3")}
-    assert D.s4_select(m3)["selected"] == "C2"
-    print("  [ok] S4 SELECT: max red; 1e-4 tie->min width; full tie->C2≺C3≺C1; no passer->DEV_STOP/NO_LOCKBOX_CONSUMED")
+    sel = lambda d: D.s4_select({c: {**v, "eligible": True} for c, v in d.items()})["selected"]
+    assert sel({"C1": _ok_metric(red_macro=0.30), "C2": _ok_metric(red_macro=0.10),
+                "C3": _ok_metric(red_macro=0.20)}) == "C1"                          # strictly max red
+    assert sel({"C1": _ok_metric(red_macro=0.5, width_macro=0.9), "C2": _ok_metric(red_macro=0.5, width_macro=0.5),
+                "C3": _ok_metric(red_macro=0.5, width_macro=0.7)}) == "C2"          # red tie -> min width
+    assert sel({c: _ok_metric(red_macro=0.5, width_macro=0.5) for c in ("C1", "C2", "C3")}) == "C2"  # full tie -> order
+    # NON-TRANSITIVE chain: only candidates within 1e-4 of the TRUE max are eligible to win on width
+    chain = {"C2": _ok_metric(red_macro=1.00000, width_macro=0.9),
+             "C3": _ok_metric(red_macro=0.99991, width_macro=0.5),       # 9e-5 below max -> in tie set
+             "C1": _ok_metric(red_macro=0.99982, width_macro=0.1)}       # 1.8e-4 below max -> NOT in tie set
+    assert sel(chain) == "C3"                                                       # C1's smaller width must NOT win
+    print("  [ok] S4 SELECT max-first tie set (transitive vs true max); 1e-4->width; full tie->C2≺C3≺C1; none->DEV_STOP")
 
 
-def test_dev_run_smoke_and_c0_real():
+def test_c0_vector_is_v2_exact():
+    from acar.features import paired_features, context_features, feature_vector
     with tempfile.TemporaryDirectory() as tmp:
         reg, b, lab = _pooled_disease(tmp, n_cohorts=3)
-        c0 = D.run_c0("PD", reg, b, lab)
-        assert c0.n_eval_eligible_batches > 0 and math.isfinite(c0.red_router)     # C0 actually trained+calibrated+routed
-        res = D.run_dev({"PD": (reg, b, lab)})                                      # one-disease smoke (synthetic -> likely DEV_STOP)
-        assert res.verdict in ("SELECT", "DEV_STOP")
-        assert set(res.per_disease["PD"]) >= {"C1", "C2", "C3", "C0"}
-        if res.verdict == "DEV_STOP":
-            assert res.refit_sha256["PD"] is None
+        cache = D.disease_exec_cache(reg, b, lab)
+        bb = [x for x in b if not x.fallback][0]
+        sa = reg.resolve(bb); exe = sa.execute(bb); state = sa._ephemeral_state()
+        c = cache[D.deployment_batch_digest(bb)]
+        p0 = np.asarray(exe.p0, float); z0 = np.asarray(exe.z0, float)
+        for a, za, pa in exe.per_action:
+            v2 = feature_vector(paired_features(p0, np.asarray(pa, float), z0, None if za is None else np.asarray(za, float)),
+                                context_features(state, None if za is None else np.asarray(za, float), np.asarray(pa, float)))
+            assert v2.shape == (11,) and np.array_equal(v2, c["c0feat"][a])         # bit-for-bit v2 11-D vector
+    print("  [ok] v3 C0 feature == v2 feature_vector exactly (11-D, NaN->0, v2 ordering)")
+
+
+def test_fallback_changes_denominators():
+    with tempfile.TemporaryDirectory() as tmp:
+        reg, b, lab = _pooled_disease(tmp, n_cohorts=3)
+        rep_full, _ = D.develop_candidate("PD", reg, b, lab, "C1")
+        no_fb = [x for x in b if not x.fallback]                                    # drop fallback batches
+        rep_nofb, _ = D.develop_candidate("PD", reg, no_fb, lab, "C1")
+        # denominators differ -> coverage with fallback is <= coverage without (more identity-only batches)
+        assert rep_full.adaptation_coverage <= rep_nofb.adaptation_coverage + 1e-12
+        c0_full = D.run_c0("PD", reg, b, lab); c0_nofb = D.run_c0("PD", reg, no_fb, lab)
+        assert c0_full.n_eval_fallback_batches > 0 and c0_nofb.n_eval_fallback_batches == 0
+        print("  [ok] fallback batches enter red/coverage denominators (candidate + C0); removing them changes coverage")
+
+
+def test_subject_weighting_unequal_batches():
+    # rare subject A (1 batch, residual 10) vs subject B (100 batches, residual 0). Subject-equal weighting gives A and
+    # B 50% mass each, so the 90th pct lands at A's value (~10); a NAIVE record-weighted quantile would bury it (~0).
+    recs = [D.OOFRecord("C2", "PD", 'WS["d","sA"]', "a" * 64, 0, a, 10.0, 0.0, 0.0, 1.0, 1.0, 10.0, 0.0, 0.0, "identity")
+            for a in NON_IDENTITY]                                                  # subject A: residual 10 (1 batch)
+    for a in NON_IDENTITY:
+        for _i in range(100):
+            recs.append(D.OOFRecord("C2", "PD", 'WS["d","sB"]', "b" * 64, 0, a, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0, 0.0, 0.0, "identity"))
+    g = D.s2_c2_gate(recs)
+    assert all(g[a]["tail90"] > 5.0 for a in NON_IDENTITY)                          # rare subject counted equally
+    assert float(np.quantile([10.0] + [0.0] * 100, 0.90)) < 1.0                     # record-weighting would bury it
+    print("  [ok] S2 tails subject-equal-weighted: a rare 1-batch subject is NOT buried by a 100-batch subject")
+
+
+def test_binding_entrypoint_and_frozen_runner():
+    with tempfile.TemporaryDirectory() as tmp:
+        regP, bP, lP = _pooled_disease(tmp, n_cohorts=3)
+        # binding entrypoint enforces the frozen config
+        _expect(ValueError, lambda: D.run_binding_dev({"PD": (regP, bP, lP)}))                 # missing SCZ
+        _expect(ValueError, lambda: D.run_binding_dev({"PD": (regP, bP, lP), "SCZ": (regP, bP, lP)}, alpha=0.2))
+        _expect(ValueError, lambda: D.run_binding_dev({"PD": (regP, bP, lP), "SCZ": (regP, bP, lP)},
+                                                      candidates=("C1", "C2")))
+        # SCZ pool (separate cohorts/dataset ids); reuse helper but relabel disease
+        regS = L.SourceStateRegistry("SCZ"); bS = []; lS = {}
+        for ci in range(3):
+            p = os.path.join(tmp, f"audit_SCZ_s{ci}_erm_0.npz"); _make_dump(p, seed=10 + ci)
+            sa = L.load_source_artifact_from_dump(p, disease="SCZ")
+            regS.add(sa); bS += L.load_deployment_batches(p, disease="SCZ", dataset_id=f"sds{ci}",
+                                                          source_state_ref=sa.source_state_ref)
+            lS.update(L.load_labels_by_window(p, dataset_id=f"sds{ci}"))
+        outdir = os.path.join(tmp, "dev_out")
+        res, man = D.freeze_dev_run({"PD": (regP, bP, lP), "SCZ": (regS, bS, lS)}, outdir)
+        assert man["verdict"] in ("SELECT", "DEV_STOP")
+        _expect(FileExistsError, lambda: D.freeze_dev_run({"PD": (regP, bP, lP), "SCZ": (regS, bS, lS)}, outdir))  # non-overwrite
+        if man["verdict"] == "SELECT":
+            assert os.path.exists(os.path.join(outdir, "manifest.json"))
+            import pickle as pk
+            for d in ("PD", "SCZ"):
+                with open(man["saved"][d]["predictor_path"], "rb") as f:
+                    art = pk.load(f)
+                assert art.artifact_sha256 == man["saved"][d]["predictor_sha256"]   # reload-hash identity
         else:
-            assert L._is_hex64(res.refit_sha256["PD"])
-        assert res.pool_digest["PD"] == D.replay_pool_digest(b)
-        print(f"  [ok] run_dev smoke verdict={res.verdict}; C0 trained/calibrated/routed; per-candidate reports + pool identity present")
+            assert os.path.exists(os.path.join(outdir, "DEV_STOP.json"))
+        print(f"  [ok] binding entrypoint enforces {{PD,SCZ}}/C1C2C3/α0.10/δ0; frozen runner non-overwrite; verdict={man['verdict']}")
 
 
 def main():
     print("ACAR v3 split + DEV bake-off/gate guards (synthetic fixtures only):")
     for t in (test_split_partition_balance_determinism, test_split_permutation_independent,
               test_develop_multicohort_registry_and_leak_isolation, test_develop_fallback_eval_accounting,
-              test_s2_c2_gate_boundaries_and_floor, test_s4_select_tie_rules_and_dev_stop,
-              test_dev_run_smoke_and_c0_real):
+              test_s2_c2_gate_boundaries_and_floor, test_s4_eligible_each_criterion_gates,
+              test_s4_select_max_first_tie_and_dev_stop, test_c0_vector_is_v2_exact,
+              test_fallback_changes_denominators, test_subject_weighting_unequal_batches,
+              test_binding_entrypoint_and_frozen_runner):
         t()
     print("ALL V3 DEVELOP/SPLIT GUARDS PASS")
 

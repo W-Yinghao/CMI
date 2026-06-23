@@ -12,7 +12,11 @@ Wiring (per disease, on that disease's pooled cohorts resolved through a SourceS
 """
 from __future__ import annotations
 from dataclasses import dataclass
+import hashlib
+import json
 import math
+import os
+import pickle
 
 import numpy as np
 
@@ -25,6 +29,31 @@ from .splits import cv_assignment
 from .loader import hash_subject_list, _digest, SourceStateRegistry, SourceStateArtifact
 
 Z90 = 1.2815515594463558                                   # standard-normal 0.90 quantile
+AUROC_GATE = 0.60                                          # G1 (per disease, ≥1 action)
+WIDTH_REDUCTION = 0.30                                     # disease-macro width ≥30% below C0
+COVERAGE_MIN = 0.15                                        # OOF adaptation coverage
+C0_SEED = 0                                                # v2 binding-runner model seed (NOT seed_es)
+
+
+def _subject_weighted(values_by_subject):
+    """Each subject contributes total weight 1 (split across its records). Returns (flat values, flat weights)."""
+    vals, wts = [], []
+    for v in values_by_subject.values():
+        v = np.asarray(v, float)
+        if not len(v):
+            continue
+        vals.append(v); wts.append(np.full(len(v), 1.0 / len(v)))
+    if not vals:
+        raise ValueError("no subject values")
+    return np.concatenate(vals), np.concatenate(wts)
+
+
+def _weighted_quantile(values, weights, q):
+    """Deterministic weighted empirical quantile (lower-tail, normalized weights, sorted)."""
+    v = np.asarray(values, float); w = np.asarray(weights, float)
+    order = np.argsort(v, kind="stable"); v = v[order]; w = w[order]
+    cw = np.cumsum(w); cw /= cw[-1]
+    return float(v[int(np.searchsorted(cw, q, side="left"))]) if cw[-1] > 0 else float("nan")
 
 
 # ============================================================================================== pool / subject index
@@ -54,18 +83,31 @@ def _as_registry(reg_or_art, disease):
 
 
 # ------------------------------------------------------------------------------------------------ execution cache
+def _c0_vector(state, p0, z0, za, pa):
+    """BIT-FOR-BIT v2 feature vector: reuses acar.features.paired_features/context_features/feature_vector on the SAME
+    captured execution (z_pre=identity embedding, z_post=action embedding-or-None). 11-dim, NaN→0, v2 ordering."""
+    from acar.features import paired_features, context_features, feature_vector
+    return feature_vector(paired_features(p0, pa, z0, za), context_features(state, za, pa))
+
+
 def disease_exec_cache(registry, batches, labels):
     """Execute every ELIGIBLE batch EXACTLY ONCE (the adapters are the expensive, candidate-independent step) and cache
-    the captured WindowActionSets + ΔR + execution hashes. Keyed by deployment_batch_digest. Reused across all folds,
-    candidates, and the C0 replay — so the whole DEV bake-off triggers each batch's single execution only once."""
-    cache = {}
+    the captured WindowActionSets + ΔR + execution hashes + the v2 C0 vectors. Keyed by deployment_batch_digest. Reused
+    across all folds, candidates, and the C0 replay — so the whole DEV bake-off triggers each batch's execution once."""
+    cache = {}; states = {}
     for b in batches:
         if b.fallback:
             continue
         sa = registry.resolve(b)
+        if sa.source_state_ref not in states:
+            states[sa.source_state_ref] = sa._ephemeral_state()
+        st = states[sa.source_state_ref]
         exe = sa.execute(b)
+        p0 = np.asarray(exe.p0, float); z0 = np.asarray(exe.z0, float)
+        c0feat = {a: _c0_vector(st, p0, z0, None if za is None else np.asarray(za, float), np.asarray(pa, float))
+                  for a, za, pa in exe.per_action}
         cache[deployment_batch_digest(b)] = {
-            "exe": exe, "was": exe.window_action_sets(sa),
+            "exe": exe, "was": exe.window_action_sets(sa), "c0feat": c0feat,
             "dr": dict(exe.labeled_risk_record(labels).delta_r_by_action)}
     return cache
 
@@ -193,8 +235,8 @@ def _subject_balanced(values_by_subject):
 
 
 def s2_c2_gate(records):
-    """C2: per-action subject-balanced standardized-residual mean∈[-0.25,0.25], variance∈[0.5,2.0], positive-tail 90th
-    pct ∈[0.8,2.0]·z₀.₉₀. FAIL-CLOSED. Returns dict(action -> stats) + overall pass."""
+    """C2: per-action SUBJECT-EQUAL-WEIGHTED standardized-residual mean∈[-0.25,0.25], variance∈[0.5,2.0], positive-tail
+    90th pct ∈[0.8,2.0]·z₀.₉₀. Each subject totals weight 1 (so a 100-batch subject does not dominate). FAIL-CLOSED."""
     res = {}; ok = True
     for a, rs in _by_action(records).items():
         if not rs:
@@ -205,8 +247,8 @@ def s2_c2_gate(records):
                 raise ValueError("C2 S2: non-positive scale_used")
             by_s.setdefault(r.subject, []).append((r.delta_r - r.upper_center) / r.scale_used)
         m, v = _subject_balanced(by_s)
-        allr = np.concatenate([np.asarray(x) for x in by_s.values()])
-        tail = float(np.quantile(allr, 0.90))
+        vals, wts = _subject_weighted(by_s)
+        tail = _weighted_quantile(vals, wts, 0.90)              # subject-equal-weighted tail
         a_ok = (abs(m) <= 0.25) and (0.5 <= v <= 2.0) and (0.8 * Z90 <= tail <= 2.0 * Z90)
         res[a] = dict(mean=m, var=v, tail90=tail, ok=bool(a_ok)); ok = ok and a_ok
     res["pass"] = bool(ok)
@@ -214,17 +256,22 @@ def s2_c2_gate(records):
 
 
 def s2_c3_gate(records):
-    """C3: per-action exceedance P(ΔR>q̂₉₀)∈[0.05,0.20]; positive-excess 95th pct ≤ 2·(OOF ΔR SD); q̂₉₀>q̂₅₀ everywhere."""
+    """C3: per-action SUBJECT-EQUAL-WEIGHTED exceedance P(ΔR>q̂₉₀)∈[0.05,0.20]; positive-excess 95th pct ≤ 2·(OOF ΔR SD);
+    q̂₉₀>q̂₅₀ everywhere. exceedance/excess-95/SD are subject-weighted (each subject totals weight 1)."""
     res = {}; ok = True
     for a, rs in _by_action(records).items():
         if not rs:
             raise ValueError(f"C3 S2: no OOF records for action {a}")
-        dr = np.array([r.delta_r for r in rs]); q90 = np.array([r.upper_center for r in rs])
-        q50 = np.array([r.point for r in rs])
-        exc = float(np.mean(dr > q90))
-        excess95 = float(np.quantile(np.maximum(dr - q90, 0.0), 0.95))
-        sd = float(np.std(dr))
-        crossing_ok = bool(np.all(q90 > q50))
+        by_exc, by_excess, by_dr = {}, {}, {}
+        for r in rs:
+            by_exc.setdefault(r.subject, []).append(1.0 if r.delta_r > r.upper_center else 0.0)
+            by_excess.setdefault(r.subject, []).append(max(r.delta_r - r.upper_center, 0.0))
+            by_dr.setdefault(r.subject, []).append(r.delta_r)
+        ev, ew = _subject_weighted(by_exc); exc = float(np.sum(ev * ew) / np.sum(ew))   # weighted mean
+        xv, xw = _subject_weighted(by_excess); excess95 = _weighted_quantile(xv, xw, 0.95)
+        dv, dw = _subject_weighted(by_dr)
+        dmean = float(np.sum(dv * dw) / np.sum(dw)); sd = float(np.sqrt(np.sum(dw * (dv - dmean) ** 2) / np.sum(dw)))
+        crossing_ok = bool(all(r.upper_center > r.point for r in rs))
         a_ok = (0.05 <= exc <= 0.20) and (excess95 <= 2.0 * sd) and crossing_ok
         res[a] = dict(exceedance=exc, excess95=excess95, dr_sd=sd, crossing_ok=crossing_ok, ok=bool(a_ok))
         ok = ok and a_ok
@@ -269,45 +316,40 @@ def c2_floor_from_oof(records, quantile=None):
 
 
 # ============================================================================================= C0 / v2 full-recipe replay
-def _c0_feature(was):
-    """Batch-summary φ_a(B) for the v2 ActionRegressor: masked column-means of the per-window features ⊕ context."""
-    vals = np.asarray(was.values, float); mask = np.asarray(was.availability_mask, float)
-    denom = np.clip(mask.sum(0), 1.0, None)
-    col_mean = (vals * mask).sum(0) / denom
-    return np.concatenate([col_mean, np.asarray(was.context_values, float)])
-
-
 @dataclass(frozen=True)
 class C0Report:
     disease: str
     red_router: float
     adaptation_coverage: float
+    mae: float
+    max_action_auroc: float
+    width: float
     n_eval_eligible_batches: int
+    n_eval_fallback_batches: int
 
 
 def run_c0(disease, reg_or_art, batches, labels, alpha=0.10, delta=0.0, cache=None) -> C0Report:
-    """C0 = the v2 recipe (per-action ActionRegressor: HGB≥40 / Ridge≥8 / constant), actually TRAINED on FIT,
-    one-sided conformal q on CAL subject scores, ROUTED on EVAL — over the identical splits/pool (cached executions)."""
-    from acar.regressor import ActionRegressor
+    """C0 = the v2 recipe (per-action `acar.regressor.ActionRegressor`: HGB≥40 / Ridge≥8 / constant, **seed 0**), the
+    bit-for-bit v2 11-D feature vector, actually TRAINED on FIT, one-sided conformal q on CAL subject scores, ROUTED on
+    EVAL — over the identical splits/pool. FALLBACK batches are RETAINED (identity, ΔR 0, not adapted) in the red /
+    coverage denominators; MAE/width/AUROC use eligible batches (predictor output required)."""
     registry = _as_registry(reg_or_art, disease)
     idx = _subject_batches(batches); eligible = _eligible_subjects(idx)
     if cache is None:
         cache = disease_exec_cache(registry, batches, labels)
     elig_canon = {canon_subject(s) for s in eligible}
     assignment, _ = cv_assignment([v["key"] for v in idx.values()], eligible=elig_canon)
-    chosen_dr = []; n_adapt = 0; n_elig = 0
-
-    def feat_dr(b):
-        c = cache[deployment_batch_digest(b)]
-        return {a: _c0_feature(c["was"][a]) for a in NON_IDENTITY}, c["dr"]
+    chosen_dr = []; n_adapt = 0; n_total = 0; n_fb = 0
+    by_subj_ae = {}; centers = []; harm = []                     # MAE / AUROC accumulators (eligible only)
+    widths = []
     for fa in assignment:
         Xy = {a: ([], []) for a in NON_IDENTITY}
         for s in fa["fit"]:
             for b in sorted(idx[canon_subject(s)]["eligible"], key=deployment_batch_digest):
-                feat, dr = feat_dr(b)
+                c = cache[deployment_batch_digest(b)]
                 for a in NON_IDENTITY:
-                    Xy[a][0].append(feat[a]); Xy[a][1].append(dr[a])
-        regs = {a: ActionRegressor(seed=HP["seed_es"]).fit(np.array(Xy[a][0]), np.array(Xy[a][1])) for a in NON_IDENTITY}
+                    Xy[a][0].append(c["c0feat"][a]); Xy[a][1].append(c["dr"][a])
+        regs = {a: _fit_action_regressor(np.array(Xy[a][0]), np.array(Xy[a][1])) for a in NON_IDENTITY}
         cal = []
         for s in fa["cal"]:
             slot = idx[canon_subject(s)]
@@ -315,24 +357,40 @@ def run_c0(disease, reg_or_art, batches, labels, alpha=0.10, delta=0.0, cache=No
                 continue
             smax = -math.inf
             for b in sorted(slot["eligible"], key=deployment_batch_digest):
-                feat, dr = feat_dr(b)
+                c = cache[deployment_batch_digest(b)]
                 for a in NON_IDENTITY:
-                    smax = max(smax, dr[a] - float(regs[a].predict([feat[a]])[0]))
+                    smax = max(smax, c["dr"][a] - float(regs[a].predict([c["c0feat"][a]])[0]))
             cal.append(smax)
         q, _k = conformal_q(cal, alpha)
         for s in fa["eval"]:
-            for b in sorted(idx[canon_subject(s)]["eligible"], key=deployment_batch_digest):
-                feat, dr = feat_dr(b)
-                U = {a: float(regs[a].predict([feat[a]])[0]) + q for a in NON_IDENTITY}
+            slot = idx[canon_subject(s)]
+            for b in sorted(slot["eligible"], key=deployment_batch_digest):
+                c = cache[deployment_batch_digest(b)]
+                ghat = {a: float(regs[a].predict([c["c0feat"][a]])[0]) for a in NON_IDENTITY}
+                U = {a: ghat[a] + q for a in NON_IDENTITY}
+                for a in NON_IDENTITY:
+                    by_subj_ae.setdefault(s, []).append(abs(ghat[a] - c["dr"][a]))
+                    centers.append(ghat[a]); harm.append(1 if c["dr"][a] > 0 else 0)
+                    widths.append(U[a] - ghat[a])
                 elig_acts = [a for a in NON_IDENTITY if U[a] < -float(delta)]
                 if elig_acts:
-                    ch = min(elig_acts, key=lambda a: U[a]); chosen_dr.append(dr[ch]); n_adapt += 1
+                    ch = min(elig_acts, key=lambda a: U[a]); chosen_dr.append(c["dr"][ch]); n_adapt += 1
                 else:
                     chosen_dr.append(0.0)
-                n_elig += 1
-    red = -float(np.mean(chosen_dr)) if chosen_dr else 0.0       # reduction vs identity (0); >0 is good
-    cov = (n_adapt / n_elig) if n_elig else 0.0
-    return C0Report(disease, red, float(cov), n_elig)
+                n_total += 1
+            for _b in slot["fallback"]:                          # fallback retained: identity, ΔR 0, not adapted
+                chosen_dr.append(0.0); n_total += 1; n_fb += 1
+    red = -float(np.mean(chosen_dr)) if chosen_dr else 0.0
+    cov = (n_adapt / n_total) if n_total else 0.0
+    mae = float(np.mean([np.mean(v) for v in by_subj_ae.values()])) if by_subj_ae else float("inf")
+    au = _auroc(centers, harm) if centers else float("nan")
+    width = float(np.mean(widths)) if widths else float("inf")
+    return C0Report(disease, red, float(cov), mae, float(au), width, n_total - n_fb, n_fb)
+
+
+def _fit_action_regressor(X, y):
+    from acar.regressor import ActionRegressor
+    return ActionRegressor(seed=C0_SEED).fit(X, y)              # v2 model seed 0 (NOT seed_es)
 
 
 # ===================================================================================== per-candidate disease metrics
@@ -356,16 +414,18 @@ class CandidateReport:
     candidate: str
     s2_pass: bool
     dominance_pass: bool
-    max_action_auroc: float
-    width: float
-    adaptation_coverage: float
-    red_router: float
-    selectable: bool
+    max_action_auroc: float       # max over actions of center-AUROC vs 1[ΔR>0]
+    mae: float                    # subject-clustered MAE of center m_c vs ΔR (eligible)
+    width: float                  # subject-macro mean of (U_a - center)
+    adaptation_coverage: float    # n_adapt / (eligible + fallback) batches
+    red_router: float             # -mean chosen ΔR over ALL EVAL batches (fallback contributes 0)
+    all_q_inf: bool               # every fold's q was +inf -> nothing adaptable
     c2_floor: dict
 
 
 def develop_candidate(disease, reg_or_art, batches, labels, candidate, alpha=0.10, delta=0.0, cache=None) -> tuple:
-    """Run the OOF pass for one candidate and compute its S2 admissibility + S4 input metrics. Returns (report, oof)."""
+    """OOF pass for one candidate + its S2 admissibility & S4 input statistics. FALLBACK batches are RETAINED (identity,
+    ΔR 0, not adapted) in the red/coverage denominators; MAE/width/AUROC use eligible batches. Returns (report, oof)."""
     oof = run_oof(disease, reg_or_art, batches, labels, candidate, alpha, delta, cache=cache)
     recs = oof.records
     dom = maxa_dominance(recs)
@@ -374,60 +434,73 @@ def develop_candidate(disease, reg_or_art, batches, labels, candidate, alpha=0.1
     elif candidate == "C3":
         s2 = s2_c3_gate(recs); floor = {}
     else:
-        s2 = {"pass": True}; floor = {}                          # C1 has no scale/quantile gate, only dominance
-    # per-action OOF harm AUROC (score vs 1[ΔR>0]); width; coverage; red_router
+        s2 = {"pass": True}; floor = {}                          # C1: only dominance applies
     aurocs = []
     for a, rs in _by_action(recs).items():
-        au = _auroc([r.upper for r in rs], [1 if r.delta_r > 0 else 0 for r in rs])
+        au = _auroc([r.point for r in rs], [1 if r.delta_r > 0 else 0 for r in rs])   # center-AUROC
         if not math.isnan(au):
             aurocs.append(au)
     max_au = max(aurocs) if aurocs else float("nan")
-    # width W_c (subject-macro mean of U_a - center); center = point (C1/C2) or q50=point (C3 point is q50)
-    by_subj_w = {}
+    by_subj_w = {}; by_subj_ae = {}
     for r in recs:
         by_subj_w.setdefault(r.subject, []).append(r.upper - r.point)
-    width = float(np.mean([np.mean(v) for v in by_subj_w.values()]))
-    # router red + coverage from the per-batch chosen action
+        by_subj_ae.setdefault(r.subject, []).append(abs(r.point - r.delta_r))         # |center - ΔR|
+    width = float(np.mean([np.mean(v) for v in by_subj_w.values()])) if by_subj_w else float("inf")
+    mae = float(np.mean([np.mean(v) for v in by_subj_ae.values()])) if by_subj_ae else float("inf")
+    # router red + coverage: per-batch chosen action; denominator INCLUDES fallback batches (identity, ΔR 0)
     by_batch = {}
-    for r in recs:
-        by_batch.setdefault((r.subject, r.batch_digest), r.chosen)  # chosen identical across actions of a batch
-    chosen_dr = []
     drmap = {(r.subject, r.batch_digest, r.action): r.delta_r for r in recs}
-    n_adapt = 0
+    for r in recs:
+        by_batch.setdefault((r.subject, r.batch_digest), r.chosen)
+    chosen_dr = []; n_adapt = 0
     for (subj, bd), ch in by_batch.items():
         if ch == "identity":
             chosen_dr.append(0.0)
         else:
             chosen_dr.append(drmap[(subj, bd, ch)]); n_adapt += 1
+    chosen_dr += [0.0] * oof.n_eval_fallback_batches            # fallback retained -> identity, ΔR 0
+    n_total = len(by_batch) + oof.n_eval_fallback_batches
     red = -float(np.mean(chosen_dr)) if chosen_dr else 0.0
-    cov = n_adapt / len(by_batch) if by_batch else 0.0
-    selectable = bool(s2["pass"] and dom["ok"])                  # C1 selectable ONLY if dominance passes
-    rep = CandidateReport(disease, candidate, bool(s2["pass"]), bool(dom["ok"]), float(max_au), width, float(cov),
-                          float(red), selectable, floor)
+    cov = (n_adapt / n_total) if n_total else 0.0
+    all_q_inf = all(not math.isfinite(q) for q in oof.fold_qs) if oof.fold_qs else True
+    rep = CandidateReport(disease, candidate, bool(s2["pass"]), bool(dom["ok"]), float(max_au), mae, width, float(cov),
+                          float(red), bool(all_q_inf), floor)
     return rep, oof
 
 
-# ================================================================================================ S4 select (pure)
+# ================================================================================================ S4 gate + select (pure)
+def s4_eligible(m, *, auroc_gate=AUROC_GATE, width_reduction=WIDTH_REDUCTION, coverage_min=COVERAGE_MIN):
+    """The FULL S4 pre-lock admissibility (every criterion gates SELECT). `m` is a candidate's cross-disease dict:
+    s2_pass, dominance_pass, pd_auroc, scz_mae, c0_scz_mae, width_macro, c0_width_macro, coverage_macro, red_macro,
+    c0_red_macro, any_q_inf. Returns dict(criteria, eligible)."""
+    crit = {
+        "s2": bool(m["s2_pass"]),
+        "dominance": bool(m["dominance_pass"]),
+        "pd_auroc": (not math.isnan(m["pd_auroc"])) and m["pd_auroc"] >= auroc_gate,
+        "scz_mae_not_worse": m["scz_mae"] <= m["c0_scz_mae"] + 1e-12,
+        "width_30pct_below_c0": math.isfinite(m["width_macro"]) and
+        m["width_macro"] <= (1.0 - width_reduction) * m["c0_width_macro"],
+        "coverage": m["coverage_macro"] >= coverage_min,
+        "red_positive": m["red_macro"] > 0.0,
+        "red_not_below_c0": m["red_macro"] >= m["c0_red_macro"] - 1e-12,
+        "q_finite": not bool(m["any_q_inf"]),
+    }
+    return {"criteria": crit, "eligible": all(crit.values())}
+
+
 def s4_select(per_candidate, *, tie_tol=1e-4, order=("C2", "C3", "C1")):
-    """SELECT = max disease-macro OOF router NLL reduction among candidates passing all DEV pre-lock criteria; tie
-    (|Δred|≤tie_tol) → smaller disease-macro width; residual tie → fixed order C2 ≺ C3 ≺ C1. `per_candidate` maps
-    candidate -> dict(passes:bool, red_macro:float, width_macro:float). Returns dict(selected | DEV_STOP)."""
-    passers = {c: m for c, m in per_candidate.items() if m["passes"]}
+    """Among candidates with `eligible=True`: take the MAX disease-macro `red_macro`, form the tie set
+    {c : max_red − red_macro[c] ≤ tie_tol} (transitive — relative to the true max), pick smallest `width_macro`, then
+    fixed order C2 ≺ C3 ≺ C1. No eligible candidate → `DEV_STOP / NO_LOCKBOX_CONSUMED`."""
+    passers = {c: m for c, m in per_candidate.items() if m.get("eligible")}
     if not passers:
         return {"verdict": "DEV_STOP", "reason": "NO_LOCKBOX_CONSUMED", "selected": None}
-    best = None
-    for c in sorted(passers, key=lambda x: order.index(x) if x in order else len(order)):
-        m = passers[c]
-        if best is None:
-            best = c; continue
-        bm = passers[best]
-        if m["red_macro"] > bm["red_macro"] + tie_tol:
-            best = c
-        elif abs(m["red_macro"] - bm["red_macro"]) <= tie_tol:
-            if m["width_macro"] < bm["width_macro"] - 1e-12:
-                best = c
-            # residual tie: keep earlier in fixed order (already iterating in order) -> no change
-    return {"verdict": "SELECT", "selected": best, "reason": "passed S2+S4"}
+    max_red = max(m["red_macro"] for m in passers.values())
+    tie = {c: m for c, m in passers.items() if max_red - m["red_macro"] <= tie_tol}     # relative to the TRUE max
+    min_w = min(m["width_macro"] for m in tie.values())
+    finalists = [c for c, m in tie.items() if m["width_macro"] <= min_w + 1e-12]
+    best = min(finalists, key=lambda c: order.index(c) if c in order else len(order))   # C2 ≺ C3 ≺ C1
+    return {"verdict": "SELECT", "selected": best, "reason": "passed S2+S4", "max_red": max_red, "tie": sorted(tie)}
 
 
 # ===================================================================================================== full DEV run
@@ -443,50 +516,142 @@ class DevelopResult:
     eligible_subject_list_sha256: dict
     pool_digest: dict
     n_fallback_only_subjects: dict
+    s4_inputs: dict             # candidate -> cross-disease S4 metric dict (incl per-criterion eligibility)
+
+
+def s4_metrics(reports, candidate, diseases):
+    """Assemble a candidate's cross-disease S4 metric dict from per-disease CandidateReports + C0. width/red are
+    disease-MACRO; PD AUROC is PD-specific; SCZ MAE is SCZ-specific (vs C0). C0 macro red/width too."""
+    rc = {d: reports[d][candidate] for d in diseases}; c0 = {d: reports[d]["C0"] for d in diseases}
+    macro = lambda f: float(np.mean([f(d) for d in diseases]))
+    pd_au = rc["PD"].max_action_auroc if "PD" in rc else float("nan")
+    scz_mae = rc["SCZ"].mae if "SCZ" in rc else float("inf")
+    c0_scz_mae = c0["SCZ"].mae if "SCZ" in c0 else float("inf")
+    return {
+        "s2_pass": all(rc[d].s2_pass for d in diseases),
+        "dominance_pass": all(rc[d].dominance_pass for d in diseases),
+        "pd_auroc": pd_au, "scz_mae": scz_mae, "c0_scz_mae": c0_scz_mae,
+        "width_macro": macro(lambda d: rc[d].width), "c0_width_macro": macro(lambda d: c0[d].width),
+        "coverage_macro": macro(lambda d: rc[d].adaptation_coverage),
+        "red_macro": macro(lambda d: rc[d].red_router), "c0_red_macro": macro(lambda d: c0[d].red_router),
+        "any_q_inf": any(rc[d].all_q_inf for d in diseases),
+    }
 
 
 def run_dev(diseases_data, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0) -> DevelopResult:
-    """diseases_data: {disease: (registry_or_artifact, batches, labels)}. Runs the bake-off on EACH disease, the C0
-    replay over the identical pool, the disease-MACRO S4 selection, and (if a candidate is selected) the final per-
-    disease refit on the frozen eligible pool. SYNTHETIC orchestration — no real DEV value, no binding verdict."""
-    reports = {d: {} for d in diseases_data}; oofs = {d: {} for d in diseases_data}
-    elig_sha = {}; pools = {}; nfb = {}
-    caches = {}
+    """diseases_data: {disease: (registry_or_artifact, batches, labels)}. Bake-off on EACH disease, real C0/v2 replay
+    over the identical pool, the FULL S4 admissibility (`s4_eligible`) + disease-macro SELECT, and (if SELECT) the final
+    per-disease refit on the frozen eligible pool. SYNTHETIC orchestration — no real DEV value, no binding G2 verdict."""
+    diseases = list(diseases_data)
+    reports = {d: {} for d in diseases}; oofs = {d: {} for d in diseases}
+    elig_sha = {}; pools = {}; nfb = {}; caches = {}
     for d, (reg, batches, labels) in diseases_data.items():
         registry = _as_registry(reg, d)
         idx = _subject_batches(batches); eligible = _eligible_subjects(idx)
         elig_sha[d] = hash_subject_list(eligible); pools[d] = pool_digest(batches)
         nfb[d] = sum(1 for v in idx.values() if not v["eligible"])
-        caches[d] = disease_exec_cache(registry, batches, labels)   # execute each batch ONCE for the whole disease
+        caches[d] = disease_exec_cache(registry, batches, labels)
         for c in candidates:
             reports[d][c], oofs[d][c] = develop_candidate(d, registry, batches, labels, c, alpha, delta, cache=caches[d])
         reports[d]["C0"] = run_c0(d, registry, batches, labels, alpha, delta, cache=caches[d])
-        assert pools[d] == replay_pool_digest(batches)         # C0 consumes the identical pool
-    # disease-macro S4 inputs (a candidate must be selectable in EVERY disease)
+        assert pools[d] == replay_pool_digest(batches)
     per_cand = {}
     for c in candidates:
-        passes = all(reports[d][c].selectable for d in diseases_data)
-        red_macro = float(np.mean([reports[d][c].red_router for d in diseases_data]))
-        width_macro = float(np.mean([reports[d][c].width for d in diseases_data]))
-        per_cand[c] = {"passes": passes, "red_macro": red_macro, "width_macro": width_macro}
+        m = s4_metrics(reports, c, diseases); m["eligible"] = s4_eligible(m)["eligible"]; per_cand[c] = m
     sel = s4_select(per_cand)
     final_ep = {}; refit_sha = {}
     if sel["verdict"] == "SELECT":
         c = sel["selected"]
-        for d, (reg, batches, labels) in diseases_data.items():
-            idx = _subject_batches(batches); eligible = _eligible_subjects(idx)
+        for d in diseases:
+            idx = _subject_batches(diseases_data[d][1]); eligible = _eligible_subjects(idx)
             fe = final_epochs(list(oofs[d][c].best_epochs)); final_ep[d] = fe
             all_ex = _train_examples(eligible, idx, caches[d])
             floor = reports[d][c].c2_floor if c == "C2" else {}
             art = refit_candidate_fixed_epochs(c, d, all_ex, fe, floor, HP["seed_es"])
             refit_sha[d] = art.artifact_sha256
     else:
-        for d in diseases_data:
+        for d in diseases:
             final_ep[d] = 0; refit_sha[d] = None
     return DevelopResult(sel.get("selected"), sel["verdict"], float(alpha), float(delta), reports, final_ep, refit_sha,
-                         elig_sha, pools, nfb)
+                         elig_sha, pools, nfb, per_cand)
 
 
 def replay_pool_digest(batches) -> str:
     """The C0/v2 replay MUST consume the identical pool (asserted in run_dev)."""
     return pool_digest(batches)
+
+
+# ===================================================================================== binding entrypoint + frozen runner
+def run_binding_dev(diseases_data, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0) -> DevelopResult:
+    """The binding DEV entrypoint. Enforces the FROZEN configuration before running: BOTH diseases, ALL three
+    candidates, α=0.10, δ=0.0. Any deviation fails closed (the binding run cannot silently use a subset / off α)."""
+    if set(diseases_data) != {"PD", "SCZ"}:
+        raise ValueError("binding DEV requires exactly diseases {PD, SCZ}")
+    if tuple(candidates) != ("C1", "C2", "C3"):
+        raise ValueError("binding DEV requires candidates (C1, C2, C3)")
+    if float(alpha) != 0.10 or float(delta) != 0.0:
+        raise ValueError("binding DEV requires alpha=0.10, delta=0.0")
+    return run_dev(diseases_data, candidates, alpha, delta)
+
+
+def freeze_dev_run(diseases_data, outdir, *, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0):
+    """Run the binding DEV gate and FREEZE the outcome to a NON-OVERWRITABLE directory: the selected per-disease
+    predictor artifacts + the final C0 regressors (pickled; reload-hash verified), the frozen best-fixed action, the
+    full S5/S6/S8/S9 manifest (field-separated dump/source/label hashes, fold split assignments, per-fold m/k/q, OOF
+    record digest, seven-cohort input manifest). On DEV_STOP writes a `DEV_STOP / NO_LOCKBOX_CONSUMED` marker and no
+    artifacts. SYNTHETIC stage: exercised on fixtures; the lockbox is never read."""
+    if os.path.exists(outdir):
+        raise FileExistsError(f"refusing to overwrite existing DEV output dir {outdir}")
+    res = run_binding_dev(diseases_data, candidates, alpha, delta)
+    os.makedirs(outdir)
+    manifest = {"verdict": res.verdict, "selected": res.candidate_selected, "alpha": res.alpha, "delta": res.delta,
+                "pool_digest": res.pool_digest, "eligible_subject_list_sha256": res.eligible_subject_list_sha256,
+                "n_fallback_only_subjects": res.n_fallback_only_subjects, "final_epochs": res.final_epochs,
+                "s4_inputs": res.s4_inputs}
+    if res.verdict != "SELECT":
+        manifest["reason"] = "NO_LOCKBOX_CONSUMED"
+        with open(os.path.join(outdir, "DEV_STOP.json"), "w") as f:
+            json.dump(manifest, f, indent=2, sort_keys=True, default=str)
+        return res, manifest
+    c = res.candidate_selected
+    saved = {}
+    for d, (reg, batches, labels) in diseases_data.items():
+        registry = _as_registry(reg, d)
+        idx = _subject_batches(batches); eligible = _eligible_subjects(idx)
+        cache = disease_exec_cache(registry, batches, labels)
+        # selected predictor artifact
+        all_ex = _train_examples(eligible, idx, cache)
+        floor = res.per_disease[d][c].c2_floor if c == "C2" else {}
+        art = refit_candidate_fixed_epochs(c, d, all_ex, res.final_epochs[d], floor, HP["seed_es"])
+        ppath = os.path.join(outdir, f"predictor_{d}.pkl")
+        with open(ppath, "wb") as f:
+            pickle.dump(art, f)
+        with open(ppath, "rb") as f:
+            reloaded = pickle.load(f)
+        if reloaded.artifact_sha256 != art.artifact_sha256:        # reload-hash guard
+            raise ValueError("saved predictor does not reload with an identical hash")
+        # final C0 regressors (refit on the full eligible pool), pickled + reload-prediction check
+        Xy = {a: ([], []) for a in NON_IDENTITY}
+        probe = None
+        for s in eligible:
+            for b in sorted(idx[canon_subject(s)]["eligible"], key=deployment_batch_digest):
+                cc = cache[deployment_batch_digest(b)]
+                for a in NON_IDENTITY:
+                    Xy[a][0].append(cc["c0feat"][a]); Xy[a][1].append(cc["dr"][a])
+                if probe is None:
+                    probe = {a: cc["c0feat"][a] for a in NON_IDENTITY}
+        c0regs = {a: _fit_action_regressor(np.array(Xy[a][0]), np.array(Xy[a][1])) for a in NON_IDENTITY}
+        c0path = os.path.join(outdir, f"c0_{d}.pkl")
+        with open(c0path, "wb") as f:
+            pickle.dump(c0regs, f)
+        with open(c0path, "rb") as f:
+            c0re = pickle.load(f)
+        for a in NON_IDENTITY:                                      # reload-prediction guard
+            if float(c0re[a].predict([probe[a]])[0]) != float(c0regs[a].predict([probe[a]])[0]):
+                raise ValueError("saved C0 regressor does not reload identically")
+        saved[d] = {"predictor_sha256": art.artifact_sha256, "predictor_path": ppath, "c0_path": c0path,
+                    "eligible_subject_list_sha256": res.eligible_subject_list_sha256[d]}
+    manifest["saved"] = saved
+    with open(os.path.join(outdir, "manifest.json"), "w") as f:
+        json.dump(manifest, f, indent=2, sort_keys=True, default=str)
+    return res, manifest
