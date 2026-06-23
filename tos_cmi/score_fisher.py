@@ -91,6 +91,11 @@ class ScoreFisherConfig:
     task_gate_hidden: int = 256
     task_gate_epochs: int = 600
     task_gate_restarts: int = 3
+    task_gate_folds: int = 5        # cross-fit folds for the TASK gate ONLY (decoupled from
+                                    # n_folds): the lower-MDE plug-in critic needs more data per
+                                    # fit than the 2-fold selector split. Falls back if coverage.
+    task_estimator: str = "plugin"  # "plugin" (cross-fitted efficient log-ratio, deployed) |
+                                    # "nested" (the Phase 1.2.3 residual critic; diagnostic)
     # --- power floor (competence certificate; capacity alone is insufficient for k=1 small-n) ---
     task_power_floor: bool = False  # require the critic to be POWER-qualified before ACCEPTING a
                                     # deletion; else abstain (TASK_POWER_INSUFFICIENT). Uses an
@@ -731,6 +736,58 @@ def _nested_residual_score(base, extra, target, n_out, cfg, gplan, seed, score="
                    "best_epoch": float(np.mean(best_eps)) if best_eps else 0.0}
 
 
+def _train_calibrated(z_dim, n_out, Zf, target, cfg, iseed, itr, iva, restarts):
+    """Train `restarts` free classifiers (cfg capacity), KEEP the best on INNER VALIDATION, return
+    a temperature-calibrated probability matrix over all rows + best inner-val NLL."""
+    Zt = torch.tensor(Zf, dtype=torch.float32); tt = torch.tensor(target, dtype=torch.long)
+    iva_t = torch.as_tensor(iva)
+    best_nll, best = float("inf"), None
+    for r in range(max(1, restarts)):
+        probe = _train_head(z_dim, n_out, 0, Zf, target, None, cfg, iseed + 1000 * r, itr, iva)
+        with torch.no_grad():
+            v = (F.cross_entropy(probe(Zt[iva_t]), tt[iva_t]).item() if len(iva_t) else 0.0)
+        if v < best_nll:
+            best_nll, best = v, probe
+    with torch.no_grad():
+        T = (_fit_temperature(best(Zt[iva_t]), tt[iva_t]) if len(iva_t) else 1.0)
+        P = torch.softmax(best(Zt) / T, 1).numpy()
+    return P, float(best_nll)
+
+
+def _plugin_logratio_score(base, extra, target, n_out, cfg, gplan, seed, restarts=1,
+                           alpha_grid=(0.0, 0.25, 0.5, 0.75, 1.0), floor=1e-6):
+    """Cross-fitted EFFICIENT one-step log-ratio estimator of I(Y; extra | base):
+    s_i = log q1(y_i|base,extra) - log q0(y_i|base), with q1 = (1-a) q0 + a q1tilde a probability
+    MIXTURE (a in [0,1] selected on inner-val: a=0 reduces to q0 -> low null noise, a=1 keeps the
+    full model). q0, q1tilde are FREE calibrated classifiers (not the anchored zero-init residual).
+    Per-sample s drives the SAME cluster-aware UCB; NO max(0,.) (negatives are misspecification
+    diagnostics). Returns (s[N], diag with alpha, q0_nll, q1_nll, clip fractions, max|logratio|)."""
+    N = len(target); s = np.zeros(N); bd, ed = base.shape[1], extra.shape[1]
+    Zc = np.concatenate([base, extra], 1)
+    alphas = []; q0n = []; q1n = []; clip0 = 0; clip1 = 0; cnt = 0; maxabs = 0.0
+    for (tr, hold, itr, iva, iseed) in gplan.folds:
+        P0, n0 = _train_calibrated(bd, n_out, base, target, cfg, iseed + 5, itr, iva, restarts)
+        P1, n1 = _train_calibrated(bd + ed, n_out, Zc, target, cfg, iseed + 9, itr, iva, restarts)
+        iv = np.asarray(iva); h = np.asarray(hold)
+        best_a, best_v = 0.0, float("inf")
+        for a in alpha_grid:
+            mix = (1 - a) * P0[iv] + a * P1[iv]
+            v = -np.log(np.clip(mix[np.arange(len(iv)), target[iv]], floor, 1.0)).mean()
+            if v < best_v:
+                best_v, best_a = v, a
+        p0h = P0[h][np.arange(len(h)), target[h]]
+        mixh = ((1 - best_a) * P0[h] + best_a * P1[h])[np.arange(len(h)), target[h]]
+        clip0 += int((p0h < floor).sum()); clip1 += int((mixh < floor).sum()); cnt += len(h)
+        sh = np.log(np.clip(mixh, floor, 1.0)) - np.log(np.clip(p0h, floor, 1.0))
+        s[h] = sh; maxabs = max(maxabs, float(np.abs(sh).max()) if len(sh) else 0.0)
+        alphas.append(best_a); q0n.append(n0); q1n.append(n1)
+    return s, {"alpha": float(np.mean(alphas)) if alphas else 0.0,
+               "q0_nll": float(np.mean(q0n)) if q0n else 0.0,
+               "q1_nll": float(np.mean(q1n)) if q1n else 0.0,
+               "q0_clip_fraction": clip0 / max(cnt, 1), "q1_clip_fraction": clip1 / max(cnt, 1),
+               "max_abs_log_ratio": maxabs}
+
+
 _REASONS = ("ACCEPTED", "NO_CANDIDATE", "DOMAIN_GATE_CLOSED", "DOMAIN_GAIN_TOO_SMALL",
             "TASK_RISK_UCB", "TASK_POWER_INSUFFICIENT", "FOLD_COVERAGE_FAILURE",
             "INSUFFICIENT_GROUPS", "TASK_SUBSPACE_INTERSECTION", "NUMERICAL_FAILURE")
@@ -768,32 +825,38 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
     if Kv == 0:
         return 0, [{"k": 1, "risk_feasible": False, "decision_reason": "TASK_SUBSPACE_INTERSECTION"}], \
                "TASK_SUBSPACE_INTERSECTION"
-    lin_cfg = replace(cfg, probe_family="linear")
     # capacity-qualified TASK certifier (Phase 1.3.1): its OWN hidden/epochs/restarts; domain arm
     # and score-Fisher keep cfg.hidden -- the bump is scoped to the safety certifier only.
     task_cfg = replace(cfg, hidden=cfg.task_gate_hidden, epochs=cfg.task_gate_epochs)
+    # TASK gate gets its OWN (more) folds (Phase 1.3.3): the lower-MDE plug-in needs more data per
+    # fit than the 2-fold selector split; fall back to the selector plan if coverage fails.
+    plan_t = _SplitPlan(len(Zg), cfg.task_gate_folds, seed + 4, group_id=cluster_id)
+    if not plan_t.coverage_ok(yg, n_cls):
+        plan_t = plan_g
+    gplan_t = _GatePlan(plan_t, seed + 6)
     try:
-        # TASK arm: nested CONDITIONAL info gate on intrinsic coords -> delta_Y(k)=I(Y;deleted|kept)
-        dY, task_diag, dY_lin, dims = [], [], [], []
+        # TASK arm: cross-fitted EFFICIENT log-ratio plug-in (DECISION) + nested residual
+        # (DIAGNOSTIC), both on intrinsic coords -> delta_Y(k) = I(Y; deleted | kept).
+        dY_plug, dY_nest, pdiag, ndiag, dims = [], [], [], [], []
         for k in range(1, Kv + 1):
             u, n = _intrinsic_coords(Zg, Ps[k - 1])
             dims.append((u.shape[1], n.shape[1]))            # (d_base, d_extra) for power lookup
-            dk, diag = _nested_residual_score(u, n, yg, n_cls, task_cfg, gplan, seed + 100 + k,
+            sp, dgp = _plugin_logratio_score(u, n, yg, n_cls, task_cfg, gplan_t, seed + 100 + k,
+                                             restarts=cfg.task_gate_restarts)
+            dnk, dgn = _nested_residual_score(u, n, yg, n_cls, task_cfg, gplan_t, seed + 200 + k,
                                               "nll", restarts=cfg.task_gate_restarts)
-            dY.append(dk); task_diag.append(diag)
-            dl, _ = _nested_residual_score(u, n, yg, n_cls, lin_cfg, gplan, seed + 100 + k, "nll")
-            dY_lin.append(dl)                                # linear diagnostic
-        dY = np.stack(dY, 1)
-        # ambient rank-reduced retrain difference: a DEPLOYMENT-difficulty diagnostic only
-        amb = _paired_task_nll(Zg, yg, [Zg] + [Zg - Zg @ Pk.T for Pk in Ps], n_cls, cfg, gplan)
-        dY_dep = np.stack([amb[k] - amb[0] for k in range(1, Kv + 1)], 1)
-        # DOMAIN arm: calibrated q0 once, residual per prefix (Brier)
+            dY_plug.append(sp); dY_nest.append(dnk); pdiag.append(dgp); ndiag.append(dgn)
+        dY_plug = np.stack(dY_plug, 1); dY_nest = np.stack(dY_nest, 1)
+        # DOMAIN arm: calibrated q0 once, residual per prefix (Brier) -- keeps the selector folds
         br0, q0cache = _domain_q0(dg, yg_oh, n_dom, n_cls, cfg, gplan, seed + 30)
         dD = np.stack([br0 - _domain_residual_brier(Zg @ Ps[k - 1].T, dg, yg_oh, q0cache,
                        n_dom, n_cls, cfg, seed + 40 + k) for k in range(1, Kv + 1)], 1)
     except (np.linalg.LinAlgError, KeyError):
         return 0, [], "NUMERICAL_FAILURE"
-    ucb_Y = _one_sided_bound(dY, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot, seed + 60, cfg.boot_estimand)
+    ucb_plug = _one_sided_bound(dY_plug, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot, seed + 60, cfg.boot_estimand)
+    ucb_nest = _one_sided_bound(dY_nest, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot, seed + 65, cfg.boot_estimand)
+    dY = dY_plug if cfg.task_estimator == "plugin" else dY_nest      # DECISION estimator
+    ucb_Y = ucb_plug if cfg.task_estimator == "plugin" else ucb_nest
     lcb_D = _one_sided_bound(dD, cluster_id, cfg.gate_alpha, "lower", cfg.gate_boot, seed + 70, cfg.boot_estimand)
     n_eff = len(Zg)
     n_clusters = int(len(np.unique(cluster_id))) if cluster_id is not None else n_eff
@@ -818,17 +881,23 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
                "TASK_RISK_UCB" if ucb_Y[i] > cfg.delta_Y else
                "TASK_POWER_INSUFFICIENT" if not power_ok[i] else "DOMAIN_GAIN_TOO_SMALL")
         records.append({"k": k, "task_info_delta_mean": float(dY[:, i].mean()),
-                        "task_info_ucb": float(ucb_Y[i]), "task_linear_delta": float(dY_lin[i].mean()),
-                        "task_deployment_delta": float(dY_dep[:, i].mean()),
-                        "task_residual_alpha": task_diag[i]["alpha"],
-                        "task_base_nll": task_diag[i]["base_mean"], "task_full_nll": task_diag[i]["full_mean"],
-                        # binding task statistic: a finite-sample UPPER bound on the PROBE's
-                        # conditional task gain -- NOT a Bayes-risk bound (the critic can
-                        # under-detect; see eval.bayes_oracle for the certification ground truth).
+                        "task_info_ucb": float(ucb_Y[i]),
+                        # binding task statistic = the DECISION estimator's finite-sample UPPER
+                        # bound on the conditional task gain -- NOT a Bayes-risk bound.
                         "probe_task_gain_ucb": float(ucb_Y[i]),
                         "task_ucb": float(ucb_Y[i]),  # back-compat alias
+                        "task_estimator": cfg.task_estimator,
+                        # plug-in (deployed, Phase 1.3.3) and nested (diagnostic) side by side
+                        "task_plugin_mean": float(dY_plug[:, i].mean()),
+                        "task_plugin_ucb": float(ucb_plug[i]),
+                        "task_plugin_alpha": pdiag[i]["alpha"],
+                        "task_plugin_q1_nll": pdiag[i]["q1_nll"], "task_plugin_q0_nll": pdiag[i]["q0_nll"],
+                        "task_plugin_q0_clip": pdiag[i]["q0_clip_fraction"],
+                        "task_plugin_q1_clip": pdiag[i]["q1_clip_fraction"],
+                        "task_plugin_max_abs_log_ratio": pdiag[i]["max_abs_log_ratio"],
+                        "task_nested_mean": float(dY_nest[:, i].mean()),
+                        "task_nested_ucb": float(ucb_nest[i]), "task_residual_alpha": ndiag[i]["alpha"],
                         "task_gate_hidden": int(cfg.task_gate_hidden),
-                        "task_gate_best_epoch": float(task_diag[i].get("best_epoch", 0.0)),
                         "task_gate_n_effective": int(n_eff), "task_gate_n_clusters": int(n_clusters),
                         "task_power_ok": bool(power_ok[i]), "task_power_mde": power_info[i].get("mde"),
                         "task_power_family": ("gaussian_explaining_away" if cfg.task_power_floor

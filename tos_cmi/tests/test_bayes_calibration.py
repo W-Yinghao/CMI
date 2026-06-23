@@ -19,7 +19,9 @@ from tos_cmi.eval.bayes_oracle import bayes_conditional_task_delta, classify_saf
 
 
 def _cfg():
-    return ScoreFisherConfig(epochs=200, hidden=64, gate_boot=200, n_perm_null=2, task_protect=True)
+    return ScoreFisherConfig(epochs=200, hidden=64, gate_boot=200, n_perm_null=2, task_protect=True,
+                             task_gate_hidden=64, task_gate_epochs=200, task_gate_folds=2,
+                             task_gate_restarts=1)
 
 
 def _bayes(data, P, delta_Y):

@@ -24,8 +24,8 @@ import torch
 torch.set_num_threads(1)   # determinism across SLURM allocations (thread count changes FP reductions)
 
 from tos_cmi.data.synthetic import (SynthSpec, make, make_collinear, make_covariance_only,
-                                     make_partial_overlap, make_saturated_danger,
-                                     apply_linear_transform)
+                                     make_partial_overlap, make_partial_synergy,
+                                     make_saturated_danger, apply_linear_transform)
 from tos_cmi.score_fisher import (ScoreFisherConfig, ScoreFisherSelector, metric_projector,
                                    task_protected_projector, select_from_fishers, ucb_rank_gate,
                                    _metric, _nested_residual_score, _SplitPlan, _GatePlan)
@@ -34,7 +34,11 @@ from tos_cmi.eval.stability import precision_recall, projection_distance
 
 
 def _cfg():
-    return ScoreFisherConfig(epochs=200, hidden=64, gate_boot=200, n_perm_null=2)
+    # LIGHT task-gate config for test speed (the deployment config 256/600/5/3 is certified by the
+    # frontier/power-table, not the unit tests): exercise the plug-in code path cheaply.
+    return ScoreFisherConfig(epochs=200, hidden=64, gate_boot=200, n_perm_null=2,
+                             task_gate_hidden=64, task_gate_epochs=200, task_gate_folds=2,
+                             task_gate_restarts=1)
 
 
 # ----------------------------------------------------------------- fast algebra
@@ -155,28 +159,21 @@ def test_oracle_danger_basis_binds_task_ucb():
     print("test_oracle_danger_basis_binds_task_ucb: OK")
 
 
-def test_oracle_partial_safe_protected_improves_but_biased():
-    """Phase 1.2.3: protecting T=[t1,t2] and scoring task cost as the nested INCREMENTAL info
-    I(Y;deleted|kept) on intrinsic coords, the gate now ACCEPTS the safe span (k>=1, up from k=0
-    under the ambient artifact). FINDING: the nested MLP still has a small POSITIVE BIAS on the
-    genuinely-safe span (nonlinear-probe variance + OOD g(u,0)), so task_info > task_linear(~0)
-    and it stops short of the ideal k=2. The LINEAR gate is ~0 here but misses nonlinear info
-    (test_nested_task_gate_detects_nonlinear_info) -- a bias/variance trade recorded, not tuned.
-    Hierarchy verified: linear ~0 < nested_info < ambient_deployment."""
-    data = make_partial_overlap(n=6000, seed=0)
+def test_oracle_partial_plugin_detects_synergy_ge_nested():
+    """Phase 1.3.3: the synergy 'safe' span is in fact Bayes-UNSAFE (Delta*~0.13; Phase 1.2.4).
+    The cross-fitted PLUG-IN log-ratio estimator (deployed) should detect AT LEAST as much
+    conditional task info as the nested residual critic that under-detected it (Phase 1.3.2
+    estimator-bottleneck fix), and the gate must NOT accept the full unsafe span (k<=1)."""
+    data = make_partial_synergy(n=6000, seed=0)
     k, recs, reason = _oracle(data, data["nuisance_basis"], T=data["task_overlap_basis"])
     r0 = recs[0]
-    print("oracle partial safe (protected):", {"k": k, "reason": reason,
-          "task_linear": round(r0["task_linear_delta"], 4),
-          "task_info": round(r0["task_info_delta_mean"], 4),
-          "task_deployment": round(r0["task_deployment_delta"], 4)})
-    # ROBUST assertion = the hierarchy (holds regardless): nested REDUCES the ambient artifact,
-    # but its residual safe-span bias sits ~AT delta_Y so the k=0/1 decision is unstable here
-    # (de-bias via a label-permutation null on the task residual -- the recorded next step).
-    assert r0["task_linear_delta"] < r0["task_info_delta_mean"] < r0["task_deployment_delta"] + 1e-9
-    assert k <= 1                                          # never over-selects the safe span
-    print("test_oracle_partial_safe_protected_improves_but_biased: OK "
-          "(k=%d, ideal=2; residual bias ~delta_Y -> de-bias pending)" % k)
+    print("oracle synergy span (plug-in vs nested):", {"k": k, "reason": reason,
+          "plugin_mean": round(r0["task_plugin_mean"], 4), "plugin_ucb": round(r0["task_plugin_ucb"], 4),
+          "nested_mean": round(r0["task_nested_mean"], 4), "alpha": round(r0["task_plugin_alpha"], 2)})
+    assert r0["task_estimator"] == "plugin"
+    assert r0["task_plugin_mean"] >= r0["task_nested_mean"] - 5e-3   # plug-in detects >= nested
+    assert k <= 1                                          # never over-selects the unsafe span
+    print("test_oracle_partial_plugin_detects_synergy_ge_nested: OK (k=%d)" % k)
 
 
 def test_oracle_partial_unsafe_intersection():
@@ -278,7 +275,7 @@ if __name__ == "__main__":
     test_nested_task_gate_label_independent_extra()
     test_nested_task_gate_detects_nonlinear_info()
     test_oracle_danger_basis_binds_task_ucb()
-    test_oracle_partial_safe_protected_improves_but_biased()
+    test_oracle_partial_plugin_detects_synergy_ge_nested()
     test_oracle_partial_unsafe_intersection()
     test_all_safe_accepts_and_recovers()
     test_learned_dangerous_gate_safety_invariant()

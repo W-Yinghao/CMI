@@ -33,7 +33,7 @@ from dataclasses import replace
 import numpy as np
 
 from ..score_fisher import (_metric, _SplitPlan, _GatePlan, _nested_residual_score,
-                            _one_sided_bound, _intrinsic_coords)
+                            _plugin_logratio_score, _one_sided_bound, _intrinsic_coords)
 from .bayes_oracle import bayes_conditional_task_delta, classify_safety, logpost_true_label
 
 
@@ -120,14 +120,16 @@ def assert_power_feasible(R, beta, z=1.64):
 
 
 def _critic_ucb(u, n, y, n_cls, cfg, seed, cluster_id=None):
-    """Run the deployed nested task critic on (u,n) and return probe_task_gain_ucb."""
-    plan = _SplitPlan(len(y), cfg.n_folds, seed + 3, group_id=cluster_id)
+    """Run the DEPLOYED task critic on (u,n) and return its probe_task_gain_ucb. Honours
+    cfg.task_estimator ('plugin' = the Phase 1.3.3 cross-fitted log-ratio; 'nested' = diagnostic)
+    and cfg.task_gate_folds, so the competence table certifies exactly the deployed estimator."""
+    plan = _SplitPlan(len(y), cfg.task_gate_folds, seed + 3, group_id=cluster_id)
     if not plan.coverage_ok(y, n_cls):
         return None
     gplan = _GatePlan(plan, seed + 5)
     task_cfg = replace(cfg, hidden=cfg.task_gate_hidden, epochs=cfg.task_gate_epochs)
-    dY, _ = _nested_residual_score(u, n, y, n_cls, task_cfg, gplan, seed + 100, "nll",
-                                   restarts=cfg.task_gate_restarts)
+    score = (_plugin_logratio_score if cfg.task_estimator == "plugin" else _nested_residual_score)
+    dY, _ = score(u, n, y, n_cls, task_cfg, gplan, seed + 100, restarts=cfg.task_gate_restarts)
     return float(_one_sided_bound(dY[:, None], cluster_id, cfg.gate_alpha, "upper",
                                   cfg.gate_boot, seed + 60, cfg.boot_estimand)[0])
 
