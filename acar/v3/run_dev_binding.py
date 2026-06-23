@@ -16,13 +16,14 @@ import argparse
 import hashlib
 import json
 import os
+import shlex
 import subprocess
 import sys
 
 TAG = "acar-v3-dev-design-v1"
 _HEXSET = set("0123456789abcdef")
 _REQUIRED_HASHES = ("full_dump_sha256", "source_fit_sha256", "deployment_input_sha256", "label_sha256",
-                    "subject_list_sha256")
+                    "subject_list_sha256", "raw_pipeline_sha256")
 
 
 def _repo_root():
@@ -37,20 +38,19 @@ def _is_hex(s, n):
     return isinstance(s, str) and len(s) == n and all(c in _HEXSET for c in s)
 
 
-def verify_protocol(root, protocol_commit, *, require_tag=True):
-    """HEAD == the spec's protocol commit AND the immutable tag resolves to that HEAD."""
+def verify_protocol(root, protocol_commit):
+    """HEAD == the spec's protocol commit AND the immutable tag UNCONDITIONALLY resolves to that HEAD."""
     if not _is_hex(protocol_commit, 40):
         raise ValueError("protocol_commit must be a full 40-char git SHA-1")
     head = _git(root, ["rev-parse", "HEAD"])
     if head != protocol_commit:
         raise ValueError(f"git HEAD {head} != protocol_commit {protocol_commit}")
-    if require_tag:
-        try:
-            tagged = _git(root, ["rev-list", "-n", "1", TAG])
-        except subprocess.CalledProcessError:
-            raise ValueError(f"tag {TAG} not found")
-        if tagged != head:
-            raise ValueError(f"tag {TAG} -> {tagged} != HEAD {head}")
+    try:
+        tagged = _git(root, ["rev-list", "-n", "1", TAG])
+    except subprocess.CalledProcessError:
+        raise ValueError(f"tag {TAG} not found")
+    if tagged != head:
+        raise ValueError(f"tag {TAG} -> {tagged} != HEAD {head}")
     return head
 
 
@@ -81,6 +81,8 @@ def validate_input_manifest(spec):
         for hk in _REQUIRED_HASHES:
             if not _is_hex(c[hk], 64):
                 raise ValueError(f"{c['dataset_id']}: {hk} must be lowercase 64-hex")
+        if not (isinstance(c.get("dataset_version"), str) and c["dataset_version"]):
+            raise ValueError(f"{c['dataset_id']}: dataset_version must be a non-empty str")
         if c["dataset_id"] in seen_ds or c["path"] in seen_path:
             raise ValueError("duplicate cohort dataset_id/path")
         seen_ds.add(c["dataset_id"]); seen_path.add(c["path"])
@@ -102,16 +104,17 @@ def _file_sha256(path):
     return h.hexdigest()
 
 
-def run(input_manifest_path, output, *, protocol_commit=None, repo_root=None):
-    """Full stdlib-first preflight, then the binding DEV gate. No bypass flags."""
-    root = repo_root or _repo_root()
+def run(input_manifest_path, output):
+    """Full stdlib-first preflight, then the binding DEV gate. NO bypass: repo root is resolved from the code location;
+    the protocol commit is `spec["protocol_commit"]` (no CLI override); the tag is verified unconditionally."""
+    root = _repo_root()
     with open(input_manifest_path) as f:
         spec = json.load(f)
     if os.path.exists(output):                                  # (1) output absent — before anything else
         raise FileExistsError(f"output dir already exists: {output}")
-    validate_input_manifest(spec)                              # (2) exact schema
-    commit = protocol_commit or spec["protocol_commit"]
-    verify_protocol(root, commit)                             # (3) HEAD == commit + tag -> HEAD
+    validate_input_manifest(spec)                              # (2) exact schema (incl. raw_pipeline + dataset_version)
+    commit = spec["protocol_commit"]                          # the verified commit IS the manifest commit
+    verify_protocol(root, commit)                             # (3) HEAD == commit + tag -> HEAD (unconditional)
     verify_clean_worktree(root)                               # (4) clean worktree
     for c in spec["cohorts"]:                                 # (5) files exist + declared full-dump hash (stdlib)
         if not os.path.exists(c["path"]):
@@ -124,18 +127,19 @@ def run(input_manifest_path, output, *, protocol_commit=None, repo_root=None):
     apply_runtime(); env_sha = verify_env_lock()
     from .develop import BindingContext, freeze_dev_run
     from .loader import build_cohort_input
-    cmd = "python -m acar.v3.run_dev_binding --input-manifest %s --output %s" % (
-        os.path.abspath(input_manifest_path), os.path.abspath(output))
+    cmd = shlex.join([sys.executable, "-m", "acar.v3.run_dev_binding",
+                      "--input-manifest", os.path.abspath(input_manifest_path), "--output", os.path.abspath(output)])
     ctx = BindingContext(commit, TAG, True, env_sha, im_sha, cmd, root)
     inputs = []
-    for c in spec["cohorts"]:                                 # (8) open cohort files + check the 4 derived hashes
+    for c in spec["cohorts"]:                                 # (8) open cohort files + RE-CHECK all five field hashes
         ci = build_cohort_input(c["path"], disease=c["disease"], dataset_id=c["dataset_id"],
-                                raw_pipeline_sha256=c.get("raw_pipeline_sha256"),
-                                dataset_version=c.get("dataset_version"))
+                                raw_pipeline_sha256=c["raw_pipeline_sha256"], dataset_version=c["dataset_version"])
         m = ci.manifest
-        for hk in ("source_fit_sha256", "deployment_input_sha256", "label_sha256", "subject_list_sha256"):
+        # full_dump recheck closes the substitution window between preflight (5) and load here
+        for hk in ("full_dump_sha256", "source_fit_sha256", "deployment_input_sha256", "label_sha256",
+                   "subject_list_sha256"):
             if getattr(m, hk) != c[hk]:
-                raise ValueError(f"{c['dataset_id']}: declared {hk} != computed")
+                raise ValueError(f"{c['dataset_id']}: declared {hk} != computed at load")
         inputs.append(ci)
     return freeze_dev_run(ctx, inputs, output)
 
@@ -143,10 +147,9 @@ def run(input_manifest_path, output, *, protocol_commit=None, repo_root=None):
 def main(argv=None):
     p = argparse.ArgumentParser(prog="acar.v3.run_dev_binding")
     p.add_argument("--input-manifest", required=True)
-    p.add_argument("--output", required=True)
-    p.add_argument("--protocol-commit", default=None)
+    p.add_argument("--output", required=True)                  # no --protocol-commit: the manifest's commit is used
     args = p.parse_args(argv)
-    res, manifest = run(args.input_manifest, args.output, protocol_commit=args.protocol_commit)
+    res, manifest = run(args.input_manifest, args.output)
     print(f"verdict={manifest['verdict']} selected={manifest.get('selected')} output={args.output}")
     return 0 if manifest["verdict"] in ("SELECT", "DEV_STOP") else 1
 

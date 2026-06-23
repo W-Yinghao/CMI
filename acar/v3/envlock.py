@@ -62,6 +62,7 @@ def _runtime_state():
         tp = [{"internal_api": "UNAVAILABLE", "num_threads": -1, "version": ""}]
     return {"torch_deterministic": bool(torch.are_deterministic_algorithms_enabled()),
             "torch_num_threads": int(torch.get_num_threads()),
+            "torch_interop_threads": int(torch.get_num_interop_threads()),
             "omp_num_threads": os.environ.get("OMP_NUM_THREADS", ""),
             "threadpool": tp}
 

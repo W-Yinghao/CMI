@@ -834,27 +834,32 @@ def freeze_dev_run(context, cohort_inputs, outdir, *, candidates=("C1", "C2", "C
     non-finite -> NOT_EVALUABLE; no silent str-coercion). On DEV_STOP a `DEV_STOP / NO_LOCKBOX_CONSUMED` marker only."""
     if not isinstance(context, BindingContext):
         raise TypeError("freeze_dev_run requires a VerifiedBindingContext")
+    outdir = os.path.abspath(outdir)
+    parent = os.path.dirname(outdir)
     if os.path.exists(outdir):
         raise FileExistsError(f"refusing to overwrite existing DEV output dir {outdir}")
-    grouped = _group_cohorts(cohort_inputs)                     # validate cohorts before any run
-    res = run_binding_dev(context, cohort_inputs, candidates, alpha, delta)
-    diseases = list(grouped)
+    if not os.path.isdir(parent):
+        raise FileNotFoundError(f"output parent dir does not exist: {parent}")
+    if not os.access(parent, os.W_OK):
+        raise PermissionError(f"output parent dir not writable: {parent}")
     tmpdir = outdir + ".tmp"
-    if os.path.exists(tmpdir):
-        raise FileExistsError(f"stale temp dir {tmpdir}")
-    os.makedirs(tmpdir)
-    manifest = {"verdict": res.verdict, "selected": res.candidate_selected, "alpha": res.alpha, "delta": res.delta,
-                "env_lock_sha256": res.env_lock_sha256, "pool_digest": res.pool_digest,
-                "eligible_subject_list_sha256": res.eligible_subject_list_sha256,
-                "n_fallback_only_subjects": res.n_fallback_only_subjects, "final_epochs": res.final_epochs,
-                "best_fixed": res.best_fixed, "provenance": res.provenance, "s4_inputs": res.s4_inputs,
-                "candidate_reports": {d: {c: _report_json(res.per_disease[d][c]) for c in candidates} for d in diseases},
-                "cohorts": {d: [_cohort_json(ci) for ci in grouped[d][3]] for d in diseases},
-                "protocol": {"commit": context.protocol_commit, "tag": context.tag_target,
-                             "clean_status_ok": context.clean_status_ok, "repo_root": context.repo_root,
-                             "input_manifest_sha256": context.input_manifest_sha256,
-                             "binding_command": context.binding_command, "output_path": outdir}}
+    os.mkdir(tmpdir)                                            # ATOMIC claim BEFORE any DEV compute; FileExistsError on
+    #                                                            a stale temp or a concurrent second runner
     try:
+        grouped = _group_cohorts(cohort_inputs)                # cohort validation (no adapters/training)
+        res = run_binding_dev(context, cohort_inputs, candidates, alpha, delta)   # DEV compute now
+        diseases = list(grouped)
+        manifest = {"verdict": res.verdict, "selected": res.candidate_selected, "alpha": res.alpha, "delta": res.delta,
+                    "env_lock_sha256": res.env_lock_sha256, "pool_digest": res.pool_digest,
+                    "eligible_subject_list_sha256": res.eligible_subject_list_sha256,
+                    "n_fallback_only_subjects": res.n_fallback_only_subjects, "final_epochs": res.final_epochs,
+                    "best_fixed": res.best_fixed, "provenance": res.provenance, "s4_inputs": res.s4_inputs,
+                    "candidate_reports": {d: {c: _report_json(res.per_disease[d][c]) for c in candidates} for d in diseases},
+                    "cohorts": {d: [_cohort_json(ci) for ci in grouped[d][3]] for d in diseases},
+                    "protocol": {"commit": context.protocol_commit, "tag": context.tag_target,
+                                 "clean_status_ok": context.clean_status_ok, "repo_root": context.repo_root,
+                                 "input_manifest_sha256": context.input_manifest_sha256,
+                                 "binding_command": context.binding_command, "output_path": outdir}}
         if res.verdict != "SELECT":
             manifest["reason"] = "NO_LOCKBOX_CONSUMED"
             _write_json(os.path.join(tmpdir, "DEV_STOP.json"), manifest)

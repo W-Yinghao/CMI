@@ -10,6 +10,11 @@ import math
 import os
 import tempfile
 import numpy as np
+import torch                                    # set inter-op=1 BEFORE acar imports so the env lock verifies in-process
+try:
+    torch.set_num_interop_threads(1)
+except Exception:
+    pass
 
 from acar.config import N_CLS
 from acar.v3.set_features import NON_IDENTITY
@@ -335,12 +340,35 @@ def test_env_lock_drift():
         with open(p, "w") as f:
             json.dump(good, f)
         assert L._is_hex64(EL.verify_env_lock(p))                                   # matches
-        bad = dict(good); bad["runtime"] = {**good["runtime"], "torch_num_threads": 999}
-        bp = os.path.join(tmp, "bad.json")
-        with open(bp, "w") as f:
-            json.dump(bad, f)
-        _expect(ValueError, lambda: EL.verify_env_lock(bp))                         # thread-runtime drift -> fail
-    print("  [ok] env-lock verify fails on torch/threadpool runtime drift")
+        for field, val in (("torch_num_threads", 999), ("torch_interop_threads", 2)):
+            bad = dict(good); bad["runtime"] = {**good["runtime"], field: val}
+            bp = os.path.join(tmp, f"bad_{field}.json")
+            with open(bp, "w") as f:
+                json.dump(bad, f)
+            _expect(ValueError, lambda p=bp: EL.verify_env_lock(p))                 # thread/inter-op drift -> fail
+    print("  [ok] env-lock verify fails on torch intra-op / inter-op / threadpool runtime drift")
+
+
+def test_freeze_atomic_claim():
+    seven_built = {}  # cache built cohorts per tmp to avoid rebuilds
+    with tempfile.TemporaryDirectory() as tmp:
+        seven = _seven(tmp); ctx = D._verified_context_for_tests()
+        n_run = {"n": 0}; orig = D.run_binding_dev
+        D.run_binding_dev = lambda *a, **k: (n_run.__setitem__("n", n_run["n"] + 1), orig(*a, **k))[1]
+        try:
+            # a stale <out>.tmp (or a concurrent second runner) -> FileExistsError with ZERO DEV compute
+            outdir = os.path.join(tmp, "o"); os.mkdir(outdir + ".tmp")
+            _expect(FileExistsError, lambda: D.freeze_dev_run(ctx, seven, outdir)); assert n_run["n"] == 0
+            # unwritable output parent -> fail before any DEV compute
+            ro = os.path.join(tmp, "ro"); os.mkdir(ro); os.chmod(ro, 0o500)
+            try:
+                _expect(PermissionError, lambda: D.freeze_dev_run(ctx, seven, os.path.join(ro, "x")))
+                assert n_run["n"] == 0
+            finally:
+                os.chmod(ro, 0o700)
+        finally:
+            D.run_binding_dev = orig
+    print("  [ok] freeze atomic-claim: stale temp / concurrent / unwritable-parent fail with ZERO adapter/train/metric calls")
 
 
 def test_frozen_runner_forced_select():
@@ -420,49 +448,68 @@ def _temp_git(tmp, *, dirty=False, untracked=False, make_tag=False):
 
 
 def test_binding_cli_fail_closed():
+    import inspect
+    import shlex
+    import subprocess
     import acar.v3.run_dev_binding as RB
     import numpy as _np
     from acar.config import DISEASE
     with tempfile.TemporaryDirectory() as tmp:
+        # NO bypass: run() takes only (input_manifest_path, output); verify_protocol has no require_tag; CLI no --protocol-commit
+        assert list(inspect.signature(RB.run).parameters) == ["input_manifest_path", "output"]
+        assert "require_tag" not in inspect.signature(RB.verify_protocol).parameters
         # verify_clean_worktree: clean ok; dirty/untracked fail
         clean_repo, head = _temp_git(tmp, make_tag=True); RB.verify_clean_worktree(clean_repo)
         dirty_repo, _ = _temp_git(tmp, dirty=True); _expect(ValueError, lambda: RB.verify_clean_worktree(dirty_repo))
         untr_repo, _ = _temp_git(tmp, untracked=True); _expect(ValueError, lambda: RB.verify_clean_worktree(untr_repo))
-        # verify_protocol: HEAD==commit + tag->HEAD ok; absent tag / wrong commit fail
+        # verify_protocol: HEAD==commit + tag->HEAD ok; absent tag / wrong commit fail (tag verified unconditionally)
         assert RB.verify_protocol(clean_repo, head) == head
         notag_repo, h2 = _temp_git(tmp); _expect(ValueError, lambda: RB.verify_protocol(notag_repo, h2))
         _expect(ValueError, lambda: RB.verify_protocol(clean_repo, "a" * 40))
-        # input-manifest schema
+        # input-manifest schema: full provenance required
         seven = _seven(tmp)
         cohorts = [{"dataset_id": ci.dataset_id, "disease": ci.disease, "path": ci.full_dump_path,
                     "full_dump_sha256": ci.manifest.full_dump_sha256, "source_fit_sha256": ci.manifest.source_fit_sha256,
                     "deployment_input_sha256": ci.manifest.deployment_input_sha256,
-                    "label_sha256": ci.manifest.label_sha256, "subject_list_sha256": ci.manifest.subject_list_sha256}
-                   for ci in seven]
+                    "label_sha256": ci.manifest.label_sha256, "subject_list_sha256": ci.manifest.subject_list_sha256,
+                    "raw_pipeline_sha256": "c" * 64, "dataset_version": "v1.0"} for ci in seven]
         spec = {"protocol_commit": head, "cohorts": cohorts}
         RB.validate_input_manifest(spec)                                            # ok
-        miss = {"protocol_commit": head, "cohorts": [{k: v for k, v in c.items() if k != "label_sha256"} for c in cohorts]}
-        _expect(ValueError, lambda: RB.validate_input_manifest(miss))               # missing required hash
+        for drop in ("label_sha256", "raw_pipeline_sha256", "dataset_version"):     # each required field missing -> fail
+            miss = {"protocol_commit": head, "cohorts": [{k: v for k, v in c.items() if k != drop} for c in cohorts]}
+            _expect(ValueError, lambda mm=miss: RB.validate_input_manifest(mm))
         upper = {"protocol_commit": head, "cohorts": [dict(c) for c in cohorts]}; upper["cohorts"][0]["label_sha256"] = "A" * 64
         _expect(ValueError, lambda: RB.validate_input_manifest(upper))              # uppercase hash
+        empty_v = {"protocol_commit": head, "cohorts": [dict(c) for c in cohorts]}; empty_v["cohorts"][0]["dataset_version"] = ""
+        _expect(ValueError, lambda: RB.validate_input_manifest(empty_v))           # empty dataset_version
+        # recorded command is shell-round-trippable even with spaces in paths
+        cmd = shlex.join([RB.sys.executable, "-m", "acar.v3.run_dev_binding", "--input-manifest", "/a b/spec.json",
+                          "--output", "/o ut/dir"])
+        assert shlex.split(cmd)[-3:] == ["/a b/spec.json", "--output", "/o ut/dir"]
         # existing output -> refuse before anything
         spec_path = os.path.join(tmp, "spec.json")
         with open(spec_path, "w") as f:
             json.dump(spec, f)
         existing = os.path.join(tmp, "exists"); os.makedirs(existing)
         _expect(FileExistsError, lambda: RB.run(spec_path, existing))
-        # no np.load before the git/clean preflight: point run() at the dirty repo with np.load booby-trapped
+        # full_dump RE-CHECK after load: substituting the file changes the computed full_dump_sha256
+        ci0 = seven[0]; h_before = ci0.manifest.full_dump_sha256
+        with open(ci0.full_dump_path, "ab") as f:
+            f.write(b"TAMPER")
+        h_after = L.build_cohort_input(ci0.full_dump_path, disease=ci0.disease, dataset_id=ci0.dataset_id).manifest.full_dump_sha256
+        assert h_after != h_before                                                  # load-time recheck would catch it
+        # no np.load before the preflight: real repo (no v3 tag) -> ValueError at verify_protocol, BEFORE np.load
+        real_head = subprocess.check_output(["git", "-C", RB._repo_root(), "rev-parse", "HEAD"]).decode().strip()
+        spec2 = {"protocol_commit": real_head, "cohorts": cohorts}; sp2 = os.path.join(tmp, "spec2.json")
+        with open(sp2, "w") as f:
+            json.dump(spec2, f)
         orig_load = _np.load
         _np.load = lambda *a, **k: (_ for _ in ()).throw(AssertionError("np.load before preflight!"))
         try:
-            try:
-                RB.run(spec_path, os.path.join(tmp, "o1"), protocol_commit=head, repo_root=dirty_repo)
-                raise AssertionError("expected preflight failure")
-            except ValueError:
-                pass                                                               # failed at clean-worktree, NOT np.load
+            _expect(ValueError, lambda: RB.run(sp2, os.path.join(tmp, "o1")))       # fails at tag/clean, NOT np.load
         finally:
             _np.load = orig_load
-        print(f"  [ok] binding CLI stdlib-first fail-closed: clean/dirty/untracked, tag/commit, required-schema, existing-output, no np.load before preflight {DISEASE['PD'][0]}")
+        print(f"  [ok] binding CLI: no bypass; clean/dirty/untracked; tag/commit; required full-provenance schema; shlex-roundtrip cmd; full_dump recheck; no np.load before preflight {DISEASE['PD'][0]}")
 
 
 def main():
@@ -473,7 +520,8 @@ def main():
               test_s4_select_max_first_tie_and_dev_stop, test_c0_vector_is_v2_exact,
               test_fallback_changes_denominators, test_subject_weighting_unequal_batches,
               test_subject_macro_mean_and_q_finite, test_cohort_input_binding_and_swap, test_binding_seven_cohorts,
-              test_json_safety, test_env_lock_drift, test_frozen_runner_forced_select, test_binding_cli_fail_closed):
+              test_json_safety, test_env_lock_drift, test_freeze_atomic_claim, test_frozen_runner_forced_select,
+              test_binding_cli_fail_closed):
         t()
     print("ALL V3 DEVELOP/SPLIT GUARDS PASS")
 

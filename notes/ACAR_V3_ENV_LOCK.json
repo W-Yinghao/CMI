@@ -44,7 +44,7 @@
       "ds004367"
     ]
   },
-  "env_lock_sha256": "981e343ce301d1c245eb3063c2b00f8bcc929103eac9aad1a984668ec3726554",
+  "env_lock_sha256": "2cb61360a01af61001ac4a97e6269c16ee4d89c998122d22d557c7d7c84cab17",
   "env_versions": {
     "joblib": "1.5.3",
     "numpy": "2.4.4",
@@ -82,6 +82,7 @@
       }
     ],
     "torch_deterministic": true,
+    "torch_interop_threads": 1,
     "torch_num_threads": 1
   },
   "schemas": {
