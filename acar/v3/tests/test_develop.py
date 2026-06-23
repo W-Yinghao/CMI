@@ -98,6 +98,18 @@ def _pooled_disease(tmp, n_cohorts=3):
     return reg, all_b, all_l
 
 
+def _pool_with_ids(tmp, disease, dataset_ids, seed0=0):
+    """A pooled disease whose cohort dataset IDs are EXACTLY `dataset_ids` (one source-state ref each). Synthetic data
+    only — the IDs are strings used to exercise the binding cohort check; no real DEV value is read."""
+    reg = L.SourceStateRegistry(disease); allb = []; alll = {}
+    for i, ds in enumerate(dataset_ids):
+        p = os.path.join(tmp, f"audit_{disease}_{ds}_erm_0.npz"); _make_dump(p, seed=seed0 + i)
+        sa = L.load_source_artifact_from_dump(p, disease=disease); reg.add(sa)
+        allb += L.load_deployment_batches(p, disease=disease, dataset_id=ds, source_state_ref=sa.source_state_ref)
+        alll.update(L.load_labels_by_window(p, dataset_id=ds))
+    return reg, allb, alll
+
+
 def test_develop_multicohort_registry_and_leak_isolation():
     with tempfile.TemporaryDirectory() as tmp:
         reg, batches, labels = _pooled_disease(tmp, n_cohorts=3)
@@ -244,36 +256,77 @@ def test_subject_weighting_unequal_batches():
     print("  [ok] S2 tails subject-equal-weighted: a rare 1-batch subject is NOT buried by a 100-batch subject")
 
 
-def test_binding_entrypoint_and_frozen_runner():
+def test_subject_macro_mean_and_q_finite():
+    # width/MAE subject-macro: a rare 1-record subject counts equally with a 100-record subject
+    assert abs(D._subject_macro_mean({"A": [10.0], "B": [0.0] * 100}) - 5.0) < 1e-12
+    # q_finite: ANY +inf fold blocks (not just all-+inf)
+    base = _ok_metric()
+    assert D.s4_eligible({**base, "any_q_inf": False})["eligible"]
+    assert not D.s4_eligible({**base, "any_q_inf": True})["eligible"]
+    print("  [ok] subject-macro mean (unequal batch counts); q_finite blocks on ANY +inf fold")
+
+
+def test_binding_cohort_binding():
+    from acar.config import DISEASE
     with tempfile.TemporaryDirectory() as tmp:
-        regP, bP, lP = _pooled_disease(tmp, n_cohorts=3)
-        # binding entrypoint enforces the frozen config
-        _expect(ValueError, lambda: D.run_binding_dev({"PD": (regP, bP, lP)}))                 # missing SCZ
-        _expect(ValueError, lambda: D.run_binding_dev({"PD": (regP, bP, lP), "SCZ": (regP, bP, lP)}, alpha=0.2))
-        _expect(ValueError, lambda: D.run_binding_dev({"PD": (regP, bP, lP), "SCZ": (regP, bP, lP)},
-                                                      candidates=("C1", "C2")))
-        # SCZ pool (separate cohorts/dataset ids); reuse helper but relabel disease
-        regS = L.SourceStateRegistry("SCZ"); bS = []; lS = {}
-        for ci in range(3):
-            p = os.path.join(tmp, f"audit_SCZ_s{ci}_erm_0.npz"); _make_dump(p, seed=10 + ci)
-            sa = L.load_source_artifact_from_dump(p, disease="SCZ")
-            regS.add(sa); bS += L.load_deployment_batches(p, disease="SCZ", dataset_id=f"sds{ci}",
-                                                          source_state_ref=sa.source_state_ref)
-            lS.update(L.load_labels_by_window(p, dataset_id=f"sds{ci}"))
-        outdir = os.path.join(tmp, "dev_out")
-        res, man = D.freeze_dev_run({"PD": (regP, bP, lP), "SCZ": (regS, bS, lS)}, outdir)
-        assert man["verdict"] in ("SELECT", "DEV_STOP")
-        _expect(FileExistsError, lambda: D.freeze_dev_run({"PD": (regP, bP, lP), "SCZ": (regS, bS, lS)}, outdir))  # non-overwrite
-        if man["verdict"] == "SELECT":
-            assert os.path.exists(os.path.join(outdir, "manifest.json"))
-            import pickle as pk
-            for d in ("PD", "SCZ"):
-                with open(man["saved"][d]["predictor_path"], "rb") as f:
-                    art = pk.load(f)
-                assert art.artifact_sha256 == man["saved"][d]["predictor_sha256"]   # reload-hash identity
-        else:
-            assert os.path.exists(os.path.join(outdir, "DEV_STOP.json"))
-        print(f"  [ok] binding entrypoint enforces {{PD,SCZ}}/C1C2C3/α0.10/δ0; frozen runner non-overwrite; verdict={man['verdict']}")
+        regP, bP, lP = _pooled_disease(tmp, n_cohorts=3)                            # ids ds0/ds1/ds2 (WRONG)
+        regS, bS, lS = _pool_with_ids(tmp, "SCZ", DISEASE["SCZ"], seed0=20)
+        _expect(ValueError, lambda: D.run_binding_dev({"PD": (regP, bP, lP), "SCZ": (regS, bS, lS)}))   # wrong PD cohorts
+        # correct seven cohorts -> binding accepts (synthetic -> DEV_STOP)
+        regPok, bPok, lPok = _pool_with_ids(tmp, "PD", DISEASE["PD"], seed0=0)
+        res = D.run_binding_dev({"PD": (regPok, bPok, lPok), "SCZ": (regS, bS, lS)})
+        assert res.verdict in ("SELECT", "DEV_STOP")
+        # wrong cohort COUNT (drop one PD cohort) -> reject
+        regPbad, bPbad, lPbad = _pool_with_ids(tmp, "PD", DISEASE["PD"][:2], seed0=30)
+        _expect(ValueError, lambda: D.run_binding_dev({"PD": (regPbad, bPbad, lPbad), "SCZ": (regS, bS, lS)}))
+        print(f"  [ok] binding binds the EXACT 7 cohorts ({DISEASE}); wrong ids/count rejected; verdict={res.verdict}")
+
+
+def test_frozen_runner_forced_select():
+    """Force SELECT (monkeypatch s4_eligible) to deterministically exercise the artifact-save path: atomic write,
+    refit/execute exactly once, saved==run artifact, verify_integrity on reload, file SHA-256, tamper fails."""
+    from acar.config import DISEASE
+    import acar.v3.loader as LM
+    with tempfile.TemporaryDirectory() as tmp:
+        regP, bP, lP = _pool_with_ids(tmp, "PD", DISEASE["PD"], seed0=0)
+        regS, bS, lS = _pool_with_ids(tmp, "SCZ", DISEASE["SCZ"], seed0=20)
+        data = {"PD": (regP, bP, lP), "SCZ": (regS, bS, lS)}
+        n_exec = {"n": 0}; n_refit = {"n": 0}
+        orig_exec = LM.SourceStateArtifact.execute; orig_refit = D.refit_candidate_fixed_epochs
+        orig_elig = D.s4_eligible
+        def counted_exec(self, batch):
+            n_exec["n"] += 1; return orig_exec(self, batch)
+        def counted_refit(*a, **k):
+            n_refit["n"] += 1; return orig_refit(*a, **k)
+        LM.SourceStateArtifact.execute = counted_exec
+        D.refit_candidate_fixed_epochs = counted_refit
+        D.s4_eligible = lambda m, **k: {"criteria": {"forced": True}, "eligible": True}    # force SELECT
+        outdir = os.path.join(tmp, "out")
+        try:
+            n_elig = sum(1 for b in (bP + bS) if not b.fallback)
+            res, man = D.freeze_dev_run(data, outdir)
+            assert res.verdict == "SELECT" and man["verdict"] == "SELECT"
+            assert n_refit["n"] == 2                                                # refit EXACTLY once per disease
+            assert n_exec["n"] == n_elig                                            # each eligible batch executed ONCE
+        finally:
+            LM.SourceStateArtifact.execute = orig_exec; D.refit_candidate_fixed_epochs = orig_refit
+            D.s4_eligible = orig_elig
+        assert os.path.exists(os.path.join(outdir, "manifest.json")) and not os.path.exists(outdir + ".tmp")  # atomic
+        _expect(FileExistsError, lambda: D.freeze_dev_run(data, outdir))            # non-overwrite
+        import pickle as pk
+        for d in ("PD", "SCZ"):
+            sv = man["saved"][d]
+            assert L._is_hex64(sv["predictor_file_sha256"]) and L._is_hex64(sv["c0_file_sha256"])
+            with open(sv["predictor_path"], "rb") as f:
+                art = pk.load(f)
+            art.verify_integrity()                                                  # cryptographic reload check
+            assert art.artifact_sha256 == sv["predictor_sha256"] == res.refit_sha256[d]
+            # tamper (truncate the file) -> reload fails closed
+            raw = open(sv["predictor_path"], "rb").read()
+            with open(sv["predictor_path"], "wb") as f:
+                f.write(raw[:len(raw) // 2])
+            _expect(Exception, lambda p=sv["predictor_path"]: pk.load(open(p, "rb")).verify_integrity())
+        print("  [ok] forced-SELECT frozen runner: atomic write; refit/execute exactly once; saved==run artifact; verify_integrity + file SHA; tamper fails")
 
 
 def main():
@@ -283,7 +336,7 @@ def main():
               test_s2_c2_gate_boundaries_and_floor, test_s4_eligible_each_criterion_gates,
               test_s4_select_max_first_tie_and_dev_stop, test_c0_vector_is_v2_exact,
               test_fallback_changes_denominators, test_subject_weighting_unequal_batches,
-              test_binding_entrypoint_and_frozen_runner):
+              test_subject_macro_mean_and_q_finite, test_binding_cohort_binding, test_frozen_runner_forced_select):
         t()
     print("ALL V3 DEVELOP/SPLIT GUARDS PASS")
 

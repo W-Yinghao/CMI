@@ -1,0 +1,77 @@
+{
+  "HP": {
+    "activation": "relu",
+    "batch_subjects": 32,
+    "beta_nll": 0.5,
+    "dropout": 0.0,
+    "eps": 1e-06,
+    "fit_frac": 0.7,
+    "grad_clip": 1.0,
+    "huber_delta": 1.0,
+    "input_sd_floor": 1e-06,
+    "k_folds": 5,
+    "lr": 0.001,
+    "max_epochs": 200,
+    "min_delta": 0.0001,
+    "optimizer": "adam",
+    "patience": 20,
+    "pooling": [
+      "mean",
+      "std"
+    ],
+    "psi_hidden": 64,
+    "psi_layers": 2,
+    "rho_hidden": 64,
+    "rho_layers": 2,
+    "seed_es": 2,
+    "seed_fitcal": 1,
+    "seed_outer": 0,
+    "sigma_min_quantile": 0.05,
+    "target_sd_floor": 0.001,
+    "train_frac": 0.8,
+    "weight_decay": 0.0001
+  },
+  "cohorts": {
+    "PD": [
+      "ds002778",
+      "ds003490",
+      "ds004584"
+    ],
+    "SCZ": [
+      "ds003944",
+      "ds003947",
+      "ds004000",
+      "ds004367"
+    ]
+  },
+  "env_lock_sha256": "5633f4d3aaf82a5c9a5f351d1c862394dd2a8d0a83b6502744aac739421e995e",
+  "env_versions": {
+    "numpy": "2.4.4",
+    "python": "3.13.7",
+    "scipy": "1.17.0",
+    "torch": "2.6.0+cu124"
+  },
+  "frozen_constants": {
+    "B": 32,
+    "MIN_BATCH": 8,
+    "N_CLS": 2,
+    "RHO": 0.1
+  },
+  "numpy_quantile_method": "linear",
+  "platform": "Linux-6.12.0-124.56.5.el10_1.x86_64-x86_64-with-glibc2.39",
+  "schemas": {
+    "data": "acar-v3-data/1",
+    "loader": "acar-v3-loader/1",
+    "pred": "acar-v3-pred/1",
+    "prob": "n_cls=2;class_order=ascending;rowsum=1;dtype=<f8"
+  },
+  "scipy_wilcoxon": {
+    "continuity": "wilcox zero_method",
+    "exact_max_n": 25,
+    "method": "PermutationMethod",
+    "n_perm": 20000,
+    "seed": 0
+  },
+  "torch_deterministic": true,
+  "torch_num_threads": 1
+}

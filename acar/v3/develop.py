@@ -48,6 +48,13 @@ def _subject_weighted(values_by_subject):
     return np.concatenate(vals), np.concatenate(wts)
 
 
+def _subject_macro_mean(by_subject):
+    """Mean over subjects of each subject's mean — each subject totals weight 1 (a 100-batch subject does not dominate
+    a 1-batch subject). Used for width AND MAE in BOTH the candidate and the C0 replay (apples-to-apples)."""
+    ms = [float(np.mean(v)) for v in by_subject.values() if len(v)]
+    return float(np.mean(ms)) if ms else float("inf")
+
+
 def _weighted_quantile(values, weights, q):
     """Deterministic weighted empirical quantile (lower-tail, normalized weights, sorted)."""
     v = np.asarray(values, float); w = np.asarray(weights, float)
@@ -341,7 +348,7 @@ def run_c0(disease, reg_or_art, batches, labels, alpha=0.10, delta=0.0, cache=No
     assignment, _ = cv_assignment([v["key"] for v in idx.values()], eligible=elig_canon)
     chosen_dr = []; n_adapt = 0; n_total = 0; n_fb = 0
     by_subj_ae = {}; centers = []; harm = []                     # MAE / AUROC accumulators (eligible only)
-    widths = []
+    by_subj_w = {}                                               # width: subject-macro (matches the candidate)
     for fa in assignment:
         Xy = {a: ([], []) for a in NON_IDENTITY}
         for s in fa["fit"]:
@@ -371,7 +378,7 @@ def run_c0(disease, reg_or_art, batches, labels, alpha=0.10, delta=0.0, cache=No
                 for a in NON_IDENTITY:
                     by_subj_ae.setdefault(s, []).append(abs(ghat[a] - c["dr"][a]))
                     centers.append(ghat[a]); harm.append(1 if c["dr"][a] > 0 else 0)
-                    widths.append(U[a] - ghat[a])
+                    by_subj_w.setdefault(s, []).append(U[a] - ghat[a])
                 elig_acts = [a for a in NON_IDENTITY if U[a] < -float(delta)]
                 if elig_acts:
                     ch = min(elig_acts, key=lambda a: U[a]); chosen_dr.append(c["dr"][ch]); n_adapt += 1
@@ -382,9 +389,9 @@ def run_c0(disease, reg_or_art, batches, labels, alpha=0.10, delta=0.0, cache=No
                 chosen_dr.append(0.0); n_total += 1; n_fb += 1
     red = -float(np.mean(chosen_dr)) if chosen_dr else 0.0
     cov = (n_adapt / n_total) if n_total else 0.0
-    mae = float(np.mean([np.mean(v) for v in by_subj_ae.values()])) if by_subj_ae else float("inf")
+    mae = _subject_macro_mean(by_subj_ae)
     au = _auroc(centers, harm) if centers else float("nan")
-    width = float(np.mean(widths)) if widths else float("inf")
+    width = _subject_macro_mean(by_subj_w)                        # subject-macro (matches the candidate)
     return C0Report(disease, red, float(cov), mae, float(au), width, n_total - n_fb, n_fb)
 
 
@@ -419,7 +426,10 @@ class CandidateReport:
     width: float                  # subject-macro mean of (U_a - center)
     adaptation_coverage: float    # n_adapt / (eligible + fallback) batches
     red_router: float             # -mean chosen ΔR over ALL EVAL batches (fallback contributes 0)
-    all_q_inf: bool               # every fold's q was +inf -> nothing adaptable
+    any_q_inf: bool               # ANY fold's q was +inf (q_finite criterion fails closed if so)
+    s2_detail: dict               # per-action S2 raw diagnostics (C2/C3) or {} (C1)
+    dominance_shares: dict        # per-action fractional max_a shares
+    per_action_auroc: dict        # per-action center-AUROC vs 1[ΔR>0]
     c2_floor: dict
 
 
@@ -435,18 +445,17 @@ def develop_candidate(disease, reg_or_art, batches, labels, candidate, alpha=0.1
         s2 = s2_c3_gate(recs); floor = {}
     else:
         s2 = {"pass": True}; floor = {}                          # C1: only dominance applies
-    aurocs = []
+    per_action_auroc = {}
     for a, rs in _by_action(recs).items():
-        au = _auroc([r.point for r in rs], [1 if r.delta_r > 0 else 0 for r in rs])   # center-AUROC
-        if not math.isnan(au):
-            aurocs.append(au)
+        per_action_auroc[a] = _auroc([r.point for r in rs], [1 if r.delta_r > 0 else 0 for r in rs])   # center-AUROC
+    aurocs = [v for v in per_action_auroc.values() if not math.isnan(v)]
     max_au = max(aurocs) if aurocs else float("nan")
     by_subj_w = {}; by_subj_ae = {}
     for r in recs:
         by_subj_w.setdefault(r.subject, []).append(r.upper - r.point)
         by_subj_ae.setdefault(r.subject, []).append(abs(r.point - r.delta_r))         # |center - ΔR|
-    width = float(np.mean([np.mean(v) for v in by_subj_w.values()])) if by_subj_w else float("inf")
-    mae = float(np.mean([np.mean(v) for v in by_subj_ae.values()])) if by_subj_ae else float("inf")
+    width = _subject_macro_mean(by_subj_w)
+    mae = _subject_macro_mean(by_subj_ae)
     # router red + coverage: per-batch chosen action; denominator INCLUDES fallback batches (identity, ΔR 0)
     by_batch = {}
     drmap = {(r.subject, r.batch_digest, r.action): r.delta_r for r in recs}
@@ -462,9 +471,10 @@ def develop_candidate(disease, reg_or_art, batches, labels, candidate, alpha=0.1
     n_total = len(by_batch) + oof.n_eval_fallback_batches
     red = -float(np.mean(chosen_dr)) if chosen_dr else 0.0
     cov = (n_adapt / n_total) if n_total else 0.0
-    all_q_inf = all(not math.isfinite(q) for q in oof.fold_qs) if oof.fold_qs else True
+    any_q_inf = any(not math.isfinite(q) for q in oof.fold_qs) if oof.fold_qs else True   # ANY +inf fold fails q_finite
+    s2_detail = {a: d for a, d in s2.items() if a != "pass"}
     rep = CandidateReport(disease, candidate, bool(s2["pass"]), bool(dom["ok"]), float(max_au), mae, width, float(cov),
-                          float(red), bool(all_q_inf), floor)
+                          float(red), bool(any_q_inf), s2_detail, dict(dom["shares"]), per_action_auroc, floor)
     return rep, oof
 
 
@@ -517,6 +527,54 @@ class DevelopResult:
     pool_digest: dict
     n_fallback_only_subjects: dict
     s4_inputs: dict             # candidate -> cross-disease S4 metric dict (incl per-criterion eligibility)
+    final_artifacts: dict       # disease -> FittedCandidateArtifact (selected) or None  (refit ONCE here)
+    final_c0: dict              # disease -> {action: ActionRegressor} (refit ONCE) or None
+    final_c0_probe: dict        # disease -> {action: feature} for reload checks, or None
+    best_fixed: dict            # disease -> action maximizing DEV OOF red (frozen)
+    provenance: dict            # disease -> field hashes + per-candidate fold q / OOF digest
+
+
+def best_fixed_action(cache, idx, eligible):
+    """best-fixed = the action maximizing DEV OOF red (= −mean ΔR_a over eligible batches), per disease. Frozen."""
+    sums = {a: [] for a in NON_IDENTITY}
+    for s in eligible:
+        for b in idx[canon_subject(s)]["eligible"]:
+            dr = cache[deployment_batch_digest(b)]["dr"]
+            for a in NON_IDENTITY:
+                sums[a].append(dr[a])
+    red = {a: -float(np.mean(sums[a])) if sums[a] else float("-inf") for a in NON_IDENTITY}
+    best = max(NON_IDENTITY, key=lambda a: (red[a], -NON_IDENTITY.index(a)))
+    return best, red
+
+
+def oof_record_digest(records) -> str:
+    items = []
+    for r in sorted(records, key=lambda r: (r.subject, r.batch_digest, r.action)):
+        items.append(json.dumps([r.candidate, r.disease, r.subject, r.batch_digest, r.fold, r.action, repr(r.delta_r),
+                                 repr(r.point), repr(r.upper_center), repr(r.scale_raw), repr(r.scale_used),
+                                 repr(r.score), repr(r.q), repr(r.upper), r.chosen], separators=(",", ":")).encode())
+    return _digest(b"OOF/1", items)
+
+
+def _final_c0(cache, idx, eligible):
+    """Refit the v2 C0 regressors ONCE on the full eligible pool (deterministic; seed 0). Returns (regs, probe)."""
+    Xy = {a: ([], []) for a in NON_IDENTITY}; probe = None
+    for s in eligible:
+        for b in sorted(idx[canon_subject(s)]["eligible"], key=deployment_batch_digest):
+            c = cache[deployment_batch_digest(b)]
+            for a in NON_IDENTITY:
+                Xy[a][0].append(c["c0feat"][a]); Xy[a][1].append(c["dr"][a])
+            if probe is None:
+                probe = {a: np.asarray(c["c0feat"][a], float) for a in NON_IDENTITY}
+    regs = {a: _fit_action_regressor(np.array(Xy[a][0]), np.array(Xy[a][1])) for a in NON_IDENTITY}
+    return regs, probe
+
+
+def _field_hashes(registry, batches, labels, eligible):
+    from .loader import hash_deployment_input, hash_labels, hash_subject_list as _hsl
+    return {"deployment_input_sha256": hash_deployment_input(batches), "label_sha256": hash_labels(labels),
+            "subject_list_sha256": _hsl(eligible), "source_state_refs": list(registry.refs),
+            "pool_digest": pool_digest(batches)}
 
 
 def s4_metrics(reports, candidate, diseases):
@@ -534,7 +592,7 @@ def s4_metrics(reports, candidate, diseases):
         "width_macro": macro(lambda d: rc[d].width), "c0_width_macro": macro(lambda d: c0[d].width),
         "coverage_macro": macro(lambda d: rc[d].adaptation_coverage),
         "red_macro": macro(lambda d: rc[d].red_router), "c0_red_macro": macro(lambda d: c0[d].red_router),
-        "any_q_inf": any(rc[d].all_q_inf for d in diseases),
+        "any_q_inf": any(rc[d].any_q_inf for d in diseases),
     }
 
 
@@ -544,7 +602,7 @@ def run_dev(diseases_data, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0)
     per-disease refit on the frozen eligible pool. SYNTHETIC orchestration — no real DEV value, no binding G2 verdict."""
     diseases = list(diseases_data)
     reports = {d: {} for d in diseases}; oofs = {d: {} for d in diseases}
-    elig_sha = {}; pools = {}; nfb = {}; caches = {}
+    elig_sha = {}; pools = {}; nfb = {}; caches = {}; prov = {}; bestfix = {}
     for d, (reg, batches, labels) in diseases_data.items():
         registry = _as_registry(reg, d)
         idx = _subject_batches(batches); eligible = _eligible_subjects(idx)
@@ -555,25 +613,33 @@ def run_dev(diseases_data, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0)
             reports[d][c], oofs[d][c] = develop_candidate(d, registry, batches, labels, c, alpha, delta, cache=caches[d])
         reports[d]["C0"] = run_c0(d, registry, batches, labels, alpha, delta, cache=caches[d])
         assert pools[d] == replay_pool_digest(batches)
+        bestfix[d], red_by_a = best_fixed_action(caches[d], idx, eligible)
+        prov[d] = {"field_hashes": _field_hashes(registry, batches, labels, eligible), "best_fixed_red": red_by_a,
+                   "per_candidate": {c: {"fold_qs": list(oofs[d][c].fold_qs),
+                                         "n_cal_scores_per_fold": list(oofs[d][c].n_cal_scores_per_fold),
+                                         "oof_digest": oof_record_digest(oofs[d][c].records)} for c in candidates}}
     per_cand = {}
     for c in candidates:
-        m = s4_metrics(reports, c, diseases); m["eligible"] = s4_eligible(m)["eligible"]; per_cand[c] = m
+        m = s4_metrics(reports, c, diseases); m["eligibility"] = s4_eligible(m); m["eligible"] = m["eligibility"]["eligible"]
+        per_cand[c] = m
     sel = s4_select(per_cand)
-    final_ep = {}; refit_sha = {}
+    final_ep = {}; refit_sha = {}; final_art = {}; final_c0 = {}; final_probe = {}
     if sel["verdict"] == "SELECT":
         c = sel["selected"]
         for d in diseases:
+            registry = _as_registry(diseases_data[d][0], d)
             idx = _subject_batches(diseases_data[d][1]); eligible = _eligible_subjects(idx)
             fe = final_epochs(list(oofs[d][c].best_epochs)); final_ep[d] = fe
             all_ex = _train_examples(eligible, idx, caches[d])
             floor = reports[d][c].c2_floor if c == "C2" else {}
-            art = refit_candidate_fixed_epochs(c, d, all_ex, fe, floor, HP["seed_es"])
-            refit_sha[d] = art.artifact_sha256
+            art = refit_candidate_fixed_epochs(c, d, all_ex, fe, floor, HP["seed_es"])    # final refit — EXACTLY ONCE
+            final_art[d] = art; refit_sha[d] = art.artifact_sha256
+            final_c0[d], final_probe[d] = _final_c0(caches[d], idx, eligible)             # final C0 — EXACTLY ONCE
     else:
         for d in diseases:
-            final_ep[d] = 0; refit_sha[d] = None
+            final_ep[d] = 0; refit_sha[d] = None; final_art[d] = None; final_c0[d] = None; final_probe[d] = None
     return DevelopResult(sel.get("selected"), sel["verdict"], float(alpha), float(delta), reports, final_ep, refit_sha,
-                         elig_sha, pools, nfb, per_cand)
+                         elig_sha, pools, nfb, per_cand, final_art, final_c0, final_probe, bestfix, prov)
 
 
 def replay_pool_digest(batches) -> str:
@@ -582,76 +648,107 @@ def replay_pool_digest(batches) -> str:
 
 
 # ===================================================================================== binding entrypoint + frozen runner
-def run_binding_dev(diseases_data, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0) -> DevelopResult:
-    """The binding DEV entrypoint. Enforces the FROZEN configuration before running: BOTH diseases, ALL three
-    candidates, α=0.10, δ=0.0. Any deviation fails closed (the binding run cannot silently use a subset / off α)."""
+def run_binding_dev(diseases_data, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0, *, verify_env=True) -> DevelopResult:
+    """The binding DEV entrypoint. FAIL-CLOSED on any deviation from the frozen configuration: BOTH diseases, ALL three
+    candidates, α=0.10, δ=0.0, the EXACT seven DEV cohorts (config.DISEASE) with one source-state ref per cohort, and a
+    verified environment lock. The binding run cannot silently use a subset / off-α / wrong cohorts / drifted env."""
+    from acar.config import DISEASE
     if set(diseases_data) != {"PD", "SCZ"}:
         raise ValueError("binding DEV requires exactly diseases {PD, SCZ}")
     if tuple(candidates) != ("C1", "C2", "C3"):
         raise ValueError("binding DEV requires candidates (C1, C2, C3)")
     if float(alpha) != 0.10 or float(delta) != 0.0:
         raise ValueError("binding DEV requires alpha=0.10, delta=0.0")
+    for d, (reg, batches, labels) in diseases_data.items():
+        registry = _as_registry(reg, d)
+        ref_by_ds = {}
+        for b in batches:
+            ref_by_ds.setdefault(b.subject.dataset_id, set()).add(b.source_state_ref)
+        if set(ref_by_ds) != set(DISEASE[d]):
+            raise ValueError(f"{d} cohorts {sorted(ref_by_ds)} != frozen {sorted(DISEASE[d])}")
+        if any(len(v) != 1 for v in ref_by_ds.values()):
+            raise ValueError(f"{d}: each cohort must map to exactly one source_state_ref")
+        if len(registry.refs) != len(DISEASE[d]):
+            raise ValueError(f"{d}: registry has {len(registry.refs)} refs, expected {len(DISEASE[d])} cohorts")
+    if verify_env:
+        from .envlock import verify_env_lock
+        verify_env_lock()
     return run_dev(diseases_data, candidates, alpha, delta)
 
 
-def freeze_dev_run(diseases_data, outdir, *, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0):
-    """Run the binding DEV gate and FREEZE the outcome to a NON-OVERWRITABLE directory: the selected per-disease
-    predictor artifacts + the final C0 regressors (pickled; reload-hash verified), the frozen best-fixed action, the
-    full S5/S6/S8/S9 manifest (field-separated dump/source/label hashes, fold split assignments, per-fold m/k/q, OOF
-    record digest, seven-cohort input manifest). On DEV_STOP writes a `DEV_STOP / NO_LOCKBOX_CONSUMED` marker and no
-    artifacts. SYNTHETIC stage: exercised on fixtures; the lockbox is never read."""
+def _file_sha256(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _report_json(rep):
+    return {"s2_pass": rep.s2_pass, "dominance_pass": rep.dominance_pass, "max_action_auroc": rep.max_action_auroc,
+            "mae": rep.mae, "width": rep.width, "adaptation_coverage": rep.adaptation_coverage,
+            "red_router": rep.red_router, "any_q_inf": rep.any_q_inf, "s2_detail": rep.s2_detail,
+            "dominance_shares": rep.dominance_shares, "per_action_auroc": rep.per_action_auroc, "c2_floor": rep.c2_floor}
+
+
+def freeze_dev_run(diseases_data, outdir, *, candidates=("C1", "C2", "C3"), alpha=0.10, delta=0.0, verify_env=True):
+    """Run the binding DEV gate and FREEZE the outcome to a NON-OVERWRITABLE directory via an ATOMIC write (build in a
+    temp dir, rename only on full success). This layer ONLY serializes the artifacts produced by `run_binding_dev`
+    (the predictor + C0 are refit EXACTLY ONCE inside the run) — it NEVER re-executes adapters or retrains. It computes
+    the full S5/S6/S8/S9 manifest (env-lock hash, field-separated dump/source/label hashes, per-fold q, OOF digest, C2
+    σ_min, best-fixed per disease, per-candidate S2/dominance/AUROC, predictor + C0 file SHA-256), and on reload runs
+    `verify_integrity()`. On DEV_STOP writes a `DEV_STOP / NO_LOCKBOX_CONSUMED` marker and no artifacts."""
+    from .envlock import env_lock_sha256
     if os.path.exists(outdir):
         raise FileExistsError(f"refusing to overwrite existing DEV output dir {outdir}")
-    res = run_binding_dev(diseases_data, candidates, alpha, delta)
-    os.makedirs(outdir)
+    res = run_binding_dev(diseases_data, candidates, alpha, delta, verify_env=verify_env)
+    tmpdir = outdir + ".tmp"
+    if os.path.exists(tmpdir):
+        raise FileExistsError(f"stale temp dir {tmpdir}")
+    os.makedirs(tmpdir)
     manifest = {"verdict": res.verdict, "selected": res.candidate_selected, "alpha": res.alpha, "delta": res.delta,
-                "pool_digest": res.pool_digest, "eligible_subject_list_sha256": res.eligible_subject_list_sha256,
+                "env_lock_sha256": env_lock_sha256(), "pool_digest": res.pool_digest,
+                "eligible_subject_list_sha256": res.eligible_subject_list_sha256,
                 "n_fallback_only_subjects": res.n_fallback_only_subjects, "final_epochs": res.final_epochs,
-                "s4_inputs": res.s4_inputs}
-    if res.verdict != "SELECT":
-        manifest["reason"] = "NO_LOCKBOX_CONSUMED"
-        with open(os.path.join(outdir, "DEV_STOP.json"), "w") as f:
-            json.dump(manifest, f, indent=2, sort_keys=True, default=str)
-        return res, manifest
-    c = res.candidate_selected
-    saved = {}
-    for d, (reg, batches, labels) in diseases_data.items():
-        registry = _as_registry(reg, d)
-        idx = _subject_batches(batches); eligible = _eligible_subjects(idx)
-        cache = disease_exec_cache(registry, batches, labels)
-        # selected predictor artifact
-        all_ex = _train_examples(eligible, idx, cache)
-        floor = res.per_disease[d][c].c2_floor if c == "C2" else {}
-        art = refit_candidate_fixed_epochs(c, d, all_ex, res.final_epochs[d], floor, HP["seed_es"])
-        ppath = os.path.join(outdir, f"predictor_{d}.pkl")
-        with open(ppath, "wb") as f:
-            pickle.dump(art, f)
-        with open(ppath, "rb") as f:
-            reloaded = pickle.load(f)
-        if reloaded.artifact_sha256 != art.artifact_sha256:        # reload-hash guard
-            raise ValueError("saved predictor does not reload with an identical hash")
-        # final C0 regressors (refit on the full eligible pool), pickled + reload-prediction check
-        Xy = {a: ([], []) for a in NON_IDENTITY}
-        probe = None
-        for s in eligible:
-            for b in sorted(idx[canon_subject(s)]["eligible"], key=deployment_batch_digest):
-                cc = cache[deployment_batch_digest(b)]
+                "best_fixed": res.best_fixed, "provenance": res.provenance, "s4_inputs": res.s4_inputs,
+                "candidate_reports": {d: {c: _report_json(res.per_disease[d][c]) for c in candidates}
+                                      for d in diseases_data}}
+    try:
+        if res.verdict != "SELECT":
+            manifest["reason"] = "NO_LOCKBOX_CONSUMED"
+            with open(os.path.join(tmpdir, "DEV_STOP.json"), "w") as f:
+                json.dump(manifest, f, indent=2, sort_keys=True, default=str)
+        else:
+            saved = {}
+            for d in diseases_data:
+                art = res.final_artifacts[d]                       # the SAME artifact the run produced (no re-refit)
+                ppath = os.path.join(tmpdir, f"predictor_{d}.pkl")
+                with open(ppath, "wb") as f:
+                    pickle.dump(art, f)
+                with open(ppath, "rb") as f:
+                    reloaded = pickle.load(f)
+                reloaded.verify_integrity()                        # cryptographic reload check
+                if reloaded.artifact_sha256 != art.artifact_sha256 != res.refit_sha256[d]:
+                    raise ValueError("saved predictor does not reload with the run's hash")
+                c0regs = res.final_c0[d]; probe = res.final_c0_probe[d]
+                c0path = os.path.join(tmpdir, f"c0_{d}.pkl")
+                with open(c0path, "wb") as f:
+                    pickle.dump(c0regs, f)
+                with open(c0path, "rb") as f:
+                    c0re = pickle.load(f)
                 for a in NON_IDENTITY:
-                    Xy[a][0].append(cc["c0feat"][a]); Xy[a][1].append(cc["dr"][a])
-                if probe is None:
-                    probe = {a: cc["c0feat"][a] for a in NON_IDENTITY}
-        c0regs = {a: _fit_action_regressor(np.array(Xy[a][0]), np.array(Xy[a][1])) for a in NON_IDENTITY}
-        c0path = os.path.join(outdir, f"c0_{d}.pkl")
-        with open(c0path, "wb") as f:
-            pickle.dump(c0regs, f)
-        with open(c0path, "rb") as f:
-            c0re = pickle.load(f)
-        for a in NON_IDENTITY:                                      # reload-prediction guard
-            if float(c0re[a].predict([probe[a]])[0]) != float(c0regs[a].predict([probe[a]])[0]):
-                raise ValueError("saved C0 regressor does not reload identically")
-        saved[d] = {"predictor_sha256": art.artifact_sha256, "predictor_path": ppath, "c0_path": c0path,
-                    "eligible_subject_list_sha256": res.eligible_subject_list_sha256[d]}
-    manifest["saved"] = saved
-    with open(os.path.join(outdir, "manifest.json"), "w") as f:
-        json.dump(manifest, f, indent=2, sort_keys=True, default=str)
+                    if float(c0re[a].predict([probe[a]])[0]) != float(c0regs[a].predict([probe[a]])[0]):
+                        raise ValueError("saved C0 regressor does not reload identically")
+                saved[d] = {"predictor_sha256": art.artifact_sha256, "predictor_file_sha256": _file_sha256(ppath),
+                            "predictor_path": os.path.join(outdir, f"predictor_{d}.pkl"),
+                            "c0_file_sha256": _file_sha256(c0path), "c0_path": os.path.join(outdir, f"c0_{d}.pkl"),
+                            "eligible_subject_list_sha256": res.eligible_subject_list_sha256[d]}
+            manifest["saved"] = saved
+            with open(os.path.join(tmpdir, "manifest.json"), "w") as f:
+                json.dump(manifest, f, indent=2, sort_keys=True, default=str)
+        os.rename(tmpdir, outdir)                                  # ATOMIC: appear only on full success
+    except BaseException:
+        import shutil
+        shutil.rmtree(tmpdir, ignore_errors=True)                  # no half-written non-overwritable dir on failure
+        raise
     return res, manifest
