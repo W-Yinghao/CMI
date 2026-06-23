@@ -63,6 +63,11 @@ class SourceAnalysis:
     signature_overlap: bool           # raw subspaces not separable -> attribution unreliable
     concept_dir_pvalues: list
     detail: dict = field(default_factory=dict)
+    # CSC-P1.4.3 #2: ONE unified source status the certifier gates on. VALID only if the support,
+    # residual null, geometry null and separability are ALL OK (cov-stability is NOT a whole-source
+    # abstain -- it only blocks the COVARIATE branch). Any other value -> certifier abstains.
+    source_status: str = "VALID"      # VALID | INVALID_SUPPORT | INVALID_RESIDUAL_NULL |
+                                      # INVALID_GEOMETRY_NULL | UNASSESSED_SEPARABILITY
 
 
 # --------------------------------------------------------------------------------------
@@ -196,7 +201,7 @@ def build_atlas(Z, Y, D, var_keep: float = 0.95, group_ids=None) -> ShiftAtlas:
                   _principal_angle_cos(concept_raw, label_raw))
     min_angle = float(np.degrees(np.arccos(min(cos_max, 1.0)))) if cos_max > 0 else 90.0
 
-    pooled = cluster_mean(Z, g)                            # subject-vote pooled mean
+    pooled = cluster_mean(Z, g, D)                         # subject-vote, CONDITION-FIRST pooled mean
     Mden = _domain_pooled_means(Z, D, domains, g) - pooled
     sigma_label = float(np.sqrt(((Mden @ label_dirs) ** 2).sum(1).mean())) if label_dirs.shape[1] else 0.0
     sigma_cov = float(np.sqrt(((A @ cov_dirs) ** 2).sum(1).mean())) if cov_dirs.shape[1] else 0.0
@@ -233,47 +238,72 @@ def stratified_subject_resample(idx_by, strata, rng):
 
 
 def _cross_split_separability(Z, Y, D, classes, domains, var_keep, groups, seed, min_angle_deg):
-    """CROSS-SPLIT cov/concept separability (CSC-P1.4.2 #5), the reviewer's option (a). Split
-    subjects into two INDEPENDENT halves. From split A take the RAW per-domain nuisance offsets
-    A_cov = {a_d} (label-AVERAGED -> the covariate signature, NOT forced orthogonal to concept).
-    From split B take the concept direction concept_B (class-conditional). The genuine question is
-    how much of the nuisance offset survives projecting OUT the concept direction:
-
-        frac = ||A_cov - A_cov P_concept_B|| / ||A_cov||,   angle = arcsin(frac).
-
-    angle ~ 90 deg  => the nuisance lives OFF the concept axis  -> separable (incl. a VISIBLE
-    concept, whose label-mean component is removed via the INDEPENDENT split, not by construction).
-    angle small     => the nuisance offset is itself ~the concept direction -> cov & concept are
-    NOT separable (Assumption T fails) -> overlap=True -> abstain. REACTS as the true cov/concept
-    angle shrinks. Returns (angle_deg, overlap); UNASSESSED (too few subjects) -> (90, False)."""
+    """CONCEPT-DIRECTION cross-split STABILITY (CSC-P1.4.3 #3). Returns
+    (concept_disagreement_deg, assessable): the angle by which the estimated concept direction
+    DISAGREES between two INDEPENDENT subject-halves (0 = perfectly reproduced -> reliable
+    attribution; large -> the cov/concept decomposition flips -> Assumption T untrustworthy), and
+    whether it could be assessed at all. See the in-body NOTE for why the literal raw
+    cov-vs-concept principal angle is geometrically inappropriate for visible concepts."""
     g = np.asarray(groups) if groups is not None else np.arange(len(Y))
     subs = np.unique(g)
     if len(subs) < 4:
-        return 90.0, False
+        return 90.0, False                                 # too few subjects to assess -> UNASSESSED
     rng = np.random.default_rng(stage_seed(seed, "separability_split"))
     perm = rng.permutation(subs)
     inA = np.isin(g, perm[:len(perm) // 2])
+
+    def concept_dir(mask):
+        return _concept_geometry(Z[mask], Y[mask], D[mask], classes,
+                                 list(np.unique(D[mask])), var_keep, g[mask])[1]
+
+    # CSC-P1.4.3 #3 -- NOTE on the diagnostic. The reviewer's literal cov_A-vs-concept_B raw
+    # principal angle is INAPPROPRIATE for a VISIBLE concept: such a concept's label-mean
+    # NECESSARILY lies along the concept direction inside a_d (visibility == nonzero label-average
+    # of the per-class boundary move), so the raw cov ROW SPACE always contains the concept axis
+    # -> angle ~ 0 -> EVERY visible concept would be (wrongly) declared non-separable. This is a
+    # generative-model identity, not non-separability. The operationally correct Assumption-T
+    # gate (the reviewer's own P1.4.2 #5 "attribution instability") is whether the CONCEPT
+    # DIRECTION REPRODUCES across two INDEPENDENT subject-halves: if it does, the cov/concept
+    # decomposition is reliable; if it flips, attribution is untrustworthy. We measure the
+    # cross-split concept-direction DISAGREEMENT angle and return (disagreement_deg, assessable).
     try:
-        A_cov, _, _ = _offsets_residuals(Z[inA], Y[inA], D[inA], classes,
-                                         list(np.unique(D[inA])), g[inA])
-        concept_B = _concept_geometry(Z[~inA], Y[~inA], D[~inA], classes,
-                                      list(np.unique(D[~inA])), var_keep, g[~inA])[1]
+        con_A, con_B = concept_dir(inA), concept_dir(~inA)
     except Exception:
-        return 90.0, False
-    angle = offset_concept_angle(A_cov, concept_B)
-    return angle, bool(angle < min_angle_deg)
+        return 90.0, False                                 # UNASSESSED (estimation failed)
+    if con_A.shape[1] == 0 or con_B.shape[1] == 0:
+        return 90.0, False                                 # UNASSESSED (no concept axis to compare)
+    # principal angle between the two estimated concept directions: 0 deg = identical across
+    # splits (reproduced -> reliable); -> 90 deg = the concept axis flips (untrustworthy).
+    disagreement = principal_angle_deg(con_A, con_B)
+    return float(disagreement), True
 
 
-def offset_concept_angle(A_cov, concept_dirs):
-    """Angle (deg) between the nuisance-offset matrix A_cov and the concept subspace:
-    arcsin(||A_cov - A_cov P_concept|| / ||A_cov||). 90 deg = nuisance lies OFF the concept axis
-    (separable); -> 0 as the nuisance offset aligns with the concept direction (overlap). Pure +
-    deterministic so the diagnostic's REACTION to the true angle is directly unit-testable."""
-    na = float(np.linalg.norm(A_cov))
-    if concept_dirs.shape[1] == 0 or na < 1e-9:
+def _row_space_basis(A, tol=1e-9):
+    """Orthonormal basis (d, rank) for the ROW space of A (the directions its rows span), via
+    SVD with an exact-zero tolerance -- so a weak overlapping direction is NOT dropped."""
+    A = np.asarray(A, float)
+    if A.size == 0 or np.allclose(A, 0):
+        return np.zeros((A.shape[1] if A.ndim == 2 else 0, 0))
+    U, s, Vt = np.linalg.svd(A, full_matrices=False)
+    keep = s > tol * (s[0] if s.size else 1.0)
+    return Vt[keep].T
+
+
+def principal_angle_deg(B1, B2):
+    """Smallest principal angle (deg) between two ORTHONORMAL column bases (d,k):
+    arccos sigma_max(B1^T B2). 0 deg = a shared direction (overlap); 90 deg = orthogonal. This is
+    a genuine subspace angle -- a weak fully-overlapping direction is NOT masked by a strong
+    orthogonal one (the energy-ratio bug). Empty basis -> 90 (no shared direction)."""
+    if B1.shape[1] == 0 or B2.shape[1] == 0:
         return 90.0
-    resid = A_cov - (A_cov @ concept_dirs) @ concept_dirs.T
-    return float(np.degrees(np.arcsin(np.clip(np.linalg.norm(resid) / na, 0.0, 1.0))))
+    s = np.linalg.svd(B1.T @ B2, compute_uv=False)
+    return float(np.degrees(np.arccos(np.clip(s[0], 0.0, 1.0))))
+
+
+def cov_concept_angle(A_cov, concept_dirs):
+    """Min principal angle (deg) between the cov-offset ROW space and the concept subspace. Pure +
+    deterministic (directly unit-testable: rank>1 exact overlap -> ~0; orthogonal -> ~90)."""
+    return principal_angle_deg(_row_space_basis(A_cov), concept_dirs)
 
 
 def _cov_loading(Z, Y, D, classes, domains, var_keep, cov_dirs=None, g=None):
@@ -298,6 +328,8 @@ def analyze_source(Z, Y, D,
                    cov_loading_margin_kappa: float = 1.5,
                    n_folds: int = 4,
                    invalid_frac_max: float = 0.20,
+                   label_unit: str = "subject",
+                   concept_stability_max_deg: float = 40.0,
                    group_ids=None,
                    seed: int = 0) -> SourceAnalysis:
     """Atlas + (a) h0-NULL max-statistic concept evidence (keeps ONLY the global-max-passing
@@ -309,7 +341,8 @@ def analyze_source(Z, Y, D,
     classes = list(np.unique(Y)); domains = list(np.unique(D))
 
     test = residual_decoder_test(Z, Y, D, n_folds=n_folds, n_boot=n_boot, alpha=alpha, C=C,
-                                 group_ids=group_ids, invalid_frac_max=invalid_frac_max, seed=seed)
+                                 group_ids=group_ids, invalid_frac_max=invalid_frac_max,
+                                 label_unit=label_unit, seed=seed)
     atlas = build_atlas(Z, Y, D, var_keep=var_keep, group_ids=groups)
     # CSC-P1.4.2 #5: the within-split principal angle was an ALGORITHMIC artifact (cov_dirs is
     # built orthogonal to concept), so it could never detect cov/concept overlap. The operational
@@ -317,12 +350,17 @@ def analyze_source(Z, Y, D,
     # subject-halves; if a cov direction in one half aligns with a concept direction in the other
     # (cross angle < min_angle_deg) the cov/concept assignment is NOT stable -> abstain. This has no
     # forced-orthogonality artifact and REACTS as the true cov/concept angle shrinks.
-    sep_angle, overlap = _cross_split_separability(Z, Y, D, classes, domains, var_keep,
-                                                   groups, seed, min_angle_deg)
+    sep_disagree, sep_assessable = _cross_split_separability(Z, Y, D, classes, domains, var_keep,
+                                                             groups, seed, min_angle_deg)
+    # concept attribution is reliable iff the concept direction REPRODUCES across splits within the
+    # pre-registered tolerance; UNASSESSABLE separability -> abstain the whole source.
+    concept_stable = bool(sep_assessable and sep_disagree <= concept_stability_max_deg)
+    overlap = not sep_assessable                          # certifier 'signature_overlap' field
 
     if test.status != "VALID":
+        # support / residual-null failure -> propagate the SPECIFIC status (certifier abstains)
         return SourceAnalysis(atlas, test, False, False, overlap, [],
-                              detail=dict(reason="invalid support graph"))
+                              detail=dict(reason=test.status), source_status=test.status)
 
     cov_dirs, concept_raw, s_obs, Vt_obs, A, R, _ = _concept_geometry(Z, Y, D, classes, domains,
                                                                       var_keep, groups)
@@ -330,18 +368,18 @@ def analyze_source(Z, Y, D,
 
     # NULL bootstrap under fitted h0 (NOT a row bootstrap): each replicate draws Y* ~ p_hat0
     # and RE-RUNS the whole concept pipeline (re-estimating subspaces + spectrum).
-    Zs = _standardise(Z)
-    p0 = fit_h0_proba(Zs, Y, D, domains, classes, C, groups)
+    p0 = fit_h0_proba(Z, Y, D, domains, classes, C, groups)   # RAW Z (weighted standardise inside)
     rng = np.random.default_rng(stage_seed(seed, "geometry_null"))
-    cl_set = set(classes)
     null_top, cov_load_null, n_geom_invalid = [], [], 0
     for b in range(n_dir_boot):
         # cluster-consistent null: one label per (subject,condition) cell when groups given
-        Yb = (subject_null_labels(p0, groups, classes, rng, D=D) if groups is not None
-              else sample_labels(p0, classes, rng))
-        # SAME support-validity check as the residual null (CSC-P1.4.2 #1): a relabel that drops
-        # a class / empties the spectrum is an INVALID replicate, charged as extreme below.
-        if set(np.unique(Yb)) != cl_set:
+        Yb = (subject_null_labels(p0, groups, classes, rng, D=D, label_unit=label_unit)
+              if groups is not None else sample_labels(p0, classes, rng))
+        # CSC-P1.4.3 #2: the geometry null runs the SAME support gate as the source (a relabel
+        # that drops a class, disconnects the domain-class graph, or empties a cell is INVALID --
+        # not merely "has all class labels"); charged as extreme below.
+        supb = check_support_graph(Yb, D, group_ids=group_ids, n_folds=n_folds, check_design=False)
+        if not supb.valid:
             n_geom_invalid += 1
             continue
         try:
@@ -381,7 +419,9 @@ def analyze_source(Z, Y, D,
     # magnitude-only gate (concept_top >= kappa*cov_noise_scale) was UNCALIBRATED (full-R top vs a
     # cov-subspace projection -> ~always passes); it is reported as a diagnostic, not a gate.
     concept_geom_present = bool(concept_top >= cov_loading_margin_kappa * cov_noise_scale)  # diag
-    concept_evidenced = bool(p_global <= alpha) and bool(test.significant)
+    # concept requires the geometric max-stat AND the decoder AND a cross-split-STABLE concept
+    # direction (CSC-P1.4.3 #3): an unstable concept axis is not trustworthy attribution.
+    concept_evidenced = bool(p_global <= alpha) and bool(test.significant) and concept_stable
     n_keep = 1 if concept_evidenced else 0
     if concept_evidenced:
         atlas.concept_dirs = Vt_obs[:1].T
@@ -424,8 +464,18 @@ def analyze_source(Z, Y, D,
     else:
         s_cov_obs, cov_ub, cov_stable, n_inv = 0.0, 0.0, True, 0
 
+    # CSC-P1.4.3 #2: unified source status the certifier gates on. Geometry-null not estimable ->
+    # whole-source INVALID_GEOMETRY_NULL; separability unassessed/overlapping -> abstain. (cov
+    # instability is NOT a whole-source abstain -- it only blocks the covariate branch.)
+    if not geom_estimable:
+        source_status = "INVALID_GEOMETRY_NULL"
+    elif not sep_assessable:
+        source_status = "UNASSESSED_SEPARABILITY"          # cannot verify the atlas at all -> abstain
+    else:
+        source_status = "VALID"                            # concept-instability blocks CONCEPT only
+
     return SourceAnalysis(atlas, test, concept_evidenced, bool(cov_stable), bool(overlap),
-                          [p_global],
+                          [p_global], source_status=source_status,
                           detail=dict(n_concept_kept=n_keep, p_global=p_global,
                                       obs_top_singular=float(s_obs[0]) if n_rank else 0.0,
                                       concept_top=concept_top,
@@ -443,7 +493,9 @@ def analyze_source(Z, Y, D,
                                       null_invalid_replicates=test.null_invalid,
                                       cluster_aware=(groups is not None),
                                       min_principal_angle_deg=atlas.min_principal_angle_deg,
-                                      separability_cross_angle_deg=sep_angle,
+                                      concept_disagreement_deg=sep_disagree,
+                                      concept_stable=concept_stable,
+                                      separability_assessable=bool(sep_assessable),
                                       signature_overlap=bool(overlap),
                                       global_significant=test.significant))
 
@@ -451,14 +503,25 @@ def analyze_source(Z, Y, D,
 # --------------------------------------------------------------------------------------
 # shared decomposition used by BOTH the certifier and the calibrator (same statistic!)
 # --------------------------------------------------------------------------------------
-def cluster_mean(Z, group_ids=None):
-    """Target mean as ONE VOTE PER CLUSTER (subject): mean of per-group means, so a subject
-    with many epochs does not dominate. Row mean when no group_ids."""
+def cluster_mean(Z, group_ids=None, D=None):
+    """ONE VOTE PER biological SUBJECT. With `D` (condition/domain) it is CONDITION-FIRST
+    (CSC-P1.4.3 #4): mean per (subject,condition) cell, then equal-weight over the subject's
+    conditions, then over subjects -> duplicating one condition's epochs cannot change it. Without
+    D it is the per-subject epoch mean (the source has one condition/subject -> identical). Row
+    mean when no group_ids."""
     Z = np.asarray(Z, float)
     if group_ids is None:
         return Z.mean(0)
     g = np.asarray(group_ids)
-    return np.stack([Z[g == u].mean(0) for u in np.unique(g)]).mean(0)
+    if D is None:
+        return np.stack([Z[g == u].mean(0) for u in np.unique(g)]).mean(0)
+    D = np.asarray(D)
+    subj_means = []
+    for s in np.unique(g):
+        ms = g == s
+        cells = [Z[ms & (D == c)].mean(0) for c in np.unique(D[ms])]   # condition-first
+        subj_means.append(np.mean(cells, axis=0))
+    return np.stack(subj_means).mean(0)
 
 
 def _proj(delta, basis):

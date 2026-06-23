@@ -83,18 +83,16 @@ def certify(analysis: SourceAnalysis,
     def cert(state, reason, visible):
         return Certificate(state, reason, n_lab, n_cov, n_con, n_res, visible, ev, detail)
 
-    # (0) no valid concept atlas -> abstain
-    if analysis.test.status != "VALID":
+    # (0) unified SOURCE STATUS gate (CSC-P1.4.3 #2): VALID only if support, residual null,
+    # geometry null AND separability are all OK. Any other status -> abstain (fail-closed). This
+    # single gate covers INVALID_SUPPORT / INVALID_RESIDUAL_NULL / INVALID_GEOMETRY_NULL /
+    # UNASSESSED_SEPARABILITY -- a geometry-null or separability failure can no longer slip through
+    # a VALID residual-test status.
+    if getattr(analysis, "source_status", "VALID") != "VALID":
+        reasons = "; ".join(analysis.test.support.reasons) if analysis.test.support else ""
         return cert(UNIDENTIFIABLE,
-                    "source support graph invalid -> no concept atlas: "
-                    + "; ".join(analysis.test.support.reasons), False)
-
-    # (0b) signature subspaces not separable -> attribution unreliable -> abstain
-    if analysis.signature_overlap:
-        return cert(UNIDENTIFIABLE,
-                    f"source signature subspaces are not separable "
-                    f"(min principal angle {atlas.min_principal_angle_deg:.1f} deg); "
-                    "covariate/concept/label attribution is unreliable", False)
+                    f"source not certifiable: status={analysis.source_status}"
+                    + (f" ({reasons})" if reasons else ""), False)
 
     # (1) label-shift signature -> abstain, but RELATIVELY: a label component blocks attribution
     # only when it is significant AND is NOT dominated by a concept/covariate explanation. A

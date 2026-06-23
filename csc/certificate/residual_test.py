@@ -264,6 +264,38 @@ def _subject_condition_weights(groups, D):
     return w * (len(w) / w.sum())
 
 
+def _weighted_standardise(Z, w=None):
+    """Weighted mean/std (mean-1 weights). Used PER FOLD so epoch duplication (which halves each
+    duplicated row's subject-condition weight) leaves the scaler -- and hence T -- invariant."""
+    Z = np.asarray(Z, float)
+    if w is None:
+        return Z.mean(0), Z.std(0) + 1e-8
+    w = np.asarray(w, float); W = w.sum()
+    mu = (w[:, None] * Z).sum(0) / W
+    var = (w[:, None] * (Z - mu) ** 2).sum(0) / W
+    return mu, np.sqrt(np.clip(var, 0, None)) + 1e-8
+
+
+def _subject_fold_assignment(groups, Y, n_folds, seed):
+    """Assign each BIOLOGICAL subject to a fold (stratified by its majority label, shuffled by the
+    NAMED seed). A row's fold = its subject's fold, so fold membership is INDEPENDENT of row
+    multiplicity (epoch duplication can never move a subject across folds) AND the named CV seed
+    genuinely drives the split. Returns (fold_per_row, k)."""
+    g = np.asarray(groups); Y = np.asarray(Y)
+    cl = sorted(set(np.unique(Y).tolist()))
+    subs = np.unique(g)
+    slab = np.array([np.bincount([cl.index(y) for y in Y[g == s]],
+                                 minlength=len(cl)).argmax() for s in subs])
+    occ = np.bincount(slab)
+    k = max(2, min(int(n_folds), int(occ[occ > 0].min())))
+    skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=int(seed) % (2 ** 32))
+    sub_fold = np.empty(len(subs), int)
+    for fi, (_, te) in enumerate(skf.split(np.zeros(len(subs)), slab)):
+        sub_fold[te] = fi
+    pos = {s: i for i, s in enumerate(subs.tolist())}
+    return np.array([sub_fold[pos[s]] for s in g.tolist()]), k
+
+
 def _aligned(clf, X, cl):
     proba = clf.predict_proba(X)
     full = np.full((len(X), len(cl)), 1e-12)
@@ -288,53 +320,79 @@ def aggregate_subject_loss(per_epoch_loss, groups, D):
     return {s: float(np.mean(v)) for s, v in subj_cells.items()}
 
 
-def _xfit_subject_loss(Zs, Y, D, groups, domains, interaction, classes, n_folds, C, seed):
-    """Cross-fitted OOF per-epoch loss (group-CV by BIOLOGICAL subject; fit weights
-    1/(|U_s| n_su) so a paired subject is one vote), then the subject-condition aggregation
-    above. Returns loss_per_biological_subject."""
-    X = _features(Zs, D, domains, interaction)
+def _xfit_subject_loss(Z, Y, D, groups, domains, interaction, classes, n_folds, C, seed):
+    """Cross-fitted OOF per-epoch loss on RAW Z (group-CV by BIOLOGICAL subject via subject-level
+    fold assignment; PER-FOLD subject-condition-WEIGHTED standardisation; fit weights 1/(|U_s|n_su)
+    so a paired subject is one vote), then the subject-condition aggregation. Duplicating epochs
+    within a (subject,condition) cell leaves the scaler, the folds, the fit and hence the loss
+    invariant. Returns loss_per_biological_subject."""
+    Z = np.asarray(Z, float)
     cl = list(classes)
     w = _subject_condition_weights(groups, D)
+    fold, k = _subject_fold_assignment(groups, Y, n_folds, seed)
     oof = np.full(len(Y), np.nan)
-    for tr, te in _splits(X, Y, n_folds, seed, groups):     # split by biological subject
+    for f in range(k):
+        te = np.where(fold == f)[0]; tr = np.where(fold != f)[0]
+        if te.size == 0 or tr.size == 0:
+            continue
+        mu, sd = _weighted_standardise(Z[tr], w[tr])        # per-fold WEIGHTED scaler
+        Xtr = _features((Z[tr] - mu) / sd, D[tr], domains, interaction)
+        Xte = _features((Z[te] - mu) / sd, D[te], domains, interaction)
         clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs")
-        clf.fit(X[tr], Y[tr], sample_weight=w[tr])
-        p = _aligned(clf, X[te], cl)
+        clf.fit(Xtr, Y[tr], sample_weight=w[tr])
+        p = _aligned(clf, Xte, cl)
         yi = np.searchsorted(cl, Y[te])
         oof[te] = -np.log(p[np.arange(len(te)), yi])
     seen = ~np.isnan(oof)
     return aggregate_subject_loss(oof[seen], np.asarray(groups)[seen], np.asarray(D)[seen])
 
 
-def _xfit_T(Zs, Y, D, groups, domains, classes, n_folds, C, seed):
-    """T = (1/S) sum_s (l_{s,h0} - l_{s,h}) over BIOLOGICAL subjects -- subject-condition estimand."""
-    l0 = _xfit_subject_loss(Zs, Y, D, groups, domains, False, classes, n_folds, C, seed)
-    l1 = _xfit_subject_loss(Zs, Y, D, groups, domains, True, classes, n_folds, C, seed)
+def _xfit_T(Z, Y, D, groups, domains, classes, n_folds, C, seed):
+    """T = (1/S) sum_s (l_{s,h0} - l_{s,h}) over BIOLOGICAL subjects -- subject-condition estimand
+    on RAW Z (per-fold weighted standardisation inside)."""
+    l0 = _xfit_subject_loss(Z, Y, D, groups, domains, False, classes, n_folds, C, seed)
+    l1 = _xfit_subject_loss(Z, Y, D, groups, domains, True, classes, n_folds, C, seed)
     keys = [g for g in l0 if g in l1]
     return float(np.mean([l0[g] - l1[g] for g in keys])) if keys else float("nan")
 
 
-def fit_h0_proba(Zs, Y, D, domains, classes, C=1.0, groups=None) -> np.ndarray:
-    """Domain-intercept model on ALL data (subject-condition weighted if groups given); p0(y|z,d)."""
-    X = _features(Zs, D, domains, interaction=False)
+def fit_h0_proba(Z, Y, D, domains, classes, C=1.0, groups=None) -> np.ndarray:
+    """Domain-intercept model on ALL data; RAW Z standardised with subject-condition WEIGHTS
+    (mean-1) so duplicating epochs within a cell leaves the global scaler and p0 invariant."""
     w = None if groups is None else _subject_condition_weights(groups, D)
+    mu, sd = _weighted_standardise(Z, w)
+    X = _features((np.asarray(Z, float) - mu) / sd, D, domains, interaction=False)
     clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(X, Y, sample_weight=w)
     return _aligned(clf, X, list(classes))
 
 
-def subject_null_labels(p0, groups, classes, rng, D=None) -> np.ndarray:
-    """Cluster-consistent h0 null: ONE label per (subject, condition) CELL, q(y) ∝ exp[mean_e
-    log p0(y)] (geometric mean over the cell's epochs), broadcast to the cell. Reduces to one
-    label per subject when each subject is a single condition (the source). Passing D makes it
-    paired-correct (a subject in ON and OFF gets an independent draw per condition)."""
+LABEL_UNITS = ("subject", "subject_condition", "trial")
+
+
+def subject_null_labels(p0, groups, classes, rng, D=None, label_unit="subject") -> np.ndarray:
+    """h0 null Y* drawn at the FROZEN `label_unit` (CSC-P1.4.3 #4) -- it MUST match the data's
+    label-generating unit:
+
+      subject           : Y constant within a biological subject. ONE Y*_s per subject (geom-mean
+                          of p0 over ALL the subject's epochs) broadcast to every epoch.
+      subject_condition : Y constant within a (subject, condition=domain) cell. ONE Y* per cell.
+      trial             : Y varies per epoch. Y* drawn PER EPOCH from p0 (CV/bootstrap still
+                          cluster by subject -- the cluster is for inference, not the label unit).
+
+    The CV/bootstrap clustering is ALWAYS the biological subject regardless of label_unit."""
+    if label_unit not in LABEL_UNITS:
+        raise ValueError(f"label_unit {label_unit!r} not in {LABEL_UNITS}")
     cl = np.asarray(classes)
     g = np.asarray(groups)
-    cell, _ = _condition_cells(g, g if D is None else D)
+    if label_unit == "trial":
+        return sample_labels(p0, classes, rng)              # per-epoch resample under h0
+    key = g if (label_unit == "subject" or D is None) else D
+    cell, _ = _condition_cells(g, key)
     out = np.empty(len(g), dtype=cl.dtype)
     logp = np.log(np.clip(p0, 1e-12, 1.0))
     for u in np.unique(cell):
         m = cell == u
-        q = np.exp(logp[m].mean(0)); q = q / q.sum()
+        q = np.exp(logp[m].mean(0)); q = q / q.sum()        # geometric mean over the cell's epochs
         y = cl[int((rng.random() > np.cumsum(q)).sum())]
         out[m] = y
     return out
@@ -370,34 +428,34 @@ def residual_decoder_test(Z, Y, D,
                           C: float = 1.0,
                           group_ids=None,
                           invalid_frac_max: float = 0.20,
+                          label_unit: str = "subject",
                           seed: int = 0) -> ResidualTestResult:
-    Y = np.asarray(Y); D = np.asarray(D)
-    Zs = _standardise(Z)
+    Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D)
     # the inference cluster is the biological subject; with no group_ids each EPOCH is its own
-    # cluster (component/epoch-level fallback).
+    # cluster (component/epoch-level fallback). RAW Z throughout (per-fold weighted standardise).
     groups = np.asarray(group_ids) if group_ids is not None else np.arange(len(Y))
     classes = list(np.unique(Y)); domains = list(np.unique(D))
 
-    support = check_support_graph(Y, D, Z=Zs, group_ids=group_ids, n_folds=n_folds)
+    support = check_support_graph(Y, D, Z=Z, group_ids=group_ids, n_folds=n_folds)
     if not support.valid:
-        return ResidualTestResult("INVALID", float("nan"), 1.0, False,
+        return ResidualTestResult("INVALID_SUPPORT", float("nan"), 1.0, False,
                                   float("nan"), float("nan"), support)
 
     s_cv = stage_seed(seed, "residual_cv")             # fold split (shared observed + null)
     s_null = stage_seed(seed, "residual_null")         # Y* sampling
-    T = _xfit_T(Zs, Y, D, groups, domains, classes, n_folds, C, s_cv)
+    T = _xfit_T(Z, Y, D, groups, domains, classes, n_folds, C, s_cv)
 
     # cluster-consistent NULL: one label per (subject,condition) cell ~ geom-mean q; refit T*.
-    p0 = fit_h0_proba(Zs, Y, D, domains, classes, C, groups)
+    p0 = fit_h0_proba(Z, Y, D, domains, classes, C, groups)
     rng = np.random.default_rng(s_null)
     null, n_invalid = [], 0
     for b in range(n_boot):
-        Yb = subject_null_labels(p0, groups, classes, rng, D=D)
+        Yb = subject_null_labels(p0, groups, classes, rng, D=D, label_unit=label_unit)
         if len(np.unique(Yb)) < 2:                  # degenerate replicate -> charged as extreme
             n_invalid += 1
             continue
         try:
-            t = _xfit_T(Zs, Yb, D, groups, domains, classes, n_folds, C, s_cv)
+            t = _xfit_T(Z, Yb, D, groups, domains, classes, n_folds, C, s_cv)
             null.append(t) if np.isfinite(t) else None
             if not np.isfinite(t):
                 n_invalid += 1
@@ -407,7 +465,7 @@ def residual_decoder_test(Z, Y, D,
     # too many invalid replicates -> the null is not estimable -> source test INVALID (fail closed)
     if n_invalid > invalid_frac_max * n_boot:
         support.reasons.append(f"residual null not estimable: {n_invalid}/{n_boot} invalid replicates")
-        return ResidualTestResult("INVALID", float(T), 1.0, False,
+        return ResidualTestResult("INVALID_RESIDUAL_NULL", float(T), 1.0, False,
                                   float("nan"), float("nan"), support, null_invalid=n_invalid)
     p_value = _conservative_p(null, n_invalid, T, n_boot)
     null_q = float(np.quantile(null, 1.0 - alpha)) if null.size else float("nan")

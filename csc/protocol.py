@@ -101,6 +101,9 @@ class ProtocolConfig:
     n_boot: int = 80
     n_dir_boot: int = 200
     min_principal_angle_deg: float = 20.0
+    concept_stability_max_deg: float = 40.0   # CSC-P1.4.3 #3: max cross-split disagreement of the
+                                              # concept direction for trustworthy attribution
+                                              # (a METHOD param -> in the manifest hash)
     # covariate-loading stability gate
     cov_loading_margin_kappa: float = 1.5
     # robust certificate
@@ -113,6 +116,9 @@ class ProtocolConfig:
     # inference unit + conventions  (these DRIVE execution)
     analysis_unit: str = "subject"          # "subject" -> cluster-vote gates/bootstraps
     group_aware: bool = True                 # True -> group ids MANDATORY (fail closed)
+    label_unit: str = "subject"             # FROZEN label-generating unit (CSC-P1.4.3 #4):
+                                            # subject | subject_condition | trial. MUST match the
+                                            # data; the h0 null draws Y* at this granularity.
     quantile_convention: str = "linear"
     rng_algorithm: str = "numpy.default_rng(PCG64)"   # method-level RNG choice (the runtime
                                                       # root seed lives in ExecutionContext, NOT
@@ -125,6 +131,8 @@ class ProtocolConfig:
             raise ProtocolError(f"quantile_convention {self.quantile_convention!r}")
         if self.analysis_unit not in _SUPPORTED_UNIT:
             raise ProtocolError(f"analysis_unit {self.analysis_unit!r}")
+        if self.label_unit not in ("subject", "subject_condition", "trial"):
+            raise ProtocolError(f"label_unit {self.label_unit!r}")
         if self.rng_algorithm not in _SUPPORTED_RNG:
             raise ProtocolError(f"rng_algorithm {self.rng_algorithm!r}")
         if not (0 < self.oracle_eps_stable_ce < self.oracle_eps_concept_ce):
@@ -145,6 +153,8 @@ class ProtocolConfig:
             raise ProtocolError("cov_loading_margin_kappa must be > 0")
         if not (0 < self.invalid_null_frac_max < 1):
             raise ProtocolError(f"invalid_null_frac_max {self.invalid_null_frac_max} out of (0,1)")
+        if not (0 < self.concept_stability_max_deg <= 90):
+            raise ProtocolError(f"concept_stability_max_deg {self.concept_stability_max_deg} out of (0,90]")
         if self.source_cv_folds < 2:
             raise ProtocolError("source_cv_folds must be >= 2")
         for nm in ("n_boot", "n_dir_boot", "target_n_boot", "oracle_boot", "tau_n_pseudotargets"):
@@ -214,19 +224,24 @@ def execute_protocol(Z_src, Y_src, D_src, Z_tgt, cfg: ProtocolConfig,
     cal_groups = src_group_ids if cfg.tau_group_resampling else None
     unit_groups_tgt = tgt_group_ids if cfg.analysis_unit == "subject" else None
     unit_groups_src = src_group_ids if cfg.analysis_unit == "subject" else None
-    # match the target's CLUSTER (subject) count, not its row count
-    tgt_n_subj = (len(np.unique(tgt_group_ids)) if (tgt_group_ids is not None and
-                  cfg.tau_target_size_matched) else None)
+    # match the target's CLUSTER-SIZE PROFILE (epochs per subject), not just its subject count
+    # (CSC-P1.4.3 #5): same subject count but 3-vs-100 epochs/subject => different subject-mean
+    # sampling variance => different tau_detect.
+    tgt_profile = None
+    if tgt_group_ids is not None and cfg.tau_target_size_matched:
+        _, tgt_profile = np.unique(np.asarray(tgt_group_ids), return_counts=True)
 
     sa = analyze_source(Z_src, Y_src, D_src, n_boot=cfg.n_boot, n_dir_boot=cfg.n_dir_boot,
                         alpha=cfg.alpha, var_keep=cfg.var_keep, C=cfg.C,
                         min_angle_deg=cfg.min_principal_angle_deg,
                         cov_loading_margin_kappa=cfg.cov_loading_margin_kappa,
                         n_folds=cfg.source_cv_folds, invalid_frac_max=cfg.invalid_null_frac_max,
+                        label_unit=cfg.label_unit,
+                        concept_stability_max_deg=cfg.concept_stability_max_deg,
                         group_ids=unit_groups_src, seed=ctx.seed("analyze_source"))
     base = CertifierConfig(tau_resid=cfg.tau_resid, tau_margin=cfg.tau_margin)
     cal = calibrate_thresholds(Z_src, Y_src, D_src, sa.atlas, base,
-                               target_n_subjects=tgt_n_subj, block_ids_tr=cal_groups,
+                               target_epochs_per_subject=tgt_profile, block_ids_tr=cal_groups,
                                alpha=cfg.alpha, n_block=cfg.tau_n_pseudotargets,
                                quantile=quantile, seed=ctx.seed("calibrate_thresholds"),
                                quantile_method=cfg.quantile_convention)

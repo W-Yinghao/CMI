@@ -113,14 +113,21 @@ we **condition on `(Z, D)`** and resample `Y* ~ p̂0(y|z,d)` from the fitted dom
 model — exactly the null "the boundary is domain-independent" with the observed `P(Z,D)`
 fixed. Recomputing `T*` gives a calibrated one-sided p-value.
 
-**Subject-level estimand (CSC-P1.4.1).** The analysis cluster is the biological subject, not the
-epoch. We fit the decoder on epochs (one-vote-per-subject weights `w_se = 1/n_s`, mean 1), but the
-estimand and inference are subject-level: the OOF loss is aggregated within subject first,
-`ℓ_s = (1/n_s) Σ_e −log p̂^{(−s)}(Y_s|z_se,d_se)`, and `T = mean_s(ℓ_{s,h0} − ℓ_{s,h})` with
-group-CV by subject (no cluster split across folds). The null is **cluster-consistent**: one label
-per subject `Y*_s ~ q_s`, where `q_s(y) ∝ exp[(1/n_s)Σ_e log p̂0,se(y)]` (per-subject geometric mean
-of the h0 epoch probabilities), broadcast to that subject's epochs. Degenerate null replicates are
-COUNTED, never silently dropped.
+**Subject-CONDITION estimand + FROZEN label_unit (CSC-P1.4.1 / P1.4.3).** The inference cluster is
+always the biological subject. The decoder is fit on epochs with subject-CONDITION weights
+`w_sue ∝ 1/(|U_s| n_su)`, `u = (subject, condition/domain)`, and the OOF loss is aggregated
+condition-first: `ℓ_s = (1/|U_s|) Σ_u (1/n_su) Σ_e −log p̂^{(−s)}(Y|z,d)`, `T = mean_s(ℓ_{s,h0} −
+ℓ_{s,h})`. The inner `1/n_su` mean makes `T` invariant to duplicating epochs within a
+(subject,condition) cell; the outer `1/|U_s|` mean stops an unequal-epoch condition from
+dominating. Folds are assigned per BIOLOGICAL SUBJECT (stratified, shuffled by the named CV seed),
+so fold membership is independent of row multiplicity and the named seed genuinely drives the
+split; standardisation is per-fold and subject-condition-weighted (also duplication-invariant).
+
+The null draws `Y*` at a **frozen `label_unit`** that MUST match the data's label-generating unit:
+`subject` (one `Y*_s` per subject, geometric-mean `q_s`, broadcast), `subject_condition` (one per
+`(subject,domain)` cell), or `trial` (per-epoch from `p̂0`). The CV/bootstrap cluster is the
+biological subject regardless. Degenerate replicates are COUNTED, never silently dropped; the
+geometry null runs the SAME support gate; `>invalid_null_frac_max` invalid ⇒ the source is INVALID.
 
 **Both gates are required, and the inference unit is the subject (CSC-P1.4.1).** `concept_evidenced`
 needs BOTH the geometric global max-statistic (`p_global ≤ α`) AND the cross-fitted decoder `T`

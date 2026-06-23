@@ -52,7 +52,8 @@ def test_invalid_source_forces_abstention():
     Y = src.Y.copy()
     Y[src.D == 0] = Y[src.D == 0][0]
     sa = analyze_source(src.Z, Y, src.D, n_boot=8, n_dir_boot=8, seed=9)
-    assert sa.test.status == "INVALID"
+    assert sa.test.status == "INVALID_SUPPORT"           # CSC-P1.4.3 #2 specific status
+    assert sa.source_status == "INVALID_SUPPORT"
     tb = make_target("covariate", cfg, geom=src.geom, seed=99)
     cert = certify(sa, tb.Z)
     assert cert.state == UNIDENTIFIABLE

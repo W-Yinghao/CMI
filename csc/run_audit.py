@@ -28,7 +28,7 @@ from csc.calibration.lodo import nested_lodo, VISIBLE_CONCEPT, COVARIATE_STABLE,
 
 TEST_MODULES = ["test_design_and_pairs", "test_validity_gate", "test_null_calibration",
                 "test_power", "test_protocol", "test_cluster_inference",
-                "test_paired_and_accounting"]
+                "test_paired_and_accounting", "test_p143_contracts"]
 
 
 def _git(*args):
@@ -45,7 +45,7 @@ def p142_diagnostics(cfg, seeds):
     from csc.certificate import analyze_source
     from csc.certificate.residual_test import stage_seed, aggregate_subject_loss
     from csc.certificate.atlas import (support_signature_strata, stratified_subject_resample,
-                                       offset_concept_angle)
+                                       cov_concept_angle)
     from csc.sim.shift_simulator import make_source, make_paired_subjects
 
     per_source = []
@@ -57,16 +57,18 @@ def p142_diagnostics(cfg, seeds):
                             group_ids=src.group_ids, seed=s)
         d = sa.detail
         per_source.append(dict(
-            seed=s, source_test_status=sa.test.status,
+            seed=s, source_status=sa.source_status, source_test_status=sa.test.status,
             residual_null_invalid=int(getattr(sa.test, "null_invalid", 0)),
             residual_p_value=float(sa.test.p_value),
             geom_null_invalid=int(d.get("geom_null_invalid", 0)),
             geom_null_estimable=bool(d.get("geom_null_estimable", True)),
             cov_boot_invalid=int(d.get("cov_boot_invalid", 0)),
             n_dir_boot=cfg.n_dir_boot, invalid_frac_max=cfg.invalid_null_frac_max,
-            source_invalid_triggered=(sa.test.status == "INVALID"),
-            separability_cross_angle_deg=float(d.get("separability_cross_angle_deg", float("nan"))),
-            signature_overlap=bool(d.get("signature_overlap", False))))
+            # CSC-P1.4.3 #2: source_invalid covers ALL stages (support/residual/geometry/separability)
+            source_invalid_triggered=(sa.source_status != "VALID"),
+            concept_disagreement_deg=float(d.get("concept_disagreement_deg", float("nan"))),
+            concept_stable=bool(d.get("concept_stable", False)),
+            separability_assessable=bool(d.get("separability_assessable", False))))
 
     # paired ON/OFF invariants (numeric evidence, not just test pass/fail)
     Zp, Yp, Dp, Gp = make_paired_subjects(SimConfig(seed=0), n_subjects=20, concept_delta=0.0, seed=0)
@@ -91,7 +93,7 @@ def p142_diagnostics(cfg, seeds):
     sep_response = {}
     for th in (90.0, 60.0, 30.0, 10.0):
         w = np.cos(np.radians(th)) * u + np.sin(np.radians(th)) * np.eye(d6)[1]
-        sep_response[th] = round(offset_concept_angle(A, (w / np.linalg.norm(w))[:, None]), 2)
+        sep_response[th] = round(cov_concept_angle(A, (w / np.linalg.norm(w))[:, None]), 2)
 
     # deterministic NAMED stage-seed derivations (sha256, NOT builtin hash())
     stages = ["analyze_source", "residual_cv", "residual_null", "geometry_null", "cov_bootstrap",

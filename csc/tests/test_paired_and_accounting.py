@@ -13,7 +13,7 @@ from csc.certificate.residual_test import (
     _conservative_p, aggregate_subject_loss, _subject_condition_weights,
 )
 from csc.certificate.atlas import (
-    support_signature_strata, stratified_subject_resample, offset_concept_angle,
+    support_signature_strata, stratified_subject_resample, cov_concept_angle,
 )
 from csc.calibration.lodo import oracle_boundary_effect, _subject_mean
 from csc.sim.shift_simulator import SimConfig, make_geom, make_source, make_paired_subjects, GenGeom
@@ -134,7 +134,7 @@ def test_overlap_reacts_to_true_cov_concept_angle():
     for theta in (90.0, 60.0, 30.0, 10.0):
         th = np.radians(theta)
         w = np.cos(th) * u + np.sin(th) * np.eye(d)[1]            # concept at angle theta from u
-        ang = offset_concept_angle(A_cov, (w / np.linalg.norm(w))[:, None])
+        ang = cov_concept_angle(A_cov, (w / np.linalg.norm(w))[:, None])
         measured[theta] = ang
         assert abs(ang - theta) < 2.0, f"diagnostic should read ~{theta}, got {ang:.1f}"
         if prev is not None:

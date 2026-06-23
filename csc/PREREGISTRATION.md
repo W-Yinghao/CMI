@@ -15,11 +15,16 @@ A three-state certificate over an unlabeled target batch:
 `COVARIATE_COMPATIBLE` / `CONCEPT_SUSPECT` / `UNIDENTIFIABLE`. Claim:
 
 > Reading only unlabeled target `Z` (no target labels, no source examples), the certificate
-> (a) **never** falsely certifies an unidentifiable shift (pure conditional, pure label, or
-> out-of-atlas) as compatible/suspect — it abstains, as THEORY §1 proves it must; and (b) has
-> **stable, direction-linked power** to flag a real, marginally-visible concept change.
+> (a) controls FALSE certification of an unidentifiable shift (pure conditional, pure label, or
+> out-of-atlas) at level `alpha` — by abstaining (THEORY §1 proves a Z-only certifier MUST be
+> able to abstain); and (b) has **stable, direction-linked power** to flag a real, marginally-
+> visible concept change.
 
-This is a statement about the certificate's **error profile**, not accuracy.
+What is STRUCTURAL vs STATISTICAL (CSC-P1.4.2/P1.4.3 #7): byte-identical targets always get the
+SAME output (exact-pair indistinguishability) is structural; controlling clean/pure/label false
+certification at `alpha` is a FINITE-SAMPLE STATISTICAL claim (a chance clean marginal can exceed
+`tau_detect` + align with the atlas), measured by the exact-CP endpoint over independent clusters
+— NOT an absolute "never". This is a statement about the certificate's **error profile**, not accuracy.
 `COVARIATE_COMPATIBLE` is a *compatibility* claim, NOT an adaptation guarantee (THEORY §5).
 
 ---

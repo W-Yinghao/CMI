@@ -78,15 +78,15 @@ def _aligned_proba(clf, Z, classes):
 # (#2/#3) calibrate the EXACT certificate statistic on training-domain pseudo-targets
 # --------------------------------------------------------------------------------------
 def calibrate_thresholds(Z_tr, Y_tr, D_tr, atlas, base_cfg: CertifierConfig,
-                         target_n_subjects=None, block_ids_tr=None,
+                         target_epochs_per_subject=None, block_ids_tr=None,
                          alpha=0.05, n_block=240, quantile=None, seed=0,
                          quantile_method="linear") -> CertifierConfig:
-    """tau_detect / tau_label = `quantile` of the certifier's EXACT statistic over pseudo-targets
-    drawn from the TRAINING domains only (fold-isolated). Each pseudo-target draws
-    `target_n_subjects` WHOLE subjects (matching the held-out target's CLUSTER count) and its
-    visibility statistic is the SUBJECT-VOTE (cluster_mean) delta -- the SAME statistic the
-    certifier thresholds (the v0 used a row mean, a mismatch). tau_resid / tau_margin are
-    pre-registered constants passed through."""
+    """tau_detect / tau_label = `quantile` of the certifier's EXACT subject-vote statistic over
+    pseudo-targets from the TRAINING domains only (fold-isolated). Each pseudo-target MATCHES the
+    held-out target's CLUSTER-SIZE PROFILE (CSC-P1.4.3 #5): it draws len(`target_epochs_per_subject`)
+    whole source subjects and SUBSAMPLES the i-th to the i-th target subject's epoch count -- so the
+    per-subject-mean sampling variance (hence tau_detect) reflects the ACTUAL target, not just its
+    subject count. tau_resid / tau_margin are pre-registered constants passed through."""
     from ..certificate.atlas import components, cluster_mean
     from ..certificate.residual_test import stage_seed
     q = (1 - alpha) if quantile is None else quantile
@@ -100,12 +100,18 @@ def calibrate_thresholds(Z_tr, Y_tr, D_tr, atlas, base_cfg: CertifierConfig,
     for d in domains:
         idx = np.where(D_tr == d)[0]
         subs = np.unique(bids[idx])
-        k = target_n_subjects or len(subs)
+        sub_rows = {s: idx[bids[idx] == s] for s in subs}
+        prof = (np.asarray(target_epochs_per_subject) if target_epochs_per_subject is not None
+                else np.array([len(sub_rows[s]) for s in subs]))   # default: source profile
+        k = len(prof)
         for _ in range(reps):
-            pick = rng.choice(subs, size=k, replace=True)    # match target SUBJECT count
-            # new cluster id per drawn copy (correct resampling-with-replacement multiplicity)
-            bs = np.concatenate([idx[bids[idx] == s] for s in pick])
-            gid = np.concatenate([np.full((bids[idx] == s).sum(), i) for i, s in enumerate(pick)])
+            pick = rng.choice(subs, size=k, replace=True)
+            rows, gid = [], []
+            for i, (s, n_i) in enumerate(zip(pick, prof)):
+                avail = sub_rows[s]
+                draw = rng.choice(avail, size=int(n_i), replace=(len(avail) < n_i))  # match epochs/subj
+                rows.append(draw); gid.append(np.full(int(n_i), i))
+            bs = np.concatenate(rows); gid = np.concatenate(gid)
             delta = cluster_mean(Z_tr[bs], gid) - atlas.pooled_mean   # SUBJECT-VOTE, like certifier
             c = components(atlas, delta)
             vis.append(max(c["n_cov"], c["n_concept"], c["n_resid"]))
@@ -150,9 +156,15 @@ def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
     from ..certificate.residual_test import stage_seed
     assert 0 < eps_stable < eps_concept, "pre-register 0 < eps_stable < eps_concept"
     cl = list(classes)
-    mu, sd = Z_tr.mean(0), Z_tr.std(0) + 1e-8
-    Ztr, Zg = (Z_tr - mu) / sd, (Z_g - mu) / sd
     w_tr = None if group_tr is None else _subj_w(np.asarray(group_tr))
+    # SUBJECT-weighted scaler (CSC-P1.4.3 #4), matching the decoder's per-fold weighted scaler --
+    # not a row-weighted mean/std that a high-epoch subject would dominate.
+    if w_tr is None:
+        mu, sd = Z_tr.mean(0), Z_tr.std(0) + 1e-8
+    else:
+        W = w_tr.sum(); mu = (w_tr[:, None] * Z_tr).sum(0) / W
+        sd = np.sqrt(np.clip((w_tr[:, None] * (Z_tr - mu) ** 2).sum(0) / W, 0, None)) + 1e-8
+    Ztr, Zg = (Z_tr - mu) / sd, (Z_g - mu) / sd
     M = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(Ztr, Y_tr, sample_weight=w_tr)
     pi_tr = np.array([(Y_tr == c).mean() for c in cl]) + 1e-9
 
