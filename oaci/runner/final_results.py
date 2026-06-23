@@ -57,6 +57,8 @@ class LevelRunResult:
     plans: object
     erm_stage: object
     method_items: tuple
+    execution_config_hash: str
+    model_spec_hash: str
     provenance: object               # ProvenanceSnapshot
     phase: object                    # RunnerPhase, must be COMPLETE
     selection_snapshot_hash: str

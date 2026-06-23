@@ -442,6 +442,45 @@ def test_uniform_prior_is_level_invariant():
 
 
 # ============================ integration ============================
+def test_method_result_hash_binds_selection_risk_epoch_score_and_reason():
+    from oaci.runner.finalize import method_result_hash
+    m = _done()[0].methods["OACI"]
+    audit = type("A", (), {"status": m.audit_status, "leakage_hash": None})()
+    bundles = {"source_guard": m.source_guard_predictions, "source_audit": m.source_audit_predictions,
+               "target_audit": m.target_predictions}
+    mets = {"source_guard": m.source_guard_metrics, "source_audit": m.source_audit_metrics,
+            "target_audit": m.target_metrics}
+    tm = _TM(m)
+    base = method_result_hash("OACI", tm, _SM(m.selection, m), audit, bundles, mets)
+    for fld, val in (("R_src", m.selection.R_src + 1.0), ("selected_epoch", m.selection.selected_epoch + 5),
+                     ("selection_reason", m.selection.selection_reason + "X"), ("n_feasible", m.selection.n_feasible + 1)):
+        sel2 = dataclasses.replace(m.selection, **{fld: val})
+        assert method_result_hash("OACI", tm, _SM(sel2, m), audit, bundles, mets) != base
+
+
+def test_level_result_hash_binds_plans_erm_config_and_model_spec():
+    a, _ = _done()
+    b, _ = _complete(model_seed=0)
+    assert a.level_result_hash == b.level_result_hash               # same seed/plans/config -> same hash
+    c, _ = _complete(model_seed=99)
+    assert a.level_result_hash != c.level_result_hash               # different ERM/plans -> different hash
+    assert a.execution_config_hash == b.execution_config_hash and a.model_spec_hash == b.model_spec_hash
+
+
+class _TM:
+    def __init__(self, m):
+        self.active = m.active; self.inactive_reason = m.inactive_reason
+        self.shared_erm_hash = m.shared_erm_hash; self.shared_tau = m.shared_tau
+        self.shared_stage2_task_plan_hash = m.shared_stage2_task_plan_hash
+        self.train_result = m.train_result; self.training_diagnostics = dict(m.training_diagnostics_items)
+
+
+class _SM:
+    def __init__(self, selection, m):
+        self.selection = selection; self.selection_status = m.selection_status
+        self.selection_leakage = m.selection_leakage
+
+
 def test_runner_single_level_complete_in_memory():
     lr, _ = _done()
     assert set(dict(lr.method_items)) == {"ERM", "OACI", "global_lpc", "uniform"}

@@ -14,6 +14,7 @@ import oaci.runner.audit as audit_mod
 from oaci.runner import (DEFAULT_METHOD_ORDER, RunnerPhase, build_training_data_for_design,
                          make_selection_snapshot, overlap_probe_sample_ids, run_post_selection_audit,
                          scientific_value_hash)
+from oaci.runner.scientific_hash import leakage_result_hash
 from oaci.train.data import population_signature_hash
 
 from oaci.tests.test_runner_train_select import _exec_cfg, _MSPEC, _factory, _rows, _run
@@ -102,7 +103,7 @@ def test_selection_snapshot_binds_complete_leakage_result():
     _, res, _ = _est()
     snap = make_selection_snapshot(res.selected_methods)
     erm = next(m for m in snap.methods if m.method_name == "ERM")
-    assert erm.selection_leakage_hash == scientific_value_hash(res.selected_methods["ERM"].selection_leakage)
+    assert erm.selection_leakage_hash == leakage_result_hash(res.selected_methods["ERM"].selection_leakage)
     bad = dict(res.selected_methods)                                 # estimable selection with leakage stripped
     bad["ERM"] = dataclasses.replace(bad["ERM"], selection_leakage=None)
     try:

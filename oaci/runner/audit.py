@@ -18,7 +18,7 @@ from .audit_results import (AuditCacheStats, AuditMethodResult, LevelAuditInterm
                             MethodSelectionSnapshot, SelectionSnapshot)
 from .features import extract_frozen_features
 from .provenance import RunnerPhase
-from .scientific_hash import scientific_value_hash
+from .scientific_hash import leakage_result_hash, scientific_value_hash
 from .scoring import compute_leakage_score, overlap_probe_sample_ids
 from .selection import FeatureArtifactCache, FeatureArtifactKey, make_leakage_score_key
 from ..leakage.cache import LeakageScoreCache
@@ -41,7 +41,7 @@ def make_selection_snapshot(selected_methods) -> SelectionSnapshot:
         else:
             if not sel.selected_erm or sm.selection_leakage is not None:
                 raise ValueError(f"{name}: non-estimable selection must be ERM with no leakage")
-        lh = scientific_value_hash(sm.selection_leakage) if sm.selection_leakage is not None else None
+        lh = leakage_result_hash(sm.selection_leakage) if sm.selection_leakage is not None else None
         snaps.append(MethodSelectionSnapshot(
             method_name=name, model_hash=sel.model_hash, recomputed_state_hash=recomputed,
             selected_epoch=int(sel.selected_epoch), R_src=float(sel.R_src),
@@ -121,7 +121,7 @@ def run_post_selection_audit(intermediate, fold_data, fold_scope, execution_cfg,
                 chunk_size=execution_cfg.feature_chunk_size, device=device))
             skey = make_leakage_score_key(feat, sg, fold, boot, critic)
             leak = score_cache.get_or_compute(skey, lambda f=feat: compute_leakage_score(f.features, sg, fold, boot, critic))
-            items.append((name, AuditMethodResult(name, "estimable", mh, leak, scientific_value_hash(leak))))
+            items.append((name, AuditMethodResult(name, "estimable", mh, leak, leakage_result_hash(leak))))
         stats = _cache_stats(feat_cache, score_cache, len(hashes))
     else:
         items = [(n, AuditMethodResult(n, audit.status, selected[n].selection.model_hash, None, None)) for n in _ORDER]
