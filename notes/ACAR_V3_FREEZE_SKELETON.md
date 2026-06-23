@@ -262,8 +262,11 @@ enforces {PD,SCZ}/C1C2C3/α0.10/δ0 + the EXACT seven cohorts (one source-state 
 `freeze_dev_run` ATOMICALLY writes a non-overwritable, S5/S6/S8/S9 manifest (env-lock hash, field-separated hashes,
 per-fold q, OOF digest, C2 σ_min, best-fixed, per-candidate diagnostics, predictor+C0 file SHA-256) and serializes the
 run's refit-ONCE predictor/C0 artifacts (verify_integrity on reload), Amendments 10–11). `envlock.py` +
-`notes/ACAR_V3_ENV_LOCK.json` pin the runtime (`env_lock_sha256 5633f4d3…`). Six v3 suites + the v2 guard suite pass on
-synthetic fixtures (NO real DEV value read).
+`notes/ACAR_V3_ENV_LOCK.json` pin the runtime incl. sklearn/joblib/threadpoolctl + applied determinism
+(`env_lock_sha256 8044d5f6…`; `apply_runtime`+`verify_env_lock`). Binding input is the immutable `loader.CohortInput`
+(dataset↔manifest↔source↔batches↔labels); `acar/v3/run_dev_binding.py` is the single binding CLI (verifies HEAD ==
+protocol commit, tag→HEAD, env lock, seven inputs + field hashes, output absent — before any DEV metric). Six v3 suites
++ the v2 guard suite pass on synthetic fixtures (NO real DEV value read).
 
 **Phase boundary (corrected):** the FIRST real DEV run computes ONLY the **S2 calibration admissibility + S4 selection
 gate** — its only outcomes are a SELECTed candidate + frozen DEV artifacts, or `DEV_STOP / NO_LOCKBOX_CONSUMED`. S6
