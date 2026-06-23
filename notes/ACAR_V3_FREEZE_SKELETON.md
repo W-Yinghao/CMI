@@ -263,10 +263,9 @@ enforces {PD,SCZ}/C1C2C3/α0.10/δ0 + the EXACT seven cohorts (one source-state 
 per-fold q, OOF digest, C2 σ_min, best-fixed, per-candidate diagnostics, predictor+C0 file SHA-256) and serializes the
 run's refit-ONCE predictor/C0 artifacts (verify_integrity on reload), Amendments 10–11). `envlock.py` +
 `notes/ACAR_V3_ENV_LOCK.json` pin the runtime incl. sklearn/joblib/threadpoolctl + applied single-thread determinism
-(`env_lock_sha256 981e343c…`; `apply_runtime` forces torch deterministic/intra-op=1 + threadpoolctl limit=1;
+(`env_lock_sha256 2cb61360… (incl. torch inter-op=1)`; `apply_runtime` forces torch deterministic/intra-op=1 + threadpoolctl limit=1;
 `verify_env_lock` applies-then-compares, identical cold/warm). Binding input is the immutable `loader.CohortInput`
-(dataset↔manifest↔source↔batches↔labels, immutable labels + raw_pipeline/dataset_version). `develop.BindingContext`
-(built only after preflight) is REQUIRED by `run_binding_dev`/`freeze_dev_run` — no bypass. `acar/v3/run_dev_binding.py`
+(dataset↔manifest↔source↔batches↔labels, immutable labels + raw_pipeline/dataset_version). `develop.BindingContext` (built only after preflight) is REQUIRED by `run_binding_dev`/`freeze_dev_run` — no bypass; `freeze_dev_run` atomically claims `<out>.tmp` before any DEV compute. `acar/v3/run_dev_binding.py`
 is the single STDLIB-first binding CLI: output-absent → manifest schema → HEAD==commit + tag→HEAD → clean worktree →
 file hashes → set runtime → import heavy → env lock → open cohorts → freeze (no `np.load` before the preflight). Six v3
 suites + the v2 guard suite pass on synthetic fixtures (NO real DEV value read).
