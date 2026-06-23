@@ -1,0 +1,151 @@
+diff --git a/BTTA_DG.py b/BTTA_DG.py
+index 2d1ce85..47ef451 100644
+--- a/BTTA_DG.py
++++ b/BTTA_DG.py
+@@ -159,7 +159,8 @@ class OnlineClustererGMM:
+         self.cluster_cov = {i: None for i in range(num_classes)}
+ 
+     def add_sample(self, alpha_estimate, pred, prob_map):
+-        confidence = prob_map[:, pred]
++        confidence = np.asarray(prob_map).ravel()[pred]   # W1B intended-variant: prob_map is the per-trial
++        # [n_classes] vector here, so index it 1-D (the original prob_map[:, pred] assumed a 2-D shape).
+         entropy = -np.sum(prob_map * np.log(prob_map + 1e-10))
+ 
+         if confidence >= self.conf_threshold and entropy <= self.entropy_threshold:
+@@ -169,6 +170,12 @@ class OnlineClustererGMM:
+         return confidence, entropy
+ 
+     def update(self, alpha_estimate, pred, prob_map):
++        # W1B INTENDED-BEHAVIOR variant (env W1B_INTENDED): restore the SINGLE orphaned buffer-fill call.
++        # As published, add_sample() is never invoked anywhere, so self.buffers stays empty and the GMM
++        # calibration below never fires -> BTTA-DG is an exact no-op. Gated so the default (unset) path is
++        # byte-identical to the as-published code. This is NOT new logic -- it calls THEIR add_sample.
++        if os.environ.get("W1B_INTENDED"):
++            self.add_sample(alpha_estimate, pred, prob_map)
+         """
+         Update the clusterer with a new sample's Dirichlet parameters.
+ 
+@@ -266,6 +273,9 @@ def run_online_adaptation(ensemble, dataset_test, args, params):
+         entropy_threshold=params['entropy_threshold']
+     )
+     acc_adapt = []
++    acc_source = []   # W1B: native source-only ensemble (the pre-BTTA-DG argmax) on the SAME pass
++    n_gmm_active = 0  # W1B diagnostic: trials where the GMM calibration was actually applied
++    n_flip = 0        # W1B diagnostic: trials where BTTA-DG flipped the source argmax
+     for eeg_data, target in tqdm(loader, desc="Adapting..."):
+         eeg_data, target = eeg_data.cuda(), target.cuda()
+         # ensemble inference
+@@ -279,13 +289,20 @@ def run_online_adaptation(ensemble, dataset_test, args, params):
+         prob_map = np.mean(prob_maps, axis=0)
+         feat = np.mean(feats, axis=0)
+         pred = np.argmax(prob_map)
++        acc_source.append((pred == target.item()))   # W1B source-only baseline
+         # Dirichlet estimation
+         alpha = estimator.estimate(feat)
+         clusterer.update(alpha, pred, prob_map)
+         calibrated, _ = clusterer.predict_class(alpha, prob_map)
+         y_hat = np.argmax(calibrated)
++        if not np.array_equal(np.asarray(calibrated).ravel(), np.asarray(prob_map).ravel()):
++            n_gmm_active += 1     # W1B diagnostic only
++        if y_hat != pred:
++            n_flip += 1           # W1B diagnostic only
+         acc_adapt.append((y_hat == target.item()))
+-    return np.mean(acc_adapt)
++    import logging as _lg
++    _lg.info(f"  [GMM diag] active on {n_gmm_active}/{len(loader)} trials, flipped {n_flip}")
++    return np.mean(acc_source), np.mean(acc_adapt)
+ 
+ 
+ def EA(x):
+@@ -324,11 +341,11 @@ if __name__ == "__main__":
+     logging.basicConfig(level=logging.INFO)
+     logger = logging.getLogger(__name__)
+ 
+-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+-
++    # W1B portability: GPU managed by SLURM (removed hardcoded CUDA_VISIBLE_DEVICES="1")
+     logging.basicConfig(level=logging.INFO)
+ 
+-    data_name = 'BNCI2014001'  # or BNCI2014002, BNCI2015001
++    data_name = os.environ.get("W1B_DATASET", 'BNCI2014001')   # W1B: dataset sharding
++    out_root = os.environ.get("W1B_OUT", ".")
+     base_dir = f'./baseline_SincAdaptNet_{data_name}'
+     params = {
+         'BNCI2014001': {'num_components': 6, 'conf_threshold': 0.596, 'entropy_threshold': 0.673},
+@@ -337,8 +354,10 @@ if __name__ == "__main__":
+     }[data_name]
+ 
+     dataset_params = get_dataset_params(data_name)
++    _lo = int(os.environ.get("W1B_SUBJ_LO", 0))
++    _hi = int(os.environ.get("W1B_SUBJ_HI", dataset_params['N'] - 1))
+     results = []
+-    for subj in range(dataset_params['N']):
++    for subj in range(_lo, min(_hi + 1, dataset_params['N'])):   # W1B: subject sharding
+         # load data
+         from utils.dataloader import read_mi_combine_tar, read_mi_combine_tar_cross_session
+         import argparse
+@@ -352,10 +371,12 @@ if __name__ == "__main__":
+                                      torch.from_numpy(test_y).long())
+         # load ensemble
+         ensemble = load_models(data_name, subj, dataset_params['time_length'], base_dir)
+-        # adapt
+-        acc = run_online_adaptation(ensemble, dataset_test, args, params)
+-        results.append({'Subject': subj + 1, 'Accuracy': acc})
+-        logging.info(f"Subject {subj}: Adapted Acc = {acc:.4f}")
++        # adapt -> (native source-only ensemble acc, native BTTA-DG adapted acc) on the SAME pass
++        acc_source, acc = run_online_adaptation(ensemble, dataset_test, args, params)
++        results.append({'Subject': subj + 1, 'SourceOnly': acc_source, 'Accuracy': acc})
++        np.save(os.path.join(out_root, f"w1b_{data_name}_sub{subj}.npy"),
++                np.array([acc_source, acc], dtype=float))   # W1B per-subject dump (shard-safe)
++        logging.info(f"Subject {subj}: source-only={acc_source:.4f} BTTA-DG={acc:.4f} Δ={acc-acc_source:+.4f}")
+ 
+     df = pd.DataFrame(results)
+     suffix = "_cross_session" if args.cross_session else ""
+diff --git a/pretrain_SincAdaptNet.py b/pretrain_SincAdaptNet.py
+index 5456f61..a63e627 100644
+--- a/pretrain_SincAdaptNet.py
++++ b/pretrain_SincAdaptNet.py
+@@ -39,9 +39,11 @@ def train_and_save(data_name, time_length=4, epochs=100, kfolds=10):
+     os.makedirs(output_dir, exist_ok=True)
+ 
+     results = np.zeros((params['N'], kfolds), dtype=float)
+-    for subj in range(params['N']):
++    _lo = int(os.environ.get("W1B_SUBJ_LO", 0))
++    _hi = int(os.environ.get("W1B_SUBJ_HI", params['N'] - 1))
++    for subj in range(_lo, min(_hi + 1, params['N'])):   # W1B portability: subject sharding
+         # read data
+-        args = type('A', (), {'data': data_name, 'idt': subj, 'sample_rate': params['fs']})
++        args = type('A', (), {'data': data_name, 'idt': subj, 'sample_rate': params['fs'], 'method': ''})  # W1B: dataloader-compat (read_mi_combine_tar reads args.method; their BTTA_DG.py already passes method='')
+         if cross_session:
+             train_x, train_y, test_x, test_y = read_mi_combine_tar_cross_session(args)
+         else:
+@@ -73,8 +75,12 @@ def train_and_save(data_name, time_length=4, epochs=100, kfolds=10):
+                     len = ep % params['time_lengths'][0] + 1
+                     x_crop = x[:, :, :, :len * params['fs']]
+                     out = model(x_crop)
++                    T = out.shape[-1]   # W1B shape-fix: the model preserves time, so the dense per-
++                                        # timestep CE label length must equal the ACTUAL output length
++                                        # (the official loop used a fixed L=fs*time_length, which mismatches
++                                        # the variable crop at ep where len<time_length -> batch_size error).
+                     out = out.permute(0, 2, 1).reshape(-1, 2)
+-                    y_rep = y.repeat_interleave(L)
++                    y_rep = y.repeat_interleave(T)
+                     loss = criterion(out, y_rep)
+                     opt.zero_grad()
+                     loss.backward()
+@@ -115,7 +121,11 @@ if __name__ == '__main__':
+         os.environ[var] = str(cpu_num)
+     torch.set_num_threads(cpu_num)
+ 
+-    os.environ["CUDA_VISIBLE_DEVICES"] = "1"
+-
+-    for ds in ['BNCI2014001', 'BNCI2014002', 'BNCI2015001']:
+-        train_and_save(ds)
++    # W1B portability: GPU managed by SLURM (removed hardcoded CUDA_VISIBLE_DEVICES="1")
++    _ds = os.environ.get("W1B_DATASET")
++    # W1B path-fix: per-dataset time_length so the save path sub{subj}/{tl}s matches BTTA_DG.load_models
++    # (the official pretrain used the default time_length=4 for ALL datasets, but BTTA_DG loads the
++    #  512Hz datasets from 5s/ -> os.listdir FileNotFoundError). Values = BTTA_DG get_dataset_params.
++    _TL = {'BNCI2014001': 4, 'BNCI2014002': 5, 'BNCI2015001': 5}
++    for ds in ([_ds] if _ds else ['BNCI2014001', 'BNCI2014002', 'BNCI2015001']):
++        train_and_save(ds, time_length=_TL[ds])

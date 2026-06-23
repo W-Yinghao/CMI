@@ -1,0 +1,61 @@
+{
+  "panel": "W1B_native_external",
+  "note": "native SincAdaptNet source-only vs native BTTA-DG; LOSO; \u0394acc + harm; NOT cross-ranked vs W1-A",
+  "per_dataset": {
+    "BNCI2014001": {
+      "n": 9,
+      "source_only": 0.8032407407407409,
+      "btta_dg": 0.8032407407407409,
+      "mean_delta": 0.0,
+      "delta_ci95": [
+        0.0,
+        0.0
+      ],
+      "harm_rate": 0.0,
+      "worst_quartile": 0.0,
+      "n_improved": 0,
+      "n_unchanged": 9,
+      "n_harmed": 0
+    },
+    "BNCI2014002": {
+      "n": 14,
+      "source_only": 0.7857142857142857,
+      "btta_dg": 0.7857142857142857,
+      "mean_delta": 0.0,
+      "delta_ci95": [
+        0.0,
+        0.0
+      ],
+      "harm_rate": 0.0,
+      "worst_quartile": 0.0,
+      "n_improved": 0,
+      "n_unchanged": 14,
+      "n_harmed": 0
+    },
+    "BNCI2015001": {
+      "n": 12,
+      "source_only": 0.7645833333333333,
+      "btta_dg": 0.7645833333333333,
+      "mean_delta": 0.0,
+      "delta_ci95": [
+        0.0,
+        0.0
+      ],
+      "harm_rate": 0.0,
+      "worst_quartile": 0.0,
+      "n_improved": 0,
+      "n_unchanged": 12,
+      "n_harmed": 0
+    }
+  },
+  "overall": {
+    "n": 35,
+    "mean_delta": 0.0,
+    "delta_ci95": [
+      0.0,
+      0.0
+    ],
+    "harm_rate": 0.0,
+    "worst_quartile": 0.0
+  }
+}
