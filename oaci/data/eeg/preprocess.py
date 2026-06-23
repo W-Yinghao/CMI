@@ -32,7 +32,7 @@ class PreprocessSpec:
         return asdict(self)
 
     def hash(self) -> str:
-        return hashlib.sha256(json.dumps(self.to_dict(), sort_keys=True).encode()).hexdigest()[:24]
+        return hashlib.sha256(json.dumps(self.to_dict(), sort_keys=True).encode()).hexdigest()
 
 
 def assert_fit_excludes_target(fit_idx, target_idx) -> None:

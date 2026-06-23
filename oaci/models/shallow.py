@@ -26,6 +26,33 @@ def _square(x):
     return x * x
 
 
+def validate_shallow_geometry(in_chans, in_times, backbone_block) -> dict:
+    """Input-dependent geometry check for ShallowConvNet before any GPU/model construction."""
+    bb = backbone_block
+    tf, tk = int(bb.temporal_filters), int(bb.temporal_kernel_samples)
+    pk, ps = int(bb.pool_kernel_samples), int(bb.pool_stride_samples)
+    dr, eps, ic, it = float(bb.dropout), float(bb.safe_log_eps), int(in_chans), int(in_times)
+    if tf < 1:
+        raise ValueError("temporal_filters >= 1")
+    if ic < 1:
+        raise ValueError("in_chans >= 1")
+    if tk > it:
+        raise ValueError(f"temporal_kernel_samples ({tk}) <= in_times ({it})")
+    post = it - tk + 1                                  # length after the temporal conv
+    if pk > post:
+        raise ValueError(f"pool_kernel_samples ({pk}) <= post-temporal times ({post})")
+    if ps < 1:
+        raise ValueError("pool_stride_samples >= 1")
+    pooled = (post - pk) // ps + 1                      # AvgPool2d output length
+    if pooled < 1:
+        raise ValueError("final pooled time dimension must be >= 1")
+    if not (0 <= dr < 1):
+        raise ValueError("0 <= dropout < 1")
+    if eps <= 0:
+        raise ValueError("safe_log_eps > 0")
+    return {"post_temporal_times": post, "pooled_times": pooled, "feat_dim": tf * pooled}
+
+
 class ShallowConvNet(RepresentationClassifier):
     def __init__(self, in_chans: int, in_times: int, n_classes: int, temporal_filters: int = 40,
                  temporal_kernel_samples: int = 25, pool_kernel_samples: int = 75,

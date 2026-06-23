@@ -155,6 +155,12 @@ class SmokeBlock:
 
 
 @dataclass
+class DeletedCellBlock:
+    domain_id: str | None = None
+    class_name: str | None = None
+
+
+@dataclass
 class FakeFixtureBlock:
     source_domain_ids: list | None = None
     target_domain_ids: list | None = None
@@ -238,7 +244,25 @@ class ProtocolManifestV2:
                 raise ValueError(f"dataset block {name!r} incomplete: {miss}")
         self.validate_ranges()
         self._validate_fake()
+        self._validate_smoke_subjects()
         return self
+
+    def _validate_smoke_subjects(self) -> None:
+        sm = self.smoke
+        if sm is None or not sm.subjects:                  # only the real-data smoke pins subject roles
+            return
+        subs = [int(x) for x in sm.subjects]
+        roles = {"target": [int(x) for x in (sm.target_subjects or [])],
+                 "source_audit": [int(x) for x in (sm.source_audit_subjects or [])],
+                 "source_train": [int(x) for x in (sm.source_train_subjects or [])]}
+        flat = roles["target"] + roles["source_audit"] + roles["source_train"]
+        if len(set(flat)) != len(flat):
+            raise ValueError("smoke subject roles overlap (target / source_audit / source_train must be disjoint)")
+        if set(flat) != set(subs):
+            raise ValueError("the union of smoke subject roles must equal smoke.subjects")
+        if sorted(roles["target"]) != [1] or sorted(roles["source_audit"]) != [2, 3] \
+                or sorted(roles["source_train"]) != [4, 5, 6]:
+            raise ValueError("smoke roles must be target=[1], source_audit=[2,3], source_train=[4,5,6]")
 
     def _validate_fake(self) -> None:
         en = self.enabled_datasets()
@@ -257,7 +281,8 @@ class ProtocolManifestV2:
             raise ValueError("len(dataset.channels) must equal fake_fixture.input_dim")
         if list(sm.deletion_levels or []) != [0, 1]:
             raise ValueError("fake smoke.deletion_levels must be [0, 1]")
-        if sm.deleted_cell_level1 != {"domain_id": "S0", "class_name": "c1"}:
+        dc = sm.deleted_cell_level1
+        if not isinstance(dc, DeletedCellBlock) or dc.domain_id != "S0" or dc.class_name != "c1":
             raise ValueError("fake deleted_cell_level1 must be {domain_id: S0, class_name: c1}")
         for f in ("subjects", "target_subjects", "source_audit_subjects", "source_train_subjects"):
             if getattr(sm, f):
@@ -364,4 +389,8 @@ def load_v2(path: str) -> ProtocolManifestV2:
             kw[name] = _strict(cls, d[name], f"{path}:{name}")
     kw["datasets"] = {name: _strict(DatasetBlock, blk or {}, f"{path}:datasets.{name}")
                       for name, blk in (d.get("datasets") or {}).items()}
-    return ProtocolManifestV2(**kw)
+    m = ProtocolManifestV2(**kw)
+    if m.smoke is not None and isinstance(m.smoke.deleted_cell_level1, dict):   # strict nested deleted cell
+        m.smoke.deleted_cell_level1 = _strict(DeletedCellBlock, m.smoke.deleted_cell_level1,
+                                              f"{path}:smoke.deleted_cell_level1")
+    return m

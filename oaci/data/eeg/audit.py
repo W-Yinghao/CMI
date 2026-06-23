@@ -13,7 +13,7 @@ import numpy as np
 
 
 def tensor_hash(X) -> str:
-    return hashlib.sha256(np.ascontiguousarray(np.asarray(X, dtype=np.float32)).tobytes()).hexdigest()[:24]
+    return hashlib.sha256(np.ascontiguousarray(np.asarray(X, dtype=np.float32)).tobytes()).hexdigest()
 
 
 def split_manifest_hash(split) -> str:
@@ -24,11 +24,11 @@ def split_manifest_hash(split) -> str:
         "target_domain": int(split.target_domain),
         "split_seed": int(split.split_seed),
     }, sort_keys=True)
-    return hashlib.sha256(payload.encode()).hexdigest()[:24]
+    return hashlib.sha256(payload.encode()).hexdigest()
 
 
 def canonical_hash(obj) -> str:
-    return hashlib.sha256(json.dumps(obj, sort_keys=True, default=str).encode()).hexdigest()[:24]
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, default=str).encode()).hexdigest()
 
 
 def validate_prediction_bundle(pb) -> None:

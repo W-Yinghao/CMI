@@ -251,7 +251,8 @@ def test_smoke_manifest_roundtrip_preserves_all_blocks():
     for blk in ("seeds", "backbone", "optimizer", "training", "sampler", "probe", "smoke", "methods"):
         assert getattr(m, blk) is not None, f"smoke manifest dropped block {blk}"
     assert m.backbone.name == "shallow_convnet" and m.training.stage2_bn_mode == "frozen_erm_running_stats"
-    assert m.smoke.deleted_cell_level1 == {"domain_subject": 4, "class": "feet"}
+    assert m.smoke.deleted_cell_level1.domain_id == "BNCI2014_001|subject-004"
+    assert m.smoke.deleted_cell_level1.class_name == "feet"
     canon = m.to_canonical_json()
     for key in ("lr_encoder", "guard_chunk_size", "selection_score_tolerance", "deleted_cell_level1"):
         assert key in canon                                            # blocks are folded into the hash input

@@ -18,7 +18,7 @@ def cache_key(dataset_fingerprint: str, ch_names, preprocess_spec: dict, code_ve
         "preprocess": preprocess_spec,
         "code_version": code_version,
     }, sort_keys=True, default=str)
-    return hashlib.sha256(payload.encode()).hexdigest()[:24]
+    return hashlib.sha256(payload.encode()).hexdigest()
 
 
 def atomic_write_bytes(path: str, data: bytes) -> None:

@@ -94,6 +94,6 @@ smoke:
   source_audit_subjects: [2, 3]
   source_train_subjects: [4, 5, 6]
   deletion_levels: [0, 1]
-  deleted_cell_level1: {domain_subject: 4, class: feet}   # explicit, reproducible level-1 deletion
+  deleted_cell_level1: {domain_id: BNCI2014_001|subject-004, class_name: feet}   # explicit level-1 deletion
 k1: {statistic: smoke, grouped_permutation_scheme: smoke, n_permutations: 100, decision_rule: smoke}
 k2: {endpoints: [worst_domain_bacc], decision_rule: smoke}

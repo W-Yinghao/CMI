@@ -19,7 +19,7 @@ def _sha(*arrays) -> str:
 
 
 def tensor_content_hash(X) -> str:
-    return _sha(np.asarray(X, dtype=np.float32))[:24]
+    return _sha(np.asarray(X, dtype=np.float32))     # full SHA-256 (real-data scientific identity)
 
 
 @dataclass
