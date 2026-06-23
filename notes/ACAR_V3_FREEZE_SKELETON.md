@@ -253,10 +253,14 @@ binding: field-separated provenance, immutable BYTES `SourceStateArtifact` (cove
 reconstruction; frozen blob carries+verifies its own hash/ref) + `SourceStateRegistry` (per-disease, multi-cohort;
 unregistered ref fails pre-adapter), canonical row identity, single-execution `BatchActionExecutionRecord`,
 `LoadedDumpManifest`); `splits.py` (S5 split-as-one-algorithm; outer over ALL subjects, FIT/CAL from non-EVAL
-eligible); `develop.py` (DEV bake-off: per-disease execution cache → OOF records → S2 candidate-specific gates +
-`max_a` dominance → C2 floor from OOF `scale_raw` → real C0/v2 ActionRegressor replay → disease-macro S4 SELECT with
-tie rules → `DEV_STOP / NO_LOCKBOX_CONSUMED` → refit on the frozen eligible set). Six v3 suites + the v2 guard suite
-pass on synthetic fixtures (NO real DEV value read).
+eligible); `develop.py` (DEV bake-off: per-disease execution cache → OOF records → S2 candidate-specific subject-weighted gates +
+`max_a` dominance → C2 floor from OOF `scale_raw` → **bit-for-bit v2 C0 replay** (11-D `acar.features.feature_vector`,
+seed 0) → **full S4 admissibility** (`s4_eligible`: S2 · dominance · PD AUROC≥0.60 · SCZ MAE≤C0 · width≥30% below C0 ·
+coverage≥0.15 · red>0 & ≥C0 · q finite) → **max-first** disease-macro S4 SELECT → `DEV_STOP / NO_LOCKBOX_CONSUMED` →
+refit on the frozen eligible set; **fallback batches retained in red/coverage denominators**; `run_binding_dev`
+enforces {PD,SCZ}/C1C2C3/α0.10/δ0; `freeze_dev_run` writes a non-overwritable manifest + reload-hash-verified
+predictor/C0 artifacts, Amendment 10). Six v3 suites + the v2 guard suite pass on synthetic fixtures (NO real DEV value
+read).
 
 **Phase boundary (corrected):** the FIRST real DEV run computes ONLY the **S2 calibration admissibility + S4 selection
 gate** — its only outcomes are a SELECTed candidate + frozen DEV artifacts, or `DEV_STOP / NO_LOCKBOX_CONSUMED`. S6
