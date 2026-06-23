@@ -1,0 +1,46 @@
+/projects/share/apps/lua/lua/bin/lua: error loading module 'posix' from file '/projects/share/apps/lua/5.1.4.9/lib/lua/5.1/posix.so':
+	libcrypt.so.1: cannot open shared object file: No such file or directory
+stack traceback:
+	[C]: ?
+	[C]: in function 'require'
+	/projects/share/apps/lmod/lmod/libexec/addto:65: in main chunk
+	[C]: ?
+host=nodecpu09 job=860482 cpus=8 started=2026-06-23T07:58:32+02:00
+/projects/share/apps/lua/lua/bin/lua: error loading module 'posix' from file '/projects/share/apps/lua/5.1.4.9/lib/lua/5.1/posix.so':
+	libcrypt.so.1: cannot open shared object file: No such file or directory
+stack traceback:
+	[C]: ?
+	[C]: in function 'require'
+	/projects/share/apps/lmod/lmod/libexec/addto:65: in main chunk
+	[C]: ?
+[audit] audited_code_commit=12ae8ff manifest=e9c9d2f28afb160e277a7b29c345780a75938c993254bd635392b1d5fbb062fa clean=True
+[audit] self-tests ...
+[audit] tests all_passed=True
+[audit] run_synthetic via FROZEN PATH (DEVELOPMENT) ...
+
+=== csc FROZEN-PATH certificate [DEVELOPMENT] — 10 seeds 0..9, manifest=e9c9d2f28afb160e277a7b29c345780a75938c993254bd635392b1d5fbb062fa ===
+truth / shift kind              COVARI  CONCEP  UNIDEN  forbid
+--------------------------------------------------------------
+clean (NONE)                         0       0      10       0
+covariate (COVARIATE)                5       0       5       0
+boundary_coupled (CONCEPT_VISIBLE)       0       4       6       0
+pure_conditional (CONCEPT_INVISIBLE)       0       0      10       0
+label_shift (LABEL_SHIFT)            0       0      10       0
+label_covariate_mixed (LABEL_COVARIATE)       0       0      10       0
+
+--- cluster-level (per independent seed) endpoints, exact 95% Clopper-Pearson ---
+PRIMARY any_forbidden_full_suite          : 0/10  -> UB 0.259
+        any_false_positive_must_abstain   : 0/10  -> UB 0.259
+descriptive: concept power 0.40 | covariate->COMPATIBLE 0.50
+NOTE: DEVELOPMENT seeds (informed tuning). >= 59 independent clusters needed for a 0.05 bound at 0 failures. Power is validated by ood_power_bank, not here.
+[audit] SYNTHETIC_NULL_BANK (generator-truth-stable) ...
+[audit] CALIBRATION_NULL_BANK (LODO oracle sanity) ...
+[audit] OOD_POWER_BANK (generator-truth) ...
+[audit] CSC-P1.4.2 diagnostics ...
+[audit] wrote csc/results/audit.json
+[audit] SUMMARY tests=True manifest=e9c9d2f28afb clean=True
+  run_synthetic PRIMARY any_forbidden_full=0/10 (CP-UB 0.259)
+  SYNTHETIC_NULL_BANK clusters_fail=0/4 CP-UB 0.527 evaluable=True control_pass=False
+  OOD_POWER_BANK power=0.5 CP-LB 0.098 atlas=0.5 evaluable=True decomp={'geometric_maxstat_not_sig': 2, 'FIRED': 2}
+  P1.4.2 dup_invariance_delta=0.00e+00 paired_intact=True sep_response={90.0: 90.0, 60.0: 60.0, 30.0: 30.0, 10.0: 10.0} source_invalid=0/4
+finished=2026-06-23T09:16:11+02:00 audit_rc=0
