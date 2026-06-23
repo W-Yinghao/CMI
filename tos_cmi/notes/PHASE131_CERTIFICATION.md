@@ -84,14 +84,21 @@ Frontier at n=6000, R=30, boundary effect Δ*=δ_Y (one-sided Wilson LCB, bar = 
 
 ```
 δ_Y    k   critic_LCB   oracle_LCB   nullFP   verdict
+0.030  1     0.11         0.77        0/30    borderline (oracle 27/30 just under 0.80 -> n=6000 is
+                                              near the INFORMATION limit for the strictest corner)
 0.030  2     0.27         0.86        0/30    ESTIMATOR_BOTTLENECK
 0.050  1     0.33         0.92        0/30    ESTIMATOR_BOTTLENECK
 0.050  2     0.21         0.92        0/30    ESTIMATOR_BOTTLENECK
 0.075  1     0.27         0.86        0/30    ESTIMATOR_BOTTLENECK
 0.075  2     0.27         0.86        0/30    ESTIMATOR_BOTTLENECK
 0.100  1     0.00         0.86        0/30    ESTIMATOR_BOTTLENECK
-0.150  1     0.00         0.00        0/30    (control-tuning ceiling: Δ* capped ~0.072, NOT real)
+0.100  2     0.00         0.86        0/30    ESTIMATOR_BOTTLENECK
+0.150  1,2   0.00         0.00        0/30    (control-tuning ceiling: Δ* capped ~0.07, NOT real)
 ```
+Nuance from the full 10-cell table: the SINGLE strictest corner (δ_Y=0.03, k=1) is marginally
+information-limited even for the oracle at n=6000 (LCB 0.77, just under 0.80) -- a slightly larger
+n or δ_Y≥0.05 moves it firmly into estimator-bottleneck territory. Everywhere else (δ_Y≥0.05,
+both k) the oracle clears 0.86-0.92 while the critic is ≤0.33 -> decisively ESTIMATOR_BOTTLENECK.
 
 **The oracle CERTIFIES a δ_Y-sized conditional effect at n=6000 (LCB 0.86–0.92) across the whole
 operating range, while the nested critic FAILS (LCB ≤0.33, and 0/30 once δ_Y≥0.10).** So the
