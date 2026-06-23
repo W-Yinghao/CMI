@@ -21,24 +21,31 @@ from __future__ import annotations
 import numpy as np
 
 
-def _gaussian_logpost_entropy(X, mu_cells, cov_inv, py):
-    """Per-sample H(Y|x) for x = (linear image of z); mu_cells [n_cls,n_dom,m], shared cov_inv.
-    p(y|x) ∝ p(y) * mean_d N(x; mu_{y,d}, cov). |cov| constants cancel over y."""
+def _logjoint_cx(X, mu_cells, cov_inv, py):
+    """[N, n_cls] log p(y=c) + log mean_d N(x; mu_{c,d}, cov)  (|cov| const dropped, cancels)."""
     n_cls, n_dom = mu_cells.shape[:2]
-    N = X.shape[0]
-    logpyx = np.full((N, n_cls), -np.inf)
+    out = np.full((X.shape[0], n_cls), -np.inf)
     for c in range(n_cls):
-        comp = []
-        for e in range(n_dom):
-            diff = X - mu_cells[c, e]
-            comp.append(-0.5 * np.einsum("ij,jk,ik->i", diff, cov_inv, diff))
-        stak = np.stack(comp, 1)
-        m = stak.max(1, keepdims=True)
-        lse = m[:, 0] + np.log(np.exp(stak - m).mean(1))      # logmeanexp over d
-        logpyx[:, c] = np.log(py[c] + 1e-12) + lse
-    mx = logpyx.max(1, keepdims=True)
-    p = np.exp(logpyx - mx); p /= p.sum(1, keepdims=True)
+        comp = [(-0.5 * np.einsum("ij,jk,ik->i", X - mu_cells[c, e], cov_inv, X - mu_cells[c, e]))
+                for e in range(n_dom)]
+        stak = np.stack(comp, 1); m = stak.max(1, keepdims=True)
+        out[:, c] = np.log(py[c] + 1e-12) + m[:, 0] + np.log(np.exp(stak - m).mean(1))
+    return out
+
+
+def _gaussian_logpost_entropy(X, mu_cells, cov_inv, py):
+    """Per-sample H(Y|x) for x = (linear image of z); mu_cells [n_cls,n_dom,m], shared cov_inv."""
+    lj = _logjoint_cx(X, mu_cells, cov_inv, py)
+    mx = lj.max(1, keepdims=True)
+    p = np.exp(lj - mx); p /= p.sum(1, keepdims=True)
     return -(p * np.log(np.clip(p, 1e-12, 1.0))).sum(1)       # [N]
+
+
+def logpost_true_label(X, y, mu_cells, cov_inv, py):
+    """Per-sample log p(y_i | x_i) under the true mixture (for the oracle info-density detector)."""
+    lj = _logjoint_cx(X, mu_cells, cov_inv, py)
+    logZ = lj.max(1) + np.log(np.exp(lj - lj.max(1, keepdims=True)).sum(1))
+    return lj[np.arange(len(y)), y] - logZ                   # [N]
 
 
 def bayes_conditional_task_delta(mu_yd, sigma, py, pdy, P, n_mc=20000, n_boot=300, seed=0):

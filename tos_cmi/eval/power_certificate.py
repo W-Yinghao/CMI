@@ -34,7 +34,7 @@ import numpy as np
 
 from ..score_fisher import (_metric, _SplitPlan, _GatePlan, _nested_residual_score,
                             _one_sided_bound, _intrinsic_coords)
-from .bayes_oracle import bayes_conditional_task_delta, classify_safety
+from .bayes_oracle import bayes_conditional_task_delta, classify_safety, logpost_true_label
 
 
 def _control_geometry(d_base, d_extra, n_cls, n_dom, base_sep, conf_c, sigma, sigma_n, geom_seed):
@@ -132,24 +132,49 @@ def _critic_ucb(u, n, y, n_cls, cfg, seed, cluster_id=None):
                                   cfg.gate_boot, seed + 60, cfg.boot_estimand)[0])
 
 
+def oracle_info_ucb(u, n, y, mu_yd, std, n_cls, cfg, seed, cluster_id=None):
+    """BEST-POSSIBLE detector: per-sample info density s_i = log p(y|u,n) - log p(y|u) under the
+    TRUE mixture (in the control's canonical coords the kept comp IS the u-block), one-sided UCB
+    of mean(s) at the SAME level/bootstrap as the critic. Compares estimator vs information limit:
+    oracle high & critic low => estimator bottleneck; both low => intrinsic sample-complexity."""
+    d_base = u.shape[1]
+    Z = np.concatenate([u, n], 1)
+    py = np.full(n_cls, 1.0 / n_cls)
+    lp_z = logpost_true_label(Z, y, mu_yd, np.diag(1.0 / std ** 2), py)
+    lp_u = logpost_true_label(u, y, mu_yd[:, :, :d_base], np.diag(1.0 / std[:d_base] ** 2), py)
+    s = (lp_z - lp_u)[:, None]
+    return float(_one_sided_bound(s, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot,
+                                  seed + 80, cfg.boot_estimand)[0])
+
+
 def estimate_power(target_delta, d_base, d_extra, n_eff, n_cls, n_dom, base_sep, sigma, cfg,
-                   R=30, seed=0, geom_seed=0, cluster_id=None):
+                   R=30, seed=0, geom_seed=0, cluster_id=None, sigma_n=0.2, with_oracle=True):
     """pi(Delta)=Pr[UCB>delta_Y] over R matched controls (FIXED geometry -> exact effect) with
-    one-sided Wilson LCB. Reports raw detection counts + the exact Bayes effect (delta_real)."""
+    one-sided Wilson LCB, for the CRITIC and (paired, same samples) the ORACLE info-density
+    detector. Reports raw detection counts + the exact Bayes effect (delta_real)."""
     c = tune_confound(target_delta, d_base, d_extra, n_cls, n_dom, base_sep, sigma,
-                      geom_seed=geom_seed)
+                      sigma_n=sigma_n, geom_seed=geom_seed)
     delta_real = bayes_delta_of_geometry(d_base, d_extra, n_cls, n_dom, base_sep, c, sigma,
-                                         0.2, geom_seed)       # exact, same for every replicate
-    det = 0; used = 0
+                                         sigma_n, geom_seed)   # exact, same for every replicate
+    _, _, mu_yd = _control_geometry(d_base, d_extra, n_cls, n_dom, base_sep, c, sigma, sigma_n,
+                                    geom_seed)
+    std = np.concatenate([np.full(d_base, sigma), np.full(d_extra, sigma_n)])
+    det = 0; det_o = 0; used = 0
     for r in range(R):
         u, n, y, d, _ = make_control(d_base, d_extra, n_eff, n_cls, n_dom, base_sep, c, sigma,
-                                     sample_seed=seed + 17 * (r + 1), geom_seed=geom_seed)
+                                     sample_seed=seed + 17 * (r + 1), geom_seed=geom_seed,
+                                     sigma_n=sigma_n)
         ucb = _critic_ucb(u, n, y, n_cls, cfg, seed + 211 * (r + 1), cluster_id=cluster_id)
         if ucb is None:
             continue
         used += 1; det += int(ucb > cfg.delta_Y)
+        if with_oracle:
+            o = oracle_info_ucb(u, n, y, mu_yd, std, n_cls, cfg, seed + 311 * (r + 1), cluster_id)
+            det_o += int(o > cfg.delta_Y)
     return {"pi": (det / used if used else 0.0), "lcb": float(wilson_lcb(det, used)),
-            "det": det, "used": used, "delta_real": float(delta_real)}
+            "det": det, "used": used, "delta_real": float(delta_real),
+            "pi_oracle": (det_o / used if used else 0.0), "lcb_oracle": float(wilson_lcb(det_o, used)),
+            "det_oracle": det_o}
 
 
 def load_table(path):
