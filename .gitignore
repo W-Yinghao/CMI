@@ -33,3 +33,6 @@ __pycache__/
 
 # slurm generated packages that reference local paths (optional; keep templates)
 slurm-*.out
+
+# third-party reproduction snapshot (BTTA-DG; own upstream/license)
+w1b_external/
