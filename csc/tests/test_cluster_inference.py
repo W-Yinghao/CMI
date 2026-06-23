@@ -10,7 +10,7 @@ warnings.filterwarnings("ignore")
 
 from csc.protocol import ProtocolConfig, ProtocolError, _stage_seed
 from csc.certificate.atlas import cluster_mean
-from csc.certificate.residual_test import _subject_weights, subject_null_labels
+from csc.certificate.residual_test import _subject_condition_weights, subject_null_labels
 from csc.sim.shift_simulator import SimConfig, make_source, make_target
 
 
@@ -52,7 +52,8 @@ def test_subject_weights_one_vote():
     # epochs weighted 1/n_s, mean 1: every subject contributes the SAME total weight regardless
     # of how many epochs it has (one vote per subject), so cluster size can't change L2 strength.
     g = np.array([0, 0, 0, 0, 1, 2, 2])              # subject 0 has 4 epochs, 1 has 1, 2 has 2
-    w = _subject_weights(g)
+    D = np.zeros_like(g)                             # single condition -> per-subject 1/n_s
+    w = _subject_condition_weights(g, D)
     assert abs(w.mean() - 1.0) < 1e-9
     totals = {u: w[g == u].sum() for u in np.unique(g)}
     assert max(totals.values()) - min(totals.values()) < 1e-9, totals

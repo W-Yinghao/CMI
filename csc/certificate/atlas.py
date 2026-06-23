@@ -32,7 +32,7 @@ import numpy as np
 
 from .residual_test import (
     residual_decoder_test, ResidualTestResult, fit_h0_proba, sample_labels,
-    subject_null_labels, _standardise,
+    subject_null_labels, _standardise, stage_seed, check_support_graph,
 )
 
 # pre-registered geometry constant: raw signature subspaces closer than this principal angle
@@ -208,6 +208,74 @@ def build_atlas(Z, Y, D, var_keep: float = 0.95, group_ids=None) -> ShiftAtlas:
                       min_principal_angle_deg=min_angle)
 
 
+def support_signature_strata(groups, D, Y):
+    """Group subjects by their SUPPORT SIGNATURE = the set of (domain,class) cells the subject
+    occupies. Resampling WITHIN each stratum (to its own size) keeps every occupied domain-class
+    cell populated (no silent disappearance, CSC-P1.4.2 #4) and draws WHOLE biological subjects
+    (paired conditions intact, #2b). Returns (idx_by_subject, strata{signature:[subjects]})."""
+    g = np.asarray(groups); D = np.asarray(D); Y = np.asarray(Y)
+    idx_by = {s: np.where(g == s)[0] for s in np.unique(g)}
+    sig_of = {s: frozenset(zip(D[idx_by[s]].tolist(), Y[idx_by[s]].tolist())) for s in idx_by}
+    strata = {}
+    for s, sig in sig_of.items():
+        strata.setdefault(sig, []).append(s)
+    return idx_by, strata
+
+
+def stratified_subject_resample(idx_by, strata, rng):
+    """Draw whole subjects within each support-signature stratum; FRESH cluster id per copy.
+    Returns (row_index, cluster_id)."""
+    il, gl, gc = [], [], 0
+    for sig, subs in strata.items():
+        for s in rng.choice(subs, size=len(subs), replace=True):
+            il.append(idx_by[s]); gl.append(np.full(len(idx_by[s]), gc)); gc += 1
+    return np.concatenate(il), np.concatenate(gl)
+
+
+def _cross_split_separability(Z, Y, D, classes, domains, var_keep, groups, seed, min_angle_deg):
+    """CROSS-SPLIT cov/concept separability (CSC-P1.4.2 #5), the reviewer's option (a). Split
+    subjects into two INDEPENDENT halves. From split A take the RAW per-domain nuisance offsets
+    A_cov = {a_d} (label-AVERAGED -> the covariate signature, NOT forced orthogonal to concept).
+    From split B take the concept direction concept_B (class-conditional). The genuine question is
+    how much of the nuisance offset survives projecting OUT the concept direction:
+
+        frac = ||A_cov - A_cov P_concept_B|| / ||A_cov||,   angle = arcsin(frac).
+
+    angle ~ 90 deg  => the nuisance lives OFF the concept axis  -> separable (incl. a VISIBLE
+    concept, whose label-mean component is removed via the INDEPENDENT split, not by construction).
+    angle small     => the nuisance offset is itself ~the concept direction -> cov & concept are
+    NOT separable (Assumption T fails) -> overlap=True -> abstain. REACTS as the true cov/concept
+    angle shrinks. Returns (angle_deg, overlap); UNASSESSED (too few subjects) -> (90, False)."""
+    g = np.asarray(groups) if groups is not None else np.arange(len(Y))
+    subs = np.unique(g)
+    if len(subs) < 4:
+        return 90.0, False
+    rng = np.random.default_rng(stage_seed(seed, "separability_split"))
+    perm = rng.permutation(subs)
+    inA = np.isin(g, perm[:len(perm) // 2])
+    try:
+        A_cov, _, _ = _offsets_residuals(Z[inA], Y[inA], D[inA], classes,
+                                         list(np.unique(D[inA])), g[inA])
+        concept_B = _concept_geometry(Z[~inA], Y[~inA], D[~inA], classes,
+                                      list(np.unique(D[~inA])), var_keep, g[~inA])[1]
+    except Exception:
+        return 90.0, False
+    angle = offset_concept_angle(A_cov, concept_B)
+    return angle, bool(angle < min_angle_deg)
+
+
+def offset_concept_angle(A_cov, concept_dirs):
+    """Angle (deg) between the nuisance-offset matrix A_cov and the concept subspace:
+    arcsin(||A_cov - A_cov P_concept|| / ||A_cov||). 90 deg = nuisance lies OFF the concept axis
+    (separable); -> 0 as the nuisance offset aligns with the concept direction (overlap). Pure +
+    deterministic so the diagnostic's REACTION to the true angle is directly unit-testable."""
+    na = float(np.linalg.norm(A_cov))
+    if concept_dirs.shape[1] == 0 or na < 1e-9:
+        return 90.0
+    resid = A_cov - (A_cov @ concept_dirs) @ concept_dirs.T
+    return float(np.degrees(np.arcsin(np.clip(np.linalg.norm(resid) / na, 0.0, 1.0))))
+
+
 def _cov_loading(Z, Y, D, classes, domains, var_keep, cov_dirs=None, g=None):
     """Top singular value of the class-residuals R projected onto the NUISANCE subspace (residual
     class-conditional structure leaking into the covariate directions). cov subspace is the
@@ -229,6 +297,7 @@ def analyze_source(Z, Y, D,
                    min_angle_deg: float = MIN_PRINCIPAL_ANGLE_DEG,
                    cov_loading_margin_kappa: float = 1.5,
                    n_folds: int = 4,
+                   invalid_frac_max: float = 0.20,
                    group_ids=None,
                    seed: int = 0) -> SourceAnalysis:
     """Atlas + (a) h0-NULL max-statistic concept evidence (keeps ONLY the global-max-passing
@@ -240,9 +309,16 @@ def analyze_source(Z, Y, D,
     classes = list(np.unique(Y)); domains = list(np.unique(D))
 
     test = residual_decoder_test(Z, Y, D, n_folds=n_folds, n_boot=n_boot, alpha=alpha, C=C,
-                                 group_ids=group_ids, seed=seed)
+                                 group_ids=group_ids, invalid_frac_max=invalid_frac_max, seed=seed)
     atlas = build_atlas(Z, Y, D, var_keep=var_keep, group_ids=groups)
-    overlap = atlas.min_principal_angle_deg < min_angle_deg
+    # CSC-P1.4.2 #5: the within-split principal angle was an ALGORITHMIC artifact (cov_dirs is
+    # built orthogonal to concept), so it could never detect cov/concept overlap. The operational
+    # separability gate is CROSS-SPLIT attribution STABILITY: estimate the atlas on two independent
+    # subject-halves; if a cov direction in one half aligns with a concept direction in the other
+    # (cross angle < min_angle_deg) the cov/concept assignment is NOT stable -> abstain. This has no
+    # forced-orthogonality artifact and REACTS as the true cov/concept angle shrinks.
+    sep_angle, overlap = _cross_split_separability(Z, Y, D, classes, domains, var_keep,
+                                                   groups, seed, min_angle_deg)
 
     if test.status != "VALID":
         return SourceAnalysis(atlas, test, False, False, overlap, [],
@@ -256,28 +332,46 @@ def analyze_source(Z, Y, D,
     # and RE-RUNS the whole concept pipeline (re-estimating subspaces + spectrum).
     Zs = _standardise(Z)
     p0 = fit_h0_proba(Zs, Y, D, domains, classes, C, groups)
-    rng = np.random.default_rng(seed + 7)
-    null_top = np.zeros(n_dir_boot)                    # h0-null TOP singular value (max stat)
-    cov_load_null = np.zeros(n_dir_boot)               # h0-null cov-subspace loading (noise scale)
+    rng = np.random.default_rng(stage_seed(seed, "geometry_null"))
+    cl_set = set(classes)
+    null_top, cov_load_null, n_geom_invalid = [], [], 0
     for b in range(n_dir_boot):
-        # cluster-consistent null: one label per subject (geom-mean q_s) when groups given
-        Yb = (subject_null_labels(p0, groups, classes, rng) if groups is not None
+        # cluster-consistent null: one label per (subject,condition) cell when groups given
+        Yb = (subject_null_labels(p0, groups, classes, rng, D=D) if groups is not None
               else sample_labels(p0, classes, rng))
-        cov_dirs_b, _, s_b, _, _, R_b = _concept_geometry(Z, Yb, D, classes, domains, var_keep, groups)[:6]
-        null_top[b] = s_b[0] if s_b.size else 0.0
-        # cov null scale goes through the IDENTICAL estimator pipeline: cov subspace is
-        # RE-ESTIMATED per replicate (cov_dirs_b), not projected onto the fixed observed dirs.
+        # SAME support-validity check as the residual null (CSC-P1.4.2 #1): a relabel that drops
+        # a class / empties the spectrum is an INVALID replicate, charged as extreme below.
+        if set(np.unique(Yb)) != cl_set:
+            n_geom_invalid += 1
+            continue
+        try:
+            cov_dirs_b, _, s_b, _, _, R_b = _concept_geometry(Z, Yb, D, classes, domains, var_keep, groups)[:6]
+        except Exception:
+            n_geom_invalid += 1
+            continue
+        if not s_b.size:
+            n_geom_invalid += 1
+            continue
+        null_top.append(float(s_b[0]))
+        # cov null scale: cov subspace RE-ESTIMATED per replicate (not the fixed observed dirs).
         if cov_dirs_b.shape[1]:
             Rcb = R_b - R_b.mean(0, keepdims=True)
-            cov_load_null[b] = float(np.linalg.svd(Rcb @ cov_dirs_b, compute_uv=False)[0])
+            cov_load_null.append(float(np.linalg.svd(Rcb @ cov_dirs_b, compute_uv=False)[0]))
+    null_top = np.asarray(null_top)
 
     # GEOMETRIC concept gate: h0-parametric-bootstrap global max-statistic. On a NO-concept source
-    # this has CORRECT type-I (the re-estimated Y*~p0 spectrum matches the observed -> p_global
-    # stays high); its power at the SUBJECT level is LOW (the cluster-consistent null is
-    # conservative with few subjects/cell) -- the honest difficulty-envelope cost, NOT a validity
-    # flaw. It is the type-I-controlling gate; the cross-fitted DECODER is the second required gate.
-    p_global = float((1.0 + np.sum(null_top >= s_obs[0])) / (1.0 + n_dir_boot)) if n_rank else 1.0
-    cov_noise_scale = float(np.quantile(cov_load_null, 1 - alpha)) if cov_dirs.shape[1] else 0.0
+    # this has CORRECT type-I (re-estimated Y*~p0 spectrum matches the observed -> p_global high);
+    # subject-level power is LOW (cluster-consistent null is conservative) -- the honest envelope
+    # cost. It is the type-I-controlling gate; the cross-fitted DECODER is the second required gate.
+    # p_global conservative: invalid replicates charged as extreme (CSC-P1.4.2 #1); too many invalid
+    # -> the geometric null is not estimable -> concept NOT evidenced (fail closed).
+    geom_estimable = n_geom_invalid <= invalid_frac_max * n_dir_boot
+    if n_rank and geom_estimable:
+        p_global = float((1.0 + np.sum(null_top >= s_obs[0]) + n_geom_invalid) / (1.0 + n_dir_boot))
+    else:
+        p_global = 1.0
+    cov_noise_scale = (float(np.quantile(np.asarray(cov_load_null), 1 - alpha))
+                       if (cov_dirs.shape[1] and cov_load_null) else 0.0)
     concept_top = float(s_obs[0]) if n_rank else 0.0
 
     # CONCEPT EVIDENCE = geometric global max-stat (p_global, type-I controlled) AND the
@@ -307,29 +401,26 @@ def analyze_source(Z, Y, D,
     if atlas.cov_dirs.shape[1]:
         s_cov_obs = _cov_loading(Z, Y, D, classes, domains, var_keep, atlas.cov_dirs, g=groups)
         clusters = groups if groups is not None else D
-        # cluster bootstrap, STRATIFIED WITHIN DOMAIN (preserves the atlas domain set), with a
-        # FRESH id per resampled cluster copy so a cluster drawn twice contributes TWICE (the
-        # v0 kept the original id -> _cell_mean re-merged duplicates, losing multiplicity).
-        dom_subjects = {dd: np.unique(clusters[D == dd]) for dd in domains}
-        idx_by = {c: np.where(clusters == c)[0] for c in np.unique(clusters)}
-        rng2 = np.random.default_rng(seed + 11)
+        # CSC-P1.4.2 #2b/#4: resample WHOLE biological subjects within each support-signature
+        # stratum -> paired conditions intact AND every occupied domain-class cell stays populated.
+        idx_by, strata = support_signature_strata(clusters, D, Y)
+        rng2 = np.random.default_rng(stage_seed(seed, "cov_bootstrap"))
         boot, n_inv = [], 0
         for b in range(n_dir_boot):
-            il, gl, gc = [], [], 0
-            for dd in domains:
-                subs = dom_subjects[dd]
-                for s in rng2.choice(subs, size=len(subs), replace=True):
-                    il.append(idx_by[s]); gl.append(np.full(len(idx_by[s]), gc)); gc += 1
-            idx = np.concatenate(il); gid = np.concatenate(gl)
-            val = _cov_loading(Z[idx], Y[idx], D[idx], classes,
-                               list(np.unique(D[idx])), var_keep, g=gid)   # cov RE-estimated
-            if np.isfinite(val):
-                boot.append(val)
-            else:
+            idx, gid = stratified_subject_resample(idx_by, strata, rng2)
+            # RE-RUN the support gate per replicate (cell support + connectivity; the costly
+            # interaction-design rank SVD is irrelevant to the cov-loading statistic -> skipped).
+            sup_b = check_support_graph(Y[idx], D[idx], group_ids=gid, n_folds=n_folds,
+                                        check_design=False)
+            val = (_cov_loading(Z[idx], Y[idx], D[idx], classes, list(np.unique(D[idx])),
+                                var_keep, g=gid) if sup_b.valid else float("nan"))
+            boot.append(val) if np.isfinite(val) else None
+            if not (sup_b.valid and np.isfinite(val)):
                 n_inv += 1
         boot = np.array(boot)
+        # conservative (CSC-P1.4.2 #1/#4): too many invalid replicates -> stability NOT certifiable
         cov_ub = float(np.quantile(boot, 1 - alpha)) if boot.size else np.inf
-        cov_stable = bool(cov_ub < eps_stable)
+        cov_stable = bool(cov_ub < eps_stable and n_inv <= invalid_frac_max * n_dir_boot)
     else:
         s_cov_obs, cov_ub, cov_stable, n_inv = 0.0, 0.0, True, 0
 
@@ -346,10 +437,14 @@ def analyze_source(Z, Y, D,
                                       cov_loading_margin_kappa=cov_loading_margin_kappa,
                                       eps_stable_cov_units=eps_stable,
                                       cov_boot_invalid=n_inv,
+                                      geom_null_invalid=n_geom_invalid,
+                                      geom_null_estimable=bool(geom_estimable),
                                       residual_T_significant=bool(test.significant),
                                       null_invalid_replicates=test.null_invalid,
                                       cluster_aware=(groups is not None),
                                       min_principal_angle_deg=atlas.min_principal_angle_deg,
+                                      separability_cross_angle_deg=sep_angle,
+                                      signature_overlap=bool(overlap),
                                       global_significant=test.significant))
 
 

@@ -16,11 +16,15 @@ From a SourceAnalysis (atlas + residual evidence) and UNLABELED target Z, return
                          label-shift signature (not separable without a label-shift model),
                          an out-of-atlas direction, an ambiguous mix, or no valid atlas.
 
-Hard guarantees by construction:
-  * the certifier never reads target labels;
-  * it never emits a positive verdict for a shift it cannot see (clean / pure-conditional
-    -> UNIDENTIFIABLE);
-  * a pure label shift -> UNIDENTIFIABLE (it is not concept, and not separable here).
+What IS guaranteed by construction vs what is a STATISTICAL property (CSC-P1.4.2 #7):
+  * BY CONSTRUCTION the certifier never reads target labels, and two targets with BYTE-IDENTICAL
+    Z (e.g. a clean target and its relabel-only pure-conditional twin) ALWAYS receive the SAME
+    output -- exact-pair indistinguishability. This does NOT make that output necessarily
+    UNIDENTIFIABLE: a finite-sample clean marginal can, by chance, exceed tau_detect and align
+    with the atlas.
+  * Therefore controlling clean / pure-conditional / label false-certification at level alpha is
+    a FINITE-SAMPLE STATISTICAL claim, measured by the exact Clopper-Pearson endpoint over
+    independent source clusters (run_synthetic / SYNTHETIC_NULL_BANK) -- NOT a structural "never".
 """
 from __future__ import annotations
 

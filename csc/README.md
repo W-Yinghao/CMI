@@ -113,21 +113,25 @@ label_shift      (LABEL_SHIFT)       -> UNIDENTIFIABLE   (abstain)
 label_covariate_mixed (LABEL_COV)    -> UNIDENTIFIABLE   (abstain)
 
 false certifications                : 0           (across the must-abstain shifts)
-false concept-evidence (cov-only src): 0 / 6      (subject-level null; type-I controlled)
+false concept-evidence (cov-only src): 0 / 6      (NO observed FP; 95% CP UB ~ 0.393 -- not proof)
 concept power on VISIBLE concept    : ~0.5        (HONEST subject-level value, not geometric 1.0)
 ```
 
-**Honesty (CSC-P1.4.1).** The inference unit is now the **subject** (cluster), not the epoch:
-the decoder estimand/inference, the atlas, calibration, bootstraps and the support gate all use
-the subject vote, with a cluster-consistent null. Concept evidence is the geometric global
-max-stat **AND** the cross-fitted decoder (the geometric gate controls type-I; a decoder-only
-gate over-fires ~50% on a covariate-only source because each synthetic subject's random effect
-is confounded with its single label). Power on visible concept is therefore **honestly low**
-(~0.5) — the conservative cost of cluster-valid inference, and a quantity of the **difficulty
-envelope** (PREREGISTRATION §6.7), not a single tuned number. 0 observed false certifications
-does **not** prove the rate ≤ 0.05; reaching 0.05 needs ≥ 59 independent clusters (these seeds
-are DEVELOPMENT). Headline: *"cluster-valid simulator smoke passed; control & power not yet
-statistically established; difficulty envelope + confirmatory run pending."*
+**Honesty (CSC-P1.4.1 / P1.4.2).** The inference unit is the **subject** (cluster): the decoder
+estimand/inference (subject-CONDITION aggregation, paired-safe), the atlas, calibration,
+bootstraps and the support gate all use the subject vote, with a cluster-consistent null and
+CONSERVATIVE invalid-replicate accounting (invalid replicates raise the p-value; they never lower
+it). Concept evidence is the geometric global max-stat **AND** the cross-fitted decoder: the
+geometric gate is **type-I-VALID** (correct null behaviour), whereas a decoder-only gate over-
+fires (~50% observed on a covariate-only source, since each synthetic subject's random effect is
+confounded with its single label). Power on visible concept is **honestly low** (~0.3-0.5) — the
+conservative cost of cluster-valid inference, a **difficulty-envelope** quantity (PREREGISTRATION
+§6.7), not a tuned number. NONE of these are statistical proofs: 0 false certs does not prove the
+rate ≤ α (≥59 independent clusters needed), and 0/6 false concept-evidence has a one-sided 95% CP
+upper bound ≈ 0.393. Clean/pure/label false-certification is a finite-sample STATISTICAL property,
+not a structural "never"; what IS structural is exact-pair indistinguishability (byte-identical
+clean vs pure → SAME output). Headline: *"cluster-valid simulator smoke passed; control & power
+NOT yet statistically established; difficulty envelope + confirmatory run pending."*
 
 ## Scaling to real EEG
 

@@ -79,7 +79,8 @@ def _aligned_proba(clf, Z, classes):
 # --------------------------------------------------------------------------------------
 def calibrate_thresholds(Z_tr, Y_tr, D_tr, atlas, base_cfg: CertifierConfig,
                          target_n_subjects=None, block_ids_tr=None,
-                         alpha=0.05, n_block=240, quantile=None, seed=0) -> CertifierConfig:
+                         alpha=0.05, n_block=240, quantile=None, seed=0,
+                         quantile_method="linear") -> CertifierConfig:
     """tau_detect / tau_label = `quantile` of the certifier's EXACT statistic over pseudo-targets
     drawn from the TRAINING domains only (fold-isolated). Each pseudo-target draws
     `target_n_subjects` WHOLE subjects (matching the held-out target's CLUSTER count) and its
@@ -87,12 +88,13 @@ def calibrate_thresholds(Z_tr, Y_tr, D_tr, atlas, base_cfg: CertifierConfig,
     certifier thresholds (the v0 used a row mean, a mismatch). tau_resid / tau_margin are
     pre-registered constants passed through."""
     from ..certificate.atlas import components, cluster_mean
+    from ..certificate.residual_test import stage_seed
     q = (1 - alpha) if quantile is None else quantile
     Z_tr = np.asarray(Z_tr, float); D_tr = np.asarray(D_tr)
     bids = (np.asarray(block_ids_tr) if block_ids_tr is not None
             else np.arange(len(Z_tr)))                       # each row its own cluster otherwise
     domains = list(np.unique(D_tr))
-    rng = np.random.default_rng(seed + 13)
+    rng = np.random.default_rng(stage_seed(seed, "calibration"))
     vis, lab = [], []
     reps = max(1, n_block // len(domains))
     for d in domains:
@@ -109,8 +111,8 @@ def calibrate_thresholds(Z_tr, Y_tr, D_tr, atlas, base_cfg: CertifierConfig,
             vis.append(max(c["n_cov"], c["n_concept"], c["n_resid"]))
             lab.append(c["n_label"])
     return dataclasses.replace(base_cfg,
-                               tau_detect=float(np.quantile(vis, q)),
-                               tau_label=float(np.quantile(lab, q)))
+                               tau_detect=float(np.quantile(vis, q, method=quantile_method)),
+                               tau_label=float(np.quantile(lab, q, method=quantile_method)))
 
 
 def calibrate_tau_detect(Z, Y, D, atlas, alpha=0.05, n_block=240, seed=0) -> float:
@@ -124,17 +126,37 @@ def calibrate_tau_detect(Z, Y, D, atlas, alpha=0.05, n_block=240, seed=0) -> flo
 # --------------------------------------------------------------------------------------
 # (#6) oracle boundary effect: refit bootstrap + two-sided equivalence band
 # --------------------------------------------------------------------------------------
+def _subj_w(groups):
+    """1/n_s epoch weights, mean 1 (one vote per subject in a fit)."""
+    uniq, inv, counts = np.unique(groups, return_inverse=True, return_counts=True)
+    w = 1.0 / counts[inv]
+    return w * (len(w) / w.sum())
+
+
+def _subject_mean(values, groups):
+    """Average `values` per BIOLOGICAL subject, then over subjects (one vote/subject)."""
+    g = np.asarray(groups)
+    return float(np.mean([values[g == u].mean() for u in np.unique(g)]))
+
+
 def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
                            n_boot=150, C=1.0, alpha=0.05,
-                           eps_concept=0.03, eps_stable=0.01, group_g=None, seed=0) -> OracleEffect:
+                           eps_concept=0.03, eps_stable=0.01,
+                           group_tr=None, group_g=None, seed=0) -> OracleEffect:
+    """CSC-P1.4.2 #3: SUBJECT-level oracle, matching the decoder's estimand. The pooled and
+    group-specific logistic fits are SUBJECT-weighted (1/n_s); the boundary effect is aggregated
+    per BIOLOGICAL subject then averaged over subjects (not row-weighted); the OOB bootstrap
+    resamples WHOLE subjects (paired conditions stay together)."""
+    from ..certificate.residual_test import stage_seed
     assert 0 < eps_stable < eps_concept, "pre-register 0 < eps_stable < eps_concept"
     cl = list(classes)
     mu, sd = Z_tr.mean(0), Z_tr.std(0) + 1e-8
     Ztr, Zg = (Z_tr - mu) / sd, (Z_g - mu) / sd
-    M = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(Ztr, Y_tr)
+    w_tr = None if group_tr is None else _subj_w(np.asarray(group_tr))
+    M = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(Ztr, Y_tr, sample_weight=w_tr)
     pi_tr = np.array([(Y_tr == c).mean() for c in cl]) + 1e-9
 
-    rng = np.random.default_rng(seed + 3)
+    rng = np.random.default_rng(stage_seed(seed, "oracle"))
     ng = len(Y_g)
     gg = None if group_g is None else np.asarray(group_g)
     uniq = None if gg is None else np.unique(gg)
@@ -143,19 +165,22 @@ def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
     for _ in range(n_boot):
         if gg is not None:                                  # whole-SUBJECT resample + OOB
             pick = rng.choice(uniq, size=len(uniq), replace=True)
+            # fresh subject id per drawn copy (correct multiplicity); paired conditions intact
             bs = np.concatenate([idx_by[u] for u in pick])
+            gid_bs = np.concatenate([np.full(len(idx_by[u]), i) for i, u in enumerate(pick)])
             oob = np.concatenate([idx_by[u] for u in uniq if u not in set(pick.tolist())]) \
                 if set(uniq.tolist()) - set(pick.tolist()) else np.array([], dtype=int)
         else:
-            bs = rng.integers(0, ng, ng)
+            bs = rng.integers(0, ng, ng); gid_bs = bs
             oob = np.setdiff1d(np.arange(ng), np.unique(bs))
         if len(oob) < len(cl) + 2:
             continue
         ybs = Y_g[bs]
         if len(np.unique(ybs)) < 2 or len(np.unique(Y_g[oob])) < 1:
             continue
-        # group-specific boundary refit on the bootstrap sample
-        clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(Zg[bs], ybs)
+        # group-specific boundary refit on the bootstrap sample (SUBJECT-weighted)
+        clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(
+            Zg[bs], ybs, sample_weight=_subj_w(gid_bs))
         p_g = _aligned_proba(clf, Zg[oob], cl)
         # pooled boundary, prior-corrected to the group's ORACLE prior (isolates boundary)
         pi_g = np.array([(ybs == c).mean() for c in cl]) + 1e-9
@@ -163,7 +188,7 @@ def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
         p_sh /= p_sh.sum(1, keepdims=True)
         yi = np.searchsorted(cl, Y_g[oob])
         eff = (-np.log(p_sh[np.arange(len(oob)), yi])) - (-np.log(p_g[np.arange(len(oob)), yi]))
-        boots.append(float(eff.mean()))
+        boots.append(_subject_mean(eff, gg[oob] if gg is not None else np.arange(len(oob))))
     if not boots:
         return OracleEffect(float("nan"), float("nan"), float("nan"), AMBIGUOUS)
     boots = np.array(boots)
@@ -212,7 +237,7 @@ def nested_lodo(Z, Y, D, cfg=None, folds=None, group_ids=None, min_stable=2, see
                                         n_boot=cfg.oracle_boot, alpha=cfg.alpha,
                                         eps_concept=cfg.oracle_eps_concept_ce,
                                         eps_stable=cfg.oracle_eps_stable_ce,
-                                        group_g=gte, seed=seed)
+                                        group_tr=gtr, group_g=gte, seed=seed)
         records.append(LodoRecord(fold=list(g), cert_state=cert.state, n_label=cert.n_label,
                                   n_cov=cert.n_cov, n_concept=cert.n_concept,
                                   tau_detect=out["tau_detect"],

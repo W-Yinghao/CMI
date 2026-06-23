@@ -144,6 +144,35 @@ def _sample_subjects(cfg, geom, spec: DomainSpec, n_subjects, rng, subj_offset):
     return np.concatenate(Zs), np.concatenate(Ys), np.concatenate(Gs)
 
 
+def make_paired_subjects(cfg: Optional[SimConfig] = None,
+                         geom: GenGeom = None,
+                         n_subjects: int = 24,
+                         concept_delta: float = 0.0,
+                         seed: int = 0):
+    """PAIRED ON/OFF design (CSC-P1.4.2 #2): the SAME biological subject is measured under TWO
+    conditions = domains (0=ON, 1=OFF), each with MULTIPLE classes and an UNEQUAL number of
+    epochs, sharing the subject's latent random effect. `concept_delta` moves the OFF boundary
+    along w_concept (a within-subject P(Y|Z) change -> the concept signal). group_ids = the
+    BIOLOGICAL subject (shared across conditions). Returns (Z, Y, D, group_ids)."""
+    cfg = cfg or SimConfig()
+    rng = np.random.default_rng(seed)
+    geom = geom or make_geom(cfg, rng)
+    unif = np.full(cfg.K, 1.0 / cfg.K)
+    Zs, Ys, Ds, Gs = [], [], [], []
+    for s in range(n_subjects):
+        eps_s = cfg.subject_tau * rng.standard_normal(cfg.d)       # shared across conditions
+        for cond in (0, 1):
+            n_e = int(rng.integers(cfg.epochs_min, cfg.epochs_max + 1))   # UNEQUAL per condition
+            y = _draw_labels(rng, unif, n_e, cfg.K, min(2, n_e))
+            z = geom.mu[y].copy()
+            if cond == 1:                                          # OFF: boundary moved
+                z = z + concept_delta * geom.s_y[y][:, None] * geom.w_concept[None, :]
+            z = z + eps_s[None, :] + geom.noise * rng.standard_normal((n_e, cfg.d))
+            Zs.append(z); Ys.append(y); Ds.append(np.full(n_e, cond)); Gs.append(np.full(n_e, s))
+    return (np.concatenate(Zs), np.concatenate(Ys),
+            np.concatenate(Ds), np.concatenate(Gs))
+
+
 def make_source(cfg: Optional[SimConfig] = None,
                 n_domains: int = 8,
                 concept_domains: int = 3,

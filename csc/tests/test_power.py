@@ -57,10 +57,12 @@ def test_covariate_compatible():
         st = certify(sa, tb.Z, group_ids=tb.group_ids).state
         ok += int(st == COVARIATE_COMPATIBLE)
         forbidden += int(st == CONCEPT_SUSPECT)        # the forbidden outcome for covariate
-    # HARD: never false-certify covariate as concept. Coverage is DESCRIPTIVE (the full-cluster
-    # cov_stable equivalence is conservative; coverage is a freeze-sweep target, not a gate).
-    assert forbidden == 0, f"covariate FALSE-certified as concept {forbidden}/{n}"
-    print(f"OK covariate: 0 false concept; COVARIATE_COMPATIBLE coverage {ok}/{n} (descriptive)")
+    # CSC-P1.4.2 #7: covariate->concept false certification is a FINITE-SAMPLE STATISTICAL
+    # property controlled at alpha by the exact-CP endpoint, not a structural "never"; this is a
+    # smoke bound. Coverage is DESCRIPTIVE (the cov_stable gate is conservative).
+    assert forbidden <= 1, f"covariate->concept false certs {forbidden}/{n} (smoke)"
+    print(f"OK covariate: {forbidden} false concept (statistical smoke); "
+          f"COVARIATE_COMPATIBLE coverage {ok}/{n} (descriptive)")
 
 
 def test_visible_concept_suspect():

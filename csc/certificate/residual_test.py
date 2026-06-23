@@ -37,10 +37,21 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from typing import Optional
+import hashlib
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedKFold, StratifiedGroupKFold
 from sklearn.metrics import log_loss
+
+
+def stage_seed(root, stage: str) -> int:
+    """Named-stage RNG derivation shared across modules: the runtime ROOT seed drives every
+    stage via a stable hash, so each stage (residual-null, geometry-null, cov-bootstrap,
+    calibration, target-bootstrap, CV) gets an INDEPENDENT seed -- no hand-written seed+1/+7/+11.
+    Uses a CRYPTOGRAPHIC hash (sha256), NOT Python's built-in hash() -- the latter is subject to
+    per-process PYTHONHASHSEED randomization and would not be reproducible across processes.
+    The root is execution context, not part of the method manifest."""
+    return int(hashlib.sha256(f"{int(root)}::{stage}".encode()).hexdigest()[:8], 16)
 
 
 @dataclass
@@ -130,6 +141,9 @@ def check_support_graph(Y, D, Z=None, group_ids=None,
                         min_cell_subjects: int = 1,   # per-cell = CONNECTIVITY (>=1 subject);
                         min_subjects_per_class: int = 4,  # the substantive POWER gate is per-class
                         n_folds: int = 4,
+                        check_design: bool = True,    # False -> skip the (expensive) interaction
+                                                      # design rank/condition SVD (cov-bootstrap
+                                                      # per-replicate only needs cell support)
                         max_condition: float = 1e8) -> SupportGraph:
     Y = np.asarray(Y); D = np.asarray(D)
     g = None if group_ids is None else np.asarray(group_ids)
@@ -174,7 +188,7 @@ def check_support_graph(Y, D, Z=None, group_ids=None,
 
     cond = float("nan")
     design_rank, design_ncols, full_rank = -1, -1, True
-    if Z is not None:
+    if Z is not None and check_design:
         Zs = _standardise(Z)
         design_rank, design_ncols, cond = _design_rank_cond(Zs, D, domains)
         full_rank = (design_rank == design_ncols)
@@ -224,11 +238,29 @@ def _splits(X, Y, n_folds, seed, groups=None):
     return StratifiedKFold(n_splits=n_folds, shuffle=True, random_state=seed).split(X, Y)
 
 
-def _subject_weights(groups):
-    """One-vote-per-subject epoch weights w_se = 1/n_s, normalised to MEAN 1 (so cluster size
-    does not change the effective L2 strength)."""
-    uniq, inv, counts = np.unique(groups, return_inverse=True, return_counts=True)
-    w = 1.0 / counts[inv]
+def _condition_cells(groups, D):
+    """Map each row to its (subject, condition) cell. The CONDITION is the domain D (e.g. PD
+    ON/OFF). Returns (cell_id[n], subject_of_cell{cell:subject})."""
+    g = np.asarray(groups); d = np.asarray(D)
+    keys = list(zip(g.tolist(), d.tolist()))
+    uniq = {k: i for i, k in enumerate(dict.fromkeys(keys))}
+    cell = np.array([uniq[k] for k in keys])
+    subj_of_cell = {uniq[k]: k[0] for k in uniq}
+    return cell, subj_of_cell
+
+
+def _subject_condition_weights(groups, D):
+    """Fit weights w_sue ∝ 1/(|U_s| * n_su) (subject-CONDITION unit), normalised to MEAN 1. A
+    condition with more epochs no longer dominates a subject's loss, and a subject with more
+    conditions does not get extra total weight -- one vote per biological subject."""
+    g = np.asarray(groups)
+    cell, subj_of_cell = _condition_cells(g, D)
+    n_su = np.bincount(cell)                                # epochs per (subject,condition) cell
+    # |U_s| = number of distinct conditions for each subject
+    US = {}
+    for c, s in subj_of_cell.items():
+        US[s] = US.get(s, 0) + 1
+    w = np.array([1.0 / (US[subj_of_cell[c]] * n_su[c]) for c in cell])
     return w * (len(w) / w.sum())
 
 
@@ -240,29 +272,42 @@ def _aligned(clf, X, cl):
     return full / full.sum(1, keepdims=True)
 
 
+def aggregate_subject_loss(per_epoch_loss, groups, D):
+    """The CSC-P1.4.2 #2 subject-CONDITION estimand aggregation:
+
+        l_s = (1/|U_s|) sum_{u in U_s} ( (1/n_su) sum_e loss_e ),   u = (subject, condition/domain).
+
+    Inner (1/n_su) mean => duplicating epochs within a (subject,condition) cell leaves l_s
+    unchanged; outer (1/|U_s|) mean => unequal ON/OFF epoch counts do NOT reweight conditions.
+    Returns loss_per_BIOLOGICAL_subject. (Separated out so it is directly unit-testable.)"""
+    loss = np.asarray(per_epoch_loss, float)
+    cell, subj_of_cell = _condition_cells(groups, D)
+    subj_cells = {}
+    for c in np.unique(cell):
+        subj_cells.setdefault(subj_of_cell[c], []).append(loss[cell == c].mean())
+    return {s: float(np.mean(v)) for s, v in subj_cells.items()}
+
+
 def _xfit_subject_loss(Zs, Y, D, groups, domains, interaction, classes, n_folds, C, seed):
-    """Subject-level OOF loss  l_s = (1/n_s) sum_e -log p_hat^{(-s)}(Y_s | z_se, d_se).
-    Group-CV by subject (no leakage); 1/n_s fit weights (one vote per subject in the fit).
-    Returns (loss_per_subject_dict)."""
+    """Cross-fitted OOF per-epoch loss (group-CV by BIOLOGICAL subject; fit weights
+    1/(|U_s| n_su) so a paired subject is one vote), then the subject-condition aggregation
+    above. Returns loss_per_biological_subject."""
     X = _features(Zs, D, domains, interaction)
     cl = list(classes)
-    w = _subject_weights(groups)
-    subj_sum, subj_n = {}, {}
-    for tr, te in _splits(X, Y, n_folds, seed, groups):
+    w = _subject_condition_weights(groups, D)
+    oof = np.full(len(Y), np.nan)
+    for tr, te in _splits(X, Y, n_folds, seed, groups):     # split by biological subject
         clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs")
-        clf.fit(X[tr], Y[tr], sample_weight=w[tr])         # one-vote-per-subject fit
+        clf.fit(X[tr], Y[tr], sample_weight=w[tr])
         p = _aligned(clf, X[te], cl)
         yi = np.searchsorted(cl, Y[te])
-        ll = -np.log(p[np.arange(len(te)), yi])            # per-epoch loss
-        for k, e in enumerate(te):
-            g = groups[e]
-            subj_sum[g] = subj_sum.get(g, 0.0) + ll[k]
-            subj_n[g] = subj_n.get(g, 0) + 1
-    return {g: subj_sum[g] / subj_n[g] for g in subj_sum}   # mean epoch loss within subject
+        oof[te] = -np.log(p[np.arange(len(te)), yi])
+    seen = ~np.isnan(oof)
+    return aggregate_subject_loss(oof[seen], np.asarray(groups)[seen], np.asarray(D)[seen])
 
 
 def _xfit_T(Zs, Y, D, groups, domains, classes, n_folds, C, seed):
-    """T = (1/S) sum_s (l_{s,h0} - l_{s,h}) -- subject-level cross-fitted risk difference."""
+    """T = (1/S) sum_s (l_{s,h0} - l_{s,h}) over BIOLOGICAL subjects -- subject-condition estimand."""
     l0 = _xfit_subject_loss(Zs, Y, D, groups, domains, False, classes, n_folds, C, seed)
     l1 = _xfit_subject_loss(Zs, Y, D, groups, domains, True, classes, n_folds, C, seed)
     keys = [g for g in l0 if g in l1]
@@ -270,25 +315,27 @@ def _xfit_T(Zs, Y, D, groups, domains, classes, n_folds, C, seed):
 
 
 def fit_h0_proba(Zs, Y, D, domains, classes, C=1.0, groups=None) -> np.ndarray:
-    """Domain-intercept model on ALL data (subject-weighted if groups given); aligned p0(y|z,d)."""
+    """Domain-intercept model on ALL data (subject-condition weighted if groups given); p0(y|z,d)."""
     X = _features(Zs, D, domains, interaction=False)
-    w = None if groups is None else _subject_weights(groups)
+    w = None if groups is None else _subject_condition_weights(groups, D)
     clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(X, Y, sample_weight=w)
     return _aligned(clf, X, list(classes))
 
 
-def subject_null_labels(p0, groups, classes, rng) -> np.ndarray:
-    """Cluster-consistent h0 null: ONE label per subject, q_s(y) ∝ exp[(1/n_s) sum_e log p0_se(y)]
-    (per-subject geometric mean of epoch probs), broadcast to all the subject's epochs."""
+def subject_null_labels(p0, groups, classes, rng, D=None) -> np.ndarray:
+    """Cluster-consistent h0 null: ONE label per (subject, condition) CELL, q(y) ∝ exp[mean_e
+    log p0(y)] (geometric mean over the cell's epochs), broadcast to the cell. Reduces to one
+    label per subject when each subject is a single condition (the source). Passing D makes it
+    paired-correct (a subject in ON and OFF gets an independent draw per condition)."""
     cl = np.asarray(classes)
     g = np.asarray(groups)
+    cell, _ = _condition_cells(g, g if D is None else D)
     out = np.empty(len(g), dtype=cl.dtype)
     logp = np.log(np.clip(p0, 1e-12, 1.0))
-    for u in np.unique(g):
-        m = g == u
-        q = np.exp(logp[m].mean(0)); q = q / q.sum()       # geometric-mean subject proba
-        cdf = np.cumsum(q)
-        y = cl[int((rng.random() > cdf).sum())]
+    for u in np.unique(cell):
+        m = cell == u
+        q = np.exp(logp[m].mean(0)); q = q / q.sum()
+        y = cl[int((rng.random() > np.cumsum(q)).sum())]
         out[m] = y
     return out
 
@@ -309,12 +356,20 @@ def _standardise(Z):
 # ---------------------------------------------------------------------------------------
 # the test
 # ---------------------------------------------------------------------------------------
+def _conservative_p(valid_null, n_invalid, T, n_boot):
+    """p = (1 + N_extreme_valid + N_invalid) / (1 + B). Invalid replicates are charged as
+    extreme (raise p) -> selective dropping can never LOWER the p-value (CSC-P1.4.2 #1)."""
+    n_extreme = int(np.sum(np.asarray(valid_null) >= T)) if len(valid_null) else 0
+    return (1.0 + n_extreme + n_invalid) / (1.0 + n_boot)
+
+
 def residual_decoder_test(Z, Y, D,
                           n_folds: int = 4,
                           n_boot: int = 100,
                           alpha: float = 0.05,
                           C: float = 1.0,
                           group_ids=None,
+                          invalid_frac_max: float = 0.20,
                           seed: int = 0) -> ResidualTestResult:
     Y = np.asarray(Y); D = np.asarray(D)
     Zs = _standardise(Z)
@@ -328,26 +383,36 @@ def residual_decoder_test(Z, Y, D,
         return ResidualTestResult("INVALID", float("nan"), 1.0, False,
                                   float("nan"), float("nan"), support)
 
-    T = _xfit_T(Zs, Y, D, groups, domains, classes, n_folds, C, seed)   # subject-level T
+    s_cv = stage_seed(seed, "residual_cv")             # fold split (shared observed + null)
+    s_null = stage_seed(seed, "residual_null")         # Y* sampling
+    T = _xfit_T(Zs, Y, D, groups, domains, classes, n_folds, C, s_cv)
 
-    # cluster-consistent NULL: ONE label per subject ~ q_s (geom-mean), refit & recompute T*.
+    # cluster-consistent NULL: one label per (subject,condition) cell ~ geom-mean q; refit T*.
     p0 = fit_h0_proba(Zs, Y, D, domains, classes, C, groups)
-    rng = np.random.default_rng(seed + 1)
+    rng = np.random.default_rng(s_null)
     null, n_invalid = [], 0
     for b in range(n_boot):
-        Yb = subject_null_labels(p0, groups, classes, rng)
-        if len(np.unique(Yb)) < 2:                  # degenerate replicate -> COUNTED, not dropped
+        Yb = subject_null_labels(p0, groups, classes, rng, D=D)
+        if len(np.unique(Yb)) < 2:                  # degenerate replicate -> charged as extreme
             n_invalid += 1
             continue
         try:
-            null.append(_xfit_T(Zs, Yb, D, groups, domains, classes, n_folds, C, seed))
+            t = _xfit_T(Zs, Yb, D, groups, domains, classes, n_folds, C, s_cv)
+            null.append(t) if np.isfinite(t) else None
+            if not np.isfinite(t):
+                n_invalid += 1
         except Exception:
             n_invalid += 1
-    null = np.array([t for t in null if np.isfinite(t)])
-    p_value = (1.0 + np.sum(null >= T)) / (1.0 + null.size) if null.size else 1.0
+    null = np.asarray(null)
+    # too many invalid replicates -> the null is not estimable -> source test INVALID (fail closed)
+    if n_invalid > invalid_frac_max * n_boot:
+        support.reasons.append(f"residual null not estimable: {n_invalid}/{n_boot} invalid replicates")
+        return ResidualTestResult("INVALID", float(T), 1.0, False,
+                                  float("nan"), float("nan"), support, null_invalid=n_invalid)
+    p_value = _conservative_p(null, n_invalid, T, n_boot)
     null_q = float(np.quantile(null, 1.0 - alpha)) if null.size else float("nan")
     return ResidualTestResult("VALID", float(T), float(p_value),
-                              bool(p_value <= alpha and null.size > 0),
+                              bool(p_value <= alpha),
                               float(null.mean()) if null.size else float("nan"),
                               null_q, support, float("nan"), float("nan"),
                               null_invalid=n_invalid)

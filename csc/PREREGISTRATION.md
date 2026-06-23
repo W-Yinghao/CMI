@@ -264,6 +264,41 @@ clusters**.
   ≈3/4, covariate→`COVARIATE_COMPATIBLE` 4/4, clean/pure/label/label_cov→`UNIDENTIFIABLE`, **0
   false certifications**. These seeds are DEVELOPMENT.
 
+### 6.7a CSC-P1.4.2 (null accounting, paired-unit semantics, operational separability)
+* **Invalid null replicates are CONSERVATIVE, never dropped (#1).** Both the residual-decoder null
+  and the geometric max-stat null charge a degenerate/exception replicate as the MOST adverse:
+  `p = (1 + N_extreme_valid + N_invalid)/(1 + B)` (it can only RAISE `p`); the geometric null runs
+  the SAME support-validity check; > 20% invalid ⇒ the null is not estimable ⇒ source `INVALID`.
+  `validate()` enforces `B ≥ ⌈1/α⌉−1` so the bootstrap `p` can actually reach `α`.
+* **Subject-CONDITION decoder estimand (#2).** `ℓ_s = (1/|U_s|) Σ_u (1/n_su) Σ_e ℓ_sue`,
+  `u = (subject, condition/domain)`; fit weights `1/(|U_s| n_su)`. Inner mean ⇒ duplicating epochs
+  within a (subject,condition) cell leaves `T` invariant; outer mean ⇒ unequal ON/OFF epoch counts
+  do not reweight conditions. CV and every bootstrap cluster is the BIOLOGICAL subject; a paired
+  subject is drawn whole (both conditions) and never split.
+* **cov-stability bootstrap preserves domain-class support (#4) + paired integrity (#2b).** Whole
+  biological subjects are resampled WITHIN each support-signature stratum (the set of (domain,class)
+  cells the subject occupies), so no occupied cell can silently disappear and paired conditions stay
+  together; the support gate is re-run per replicate (conservative invalid policy).
+* **SUBJECT-level oracle (#3).** `oracle_boundary_effect` takes `group_tr`+`group_g`, fits pooled and
+  group-specific boundaries SUBJECT-weighted, aggregates the effect per biological subject then
+  averages over subjects, and resamples whole subjects (paired-safe) — the SAME estimand as the
+  decoder.
+* **Operational separability (#5).** The within-split principal angle was an algorithmic artifact
+  (cov ⊥ concept by construction). Replaced by a CROSS-SPLIT diagnostic: from one subject-half take
+  the RAW nuisance offsets `A_cov`, from the other the concept direction, and measure
+  `arcsin(||A_cov − A_cov P_concept|| / ||A_cov||)`. This is forced-orthogonality-free and REACTS as
+  the true cov/concept angle shrinks (→ the principal-angle difficulty axis genuinely moves it).
+* **Executable manifest (#6).** ONLY `analysis_unit=subject ∧ group_aware ∧ tau_group_resampling`
+  is supported; all other combinations FAIL CLOSED. Independent NAMED stage seeds for
+  residual-CV / residual-null / geometry-null / cov-bootstrap / calibration / oracle / target-
+  bootstrap / separability-split (no `seed+1/+7/+11/+13`); `quantile_convention` is passed to
+  `np.quantile(method=...)`.
+* **No "structural zero false-positive" (#7).** What is STRUCTURAL is exact-pair indistinguishability
+  (byte-identical clean vs pure → SAME output). Controlling clean/pure/label false-certification at
+  `α` is a FINITE-SAMPLE statistical claim (a chance clean marginal can exceed `tau_detect` + align
+  with the atlas), measured by the exact-CP endpoint. `0/6` covariate-only false concept-evidence has
+  a one-sided 95% CP upper bound ≈ 0.393 — NOT proof of type-I correctness.
+
 ### 6.7 Pre-registered DIFFICULTY ENVELOPE (required before any freeze/confirmatory)
 Power is NOT a single number; it is a surface. Before a confirmatory claim we will sweep, on
 UNSEEN seeds, a grid over: concept effect size (target `concept_scale`), independent cluster count

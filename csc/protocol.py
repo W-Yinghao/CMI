@@ -94,6 +94,9 @@ class ProtocolConfig:
     var_keep: float = 0.95
     C: float = 0.5            # stronger L2 -> the high-dim Z(x)D interaction decoder does not
                              # overfit at the subject level (epoch fit, subject-aggregated loss)
+    invalid_null_frac_max: float = 0.20   # CSC-P1.4.2 #1: > this fraction of invalid null
+                                          # replicates (residual or geometry) -> SOURCE INVALID.
+                                          # A METHOD parameter -> part of the manifest hash.
     source_cv_folds: int = 4
     n_boot: int = 80
     n_dir_boot: int = 200
@@ -140,11 +143,30 @@ class ProtocolConfig:
             raise ProtocolError("require tau_resid >= 0 and tau_margin >= 1")
         if self.cov_loading_margin_kappa <= 0:
             raise ProtocolError("cov_loading_margin_kappa must be > 0")
+        if not (0 < self.invalid_null_frac_max < 1):
+            raise ProtocolError(f"invalid_null_frac_max {self.invalid_null_frac_max} out of (0,1)")
         if self.source_cv_folds < 2:
             raise ProtocolError("source_cv_folds must be >= 2")
         for nm in ("n_boot", "n_dir_boot", "target_n_boot", "oracle_boot", "tau_n_pseudotargets"):
             if getattr(self, nm) < 1:
                 raise ProtocolError(f"{nm} must be >= 1, got {getattr(self, nm)}")
+        # CSC-P1.4.2 #6: this paper FIXES the subject-level estimand, so ONLY the cluster-valid
+        # manifest is supported; every degenerate / unit-mismatched combination fails closed
+        # (no silent row-level fallback, no calibrator/certifier unit mismatch).
+        if not (self.analysis_unit == "subject" and self.group_aware and self.tau_group_resampling):
+            raise ProtocolError(
+                "unsupported manifest combination: this method REQUIRES "
+                "analysis_unit='subject' AND group_aware=True AND tau_group_resampling=True "
+                f"(got unit={self.analysis_unit!r}, group_aware={self.group_aware}, "
+                f"tau_group_resampling={self.tau_group_resampling})")
+        # CSC-P1.4.2 #1: a bootstrap p-value has minimum 1/(B+1); the null budget must be able to
+        # REACH alpha, else the test can never reject regardless of evidence.
+        import math
+        b_min = math.ceil(1.0 / self.alpha) - 1
+        for nm in ("n_boot", "n_dir_boot"):
+            if getattr(self, nm) < b_min:
+                raise ProtocolError(f"{nm}={getattr(self, nm)} < ceil(1/alpha)-1={b_min}: "
+                                    f"bootstrap p-value cannot reach alpha={self.alpha}")
         return self
 
     def to_dict(self) -> dict:
@@ -167,11 +189,7 @@ class ProtocolConfig:
         return hashlib.sha256(self.canonical_json().encode()).hexdigest()   # FULL sha256
 
 
-def _stage_seed(root, stage):
-    """Stable named-stage RNG derivation: the runtime ROOT seed drives every stage via a named
-    hash, so changing the root changes all stage RNGs (no hand-written seed+7/seed+11), and the
-    root is execution context -- it is NOT part of the method manifest/hash."""
-    return int(hashlib.sha256(f"{int(root)}::{stage}".encode()).hexdigest()[:8], 16)
+from .certificate.residual_test import stage_seed as _stage_seed   # ONE shared derivation
 
 
 @dataclass(frozen=True)
@@ -204,13 +222,14 @@ def execute_protocol(Z_src, Y_src, D_src, Z_tgt, cfg: ProtocolConfig,
                         alpha=cfg.alpha, var_keep=cfg.var_keep, C=cfg.C,
                         min_angle_deg=cfg.min_principal_angle_deg,
                         cov_loading_margin_kappa=cfg.cov_loading_margin_kappa,
-                        n_folds=cfg.source_cv_folds, group_ids=unit_groups_src,
-                        seed=ctx.seed("analyze_source"))
+                        n_folds=cfg.source_cv_folds, invalid_frac_max=cfg.invalid_null_frac_max,
+                        group_ids=unit_groups_src, seed=ctx.seed("analyze_source"))
     base = CertifierConfig(tau_resid=cfg.tau_resid, tau_margin=cfg.tau_margin)
     cal = calibrate_thresholds(Z_src, Y_src, D_src, sa.atlas, base,
                                target_n_subjects=tgt_n_subj, block_ids_tr=cal_groups,
                                alpha=cfg.alpha, n_block=cfg.tau_n_pseudotargets,
-                               quantile=quantile, seed=ctx.seed("calibrate_thresholds"))
+                               quantile=quantile, seed=ctx.seed("calibrate_thresholds"),
+                               quantile_method=cfg.quantile_convention)
     cert = certify_robust(sa, Z_tgt, cfg=cal, n_boot=cfg.target_n_boot,
                           consensus=cfg.consensus, group_ids=unit_groups_tgt,
                           seed=ctx.seed("certify_robust"))
