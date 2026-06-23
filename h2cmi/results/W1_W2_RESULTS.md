@@ -1,7 +1,10 @@
 # W1 + W2 results (frozen run; W1 690 rows/115 LOSO subjects, W2 140 rows/20 sleep subjects)
-# raw sha256: w1_all=03c9d4f4c6ea20c4  w2_all=52e174a44325a69f . W1-B native BTTA-DG = IN PROGRESS
-# (GitHub reachable after all; official luo-huan-123/BTTA-DG pinned at commit 5932d026, MIT; bounded
-# literature-comparability reproduction, separate panel, cannot change the W1/W2 verdict).
+# raw sha256: w1_all=03c9d4f4c6ea20c4  w2_all=52e174a44325a69f . W1-B native BTTA-DG = DONE (see
+# W1B_REPRODUCTION.md): pinned luo-huan-123/BTTA-DG @5932d026 (MIT), LOSO on BNCI2014001/002/2015001;
+# native BTTA-DG == its own source-only ensemble EXACTLY (Δ +0.000, all 35 subjects) -- as-published the
+# GMM is inert (orphaned add_sample) and even with the buffer-fill restored it activates on ~2% of
+# trials and flips 1 prediction total -> Δ≈0 either way. Separate external panel; NOT cross-ranked vs
+# W1-A; does not change the W1/W2 verdict.
 
 ## HEADLINE: joint geometry-prior adaptation is PREVALENCE-DEPENDENT (real-data, both panels)
 W1 balanced-prevalence MI LOSO  -> current_joint is BEST  (overall Δ +0.090, harm 0.17; Cho +0.180).
