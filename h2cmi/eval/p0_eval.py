@@ -56,7 +56,7 @@ def _transform_fields(T):
     return dict(a=a, b=b, transform_norm=tn)
 
 
-def _record(p, y, K, T=None, keep_probs=False):
+def _record(p, y, K, T=None, keep_probs=False, keep_preds=False):
     pred = p.argmax(1)
     r = dict(bacc=float(balanced_accuracy_score(y, pred)), acc=float(accuracy_score(y, pred)),
              macro_f1=float(f1_score(y, pred, average="macro")), nll=_nll(p, y),
@@ -65,11 +65,13 @@ def _record(p, y, K, T=None, keep_probs=False):
     r.update(_transform_fields(T))
     if keep_probs:
         r["probs"] = p.tolist()
+    if keep_preds:
+        r["preds"] = [int(x) for x in pred]
     return r
 
 
 def eval_unit_p0(model, tta, pooled_ref, R_src, Xa, Xe, Ua, Ue, ye, device, K, tta_seed,
-                 keep_probs=False):
+                 keep_probs=False, keep_preds=False):
     """Returns (branches: dict[name->record], decomposition: dict). All decoded with the UNIFORM
     decision prior except the two *_joint_prior branches (which use pi_J for the decomposition)."""
     uni = np.full(K, 1.0 / K)
@@ -80,10 +82,10 @@ def eval_unit_p0(model, tta, pooled_ref, R_src, Xa, Xe, Ua, Ue, ye, device, K, t
     fj = tta.fit_variant(Ua, V["joint_iterative_diag"], tta_seed=tta_seed)
     Tj = fj.transform
     piJ = np.asarray(fj.pi_T.cpu().numpy() if torch.is_tensor(fj.pi_T) else fj.pi_T, dtype=float)
-    out["identity_uniform"] = _record(_predict_generative(model, Ue, uni), ye, K, None, keep_probs)
-    out["identity_joint_prior"] = _record(_predict_generative(model, Ue, piJ), ye, K, None, keep_probs)
-    out["joint_geometry_uniform"] = _record(_predict_transform(model, Ue, Tj, uni), ye, K, Tj, keep_probs)
-    out["joint_geometry_joint_prior"] = _record(_predict_transform(model, Ue, Tj, piJ), ye, K, Tj, keep_probs)
+    out["identity_uniform"] = _record(_predict_generative(model, Ue, uni), ye, K, None, keep_probs, keep_preds)
+    out["identity_joint_prior"] = _record(_predict_generative(model, Ue, piJ), ye, K, None, keep_probs, keep_preds)
+    out["joint_geometry_uniform"] = _record(_predict_transform(model, Ue, Tj, uni), ye, K, Tj, keep_probs, keep_preds)
+    out["joint_geometry_joint_prior"] = _record(_predict_transform(model, Ue, Tj, piJ), ye, K, Tj, keep_probs, keep_preds)
 
     # ---- comparator operators (uniform decision) ----
     for name, vkey, needs_pool in (
@@ -91,12 +93,12 @@ def eval_unit_p0(model, tta, pooled_ref, R_src, Xa, Xe, Ua, Ue, ye, device, K, t
             ("fixed_reference_oneshot_uniform", "gen_oneshot_diag", False),
             ("pooled_uniform", "pooled_empirical_diag", True)):
         f = tta.fit_variant(Ua, V[vkey], pooled_ref=(pooled_ref if needs_pool else None), tta_seed=tta_seed)
-        out[name] = _record(_predict_transform(model, Ue, f.transform, uni), ye, K, f.transform, keep_probs)
+        out[name] = _record(_predict_transform(model, Ue, f.transform, uni), ye, K, f.transform, keep_probs, keep_preds)
     Ts = spdim_fit(model.head.density, Ua, uni, device)
-    out["latent_im_diag_uniform"] = _record(_predict_transform(model, Ue, Ts, uni), ye, K, Ts, keep_probs)
+    out["latent_im_diag_uniform"] = _record(_predict_transform(model, Ue, Ts, uni), ye, K, Ts, keep_probs, keep_preds)
     M = ea_transform(R_src, reference_cov(Xa))
     Ue_ea = _embed(model, apply_ea(Xe, M), device)
-    out["source_recolored_ea"] = _record(_predict_generative(model, Ue_ea, uni), ye, K, None, keep_probs)
+    out["source_recolored_ea"] = _record(_predict_generative(model, Ue_ea, uni), ye, K, None, keep_probs, keep_preds)
 
     # ---- exact prediction decomposition (balanced accuracy) ----
     B_iu = out["identity_uniform"]["bacc"]; B_ij = out["identity_joint_prior"]["bacc"]
