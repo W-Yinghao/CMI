@@ -28,7 +28,7 @@ from csc.calibration.lodo import nested_lodo, VISIBLE_CONCEPT, COVARIATE_STABLE,
 
 TEST_MODULES = ["test_design_and_pairs", "test_validity_gate", "test_null_calibration",
                 "test_power", "test_protocol", "test_cluster_inference",
-                "test_paired_and_accounting", "test_p143_contracts"]
+                "test_paired_and_accounting", "test_p143_contracts", "test_p144_contracts"]
 
 
 def _git(*args):
@@ -38,14 +38,15 @@ def _git(*args):
         return "unknown"
 
 
-def p142_diagnostics(cfg, seeds):
-    """CSC-P1.4.2-specific diagnostics retained in the audit artifact: per-source null invalid
-    counts + conservative-p, SOURCE_INVALID triggers, paired-unit invariants, cross-split
-    separability response, and the deterministic NAMED stage-seed derivations."""
+def contract_diagnostics(cfg, seeds):
+    """CSC-P1.4.4 inference-contract diagnostics retained in the audit artifact: per-source null
+    invalid counts + conservative-p, source-status (all stages), concept-attribution stability,
+    the FULL residual_decoder_test T/p/status/certificate invariance under epoch duplication, and
+    the deterministic NAMED stage-seed derivations."""
     from csc.certificate import analyze_source
-    from csc.certificate.residual_test import stage_seed, aggregate_subject_loss
-    from csc.certificate.atlas import (support_signature_strata, stratified_subject_resample,
-                                       cov_concept_angle)
+    from csc.certificate.residual_test import (stage_seed, residual_decoder_test,
+                                               _subject_fold_assignment)
+    from csc.certificate.atlas import cov_concept_angle
     from csc.sim.shift_simulator import make_source, make_paired_subjects
 
     per_source = []
@@ -54,6 +55,8 @@ def p142_diagnostics(cfg, seeds):
         sa = analyze_source(src.Z, src.Y, src.D, n_boot=cfg.n_boot, n_dir_boot=cfg.n_dir_boot,
                             alpha=cfg.alpha, var_keep=cfg.var_keep, C=cfg.C,
                             n_folds=cfg.source_cv_folds, invalid_frac_max=cfg.invalid_null_frac_max,
+                            concept_eigengap_min=cfg.concept_eigengap_min,
+                            concept_stability_max_deg=cfg.concept_stability_max_deg,
                             group_ids=src.group_ids, seed=s)
         d = sa.detail
         per_source.append(dict(
@@ -64,48 +67,61 @@ def p142_diagnostics(cfg, seeds):
             geom_null_estimable=bool(d.get("geom_null_estimable", True)),
             cov_boot_invalid=int(d.get("cov_boot_invalid", 0)),
             n_dir_boot=cfg.n_dir_boot, invalid_frac_max=cfg.invalid_null_frac_max,
-            # CSC-P1.4.3 #2: source_invalid covers ALL stages (support/residual/geometry/separability)
-            source_invalid_triggered=(sa.source_status != "VALID"),
+            source_invalid_triggered=(sa.source_status != "VALID"),   # covers ALL stages
             concept_disagreement_deg=float(d.get("concept_disagreement_deg", float("nan"))),
-            concept_stable=bool(d.get("concept_stable", False)),
-            separability_assessable=bool(d.get("separability_assessable", False))))
+            has_dominant_concept_dir=bool(d.get("has_dominant_concept_dir", False)),
+            concept_attribution_unstable=bool(d.get("concept_attribution_unstable", False)),
+            concept_stable=bool(d.get("concept_stable", False))))
 
-    # paired ON/OFF invariants (numeric evidence, not just test pass/fail)
-    Zp, Yp, Dp, Gp = make_paired_subjects(SimConfig(seed=0), n_subjects=20, concept_delta=0.0, seed=0)
-    base = aggregate_subject_loss(np.arange(len(Yp), dtype=float), Gp, Dp)
-    dup = (Gp == Gp[0]) & (Dp == Dp[0])
-    G2 = np.concatenate([Gp, Gp[dup]]); D2 = np.concatenate([Dp, Dp[dup]])
-    L2 = np.concatenate([np.arange(len(Yp), dtype=float), np.arange(len(Yp), dtype=float)[dup]])
-    after = aggregate_subject_loss(L2, G2, D2)
-    dup_max_delta = max(abs(base[k] - after[k]) for k in base)
-    idx_by, strata = support_signature_strata(Gp, Dp, Yp)
-    rng = np.random.default_rng(7)
-    both_cond = []
-    for _ in range(50):
-        idx, gid = stratified_subject_resample(idx_by, strata, rng)
-        both_cond.append(all(set(Dp[idx[gid == u]].tolist()) == {0, 1} for u in np.unique(gid)))
-    paired = dict(duplication_invariance_max_delta=float(dup_max_delta),
-                  paired_bootstrap_all_intact=bool(all(both_cond)), n_paired_bootstraps=len(both_cond))
+    # FULL residual_decoder_test invariance under within-cell epoch duplication (CSC-P1.4.4 #5):
+    # record T, p, status AND the fold-assignment hash before & after -- not just the loss helper.
+    # Use a SUBJECT-level source (label_unit='subject'): duplicating a subject's epochs is redundant
+    # at every stage (per-cell loss, per-fold weighted scaler, per-subject null), so T, p AND status
+    # are ALL invariant. (For label_unit='trial' epochs ARE the unit, so duplication adds null draws
+    # and p need not be invariant -- a different, correct estimand.)
+    sd = make_source(SimConfig(seed=0), n_domains=8, concept_domains=3, seed=0)
+    Zp, Yp, Dp, Gp = sd.Z, sd.Y, sd.D, sd.group_ids
+    def _fold_hash(G, Y):
+        # hash the SUBJECT->fold MAP (sorted by subject), which is invariant to row multiplicity --
+        # the per-row fold vector changes length under duplication and is not comparable.
+        f, _, _ = _subject_fold_assignment(G, Y, cfg.source_cv_folds, stage_seed(0, "residual_cv"))
+        G = np.asarray(G)
+        smap = np.array([[s, f[G == s][0]] for s in np.unique(G)])
+        return hashlib.sha256(smap.tobytes()).hexdigest()[:12]
+    r1 = residual_decoder_test(Zp, Yp, Dp, n_folds=cfg.source_cv_folds, n_boot=cfg.n_boot,
+                               group_ids=Gp, C=cfg.C, label_unit="subject", seed=0)
+    dup = (Gp == Gp[0])                                    # duplicate one whole subject's epochs
+    Z2 = np.concatenate([Zp, Zp[dup]]); Y2 = np.concatenate([Yp, Yp[dup]])
+    D2 = np.concatenate([Dp, Dp[dup]]); G2 = np.concatenate([Gp, Gp[dup]])
+    r2 = residual_decoder_test(Z2, Y2, D2, n_folds=cfg.source_cv_folds, n_boot=cfg.n_boot,
+                               group_ids=G2, C=cfg.C, label_unit="subject", seed=0)
+    full_T = dict(T_before=float(r1.T), T_after=float(r2.T), abs_delta_T=abs(float(r1.T - r2.T)),
+                  p_before=float(r1.p_value), p_after=float(r2.p_value),
+                  abs_delta_p=abs(float(r1.p_value - r2.p_value)),
+                  status_before=r1.status, status_after=r2.status,
+                  significant_before=bool(r1.significant), significant_after=bool(r2.significant),
+                  fold_hash_before=_fold_hash(Gp, Yp), fold_hash_after=_fold_hash(G2, Y2))
 
-    # cross-split separability angle response (controlled directions)
+    # principal-angle primitive response (controlled directions): rank-1 cov along u, concept @theta
     d6 = 6; u = np.zeros(d6); u[0] = 1.0
     A = (np.arange(1, 9, dtype=float))[:, None] * u[None, :]
-    sep_response = {}
+    angle_response = {}
     for th in (90.0, 60.0, 30.0, 10.0):
         w = np.cos(np.radians(th)) * u + np.sin(np.radians(th)) * np.eye(d6)[1]
-        sep_response[th] = round(cov_concept_angle(A, (w / np.linalg.norm(w))[:, None]), 2)
+        angle_response[th] = round(cov_concept_angle(A, (w / np.linalg.norm(w))[:, None]), 2)
 
-    # deterministic NAMED stage-seed derivations (sha256, NOT builtin hash())
     stages = ["analyze_source", "residual_cv", "residual_null", "geometry_null", "cov_bootstrap",
-              "calibration", "oracle", "certify_robust", "separability_split"]
+              "calibration", "oracle", "certify_robust", "concept_stability"]
     named_seeds = {st: stage_seed(0, st) for st in stages}
 
-    return dict(per_source=per_source, paired_invariants=paired,
-                separability_angle_response=sep_response,
+    return dict(per_source=per_source, full_residual_test_duplication_invariance=full_T,
+                principal_angle_response=angle_response,
                 named_stage_seeds_at_root0=named_seeds,
                 seed_hash_algo="sha256", builtin_python_hash_used=False,
                 invalid_null_frac_max=cfg.invalid_null_frac_max,
-                method_changed_vs_p141=True)
+                concept_eigengap_min=cfg.concept_eigengap_min,
+                concept_stability_max_deg=cfg.concept_stability_max_deg,
+                method_changed_vs_prior_round=True)
 
 
 def _env_info():
@@ -193,13 +209,13 @@ def main():
     print("[audit] OOD_POWER_BANK (generator-truth) ...")
     power_bank = ood_power_bank(cfg, list(range(args.bank_seeds)),
                                 min_visible=max(2, args.bank_seeds))
-    print("[audit] CSC-P1.4.2 diagnostics ...")
-    p142 = p142_diagnostics(cfg, list(range(args.bank_seeds)))
+    print("[audit] CSC-P1.4.4 contract diagnostics ...")
+    p142 = contract_diagnostics(cfg, list(range(args.bank_seeds)))
 
     audit = dict(
-        status="CSC-P1.4.2 DEVELOPMENT — frozen-path audit; NO FREEZE, NO CONFIRMATORY, NO P2. "
-               "Inference procedure CHANGED vs P1.4.1 -> these are NEW-METHOD development numbers, "
-               "NOT poolable with P1.4.1 for confidence intervals.",
+        status="CSC-P1.4.4 DEVELOPMENT — frozen-path audit; NO P1.5 PRODUCTION SWEEP, NO FREEZE, "
+               "NO CONFIRMATORY, NO P2. Inference procedure CHANGED vs P1.4.3 -> these are "
+               "NEW-METHOD development numbers, NOT poolable with prior rounds for confidence intervals.",
         audited_code_commit=audited, audited_code_commit_short=audited[:7],
         branch=_git("rev-parse", "--abbrev-ref", "HEAD"),
         git_status_clean_csc=csc_clean,
@@ -214,7 +230,7 @@ def main():
                         "confirmatory run requires a separate, previously-unseen seed set.",
         tests=tests, run_synthetic=syn, synthetic_null_bank=syn_null,
         calibration_null_bank=null_bank, ood_power_bank=power_bank,
-        p142_diagnostics=p142,
+        p144_contract_diagnostics=p142,
     )
     # provenance gate: an audit is only trustworthy if the tree is clean AND the audited commit
     # is HEAD. Recorded in the artifact; ENFORCED by a nonzero exit (fail-closed).
@@ -234,9 +250,11 @@ def main():
           f"{power_bank['concept_power_cp_lower']:.3f} atlas={power_bank['atlas_availability']} "
           f"evaluable={power_bank['evaluable']} decomp={power_bank['binding_failure_decomposition']}")
     n_inv_src = sum(r["source_invalid_triggered"] for r in p142["per_source"])
-    print(f"  P1.4.2 dup_invariance_delta={p142['paired_invariants']['duplication_invariance_max_delta']:.2e} "
-          f"paired_intact={p142['paired_invariants']['paired_bootstrap_all_intact']} "
-          f"sep_response={p142['separability_angle_response']} source_invalid={n_inv_src}/{len(p142['per_source'])}")
+    ft = p142["full_residual_test_duplication_invariance"]
+    print(f"  P1.4.4 full-T dup: dT={ft['abs_delta_T']:.2e} dp={ft['abs_delta_p']:.2e} "
+          f"status {ft['status_before']}=={ft['status_after']} fold_hash "
+          f"{ft['fold_hash_before']}=={ft['fold_hash_after']}; angle_resp="
+          f"{p142['principal_angle_response']} source_invalid={n_inv_src}/{len(p142['per_source'])}")
     if not audit["provenance_ok"]:
         print(f"[audit] FAIL-CLOSED: tests_all={tests['all_passed']} clean_csc={csc_clean} "
               f"head_match={head_match} -> exit 1")

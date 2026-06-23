@@ -60,14 +60,15 @@ class SourceAnalysis:
     test: ResidualTestResult
     concept_evidenced: bool           # >=1 concept direction beats the re-estimated null (max-stat)
     cov_stable: bool                  # covariate subspace boundary movement ~ no-boundary null
-    signature_overlap: bool           # raw subspaces not separable -> attribution unreliable
+    attribution_unreliable: bool      # concept attribution unassessable/unstable -> abstain ALL
     concept_dir_pvalues: list
     detail: dict = field(default_factory=dict)
-    # CSC-P1.4.3 #2: ONE unified source status the certifier gates on. VALID only if the support,
-    # residual null, geometry null and separability are ALL OK (cov-stability is NOT a whole-source
-    # abstain -- it only blocks the COVARIATE branch). Any other value -> certifier abstains.
+    # CSC-P1.4.3 #2 / P1.4.4 #2: ONE unified source status the certifier gates on. VALID only if the
+    # support, residual null, geometry null AND concept-attribution stability are ALL OK (cov-
+    # stability is NOT a whole-source abstain -- it only blocks the COVARIATE branch).
     source_status: str = "VALID"      # VALID | INVALID_SUPPORT | INVALID_RESIDUAL_NULL |
-                                      # INVALID_GEOMETRY_NULL | UNASSESSED_SEPARABILITY
+                                      # INVALID_GEOMETRY_NULL | UNASSESSED_CONCEPT_STABILITY |
+                                      # UNSTABLE_CONCEPT_ATTRIBUTION
 
 
 # --------------------------------------------------------------------------------------
@@ -237,45 +238,51 @@ def stratified_subject_resample(idx_by, strata, rng):
     return np.concatenate(il), np.concatenate(gl)
 
 
-def _cross_split_separability(Z, Y, D, classes, domains, var_keep, groups, seed, min_angle_deg):
-    """CONCEPT-DIRECTION cross-split STABILITY (CSC-P1.4.3 #3). Returns
-    (concept_disagreement_deg, assessable): the angle by which the estimated concept direction
-    DISAGREES between two INDEPENDENT subject-halves (0 = perfectly reproduced -> reliable
-    attribution; large -> the cov/concept decomposition flips -> Assumption T untrustworthy), and
-    whether it could be assessed at all. See the in-body NOTE for why the literal raw
-    cov-vs-concept principal angle is geometrically inappropriate for visible concepts."""
+def _leading_concept(Z, Y, D, classes, domains, var_keep, g, eigengap_min):
+    """The LEADING concept direction actually retained by the atlas (top right singular vector of
+    the class-conditional residual Rc) and whether it is WELL-DEFINED (relative eigengap
+    (s0-s1)/s0 >= eigengap_min; a near-tie leading direction is not identifiable). Returns
+    (v[d] or None, dominant: bool)."""
+    s, Vt = _concept_geometry(Z, Y, D, classes, domains, var_keep, g)[2:4]
+    if not s.size:
+        return None, False
+    gap = float((s[0] - s[1]) / s[0]) if s.size > 1 and s[0] > 0 else 1.0
+    return Vt[0], bool(gap >= eigengap_min)
+
+
+def _concept_attribution_stability(Z, Y, D, classes, domains, var_keep, groups, seed,
+                                   eigengap_min, n_splits=3):
+    """CONCEPT-ATTRIBUTION stability of the RETAINED leading direction (CSC-P1.4.4 #2). Returns
+    (disagreement_deg, assessable, has_dominant_dir):
+      * has_dominant_dir = the observed leading concept axis is well-separated (eigengap). If NOT,
+        there is simply no concept to attribute (covariate-only source) -> not 'unstable'.
+      * disagreement_deg = the UPPER (max over `n_splits` independent subject-halves) SIGN-INVARIANT
+        angle arccos|<v_A, v_B>| between the LEADING directions estimated on the two halves -- the
+        exact estimand the atlas keeps (not a multi-dim min-principal-angle, which would read ~0 on
+        any shared sub-direction). A half whose leading direction is itself ill-defined charges 90.
+      * assessable = enough subjects to split at all."""
     g = np.asarray(groups) if groups is not None else np.arange(len(Y))
     subs = np.unique(g)
     if len(subs) < 4:
-        return 90.0, False                                 # too few subjects to assess -> UNASSESSED
-    rng = np.random.default_rng(stage_seed(seed, "separability_split"))
-    perm = rng.permutation(subs)
-    inA = np.isin(g, perm[:len(perm) // 2])
-
-    def concept_dir(mask):
-        return _concept_geometry(Z[mask], Y[mask], D[mask], classes,
-                                 list(np.unique(D[mask])), var_keep, g[mask])[1]
-
-    # CSC-P1.4.3 #3 -- NOTE on the diagnostic. The reviewer's literal cov_A-vs-concept_B raw
-    # principal angle is INAPPROPRIATE for a VISIBLE concept: such a concept's label-mean
-    # NECESSARILY lies along the concept direction inside a_d (visibility == nonzero label-average
-    # of the per-class boundary move), so the raw cov ROW SPACE always contains the concept axis
-    # -> angle ~ 0 -> EVERY visible concept would be (wrongly) declared non-separable. This is a
-    # generative-model identity, not non-separability. The operationally correct Assumption-T
-    # gate (the reviewer's own P1.4.2 #5 "attribution instability") is whether the CONCEPT
-    # DIRECTION REPRODUCES across two INDEPENDENT subject-halves: if it does, the cov/concept
-    # decomposition is reliable; if it flips, attribution is untrustworthy. We measure the
-    # cross-split concept-direction DISAGREEMENT angle and return (disagreement_deg, assessable).
-    try:
-        con_A, con_B = concept_dir(inA), concept_dir(~inA)
-    except Exception:
-        return 90.0, False                                 # UNASSESSED (estimation failed)
-    if con_A.shape[1] == 0 or con_B.shape[1] == 0:
-        return 90.0, False                                 # UNASSESSED (no concept axis to compare)
-    # principal angle between the two estimated concept directions: 0 deg = identical across
-    # splits (reproduced -> reliable); -> 90 deg = the concept axis flips (untrustworthy).
-    disagreement = principal_angle_deg(con_A, con_B)
-    return float(disagreement), True
+        return 90.0, False, False
+    v_obs, dominant = _leading_concept(Z, Y, D, classes, domains, var_keep, g, eigengap_min)
+    if not dominant:
+        return 0.0, True, False                            # no dominant concept axis -> nothing to attribute
+    rng = np.random.default_rng(stage_seed(seed, "concept_stability"))
+    disagrees = []
+    for _ in range(n_splits):
+        inA = np.isin(g, rng.permutation(subs)[:len(subs) // 2])
+        try:
+            vA, dA = _leading_concept(Z[inA], Y[inA], D[inA], classes, list(np.unique(D[inA])),
+                                      var_keep, g[inA], eigengap_min)
+            vB, dB = _leading_concept(Z[~inA], Y[~inA], D[~inA], classes, list(np.unique(D[~inA])),
+                                      var_keep, g[~inA], eigengap_min)
+        except Exception:
+            disagrees.append(90.0); continue
+        if vA is None or vB is None or not (dA and dB):
+            disagrees.append(90.0); continue
+        disagrees.append(float(np.degrees(np.arccos(np.clip(abs(float(vA @ vB)), 0.0, 1.0)))))
+    return float(max(disagrees)), True, True
 
 
 def _row_space_basis(A, tol=1e-9):
@@ -324,18 +331,16 @@ def analyze_source(Z, Y, D,
                    alpha: float = 0.05,
                    var_keep: float = 0.95,
                    C: float = 1.0,
-                   min_angle_deg: float = MIN_PRINCIPAL_ANGLE_DEG,
                    cov_loading_margin_kappa: float = 1.5,
                    n_folds: int = 4,
                    invalid_frac_max: float = 0.20,
                    label_unit: str = "subject",
                    concept_stability_max_deg: float = 40.0,
+                   concept_eigengap_min: float = 0.30,
                    group_ids=None,
                    seed: int = 0) -> SourceAnalysis:
-    """Atlas + (a) h0-NULL max-statistic concept evidence (keeps ONLY the global-max-passing
-    direction -> strong-FWER for 'any direction'), (b) covariate equivalence-stability via a
-    FULL cluster bootstrap, (c) signature-overlap flag. `group_ids` (subject/session) makes
-    the residual test and the cov-stability bootstrap CLUSTER-aware."""
+    """Atlas + h0-null concept evidence + cov-stability + CONCEPT-ATTRIBUTION stability. `group_ids`
+    (subject) makes the residual test, the geometry null and the cov-stability bootstrap cluster-aware."""
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D)
     groups = None if group_ids is None else np.asarray(group_ids)
     classes = list(np.unique(Y)); domains = list(np.unique(D))
@@ -344,22 +349,19 @@ def analyze_source(Z, Y, D,
                                  group_ids=group_ids, invalid_frac_max=invalid_frac_max,
                                  label_unit=label_unit, seed=seed)
     atlas = build_atlas(Z, Y, D, var_keep=var_keep, group_ids=groups)
-    # CSC-P1.4.2 #5: the within-split principal angle was an ALGORITHMIC artifact (cov_dirs is
-    # built orthogonal to concept), so it could never detect cov/concept overlap. The operational
-    # separability gate is CROSS-SPLIT attribution STABILITY: estimate the atlas on two independent
-    # subject-halves; if a cov direction in one half aligns with a concept direction in the other
-    # (cross angle < min_angle_deg) the cov/concept assignment is NOT stable -> abstain. This has no
-    # forced-orthogonality artifact and REACTS as the true cov/concept angle shrinks.
-    sep_disagree, sep_assessable = _cross_split_separability(Z, Y, D, classes, domains, var_keep,
-                                                             groups, seed, min_angle_deg)
-    # concept attribution is reliable iff the concept direction REPRODUCES across splits within the
-    # pre-registered tolerance; UNASSESSABLE separability -> abstain the whole source.
-    concept_stable = bool(sep_assessable and sep_disagree <= concept_stability_max_deg)
-    overlap = not sep_assessable                          # certifier 'signature_overlap' field
+    # CSC-P1.4.4 #2: concept attribution is reliable iff the RETAINED leading concept direction
+    # REPRODUCES across independent subject-halves (sign-invariant), and is well-defined (eigengap).
+    sep_disagree, sep_assessable, has_concept_dir = _concept_attribution_stability(
+        Z, Y, D, classes, domains, var_keep, groups, seed, concept_eigengap_min)
+    concept_stable = bool(sep_assessable and has_concept_dir
+                          and sep_disagree <= concept_stability_max_deg)
+    # NB: instability only MATTERS (blocks BOTH states) when there is an actual concept candidate
+    # (geometric + decoder evidence below). A covariate-only source has a noise concept that is
+    # 'unstable' but irrelevant -- it must still certify covariate. Decided after p_global.
 
     if test.status != "VALID":
         # support / residual-null failure -> propagate the SPECIFIC status (certifier abstains)
-        return SourceAnalysis(atlas, test, False, False, overlap, [],
+        return SourceAnalysis(atlas, test, False, False, True, [],
                               detail=dict(reason=test.status), source_status=test.status)
 
     cov_dirs, concept_raw, s_obs, Vt_obs, A, R, _ = _concept_geometry(Z, Y, D, classes, domains,
@@ -397,10 +399,11 @@ def analyze_source(Z, Y, D,
             cov_load_null.append(float(np.linalg.svd(Rcb @ cov_dirs_b, compute_uv=False)[0]))
     null_top = np.asarray(null_top)
 
-    # GEOMETRIC concept gate: h0-parametric-bootstrap global max-statistic. On a NO-concept source
-    # this has CORRECT type-I (re-estimated Y*~p0 spectrum matches the observed -> p_global high);
-    # subject-level power is LOW (cluster-consistent null is conservative) -- the honest envelope
-    # cost. It is the type-I-controlling gate; the cross-fitted DECODER is the second required gate.
+    # GEOMETRIC concept gate: a p-value CALIBRATED by PARAMETRIC BOOTSTRAP under the FITTED h0
+    # (re-estimated Y*~p0 spectrum). It is NOT a proof of finite-sample type-I control (the null
+    # bank has not established that); on a no-concept source it EMPIRICALLY stays high. Subject-level
+    # power is LOW (cluster-consistent null is conservative). It is one of the two required concept
+    # gates; the cross-fitted DECODER is the other.
     # p_global conservative: invalid replicates charged as extreme (CSC-P1.4.2 #1); too many invalid
     # -> the geometric null is not estimable -> concept NOT evidenced (fail closed).
     geom_estimable = n_geom_invalid <= invalid_frac_max * n_dir_boot
@@ -419,9 +422,11 @@ def analyze_source(Z, Y, D,
     # magnitude-only gate (concept_top >= kappa*cov_noise_scale) was UNCALIBRATED (full-R top vs a
     # cov-subspace projection -> ~always passes); it is reported as a diagnostic, not a gate.
     concept_geom_present = bool(concept_top >= cov_loading_margin_kappa * cov_noise_scale)  # diag
-    # concept requires the geometric max-stat AND the decoder AND a cross-split-STABLE concept
-    # direction (CSC-P1.4.3 #3): an unstable concept axis is not trustworthy attribution.
-    concept_evidenced = bool(p_global <= alpha) and bool(test.significant) and concept_stable
+    # a concept CANDIDATE = geometric max-stat AND cross-fitted decoder both fire AND a dominant
+    # leading concept direction exists. concept is EVIDENCED only if that candidate is also
+    # cross-split STABLE. Instability matters (blocks BOTH states) only for a real candidate.
+    concept_candidate = bool(p_global <= alpha) and bool(test.significant) and has_concept_dir
+    concept_evidenced = concept_candidate and concept_stable
     n_keep = 1 if concept_evidenced else 0
     if concept_evidenced:
         atlas.concept_dirs = Vt_obs[:1].T
@@ -454,28 +459,39 @@ def analyze_source(Z, Y, D,
                                         check_design=False)
             val = (_cov_loading(Z[idx], Y[idx], D[idx], classes, list(np.unique(D[idx])),
                                 var_keep, g=gid) if sup_b.valid else float("nan"))
-            boot.append(val) if np.isfinite(val) else None
-            if not (sup_b.valid and np.isfinite(val)):
-                n_inv += 1
-        boot = np.array(boot)
-        # conservative (CSC-P1.4.2 #1/#4): too many invalid replicates -> stability NOT certifiable
+            # CSC-P1.4.4 #3: an invalid cov replicate is the MOST adverse for an UPPER bound, so it
+            # is charged +inf and KEPT in the quantile -- it can only RAISE cov_ub, never lower it
+            # (the v0 dropped it from the distribution, which could shrink cov_ub and over-pass).
+            if sup_b.valid and np.isfinite(val):
+                boot.append(float(val))
+            else:
+                boot.append(np.inf); n_inv += 1
+        boot = np.array(boot)                                  # length == n_dir_boot
         cov_ub = float(np.quantile(boot, 1 - alpha)) if boot.size else np.inf
-        cov_stable = bool(cov_ub < eps_stable and n_inv <= invalid_frac_max * n_dir_boot)
+        if not np.isfinite(cov_ub):                            # inf-inf interpolation -> +inf (adverse)
+            cov_ub = np.inf
+        cov_stable = bool(cov_ub < eps_stable)                 # invalid replicates already in cov_ub
     else:
         s_cov_obs, cov_ub, cov_stable, n_inv = 0.0, 0.0, True, 0
 
-    # CSC-P1.4.3 #2: unified source status the certifier gates on. Geometry-null not estimable ->
-    # whole-source INVALID_GEOMETRY_NULL; separability unassessed/overlapping -> abstain. (cov
-    # instability is NOT a whole-source abstain -- it only blocks the covariate branch.)
+    # CSC-P1.4.4 #2: unified source status. Geometry-null not estimable -> INVALID_GEOMETRY_NULL.
+    # If there is a real concept CANDIDATE whose attribution is UNASSESSABLE or UNSTABLE, BOTH
+    # definite states are untrustworthy (cov_dirs are built after projecting out the concept
+    # subspace) -> abstain ALL. A covariate-only source has no candidate -> instability is moot and
+    # it still certifies covariate. (cov-instability alone is NOT a whole-source abstain.)
     if not geom_estimable:
         source_status = "INVALID_GEOMETRY_NULL"
-    elif not sep_assessable:
-        source_status = "UNASSESSED_SEPARABILITY"          # cannot verify the atlas at all -> abstain
+    elif concept_candidate and not sep_assessable:
+        source_status = "UNASSESSED_CONCEPT_STABILITY"
+    elif concept_candidate and not concept_stable:
+        source_status = "UNSTABLE_CONCEPT_ATTRIBUTION"
     else:
-        source_status = "VALID"                            # concept-instability blocks CONCEPT only
+        source_status = "VALID"
+    attribution_unreliable = source_status in ("UNASSESSED_CONCEPT_STABILITY",
+                                               "UNSTABLE_CONCEPT_ATTRIBUTION")
 
-    return SourceAnalysis(atlas, test, concept_evidenced, bool(cov_stable), bool(overlap),
-                          [p_global], source_status=source_status,
+    return SourceAnalysis(atlas, test, concept_evidenced, bool(cov_stable),
+                          bool(attribution_unreliable), [p_global], source_status=source_status,
                           detail=dict(n_concept_kept=n_keep, p_global=p_global,
                                       obs_top_singular=float(s_obs[0]) if n_rank else 0.0,
                                       concept_top=concept_top,
@@ -492,11 +508,13 @@ def analyze_source(Z, Y, D,
                                       residual_T_significant=bool(test.significant),
                                       null_invalid_replicates=test.null_invalid,
                                       cluster_aware=(groups is not None),
-                                      min_principal_angle_deg=atlas.min_principal_angle_deg,
                                       concept_disagreement_deg=sep_disagree,
+                                      concept_attribution_assessable=bool(sep_assessable),
+                                      has_dominant_concept_dir=bool(has_concept_dir),
+                                      concept_candidate=bool(concept_candidate),
+                                      concept_attribution_unstable=(source_status == "UNSTABLE_CONCEPT_ATTRIBUTION"),
                                       concept_stable=concept_stable,
-                                      separability_assessable=bool(sep_assessable),
-                                      signature_overlap=bool(overlap),
+                                      attribution_unreliable=bool(attribution_unreliable),
                                       global_significant=test.significant))
 
 
@@ -543,10 +561,12 @@ def components(atlas: ShiftAtlas, delta: np.ndarray) -> dict:
                 n_resid=c_res / s_cov, c_label=c_lab, c_cov=c_cov, c_concept=c_con, c_resid=c_res)
 
 
-def visibility_statistic(atlas: ShiftAtlas, Z_target: np.ndarray) -> float:
+def visibility_statistic(atlas: ShiftAtlas, Z_target: np.ndarray, group_ids=None, D=None) -> float:
     """The EXACT 'is it visible?' statistic the certifier thresholds: max over the visible
-    (non-label) normalised components. The calibrator must threshold THIS."""
-    delta = np.asarray(Z_target, float).mean(0) - atlas.pooled_mean
+    (non-label) normalised components. CSC-P1.4.4 #4: uses the SAME SUBJECT-VOTE aggregator
+    (cluster_mean) the certifier and calibrator use -- NOT a raw row mean (a high-epoch subject
+    would otherwise dominate this helper but not the certifier)."""
+    delta = cluster_mean(np.asarray(Z_target, float), group_ids, D) - atlas.pooled_mean
     c = components(atlas, delta)
     return max(c["n_cov"], c["n_concept"], c["n_resid"])
 
@@ -560,7 +580,7 @@ if __name__ == "__main__":
     print(f"label {a.label_dirs.shape} cov {a.cov_dirs.shape} concept(kept) {a.concept_dirs.shape}")
     print(f"sigma_label={a.sigma_label:.3f} sigma_cov={a.sigma_cov:.3f} sigma_concept={a.sigma_concept:.3f}")
     print(f"concept_evidenced={sa.concept_evidenced} cov_stable={sa.cov_stable} "
-          f"overlap={sa.signature_overlap} min_angle={a.min_principal_angle_deg:.1f}deg")
+          f"attribution_unreliable={sa.attribution_unreliable} status={sa.source_status}")
     print(f"dir_p={[round(p,3) for p in sa.concept_dir_pvalues]} "
           f"cov_load={sa.detail['cov_loading']:.3f} ub={sa.detail['cov_loading_ub']:.3f} "
           f"null_q={sa.detail['null_top_q']:.3f}")

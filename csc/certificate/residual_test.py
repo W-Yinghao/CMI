@@ -276,16 +276,44 @@ def _weighted_standardise(Z, w=None):
     return mu, np.sqrt(np.clip(var, 0, None)) + 1e-8
 
 
+class LabelUnitError(ValueError):
+    """The data does not match the declared label_unit (fail-closed, CSC-P1.4.4 #1)."""
+
+
+def validate_label_unit(Y, groups, D, label_unit):
+    """FAIL CLOSED if the data contradicts the declared `label_unit` (CSC-P1.4.4 #1): a wrong
+    declaration would otherwise silently change the null granularity."""
+    Y = np.asarray(Y)
+    g = np.arange(len(Y)) if groups is None else np.asarray(groups)
+    D = np.zeros(len(Y), int) if D is None else np.asarray(D)
+    if label_unit == "subject":
+        for s in np.unique(g):
+            if np.unique(Y[g == s]).size != 1:
+                raise LabelUnitError(f"label_unit='subject' but subject {s} carries multiple labels")
+    elif label_unit == "subject_condition":
+        keys = list(zip(g.tolist(), D.tolist()))
+        for k in set(keys):
+            m = np.array([kk == k for kk in keys])
+            if np.unique(Y[m]).size != 1:
+                raise LabelUnitError(f"label_unit='subject_condition' but cell {k} has multiple labels")
+    elif label_unit == "trial":
+        pass                                                # each row IS a trial (one-row-per-trial)
+    else:
+        raise LabelUnitError(f"unknown label_unit {label_unit!r}")
+
+
 def _subject_fold_assignment(groups, Y, n_folds, seed):
-    """Assign each BIOLOGICAL subject to a fold (stratified by its majority label, shuffled by the
-    NAMED seed). A row's fold = its subject's fold, so fold membership is INDEPENDENT of row
-    multiplicity (epoch duplication can never move a subject across folds) AND the named CV seed
-    genuinely drives the split. Returns (fold_per_row, k)."""
+    """Assign each BIOLOGICAL subject to a fold, stratified by its CLASS-PROFILE signature (the
+    sorted set of classes the subject carries -- CSC-P1.4.4 #1, NOT the majority label), shuffled
+    by the NAMED seed. A row's fold = its subject's fold, so fold membership is INDEPENDENT of row
+    multiplicity and the named seed genuinely drives the split. Returns (fold_per_row, k, covered)
+    where `covered` is True iff EVERY training fold retains all-class support."""
     g = np.asarray(groups); Y = np.asarray(Y)
-    cl = sorted(set(np.unique(Y).tolist()))
+    classes = sorted(set(np.unique(Y).tolist()))
     subs = np.unique(g)
-    slab = np.array([np.bincount([cl.index(y) for y in Y[g == s]],
-                                 minlength=len(cl)).argmax() for s in subs])
+    sigs = {s: tuple(sorted(set(Y[g == s].tolist()))) for s in subs}     # class profile per subject
+    sig_id = {k: i for i, k in enumerate(sorted(set(sigs.values())))}
+    slab = np.array([sig_id[sigs[s]] for s in subs])
     occ = np.bincount(slab)
     k = max(2, min(int(n_folds), int(occ[occ > 0].min())))
     skf = StratifiedKFold(n_splits=k, shuffle=True, random_state=int(seed) % (2 ** 32))
@@ -293,7 +321,10 @@ def _subject_fold_assignment(groups, Y, n_folds, seed):
     for fi, (_, te) in enumerate(skf.split(np.zeros(len(subs)), slab)):
         sub_fold[te] = fi
     pos = {s: i for i, s in enumerate(subs.tolist())}
-    return np.array([sub_fold[pos[s]] for s in g.tolist()]), k
+    fold = np.array([sub_fold[pos[s]] for s in g.tolist()])
+    # every TRAINING fold (all rows not in fold f) must cover every class, else the LR cannot fit
+    covered = all(set(np.unique(Y[fold != f]).tolist()) == set(classes) for f in range(k))
+    return fold, k, covered
 
 
 def _aligned(clf, X, cl):
@@ -329,7 +360,7 @@ def _xfit_subject_loss(Z, Y, D, groups, domains, interaction, classes, n_folds, 
     Z = np.asarray(Z, float)
     cl = list(classes)
     w = _subject_condition_weights(groups, D)
-    fold, k = _subject_fold_assignment(groups, Y, n_folds, seed)
+    fold, k, _ = _subject_fold_assignment(groups, Y, n_folds, seed)
     oof = np.full(len(Y), np.nan)
     for f in range(k):
         te = np.where(fold == f)[0]; tr = np.where(fold != f)[0]
@@ -436,12 +467,22 @@ def residual_decoder_test(Z, Y, D,
     groups = np.asarray(group_ids) if group_ids is not None else np.arange(len(Y))
     classes = list(np.unique(Y)); domains = list(np.unique(D))
 
+    # CSC-P1.4.4 #1: the data MUST match the declared label_unit (fail closed on a wrong claim).
+    validate_label_unit(Y, groups, D, label_unit)
+
     support = check_support_graph(Y, D, Z=Z, group_ids=group_ids, n_folds=n_folds)
     if not support.valid:
         return ResidualTestResult("INVALID_SUPPORT", float("nan"), 1.0, False,
                                   float("nan"), float("nan"), support)
 
     s_cv = stage_seed(seed, "residual_cv")             # fold split (shared observed + null)
+    # the grouped folds must retain all-class support in every TRAINING split (mixed-label
+    # subjects can otherwise strand a minority class) -> else INVALID_SUPPORT (CSC-P1.4.4 #1).
+    _, _, covered = _subject_fold_assignment(groups, Y, n_folds, s_cv)
+    if not covered:
+        support.reasons.append("a training fold loses all-class support (class-profile folds)")
+        return ResidualTestResult("INVALID_SUPPORT", float("nan"), 1.0, False,
+                                  float("nan"), float("nan"), support)
     s_null = stage_seed(seed, "residual_null")         # Y* sampling
     T = _xfit_T(Z, Y, D, groups, domains, classes, n_folds, C, s_cv)
 

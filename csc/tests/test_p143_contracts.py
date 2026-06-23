@@ -12,7 +12,7 @@ from csc.certificate.residual_test import (
     residual_decoder_test, _subject_fold_assignment, check_support_graph, subject_null_labels,
 )
 from csc.certificate.atlas import (
-    cov_concept_angle, principal_angle_deg, _cross_split_separability, cluster_mean, SourceAnalysis,
+    cov_concept_angle, principal_angle_deg, _concept_attribution_stability, cluster_mean, SourceAnalysis,
 )
 from csc.certificate.certifier import certify, UNIDENTIFIABLE
 from csc.calibration.lodo import calibrate_thresholds, oracle_boundary_effect, CertifierConfig
@@ -40,13 +40,13 @@ def test_full_T_invariant_to_epoch_duplication():
 # 2 ---- named CV seed drives folds; folds independent of row multiplicity ----------------------
 def test_folds_seed_driven_and_multiplicity_independent():
     Z, Y, D, G = _paired(n=24)
-    f_a, _ = _subject_fold_assignment(G, Y, 4, seed=1)
-    f_b, _ = _subject_fold_assignment(G, Y, 4, seed=2)
+    f_a, _, _ = _subject_fold_assignment(G, Y, 4, seed=1)
+    f_b, _, _ = _subject_fold_assignment(G, Y, 4, seed=2)
     assert not np.array_equal(f_a, f_b), "different named seeds must give different folds"
     # duplicate one subject's epochs -> its (and everyone's) fold assignment is UNCHANGED
     dup = G == G[0]
     G2 = np.concatenate([G, G[dup]]); Y2 = np.concatenate([Y, Y[dup]])
-    f_a2, _ = _subject_fold_assignment(G2, Y2, 4, seed=1)
+    f_a2, _, _ = _subject_fold_assignment(G2, Y2, 4, seed=1)
     # the original rows keep their fold; subject->fold map is identical
     for s in np.unique(G):
         assert len(set(f_a[G == s].tolist())) == 1 and len(set(f_a2[G2 == s].tolist())) == 1
@@ -81,7 +81,7 @@ def test_source_status_gate_abstains():
     sa = analyze_source(src.Z, src.Y, src.D, n_boot=20, n_dir_boot=40,
                         group_ids=src.group_ids, seed=0)
     for st in ("INVALID_SUPPORT", "INVALID_RESIDUAL_NULL", "INVALID_GEOMETRY_NULL",
-               "UNASSESSED_SEPARABILITY"):
+               "UNASSESSED_CONCEPT_STABILITY", "UNSTABLE_CONCEPT_ATTRIBUTION"):
         sa_bad = dataclasses.replace(sa, source_status=st)
         c = certify(sa_bad, src.Z[:300], group_ids=src.group_ids[:300])
         assert c.state == UNIDENTIFIABLE, f"status {st} must abstain, got {c.state}"
@@ -105,15 +105,15 @@ def test_separability_unassessed_abstains():
     import dataclasses
     from csc.certificate.atlas import analyze_source
     Z, Y, D, G = _paired(n=3)                         # < 4 subjects -> cannot split-assess
-    _, assessable = _cross_split_separability(Z, Y, D, list(np.unique(Y)), list(np.unique(D)),
-                                              0.95, G, 0, 20.0)
-    assert assessable is False, "too-few-subjects separability must be UNASSESSED (not 'separable')"
-    # and an UNASSESSED source must abstain end-to-end
+    _, assessable, _ = _concept_attribution_stability(Z, Y, D, list(np.unique(Y)),
+                                                      list(np.unique(D)), 0.95, G, 0, 0.30)
+    assert assessable is False, "too-few-subjects stability must be UNASSESSED (not 'stable')"
+    # and an UNASSESSED-stability source must abstain end-to-end
     src = make_source(SimConfig(seed=0), n_domains=8, concept_domains=3, seed=0)
     sa = analyze_source(src.Z, src.Y, src.D, n_boot=20, n_dir_boot=40, group_ids=src.group_ids, seed=0)
-    sa_un = dataclasses.replace(sa, source_status="UNASSESSED_SEPARABILITY")
+    sa_un = dataclasses.replace(sa, source_status="UNASSESSED_CONCEPT_STABILITY")
     assert certify(sa_un, src.Z[:300], group_ids=src.group_ids[:300]).state == UNIDENTIFIABLE
-    print("OK separability unassessed -> UNASSESSED_SEPARABILITY -> abstain (fail-closed)")
+    print("OK concept-stability unassessed -> abstain (fail-closed)")
 
 
 # 7 ---- atlas pooled mean is CONDITION-balanced (same estimand as the decoder) -----------------

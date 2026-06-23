@@ -304,6 +304,37 @@ clusters**.
   with the atlas), measured by the exact-CP endpoint. `0/6` covariate-only false concept-evidence has
   a one-sided 95% CP upper bound ≈ 0.393 — NOT proof of type-I correctness.
 
+### 6.7c CSC-P1.4.3 / P1.4.4 (subject-condition estimand, full-T invariance, attribution stability)
+* **Full residual-test invariance (P1.4.3 #1 / P1.4.4 #5).** Duplicating epochs within a
+  (subject,condition) cell leaves `T`, `p` and `status` invariant for `label_unit ∈ {subject,
+  subject_condition}`: per-fold subject-condition-WEIGHTED standardisation + subject-level fold
+  assignment (stratified by CLASS PROFILE, shuffled by the named CV seed) make the scaler and the
+  folds row-multiplicity-independent. The audit records `T/p/status/fold-hash` before & after.
+* **FROZEN, data-VALIDATED `label_unit` (P1.4.4 #1).** `subject` ⇒ `Y` constant per subject;
+  `subject_condition` ⇒ constant per `(subject,domain)` cell; `trial` ⇒ one row per trial. A wrong
+  declaration FAILS CLOSED. Mixed-label subjects are CV-stratified by class profile so every training
+  fold keeps all-class support.
+* **Concept-ATTRIBUTION stability (P1.4.4 #2).** The RETAINED leading concept direction (top right
+  singular vector of the class residual) must (a) be well-defined (relative eigengap ≥
+  `concept_eigengap_min`) and (b) REPRODUCE across independent subject-halves within
+  `concept_stability_max_deg` (sign-invariant angle, upper quantile over splits). An UNASSESSABLE or
+  UNSTABLE attribution of a real concept CANDIDATE (geometric + decoder evidence) abstains BOTH
+  definite states (`UNASSESSED_CONCEPT_STABILITY` / `UNSTABLE_CONCEPT_ATTRIBUTION`) — the cov_dirs
+  depend on the concept projection. A covariate-only source (no candidate) is unaffected and still
+  certifies covariate. (`min_principal_angle_deg` was REMOVED from the manifest: it was hashed but
+  drove no decision.)
+* **Conservative cov-bootstrap (P1.4.4 #3).** An invalid cov replicate is charged `+∞` and KEPT in
+  the (1−α) quantile (fixed `B`) — it can only RAISE `cov_ub`, never lower it (the v0 dropped it,
+  shrinking `cov_ub`). `cov_ub` non-finite ⇒ `cov_stable=False`.
+* **Single-condition target + profile calibration (P1.4.3 #5 / P1.4.4 #4).** One certificate covers
+  ONE condition (a multi-condition target FAILS CLOSED; paired ON/OFF = two batches). The calibrator
+  matches the target CLUSTER-SIZE PROFILE (epochs per subject). `visibility_statistic` uses the SAME
+  subject-vote `cluster_mean` aggregator as the certifier (not a raw row mean).
+* **Honesty.** The geometric gate is a parametric-bootstrap p-value calibrated under the FITTED `h0`,
+  NOT a proof of finite-sample type-I control (the null bank is 0/4, CP UB 0.527). New manifest fields
+  in the hash: `label_unit`, `concept_stability_max_deg`, `concept_eigengap_min`,
+  `invalid_null_frac_max`. Inference procedure changed each round ⇒ numbers are not poolable.
+
 ### 6.7 Pre-registered DIFFICULTY ENVELOPE (required before any freeze/confirmatory)
 Power is NOT a single number; it is a surface. Before a confirmatory claim we will sweep, on
 UNSEEN seeds, a grid over: concept effect size (target `concept_scale`), independent cluster count

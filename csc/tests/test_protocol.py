@@ -71,13 +71,11 @@ def test_frozen_path_taxonomy():
 def test_frozen_path_is_cluster_aware():
     scfg = SimConfig(seed=2)
     src = make_source(scfg, n_domains=8, concept_domains=3, seed=2)
-    # synthetic subject ids: 5 subjects per domain
-    rng = np.random.default_rng(2)
-    src_groups = src.D * 100 + rng.integers(0, 5, len(src.D))
+    # use the REAL label-homogeneous subject ids (label_unit='subject'); artificial multi-label
+    # 'subjects' now (correctly) fail the label_unit data-validation (CSC-P1.4.4 #1).
     tb = make_target("covariate", scfg, geom=src.geom, seed=200)
-    tgt_groups = rng.integers(0, 6, len(tb.Z))
     out = run_frozen_protocol(src.Z, src.Y, src.D, tb.Z, CFG,
-                              src_group_ids=src_groups, tgt_group_ids=tgt_groups, seed=2)
+                              src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids, seed=2)
     assert out["certificate"].state in (COVARIATE_COMPATIBLE, UNIDENTIFIABLE)
     assert out["analysis"].detail["cluster_aware"] is True
     print(f"OK cluster-aware frozen path runs -> {out['certificate'].state}")

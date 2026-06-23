@@ -55,12 +55,10 @@ def _concept_failure_reason(out, alpha):
     cert, sa = out["certificate"], out["analysis"]
     if cert.state == CONCEPT_SUSPECT:
         return "FIRED"
-    if sa.test.status != "VALID":
-        return "support_invalid"
-    if sa.signature_overlap:
-        return "signature_overlap"
+    if sa.source_status != "VALID":
+        return sa.source_status.lower()                   # support/residual/geometry/attribution
     if sa.detail.get("p_global", 1.0) > alpha:
-        return "geometric_maxstat_not_sig"                # geometric gate (type-I controlled)
+        return "geometric_maxstat_not_sig"                # geometric bootstrap p above alpha
     if not sa.test.significant:
         return "residual_T_not_sig"                       # cross-fitted decoder gate
     if not sa.concept_evidenced:
@@ -100,10 +98,11 @@ class ProtocolConfig:
     source_cv_folds: int = 4
     n_boot: int = 80
     n_dir_boot: int = 200
-    min_principal_angle_deg: float = 20.0
-    concept_stability_max_deg: float = 40.0   # CSC-P1.4.3 #3: max cross-split disagreement of the
-                                              # concept direction for trustworthy attribution
-                                              # (a METHOD param -> in the manifest hash)
+    # CSC-P1.4.4 #2: concept-ATTRIBUTION stability of the retained leading direction. Both are
+    # method params -> in the manifest hash. (min_principal_angle_deg was REMOVED: it was hashed
+    # but drove no decision.)
+    concept_stability_max_deg: float = 40.0   # max cross-split disagreement (deg) of the LEADING dir
+    concept_eigengap_min: float = 0.30        # min relative eigengap (s0-s1)/s0 for a dominant dir
     # covariate-loading stability gate
     cov_loading_margin_kappa: float = 1.5
     # robust certificate
@@ -155,6 +154,8 @@ class ProtocolConfig:
             raise ProtocolError(f"invalid_null_frac_max {self.invalid_null_frac_max} out of (0,1)")
         if not (0 < self.concept_stability_max_deg <= 90):
             raise ProtocolError(f"concept_stability_max_deg {self.concept_stability_max_deg} out of (0,90]")
+        if not (0 < self.concept_eigengap_min < 1):
+            raise ProtocolError(f"concept_eigengap_min {self.concept_eigengap_min} out of (0,1)")
         if self.source_cv_folds < 2:
             raise ProtocolError("source_cv_folds must be >= 2")
         for nm in ("n_boot", "n_dir_boot", "target_n_boot", "oracle_boot", "tau_n_pseudotargets"):
@@ -213,11 +214,17 @@ class ExecutionContext:
 # the ONE executor
 # --------------------------------------------------------------------------------------
 def execute_protocol(Z_src, Y_src, D_src, Z_tgt, cfg: ProtocolConfig,
-                     src_group_ids=None, tgt_group_ids=None, seed: int = 0) -> dict:
+                     src_group_ids=None, tgt_group_ids=None, tgt_condition_ids=None,
+                     seed: int = 0) -> dict:
     cfg.validate()
     if cfg.group_aware and (src_group_ids is None or tgt_group_ids is None):
         raise ProtocolError("group_aware=True requires BOTH src_group_ids and tgt_group_ids "
                             "(refusing to silently degrade to IID)")
+    # CSC-P1.4.4 #4: ONE target certificate covers ONE condition/domain (the calibrator matches a
+    # single-condition cluster-size profile). A paired ON/OFF deployment is two batches, two calls.
+    if tgt_condition_ids is not None and len(np.unique(tgt_condition_ids)) > 1:
+        raise ProtocolError("execute_protocol target must be a SINGLE condition; run paired "
+                            "ON/OFF as two separate target batches/calls")
     ctx = ExecutionContext(root_seed=seed)
     quantile = cfg.tau_quantile if cfg.tau_calibration_method == \
         "training_only_pseudotarget_quantile" else None
@@ -233,11 +240,11 @@ def execute_protocol(Z_src, Y_src, D_src, Z_tgt, cfg: ProtocolConfig,
 
     sa = analyze_source(Z_src, Y_src, D_src, n_boot=cfg.n_boot, n_dir_boot=cfg.n_dir_boot,
                         alpha=cfg.alpha, var_keep=cfg.var_keep, C=cfg.C,
-                        min_angle_deg=cfg.min_principal_angle_deg,
                         cov_loading_margin_kappa=cfg.cov_loading_margin_kappa,
                         n_folds=cfg.source_cv_folds, invalid_frac_max=cfg.invalid_null_frac_max,
                         label_unit=cfg.label_unit,
                         concept_stability_max_deg=cfg.concept_stability_max_deg,
+                        concept_eigengap_min=cfg.concept_eigengap_min,
                         group_ids=unit_groups_src, seed=ctx.seed("analyze_source"))
     base = CertifierConfig(tau_resid=cfg.tau_resid, tau_margin=cfg.tau_margin)
     cal = calibrate_thresholds(Z_src, Y_src, D_src, sa.atlas, base,
@@ -280,8 +287,8 @@ def ood_power_bank(cfg: ProtocolConfig, seeds, n_domains: int = 8, concept_domai
                              concept_atlas=bool(sa.concept_evidenced),
                              fail_reason=_concept_failure_reason(out, cfg.alpha),
                              # separate evidence fields (not collapsed into one boolean)
-                             support_valid=(sa.test.status == "VALID"),
-                             signature_separable=(not sa.signature_overlap),
+                             source_status=sa.source_status,
+                             concept_attribution_reliable=(not sa.attribution_unreliable),
                              geometry_maxstat_significant=(sa.detail.get("p_global", 1.0) <= cfg.alpha),
                              residual_T_significant=bool(sa.test.significant),
                              joint_concept_evidence=bool(sa.concept_evidenced),
@@ -304,8 +311,8 @@ def ood_power_bank(cfg: ProtocolConfig, seeds, n_domains: int = 8, concept_domai
                 concept_power_cp_lower=_cp_bound(n_fired, len(vis), side="lower"),
                 binding_failure_decomposition=decomp,
                 # separate availabilities (NOT one collapsed flag)
-                support_valid_rate=rate(vis, lambda r: r["support_valid"]),
-                signature_separable_rate=rate(vis, lambda r: r["signature_separable"]),
+                source_valid_rate=rate(vis, lambda r: r["source_status"] == "VALID"),
+                concept_attribution_reliable_rate=rate(vis, lambda r: r["concept_attribution_reliable"]),
                 geometry_maxstat_sig_rate=rate(vis, lambda r: r["geometry_maxstat_significant"]),
                 residual_T_sig_rate=rate(vis, lambda r: r["residual_T_significant"]),
                 atlas_availability=rate(vis, lambda r: r["concept_atlas"]),   # = joint evidence
