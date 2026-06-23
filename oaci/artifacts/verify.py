@@ -28,9 +28,12 @@ from .schema import check_schema_version
 class VerificationReport:
     ok: bool
     errors: list = field(default_factory=list)            # (relative_path, message)
-    n_files: int = 0
-    n_checkpoints: int = 0
-    n_plans: int = 0
+    n_indexed_files: int = 0
+    n_total_files: int = 0                                 # indexed + artifact_index + COMMITTED
+    n_checkpoints: int = 0                                 # indexed .pt count
+    n_plans: int = 0                                       # indexed plan count
+    n_verified_checkpoints: int = 0                        # actually weights_only-loaded (deep)
+    n_verified_plans: int = 0                              # actually decoded (deep)
     artifact_scientific_hash: str = ""
 
     def fail(self, path, msg):
@@ -96,7 +99,8 @@ def verify_artifact_tree(path, *, deep=True) -> VerificationReport:
             rep.fail(rel, "byte size mismatch")
         if _sha256(ap) != e["file_sha256"]:
             rep.fail(rel, "sha256 mismatch (corruption)")
-    rep.n_files = len(listed)
+    rep.n_indexed_files = len(listed)
+    rep.n_total_files = len(listed) + 2                    # + artifact_index + COMMITTED
     rep.n_checkpoints = sum(1 for e in index if e["artifact_kind"] == "checkpoint_pt")
     rep.n_plans = sum(1 for e in index if e["artifact_kind"] in (P.TASK_KIND, P.ALIGN_KIND, P.FOLD_KIND,
                                                                  P.BOOTSTRAP_KIND, P.DESIGN_KIND))
@@ -138,9 +142,8 @@ def _deep(root, rep, marker):
             rep.fail(f"{ld}/provenance.json", "target_fit_ids is not empty")
         # plans
         _verify_plans(root, ld, rep)
-        # checkpoints present for refs
-        ck_dir = os.path.join(root, ld, "checkpoints")
-        present = {fn[:-3] for fn in os.listdir(ck_dir)} if os.path.isdir(ck_dir) else set()
+        # checkpoints: weights_only-load and re-verify every physical file
+        present = _verify_checkpoints(root, ld, rep)
         # methods
         for name in [d for d in sorted(os.listdir(os.path.join(root, ld, "methods")))]:
             md = f"{ld}/methods/{name}"
@@ -194,6 +197,29 @@ def _level_num(ld):
     return int(ld.rsplit("-", 1)[-1])
 
 
+def _verify_checkpoints(root, ld, rep) -> set:
+    from .checkpoint import read_checkpoint_file
+    ck_dir = os.path.join(root, ld, "checkpoints")
+    present = set()
+    if not os.path.isdir(ck_dir):
+        return present
+    pts = {fn[:-3] for fn in os.listdir(ck_dir) if fn.endswith(".pt")}
+    jsons = {fn[:-5] for fn in os.listdir(ck_dir) if fn.endswith(".json")}
+    for orphan in (pts ^ jsons):
+        rep.fail(f"{ld}/checkpoints/{orphan}", "orphan checkpoint (.pt and .json must pair up)")
+    for stem in sorted(pts & jsons):
+        try:
+            logical, meta, _ = read_artifact(os.path.join(ck_dir, f"{stem}.json"), "checkpoint")
+            if logical != stem or meta.get("model_hash") != stem:
+                rep.fail(f"{ld}/checkpoints/{stem}.json", "checkpoint metadata model_hash != filename stem")
+                continue
+            read_checkpoint_file(os.path.join(ck_dir, f"{stem}.pt"), meta)   # weights_only load + state_hash check
+            present.add(stem); rep.n_verified_checkpoints += 1
+        except Exception as e:
+            rep.fail(f"{ld}/checkpoints/{stem}.pt", f"checkpoint verification failed: {e}")
+    return present
+
+
 def _verify_plans(root, ld, rep):
     pl = f"{ld}/plans"
     specs = [("stage1_task", P.TASK_KIND, P.decode_task_plan), ("stage2_task", P.TASK_KIND, P.decode_task_plan),
@@ -210,6 +236,7 @@ def _verify_plans(root, ld, rep):
             logical, body, arrays = read_artifact(p, kind)
             if body.get("present", True):
                 dec({k: v for k, v in body.items() if k not in ("present", "npz")}, arrays)
+                rep.n_verified_plans += 1
         except Exception as e:
             rep.fail(f"{pl}/{fn}.json", f"plan verification failed: {e}")
 

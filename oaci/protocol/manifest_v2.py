@@ -45,6 +45,8 @@ class BackboneBlock:
     pool_stride_samples: int | None = None
     dropout: float | None = None
     safe_log_eps: float | None = None
+    mlp_z_dim: int | None = None            # MLP backbone: frozen, no Python default
+    mlp_hidden: int | None = None
 
 
 @dataclass
@@ -245,6 +247,18 @@ class ProtocolManifestV2:
              "global_lpc_laplace_smoothing > 0")
         _chk(o.lambda_floor == 0, "lambda_floor == 0 (main protocol)")
         _chk(t.stage2_bn_mode == "frozen_erm_running_stats", "stage2_bn_mode == frozen_erm_running_stats")
+        bb = self.backbone
+        _shallow = (bb.temporal_filters, bb.temporal_kernel_samples, bb.pool_kernel_samples,
+                    bb.pool_stride_samples, bb.dropout, bb.safe_log_eps)
+        if bb.name == "mlp":                                   # MLP arch fully frozen, shallow fields absent
+            _chk(bb.mlp_z_dim is not None and bb.mlp_z_dim >= 1, "mlp_z_dim >= 1")
+            _chk(bb.mlp_hidden is not None and bb.mlp_hidden >= 0, "mlp_hidden >= 0")
+            _chk(all(x is None for x in _shallow), "mlp backbone must leave ShallowConvNet fields unset")
+        elif bb.name == "shallow_convnet":                     # shallow fully specified, mlp fields absent
+            _chk(all(x is not None for x in _shallow), "shallow_convnet requires all structural fields")
+            _chk(bb.mlp_z_dim is None and bb.mlp_hidden is None, "shallow_convnet must leave mlp fields unset")
+        else:
+            _chk(False, f"unknown backbone name {bb.name!r}")
 
     def assert_confirmatory(self) -> "ProtocolManifestV2":
         if self.status == "smoke":

@@ -409,6 +409,132 @@ def test_deep_verifier_recomputes_all_logical_hashes():
     assert rep.artifact_scientific_hash == res.artifact_scientific_hash
 
 
+# ============================ A2b-2b artifact residuals ============================
+def test_staging_directories_are_unique_for_same_destination():
+    base = tempfile.mkdtemp()
+    final = os.path.join(base, "art")
+    a = StagingDir(final).__enter__()
+    b = StagingDir(final).__enter__()
+    assert a.staging != b.staging and os.path.isdir(a.staging) and os.path.isdir(b.staging)
+
+
+def test_concurrent_staging_writers_do_not_delete_each_other():
+    base = tempfile.mkdtemp()
+    final = os.path.join(base, "art")
+    a = StagingDir(final).__enter__()
+    a.write_bytes("x.json", b"a")
+    b = StagingDir(final).__enter__()       # a second writer must not wipe the first's staging
+    assert os.path.exists(os.path.join(a.staging, "x.json"))
+    a.__exit__(None, None, None)
+    assert os.path.isdir(b.staging)         # closing A leaves B intact
+
+
+def test_all_existing_parent_symlink_components_are_rejected():
+    base = tempfile.mkdtemp()
+    real = os.path.join(base, "real"); os.makedirs(real)
+    link = os.path.join(base, "link"); os.symlink(real, link)
+    # final = base/link/sub/art -> the 'link' ancestor (not the immediate parent) is a symlink
+    final = os.path.join(link, "sub", "art")
+    try:
+        StagingDir(final).__enter__()
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("a symlinked ancestor component must be rejected")
+
+
+def test_deep_verifier_weights_only_loads_every_checkpoint():
+    res, _, lr, _, _ = _written()
+    rep = verify_artifact_tree(res.artifact_dir, deep=True)
+    n_pt = len({m.selection.model_hash for _, m in lr.method_items} | {lr.erm_stage.checkpoint.model_hash})
+    assert rep.ok and rep.n_verified_checkpoints == rep.n_checkpoints >= n_pt
+
+
+def test_deep_verifier_rejects_state_hash_mismatch_after_index_rewrite():
+    import torch
+    from oaci.artifacts.canonical_json import canonical_json_bytes
+    from oaci.artifacts.atomic import COMMIT_MARKER, INDEX_NAME
+    tree = _fresh_tree()
+    ck_dir = os.path.join(tree, "levels", "level-000", "checkpoints")
+    stem = next(f[:-3] for f in os.listdir(ck_dir) if f.endswith(".pt"))
+    pt = os.path.join(ck_dir, stem + ".pt")
+    st = torch.load(pt, map_location="cpu", weights_only=True)
+    k0 = sorted(st)[0]; st[k0] = st[k0] + 1.0                  # change bytes (state hash now != stem)
+    with open(pt, "wb") as f:
+        torch.save(st, f)
+    # rewrite the index + marker so the file sha matches (only the state-hash check can catch it)
+    _rewrite_index_and_marker(tree)
+    rep = verify_artifact_tree(tree, deep=True)
+    assert not rep.ok and any(stem in p for p, _ in rep.errors)
+
+
+def test_deep_verifier_rejects_orphan_pt_or_metadata():
+    import shutil as _sh
+    tree = _fresh_tree()
+    ck_dir = os.path.join(tree, "levels", "level-000", "checkpoints")
+    stem = next(f[:-3] for f in os.listdir(ck_dir) if f.endswith(".pt"))
+    extra = os.path.join(ck_dir, "deadbeef.pt")
+    _sh.copy(os.path.join(ck_dir, stem + ".pt"), extra)       # a .pt with no .json (orphan)
+    _rewrite_index_and_marker(tree)
+    rep = verify_artifact_tree(tree, deep=True)
+    assert not rep.ok and any("deadbeef" in p for p, _ in rep.errors)
+
+
+def test_artifact_summary_counts_indexed_and_total_files_unambiguously():
+    res, fr, _, _, _ = _written()
+    from oaci.artifacts.summary import read_completed_artifact
+    s = read_completed_artifact(res.artifact_dir, deep_verify=True)
+    assert s.n_total_files == s.n_indexed_files + 2          # + index + marker
+    assert s.artifact_scientific_hash == res.artifact_scientific_hash and s.fold_result_hash == fr.fold_result_hash
+    assert s.n_verified_checkpoints >= 1 and s.n_verified_plans >= 7
+
+
+def _rewrite_index_and_marker(tree):
+    """Recompute the index file shas + marker index-sha (so only logical/state checks can fail)."""
+    import hashlib
+    from oaci.artifacts.atomic import COMMIT_MARKER, INDEX_NAME
+    from oaci.artifacts.canonical_json import canonical_json_bytes
+    index = decode_canonical_json(open(os.path.join(tree, INDEX_NAME), "rb").read())
+    files = {os.path.relpath(os.path.join(r, fn), tree)
+             for r, _, fns in os.walk(tree) for fn in fns} - {COMMIT_MARKER, INDEX_NAME}
+    entries = []
+    for rel in sorted(files):
+        ap = os.path.join(tree, rel)
+        prev = next((e for e in index["files"] if e["relative_path"] == rel), None)
+        kind = prev["artifact_kind"] if prev else "checkpoint_pt"
+        logical = prev["logical_hash"] if prev else rel.rsplit("/", 1)[-1][:-3]
+        with open(ap, "rb") as f:
+            data = f.read()
+        entries.append({"relative_path": rel, "artifact_kind": kind, "schema_version": "oaci-artifact-v1",
+                        "byte_size": len(data), "file_sha256": hashlib.sha256(data).hexdigest(),
+                        "logical_hash": logical})
+    idx_bytes = canonical_json_bytes({"files": sorted(entries, key=lambda e: e["relative_path"])})
+    with open(os.path.join(tree, INDEX_NAME), "wb") as f:
+        f.write(idx_bytes)
+    marker = decode_canonical_json(open(os.path.join(tree, COMMIT_MARKER), "rb").read())
+    marker["artifact_index_sha256"] = hashlib.sha256(idx_bytes).hexdigest()
+    with open(os.path.join(tree, COMMIT_MARKER), "wb") as f:
+        f.write(canonical_json_bytes(marker))
+
+
+def test_fake_mlp_architecture_has_no_python_defaults():
+    import os as _os
+    from oaci.protocol.freeze import default_confirmatory_path
+    from oaci.protocol.manifest_v2 import load_v2
+    p = _os.path.join(_os.path.dirname(default_confirmatory_path()), "smoke_v1.yaml")
+    m = load_v2(p)
+    m.backbone.name = "mlp"; m.backbone.mlp_z_dim = None      # mlp without explicit dims must be rejected
+    for fld in ("temporal_filters", "temporal_kernel_samples", "pool_kernel_samples",
+                "pool_stride_samples", "dropout", "safe_log_eps"):
+        setattr(m.backbone, fld, None)
+    try:
+        m.validate_ranges()
+    except ValueError:
+        pass
+    else:
+        raise AssertionError("an mlp backbone with no frozen dims must be rejected")
+
+
 def test_no_oaci_runtime_import_from_cmi_or_h2cmi():
     import sys
     import oaci.artifacts.writer  # noqa: F401

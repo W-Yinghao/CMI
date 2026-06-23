@@ -9,11 +9,23 @@ from __future__ import annotations
 
 import hashlib
 import os
+import tempfile
 
 from .canonical_json import canonical_json_bytes
 
 COMMIT_MARKER = "COMMITTED.json"
 INDEX_NAME = "artifact_index.json"
+
+
+def _reject_symlink_components(final_path: str) -> None:
+    """Reject if ANY existing component from the filesystem root down to the final parent is a symlink
+    (not just the immediate parent)."""
+    parts = os.path.abspath(final_path).split(os.sep)
+    cur = os.sep
+    for p in parts[1:-1]:                       # every ancestor dir, excluding the (not-yet-existing) leaf
+        cur = os.path.join(cur, p)
+        if os.path.islink(cur):
+            raise ValueError(f"refusing to write under a symlinked path component: {cur}")
 
 
 def safe_relpath(rel: str) -> str:
@@ -53,16 +65,15 @@ class StagingDir:
         self.staging = None
 
     def __enter__(self):
-        if os.path.islink(self.final_path) or os.path.islink(self.parent):
+        _reject_symlink_components(self.final_path)
+        if os.path.islink(self.final_path):
             raise ValueError("refusing to write through a symlink")
         if os.path.exists(self.final_path) and not self.overwrite:
             raise FileExistsError(f"artifact destination already exists: {self.final_path}")
         os.makedirs(self.parent, exist_ok=True)
-        rnd = hashlib.sha256(self.final_path.encode()).hexdigest()[:16]
-        self.staging = os.path.join(self.parent, f".tmp-oaci-artifact-{rnd}")
-        if os.path.exists(self.staging):
-            _rmtree(self.staging)
-        os.makedirs(self.staging)
+        # a truly unique staging dir: concurrent writers to the SAME destination never collide and
+        # never delete each other's staging.
+        self.staging = tempfile.mkdtemp(prefix=".tmp-oaci-artifact-", dir=self.parent)
         return self
 
     def _abs(self, rel):
@@ -90,15 +101,14 @@ class StagingDir:
         index_doc = {"files": sorted(index_entries, key=lambda e: e["relative_path"])}
         index_bytes = canonical_json_bytes(index_doc)
         self.write_bytes(INDEX_NAME, index_bytes)
-        for rel, ap in self._files:
-            if rel == INDEX_NAME:
-                continue
         # fsync all touched dirs
         for d in sorted(self._dirs) + [self.staging]:
             _fsync_dir(d)
         marker = {**marker_body, "artifact_index_sha256": hashlib.sha256(index_bytes).hexdigest()}
-        self.write_bytes(COMMIT_MARKER, canonical_json_bytes(marker))
+        self.write_bytes(COMMIT_MARKER, canonical_json_bytes(marker))   # the marker is written LAST
         _fsync_dir(self.staging)
+        if os.path.exists(self.final_path) and not self.overwrite:      # re-check just before the rename
+            raise FileExistsError(f"artifact destination appeared during write: {self.final_path}")
         os.rename(self.staging, self.final_path)
         _fsync_dir(self.parent)
         self.staging = None
@@ -106,7 +116,7 @@ class StagingDir:
 
     def __exit__(self, exc_type, exc, tb):
         if self.staging is not None and os.path.isdir(self.staging):
-            _rmtree(self.staging)          # any failure leaves no committed result
+            _rmtree(self.staging)          # only OUR staging dir (mkdtemp) -- never a foreign one
         return False
 
 
