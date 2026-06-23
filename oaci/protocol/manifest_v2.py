@@ -155,6 +155,22 @@ class SmokeBlock:
 
 
 @dataclass
+class FakeFixtureBlock:
+    source_domain_ids: list | None = None
+    target_domain_ids: list | None = None
+    source_train_groups_per_domain: int | None = None
+    source_audit_groups_per_domain: int | None = None
+    target_groups_per_domain: int | None = None
+    windows_per_unit_cycle: list | None = None
+    input_dim: int | None = None
+    class_signal_scale: float | None = None
+    domain_signal_scale: float | None = None
+    recording_signal_scale: float | None = None
+    window_noise_scale: float | None = None
+    data_seed: int | None = None
+
+
+@dataclass
 class DatasetBlock:
     enabled: bool | None = None
     cohort_ids: list | None = None
@@ -197,6 +213,7 @@ class ProtocolManifestV2:
     probe: ProbeBlock | None = None
     methods: MethodBlock | None = None
     smoke: SmokeBlock | None = None
+    fake_fixture: FakeFixtureBlock | None = None
     datasets: dict | None = None          # name -> DatasetBlock
     risk: RiskBlock | None = None
     evaluation: EvaluationBlock | None = None
@@ -220,7 +237,33 @@ class ProtocolManifestV2:
             if miss:
                 raise ValueError(f"dataset block {name!r} incomplete: {miss}")
         self.validate_ranges()
+        self._validate_fake()
         return self
+
+    def _validate_fake(self) -> None:
+        en = self.enabled_datasets()
+        is_fake = (self.status == "smoke" and set(en) == {"FAKE_TWO_LEVEL"})
+        if self.fake_fixture is not None and not is_fake:
+            raise ValueError("fake_fixture is only allowed in a status=smoke FAKE_TWO_LEVEL manifest")
+        if is_fake and self.fake_fixture is None:
+            raise ValueError("a status=smoke FAKE_TWO_LEVEL manifest requires a fake_fixture block")
+        if self.fake_fixture is None:
+            return
+        ff, ds, sm = self.fake_fixture, en["FAKE_TWO_LEVEL"], self.smoke
+        for f in fields(ff):
+            if getattr(ff, f.name) is None:
+                raise ValueError(f"fake_fixture missing required field: {f.name}")
+        if len(ds.channels) != int(ff.input_dim):
+            raise ValueError("len(dataset.channels) must equal fake_fixture.input_dim")
+        if list(sm.deletion_levels or []) != [0, 1]:
+            raise ValueError("fake smoke.deletion_levels must be [0, 1]")
+        if sm.deleted_cell_level1 != {"domain_id": "S0", "class_name": "c1"}:
+            raise ValueError("fake deleted_cell_level1 must be {domain_id: S0, class_name: c1}")
+        for f in ("subjects", "target_subjects", "source_audit_subjects", "source_train_subjects"):
+            if getattr(sm, f):
+                raise ValueError(f"fake smoke.{f} must be empty (no real-EEG subject semantics)")
+        if list(ff.windows_per_unit_cycle) != [1, 2, 3] or int(ff.input_dim) < 1:
+            raise ValueError("fake fixture window cycle / input_dim out of range")
 
     def validate_ranges(self) -> None:
         def _chk(cond, msg):
@@ -234,6 +277,9 @@ class ProtocolManifestV2:
         _chk(e.ece_bins is not None and e.ece_bins >= 2, "ece_bins >= 2")
         _chk(e.paired_bootstrap is not None and e.paired_bootstrap >= 1, "paired_bootstrap >= 1")
         _chk(e.prediction_prob_floor is not None and 0 < e.prediction_prob_floor < 1, "0 < prediction_prob_floor < 1")
+        for nm, blk in self.enabled_datasets().items():          # the floor must leave room for every class
+            _chk(e.prediction_prob_floor * len(blk.class_names or []) < 1,
+                 f"prediction_prob_floor * n_classes < 1 for dataset {nm}")
         _chk(p.folds is not None and p.folds >= 2, "folds >= 2")
         caps = list(p.capacities or [])
         _chk(len(caps) > 0 and len(set(caps)) == len(caps) and all(c >= 0 for c in caps),
@@ -286,8 +332,8 @@ class ProtocolManifestV2:
 
 _BLOCK_TYPES = {"seeds": SeedBlock, "backbone": BackboneBlock, "optimizer": OptimizerBlock,
                 "training": TrainingBlock, "sampler": SamplerBlock, "probe": ProbeBlock,
-                "methods": MethodBlock, "smoke": SmokeBlock, "risk": RiskBlock,
-                "evaluation": EvaluationBlock, "k1": K1Block, "k2": K2Block}
+                "methods": MethodBlock, "smoke": SmokeBlock, "fake_fixture": FakeFixtureBlock,
+                "risk": RiskBlock, "evaluation": EvaluationBlock, "k1": K1Block, "k2": K2Block}
 _PASSTHROUGH = {"protocol_id", "status"}
 
 
