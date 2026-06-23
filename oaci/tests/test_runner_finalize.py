@@ -27,6 +27,12 @@ _CPU = torch.device("cpu")
 _REV = tuple(reversed(DEFAULT_METHOD_ORDER))
 
 
+from oaci.protocol.manifest_v2 import manifest_payload_hash
+
+_MANIFEST_PAYLOAD = {"protocol_id": "oaci-test", "status": "smoke"}
+_MANIFEST_HASH = manifest_payload_hash(_MANIFEST_PAYLOAD)
+
+
 def _complete(rows=None, model_seed=0, order=DEFAULT_METHOD_ORDER, level=0, deletion=None, support_m=2):
     rows = rows if rows is not None else _rows()
     fd = _fold(rows)
@@ -35,7 +41,7 @@ def _complete(rows=None, model_seed=0, order=DEFAULT_METHOD_ORDER, level=0, dele
     sch = make_deletion_schedule(deletion if deletion is not None else [DeletionCell("Sd0", "c1")], fd, maps)
     ref = level0_reference_prior(fd, maps)
     cfg = _scope_cfg(support_m)
-    rk = RunKey(FoldKey("m", "ds", "f0", 1, 2), level, model_seed)
+    rk = RunKey(FoldKey(_MANIFEST_HASH, "ds", "f0", 1, 2), level, model_seed)
     ss = build_level_support(fd, maps, level, sch, ref, support_m=support_m)
     lp = build_level_population(fd, maps, ss)
     fs = build_fold_scope(rk.fold_key, maps, fd, sch, cfg)

@@ -8,8 +8,11 @@ hashes recomputed from the shared payload builders. The level invariants are che
 from __future__ import annotations
 
 import hashlib
+import os
 from dataclasses import dataclass
 
+from ..protocol.manifest_v2 import manifest_payload_hash as _manifest_payload_hash
+from ..runner.keys import canonical_json_hash as _keys_hash    # the hash that produced exec/model hashes
 from ..runner.provenance import RunnerPhase
 from ..runner.scientific_hash import scientific_value_hash
 from .canonical_json import canonical_json_bytes, canonical_json_hash
@@ -30,13 +33,45 @@ _ROLES = ("source_guard", "source_audit", "target_audit")
 
 
 @dataclass(frozen=True)
+class GitEvidence:
+    commit: str
+    tree_hash: str
+    scientific_paths: tuple
+    status_entries: tuple                       # `git status --porcelain` lines scoped to the paths
+    clean: bool
+    evidence_hash: str
+
+
+def git_evidence_hash(commit, tree_hash, scientific_paths, status_entries, clean) -> str:
+    return canonical_json_hash({"commit": commit, "tree_hash": tree_hash,
+                                "scientific_paths": list(scientific_paths),
+                                "status_entries": list(status_entries), "clean": bool(clean)})
+
+
+def collect_git_evidence(repo_root, scientific_paths=("oaci",)) -> GitEvidence:
+    """Run git directly (never trust a caller-claimed clean flag)."""
+    import subprocess
+
+    def g(*args):
+        return subprocess.run(["git", "-C", str(repo_root), *args], capture_output=True, text=True,
+                              check=True).stdout
+    commit = g("rev-parse", "HEAD").strip()
+    tree = g("rev-parse", "HEAD^{tree}").strip()
+    status = g("status", "--porcelain=v1", "--untracked-files=all", "--", *scientific_paths)
+    entries = tuple(line for line in status.splitlines() if line.strip())
+    clean = not entries
+    return GitEvidence(commit, tree, tuple(scientific_paths), entries, clean,
+                       git_evidence_hash(commit, tree, scientific_paths, entries, clean))
+
+
+@dataclass(frozen=True)
 class ArtifactContext:
     manifest_payload: dict
     manifest_hash: str
     execution_config_payloads: tuple            # ((level, mapping), ...)
     model_spec_payloads: tuple
-    git_commit: str
-    scientific_tree_clean: bool
+    git: GitEvidence
+    repo_root: str                              # NON-hashed; used to keep the artifact out of the repo
     context_hash: str
 
 
@@ -46,14 +81,27 @@ class ArtifactWriteResult:
     artifact_scientific_hash: str
     fold_result_hash: str
     context_hash: str
-    n_files: int
-    n_checkpoints: int
+    n_indexed_files: int
+    n_total_files: int                          # indexed + artifact_index + COMMITTED
+    n_unique_checkpoints: int
 
 
-def context_scientific_hash(manifest_payload, execution_config_payloads, model_spec_payloads) -> str:
+def context_scientific_hash(manifest_payload, execution_config_payloads, model_spec_payloads, git) -> str:
     return canonical_json_hash({"manifest": manifest_payload,
                                 "execution_config": [[int(l), m] for l, m in execution_config_payloads],
-                                "model_spec": [[int(l), m] for l, m in model_spec_payloads]})
+                                "model_spec": [[int(l), m] for l, m in model_spec_payloads],
+                                "git": {"commit": git.commit, "tree_hash": git.tree_hash,
+                                        "scientific_paths": list(git.scientific_paths), "clean": bool(git.clean)}})
+
+
+def context_from_git_evidence(manifest_payload, manifest_hash, execution_config_payloads, model_spec_payloads,
+                              git, repo_root) -> ArtifactContext:
+    """Build the context (low-level: tests inject a synthetic GitEvidence; the demo collects live)."""
+    ch = context_scientific_hash(manifest_payload, execution_config_payloads, model_spec_payloads, git)
+    return ArtifactContext(manifest_payload=manifest_payload, manifest_hash=manifest_hash,
+                           execution_config_payloads=tuple(execution_config_payloads),
+                           model_spec_payloads=tuple(model_spec_payloads), git=git, repo_root=str(repo_root),
+                           context_hash=ch)
 
 
 def artifact_scientific_hash(fold_result_hash, manifest_hash, context_hash) -> str:
@@ -74,16 +122,28 @@ def _check_invariants(inv: dict) -> None:
         raise ValueError("oaci_rejected_ineligible_rows must be 0")
 
 
-def _gate(fold_result, context) -> None:
+def _gate(fold_result, context, final_path) -> None:
     fr = fold_result
     levels = dict(fr.level_items)
     if not levels:
         raise ValueError("fold result has no levels")
     if context.manifest_hash != fr.fold_scope.fold_key.manifest_hash:
         raise ValueError("context manifest hash != fold scope manifest hash")
+    if _manifest_payload_hash(context.manifest_payload) != context.manifest_hash:
+        raise ValueError("context manifest payload does not recompute the manifest hash")
+    if not context.git.clean or context.git.status_entries:
+        raise ValueError("refusing to write an artifact from a dirty scientific tree")
+    if context.git.evidence_hash != git_evidence_hash(
+            context.git.commit, context.git.tree_hash, context.git.scientific_paths,
+            context.git.status_entries, context.git.clean):
+        raise ValueError("git evidence hash does not recompute")
     if context_scientific_hash(context.manifest_payload, context.execution_config_payloads,
-                               context.model_spec_payloads) != context.context_hash:
+                               context.model_spec_payloads, context.git) != context.context_hash:
         raise ValueError("context hash does not recompute")
+    if context.repo_root:                                       # the artifact must live outside the repo tree
+        rr = os.path.abspath(context.repo_root)
+        if os.path.abspath(final_path) == rr or os.path.abspath(final_path).startswith(rr + os.sep):
+            raise ValueError("artifact destination must be outside the repository scientific tree")
     ec = dict((int(l), m) for l, m in context.execution_config_payloads)
     ms = dict((int(l), m) for l, m in context.model_spec_payloads)
     if set(ec) != set(levels) or set(ms) != set(levels):
@@ -95,9 +155,9 @@ def _gate(fold_result, context) -> None:
             raise ValueError(f"level {lvl} has non-empty target fits")
         if lr.run_key.fold_key.fold_key_hash != fr.fold_scope.fold_key.fold_key_hash:
             raise ValueError(f"level {lvl} FoldKey disagrees with the scope")
-        if ec[lvl].get("execution_config_hash") != lr.execution_config_hash:
+        if _keys_hash(ec[lvl]) != lr.execution_config_hash:
             raise ValueError(f"level {lvl} execution config payload hash mismatch")
-        if ms[lvl].get("model_spec_hash") != lr.model_spec_hash:
+        if _keys_hash(ms[lvl]) != lr.model_spec_hash:
             raise ValueError(f"level {lvl} model spec payload hash mismatch")
         _check_invariants(dict(lr.invariant_items))
         for name, m in lr.method_items:
@@ -163,11 +223,10 @@ def _opt(tree, base, kind, encoded):
 
 
 def write_artifact_tree_atomic(fold_result, context, output_root, *, overwrite=False) -> ArtifactWriteResult:
-    _gate(fold_result, context)
     fr = fold_result
     a_hash = artifact_scientific_hash(fr.fold_result_hash, context.manifest_hash, context.context_hash)
-    import os
     final = os.path.join(str(output_root), a_hash)
+    _gate(fold_result, context, final)
 
     with StagingDir(final, overwrite=overwrite) as st:
         t = _Tree(st)
@@ -177,8 +236,10 @@ def write_artifact_tree_atomic(fold_result, context, output_root, *, overwrite=F
                {"levels": [[int(l), m] for l, m in context.execution_config_payloads]})
         t.json("context/model_spec", "model_spec", context.context_hash,
                {"levels": [[int(l), m] for l, m in context.model_spec_payloads]})
-        t.json("context/provenance", "context_provenance", context.context_hash,
-               {"git_commit": context.git_commit, "scientific_tree_clean": bool(context.scientific_tree_clean)})
+        g = context.git
+        t.json("context/provenance", "context_provenance", g.evidence_hash,
+               {"commit": g.commit, "tree_hash": g.tree_hash, "scientific_paths": list(g.scientific_paths),
+                "status_entries": list(g.status_entries), "clean": bool(g.clean), "evidence_hash": g.evidence_hash})
         # fold + scope
         t.json("fold", "fold_result", fr.fold_result_hash,
                {"payload": fold_result_logical_payload(fr), "fold_scope_hash": fr.fold_scope.fold_scope_hash})
@@ -270,7 +331,8 @@ def write_artifact_tree_atomic(fold_result, context, output_root, *, overwrite=F
         st.commit(t.entries, marker)
     return ArtifactWriteResult(artifact_dir=final, artifact_scientific_hash=a_hash,
                                fold_result_hash=fr.fold_result_hash, context_hash=context.context_hash,
-                               n_files=len(t.entries) + 1, n_checkpoints=n_ck)
+                               n_indexed_files=len(t.entries), n_total_files=len(t.entries) + 2,
+                               n_unique_checkpoints=n_ck)
 
 
 import numpy as _npmod

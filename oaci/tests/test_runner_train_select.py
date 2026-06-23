@@ -69,10 +69,14 @@ def _scope_cfg(support_m=2):
 
 
 def _exec_cfg():
+    import dataclasses as _dc
+    from oaci.runner.config import execution_config_logical_payload
+    from oaci.runner.keys import canonical_json_hash
     eng = EngineConfig(metric="ce", epsilon=0.03, numerical_tol=1e-4, stage1_epochs=2, stage1_steps_per_epoch=1,
                        stage2_epochs=2, steps_per_epoch=1, warmup_steps=1, critic_steps=1, checkpoint_every=1,
                        lr_stage1=0.05, lr_encoder=0.1, lr_critic=0.05)
-    return RunnerExecutionConfig(eng, CriticConfig(capacities=(0, 8), max_iter=50), 8, 1.0, 1e-8, None, None, 1e-6, 15, "exec1")
+    cfg = RunnerExecutionConfig(eng, CriticConfig(capacities=(0, 8), max_iter=50), 8, 1.0, 1e-8, None, None, 1e-6, 15, "")
+    return _dc.replace(cfg, execution_config_hash=canonical_json_hash(execution_config_logical_payload(cfg)))
 
 
 def _factory():

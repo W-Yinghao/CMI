@@ -23,7 +23,7 @@ MODS="test_support_graph test_missing_cell test_leakage_estimate test_leakage_cr
 test_leakage_ucb test_train_risk test_train_adversary test_train_primal_dual \
 test_train_selector test_train_engine test_methods test_leakage_plan test_manifest_artifacts \
 test_plan_sampler test_runner_scoring test_runner_contracts test_runner_scope test_runner_plans \
-test_runner_train_select test_runner_audit test_runner_finalize test_runner_artifacts test_runner_fake test_scientific_hash test_rare_cell_sampler test_eval test_data_contract test_loader_protocol \
+test_runner_train_select test_runner_audit test_runner_finalize test_runner_artifacts test_runner_fake test_runner_fake_artifact test_scientific_hash test_rare_cell_sampler test_eval test_data_contract test_loader_protocol \
 test_sample_mass test_backbone"
 
 echo "[oaci-ci] node=$(hostname) cpus=${SLURM_CPUS_PER_TASK:-?} commit=$(git rev-parse --short HEAD 2>/dev/null)"
@@ -38,10 +38,22 @@ done
 ( $PY -m oaci.data.mass_demo    >"$WORK/demo_mass.log"    2>&1; echo $? >"$WORK/demo_mass.rc" ) &
 wait
 
+# ---- fake two-level artifact demo + standalone verifier (sequential; needs a CLEAN scientific tree) ----
+FAKE_OUT="$WORK/fake-artifact"; mkdir -p "$FAKE_OUT"
+$PY -m oaci.runner.demo --manifest oaci/protocol/fake_runner_v1.yaml --output-root "$FAKE_OUT" \
+    --model-seed 0 --method-order ERM,OACI,global_lpc,uniform --repo-root "${SLURM_SUBMIT_DIR:-$(pwd)}" \
+    >"$WORK/demo_fake.json" 2>"$WORK/demo_fake.log"; echo $? >"$WORK/demo_fake.rc"
+if [ "$(cat "$WORK/demo_fake.rc")" -eq 0 ]; then
+  ART_DIR=$($PY -c "import json; print(json.load(open('$WORK/demo_fake.json'))['artifact_dir'])" 2>>"$WORK/demo_fake.log")
+  $PY -m oaci.artifacts.verify "$ART_DIR" >"$WORK/verify_fake.log" 2>&1; echo $? >"$WORK/verify_fake.rc"
+else
+  echo 1 >"$WORK/verify_fake.rc"
+fi
+
 echo "=== TEST RESULTS ==="
 for m in $MODS; do printf "%-26s rc=%s  %s\n" "$m" "$(cat "$WORK/$m.rc")" "$(tail -1 "$WORK/$m.log")"; done
-for dem in demo_sampler demo_trainer demo_eval demo_data demo_mass; do
-  echo "=== $dem (rc=$(cat "$WORK/$dem.rc")) ==="; cat "$WORK/$dem.log"
+for dem in demo_sampler demo_trainer demo_eval demo_data demo_mass demo_fake verify_fake; do
+  echo "=== $dem (rc=$(cat "$WORK/$dem.rc")) ==="; tail -3 "$WORK/$dem.log"
 done
 
 # fold EVERY rc (tests AND demos) into the job exit status, and dump logs for any failure.

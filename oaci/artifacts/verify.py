@@ -19,6 +19,7 @@ from . import plan_codec as P
 from . import prediction_codec as PR
 from . import support_codec as SC
 from .atomic import COMMIT_MARKER, INDEX_NAME
+from ..runner.keys import canonical_json_hash
 from .canonical_json import decode_canonical_json
 from .reader import read_artifact, read_doc
 from .schema import check_schema_version
@@ -35,6 +36,7 @@ class VerificationReport:
     n_verified_checkpoints: int = 0                        # actually weights_only-loaded (deep)
     n_verified_plans: int = 0                              # actually decoded (deep)
     artifact_scientific_hash: str = ""
+    artifact_index_sha256: str = ""
 
     def fail(self, path, msg):
         self.ok = False
@@ -101,6 +103,7 @@ def verify_artifact_tree(path, *, deep=True) -> VerificationReport:
             rep.fail(rel, "sha256 mismatch (corruption)")
     rep.n_indexed_files = len(listed)
     rep.n_total_files = len(listed) + 2                    # + artifact_index + COMMITTED
+    rep.artifact_index_sha256 = _sha256(index_p)
     rep.n_checkpoints = sum(1 for e in index if e["artifact_kind"] == "checkpoint_pt")
     rep.n_plans = sum(1 for e in index if e["artifact_kind"] in (P.TASK_KIND, P.ALIGN_KIND, P.FOLD_KIND,
                                                                  P.BOOTSTRAP_KIND, P.DESIGN_KIND))
@@ -180,12 +183,43 @@ def _deep(root, rep, marker):
     expected = {int(l): h for l, h in fbody["payload"]["levels"]}
     if expected != dict(level_hashes):
         rep.fail("fold.json", "fold level hashes disagree with the level files")
+    # context provenance + manifest/exec/model payloads recomputed from context/*.json
+    ctx_hash = _verify_context(root, rep, level_hashes)
     # artifact scientific hash (recomputed from the manifest hash + context hash + fold hash)
     from .writer import artifact_scientific_hash
-    ash = artifact_scientific_hash(flogical, _manifest_hash(root), marker.get("context_hash", ""))
+    ash = artifact_scientific_hash(flogical, _manifest_hash(root), ctx_hash if ctx_hash else marker.get("context_hash", ""))
     rep.artifact_scientific_hash = ash
     if ash != marker.get("artifact_scientific_hash"):
         rep.fail(COMMIT_MARKER, "artifact scientific hash does not recompute")
+
+
+def _verify_context(root, rep, level_hashes) -> str:
+    """Recompute the context hash from context/manifest|execution_config|model_spec|provenance.json and
+    verify the manifest / config / spec payload hashes -- never trust COMMITTED.json alone."""
+    import types
+
+    from ..protocol.manifest_v2 import manifest_payload_hash
+    from .writer import context_scientific_hash
+    mlog, mbody, _ = read_artifact(os.path.join(root, "context", "manifest.json"), "manifest")
+    mpay = mbody["manifest"]
+    if manifest_payload_hash(mpay) != mlog:
+        rep.fail("context/manifest.json", "manifest payload does not recompute the manifest hash")
+    _, ecbody, _ = read_artifact(os.path.join(root, "context", "execution_config.json"), "execution_config")
+    _, msbody, _ = read_artifact(os.path.join(root, "context", "model_spec.json"), "model_spec")
+    ec = [[int(l), m] for l, m in ecbody["levels"]]
+    ms = [[int(l), m] for l, m in msbody["levels"]]
+    # each level's config/spec payload must hash to that level's stored hash
+    for lvl, _h in level_hashes:
+        _, lbody, _ = read_artifact(os.path.join(root, f"levels/level-{int(lvl):03d}", "level.json"), "level_result")
+        ecp = dict(ec).get(int(lvl)); msp = dict(ms).get(int(lvl))
+        if ecp is None or canonical_json_hash(ecp) != lbody["execution_config_hash"]:
+            rep.fail("context/execution_config.json", f"level {lvl} execution config payload hash mismatch")
+        if msp is None or canonical_json_hash(msp) != lbody["model_spec_hash"]:
+            rep.fail("context/model_spec.json", f"level {lvl} model spec payload hash mismatch")
+    _, gbody, _ = read_artifact(os.path.join(root, "context", "provenance.json"), "context_provenance")
+    git = types.SimpleNamespace(commit=gbody["commit"], tree_hash=gbody["tree_hash"],
+                                scientific_paths=tuple(gbody["scientific_paths"]), clean=bool(gbody["clean"]))
+    return context_scientific_hash(mpay, ec, ms, git)
 
 
 def _manifest_hash(root):
@@ -264,7 +298,8 @@ def _main(argv):
         return 2
     rep = verify_artifact_tree(argv[0], deep=True)
     if rep.ok:
-        print(f"OK  files={rep.n_files} checkpoints={rep.n_checkpoints} plans={rep.n_plans} "
+        print(f"OK  indexed_files={rep.n_indexed_files} total_files={rep.n_total_files} "
+              f"verified_checkpoints={rep.n_verified_checkpoints} verified_plans={rep.n_verified_plans} "
               f"artifact_scientific_hash={rep.artifact_scientific_hash}")
         return 0
     for path, msg in rep.errors:

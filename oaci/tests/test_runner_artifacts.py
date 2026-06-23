@@ -18,19 +18,25 @@ from oaci.artifacts.canonical_json import canonical_json_bytes, canonical_json_h
 from oaci.artifacts.checkpoint import read_checkpoint_file, write_checkpoint_file
 from oaci.artifacts.deterministic_npz import (deterministic_npz_bytes, read_verified_npz, to_unicode_array,
                                              write_deterministic_npz)
-from oaci.artifacts.writer import (ArtifactContext, artifact_scientific_hash, context_scientific_hash,
-                                   write_artifact_tree_atomic)
+from oaci.artifacts.writer import (GitEvidence, artifact_scientific_hash, context_from_git_evidence,
+                                   git_evidence_hash, write_artifact_tree_atomic)
 from oaci.artifacts.verify import verify_artifact_tree
 from oaci.runner import assemble_fold_run
+from oaci.runner.config import execution_config_logical_payload, model_spec_logical_payload
 
-from oaci.tests.test_runner_finalize import _complete
+from oaci.tests.test_runner_finalize import _MANIFEST_HASH, _MANIFEST_PAYLOAD, _complete
+from oaci.tests.test_runner_train_select import _MSPEC, _exec_cfg
 
 
-def _context(lr, manifest_hash="m"):
-    mp = {"dataset_id": "FAKE"}
-    ecp = ((0, {"execution_config_hash": lr.execution_config_hash}),)
-    msp = ((0, {"model_spec_hash": lr.model_spec_hash}),)
-    return ArtifactContext(mp, manifest_hash, ecp, msp, "gitabc", True, context_scientific_hash(mp, ecp, msp))
+def _clean_git():
+    c, t = "c" * 40, "t" * 40
+    return GitEvidence(c, t, ("oaci",), (), True, git_evidence_hash(c, t, ("oaci",), (), True))
+
+
+def _context(lr):
+    ecp = ((0, execution_config_logical_payload(_exec_cfg())),)
+    msp = ((0, model_spec_logical_payload(_MSPEC)),)
+    return context_from_git_evidence(_MANIFEST_PAYLOAD, _MANIFEST_HASH, ecp, msp, _clean_git(), repo_root="")
 
 
 _W = {}
@@ -58,7 +64,7 @@ def _fresh_tree():
 def test_artifact_context_hashes_match_runner_result():
     res, fr, lr, _, _ = _written()
     assert res.fold_result_hash == fr.fold_result_hash
-    assert res.artifact_scientific_hash == artifact_scientific_hash(fr.fold_result_hash, "m", res.context_hash)
+    assert res.artifact_scientific_hash == artifact_scientific_hash(fr.fold_result_hash, _MANIFEST_HASH, res.context_hash)
 
 
 def test_artifact_scientific_hash_is_independent_of_file_bytes():

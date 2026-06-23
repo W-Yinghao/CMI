@@ -16,6 +16,30 @@ from .keys import canonical_json_hash
 _METHODS = {"ERM", "OACI", "global_lpc", "uniform"}
 
 
+def _execution_config_payload(eng, critic, method_critic_hidden, global_lpc_alpha, selection_score_tolerance,
+                              feature_chunk_size, prediction_chunk_size, prediction_prob_floor, ece_bins) -> dict:
+    """The exact dict whose canonical_json_hash is the execution_config_hash (single source)."""
+    return {"engine": canonical_json_hash(dataclasses.asdict(dataclasses.replace(eng, base_seed=0))),
+            "critic": critic_config_hash(critic), "method_critic_hidden": int(method_critic_hidden),
+            "global_lpc_alpha": float(global_lpc_alpha),
+            "selection_score_tolerance": float(selection_score_tolerance), "feature_chunk_size": feature_chunk_size,
+            "prediction_chunk_size": prediction_chunk_size, "prediction_prob_floor": float(prediction_prob_floor),
+            "ece_bins": int(ece_bins)}
+
+
+def execution_config_logical_payload(cfg) -> dict:
+    """Rebuild the execution-config payload from the config object (hash == cfg.execution_config_hash)."""
+    return _execution_config_payload(cfg.engine_template, cfg.critic, cfg.method_critic_hidden,
+                                     cfg.global_lpc_alpha, cfg.selection_score_tolerance, cfg.feature_chunk_size,
+                                     cfg.prediction_chunk_size, cfg.prediction_prob_floor, cfg.ece_bins)
+
+
+def model_spec_logical_payload(spec) -> dict:
+    """Rebuild the model-spec payload (hash == spec.model_spec_hash)."""
+    return {"factory": spec.factory_id, "backbone": [list(kv) for kv in spec.backbone_config],
+            "input_shape": list(spec.input_shape), "n_classes": int(spec.n_classes)}
+
+
 @dataclass(frozen=True)
 class ModelSpec:
     factory_id: str
@@ -60,16 +84,11 @@ class RunnerExecutionConfig:
         critic = CriticConfig(capacities=tuple(int(c) for c in p.capacities), l2_C=float(p.l2_C),
                               max_iter=int(p.max_iter), prob_floor=float(p.prob_floor),
                               feature_seed_base=int(p.feature_seed_base))
-        h = canonical_json_hash({
-            "engine": canonical_json_hash(dataclasses.asdict(dataclasses.replace(eng, base_seed=0))),
-            "critic": critic_config_hash(critic),
-            "method_critic_hidden": int(manifest.methods.critic_capacity),
-            "global_lpc_alpha": float(manifest.methods.global_lpc_laplace_smoothing),
-            "selection_score_tolerance": float(manifest.training.selection_score_tolerance),
-            "feature_chunk_size": manifest.training.feature_chunk_size,
-            "prediction_chunk_size": manifest.training.prediction_chunk_size,
-            "prediction_prob_floor": float(manifest.evaluation.prediction_prob_floor),
-            "ece_bins": int(manifest.evaluation.ece_bins)})
+        h = canonical_json_hash(_execution_config_payload(
+            eng, critic, manifest.methods.critic_capacity, manifest.methods.global_lpc_laplace_smoothing,
+            manifest.training.selection_score_tolerance, manifest.training.feature_chunk_size,
+            manifest.training.prediction_chunk_size, manifest.evaluation.prediction_prob_floor,
+            manifest.evaluation.ece_bins))
         return RunnerExecutionConfig(
             engine_template=eng, critic=critic, method_critic_hidden=int(manifest.methods.critic_capacity),
             global_lpc_alpha=float(manifest.methods.global_lpc_laplace_smoothing),

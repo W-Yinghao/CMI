@@ -330,6 +330,16 @@ class ProtocolManifestV2:
         return {"canonical_json": canon, "sha256": hashlib.sha256(canon.encode()).hexdigest()}
 
 
+def manifest_logical_payload(manifest: "ProtocolManifestV2") -> dict:
+    """The parsed canonical manifest mapping (NOT a {'canonical_json': '...'} wrapper)."""
+    return json.loads(manifest.to_canonical_json())
+
+
+def manifest_payload_hash(payload: dict) -> str:
+    """Re-encode the payload exactly as the manifest does -> the same manifest SHA-256."""
+    return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
+
+
 _BLOCK_TYPES = {"seeds": SeedBlock, "backbone": BackboneBlock, "optimizer": OptimizerBlock,
                 "training": TrainingBlock, "sampler": SamplerBlock, "probe": ProbeBlock,
                 "methods": MethodBlock, "smoke": SmokeBlock, "fake_fixture": FakeFixtureBlock,
