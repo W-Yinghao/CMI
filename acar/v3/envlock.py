@@ -48,10 +48,11 @@ def apply_runtime():
 
 
 def _runtime_state():
-    """Hashed runtime block — only what is reliably FORCEABLE and verifiable in BOTH a cold (CLI) and a warm (test)
-    process after apply_runtime(): torch deterministic + intra-op threads, OMP env, and each threadpool backend's
-    internal_api / num_threads / version (num_threads == 1 under the global limit). Inter-op is excluded (unsettable in
-    a warm process)."""
+    """Hashed runtime block — what is reliably FORCEABLE and verifiable in BOTH a cold (CLI) and a warm (test) process
+    after apply_runtime(): torch deterministic + intra-op threads + INTER-OP threads (== 1; the fresh CLI sets it before
+    any parallel work, the warm test process sets it at module import), OMP env, and each threadpool backend's
+    internal_api / num_threads / version (num_threads == 1 under the global limit). All of these ARE in the verified
+    hash."""
     import torch
     try:
         from threadpoolctl import threadpool_info

@@ -1,15 +1,18 @@
 """ACAR v3 binding DEV runner — the SINGLE frozen command from seven concrete cohort dumps to the binding S2/S4 gate.
 
-    python -m acar.v3.run_dev_binding --input-manifest <seven-cohort.json> --output <new-dir> [--protocol-commit <sha>]
+    python -m acar.v3.run_dev_binding --input-manifest <seven-cohort.json> --output <new-dir>
 
+The protocol commit is taken from the manifest (`spec["protocol_commit"]`); there is NO `--protocol-commit` override.
 STDLIB-ONLY BOOTSTRAP — the preflight runs before any heavy import or DEV file read, in this exact order:
     parse manifest (stdlib) → output dir absent → validate manifest schema → verify repo: HEAD == protocol commit,
     tag `acar-v3-dev-design-v1^{}` → HEAD, CLEAN worktree (`git status --porcelain` empty) → verify each input file
     exists with declared `full_dump_sha256` (stdlib hashlib) → set single-thread runtime env → import numpy/torch/
     sklearn + v3 modules → apply+verify the environment lock → build a VerifiedBindingContext → open cohort files
-    (`build_cohort_input`) and check the four remaining field hashes → `freeze_dev_run`.
-Only then does the first real DEV run produce a SELECT (+frozen artifacts) or `DEV_STOP / NO_LOCKBOX_CONSUMED`. No
-external Arm-B endpoint or lockbox is touched. There is NO verification-bypass flag.
+    (`build_cohort_input`) and RE-CHECK all FIVE dump-derived field hashes (incl. `full_dump_sha256`) → `freeze_dev_run`.
+Only the result of THIS unique CLI is a binding DEV run; calling `run_binding_dev`/`freeze_dev_run` (or a test context)
+directly is NON-BINDING / quarantined. `BindingContext` is process evidence, not a tamper-proof token. Only then does
+the first real DEV run produce a SELECT (+frozen artifacts) or `DEV_STOP / NO_LOCKBOX_CONSUMED`. No external Arm-B
+endpoint or lockbox is touched. There is NO verification-bypass flag.
 """
 from __future__ import annotations
 import argparse
