@@ -23,6 +23,21 @@ def _fake_table():
     ]}
 
 
+def test_fingerprint_mismatch_abstains():
+    """A competence table built for one estimator config must NOT certify a different one: a
+    fingerprint mismatch -> power NOT ok (abstain), even for a covered, power_ok cell."""
+    from dataclasses import replace
+    from tos_cmi.score_fisher import estimator_fingerprint
+    cfg = ScoreFisherConfig(task_protect=True)
+    t = {"meta": {"fingerprint": estimator_fingerprint(cfg)}, "table": [
+        {"n_eff": 2000, "d_base": 23, "d_extra": 1, "n_cls": 3, "power_ok": True, "mde": 0.03}]}
+    ok, _ = lookup_power(t, 6000, 23, 1, 3, cfg=cfg); assert ok                  # matching -> ok
+    cfg2 = replace(cfg, task_gate_hidden=999)                                    # different config
+    ok2, inf = lookup_power(t, 6000, 23, 1, 3, cfg=cfg2)
+    assert not ok2 and inf["reason"] == "fingerprint_mismatch", inf
+    print("test_fingerprint_mismatch_abstains: OK")
+
+
 def test_lookup_conservative_and_monotone():
     t = _fake_table()
     # below the smallest calibrated n -> uncovered -> abstain
@@ -73,6 +88,7 @@ def test_power_ceiling_guard():
 
 
 if __name__ == "__main__":
+    test_fingerprint_mismatch_abstains()
     test_lookup_conservative_and_monotone()
     test_control_effect_tuning_exact_and_sample_invariant()
     test_power_ceiling_guard()

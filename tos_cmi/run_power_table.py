@@ -47,10 +47,10 @@ BASE_SEP, SIGMA, N_DOM, R_FULL, BETA = 1.5, 1.0, 6, 30, 0.2
 
 
 def _meta(cfg):
-    return {"delta_Y": cfg.delta_Y, "beta": BETA, "task_gate_hidden": cfg.task_gate_hidden,
-            "task_gate_epochs": cfg.task_gate_epochs, "task_gate_restarts": cfg.task_gate_restarts,
-            "n_folds": cfg.n_folds, "gate_boot": cfg.gate_boot, "calib_seed": CALIB_SEED,
-            "base_sep": BASE_SEP, "sigma": SIGMA, "family": "gaussian_explaining_away"}
+    from tos_cmi.score_fisher import estimator_fingerprint
+    return {"delta_Y": cfg.delta_Y, "beta": BETA, "calib_seed": CALIB_SEED, "base_sep": BASE_SEP,
+            "sigma": SIGMA, "family": "gaussian_explaining_away",
+            "fingerprint": estimator_fingerprint(cfg)}      # table valid ONLY for this estimator
 
 
 def run_one_cell(cell, cfg, R=R_FULL, targets=None):
@@ -112,12 +112,8 @@ def main():
         table = build(n_effs=[1500, 3000, 6000, 12000, 24000], shapes=[(23, 1), (22, 2), (21, 3)],
                       n_clss=[3], n_dom=6, base_sep=1.5, sigma=1.0, cfg=cfg, R=R_FULL, beta=0.2)
     os.makedirs(os.path.dirname(args.out), exist_ok=True)
-    meta = {"delta_Y": cfg.delta_Y, "beta": 0.2, "task_gate_hidden": cfg.task_gate_hidden,
-            "task_gate_epochs": cfg.task_gate_epochs, "task_gate_restarts": cfg.task_gate_restarts,
-            "n_folds": cfg.n_folds, "gate_boot": cfg.gate_boot, "calib_seed": CALIB_SEED,
-            "family": "gaussian_explaining_away"}
     with open(args.out, "w") as f:
-        json.dump({"meta": meta, "table": table}, f, indent=1)
+        json.dump({"meta": _meta(cfg), "table": table}, f, indent=1)
     n_ok = sum(t["power_ok"] for t in table)
     print("\nwrote %s : %d cells, %d power_ok" % (args.out, len(table), n_ok))
     print("POWER_TABLE_DONE")

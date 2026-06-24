@@ -57,14 +57,16 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--cell", default="", help="'delta_Y,n_eff,d_base,d_extra'")
     ap.add_argument("--light", action="store_true", help="first-look config (128/300/3/1)")
+    ap.add_argument("--outdir", default="", help="cell dir (default frontier_cells); isolate sweeps")
     ap.add_argument("--merge", action="store_true")
     ap.add_argument("--out", default="tos_cmi/results/frontier.json")
     args = ap.parse_args()
+    outdir = args.outdir or FRONT_DIR
     if args.cell:
         dY, ne, db, de = args.cell.split(",")
         c = run_cell(float(dY), int(ne), int(db), int(de), light=args.light)
-        os.makedirs(FRONT_DIR, exist_ok=True)
-        path = "%s/cell_%s_%s_%s_%s.json" % (FRONT_DIR, dY, ne, db, de)
+        os.makedirs(outdir, exist_ok=True)
+        path = "%s/cell_%s_%s_%s_%s.json" % (outdir, dY, ne, db, de)
         with open(path, "w") as f:
             json.dump(c, f, indent=1)
         nb, bo = c["boundary"], c["boundary"]
@@ -75,7 +77,7 @@ def main():
                  c["null"]["used"], bo["delta_real"], c["verdict"]), flush=True)
         print("FRONTIER_CELL_DONE"); return
     if args.merge:
-        cells = [json.load(open(p)) for p in sorted(glob.glob("%s/*.json" % FRONT_DIR))]
+        cells = [json.load(open(p)) for p in sorted(glob.glob("%s/cell_*.json" % outdir))]
         with open(args.out, "w") as f:
             json.dump({"meta": {"R": R, "beta": BETA, "base_sep": BASE_SEP}, "cells": cells}, f, indent=1)
         print("merged %d cells -> %s" % (len(cells), args.out))

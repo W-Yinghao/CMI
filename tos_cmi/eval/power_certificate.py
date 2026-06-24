@@ -185,11 +185,16 @@ def load_table(path):
         return json.load(f)
 
 
-def lookup_power(table, n_eff, d_base, d_extra, n_cls):
+def lookup_power(table, n_eff, d_base, d_extra, n_cls, cfg=None):
     """CONSERVATIVE lookup: power_ok only if some calibrated cell with the SAME (d_base,d_extra,
     n_cls) and n_eff' <= n_eff is power_ok (power is monotone in n, so a smaller-n pass implies the
-    larger actual n passes). Uncovered (d_base,d_extra,n_cls) -> power NOT ok (abstain). Returns
-    (power_ok, info)."""
+    larger actual n passes). Uncovered (d_base,d_extra,n_cls) -> power NOT ok (abstain). If `cfg` is
+    given, the table's estimator FINGERPRINT must match cfg's (else the table certifies a DIFFERENT
+    estimator -> abstain, Phase 1.3.3a). Returns (power_ok, info)."""
+    if cfg is not None:
+        from ..score_fisher import estimator_fingerprint
+        if table.get("meta", {}).get("fingerprint") != estimator_fingerprint(cfg):
+            return False, {"covered": False, "reason": "fingerprint_mismatch"}
     cells = [t for t in table["table"] if t["d_base"] == d_base and t["d_extra"] == d_extra
              and t["n_cls"] == n_cls and t["n_eff"] <= n_eff]
     if not cells:

@@ -754,17 +754,23 @@ def _train_calibrated(z_dim, n_out, Zf, target, cfg, iseed, itr, iva, restarts):
     return P, float(best_nll)
 
 
+PLUGIN_ALPHA_GRID = (0.0, 0.25, 0.5, 0.75, 1.0)
+PLUGIN_FLOOR = 1e-6
+
+
 def _plugin_logratio_score(base, extra, target, n_out, cfg, gplan, seed, restarts=1,
-                           alpha_grid=(0.0, 0.25, 0.5, 0.75, 1.0), floor=1e-6):
-    """Cross-fitted EFFICIENT one-step log-ratio estimator of I(Y; extra | base):
+                           alpha_grid=PLUGIN_ALPHA_GRID, floor=PLUGIN_FLOOR):
+    """Cross-fitted ONE-STEP log-ratio estimator (EFFICIENCY-TARGETING; the efficiency claim is
+    conditional on the classifiers converging) of I(Y; extra | base):
     s_i = log q1(y_i|base,extra) - log q0(y_i|base), with q1 = (1-a) q0 + a q1tilde a probability
     MIXTURE (a in [0,1] selected on inner-val: a=0 reduces to q0 -> low null noise, a=1 keeps the
     full model). q0, q1tilde are FREE calibrated classifiers (not the anchored zero-init residual).
     Per-sample s drives the SAME cluster-aware UCB; NO max(0,.) (negatives are misspecification
-    diagnostics). Returns (s[N], diag with alpha, q0_nll, q1_nll, clip fractions, max|logratio|)."""
+    diagnostics). diag reports INNER-val pre-temperature NLL (model selection) AND the OUTER
+    held-out NLL of the FINAL temperature-scaled q0 and mixture q1 (calibration/perf gap)."""
     N = len(target); s = np.zeros(N); bd, ed = base.shape[1], extra.shape[1]
     Zc = np.concatenate([base, extra], 1)
-    alphas = []; q0n = []; q1n = []; clip0 = 0; clip1 = 0; cnt = 0; maxabs = 0.0
+    alphas = []; q0n = []; q1n = []; q0o = []; q1o = []; clip0 = 0; clip1 = 0; cnt = 0; maxabs = 0.0
     for (tr, hold, itr, iva, iseed) in gplan.folds:
         P0, n0 = _train_calibrated(bd, n_out, base, target, cfg, iseed + 5, itr, iva, restarts)
         P1, n1 = _train_calibrated(bd + ed, n_out, Zc, target, cfg, iseed + 9, itr, iva, restarts)
@@ -778,19 +784,38 @@ def _plugin_logratio_score(base, extra, target, n_out, cfg, gplan, seed, restart
         p0h = P0[h][np.arange(len(h)), target[h]]
         mixh = ((1 - best_a) * P0[h] + best_a * P1[h])[np.arange(len(h)), target[h]]
         clip0 += int((p0h < floor).sum()); clip1 += int((mixh < floor).sum()); cnt += len(h)
-        sh = np.log(np.clip(mixh, floor, 1.0)) - np.log(np.clip(p0h, floor, 1.0))
+        p0c = np.clip(p0h, floor, 1.0); mixc = np.clip(mixh, floor, 1.0)
+        sh = np.log(mixc) - np.log(p0c)
         s[h] = sh; maxabs = max(maxabs, float(np.abs(sh).max()) if len(sh) else 0.0)
         alphas.append(best_a); q0n.append(n0); q1n.append(n1)
-    return s, {"alpha": float(np.mean(alphas)) if alphas else 0.0,
-               "q0_nll": float(np.mean(q0n)) if q0n else 0.0,
-               "q1_nll": float(np.mean(q1n)) if q1n else 0.0,
+        q0o.append(float(-np.log(p0c).mean())); q1o.append(float(-np.log(mixc).mean()))  # OUTER
+    m = lambda x: float(np.mean(x)) if x else 0.0
+    return s, {"alpha": m(alphas), "q0_nll_inner": m(q0n), "q1_nll_inner": m(q1n),
+               "q0_nll_outer": m(q0o), "q1_nll_outer": m(q1o),  # final mixture, post-temperature
                "q0_clip_fraction": clip0 / max(cnt, 1), "q1_clip_fraction": clip1 / max(cnt, 1),
                "max_abs_log_ratio": maxabs}
 
 
+TASK_ESTIMATOR_CODE_VERSION = "plugin-logratio-v1"   # bump on ANY change to the task estimator
+
+
+def estimator_fingerprint(cfg):
+    """Identity of the DEPLOYED task estimator: the competence table is valid ONLY for a matching
+    fingerprint, so a table built for one config can never 'certify' a different run-time estimator
+    (Phase 1.3.3a). Covers everything that moves the power curve: estimator, capacity, optimization,
+    folds, alpha grid, floor, bootstrap, threshold, code version."""
+    return {"code_version": TASK_ESTIMATOR_CODE_VERSION, "task_estimator": cfg.task_estimator,
+            "task_gate_hidden": int(cfg.task_gate_hidden), "task_gate_epochs": int(cfg.task_gate_epochs),
+            "task_gate_restarts": int(cfg.task_gate_restarts), "task_gate_folds": int(cfg.task_gate_folds),
+            "probe_family": cfg.probe_family, "gate_alpha": float(cfg.gate_alpha),
+            "gate_boot": int(cfg.gate_boot), "boot_estimand": cfg.boot_estimand,
+            "delta_Y": float(cfg.delta_Y), "alpha_grid": list(PLUGIN_ALPHA_GRID), "floor": PLUGIN_FLOOR}
+
+
 _REASONS = ("ACCEPTED", "NO_CANDIDATE", "DOMAIN_GATE_CLOSED", "DOMAIN_GAIN_TOO_SMALL",
             "TASK_RISK_UCB", "TASK_POWER_INSUFFICIENT", "FOLD_COVERAGE_FAILURE",
-            "INSUFFICIENT_GROUPS", "TASK_SUBSPACE_INTERSECTION", "NUMERICAL_FAILURE")
+            "TASK_GATE_COVERAGE_FAILURE", "INSUFFICIENT_GROUPS", "TASK_SUBSPACE_INTERSECTION",
+            "NUMERICAL_FAILURE")
 
 
 def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=None, T_task=None):
@@ -828,11 +853,13 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
     # capacity-qualified TASK certifier (Phase 1.3.1): its OWN hidden/epochs/restarts; domain arm
     # and score-Fisher keep cfg.hidden -- the bump is scoped to the safety certifier only.
     task_cfg = replace(cfg, hidden=cfg.task_gate_hidden, epochs=cfg.task_gate_epochs)
-    # TASK gate gets its OWN (more) folds (Phase 1.3.3): the lower-MDE plug-in needs more data per
-    # fit than the 2-fold selector split; fall back to the selector plan if coverage fails.
+    # TASK gate gets its OWN (more) folds (Phase 1.3.3): the plug-in needs more data per fit than
+    # the 2-fold selector split. Do NOT silently fall back to plan_g -- that would run a DIFFERENT
+    # estimator config than the competence table certifies; abstain instead (Phase 1.3.3a).
     plan_t = _SplitPlan(len(Zg), cfg.task_gate_folds, seed + 4, group_id=cluster_id)
     if not plan_t.coverage_ok(yg, n_cls):
-        plan_t = plan_g
+        return 0, [{"k": 1, "risk_feasible": False,
+                    "decision_reason": "TASK_GATE_COVERAGE_FAILURE"}], "TASK_GATE_COVERAGE_FAILURE"
     gplan_t = _GatePlan(plan_t, seed + 6)
     try:
         # TASK arm: cross-fitted EFFICIENT log-ratio plug-in (DECISION) + nested residual
@@ -868,7 +895,7 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
             from .eval.power_certificate import load_table, lookup_power
             tbl = load_table(cfg.task_power_table)
             for i in range(Kv):
-                ok, inf = lookup_power(tbl, n_eff, dims[i][0], dims[i][1], n_cls)
+                ok, inf = lookup_power(tbl, n_eff, dims[i][0], dims[i][1], n_cls, cfg=cfg)
                 power_ok[i] = ok; power_info[i] = inf
         except (FileNotFoundError, KeyError, ValueError):
             power_ok[:] = False                              # no table -> cannot certify -> abstain
@@ -891,7 +918,10 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
                         "task_plugin_mean": float(dY_plug[:, i].mean()),
                         "task_plugin_ucb": float(ucb_plug[i]),
                         "task_plugin_alpha": pdiag[i]["alpha"],
-                        "task_plugin_q1_nll": pdiag[i]["q1_nll"], "task_plugin_q0_nll": pdiag[i]["q0_nll"],
+                        "task_plugin_q0_nll_outer": pdiag[i]["q0_nll_outer"],
+                        "task_plugin_q1_nll_outer": pdiag[i]["q1_nll_outer"],
+                        "task_plugin_q0_nll_inner": pdiag[i]["q0_nll_inner"],
+                        "task_plugin_q1_nll_inner": pdiag[i]["q1_nll_inner"],
                         "task_plugin_q0_clip": pdiag[i]["q0_clip_fraction"],
                         "task_plugin_q1_clip": pdiag[i]["q1_clip_fraction"],
                         "task_plugin_max_abs_log_ratio": pdiag[i]["max_abs_log_ratio"],
