@@ -140,7 +140,33 @@ per fit, restarts) is expected to close the remaining gap; that certification is
 (results/frontier_deploy). null FP stays 0/30. Full 11-file regression green with the plug-in as
 the deployed decision (nested kept as a diagnostic).
 
-## 5. Default-on gate (task_protect) — STAYS OFF (pending plug-in deployment-config certification)
+## 4d. Phase 1.3.3 deployment-config certification (256/600/5/3, R=30) + 1.3.3a hygiene
+
+Deployment-config plug-in vs oracle (boundary Δ*=δ_Y, bar = 80% certified-power LCB ≥ 0.80):
+```
+δ_Y=0.10 k=1 (23x1):  plug-in 28/30 (LCB 0.82)  oracle 29/30 (0.86)  null 0/30  -> BOTH_OK ✓
+δ_Y=0.10 k=2 (22x2):  plug-in 27/30 (LCB 0.77)  oracle 29/30 (0.86)  null 0/30  -> borderline (1 short)
+δ_Y=0.05 k=1:         (running)
+```
+The plug-in CLEARS the bar at δ_Y=0.10 k=1 (LCB 0.82, ~matching the oracle 0.86) -- from the
+nested critic's 0/30. k=2 is one detection short (0.77). The estimator bottleneck is resolved at
+δ_Y=0.10; δ_Y=0.05 (smaller, harder) pending.
+
+Hygiene (Phase 1.3.3a): NO silent fold fallback (-> TASK_GATE_COVERAGE_FAILURE); the competence
+table carries an estimator FINGERPRINT and the gate ABSTAINS on mismatch; outer-held-out NLL
+recorded (q0/q1 final mixture). Name: "cross-fitted one-step log-ratio / efficiency-targeting"
+(efficiency is conditional on classifier convergence), not unconditionally "efficient".
+
+## 5. Default-on gate (task_protect) — STAYS OFF (estimator-direction PROVEN; default-on NOT yet)
+The deployment cert is the estimator-direction proof (plug-in clears at δ_Y=0.10 k=1), NOT the
+default-on certification. Per the pre-registered rules, flipping task_protect + task_power_floor
+ON TOGETHER requires, on seeds/cells NOT used for estimator/config selection:
+- pre-registered boundary cells meet the bar on INDEPENDENT seeds (held-out confirmation);
+- oracle-injected unsafe grid -> ZERO UNSAFE_ACCEPT;
+- factorized safe controls -> non-degenerate SAFE_ACCEPT;
+- per-cell only (no extrapolation to uncovered dims / n / cluster structure);
+- if k=2 / δ_Y=0.05 lag -> R=50 recheck or cross-fit model library + convex stacking (NOT
+  generic AIPW).
 Default-on exit conditions NOT met (zero UNSAFE_ACCEPT ✓, non-degenerate SAFE_ACCEPT ✗ at all
 practical n). `task_protect` stays default OFF; `task_power_floor` stays opt-in.
 
