@@ -27,13 +27,20 @@ def derive_seed(base_seed: int, namespace: str, *parts) -> int:
 
 @contextlib.contextmanager
 def forked_rng(seed: int, device=None):
-    """Run with a locally-set CPU (and CUDA, if applicable) RNG, restoring the caller's RNG state
-    on exit — so engine randomness is decided by the derived ``seed``, not the ambient global RNG,
-    and the caller's stream is left untouched."""
-    use_cuda = device is not None and getattr(device, "type", str(device)) == "cuda" and torch.cuda.is_available()
-    devices = [device] if use_cuda else []
-    with torch.random.fork_rng(devices=devices, enabled=True):
-        torch.manual_seed(int(seed))
-        if use_cuda:
-            torch.cuda.manual_seed_all(int(seed))
+    """Run with a locally-set CPU (and ONE indexed CUDA device, if given) RNG, restoring the caller's
+    RNG state on exit — so engine randomness is decided by the derived ``seed``, not the ambient global
+    RNG. The CUDA path requires an INDEXED device (e.g. cuda:0) and seeds ONLY that device, never all
+    visible GPUs."""
+    if device is None or torch.device(device).type == "cpu":
+        cuda_index, cuda_devices = None, []
+    else:
+        dev = torch.device(device)
+        if dev.index is None:
+            raise ValueError("CUDA RNG isolation requires an indexed device, e.g. cuda:0")
+        cuda_index, cuda_devices = int(dev.index), [int(dev.index)]
+    with torch.random.fork_rng(devices=cuda_devices, enabled=True):
+        torch.random.default_generator.manual_seed(int(seed))         # CPU generator only
+        if cuda_index is not None:
+            with torch.cuda.device(cuda_index):
+                torch.cuda.manual_seed(int(seed))                     # this ONE device, not _all
         yield

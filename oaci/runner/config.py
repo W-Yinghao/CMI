@@ -83,7 +83,8 @@ class RunnerExecutionConfig:
         p = manifest.probe
         critic = CriticConfig(capacities=tuple(int(c) for c in p.capacities), l2_C=float(p.l2_C),
                               max_iter=int(p.max_iter), prob_floor=float(p.prob_floor),
-                              feature_seed_base=int(p.feature_seed_base))
+                              feature_seed_base=int(p.feature_seed_base), solver=str(p.solver),
+                              tol=float(p.tol), fit_intercept=bool(p.fit_intercept))
         h = canonical_json_hash(_execution_config_payload(
             eng, critic, manifest.methods.critic_capacity, manifest.methods.global_lpc_laplace_smoothing,
             manifest.training.selection_score_tolerance, manifest.training.feature_chunk_size,

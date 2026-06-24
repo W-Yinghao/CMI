@@ -92,6 +92,9 @@ probe:
   feature_seed_base: 10000
   max_candidate_multiplier: 8
   max_invalid_draw_rate: 0.5
+  solver: lbfgs
+  tol: 1.0e-4
+  fit_intercept: true
 smoke:
   subjects: null
   target_subjects: null

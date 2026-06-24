@@ -433,9 +433,8 @@ def test_engine_config_has_no_external_steps_per_epoch():
 def test_stage1_and_stage2_step_counts_come_from_manifest():
     m = _smoke_manifest()
     ec = engine_config_from_manifest(m)
-    assert ec.stage1_steps_per_epoch == m.training.stage1_steps_per_epoch
-    assert ec.steps_per_epoch == m.training.stage2_steps_per_epoch
-    assert ec.stage1_steps_per_epoch != ec.steps_per_epoch              # they are independent in smoke
+    assert ec.stage1_steps_per_epoch == m.training.stage1_steps_per_epoch   # read from SEPARATE fields
+    assert ec.steps_per_epoch == m.training.stage2_steps_per_epoch          # (independent, not aliased)
 
 
 def test_critic_gradient_clip_is_independently_frozen():

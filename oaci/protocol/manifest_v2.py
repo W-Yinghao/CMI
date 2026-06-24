@@ -104,6 +104,9 @@ class ProbeBlock:
     feature_seed_base: int | None = None
     max_candidate_multiplier: int | None = None
     max_invalid_draw_rate: float | None = None
+    solver: str | None = None                  # frozen sklearn LogisticRegression settings (explicit)
+    tol: float | None = None
+    fit_intercept: bool | None = None
 
 
 @dataclass
@@ -365,6 +368,9 @@ class ProtocolManifestV2:
         _chk(p.max_iter is not None and p.max_iter >= 1, "max_iter >= 1")
         _chk(p.prob_floor is not None and 0 < p.prob_floor < 1, "0 < prob_floor < 1")
         _chk(p.max_candidate_multiplier is not None and p.max_candidate_multiplier >= 1, "max_candidate_multiplier >= 1")
+        _chk(p.solver in ("lbfgs", "liblinear", "newton-cg", "sag", "saga"), f"probe.solver={p.solver!r}")
+        _chk(p.tol is not None and p.tol > 0, "probe.tol > 0")
+        _chk(isinstance(p.fit_intercept, bool), "probe.fit_intercept must be a bool")
         _chk(p.max_invalid_draw_rate is not None and 0 <= p.max_invalid_draw_rate < 1, "0 <= max_invalid_draw_rate < 1")
         _chk(mb.global_lpc_laplace_smoothing is not None and mb.global_lpc_laplace_smoothing > 0,
              "global_lpc_laplace_smoothing > 0")

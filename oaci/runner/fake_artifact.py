@@ -32,16 +32,23 @@ class FakeRunArtifactResult:
 def build_fake_artifact_context(fake_fold, fold_result, *, repo_root, git_evidence=None):
     """Build the ArtifactContext. With no injected evidence it collects LIVE git and refuses a dirty
     scientific tree (the demo path); tests may inject a synthetic clean GitEvidence."""
+    return build_fold_artifact_context(fake_fold, fold_result, repo_root=repo_root, git_evidence=git_evidence)
+
+
+def build_fold_artifact_context(fold_object, fold_result, *, repo_root, git_evidence=None):
+    """Shared context builder for ANY fold object exposing .manifest / .manifest_hash /
+    .execution_config / .model_spec (FakeFold or BNCIRealFold). Collects live git unless an evidence is
+    injected, refuses a dirty tree, and lists the per-level config/spec payloads."""
     git = git_evidence if git_evidence is not None else collect_git_evidence(repo_root)
     if not git.clean or git.status_entries:
         raise ValueError("refusing to build an artifact context from a dirty scientific tree")
-    mpay = manifest_logical_payload(fake_fold.manifest)
+    mpay = manifest_logical_payload(fold_object.manifest)
     levels = sorted(int(l) for l in dict(fold_result.level_items))
     if levels != [0, 1]:
-        raise ValueError("fake artifact context expects exactly levels {0, 1}")
-    ecp = tuple((lvl, execution_config_logical_payload(fake_fold.execution_config)) for lvl in levels)
-    msp = tuple((lvl, model_spec_logical_payload(fake_fold.model_spec)) for lvl in levels)
-    return context_from_git_evidence(mpay, fake_fold.manifest_hash, ecp, msp, git, repo_root)
+        raise ValueError("the artifact context expects exactly levels {0, 1}")
+    ecp = tuple((lvl, execution_config_logical_payload(fold_object.execution_config)) for lvl in levels)
+    msp = tuple((lvl, model_spec_logical_payload(fold_object.model_spec)) for lvl in levels)
+    return context_from_git_evidence(mpay, fold_object.manifest_hash, ecp, msp, git, repo_root)
 
 
 def run_fake_two_level(manifest_path, output_root, *, model_seed, method_order=DEFAULT_METHOD_ORDER,

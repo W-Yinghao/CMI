@@ -38,6 +38,9 @@ class CriticConfig:
     max_iter: int = 500
     prob_floor: float = 1e-6                # floor predicted prob before log (finite NLL)
     feature_seed_base: int = 10_000         # R_c seed = base + capacity (fixed, not data-driven)
+    solver: str = "lbfgs"                   # frozen sklearn defaults (explicit, not implicit)
+    tol: float = 1e-4
+    fit_intercept: bool = True
 
 
 class DomainProbe:
@@ -76,7 +79,9 @@ class DomainProbe:
         else:
             with warnings.catch_warnings():
                 warnings.simplefilter("ignore")
-                self._model = LogisticRegression(C=self.cfg.l2_C, max_iter=self.cfg.max_iter)
+                self._model = LogisticRegression(C=self.cfg.l2_C, max_iter=self.cfg.max_iter,
+                                                 solver=self.cfg.solver, tol=self.cfg.tol,
+                                                 fit_intercept=self.cfg.fit_intercept)
                 self._model.fit(self._features(Z), labels, sample_weight=w)   # weighted MLE
         return self
 

@@ -24,7 +24,8 @@ def frozen_feature_hash(Z) -> str:
 def critic_config_hash(cfg) -> str:
     h = hashlib.sha256()
     h.update(str(tuple(int(c) for c in cfg.capacities)).encode())
-    for v in (cfg.l2_C, cfg.max_iter, cfg.prob_floor, cfg.feature_seed_base):
+    for v in (cfg.l2_C, cfg.max_iter, cfg.prob_floor, cfg.feature_seed_base,
+              cfg.solver, cfg.tol, cfg.fit_intercept):
         h.update(f"{v!r}".encode())
     return h.hexdigest()
 

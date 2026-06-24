@@ -28,7 +28,7 @@ def test_manifest_risk_evaluation_k1_k2_are_strict():
     m = _smoke()
     assert isinstance(m.risk, RiskBlock) and isinstance(m.evaluation, EvaluationBlock)
     assert isinstance(m.k1, K1Block) and isinstance(m.k2, K2Block)
-    assert m.risk.metric == "balanced_ce" and m.evaluation.paired_bootstrap == 100
+    assert m.risk.metric == "balanced_ce" and m.evaluation.paired_bootstrap == 8
 
 
 def test_manifest_rejects_unknown_nested_key():
