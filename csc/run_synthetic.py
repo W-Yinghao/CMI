@@ -72,8 +72,9 @@ def run(seeds=30, cfg: ProtocolConfig = None, seed_offset=0, label="DEVELOPMENT"
         for kind in KINDS:
             tb = make_target(kind, scfg, geom=src.geom, seed=1000 + s)
             state = run_frozen_protocol(src.Z, src.Y, src.D, tb.Z, cfg,
-                                        src_group_ids=src.group_ids,
-                                        tgt_group_ids=tb.group_ids, seed=s)["certificate"].state
+                                        src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids,
+                                        tgt_condition_ids=np.zeros(len(tb.Z), int),
+                                        seed=s)["certificate"].state
             confusion[kind][state] += 1
             if state in FORBIDDEN[tb.truth]:
                 forbidden[kind] += 1

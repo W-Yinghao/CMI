@@ -86,7 +86,7 @@ def certify(analysis: SourceAnalysis,
     # (0) unified SOURCE STATUS gate (CSC-P1.4.3 #2 / P1.4.4 #2): VALID only if support, residual
     # null, geometry null AND concept-attribution stability are all OK. Any other status -> abstain
     # (fail-closed): INVALID_SUPPORT / INVALID_RESIDUAL_NULL / INVALID_GEOMETRY_NULL /
-    # UNASSESSED_CONCEPT_STABILITY / UNSTABLE_CONCEPT_ATTRIBUTION -- a geometry-null or
+    # UNASSESSED_CONCEPT_ATTRIBUTION / UNSTABLE_CONCEPT_ATTRIBUTION -- a geometry-null or
     # attribution-stability failure can no longer slip through a VALID residual-test status, and an
     # unstable concept attribution blocks BOTH definite states (the cov_dirs depend on it).
     if getattr(analysis, "source_status", "VALID") != "VALID":

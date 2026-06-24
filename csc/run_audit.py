@@ -28,7 +28,8 @@ from csc.calibration.lodo import nested_lodo, VISIBLE_CONCEPT, COVARIATE_STABLE,
 
 TEST_MODULES = ["test_design_and_pairs", "test_validity_gate", "test_null_calibration",
                 "test_power", "test_protocol", "test_cluster_inference",
-                "test_paired_and_accounting", "test_p143_contracts", "test_p144_contracts"]
+                "test_paired_and_accounting", "test_p143_contracts", "test_p144_contracts",
+                "test_p145_contracts"]
 
 
 def _git(*args):
@@ -102,6 +103,30 @@ def contract_diagnostics(cfg, seeds):
                   significant_before=bool(r1.significant), significant_after=bool(r2.significant),
                   fold_hash_before=_fold_hash(Gp, Yp), fold_hash_after=_fold_hash(G2, Y2))
 
+    # FULL-PROTOCOL invariance (CSC-P1.4.5 audit): run the ENTIRE execute_protocol before & after
+    # duplicating one SOURCE subject's epochs, and compare every downstream output -- atlas subspace
+    # hashes, source_status, tau_detect/label, cov_stable AND the final robust certificate.
+    from csc.protocol import execute_protocol, ProtocolConfig
+    from csc.sim.shift_simulator import make_target
+    def _atlas_hash(a):
+        b = b"".join(np.round(x, 6).tobytes() for x in (a.cov_dirs, a.concept_dirs, a.label_dirs,
+                                                        a.pooled_mean))
+        return hashlib.sha256(b).hexdigest()[:12]
+    pcfg = ProtocolConfig(n_boot=cfg.n_boot, n_dir_boot=cfg.n_dir_boot, target_n_boot=cfg.target_n_boot)
+    tgt = make_target("covariate", SimConfig(seed=0), geom=sd.geom, seed=100)
+    tcid = np.zeros(len(tgt.Z), int)
+    o1 = execute_protocol(sd.Z, sd.Y, sd.D, tgt.Z, pcfg, src_group_ids=Gp,
+                          tgt_group_ids=tgt.group_ids, tgt_condition_ids=tcid, seed=0)
+    o2 = execute_protocol(Z2, Y2, D2, tgt.Z, pcfg, src_group_ids=G2,
+                          tgt_group_ids=tgt.group_ids, tgt_condition_ids=tcid, seed=0)
+    full_protocol = dict(
+        atlas_hash_before=_atlas_hash(o1["analysis"].atlas), atlas_hash_after=_atlas_hash(o2["analysis"].atlas),
+        source_status_before=o1["analysis"].source_status, source_status_after=o2["analysis"].source_status,
+        tau_detect_before=round(o1["tau_detect"], 8), tau_detect_after=round(o2["tau_detect"], 8),
+        tau_label_before=round(o1["tau_label"], 8), tau_label_after=round(o2["tau_label"], 8),
+        cov_stable_before=bool(o1["analysis"].cov_stable), cov_stable_after=bool(o2["analysis"].cov_stable),
+        certificate_before=o1["certificate"].state, certificate_after=o2["certificate"].state)
+
     # principal-angle primitive response (controlled directions): rank-1 cov along u, concept @theta
     d6 = 6; u = np.zeros(d6); u[0] = 1.0
     A = (np.arange(1, 9, dtype=float))[:, None] * u[None, :]
@@ -110,11 +135,23 @@ def contract_diagnostics(cfg, seeds):
         w = np.cos(np.radians(th)) * u + np.sin(np.radians(th)) * np.eye(d6)[1]
         angle_response[th] = round(cov_concept_angle(A, (w / np.linalg.norm(w))[:, None]), 2)
 
-    stages = ["analyze_source", "residual_cv", "residual_null", "geometry_null", "cov_bootstrap",
-              "calibration", "oracle", "certify_robust", "concept_stability"]
-    named_seeds = {st: stage_seed(0, st) for st in stages}
+    # ACTUAL executor-derived stage seeds (CSC-P1.4.5 audit): the executor derives a per-stage seed
+    # from the ROOT via ctx.seed(stage); the source-internal stages (residual/geometry/cov) are then
+    # derived AGAIN from the analyze_source seed -- record the real chain, not a flat root-level calc.
+    root = 0
+    s_analyze = stage_seed(root, "analyze_source")
+    named_seeds = {"root": root,
+                   "analyze_source": s_analyze,
+                   "calibrate_thresholds": stage_seed(root, "calibrate_thresholds"),
+                   "certify_robust": stage_seed(root, "certify_robust"),
+                   "analyze_source/residual_cv": stage_seed(s_analyze, "residual_cv"),
+                   "analyze_source/residual_null": stage_seed(s_analyze, "residual_null"),
+                   "analyze_source/geometry_null": stage_seed(s_analyze, "geometry_null"),
+                   "analyze_source/cov_bootstrap": stage_seed(s_analyze, "cov_bootstrap"),
+                   "analyze_source/concept_stability": stage_seed(s_analyze, "concept_stability")}
 
     return dict(per_source=per_source, full_residual_test_duplication_invariance=full_T,
+                full_protocol_duplication_invariance=full_protocol,
                 principal_angle_response=angle_response,
                 named_stage_seeds_at_root0=named_seeds,
                 seed_hash_algo="sha256", builtin_python_hash_used=False,

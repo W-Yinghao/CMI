@@ -80,7 +80,7 @@ def test_attribution_failure_blocks_both_states():
     src = make_source(SimConfig(seed=0), n_domains=8, concept_domains=3, seed=0)
     sa = analyze_source(src.Z, src.Y, src.D, n_boot=20, n_dir_boot=40, group_ids=src.group_ids, seed=0)
     cov_like = make_source(SimConfig(seed=0), n_domains=8, concept_domains=3, seed=0)  # any target Z
-    for st in ("UNSTABLE_CONCEPT_ATTRIBUTION", "UNASSESSED_CONCEPT_STABILITY"):
+    for st in ("UNSTABLE_CONCEPT_ATTRIBUTION", "UNASSESSED_CONCEPT_ATTRIBUTION"):
         bad = dataclasses.replace(sa, source_status=st)
         c = certify(bad, cov_like.Z[:300], group_ids=cov_like.group_ids[:300])
         assert c.state == UNIDENTIFIABLE, f"{st} must block BOTH states, got {c.state}"
@@ -119,16 +119,19 @@ def test_single_condition_target_and_profile_tau():
         raise AssertionError("multi-condition target must be rejected")
     except ProtocolError:
         pass
-    # cluster-size profile drives tau: same subject count, fewer epochs/subject -> larger tau
+    # cluster-size profile drives tau: same subject count, fewer epochs/subject => larger subject-mean
+    # sampling variance (Gaussian model N(mu_s, var_s/n_i)) => larger tau. Between-subject spread
+    # DOMINATES, so the n_i effect is real but SMALL; average over calibrate seeds to clear MC noise.
     from csc.certificate.atlas import build_atlas
     at = build_atlas(src.Z, src.Y, src.D, group_ids=src.group_ids)
-    big = calibrate_thresholds(src.Z, src.Y, src.D, at, CertifierConfig(), block_ids_tr=src.group_ids,
-                               target_epochs_per_subject=np.full(12, 80), n_block=100, seed=0)
-    small = calibrate_thresholds(src.Z, src.Y, src.D, at, CertifierConfig(), block_ids_tr=src.group_ids,
-                                 target_epochs_per_subject=np.full(12, 3), n_block=100, seed=0)
-    assert small.tau_detect > big.tau_detect, (small.tau_detect, big.tau_detect)
+    def _tau(ni, cs):
+        return calibrate_thresholds(src.Z, src.Y, src.D, at, CertifierConfig(), block_ids_tr=src.group_ids,
+                                    target_epochs_per_subject=np.full(12, ni), n_block=200, seed=cs).tau_detect
+    small = float(np.mean([_tau(1, cs) for cs in range(8)]))
+    big = float(np.mean([_tau(200, cs) for cs in range(8)]))
+    assert small > big, (small, big)
     print(f"OK single-condition target enforced; tau matches profile "
-          f"(3-ep {small.tau_detect:.2f} > 80-ep {big.tau_detect:.2f})")
+          f"(seed-avg 1-ep {small:.3f} > 200-ep {big:.3f})")
 
 
 # 8 ---- visibility helper uses the SAME subject-vote aggregator as the certifier ---------------

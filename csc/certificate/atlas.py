@@ -67,7 +67,7 @@ class SourceAnalysis:
     # support, residual null, geometry null AND concept-attribution stability are ALL OK (cov-
     # stability is NOT a whole-source abstain -- it only blocks the COVARIATE branch).
     source_status: str = "VALID"      # VALID | INVALID_SUPPORT | INVALID_RESIDUAL_NULL |
-                                      # INVALID_GEOMETRY_NULL | UNASSESSED_CONCEPT_STABILITY |
+                                      # INVALID_GEOMETRY_NULL | UNASSESSED_CONCEPT_ATTRIBUTION |
                                       # UNSTABLE_CONCEPT_ATTRIBUTION
 
 
@@ -122,19 +122,25 @@ def _principal_angle_cos(B1, B2) -> float:
 # subject with many epochs does not dominate the atlas (matching the target / gate / bootstrap
 # / oracle units). Epoch mean when no group_ids.
 # --------------------------------------------------------------------------------------
-def _cell_mean(Z, mask, g=None):
+def _cell_mean(Z, mask, g=None, D=None):
+    """ONE shared CONDITION-FIRST subject-vote primitive (CSC-P1.4.5 #2): mean over masked rows
+    per (subject,condition) cell, then equal-weight over the subject's conditions, then over
+    subjects -- identical to `cluster_mean`, so the atlas class means use the SAME estimand as the
+    target/calibrator. With D given, a paired subject's high-epoch condition cannot shift a class
+    pool mean. Within a single (domain,class) cell D is constant -> reduces to per-subject."""
     if g is None:
         return Z[mask].mean(0)
-    gm = g[mask]
-    return np.stack([Z[mask][gm == u].mean(0) for u in np.unique(gm)]).mean(0)
+    Dm = None if D is None else np.asarray(D)[mask]
+    return cluster_mean(Z[mask], np.asarray(g)[mask], Dm)
 
 
-def _means(Z, Y, classes, g=None):
-    return {c: _cell_mean(Z, Y == c, g) for c in classes}
+def _means(Z, Y, classes, g=None, D=None):
+    # class POOL means span ALL conditions -> MUST be condition-first (pass D).
+    return {c: _cell_mean(Z, Y == c, g, D) for c in classes}
 
 
 def _offsets_residuals(Z, Y, D, classes, domains, g=None):
-    mu_pool = _means(Z, Y, classes, g)
+    mu_pool = _means(Z, Y, classes, g, D)
     a_list, r_list = [], []
     for dd in domains:
         dev = {}
@@ -142,7 +148,7 @@ def _offsets_residuals(Z, Y, D, classes, domains, g=None):
             m = (D == dd) & (Y == c)
             if m.sum() == 0:
                 continue
-            dev[c] = _cell_mean(Z, m, g) - mu_pool[c]      # subject-vote cell mean
+            dev[c] = _cell_mean(Z, m, g, D) - mu_pool[c]   # condition-first subject-vote cell mean
         if not dev:
             continue
         a_d = np.mean(np.stack(list(dev.values())), axis=0)
@@ -382,21 +388,27 @@ def analyze_source(Z, Y, D,
         # not merely "has all class labels"); charged as extreme below.
         supb = check_support_graph(Yb, D, group_ids=group_ids, n_folds=n_folds, check_design=False)
         if not supb.valid:
-            n_geom_invalid += 1
+            n_geom_invalid += 1; cov_load_null.append(0.0)   # invalid -> 0 in q0 (never raises it)
             continue
         try:
             cov_dirs_b, _, s_b, _, _, R_b = _concept_geometry(Z, Yb, D, classes, domains, var_keep, groups)[:6]
         except Exception:
-            n_geom_invalid += 1
+            n_geom_invalid += 1; cov_load_null.append(0.0)
             continue
         if not s_b.size:
-            n_geom_invalid += 1
+            n_geom_invalid += 1; cov_load_null.append(0.0)
             continue
         null_top.append(float(s_b[0]))
-        # cov null scale: cov subspace RE-ESTIMATED per replicate (not the fixed observed dirs).
+        # cov null SCALE (noise floor q0). CSC-P1.4.5 #5: NEVER selectively drop a value -- a valid
+        # replicate whose cov subspace is empty has a natural loading of 0 and MUST be kept as 0
+        # (dropping 0s would RAISE q0 -> raise kappa*q0 -> make cov_stable EASIER, an adverse
+        # selective conditioning). q0 is a noise scale, so a LARGER null is adverse; hence we never
+        # charge +inf here (unlike the OBSERVED cov bootstrap), only 0 for empty/invalid.
         if cov_dirs_b.shape[1]:
             Rcb = R_b - R_b.mean(0, keepdims=True)
             cov_load_null.append(float(np.linalg.svd(Rcb @ cov_dirs_b, compute_uv=False)[0]))
+        else:
+            cov_load_null.append(0.0)                      # valid replicate, empty cov subspace -> 0
     null_top = np.asarray(null_top)
 
     # GEOMETRIC concept gate: a p-value CALIBRATED by PARAMETRIC BOOTSTRAP under the FITTED h0
@@ -422,11 +434,13 @@ def analyze_source(Z, Y, D,
     # magnitude-only gate (concept_top >= kappa*cov_noise_scale) was UNCALIBRATED (full-R top vs a
     # cov-subspace projection -> ~always passes); it is reported as a diagnostic, not a gate.
     concept_geom_present = bool(concept_top >= cov_loading_margin_kappa * cov_noise_scale)  # diag
-    # a concept CANDIDATE = geometric max-stat AND cross-fitted decoder both fire AND a dominant
-    # leading concept direction exists. concept is EVIDENCED only if that candidate is also
-    # cross-split STABLE. Instability matters (blocks BOTH states) only for a real candidate.
-    concept_candidate = bool(p_global <= alpha) and bool(test.significant) and has_concept_dir
-    concept_evidenced = concept_candidate and concept_stable
+    # CSC-P1.4.5 #3: SEPARATE the concept SIGNAL from the attribution ASSESSABILITY. A concept
+    # SIGNAL (geometric max-stat AND decoder) with NO well-defined/stable leading direction
+    # (tied spectrum / no eigengap / unsplittable) must ABSTAIN -- it must NOT silently become
+    # 'no candidate' and let the source stay VALID for the covariate branch (the old fail-open).
+    concept_signal = bool(p_global <= alpha) and bool(test.significant)
+    attribution_assessable = bool(sep_assessable and has_concept_dir)   # eigengap + enough subjects
+    concept_evidenced = concept_signal and concept_stable               # stable => assessable
     n_keep = 1 if concept_evidenced else 0
     if concept_evidenced:
         atlas.concept_dirs = Vt_obs[:1].T
@@ -481,13 +495,13 @@ def analyze_source(Z, Y, D,
     # it still certifies covariate. (cov-instability alone is NOT a whole-source abstain.)
     if not geom_estimable:
         source_status = "INVALID_GEOMETRY_NULL"
-    elif concept_candidate and not sep_assessable:
-        source_status = "UNASSESSED_CONCEPT_STABILITY"
-    elif concept_candidate and not concept_stable:
-        source_status = "UNSTABLE_CONCEPT_ATTRIBUTION"
+    elif concept_signal and not attribution_assessable:
+        source_status = "UNASSESSED_CONCEPT_ATTRIBUTION"   # signal but no eigengap / unsplittable
+    elif concept_signal and not concept_stable:
+        source_status = "UNSTABLE_CONCEPT_ATTRIBUTION"     # assessable but cross-split unstable
     else:
         source_status = "VALID"
-    attribution_unreliable = source_status in ("UNASSESSED_CONCEPT_STABILITY",
+    attribution_unreliable = source_status in ("UNASSESSED_CONCEPT_ATTRIBUTION",
                                                "UNSTABLE_CONCEPT_ATTRIBUTION")
 
     return SourceAnalysis(atlas, test, concept_evidenced, bool(cov_stable),
@@ -511,7 +525,8 @@ def analyze_source(Z, Y, D,
                                       concept_disagreement_deg=sep_disagree,
                                       concept_attribution_assessable=bool(sep_assessable),
                                       has_dominant_concept_dir=bool(has_concept_dir),
-                                      concept_candidate=bool(concept_candidate),
+                                      concept_signal=bool(concept_signal),
+                                      attribution_assessable=bool(attribution_assessable),
                                       concept_attribution_unstable=(source_status == "UNSTABLE_CONCEPT_ATTRIBUTION"),
                                       concept_stable=concept_stable,
                                       attribution_unreliable=bool(attribution_unreliable),

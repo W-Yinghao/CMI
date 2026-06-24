@@ -220,9 +220,13 @@ def execute_protocol(Z_src, Y_src, D_src, Z_tgt, cfg: ProtocolConfig,
     if cfg.group_aware and (src_group_ids is None or tgt_group_ids is None):
         raise ProtocolError("group_aware=True requires BOTH src_group_ids and tgt_group_ids "
                             "(refusing to silently degrade to IID)")
-    # CSC-P1.4.4 #4: ONE target certificate covers ONE condition/domain (the calibrator matches a
-    # single-condition cluster-size profile). A paired ON/OFF deployment is two batches, two calls.
-    if tgt_condition_ids is not None and len(np.unique(tgt_condition_ids)) > 1:
+    # CSC-P1.4.5 #6: target condition IDs are a MANDATORY contract -- ONE certificate covers ONE
+    # condition (the calibrator matches a single-condition cluster-size profile). MISSING ids FAIL
+    # CLOSED (not silently assumed single-condition); a paired ON/OFF deployment is two calls.
+    if tgt_condition_ids is None:
+        raise ProtocolError("tgt_condition_ids is REQUIRED: declare the target's single condition "
+                            "explicitly (missing condition ids fail closed, not assumed)")
+    if len(np.unique(tgt_condition_ids)) > 1:
         raise ProtocolError("execute_protocol target must be a SINGLE condition; run paired "
                             "ON/OFF as two separate target batches/calls")
     ctx = ExecutionContext(root_seed=seed)
@@ -260,10 +264,12 @@ def execute_protocol(Z_src, Y_src, D_src, Z_tgt, cfg: ProtocolConfig,
 
 
 def run_frozen_protocol(Z_src, Y_src, D_src, Z_tgt, cfg: ProtocolConfig,
-                        src_group_ids=None, tgt_group_ids=None, seed: int = 0) -> dict:
-    """Public alias for the single executor (kept for readability)."""
-    return execute_protocol(Z_src, Y_src, D_src, Z_tgt, cfg,
-                            src_group_ids=src_group_ids, tgt_group_ids=tgt_group_ids, seed=seed)
+                        src_group_ids=None, tgt_group_ids=None, tgt_condition_ids=None,
+                        seed: int = 0) -> dict:
+    """Public alias for the single executor. `tgt_condition_ids` is REQUIRED (CSC-P1.4.5 #6) and
+    forwarded -- the public path cannot bypass the single-condition target contract."""
+    return execute_protocol(Z_src, Y_src, D_src, Z_tgt, cfg, src_group_ids=src_group_ids,
+                            tgt_group_ids=tgt_group_ids, tgt_condition_ids=tgt_condition_ids, seed=seed)
 
 
 # --------------------------------------------------------------------------------------
@@ -280,6 +286,7 @@ def ood_power_bank(cfg: ProtocolConfig, seeds, n_domains: int = 8, concept_domai
             tb = make_target(kind, scfg, geom=src.geom, seed=1000 + s)
             out = execute_protocol(src.Z, src.Y, src.D, tb.Z, cfg,
                                    src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids,
+                                   tgt_condition_ids=np.zeros(len(tb.Z), int),   # single condition
                                    seed=s)
             sa = out["analysis"]
             recs.append(dict(seed=s, kind=kind, gen_truth=truth,
@@ -341,6 +348,7 @@ def synthetic_null_bank(cfg: ProtocolConfig, seeds, n_domains: int = 8, concept_
             tb = make_target(kind, scfg, geom=src.geom, seed=2000 + s)
             out = execute_protocol(src.Z, src.Y, src.D, tb.Z, cfg,
                                    src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids,
+                                   tgt_condition_ids=np.zeros(len(tb.Z), int),   # single condition
                                    seed=s)
             st = out["certificate"].state
             recs.append(dict(seed=s, kind=kind, cert=st))
@@ -372,7 +380,8 @@ if __name__ == "__main__":
     for kind in ("clean", "covariate", "boundary_coupled", "label_shift"):
         tb = make_target(kind, SimConfig(seed=0), geom=src.geom, seed=1)
         out = execute_protocol(src.Z, src.Y, src.D, tb.Z, cfg,
-                               src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids, seed=0)
+                               src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids,
+                               tgt_condition_ids=np.zeros(len(tb.Z), int), seed=0)
         print(f"  {kind:16s} -> {out['certificate'].state:20s} (tau_detect={out['tau_detect']:.2f})")
     try:
         execute_protocol(src.Z, src.Y, src.D, tb.Z, cfg, seed=0)   # group_aware, no ids

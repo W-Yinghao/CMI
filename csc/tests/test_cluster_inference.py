@@ -49,15 +49,18 @@ def test_cluster_mean_multiplicity():
 
 
 def test_subject_weights_one_vote():
-    # epochs weighted 1/n_s, mean 1: every subject contributes the SAME total weight regardless
-    # of how many epochs it has (one vote per subject), so cluster size can't change L2 strength.
+    # epochs weighted 1/n_s: every subject contributes the SAME total weight (one vote/subject), and
+    # CSC-P1.4.5 #1 fixes the SUM to #subjects (RAW, not renormalised to mean 1) -- sklearn lbfgs L2 =
+    # 1/(C*sum_w), so a fixed sum_w==S keeps the penalty (and T) invariant to epochs/subject.
     g = np.array([0, 0, 0, 0, 1, 2, 2])              # subject 0 has 4 epochs, 1 has 1, 2 has 2
     D = np.zeros_like(g)                             # single condition -> per-subject 1/n_s
     w = _subject_condition_weights(g, D)
-    assert abs(w.mean() - 1.0) < 1e-9
+    S = len(np.unique(g))
+    assert abs(w.sum() - S) < 1e-9, f"sum_w must equal #subjects S={S}, got {w.sum()}"
     totals = {u: w[g == u].sum() for u in np.unique(g)}
     assert max(totals.values()) - min(totals.values()) < 1e-9, totals
-    print(f"OK 1/n_s weights: equal per-subject totals {list(totals.values())}, mean 1")
+    assert all(abs(t - 1.0) < 1e-9 for t in totals.values()), "each subject = unit mass"
+    print(f"OK 1/n_s weights: per-subject total=1 (sum_w==S={S}, raw not mean-1): {list(totals.values())}")
 
 
 def test_subject_null_labels_coherent():

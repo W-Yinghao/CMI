@@ -48,6 +48,7 @@ def test_frozen_path_taxonomy():
             tb = make_target(kind, scfg, geom=src.geom, seed=100 + s)
             st = run_frozen_protocol(src.Z, src.Y, src.D, tb.Z, CFG,
                                      src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids,
+                                     tgt_condition_ids=np.zeros(len(tb.Z), int),
                                      seed=s)["certificate"].state
             ok[kind] += int(st == want)
             if st in FORBIDDEN[tb.truth]:
@@ -75,7 +76,8 @@ def test_frozen_path_is_cluster_aware():
     # 'subjects' now (correctly) fail the label_unit data-validation (CSC-P1.4.4 #1).
     tb = make_target("covariate", scfg, geom=src.geom, seed=200)
     out = run_frozen_protocol(src.Z, src.Y, src.D, tb.Z, CFG,
-                              src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids, seed=2)
+                              src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids,
+                              tgt_condition_ids=np.zeros(len(tb.Z), int), seed=2)
     assert out["certificate"].state in (COVARIATE_COMPATIBLE, UNIDENTIFIABLE)
     assert out["analysis"].detail["cluster_aware"] is True
     print(f"OK cluster-aware frozen path runs -> {out['certificate'].state}")

@@ -221,6 +221,18 @@ analysis unit. Everywhere else it abstains. It may err by over-abstaining (low p
 to never err by **false certification**. The certifier thresholds the **exact same** statistic
 (`components`/`visibility_statistic`) the calibrator calibrates.
 
+**Whole-protocol epoch-duplication invariance (CSC-P1.4.5).** Duplicating a (subject,condition)'s
+epochs is redundant data and must change NOTHING. This now holds for the ENTIRE protocol, not just
+`T`: (a) the logistic fits use RAW subject-condition weights `1/(|U_s| n_su)` summing to `#subjects`,
+so sklearn's `L2 = 1/(C·Σw)` is invariant; (b) the atlas class-pool means, the `h0` null `q_s`, and
+the oracle priors all use ONE condition-first subject-vote primitive; (c) the calibrator draws each
+pseudo-subject mean from a Gaussian sampling model `N(μ_s, σ²_s/n_i)` — `μ_s` (condition-first mean)
+and `σ²_s` (per-dim epoch variance) are computed from the subject's epochs and are duplication-
+invariant, while `n_i` still injects the TARGET's per-subject sampling variance, so `tau_detect` is
+EXACTLY invariant (a row-resample would have depended on the growing source row pool). Verified
+end-to-end: `T`, atlas subspaces, `source_status`, `tau_detect/label`, `cov_stable` and the
+certificate are byte/`≤1e-15` identical before vs after a 5× subject duplication.
+
 **Confidence-region decision (Γ_T, CSC-P1).** A single target-mean point is replaced by a
 block-bootstrap of the target rows: a definite state is emitted only if a consensus fraction
 of replicates agree (the bootstrap region maps to a single attribution — `Γ_T` a singleton);

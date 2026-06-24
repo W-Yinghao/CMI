@@ -318,9 +318,9 @@ clusters**.
   singular vector of the class residual) must (a) be well-defined (relative eigengap ≥
   `concept_eigengap_min`) and (b) REPRODUCE across independent subject-halves within
   `concept_stability_max_deg` (sign-invariant angle, upper quantile over splits). An UNASSESSABLE or
-  UNSTABLE attribution of a real concept CANDIDATE (geometric + decoder evidence) abstains BOTH
-  definite states (`UNASSESSED_CONCEPT_STABILITY` / `UNSTABLE_CONCEPT_ATTRIBUTION`) — the cov_dirs
-  depend on the concept projection. A covariate-only source (no candidate) is unaffected and still
+  UNSTABLE attribution of a real concept SIGNAL (geometric + decoder evidence) abstains BOTH
+  definite states (`UNASSESSED_CONCEPT_ATTRIBUTION` / `UNSTABLE_CONCEPT_ATTRIBUTION`) — the cov_dirs
+  depend on the concept projection. A covariate-only source (no signal) is unaffected and still
   certifies covariate. (`min_principal_angle_deg` was REMOVED from the manifest: it was hashed but
   drove no decision.)
 * **Conservative cov-bootstrap (P1.4.4 #3).** An invalid cov replicate is charged `+∞` and KEPT in
@@ -334,6 +334,38 @@ clusters**.
   NOT a proof of finite-sample type-I control (the null bank is 0/4, CP UB 0.527). New manifest fields
   in the hash: `label_unit`, `concept_stability_max_deg`, `concept_eigengap_min`,
   `invalid_null_frac_max`. Inference procedure changed each round ⇒ numbers are not poolable.
+
+### 6.7d CSC-P1.4.5 (epoch-duplication invariance of the WHOLE protocol, condition-first end-to-end)
+* **Regularisation scale is duplication-invariant (P1.4.5 #1).** sklearn lbfgs applies L2 =
+  `1/(C · Σ_i w_i)`, so the EFFECTIVE penalty depends on the TOTAL sample-weight. The subject-condition
+  weights `1/(|U_s| n_su)` are RAW (NOT renormalised to mean 1), hence `Σ_i w_i = #training subjects`
+  regardless of epochs/subject. Duplicating a subject-condition's epochs leaves the penalty — and
+  therefore `T` — invariant to machine epsilon (verified `|ΔT| ≤ 1e-15`, not optimiser noise).
+* **FULL-PROTOCOL invariance (P1.4.5 #2).** Duplicating a whole source subject 1×/5× leaves EVERY
+  downstream output invariant: `T`, the atlas subspaces (cov/concept/label/pooled hash), `source_status`,
+  `tau_detect`, `tau_label` AND the final certificate. The calibrator draws each pseudo-subject mean
+  from a Gaussian sampling model `N(μ_s, σ²_s/n_i)` with `μ_s` the subject's condition-first mean and
+  `σ²_s` its per-dim epoch variance (both duplication-invariant), so `tau` is EXACTLY invariant — an
+  empirical row-resample would depend on the source row pool (which grows under duplication). The audit
+  records the full before/after comparison.
+* **Condition-first estimand end-to-end (P1.4.5 #2).** ONE shared subject-vote primitive
+  (`= cluster_mean` over the masked cell) computes the atlas class-POOL means, the per-(domain,class)
+  cell means, the `h0` null `q_s` (`exp[(1/|U_s|) Σ_u (1/n_su) Σ_e log p̂_0]`), and the oracle (fits +
+  WEIGHTED class priors `_wprior`). A paired subject's high-epoch condition cannot dominate any moment.
+* **Concept SIGNAL vs ATTRIBUTABILITY are separate gates (P1.4.5 #3).** A geometric+decoder concept
+  SIGNAL whose leading direction is not identifiable (near-tied eigengap, multi-axis / tied-spectrum
+  shift) is `UNASSESSED_CONCEPT_ATTRIBUTION` — it BLOCKS both definite states (safe abstain), and is
+  NOT reinterpreted as "no candidate ⇒ certify covariate".
+* **Per-replicate source validity (P1.4.5 #4).** Each residual-NULL replicate runs the SAME validity
+  pipeline as the observed source (label-unit + support graph + grouped-fold all-class coverage); an
+  invalid replicate is charged as extreme and bounded by `invalid_null_frac_max`.
+* **Cov-loading null keeps a value per replicate (P1.4.5 #5).** An empty cov subspace or invalid
+  replicate contributes `0` (NEVER dropped) to the noise floor `q0`. Since a LARGER `q0` would make
+  `cov_stable=(cov_ub<κ·q0)` EASIER, inserting `0`s can only TIGHTEN stability — dropping them (the bug)
+  would loosen it.
+* **Mandatory target condition ids (P1.4.5 #6).** `tgt_condition_ids` is a REQUIRED contract on BOTH
+  public entry points (`execute_protocol`, `run_frozen_protocol`); a MISSING declaration FAILS CLOSED
+  (not silently assumed single-condition), a multi-condition target is rejected.
 
 ### 6.7 Pre-registered DIFFICULTY ENVELOPE (required before any freeze/confirmatory)
 Power is NOT a single number; it is a surface. Before a confirmatory claim we will sweep, on

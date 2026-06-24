@@ -81,7 +81,7 @@ def test_source_status_gate_abstains():
     sa = analyze_source(src.Z, src.Y, src.D, n_boot=20, n_dir_boot=40,
                         group_ids=src.group_ids, seed=0)
     for st in ("INVALID_SUPPORT", "INVALID_RESIDUAL_NULL", "INVALID_GEOMETRY_NULL",
-               "UNASSESSED_CONCEPT_STABILITY", "UNSTABLE_CONCEPT_ATTRIBUTION"):
+               "UNASSESSED_CONCEPT_ATTRIBUTION", "UNSTABLE_CONCEPT_ATTRIBUTION"):
         sa_bad = dataclasses.replace(sa, source_status=st)
         c = certify(sa_bad, src.Z[:300], group_ids=src.group_ids[:300])
         assert c.state == UNIDENTIFIABLE, f"status {st} must abstain, got {c.state}"
@@ -111,7 +111,7 @@ def test_separability_unassessed_abstains():
     # and an UNASSESSED-stability source must abstain end-to-end
     src = make_source(SimConfig(seed=0), n_domains=8, concept_domains=3, seed=0)
     sa = analyze_source(src.Z, src.Y, src.D, n_boot=20, n_dir_boot=40, group_ids=src.group_ids, seed=0)
-    sa_un = dataclasses.replace(sa, source_status="UNASSESSED_CONCEPT_STABILITY")
+    sa_un = dataclasses.replace(sa, source_status="UNASSESSED_CONCEPT_ATTRIBUTION")
     assert certify(sa_un, src.Z[:300], group_ids=src.group_ids[:300]).state == UNIDENTIFIABLE
     print("OK concept-stability unassessed -> abstain (fail-closed)")
 
@@ -148,14 +148,16 @@ def test_calibration_matches_cluster_size_profile():
     at = build_atlas(src.Z, src.Y, src.D, group_ids=src.group_ids)
     base = CertifierConfig()
     k = 12
-    big = calibrate_thresholds(src.Z, src.Y, src.D, at, base, block_ids_tr=src.group_ids,
-                               target_epochs_per_subject=np.full(k, 60), n_block=80, seed=0)
-    small = calibrate_thresholds(src.Z, src.Y, src.D, at, base, block_ids_tr=src.group_ids,
-                                 target_epochs_per_subject=np.full(k, 4), n_block=80, seed=0)
-    # same subject count k, but few-epochs/subject => larger subject-mean sampling variance => larger tau
-    assert small.tau_detect > big.tau_detect, (small.tau_detect, big.tau_detect)
-    print(f"OK calibration matches cluster-size profile: tau_detect 4-ep={small.tau_detect:.2f} "
-          f"> 60-ep={big.tau_detect:.2f} (same subject count)")
+    # the Gaussian sampling model mean ~ N(mu_s, var_s/n_i) makes few-epochs/subject => larger tau a
+    # real but SMALL effect (between-subject spread dominates); average over calibrate seeds to resolve.
+    def _tau(ni, cs):
+        return calibrate_thresholds(src.Z, src.Y, src.D, at, base, block_ids_tr=src.group_ids,
+                                    target_epochs_per_subject=np.full(k, ni), n_block=200, seed=cs).tau_detect
+    small = float(np.mean([_tau(1, cs) for cs in range(8)]))
+    big = float(np.mean([_tau(200, cs) for cs in range(8)]))
+    assert small > big, (small, big)
+    print(f"OK calibration matches cluster-size profile: seed-avg tau_detect 1-ep={small:.3f} "
+          f"> 200-ep={big:.3f} (same subject count)")
 
 
 if __name__ == "__main__":

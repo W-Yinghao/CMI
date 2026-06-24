@@ -250,18 +250,19 @@ def _condition_cells(groups, D):
 
 
 def _subject_condition_weights(groups, D):
-    """Fit weights w_sue ∝ 1/(|U_s| * n_su) (subject-CONDITION unit), normalised to MEAN 1. A
-    condition with more epochs no longer dominates a subject's loss, and a subject with more
-    conditions does not get extra total weight -- one vote per biological subject."""
+    """Fit weights w_sue = 1/(|U_s| * n_su) (subject-CONDITION unit). CSC-P1.4.5 #1: the weights are
+    RETURNED RAW so that sum_sue w = S = number of biological subjects (each subject contributes
+    total weight 1, condition-balanced). They are NOT renormalised to row-level mean 1 -- that
+    would make sum_w = N_rows, and since sklearn lbfgs uses L2 = 1/(C * sum_w), duplicating a
+    subject-condition's epochs would WEAKEN regularisation and change the fit/T. With sum_w = S
+    fixed, epoch duplication leaves the effective C (and hence T) invariant."""
     g = np.asarray(groups)
     cell, subj_of_cell = _condition_cells(g, D)
     n_su = np.bincount(cell)                                # epochs per (subject,condition) cell
-    # |U_s| = number of distinct conditions for each subject
     US = {}
     for c, s in subj_of_cell.items():
-        US[s] = US.get(s, 0) + 1
-    w = np.array([1.0 / (US[subj_of_cell[c]] * n_su[c]) for c in cell])
-    return w * (len(w) / w.sum())
+        US[s] = US.get(s, 0) + 1                            # |U_s| = #conditions for subject s
+    return np.array([1.0 / (US[subj_of_cell[c]] * n_su[c]) for c in cell])   # sum == S
 
 
 def _weighted_standardise(Z, w=None):
@@ -417,13 +418,22 @@ def subject_null_labels(p0, groups, classes, rng, D=None, label_unit="subject") 
     g = np.asarray(groups)
     if label_unit == "trial":
         return sample_labels(p0, classes, rng)              # per-epoch resample under h0
-    key = g if (label_unit == "subject" or D is None) else D
-    cell, _ = _condition_cells(g, key)
     out = np.empty(len(g), dtype=cl.dtype)
     logp = np.log(np.clip(p0, 1e-12, 1.0))
-    for u in np.unique(cell):
-        m = cell == u
-        q = np.exp(logp[m].mean(0)); q = q / q.sum()        # geometric mean over the cell's epochs
+    if label_unit == "subject_condition" and D is not None:
+        cell, _ = _condition_cells(g, D)                    # one Y* per (subject,condition) cell
+        units = [cell == u for u in np.unique(cell)]
+    else:                                                   # label_unit == "subject": one Y* per subject
+        units = [g == s for s in np.unique(g)]
+    Du = None if D is None else np.asarray(D)
+    for m in units:
+        # CSC-P1.4.5 #2: q_s ∝ exp[(1/|U_s|) sum_u (1/n_su) sum_e log p0]  -- CONDITION-FIRST geometric
+        # mean within the unit (so a paired subject's high-epoch condition cannot dominate q_s).
+        if Du is None or label_unit == "subject_condition":
+            lm = logp[m].mean(0)
+        else:
+            lm = np.mean([logp[m & (Du == c)].mean(0) for c in np.unique(Du[m])], axis=0)
+        q = np.exp(lm); q = q / q.sum()
         y = cl[int((rng.random() > np.cumsum(q)).sum())]
         out[m] = y
     return out
@@ -450,6 +460,19 @@ def _conservative_p(valid_null, n_invalid, T, n_boot):
     extreme (raise p) -> selective dropping can never LOWER the p-value (CSC-P1.4.2 #1)."""
     n_extreme = int(np.sum(np.asarray(valid_null) >= T)) if len(valid_null) else 0
     return (1.0 + n_extreme + n_invalid) / (1.0 + n_boot)
+
+
+def _replicate_valid(Yb, D, group_ids, groups, n_folds, label_unit, s_cv):
+    """A null/bootstrap replicate is VALID only if it passes the SAME pipeline as the observed
+    source (CSC-P1.4.5 #4): label-unit consistency, support graph, and grouped-fold all-class
+    coverage. Used to count invalid replicates conservatively (charged as extreme)."""
+    try:
+        validate_label_unit(Yb, groups, D, label_unit)
+    except LabelUnitError:
+        return False
+    if not check_support_graph(Yb, D, group_ids=group_ids, n_folds=n_folds, check_design=False).valid:
+        return False
+    return _subject_fold_assignment(groups, Yb, n_folds, s_cv)[2]   # all-class fold coverage
 
 
 def residual_decoder_test(Z, Y, D,
@@ -492,7 +515,10 @@ def residual_decoder_test(Z, Y, D,
     null, n_invalid = [], 0
     for b in range(n_boot):
         Yb = subject_null_labels(p0, groups, classes, rng, D=D, label_unit=label_unit)
-        if len(np.unique(Yb)) < 2:                  # degenerate replicate -> charged as extreme
+        # CSC-P1.4.5 #4: each replicate runs the SAME source-validity pipeline as the observed
+        # source (label-unit + support graph + grouped-fold all-class coverage). A relabel that is
+        # all-classes-present but disconnected / cell-starved / fold-stranding is INVALID, not valid.
+        if not _replicate_valid(Yb, D, group_ids, groups, n_folds, label_unit, s_cv):
             n_invalid += 1
             continue
         try:

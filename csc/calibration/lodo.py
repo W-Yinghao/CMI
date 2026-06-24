@@ -97,22 +97,30 @@ def calibrate_thresholds(Z_tr, Y_tr, D_tr, atlas, base_cfg: CertifierConfig,
     rng = np.random.default_rng(stage_seed(seed, "calibration"))
     vis, lab = [], []
     reps = max(1, n_block // len(domains))
+    # CSC-P1.4.5 audit: pseudo-subject means are drawn from a GAUSSIAN sampling model
+    #   mean(n_i epochs) ~ N( mu_s ,  var_s / n_i ),
+    # where mu_s is the subject's CONDITION-FIRST mean and var_s its per-dim epoch variance -- BOTH
+    # invariant to epoch duplication (mean/var of duplicated data are unchanged). This matches the
+    # target's per-subject sampling variance (via n_i) AND makes tau_detect EXACTLY duplication-
+    # invariant (an empirical row-resample would depend on the source row pool, which changes).
     for d in domains:
         idx = np.where(D_tr == d)[0]
         subs = np.unique(bids[idx])
+        mu_s, var_s = {}, {}
         sub_rows = {s: idx[bids[idx] == s] for s in subs}
+        for s in subs:
+            r = sub_rows[s]
+            mu_s[s] = cluster_mean(Z_tr[r], np.full(len(r), s), D_tr[r])   # condition-first subject mean
+            var_s[s] = Z_tr[r].var(0)                        # per-dim epoch variance (invariant)
         prof = (np.asarray(target_epochs_per_subject) if target_epochs_per_subject is not None
-                else np.array([len(sub_rows[s]) for s in subs]))   # default: source profile
+                else np.array([len(sub_rows[s]) for s in subs]))   # epochs/subject profile
         k = len(prof)
         for _ in range(reps):
             pick = rng.choice(subs, size=k, replace=True)
-            rows, gid = [], []
-            for i, (s, n_i) in enumerate(zip(pick, prof)):
-                avail = sub_rows[s]
-                draw = rng.choice(avail, size=int(n_i), replace=(len(avail) < n_i))  # match epochs/subj
-                rows.append(draw); gid.append(np.full(int(n_i), i))
-            bs = np.concatenate(rows); gid = np.concatenate(gid)
-            delta = cluster_mean(Z_tr[bs], gid) - atlas.pooled_mean   # SUBJECT-VOTE, like certifier
+            pseudo = np.stack([mu_s[s] + rng.standard_normal(Z_tr.shape[1])
+                               * np.sqrt(var_s[s] / max(int(n_i), 1))
+                               for s, n_i in zip(pick, prof)])
+            delta = pseudo.mean(0) - atlas.pooled_mean       # one vote per pseudo-subject
             c = components(atlas, delta)
             vis.append(max(c["n_cov"], c["n_concept"], c["n_resid"]))
             lab.append(c["n_label"])
@@ -132,11 +140,16 @@ def calibrate_tau_detect(Z, Y, D, atlas, alpha=0.05, n_block=240, seed=0) -> flo
 # --------------------------------------------------------------------------------------
 # (#6) oracle boundary effect: refit bootstrap + two-sided equivalence band
 # --------------------------------------------------------------------------------------
-def _subj_w(groups):
-    """1/n_s epoch weights, mean 1 (one vote per subject in a fit)."""
-    uniq, inv, counts = np.unique(groups, return_inverse=True, return_counts=True)
-    w = 1.0 / counts[inv]
-    return w * (len(w) / w.sum())
+def _subj_w(groups, D=None):
+    """Subject(-condition) fit weights, RAW so sum == #subjects (CSC-P1.4.5 #1: NOT mean-1, which
+    would scale sum to N_rows and change sklearn's L2 = 1/(C*sum_w) under epoch duplication). With
+    D given: w = 1/(|U_s| n_su) (condition-balanced); without: w = 1/n_s."""
+    from ..certificate.residual_test import _subject_condition_weights
+    g = np.asarray(groups)
+    if D is not None:
+        return _subject_condition_weights(g, D)
+    uniq, inv, counts = np.unique(g, return_inverse=True, return_counts=True)
+    return 1.0 / counts[inv]                                # sum == #subjects
 
 
 def _subject_mean(values, groups):
@@ -145,20 +158,30 @@ def _subject_mean(values, groups):
     return float(np.mean([values[g == u].mean() for u in np.unique(g)]))
 
 
+def _wprior(Y, w, cl):
+    """Class prior at the analysis unit: subject-condition WEIGHTED proportions (CSC-P1.4.5 #2),
+    not row proportions. Reduces to row proportions when w is None."""
+    Y = np.asarray(Y)
+    if w is None:
+        return np.array([(Y == c).mean() for c in cl]) + 1e-9
+    tot = float(np.asarray(w).sum())
+    return np.array([float(np.asarray(w)[Y == c].sum()) / tot for c in cl]) + 1e-9
+
+
 def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
                            n_boot=150, C=1.0, alpha=0.05,
                            eps_concept=0.03, eps_stable=0.01,
-                           group_tr=None, group_g=None, seed=0) -> OracleEffect:
-    """CSC-P1.4.2 #3: SUBJECT-level oracle, matching the decoder's estimand. The pooled and
-    group-specific logistic fits are SUBJECT-weighted (1/n_s); the boundary effect is aggregated
-    per BIOLOGICAL subject then averaged over subjects (not row-weighted); the OOB bootstrap
-    resamples WHOLE subjects (paired conditions stay together)."""
+                           group_tr=None, group_g=None, D_tr=None, D_g=None, seed=0) -> OracleEffect:
+    """SUBJECT-CONDITION oracle (CSC-P1.4.2 #3 / P1.4.5 #2), the SAME estimand as the decoder: fits
+    are subject-condition weighted (`1/(|U_s| n_su)`, RAW so sum==#subjects -> L2 invariant), the
+    class priors are subject-condition WEIGHTED (not row proportions), and the boundary effect is
+    aggregated per biological subject. The OOB bootstrap resamples WHOLE subjects (paired conditions
+    intact)."""
     from ..certificate.residual_test import stage_seed
     assert 0 < eps_stable < eps_concept, "pre-register 0 < eps_stable < eps_concept"
     cl = list(classes)
-    w_tr = None if group_tr is None else _subj_w(np.asarray(group_tr))
-    # SUBJECT-weighted scaler (CSC-P1.4.3 #4), matching the decoder's per-fold weighted scaler --
-    # not a row-weighted mean/std that a high-epoch subject would dominate.
+    w_tr = None if group_tr is None else _subj_w(np.asarray(group_tr), D_tr)
+    # SUBJECT-weighted scaler -- not a row mean/std a high-epoch subject would dominate.
     if w_tr is None:
         mu, sd = Z_tr.mean(0), Z_tr.std(0) + 1e-8
     else:
@@ -166,7 +189,7 @@ def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
         sd = np.sqrt(np.clip((w_tr[:, None] * (Z_tr - mu) ** 2).sum(0) / W, 0, None)) + 1e-8
     Ztr, Zg = (Z_tr - mu) / sd, (Z_g - mu) / sd
     M = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(Ztr, Y_tr, sample_weight=w_tr)
-    pi_tr = np.array([(Y_tr == c).mean() for c in cl]) + 1e-9
+    pi_tr = _wprior(Y_tr, w_tr, cl)
 
     rng = np.random.default_rng(stage_seed(seed, "oracle"))
     ng = len(Y_g)
@@ -190,12 +213,13 @@ def oracle_boundary_effect(Z_tr, Y_tr, Z_g, Y_g, classes,
         ybs = Y_g[bs]
         if len(np.unique(ybs)) < 2 or len(np.unique(Y_g[oob])) < 1:
             continue
-        # group-specific boundary refit on the bootstrap sample (SUBJECT-weighted)
+        # group-specific boundary refit on the bootstrap sample (SUBJECT-CONDITION weighted)
+        w_bs = _subj_w(gid_bs, None if D_g is None else np.asarray(D_g)[bs])
         clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(
-            Zg[bs], ybs, sample_weight=_subj_w(gid_bs))
+            Zg[bs], ybs, sample_weight=w_bs)
         p_g = _aligned_proba(clf, Zg[oob], cl)
-        # pooled boundary, prior-corrected to the group's ORACLE prior (isolates boundary)
-        pi_g = np.array([(ybs == c).mean() for c in cl]) + 1e-9
+        # pooled boundary, prior-corrected to the group's WEIGHTED oracle prior (isolates boundary)
+        pi_g = _wprior(ybs, w_bs, cl)
         p_sh = _aligned_proba(M, Zg[oob], cl) * (pi_g / pi_tr)[None, :]
         p_sh /= p_sh.sum(1, keepdims=True)
         yi = np.searchsorted(cl, Y_g[oob])
@@ -243,13 +267,14 @@ def nested_lodo(Z, Y, D, cfg=None, folds=None, group_ids=None, min_stable=2, see
         gtr = None if gid is None else gid[tr]
         gte = None if gid is None else gid[te]
         out = execute_protocol(Z[tr], Y[tr], D[tr], Z[te], cfg,
-                               src_group_ids=gtr, tgt_group_ids=gte, seed=seed)
+                               src_group_ids=gtr, tgt_group_ids=gte,
+                               tgt_condition_ids=D[te], seed=seed)   # held-out domain = one condition
         cert, sa = out["certificate"], out["analysis"]
         oracle = oracle_boundary_effect(Z[tr], Y[tr], Z[te], Y[te], classes,
                                         n_boot=cfg.oracle_boot, alpha=cfg.alpha,
                                         eps_concept=cfg.oracle_eps_concept_ce,
                                         eps_stable=cfg.oracle_eps_stable_ce,
-                                        group_tr=gtr, group_g=gte, seed=seed)
+                                        group_tr=gtr, group_g=gte, D_tr=D[tr], D_g=D[te], seed=seed)
         records.append(LodoRecord(fold=list(g), cert_state=cert.state, n_label=cert.n_label,
                                   n_cov=cert.n_cov, n_concept=cert.n_concept,
                                   tau_detect=out["tau_detect"],
