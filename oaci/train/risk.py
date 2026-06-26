@@ -37,8 +37,8 @@ def per_class_ce_sums(logits: torch.Tensor, y: torch.Tensor, n_classes: int, wei
     reproduces the full-set value exactly (partition- and window-duplication-invariant)."""
     per = F.cross_entropy(logits, y, reduction="none")
     w = torch.ones_like(per) if weight is None else torch.as_tensor(weight, dtype=per.dtype, device=per.device)
-    sums = torch.zeros(n_classes, dtype=per.dtype)
-    mass = torch.zeros(n_classes, dtype=per.dtype)
+    sums = torch.zeros(n_classes, dtype=per.dtype, device=per.device)   # on logits' device (cpu for CPU runs)
+    mass = torch.zeros(n_classes, dtype=per.dtype, device=per.device)
     for c in range(n_classes):
         m = y == c
         if m.any():

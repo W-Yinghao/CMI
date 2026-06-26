@@ -82,9 +82,10 @@ class ShallowConvNet(RepresentationClassifier):
     def _infer_feat_dim(self, in_chans: int, in_times: int) -> int:
         was_training = self.training
         self.eval()
+        dev = next(self.parameters()).device                 # match params (robust if built on GPU)
         try:
             with torch.no_grad():
-                z = self._features(torch.zeros(1, in_chans, in_times))
+                z = self._features(torch.zeros(1, in_chans, in_times, device=dev))
         finally:
             self.train(was_training)
         return int(z.shape[1])

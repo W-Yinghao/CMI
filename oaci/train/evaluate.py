@@ -35,11 +35,13 @@ def evaluate_guard(model, data, metric: str, chunk_size=None, device=None) -> Gu
         raise ValueError("chunk_size must be positive")
     dev = device or X.device
 
-    ce_num = torch.zeros((), dtype=torch.float64)        # for global ce
-    ce_den = torch.zeros((), dtype=torch.float64)
-    pc_num = torch.zeros(nc, dtype=torch.float64)        # per-class CE numerator/mass
-    pc_den = torch.zeros(nc, dtype=torch.float64)
-    err_num = torch.zeros(nc, dtype=torch.float64)       # per-class weighted errors/mass
+    # accumulate on the compute device (== cpu for CPU runs, so CPU results are byte-identical); on GPU
+    # this keeps the additive sufficient statistics on-device instead of mixing cuda operands with cpu scalars.
+    ce_num = torch.zeros((), dtype=torch.float64, device=dev)   # for global ce
+    ce_den = torch.zeros((), dtype=torch.float64, device=dev)
+    pc_num = torch.zeros(nc, dtype=torch.float64, device=dev)   # per-class CE numerator/mass
+    pc_den = torch.zeros(nc, dtype=torch.float64, device=dev)
+    err_num = torch.zeros(nc, dtype=torch.float64, device=dev)  # per-class weighted errors/mass
 
     with all_eval(model), torch.inference_mode():
         for a in range(0, n, cs):
