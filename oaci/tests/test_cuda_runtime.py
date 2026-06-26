@@ -79,6 +79,47 @@ def test_cuda_runtime_evidence_hash_binds_versions_device_and_flags():
         assert runtime_evidence_hash({**base, **over}) != h
 
 
+def test_runtime_evidence_hash_is_canonical():
+    from oaci.artifacts.canonical_json import canonical_json_hash
+    payload = {"torch_version": "2.0", "device_capability": [7, 0], "cudnn_version": 8902}
+    assert runtime_evidence_hash(payload) == canonical_json_hash(payload)
+    assert runtime_evidence_hash(payload) == runtime_evidence_hash({"cudnn_version": 8902, "device_capability": [7, 0], "torch_version": "2.0"})
+
+
+def test_native_threadpool_record_collection_and_single_thread_check():
+    from oaci.runtime.cuda import NativeThreadPoolRecord, assert_single_threaded, collect_native_threadpools, thread_env_record
+    recs = collect_native_threadpools()
+    assert all(isinstance(r, NativeThreadPoolRecord) for r in recs)        # structure
+    assert all(isinstance(e, tuple) and len(e) == 2 for e in thread_env_record())
+    assert_single_threaded((NativeThreadPoolRecord("a", "a", "x", 1, "1"),))
+    try:
+        assert_single_threaded((NativeThreadPoolRecord("openmp", "openmp", "libgomp", 4, "1"),))
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("a multi-threaded native pool must be rejected")
+
+
+def test_runtime_flags_are_rechecked_and_drift_is_detected():
+    import types
+    from oaci.runtime.cuda import assert_cuda_runtime_unchanged
+    live = types.SimpleNamespace(
+        deterministic_algorithms=torch.are_deterministic_algorithms_enabled(),
+        deterministic_warn_only=torch.is_deterministic_algorithms_warn_only_enabled(),
+        cudnn_deterministic=torch.backends.cudnn.deterministic, cudnn_benchmark=torch.backends.cudnn.benchmark,
+        matmul_allow_tf32=torch.backends.cuda.matmul.allow_tf32, cudnn_allow_tf32=torch.backends.cudnn.allow_tf32,
+        float32_matmul_precision=torch.get_float32_matmul_precision(),
+        torch_num_threads=torch.get_num_threads(), torch_num_interop_threads=torch.get_num_interop_threads())
+    assert_cuda_runtime_unchanged(live)                                    # matches the live flags
+    live.cudnn_benchmark = not live.cudnn_benchmark
+    try:
+        assert_cuda_runtime_unchanged(live)
+    except RuntimeError:
+        pass
+    else:
+        raise AssertionError("a drifted runtime flag must be detected")
+
+
 # ============================ rng snapshots ============================
 def test_rng_snapshot_is_stable_and_detects_change():
     a = snapshot_rng_state(torch.device("cpu"))
