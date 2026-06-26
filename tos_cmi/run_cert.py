@@ -34,6 +34,18 @@ from tos_cmi.score_fisher import ScoreFisherConfig, ucb_rank_gate, _metric, _m_o
 from tos_cmi.eval.power_certificate import (estimate_power, wilson_lcb, assert_power_feasible,
                                             make_control, tune_confound, _control_geometry)
 from tos_cmi.eval.bayes_oracle import bayes_conditional_task_delta, classify_safety
+from tos_cmi.eval.phase_diagram import run_cell
+from tos_cmi.data.synthetic import make_partial_synergy, make_partial_factorized
+
+
+def _binom_ucb(k, n, z=1.64):
+    """One-sided Wilson UPPER bound on a binomial rate k/n (for 'zero observed' UNSAFE_ACCEPT)."""
+    if n == 0:
+        return 1.0
+    p = k / n; denom = 1 + z * z / n
+    centre = p + z * z / (2 * n)
+    half = z * np.sqrt(p * (1 - p) / n + z * z / (4 * n * n))
+    return min(1.0, (centre + half) / denom)
 
 G1, G2, G3, G4 = 20000, 30000, 40000, 50000
 R_CERT, BETA, N_DOM, BASE_SEP, SIGMA = 50, 0.2, 6, 1.5, 1.0
@@ -60,9 +72,32 @@ def confirm_boundary(delta_Y, n_eff, d_base, d_extra, n_cls):
             "plugin_pass": bool(r["lcb"] >= 1 - BETA), "oracle_pass": bool(r["lcb_oracle"] >= 1 - BETA)}
 
 
+def _decision_sweep(gen, delta_Y, table, seed_base, n_seeds, candidate_modes):
+    """Drive the FULL gate (cert table, exact mode, power floor ON) over n_seeds independent
+    datasets; tally Bayes-cross-classified decisions per prefix. Returns the class counts +
+    the (gen-natural) Bayes delta range of the deleted span."""
+    cfg = replace(_cfg(delta_Y), task_power_floor=True, task_power_table=table)
+    from collections import Counter
+    cnt = Counter(); bayes_vals = []; reasons = Counter()
+    for r in range(n_seeds):
+        data = gen(n=6000, seed=seed_base + r)
+        recs = run_cell(data, cfg, seed=seed_base + r, candidate_modes=candidate_modes,
+                        t_sources=("oracle", "learned"), n_mc=12000)
+        for rec in recs:
+            cnt[rec["class"]] += 1
+            reasons[rec.get("decision_reason")] += 1
+            if rec.get("bayes_delta") is not None:
+                bayes_vals.append(rec["bayes_delta"])
+    return dict(cnt), dict(reasons), (min(bayes_vals, default=0.0), max(bayes_vals, default=0.0))
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--confirm", default="", help="'delta_Y,n_eff,d_base,d_extra,n_cls' (G2)")
+    ap.add_argument("--inject", default="", help="delta_Y (G3: oracle-injected unsafe synergy grid)")
+    ap.add_argument("--safe", default="", help="delta_Y (G4: factorized safe controls)")
+    ap.add_argument("--table", default="tos_cmi/results/cert_table.json", help="G1 cert table")
+    ap.add_argument("--n-seeds", type=int, default=30)
     ap.add_argument("--out", default="")
     args = ap.parse_args()
     os.makedirs(CERT_DIR, exist_ok=True)
@@ -78,6 +113,36 @@ def main():
                  r["plugin_lcb"], r["plugin_pass"], r["oracle_det"], R_CERT, r["oracle_lcb"],
                  r["delta_real"], path), flush=True)
         print("CERT_CONFIRM_DONE"); return
+
+    if args.inject:                                          # G3: zero-UNSAFE_ACCEPT on injection
+        dY = float(args.inject)
+        cnt, reasons, brange = _decision_sweep(make_partial_synergy, dY, args.table, G3,
+                                               args.n_seeds, candidate_modes=("oracle_nuisance",))
+        total = sum(cnt.values()); ua = cnt.get("UNSAFE_ACCEPT", 0)
+        out = {"mode": "inject", "delta_Y": dY, "n_seeds": args.n_seeds, "classes": cnt,
+               "reasons": reasons, "bayes_delta_range": brange, "unsafe_accept": ua,
+               "unsafe_accept_rate_ucb": _binom_ucb(ua, total)}
+        with open(args.out or "%s/inject_%s.json" % (CERT_DIR, args.inject), "w") as f:
+            json.dump(out, f, indent=1)
+        print("INJECT dY=%.3f | classes=%s | UNSAFE_ACCEPT=%d/%d (rate UCB %.3f) | bayes_range=%s"
+              % (dY, cnt, ua, total, out["unsafe_accept_rate_ucb"],
+                 tuple(round(x, 3) for x in brange)), flush=True)
+        print("CERT_INJECT_DONE"); return
+
+    if args.safe:                                            # G4: non-degenerate SAFE_ACCEPT
+        dY = float(args.safe)
+        cnt, reasons, brange = _decision_sweep(make_partial_factorized, dY, args.table, G4,
+                                               args.n_seeds, candidate_modes=("learned", "oracle_nuisance"))
+        total = sum(cnt.values()); sa = cnt.get("SAFE_ACCEPT", 0)
+        out = {"mode": "safe", "delta_Y": dY, "n_seeds": args.n_seeds, "classes": cnt,
+               "reasons": reasons, "bayes_delta_range": brange, "safe_accept": sa,
+               "safe_accept_rate": sa / max(total, 1), "safe_accept_lcb": wilson_lcb(sa, total)}
+        with open(args.out or "%s/safe_%s.json" % (CERT_DIR, args.safe), "w") as f:
+            json.dump(out, f, indent=1)
+        print("SAFE dY=%.3f | classes=%s | SAFE_ACCEPT=%d/%d (rate %.2f, LCB %.2f) | non-degenerate=%s"
+              % (dY, cnt, sa, total, out["safe_accept_rate"], out["safe_accept_lcb"],
+                 out["safe_accept_lcb"] >= 0.5), flush=True)
+        print("CERT_SAFE_DONE"); return
 
 
 if __name__ == "__main__":
