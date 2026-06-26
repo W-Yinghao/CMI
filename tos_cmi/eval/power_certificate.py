@@ -185,24 +185,41 @@ def load_table(path):
         return json.load(f)
 
 
-def lookup_power(table, n_eff, d_base, d_extra, n_cls, cfg=None):
-    """CONSERVATIVE lookup: power_ok only if some calibrated cell with the SAME (d_base,d_extra,
-    n_cls) and n_eff' <= n_eff is power_ok (power is monotone in n, so a smaller-n pass implies the
-    larger actual n passes). Uncovered (d_base,d_extra,n_cls) -> power NOT ok (abstain). If `cfg` is
-    given, the table's estimator FINGERPRINT must match cfg's (else the table certifies a DIFFERENT
-    estimator -> abstain, Phase 1.3.3a). Returns (power_ok, info)."""
+def lookup_power(table, n_eff, d_base, d_extra, n_cls, cfg=None, n_dom=None,
+                 cluster_regime="iid", mode="lower_n"):
+    """Power-floor lookup. ALWAYS: the table estimator FINGERPRINT must match cfg's (else it
+    certifies a DIFFERENT estimator -> abstain). Then:
+      mode="exact" (confirmatory / default-on): require a cell matching (n_eff,d_base,d_extra,n_cls)
+        EXACTLY and a table SCOPE matching (n_dom, cluster_regime); no extrapolation. Scope
+        mismatch -> reason 'scope_mismatch'; no exact cell -> 'no_exact_cell'.
+      mode="lower_n" (EXPLORATORY only): monotone-in-n -- power_ok if any cell with same
+        (d_base,d_extra,n_cls) and n_eff'<=n_eff is power_ok. NOT valid for default-on.
+    Returns (power_ok, info)."""
     if cfg is not None:
         from ..score_fisher import estimator_fingerprint
         if table.get("meta", {}).get("fingerprint") != estimator_fingerprint(cfg):
             return False, {"covered": False, "reason": "fingerprint_mismatch"}
+    if mode == "exact":
+        scope = table.get("meta", {}).get("scope", {})
+        if (n_dom is not None and scope.get("n_dom") != n_dom) or \
+           scope.get("cluster_regime", "iid") != cluster_regime:
+            return False, {"covered": False, "reason": "scope_mismatch",
+                           "table_scope": scope, "runtime": {"n_dom": n_dom, "cluster_regime": cluster_regime}}
+        exact = [t for t in table["table"] if t["n_eff"] == n_eff and t["d_base"] == d_base
+                 and t["d_extra"] == d_extra and t["n_cls"] == n_cls]
+        if not exact:
+            return False, {"covered": False, "reason": "no_exact_cell"}
+        return bool(exact[0]["power_ok"]), {"covered": True, "mode": "exact",
+                                            "mde": exact[0]["mde"], "power_ok_cell": exact[0]["power_ok"]}
+    # lower_n (exploratory)
     cells = [t for t in table["table"] if t["d_base"] == d_base and t["d_extra"] == d_extra
              and t["n_cls"] == n_cls and t["n_eff"] <= n_eff]
     if not cells:
         return False, {"covered": False, "reason": "uncovered_shape"}
-    best = min(cells, key=lambda t: n_eff - t["n_eff"])       # closest grid n_eff <= actual
+    best = min(cells, key=lambda t: n_eff - t["n_eff"])
     ok = any(t["power_ok"] for t in cells)
-    return bool(ok), {"covered": True, "matched_n_eff": best["n_eff"], "mde": best["mde"],
-                      "power_ok_cell": best["power_ok"]}
+    return bool(ok), {"covered": True, "mode": "lower_n", "matched_n_eff": best["n_eff"],
+                      "mde": best["mde"], "power_ok_cell": best["power_ok"]}
 
 
 def prefix_mde(d_base, d_extra, n_eff, n_cls, n_dom, base_sep, sigma, cfg, R=30, beta=0.2, seed=0,

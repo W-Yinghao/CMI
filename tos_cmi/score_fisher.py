@@ -101,6 +101,11 @@ class ScoreFisherConfig:
                                     # deletion; else abstain (TASK_POWER_INSUFFICIENT). Uses an
                                     # OFFLINE table (run_power_table) of matched positive controls.
     task_power_table: str = ""      # path to the pre-built competence table JSON
+    certificate_lookup: str = "lower_n"  # "exact" (confirmatory/default-on: cell + scope must
+                                    # match EXACTLY) | "lower_n" (exploratory: monotone-in-n
+                                    # extrapolation -- NOT for default-on certification).
+    certified_mode: bool = False    # deployment preset: if no EXACT-matching certified power cell
+                                    # covers the prefix, force identity (do not even run the gate).
     dtype64: bool = True
 
 
@@ -813,9 +818,9 @@ def estimator_fingerprint(cfg):
 
 
 _REASONS = ("ACCEPTED", "NO_CANDIDATE", "DOMAIN_GATE_CLOSED", "DOMAIN_GAIN_TOO_SMALL",
-            "TASK_RISK_UCB", "TASK_POWER_INSUFFICIENT", "FOLD_COVERAGE_FAILURE",
-            "TASK_GATE_COVERAGE_FAILURE", "INSUFFICIENT_GROUPS", "TASK_SUBSPACE_INTERSECTION",
-            "NUMERICAL_FAILURE")
+            "TASK_RISK_UCB", "TASK_POWER_INSUFFICIENT", "TASK_POWER_SCOPE_MISMATCH",
+            "FOLD_COVERAGE_FAILURE", "TASK_GATE_COVERAGE_FAILURE", "INSUFFICIENT_GROUPS",
+            "TASK_SUBSPACE_INTERSECTION", "NUMERICAL_FAILURE")
 
 
 def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=None, T_task=None):
@@ -890,12 +895,15 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
     # POWER FLOOR: a deletion may be ACCEPTED only if the critic is power-qualified at this prefix
     # shape/sample size (capacity alone is insufficient for k=1 small-n). Uncovered -> abstain.
     power_ok = np.ones(Kv, bool); power_info = [{} for _ in range(Kv)]
+    cluster_regime = "iid" if cluster_id is None else "clustered"
     if cfg.task_power_floor:
         try:
             from .eval.power_certificate import load_table, lookup_power
             tbl = load_table(cfg.task_power_table)
             for i in range(Kv):
-                ok, inf = lookup_power(tbl, n_eff, dims[i][0], dims[i][1], n_cls, cfg=cfg)
+                ok, inf = lookup_power(tbl, n_eff, dims[i][0], dims[i][1], n_cls, cfg=cfg,
+                                       n_dom=n_dom, cluster_regime=cluster_regime,
+                                       mode=cfg.certificate_lookup)
                 power_ok[i] = ok; power_info[i] = inf
         except (FileNotFoundError, KeyError, ValueError):
             power_ok[:] = False                              # no table -> cannot certify -> abstain
@@ -904,8 +912,10 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
     records = []
     for k in range(1, Kv + 1):
         i = k - 1
+        scope_bad = power_info[i].get("reason") in ("scope_mismatch", "fingerprint_mismatch")
         rsn = ("ACCEPTED" if feasible[i] else
                "TASK_RISK_UCB" if ucb_Y[i] > cfg.delta_Y else
+               "TASK_POWER_SCOPE_MISMATCH" if (not power_ok[i] and scope_bad) else
                "TASK_POWER_INSUFFICIENT" if not power_ok[i] else "DOMAIN_GAIN_TOO_SMALL")
         records.append({"k": k, "task_info_delta_mean": float(dY[:, i].mean()),
                         "task_info_ucb": float(ucb_Y[i]),

@@ -50,16 +50,20 @@ def _meta(cfg):
     from tos_cmi.score_fisher import estimator_fingerprint
     return {"delta_Y": cfg.delta_Y, "beta": BETA, "calib_seed": CALIB_SEED, "base_sep": BASE_SEP,
             "sigma": SIGMA, "family": "gaussian_explaining_away",
-            "fingerprint": estimator_fingerprint(cfg)}      # table valid ONLY for this estimator
+            "fingerprint": estimator_fingerprint(cfg),      # estimator identity (must match)
+            # data-regime SCOPE (separate from estimator): exact-mode lookup requires these to
+            # match the deployment regime, else TASK_POWER_SCOPE_MISMATCH (no generalization).
+            "scope": {"control_family": "gaussian_explaining_away", "n_dom": N_DOM,
+                      "cluster_regime": "iid", "class_prior": "uniform",
+                      "domain_prior": "uniform", "boot_estimand": cfg.boot_estimand}}
 
 
-def run_one_cell(cell, cfg, R=R_FULL, targets=None):
+def run_one_cell(cell, cfg, R=R_FULL, targets=None, calib_base=CALIB_SEED):
     """cell = (n_eff, d_base, d_extra, n_cls). Build one cell -> dict (for parallel fan-out).
-    Both the sample seed and the geometry seed are DISJOINT from the eval grid (CALIB_SEED-based).
-    `targets` (multipliers of delta_Y) lets the audit measure only the delta_Y target (1.0), which
-    alone decides power_ok (MDE<=delta_Y <=> LCB(pi(delta_Y))>=1-beta)."""
+    `calib_base` selects the (disjoint) seed group; `targets` (multipliers of delta_Y) lets a build
+    measure only chosen effects (1.0 = boundary, which alone decides power_ok)."""
     n_eff, d_base, d_extra, n_cls = cell
-    base = CALIB_SEED + 7 * n_eff + d_base + d_extra
+    base = calib_base + 7 * n_eff + d_base + d_extra
     grid = None if targets is None else [m * cfg.delta_Y for m in targets]
     r = prefix_mde(d_base, d_extra, n_eff, n_cls, N_DOM, BASE_SEP, SIGMA, cfg,
                    R=R, beta=BETA, seed=base, geom_seed=base + 13, grid=grid)
@@ -72,29 +76,35 @@ def main():
     ap.add_argument("--smoke", action="store_true")
     ap.add_argument("--cell", default="", help="'n_eff,d_base,d_extra,n_cls' -> build one cell")
     ap.add_argument("--targets", default="", help="comma multipliers of delta_Y (e.g. '1.0' audit)")
-    ap.add_argument("--merge", action="store_true", help="merge results/power_cells/*.json -> --out")
+    ap.add_argument("--R", type=int, default=R_FULL, help="replicates (50 for default-on cert)")
+    ap.add_argument("--calib-base", type=int, default=CALIB_SEED, help="disjoint seed group base")
+    ap.add_argument("--delta-Y", type=float, default=None, help="threshold (cert built at 0.10)")
+    ap.add_argument("--outdir", default=CELL_DIR, help="cell output dir (isolate cert tables)")
+    ap.add_argument("--merge", action="store_true", help="merge <outdir>/cell_*.json -> --out")
     ap.add_argument("--out", default="tos_cmi/results/power_table.json")
     args = ap.parse_args()
     cfg = replace(ScoreFisherConfig(), task_protect=True, n_perm_null=2)
+    if args.delta_Y is not None:
+        cfg = replace(cfg, delta_Y=args.delta_Y)
 
     if args.cell:                                            # PARALLEL: one cell per SLURM job
         cell = tuple(int(x) for x in args.cell.split(","))
         targets = [float(x) for x in args.targets.split(",")] if args.targets else None
-        c = run_one_cell(cell, cfg, targets=targets)
-        os.makedirs(CELL_DIR, exist_ok=True)
-        path = "%s/cell_%d_%d_%d_%d.json" % (CELL_DIR, *cell)
+        c = run_one_cell(cell, cfg, R=args.R, targets=targets, calib_base=args.calib_base)
+        os.makedirs(args.outdir, exist_ok=True)
+        path = "%s/cell_%d_%d_%d_%d.json" % (args.outdir, *cell)
         with open(path, "w") as f:
             json.dump({"meta": _meta(cfg), **c}, f, indent=1)
         dets = ["%d/%d@%.3f" % (x["det"], x["used"], x["delta_real"]) for x in c["rows"]]
-        print("n_eff=%d d_base=%d d_extra=%d n_cls=%d | MDE=%s power_ok=%s det=%s lcb=%s -> %s"
-              % (*cell, c["mde"], c["power_ok"], dets, [round(x["lcb"], 2) for x in c["rows"]],
-                 path), flush=True)
+        print("n_eff=%d d_base=%d d_extra=%d n_cls=%d R=%d | MDE=%s power_ok=%s det=%s lcb=%s -> %s"
+              % (*cell, args.R, c["mde"], c["power_ok"], dets,
+                 [round(x["lcb"], 2) for x in c["rows"]], path), flush=True)
         print("POWER_CELL_DONE"); return
 
     if args.merge:                                           # combine parallel cells -> table
         import glob
         cells = []
-        for p in sorted(glob.glob("%s/*.json" % CELL_DIR)):
+        for p in sorted(glob.glob("%s/cell_*.json" % args.outdir)):
             with open(p) as f:
                 d = json.load(f)
             cells.append({k: d[k] for k in ("n_eff", "d_base", "d_extra", "n_cls",

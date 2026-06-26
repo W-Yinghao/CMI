@@ -38,6 +38,27 @@ def test_fingerprint_mismatch_abstains():
     print("test_fingerprint_mismatch_abstains: OK")
 
 
+def test_exact_lookup_and_scope():
+    """Phase 1.3.4: exact mode requires an EXACT (n_eff,d_base,d_extra,n_cls) cell AND a matching
+    scope (n_dom, cluster_regime) -- no monotone-in-n extrapolation. Scope mismatch -> abstain."""
+    t = {"meta": {"scope": {"n_dom": 6, "cluster_regime": "iid"}}, "table": [
+        {"n_eff": 6000, "d_base": 23, "d_extra": 1, "n_cls": 3, "power_ok": True, "mde": 0.10}]}
+    # exact hit (matching scope)
+    ok, inf = lookup_power(t, 6000, 23, 1, 3, n_dom=6, cluster_regime="iid", mode="exact")
+    assert ok and inf["mode"] == "exact", inf
+    # exact mode does NOT extrapolate to a larger n_eff (no exact cell)
+    ok2, inf2 = lookup_power(t, 9000, 23, 1, 3, n_dom=6, cluster_regime="iid", mode="exact")
+    assert not ok2 and inf2["reason"] == "no_exact_cell", inf2
+    # scope mismatch (different n_dom / cluster regime) -> abstain
+    ok3, inf3 = lookup_power(t, 6000, 23, 1, 3, n_dom=8, cluster_regime="iid", mode="exact")
+    assert not ok3 and inf3["reason"] == "scope_mismatch", inf3
+    ok4, inf4 = lookup_power(t, 6000, 23, 1, 3, n_dom=6, cluster_regime="clustered", mode="exact")
+    assert not ok4 and inf4["reason"] == "scope_mismatch", inf4
+    # lower_n mode DOES extrapolate (exploratory) -> ok at 9000
+    ok5, _ = lookup_power(t, 9000, 23, 1, 3, mode="lower_n"); assert ok5
+    print("test_exact_lookup_and_scope: OK")
+
+
 def test_lookup_conservative_and_monotone():
     t = _fake_table()
     # below the smallest calibrated n -> uncovered -> abstain
@@ -89,6 +110,7 @@ def test_power_ceiling_guard():
 
 if __name__ == "__main__":
     test_fingerprint_mismatch_abstains()
+    test_exact_lookup_and_scope()
     test_lookup_conservative_and_monotone()
     test_control_effect_tuning_exact_and_sample_invariant()
     test_power_ceiling_guard()
