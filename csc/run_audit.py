@@ -40,7 +40,7 @@ def _git(*args):
 
 
 def contract_diagnostics(cfg, seeds):
-    """CSC-P1.4.4 inference-contract diagnostics retained in the audit artifact: per-source null
+    """CSC-P1.4.5 inference-contract diagnostics retained in the audit artifact: per-source null
     invalid counts + conservative-p, source-status (all stages), concept-attribution stability,
     the FULL residual_decoder_test T/p/status/certificate invariance under epoch duplication, and
     the deterministic NAMED stage-seed derivations."""
@@ -229,7 +229,7 @@ def main():
     if not tests["all_passed"]:
         os.makedirs(os.path.dirname(args.out), exist_ok=True)
         with open(args.out, "w") as f:
-            json.dump(dict(status="CSC-P1.4.2 AUDIT ABORTED — self-tests failed (fail-fast)",
+            json.dump(dict(status="CSC-P1.4.5 AUDIT ABORTED — self-tests failed (fail-fast)",
                            audited_code_commit=audited, protocol_manifest_hash=cfg.hash(),
                            git_status_clean_csc=csc_clean, tests=tests, provenance_ok=False), f, indent=2)
         print(f"[audit] FAIL-FAST: self-tests failed -> wrote {args.out}, exit 1")
@@ -246,12 +246,12 @@ def main():
     print("[audit] OOD_POWER_BANK (generator-truth) ...")
     power_bank = ood_power_bank(cfg, list(range(args.bank_seeds)),
                                 min_visible=max(2, args.bank_seeds))
-    print("[audit] CSC-P1.4.4 contract diagnostics ...")
-    p142 = contract_diagnostics(cfg, list(range(args.bank_seeds)))
+    print("[audit] CSC-P1.4.5 contract diagnostics ...")
+    diag = contract_diagnostics(cfg, list(range(args.bank_seeds)))
 
     audit = dict(
-        status="CSC-P1.4.4 DEVELOPMENT — frozen-path audit; NO P1.5 PRODUCTION SWEEP, NO FREEZE, "
-               "NO CONFIRMATORY, NO P2. Inference procedure CHANGED vs P1.4.3 -> these are "
+        status="CSC-P1.4.5 DEVELOPMENT — frozen-path audit; NO P1.5 PRODUCTION SWEEP, NO FREEZE, "
+               "NO CONFIRMATORY, NO P2. Inference procedure CHANGED vs P1.4.4 -> these are "
                "NEW-METHOD development numbers, NOT poolable with prior rounds for confidence intervals.",
         audited_code_commit=audited, audited_code_commit_short=audited[:7],
         branch=_git("rev-parse", "--abbrev-ref", "HEAD"),
@@ -267,7 +267,7 @@ def main():
                         "confirmatory run requires a separate, previously-unseen seed set.",
         tests=tests, run_synthetic=syn, synthetic_null_bank=syn_null,
         calibration_null_bank=null_bank, ood_power_bank=power_bank,
-        p144_contract_diagnostics=p142,
+        contract_diagnostics=diag,
     )
     # provenance gate: an audit is only trustworthy if the tree is clean AND the audited commit
     # is HEAD. Recorded in the artifact; ENFORCED by a nonzero exit (fail-closed).
@@ -286,12 +286,12 @@ def main():
     print(f"  OOD_POWER_BANK power={power_bank['concept_power']} CP-LB "
           f"{power_bank['concept_power_cp_lower']:.3f} atlas={power_bank['atlas_availability']} "
           f"evaluable={power_bank['evaluable']} decomp={power_bank['binding_failure_decomposition']}")
-    n_inv_src = sum(r["source_invalid_triggered"] for r in p142["per_source"])
-    ft = p142["full_residual_test_duplication_invariance"]
-    print(f"  P1.4.4 full-T dup: dT={ft['abs_delta_T']:.2e} dp={ft['abs_delta_p']:.2e} "
+    n_inv_src = sum(r["source_invalid_triggered"] for r in diag["per_source"])
+    ft = diag["full_residual_test_duplication_invariance"]
+    print(f"  P1.4.5 full-T dup: dT={ft['abs_delta_T']:.2e} dp={ft['abs_delta_p']:.2e} "
           f"status {ft['status_before']}=={ft['status_after']} fold_hash "
           f"{ft['fold_hash_before']}=={ft['fold_hash_after']}; angle_resp="
-          f"{p142['principal_angle_response']} source_invalid={n_inv_src}/{len(p142['per_source'])}")
+          f"{diag['principal_angle_response']} source_invalid={n_inv_src}/{len(diag['per_source'])}")
     if not audit["provenance_ok"]:
         print(f"[audit] FAIL-CLOSED: tests_all={tests['all_passed']} clean_csc={csc_clean} "
               f"head_match={head_match} -> exit 1")
