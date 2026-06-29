@@ -28,6 +28,8 @@ fi
 export MNE_DATA=/projects/EEG-foundation-model/datalake/raw
 export MNE_DATASETS_BNCI_PATH=/projects/EEG-foundation-model/datalake/raw
 export PYTHONUNBUFFERED=1
+export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-8}"   # cap CPU-side threads to the allocation (GPU run)
+export MKL_NUM_THREADS="${SLURM_CPUS_PER_TASK:-8}"
 
 echo "host=$(hostname)  branch=$(git -C "$WORKTREE" rev-parse --abbrev-ref HEAD)  commit=$(git -C "$WORKTREE" rev-parse --short HEAD)"
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true

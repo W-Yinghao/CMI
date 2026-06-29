@@ -44,7 +44,9 @@ from cmi.eval.probe_splits import stratified_trial_split_by_y_d          # noqa:
 OUT_DIR = REPO / "results" / "cigl" / "phase3a_baseline_repair"
 PHASE = "Phase3A_R_baseline_repair"
 
-# Part A — small NAMED candidate list (each changes ONE knob vs current_default; NOT a Cartesian grid).
+# Part A — small NAMED candidate list (each changes ONE coherent axis vs current_default; NOT a
+# Cartesian grid). Two candidates bundle naturally-paired knobs: stronger_graphcmi_backbone (feat+hidden
+# together = a bigger net) and lower_lr_longer (lr+epochs together = a slower, longer schedule).
 BASELINE_CANDIDATES = [
     dict(name="current_default",            feat=16, hidden=32, hops=2, lr=1e-3, epochs=None, sampler="classbal", balance=False, chan_zscore=False),
     dict(name="source_channel_zscore",      feat=16, hidden=32, hops=2, lr=1e-3, epochs=None, sampler="classbal", balance=False, chan_zscore=True),
@@ -122,6 +124,32 @@ def _obj_block(b, alpha):
 def _mean(xs):
     xs = [x for x in xs if x is not None]
     return float(np.mean(xs)) if xs else None
+
+
+def controls_ok(overfit, shuffle_src, chance):
+    """Sanity controls PASS iff the architecture CAN overfit a tiny subset (overfit train bAcc >>
+    chance) AND a label-shuffle baseline does NOT predict above chance (the probe isn't cheating).
+    The shuffle check is one-sided: at/below chance both pass; only ABOVE chance fails."""
+    return bool(overfit is not None and overfit > chance + 0.15) and \
+           bool(shuffle_src is not None and shuffle_src < chance + 0.10)
+
+
+def decide_baseline_gate(cand_agg, control_ok, floor, gain, force_fail=False, force_pass=False):
+    """Source-only baseline-adequacy gate. A candidate PASSES if its `source_probe_bacc` >= `floor` OR
+    >= current_default + `gain`. The gate passes iff some candidate passes AND the controls behave.
+    `best_baseline` is the highest-`source_probe` passing candidate — NEVER `target_eval`. `force_fail`/
+    `force_pass` are TESTING hooks that bypass the real decision. Returns (passing_names, best, gate_pass)."""
+    cd_src = (cand_agg["current_default"]["source_probe_bacc"] or 0.0) if "current_default" in cand_agg else 0.0
+
+    def _ok(a):
+        s = a["source_probe_bacc"] or 0.0
+        return (s >= floor) or (s >= cd_src + gain)
+    passing = {} if force_fail else {k: a for k, a in cand_agg.items() if _ok(a)}
+    best = max(passing, key=lambda k: passing[k]["source_probe_bacc"]) if passing else None
+    if force_pass and not force_fail and best is None:   # force_pass needs a baseline to run Part B on
+        best = max(cand_agg, key=lambda k: cand_agg[k]["source_probe_bacc"] or 0.0)
+    gate_pass = (not force_fail) and ((bool(passing) and control_ok) or force_pass)
+    return list(passing), best, gate_pass
 
 
 # ----------------------------------------------------------------------------- core train+eval
@@ -247,6 +275,7 @@ def main():
     ap.add_argument("--overfit_epochs", type=int, default=80, help="epochs for the overfit/shuffle controls (must overfit)")
     ap.add_argument("--force_baseline_fail", action="store_true", help="(testing) force Part-A gate to FAIL")
     ap.add_argument("--force_baseline_pass", action="store_true", help="(testing) bypass Part-A gate so Part B runs")
+    ap.add_argument("--skip_part_b", action="store_true", help="(testing) run Part A + gate only; skip Part B")
     ap.add_argument("--tmin", type=float, default=0.5)
     ap.add_argument("--tmax", type=float, default=3.5)
     ap.add_argument("--resample", type=int, default=128)
@@ -257,6 +286,8 @@ def main():
         torch.set_num_threads(1)   # tiny EEG ops: avoid many-core dispatch overhead. No effect on GPU.
 
     commit = _git_commit_hash(); cfg_hash = _config_hash(vars(args))
+    if args.dry_run_synthetic and args.n_perm_confirm > args.n_perm:
+        args.n_perm_confirm = args.n_perm   # dry-run validates the pipeline, not significance
     fold = _synthetic_fold(seed=0) if args.dry_run_synthetic else _load_real_fold(args)
     dataset = "synthetic" if args.dry_run_synthetic else args.dataset
     fold_tag = f"{dataset}_fold{args.fold}"
@@ -298,24 +329,14 @@ def main():
     shuffle_src = _mean([_train_eval(cd, (0., 0., 0.), fold, s, args, args.device, n_perm=2,
                                      label_shuffle=True, epochs_override=args.overfit_epochs
                                      )["source_probe"]["balanced_acc"] for s in args.seeds[:1]])
-    print(f"  [control] overfit_small_source train_bAcc={overfit:.3f} (want >> chance)  "
-          f"label_shuffle_control src_bAcc={shuffle_src:.3f} (want ~chance {chance:.3f})", flush=True)
+    print(f"  [control] overfit_small_source train_bAcc={overfit:.3f} (want >> chance {chance:.3f})  "
+          f"label_shuffle_control src_bAcc={shuffle_src:.3f} (want NOT above chance, i.e. < {chance + 0.10:.3f})",
+          flush=True)
 
-    cd_src = cand_agg["current_default"]["source_probe_bacc"] or 0.0
-
-    def _passes(a):
-        s = a["source_probe_bacc"] or 0.0
-        return (s >= args.baseline_bacc_floor) or (s >= cd_src + args.baseline_bacc_gain)
-    passing = {} if args.force_baseline_fail else {k: a for k, a in cand_agg.items() if _passes(a)}
-    control_ok = (overfit is not None and overfit > chance + 0.15) and \
-                 (shuffle_src is not None and shuffle_src < chance + 0.10)
-    best_baseline = max(passing, key=lambda k: passing[k]["source_probe_bacc"]) if passing else None
-    # --force_baseline_pass (testing only) bypasses the gate so Part B can be exercised; it then needs a
-    # baseline to run on -> fall back to the highest-source_probe candidate overall.
-    if args.force_baseline_pass and not args.force_baseline_fail and best_baseline is None:
-        best_baseline = max(cand_agg, key=lambda k: cand_agg[k]["source_probe_bacc"] or 0.0)
-    baseline_gate_pass = (not args.force_baseline_fail) and (
-        (bool(passing) and control_ok) or args.force_baseline_pass)
+    control_ok = controls_ok(overfit, shuffle_src, chance)
+    passing, best_baseline, baseline_gate_pass = decide_baseline_gate(
+        cand_agg, control_ok, args.baseline_bacc_floor, args.baseline_bacc_gain,
+        force_fail=args.force_baseline_fail, force_pass=args.force_baseline_pass)
     print(f"\n  baseline_gate_pass={baseline_gate_pass}  best_baseline={best_baseline}  "
           f"(controls_ok={control_ok}; forced_fail={args.force_baseline_fail})", flush=True)
 
@@ -333,9 +354,10 @@ def main():
         part_b=None)
 
     # ---- PART B: gentle micro-ladder (ONLY if Part A passes) ------------------------------------
-    if not baseline_gate_pass:
-        print("\n=== PART B SKIPPED: baseline gate FAILED -> recommend architecture/preprocessing diagnosis "
-              "(do NOT claim CIGL as a method) ===", flush=True)
+    if not baseline_gate_pass or args.skip_part_b:
+        why = "baseline gate FAILED -> recommend architecture/preprocessing diagnosis (do NOT claim CIGL " \
+              "as a method)" if not baseline_gate_pass else "--skip_part_b set (Part A + gate only)"
+        print(f"\n=== PART B SKIPPED: {why} ===", flush=True)
     else:
         cand = next(c for c in BASELINE_CANDIDATES if c["name"] == best_baseline)
         print(f"\n=== Phase 3A-R PART B: gentle micro-ladder on baseline '{best_baseline}' ===")
@@ -354,11 +376,14 @@ def main():
                   f"{_mean([r['edge']['kl_mean'] for r in recs]):.3f}", flush=True)
         erm_kl = {o: _mean([r[o]["kl_mean"] for r in per_cfg["erm_fixed"]]) for o in ("graph", "node", "edge")}
         erm_src = _mean([r["source_probe"]["balanced_acc"] for r in per_cfg["erm_fixed"]]) or 0.0
+        erm_tgt = _mean([r["target_eval"]["balanced_acc"] for r in per_cfg["erm_fixed"]]) or 0.0
         gentle_agg = {}
         for lbl, recs in per_cfg.items():
-            a = dict(label=lbl, source_probe_bacc=_mean([r["source_probe"]["balanced_acc"] for r in recs]),
-                     target_eval_bacc=_mean([r["target_eval"]["balanced_acc"] for r in recs]),
-                     source_drop_vs_erm=float(erm_src - (_mean([r["source_probe"]["balanced_acc"] for r in recs]) or 0.0)),
+            src_b = _mean([r["source_probe"]["balanced_acc"] for r in recs])
+            tgt_b = _mean([r["target_eval"]["balanced_acc"] for r in recs])
+            a = dict(label=lbl, source_probe_bacc=src_b, target_eval_bacc=tgt_b,
+                     source_drop_vs_erm=float(erm_src - (src_b or 0.0)),
+                     target_drop_vs_erm=float(erm_tgt - (tgt_b or 0.0)),
                      target_eval_is_evaluation_only=True)
             for o in ("graph", "node", "edge"):
                 kl = _mean([r[o]["kl_mean"] for r in recs]); a[f"{o}_kl_mean"] = kl
@@ -366,15 +391,39 @@ def main():
                 a[f"{o}_reduce30_seeds"] = int(sum(
                     1 for r in recs if erm_kl[o] and erm_kl[o] > 0 and (erm_kl[o] - r[o]["kl_mean"]) / erm_kl[o] >= 0.30))
             gentle_agg[lbl] = a
-        # gentle pass: a graph/node-capable config with >=30% graph or node reduction in >=2/3 seeds AND
-        # source drop <=3pt AND target drop <=5pt (selection is source-only).
-        gn = [l for l in gentle_agg if l not in ("erm_fixed",) and (gentle_agg[l]["graph_reduce30_seeds"] >= 2 or gentle_agg[l]["node_reduce30_seeds"] >= 2)]
-        winners = [l for l in gn if (gentle_agg[l]["source_drop_vs_erm"] <= 0.03)]
+        # gentle PASS (a reviewer VERDICT, not a selection): a graph/node-capable config with >=30%
+        # graph or node reduction in >=2/3 seeds AND source drop <=3pt AND target drop <=5pt. (target_eval
+        # enters this REPORTED verdict only; it is never used to SELECT a config for training.)
+        gn = [l for l in gentle_agg if l != "erm_fixed"
+              and (gentle_agg[l]["graph_reduce30_seeds"] >= 2 or gentle_agg[l]["node_reduce30_seeds"] >= 2)]
+        winners = [l for l in gn if gentle_agg[l]["source_drop_vs_erm"] <= 0.03
+                   and gentle_agg[l]["target_drop_vs_erm"] <= 0.05]
         gentle_gate_pass = bool(winners)
+        # CONFIRMATION: re-audit erm_fixed + winners (or the best graph/node reducer if none) at
+        # n_perm_confirm for permutation-significance, retaining per-seed records (same frozen model,
+        # higher permutation power — the encoder init is seeded before construction).
+        best_reducer = max(gn, key=lambda l: max(gentle_agg[l].get("graph_reduction_vs_erm") or 0.0,
+                                                  gentle_agg[l].get("node_reduction_vs_erm") or 0.0)) if gn else None
+        confirm_labels = sorted({"erm_fixed"} | set(winners) | ({best_reducer} if best_reducer else set()))
+        confirmation, confirmation_per_seed = {}, {}
+        for lbl in confirm_labels:
+            _, lg, ln, le = next(c for c in GENTLE_CONFIGS if c[0] == lbl)
+            recs = []
+            for seed in args.seeds:
+                rec = _train_eval(cand, (lg, ln, le), fold, seed, args, args.device, n_perm=args.n_perm_confirm)
+                _save(rec, f"{fold_tag}_confirm_{lbl}_seed{seed}_nperm{args.n_perm_confirm}.json")
+                recs.append(rec)
+            confirmation_per_seed[lbl] = {int(r["seed"]): {o: {k: r[o][k] for k in
+                ("kl_mean", "permutation_mean", "permutation_p", "positive_excess", "clears_null")}
+                for o in ("graph", "node", "edge")} for r in recs}
+            confirmation[lbl] = {f"{o}_clears_null_count": int(sum(r[o]["clears_null"] for r in recs))
+                                 for o in ("graph", "node", "edge")}
         summary["part_b"] = dict(baseline=best_baseline, erm_reference_kl=erm_kl, gentle=gentle_agg,
-                                 task_preserving_reducers=winners, gentle_gate_pass=gentle_gate_pass)
+                                 task_preserving_reducers=winners, gentle_gate_pass=gentle_gate_pass,
+                                 n_perm_confirm=int(args.n_perm_confirm), confirm_labels=confirm_labels,
+                                 confirmation=confirmation, confirmation_per_seed=confirmation_per_seed)
         print(f"\n  gentle_gate_pass={gentle_gate_pass}  task_preserving_reducers={winners}  "
-              f"(source-only selection; target_eval never used)", flush=True)
+              f"confirm={confirm_labels} @n_perm={args.n_perm_confirm}  (source-only selection)", flush=True)
 
     json.dump(summary, open(OUT_DIR / f"{fold_tag}_baseline_repair_summary.json", "w"), indent=2)
     print(f"\n[phase3a-R] wrote {OUT_DIR / f'{fold_tag}_baseline_repair_summary.json'}")

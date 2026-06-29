@@ -51,12 +51,15 @@ is **not** claimed as a method.
 On the selected baseline config: `erm_fixed (0:0:0)`, `graph_node_003 (0.003:0.003:0)`,
 `graph_node_01 (0.01:0.01:0)`, `graph_node_03 (0.03:0.03:0)`, `graph_only_01 (0.01:0:0)`,
 `node_only_01 (0:0.01:0)`, `edge_only_03 (0:0:0.03)`, `edge_only_10 (0:0:0.10)`,
-`full_01 (0.01:0.01:0.003)`, `full_03 (0.03:0.03:0.01)`. Audit at `n_perm=20`
-(`n_perm=50` confirmation reserved for the real run).
+`full_01 (0.01:0.01:0.003)`, `full_03 (0.03:0.03:0.01)`. Audit all configs at `n_perm=20`, then a
+**confirmation re-audit at `n_perm=50`** of `erm_fixed` + the task-preserving winners (or the best
+graph/node reducer if none), with **per-seed records retained** (`confirmation`,
+`confirmation_per_seed`, `*_confirm_*_seed*_nperm50.json`; same frozen model, higher permutation power).
 
-**Gentle gate (PASS):** at least one graph/node-capable config reduces **graph or node** KL by **≥30%**
-vs fixed ERM in **≥2/3 seeds**, with **source** bAcc drop **≤3 pt** (and target drop **≤5 pt**,
-evaluation-only). Selection is source-only.
+**Gentle gate (PASS, a reviewer VERDICT — not a selection):** at least one graph/node-capable config
+reduces **graph or node** KL by **≥30%** vs fixed ERM in **≥2/3 seeds**, with **source** bAcc drop
+**≤3 pt** AND **target** bAcc drop **≤5 pt** (target_eval enters only this reported verdict, never
+config selection for training). The best-baseline and any config *selection* use source-only metrics.
 
 ## Decision branches (reviewer decides)
 
