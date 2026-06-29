@@ -3,7 +3,15 @@
 *A single reference for the whole project: what it is, every phase we ran, what each found, where the
 artifacts live, and the current state. Read this top-to-bottom to understand everything.*
 
-Last updated: 2026-06 (W1/V2P/W2 P0-correction compute complete; P0 finalizer pending).
+Last updated: 2026-06.
+
+> **⚠️ STATUS — REVIEW_P0 correction: COMPUTE COMPLETE, SCIENTIFIC ANALYSIS PENDING.**
+> The corrected raw compute (W1/V2P/W2, all seeds, `@278fc85`) is done and integrity-verified
+> (`REVIEW_P0_MANIFEST.json`), but the corrected analyzer / provenance-hardening / W2 confusion replay
+> are NOT finished. **The §5 findings below are the PRE-P0 conclusions; several are explicitly
+> SUPERSEDED-PENDING by the P0 decomposition** (see §4 and the supersession table that will ship in
+> `REVIEW_P0_RESULTS.md`). Do NOT treat any P0 scientific claim as settled until the terminal tag
+> exists. Older handoff docs are historical, not the entry point — this file is.
 
 ---
 
