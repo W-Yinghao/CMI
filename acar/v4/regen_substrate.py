@@ -25,11 +25,22 @@ FIXED_CANDIDATE = {"score_family": "shift_margin", "policy": "benefit_ranked", "
 # compatibility-replay numeric pass-line (pre-registered; see ACAR_V4_SUBSTRATE_REGEN_PLAN.md §7)
 COVERAGE_MIN = 0.15
 BUDGET = 0.10
+ALPHA = 0.10
+SOURCE_KINDS = ("raw_bids", "canonical_features")
 
 
 class SubstrateTrainingNotAuthorizedError(RuntimeError):
-    """Raised by train_all_dev_substrate(dry_run=False). Real all-DEV substrate training is gated behind explicit B1
-    sign-off; this skeleton only validates the request (dry_run=True). NEVER trains/regenerates implicitly."""
+    """Raised by train_all_dev_substrate(dry_run=False) and run_regen_substrate.run(). Real all-DEV substrate training is
+    gated behind explicit B1 sign-off; the skeleton/CLI only validate the request. NEVER trains/regenerates implicitly."""
+
+
+class SubstrateCompatibilityNotAuthorizedError(RuntimeError):
+    """Raised by run_substrate_compatibility.run(). The fixed-candidate DEV compatibility replay re-embeds DEV cohorts with
+    the NEW (trained) substrate — it needs the trained artifacts + torch + DEV raw, all gated behind B1. NEVER runs implicitly."""
+
+
+def _is_hex(s, n):
+    return isinstance(s, str) and len(s) == n and all(c in "0123456789abcdef" for c in s)
 
 
 def expected_artifact_paths(disease, output_dir):
@@ -114,26 +125,109 @@ def compatibility_replay_pass(per_disease):
     """PRE-REGISTERED numeric pass-line for the fixed-candidate (shift_margin+benefit_ranked+harm_indicator) DEV
     compatibility replay under the NEW all-DEV substrate. NO reselection. Returns (authorized: bool, reason: str).
 
-    Per disease (PD, SCZ), ALWAYS required: CAL LTT λ* certified AND coverage≥0.15 AND red>0 AND EVAL L_harm_all≤0.10.
-    v2 sub-gate (per disease): if v2_replay is evaluable, require red > v2_replay_red; if NOT evaluable, this sub-gate is
-    WAIVED for that disease (documented; the absolute gates still hold). Macro: among diseases with an evaluable v2_replay,
-    require disease-macro red > disease-macro v2_replay_red; if NO disease has an evaluable v2_replay, the macro v2 gate is
-    WAIVED. authorized iff BOTH diseases pass their absolute+v2 gates AND the macro v2 gate (or its waiver) holds."""
+    Per disease (PD, SCZ), ALL required: CAL LTT λ* certified AND coverage≥0.15 AND red>0 AND EVAL L_harm_all≤0.10 AND
+    v2_replay EVALUABLE AND red > v2_replay_red. **v2_replay is a HARD REQUIREMENT — NO waiver** (beating v2 is the V4
+    external claim; a not-evaluable v2_replay FAILS the replay). Macro: disease-macro red > disease-macro v2_replay (both
+    always evaluable here). authorized iff BOTH diseases pass every gate AND the macro gate."""
     if set(per_disease) != {"PD", "SCZ"}:
         return False, f"per_disease must cover exactly PD and SCZ, got {sorted(per_disease)}"
-    reasons, macro_reds, macro_v2 = [], [], []
+    reasons, reds, v2s = [], [], []
     for d in ("PD", "SCZ"):
         s = per_disease[d]
         for f in _disease_absolute_ok(s):
             reasons.append(f"{d}: {f}")
-        if s.get("v2_evaluable"):
-            if not (s.get("red") is not None and s.get("v2_replay_red") is not None and s["red"] > s["v2_replay_red"]):
-                reasons.append(f"{d}: red<=v2_replay")
-            macro_reds.append(s["red"]); macro_v2.append(s["v2_replay_red"])
-    if macro_reds:                                            # macro v2 gate only among v2-evaluable diseases
-        if not (sum(macro_reds) / len(macro_reds) > sum(macro_v2) / len(macro_v2)):
+        if not s.get("v2_evaluable"):
+            reasons.append(f"{d}: v2_replay NOT evaluable (HARD requirement — no waiver)")
+            continue
+        if not (s.get("red") is not None and s.get("v2_replay_red") is not None and s["red"] > s["v2_replay_red"]):
+            reasons.append(f"{d}: red<=v2_replay")
+        reds.append(s.get("red")); v2s.append(s.get("v2_replay_red"))
+    if len(reds) == 2 and all(x is not None for x in reds + v2s):     # macro only when both diseases' v2 are evaluable
+        if not (sum(reds) / 2.0 > sum(v2s) / 2.0):
             reasons.append("disease-macro red <= disease-macro v2_replay")
-    # else: macro v2 gate WAIVED (no disease had an evaluable v2_replay)
     if reasons:
         return False, "NOT AUTHORIZED: " + "; ".join(reasons)
-    return True, "authorized: fixed candidate meets the pre-registered compatibility minimum under the new substrate"
+    return True, "authorized: fixed candidate meets the pre-registered compatibility minimum (v2-beating) under the new substrate"
+
+
+# ----------------------------------------------------------------------------- frozen command-contract manifest schemas
+
+def expected_compat_output(output_dir):
+    """Files the (future, authorized) compatibility replay will emit — pinned now."""
+    return {"result_path": os.path.join(output_dir, "compat_RESULT.json"),
+            "manifest_path": os.path.join(output_dir, "compat_manifest.json")}
+
+
+def validate_regen_manifest(spec):
+    """FAIL-CLOSED schema check for a run_regen_substrate input manifest (pure; no I/O). Pins the ONLY admissible training
+    inputs: 40-hex protocol_commit, repo_clean_required==True, disease+EXACT DEV cohorts (no external/rejected id),
+    source_kind, per-cohort source paths, and the input/pipeline/env provenance hashes. Returns the spec."""
+    if not isinstance(spec, dict):
+        raise ValueError("regen manifest must be a JSON object")
+    if not _is_hex(spec.get("protocol_commit", ""), 40):
+        raise ValueError("protocol_commit must be a full 40-char lowercase git SHA-1")
+    if spec.get("repo_clean_required") is not True:
+        raise ValueError("repo_clean_required must be true")
+    disease = spec.get("disease")
+    if disease not in DEV_SCOPE:
+        raise ValueError(f"disease must be one of {sorted(DEV_SCOPE)}, got {disease!r}")
+    cohorts = spec.get("dev_cohorts")
+    if not isinstance(cohorts, list) or len(cohorts) != len(set(cohorts)):
+        raise ValueError("dev_cohorts must be a list of unique ids")
+    bad = sorted(set(cohorts) & _EXTERNAL_OR_REJECTED)
+    if bad:
+        raise ValueError(f"external/rejected cohort(s) {bad} must NEVER be in the all-DEV training scope")
+    if set(cohorts) != set(DEV_SCOPE[disease]):
+        raise ValueError(f"{disease}: dev_cohorts must be EXACTLY {sorted(DEV_SCOPE[disease])}")
+    if spec.get("source_kind") not in SOURCE_KINDS:
+        raise ValueError(f"source_kind must be one of {SOURCE_KINDS}")
+    sp = spec.get("source_paths")
+    if not isinstance(sp, dict) or set(sp) != set(cohorts):
+        raise ValueError("source_paths must be a dict keyed by EXACTLY the dev_cohorts")
+    for c, p in sp.items():
+        if not isinstance(p, str) or not os.path.isabs(p) or not p:
+            raise ValueError(f"source_paths[{c!r}] must be a non-empty absolute path")
+    if int(spec.get("seed", 0)) != 0:
+        raise ValueError("seed must be 0 (frozen determinism)")
+    for hf in ("subject_list_sha256", "diagnosis_label_sha256", "pipeline_config_sha256", "env_lock_sha256"):
+        if not _is_hex(spec.get(hf, ""), 64):
+            raise ValueError(f"{hf} must be a 64-char lowercase sha-256")
+    if not isinstance(spec.get("env_lock_path"), str) or not spec["env_lock_path"]:
+        raise ValueError("env_lock_path must be a non-empty string")
+    return spec
+
+
+def validate_substrate_manifest(spec):
+    """FAIL-CLOSED schema check for a run_substrate_compatibility manifest (pure; no I/O). Pins the trained substrate +
+    the FIXED candidate (NO reselection) + the pinned operating point. Returns the spec."""
+    if not isinstance(spec, dict):
+        raise ValueError("substrate manifest must be a JSON object")
+    if not _is_hex(spec.get("protocol_commit", ""), 40):
+        raise ValueError("protocol_commit must be a full 40-char lowercase git SHA-1")
+    if spec.get("candidate") != FIXED_CANDIDATE:
+        raise ValueError(f"candidate must be EXACTLY the fixed candidate {FIXED_CANDIDATE} (no reselection)")
+    for k, v in (("alpha", ALPHA), ("budget", BUDGET), ("coverage_min", COVERAGE_MIN)):
+        if spec.get(k) != v:
+            raise ValueError(f"{k} must be {v} (pinned operating point), got {spec.get(k)!r}")
+    subs = spec.get("substrates")
+    if not isinstance(subs, dict) or set(subs) != {"PD", "SCZ"}:
+        raise ValueError("substrates must be a dict for EXACTLY PD and SCZ")
+    cohorts = spec.get("dev_cohorts")
+    if not isinstance(cohorts, dict) or set(cohorts) != {"PD", "SCZ"}:
+        raise ValueError("dev_cohorts must be a dict for EXACTLY PD and SCZ")
+    for d in ("PD", "SCZ"):
+        if set(cohorts[d]) != set(DEV_SCOPE[d]):
+            raise ValueError(f"dev_cohorts[{d}] must be EXACTLY {sorted(DEV_SCOPE[d])}")
+        sd = subs[d]
+        if not isinstance(sd, dict):
+            raise ValueError(f"substrates[{d}] must be an object")
+        for pf in ("encoder_checkpoint_path", "source_state_path", "encoder_provenance_path",
+                   "source_state_provenance_path"):
+            if not isinstance(sd.get(pf), str) or not sd[pf]:
+                raise ValueError(f"substrates[{d}].{pf} must be a non-empty path")
+        for hf in ("encoder_checkpoint_sha256", "source_state_sha256"):
+            if not _is_hex(sd.get(hf, ""), 64):
+                raise ValueError(f"substrates[{d}].{hf} must be a 64-char lowercase sha-256")
+    if not _is_hex(spec.get("env_lock_sha256", ""), 64):
+        raise ValueError("env_lock_sha256 must be a 64-char lowercase sha-256")
+    return spec

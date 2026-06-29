@@ -12,6 +12,10 @@ UPDATE (2026-06-29..30): Option A read-only search DONE, in-scope + out-of-scope
          validator + SubstrateTrainingNotAuthorizedError + numeric compatibility_replay_pass) are implemented +
          synthetic-tested. Real all-DEV training is GATED behind separate B1 sign-off (ACAR_V4_SUBSTRATE_REGEN_PLAN.md).
          Option C NOT chosen.
+UPDATE (B1-preflight): B1 (real training) NOT authorized. The frozen command contract is written —
+         notes/ACAR_V4_SUBSTRATE_REGEN_COMMAND.md + acar/v4/run_regen_substrate.py + acar/v4/run_substrate_compatibility.py
+         (both fail-closed: validate then raise before any torch/cmi import or DEV read). compatibility_replay_pass changed
+         to make v2_replay a HARD requirement (no waiver). B1 sign-off is the only thing that unlocks training.
 ```
 
 External Arm B embeds held-out raw EEG into the **DEV feature space** (the frozen `feat_dump_v4` / erm_0 substrate) and

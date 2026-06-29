@@ -51,7 +51,9 @@ all-DEV trainer (or an ADD-ONLY `--save-encoder` step) that:
 - torch.save's the encoder state_dict (canonical little-endian bytes),
 - fits + serializes the matching source-state artifact (reuse acar.v3 SourceStateArtifact discipline),
 - emits the provenance fields below.
-Pin the EXACT command + args here BEFORE running. It is run ONLY after this plan is reviewed/approved.
+The EXACT command + input/output/runtime-lock schema + guards are FROZEN in notes/ACAR_V4_SUBSTRATE_REGEN_COMMAND.md +
+acar/v4/run_regen_substrate.py (B1-gated, fail-closed: validates fully then raises SubstrateTrainingNotAuthorizedError —
+no torch/cmi import, no DEV read — until B1 sign-off). It is run ONLY after B1.
 ```
 
 ## 5. Expected artifacts (must satisfy prepare_external_dump.ENCODER_ARTIFACT_FIELDS / SCHEMA §7)
@@ -87,13 +89,13 @@ Numeric pass-line (implemented as the PURE `acar.v4.regen_substrate.compatibilit
 ```
 per disease (PD, SCZ), ALWAYS required:
     CAL LTT λ* certified  AND  coverage ≥ 0.15  AND  red > 0  AND  EVAL L_harm_all ≤ 0.10
-per-disease v2 sub-gate:
-    if v2_replay EVALUABLE → require red > v2_replay_red
-    if v2_replay NOT evaluable → this sub-gate is WAIVED for that disease (the absolute gates above still hold)
+per-disease v2 gate (HARD — NO waiver):
+    v2_replay MUST be EVALUABLE for BOTH PD and SCZ, AND red > v2_replay_red for EACH disease.
+    if v2_replay is NOT evaluable for either disease → the replay FAILS → external Arm B NOT authorized.
+    (rationale: beating v2_replay is the V4 external claim; a non-evaluable v2 must not become an interpretation freedom.)
 macro v2 gate:
-    among diseases with an evaluable v2_replay → require disease-macro red > disease-macro v2_replay
-    if NO disease has an evaluable v2_replay → macro v2 gate WAIVED
-AUTHORIZE external Arm B iff BOTH diseases pass their absolute + v2 gates AND the macro v2 gate (or its waiver).
+    require disease-macro red > disease-macro v2_replay.
+AUTHORIZE external Arm B iff BOTH diseases pass all absolute + v2 gates AND the macro v2 gate.
 on PASS → allowed to draft the final frozen protocol with the NEW artifact hashes (then sign-off → tag).
 on FAIL (any disease) → external Arm B NOT authorized → Option C (DEV-only) or a new dated protocol.
 ```
