@@ -63,8 +63,14 @@ CAL_risk(λ)          chosen subject-level CAL loss ℓ ∈ {mean, pos, harm}
 ```
 
 Policy families compared (`acar/v4/policies.py`): safe-set (primary, A1), benefit-ranked, direct-selective. Calibration
-candidates (`acar/v4/risk_control.py`): LTT grid, RCPS-style. Output: per-family `(coverage, red, harm)` operating
-points + the selected `λ*` per loss. **Exploratory only.**
+candidates (`acar/v4/risk_control.py`): `select_ltt_grid` over a FIXED finite λ grid with subject-level CAL losses
+(`subject_losses_from_policy`, losses ∈ {mean, positive, harm_indicator}; fallback identity rows realized 0, kept in
+the subject denominator). One-sided risk test of `H0: E[L] ≥ budget` (method ∈ {ttest, hoeffding}), an FWER correction
+(Holm / Bonferroni), and selection of the **most aggressive PASSING λ** (`passer = adjusted_p ≤ alpha`). The λ-risk
+curve may be **non-monotone**, so NO monotone conformal-risk-control theorem is claimed — the FIXED grid + multiple
+testing is the guarantee; the primary method is fixed only at a future v4 freeze. `< 2` CAL subjects ⇒ `NOT_EVALUABLE`;
+no passing λ ⇒ `NO_PASS`; malformed inputs RAISE. Output: per-family `(coverage, red, harm)` operating points + the
+selected `λ*` per loss. **Exploratory only.**
 
 ## 3. Direction B outputs (hierarchical calibration)
 
