@@ -82,12 +82,16 @@ All four findings reproduce across seeds.
 
 A 4-agent adversarial workflow (independent re-derivation from raw npz/code) produced TWO CORRECTIONS:
 
-1. **Global-LPC λ-collapse is most likely an OPTIMIZATION ARTIFACT, not a representation-geometry
-   failure.** At λ=1, 26/27 (subj×seed) runs collapse FULLY (src/label→chance, dom_adv≈−0.01,
-   inloop_reg≈0.001) but exactly 1 (sub2/seed2) does not — BIMODALITY at the threshold = training
-   instability, not a smooth geometric optimum. CAVEAT: indirect (the dumps log only end-of-training
-   scalars; NO per-epoch task-CE/penalty/grad-norm/eff-rank). ⇒ write as "global-objective
-   optimization failure (λ-fragile)", and the minimal settling step is per-epoch logging + re-run.
+1. **Global-LPC λ-collapse is an OPTIMIZATION OBJECTIVE-SCALING failure, not a representation-geometry
+   failure.** [SETTLED in Phase 2.1 — see PHASE21_LPC_COLLAPSE_MECHANISM.md.] Phase 2.0 inferred this
+   indirectly from bimodality (26/27 collapse at λ=1). Phase 2.1 confirmed it with per-epoch curves +
+   a 4-agent adversarial verification: at λ≥1 the objective bifurcates (sharp λ-cliff, deterministic)
+   to a degenerate trivial minimizer = **feature-norm collapse to the ORIGIN** (feat_norm 1.09→0.0000,
+   top-1 SV→0.001, penalty→~0, CE→ln4=chance). It is NOT a gradient explosion (abs peak grad at
+   collapse is ~10× SMALLER than healthy training; "50–300×" was an artifact of dividing by the
+   post-collapse near-zero median; 0/36 nonfinite) and "eff_rank stays high" is NON-PROBATIVE
+   (scale-invariant metric). Mechanism = sharp optimization bifurcation that PRODUCES geometric
+   compression to a point; directly-opposed task/LPC gradients (cos=−0.99 at λ=3).
 
 2. **V_D removal DENTS but does not REMOVE domain (and it DOES beat random).** Correcting the earlier
    "≈ random": deleting V_D drops subject decode 0.997→0.955 (MLP) / 0.998→0.914 (linear), while
@@ -108,9 +112,10 @@ A 4-agent adversarial workflow (independent re-derivation from raw npz/code) pro
 On real TSMNet/2a frozen features: the score-Fisher selector DOES find a genuine domain-preferential,
 ~label-light low-rank subspace, but deleting it only DENTS the subject leakage (high-dim/redundant)
 → low-rank selective deletion cannot REMOVE the leakage; and global LPC "removes" it only by a
-λ-fragile OPTIMIZATION collapse of the whole representation. So: measurement-to-control POSITIVE for
-diagnosis (the framework localizes the leakage subspace + correctly shows low-rank deletion is
-insufficient + the certified gate abstains), NEGATIVE for deployable low-rank selective deletion here.
-NEXT (cheap, settles confound #1): add per-epoch training-curve logging to cmi trainer diag + re-run
-a small λ sweep to confirm the collapse is optimization (not geometry). NOT a frozen-projection pilot
-yet (deletion is insufficient). task_protect + power_floor stay OFF; gate = diagnostic/refuse-to-delete.
+λ-fragile OPTIMIZATION objective-scaling collapse to the trivial Z→0 solution (Phase 2.1 confirmed:
+feature-norm collapse to the origin via a sharp λ-bifurcation, NOT gradient explosion, NOT smooth
+geometric compression). So: measurement-to-control POSITIVE for diagnosis (the framework localizes the
+leakage subspace + correctly shows low-rank deletion is insufficient + the certified gate abstains),
+NEGATIVE for BOTH deployable knobs available here (global LPC = objective-scaling collapse; low-rank
+selective deletion = insufficient). NOT a frozen-projection pilot. task_protect + power_floor stay OFF;
+gate = diagnostic/refuse-to-delete. **Phase 2 (2.0 + 2.1) COMPLETE.**
