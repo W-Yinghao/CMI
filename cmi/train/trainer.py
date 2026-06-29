@@ -58,6 +58,13 @@ def _scalar(x):
     return float(x.detach().cpu()) if torch.is_tensor(x) else float(x)
 
 
+def _scale_norm(z, eps=1e-5):
+    """Phase 2.2: scale-detached batch normalization of the latent for the LPC penalty ONLY.
+    Stop-gradient on mean/std so the encoder cannot lower I(Z;D|Y) by shrinking ||z|| -> 0 (the
+    objective-scaling trivial minimizer). Task head still sees raw z."""
+    return (z - z.mean(0, keepdim=True).detach()) / (z.std(0, keepdim=True).detach() + eps)
+
+
 # --- Phase 2.1 LPC-collapse instrumentation (read-only; used only when log_curves=True) ---
 def _eff_stable_rank(Zc):
     s = np.linalg.svd(Zc, compute_uv=False)
@@ -79,7 +86,7 @@ def _grad_norm(grads):
 
 
 def _epoch_curve_record(acc, lam_t, lr, enc_params, backbone, post, cmi_method,
-                        Xd, yd, dd, gb, device, grad_decomp):
+                        Xd, yd, dd, gb, device, grad_decomp, pen_normalize=False):
     """Read-only per-epoch diagnostics for lpc_prior. Uses torch.autograd.grad (never writes
     param.grad, never calls opt.step) -> cannot corrupt the (Riemannian)Adam state. All forwards
     in eval() so SPD-BN/BN running stats are not perturbed; train/eval mode restored on exit."""
@@ -96,7 +103,7 @@ def _epoch_curve_record(acc, lam_t, lr, enc_params, backbone, post, cmi_method,
         xb, yb = Xd[gb], yd[gb]
         logits, z = backbone(xb)
         ce = _F.cross_entropy(logits, yb)
-        r = post.reg(cmi_method, z, yb)                       # raw unweighted CMI (same as opt uses)
+        r = post.reg(cmi_method, _scale_norm(z) if pen_normalize else z, yb)  # match training penalty coords
         total = ce + lam_t * r
         g_total = torch.autograd.grad(total, enc_params, retain_graph=grad_decomp, allow_unused=True)
     gt_n, gt_mx, gt_bad = _grad_norm(g_total)
@@ -149,7 +156,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 z_margin=0.0, dec_scale=1.0,
                 lr=1e-3, post_lr=2e-3,
                 weight_decay=0.0, sampler="classbal", prior_mode="empirical", prior_alpha=1.0,
-                device="cpu", seed=0, log_every=0, log_curves=False, curve_every=10):
+                device="cpu", seed=0, log_every=0, log_curves=False, curve_every=10,
+                lpc_pen_normalize=False, lam_warm_ramp=False, ramp_start=100, ramp_len=50):
     if method not in ALL_METHODS:
         raise ValueError(f"unknown method '{method}'; allowed: {sorted(ALL_METHODS)}")
     torch.manual_seed(seed)
@@ -263,7 +271,10 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         _dd = torch.tensor(dtr[_di], dtype=torch.long); _gb = slice(0, min(bs, _nd))
     backbone.train(); post.train()
     for ep in range(epochs):
-        lam_t = lam * min(1.0, ep / max(1, warmup))
+        if lam_warm_ramp:                       # Phase 2.2: ERM until ramp_start, ramp over ramp_len, then fixed
+            lam_t = lam * max(0.0, min(1.0, (ep - ramp_start) / max(1, ramp_len)))
+        else:
+            lam_t = lam * min(1.0, ep / max(1, warmup))
         gamma_t = gamma * min(1.0, ep / max(1, warmup))   # decoder-term warmup (dual)
         last_epoch = ep == epochs - 1
         if log_curves:
@@ -331,7 +342,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                     elif is_iib:
                         la = post.iib_ce_h(z, yb, db)
                     else:
-                        la = post.posterior_loss(z, yb, db)
+                        zq = _scale_norm(z) if lpc_pen_normalize else z   # P2.2: fit posterior on same coords as penalty
+                        la = post.posterior_loss(zq, yb, db)
                     opt_post.zero_grad(); la.backward(); opt_post.step()
                 if last_epoch and fits_qdzy:           # how well does q_psi predict D from (Z,Y)?
                     with torch.no_grad():
@@ -418,7 +430,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                         diag.setdefault("inloop_dec", []).append(_scalar(r_dec_res))
                         diag.setdefault("inloop_dec_loss", []).append(_scalar(r_dec_loss))
                 if uses_cmi:
-                    r = post.reg(cmi_method, z, yb)
+                    z_pen = _scale_norm(z) if lpc_pen_normalize else z   # P2.2: penalty on scale-normalized z (task head sees raw z)
+                    r = post.reg(cmi_method, z_pen, yb)
                     loss = loss + lam_t * r
                     if last_epoch:
                         diag["inloop_reg"].append(_scalar(r))
@@ -452,7 +465,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         if log_curves and uses_cmi:
             rec = _epoch_curve_record(_acc, lam_t, _lr_used, _enc_params, backbone, post,
                                       cmi_method, _Xd, _yd, _dd, _gb, device,
-                                      grad_decomp=((ep + 1) % curve_every == 0))
+                                      grad_decomp=((ep + 1) % curve_every == 0),
+                                      pen_normalize=lpc_pen_normalize)
             rec["epoch"] = ep; diag["curves"].append(rec)
         if log_every and (ep + 1) % log_every == 0:
             print(f"  ep {ep+1}/{epochs} lam_t={lam_t:.3f} loss={loss.item():.4f}", flush=True)
