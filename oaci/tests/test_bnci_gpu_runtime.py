@@ -101,11 +101,27 @@ def test_nondeterministic_operation_fails_instead_of_warning():
     if _skip():
         return
     dev = _device()
-    try:
-        torch.bincount(torch.randint(0, 5, (32,), device=dev))   # CUDA bincount is nondeterministic
-    except RuntimeError:
-        return                                                # MUST raise under warn_only=False
-    raise AssertionError("a nondeterministic CUDA op must raise under deterministic mode, not warn")
+    # The CONTRACT is error-mode determinism (warn_only=False) -- that is what makes any op torch
+    # classifies as nondeterministic raise instead of silently warning. (Which specific ops are
+    # classified is a torch-build detail: e.g. bincount has a deterministic CUDA path on this build.)
+    assert torch.are_deterministic_algorithms_enabled()
+    assert not torch.is_deterministic_algorithms_warn_only_enabled()
+    probes = (
+        ("kthvalue", lambda: torch.kthvalue(torch.randn(256, device=dev), 7)),
+        ("median_dim", lambda: torch.median(torch.randn(16, 16, device=dev), dim=0)),
+        ("bincount", lambda: torch.bincount(torch.randint(0, 9, (256,), device=dev))),
+        ("put_no_accumulate", lambda: torch.zeros(16, device=dev).put_(
+            torch.randint(0, 16, (32,), device=dev), torch.randn(32, device=dev), accumulate=False)),
+    )
+    raised = []
+    for name, op in probes:
+        try:
+            op()
+        except RuntimeError as e:
+            if "deterministic" in str(e).lower():
+                raised.append(name)
+    print(f"  nondeterministic CUDA ops that raised under warn_only=False: {raised}", file=sys.stderr)
+    assert raised, "with warn_only=False, at least one known-nondeterministic CUDA op must raise (none did)"
 
 
 def _run_all() -> None:
