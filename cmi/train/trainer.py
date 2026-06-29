@@ -97,6 +97,17 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     uses_graphcmi = method == "graphcmi"        # GNN node/edge CMI (needs backbone.forward_graph)
     node_post = edge_post = None
     if uses_graphcmi:                           # global term reuses `post`; add node + edge heads
+        # Fail closed: the GNN branch calls backbone.forward_graph(x) -> (logits, graph_Z, node_Z,
+        # edge_logits). A non-graph backbone (EEGNet, TSMNet, ...) lacks it; without this guard the
+        # AttributeError would only surface mid-training. Raise a clear, actionable error up front.
+        if not callable(getattr(backbone, "forward_graph", None)):
+            raise ValueError(
+                f"method='graphcmi' requires a graph backbone exposing "
+                f"forward_graph(x) -> (logits, graph_Z, node_Z, edge_logits); "
+                f"{type(backbone).__name__} has no callable forward_graph. "
+                f"Use --backbone GraphCMI (or another graph backbone), or pick a non-graph method.")
+        # For method='graphcmi' the (lam, gamma, lam_edge) knobs ARE (lambda_g, lambda_node,
+        # lambda_edge); they are reported under those names in the returned diagnostics.
         node_post = NodePosterior(backbone.z_dim, n_dom, n_cls, priors).to(device)
         edge_post = EdgePosterior(int(Xtr.shape[1]), n_dom, n_cls, priors).to(device)
     is_iib = method == "iib"
@@ -174,7 +185,9 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     dl = DataLoader(ds, batch_size=bs, sampler=smp, shuffle=smp is None, drop_last=drop_last)
 
     diag = dict(stepA_dom_correct=0, stepA_dom_total=0, inloop_reg=[],
-                sampler=effective_sampler)  # q_psi diagnostics
+                sampler=effective_sampler,  # q_psi diagnostics
+                # graphcmi-only: per-component leakage breakdown (empty/unused for other methods)
+                inloop_ce=[], inloop_reg_graph=[], inloop_reg_node=[], inloop_reg_edge=[])
     backbone.train(); post.train()
     for ep in range(epochs):
         lam_t = lam * min(1.0, ep / max(1, warmup))
@@ -214,7 +227,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                                         list(tgt_bb.parameters()) + list(tgt_proj.parameters())):
                             t.mul_(0.99).add_(o, alpha=0.01)
                 continue
-            if uses_graphcmi:                             # GNN: global + node + edge CMI
+            if uses_graphcmi:                             # GNN: graph(global) + node + edge CMI
                 warm = min(1.0, ep / max(1, warmup))
                 with torch.no_grad():                     # Step A: fit all 3 posteriors on detached graph features
                     _, gz, nz, el = backbone.forward_graph(xb)
@@ -223,12 +236,22 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                           + edge_post.step_a_loss(el, yb, db))
                     opt_post.zero_grad(); la.backward(); opt_post.step()
                 logits, gz, nz, el = backbone.forward_graph(xb)   # Step B (grad to encoder)
-                r = post.reg("lpc_prior", gz, yb)
-                loss = (F.cross_entropy(logits, yb) + lam * warm * r
-                        + gamma * warm * node_post.reg(nz, yb) + lam_edge * warm * edge_post.reg(el, yb))
+                # Three named leakage proxies; weights (lam, gamma, lam_edge) == (lambda_g, lambda_node,
+                # lambda_edge). Each term computed into its own variable so it can be logged separately;
+                # the loss math is byte-identical to the prior inline form.
+                r_graph = post.reg("lpc_prior", gz, yb)   # lambda_g    : I(Z_g;D|Y)
+                r_node = node_post.reg(nz, yb)            # lambda_node : (1/C) Σ_v I(Z_v;D|Y)
+                r_edge = edge_post.reg(el, yb)            # lambda_edge : I(A;D|Y)
+                ce = F.cross_entropy(logits, yb)
+                loss = (ce + lam * warm * r_graph
+                        + gamma * warm * r_node + lam_edge * warm * r_edge)
                 opt_main.zero_grad(); loss.backward(); opt_main.step()
                 if last_epoch:
-                    diag["inloop_reg"].append(_scalar(r))
+                    diag["inloop_reg"].append(_scalar(r_graph))   # back-compat: graph term == inloop_reg
+                    diag["inloop_ce"].append(_scalar(ce))
+                    diag["inloop_reg_graph"].append(_scalar(r_graph))
+                    diag["inloop_reg_node"].append(_scalar(r_node))
+                    diag["inloop_reg_edge"].append(_scalar(r_edge))
                 continue
             # Step A: fit auxiliary predictor(s) on detached Z (CMI posteriors, or IIB's h)
             fits_qdzy = uses_cmi or is_dual or is_dualc or is_dualpc or is_dualpc_hinge or is_dualpc_marginal
@@ -366,6 +389,14 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                dec_margin=float(dec_margin),
                z_margin=float(z_margin),
                dec_scale=float(dec_scale))
+    if uses_graphcmi:
+        # User-facing CIGL diagnostics: report the three weights under their spec names
+        # (lambda_g/lambda_node/lambda_edge), NOT the internal lam/gamma/lam_edge, plus the
+        # per-component held-in leakage breakdown (loss_ce / reg_graph / reg_node / reg_edge).
+        _mean = lambda k: float(np.mean(diag[k])) if diag[k] else 0.0
+        out.update(lambda_g=float(lam), lambda_node=float(gamma), lambda_edge=float(lam_edge),
+                   loss_ce=_mean("inloop_ce"), reg_graph=_mean("inloop_reg_graph"),
+                   reg_node=_mean("inloop_reg_node"), reg_edge=_mean("inloop_reg_edge"))
     if "inloop_reg_loss" in diag:
         out["inloop_reg_loss"] = float(np.mean(diag["inloop_reg_loss"]))
     if "inloop_dec" in diag:

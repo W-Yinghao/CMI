@@ -1,3 +1,13 @@
+## Active project: CIGL / GraphCMI
+
+CIGL (Conditional Information Graph Learning) studies **label-conditional domain leakage in EEG graph representations at graph, node, and edge levels**: it treats the per-sample learned adjacency `A(X)` as a possible subject fingerprint and regularizes `I(Z_g;D|Y)`, `(1/C)·Σ_v I(Z_v;D|Y)`, and `I(A;D|Y)`. The original Tri-CMI / LPC-CMI work below remains the **theoretical and estimator foundation**. **CITA** is a separate **transductive / test-time alignment** branch and is **not** the main strict-DG project.
+
+Start here: [`docs/CIGL_00_PROJECT_CHARTER.md`](docs/CIGL_00_PROJECT_CHARTER.md) · spec [`docs/CIGL_01_METHOD_SPEC.md`](docs/CIGL_01_METHOD_SPEC.md) · plan [`docs/CIGL_03_IMPLEMENTATION_PLAN.md`](docs/CIGL_03_IMPLEMENTATION_PLAN.md) · acceptance [`docs/CIGL_05_ACCEPTANCE_CRITERIA.md`](docs/CIGL_05_ACCEPTANCE_CRITERIA.md).
+
+Setting labels are never mixed in a main table: CIGL results are `setting = strict_source_only_DG`; CITA/TTA results are `setting = transductive_TTA`. Code/result layout: backbone `cmi/models/gnn.py` (`GraphCMINet`), graph/node/edge leakage heads `cmi/methods/graph_regularizers.py`, trainer branch `method="graphcmi"`, runner config grammar `graphcmi:<lambda_g>:<lambda_node>:<lambda_edge>`, results schema `results/cigl/schema.md`.
+
+---
+
 # Tri-CMI — Label-Prior-Corrected Conditional Mutual Information for Calibration-Free EEG Domain Generalization
 
 **Target:** AAAI-27 Main Technical Track (abstract 2026-07-21, full paper 2026-07-28, supplement/code 2026-07-31, all AoE).
