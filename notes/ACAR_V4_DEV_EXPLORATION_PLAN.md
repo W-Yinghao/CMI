@@ -146,6 +146,23 @@ verdict    : V4_DEV_CANDIDATE_FOUND_FOR_POSSIBLE_FREEZE  (≥1 config passes G0�
 NEVER emits : SELECT · DEV_STOP · PROCEED_SAFE_ROUTER · UTILITY_ONLY · external G2 · coverage theorem · lockbox
 ```
 
+**`develop.py` honest-calibration contract (split/provenance hardening):**
+
+```
+FOLD-LOCAL CAL→EVAL : per outer fold the CAL records select λ* (risk control); the held-out EVAL records are scored at
+                      that λ* and aggregated OOF subject-macro. CAL records NEVER enter the EVAL operating-point
+                      denominator (λ* depends on CAL ΔR only, not EVAL ΔR).
+COHORT-AWARE UNIT   : the calibration/coverage unit is `cohort_id::subject_id` — same local id in two cohorts = two
+                      subjects, never merged.
+COMPARATOR (C0)     : reports BOTH best_fixed_red and (optional) v2_replay_red as DISTINCT slots; `g3_comparator` fixes
+                      which one G3 uses BEFORE the run (the real run must declare it in ACAR_V4_DEV_EXPLORATION_RUN_PLAN
+                      and report both columns).
+SCORE FAMILIES      : real_mode accepts only PRE-LISTED registry families (arbitrary callables that could close over ΔR
+                      are rejected); the predeclared list is fixed in the run plan.
+POLICY GAP          : reported per-config AND global (best of ALL V4 policy families); the paper's
+                      information/policy/calibration decomposition uses the GLOBAL gap.
+```
+
 ---
 
 ## 6. Candidate gate (recap; full criteria in the design draft §8)
