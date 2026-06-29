@@ -40,10 +40,11 @@ abstain-on-everything would masquerade as control).
   independent clusters at the point. **max-failures = 0**: PASS iff `0/N` forbidden, which gives CP
   **upper** bound ≤ α = 0.05 at **N = 59** (0/59 → CP-UB 0.0495). **Any** in-core forbidden event is
   an automatic FAIL. Denominator = independent source–target clusters, never correlated targets.
-- **Power — usefulness at the point.** Visible-concept power. PASS iff the one-sided 95% CP **lower**
-  bound ≥ **one** pre-registered bar (deployment-justified, not read off the DEV map). At the proposed
-  screening bar **0.50**: needs **≥ 37/59** fired (CP-LB 0.512). The achieved power point estimate and
-  full CP interval are reported regardless of PASS/FAIL.
+- **Power — usefulness at the point.** Visible-concept power. PASS iff `n_fired ≥ max(min_fired(N_valid),
+  min_fired(G))` for the **one** pre-registered bar **0.50** — i.e. BOTH the conditional (`n_fired/N_valid`)
+  AND the unconditional (`n_fired/G`) CP **lower** bound clear 0.50, so the source-invalid exclusion can
+  never inflate the headline (§6). With G=66 the effective threshold is **≥ 41 fired**. Conditional AND
+  unconditional power + both CP intervals are reported regardless of PASS/FAIL.
 
 **Why it is credible.** P1.5 showed, on DEVELOPMENT seeds, 21/24 cells with 0/12 forbidden,
 `false_concept_on_synthetic_null = 0` in all 24 cells, and a core with power 0.75–0.92 (CP-LB
@@ -68,6 +69,9 @@ At tag time, lock and record (no change after the tag):
   the unseen `base_seed` (§2); the per-point **generated count `G`** and **minimum valid count
   `N_valid_min = 59`** (§4–§5); the **source-invalid INCONCLUSIVE cap `0.10`** (§4); the **power bar
   `0.50`** (§6). None may change after the tag.
+- **lineage cross-references (recorded in the tag too):** `audit_baseline_commit = 4ea423d` (the
+  P1.4.5a DEV-AUDIT this builds on) and `dev_artifact_commit = 3e5bcf5` (the P1.5 difficulty-envelope
+  artifact the core was read from).
 - a **fail-closed audit** (P1.4.5a-style) of the tagged commit recorded alongside.
 
 No knob may be re-tuned for the confirmatory run. If any method change is needed, the tag is void and
@@ -83,6 +87,12 @@ the design returns to review.
 - Each cluster = one fresh source seed + one target per kind from that source's geometry (the
   audited independence convention). Targets are single-condition (the mandatory `tgt_condition_ids`
   contract).
+- **Seed derivation (recorded machine-readably in the result artifact, `seed_derivation`).** Source
+  seeds are `base_seed + k` for `k ∈ 0..G−1`; each cluster's target seed is `target_seed_base +
+  source_seed` (`target_seed_base = 900000`). With `base_seed = 900000, G = 66`: **sources
+  `900000..900065`, targets `1800000..1800065`** — disjoint streams (`source_target_seed_streams_
+  disjoint = true`). The runner exposes this via `seed_streams(tag)` in both the dry-run and the
+  `--execute` payload.
 
 ## 3. Development-informed identifiable core — a FIXED, FINITE list of operating points
 
@@ -193,24 +203,33 @@ generation time — never re-derived after seeing the certificate outcome. (P1.5
 
 - Statistic: per cluster, the boundary_coupled (visible-concept) target fired `CONCEPT_SUSPECT`. One
   Bernoulli per cluster.
-- Denominator: the same `N_valid` evaluable clusters at the point.
-- **PASS iff** the one-sided 95% CP **lower** bound on visible-concept power ≥ a **single** pre-registered
-  bar (0.50). **The minimum fired count is computed from the REALIZED `N_valid`, never hard-coded** —
-  the runner finds the smallest `k` with `CP_lower(k, N_valid) ≥ 0.50`:
+- Statistic numerator: `n_fired` = visible-concept fires among the `N_valid` evaluable clusters
+  (source-invalid clusters count as non-fires by construction).
+- **PASS iff `n_fired ≥ min_fired_for_pass`, where (reviewer fix — source-invalid exclusion cannot
+  inflate the headline):**
 
-  | realized `N_valid` | min fired for PASS | CP-LB at that count |
-  |---|---|---|
-  | 59 | ≥ 37 | 0.512 |
-  | 60 | ≥ 37 | 0.502 |
-  | 66 | ≥ 41 | 0.513 |
-  | 72 | ≥ 44 | 0.508 |
+  ```
+  min_fired_for_pass = max( min_fired(N_valid) , min_fired(G) )
+  min_fired(n) = smallest k with CP_lower(k, n) >= power_bar (0.50)      # REALIZED n, never hard-coded
+  ```
 
-  (Verified; the runner recomputes this for whatever `N_valid` is realized, so a slightly smaller valid
-  count after the §4 exclusion does not silently shift the threshold.)
-- **No power inflation from the source-invalid exclusion.** Report power **both ways**: (i) *conditional*
-  = fired / `N_valid` (the headline), and (ii) *unconditional* = fired / `G` (source-invalid counted as
-  non-fires). The §4 cap bounds their gap to ≤ ~10%; both are recorded so the exclusion cannot silently
-  lift the headline. (At the proposed points `source_invalid = 0`, so the two coincide.)
+  This requires BOTH the **conditional** CP-lower (`n_fired/N_valid`) AND the **unconditional**
+  CP-lower (`n_fired/G`) to clear 0.50. Since `G ≥ N_valid`, the max equals `min_fired(G)`. A high
+  conditional power on few valid clusters is therefore **not** enough.
+
+  | realized | `min_fired(N_valid)` (cond) | `min_fired(G)`, G=66 (uncond) | **effective `min_fired_for_pass`** |
+  |---|---|---|---|
+  | N_valid 66 | 41 | 41 | **41** |
+  | N_valid 60 | 37 | 41 | **41** |
+  | N_valid 59 | 37 | 41 | **41** |
+  | N_valid 72 (G=72) | 44 | 44 | **44** |
+
+  Worked counter-example (the loophole this closes): `37 fired / 60 valid / G=66` → conditional 37/60
+  clears 0.50 (CP-LB ≥ 0.50) but unconditional 37/66 does not (needs 41) → **FAIL**.
+- **Report power BOTH ways, always:** *conditional* = `n_fired/N_valid` (+ CP-lower) and *unconditional*
+  = `n_fired/G` (+ CP-lower). Both are recorded regardless of PASS/FAIL, so the source-invalid exclusion
+  is always visible and can never silently lift the headline. (At the proposed points `source_invalid =
+  0`, so the two coincide and the effective threshold is `min_fired(66) = 41`.)
 - **Bar justification is external, not read off the DEV map.** Proposed bar **0.50** on a *screening*
   rationale: a deployment screen that detects identifiable concept shift in **fewer than half** of
   genuine cases at its own favourable operating point is not actionable. The bar is **one** value (not
@@ -245,6 +264,10 @@ generation time — never re-derived after seeing the certificate outcome. (P1.5
   full CP interval are reported regardless.
 - The full per-cluster outcome list + per-point `(N, forbidden, fired, source_invalid)` counts are
   recorded verbatim in the confirmatory artifact, regardless of PASS/FAIL.
+- **A scientific FAIL is a valid result, not a missing artifact.** The runner exits `1` on a FAIL
+  (after writing the JSON); the actual-run wrapper (`csc/run_confirmatory.sbatch`) ALWAYS preserves the
+  JSON artifact + sha256 (and the log + sha256) and then exits with the **scientific** RC, and exits
+  with an **infrastructure** code (2) only if NO JSON artifact was produced.
 
 ## 8. Failure decomposition (reported every run, PASS or FAIL)
 

@@ -79,8 +79,8 @@ def test_evaluate_point_gating():
     print("OK gating: INCONCLUSIVE (few/cap), PASS (both), FAIL (any forbidden), FAIL (power<thr, non-vacuity)")
 
 
-# 4 ---- power both-ways: source-invalid exclusion cannot inflate the headline -----------------------
-def test_power_reported_both_ways():
+# 4 ---- unconditional guard: source-invalid exclusion CANNOT inflate the headline (reviewer fix) ---
+def test_unconditional_power_guard():
     tag = load_tag()
     from csc.run_envelope import KINDS
 
@@ -90,16 +90,34 @@ def test_power_reported_both_ways():
         return dict(states=states, vis_fail_reason="FIRED" if fired else "residual_T_not_sig",
                     source_status=status, concept_evidenced=True, attribution_unreliable=False)
 
-    # 60 valid (40 fired) + 6 source-invalid (cannot fire). cap = 6/66 = 0.0909 <= 0.10 -> evaluable
-    recs = [rec("VALID", True) for _ in range(40)] + [rec("VALID", False) for _ in range(20)] \
+    # the reviewer's example: 37 fired / 60 valid / 66 generated (6 source-invalid; cap 6/66=0.091 ok).
+    # conditional 37/60 CLEARS the 0.50 bar (min_fired over 60 = 37), but unconditional 37/66 does NOT
+    # (min_fired over 66 = 41). With the max() rule the headline must FAIL.
+    recs = [rec("VALID", True) for _ in range(37)] + [rec("VALID", False) for _ in range(23)] \
         + [rec("INVALID_SUPPORT", False) for _ in range(6)]
     e = evaluate_point(recs, tag)
-    assert e["n_valid"] == 60 and e["source_invalid"] == 6
-    # conditional = 40/60 = 0.667 ; unconditional = 40/66 = 0.606 -> conditional is higher
-    assert abs(e["power_conditional"] - 40 / 60) < 1e-9
-    assert abs(e["power_unconditional"] - 40 / 66) < 1e-9
-    assert e["power_conditional"] > e["power_unconditional"], "exclusion must be visible (both reported)"
-    print("OK power reported both conditional (40/60) and unconditional (40/66): exclusion not hidden")
+    assert e["n_valid"] == 60 and e["source_invalid"] == 6 and e["G"] == 66 and e["fired"] == 37
+    assert e["min_fired_conditional"] == 37 and e["min_fired_unconditional"] == 41
+    assert e["min_fired_for_pass"] == 41, "headline threshold must be the max (unconditional) = 41"
+    assert e["power_conditional_cp_lower"] >= 0.50, "conditional alone would have passed"
+    assert e["power_unconditional_cp_lower"] < 0.50, "unconditional is below the bar"
+    assert e["power_pass"] is False and e["verdict"] == "FAIL", "exclusion must NOT lift the headline"
+    # both powers reported; conditional > unconditional (exclusion visible, never hidden)
+    assert abs(e["power_conditional"] - 37 / 60) < 1e-9 and abs(e["power_unconditional"] - 37 / 66) < 1e-9
+    assert e["power_conditional"] > e["power_unconditional"]
+    print("OK unconditional guard: 37/60 valid passes conditional but FAILS (uncond needs 41/66); not hidden")
+
+
+# 4b ---- seed derivation is recorded explicitly (source vs target streams, disjoint) --------------
+def test_seed_streams_recorded():
+    from csc.run_confirmatory import seed_streams
+    tag = load_tag()
+    ss = seed_streams(tag)
+    assert ss["source_seed_range"] == [900_000, 900_065]
+    assert ss["target_seed_range"] == [1_800_000, 1_800_065]
+    assert ss["target_seed_base"] == 900_000
+    assert ss["source_target_seed_streams_disjoint"] is True
+    print("OK seed derivation recorded: sources 900000..900065 -> targets 1800000..1800065 (disjoint)")
 
 
 # 5 ---- TINY DEV smoke: run_point/evaluate_point execute end-to-end on a NON-unseen seed ----------
@@ -125,6 +143,7 @@ if __name__ == "__main__":
     test_power_min_fired_is_realized_N()
     test_tag_matches_frozen_method_and_bound_choices()
     test_evaluate_point_gating()
-    test_power_reported_both_ways()
+    test_unconditional_power_guard()
+    test_seed_streams_recorded()
     test_dev_smoke_not_unseen()
     print("\nall CSC confirmatory-runner tests passed")

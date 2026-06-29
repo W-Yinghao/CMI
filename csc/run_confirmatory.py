@@ -55,6 +55,21 @@ def _point_from(entry: dict) -> EnvelopePoint:
     return EnvelopePoint(**entry.get("envelope_overrides", {}))
 
 
+def seed_streams(tag: dict, tgt_seed_base: int = TGT_SEED_BASE) -> dict:
+    """Explicit, machine-readable record of the confirmatory seed derivation (reviewer provenance
+    requirement). Source seeds are base_seed + k for k in 0..G-1; each cluster's target seed is
+    tgt_seed_base + source_seed (see run_point -> _cluster_record). With base_seed=900000, G=66,
+    tgt_seed_base=900000: sources 900000..900065, targets 1800000..1800065 (disjoint streams)."""
+    base, G = tag["base_seed"], tag["G"]
+    src_lo, src_hi = base, base + G - 1
+    tgt_lo, tgt_hi = tgt_seed_base + base, tgt_seed_base + base + G - 1
+    disjoint = (tgt_lo > src_hi) or (src_lo > tgt_hi)
+    return dict(
+        source_seed_base=base, source_seed_range=[src_lo, src_hi],
+        target_seed_base=tgt_seed_base, target_seed_formula="target_seed = target_seed_base + source_seed",
+        target_seed_range=[tgt_lo, tgt_hi], source_target_seed_streams_disjoint=bool(disjoint))
+
+
 def run_point(point: EnvelopePoint, cfg: ProtocolConfig, G: int, base_seed: int,
               tgt_seed_base: int = TGT_SEED_BASE, n_jobs: int = 1) -> list:
     """Generate G independent clusters at the fixed point (deterministic per seed; identical serial
@@ -81,21 +96,26 @@ def evaluate_point(recs: list, tag: dict) -> dict:
     n_forbidden = sum(any(r["states"][kd] in FORBIDDEN[_TRUTH[kd]] for kd in KINDS) for r in valid)
     forbidden_cp_ub = _cp_bound(n_forbidden, n_valid, side="upper") if n_valid else 1.0
 
-    # power endpoint (realized N_valid)
+    # power endpoint. n_fired = visible-concept fires among VALID clusters (source-invalid clusters
+    # count as non-fires BY CONSTRUCTION). The PASS threshold is the CONSERVATIVE
+    #   min_fired_for_pass = max( min_fired over N_valid , min_fired over G )
+    # so the headline requires BOTH the conditional (fired/N_valid) AND the unconditional (fired/G) CP
+    # lower bound >= power_bar. Since G >= N_valid, this equals min_fired over G -> the source-invalid
+    # exclusion can NEVER lift the headline (a high conditional power on few valid clusters is not enough).
     n_fired = sum(r["states"]["boundary_coupled"] == CONCEPT_SUSPECT for r in valid)
-    # unconditional numerator = valid fires ONLY (source-invalid counted as non-fires BY CONSTRUCTION,
-    # enforcing the contract regardless of the certifier's state on an invalid source) -> guarantees
-    # power_unconditional = n_fired/G <= power_conditional, so the exclusion can never lift the headline.
-    n_fired_all = n_fired
-    min_fired = power_min_fired(n_valid, tag["power_bar"]) if n_valid else None
     power_cond = (n_fired / n_valid) if n_valid else None
-    power_uncond = (n_fired_all / G) if G else None
-    power_cp_lb = _cp_bound(n_fired, n_valid, side="lower") if n_valid else None
+    power_uncond = (n_fired / G) if G else None
+    power_cond_cp_lb = _cp_bound(n_fired, n_valid, side="lower") if n_valid else None
+    power_uncond_cp_lb = _cp_bound(n_fired, G, side="lower") if G else None
+    min_fired_cond = power_min_fired(n_valid, tag["power_bar"]) if n_valid else None
+    min_fired_uncond = power_min_fired(G, tag["power_bar"]) if G else None
+    min_fired_for_pass = (max(min_fired_cond, min_fired_uncond)
+                          if (min_fired_cond is not None and min_fired_uncond is not None) else None)
 
     # gating
     inconclusive = (src_invalid_frac > tag["source_invalid_cap"]) or (n_valid < tag["N_valid_min"])
     forbidden_pass = (not inconclusive) and (n_forbidden <= tag["max_forbidden_failures"])
-    power_pass = (not inconclusive) and (min_fired is not None) and (n_fired >= min_fired)
+    power_pass = (not inconclusive) and (min_fired_for_pass is not None) and (n_fired >= min_fired_for_pass)
     if inconclusive:
         verdict = "INCONCLUSIVE"
     elif forbidden_pass and power_pass:
@@ -117,8 +137,13 @@ def evaluate_point(recs: list, tag: dict) -> dict:
         verdict=verdict, G=G, n_valid=n_valid, source_invalid=src_invalid,
         source_invalid_frac=round(src_invalid_frac, 4),
         forbidden=n_forbidden, forbidden_cp_upper=round(forbidden_cp_ub, 4), forbidden_pass=forbidden_pass,
-        fired=n_fired, min_fired_for_pass=min_fired, power_conditional=power_cond,
-        power_unconditional=power_uncond, power_cp_lower=power_cp_lb, power_pass=power_pass,
+        fired=n_fired,
+        power_conditional=power_cond,
+        power_conditional_cp_lower=(round(power_cond_cp_lb, 4) if power_cond_cp_lb is not None else None),
+        power_unconditional=power_uncond,
+        power_unconditional_cp_lower=(round(power_uncond_cp_lb, 4) if power_uncond_cp_lb is not None else None),
+        min_fired_conditional=min_fired_cond, min_fired_unconditional=min_fired_uncond,
+        min_fired_for_pass=min_fired_for_pass, power_pass=power_pass,
         gate_failure_decomposition=decomp, source_invalid_reasons=src_reasons,
     )
 
@@ -139,9 +164,15 @@ def _describe(tag: dict, cfg: ProtocolConfig):
           f"({'MATCH' if cfg.hash() == tag['expected_manifest_hash'] else 'MISMATCH'})")
     print(f"core (headline): {[p['name'] for p in tag['core_points']]}")
     print(f"secondary      : {[p['name'] for p in tag['secondary_descriptive_points']]} (NOT in PASS/FAIL)")
-    print("realized-N_valid power thresholds (min fired for CP_lower >= power_bar):")
+    ss = seed_streams(tag)
+    print(f"seeds      : sources {ss['source_seed_range']} -> targets {ss['target_seed_range']} "
+          f"(disjoint={ss['source_target_seed_streams_disjoint']}; {ss['target_seed_formula']})")
+    print("power PASS : n_fired >= max(min_fired over N_valid, min_fired over G)  [unconditional guard]")
+    print("realized-N power thresholds (min fired for CP_lower >= power_bar; headline uses the max):")
     for n in (tag["N_valid_min"], 60, tag["G"], 72):
-        print(f"   N_valid={n:>3d} -> need >= {power_min_fired(n, tag['power_bar'])} fired")
+        eff = max(power_min_fired(n, tag["power_bar"]), power_min_fired(tag["G"], tag["power_bar"]))
+        print(f"   N_valid={n:>3d} -> cond {power_min_fired(n, tag['power_bar'])} | "
+              f"effective (with uncond guard, G={tag['G']}) {eff}")
     print("NOT executed. The unseen-cluster confirmatory run requires --execute AND a separate "
           "authorization; default is this dry run.")
 
@@ -181,6 +212,7 @@ def main():
         kind="CSC confirmatory result", tag=tag, manifest_hash=cfg.hash(),
         headline_core_pass=core_pass, claim_type=tag["claim_type"],
         per_point=results, base_seed=tag["base_seed"], n_jobs=args.jobs,
+        seed_derivation=seed_streams(tag),     # explicit source/target seed streams (provenance)
         hostname=os.environ.get("SLURMD_NODENAME") or socket.gethostname(),
         slurm_job_id=os.environ.get("SLURM_JOB_ID"),
         time=datetime.datetime.now().isoformat(timespec="seconds"),
