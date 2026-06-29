@@ -219,7 +219,7 @@ def _resolve_score_families(score_families, real_mode):
 
 # ----------------------------------------------------------------------------- record validation
 
-def _validate_records(records, cfg):
+def _validate_records(records, cfg, require_exact_eval_coverage=False):
     if not records:
         raise ValueError("records must be a non-empty sequence of V4OOFRecord")
     full_keys = set()
@@ -279,6 +279,21 @@ def _validate_records(records, cfg):
         if len(folds) > 1:
             raise ValueError(f"subject {d}/{c}/{s} is EVAL in multiple folds {sorted(folds)} "
                              "(OOF must partition SUBJECTS, not just batches)")
+    if require_exact_eval_coverage:
+        # EXACT OOF coverage (real run): every physical subject AND every physical batch must be EVAL in EXACTLY one
+        # fold — otherwise a CAL/FIT-only subject or an un-EVAL'd batch would silently shrink the EVAL denominator and
+        # over-state coverage/red/harm/frontiers on a partial cohort.
+        all_subjects = {(r.disease, r.cohort_id, r.subject_id) for r in out}
+        all_batches = {(r.disease, r.cohort_id, r.batch_id) for r in out}
+        for sk in sorted(all_subjects):
+            n = len(eval_folds.get(sk, ()))
+            if n != 1:
+                raise ValueError(f"exact OOF coverage: subject {sk[0]}/{sk[1]}/{sk[2]} must be EVAL in exactly one "
+                                 f"fold, got {n} (CAL/FIT-only subjects are not allowed in a real exploratory run)")
+        for bk in sorted(all_batches):
+            if bk not in eval_batches:
+                raise ValueError(f"exact OOF coverage: batch {bk[0]}/{bk[1]}/{bk[2]} is never EVAL (each batch must be "
+                                 "EVAL exactly once in a real exploratory run)")
     out.sort(key=lambda r: (r.disease, r.split, r.fold, r.cohort_id, r.subject_id, r.batch_id))
     return tuple(out)
 
@@ -443,13 +458,17 @@ def _process_disease(recs_d, score_fams, cfg, v2_replay_red):
 # ----------------------------------------------------------------------------- orchestration
 
 def run_dev_exploration(records, config=None, score_families=None, *, real_mode=False,
-                        v2_replay_red_by_disease=None):
+                        v2_replay_red_by_disease=None, require_exact_eval_coverage=None):
     """EXPLORATORY V4 Phase-1 orchestration on V4OOFRecords (synthetic here). Verdict is
-    V4_DEV_CANDIDATE_FOUND_FOR_POSSIBLE_FREEZE or V4_DEV_NEGATIVE_NO_LOCKBOX — never SELECT/DEV_STOP/binding."""
+    V4_DEV_CANDIDATE_FOUND_FOR_POSSIBLE_FREEZE or V4_DEV_NEGATIVE_NO_LOCKBOX — never SELECT/DEV_STOP/binding.
+
+    real_mode (the real old-seven run) ALWAYS enforces exact OOF EVAL coverage (every subject & batch EVAL exactly
+    once); synthetic tests default to relaxed (≤1) and may opt in via require_exact_eval_coverage=True."""
     cfg = config or V4DevConfig()
     if cfg.g3_comparator not in ("best_fixed", "v2_replay"):
         raise ValueError("g3_comparator must be 'best_fixed' or 'v2_replay'")
-    recs = _validate_records(records, cfg)
+    exact = bool(require_exact_eval_coverage) or real_mode
+    recs = _validate_records(records, cfg, require_exact_eval_coverage=exact)
     sfs = _resolve_score_families(score_families, real_mode)
     present = [d for d in DISEASES if any(r.disease == d for r in recs)]
     bundles = {}

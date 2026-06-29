@@ -169,6 +169,10 @@ POLICY GAP          : reported per-config AND global (best of ALL V4 policy fami
 SUBJECT-LEVEL OOF   : _validate_records enforces the SUBJECT cluster (cohort_id::subject_id) — not the batch — as the
                       unit: one split per (subject,fold); a subject is EVAL in ≤1 fold (so it is never split across
                       EVAL folds nor both CAL/FIT and EVAL in one fold).
+EXACT OOF COVERAGE  : the REAL run (real_mode, or require_exact_eval_coverage=True) additionally requires every physical
+                      subject (disease,cohort,subject) AND every physical batch (disease,cohort,batch) to be EVAL in
+                      EXACTLY one fold — a CAL/FIT-only subject or an un-EVAL'd batch RAISES (no silent denominator
+                      shrinkage). Synthetic toy tests default to relaxed (≤1) coverage.
 G4 HONEST SCOPE     : rc_status='PASS' only if EVERY EVAL fold received a passing calibration; an EVAL fold left at
                       identity (no CAL, or CAL failed the budget) → NO_PASS (n_eval/evaluable/passed folds in provenance).
 RECORD IMMUTABILITY : V4OOFRecord copies dr/features_v2 to read-only float64 at construction; rejects non-float arrays,

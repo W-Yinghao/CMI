@@ -342,6 +342,27 @@ def test_record_digest_action_names_injective():
     assert D._record_digest(mk(("a\x00b", "c", "d"))) != D._record_digest(mk(("a", "b\x00c", "d")))
 
 
+def test_exact_oof_eval_coverage():
+    # clean cross-fit (every subject & batch EVAL exactly once) satisfies exact coverage, in real_mode AND via flag
+    assert D.run_dev_exploration(_make_records(beneficial=True), score_families=["shift_margin"],
+                                 real_mode=True).run_status == D.V4_DEV_EXPLORATION_COMPLETE
+    assert D.run_dev_exploration(_make_records(beneficial=True),
+                                 require_exact_eval_coverage=True).run_status == D.V4_DEV_EXPLORATION_COMPLETE
+    # a CAL-only subject (never EVAL) ⇒ exact coverage raises; relaxed (default) still allows it
+    cal_only = _make_records(beneficial=True)
+    for b in range(2):
+        cal_only.append(V4OOFRecord("PD", "PD_calonly", PD_COH, f"calonly_b{b}", 1, "CAL", False,
+                                    _dr(0, True), _feats(0), ACT))
+    _expect(ValueError, lambda: D.run_dev_exploration(cal_only, require_exact_eval_coverage=True))
+    _expect(ValueError, lambda: D.run_dev_exploration(cal_only, score_families=["shift_margin"], real_mode=True))
+    assert D.run_dev_exploration(cal_only).run_status == D.V4_DEV_EXPLORATION_COMPLETE          # relaxed default
+    # a batch that is never EVAL (extra CAL batch for an existing EVAL subject) ⇒ exact coverage raises
+    extra = _make_records(beneficial=True)
+    extra.append(V4OOFRecord("PD", "PD_s0", PD_COH, "PD_s0_calextra", 1, "CAL", False, _dr(0, True), _feats(0), ACT))
+    _expect(ValueError, lambda: D.run_dev_exploration(extra, require_exact_eval_coverage=True))
+    assert D.run_dev_exploration(extra).run_status == D.V4_DEV_EXPLORATION_COMPLETE             # relaxed default
+
+
 def test_fail_closed_validation():
     good = _make_records(beneficial=True)
     _expect(ValueError, lambda: D.run_dev_exploration([]))
@@ -378,7 +399,7 @@ def main():
               test_record_digest_permutation_invariant_and_field_sensitive, test_atomic_writer,
               test_assert_no_binding_language_rejects_illegal, test_cal_records_value_excluded_from_eval_operating_point,
               test_g4_requires_all_eval_folds_certified, test_construction_rejects_non_float_and_control_chars,
-              test_record_digest_action_names_injective, test_fail_closed_validation):
+              test_record_digest_action_names_injective, test_exact_oof_eval_coverage, test_fail_closed_validation):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 DEVELOP GUARDS PASS")
