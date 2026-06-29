@@ -56,11 +56,11 @@ class StratumResult:
     n_cal_subjects: int
     n_eval_subjects: int
     selected_lambda: Optional[float]
-    coverage: float
-    red: float
-    L_harm_all_eval: float      # the LTT-controlled object, checked ≤ budget on EVAL (criterion A)
-    harm_among_adapted: float   # DESCRIPTIVE only
-    v2_replay_red: float
+    coverage: Optional[float]
+    red: Optional[float]
+    L_harm_all_eval: Optional[float]   # LTT-controlled object, checked ≤ budget on EVAL (criterion A); None if N/E
+    harm_among_adapted: Optional[float]  # DESCRIPTIVE only; None if nothing adapted / not evaluated
+    v2_replay_red: Optional[float]
     v2_replay_status: str
 
 
@@ -191,9 +191,8 @@ def evaluate_stratum(stratum, *, alpha=ALPHA, budget=BUDGET, delta=DELTA):
     site = stratum["site"]; disease = stratum["disease"]
     subject_to_class = {cc: c["class"] for cc, c in stratum["subjects"].items()}
 
-    def _na(reason, ncal=0, nev=0, v2=0.0, v2s="NOT_RUN"):
-        return StratumResult(site, disease, "NOT_EVALUABLE", reason, ncal, nev, None, 0.0, 0.0,
-                             float("nan"), float("nan"), v2, v2s)
+    def _na(reason, ncal=0, nev=0, v2=None, v2s="NOT_RUN"):
+        return StratumResult(site, disease, "NOT_EVALUABLE", reason, ncal, nev, None, None, None, None, None, v2, v2s)
 
     cal, ev, sstat, sreason = site_local_split(subject_to_class)
     if sstat != "OK":
@@ -204,8 +203,12 @@ def evaluate_stratum(stratum, *, alpha=ALPHA, budget=BUDGET, delta=DELTA):
         return _na("empty CAL or EVAL batch set", len(cal), len(ev))
     _, benefit_cal = _shift_margin(feats_cal)
     _, benefit_ev = _shift_margin(feats_ev)
-    # frozen λ grid: min_a benefit over CAL batches; 12-pt linspace; unique
-    stat = np.min(benefit_cal, axis=1)
+    # frozen λ grid: min_a benefit over ELIGIBLE (non-fallback) CAL batches only; 12-pt linspace; unique. (Fallback rows
+    # are forced identity and stay in the CAL LTT loss denominator, but must NOT shape the score threshold grid.)
+    nf_cal = ~fb_cal
+    if not nf_cal.any():
+        return _na("no eligible (non-fallback) CAL batches", len(cal), len(ev))
+    stat = np.min(benefit_cal[nf_cal], axis=1)
     lo, hi = float(np.min(stat)), float(np.max(stat))
     if not (hi > lo):
         return _na("degenerate λ grid (CAL min-benefit constant)", len(cal), len(ev))
@@ -226,23 +229,23 @@ def evaluate_stratum(stratum, *, alpha=ALPHA, budget=BUDGET, delta=DELTA):
         return _na("v2_replay NOT_EVALUABLE (C0_FIT/C0_CAL too small)", len(cal), len(ev), v2_red, v2_status)
     if rc.selected_index is None:                              # CAL did not certify any λ
         return StratumResult(site, disease, "V4_EXTERNAL_NEGATIVE", "CAL LTT did not certify a λ (NO_PASS)",
-                             len(cal), len(ev), None, 0.0, 0.0, float("nan"), float("nan"), v2_red, v2_status)
+                             len(cal), len(ev), None, None, None, None, None, v2_red, v2_status)
     lam = float(rc.selected_lambda)
     choice_ev = _benefit_ranked_choice(benefit_ev, lam, fb_ev)
     w_ev = PO.subject_macro_weights(subj_ev)
     coverage = PO.coverage(choice_ev, weights=w_ev)
     red = PO.reduction(choice_ev, dr_ev, weights=w_ev)
-    harm_adapt = PO.harm_rate(choice_ev, dr_ev, weights=w_ev)
+    harm_adapt = PO.harm_rate(choice_ev, dr_ev, weights=w_ev)   # NaN if nothing adapted → None
     L_harm_all_eval = float(RC.subject_losses_from_policy(np.stack([choice_ev]), dr_ev, subj_ev, loss=LOSS).mean())
     ok = (L_harm_all_eval <= budget) and (red > 0.0) and (red > v2_red) and (coverage >= 0.15)
     status = "V4_EXTERNAL_CONFIRMED" if ok else "V4_EXTERNAL_NEGATIVE"
     reason = "criterion A met" if ok else (
-        f"failed: " + ", ".join(x for x, c in (("L_harm_all>budget", L_harm_all_eval > budget),
-                                               ("red<=0", red <= 0.0), ("red<=v2_replay", red <= v2_red),
-                                               ("coverage<0.15", coverage < 0.15)) if c))
+        "failed: " + ", ".join(x for x, c in (("L_harm_all>budget", L_harm_all_eval > budget),
+                                              ("red<=0", red <= 0.0), ("red<=v2_replay", red <= v2_red),
+                                              ("coverage<0.15", coverage < 0.15)) if c))
+    harm_val = float(harm_adapt) if (harm_adapt == harm_adapt) else None
     return StratumResult(site, disease, status, reason, len(cal), len(ev), lam, float(coverage), float(red),
-                         L_harm_all_eval, float(harm_adapt) if harm_adapt == harm_adapt else float("nan"),
-                         float(v2_red), v2_status)
+                         float(L_harm_all_eval), harm_val, float(v2_red), v2_status)
 
 
 # ----------------------------------------------------------------------------- multi-site taxonomy (§3d deterministic)
@@ -267,41 +270,62 @@ def external_taxonomy(strata_results):
     return ExternalResult("V4_EXTERNAL_COMPLETE", verdict, per_disease, tuple(strata_results))
 
 
+# ----------------------------------------------------------------------------- subject class (fail-closed, pure)
+
+def subject_class_from_label_values(values):
+    """Fail-closed diagnosis class for ONE subject. Requires ≥1 label, ALL identical, each ∈ {0,1}. 1→patient, 0→hc.
+    Mixed / missing / out-of-range labels RAISE (never average-and-round)."""
+    vals = list(values)
+    if not vals:
+        raise ValueError("subject has no labels")
+    s = set()
+    for v in vals:
+        iv = int(v)
+        if iv != v or iv not in (0, 1):
+            raise ValueError(f"diagnosis label {v!r} not in {{0,1}}")
+        s.add(iv)
+    if len(s) != 1:
+        raise ValueError(f"subject has mixed diagnosis labels {sorted(s)}")
+    return "patient" if s == {1} else "hc"
+
+
 # ----------------------------------------------------------------------------- gated real path (eeg2025; external read)
 
-def build_stratum_from_dump(site_id, disease, dump_path, env=None):
-    """REAL path (gated): build a stratum dict from a held-out site's erm_0 feature dump via the v3 substrate. Imports v3
-    (torch/eeg2025) lazily. The per-subject class (patient/hc) is taken from the dump labels (diagnosis target). Not
-    exercised by the synthetic guards; runs only at the authorized external read."""
-    from acar.v3 import develop as V3D
-    from acar.v3.loader import build_cohort_input
-    from acar.v3.data import deployment_batch_digest, canon_subject
-    ci = build_cohort_input(dump_path, disease=disease, dataset_id=site_id, env=env)
-    reg = V3D._as_registry(ci.source_artifact, disease)
-    idx = V3D._subject_batches(list(ci.batches))
-    cache = V3D.disease_exec_cache(reg, list(ci.batches), ci.labels)
+def build_stratum_from_dump(site_id, disease, dump_path, frozen_source_artifact, env=None):
+    """REAL path (gated). LEAKAGE FIREWALL: the held-out site's diagnosis labels are NEVER used to fit f_0 / the source
+    state — `frozen_source_artifact` MUST be a DEV-frozen SourceStateArtifact (loaded via load_frozen_source_state_artifact,
+    no fitting), applied to the held-out deployment z. Held-out labels enter ONLY the ΔR (labeled-risk) step that feeds CAL
+    λ* and EVAL scoring. This function therefore does NOT call build_cohort_input (which would read the held-out y_ev to
+    refit the readout). `frozen_source_artifact` is REQUIRED (fail-closed before any heavy import)."""
+    if frozen_source_artifact is None:
+        raise ValueError("external Arm B requires a DEV-frozen source-state artifact (no refit on held-out labels)")
+    from acar.v3.loader import load_deployment_batches, load_labels_by_window   # label-free batches + labels-only
+    from acar.v3.data import deployment_batch_digest
+    art = frozen_source_artifact
+    batches = load_deployment_batches(dump_path, disease=disease, dataset_id=site_id,
+                                      source_state_ref=art.source_state_ref)    # reads z_te + keys, NEVER y
+    labels = load_labels_by_window(dump_path, dataset_id=site_id)               # reads y_te ONLY (for ΔR)
     subjects = {}
-    for cc, slot in idx.items():
-        key = slot["key"]
-        elig = []
-        cls = None
-        for b in slot["eligible"]:
-            c = cache[deployment_batch_digest(b)]
-            dr = np.array([float(c["dr"][a]) for a in ACTIONS], float)
-            feats = np.stack([np.asarray(c["c0feat"][a], float) for a in ACTIONS])
-            elig.append((deployment_batch_digest(b), dr, feats))
-            cls = _subject_class_from_labels(b, ci.labels) if cls is None else cls
-        fb = [deployment_batch_digest(b) for b in slot["fallback"]]
-        if cls is None and slot["fallback"]:
-            cls = _subject_class_from_labels(slot["fallback"][0], ci.labels)
+    by_subject = {}
+    for b in batches:
+        by_subject.setdefault(b.subject, []).append(b)
+    for skey, bs in by_subject.items():
+        cc = f"{skey.dataset_id}::{skey.subject_id}"
+        elig, fb, label_vals = [], [], []
+        for b in bs:
+            exe = art.execute(b)                                               # ONE label-free execution (identity+3)
+            lrr = exe.labeled_risk_record(labels)                              # ΔR from held-out labels (CAL/EVAL only)
+            dr = np.array([float(dict(lrr.delta_r_by_action)[a]) for a in ACTIONS], float)
+            p0 = np.asarray(exe.p0, float); z0 = np.asarray(exe.z0, float)
+            st = art._ephemeral_state()
+            from acar.v3.develop import _c0_vector
+            feats = np.stack([np.asarray(_c0_vector(st, p0, z0, za, pa), float) for (_a, za, pa) in exe.per_action])
+            if getattr(b, "fallback", False):
+                fb.append(deployment_batch_digest(b))
+            else:
+                elig.append((deployment_batch_digest(b), dr, feats))
+            label_vals.extend(labels[wk] for wk in b.window_keys if wk in labels)
+        cls = subject_class_from_label_values(label_vals)                      # fail-closed (B7)
         subjects[cc] = {"class": cls, "eligible": elig, "fallback": fb,
-                        "subject_id": key.subject_id, "cohort_id": key.dataset_id}
+                        "subject_id": skey.subject_id, "cohort_id": skey.dataset_id}
     return {"site": site_id, "disease": disease, "subjects": subjects}
-
-
-def _subject_class_from_labels(batch, labels):
-    """Map a batch's (constant-per-subject) diagnosis label to 'patient'/'hc'. y==1 -> patient (PD/SCZ), y==0 -> hc."""
-    ys = [labels[wk] for wk in batch.window_keys if wk in labels]
-    if not ys:
-        return None
-    return "patient" if int(round(float(np.mean(ys)))) == 1 else "hc"

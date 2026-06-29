@@ -1,39 +1,47 @@
 """ACAR v4 — the UNIQUE external Arm-B CLI (binding once tagged `acar-v4-protocol`).
 
-Runs the frozen candidate (ACAR_FROZEN_v4.md) on the audited §4 held-out strata exactly once, with a v3-style
-fail-closed preflight, and writes results/acar_v4_external_001/. This module performs NO external read until ALL
-preflight checks pass; it is committed and frozen TOGETHER with the protocol under the `acar-v4-protocol` tag (binding
-execution path, not just docs). The synthetic guards exercise the manifest validation + preflight fail-closed branches
-without any external data.
+Runs the frozen candidate (ACAR_FROZEN_v4.md) on the EXACT audited §4 held-out strata exactly once, with a v3-style
+STDLIB-FIRST fail-closed preflight, and writes results/acar_v4_external_001/. No external read happens until every
+preflight check passes AND the env lock verifies. Committed/frozen together with the protocol under `acar-v4-protocol`
+(binding execution path). Synthetic guards exercise the manifest validation + preflight fail-closed branches without any
+external data; the heavy path (frozen-source load, dump read, evaluate) is gated to the authorized run in eeg2025.
 
-ADMISSIBLE strata are exactly the audited §4 list (notes/ACAR_V4_LOCKBOX_AUDIT.md). ASZED 14178398 (provisional) and
-ds007020 (excluded) and the seven DEV cohorts are rejected. Single-site-per-disease is allowed (reported as such).
+Leakage firewall (ACAR_FROZEN_v4.md §5): the held-out diagnosis labels never refit f_0 — each stratum supplies a
+DEV-frozen source artifact (verified by sha) that external_adapter.build_stratum_from_dump applies WITHOUT fitting; held-
+out labels enter only ΔR for CAL λ* + EVAL scoring.
 """
 from __future__ import annotations
 import argparse
 import hashlib
 import json
+import math
 import os
+import shlex
 import subprocess
-from typing import Tuple
-
-from acar.v4 import external_adapter as EA
+import sys
 
 PROTOCOL_TAG = "acar-v4-protocol"
-# audited admissible held-out strata (site, disease) — the ACAR_FROZEN_v4.md §4 list
+# the EXACT audited admissible held-out strata (ACAR_FROZEN_v4.md §4); a binding run requires ALL of them (not a subset)
 ADMISSIBLE_STRATA = {("zenodo14808296", "SCZ"), ("ds007526", "PD")}
-ADMISSIBLE_SITES = {s for s, _ in ADMISSIBLE_STRATA}
-# explicitly rejected (provisional / excluded / DEV)
-_REJECTED = {"14178398", "aszed", "ds007020"}
+_REJECTED = {"14178398", "aszed", "ds007020"}                 # provisional / excluded
 _DEV_COHORTS = {"ds002778", "ds003490", "ds004584", "ds003944", "ds003947", "ds004000", "ds004367"}
+# full per-stratum provenance hashes (all 64-char lowercase sha-256)
+_HASH_FIELDS = ("full_dump_sha256", "deployment_input_sha256", "label_sha256", "subject_list_sha256",
+                "diagnosis_mapping_sha256", "resting_selection_sha256", "raw_pipeline_sha256", "source_state_sha256")
 
 
 def _is_hex(s, n):
     return isinstance(s, str) and len(s) == n and all(c in "0123456789abcdef" for c in s)
 
 
+def _is_int(x):
+    return isinstance(x, int) and not isinstance(x, bool)
+
+
 def validate_external_manifest(spec):
-    """Fail-closed schema check for the external input manifest. Returns the normalized list of strata."""
+    """Fail-closed schema check. Requires protocol_commit (40-hex), the EXACT admissible stratum set, and full
+    per-stratum provenance (dump path, all field hashes, source-state ref/sha + dev artifact path, expected counts).
+    Returns the strata list."""
     if not isinstance(spec, dict):
         raise ValueError("manifest must be a JSON object")
     if not _is_hex(spec.get("protocol_commit", ""), 40):
@@ -41,7 +49,7 @@ def validate_external_manifest(spec):
     strata = spec.get("strata")
     if not isinstance(strata, list) or not strata:
         raise ValueError("strata must be a non-empty list")
-    seen = set()
+    pairs = []
     for st in strata:
         if not isinstance(st, dict):
             raise ValueError("each stratum must be an object")
@@ -51,14 +59,27 @@ def validate_external_manifest(spec):
         if site in _DEV_COHORTS or str(site).lower() in _REJECTED:
             raise ValueError(f"site {site!r} is a DEV/rejected/provisional cohort — not admissible")
         if (site, disease) not in ADMISSIBLE_STRATA:
-            raise ValueError(f"({site!r},{disease!r}) is not an audited admissible stratum {sorted(ADMISSIBLE_STRATA)}")
-        if (site, disease) in seen:
-            raise ValueError(f"duplicate stratum ({site!r},{disease!r})")
-        seen.add((site, disease))
+            raise ValueError(f"({site!r},{disease!r}) is not an audited admissible stratum")
+        pairs.append((site, disease))
         if not isinstance(st.get("dump_path"), str) or not st["dump_path"]:
             raise ValueError(f"{site}: dump_path must be a non-empty string")
-        if not _is_hex(st.get("dump_sha256", ""), 64):
-            raise ValueError(f"{site}: dump_sha256 must be a 64-char lowercase SHA-256")
+        if not isinstance(st.get("dev_source_artifact_path"), str) or not st["dev_source_artifact_path"]:
+            raise ValueError(f"{site}: dev_source_artifact_path must be a non-empty string (DEV-frozen source)")
+        if not isinstance(st.get("dataset_version"), str) or not st["dataset_version"]:
+            raise ValueError(f"{site}: dataset_version must be a non-empty string")
+        if not _is_hex(st.get("source_state_ref", ""), 64):
+            raise ValueError(f"{site}: source_state_ref must be 64-char sha-256")
+        for hf in _HASH_FIELDS:
+            if not _is_hex(st.get(hf, ""), 64):
+                raise ValueError(f"{site}: {hf} must be 64-char lowercase sha-256")
+        for cf in ("expected_n_subjects", "expected_embedding_dim"):
+            if not _is_int(st.get(cf)) or st[cf] <= 0:
+                raise ValueError(f"{site}: {cf} must be a positive int")
+    if set(pairs) != ADMISSIBLE_STRATA:
+        raise ValueError(f"strata must be EXACTLY {sorted(ADMISSIBLE_STRATA)} (single-site-per-disease; both required), "
+                         f"got {sorted(set(pairs))}")
+    if len(pairs) != len(set(pairs)):
+        raise ValueError("duplicate stratum")
     return strata
 
 
@@ -94,43 +115,70 @@ def _repo_root():
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+def _json_safe(o):
+    if isinstance(o, dict):
+        return {str(k): _json_safe(v) for k, v in sorted(o.items(), key=lambda kv: str(kv[0]))}
+    if isinstance(o, (list, tuple)):
+        return [_json_safe(v) for v in o]
+    if isinstance(o, float):
+        return o if math.isfinite(o) else None                # NEVER serialize raw NaN/Inf
+    if o is None or isinstance(o, (int, str, bool)):
+        return o
+    return str(o)
+
+
 def run(input_manifest_path, output):
-    """Full external Arm-B run (gated): preflight fail-closed, then evaluate the frozen candidate on the admissible
-    strata and write `output`. NO external read happens before all preflight checks pass."""
-    with open(input_manifest_path) as f:
-        spec = json.load(f)
+    """Full external Arm-B run (gated). STDLIB-FIRST preflight (no heavy import until all checks pass), then evaluate the
+    frozen candidate on the admissible strata and write `output`. NO external read before preflight + env-lock verify."""
+    with open(input_manifest_path, "rb") as f:
+        raw = f.read()
+    input_manifest_sha256 = hashlib.sha256(raw).hexdigest()
+    spec = json.loads(raw.decode())
     if os.path.exists(output):
         raise FileExistsError(f"output dir already exists (no overwrite): {output}")
-    strata = validate_external_manifest(spec)
+    strata = validate_external_manifest(spec)                 # schema + exact admissible set + full provenance
     root = _repo_root()
     verify_protocol(root, spec["protocol_commit"])
     verify_clean_worktree(root)
-    for st in strata:                                          # hash the declared dumps BEFORE any modeling read
+    for st in strata:                                         # hash declared dumps BEFORE any modeling read
         got = _sha256_file(st["dump_path"])
-        if got != st["dump_sha256"]:
-            raise ValueError(f"{st['site']}: dump_sha256 mismatch ({got} != {st['dump_sha256']})")
-    from acar.v3.envlock import apply_runtime                  # determinism (torch); gated past preflight
+        if got != st["full_dump_sha256"]:
+            raise ValueError(f"{st['site']}: full_dump_sha256 mismatch ({got} != {st['full_dump_sha256']})")
+    # --- heavy section (only past a fully-passing stdlib preflight) ---
+    from acar.v3.envlock import apply_runtime, verify_env_lock
     apply_runtime()
-    os.mkdir(output)                                           # atomic claim (race-free no-overwrite)
+    env_lock_sha = verify_env_lock()                          # applies-then-compares; fail-closed
+    from acar.v4 import external_adapter as EA
+    from acar.v3.loader import load_frozen_source_state_artifact
+    os.mkdir(output)                                          # atomic claim (race-free no-overwrite)
     try:
         results = []
         for st in strata:
-            stratum = EA.build_stratum_from_dump(st["site"], st["disease"], st["dump_path"])
+            art = load_frozen_source_state_artifact(st["dev_source_artifact_path"], disease=st["disease"])
+            if art.source_state_sha256 != st["source_state_sha256"] or art.source_state_ref != st["source_state_ref"]:
+                raise ValueError(f"{st['site']}: frozen source artifact sha/ref mismatch vs manifest")
+            stratum = EA.build_stratum_from_dump(st["site"], st["disease"], st["dump_path"], art)
             results.append(EA.evaluate_stratum(stratum))
         ext = EA.external_taxonomy(results)
-        manifest = {
+        body = {
             "boundary": "BINDING external Arm B (acar-v4-protocol); single confirmatory pass; lockbox-equivalent",
+            "command": shlex.join([sys.executable, "-m", "acar.v4.run_external_armb",
+                                   "--input-manifest", input_manifest_path, "--output", output]),
             "protocol_commit": spec["protocol_commit"], "protocol_tag": PROTOCOL_TAG,
+            "env_lock_sha256": env_lock_sha, "input_manifest_sha256": input_manifest_sha256,
             "run_status": ext.run_status, "verdict": ext.verdict, "per_disease": ext.per_disease,
             "strata": [r.__dict__ for r in ext.strata],
-            "input_strata": [{"site": s["site"], "disease": s["disease"], "dump_sha256": s["dump_sha256"]} for s in strata],
+            "input_strata": [{k: s.get(k) for k in ("site", "disease", "dataset_version", "source_state_ref",
+                                                    *_HASH_FIELDS)} for s in strata],
         }
+        safe = _json_safe(body)
+        safe["manifest_sha256"] = hashlib.sha256(json.dumps(safe, sort_keys=True, allow_nan=False).encode()).hexdigest()
         with open(os.path.join(output, "manifest.json"), "w") as f:
-            json.dump(manifest, f, sort_keys=True, allow_nan=False, indent=2)
+            json.dump(safe, f, sort_keys=True, allow_nan=False, indent=2)
         with open(os.path.join(output, "RESULT.json"), "w") as f:    # written last = completion sentinel
             json.dump({"run_status": ext.run_status, "verdict": ext.verdict,
-                       "per_disease": {d: v["confirmed"] for d, v in ext.per_disease.items()}},
-                      f, sort_keys=True, allow_nan=False, indent=2)
+                       "per_disease": {d: v["confirmed"] for d, v in ext.per_disease.items()},
+                       "manifest_sha256": safe["manifest_sha256"]}, f, sort_keys=True, allow_nan=False, indent=2)
         return ext
     except BaseException:
         import shutil

@@ -7,10 +7,14 @@ EXTERNAL ARM  : NOT RUN — authorized only AFTER tag + sign-off
 LOCKBOX       : SEALED / NOT CONSUMED
 §4 HELD-OUT LIST : AUDITED + FILLED (metadata-only, notes/ACAR_V4_LOCKBOX_AUDIT.md) — admissible: (zenodo14808296,SCZ),
                    (ds007526,PD), both single-site; ASZED provisional; ds007020 excluded
-EXTERNAL CLI  : IMPLEMENTED — acar/v4/run_external_armb.py (+ acar/v4/external_adapter.py); synthetic/preflight guards
-                   acar/v4/tests/test_external_armb.py (11 green); committed WITH this protocol (binding execution path).
+EXTERNAL CLI  : IMPLEMENTED + HARDENED — acar/v4/run_external_armb.py (stdlib-first preflight; EXACT-set + full-provenance
+                   manifest; verify_env_lock; JSON-safe NOT_EVALUABLE) + acar/v4/external_adapter.py (leakage firewall:
+                   requires a DEV-frozen source artifact, label-free loaders, fail-closed; λ grid from non-fallback CAL;
+                   fail-closed subject class). Frozen input prep: acar/v4/prepare_external_dump.py +
+                   notes/ACAR_V4_EXTERNAL_INPUT_SCHEMA.md. Guards: test_external_armb + test_prepare_external_dump.
 REMAINING BLOCKERS TO TAG : (1) clean-process guard run of all v4 suites + clean worktree; (2) sign-off; THEN tag
-                   `acar-v4-protocol` on that commit; the single external read happens only after via the CLI.
+                   `acar-v4-protocol`. AFTER tag: run the gated prep (prepare_dump) to build the held-out erm_0 dumps,
+                   THEN the single external read via the CLI. (The held-out dumps do NOT exist yet — built post-tag.)
 DATE          : 2026-06-29
 ```
 
@@ -138,6 +142,11 @@ separately-dated protocol amendment. **EXCLUDED:** OpenNeuro ds007020 (mortality
 Runner preflight (metadata-only, before any signal read): re-confirm ds007526 channel/Fs + resting-run selection, the
 Zenodo id↔diagnosis mapping, and no re-released/derived subject overlap with the seven DEV cohorts; any stratum failing
 the split-feasibility or label checks is reported NOT_EVALUABLE (never silently dropped).
+
+**Held-out dumps do NOT exist yet.** Each admissible site's erm_0 dump is produced (post-tag) by the FROZEN prep layer
+`acar/v4/prepare_external_dump.py` running the SAME DEV pipeline + the DEV-frozen encoder/source state on the held-out
+raw EEG (contract: `notes/ACAR_V4_EXTERNAL_INPUT_SCHEMA.md`). The held-out diagnosis labels are written ONLY to `y_te`.
+No raw download / signal processing occurs before the tag.
 
 ## 5. Execution discipline + leakage firewall (CLI = acar/v4/run_external_armb.py)
 The unique external Arm-B CLI mirrors v3's `run_dev_binding` preflight (FAIL-CLOSED, no bypass): manifest schema

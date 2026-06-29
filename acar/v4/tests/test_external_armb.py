@@ -151,27 +151,38 @@ def test_admissible_strata_constant():
     assert CLI.ADMISSIBLE_STRATA == {("zenodo14808296", "SCZ"), ("ds007526", "PD")}
 
 
+def _full_st(site, disease, **over):
+    st = {"site": site, "disease": disease, "dump_path": f"/{site}.npz",
+          "dev_source_artifact_path": f"/{site}.dev.npz", "dataset_version": "1.0.0",
+          "source_state_ref": "a" * 64, "expected_n_subjects": 77, "expected_embedding_dim": 16}
+    for hf in CLI._HASH_FIELDS:
+        st[hf] = "b" * 64
+    st.update(over)
+    return st
+
+
 def _manifest(strata, commit="0" * 40):
     return {"protocol_commit": commit, "strata": strata}
 
 
-def test_validate_external_manifest():
-    ok = [{"site": "zenodo14808296", "disease": "SCZ", "dump_path": "/x.npz", "dump_sha256": "a" * 64},
-          {"site": "ds007526", "disease": "PD", "dump_path": "/y.npz", "dump_sha256": "b" * 64}]
-    assert len(CLI.validate_external_manifest(_manifest(ok))) == 2
-    # rejected sites / pairs
+def test_validate_external_manifest_exact_set_and_provenance():
+    exact = [_full_st("zenodo14808296", "SCZ"), _full_st("ds007526", "PD")]
+    assert len(CLI.validate_external_manifest(_manifest(exact))) == 2          # the exact admissible set passes
+    # NOT a subset: a single admissible stratum is rejected (both required)
+    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest([_full_st("ds007526", "PD")])))
+    # rejected / excluded / DEV / wrong-pair sites
+    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest(exact + [_full_st("14178398", "SCZ")])))
+    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest([_full_st("ds007020", "PD"), exact[0]])))
+    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest([_full_st("ds002778", "PD"), exact[0]])))
+    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest([_full_st("ds007526", "SCZ"), exact[0]])))
+    # bad commit / missing provenance field / bad hash / bad count
+    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest(exact, commit="bad")))
+    bad = [_full_st("zenodo14808296", "SCZ"), _full_st("ds007526", "PD")]; del bad[1]["full_dump_sha256"]
+    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest(bad)))
     _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest(
-        [{"site": "14178398", "disease": "SCZ", "dump_path": "/z", "dump_sha256": "c" * 64}])))      # ASZED provisional
+        [_full_st("zenodo14808296", "SCZ"), _full_st("ds007526", "PD", raw_pipeline_sha256="short")])))
     _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest(
-        [{"site": "ds007020", "disease": "PD", "dump_path": "/z", "dump_sha256": "c" * 64}])))        # excluded
-    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest(
-        [{"site": "ds002778", "disease": "PD", "dump_path": "/z", "dump_sha256": "c" * 64}])))        # DEV cohort
-    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest(
-        [{"site": "ds007526", "disease": "SCZ", "dump_path": "/z", "dump_sha256": "c" * 64}])))       # wrong pairing
-    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest(ok, commit="bad")))          # bad commit
-    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest(
-        [{"site": "ds007526", "disease": "PD", "dump_path": "/y", "dump_sha256": "short"}])))         # bad hash
-    _expect(ValueError, lambda: CLI.validate_external_manifest(_manifest(ok + [ok[1]])))              # duplicate
+        [_full_st("zenodo14808296", "SCZ"), _full_st("ds007526", "PD", expected_n_subjects=0)])))
 
 
 def test_preflight_fail_closed():
@@ -179,17 +190,50 @@ def test_preflight_fail_closed():
     head = subprocess.run(["git", "-C", root, "rev-parse", "HEAD"], capture_output=True, text=True).stdout.strip()
     _expect(ValueError, lambda: CLI.verify_protocol(root, "0" * 40))           # HEAD != commit
     _expect(ValueError, lambda: CLI.verify_protocol(root, head))               # tag acar-v4-protocol absent
-    # run() refuses an existing output dir before any git/heavy work
     base = tempfile.mkdtemp()
     try:
         mpath = os.path.join(base, "m.json")
         with open(mpath, "w") as f:
-            json.dump(_manifest([{"site": "ds007526", "disease": "PD", "dump_path": "/y", "dump_sha256": "b" * 64}]), f)
+            json.dump(_manifest([_full_st("ds007526", "PD")]), f)
         outdir = os.path.join(base, "out"); os.mkdir(outdir)
-        _expect(FileExistsError, lambda: CLI.run(mpath, outdir))
+        _expect(FileExistsError, lambda: CLI.run(mpath, outdir))               # output exists → before git/heavy
     finally:
         import shutil
         shutil.rmtree(base, ignore_errors=True)
+
+
+def test_build_stratum_requires_frozen_artifact():
+    # leakage firewall: the real path REFUSES to run without a DEV-frozen source artifact (before any heavy import)
+    _expect(ValueError, lambda: EA.build_stratum_from_dump("ds007526", "PD", "/nope.npz", None))
+
+
+def test_subject_class_fail_closed():
+    assert EA.subject_class_from_label_values([1, 1, 1]) == "patient"
+    assert EA.subject_class_from_label_values([0, 0]) == "hc"
+    _expect(ValueError, lambda: EA.subject_class_from_label_values([0, 1]))    # mixed
+    _expect(ValueError, lambda: EA.subject_class_from_label_values([]))        # missing
+    _expect(ValueError, lambda: EA.subject_class_from_label_values([2]))       # out of range
+
+
+def test_json_safe_not_evaluable():
+    r = EA.evaluate_stratum(_stratum(n=10))                                    # NOT_EVALUABLE (too few)
+    safe = CLI._json_safe(r.__dict__)
+    s = json.dumps(safe, allow_nan=False)                                      # must NOT raise on NaN
+    assert "NaN" not in s and "Infinity" not in s
+    assert safe["status"] == "NOT_EVALUABLE" and safe["L_harm_all_eval"] is None and safe["coverage"] is None
+
+
+def test_lambda_grid_excludes_fallback():
+    # action 0's d_margin is CONSTANT over non-fallback CAL → degenerate grid → NOT_EVALUABLE. If fallback rows (zeros)
+    # were (wrongly) included, the grid would span [-5, 0] and NOT be degenerate. So this proves fallback is excluded.
+    subjects = {}
+    for i in range(60):
+        elig = [(f"s{i}_b{b}", np.array([-2.0, 1.0, 1.0]),
+                 np.array([[0, -5.0] + [0] * (NF - 2), [0, 5.0] + [0] * (NF - 2), [0, 5.0] + [0] * (NF - 2)], float))
+                for b in range(2)]
+        subjects[f"x::s{i}"] = {"class": "patient" if i % 2 == 0 else "hc", "eligible": elig, "fallback": [f"s{i}_fb"]}
+    r = EA.evaluate_stratum({"site": "zenodo14808296", "disease": "SCZ", "subjects": subjects})
+    assert r.status == "NOT_EVALUABLE" and "degenerate" in r.reason.lower()
 
 
 def main():
@@ -197,8 +241,10 @@ def main():
     for t in (test_site_local_split, test_evaluate_stratum_confirmed, test_evaluate_stratum_negative_harmful_trap,
               test_evaluate_stratum_not_evaluable_too_few, test_L_harm_all_vs_harm_among_adapted,
               test_lambda_star_from_cal_not_eval, test_v2_replay_subject_disjoint_and_not_evaluable,
-              test_external_taxonomy_deterministic, test_admissible_strata_constant, test_validate_external_manifest,
-              test_preflight_fail_closed):
+              test_external_taxonomy_deterministic, test_admissible_strata_constant,
+              test_validate_external_manifest_exact_set_and_provenance, test_preflight_fail_closed,
+              test_build_stratum_requires_frozen_artifact, test_subject_class_fail_closed, test_json_safe_not_evaluable,
+              test_lambda_grid_excludes_fallback):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 EXTERNAL ARM-B GUARDS PASS")
