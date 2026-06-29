@@ -1,0 +1,23 @@
+{
+  "protocol": "CSC confirmatory v1",
+  "status": "FREEZE-CANDIDATE (definition only). The unseen-cluster run requires a SEPARATE authorization; this file fixes the frozen spec, it does not run anything.",
+  "reviewer_bound": true,
+  "K": 1,
+  "claim_type": "pointwise",
+  "core_points": [
+    {"name": "P_baseline", "role": "primary_headline", "envelope_overrides": {}}
+  ],
+  "secondary_descriptive_points": [
+    {"name": "P_strong", "role": "secondary_descriptive_only", "envelope_overrides": {"concept_effect_size": 20.0}}
+  ],
+  "base_seed": 900000,
+  "G": 66,
+  "N_valid_min": 59,
+  "source_invalid_cap": 0.10,
+  "max_forbidden_failures": 0,
+  "power_bar": 0.50,
+  "expected_manifest_hash": "da2c0f4309847a4e790843b9ece68010a90c33bdb9404097aee72dcbefbb2632",
+  "audit_baseline_commit": "4ea423d",
+  "dev_artifact_commit": "3e5bcf5",
+  "notes": "P_baseline envelope_overrides={} == EnvelopePoint() defaults (effect 14, subj/dom 22, target_subj 30, prior_alpha 4.0, corr 0.2, leakage 10, concept_domains 3, epochs_max 22, mechanism_family 0). Power min-fired is computed from the REALIZED N_valid (smallest k with CP_lower(k,N_valid) >= power_bar), never hard-coded. P_strong is secondary descriptive only and is NOT part of the PASS/FAIL."
+}

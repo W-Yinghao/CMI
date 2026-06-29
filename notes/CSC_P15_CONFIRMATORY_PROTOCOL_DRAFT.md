@@ -19,11 +19,12 @@ CSC-P1.5 operating-region map (`notes/CSC_P15_DEVELOPMENT_OPERATING_REGION.md`, 
 **not** declared a priori. That is acceptable *only because* the confirmatory evidence uses a locked
 manifest and an unseen cluster set. No claim is made that the core was chosen blind.
 
-**The decision the reviewer makes now.** Approve/reject (a) the frozen method identity, (b) the
-**fixed, finite, named set of core operating points** (no ranges; clusters generated *at* those
-points by construction), (c) the runtime abstention handling, (d) the two endpoints + their single
-pre-registered thresholds, (e) the non-selection rules. Only after approval would a tag + run be
-requested in a *separate* authorization.
+**Reviewer decision (BOUND for this tag).** The reviewer has accepted the design as a freeze-candidate and
+**bound the headline confirmatory core to `K = 1`, `P_baseline` only**, with: `G = 66` generated clusters,
+`N_valid_min = 59`, `source_invalid_cap = 0.10`, `max_forbidden_failures = 0`, **power bar `CP_lower ≥
+0.50`**, `base_seed = 900000`, **pointwise** claim. `P_strong` is **secondary descriptive only** (never in
+the PASS/FAIL). This document is still **definition-only**: a tag + audit package follows; the unseen-cluster
+run needs a *separate* authorization.
 
 **Design choice that closes the obvious loopholes (see §3).** The core is **not** a predicate over a
 region (which would admit weak in-region cells and undeclared gap zones); it is a **fixed finite list
@@ -93,12 +94,19 @@ a **fixed finite list of EXACT operating points**, declared in the tag, with clu
 those points. Membership is therefore **by construction** (the generative config is fixed at
 seed-generation time, never re-derived from an outcome); there are no ranges and no gaps to adjudicate.
 
-**Pre-registered core points (the proposed list — the reviewer fixes it before the tag):**
+**Pre-registered core — REVIEWER-BOUND to `K = 1`, `P_baseline` only (the headline confirmatory core):**
 
-| point | config (all other knobs = P1.5 baseline) | DEV power (CP-LB) |
-|---|---|---|
-| `P_baseline` | effect 14, subj/dom 22, target_subj 30, prior_alpha 4.0, corr 0.2, leakage 10, concept_domains 3, epochs_max 22, mechanism_family 0, single-condition target | 0.83 (0.56) |
-| `P_strong` (optional, strengthens) | as baseline but `concept_effect_size = 20` | 0.92 (0.66) |
+| point | role | config (all other knobs = P1.5 baseline) | DEV power (CP-LB) |
+|---|---|---|---|
+| `P_baseline` | **PRIMARY (headline, K=1)** | effect 14, subj/dom 22, target_subj 30, prior_alpha 4.0, corr 0.2, leakage 10, concept_domains 3, epochs_max 22, mechanism_family 0, single-condition target | 0.83 (0.56) |
+| `P_strong` | **SECONDARY descriptive only — NOT in the PASS/FAIL** | as baseline but `concept_effect_size = 20` | 0.92 (0.66) |
+
+The reviewer has **bound the headline confirmatory core to `K = 1` (`P_baseline` only)**. `P_baseline` is
+the more informative favourable operating point; `P_strong` merely confirms an easier higher-effect case
+and would raise the conjunction burden without being necessary for the first confirmatory claim. `P_strong`
+MAY be run and reported as a **secondary descriptive stress/sanity point**, but it is **NOT** part of the
+primary PASS/FAIL. Promoting it to the headline (K = 2) requires a **new protocol version that chooses
+K = 2 before tagging** — and then a *simultaneous* familywise claim must use the Bonferroni `N` (§5), not 59.
 
 Every listed knob is pinned to a value the P1.5 map showed retains power **and** had `0/12` forbidden
 (strong cells only — `concept_domains` is pinned to **3**, not "≥3": the `=5` cell had power 0.33;
@@ -175,8 +183,9 @@ generation time — never re-derived after seeing the certificate outcome. (P1.5
   - **Option B — simultaneous familywise.** For a simultaneous 95% statement over all `K` points,
     Bonferroni each point at α/K: zero-failure needs `N ≥ ⌈log(0.05/K)/log(0.95)⌉` →
     K=1: 59 · K=2: 72 · K=3: 80 · K=4: 86 · K=5: 90 per point.
-  - With the proposed list (K = 1 `P_baseline`, or K = 2 with `P_strong`), N = 59 supports Option A;
-    a *simultaneous* core claim at K = 2 needs N ≥ 72.
+  - **This tag is bound to K = 1 (`P_baseline` only, §3), so the headline is the single-point pointwise
+    Option A: `0/N_valid` with `N_valid ≥ 59` → CP-UB ≈ 0.0495.** (Option B / Bonferroni applies only to
+    a future K ≥ 2 protocol version; `P_strong`, if run, is secondary descriptive and not in the headline.)
 - Reported but not gating: `any_false_positive_must_abstain` and `false_concept_on_synthetic_null`
   separately (P1.5 had the latter = 0 in all cells — the asymmetry worth re-confirming).
 
@@ -186,8 +195,18 @@ generation time — never re-derived after seeing the certificate outcome. (P1.5
   Bernoulli per cluster.
 - Denominator: the same `N_valid` evaluable clusters at the point.
 - **PASS iff** the one-sided 95% CP **lower** bound on visible-concept power ≥ a **single** pre-registered
-  bar. At N_valid = 59 a bar of **0.50 → ≥ 37/59** fired (CP-LB 0.512). (For reference at other N: 72 →
-  ≥ 44/72, CP-LB 0.508.)
+  bar (0.50). **The minimum fired count is computed from the REALIZED `N_valid`, never hard-coded** —
+  the runner finds the smallest `k` with `CP_lower(k, N_valid) ≥ 0.50`:
+
+  | realized `N_valid` | min fired for PASS | CP-LB at that count |
+  |---|---|---|
+  | 59 | ≥ 37 | 0.512 |
+  | 60 | ≥ 37 | 0.502 |
+  | 66 | ≥ 41 | 0.513 |
+  | 72 | ≥ 44 | 0.508 |
+
+  (Verified; the runner recomputes this for whatever `N_valid` is realized, so a slightly smaller valid
+  count after the §4 exclusion does not silently shift the threshold.)
 - **No power inflation from the source-invalid exclusion.** Report power **both ways**: (i) *conditional*
   = fired / `N_valid` (the headline), and (ii) *unconditional* = fired / `G` (source-invalid counted as
   non-fires). The §4 cap bounds their gap to ≤ ~10%; both are recorded so the exclusion cannot silently

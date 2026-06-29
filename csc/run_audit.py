@@ -29,7 +29,7 @@ from csc.calibration.lodo import nested_lodo, VISIBLE_CONCEPT, COVARIATE_STABLE,
 TEST_MODULES = ["test_design_and_pairs", "test_validity_gate", "test_null_calibration",
                 "test_power", "test_protocol", "test_cluster_inference",
                 "test_paired_and_accounting", "test_p143_contracts", "test_p144_contracts",
-                "test_p145_contracts"]
+                "test_p145_contracts", "test_confirmatory"]
 
 
 def _git(*args):
