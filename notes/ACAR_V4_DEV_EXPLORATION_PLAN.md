@@ -124,16 +124,27 @@ policy-, or calibration-limited, which determines whether A/B are even worth pus
 ## 5. Implementation order
 
 ```
-1. acar/v4/frontiers.py   + synthetic guards   ← FIRST (answers the why)
-2. acar/v4/policies.py    + synthetic guards       (π_λ families feed F_policy_family)
-3. acar/v4/risk_control.py + synthetic guards      (LTT/RCPS λ* selection)
-4. acar/v4/hierarchy.py   + synthetic guards       (B1/B2 subject-level calibration)
-5. acar/v4/develop.py                              (DEV orchestration over the v3 cache; exploratory)
-6. acar/v4/manifest.py                             (provenance + hashes; reuse v3 loader)
+1. acar/v4/frontiers.py    + guards   DONE  ← FIRST (answers the why; Direction C)
+2. acar/v4/policies.py     + guards   DONE  (π_λ families feed F_policy_family; Direction A)
+3. acar/v4/risk_control.py + guards   DONE  (finite-grid LTT/RCPS λ* selection; Direction A)
+4. acar/v4/hierarchy.py    + guards   DONE  (B0/B1/B2 deployed-risk objects; Direction B)
+5. acar/v4/develop.py      + guards   DONE  (Phase-1 EXPLORATORY orchestration; manifest folded in; SYNTHETIC so far)
+6. (next, GATED)                            real-cohort exploratory run via develop on v3's single-execution cache
 ```
 
-Each module ships with synthetic-fixture guards (no real data) before any DEV orchestration. The first two commits are
-synthetic-only: they read no real cohort, select nothing, and freeze nothing.
+Each module ships with synthetic-fixture guards (no real data) before any DEV orchestration; all five are synthetic-only
+(read no real cohort, select nothing, freeze nothing). `develop.py` consumes a pure `V4OOFRecord` contract (per-action
+`dr` + bit-for-bit v2 `features_v2` `[A,11]`); the real run derives those records from v3's single-execution cache —
+`develop.py` itself never touches a mutable loader.
+
+**`develop.run_dev_exploration` result taxonomy (the ONLY allowed verdicts; enforced by `assert_no_binding_language`):**
+
+```
+run_status : V4_DEV_EXPLORATION_COMPLETE | OPERATIONALLY_ABORTED_NO_SCIENTIFIC_VERDICT (runner-level; killed≠verdict)
+verdict    : V4_DEV_CANDIDATE_FOUND_FOR_POSSIBLE_FREEZE  (≥1 config passes G0–G6 → worth a FUTURE freeze, NOT Arm B)
+           | V4_DEV_NEGATIVE_NO_LOCKBOX                   (no config passes)
+NEVER emits : SELECT · DEV_STOP · PROCEED_SAFE_ROUTER · UTILITY_ONLY · external G2 · coverage theorem · lockbox
+```
 
 ---
 
