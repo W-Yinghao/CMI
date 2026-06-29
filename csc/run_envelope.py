@@ -180,31 +180,33 @@ def _materialize(p: EnvelopePoint, src_seed: int):
 # --------------------------------------------------------------------------------------
 # one difficulty cell: K INDEPENDENT source clusters x the full taxonomy.
 # --------------------------------------------------------------------------------------
-def run_cell(point: EnvelopePoint, cfg: ProtocolConfig, n_clusters: int,
-             base_seed: int = 0, tgt_seed_base: int = 7_000) -> dict:
-    """Each cluster = ONE fresh source seed + one target per kind drawn from that source's geom.
-    Every cluster-level endpoint counts ONE Bernoulli per cluster (independent denominator)."""
-    per_cluster = []          # one record/cluster: source props + per-kind certificate states
-    for k in range(n_clusters):
-        src_seed = base_seed + k
-        scfg, src_kw, tgt_kw = _materialize(point, src_seed)
-        src = make_source(scfg, **src_kw)
-        states, vis_fail_reason, src_props = {}, None, None
-        for kind in KINDS:
-            tb = make_target(kind, scfg, geom=src.geom, seed=tgt_seed_base + src_seed, **tgt_kw)
-            out = execute_protocol(src.Z, src.Y, src.D, tb.Z, cfg,
-                                   src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids,
-                                   tgt_condition_ids=np.zeros(len(tb.Z), int), seed=src_seed)
-            states[kind] = out["certificate"].state
-            if src_props is None:                            # source analysis is per-source (same
-                sa = out["analysis"]                         # for all kinds in this cluster)
-                src_props = dict(source_status=sa.source_status,
-                                 concept_evidenced=bool(sa.concept_evidenced),
-                                 attribution_unreliable=bool(sa.attribution_unreliable))
-            if kind == "boundary_coupled":
-                vis_fail_reason = _concept_failure_reason(out, cfg.alpha)
-        per_cluster.append(dict(states=states, vis_fail_reason=vis_fail_reason, **src_props))
+def _cluster_record(point: EnvelopePoint, cfg: ProtocolConfig, src_seed: int,
+                    tgt_seed_base: int) -> dict:
+    """ONE independent cluster: a fresh source (seed=src_seed) + one target per kind from its geom.
+    PURE in (point, cfg, src_seed, tgt_seed_base) -> identical serial or parallel (deterministic
+    seeds), so joblib parallelism over clusters changes wall-clock only, never the result."""
+    scfg, src_kw, tgt_kw = _materialize(point, src_seed)
+    src = make_source(scfg, **src_kw)
+    states, vis_fail_reason, src_props = {}, None, None
+    for kind in KINDS:
+        tb = make_target(kind, scfg, geom=src.geom, seed=tgt_seed_base + src_seed, **tgt_kw)
+        out = execute_protocol(src.Z, src.Y, src.D, tb.Z, cfg,
+                               src_group_ids=src.group_ids, tgt_group_ids=tb.group_ids,
+                               tgt_condition_ids=np.zeros(len(tb.Z), int), seed=src_seed)
+        states[kind] = out["certificate"].state
+        if src_props is None:                            # source analysis is per-source (same
+            sa = out["analysis"]                         # for all kinds in this cluster)
+            src_props = dict(source_status=sa.source_status,
+                             concept_evidenced=bool(sa.concept_evidenced),
+                             attribution_unreliable=bool(sa.attribution_unreliable))
+        if kind == "boundary_coupled":
+            vis_fail_reason = _concept_failure_reason(out, cfg.alpha)
+    return dict(states=states, vis_fail_reason=vis_fail_reason, **src_props)
 
+
+def _aggregate_cell(point: EnvelopePoint, per_cluster: list, n_clusters: int) -> dict:
+    """Aggregate INDEPENDENT-cluster records into the operating-region block (order-independent;
+    every endpoint is one Bernoulli per cluster). Shared by the serial and parallel paths."""
     n = n_clusters
 
     def cl_rate(pred):                                       # per-cluster Bernoulli rate
@@ -260,6 +262,14 @@ def run_cell(point: EnvelopePoint, cfg: ProtocolConfig, n_clusters: int,
     )
 
 
+def run_cell(point: EnvelopePoint, cfg: ProtocolConfig, n_clusters: int,
+             base_seed: int = 0, tgt_seed_base: int = 7_000) -> dict:
+    """Serial single-cell engine (used by tests + the n_jobs=1 path)."""
+    per_cluster = [_cluster_record(point, cfg, base_seed + k, tgt_seed_base)
+                   for k in range(n_clusters)]
+    return _aggregate_cell(point, per_cluster, n_clusters)
+
+
 # --------------------------------------------------------------------------------------
 # default grid: a "star" (one-axis-at-a-time from the baseline), NOT a full Cartesian product
 # (9 axes x several levels would be intractable and is not needed to MAP the surface). Each cell
@@ -292,14 +302,28 @@ def default_grid(baseline: EnvelopePoint = None):
 
 
 def run_envelope(cells, cfg: ProtocolConfig, n_clusters: int, out: str = None,
-                 base_seed: int = 0, quiet: bool = True) -> dict:
-    """Execute the difficulty grid. Heavy: each cell = n_clusters sources x len(KINDS) targets x
-    the full frozen protocol. ONLY call with reviewer approval for a DEVELOPMENT sweep."""
+                 base_seed: int = 0, tgt_seed_base: int = 7_000, n_jobs: int = 1,
+                 quiet: bool = True) -> dict:
+    """Execute the difficulty grid. Each cell = n_clusters sources x len(KINDS) targets x the full
+    frozen protocol. n_jobs>1 runs INDEPENDENT (cell,cluster) records in parallel (joblib/loky); the
+    result is IDENTICAL to serial (each record is a pure function of its deterministic seed). ONLY
+    call with reviewer approval for a DEVELOPMENT sweep."""
     if quiet:
         warnings.filterwarnings("ignore")
+    # flatten to INDEPENDENT (cell, cluster) tasks -- the natural unit of parallelism
+    tasks = [(ci, base_seed + k) for ci in range(len(cells)) for k in range(n_clusters)]
+    if n_jobs and n_jobs != 1:
+        from joblib import Parallel, delayed       # loky processes; set BLAS threads=1 in the env
+        recs = Parallel(n_jobs=n_jobs)(
+            delayed(_cluster_record)(cells[ci][1], cfg, s, tgt_seed_base) for ci, s in tasks)
+    else:
+        recs = [_cluster_record(cells[ci][1], cfg, s, tgt_seed_base) for ci, s in tasks]
+    by_cell = {}                                    # regroup records per cell (input order preserved)
+    for (ci, _), r in zip(tasks, recs):
+        by_cell.setdefault(ci, []).append(r)
     grid = []
-    for label, point in cells:
-        block = run_cell(point, cfg, n_clusters, base_seed=base_seed)
+    for ci, (label, point) in enumerate(cells):
+        block = _aggregate_cell(point, by_cell[ci], n_clusters)
         block["cell"] = label
         grid.append(block)
         print(f"[envelope] {label:28s} clusters={n_clusters} "
@@ -314,7 +338,7 @@ def run_envelope(cells, cfg: ProtocolConfig, n_clusters: int, out: str = None,
                "operating region / seed a confirmatory claim. Denominator = independent source-"
                "target clusters. Freeze needs a separate UNSEEN cluster set.",
         manifest_hash=cfg.hash(), protocol_manifest=cfg.manifest(),
-        n_clusters_per_cell=n_clusters, base_seed=base_seed,
+        n_clusters_per_cell=n_clusters, base_seed=base_seed, n_jobs=n_jobs,
         difficulty_axes=list(_DEFAULT_LEVELS), eigengap_axis_is_proxy=True,
         n_cells=len(grid), grid=grid)
     if out:

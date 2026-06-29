@@ -53,7 +53,8 @@ def _preflight():
     from csc.tests import test_envelope as T
     results, ok = {}, True
     for name in ("test_axis_to_knob_mapping", "test_default_grid_is_star",
-                 "test_run_cell_cluster_denominated", "test_full_gate_fails_closed"):
+                 "test_run_cell_cluster_denominated", "test_full_gate_fails_closed",
+                 "test_parallel_matches_serial"):
         try:
             getattr(T, name)()
             results[name] = "pass"
@@ -87,10 +88,10 @@ def verify_canary_ref(canary_ref, head, manifest_hash, canary_clusters, canary_b
     return ca
 
 
-def _phase(cells, cfg, clusters, base_seed, label):
-    grid = run_envelope(cells, cfg, clusters, out=None, base_seed=base_seed)["grid"]
+def _phase(cells, cfg, clusters, base_seed, label, n_jobs=1):
+    grid = run_envelope(cells, cfg, clusters, out=None, base_seed=base_seed, n_jobs=n_jobs)["grid"]
     ok, problems = validate_cells(grid, clusters)
-    summary = dict(label=label, clusters_per_cell=clusters, base_seed=base_seed,
+    summary = dict(label=label, clusters_per_cell=clusters, base_seed=base_seed, n_jobs=n_jobs,
                    n_cells=len(grid), protocol_calls=len(grid) * clusters * len(KINDS),
                    validator_ok=ok, validator_problems=problems, grid=grid)
     return ok, summary
@@ -108,6 +109,9 @@ def main():
     ap.add_argument("--n_dir_boot", type=int, default=120)
     ap.add_argument("--target_n_boot", type=int, default=120)
     ap.add_argument("--tau_n_pseudotargets", type=int, default=240)
+    ap.add_argument("--jobs", type=int, default=1,
+                    help="joblib workers over INDEPENDENT (cell,cluster) tasks; result is identical "
+                         "to serial. Set BLAS threads=1 in the env to avoid oversubscription.")
     ap.add_argument("--phase", choices=("canary", "full", "both"), default="both",
                     help="canary: preflight+canary; full: preflight+full (assumes a prior canary "
                          "passed, ref via --canary_ref); both: preflight+canary+GATED full (one job)")
@@ -158,7 +162,8 @@ def main():
     # 2. CANARY -------------------------------------------------------------------------------------
     if args.phase in ("canary", "both"):
         print(f"[p15] CANARY: full grid x {args.canary_clusters} clusters (base {args.canary_base_seed}) ...")
-        can_ok, canary = _phase(cells, cfg, args.canary_clusters, args.canary_base_seed, "canary")
+        can_ok, canary = _phase(cells, cfg, args.canary_clusters, args.canary_base_seed, "canary",
+                                n_jobs=args.jobs)
         art["canary"] = canary
         if not can_ok:
             art["phase"] = "ABORTED_AT_CANARY"
@@ -194,7 +199,8 @@ def main():
         art["canary_ref_verified"] = True
 
     print(f"[p15] FULL: grid x {args.full_clusters} clusters (base {args.full_base_seed}) ...")
-    full_ok, full = _phase(cells, cfg, args.full_clusters, args.full_base_seed, "full")
+    full_ok, full = _phase(cells, cfg, args.full_clusters, args.full_base_seed, "full",
+                           n_jobs=args.jobs)
     art["full"] = full
     if not full_ok:                                   # FULL fails closed like CANARY (P1.5 hotfix)
         art["phase"] = "ABORTED_AT_FULL_VALIDATOR"

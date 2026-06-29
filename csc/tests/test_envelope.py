@@ -4,12 +4,17 @@ harness mechanics ONLY -- they are NOT a sweep and select nothing. The envelope 
 scaffolding pending reviewer approval, so this module is intentionally NOT in the audited
 TEST_MODULES gate yet; it runs standalone.
 """
+import os
+# deterministic single-threaded BLAS (matches the sbatch) so the parallel==serial test is exact:
+# threaded BLAS has non-deterministic reduction order that could flip a borderline certificate.
+for _v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS"):
+    os.environ.setdefault(_v, "1")
 import warnings
 import numpy as np
 warnings.filterwarnings("ignore")
 
 from csc.run_envelope import (
-    EnvelopePoint, _materialize, default_grid, run_cell, _DEFAULT_LEVELS, KINDS,
+    EnvelopePoint, _materialize, default_grid, run_cell, run_envelope, _DEFAULT_LEVELS, KINDS,
 )
 from csc.protocol import ProtocolConfig
 
@@ -116,9 +121,23 @@ def test_full_gate_fails_closed():
     print("OK --phase full gate: accepts a matching PASSED canary, fails closed on all 7 mismatches")
 
 
+# 5 ---- joblib parallelism is BIT-IDENTICAL to serial (deterministic per-seed records) ----------
+def test_parallel_matches_serial():
+    cfg = ProtocolConfig(n_boot=20, n_dir_boot=40, target_n_boot=30, tau_n_pseudotargets=40, oracle_boot=10)
+    cfg.validate()
+    cells = default_grid()[:2]                       # baseline + 1 axis cell
+    serial = run_envelope(cells, cfg, n_clusters=2, base_seed=500_000, n_jobs=1)["grid"]
+    par = run_envelope(cells, cfg, n_clusters=2, base_seed=500_000, n_jobs=2)["grid"]
+    assert len(serial) == len(par) == 2
+    for a, b in zip(serial, par):
+        assert a == b, f"parallel != serial for cell {a.get('cell')}: differs"
+    print("OK joblib parallel grid is BIT-IDENTICAL to serial (n_jobs changes wall-clock only)")
+
+
 if __name__ == "__main__":
     test_axis_to_knob_mapping()
     test_default_grid_is_star()
     test_run_cell_cluster_denominated()
     test_full_gate_fails_closed()
+    test_parallel_matches_serial()
     print("\nall CSC-P1.5 envelope-harness tests passed")
