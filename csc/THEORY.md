@@ -3,6 +3,13 @@
 *When can an unlabeled EEG target reveal that the label rule `P(Y|Z)` changed — and when
 must you refuse to answer?*
 
+> **Outcome (frozen confirmatory `csc-confirmatory-v1`/`dee8958`): scientific FAIL.** The development-
+> observed identifiable core did NOT survive the frozen, pre-registered confirmatory test on unseen
+> clusters (both endpoints failed: forbidden CP-UB 0.0709 > α; power CP-LB 0.326 < 0.50). The
+> identifiability/abstention theory below stands; the *positive* operating core does not. The
+> contribution is the identifiability boundary + an audited negative result (see
+> `notes/CSC_MANUSCRIPT_RESULT_MEMO.md`), not a working detector.
+
 This direction is the **identifiability / counterexample phase** the Evidence Ledger named
 as the way forward after the gate line closed
 ([`notes/EVIDENCE_LEDGER.md`](../notes/EVIDENCE_LEDGER.md)); A0 proved density/CMI scores

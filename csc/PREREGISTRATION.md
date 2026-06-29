@@ -1,5 +1,16 @@
 # PRE-REGISTRATION — Partial-Identification Concept-Shift Certificates (csc)
 
+> **CONFIRMATORY OUTCOME (frozen `csc-confirmatory-v1` / `dee8958`, SLURM 876329): scientific FAIL.**
+> The pre-registered, frozen confirmatory run on UNSEEN synthetic clusters (K=1, `P_baseline`,
+> base_seed 900000) **failed both endpoints** — false-certification control (forbidden 1/65, CP-UB
+> 0.0709 > α=0.05) AND power (28/65, CP-LB 0.326 < bar 0.50). The development-observed identifiable
+> core (dev power 0.83 / 0 forbidden) **did not survive confirmatory validation** — a development→
+> confirmatory generalization gap that this freeze→unseen protocol was built to expose. Per the
+> non-selection rules the result was committed, not rerun; thresholds/seeds/manifest/tag unchanged;
+> `P_strong` not run. Direction (reviewer): the paper owns the **identifiability/abstention boundary
+> + this audited negative result** (NOT a positive detector). See `notes/CSC_CONFIRMATORY_RESULT.md`
+> and `notes/CSC_MANUSCRIPT_RESULT_MEMO.md`. NO method-revision round opened; NO P2.
+
 Status: **DRAFT v1 (CSC-P0 + CSC-P1 implemented on the simulator; real-data run NOT frozen).**
 Follows the project freeze-before-run discipline (`notes/FREEZE_PROTOCOL.md`,
 `notes/A0_FALSIFICATION_FROZEN.md`). §3 numbers are *synthetic* validation that the method
