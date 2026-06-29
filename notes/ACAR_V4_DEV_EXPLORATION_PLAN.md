@@ -163,6 +163,26 @@ POLICY GAP          : reported per-config AND global (best of ALL V4 policy fami
                       information/policy/calibration decomposition uses the GLOBAL gap.
 ```
 
+**Pre-real-run record/provenance closure (adversarially verified):**
+
+```
+SUBJECT-LEVEL OOF   : _validate_records enforces the SUBJECT cluster (cohort_id::subject_id) — not the batch — as the
+                      unit: one split per (subject,fold); a subject is EVAL in ≤1 fold (so it is never split across
+                      EVAL folds nor both CAL/FIT and EVAL in one fold).
+G4 HONEST SCOPE     : rc_status='PASS' only if EVERY EVAL fold received a passing calibration; an EVAL fold left at
+                      identity (no CAL, or CAL failed the budget) → NO_PASS (n_eval/evaluable/passed folds in provenance).
+RECORD IMMUTABILITY : V4OOFRecord copies dr/features_v2 to read-only float64 at construction; rejects non-float arrays,
+                      wrong shape, non-finite, and control-char ids (fail-closed).
+PROVENANCE          : manifest carries v4_oof_records_sha256 (permutation-independent, field-sensitive, length-prefixed
+                      injective), per (disease,cohort,fold,split) subject_list_sha256 + counts, config_sha256,
+                      score_family_registry_sha256; FIT mass surfaced (n_fit_*).
+OUTPUT WRITER       : write_dev_exploration_result claims outdir atomically via os.mkdir (race-free no-overwrite),
+                      writes manifest.json then RESULT.json (completion sentinel), rmtree on failure, allow_nan=False.
+VERIFICATION        : a 5-lens adversarial workflow over the patch found no blocker/major code defects; the one major
+                      was a missing NEGATIVE test for assert_no_binding_language — now added (rejects illegal
+                      verdict/run_status/report-status/forbidden manifest key).
+```
+
 ---
 
 ## 6. Candidate gate (recap; full criteria in the design draft §8)

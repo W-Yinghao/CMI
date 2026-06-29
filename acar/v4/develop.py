@@ -36,6 +36,8 @@ from dataclasses import dataclass, field
 import hashlib
 import json
 import math
+import os
+import shutil
 from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 import numpy as np
@@ -85,6 +87,26 @@ class V4OOFRecord:
     dr: np.ndarray                                  # [A]
     features_v2: np.ndarray                         # [A, N_FEAT]
     action_names: Tuple[str, ...]
+
+    def __post_init__(self):
+        # substantive immutability: canonical float64 read-only copies (external in-place mutation cannot alter the
+        # record), shape/finiteness validated at construction, action_names canonicalised to a tuple.
+        dr_in, feats_in = np.asarray(self.dr), np.asarray(self.features_v2)
+        if not np.issubdtype(dr_in.dtype, np.floating):
+            raise ValueError("dr must be a floating-point array (no silent int/bool coercion)")
+        if not np.issubdtype(feats_in.dtype, np.floating):
+            raise ValueError("features_v2 must be a floating-point array (no silent int/bool coercion)")
+        dr = np.array(dr_in, dtype=np.float64)
+        if dr.shape != (A,) or not np.all(np.isfinite(dr)):
+            raise ValueError(f"dr must be finite shape ({A},), got {dr_in.shape}")
+        feats = np.array(feats_in, dtype=np.float64)
+        if feats.shape != (A, N_FEAT) or not np.all(np.isfinite(feats)):
+            raise ValueError(f"features_v2 must be finite shape ({A}, {N_FEAT}), got {feats_in.shape}")
+        dr.flags.writeable = False
+        feats.flags.writeable = False
+        object.__setattr__(self, "dr", dr)
+        object.__setattr__(self, "features_v2", feats)
+        object.__setattr__(self, "action_names", tuple(self.action_names))
 
 
 @dataclass(frozen=True)
@@ -173,6 +195,8 @@ SCORE_FAMILY_REGISTRY = {f.name: f for f in default_score_families()}
 
 
 def _resolve_score_families(score_families, real_mode):
+    if real_mode and score_families is None:
+        raise ValueError("real_mode requires explicit pre-registered score family names (no implicit placeholders)")
     items = list(default_score_families()) if score_families is None else list(score_families)
     if not items:
         raise ValueError("score_families must be a non-empty list")
@@ -211,6 +235,8 @@ def _validate_records(records, cfg):
         for name, val in (("subject_id", r.subject_id), ("cohort_id", r.cohort_id), ("batch_id", r.batch_id)):
             if not isinstance(val, str) or val == "":
                 raise ValueError(f"{name} must be a non-empty string")
+            if any(ord(ch) < 32 for ch in val):
+                raise ValueError(f"{name} must not contain control characters (digest/partition injectivity)")
         if r.cohort_id not in cfg.dev_cohort_ids:
             raise ValueError(f"cohort_id {r.cohort_id!r} is not a DEV cohort (no external/lockbox identifiers allowed)")
         if not (isinstance(r.fold, int) and not isinstance(r.fold, bool) and r.fold >= 0):
@@ -235,6 +261,24 @@ def _validate_records(records, cfg):
                 raise ValueError(f"batch appears as EVAL more than once (OOF must partition): {eb}")
             eval_batches.add(eb)
         out.append(r)
+    # subject-level cross-fit invariants (the subject cluster — cohort_id+subject_id — is the unit, NOT the batch):
+    #  (a) within a (disease, cohort, subject, fold) all records share ONE split;
+    #  (b) a subject is EVAL in AT MOST one fold (so a subject's batches are never split across EVAL folds, and a
+    #      subject is never simultaneously CAL/FIT and EVAL in the same fold — implied by (a)).
+    split_of = {}            # (disease, cohort, subject, fold) -> set of splits
+    eval_folds = {}          # (disease, cohort, subject) -> set of EVAL folds
+    for r in out:
+        split_of.setdefault((r.disease, r.cohort_id, r.subject_id, r.fold), set()).add(r.split)
+        if r.split == "EVAL":
+            eval_folds.setdefault((r.disease, r.cohort_id, r.subject_id), set()).add(r.fold)
+    for (d, c, s, f), splits in split_of.items():
+        if len(splits) > 1:
+            raise ValueError(f"subject {d}/{c}/{s} has mixed splits {sorted(splits)} within fold {f} "
+                             "(a subject's records in a fold must share one split)")
+    for (d, c, s), folds in eval_folds.items():
+        if len(folds) > 1:
+            raise ValueError(f"subject {d}/{c}/{s} is EVAL in multiple folds {sorted(folds)} "
+                             "(OOF must partition SUBJECTS, not just batches)")
     out.sort(key=lambda r: (r.disease, r.split, r.fold, r.cohort_id, r.subject_id, r.batch_id))
     return tuple(out)
 
@@ -310,6 +354,7 @@ def _hierarchy_summary(sel_choice, harm_ev, dr_ev, subj_ev, loss):
 def _process_disease(recs_d, score_fams, cfg, v2_replay_red):
     eval_recs = [r for r in recs_d if r.split == "EVAL"]
     cal_recs = [r for r in recs_d if r.split == "CAL"]
+    fit_recs = [r for r in recs_d if r.split == "FIT"]      # surfaced for auditability; not used in calibration
     if not eval_recs:
         raise ValueError("each disease needs ≥1 EVAL record")
     dr_ev, feats_ev, subj_ev, fb_ev, fold_ev = _arrays(eval_recs)
@@ -338,13 +383,15 @@ def _process_disease(recs_d, score_fams, cfg, v2_replay_red):
             for loss in cfg.losses:
                 calibrated = identity_ev.copy()
                 per_fold_lambda = {}
-                rc_status = "NOT_EVALUABLE"
+                eval_folds_set = set(int(k) for k in fold_ev.tolist())
+                evaluable_folds, passed_folds = set(), set()
                 if grid is not None and cal_recs:
-                    for k in folds:
+                    for k in sorted(eval_folds_set):
                         ev_k = np.where(fold_ev == k)[0]
                         cal_k = np.where(fold_cal == k)[0]
                         if ev_k.size == 0 or cal_k.size == 0:
-                            continue
+                            continue                              # EVAL fold with no CAL: stays identity, NOT certified
+                        evaluable_folds.add(k)
                         ch_cal = np.stack([_apply_family(pf, harm_cal[cal_k], benefit_cal[cal_k], lam, fb_cal[cal_k])
                                            for lam in grid])
                         sl = RC.subject_losses_from_policy(ch_cal, dr_cal[cal_k], subj_cal[cal_k], loss=loss)
@@ -356,11 +403,18 @@ def _process_disease(recs_d, score_fams, cfg, v2_replay_red):
                             continue
                         if rc.selected_index is not None:
                             per_fold_lambda[k] = rc.selected_lambda
-                            rc_status = "PASS"
+                            passed_folds.add(k)
                             calibrated[ev_k] = _apply_family(pf, harm_ev[ev_k], benefit_ev[ev_k],
                                                              rc.selected_lambda, fb_ev[ev_k])
-                        elif rc_status != "PASS" and rc.status == "NO_PASS":
-                            rc_status = "NO_PASS"
+                # rc_status PASS only if EVERY EVAL fold received a passing calibration (honest harm-control scope):
+                # an EVAL fold left at identity (no CAL, or its CAL did not pass the budget) downgrades to NO_PASS.
+                n_eval_folds = len(eval_folds_set)
+                if n_eval_folds == 0 or not evaluable_folds:
+                    rc_status = "NOT_EVALUABLE"
+                elif len(passed_folds) == n_eval_folds:
+                    rc_status = "PASS"
+                else:
+                    rc_status = "NO_PASS"
                 cov, red, hr = FR.operating_point(dr_ev, calibrated, weights=w_ev)
                 gaps = FR.gap_decomposition(dr_ev, union,
                                             list(choices_lam_ev) if choices_lam_ev is not None else [identity_ev],
@@ -370,7 +424,8 @@ def _process_disease(recs_d, score_fams, cfg, v2_replay_red):
                 configs.append(dict(
                     disease=recs_d[0].disease, score_family=sf.name, policy_family=pf, loss=loss,
                     selected_lambda=sel_lambda, per_fold_lambda={str(k): v for k, v in per_fold_lambda.items()},
-                    rc_status=rc_status, coverage=float(cov), red=float(red), harm_rate=float(hr),
+                    rc_status=rc_status, n_eval_folds=n_eval_folds, n_evaluable_folds=len(evaluable_folds),
+                    n_passed_folds=len(passed_folds), coverage=float(cov), red=float(red), harm_rate=float(hr),
                     gaps=gaps, per_config_policy_ceiling=gaps["policy_ceiling"], hierarchy=hier))
     global_ceiling = (FR.frontier_policy_family(dr_ev, global_choices, weights=w_ev).ceiling()
                       if global_choices else 0.0)
@@ -379,6 +434,8 @@ def _process_disease(recs_d, score_fams, cfg, v2_replay_red):
                 c0_v2_replay_red=(None if v2_replay_red is None else float(v2_replay_red)),
                 n_eval_subjects=int(np.unique(subj_ev).shape[0]), n_eval_batches=len(eval_recs),
                 n_cal_subjects=int(np.unique(subj_cal).shape[0]) if cal_recs else 0, n_cal_batches=len(cal_recs),
+                n_fit_subjects=int(np.unique(np.array([f"{r.cohort_id}::{r.subject_id}" for r in fit_recs])).shape[0])
+                if fit_recs else 0, n_fit_batches=len(fit_recs),
                 n_fallback=int(fb_ev.sum()), global_policy_ceiling=float(global_ceiling),
                 score_union_ceiling=float(score_union_ceiling))
 
@@ -444,14 +501,17 @@ def run_dev_exploration(records, config=None, score_families=None, *, real_mode=
                 global_policy_family_gap=b["score_union_ceiling"] - b["global_policy_ceiling"],
                 frontier_gaps=c["gaps"], hierarchy_summary=c["hierarchy"],
                 provenance={"score_family": c["score_family"], "per_fold_lambda": c["per_fold_lambda"],
-                            "rc_status": c["rc_status"], "n_eval_subjects": b["n_eval_subjects"],
+                            "rc_status": c["rc_status"], "n_eval_folds": c["n_eval_folds"],
+                            "n_evaluable_folds": c["n_evaluable_folds"], "n_passed_folds": c["n_passed_folds"],
+                            "n_eval_subjects": b["n_eval_subjects"],
                             "n_eval_batches": b["n_eval_batches"], "n_cal_subjects": b["n_cal_subjects"],
-                            "n_cal_batches": b["n_cal_batches"], "n_fallback": b["n_fallback"],
+                            "n_cal_batches": b["n_cal_batches"], "n_fit_subjects": b["n_fit_subjects"],
+                            "n_fit_batches": b["n_fit_batches"], "n_fallback": b["n_fallback"],
                             "c0_best_fixed_red": b["c0_best_fixed_red"], "c0_v2_replay_red": b["c0_v2_replay_red"],
                             "g3_comparator": cfg.g3_comparator, "global_policy_ceiling": b["global_policy_ceiling"],
                             "score_union_ceiling": b["score_union_ceiling"]}))
     verdict = V4_DEV_CANDIDATE_FOUND if any(cfg_pass.values()) else V4_DEV_NEGATIVE
-    manifest = _build_manifest(cfg, reports, recs, bundles, verdict)
+    manifest = _build_manifest(cfg, reports, recs, bundles, verdict, sfs)
     result = V4DevExplorationResult(V4_DEV_EXPLORATION_COMPLETE, verdict, tuple(reports), manifest,
                                     manifest["manifest_sha256"])
     assert_no_binding_language(result)
@@ -488,7 +548,51 @@ def _report_summary(r):
             "frontier_gaps": r.frontier_gaps, "hierarchy_summary": r.hierarchy_summary, "provenance": r.provenance}
 
 
-def _build_manifest(cfg, reports, recs, bundles, verdict):
+def _u(b):
+    return len(b).to_bytes(8, "big") + b           # length-prefixed ⇒ injective concatenation
+
+
+def _record_digest(r):
+    h = hashlib.sha256()
+    for s in (r.disease, r.cohort_id, r.subject_id, r.batch_id, str(int(r.fold)), r.split,
+              "1" if r.fallback else "0"):
+        h.update(_u(s.encode()))
+    h.update(_u(np.ascontiguousarray(r.dr, dtype=np.float64).tobytes()))
+    h.update(_u(np.ascontiguousarray(r.features_v2, dtype=np.float64).tobytes()))
+    h.update(_u(str(len(r.action_names)).encode()))         # length-prefix each name ⇒ injective regardless of content
+    for nm in r.action_names:
+        h.update(_u(nm.encode()))
+    return h.hexdigest()
+
+
+def _records_sha256(recs):
+    """Permutation-independent (sorted) digest of the exact V4OOFRecord input set; sensitive to ANY field change."""
+    return hashlib.sha256("\n".join(sorted(_record_digest(r) for r in recs)).encode()).hexdigest()
+
+
+def _partition_provenance(recs):
+    groups = {}
+    for r in recs:
+        groups.setdefault((r.disease, r.cohort_id, int(r.fold), r.split), []).append(r)
+    out = []
+    for key in sorted(groups):
+        g = groups[key]
+        subs = sorted(set(rr.subject_id for rr in g))
+        sh = hashlib.sha256()
+        for s in subs:                                       # length-prefixed ⇒ injective regardless of id content
+            sh.update(_u(s.encode()))
+        out.append({"disease": key[0], "cohort_id": key[1], "fold": key[2], "split": key[3],
+                    "batch_count": len(g), "subject_count": len(subs),
+                    "subject_list_sha256": sh.hexdigest()})
+    return out
+
+
+def _registry_sha256(sfs):
+    return hashlib.sha256(("|".join(sorted(f.name for f in sfs)) + "||"
+                           + "|".join(sorted(SCORE_FAMILY_REGISTRY.keys()))).encode()).hexdigest()
+
+
+def _build_manifest(cfg, reports, recs, bundles, verdict, sfs):
     body = {
         "boundary": "NON-BINDING / POST-V3 DEV_STOP / DEV-ONLY / NO EXTERNAL ARM / NO LOCKBOX",
         "lineage": {"v2": "MEASUREMENT_ONLY", "v3": "DEV_STOP / NO_LOCKBOX_CONSUMED", "v4": "NON-BINDING"},
@@ -500,16 +604,43 @@ def _build_manifest(cfg, reports, recs, bundles, verdict):
                    "dev_cohort_ids": list(cfg.dev_cohort_ids)},
         "diseases": {d: {"n_eval_subjects": b["n_eval_subjects"], "n_eval_batches": b["n_eval_batches"],
                          "n_cal_subjects": b["n_cal_subjects"], "n_cal_batches": b["n_cal_batches"],
+                         "n_fit_subjects": b["n_fit_subjects"], "n_fit_batches": b["n_fit_batches"],
                          "n_fallback": b["n_fallback"], "c0_best_fixed_red": b["c0_best_fixed_red"],
                          "c0_v2_replay_red": b["c0_v2_replay_red"], "global_policy_ceiling": b["global_policy_ceiling"],
                          "score_union_ceiling": b["score_union_ceiling"]} for d, b in bundles.items()},
         "n_records": len(recs),
         "reports": [_report_summary(r) for r in reports],
     }
+    body["v4_oof_records_sha256"] = _records_sha256(recs)
+    body["partition"] = _partition_provenance(recs)
+    body["score_family_registry_sha256"] = _registry_sha256(sfs)
     safe = _json_safe(body)
+    safe["config_sha256"] = hashlib.sha256(
+        json.dumps(safe["config"], sort_keys=True, allow_nan=False).encode()).hexdigest()
     digest = hashlib.sha256(json.dumps(safe, sort_keys=True, allow_nan=False).encode()).hexdigest()
     safe["manifest_sha256"] = digest
     return safe
+
+
+def write_dev_exploration_result(result, outdir):
+    """NON-BINDING fail-closed writer for an exploratory result. `outdir` is claimed ATOMICALLY via os.mkdir — this
+    races-safe refuses an existing dir (FileExistsError, even if empty/concurrent: no TOCTOU). Files are written into
+    the claimed dir (manifest.json first, RESULT.json last as a completion sentinel); on ANY failure the partial dir is
+    removed and the error re-raised. JSON uses allow_nan=False (non-finite already mapped to NOT_EVALUABLE). Returns
+    outdir. (Single-process, non-binding; not crash-durable — no fsync.)"""
+    os.mkdir(outdir)                                          # atomic no-overwrite claim (FileExistsError if present)
+    try:
+        with open(os.path.join(outdir, "manifest.json"), "w") as f:
+            json.dump(result.manifest, f, sort_keys=True, allow_nan=False, indent=2)
+        with open(os.path.join(outdir, "RESULT.json"), "w") as f:    # written last ⇒ presence = complete
+            json.dump({"run_status": result.run_status, "verdict": result.verdict,
+                       "manifest_sha256": result.manifest_sha256,
+                       "v4_oof_records_sha256": result.manifest.get("v4_oof_records_sha256")},
+                      f, sort_keys=True, allow_nan=False, indent=2)
+    except BaseException:
+        shutil.rmtree(outdir, ignore_errors=True)
+        raise
+    return outdir
 
 
 def assert_no_binding_language(result):

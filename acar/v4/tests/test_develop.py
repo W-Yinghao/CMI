@@ -6,6 +6,13 @@ registry (real_mode rejects arbitrary callables); per-config vs GLOBAL policy-fr
 subject-macro, fallback-denominator, gap-telescoping, G6 both-diseases, lineage, permutation-invariance, fail-closed.
 Run: python -m acar.v4.tests.test_develop
 """
+import json
+import math
+import os
+import shutil
+import tempfile
+from dataclasses import replace
+
 import numpy as np
 
 from acar.config import DISEASE
@@ -207,6 +214,134 @@ def test_manifest_lineage_and_permutation_invariant():
     assert "NON-BINDING" in a.manifest["boundary"] and "NO LOCKBOX" in a.manifest["boundary"]
 
 
+def test_subject_level_crossfit_invariants():
+    z = np.zeros(A); zf = np.zeros((A, NF))
+
+    def r(bid, fold, split):
+        return V4OOFRecord("PD", "s1", PD_COH, bid, fold, split, False, z, zf, ACT)
+    # subject EVAL in two folds (distinct batches ⇒ batch-partition passes, subject-partition must catch it)
+    _expect(ValueError, lambda: D.run_dev_exploration([r("b0", 0, "EVAL"), r("b1", 1, "EVAL")]))
+    # subject CAL and EVAL in the SAME fold
+    _expect(ValueError, lambda: D.run_dev_exploration([r("b0", 0, "EVAL"), r("b1", 0, "CAL")]))
+    # subject mixed split (CAL + FIT) within a fold
+    _expect(ValueError, lambda: D.run_dev_exploration([r("b0", 0, "CAL"), r("b1", 0, "FIT")]))
+    # legitimate cross-fit (EVAL fold 0, CAL fold 1) does NOT raise on the invariants
+    ok = [r("b0", 0, "EVAL"), r("b1", 1, "CAL")]
+    D.run_dev_exploration(ok)   # single disease ⇒ NEGATIVE, but no invariant violation
+
+
+def test_real_mode_requires_explicit_families():
+    _expect(ValueError, lambda: D.run_dev_exploration(_make_records(beneficial=True), real_mode=True))   # None
+    assert D.run_dev_exploration(_make_records(beneficial=True), score_families=["shift_margin"],
+                                 real_mode=True).run_status == D.V4_DEV_EXPLORATION_COMPLETE
+
+
+def test_record_immutability_and_construction_validation():
+    dr = np.array([-1.0, 1.0, 1.0]); feats = _feats(0)
+    rec = V4OOFRecord("PD", "s", PD_COH, "b0", 0, "EVAL", False, dr, feats, ACT)
+    dr[0] = 999.0; feats[0, 0] = 999.0                                   # mutate the ORIGINAL arrays
+    assert rec.dr[0] == -1.0 and rec.features_v2[0, 0] == 5.0            # record holds an independent copy
+    assert rec.dr.flags.writeable is False and rec.features_v2.flags.writeable is False
+    _expect(ValueError, lambda: rec.dr.__setitem__(0, 1.0))             # read-only
+    assert isinstance(rec.action_names, tuple)
+    # construction-time validation
+    _expect(ValueError, lambda: V4OOFRecord("PD", "s", PD_COH, "b0", 0, "EVAL", False,
+                                            np.array([np.nan, 0.0, 0.0]), _feats(0), ACT))
+    _expect(ValueError, lambda: V4OOFRecord("PD", "s", PD_COH, "b0", 0, "EVAL", False,
+                                            np.zeros(A), np.zeros((A, NF - 1)), ACT))
+
+
+def test_record_digest_permutation_invariant_and_field_sensitive():
+    recs = _make_records(beneficial=True)
+    a = D.run_dev_exploration(recs)
+    b = D.run_dev_exploration(list(reversed(recs)))
+    assert a.manifest["v4_oof_records_sha256"] == b.manifest["v4_oof_records_sha256"]
+    assert isinstance(a.manifest["config_sha256"], str) and isinstance(a.manifest["score_family_registry_sha256"], str)
+    assert any(p["split"] == "EVAL" and p["subject_count"] > 0 for p in a.manifest["partition"])
+    # change one record's dr ⇒ digest changes
+    recs2 = list(recs); r0 = recs2[0]
+    recs2[0] = V4OOFRecord(r0.disease, r0.subject_id, r0.cohort_id, r0.batch_id, r0.fold, r0.split, r0.fallback,
+                           r0.dr * 2.0 + 0.123, r0.features_v2, r0.action_names)
+    assert D.run_dev_exploration(recs2).manifest["v4_oof_records_sha256"] != a.manifest["v4_oof_records_sha256"]
+    # change one record's features ⇒ digest changes
+    recs3 = list(recs); r1 = recs3[1]
+    feats = np.array(r1.features_v2); feats[0, 0] += 1.0
+    recs3[1] = V4OOFRecord(r1.disease, r1.subject_id, r1.cohort_id, r1.batch_id, r1.fold, r1.split, r1.fallback,
+                           r1.dr, feats, r1.action_names)
+    assert D.run_dev_exploration(recs3).manifest["v4_oof_records_sha256"] != a.manifest["v4_oof_records_sha256"]
+
+
+def test_atomic_writer():
+    res = D.run_dev_exploration(_make_records(beneficial=True))
+    base = tempfile.mkdtemp()
+    try:
+        outdir = os.path.join(base, "exploration_001")
+        assert D.write_dev_exploration_result(res, outdir) == outdir
+        assert os.path.isfile(os.path.join(outdir, "manifest.json"))
+        assert os.path.isfile(os.path.join(outdir, "RESULT.json"))                   # completion sentinel
+        with open(os.path.join(outdir, "manifest.json")) as f:
+            txt = f.read()
+        assert "NaN" not in txt and "Infinity" not in txt
+        assert json.loads(txt)["manifest_sha256"] == res.manifest_sha256
+        _expect(FileExistsError, lambda: D.write_dev_exploration_result(res, outdir))   # no overwrite (non-empty)
+        empty = os.path.join(base, "empty"); os.mkdir(empty)
+        _expect(FileExistsError, lambda: D.write_dev_exploration_result(res, empty))    # race-free: empty dir refused
+    finally:
+        shutil.rmtree(base, ignore_errors=True)
+
+
+def test_assert_no_binding_language_rejects_illegal():
+    res = D.run_dev_exploration(_make_records(beneficial=True))
+    assert D.assert_no_binding_language(res)                                            # clean result passes
+    _expect(ValueError, lambda: D.assert_no_binding_language(replace(res, verdict="SELECT")))
+    _expect(ValueError, lambda: D.assert_no_binding_language(replace(res, verdict="DEV_STOP")))
+    _expect(ValueError, lambda: D.assert_no_binding_language(replace(res, run_status="WHATEVER")))
+    bad_rep = replace(res.reports[0], status="SELECT")
+    _expect(ValueError, lambda: D.assert_no_binding_language(replace(res, reports=(bad_rep,) + res.reports[1:])))
+    m = dict(res.manifest); m["lockbox"] = True
+    _expect(ValueError, lambda: D.assert_no_binding_language(replace(res, manifest=m)))
+
+
+def test_cal_records_value_excluded_from_eval_operating_point():
+    base = D.run_dev_exploration(_make_records(beneficial=True))
+    recs = _make_records(beneficial=True)
+    for d, coh in (("PD", PD_COH), ("SCZ", SCZ_COH)):       # add CAL-ONLY subjects (fold 0); never EVAL
+        for s in range(3):
+            for b in range(2):
+                g = (s + b) % A
+                recs.append(V4OOFRecord(d, f"{d}_co{s}", coh, f"co{s}_b{b}", 0, "CAL", False,
+                                        _dr(g, True), _feats(g), ACT))
+    aug = D.run_dev_exploration(recs)
+    rb, ra = _rep(base), _rep(aug)
+    assert abs(rb.coverage - ra.coverage) < 1e-9 and abs(rb.red - ra.red) < 1e-9       # EVAL op identical
+    assert aug.manifest["diseases"]["PD"]["n_cal_subjects"] > base.manifest["diseases"]["PD"]["n_cal_subjects"]
+    assert aug.manifest["diseases"]["PD"]["n_eval_subjects"] == base.manifest["diseases"]["PD"]["n_eval_subjects"]
+
+
+def test_g4_requires_all_eval_folds_certified():
+    recs = [r for r in _make_records(beneficial=True)
+            if not (r.disease == "PD" and r.split == "CAL" and r.fold == 1)]   # PD EVAL fold 1 loses its CAL
+    res = D.run_dev_exploration(recs)
+    pd = [r for r in res.reports if r.disease == "PD"]
+    assert pd and all(not r.g4_harm_control_pass for r in pd)                  # an uncertified EVAL fold ⇒ NOT PASS
+    assert res.verdict == D.V4_DEV_NEGATIVE
+
+
+def test_construction_rejects_non_float_and_control_chars():
+    _expect(ValueError, lambda: V4OOFRecord("PD", "s", PD_COH, "b0", 0, "EVAL", False,
+                                            np.array([1, -1, 1], dtype=np.int64), _feats(0), ACT))
+    _expect(ValueError, lambda: V4OOFRecord("PD", "s", PD_COH, "b0", 0, "EVAL", False,
+                                            _dr(0, True), np.zeros((A, NF), dtype=np.int64), ACT))
+    _expect(ValueError, lambda: D.run_dev_exploration(
+        [V4OOFRecord("PD", "a\nb", PD_COH, "b0", 0, "EVAL", False, np.zeros(A), np.zeros((A, NF)), ACT)]))
+
+
+def test_record_digest_action_names_injective():
+    z = np.zeros(A); zf = np.zeros((A, NF))
+    mk = lambda an: V4OOFRecord("PD", "s", PD_COH, "b", 0, "EVAL", False, z, zf, an)
+    assert D._record_digest(mk(("a\x00b", "c", "d"))) != D._record_digest(mk(("a", "b\x00c", "d")))
+
+
 def test_fail_closed_validation():
     good = _make_records(beneficial=True)
     _expect(ValueError, lambda: D.run_dev_exploration([]))
@@ -238,7 +373,12 @@ def main():
               test_comparator_slots_distinct_and_g3_uses_configured, test_real_mode_rejects_arbitrary_callable,
               test_global_policy_frontier_dominates_each_config, test_frontier_gap_telescoping_and_info_nonneg,
               test_subject_macro_weighting_used_for_c0, test_fallback_stays_in_denominator,
-              test_manifest_lineage_and_permutation_invariant, test_fail_closed_validation):
+              test_manifest_lineage_and_permutation_invariant, test_subject_level_crossfit_invariants,
+              test_real_mode_requires_explicit_families, test_record_immutability_and_construction_validation,
+              test_record_digest_permutation_invariant_and_field_sensitive, test_atomic_writer,
+              test_assert_no_binding_language_rejects_illegal, test_cal_records_value_excluded_from_eval_operating_point,
+              test_g4_requires_all_eval_folds_certified, test_construction_rejects_non_float_and_control_chars,
+              test_record_digest_action_names_injective, test_fail_closed_validation):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 DEVELOP GUARDS PASS")
