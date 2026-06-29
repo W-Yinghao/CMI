@@ -100,19 +100,34 @@ the clearest collapse case, this is "a more complicated regularizer" — abandon
 
 ## Honest status
 
-Synthetic-only research prototype, two parallel lines:
-- **mean-scatter baseline** (`fisher.py`/`subspace.py`, tag `mean-scatter-v2`): frozen,
-  leakage-free ablation, dimension-sensitive stability — honest first-moment baseline.
-- **score-Fisher core** (`score_fisher.py`, Phase 1.1–1.2.1): model-expected score Fishers,
-  coordinate-covariant whitening metric, **source-risk UCB rank gate** (group-aware cross-fit,
-  calibrated residual domain critic, paired task heads, simultaneous cluster-bootstrap band),
-  oracle-certified (the task-risk arm fires on the true danger direction, costing ≈log2).
+**Task-protected certification line: COMPLETED AS AN HONEST NEGATIVE. Default-on NOT certified at
+delta_Y=0.10, n=6000** (tag `tos-task-cert-negative-v1`; full chain in
+[`notes/PHASE131_CERTIFICATION.md`](notes/PHASE131_CERTIFICATION.md)). Package defaults keep
+`task_protect=False`, `task_power_floor=False` — the gate is a **safety diagnostic + refuse-to-delete
+module**, not a certified auto-deleter. The only deleting config is the
+`certified_synthetic_experimental(table)` preset (deletes only on an EXACT fingerprint+scope
+certificate hit; else identity).
 
-**Known open issue (oracle-attributed, not yet resolved):** the metric-oblique projector is
-rescaling-covariant but **not task-preserving** — `(I−P_N^M)` distorts a Euclidean
-task-orthogonal subspace, so the gate refuses even safe deletions. Euclidean `QQᵀ` preserves
-the task but isn't rescaling-covariant. Projector design fork is open.
+What the certification framework established (synthetic, oracle-validated):
+- **mean-scatter baseline** (`fisher.py`/`subspace.py`, tag `mean-scatter-v2`): first-moment,
+  blind to covariance/synergy leakage — honest baseline.
+- **score-Fisher selector + source-risk UCB gate** (`score_fisher.py`): model-expected score
+  Fishers, covariant whitening metric, task-protected direct-sum projector, group-aware cross-fit,
+  simultaneous cluster-bootstrap bands.
+- **Bayes oracle** (`eval/bayes_oracle.py`): exact `I(Y;deleted|kept)` ground truth — proved the
+  nested critic could UNSAFE-ACCEPT, and that the conservatism is an ESTIMATOR bottleneck (not
+  n / delta_Y / intrinsic).
+- **power floor / competence certificate** (`eval/power_certificate.py`): matched positive-control
+  power, exact-cell + scope lookup, estimator fingerprint — abstains unless power-qualified.
+- **plug-in → stacked log-ratio critic**: nested 0/30 → plug-in true-rate ~0.80 (independent-seed
+  cert BORDERLINE) → stacking did not robustly improve. Verdict: safe-but-conservative.
 
-**Not** done: resolve the projector fork; conditional-on-task training critic; parameter-level
-PCGrad; sequential subset search; any EEG/trainer/TSMNet wiring. `repos/TSMNet` referenced in
-INTEGRATION is an **untracked external checkout**, not part of this branch.
+Contribution framing: a **measurement-to-control certification framework for selective conditional
+invariance** — it prevents unsafe deletion where geometry-only / weak learned gates would accept,
+and is intentionally conservative at moderate n. (Answers LPC collapse / lambda-sensitivity by
+proving WHEN not to delete, not by tuning lambda.)
+
+**Frozen / not done:** conditional-on-task training critic; parameter-level PCGrad; sequential
+subset search; any EEG/trainer/TSMNet wiring. Next line (separate): frozen-feature EEG pilot with
+the gate as a conservative optional diagnostic. `repos/TSMNet` in INTEGRATION is an untracked
+external checkout, not part of this branch.

@@ -208,7 +208,52 @@ robustly default-on with this conditional-estimator family. Levers left (user-ga
 fundamentally different conditional estimator (different inductive bias, not more MLPs); a larger-n
 operating point; a task-justified δ_NI; or accept the honest negative (gate abstains -> safe).
 
-## 5. Default-on gate (task_protect) — STAYS OFF (default-on NOT certified; stacking did not help)
+## 6. CONCLUSION OF THE TOS-CMI TASK-PROTECTED CERTIFICATION LINE (honest negative)
+
+Under the pre-registered synthetic operating point (delta_Y = 0.10, n = 6000), the task-protected
+selective gate is SAFE-BUT-CONSERVATIVE. The certification framework identified that the original
+nested residual task critic could UNSAFE-ACCEPT Bayes-unsafe deletions; a cross-fitted one-step
+log-ratio plug-in estimator substantially reduced this failure mode, but independent-seed
+certification showed its boundary power remains BORDERLINE. Convex stacking over the tested model
+library did not robustly improve the estimator. Therefore task_protect and task_power_floor remain
+default OFF, and the certified behavior at this operating point is identity / abstention rather
+than default deletion.
+
+This is NOT evidence that selective CMI is unsafe; it is evidence that safe default deletion
+requires a matched power certificate. Without such a certificate, the method must refuse to delete.
+
+### Final summary table (synthetic, n=6000, delta_Y=0.10 unless noted)
+```
+stage                         boundary detection    unsafe acceptance   safe acceptance      default-on   reason
+mean-scatter baseline         blind (first-moment)  n/a                 identity on cov-only  n/a         first-moment blind to covariance/synergy
+score-Fisher selector         finds dom-rich/lab-   n/a (selector, not  n/a                   n/a         (proposes candidates; gate decides)
+                              light dirs            gate)
+nested residual gate          ~0/30                 YES (injection      degenerate            NO          under-detects conditional synergy
+                              (0 at dY=0.10)        accepted)
+plug-in log-ratio gate        ~0.80 (34-45/50,      none (power floor   borderline            NO          boundary power borderline (true ~0.80 <
+                              borderline)           abstains)                                             bar; calib 0.57 vs confirm 0.81)
+stacked log-ratio gate        ~0.80 (no improve;    none (abstains)     borderline            NO          stacking does not help (EM->mlp256=plugin)
+                              k2 worse)
+oracle density-ratio (ref)    0.86-0.92 (0.82 on    none                yes                   N/A (needs  information limit; small headroom on
+                              hard k=1)                                                       true dens)  hard k=1 draws
+```
+
+### Repositioned contribution
+NOT "we made task-protected TOS-CMI default-on". The stronger, accurate claim: **a
+measurement-to-control CERTIFICATION FRAMEWORK for selective conditional invariance** -- it
+prevents unsafe deletion where geometry-only or weak learned gates would accept, and at moderate
+sample sizes the certified gate is intentionally conservative. This answers the original LPC
+collapse / lambda-sensitivity directly: not "tune lambda more", but "prove WHEN not to delete".
+
+### Wrap-up artifacts
+- tag `tos-task-cert-negative-v1`; defaults frozen task_protect=False, task_power_floor=False.
+- `certified_synthetic_experimental(table)` preset = the ONLY deleting config (exact cert hit only).
+- Next line (separate): freeze the gate as a conservative OPTIONAL module; frozen-feature EEG pilot
+  (score-Fisher spectrum stability, dom-rich/label-light candidates, gate abstains, global-LPC
+  collapse, TOS diagnostics explain collapse). The gate = safety diagnostic + refuse-to-delete, NOT
+  a certified auto-deleter.
+
+## 5. Default-on gate (task_protect) — STAYS OFF (default-on NOT certified; honest negative)
 The deployment cert is the estimator-direction proof (plug-in clears at δ_Y=0.10 k=1), NOT the
 default-on certification. Per the pre-registered rules, flipping task_protect + task_power_floor
 ON TOGETHER requires, on seeds/cells NOT used for estimator/config selection:

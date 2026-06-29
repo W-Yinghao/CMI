@@ -875,6 +875,18 @@ def _stacked_logratio_score(base, extra, target, n_out, cfg, gplan, seed, restar
                "max_abs_log_ratio": maxabs}
 
 
+def certified_synthetic_experimental(table_path, delta_Y=0.10):
+    """The ONLY preset that may DELETE -- and only when an EXACT fingerprint+scope certificate cell
+    covers the prefix; otherwise the power floor abstains -> identity. EXPERIMENTAL / synthetic
+    only: the task-protected certification line closed as an HONEST NEGATIVE (default-on NOT
+    certified at delta_Y=0.10, n=6000; see notes/PHASE131_CERTIFICATION.md). This is NOT a
+    deployable EEG default -- the package defaults keep task_protect=False, task_power_floor=False
+    (gate = safety diagnostic + refuse-to-delete)."""
+    return replace(ScoreFisherConfig(), task_protect=True, task_power_floor=True,
+                   task_power_table=table_path, certificate_lookup="exact", certified_mode=True,
+                   delta_Y=delta_Y)
+
+
 _REASONS = ("ACCEPTED", "NO_CANDIDATE", "DOMAIN_GATE_CLOSED", "DOMAIN_GAIN_TOO_SMALL",
             "TASK_RISK_UCB", "TASK_POWER_INSUFFICIENT", "TASK_POWER_SCOPE_MISMATCH",
             "FOLD_COVERAGE_FAILURE", "TASK_GATE_COVERAGE_FAILURE", "INSUFFICIENT_GROUPS",
