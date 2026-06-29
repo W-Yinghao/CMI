@@ -60,11 +60,15 @@ def get_source_p0(seed0_root, new_root, tag, cfg, code_sig, K, data_fn):
     dh = data_hash(X, y)
     if os.path.exists(pt) and os.path.exists(js):
         meta = json.load(open(js))
+        # STRICT: reject missing (None) fields -- no permissive None-tolerance (review #2B).
+        for f in ("code_sig", "data_hash", "epochs", "n_chans"):
+            if meta.get(f) is None:
+                raise ProvenanceError(f"{tag} seed{seed}: sidecar field '{f}' is null (strict provenance)")
         if meta.get("code_sig") != code_sig:
             raise ProvenanceError(f"{tag} seed{seed}: code_sig {meta.get('code_sig')} != {code_sig}")
-        if meta.get("data_hash") not in (None, dh):
+        if meta.get("data_hash") != dh:
             raise ProvenanceError(f"{tag} seed{seed}: data_hash {meta.get('data_hash')} != {dh}")
-        if meta.get("epochs") not in (None, cfg.train.epochs) or meta.get("n_chans") not in (None, cfg.encoder.n_chans):
+        if meta.get("epochs") != cfg.train.epochs or meta.get("n_chans") != cfg.encoder.n_chans:
             raise ProvenanceError(f"{tag} seed{seed}: source-training config mismatch")
         model = H2Model(cfg, pi_unif).to(cfg.train.device)
         model.load_state_dict(torch.load(pt, map_location=cfg.train.device)); model.eval()

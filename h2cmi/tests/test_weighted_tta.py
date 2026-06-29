@@ -108,6 +108,41 @@ def test_7_weighted_pooled_equal_is_unweighted():
     print("[7] weighted pooled moments reduce to unweighted OK")
 
 
+def test_8_allones_joint_equals_unweighted():
+    dens, U, pi_S, cfg, _ = _setup()
+    Tw, piw = fit_weighted_em(dens, U, np.ones(len(U)), pi_S, cfg, K, "cpu", "joint")
+    tta = ClassConditionalTTA(dens, pi_S, cfg, K, "cpu")
+    Tu, piu = tta._fit_transform(U)                          # default = joint (E-step + prior M-step)
+    da = float((Tw.a - Tu.a).abs().max()); dp = float((piw - piu).abs().max())
+    assert da < 1e-5 and dp < 1e-6, f"all-ones joint != unweighted joint (da={da:.2e}, dpi={dp:.2e})"
+    print(f"[8] all-ones weighted joint == unweighted joint: da={da:.2e} dpi={dp:.2e} OK")
+
+
+def test_9_allones_oneshot_equals_unweighted():
+    import torch.nn.functional as F
+    dens, U, pi_S, cfg, _ = _setup()
+    pi_S_t = torch.tensor(pi_S, dtype=torch.float32)
+    with torch.no_grad():
+        r0 = F.softmax(dens.log_prob_all(U) + torch.log(pi_S_t.clamp_min(1e-8)).view(1, -1), dim=1)
+    Tw, _ = fit_weighted_em(dens, U, np.ones(len(U)), pi_S, cfg, K, "cpu", "oneshot")
+    tta = ClassConditionalTTA(dens, pi_S, cfg, K, "cpu")
+    Tu, _ = tta._fit_transform(U, fixed_resp=r0, fixed_prior=pi_S_t)
+    da = float((Tw.a - Tu.a).abs().max()); db = float((Tw.b - Tu.b).abs().max())
+    assert da < 1e-5 and db < 1e-5, f"all-ones one-shot != unweighted one-shot (da={da:.2e})"
+    print(f"[9] all-ones weighted one-shot == unweighted one-shot: da={da:.2e} db={db:.2e} OK")
+
+
+def test_10_intweight_joint_equals_replication():
+    dens, U, pi_S, cfg, _ = _setup(n=30)
+    m = (np.arange(len(U)) % 3 + 1).astype(int)
+    Tw, piw = fit_weighted_em(dens, U, m.astype(float), pi_S, cfg, K, "cpu", "joint")
+    rep = torch.cat([U[i].repeat(m[i], 1) for i in range(len(U))], 0)
+    Tr, pir = fit_weighted_em(dens, rep, np.ones(len(rep)), pi_S, cfg, K, "cpu", "joint")
+    da = float((Tw.a - Tr.a).abs().max()); dp = float((piw - pir).abs().max())
+    assert da < 1e-4 and dp < 1e-5, f"int-weight joint != replication joint (da={da:.2e}, dpi={dp:.2e})"
+    print(f"[10] integer-weight joint == replication joint: da={da:.2e} dpi={dp:.2e} OK")
+
+
 if __name__ == "__main__":
     test_1_equal_weights_reproduce_unweighted()
     test_2_rational_weights_reproduce_replication()
@@ -116,4 +151,7 @@ if __name__ == "__main__":
     test_5_labels_never_enter_nonoracle()
     test_6_identity_ratio_invariant()
     test_7_weighted_pooled_equal_is_unweighted()
+    test_8_allones_joint_equals_unweighted()
+    test_9_allones_oneshot_equals_unweighted()
+    test_10_intweight_joint_equals_replication()
     print("ALL WEIGHTED-TTA TESTS PASSED")
