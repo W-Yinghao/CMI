@@ -187,7 +187,28 @@ estimator (cross-fit MODEL LIBRARY + convex STACKING) on a 3rd development seed 
 true detection rate ~0.80 -> ~0.90, then re-certify on a 4th fresh set. NOT generic AIPW. The
 estimator+config remain FROZEN for these confirmatory seeds (no tuning on them).
 
-## 5. Default-on gate (task_protect) — STAYS OFF (default-on NOT certified; estimator borderline)
+## 4f. Phase 1.3.5 — stacked log-ratio (model library + convex stacking): does NOT clearly help
+
+Development sweep (DEV seeds 70000, R=30, moderate config; plug-in vs STACKED at boundary Δ*=δ_Y):
+```
+δ_Y=0.10 k=2 (22x2):  plug-in 30/30 (0.92)  STACKED 28/30 (0.82)  oracle 30/30 (0.92)
+δ_Y=0.10 k=1 (23x1):  plug-in 22/30 (0.59)  STACKED 24/30 (0.66)  oracle 28/30 (0.82)
+```
+Stacking does NOT clearly beat the plug-in: k=1 marginal (+2/30, both << bar), k=2 worse (-2/30).
+The EM concentrates weight on the MLP-256 member (= the plug-in); the added linear/quad/MLP-64
+learners are strictly weaker for this smooth nonlinear synergy, so the stack ~ plug-in. Per the
+protocol (no clear dev improvement -> do NOT run the heavy fresh-seed cert) the stacked cert is
+NOT launched.
+
+CRUCIAL: the ORACLE itself is borderline on the hard k=1 DEV geometry (0.82) -- on some
+control-family draws even a perfect detector barely clears, so the headroom for ANY estimator at
+(δ_Y=0.10, n=6000, k=1) is small. Combined with the plug-in cert (true rate ~0.80, borderline),
+this points to: at δ_Y=0.10, n=6000, the task-protected gate is SAFE-BUT-CONSERVATIVE and cannot
+robustly default-on with this conditional-estimator family. Levers left (user-gated): a
+fundamentally different conditional estimator (different inductive bias, not more MLPs); a larger-n
+operating point; a task-justified δ_NI; or accept the honest negative (gate abstains -> safe).
+
+## 5. Default-on gate (task_protect) — STAYS OFF (default-on NOT certified; stacking did not help)
 The deployment cert is the estimator-direction proof (plug-in clears at δ_Y=0.10 k=1), NOT the
 default-on certification. Per the pre-registered rules, flipping task_protect + task_power_floor
 ON TOGETHER requires, on seeds/cells NOT used for estimator/config selection:
