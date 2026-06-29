@@ -54,9 +54,13 @@ the calibrated policies then deliver a further-reduced fraction (the calibration
 1. **DEV / model-selection only.** 14 of 90 both-disease configs pass; selecting the best among 90 is post-hoc model
    selection on DEV — a clear **selection-bias** risk. This is a **candidate for POSSIBLE freeze**, NOT a confirmed or
    external result. Confirmation requires a NEW frozen V4 protocol (one candidate) + held-out / external data.
-2. **"Control" = net-positive subject risk, NOT low harm.** Even the safest passing config leaves ~15–23 % of *adapted*
-   batches harmful; the aggressive mean-loss configs adapt up to 86 % with ~46 % harm. The net deployed reduction is
-   positive because beneficial batches outweigh harmful ones — this is honest but is not a "rarely harms" guarantee.
+2. **Two DISTINCT harm metrics — do not conflate** (see `ACAR_FROZEN_v4.md` §2a). The "harm" column in the tables above
+   is **`harm_among_adapted`** = P(ΔR>0 | adapted) (descriptive: of the batches we adapt, what fraction were harmful);
+   it is 0.15–0.46. The **LTT-CONTROLLED** loss is **`L_harm_all`** = subject-mean over ALL batches of
+   1[adapted ∧ ΔR>0], budget 0.10 — for the SAFE candidate its EVAL value is only ≈ PD 0.03 / SCZ 0.05 (= coverage ×
+   harm_among_adapted), well inside budget. So "control" here means the *all-batch* harmful-adaptation rate is held low
+   (≈3–5 %); it is NOT a claim that few of the *adapted* batches are harmful. The aggressive `mean`-loss configs adapt up
+   to 86 % with harm_among_adapted ~0.46; net red is positive because beneficial batches outweigh harmful ones.
 3. **Not external validation.** The old seven cohorts are development data. No lockbox consumed; external Arm B not
    approached; `ACAR_FROZEN_v4.md` not written.
 4. **Provenance.** Exact OOF coverage enforced (every subject & batch EVAL once); subject-macro weighting; fold-local
