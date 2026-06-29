@@ -30,13 +30,19 @@ Read these files first:
 
 ```text
 README.md
-PROJECT_SUMMARY.md
-notes/gnn_design.md
 cmi/models/gnn.py
 cmi/methods/graph_regularizers.py
 cmi/train/trainer.py
 cmi/models/backbones.py
 cmi/run_loso.py
+```
+
+Optional historical references (may be ABSENT in the current tree — do NOT recreate them just to
+satisfy a reference; the canonical spec is `docs/CIGL_01_METHOD_SPEC.md`):
+
+```text
+PROJECT_SUMMARY.md      # historical Tri-CMI summary; not present on the CIGL branches
+notes/gnn_design.md     # original GraphCMI design notes; superseded by docs/CIGL_01_METHOD_SPEC.md
 ```
 
 Then read the new docs:

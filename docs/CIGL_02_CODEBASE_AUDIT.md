@@ -18,7 +18,12 @@ Required action:
 
 ### 1.2 Existing GraphCMI design document
 
-`notes/gnn_design.md` already specifies the intended design:
+> **Note (updated):** `notes/gnn_design.md` is **not present** on the current CIGL branches.
+> The canonical, authoritative spec is now `docs/CIGL_01_METHOD_SPEC.md`. Do not recreate
+> `notes/gnn_design.md` unless there is a real provenance need; the bullets below describe what
+> that historical note contained.
+
+`notes/gnn_design.md` (historical) specified the intended design:
 
 - raw temporal encoder;
 - per-sample adjacency;
@@ -30,7 +35,7 @@ This is strong starting material, but it is still in `notes/` and not organized 
 
 Required action:
 
-- Keep `notes/gnn_design.md` as historical design.
+- Treat `notes/gnn_design.md` as optional historical material (currently absent; do not recreate).
 - Use `docs/CIGL_01_METHOD_SPEC.md` as the canonical current spec.
 
 ### 1.3 Existing model code

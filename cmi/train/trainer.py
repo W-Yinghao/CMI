@@ -186,8 +186,12 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
 
     diag = dict(stepA_dom_correct=0, stepA_dom_total=0, inloop_reg=[],
                 sampler=effective_sampler,  # q_psi diagnostics
-                # graphcmi-only: per-component leakage breakdown (empty/unused for other methods)
-                inloop_ce=[], inloop_reg_graph=[], inloop_reg_node=[], inloop_reg_edge=[])
+                # graphcmi-only: per-component leakage breakdown + per-head Step-A critic quality
+                # (empty/unused for other methods)
+                inloop_ce=[], inloop_reg_graph=[], inloop_reg_node=[], inloop_reg_edge=[],
+                stepA_graph_correct=0, stepA_node_correct=0, stepA_edge_correct=0,
+                stepA_graph_total=0, stepA_node_total=0, stepA_edge_total=0,
+                stepA_graph_loss=[], stepA_node_loss=[], stepA_edge_loss=[])
     backbone.train(); post.train()
     for ep in range(epochs):
         lam_t = lam * min(1.0, ep / max(1, warmup))
@@ -252,6 +256,16 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                     diag["inloop_reg_graph"].append(_scalar(r_graph))
                     diag["inloop_reg_node"].append(_scalar(r_node))
                     diag["inloop_reg_edge"].append(_scalar(r_edge))
+                    with torch.no_grad():   # Step-A critic quality per head (diagnostic only; no grad/loss effect)
+                        gpred = post.q_dzy(torch.cat([gz, F.one_hot(yb, n_cls).float()], 1)).argmax(1)
+                        npred = node_post._logits(nz, yb).argmax(-1)   # [B,C] per-channel domain pred
+                        epred = edge_post._logits(el, yb).argmax(1)    # [B]
+                        diag["stepA_graph_correct"] += int((gpred == db).sum()); diag["stepA_graph_total"] += int(db.numel())
+                        diag["stepA_node_correct"] += int((npred == db.unsqueeze(1)).sum()); diag["stepA_node_total"] += int(npred.numel())
+                        diag["stepA_edge_correct"] += int((epred == db).sum()); diag["stepA_edge_total"] += int(db.numel())
+                        diag["stepA_graph_loss"].append(_scalar(post.posterior_loss(gz, yb, db)))
+                        diag["stepA_node_loss"].append(_scalar(node_post.step_a_loss(nz, yb, db)))
+                        diag["stepA_edge_loss"].append(_scalar(edge_post.step_a_loss(el, yb, db)))
                 continue
             # Step A: fit auxiliary predictor(s) on detached Z (CMI posteriors, or IIB's h)
             fits_qdzy = uses_cmi or is_dual or is_dualc or is_dualpc or is_dualpc_hinge or is_dualpc_marginal
@@ -394,9 +408,17 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         # (lambda_g/lambda_node/lambda_edge), NOT the internal lam/gamma/lam_edge, plus the
         # per-component held-in leakage breakdown (loss_ce / reg_graph / reg_node / reg_edge).
         _mean = lambda k: float(np.mean(diag[k])) if diag[k] else 0.0
+        graph_dom_acc = diag["stepA_graph_correct"] / max(1, diag["stepA_graph_total"])
         out.update(lambda_g=float(lam), lambda_node=float(gamma), lambda_edge=float(lam_edge),
                    loss_ce=_mean("inloop_ce"), reg_graph=_mean("inloop_reg_graph"),
-                   reg_node=_mean("inloop_reg_node"), reg_edge=_mean("inloop_reg_edge"))
+                   reg_node=_mean("inloop_reg_node"), reg_edge=_mean("inloop_reg_edge"),
+                   # spec-named per-head Step-A critic quality (replaces the undefined legacy 0.0)
+                   stepA_graph_dom_acc=graph_dom_acc,
+                   stepA_node_dom_acc=diag["stepA_node_correct"] / max(1, diag["stepA_node_total"]),
+                   stepA_edge_dom_acc=diag["stepA_edge_correct"] / max(1, diag["stepA_edge_total"]),
+                   stepA_graph_loss=_mean("stepA_graph_loss"), stepA_node_loss=_mean("stepA_node_loss"),
+                   stepA_edge_loss=_mean("stepA_edge_loss"),
+                   stepA_dom_acc=graph_dom_acc)   # override legacy field (was a fake 0.0 for graphcmi)
     if "inloop_reg_loss" in diag:
         out["inloop_reg_loss"] = float(np.mean(diag["inloop_reg_loss"]))
     if "inloop_dec" in diag:
