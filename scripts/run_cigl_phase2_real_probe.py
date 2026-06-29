@@ -231,6 +231,10 @@ def main():
 
     if args.device == "cuda" and not torch.cuda.is_available():
         raise SystemExit("[phase2-real] --device cuda requested but CUDA unavailable")
+    if args.device == "cpu":
+        # tiny per-trial EEG ops: single-thread avoids many-core dispatch overhead (~8x faster CPU
+        # dry-run). No effect on the GPU run.
+        torch.set_num_threads(1)
     if not args.dry_run_synthetic and args.n_perm < 50:
         print(f"[phase2-real] WARNING: n_perm={args.n_perm} < 50 for a REAL probe — exploratory only, "
               f"not statistical evidence.", flush=True)
