@@ -10,6 +10,7 @@ import copy
 import json
 import math
 import os
+import shutil
 import subprocess
 import tempfile
 
@@ -86,7 +87,18 @@ def test_evaluate_stratum_confirmed():
 def test_evaluate_stratum_negative_harmful_trap():
     # action 0 looks good (low d_margin) but is harmful (ΔR=+1): the candidate cannot beat v2 / clear the floors
     r = EA.evaluate_stratum(_stratum(good_dr=1.0, harmful_frac=0.0))
-    assert r.status == "V4_EXTERNAL_NEGATIVE", (r.status, r.reason)
+    assert r.status == "V4_EXTERNAL_NEGATIVE" and "L_harm_all>budget" in r.reason and "red<=0" in r.reason
+
+
+def test_criterion_a_verdict_each_gate_discriminates():
+    cva = EA.criterion_a_verdict
+    assert cva(0.05, 0.2, 0.1, 0.5)[0] == "V4_EXTERNAL_CONFIRMED"
+    # each gate ALONE flips the verdict (so a regression dropping any single gate breaks a test) — the EVAL safety gate
+    # (L_harm_all<=budget) is provably an independent discriminator, which the integration trap could not isolate.
+    assert cva(0.20, 0.2, 0.1, 0.5)[1] == "failed: L_harm_all>budget"     # safety only
+    assert cva(0.05, 0.0, -0.1, 0.5)[1] == "failed: red<=0"               # red>0 only
+    assert cva(0.05, 0.2, 0.3, 0.5)[1] == "failed: red<=v2_replay"        # utility-vs-v2 only
+    assert cva(0.05, 0.2, 0.1, 0.10)[1] == "failed: coverage<min"        # coverage only
 
 
 def test_evaluate_stratum_not_evaluable_too_few():
@@ -207,6 +219,91 @@ def test_build_stratum_requires_frozen_artifact():
     _expect(ValueError, lambda: EA.build_stratum_from_dump("ds007526", "PD", "/nope.npz", None))
 
 
+def test_load_source_from_path_base_safe():
+    # bad disease raises BEFORE any read; missing file raises at np.load BEFORE the heavy v3 import (base-safe)
+    _expect(ValueError, lambda: EA.load_frozen_source_state_artifact_from_path("/x.npz", disease="ZZ"))
+    _expect(FileNotFoundError, lambda: EA.load_frozen_source_state_artifact_from_path("/nonexistent_acar_v4.npz",
+                                                                                     disease="PD"))
+
+
+import types  # noqa: E402  (used by the preflight-ordering monkeypatch guards)
+
+
+def _run_with_fakes(base, *, sha_value, build_raises=False, commit="a" * 40):
+    strata = [_full_st("zenodo14808296", "SCZ"), _full_st("ds007526", "PD")]
+    order = []
+
+    def fg(root, *a):
+        out = commit if (a[:1] == ("rev-parse",) or a[:1] == ("rev-list",)) else ""
+        return types.SimpleNamespace(returncode=0, stdout=out + "\n", stderr="")
+
+    def fs(path):
+        order.append("sha"); return sha_value
+
+    def fe():
+        order.append("envlock"); return "e" * 64
+
+    def fl(path, *, disease):
+        order.append("load"); return types.SimpleNamespace(source_state_sha256="b" * 64, source_state_ref="a" * 64,
+                                                           disease=disease)
+
+    def fb(site, disease, dump_path, art, verify_hashes=None):
+        order.append("build")
+        if build_raises:
+            raise RuntimeError("boom")
+        return {"site": site, "disease": disease, "subjects": {}}
+
+    def fv(stratum):
+        return EA.StratumResult(stratum["site"], stratum["disease"], "V4_EXTERNAL_CONFIRMED", "", 30, 30, 0.0, 0.5,
+                                0.2, 0.03, 0.15, 0.0, "OK")
+    saved = (CLI._git, CLI._sha256_file, CLI._env_lock_verify, EA.load_frozen_source_state_artifact_from_path,
+             EA.build_stratum_from_dump, EA.evaluate_stratum)
+    CLI._git, CLI._sha256_file, CLI._env_lock_verify = fg, fs, fe
+    EA.load_frozen_source_state_artifact_from_path, EA.build_stratum_from_dump, EA.evaluate_stratum = fl, fb, fv
+    mpath = os.path.join(base, "m.json")
+    with open(mpath, "w") as f:
+        json.dump(_manifest(strata, commit=commit), f)
+    return order, mpath, os.path.join(base, "out"), saved
+
+
+def _restore(saved):
+    (CLI._git, CLI._sha256_file, CLI._env_lock_verify, EA.load_frozen_source_state_artifact_from_path,
+     EA.build_stratum_from_dump, EA.evaluate_stratum) = saved
+
+
+def test_cli_preflight_ordering_env_lock_and_sha_before_read():
+    base = tempfile.mkdtemp()
+    order, mpath, outdir, saved = _run_with_fakes(base, sha_value="b" * 64)
+    try:
+        CLI.run(mpath, outdir)
+        fb_i = order.index("build")
+        assert "envlock" in order[:fb_i] and "sha" in order[:fb_i]   # env-lock + per-dump sha BEFORE any read
+        assert os.path.isfile(os.path.join(outdir, "RESULT.json")) and not os.path.exists(outdir + ".tmp")
+    finally:
+        _restore(saved); shutil.rmtree(base, ignore_errors=True)
+
+
+def test_cli_dump_sha_mismatch_aborts_before_envlock():
+    base = tempfile.mkdtemp()
+    order, mpath, outdir, saved = _run_with_fakes(base, sha_value="c" * 64)   # != manifest full_dump_sha256 ("b"*64)
+    try:
+        _expect(ValueError, lambda: CLI.run(mpath, outdir))
+        assert "envlock" not in order and "build" not in order      # aborted in the stdlib preflight
+        assert not os.path.exists(outdir)
+    finally:
+        _restore(saved); shutil.rmtree(base, ignore_errors=True)
+
+
+def test_cli_abort_cleanup_no_partial_output():
+    base = tempfile.mkdtemp()
+    order, mpath, outdir, saved = _run_with_fakes(base, sha_value="b" * 64, build_raises=True)
+    try:
+        _expect(RuntimeError, lambda: CLI.run(mpath, outdir))
+        assert not os.path.exists(outdir) and not os.path.exists(outdir + ".tmp")   # cleaned; no partial publish
+    finally:
+        _restore(saved); shutil.rmtree(base, ignore_errors=True)
+
+
 def test_subject_class_fail_closed():
     assert EA.subject_class_from_label_values([1, 1, 1]) == "patient"
     assert EA.subject_class_from_label_values([0, 0]) == "hc"
@@ -239,12 +336,14 @@ def test_lambda_grid_excludes_fallback():
 def main():
     print("ACAR v4 external Arm-B (adapter + CLI) guards (synthetic fixtures only):")
     for t in (test_site_local_split, test_evaluate_stratum_confirmed, test_evaluate_stratum_negative_harmful_trap,
-              test_evaluate_stratum_not_evaluable_too_few, test_L_harm_all_vs_harm_among_adapted,
-              test_lambda_star_from_cal_not_eval, test_v2_replay_subject_disjoint_and_not_evaluable,
-              test_external_taxonomy_deterministic, test_admissible_strata_constant,
-              test_validate_external_manifest_exact_set_and_provenance, test_preflight_fail_closed,
-              test_build_stratum_requires_frozen_artifact, test_subject_class_fail_closed, test_json_safe_not_evaluable,
-              test_lambda_grid_excludes_fallback):
+              test_criterion_a_verdict_each_gate_discriminates, test_evaluate_stratum_not_evaluable_too_few,
+              test_L_harm_all_vs_harm_among_adapted, test_lambda_star_from_cal_not_eval,
+              test_v2_replay_subject_disjoint_and_not_evaluable, test_external_taxonomy_deterministic,
+              test_admissible_strata_constant, test_validate_external_manifest_exact_set_and_provenance,
+              test_preflight_fail_closed, test_build_stratum_requires_frozen_artifact, test_load_source_from_path_base_safe,
+              test_subject_class_fail_closed, test_json_safe_not_evaluable, test_lambda_grid_excludes_fallback,
+              test_cli_preflight_ordering_env_lock_and_sha_before_read, test_cli_dump_sha_mismatch_aborts_before_envlock,
+              test_cli_abort_cleanup_no_partial_output):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 EXTERNAL ARM-B GUARDS PASS")

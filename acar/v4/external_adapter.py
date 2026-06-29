@@ -186,6 +186,16 @@ def _v2_replay_red(stratum, c0fit, c0cal, eval_subjects, *, alpha=ALPHA, delta=D
 
 # ----------------------------------------------------------------------------- stratum endpoint (criterion A)
 
+def criterion_a_verdict(L_harm_all_eval, red, v2_red, coverage, *, budget=BUDGET, coverage_min=0.15):
+    """PURE criterion-A decision (ACAR_FROZEN_v4.md §3c): V4_EXTERNAL_CONFIRMED iff ALL of — EVAL L_harm_all ≤ budget
+    (safety), red > 0, red > v2_replay (utility), coverage ≥ coverage_min. Returns (status, reason); each gate is an
+    independent discriminator (unit-tested so a regression dropping any single gate flips a test)."""
+    fails = [name for name, bad in (("L_harm_all>budget", L_harm_all_eval > budget),
+                                    ("red<=0", red <= 0.0), ("red<=v2_replay", red <= v2_red),
+                                    ("coverage<min", coverage < coverage_min)) if bad]
+    return ("V4_EXTERNAL_NEGATIVE", "failed: " + ", ".join(fails)) if fails else ("V4_EXTERNAL_CONFIRMED", "criterion A met")
+
+
 def evaluate_stratum(stratum, *, alpha=ALPHA, budget=BUDGET, delta=DELTA):
     """Evaluate the FROZEN candidate on one (site,disease) stratum; return a StratumResult."""
     site = stratum["site"]; disease = stratum["disease"]
@@ -237,12 +247,7 @@ def evaluate_stratum(stratum, *, alpha=ALPHA, budget=BUDGET, delta=DELTA):
     red = PO.reduction(choice_ev, dr_ev, weights=w_ev)
     harm_adapt = PO.harm_rate(choice_ev, dr_ev, weights=w_ev)   # NaN if nothing adapted → None
     L_harm_all_eval = float(RC.subject_losses_from_policy(np.stack([choice_ev]), dr_ev, subj_ev, loss=LOSS).mean())
-    ok = (L_harm_all_eval <= budget) and (red > 0.0) and (red > v2_red) and (coverage >= 0.15)
-    status = "V4_EXTERNAL_CONFIRMED" if ok else "V4_EXTERNAL_NEGATIVE"
-    reason = "criterion A met" if ok else (
-        "failed: " + ", ".join(x for x, c in (("L_harm_all>budget", L_harm_all_eval > budget),
-                                              ("red<=0", red <= 0.0), ("red<=v2_replay", red <= v2_red),
-                                              ("coverage<0.15", coverage < 0.15)) if c))
+    status, reason = criterion_a_verdict(L_harm_all_eval, red, v2_red, coverage, budget=budget)
     harm_val = float(harm_adapt) if (harm_adapt == harm_adapt) else None
     return StratumResult(site, disease, status, reason, len(cal), len(ev), lam, float(coverage), float(red),
                          float(L_harm_all_eval), harm_val, float(v2_red), v2_status)
@@ -291,20 +296,48 @@ def subject_class_from_label_values(values):
 
 # ----------------------------------------------------------------------------- gated real path (eeg2025; external read)
 
-def build_stratum_from_dump(site_id, disease, dump_path, frozen_source_artifact, env=None):
+def load_frozen_source_state_artifact_from_path(path, *, disease):
+    """Load a DEV-frozen SourceStateArtifact from a serialized blob (.npz) WITHOUT fitting. Base-safe arg validation runs
+    BEFORE the heavy v3 import; np.load failure (e.g. missing file) also precedes it. Verifies the artifact's disease."""
+    if disease not in ("PD", "SCZ"):
+        raise ValueError(f"disease must be PD or SCZ, got {disease!r}")
+    if not isinstance(path, str) or not path:
+        raise ValueError("path must be a non-empty string")
+    with np.load(path, allow_pickle=False) as o:
+        blob = {k: np.array(o[k], copy=True) for k in o.files}
+    from acar.v3.loader import load_frozen_source_state_artifact            # rebuilds f_0 from bytes, NO fit
+    art = load_frozen_source_state_artifact(blob)
+    if art.disease != disease:
+        raise ValueError(f"frozen source artifact disease {art.disease!r} != requested {disease!r}")
+    return art
+
+
+def build_stratum_from_dump(site_id, disease, dump_path, frozen_source_artifact, verify_hashes=None):
     """REAL path (gated). LEAKAGE FIREWALL: the held-out site's diagnosis labels are NEVER used to fit f_0 / the source
-    state — `frozen_source_artifact` MUST be a DEV-frozen SourceStateArtifact (loaded via load_frozen_source_state_artifact,
-    no fitting), applied to the held-out deployment z. Held-out labels enter ONLY the ΔR (labeled-risk) step that feeds CAL
-    λ* and EVAL scoring. This function therefore does NOT call build_cohort_input (which would read the held-out y_ev to
-    refit the readout). `frozen_source_artifact` is REQUIRED (fail-closed before any heavy import)."""
+    state — `frozen_source_artifact` MUST be a DEV-frozen SourceStateArtifact (no fitting), applied to the held-out
+    deployment z. Held-out labels enter ONLY the ΔR (labeled-risk) step that feeds CAL λ* and EVAL scoring. Does NOT call
+    build_cohort_input (which would read held-out y_ev to refit the readout). `frozen_source_artifact` REQUIRED
+    (fail-closed before any heavy import). Fallback batches (< MIN_BATCH) are forced identity and are NEVER executed (v3
+    `execute` rejects them); they are retained in the subject denominator and their labels feed the class check.
+    If `verify_hashes` is given ({deployment_input_sha256,label_sha256,subject_list_sha256}), the v3 field-separated
+    hashes are RECOMPUTED from the loaded dump and any mismatch raises (provenance verification, B5)."""
     if frozen_source_artifact is None:
         raise ValueError("external Arm B requires a DEV-frozen source-state artifact (no refit on held-out labels)")
-    from acar.v3.loader import load_deployment_batches, load_labels_by_window   # label-free batches + labels-only
+    from acar.v3.loader import (load_deployment_batches, load_labels_by_window,
+                                hash_deployment_input, hash_labels, hash_subject_list)
     from acar.v3.data import deployment_batch_digest
+    from acar.v3.develop import _c0_vector
     art = frozen_source_artifact
     batches = load_deployment_batches(dump_path, disease=disease, dataset_id=site_id,
                                       source_state_ref=art.source_state_ref)    # reads z_te + keys, NEVER y
     labels = load_labels_by_window(dump_path, dataset_id=site_id)               # reads y_te ONLY (for ΔR)
+    if verify_hashes is not None:                                               # B5: recompute + verify field hashes
+        got = {"deployment_input_sha256": hash_deployment_input(batches),
+               "label_sha256": hash_labels(labels),
+               "subject_list_sha256": hash_subject_list([b.subject for b in batches])}
+        for k, v in got.items():
+            if verify_hashes.get(k) != v:
+                raise ValueError(f"{site_id}: {k} mismatch (recomputed {v} != manifest {verify_hashes.get(k)})")
     subjects = {}
     by_subject = {}
     for b in batches:
@@ -313,18 +346,20 @@ def build_stratum_from_dump(site_id, disease, dump_path, frozen_source_artifact,
         cc = f"{skey.dataset_id}::{skey.subject_id}"
         elig, fb, label_vals = [], [], []
         for b in bs:
+            missing = [wk for wk in b.window_keys if wk not in labels]
+            if missing:
+                raise ValueError(f"{cc}: {len(missing)} WindowKey label(s) missing — held-out labels must be complete")
+            label_vals.extend(labels[wk] for wk in b.window_keys)
+            if getattr(b, "fallback", False):
+                fb.append(deployment_batch_digest(b))                          # forced identity; NOT executed; in denom
+                continue
             exe = art.execute(b)                                               # ONE label-free execution (identity+3)
-            lrr = exe.labeled_risk_record(labels)                              # ΔR from held-out labels (CAL/EVAL only)
+            lrr = exe.labeled_risk_record(labels)                             # ΔR from held-out labels (CAL/EVAL only)
             dr = np.array([float(dict(lrr.delta_r_by_action)[a]) for a in ACTIONS], float)
             p0 = np.asarray(exe.p0, float); z0 = np.asarray(exe.z0, float)
             st = art._ephemeral_state()
-            from acar.v3.develop import _c0_vector
             feats = np.stack([np.asarray(_c0_vector(st, p0, z0, za, pa), float) for (_a, za, pa) in exe.per_action])
-            if getattr(b, "fallback", False):
-                fb.append(deployment_batch_digest(b))
-            else:
-                elig.append((deployment_batch_digest(b), dr, feats))
-            label_vals.extend(labels[wk] for wk in b.window_keys if wk in labels)
+            elig.append((deployment_batch_digest(b), dr, feats))
         cls = subject_class_from_label_values(label_vals)                      # fail-closed (B7)
         subjects[cc] = {"class": cls, "eligible": elig, "fallback": fb,
                         "subject_id": skey.subject_id, "cohort_id": skey.dataset_id}

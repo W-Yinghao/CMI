@@ -115,16 +115,25 @@ def _repo_root():
     return os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 
+def _env_lock_verify():
+    """Apply the deterministic runtime + verify the env lock (fail-closed). Seam for ordering guards."""
+    from acar.v3.envlock import apply_runtime, verify_env_lock
+    apply_runtime()
+    return verify_env_lock()
+
+
 def _json_safe(o):
     if isinstance(o, dict):
         return {str(k): _json_safe(v) for k, v in sorted(o.items(), key=lambda kv: str(kv[0]))}
     if isinstance(o, (list, tuple)):
         return [_json_safe(v) for v in o]
-    if isinstance(o, float):
-        return o if math.isfinite(o) else None                # NEVER serialize raw NaN/Inf
-    if o is None or isinstance(o, (int, str, bool)):
+    if isinstance(o, bool):
         return o
-    return str(o)
+    if isinstance(o, float):
+        return o if math.isfinite(o) else None                # NaN/Inf → None (fail-closed unevaluable), never raw
+    if o is None or isinstance(o, (int, str)):
+        return o
+    raise TypeError(f"non-JSON-safe value of type {type(o)} in manifest")
 
 
 def run(input_manifest_path, output):
@@ -144,20 +153,22 @@ def run(input_manifest_path, output):
         got = _sha256_file(st["dump_path"])
         if got != st["full_dump_sha256"]:
             raise ValueError(f"{st['site']}: full_dump_sha256 mismatch ({got} != {st['full_dump_sha256']})")
-    # --- heavy section (only past a fully-passing stdlib preflight) ---
-    from acar.v3.envlock import apply_runtime, verify_env_lock
-    apply_runtime()
-    env_lock_sha = verify_env_lock()                          # applies-then-compares; fail-closed
+    # --- heavy section (ONLY past a fully-passing stdlib preflight) ---
+    env_lock_sha = _env_lock_verify()                        # apply runtime + verify env lock (fail-closed) BEFORE read
     from acar.v4 import external_adapter as EA
-    from acar.v3.loader import load_frozen_source_state_artifact
-    os.mkdir(output)                                          # atomic claim (race-free no-overwrite)
+    tmp = output + ".tmp"
+    if os.path.exists(tmp):
+        raise FileExistsError(f"stale temp dir exists; clear it first: {tmp}")
+    os.mkdir(tmp)                                            # atomic work claim; published by os.rename on success
     try:
         results = []
         for st in strata:
-            art = load_frozen_source_state_artifact(st["dev_source_artifact_path"], disease=st["disease"])
+            art = EA.load_frozen_source_state_artifact_from_path(st["dev_source_artifact_path"], disease=st["disease"])
             if art.source_state_sha256 != st["source_state_sha256"] or art.source_state_ref != st["source_state_ref"]:
                 raise ValueError(f"{st['site']}: frozen source artifact sha/ref mismatch vs manifest")
-            stratum = EA.build_stratum_from_dump(st["site"], st["disease"], st["dump_path"], art)
+            stratum = EA.build_stratum_from_dump(
+                st["site"], st["disease"], st["dump_path"], art,
+                verify_hashes={k: st[k] for k in ("deployment_input_sha256", "label_sha256", "subject_list_sha256")})
             results.append(EA.evaluate_stratum(stratum))
         ext = EA.external_taxonomy(results)
         body = {
@@ -173,16 +184,17 @@ def run(input_manifest_path, output):
         }
         safe = _json_safe(body)
         safe["manifest_sha256"] = hashlib.sha256(json.dumps(safe, sort_keys=True, allow_nan=False).encode()).hexdigest()
-        with open(os.path.join(output, "manifest.json"), "w") as f:
+        with open(os.path.join(tmp, "manifest.json"), "w") as f:
             json.dump(safe, f, sort_keys=True, allow_nan=False, indent=2)
-        with open(os.path.join(output, "RESULT.json"), "w") as f:    # written last = completion sentinel
+        with open(os.path.join(tmp, "RESULT.json"), "w") as f:       # written last = completion sentinel
             json.dump({"run_status": ext.run_status, "verdict": ext.verdict,
                        "per_disease": {d: v["confirmed"] for d, v in ext.per_disease.items()},
                        "manifest_sha256": safe["manifest_sha256"]}, f, sort_keys=True, allow_nan=False, indent=2)
+        os.rename(tmp, output)                               # atomic publish: `output` exists ⟺ complete
         return ext
     except BaseException:
         import shutil
-        shutil.rmtree(output, ignore_errors=True)
+        shutil.rmtree(tmp, ignore_errors=True)               # killed/partial leaves only `<output>.tmp` (cleaned here)
         raise
 
 

@@ -5,6 +5,10 @@ STATE         : DRAFT — binding ONLY when committed AND tagged `acar-v4-protoc
 LINEAGE       : v2 MEASUREMENT_ONLY (9b2f0c1) · v3 DEV_STOP (817b04f/9f4e83f) · v4 DEV candidate (e4c4e91, EXPLORATORY)
 EXTERNAL ARM  : NOT RUN — authorized only AFTER tag + sign-off
 LOCKBOX       : SEALED / NOT CONSUMED
+HARD BLOCKER  : the frozen DEV EEGNet ENCODER checkpoint + matching source-state artifacts are NOT archived. External
+                   Arm B is NOT EXECUTABLE — prepare_dump is fail-closed (FrozenEncoderMissingError) and does NOT retrain.
+                   Archiving/regenerating + hashing + pinning the encoder/source-state is a SEPARATE later gated decision
+                   (notes/ACAR_V4_EXTERNAL_INPUT_SCHEMA.md). EXTERNAL ARM-B status = NOT_YET_EXECUTABLE (not "infeasible").
 §4 HELD-OUT LIST : AUDITED + FILLED (metadata-only, notes/ACAR_V4_LOCKBOX_AUDIT.md) — admissible: (zenodo14808296,SCZ),
                    (ds007526,PD), both single-site; ASZED provisional; ds007020 excluded
 EXTERNAL CLI  : IMPLEMENTED + HARDENED — acar/v4/run_external_armb.py (stdlib-first preflight; EXACT-set + full-provenance
@@ -85,9 +89,13 @@ NOT_EVALUABLE      : a stratum with < min_CAL/EVAL subjects, an empty/degenerate
 
 ### 3b. Comparators (apples-to-apples; computed on the SAME stratum split)
 ```
-v2_replay (external) : the bit-for-bit v2 recipe (acar.regressor.ActionRegressor, seed 0; HGB≥40 / Ridge≥8 / constant)
-                       on the SAME stratum CAL/EVAL split, SAME EVAL subjects/batches, SAME fallback denominator, SAME
-                       v2 11-D feature schema, SAME subject-macro red — i.e. the v3 run_c0 path on the external stratum.
+v2_replay (external) : the bit-for-bit v2 recipe (acar.regressor.ActionRegressor, seed 0; HGB≥40 / Ridge≥8 / constant) on
+                       the SAME stratum, SAME EVAL subjects/batches, SAME fallback denominator, SAME v2 11-D feature
+                       schema, SAME subject-macro red. Its train/calibrate split is a SECONDARY subject-disjoint split of
+                       the V4 CAL subjects ONLY (universe = V4 CAL): C0_FIT/C0_CAL by subject-hash seed = 1, C0_FIT
+                       fraction = 0.70 (floor), the rest C0_CAL. ActionRegressor fits on C0_FIT; the one-sided q is from
+                       C0_CAL per-subject max residual; routing is on the V4 EVAL subjects (no EVAL leakage). If C0_FIT or
+                       C0_CAL has no eligible batch → v2_replay = NOT_EVALUABLE → the stratum is NOT_EVALUABLE.
 best_fixed (external): best single fixed non-identity action red on the same EVAL (descriptive utility floor).
 ```
 
@@ -125,14 +133,14 @@ Primary-source re-verified 2026-06-29 (metadata only — no modeling read). **Ad
 
 ```
 stratum (zenodo14808296, SCZ)   site = Zenodo 14808296 (single setup, Semmelweis); 38 SCZ + 39 HC; 64ch/1000Hz; resting
-                                eyes-closed; raw; CC-BY-4.0. split: subject-hash seed 0, CAL frac 0.40, min 20/20 →
-                                CAL≈31 / EVAL≈46 (EVALUABLE). Per-subject diagnosis from the clinical .xlsx (metadata,
-                                read at Arm-B label time). DISJOINT from DEV SCZ (different repo/institution).
+                                eyes-closed; raw; CC-BY-4.0. split: subject-hash seed 0, CAL frac 0.40 (floor), min 20/20
+                                → CAL=floor(0.40·77)=30 / EVAL=47 (EVALUABLE). Per-subject diagnosis from the clinical
+                                .xlsx (metadata, read at Arm-B label time). DISJOINT from DEV SCZ (different repo/inst.).
 stratum (ds007526, PD)          site = OpenNeuro ds007526 v1.0.2 (Tel Aviv Sourasky); 116 PD + 28 HC (participants.tsv
                                 `group`); resting-RUNS ONLY (exclude walking); raw BIDS 1.10.0; CC0. split: seed 0, CAL
-                                frac 0.40, min 20/20 → CAL≈58 / EVAL≈86 (EVALUABLE; runner preflight confirms ≥1 PD AND
-                                ≥1 HC in BOTH CAL and EVAL under seed 0). DISJOINT from DEV PD (different
-                                accession/institution; UCSD ds002778 etc.).
+                                frac 0.40 (floor), min 20/20 → CAL=floor(0.40·144)=57 / EVAL=87 (EVALUABLE; runner
+                                preflight confirms ≥1 PD AND ≥1 HC in BOTH CAL and EVAL under seed 0). DISJOINT from DEV
+                                PD (different accession/institution; UCSD ds002778 etc.).
 ```
 **Both diseases are SINGLE-SITE** at present → external Arm B is single-site-per-disease confirmatory (NOT replication);
 this limitation is stated in the result. **PROVISIONAL (NOT admitted):** Zenodo 14178398 (ASZED, SCZ 2nd site) — pending
@@ -149,12 +157,15 @@ raw EEG (contract: `notes/ACAR_V4_EXTERNAL_INPUT_SCHEMA.md`). The held-out diagn
 No raw download / signal processing occurs before the tag.
 
 ## 5. Execution discipline + leakage firewall (CLI = acar/v4/run_external_armb.py)
-The unique external Arm-B CLI mirrors v3's `run_dev_binding` preflight (FAIL-CLOSED, no bypass): manifest schema
-(admissible §4 strata only — ASZED/ds007020/DEV rejected), output-dir absent + atomic `os.mkdir` claim, HEAD ==
-protocol commit, tag `acar-v4-protocol` → HEAD, clean worktree, per-dump SHA-256, env-lock runtime; THEN a single
-confirmatory pass (`evaluate_stratum` per stratum → `external_taxonomy`) → `results/acar_v4_external_001/`
-(manifest.json + RESULT.json sentinel; allow_nan=False). No threshold/seed/loss/registry/grid change after the read
-starts; a killed/partial run is OPERATIONALLY_ABORTED (cleanup the claimed dir).
+The unique external Arm-B CLI is STDLIB-FIRST + FAIL-CLOSED (no bypass): read+sha the input manifest, manifest schema
+(EXACT admissible §4 strata only — ASZED/ds007020/DEV rejected — + full per-stratum provenance), output-dir absent,
+HEAD == protocol commit, tag `acar-v4-protocol` → HEAD, clean worktree, per-dump SHA-256 — ALL before any heavy import;
+THEN `verify_env_lock` (records `env_lock_sha256`), the DEV-frozen source artifact load + sha/ref re-check, the
+field-separated hash recompute (deployment_input/label/subject_list), an atomic `<out>.tmp` work dir, a single
+confirmatory pass (`evaluate_stratum` per stratum → `external_taxonomy`), and `os.rename(<out>.tmp, <out>)` —
+`results/acar_v4_external_001/` (manifest.json + RESULT.json sentinel; `allow_nan=False`; manifest_sha256 +
+input_manifest_sha256 + command recorded). No threshold/seed/loss/registry/grid change after the read; a killed/partial
+run is OPERATIONALLY_ABORTED (the `.tmp` work dir is removed; `<out>` exists ⟺ complete).
 
 **Leakage firewall (binding).** External diagnosis labels enter ONLY (a) CAL λ* selection and (b) EVAL endpoint
 scoring. They MUST NOT enter f_0 / source-state fitting (the source state is the DEV-frozen artifact; external labels

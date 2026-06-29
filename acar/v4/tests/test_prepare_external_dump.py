@@ -1,6 +1,6 @@
 """Guards for acar/v4/prepare_external_dump.py (frozen external-input prep layer). SYNTHETIC FIXTURES ONLY; NO download,
-NO real signal, NO encoder run. Proves the pure selectors/parsers/validators/hashers and that the real prepare_dump is a
-gated stub. Run: python -m acar.v4.tests.test_prepare_external_dump
+NO real signal, NO encoder run. Proves the pure selectors/parsers/validators/hashers and that prepare_dump is FAIL-CLOSED
+on the missing frozen encoder (FrozenEncoderMissingError; never retrains). Run: python -m acar.v4.tests.test_prepare_external_dump
 """
 import numpy as np
 
@@ -19,12 +19,13 @@ def _expect(exc, fn):
 
 def test_resting_run_selector():
     runs = [{"task": "rest", "run": 1}, {"task": "walking", "run": 1}, {"task": "restWalk", "run": 1}]
-    kept = P.resting_run_selector(runs, "ds007526")
-    assert kept == [{"task": "rest", "run": 1}]                       # walking + restWalk excluded
-    z = P.resting_run_selector([{"task": "eyesClosed_rest"}, {"task": "oddball"}], "zenodo14808296")
-    assert z == [{"task": "eyesClosed_rest"}]
+    assert P.resting_run_selector(runs, "ds007526") == [{"task": "rest", "run": 1}]   # walking + restWalk(walk) excluded
+    assert P.resting_run_selector([{"task": "eyesClosed_rest"}, {"task": "oddball"}],
+                                  "zenodo14808296") == [{"task": "eyesClosed_rest"}]
     _expect(ValueError, lambda: P.resting_run_selector([{"task": "walking"}], "ds007526"))   # no resting → fail-closed
     _expect(ValueError, lambda: P.resting_run_selector([{"task": "rest"}], "unknown_site"))
+    # EXACT-token match: 'arrest' / 'prestimulus' are NOT resting (no substring false-positive)
+    _expect(ValueError, lambda: P.resting_run_selector([{"task": "arrest"}, {"task": "prestimulus"}], "ds007526"))
 
 
 def test_parse_diagnosis_map():
@@ -45,15 +46,22 @@ def test_validate_channels_fs():
 
 
 def test_validate_dump_schema():
-    n, d = 5, 4
-    ok = {"z_te": np.zeros((n, d), float), "subject_id_te": np.array(["s"] * n),
-          "recording_id_te": np.array(["r"] * n), "window_index_te": np.arange(n),
-          "y_te": np.array([0, 1, 0, 1, 0]), "feat_hash_te": "abc"}
+    n, d = 5, 16
+    ok = {"z_te": np.zeros((n, d), float), "subject_id_te": np.array(["s0", "s1", "s2", "s3", "s4"]),
+          "recording_id_te": np.array(["s0", "s1", "s2", "s3", "s4"]), "window_index_te": np.arange(n),
+          "y_te": np.array([0, 1, 0, 1, 0]), "feat_hash_te": "a" * 64}
     assert P.validate_dump_schema(ok) == n
-    _expect(ValueError, lambda: P.validate_dump_schema({**ok, "y_te": np.array([0, 1, 2, 0, 1])}))   # bad label
-    bad = dict(ok); del bad["z_te"]
-    _expect(ValueError, lambda: P.validate_dump_schema(bad))                                          # missing
+    _expect(ValueError, lambda: P.validate_dump_schema({**ok, "y_te": np.array([0, 1, 2, 0, 1])}))    # bad label
+    _expect(ValueError, lambda: P.validate_dump_schema({k: v for k, v in ok.items() if k != "z_te"}))  # missing
     _expect(ValueError, lambda: P.validate_dump_schema({**ok, "window_index_te": np.arange(n - 1)}))  # length
+    _expect(ValueError, lambda: P.validate_dump_schema({**ok, "z_ev": np.zeros((n, d))}))             # forbidden extra
+    _expect(ValueError, lambda: P.validate_dump_schema({**ok, "z_te": np.full((n, d), np.nan)}))      # non-finite z
+    _expect(ValueError, lambda: P.validate_dump_schema({**ok, "subject_id_te": np.array(["", "s1", "s2", "s3", "s4"])}))
+    dup = {**ok, "subject_id_te": np.array(["s"] * n), "recording_id_te": np.array(["r"] * n),
+           "window_index_te": np.zeros(n, int)}
+    _expect(ValueError, lambda: P.validate_dump_schema(dup))                                          # duplicate rows
+    _expect(ValueError, lambda: P.validate_dump_schema(ok, embedding_dim=8))                          # d mismatch
+    _expect(ValueError, lambda: P.validate_dump_schema({**ok, "feat_hash_te": "abc"}))               # bad feat_hash
 
 
 def test_provenance_hashers():
@@ -67,15 +75,25 @@ def test_provenance_hashers():
     assert P.resting_selection_sha256([{"task": "rest"}]) == P.resting_selection_sha256([{"task": "rest"}])
 
 
-def test_prepare_dump_is_gated_stub():
-    _expect(NotImplementedError, lambda: P.prepare_dump("ds007526", "/raw", "/out",
-                                                        frozen_pipeline_params={}, frozen_encoder_ref="x"))
+def test_prepare_dump_fail_closed_and_encoder_artifact():
+    # missing/incomplete encoder artifact → FrozenEncoderMissingError BEFORE any heavy import or raw read
+    _expect(P.FrozenEncoderMissingError, lambda: P.prepare_dump("ds007526", "/raw", "/out.npz",
+                                                                encoder_artifact={}, raw_pipeline_config=P.FROZEN_PIPELINE))
+    _expect(P.FrozenEncoderMissingError, lambda: P.require_encoder_artifact({}))
+    full = {f: "x" for f in P.ENCODER_ARTIFACT_FIELDS}; full["embedding_dim"] = 16
+    _expect(P.FrozenEncoderMissingError, lambda: P.require_encoder_artifact(full))   # complete but paths not on disk
+    bad_dim = dict(full); bad_dim["embedding_dim"] = 8
+    _expect(ValueError, lambda: P.require_encoder_artifact(bad_dim))                 # wrong embedding_dim
+    # pipeline config must equal the frozen DEV pipeline
+    assert P.validate_pipeline_config(P.FROZEN_PIPELINE)
+    _expect(ValueError, lambda: P.validate_pipeline_config({**P.FROZEN_PIPELINE, "resample_fs": 250}))
+    # NO implicit retrain path: prepare_dump never reaches a training call without a verified encoder (fail-closed above)
 
 
 def main():
     print("ACAR v4 prepare_external_dump guards (synthetic fixtures only):")
     for t in (test_resting_run_selector, test_parse_diagnosis_map, test_validate_channels_fs, test_validate_dump_schema,
-              test_provenance_hashers, test_prepare_dump_is_gated_stub):
+              test_provenance_hashers, test_prepare_dump_fail_closed_and_encoder_artifact):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 PREPARE-EXTERNAL-DUMP GUARDS PASS")
