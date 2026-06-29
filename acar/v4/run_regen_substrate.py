@@ -19,6 +19,7 @@ import subprocess
 import sys
 
 from acar.v4 import regen_substrate as RS
+from acar.v4 import regen_envlock as EL
 
 
 def _git(root, *args):
@@ -67,12 +68,33 @@ def run(input_manifest_path, output, *, disease=None):
     if os.path.exists(output):
         raise FileExistsError(f"output dir already exists (no overwrite): {output}")
     report = RS.validate_substrate_request(spec["disease"], spec["dev_cohorts"], output,
-                                           seed=int(spec.get("seed", 0)), env_lock_path=spec["env_lock_path"])
+                                           seed=spec.get("seed", 0), env_lock_path=spec["env_lock_path"])
+    _verify_env_lock(spec)                                            # env-lock file hash + schema + CAPTURED + pins
     report["input_manifest_sha256"] = input_manifest_sha256
     report["command"] = shlex.join([sys.executable, "-m", "acar.v4.run_regen_substrate", "--disease", spec["disease"],
                                     "--dev-input-manifest", input_manifest_path, "--output", output])
     _require_b1_authorization(spec["disease"])                        # B1 GATE — raises (real training not authorized)
     return _train_and_write(spec, output, report)                    # frozen contract; UNREACHABLE until B1
+
+
+def _verify_env_lock(spec):
+    """Preflight the regen runtime lock (no torch import): the env_lock file's sha must equal the manifest's
+    env_lock_sha256; the lock must pass the schema validator; be status CAPTURED_AND_VERIFIED (a SCHEMA-ONLY skeleton is
+    rejected — real capture on the training node is required); and pin the SAME protocol_commit + pipeline_config_sha256
+    as the manifest."""
+    got = _sha256_file(spec["env_lock_path"])
+    if got != spec["env_lock_sha256"]:
+        raise ValueError(f"env_lock_sha256 mismatch ({got} != {spec['env_lock_sha256']})")
+    with open(spec["env_lock_path"]) as f:
+        lock = json.load(f)
+    EL.validate_regen_env_lock(lock)
+    if lock["status"] != "CAPTURED_AND_VERIFIED":
+        raise ValueError(f"env lock status must be CAPTURED_AND_VERIFIED, got {lock['status']!r} "
+                         "(capture the real runtime on the training node first)")
+    if lock["protocol_commit"] != spec["protocol_commit"]:
+        raise ValueError("env lock protocol_commit != manifest protocol_commit")
+    if lock["pipeline_config_sha256"] != spec["pipeline_config_sha256"]:
+        raise ValueError("env lock pipeline_config_sha256 != manifest pipeline_config_sha256")
 
 
 def _require_b1_authorization(disease):

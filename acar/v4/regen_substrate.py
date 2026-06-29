@@ -11,6 +11,8 @@ cannot bit-reproduce the per-fold feat_hash_te) — never "the recovered origina
 selection run and reselects nothing.
 """
 from __future__ import annotations
+import hashlib
+import json
 import os
 
 from acar.v4.prepare_external_dump import FROZEN_PIPELINE, ENCODER_ARTIFACT_FIELDS
@@ -43,6 +45,20 @@ def _is_hex(s, n):
     return isinstance(s, str) and len(s) == n and all(c in "0123456789abcdef" for c in s)
 
 
+def _is_int0(x):
+    return type(x) is int and x == 0                             # strict: reject bool / "0" / 0.0 / 0.9
+
+
+def canonical_pipeline_config_sha256():
+    """The canonical sha-256 of the frozen DEV pipeline (sorted keys, compact). Manifests must match this exactly."""
+    return hashlib.sha256(json.dumps(FROZEN_PIPELINE, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def _require_exact_pipeline(cfg):
+    if set(cfg) != set(FROZEN_PIPELINE) or cfg != FROZEN_PIPELINE:
+        raise ValueError(f"pipeline_config must EXACTLY equal FROZEN_PIPELINE (no extra/missing keys), got {cfg!r}")
+
+
 def expected_artifact_paths(disease, output_dir):
     """The artifact files the (future, authorized) training will emit for `disease` — pinned now so the contract is fixed
     before any training. Mirrors prepare_external_dump.ENCODER_ARTIFACT_FIELDS."""
@@ -67,12 +83,9 @@ def validate_substrate_request(disease, dev_cohorts, output_dir, *, seed=0, pipe
         raise ValueError(f"{disease}: external/rejected cohort(s) {bad} must NEVER be in the all-DEV training scope")
     if set(cohorts) != set(DEV_SCOPE[disease]):
         raise ValueError(f"{disease}: dev_cohorts must be EXACTLY {sorted(DEV_SCOPE[disease])}, got {sorted(set(cohorts))}")
-    if int(seed) != 0:
-        raise ValueError(f"seed must be 0 (frozen determinism), got {seed!r}")
-    cfg = pipeline_config if pipeline_config is not None else FROZEN_PIPELINE
-    for k, v in FROZEN_PIPELINE.items():
-        if cfg.get(k) != v:
-            raise ValueError(f"pipeline_config[{k!r}]={cfg.get(k)!r} != frozen DEV {v!r}")
+    if not _is_int0(seed):
+        raise ValueError(f"seed must be the int 0 (no bool/str/float), got {seed!r}")
+    _require_exact_pipeline(pipeline_config if pipeline_config is not None else FROZEN_PIPELINE)
     if not output_dir:
         raise ValueError("output_dir required")
     if os.path.exists(output_dir):
@@ -187,11 +200,13 @@ def validate_regen_manifest(spec):
     for c, p in sp.items():
         if not isinstance(p, str) or not os.path.isabs(p) or not p:
             raise ValueError(f"source_paths[{c!r}] must be a non-empty absolute path")
-    if int(spec.get("seed", 0)) != 0:
-        raise ValueError("seed must be 0 (frozen determinism)")
+    if not _is_int0(spec.get("seed", 0)):
+        raise ValueError("seed must be the int 0 (no bool/str/float)")
     for hf in ("subject_list_sha256", "diagnosis_label_sha256", "pipeline_config_sha256", "env_lock_sha256"):
         if not _is_hex(spec.get(hf, ""), 64):
             raise ValueError(f"{hf} must be a 64-char lowercase sha-256")
+    if spec["pipeline_config_sha256"] != canonical_pipeline_config_sha256():
+        raise ValueError("pipeline_config_sha256 must equal the canonical FROZEN_PIPELINE hash")
     if not isinstance(spec.get("env_lock_path"), str) or not spec["env_lock_path"]:
         raise ValueError("env_lock_path must be a non-empty string")
     return spec

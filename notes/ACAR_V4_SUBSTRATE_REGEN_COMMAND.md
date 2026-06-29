@@ -33,13 +33,15 @@ dev_cohorts              EXACTLY DEV_SCOPE[disease]  (PD: ds002778,ds003490,ds00
                          — any external/rejected id (zenodo14808296, ds007526, ds007020, 14178398, aszed) is REJECTED
 source_kind              "raw_bids" | "canonical_features"
 source_paths             {cohort: ABSOLUTE path}, keyed by EXACTLY dev_cohorts
-seed                     0 (only 0 admissible)
+seed                     STRICT int 0 (bool / "0" / 0.0 / 0.9 rejected — no silent coercion)
 subject_list_sha256      64-hex   (provenance of the training subjects)
 diagnosis_label_sha256   64-hex
-pipeline_config_sha256   64-hex   (== sha of the canonical FROZEN_PIPELINE)
+pipeline_config_sha256   64-hex AND == canonical FROZEN_PIPELINE hash (regen_substrate.canonical_pipeline_config_sha256())
 env_lock_path            non-empty path (must exist at run)
-env_lock_sha256          64-hex   (the regen runtime lock; see §4)
+env_lock_sha256          64-hex AND == sha-256 of the env_lock_path file (verified in run_regen_substrate preflight; see §4)
 ```
+(The in-memory `pipeline_config`, when passed to `validate_substrate_request`, must EXACTLY equal `FROZEN_PIPELINE` — extra
+keys rejected.)
 
 ## 3. Output artifact schema (the authorized run writes; pinned now)
 Per disease (`regen_substrate.expected_artifact_paths`): `v4_alldev_encoder_<D>.pt`, `v4_alldev_source_state_<D>.npz`,
@@ -54,13 +56,22 @@ manifest LAST (manifest_sha256; RESULT sentinel)   ← "output complete" iff thi
 ```
 
 ## 4. Runtime lock (regen is torch/braindecode/GPU — heavier than the pure-numpy v4 code)
-A SEPARATE regen env lock (pinned in the input manifest as env_lock_sha256) must record:
+Schema + validator + canonical hasher: `acar/v4/regen_envlock.py` (PURE; no torch capture). Required fields
+(`expected_regen_env_fields`):
 ```
-torch version · braindecode version · numpy/scipy versions · CUDA/cuDNN + device (GPU model + driver, OR explicit CPU) ·
-torch deterministic flags · seed 0 · intra/inter-op + OMP thread settings.
+schema_version (acar_v4_regen_env_lock/1) · status · python_version · torch_version · braindecode_version · numpy_version ·
+scipy_version · sklearn_version · cuda_version · cudnn_version · device_kind ("cuda"|"cpu") · device_name · driver_version ·
+torch_deterministic_algorithms (true) · seed (int 0) · torch_intraop_threads · torch_interop_threads · omp_num_threads ·
+threadpool_backends · pipeline_config_sha256 · protocol_commit
 ```
-Device (GPU model / CPU) is PINNED in the lock — "node choice" is not a post-hoc degree of freedom (cf. the B0 finding that
-some DEV hashes came from a different CUDA device).
+- `status` ∈ {`SCHEMA_ONLY_NOT_CAPTURED`, `CAPTURED_AND_VERIFIED`}. `schema_only_template(...)` builds a reviewable
+  skeleton (placeholder versions); a CAPTURED lock MUST fill real non-empty version/device fields (and, if `device_kind ==
+  cuda`, cuda/cudnn/driver) — a skeleton cannot impersonate a captured runtime.
+- **`run_regen_substrate` requires `status == CAPTURED_AND_VERIFIED`**, that the lock file's sha equals the manifest
+  `env_lock_sha256`, and that the lock's `protocol_commit` + `pipeline_config_sha256` match the manifest. Capturing the real
+  runtime (torch import on the chosen training node) is part of B1 — NOT done here.
+- Device (GPU model / CPU) is PINNED in the lock — "node choice" is not a post-hoc degree of freedom (cf. the B0 finding
+  that some DEV hashes came from a different CUDA device).
 
 ## 5. Atomic, no-overwrite output (matches v3/v4 runner discipline)
 `--output` must be absent; the authorized run claims it atomically (os.mkdir) BEFORE any training; writes artifacts; writes
@@ -77,19 +88,26 @@ substrates        {PD:{...}, SCZ:{...}} each: encoder_checkpoint_path + sha256, 
 dev_cohorts       {PD: DEV_SCOPE[PD], SCZ: DEV_SCOPE[SCZ]}  (exact)
 env_lock_sha256   64-hex
 ```
+Before the (gated) replay, `run_substrate_compatibility` runs a PURE artifact file-hash preflight: each PD/SCZ
+encoder_checkpoint + source_state file must EXIST and its sha-256 must equal the manifest — fail-closed (FileNotFoundError /
+ValueError) before any torch import or DEV read. (Pre-B1 the trained artifacts do not exist, so this preflight fails by
+design.)
 Pass-line = `regen_substrate.compatibility_replay_pass` (pure, pre-registered): per disease — CAL LTT λ* certified ∧
 coverage ≥ 0.15 ∧ red > 0 ∧ EVAL L_harm_all ≤ 0.10 ∧ **v2_replay EVALUABLE ∧ red > v2_replay_red (HARD — no waiver)**; macro
 — disease-macro red > disease-macro v2_replay. **If v2_replay is not evaluable for either disease, the replay FAILS and
 external Arm B is NOT authorized.** This is a substrate-COMPATIBILITY check for the already-fixed candidate, NOT a new DEV
 selection run (the in-sample caveat in ACAR_V4_SUBSTRATE_REGEN_PLAN.md §7 applies).
 
-## 7. Guards (acar/v4/tests/test_regen_substrate.py — all green; NO training/torch)
-wrong disease / wrong-or-external cohort list → fail · seed≠0 → fail · pipeline_config drift → fail · missing/absent env
-lock → fail · output exists → fail before any training call · dry-run never imports torch/cmi · dry-run returns the exact
-expected artifact paths · the command cannot override candidate/score/grid/comparator · compatibility replay FAILS if
-v2_replay not evaluable, if PD passes but SCZ fails, if red ≤ v2_replay, or if L_harm_all > 0.10; passes ONLY when every
-pre-declared numeric gate passes · both CLIs fail-closed AFTER a full preflight (HEAD==commit, clean worktree, output absent)
-and BEFORE any heavy import / DEV read / output write.
+## 7. Guards (acar/v4/tests/test_regen_substrate.py + test_regen_envlock.py — all green; NO training/torch)
+wrong disease / wrong-or-external cohort list → fail · seed STRICT int 0 (bool/"0"/0.0/0.9 → fail) · pipeline_config drift
+OR extra key → fail · pipeline_config_sha256 ≠ canonical → fail · missing/absent env lock → fail · env_lock_sha256 ≠ file
+hash → fail · env lock SCHEMA_ONLY_NOT_CAPTURED → rejected (CAPTURED_AND_VERIFIED required) · env lock missing/extra field,
+bad status/device, non-strict seed, deterministic flag false, CAPTURED-with-empty-versions → fail · output exists → fail
+before any training call · the command cannot override candidate/score/grid/comparator · compatibility replay FAILS if
+v2_replay not evaluable (HARD), if PD passes but SCZ fails, if red ≤ v2_replay, or if L_harm_all > 0.10; passes ONLY when
+every pre-declared numeric gate passes · compatibility artifact file-hash preflight FAILS on missing path or sha mismatch ·
+both CLIs fail-closed AFTER a full preflight (HEAD==commit, clean worktree, output absent, env-lock/artifact hashes) and
+BEFORE any heavy import / DEV read / output write (tests assert `torch`/`cmi` never enter sys.modules).
 
 ## 8. B1 SIGN-OFF (the only thing that unlocks real training)
 B1 authorizes all-DEV substrate regeneration EXACTLY as specified by: this file + `run_regen_substrate.py` +

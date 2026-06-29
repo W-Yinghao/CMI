@@ -34,6 +34,16 @@ def run(substrate_manifest_path, output):
     _verify_clean(root)
     if os.path.exists(output):
         raise FileExistsError(f"output dir already exists (no overwrite): {output}")
+    for d in ("PD", "SCZ"):                                           # trained-artifact file-hash preflight (no torch/DEV)
+        sd = spec["substrates"][d]
+        for path_key, sha_key in (("encoder_checkpoint_path", "encoder_checkpoint_sha256"),
+                                  ("source_state_path", "source_state_sha256")):
+            p = sd[path_key]
+            if not os.path.isfile(p):
+                raise FileNotFoundError(f"{d}: substrate artifact missing: {p}")
+            got = _sha256_file(p)
+            if got != sd[sha_key]:
+                raise ValueError(f"{d}: {path_key} sha mismatch ({got} != {sd[sha_key]})")
     report = {"input_manifest_sha256": input_manifest_sha256, "candidate": RS.FIXED_CANDIDATE,
               "pass_line": {"coverage_min": RS.COVERAGE_MIN, "budget": RS.BUDGET, "alpha": RS.ALPHA,
                             "v2_replay": "HARD requirement (no waiver)"},

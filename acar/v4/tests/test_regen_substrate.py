@@ -3,12 +3,27 @@ the pre-registered numeric compatibility-replay pass-line. NO retrain, NO torch/
 python -m acar.v4.tests.test_regen_substrate
 """
 import copy  # noqa: F401  (kept for fixture deep-copies if needed)
+import hashlib
 import json
 import os
 import shutil
+import sys
 import tempfile
 
 from acar.v4 import regen_substrate as R
+from acar.v4 import regen_envlock as EL
+
+
+def _fsha(path):
+    return hashlib.sha256(open(path, "rb").read()).hexdigest()
+
+
+def _captured_lock(commit, pipeline_sha):
+    lk = EL.schema_only_template(protocol_commit=commit, pipeline_config_sha256=pipeline_sha)
+    lk.update(status="CAPTURED_AND_VERIFIED", python_version="3.13.7", torch_version="2.6.0+cu124",
+              braindecode_version="0.8.1", numpy_version="2.4.4", scipy_version="1.17.0", sklearn_version="1.5.0",
+              device_kind="cpu", device_name="cpu")
+    return lk
 
 
 def _expect(exc, fn):
@@ -45,9 +60,13 @@ def test_validate_substrate_request():
         # pipeline mismatch
         _expect(ValueError, lambda: R.validate_substrate_request("PD", list(R.DEV_SCOPE["PD"]), out, env_lock_path=env,
                                                                  pipeline_config={**R.FROZEN_PIPELINE, "resample_fs": 250}))
-        # seed != 0
-        _expect(ValueError, lambda: R.validate_substrate_request("PD", list(R.DEV_SCOPE["PD"]), out, seed=1,
-                                                                 env_lock_path=env))
+        # seed STRICT int 0 (reject bool / "0" / 0.0 / 0.9)
+        for s in (1, True, False, "0", 0.0, 0.9):
+            _expect(ValueError, lambda s=s: R.validate_substrate_request("PD", list(R.DEV_SCOPE["PD"]), out, seed=s,
+                                                                         env_lock_path=env))
+        # pipeline EXACT match (extra key rejected)
+        _expect(ValueError, lambda: R.validate_substrate_request("PD", list(R.DEV_SCOPE["PD"]), out, env_lock_path=env,
+                                                                 pipeline_config={**R.FROZEN_PIPELINE, "extra": 1}))
         # env lock missing
         _expect(ValueError, lambda: R.validate_substrate_request("PD", list(R.DEV_SCOPE["PD"]), out,
                                                                  env_lock_path=os.path.join(base, "nope.json")))
@@ -109,20 +128,27 @@ def test_compatibility_replay_pass():
 
 # ----------------------------------------------------------------------------- frozen command-contract manifests + CLIs
 
-def _regen_manifest(base, disease="PD", cohorts=None, **over):
-    env = os.path.join(base, "regen_env_lock.json")
-    with open(env, "w") as f:
-        f.write("{}")
+def _regen_manifest(base, disease="PD", cohorts=None, lock_status="CAPTURED_AND_VERIFIED", break_env_sha=False, **over):
     cohorts = list(R.DEV_SCOPE[disease]) if cohorts is None else list(cohorts)
-    m = {"protocol_commit": "a" * 40, "repo_clean_required": True, "disease": disease, "dev_cohorts": cohorts,
+    pcfg = R.canonical_pipeline_config_sha256()
+    commit = over.get("protocol_commit", "a" * 40)
+    if lock_status == "CAPTURED_AND_VERIFIED":
+        lk = _captured_lock(commit, pcfg)
+    else:
+        lk = EL.schema_only_template(protocol_commit=commit, pipeline_config_sha256=pcfg)
+    env = os.path.join(base, f"regen_env_{disease}.json")
+    with open(env, "w") as f:
+        json.dump(lk, f)
+    env_sha = "0" * 64 if break_env_sha else _fsha(env)
+    m = {"protocol_commit": commit, "repo_clean_required": True, "disease": disease, "dev_cohorts": cohorts,
          "source_kind": "canonical_features", "source_paths": {c: base for c in cohorts},
-         "subject_list_sha256": "b" * 64, "diagnosis_label_sha256": "b" * 64, "pipeline_config_sha256": "b" * 64,
-         "env_lock_path": env, "env_lock_sha256": "b" * 64, "seed": 0}
+         "subject_list_sha256": "b" * 64, "diagnosis_label_sha256": "b" * 64, "pipeline_config_sha256": pcfg,
+         "env_lock_path": env, "env_lock_sha256": env_sha, "seed": 0}
     m.update(over)
-    p = os.path.join(base, "regen.json")
+    p = os.path.join(base, f"regen_{disease}.json")
     with open(p, "w") as f:
         json.dump(m, f)
-    return p, os.path.join(base, "out")
+    return p, os.path.join(base, f"out_{disease}")
 
 
 def test_validate_regen_manifest():
@@ -137,8 +163,10 @@ def test_validate_regen_manifest():
         _expect(ValueError, lambda: bad(cohorts=["ds002778", "ds003490", "ds007526"]))        # external id in scope
         _expect(ValueError, lambda: bad(cohorts=["ds002778", "ds003490"]))                     # wrong scope
         _expect(ValueError, lambda: bad(source_kind="bogus"))                                  # bad source_kind
-        _expect(ValueError, lambda: bad(seed=1))                                               # seed != 0
+        for s in (1, True, "0", 0.0):
+            _expect(ValueError, lambda s=s: bad(seed=s))                                       # seed STRICT int 0
         _expect(ValueError, lambda: bad(subject_list_sha256="short"))                          # bad hash
+        _expect(ValueError, lambda: bad(pipeline_config_sha256="b" * 64))                      # != canonical FROZEN hash
         _expect(ValueError, lambda: bad(source_paths={"ds002778": "rel/path"}))                # rel + key mismatch
     finally:
         shutil.rmtree(base, ignore_errors=True)
@@ -186,8 +214,9 @@ def test_run_regen_substrate_fail_closed():
     try:
         RRS._git = _fake_git()
         p, out = _regen_manifest(base)
-        _expect(R.SubstrateTrainingNotAuthorizedError, lambda: RRS.run(p, out))                # preflight passes → gated
+        _expect(R.SubstrateTrainingNotAuthorizedError, lambda: RRS.run(p, out))                # full preflight passes → gated
         assert not os.path.exists(out)                                                          # nothing written
+        assert "torch" not in sys.modules and "cmi" not in sys.modules                         # no heavy import on this path
         # manifest defects raise BEFORE the gate (and before git, where applicable)
         pe, oe = _regen_manifest(base, cohorts=["ds002778", "ds003490", "ds007526"])
         _expect(ValueError, lambda: RRS.run(pe, oe))                                            # external id
@@ -198,11 +227,33 @@ def test_run_regen_substrate_fail_closed():
         _expect(ValueError, lambda: RRS.run(pd_, od_))                                          # dirty worktree
         RRS._git = _fake_git()
         pen, oen = _regen_manifest(base, env_lock_path=os.path.join(base, "nope.json"))
-        _expect(ValueError, lambda: RRS.run(pen, oen))                                          # env lock missing
+        _expect(ValueError, lambda: RRS.run(pen, oen))                                          # env lock file missing
+        pbs, obs = _regen_manifest(base, break_env_sha=True)
+        _expect(ValueError, lambda: RRS.run(pbs, obs))                                          # env_lock_sha256 mismatch
+        pso, oso = _regen_manifest(base, lock_status="SCHEMA_ONLY_NOT_CAPTURED")
+        _expect(ValueError, lambda: RRS.run(pso, oso))                                          # SCHEMA_ONLY rejected
         px, ox = _regen_manifest(base, disease="SCZ"); os.makedirs(ox + "_x")
         _expect(FileExistsError, lambda: RRS.run(px, ox + "_x"))                                # output exists
+        assert "torch" not in sys.modules                                                       # still no torch
     finally:
         RRS._git = saved; shutil.rmtree(base, ignore_errors=True)
+
+
+def _sub_manifest_files(base, *, missing=False, break_sha=False):
+    subs = {}
+    for d in ("PD", "SCZ"):
+        enc = os.path.join(base, f"enc_{d}.pt"); ss = os.path.join(base, f"ss_{d}.npz")
+        if not missing:
+            with open(enc, "wb") as f:
+                f.write(("enc-" + d).encode())
+            with open(ss, "wb") as f:
+                f.write(("ss-" + d).encode())
+        enc_sha = "0" * 64 if break_sha else (_fsha(enc) if not missing else "b" * 64)
+        ss_sha = _fsha(ss) if not missing else "b" * 64
+        subs[d] = {"encoder_checkpoint_path": enc, "encoder_checkpoint_sha256": enc_sha,
+                   "source_state_path": ss, "source_state_sha256": ss_sha,
+                   "encoder_provenance_path": enc + ".prov.json", "source_state_provenance_path": ss + ".prov.json"}
+    return _sub_manifest(substrates=subs)
 
 
 def test_run_substrate_compatibility_fail_closed():
@@ -211,15 +262,24 @@ def test_run_substrate_compatibility_fail_closed():
     base = tempfile.mkdtemp(); saved = RRS._git
     try:
         RRS._git = _fake_git()
-        p = os.path.join(base, "sub.json"); out = os.path.join(base, "compat_out")
+        out = os.path.join(base, "compat_out")
+        p = os.path.join(base, "sub_ok.json")
         with open(p, "w") as f:
-            json.dump(_sub_manifest(), f)
+            json.dump(_sub_manifest_files(base), f)                                             # real artifacts + sha
         _expect(R.SubstrateCompatibilityNotAuthorizedError, lambda: RSC.run(p, out))            # preflight passes → gated
-        assert not os.path.exists(out)
+        assert not os.path.exists(out) and "torch" not in sys.modules
         pb = os.path.join(base, "sub_bad.json")
         with open(pb, "w") as f:
             json.dump(_sub_manifest(candidate={"x": 1}), f)
         _expect(ValueError, lambda: RSC.run(pb, out))                                           # reselection → before gate
+        pm = os.path.join(base, "sub_missing.json")
+        with open(pm, "w") as f:
+            json.dump(_sub_manifest_files(os.path.join(base, "nope"), missing=True), f)
+        _expect(FileNotFoundError, lambda: RSC.run(pm, out))                                    # artifact path missing
+        ps = os.path.join(base, "sub_shabad.json")
+        with open(ps, "w") as f:
+            json.dump(_sub_manifest_files(base, break_sha=True), f)
+        _expect(ValueError, lambda: RSC.run(ps, out))                                           # artifact sha mismatch
     finally:
         RRS._git = saved; shutil.rmtree(base, ignore_errors=True)
 

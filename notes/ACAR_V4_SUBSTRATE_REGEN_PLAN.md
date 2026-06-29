@@ -39,8 +39,10 @@ held-out (NEVER): zenodo14808296 (SCZ), ds007526 (PD) — external; not touched 
 ```
 config          : erm:0 (the CITA-no-LPC ERM encoder used by the DEV substrate)
 seed            : 0 (deterministic: use_deterministic_algorithms, single-thread, seeded py/np/torch)
-env             : eeg2025 conda (torch); pin an env lock for the regen run (mirror acar/v3/envlock.py discipline) and record
-                  torch/braindecode/numpy versions + determinism flags in the artifact provenance.
+env             : eeg2025 conda (torch); pin a regen env lock via acar/v4/regen_envlock.py (schema + validator + canonical
+                  hash implemented; status SCHEMA_ONLY_NOT_CAPTURED until a real CAPTURED_AND_VERIFIED capture on the
+                  training node at B1). Records torch/braindecode/numpy/scipy/sklearn + CUDA/cuDNN + PINNED device +
+                  determinism + seed 0 + threads. run_regen_substrate requires CAPTURED_AND_VERIFIED + file-hash match.
 ```
 
 ## 4. Training command (a NEW, declared, ADD-ONLY step — the original pipeline has no save)
