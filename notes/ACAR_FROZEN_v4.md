@@ -1,21 +1,23 @@
-# ACAR_FROZEN_v4.md — v4 (CURB) candidate freeze **(DRAFT — TAG-READY EXCEPT §4; NOT YET TAGGED)**
+# ACAR_FROZEN_v4.md — v4 (CURB) candidate freeze **(DRAFT — §4 AUDITED + CLI IMPLEMENTED; NOT YET TAGGED)**
 
 ```
-STATE         : DRAFT — binding ONLY when committed AND tagged `acar-v4-protocol` after sign-off AND §4 is filled
+STATE         : DRAFT — binding ONLY when committed AND tagged `acar-v4-protocol` after sign-off
 LINEAGE       : v2 MEASUREMENT_ONLY (9b2f0c1) · v3 DEV_STOP (817b04f/9f4e83f) · v4 DEV candidate (e4c4e91, EXPLORATORY)
 EXTERNAL ARM  : NOT RUN — authorized only AFTER tag + sign-off
 LOCKBOX       : SEALED / NOT CONSUMED
 §4 HELD-OUT LIST : AUDITED + FILLED (metadata-only, notes/ACAR_V4_LOCKBOX_AUDIT.md) — admissible: (zenodo14808296,SCZ),
                    (ds007526,PD), both single-site; ASZED provisional; ds007020 excluded
-REMAINING BLOCKERS TO TAG : (1) implement the unique external Arm-B CLI + preflight/synthetic guards; (2) commit CLI +
-                   this final protocol together; (3) clean-process guard run + clean worktree; (4) sign-off; THEN tag
-                   `acar-v4-protocol` on that commit; external read only after.
+EXTERNAL CLI  : IMPLEMENTED — acar/v4/run_external_armb.py (+ acar/v4/external_adapter.py); synthetic/preflight guards
+                   acar/v4/tests/test_external_armb.py (11 green); committed WITH this protocol (binding execution path).
+REMAINING BLOCKERS TO TAG : (1) clean-process guard run of all v4 suites + clean worktree; (2) sign-off; THEN tag
+                   `acar-v4-protocol` on that commit; the single external read happens only after via the CLI.
 DATE          : 2026-06-29
 ```
 
 Freezes the single v4 candidate from `notes/ACAR_V4_CANDIDATE_SELECTION.md` (DEV exploration #001,
-`results/acar_v4_dev_exploration_001/`). Everything except §4 is now specified to tag-ready precision (the protocol text
-itself is auditable; it does not merely point at code). v4 never edits the frozen v2/v3 commits or tags.
+`results/acar_v4_dev_exploration_001/`). The protocol text is auditable on its own; the binding execution path is the
+committed CLI (`acar/v4/run_external_armb.py`), frozen together with this document under the `acar-v4-protocol` tag.
+v4 never edits the frozen v2/v3 commits or tags.
 
 ## 1. Fixed substrate (inherited, unchanged)
 Estimand `ΔR_a(B) = R_B(f_a) − R_B(f_0)` (NLL, paired, label-free at deployment; ΔR<0 = good). Actions `[identity,
@@ -137,12 +139,21 @@ Runner preflight (metadata-only, before any signal read): re-confirm ds007526 ch
 Zenodo id↔diagnosis mapping, and no re-released/derived subject overlap with the seven DEV cohorts; any stratum failing
 the split-feasibility or label checks is reported NOT_EVALUABLE (never silently dropped).
 
-## 5. Execution discipline (after tag)
-A unique external Arm-B CLI (mirroring v3's `run_dev_binding` preflight): output-dir absent + atomic claim, HEAD ==
-protocol commit, tag → HEAD, clean worktree, file/record hashes, env-lock runtime, then a single confirmatory pass →
-`results/acar_v4_external_001/`. No threshold/seed/loss/registry/grid change after the external read starts.
+## 5. Execution discipline + leakage firewall (CLI = acar/v4/run_external_armb.py)
+The unique external Arm-B CLI mirrors v3's `run_dev_binding` preflight (FAIL-CLOSED, no bypass): manifest schema
+(admissible §4 strata only — ASZED/ds007020/DEV rejected), output-dir absent + atomic `os.mkdir` claim, HEAD ==
+protocol commit, tag `acar-v4-protocol` → HEAD, clean worktree, per-dump SHA-256, env-lock runtime; THEN a single
+confirmatory pass (`evaluate_stratum` per stratum → `external_taxonomy`) → `results/acar_v4_external_001/`
+(manifest.json + RESULT.json sentinel; allow_nan=False). No threshold/seed/loss/registry/grid change after the read
+starts; a killed/partial run is OPERATIONALLY_ABORTED (cleanup the claimed dir).
+
+**Leakage firewall (binding).** External diagnosis labels enter ONLY (a) CAL λ* selection and (b) EVAL endpoint
+scoring. They MUST NOT enter f_0 / source-state fitting (the source state is the DEV-frozen artifact; external labels
+never refit it), adapter execution, the label-free `features_v2`, or the action choice before scoring. EVAL labels never
+affect λ*; CAL labels affect λ* but never the `score_family` outputs. The v2-replay comparator (§3b) fits/calibrates on
+subject-disjoint C0_FIT/C0_CAL drawn from CAL only — never EVAL.
 
 ## 6. Status
-DRAFT. Binding only when (i) §4 filled from the audit, (ii) committed, (iii) tagged `acar-v4-protocol`, (iv) signed off.
-v4's authoritative status is EXPLORATORY_CANDIDATE (Evidence Ledger A6) until a `V4_EXTERNAL_CONFIRMED` exists. Never edit
-`9b2f0c1`, `817b04f`, `9f4e83f`, or any v3 result.
+DRAFT. Binding only when (i) committed (§4 audited + CLI included — done), (ii) all v4 suites green on a clean worktree,
+(iii) tagged `acar-v4-protocol`, (iv) signed off. v4's authoritative status is EXPLORATORY_CANDIDATE (Evidence Ledger
+A6) until a `V4_EXTERNAL_CONFIRMED` exists. Never edit `9b2f0c1`, `817b04f`, `9f4e83f`, or any v3 result.
