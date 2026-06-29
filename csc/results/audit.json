@@ -1,7 +1,7 @@
 {
   "status": "CSC-P1.4.5 DEVELOPMENT \u2014 frozen-path audit; NO P1.5 PRODUCTION SWEEP, NO FREEZE, NO CONFIRMATORY, NO P2. Inference procedure CHANGED vs P1.4.4 -> these are NEW-METHOD development numbers, NOT poolable with prior rounds for confidence intervals.",
-  "audited_code_commit": "becf662c04115abc8733ce7590c7f436cd46b208",
-  "audited_code_commit_short": "becf662",
+  "audited_code_commit": "dde82f36e18263783ec4ba33b34193efa8342322",
+  "audited_code_commit_short": "dde82f3",
   "branch": "csc",
   "git_status_clean_csc": true,
   "protocol_manifest": {
@@ -85,10 +85,10 @@
   },
   "environment_hash": "0adfb7b2ad0ec46c",
   "exact_command": "/home/infres/yinwang/CMI_AAAI_csc/csc/run_audit.py --out csc/results/audit.json --seeds 10 --n_boot 40 --n_dir_boot 120 --target_n_boot 120 --oracle_boot 150 --bank_seeds 4",
-  "slurm_job_id": "876152",
-  "hostname": "nodecpu07",
-  "start_time": "2026-06-29T21:34:03",
-  "end_time": "2026-06-29T22:16:13",
+  "slurm_job_id": "876208",
+  "hostname": "nodecpu09",
+  "start_time": "2026-06-29T22:26:28",
+  "end_time": "2026-06-29T23:43:15",
   "seed_provenance": "DEVELOPMENT (used during iteration; NOT confirmatory). A frozen confirmatory run requires a separate, previously-unseen seed set.",
   "tests": {
     "test_design_and_pairs": {
@@ -536,9 +536,9 @@
       }
     ],
     "full_residual_test_duplication_invariance": {
-      "T_before": 0.0047507380912473526,
-      "T_after": 0.004750738091247203,
-      "abs_delta_T": 1.491862189340054e-16,
+      "T_before": 0.004750738091247297,
+      "T_after": 0.004750738091247143,
+      "abs_delta_T": 1.5439038936193583e-16,
       "p_before": 0.0975609756097561,
       "p_after": 0.0975609756097561,
       "abs_delta_p": 0.0,
