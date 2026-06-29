@@ -33,7 +33,8 @@ from dataclasses import replace
 import numpy as np
 
 from ..score_fisher import (_metric, _SplitPlan, _GatePlan, _nested_residual_score,
-                            _plugin_logratio_score, _one_sided_bound, _intrinsic_coords)
+                            _plugin_logratio_score, _stacked_logratio_score, _one_sided_bound,
+                            _intrinsic_coords)
 from .bayes_oracle import bayes_conditional_task_delta, classify_safety, logpost_true_label
 
 
@@ -128,7 +129,8 @@ def _critic_ucb(u, n, y, n_cls, cfg, seed, cluster_id=None):
         return None
     gplan = _GatePlan(plan, seed + 5)
     task_cfg = replace(cfg, hidden=cfg.task_gate_hidden, epochs=cfg.task_gate_epochs)
-    score = (_plugin_logratio_score if cfg.task_estimator == "plugin" else _nested_residual_score)
+    score = {"plugin": _plugin_logratio_score, "stacked": _stacked_logratio_score,
+             "nested": _nested_residual_score}[cfg.task_estimator]
     dY, _ = score(u, n, y, n_cls, task_cfg, gplan, seed + 100, restarts=cfg.task_gate_restarts)
     return float(_one_sided_bound(dY[:, None], cluster_id, cfg.gate_alpha, "upper",
                                   cfg.gate_boot, seed + 60, cfg.boot_estimand)[0])

@@ -48,6 +48,7 @@ def _binom_ucb(k, n, z=1.64):
     return min(1.0, (centre + half) / denom)
 
 G1, G2, G3, G4 = 20000, 30000, 40000, 50000
+DEV = 70000                      # Phase 1.3.5 stacking DEVELOPMENT seeds (disjoint from cert)
 R_CERT, BETA, N_DOM, BASE_SEP, SIGMA = 50, 0.2, 6, 1.5, 1.0
 CERT_DIR = "tos_cmi/results/cert_cells"
 
@@ -91,9 +92,25 @@ def _decision_sweep(gen, delta_Y, table, seed_base, n_seeds, candidate_modes):
     return dict(cnt), dict(reasons), (min(bayes_vals, default=0.0), max(bayes_vals, default=0.0))
 
 
+def dev_compare(delta_Y, n_eff, d_base, d_extra, n_cls, R=30, folds=3, epochs=300, restarts=1):
+    """Phase 1.3.5 DEVELOPMENT (DEV seeds, moderate config): plug-in vs STACKED boundary detection
+    at Δ*=δ_Y. Quick check of whether stacking pushes ~0.80 -> ~0.90 before any heavy cert."""
+    base = DEV + 7 * n_eff + d_base + d_extra
+    out = {"delta_Y": delta_Y, "n_eff": n_eff, "d_base": d_base, "d_extra": d_extra, "R": R}
+    for est in ("plugin", "stacked"):
+        cfg = replace(_cfg(delta_Y), task_estimator=est, task_gate_folds=folds,
+                      task_gate_epochs=epochs, task_gate_restarts=restarts)
+        r = estimate_power(delta_Y, d_base, d_extra, n_eff, n_cls, N_DOM, BASE_SEP, SIGMA, cfg,
+                           R=R, seed=base, geom_seed=base + 13)
+        out[est] = {"det": r["det"], "lcb": round(r["lcb"], 3), "oracle_det": r["det_oracle"],
+                    "oracle_lcb": round(r["lcb_oracle"], 3), "delta_real": round(r["delta_real"], 4)}
+    return out
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--confirm", default="", help="'delta_Y,n_eff,d_base,d_extra,n_cls' (G2)")
+    ap.add_argument("--dev", default="", help="'delta_Y,n_eff,d_base,d_extra,n_cls' (1.3.5 plug-in vs stacked)")
     ap.add_argument("--inject", default="", help="delta_Y (G3: oracle-injected unsafe synergy grid)")
     ap.add_argument("--safe", default="", help="delta_Y (G4: factorized safe controls)")
     ap.add_argument("--table", default="tos_cmi/results/cert_table.json", help="G1 cert table")
@@ -101,6 +118,16 @@ def main():
     ap.add_argument("--out", default="")
     args = ap.parse_args()
     os.makedirs(CERT_DIR, exist_ok=True)
+    if args.dev:
+        dY, ne, db, de, nc = args.dev.split(",")
+        r = dev_compare(float(dY), int(ne), int(db), int(de), int(nc))
+        with open(args.out or "%s/dev_%s_%s_%s_%s_%s.json" % (CERT_DIR, dY, ne, db, de, nc), "w") as f:
+            json.dump(r, f, indent=1)
+        print("DEV dY=%.3f (%sx%s) | plugin %d/%d (LCB %.2f) | STACKED %d/%d (LCB %.2f) | oracle %d/%d (%.2f)"
+              % (r["delta_Y"], db, de, r["plugin"]["det"], r["R"], r["plugin"]["lcb"],
+                 r["stacked"]["det"], r["R"], r["stacked"]["lcb"], r["plugin"]["oracle_det"],
+                 r["R"], r["plugin"]["oracle_lcb"]), flush=True)
+        print("CERT_DEV_DONE"); return
     if args.confirm:
         dY, ne, db, de, nc = args.confirm.split(",")
         r = confirm_boundary(float(dY), int(ne), int(db), int(de), int(nc))

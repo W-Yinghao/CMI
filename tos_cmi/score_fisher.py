@@ -809,12 +809,70 @@ def estimator_fingerprint(cfg):
     fingerprint, so a table built for one config can never 'certify' a different run-time estimator
     (Phase 1.3.3a). Covers everything that moves the power curve: estimator, capacity, optimization,
     folds, alpha grid, floor, bootstrap, threshold, code version."""
-    return {"code_version": TASK_ESTIMATOR_CODE_VERSION, "task_estimator": cfg.task_estimator,
-            "task_gate_hidden": int(cfg.task_gate_hidden), "task_gate_epochs": int(cfg.task_gate_epochs),
-            "task_gate_restarts": int(cfg.task_gate_restarts), "task_gate_folds": int(cfg.task_gate_folds),
-            "probe_family": cfg.probe_family, "gate_alpha": float(cfg.gate_alpha),
-            "gate_boot": int(cfg.gate_boot), "boot_estimand": cfg.boot_estimand,
-            "delta_Y": float(cfg.delta_Y), "alpha_grid": list(PLUGIN_ALPHA_GRID), "floor": PLUGIN_FLOOR}
+    fp = {"code_version": TASK_ESTIMATOR_CODE_VERSION, "task_estimator": cfg.task_estimator,
+          "task_gate_hidden": int(cfg.task_gate_hidden), "task_gate_epochs": int(cfg.task_gate_epochs),
+          "task_gate_restarts": int(cfg.task_gate_restarts), "task_gate_folds": int(cfg.task_gate_folds),
+          "probe_family": cfg.probe_family, "gate_alpha": float(cfg.gate_alpha),
+          "gate_boot": int(cfg.gate_boot), "boot_estimand": cfg.boot_estimand,
+          "delta_Y": float(cfg.delta_Y), "alpha_grid": list(PLUGIN_ALPHA_GRID), "floor": PLUGIN_FLOOR}
+    if cfg.task_estimator == "stacked":                      # the stacking library is part of the
+        fp["stack_library"] = [list(x) for x in STACK_LIBRARY]   # estimator identity
+        fp["stack_ridge"] = STACK_RIDGE
+    return fp
+
+
+STACK_LIBRARY = (("linear", 0), ("quad", 0), ("mlp", 64), ("mlp", 256))  # complementary, small
+STACK_RIDGE = 1e-3              # tiny shrink-to-uniform on stacking weights (fixed, pre-set)
+
+
+def _em_simplex_weights(py_cols, iters=300, ridge=STACK_RIDGE):
+    """Convex stacking weights minimizing held-in NLL  -sum_i log(sum_m w_m p_m(y_i)) over the
+    simplex, by the classic EM mixture-weight update (monotone in likelihood, stays on simplex).
+    py_cols [N, M] = prob of the TRUE label under each base learner on the calibration set. NOT
+    maximizing theta_hat (that would bake estimator-selection bias into the gate)."""
+    M = py_cols.shape[1]; w = np.full(M, 1.0 / M)
+    pc = np.clip(py_cols, 1e-12, 1.0)
+    for _ in range(iters):
+        resp = pc * w[None, :]; resp /= resp.sum(1, keepdims=True)
+        w = resp.mean(0) + ridge / M; w /= w.sum()
+    return w
+
+
+def _stacked_logratio_score(base, extra, target, n_out, cfg, gplan, seed, restarts=1, floor=1e-6):
+    """Phase 1.3.5 STACKED one-step log-ratio: same estimand as the plug-in (s = log q1 - log q0)
+    but q0(Y|U) and q1(Y|U,N) are CONVEX STACKS (probability level) over a complementary base
+    library (STACK_LIBRARY), weights by EM-on-inner-val NLL. q1's candidate set INCLUDES q0_stack
+    (weight b0), so it reduces to q0 when the deleted coord carries no incremental info (low FP)
+    and lets full-input learners take over on synergy. Outer fold scored ONCE."""
+    N = len(target); s = np.zeros(N); bd, ed = base.shape[1], extra.shape[1]
+    Zc = np.concatenate([base, extra], 1)
+    tgt = np.asarray(target)
+    def tlab(P, idx): return P[idx][np.arange(len(idx)), tgt[idx]]
+    b0s = []; q0o = []; q1o = []; clip = 0; cnt = 0; maxabs = 0.0
+    for (tr, hold, itr, iva, iseed) in gplan.folds:
+        q0P, q1P = [], []
+        for j, (fam, hid) in enumerate(STACK_LIBRARY):
+            lc = replace(cfg, probe_family=fam, hidden=(hid or cfg.hidden))
+            P0, _ = _train_calibrated(bd, n_out, base, target, lc, iseed + 5 + 11 * j, itr, iva, restarts)
+            P1, _ = _train_calibrated(bd + ed, n_out, Zc, target, lc, iseed + 105 + 11 * j, itr, iva, restarts)
+            q0P.append(P0); q1P.append(P1)
+        iv = np.asarray(iva); h = np.asarray(hold)
+        a = _em_simplex_weights(np.stack([tlab(P, iv) for P in q0P], 1))
+        q0_stack = sum(a[m] * q0P[m] for m in range(len(q0P)))
+        cand = [q0_stack] + q1P
+        b = _em_simplex_weights(np.stack([tlab(P, iv) for P in cand], 1))
+        q1_stack = sum(b[m] * cand[m] for m in range(len(cand)))
+        p0h = np.clip(tlab(q0_stack, h), floor, 1.0); p1h = np.clip(tlab(q1_stack, h), floor, 1.0)
+        clip += int(((p0h <= floor) | (p1h <= floor)).sum()); cnt += len(h)
+        sh = np.log(p1h) - np.log(p0h); s[h] = sh
+        maxabs = max(maxabs, float(np.abs(sh).max()) if len(sh) else 0.0)
+        b0s.append(float(b[0])); q0o.append(float(-np.log(p0h).mean())); q1o.append(float(-np.log(p1h).mean()))
+    m = lambda x: float(np.mean(x)) if x else 0.0
+    return s, {"alpha": 1.0 - m(b0s),       # 'alpha' analog = weight NOT on q0 (full-model share)
+               "stack_b0": m(b0s), "q0_nll_outer": m(q0o), "q1_nll_outer": m(q1o),
+               "q0_nll_inner": 0.0, "q1_nll_inner": 0.0,
+               "q0_clip_fraction": clip / max(cnt, 1), "q1_clip_fraction": clip / max(cnt, 1),
+               "max_abs_log_ratio": maxabs}
 
 
 _REASONS = ("ACCEPTED", "NO_CANDIDATE", "DOMAIN_GATE_CLOSED", "DOMAIN_GAIN_TOO_SMALL",
@@ -869,26 +927,28 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
     try:
         # TASK arm: cross-fitted EFFICIENT log-ratio plug-in (DECISION) + nested residual
         # (DIAGNOSTIC), both on intrinsic coords -> delta_Y(k) = I(Y; deleted | kept).
-        dY_plug, dY_nest, pdiag, ndiag, dims = [], [], [], [], []
+        # DECISION estimator dispatch: plugin (1.3.3) | stacked (1.3.5) | nested (diagnostic).
+        _dec = {"plugin": _plugin_logratio_score, "stacked": _stacked_logratio_score,
+                "nested": _nested_residual_score}[cfg.task_estimator]
+        dY_dec, dY_nest, pdiag, ndiag, dims = [], [], [], [], []
         for k in range(1, Kv + 1):
             u, n = _intrinsic_coords(Zg, Ps[k - 1])
             dims.append((u.shape[1], n.shape[1]))            # (d_base, d_extra) for power lookup
-            sp, dgp = _plugin_logratio_score(u, n, yg, n_cls, task_cfg, gplan_t, seed + 100 + k,
-                                             restarts=cfg.task_gate_restarts)
+            sp, dgp = _dec(u, n, yg, n_cls, task_cfg, gplan_t, seed + 100 + k,
+                           restarts=cfg.task_gate_restarts)
             dnk, dgn = _nested_residual_score(u, n, yg, n_cls, task_cfg, gplan_t, seed + 200 + k,
                                               "nll", restarts=cfg.task_gate_restarts)
-            dY_plug.append(sp); dY_nest.append(dnk); pdiag.append(dgp); ndiag.append(dgn)
-        dY_plug = np.stack(dY_plug, 1); dY_nest = np.stack(dY_nest, 1)
+            dY_dec.append(sp); dY_nest.append(dnk); pdiag.append(dgp); ndiag.append(dgn)
+        dY_dec = np.stack(dY_dec, 1); dY_nest = np.stack(dY_nest, 1)
         # DOMAIN arm: calibrated q0 once, residual per prefix (Brier) -- keeps the selector folds
         br0, q0cache = _domain_q0(dg, yg_oh, n_dom, n_cls, cfg, gplan, seed + 30)
         dD = np.stack([br0 - _domain_residual_brier(Zg @ Ps[k - 1].T, dg, yg_oh, q0cache,
                        n_dom, n_cls, cfg, seed + 40 + k) for k in range(1, Kv + 1)], 1)
     except (np.linalg.LinAlgError, KeyError):
         return 0, [], "NUMERICAL_FAILURE"
-    ucb_plug = _one_sided_bound(dY_plug, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot, seed + 60, cfg.boot_estimand)
+    ucb_dec = _one_sided_bound(dY_dec, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot, seed + 60, cfg.boot_estimand)
     ucb_nest = _one_sided_bound(dY_nest, cluster_id, cfg.gate_alpha, "upper", cfg.gate_boot, seed + 65, cfg.boot_estimand)
-    dY = dY_plug if cfg.task_estimator == "plugin" else dY_nest      # DECISION estimator
-    ucb_Y = ucb_plug if cfg.task_estimator == "plugin" else ucb_nest
+    dY = dY_dec; ucb_Y = ucb_dec                              # DECISION estimator (dispatched)
     lcb_D = _one_sided_bound(dD, cluster_id, cfg.gate_alpha, "lower", cfg.gate_boot, seed + 70, cfg.boot_estimand)
     n_eff = len(Zg)
     n_clusters = int(len(np.unique(cluster_id))) if cluster_id is not None else n_eff
@@ -924,10 +984,11 @@ def ucb_rank_gate(Zg, yg, dg, V_cand, M, n_cls, n_dom, cfg, seed, cluster_id=Non
                         "probe_task_gain_ucb": float(ucb_Y[i]),
                         "task_ucb": float(ucb_Y[i]),  # back-compat alias
                         "task_estimator": cfg.task_estimator,
-                        # plug-in (deployed, Phase 1.3.3) and nested (diagnostic) side by side
-                        "task_plugin_mean": float(dY_plug[:, i].mean()),
-                        "task_plugin_ucb": float(ucb_plug[i]),
+                        # DECISION estimator (plugin/stacked) diag + nested (diagnostic) side by side
+                        "task_plugin_mean": float(dY_dec[:, i].mean()),
+                        "task_plugin_ucb": float(ucb_dec[i]),
                         "task_plugin_alpha": pdiag[i]["alpha"],
+                        "task_plugin_stack_b0": pdiag[i].get("stack_b0"),
                         "task_plugin_q0_nll_outer": pdiag[i]["q0_nll_outer"],
                         "task_plugin_q1_nll_outer": pdiag[i]["q1_nll_outer"],
                         "task_plugin_q0_nll_inner": pdiag[i]["q0_nll_inner"],
