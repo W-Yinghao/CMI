@@ -38,6 +38,41 @@ Certification caveat (recorded): with domain==cluster==subject under LOSO, group
 cover all subjects per fold → FOLD_COVERAGE_FAILURE → certified (group-aware) selective deletion is
 infeasible in this regime; the exploratory diagnostic uses trial-level folds.
 
-## RUNNING: full first round (seed 0, all 9 LOSO folds, λ sweep, 300 epochs)
-jobs 875421-875429. To fill once complete: collapse-vs-λ curve, ERM score-Fisher decision across
-folds, ERM-vs-LPC feature geometry, then 3-seed stability. Pass/stop conditions in the Phase-2 plan.
+## SEED-0 RESULTS (9 LOSO folds, 300 epochs) — coherent honest result
+
+### (Q1) Global-LPC λ-fragile COLLAPSE reproduces decisively
+```
+config       tgt_bAcc src_fit labelP domAdv effrk   score-Fisher gate (9 folds, trial-level)
+ERM          0.403    0.814   0.74   0.87   169     TASK_RISK_UCB 4 / ACCEPTED 5  (task_ucb~0.035~δ_Y)
+LPC λ=0.03   0.403    0.816   0.74   0.87   169     ACCEPTED 6 / TASK_RISK_UCB 2 / NO_CAND 1
+LPC λ=0.1    0.402    0.823   0.75   0.87   169     ACCEPTED 6 / TASK_RISK_UCB 3
+LPC λ=0.3    0.402    0.821   0.75   0.87   169     ACCEPTED 6 / TASK_RISK_UCB 3
+LPC λ=1.0    0.252    0.251   0.25  -0.01   159     DOMAIN_GATE_CLOSED 9
+LPC λ=3.0    0.250    0.250   0.25  -0.01   164     DOMAIN_GATE_CLOSED 9
+```
+Sharp transition λ=0.3→1.0: at λ≥1.0 EVERYTHING collapses to chance (target & source label task &
+domain all → 0.25/−0.01). The TSMNet/2a global-LPC λ-fragility counterexample is reproduced.
+
+### (Q3,Q5) Projection ablation — domain leakage is NOT low-rank removable (the decisive test)
+ERM (16 dumps, 2 seeds): `task Z=0.75 RZ=0.74 PNZ=0.35 | domain Z=1.00 RZ=0.96 PNZ=0.82 randR=1.00`.
+Deleting the domain-rich/label-light V_D PRESERVES the task (Δtask≈0, PNZ≈chance → V_D label-light
+out-of-sample) but BARELY removes subject leakage (1.00→0.96, ≈ removing RANDOM directions).
+Subject info is high-dim & REDUNDANT (0.82-decodable from V_D AND 0.96 from its complement). So
+NO low-rank removable nuisance subspace exists.
+
+### (Q2,Q4) Score-Fisher gate: borderline + (per ablation) vacuous
+ERM task_ucb mean ≈ δ_Y → 5/9 ACCEPT, 4/9 refuse (unstable, like the synthetic cert). The 5 accepts
+are `diagnostic_accept` (NO EEG exact-scope power certificate → certified_accept=False), and the
+ablation shows they do NOT actually remove domain → vacuous. At λ≥1.0 the gate correctly returns
+DOMAIN_GATE_CLOSED (no structure in the collapsed rep).
+
+### Synthesis (Q5)
+Domain leakage on real ERM TSMNet features is DISTRIBUTED & REDUNDANT, not concentrated in a
+low-rank task-light subspace. => low-rank selective deletion CANNOT remove it; global LPC removes it
+only by collapsing the whole representation (killing the task) — the observed λ-fragility. The TOS
+measurement framework correctly diagnoses this: borderline/vacuous selective candidates + correct
+abstention, explaining WHY global LPC collapses. This is a measurement-to-control NEGATIVE for
+deployable selective deletion here, and a positive for the diagnostic/refuse-to-delete role.
+
+### Pending: 3-seed stability (seeds 1,2 running), adversarial (domain=session vs subject;
+nonlinear-task-on-PNZ already ~chance), then write final conclusions.
