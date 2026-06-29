@@ -7,9 +7,22 @@
 
 ## Run provenance
 
+Exact command (run by the launcher):
+
+```bash
+python scripts/run_cigl_phase2_real_probe.py \
+    --dataset BNCI2014_001 \
+    --device cuda \
+    --seeds 0 1 2 \
+    --n_perm 50 \
+    --max_folds 1 \
+    --epochs 80 \
+    --probe_epochs 100 \
+    --gate_alpha 0.05
+```
+
 | field | value |
 |---|---|
-| command | `python scripts/run_cigl_phase2_real_probe.py --dataset BNCI2014_001 --device cuda --seeds 0 1 2 --n_perm 50 --max_folds 1 --epochs 80 --probe_epochs 100 --gate_alpha 0.05` |
 | launcher | `sbatch scripts/sbatch_cigl_gate2_bnci001.sh` (multi-partition `A100,V100,V100-32GB,A40`, default QOS) |
 | SLURM job id | **875880** |
 | selected partition / node | **V100** / node42 (Tesla V100-PCIE-32GB, 32 GB) — pended briefly on `QOSMaxGRESPerUser` then scheduled on V100 (A100 was heavily queued; the multi-partition list paid off) |
