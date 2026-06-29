@@ -74,16 +74,20 @@ selected `λ*` per loss. **Exploratory only.**
 
 ## 3. Direction B outputs (hierarchical calibration)
 
-The three calibration variants on the **same** policy family:
+The three calibration OBJECTS (`acar/v4/hierarchy.py`, returning a per-subject `SubjectRisk`) on the **same** policy
+family:
 
 ```
-B0  v3-style all-action joint-max conformal     (legacy comparator)
-B1  policy-only subject-aggregate conformal      (calibrate Z_s of executed policy)
-B2  hierarchical batch→subject risk control
+B0  all_action_joint_max     v3-style Z_s = max_{B} max_a score_{B,a}   (legacy comparator; responds to ALL actions)
+B1  policy_subject_risk       Z_s = mean_B ℓ(ΔR_{π(B)}, π(B))            (executed policy only; ignores unexecuted)
+B2  hierarchical_policy_risk  batch-level ℓ first → subject summary       (executed policy only; two-stage extension pt)
 ```
 
-Output per variant: `coverage`, `red`, `harm_rate`, calibrated `q`/budget, and the deployed subject-risk control
-diagnostic. The question is whether B1/B2 move the calibrated point materially up the frontier vs B0 (the v3 object).
+The decisive invariant (guarded): **B0 responds to a change in an UNEXECUTED action's risk; B1/B2 do not** — that is
+V4-B's object difference from v3 (calibrate the deployed policy's risk, not the all-action simultaneous risk). `loss ∈
+{mean, positive, harm_indicator}`; identity/fallback realize 0 and stay in the subject denominator; subject-equal,
+canonical/permutation-independent order. The DEV question is whether calibrating B1/B2 (the executed-policy object)
+moves the calibrated point materially up the frontier vs B0 (the v3 object). NOT a coverage theorem.
 
 ## 4. Direction C outputs (information frontiers — implement FIRST)
 
