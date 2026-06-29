@@ -64,6 +64,66 @@ MUST_ABSTAIN = ["clean", "pure_conditional", "label_shift", "label_covariate_mix
 SYNTHETIC_NULL_KINDS = ["covariate", "clean"]
 _FAMILY_STRIDE = 100_000                               # geom-family seed offset (axis 9)
 
+# the COMPLETE set of binding-failure reasons _concept_failure_reason can emit (FIRED + each
+# non-VALID source_status lowercased + the two gate misses + the certifier-abstain bucket). The
+# canary fails closed if a cell ever reports a reason outside this set (an unhandled fail path).
+KNOWN_DECOMP_KEYS = {
+    "FIRED", "invalid_support", "invalid_residual_null", "invalid_geometry_null",
+    "unassessed_concept_attribution", "unstable_concept_attribution",
+    "geometric_maxstat_not_sig", "residual_T_not_sig", "concept_not_evidenced_other",
+    "not_dominant_or_robust_consensus_abstain",
+}
+
+# every per-cell metric the operating-region block must carry (reviewer P1.5 spec).
+REQUIRED_CELL_METRICS = (
+    "n_independent_clusters", "any_forbidden_full_suite", "any_forbidden_full_suite_cp_upper",
+    "any_false_positive_must_abstain", "any_false_positive_must_abstain_cp_upper",
+    "false_concept_on_synthetic_null", "false_concept_on_synthetic_null_cp_upper",
+    "visible_concept_power", "visible_concept_power_cp_lower", "covariate_compatible_coverage",
+    "abstention_rate_all_cells", "source_valid_rate", "source_invalid_rate", "support_invalid_rate",
+    "attribution_unassessable_rate", "attribution_unstable_rate", "atlas_availability",
+    "gate_failure_decomposition", "robust_consensus_abstain", "residual_T_not_sig",
+    "geometric_maxstat_not_sig",
+)
+
+
+def validate_cells(grid, expected_clusters: int):
+    """Canary gate (reviewer P1.5): a cell is OK only if it COMPLETED with the full metric block,
+    no None/NaN, CP bounds in [0,1], counts within [0, clusters], the decomposition uses ONLY known
+    keys AND partitions exactly `expected_clusters` visible clusters (no silent fail-open). Returns
+    (ok: bool, problems: list[str])."""
+    import math
+    problems = []
+    for blk in grid:
+        cell = blk.get("cell", "?")
+        if blk.get("n_independent_clusters") != expected_clusters:
+            problems.append(f"{cell}: n_clusters={blk.get('n_independent_clusters')} != {expected_clusters}")
+        for m in REQUIRED_CELL_METRICS:
+            if m not in blk:
+                problems.append(f"{cell}: missing metric {m}"); continue
+            v = blk[m]
+            if v is None:
+                problems.append(f"{cell}: metric {m} is None")
+            elif isinstance(v, float) and math.isnan(v):
+                problems.append(f"{cell}: metric {m} is NaN")
+        for cp in ("any_forbidden_full_suite_cp_upper", "false_concept_on_synthetic_null_cp_upper",
+                   "visible_concept_power_cp_lower"):
+            v = blk.get(cp)
+            if isinstance(v, (int, float)) and not (0.0 <= v <= 1.0):
+                problems.append(f"{cell}: CP bound {cp}={v} out of [0,1]")
+        for cnt in ("any_forbidden_full_suite", "any_false_positive_must_abstain",
+                    "false_concept_on_synthetic_null"):
+            v = blk.get(cnt)
+            if isinstance(v, int) and not (0 <= v <= expected_clusters):
+                problems.append(f"{cell}: count {cnt}={v} not in [0,{expected_clusters}]")
+        decomp = blk.get("gate_failure_decomposition", {})
+        unknown = set(decomp) - KNOWN_DECOMP_KEYS
+        if unknown:
+            problems.append(f"{cell}: unknown decomposition keys {sorted(unknown)}")
+        if sum(decomp.values()) != expected_clusters:
+            problems.append(f"{cell}: decomposition sums to {sum(decomp.values())} != {expected_clusters}")
+    return (len(problems) == 0), problems
+
 
 # --------------------------------------------------------------------------------------
 # one point of the difficulty grid -- every axis maps to an explicit simulator knob above.
