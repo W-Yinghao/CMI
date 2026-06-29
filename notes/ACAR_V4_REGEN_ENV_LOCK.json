@@ -1,0 +1,27 @@
+{
+  "braindecode_version": "",
+  "capture_note": "no CUDA device available on this node (cuda.is_available()==False); braindecode import FAILED: ImportError(\"cannot import name 'BNCI2014001' from 'moabb.datasets' (/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/moabb/datasets/__init__.py)\"); braindecode EEGNetv4 import FAILED: OSError('/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/torchaudio/lib/libtorchaudio.so: undefined symbol: _ZNK5torch8autograd4Node4nameB5cxx11Ev'); cmi build_backbone import FAILED: OSError('/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/torchaudio/lib/libtorchaudio.so: undefined symbol: _ZNK5torch8autograd4Node4nameB5cxx11Ev')",
+  "cuda_version": "12.4",
+  "cudnn_version": "",
+  "device_kind": "cpu",
+  "device_name": "cpu",
+  "driver_version": "",
+  "numpy_version": "2.4.4",
+  "omp_num_threads": 1,
+  "pipeline_config_sha256": "38250f16e8a456076b69abcae2336101aabebde51e2f9ee697c8bd354ac2848d",
+  "protocol_commit": "7e1c49e51c560b84075d5865e109cf0cd4445b97",
+  "python_version": "3.13.7",
+  "schema_version": "acar_v4_regen_env_lock/1",
+  "scipy_version": "1.17.0",
+  "seed": 0,
+  "sklearn_version": "1.8.0",
+  "status": "CAPTURE_FAILED",
+  "threadpool_backends": [
+    "openblas",
+    "openmp"
+  ],
+  "torch_deterministic_algorithms": true,
+  "torch_interop_threads": 36,
+  "torch_intraop_threads": 1,
+  "torch_version": "2.6.0+cu124"
+}

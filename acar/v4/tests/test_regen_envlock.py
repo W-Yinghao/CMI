@@ -69,10 +69,18 @@ def test_bad_hashes_fail():
     _expect(ValueError, lambda: EL.validate_regen_env_lock(_captured(protocol_commit="x" * 39)))
 
 
+def test_capture_failed_and_note():
+    lk = EL.schema_only_template(protocol_commit="a" * 40, pipeline_config_sha256="b" * 64)
+    lk["status"] = "CAPTURE_FAILED"; lk["capture_note"] = "braindecode EEGNetv4 import FAILED: ..."
+    assert EL.validate_regen_env_lock(lk) is lk             # CAPTURE_FAILED valid with empty versions + a note
+    _expect(ValueError, lambda: EL.validate_regen_env_lock(_captured(capture_note=123)))   # note must be str
+
+
 def main():
     print("ACAR v4 regen_envlock guards (schema/validator; NO torch capture):")
     for t in (test_schema_only_template_valid, test_captured_valid_and_hash_canonical, test_missing_and_extra_fields_fail,
-              test_status_and_device_and_seed_strict, test_captured_must_have_real_versions, test_bad_hashes_fail):
+              test_status_and_device_and_seed_strict, test_captured_must_have_real_versions, test_bad_hashes_fail,
+              test_capture_failed_and_note):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 REGEN-ENVLOCK GUARDS PASS")

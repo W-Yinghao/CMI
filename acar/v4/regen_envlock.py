@@ -12,11 +12,13 @@ import hashlib
 import json
 
 SCHEMA_VERSION = "acar_v4_regen_env_lock/1"
-STATUSES = ("SCHEMA_ONLY_NOT_CAPTURED", "CAPTURED_AND_VERIFIED")
+# SCHEMA_ONLY_NOT_CAPTURED = reviewable skeleton (placeholders); CAPTURED_AND_VERIFIED = real, training-ready capture;
+# CAPTURE_FAILED = a probe ran on the node but the training stack/GPU was not satisfiable (honest failure record).
+STATUSES = ("SCHEMA_ONLY_NOT_CAPTURED", "CAPTURED_AND_VERIFIED", "CAPTURE_FAILED")
 DEVICE_KINDS = ("cuda", "cpu")
 
 _REQUIRED = (
-    "schema_version", "status",
+    "schema_version", "status", "capture_note",
     "python_version", "torch_version", "braindecode_version", "numpy_version", "scipy_version", "sklearn_version",
     "cuda_version", "cudnn_version", "device_kind", "device_name", "driver_version",
     "torch_deterministic_algorithms", "seed",
@@ -55,6 +57,8 @@ def validate_regen_env_lock(lock):
         raise ValueError(f"schema_version must be {SCHEMA_VERSION!r}")
     if lock["status"] not in STATUSES:
         raise ValueError(f"status must be one of {STATUSES}")
+    if not isinstance(lock["capture_note"], str):
+        raise ValueError("capture_note must be a string")
     if lock["device_kind"] not in DEVICE_KINDS:
         raise ValueError(f"device_kind must be one of {DEVICE_KINDS}")
     if type(lock["seed"]) is not int or lock["seed"] != 0:
@@ -99,7 +103,7 @@ def schema_only_template(*, protocol_commit, pipeline_config_sha256, device_kind
     if device_kind not in DEVICE_KINDS:
         raise ValueError(f"device_kind must be one of {DEVICE_KINDS}")
     return {
-        "schema_version": SCHEMA_VERSION, "status": "SCHEMA_ONLY_NOT_CAPTURED",
+        "schema_version": SCHEMA_VERSION, "status": "SCHEMA_ONLY_NOT_CAPTURED", "capture_note": "",
         "python_version": "", "torch_version": "", "braindecode_version": "", "numpy_version": "",
         "scipy_version": "", "sklearn_version": "", "cuda_version": "", "cudnn_version": "",
         "device_kind": device_kind, "device_name": "", "driver_version": "",

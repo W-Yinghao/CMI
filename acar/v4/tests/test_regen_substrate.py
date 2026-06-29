@@ -136,12 +136,16 @@ def _regen_manifest(base, disease="PD", cohorts=None, lock_status="CAPTURED_AND_
         lk = _captured_lock(commit, pcfg)
     else:
         lk = EL.schema_only_template(protocol_commit=commit, pipeline_config_sha256=pcfg)
+        if lock_status == "CAPTURE_FAILED":
+            lk["status"] = "CAPTURE_FAILED"; lk["capture_note"] = "probe failed (synthetic)"
     env = os.path.join(base, f"regen_env_{disease}.json")
     with open(env, "w") as f:
         json.dump(lk, f)
     env_sha = "0" * 64 if break_env_sha else _fsha(env)
     m = {"protocol_commit": commit, "repo_clean_required": True, "disease": disease, "dev_cohorts": cohorts,
          "source_kind": "canonical_features", "source_paths": {c: base for c in cohorts},
+         "source_file_manifest_sha256": "b" * 64,
+         "per_cohort_source_file_manifest_sha256": {c: "b" * 64 for c in cohorts},
          "subject_list_sha256": "b" * 64, "diagnosis_label_sha256": "b" * 64, "pipeline_config_sha256": pcfg,
          "env_lock_path": env, "env_lock_sha256": env_sha, "seed": 0}
     m.update(over)
@@ -167,6 +171,8 @@ def test_validate_regen_manifest():
             _expect(ValueError, lambda s=s: bad(seed=s))                                       # seed STRICT int 0
         _expect(ValueError, lambda: bad(subject_list_sha256="short"))                          # bad hash
         _expect(ValueError, lambda: bad(pipeline_config_sha256="b" * 64))                      # != canonical FROZEN hash
+        _expect(ValueError, lambda: bad(source_file_manifest_sha256="short"))                  # raw-list provenance hash
+        _expect(ValueError, lambda: bad(per_cohort_source_file_manifest_sha256={"ds002778": "b" * 64}))  # key mismatch
         _expect(ValueError, lambda: bad(source_paths={"ds002778": "rel/path"}))                # rel + key mismatch
     finally:
         shutil.rmtree(base, ignore_errors=True)
@@ -232,6 +238,8 @@ def test_run_regen_substrate_fail_closed():
         _expect(ValueError, lambda: RRS.run(pbs, obs))                                          # env_lock_sha256 mismatch
         pso, oso = _regen_manifest(base, lock_status="SCHEMA_ONLY_NOT_CAPTURED")
         _expect(ValueError, lambda: RRS.run(pso, oso))                                          # SCHEMA_ONLY rejected
+        pcf, ocf = _regen_manifest(base, lock_status="CAPTURE_FAILED")
+        _expect(ValueError, lambda: RRS.run(pcf, ocf))                                          # CAPTURE_FAILED rejected
         px, ox = _regen_manifest(base, disease="SCZ"); os.makedirs(ox + "_x")
         _expect(FileExistsError, lambda: RRS.run(px, ox + "_x"))                                # output exists
         assert "torch" not in sys.modules                                                       # still no torch

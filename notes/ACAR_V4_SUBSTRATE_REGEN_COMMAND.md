@@ -33,6 +33,8 @@ dev_cohorts              EXACTLY DEV_SCOPE[disease]  (PD: ds002778,ds003490,ds00
                          — any external/rejected id (zenodo14808296, ds007526, ds007020, 14178398, aszed) is REJECTED
 source_kind              "raw_bids" | "canonical_features"
 source_paths             {cohort: ABSOLUTE path}, keyed by EXACTLY dev_cohorts
+source_file_manifest_sha256              64-hex   (overall raw file-list provenance; metadata only, no signal read)
+per_cohort_source_file_manifest_sha256   {cohort: 64-hex}, keyed by EXACTLY dev_cohorts (per-cohort raw-file-set provenance)
 seed                     STRICT int 0 (bool / "0" / 0.0 / 0.9 rejected — no silent coercion)
 subject_list_sha256      64-hex   (provenance of the training subjects)
 diagnosis_label_sha256   64-hex
@@ -59,14 +61,16 @@ manifest LAST (manifest_sha256; RESULT sentinel)   ← "output complete" iff thi
 Schema + validator + canonical hasher: `acar/v4/regen_envlock.py` (PURE; no torch capture). Required fields
 (`expected_regen_env_fields`):
 ```
-schema_version (acar_v4_regen_env_lock/1) · status · python_version · torch_version · braindecode_version · numpy_version ·
-scipy_version · sklearn_version · cuda_version · cudnn_version · device_kind ("cuda"|"cpu") · device_name · driver_version ·
-torch_deterministic_algorithms (true) · seed (int 0) · torch_intraop_threads · torch_interop_threads · omp_num_threads ·
-threadpool_backends · pipeline_config_sha256 · protocol_commit
+schema_version (acar_v4_regen_env_lock/1) · status · capture_note · python_version · torch_version · braindecode_version ·
+numpy_version · scipy_version · sklearn_version · cuda_version · cudnn_version · device_kind ("cuda"|"cpu") · device_name ·
+driver_version · torch_deterministic_algorithms (true) · seed (int 0) · torch_intraop_threads · torch_interop_threads ·
+omp_num_threads · threadpool_backends · pipeline_config_sha256 · protocol_commit
 ```
-- `status` ∈ {`SCHEMA_ONLY_NOT_CAPTURED`, `CAPTURED_AND_VERIFIED`}. `schema_only_template(...)` builds a reviewable
-  skeleton (placeholder versions); a CAPTURED lock MUST fill real non-empty version/device fields (and, if `device_kind ==
-  cuda`, cuda/cudnn/driver) — a skeleton cannot impersonate a captured runtime.
+- `status` ∈ {`SCHEMA_ONLY_NOT_CAPTURED`, `CAPTURED_AND_VERIFIED`, `CAPTURE_FAILED`}. `schema_only_template(...)` builds a
+  reviewable skeleton (placeholder versions); a CAPTURED lock MUST fill real non-empty version/device fields (and, if
+  `device_kind == cuda`, cuda/cudnn/driver) — a skeleton cannot impersonate a captured runtime; `CAPTURE_FAILED` is an
+  honest failure record (probe ran but the stack/GPU was unsatisfiable; `capture_note` carries the reason). The capture
+  tool is `acar/v4/capture_regen_envlock.py` (env introspection only; NO training/data).
 - **`run_regen_substrate` requires `status == CAPTURED_AND_VERIFIED`**, that the lock file's sha equals the manifest
   `env_lock_sha256`, and that the lock's `protocol_commit` + `pipeline_config_sha256` match the manifest. Capturing the real
   runtime (torch import on the chosen training node) is part of B1 — NOT done here.

@@ -200,6 +200,14 @@ def validate_regen_manifest(spec):
     for c, p in sp.items():
         if not isinstance(p, str) or not os.path.isabs(p) or not p:
             raise ValueError(f"source_paths[{c!r}] must be a non-empty absolute path")
+    if not _is_hex(spec.get("source_file_manifest_sha256", ""), 64):
+        raise ValueError("source_file_manifest_sha256 must be a 64-char lowercase sha-256 (raw file-list provenance)")
+    pcm = spec.get("per_cohort_source_file_manifest_sha256")
+    if not isinstance(pcm, dict) or set(pcm) != set(cohorts):
+        raise ValueError("per_cohort_source_file_manifest_sha256 must be a dict keyed by EXACTLY the dev_cohorts")
+    for c, h in pcm.items():
+        if not _is_hex(h, 64):
+            raise ValueError(f"per_cohort_source_file_manifest_sha256[{c!r}] must be a 64-char lowercase sha-256")
     if not _is_int0(spec.get("seed", 0)):
         raise ValueError("seed must be the int 0 (no bool/str/float)")
     for hf in ("subject_list_sha256", "diagnosis_label_sha256", "pipeline_config_sha256", "env_lock_sha256"):
