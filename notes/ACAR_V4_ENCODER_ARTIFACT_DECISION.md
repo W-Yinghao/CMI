@@ -5,6 +5,9 @@ STATUS : OPEN — External Arm B is NOT_YET_EXECUTABLE. Two hard, fail-closed bl
          explicit, separately-signed-off decision before acar-v4-protocol can be tagged or any held-out raw is read.
 SCOPE  : decision record only. NO retrain, NO download, NO signal processing, NO tag happens from this note.
 DATE   : 2026-06-30
+UPDATE (2026-06-29..30): Option A read-only search DONE, in-scope + out-of-scope → NOT_FOUND, A FORECLOSED in practice
+         (ACAR_V4_ENCODER_CHECKPOINT_SEARCH.md, ACAR_V4_ENCODER_CHECKPOINT_SEARCH_OUT_OF_SCOPE.md). Now in Option B DESIGN
+         (no retrain): ACAR_V4_SUBSTRATE_REGEN_PLAN.md. Option C NOT chosen.
 ```
 
 External Arm B embeds held-out raw EEG into the **DEV feature space** (the frozen `feat_dump_v4` / erm_0 substrate) and
