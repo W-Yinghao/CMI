@@ -91,6 +91,26 @@ def analyze(npz_path, cfg=None):
     return out
 
 
+def _aggregate(rows):
+    """Pool over LOSO folds -> collapse-vs-lambda curve + score-Fisher decision distribution."""
+    from collections import defaultdict, Counter
+    by = defaultdict(list)
+    for r in rows:
+        by[(r["method"], r["lam"])].append(r)
+    agg = {}
+    for (method, lam), rs in sorted(by.items(), key=lambda kv: (kv[0][0] != "erm", kv[0][1])):
+        mean = lambda k: float(np.nanmean([x[k] for x in rs]))
+        reasons = Counter(x.get("scorefisher", {}).get("decision_reason") for x in rs)
+        tucb = [x["scorefisher"].get("k1_task_ucb") for x in rs
+                if x.get("scorefisher", {}).get("k1_task_ucb") is not None]
+        agg["%s:%g" % (method, lam)] = {
+            "n_folds": len(rs), "tgt_bacc": mean("target_bacc"), "src_bacc_fit": mean("source_bacc_fit"),
+            "target_nll": mean("target_nll"), "label_probe_acc": mean("label_probe_acc"),
+            "domain_probe_adv": mean("domain_probe_adv"), "eff_rank": mean("eff_rank_source"),
+            "sf_decisions": dict(reasons), "sf_k1_task_ucb_mean": (float(np.mean(tucb)) if tucb else None)}
+    return agg
+
+
 def main():
     base = sys.argv[1] if len(sys.argv) > 1 else "tos_cmi/results/tos_cmi_eeg_frozen"
     paths = sorted(glob.glob("%s/*.npz" % base)) or sorted(glob.glob("%s/**/*.npz" % base, recursive=True))
@@ -98,14 +118,20 @@ def main():
     for p in paths:
         r = analyze(p)
         rows.append(r); sf = r.get("scorefisher", {})
-        print("[%s] tgt%d %s lam=%g | tgt_bAcc=%.3f src_bAcc_fit=%.3f effrank=%.1f "
-              "labelP=%.2f domP=%.2f(adv %.2f) | SF: %s k=%s"
-              % (r["method"], r["target_subject"], "", r["lam"], r["target_bacc"],
-                 r["source_bacc_fit"], r["eff_rank_source"], r["label_probe_acc"],
-                 r["domain_probe_acc"], r.get("domain_probe_adv", float("nan")),
-                 sf.get("decision_reason"), sf.get("k_star")), flush=True)
+        print("[%s] tgt%d lam=%g | tgt_bAcc=%.3f src_fit=%.3f effrank=%.1f labelP=%.2f "
+              "domAdv=%.2f | SF: %s k=%s" % (r["method"], r["target_subject"], r["lam"],
+              r["target_bacc"], r["source_bacc_fit"], r["eff_rank_source"], r["label_probe_acc"],
+              r.get("domain_probe_adv", float("nan")), sf.get("decision_reason"), sf.get("k_star")),
+              flush=True)
+    agg = _aggregate(rows)
+    print("\n===== COLLAPSE-vs-LAMBDA + SCORE-FISHER (pooled over folds) =====")
+    for cfg, a in agg.items():
+        print("%-16s n=%d | tgt_bAcc=%.3f src_fit=%.3f labelP=%.2f domAdv=%.2f effrank=%.0f | "
+              "SF=%s task_ucb=%s" % (cfg, a["n_folds"], a["tgt_bacc"], a["src_bacc_fit"],
+              a["label_probe_acc"], a["domain_probe_adv"], a["eff_rank"], a["sf_decisions"],
+              None if a["sf_k1_task_ucb_mean"] is None else round(a["sf_k1_task_ucb_mean"], 4)))
     out = "%s/diagnostic_report.json" % base
-    json.dump(rows, open(out, "w"), indent=1)
+    json.dump({"rows": rows, "aggregate": agg}, open(out, "w"), indent=1)
     print("wrote", out, "(%d dumps)" % len(rows))
     print("EEG_REPORT_DONE")
 
