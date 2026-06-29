@@ -80,8 +80,45 @@ def test_run_cell_cluster_denominated():
     print(f"OK run_cell cluster-denominated (K={K}): full metric block, decomp partitions clusters")
 
 
+# 4 ---- the --phase full gate fails closed unless a PASSED, matching canary is referenced ---------
+def test_full_gate_fails_closed():
+    import json, tempfile
+    from csc.run_envelope_p15 import verify_canary_ref, _GateError
+    HEAD, MH = "abc1234", "manifest123"
+
+    def art(**ovr):
+        a = dict(phase="CANARY_ONLY_PASSED", code_commit=HEAD, protocol_manifest_hash=MH,
+                 canary=dict(validator_ok=True, clusters_per_cell=2, base_seed=500_000))
+        a.update(ovr); return a
+
+    def write(a):
+        p = tempfile.mktemp(suffix=".json"); json.dump(a, open(p, "w")); return p
+
+    # a well-formed, matching canary passes the gate
+    verify_canary_ref(write(art()), HEAD, MH, 2, 500_000)
+    # every mismatch / missing-ref / not-passed / not-validated fails CLOSED
+    bad = [
+        (None, HEAD, MH, 2, 500_000),                                   # no ref
+        (write(art(phase="ABORTED_AT_CANARY")), HEAD, MH, 2, 500_000),  # not passed
+        (write(art(canary=dict(validator_ok=False, clusters_per_cell=2, base_seed=500_000))),
+         HEAD, MH, 2, 500_000),                                          # validator not ok
+        (write(art()), "OTHER", MH, 2, 500_000),                        # code-commit mismatch
+        (write(art()), HEAD, "OTHER", 2, 500_000),                      # manifest mismatch
+        (write(art()), HEAD, MH, 5, 500_000),                           # canary clusters mismatch
+        (write(art()), HEAD, MH, 2, 999_999),                           # base-seed mismatch
+    ]
+    for argspec in bad:
+        try:
+            verify_canary_ref(*argspec)
+            raise AssertionError(f"gate should have failed closed for {argspec[1:]}")
+        except (_GateError, OSError, ValueError):
+            pass
+    print("OK --phase full gate: accepts a matching PASSED canary, fails closed on all 7 mismatches")
+
+
 if __name__ == "__main__":
     test_axis_to_knob_mapping()
     test_default_grid_is_star()
     test_run_cell_cluster_denominated()
+    test_full_gate_fails_closed()
     print("\nall CSC-P1.5 envelope-harness tests passed")

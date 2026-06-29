@@ -25,7 +25,7 @@ RC=0
 EXTRA=""
 [ -n "$CANARY_REF" ] && EXTRA="--canary_ref $CANARY_REF"
 /home/infres/yinwang/anaconda3/bin/conda run -n icml --no-capture-output \
-    python -m csc.run_envelope_p15 --phase "$PHASE" --out "$OUT" $EXTRA \
+    python -u -m csc.run_envelope_p15 --phase "$PHASE" --out "$OUT" $EXTRA \
     || RC=$?
 echo "finished=$(date -Is) p15_rc=$RC"
 # committable stdout provenance: copy the run log + record its SHA256 next to the artifact
