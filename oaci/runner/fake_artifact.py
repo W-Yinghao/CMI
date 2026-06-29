@@ -62,7 +62,8 @@ def run_fake_two_level(manifest_path, output_root, *, model_seed, method_order=D
         raise RuntimeError(f"deep verification failed: {rep.errors[:3]}")
     summary = read_completed_artifact(write.artifact_dir, deep_verify=True)
     cmp = compare_artifact_summary_to_memory(summary, fr, context,
-                                             artifact_scientific_hash=write.artifact_scientific_hash)
+                                             artifact_scientific_hash=write.artifact_scientific_hash,
+                                             artifact_pure_science_hash=write.artifact_pure_science_hash)
     if not cmp.ok:
         raise RuntimeError(f"on-disk summary disagrees with memory: {cmp.mismatches[:5]}")
     return FakeRunArtifactResult(fake_fold=fake, fold_result=fr, context=context, write_result=write,

@@ -72,21 +72,26 @@ class ArtifactContext:
     model_spec_payloads: tuple
     git: GitEvidence
     repo_root: str                              # NON-hashed; used to keep the artifact out of the repo
-    context_hash: str
+    context_hash: str                           # provenance-BOUND: manifest + config + spec + git
+    pure_context_hash: str                      # commit-INDEPENDENT: manifest + config + spec, NO git
 
 
 @dataclass(frozen=True)
 class ArtifactWriteResult:
     artifact_dir: str
-    artifact_scientific_hash: str
+    artifact_scientific_hash: str               # provenance-bound (binds the git commit/tree)
+    artifact_pure_science_hash: str             # commit-independent: identical science -> identical hash
     fold_result_hash: str
     context_hash: str
+    pure_context_hash: str
+    provenance_hash: str                        # the git evidence hash (commit/tree/clean/status)
     n_indexed_files: int
     n_total_files: int                          # indexed + artifact_index + COMMITTED
     n_unique_checkpoints: int
 
 
 def context_scientific_hash(manifest_payload, execution_config_payloads, model_spec_payloads, git) -> str:
+    """Provenance-BOUND context hash: the science PLUS the git commit/tree. Changes across commits."""
     return canonical_json_hash({"manifest": manifest_payload,
                                 "execution_config": [[int(l), m] for l, m in execution_config_payloads],
                                 "model_spec": [[int(l), m] for l, m in model_spec_payloads],
@@ -94,19 +99,38 @@ def context_scientific_hash(manifest_payload, execution_config_payloads, model_s
                                         "scientific_paths": list(git.scientific_paths), "clean": bool(git.clean)}})
 
 
+def pure_science_context_hash(manifest_payload, execution_config_payloads, model_spec_payloads) -> str:
+    """Commit-INDEPENDENT context hash: the manifest / execution-config / model-spec science ONLY -- no
+    git commit/tree, no test or doc files, no runtime path, no physical file bytes. Identical science
+    across different commits yields the identical hash."""
+    return canonical_json_hash({"manifest": manifest_payload,
+                                "execution_config": [[int(l), m] for l, m in execution_config_payloads],
+                                "model_spec": [[int(l), m] for l, m in model_spec_payloads]})
+
+
 def context_from_git_evidence(manifest_payload, manifest_hash, execution_config_payloads, model_spec_payloads,
                               git, repo_root) -> ArtifactContext:
     """Build the context (low-level: tests inject a synthetic GitEvidence; the demo collects live)."""
     ch = context_scientific_hash(manifest_payload, execution_config_payloads, model_spec_payloads, git)
+    pch = pure_science_context_hash(manifest_payload, execution_config_payloads, model_spec_payloads)
     return ArtifactContext(manifest_payload=manifest_payload, manifest_hash=manifest_hash,
                            execution_config_payloads=tuple(execution_config_payloads),
                            model_spec_payloads=tuple(model_spec_payloads), git=git, repo_root=str(repo_root),
-                           context_hash=ch)
+                           context_hash=ch, pure_context_hash=pch)
 
 
 def artifact_scientific_hash(fold_result_hash, manifest_hash, context_hash) -> str:
+    """Provenance-bound artifact identity: binds the git commit via context_hash."""
     return scientific_value_hash({"schema_version": ARTIFACT_SCHEMA_VERSION, "fold_result_hash": fold_result_hash,
                                   "manifest_hash": manifest_hash, "context_hash": context_hash})
+
+
+def artifact_pure_science_hash(fold_result_hash, manifest_hash, pure_context_hash) -> str:
+    """Commit-independent artifact identity: the same science (manifest + config + spec + fold result)
+    hashes the same regardless of which commit produced it."""
+    return scientific_value_hash({"schema_version": ARTIFACT_SCHEMA_VERSION, "kind": "pure_science",
+                                  "fold_result_hash": fold_result_hash, "manifest_hash": manifest_hash,
+                                  "pure_context_hash": pure_context_hash})
 
 
 def _check_invariants(inv: dict) -> None:
@@ -140,6 +164,9 @@ def _gate(fold_result, context, final_path) -> None:
     if context_scientific_hash(context.manifest_payload, context.execution_config_payloads,
                                context.model_spec_payloads, context.git) != context.context_hash:
         raise ValueError("context hash does not recompute")
+    if pure_science_context_hash(context.manifest_payload, context.execution_config_payloads,
+                                 context.model_spec_payloads) != context.pure_context_hash:
+        raise ValueError("pure-science context hash does not recompute")
     if context.repo_root:                                       # the artifact must live outside the repo tree
         rr = os.path.abspath(context.repo_root)
         if os.path.abspath(final_path) == rr or os.path.abspath(final_path).startswith(rr + os.sep):
@@ -225,6 +252,7 @@ def _opt(tree, base, kind, encoded):
 def write_artifact_tree_atomic(fold_result, context, output_root, *, overwrite=False) -> ArtifactWriteResult:
     fr = fold_result
     a_hash = artifact_scientific_hash(fr.fold_result_hash, context.manifest_hash, context.context_hash)
+    p_hash = artifact_pure_science_hash(fr.fold_result_hash, context.manifest_hash, context.pure_context_hash)
     final = os.path.join(str(output_root), a_hash)
     _gate(fold_result, context, final)
 
@@ -325,12 +353,14 @@ def write_artifact_tree_atomic(fold_result, context, output_root, *, overwrite=F
                        {"roles": metrics_body})
 
         marker = {"schema_version": ARTIFACT_SCHEMA_VERSION, "artifact_profile": ARTIFACT_PROFILE,
-                  "artifact_scientific_hash": a_hash, "fold_result_hash": fr.fold_result_hash,
-                  "context_hash": context.context_hash}
+                  "artifact_scientific_hash": a_hash, "artifact_pure_science_hash": p_hash,
+                  "fold_result_hash": fr.fold_result_hash, "context_hash": context.context_hash,
+                  "pure_context_hash": context.pure_context_hash, "provenance_hash": context.git.evidence_hash}
         n_ck = sum(1 for e in t.entries if e["artifact_kind"] == "checkpoint_pt")
         st.commit(t.entries, marker)
-    return ArtifactWriteResult(artifact_dir=final, artifact_scientific_hash=a_hash,
+    return ArtifactWriteResult(artifact_dir=final, artifact_scientific_hash=a_hash, artifact_pure_science_hash=p_hash,
                                fold_result_hash=fr.fold_result_hash, context_hash=context.context_hash,
+                               pure_context_hash=context.pure_context_hash, provenance_hash=context.git.evidence_hash,
                                n_indexed_files=len(t.entries), n_total_files=len(t.entries) + 2,
                                n_unique_checkpoints=n_ck)
 

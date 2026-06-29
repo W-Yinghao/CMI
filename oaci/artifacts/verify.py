@@ -36,6 +36,7 @@ class VerificationReport:
     n_verified_checkpoints: int = 0                        # actually weights_only-loaded (deep)
     n_verified_plans: int = 0                              # actually decoded (deep)
     artifact_scientific_hash: str = ""
+    artifact_pure_science_hash: str = ""
     artifact_index_sha256: str = ""
 
     def fail(self, path, msg):
@@ -184,22 +185,31 @@ def _deep(root, rep, marker):
     if expected != dict(level_hashes):
         rep.fail("fold.json", "fold level hashes disagree with the level files")
     # context provenance + manifest/exec/model payloads recomputed from context/*.json
-    ctx_hash = _verify_context(root, rep, level_hashes)
-    # artifact scientific hash (recomputed from the manifest hash + context hash + fold hash)
-    from .writer import artifact_scientific_hash
-    ash = artifact_scientific_hash(flogical, _manifest_hash(root), ctx_hash if ctx_hash else marker.get("context_hash", ""))
+    ctx_hash, pure_ctx_hash, prov_hash = _verify_context(root, rep, level_hashes)
+    mh = _manifest_hash(root)
+    # provenance-bound artifact scientific hash (recomputed from the manifest hash + context hash + fold hash)
+    from .writer import artifact_pure_science_hash, artifact_scientific_hash
+    ash = artifact_scientific_hash(flogical, mh, ctx_hash if ctx_hash else marker.get("context_hash", ""))
     rep.artifact_scientific_hash = ash
     if ash != marker.get("artifact_scientific_hash"):
         rep.fail(COMMIT_MARKER, "artifact scientific hash does not recompute")
+    # commit-independent pure-science hash (recomputed from the manifest hash + pure context hash + fold hash)
+    psh = artifact_pure_science_hash(flogical, mh, pure_ctx_hash if pure_ctx_hash else marker.get("pure_context_hash", ""))
+    rep.artifact_pure_science_hash = psh
+    if psh != marker.get("artifact_pure_science_hash"):
+        rep.fail(COMMIT_MARKER, "artifact pure-science hash does not recompute")
+    if prov_hash and prov_hash != marker.get("provenance_hash"):
+        rep.fail(COMMIT_MARKER, "provenance hash does not recompute")
 
 
-def _verify_context(root, rep, level_hashes) -> str:
-    """Recompute the context hash from context/manifest|execution_config|model_spec|provenance.json and
-    verify the manifest / config / spec payload hashes -- never trust COMMITTED.json alone."""
+def _verify_context(root, rep, level_hashes):
+    """Recompute the context hashes from context/manifest|execution_config|model_spec|provenance.json and
+    verify the manifest / config / spec payload hashes -- never trust COMMITTED.json alone. Returns
+    (provenance-bound context_hash, commit-independent pure_context_hash, provenance/git evidence hash)."""
     import types
 
     from ..protocol.manifest_v2 import manifest_payload_hash
-    from .writer import context_scientific_hash
+    from .writer import context_scientific_hash, git_evidence_hash, pure_science_context_hash
     mlog, mbody, _ = read_artifact(os.path.join(root, "context", "manifest.json"), "manifest")
     mpay = mbody["manifest"]
     if manifest_payload_hash(mpay) != mlog:
@@ -219,7 +229,12 @@ def _verify_context(root, rep, level_hashes) -> str:
     _, gbody, _ = read_artifact(os.path.join(root, "context", "provenance.json"), "context_provenance")
     git = types.SimpleNamespace(commit=gbody["commit"], tree_hash=gbody["tree_hash"],
                                 scientific_paths=tuple(gbody["scientific_paths"]), clean=bool(gbody["clean"]))
-    return context_scientific_hash(mpay, ec, ms, git)
+    prov = git_evidence_hash(gbody["commit"], gbody["tree_hash"], gbody["scientific_paths"],
+                             tuple(gbody.get("status_entries", [])), bool(gbody["clean"]))
+    if prov != gbody.get("evidence_hash"):
+        rep.fail("context/provenance.json", "git evidence hash does not recompute")
+    return (context_scientific_hash(mpay, ec, ms, git),
+            pure_science_context_hash(mpay, ec, ms), prov)
 
 
 def _manifest_hash(root):
@@ -300,7 +315,8 @@ def _main(argv):
     if rep.ok:
         print(f"OK  indexed_files={rep.n_indexed_files} total_files={rep.n_total_files} "
               f"verified_checkpoints={rep.n_verified_checkpoints} verified_plans={rep.n_verified_plans} "
-              f"artifact_scientific_hash={rep.artifact_scientific_hash}")
+              f"artifact_scientific_hash={rep.artifact_scientific_hash} "
+              f"artifact_pure_science_hash={rep.artifact_pure_science_hash}")
         return 0
     for path, msg in rep.errors:
         print(f"FAIL  {path}: {msg}", file=sys.stderr)

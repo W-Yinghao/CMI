@@ -63,9 +63,12 @@ class LevelSummary:
 @dataclass(frozen=True)
 class ArtifactSummary:
     schema_version: str
-    artifact_scientific_hash: str
+    artifact_scientific_hash: str               # provenance-bound (binds the git commit)
+    artifact_pure_science_hash: str             # commit-independent science identity
     fold_result_hash: str
     context_hash: str
+    pure_context_hash: str
+    provenance_hash: str                         # the git evidence hash (commit/tree/clean/status)
     manifest_hash: str
     fold_scope_hash: str
     level_items: tuple                       # ((level, LevelSummary), ...)
@@ -153,14 +156,17 @@ def read_completed_artifact(path, *, deep_verify=True) -> ArtifactSummary:
     levels = tuple((int(ld.rsplit("-", 1)[-1]), _level_summary(root, ld)) for ld in _level_dirs(root))
     return ArtifactSummary(
         schema_version=marker["schema_version"], artifact_scientific_hash=marker["artifact_scientific_hash"],
-        fold_result_hash=flog, context_hash=marker["context_hash"], manifest_hash=mh,
+        artifact_pure_science_hash=marker["artifact_pure_science_hash"], fold_result_hash=flog,
+        context_hash=marker["context_hash"], pure_context_hash=marker["pure_context_hash"],
+        provenance_hash=marker["provenance_hash"], manifest_hash=mh,
         fold_scope_hash=fbody["fold_scope_hash"], level_items=levels,
         artifact_index_sha256=rep.artifact_index_sha256,
         n_indexed_files=rep.n_indexed_files, n_total_files=rep.n_total_files,
         n_verified_checkpoints=rep.n_verified_checkpoints, n_verified_plans=rep.n_verified_plans)
 
 
-def compare_artifact_summary_to_memory(summary, fold_result, context, *, artifact_scientific_hash) -> SummaryComparisonReport:
+def compare_artifact_summary_to_memory(summary, fold_result, context, *, artifact_scientific_hash,
+                                       artifact_pure_science_hash=None) -> SummaryComparisonReport:
     """Item-by-item equality between the on-disk summary and the in-memory FoldRunResult/context."""
     from ..runner.scientific_hash import leakage_result_hash
     fr = fold_result
@@ -173,9 +179,13 @@ def compare_artifact_summary_to_memory(summary, fold_result, context, *, artifac
     chk("schema_version", summary.schema_version, "oaci-artifact-v1")
     chk("manifest_hash", summary.manifest_hash, context.manifest_hash)
     chk("context_hash", summary.context_hash, context.context_hash)
+    chk("pure_context_hash", summary.pure_context_hash, context.pure_context_hash)
+    chk("provenance_hash", summary.provenance_hash, context.git.evidence_hash)
     chk("fold_scope_hash", summary.fold_scope_hash, fr.fold_scope.fold_scope_hash)
     chk("fold_result_hash", summary.fold_result_hash, fr.fold_result_hash)
     chk("artifact_scientific_hash", summary.artifact_scientific_hash, artifact_scientific_hash)
+    if artifact_pure_science_hash is not None:
+        chk("artifact_pure_science_hash", summary.artifact_pure_science_hash, artifact_pure_science_hash)
     chk("level_set", set(summary.levels), set(fr.levels))
     for lvl, lr in fr.level_items:
         s = summary.levels.get(int(lvl))
