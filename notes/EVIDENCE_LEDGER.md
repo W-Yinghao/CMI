@@ -39,9 +39,32 @@ signal; a 0.7 harm-AUROC still worsened retained NLL by ignoring harm magnitude.
   **only as a report-only diagnostic**, never as a screen/gate/safety component. Do NOT write "CMI-screened",
   "safety gate", or "protective abstention".
 
+## ACAR (Direction 2) — authoritative claim status (added 2026-06-29; `acar` branch)
+
+ACAR is the leak-proof successor to the closed A0 line. Estimand = action-conditional paired incremental risk
+`ΔR_a(B)=R_B(f_a)−R_B(f_0)` (predict negative transfer, not shift). Status labels as above.
+
+| # | Claim | Status | Basis |
+|---|---|---|---|
+| A1 | The ACAR **estimand** (action-specific incremental harm `ΔR_a`, paired, label-free at deployment) is well-posed and informative | **SUPPORTED** | v2 + v3; not shift magnitude / not absolute accuracy |
+| A2 | **Label-free action-conditional paired observables predict negative transfer** out-of-fold on BOTH PD and SCZ | **SUPPORTED (measurement)** | ACAR v2 G1=True (`acar-v2-protocol @ 9b2f0c1`; result `1528a94`); v3 DEV reproduces SCZ harm-AUROC 0.68–0.74 |
+| A3 | ACAR v2 is a **deployable safe router** | **DROPPED → MEASUREMENT_ONLY** | v2 G2=False (router NLL not below best-fixed/random at usable coverage); SCZ coverage diagnostic missed nominal (201/225=0.8933) |
+| A4 | The v3 **HSCR redesign** (mean/scale/CQR DeepSets + subject-clustered joint conformal) **passes the pre-registered development gate** | **DROPPED → `DEV_STOP / NO_LOCKBOX_CONSUMED`** | v3 DEV run #002 (`acar-v3-dev-design-v1 @ 817b04f`; result `9f4e83f`, tag `acar-v3-dev-run002-dev-stop`): no C1/C2/C3 passes S2/S4 — adaptation coverage ~0.6–1.1 % (≪15 %; conformal `q`≫`|ΔR|`) and PD center-AUROC 0.525–0.570 (<0.60) |
+| A5 | Any **external Arm-B / held-out lockbox** ACAR result (binding G2, site-local coverage, harmful-rate, two-site) | **OPEN — NOT RUN; NOT AUTHORIZED** | v3 stopped at the DEV gate; lockbox NOT consumed; external freeze never reached |
+
+**ACAR net statement:** the measurement signal is replicated (label-free action-conditional harm is rankable, esp.
+SCZ), but **calibrated closed-loop control is not established** — both v2 (G2 fail) and the stricter pre-registered v3
+(DEV_STOP) leave the measurement→control gap open. v3's contribution is a **pre-registered negative development result**,
+not an external validation. **Authoritative ACAR claim status: measurement signal replicated; calibrated control not
+established.** Binding for write-up: do NOT claim a safe deployable router, an external lockbox result, a verified
+coverage theorem on an external site, or that SCZ's local signal supports deployment (coverage 1–2 %, PD below gate). No
+threshold/δ/seed/candidate search to chase a pass — any continuation is a NEW dated, separately-tagged protocol (e.g.
+`acar-v4-…`), never an in-place edit of `817b04f` or this result.
+
 ## Standing constraints
 No new gate / LPC / coverage / cohort / score search (per the frozen A0-PILOT rule). Deployment control uses no
-target labels and no source examples. TUAB stays sealed pending the exposure audit's disposition.
+target labels and no source examples. TUAB stays sealed pending the exposure audit's disposition. **ACAR: v3 is
+terminated at `DEV_STOP`; the lockbox is not consumed and external Arm B is not authorized (see A4/A5).**
 
 **SURVIVOR AUDIT COMPLETE (steps 1–4 done; NO open items).** LPC's three pillars all collapsed (leakage = via
 representation collapse, calibration = a single-temperature side-effect, accuracy = the generic matched-CORAL
