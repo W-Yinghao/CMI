@@ -58,6 +58,78 @@ def _scalar(x):
     return float(x.detach().cpu()) if torch.is_tensor(x) else float(x)
 
 
+# --- Phase 2.1 LPC-collapse instrumentation (read-only; used only when log_curves=True) ---
+def _eff_stable_rank(Zc):
+    s = np.linalg.svd(Zc, compute_uv=False)
+    p = s / (s.sum() + 1e-12)
+    eff = float(np.exp(-(p * np.log(p + 1e-12)).sum()))
+    stable = float((s ** 2).sum() / (s[0] ** 2 + 1e-12))
+    return eff, stable, s
+
+
+def _grad_norm(grads):
+    sq = 0.0; mx = 0.0; bad = False
+    for g in grads:
+        if g is None:
+            continue
+        if not torch.isfinite(g).all():
+            bad = True
+        sq += float((g.detach() ** 2).sum()); mx = max(mx, float(g.detach().abs().max()))
+    return sq ** 0.5, mx, bad
+
+
+def _epoch_curve_record(acc, lam_t, lr, enc_params, backbone, post, cmi_method,
+                        Xd, yd, dd, gb, device, grad_decomp):
+    """Read-only per-epoch diagnostics for lpc_prior. Uses torch.autograd.grad (never writes
+    param.grad, never calls opt.step) -> cannot corrupt the (Riemannian)Adam state. All forwards
+    in eval() so SPD-BN/BN running stats are not perturbed; train/eval mode restored on exit."""
+    import torch.nn.functional as _F
+    rec = dict(train_task_CE=float(np.mean(acc["ce"])) if acc["ce"] else float("nan"),
+               train_LPC_raw=float(np.mean(acc["lpc"])) if acc["lpc"] else float("nan"),
+               train_lambda=float(lam_t),
+               train_total_loss=float(np.mean(acc["total"])) if acc["total"] else float("nan"),
+               current_lr=float(lr))
+    was_training = backbone.training
+    backbone.eval()
+    Xd, yd, dd = Xd.to(device), yd.to(device), dd.to(device)
+    with torch.enable_grad():
+        xb, yb = Xd[gb], yd[gb]
+        logits, z = backbone(xb)
+        ce = _F.cross_entropy(logits, yb)
+        r = post.reg(cmi_method, z, yb)                       # raw unweighted CMI (same as opt uses)
+        total = ce + lam_t * r
+        g_total = torch.autograd.grad(total, enc_params, retain_graph=grad_decomp, allow_unused=True)
+    gt_n, gt_mx, gt_bad = _grad_norm(g_total)
+    rec["grad_total_encoder_norm"] = gt_n; rec["grad_max_abs"] = gt_mx; rec["grad_nonfinite"] = bool(gt_bad)
+    if grad_decomp:
+        with torch.enable_grad():
+            g_ce = torch.autograd.grad(ce, enc_params, retain_graph=True, allow_unused=True)
+            g_lpc = torch.autograd.grad(r, enc_params, retain_graph=False, allow_unused=True)
+        ce_n, _, _ = _grad_norm(g_ce); lpc_n, _, _ = _grad_norm(g_lpc)
+        dot = sum(float((a.detach() * b.detach()).sum()) for a, b in zip(g_ce, g_lpc)
+                  if a is not None and b is not None)
+        rec["grad_task_encoder_norm"] = ce_n; rec["grad_LPC_encoder_norm"] = lpc_n
+        rec["cos_task_LPC"] = float(dot / (ce_n * lpc_n + 1e-12))
+    with torch.no_grad():
+        lg, Z = [], []
+        for i in range(0, len(Xd), 256):
+            l, zz = backbone(Xd[i:i + 256]); lg.append(l); Z.append(zz)
+        logits_all = torch.cat(lg); Z_all = torch.cat(Z)
+        rec["eval_source_CE"] = float(_F.cross_entropy(logits_all, yd))
+        prob = logits_all.softmax(1)
+        rec["eval_logit_entropy"] = float(-(prob.clamp_min(1e-12).log() * prob).sum(1).mean())
+        pred = logits_all.argmax(1).cpu().numpy()
+    from sklearn.metrics import balanced_accuracy_score
+    rec["eval_source_bAcc"] = float(balanced_accuracy_score(yd.cpu().numpy(), pred))
+    Zc = Z_all.cpu().numpy(); Zc = Zc - Zc.mean(0)
+    eff, stable, sv = _eff_stable_rank(Zc)
+    rec["eff_rank"] = eff; rec["stable_rank"] = stable
+    rec["feat_norm_mean"] = float(np.linalg.norm(Z_all.cpu().numpy(), axis=1).mean())
+    rec["top5_singvals"] = [float(v) for v in sv[:5]]
+    backbone.train() if was_training else backbone.eval()
+    return rec
+
+
 def default_dec_margin(method):
     """Method-specific default decoder gate.
 
@@ -77,7 +149,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 z_margin=0.0, dec_scale=1.0,
                 lr=1e-3, post_lr=2e-3,
                 weight_decay=0.0, sampler="classbal", prior_mode="empirical", prior_alpha=1.0,
-                device="cpu", seed=0, log_every=0):
+                device="cpu", seed=0, log_every=0, log_curves=False, curve_every=10):
     if method not in ALL_METHODS:
         raise ValueError(f"unknown method '{method}'; allowed: {sorted(ALL_METHODS)}")
     torch.manual_seed(seed)
@@ -178,11 +250,24 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
 
     diag = dict(stepA_dom_correct=0, stepA_dom_total=0, inloop_reg=[],
                 sampler=effective_sampler)  # q_psi diagnostics
+    if log_curves:                          # Phase 2.1: per-epoch collapse-mechanism curves
+        diag["curves"] = []
+        _head = (getattr(getattr(backbone, "model", None), "classifier", None)
+                 or getattr(getattr(backbone, "model", None), "final_layer", None)
+                 or getattr(backbone, "task_head", None))
+        _head_ids = set(id(p) for p in (_head.parameters() if _head is not None else []))
+        _enc_params = [p for p in backbone.parameters() if id(p) not in _head_ids and p.requires_grad]
+        _g = torch.Generator().manual_seed(seed + 12345)     # OWN stream: does not perturb dynamics
+        _nd = min(1024, len(Xtr)); _di = torch.randperm(len(Xtr), generator=_g)[:_nd].numpy()
+        _Xd = torch.tensor(Xtr[_di], dtype=torch.float32); _yd = torch.tensor(ytr[_di], dtype=torch.long)
+        _dd = torch.tensor(dtr[_di], dtype=torch.long); _gb = slice(0, min(bs, _nd))
     backbone.train(); post.train()
     for ep in range(epochs):
         lam_t = lam * min(1.0, ep / max(1, warmup))
         gamma_t = gamma * min(1.0, ep / max(1, warmup))   # decoder-term warmup (dual)
         last_epoch = ep == epochs - 1
+        if log_curves:
+            _acc = dict(ce=[], lpc=[], total=[]); _lr_used = sched.get_last_lr()[0]
         for xb, yb, db, wb in dl:
             xb, yb, db, wb = xb.to(device), yb.to(device), db.to(device), wb.to(device)
             if uses_ssl:                                  # self-supervised contrastive framework
@@ -337,6 +422,9 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                     loss = loss + lam_t * r
                     if last_epoch:
                         diag["inloop_reg"].append(_scalar(r))
+                    if log_curves:
+                        _acc["ce"].append(_scalar(ce_q)); _acc["lpc"].append(_scalar(r))
+                        _acc["total"].append(_scalar(loss))
                 if uses_fmca:                            # Route 2: FMCA(Z,S) closed-form on z
                     r = fmca_reg(method, z, yb, db, n_cls, n_dom)
                     loss = loss + lam_t * r
@@ -361,6 +449,11 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                     loss = loss + dgp.adv_penalty(disc, z, yb, db, n_cls, method == "cdann", alpha=lam_t)
             opt_main.zero_grad(); loss.backward(); opt_main.step()
         sched.step()
+        if log_curves and uses_cmi:
+            rec = _epoch_curve_record(_acc, lam_t, _lr_used, _enc_params, backbone, post,
+                                      cmi_method, _Xd, _yd, _dd, _gb, device,
+                                      grad_decomp=((ep + 1) % curve_every == 0))
+            rec["epoch"] = ep; diag["curves"].append(rec)
         if log_every and (ep + 1) % log_every == 0:
             print(f"  ep {ep+1}/{epochs} lam_t={lam_t:.3f} loss={loss.item():.4f}", flush=True)
     out = dict(stepA_dom_acc=diag["stepA_dom_correct"] / max(1, diag["stepA_dom_total"]),
@@ -375,6 +468,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         out["inloop_dec"] = float(np.mean(diag["inloop_dec"]))
     if "inloop_dec_loss" in diag:
         out["inloop_dec_loss"] = float(np.mean(diag["inloop_dec_loss"]))
+    if log_curves and "curves" in diag:
+        out["curves"] = diag["curves"]      # list[per-epoch dict] (Phase 2.1)
     return backbone, post, out
 
 
