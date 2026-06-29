@@ -51,12 +51,16 @@ ACAR is the leak-proof successor to the closed A0 line. Estimand = action-condit
 | A3 | ACAR v2 is a **deployable safe router** | **DROPPED → MEASUREMENT_ONLY** | v2 G2=False (router NLL not below best-fixed/random at usable coverage); SCZ coverage diagnostic missed nominal (201/225=0.8933) |
 | A4 | The v3 **HSCR redesign** (mean/scale/CQR DeepSets + subject-clustered joint conformal) **passes the pre-registered development gate** | **DROPPED → `DEV_STOP / NO_LOCKBOX_CONSUMED`** | v3 DEV run #002 (`acar-v3-dev-design-v1 @ 817b04f`; result `9f4e83f`, tag `acar-v3-dev-run002-dev-stop`): no C1/C2/C3 passes S2/S4 — adaptation coverage ~0.6–1.1 % (≪15 %; conformal `q`≫`|ΔR|`) and PD center-AUROC 0.525–0.570 (<0.60) |
 | A5 | Any **external Arm-B / held-out lockbox** ACAR result (binding G2, site-local coverage, harmful-rate, two-site) | **OPEN — NOT RUN; NOT AUTHORIZED** | v3 stopped at the DEV gate; lockbox NOT consumed; external freeze never reached |
+| A6 | The v4 **control-first redesign** (CURB: calibrate the EXECUTED policy's subject risk on a finite λ grid, not the all-action conformal upper bound) yields a usable DEV router | **EXPLORATORY_CANDIDATE — DEV-only; NOT confirmed** | v4 DEV exploration #001 (`acar` @ `e9760e6`; `results/acar_v4_dev_exploration_001/`): `V4_DEV_CANDIDATE_FOUND_FOR_POSSIBLE_FREEZE`. 14/90 both-disease configs pass pre-registered G0–G6 OOF: coverage 16–86 %, deployed NLL reduction beating the v2-replay comparator (macro 0.0985, == v3 C0) on BOTH diseases. **Caveat: model-selection over 90 configs (selection bias); DEV-only; harm rate 15–46 % of adapted batches; no lockbox/external.** A candidate for a future freeze, NOT a confirmed/external result |
 
-**ACAR net statement:** the measurement signal is replicated (label-free action-conditional harm is rankable, esp.
-SCZ), but **calibrated closed-loop control is not established** — both v2 (G2 fail) and the stricter pre-registered v3
-(DEV_STOP) leave the measurement→control gap open. v3's contribution is a **pre-registered negative development result**,
-not an external validation. **Authoritative ACAR claim status: measurement signal replicated; calibrated control not
-established.** Binding for write-up: do NOT claim a safe deployable router, an external lockbox result, a verified
+**ACAR net statement (updated 2026-06-29):** v2 (`MEASUREMENT_ONLY`) and v3 (`DEV_STOP`) established the
+measurement→control gap; **v4's control-first redesign (CURB) partially CLOSES it on the DEV cohorts** — calibrating the
+deployed policy's subject risk directly (finite-grid LTT) turns the label-free harm signal into usable adaptation
+coverage (16–86 %) with positive deployed NLL reduction beating the v2-replay baseline on both diseases, OOF. This is an
+**exploratory development candidate**, NOT confirmed control: it is selected among 90 configs on DEV (selection bias),
+harm rates are non-trivial, and no held-out / external data has been consumed. **Authoritative ACAR claim status:
+measurement replicated (v2/v3); a DEV-only control-first CANDIDATE exists (v4, exploratory); calibrated control is NOT
+yet confirmed (no frozen-protocol held-out result).** Binding for write-up: do NOT claim a safe deployable router, an external lockbox result, a verified
 coverage theorem on an external site, or that SCZ's local signal supports deployment (coverage 1–2 %, PD below gate). No
 threshold/δ/seed/candidate search to chase a pass — any continuation is a NEW dated, separately-tagged protocol (e.g.
 `acar-v4-…`), never an in-place edit of `817b04f` or this result.
@@ -64,7 +68,9 @@ threshold/δ/seed/candidate search to chase a pass — any continuation is a NEW
 ## Standing constraints
 No new gate / LPC / coverage / cohort / score search (per the frozen A0-PILOT rule). Deployment control uses no
 target labels and no source examples. TUAB stays sealed pending the exposure audit's disposition. **ACAR: v3 is
-terminated at `DEV_STOP`; the lockbox is not consumed and external Arm B is not authorized (see A4/A5).**
+terminated at `DEV_STOP`; the lockbox is not consumed and external Arm B is not authorized (see A4/A5). v4 found a
+DEV-only control-first CANDIDATE (A6, exploratory, model-selection over 90 configs) — NOT confirmed; the lockbox stays
+sealed and external Arm B stays unauthorized until a frozen v4 protocol (`ACAR_FROZEN_v4.md` + new tag) is committed.**
 
 **SURVIVOR AUDIT COMPLETE (steps 1–4 done; NO open items).** LPC's three pillars all collapsed (leakage = via
 representation collapse, calibration = a single-temperature side-effect, accuracy = the generic matched-CORAL

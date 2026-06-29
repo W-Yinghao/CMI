@@ -1,0 +1,6 @@
+{
+  "manifest_sha256": "8f5ccb288c7ca93857acd593ff6ec31bb4965c522a20d24b289ab9800bb970da",
+  "run_status": "V4_DEV_EXPLORATION_COMPLETE",
+  "v4_oof_records_sha256": "7c7bcd51de874533cd75f9ec2ba64690930cd3bcbbb868bda7bcbce0a4909768",
+  "verdict": "V4_DEV_CANDIDATE_FOUND_FOR_POSSIBLE_FREEZE"
+}
