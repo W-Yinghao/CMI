@@ -342,6 +342,20 @@ def test_record_digest_action_names_injective():
     assert D._record_digest(mk(("a\x00b", "c", "d"))) != D._record_digest(mk(("a", "b\x00c", "d")))
 
 
+def test_score_family_registry_predeclared():
+    expected = {"shift_margin", "js_flip", "d_entropy_pos", "d_entropy_neg", "d_margin_neg", "flip_pos",
+                "js_pos", "bures_pos", "n_eff_neg", "unc_pos"}
+    assert set(D.SCORE_FAMILY_REGISTRY) == expected
+    feats = np.random.default_rng(0).normal(size=(7, A, NF))
+    for name, fam in D.SCORE_FAMILY_REGISTRY.items():
+        harm, benefit = fam.compute(feats)
+        assert harm.shape == (7, A) and benefit.shape == (7, A)
+        assert np.all(np.isfinite(harm)) and np.all(np.isfinite(benefit))
+    # all predeclared names resolve in real_mode and run to completion
+    res = D.run_dev_exploration(_make_records(beneficial=True), score_families=sorted(expected), real_mode=True)
+    assert res.run_status == D.V4_DEV_EXPLORATION_COMPLETE
+
+
 def test_exact_oof_eval_coverage():
     # clean cross-fit (every subject & batch EVAL exactly once) satisfies exact coverage, in real_mode AND via flag
     assert D.run_dev_exploration(_make_records(beneficial=True), score_families=["shift_margin"],
@@ -399,7 +413,8 @@ def main():
               test_record_digest_permutation_invariant_and_field_sensitive, test_atomic_writer,
               test_assert_no_binding_language_rejects_illegal, test_cal_records_value_excluded_from_eval_operating_point,
               test_g4_requires_all_eval_folds_certified, test_construction_rejects_non_float_and_control_chars,
-              test_record_digest_action_names_injective, test_exact_oof_eval_coverage, test_fail_closed_validation):
+              test_record_digest_action_names_injective, test_score_family_registry_predeclared,
+              test_exact_oof_eval_coverage, test_fail_closed_validation):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 DEVELOP GUARDS PASS")

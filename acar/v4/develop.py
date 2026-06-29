@@ -175,23 +175,45 @@ class V4DevExplorationResult:
 
 # ----------------------------------------------------------------------------- score-family registry
 
+# PRE-DECLARED, label-free score families. ALL depend ONLY on features_v2 (never ΔR). v2 paired order: d_entropy0
+# d_margin1 flip_rate2 js3 bures4 post_sep5 n_eff6 | g_unc7 s_support8 s_sep9 pr_cmi_proxy10. Both fields are "lower is
+# safer/better": a "*_pos" family takes harm=benefit=+f[idx] (higher feature ⇒ more harm); "*_neg" takes −f[idx]. The
+# real DEV exploration passes an EXPLICIT subset of these names (real_mode); the chosen set + score_family_registry_sha256
+# are pinned in notes/ACAR_V4_DEV_EXPLORATION_RUN_PLAN.md BEFORE the run (not chosen after seeing results).
 def _sf_shift_margin(feats):
-    h = feats[:, :, 1]                                       # d_margin proxy (placeholder)
+    h = feats[:, :, 1]                                       # == d_margin_pos (harm=benefit=+d_margin)
     return h, h
 
 
 def _sf_js_flip(feats):
-    return feats[:, :, 3], feats[:, :, 2]                    # js as harm, flip_rate as benefit (placeholder)
+    return feats[:, :, 3], feats[:, :, 2]                    # cross family: harm=+js, benefit=+flip_rate
+
+
+def _coord(idx_h, sgn_h, idx_b, sgn_b):
+    def compute(feats):
+        return sgn_h * feats[:, :, idx_h], sgn_b * feats[:, :, idx_b]
+    return compute
+
+
+_PREDECLARED = (
+    ("shift_margin", _sf_shift_margin),                     # d_margin_pos
+    ("js_flip", _sf_js_flip),
+    ("d_entropy_pos", _coord(0, 1.0, 0, 1.0)),
+    ("d_entropy_neg", _coord(0, -1.0, 0, -1.0)),
+    ("d_margin_neg", _coord(1, -1.0, 1, -1.0)),
+    ("flip_pos", _coord(2, 1.0, 2, 1.0)),
+    ("js_pos", _coord(3, 1.0, 3, 1.0)),
+    ("bures_pos", _coord(4, 1.0, 4, 1.0)),
+    ("n_eff_neg", _coord(6, -1.0, 6, -1.0)),
+    ("unc_pos", _coord(7, 1.0, 7, 1.0)),
+)
+SCORE_FAMILY_REGISTRY = {name: ScoreFamily(name, fn) for name, fn in _PREDECLARED}
 
 
 def default_score_families():
-    """Coordinate-based PLACEHOLDERS so the module is self-contained — the REAL predeclared label-free transforms are
-    fixed in ACAR_V4_DEV_EXPLORATION_RUN_PLAN.md / ACAR_FROZEN_v4.md. v2 paired order: d_entropy0 d_margin1 flip_rate2
-    js3 bures4 post_sep5 n_eff6 | g_unc7 s_support8 s_sep9 pr_cmi_proxy10."""
-    return (ScoreFamily("shift_margin", _sf_shift_margin), ScoreFamily("js_flip", _sf_js_flip))
-
-
-SCORE_FAMILY_REGISTRY = {f.name: f for f in default_score_families()}
+    """Default (synthetic convenience) = the two named families; the real run passes an explicit subset of the registry
+    by name (real_mode rejects implicit defaults and arbitrary callables)."""
+    return (SCORE_FAMILY_REGISTRY["shift_margin"], SCORE_FAMILY_REGISTRY["js_flip"])
 
 
 def _resolve_score_families(score_families, real_mode):
