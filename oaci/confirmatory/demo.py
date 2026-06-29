@@ -16,6 +16,7 @@ import contextlib
 import sys
 
 from ..artifacts.canonical_json import canonical_json_bytes
+from ..leakage.parallel import set_leakage_parallel
 from ..runtime.cuda import configure_cuda_determinism
 from .materialize import VALIDATION_BOOTSTRAP
 from .onefold import DATASET, run_confirmatory_onefold
@@ -35,9 +36,14 @@ def main(argv=None) -> int:
     ap.add_argument("--bootstrap-mode", choices=("full", "validation"), default="full",
                     help="'validation' shrinks ONLY the leakage/eval bootstrap (reduced-uncertainty "
                          "pipeline validation); the full TRAINING budget is always kept")
+    ap.add_argument("--leakage-jobs", type=int, default=1,
+                    help="process-parallel leakage bootstrap workers (single-threaded each); "
+                         ">1 is bit-identical to sequential, pure execution acceleration")
     args = ap.parse_args(argv)
     seeds = tuple(int(s) for s in args.model_seeds.split(","))
     override = VALIDATION_BOOTSTRAP if args.bootstrap_mode == "validation" else None
+    if int(args.leakage_jobs) > 1:
+        set_leakage_parallel(int(args.leakage_jobs), "process")     # execution-only; never hashed
     real_stdout = sys.stdout
     try:
         with contextlib.redirect_stdout(sys.stderr):
@@ -53,6 +59,8 @@ def main(argv=None) -> int:
     except Exception as e:  # noqa: BLE001
         print(f"confirmatory one-fold failed: {e}", file=sys.stderr)
         return 1
+    finally:
+        set_leakage_parallel(1, "sequential")               # release the worker pool
 
 
 if __name__ == "__main__":

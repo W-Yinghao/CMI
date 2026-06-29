@@ -33,6 +33,7 @@ REPO="$(pwd)"
 TARGET="${OACI_TARGET_SUBJECT:-1}"
 SEEDS="${OACI_MODEL_SEEDS:-0,1,2}"
 BOOTSTRAP_MODE="${OACI_BOOTSTRAP_MODE:-full}"            # 'validation' = reduced leakage/eval bootstrap
+LEAKAGE_JOBS="${OACI_LEAKAGE_JOBS:-16}"                  # process-parallel leakage workers (bit-exact)
 
 nvidia-smi >/dev/null
 [ -n "${CUDA_VISIBLE_DEVICES:-}" ] || { echo "no CUDA_VISIBLE_DEVICES from SLURM" >&2; exit 1; }
@@ -43,13 +44,14 @@ case "$OACI_OUT_ROOT" in "$REPO"/*|"$REPO") echo "output root must be OUTSIDE th
 [ -z "$(git -C "$REPO" status --porcelain -- oaci)" ] || { echo "scientific tree is dirty" >&2; exit 1; }
 mkdir -p "$OACI_OUT_ROOT"
 
-echo "[confirmatory-onefold] node=$(hostname) gpu=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1) commit=$(git -C "$REPO" rev-parse --short HEAD) target=$TARGET seeds=$SEEDS bootstrap=$BOOTSTRAP_MODE"
+echo "[confirmatory-onefold] node=$(hostname) gpu=$(nvidia-smi --query-gpu=name --format=csv,noheader | head -1) commit=$(git -C "$REPO" rev-parse --short HEAD) target=$TARGET seeds=$SEEDS bootstrap=$BOOTSTRAP_MODE leakage_jobs=$LEAKAGE_JOBS"
 
 set +e
 $PY -m oaci.confirmatory.demo --protocol oaci/protocol/confirmatory_v2.yaml \
     --datalake-root "$OACI_DATALAKE_ROOT" --output-root "$OACI_OUT_ROOT/artifacts" \
     --manifest-out "$OACI_OUT_ROOT/pilot_manifest.yaml" --repo-root "$REPO" \
     --target-subject "$TARGET" --model-seeds "$SEEDS" --bootstrap-mode "$BOOTSTRAP_MODE" \
+    --leakage-jobs "$LEAKAGE_JOBS" \
     >"$OACI_OUT_ROOT/onefold-report.json" 2>"$OACI_OUT_ROOT/onefold.err"
 demo_rc=$?
 

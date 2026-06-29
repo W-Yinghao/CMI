@@ -18,8 +18,13 @@ __all__ = ["LeakageNonEstimableError", "SelectionScoringSession", "compute_leaka
 
 
 def compute_leakage_score(feat, support_graph, fold_plan, bootstrap_plan, cfg) -> dict:
-    """Replay the explicit bootstrap plan into a leakage score (point + ``bootstrap_ucl``)."""
-    return bootstrap_ucb(feat, support_graph, fold_plan, cfg, bootstrap_plan=bootstrap_plan)
+    """Replay the explicit bootstrap plan into a leakage score (point + ``bootstrap_ucl``). The ambient
+    leakage-parallel config (execution-only; never hashed) decides sequential vs process replay -- the
+    result is bit-identical either way."""
+    from ..leakage.parallel import get_leakage_parallel
+    p = get_leakage_parallel()
+    return bootstrap_ucb(feat, support_graph, fold_plan, cfg, bootstrap_plan=bootstrap_plan,
+                         parallel_n_jobs=int(p["n_jobs"]), parallel_backend=str(p["backend"]))
 
 
 def overlap_probe_sample_ids(design, support_graph) -> tuple:

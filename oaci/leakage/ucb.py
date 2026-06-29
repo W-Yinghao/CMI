@@ -86,11 +86,17 @@ def bootstrap_ucb(
     seed: int = 0,
     *,
     bootstrap_plan=None,
+    parallel_n_jobs: int = 1,
+    parallel_backend: str = "sequential",
 ) -> dict:
     """Point estimate + one-sided basic bootstrap UCL replaying an EXPLICIT
     :class:`LeakageBootstrapPlan`. With no plan supplied, a plan is built here (legacy entry point,
     ``max_invalid_draw_rate=1.0``) and then replayed through the SAME path — so the bootstrap is
-    always plan-driven (no in-loop RNG, no per-method redraw)."""
+    always plan-driven (no in-loop RNG, no per-method redraw).
+
+    ``parallel_backend="process"`` with ``parallel_n_jobs>1`` replays the accepted draws across worker
+    processes. This is PURE acceleration: the replicate values and their order are bit-identical to the
+    sequential loop (see :mod:`oaci.leakage.parallel`); it does not enter any scientific hash."""
     if bootstrap_plan is None:
         bootstrap_plan = make_leakage_bootstrap_plan(
             _design_from_feat(feat, support_graph), support_graph, fold_plan, alpha=alpha,
@@ -112,18 +118,24 @@ def bootstrap_ucb(
     Lhat = point["extractable_LQ_ov"]
     group_rows = _group_to_rows(feat)
     by_id = {dr.candidate_id: dr for dr in bootstrap_plan.candidate_draws}
+    accepted = list(bootstrap_plan.accepted_candidate_ids)
 
-    reps, rep_caps = [], []
-    for cid in bootstrap_plan.accepted_candidate_ids:
-        resampled = [g for g, m in by_id[cid].group_multiplicities for _ in range(int(m))]   # str groups
-        feat_b = _rebuild(feat, group_rows, resampled)
-        try:
-            est_b = estimate_extractable_leakage(feat_b, support_graph, fold_plan, cfg)
-        except ValueError as e:                     # an accepted draw must NOT fail; report it
-            raise ValueError(f"accepted bootstrap candidate {cid} failed during scoring: {e}")
-        reps.append(est_b["extractable_LQ_ov"]); rep_caps.append(est_b["selected_capacity"])
+    if parallel_backend == "process" and int(parallel_n_jobs) > 1 and accepted:
+        from .parallel import parallel_replicate_estimates       # lazy: avoid import cycle + the spawn cost
+        reps_list, rep_caps = parallel_replicate_estimates(
+            accepted, feat, group_rows, by_id, support_graph, fold_plan, cfg, int(parallel_n_jobs))
+    else:
+        reps_list, rep_caps = [], []
+        for cid in accepted:
+            resampled = [g for g, m in by_id[cid].group_multiplicities for _ in range(int(m))]   # str groups
+            feat_b = _rebuild(feat, group_rows, resampled)
+            try:
+                est_b = estimate_extractable_leakage(feat_b, support_graph, fold_plan, cfg)
+            except ValueError as e:                 # an accepted draw must NOT fail; report it
+                raise ValueError(f"accepted bootstrap candidate {cid} failed during scoring: {e}")
+            reps_list.append(est_b["extractable_LQ_ov"]); rep_caps.append(est_b["selected_capacity"])
 
-    reps = np.asarray(reps, dtype=np.float64)
+    reps = np.asarray(reps_list, dtype=np.float64)
     q_low = float(np.quantile(reps, bootstrap_plan.alpha))
     return {
         "extractable_LQ_ov": float(Lhat),

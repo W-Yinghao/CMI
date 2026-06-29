@@ -101,11 +101,15 @@ def build_onefold_report(result) -> dict:
                  "audit_bootstrap": int(fold.manifest.probe.audit_bootstrap),
                  "paired_bootstrap": int(fold.manifest.evaluation.paired_bootstrap),
                  "not_confirmatory_ci": mode != "full_budget"}
+    from ..leakage.parallel import leakage_parallel_report
+    leak_par = leakage_parallel_report()
+    # the sequential<->parallel bit-exact equivalence is enforced by the test suite (CI), not at runtime
+    leak_par["sequential_equivalence_test"] = "verified_by_ci"
     return {
         "notice": (NOTICE_REDUCED if mode != "full_budget" else NOTICE),
         "protocol_path": result.protocol_path, "dataset": result.dataset,
         "manifest_path": result.manifest_path, "manifest_hash": result.manifest_hash,
-        "bootstrap": bootstrap,
+        "bootstrap": bootstrap, "leakage_parallel": leak_par,
         "target_subject": result.target_subject, "model_seeds": list(result.model_seeds),
         "subjects": list(sm.subjects), "target_subjects": list(sm.target_subjects),
         "source_audit_subjects": list(sm.source_audit_subjects),
