@@ -114,6 +114,34 @@ def test_baseline_gate_decision_logic():
     assert m.controls_ok(0.9, 0.6, 0.333) is False and m.controls_ok(0.4, 0.0, 0.333) is False
 
 
+def test_gentle_selection_firewall_target_cannot_change_confirmation():
+    """SELECTION FIREWALL: target_eval (target_drop_vs_erm) must NOT change source_only_reducers,
+    best_reducer, or confirmation_labels; it may change ONLY the final reported verdict."""
+    m = _mod()
+
+    def cfg(g30, n30, s_drop, t_drop, red=0.9):
+        return dict(graph_reduce30_seeds=g30, node_reduce30_seeds=n30, source_drop_vs_erm=s_drop,
+                    target_drop_vs_erm=t_drop, graph_reduction_vs_erm=red, node_reduction_vs_erm=red)
+    base = {"erm_fixed": cfg(0, 0, 0.0, 0.0, 0.0),
+            "graph_node_01": cfg(3, 3, 0.02, 0.02),     # source-ok AND target-ok
+            "graph_node_03": cfg(3, 3, 0.02, 0.20),     # source-ok but target-BAD
+            "node_only_01": cfg(0, 3, 0.10, 0.0),       # graph/node-capable but source-task drop too big
+            "edge_only_10": cfg(0, 0, 0.01, 0.01)}      # not graph/node-capable
+    s1 = m.decide_gentle_selection(base)
+    # corrupt ONLY target_drop of every config (simulating arbitrary target-label corruption)
+    corrupt = {k: {**v, "target_drop_vs_erm": v["target_drop_vs_erm"] + 0.50} for k, v in base.items()}
+    s2 = m.decide_gentle_selection(corrupt)
+    # source-only selection is INVARIANT to target corruption
+    assert s1["source_only_reducers"] == s2["source_only_reducers"] == ["graph_node_01", "graph_node_03"]
+    assert s1["confirmation_labels"] == s2["confirmation_labels"] == ["erm_fixed", "graph_node_01", "graph_node_03"]
+    assert s1["best_reducer"] == s2["best_reducer"]
+    assert s1["gentle_gate_pass_source_only"] == s2["gentle_gate_pass_source_only"] is True
+    # the FINAL target-retention verdict CAN change under target corruption (verdict only)
+    assert s1["final_task_preserving_reducers"] == ["graph_node_01"]
+    assert s2["final_task_preserving_reducers"] == []
+    assert s1["gentle_gate_pass_with_target_retention"] is True and s2["gentle_gate_pass_with_target_retention"] is False
+
+
 # ----------------------------------------------------------------- gate -> conditional Part B
 def test_forced_fail_skips_part_b():
     r = subprocess.run([sys.executable, str(SCRIPT)] + DRY + ["--force_baseline_fail"],
@@ -141,8 +169,17 @@ def test_forced_pass_runs_part_b_gentle_microladder():
         assert "source_drop_vs_erm" in a and "target_drop_vs_erm" in a
         assert a["target_eval_is_evaluation_only"] is True
     assert pb["baseline"] in [c["name"] for c in _mod().BASELINE_CANDIDATES]
-    # confirmation re-audit (n_perm_confirm) covers erm_fixed + winners/best-reducer, with per-seed records
+    # SELECTION FIREWALL fields: confirmation chosen source-only; target_eval is verdict-only
+    assert pb["confirmation_label_selection_uses_target_eval"] is False
+    assert pb["target_eval_used_for_verdict_only"] is True
+    assert "source_only_reducers" in pb and "final_task_preserving_reducers" in pb
+    assert set(pb["confirmation_labels"]) == set({"erm_fixed"}) | set(pb["source_only_reducers"]) | (
+        {pb["best_reducer"]} if pb["best_reducer"] else set())
+    # final verdict is a subset of the source-only reducers (target only filters, never adds)
+    assert set(pb["final_task_preserving_reducers"]) <= set(pb["source_only_reducers"])
+    # confirmation re-audit (n_perm_confirm) covers the source-only-chosen labels, with per-seed records
     assert "erm_fixed" in pb["confirmation"] and "erm_fixed" in pb["confirmation_per_seed"]
+    assert set(pb["confirmation_per_seed"]) == set(pb["confirmation_labels"])
     for lbl, by_seed in pb["confirmation_per_seed"].items():
         for seed, blocks in by_seed.items():
             for o in ("graph", "node", "edge"):

@@ -152,6 +152,29 @@ def decide_baseline_gate(cand_agg, control_ok, floor, gain, force_fail=False, fo
     return list(passing), best, gate_pass
 
 
+def decide_gentle_selection(gentle_agg, source_drop_max=0.03, target_drop_max=0.05, reduce30_min_seeds=2):
+    """SOURCE-ONLY selection firewall for Part B. ALL selection (which configs get the n_perm_confirm
+    re-audit, the best reducer) uses ONLY source-side evidence (graph/node reduction + source_drop).
+    target_eval enters ONLY `final_task_preserving_reducers`, a REPORTED verdict computed AFTER the
+    source-only decisions — it must never change `confirmation_labels`/`source_only_reducers`/
+    `best_reducer`. Returns a dict with both layers."""
+    gn = [l for l in gentle_agg if l != "erm_fixed"
+          and (gentle_agg[l].get("graph_reduce30_seeds", 0) >= reduce30_min_seeds
+               or gentle_agg[l].get("node_reduce30_seeds", 0) >= reduce30_min_seeds)]
+    source_only_reducers = [l for l in gn if gentle_agg[l]["source_drop_vs_erm"] <= source_drop_max]
+    best_reducer = max(gn, key=lambda l: max(gentle_agg[l].get("graph_reduction_vs_erm") or 0.0,
+                                             gentle_agg[l].get("node_reduction_vs_erm") or 0.0)) if gn else None
+    confirmation_labels = sorted({"erm_fixed"} | set(source_only_reducers)
+                                 | ({best_reducer} if best_reducer else set()))
+    final_task_preserving_reducers = [l for l in source_only_reducers
+                                      if gentle_agg[l]["target_drop_vs_erm"] <= target_drop_max]
+    return dict(source_only_reducers=source_only_reducers, best_reducer=best_reducer,
+                confirmation_labels=confirmation_labels,
+                final_task_preserving_reducers=final_task_preserving_reducers,
+                gentle_gate_pass_source_only=bool(source_only_reducers),
+                gentle_gate_pass_with_target_retention=bool(final_task_preserving_reducers))
+
+
 # ----------------------------------------------------------------------------- core train+eval
 def _train_eval(candidate, lambdas, fold, seed, args, device, n_perm, label_shuffle=False, subset=None,
                 epochs_override=None):
@@ -391,20 +414,15 @@ def main():
                 a[f"{o}_reduce30_seeds"] = int(sum(
                     1 for r in recs if erm_kl[o] and erm_kl[o] > 0 and (erm_kl[o] - r[o]["kl_mean"]) / erm_kl[o] >= 0.30))
             gentle_agg[lbl] = a
-        # gentle PASS (a reviewer VERDICT, not a selection): a graph/node-capable config with >=30%
-        # graph or node reduction in >=2/3 seeds AND source drop <=3pt AND target drop <=5pt. (target_eval
-        # enters this REPORTED verdict only; it is never used to SELECT a config for training.)
-        gn = [l for l in gentle_agg if l != "erm_fixed"
-              and (gentle_agg[l]["graph_reduce30_seeds"] >= 2 or gentle_agg[l]["node_reduce30_seeds"] >= 2)]
-        winners = [l for l in gn if gentle_agg[l]["source_drop_vs_erm"] <= 0.03
-                   and gentle_agg[l]["target_drop_vs_erm"] <= 0.05]
-        gentle_gate_pass = bool(winners)
-        # CONFIRMATION: re-audit erm_fixed + winners (or the best graph/node reducer if none) at
-        # n_perm_confirm for permutation-significance, retaining per-seed records (same frozen model,
-        # higher permutation power — the encoder init is seeded before construction).
-        best_reducer = max(gn, key=lambda l: max(gentle_agg[l].get("graph_reduction_vs_erm") or 0.0,
-                                                  gentle_agg[l].get("node_reduction_vs_erm") or 0.0)) if gn else None
-        confirm_labels = sorted({"erm_fixed"} | set(winners) | ({best_reducer} if best_reducer else set()))
+        # SOURCE-ONLY selection firewall (target_eval cannot influence which configs get confirmed):
+        sel = decide_gentle_selection(gentle_agg)
+        source_only_reducers = sel["source_only_reducers"]
+        best_reducer = sel["best_reducer"]
+        confirm_labels = sel["confirmation_labels"]
+        final_task_preserving_reducers = sel["final_task_preserving_reducers"]
+        gentle_gate_pass_source_only = sel["gentle_gate_pass_source_only"]
+        gentle_gate_pass_with_target_retention = sel["gentle_gate_pass_with_target_retention"]
+        gentle_gate_pass = gentle_gate_pass_with_target_retention   # back-compat alias = final verdict
         confirmation, confirmation_per_seed = {}, {}
         for lbl in confirm_labels:
             _, lg, ln, le = next(c for c in GENTLE_CONFIGS if c[0] == lbl)
@@ -418,12 +436,22 @@ def main():
                 for o in ("graph", "node", "edge")} for r in recs}
             confirmation[lbl] = {f"{o}_clears_null_count": int(sum(r[o]["clears_null"] for r in recs))
                                  for o in ("graph", "node", "edge")}
-        summary["part_b"] = dict(baseline=best_baseline, erm_reference_kl=erm_kl, gentle=gentle_agg,
-                                 task_preserving_reducers=winners, gentle_gate_pass=gentle_gate_pass,
-                                 n_perm_confirm=int(args.n_perm_confirm), confirm_labels=confirm_labels,
-                                 confirmation=confirmation, confirmation_per_seed=confirmation_per_seed)
-        print(f"\n  gentle_gate_pass={gentle_gate_pass}  task_preserving_reducers={winners}  "
-              f"confirm={confirm_labels} @n_perm={args.n_perm_confirm}  (source-only selection)", flush=True)
+        summary["part_b"] = dict(
+            baseline=best_baseline, erm_reference_kl=erm_kl, gentle=gentle_agg, best_reducer=best_reducer,
+            source_only_reducers=source_only_reducers,
+            final_task_preserving_reducers=final_task_preserving_reducers,
+            task_preserving_reducers=final_task_preserving_reducers,        # back-compat alias
+            gentle_gate_pass_source_only=gentle_gate_pass_source_only,
+            gentle_gate_pass_with_target_retention=gentle_gate_pass_with_target_retention,
+            gentle_gate_pass=gentle_gate_pass,                              # = final target-retention verdict
+            confirmation_labels=confirm_labels,
+            confirmation_label_selection_uses_target_eval=False,
+            target_eval_used_for_verdict_only=True,
+            n_perm_confirm=int(args.n_perm_confirm),
+            confirmation=confirmation, confirmation_per_seed=confirmation_per_seed)
+        print(f"\n  source_only_reducers={source_only_reducers}  confirm_labels={confirm_labels} "
+              f"(SOURCE-ONLY) @n_perm={args.n_perm_confirm}\n  final_task_preserving_reducers="
+              f"{final_task_preserving_reducers} (verdict only; target_eval never selects)", flush=True)
 
     json.dump(summary, open(OUT_DIR / f"{fold_tag}_baseline_repair_summary.json", "w"), indent=2)
     print(f"\n[phase3a-R] wrote {OUT_DIR / f'{fold_tag}_baseline_repair_summary.json'}")

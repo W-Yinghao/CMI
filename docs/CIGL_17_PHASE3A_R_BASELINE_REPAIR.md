@@ -56,10 +56,19 @@ On the selected baseline config: `erm_fixed (0:0:0)`, `graph_node_003 (0.003:0.0
 graph/node reducer if none), with **per-seed records retained** (`confirmation`,
 `confirmation_per_seed`, `*_confirm_*_seed*_nperm50.json`; same frozen model, higher permutation power).
 
-**Gentle gate (PASS, a reviewer VERDICT — not a selection):** at least one graph/node-capable config
-reduces **graph or node** KL by **≥30%** vs fixed ERM in **≥2/3 seeds**, with **source** bAcc drop
-**≤3 pt** AND **target** bAcc drop **≤5 pt** (target_eval enters only this reported verdict, never
-config selection for training). The best-baseline and any config *selection* use source-only metrics.
+**Selection firewall (two layers):**
+
+1. **`source_only_reducers`** (drives ALL selection): graph/node-capable configs with **≥30%** graph or
+   node reduction in **≥2/3 seeds** AND **source** bAcc drop **≤3 pt**. The **confirmation labels**
+   (`{erm_fixed} ∪ source_only_reducers ∪ {best_reducer}`) and `best_reducer` are chosen from these —
+   **`target_eval` is never consulted**, so target labels cannot change which configs get re-audited.
+2. **`final_task_preserving_reducers`** (REPORTED verdict only): `source_only_reducers` that also keep
+   **target** bAcc drop **≤5 pt**. Computed **after** the confirmation labels are fixed; it never feeds
+   selection, confirmation, training, audit, normalization, or any re-run decision.
+
+Summary records `confirmation_label_selection_uses_target_eval=false`,
+`target_eval_used_for_verdict_only=true`, `gentle_gate_pass_source_only`, and
+`gentle_gate_pass_with_target_retention`.
 
 ## Decision branches (reviewer decides)
 

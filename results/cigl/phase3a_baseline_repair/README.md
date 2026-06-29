@@ -30,8 +30,13 @@ results/cigl/phase3a_baseline_repair/
     (want ≈ chance), `controls_ok`.
   - `baseline_bacc_floor`, `baseline_gate_pass`, `best_baseline` (source-only selection).
 - `part_b` (**null if Part A fails**): `baseline`, `erm_reference_kl`, `gentle[config]`
-  (`source_probe_bacc`, `source_drop_vs_erm`, `{obj}_kl_mean`, `{obj}_reduction_vs_erm`,
-  `{obj}_reduce30_seeds`), `task_preserving_reducers`, `gentle_gate_pass`.
+  (`source_probe_bacc`, `source_drop_vs_erm`, `target_drop_vs_erm`, `{obj}_kl_mean`,
+  `{obj}_reduction_vs_erm`, `{obj}_reduce30_seeds`); the **selection firewall** fields
+  `source_only_reducers`, `best_reducer`, `confirmation_labels` (all chosen **source-only**),
+  `final_task_preserving_reducers` (reported verdict, adds target retention),
+  `gentle_gate_pass_source_only`, `gentle_gate_pass_with_target_retention`,
+  `confirmation_label_selection_uses_target_eval=false`, `target_eval_used_for_verdict_only=true`; and
+  the `n_perm_confirm` `confirmation` / `confirmation_per_seed` re-audit of the source-only labels.
 
 ## Rules
 
