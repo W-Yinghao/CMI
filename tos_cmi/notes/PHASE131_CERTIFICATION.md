@@ -157,7 +157,37 @@ table carries an estimator FINGERPRINT and the gate ABSTAINS on mismatch; outer-
 recorded (q0/q1 final mixture). Name: "cross-fitted one-step log-ratio / efficiency-targeting"
 (efficiency is conditional on classifier convergence), not unconditionally "efficient".
 
-## 5. Default-on gate (task_protect) — STAYS OFF (estimator-direction PROVEN; default-on NOT yet)
+## 4e. Phase 1.3.4 — independent-seed decision-level certification (VERDICT: NOT certified)
+
+Four disjoint seed groups, R=50, frozen deployment config (tag plugin-logratio-v1-cert-candidate),
+exact-cell + scope lookup. Boundary effect Δ*=δ_Y; bar = one-sided Wilson LCB ≥ 0.80 (≥45/50).
+```
+G1 cert table (calib seeds 20000)  -- the table the gate USES:
+  δ_Y=0.10 k=1: boundary 34/50 (LCB 0.57) -> MDE 0.13 -> power_ok=FALSE
+  δ_Y=0.10 k=2: boundary 38/50 (LCB 0.65) -> MDE 0.13 -> power_ok=FALSE
+G2 boundary confirmation (independent seeds 30000):
+  δ_Y=0.10 k=1: plug-in 45/50 (LCB 0.81) PASS  | oracle 48/50 (LCB 0.89)
+  δ_Y=0.10 k=2: plug-in 43/50 (LCB 0.76) fail  | oracle 48/50 (LCB 0.89)
+  δ_Y=0.05 k=1: plug-in 46/50 (LCB 0.83) PASS  | oracle 48/50 (LCB 0.89)
+```
+**VERDICT: default-on NOT certified.** The seed groups DISAGREE at the primary cell (calib 34/50
+LCB 0.57 vs confirm 45/50 LCB 0.81): the plug-in's TRUE boundary detection rate at δ_Y=0.10 is
+≈0.80 -- right at the bar, which (at R=50) effectively needs a true rate ≈0.90 -- so it straddles
+pass/fail across independent control-family draws. The earlier single-seed deploy result (28/30,
+LCB 0.82) was a favorable draw; independent-seed confirmation (exactly the protocol's purpose)
+exposes it as borderline. k=2 fails both groups. The ORACLE robustly clears (0.89) -> the
+information is present with headroom; the residual gap is ESTIMATOR inefficiency, not n / δ_Y /
+intrinsic. (Aside: the 2δ_Y=0.20 control target saturated at Δ*≈0.09 -- the control family's max
+Δ* for these dims/base_sep is ~0.13; the boundary 0.10 target is reliable and is what decides
+power_ok.) G3/G4 not run: the calib table is power_ok=False, so the gate abstains everywhere ->
+trivially 0 UNSAFE_ACCEPT but degenerate; running them would not certify default-on.
+
+Per the pre-registered protocol, the borderline/mixed primary is SEALED. Next = a stronger
+estimator (cross-fit MODEL LIBRARY + convex STACKING) on a 3rd development seed set to push the
+true detection rate ~0.80 -> ~0.90, then re-certify on a 4th fresh set. NOT generic AIPW. The
+estimator+config remain FROZEN for these confirmatory seeds (no tuning on them).
+
+## 5. Default-on gate (task_protect) — STAYS OFF (default-on NOT certified; estimator borderline)
 The deployment cert is the estimator-direction proof (plug-in clears at δ_Y=0.10 k=1), NOT the
 default-on certification. Per the pre-registered rules, flipping task_protect + task_power_floor
 ON TOGETHER requires, on seeds/cells NOT used for estimator/config selection:
