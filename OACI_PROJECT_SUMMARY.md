@@ -275,12 +275,15 @@ All from the worktree root `/home/infres/yinwang/CMI_AAAI_oaci`, env `icml`
     a deterministic CUDA path on this build) → probe made robust → 866832 fully green.
 - `csc` and its stash remain untouched; the `oaci/` tree is clean.
 
-> **Caveat noted for follow-up.** The `artifact_scientific_hash` differs *across commits*
-> (`03460f…`@4e5b796 vs `1a7c92…`@f36e9c2) even though only a **test** file changed — i.e. the artifact
-> hash binds the git/provenance context (commit), not purely the scientific values. This does **not** affect
-> the B2b contract, which is order-invariance *within* a single run (same commit, two orders) — that holds
-> bit-exactly. A future cleanup could expose a commit-independent pure-science hash if cross-commit
-> reproducibility-by-hash is wanted.
+> **Provenance-hash caveat — RESOLVED** (`f95f288`, CPU CI **595** ALL-PASS, no GPU). The
+> `artifact_scientific_hash` binds the git commit/tree (so it differs across commits even when only a test
+> file changed: `03460f…`@4e5b796 vs `1a7c92…`@f36e9c2) — correct for a "this exact code state produced this
+> artifact" identity. Alongside it there is now a commit-**independent** `artifact_pure_science_hash` that
+> binds the science only (manifest + execution config + model spec + fold result), so identical science
+> hashes the same across commits. Both are written to the COMMITTED marker, recomputed by the verifier,
+> carried in `ArtifactSummary`, and reported by both demos (with the git commit/tree/provenance). The B2b
+> order-invariance contract (same commit, two orders → identical hash) was already bit-exact and is
+> unchanged. See §3.
 
 ### Open / next
 - **Confirmatory (full-budget) runs** = the actual scientific results. The B2b smoke is

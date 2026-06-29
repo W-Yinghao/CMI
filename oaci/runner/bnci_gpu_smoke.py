@@ -10,14 +10,13 @@ from dataclasses import dataclass
 
 import torch
 
-from ..artifacts.canonical_json import canonical_json_hash
 from ..models.bn_audit import audit_level_bn_buffers
 from ..runtime.cuda import assert_cuda_runtime_unchanged, configure_cuda_determinism
 from ..runtime.rng_state import assert_rng_unchanged, snapshot_rng_state
 from .bnci_artifact import run_bnci_artifact_once
 from .bnci_data import build_bnci_real_fold
 from .bnci_gpu_compare import comparison_all_equal, compare_scientific_results
-from .bnci_gpu_report import runtime_evidence_report
+from .bnci_gpu_report import gpu_smoke_report_hash, runtime_evidence_report
 
 CANONICAL_ORDER = ("ERM", "OACI", "global_lpc", "uniform")
 REVERSED_ORDER = ("uniform", "global_lpc", "OACI", "ERM")
@@ -74,9 +73,10 @@ def run_bnci_gpu_smoke(manifest_path, artifact_root, *, datalake_root, repo_root
               "rng_before": rng_before.snapshot_hash, "rng_after_canonical": rng_after_c.snapshot_hash,
               "rng_after_reversed": rng_after_r.snapshot_hash,
               "artifact_scientific_hash": canonical.write_result.artifact_scientific_hash,
+              "artifact_pure_science_hash": canonical.write_result.artifact_pure_science_hash,
               "fold_result_hash": canonical.fold_result.fold_result_hash,
               "bn_all_equal_to_erm": all(a.equal_to_erm for a in bn_audits)}
     return BNCIGPUSmokeResult(runtime=runtime, canonical=canonical, reversed=reversed_,
                               rng_before_hash=rng_before.snapshot_hash, rng_after_canonical_hash=rng_after_c.snapshot_hash,
                               rng_after_reversed_hash=rng_after_r.snapshot_hash, bn_audits=bn_audits, comparison=cmp,
-                              report_hash=canonical_json_hash(report))
+                              report_hash=gpu_smoke_report_hash(report))
