@@ -1,0 +1,11 @@
+{
+  "retag_policy": "force-move v1 to close unsafe pre-run footgun",
+  "old_tag_commit": "dde82f3",
+  "new_tag_commit": "dee8958",
+  "old_tag_object": "507fc0d9e7a5bf94cd6eff37e79ddcfc98c2dfca",
+  "new_tag_object": "ecd810d303e6a6763d85feb7949b7b03d017bd10",
+  "tag": "csc-confirmatory-v1",
+  "expected_code_ref": "refs/tags/csc-confirmatory-v1",
+  "confirmatory_run_performed": false,
+  "reason": "old v1 (dde82f3) lacked the confirmatory-artifact freshness guard; no scientific run depended on it; force-with-lease used (lease against old_tag_object)"
+}

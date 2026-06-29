@@ -1,7 +1,7 @@
 {
   "status": "CSC-P1.4.5 DEVELOPMENT \u2014 frozen-path audit; NO P1.5 PRODUCTION SWEEP, NO FREEZE, NO CONFIRMATORY, NO P2. Inference procedure CHANGED vs P1.4.4 -> these are NEW-METHOD development numbers, NOT poolable with prior rounds for confidence intervals.",
-  "audited_code_commit": "dde82f36e18263783ec4ba33b34193efa8342322",
-  "audited_code_commit_short": "dde82f3",
+  "audited_code_commit": "dee895824f5022d785e0d3507900b318be34c14c",
+  "audited_code_commit_short": "dee8958",
   "branch": "csc",
   "git_status_clean_csc": true,
   "protocol_manifest": {
@@ -85,10 +85,10 @@
   },
   "environment_hash": "0adfb7b2ad0ec46c",
   "exact_command": "/home/infres/yinwang/CMI_AAAI_csc/csc/run_audit.py --out csc/results/audit.json --seeds 10 --n_boot 40 --n_dir_boot 120 --target_n_boot 120 --oracle_boot 150 --bank_seeds 4",
-  "slurm_job_id": "876208",
-  "hostname": "nodecpu09",
-  "start_time": "2026-06-29T22:26:28",
-  "end_time": "2026-06-29T23:43:15",
+  "slurm_job_id": "876276",
+  "hostname": "nodecpu11",
+  "start_time": "2026-06-30T00:01:48",
+  "end_time": "2026-06-30T01:29:34",
   "seed_provenance": "DEVELOPMENT (used during iteration; NOT confirmatory). A frozen confirmatory run requires a separate, previously-unseen seed set.",
   "tests": {
     "test_design_and_pairs": {
@@ -478,7 +478,7 @@
         "n_dir_boot": 120,
         "invalid_frac_max": 0.2,
         "source_invalid_triggered": false,
-        "concept_disagreement_deg": 14.220837770080147,
+        "concept_disagreement_deg": 14.220837770080301,
         "has_dominant_concept_dir": true,
         "concept_attribution_unstable": false,
         "concept_stable": true
@@ -495,7 +495,7 @@
         "n_dir_boot": 120,
         "invalid_frac_max": 0.2,
         "source_invalid_triggered": false,
-        "concept_disagreement_deg": 9.274356740832015,
+        "concept_disagreement_deg": 9.274356740832056,
         "has_dominant_concept_dir": true,
         "concept_attribution_unstable": false,
         "concept_stable": true
@@ -512,7 +512,7 @@
         "n_dir_boot": 120,
         "invalid_frac_max": 0.2,
         "source_invalid_triggered": false,
-        "concept_disagreement_deg": 8.07033001525337,
+        "concept_disagreement_deg": 8.070330015253326,
         "has_dominant_concept_dir": true,
         "concept_attribution_unstable": false,
         "concept_stable": true
@@ -529,16 +529,16 @@
         "n_dir_boot": 120,
         "invalid_frac_max": 0.2,
         "source_invalid_triggered": false,
-        "concept_disagreement_deg": 6.044472729252007,
+        "concept_disagreement_deg": 6.044472729252249,
         "has_dominant_concept_dir": true,
         "concept_attribution_unstable": false,
         "concept_stable": true
       }
     ],
     "full_residual_test_duplication_invariance": {
-      "T_before": 0.004750738091247297,
-      "T_after": 0.004750738091247143,
-      "abs_delta_T": 1.5439038936193583e-16,
+      "T_before": 0.0047507380912473725,
+      "T_after": 0.004750738091247625,
+      "abs_delta_T": 2.5240226575462543e-16,
       "p_before": 0.0975609756097561,
       "p_after": 0.0975609756097561,
       "abs_delta_p": 0.0,
