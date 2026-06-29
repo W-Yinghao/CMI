@@ -3,9 +3,13 @@
 ```
 STATE         : DRAFT — binding ONLY when committed AND tagged `acar-v4-protocol` after sign-off AND §4 is filled
 LINEAGE       : v2 MEASUREMENT_ONLY (9b2f0c1) · v3 DEV_STOP (817b04f/9f4e83f) · v4 DEV candidate (e4c4e91, EXPLORATORY)
-EXTERNAL ARM  : NOT RUN — authorized only AFTER tag + an audited §4 held-out list + sign-off
+EXTERNAL ARM  : NOT RUN — authorized only AFTER tag + sign-off
 LOCKBOX       : SEALED / NOT CONSUMED
-REMAINING BLOCKER TO TAG : §4 held-out cohort list is TBD (metadata-only audit: notes/ACAR_V4_LOCKBOX_AUDIT.md)
+§4 HELD-OUT LIST : AUDITED + FILLED (metadata-only, notes/ACAR_V4_LOCKBOX_AUDIT.md) — admissible: (zenodo14808296,SCZ),
+                   (ds007526,PD), both single-site; ASZED provisional; ds007020 excluded
+REMAINING BLOCKERS TO TAG : (1) implement the unique external Arm-B CLI + preflight/synthetic guards; (2) commit CLI +
+                   this final protocol together; (3) clean-process guard run + clean worktree; (4) sign-off; THEN tag
+                   `acar-v4-protocol` on that commit; external read only after.
 DATE          : 2026-06-29
 ```
 
@@ -95,10 +99,14 @@ external claim. `harm_among_adapted` is reported but is NOT a pass/fail gate.)
 
 ### 3d. Multi-site / multi-stratum taxonomy
 ```
+Holm scope  : Holm correction is applied ONLY INSIDE each stratum's finite λ-grid LTT selection (the within-grid
+              multiple test over the 12 λ candidates). ACROSS strata, disease confirmation is DETERMINISTIC — there is
+              NO cross-stratum p-value adjustment, because the per-stratum EVAL criteria (§3c: L_harm_all ≤ 0.10,
+              red > 0, red > v2_replay, coverage ≥ 0.15) are threshold endpoints, not hypothesis tests.
 per stratum : V4_EXTERNAL_CONFIRMED | V4_EXTERNAL_NEGATIVE | NOT_EVALUABLE
-per disease : "externally confirmed" iff ≥1 evaluable stratum is CONFIRMED AND no evaluable stratum is NEGATIVE,
-              with Holm correction across that disease's evaluable strata (FWER 0.10). A disease with exactly one
-              evaluable stratum is reported as SINGLE-SITE confirmatory (explicitly, NOT "replicated").
+per disease : "externally confirmed" iff ≥1 evaluable stratum is CONFIRMED AND no evaluable stratum is NEGATIVE. A
+              disease with exactly one evaluable stratum is reported SINGLE-SITE confirmatory (explicitly, NOT
+              "replicated").
 overall     : V4_EXTERNAL_CONFIRMED iff BOTH diseases are externally confirmed (per above);
               else V4_EXTERNAL_NEGATIVE; a killed/partial run = OPERATIONALLY_ABORTED_NO_SCIENTIFIC_VERDICT.
 PD single-site contingency: if only one admissible PD site exists, PD can only be SINGLE-SITE confirmatory — state this
@@ -106,11 +114,28 @@ PD single-site contingency: if only one admissible PD site exists, PD can only b
 no NOT_EVALUABLE stratum is silently dropped (each is listed with its reason).
 ```
 
-## 4. External held-out cohort list — **TBD (HARD BLOCKER TO TAG)**
-To be filled from the metadata-only audit `notes/ACAR_V4_LOCKBOX_AUDIT.md` (no predictor / no adaptation outcome / no
-endpoint — metadata only). Required before tag: the admissible site list, each site's disjointness proof vs the seven DEV
-cohorts, its acquisition-unit structure, and its (site,disease) stratum + split parameters. No external dataset is read
-until this section is filled and the protocol is tagged.
+## 4. External held-out cohort list — AUDITED (metadata-only; see notes/ACAR_V4_LOCKBOX_AUDIT.md)
+Primary-source re-verified 2026-06-29 (metadata only — no modeling read). **Admissible strata (this protocol):**
+
+```
+stratum (zenodo14808296, SCZ)   site = Zenodo 14808296 (single setup, Semmelweis); 38 SCZ + 39 HC; 64ch/1000Hz; resting
+                                eyes-closed; raw; CC-BY-4.0. split: subject-hash seed 0, CAL frac 0.40, min 20/20 →
+                                CAL≈31 / EVAL≈46 (EVALUABLE). Per-subject diagnosis from the clinical .xlsx (metadata,
+                                read at Arm-B label time). DISJOINT from DEV SCZ (different repo/institution).
+stratum (ds007526, PD)          site = OpenNeuro ds007526 v1.0.2 (Tel Aviv Sourasky); 116 PD + 28 HC (participants.tsv
+                                `group`); resting-RUNS ONLY (exclude walking); raw BIDS 1.10.0; CC0. split: seed 0, CAL
+                                frac 0.40, min 20/20 → CAL≈58 / EVAL≈86 (EVALUABLE; runner preflight confirms ≥1 PD AND
+                                ≥1 HC in BOTH CAL and EVAL under seed 0). DISJOINT from DEV PD (different
+                                accession/institution; UCSD ds002778 etc.).
+```
+**Both diseases are SINGLE-SITE** at present → external Arm B is single-site-per-disease confirmatory (NOT replication);
+this limitation is stated in the result. **PROVISIONAL (NOT admitted):** Zenodo 14178398 (ASZED, SCZ 2nd site) — pending
+data-integrity clearance + per-acquisition-unit (Contec 200 Hz / BrainMaster 256 Hz) metadata; admitting it later is a
+separately-dated protocol amendment. **EXCLUDED:** OpenNeuro ds007020 (mortality-only; no HC-vs-PD label).
+
+Runner preflight (metadata-only, before any signal read): re-confirm ds007526 channel/Fs + resting-run selection, the
+Zenodo id↔diagnosis mapping, and no re-released/derived subject overlap with the seven DEV cohorts; any stratum failing
+the split-feasibility or label checks is reported NOT_EVALUABLE (never silently dropped).
 
 ## 5. Execution discipline (after tag)
 A unique external Arm-B CLI (mirroring v3's `run_dev_binding` preflight): output-dir absent + atomic claim, HEAD ==
