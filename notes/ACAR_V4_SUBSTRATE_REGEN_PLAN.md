@@ -1,7 +1,9 @@
 # ACAR v4 — Option B: all-DEV external substrate regeneration **PLAN (DESIGN ONLY — NO RETRAIN YET)**
 
 ```
-STATUS          : DESIGN / NO RETRAIN YET / NO EXTERNAL READ / NO TAG. Reviewed-and-approved required before ANY training.
+STATUS          : DESIGN-APPROVED FOR CODE SCAFFOLDING / NO RETRAIN YET / NO EXTERNAL READ / NO TAG. The held-out reader
+                  (acar/v4/heldout_reader.py) + substrate trainer SKELETON (acar/v4/regen_substrate.py) are implemented +
+                  synthetic-tested; real all-DEV training requires the separate B1 sign-off below.
 WHY             : the original DEV EEGNet encoder was never archived AND the DEV code path never saved it (no torch.save in
                   cmi/; run_scps_crossdataset np.savez's embeddings only). Confirmed NOT_FOUND in-scope + out-of-scope
                   (ACAR_V4_ENCODER_CHECKPOINT_SEARCH.md, ACAR_V4_ENCODER_CHECKPOINT_SEARCH_OUT_OF_SCOPE.md).
@@ -68,21 +70,35 @@ source_state_sha256       = acar.v3 SourceStateArtifact full-bytes hash (coef/in
 sidecar (per external dump, later) = provenance_sidecar_dict(...) sha-pinned by provenance_sidecar_sha256 (already implemented)
 ```
 
-## 7. Compatibility GATE (pre-registered; prevents post-hoc number chasing)
-Fixed candidate, NO reselection, NO score/loss/grid/comparator change; run ONLY on the old seven DEV cohorts re-embedded by
-the NEW substrate (this is DEV, exploratory — NOT external):
+## 7. Compatibility GATE (PRE-REGISTERED; numeric; prevents post-hoc number chasing)
+**This is NOT a new scientific DEV selection run.** It is a substrate-compatibility check for the ALREADY-FIXED V4
+candidate; its only purpose is to decide whether external Arm B may run under the new substrate. (This sentence is binding
+and also goes in the closeout/result note.)
 ```
 candidate (FIXED) : shift_margin + benefit_ranked + harm_indicator   (registry sha fe5a1f58…)
-gate:
-  1. if the new substrate BIT-REPRODUCES the archived DEV feat_hash_te  → treat as recovered-equivalent (will NOT happen
-       for an all-DEV encoder vs LOSO dumps — see §0; documented as the expected branch-2 outcome).
-  2. else → DECLARE a new V4 external substrate; run the FIXED-candidate DEV compatibility replay.
-  3. if the fixed candidate still meets the PREDECLARED V4 exploratory minimum (the same G0–G6 / candidate-viability bar
-       used in DEV exploration #001) → allow drafting the final frozen protocol with the NEW artifact hashes.
-  4. if it does NOT meet that minimum → external Arm B is NOT authorized → fall back to Option C (DEV-only).
-caveat (record): re-embedding DEV cohorts with an all-DEV (in-sample) encoder is optimistic vs the LOSO exploration; the
-  replay tests substrate COMPATIBILITY/viability of the fixed candidate, NOT a fresh generalization claim.
+NO reselection    : no new score family · no new policy family · no new loss · no new λ grid · no comparator switch
+where             : the OLD SEVEN DEV cohorts, re-embedded by the NEW substrate (DEV, exploratory — NOT external)
+branching:
+  1. if the new substrate BIT-REPRODUCES the archived DEV feat_hash_te → recovered-equivalent (will NOT happen for an
+     all-DEV encoder vs LOSO per-fold dumps — see §0; documented as the expected branch-2 outcome).
+  2. else → DECLARE a NEW V4 external substrate and run the FIXED-candidate DEV compatibility replay below.
 ```
+Numeric pass-line (implemented as the PURE `acar.v4.regen_substrate.compatibility_replay_pass`):
+```
+per disease (PD, SCZ), ALWAYS required:
+    CAL LTT λ* certified  AND  coverage ≥ 0.15  AND  red > 0  AND  EVAL L_harm_all ≤ 0.10
+per-disease v2 sub-gate:
+    if v2_replay EVALUABLE → require red > v2_replay_red
+    if v2_replay NOT evaluable → this sub-gate is WAIVED for that disease (the absolute gates above still hold)
+macro v2 gate:
+    among diseases with an evaluable v2_replay → require disease-macro red > disease-macro v2_replay
+    if NO disease has an evaluable v2_replay → macro v2 gate WAIVED
+AUTHORIZE external Arm B iff BOTH diseases pass their absolute + v2 gates AND the macro v2 gate (or its waiver).
+on PASS → allowed to draft the final frozen protocol with the NEW artifact hashes (then sign-off → tag).
+on FAIL (any disease) → external Arm B NOT authorized → Option C (DEV-only) or a new dated protocol.
+```
+caveat (record + closeout): re-embedding DEV cohorts with an all-DEV (in-sample) encoder is OPTIMISTIC vs the LOSO
+exploration; the replay tests substrate COMPATIBILITY/viability of the fixed candidate, NOT a fresh generalization claim.
 
 ## 8. Parallel deliverable — Blocker 2 (held-out raw→embedding reader)
 Even with the encoder, external Arm B also needs the held-out BIDS reader wired (currently `ExternalReaderNotWiredError`).

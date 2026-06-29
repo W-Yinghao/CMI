@@ -308,15 +308,18 @@ def write_provenance_sidecar(dump_path, sidecar):
 
 
 def _embed_heldout_raw(site, raw_bids_root, encoder_artifact, raw_pipeline_config):
-    """Held-out raw EEG → (z_te, y_te, subject_ids) via the FROZEN pipeline + FROZEN encoder. FAIL-CLOSED: not wired.
-    cmi.load_crossdataset only indexes registered COHORTS and raises KeyError for the held-out sites, so it CANNOT be used
-    here; a dedicated held-out BIDS reader (DATASET_SPECS + resting_run_selector + parse_diagnosis_map +
-    validate_channels_fs) must be wired at encoder-provisioning time. Raises until then (WIRING-1)."""
+    """Held-out raw EEG → (z_te, y_te, subject_ids) via the FROZEN pipeline + FROZEN encoder. The selection/validation/
+    windowing/key layer is now IMPLEMENTED + synthetic-tested in `acar.v4.heldout_reader` (read_heldout → X/y/keys); the
+    real path still has TWO gated remainders, so this stays FAIL-CLOSED: (1) the real raw-signal DSP provider
+    (`heldout_reader.make_real_signal_provider` → RawSignalDSPNotWiredError; needs mne + real held-out raw), and (2) the
+    FROZEN encoder (already gated upstream by require_encoder_artifact). cmi.load_crossdataset is NOT usable (it KeyErrors
+    on non-COHORTS held-out sites). To run post-provisioning: heldout_reader.read_heldout(site, raw_bids_root,
+    pipeline_config=raw_pipeline_config, signal_provider=<mne provider>) → embed X with the frozen encoder."""
     raise ExternalReaderNotWiredError(
-        f"{site}: held-out raw→embedding reader is not wired. cmi.load_crossdataset only handles registered COHORTS "
-        f"(KeyError for held-out sites); wire a held-out BIDS reader using DATASET_SPECS/resting_run_selector/"
-        f"parse_diagnosis_map/validate_channels_fs at encoder-provisioning time. See "
-        f"notes/ACAR_V4_ENCODER_ARTIFACT_DECISION.md.")
+        f"{site}: held-out reader's selection/key layer is implemented (acar.v4.heldout_reader, synthetic-tested), but the "
+        f"real raw-signal DSP provider + frozen encoder are gated. Wire heldout_reader.make_real_signal_provider (mne "
+        f"EDF/BrainVision → 19ch/128Hz/0.5-45Hz) + the archived encoder at substrate provisioning. See "
+        f"notes/ACAR_V4_SUBSTRATE_REGEN_PLAN.md.")
 
 
 def prepare_dump(site, raw_bids_root, output_npz, *, encoder_artifact, raw_pipeline_config):

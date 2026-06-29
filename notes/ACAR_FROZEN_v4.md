@@ -7,10 +7,13 @@ EXTERNAL ARM  : NOT RUN — authorized only AFTER tag + sign-off
 LOCKBOX       : SEALED / NOT CONSUMED
 HARD BLOCKERS : External Arm B is NOT_YET_EXECUTABLE (not "infeasible") — TWO fail-closed blockers, both before any heavy
                    import/raw read: (1) the frozen DEV EEGNet ENCODER + source-state are NOT archived → prepare_dump raises
-                   FrozenEncoderMissingError (NEVER retrains); (2) the held-out raw→embedding READER is NOT wired (cmi
-                   load_crossdataset KeyErrors on the held-out sites) → prepare_dump raises ExternalReaderNotWiredError.
-                   Resolving both is a SEPARATE signed-off decision: notes/ACAR_V4_ENCODER_ARTIFACT_DECISION.md (A recover
-                   original / B regenerate+declare all-DEV substrate / C suspend → DEV-only).
+                   FrozenEncoderMissingError (NEVER retrains); (2) the held-out raw→embedding READER — its selection/
+                   validation/windowing/key layer is now IMPLEMENTED + synthetic-tested (acar/v4/heldout_reader.py), but the
+                   real raw-signal DSP provider (mne) + the encoder remain gated → prepare_dump still raises
+                   ExternalReaderNotWiredError. Option A search = NOT_FOUND (A foreclosed); Option B is DESIGN-APPROVED FOR
+                   CODE SCAFFOLDING (heldout_reader + acar/v4/regen_substrate.py skeleton done; NO retrain). Resolving both
+                   blockers = a SEPARATE signed-off decision: notes/ACAR_V4_ENCODER_ARTIFACT_DECISION.md +
+                   ACAR_V4_SUBSTRATE_REGEN_PLAN.md (A recover / B regenerate+declare all-DEV substrate / C suspend → DEV-only).
 §4 HELD-OUT LIST : AUDITED + FILLED (metadata-only, notes/ACAR_V4_LOCKBOX_AUDIT.md) — admissible: (zenodo14808296,SCZ),
                    (ds007526,PD), both single-site; ASZED provisional; ds007020 excluded
 EXTERNAL CLI  : IMPLEMENTED + HARDENED — acar/v4/run_external_armb.py (stdlib-first preflight; EXACT-set + full-provenance
