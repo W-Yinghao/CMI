@@ -1,0 +1,39 @@
+host=nodecpu08 job=875529 cpus=64 jobs=64 phase=canary out=csc/results/envelope_p15_canary.json started=2026-06-29T12:41:50+02:00
+[p15] PREFLIGHT: harness tests + dry-run design ...
+OK each axis maps to its simulator knob; unknown axis fails closed
+OK default grid is a star design: 24 cells, one axis varied each
+OK run_cell cluster-denominated (K=2): full metric block, decomp partitions clusters
+OK --phase full gate: accepts a matching PASSED canary, fails closed on all 7 mismatches
+[envelope] baseline                     clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] concept_effect_size=6.0      clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] baseline                     clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] concept_effect_size=6.0      clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+OK joblib parallel grid is BIT-IDENTICAL to serial (n_jobs changes wall-clock only)
+[p15] CANARY: full grid x 2 clusters (base 500000) ...
+[envelope] baseline                     clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] concept_effect_size=6.0      clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] concept_effect_size=10.0     clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] concept_effect_size=20.0     clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] subjects_per_domain=8        clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] subjects_per_domain=14       clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] subjects_per_domain=30       clusters=2 forbidden=0/2 (CP-UB 0.776) power=1.00 (CP-LB 0.224) atlas=1.00
+[envelope] epochs_max=12                clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.50 (CP-LB 0.025) atlas=1.00
+[envelope] epochs_max=40                clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.50 (CP-LB 0.025) atlas=1.00
+[envelope] within_subject_corr=0.0      clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.50 (CP-LB 0.025) atlas=0.50
+[envelope] within_subject_corr=0.5      clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.50
+[envelope] within_subject_corr=1.0      clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.50
+[envelope] prior_alpha=0.5              clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.50 (CP-LB 0.025) atlas=0.50
+[envelope] prior_alpha=1.0              clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] concept_domains=1            clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] concept_domains=5            clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.50
+[envelope] covariate_leakage=2.0        clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] covariate_leakage=6.0        clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] covariate_leakage=16.0       clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] target_subjects=10           clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] target_subjects=20           clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] target_subjects=50           clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] mechanism_family=1           clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.50 (CP-LB 0.025) atlas=1.00
+[envelope] mechanism_family=2           clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.50 (CP-LB 0.025) atlas=0.50
+[p15] CANARY passed validator.
+[p15] DONE phase=CANARY_ONLY_PASSED -> csc/results/envelope_p15_canary.json
+finished=2026-06-29T12:52:42+02:00 p15_rc=0

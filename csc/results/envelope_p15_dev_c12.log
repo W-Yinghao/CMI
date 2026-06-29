@@ -1,0 +1,38 @@
+host=nodecpu08 job=875553 cpus=64 jobs=64 phase=full out=csc/results/envelope_p15_dev_c12.json started=2026-06-29T12:53:47+02:00
+[p15] PREFLIGHT: harness tests + dry-run design ...
+OK each axis maps to its simulator knob; unknown axis fails closed
+OK default grid is a star design: 24 cells, one axis varied each
+OK run_cell cluster-denominated (K=2): full metric block, decomp partitions clusters
+OK --phase full gate: accepts a matching PASSED canary, fails closed on all 7 mismatches
+[envelope] baseline                     clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] concept_effect_size=6.0      clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] baseline                     clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] concept_effect_size=6.0      clusters=2 forbidden=0/2 (CP-UB 0.776) power=0.00 (CP-LB 0.000) atlas=0.00
+OK joblib parallel grid is BIT-IDENTICAL to serial (n_jobs changes wall-clock only)
+[p15] FULL: grid x 12 clusters (base 600000) ...
+[envelope] baseline                     clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.83 (CP-LB 0.562) atlas=0.92
+[envelope] concept_effect_size=6.0      clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.17 (CP-LB 0.030) atlas=0.92
+[envelope] concept_effect_size=10.0     clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.42 (CP-LB 0.181) atlas=0.92
+[envelope] concept_effect_size=20.0     clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.92 (CP-LB 0.661) atlas=0.92
+[envelope] subjects_per_domain=8        clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.00 (CP-LB 0.000) atlas=0.00
+[envelope] subjects_per_domain=14       clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.17 (CP-LB 0.030) atlas=0.17
+[envelope] subjects_per_domain=30       clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.75 (CP-LB 0.473) atlas=0.92
+[envelope] epochs_max=12                clusters=12 forbidden=1/12 (CP-UB 0.339) power=0.33 (CP-LB 0.123) atlas=0.67
+[envelope] epochs_max=40                clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.33 (CP-LB 0.123) atlas=0.83
+[envelope] within_subject_corr=0.0      clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.58 (CP-LB 0.315) atlas=0.75
+[envelope] within_subject_corr=0.5      clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.58 (CP-LB 0.315) atlas=1.00
+[envelope] within_subject_corr=1.0      clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.08 (CP-LB 0.004) atlas=0.42
+[envelope] prior_alpha=0.5              clusters=12 forbidden=2/12 (CP-UB 0.438) power=0.00 (CP-LB 0.000) atlas=0.08
+[envelope] prior_alpha=1.0              clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.17 (CP-LB 0.030) atlas=0.17
+[envelope] concept_domains=1            clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.25 (CP-LB 0.072) atlas=0.25
+[envelope] concept_domains=5            clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.33 (CP-LB 0.123) atlas=0.33
+[envelope] covariate_leakage=2.0        clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.83 (CP-LB 0.562) atlas=0.92
+[envelope] covariate_leakage=6.0        clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.83 (CP-LB 0.562) atlas=0.92
+[envelope] covariate_leakage=16.0       clusters=12 forbidden=1/12 (CP-UB 0.339) power=0.83 (CP-LB 0.562) atlas=0.92
+[envelope] target_subjects=10           clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.17 (CP-LB 0.030) atlas=0.92
+[envelope] target_subjects=20           clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.50 (CP-LB 0.245) atlas=0.92
+[envelope] target_subjects=50           clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.75 (CP-LB 0.473) atlas=0.92
+[envelope] mechanism_family=1           clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.42 (CP-LB 0.181) atlas=0.58
+[envelope] mechanism_family=2           clusters=12 forbidden=0/12 (CP-UB 0.221) power=0.42 (CP-LB 0.181) atlas=0.75
+[p15] DONE phase=FULL_COMPLETE -> csc/results/envelope_p15_dev_c12.json
+finished=2026-06-29T13:19:03+02:00 p15_rc=0
