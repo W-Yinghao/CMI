@@ -1,7 +1,9 @@
 # ACAR — Project Overview (read-me-first)
 
 *A single document to understand the whole project: where it came from, what ACAR is, how the v3 code is built, what
-is frozen, what was run, and what is still gated. Written 2026-06-24. Authoritative pointers: `notes/EVIDENCE_LEDGER.md`
+is frozen, what was run, and what is still gated. (Prose dates like "2026-06-24" reflect the working-session calendar;
+the authoritative timestamps are the git commit dates, which read 2026-06-29 — e.g. the DEV-lock + DEV run are stamped
+2026-06-29 in history.) Authoritative pointers: `notes/EVIDENCE_LEDGER.md`
 (claim status), `notes/ACAR_V3_DEV_DESIGN_SPEC.md` (the normative DEV-design lock), `notes/ACAR_FROZEN_v2.md` (v2
 protocol), and `notes/ACAR_V3_AMENDMENT_{1..14}.md` (the design changelog).*
 
@@ -16,8 +18,10 @@ batch `B` versus doing nothing — rather than predicting distribution shift or 
 *signal exists* (label-free features predict harm out-of-fold on both PD and SCZ) but the router is *not deployable* (the
 "measurement→control gap") → binding verdict **MEASUREMENT_ONLY**. **ACAR v3** is a redesign (a heteroscedastic
 set-conformal router with a strict pre-registration + admissibility/selection gate) whose code is now **frozen at a
-DEV-design lock** (`acar-v3-dev-design-v1 @ 817b04f`); the first real DEV gate run was launched and **operationally
-aborted (killed) before producing a verdict**.
+DEV-design lock** (`acar-v3-dev-design-v1 @ 817b04f`). The first real DEV gate on the seven cohorts returned
+**`DEV_STOP / NO_LOCKBOX_CONSUMED`** — no candidate passed the S2/S4 admissibility gate (adaptation coverage collapses
+to ~1 % and PD harm-AUROC stays <0.60), so v3 **does not close** v2's measurement→control gap and the held-out lockbox
+is not consumed. (External Arm B remains unauthorized.)
 
 ---
 
@@ -182,22 +186,31 @@ gaps → an "Amendment N" closes them, synthetic-only). The result is a deployme
 
 ---
 
-## 8. The first real DEV run — OPERATIONALLY ABORTED (no verdict)
+## 8. The real DEV runs — run #001 aborted, run #002 = `DEV_STOP`
 
-Launched the binding CLI at the tagged commit on the real 7 cohorts (PD 230 + SCZ 225 subjects, d=16; input manifest
-built outside the repo with the dumps' `feat_hash_te` as `raw_pipeline_sha256`). **Preflight passed** (HEAD==protocol
-commit, tag→HEAD, clean worktree, env lock, per-file hashes). The S2/S4 gate then computed silently and the process was
-**killed before producing a verdict** (external session/timeout, exit ≠ 0). Per the acceptance rules this is
-**no scientific verdict / operationally aborted — NOT `DEV_STOP`**. Evidence: `binding_run.log` empty; `dev_out` never
-formed (no atomic rename); only an empty `dev_out.tmp` remains (the fail-closed stale-temp marker). No auto-rerun was
-performed. The DEV gate has simply **not yet been evaluated** on real data.
+**Run #001 (operationally aborted, no verdict).** Launched the binding CLI at the tag on the real 7 cohorts; preflight
+passed but the gate process was **killed before a verdict** (session teardown). Not a result; recorded in
+`notes/ACAR_V3_DEV_RUN_001_ABORTED.md`. (Two intervening SLURM attempts also failed pre-gate — a missing `/usr/bin/time`
+in the job wrapper, then a wrong-kernel compute node whose `platform` legitimately mismatched the frozen env lock.)
 
-**To re-run** (when authorized): the gate must run at the tagged commit on a clean worktree, in a process allowed to run
-to completion (the bake-off over ~550 eligible batches × source adapters + the C1/C2/C3 + C0 fits is long — tens of
-minutes to hours). Steps: `git -C <acar worktree> checkout acar-v3-dev-design-v1` (detached HEAD == protocol commit) →
-ensure a fresh output dir name (or remove the stale `dev_out.tmp` after recording it) → rebuild the out-of-repo input
-manifest → `python -m acar.v3.run_dev_binding --input-manifest <abs json> --output <abs new dir>`. Result goes in a
-**separate result commit** (the protocol commit and tag stay put).
+**Run #002 (terminal scientific result = `DEV_STOP / NO_LOCKBOX_CONSUMED`).** Re-run as an operational retry: detached
+worktree at the tag, durable NFS input/output, SLURM job `866838` pinned to a node whose kernel matches the locked
+`platform`. **Exit 0**, ~53 min; `dev_out/` formed by atomic rename (no `.tmp`); `manifest_sha256` recheck OK;
+`protocol_commit == 817b04f`, tag, `clean_status_ok`, `env_lock_sha256 == 2cb61360`, input-manifest all consistent.
+**No candidate (C1/C2/C3) passed the S2/S4 gate.** Universal failures: adaptation **coverage ~0.6–1.1 %** (≪15 % floor —
+the conformal `q` ≫ `|ΔR|`, so the router abstains) and **PD center-AUROC 0.525–0.570 < 0.60**. SCZ actually shows
+signal (AUROC 0.68–0.74, red>0) but coverage 1–2 %; PD never adapts (coverage 0). So v3's HSCR redesign **does not close
+v2's measurement→control gap** on the DEV cohorts — a faithful pre-registered negative result corroborating v2's
+`MEASUREMENT_ONLY`. Full provenance: `notes/ACAR_V3_DEV_RUN_002_RESULT.md` + `results/acar_v3_dev_run_002/DEV_STOP.json`.
+**v3 stops at the development gate; the held-out lockbox is NOT consumed; external Arm B is NOT approached.**
+
+**Re-running the gate (reference; not to chase a pass).** It must run at the tagged commit, clean worktree, on a node
+whose kernel matches the locked `platform`, in a process allowed to finish. Sketch:
+`git worktree add --detach DIR acar-v3-dev-design-v1` → verify `HEAD == rev-list -n1 acar-v3-dev-design-v1` and empty
+`git status --porcelain` → build the out-of-repo input manifest → `python -m acar.v3.run_dev_binding --input-manifest
+INPUT.json --output NEW_DIR` (use a fresh output dir; record/remove any stale `.tmp`). Any result goes in a **separate
+result commit** (the protocol commit and tag stay put). Note: no threshold/seed/operating-point search to force a pass —
+that would be post-hoc; a change is a NEW dated, separately-tagged protocol, never an in-place edit of `817b04f`.
 
 ---
 

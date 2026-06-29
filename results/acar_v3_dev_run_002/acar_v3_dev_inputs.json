@@ -1,0 +1,89 @@
+{
+  "protocol_commit": "817b04f92d616b0b17bac223181c0f846f9209ac",
+  "cohorts": [
+    {
+      "dataset_id": "ds002778",
+      "disease": "PD",
+      "path": "/home/infres/yinwang/CMI_AAAI/archive/lpc-cmi-failed/results/feat_dump_v4/audit_PD_ds002778_erm_0.npz",
+      "full_dump_sha256": "9011eab63ae0d27ff73e3906727819c9a7c4a20fc00a186b886a8636bd11b6af",
+      "source_fit_sha256": "85a2017a0e053b7a951d159f95de7d17c218a271b20dc4982fe1cbaf2a196d08",
+      "deployment_input_sha256": "de75d19308f598c0157460b10dd81ac4e342161d0854a9f620ea168712c460d3",
+      "label_sha256": "67a59afc4f766b3acf4018438ca9d5cf56939e794b35be0ce031f41451f96a5e",
+      "subject_list_sha256": "f13ee401da7b91c6b949aa61b98a35196388267dc65ab8244368b1eaee95b820",
+      "raw_pipeline_sha256": "38ae4ad2d75d3f137314b80081931512ad5c9027c983e58e96a53d80866ddf4b",
+      "dataset_version": "ds002778/erm_0/a1:4c7f495d8e48b9306f2a0e13ad2c55b7a9cae5955f8c247b69b3ab00a77646e6"
+    },
+    {
+      "dataset_id": "ds003490",
+      "disease": "PD",
+      "path": "/home/infres/yinwang/CMI_AAAI/archive/lpc-cmi-failed/results/feat_dump_v4/audit_PD_ds003490_erm_0.npz",
+      "full_dump_sha256": "60a4a9a85098027c3491e2f29a401ba9f34d147e51e8ae765e858dd4e3242f30",
+      "source_fit_sha256": "afc2b7a65671452dc73828465b88e2dd456953c0a862cd278446535237d3caad",
+      "deployment_input_sha256": "e0a811754632e7dcdb1e4ec217a071cdf12822fc72b2ac0fc6a189201ed02c61",
+      "label_sha256": "b0e1f12cce6a06f9483ead9f0a578a04637a6c1443cd6ed91a3f7e1763641ad7",
+      "subject_list_sha256": "85bfbadb28bcecae2dd1b8187d2b61a6f38b9b1e2a5c566299692b5ebc083ced",
+      "raw_pipeline_sha256": "89fb1e3189086d01a941d7a91ab87be48e27f3b8dffa49de882fe47ad7560336",
+      "dataset_version": "ds003490/erm_0/a1:4c7f495d8e48b9306f2a0e13ad2c55b7a9cae5955f8c247b69b3ab00a77646e6"
+    },
+    {
+      "dataset_id": "ds004584",
+      "disease": "PD",
+      "path": "/home/infres/yinwang/CMI_AAAI/archive/lpc-cmi-failed/results/feat_dump_v4/audit_PD_ds004584_erm_0.npz",
+      "full_dump_sha256": "42a6c548091dd116f601554276a19b1925a77e1259f0a870447d860c0db96662",
+      "source_fit_sha256": "0d1b2b778eac1a940266067322791d7d988974894385a06e072241cf083c75c8",
+      "deployment_input_sha256": "eeeb6e77d7c834b844f02c23d670d1acab8e27d32ccbcd08c16cb33557f4eae0",
+      "label_sha256": "00f219564be6763c52db6af24bfd4e164dba638c88e70ac779df2d205226df90",
+      "subject_list_sha256": "5050665963573f16c18c115969e9a1b89673b72bc162588d64462c8104d5c37a",
+      "raw_pipeline_sha256": "c1cc72a50ad164d7361424200e650c71f73401b8078077a7ad5f2b69669d476b",
+      "dataset_version": "ds004584/erm_0/a1:4c7f495d8e48b9306f2a0e13ad2c55b7a9cae5955f8c247b69b3ab00a77646e6"
+    },
+    {
+      "dataset_id": "ds003944",
+      "disease": "SCZ",
+      "path": "/home/infres/yinwang/CMI_AAAI/archive/lpc-cmi-failed/results/feat_dump_v4/audit_SCZ_ds003944_erm_0.npz",
+      "full_dump_sha256": "92923fb8c1ba1dd81f39e02457f8b6a0e9140fdba8bb8bd18057c4bbb43e02bb",
+      "source_fit_sha256": "36b7eecb5d862b8203df8b8c5da6af03b4cbecf0cbcfa49bd7996ef0aab1bdd0",
+      "deployment_input_sha256": "d88e4332625e5af5f1e8cf913f76a0a30b79b3cdb280cdf7ebde58ba827a533e",
+      "label_sha256": "dffd44a39181c71ae33f2e672f982a64bad0b5d8f7337680b2ee9d9d7f662193",
+      "subject_list_sha256": "0f281018508d5c7eed18da5fd36b4336e974e9d15ca2b73d913b9ef18946a4f4",
+      "raw_pipeline_sha256": "fbd301dbb3160ef884c1bbca846d5b4b658ebce4dbfd57d5c1479152bc8cbc65",
+      "dataset_version": "ds003944/erm_0/a1:4c7f495d8e48b9306f2a0e13ad2c55b7a9cae5955f8c247b69b3ab00a77646e6"
+    },
+    {
+      "dataset_id": "ds003947",
+      "disease": "SCZ",
+      "path": "/home/infres/yinwang/CMI_AAAI/archive/lpc-cmi-failed/results/feat_dump_v4/audit_SCZ_ds003947_erm_0.npz",
+      "full_dump_sha256": "60ac3e308e75bf4a7f5d8864fc1f252fba2b75dcc393073f768f77e0ccc410ce",
+      "source_fit_sha256": "f647b67dc13a14337d685a2cb4ee87ba30dd2663b37c24f69b1c452bf79e7f42",
+      "deployment_input_sha256": "a1e0291a66dbc46ccedb35750a7c86f9f45c749cbd4fa81edc83670715dfe2bc",
+      "label_sha256": "b3937b2cd8a36f483e5ef480f2ca278e6a52e2e6c883215fcb97a9c6c0e1a7dc",
+      "subject_list_sha256": "d9ad34525a033b383b8f84201f6b38ee9e77a0d9e4e8456a4c5adc4dec5ce45a",
+      "raw_pipeline_sha256": "f2b1c920228b2dc0559d1d866ee0c2a4eb6951c9495b6049d2a5fd00593bfe4e",
+      "dataset_version": "ds003947/erm_0/a1:4c7f495d8e48b9306f2a0e13ad2c55b7a9cae5955f8c247b69b3ab00a77646e6"
+    },
+    {
+      "dataset_id": "ds004000",
+      "disease": "SCZ",
+      "path": "/home/infres/yinwang/CMI_AAAI/archive/lpc-cmi-failed/results/feat_dump_v4/audit_SCZ_ds004000_erm_0.npz",
+      "full_dump_sha256": "ddcb8b819d5953bedb2e437df101da56a80f3eddceee000bdca4421b66ca21d1",
+      "source_fit_sha256": "f66c4dd9c9d409f1a9f68230f7cbbf0ffbe1b37f5a88e748d9dc39d7d5faf496",
+      "deployment_input_sha256": "d6eb33eeaaff3124898697d083ee5786e880d69a6c728daf4af20337b8c43248",
+      "label_sha256": "cc09c35f3b619c6ec25c1e5de095e399e3afc1be96d57f94070704f13c8c4ec2",
+      "subject_list_sha256": "0300212eb68136d7818236c631b510f23514f4ce7e95d65652be7a4006cdb484",
+      "raw_pipeline_sha256": "c3f258da2b4bcd4c4e24bec239cfab61a70196c59ee92596c68dd311f161c603",
+      "dataset_version": "ds004000/erm_0/a1:4c7f495d8e48b9306f2a0e13ad2c55b7a9cae5955f8c247b69b3ab00a77646e6"
+    },
+    {
+      "dataset_id": "ds004367",
+      "disease": "SCZ",
+      "path": "/home/infres/yinwang/CMI_AAAI/archive/lpc-cmi-failed/results/feat_dump_v4/audit_SCZ_ds004367_erm_0.npz",
+      "full_dump_sha256": "7a514a63722d24025e3dcb8773606eacd61e5fd8577c1216355013dd4bc44688",
+      "source_fit_sha256": "b31c41a828fa67ff6ff8d2e25e07a84fd198606aefcbaf7b5f885e921fa2685b",
+      "deployment_input_sha256": "339a31d729c1893f0ca987981fdc3af170a9499565a4ccfdf44be5b79a580473",
+      "label_sha256": "2a82fb1ff0e5c19c4976dc757c07fd2e82b254525039c50c17a789aab6e4c511",
+      "subject_list_sha256": "995d0271f6daa880519362ab5f84400ff91ee1ea33c9bb79fb985022c680edac",
+      "raw_pipeline_sha256": "ee4ab686177033ed190dea4f97a94c77afbe54612073cf82801d1792c357d5ab",
+      "dataset_version": "ds004367/erm_0/a1:4c7f495d8e48b9306f2a0e13ad2c55b7a9cae5955f8c247b69b3ab00a77646e6"
+    }
+  ]
+}
