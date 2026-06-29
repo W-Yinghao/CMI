@@ -27,7 +27,9 @@ from h2cmi.run_w2_sleep import sleep_cfg, NC
 from h2cmi.data.sleep_eeg import load_subjects, _pair_files, STAGE_NAMES
 from h2cmi.grid_io import require_clean_git, source_code_signature, append_row, sha256_file, stable_hash_int
 
-CONF_BRANCHES = ("identity_uniform", "joint_geometry_uniform")   # keep preds for confusion
+CONF_BRANCHES = ("identity_uniform", "identity_joint_prior", "joint_geometry_uniform",
+                 "joint_geometry_joint_prior", "fixed_iterative_geometry_uniform",
+                 "fixed_reference_oneshot_uniform", "pooled_uniform")   # 7-branch confusion (replay)
 
 
 def paired_subjects():
