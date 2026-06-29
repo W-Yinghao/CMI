@@ -17,6 +17,7 @@ import sys
 
 from ..artifacts.canonical_json import canonical_json_bytes
 from ..runtime.cuda import configure_cuda_determinism
+from .materialize import VALIDATION_BOOTSTRAP
 from .onefold import DATASET, run_confirmatory_onefold
 from .report import build_onefold_report
 
@@ -31,8 +32,12 @@ def main(argv=None) -> int:
     ap.add_argument("--dataset", default=DATASET)
     ap.add_argument("--target-subject", type=int, default=1)
     ap.add_argument("--model-seeds", default="0,1,2")
+    ap.add_argument("--bootstrap-mode", choices=("full", "validation"), default="full",
+                    help="'validation' shrinks ONLY the leakage/eval bootstrap (reduced-uncertainty "
+                         "pipeline validation); the full TRAINING budget is always kept")
     args = ap.parse_args(argv)
     seeds = tuple(int(s) for s in args.model_seeds.split(","))
+    override = VALIDATION_BOOTSTRAP if args.bootstrap_mode == "validation" else None
     real_stdout = sys.stdout
     try:
         with contextlib.redirect_stdout(sys.stderr):
@@ -40,7 +45,8 @@ def main(argv=None) -> int:
             result = run_confirmatory_onefold(
                 args.protocol, datalake_root=args.datalake_root, repo_root=args.repo_root,
                 output_root=args.output_root, manifest_out=args.manifest_out, dataset_name=args.dataset,
-                target_subject=args.target_subject, model_seeds=seeds, device=device)
+                target_subject=args.target_subject, model_seeds=seeds, device=device,
+                bootstrap_override=override)
             report = build_onefold_report(result)
         real_stdout.buffer.write(canonical_json_bytes(report))
         return 0 if report["all_seeds_deep_verified"] and report["all_target_fit_ids_empty"] else 1

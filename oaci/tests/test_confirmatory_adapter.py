@@ -75,6 +75,24 @@ def test_materialize_is_deterministic():
     assert a.freeze()["sha256"] == b.freeze()["sha256"]
 
 
+def test_bootstrap_override_shrinks_only_leakage_eval_keeps_training():
+    from oaci.confirmatory.materialize import VALIDATION_BOOTSTRAP
+    proto = load_confirmatory(_PROTO)
+    d = tempfile.mkdtemp()
+    _, full = materialize_pilot_manifest(proto, "BNCI2014_001", target_subject=1,
+                                         out_path=os.path.join(d, "full.yaml"), model_seeds=[0])
+    _, red = materialize_pilot_manifest(proto, "BNCI2014_001", target_subject=1,
+                                        out_path=os.path.join(d, "red.yaml"), model_seeds=[0],
+                                        bootstrap_override=VALIDATION_BOOTSTRAP)
+    red.validate_complete()
+    assert red.probe.selection_bootstrap == 64 and red.probe.audit_bootstrap == 256
+    assert red.evaluation.paired_bootstrap == 256
+    assert red.training.stage1_epochs == full.training.stage1_epochs == 200      # TRAINING budget untouched
+    assert red.probe.folds == full.probe.folds and red.probe.capacities == full.probe.capacities
+    assert "validredbootstrap" in red.protocol_id                               # recorded in id + hash
+    assert red.freeze()["sha256"] != full.freeze()["sha256"]
+
+
 def test_materialize_rejects_target_not_in_subjects():
     proto = load_confirmatory(_PROTO)
     try:

@@ -8,6 +8,9 @@ from __future__ import annotations
 
 NOTICE = ("full-budget one-fold pipeline validation; NOT confirmatory efficacy evidence "
           "(single fold, descriptive k1/k2 only, no permutation test / decision rule)")
+NOTICE_REDUCED = ("full-budget TRAINING one-fold pipeline validation with REDUCED-bootstrap uncertainty; "
+                  "NOT final confirmatory statistical evidence (single fold, reduced leakage/eval bootstrap, "
+                  "descriptive k1/k2 only, no permutation test / decision rule)")
 
 
 def _sel_lambda(m):
@@ -92,9 +95,17 @@ def build_onefold_report(result) -> dict:
     sm = fold.manifest.pilot
     seeds_blocks = [_seed_block(r) for r in result.seed_runs]
     k1, k2 = _k1_k2(seeds_blocks)
+    mode = getattr(result, "bootstrap_mode", "full_budget")
+    bootstrap = {"bootstrap_mode": mode,
+                 "selection_bootstrap": int(fold.manifest.probe.selection_bootstrap),
+                 "audit_bootstrap": int(fold.manifest.probe.audit_bootstrap),
+                 "paired_bootstrap": int(fold.manifest.evaluation.paired_bootstrap),
+                 "not_confirmatory_ci": mode != "full_budget"}
     return {
-        "notice": NOTICE, "protocol_path": result.protocol_path, "dataset": result.dataset,
+        "notice": (NOTICE_REDUCED if mode != "full_budget" else NOTICE),
+        "protocol_path": result.protocol_path, "dataset": result.dataset,
         "manifest_path": result.manifest_path, "manifest_hash": result.manifest_hash,
+        "bootstrap": bootstrap,
         "target_subject": result.target_subject, "model_seeds": list(result.model_seeds),
         "subjects": list(sm.subjects), "target_subjects": list(sm.target_subjects),
         "source_audit_subjects": list(sm.source_audit_subjects),

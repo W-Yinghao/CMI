@@ -14,7 +14,7 @@ from dataclasses import dataclass
 from ..runner.bnci import DEFAULT_METHOD_ORDER
 from ..runner.bnci_artifact import run_bnci_artifact_once
 from ..runner.bnci_data import build_bnci_real_fold
-from .materialize import materialize_pilot_manifest
+from .materialize import VALIDATION_BOOTSTRAP, materialize_pilot_manifest
 from .schema import load_confirmatory
 
 DATASET = "BNCI2014_001"
@@ -34,19 +34,20 @@ class OneFoldResult:
     dataset: str
     target_subject: int
     model_seeds: tuple
+    bootstrap_mode: str                                 # "full_budget" | "pipeline_validation_reduced"
     fold: object                                        # BNCIRealFold
     seed_runs: tuple                                    # (OneFoldSeedRun, ...)
 
 
 def run_confirmatory_onefold(protocol_path, *, datalake_root, repo_root, output_root, manifest_out,
                              dataset_name=DATASET, target_subject=1, model_seeds=(0, 1, 2),
-                             device="cuda:0", git_evidence=None) -> OneFoldResult:
+                             device="cuda:0", git_evidence=None, bootstrap_override=None) -> OneFoldResult:
     if os.path.abspath(manifest_out).startswith(os.path.abspath(repo_root) + os.sep):
         raise ValueError("manifest_out must be OUTSIDE the repo (it is run-output provenance, not source)")
     proto = load_confirmatory(protocol_path)
     manifest_path, manifest = materialize_pilot_manifest(
         proto, dataset_name, target_subject=int(target_subject), out_path=manifest_out,
-        model_seeds=[int(s) for s in model_seeds])
+        model_seeds=[int(s) for s in model_seeds], bootstrap_override=bootstrap_override)
     fold = build_bnci_real_fold(manifest_path, datalake_root)
     fold.fold_data.assert_integrity()
 
@@ -59,4 +60,5 @@ def run_confirmatory_onefold(protocol_path, *, datalake_root, repo_root, output_
     return OneFoldResult(protocol_path=str(protocol_path), manifest_path=manifest_path,
                          manifest_hash=manifest.freeze()["sha256"], dataset=dataset_name,
                          target_subject=int(target_subject), model_seeds=tuple(int(s) for s in model_seeds),
+                         bootstrap_mode=("pipeline_validation_reduced" if bootstrap_override else "full_budget"),
                          fold=fold, seed_runs=tuple(runs))

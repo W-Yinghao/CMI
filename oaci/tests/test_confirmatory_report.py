@@ -31,19 +31,22 @@ def _stub_fold():
                             deleted_cell_level1=SimpleNamespace(domain_id="BNCI2014_001|subject-004",
                                                                class_name="feet"))
     training = SimpleNamespace(stage1_epochs=200, stage2_epochs=200, stage2_steps_per_epoch=20)
-    manifest = SimpleNamespace(pilot=pilot, training=training)
+    probe = SimpleNamespace(selection_bootstrap=64, audit_bootstrap=256, folds=5)
+    evaluation = SimpleNamespace(paired_bootstrap=256)
+    manifest = SimpleNamespace(pilot=pilot, training=training, probe=probe, evaluation=evaluation)
     return SimpleNamespace(manifest=manifest, data_evidence_hash="DATAEV", resolved_preprocess_hash="PPH",
                            split_manifest_hash="SPLIT")
 
 
-def _result():
+def _result(mode="full_budget"):
     runs = []
     for s in (0, 1):
         art = run_fake_two_level(_MAN, tempfile.mkdtemp(), model_seed=s, method_order=_ORDER,
                                  repo_root="/x", git_evidence=_ge())
         runs.append(OneFoldSeedRun(model_seed=s, artifact=art))
     return OneFoldResult(protocol_path="P", manifest_path="M", manifest_hash="MH", dataset="BNCI2014_001",
-                         target_subject=1, model_seeds=(0, 1), fold=_stub_fold(), seed_runs=tuple(runs))
+                         target_subject=1, model_seeds=(0, 1), bootstrap_mode=mode, fold=_stub_fold(),
+                         seed_runs=tuple(runs))
 
 
 def test_report_echoes_split_and_budget_and_notice():
@@ -74,6 +77,16 @@ def test_report_k1_k2_descriptive_structure():
     assert methods == {"ERM", "OACI", "global_lpc", "uniform"}
     for k in r["k2_descriptive"]:
         assert len(k["worst_domain_bacc_per_seed"]) == 2              # one value per seed
+
+
+def test_report_bootstrap_block_reflects_mode():
+    full = build_onefold_report(_result(mode="full_budget"))
+    assert full["bootstrap"]["bootstrap_mode"] == "full_budget" and full["bootstrap"]["not_confirmatory_ci"] is False
+    red = build_onefold_report(_result(mode="pipeline_validation_reduced"))
+    b = red["bootstrap"]
+    assert b["bootstrap_mode"] == "pipeline_validation_reduced" and b["not_confirmatory_ci"] is True
+    assert b["selection_bootstrap"] == 64 and b["audit_bootstrap"] == 256 and b["paired_bootstrap"] == 256
+    assert "REDUCED-bootstrap" in red["notice"]
 
 
 def test_report_per_method_endpoints_present():

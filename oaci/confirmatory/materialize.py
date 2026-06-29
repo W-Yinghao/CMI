@@ -19,6 +19,12 @@ BNCI2014_001_SUBJECTS = tuple(range(1, 10))
 _LOADER_CODE_VERSION = "oaci-bnci-loader-v1"
 _NORMALIZATION_EPS = 1.0e-8
 
+# Reduced-uncertainty bootstrap for a one-fold PIPELINE VALIDATION (full TRAINING budget kept). This
+# shrinks only the leakage/eval bootstrap (the CPU-bound, single-threaded bottleneck) so the fold finishes
+# in reasonable wall-clock; the resulting UCB / CI are NOT confirmatory statistical evidence. The full
+# confirmatory keeps the protocol's bootstrap (and will parallelize it).
+VALIDATION_BOOTSTRAP = {"selection_bootstrap": 64, "audit_bootstrap": 256, "paired_bootstrap": 256}
+
 
 def _completed_preprocessing(pp: dict) -> dict:
     return {"kind": "moabb_motor_imagery", "fmin": float(pp["fmin"]), "fmax": float(pp["fmax"]),
@@ -51,9 +57,14 @@ def split_subjects(all_subjects, target_subject, *, source_audit_count=2) -> dic
 
 def materialize_pilot_manifest(protocol, dataset_name, *, target_subject, out_path,
                                all_subjects=None, model_seeds=None, source_audit_count=2,
-                               deleted_cell=None):
+                               deleted_cell=None, bootstrap_override=None):
     """Build + write a runnable `pilot` manifest_v2 yaml for one held-out target; returns
-    (out_path, ProtocolManifestV2). Raises (via load_v2 + validate_complete) if anything is incomplete."""
+    (out_path, ProtocolManifestV2). Raises (via load_v2 + validate_complete) if anything is incomplete.
+
+    bootstrap_override (e.g. VALIDATION_BOOTSTRAP) shrinks ONLY the leakage/eval bootstrap
+    (probe.selection_bootstrap / probe.audit_bootstrap / evaluation.paired_bootstrap) for a reduced-
+    uncertainty PIPELINE VALIDATION; the full training budget and everything else are untouched, and the
+    materialized protocol_id is tagged so the artifact records that this is not a full-bootstrap run."""
     ds = protocol.dataset(dataset_name)
     pp = ds["preprocessing"]
     subs = list(all_subjects) if all_subjects is not None else list(BNCI2014_001_SUBJECTS)
@@ -72,14 +83,25 @@ def materialize_pilot_manifest(protocol, dataset_name, *, target_subject, out_pa
     dataset_block.update(_expected_geometry(pp))
     dataset_block["preprocessing"] = _completed_preprocessing(pp)
 
+    probe = dict(protocol.block("probe"))
+    evaluation = dict(protocol.block("evaluation"))
+    tag = "pilot"
+    if bootstrap_override:
+        for k in ("selection_bootstrap", "audit_bootstrap"):
+            if k in bootstrap_override:
+                probe[k] = int(bootstrap_override[k])
+        if "paired_bootstrap" in bootstrap_override:
+            evaluation["paired_bootstrap"] = int(bootstrap_override["paired_bootstrap"])
+        tag = "pilot-validredbootstrap"                               # recorded in protocol_id + manifest hash
+
     manifest = {
-        "protocol_id": f"{protocol.protocol_id}-pilot-{dataset_name}-target{int(target_subject):03d}",
+        "protocol_id": f"{protocol.protocol_id}-{tag}-{dataset_name}-target{int(target_subject):03d}",
         "status": "pilot", "seeds": seeds,
         "datasets": {dataset_name: dataset_block},
         "risk": dict(protocol.block("risk")), "backbone": dict(protocol.block("backbone")),
         "optimizer": dict(protocol.block("optimizer")), "training": dict(protocol.block("training")),
-        "sampler": dict(protocol.block("sampler")), "probe": dict(protocol.block("probe")),
-        "methods": dict(protocol.block("methods")), "evaluation": dict(protocol.block("evaluation")),
+        "sampler": dict(protocol.block("sampler")), "probe": probe,
+        "methods": dict(protocol.block("methods")), "evaluation": evaluation,
         "k1": dict(protocol.block("k1")), "k2": dict(protocol.block("k2")),
         "pilot": {**split, "deletion_levels": [0, 1], "deleted_cell_level1": dict(deleted_cell)}}
 
