@@ -222,7 +222,7 @@ def _perm_summary(observed_kl, null_kls):
 
 def audit_graph_objects(graph_z, node_z, edge_logits, y, d, n_classes, n_domains, *,
                         n_perm=20, seed=0, device="cpu", hidden_dim=64, epochs=100,
-                        n_edge_bins=4):
+                        n_edge_bins=4, train_idx=None, val_idx=None):
     """Full Phase-2 audit of the three graph objects on a SHARED frozen source split.
 
     graph_z: [N, Dg]   node_z: [N, C, Dn]   edge_logits: [N, C, C]   y, d: [N]
@@ -230,6 +230,12 @@ def audit_graph_objects(graph_z, node_z, edge_logits, y, d, n_classes, n_domains
     permutation_{mean,std,p}, domain_acc, prior_acc, leakage_advantage and a bootstrap CI; the node
     block adds a length-C `node_leakage_map`; the edge block adds the [C,C] `edge_leakage_map`
     (non-neural binned CMI). All inputs are detached; no target data is involved.
+
+    train_idx/val_idx: optional explicit TRIAL-level split (e.g. a support-aware (Y,D) split from
+    cmi.eval.probe_splits). When given, the same trial split is shared across graph/node/edge and the
+    permutation null permutes D within-label over train_idx only; node-rows are derived from these
+    trial indices (so node-rows of a trial never straddle the split). When omitted, falls back to the
+    internal random `_trial_split` (preserves the original Phase-2 behaviour/tests).
     """
     graph_z = _feat_tensor(graph_z, device)
     node_z = _feat_tensor(node_z, device)
@@ -238,7 +244,11 @@ def audit_graph_objects(graph_z, node_z, edge_logits, y, d, n_classes, n_domains
     Dn = node_z.shape[2]
     y_np = _np(y).astype(np.int64)
     d_np = _np(d).astype(np.int64)
-    tr_trials, va_trials = _trial_split(N, seed)            # shared trial split for all three objects
+    if train_idx is not None and val_idx is not None:       # explicit support-aware trial split
+        tr_trials = np.asarray(train_idx, dtype=np.int64)
+        va_trials = np.asarray(val_idx, dtype=np.int64)
+    else:
+        tr_trials, va_trials = _trial_split(N, seed)        # shared trial split for all three objects
 
     # ---- graph: probe q(D | Z_g, Y) ---------------------------------------------------------------
     def fit_graph(d_arr):

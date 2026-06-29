@@ -17,10 +17,12 @@ import numpy as np
 import torch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # repo root -> import cmi.*
+import cmi.eval.graph_leakage as gl  # noqa: E402
 from cmi.eval.graph_leakage import (  # noqa: E402
     compute_label_domain_prior, conditional_kl_to_prior, bootstrap_mean_ci,
     within_label_permutation, within_label_permutation_on_indices, fit_conditional_domain_probe,
     audit_graph_objects, edge_binned_cmi_map, _permutation_null, _trial_split)
+from cmi.eval.probe_splits import stratified_trial_split_by_y_d  # noqa: E402
 
 K, M = 2, 3       # classes, domains
 N = 300
@@ -210,3 +212,46 @@ def test_edge_binned_cmi_localizes_spurious_edge():
     amax = np.argmax(vals)
     assert (iu[0][amax], iu[1][amax]) == (0, 2), "spurious edge (0,2) should dominate the CMI map"
     assert m[0, 2] > 3 * np.median(vals[vals != m[0, 2]] + 1e-9)
+
+
+# --------------------------------------- explicit support-aware split path (Phase 2-real wiring)
+def test_audit_graph_objects_honors_explicit_split():
+    """audit_graph_objects(train_idx=, val_idx=) must use the GIVEN trial split for graph/edge and
+    derive node-rows from those trial indices (rows == C * #trials, never straddling)."""
+    gz, nz, el, y, d = _graph_tensors()
+    C = el.shape[1]
+    tr, va, _ = stratified_trial_split_by_y_d(y, d, train_frac=0.7, seed=0, min_per_cell=2)
+    out = audit_graph_objects(gz, nz, el, y, d, K, M, n_perm=4, epochs=60, seed=0,
+                              train_idx=tr, val_idx=va)
+    assert out["graph"]["n_train"] == len(tr) and out["graph"]["n_val"] == len(va)
+    assert out["edge"]["n_train"] == len(tr) and out["edge"]["n_val"] == len(va)
+    # node block: rows derived from trial indices -> counts are C * #trials (no straddling)
+    assert out["node"]["n_train"] == C * len(tr) and out["node"]["n_val"] == C * len(va)
+    # injected leakage still clears the retrained null under the explicit split
+    assert out["graph"]["kl_mean"] > out["graph"]["permutation_mean"]
+    assert out["edge"]["kl_mean"] > out["edge"]["permutation_mean"]
+    # node map localizes the injected channel 1
+    assert int(np.asarray(out["node"]["node_leakage_map"]).argmax()) == 1
+
+
+def test_audit_explicit_split_null_permutes_train_only(monkeypatch):
+    """Under an explicit split, the permutation null for graph/node/edge must permute D within-label
+    over the TRAIN indices ONLY (validation D untouched) — the central reviewer hotfix."""
+    gz, nz, el, y, d = _graph_tensors()
+    tr, va, _ = stratified_trial_split_by_y_d(y, d, train_frac=0.7, seed=0, min_per_cell=2)
+    seen_indices = []
+    orig = gl.within_label_permutation_on_indices
+
+    def spy(yy, dd, indices, seed):
+        seen_indices.append(np.sort(np.asarray(indices)))
+        out = orig(yy, dd, indices, seed)
+        # validation domains are never altered by the null
+        assert np.array_equal(out[va], dd[va] if hasattr(dd, "__getitem__") else np.asarray(dd)[va])
+        return out
+
+    monkeypatch.setattr(gl, "within_label_permutation_on_indices", spy)
+    audit_graph_objects(gz, nz, el, y, d, K, M, n_perm=3, epochs=40, seed=0, train_idx=tr, val_idx=va)
+    assert len(seen_indices) == 3 * 3, "expected n_perm permutations for each of graph/node/edge"
+    tr_sorted = np.sort(tr)
+    for idx in seen_indices:
+        assert np.array_equal(idx, tr_sorted), "null must permute over TRAIN trial indices only"

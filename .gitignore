@@ -20,6 +20,9 @@ repos/
 *.pth
 *.ckpt
 
+# CIGL Phase 2-real generated run artifacts (exploratory, regenerable; keep only the README)
+results/cigl/phase2_real/*.json
+
 # python caches
 __pycache__/
 *.py[cod]
