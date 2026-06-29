@@ -4,9 +4,10 @@
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G
-#SBATCH --time=12:00:00
 #SBATCH --output=logs/cigl/%x-%j.out
 #SBATCH --error=logs/cigl/%x-%j.err
+# NOTE: --time intentionally omitted (user pref) — inherit the partition MAX (A100=1d, V100=2d, A40=4d)
+# so the job is never killed mid-run. This job is short (~tens of minutes) regardless.
 #
 # CIGL BINDING Gate-2 evidence — source-only GraphCMINet-ERM leakage probe on BNCI2014_001.
 # Exploratory DIAGNOSTIC: NO regularizer training, NO lambda sweep, NO SOTA, NO target data.
