@@ -181,6 +181,32 @@ def frozen_code_provenance(tag: dict) -> dict:
     return dict(git_head=head, expected_code_ref=ref, expected_code_commit=expected, git_status_clean=True)
 
 
+def verify_fresh_payload(path: str, slurm_job_id, expected_commit: str, tag: dict):
+    """Reject a confirmatory artifact that is NOT a fresh product of THIS job at the frozen commit
+    (CSC stale-artifact guard). Raises SystemExit (infrastructure, not a scientific FAIL) on ANY
+    mismatch -- so a stale/foreign `confirmatory.json` can never masquerade as this run's result."""
+    with open(path) as f:
+        p = json.load(f)
+    cp = p.get("code_provenance", {}) or {}
+    sd = p.get("seed_derivation", {}) or {}
+    base, G = tag["base_seed"], tag["G"]
+    checks = [
+        (str(p.get("slurm_job_id")) == str(slurm_job_id), "slurm_job_id mismatch"),
+        (cp.get("git_head") == expected_commit, "code_provenance.git_head != frozen commit"),
+        (cp.get("expected_code_commit") == expected_commit, "code_provenance.expected_code_commit != frozen commit"),
+        (cp.get("git_status_clean") is True, "code_provenance.git_status_clean not true"),
+        (p.get("manifest_hash") == tag["expected_manifest_hash"], "manifest_hash mismatch"),
+        (p.get("base_seed") == base, "base_seed mismatch"),
+        (sd.get("source_seed_range") == [base, base + G - 1], "source_seed_range mismatch"),
+        (sd.get("target_seed_range") == [TGT_SEED_BASE + base, TGT_SEED_BASE + base + G - 1],
+         "target_seed_range mismatch"),
+    ]
+    bad = [m for ok, m in checks if not ok]
+    if bad:
+        raise SystemExit("STALE/INVALID ARTIFACT (infrastructure): " + "; ".join(bad))
+    return True
+
+
 def _describe(tag: dict, cfg: ProtocolConfig):
     print("=== CSC confirmatory — FROZEN PLAN (dry run; nothing executed) ===")
     print(f"status     : {tag['status']}")
@@ -210,12 +236,23 @@ def main():
     ap = argparse.ArgumentParser(description="CSC confirmatory runner (FROZEN; dry-run by default).")
     ap.add_argument("--execute", action="store_true",
                     help="SEPARATELY-AUTHORIZED confirmatory run on the unseen core clusters")
+    ap.add_argument("--verify-fresh", dest="verify_fresh", action="store_true",
+                    help="post-run: verify --out is a FRESH artifact of THIS job at the frozen commit "
+                         "(exit non-zero = infrastructure failure, not a scientific FAIL)")
     ap.add_argument("--jobs", type=int, default=1)
     ap.add_argument("--out", type=str, default="csc/results/confirmatory.json")
     ap.add_argument("--tag", type=str, default=TAG_PATH)
     args = ap.parse_args()
     tag = load_tag(args.tag)
     cfg = frozen_cfg()
+
+    if args.verify_fresh:                       # stale-artifact guard (called by the sbatch after the run)
+        prov = frozen_code_provenance(tag)      # also re-asserts HEAD == frozen tag + clean
+        verify_fresh_payload(args.out, os.environ.get("SLURM_JOB_ID"),
+                             prov["expected_code_commit"], tag)
+        print(f"[confirmatory] artifact freshness VERIFIED: {args.out} is a fresh product of job "
+              f"{os.environ.get('SLURM_JOB_ID')} at {prov['expected_code_commit'][:12]}")
+        return
 
     if not args.execute:
         _describe(tag, cfg)

@@ -128,6 +128,46 @@ def test_frozen_code_ref_guard():
     print("OK frozen-code guard: HEAD==tag & clean -> ok; mismatch/unresolved/dirty -> fail closed")
 
 
+# 4a3 ---- stale/foreign artifact is refused (freshness guard) ------------------------------------
+def test_stale_artifact_refused():
+    import json, tempfile, copy
+    from csc.run_confirmatory import verify_fresh_payload, TGT_SEED_BASE
+    tag = load_tag()
+    JOB, COMMIT = "999999", "c" * 40
+
+    def fresh():
+        return dict(slurm_job_id=JOB, manifest_hash=tag["expected_manifest_hash"],
+                    base_seed=tag["base_seed"],
+                    code_provenance=dict(git_head=COMMIT, expected_code_commit=COMMIT, git_status_clean=True),
+                    seed_derivation=dict(
+                        source_seed_range=[tag["base_seed"], tag["base_seed"] + tag["G"] - 1],
+                        target_seed_range=[TGT_SEED_BASE + tag["base_seed"],
+                                           TGT_SEED_BASE + tag["base_seed"] + tag["G"] - 1]))
+
+    def write(p):
+        path = tempfile.mktemp(suffix=".json"); json.dump(p, open(path, "w")); return path
+
+    # a genuinely fresh payload of THIS job at the frozen commit passes
+    verify_fresh_payload(write(fresh()), JOB, COMMIT, tag)
+    # every staleness/foreignness signal is refused (infrastructure SystemExit)
+    mutators = {
+        "old job (stale)": lambda p: p.update(slurm_job_id="111111"),
+        "foreign commit": lambda p: p["code_provenance"].update(git_head="d" * 40),
+        "dirty tree": lambda p: p["code_provenance"].update(git_status_clean=False),
+        "wrong manifest": lambda p: p.update(manifest_hash="deadbeef"),
+        "wrong base_seed": lambda p: p.update(base_seed=600000),
+        "wrong target seeds": lambda p: p["seed_derivation"].update(target_seed_range=[0, 65]),
+    }
+    for label, mut in mutators.items():
+        p = fresh(); mut(p)
+        try:
+            verify_fresh_payload(write(p), JOB, COMMIT, tag)
+            raise AssertionError(f"freshness guard should reject: {label}")
+        except SystemExit:
+            pass
+    print("OK stale/foreign artifact refused (old job, foreign commit, dirty, manifest, seed mismatches)")
+
+
 # 4b ---- seed derivation is recorded explicitly (source vs target streams, disjoint) --------------
 def test_seed_streams_recorded():
     from csc.run_confirmatory import seed_streams
@@ -164,6 +204,7 @@ if __name__ == "__main__":
     test_tag_matches_frozen_method_and_bound_choices()
     test_evaluate_point_gating()
     test_frozen_code_ref_guard()
+    test_stale_artifact_refused()
     test_unconditional_power_guard()
     test_seed_streams_recorded()
     test_dev_smoke_not_unseen()

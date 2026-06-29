@@ -41,22 +41,30 @@ export PYTHONWARNINGS=ignore
 JOBS=${SLURM_CPUS_PER_TASK:-8}
 LOG="logs/csc_confirm_${SLURM_JOB_ID}.out"
 BASE="${OUT%.json}"
+TMP_OUT="${BASE}.${SLURM_JOB_ID}.tmp.json"
+CONDA="/home/infres/yinwang/anaconda3/bin/conda run -n icml --no-capture-output"
 echo "host=$(hostname) job=$SLURM_JOB_ID cpus=$SLURM_CPUS_PER_TASK jobs=$JOBS out=$OUT started=$(date -Is)"
 mkdir -p csc/results logs
+# FRESHNESS GUARD (part 1): NO stale artifact may survive into this run. Remove the final outputs and
+# any leftover temp, and write the run to a JOB-SPECIFIC temp first.
+rm -f "$OUT" "${OUT}.sha256" "${BASE}.log" "${BASE}.log.sha256" "$TMP_OUT" "${TMP_OUT}.sha256"
 SCI_RC=0
-/home/infres/yinwang/anaconda3/bin/conda run -n icml --no-capture-output \
-    python -u -m csc.run_confirmatory --execute --jobs "$JOBS" --out "$OUT" \
-    || SCI_RC=$?
+$CONDA python -u -m csc.run_confirmatory --execute --jobs "$JOBS" --out "$TMP_OUT" || SCI_RC=$?
 echo "scientific_rc=$SCI_RC finished=$(date -Is)"
-# ALWAYS preserve artifacts (a scientific FAIL must not become a missing artifact)
+# the run must have produced ITS OWN fresh temp; otherwise it crashed -> infrastructure failure
+if [ ! -f "$TMP_OUT" ]; then
+    echo "artifact_present=NO (no fresh temp) -> INFRASTRUCTURE FAILURE"; exit 2
+fi
+mv "$TMP_OUT" "$OUT"
+# FRESHNESS GUARD (part 2): verify the JSON is a fresh product of THIS job at the frozen commit
+# (slurm_job_id, code_provenance git_head==frozen, clean, manifest, base_seed, seed ranges). Any
+# mismatch is an INFRASTRUCTURE failure (exit 2), NOT a scientific FAIL.
+$CONDA python -u -m csc.run_confirmatory --verify-fresh --out "$OUT" \
+    || { echo "STALE/INVALID ARTIFACT -> INFRASTRUCTURE FAILURE"; exit 2; }
+# ALWAYS preserve the (now verified-fresh) artifacts. A scientific FAIL (RC=1) is valid and preserved.
 cp "$LOG" "${BASE}.log" 2>/dev/null || true
 sha256sum "${BASE}.log" > "${BASE}.log.sha256" 2>/dev/null || true
-if [ -f "$OUT" ]; then
-    sha256sum "$OUT" > "${OUT}.sha256" 2>/dev/null || true
-    echo "artifact_present=yes json_sha256=$(cut -d' ' -f1 ${OUT}.sha256 2>/dev/null)"
-    echo "EXIT scientific_rc=$SCI_RC (0=PASS, 1=scientific FAIL; both valid, artifact preserved)"
-    exit $SCI_RC
-else
-    echo "artifact_present=NO -> INFRASTRUCTURE FAILURE (no scientific result produced)"
-    exit 2
-fi
+sha256sum "$OUT" > "${OUT}.sha256" 2>/dev/null || true
+echo "artifact_present=yes fresh=yes json_sha256=$(cut -d' ' -f1 ${OUT}.sha256 2>/dev/null)"
+echo "EXIT scientific_rc=$SCI_RC (0=PASS, 1=scientific FAIL; both valid, fresh artifact preserved)"
+exit $SCI_RC

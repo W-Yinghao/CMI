@@ -274,6 +274,13 @@ generation time — never re-derived after seeing the certificate outcome. (P1.5
   (after writing the JSON); the actual-run wrapper (`csc/run_confirmatory.sbatch`) ALWAYS preserves the
   JSON artifact + sha256 (and the log + sha256) and then exits with the **scientific** RC, and exits
   with an **infrastructure** code (2) only if NO JSON artifact was produced.
+- **No stale artifact may masquerade as a result (freshness guard, pre-run hotfix).** The wrapper
+  `rm`s any pre-existing `$OUT`/sha/log before the run, writes to a **job-specific temp**, `mv`s it to
+  `$OUT` only if the run produced it (else exit 2), then runs `--verify-fresh`
+  (`verify_fresh_payload`): the JSON must carry THIS job's `slurm_job_id`, `code_provenance.git_head ==
+  expected_code_commit ==` frozen tag commit, `git_status_clean`, the frozen `manifest_hash` /
+  `base_seed`, and the exact source/target seed ranges — any mismatch is an **infrastructure** failure
+  (exit 2), never a scientific FAIL.
 
 ## 8. Failure decomposition (reported every run, PASS or FAIL)
 
