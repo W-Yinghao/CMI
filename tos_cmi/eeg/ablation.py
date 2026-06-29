@@ -82,9 +82,13 @@ def ablate(npz_path, cfg=None, seed=0):
 
 
 def main():
+    import os
     base = sys.argv[1] if len(sys.argv) > 1 else "tos_cmi/results/tos_cmi_eeg_frozen/BNCI2014_001_TSMNet_LOSO"
     only = sys.argv[2] if len(sys.argv) > 2 else "erm"             # default ablate ERM dumps
     paths = [p for p in sorted(glob.glob("%s/*.npz" % base)) if ("_%s_" % only) in p or only == "all"]
+    sd = os.environ.get("TOS_SEED_FILTER")
+    if sd:
+        paths = [p for p in paths if p.endswith("_seed%s.npz" % sd)]
     rows = []
     for p in paths:
         try:

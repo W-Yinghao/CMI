@@ -111,9 +111,16 @@ def _aggregate(rows):
     return agg
 
 
+def _seed_filter(paths):
+    import os
+    sd = os.environ.get("TOS_SEED_FILTER")
+    return [p for p in paths if p.endswith("_seed%s.npz" % sd)] if sd else paths
+
+
 def main():
     base = sys.argv[1] if len(sys.argv) > 1 else "tos_cmi/results/tos_cmi_eeg_frozen"
-    paths = sorted(glob.glob("%s/*.npz" % base)) or sorted(glob.glob("%s/**/*.npz" % base, recursive=True))
+    paths = _seed_filter(sorted(glob.glob("%s/*.npz" % base))
+                         or sorted(glob.glob("%s/**/*.npz" % base, recursive=True)))
     rows = []
     for p in paths:
         r = analyze(p)

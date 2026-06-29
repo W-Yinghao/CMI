@@ -68,8 +68,12 @@ def analyze_geometry(npz_path, cfg=None):
 
 
 def main():
+    import os
     base = sys.argv[1] if len(sys.argv) > 1 else "tos_cmi/results/tos_cmi_eeg_frozen/BNCI2014_001_TSMNet_LOSO"
     paths = sorted(glob.glob("%s/*.npz" % base))
+    sd = os.environ.get("TOS_SEED_FILTER")
+    if sd:
+        paths = [p for p in paths if p.endswith("_seed%s.npz" % sd)]
     rows = []
     for p in paths:
         try:
