@@ -33,3 +33,4 @@ __pycache__/
 
 # slurm generated packages that reference local paths (optional; keep templates)
 slurm-*.out
+/repos/

@@ -1,3 +1,5 @@
 # SLURM job logs
 *.out
 results/
+# Phase 2 EEG pilot artifacts + symlinked external checkout
+results/tos_cmi_eeg_frozen/
