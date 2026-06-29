@@ -74,5 +74,43 @@ measurement framework correctly diagnoses this: borderline/vacuous selective can
 abstention, explaining WHY global LPC collapses. This is a measurement-to-control NEGATIVE for
 deployable selective deletion here, and a positive for the diagnostic/refuse-to-delete role.
 
-### Pending: 3-seed stability (seeds 1,2 running), adversarial (domain=session vs subject;
-nonlinear-task-on-PNZ already ~chance), then write final conclusions.
+### 3-SEED STABILITY (seeds 0,1,2) + adversarial workflow verification — FINAL (corrected)
+
+Stability (all 3 seeds): ERM tgt_bAcc ~0.39-0.40 / labelP ~0.75 / domAdv +0.87; LPC λ≥1 collapse to
+chance; ablation domain_RZ ~0.95-0.96; gate ERM 5-7/9 "accept"; subject decode 1.00 ≫ session 0.90.
+All four findings reproduce across seeds.
+
+A 4-agent adversarial workflow (independent re-derivation from raw npz/code) produced TWO CORRECTIONS:
+
+1. **Global-LPC λ-collapse is most likely an OPTIMIZATION ARTIFACT, not a representation-geometry
+   failure.** At λ=1, 26/27 (subj×seed) runs collapse FULLY (src/label→chance, dom_adv≈−0.01,
+   inloop_reg≈0.001) but exactly 1 (sub2/seed2) does not — BIMODALITY at the threshold = training
+   instability, not a smooth geometric optimum. CAVEAT: indirect (the dumps log only end-of-training
+   scalars; NO per-epoch task-CE/penalty/grad-norm/eff-rank). ⇒ write as "global-objective
+   optimization failure (λ-fragile)", and the minimal settling step is per-epoch logging + re-run.
+
+2. **V_D removal DENTS but does not REMOVE domain (and it DOES beat random).** Correcting the earlier
+   "≈ random": deleting V_D drops subject decode 0.997→0.955 (MLP) / 0.998→0.914 (linear), while
+   removing k RANDOM dirs drops it ~0 (→0.997) — so V_D PREFERENTIALLY captures domain (nDcand 2-5,
+   real domain energy). BUT the drop is small (domain stays ~0.95) and task is fully preserved
+   (task_RZ≈task_Z, Δ≈0) ⇒ subject leakage is high-dim/REDUNDANT; low-rank deletion is INSUFFICIENT
+   to remove it. (robust, SUPPORTED.)
+
+3. **No TARGET leakage** (SUPPORTED): held-out target data never enters M/Fisher/candidate/gate/probe
+   — only tgt_bacc/tgt_nll read target keys (report.py). (The `target` param name in score_fisher is
+   an unrelated probe-label overload, not a leak.)
+
+4. **V_D is effectively label-light** out-of-sample: PNZ task ≈ chance+0.04 (≈ random-k level) under
+   linear AND MLP (0.36 vs full 0.75); deletion preserves task. ("exactly chance" technically
+   refuted; practically label-light.)
+
+### FINAL Phase 2.0 conclusion (honest, verified)
+On real TSMNet/2a frozen features: the score-Fisher selector DOES find a genuine domain-preferential,
+~label-light low-rank subspace, but deleting it only DENTS the subject leakage (high-dim/redundant)
+→ low-rank selective deletion cannot REMOVE the leakage; and global LPC "removes" it only by a
+λ-fragile OPTIMIZATION collapse of the whole representation. So: measurement-to-control POSITIVE for
+diagnosis (the framework localizes the leakage subspace + correctly shows low-rank deletion is
+insufficient + the certified gate abstains), NEGATIVE for deployable low-rank selective deletion here.
+NEXT (cheap, settles confound #1): add per-epoch training-curve logging to cmi trainer diag + re-run
+a small λ sweep to confirm the collapse is optimization (not geometry). NOT a frozen-projection pilot
+yet (deletion is insufficient). task_protect + power_floor stay OFF; gate = diagnostic/refuse-to-delete.
