@@ -2,6 +2,10 @@
 NO real signal, NO encoder run. Proves the pure selectors/parsers/validators/hashers and that prepare_dump is FAIL-CLOSED
 on the missing frozen encoder (FrozenEncoderMissingError; never retrains). Run: python -m acar.v4.tests.test_prepare_external_dump
 """
+import os
+import shutil
+import tempfile
+
 import numpy as np
 
 from acar.v4 import prepare_external_dump as P
@@ -62,17 +66,28 @@ def test_validate_dump_schema():
     _expect(ValueError, lambda: P.validate_dump_schema(dup))                                          # duplicate rows
     _expect(ValueError, lambda: P.validate_dump_schema(ok, embedding_dim=8))                          # d mismatch
     _expect(ValueError, lambda: P.validate_dump_schema({**ok, "feat_hash_te": "abc"}))               # bad feat_hash
+    obj_ids = np.array([1, 2, 3, 4, 5], dtype=object)                                                 # SCHEMA-1: object
+    _expect(ValueError, lambda: P.validate_dump_schema({**ok, "subject_id_te": obj_ids}))            # non-str object ids
 
 
 def test_provenance_hashers():
-    assert P.subject_list_sha256(["a", "b"]) == P.subject_list_sha256(["b", "a"])      # permutation-independent
-    assert P.subject_list_sha256(["a", "b"]) != P.subject_list_sha256(["a", "c"])
+    # PROV-2: prepare no longer ships a subject_list_sha256 (the manifest field is the v3 hash_subject_list, not this)
+    assert not hasattr(P, "subject_list_sha256")
     assert P.diagnosis_mapping_sha256({"a": 1, "b": 0}) == P.diagnosis_mapping_sha256({"b": 0, "a": 1})
     assert P.diagnosis_mapping_sha256({"a": 1}) != P.diagnosis_mapping_sha256({"a": 0})
     p1 = P.raw_pipeline_sha256({"fs": 250, "bandpass": [1, 40]})
     assert p1 == P.raw_pipeline_sha256({"bandpass": [1, 40], "fs": 250}) != P.raw_pipeline_sha256({"fs": 500})
     assert len(p1) == 64
     assert P.resting_selection_sha256([{"task": "rest"}]) == P.resting_selection_sha256([{"task": "rest"}])
+
+
+def test_provenance_sidecar_dict():
+    h = {f: ("a" * 64) for f in P._SIDECAR_HASH_FIELDS}
+    sc = P.provenance_sidecar_dict(source_state_ref="b" * 64, **h)
+    assert sc["schema"] == P.SIDECAR_SCHEMA and sc["source_state_ref"] == "b" * 64
+    assert all(sc[f] == "a" * 64 for f in P._SIDECAR_HASH_FIELDS)
+    _expect(ValueError, lambda: P.provenance_sidecar_dict(source_state_ref="b" * 64))               # missing all hashes
+    _expect(ValueError, lambda: P.provenance_sidecar_dict(source_state_ref="b" * 64, bogus="x", **h))  # unexpected field
 
 
 def test_prepare_dump_fail_closed_and_encoder_artifact():
@@ -90,10 +105,31 @@ def test_prepare_dump_fail_closed_and_encoder_artifact():
     # NO implicit retrain path: prepare_dump never reaches a training call without a verified encoder (fail-closed above)
 
 
+def test_prepare_dump_second_blocker_reader_not_wired():
+    # WIRING-1: with a COMPLETE, on-disk, hash-verified encoder artifact, prepare_dump clears blocker 1 (encoder) and
+    # fail-closes at blocker 2 (held-out reader not wired) — BEFORE any heavy import, writing nothing.
+    d = tempfile.mkdtemp()
+    try:
+        ckpt = os.path.join(d, "enc.pt"); ss = os.path.join(d, "src.npz")
+        with open(ckpt, "wb") as f: f.write(b"fake-checkpoint")
+        with open(ss, "wb") as f: f.write(b"fake-source-state")
+        art = {f: "x" for f in P.ENCODER_ARTIFACT_FIELDS}
+        art.update({"embedding_dim": 16, "encoder_checkpoint_path": ckpt, "source_state_path": ss,
+                    "encoder_checkpoint_sha256": P._sha256_file(ckpt), "source_state_sha256": P._sha256_file(ss)})
+        out = os.path.join(d, "out.npz")
+        _expect(P.ExternalReaderNotWiredError, lambda: P.prepare_dump("ds007526", "/raw", out,
+                                                                      encoder_artifact=art,
+                                                                      raw_pipeline_config=P.FROZEN_PIPELINE))
+        assert not os.path.exists(out)                        # fail-closed before assembly → nothing written
+    finally:
+        shutil.rmtree(d, ignore_errors=True)
+
+
 def main():
     print("ACAR v4 prepare_external_dump guards (synthetic fixtures only):")
     for t in (test_resting_run_selector, test_parse_diagnosis_map, test_validate_channels_fs, test_validate_dump_schema,
-              test_provenance_hashers, test_prepare_dump_fail_closed_and_encoder_artifact):
+              test_provenance_hashers, test_provenance_sidecar_dict, test_prepare_dump_fail_closed_and_encoder_artifact,
+              test_prepare_dump_second_blocker_reader_not_wired):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 PREPARE-EXTERNAL-DUMP GUARDS PASS")

@@ -5,10 +5,12 @@ STATE         : DRAFT — binding ONLY when committed AND tagged `acar-v4-protoc
 LINEAGE       : v2 MEASUREMENT_ONLY (9b2f0c1) · v3 DEV_STOP (817b04f/9f4e83f) · v4 DEV candidate (e4c4e91, EXPLORATORY)
 EXTERNAL ARM  : NOT RUN — authorized only AFTER tag + sign-off
 LOCKBOX       : SEALED / NOT CONSUMED
-HARD BLOCKER  : the frozen DEV EEGNet ENCODER checkpoint + matching source-state artifacts are NOT archived. External
-                   Arm B is NOT EXECUTABLE — prepare_dump is fail-closed (FrozenEncoderMissingError) and does NOT retrain.
-                   Archiving/regenerating + hashing + pinning the encoder/source-state is a SEPARATE later gated decision
-                   (notes/ACAR_V4_EXTERNAL_INPUT_SCHEMA.md). EXTERNAL ARM-B status = NOT_YET_EXECUTABLE (not "infeasible").
+HARD BLOCKERS : External Arm B is NOT_YET_EXECUTABLE (not "infeasible") — TWO fail-closed blockers, both before any heavy
+                   import/raw read: (1) the frozen DEV EEGNet ENCODER + source-state are NOT archived → prepare_dump raises
+                   FrozenEncoderMissingError (NEVER retrains); (2) the held-out raw→embedding READER is NOT wired (cmi
+                   load_crossdataset KeyErrors on the held-out sites) → prepare_dump raises ExternalReaderNotWiredError.
+                   Resolving both is a SEPARATE signed-off decision: notes/ACAR_V4_ENCODER_ARTIFACT_DECISION.md (A recover
+                   original / B regenerate+declare all-DEV substrate / C suspend → DEV-only).
 §4 HELD-OUT LIST : AUDITED + FILLED (metadata-only, notes/ACAR_V4_LOCKBOX_AUDIT.md) — admissible: (zenodo14808296,SCZ),
                    (ds007526,PD), both single-site; ASZED provisional; ds007020 excluded
 EXTERNAL CLI  : IMPLEMENTED + HARDENED — acar/v4/run_external_armb.py (stdlib-first preflight; EXACT-set + full-provenance
@@ -16,9 +18,10 @@ EXTERNAL CLI  : IMPLEMENTED + HARDENED — acar/v4/run_external_armb.py (stdlib-
                    requires a DEV-frozen source artifact, label-free loaders, fail-closed; λ grid from non-fallback CAL;
                    fail-closed subject class). Frozen input prep: acar/v4/prepare_external_dump.py +
                    notes/ACAR_V4_EXTERNAL_INPUT_SCHEMA.md. Guards: test_external_armb + test_prepare_external_dump.
-REMAINING BLOCKERS TO TAG : (1) clean-process guard run of all v4 suites + clean worktree; (2) sign-off; THEN tag
-                   `acar-v4-protocol`. AFTER tag: run the gated prep (prepare_dump) to build the held-out erm_0 dumps,
-                   THEN the single external read via the CLI. (The held-out dumps do NOT exist yet — built post-tag.)
+REMAINING BLOCKERS TO TAG : (0) resolve BOTH HARD BLOCKERS via ACAR_V4_ENCODER_ARTIFACT_DECISION.md (encoder + reader);
+                   (1) clean-process guard run of all v4 suites + clean worktree; (2) sign-off; THEN tag
+                   `acar-v4-protocol`. AFTER tag: run the gated prep (prepare_dump → dump + provenance sidecar), THEN the
+                   single external read via the CLI. (The held-out dumps do NOT exist yet — built post-tag, post-blockers.)
 DATE          : 2026-06-29
 ```
 
@@ -81,7 +84,11 @@ stratum            = (site, disease); for a multi-acquisition-unit site (e.g. AS
                      mixture-exchangeability claim, declared per site in §4.
 within each stratum: subject-disjoint CAL/EVAL split, subject-hash seed = 0, CAL fraction = 0.40 (subjects),
                      min_CAL_subjects = 20, min_EVAL_subjects = 20. Subjects are the unit (cohort_id::subject_id).
-fallback-only subjects: retained in EVAL (forced identity, in the denominator); never in CAL selection.
+fallback-only subjects: split by subject-hash like any subject (site_local_split is fallback-agnostic). They are ALWAYS
+                     forced-identity and ALWAYS retained in the subject denominator (CAL and EVAL); only the λ-grid
+                     construction excludes fallback batches (so 0-loss identity rows never shape the score threshold). A
+                     fallback-only subject may thus enter CAL as a 0-loss LTT-denominator subject; the EVAL L_harm_all gate
+                     is computed on the actual EVAL population and remains the binding safety check. (audit DOC-4)
 coverage rule      : every EVAL subject scored OOF under the stratum's single CAL-calibrated λ*; subject-macro metrics.
 NOT_EVALUABLE      : a stratum with < min_CAL/EVAL subjects, an empty/degenerate λ grid, or LTT NOT_EVALUABLE is reported
                      NOT_EVALUABLE (flagged, NEVER silently dropped) and counts as neither pass nor fail.
@@ -151,21 +158,25 @@ Runner preflight (metadata-only, before any signal read): re-confirm ds007526 ch
 Zenodo id↔diagnosis mapping, and no re-released/derived subject overlap with the seven DEV cohorts; any stratum failing
 the split-feasibility or label checks is reported NOT_EVALUABLE (never silently dropped).
 
-**Held-out dumps do NOT exist yet.** Each admissible site's erm_0 dump is produced (post-tag) by the FROZEN prep layer
-`acar/v4/prepare_external_dump.py` running the SAME DEV pipeline + the DEV-frozen encoder/source state on the held-out
-raw EEG (contract: `notes/ACAR_V4_EXTERNAL_INPUT_SCHEMA.md`). The held-out diagnosis labels are written ONLY to `y_te`.
-No raw download / signal processing occurs before the tag.
+**Held-out dumps do NOT exist yet.** Each admissible site's erm_0 dump + its `<dump>.provenance.json` sidecar are produced
+(post-tag, post-blockers) by the FROZEN prep layer `acar/v4/prepare_external_dump.py` running the SAME DEV pipeline + the
+DEV-frozen encoder/source state on the held-out raw EEG (contract: `notes/ACAR_V4_EXTERNAL_INPUT_SCHEMA.md`). The held-out
+diagnosis labels are written ONLY to `y_te`. No raw download / signal processing occurs before the tag, and prepare_dump
+is fail-closed on BOTH HARD BLOCKERS (encoder + held-out reader; see `notes/ACAR_V4_ENCODER_ARTIFACT_DECISION.md`).
 
 ## 5. Execution discipline + leakage firewall (CLI = acar/v4/run_external_armb.py)
-The unique external Arm-B CLI is STDLIB-FIRST + FAIL-CLOSED (no bypass): read+sha the input manifest, manifest schema
-(EXACT admissible §4 strata only — ASZED/ds007020/DEV rejected — + full per-stratum provenance), output-dir absent,
-HEAD == protocol commit, tag `acar-v4-protocol` → HEAD, clean worktree, per-dump SHA-256 — ALL before any heavy import;
-THEN `verify_env_lock` (records `env_lock_sha256`), the DEV-frozen source artifact load + sha/ref re-check, the
-field-separated hash recompute (deployment_input/label/subject_list), an atomic `<out>.tmp` work dir, a single
-confirmatory pass (`evaluate_stratum` per stratum → `external_taxonomy`), and `os.rename(<out>.tmp, <out>)` —
-`results/acar_v4_external_001/` (manifest.json + RESULT.json sentinel; `allow_nan=False`; manifest_sha256 +
-input_manifest_sha256 + command recorded). No threshold/seed/loss/registry/grid change after the read; a killed/partial
-run is OPERATIONALLY_ABORTED (the `.tmp` work dir is removed; `<out>` exists ⟺ complete).
+The unique external Arm-B CLI is STDLIB-FIRST + FAIL-CLOSED (no bypass), in this exact order: read+sha the input manifest;
+manifest schema (EXACT admissible §4 strata only — ASZED/ds007020/DEV rejected — + full per-stratum provenance incl.
+`provenance_sidecar_sha256`); output-dir absent; HEAD == protocol commit; tag `acar-v4-protocol` → HEAD; clean worktree —
+ALL with NO external read. THEN `os.mkdir(<out>)` — a RACE-FREE atomic claim (first-writer-wins; also surfaces an
+unwritable parent) made BEFORE any external dump byte is read. THEN, under the claim: per-dump SHA-256 + provenance-
+sidecar verification (the 8 declared hashes must equal a sha-pinned `<dump>.provenance.json`); `verify_env_lock` (records
+`env_lock_sha256`); the DEV-frozen source artifact load + sha/ref re-check; the field-separated hash recompute
+(deployment_input/label/subject_list) + the built-vs-declared `expected_n_subjects`/`expected_embedding_dim` check; a
+single confirmatory pass (`evaluate_stratum` per stratum → `external_taxonomy`); then `manifest.json` + `RESULT.json`
+written LAST into `<out>` (`allow_nan=False`; manifest_sha256 + input_manifest_sha256 + command recorded). No
+threshold/seed/loss/registry/grid change after the read; a killed/partial run is OPERATIONALLY_ABORTED (the whole claimed
+`<out>` dir is removed — no partial publish; the run is COMPLETE iff `<out>/RESULT.json` exists).
 
 **Leakage firewall (binding).** External diagnosis labels enter ONLY (a) CAL λ* selection and (b) EVAL endpoint
 scoring. They MUST NOT enter f_0 / source-state fitting (the source state is the DEV-frozen artifact; external labels

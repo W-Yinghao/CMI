@@ -69,6 +69,8 @@ def validate_external_manifest(spec):
             raise ValueError(f"{site}: dataset_version must be a non-empty string")
         if not _is_hex(st.get("source_state_ref", ""), 64):
             raise ValueError(f"{site}: source_state_ref must be 64-char sha-256")
+        if not _is_hex(st.get("provenance_sidecar_sha256", ""), 64):
+            raise ValueError(f"{site}: provenance_sidecar_sha256 must be 64-char sha-256 (frozen-prep sidecar)")
         for hf in _HASH_FIELDS:
             if not _is_hex(st.get(hf, ""), 64):
                 raise ValueError(f"{site}: {hf} must be 64-char lowercase sha-256")
@@ -122,6 +124,23 @@ def _env_lock_verify():
     return verify_env_lock()
 
 
+def _verify_provenance_sidecar(st):
+    """Bind ALL declared hashes to the frozen-prep sidecar (PROV-1 / closure point B). The 3 prep-only hashes
+    (raw_pipeline/diagnosis_mapping/resting_selection) are NOT recomputable from the .npz at run time, so instead of
+    trusting hand-filled manifest values we require a `<dump>.provenance.json` emitted by prepare_dump whose sha equals the
+    manifest's `provenance_sidecar_sha256`, and every manifest hash field + source_state_ref must equal the sidecar's
+    value. (The 5 label-bearing hashes are ALSO independently recomputed downstream.)"""
+    sidecar_path = st["dump_path"] + ".provenance.json"
+    got = _sha256_file(sidecar_path)
+    if got != st["provenance_sidecar_sha256"]:
+        raise ValueError(f"{st['site']}: provenance_sidecar_sha256 mismatch ({got} != {st['provenance_sidecar_sha256']})")
+    with open(sidecar_path) as f:
+        sc = json.load(f)
+    for field in (*_HASH_FIELDS, "source_state_ref"):
+        if sc.get(field) != st.get(field):
+            raise ValueError(f"{st['site']}: manifest {field} != frozen-prep sidecar ({st.get(field)!r} vs {sc.get(field)!r})")
+
+
 def _json_safe(o):
     if isinstance(o, dict):
         return {str(k): _json_safe(v) for k, v in sorted(o.items(), key=lambda kv: str(kv[0]))}
@@ -138,7 +157,10 @@ def _json_safe(o):
 
 def run(input_manifest_path, output):
     """Full external Arm-B run (gated). STDLIB-FIRST preflight (no heavy import until all checks pass), then evaluate the
-    frozen candidate on the admissible strata and write `output`. NO external read before preflight + env-lock verify."""
+    frozen candidate on the admissible strata and write `output`. NO external read before preflight + env-lock verify.
+    `output` is claimed up front with a race-free `os.mkdir` (first-writer-wins; also surfaces an unwritable parent) BEFORE
+    any external dump byte is read; the run is COMPLETE iff `output/RESULT.json` exists (written last); any abort removes
+    the whole claimed `output` dir (no partial/half-written result)."""
     with open(input_manifest_path, "rb") as f:
         raw = f.read()
     input_manifest_sha256 = hashlib.sha256(raw).hexdigest()
@@ -149,18 +171,16 @@ def run(input_manifest_path, output):
     root = _repo_root()
     verify_protocol(root, spec["protocol_commit"])
     verify_clean_worktree(root)
-    for st in strata:                                         # hash declared dumps BEFORE any modeling read
-        got = _sha256_file(st["dump_path"])
-        if got != st["full_dump_sha256"]:
-            raise ValueError(f"{st['site']}: full_dump_sha256 mismatch ({got} != {st['full_dump_sha256']})")
-    # --- heavy section (ONLY past a fully-passing stdlib preflight) ---
-    env_lock_sha = _env_lock_verify()                        # apply runtime + verify env lock (fail-closed) BEFORE read
-    from acar.v4 import external_adapter as EA
-    tmp = output + ".tmp"
-    if os.path.exists(tmp):
-        raise FileExistsError(f"stale temp dir exists; clear it first: {tmp}")
-    os.mkdir(tmp)                                            # atomic work claim; published by os.rename on success
+    os.mkdir(output)                                          # ATOMIC race-free claim, BEFORE any external dump read
     try:
+        for st in strata:                                    # provenance preflight: hash dumps + verify sidecar FIRST
+            got = _sha256_file(st["dump_path"])
+            if got != st["full_dump_sha256"]:
+                raise ValueError(f"{st['site']}: full_dump_sha256 mismatch ({got} != {st['full_dump_sha256']})")
+            _verify_provenance_sidecar(st)                    # bind all 8 declared hashes to the frozen-prep sidecar
+        # --- heavy section (ONLY past a fully-passing stdlib preflight) ---
+        env_lock_sha = _env_lock_verify()                    # apply runtime + verify env lock (fail-closed) BEFORE model
+        from acar.v4 import external_adapter as EA
         results = []
         for st in strata:
             art = EA.load_frozen_source_state_artifact_from_path(st["dev_source_artifact_path"], disease=st["disease"])
@@ -169,6 +189,12 @@ def run(input_manifest_path, output):
             stratum = EA.build_stratum_from_dump(
                 st["site"], st["disease"], st["dump_path"], art,
                 verify_hashes={k: st[k] for k in ("deployment_input_sha256", "label_sha256", "subject_list_sha256")})
+            n_subj = len(stratum["subjects"])                 # PROV-3: bind the declared counts to the built dump
+            if n_subj != st["expected_n_subjects"]:
+                raise ValueError(f"{st['site']}: expected_n_subjects {st['expected_n_subjects']} != built {n_subj}")
+            art_dim = getattr(art, "embedding_dim", st["expected_embedding_dim"])
+            if art_dim != st["expected_embedding_dim"]:
+                raise ValueError(f"{st['site']}: expected_embedding_dim {st['expected_embedding_dim']} != artifact {art_dim}")
             results.append(EA.evaluate_stratum(stratum))
         ext = EA.external_taxonomy(results)
         body = {
@@ -180,21 +206,20 @@ def run(input_manifest_path, output):
             "run_status": ext.run_status, "verdict": ext.verdict, "per_disease": ext.per_disease,
             "strata": [r.__dict__ for r in ext.strata],
             "input_strata": [{k: s.get(k) for k in ("site", "disease", "dataset_version", "source_state_ref",
-                                                    *_HASH_FIELDS)} for s in strata],
+                                                    "provenance_sidecar_sha256", *_HASH_FIELDS)} for s in strata],
         }
         safe = _json_safe(body)
         safe["manifest_sha256"] = hashlib.sha256(json.dumps(safe, sort_keys=True, allow_nan=False).encode()).hexdigest()
-        with open(os.path.join(tmp, "manifest.json"), "w") as f:
+        with open(os.path.join(output, "manifest.json"), "w") as f:
             json.dump(safe, f, sort_keys=True, allow_nan=False, indent=2)
-        with open(os.path.join(tmp, "RESULT.json"), "w") as f:       # written last = completion sentinel
+        with open(os.path.join(output, "RESULT.json"), "w") as f:    # written LAST = completion sentinel
             json.dump({"run_status": ext.run_status, "verdict": ext.verdict,
                        "per_disease": {d: v["confirmed"] for d, v in ext.per_disease.items()},
                        "manifest_sha256": safe["manifest_sha256"]}, f, sort_keys=True, allow_nan=False, indent=2)
-        os.rename(tmp, output)                               # atomic publish: `output` exists ⟺ complete
         return ext
     except BaseException:
         import shutil
-        shutil.rmtree(tmp, ignore_errors=True)               # killed/partial leaves only `<output>.tmp` (cleaned here)
+        shutil.rmtree(output, ignore_errors=True)            # abort: remove the claimed dir (no partial publish)
         raise
 
 

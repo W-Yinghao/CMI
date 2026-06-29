@@ -3,8 +3,9 @@
 ```
 STATUS : FROZEN CONTRACT (pre-tag) — defines how held-out raw EEG becomes an erm_0 feature dump for the Arm-B CLI.
 SCOPE  : metadata + pipeline contract only. NO download / NO signal processing happens until acar-v4-protocol is tagged.
-CODE   : acar/v4/prepare_external_dump.py (pure selectors/parsers/hashers tested; prepare_dump = executable wiring that
-         is FAIL-CLOSED on the missing frozen encoder — FrozenEncoderMissingError, never retrains — see §7).
+CODE   : acar/v4/prepare_external_dump.py (pure selectors/parsers/hashers/sidecar tested; prepare_dump = FAIL-CLOSED
+         scaffold with TWO hard blockers — FrozenEncoderMissingError (no archived encoder; never retrains) and
+         ExternalReaderNotWiredError (no held-out BIDS reader; cmi load_crossdataset can't read these sites) — see §7).
 DATE   : 2026-06-29
 ```
 
@@ -44,10 +45,18 @@ ds007526       (PD) : channels/Fs CONFIRM at prep (metadata-only); resting only 
 ```
 
 ## 4. Provenance (pinned in the external manifest → ACAR_FROZEN_v4.md §3/§5)
-Per stratum: `raw_pipeline_sha256` (== DEV), `full_dump_sha256`, `deployment_input_sha256`, `label_sha256`,
-`subject_list_sha256`, `diagnosis_mapping_sha256`, `resting_selection_sha256`, `source_state_ref`, `source_state_sha256`,
-`dataset_version`, `expected_n_subjects`, `expected_embedding_dim`. The Arm-B CLI re-hashes the dump and verifies the
-DEV-frozen source artifact's `source_state_sha256`/`ref` before any modeling read.
+Per stratum: the 8 hash fields `full_dump_sha256`, `deployment_input_sha256`, `label_sha256`, `subject_list_sha256`,
+`diagnosis_mapping_sha256`, `resting_selection_sha256`, `raw_pipeline_sha256`, `source_state_sha256`; plus
+`source_state_ref`, `provenance_sidecar_sha256`, `dataset_version`, `expected_n_subjects`, `expected_embedding_dim`.
+What the Arm-B CLI VERIFIES at run time (under the atomic `os.mkdir(<out>)` claim, before any modeling read):
+- `full_dump_sha256` recomputed from the dump bytes;
+- the **provenance sidecar** `<dump>.provenance.json` is sha-pinned (`provenance_sidecar_sha256`) and EVERY manifest hash
+  field + `source_state_ref` must equal the sidecar — so the 3 prep-only hashes (`raw_pipeline`/`diagnosis_mapping`/
+  `resting_selection`), which can't be recomputed from the .npz, are bound to frozen-prep output, not hand-filled;
+- `deployment_input_sha256`/`label_sha256`/`subject_list_sha256` RE-COMPUTED via `acar.v3.loader.{hash_deployment_input,
+  hash_labels,hash_subject_list}` (these MUST come from the v3 loaders, NOT a same-named prep helper);
+- `source_state_sha256`/`source_state_ref` re-checked against the loaded DEV-frozen artifact;
+- `expected_n_subjects` / `expected_embedding_dim` checked against the built stratum / artifact.
 
 ## 5. Firewall (binding)
 The held-out diagnosis labels are written ONLY to `y_te` and consumed ONLY for ΔR at CAL λ* selection + EVAL scoring.
@@ -55,18 +64,32 @@ They never touch the encoder, the source-state fit, the label-free features, or 
 encoder + source state are the DEV-frozen artifacts.
 
 ## 6. Gated order
-`prepare_dump` (post-tag) emits the dump + provenance; then the unique Arm-B CLI (`acar/v4/run_external_armb.py`) runs
-the single confirmatory pass. No raw download / signal processing / encoder run occurs before `acar-v4-protocol` is
-tagged.
+`prepare_dump` (post-tag, post-blockers) emits the dump + its `<dump>.provenance.json` sidecar; then the unique Arm-B CLI
+(`acar/v4/run_external_armb.py`) runs the single confirmatory pass. No raw download / signal processing / encoder run
+occurs before `acar-v4-protocol` is tagged AND both §7 blockers are resolved (`notes/ACAR_V4_ENCODER_ARTIFACT_DECISION.md`).
 
-## 7. Frozen encoder artifact — HARD BLOCKER (the cmi finding)
-The DEV `erm_0` dumps saved only the *embeddings*, NOT the trained EEGNet encoder weights. To embed a held-out site into
-the DEV feature space, `prepare_dump` REQUIRES a complete, on-disk, hash-verified frozen encoder + source-state artifact
+## 7. HARD BLOCKERS to executability (two; both fail-closed; decision = ACAR_V4_ENCODER_ARTIFACT_DECISION.md)
+**Blocker 1 — frozen encoder + source-state (FrozenEncoderMissingError).** The DEV `erm_0` dumps saved only the
+*embeddings*, NOT the trained EEGNet encoder weights. To embed a held-out site into the DEV feature space, `prepare_dump`
+REQUIRES a complete, on-disk, hash-verified frozen encoder + source-state artifact
 (`acar/v4/prepare_external_dump.require_encoder_artifact`); absent/incomplete → **`FrozenEncoderMissingError`** (it NEVER
-retrains/regenerates an encoder). **External Arm B is therefore NOT_YET_EXECUTABLE until this artifact is archived,
-hashed, and pinned** — a separate later gated decision (recover the original checkpoint; or regenerate an all-DEV encoder
-as an explicitly-declared new substrate; only if neither is possible, V4 stays a DEV-only exploratory candidate). This is
-NOT a claim that external validation is infeasible.
+retrains/regenerates an encoder).
+
+**Blocker 2 — held-out raw→embedding reader (ExternalReaderNotWiredError).** cmi's `load_crossdataset` only indexes
+registered `COHORTS` and raises `KeyError` for the held-out sites (`ds007526`/`zenodo14808296`) — it CANNOT read them. A
+dedicated held-out BIDS reader (DATASET_SPECS + `resting_run_selector` + `parse_diagnosis_map` + `validate_channels_fs` →
+`X`, `y`, cohort-namespaced `subject_ids`) must be wired at provisioning time; `prepare_dump._embed_heldout_raw` raises
+**`ExternalReaderNotWiredError`** until then (audit finding WIRING-1). prepare_dump NEVER mis-routes through
+load_crossdataset.
+
+**External Arm B is therefore NOT_YET_EXECUTABLE** until BOTH blockers are resolved by a separate signed-off decision
+(`notes/ACAR_V4_ENCODER_ARTIFACT_DECISION.md`: A recover original / B regenerate+declare all-DEV substrate / C suspend →
+DEV-only). This is NOT a claim that external validation is infeasible.
+
+**Provenance sidecar.** Once both blockers clear, `prepare_dump` writes `<dump>.provenance.json`
+(`provenance_sidecar_dict` → all 8 hash fields + `source_state_ref`, schema `acar_v4_external_provenance/1`). The Arm-B CLI
+sha-pins it (`provenance_sidecar_sha256`) and asserts every manifest hash field equals it (§4), binding the 3 prep-only
+hashes to frozen-prep output.
 
 Required `encoder_artifact` fields (all pinned + hash-verified before any raw read):
 ```

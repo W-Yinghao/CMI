@@ -153,6 +153,8 @@ def validate_dump_schema(arrays, *, embedding_dim=16):
     for nm, a in (("subject_id_te", sids), ("recording_id_te", rids)):
         if a.ndim != 1 or a.shape[0] != n or a.dtype.kind not in ("U", "S", "O"):
             raise ValueError(f"{nm} must be 1-D string of length N")
+        if a.dtype.kind == "O" and not all(isinstance(x, str) for x in a.tolist()):
+            raise ValueError(f"{nm} object array must contain only str (v3 _str_list forbids coercion)")   # SCHEMA-1
         if any(str(x) == "" for x in a.tolist()):
             raise ValueError(f"{nm} contains empty id(s)")
     wi = np.asarray(arrays["window_index_te"])
@@ -174,6 +176,11 @@ def validate_dump_schema(arrays, *, embedding_dim=16):
 
 
 # ----------------------------------------------------------------------------- provenance hashers (injective)
+# These compute the THREE prep-only manifest hashes (raw_pipeline / diagnosis_mapping / resting_selection) — the ones the
+# Arm-B CLI cannot recompute from the .npz, so they are carried in the frozen-prep provenance sidecar (see
+# provenance_sidecar_dict). NOTE (PROV-2): the manifest's subject_list_sha256 / deployment_input_sha256 / label_sha256 are
+# NOT computed here — they MUST come from acar.v3.loader.{hash_subject_list, hash_deployment_input, hash_labels}, which the
+# CLI RE-COMPUTES and aborts on mismatch; a different same-named digest here would only cause a fail-closed abort.
 
 def _u(b):
     return len(b).to_bytes(8, "big") + b
@@ -183,13 +190,6 @@ def raw_pipeline_sha256(params):
     """Deterministic injective digest of the frozen raw→feature pipeline params (resample/filter/window/montage/encoder
     ref). Pinned in the dump + the external manifest so DEV and held-out share one pipeline."""
     return hashlib.sha256(json.dumps(params, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-
-
-def subject_list_sha256(subject_ids):
-    h = hashlib.sha256()
-    for s in sorted(set(subject_ids)):
-        h.update(_u(str(s).encode()))
-    return h.hexdigest()
 
 
 def diagnosis_mapping_sha256(mapping):
@@ -211,6 +211,14 @@ def resting_selection_sha256(selected_runs):
 class FrozenEncoderMissingError(RuntimeError):
     """Raised when prepare_dump is invoked without a complete, on-disk, hash-verified DEV-frozen encoder + source-state.
     prepare_dump NEVER trains/regenerates an encoder; the absence of an archived encoder is a hard, explicit blocker."""
+
+
+class ExternalReaderNotWiredError(RuntimeError):
+    """Raised when prepare_dump reaches the held-out raw→embedding step but no held-out BIDS reader is wired. The cmi
+    `load_crossdataset` only indexes registered COHORTS and KeyErrors for the held-out sites (ds007526/zenodo14808296),
+    so embedding them needs a dedicated reader (DATASET_SPECS + resting_run_selector + parse_diagnosis_map +
+    validate_channels_fs → X/y/subjects). This is the SECOND hard executability blocker (alongside the missing encoder);
+    see notes/ACAR_V4_ENCODER_ARTIFACT_DECISION.md. prepare_dump NEVER silently mis-routes through load_crossdataset."""
 
 
 # the frozen DEV pipeline (== feat_dump_v4): cmi.run_scps_crossdataset --configs erm:0 (EEGNet, 19ch 10-20, 128Hz,
@@ -267,36 +275,68 @@ def require_encoder_artifact(meta):
     return True
 
 
+SIDECAR_SCHEMA = "acar_v4_external_provenance/1"
+# the manifest's 5 v3-recomputable hashes (re-verified by the CLI) + the 3 prep-only hashes the CLI cannot recompute.
+_SIDECAR_HASH_FIELDS = ("full_dump_sha256", "deployment_input_sha256", "label_sha256", "subject_list_sha256",
+                        "diagnosis_mapping_sha256", "resting_selection_sha256", "raw_pipeline_sha256",
+                        "source_state_sha256")
+
+
+def provenance_sidecar_dict(*, source_state_ref, **hashes):
+    """Build the frozen-prep provenance record carried alongside the dump as `<dump>.provenance.json`. Must contain all 8
+    manifest hash fields (PROV-1 / closure point B) + source_state_ref; the CLI sha-pins this file and asserts every
+    manifest field equals it, so the 3 prep-only hashes can't be hand-filled. Pure (no I/O)."""
+    missing = [f for f in _SIDECAR_HASH_FIELDS if f not in hashes]
+    if missing:
+        raise ValueError(f"provenance sidecar incomplete: missing {missing}")
+    extra = [f for f in hashes if f not in _SIDECAR_HASH_FIELDS]
+    if extra:
+        raise ValueError(f"provenance sidecar has unexpected fields {extra}")
+    d = {"schema": SIDECAR_SCHEMA, "source_state_ref": source_state_ref}
+    d.update({f: hashes[f] for f in _SIDECAR_HASH_FIELDS})
+    return d
+
+
+def write_provenance_sidecar(dump_path, sidecar):
+    """Atomically write the provenance sidecar next to the dump as `<dump>.provenance.json`."""
+    path = dump_path + ".provenance.json"
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(sidecar, f, sort_keys=True, indent=2)
+    os.replace(tmp, path)
+    return path
+
+
+def _embed_heldout_raw(site, raw_bids_root, encoder_artifact, raw_pipeline_config):
+    """Held-out raw EEG → (z_te, y_te, subject_ids) via the FROZEN pipeline + FROZEN encoder. FAIL-CLOSED: not wired.
+    cmi.load_crossdataset only indexes registered COHORTS and raises KeyError for the held-out sites, so it CANNOT be used
+    here; a dedicated held-out BIDS reader (DATASET_SPECS + resting_run_selector + parse_diagnosis_map +
+    validate_channels_fs) must be wired at encoder-provisioning time. Raises until then (WIRING-1)."""
+    raise ExternalReaderNotWiredError(
+        f"{site}: held-out raw→embedding reader is not wired. cmi.load_crossdataset only handles registered COHORTS "
+        f"(KeyError for held-out sites); wire a held-out BIDS reader using DATASET_SPECS/resting_run_selector/"
+        f"parse_diagnosis_map/validate_channels_fs at encoder-provisioning time. See "
+        f"notes/ACAR_V4_ENCODER_ARTIFACT_DECISION.md.")
+
+
 def prepare_dump(site, raw_bids_root, output_npz, *, encoder_artifact, raw_pipeline_config):
-    """EXECUTABLE + FAIL-CLOSED (post-tag gated). Build the held-out erm_0 dump by applying the FROZEN DEV pipeline +
-    FROZEN encoder to held-out raw EEG. REQUIRES a complete, on-disk, hash-verified frozen encoder + source-state
-    (`encoder_artifact`) → else FrozenEncoderMissingError; NEVER trains/regenerates an encoder. Held-out diagnosis labels
-    go ONLY into y_te. Heavy cmi/torch imports + the real raw read are deferred PAST the fail-closed gates, so this runs
-    only after acar-v4-protocol is tagged AND the frozen encoder is archived. (Until the encoder is archived,
-    require_encoder_artifact raises — the intended hard blocker.)"""
-    require_encoder_artifact(encoder_artifact)                # fail-closed BEFORE any heavy import / raw read
+    """FAIL-CLOSED scaffold (post-tag gated). Build the held-out erm_0 dump + provenance sidecar by applying the FROZEN DEV
+    pipeline + FROZEN encoder to held-out raw EEG. TWO hard executability blockers, both fail-closed BEFORE any heavy
+    import / raw read: (1) require_encoder_artifact → FrozenEncoderMissingError if the frozen encoder+source-state are not
+    archived/hash-verified (NEVER retrains); (2) _embed_heldout_raw → ExternalReaderNotWiredError because cmi's
+    load_crossdataset cannot read the held-out sites and no held-out BIDS reader is wired. Held-out diagnosis labels go
+    ONLY into y_te. The dump+sidecar assembly below is the documented continuation, reachable once BOTH blockers clear."""
+    require_encoder_artifact(encoder_artifact)                # blocker 1: frozen encoder/source-state (fail-closed)
     validate_pipeline_config(raw_pipeline_config)
     spec = _spec(site)
     if output_npz and os.path.exists(output_npz):
         raise FileExistsError(f"output dump already exists: {output_npz}")
-    # --- gated real pipeline (reachable only with an archived encoder + held-out raw) ---
-    import torch
-    from cmi.data.bids_data import load_crossdataset
-    from cmi.models.backbones import build_backbone
-    from cmi.train.trainer import embed
-    n_times = int(FROZEN_PIPELINE["resample_fs"] * FROZEN_PIPELINE["window_sec"])
-    X, y, meta, _classes = load_crossdataset(spec["disease"], cohorts=[site],
-                                             resample=FROZEN_PIPELINE["resample_fs"], win_sec=FROZEN_PIPELINE["window_sec"],
-                                             fmin=FROZEN_PIPELINE["bandpass"][0], fmax=FROZEN_PIPELINE["bandpass"][1])
-    bb = build_backbone(FROZEN_PIPELINE["encoder"], n_chans=FROZEN_PIPELINE["canon_channels"], n_times=n_times,
-                        n_classes=2, device="cpu")
-    bb.load_state_dict(torch.load(encoder_artifact["encoder_checkpoint_path"], map_location="cpu"))   # FROZEN; no train
-    bb.eval()
-    z_te = np.asarray(embed(bb, X, device="cpu"), dtype="<f8")
-    subj = [str(s) for s in meta["subject"].tolist()]         # cohort-scoped id matches the DEV dump format
-    subject_id_te = np.array([f"{site}/{s}" for s in subj])
+    z_te, y_te, subject_ids = _embed_heldout_raw(site, raw_bids_root, encoder_artifact, raw_pipeline_config)  # blocker 2
+    # --- assembly (reachable once a held-out reader + encoder exist) ---
+    z_te = np.asarray(z_te, dtype="<f8")
+    subject_id_te = np.asarray(subject_ids)                   # already cohort-namespaced by the held-out reader (no re-prefix)
     arrays = {"z_te": z_te, "subject_id_te": subject_id_te, "recording_id_te": subject_id_te.copy(),
-              "window_index_te": np.arange(len(z_te), dtype=np.int64), "y_te": np.asarray(y, dtype=np.int64),
+              "window_index_te": np.arange(len(z_te), dtype=np.int64), "y_te": np.asarray(y_te, dtype=np.int64),
               "feat_hash_te": _canon_hash(z_te)}
     validate_dump_schema(arrays, embedding_dim=FROZEN_PIPELINE["embedding_dim"])   # self-check vs the v3-read contract
     tmp = output_npz + ".tmp.npz"

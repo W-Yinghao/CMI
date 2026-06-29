@@ -166,7 +166,8 @@ def test_admissible_strata_constant():
 def _full_st(site, disease, **over):
     st = {"site": site, "disease": disease, "dump_path": f"/{site}.npz",
           "dev_source_artifact_path": f"/{site}.dev.npz", "dataset_version": "1.0.0",
-          "source_state_ref": "a" * 64, "expected_n_subjects": 77, "expected_embedding_dim": 16}
+          "source_state_ref": "a" * 64, "provenance_sidecar_sha256": "b" * 64,
+          "expected_n_subjects": 77, "expected_embedding_dim": 16}
     for hf in CLI._HASH_FIELDS:
         st[hf] = "b" * 64
     st.update(over)
@@ -226,58 +227,155 @@ def test_load_source_from_path_base_safe():
                                                                                      disease="PD"))
 
 
+def test_fallback_in_denominator_and_forced_identity():
+    # FALLBACK-1 (invariant 2, downstream): fallback rows are RETAINED in the arrays (denominator) as zeros and are forced
+    # to identity by _benefit_ranked_choice regardless of benefit/τ.
+    stratum = {"subjects": {"c0": {"class": "patient",
+                                   "eligible": [("b0", np.array([-2.0, 1.0, 1.0]), np.full((A, NF), 5.0))],
+                                   "fallback": ["fbdigest"]}}}
+    dr, feats, subj, fb = EA._arrays_for(stratum, {"c0"})
+    assert dr.shape[0] == 2 and list(fb) == [False, True]              # both rows present in the denominator
+    assert np.all(dr[1] == 0.0) and np.all(feats[1] == 0.0)           # fallback row = zeros (identity ΔR)
+    choice = EA._benefit_ranked_choice(np.full((2, A), -9.0), tau=0.0, fb=fb)   # benefit would adapt everywhere
+    assert choice[1] == EA.PO.IDENTITY and choice[0] != EA.PO.IDENTITY   # fallback FORCED identity; eligible may adapt
+
+
+class _FakeSK:
+    def __init__(self, ds, sid):
+        self.dataset_id = ds; self.subject_id = sid
+
+
+class _FakeBatch:
+    def __init__(self, sk, wkeys, fallback):
+        self.subject = sk; self.window_keys = wkeys; self.fallback = fallback
+
+
+def _with_fake_v3(fn):
+    """Inject fake acar.v3.{loader,data,develop} into sys.modules so build_stratum_from_dump runs in BASE env (the real
+    v3 uses dataclass(slots=True), not importable here). Lets us exercise its leakage-firewall enforcement directly."""
+    import sys
+    state = {"batches": [], "labels": {}, "dep": "dh", "lab": "lh", "subj": "sh"}
+    calls = []
+
+    class FakeExe:
+        p0 = np.zeros(3); z0 = np.zeros(3)
+        per_action = [(a, np.zeros(3), np.zeros(3)) for a in EA.ACTIONS]
+
+        def labeled_risk_record(self, labels):
+            return types.SimpleNamespace(delta_r_by_action=[(a, 0.0) for a in EA.ACTIONS])
+
+    class FakeArt:
+        source_state_ref = "a" * 64
+
+        def execute(self, b):
+            calls.append(b); return FakeExe()
+
+        def _ephemeral_state(self):
+            return object()
+    loader = types.ModuleType("acar.v3.loader")
+    loader.load_deployment_batches = lambda path, *, disease, dataset_id, source_state_ref: state["batches"]
+    loader.load_labels_by_window = lambda path, *, dataset_id: state["labels"]
+    loader.hash_deployment_input = lambda b: state["dep"]
+    loader.hash_labels = lambda lab: state["lab"]
+    loader.hash_subject_list = lambda k: state["subj"]
+    data = types.ModuleType("acar.v3.data"); data.deployment_batch_digest = lambda b: "dg"
+    develop = types.ModuleType("acar.v3.develop"); develop._c0_vector = lambda st, p0, z0, za, pa: np.zeros(NF)
+    mods = {"acar.v3.loader": loader, "acar.v3.data": data, "acar.v3.develop": develop}
+    saved = {k: sys.modules.get(k) for k in mods}
+    sys.modules.update(mods)
+    try:
+        return fn(state, FakeArt(), calls)
+    finally:
+        for k, v in saved.items():
+            sys.modules.pop(k, None) if v is None else sys.modules.__setitem__(k, v)
+
+
+def test_build_stratum_faked_v3_invariants():
+    # FALLBACK-1: the SOLE enforcement point of leakage-firewall invariant (2) + the B5 verify_hashes recompute + the
+    # no-silent-drop missing-label raise — exercised directly via a faked v3 substrate.
+    def body(state, art, calls):
+        sk = _FakeSK("ds007526", "sub-01")
+        state["batches"] = [_FakeBatch(sk, ["w0", "w1"], False)]; state["labels"] = {"w0": 1}
+        _expect(ValueError, lambda: EA.build_stratum_from_dump("ds007526", "PD", "/d.npz", art))   # (1) missing label
+        state["batches"] = [_FakeBatch(sk, ["w0"], False)]; state["labels"] = {"w0": 1}
+        _expect(ValueError, lambda: EA.build_stratum_from_dump(                                     # (2) hash mismatch
+            "ds007526", "PD", "/d.npz", art,
+            verify_hashes={"deployment_input_sha256": "WRONG", "label_sha256": "lh", "subject_list_sha256": "sh"}))
+        calls.clear()
+        sk2 = _FakeSK("ds007526", "sub-02")
+        state["batches"] = [_FakeBatch(sk2, ["w0"], False), _FakeBatch(sk2, ["w1"], True)]
+        state["labels"] = {"w0": 1, "w1": 1}
+        strat = EA.build_stratum_from_dump("ds007526", "PD", "/d.npz", art)
+        cell = strat["subjects"]["ds007526::sub-02"]
+        assert len(cell["eligible"]) == 1 and len(cell["fallback"]) == 1     # (3) fallback retained in denominator
+        assert len(calls) == 1 and calls[0].window_keys == ["w0"]            # ONLY the non-fallback batch executed
+        # verify_hashes that MATCH the recompute pass cleanly
+        EA.build_stratum_from_dump("ds007526", "PD", "/d.npz", art,
+                                   verify_hashes={"deployment_input_sha256": "dh", "label_sha256": "lh",
+                                                  "subject_list_sha256": "sh"})
+    _with_fake_v3(body)
+
+
 import types  # noqa: E402  (used by the preflight-ordering monkeypatch guards)
 
 
-def _run_with_fakes(base, *, sha_value, build_raises=False, commit="a" * 40):
+def _run_with_fakes(base, *, sha_value, build_raises=False, commit="a" * 40, source_mismatch=False, n_built=77):
     strata = [_full_st("zenodo14808296", "SCZ"), _full_st("ds007526", "PD")]
     order = []
+    outdir = os.path.join(base, "out")
 
     def fg(root, *a):
         out = commit if (a[:1] == ("rev-parse",) or a[:1] == ("rev-list",)) else ""
         return types.SimpleNamespace(returncode=0, stdout=out + "\n", stderr="")
 
     def fs(path):
-        order.append("sha"); return sha_value
+        order.append("sha")
+        assert os.path.isdir(outdir), "atomic os.mkdir(output) claim must precede any external dump read"   # ATOM-1/ORDER-1
+        return sha_value
+
+    def fps(st):
+        order.append("sidecar")                                  # fake _verify_provenance_sidecar (no real sidecar file)
 
     def fe():
         order.append("envlock"); return "e" * 64
 
     def fl(path, *, disease):
-        order.append("load"); return types.SimpleNamespace(source_state_sha256="b" * 64, source_state_ref="a" * 64,
-                                                           disease=disease)
+        order.append("load")
+        ss = "z" * 64 if source_mismatch else "b" * 64
+        return types.SimpleNamespace(source_state_sha256=ss, source_state_ref="a" * 64, disease=disease)
 
     def fb(site, disease, dump_path, art, verify_hashes=None):
         order.append("build")
         if build_raises:
             raise RuntimeError("boom")
-        return {"site": site, "disease": disease, "subjects": {}}
+        return {"site": site, "disease": disease,
+                "subjects": {f"{site}::s{i}": {"class": "patient"} for i in range(n_built)}}
 
     def fv(stratum):
         return EA.StratumResult(stratum["site"], stratum["disease"], "V4_EXTERNAL_CONFIRMED", "", 30, 30, 0.0, 0.5,
                                 0.2, 0.03, 0.15, 0.0, "OK")
-    saved = (CLI._git, CLI._sha256_file, CLI._env_lock_verify, EA.load_frozen_source_state_artifact_from_path,
-             EA.build_stratum_from_dump, EA.evaluate_stratum)
-    CLI._git, CLI._sha256_file, CLI._env_lock_verify = fg, fs, fe
+    saved = (CLI._git, CLI._sha256_file, CLI._verify_provenance_sidecar, CLI._env_lock_verify,
+             EA.load_frozen_source_state_artifact_from_path, EA.build_stratum_from_dump, EA.evaluate_stratum)
+    CLI._git, CLI._sha256_file, CLI._verify_provenance_sidecar, CLI._env_lock_verify = fg, fs, fps, fe
     EA.load_frozen_source_state_artifact_from_path, EA.build_stratum_from_dump, EA.evaluate_stratum = fl, fb, fv
     mpath = os.path.join(base, "m.json")
     with open(mpath, "w") as f:
         json.dump(_manifest(strata, commit=commit), f)
-    return order, mpath, os.path.join(base, "out"), saved
+    return order, mpath, outdir, saved
 
 
 def _restore(saved):
-    (CLI._git, CLI._sha256_file, CLI._env_lock_verify, EA.load_frozen_source_state_artifact_from_path,
-     EA.build_stratum_from_dump, EA.evaluate_stratum) = saved
+    (CLI._git, CLI._sha256_file, CLI._verify_provenance_sidecar, CLI._env_lock_verify,
+     EA.load_frozen_source_state_artifact_from_path, EA.build_stratum_from_dump, EA.evaluate_stratum) = saved
 
 
-def test_cli_preflight_ordering_env_lock_and_sha_before_read():
+def test_cli_preflight_ordering_claim_before_read():
     base = tempfile.mkdtemp()
     order, mpath, outdir, saved = _run_with_fakes(base, sha_value="b" * 64)
     try:
-        CLI.run(mpath, outdir)
+        CLI.run(mpath, outdir)                                   # fs asserts the os.mkdir(output) claim preceded it
         fb_i = order.index("build")
-        assert "envlock" in order[:fb_i] and "sha" in order[:fb_i]   # env-lock + per-dump sha BEFORE any read
+        assert "envlock" in order[:fb_i] and "sha" in order[:fb_i] and "sidecar" in order[:fb_i]  # all BEFORE any model
         assert os.path.isfile(os.path.join(outdir, "RESULT.json")) and not os.path.exists(outdir + ".tmp")
     finally:
         _restore(saved); shutil.rmtree(base, ignore_errors=True)
@@ -288,7 +386,27 @@ def test_cli_dump_sha_mismatch_aborts_before_envlock():
     order, mpath, outdir, saved = _run_with_fakes(base, sha_value="c" * 64)   # != manifest full_dump_sha256 ("b"*64)
     try:
         _expect(ValueError, lambda: CLI.run(mpath, outdir))
-        assert "envlock" not in order and "build" not in order      # aborted in the stdlib preflight
+        assert "envlock" not in order and "build" not in order      # aborted in the stdlib preflight (after the claim)
+        assert not os.path.exists(outdir)                           # claimed dir removed on abort
+    finally:
+        _restore(saved); shutil.rmtree(base, ignore_errors=True)
+
+
+def test_cli_source_artifact_sha_ref_mismatch_aborts():
+    base = tempfile.mkdtemp()                                       # SHAREF-1: frozen source sha/ref must match manifest
+    order, mpath, outdir, saved = _run_with_fakes(base, sha_value="b" * 64, source_mismatch=True)
+    try:
+        _expect(ValueError, lambda: CLI.run(mpath, outdir))
+        assert "build" not in order and not os.path.exists(outdir)  # aborts at the sha/ref check, before build
+    finally:
+        _restore(saved); shutil.rmtree(base, ignore_errors=True)
+
+
+def test_cli_expected_n_subjects_mismatch_aborts():
+    base = tempfile.mkdtemp()                                       # PROV-3: built subject count must equal the manifest
+    order, mpath, outdir, saved = _run_with_fakes(base, sha_value="b" * 64, n_built=5)   # != expected_n_subjects 77
+    try:
+        _expect(ValueError, lambda: CLI.run(mpath, outdir))
         assert not os.path.exists(outdir)
     finally:
         _restore(saved); shutil.rmtree(base, ignore_errors=True)
@@ -302,6 +420,31 @@ def test_cli_abort_cleanup_no_partial_output():
         assert not os.path.exists(outdir) and not os.path.exists(outdir + ".tmp")   # cleaned; no partial publish
     finally:
         _restore(saved); shutil.rmtree(base, ignore_errors=True)
+
+
+def test_verify_provenance_sidecar():
+    base = tempfile.mkdtemp()
+    try:
+        dump = os.path.join(base, "d.npz")
+        with open(dump, "wb") as f: f.write(b"dump-bytes")
+        st = _full_st("ds007526", "PD", dump_path=dump)
+        sc = {"schema": "acar_v4_external_provenance/1", "source_state_ref": st["source_state_ref"]}
+        for hf in CLI._HASH_FIELDS:
+            sc[hf] = st[hf]
+        sidecar_path = dump + ".provenance.json"
+        with open(sidecar_path, "w") as f: json.dump(sc, f)
+        st["provenance_sidecar_sha256"] = CLI._sha256_file(sidecar_path)
+        CLI._verify_provenance_sidecar(st)                          # matching → ok
+        # wrong sidecar sha → abort
+        bad = dict(st); bad["provenance_sidecar_sha256"] = "f" * 64
+        _expect(ValueError, lambda: CLI._verify_provenance_sidecar(bad))
+        # tampered prep-only field in the sidecar (sha still pinned by recompute) → abort
+        sc2 = dict(sc); sc2["raw_pipeline_sha256"] = "c" * 64
+        with open(sidecar_path, "w") as f: json.dump(sc2, f)
+        st["provenance_sidecar_sha256"] = CLI._sha256_file(sidecar_path)   # sha matches the tampered file...
+        _expect(ValueError, lambda: CLI._verify_provenance_sidecar(st))    # ...but field != manifest → abort
+    finally:
+        shutil.rmtree(base, ignore_errors=True)
 
 
 def test_subject_class_fail_closed():
@@ -318,6 +461,7 @@ def test_json_safe_not_evaluable():
     s = json.dumps(safe, allow_nan=False)                                      # must NOT raise on NaN
     assert "NaN" not in s and "Infinity" not in s
     assert safe["status"] == "NOT_EVALUABLE" and safe["L_harm_all_eval"] is None and safe["coverage"] is None
+    _expect(TypeError, lambda: CLI._json_safe({"k": object()}))                # JSON-1: unknown type fail-closed
 
 
 def test_lambda_grid_excludes_fallback():
@@ -341,9 +485,11 @@ def main():
               test_v2_replay_subject_disjoint_and_not_evaluable, test_external_taxonomy_deterministic,
               test_admissible_strata_constant, test_validate_external_manifest_exact_set_and_provenance,
               test_preflight_fail_closed, test_build_stratum_requires_frozen_artifact, test_load_source_from_path_base_safe,
+              test_fallback_in_denominator_and_forced_identity, test_build_stratum_faked_v3_invariants,
               test_subject_class_fail_closed, test_json_safe_not_evaluable, test_lambda_grid_excludes_fallback,
-              test_cli_preflight_ordering_env_lock_and_sha_before_read, test_cli_dump_sha_mismatch_aborts_before_envlock,
-              test_cli_abort_cleanup_no_partial_output):
+              test_cli_preflight_ordering_claim_before_read, test_cli_dump_sha_mismatch_aborts_before_envlock,
+              test_cli_source_artifact_sha_ref_mismatch_aborts, test_cli_expected_n_subjects_mismatch_aborts,
+              test_cli_abort_cleanup_no_partial_output, test_verify_provenance_sidecar):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 EXTERNAL ARM-B GUARDS PASS")
