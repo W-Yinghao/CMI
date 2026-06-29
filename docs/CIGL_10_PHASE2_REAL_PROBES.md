@@ -62,24 +62,39 @@ n_perm, epochs, n_classes, n_domains, commit_hash, config_hash, heldout_subject)
 (source subjects, enc/probe-pool sizes, encoder-split diagnostics), `probe_split_diagnostics` (the
 support-aware split report), and `graph`/`node`/`edge` blocks (kl_mean, permutation_{mean,std,p},
 domain_acc, prior_acc, leakage_advantage, kl_ci; node adds `node_leakage_map` + `_path`; edge adds
-`edge_leakage_top_k` + `edge_leakage_map_path`). Per fold: `<fold>_summary.json` with `per_seed`
-observed-vs-null rows and `map_stability` (node/edge stability + random null). Map `.npy` sidecars are
-generated artifacts (gitignored); the JSON carries compact inline summaries.
+`edge_leakage_top_k` + `edge_leakage_map_path`). Per fold: `<fold>_summary.json` with `meta`
+(incl. `gate_alpha`), `per_seed` rows whose graph/node/edge blocks carry `kl_mean`,
+`permutation_{mean,p}`, **`positive_excess`**, **`clears_null`**, **`gate_alpha`**, and `map_stability`
+(node/edge stability + random null). Map `.npy` sidecars and the run `.json` are gitignored generated
+artifacts; the JSON carries compact inline summaries.
 
 ## 6. Gate-2 (real) decision
 
-Read the per-seed observed-vs-null table and the map-stability summary across `>= 3` seeds:
+### 6.1 Two distinct verdicts (do not conflate)
 
-- **A — proceed to full CIGL (Phase 3):** at least **two of three** objects (graph/node/edge) clear
-  their permutation null in **>= 2/3 seeds**, **and** the node or edge map is above-random stable.
-- **B — narrow to Node-CMI:** only **node** leakage is robustly above null (and node map stable).
-- **C — narrow to Edge-CMI:** only **edge** leakage is robustly above null (and edge map stable).
-- **D — pivot to diagnostic-only:** no object clears the null robustly → do not claim a regularizer;
+- **positive excess** `:= kl_mean > permutation_mean`. A **directional signal only**. It is **NOT**
+  sufficient for a Gate-2 pass — a weak, non-significant difference can have positive excess.
+- **clears null** `:= kl_mean > permutation_mean AND permutation_p <= gate_alpha`
+  (default `gate_alpha = 0.05`). This is the **binding** Gate-2 significance criterion.
+
+`permutation_p` is the `(+1)`-smoothed within-train permutation p-value; its floor is `1/(n_perm+1)`,
+so **real** runs need `n_perm >= 50` (preferably 99). A dry-run (`n_perm` of 5–10) typically yields
+`clears_null = false` for every object — that is correct and intended; the dry-run validates the
+pipeline, not significance.
+
+### 6.2 Decision (read the per-seed `clears_null` table + map-stability across `>= 3` seeds)
+
+- **A — proceed to full CIGL (Phase 3):** at least **two of three** objects (graph/node/edge) have
+  `clears_null = true` in **>= 2/3 seeds**, **and** the node or edge map is `above_random` stable.
+- **B — narrow to Node-CMI:** only **node** `clears_null` robustly (and node map `above_random`).
+- **C — narrow to Edge-CMI:** only **edge** `clears_null` robustly (and edge map `above_random`).
+- **D — pivot to diagnostic-only:** no object `clears_null` robustly → do not claim a regularizer;
   reframe CIGL as an audit/diagnostic framework.
 
-The runner prints a **directional read** (objects clearing null per seed) but makes **no** decision —
-the reviewer decides A/B/C/D from the artifacts. No Phase 3 / λ-sweep is authorized until a real Gate-2
-pass.
+The runner prints **both** counts (`positive_excess` and `clears_null` per seed) and writes
+`positive_excess` / `clears_null` / `gate_alpha` into every per-seed object block, but makes **no**
+decision — the reviewer decides A/B/C/D from the artifacts using the `clears_null` criterion. No
+Phase 3 / λ-sweep is authorized until a real Gate-2 pass on the significance criterion.
 
 ## 7. Compute note
 

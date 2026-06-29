@@ -31,13 +31,22 @@ def test_dry_run_emits_valid_exploratory_summary():
     assert m["setting"] == "strict_source_only_DG"
     assert m["dataset"] == "synthetic"
     assert "commit_hash" in m and "config_hash" in m
+    assert m["gate_alpha"] == 0.05, "fold-summary meta must record gate_alpha"
 
-    # per-seed leakage rows present for both seeds, all three objects, with null + p
+    # per-seed leakage rows present for both seeds, all three objects, with null + p + gate verdicts
     assert len(s["per_seed"]) == 2
     for row in s["per_seed"]:
         for obj in ("graph", "node", "edge"):
-            for k in ("kl_mean", "permutation_mean", "permutation_p"):
-                assert k in row[obj], f"missing per_seed.{obj}.{k}"
+            blk = row[obj]
+            for k in ("kl_mean", "permutation_mean", "permutation_p",
+                      "positive_excess", "clears_null", "gate_alpha"):
+                assert k in blk, f"missing per_seed.{obj}.{k}"
+            assert isinstance(blk["positive_excess"], bool) and isinstance(blk["clears_null"], bool)
+            # 'clears null' is the strict significance criterion: kl>null AND p<=alpha
+            assert blk["clears_null"] == (blk["kl_mean"] > blk["permutation_mean"]
+                                          and blk["permutation_p"] <= blk["gate_alpha"])
+            # dry-run with tiny n_perm cannot be significant -> clears_null must be False here
+            assert blk["clears_null"] is False, "dry-run (small n_perm) must not report clears_null=True"
 
     # map stability computed across the 2 seeds
     assert "map_stability" in s and s["map_stability"], "map_stability missing for >=2 seeds"

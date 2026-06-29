@@ -35,6 +35,16 @@ results/cigl/phase2_real/
   `leakage_advantage`, `kl_ci`; `node` adds `node_leakage_map` (+ `_path`); `edge` adds
   `edge_leakage_top_k` (+ `edge_leakage_map_path`).
 
+### Gate verdict fields (in `<fold>_summary.json` per-seed object blocks)
+
+- `positive_excess` `= kl_mean > permutation_mean` — directional signal only.
+- `clears_null` `= positive_excess AND permutation_p <= gate_alpha` — the **binding** Gate-2 criterion.
+- `gate_alpha` (default 0.05); also recorded in `<fold>_summary.json` `meta`.
+
+> A **dry-run** (`n_perm` of 5–10) usually has `clears_null = false` for every object, because the
+> permutation p-value floor is `1/(n_perm+1)` (e.g. 0.091 at `n_perm=10`) — this is expected; the
+> dry-run validates the pipeline, not significance. Real Gate-2 evidence needs `n_perm >= 50`.
+
 ## `<fold>_summary.json`
 
 `per_seed` observed-vs-null rows for graph/node/edge, plus `map_stability` (node/edge mean pairwise

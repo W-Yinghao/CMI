@@ -67,7 +67,7 @@ def _extract_graph_features(net, X, device, bs=256):
     net.eval()
     gz, nz, el = [], [], []
     for i in range(0, len(X), bs):
-        xb = torch.tensor(X[i:i + bs]).to(device)
+        xb = torch.as_tensor(X[i:i + bs], dtype=torch.float32, device=device)   # robust to float64 inputs
         _, g, n, e = net.forward_graph(xb)
         gz.append(g.cpu().numpy()); nz.append(n.cpu().numpy()); el.append(e.cpu().numpy())
     return np.concatenate(gz), np.concatenate(nz), np.concatenate(el)
@@ -147,6 +147,26 @@ def _load_real(args):
 
 
 # ----------------------------------------------------------------------------- audit + persistence
+# ----------------------------------------------------------------------------- Gate-2 verdicts
+def _positive_excess(block):
+    """Directional signal only: observed leakage above the permutation-null MEAN. NOT significance."""
+    return bool(block["kl_mean"] > block["permutation_mean"])
+
+
+def _clears_null(block, alpha):
+    """Gate-2 'clears null': positive excess AND the within-train permutation p-value <= alpha.
+    A dry-run with tiny n_perm cannot satisfy this (min p = 1/(n_perm+1)) — that is intended."""
+    return bool(block["kl_mean"] > block["permutation_mean"] and block["permutation_p"] <= alpha)
+
+
+def _obj_summary(block, alpha):
+    return dict(kl_mean=block["kl_mean"], permutation_mean=block["permutation_mean"],
+                permutation_p=block["permutation_p"],
+                positive_excess=_positive_excess(block),
+                clears_null=_clears_null(block, alpha),
+                gate_alpha=float(alpha))
+
+
 def _edge_top_k(edge_map, k=8):
     m = np.asarray(edge_map); C = m.shape[0]; iu = np.triu_indices(C, 1)
     vals = m[iu]
@@ -205,6 +225,8 @@ def main():
     ap.add_argument("--resample", type=int, default=128)
     ap.add_argument("--max_subjects", type=int, default=0)
     ap.add_argument("--map_stability_perms", type=int, default=200)
+    ap.add_argument("--gate_alpha", type=float, default=0.05,
+                    help="Gate-2 significance level: clears_null requires permutation_p <= gate_alpha")
     args = ap.parse_args()
 
     if args.device == "cuda" and not torch.cuda.is_available():
@@ -254,12 +276,13 @@ def main():
             meta=dict(exploratory=True, setting="strict_source_only_DG",
                       dataset="synthetic" if args.dry_run_synthetic else args.dataset,
                       fold=fold_tag, seeds=list(args.seeds), n_perm=int(args.n_perm),
+                      gate_alpha=float(args.gate_alpha),
                       commit_hash=commit, config_hash=cfg_hash,
                       used_target_labels=False, used_target_covariates=False),
             per_seed=[dict(seed=s,
-                           graph=dict(kl_mean=g["kl_mean"], permutation_mean=g["permutation_mean"], permutation_p=g["permutation_p"]),
-                           node=dict(kl_mean=nn_["kl_mean"], permutation_mean=nn_["permutation_mean"], permutation_p=nn_["permutation_p"]),
-                           edge=dict(kl_mean=e["kl_mean"], permutation_mean=e["permutation_mean"], permutation_p=e["permutation_p"]))
+                           graph=_obj_summary(g, args.gate_alpha),
+                           node=_obj_summary(nn_, args.gate_alpha),
+                           edge=_obj_summary(e, args.gate_alpha))
                       for (s, g, nn_, e) in seed_rows],
             map_stability=stability,
             record_files=fold_records)
@@ -274,14 +297,16 @@ def main():
                   f"edge-map mean_corr={stability['edge']['stability']['mean_corr']:.3f} "
                   f"(above_random={stability['edge']['null']['above_random']})", flush=True)
 
-    # ---- Gate-2 directional read (per fold): how many objects clear the null per seed -----------
-    def _clears(block):
-        return block["kl_mean"] > block["permutation_mean"]
-    print("\n=== Gate-2 directional read (exploratory; NOT a decision) ===")
+    # ---- Gate-2 directional read (per fold): positive excess vs (the binding) p<=alpha clears-null ----
+    print(f"\n=== Gate-2 directional read (exploratory; NOT a decision; gate_alpha={args.gate_alpha}) ===")
     for fs in fold_summaries:
-        clears = {obj: sum(_clears(r[obj]) for r in fs["per_seed"]) for obj in ("graph", "node", "edge")}
-        print(f"  {fs['meta']['fold']}: objects clearing null per seed (of {len(fs['per_seed'])}): {clears}")
-    print("Gate-2 decision is made by the reviewer per docs/CIGL_10 (paths A/B/C/D); this run only reports evidence.")
+        n = len(fs["per_seed"])
+        excess = {obj: sum(r[obj]["positive_excess"] for r in fs["per_seed"]) for obj in ("graph", "node", "edge")}
+        clears = {obj: sum(r[obj]["clears_null"] for r in fs["per_seed"]) for obj in ("graph", "node", "edge")}
+        print(f"  {fs['meta']['fold']} (of {n} seeds): positive_excess={excess}  |  "
+              f"clears_null(p<=alpha)={clears}")
+    print("positive_excess is a DIRECTIONAL signal only; Gate-2 'clears null' requires permutation_p<=gate_alpha. "
+          "The reviewer decides paths A/B/C/D per docs/CIGL_10 — this run only reports evidence.")
     return 0
 
 
