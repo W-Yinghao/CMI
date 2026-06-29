@@ -1,0 +1,97 @@
+{
+  "kind": "CSC confirmatory result",
+  "tag": {
+    "protocol": "CSC confirmatory v1",
+    "status": "FREEZE-CANDIDATE (definition only). The unseen-cluster run requires a SEPARATE authorization; this file fixes the frozen spec, it does not run anything.",
+    "reviewer_bound": true,
+    "K": 1,
+    "claim_type": "pointwise",
+    "core_points": [
+      {
+        "name": "P_baseline",
+        "role": "primary_headline",
+        "envelope_overrides": {}
+      }
+    ],
+    "secondary_descriptive_points": [
+      {
+        "name": "P_strong",
+        "role": "secondary_descriptive_only",
+        "envelope_overrides": {
+          "concept_effect_size": 20.0
+        }
+      }
+    ],
+    "base_seed": 900000,
+    "G": 66,
+    "N_valid_min": 59,
+    "source_invalid_cap": 0.1,
+    "max_forbidden_failures": 0,
+    "power_bar": 0.5,
+    "expected_manifest_hash": "da2c0f4309847a4e790843b9ece68010a90c33bdb9404097aee72dcbefbb2632",
+    "expected_code_ref": "refs/tags/csc-confirmatory-v1",
+    "audit_baseline_commit": "4ea423d",
+    "dev_artifact_commit": "3e5bcf5",
+    "notes": "P_baseline envelope_overrides={} == EnvelopePoint() defaults (effect 14, subj/dom 22, target_subj 30, prior_alpha 4.0, corr 0.2, leakage 10, concept_domains 3, epochs_max 22, mechanism_family 0). POWER PASS RULE: n_fired >= max(min_fired over N_valid, min_fired over G), where min_fired(n) = smallest k with CP_lower(k,n) >= power_bar (computed from the REALIZED counts, never hard-coded). The unconditional component (over G) guarantees the source-invalid exclusion cannot inflate the headline; for G=66 the effective threshold is 41 fired. SEED DERIVATION: source seeds = base_seed + k (900000..900065); target seed = target_seed_base(900000) + source_seed (1800000..1800065); disjoint streams. P_strong is secondary descriptive only and is NOT part of the PASS/FAIL."
+  },
+  "manifest_hash": "da2c0f4309847a4e790843b9ece68010a90c33bdb9404097aee72dcbefbb2632",
+  "headline_core_pass": false,
+  "claim_type": "pointwise",
+  "per_point": {
+    "P_baseline": {
+      "verdict": "FAIL",
+      "G": 66,
+      "n_valid": 65,
+      "source_invalid": 1,
+      "source_invalid_frac": 0.0152,
+      "forbidden": 1,
+      "forbidden_cp_upper": 0.0709,
+      "forbidden_pass": false,
+      "fired": 28,
+      "power_conditional": 0.4307692307692308,
+      "power_conditional_cp_lower": 0.3262,
+      "power_unconditional": 0.42424242424242425,
+      "power_unconditional_cp_lower": 0.3209,
+      "min_fired_conditional": 40,
+      "min_fired_unconditional": 41,
+      "min_fired_for_pass": 41,
+      "power_pass": false,
+      "gate_failure_decomposition": {
+        "not_dominant_or_robust_consensus_abstain": 15,
+        "FIRED": 28,
+        "geometric_maxstat_not_sig": 15,
+        "residual_T_not_sig": 7,
+        "unstable_concept_attribution": 1
+      },
+      "source_invalid_reasons": {
+        "UNSTABLE_CONCEPT_ATTRIBUTION": 1
+      }
+    }
+  },
+  "base_seed": 900000,
+  "n_jobs": 64,
+  "seed_derivation": {
+    "source_seed_base": 900000,
+    "source_seed_range": [
+      900000,
+      900065
+    ],
+    "target_seed_base": 900000,
+    "target_seed_formula": "target_seed = target_seed_base + source_seed",
+    "target_seed_range": [
+      1800000,
+      1800065
+    ],
+    "source_target_seed_streams_disjoint": true
+  },
+  "code_provenance": {
+    "git_head": "dee895824f5022d785e0d3507900b318be34c14c",
+    "expected_code_ref": "refs/tags/csc-confirmatory-v1",
+    "expected_code_commit": "dee895824f5022d785e0d3507900b318be34c14c",
+    "git_status_clean": true
+  },
+  "hostname": "nodecpu03",
+  "slurm_job_id": "876329",
+  "time": "2026-06-30T01:39:28",
+  "note": "CONFIRMATORY result. P_strong (if present) is secondary descriptive only and excluded from headline_core_pass."
+}

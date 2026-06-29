@@ -1,0 +1,7 @@
+git_head=dee895824f5022d785e0d3507900b318be34c14c frozen_tag=csc-confirmatory-v1 expected=dee895824f5022d785e0d3507900b318be34c14c workdir=/home/infres/yinwang/CMI_AAAI_csc_frozen
+host=nodecpu03 job=876329 cpus=64 jobs=64 out=csc/results/confirmatory.json started=2026-06-30T01:35:56+02:00
+[confirmatory] P_baseline: FAIL (forbidden 1/65 CP-UB 0.0709; fired 28 >= 41? power_cond 0.4307692307692308)
+[confirmatory] headline_core_pass=False -> csc/results/confirmatory.876329.tmp.json
+ERROR conda.cli.main_run:execute(49): `conda run python -u -m csc.run_confirmatory --execute --jobs 64 --out csc/results/confirmatory.876329.tmp.json` failed. (See above for error)
+scientific_rc=1 finished=2026-06-30T01:39:29+02:00
+[confirmatory] artifact freshness VERIFIED: csc/results/confirmatory.json is a fresh product of job 876329 at dee895824f50
