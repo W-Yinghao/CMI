@@ -60,8 +60,17 @@ def _domain(subject_int) -> str:
     return f"{_DS}|subject-{int(subject_int):03d}"
 
 
+def _fold_spec(manifest):
+    """The single-fold subject/deletion spec: the pilot block (a full-budget one-held-out-target fold)
+    when present, else the smoke block. Identical fields, so the downstream build is unchanged."""
+    spec = manifest.pilot if getattr(manifest, "pilot", None) is not None else manifest.smoke
+    if spec is None:
+        raise ValueError("manifest has neither a 'pilot' nor a 'smoke' single-fold spec")
+    return spec
+
+
 def build_bnci_fold_from_bundle(manifest, load_result: MOABBLoadResult) -> BNCIRealFold:
-    sm = manifest.smoke
+    sm = _fold_spec(manifest)
     ds = manifest.enabled_datasets()[_DS]
     bundle = load_result.bundle
     n = bundle.n
@@ -100,7 +109,8 @@ def build_bnci_fold_from_bundle(manifest, load_result: MOABBLoadResult) -> BNCIR
     deleted = sm.deleted_cell_level1
     schedule = make_deletion_schedule([DeletionCell(deleted.domain_id, deleted.class_name)], fd, maps)
     cfg = ScopePlanConfig.from_manifest(manifest, support_m=int(ds.support_m))
-    fold_key = FoldKey(manifest_hash, _DS, f"{_DS}|target-subject-001", int(manifest.seeds.split),
+    target_subj = sorted(int(s) for s in sm.target_subjects)[0]   # smoke=001; pilot=any held-out target
+    fold_key = FoldKey(manifest_hash, _DS, f"{_DS}|target-subject-{target_subj:03d}", int(manifest.seeds.split),
                        int(manifest.seeds.deletion))
     fold_scope = build_fold_scope(fold_key, maps, fd, schedule, cfg)
     exec_cfg = RunnerExecutionConfig.from_manifest(manifest)
@@ -125,7 +135,7 @@ def build_bnci_fold_from_bundle(manifest, load_result: MOABBLoadResult) -> BNCIR
 
 def build_bnci_real_fold(manifest_path, datalake_root) -> BNCIRealFold:
     m = load_v2(manifest_path); m.validate_complete()
-    sm, ds = m.smoke, m.enabled_datasets()[_DS]
+    sm, ds = _fold_spec(m), m.enabled_datasets()[_DS]
     pp = ds.preprocessing
     subjects = sorted(int(s) for s in (sm.subjects or []))
     load_result = load_moabb_confirmatory(

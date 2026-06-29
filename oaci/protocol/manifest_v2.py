@@ -158,6 +158,19 @@ class SmokeBlock:
 
 
 @dataclass
+class PilotBlock:
+    """A single full-budget fold (one held-out target) materialized from the confirmatory protocol.
+    Same fields as SmokeBlock but the subject roles are NOT pinned to [1]/[2,3]/[4,5,6] -- any disjoint
+    target/source-audit/source-train split whose union is `subjects` is allowed."""
+    subjects: list | None = None
+    target_subjects: list | None = None
+    source_audit_subjects: list | None = None
+    source_train_subjects: list | None = None
+    deletion_levels: list | None = None
+    deleted_cell_level1: dict | None = None
+
+
+@dataclass
 class DeletedCellBlock:
     domain_id: str | None = None
     class_name: str | None = None
@@ -246,6 +259,7 @@ class ProtocolManifestV2:
     probe: ProbeBlock | None = None
     methods: MethodBlock | None = None
     smoke: SmokeBlock | None = None
+    pilot: PilotBlock | None = None
     fake_fixture: FakeFixtureBlock | None = None
     datasets: dict | None = None          # name -> DatasetBlock
     risk: RiskBlock | None = None
@@ -262,6 +276,8 @@ class ProtocolManifestV2:
                 raise ValueError(f"protocol v2 missing required field/block: {f}")
         if self.status == "smoke" and self.smoke is None:
             raise ValueError("a status='smoke' manifest must carry a 'smoke' block")
+        if self.status == "pilot" and self.pilot is None:
+            raise ValueError("a status='pilot' manifest must carry a 'pilot' block")
         en = self.enabled_datasets()
         if not en:
             raise ValueError("protocol v2 has no enabled datasets")
@@ -272,8 +288,30 @@ class ProtocolManifestV2:
         self.validate_ranges()
         self._validate_fake()
         self._validate_smoke_subjects()
+        self._validate_pilot_subjects()
         self._validate_mi_preprocessing()
         return self
+
+    def _validate_pilot_subjects(self) -> None:
+        p = self.pilot
+        if p is None:
+            return
+        if not (p.subjects and p.target_subjects and p.source_audit_subjects and p.source_train_subjects):
+            raise ValueError("pilot block must list subjects + target/source_audit/source_train roles")
+        roles = {"target": [int(x) for x in p.target_subjects],
+                 "source_audit": [int(x) for x in p.source_audit_subjects],
+                 "source_train": [int(x) for x in p.source_train_subjects]}
+        flat = roles["target"] + roles["source_audit"] + roles["source_train"]
+        if len(set(flat)) != len(flat):
+            raise ValueError("pilot subject roles overlap (target / source_audit / source_train must be disjoint)")
+        if set(flat) != {int(x) for x in p.subjects}:
+            raise ValueError("the union of pilot subject roles must equal pilot.subjects")
+        if len(roles["target"]) != 1:
+            raise ValueError("pilot must hold out exactly one target subject")
+        if list(p.deletion_levels or []) != [0, 1]:
+            raise ValueError("pilot deletion_levels must be [0, 1]")
+        if not isinstance(p.deleted_cell_level1, DeletedCellBlock):
+            raise ValueError("pilot deleted_cell_level1 must be a {domain_id, class_name} block")
 
     def _validate_mi_preprocessing(self) -> None:
         for name, ds in self.enabled_datasets().items():
@@ -425,7 +463,8 @@ def manifest_payload_hash(payload: dict) -> str:
 
 _BLOCK_TYPES = {"seeds": SeedBlock, "backbone": BackboneBlock, "optimizer": OptimizerBlock,
                 "training": TrainingBlock, "sampler": SamplerBlock, "probe": ProbeBlock,
-                "methods": MethodBlock, "smoke": SmokeBlock, "fake_fixture": FakeFixtureBlock,
+                "methods": MethodBlock, "smoke": SmokeBlock, "pilot": PilotBlock,
+                "fake_fixture": FakeFixtureBlock,
                 "risk": RiskBlock, "evaluation": EvaluationBlock, "k1": K1Block, "k2": K2Block}
 _PASSTHROUGH = {"protocol_id", "status"}
 
@@ -451,6 +490,9 @@ def load_v2(path: str) -> ProtocolManifestV2:
     if m.smoke is not None and isinstance(m.smoke.deleted_cell_level1, dict):   # strict nested deleted cell
         m.smoke.deleted_cell_level1 = _strict(DeletedCellBlock, m.smoke.deleted_cell_level1,
                                               f"{path}:smoke.deleted_cell_level1")
+    if m.pilot is not None and isinstance(m.pilot.deleted_cell_level1, dict):
+        m.pilot.deleted_cell_level1 = _strict(DeletedCellBlock, m.pilot.deleted_cell_level1,
+                                              f"{path}:pilot.deleted_cell_level1")
     for name, ds in (m.datasets or {}).items():                                # strict nested preprocessing by kind
         pp = ds.preprocessing
         if isinstance(pp, dict) and pp.get("kind") in _PREPROCESSING_KINDS:

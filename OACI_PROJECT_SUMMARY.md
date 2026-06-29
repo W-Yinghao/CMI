@@ -285,10 +285,26 @@ All from the worktree root `/home/infres/yinwang/CMI_AAAI_oaci`, env `icml`
 > order-invariance contract (same commit, two orders → identical hash) was already bit-exact and is
 > unchanged. See §3.
 
+### Confirmatory layer (milestone C — in progress)
+`confirmatory_v2.yaml` is a **protocol** schema, not a runnable manifest. The `oaci/confirmatory/` package
+bridges them:
+- `schema.py` — parse/validate the confirmatory protocol.
+- `materialize.py` — turn one (dataset, held-out target) into a runnable **full-budget `pilot` manifest_v2**
+  (a new additive `pilot` block carries an explicit, un-pinned subject split: target / source_audit /
+  source_train); deterministic, no hand editing.
+- `onefold.py` — load the real fold once, run the requested model seeds through the full
+  write→verify→read→compare loop.
+- `report.py` — per-seed/level/method endpoints + descriptive k1/k2 view.
+- `demo.py` + `slurm_confirmatory_onefold.sh` — the V100 CLI/job.
+
+**First step (current):** BNCI2014_001, target=subject-001 (all 9 subjects: audit=2,3, train=4–9), levels
+0+1, full budget, **seeds 0,1,2** — labeled *pipeline validation, NOT confirmatory efficacy*. No LOSO, no
+BNCI2014_004 yet. CPU adapter/report tests pass; the GPU run is `slurm_confirmatory_onefold.sh`.
+
 ### Open / next
-- **Confirmatory (full-budget) runs** = the actual scientific results. The B2b smoke is
-  **machinery-validation only** (minimized budget); it is **not** an efficacy result, and method-to-method
-  numerical differences in the smoke are explicitly **not** evidence.
+- Confirm the one-fold V100 run is green (all seeds deep-verify, target_fit empty), then decide on the
+  **full LOSO sweep + BNCI2014_004 + the real k1/k2 permutation/decision machinery** = the actual
+  confirmatory results. The one-fold is **machinery validation**, not efficacy.
 
 ---
 
