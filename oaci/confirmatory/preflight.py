@@ -36,7 +36,7 @@ def build_preflight_report(fold, manifest_path, target_subject) -> dict:
         "subjects": list(sm.subjects), "target_subjects": list(sm.target_subjects),
         "source_audit_subjects": list(sm.source_audit_subjects),
         "source_train_subjects": list(sm.source_train_subjects),
-        "X_shape": [int(d) for d in fd.X.shape], "n_classes": int(fd.n_classes),
+        "X_shape": [int(d) for d in fd.X.shape], "n_classes": len(fd.class_names),
         "class_names": list(fd.class_names), "role_counts": counts, "role_count_sum": role_sum,
         "rows_total": n, "roles_partition_all_rows": role_sum == n,
         "target_seen_by_fit": target_fit,
