@@ -1,0 +1,24 @@
+{
+  "marker": "W2_CONFUSION_REPLAY_AUDIT",
+  "status": "excluded_strict",
+  "diagnostic_replay_commit": "9a35cc97345c8144eb4c2b73754db143e89e936a",
+  "replay_hash_equivalent": false,
+  "n_rows_compared": 2025,
+  "pred_hash_mismatches": 114,
+  "mean_abs_dbacc": 0.00027045115589371087,
+  "max_abs_dbacc": 0.09963031423290208,
+  "n_units_dbacc_gt_0p01": 13,
+  "include_in_confirmatory_report": false,
+  "include_as_secondary": false,
+  "deterministic_rerun": false,
+  "note": "Eval-only replay did not reproduce primary iterative geometry fits bit-exactly. pi_J reproduced EXACTLY on 148/225 units (median \u0394=0) but co-diverged on 34 units (max \u0394 0.0220); the prior is co-estimated in the joint EM and inherits the geometry optimization nondeterminism. Replay-derived confusion / per-stage recall EXCLUDED from confirmatory report.",
+  "pi_j_audit": {
+    "n_compared": 225,
+    "reproduced_exact_units": 148,
+    "max_abs_diff": 0.022042013704776764,
+    "mean_abs_diff": 0.00033355854658616914,
+    "median_abs_diff": 0.0,
+    "n_units_gt_1e6": 34,
+    "n_units_gt_0p01": 2
+  }
+}

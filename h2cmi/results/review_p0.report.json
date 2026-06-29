@@ -1,0 +1,750 @@
+{
+  "marker": "REVIEW_P0_RESULTS",
+  "runner_commit": "278fc85",
+  "analyzer_commit": "9a35cc9",
+  "n_rows": 13620,
+  "W1": {
+    "unit": "target subject (seeds averaged within unit)",
+    "n_units": 115,
+    "PRIMARY_fixed_iter_minus_joint_geom": {
+      "subject_weighted": {
+        "mean": 0.002185549730777119,
+        "ci": [
+          -0.0004962391570337568,
+          0.004911114548545828
+        ],
+        "excludes_0": false,
+        "n": 115
+      },
+      "dataset_equal_macro": {
+        "mean": 0.004686340875854139,
+        "ci": [
+          0.0009374435904652608,
+          0.008831239537723664
+        ],
+        "excludes_0": true,
+        "n": 3
+      },
+      "per_dataset": {
+        "BNCI2014_001": {
+          "mean": 0.011316872427983515,
+          "ci": [
+            0.0015432098765432044,
+            0.022132201646090345
+          ],
+          "excludes_0": true,
+          "n": 9
+        },
+        "Cho2017": {
+          "mean": -0.0007051282051282043,
+          "ci": [
+            -0.0050016025641025875,
+            0.003461538461538474
+          ],
+          "excludes_0": false,
+          "n": 52
+        },
+        "Lee2019_MI": {
+          "mean": 0.0034472784047071053,
+          "ci": [
+            -0.00019783870757686956,
+            0.007085443735347952
+          ],
+          "excludes_0": false,
+          "n": 54
+        }
+      }
+    },
+    "G_joint_geom_minus_identity": {
+      "subject_weighted": {
+        "mean": 0.06041900224084132,
+        "ci": [
+          0.04322432618906257,
+          0.07792502884445038
+        ],
+        "excludes_0": true,
+        "n": 115
+      },
+      "dataset_equal_macro": {
+        "mean": 0.04797765687896239,
+        "ci": [
+          0.03382164803731604,
+          0.06255206073844322
+        ],
+        "excludes_0": true,
+        "n": 3
+      },
+      "per_dataset": {
+        "BNCI2014_001": {
+          "mean": 0.012860082304526732,
+          "ci": [
+            -0.0041152263374486025,
+            0.034465020576131655
+          ],
+          "excludes_0": false,
+          "n": 9
+        },
+        "Cho2017": {
+          "mean": 0.12274572649572651,
+          "ci": [
+            0.0869113247863248,
+            0.1590491452991453
+          ],
+          "excludes_0": true,
+          "n": 52
+        },
+        "Lee2019_MI": {
+          "mean": 0.00832716183663394,
+          "ci": [
+            -6.868389058951963e-05,
+            0.01772901458838293
+          ],
+          "excludes_0": false,
+          "n": 54
+        }
+      }
+    },
+    "P_identity_jointprior_minus_identity": {
+      "subject_weighted": {
+        "mean": -0.00652089263530282,
+        "ci": [
+          -0.014712564013287823,
+          0.0017905940247467812
+        ],
+        "excludes_0": false,
+        "n": 115
+      },
+      "dataset_equal_macro": {
+        "mean": -0.007081369477401408,
+        "ci": [
+          -0.01423517312757319,
+          -9.385251207569567e-05
+        ],
+        "excludes_0": true,
+        "n": 3
+      },
+      "per_dataset": {
+        "BNCI2014_001": {
+          "mean": -0.008744855967078228,
+          "ci": [
+            -0.019547325102880757,
+            0.001543209876543192
+          ],
+          "excludes_0": false,
+          "n": 9
+        },
+        "Cho2017": {
+          "mean": -0.0018803418803418695,
+          "ci": [
+            -0.01832318376068377,
+            0.015642094017094033
+          ],
+          "excludes_0": false,
+          "n": 52
+        },
+        "Lee2019_MI": {
+          "mean": -0.010618910584784128,
+          "ci": [
+            -0.017132201620943945,
+            -0.004650959344535604
+          ],
+          "excludes_0": true,
+          "n": 54
+        }
+      }
+    },
+    "joint_geom_minus_pooled": {
+      "subject_weighted": {
+        "mean": -0.00351030010950052,
+        "ci": [
+          -0.00650326080091823,
+          -0.0004929032066088619
+        ],
+        "excludes_0": true,
+        "n": 115
+      },
+      "dataset_equal_macro": {
+        "mean": -0.007363322850409551,
+        "ci": [
+          -0.012749565184590719,
+          -0.002320619979087229
+        ],
+        "excludes_0": true,
+        "n": 3
+      },
+      "per_dataset": {
+        "BNCI2014_001": {
+          "mean": -0.017489711934156344,
+          "ci": [
+            -0.03240740740740738,
+            -0.003600823045267481
+          ],
+          "excludes_0": true,
+          "n": 9
+        },
+        "Cho2017": {
+          "mean": -0.0010683760683760858,
+          "ci": [
+            -0.005555555555555583,
+            0.0036752136752136585
+          ],
+          "excludes_0": false,
+          "n": 52
+        },
+        "Lee2019_MI": {
+          "mean": -0.003531880548696226,
+          "ci": [
+            -0.007636755278171831,
+            0.0006517514210282242
+          ],
+          "excludes_0": false,
+          "n": 54
+        }
+      }
+    },
+    "interaction_mean": 0.004333484482942364,
+    "decomposition_residual_max": 0.0,
+    "primary_leave_one_dataset_out": {
+      "drop_BNCI2014_001": {
+        "mean": 0.0014102487470520478,
+        "ci": [
+          -0.0014518358114310567,
+          0.004183642794288519
+        ],
+        "excludes_0": false,
+        "n": 106
+      },
+      "drop_Cho2017": {
+        "mean": 0.0045715061223180215,
+        "ci": [
+          0.0010474344528919473,
+          0.008010372059758585
+        ],
+        "excludes_0": true,
+        "n": 63
+      },
+      "drop_Lee2019_MI": {
+        "mean": 0.0010686095931997544,
+        "ci": [
+          -0.003005540376442034,
+          0.004994004250151787
+        ],
+        "excludes_0": false,
+        "n": 61
+      }
+    },
+    "negative_change_rate_vs_identity": {
+      "identity_joint_prior": {
+        "lt_0": 0.5652173913043478,
+        "lt_-0.01": 0.4260869565217391,
+        "lt_-0.02": 0.3217391304347826,
+        "n": 115
+      },
+      "joint_geometry_uniform": {
+        "lt_0": 0.3217391304347826,
+        "lt_-0.01": 0.2608695652173913,
+        "lt_-0.02": 0.1565217391304348,
+        "n": 115
+      },
+      "joint_geometry_joint_prior": {
+        "lt_0": 0.33043478260869563,
+        "lt_-0.01": 0.24347826086956523,
+        "lt_-0.02": 0.17391304347826086,
+        "n": 115
+      },
+      "fixed_iterative_geometry_uniform": {
+        "lt_0": 0.26956521739130435,
+        "lt_-0.01": 0.2,
+        "lt_-0.02": 0.14782608695652175,
+        "n": 115
+      },
+      "fixed_reference_oneshot_uniform": {
+        "lt_0": 0.2608695652173913,
+        "lt_-0.01": 0.2,
+        "lt_-0.02": 0.13043478260869565,
+        "n": 115
+      },
+      "pooled_uniform": {
+        "lt_0": 0.26956521739130435,
+        "lt_-0.01": 0.1826086956521739,
+        "lt_-0.02": 0.13043478260869565,
+        "n": 115
+      },
+      "latent_im_diag_uniform": {
+        "lt_0": 0.30434782608695654,
+        "lt_-0.01": 0.22608695652173913,
+        "lt_-0.02": 0.17391304347826086,
+        "n": 115
+      },
+      "source_recolored_ea": {
+        "lt_0": 0.4260869565217391,
+        "lt_-0.01": 0.34782608695652173,
+        "lt_-0.02": 0.28695652173913044,
+        "n": 115
+      }
+    },
+    "branch_mean_bacc": {
+      "identity_uniform": 0.6711761764001296,
+      "identity_joint_prior": 0.6646552837648267,
+      "joint_geometry_uniform": 0.7315951786409708,
+      "joint_geometry_joint_prior": 0.7294077704886105,
+      "fixed_iterative_geometry_uniform": 0.733780728371748,
+      "fixed_reference_oneshot_uniform": 0.7212568713081609,
+      "pooled_uniform": 0.7351054787504715,
+      "latent_im_diag_uniform": 0.7263298290600944,
+      "source_recolored_ea": 0.6984008274838837
+    }
+  },
+  "W2_primary": {
+    "protocol": "primary",
+    "unit": "subject (seeds averaged within unit)",
+    "n_units": 75,
+    "PRIMARY_G_joint_geom_minus_identity": {
+      "mean": -0.020006837338071244,
+      "ci": [
+        -0.0412579985559207,
+        0.0006895519413574612
+      ],
+      "excludes_0": false,
+      "n": 75
+    },
+    "P_identity_jointprior_minus_identity": {
+      "mean": -0.14384779003206724,
+      "ci": [
+        -0.15905066311356614,
+        -0.12833466821068876
+      ],
+      "excludes_0": true,
+      "n": 75
+    },
+    "decision_prior_diagnostic_jointprior_minus_jointgeom": {
+      "mean": -0.08458488745751037,
+      "ci": [
+        -0.09680195444498618,
+        -0.07272068147682759
+      ],
+      "excludes_0": true,
+      "n": 75
+    },
+    "SECONDARY_fixed_iter_minus_joint_geom": {
+      "mean": 0.018489300476884993,
+      "ci": [
+        0.012725334519963168,
+        0.024465854022984082
+      ],
+      "excludes_0": true,
+      "n": 75
+    },
+    "interaction_mean": 0.059262902574556894,
+    "decomposition_residual_max": 1.850371707708594e-17,
+    "negative_change_rate_vs_identity": {
+      "identity_joint_prior": {
+        "lt_0": 0.9866666666666667,
+        "lt_-0.01": 0.9866666666666667,
+        "lt_-0.02": 0.9733333333333334,
+        "n": 75
+      },
+      "joint_geometry_uniform": {
+        "lt_0": 0.6133333333333333,
+        "lt_-0.01": 0.5466666666666666,
+        "lt_-0.02": 0.4533333333333333,
+        "n": 75
+      },
+      "joint_geometry_joint_prior": {
+        "lt_0": 0.88,
+        "lt_-0.01": 0.8533333333333334,
+        "lt_-0.02": 0.8,
+        "n": 75
+      },
+      "fixed_iterative_geometry_uniform": {
+        "lt_0": 0.4666666666666667,
+        "lt_-0.01": 0.37333333333333335,
+        "lt_-0.02": 0.3466666666666667,
+        "n": 75
+      },
+      "fixed_reference_oneshot_uniform": {
+        "lt_0": 0.30666666666666664,
+        "lt_-0.01": 0.28,
+        "lt_-0.02": 0.21333333333333335,
+        "n": 75
+      },
+      "pooled_uniform": {
+        "lt_0": 0.48,
+        "lt_-0.01": 0.4266666666666667,
+        "lt_-0.02": 0.36,
+        "n": 75
+      },
+      "latent_im_diag_uniform": {
+        "lt_0": 0.6133333333333333,
+        "lt_-0.01": 0.5466666666666666,
+        "lt_-0.02": 0.49333333333333335,
+        "n": 75
+      },
+      "source_recolored_ea": {
+        "lt_0": 0.6666666666666666,
+        "lt_-0.01": 0.16,
+        "lt_-0.02": 0.08,
+        "n": 75
+      }
+    },
+    "branch_mean_bacc": {
+      "identity_uniform": 0.6572140222153086,
+      "identity_joint_prior": 0.5133662321832412,
+      "joint_geometry_uniform": 0.6372071848772372,
+      "joint_geometry_joint_prior": 0.5526222974197269,
+      "fixed_iterative_geometry_uniform": 0.6556964853541221,
+      "fixed_reference_oneshot_uniform": 0.6953645681569772,
+      "pooled_uniform": 0.6599993539074123,
+      "latent_im_diag_uniform": 0.63621470363455,
+      "source_recolored_ea": 0.6529798040153856
+    }
+  },
+  "W2_secondary": {
+    "protocol": "secondary",
+    "unit": "subject (seeds averaged within unit)",
+    "n_units": 75,
+    "PRIMARY_G_joint_geom_minus_identity": {
+      "mean": -0.023042577341465864,
+      "ci": [
+        -0.04361761817884138,
+        -0.0029139666561710516
+      ],
+      "excludes_0": true,
+      "n": 75
+    },
+    "P_identity_jointprior_minus_identity": {
+      "mean": -0.1299840203035572,
+      "ci": [
+        -0.14958746860906175,
+        -0.11029009427111801
+      ],
+      "excludes_0": true,
+      "n": 75
+    },
+    "decision_prior_diagnostic_jointprior_minus_jointgeom": {
+      "mean": -0.1061412294863015,
+      "ci": [
+        -0.12102303671950762,
+        -0.0910125291909702
+      ],
+      "excludes_0": true,
+      "n": 75
+    },
+    "SECONDARY_fixed_iter_minus_joint_geom": {
+      "mean": 0.023398063220750397,
+      "ci": [
+        0.011180951219539891,
+        0.037680707606134234
+      ],
+      "excludes_0": true,
+      "n": 75
+    },
+    "interaction_mean": 0.023842790817255714,
+    "decomposition_residual_max": 3.700743415417188e-17,
+    "negative_change_rate_vs_identity": {
+      "identity_joint_prior": {
+        "lt_0": 0.96,
+        "lt_-0.01": 0.9466666666666667,
+        "lt_-0.02": 0.88,
+        "n": 75
+      },
+      "joint_geometry_uniform": {
+        "lt_0": 0.6,
+        "lt_-0.01": 0.52,
+        "lt_-0.02": 0.52,
+        "n": 75
+      },
+      "joint_geometry_joint_prior": {
+        "lt_0": 0.9066666666666666,
+        "lt_-0.01": 0.8933333333333333,
+        "lt_-0.02": 0.88,
+        "n": 75
+      },
+      "fixed_iterative_geometry_uniform": {
+        "lt_0": 0.52,
+        "lt_-0.01": 0.48,
+        "lt_-0.02": 0.41333333333333333,
+        "n": 75
+      },
+      "fixed_reference_oneshot_uniform": {
+        "lt_0": 0.3333333333333333,
+        "lt_-0.01": 0.28,
+        "lt_-0.02": 0.25333333333333335,
+        "n": 75
+      },
+      "pooled_uniform": {
+        "lt_0": 0.6,
+        "lt_-0.01": 0.5466666666666666,
+        "lt_-0.02": 0.52,
+        "n": 75
+      },
+      "latent_im_diag_uniform": {
+        "lt_0": 0.5066666666666667,
+        "lt_-0.01": 0.4533333333333333,
+        "lt_-0.02": 0.44,
+        "n": 75
+      },
+      "source_recolored_ea": {
+        "lt_0": 0.5733333333333334,
+        "lt_-0.01": 0.28,
+        "lt_-0.02": 0.13333333333333333,
+        "n": 75
+      }
+    },
+    "branch_mean_bacc": {
+      "identity_uniform": 0.6505986702434519,
+      "identity_joint_prior": 0.5206146499398947,
+      "joint_geometry_uniform": 0.6275560929019861,
+      "joint_geometry_joint_prior": 0.5214148634156845,
+      "fixed_iterative_geometry_uniform": 0.6509541561227365,
+      "fixed_reference_oneshot_uniform": 0.6776395670621395,
+      "pooled_uniform": 0.6137664722656784,
+      "latent_im_diag_uniform": 0.6462846834402881,
+      "source_recolored_ea": 0.6430915200788432
+    }
+  },
+  "V2P_weighted": {
+    "unit": "(pair,session) target nested in subject; cluster=(dataset,subject)",
+    "n_units": 90,
+    "n_unique_dataset_subject_clusters": 72,
+    "PRIMARY_displacement_embedding": {
+      "pooled": {
+        "mean": 0.04906254785773518,
+        "ci": [
+          0.03311278858069391,
+          0.06873543339286302
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "fixed_reference_oneshot": {
+        "mean": 0.3139850424809588,
+        "ci": [
+          0.22844325658254966,
+          0.4090240028087345
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "fixed_iterative": {
+        "mean": 0.6400292271023824,
+        "ci": [
+          0.4605969010322907,
+          0.8252765857851843
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "joint": {
+        "mean": 0.6397234007974879,
+        "ci": [
+          0.4612871160594984,
+          0.8241096602388172
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "oracle_label_conditional": {
+        "mean": 1.9601398814607547,
+        "ci": [
+          1.878425625591427,
+          2.0360343516379795
+        ],
+        "excludes_0": true,
+        "n": 90
+      }
+    },
+    "logscale_displacement": {
+      "pooled": {
+        "mean": 0.20549646005863695,
+        "ci": [
+          0.19476071049354704,
+          0.21763677529244985
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "fixed_reference_oneshot": {
+        "mean": 0.04350784748310614,
+        "ci": [
+          0.031455665887989016,
+          0.05759628529521411
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "fixed_iterative": {
+        "mean": 0.08334839446512729,
+        "ci": [
+          0.06147483128510629,
+          0.10766794452459838
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "joint": {
+        "mean": 0.0822953921451812,
+        "ci": [
+          0.06127619914942614,
+          0.10511615836495215
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "oracle_label_conditional": {
+        "mean": 0.19115005103664492,
+        "ci": [
+          0.17432621556443587,
+          0.20658840564500722
+        ],
+        "excludes_0": true,
+        "n": 90
+      }
+    },
+    "translation_displacement": {
+      "pooled": {
+        "mean": 0.1576454656163144,
+        "ci": [
+          0.14171055417472264,
+          0.17594716127667798
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "fixed_reference_oneshot": {
+        "mean": 0.29728687871946935,
+        "ci": [
+          0.21700653777914175,
+          0.38797828429434267
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "fixed_iterative": {
+        "mean": 0.5948707791076112,
+        "ci": [
+          0.4301615534653154,
+          0.7640276029164111
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "joint": {
+        "mean": 0.5951312693212772,
+        "ci": [
+          0.4313458490561509,
+          0.7641878442913532
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "oracle_label_conditional": {
+        "mean": 1.8383722633112063,
+        "ci": [
+          1.7735431096277576,
+          1.8977393954615354
+        ],
+        "excludes_0": true,
+        "n": 90
+      }
+    },
+    "slope_2log3": {
+      "pooled": {
+        "mean": 0.2220360367764823,
+        "ci": [
+          0.21066796494388182,
+          0.23513525434795846
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "fixed_reference_oneshot": {
+        "mean": 0.2678573872216957,
+        "ci": [
+          0.19629917099794114,
+          0.3477603093893406
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "fixed_iterative": {
+        "mean": 0.513540286872467,
+        "ci": [
+          0.3754337644418284,
+          0.6527733600702424
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "joint": {
+        "mean": 0.5141763008526409,
+        "ci": [
+          0.3756497152242814,
+          0.6539077909107691
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "oracle_label_conditional": {
+        "mean": 1.648220724731822,
+        "ci": [
+          1.5903331811059407,
+          1.7017420003000174
+        ],
+        "excludes_0": true,
+        "n": 90
+      }
+    },
+    "confirmatory_family_FRSC": {
+      "FRSC_minus_pooled": {
+        "mean": 0.26492249462322365,
+        "ci": [
+          0.1911025316170068,
+          0.34132059506010526
+        ],
+        "excludes_0": true,
+        "n": 90
+      },
+      "FRSC_minus_oracle": {
+        "mean": -1.646154838979796,
+        "ci": [
+          -1.7734326228772583,
+          -1.5121339846859916
+        ],
+        "excludes_0": true,
+        "n": 90
+      }
+    },
+    "holm_family_order": {
+      "FRSC_minus_oracle": {
+        "excludes_0": true,
+        "rank": 0
+      },
+      "FRSC_minus_pooled": {
+        "excludes_0": true,
+        "rank": 1
+      }
+    }
+  },
+  "w2_confusion": {
+    "status": "excluded_strict",
+    "replay_hash_equivalent": false,
+    "pred_hash_mismatches": 114,
+    "n_rows_compared": 2025,
+    "mean_abs_dbacc": 0.00027045115589371087,
+    "max_abs_dbacc": 0.09963031423290208,
+    "n_units_dbacc_gt_0p01": 13,
+    "include_in_confirmatory_report": false,
+    "include_as_secondary": false,
+    "deterministic_rerun": false,
+    "pi_j_audit": {
+      "n_compared": 225,
+      "reproduced_exact_units": 148,
+      "max_abs_diff": 0.022042013704776764,
+      "mean_abs_diff": 0.00033355854658616914,
+      "median_abs_diff": 0.0,
+      "n_units_gt_1e6": 34,
+      "n_units_gt_0p01": 2
+    }
+  }
+}

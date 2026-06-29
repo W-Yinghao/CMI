@@ -5,13 +5,16 @@ artifacts live, and the current state. Read this top-to-bottom to understand eve
 
 Last updated: 2026-06.
 
-> **⚠️ STATUS — REVIEW_P0 correction: COMPUTE COMPLETE, SCIENTIFIC ANALYSIS PENDING.**
-> The corrected raw compute (W1/V2P/W2, all seeds, `@278fc85`) is done and integrity-verified
-> (`REVIEW_P0_MANIFEST.json`), but the corrected analyzer / provenance-hardening / W2 confusion replay
-> are NOT finished. **The §5 findings below are the PRE-P0 conclusions; several are explicitly
-> SUPERSEDED-PENDING by the P0 decomposition** (see §4 and the supersession table that will ship in
-> `REVIEW_P0_RESULTS.md`). Do NOT treat any P0 scientific claim as settled until the terminal tag
-> exists. Older handoff docs are historical, not the entry point — this file is.
+> **✅ STATUS — REVIEW_P0 correction: TERMINAL.** Corrected raw compute `@278fc85`, analyzer `@9a35cc9`.
+> The authoritative corrected conclusions live in **[`results/REVIEW_P0_RESULTS.md`](results/REVIEW_P0_RESULTS.md)**
+> (+ `review_p0.report.json` / `review_p0.sha256`). **Those supersede the §5 pre-P0 findings wherever they
+> conflict** (supersession table in REVIEW_P0_RESULTS §6). Corrected headline: **W1 — joint geometry
+> genuinely helps (+6 bAcc pts, Cho2017-driven); W2 — the apparent "joint harm" is almost entirely the
+> night-1 joint-fit prior used as the night-2 decision prior (P = −14 pts), the geometry @uniform is ~neutral
+> (G not significant), with a small extra prior-M-step geometry degradation (+1.85 pts removing it).**
+> Under P0-2-corrected prevalence stress, the fixed-reference one-shot operator is not prevalence-invariant
+> but strongly attenuated vs the label oracle. W2 per-unit confusion is **excluded (strict)** — the iterative
+> geometry fit is not bit-reproducible across GPUs (see REVIEW_P0_RESULTS §4).
 
 ---
 
