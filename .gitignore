@@ -20,9 +20,10 @@ repos/
 *.pth
 *.ckpt
 
-# CIGL Phase 2-real / Phase 3A generated run artifacts (exploratory, regenerable; keep only the README)
+# CIGL Phase 2-real / Phase 3A / 3A-R generated run artifacts (exploratory, regenerable; keep READMEs)
 results/cigl/phase2_real/*.json
 results/cigl/phase3a_pilot/*.json
+results/cigl/phase3a_baseline_repair/*.json
 
 # python caches
 __pycache__/
