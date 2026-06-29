@@ -137,6 +137,12 @@ def _train_extract_audit(cfg, seed, fold, args, device, n_perm):
     enc_idx, pool_idx, enc_split = stratified_trial_split_by_y_d(
         ys, ds, train_frac=args.enc_train_frac, seed=seed, min_per_cell=args.min_per_cell)
 
+    # Anchor the ENCODER INIT to `seed` BEFORE construction. train_model seeds only AFTER the backbone
+    # exists, so otherwise the init weights are drawn from the ambient global RNG (which differs by loop
+    # position) -> Pass-1 and the Pass-2 confirmation would train DIFFERENT models at the same seed, and
+    # ERM's leakage_reduction_vs_erm would not be exactly 0. Re-seeding here makes every (config,seed)
+    # reproducible and order-independent, and makes the confirmation a faithful same-model re-audit.
+    torch.manual_seed(int(seed)); np.random.seed(int(seed))
     net = GraphCMINet(X.shape[1], X.shape[2], n_cls).to(device)
     net, _post, diag = train_model(net, Xs[enc_idx], ys[enc_idx], ds[enc_idx], n_cls,
                                    method="graphcmi", lam=lg, gamma=ln, lam_edge=le,
@@ -183,8 +189,19 @@ def _mean(xs):
     return float(np.mean(xs)) if xs else None
 
 
-def _aggregate(per_seed_recs, erm_kl):
-    """Per-config means over seeds + leakage reduction vs ERM + clears_null counts."""
+def _per_seed_meta(dataset, fold_tag, commit, cfg_hash):
+    """Provenance + strict-target-label flags stamped on EVERY per-seed record (pass-1 and confirmation)."""
+    return dict(exploratory=True, phase=PHASE, setting="strict_source_only_DG",
+                used_target_labels_for_training=False, used_target_labels_for_selection=False,
+                used_target_covariates=False, target_eval_is_evaluation_only=True,
+                target_labels_used_for="evaluation_only metrics",
+                dataset=dataset, fold=fold_tag, commit_hash=commit, config_hash=cfg_hash)
+
+
+def _aggregate(per_seed_recs, ref_kl, reduction_key):
+    """Per-config means over seeds + leakage reduction vs `ref_kl` (named `{obj}_{reduction_key}`) +
+    clears_null counts. ref_kl is the ERM KL of the SAME pass (pass-1 ERM for pass-1, confirmation ERM
+    for the confirmation pass) so reductions are never compared across permutation-power regimes."""
     objs = ("graph", "node", "edge")
     agg = dict(
         config=per_seed_recs[0]["config"], graphcmi=per_seed_recs[0]["graphcmi"],
@@ -199,8 +216,8 @@ def _aggregate(per_seed_recs, erm_kl):
         kl = _mean([r[o]["kl_mean"] for r in per_seed_recs])
         agg[f"{o}_kl_mean"] = kl
         agg[f"{o}_clears_null_count"] = int(sum(r[o]["clears_null"] for r in per_seed_recs))
-        agg[f"{o}_leakage_reduction_vs_erm"] = (
-            float((erm_kl[o] - kl) / erm_kl[o]) if (erm_kl[o] and erm_kl[o] > 0 and kl is not None) else None)
+        agg[f"{o}_{reduction_key}"] = (
+            float((ref_kl[o] - kl) / ref_kl[o]) if (ref_kl[o] and ref_kl[o] > 0 and kl is not None) else None)
     return agg
 
 
@@ -244,20 +261,20 @@ def main():
         fold = _load_real_fold(args); dataset = args.dataset
     configs = parse_configs()
     OUT_DIR.mkdir(parents=True, exist_ok=True)
+    fold_tag = f"{dataset}_fold{args.fold}"
+    objs = ("graph", "node", "edge")
 
-    # ---- Pass 1: all configs x seeds at n_perm -------------------------------------------------
+    def _save_rec(rec, fname):                          # stamp full meta + write per-seed JSON
+        rec["meta"] = _per_seed_meta(dataset, fold_tag, commit, cfg_hash)
+        json.dump(rec, open(OUT_DIR / fname, "w"), indent=2)
+
+    # ---- Pass 1: all 7 configs x seeds at n_perm ----------------------------------------------
     per_config = {}
     for cfg in configs:
-        label = cfg[0]
-        recs = []
+        label = cfg[0]; recs = []
         for seed in args.seeds:
             rec = _train_extract_audit(cfg, seed, fold, args, args.device, n_perm=args.n_perm)
-            rec["meta"] = dict(exploratory=True, phase=PHASE, setting="strict_source_only_DG",
-                               used_target_labels_for_training=False, used_target_covariates=False,
-                               target_labels_used_for="evaluation_only metrics",
-                               dataset=dataset, fold=f"{dataset}_fold{args.fold}", commit_hash=commit,
-                               config_hash=cfg_hash)
-            json.dump(rec, open(OUT_DIR / f"{label}_seed{seed}.json", "w"), indent=2)
+            _save_rec(rec, f"{fold_tag}_{label}_seed{seed}_nperm{args.n_perm}.json")
             recs.append(rec)
             g, n, e = rec["graph"], rec["node"], rec["edge"]
             print(f"[{label:13s} seed{seed}] src_bAcc={rec['source_probe']['balanced_acc']:.3f} "
@@ -267,51 +284,62 @@ def main():
                   f"edge_kl={e['kl_mean']:.3f}(clr={int(e['clears_null'])})", flush=True)
         per_config[label] = recs
 
-    erm_kl = {o: _mean([r[o]["kl_mean"] for r in per_config["erm"]]) for o in ("graph", "node", "edge")}
-    agg = {lbl: _aggregate(per_config[lbl], erm_kl) for lbl in per_config}
+    erm_kl = {o: _mean([r[o]["kl_mean"] for r in per_config["erm"]]) for o in objs}
+    agg = {lbl: _aggregate(per_config[lbl], erm_kl, "pass1_leakage_reduction_vs_erm") for lbl in per_config}
 
-    # ---- best Pareto config (SOURCE-ONLY selection; never uses target_eval) --------------------
+    # ---- best Pareto config: SOURCE-ONLY selection (never target_eval); full_cigl IS eligible ----
     erm_src = agg["erm"]["source_probe_bacc"] or 0.0
-    cand = [l for l in agg if l not in CONFIRM_LABELS]
+    cand = [l for l in agg if l != "erm"]              # only ERM is excluded; full_cigl can be best
 
     def _score(l):
-        gn = [agg[l][f"{o}_leakage_reduction_vs_erm"] for o in ("graph", "node")]
+        gn = [agg[l][f"{o}_pass1_leakage_reduction_vs_erm"] for o in ("graph", "node")]
         gn = [x for x in gn if x is not None]
         red = float(np.mean(gn)) if gn else 0.0
         drop = max(0.0, erm_src - (agg[l]["source_probe_bacc"] or 0.0))
         return red - 1.0 * drop                       # leakage reduction penalized by source-task drop
     best_pareto = max(cand, key=_score) if cand else None
 
-    # ---- Pass 2: confirmation re-run at n_perm_confirm for ERM/full_cigl/best_pareto -----------
+    # ---- Pass 2: confirmation re-audit at n_perm_confirm for ERM, full_cigl, best_pareto ---------
     confirm_labels = sorted(CONFIRM_LABELS | ({best_pareto} if best_pareto else set()))
-    confirm = {}
+    confirm_recs, confirmation_per_seed = {}, {}
     for label in confirm_labels:
-        cfg = next(c for c in configs if c[0] == label)
-        recs = []
+        cfg = next(c for c in configs if c[0] == label); recs = []
         for seed in args.seeds:
+            # same (config, seed) -> with the pre-construction seed, this is the SAME frozen model as
+            # pass-1, re-audited only at higher permutation power.
             rec = _train_extract_audit(cfg, seed, fold, args, args.device, n_perm=args.n_perm_confirm)
+            _save_rec(rec, f"{fold_tag}_confirm_{label}_seed{seed}_nperm{args.n_perm_confirm}.json")
             recs.append(rec)
-        confirm[label] = _aggregate(recs, erm_kl)
-        for o in ("graph", "node", "edge"):
-            confirm[label][f"{o}_clears_null_count_nperm{args.n_perm_confirm}"] = \
-                int(sum(r[o]["clears_null"] for r in recs))
-        print(f"[confirm {label:13s} n_perm={args.n_perm_confirm}] "
-              f"graph_clr={confirm[label][f'graph_clears_null_count_nperm{args.n_perm_confirm}']}/{len(args.seeds)} "
-              f"node_clr={confirm[label][f'node_clears_null_count_nperm{args.n_perm_confirm}']}/{len(args.seeds)} "
-              f"edge_clr={confirm[label][f'edge_clears_null_count_nperm{args.n_perm_confirm}']}/{len(args.seeds)}", flush=True)
+        confirm_recs[label] = recs
+        confirmation_per_seed[label] = {
+            int(r["seed"]): {o: {k: r[o][k] for k in
+                ("kl_mean", "permutation_mean", "permutation_p", "positive_excess", "clears_null", "gate_alpha")}
+                for o in objs} for r in recs}
+
+    # confirmation reductions use the CONFIRMATION ERM as reference (NOT the pass-1 ERM)
+    confirm_erm_kl = {o: _mean([r[o]["kl_mean"] for r in confirm_recs["erm"]]) for o in objs}
+    confirm = {lbl: _aggregate(confirm_recs[lbl], confirm_erm_kl, "confirm_leakage_reduction_vs_confirm_erm")
+               for lbl in confirm_labels}
+    for label in confirm_labels:
+        c = confirm[label]
+        print(f"[confirm {label:13s} n_perm={args.n_perm_confirm}] clr g/n/e = "
+              f"{c['graph_clears_null_count']}/{c['node_clears_null_count']}/{c['edge_clears_null_count']}"
+              f" of {len(args.seeds)}", flush=True)
 
     summary = dict(
         meta=dict(exploratory=True, phase=PHASE, setting="strict_source_only_DG", dataset=dataset,
-                  fold=f"{dataset}_fold{args.fold}", heldout_subject=fold[6], seeds=list(args.seeds),
+                  fold=fold_tag, heldout_subject=fold[6], seeds=list(args.seeds),
                   n_perm=int(args.n_perm), n_perm_confirm=int(args.n_perm_confirm),
                   gate_alpha=float(args.gate_alpha), epochs=int(args.epochs), probe_epochs=int(args.probe_epochs),
                   commit_hash=commit, config_hash=cfg_hash,
                   used_target_labels_for_training=False, used_target_covariates=False,
-                  used_target_labels_for_selection=False, target_labels_used_for="evaluation_only metrics"),
-        erm_reference_kl=erm_kl, best_pareto_config=best_pareto,
-        per_config=agg, confirmation=confirm)
-    json.dump(summary, open(OUT_DIR / f"{dataset}_fold{args.fold}_phase3a_summary.json", "w"), indent=2)
-    print(f"\n[phase3a] wrote {OUT_DIR / f'{dataset}_fold{args.fold}_phase3a_summary.json'}")
+                  used_target_labels_for_selection=False, target_eval_is_evaluation_only=True,
+                  target_labels_used_for="evaluation_only metrics"),
+        pass1_reference_kl=erm_kl, confirm_reference_kl=confirm_erm_kl,
+        best_pareto_config=best_pareto, per_config=agg, confirmation=confirm,
+        confirmation_per_seed=confirmation_per_seed)
+    json.dump(summary, open(OUT_DIR / f"{fold_tag}_phase3a_summary.json", "w"), indent=2)
+    print(f"\n[phase3a] wrote {OUT_DIR / f'{fold_tag}_phase3a_summary.json'}")
 
     # ---- exploratory Pareto read (no decision) -------------------------------------------------
     print(f"\n=== Phase 3A pilot read (exploratory; reviewer decides A/B/C/D) — best Pareto: {best_pareto} ===")
@@ -321,8 +349,8 @@ def main():
         a = agg[l]
         pr = lambda v: f"{100*v:6.1f}" if v is not None else "   n/a"
         print(f"{l:14s} {a['source_probe_bacc']:8.3f} {a['target_eval_bacc']:8.3f} "
-              f"{pr(a['graph_leakage_reduction_vs_erm'])} {pr(a['node_leakage_reduction_vs_erm'])} "
-              f"{pr(a['edge_leakage_reduction_vs_erm'])} "
+              f"{pr(a['graph_pass1_leakage_reduction_vs_erm'])} {pr(a['node_pass1_leakage_reduction_vs_erm'])} "
+              f"{pr(a['edge_pass1_leakage_reduction_vs_erm'])} "
               f"{a['graph_clears_null_count']}/{a['node_clears_null_count']}/{a['edge_clears_null_count']}")
     print("target_eval is EVALUATION-ONLY (never used for training or config selection).")
     return 0

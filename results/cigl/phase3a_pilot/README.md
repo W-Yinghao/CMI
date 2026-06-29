@@ -13,12 +13,18 @@ The generated `*.json` here are **gitignored** (regenerable run outputs); only t
 
 ```
 results/cigl/phase3a_pilot/
-  README.md                                  # (tracked) this file
-  <config>_seed<S>.json                      # per (config, seed): task metrics + fresh-probe leakage audit + Step-A
-  <dataset>_fold<F>_phase3a_summary.json     # per-config means, leakage_reduction_vs_erm, best_pareto, confirmation
+  README.md                                                       # (tracked) this file
+  <dataset>_fold<F>_<config>_seed<S>_nperm<N>.json                # Pass 1 (all 7 configs, n_perm=20)
+  <dataset>_fold<F>_confirm_<config>_seed<S>_nperm<N>.json        # Pass 2 (erm/full_cigl/best-Pareto, n_perm=50)
+  <dataset>_fold<F>_phase3a_summary.json                          # per-config means + confirmation + per-seed
 ```
 
-`<config>` ∈ {erm, graph_only, node_only, edge_only, graph_node, full_cigl, low_full_cigl}.
+`<config>` ∈ {erm, graph_only, node_only, edge_only, graph_node, full_cigl, low_full_cigl}. **Pass 1** =
+all 7 configs at `n_perm=20`; **Pass 2** = ERM / full_cigl / best-Pareto re-audited at `n_perm=50` (same
+frozen model, higher permutation power) with **per-seed confirmation records retained**. Confirmation
+leakage reductions are computed against the **confirmation ERM** (`confirm_leakage_reduction_vs_confirm_erm`);
+pass-1 reductions are vs the pass-1 ERM (`pass1_leakage_reduction_vs_erm`). best-Pareto is selected from
+**source-only** metrics and **full_cigl is eligible**. Target labels appear **only** in `target_eval`.
 
 ## Per (config, seed) JSON
 

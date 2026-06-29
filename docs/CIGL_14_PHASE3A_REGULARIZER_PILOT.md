@@ -46,18 +46,36 @@ Leakage evidence comes from `audit_graph_objects` — **freshly-trained held-out
 `graph_z / node_z / edge_logits`, with the retrained within-train permutation null
 (`clears_null = kl_mean > permutation_mean AND permutation_p <= gate_alpha`, α=0.05). The trainer's
 Step-A domain heads are reported separately (`stepA_*` critic-quality diagnostics) and are **not** used
-as leakage evidence. `n_perm=20` for all seven configs; then `n_perm=50` confirmation re-audit for
-**ERM, full_cigl, and the best-Pareto config** (the best-Pareto config is chosen from **source-only**
-metrics — leakage reduction penalized by source-task drop — never from `target_eval`).
+as leakage evidence.
+
+**Two passes:**
+
+- **Pass 1** — all **7** configs × seeds at **`n_perm=20`**. Per-seed JSON saved as
+  `<dataset>_fold<fold>_<config>_seed<seed>_nperm20.json`. Reductions named
+  `{obj}_pass1_leakage_reduction_vs_erm` (vs the **pass-1 ERM**).
+- **Pass 2 (confirmation)** — **ERM, full_cigl, and the best-Pareto config** re-audited at
+  **`n_perm=50`**. Because the encoder init is seeded **before** construction, the same `(config,seed)`
+  is the **same frozen model** as pass-1, re-audited only at higher permutation power. **Per-seed
+  confirmation records are retained** (`<dataset>_fold<fold>_confirm_<config>_seed<seed>_nperm50.json`
+  and `summary.confirmation_per_seed[config][seed][obj] = {kl_mean, permutation_mean, permutation_p,
+  positive_excess, clears_null, gate_alpha}`). Confirmation reductions are computed **against the
+  confirmation ERM** (`{obj}_confirm_leakage_reduction_vs_confirm_erm`), never the pass-1 ERM.
+
+**best-Pareto selection** is computed from **source-only** metrics (graph+node leakage reduction
+penalized by source-task drop) — never from `target_eval`. The candidate set excludes **only** ERM, so
+**`full_cigl` is eligible** to be `best_pareto_config`.
 
 ## Metrics (per config, averaged over seeds)
 
 - `source_probe` balanced accuracy & macro-F1 (held-out source probe-pool).
 - `target_eval` balanced accuracy & macro-F1 — **evaluation_only**.
 - graph/node/edge `kl_mean`, `permutation_mean`, `permutation_p`, `positive_excess`, `clears_null`.
-- graph/node/edge `leakage_reduction_vs_erm` and `clears_null` counts.
+- graph/node/edge `{obj}_pass1_leakage_reduction_vs_erm` (pass-1) /
+  `{obj}_confirm_leakage_reduction_vs_confirm_erm` (confirmation) and `clears_null` counts.
 - Step-A graph/node/edge `dom_acc` and losses; `reg_graph/node/edge`.
-- commit_hash, config_hash, seed, fold.
+- Every per-seed record (pass-1 and confirmation) stamps `used_target_labels_for_training=false`,
+  `used_target_labels_for_selection=false`, `used_target_covariates=false`,
+  `target_eval_is_evaluation_only=true`, plus `dataset`, `fold`, `commit_hash`, `config_hash`, `seed`.
 
 ## Pass / fail criteria (reviewer-defined)
 
@@ -68,6 +86,11 @@ PASS if **all** hold:
 3. `target_eval` balanced-accuracy drop **≤5** points (evaluation_only);
 4. audit probes are **freshly trained held-out** probes (not Step-A heads);
 5. `graph_node` **or** `full_cigl` is a Pareto-improving candidate (task vs leakage).
+
+These thresholds are applied **by the reviewer** from the artifacts; the runner reports evidence and a
+proposed next path but makes **no** pass/fail or A/B/C/D decision. Use the **confirmation** (`n_perm=50`)
+clears_null counts and `confirm_leakage_reduction_vs_confirm_erm` for the binding read; pass-1 (`n_perm=20`)
+is the directional screen.
 
 **Edge term:** stays in the main method only if it materially reduces edge KL without task collapse and
 adds value beyond graph/node. ⚠️ Gate-2 found edge **leakage** strong but the edge **map** only weakly
@@ -88,6 +111,7 @@ pytest -q tests/test_graphcmi_backbone.py tests/test_graph_regularizers.py tests
 python scripts/smoke_graphcmi.py --device cpu
 python scripts/smoke_graph_leakage.py --device cpu
 python scripts/run_cigl_phase3a_regularizer_pilot.py --dry_run_synthetic --device cpu \
-    --seeds 0 1 --n_perm 5 --epochs 3 --probe_epochs 5
+    --seeds 0 1 --n_perm 5 --n_perm_confirm 5 --epochs 3 --probe_epochs 5
+# real (GPU/sbatch): sbatch scripts/sbatch_cigl_phase3a_bnci001.sh
 # real (GPU/sbatch): sbatch scripts/sbatch_cigl_phase3a_bnci001.sh
 ```
