@@ -19,8 +19,8 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))  # repo root -> import cmi.*
 from cmi.eval.graph_leakage import (  # noqa: E402
     compute_label_domain_prior, conditional_kl_to_prior, bootstrap_mean_ci,
-    within_label_permutation, fit_conditional_domain_probe, audit_graph_objects,
-    edge_binned_cmi_map, _permutation_null)
+    within_label_permutation, within_label_permutation_on_indices, fit_conditional_domain_probe,
+    audit_graph_objects, edge_binned_cmi_map, _permutation_null, _trial_split)
 
 K, M = 2, 3       # classes, domains
 N = 300
@@ -103,23 +103,65 @@ def test_probe_detects_conditional_leakage():
 
 def test_permutation_null_below_observed_when_leaked():
     f, y, d = _leaked_features()
-    obs = fit_conditional_domain_probe(f, y, d, K, M, epochs=120, seed=0)["kl_mean"]
+    tr, va = _trial_split(len(y), seed=0)
 
     def fit(d_arr):
-        return fit_conditional_domain_probe(f, y, d_arr, K, M, epochs=120, seed=0)
-    null = _permutation_null(fit, y, d, n_perm=8, seed=0)
+        return fit_conditional_domain_probe(f, y, d_arr, K, M, train_idx=tr, val_idx=va, epochs=120, seed=0)
+    obs = fit(d)["kl_mean"]
+    null = _permutation_null(fit, y, d, n_perm=8, seed=0, permute_idx=tr)   # permute train split only
     assert obs > null.mean() + 0.1, f"leaked observed KL {obs:.3f} not above null mean {null.mean():.3f}"
 
 
 def test_no_leakage_matches_null():
     f, y, d = _noise_features()
-    obs = fit_conditional_domain_probe(f, y, d, K, M, epochs=120, seed=0)["kl_mean"]
+    tr, va = _trial_split(len(y), seed=0)
 
     def fit(d_arr):
-        return fit_conditional_domain_probe(f, y, d_arr, K, M, epochs=120, seed=0)
-    null = _permutation_null(fit, y, d, n_perm=8, seed=0)
+        return fit_conditional_domain_probe(f, y, d_arr, K, M, train_idx=tr, val_idx=va, epochs=120, seed=0)
+    obs = fit(d)["kl_mean"]
+    null = _permutation_null(fit, y, d, n_perm=8, seed=0, permute_idx=tr)
     # observed must not substantially exceed the retrained null when there is no real leakage
     assert obs <= null.mean() + 0.10, f"noise observed KL {obs:.3f} >> null mean {null.mean():.3f}"
+
+
+# ----------------------------------------------------------------- null split scope (reviewer hotfix)
+def _imbalanced_split():
+    """Train/val with deliberately DIFFERENT label-domain distributions, so a whole-dataset
+    within-label permutation could move domains across the boundary and change the TRAIN prior,
+    while the index-restricted permutation cannot. Train label 0 & 1 each = 5×d0 + 5×d1; val
+    label 0 = all d0, val label 1 = all d1."""
+    y = np.array([0] * 10 + [1] * 10 + [0] * 10 + [1] * 10)
+    d = np.array(([0] * 5 + [1] * 5) * 2 + [0] * 10 + [1] * 10)
+    train_idx = np.arange(20)
+    val_idx = np.arange(20, 40)
+    return y, d, train_idx, val_idx
+
+
+def test_train_split_permutation_preserves_train_prior():
+    y, d, tr, va = _imbalanced_split()
+    pi_before = compute_label_domain_prior(y[tr], d[tr], K, M)
+    for s in range(5):                                   # exact preservation for every seed
+        d_perm = within_label_permutation_on_indices(y, d, tr, seed=s)
+        pi_after = compute_label_domain_prior(y[tr], d_perm[tr], K, M)
+        assert torch.allclose(pi_before, pi_after, atol=1e-6), "train-split π_y(D) must be preserved"
+    # the helper must actually shuffle the training domains (not a no-op on this mixed split)
+    assert any(not np.array_equal(within_label_permutation_on_indices(y, d, tr, seed=s)[tr], d[tr])
+               for s in range(5))
+    # contrast: a whole-dataset within-label permutation DOES change the train prior here (the bug)
+    assert any(not torch.allclose(
+        pi_before, compute_label_domain_prior(y[tr], within_label_permutation(y, d, seed=s)[tr], K, M), atol=1e-6)
+        for s in range(20)), "global permutation should be able to perturb the train-split prior"
+
+
+def test_train_split_permutation_leaves_validation_domains_unchanged():
+    y, d, tr, va = _imbalanced_split()
+    for s in range(5):
+        d_perm = within_label_permutation_on_indices(y, d, tr, seed=s)
+        assert np.array_equal(d_perm[va], d[va]), "validation domains must be untouched by the null"
+        # within train, each label's domain MULTISET is preserved (permutation, not resampling)
+        for c in np.unique(y[tr]):
+            cells = tr[y[tr] == c]
+            assert np.array_equal(np.sort(d_perm[cells]), np.sort(d[cells]))
 
 
 # ----------------------------------------------------------------- full audit + edge map

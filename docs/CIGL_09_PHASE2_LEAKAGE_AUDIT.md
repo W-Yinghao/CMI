@@ -75,16 +75,24 @@ the encoder leaks heavily.
 
 The only valid null breaks the association the probe can *learn*:
 
-1. Permute `D` **within each label group** of `Y` on the **training** split (`within_label_permutation`).
-   This destroys any `O → D` signal while preserving `π_y(D) = p(D|Y)` exactly (it only relabels
-   which sample holds which domain inside a fixed per-label domain multiset).
+1. Permute `D` **within each label group** of `Y`, **restricted to the probe TRAINING split**
+   (`within_label_permutation_on_indices(y, d, train_idx, seed)`); the held-out (validation) `D` is
+   left **unchanged**. Restricting the shuffle to the training indices preserves the **train-split**
+   `π_y(D) = p(D|Y)` exactly — only the per-sample `O → D` pairing is destroyed. (A whole-dataset
+   within-label permutation would preserve only the *global* `p(D|Y)`; it can move domains across the
+   train/val boundary and so corrupt the train-split prior that the probe uses as its KL reference.
+   The node null permutes at the **trial** level and is then repeated over channels.)
 2. **Refit** the probe on the permuted training data.
-3. Evaluate held-out KL.
+3. Evaluate held-out KL (validation `D` is original throughout).
 4. Repeat `n_perm` times → null distribution. Report `permutation_mean`, `permutation_std`, and the
    `(+1)`-smoothed one-sided p-value `p = (1 + #{null ≥ observed}) / (1 + n_perm)`.
 
 This mirrors the repository's existing `decoder_leakage_probe` null (`cmi/eval/metrics.py`), which
 also retrains under within-class domain permutation.
+
+> **Statistical-strength note.** The synthetic smoke uses a tiny `n_perm` (5) — that is an
+> engineering/directional check only (the smallest attainable p is `1/(n_perm+1) ≈ 0.167`). Real-EEG
+> probing must use `n_perm ≥ 50` (preferably 99); do not cite the smoke's `p` as statistical evidence.
 
 ---
 

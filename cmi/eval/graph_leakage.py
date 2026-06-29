@@ -13,9 +13,11 @@ PERMUTATION null that **retrains the probe** each permutation.
 Why retrain: the estimate E KL(q(D|O,Y) ‖ π_y(D)) does NOT depend on the observed D at evaluation
 time — it is a function of (O, Y) through the probe and of Y through π_y. Shuffling the validation
 domain labels therefore leaves the KL essentially unchanged and yields a FALSE null. The only valid
-null breaks the O→D association the probe can learn, i.e. permute D within each label group on the
-TRAINING split and refit. Within-label permutation also preserves π_y(D)=p(D|Y) exactly, so the
-prior reference is identical under null and observed and only the probe's usable signal changes.
+null breaks the O→D association the probe can learn, i.e. permute D within each label group ON THE
+PROBE TRAINING SPLIT and refit, leaving the held-out (validation) D untouched. Restricting the
+permutation to the training indices preserves the TRAINING-split π_y(D)=p(D|Y) exactly (only the
+per-sample O→D pairing is destroyed), so the prior reference is identical under null and observed
+and only the probe's usable signal changes.
 
 This module is diagnostic-only. The per-edge map is a non-neural binned plug-in CMI for
 interpretation; it is NOT a training regularizer (CIGL trains a compact edge SUMMARY head, never
@@ -91,10 +93,12 @@ def bootstrap_mean_ci(values, n_boot=200, alpha=0.05, seed=0):
 
 
 def within_label_permutation(y, d, seed):
-    """Permute domain labels D **within each label group** of Y (the Phase-2 null generator).
+    """Permute domain labels D **within each label group** of Y over the WHOLE dataset.
 
-    Breaks any O→D association a probe could learn while leaving π_y(D)=p(D|Y) exactly unchanged
-    (it only relabels which sample holds which domain inside a fixed per-label domain multiset).
+    A general utility that preserves the GLOBAL π_y(D)=p(D|Y). NOTE: for the Phase-2 permutation
+    null use `within_label_permutation_on_indices` restricted to the probe training split instead —
+    a whole-dataset permutation can move domains across the train/val boundary and so does NOT
+    preserve the TRAIN-split π_y(D) that the probe uses as its KL reference.
     """
     y = _np(y).astype(np.int64)
     d = _np(d).astype(np.int64)
@@ -102,6 +106,29 @@ def within_label_permutation(y, d, seed):
     out = d.copy()
     for c in np.unique(y):
         idx = np.where(y == c)[0]
+        if idx.size > 1:
+            out[idx] = d[idx][rng.permutation(idx.size)]
+    return out
+
+
+def within_label_permutation_on_indices(y, d, indices, seed):
+    """Phase-2 null generator: permute D within each label group, RESTRICTED to `indices`.
+
+    Only the samples in `indices` (the probe TRAINING rows/trials) have their domains shuffled;
+    every sample outside `indices` keeps its original D. Because the shuffle is a within-label
+    permutation of the training subset, it preserves the TRAINING-split per-label domain multiset
+    — hence π_y(D)=p(D|Y) estimated from the training split is exactly preserved — while destroying
+    the per-sample O→D pairing the probe could otherwise learn. The held-out (validation) domains
+    are left untouched (the leakage KL at eval does not depend on observed D, so the null must not
+    alter the held-out split).
+    """
+    y = _np(y).astype(np.int64)
+    d = _np(d).astype(np.int64)
+    idx_all = np.asarray(indices, dtype=np.int64)
+    rng = np.random.default_rng(seed)
+    out = d.copy()
+    for c in np.unique(y[idx_all]):
+        idx = idx_all[y[idx_all] == c]
         if idx.size > 1:
             out[idx] = d[idx][rng.permutation(idx.size)]
     return out
@@ -172,11 +199,12 @@ def fit_conditional_domain_probe(features, y, d, n_classes, n_domains, *,
                 n_train=int(tr.numel()), n_val=int(va.numel()))
 
 
-def _permutation_null(fit_fn, y, d, n_perm, seed):
-    """Retrain `fit_fn(d_perm)` for n_perm within-label domain permutations; return the null KL array."""
+def _permutation_null(fit_fn, y, d, n_perm, seed, permute_idx):
+    """Retrain `fit_fn(d_perm)` for n_perm nulls; D is permuted within-label ONLY over `permute_idx`
+    (the probe training split), leaving validation D unchanged. Returns the null KL array."""
     nulls = []
     for k in range(int(n_perm)):
-        d_perm = within_label_permutation(y, d, seed=seed + 1 + k)
+        d_perm = within_label_permutation_on_indices(y, d, permute_idx, seed=seed + 1 + k)
         nulls.append(float(fit_fn(d_perm)["kl_mean"]))
     return np.asarray(nulls, dtype=np.float64)
 
@@ -218,7 +246,9 @@ def audit_graph_objects(graph_z, node_z, edge_logits, y, d, n_classes, n_domains
                                             train_idx=tr_trials, val_idx=va_trials,
                                             hidden_dim=hidden_dim, epochs=epochs, seed=seed, device=device)
     g = fit_graph(d_np)
-    g.update(_perm_summary(g["kl_mean"], _permutation_null(fit_graph, y_np, d_np, n_perm, seed)))
+    # null permutes D within-label ONLY over the training trials (preserves train-split π_y)
+    g.update(_perm_summary(g["kl_mean"],
+                           _permutation_null(fit_graph, y_np, d_np, n_perm, seed, permute_idx=tr_trials)))
     g["kl_ci"] = bootstrap_mean_ci(g.pop("val_kl"), seed=seed)
     g.pop("val_idx", None)
 
@@ -248,7 +278,9 @@ def audit_graph_objects(graph_z, node_z, edge_logits, y, d, n_classes, n_domains
     for c in range(C):
         m = val_chan == c
         node_map[c] = float(val_kl[m].mean()) if m.any() else 0.0
-    nres.update(_perm_summary(nres["kl_mean"], _permutation_null(fit_node, y_np, d_np, n_perm, seed)))
+    # permute over TRAIN TRIALS (not rows): fit_node receives a trial-level d_arr and repeats it
+    nres.update(_perm_summary(nres["kl_mean"],
+                              _permutation_null(fit_node, y_np, d_np, n_perm, seed, permute_idx=tr_trials)))
     nres["kl_ci"] = bootstrap_mean_ci(nres.pop("val_kl"), seed=seed)
     nres.pop("val_idx", None)
     nres["node_leakage_map"] = node_map.tolist()
@@ -262,7 +294,8 @@ def audit_graph_objects(graph_z, node_z, edge_logits, y, d, n_classes, n_domains
                                             train_idx=tr_trials, val_idx=va_trials,
                                             hidden_dim=hidden_dim, epochs=epochs, seed=seed, device=device)
     e = fit_edge(d_np)
-    e.update(_perm_summary(e["kl_mean"], _permutation_null(fit_edge, y_np, d_np, n_perm, seed)))
+    e.update(_perm_summary(e["kl_mean"],
+                           _permutation_null(fit_edge, y_np, d_np, n_perm, seed, permute_idx=tr_trials)))
     e["kl_ci"] = bootstrap_mean_ci(e.pop("val_kl"), seed=seed)
     e.pop("val_idx", None)
     e["edge_leakage_map"] = edge_binned_cmi_map(edge_logits, y_np, d_np, n_classes, n_domains,
