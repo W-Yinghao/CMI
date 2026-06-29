@@ -39,7 +39,12 @@ outputs are exploratory frontiers and candidate diagnostics that decide whether 
 - **Features.** Bit-for-bit v2 `acar.features.feature_vector` (11-D paired+context) is the shared label-free observable
   for harm/benefit scores; v4 may add *derived* score heads on top but does not change the captured features.
 - **Metrics.** Subject-macro (subject-equal-weighted) red / coverage / harm-rate / center-AUROC; fallback identity
-  batches in all denominators; reduction `red(π) = −mean_B ΔR_{π(B)}(B)`.
+  batches in all denominators; reduction `red(π) = −mean_B ΔR_{π(B)}(B)`. **Contract (enforced in `frontiers.py` /
+  `policies.py`):** every accounting/frontier primitive takes `weights=None`; weights=None is the batch-level primitive
+  (NOT a DEV conclusion), and the DEV path passes `subject_macro_weights(subject_ids)` = `1/(n_subjects·n_batches_of_s)`
+  so coverage/red/harm are subject-equal weighted means with fallback rows kept in the weighted denominator. All
+  primitives are **fail-closed**: non-finite values, empty / zero-action arrays, out-of-range `choice`/`action_idx`, and
+  non-finite / non-positive-sum weights raise — nothing is silently coerced.
 - **C0 / v2 replay comparator.** The v2 recipe (ActionRegressor HGB≥40 / Ridge≥8 / constant, seed 0) reproduced as the
   baseline reference point, exactly as in v3.
 
@@ -79,18 +84,26 @@ diagnostic. The question is whether B1/B2 move the calibrated point materially u
 `acar/v4/frontiers.py`, all on subject-disjoint OOF cells:
 
 ```
-F_true_oracle  (coverage → red, + harm)   true ΔR for batch & action selection
-F_score_oracle (coverage → red, + harm)   label-free scores for selection, best hindsight operating point
-F_policy_family(coverage → red, + harm)   v4-A/B π_λ family on OOF
-F_calibrated   discrete points            calibrated frozen policies; v2 router + v3 C1/C2/C3 as references
+F_true_oracle         (coverage → red, + harm)   true ΔR for batch & action selection (global-max ceiling)
+F_single_score_oracle (coverage → red, + harm)   ONE label-free score ranking + action, best hindsight coverage
+F_score_oracle (union)(coverage → red, + harm)   UPPER ENVELOPE over a pre-listed set of single-score frontiers =
+                                                 the information ceiling of those observables (one score ≠ ceiling)
+F_policy_family       (coverage → red, + harm)   v4-A/B π_λ family operating points on OOF (+ Pareto upper envelope)
+F_calibrated          discrete points            calibrated frozen policies; v2 router + v3 C1/C2/C3 as references
 ```
 
-Plus the **gap decomposition** per disease:
+Plus the **gap decomposition** per disease, with TWO parallel (never-mixed) outputs:
 
 ```
-info_gap        = area/ceiling(F_true_oracle)  − area/ceiling(F_score_oracle)
-policy_gap      = area/ceiling(F_score_oracle) − area/ceiling(F_policy_family)
-calibration_gap = area/ceiling(F_policy_family) − value(F_calibrated)
+mode="ceiling"  (MAIN diagnostic — exact telescoping; answers "can any operating point work?")
+  info_gap        = ceiling(F_true_oracle)  − ceiling(F_score_oracle_union)      (guaranteed ≥ 0)
+  policy_gap      = ceiling(F_score_union)   − ceiling(F_policy_family)            (signed)
+  calibration_gap = ceiling(F_policy_family) − red(F_calibrated)                   (signed)
+  info_gap + policy_gap + calibration_gap = ceiling(F_true_oracle) − red(F_calibrated)   [exact]
+
+mode="auc"      (DESCRIPTIVE only — NOT pass/fail; never replaces the ceiling diagnostic)
+  area-under-frontier (over coverage, on the Pareto envelope) for true / score-union / policy, and the auc info/policy
+  gaps. The calibrated point has no area, so calibration stays the ceiling reference.
 ```
 
 **Implement Direction C first** — the frontier audit most quickly answers whether v3's failure was information-,

@@ -191,8 +191,10 @@ subject-disjoint OOF cells (no calibration leakage), axes: x = adaptation covera
 ```
 F_true_oracle  : choose batches & actions by TRUE ΔR (best action per batch, adapt the most-reducing batches up to
                  coverage c). Upper bound of what batch-level action selection can ever achieve.
-F_score_oracle : choose batches & actions by the label-free SCORES, but at the best hindsight operating point
-                 (the coverage level is the x-axis; evaluate with true ΔR). Information ceiling of the observables.
+F_score_oracle : the UPPER ENVELOPE over a pre-listed set of single-score frontiers — each single-score frontier
+                 chooses batches & actions by ONE label-free score (coverage level on the x-axis; evaluate with true
+                 ΔR). The envelope is the information ceiling of the listed observables; a single score is only one
+                 rule, not the ceiling (code: frontier_single_score_oracle vs frontier_score_oracle_union).
 F_policy_family: the v4-A/B candidate policy family π_λ on OOF (fitted predictors, no oracle thresholds).
                  Includes policy-learning error.
 F_calibrated   : the actually-calibrated frozen policy points (after CAL risk control). v2 router and v3 C1/C2/C3
@@ -209,7 +211,11 @@ F_policy_family high, F_calibrated low   ⇒ CALIBRATION gap    (calibration str
 
 This refines the project's "measurement→control gap" into three named, *separately attributable* gaps — a stronger and
 more honest story than v2/v3's single "risk-regression + conformal q" account, regardless of whether any v4 policy
-passes.
+passes. The decomposition has two parallel outputs: the **ceiling** gaps (main diagnostic, exact telescoping identity
+`info+policy+calibration = ceiling(true) − red(calibrated)`; `info_gap ≥ 0` guaranteed) and the **AUC** gaps
+(descriptive area-over-coverage summary on the Pareto envelope, never used for pass/fail). All frontier and accounting
+primitives are subject-macro weighted (pass `subject_macro_weights(subject_ids)`; fallback rows stay in the weighted
+denominator) and fail-closed (non-finite / out-of-range / bad-weight inputs raise).
 
 ---
 
