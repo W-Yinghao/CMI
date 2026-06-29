@@ -154,6 +154,33 @@ def _validate_method(tag: dict, cfg: ProtocolConfig):
         raise SystemExit(f"FROZEN-MANIFEST MISMATCH: running {h[:12]} != tag {tag['expected_manifest_hash'][:12]}")
 
 
+def _code_ref_ok(head: str, expected_commit: str, dirty: bool):
+    """PURE fail-closed check of the running code identity (unit-testable). Raises SystemExit unless
+    HEAD is exactly the frozen tag's commit AND the tree is clean."""
+    if not expected_commit:
+        raise SystemExit("FROZEN-CODE: expected_code_ref did not resolve to a commit")
+    if head != expected_commit:
+        raise SystemExit(f"FROZEN-CODE MISMATCH: HEAD {head[:12]} != frozen tag {expected_commit[:12]}")
+    if dirty:
+        raise SystemExit("FROZEN-CODE: working tree is DIRTY")
+    return True
+
+
+def frozen_code_provenance(tag: dict) -> dict:
+    """Gather the running Git identity and FAIL CLOSED unless HEAD == the frozen tag's commit and the
+    tree is clean (CSC pre-run provenance guard). Returns the provenance dict for the result payload."""
+    import subprocess
+    ref = tag["expected_code_ref"]
+    head = subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip()
+    try:
+        expected = subprocess.check_output(["git", "rev-parse", f"{ref}^{{commit}}"], text=True).strip()
+    except Exception:
+        raise SystemExit(f"FROZEN-CODE: tag {ref} not found (create + push the annotated tag first)")
+    dirty = subprocess.run(["git", "diff", "--quiet", "HEAD"]).returncode != 0
+    _code_ref_ok(head, expected, dirty)
+    return dict(git_head=head, expected_code_ref=ref, expected_code_commit=expected, git_status_clean=True)
+
+
 def _describe(tag: dict, cfg: ProtocolConfig):
     print("=== CSC confirmatory — FROZEN PLAN (dry run; nothing executed) ===")
     print(f"status     : {tag['status']}")
@@ -162,6 +189,8 @@ def _describe(tag: dict, cfg: ProtocolConfig):
           f"max_forbidden={tag['max_forbidden_failures']} power_bar={tag['power_bar']}")
     print(f"manifest   : running {cfg.hash()[:12]} vs tag {tag['expected_manifest_hash'][:12]} "
           f"({'MATCH' if cfg.hash() == tag['expected_manifest_hash'] else 'MISMATCH'})")
+    print(f"frozen code: --execute requires HEAD == {tag.get('expected_code_ref')} (commit) AND a clean "
+          f"tree, else fail-closed")
     print(f"core (headline): {[p['name'] for p in tag['core_points']]}")
     print(f"secondary      : {[p['name'] for p in tag['secondary_descriptive_points']]} (NOT in PASS/FAIL)")
     ss = seed_streams(tag)
@@ -198,6 +227,7 @@ def main():
     _validate_method(tag, cfg)
     if tag["base_seed"] != 900_000:          # the pre-registered UNSEEN value; fail closed otherwise
         raise SystemExit(f"base_seed {tag['base_seed']} is not the pre-registered unseen value 900000")
+    code_prov = frozen_code_provenance(tag)  # HEAD == frozen tag commit AND clean tree, else SystemExit
     points = [(p["name"], _point_from(p)) for p in tag["core_points"]]              # K headline points
     results = {}
     for name, point in points:
@@ -213,6 +243,7 @@ def main():
         headline_core_pass=core_pass, claim_type=tag["claim_type"],
         per_point=results, base_seed=tag["base_seed"], n_jobs=args.jobs,
         seed_derivation=seed_streams(tag),     # explicit source/target seed streams (provenance)
+        code_provenance=code_prov,             # git_head == frozen tag commit, clean tree (verified)
         hostname=os.environ.get("SLURMD_NODENAME") or socket.gethostname(),
         slurm_job_id=os.environ.get("SLURM_JOB_ID"),
         time=datetime.datetime.now().isoformat(timespec="seconds"),

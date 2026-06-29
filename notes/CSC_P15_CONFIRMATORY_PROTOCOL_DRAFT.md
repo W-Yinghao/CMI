@@ -57,8 +57,14 @@ This protocol replaces that with an unseen, adequately-powered, pre-registered t
 
 At tag time, lock and record (no change after the tag):
 
-- **exact code commit** (a tagged descendant of `b4d1f1e`; the confirmatory uses the same audited
-  `execute_protocol` path, the parallel harness, and `verify_canary_ref` gating).
+- **exact code commit, bound to an annotated git TAG** `refs/tags/csc-confirmatory-v1` (recorded in
+  the tag as `expected_code_ref`). The confirmatory uses the same audited `execute_protocol` path, the
+  parallel harness, and `verify_canary_ref` gating. **Frozen-code provenance guard (pre-run hotfix):**
+  `run_confirmatory.py --execute` and the SLURM wrapper BOTH fail closed unless `HEAD ==
+  git rev-parse csc-confirmatory-v1^{commit}` AND the working tree is clean — so the run cannot execute
+  from the wrong branch/worktree (the branch tip carries the later audit-artifact commit, so the run is
+  launched from a DETACHED worktree AT THE TAG). The result payload records `git_head /
+  expected_code_ref / expected_code_commit / git_status_clean`.
 - **protocol manifest hash** `da2c0f4309847a4e790843b9ece68010a90c33bdb9404097aee72dcbefbb2632`
   (or its successor, recorded verbatim) — this fixes **all** thresholds: `tau_margin`,
   `cov_loading_margin_kappa`, `consensus`, `alpha`, `tau_*` calibration rule, `n_boot`, `n_dir_boot`,

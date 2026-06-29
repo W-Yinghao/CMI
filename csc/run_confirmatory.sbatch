@@ -9,17 +9,31 @@
 # exits with the SCIENTIFIC return code. If NO JSON artifact is produced it exits with an
 # INFRASTRUCTURE code (2) so a crash is never confused with a scientific FAIL.
 #
-# The run MUST execute on the FROZEN tagged commit. The main repo dir may be on another branch, so
-# submit from the frozen checkout, e.g.:
-#   sbatch --chdir=/home/infres/yinwang/CMI_AAAI_csc /home/infres/yinwang/CMI_AAAI_csc/csc/run_confirmatory.sbatch
+# The run MUST execute on the FROZEN tagged commit (refs/tags/csc-confirmatory-v1). Before the
+# authorized run, create a DETACHED worktree AT THE TAG and submit from there:
+#   git worktree add --detach /home/infres/yinwang/CMI_AAAI_csc_frozen csc-confirmatory-v1
+#   sbatch --chdir=/home/infres/yinwang/CMI_AAAI_csc_frozen \
+#          /home/infres/yinwang/CMI_AAAI_csc_frozen/csc/run_confirmatory.sbatch
+# --chdir defaults to the frozen worktree (NOT the main repo dir, which may be on another branch); the
+# in-script git guard below fail-closes (exit 2) unless HEAD == the frozen tag AND the tree is clean,
+# so a wrong cwd/branch consumes NO unseen seeds.
 #SBATCH --job-name=csc_confirm
 #SBATCH --partition=CPU
-#SBATCH --chdir=/home/infres/yinwang/CMI_AAAI
+#SBATCH --chdir=/home/infres/yinwang/CMI_AAAI_csc_frozen
 #SBATCH --output=logs/csc_confirm_%j.out
 #SBATCH --cpus-per-task=64
 #SBATCH --mem=64G
 set -u
+FROZEN_TAG="csc-confirmatory-v1"
+WORKDIR="${CSC_FROZEN_DIR:-/home/infres/yinwang/CMI_AAAI_csc_frozen}"
 OUT="${1:-csc/results/confirmatory.json}"
+cd "$WORKDIR" || { echo "INFRA: cannot cd to frozen worktree $WORKDIR"; exit 2; }
+# --- frozen-code git guard (BEFORE any compute; fail-closed exit 2 = infrastructure, no seeds spent) ---
+HEAD=$(git rev-parse HEAD 2>/dev/null) || { echo "INFRA: not a git checkout"; exit 2; }
+EXPECT=$(git rev-parse "${FROZEN_TAG}^{commit}" 2>/dev/null) || { echo "INFRA: tag $FROZEN_TAG not found"; exit 2; }
+echo "git_head=$HEAD frozen_tag=$FROZEN_TAG expected=$EXPECT workdir=$WORKDIR"
+[ "$HEAD" = "$EXPECT" ] || { echo "INFRA: HEAD($HEAD) != frozen tag $FROZEN_TAG ($EXPECT)"; exit 2; }
+git diff --quiet HEAD -- || { echo "INFRA: working tree is DIRTY"; exit 2; }
 export OMP_NUM_THREADS=1
 export MKL_NUM_THREADS=1
 export OPENBLAS_NUM_THREADS=1

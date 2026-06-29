@@ -108,6 +108,26 @@ def test_unconditional_power_guard():
     print("OK unconditional guard: 37/60 valid passes conditional but FAILS (uncond needs 41/66); not hidden")
 
 
+# 4a2 ---- frozen-code guard fails closed unless HEAD == frozen tag commit AND tree is clean --------
+def test_frozen_code_ref_guard():
+    from csc.run_confirmatory import _code_ref_ok
+    H = "a" * 40
+    # exact match + clean -> ok
+    assert _code_ref_ok(H, H, dirty=False) is True
+    # mismatch, missing expected, or dirty -> fail closed
+    for head, exp, dirty in [(H, "b" * 40, False),   # HEAD != frozen tag
+                             (H, "", False),          # tag did not resolve
+                             (H, H, True)]:            # dirty tree
+        try:
+            _code_ref_ok(head, exp, dirty)
+            raise AssertionError(f"guard should fail closed for {(head[:4], exp[:4], dirty)}")
+        except SystemExit:
+            pass
+    # the tag declares the expected_code_ref
+    assert load_tag()["expected_code_ref"] == "refs/tags/csc-confirmatory-v1"
+    print("OK frozen-code guard: HEAD==tag & clean -> ok; mismatch/unresolved/dirty -> fail closed")
+
+
 # 4b ---- seed derivation is recorded explicitly (source vs target streams, disjoint) --------------
 def test_seed_streams_recorded():
     from csc.run_confirmatory import seed_streams
@@ -143,6 +163,7 @@ if __name__ == "__main__":
     test_power_min_fired_is_realized_N()
     test_tag_matches_frozen_method_and_bound_choices()
     test_evaluate_point_gating()
+    test_frozen_code_ref_guard()
     test_unconditional_power_guard()
     test_seed_streams_recorded()
     test_dev_smoke_not_unseen()

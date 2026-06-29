@@ -17,6 +17,7 @@
   "max_forbidden_failures": 0,
   "power_bar": 0.50,
   "expected_manifest_hash": "da2c0f4309847a4e790843b9ece68010a90c33bdb9404097aee72dcbefbb2632",
+  "expected_code_ref": "refs/tags/csc-confirmatory-v1",
   "audit_baseline_commit": "4ea423d",
   "dev_artifact_commit": "3e5bcf5",
   "notes": "P_baseline envelope_overrides={} == EnvelopePoint() defaults (effect 14, subj/dom 22, target_subj 30, prior_alpha 4.0, corr 0.2, leakage 10, concept_domains 3, epochs_max 22, mechanism_family 0). POWER PASS RULE: n_fired >= max(min_fired over N_valid, min_fired over G), where min_fired(n) = smallest k with CP_lower(k,n) >= power_bar (computed from the REALIZED counts, never hard-coded). The unconditional component (over G) guarantees the source-invalid exclusion cannot inflate the headline; for G=66 the effective threshold is 41 fired. SEED DERIVATION: source seeds = base_seed + k (900000..900065); target seed = target_seed_base(900000) + source_seed (1800000..1800065); disjoint streams. P_strong is secondary descriptive only and is NOT part of the PASS/FAIL."
