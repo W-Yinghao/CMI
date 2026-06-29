@@ -1,5 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=cigl-gate2-bnci001
+#SBATCH --partition=A100,V100,V100-32GB,A40
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G
@@ -10,10 +11,11 @@
 # CIGL BINDING Gate-2 evidence — source-only GraphCMINet-ERM leakage probe on BNCI2014_001.
 # Exploratory DIAGNOSTIC: NO regularizer training, NO lambda sweep, NO SOTA, NO target data.
 #
-# PARTITION + QOS ARE INTENTIONALLY NOT HARD-CODED. Supply them at submit time (confirm with the PI):
-#     sbatch -p <partition> --qos=<qos> scripts/sbatch_cigl_gate2_bnci001.sh
-# Candidate GPU partitions on this cluster (per project): V100 / V100-32GB / A100 (and H100/L40S/A40
-# for longer walltime). Do NOT guess the final partition/QOS — the PI confirms.
+# Submission convention (per PI): list the eligible GPU partitions and let SLURM schedule on whichever
+# is free first — A100,V100,V100-32GB,A40. Just submit (default QOS, no --qos):
+#     sbatch scripts/sbatch_cigl_gate2_bnci001.sh
+# (You may still override on the command line, e.g. `sbatch -p A100 ...`, but the default list above is
+# preferred so the job starts on the least-contended queue.)
 #
 # This script must run from the CIGL worktree checked out on project/cigl-gate2-bnci001-evidence.
 set -euo pipefail
