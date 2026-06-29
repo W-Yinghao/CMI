@@ -1,7 +1,7 @@
 {
-  "status": "CSC-P1.4.4 DEVELOPMENT \u2014 frozen-path audit; NO P1.5 PRODUCTION SWEEP, NO FREEZE, NO CONFIRMATORY, NO P2. Inference procedure CHANGED vs P1.4.3 -> these are NEW-METHOD development numbers, NOT poolable with prior rounds for confidence intervals.",
-  "audited_code_commit": "695023c3535af6a6b10dd972ee5ec986c106ab3e",
-  "audited_code_commit_short": "695023c",
+  "status": "CSC-P1.4.5 DEVELOPMENT \u2014 frozen-path audit; NO P1.5 PRODUCTION SWEEP, NO FREEZE, NO CONFIRMATORY, NO P2. Inference procedure CHANGED vs P1.4.4 -> these are NEW-METHOD development numbers, NOT poolable with prior rounds for confidence intervals.",
+  "audited_code_commit": "da428edb9976816d086eaa8cf1ac6e983506bcd9",
+  "audited_code_commit_short": "da428ed",
   "branch": "csc",
   "git_status_clean_csc": true,
   "protocol_manifest": {
@@ -85,10 +85,10 @@
   },
   "environment_hash": "0adfb7b2ad0ec46c",
   "exact_command": "/home/infres/yinwang/CMI_AAAI/csc/run_audit.py --out csc/results/audit.json --seeds 10 --n_boot 40 --n_dir_boot 120 --target_n_boot 120 --oracle_boot 150 --bank_seeds 4",
-  "slurm_job_id": "862050",
-  "hostname": "nodecpu05",
-  "start_time": "2026-06-24T07:41:01",
-  "end_time": "2026-06-24T08:50:06",
+  "slurm_job_id": "866830",
+  "hostname": "nodecpu03",
+  "start_time": "2026-06-29T03:33:40",
+  "end_time": "2026-06-29T04:08:47",
   "seed_provenance": "DEVELOPMENT (used during iteration; NOT confirmatory). A frozen confirmatory run requires a separate, previously-unseen seed set.",
   "tests": {
     "test_design_and_pairs": {
@@ -458,7 +458,7 @@
       }
     ]
   },
-  "p144_contract_diagnostics": {
+  "contract_diagnostics": {
     "per_source": [
       {
         "seed": 0,
