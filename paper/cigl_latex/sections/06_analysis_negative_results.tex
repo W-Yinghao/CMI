@@ -27,11 +27,11 @@ decision flow that fixed the scope.
 \begin{figure}[t]
   \centering
   \fbox{\parbox{0.92\linewidth}{\centering\small\textbf{[F4 --- schematic, DRAFT]}\\[2pt]
-  3A-R: original graph backbone \emph{fails} (near-chance, source-only) $\to$ 3A-S: known-good decoders
-  \emph{pass} (protocol learnable; backbone was the bottleneck) $\to$ 3A-G: static-adjacency DGCNN
-  \emph{learns the task} while dynamic-edge designs \emph{overfit} (consistent with a fingerprint channel,
-  not a causal isolation) $\to$ 3A-H: graph/node audit \emph{clears the null} $\to$ 3A-I/J/K: fixed
-  regularizer gives \emph{partial reduction at retention} on two datasets. \\[2pt]
+  original graph backbone \emph{fails} (near-chance, source-only) $\to$ known-good decoders \emph{pass}
+  (protocol learnable; the backbone was the bottleneck) $\to$ static-adjacency DGCNN \emph{learns the task}
+  while dynamic-edge designs \emph{overfit} (consistent with a fingerprint channel, not a causal isolation)
+  $\to$ graph/node audit \emph{clears the null} $\to$ fixed regularizer gives \emph{partial reduction at
+  retention} on two datasets. \\[2pt]
   \textit{Draft vector asset: \texttt{figures/fig4\_decision\_flow\_draft.svg}.}}}
   \caption{How the negative results scoped the method (qualitative gate decisions; quantitative results in
   Tables~2--5). The bounded scope is a result of these checks. Schematic draft.}
