@@ -11,25 +11,35 @@
 > + this audited negative result** (NOT a positive detector). See `notes/CSC_CONFIRMATORY_RESULT.md`
 > and `notes/CSC_MANUSCRIPT_RESULT_MEMO.md`. NO method-revision round opened; NO P2.
 
-Status: **DRAFT v1 (CSC-P0 + CSC-P1 implemented on the simulator; real-data run NOT frozen).**
+Status: **DRAFT v1 (CSC-P0 + CSC-P1 implemented on the simulator; frozen SYNTHETIC confirmatory run
+COMPLETE = FAIL, see banner above).**
 Follows the project freeze-before-run discipline (`notes/FREEZE_PROTOCOL.md`,
-`notes/A0_FALSIFICATION_FROZEN.md`). §3 numbers are *synthetic* validation that the method
-and its self-tests behave as specified; they are **not** the result. The result is the
-real-data run (§2), to be frozen (thresholds, splits, seeds, equivalence bands) before
-execution — and only AFTER the CSC-P1 calibration is locked.
+`notes/A0_FALSIFICATION_FROZEN.md`). §3 numbers are *synthetic* validation that the method and its
+self-tests behave as specified; they are **not** the result.
+**Historical note:** this preregistration originally targeted a later real-data freeze as "the
+result." After the frozen synthetic confirmatory test FAILED, the current manuscript result is the
+**identifiability/abstention boundary + the audited negative confirmatory outcome** (Direction A). Real
+EEG (§2) is **not** part of the validated result and is **deferred to future work** — it was never
+authorized and no real-data run was frozen.
 
 ---
 
 ## 1. Hypothesis and output
 
 A three-state certificate over an unlabeled target batch:
-`COVARIATE_COMPATIBLE` / `CONCEPT_SUSPECT` / `UNIDENTIFIABLE`. Claim:
+`COVARIATE_COMPATIBLE` / `CONCEPT_SUSPECT` / `UNIDENTIFIABLE`.
 
-> Reading only unlabeled target `Z` (no target labels, no source examples), the certificate
-> (a) controls FALSE certification of an unidentifiable shift (pure conditional, pure label, or
-> out-of-atlas) at level `alpha` — by abstaining (THEORY §1 proves a Z-only certifier MUST be
-> able to abstain); and (b) has **stable, direction-linked power** to flag a real, marginally-
+**Original intended endpoints (NOT achieved — the frozen confirmatory run failed BOTH; see banner):**
+
+> Reading only unlabeled target `Z` (no target labels, no source examples), the certificate was
+> intended to (a) control FALSE certification of an unidentifiable shift (pure conditional, pure
+> label, or out-of-atlas) at level `alpha` — by abstaining (THEORY §1 proves a Z-only certifier MUST
+> be able to abstain); and (b) have **stable, direction-linked power** to flag a real, marginally-
 > visible concept change.
+
+**Frozen confirmatory outcome:** neither endpoint was met on unseen clusters — false-cert control
+(forbidden 1/65, CP-UB 0.0709 > α) and power (28/65, CP-LB 0.326 < 0.50) both FAILED. The
+abstention-boundary theory (THEORY §1) stands; the positive operating core does not.
 
 What is STRUCTURAL vs STATISTICAL (CSC-P1.4.2/P1.4.3 #7): byte-identical targets always get the
 SAME output (exact-pair indistinguishability) is structural; controlling clean/pure/label false
@@ -259,11 +269,13 @@ clusters**.
 * **Concept-FIRST geometry** (THEORY §4): concept estimated from the class-conditional residual
   `R` first, `cov = a_d ⊥ concept`. Fixes the visible-concept (asymmetric `s_y`) leak that a
   cov-first order absorbed into `cov_dirs`, emptying `concept_dirs`.
-* **Concept gate = geometric max-stat AND decoder, with type-I controlled by the geometric gate**
-  (THEORY §3.3/§4): `concept_evidenced = (p_global ≤ α) AND decoder-T significant`. Empirically the
-  geometric `p_global` has correct type-I on a covariate-only source (~0.8, never fires) while a
-  decoder-ONLY gate over-fires ~50% (the subject random effect is confounded with the subject's
-  single label → finite-sample class-conditional noise). A magnitude-only direction gate
+* **Concept gate = geometric max-stat AND decoder, the geometric gate being the type-I-protective
+  component** (THEORY §3.3/§4): `concept_evidenced = (p_global ≤ α) AND decoder-T significant`.
+  Empirically the geometric `p_global` was h0-bootstrap-calibrated and type-I-protective in the
+  development nulls on a covariate-only source (~0.8, rarely fires) while a decoder-ONLY gate over-fires
+  ~50% (the subject random effect is confounded with the subject's single label → finite-sample
+  class-conditional noise). NB finite-sample false-cert control is the frozen confirmatory endpoint,
+  which was NOT met (1/65 forbidden, CP-UB 0.0709 > α). A magnitude-only direction gate
   (`concept_top ≥ κ·cov_noise_scale`) was tried and REJECTED (uncalibrated — passes on pure noise);
   it is a diagnostic only. Honest subject-level power is LOW (cluster-consistent null is
   conservative) — an envelope quantity, not a flaw.

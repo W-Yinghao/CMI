@@ -88,9 +88,9 @@ def fig1():
     _box(ax, 6.9, 3.3, 2.8, 1.4, "PURE CONDITIONAL\nshift\nP(Y|Z) moves, P(Z) fixed", "#f7d6cf")
     # identifiable vs not
     ax.plot([6.75, 6.75], [0.6, 4.9], ls="--", color="#888", lw=1.2)
-    ax.text(3.4, 0.95, "IDENTIFIABLE from unlabeled Z\n(+ source anchor / support signature)\n"
-                       "→ COVARIATE_COMPATIBLE or CONCEPT_SUSPECT", ha="center", fontsize=9,
-            color="#1a5a1a")
+    ax.text(3.4, 0.95, "SOURCE-ANCHORED PARTIAL IDENTIFICATION\nunder support-visible signature + "
+                       "transportability\n→ possible COVARIATE_COMPATIBLE / CONCEPT_SUSPECT", ha="center",
+            fontsize=8.5, color="#1a5a1a")
     ax.text(8.3, 1.05, "UNIDENTIFIABLE from Z alone\n(Prop.: ∃ many Q(Y|Z) | same Q_Z)\n"
                        "→ MUST ABSTAIN", ha="center", fontsize=9, color="#8a2a1a")
     out = os.path.join(FIGDIR, "fig1_taxonomy_boundary.png")

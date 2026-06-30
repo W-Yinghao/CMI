@@ -139,12 +139,13 @@ geometry null runs the SAME support gate; `>invalid_null_frac_max` invalid ⇒ t
 **Both gates are required, and the inference unit is the subject (CSC-P1.4.1).** `concept_evidenced`
 needs BOTH the geometric global max-statistic (`p_global ≤ α`) AND the cross-fitted decoder `T`
 significant. The reason for the AND is type-I, and it is empirical: on a NO-concept (covariate-only)
-source the **geometric `p_global` has correct type-I** (the re-estimated `Y* ~ p̂0` spectrum matches
-the observed, so `p_global` stays high ~0.8), but a **decoder-only gate does NOT** — each synthetic
-subject carries a latent random effect and exactly one label, so the random effect is confounded with
-class and manufactures finite-sample class-conditional structure that a decoder-only test reads as
-concept (~50% false positives). The geometric gate controls type-I; the decoder confirms direction-
-linked boundary movement. The cost is LOW power at the subject level (the cluster-consistent null is
+source the **geometric `p_global` is h0-bootstrap-calibrated and was type-I-protective in the development
+nulls** (the re-estimated `Y* ~ p̂0` spectrum matches the observed, so `p_global` stays high ~0.8), but a
+**decoder-only gate does NOT** — each synthetic subject carries a latent random effect and exactly one
+label, so the random effect is confounded with class and manufactures finite-sample class-conditional
+structure that a decoder-only test reads as concept (~50% false positives). The geometric gate is the
+type-I-protective component and the decoder confirms direction-linked boundary movement; **finite-sample
+false-certification control is ultimately the frozen confirmatory endpoint, which was NOT met.** The cost is LOW power at the subject level (the cluster-consistent null is
 conservative with few subjects per cell) — an honest difficulty-envelope quantity, not a flaw.
 A magnitude-only direction gate (`concept_top ≥ κ·cov_noise_scale`) was tried and REJECTED: it
 compares the full class-residual top singular to a cov-subspace projection and passes on pure noise
@@ -224,9 +225,12 @@ decoder-evidenced (concept) or stability-gated (covariate). The label gate is no
 finite-target class-balance fluctuation) no longer vetoes a clearly concept-dominant shift — the
 old *absolute* `n_label ≥ tau_label` over-abstained genuine boundary shifts. The deployment path is cluster-aware (subject votes); the support gate,
 target mean, calibration pseudo-targets, bootstraps, and oracle OOB all use the same SUBJECT
-analysis unit. Everywhere else it abstains. It may err by over-abstaining (low power); it is built
-to never err by **false certification**. The certifier thresholds the **exact same** statistic
-(`components`/`visibility_statistic`) the calibrator calibrates.
+analysis unit. Everywhere else it abstains. It is **engineered to fail closed** and to reduce false
+certification through support, attribution, dominance, and bootstrap gates; **however,
+false-certification control is a finite-sample statistical endpoint, NOT a structural guarantee, and
+the frozen confirmatory run did not establish it** (it emitted 1/65 forbidden certificates on unseen
+clusters, CP-UB 0.0709 > α=0.05; see `notes/CSC_CONFIRMATORY_RESULT.md`). The certifier thresholds the
+**exact same** statistic (`components`/`visibility_statistic`) the calibrator calibrates.
 
 **Whole-protocol epoch-duplication invariance (CSC-P1.4.5).** Duplicating a (subject,condition)'s
 epochs is redundant data and must change NOTHING. This now holds for the ENTIRE protocol, not just
