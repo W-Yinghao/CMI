@@ -27,6 +27,53 @@ def test_exactly_two_fixed_configs_and_default_dataset():
     assert R.DEFAULT_DATASET == "BNCI2015_001"
 
 
+def test_bnci2015_uses_motorimagery_not_leftright_and_others_unchanged():
+    """Scoped loader fix: BNCI2015_001 -> MotorImagery with right_hand/feet; other datasets unchanged."""
+    from cmi.data import moabb_data
+    p = moabb_data.paradigm_info("BNCI2015_001")
+    assert p["moabb_paradigm"] == "MotorImagery"
+    assert p["events"] == ["right_hand", "feet"] and p["n_classes_hint"] == 2
+    # other datasets keep their original routing
+    assert moabb_data.paradigm_info("BNCI2014_001")["moabb_paradigm"] == "MotorImagery"     # 4-class, no events
+    assert moabb_data.paradigm_info("BNCI2014_001")["events"] is None
+    assert moabb_data.paradigm_info("BNCI2014_004")["moabb_paradigm"] == "LeftRightImagery"  # left/right hand
+    assert moabb_data.paradigm_info("Lee2019_MI")["moabb_paradigm"] == "LeftRightImagery"
+
+
+def test_preflight_only_records_preprocessing_and_does_not_train(monkeypatch, tmp_path):
+    """--preflight_only loads ONE subject, records preprocessing metadata, writes JSON, and does NOT train
+    (no _train_eval / no decide). A non-binary set is flagged."""
+    import numpy as np
+    calls = {"train": 0}
+    monkeypatch.setattr(R, "_train_eval", lambda *a, **k: calls.__setitem__("train", calls["train"] + 1))
+
+    class _FakeDS:
+        subject_list = [1, 2, 3]
+        interval = [0, 5]
+
+    def fake_load(name, subjects=None, tmin=0.5, tmax=3.5, resample=128):
+        rng = np.random.default_rng(0)
+        X = rng.standard_normal((40, 13, 384)).astype("float32")
+        y = np.array([0, 1] * 20, "int64")
+        return X, y, None, ["feet", "right_hand"]
+    import moabb.datasets as MD
+    monkeypatch.setattr(MD, "BNCI2015_001", lambda: _FakeDS(), raising=False)
+    monkeypatch.setattr(R, "_dataset_interval", lambda n: [0, 5])
+    from cmi.data import moabb_data
+    monkeypatch.setattr(moabb_data, "load", fake_load)
+    monkeypatch.setattr(sys, "argv", ["prog", "--dataset", "BNCI2015_001", "--device", "cpu", "--preflight_only"])
+    assert R.main() == 0
+    assert calls["train"] == 0                                   # NO training in preflight
+    pf = json.load(open(R.OUT_DIR / "BNCI2015_001_preflight.json"))
+    assert pf["mode"] == "preflight_only" and pf["trained"] is False and pf["probes_run"] is False
+    assert pf["n_classes"] == 2 and abs(pf["chance_bacc"] - 0.5) < 1e-9
+    assert pf["classes_are_right_hand_feet"] is True
+    pp = pf["preprocessing"]
+    assert pp["moabb_paradigm"] == "MotorImagery" and pp["events"] == ["right_hand", "feet"]
+    assert pp["resample"] == 128 and pp["tmin"] == 0.5 and pp["tmax"] == 3.5
+    assert pp["dataset_interval"] == [0, 5] and pp["window_inside_declared_interval"] is True
+
+
 def test_decide_second_dataset_uses_all_folds_no_dev():
     def flag(ok):
         return dict(erm_adequate=ok, erm_leakage_exists=ok, reg_reduces=ok, source_retained=ok,

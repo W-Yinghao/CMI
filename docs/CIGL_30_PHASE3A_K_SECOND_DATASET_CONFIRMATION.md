@@ -26,6 +26,30 @@ configs):
 `graph_node_010` was selected on **BNCI2014_001**, not here, so on BNCI2015_001 there is **no dev fold —
 every LOSO fold is a confirmation fold.**
 
+## Loader / preprocessing (finalized after diligence)
+
+BNCI2015_001 is 2-class MI **right_hand vs feet** — not left/right hand — so MOABB's `LeftRightImagery`
+rejects it. The loader is fixed (scoped to BNCI2015_001 only; all other datasets unchanged) to use
+**`MotorImagery(n_classes=2, events=["right_hand","feet"])`**.
+
+- **Paradigm:** `MotorImagery` (because it is right_hand vs feet, not left/right hand).
+- **Primary resample: 128 Hz** — for protocol consistency with the BNCI2014_001 confirmation (every Phase
+  3A run used 128 Hz). `notes/preprocessing_decision.md` mentions 250 Hz; that is a **known note, not
+  changed here** to avoid introducing a new preprocessing variable into a fixed-protocol externality test.
+- **Window: tmin=0.5, tmax=3.5 (kept).** MOABB places epochs at `dataset.interval[0]`; BNCI2015_001 has
+  `interval=[0,5]`, so [0.5, 3.5] s lies inside the declared MI interval (same code path as 2a's [2,6]).
+  **This phase does NOT run a window-sensitivity sweep** — only a preflight/metadata guard records the
+  window vs the declared interval.
+- **Class-count guard:** if the loaded labels are not exactly the two classes (right_hand/feet → 2-class),
+  the runner stops before training and reports for reviewer re-authorization.
+- **If ERM adequacy fails**, the correct next step is **preprocessing/window diagnosis (Decision D)** in a
+  *separately authorized* window-sensitivity phase — **do not silently widen or move the window**.
+
+A `--preflight_only` mode (no training, no probes, no silent downloads) verifies the dataset/paradigm/
+classes/subject-count/channel-and-time-shape from the local cache and writes a preflight JSON recording
+`moabb_paradigm`, `events`, `resample` (+rationale/note), `tmin/tmax`, `dataset_interval`, and
+`window_inside_declared_interval`. The real run records the same under `meta.preprocessing`.
+
 ## Binary-dataset threshold logic (chance = 0.50)
 
 BNCI2014_001 is 4-class (chance 0.25, floor 0.45); BNCI2015_001 is binary (chance 0.50), so the

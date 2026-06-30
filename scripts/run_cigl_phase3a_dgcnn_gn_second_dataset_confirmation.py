@@ -175,9 +175,79 @@ def _aggregate(recs):
                 node_clears_seeds=int(sum(r["leakage"]["node"]["clears_null"] for r in recs)))
 
 
+def _dataset_interval(name):
+    """MOABB dataset.interval (metadata-only; no data load/download). None if unavailable."""
+    try:
+        import moabb.datasets as D
+        iv = getattr(getattr(D, name)(), "interval", None)
+        return list(iv) if iv else None
+    except Exception:
+        return None
+
+
+def _preprocessing_meta(args, dataset_name):
+    """Record the exact preprocessing for the run (paradigm/events/resample/window/interval)."""
+    if args.dry_run_synthetic:
+        return dict(moabb_paradigm="synthetic", events=None, resample=int(args.resample),
+                    tmin=float(args.tmin), tmax=float(args.tmax))
+    from cmi.data import moabb_data
+    p = moabb_data.paradigm_info(dataset_name)
+    interval = _dataset_interval(dataset_name)
+    inside = bool(interval and len(interval) == 2 and args.tmin >= 0 and args.tmax <= (interval[1] - interval[0]))
+    return dict(moabb_paradigm=p["moabb_paradigm"], events=p["events"], resample=int(args.resample),
+                resample_rationale="match BNCI2014_001 confirmation protocol",
+                known_preprocessing_note=("notes/preprocessing_decision.md mentions 250 Hz; not changed "
+                                          "here to avoid introducing a new variable in the confirmation"),
+                tmin=float(args.tmin), tmax=float(args.tmax), dataset_interval=interval,
+                effective_window_relative_to_interval=[float(args.tmin), float(args.tmax)],
+                window_inside_declared_interval=inside)
+
+
+def _preflight(args, commit, cfg_hash):
+    """Verify dataset/paradigm/classes/shape + record preprocessing metadata. NO training, NO probes,
+    NO silent downloads (loads ONE subject from the local cache to check classes/channels/time-shape)."""
+    from cmi.data import moabb_data
+    import moabb.datasets as D
+    OUT_DIR.mkdir(parents=True, exist_ok=True)
+    ds = getattr(D, args.dataset)()
+    subs = list(ds.subject_list)
+    pinfo = moabb_data.paradigm_info(args.dataset)
+    try:
+        X, y, meta, classes = moabb_data.load(args.dataset, subjects=[subs[0]],
+                                              tmin=args.tmin, tmax=args.tmax, resample=args.resample)
+    except Exception as e:
+        raise SystemExit(f"[phase3a-K preflight] '{args.dataset}' not loadable from local cache "
+                         f"({type(e).__name__}: {e}); check the datalake path. No download attempted here.")
+    n_cls = len(classes); chance = 1.0 / n_cls
+    pp = _preprocessing_meta(args, args.dataset)
+    pf = dict(mode="preflight_only", trained=False, probes_run=False,
+              dataset=args.dataset, commit_hash=commit, config_hash=cfg_hash,
+              n_subjects=len(subs), subject_list=subs, classes=classes, n_classes=n_cls,
+              chance_bacc=chance, classes_are_right_hand_feet=bool(set(classes) == {"right_hand", "feet"}),
+              one_subject_X_shape=list(X.shape), n_channels=int(X.shape[1]), n_times=int(X.shape[2]),
+              binary_ok=bool(n_cls == 2), preprocessing=pp)
+    json.dump(pf, open(OUT_DIR / f"{args.dataset}_preflight.json", "w"), indent=2)
+    print("\n=== Phase 3A-K PREFLIGHT (no training, no probes) ===")
+    for k in ("dataset", "n_subjects", "classes", "n_classes", "chance_bacc", "n_channels", "n_times"):
+        print(f"  {k}: {pf[k]}")
+    print(f"  paradigm: {pp['moabb_paradigm']}  events: {pp['events']}  resample: {pp['resample']}")
+    print(f"  dataset_interval: {pp.get('dataset_interval')}  window: [{args.tmin},{args.tmax}]  "
+          f"inside_interval: {pp.get('window_inside_declared_interval')}")
+    if n_cls != 2:
+        print(f"  STOP: n_classes={n_cls} != 2 -> binary thresholds do NOT apply; reviewer re-authorization needed.")
+    elif set(classes) != {"right_hand", "feet"}:
+        print(f"  STOP: classes {classes} != right_hand/feet -> report for reviewer.")
+    else:
+        print("  OK: binary right_hand/feet via MotorImagery; preflight passed (no training ran).")
+    print(f"[phase3a-K] wrote preflight {OUT_DIR / f'{args.dataset}_preflight.json'}")
+    return 0
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry_run_synthetic", action="store_true")
+    ap.add_argument("--preflight_only", action="store_true",
+                    help="verify dataset/paradigm/classes/shape + record preprocessing metadata; NO training/probes")
     ap.add_argument("--dataset", default=DEFAULT_DATASET)
     ap.add_argument("--allow_non_default_dataset", action="store_true")
     ap.add_argument("--folds", type=int, nargs="+", default=None, help="default: all LOSO folds for the dataset")
@@ -215,6 +285,8 @@ def main():
                          f"--allow_non_default_dataset (and document why). No silent dataset switch.")
 
     commit = _git_commit_hash(); cfg_hash = _config_hash(vars(args))
+    if args.preflight_only:                                   # verify load/paradigm/shape only; NO training
+        return _preflight(args, commit, cfg_hash)
     dataset = "synthetic" if args.dry_run_synthetic else args.dataset
     folds_req = args.folds if args.folds is not None else list(range(4))   # synthetic default 4 folds
     if args.dry_run_synthetic:
@@ -264,7 +336,7 @@ def main():
         meta=dict(_meta(commit, cfg_hash, dataset, n_cls, chance, args), folds=sorted(folds), seeds=list(args.seeds),
                   n_perm=int(args.n_perm), gate_alpha=float(args.gate_alpha), epochs=int(args.epochs),
                   source_drop_max=float(args.source_drop_max), reduce_min=float(args.reduce_min),
-                  target_drop_max=float(args.target_drop_max)),
+                  target_drop_max=float(args.target_drop_max), preprocessing=_preprocessing_meta(args, dataset)),
         configs={n: (lg, ln) for n, lg, ln in FIXED_CONFIGS}, per_fold=per_fold,
         second_dataset_confirmation=primary, all_folds_descriptive=primary,   # no dev fold -> identical
         edge_skip_reason="static/shared adjacency: edge_logits=None; no per-sample edge object")

@@ -17,7 +17,10 @@ mne.set_log_level("ERROR")
 DATASET_DEFAULTS = {
     "BNCI2014_001": dict(binary=False, fmin=4, fmax=38),   # 2a, 4-class
     "BNCI2014_004": dict(binary=True,  fmin=8, fmax=30),   # 2b, L/R
-    "BNCI2015_001": dict(binary=True,  fmin=8, fmax=30),
+    # BNCI2015_001 is 2-class MI but right_hand vs FEET (not left/right hand), so LeftRightImagery is
+    # invalid for it; use the MotorImagery paradigm restricted to its two classes.
+    "BNCI2015_001": dict(binary=True,  fmin=8, fmax=30, paradigm="motor",
+                         events=["right_hand", "feet"], n_classes=2),
     "Lee2019_MI":   dict(binary=True,  fmin=8, fmax=30),   # OpenBMI L/R
     "Cho2017":      dict(binary=True,  fmin=8, fmax=30),
     "Schirrmeister2017": dict(binary=False, fmin=4, fmax=38),  # HGD, 4-class
@@ -38,8 +41,20 @@ def load(name, subjects=None, tmin=0.5, tmax=3.5, resample=128,
     ds = getattr(D, name)()
     if subjects is None:
         subjects = ds.subject_list
-    para = (LeftRightImagery if binary else MotorImagery)(
-        fmin=fmin, fmax=fmax, tmin=tmin, tmax=tmax, resample=resample)
+    # Paradigm selection. Default reproduces the original behaviour EXACTLY: binary -> LeftRightImagery,
+    # else MotorImagery (all classes). A dataset may set paradigm="motor" (+ optional events/n_classes)
+    # to force MotorImagery even when binary — required for BNCI2015_001 (right_hand vs feet), which
+    # LeftRightImagery rejects. Only datasets that explicitly opt in are affected.
+    paradigm_kind = d.get("paradigm", "left_right" if binary else "motor")
+    if paradigm_kind == "left_right":
+        para = LeftRightImagery(fmin=fmin, fmax=fmax, tmin=tmin, tmax=tmax, resample=resample)
+    else:
+        mkw = dict(fmin=fmin, fmax=fmax, tmin=tmin, tmax=tmax, resample=resample)
+        if d.get("events"):
+            mkw["events"] = list(d["events"])
+        if d.get("n_classes"):
+            mkw["n_classes"] = int(d["n_classes"])
+        para = MotorImagery(**mkw)
     X, y, meta = para.get_data(ds, subjects=subjects)
     X = X.astype("float32")
     if normalize == "trial_zscore":          # per-trial, per-channel z-score over time (no leakage)
@@ -49,6 +64,16 @@ def load(name, subjects=None, tmin=0.5, tmax=3.5, resample=128,
     le = LabelEncoder()
     y = le.fit_transform(y).astype("int64")
     return X, y, meta.reset_index(drop=True), list(le.classes_)
+
+
+def paradigm_info(name):
+    """Which MOABB paradigm / event restriction the loader uses for `name` (metadata-only; no load)."""
+    d = DATASET_DEFAULTS.get(name, dict(binary=False))
+    binary = d.get("binary", False)
+    kind = d.get("paradigm", "left_right" if binary else "motor")
+    return dict(moabb_paradigm=("LeftRightImagery" if kind == "left_right" else "MotorImagery"),
+                events=(list(d["events"]) if d.get("events") else None),
+                n_classes_hint=d.get("n_classes"))
 
 
 def domain_labels(meta, mode="subject"):
