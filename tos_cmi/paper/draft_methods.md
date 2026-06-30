@@ -70,4 +70,4 @@ random-k removal control deletes the same number of M-orthonormal directions as 
 
 > Note (frozen-feature scope): this protocol measures whether *removing* localized leakage from a fixed
 > representation helps; it does not retrain the encoder with a certified penalty. The end-to-end variant is
-> out of scope here and flagged in §5.
+> out of scope here and flagged in §6.3.

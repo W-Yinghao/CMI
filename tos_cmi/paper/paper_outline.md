@@ -67,16 +67,24 @@ notes/PHASE131_CERTIFICATION.md, PHASE13_DIAGNOSIS.md.
   its causal relation to cross-subject generalization is weak / representation-dependent: removing it can
   collapse the representation, leave redundant leakage behind, or remove leakage without improving transfer.
 
-### 5. Limitations
-Dim↔type confound (EEGNet differs from TSMNet in both architecture and latent dim — Phase 3 establishes
-representation dependence, not the causal factor); single dataset (2a); 8 source subjects cap LDA/Fisher
-at 7 directions; DG-null is on the frozen-feature pilot (not end-to-end training); removability is
-linear/partial. See claim_evidence_table for per-claim limitations.
+### 5. Related work (draft_related.md — to draft after abstract lock)
+Four groups, 1–2 paragraphs each, positioning by difference (not a survey): EEG DG / cross-subject
+invariance; conditional invariance / CMI / adversarial domain removal; selective erasure / concept removal /
+task-preserving projection; certification / abstention / safe-intervention framing. Positioning line: *we do
+not claim a stronger invariant regularizer; we show a measurement→control gap and fold refusal into the method.*
 
-### 6. Conclusion
-Safe selective invariance = a certified intervention with refusal. The contribution is a
-measurement→control certification framework + the honest finding that conditional domain leakage is not a
-sufficient control target for EEG DG on 2a.
+### 6. Discussion and limitations (draft_discussion.md — §6.1–§6.4)
+§6.1 what the measurement→control gap means; §6.2 why leakage removal need not improve DG; §6.3 limitations
+(single dataset; two backbones; EEGNet dim↔type confound; no end-to-end TOS training; certified deletion
+mostly abstains; leakage removal not shown causal for DG); §6.4 implications for EEG invariance methods.
+
+### 7. Conclusion (draft_conclusion.md)
+1–2 short paragraphs: selective conditional invariance as a certified intervention with refusal; the honest
+finding that conditional domain leakage is measurable, sometimes removable, but not a sufficient control
+target for EEG DG on 2a.
+
+> **Final section order is LOCKED in [section_order.md](section_order.md).** Limitations live in §6.3 (not a
+> standalone §5); Related work is §5 (after Results); Conclusion is §7.
 
 ## Hard rules for drafting (from the decision)
 - No new compute. Only figure polishing, result-table consistency, notes/README alignment.

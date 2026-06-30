@@ -72,7 +72,7 @@ but is not claimed to improve generalization [C10].
 **Final claim.** Conditional domain leakage is measurable, and sometimes removable, but neither measurement
 nor removal is sufficient evidence of domain-generalization benefit.
 
-> Limitation flagged here (full text in §5): representation type and latent dimensionality are collinear in
+> Limitation flagged here (full text in §6.3): representation type and latent dimensionality are collinear in
 > this design (SPD↔210, conv↔16); Phase 3 establishes representation dependence, not its causal factor.
 
 ## Numbers locked (cross-check vs Table 1 / claim_evidence_table)
