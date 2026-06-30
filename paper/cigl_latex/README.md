@@ -1,4 +1,4 @@
-# paper/cigl_latex/ — CIGL LaTeX-ready package (Phase 4F / v0.4)
+# paper/cigl_latex/ — CIGL LaTeX-ready package (Phase 4H / v0.6)
 
 **LaTeX-ready draft, NOT a submission and NOT compiled.** This converts the approved Markdown v0.3
 manuscript (`../cigl/MANUSCRIPT_DRAFT.md`) into a LaTeX skeleton a human can edit. Writing/packaging only.
