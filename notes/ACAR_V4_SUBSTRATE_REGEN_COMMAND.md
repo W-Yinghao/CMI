@@ -112,13 +112,22 @@ substrates        {PD:{...}, SCZ:{...}} each (H5 4 unambiguous hashes; bare enco
                   source_state_path + source_state_artifact_sha256 + source_state_file_sha256,
                   encoder_provenance_path, source_state_provenance_path,
                   dev_input_manifest_path + dev_input_manifest_sha256   ← pins the EXACT eligible DEV universe to re-embed
-                  (PD 230 / SCZ 225, ds004000/sub-042 excluded, FROZEN_PIPELINE, cohort-aware keys)
+                  (PD 230 / SCZ 225, ds004000/sub-042 excluded, FROZEN_PIPELINE, cohort-aware keys),
+                  dev_feat_dump_paths {cohort: path} + dev_feat_dump_sha256 {cohort: 64-hex}   ← (C3) the DEV feat-dump
+                  metadata (subject_id_te/recording_id_te/window_index_te/y_te) = the raw-window↔v3-WindowKey alignment
+                  SOURCE OF TRUTH (sha-pinned; the re-embed order/keys cannot drift)
 dev_cohorts       {PD: DEV_SCOPE[PD], SCZ: DEV_SCOPE[SCZ]}  (exact)
 env_lock_path     non-empty (the substrate env lock; re-verified at replay)        env_lock_sha256  64-hex
 ```
 STDLIB preflight: schema + HEAD==compatibility_protocol_commit + clean worktree + output-absent + each PD/SCZ encoder/source
-file + the dev-input-manifest file + the env-lock file must EXIST and match their sha — fail-closed (FileNotFoundError /
-ValueError) before any torch import or DEV read.
+file + the dev-input-manifest file + each per-cohort dev-feat-dump file + the env-lock file must EXIST and match their sha —
+fail-closed (FileNotFoundError / ValueError) before any torch import or DEV read.
+
+**(C3) Safety gate uses the EXACT EVAL harm, not a proxy.** `compatibility_replay_pass`'s `L_harm_all_eval ≤ 0.10` is fed the
+EXACT all-batch-denominator EVAL harm_indicator loss (`develop.V4CandidateReport.eval_L_harm_all`, additive), NOT the
+conditional `harm_rate` (carried descriptively as `harm_among_adapted`, never gating). The raw-window↔v3-WindowKey alignment
+(`_load_subject_windows_and_keys`) is REAL + synthetic-tested (by-key vs the pinned dev-feat-dump metadata; fail-closed on
+missing/extra/dup/shape); the ONLY step that reads DEV raw is `_load_subject_raw_windows`, run ONLY at the authorized C-run.
 
 **C1 authorization gate (executable body).** Without `--compat-authorization` → `SubstrateCompatibilityNotAuthorizedError`
 (no torch/cmi, no DEV read, no output). A valid compatibility authorization manifest (`validate_compat_authorization` +

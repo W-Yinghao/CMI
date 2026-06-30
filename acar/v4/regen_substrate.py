@@ -514,6 +514,13 @@ def validate_substrate_manifest(spec):
                 raise ValueError(f"substrates[{d}].{pf} must be a non-empty path")
         if not _is_hex(sd.get("dev_input_manifest_sha256", ""), 64):     # pins the EXACT eligible DEV universe to re-embed
             raise ValueError(f"substrates[{d}].dev_input_manifest_sha256 must be a 64-char lowercase sha-256")
+        # C3: the DEV feat-dump metadata (subject_id_te/recording_id_te/window_index_te/y_te) is the alignment SOURCE OF TRUTH
+        # for re-embedding — pin one sha-verified dump per cohort so the raw-window↔v3-WindowKey order cannot drift.
+        dfp, dfs = sd.get("dev_feat_dump_paths"), sd.get("dev_feat_dump_sha256")
+        if not (isinstance(dfp, dict) and set(dfp) == set(cohorts[d]) and all(isinstance(v, str) and v for v in dfp.values())):
+            raise ValueError(f"substrates[{d}].dev_feat_dump_paths must be {{cohort: path}} keyed by EXACTLY dev_cohorts[{d}]")
+        if not (isinstance(dfs, dict) and set(dfs) == set(cohorts[d]) and all(_is_hex(v, 64) for v in dfs.values())):
+            raise ValueError(f"substrates[{d}].dev_feat_dump_sha256 must be {{cohort: 64-hex}} keyed by EXACTLY dev_cohorts[{d}]")
         for legacy in ("encoder_checkpoint_sha256", "source_state_sha256"):   # retired ambiguous (file-vs-semantic) names
             if legacy in sd:
                 raise ValueError(f"substrates[{d}].{legacy} is a DEPRECATED ambiguous field; use the unambiguous "

@@ -142,7 +142,7 @@ class V4CandidateReport:
     status: str                                     # always "EVALUATED"
     coverage: float
     red: float
-    harm_rate: float
+    harm_rate: float                                # CONDITIONAL EVAL harm P(ΔR>0 | adapted); adapted-only denominator (descriptive)
     c0_red: float                                   # the comparator G3 uses (per g3_comparator)
     disease_macro_red: Optional[float]
     g0_pass: bool
@@ -157,6 +157,8 @@ class V4CandidateReport:
     frontier_gaps: dict
     hierarchy_summary: dict
     provenance: dict
+    eval_L_harm_all: Optional[float] = None         # EXACT all-batch-denominator EVAL harm_indicator loss (the L_harm_all object
+    #                                                 the LTT budget controls); additive — None on legacy/synthetic constructions
 
     def all_pass(self):
         return all((self.g0_pass, self.g1_coverage_pass, self.g2_red_pass, self.g3_macro_vs_c0_pass,
@@ -453,6 +455,12 @@ def _process_disease(recs_d, score_fams, cfg, v2_replay_red):
                 else:
                     rc_status = "NO_PASS"
                 cov, red, hr = FR.operating_point(dr_ev, calibrated, weights=w_ev)
+                # EXACT all-batch-denominator EVAL harm_indicator loss (subject-macro) — the LTT-controlled L_harm_all object
+                # (ALL eval batches incl. identity/fallback in the denominator), mirroring external_adapter.evaluate_stratum's
+                # L_harm_all_eval. DISTINCT from harm_rate (conditional, adapted-only denominator). Additive: does NOT change
+                # coverage/red/harm_rate/g4 or any existing v2/v3 number — purely a new descriptive field.
+                eval_L_harm_all = float(RC.subject_losses_from_policy(np.stack([calibrated]), dr_ev, subj_ev,
+                                                                     loss="harm_indicator").mean())
                 gaps = FR.gap_decomposition(dr_ev, union,
                                             list(choices_lam_ev) if choices_lam_ev is not None else [identity_ev],
                                             calibrated, weights=w_ev, mode="ceiling")
@@ -463,6 +471,7 @@ def _process_disease(recs_d, score_fams, cfg, v2_replay_red):
                     selected_lambda=sel_lambda, per_fold_lambda={str(k): v for k, v in per_fold_lambda.items()},
                     rc_status=rc_status, n_eval_folds=n_eval_folds, n_evaluable_folds=len(evaluable_folds),
                     n_passed_folds=len(passed_folds), coverage=float(cov), red=float(red), harm_rate=float(hr),
+                    eval_L_harm_all=eval_L_harm_all,
                     gaps=gaps, per_config_policy_ceiling=gaps["policy_ceiling"], hierarchy=hier))
     global_ceiling = (FR.frontier_policy_family(dr_ev, global_choices, weights=w_ev).ceiling()
                       if global_choices else 0.0)
@@ -535,7 +544,7 @@ def run_dev_exploration(records, config=None, score_families=None, *, real_mode=
             reports.append(V4CandidateReport(
                 disease=d, policy_family=c["policy_family"], loss=c["loss"], calibration_method=cfg.method,
                 selected_lambda=c["selected_lambda"], status="EVALUATED", coverage=c["coverage"], red=c["red"],
-                harm_rate=c["harm_rate"], c0_red=_c0(b), disease_macro_red=macro_red,
+                harm_rate=c["harm_rate"], eval_L_harm_all=c["eval_L_harm_all"], c0_red=_c0(b), disease_macro_red=macro_red,
                 g0_pass=True, g1_coverage_pass=g1, g2_red_pass=g2, g3_macro_vs_c0_pass=g3, g4_harm_control_pass=g4,
                 g5_fallback_denominator_pass=True, g6_nonvacuous_both_diseases_pass=g6,
                 per_config_policy_gap=b["score_union_ceiling"] - c["per_config_policy_ceiling"],

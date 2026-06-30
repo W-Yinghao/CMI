@@ -89,6 +89,16 @@ def test_candidate_found_not_select_and_no_binding():
     assert not (set(k.lower() for k in res.manifest) & set(D._FORBIDDEN_MANIFEST_KEYS))
 
 
+def test_eval_L_harm_all_populated_and_all_batch_denominator():
+    # C3 additive field: every report carries a finite all-batch-denominator EVAL harm_indicator loss in [0,1], DISTINCT from
+    # the conditional harm_rate. all-batch denominator >= adapted-only denominator => eval_L_harm_all <= harm_rate.
+    res = D.run_dev_exploration(_make_records(beneficial=True))
+    for r in res.reports:
+        assert r.eval_L_harm_all is not None and math.isfinite(r.eval_L_harm_all) and 0.0 <= r.eval_L_harm_all <= 1.0
+        if math.isfinite(r.harm_rate):
+            assert r.eval_L_harm_all <= r.harm_rate + 1e-9       # all-batch <= conditional (adapted-only) harm
+
+
 def test_no_passer_is_negative():
     res = D.run_dev_exploration(_make_records(beneficial=False))
     assert res.verdict == D.V4_DEV_NEGATIVE and not any(r.all_pass() for r in res.reports)
@@ -402,7 +412,8 @@ def test_fail_closed_validation():
 
 def main():
     print("ACAR v4 develop (Phase-1 exploratory orchestration) guards (synthetic fixtures only):")
-    for t in (test_candidate_found_not_select_and_no_binding, test_no_passer_is_negative,
+    for t in (test_candidate_found_not_select_and_no_binding,
+              test_eval_L_harm_all_populated_and_all_batch_denominator, test_no_passer_is_negative,
               test_single_disease_cannot_pass_g6, test_lambda_star_from_cal_not_eval,
               test_cal_records_excluded_from_eval_denominator, test_cohort_aware_subject_key_not_merged,
               test_comparator_slots_distinct_and_g3_uses_configured, test_real_mode_rejects_arbitrary_callable,

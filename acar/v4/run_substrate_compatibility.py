@@ -79,6 +79,12 @@ def _verify_compat_preflight_hashes(spec):
             got = _sha256_file(p)
             if got != sd[sha_key]:
                 raise ValueError(f"{d}: {path_key} {sha_key} mismatch ({got} != {sd[sha_key]})")
+        for cohort, dp in sd["dev_feat_dump_paths"].items():       # DEV feat-dump alignment source of truth (sha-pinned)
+            if not os.path.isfile(dp):
+                raise FileNotFoundError(f"{d}/{cohort}: dev_feat_dump missing: {dp}")
+            got = _sha256_file(dp)
+            if got != sd["dev_feat_dump_sha256"][cohort]:
+                raise ValueError(f"{d}/{cohort}: dev_feat_dump_sha256 mismatch ({got} != {sd['dev_feat_dump_sha256'][cohort]})")
     elp = spec["env_lock_path"]
     if not os.path.isfile(elp):
         raise FileNotFoundError(f"env_lock_path missing: {elp}")
@@ -148,16 +154,47 @@ def _raw_subjects_by_cohort(spec, disease):
     return out
 
 
-def _load_subject_windows_and_keys(disease, dataset_id, subject, cfg):   # pragma: no cover — the single C-run raw-I/O frontier
-    """The ONE remaining C-run-validated frontier: open ONE eligible DEV subject's raw EEG and return
-    (windows[n,19,512], v3 WindowKeys[n], per-window labels[n]) aligned to the DEV dump's (recording_id_te, window_index_te)
-    so the re-embedded z carries the EXACT v3 keys the digests/manifest expect. This is the only step that reads DEV raw; the
-    raw-window↔v3-WindowKey alignment is verified against the dump metadata + the v3 integrity machinery at the authorized
-    C-run (an unverified alignment would corrupt deployment_batch_digest → a silently-wrong verdict, strictly worse than a clean
-    abort). Everything around it (frozen-substrate load, no-refit derive, 1x1x1 exploration, stat extraction) is real."""
+def _load_subject_raw_windows(disease, dataset_id, subject, cfg):   # pragma: no cover — gated real DEV raw read; tests inject a fake
+    """The ONLY step that reads DEV raw: open ONE eligible subject's raw EEG (FROZEN_PIPELINE) and return windows keyed by
+    (recording_id, window_index): {(rec_id, win_idx): window[19,512]}. Lazy mne/cmi; run ONLY at the authorized C-run. It does
+    NOT raise SubstrateReplayNotWiredError — it does real work. Its exact (recording_id, window_index) keying is GUARDED by the
+    by-key alignment against the sha-pinned DEV-dump metadata in _load_subject_windows_and_keys: any wrong/missing/extra key →
+    fail-closed there (no silently-wrong verdict). Tests inject a synthetic provider, so real raw is never read in tests."""
     raise RS.SubstrateReplayNotWiredError(
-        f"raw-window↔v3-WindowKey alignment for {dataset_id}/{subject} is finalized + validated at the authorized C-run "
-        "(reads DEV raw; the alignment must match the dump's recording_id_te/window_index_te before any digest is trusted).")
+        f"the DEV raw signal read for {dataset_id}/{subject} runs ONLY at the authorized C-run; tests inject a synthetic "
+        "provider. (The alignment + everything downstream is real and synthetic-tested.)")
+
+
+def _load_subject_windows_and_keys(disease, dataset_id, subject, cfg, dump_rows, *, signal_loader=None):
+    """REAL by-key alignment (synthetic-tested; no real raw in tests). `dump_rows` = the sha-pinned DEV-dump metadata rows for
+    THIS subject, in dump order: list of (recording_id, window_index, label). `signal_loader(disease,dataset_id,subject,cfg)` →
+    {(recording_id, window_index): window[19,512]} (defaults to the gated _load_subject_raw_windows; tests inject a fake). The
+    DEV-dump metadata is the SOURCE OF TRUTH: for each dump row we look up the raw window by (recording_id, window_index) and
+    build the v3 WindowKey from the dump row — so the re-embedded order/keys cannot drift. FAIL-CLOSED on a missing dump key,
+    an EXTRA raw window, a duplicate WindowKey, or a wrong shape — before any digest is trusted. Returns
+    (windows[n,19,512] aligned to dump order, WindowKeys[n], labels {WindowKey: int})."""
+    import numpy as np
+    from acar.v3.set_features import WindowKey
+    loader = signal_loader or _load_subject_raw_windows
+    raw = dict(loader(disease, dataset_id, subject, cfg))           # {(rec_id, win_idx): window}
+    cfg_win = (cfg["canon_channels"], int(cfg["resample_fs"] * cfg["window_sec"]))
+    windows, keys, labels, used = [], [], {}, set()
+    for rec_id, win_idx, label in dump_rows:
+        rk = (str(rec_id), int(win_idx))
+        if rk not in raw:
+            raise ValueError(f"{dataset_id}/{subject}: dump row {rk} has NO matching raw window (missing/misaligned)")
+        w = np.asarray(raw[rk], dtype="<f4")
+        if w.shape != cfg_win:
+            raise ValueError(f"{dataset_id}/{subject}: window {rk} shape {w.shape} != {cfg_win}")
+        wk = WindowKey(dataset_id, subject, str(rec_id), int(win_idx))
+        if wk in labels:
+            raise ValueError(f"{dataset_id}/{subject}: duplicate WindowKey {rk}")
+        windows.append(w); keys.append(wk); labels[wk] = int(label); used.add(rk)
+    extra = set(raw) - used
+    if extra:
+        raise ValueError(f"{dataset_id}/{subject}: {len(extra)} raw windows have NO dump row (extra/misaligned): {sorted(extra)[:3]}")
+    RS.assert_finite(np.asarray(windows, dtype="<f4"), f"{dataset_id}/{subject} windows")
+    return np.asarray(windows, dtype="<f4"), keys, labels
 
 
 def _load_frozen_substrate(spec):                                   # pragma: no cover — gated (torch/acar.v3); tests monkeypatch
@@ -183,6 +220,20 @@ def _load_frozen_substrate(spec):                                   # pragma: no
     return out
 
 
+def _check_reembed_universe(disease, seen_ns, eligible):
+    """FAIL-CLOSED subject-universe reconciliation for the re-embed: the set of subjects actually re-embedded (those present in
+    the sha-pinned DEV feat-dump AND eligible) must EQUAL the eligible set AND number EXACTLY EXACT_ELIGIBLE[disease]. Catches a
+    dump that silently OMITS an eligible subject (or a whole cohort) — a whole-subject-granularity 'missing window' that the
+    per-subject by-key aligner cannot see and that cv_assignment (only needs ≥k folds) would not catch."""
+    seen, elig = set(seen_ns), set(eligible)
+    if seen != elig:
+        missing, extra = sorted(elig - seen), sorted(seen - elig)
+        raise ValueError(f"{disease}: re-embedded universe != eligible (missing {missing[:5]}, extra {extra[:5]})")
+    if len(seen) != RS.EXACT_ELIGIBLE[disease]:
+        raise ValueError(f"{disease}: re-embedded {len(seen)} subjects != EXACT_ELIGIBLE {RS.EXACT_ELIGIBLE[disease]}")
+    return True
+
+
 def _reembed_dev_under_substrate(spec, frozen):                     # pragma: no cover — gated raw read at C-run; tests monkeypatch
     """Re-embed the OLD-SEVEN eligible DEV windows (exact universe pinned by each disease's dev_input_manifest — PD 230 /
     SCZ 225, ds004000/sub-042 excluded, FROZEN_PIPELINE, cohort-aware keys) with the NEW all-DEV encoder, and build per-disease
@@ -197,17 +248,37 @@ def _reembed_dev_under_substrate(spec, frozen):                     # pragma: no
     out = {}
     for d in ("PD", "SCZ"):
         bb, art = frozen[d]
-        eligible = set(RS.check_eligible_subjects(d, _raw_subjects_by_cohort(spec, d), _dev_input_manifest(spec, d)))
-        rows_by_ds, labels = {}, {}
-        for ns in sorted(eligible):                                # cohort-aware "dsid/sub"; excluded never enumerated
-            ds_id, sub = ns.split("/", 1)
-            X, keys, y = _load_subject_windows_and_keys(d, ds_id, sub, cfg)   # raw → windows + v3 keys + per-window labels (no refit)
-            with torch.no_grad():
-                z = bb(torch.as_tensor(np.asarray(X, dtype="<f4")))[1].cpu().numpy()   # NEW-encoder embeddings (forward → (logits, z))
-            RS.assert_finite(z, f"{ns} embeddings")
-            for k, zi, yi in zip(keys, z, y):
-                rows_by_ds.setdefault(ds_id, []).append((k, np.asarray(zi, float)))
-                labels[k] = int(yi)
+        m = _dev_input_manifest(spec, d)
+        eligible = set(RS.check_eligible_subjects(d, _raw_subjects_by_cohort(spec, d), m))    # cohort-aware "dsid/sub"
+        sd = spec["substrates"][d]
+        rows_by_ds, labels, seen = {}, {}, set()
+        for cohort in m["dev_cohorts"]:
+            meta = np.load(sd["dev_feat_dump_paths"][cohort], allow_pickle=False)             # METADATA (ids/index/labels); NOT raw signal / NOT old z
+            sid = [str(x) for x in meta["subject_id_te"].tolist()]
+            rec = [str(x) for x in meta["recording_id_te"].tolist()]
+            wix = [int(x) for x in meta["window_index_te"].tolist()]
+            yte = [int(x) for x in meta["y_te"].tolist()]
+            if not (len(sid) == len(rec) == len(wix) == len(yte)):                            # dump column-length consistency
+                raise ValueError(f"{d}/{cohort}: dump metadata columns length mismatch "
+                                 f"({len(sid)}/{len(rec)}/{len(wix)}/{len(yte)})")
+            if any(y_ not in (0, 1) for y_ in yte):                                           # labels must be in {0,1}
+                raise ValueError(f"{d}/{cohort}: dump y_te has labels outside {{0,1}}")
+            per_sub = {}                                                                      # eligible subjects only (excluded skipped)
+            for s_, r_, w_, y_ in zip(sid, rec, wix, yte):
+                ns = s_ if "/" in s_ else f"{cohort}/{s_}"
+                if ns not in eligible:
+                    continue
+                per_sub.setdefault(ns.split("/", 1)[1], []).append((r_, w_, y_))
+            for sub, dump_rows in per_sub.items():
+                X, keys, lab = _load_subject_windows_and_keys(d, cohort, sub, cfg, dump_rows)  # by-key align to dump metadata (real raw)
+                with torch.no_grad():
+                    z = bb(torch.as_tensor(np.asarray(X, dtype="<f4")))[1].cpu().numpy()       # NEW-encoder embeddings (forward → (logits, z))
+                RS.assert_finite(z, f"{cohort}/{sub} embeddings")
+                for wk, zi in zip(keys, z):
+                    rows_by_ds.setdefault(cohort, []).append((wk.subject_id, wk.recording_id, wk.window_index, np.asarray(zi, float)))
+                labels.update(lab)
+                seen.add(f"{cohort}/{sub}")
+        _check_reembed_universe(d, seen, eligible)                                            # re-embedded set == eligible (count == EXACT)
         batches = []
         for ds_id, rows in rows_by_ds.items():
             batches += list(build_deployment_batches(ds_id, d, rows, art.source_state_ref))
@@ -271,14 +342,10 @@ def _extract_fixed_candidate_stats(result):
     """REAL deterministic accessor: pull the per-disease stats compatibility_replay_pass needs from a V4DevExplorationResult
     that was run with EXACTLY the fixed candidate. Fail-closed if not exactly one (disease, benefit_ranked, harm_indicator)
     report per disease, if a disease is missing, or if the v2 comparator is absent — never fabricate. Maps:
-      lambda_certified = g4_harm_control_pass — the LTT certification that the harm_indicator loss is controlled at the budget
-                         (this g4 gate is the AUTHORITATIVE all-eval harm-budget control);
-      L_harm_all_eval  = harm_rate — NOTE this is the CONDITIONAL EVAL harm P(ΔR>0 | adapted); it is a CONSERVATIVE UPPER BOUND
-                         on the true all-eval harm_indicator loss (harm_rate ≥ coverage·harm_rate = L_harm_all_true), so the
-                         ≤budget gate is STRICTER than intended — it can never produce a false PASS (only a conservative FAIL).
-                         No V4CandidateReport field holds the all-eval EVAL harm; the exact EVAL-all number is reconciled at the
-                         authorized C-run (g4/lambda_certified already enforces the LTT harm budget). Non-finite harm_rate
-                         (nothing adapted; coverage gate already fails) → 1.0 (fail-safe + JSON-safe).
+      lambda_certified = g4_harm_control_pass — the LTT certification that the harm_indicator loss is controlled at the budget;
+      L_harm_all_eval  = eval_L_harm_all — the EXACT all-batch-denominator EVAL harm_indicator loss (the object the LTT budget
+                         controls), NOT the conditional harm_rate proxy. REQUIRED on the report (None ⇒ fail-closed) for a real
+                         compat run. (harm_among_adapted = harm_rate is carried DESCRIPTIVELY only and never gates.)
       v2_replay_red    = c0_red (== the v2_replay comparator because g3_comparator='v2_replay')."""
     import math
     fc = RS.FIXED_CANDIDATE
@@ -291,10 +358,13 @@ def _extract_fixed_candidate_stats(result):
         r = rs[0]
         v2r = r.c0_red
         v2_eval = v2r is not None and math.isfinite(float(v2r))
-        hr = float(r.harm_rate)
-        L_harm = hr if math.isfinite(hr) else 1.0                   # conservative + JSON-safe (allow_nan=False); fails the budget gate
+        elh = getattr(r, "eval_L_harm_all", None)
+        if elh is None or not math.isfinite(float(elh)):           # the EXACT all-eval harm is REQUIRED + finite (no proxy fallback)
+            raise ValueError(f"{d}: report.eval_L_harm_all must be a finite number (exact all-batch EVAL harm), got {elh!r}")
+        hr = float(r.harm_rate)                                     # DESCRIPTIVE only (conditional harm; NaN if nothing adapted)
         per_disease[d] = {"lambda_certified": bool(r.g4_harm_control_pass), "coverage": float(r.coverage),
-                          "red": float(r.red), "L_harm_all_eval": L_harm,
+                          "red": float(r.red), "L_harm_all_eval": float(elh),
+                          "harm_among_adapted": (float(hr) if math.isfinite(hr) else None),   # descriptive; not a gate
                           "v2_evaluable": bool(v2_eval), "v2_replay_red": (float(v2r) if v2_eval else None)}
     if set(per_disease) != {"PD", "SCZ"}:
         raise ValueError("fixed-candidate extraction must cover EXACTLY PD and SCZ")

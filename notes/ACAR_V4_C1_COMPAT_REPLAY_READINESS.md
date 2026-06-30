@@ -4,8 +4,10 @@
 STATUS : run_substrate_compatibility.py is an EXECUTABLE, authorization-gated fixed-candidate DEV substrate-compatibility
          replay. C1 = two-commit split + auth gate + taxonomy. C2 = REAL replay body under the FROZEN B1b source-state (NO
          refit): _load_frozen_substrate + _reembed_dev_under_substrate + _derive_under_frozen_source_state (never
-         build_cohort_input) + REAL _extract_fixed_candidate_stats; the ONLY remaining C-run frontier is the raw-window↔v3-key
-         alignment (_load_subject_windows_and_keys). NO replay was run: without a valid compatibility authorization manifest it
+         build_cohort_input) + REAL _extract_fixed_candidate_stats. C3 = REAL raw-window↔v3-WindowKey alignment by-key vs the
+         sha-pinned DEV feat-dump metadata + EXACT eval_L_harm_all (all-batch denominator; replaces the harm_rate proxy;
+         harm_among_adapted descriptive only); the ONLY remaining C-run frontier is the single DEV-raw read
+         (_load_subject_raw_windows). NO replay was run: without a valid compatibility authorization manifest it
          fails closed (SubstrateCompatibilityNotAuthorizedError) before any torch/cmi import or DEV read. Synthetic-tested only.
          NO DEV raw read, NO re-embedding, NO held-out/external read, NO acar-v4-protocol tag. v2/v3 untouched; lockbox SEALED.
 DATE   : 2026-06-30 (machine UTC)
@@ -66,18 +68,27 @@ status = SUBSTRATE_COMPATIBILITY_PASS | _FAIL
   implicit re-fit.
 - **FIXED candidate only:** the exploration is pinned to EXACTLY ONE config (1×1×1: `score_families=[shift_margin]`,
   `policy_families=(benefit_ranked,)`, `losses=(harm_indicator,)`, `budget_by_loss={harm_indicator:0.10}`); no grid to reselect.
-- **`_extract_fixed_candidate_stats` is now a REAL deterministic accessor** (not a frontier): filters `result.reports` to the
-  single (disease, benefit_ranked, harm_indicator) cell, fail-closes if not exactly one per disease or a disease/v2 is missing,
-  and maps lambda_certified=`g4_harm_control_pass`, coverage, red, L_harm_all_eval=`harm_rate`, v2_replay_red=`c0_red`
-  (== the v2_replay comparator since g3=v2_replay), v2_evaluable=finite(c0_red). (The `harm_rate`→`L_harm_all_eval` mapping — the
-  EVAL harm under the LTT budget gate g4 — is the one numeric mapping to re-confirm against real data at the authorized C-run.)
+- **`_extract_fixed_candidate_stats` is a REAL deterministic accessor**: filters `result.reports` to the single
+  (disease, benefit_ranked, harm_indicator) cell, fail-closes if not exactly one per disease or a disease/v2 is missing, and maps
+  lambda_certified=`g4_harm_control_pass`, coverage, red, **L_harm_all_eval=`eval_L_harm_all`** (C3), v2_replay_red=`c0_red`
+  (== the v2_replay comparator since g3=v2_replay), v2_evaluable=finite(c0_red).
+- **(C3) EXACT EVAL harm — no proxy.** The gate uses `eval_L_harm_all`, the EXACT all-batch-denominator EVAL harm_indicator loss
+  (subject-macro over ALL eval batches incl. identity/fallback), added as an ADDITIVE field to `develop.V4CandidateReport`
+  (`RC.subject_losses_from_policy(np.stack([calibrated]), dr_ev, subj_ev, loss="harm_indicator").mean()`, mirroring
+  `external_adapter.evaluate_stratum`). It is REQUIRED + finite (None/NaN ⇒ fail-closed). The conditional `harm_rate` is carried
+  DESCRIPTIVELY as `harm_among_adapted` (None when nothing adapted) and NEVER gates. Zero-adaptation: `eval_L_harm_all=0.0`,
+  `harm_among_adapted=None`, compatibility FAILS via the coverage gate (not via harm). The `develop` change is additive — it does
+  NOT alter coverage/red/harm_rate/g4 or any existing v2/v3 number (manifest assertions are relative; v3 uses a separate module).
 - **The pass-line** is the FROZEN `compatibility_replay_pass` (v2_replay HARD; per disease: CAL LTT λ* certified, coverage≥0.15,
   red>0, EVAL L_harm_all≤0.10, v2 evaluable, red>v2_replay_red; macro red>macro v2).
-- **ONE remaining C-run frontier** (`_load_subject_windows_and_keys`): the raw-window↔v3-WindowKey alignment is the ONLY step
-  that reads DEV raw, and a wrong alignment would corrupt `deployment_batch_digest` → a silently-wrong verdict. It raises a
-  CONTROLLED `SubstrateReplayNotWiredError` until finalized + validated at the authorized C-run (everything else around it —
-  frozen-substrate load, no-refit derive, 1×1×1 exploration, stat extraction, pass-line — is REAL). No untested raw I/O ⇒ no
-  silently-wrong verdict.
+- **(C3) Raw-window↔v3-WindowKey alignment is REAL + synthetic-tested.** `_load_subject_windows_and_keys` aligns the re-embedded
+  raw windows to the **sha-pinned DEV feat-dump metadata** (per-disease/cohort `dev_feat_dump_paths`+`dev_feat_dump_sha256`, the
+  alignment SOURCE OF TRUTH) BY KEY (recording_id, window_index): every dump row must have a matching raw window and vice-versa,
+  else FAIL-CLOSED (missing/extra/dup/shape) before any digest. The ONLY remaining C-run frontier is `_load_subject_raw_windows`
+  — the single step that reads DEV raw EEG, run ONLY at the authorized C-run (controlled `SubstrateReplayNotWiredError`; tests
+  inject a synthetic provider). Even an imperfect raw read can't yield a wrong verdict: the pinned dump metadata + by-key
+  alignment fail-close on any mismatch. Everything else (frozen-substrate load, no-refit derive, alignment, 1×1×1 exploration,
+  exact eval_L_harm_all extraction, pass-line) is REAL.
 
 ## 5. Result taxonomy (no selection/external/binding vocabulary)
 `regen_substrate.SUBSTRATE_COMPAT_STATUSES = (SUBSTRATE_COMPATIBILITY_PASS, SUBSTRATE_COMPATIBILITY_FAIL,

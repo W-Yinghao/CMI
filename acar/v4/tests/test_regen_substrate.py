@@ -198,7 +198,9 @@ def _sub_manifest(**over):
               "encoder_checkpoint_file_sha256": "b" * 64, "source_state_path": "/s",
               "source_state_artifact_sha256": "b" * 64, "source_state_file_sha256": "b" * 64,
               "encoder_provenance_path": "/ep", "source_state_provenance_path": "/sp",
-              "dev_input_manifest_path": "/dim", "dev_input_manifest_sha256": "b" * 64} for d in ("PD", "SCZ")}
+              "dev_input_manifest_path": "/dim", "dev_input_manifest_sha256": "b" * 64,
+              "dev_feat_dump_paths": {c: "/dump/" + c for c in R.DEV_SCOPE[d]},
+              "dev_feat_dump_sha256": {c: "b" * 64 for c in R.DEV_SCOPE[d]}} for d in ("PD", "SCZ")}
     m = {"substrate_protocol_commit": "f" * 40, "compatibility_protocol_commit": "a" * 40,   # two-commit split (C1)
          "candidate": dict(R.FIXED_CANDIDATE), "alpha": R.ALPHA, "budget": R.BUDGET,
          "coverage_min": R.COVERAGE_MIN, "substrates": sd, "env_lock_path": "/abs/env_lock.json",
@@ -222,6 +224,12 @@ def test_validate_substrate_manifest():
     _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # bad dev-input sha
     sd = _sub_manifest(); del sd["substrates"]["PD"]["dev_input_manifest_path"]
     _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # dev-input path required
+    sd = _sub_manifest(); sd["substrates"]["PD"]["dev_feat_dump_paths"] = {"ds002778": "/x"}   # wrong cohort key set
+    _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # dev_feat_dump_paths key mismatch
+    sd = _sub_manifest(); sd["substrates"]["PD"]["dev_feat_dump_sha256"]["ds002778"] = "short"
+    _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # dev_feat_dump sha bad hex
+    sd = _sub_manifest(); del sd["substrates"]["SCZ"]["dev_feat_dump_paths"]
+    _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # dev_feat_dump_paths required
     sd = _sub_manifest(); del sd["substrates"]["SCZ"]
     _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # missing disease
     for hf in ("encoder_state_dict_sha256", "encoder_checkpoint_file_sha256",                  # each of the 4 unambiguous
@@ -511,12 +519,21 @@ def _sub_manifest_files(base, *, missing=False, bad=None, no_env=False):   # bad
                     f.write(payload.encode())
         def _sha(path, key):                                                                   # FILE-byte hash (preflight verifies)
             return "0" * 64 if bad == key else (_fsha(path) if not missing else "b" * 64)
+        dfp, dfs = {}, {}                                                                       # DEV feat-dump metadata, per cohort
+        for c in R.DEV_SCOPE[d]:
+            dpath = os.path.join(base, f"dump_{d}_{c}.npz")
+            if not missing:
+                with open(dpath, "wb") as f:
+                    f.write(("dump-" + d + c).encode())
+            dfp[c] = dpath
+            dfs[c] = "0" * 64 if bad == "dump" else (_fsha(dpath) if not missing else "b" * 64)
         subs[d] = {"encoder_checkpoint_path": enc, "encoder_checkpoint_file_sha256": _sha(enc, "enc"),
                    "encoder_state_dict_sha256": "b" * 64,                                       # canonical (verified at replay)
                    "source_state_path": ss, "source_state_file_sha256": _sha(ss, "ss"),
                    "source_state_artifact_sha256": "b" * 64,
                    "encoder_provenance_path": enc + ".prov.json", "source_state_provenance_path": ss + ".prov.json",
-                   "dev_input_manifest_path": dim, "dev_input_manifest_sha256": _sha(dim, "dim")}
+                   "dev_input_manifest_path": dim, "dev_input_manifest_sha256": _sha(dim, "dim"),
+                   "dev_feat_dump_paths": dfp, "dev_feat_dump_sha256": dfs}
     return _sub_manifest(substrates=subs, env_lock_path=env, env_lock_sha256=env_sha)
 
 
@@ -606,7 +623,7 @@ def test_run_substrate_compatibility_fail_closed():
         with open(pne, "w") as f:
             json.dump(_sub_manifest_files(base, no_env=True), f)
         _expect(FileNotFoundError, lambda: RSC.run(pne, out))                                   # env-lock file missing
-        for key in ("enc", "ss", "dim", "env"):                                                # EACH file-byte sha mismatch branch
+        for key in ("enc", "ss", "dim", "env", "dump"):                                        # EACH file-byte sha mismatch branch
             pk = os.path.join(base, f"sub_bad_{key}.json")
             with open(pk, "w") as f:
                 json.dump(_sub_manifest_files(base, bad=key), f)
@@ -680,13 +697,46 @@ def test_run_substrate_compatibility_authorized_runs_gated_replay():
         shutil.rmtree(base, ignore_errors=True)
 
 
-def test_compat_replay_single_frontier_and_no_refit():
-    """C2: the ONLY remaining C-run frontier is the raw-window↔v3-WindowKey alignment (_load_subject_windows_and_keys) — it
-    raises a CONTROLLED SubstrateReplayNotWiredError (never a silently-wrong verdict). And the replay path NEVER re-fits the
-    source-state: it must not reference real_adapter.build_cohort_inputs / v3 build_cohort_input / real_adapter.derive."""
+def test_compat_replay_alignment_and_no_refit():
+    """C3: the ONLY remaining C-run frontier is the DEV RAW READ (_load_subject_raw_windows) — controlled
+    SubstrateReplayNotWiredError. _load_subject_windows_and_keys is now a REAL by-key aligner (synthetic raw + pinned dump
+    metadata; no real raw). And the replay path NEVER re-fits the source-state."""
     import inspect
+    import numpy as np
     from acar.v4 import run_substrate_compatibility as RSC
-    _expect(R.SubstrateReplayNotWiredError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", R.FROZEN_PIPELINE))
+    cfg = R.FROZEN_PIPELINE
+    # the single raw-read frontier is controlled (run only at the authorized C-run)
+    _expect(R.SubstrateReplayNotWiredError, lambda: RSC._load_subject_raw_windows("PD", "ds002778", "sub-1", cfg))
+    # REAL by-key alignment (needs acar.v3.set_features WindowKey -> python>=3.10; skip on 3.9, exercised under acar-v4-regen)
+    try:
+        from acar.v3.set_features import WindowKey  # noqa: F401
+        _have_wk = True
+    except Exception as e:
+        print(f"  [skip] alignment exercise (acar.v3.set_features import: {type(e).__name__})"); _have_wk = False
+    if _have_wk:
+        n = (cfg["canon_channels"], int(cfg["resample_fs"] * cfg["window_sec"]))
+        rows = [("rec0", 0, 1), ("rec0", 1, 1), ("rec1", 0, 0)]                                 # (recording_id, window_index, label)
+        full = {("rec0", 0): np.zeros(n, "<f4"), ("rec0", 1): np.zeros(n, "<f4"), ("rec1", 0): np.zeros(n, "<f4")}
+        loader = lambda dis, ds, sub, c, raw=full: dict(raw)
+        X, keys, labels = RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=loader)
+        assert X.shape == (3,) + n and len(keys) == 3 and len(labels) == 3                       # aligned in dump order
+        assert keys[0].recording_id == "rec0" and keys[0].window_index == 0 and labels[keys[2]] == 0
+        miss = lambda *a, **k: {("rec0", 0): np.zeros(n, "<f4"), ("rec0", 1): np.zeros(n, "<f4")}  # dump row ('rec1',0) has no raw
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=miss))
+        extra = lambda *a, **k: {**full, ("rec1", 1): np.zeros(n, "<f4")}                        # raw window with no dump row
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=extra))
+        badshape = lambda *a, **k: {**full, ("rec1", 0): np.zeros((19, 7), "<f4")}               # wrong window shape
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=badshape))
+        dup_rows = [("rec0", 0, 1), ("rec0", 0, 1)]                                              # two dump rows -> same WindowKey
+        one = lambda *a, **k: {("rec0", 0): np.zeros(n, "<f4")}
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, dup_rows, signal_loader=one))
+    # subject-universe reconciliation (PURE; runs on 3.9): re-embedded set must EQUAL eligible AND number EXACT_ELIGIBLE
+    elig = {f"ds002778/s{i:03d}" for i in range(R.EXACT_ELIGIBLE["PD"])}                         # 230
+    assert RSC._check_reembed_universe("PD", set(elig), elig) is True                            # happy
+    _expect(ValueError, lambda: RSC._check_reembed_universe("PD", set(list(elig)[:-1]), elig))   # an eligible subject omitted
+    _expect(ValueError, lambda: RSC._check_reembed_universe("PD", set(elig) | {"ds002778/x"}, elig))   # extra subject
+    small = {f"ds002778/s{i}" for i in range(5)}
+    _expect(ValueError, lambda: RSC._check_reembed_universe("PD", set(small), small))            # seen==eligible but count != 230
     src = inspect.getsource(RSC)                                                # check CALLS (with "("), not doc mentions
     assert "build_cohort_input(" not in src and "build_cohort_inputs(" not in src, "replay must NOT call the refit build_cohort_input(s)()"
     assert "real_adapter.derive(" not in src and "RA.derive(" not in src, "replay must NOT call real_adapter.derive (refit path)"
@@ -698,7 +748,7 @@ def _fc_report(disease, **over):
     import types
     fc = R.FIXED_CANDIDATE
     base = dict(disease=disease, policy_family=fc["policy"], loss=fc["loss"], coverage=0.30, red=0.20,
-                harm_rate=0.05, c0_red=0.10, g4_harm_control_pass=True)
+                harm_rate=0.04, eval_L_harm_all=0.05, c0_red=0.10, g4_harm_control_pass=True)
     base.update(over)
     return types.SimpleNamespace(**base)
 
@@ -710,22 +760,29 @@ def test_extract_fixed_candidate_stats():
     pd = RSC._extract_fixed_candidate_stats(res)
     assert set(pd) == {"PD", "SCZ"}
     assert pd["PD"]["lambda_certified"] is True and pd["PD"]["coverage"] == 0.30 and pd["PD"]["red"] == 0.20
-    assert pd["PD"]["L_harm_all_eval"] == 0.05 and pd["PD"]["v2_replay_red"] == 0.10 and pd["PD"]["v2_evaluable"] is True
-    # v2 comparator absent -> v2_evaluable False, v2_replay_red None (compatibility_replay_pass then HARD-fails)
+    # the GATE uses the EXACT eval_L_harm_all (0.05), NOT the conditional harm_rate (0.04 — descriptive only)
+    assert pd["PD"]["L_harm_all_eval"] == 0.05 and pd["PD"]["harm_among_adapted"] == 0.04
+    assert pd["PD"]["v2_replay_red"] == 0.10 and pd["PD"]["v2_evaluable"] is True
+    # eval_L_harm_all REQUIRED + finite: missing/None/NaN -> fail closed (no proxy fallback)
+    _expect(ValueError, lambda: RSC._extract_fixed_candidate_stats(
+        types.SimpleNamespace(reports=(_fc_report("PD", eval_L_harm_all=None), _fc_report("SCZ")))))
+    _expect(ValueError, lambda: RSC._extract_fixed_candidate_stats(
+        types.SimpleNamespace(reports=(_fc_report("PD", eval_L_harm_all=float("nan")), _fc_report("SCZ")))))
+    # zero-adaptation: eval_L_harm_all=0.0 (clean), harm_among_adapted=None (NaN->None descriptive); fails via coverage gate
+    pz = RSC._extract_fixed_candidate_stats(types.SimpleNamespace(
+        reports=(_fc_report("PD", coverage=0.0, eval_L_harm_all=0.0, harm_rate=float("nan")), _fc_report("SCZ"))))
+    assert pz["PD"]["L_harm_all_eval"] == 0.0 and pz["PD"]["harm_among_adapted"] is None and json.dumps(pz, allow_nan=False)
+    assert R.compatibility_replay_pass(pz)[0] is False                                          # coverage 0 < 0.15 -> FAIL (not via harm)
+    # v2 comparator absent -> v2_evaluable False (compatibility_replay_pass then HARD-fails)
     res2 = types.SimpleNamespace(reports=(_fc_report("PD", c0_red=None), _fc_report("SCZ")))
     assert RSC._extract_fixed_candidate_stats(res2)["PD"]["v2_evaluable"] is False
-    # non-finite harm_rate (nothing adapted) -> JSON-safe fail-safe 1.0 (not NaN), fails the budget gate
-    res_nan = types.SimpleNamespace(reports=(_fc_report("PD", harm_rate=float("nan")), _fc_report("SCZ")))
-    pn = RSC._extract_fixed_candidate_stats(res_nan)
-    assert pn["PD"]["L_harm_all_eval"] == 1.0 and json.dumps(pn, allow_nan=False)                    # JSON-serializable, no NaN
-    # the extracted stats actually drive the frozen pass-line
+    # the extracted stats actually drive the frozen pass-line (PASS when all gates met)
     assert R.compatibility_replay_pass(RSC._extract_fixed_candidate_stats(res))[0] is True
     # multi-report per disease (a reselection grid) -> fail closed
-    res3 = types.SimpleNamespace(reports=(_fc_report("PD"), _fc_report("PD"), _fc_report("SCZ")))
-    _expect(ValueError, lambda: RSC._extract_fixed_candidate_stats(res3))
+    _expect(ValueError, lambda: RSC._extract_fixed_candidate_stats(
+        types.SimpleNamespace(reports=(_fc_report("PD"), _fc_report("PD"), _fc_report("SCZ")))))
     # missing a disease -> fail closed
-    res4 = types.SimpleNamespace(reports=(_fc_report("PD"),))
-    _expect(ValueError, lambda: RSC._extract_fixed_candidate_stats(res4))
+    _expect(ValueError, lambda: RSC._extract_fixed_candidate_stats(types.SimpleNamespace(reports=(_fc_report("PD"),))))
 
 
 def main():
@@ -740,7 +797,7 @@ def main():
               test_load_eligible_windows_excludes_before_open_and_cohort_aware,
               test_run_substrate_compatibility_fail_closed,
               test_run_substrate_compatibility_authorized_runs_gated_replay,
-              test_compat_replay_single_frontier_and_no_refit, test_extract_fixed_candidate_stats,
+              test_compat_replay_alignment_and_no_refit, test_extract_fixed_candidate_stats,
               test_cmi_load_cohort_honors_subject_allowlist):
         t()
         print(f"  [ok] {t.__name__}")
