@@ -1,0 +1,59 @@
+% CIGL manuscript — LaTeX-ready draft (Phase 4F / v0.4).
+% WRITING/PACKAGING ONLY. Do NOT compile a PDF without explicit reviewer authorization.
+% Scientific claim is FIXED and BOUNDED (see ../cigl/CLAIMS_AUDIT.md): DGCNN static-adjacency backbone;
+% graph/node posterior-KL proxy (NOT unbiased CMI); lambda_g = lambda_n = 0.010, lambda_edge = 0; two MI
+% datasets; source-only DG; PARTIAL leakage reduction at source-task retention; no edge-CMI, no SOTA,
+% no beyond-MI claim. Neutral article class on purpose — no conference template added in this phase.
+\documentclass[11pt]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{amsmath,amssymb}
+\usepackage{booktabs}
+\usepackage{graphicx}
+\usepackage[numbers]{natbib}
+\usepackage{hyperref}
+
+% Visible marker for citations whose exact bibliographic fields are not yet verified
+% (entry identity exists in REFERENCES_DRAFT.bib; venue/DOI/pages may still be % TODO there).
+\newcommand{\todoverify}{\textbf{[TODO: verify citation]}}
+
+\title{CIGL: Auditing and Reducing Label-Conditional Domain Leakage in EEG Graph
+Representations under Source-Only Generalization}
+\author{(authors omitted for anonymous draft)}
+\date{Draft v0.4 / Phase 4F --- not for submission}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Cross-subject electroencephalography (EEG) decoders are confounded by subject- and session-specific
+structure that a model can exploit instead of the task signal. We study this as \emph{label-conditional
+domain leakage} in learned EEG graph representations: how much subject/domain identity a graph network's
+graph-level and node-level features carry once the class label is fixed. We measure it with a
+\emph{posterior-KL plug-in proxy} --- a conditional-domain probe scored against a retrained, within-label
+permutation null --- and emphasize that this proxy is \emph{not} an unbiased conditional-mutual-information
+(CMI) estimator. On a task-capable graph backbone (a DGCNN with a shared/static adjacency), we find the
+graph and node representations carry significant such leakage. We then add a fixed \textbf{graph/node}
+conditional-information regularizer (no edge term) and show, under \textbf{strict source-only} domain
+generalization on two motor-imagery (MI) datasets, that it \textbf{partially but reproducibly reduces} this
+leakage while meeting the pre-specified source-task retention criteria. The reduction is partial (the
+regularized leakage still clears the null), the estimator is a proxy, the backbone is a single
+static-adjacency graph network, and the evidence is two MI datasets --- we make no SOTA,
+leakage-elimination, edge-CMI, cross-architecture, or beyond-MI claim. We also report the negative results
+that shaped the method (a near-chance graph backbone and overfitting dynamic-edge designs), which justify
+the bounded scope.
+\end{abstract}
+
+\input{sections/01_intro}
+\input{sections/02_related_work}
+\input{sections/03_method}
+\input{sections/04_protocol}
+\input{sections/05_results}
+\input{sections/06_analysis_negative_results}
+\input{sections/07_limitations_conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{../cigl/REFERENCES_DRAFT}
+
+\end{document}

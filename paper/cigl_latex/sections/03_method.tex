@@ -1,0 +1,33 @@
+\section{Method}
+
+\paragraph{Backbone.} We use a DGCNN-style graph network with a single shared (static) learned adjacency and
+a Chebyshev graph convolution over electrode nodes, exposing
+$\texttt{forward\_graph}(x) \rightarrow (\text{logits}, \texttt{graph\_z}, \texttt{node\_z},
+\texttt{edge\_logits})$. Because the adjacency is shared across samples, there is \textbf{no per-sample edge
+object} ($\texttt{edge\_logits} = \texttt{None}$); CIGL as studied here is therefore \textbf{graph/node only}.
+We adopt this backbone after an explicit search (Section~\ref{sec:analysis}): it is the graph-compatible
+backbone we found that actually learns the task.
+
+\paragraph{Leakage objects and proxy.} Let $Z_g$ be the graph readout and $Z_v$ the per-electrode node
+features, $Y$ the class label, and $D$ the source-domain (subject) label. We quantify label-conditional
+domain leakage with a \textbf{posterior-KL plug-in proxy}:
+\begin{align}
+R_g &= \mathbb{E}\!\left[ \mathrm{KL}\!\left( q_g(D \mid Z_g, Y) \,\Vert\, \pi_y(D) \right) \right], &
+R_n &= \frac{1}{C} \sum_{v} \mathbb{E}\!\left[ \mathrm{KL}\!\left( q_n(D \mid Z_v, v, Y) \,\Vert\,
+\pi_y(D) \right) \right],
+\end{align}
+where $q_g$/$q_n$ are conditional-domain posterior heads, $\pi_y(D)$ the within-label domain prior, and $C$
+the number of electrodes. We stress that $R_g$/$R_n$ are a \textbf{proxy}, not an unbiased CMI estimator.
+
+\paragraph{Regularizer.} CIGL trains the backbone with $\mathcal{L} = \mathcal{L}_{\mathrm{CE}} +
+\lambda_g R_g + \lambda_n R_n$ (no edge term), using the established two-step scheme: Step~A fits the
+posterior heads on detached features; Step~B penalizes the encoder. Throughout the confirmation we use a
+single \textbf{fixed} weight $\lambda_g = \lambda_n = 0.010$ ($\lambda_{\mathrm{edge}} = 0$). See
+Figure~F1 (\texttt{figures/FIGURE\_ASSET\_PLAN.md}).
+
+\paragraph{Audit.} To judge significance we re-fit fresh held-out conditional-domain probes on frozen
+features and compare to a \textbf{retrained, within-label permutation null} (permuting $D$ within label on
+the probe-training split only, preserving the within-label prior);
+$\texttt{clears\_null} = (\texttt{kl\_mean} > \texttt{permutation\_mean})\;\wedge\;
+(\texttt{permutation\_p} \le 0.05)$. The audit is the same proxy used as a measurement, never inverted into
+an information-theoretic guarantee. See Figure~F3.

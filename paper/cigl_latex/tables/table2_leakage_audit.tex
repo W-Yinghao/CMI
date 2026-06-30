@@ -1,0 +1,20 @@
+% Table 2 — DGCNN leakage audit (CIGL_25, BNCI2014_001 fold-0). Draft; values from RESULTS_TABLES_DRAFT.md (T2).
+\begin{table}[t]
+\centering
+\caption{Source-only leakage audit on the DGCNN backbone (BNCI2014\_001 fold-0). The proxy is compared to a
+retrained within-label permutation null; \texttt{clears} = significant in 3/3 seeds. Edge is skipped
+(static adjacency, \texttt{edge\_logits=None}).}
+\label{tab:leakage_audit}
+\small
+\begin{tabular}{lcccc}
+\toprule
+Object & kl\_mean & perm\_mean & $p$ & clears (seeds) \\
+\midrule
+graph $Z_g$ & $\approx 1.26$ ($\approx 8\times$ perm)  & $\approx 0.16$  & 0.020 & 3/3 \\
+node $Z_v$  & $\approx 0.52$ ($\approx 15\times$ perm) & $\approx 0.034$ & 0.020 & 3/3 \\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\footnotesize Node-leakage map stable across seeds (mean pairwise corr.\ $\approx 0.945 \gg$ null q95 $\approx 0.20$).
+\end{table}

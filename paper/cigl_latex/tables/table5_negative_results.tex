@@ -1,0 +1,21 @@
+% Table 5 — Negative-results summary. Draft; from RESULTS_TABLES_DRAFT.md (T5) / CIGL_18,21,23.
+\begin{table}[t]
+\centering
+\caption{Negative results that shaped the bounded scope. Each ``rules out'' a broader claim and ``shapes''
+the chosen method.}
+\label{tab:negative_results}
+\small
+\begin{tabular}{p{2.0cm}p{4.6cm}p{3.0cm}p{3.0cm}}
+\toprule
+Phase & Finding & Rules out & Shapes the method \\
+\midrule
+3A-R (CIGL\_18) & GraphCMINet ERM near-chance (src $\approx 0.33 < 0.45$); 6 repairs fail & ``any graph backbone hosts the tradeoff'' & need a task-capable backbone \\
+3A-S (CIGL\_21) & EEGNet/Shallow/Deep/DGCNN clear $\ge 0.45$; GraphCMINet 0.334 & ``the protocol/data are unlearnable'' & GraphCMINet is the bottleneck \\
+3A-G (CIGL\_23) & only static DGCNN adapter passes; dynamic-edge stems overfit & a general edge / dynamic-graph method here & graph/node-only on static DGCNN \\
+\bottomrule
+\end{tabular}
+
+\vspace{2pt}
+\footnotesize Caveat (Tables~3--4): the \emph{regularized} leakage still clears the null in every
+confirmation fold --- these are \textbf{partial} reductions, not elimination.
+\end{table}

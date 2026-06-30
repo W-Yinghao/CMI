@@ -1,0 +1,13 @@
+\section{Experimental Protocol}
+
+We evaluate under \textbf{strict source-only DG}: a leave-one-subject-out (LOSO) target is excluded from
+training and from the source probe used for selection; \textbf{target labels are evaluation-only} and never
+used for training, early stopping, normalization, model/config selection, confirmation-label choice, probe
+fitting, or the audit. We use two MI datasets: \textbf{BNCI2014\_001}~\citep{tangermann2012review,
+brunner2008graz2a} (4-class, chance $0.25$) and \textbf{BNCI2015\_001}~\citep{faller2012autocalibration}
+(binary right\_hand vs.\ feet, chance $0.50$; loaded via the \texttt{MotorImagery} paradigm because it is
+not left/right-hand). Both use MOABB preprocessing~\citep{jayaram2018moabb} at $128$~Hz, a $0.5$--$3.5$~s
+window, and per-trial $z$-scoring; data come from a read-only datalake. The candidate
+$\lambda_g = \lambda_n = 0.010$ was selected once on a single development fold (BNCI2014\_001 fold-0) and
+then \textbf{frozen}; all subsequent runs are fixed-candidate confirmations with no $\lambda$ search.
+Table~1 (\texttt{tables/table1\_method\_protocol.tex}) summarizes the method/config/protocol.

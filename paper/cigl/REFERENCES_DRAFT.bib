@@ -1,0 +1,125 @@
+% CIGL draft references (Phase 4F / v0.4).
+% Draft references; unresolved TODOs remain before submission.
+% Rules: entries below have a VERIFIED core bibliographic identity (authors/title/venue/year).
+% Fields not yet confirmed are marked with an inline "% TODO: verify ..." comment, NOT a fabricated value.
+% No entry here invents a DOI, volume, or page range. See CITATION_TODO_QUEUE.md for the work queue.
+
+% ---------------------------------------------------------------------------
+% Datasets (required before submission) — fields below are reviewer-verified.
+% ---------------------------------------------------------------------------
+
+@article{tangermann2012review,
+  author  = {Tangermann, Michael and M{\"u}ller, Klaus-Robert and Aertsen, Ad and Birbaumer, Niels and Braun, Christoph and Brunner, Clemens and Leeb, Robert and Mehring, Carsten and Miller, Kai J. and M{\"u}ller-Putz, Gernot R. and Nolte, Guido and Pfurtscheller, Gert and Preissl, Hubert and Schalk, Gerwin and Schl{\"o}gl, Alois and Vidaurre, Carmen and Waldert, Stephan and Blankertz, Benjamin},
+  title   = {Review of the {BCI} Competition {IV}},
+  journal = {Frontiers in Neuroscience},
+  volume  = {6},
+  pages   = {55},
+  year    = {2012},
+  doi     = {10.3389/fnins.2012.00055}
+}
+% BNCI2014_001 (BCI Competition IV dataset 2a). MOABB lists tangermann2012review for this dataset.
+% Original data description: "BCI Competition 2008 -- Graz data set A",
+% C. Brunner, R. Leeb, G. R. Mueller-Putz, A. Schloegl, G. Pfurtscheller.
+@misc{brunner2008graz2a,
+  author       = {Brunner, Clemens and Leeb, Robert and M{\"u}ller-Putz, Gernot R. and Schl{\"o}gl, Alois and Pfurtscheller, Gert},
+  title        = {{BCI} Competition 2008 -- Graz Data Set {A}},
+  howpublished = {Graz University of Technology, dataset description},
+  year         = {2008},
+  note         = {9 subjects, four motor-imagery classes, 22 EEG channels, 250 Hz}
+  % TODO: verify exact citation form / URL for the data-description document
+}
+
+@article{faller2012autocalibration,
+  author  = {Faller, Josef and Vidaurre, Carmen and Solis-Escalante, Teodoro and Neuper, Christa and Scherer, Reinhold},
+  title   = {Autocalibration and Recurrent Adaptation: Towards a Plug and Play Online {ERD-BCI}},
+  journal = {IEEE Transactions on Neural Systems and Rehabilitation Engineering},
+  volume  = {20},
+  number  = {3},
+  pages   = {313--319},
+  year    = {2012},
+  doi     = {10.1109/TNSRE.2012.2189584}
+}
+% BNCI2015_001 (001-2015), right_hand vs feet motor imagery.
+
+% ---------------------------------------------------------------------------
+% Benchmark / decoders — reviewer-verified core fields.
+% ---------------------------------------------------------------------------
+
+@article{jayaram2018moabb,
+  author  = {Jayaram, Vinay and Barachant, Alexandre},
+  title   = {{MOABB}: Trustworthy Algorithm Benchmarking for {BCIs}},
+  journal = {Journal of Neural Engineering},
+  volume  = {15},
+  number  = {6},
+  pages   = {066011},
+  year    = {2018},
+  doi     = {10.1088/1741-2552/aadea0}
+}
+
+@article{lawhern2018eegnet,
+  author  = {Lawhern, Vernon J. and Solon, Amelia J. and Waytowich, Nicholas R. and Gordon, Stephen M. and Hung, Chou P. and Lance, Brent J.},
+  title   = {{EEGNet}: A Compact Convolutional Neural Network for {EEG}-Based Brain--Computer Interfaces},
+  journal = {Journal of Neural Engineering},
+  volume  = {15},
+  number  = {5},
+  pages   = {056013},
+  year    = {2018},
+  doi     = {10.1088/1741-2552/aace8c}
+}
+
+@article{schirrmeister2017deep,
+  author  = {Schirrmeister, Robin Tibor and Springenberg, Jost Tobias and Fiederer, Lukas Dominique Josef and Glasstetter, Martin and Eggensperger, Katharina and Tangermann, Michael and Hutter, Frank and Burgard, Wolfram and Ball, Tonio},
+  title   = {Deep Learning with Convolutional Neural Networks for {EEG} Decoding and Visualization},
+  journal = {Human Brain Mapping},
+  year    = {2017}
+  % TODO: verify volume/pages/DOI (ShallowConvNet & DeepConvNet)
+}
+
+% ---------------------------------------------------------------------------
+% Graph EEG networks — identity verified; exact venue/DOI still TODO.
+% ---------------------------------------------------------------------------
+
+@article{song2018dgcnn,
+  author  = {Song, Tengfei and Zheng, Wenming and Song, Peng and Cui, Zhen},
+  title   = {{EEG} Emotion Recognition Using Dynamical Graph Convolutional Neural Networks},
+  journal = {IEEE Transactions on Affective Computing},
+  year    = {2018}
+  % TODO: verify exact venue/volume/issue/pages/year/DOI (descriptor only; "venue TBD")
+}
+
+@misc{zhong2019rgnn,
+  author = {Zhong, Peixiang and Wang, Di and Miao, Chunyan},
+  title  = {{EEG}-Based Emotion Recognition Using Regularized Graph Neural Networks},
+  year   = {2019},
+  eprint = {1907.07835},
+  archivePrefix = {arXiv}
+  % TODO: verify published (IEEE Trans. Affective Computing?) version/DOI
+}
+
+@misc{ding2021lggnet,
+  author = {Ding, Yi and Robinson, Neethu and Zhang, Su and Zeng, Qiuhao and Guan, Cuntai},
+  title  = {{LGGNet}: Learning from Local-Global-Graph Representations for Brain--Computer Interface},
+  year   = {2021},
+  eprint = {2105.02786},
+  archivePrefix = {arXiv}
+  % TODO: verify published version/year/DOI; confirm exact author list
+}
+
+% ---------------------------------------------------------------------------
+% Conditional invariance / CMI estimation — identity verified; fields TODO.
+% ---------------------------------------------------------------------------
+
+@inproceedings{li2018conditional,
+  title     = {Domain Generalization via Conditional Invariant Representations},
+  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  year      = {2018}
+  % TODO: verify exact author list, volume/pages, DOI
+}
+
+@inproceedings{mukherjee2020ccmi,
+  author    = {Mukherjee, Sudipto and Asnani, Himanshu and Kannan, Sreeram},
+  title     = {{CCMI}: Classifier Based Conditional Mutual Information Estimation},
+  booktitle = {Proceedings of Machine Learning Research (UAI)},
+  year      = {2020}
+  % TODO: verify volume (v115?) and pages
+}

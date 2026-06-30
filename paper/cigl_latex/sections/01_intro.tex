@@ -1,0 +1,36 @@
+\section{Introduction}
+
+EEG brain--computer interfaces must generalize across subjects, yet inter-subject variability is large and
+a decoder can latch onto subject identity rather than the neural task. A growing line of work treats this
+as a domain-generalization (DG) problem and as a \emph{shortcut/leakage} problem: features that separate
+subjects, conditioned on the label, are a direct measure of how much the representation could be exploiting
+domain identity. Graph neural networks are attractive for EEG because electrodes form a natural graph, and
+they expose interpretable objects --- a graph-level readout, per-electrode node features, and (for some
+designs) a learned adjacency. This makes them a good substrate for \emph{auditing} leakage at the graph and
+node level.
+
+Most leakage-control work either presumes a task-capable model or measures leakage without first confirming
+that the backbone can learn the task at all; on EEG graph networks, we find neither holds for free. This
+paper therefore makes a deliberately \textbf{bounded} contribution. We \emph{audit} label-conditional
+domain leakage in a graph network's \texttt{graph\_z}/\texttt{node\_z} objects under a strict
+no-target-label firewall; we then show --- through a methodology chain whose negative results are part of
+the evidence --- that leakage control is only meaningful on a \emph{task-capable} graph backbone, which is
+nontrivial to obtain; and we finally confirm that a single fixed graph/node conditional-information
+regularizer reduces the audited leakage on two MI datasets while meeting a pre-registered source-task
+retention gate. We do not claim state-of-the-art accuracy, leakage elimination, an unbiased CMI estimate,
+an edge-level method, or generality beyond this backbone and these two MI datasets. The contributions are:
+
+\begin{itemize}
+  \item[\textbf{(C1)}] A \textbf{source-only audit} of label-conditional domain leakage in a graph
+  network's \texttt{graph\_z}/\texttt{node\_z} objects: a posterior-KL plug-in proxy with a retrained
+  within-label permutation null and a target-label firewall (we explicitly disclaim unbiased CMI).
+  \item[\textbf{(C2)}] A \textbf{methodology chain, including its negative results}, showing that a
+  \emph{task-capable} graph backbone is a prerequisite --- the original graph backbone is near-chance,
+  dynamic-edge designs overfit, and a static-adjacency DGCNN is the one that learns the task.
+  \item[\textbf{(C3)}] A \textbf{fixed-candidate, cross-dataset confirmation} that a graph/node
+  conditional-information regularizer ($\lambda_g = \lambda_n = 0.010$, no edge term) partially and
+  reproducibly reduces the audited leakage while meeting the pre-registered source-task retention gate on
+  two MI datasets (the gate holds dataset-wide, with one BNCI2015\_001 fold missing the per-fold threshold).
+  \item[\textbf{(C4)}] An explicit \textbf{negative-results $+$ limitations} account that bounds the claim
+  (proxy not unbiased CMI; partial not full; graph/node only; one backbone; two MI datasets).
+\end{itemize}

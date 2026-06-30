@@ -1,0 +1,27 @@
+% Table 4 — BNCI2015_001 confirmation (CIGL_31; all 12 LOSO folds).
+% Draft; means/ranges from RESULTS_TABLES_DRAFT.md (T4); 95% CIs from STATISTICAL_SUMMARY_DRAFT.md
+% (fold-level bootstrap, seed 0, 10000 resamples, percentile).
+\begin{table}[t]
+\centering
+\caption{BNCI2015\_001 confirmation of the same fixed \texttt{graph\_node\_010} (all 12 LOSO folds). bAcc
+chance 0.50. 95\% CIs are fold-level bootstrap. One fold (fold9, $+0.024$) misses the per-fold retention
+threshold while the dataset-level gate passes. Edge skipped.}
+\label{tab:bnci2015}
+\small
+\begin{tabular}{lc}
+\toprule
+Quantity & Value \\
+\midrule
+fold group / $n_{\mathrm{folds}}$        & all LOSO folds / 12 \\
+ERM source bAcc (mean [range])           & 0.706 [0.682, 0.734] \\
+reg source bAcc (mean, 95\% CI)          & 0.700 [0.693, 0.707] \\
+source retention (drop $\le 0.02$)       & 11/12 (fold9 $+0.024$) \\
+graph KL reduction (mean, 95\% CI; range)& 66.2\% [60.6, 71.0]; 43--77\% \\
+node KL reduction (mean, 95\% CI; range) & 51.9\% [47.8, 55.6]; 37--61\% \\
+ERM adequacy / leakage / reg reduces $\ge$30\% & 12/12 / 12/12 / 12/12 \\
+target guardrail (drop $\le 0.05$)       & 12/12 \\
+reg leakage still clears null            & every fold (partial, not elimination) \\
+edge status / decision                   & skipped / \textbf{A} (\texttt{confirmed\_with\_target\_guardrail=true}) \\
+\bottomrule
+\end{tabular}
+\end{table}

@@ -1,0 +1,20 @@
+% Table 1 — Method / config / protocol. Draft; values from ../cigl/RESULTS_TABLES_DRAFT.md (T1).
+\begin{table}[t]
+\centering
+\caption{CIGL method, configuration, and protocol.}
+\label{tab:method_protocol}
+\small
+\begin{tabular}{ll}
+\toprule
+Field & Value \\
+\midrule
+Backbone        & DGCNN static (shared) adjacency; \texttt{forward\_graph}$\to$(\texttt{graph\_z},\texttt{node\_z},\texttt{edge\_logits=None}) \\
+Loss            & $\mathcal{L}_{\mathrm{CE}} + \lambda_g R_g(Z_g;D|Y) + \lambda_n R_n(Z_v;D|Y)$,\; $\lambda_g=\lambda_n=0.010$,\; $\lambda_{\mathrm{edge}}=0$ \\
+Regularizer     & posterior-KL plug-in proxy (NOT unbiased CMI); Step-A posteriors on detached features, Step-B encoder penalty \\
+Setting         & strict source-only DG; target labels evaluation-only \\
+Datasets        & BNCI2014\_001 (4-class, chance 0.25); BNCI2015\_001 (binary right\_hand/feet, chance 0.50) \\
+Preprocessing   & MotorImagery; resample 128\,Hz; window 0.5--3.5\,s; per-trial $z$-score \\
+Seeds / $n_{\mathrm{perm}}$ / gate & 0,1,2 / 50 / $\alpha=0.05$ \\
+\bottomrule
+\end{tabular}
+\end{table}

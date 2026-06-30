@@ -1,0 +1,27 @@
+\section{Limitations}
+
+\begin{enumerate}
+  \item The leakage metric is a \textbf{posterior-KL proxy}, not an unbiased CMI estimator; it can over- or
+  under-state true CMI, so we frame it as an audit/penalty, not a guarantee.
+  \item Control is \textbf{partial} --- the regularized leakage still clears the null.
+  \item Evidence is \textbf{two MI datasets}; we make no beyond-MI or universal claim.
+  \item Results are for \textbf{one backbone} (DGCNN static adjacency); no cross-architecture claim.
+  \item A \textbf{single fixed} $\lambda$ ($0.010$) was confirmed; we ran no $\lambda$-grid and make no
+  $\lambda$-robustness claim.
+  \item The candidate was selected on a development fold before freezing; we report this and exclude that
+  fold from the primary aggregate.
+  \item Baselines are modest (BNCI2014\_001 ERM $\approx 0.46$; BNCI2015\_001 ERM $\approx 0.70$) --- this is
+  a leakage-reduction-at-retention result, not an accuracy record.
+  \item \textbf{No edge object} (static adjacency); edge/dynamic-graph leakage control is future work.
+\end{enumerate}
+
+\section{Conclusion}
+
+We presented CIGL, a source-only audit and graph/node regularizer for label-conditional domain leakage in
+EEG graph representations. On a task-capable static-adjacency DGCNN backbone, the audited graph/node leakage
+is significant, and a fixed graph/node conditional-information regularizer partially and reproducibly
+reduces it while meeting the pre-specified source-task retention criteria on two MI datasets. The
+contribution is a bounded, honestly-scoped measurement$\rightarrow$control result, accompanied by the
+negative results that shaped it. Future work includes constrained dynamic-edge backbones that generalize (to
+enable an edge-level audit), additional datasets and paradigms, and tighter estimators than the posterior-KL
+proxy.

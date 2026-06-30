@@ -1,0 +1,22 @@
+\section{Analysis and Negative Results}
+\label{sec:analysis}
+
+The negative results are part of the contribution; they justify the bounded scope.
+
+\begin{itemize}
+  \item[(i)] \textbf{The original graph backbone fails the task.} A GraphCMINet-style network is near-chance
+  under strict source-only training and is not repairable by small training tweaks, so its (strong,
+  controllable) leakage cannot support a task-vs-leakage tradeoff.
+  \item[(ii)] \textbf{The protocol is learnable.} Known-good convolutional decoders
+  (EEGNet/ShallowConvNet/DeepConvNet) and a DGCNN all clear a source-accuracy floor on the same fold,
+  showing the bottleneck was the specific graph backbone, not the data/protocol.
+  \item[(iii)] \textbf{Dynamic-edge designs overfit.} The tested dynamic-adjacency backbones overfit
+  strongly (train $\approx 1.0$, source $\approx$ chance) regardless of temporal stem, and carry leakage;
+  this is consistent with a per-sample adjacency $A(x)$ acting as a subject-fingerprint channel, but these
+  experiments do \textbf{not} causally isolate $A(x)$ as the only source of memorization. Either way,
+  \textbf{dynamic-edge CIGL is unsupported here and edge-CMI is out of scope}.
+\end{itemize}
+
+The static-adjacency DGCNN is the only graph-compatible backbone that both learns the task and exposes
+usable graph/node objects, which is why CIGL is framed as graph/node only on this backbone. Table~5
+summarizes the negative results, and Figure~F4 shows the decision flow that fixed the scope.
