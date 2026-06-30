@@ -20,7 +20,7 @@ show that each unguarded step has a concrete failure mode.
 The candidate subspace is read from the conditional score-Fisher operator (\S2.2), which is second-order in
 the log-likelihood scores. By construction it responds to covariance- and synergy-structured leakage, where
 a first-moment (mean-scatter) statistic is identically blind: on a covariance-only generator the
-mean-scatter direction is a no-op while the score-Fisher direction recovers the leakage subspace [C1]. This
+mean-scatter direction is a no-op while the score-Fisher direction recovers the leakage subspace \claimtag{C1}. This
 is why localization uses the score-Fisher operator rather than class-mean differences.
 
 \subsection{Direct-sum deletion can still be conditionally unsafe}
@@ -28,14 +28,14 @@ On a synergy (``explaining-away'') generator, the domain-rich subspace is task-l
 second-moment geometry, so a direct-sum projector deletes it without any \emph{apparent} task cost --- yet the
 Bayes oracle shows the deletion removes real conditional task information ($\Delta_Y > 0$). Geometry alone would
 accept this deletion. This is the concrete sense in which \textbf{direct-sum geometry is necessary but not
-sufficient for conditional task safety} [C2], and it motivates an explicit conditional task-risk gate.
+sufficient for conditional task safety} \claimtag{C2}, and it motivates an explicit conditional task-risk gate.
 
 \subsection{Weak task gates unsafe-accept; log-ratio gates reduce the failure}
 A naive task gate --- a small nested critic estimating the conditional task risk --- \emph{unsafe-accepts} such
 deletions: its probe task-risk upper bound sits far below the true Bayes gap, so the deletion passes (Fig
 2B). Replacing it with a cross-fitted one-step plug-in log-ratio estimator shrinks the gap between the
-estimated bound and the oracle, and the gap continues to close with calibration sample size (Fig 2C); the
-unsafe-accept occurs only in the small-sample, weak-critic regime [C3]. The estimator is the bottleneck ---
+estimated bound and the oracle, and the gap continues to close with calibration sample size (Fig.~\ref{fig:synth}C); the
+unsafe-accept occurs only in the small-sample, weak-critic regime \claimtag{C3}. The estimator is the bottleneck ---
 not the geometry --- so the gate must use a calibrated estimator, not a convenience critic.
 
 \subsection{Power certification turns unsafe deletion into refusal}
@@ -43,7 +43,7 @@ Even a calibrated estimator can be \emph{underpowered}: at a given sample size i
 safe deletion from an unsafe one. We therefore attach a power certificate (a minimum-detectable-effect
 floor) and require both task safety (an upper bound on $\Delta_Y$) and a domain-gain lower bound before deleting.
 With this in place the certified gate produces \textbf{zero unsafe-accepts} across the synthetic phase diagram,
-but is deliberately conservative --- it abstains or rejects in most cells (Fig 2D). Abstention is the intended
+but is deliberately conservative --- it abstains or rejects in most cells (Fig.~\ref{fig:synth}D). Abstention is the intended
 behavior when deletion cannot be certified, and is reported as such (not as a missing result).
 
 \begin{figure}[t]

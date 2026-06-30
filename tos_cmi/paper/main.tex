@@ -10,8 +10,15 @@
 \usepackage{hyperref}
 \usepackage{caption}
 \usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
 
 \graphicspath{{figures/}}
+
+% --- draft-mode claim tags (traceability to claim_evidence_table.md; hidden in the PDF) ---
+\newif\ifshowclaimtags
+\showclaimtagsfalse
+\newcommand{\claimtag}[1]{\ifshowclaimtags\textcolor{blue}{[#1]}\fi}
 
 \title{Selective Conditional Invariance in Task-Orthogonal EEG Subspaces:\\
 A Measurement-to-Control Study}

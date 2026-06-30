@@ -26,13 +26,31 @@ G_{D|Y} v = \rho (G_Y + \eta M) v,
 i.e. directions that maximize conditional-domain score energy relative to task score energy (large $\rho$).
 This is a \textbf{score-Fisher proxy} for conditional leakage --- second-order in the log-likelihood scores, so it
 detects covariance/synergy structure that a first-moment (mean-scatter) statistic is blind to --- not the
-exact conditional mutual information [C1]. The number of retained directions nDcand is chosen by an
+exact conditional mutual information \claimtag{C1}. The number of retained directions nDcand is chosen by an
 eigengap/$\rho$-threshold rule.
 
 \begin{figure}[t]
 \centering
-\fbox{\parbox{0.92\linewidth}{\centering Pipeline schematic placeholder: score-Fisher localization $\rightarrow$ direct-sum projection $\rightarrow$ task-risk / domain-gain gates $\rightarrow$ delete or abstain.}}
-\caption{Overview of the TOS-CMI measurement-to-control framework: localize a domain-rich, task-light subspace; delete it with a direct-sum projector; gate on a conditional task-risk certificate; and \emph{delete or refuse}.}
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[>=Latex, node distance=10mm and 12mm, font=\small,
+  box/.style={draw, rounded corners, align=center, inner sep=4pt, minimum height=9mm},
+  act/.style={draw, rounded corners, align=center, inner sep=4pt, minimum height=9mm, thick},
+  gate/.style={draw, diamond, aspect=2.2, align=center, inner sep=1pt}]
+\node[box] (z) {frozen\\ latent $Z$};
+\node[box, right=of z] (sf) {score-Fisher\\ localization};
+\node[box, right=of sf] (vd) {candidate\\ subspace $V_D$};
+\node[box, right=of vd] (pr) {direct-sum\\ projector $P_N$};
+\node[gate, right=of pr] (g) {domain-gain\\ \& task-risk\\ gates};
+\node[act, above right=6mm and 14mm of g] (del) {\textbf{certified}: delete\\ $RZ=(I-P_N)Z$};
+\node[act, below right=6mm and 14mm of g] (id) {\textbf{not certified}: identity\\ (abstain) $Z$};
+\draw[->] (z)--(sf); \draw[->] (sf)--(vd); \draw[->] (vd)--(pr); \draw[->] (pr)--(g);
+\draw[->] (g.north) to[out=60,in=180] node[above,font=\scriptsize,pos=0.55]{safe \& useful} (del.west);
+\draw[->] (g.south) to[out=-60,in=180] node[below,font=\scriptsize,pos=0.55]{cannot certify} (id.west);
+\end{tikzpicture}}
+\caption{TOS-CMI is a measurement-to-control framework: it first localizes conditional domain information,
+then intervenes only when deletion is certified safe; otherwise the control action is the identity map. The
+defining branch is \emph{certified deletion} vs.\ \emph{certified refusal / abstention} --- unlike a standard
+encoder--regularizer--classifier pipeline, the framework is allowed to decline to intervene.}
 \label{fig:pipeline}
 \end{figure}
 
@@ -48,7 +66,7 @@ rather than mere orthogonality. We then \textbf{measure removability} by decodin
 MLP probes) and comparing against (i) the full $Z$ and (ii) a same-k \emph{random} removal control. The deletion
 is informative only if it reduces domain decode well below random-k while leaving task decode unchanged.
 Crucially, \textbf{direct-sum geometry is necessary for algebraic task preservation but not sufficient for
-conditional task safety} [C2]: a domain-rich direction can still carry conditional task information, which
+conditional task safety} \claimtag{C2}: a domain-rich direction can still carry conditional task information, which
 the geometry cannot see --- motivating the gate.
 
 \subsection{Conditional task-risk gate and certified refusal}
@@ -62,12 +80,12 @@ bounding the conditional task risk it carries,
 the task information in the deleted subspace beyond what the complement already holds. $\Delta_Y$ is estimated by a
 \textbf{cross-fitted, one-step plug-in log-ratio} estimator with a power certificate (a minimum-detectable-effect
 floor); a weak nested critic is insufficient because it can \textbf{unsafe-accept} deletions whose true $\Delta_Y$ is
-large (Fig 2B). The gate combines an upper confidence bound on $\Delta_Y$ (task safety) with a lower bound on the
+large (Fig.~\ref{fig:synth}B). The gate combines an upper confidence bound on $\Delta_Y$ (task safety) with a lower bound on the
 domain-gain (that the subspace is genuinely domain-rich). \textbf{Certification is allowed to abstain, and
 abstention is a valid control decision}: if the gate cannot certify that deletion is both safe ($\Delta_Y$ small)
 and useful (domain-rich) at the available sample size, the correct action is the \textbf{identity map}, not a
-weaker invariance penalty [C3]. On synthetic controls this certified gate produces zero unsafe-accepts but
-is deliberately conservative (Fig 2D) --- an honest negative for default-on deletion, by design.
+weaker invariance penalty \claimtag{C3}. On synthetic controls this certified gate produces zero unsafe-accepts but
+is deliberately conservative (Fig.~\ref{fig:synth}D) --- an honest negative for default-on deletion, by design.
 
 \subsection{Frozen-feature EEG evaluation protocol}
 We evaluate on BCI-IV-2a (BNCI2014\_001) \cite{brunner2008bci}, loaded via the MOABB pipeline
