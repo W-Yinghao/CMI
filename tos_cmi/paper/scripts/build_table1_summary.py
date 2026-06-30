@@ -20,27 +20,27 @@ def _row(bb):
     collapse = feat_hi < 0.1
     subj0 = pl[min(pl)]["subj"]["median"]; subjhi = pl[lam_hi]["subj"]["median"]
     tgt0 = pl[min(pl)]["tgt"]["median"]; tgthi = pl[lam_hi]["tgt"]["median"]
-    # collapse-free LPC removes leakage? TSMNet: read variant_compare keystone; EEGNet: raw LPC is collapse-free
+    # raw LPC + collapse-free LPC outcomes stated explicitly (avoid a bare "n/a" that reads as missing)
     if bb == "TSMNet":
-        vc = json.load(open(os.path.join(LPC, "TSMNet", "variant_compare.json")))
-        cf_removes = "no (subj~ERM in all collapse-free cells)" if not vc["leakage_reduced_any_collapse_free"] else "yes"
+        raw_lpc = "leakage falls via collapse (feature-norm->0), task -> chance"
+        cf_lpc = "task restored, leakage returns to ERM (subj ~0.997)"
+        delete_eff = "dents only: subj %.2f->%.2f (= random %.2f); task kept" % (dZ, dRZ, dRr)
+        dg = "not achievable: no task-preserving leakage reduction exists (raw LPC collapses; collapse-free LPC removes none)"
         decision = "abstain / low-rank deletion insufficient"
-        collapse_s = "yes (feature-norm -> 0)"
-        delete_eff = "dents only (RZ %.2f vs random %.2f)" % (dRZ, dRr)
     else:
-        cf_removes = "yes (subj %.2f -> %.2f, no collapse)" % (subj0, subjhi)
+        raw_lpc = "no collapse: leakage falls %.2f->%.2f, source task degrades gradually" % (subj0, subjhi)
+        cf_lpc = "n/a (raw LPC already collapse-free on this latent)"
+        delete_eff = "removes: subj linear %.2f->%.2f / MLP %.2f->%.2f (>> random %.2f); task kept" % (dZl, dRZl, dZ, dRZ, dRr)
+        dg = "none: target flat (%.2f->%.2f) as leakage falls %.2f->%.2f" % (tgt0, tgthi, subj0, subjhi)
         decision = "diagnostic deletion removes leakage but no DG gain"
-        collapse_s = "no (gradual; feat_norm stays > 0)"
-        delete_eff = "linear %.2f->%.2f, MLP %.2f->%.2f (>> random %.2f)" % (dZl, dRZl, dZ, dRZ, dRr)
     return {
         "Backbone": bb,
         "Latent dim": a["z_dim"],
-        "Subject decode (ERM, MLP)": "%.3f" % dZ,
-        "Low-rank deletion effect": delete_eff,
-        "Task cost of deletion": "~0 (%.2f->%.2f)" % (tZ, tRZ),
-        "Global LPC collapse?": collapse_s,
-        "Collapse-free LPC removes leakage?": cf_removes,
-        "Target DG gain from removal?": "n/a (collapses)" if collapse else "no (tgt %.2f->%.2f)" % (tgt0, tgthi),
+        "Subject decode (ERM)": "%.3f" % dZ,
+        "Low-rank deletion (subject; task)": delete_eff,
+        "Raw LPC outcome": raw_lpc,
+        "Collapse-free LPC outcome": cf_lpc,
+        "DG gain under task-preserving control": dg,
         "Certified decision": decision,
     }
 

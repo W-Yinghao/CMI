@@ -15,14 +15,13 @@ standard global objective. We study two representations: TSMNet (LogEig/SPD tang
 EEGNet (convolutional penultimate latent, z_dim=16).
 
 ## 4.1 TSMNet: subject leakage is high-dimensional and redundant; global LPC "works" only by collapse
-**Measurement is positive.** In the TSMNet latent, subject identity is almost perfectly decodable from the
-full Z (MLP 0.997, chance 0.125; Fig 4A), and the score-Fisher selector returns a compact candidate
-subspace (nDcand ≈ 3 of 210; Fig 4D).
-
-**Control is negative (deletion).** Deleting V_D preserves the task (decode 0.75→0.75; Fig 4B) but barely
-reduces subject decode (0.997→0.96 MLP), essentially matching same-k random removal (≈0.997; Fig 4A,C).
-Even deleting the full Fisher-discriminative subspace (the LDA cap of 7 directions for 8 source subjects)
-leaves subject decode at 0.92–0.98 — subject identity is **redundantly re-encoded** across the
+**In the high-dimensional TSMNet latent, the framework localizes subject-preferential low-rank directions,
+but deleting them does not remove subject leakage.** Subject identity is almost perfectly decodable from
+the full Z (MLP 0.997, chance 0.125; Fig 4A); the score-Fisher selector localizes a compact candidate
+subspace (nDcand ≈ 3 of 210; Fig 4D), yet deleting V_D only **dents** subject decode (0.997→0.96 MLP) —
+essentially matching same-k random removal (≈0.997; Fig 4A,C) — while preserving the task (0.75→0.75;
+Fig 4B). Even deleting the full Fisher-discriminative subspace (the LDA cap of 7 directions for 8 source
+subjects) leaves subject decode at 0.92–0.98: subject identity is **redundantly re-encoded** across the
 high-dimensional latent, so **low-rank selective deletion is insufficient** [C4].
 
 **Control is negative (global penalty).** The global LPC penalty *appears* to remove leakage at high λ, but
@@ -38,14 +37,15 @@ penalty removes no leakage** [C6]. In the tested TSMNet/2a setting, global LPC's
 collapse artifact.
 
 ## 4.2 EEGNet: low-rank deletion removes leakage (linearly), but removal yields no generalization benefit
-**Removability is representation-dependent.** In the compact EEGNet latent the *same* score-Fisher deletion
-behaves very differently (Fig 5A–C, Table 1). Deleting V_D (nDcand ≈ 5 of 16) preserves the task
-(0.64→0.64) and **selectively** reduces subject decode far below same-k random removal: linear 0.82→0.35
-(random 0.73), MLP 0.88→0.54 (random 0.81). The informed-vs-random selectivity is ~0.35–0.55, roughly an
-order of magnitude larger than on TSMNet (0.04–0.08), and same-k random deletion does *not* reproduce it —
-so this is genuine subspace selectivity, not an artifact of deleting a larger fraction of a small latent
-[C7]. The reduction is **partial**: a substantial nonlinear residual survives (RZ MLP 0.54, well above
-chance 0.125), so we report it as *linearly reducible with a persistent nonlinear residual*, not as
+**EEGNet shows that the negative TSMNet result is not because score-Fisher deletion can never remove
+leakage: in a compact latent the same diagnostic deletion removes much more subject information — yet this
+removal does not translate into target-domain improvement.** Deleting V_D (nDcand ≈ 5 of 16) preserves the
+task (0.64→0.64) and **selectively removes** subject decode far below same-k random removal: linear
+0.82→0.35 (random 0.73), MLP 0.88→0.54 (random 0.81; Fig 5A–C). The informed-vs-random selectivity is
+~0.35–0.55, roughly an order of magnitude larger than on TSMNet (0.04–0.08), and same-k random deletion
+does *not* reproduce it — genuine subspace selectivity, not an artifact of deleting a larger fraction of a
+small latent [C7]. The removal is **partial**: a substantial nonlinear residual survives (RZ MLP 0.54, well
+above chance 0.125), so we report it as *linearly reducible with a persistent nonlinear residual*, not as
 elimination [C8].
 
 **But removable ≠ beneficial.** Sweeping the global LPC penalty on EEGNet reduces subject decode
@@ -66,6 +66,9 @@ latent cannot. The correct operating principle is therefore a **certified interv
 framework should delete only when a source-risk certificate permits, and abstain otherwise — which on
 TSMNet means abstain (deletion insufficient) and on EEGNet means a diagnostic deletion that removes leakage
 but is not claimed to improve generalization [C10].
+
+**Final claim.** Conditional domain leakage is measurable, and sometimes removable, but neither measurement
+nor removal is sufficient evidence of domain-generalization benefit.
 
 > Limitation flagged here (full text in §5): representation type and latent dimensionality are collinear in
 > this design (SPD↔210, conv↔16); Phase 3 establishes representation dependence, not its causal factor.
