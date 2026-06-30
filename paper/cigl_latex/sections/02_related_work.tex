@@ -2,18 +2,16 @@
 
 We connect to four threads. (i) \textbf{EEG domain generalization / cross-subject MI}, especially the MOABB
 benchmarking protocol~\citep{jayaram2018moabb}, from which our datasets and leave-one-subject-out (LOSO)
-evaluation derive. (ii) \textbf{Graph EEG networks} --- DGCNN~\citep{song2018dgcnn}\todoverify,
-RGNN~\citep{zhong2019rgnn}\todoverify, and LGGNet~\citep{ding2021lggnet}\todoverify --- which motivate
-graph/node/edge objects. (iii) \textbf{Known-good convolutional MI decoders} --- EEGNet~\citep{lawhern2018eegnet}
-and ShallowConvNet/DeepConvNet~\citep{schirrmeister2017deep}\todoverify --- which we use only as sanity
-references for task learnability. (iv) \textbf{Conditional-invariance / information-penalty} methods ---
-conditional domain-invariant representations~\citep{li2018conditional}\todoverify, classifier-based CMI /
-posterior-KL leakage proxies~\citep{mukherjee2020ccmi}\todoverify, and domain-adversarial or
-marginal-invariance baselines.
+evaluation derive. (ii) \textbf{Graph EEG networks} --- DGCNN~\citep{song2018dgcnn},
+RGNN~\citep{zhong2019rgnn}, and LGGNet~\citep{ding2021lggnet} --- which motivate graph/node/edge objects.
+(iii) \textbf{Known-good convolutional MI decoders} --- EEGNet~\citep{lawhern2018eegnet} and
+ShallowConvNet/DeepConvNet~\citep{schirrmeister2017deep} --- which we use only as sanity references for task
+learnability. (iv) \textbf{Conditional-invariance / information-penalty} methods --- conditional
+domain-invariant representations~\citep{li2018conditional}, classifier-based CMI / posterior-KL leakage
+proxies~\citep{mukherjee2020ccmi}, and domain-adversarial or marginal-invariance baselines.
 
 CIGL differs by (a) \emph{auditing} graph and node leakage explicitly with a permutation-null proxy before
 regularizing, (b) operating strictly source-only with target labels evaluation-only, and (c) restricting to
 a graph/node penalty on a task-capable static-adjacency backbone rather than claiming a general
 edge/dynamic-graph method. A positioning grid and per-citation verification status are kept in
-\texttt{../cigl/RELATED\_WORK\_MATRIX.md} and \texttt{../cigl/CITATION\_TODO\_QUEUE.md}; entries still marked
-\todoverify{} have a verified bibliographic identity but an unverified venue/DOI/page field.
+\texttt{../cigl/RELATED\_WORK\_MATRIX.md} and \texttt{../cigl/CITATION\_TODO\_QUEUE.md}.

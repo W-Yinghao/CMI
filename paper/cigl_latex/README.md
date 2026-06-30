@@ -22,11 +22,16 @@ manuscript (`../cigl/MANUSCRIPT_DRAFT.md`) into a LaTeX skeleton a human can edi
 - `figures/FIGURE_ASSET_PLAN.md` — F1–F4 plans (no images generated).
 
 ## Citations
-`\citep{key}` is used where the entry's bibliographic identity is verified. A trailing `\todoverify`
-(rendered as **[TODO: verify citation]**) marks entries whose venue/DOI/pages are still `% TODO` in the
-`.bib`. Resolved (full DOI): MOABB, EEGNet, BNCI2014_001 (Tangermann 2012 + Brunner 2008), BNCI2015_001
-(Faller 2012). Still TODO: Schirrmeister, DGCNN, RGNN, LGGNet, Li 2018, CCMI — see
-`../cigl/CITATION_TODO_QUEUE.md`.
+`\citep{key}` resolves all 10 references; **all citations are now resolved** (Phase 4G) — see
+`../cigl/REFERENCES_DRAFT.bib`, `../cigl/REFERENCES_VERIFIED.md`, `../cigl/CITATION_TODO_QUEUE.md`. RGNN and
+LGGNet DOIs/authors were Crossref-verified. The only remaining TODO is a minor `note` field (Brunner Graz-2a
+data-description URL). No `\todoverify` markers remain.
 
-## To build later (only when authorized)
-`pdflatex main && bibtex main && pdflatex main && pdflatex main` — **do not run in this phase.**
+## Compile smoke (Phase 4G): PASSED
+`main.tex` compiles end-to-end (pdflatex → bibtex → pdflatex ×2): 11 entries, no errors, no undefined
+citations, `_build/main.pdf` ~8 pages. See `COMPILE_SMOKE_SUMMARY.md`. The generated PDF and aux/bbl/log are
+written to the **gitignored** `_build/` and are **not committed**.
+
+## To build later (only when authorized for a real submission build)
+From this directory: `pdflatex -output-directory=_build main && BIBINPUTS="../cigl:.:" bibtex _build/main &&
+pdflatex -output-directory=_build main && pdflatex -output-directory=_build main`. Output stays in `_build/`.

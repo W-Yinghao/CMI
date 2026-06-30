@@ -1,11 +1,12 @@
-% CIGL draft references (Phase 4F / v0.4).
-% Draft references; unresolved TODOs remain before submission.
-% Rules: entries below have a VERIFIED core bibliographic identity (authors/title/venue/year).
-% Fields not yet confirmed are marked with an inline "% TODO: verify ..." comment, NOT a fabricated value.
-% No entry here invents a DOI, volume, or page range. See CITATION_TODO_QUEUE.md for the work queue.
+% CIGL draft references (Phase 4G / v0.5).
+% Draft references; only a minor sub-field TODO remains (Brunner Graz-2a data-description URL).
+% Rules: every entry has a VERIFIED core bibliographic identity (authors/title/venue/year) and, where shown,
+% a verified DOI. Reviewer-provided fields are marked "(reviewer-verified)"; RGNN and LGGNet DOIs/pages were
+% independently confirmed via Crossref. No entry invents a DOI, volume, or page range.
+% See CITATION_TODO_QUEUE.md for the (now nearly empty) work queue.
 
 % ---------------------------------------------------------------------------
-% Datasets (required before submission) — fields below are reviewer-verified.
+% Datasets (reviewer-verified).
 % ---------------------------------------------------------------------------
 
 @article{tangermann2012review,
@@ -18,15 +19,14 @@
   doi     = {10.3389/fnins.2012.00055}
 }
 % BNCI2014_001 (BCI Competition IV dataset 2a). MOABB lists tangermann2012review for this dataset.
-% Original data description: "BCI Competition 2008 -- Graz data set A",
-% C. Brunner, R. Leeb, G. R. Mueller-Putz, A. Schloegl, G. Pfurtscheller.
+% Original data description: "BCI Competition 2008 -- Graz data set A".
+% TODO (minor): verify exact citation form / URL for the data-description document.
 @misc{brunner2008graz2a,
   author       = {Brunner, Clemens and Leeb, Robert and M{\"u}ller-Putz, Gernot R. and Schl{\"o}gl, Alois and Pfurtscheller, Gert},
   title        = {{BCI} Competition 2008 -- Graz Data Set {A}},
   howpublished = {Graz University of Technology, dataset description},
   year         = {2008},
   note         = {9 subjects, four motor-imagery classes, 22 EEG channels, 250 Hz}
-  % TODO: verify exact citation form / URL for the data-description document
 }
 
 @article{faller2012autocalibration,
@@ -42,7 +42,7 @@
 % BNCI2015_001 (001-2015), right_hand vs feet motor imagery.
 
 % ---------------------------------------------------------------------------
-% Benchmark / decoders — reviewer-verified core fields.
+% Benchmark / convolutional decoders.
 % ---------------------------------------------------------------------------
 
 @article{jayaram2018moabb,
@@ -71,55 +71,72 @@
   author  = {Schirrmeister, Robin Tibor and Springenberg, Jost Tobias and Fiederer, Lukas Dominique Josef and Glasstetter, Martin and Eggensperger, Katharina and Tangermann, Michael and Hutter, Frank and Burgard, Wolfram and Ball, Tonio},
   title   = {Deep Learning with Convolutional Neural Networks for {EEG} Decoding and Visualization},
   journal = {Human Brain Mapping},
-  year    = {2017}
-  % TODO: verify volume/pages/DOI (ShallowConvNet & DeepConvNet)
+  volume  = {38},
+  number  = {11},
+  pages   = {5391--5420},
+  year    = {2017},
+  doi     = {10.1002/hbm.23730}
 }
 
 % ---------------------------------------------------------------------------
-% Graph EEG networks — identity verified; exact venue/DOI still TODO.
+% Graph EEG networks.
 % ---------------------------------------------------------------------------
 
 @article{song2018dgcnn,
   author  = {Song, Tengfei and Zheng, Wenming and Song, Peng and Cui, Zhen},
   title   = {{EEG} Emotion Recognition Using Dynamical Graph Convolutional Neural Networks},
   journal = {IEEE Transactions on Affective Computing},
-  year    = {2018}
-  % TODO: verify exact venue/volume/issue/pages/year/DOI (descriptor only; "venue TBD")
+  volume  = {11},
+  number  = {3},
+  pages   = {532--541},
+  year    = {2020},
+  note    = {Early access 2018},
+  doi     = {10.1109/TAFFC.2018.2817622}
 }
 
-@misc{zhong2019rgnn,
-  author = {Zhong, Peixiang and Wang, Di and Miao, Chunyan},
-  title  = {{EEG}-Based Emotion Recognition Using Regularized Graph Neural Networks},
-  year   = {2019},
-  eprint = {1907.07835},
-  archivePrefix = {arXiv}
-  % TODO: verify published (IEEE Trans. Affective Computing?) version/DOI
+@article{zhong2019rgnn,
+  author  = {Zhong, Peixiang and Wang, Di and Miao, Chunyan},
+  title   = {{EEG}-Based Emotion Recognition Using Regularized Graph Neural Networks},
+  journal = {IEEE Transactions on Affective Computing},
+  volume  = {13},
+  number  = {3},
+  pages   = {1290--1301},
+  year    = {2022},
+  doi     = {10.1109/TAFFC.2020.2994159}
 }
 
-@misc{ding2021lggnet,
-  author = {Ding, Yi and Robinson, Neethu and Zhang, Su and Zeng, Qiuhao and Guan, Cuntai},
-  title  = {{LGGNet}: Learning from Local-Global-Graph Representations for Brain--Computer Interface},
-  year   = {2021},
-  eprint = {2105.02786},
-  archivePrefix = {arXiv}
-  % TODO: verify published version/year/DOI; confirm exact author list
+@article{ding2021lggnet,
+  author  = {Ding, Yi and Robinson, Neethu and Tong, Chengxuan and Zeng, Qiuhao and Guan, Cuntai},
+  title   = {{LGGNet}: Learning From Local-Global-Graph Representations for Brain--Computer Interface},
+  journal = {IEEE Transactions on Neural Networks and Learning Systems},
+  volume  = {35},
+  number  = {7},
+  pages   = {9773--9786},
+  year    = {2024},
+  doi     = {10.1109/TNNLS.2023.3236635}
 }
 
 % ---------------------------------------------------------------------------
-% Conditional invariance / CMI estimation — identity verified; fields TODO.
+% Conditional invariance / CMI estimation.
 % ---------------------------------------------------------------------------
 
-@inproceedings{li2018conditional,
-  title     = {Domain Generalization via Conditional Invariant Representations},
-  booktitle = {Proceedings of the AAAI Conference on Artificial Intelligence},
-  year      = {2018}
-  % TODO: verify exact author list, volume/pages, DOI
+@article{li2018conditional,
+  author  = {Li, Ya and Gong, Mingming and Tian, Xinmei and Liu, Tongliang and Tao, Dacheng},
+  title   = {Domain Generalization via Conditional Invariant Representations},
+  journal = {Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume  = {32},
+  number  = {1},
+  year    = {2018},
+  doi     = {10.1609/aaai.v32i1.11682}
 }
 
+% PMLR proceedings; no DOI assigned (normal for PMLR).
 @inproceedings{mukherjee2020ccmi,
   author    = {Mukherjee, Sudipto and Asnani, Himanshu and Kannan, Sreeram},
   title     = {{CCMI}: Classifier Based Conditional Mutual Information Estimation},
-  booktitle = {Proceedings of Machine Learning Research (UAI)},
+  booktitle = {Proceedings of the 35th Uncertainty in Artificial Intelligence Conference (UAI)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {115},
+  pages     = {1083--1093},
   year      = {2020}
-  % TODO: verify volume (v115?) and pages
 }

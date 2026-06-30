@@ -46,3 +46,14 @@ __pycache__/
 
 # slurm generated packages that reference local paths (optional; keep templates)
 slurm-*.out
+
+# CIGL LaTeX compile-smoke artifacts (never commit generated build output)
+paper/cigl_latex/_build/
+paper/cigl_latex/**/*.aux
+paper/cigl_latex/**/*.bbl
+paper/cigl_latex/**/*.blg
+paper/cigl_latex/**/*.log
+paper/cigl_latex/**/*.out
+paper/cigl_latex/**/*.fls
+paper/cigl_latex/**/*.fdb_latexmk
+paper/cigl_latex/**/*.synctex.gz

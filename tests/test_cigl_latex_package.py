@@ -49,26 +49,60 @@ def test_required_files_exist():
     assert (LATEX / "figures" / "FIGURE_ASSET_PLAN.md").exists(), "missing FIGURE_ASSET_PLAN.md"
 
 
+_BUILD = "_build"  # gitignored compile-smoke dir; artifacts there are allowed, never committed
+
+
+def _outside_build(paths):
+    return [p for p in paths if _BUILD not in p.parts]
+
+
 def test_no_committed_pdf():
-    pdfs = list(LATEX.rglob("*.pdf"))
-    assert not pdfs, f"PDF(s) present (no compile authorized): {pdfs}"
+    # PDFs may exist only under the gitignored _build/ (compile smoke); never in a tracked path.
+    pdfs = _outside_build(LATEX.rglob("*.pdf"))
+    assert not pdfs, f"PDF(s) in a committable path (no compile output may be committed): {pdfs}"
 
 
-def test_unresolved_citation_todos_visible():
-    # 6 citations remain unverified -> the visible [TODO: verify citation] marker must be present.
-    t = _all_tex()
-    assert "[TODO: verify citation]" in t, "expected visible unresolved-citation markers in the .tex"
+def test_no_generated_latex_artifacts_outside_build():
+    bad = []
+    for ext in ("*.aux", "*.bbl", "*.blg", "*.log", "*.fls", "*.fdb_latexmk", "*.synctex.gz", "*.out"):
+        bad += _outside_build(LATEX.rglob(ext))
+    assert not bad, f"generated LaTeX artifact(s) outside _build/: {bad}"
 
 
-def test_bib_has_no_fabricated_doi_for_unverified_entries():
-    # entries known to still be TODO (DGCNN, Schirrmeister, Li, CCMI) must NOT carry a doi = {...} field.
+def test_no_fabricated_doi_placeholder():
+    # citations are resolved or honestly omitted; no placeholder DOI value may appear.
+    bib = BIB.read_text().lower()
+    for bad in ("todo-doi", "doi = {todo", "doi={todo", "doi = {xxx", "doi = {0000", "doi = {tbd"):
+        assert bad not in bib, f"fabricated/placeholder DOI value present: {bad!r}"
+
+
+def test_bib_parses_and_cited_entries_complete():
     bib = BIB.read_text()
-    # crude entry split on '@'
-    for entry in re.split(r"(?=@)", bib):
-        head = entry[:80].lower()
-        if any(k in head for k in ("song2018dgcnn", "schirrmeister2017deep",
-                                   "li2018conditional", "mukherjee2020ccmi")):
-            assert not re.search(r"\bdoi\s*=", entry), f"unverified entry has a doi field: {head!r}"
+    assert bib.count("{") == bib.count("}"), "unbalanced braces in REFERENCES_DRAFT.bib"
+    entries = dict(re.findall(r"@\w+\{([^,]+),(.*?)\n\}", bib, flags=re.S))
+    assert len(entries) >= 11, f"expected >= 11 bib entries, found {len(entries)}"
+    # every cited key must resolve to an entry carrying at least author/title (or howpublished) + year.
+    for key in _cited_keys():
+        assert key in entries, f"cited key not defined in bib: {key}"
+        body = entries[key].lower()
+        assert "title" in body and "year" in body, f"entry {key} missing title/year"
+        assert ("author" in body) or ("howpublished" in body), f"entry {key} missing author"
+
+
+def _cited_keys():
+    keys = set()
+    for p in _tex_files():
+        for m in re.finditer(r"\\cite[pt]?\{([^}]*)\}", p.read_text()):
+            for k in m.group(1).split(","):
+                if k.strip():
+                    keys.add(k.strip())
+    return keys
+
+
+def test_main_uses_only_defined_citation_keys():
+    bib_keys = set(re.findall(r"@\w+\{([^,]+),", BIB.read_text()))
+    undefined = sorted(_cited_keys() - bib_keys)
+    assert not undefined, f"cited keys not present in REFERENCES_DRAFT.bib: {undefined}"
 
 
 def _all_occurrences_negated(text, term, before=90, after=60):
