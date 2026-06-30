@@ -144,7 +144,7 @@ def _regen_manifest(base, disease="PD", cohorts=None, lock_status="CAPTURED_AND_
         json.dump(lk, f)
     env_sha = "0" * 64 if break_env_sha else _fsha(env)
     m = {"protocol_commit": commit, "repo_clean_required": True, "disease": disease, "dev_cohorts": cohorts,
-         "source_kind": "canonical_features", "source_paths": {c: base for c in cohorts},
+         "source_kind": "raw_bids", "source_paths": {c: base for c in cohorts},
          "source_file_manifest_sha256": "b" * 64,
          "per_cohort_source_file_manifest_sha256": {c: "b" * 64 for c in cohorts},
          "eligible_subject_list_sha256": "b" * 64,
@@ -171,6 +171,7 @@ def test_validate_regen_manifest():
         _expect(ValueError, lambda: bad(cohorts=["ds002778", "ds003490", "ds007526"]))        # external id in scope
         _expect(ValueError, lambda: bad(cohorts=["ds002778", "ds003490"]))                     # wrong scope
         _expect(ValueError, lambda: bad(source_kind="bogus"))                                  # bad source_kind
+        _expect(ValueError, lambda: bad(source_kind="canonical_features"))                      # B1b training = raw_bids only
         for s in (1, True, "0", 0.0):
             _expect(ValueError, lambda s=s: bad(seed=s))                                       # seed STRICT int 0
         _expect(ValueError, lambda: bad(subject_list_sha256="short"))                          # bad hash
@@ -367,6 +368,57 @@ def _sub_manifest_files(base, *, missing=False, break_sha=False):
     return _sub_manifest(substrates=subs)
 
 
+def test_load_eligible_windows_excludes_before_open_and_cohort_aware():
+    from acar.v4 import run_regen_substrate as RRS
+    import numpy as np
+    opened = []
+
+    def fake_loader(disease, cohort, subject, cohort_dir, cfg):
+        opened.append((disease, cohort, subject, cohort_dir))
+        return np.zeros((2, cfg["canon_channels"], int(cfg["resample_fs"] * cfg["window_sec"])), dtype="<f4"), 0
+    dis = "SCZ"; cohorts = list(R.DEV_SCOPE[dis]); c0, c1 = cohorts[0], cohorts[1]
+    spec = {"disease": dis, "dev_cohorts": cohorts, "source_paths": {c0: "/raw/" + c0, c1: "/raw/" + c1}}
+    # allowlist is cohort-aware: same local id 'sub-1' in two cohorts is distinct; 'sub-999' in c0 is EXCLUDED (not listed)
+    allowlist = {f"{c0}/sub-1", f"{c1}/sub-1"}
+    X, y, subj = RRS.load_eligible_windows(spec, allowlist, signal_loader=fake_loader)
+    assert sorted(o[:3] for o in opened) == sorted([(dis, c0, "sub-1"), (dis, c1, "sub-1")])   # only eligible; cohort-aware
+    assert all((dis, c, "sub-999") not in [o[:3] for o in opened] for c in (c0, c1))           # excluded NEVER opened
+    assert {o[3] for o in opened} == {"/raw/" + c0, "/raw/" + c1}                              # cohort dir threaded through
+    assert X.shape == (4, 19, 512)                                                             # 2 cohorts × 1 subj × 2 windows
+    assert set(subj) == {f"{c0}/sub-1", f"{c1}/sub-1"} and len(subj) == 4
+
+
+def test_cmi_load_cohort_honors_subject_allowlist():
+    """The loader edit: subjects=allowlist skips every other subject at file-discovery, BEFORE _read_raw opens signal."""
+    try:
+        from cmi.data import bids_data as B
+    except Exception as e:                                                        # env without mne/cmi -> skip (suite stays green)
+        print(f"  [skip] cmi load_cohort allowlist (import: {type(e).__name__})"); return
+    saved = (B.glob.glob, B._read_participants, B._read_raw)
+    opened = []
+
+    def fake_glob(pattern, *a, **k):
+        if pattern.endswith("sub-*"):
+            return [os.path.join("/d", "sub-1"), os.path.join("/d", "sub-2")]     # two subjects on disk
+        if "task-" in pattern:
+            sd = pattern.split(os.sep + "**")[0]                                  # the subject dir embedded in the task glob
+            return [os.path.join(sd, "eeg", "x_task-rest_eeg.set")]
+        return []
+
+    def fake_read_raw(path):
+        opened.append(path); raise RuntimeError("stop after open (test)")         # record + skip the heavy mne pipeline
+    try:
+        B.glob.glob = fake_glob
+        B._read_participants = lambda ds: {"sub-1": {}, "sub-2": {}}
+        B._read_raw = fake_read_raw
+        B.load_cohort("/d", "rest", lambda row, sid: 1, subjects={"sub-1"})       # allowlist = only sub-1
+        assert [p for p in opened if os.sep + "sub-1" + os.sep in p] == opened     # only sub-1 opened
+        assert all(os.sep + "sub-2" + os.sep not in p for p in opened)            # sub-2 NEVER opened (excluded)
+        assert len(opened) >= 1
+    finally:
+        B.glob.glob, B._read_participants, B._read_raw = saved
+
+
 def test_run_substrate_compatibility_fail_closed():
     from acar.v4 import run_regen_substrate as RRS
     from acar.v4 import run_substrate_compatibility as RSC
@@ -400,7 +452,9 @@ def main():
     for t in (test_validate_substrate_request, test_train_not_authorized, test_compatibility_replay_pass,
               test_validate_regen_manifest, test_validate_substrate_manifest, test_check_eligible_subjects,
               test_validate_b1_authorization, test_run_regen_substrate_fail_closed,
-              test_run_regen_substrate_authorized_runs_gated_trainer, test_run_substrate_compatibility_fail_closed):
+              test_run_regen_substrate_authorized_runs_gated_trainer,
+              test_load_eligible_windows_excludes_before_open_and_cohort_aware,
+              test_run_substrate_compatibility_fail_closed, test_cmi_load_cohort_honors_subject_allowlist):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 REGEN-SUBSTRATE GUARDS PASS")

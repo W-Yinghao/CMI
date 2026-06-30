@@ -136,24 +136,52 @@ all FAIL before any training). The eligible hashes are computed (manifest-build 
 (the authoritative DEV-eligible universe).
 
 ## 7c. Executable training path + B1 authorization (gated, hash-bound)
-`_train_and_write` is no longer a commented stub. The runner now has a real, reachable training path behind an explicit,
+The training body is a **real, reachable implementation** (NOT a placeholder / unconditional raise) behind an explicit,
 hash-bound **B1 authorization manifest** (`--b1-authorization`; schema = `regen_substrate.validate_b1_authorization`,
 template = `notes/ACAR_V4_B1B_TRAINING_AUTHORIZATION_TEMPLATE.md`). Without it → `SubstrateTrainingNotAuthorizedError` (no
 torch/cmi import, no DEV read, no output). With a valid authorization that BINDS (protocol_commit / disease /
 dev_input_manifest_sha256 / env_lock_sha256 / output_path / exact statement) → `_authorized_train_and_write` atomically
-claims the output and calls the gated `_train_substrate` (the FIRST step that reads DEV raw signal + trains EEGNet + fits the
-source-state; tests monkeypatch it with a fake trainer — no real raw in tests). Guards: missing/invalid auth → fail closed;
-fake trainer called exactly once after all gates; encoder + source-state file sha256 recorded; manifest allow_nan=False;
-training failure removes the claimed output.
-
-## 7d. This patch CHANGES the runner → re-sequence required before B1b (no reusing 046507a artifacts)
-Because the executable training path + eligible schema change the runner, the 046507a operational env lock + manifests are
-STALE for the new code path. Before any B1b authorization, redo at the new commit H2 (this patch):
+claims the output and calls `_train_substrate`, which orchestrates:
 ```
-H2 = the B1b-readiness commit (clean)
-recapture the regen env lock for H2          (GPU; CAPTURED_AND_VERIFIED, interop=1, versions, protocol_commit=H2)
-rebuild PD/SCZ input manifests for H2         (with eligible_subject fields; protocol_commit=H2; env_lock_sha256=H2 lock)
-rerun the fail-closed preflight at detached H2 (expect SubstrateTrainingNotAuthorizedError; eligible check passes on real dirs)
+allowlist = _verify_eligible_subjects(spec)                 # eligible cohort-aware ids; excluded NOT included
+X,y,subj  = load_eligible_windows(spec, allowlist)          # per-eligible-subject raw open (excluded NEVER opened)
+bb,dev    = _train_encoder_and_save(X, y, enc_path)         # real deterministic ERM loop (RS.TRAINING_SCHEDULE) + torch.save
+            _fit_and_serialize_source_state(bb, dev, X, y, subj, spec, ss_path)  # acar.v3 fit_source_state_artifact→freeze→savez
+return {encoder_checkpoint_path, source_state_path, training_schedule, n_train_windows, n_eligible_subjects}
+```
+- **Excluded never read (B1):** `load_eligible_windows` iterates the ALLOWLIST only; `_load_subject_signal` calls the shared,
+  tested `cmi.data.bids_data.load_cohort` with `subjects={subject}` — a discovery-stage filter that skips every other subject
+  BEFORE its signal is opened (the only loader change; backward-compatible `subjects=None` default).
+- **Cohort-aware matching (B2):** subjects are the canonical `dsid/sub` key throughout; the same local id in two cohorts is distinct.
+- **source_kind (B3):** B1b training requires `source_kind == "raw_bids"` (canonical_features rejected by the validator).
+- **Pinned schedule (B4):** `regen_substrate.TRAINING_SCHEDULE` fixes model/shape/optimizer/lr/weight_decay/batch_size/epochs/
+  loss/class_weighting/seed/determinism/device in code (and below) — DECLARED as the NEW V4 substrate schedule (the original
+  DEV ERM hyperparameters are not reconstructable); it is the substrate's provenance, not a runtime choice.
+- **source-state (B5):** delegated to the FIXED acar.v3 fitter (`fit_source_state_artifact` → `freeze_source_state_artifact`
+  → `np.savez`), no pickle / no `z_ev,y_ev`.
+- Guards (tests monkeypatch `_train_substrate` / `load_eligible_windows` / `_load_subject_signal`; no real raw in tests):
+  missing/invalid auth → fail closed; trainer called exactly once after all gates; encoder + source-state file sha256
+  recorded; manifest `allow_nan=False`; trainer failure removes the claimed output; `cmi.load_cohort` honors the allowlist.
+
+### Pinned TRAINING_SCHEDULE (declared NEW V4 substrate schedule — provenance, NOT a recovered DEV ERM schedule)
+```
+model=EEGNet  n_chans=19  n_times=512  embedding_dim=16  n_classes=2
+optimizer=adam  lr=1e-3  weight_decay=0.0  batch_size=64  epoch_policy=fixed  max_epochs=100
+loss=cross_entropy  class_weighting=balanced  val_split=0.0  device=cuda  seed=0  deterministic=true
+```
+The encoder embedding (readout input) is the backbone's z (forward → (logits, z)); the source-state f_0 is fit on the
+all-DEV eligible embeddings. Recorded in the substrate manifest's `training_schedule`.
+
+## 7d. This patch CHANGES the runner → re-sequence required before B1b (no reusing earlier artifacts)
+The runner changed twice now: H2 (e277f0d) added the eligible schema + auth gate; **H3 (this patch) makes the training body a
+real executable implementation** (raw allowlist loader + ERM loop + acar.v3 source-state) + restricts source_kind to raw_bids.
+So the 046507a env lock + manifests are STALE for the new code path. Before any B1b authorization, redo at the LATEST commit
+H = H3 (this patch):
+```
+H = the B1b executable-training-path commit (clean)
+recapture the regen env lock for H            (GPU; CAPTURED_AND_VERIFIED, interop=1, versions, protocol_commit=H)
+rebuild PD/SCZ input manifests for H           (eligible_subject fields; source_kind=raw_bids; protocol_commit=H; env_lock_sha256=H lock)
+rerun the fail-closed preflight at detached H  (expect SubstrateTrainingNotAuthorizedError; eligible check passes on real dirs)
 THEN create the B1 authorization manifest(s) and ask for B1b.
 ```
 

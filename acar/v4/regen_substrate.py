@@ -28,7 +28,20 @@ FIXED_CANDIDATE = {"score_family": "shift_margin", "policy": "benefit_ranked", "
 COVERAGE_MIN = 0.15
 BUDGET = 0.10
 ALPHA = 0.10
-SOURCE_KINDS = ("raw_bids", "canonical_features")
+# B1b all-DEV substrate training requires raw_bids (raw → encoder). canonical_features would BYPASS raw→encoder training
+# and contradict "new all-DEV external representation substrate"; if ever wanted it is a separate, explicitly-declared protocol.
+SOURCE_KINDS = ("raw_bids",)
+
+# PINNED all-DEV training schedule (DECLARED — this is the NEW V4 external substrate schedule, NOT a recovered DEV ERM
+# schedule; the original DEV ERM hyperparameters are not reconstructable, so they are fixed here + in
+# ACAR_V4_SUBSTRATE_REGEN_COMMAND.md and become part of the substrate's provenance). Pipeline shape matches FROZEN_PIPELINE.
+TRAINING_SCHEDULE = {
+    "model": "EEGNet", "n_chans": 19, "n_times": 512, "embedding_dim": 16, "n_classes": 2,
+    "optimizer": "adam", "lr": 1e-3, "weight_decay": 0.0, "batch_size": 64,
+    "epoch_policy": "fixed", "max_epochs": 100, "loss": "cross_entropy", "class_weighting": "balanced",
+    "val_split": 0.0, "device": "cuda", "seed": 0, "deterministic": True,
+    "substrate_kind": "NEW all-DEV V4 external representation substrate (declared schedule; NOT a recovered DEV ERM schedule)",
+}
 
 
 class SubstrateTrainingNotAuthorizedError(RuntimeError):

@@ -137,34 +137,121 @@ def _load_b1_authorization(path, spec, input_manifest_sha256, output):
     return auth
 
 
-def _train_substrate(spec, output):                                  # pragma: no cover — GATED real trainer; tests monkeypatch
-    """REAL all-DEV substrate trainer (reached ONLY with a valid B1 authorization). Lazy heavy imports. Trains the disease's
-    all-DEV erm:0 EEGNet on the ELIGIBLE DEV subjects only (excluded never loaded), seed 0 deterministic per the regen env
-    lock; torch.save's the encoder state_dict; fits + serializes the source-state; returns
-    {encoder_checkpoint_path, source_state_path, ...}. The exact ERM schedule + source-state serialization match the DEV
-    pipeline and are confirmed at B1b run time. NOT executed in tests (monkeypatched) and never reached without authorization."""
-    import torch                                                      # noqa: gated heavy deps
-    from cmi.data.bids_data import load_crossdataset
+def _load_subject_signal(disease, cohort, subject, cohort_dir, pipeline_config):   # pragma: no cover — gated raw read; tests monkeypatch
+    """Open ONE eligible subject's raw EEG and return (windows[n,19,512] float, label int) via the SHARED, tested cmi
+    pipeline (`cmi.data.bids_data.load_cohort` with a single-subject allowlist — montage→19ch / resample 128 / bandpass
+    0.5–45 / 4 s windows / trial z-score). The allowlist=subjects={subject} makes load_cohort skip every other subject at
+    file-discovery, so no other subject's signal is opened. Called ONLY for allowlisted (eligible) subjects."""
+    from cmi.data.bids_data import load_cohort, COHORTS
+    cs = COHORTS[cohort]
+    res = load_cohort(cohort_dir, cs["task"], cs["label"],
+                      fmin=pipeline_config["bandpass"][0], fmax=pipeline_config["bandpass"][1],
+                      resample=pipeline_config["resample_fs"], win_sec=pipeline_config["window_sec"],
+                      subjects={subject})                            # discovery-stage filter: excluded never opened
+    if res is None:
+        raise RuntimeError(f"{cohort}/{subject}: no usable windows (eligible subject expected to have data)")
+    Xc, yc, _subs = res
+    return Xc, int(yc[0])
+
+
+def load_eligible_windows(spec, allowlist, *, signal_loader=None):
+    """Load canonical windows for ONLY the eligible subjects. Iterates the ALLOWLIST (cohort-aware 'dsid/sub' ids) and calls
+    `signal_loader(disease, cohort, local_subject, cohort_dir, pipeline_config)` per eligible subject — so EXCLUDED subjects
+    are NEVER passed to the loader (filtered BEFORE any signal open). Cohort-aware: the SAME local sub-id in two cohorts is
+    distinct. Returns (X[N,19,512], y[N], subject_keys[N] cohort-aware). signal_loader defaults to the (gated, real-cmi)
+    `_load_subject_signal`; tests inject a fake."""
+    import numpy as np
+    loader = signal_loader or _load_subject_signal
+    cfg = RS.FROZEN_PIPELINE
+    cohort_dirs = spec.get("source_paths", {})
+    Xs, ys, subj = [], [], []
+    for c in spec["dev_cohorts"]:
+        for ns in sorted(s for s in allowlist if s.startswith(c + "/")):
+            local = ns.split("/", 1)[1]
+            w, label = loader(spec["disease"], c, local, cohort_dirs.get(c), cfg)   # excluded never reach here
+            w = np.asarray(w, dtype="<f4")
+            if w.ndim != 3 or w.shape[1:] != (cfg["canon_channels"], int(cfg["resample_fs"] * cfg["window_sec"])):
+                raise ValueError(f"{ns}: windows must be [n,{cfg['canon_channels']},512], got {w.shape}")
+            Xs.append(w); ys += [int(label)] * len(w); subj += [ns] * len(w)
+    if not Xs:
+        raise RuntimeError("no eligible windows loaded")
+    return np.concatenate(Xs, 0), np.asarray(ys, dtype=np.int64), subj
+
+
+def _train_encoder_and_save(X, y, enc_path):                         # pragma: no cover — gated torch ERM; tests monkeypatch _train_substrate
+    """Deterministic ERM training of the erm:0 EEGNet per RS.TRAINING_SCHEDULE (seed 0, fixed epochs, Adam, CE,
+    class-balanced); torch.save the encoder state_dict to enc_path. The backbone returns (logits, z); we train on logits.
+    Lazy torch + cmi backbone. Returns (model, device)."""
+    import torch
+    import numpy as np
     from cmi.models.backbones import build_backbone
+    s = RS.TRAINING_SCHEDULE
+    torch.use_deterministic_algorithms(True); torch.manual_seed(s["seed"]); np.random.seed(s["seed"])
+    dev = s["device"] if torch.cuda.is_available() else "cpu"
+    bb = build_backbone(s["model"], n_chans=s["n_chans"], n_times=s["n_times"], n_classes=s["n_classes"], device=dev)
+    Xt = torch.as_tensor(np.asarray(X, dtype="<f4")).to(dev); yt = torch.as_tensor(np.asarray(y)).long().to(dev)
+    cw = None
+    if s["class_weighting"] == "balanced":
+        cnt = torch.bincount(yt, minlength=s["n_classes"]).float().clamp(min=1.0)
+        cw = (cnt.sum() / (s["n_classes"] * cnt)).to(dev)
+    lossf = torch.nn.CrossEntropyLoss(weight=cw)
+    opt = torch.optim.Adam(bb.parameters(), lr=s["lr"], weight_decay=s["weight_decay"])
+    bb.train()
+    n, bs = Xt.shape[0], s["batch_size"]
+    g = torch.Generator(device="cpu").manual_seed(s["seed"])
+    for _ep in range(s["max_epochs"]):
+        perm = torch.randperm(n, generator=g)
+        for i in range(0, n, bs):
+            idx = perm[i:i + bs]
+            opt.zero_grad(); logits, _z = bb(Xt[idx]); loss = lossf(logits, yt[idx]); loss.backward(); opt.step()
+    bb.eval()
+    torch.save(bb.state_dict(), enc_path)
+    return bb, dev
+
+
+def _embed(bb, X, dev):                                              # pragma: no cover — gated torch forward; tests monkeypatch _train_substrate
+    """Encoder embeddings z (the readout input) for X via the trained backbone (forward -> (logits, z)), batched, no grad."""
+    import torch
+    import numpy as np
+    s = RS.TRAINING_SCHEDULE
+    Xt = torch.as_tensor(np.asarray(X, dtype="<f4")).to(dev)
+    zs = []
+    with torch.no_grad():
+        for i in range(0, Xt.shape[0], s["batch_size"]):
+            _logits, z = bb(Xt[i:i + s["batch_size"]])
+            zs.append(z.detach().cpu().numpy())
+    return np.concatenate(zs, 0)
+
+
+def _fit_and_serialize_source_state(bb, dev, X, y, subj, spec, ss_path):   # pragma: no cover — gated; tests monkeypatch _train_substrate
+    """Embed the eligible windows with the trained encoder and fit + serialize the all-DEV source-state f_0 to ss_path (the
+    DEV-frozen readout the external adapter consumes). Delegated to the FIXED acar.v3 fitter: fit_source_state_artifact (the
+    only DEV f_0 fitter) → freeze_source_state_artifact (no pickle / no z_ev,y_ev) → np.savez. Lazy import."""
+    import numpy as np
+    from acar.v3.loader import (fit_source_state_artifact, freeze_source_state_artifact, hash_source_fit, env_versions)
+    zev = _embed(bb, X, dev)
+    yev = np.asarray(y, dtype=np.int64)
+    art = fit_source_state_artifact(zev, yev, spec["disease"], hash_source_fit(zev, yev), env_versions())
+    blob = freeze_source_state_artifact(art)
+    np.savez(ss_path, **blob)
+    return art
+
+
+def _train_substrate(spec, output):                                  # pragma: no cover — gated real trainer; tests monkeypatch
+    """REAL all-DEV substrate trainer (reached ONLY with a valid, bound B1 authorization). Orchestration (NOT a placeholder):
+    allowlist = eligible subjects (excluded NEVER loaded) → load_eligible_windows (per-eligible-subject raw open) → ERM-train
+    the erm:0 EEGNet per RS.TRAINING_SCHEDULE → torch.save encoder → fit + serialize source-state. Returns
+    {encoder_checkpoint_path, source_state_path, training_schedule, ...}. The gated inner raw I/O + source-state fitter are
+    confirmed at B1b run; tests monkeypatch this whole function (and load_eligible_windows / _load_subject_signal separately)."""
     disease = spec["disease"]
-    torch.use_deterministic_algorithms(True); torch.manual_seed(0)
-    eligible = set(_verify_eligible_subjects(spec))                   # recheck; defines the exact subjects to train on
-    X, y, meta, classes = load_crossdataset(disease, cohorts=spec["dev_cohorts"], resample=128, win_sec=4.0,
-                                            fmin=0.5, fmax=45.0)
-    keep = [i for i, s in enumerate(meta["subject"].tolist()) if f"{disease}/{s}" in eligible or s in eligible]
-    if not keep:
-        raise RuntimeError("no eligible windows after subject filter (verify meta subject namespacing at B1b)")
-    Xe, ye = X[keep], y[keep]
-    bb = build_backbone("EEGNet", n_chans=19, n_times=512, n_classes=len(classes), device="cpu")
-    # ... deterministic ERM training loop (seed 0) over (Xe, ye) — exact schedule pinned/confirmed at B1b ...
-    enc = os.path.join(output, f"v4_alldev_encoder_{disease}.pt")
-    torch.save(bb.state_dict(), enc)
-    # ... fit + serialize the source-state (acar.v3 SourceStateArtifact) on the encoder's eligible embeddings ...
-    ss = os.path.join(output, f"v4_alldev_source_state_{disease}.npz")
-    raise RS.SubstrateTrainingNotAuthorizedError(
-        "real all-DEV ERM training + source-state serialization is wired here but its exact schedule/cmi calls must be "
-        "validated at B1b run time; tests monkeypatch _train_substrate. (encoder/source-state targets: "
-        f"{enc} / {ss})")
+    allowlist = set(_verify_eligible_subjects(spec))                  # eligible cohort-aware ids; excluded NOT included
+    X, y, subj = load_eligible_windows(spec, allowlist)              # excluded subjects never opened
+    enc_path = os.path.join(output, f"v4_alldev_encoder_{disease}.pt")
+    bb, dev = _train_encoder_and_save(X, y, enc_path)
+    ss_path = os.path.join(output, f"v4_alldev_source_state_{disease}.npz")
+    _fit_and_serialize_source_state(bb, dev, X, y, subj, spec, ss_path)
+    return {"encoder_checkpoint_path": enc_path, "source_state_path": ss_path,
+            "training_schedule": RS.TRAINING_SCHEDULE, "n_train_windows": int(len(X)), "n_eligible_subjects": len(allowlist)}
 
 
 def _authorized_train_and_write(spec, output, report, auth):

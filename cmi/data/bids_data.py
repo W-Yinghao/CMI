@@ -177,13 +177,19 @@ def _read_participants(ds):
 
 
 def load_cohort(ds, task, label_fn, fmin=0.5, fmax=45.0, resample=128, win_sec=4.0,
-                max_per_subject=40, crop_sec=180, normalize="trial_zscore"):
-    """Load one BIDS cohort -> (X[B,19,T], y, subjects(list of sub-ids), classes-as-ints present)."""
+                max_per_subject=40, crop_sec=180, normalize="trial_zscore", subjects=None):
+    """Load one BIDS cohort -> (X[B,19,T], y, subjects(list of sub-ids), classes-as-ints present).
+    subjects: optional ALLOWLIST of sub-ids (e.g. {"sub-001"}). When given, every other subject is skipped at the
+    file-discovery stage — BEFORE its signal is opened — so excluded subjects' EEG is never read. Default None = unchanged
+    (load all labeled subjects); existing v2/v3 callers are unaffected."""
     part = _read_participants(ds)
     win = int(win_sec * resample)
+    allow = set(subjects) if subjects is not None else None
     Xs, ys, subs = [], [], []
     for sd in sorted(glob.glob(os.path.join(ds, "sub-*"))):
         sid = os.path.basename(sd)
+        if allow is not None and sid not in allow:
+            continue                                         # eligible allowlist: excluded subjects never opened
         lab = label_fn(part.get(sid, {}), sid)
         if lab is None:
             continue
