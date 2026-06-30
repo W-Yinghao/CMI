@@ -50,6 +50,20 @@ classes/subject-count/channel-and-time-shape from the local cache and writes a p
 `moabb_paradigm`, `events`, `resample` (+rationale/note), `tmin/tmax`, `dataset_interval`, and
 `window_inside_declared_interval`. The real run records the same under `meta.preprocessing`.
 
+### Datalake source (readable mirror)
+
+All data is sourced from `/projects/EEG-foundation-model/datalake`. MOABB's `bnci_2015` uses the lampx
+`BNCI_URL` → it resolves to `MNE-bnci-data/~bci/database/001-2015/`, whose `.mat` files are **owner-locked
+(`-rw-------`, owner `tmaye`) and unreadable** to this user (unlike BNCI2014_001's group-readable files).
+The **same** BNCI 001-2015 dataset is also in the datalake — readable (`-rwxrwxrwx`) — at the bnci-horizon
+mirror `MNE-bnci-data/database/data-sets/001-2015/`. The sbatch therefore builds a **readable symlink
+mirror** (symlinks only; sources ONLY from the read-only datalake), pointing
+`MNE-bnci-data/~bci/database/001-2015/` at the readable `data-sets/001-2015` copy and leaving all other
+datasets resolving to the datalake, then sets `MNE_DATASETS_BNCI_PATH`/`MNE_DATA` to it. Preflight
+verified the dataset loads identically: **MotorImagery, right_hand/feet, 2 classes, 12 subjects, 13
+channels, n_times 384 (3 s × 128 Hz), interval [0,5], window [0.5,3.5] inside interval**. No downloads;
+no data copied; same dataset bytes via a readable path.
+
 ## Binary-dataset threshold logic (chance = 0.50)
 
 BNCI2014_001 is 4-class (chance 0.25, floor 0.45); BNCI2015_001 is binary (chance 0.50), so the

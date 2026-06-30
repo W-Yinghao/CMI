@@ -18,6 +18,24 @@ export MKL_NUM_THREADS="${SLURM_CPUS_PER_TASK:-8}"
 PY=/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python
 echo "host=$(hostname)  branch=$(git rev-parse --abbrev-ref HEAD)  commit=$(git rev-parse --short HEAD)"
 
+# --- Readable BNCI2015_001 from the datalake -------------------------------------------------------
+# MOABB's bnci_2015 uses BNCI_URL=lampx '~bci/database/', mirrored in the datalake at
+# MNE-bnci-data/~bci/database/001-2015/, whose *.mat are owner-locked (-rw-------, owner tmaye) -> unreadable.
+# The SAME dataset is also in the datalake (readable, -rwxrwxrwx) at MNE-bnci-data/database/data-sets/001-2015/
+# (the bnci-horizon mirror). Build a readable mirror (symlinks only; sources ONLY from the read-only
+# datalake) and point MNE/MOABB at it. Idempotent. Other datasets keep resolving to the datalake.
+DL=/projects/EEG-foundation-model/datalake/raw/MNE-bnci-data
+BNCIROOT=/projects/EEG-foundation-model/yinghao/cigl_bnci_readable
+if ! mkdir -p "$BNCIROOT" 2>/dev/null; then BNCIROOT="$HOME/cigl_bnci_readable"; mkdir -p "$BNCIROOT"; fi
+MB="$BNCIROOT/MNE-bnci-data"
+mkdir -p "$MB/~bci/database/001-2015"
+for d in "$DL/~bci/database"/*/; do n=$(basename "$d"); [ "$n" = "001-2015" ] && continue; ln -sfn "$d" "$MB/~bci/database/$n"; done
+for f in "$DL/database/data-sets/001-2015"/*.mat; do ln -sfn "$f" "$MB/~bci/database/001-2015/$(basename "$f")"; done
+ln -sfn "$DL/database" "$MB/database"; ln -sfn "$DL/competition" "$MB/competition"
+export MNE_DATASETS_BNCI_PATH="$BNCIROOT"
+export MNE_DATA="$BNCIROOT"
+echo "BNCI readable mirror: $BNCIROOT  (001-2015 -> datalake data-sets/001-2015 readable copy)"
+
 # Fail closed: this confirmation must run on GPU (never silently fall back to CPU).
 if ! "$PY" -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)"; then
   echo "FATAL: CUDA not available on $(hostname); refusing to run on CPU." >&2
