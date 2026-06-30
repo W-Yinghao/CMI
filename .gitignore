@@ -29,6 +29,7 @@ results/cigl/phase3a_graph_backbone_redesign/*.json
 results/cigl/phase3a_dgcnn_leakage_audit/*.json
 results/cigl/phase3a_dgcnn_gn_regularizer_pilot/*.json
 results/cigl/phase3a_dgcnn_gn_multifold_confirmation/*.json
+results/cigl/phase3a_dgcnn_gn_second_dataset_confirmation/*.json
 
 # python caches
 __pycache__/
