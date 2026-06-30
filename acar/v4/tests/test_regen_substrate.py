@@ -746,6 +746,14 @@ def test_compat_replay_alignment_and_no_refit():
         _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("ds002778", "sub-1", cfg, rows, cache=badshape))
         # duplicate (recording_id, window_index) in dump rows -> fail
         _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("ds002778", "sub-1", cfg, [("rec0", 0, 1), ("rec0", 0, 1)], cache=good))
+        # C5b: REAL cmi-scps convention — cache.subject (and dump subject_id_te / v3 WindowKey) are cohort-PREFIXED "dsid/sub".
+        # The reembed loop passes the FULL namespaced subject VERBATIM; the aligner must accept it and stamp it into the WindowKey.
+        pref_rows = [("ds002778/sub-hc1", 0, 1), ("ds002778/sub-hc1", 1, 0)]                     # recording_id_te is prefixed too (==subject_id_te)
+        pref_cache = _cache(["ds002778/sub-hc1", "ds002778/sub-hc1"], ["ds002778"] * 2)
+        Xp, kp, lp = RSC._load_subject_windows_and_keys("ds002778", "ds002778/sub-hc1", cfg, pref_rows, cache=pref_cache)
+        assert len(kp) == 2 and kp[0].subject_id == "ds002778/sub-hc1" and kp[0].dataset_id == "ds002778"  # v3-identical WindowKey
+        # the BARE subject against a PREFIXED cache MUST fail (this is the C5a->C5b bug: bare "sub-hc1" vs prefixed cache row)
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("ds002778", "sub-hc1", cfg, pref_rows, cache=pref_cache))
     # subject-universe reconciliation (PURE; runs on 3.9): re-embedded set must EQUAL eligible AND number EXACT_ELIGIBLE
     elig = {f"ds002778/s{i:03d}" for i in range(R.EXACT_ELIGIBLE["PD"])}                         # 230
     assert RSC._check_reembed_universe("PD", set(elig), elig) is True                            # happy
@@ -759,6 +767,10 @@ def test_compat_replay_alignment_and_no_refit():
     assert "fit_source_state" not in src, "replay must NOT fit a source-state"
     assert "load_cohort(" not in src, "C5: replay must NOT use the live load_cohort raw reader — windows come from the pinned scps cache"
     assert "load_frozen_source_state_artifact" in src, "replay MUST consume the FROZEN B1b source-state"
+    # C5b: the reembed loop MUST key per-subject by the FULL namespaced "dsid/sub" (the cmi scps cache stores cache.subject
+    # cohort-prefixed, and v3 uses subject_id_te verbatim) — NOT the bare split, which spuriously fails the per-row check.
+    assert "per_sub.setdefault(ns," in src, "C5b: reembed must key per_sub by the FULL namespaced subject (cache.subject is cohort-prefixed)"
+    assert "per_sub.setdefault(ns.split" not in src, "C5b: reembed must NOT strip the cohort prefix before the cache subject-at-index check"
 
 
 def _fc_report(disease, **over):

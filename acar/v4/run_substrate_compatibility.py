@@ -183,11 +183,14 @@ def _load_disease_cache(spec, disease):                            # pragma: no 
 def _load_subject_windows_and_keys(dataset_id, subject, cfg, dump_rows, *, cache):
     """C5 REAL alignment by EXACT KEYED lookup (synthetic-tested; no real raw in tests). The sha-pinned DEV-dump metadata is the
     SOURCE OF TRUTH: `dump_rows` = (recording_id, window_index, label) for THIS subject, where window_index is the GLOBAL cache
-    row index. `cache` = {"X","subject","cohort"} from the sha-pinned scps cache. For each dump row the window is fetched at
-    `cache["X"][window_index]` and VERIFIED: cache.subject[window_index] == subject AND cache.cohort[window_index] == dataset_id
-    (so a reordered/wrong cache — which would also change the pinned sha — cannot silently mispair; a same-count reorder fails
-    here, not just at the count). FAIL-CLOSED on out-of-range index, subject/cohort mismatch, wrong shape, non-finite, or a
-    duplicate (recording_id, window_index). Returns (windows[n,19,512], WindowKeys[n], labels {WindowKey:int})."""
+    row index. `subject` is the FULL namespaced subject VERBATIM from the dump's subject_id_te (e.g. "ds002778/sub-hc1") — the
+    cmi scps cache stores `cache.subject` in that SAME cohort-prefixed form (cmi.run_scps_crossdataset; _dump_audit_fold writes
+    subject_id_te[i]=cache.subject[gi]), and v3's load_deployment_batches uses subject_id_te verbatim as the WindowKey subject, so
+    the replay's WindowKeys are byte-identical to v3's. `cache` = {"X","subject","cohort"} from the sha-pinned scps cache. For each
+    dump row the window is fetched at `cache["X"][window_index]` and VERIFIED: cache.subject[window_index] == subject AND
+    cache.cohort[window_index] == dataset_id (so a reordered/wrong cache — which would also change the pinned sha — cannot silently
+    mispair; a same-count reorder fails here, not just at the count). FAIL-CLOSED on out-of-range index, subject/cohort mismatch,
+    wrong shape, non-finite, or a duplicate (recording_id, window_index). Returns (windows[n,19,512], WindowKeys[n], labels)."""
     import numpy as np
     from acar.v3.set_features import WindowKey
     Xc, csub, ccoh = cache["X"], cache["subject"], cache["cohort"]
@@ -197,17 +200,17 @@ def _load_subject_windows_and_keys(dataset_id, subject, cfg, dump_rows, *, cache
     for rec_id, win_idx, label in sorted(dump_rows, key=lambda r: int(r[1])):
         gi = int(win_idx)
         if gi < 0 or gi >= n_rows:
-            raise ValueError(f"{dataset_id}/{subject}: dump global window_index {gi} out of cache range [0,{n_rows})")
+            raise ValueError(f"{subject}: dump global window_index {gi} out of cache range [0,{n_rows})")
         if str(csub[gi]) != subject or str(ccoh[gi]) != dataset_id:
-            raise ValueError(f"{dataset_id}/{subject}: cache row {gi} is {ccoh[gi]}/{csub[gi]} (subject/cohort mismatch — wrong/reordered cache)")
+            raise ValueError(f"{subject}: cache row {gi} is cohort={ccoh[gi]} subject={csub[gi]} (subject/cohort mismatch — wrong/reordered cache)")
         w = np.asarray(Xc[gi], dtype="<f4")
         if w.shape != cfg_win:
-            raise ValueError(f"{dataset_id}/{subject}: cache window {gi} shape {w.shape} != {cfg_win}")
+            raise ValueError(f"{subject}: cache window {gi} shape {w.shape} != {cfg_win}")
         wk = WindowKey(dataset_id, subject, str(rec_id), gi)
         if wk in labels:
-            raise ValueError(f"{dataset_id}/{subject}: duplicate WindowKey ({rec_id},{gi}) in dump rows")
+            raise ValueError(f"{subject}: duplicate WindowKey ({rec_id},{gi}) in dump rows")
         windows.append(w); keys.append(wk); labels[wk] = int(label)
-    RS.assert_finite(np.asarray(windows, dtype="<f4"), f"{dataset_id}/{subject} windows")
+    RS.assert_finite(np.asarray(windows, dtype="<f4"), f"{subject} windows")
     return np.asarray(windows, dtype="<f4"), keys, labels
 
 
@@ -281,19 +284,19 @@ def _reembed_dev_under_substrate(spec, frozen):                     # pragma: no
                 raise ValueError(f"{d}/{cohort}: dump y_te has labels outside {{0,1}}")
             per_sub = {}                                                                      # eligible subjects only (excluded skipped)
             for s_, r_, w_, y_ in zip(sid, rec, wix, yte):
-                ns = s_ if "/" in s_ else f"{cohort}/{s_}"
+                ns = s_ if "/" in s_ else f"{cohort}/{s_}"                                    # FULL namespaced "dsid/sub" (== eligible + cache.subject + v3 WindowKey)
                 if ns not in eligible:
                     continue
-                per_sub.setdefault(ns.split("/", 1)[1], []).append((r_, w_, y_))
-            for sub, dump_rows in per_sub.items():
+                per_sub.setdefault(ns, []).append((r_, w_, y_))                               # key = VERBATIM namespaced subject (the cache & v3 store it prefixed)
+            for sub, dump_rows in per_sub.items():                                            # sub = "dsid/sub" (NOT bare — matches cache.subject + v3 convention)
                 X, keys, lab = _load_subject_windows_and_keys(cohort, sub, cfg, dump_rows, cache=cache)  # KEYED cache lookup
                 with torch.no_grad():
                     z = bb(torch.as_tensor(np.asarray(X, dtype="<f4")))[1].cpu().numpy()       # NEW-encoder embeddings (forward → (logits, z))
-                RS.assert_finite(z, f"{cohort}/{sub} embeddings")
+                RS.assert_finite(z, f"{sub} embeddings")
                 for wk, zi in zip(keys, z):
                     rows_by_ds.setdefault(cohort, []).append((wk.subject_id, wk.recording_id, wk.window_index, np.asarray(zi, float)))
                 labels.update(lab)
-                seen.add(f"{cohort}/{sub}")
+                seen.add(sub)                                                                 # sub is already the full namespaced "dsid/sub" == eligible format
         _check_reembed_universe(d, seen, eligible)                                            # re-embedded set == eligible (count == EXACT)
         batches = []
         for ds_id, rows in rows_by_ds.items():

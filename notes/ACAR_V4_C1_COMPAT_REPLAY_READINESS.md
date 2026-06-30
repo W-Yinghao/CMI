@@ -124,6 +124,20 @@ status = SUBSTRATE_COMPATIBILITY_PASS | _FAIL
 > (the cache carries no per-window recording/content column) — but any such row reorder changes the cache BYTES → the pinned
 > `scps_cache_sha256` mismatches at preflight BEFORE any read. Closing (2) at the code level would need a per-window raw-content
 > hash in the dump = regenerating the DEV dumps, which is OUT of C5 scope; the sha-pin closes it as-is.
+>
+> **C5b — subject-namespacing fix (real-data provenance VERIFIED).** Verifying the cache↔dump provenance against the REAL DEV
+> feat dumps (`{FD}/audit_{disease}_{cohort}_erm_0.npz`, FD=cmi `acar.config.feat_dump_dir`) uncovered that the cmi scps cache
+> stores `cache.subject` COHORT-PREFIXED ("ds002778/sub-hc1") — exactly as the dump's `subject_id_te` (and v3's
+> `load_deployment_batches` uses `subject_id_te` VERBATIM as the WindowKey subject). The C5 reembed loop had stripped that prefix
+> before the per-row check, so the (correct) `cache.subject[gi] == subject` test failed against the prefixed cache → a SPURIOUS
+> abort on real data (synthetic tests used bare subjects, so missed it). FIX (C5b): the reembed loop keys `per_sub` by the FULL
+> namespaced "dsid/sub" and passes it verbatim to `_load_subject_windows_and_keys` → the WindowKeys are now BYTE-IDENTICAL to
+> v3's, and `cache.subject[gi]==subject` matches. Regression-guarded by a prefixed-cache alignment test + source-guards
+> (`per_sub.setdefault(ns,` present; `per_sub.setdefault(ns.split` absent). **Real-data provenance is now PROVEN + EXECUTABLE**
+> (read-only diagnostic; NO replay, NO output): the shipping `_load_subject_windows_and_keys` consumes all 7 real dumps against
+> the real sha-pinned caches and re-aligns EXACTLY 230 PD (8523 windows) + 225 SCZ (9000 windows) subjects — window_index == cache
+> row index, cohort + subject match every row, ds004000/sub-042 already absent (excluded). [This diagnostic read the cache window
+> arrays once to confirm the fix end-to-end; the authorized C-run preflight itself reads NO cache window arrays — only file-byte sha.]
 - **(C4) runtime:** the replay executes under `acar-v4-regen` (python 3.13). The exact replay-path modules are green under 3.13
   (regen_substrate + develop suites — RSC import, the 1×1×1 run_dev_exploration path, eval_L_harm_all extraction,
   compatibility_replay_pass, the alignment subset). The home v4 suite is 3.9 (10/10); the alignment exercise needs
