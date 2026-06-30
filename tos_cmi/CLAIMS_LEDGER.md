@@ -54,7 +54,7 @@ tsmnet_collapse_fixable_collapsefree_removes_nothing:  # C6
   figure: Fig 3D
 eegnet_low_rank_removability_representation_dependent:  # C7
   status: supported_with_caveat (adversarially verified, wf_cb3b4958)
-  caveat: dim<->type CONFOUND unresolved (EEGNet conv+16d vs TSMNet SPD+210d collinear) -> Track C
+  caveat: dim<->type confound provisionally addressed by Track C factorial (seed-0 capacity-mediated TREND; multi-seed + EEGNet-210 hardening in progress; do NOT write 'resolved' yet)
   backbone: EEGNet (conv, z_dim=16)
   scripts: tos_cmi/run_eeg_frozen_pilot.py -> tos_cmi/eeg/ablation.py
   seeds: [0,1,2]; folds: 9
@@ -80,15 +80,15 @@ measurement_to_control_gap:                       # C10 (thesis)
 # ---------- NOT YET ATTEMPTED (future tracks; must not be claimed) ----------
 source_ood_benefit_gate:        {status: not_attempted, plan: Track B (inner source-LODO pseudo-target benefit)}
 architecture_x_dimension_factorial:               # Track C (PROVISIONAL, seed0; seeds 1,2 + EEGNet-210 dumping)
-  status: provisional_seed0  # VERDICT = capacity-mediated (seed-0 factorial; NOT final until 3-seed + EEGNet d_z=210 matched cell)
+  status: provisional_seed0  # PROVISIONAL seed-0 TREND = capacity-mediated; final verdict gated on 3-seed + EEGNet d_z=210 matched cell + paired/cluster CI
   hardening_needed: [seeds 1+2 (running), EEGNet F2=210 top-matched conv cell, multiseed analyzer w/ cluster-bootstrap CI + matched-dim contrast]
   scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_analysis.py
   cells: TSMNet m{6,8,10,14,20}=tangent{21,36,55,105,210} + EEGNet F2{16,32,64,128}; 9 folds; seed0
   outputs: results/tos_cmi_eeg_frozen/factorial/* ; factorial_removability_seed0.json
   finding: LEACE nonlinear residual rises monotonically with latent dim WITHIN both archs; at MATCHED dim
     SPD~conv nearly coincide (16/21:0.40/0.40; 32/36:0.50/0.50; 105/128:0.65/0.61; TSMNet-210:0.74) ->
-    the TSMNet-0.74-vs-EEGNet-0.39 gap is capacity (210 vs 16), NOT SPD-vs-conv. Resolves the dim<->type
-    confound (paper SS4.5, Fig 6; SS6.3 limitation -> resolved). Caveat: 2a, seed0 (multi-seed in progress).
+    the TSMNet-0.74-vs-EEGNet-0.39 gap is (provisionally) capacity (210 vs 16) rather than SPD-vs-conv. Addresses the dim<->type
+    confound PROVISIONALLY (paper SS4.5, Fig 6). Caveat: 2a, seed0, no EEGNet-210 yet (multi-seed + matched cell in progress); NOT to be written as 'resolved' until then.
 concept_erasure_baselines_vs_tos:                 # Track G (DONE; cross-seed stable)
   status: supported
   scripts: tos_cmi/eeg/erasure_baselines.py (self-contained LEACE + INLP; LEACE validated: linear subj->chance)
@@ -99,7 +99,7 @@ concept_erasure_baselines_vs_tos:                 # Track G (DONE; cross-seed st
     - LEACE DOMINATES TOS V_D deletion on subject removal at equal task cost (TSMNet MLP 0.74 vs TOS 0.96;
       EEGNet MLP 0.39 vs TOS 0.55) -> the score-Fisher PROJECTION is NOT the contribution.
     - nonlinear (MLP) residual after optimal linear erasure is the discriminator: TSMNet 0.74 (subject is
-      nonlinearly/redundantly encoded; NOT removable by ANY linear method) vs EEGNet 0.39.
+      not eliminated by the tested linear erasure controls; even optimal linear erasure for linear decodability leaves a nonlinear MLP residual) vs EEGNet 0.39.
     - INLP drives subject->chance but DESTROYS task (TSMNet 0.75->0.55, EEGNet 0.64->0.25): over-erasure.
   implication: reframe contribution to measurement + certification/refusal + measurement-to-control gap
     (NOT the eraser); paper needs a concept-erasure baseline table + Related Work SS5.3 update. RLACE/SPLINCE

@@ -6,7 +6,8 @@ This file is authoritative for over-claim prevention. No new compute — all evi
 Global forbidden phrasings (apply everywhere):
 `TOS-CMI improves EEG domain generalization` · `Selective deletion solves LPC collapse` ·
 `Domain leakage removal is sufficient for target transfer` · `Task-orthogonal geometry implies safe deletion` ·
-`EEG subject leakage is generally low-rank removable` · `global CMI always collapses`.
+`EEG subject leakage is generally low-rank removable` · `global CMI always collapses` ·
+`the dim↔type confound is resolved` · `the contrast is capacity-mediated, not architecture-type` (bare, forbidden until 3-seed + EEGNet d_z=210) · `frozen erasure yields no target gain` (forbidden until the Step-3 target-deployment test is run).
 
 ---
 
@@ -59,7 +60,7 @@ Global forbidden phrasings (apply everywhere):
 - **Claim:** on the compact EEGNet latent the same score-Fisher deletion removes a large fraction of subject leakage with negligible task cost — genuine V_D selectivity, not a delete-many-dims artifact — whereas on TSMNet it does not. Removability is representation/capacity-dependent.
 - **Phase:** 3.0 (verified wf_cb3b4958). **Fig/Table:** Fig 5, Table 1.
 - **Numbers:** EEGNet subject linear 0.82→0.35 (random-k 0.73), MLP 0.88→0.54 (random-k 0.81); selectivity 0.35–0.55 vs TSMNet 0.04–0.08; task 0.64→0.64.
-- **Limitation:** **dim↔type confound** — EEGNet differs in architecture AND latent dim (16 vs 210); collinear, cannot attribute to type. Capacity-mediated (high-dim latent redundantly re-encodes subject).
+- **Limitation:** **dim↔type confound** — EEGNet differs in architecture AND latent dim (16 vs 210); collinear in the two-point comparison. The Track-C architecture×dimension factorial (**C11**) PROVISIONALLY attributes the contrast to capacity (latent dim) rather than type, but this is seed-0 (multi-seed + EEGNet d_z=210 pending); do NOT write “resolved” yet.
 - **Allowed:** "low-rank removability is representation-dependent and capacity-mediated." **Forbidden:** "convolutional (SPD) representations are (un)removable" / asserting type as the causal axis.
 
 ### C8 — Removability is partial: nonlinear residual persists
@@ -85,10 +86,21 @@ Global forbidden phrasings (apply everywhere):
 
 ---
 
+### C11 — Dimension-vs-type (Track C capacity factorial; PROVISIONAL, seed-0)
+- **Claim:** an architecture×latent-dimension factorial (TSMNet tangent d_z∈{21,36,55,105,210} via SPD size; EEGNet width F2∈{16,32,64,128}; a matched d_z=210 conv cell in progress) shows the nonlinear erasure residual rises with d_z *within* both architectures and the two nearly coincide at matched d_z — suggesting the TSMNet-vs-EEGNet removability gap is mediated by latent dimension, not SPD-vs-conv type.
+- **Phase:** Track C. **Fig/Table:** Fig 6 (§4.5).
+- **Numbers (seed-0):** matched d_z 16/21: 0.40/0.40; 32/36: 0.50/0.50; 105/128: 0.65/0.61; TSMNet d_z=210: 0.74.
+- **Status:** PROVISIONAL (seed-0). Final verdict gated on 3-seed (running) + EEGNet d_z=210 matched cell + fold-cluster bootstrap CI + paired matched-dim contrast + OLS coefficient CIs.
+- **Allowed:** “a seed-0 factorial indicates the contrast is driven largely by latent dimension (provisional)” / “capacity-consistent, pending multi-seed confirmation.” **Forbidden:** “the dim↔type confound is resolved” / “capacity-mediated, not architecture-type” (bare, until 3-seed + EEGNet-210 complete).
+
+---
+
 ## Dim↔type confound — exact limitation wording (use verbatim)
 > EEGNet differs from TSMNet in both architecture and latent dimensionality; therefore Phase 3 does not
 > isolate whether low-rank removability is driven by convolutional inductive bias, latent compression, or
-> both. The present result establishes representation dependence, not the causal factor behind it.
+> both. The two-point comparison establishes representation dependence, not the causal factor behind it;
+> the Track-C capacity factorial (C11) PROVISIONALLY attributes it to latent dimension (seed-0; multi-seed
+> and a matched d_z=210 convolutional cell pending), so it must NOT be written as “resolved” until then.
 
 ## Cross-check before camera-ready
 - [ ] Every figure caption number traces to a row here.

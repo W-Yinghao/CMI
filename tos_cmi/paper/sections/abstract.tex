@@ -17,8 +17,9 @@ EEGNet, the same diagnostic deletion reduces much more subject decodability at n
 accuracy does not improve. These results suggest that conditional domain leakage is measurable, and sometimes
 removable, but neither measurement nor removal is sufficient evidence of domain-generalization benefit.
 Strong linear concept-erasure controls confirm this is not an artifact of a weak eraser: an optimal
-closed-form eraser removes more subject information than our deletion at equal task cost, yet leaves
-nonlinearly recoverable residuals and still yields no target gain. A capacity-controlled factorial
+closed-form eraser removes more linearly-decodable subject information than our deletion at equal task cost,
+yet leaves nonlinearly recoverable residuals. Separately, the EEGNet global-LPC sweep shows that leakage
+reduction need not yield a target gain. A capacity-controlled factorial
 (preliminary) further indicates that this representation-dependence is mediated by latent dimension rather
 than architecture type. Safe selective invariance should
 therefore be treated as a certified intervention with refusal, not as an always-on regularizer.
