@@ -74,27 +74,33 @@ signal to ablate) — this is **not** evidence of a bypass; it follows from thei
   `used_target_covariates=false`, `target_eval_is_evaluation_only=true`,
   `graph_backbone_selection_uses_target_eval=false`, `cmi_regularization_used=false`.
 
-## 15. Recommended decision — **B** *(your lettering; pending reviewer)*
+## 15. Recommended decision — **Decision B** *(pending reviewer)*
 
-> *(The runner's internal verdict string labels this same outcome "C" — only the static adapter passes.
-> Mapped to your decision rules it is **Decision B**: "only `dgcnn_forward_graph_adapter` succeeds".)*
+**Decision B — only the static `dgcnn_forward_graph_adapter` succeeds; dynamic-edge CIGL is not
+supported.** The DGCNN adapter is a valid task-capable graph backbone (source 0.458, ≥2/3 seeds, graph
+path used — zero_graph/permute_nodes deltas +0.208/+0.211, no bypass) — but its adjacency is **static**,
+so it exposes **no per-sample edge object**. Both **dynamic**-adjacency backbones **fail by
+overfitting**: train 0.96–1.0 with source at chance and a +0.63–0.67 gap, *independent of the temporal
+stem* (ShallowConvNet **and** EEGNet behave the same).
 
-**Graph-compatible task learning is feasible, but a dynamic-edge CIGL backbone is not yet supported.**
-The DGCNN adapter is a valid task-capable graph backbone (source 0.458, ≥2/3 seeds, graph path used, no
-bypass) — but its adjacency is **static**, so it exposes **no per-sample edge object**. Both
-**dynamic**-adjacency backbones **fail by overfitting**: train 0.96–1.0 with source at chance and a
-+0.63–0.67 gap, *independent of the temporal stem* (ShallowConvNet **and** EEGNet behave the same). So
-on this fold the per-sample adjacency `A(x)` — the `I(A;D|Y)` "subject fingerprint" that carries the edge
-leakage (edge KL 0.66–0.77) — is what **memorizes** the source; it is **task-harmful here, not
-task-critical** (this directly answers the reviewer's caveat: do **not** claim dynamic edge is
-task-critical — the opposite holds).
+The current dynamic-adjacency designs overfit and carry strong leakage; this is **consistent with**
+per-sample adjacency acting as a subject-fingerprint channel, but **this run does not causally isolate
+`A(x)` as the only source of memorization** — it could equally be the *combination* of dynamic adjacency
++ flatten readout + data size + regularization scale. So we do **not** claim dynamic edge is
+task-critical (and certainly not the opposite-of-helpful in a causal sense); we only observe that the
+current dynamic designs do not generalize on this fold.
 
 **Next authorized step would be (reviewer-gated): a graph/node CIGL path on a task-capable graph
 backbone — not edge-CMI.** Two concrete options for the reviewer to choose between: (a) pursue
-graph/node leakage on the **DGCNN adapter** (static adjacency; start with its repaired-backbone Gate-2
-graph/node audit at n_perm=50); or (b) design a **constrained dynamic adjacency** (e.g. low-rank /
-shared-base + small regularized per-sample perturbation) so a dynamic-edge backbone can *generalize* —
-but that is a new design question and is **not** authorized here. **The CIGL regularizer remains NOT
-authorized**, and no full LOSO / SEED / λ-grid / SOTA is warranted until a task-capable graph backbone
-with verified leakage is in hand. Generated per-candidate JSON are gitignored; this doc is the tracked
-record.
+graph/node leakage on the **DGCNN adapter** (static adjacency; start with its graph/node Gate-2-style
+audit at n_perm=50); or (b) design a **constrained dynamic adjacency** (e.g. low-rank / shared-base +
+small regularized per-sample perturbation) so a dynamic-edge backbone can *generalize* — a new design
+question, **not** authorized here. **The CIGL regularizer remains NOT authorized**, and no full LOSO /
+SEED / λ-grid / SOTA is warranted until a task-capable graph backbone with verified leakage is in hand.
+Generated per-candidate JSON are gitignored; this doc is the tracked record.
+
+---
+
+*Note (lettering): the runner's internal verdict string labels this same outcome "C"
+(only-static-adapter-passes); mapped to the reviewer's decision-rule lettering it is **Decision B**. The
+reviewer's lettering is authoritative throughout this doc.*
