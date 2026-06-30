@@ -34,3 +34,23 @@ The **primary decision is `folds1_8_confirmation`** (fold-0 is the development f
 permutation_mean AND permutation_p ≤ gate_alpha (0.05)`, `n_perm=50`. Configs are **fixed** (no
 selection); `target_eval` is an evaluation-only guardrail. **No edge term/audit.** Exploratory
 confirmation — not a benchmark/SOTA table.
+
+## Remote integrity (authoritative byte check)
+
+The committed files are normal multi-line source (LF line endings; `.gitattributes` enforces `eol=lf`).
+If a `raw.githubusercontent.com` preview ever appears "compressed to a few physical lines", that is a
+fetch/CDN artifact on the viewer side — verify the authoritative git object bytes instead:
+
+```bash
+git fetch origin
+B=project/cigl-phase3a-dgcnn-gn-multifold-confirmation
+for f in scripts/run_cigl_phase3a_dgcnn_gn_multifold_confirmation.py \
+         scripts/sbatch_cigl_phase3a_dgcnn_gn_multifold_confirmation_bnci001.sh \
+         tests/test_phase3a_dgcnn_gn_multifold_confirmation.py; do
+  echo "$f $(git show origin/$B:$f | wc -l)"
+done
+# expect ~249 / 36 / 114 physical lines (NOT 7 / 3 / 3)
+```
+
+The GitHub **blob page** (`github.com/.../blob/<commit>/<file>`) renders numbered lines and is a reliable
+cross-check; the branch-ref raw preview is not.
