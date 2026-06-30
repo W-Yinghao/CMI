@@ -1,0 +1,47 @@
+\section{Related work}
+
+\subsection{EEG domain generalization and cross-subject invariance}
+Cross-subject transfer is a long-standing problem in EEG/BCI decoding, where subject- and session-specific
+statistics dominate. Riemannian/SPD pipelines align second-order statistics on the manifold
+(\needcite{tangent-space / MDM / Riemannian alignment}), and batch/domain alignment layers such as the SPD
+batch-normalization in TSMNet target calibration-free cross-subject decoding (\needcite{TSMNet/SPDNet});
+convolutional architectures such as EEGNet and ShallowConvNet are standard decoders
+(\needcite{EEGNet, ShallowFBCSPNet}). These methods aim to \emph{produce} an invariant or aligned representation.
+\textbf{Difference:} we do not propose another aligned encoder; we take a \emph{fixed} representation and ask, by
+direct measurement, whether its residual conditional domain information is localizable, removable, and
+worth removing --- and find that removability and benefit are representation-dependent.
+
+\subsection{Conditional invariance, CMI penalties, and adversarial domain removal}
+A large body of domain-generalization work penalizes dependence on the domain, either marginally or
+conditionally on the label: adversarial domain removal (\needcite{DANN/CDAN}), moment matching
+(\needcite{CORAL/MMD}), invariance penalties (\needcite{IRM, V-REx}), and conditional-mutual-information /
+LPC-style penalties that target $I(Z;D|Y)$ (\needcite{CMI/LPC, MINE-style estimators}). These are typically
+applied as always-on training regularizers tuned by a strength hyperparameter.
+\textbf{Difference:} we show that on a high-dimensional SPD latent a global conditional penalty reduces the
+leakage \emph{proxy} mainly by collapsing the representation (an objective-scaling pathology), and that where it
+does reduce leakage without collapse (a compact latent) target accuracy does not improve. We therefore
+treat the conditional-invariance objective as something to \emph{certify before applying}, not to apply by default.
+
+\subsection{Selective erasure, concept removal, and task-preserving projection}
+Removing a specific attribute from a representation while preserving task information is studied as concept
+erasure / guarding --- iterative nullspace projection and closed-form linear erasure
+(\needcite{INLP, RLACE, LEACE}) --- and more broadly as subspace/feature removal. These methods typically
+\emph{erase} a targeted concept and report that it is no longer (linearly) decodable.
+\textbf{Difference:} our localization is a conditional \textbf{score-Fisher} operator (second-order in the
+log-likelihood scores, so it sees covariance/synergy leakage a first-moment statistic misses), and ---
+more importantly --- we do not treat successful erasure as the end goal. We add a conditional task-risk certificate
+and show empirically that even successful (linear) erasure can leave a nonlinear residual and need not
+improve downstream generalization, so erasure is necessary-evidence but not sufficient-evidence of benefit.
+
+\subsection{Certification, abstention, and safe intervention}
+Reliable ML increasingly couples decisions to calibrated uncertainty and the option to abstain
+(\needcite{selective prediction / reject option, conformal/coverage guarantees}), and causal/effect
+estimation uses cross-fitted, one-step (doubly-robust) estimators with explicit power considerations
+(\needcite{cross-fitting / one-step / debiased estimation}).
+\textbf{Difference:} we import this discipline into representation intervention. Rather than always deleting a
+``domain-rich'' subspace, we estimate the conditional task risk it carries with a cross-fitted plug-in
+log-ratio gate and a power floor, and make \textbf{refusal (the identity map) a first-class control decision}
+when a safe, useful deletion cannot be certified at the available sample size.
+
+We do not claim a stronger invariant regularizer; we show a measurement-to-control gap for conditional
+domain leakage in EEG representations, and fold explicit certification and refusal into the method.

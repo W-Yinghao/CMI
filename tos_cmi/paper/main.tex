@@ -1,0 +1,50 @@
+\documentclass[10pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{times}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+
+% --- visible, non-faked citation placeholder (resolve later) ---
+\newcommand{\needcite}[1]{\textcolor{red}{[CITE: #1]}}
+
+\graphicspath{{figures/}}
+
+\title{Selective Conditional Invariance in Task-Orthogonal EEG Subspaces:\\
+A Measurement-to-Control Study}
+\author{Anonymous}
+\date{}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+
+\input{sections/intro}
+
+\input{sections/method}
+
+% Fig 1 (pipeline schematic) is defined inside sections/method.tex after the localization subsection.
+
+\input{sections/synthetic}
+
+\input{sections/results}
+
+\input{sections/related}
+
+\input{sections/discussion}
+
+\input{sections/conclusion}
+
+% --- bibliography stub (citations are \needcite{} placeholders until resolved) ---
+\begin{thebibliography}{99}
+\bibitem{placeholder} Citations are unresolved; see the red \needcite{} markers in the text.
+\end{thebibliography}
+
+\end{document}

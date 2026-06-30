@@ -1,0 +1,117 @@
+\section{Results --- EEG measurement-to-control}
+
+\subsection{Setup (one paragraph)}
+We freeze a trained backbone per LOSO fold and dump its penultimate latent $Z$ on the source subjects (the
+held-out target subject is used for reporting only, never in selection, gating, or probing). On the frozen
+$Z$ we (i) localize a candidate domain-rich, task-light subspace $V_D$ with the score-Fisher generalized
+eigenproblem (\S2.1), (ii) delete it by the $M$-oblique direct-sum projector (\S2.2) and measure subject and
+task decodability on the complement $RZ=(I-P_N)Z$ with linear and MLP probes, against a same-$k$ random-removal
+control, and (iii) sweep a global LPC penalty (CE $+ \lambda \cdot I(Z;D|Y)$) to compare selective deletion with the
+standard global objective. We study two representations: TSMNet (LogEig/SPD tangent latent, $d_z=210$) and
+EEGNet (convolutional penultimate latent, $d_z=16$).
+
+\subsection{TSMNet: subject leakage is high-dimensional and redundant; global LPC ``works'' only by collapse}
+\textbf{In the high-dimensional TSMNet latent, the framework localizes subject-preferential low-rank directions,
+but deleting them does not remove subject leakage.} Subject identity is almost perfectly decodable from
+the full $Z$ (MLP 0.997, chance 0.125; Fig 4A); the score-Fisher selector localizes a compact candidate
+subspace (nDcand $\approx$ 3 of 210; Fig 4D), yet deleting $V_D$ only \textbf{dents} subject decode (0.997$\to$0.96 MLP) ---
+essentially matching same-$k$ random removal ($\approx$0.997; Fig 4A,C) --- while preserving the task (0.75$\to$0.75;
+Fig 4B). Even deleting the full Fisher-discriminative subspace (the LDA cap of 7 directions for 8 source
+subjects) leaves subject decode at 0.92--0.98: subject identity is \textbf{redundantly re-encoded} across the
+high-dimensional latent, so \textbf{low-rank selective deletion is insufficient} [C4].
+
+\textbf{Control is negative (global penalty).} The global LPC penalty \emph{appears} to remove leakage at high $\lambda$, but
+the per-epoch curves (Fig 3A--C) show this is a sharp, $\lambda$-tied \textbf{collapse of the representation to the
+origin}: task cross-entropy rises to $\ln 4$ (chance), the feature norm and top singular value go to 0, and
+the penalty itself goes to 0 (trivially satisfied by $Z\to0$). This is an objective-scaling pathology, not a
+gradient explosion (the diagnostic encoder gradient is $\sim$10$\times$ smaller than in healthy low-$\lambda$ training and
+never non-finite) and not a smooth geometric over-compression (the ``effective rank stays high'' is a
+scale-invariant-metric artifact) [C5]. The collapse is \emph{fixable} by a warm-up schedule (or, at $\lambda=1$, a
+scale-normalized penalty), confirming its optimization origin --- but every collapse-free, task-preserving
+variant leaves subject decode at the ERM level (Fig 3D), i.e. \textbf{once the collapse is prevented, the global
+penalty removes no leakage} [C6]. In the tested TSMNet/2a setting, global LPC's apparent de-domaining is a
+collapse artifact.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig3_lpc_collapse_mechanism.pdf}
+\caption{\textbf{Global LPC removes subject leakage only by collapsing the representation (TSMNet/2a).}
+Raw global LPC removes subject decodability only by collapsing the latent to the origin; when this collapse
+path is blocked or avoided, task performance recovers but subject leakage returns. Per-epoch medians:
+(A) task cross-entropy rises to $\ln 4$ (chance) for $\lambda\ge1$; (B) feature norm $\|Z\|\to0$ (collapse to
+origin); (C) $\lambda\cdot$LPC penalty $\to0$ (trivially satisfied by $Z\to0$). This is an objective-scaling /
+training-basin pathology, \emph{not} a gradient explosion (the diagnostic encoder gradient is $\sim$10$\times$
+smaller than in healthy low-$\lambda$ training and never non-finite; the stable effective rank is a
+scale-invariant-metric artifact). (D) Raw LPC at $\lambda{=}1$ drives source task and subject decode to chance
+($Z\to0$); warm-up or scale-normalization prevents the collapse, restoring task accuracy, but subject
+leakage returns to the ERM level.}
+\label{fig:collapse}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig4_tsmnet_redundant_leakage.pdf}
+\caption{\textbf{TSMNet subject leakage is high-dimensional and redundant} (ERM; $d_z{=}210$; $n{=}27$
+folds$\times$seeds). (A) Subject decode for the full $Z$, the complement $RZ$ after deleting $V_D$, the
+deleted $V_D$ itself, and a same-$k$ random removal (linear and MLP; chance dashed): deleting $V_D$ only
+\emph{dents} subject decode and matches random removal. (B) Task decode is preserved. (C) Subject decode
+\emph{removed} by informed $V_D$ vs same-$k$ random is small and comparable --- the deletion is not
+selective. (D) Candidate rank nDcand ($\approx$3 of 210) is compact, but low-rank deletion is nonetheless
+insufficient because subject identity is redundantly re-encoded across the high-dimensional latent.}
+\label{fig:tsmnet}
+\end{figure}
+
+\subsection{EEGNet: low-rank deletion removes leakage (linearly), but removal yields no generalization benefit}
+\textbf{EEGNet shows that the negative TSMNet result is not because score-Fisher deletion can never remove
+leakage: in a compact latent the same diagnostic deletion removes much more subject information --- yet this
+removal does not translate into target-domain improvement.} Deleting $V_D$ (nDcand $\approx$ 5 of 16) preserves the
+task (0.64$\to$0.64) and \textbf{selectively removes} subject decode far below same-$k$ random removal: linear
+0.82$\to$0.35 (random 0.73), MLP 0.88$\to$0.54 (random 0.81; Fig 5A--C). The informed-vs-random selectivity is
+$\sim$0.35--0.55, roughly an order of magnitude larger than on TSMNet (0.04--0.08), and same-$k$ random deletion
+does \emph{not} reproduce it --- genuine subspace selectivity, not an artifact of deleting a larger fraction of a
+small latent [C7]. The removal is \textbf{partial}: a substantial nonlinear residual survives (RZ MLP 0.54, well
+above chance 0.125), so we report it as \emph{linearly reducible with a persistent nonlinear residual}, not as
+elimination [C8].
+
+\textbf{But removable $\ne$ beneficial.} Sweeping the global LPC penalty on EEGNet reduces subject decode
+monotonically (0.89$\to$0.18) \emph{without} collapse (the feature norm never goes to 0; Fig 5D), yet \textbf{mean} LOSO
+target accuracy is flat-to-worse (0.43$\to$0.39 across $\lambda$; paired-t worse at every $\lambda$, p$\le$0.001 at $\lambda\ge$1) and
+uncorrelated with leakage reduction (Pearson $-$0.14, n.s.). Removing the measured leakage --- by selective
+deletion or by a collapse-free global penalty --- does \textbf{not} improve cross-subject generalization on
+EEGNet/2a [C9]. \emph{(We report the mean LOSO accuracy, the standard DG metric; the median is $\sim$flat and would
+obscure the paired decline.)}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig5_eegnet_contrast.pdf}
+\caption{\textbf{EEGNet contrast: low-rank deletion removes leakage, but removal yields no DG gain}
+(ERM $d_z{=}16$ and its global-LPC sweep). (A--C) Same axes as Fig.~\ref{fig:tsmnet}: deleting $V_D$
+\emph{selectively} removes subject decode far below same-$k$ random removal (linear 0.82$\to$0.35, MLP
+0.88$\to$0.54) while preserving the task --- an order-of-magnitude larger informed-vs-random selectivity
+than TSMNet; a nonlinear residual remains (RZ MLP 0.54 $\gg$ chance). (D) Global LPC reduces subject decode
+(0.89$\to$0.18) \emph{without} collapse (feature norm never $\to0$), yet \emph{mean} LOSO target accuracy is
+flat-to-worse ($0.43\to0.39$, paired-$t$ worse, $p\le0.001$) --- removing the leakage does not improve target
+generalization. Curves show the mean over folds$\times$seeds.}
+\label{fig:eegnet}
+\end{figure}
+
+\input{figures/table1_summary.tex}
+
+\subsection{Unified interpretation}
+Across both representations, conditional domain leakage is a \textbf{measurable} property of the EEG latent that
+the score-Fisher diagnostics localize, but it is \textbf{not a sufficient control target} for cross-subject
+generalization (Table 1). Removing it can (i) collapse the representation (TSMNet global LPC), (ii) leave
+redundant high-dimensional leakage essentially intact (TSMNet low-rank deletion), or (iii) genuinely
+remove leakage yet not improve transfer (EEGNet). Whether the leakage even \emph{sits} in a low-rank removable
+subspace is representation-dependent and, in our two-backbone design, \textbf{capacity-mediated}: a high-capacity
+210-d latent redundantly re-encodes subject identity outside any low-rank subspace, while a compact 16-d
+latent cannot. The correct operating principle is therefore a \textbf{certified intervention with refusal}: the
+framework should delete only when a source-risk certificate permits, and abstain otherwise --- which on
+TSMNet means abstain (deletion insufficient) and on EEGNet means a diagnostic deletion that removes leakage
+but is not claimed to improve generalization [C10].
+
+\textbf{Final claim.} Conditional domain leakage is measurable, and sometimes removable, but neither measurement
+nor removal is sufficient evidence of domain-generalization benefit.
+
+\emph{Limitation flagged here (full text in \S6.3): representation type and latent dimensionality are collinear in
+this design (SPD$\leftrightarrow$210, conv$\leftrightarrow$16); Phase 3 establishes representation dependence, not its causal factor.}

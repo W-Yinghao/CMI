@@ -1,0 +1,38 @@
+\section{Introduction}
+
+Cross-subject generalization is a central obstacle for EEG decoding: a model trained on some subjects often
+transfers poorly to a held-out subject whose signals carry strong, idiosyncratic identity information.
+A popular remedy is \textbf{conditional invariance} --- penalizing the dependence of the representation on the
+domain given the label, $I(Z;D|Y)$ --- on the premise that removing this conditional domain leakage should
+improve transfer. In practice, global conditional-invariance penalties are brittle: they are sensitive to
+their strength, and at large weight they can damage the very task information they are meant to leave intact.
+
+These failures suggest a question that is logically prior to \emph{controlling} leakage: \textbf{where does the leakage
+live, and is removing it safe and useful?} A scalar penalty implicitly assumes the leakage occupies a
+removable subspace and that removing it helps generalization. Neither is guaranteed --- conditional domain
+information in an EEG representation may be task-entangled, redundantly distributed, or only weakly related
+to cross-subject error. We therefore study conditional invariance as a \textbf{measurement-and-certification}
+problem rather than an always-on regularizer.
+
+We present TOS-CMI, a four-layer pipeline that (i) \textbf{localizes} a domain-rich, task-light subspace with a
+conditional score-Fisher operator; (ii) \textbf{deletes} it with a direct-sum projector that algebraically
+preserves the task carrier; (iii) \textbf{gates} the deletion with a conditional task-risk certificate estimated
+by a cross-fitted plug-in log-ratio test with a power floor; and (iv) \textbf{refuses} --- returns the identity
+map --- when a safe, useful deletion cannot be certified. Abstention is a first-class outcome, not a failure.
+
+Our results are deliberately honest about what this buys. On synthetic controls with a known Bayes oracle,
+we show each safeguard is necessary: first-moment statistics miss covariance/synergy leakage, geometry-only
+deletion can be conditionally unsafe, weak task gates unsafe-accept, and only a calibrated, power-certified
+gate avoids unsafe deletion --- at the cost of frequent, deliberate abstention. On BCI-IV-2a (LOSO), the
+framework exposes a \textbf{gap between measuring leakage and controlling it}. In a high-dimensional SPD/LogEig
+representation (TSMNet), subject identity is redundantly re-encoded: the framework localizes a low-rank
+subject subspace, but deleting it does not remove the leakage, and a global penalty ``removes'' it only by
+collapsing the representation to the origin. In a compact convolutional representation (EEGNet), the same
+deletion does remove much of the leakage at no task cost --- yet removing it does not improve target accuracy.
+
+\textbf{Contributions.} (1) A measurement-to-certified-control framework for conditional domain leakage in EEG,
+with explicit refusal. (2) Synthetic evidence that geometry alone is not safety and that calibrated,
+power-certified gating is required. (3) An EEG study across two representations showing that conditional
+domain leakage is \textbf{measurable, sometimes low-rank removable (representation- and capacity-dependent), yet
+not a sufficient control target for cross-subject generalization}. In three sentences: \emph{measurement works;
+control is not guaranteed; certification --- including the decision to abstain --- matters.}

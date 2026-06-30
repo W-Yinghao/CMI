@@ -1,0 +1,21 @@
+\begin{abstract}
+Conditional invariance penalties are commonly used to improve EEG domain generalization, but global
+penalties can remove task information, collapse representations, or optimize a leakage proxy without
+improving target performance. We study a selective alternative: localize conditional domain information in
+task-light EEG subspaces using score-Fisher geometry, and intervene only when deletion passes an explicit
+source-risk certificate.
+
+Synthetic controls show why certification is necessary. First-moment leakage proxies miss covariance-mediated
+domain information, geometry-only task protection can still delete conditionally task-useful information, and
+weak learned gates can unsafe-accept Bayes-unsafe deletions. A cross-fitted log-ratio task-risk gate reduces
+this failure mode, but at moderate sample sizes the certified action is often refusal rather than deletion.
+
+On BCI-IV-2a, the framework reveals a measurement-to-control gap. In TSMNet, subject identity is localizable
+but redundantly encoded across a high-dimensional latent space: low-rank deletion preserves the task but only
+dents leakage, while global LPC removes leakage only by collapsing the representation to the origin. In
+EEGNet, the same diagnostic deletion removes much more subject leakage with negligible task cost, yet target
+accuracy does not improve. These results suggest that conditional domain leakage is measurable, and sometimes
+removable, but neither measurement nor removal is sufficient evidence of domain-generalization benefit. Safe
+selective invariance should therefore be treated as a certified intervention with refusal, not as an
+always-on regularizer.
+\end{abstract}
