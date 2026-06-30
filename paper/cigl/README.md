@@ -1,4 +1,4 @@
-# paper/cigl/ — CIGL manuscript draft workspace (Phase 4B)
+# paper/cigl/ — CIGL manuscript draft workspace (Phase 4E / v0.3)
 
 **Draft workspace, not a submission.** Writing only — **no generated PDFs, no new experiments, no GPU**.
 
@@ -21,7 +21,7 @@ Every claim here must trace to the tracked evidence:
 - `RELATED_WORK_MATRIX.md` — positioning vs related work (`TODO: verify citation` where unverified).
 - `OPEN_PAPER_BLOCKERS.md` — candidate blockers classified (must-fix / optional ablation / future / do-not-do).
 
-## Hard rules (Phase 4B)
+## Hard rules (apply through Phase 4E)
 
 - **No** GPU / EEG training / new dataset / ablation / λ-grid / edge-CMI / CITA-DualPC-Tri-CMI changes.
 - **No** invented citations or BibTeX — uncertain references are marked `TODO: verify citation`.

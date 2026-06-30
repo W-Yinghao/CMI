@@ -1,6 +1,6 @@
-# CIGL Open Paper Blockers (Phase 4B)
+# CIGL Open Paper Blockers (Phase 4E / v0.3)
 
-> Candidate gaps, **classified only** — none are run here (Phase 4B is writing-only; any experiment needs
+> Candidate gaps, **classified only** — none are run here (all Phase 4x writing stages are writing-only; any experiment needs
 > separate reviewer authorization). Classes: **MUST-FIX** (before draft submission) · **OPTIONAL-ABLATION**
 > (strengthens, reviewer-gated) · **FUTURE-WORK** (named in Limitations/Future) · **DO-NOT-DO** (out of
 > scope / would invite overclaim).

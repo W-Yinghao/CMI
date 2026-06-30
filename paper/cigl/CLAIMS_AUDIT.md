@@ -1,4 +1,4 @@
-# CIGL Claims Audit (Phase 4B)
+# CIGL Claims Audit (Phase 4E / v0.3)
 
 > Every manuscript claim, its evidence source, the allowed wording, the forbidden wording, and status.
 > Bounded language per `docs/CIGL_32`. "Status": READY (evidence in hand) / WORDING (phrase carefully) /

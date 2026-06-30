@@ -1,4 +1,4 @@
-# CIGL Figure Captions (Phase 4D draft)
+# CIGL Figure Captions (Phase 4E / v0.3 draft)
 
 > Caption drafts only — **no figure assets generated** (writing only). Each caption states the visual
 > elements, the claim it supports, the claim it must **not** be used for, and the source evidence.
@@ -18,11 +18,13 @@ adjacency is shared across samples, so `edge_logits = None` (no per-sample edge 
 
 ## F2 — Leakage reduction vs source-task retention
 
-**Caption.** *Leakage reduction at task retention.* Each point is one LOSO fold; x = graph (or node) KL
-reduction (%) of `graph_node_010` vs fold/seed-matched ERM, y = source bAcc drop. Markers distinguish
-BNCI2014_001 (folds 1–8) and BNCI2015_001 (12 folds). Reference lines: retention gate (drop = 0.02) and
-the ≥30% reduction threshold. Points cluster at large reduction (35–77%) with near-zero drop; the single
-BNCI2015_001 fold above the 0.02 line (fold9, +0.024) is highlighted.
+**Caption.** *Leakage reduction against the source-task retention gate — a retention axis, not an accuracy
+gain.* Each point is one LOSO fold; x = graph (or node) KL reduction (%) of `graph_node_010` vs
+fold/seed-matched ERM, y = source bAcc drop relative to ERM. Markers distinguish BNCI2014_001 (folds 1–8)
+and BNCI2015_001 (12 folds). Reference lines: the retention **gate** (drop = 0.02) and the ≥30% reduction
+threshold. Points cluster at large reduction (35–77%) with drop at or below the gate; the single
+BNCI2015_001 fold above the 0.02 line (fold9, +0.024) is highlighted. Near-zero drop means the task is
+*retained*, not improved.
 - **Visual:** scatter, two marker styles, two reference lines, fold9 annotated.
 - **Supports:** "partial reduction while meeting the retention gate," and the honest fold9 exception.
 - **Does NOT support:** leakage elimination (no point at 100% reduction); accuracy improvement (drops are
@@ -43,13 +45,15 @@ inset shows the per-electrode node-leakage map (stable across seeds, corr ≈ 0.
 
 ## F4 — Negative-results decision flow
 
-**Caption.** *Why a static-adjacency DGCNN backbone (negative results).* Flow: original graph backbone
-near-chance under source-only (3A-R) → known-good decoders confirm the protocol is learnable (3A-S) →
-graph-backbone redesign: only the static-adjacency DGCNN learns the task while dynamic-edge designs overfit
-(3A-G) → DGCNN graph/node leakage audit (3A-H) → fixed graph/node regularizer (3A-I/J/K). Each node carries
-the gate decision.
+**Caption.** *How the negative results deliberately scoped the method.* The bounded scope is a *result of*,
+not a workaround for, these checks. Flow: the original graph backbone is near-chance under source-only
+(3A-R) → known-good decoders confirm the protocol is learnable, so the backbone (not the data) was the
+bottleneck (3A-S) → graph-backbone redesign: only the static-adjacency DGCNN learns the task while
+dynamic-edge designs overfit (3A-G) → DGCNN graph/node leakage audit (3A-H) → fixed graph/node regularizer
+(3A-I/J/K). Each node carries its gate decision; each "fail" branch is what *rules in* the chosen scope.
 - **Visual:** top-to-bottom decision flow with pass/fail badges; the "dynamic-edge overfit" branch marked
-  "consistent with fingerprint risk, not causal."
-- **Supports:** the methodology and scope (why graph/node-only on this backbone); negatives as evidence.
+  "consistent with fingerprint risk, not causal"; the surviving path highlighted as the deliberate scope.
+- **Supports:** the methodology and scope (why graph/node-only on this backbone); negatives as positive,
+  method-shaping evidence rather than failed attempts.
 - **Does NOT support:** that `A(x)` is causally the leakage source; any edge-CMI/dynamic-edge claim.
 - **Source:** `docs/CIGL_18/21/23/25`; `docs/CIGL_33`.

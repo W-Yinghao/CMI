@@ -1,8 +1,8 @@
 # CIGL: Auditing and Reducing Label-Conditional Domain Leakage in EEG Graph Representations under Source-Only Generalization
 
-> **DRAFT (Phase 4B).** Bounded first-paper skeleton. Citations are author-named where known and marked
-> `TODO: verify citation` until details are checked; no BibTeX is invented. Numbers trace to
-> `docs/CIGL_25/29/31`. Language is deliberately cautious (see `CLAIMS_AUDIT.md`).
+> **DRAFT v0.3 / Phase 4E.** Bounded first-paper draft. Citations are author-named where known and marked
+> `TODO: verify citation` until details are checked (see `CITATION_TODO_QUEUE.md`); no BibTeX is invented.
+> Numbers trace to `docs/CIGL_25/29/31`. Language is deliberately cautious (see `CLAIMS_AUDIT.md`).
 
 ## Abstract (draft)
 
@@ -13,14 +13,14 @@ graph-level and node-level features carry once the class label is fixed. We meas
 **posterior-KL plug-in proxy** — a conditional-domain probe scored against a retrained, within-label
 permutation null — and emphasize that this proxy is *not* an unbiased conditional-mutual-information (CMI)
 estimator. On a task-capable graph backbone (a DGCNN with a shared/static adjacency), we find the graph
-and node representations carry significant such leakage. We then add a fixed **graph/node** conditional-
-information regularizer (no edge term) and show, under **strict source-only** domain generalization on two
-motor-imagery (MI) datasets, that it **partially but reproducibly reduces** this leakage **while meeting
-the pre-specified source-task retention criteria**. The reduction is partial (the regularized leakage still clears the null), the
-estimator is a proxy, the backbone is a single static-adjacency graph network, and the evidence is two MI
-datasets — we make no SOTA, leakage-elimination, edge-CMI, cross-architecture, or beyond-MI claim. We also
-report the negative results that shaped the method (a near-chance graph backbone and overfitting dynamic-
-edge designs), which justify the bounded scope.
+and node representations carry significant such leakage. We then add a fixed **graph/node**
+conditional-information regularizer (no edge term) and show, under **strict source-only** domain
+generalization on two motor-imagery (MI) datasets, that it **partially but reproducibly reduces** this
+leakage **while meeting the pre-specified source-task retention criteria**. The reduction is partial (the
+regularized leakage still clears the null), the estimator is a proxy, the backbone is a single
+static-adjacency graph network, and the evidence is two MI datasets — we make no SOTA, leakage-elimination,
+edge-CMI, cross-architecture, or beyond-MI claim. We also report the negative results that shaped the method
+(a near-chance graph backbone and overfitting dynamic-edge designs), which justify the bounded scope.
 
 ## 1. Introduction
 
@@ -33,27 +33,28 @@ they expose interpretable objects — a graph-level readout, per-electrode node 
 designs) a learned adjacency. This makes them a good substrate for *auditing* leakage at the graph and node
 level.
 
-This paper makes a deliberately **bounded** contribution. First, we define and validate a source-only
-**audit** of label-conditional domain leakage in a graph network's `graph_z` and `node_z` objects, using a
-posterior-KL proxy with a retrained within-label permutation null and a strict no-target-label firewall.
-Second, we report a methodology chain — including its negative results — that establishes a key
-prerequisite: leakage control is only meaningful on a *task-capable* graph backbone, and identifying one is
-nontrivial. Third, we introduce a fixed graph/node conditional-information regularizer and show, under
-strict source-only DG on two MI datasets, that it partially and reproducibly reduces the audited leakage
-while meeting the pre-specified source-task retention criteria. We do not claim state-of-the-art accuracy,
+Most leakage-control work either presumes a task-capable model or measures leakage without first confirming
+that the backbone can learn the task at all; on EEG graph networks, we find neither holds for free. This
+paper therefore makes a deliberately **bounded** contribution. We *audit* label-conditional domain leakage
+in a graph network's `graph_z`/`node_z` objects under a strict no-target-label firewall; we then show —
+through a methodology chain whose negative results are part of the evidence — that leakage control is only
+meaningful on a *task-capable* graph backbone, which is nontrivial to obtain; and we finally confirm that a
+single fixed graph/node conditional-information regularizer reduces the audited leakage on two MI datasets
+while meeting a pre-registered source-task retention gate. We do not claim state-of-the-art accuracy,
 leakage elimination, an unbiased CMI estimate, an edge-level method, or generality beyond this backbone and
-these two MI datasets.
+these two MI datasets. The contributions are:
 
-**Contributions.** (C1) A **source-only audit** of label-conditional domain leakage in a graph network's
+(C1) A **source-only audit** of label-conditional domain leakage in a graph network's
 `graph_z`/`node_z` objects: a posterior-KL plug-in proxy with a retrained within-label permutation null and
 a target-label firewall (we explicitly disclaim unbiased CMI). (C2) A **methodology chain, including its
 negative results**, showing that a *task-capable* graph backbone is a prerequisite — the original graph
 backbone is near-chance, dynamic-edge designs overfit, and a static-adjacency DGCNN is the one that learns
 the task. (C3) A **fixed-candidate, cross-dataset confirmation** that a graph/node conditional-information
 regularizer (`λ_g=λ_n=0.010`, no edge term) partially and reproducibly reduces the audited leakage while
-meeting the pre-registered source-task retention gate on two MI datasets. (C4) An explicit
-**negative-results + limitations** account that bounds the claim (proxy not unbiased CMI; partial not full;
-graph/node only; one backbone; two MI datasets).
+meeting the pre-registered source-task retention gate on two MI datasets (the gate holds dataset-wide, with
+one BNCI2015_001 fold missing the per-fold threshold). (C4) An explicit **negative-results + limitations**
+account that bounds the claim (proxy not unbiased CMI; partial not full; graph/node only; one backbone; two
+MI datasets).
 
 ## 2. Related Work
 
@@ -64,8 +65,8 @@ benchmarking protocol [TODO: verify citation] from which our datasets and LOSO e
 verify citation] — which motivate graph/node/edge objects; (iii) **known-good convolutional MI decoders**
 — EEGNet and ShallowConvNet/DeepConvNet [TODO: verify citation] — which we use only as sanity references
 for task learnability; and (iv) **conditional-invariance / information-penalty** methods (conditional
-domain-invariant representations, classifier-based CMI / posterior-KL leakage proxies, and domain-
-adversarial or marginal-invariance baselines) [TODO: verify citation]. CIGL differs by (a) *auditing* graph
+domain-invariant representations, classifier-based CMI / posterior-KL leakage proxies, and
+domain-adversarial or marginal-invariance baselines) [TODO: verify citation]. CIGL differs by (a) *auditing* graph
 and node leakage explicitly with a permutation-null proxy before regularizing, (b) operating strictly
 source-only with target labels evaluation-only, and (c) restricting to a graph/node penalty on a
 task-capable static-adjacency backbone rather than claiming a general edge/dynamic-graph method.
@@ -118,15 +119,17 @@ seeds. This is the first such audit on a backbone that *also* learns the task. [
 
 **Fixed regularizer reduces leakage at task retention — two datasets.** On **BNCI2014_001** (primary folds
 1–8; fold-0 is the development fold and is excluded), the fixed `graph_node_010` passes all four source-only
-criteria in every primary fold, reducing graph proxy by ≈ 35–58% and node proxy by ≈ 31–45% while retaining
-source accuracy (absolute drop ≤ 0.02). [TABLE: BNCI2014_001 confirmation — T3.] On **BNCI2015_001** (all
-12 LOSO folds), the same fixed candidate is ERM-adequate, leakage-bearing, and leakage-reducing in 12/12
-folds, retains source accuracy in 11/12 folds, and holds the evaluation-only target guardrail in 12/12
-folds; graph proxy drops ≈ 43–77% and node proxy ≈ 37–61%, yielding `confirmed_with_target_guardrail =
-true`. [TABLE: BNCI2015_001 confirmation — T4.] [FIGURE: leakage-reduction vs task-retention scatter — F2.]
+criteria in every primary fold while meeting the source-task retention gate (absolute drop ≤ 0.02); graph
+and node proxy reductions and their fold-level bootstrap CIs are in T3. [TABLE: BNCI2014_001 confirmation —
+T3.] On **BNCI2015_001** (all 12 LOSO folds), the same fixed candidate is ERM-adequate, leakage-bearing,
+and leakage-reducing in 12/12 folds, meets the retention gate in 11/12 folds (one fold misses the per-fold
+threshold; the dataset-level gate passes), and holds the evaluation-only target guardrail in 12/12 folds,
+yielding `confirmed_with_target_guardrail = true`; reductions and CIs are in T4. [TABLE: BNCI2015_001
+confirmation — T4.] [FIGURE: leakage-reduction vs task-retention scatter — F2.]
 
 **Partial, not total.** In every confirmation fold the *regularized* leakage still clears the null — CIGL
-reduces (≈ 40–65%) but does not eliminate the leakage. We report reduction, not removal.
+reduces the proxy substantially (see T3/T4) but does not eliminate the leakage. We report reduction, not
+removal.
 
 ## 6. Analysis and Negative Results
 

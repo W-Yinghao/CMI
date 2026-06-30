@@ -1,4 +1,4 @@
-# CIGL Results Tables (Phase 4C draft)
+# CIGL Results Tables (Phase 4E / v0.3 draft)
 
 > Paper-facing table drafts from **existing** evidence only (CIGL_25/29/31 + tracked summary JSON via
 > `scripts/collect_cigl_evidence_tables.py`). No new runs. Numbers are aggregates computed from the summary

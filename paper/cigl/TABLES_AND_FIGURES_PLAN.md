@@ -1,4 +1,4 @@
-# CIGL Tables & Figures Plan (Phase 4B)
+# CIGL Tables & Figures Plan (Phase 4E / v0.3)
 
 > No figures generated yet. Each item: source, content, claim supported, claim it must NOT support,
 > status (ready / needs-generated-table / needs-plotting / needs-reviewer-decision).
@@ -66,4 +66,4 @@
 ## Notes
 - Generated CSV/MD tables (`results/cigl/paper_tables/`, via `scripts/collect_cigl_evidence_tables.py`) are
   **gitignored** unless explicitly approved.
-- No figure asset is produced in Phase 4B (writing only).
+- No figure asset is produced in the Phase 4x writing stages (writing only).

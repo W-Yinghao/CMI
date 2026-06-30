@@ -1,4 +1,4 @@
-# CIGL Related-Work Matrix (Phase 4B; verification updated Phase 4C)
+# CIGL Related-Work Matrix (created Phase 4B; verification updated Phase 4C/4E)
 
 > **Verification status now lives in `REFERENCES_VERIFIED.md`** (Phase 4C). Where a key there is
 > "verified" (MOABB, EEGNet, ShallowConvNet/DeepConvNet, RGNN, LGGNet, conditional-invariant Li 2018, CCMI),

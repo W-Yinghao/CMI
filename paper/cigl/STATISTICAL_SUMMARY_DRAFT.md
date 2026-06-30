@@ -1,4 +1,4 @@
-# CIGL Statistical Summary (Phase 4D draft)
+# CIGL Statistical Summary (Phase 4E / v0.3 draft)
 
 > Aggregates + **bootstrap 95% CIs** computed from the **existing** tracked summary JSON (no new runs):
 > `results/cigl/phase3a_dgcnn_gn_multifold_confirmation/BNCI2014_001_dgcnn_gn_multifold_summary.json` and
@@ -44,5 +44,8 @@ retained **11/12**, target guardrail **12/12**; `source_only_confirmed=T`, `targ
   guardrail holds throughout.
 - The reduction is **partial** — the *regularized* leakage **still clears the permutation null in every
   fold**; we report reduction, not elimination.
-- CIs above are **fold-level bootstrap** (seed 0). A camera-ready may additionally bootstrap over
-  folds×seeds from the per-seed JSON (`TODO: finalize per-seed CI`); no numbers here are invented.
+- CIs above are **fold-level bootstrap** (seed 0): they describe the variability of the across-fold mean
+  under resampling of the LOSO folds. They are **not** per-trial or per-seed inferential guarantees, and not
+  a significance test against a null — the null question is handled separately by the per-fold permutation
+  audit. A camera-ready may additionally bootstrap over folds×seeds from the per-seed JSON
+  (`TODO: finalize per-seed CI`); no numbers here are invented.

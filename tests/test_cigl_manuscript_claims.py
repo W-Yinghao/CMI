@@ -81,3 +81,31 @@ def test_paper_files_present_and_nontrivial():
               "RELATED_WORK_MATRIX.md", "OPEN_PAPER_BLOCKERS.md"):
         p = REPO / "paper" / "cigl" / f
         assert p.exists() and len(p.read_text().splitlines()) >= 20, f"{f} missing/too short"
+
+
+# --- Phase 4E: paper-facing artifacts must not appear in ANY paper/cigl/*.md (raw, un-normalized) ---
+
+PAPER_DIR = REPO / "paper" / "cigl"
+# line-break (or space) hyphenation artifacts the reviewer flagged: "conditional-\ninformation" etc.
+_HYPHEN_ARTIFACTS = [r"conditional-\s+information", r"dynamic-\s+edge", r"domain-\s+adversarial"]
+# affirmative phrasings that must not appear anywhere in the paper docs (forbidden-wording cells in
+# CLAIMS_AUDIT are paraphrased, so the literal strings live only in this test).
+_BANNED_LITERALS = ["without harming source-task performance", "at no task cost", "eliminates leakage"]
+
+
+def _all_paper_md():
+    return {p.name: p.read_text() for p in PAPER_DIR.glob("*.md")}
+
+
+def test_no_hyphenation_artifacts_in_paper_docs():
+    for name, raw in _all_paper_md().items():
+        low = raw.lower()
+        for pat in _HYPHEN_ARTIFACTS:
+            assert not re.search(pat, low), f"hyphenation artifact /{pat}/ in {name}"
+
+
+def test_no_banned_literals_in_paper_docs():
+    for name, raw in _all_paper_md().items():
+        low = raw.lower()
+        for s in _BANNED_LITERALS:
+            assert s not in low, f"banned phrasing {s!r} present in {name}"
