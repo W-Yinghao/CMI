@@ -147,10 +147,12 @@ acar-v4-regen py3.13).
 under the new encoder + derive→FIXED-candidate exploration→`compatibility_replay_pass`) → `compat_manifest.json` then
 `compat_RESULT.json` LAST (`allow_nan=False`). Result taxonomy = `SUBSTRATE_COMPAT_STATUSES`
 (SUBSTRATE_COMPATIBILITY_PASS / _FAIL / OPERATIONALLY_ABORTED_NO_VERDICT — no selection/external/binding vocabulary). On any
-operational abort the claimed output is removed (a partial dir is NEVER read as a FAIL). The two data-heavy frontiers
-(`_reembed_dev_under_substrate`, `_extract_fixed_candidate_stats`) raise a CONTROLLED `SubstrateReplayNotWiredError` until
-finalized + validated at the authorized C-run (an untested re-embed would yield a silently-wrong verdict — worse than a clean
-abort). See notes/ACAR_V4_C1_COMPAT_REPLAY_READINESS.md.
+operational abort the claimed output is removed (a partial dir is NEVER read as a FAIL). The two data-heavy stages
+(`_reembed_dev_under_substrate`, `_extract_fixed_candidate_stats`) are now FULLY WIRED + synthetic-tested — **no
+`SubstrateReplayNotWiredError` raise-frontier remains** (C4/C5): the re-embed reads windows from the sha-pinned scps cache by
+EXACT KEYED lookup (window_index_te = cache row index; per-row subject/cohort-at-index verified) and the stats extractor reads
+the FIXED-candidate `eval_L_harm_all`. The only DEV read (the pinned-cache `np.load`) still runs ONLY at the authorized C-run,
+behind the authorization gate. See notes/ACAR_V4_C1_COMPAT_REPLAY_READINESS.md "C5 RESOLVED".
 Pass-line = `regen_substrate.compatibility_replay_pass` (pure, pre-registered): per disease — CAL LTT λ* certified ∧
 coverage ≥ 0.15 ∧ red > 0 ∧ EVAL L_harm_all ≤ 0.10 ∧ **v2_replay EVALUABLE ∧ red > v2_replay_red (HARD — no waiver)**; macro
 — disease-macro red > disease-macro v2_replay. **If v2_replay is not evaluable for either disease, the replay FAILS and
