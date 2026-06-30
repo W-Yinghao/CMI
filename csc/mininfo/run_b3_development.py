@@ -3,11 +3,11 @@ CSC Route B3-P2.2 — DEVELOPMENT runner (paired minimal-information certificate
 dev-only; per-cluster logging. NOT a freeze, NOT a confirmatory run, NO real EEG. Independent target
 clusters (one fresh geom seed per cluster); endpoints certificate-level with exact CP bounds.
 
-PRIMARY h1 = full_z (R1: condition x FULL Z_std, fixed L2 C=0.5*3/d); pc (P2.1 low-rank) is run on the
-SAME data as the "relative-to-P2.1" baseline. min_confirm_pairs=20 guard (positive claim only at m>=20);
-RAW would-confirm reported separately as a label-efficiency diagnostic.
+PRIMARY h1 = full_z + CENTERED +-0.5 coding (R1c: condition x FULL Z_std, fixed L2 C=0.5*3/d); pc (low-rank,
+also centered) is run on the SAME data as the basis baseline. min_confirm_pairs=20 guard (positive claim
+only at m>=20); RAW would-confirm reported separately as a label-efficiency diagnostic.
 
-  python -m csc.mininfo.run_b3_development --clusters 24 --jobs 32 --out csc/results/b3_p22_dev_map.json
+  python -m csc.mininfo.run_b3_development --clusters 24 --jobs 24 --out csc/results/b3_p22_r1c_dev_map.json
 """
 from __future__ import annotations
 
@@ -34,24 +34,34 @@ def _one_cluster(kind, m, cluster_seed, n_subjects, decide_n, alpha, n_boot, min
     geom = make_geom(cfg, np.random.default_rng(cluster_seed))
     Z, Y, D, G, truth = make_paired_target(kind, geom, cfg, n_subjects=n_subjects,
                                            seed=10_000 + cluster_seed)
-    # PRIMARY = full_z (B3-P2.2 R1); pc = P2.1 baseline on the SAME data (exact "relative-to-P2.1" compare)
+    # PRIMARY = full_z + CENTERED coding (R1c); pc + centered = baseline on the SAME data (isolates basis)
     log = certify_paired(Z, Y, D, G, m=m, alpha=alpha, decide_n=decide_n, n_boot=n_boot,
-                         min_confirm_pairs=min_confirm_pairs, h1_basis="full_z", seed=cluster_seed)
+                         min_confirm_pairs=min_confirm_pairs, h1_basis="full_z",
+                         condition_coding="centered", seed=cluster_seed)
     pc = certify_paired(Z, Y, D, G, m=m, alpha=alpha, decide_n=decide_n, n_boot=n_boot,
-                        min_confirm_pairs=min_confirm_pairs, h1_basis="pc", seed=cluster_seed)
+                        min_confirm_pairs=min_confirm_pairs, h1_basis="pc",
+                        condition_coding="centered", seed=cluster_seed)
     confirmed = (log["state"] == CONCEPT_CONFIRMED)
     return dict(cluster_seed=int(cluster_seed), kind=kind, truth=truth, label_budget_m=int(m),
                 label_unit="subject_condition", state=log["state"], p_value=log["p_value"],
-                T=log["T"], n_paired_available=log["n_paired_available"],
+                T=log["T"], observed_T=log.get("observed_T"), null_mean=log.get("null_mean"),
+                null_sd=log.get("null_sd"), n_paired_available=log["n_paired_available"],
                 n_queried_subjects=log.get("n_queried_subjects", log.get("n_queried", 0)),
                 n_labeled_subject_conditions=log.get("n_labeled_subject_conditions", 0),
                 n_labeled_epochs=log.get("n_labeled_epochs", 0),
                 n_pairs=log.get("n_pairs", 0), classes_by_condition=log.get("classes_by_condition", {}),
                 n_boot_invalid=log.get("n_boot_invalid", 0), valid=log["valid"], reason=log["reason"],
-                h1_basis=log.get("h1_basis"), C_used=log.get("C_used"),
+                gate_reason=log["reason"],
+                h1_basis="%s_%s" % (log.get("h1_basis"),
+                                    "centered" if log.get("condition_coding") == "centered" else "01"),
+                condition_coding=log.get("condition_coding"),
+                condition_code_values=log.get("condition_code_values"),
+                weighted_condition_mean_check=log.get("weighted_condition_mean_check"),
+                C_full=log.get("C_used"), C_used=log.get("C_used"),
                 n_features_interaction=log.get("n_features_interaction"),
                 min_confirm_pairs=log.get("min_confirm_pairs"),
                 would_confirm_without_min_pairs=log.get("would_confirm_without_min_pairs", False),
+                would_confirm_without_guard=log.get("would_confirm_without_guard", False),
                 false_confirm_flag=bool(confirmed and truth == "NO_CONCEPT"),
                 power_flag=bool(confirmed and truth == "CONCEPT"),
                 pc_state=pc["state"], pc_p_value=pc["p_value"],
@@ -98,10 +108,11 @@ def run(clusters=24, ms=(0, 5, 10, 20, 30), n_subjects=36, decide_n=20, alpha=0.
                 blk["power_cp_lower"] = _cp_bound(confirmed, n, side="lower") if n else 0.0
             agg[f"{k}@m{m}"] = blk
 
-    payload = dict(kind="CSC Route B3-P2.2 DEVELOPMENT map (full_z R1 + min_confirm_pairs; pc baseline)",
+    payload = dict(kind="CSC Route B3-P2.2 R1c DEVELOPMENT map (full_z CENTERED +-0.5 + min_confirm_pairs; "
+                        "pc centered baseline)",
                    status="DEVELOPMENT only -- simulator, dev seeds; NOT a freeze/confirmatory; NO real EEG.",
-                   h1_basis="full_z", pc_baseline=True, min_confirm_pairs=min_confirm_pairs,
-                   positive_claim_only_at_m_ge=min_confirm_pairs,
+                   h1_basis="full_z", condition_coding="centered", pc_baseline=True,
+                   min_confirm_pairs=min_confirm_pairs, positive_claim_only_at_m_ge=min_confirm_pairs,
                    clusters_per_cell=clusters, label_budgets=list(ms), decide_n=decide_n, alpha=alpha,
                    n_boot=n_boot, base_seed=base_seed, n_subjects=n_subjects, n_jobs=n_jobs,
                    kinds=KINDS, no_concept_kinds=NO_CONCEPT_KINDS, concept_kinds=CONCEPT_KINDS,
@@ -119,9 +130,9 @@ def run(clusters=24, ms=(0, 5, 10, 20, 30), n_subjects=36, decide_n=20, alpha=0.
             row = "  %-22s %-10s " % (k, PAIRED_TRUTH[k])
             row += "  ".join("%.2f" % (agg[f'{k}@m{m}'][key] or 0.0) for m in ms)
             print(row)
-    _table("full_z CONFIRM rate (guarded, m>=%d only)" % min_confirm_pairs, "confirm_rate")
-    _table("full_z would-confirm rate (RAW, label-efficiency)", "would_confirm_rate")
-    _table("pc baseline CONFIRM rate (P2.1, same data)", "pc_confirm_rate")
+    _table("full_z_centered (R1c) CONFIRM rate (guarded, m>=%d only)" % min_confirm_pairs, "confirm_rate")
+    _table("full_z_centered (R1c) would-confirm rate (RAW, label-efficiency)", "would_confirm_rate")
+    _table("pc baseline CONFIRM rate (centered, same data)", "pc_confirm_rate")
     return payload
 
 
@@ -135,7 +146,7 @@ def main():
     ap.add_argument("--n_boot", type=int, default=200)
     ap.add_argument("--base_seed", type=int, default=0)
     ap.add_argument("--jobs", type=int, default=1)
-    ap.add_argument("--out", type=str, default="csc/results/b3_p22_dev_map.json")
+    ap.add_argument("--out", type=str, default="csc/results/b3_p22_r1c_dev_map.json")
     a = ap.parse_args()
     run(clusters=a.clusters, ms=tuple(a.ms), n_subjects=a.n_subjects, decide_n=a.decide_n,
         min_confirm_pairs=a.min_confirm_pairs, n_boot=a.n_boot, base_seed=a.base_seed, n_jobs=a.jobs,

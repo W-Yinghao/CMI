@@ -120,6 +120,45 @@ def test_per_condition_class_coverage():
     print("OK per-condition class coverage fails closed (<2 classes in a condition -> invalid)")
 
 
+# 9 ---- B3-P2.2 R1c: CENTERED +-0.5 coding fixes the full_z clean type-I that 0/1 coding caused --------
+def test_centered_coding_fixes_full_z_clean():
+    from csc.mininfo.paired_conditional_test import paired_conditional_change_test
+    def clean_audit(seed):
+        Z, Y, D, G, _ = _target("clean", seed=seed, n_subjects=36)
+        pick = [s for s in np.unique(G) if len(np.unique(D[G == s])) >= 2][:20]
+        m = np.isin(G, pick); return Z[m], Y[m], D[m], G[m]
+    bad01 = cen = 0
+    for s in range(4):
+        Zq, Yq, Dq, Gq = clean_audit(1000 + s)
+        bad01 += int(paired_conditional_change_test(Zq, Yq, Dq, Gq, h1_basis="full_z",
+                     condition_coding="01", n_boot=120, seed=s)["p_value"] <= 0.05)
+        cen += int(paired_conditional_change_test(Zq, Yq, Dq, Gq, h1_basis="full_z",
+                   condition_coding="centered", n_boot=120, seed=s)["p_value"] <= 0.05)
+    assert bad01 >= 3, f"expected the 0/1 trap to false-confirm clean (>=3/4), got {bad01}"
+    assert cen <= 1, f"centered coding must control clean type-I (<=1/4), got {cen}"
+    # the interaction code must be (near) zero-mean on a balanced audit under centered coding
+    Zq, Yq, Dq, Gq = clean_audit(1000)
+    wcm = paired_conditional_change_test(Zq, Yq, Dq, Gq, h1_basis="full_z", condition_coding="centered",
+                                         n_boot=1, seed=0)["weighted_condition_mean_check"]
+    assert abs(wcm) < 0.15, f"centered weighted condition mean should be ~0, got {wcm}"
+    print(f"OK centered coding fixes full_z clean type-I: 0/1={bad01}/4 -> centered={cen}/4 (wcm={wcm:+.3f})")
+
+
+# 10 -- B3-P2.2 R1c headline: centered coding lets the controlled pc basis RECOVER pure_conditional ----
+def test_centered_pc_recovers_pure_conditional():
+    # old 0/1 coding gave pc 0.00 on pure_conditional; centered coding recovers it (dev map: 0.75 @ m30).
+    hits01 = hitc = 0
+    for s in range(4):
+        Z, Y, D, G, _ = _target("paired_pure_conditional", seed=s, n_subjects=36)
+        hits01 += int(certify_paired(Z, Y, D, G, m=30, min_confirm_pairs=20, h1_basis="pc",
+                      condition_coding="01", n_boot=200, seed=s)["state"] == CONCEPT_CONFIRMED)
+        hitc += int(certify_paired(Z, Y, D, G, m=30, min_confirm_pairs=20, h1_basis="pc",
+                    condition_coding="centered", n_boot=200, seed=s)["state"] == CONCEPT_CONFIRMED)
+    assert hitc >= 2, f"centered pc should recover pure_conditional @ m=30 (>=2/4), got {hitc}"
+    assert hitc > hits01, f"centered ({hitc}) must beat 0/1 ({hits01}) on pure_conditional"
+    print(f"OK centered pc recovers pure_conditional @ m=30: 0/1={hits01}/4 -> centered={hitc}/4")
+
+
 if __name__ == "__main__":
     test_m0_abstains()
     test_invalid_pair_structure()
@@ -129,4 +168,6 @@ if __name__ == "__main__":
     test_per_condition_class_coverage()
     test_min_confirm_pairs_guard()
     test_full_z_uses_all_directions()
+    test_centered_coding_fixes_full_z_clean()
+    test_centered_pc_recovers_pure_conditional()
     print("\nall CSC Route B3 sanity + contract tests passed")
