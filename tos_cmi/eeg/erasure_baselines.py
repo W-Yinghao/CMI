@@ -78,7 +78,30 @@ def inlp_eraser(Xa, da, k=12, tol=0.02):
     return lambda X: X @ P.T
 
 
-def analyze(npz_path, cfg=None, seed=0):
+def rlace_eraser(Xa, da, k=None, iters=300, lr=0.01, seed=0):
+    """RLACE-style relaxed linear adversarial concept erasure (Ravfogel+2022): find an orthogonal rank-k
+    subspace whose removal blocks a LINEAR adversary from predicting the concept. Minimax via QR-projected
+    SGD. Returns apply(X). (Self-contained; concept-erasure/rlace pkgs not installed.)"""
+    import torch
+    import torch.nn.functional as F
+    torch.manual_seed(seed)
+    X = torch.tensor(Xa, dtype=torch.float32); y = torch.tensor(da, dtype=torch.long)
+    d = X.shape[1]; c = int(y.max().item()) + 1
+    k = (c - 1) if k is None else int(k)                 # rank needed to linearly erase a c-class concept
+    U = torch.randn(d, k, requires_grad=True)
+    adv = torch.nn.Linear(d, c)
+    optU = torch.optim.Adam([U], lr=lr); optA = torch.optim.Adam(adv.parameters(), lr=lr)
+    for _ in range(iters):
+        Q, _ = torch.linalg.qr(U)
+        P = torch.eye(d) - Q @ Q.T                       # remove span(U)
+        Xp = X @ P.t()
+        optA.zero_grad(); F.cross_entropy(adv(Xp.detach()), y).backward(); optA.step()   # adversary: predict
+        optU.zero_grad(); (-F.cross_entropy(adv(Xp), y)).backward(); optU.step()          # subspace: erase
+    Q, _ = torch.linalg.qr(U.detach()); Pn = (torch.eye(d) - Q @ Q.t()).numpy()
+    return lambda Z: Z @ Pn.T
+
+
+def analyze(npz_path, cfg=None, seed=0, with_rlace=True):
     d = np.load(npz_path, allow_pickle=True)
     Z = d["Z_source"].astype(np.float64); y = d["y_source"]
     subj, ns = _ids(d["subject_source"]); n_cls = int(d["n_cls"]); zdim = Z.shape[1]
@@ -89,6 +112,11 @@ def analyze(npz_path, cfg=None, seed=0):
     reps = {"full": lambda X: X,
             "LEACE": leace_eraser(Z[A], oh[A]),
             "INLP": inlp_eraser(Z[A], subj[A])}
+    if with_rlace:
+        try:
+            reps["RLACE"] = rlace_eraser(Z[A], subj[A], seed=seed)
+        except Exception as e:
+            print("  (RLACE skipped: %r)" % e, flush=True)
     # TOS V_D deletion (conditional D|Y) + random-k, fit on A
     plan = _SplitPlan(int(A.sum()), cfg.n_folds, 1); M = _metric(Z[A], y[A], n_cls, cfg)
     G_Y = _cross_fit_fisher(Z[A], y[A], None, n_cls, zdim, 0, cfg, plan, 0)
@@ -131,10 +159,11 @@ def main():
         agg["backbone"] = rows[0]["backbone"]; agg["z_dim"] = rows[0]["z_dim"]; agg["n"] = len(rows)
         json.dump({"rows": rows, "aggregate": agg}, open("%s/erasure_report.json" % base, "w"), indent=1)
         print("\n=== %s (z=%d, n=%d, pooled) subject decode ===" % (agg["backbone"], agg["z_dim"], len(rows)))
-        for nm in ["full", "LEACE", "INLP", "TOS_VD", "random_k"]:
+        g = lambda k: agg.get(k, float("nan"))
+        for nm in ["full", "LEACE", "RLACE", "INLP", "TOS_VD", "random_k"]:
             print("  %-9s subj lin=%.3f mlp=%.3f | task lin=%.3f mlp=%.3f"
-                  % (nm, agg["subj_%s_lin" % nm], agg["subj_%s_mlp" % nm],
-                     agg["task_%s_lin" % nm], agg["task_%s_mlp" % nm]))
+                  % (nm, g("subj_%s_lin" % nm), g("subj_%s_mlp" % nm),
+                     g("task_%s_lin" % nm), g("task_%s_mlp" % nm)))
         print("  chance subj=%.3f task=%.3f ; nDcand=%.1f" % (agg["chance_subj"], agg["chance_task"], agg["nDcand"]))
     print("ERASURE_BASELINES_DONE")
 
