@@ -308,9 +308,20 @@ def test_same_checkpoint_has_same_row_prediction_hash_across_methods():
 
 
 # ============================ metrics ============================
+def _spread_confidence_bundle():
+    """A bundle with confidences deliberately SPREAD across the range and mixed correctness, so the ECE is
+    provably bin-count-sensitive (two rows share a coarse 5-bin but split into different 50-bins with
+    opposite correctness). Independent of any trained model."""
+    logits = [[0.25, 0], [0.55, 0], [0.62, 0], [0.73, 0], [0.9, 0], [1.2, 0], [2.0, 0], [3.0, 0]]
+    y = [0, 1, 0, 1, 0, 1, 0, 0]                                # mixed correct / wrong across confidences
+    n = len(logits)
+    return PredictionBundle(sample_id=[f"u{i}" for i in range(n)], logits=logits, y=y, domain=[0] * n,
+                            group=[f"g{i}" for i in range(n)], method="ERM", seed=0, split_id="s",
+                            split_role="target_audit", deletion_level=0, class_names=("c0", "c1"))
+
+
 def test_metrics_use_one_fixed_bin_edge_array():
-    lr, _ = _done()
-    b = lr.methods["OACI"].target_predictions
+    b = _spread_confidence_bundle()
     m5 = evaluate_prediction_bundle(b, bin_edges=fixed_bin_edges(5))
     m50 = evaluate_prediction_bundle(b, bin_edges=fixed_bin_edges(50))
     assert m5.metrics_hash != m50.metrics_hash                  # the bin edges are an input, fixed per run
