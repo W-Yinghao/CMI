@@ -161,15 +161,75 @@ def _T_cv(prep, Yvec, D, g, cl, C):
     return float(np.mean([d0[s] - d1[s] for s in subs])), True
 
 
+def sample_h0_fixed_condition_margins(logp0, D, y0_idx, rng, n_swaps):
+    """B3-P2.4b null draw: within-condition Metropolis label swaps that PRESERVE the observed
+    condition x class counts EXACTLY, with acceptance ∝ p0 (so Y* ~ p0(Y|Z,C) restricted to fixed
+    per-condition margins). Returns class-INDEX labels. Per-condition label composition/prior is thus a
+    nuisance the null holds fixed, not concept evidence; the Z-dependent shared boundary stays via p0."""
+    y = np.asarray(y0_idx).copy(); D = np.asarray(D)
+    conds = np.unique(D); cond_idx = {int(c): np.where(D == c)[0] for c in conds}
+    for _ in range(int(n_swaps)):
+        c = conds[rng.integers(len(conds))]; idx = cond_idx[int(c)]
+        if len(idx) < 2:
+            continue
+        i = idx[rng.integers(len(idx))]; j = idx[rng.integers(len(idx))]
+        if y[i] == y[j]:
+            continue
+        delta = (logp0[i, y[j]] + logp0[j, y[i]]) - (logp0[i, y[i]] + logp0[j, y[j]])
+        if np.log(rng.random() + 1e-300) < delta:
+            y[i], y[j] = y[j], y[i]
+    return y
+
+
+def _h0_full_logp(Z, Y, D, g, cl, coding, C):
+    """log p0(Y|Z,C) from a single full-audit class-balanced h0 fit, columns aligned to cl."""
+    w = class_balanced_weights(Y, D, g); W = w.sum()
+    mu = (w[:, None] * Z).sum(0) / W
+    sd = np.sqrt(np.clip((w[:, None] * (Z - mu) ** 2).sum(0) / W, 0, None)) + 1e-8
+    Zs = (Z - mu) / sd; cv = condition_code(D, coding)[:, None]
+    h0 = _fit(np.hstack([Zs, cv]), Y, C, w)
+    pr = np.clip(h0.predict_proba(np.hstack([Zs, cv])), 1e-12, 1.0)
+    full = np.full((len(Z), len(cl)), 1e-12); cli = {c: j for j, c in enumerate(cl)}
+    for j, c in enumerate(h0.classes_):
+        full[:, cli[c]] = pr[:, j]
+    return np.log(full / full.sum(1, keepdims=True))
+
+
+def _bootstrap(prep, D, g, cl, C, T, draw_fn, n_boot, invalid_frac_max, min_classes):
+    """Run B replicates of a draw_fn -> Y*; recompute cross-fit T*; conservative invalid accounting.
+    p = (1 + #{T*>=T} + #invalid) / (1 + B)."""
+    ge, n_inv, n_fail, tstars = 1, 0, 0, []
+    for _ in range(n_boot):
+        Ystar, failed = draw_fn()
+        if failed:
+            n_fail += 1; n_inv += 1; ge += 1; continue
+        if any(len(np.unique(Ystar[D == c])) < min_classes for c in np.unique(D)):
+            n_inv += 1; ge += 1; continue
+        Ts, ok = _T_cv(prep, Ystar, D, g, cl, C)
+        if not ok:
+            n_inv += 1; ge += 1; continue
+        tstars.append(Ts); ge += int(Ts >= T)
+    return dict(p=ge / (n_boot + 1), n_inv=int(n_inv), n_fail=int(n_fail),
+                nmean=float(np.mean(tstars)) if tstars else float("nan"),
+                nsd=float(np.std(tstars)) if tstars else float("nan"),
+                estimable=bool(n_inv <= invalid_frac_max * n_boot))
+
+
 def paired_cv_test(Z, Y, D, groups, condition_coding="centered", rank=3, C=0.5, n_folds=N_FOLDS,
                    min_epochs=MIN_EPOCHS_PER_CONDITION, n_boot=200, seed=0, invalid_frac_max=0.20,
-                   min_classes=2):
-    """Cross-fitted, class-balanced paired conditional-change test on ELIGIBLE complete pairs only.
-    Returns T_cv, p_value_cv, valid, reason, null_mean_cv, null_sd_cv, n_boot_invalid, n_eligible,
-    fold_hash, per_condition_classes."""
+                   min_classes=2, null_mode="fixed_margin", also_standard=True, n_swaps=None):
+    """Cross-fitted class-balanced paired conditional-change test on ELIGIBLE complete pairs only.
+    null_mode="fixed_margin" (B3-P2.4b, PRIMARY): null preserves per-condition class margins (so label/prior
+    composition cannot inflate T); "parametric" = P2.4a standard null. also_standard reports the standard
+    null too (DIAGNOSTIC only). Returns T_cv, p_value_cv (primary), fixed_margin_null_p, standard_null_p,
+    valid, reason, null_mean_cv/null_sd_cv, n_boot_invalid, n_sampler_failures, margin_preserved,
+    sampler_seed, null_version, would_confirm_under_standard_null, n_eligible, fold_hash, per_condition_classes."""
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D); g = np.asarray(groups)
-    base = dict(T_cv=float("nan"), p_value_cv=1.0, valid=False, null_mean_cv=float("nan"),
-                null_sd_cv=float("nan"), n_boot_invalid=0, n_eligible=0, fold_hash=None,
+    base = dict(T_cv=float("nan"), p_value_cv=1.0, fixed_margin_null_p=float("nan"),
+                standard_null_p=float("nan"), valid=False, null_mean_cv=float("nan"),
+                null_sd_cv=float("nan"), n_boot_invalid=0, n_sampler_failures=0, margin_preserved=False,
+                sampler_seed=int(seed + 777), null_version="condition_matched_fixed_margin_h0_bootstrap",
+                would_confirm_under_standard_null=False, n_eligible=0, fold_hash=None,
                 per_condition_classes={})
     elig = eligible_complete_pairs(D, g, min_epochs)
     if len(elig) < n_folds * 2:
@@ -189,40 +249,57 @@ def paired_cv_test(Z, Y, D, groups, condition_coding="centered", rank=3, C=0.5, 
     if not ok:
         return {**base, "n_eligible": len(elig), "fold_hash": fhash, "T_cv": T,
                 "reason": "observed cross-fit degenerate"}
-    # parametric-bootstrap null: per fold, draw held-out Y* ~ (h0 fit on that fold's TRAIN), assemble Y*,
-    # rerun the SAME cross-fit pipeline.
+
+    # standard (parametric) null draw: per-fold held-out Y* ~ fold-train-h0 (P2.4a) -- DIAGNOSTIC.
     h0_draw = []
     for p in prep:
         w_tr = class_balanced_weights(Y[p["tr"]], D[p["tr"]], g[p["tr"]])
         h0 = _fit(p["X0_tr"], Y[p["tr"]], C, w_tr)
         pr = np.clip(h0.predict_proba(p["X0_ho"]), 1e-12, 1.0)
-        full = np.full((p["ho"].sum(), len(cl)), 1e-12)
-        cli = {c: j for j, c in enumerate(cl)}
+        full = np.full((p["ho"].sum(), len(cl)), 1e-12); cli = {c: j for j, c in enumerate(cl)}
         for j, c in enumerate(h0.classes_):
             full[:, cli[c]] = pr[:, j]
         h0_draw.append(full / full.sum(1, keepdims=True))
-    rng = np.random.default_rng(seed + 1)
-    ge, n_inv, tstars = 1, 0, []
-    for _ in range(n_boot):
+    rng_std = np.random.default_rng(seed + 1)
+
+    def draw_std():
         Ystar = Y.copy()
         for p, prob in zip(prep, h0_draw):
-            cum = np.cumsum(prob, axis=1); u = rng.random(len(prob))
+            cum = np.cumsum(prob, axis=1); u = rng_std.random(len(prob))
             Ystar[p["ho"]] = cl[(u[:, None] > cum).sum(1)]
-        if any(len(np.unique(Ystar[D == c])) < min_classes for c in np.unique(D)):
-            n_inv += 1; ge += 1; continue
-        Ts, ok = _T_cv(prep, Ystar, D, g, cl, C)
-        if not ok:
-            n_inv += 1; ge += 1; continue
-        tstars.append(Ts); ge += int(Ts >= T)
-    nmean = float(np.mean(tstars)) if tstars else float("nan")
-    nsd = float(np.std(tstars)) if tstars else float("nan")
-    if n_inv > invalid_frac_max * n_boot:
-        return {**base, "n_eligible": len(elig), "fold_hash": fhash, "T_cv": T, "n_boot_invalid": int(n_inv),
-                "null_mean_cv": nmean, "null_sd_cv": nsd, "per_condition_classes": pcc,
-                "reason": f"null not estimable: {n_inv}/{n_boot} invalid"}
-    return dict(T_cv=float(T), p_value_cv=ge / (n_boot + 1), valid=True, reason=f"{len(elig)} eligible pairs",
-                null_mean_cv=nmean, null_sd_cv=nsd, n_boot_invalid=int(n_inv),
-                n_eligible=int(len(elig)), fold_hash=fhash, per_condition_classes=pcc)
+        return Ystar, False
+
+    # fixed-margin null draw (PRIMARY): preserve per-condition class counts exactly.
+    logp0 = _h0_full_logp(Z, Y, D, g, cl, condition_coding, C)
+    y0_idx = np.searchsorted(cl, Y)
+    sampler_seed = int(seed + 777); rng_fm = np.random.default_rng(sampler_seed)
+    nsw = int(n_swaps) if n_swaps else max(20 * len(Y), 300)
+
+    def draw_fm():
+        ys = sample_h0_fixed_condition_margins(logp0, D, y0_idx, rng_fm, nsw)
+        return cl[ys], False
+
+    res_fm = _bootstrap(prep, D, g, cl, C, T, draw_fm, n_boot, invalid_frac_max, min_classes)
+    res_std = _bootstrap(prep, D, g, cl, C, T, draw_std, n_boot, invalid_frac_max, min_classes) \
+        if also_standard else None
+    # margin-preservation self-check on one draw
+    chk = sample_h0_fixed_condition_margins(logp0, D, y0_idx, np.random.default_rng(sampler_seed + 1), nsw)
+    margin_ok = all(np.array_equal(np.bincount(y0_idx[D == c], minlength=len(cl)),
+                                   np.bincount(chk[D == c], minlength=len(cl))) for c in np.unique(D))
+    primary = res_fm if null_mode == "fixed_margin" else res_std
+    out = dict(base)
+    out.update(T_cv=float(T), p_value_cv=primary["p"], fixed_margin_null_p=res_fm["p"],
+               standard_null_p=(res_std["p"] if res_std else float("nan")),
+               null_mean_cv=primary["nmean"], null_sd_cv=primary["nsd"], n_boot_invalid=primary["n_inv"],
+               n_sampler_failures=res_fm["n_fail"], margin_preserved=bool(margin_ok),
+               sampler_seed=sampler_seed, n_eligible=int(len(elig)), fold_hash=fhash,
+               per_condition_classes=pcc,
+               would_confirm_under_standard_null=bool(res_std and res_std["p"] <= 0.05))
+    if not primary["estimable"]:
+        out.update(valid=False, reason=f"null not estimable: {primary['n_inv']}/{n_boot} invalid")
+        return out
+    out.update(valid=True, reason=f"{len(elig)} eligible pairs")
+    return out
 
 
 def certify_paired_calibrated(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=4, min_confirm_pairs=20,
@@ -259,10 +336,15 @@ def certify_paired_calibrated(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=
                n_labeled_subject_conditions=len({(int(s), int(c)) for s, c in zip(Gq, Dq)}),
                n_labeled_epochs=int(len(Yq)))
     t = paired_cv_test(Zq, Yq, Dq, Gq, condition_coding="centered", rank=rank, C=C, n_folds=n_folds,
-                       min_epochs=min_epochs, n_boot=n_boot, seed=seed)
-    would = bool(t["valid"] and t["p_value_cv"] <= alpha)
+                       min_epochs=min_epochs, n_boot=n_boot, seed=seed,
+                       null_mode="fixed_margin", also_standard=True)
+    would = bool(t["valid"] and t["p_value_cv"] <= alpha)   # DECISION on the fixed-margin (primary) null
     log.update(valid=bool(t["valid"]), p_value=float(t["p_value_cv"]), T=float(t["T_cv"]),
                observed_T=float(t["T_cv"]), T_cv=float(t["T_cv"]), p_value_cv=float(t["p_value_cv"]),
+               fixed_margin_null_p=float(t["fixed_margin_null_p"]), standard_null_p=float(t["standard_null_p"]),
+               would_confirm_under_standard_null=bool(t["would_confirm_under_standard_null"]),
+               null_version=t["null_version"], n_sampler_failures=int(t["n_sampler_failures"]),
+               margin_preserved=bool(t["margin_preserved"]), sampler_seed=int(t["sampler_seed"]),
                null_mean=t["null_mean_cv"], null_sd=t["null_sd_cv"], null_mean_cv=t["null_mean_cv"],
                null_sd_cv=t["null_sd_cv"], n_boot_invalid=t["n_boot_invalid"],
                n_eligible_queried=int(t["n_eligible"]), fold_hash=t["fold_hash"],
@@ -277,6 +359,10 @@ def certify_paired_calibrated(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=
         log["state"] = NEED_MORE_LABELS                       # significant but too few eligible pairs
     elif n_q >= decide_n:
         log["state"] = NO_CONCEPT_EVIDENCE
+        # diagnostic: the standard null WOULD have confirmed, but the fixed-margin null did not ->
+        # the apparent signal was per-condition label/prior composition, correctly refused.
+        if t["would_confirm_under_standard_null"]:
+            log["reason"] = "PRIOR_COMPOSITION_MATCHED_NULL_NOT_SIG"
     else:
         log["state"] = NEED_MORE_LABELS
     return log

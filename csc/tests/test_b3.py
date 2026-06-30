@@ -178,6 +178,44 @@ def test_p24_guards_and_power():
           f"random_label {badr}/3 (closed)")
 
 
+# 12 -- B3-P2.4b fixed-margin sampler PRESERVES per-condition class counts exactly --------------------
+def test_p24b_fixed_margin_sampler():
+    from csc.mininfo.paired_calibrated import sample_h0_fixed_condition_margins
+    rng = np.random.default_rng(0)
+    n, K = 60, 3
+    D = np.array([0] * 30 + [1] * 30)
+    y0 = rng.integers(0, K, size=n)
+    logp0 = np.log(rng.dirichlet(np.ones(K), size=n))          # arbitrary p0
+    ys = sample_h0_fixed_condition_margins(logp0, D, y0, rng, n_swaps=2000)
+    for c in (0, 1):
+        a = np.bincount(y0[D == c], minlength=K); b = np.bincount(ys[D == c], minlength=K)
+        assert np.array_equal(a, b), f"condition {c} margins not preserved: {a} vs {b}"
+    # uniform p0 -> swaps still preserve margins (a within-condition permutation), and DO move labels
+    lu = np.log(np.full((n, K), 1.0 / K))
+    ys2 = sample_h0_fixed_condition_margins(lu, D, y0, rng, n_swaps=4000)
+    assert any(np.bincount(ys2[D == c], minlength=K).tolist() == np.bincount(y0[D == c], minlength=K).tolist()
+               for c in (0, 1))
+    assert not np.array_equal(ys2, y0), "uniform-p0 sampler should still permute within conditions"
+    print("OK P2.4b fixed-margin sampler preserves per-condition class counts (and permutes)")
+
+
+# 13 -- B3-P2.4b fixed-margin null closes the label-composition leak; concept power retained -----------
+def test_p24b_fixed_margin_closes_label_leak():
+    from csc.mininfo.paired_calibrated import certify_paired_calibrated
+    def cert(kind, seed):
+        cfg = SimConfig(seed=seed); geom = make_geom(cfg, np.random.default_rng(seed))
+        Z, Y, D, G, _ = make_paired_target(kind, geom, cfg, n_subjects=36, seed=10_000 + seed)
+        return certify_paired_calibrated(Z, Y, D, G, m=24, n_boot=120, seed=seed)
+    rand = sum(cert("random_label", s)["state"] == CONCEPT_CONFIRMED for s in range(4))
+    plab = sum(cert("paired_label", s)["state"] == CONCEPT_CONFIRMED for s in range(4))
+    conc = sum(cert("paired_concept", s)["state"] == CONCEPT_CONFIRMED for s in range(4))
+    assert rand == 0, f"fixed-margin null must close random_label leak, got {rand}/4"
+    assert plab == 0, f"fixed-margin null must close paired_label leak, got {plab}/4"
+    assert conc >= 3, f"concept power must survive fixed-margin null, got {conc}/4"
+    print(f"OK P2.4b fixed-margin null: random_label {rand}/4 & paired_label {plab}/4 closed; "
+          f"concept {conc}/4 retained")
+
+
 if __name__ == "__main__":
     test_m0_abstains()
     test_invalid_pair_structure()
@@ -190,4 +228,6 @@ if __name__ == "__main__":
     test_centered_coding_fixes_full_z_clean()
     test_centered_pc_recovers_pure_conditional()
     test_p24_guards_and_power()
+    test_p24b_fixed_margin_sampler()
+    test_p24b_fixed_margin_closes_label_leak()
     print("\nall CSC Route B3 sanity + contract tests passed")
