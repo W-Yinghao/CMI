@@ -313,6 +313,76 @@ def audit_graph_objects(graph_z, node_z, edge_logits, y, d, n_classes, n_domains
     return dict(graph=g, node=nres, edge=e)
 
 
+def audit_graph_node_objects(graph_z, node_z, y, d, n_classes, n_domains, *,
+                             n_perm=20, seed=0, device="cpu", hidden_dim=64, epochs=100,
+                             train_idx=None, val_idx=None):
+    """Graph + node leakage audit ONLY (NO edge), for task-capable backbones whose adjacency is
+    static/shared and therefore exposes no per-sample edge object (e.g. the DGCNN forward-graph adapter).
+    Byte-for-byte the same graph/node probes + within-label retrained permutation null as
+    `audit_graph_objects`; the edge object is intentionally NOT computed and NOT faked.
+
+    graph_z: [N, Dg]   node_z: [N, C, Dn]   y, d: [N]
+    Returns {"graph":{...}, "node":{...}, "edge_audit_skipped":True, "edge_skip_reason":...}.
+    """
+    graph_z = _feat_tensor(graph_z, device)
+    node_z = _feat_tensor(node_z, device)
+    N = graph_z.shape[0]
+    C = node_z.shape[1]
+    Dn = node_z.shape[2]
+    y_np = _np(y).astype(np.int64)
+    d_np = _np(d).astype(np.int64)
+    if train_idx is not None and val_idx is not None:
+        tr_trials = np.asarray(train_idx, dtype=np.int64)
+        va_trials = np.asarray(val_idx, dtype=np.int64)
+    else:
+        tr_trials, va_trials = _trial_split(N, seed)
+
+    # ---- graph: probe q(D | Z_g, Y) ---------------------------------------------------------------
+    def fit_graph(d_arr):
+        return fit_conditional_domain_probe(graph_z, y_np, d_arr, n_classes, n_domains,
+                                            train_idx=tr_trials, val_idx=va_trials,
+                                            hidden_dim=hidden_dim, epochs=epochs, seed=seed, device=device)
+    g = fit_graph(d_np)
+    # null permutes D within-label ONLY over the training trials (preserves train-split π_y)
+    g.update(_perm_summary(g["kl_mean"],
+                           _permutation_null(fit_graph, y_np, d_np, n_perm, seed, permute_idx=tr_trials)))
+    g["kl_ci"] = bootstrap_mean_ci(g.pop("val_kl"), seed=seed)
+    g.pop("val_idx", None)
+
+    # ---- node: shared probe over flattened (trial, channel) rows ----------------------------------
+    # feature = [z_v, normalized channel id]; y/d repeated over channels; split stays trial-level.
+    chan_id = np.tile(np.arange(C), N)
+    chan_feat = (chan_id / max(C - 1, 1)).astype(np.float32)[:, None]
+    node_feat = torch.cat([node_z.reshape(N * C, Dn),
+                           torch.as_tensor(chan_feat, device=device)], dim=1)
+    trial_id = np.repeat(np.arange(N), C)
+    y_rep = np.repeat(y_np, C)
+    tr_rows = np.where(np.isin(trial_id, tr_trials))[0]
+    va_rows = np.where(np.isin(trial_id, va_trials))[0]
+
+    def fit_node(d_arr):
+        d_rep_arr = np.repeat(d_arr, C)
+        return fit_conditional_domain_probe(node_feat, y_rep, d_rep_arr, n_classes, n_domains,
+                                            train_idx=tr_rows, val_idx=va_rows,
+                                            hidden_dim=hidden_dim, epochs=epochs, seed=seed, device=device)
+    nres = fit_node(d_np)
+    val_rows = nres["val_idx"]
+    val_kl = nres["val_kl"]
+    val_chan = chan_id[val_rows]
+    node_map = np.zeros(C, dtype=np.float64)
+    for c in range(C):
+        m = val_chan == c
+        node_map[c] = float(val_kl[m].mean()) if m.any() else 0.0
+    # permute over TRAIN TRIALS (not rows): fit_node receives a trial-level d_arr and repeats it
+    nres.update(_perm_summary(nres["kl_mean"],
+                              _permutation_null(fit_node, y_np, d_np, n_perm, seed, permute_idx=tr_trials)))
+    nres["kl_ci"] = bootstrap_mean_ci(nres.pop("val_kl"), seed=seed)
+    nres.pop("val_idx", None)
+    nres["node_leakage_map"] = node_map.tolist()
+    return dict(graph=g, node=nres, edge_audit_skipped=True,
+                edge_skip_reason="static/shared adjacency: edge_logits=None; no per-sample edge object")
+
+
 def edge_binned_cmi_map(edge_logits, y, d, n_classes, n_domains, n_bins=4, smoothing=1e-3):
     """Non-neural per-edge conditional MI map  I(E_ij ; D | Y), Tensor[C, C], for interpretation only.
 
