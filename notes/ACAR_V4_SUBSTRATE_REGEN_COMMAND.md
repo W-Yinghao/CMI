@@ -35,6 +35,11 @@ source_kind              "raw_bids" | "canonical_features"
 source_paths             {cohort: ABSOLUTE path}, keyed by EXACTLY dev_cohorts
 source_file_manifest_sha256              64-hex   (overall raw file-list provenance; metadata only, no signal read)
 per_cohort_source_file_manifest_sha256   {cohort: 64-hex}, keyed by EXACTLY dev_cohorts (per-cohort raw-file-set provenance)
+eligible_subject_list_sha256             64-hex over the EXACT DEV-eligible namespaced subjects (from DEV subject_id_te)
+per_cohort_eligible_subject_list_sha256  {cohort: 64-hex}
+n_eligible_subjects                      STRICT int == EXACT_ELIGIBLE[disease] (PD 230 / SCZ 225)
+excluded_subjects                        {"dsid/sub-xxx": reason} — every raw sub-* NOT eligible MUST be pinned here + is
+                                         NEVER read (e.g. SCZ ds004000/sub-042 — in raw dirs but not in the DEV subject_id_te)
 seed                     STRICT int 0 (bool / "0" / 0.0 / 0.9 rejected — no silent coercion)
 subject_list_sha256      64-hex   (provenance of the training subjects)
 diagnosis_label_sha256   64-hex
@@ -121,6 +126,36 @@ v2_replay not evaluable (HARD), if PD passes but SCZ fails, if red ≤ v2_replay
 every pre-declared numeric gate passes · compatibility artifact file-hash preflight FAILS on missing path or sha mismatch ·
 both CLIs fail-closed AFTER a full preflight (HEAD==commit, clean worktree, output absent, env-lock/artifact hashes) and
 BEFORE any heavy import / DEV read / output write (tests assert `torch`/`cmi` never enter sys.modules).
+
+## 7b. Eligible-subject reconciliation (METADATA only; before any raw read)
+`run_regen_substrate._verify_eligible_subjects` (preflight, before the B1 gate) lists `sub-*` dirs per cohort (no signal) and
+calls `regen_substrate.check_eligible_subjects`: eligible = (all namespaced raw subjects) − `excluded_subjects`; every excluded
+subject must exist on disk; eligible count must == `n_eligible_subjects` (== EXACT_ELIGIBLE[disease]); the eligible +
+per-cohort hashes must match the manifest (so an extra raw subject not pinned excluded, a missing one, or a wrong-member set
+all FAIL before any training). The eligible hashes are computed (manifest-build time) from the DEV substrate's `subject_id_te`
+(the authoritative DEV-eligible universe).
+
+## 7c. Executable training path + B1 authorization (gated, hash-bound)
+`_train_and_write` is no longer a commented stub. The runner now has a real, reachable training path behind an explicit,
+hash-bound **B1 authorization manifest** (`--b1-authorization`; schema = `regen_substrate.validate_b1_authorization`,
+template = `notes/ACAR_V4_B1B_TRAINING_AUTHORIZATION_TEMPLATE.md`). Without it → `SubstrateTrainingNotAuthorizedError` (no
+torch/cmi import, no DEV read, no output). With a valid authorization that BINDS (protocol_commit / disease /
+dev_input_manifest_sha256 / env_lock_sha256 / output_path / exact statement) → `_authorized_train_and_write` atomically
+claims the output and calls the gated `_train_substrate` (the FIRST step that reads DEV raw signal + trains EEGNet + fits the
+source-state; tests monkeypatch it with a fake trainer — no real raw in tests). Guards: missing/invalid auth → fail closed;
+fake trainer called exactly once after all gates; encoder + source-state file sha256 recorded; manifest allow_nan=False;
+training failure removes the claimed output.
+
+## 7d. This patch CHANGES the runner → re-sequence required before B1b (no reusing 046507a artifacts)
+Because the executable training path + eligible schema change the runner, the 046507a operational env lock + manifests are
+STALE for the new code path. Before any B1b authorization, redo at the new commit H2 (this patch):
+```
+H2 = the B1b-readiness commit (clean)
+recapture the regen env lock for H2          (GPU; CAPTURED_AND_VERIFIED, interop=1, versions, protocol_commit=H2)
+rebuild PD/SCZ input manifests for H2         (with eligible_subject fields; protocol_commit=H2; env_lock_sha256=H2 lock)
+rerun the fail-closed preflight at detached H2 (expect SubstrateTrainingNotAuthorizedError; eligible check passes on real dirs)
+THEN create the B1 authorization manifest(s) and ask for B1b.
+```
 
 ## 8. B1 SIGN-OFF (the only thing that unlocks real training)
 B1 authorizes all-DEV substrate regeneration EXACTLY as specified by: this file + `run_regen_substrate.py` +

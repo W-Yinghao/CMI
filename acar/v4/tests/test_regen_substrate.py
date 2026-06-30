@@ -147,6 +147,9 @@ def _regen_manifest(base, disease="PD", cohorts=None, lock_status="CAPTURED_AND_
          "source_kind": "canonical_features", "source_paths": {c: base for c in cohorts},
          "source_file_manifest_sha256": "b" * 64,
          "per_cohort_source_file_manifest_sha256": {c: "b" * 64 for c in cohorts},
+         "eligible_subject_list_sha256": "b" * 64,
+         "per_cohort_eligible_subject_list_sha256": {c: "b" * 64 for c in cohorts},
+         "n_eligible_subjects": R.EXACT_ELIGIBLE[disease], "excluded_subjects": {},
          "subject_list_sha256": "b" * 64, "diagnosis_label_sha256": "b" * 64, "pipeline_config_sha256": pcfg,
          "env_lock_path": env, "env_lock_sha256": env_sha, "seed": 0}
     m.update(over)
@@ -174,6 +177,12 @@ def test_validate_regen_manifest():
         _expect(ValueError, lambda: bad(pipeline_config_sha256="b" * 64))                      # != canonical FROZEN hash
         _expect(ValueError, lambda: bad(source_file_manifest_sha256="short"))                  # raw-list provenance hash
         _expect(ValueError, lambda: bad(per_cohort_source_file_manifest_sha256={"ds002778": "b" * 64}))  # key mismatch
+        _expect(ValueError, lambda: bad(eligible_subject_list_sha256="short"))                 # eligible hash
+        _expect(ValueError, lambda: bad(n_eligible_subjects=999))                              # != EXACT_ELIGIBLE[PD]=230
+        _expect(ValueError, lambda: bad(n_eligible_subjects=True))                             # strict int
+        _expect(ValueError, lambda: bad(excluded_subjects={"noslash": "r"}))                   # bad excluded key
+        _expect(ValueError, lambda: bad(excluded_subjects={"ds002778/sub-1": ""}))             # empty reason
+        _expect(ValueError, lambda: bad(per_cohort_eligible_subject_list_sha256={"ds002778": "b" * 64}))  # key mismatch
         _expect(ValueError, lambda: bad(source_paths={"ds002778": "rel/path"}))                # rel + key mismatch
     finally:
         shutil.rmtree(base, ignore_errors=True)
@@ -217,11 +226,12 @@ def _fake_git(commit="a" * 40, clean=True):
 
 def test_run_regen_substrate_fail_closed():
     from acar.v4 import run_regen_substrate as RRS
-    base = tempfile.mkdtemp(); saved = RRS._git
+    base = tempfile.mkdtemp(); saved = RRS._git; saved_ve = RRS._verify_eligible_subjects
     try:
         RRS._git = _fake_git()
+        RRS._verify_eligible_subjects = lambda spec: None                                       # tmp source_paths have no sub-*
         p, out = _regen_manifest(base)
-        _expect(R.SubstrateTrainingNotAuthorizedError, lambda: RRS.run(p, out))                # full preflight passes → gated
+        _expect(R.SubstrateTrainingNotAuthorizedError, lambda: RRS.run(p, out))                # full preflight passes → gated (no auth)
         assert not os.path.exists(out)                                                          # nothing written
         assert "torch" not in sys.modules and "cmi" not in sys.modules                         # no heavy import on this path
         # manifest defects raise BEFORE the gate (and before git, where applicable)
@@ -245,7 +255,99 @@ def test_run_regen_substrate_fail_closed():
         _expect(FileExistsError, lambda: RRS.run(px, ox + "_x"))                                # output exists
         assert "torch" not in sys.modules                                                       # still no torch
     finally:
-        RRS._git = saved; shutil.rmtree(base, ignore_errors=True)
+        RRS._git = saved; RRS._verify_eligible_subjects = saved_ve; shutil.rmtree(base, ignore_errors=True)
+
+
+def _b1_auth(commit, dim_sha, env_sha, output, **over):
+    a = {"protocol_commit": commit, "disease": "PD", "dev_input_manifest_sha256": dim_sha, "env_lock_sha256": env_sha,
+         "output_path": output, "authorized_by": "yinghao", "authorization_time": "2026-06-30T12:00:00Z",
+         "statement": R.REQUIRED_AUTH_STATEMENT}
+    a.update(over)
+    return a
+
+
+def test_validate_b1_authorization():
+    ok = _b1_auth("a" * 40, "b" * 64, "c" * 64, "/out")
+    assert R.validate_b1_authorization(ok) is ok
+    _expect(ValueError, lambda: R.validate_b1_authorization(_b1_auth("x", "b" * 64, "c" * 64, "/out")))   # bad commit
+    _expect(ValueError, lambda: R.validate_b1_authorization(_b1_auth("a" * 40, "b" * 64, "c" * 64, "/out",
+                                                                     statement="ok go")))                 # wrong statement
+    _expect(ValueError, lambda: R.validate_b1_authorization(_b1_auth("a" * 40, "b" * 64, "c" * 64, "/out", disease="ZZ")))
+    bad = _b1_auth("a" * 40, "b" * 64, "c" * 64, "/out"); bad["extra"] = 1
+    _expect(ValueError, lambda: R.validate_b1_authorization(bad))                                          # extra field
+    bad = _b1_auth("a" * 40, "b" * 64, "c" * 64, "/out"); del bad["authorized_by"]
+    _expect(ValueError, lambda: R.validate_b1_authorization(bad))                                          # missing field
+
+
+def test_check_eligible_subjects():
+    dis = "SCZ"; cohorts = list(R.DEV_SCOPE[dis]); c0 = cohorts[0]; n = R.EXACT_ELIGIBLE[dis]   # 225
+    elig = [f"s{i:04d}" for i in range(n)]
+
+    def mani(excluded, raw_c0):
+        raw = {c: [] for c in cohorts}; raw[c0] = list(raw_c0)
+        return raw, {"dev_cohorts": cohorts, "excluded_subjects": dict(excluded),
+                     "eligible_subject_list_sha256": R.canonical_subject_list_sha256([f"{c0}/{s}" for s in elig]),
+                     "per_cohort_eligible_subject_list_sha256": {
+                         c: R.canonical_subject_list_sha256(sorted({f"{c}/{s}" for s in raw[c]} - set(excluded)))
+                         for c in cohorts}}
+    raw, m = mani({f"{c0}/x0": "qc drop"}, elig + ["x0"])                                       # 226 raw = 225 elig + 1 excl
+    assert len(R.check_eligible_subjects(dis, raw, m)) == n                                     # happy
+    raw, m = mani({}, elig + ["extra1"])
+    _expect(ValueError, lambda: R.check_eligible_subjects(dis, raw, m))                         # extra raw not excluded
+    raw, m = mani({}, elig[:-1])
+    _expect(ValueError, lambda: R.check_eligible_subjects(dis, raw, m))                         # missing eligible
+    raw, m = mani({f"{c0}/ghost": "x"}, elig)
+    _expect(ValueError, lambda: R.check_eligible_subjects(dis, raw, m))                         # excluded not in raw
+    raw, m = mani({}, elig[:-1] + ["sZZZZ"])
+    _expect(ValueError, lambda: R.check_eligible_subjects(dis, raw, m))                         # right count, wrong member
+
+
+def test_run_regen_substrate_authorized_runs_gated_trainer():
+    from acar.v4 import run_regen_substrate as RRS
+    base = tempfile.mkdtemp()
+    saved = (RRS._git, RRS._verify_eligible_subjects, RRS._train_substrate)
+    calls = []
+
+    def fake_train(spec, output):
+        calls.append(output)
+        enc = os.path.join(output, "enc.pt"); ss = os.path.join(output, "ss.npz")
+        with open(enc, "wb") as f: f.write(b"E")
+        with open(ss, "wb") as f: f.write(b"S")
+        return {"encoder_checkpoint_path": enc, "source_state_path": ss}
+    try:
+        RRS._git = _fake_git(); RRS._verify_eligible_subjects = lambda spec: None
+        RRS._train_substrate = fake_train
+        p, out = _regen_manifest(base)                                                          # PD; protocol_commit "a"*40
+        dim_sha = _fsha(p); env_sha = "b" * 64                                                  # _regen_manifest sets env_lock_sha256="b"*64? no -> real
+        # read the manifest's actual env_lock_sha256 to bind the authorization
+        env_sha = json.load(open(p))["env_lock_sha256"]
+        authp = os.path.join(base, "auth.json")
+        with open(authp, "w") as f:
+            json.dump(_b1_auth("a" * 40, dim_sha, env_sha, out), f)
+        body = RRS.run(p, out, b1_authorization=authp)                                          # AUTHORIZED -> gated trainer runs
+        assert calls == [out]                                                                   # trainer called exactly once
+        assert os.path.isfile(os.path.join(out, "RESULT.json")) and os.path.isfile(os.path.join(out, "manifest.json"))
+        assert body["artifacts"]["encoder_checkpoint_sha256"] and body["artifacts"]["source_state_sha256"]
+        # auth mismatch (wrong output_path) -> fail before training, no second call, output not created
+        out2 = os.path.join(base, "out2")
+        authp2 = os.path.join(base, "auth2.json")
+        with open(authp2, "w") as f:
+            json.dump(_b1_auth("a" * 40, dim_sha, env_sha, "/WRONG"), f)
+        _expect(ValueError, lambda: RRS.run(p, out2, b1_authorization=authp2))
+        assert calls == [out] and not os.path.exists(out2)
+        # trainer failure -> output cleaned
+        def boom(spec, output):
+            os.path.exists(output); raise RuntimeError("train boom")
+        RRS._train_substrate = boom
+        out3 = os.path.join(base, "out3")
+        authp3 = os.path.join(base, "auth3.json")
+        with open(authp3, "w") as f:
+            json.dump(_b1_auth("a" * 40, dim_sha, env_sha, out3), f)
+        _expect(RuntimeError, lambda: RRS.run(p, out3, b1_authorization=authp3))
+        assert not os.path.exists(out3)                                                         # claimed dir removed on abort
+    finally:
+        RRS._git, RRS._verify_eligible_subjects, RRS._train_substrate = saved
+        shutil.rmtree(base, ignore_errors=True)
 
 
 def _sub_manifest_files(base, *, missing=False, break_sha=False):
@@ -296,8 +398,9 @@ def test_run_substrate_compatibility_fail_closed():
 def main():
     print("ACAR v4 regen_substrate guards (skeleton + B1-preflight command contract; NO training):")
     for t in (test_validate_substrate_request, test_train_not_authorized, test_compatibility_replay_pass,
-              test_validate_regen_manifest, test_validate_substrate_manifest, test_run_regen_substrate_fail_closed,
-              test_run_substrate_compatibility_fail_closed):
+              test_validate_regen_manifest, test_validate_substrate_manifest, test_check_eligible_subjects,
+              test_validate_b1_authorization, test_run_regen_substrate_fail_closed,
+              test_run_regen_substrate_authorized_runs_gated_trainer, test_run_substrate_compatibility_fail_closed):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 REGEN-SUBSTRATE GUARDS PASS")

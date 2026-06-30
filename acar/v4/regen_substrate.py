@@ -32,8 +32,80 @@ SOURCE_KINDS = ("raw_bids", "canonical_features")
 
 
 class SubstrateTrainingNotAuthorizedError(RuntimeError):
-    """Raised by train_all_dev_substrate(dry_run=False) and run_regen_substrate.run(). Real all-DEV substrate training is
-    gated behind explicit B1 sign-off; the skeleton/CLI only validate the request. NEVER trains/regenerates implicitly."""
+    """Raised by train_all_dev_substrate(dry_run=False) and run_regen_substrate.run() when NO valid B1 authorization manifest
+    is supplied. Real all-DEV substrate training is gated behind an explicit, hash-bound B1 authorization manifest; without it
+    the CLI fails closed (no torch/cmi import, no DEV read, no output). NEVER trains/regenerates implicitly."""
+
+
+# EXACT eligible DEV subject universe (subject clusters = calibration/eval unit; v2: 455 = 230 PD + 225 SCZ). The raw BIDS
+# dirs may contain MORE sub-* dirs than this (e.g., SCZ ds004000 has 43 raw dirs but only 42 are in the DEV substrate's
+# subject_id_te → sub-042 is excluded). Training MUST use exactly these counts; any extra raw subject must be manifest-pinned
+# as excluded and NEVER read.
+EXACT_ELIGIBLE = {"PD": 230, "SCZ": 225}
+
+# B1 authorization manifest (the explicit, hash-bound human act that unlocks real training)
+B1_AUTH_FIELDS = ("protocol_commit", "disease", "dev_input_manifest_sha256", "env_lock_sha256", "output_path",
+                  "authorized_by", "authorization_time", "statement")
+REQUIRED_AUTH_STATEMENT = ("Authorize all-DEV substrate regeneration for this disease exactly under "
+                           "ACAR_V4_SUBSTRATE_REGEN_COMMAND.md")
+
+
+def canonical_subject_list_sha256(subjects):
+    """Canonical sha-256 over a subject id list (sorted unique, compact JSON). Shared by the manifest builder and the runner
+    so the eligible-subject hash is recomputed identically."""
+    return hashlib.sha256(json.dumps(sorted(set(subjects)), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def check_eligible_subjects(disease, raw_by_cohort, manifest):
+    """PURE eligible-subject reconciliation (no FS). `raw_by_cohort` = {cohort: [local sub-* names]} discovered on disk.
+    eligible = (all namespaced raw subjects) − excluded. FAIL-CLOSED: every excluded subject must exist in raw; eligible
+    count must equal EXACT_ELIGIBLE[disease]; the eligible + per-cohort hashes must match the manifest (so an extra raw
+    subject not pinned as excluded, or a missing one, fails). Returns the eligible list."""
+    cohorts = list(manifest["dev_cohorts"])
+    excluded = set(manifest["excluded_subjects"])
+    all_ns = set()
+    for c in cohorts:
+        all_ns |= {f"{c}/{s}" for s in raw_by_cohort.get(c, [])}
+    missing_exc = excluded - all_ns
+    if missing_exc:
+        raise ValueError(f"{disease}: excluded subjects not present on disk: {sorted(missing_exc)}")
+    eligible = sorted(all_ns - excluded)
+    if len(eligible) != EXACT_ELIGIBLE[disease]:
+        raise ValueError(f"{disease}: eligible count {len(eligible)} != required {EXACT_ELIGIBLE[disease]} "
+                         f"(raw {len(all_ns)} − excluded {len(excluded)})")
+    if canonical_subject_list_sha256(eligible) != manifest["eligible_subject_list_sha256"]:
+        raise ValueError(f"{disease}: eligible_subject_list_sha256 mismatch (raw−excluded != pinned DEV-eligible set)")
+    for c in cohorts:
+        elig_c = sorted({f"{c}/{s}" for s in raw_by_cohort.get(c, [])} - excluded)
+        if canonical_subject_list_sha256(elig_c) != manifest["per_cohort_eligible_subject_list_sha256"][c]:
+            raise ValueError(f"{disease}: per_cohort_eligible_subject_list_sha256[{c}] mismatch")
+    return eligible
+
+
+def validate_b1_authorization(auth):
+    """FAIL-CLOSED schema check for a B1 training-authorization manifest (pure). Cross-checks vs the input manifest/output
+    happen in run_regen_substrate. Returns the auth."""
+    if not isinstance(auth, dict):
+        raise ValueError("B1 authorization must be a JSON object")
+    missing = [f for f in B1_AUTH_FIELDS if f not in auth]
+    if missing:
+        raise ValueError(f"B1 authorization missing fields: {missing}")
+    extra = [f for f in auth if f not in B1_AUTH_FIELDS]
+    if extra:
+        raise ValueError(f"B1 authorization has unknown extra fields: {extra}")
+    if not _is_hex(auth["protocol_commit"], 40):
+        raise ValueError("authorization protocol_commit must be 40-hex")
+    if auth["disease"] not in DEV_SCOPE:
+        raise ValueError(f"authorization disease must be one of {sorted(DEV_SCOPE)}")
+    for hf in ("dev_input_manifest_sha256", "env_lock_sha256"):
+        if not _is_hex(auth[hf], 64):
+            raise ValueError(f"authorization {hf} must be 64-hex")
+    for sf in ("output_path", "authorized_by", "authorization_time"):
+        if not isinstance(auth[sf], str) or not auth[sf]:
+            raise ValueError(f"authorization {sf} must be a non-empty string")
+    if auth["statement"] != REQUIRED_AUTH_STATEMENT:
+        raise ValueError(f"authorization statement must be EXACTLY: {REQUIRED_AUTH_STATEMENT!r}")
+    return auth
 
 
 class SubstrateCompatibilityNotAuthorizedError(RuntimeError):
@@ -208,6 +280,23 @@ def validate_regen_manifest(spec):
     for c, h in pcm.items():
         if not _is_hex(h, 64):
             raise ValueError(f"per_cohort_source_file_manifest_sha256[{c!r}] must be a 64-char lowercase sha-256")
+    # eligible-subject universe (pinned EXACTLY; excluded raw subjects manifest-pinned + never read)
+    if not _is_hex(spec.get("eligible_subject_list_sha256", ""), 64):
+        raise ValueError("eligible_subject_list_sha256 must be a 64-char lowercase sha-256")
+    pce = spec.get("per_cohort_eligible_subject_list_sha256")
+    if not isinstance(pce, dict) or set(pce) != set(cohorts):
+        raise ValueError("per_cohort_eligible_subject_list_sha256 must be a dict keyed by EXACTLY the dev_cohorts")
+    for c, h in pce.items():
+        if not _is_hex(h, 64):
+            raise ValueError(f"per_cohort_eligible_subject_list_sha256[{c!r}] must be a 64-char lowercase sha-256")
+    if type(spec.get("n_eligible_subjects")) is not int or spec["n_eligible_subjects"] != EXACT_ELIGIBLE[disease]:
+        raise ValueError(f"n_eligible_subjects must be the int {EXACT_ELIGIBLE[disease]} for {disease}")
+    exc = spec.get("excluded_subjects")
+    if not isinstance(exc, dict):
+        raise ValueError("excluded_subjects must be a dict {namespaced_subject: reason}")
+    for s, r in exc.items():
+        if not (isinstance(s, str) and s and "/" in s) or not (isinstance(r, str) and r):
+            raise ValueError(f"excluded_subjects entry {s!r} must be 'dsid/sub-xxx' -> non-empty reason")
     if not _is_int0(spec.get("seed", 0)):
         raise ValueError("seed must be the int 0 (no bool/str/float)")
     for hf in ("subject_list_sha256", "diagnosis_label_sha256", "pipeline_config_sha256", "env_lock_sha256"):

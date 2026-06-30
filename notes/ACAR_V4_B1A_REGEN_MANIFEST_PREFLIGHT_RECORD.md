@@ -1,5 +1,11 @@
 # ACAR v4 — B1a regen-manifest fail-closed preflight record **(PASS at the B1 gate; NO training)**
 
+> **SUPERSEDED for B1b by the B1b-readiness patch.** The 046507a manifests below lack the new eligible-subject fields
+> (`eligible_subject_list_sha256`, `per_cohort_eligible_subject_list_sha256`, `n_eligible_subjects`, `excluded_subjects`) the
+> runner now requires, and bind to commit 046507a. They remain a valid record of the 046507a preflight, but B1b uses the
+> H2-rebuilt manifests + H2-recaptured env lock (see ACAR_V4_SUBSTRATE_REGEN_COMMAND.md §7d). The eligible universe is pinned
+> PD 230 / SCZ 225, with SCZ ds004000/sub-042 excluded (in raw dirs, not in DEV subject_id_te).
+
 ```
 DATE   : 2026-06-30 (machine UTC)
 RESULT : PD + SCZ regen input manifests built (METADATA ONLY) and the fail-closed preflight reached the B1 gate
