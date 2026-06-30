@@ -35,10 +35,21 @@ class FoldKey:
     outer_fold: str
     split_seed: int
     deletion_seed: int
+    optimization_manifest_hash: str = ""        # bootstrap/eval-INDEPENDENT training identity (see manifest_v2)
 
     @property
     def fold_key_hash(self) -> str:
         return canonical_json_hash({"fold_key": asdict(self)})
+
+    @property
+    def optimization_fold_hash(self) -> str:
+        """The fold identity that seeds TRAINING: the optimization manifest hash + dataset + split +
+        deletion seed -- it deliberately EXCLUDES the full (bootstrap/eval-inclusive) manifest hash, so a
+        pure inference/reporting change does not perturb the trained model."""
+        return canonical_json_hash({"opt_fold": {
+            "optimization_manifest_hash": self.optimization_manifest_hash, "dataset_id": self.dataset_id,
+            "outer_fold": self.outer_fold, "split_seed": int(self.split_seed),
+            "deletion_seed": int(self.deletion_seed)}})
 
 
 @dataclass(frozen=True)
@@ -50,5 +61,13 @@ class RunKey:
     @property
     def run_key_hash(self) -> str:
         return canonical_json_hash({"fold_key": asdict(self.fold_key),
+                                    "deletion_level": int(self.deletion_level),
+                                    "model_seed": int(self.model_seed)})
+
+    @property
+    def optimization_identity_hash(self) -> str:
+        """The run identity that seeds TRAINING (model init / engine / batch plans): the fold's
+        optimization hash + deletion level + model seed -- bootstrap/eval-independent."""
+        return canonical_json_hash({"opt_fold": self.fold_key.optimization_fold_hash,
                                     "deletion_level": int(self.deletion_level),
                                     "model_seed": int(self.model_seed)})

@@ -461,6 +461,35 @@ def manifest_payload_hash(payload: dict) -> str:
     return hashlib.sha256(json.dumps(payload, sort_keys=True, default=str).encode()).hexdigest()
 
 
+# Blocks/fields that define the OPTIMIZATION (training) identity. The training RNG derives from this so
+# that a pure inference/reporting change (bootstrap counts, probe folds/capacities, ECE bins) does NOT
+# perturb the trained model. The FULL manifest is still bound by the artifact/fold hashes.
+_OPT_SEED_FIELDS = ("split", "deletion", "model")          # seeds: NOT selection_bootstrap / audit_bootstrap
+
+
+def optimization_manifest_payload(manifest: "ProtocolManifestV2") -> dict:
+    """The optimization-relevant manifest subset: data identity, the fold split / deletion, the model /
+    optimizer / training / sampler config and the method objective (risk + methods) -- and explicitly NOT
+    the probe (folds/capacities/bootstrap), evaluation (paired_bootstrap/ece_bins/alpha) or k1/k2 blocks,
+    nor the selection/audit bootstrap seeds."""
+    seeds = asdict(manifest.seeds) if manifest.seeds is not None else {}
+    spec = manifest.smoke if manifest.smoke is not None else manifest.pilot
+    return {
+        "backbone": asdict(manifest.backbone), "optimizer": asdict(manifest.optimizer),
+        "training": asdict(manifest.training), "sampler": asdict(manifest.sampler),
+        "methods": asdict(manifest.methods), "risk": asdict(manifest.risk),
+        "seeds_opt": {k: seeds.get(k) for k in _OPT_SEED_FIELDS},
+        "datasets": {k: asdict(v) for k, v in (manifest.datasets or {}).items() if getattr(v, "enabled", False)},
+        "fold_spec": (asdict(spec) if spec is not None else None),
+        "fake_fixture": (asdict(manifest.fake_fixture) if manifest.fake_fixture is not None else None),
+    }
+
+
+def optimization_manifest_hash(manifest: "ProtocolManifestV2") -> str:
+    return hashlib.sha256(json.dumps(optimization_manifest_payload(manifest), sort_keys=True,
+                                     default=str).encode()).hexdigest()
+
+
 _BLOCK_TYPES = {"seeds": SeedBlock, "backbone": BackboneBlock, "optimizer": OptimizerBlock,
                 "training": TrainingBlock, "sampler": SamplerBlock, "probe": ProbeBlock,
                 "methods": MethodBlock, "smoke": SmokeBlock, "pilot": PilotBlock,

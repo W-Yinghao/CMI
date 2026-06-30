@@ -14,7 +14,7 @@ import numpy as np
 import torch
 
 from ..models import build_model
-from ..protocol.manifest_v2 import load_v2
+from ..protocol.manifest_v2 import load_v2, optimization_manifest_hash
 from ..train.rng import derive_seed
 from .config import ModelSpec, RunnerExecutionConfig
 from .data import FoldData
@@ -123,7 +123,8 @@ def build_fake_fold(manifest_path) -> FakeFold:
     maps = build_frozen_maps(list(_CLASSES), list(ff.source_domain_ids), eval_domains)
     schedule = make_deletion_schedule([DeletionCell("S0", "c1")], fd, maps)
     cfg = ScopePlanConfig.from_manifest(m, support_m=int(m.enabled_datasets()[_DS].support_m))
-    fold_key = FoldKey(manifest_hash, _DS, "f0", int(m.seeds.split), int(m.seeds.deletion))
+    fold_key = FoldKey(manifest_hash, _DS, "f0", int(m.seeds.split), int(m.seeds.deletion),
+                       optimization_manifest_hash(m))
     fold_scope = build_fold_scope(fold_key, maps, fd, schedule, cfg)
     exec_cfg = RunnerExecutionConfig.from_manifest(m)
     model_spec = ModelSpec.build("mlp", {"z_dim": int(m.backbone.mlp_z_dim), "hidden": int(m.backbone.mlp_hidden)},

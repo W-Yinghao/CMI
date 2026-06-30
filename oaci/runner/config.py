@@ -70,9 +70,12 @@ class RunnerExecutionConfig:
     execution_config_hash: str
 
     def engine_config_for(self, run_key) -> EngineConfig:
-        """Per-level engine config: the only thing the model seed changes is ``base_seed``."""
+        """Per-level engine config: the only thing the model seed changes is ``base_seed``. The base seed
+        derives from the OPTIMIZATION identity (not the full manifest), so the bootstrap/eval budget does
+        not perturb training."""
         return dataclasses.replace(self.engine_template,
-                                   base_seed=derive_seed(run_key.model_seed, "engine", run_key.run_key_hash))
+                                   base_seed=derive_seed(run_key.model_seed, "engine",
+                                                         run_key.optimization_identity_hash))
 
     @staticmethod
     def from_manifest(manifest) -> "RunnerExecutionConfig":

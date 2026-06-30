@@ -15,7 +15,8 @@ import torch
 from ..data.eeg.bnci import MOABBLoadResult, load_moabb_confirmatory
 from ..models import build_model
 from ..models.shallow import validate_shallow_geometry
-from ..protocol.manifest_v2 import load_v2, manifest_logical_payload, manifest_payload_hash
+from ..protocol.manifest_v2 import (load_v2, manifest_logical_payload, manifest_payload_hash,
+                                    optimization_manifest_hash)
 from .config import ModelSpec, RunnerExecutionConfig
 from .data import FoldData
 from .keys import FoldKey, RunKey, canonical_json_hash
@@ -111,7 +112,7 @@ def build_bnci_fold_from_bundle(manifest, load_result: MOABBLoadResult) -> BNCIR
     cfg = ScopePlanConfig.from_manifest(manifest, support_m=int(ds.support_m))
     target_subj = sorted(int(s) for s in sm.target_subjects)[0]   # smoke=001; pilot=any held-out target
     fold_key = FoldKey(manifest_hash, _DS, f"{_DS}|target-subject-{target_subj:03d}", int(manifest.seeds.split),
-                       int(manifest.seeds.deletion))
+                       int(manifest.seeds.deletion), optimization_manifest_hash(manifest))
     fold_scope = build_fold_scope(fold_key, maps, fd, schedule, cfg)
     exec_cfg = RunnerExecutionConfig.from_manifest(manifest)
     bb = manifest.backbone

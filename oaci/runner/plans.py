@@ -41,10 +41,11 @@ def build_level_plans(fold_scope, level, support_state, level_population, cfg, m
     idx = level_population.unit_index
     pop = level_population.population_hash
     fkh = fold_scope.fold_key.fold_key_hash
+    ofkh = fold_scope.fold_key.optimization_fold_hash               # bootstrap/eval-independent training id
     status = {n: st for n, st in support_state.method_status_items}
     total_inner = cfg.stage2_epochs * cfg.stage2_steps_per_epoch
 
-    tb = derive_seed(model_seed, "training", fkh, level)             # model-seed dependent
+    tb = derive_seed(model_seed, "training", ofkh, level)           # model-seed dependent; NOT bootstrap-dependent
     s1 = materialize_stage1_task_plan(idx, pop, cfg.stage1_epochs, cfg.stage1_steps_per_epoch,
                                       cfg.task_batch_size, tb, replacement_mode=cfg.replacement_mode)
     s2 = materialize_stage2_task_plan(idx, pop, cfg.stage2_epochs, cfg.stage2_steps_per_epoch,

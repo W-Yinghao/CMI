@@ -19,7 +19,7 @@ def stage1_invocation_id(run_key, model_spec, stage1_plan, execution_config_hash
 def run_stage1_once(run_key, level_population, level_plans, model_factory, model_spec, engine_cfg,
                     execution_config_hash, registry, device) -> Stage1Run:
     inv = stage1_invocation_id(run_key, model_spec, level_plans.stage1_task, execution_config_hash)
-    with forked_rng(derive_seed(run_key.model_seed, "model_init", run_key.run_key_hash,
+    with forked_rng(derive_seed(run_key.model_seed, "model_init", run_key.optimization_identity_hash,
                                 model_spec.model_spec_hash), device):
         model = model_factory()
     erm_stage = train_stage1(model, level_population.training_data, level_plans.stage1_task, engine_cfg,
