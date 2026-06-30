@@ -52,12 +52,29 @@ DGCNN's adjacency is static → **no edge term/audit** (`edge_regularization_use
 frozen `graph_z`/`node_z` with **fresh** held-out probes at `n_perm=50`; reductions paired by fold+seed.
 A non-default `--dataset` requires `--allow_non_default_dataset`.
 
+## Three-layer verdict (target guardrail is evaluation-only but REQUIRED for Decision A)
+
+Criteria 1–4 are source-side; criterion 5 (target guardrail) is **evaluation-only** — it never touches
+training, normalization, probe fitting, config choice, or selection (configs are fixed), but it **is**
+part of the final reported verdict, because it decides whether we can call the externality "confirmed
+enough for method framing." The runner reports three explicit layers:
+
+- **`source_only_confirmed`** = criteria 1–4 (the source-only replication result).
+- **`target_guardrail_pass`** = target_eval drop ≤ 0.05 in **≥ ⌈7/12·n⌉** folds (≥7/12; evaluation-only).
+- **`confirmed_with_target_guardrail`** = `source_only_confirmed AND target_guardrail_pass` (the final
+  Decision-A condition).
+
 ## Decision rules (reviewer-gated)
 
-- **A — confirmed** (criteria 1–4 on the dataset's folds) → method framing may begin.
-- **B — partial** → bounded single-dataset method signal.
-- **C — not confirmed** → BNCI2014_001-only finding.
+- **A — `confirmed_with_target_guardrail = true`** (source-only confirmed **and** target guardrail held)
+  → cross-dataset method framing may begin.
+- **B — partial** — `source_only_confirmed = true` but `target_guardrail_pass = false`, **or** strong
+  partial replication → bounded single-dataset method signal (NOT method framing).
+- **C — not confirmed** — source-only confirmation fails for reduction/retention reasons → BNCI2014_001-
+  only finding.
 - **D — ERM baseline unstable** on the second dataset → dataset/backbone diagnosis.
+
+A run whose source-side criteria pass but whose `target_eval` collapses is **B (partial)**, never A.
 
 ## Run
 

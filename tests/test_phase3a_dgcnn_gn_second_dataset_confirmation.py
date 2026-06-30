@@ -43,6 +43,28 @@ def test_decide_second_dataset_uses_all_folds_no_dev():
     assert R.decide_second_dataset(pf3, list(range(12)))["decision"] == "C"
 
 
+def test_target_guardrail_is_required_for_decision_A():
+    """Target guardrail is evaluation-only but REQUIRED for Decision A: source-only passing with target
+    guardrail failing -> B, not A; A only when both source_only_confirmed AND target_guardrail_pass."""
+    def flag(tg):
+        return dict(erm_adequate=True, erm_leakage_exists=True, reg_reduces=True, source_retained=True,
+                    target_guardrail=tg, fold_pass=True)
+    # source-only all pass; target guardrail holds in only 2/12 folds -> B (not A)
+    pf = {f: flag(f < 2) for f in range(12)}
+    d = R.decide_second_dataset(pf, list(range(12)))
+    assert d["need_target_guardrail"] == 7
+    assert d["source_only_confirmed"] is True
+    assert d["target_guardrail_pass"] is False
+    assert d["confirmed_with_target_guardrail"] is False
+    assert d["decision"] == "B"
+    # target guardrail also holds -> A
+    pf2 = {f: flag(True) for f in range(12)}
+    d2 = R.decide_second_dataset(pf2, list(range(12)))
+    assert d2["source_only_confirmed"] is True and d2["target_guardrail_pass"] is True
+    assert d2["confirmed_with_target_guardrail"] is True and d2["decision"] == "A"
+    assert d2["confirmed"] is d2["confirmed_with_target_guardrail"]    # headline 'confirmed' == with-guardrail
+
+
 def _run_summary(monkeypatch, extra=()):
     argv = ["prog", "--dry_run_synthetic", "--device", "cpu", "--seeds", "0", "1", "--epochs", "3",
             "--probe_epochs", "5", "--n_perm", "4", *extra]
@@ -143,6 +165,7 @@ def test_target_corruption_changes_neither_source_nor_primary_decision(monkeypat
             new[f] = (X, y2, d, trm, tem, nc, tgt)
         return new, ncls
 
+    clean_source_only = base["second_dataset_confirmation"]["source_only_confirmed"]
     monkeypatch.setattr(R, "_synthetic_folds", corrupted)
     corr = _run_summary(monkeypatch)
     for k, v in clean.items():
@@ -151,6 +174,8 @@ def test_target_corruption_changes_neither_source_nor_primary_decision(monkeypat
     for f, gr in clean_red.items():
         cg = corr["per_fold"][f]["flags"]["graph_reduction"]
         assert (gr is None and cg is None) or abs(cg - gr) < 1e-9, f
-    assert corr["second_dataset_confirmation"]["decision"] == clean_primary
+    # SOURCE-ONLY confirmation must be invariant under target corruption (it never uses target_eval).
+    assert corr["second_dataset_confirmation"]["source_only_confirmed"] == clean_source_only
+    # target_eval DID move (so the guardrail/final decision MAY legitimately change — that is allowed).
     assert any(abs(corr["per_fold"][f][c]["target_eval_bacc"] - base["per_fold"][f][c]["target_eval_bacc"]) > 1e-6
                for f in base["per_fold"] for c in ("erm_fixed", "graph_node_010"))

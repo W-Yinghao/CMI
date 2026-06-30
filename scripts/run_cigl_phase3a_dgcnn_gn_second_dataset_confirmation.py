@@ -105,12 +105,20 @@ def _fold_flags(erm, reg, args):
 
 
 def decide_second_dataset(per_fold_flags, folds):
-    """Aggregate over ALL confirmation folds (no dev fold on a 2nd dataset). Thresholds match the
-    reviewer's 8/12 (adequacy, leakage) and 7/12 (reduction, retention) at n=12, generalized by fraction."""
+    """Aggregate over ALL confirmation folds (no dev fold on a 2nd dataset). Three-layer verdict:
+      source_only_confirmed             = criteria 1-4 (ERM adequacy, ERM leakage, reg reduces, source
+                                          retained) — the source-only replication result.
+      target_guardrail_pass            = target_eval drop <= limit in >= need_target_guardrail folds
+                                          (EVALUATION-ONLY; never used for training/selection/configs).
+      confirmed_with_target_guardrail  = source_only_confirmed AND target_guardrail_pass — the final
+                                          reviewer-facing Decision-A condition.
+    Thresholds: 8/12 (adequacy, leakage) and 7/12 (reduction, retention, target guardrail) at n=12,
+    generalized by fraction."""
     cf = [f for f in folds if f in per_fold_flags]
     n = len(cf)
     need_strong = math.ceil(8 / 12 * n) if n else 1
     need_majority = math.ceil(7 / 12 * n) if n else 1
+    need_target_guardrail = math.ceil(7 / 12 * n) if n else 1
     c1 = sum(per_fold_flags[f]["erm_adequate"] for f in cf)
     c2 = sum(per_fold_flags[f]["erm_leakage_exists"] for f in cf)
     c3 = sum(per_fold_flags[f]["reg_reduces"] for f in cf)
@@ -118,20 +126,26 @@ def decide_second_dataset(per_fold_flags, folds):
     c5 = sum(per_fold_flags[f]["target_guardrail"] for f in cf)
     crit1 = c1 >= need_strong; crit2 = c2 >= need_strong
     crit3 = c3 >= need_majority; crit4 = c4 >= need_majority
-    confirmed = bool(crit1 and crit2 and crit3 and crit4)
+    source_only_confirmed = bool(crit1 and crit2 and crit3 and crit4)
+    target_guardrail_pass = bool(c5 >= need_target_guardrail)
+    confirmed_with_target_guardrail = bool(source_only_confirmed and target_guardrail_pass)
     if not crit1:
-        decision = "D"
-    elif confirmed:
-        decision = "A"
-    elif crit2 and (crit3 or crit4):
-        decision = "B"
+        decision = "D"                              # ERM baseline inadequate
+    elif confirmed_with_target_guardrail:
+        decision = "A"                              # source-only confirmed AND target guardrail held
+    elif source_only_confirmed or (crit2 and (crit3 or crit4)):
+        decision = "B"                              # source-only confirmed but guardrail fails, OR strong partial
     else:
-        decision = "C"
+        decision = "C"                              # source-only confirmation fails (reduction/retention)
     return dict(n_folds=n, need_strong=need_strong, need_majority=need_majority,
-                erm_adequate_folds=c1, erm_leakage_folds=c2, reg_reduces_folds=c3,
+                need_target_guardrail=need_target_guardrail,
+                erm_adequacy_folds=c1, erm_leakage_folds=c2, reg_reduces_folds=c3,
                 source_retained_folds=c4, target_guardrail_folds=c5,
                 crit1_erm_adequate=crit1, crit2_erm_leakage=crit2, crit3_reg_reduces=crit3,
-                crit4_source_retained=crit4, confirmed=confirmed, decision=decision)
+                crit4_source_retained=crit4,
+                source_only_confirmed=source_only_confirmed, target_guardrail_pass=target_guardrail_pass,
+                confirmed_with_target_guardrail=confirmed_with_target_guardrail,
+                confirmed=confirmed_with_target_guardrail, decision=decision)
 
 
 def _meta(commit, cfg_hash, dataset, n_cls, chance, args):
@@ -257,16 +271,20 @@ def main():
     json.dump(summary, open(OUT_DIR / f"{dataset}_dgcnn_gn_2nd_dataset_summary.json", "w"), indent=2)
     print(f"\n[phase3a-K] wrote {OUT_DIR / f'{dataset}_dgcnn_gn_2nd_dataset_summary.json'}")
 
-    dmap = {"A": "A: CONFIRMED on the 2nd dataset -> method framing may begin",
-            "B": "B: PARTIAL on the 2nd dataset -> bounded single-dataset method signal",
-            "C": "C: NOT confirmed on the 2nd dataset -> BNCI2014_001-only finding",
+    dmap = {"A": "A: CONFIRMED on the 2nd dataset (source-only AND target guardrail) -> method framing may begin",
+            "B": "B: PARTIAL -> source-only confirmed but target guardrail fails, or strong partial; bounded signal",
+            "C": "C: NOT confirmed (reduction/retention fails) -> BNCI2014_001-only finding",
             "D": "D: ERM baseline unstable on the 2nd dataset -> dataset/backbone diagnosis"}
     print(f"\n=== Phase 3A-K read ({dataset}; exploratory; reviewer decides): {dmap[primary['decision']]} ===")
-    print(f"  {dataset}: erm_adequate {primary['erm_adequate_folds']}/{primary['n_folds']} (need {primary['need_strong']}), "
+    print(f"  {dataset}: erm_adequacy {primary['erm_adequacy_folds']}/{primary['n_folds']} (need {primary['need_strong']}), "
           f"erm_leakage {primary['erm_leakage_folds']} (need {primary['need_strong']}), "
           f"reg_reduces {primary['reg_reduces_folds']} (need {primary['need_majority']}), "
-          f"source_retained {primary['source_retained_folds']} (need {primary['need_majority']})")
-    print("  EDGE absent (static adjacency). target_eval evaluation-only guardrail; configs FIXED (no selection).")
+          f"source_retained {primary['source_retained_folds']} (need {primary['need_majority']}), "
+          f"target_guardrail {primary['target_guardrail_folds']} (need {primary['need_target_guardrail']})")
+    print(f"  source_only_confirmed={primary['source_only_confirmed']} target_guardrail_pass={primary['target_guardrail_pass']} "
+          f"confirmed_with_target_guardrail={primary['confirmed_with_target_guardrail']}")
+    print("  EDGE absent (static adjacency). target_eval evaluation-only (final guardrail ONLY; never "
+          "training/selection/configs). configs FIXED.")
     return 0
 
 
