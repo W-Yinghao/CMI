@@ -29,8 +29,8 @@ def main():
               % (fam, m["domain_Z_%s" % fam]["mean"], m["domain_RZ_%s" % fam]["mean"],
                  m["domain_Rrand_%s" % fam]["mean"], m["task_Z_%s" % fam]["mean"], m["task_RZ_%s" % fam]["mean"]))
     pl = sweep["per_lam"]
-    print("EEGNet LPC: " + " | ".join("lam%g subj=%.2f tgt=%.2f" %
-          (l, pl[l]["subj"]["median"], pl[l]["tgt"]["median"]) for l in sweep["lams"]))
+    print("EEGNet LPC (mean): " + " | ".join("lam%g subj=%.2f tgt=%.2f" %
+          (l, pl[l]["subj"]["mean"], pl[l]["tgt"]["mean"]) for l in sweep["lams"]))
     print("FIG5_DONE")
 
 

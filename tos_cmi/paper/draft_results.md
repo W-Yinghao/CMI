@@ -49,10 +49,12 @@ above chance 0.125), so we report it as *linearly reducible with a persistent no
 elimination [C8].
 
 **But removable ≠ beneficial.** Sweeping the global LPC penalty on EEGNet reduces subject decode
-monotonically (0.89→0.19) *without* collapse (the feature norm never goes to 0; Fig 5D), yet target/LOSO
-accuracy is flat-to-worse (0.36→0.39 across λ; statistically not improved, and uncorrelated with leakage
-reduction, Pearson −0.14). Removing the measured leakage — by selective deletion or by a collapse-free
-global penalty — does **not** improve cross-subject generalization on EEGNet/2a [C9].
+monotonically (0.89→0.18) *without* collapse (the feature norm never goes to 0; Fig 5D), yet **mean** LOSO
+target accuracy is flat-to-worse (0.43→0.39 across λ; paired-t worse at every λ, p≤0.001 at λ≥1) and
+uncorrelated with leakage reduction (Pearson −0.14, n.s.). Removing the measured leakage — by selective
+deletion or by a collapse-free global penalty — does **not** improve cross-subject generalization on
+EEGNet/2a [C9]. *(We report the mean LOSO accuracy, the standard DG metric; the median is ~flat and would
+obscure the paired decline.)*
 
 ## 4.3 Unified interpretation
 Across both representations, conditional domain leakage is a **measurable** property of the EEG latent that
@@ -75,4 +77,4 @@ nor removal is sufficient evidence of domain-generalization benefit.
 
 ## Numbers locked (cross-check vs Table 1 / claim_evidence_table)
 - TSMNet: subj 0.997; RZ 0.96 ≈ random 1.00; task 0.75→0.75; LPC collapse feat→0, tgt n/a; collapse-free LPC removes ~0.
-- EEGNet: subj 0.88; RZ linear 0.35 / MLP 0.54 ≫ random 0.73/0.81; task 0.64→0.64; LPC subj 0.89→0.19, tgt 0.36→0.39.
+- EEGNet: subj 0.88; RZ linear 0.35 / MLP 0.54 ≫ random 0.73/0.81; task 0.64→0.64; LPC subj 0.89→0.18, mean tgt 0.43→0.39 (paired-t worse, p≤0.001).

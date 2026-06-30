@@ -39,8 +39,10 @@ ERM EEGNet latent (z_dim=16) and its global-LPC sweep. **(A–C)** Same axes as 
 **selectively removes** subject decode far below same-k random removal (linear 0.82→0.35, MLP 0.88→0.54)
 while preserving the task — an order-of-magnitude larger informed-vs-random selectivity than TSMNet [C7];
 a nonlinear residual remains (RZ MLP 0.54 ≫ chance), so the removal is partial [C8]. **(D)** Global LPC
-reduces subject decode (0.89→0.19) **without** collapse (the feature norm never goes to 0), yet target/LOSO
-accuracy is flat-to-worse across λ — removing the leakage **does not improve target generalization** [C9].
+reduces subject decode (0.89→0.18) **without** collapse (the feature norm never goes to 0), yet **mean**
+LOSO target accuracy is flat-to-worse across λ (0.43→0.39, paired-t worse, p≤0.001) — removing the leakage
+**does not improve target generalization** [C9]. (Curves show the mean over folds×seeds, the standard DG
+metric.)
 
 ## Table 1 — One-glance summary across representations.
 Columns: backbone; latent dim; ERM subject decode; low-rank deletion effect (subject; task); **raw LPC

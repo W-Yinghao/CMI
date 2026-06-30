@@ -59,7 +59,7 @@ def draw_nDcand(ax, abl):
 def draw_lpc_tradeoff(ax, sweep):
     """global LPC: subject leakage (left) and target acc (right) vs lambda -> removable but no DG gain."""
     lams = sweep["lams"]; pl = sweep["per_lam"]
-    subj = [pl[l]["subj"]["median"] for l in lams]; tgt = [pl[l]["tgt"]["median"] for l in lams]
+    subj = [pl[l]["subj"]["mean"] for l in lams]; tgt = [pl[l]["tgt"]["mean"] for l in lams]  # MEAN口径 (matches Table 1)
     xs = np.arange(len(lams))
     ax.plot(xs, subj, "-o", color=ps.COLORS["subj"], label="subject decode")
     ax.axhline(sweep["chance_subj"], ls="--", lw=1, color=ps.COLORS["subj"], alpha=0.5)
