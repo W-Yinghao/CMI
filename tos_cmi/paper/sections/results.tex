@@ -104,7 +104,7 @@ On both backbones LEACE --- the closed-form optimal linear eraser --- drives \em
 subject identity to chance ($0.12$) and reduces subject decodability more than the TOS $V_D$ deletion at
 comparable task cost (MLP residual TSMNet $0.96\to0.74$, EEGNet $0.55\to0.39$); the rank-limited erasers
 (RLACE, TOS) by contrast fail on the redundant high-dimensional TSMNet latent ($0.86$--$0.96$) and only work
-on the compact EEGNet latent. So the score-Fisher \emph{projection is not} the methodological advantage [C7].
+on the compact EEGNet latent. So the score-Fisher \emph{projection is not} the methodological advantage~\claimtag{C7}.
 The stronger eraser instead sharpens the phenomenon: after \emph{optimal} linear erasure a large
 \textbf{nonlinearly recoverable subject residual} remains under held-out MLP probes on TSMNet ($0.74\gg$
 chance $0.125$) versus a smaller one on EEGNet ($0.39$) --- consistent with nonlinear/redundant subject
@@ -113,9 +113,33 @@ task information (task $0.75\to0.55$ TSMNet, $0.64\to0.25$ EEGNet): unconstraine
 Crucially, none of these erasers --- including the optimal linear one --- converts subject-leakage removal
 into a target-accuracy gain (the global-LPC sweep of \S4.3 makes the same point along a continuum). Successful
 erasure is therefore not the right endpoint; the relevant question is whether the intervention is task-safe
-\emph{and} beneficial for source-to-target generalization [C9, C10].
+\emph{and} beneficial for source-to-target generalization~\claimtag{C9,C10}.
 
 \input{figures/table2_erasure.tex}
+
+\subsection{Removability is capacity-mediated, not architecture-specific}
+\textbf{An architecture$\times$latent-dimension factorial shows that the TSMNet/EEGNet contrast is driven by
+latent \emph{dimension}, not by the SPD-vs-convolutional representation type.} We vary the latent dimension
+of each backbone (TSMNet tangent dimension via the SPD size; EEGNet penultimate width) and measure the
+nonlinear residual after optimal linear erasure (Fig.~\ref{fig:capacity}). The residual rises monotonically
+with latent dimension \emph{within both architectures}, and at \emph{matched} dimension the two are nearly
+indistinguishable (e.g.\ $d_z\!\approx\!16$--$21$: $0.40$ vs $0.40$; $d_z\!\approx\!32$--$36$: $0.50$ vs
+$0.50$; $d_z\!\approx\!105$--$128$: $0.65$ vs $0.61$). The earlier TSMNet-$0.74$-vs-EEGNet-$0.39$ gap is
+therefore explained by capacity ($210$ vs $16$), not by representation type: larger latents support
+redundant, nonlinearly-recoverable subject coding that survives optimal linear erasure. This resolves the
+dimension-vs-type confound that the two-point comparison alone could not (\S6.3).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig6_capacity_factorial.pdf}
+\caption{\textbf{Removability is capacity-mediated.} Removability signals vs latent dimension $d_z$ for
+TSMNet (SPD/LogEig) and EEGNet (conv). (A) full-$Z$ subject decode rises with $d_z$; (B) the MLP residual
+after \emph{optimal} linear erasure (LEACE) rises with $d_z$ and the two architectures nearly coincide at
+matched $d_z$ --- the contrast is capacity-mediated, not architecture-type; (C) task decode is preserved
+after LEACE across $d_z$; (D) rank-limited deletion (TOS) degrades toward random-$k$ as $d_z$ grows. (Seed 0;
+multi-seed runs in progress.)}
+\label{fig:capacity}
+\end{figure}
 
 \subsection{Unified interpretation}
 Across both representations, conditional domain leakage is a \textbf{measurable} property of the EEG latent that

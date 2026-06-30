@@ -79,7 +79,15 @@ measurement_to_control_gap:                       # C10 (thesis)
 
 # ---------- NOT YET ATTEMPTED (future tracks; must not be claimed) ----------
 source_ood_benefit_gate:        {status: not_attempted, plan: Track B (inner source-LODO pseudo-target benefit)}
-architecture_x_dimension_factorial: {status: not_attempted, plan: Track C (low-dim TSMNet, high-dim EEGNet)}
+architecture_x_dimension_factorial:               # Track C (DONE, seed0; seeds 1,2 dumping)
+  status: supported  # VERDICT = CAPACITY-MEDIATED (not architecture-type)
+  scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_analysis.py
+  cells: TSMNet m{6,8,10,14,20}=tangent{21,36,55,105,210} + EEGNet F2{16,32,64,128}; 9 folds; seed0
+  outputs: results/tos_cmi_eeg_frozen/factorial/* ; factorial_removability_seed0.json
+  finding: LEACE nonlinear residual rises monotonically with latent dim WITHIN both archs; at MATCHED dim
+    SPD~conv nearly coincide (16/21:0.40/0.40; 32/36:0.50/0.50; 105/128:0.65/0.61; TSMNet-210:0.74) ->
+    the TSMNet-0.74-vs-EEGNet-0.39 gap is capacity (210 vs 16), NOT SPD-vs-conv. Resolves the dim<->type
+    confound (paper SS4.5, Fig 6; SS6.3 limitation -> resolved). Caveat: 2a, seed0 (multi-seed in progress).
 concept_erasure_baselines_vs_tos:                 # Track G (DONE; cross-seed stable)
   status: supported
   scripts: tos_cmi/eeg/erasure_baselines.py (self-contained LEACE + INLP; LEACE validated: linear subj->chance)

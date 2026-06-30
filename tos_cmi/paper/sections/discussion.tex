@@ -33,10 +33,12 @@ lever --- which is exactly why we do not equate removal with improvement.
 \item \textbf{Single dataset.} All EEG results are on BCI-IV-2a (BNCI2014\_001); we do not claim generality to other
   paradigms, montages, or session structures.
 \item \textbf{Two backbones only.} TSMNet and EEGNet; the cross-representation contrast rests on two points.
-\item \textbf{EEGNet dim/type confound.} TSMNet and EEGNet differ in \emph{both} architecture and latent dimension
-  (210 vs 16), which are collinear here. We establish that low-rank removability is representation-dependent
-  and capacity-mediated, but do \textbf{not} isolate the causal factor (convolutional inductive bias vs latent
-  compression); a clean test needs a high-dimensional convolutional or a low-dimensional SPD latent.
+\item \textbf{Dimension-vs-type: tested, capacity-mediated.} The original two-point comparison confounded
+  architecture with latent dimension (SPD/$210$ vs conv/$16$). The architecture$\times$dimension factorial
+  (\S4.5, Fig.~\ref{fig:capacity}) resolves this: the nonlinear erasure residual is a function of latent
+  \emph{dimension}, with SPD and convolutional latents nearly coinciding at matched $d_z$ --- the contrast
+  is capacity-mediated, not representation-type. Remaining caveats on this factorial: a single dataset
+  (BCI-IV-2a), seed~0 (multi-seed in progress), and the LDA cap from $8$ source subjects.
 \item \textbf{No end-to-end TOS training.} The EEG study is a frozen-feature pilot: it measures whether \emph{removing}
   localized leakage from a fixed representation helps; it does not show that end-to-end training with a
   certified penalty cannot help.
