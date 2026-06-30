@@ -42,8 +42,23 @@ def _vote_nll(nll, groups, D):
     return float(np.mean(subj))
 
 
-def _fit_nll(X, y, cl, C):
-    clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(X, y)
+def subject_condition_weights(groups, D):
+    """RAW per-epoch weight 1/(|U_s| * n_su) for u=(subject,condition); sum == #subjects. sklearn lbfgs
+    L2 = 1/(C*sum_w), so the fit/regularisation is invariant to epochs-per-condition (an epoch-heavy
+    condition cannot dominate the boundary). Mirrors the A-line subject-condition estimand."""
+    g = np.asarray(groups); D = np.asarray(D); w = np.ones(len(g), float)
+    for s in np.unique(g):
+        sm = g == s
+        conds = np.unique(D[sm]); U = len(conds)
+        for c in conds:
+            cm = sm & (D == c); n = int(cm.sum())
+            if n:
+                w[cm] = 1.0 / (U * n)
+    return w
+
+
+def _fit_nll(X, y, cl, C, w=None):
+    clf = LogisticRegression(C=C, max_iter=2000, solver="lbfgs").fit(X, y, sample_weight=w)
     p = np.clip(clf.predict_proba(X), 1e-12, 1.0)
     order = [list(clf.classes_).index(c) for c in cl]
     p = p[:, order]
@@ -52,52 +67,73 @@ def _fit_nll(X, y, cl, C):
 
 
 def paired_validity(Y, D, groups, min_subjects=4):
-    """Pair structure must be sound: >=2 conditions overall, both classes present, and enough subjects
-    that have BOTH conditions (a within-subject contrast needs paired subjects)."""
+    """Pair structure must be sound (B3-P2.1, fail closed): >=2 conditions overall; >=2 classes overall;
+    EACH present condition has >=2 classes (a within-subject boundary contrast needs class spread in BOTH
+    conditions); and enough subjects with BOTH conditions."""
     D = np.asarray(D); Y = np.asarray(Y); g = np.asarray(groups)
     if len(np.unique(D)) < 2 or len(np.unique(Y)) < 2:
         return False, "needs >=2 conditions and >=2 classes"
+    for c in np.unique(D):                                   # per-condition class coverage
+        if len(np.unique(Y[D == c])) < 2:
+            return False, f"condition {c} has <2 classes"
     paired = [s for s in np.unique(g) if len(np.unique(D[g == s])) >= 2]
     if len(paired) < min_subjects:
         return False, f"only {len(paired)} paired subjects (<{min_subjects})"
     return True, f"{len(paired)} paired subjects"
 
 
-def paired_conditional_change_test(Z, Y, D, groups, rank=3, C=0.5, n_boot=200, seed=0):
+def classes_by_condition(Y, D):
+    Y = np.asarray(Y); D = np.asarray(D)
+    return {int(c): int(len(np.unique(Y[D == c]))) for c in np.unique(D)}
+
+
+def paired_conditional_change_test(Z, Y, D, groups, rank=3, C=0.5, n_boot=200, seed=0,
+                                   invalid_frac_max=0.20):
     """One-sided parametric-bootstrap test that the boundary depends on condition (concept change).
-    Returns dict(T, p_value, n_paired_subjects, valid, reason)."""
+    Subject-condition-WEIGHTED fits (epoch-count invariant); conservative null invalid-accounting
+    (degenerate/fit-failed replicates charged as extreme; too many -> test INVALID, fail closed).
+    Returns T, p_value, valid, reason, n_pairs, classes_by_condition, n_boot_invalid."""
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D); g = np.asarray(groups)
+    n_pairs = int(len([s for s in np.unique(g) if len(np.unique(D[g == s])) >= 2]))
+    cbc = classes_by_condition(Y, D)
+    base = dict(T=float("nan"), p_value=1.0, valid=False, n_pairs=n_pairs,
+                classes_by_condition=cbc, n_boot_invalid=0)
     ok, reason = paired_validity(Y, D, g)
     if not ok:
-        return dict(T=float("nan"), p_value=1.0, n_paired_subjects=0, valid=False, reason=reason)
-    mu = Z.mean(0); sd = Z.std(0) + 1e-8
-    Zs = (Z - mu) / sd
-    # low-rank interaction basis = top-r right singular vectors of the centered audit Z
-    Zc = Zs - Zs.mean(0)
-    Vt = np.linalg.svd(Zc, full_matrices=False)[2]
+        return {**base, "reason": reason}
+    w = subject_condition_weights(g, D)                       # epoch-count-invariant weights
+    W = w.sum()
+    mu = (w[:, None] * Z).sum(0) / W                          # WEIGHTED standardise (epoch-invariant)
+    sd = np.sqrt(np.clip((w[:, None] * (Z - mu) ** 2).sum(0) / W, 0, None)) + 1e-8
+    Zs = (Z - mu) / sd                                       # weighted mean(Zs) == 0
+    Vt = np.linalg.svd(np.sqrt(w)[:, None] * Zs, full_matrices=False)[2]   # WEIGHTED PCs (epoch-invariant)
     Vr = Vt[:max(1, rank)].T
     cl = np.array(sorted(np.unique(Y)))
     X0 = _features(Zs, D, None)
     X1 = _features(Zs, D, Vr)
-    nll0, clf0 = _fit_nll(X0, Y, cl, C)
-    nll1, _ = _fit_nll(X1, Y, cl, C)
+    nll0, clf0 = _fit_nll(X0, Y, cl, C, w)
+    nll1, _ = _fit_nll(X1, Y, cl, C, w)
     T = _vote_nll(nll0, g, D) - _vote_nll(nll1, g, D)
-    # parametric bootstrap under fitted h0: Y* ~ h0(.|Z,condition)
     p0 = np.clip(clf0.predict_proba(X0), 1e-12, 1.0)
     order = [list(clf0.classes_).index(c) for c in cl]
-    p0 = p0[:, order]; cum = np.cumsum(p0, axis=1)
+    cum = np.cumsum(p0[:, order], axis=1)
     rng = np.random.default_rng(seed)
-    ge = 1
+    ge, n_invalid = 1, 0
     for _ in range(n_boot):
         u = rng.random(len(Y))
         ystar = cl[(u[:, None] > cum).sum(1)]
-        if len(np.unique(ystar)) < 2:
-            ge += 1; continue                       # degenerate -> charge as extreme (conservative)
+        # a replicate is VALID only if it keeps the SAME pair-validity contract as the observed audit
+        if not paired_validity(ystar, D, g)[0]:
+            n_invalid += 1; ge += 1; continue                 # invalid -> charge extreme (conservative)
         try:
-            n0s, _ = _fit_nll(X0, ystar, cl, C)
-            n1s, _ = _fit_nll(X1, ystar, cl, C)
+            n0s, _ = _fit_nll(X0, ystar, cl, C, w)
+            n1s, _ = _fit_nll(X1, ystar, cl, C, w)
             ge += int((_vote_nll(n0s, g, D) - _vote_nll(n1s, g, D)) >= T)
         except Exception:
-            ge += 1
-    return dict(T=float(T), p_value=ge / (n_boot + 1), n_paired_subjects=int(reason.split()[0])
-                if reason[0].isdigit() else 0, valid=True, reason=reason)
+            n_invalid += 1; ge += 1
+    # too many invalid replicates -> the null is not estimable -> test INVALID (fail closed)
+    if n_invalid > invalid_frac_max * n_boot:
+        return {**base, "reason": f"null not estimable: {n_invalid}/{n_boot} invalid replicates",
+                "T": float(T), "n_boot_invalid": int(n_invalid)}
+    return dict(T=float(T), p_value=ge / (n_boot + 1), valid=True, reason=reason,
+                n_pairs=n_pairs, classes_by_condition=cbc, n_boot_invalid=int(n_invalid))

@@ -32,10 +32,17 @@ def _one_cluster(kind, m, cluster_seed, n_subjects, decide_n, alpha, n_boot):
                                            seed=10_000 + cluster_seed)
     log = certify_paired(Z, Y, D, G, m=m, alpha=alpha, decide_n=decide_n, n_boot=n_boot,
                          seed=cluster_seed)
+    confirmed = (log["state"] == CONCEPT_CONFIRMED)
     return dict(cluster_seed=int(cluster_seed), kind=kind, truth=truth, label_budget_m=int(m),
                 label_unit="subject_condition", state=log["state"], p_value=log["p_value"],
-                T=log["T"], n_paired_available=log["n_paired_available"], n_queried=log["n_queried"],
-                valid=log["valid"], reason=log["reason"])
+                T=log["T"], n_paired_available=log["n_paired_available"],
+                n_queried_subjects=log.get("n_queried_subjects", log.get("n_queried", 0)),
+                n_labeled_subject_conditions=log.get("n_labeled_subject_conditions", 0),
+                n_labeled_epochs=log.get("n_labeled_epochs", 0),
+                n_pairs=log.get("n_pairs", 0), classes_by_condition=log.get("classes_by_condition", {}),
+                n_boot_invalid=log.get("n_boot_invalid", 0), valid=log["valid"], reason=log["reason"],
+                false_confirm_flag=bool(confirmed and truth == "NO_CONCEPT"),
+                power_flag=bool(confirmed and truth == "CONCEPT"))
 
 
 def run(clusters=12, ms=(0, 5, 10, 20), n_subjects=30, decide_n=20, alpha=0.05, n_boot=200,

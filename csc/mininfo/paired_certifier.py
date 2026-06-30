@@ -47,16 +47,22 @@ def certify_paired(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=4,
     pick = rng.choice(paired_subs, size=min(int(m), len(paired_subs)), replace=False)
     mask = np.isin(G, pick)
     Zq, Yq, Dq, Gq = Z[mask], Y[mask], D[mask], G[mask]
-    log["n_queried"] = int(len(pick))
+    # explicit label-budget accounting (B3-P2.1): m = queried paired SUBJECTS; the audit uses ALL their
+    # (subject,condition) cell labels -> record both the subject count and the labelled-cell/epoch counts.
+    n_cells = len({(int(s), int(c)) for s, c in zip(Gq, Dq)})
+    log.update(n_queried=int(len(pick)), n_queried_subjects=int(len(pick)),
+               n_labeled_subject_conditions=int(n_cells), n_labeled_epochs=int(len(Yq)))
     ok, reason = paired_validity(Yq, Dq, Gq, min_subjects=min(min_pairs, len(pick)))
     if not ok:
         log.update(state=NEED_MORE_LABELS, reason=f"audit not valid: {reason}")
         return log
 
     t = paired_conditional_change_test(Zq, Yq, Dq, Gq, rank=rank, C=C, n_boot=n_boot, seed=seed)
-    log.update(valid=bool(t["valid"]), p_value=float(t["p_value"]), T=float(t["T"]), reason=t["reason"])
+    log.update(valid=bool(t["valid"]), p_value=float(t["p_value"]), T=float(t["T"]), reason=t["reason"],
+               n_pairs=t["n_pairs"], classes_by_condition=t["classes_by_condition"],
+               n_boot_invalid=t["n_boot_invalid"])
     if not t["valid"]:
-        log["state"] = NEED_MORE_LABELS
+        log["state"] = NEED_MORE_LABELS             # null not estimable on this audit -> need cleaner/more
     elif t["p_value"] <= alpha:
         log["state"] = CONCEPT_CONFIRMED
     elif len(pick) >= decide_n:
