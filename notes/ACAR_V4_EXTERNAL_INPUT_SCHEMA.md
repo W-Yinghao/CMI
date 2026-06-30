@@ -55,7 +55,9 @@ What the Arm-B CLI VERIFIES at run time (under the atomic `os.mkdir(<out>)` clai
   `resting_selection`), which can't be recomputed from the .npz, are bound to frozen-prep output, not hand-filled;
 - `deployment_input_sha256`/`label_sha256`/`subject_list_sha256` RE-COMPUTED via `acar.v3.loader.{hash_deployment_input,
   hash_labels,hash_subject_list}` (these MUST come from the v3 loaders, NOT a same-named prep helper);
-- `source_state_sha256`/`source_state_ref` re-checked against the loaded DEV-frozen artifact;
+- `source_state_sha256`/`source_state_ref` re-checked against the loaded DEV-frozen artifact (this dump-PROVENANCE
+  `source_state_sha256` is the acar.v3 `SourceStateArtifact` canonical/semantic hash — same value as the encoder artifact's
+  `source_state_artifact_sha256` by construction, but a v3-bound name verified via the v3 recompute path, NOT a file hash);
 - `expected_n_subjects` / `expected_embedding_dim` checked against the built stratum / artifact.
 
 ## 5. Firewall (binding)
@@ -91,12 +93,16 @@ DEV-only). This is NOT a claim that external validation is infeasible.
 sha-pins it (`provenance_sidecar_sha256`) and asserts every manifest hash field equals it (§4), binding the 3 prep-only
 hashes to frozen-prep output.
 
-Required `encoder_artifact` fields (all pinned + hash-verified before any raw read):
+Required `encoder_artifact` fields (all pinned + hash-verified before any raw read; **H5** dual-hash naming — canonical
+SEMANTIC + file-bytes, never overloaded; the retired bare `encoder_checkpoint_sha256` / `source_state_sha256` are REJECTED here):
 ```
-encoder_checkpoint_path · encoder_checkpoint_sha256 · encoder_architecture (EEGNet) · encoder_training_command ·
-encoder_training_data_scope (which DEV cohorts the encoder was trained on) · encoder_seed · determinism (flags) ·
-torch_version · braindecode_version · embedding_dim (== 16) · source_state_path · source_state_sha256 · source_state_ref
+encoder_checkpoint_path · encoder_state_dict_sha256 (canonical semantic) · encoder_checkpoint_file_sha256 (.pt bytes) ·
+encoder_architecture (EEGNet) · encoder_training_command · encoder_training_data_scope (which DEV cohorts) · encoder_seed ·
+determinism (flags) · torch_version · braindecode_version · embedding_dim (== 16) ·
+source_state_path · source_state_artifact_sha256 (acar.v3 canonical) · source_state_file_sha256 (.npz bytes) · source_state_ref
 ```
+`require_encoder_artifact` verifies the `*_file_sha256` (stdlib file-bytes) at prep; the canonical `encoder_state_dict_sha256`
+/ `source_state_artifact_sha256` are required + 64-hex and re-verified by the loader (torch / acar.v3) at run time.
 The frozen pipeline (`prepare_external_dump.FROZEN_PIPELINE`, validated by `validate_pipeline_config`) is pinned at
 resample 128 Hz · bandpass 0.5–45 Hz · 4 s windows · 19-ch 10-20 canonical montage · EEGNet · embedding_dim 16, and MUST
 equal the DEV pipeline.

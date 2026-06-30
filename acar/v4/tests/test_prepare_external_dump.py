@@ -95,10 +95,19 @@ def test_prepare_dump_fail_closed_and_encoder_artifact():
     _expect(P.FrozenEncoderMissingError, lambda: P.prepare_dump("ds007526", "/raw", "/out.npz",
                                                                 encoder_artifact={}, raw_pipeline_config=P.FROZEN_PIPELINE))
     _expect(P.FrozenEncoderMissingError, lambda: P.require_encoder_artifact({}))
+    _FOUR = ("encoder_state_dict_sha256", "encoder_checkpoint_file_sha256",
+             "source_state_artifact_sha256", "source_state_file_sha256")
     full = {f: "x" for f in P.ENCODER_ARTIFACT_FIELDS}; full["embedding_dim"] = 16
-    _expect(P.FrozenEncoderMissingError, lambda: P.require_encoder_artifact(full))   # complete but paths not on disk
+    for hf in _FOUR:
+        full[hf] = "a" * 64                                                         # the 4 unambiguous shas must be 64-hex
+    _expect(P.FrozenEncoderMissingError, lambda: P.require_encoder_artifact(full))   # complete + valid shas but paths not on disk
     bad_dim = dict(full); bad_dim["embedding_dim"] = 8
     _expect(ValueError, lambda: P.require_encoder_artifact(bad_dim))                 # wrong embedding_dim
+    # H5 dual-hash schema: retired ambiguous names rejected; each of the 4 unambiguous shas must be 64-hex
+    for legacy in ("encoder_checkpoint_sha256", "source_state_sha256"):
+        _expect(ValueError, lambda legacy=legacy: P.require_encoder_artifact({**full, legacy: "a" * 64}))
+    for hf in _FOUR:
+        _expect(ValueError, lambda hf=hf: P.require_encoder_artifact({**full, hf: "short"}))
     # pipeline config must equal the frozen DEV pipeline
     assert P.validate_pipeline_config(P.FROZEN_PIPELINE)
     _expect(ValueError, lambda: P.validate_pipeline_config({**P.FROZEN_PIPELINE, "resample_fs": 250}))
@@ -115,7 +124,9 @@ def test_prepare_dump_second_blocker_reader_not_wired():
         with open(ss, "wb") as f: f.write(b"fake-source-state")
         art = {f: "x" for f in P.ENCODER_ARTIFACT_FIELDS}
         art.update({"embedding_dim": 16, "encoder_checkpoint_path": ckpt, "source_state_path": ss,
-                    "encoder_checkpoint_sha256": P._sha256_file(ckpt), "source_state_sha256": P._sha256_file(ss)})
+                    "encoder_checkpoint_file_sha256": P._sha256_file(ckpt),                      # file-byte (verified)
+                    "source_state_file_sha256": P._sha256_file(ss),
+                    "encoder_state_dict_sha256": "a" * 64, "source_state_artifact_sha256": "a" * 64})  # canonical (format-checked)
         out = os.path.join(d, "out.npz")
         _expect(P.ExternalReaderNotWiredError, lambda: P.prepare_dump("ds007526", "/raw", out,
                                                                       encoder_artifact=art,

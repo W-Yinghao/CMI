@@ -281,7 +281,7 @@ def _train_substrate(spec, output):                                  # pragma: n
     if int(ss_art.embedding_dim) != RS.FROZEN_PIPELINE["embedding_dim"]:   # backbone width must equal the pinned 16
         raise ValueError(f"trained embedding_dim {ss_art.embedding_dim} != frozen {RS.FROZEN_PIPELINE['embedding_dim']}")
     return {"encoder_checkpoint_path": enc_path, "encoder_state_dict_sha256": encoder_state_dict_sha256,
-            "source_state_path": ss_path, "source_state_sha256": ss_art.source_state_sha256,
+            "source_state_path": ss_path, "source_state_artifact_sha256": ss_art.source_state_sha256,
             "embedding_dim": int(ss_art.embedding_dim), "training_schedule": RS.TRAINING_SCHEDULE,
             "n_train_windows": int(len(X)), "n_eligible_subjects": len(allowlist)}
 
@@ -318,7 +318,7 @@ def _authorized_train_and_write(spec, output, report, auth):
         for k in ("encoder_checkpoint_path", "source_state_path"):
             if not (isinstance(art.get(k), str) and os.path.isfile(art[k])):
                 raise RuntimeError(f"trainer did not produce {k}")
-        for k in ("encoder_state_dict_sha256", "source_state_sha256"):
+        for k in ("encoder_state_dict_sha256", "source_state_artifact_sha256"):
             if not (isinstance(art.get(k), str) and len(art[k]) == 64):
                 raise RuntimeError(f"trainer did not produce canonical {k}")
         # file-bytes hash (transport/integrity) is DISTINCT from the canonical semantic hash above
@@ -335,7 +335,7 @@ def _authorized_train_and_write(spec, output, report, auth):
             json.dump({"status": "SUBSTRATE_TRAINED", "disease": spec["disease"],
                        "encoder_state_dict_sha256": art["encoder_state_dict_sha256"],
                        "encoder_checkpoint_file_sha256": art["encoder_checkpoint_file_sha256"],
-                       "source_state_sha256": art["source_state_sha256"],
+                       "source_state_artifact_sha256": art["source_state_artifact_sha256"],
                        "source_state_file_sha256": art["source_state_file_sha256"]},
                       f, sort_keys=True, allow_nan=False, indent=2)
         return body

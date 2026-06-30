@@ -62,15 +62,20 @@ no torch/cmi import, no DEV read — until B1 sign-off). It is run ONLY after B1
 ```
 PD  encoder checkpoint  + PD  source-state artifact
 SCZ encoder checkpoint  + SCZ source-state artifact
-each with: encoder_checkpoint_path/sha256 · encoder_architecture(EEGNet) · encoder_training_command ·
-           encoder_training_data_scope(the cohorts in §1) · encoder_seed · determinism · torch/braindecode versions ·
-           embedding_dim(==16) · source_state_path/sha256 · source_state_ref
+each with (H5 — 4 unambiguous hashes; bare encoder_checkpoint_sha256/source_state_sha256 retired):
+           encoder_checkpoint_path · encoder_state_dict_sha256 · encoder_checkpoint_file_sha256 ·
+           encoder_architecture(EEGNet) · encoder_training_command · encoder_training_data_scope(the cohorts in §1) ·
+           encoder_seed · determinism · torch/braindecode versions · embedding_dim(==16) ·
+           source_state_path · source_state_artifact_sha256 · source_state_file_sha256 · source_state_ref
 ```
 
 ## 6. Artifact hash schema
 ```
-encoder_checkpoint_sha256 = sha256(canonical little-endian state_dict bytes)
-source_state_sha256       = acar.v3 SourceStateArtifact full-bytes hash (coef/intercept/CLASSES_/moments/priors/schema/...)
+encoder_state_dict_sha256      = canonical semantic: sha256(sorted name|dtype|shape|little-endian bytes)
+encoder_checkpoint_file_sha256 = sha256(.pt file bytes)  [transport/integrity]
+source_state_artifact_sha256   = acar.v3 SourceStateArtifact canonical hash (coef/intercept/CLASSES_/moments/priors/schema/...)
+source_state_file_sha256       = sha256(.npz file bytes) [transport/integrity]
+# (H5) the retired bare names encoder_checkpoint_sha256 / source_state_sha256 are REJECTED in the substrate-artifact schema.
 sidecar (per external dump, later) = provenance_sidecar_dict(...) sha-pinned by provenance_sidecar_sha256 (already implemented)
 ```
 

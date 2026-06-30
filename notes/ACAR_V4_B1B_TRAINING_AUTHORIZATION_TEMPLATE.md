@@ -47,13 +47,19 @@ DATE   : 2026-06-30 (machine UTC)
 10. raw value/label fail-closed (finite windows; labels {0,1}; within-subject identical; both classes; ≥1 win) ✓ (H4)
 11. non-finite logits/loss/grad/param/embedding -> abort + cleanup (no NaN encoder/source-state written)       ✓ (H4)
 12. encoder/source-state record BOTH canonical semantic sha AND file-bytes sha (no field overload)             ✓ (H4)
-13. this authorization-manifest template is fixed + all tests green                                            ✓ (H4)
-14. new protocol commit H = H4 (real + runtime-safe path) is clean                                             ← H4 = this patch's commit
-15. H regen env lock captured + verified (CAPTURED_AND_VERIFIED, cuda, interop=1, versions, protocol_commit=H) ← recapture for H (GPU)
-16. H PD/SCZ manifests rebuilt (eligible fields, raw_bids) + pass fail-closed preflight at detached H          ← rebuild + preflight at H
+13. dual-hash naming UNIFIED pipeline-wide (regen output + substrate-compat + external encoder artifact); ambiguous
+    encoder_checkpoint_sha256/source_state_sha256 retired in the substrate-artifact schema; source_kind=raw_bids doc fixed ✓ (H5)
+14. this authorization-manifest template is fixed + all tests green                                            ✓ (H5)
+15. new protocol commit H = H5 (unified hash schema) is clean                                                  ← H5 = this patch's commit
+16. H regen env lock captured + verified (CAPTURED_AND_VERIFIED, cuda, interop=1, versions, protocol_commit=H) ← recapture for H (GPU)
+17. H PD/SCZ manifests rebuilt (eligible fields, raw_bids) + pass fail-closed preflight at detached H          ← rebuild + preflight at H
 ```
-Items 14–16 are the "H re-sequence" (ACAR_V4_SUBSTRATE_REGEN_COMMAND.md §7d): each runner change (H2→H3→H4) restales the
-046507a env lock + manifests, which MUST be re-captured/re-built/re-preflighted at the LATEST commit (H4) before any authorization.
+Items 15–17 are the "H re-sequence" (ACAR_V4_SUBSTRATE_REGEN_COMMAND.md §7d): each runner/schema change (H2→H3→H4→H5) restales
+the 046507a env lock + manifests, which MUST be re-captured/re-built/re-preflighted at the LATEST commit (H5) before any authorization.
+
+The four unambiguous substrate-artifact hash fields (H5): `encoder_state_dict_sha256` (canonical) ·
+`encoder_checkpoint_file_sha256` (.pt bytes) · `source_state_artifact_sha256` (acar.v3 canonical) · `source_state_file_sha256`
+(.npz bytes).
 
 ## Reminder
 B1b is a SEPARATE human decision. Even after a successful authorized training run: artifact-hash review → fixed-candidate

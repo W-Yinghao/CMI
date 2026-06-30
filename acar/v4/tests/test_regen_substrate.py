@@ -194,8 +194,9 @@ def test_validate_regen_manifest():
 
 
 def _sub_manifest(**over):
-    sd = {d: {"encoder_checkpoint_path": "/p", "encoder_checkpoint_sha256": "b" * 64,
-              "source_state_path": "/s", "source_state_sha256": "b" * 64,
+    sd = {d: {"encoder_checkpoint_path": "/p", "encoder_state_dict_sha256": "b" * 64,
+              "encoder_checkpoint_file_sha256": "b" * 64, "source_state_path": "/s",
+              "source_state_artifact_sha256": "b" * 64, "source_state_file_sha256": "b" * 64,
               "encoder_provenance_path": "/ep", "source_state_provenance_path": "/sp"} for d in ("PD", "SCZ")}
     m = {"protocol_commit": "a" * 40, "candidate": dict(R.FIXED_CANDIDATE), "alpha": R.ALPHA, "budget": R.BUDGET,
          "coverage_min": R.COVERAGE_MIN, "substrates": sd,
@@ -209,10 +210,17 @@ def test_validate_substrate_manifest():
     _expect(ValueError, lambda: R.validate_substrate_manifest(_sub_manifest(candidate={})))    # reselection
     _expect(ValueError, lambda: R.validate_substrate_manifest(_sub_manifest(alpha=0.2)))       # op-point drift
     _expect(ValueError, lambda: R.validate_substrate_manifest(_sub_manifest(protocol_commit="x")))
-    sd = _sub_manifest(); sd["substrates"]["PD"]["encoder_checkpoint_sha256"] = "short"
+    sd = _sub_manifest(); sd["substrates"]["PD"]["encoder_checkpoint_file_sha256"] = "short"
     _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # bad artifact sha
     sd = _sub_manifest(); del sd["substrates"]["SCZ"]
     _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # missing disease
+    for hf in ("encoder_state_dict_sha256", "encoder_checkpoint_file_sha256",                  # each of the 4 unambiguous
+               "source_state_artifact_sha256", "source_state_file_sha256"):                    # hash fields is required
+        sd = _sub_manifest(); del sd["substrates"]["PD"][hf]
+        _expect(ValueError, lambda sd=sd: R.validate_substrate_manifest(sd))
+    for legacy in ("encoder_checkpoint_sha256", "source_state_sha256"):                        # retired ambiguous names rejected
+        sd = _sub_manifest(); sd["substrates"]["PD"][legacy] = "b" * 64
+        _expect(ValueError, lambda sd=sd: R.validate_substrate_manifest(sd))
 
 
 def _fake_git(commit="a" * 40, clean=True):
@@ -390,7 +398,7 @@ def test_run_regen_substrate_authorized_runs_gated_trainer():
         with open(enc, "wb") as f: f.write(b"E")
         with open(ss, "wb") as f: f.write(b"S")
         return {"encoder_checkpoint_path": enc, "source_state_path": ss,                        # trainer reports BOTH:
-                "encoder_state_dict_sha256": "c" * 64, "source_state_sha256": "d" * 64}         # canonical (semantic) shas
+                "encoder_state_dict_sha256": "c" * 64, "source_state_artifact_sha256": "d" * 64}  # canonical (semantic) shas
     try:
         RRS._git = _fake_git(); RRS._verify_eligible_subjects = lambda spec: None
         RRS._train_substrate = fake_train
@@ -405,12 +413,13 @@ def test_run_regen_substrate_authorized_runs_gated_trainer():
         assert calls == [out]                                                                   # trainer called exactly once
         assert os.path.isfile(os.path.join(out, "RESULT.json")) and os.path.isfile(os.path.join(out, "manifest.json"))
         a = body["artifacts"]                                                                   # BOTH file + canonical shas recorded
-        assert a["encoder_state_dict_sha256"] == "c" * 64 and a["source_state_sha256"] == "d" * 64
+        assert a["encoder_state_dict_sha256"] == "c" * 64 and a["source_state_artifact_sha256"] == "d" * 64
         assert len(a["encoder_checkpoint_file_sha256"]) == 64 and len(a["source_state_file_sha256"]) == 64
         assert a["encoder_checkpoint_file_sha256"] != a["encoder_state_dict_sha256"]            # file-bytes hash != semantic hash
+        assert "source_state_sha256" not in a and "encoder_checkpoint_sha256" not in a          # retired ambiguous names gone
         res = json.load(open(os.path.join(out, "RESULT.json")))
         assert {"encoder_state_dict_sha256", "encoder_checkpoint_file_sha256",
-                "source_state_sha256", "source_state_file_sha256"} <= set(res)
+                "source_state_artifact_sha256", "source_state_file_sha256"} <= set(res)
         # runtime mismatch -> fail BEFORE training + BEFORE output claim
         def bad_runtime(spec):
             raise ValueError("runtime torch_version != env lock")
@@ -465,10 +474,12 @@ def _sub_manifest_files(base, *, missing=False, break_sha=False):
                 f.write(("enc-" + d).encode())
             with open(ss, "wb") as f:
                 f.write(("ss-" + d).encode())
-        enc_sha = "0" * 64 if break_sha else (_fsha(enc) if not missing else "b" * 64)
+        enc_sha = "0" * 64 if break_sha else (_fsha(enc) if not missing else "b" * 64)         # FILE-byte hash (preflight verifies)
         ss_sha = _fsha(ss) if not missing else "b" * 64
-        subs[d] = {"encoder_checkpoint_path": enc, "encoder_checkpoint_sha256": enc_sha,
-                   "source_state_path": ss, "source_state_sha256": ss_sha,
+        subs[d] = {"encoder_checkpoint_path": enc, "encoder_checkpoint_file_sha256": enc_sha,
+                   "encoder_state_dict_sha256": "b" * 64,                                       # canonical (verified at replay)
+                   "source_state_path": ss, "source_state_file_sha256": ss_sha,
+                   "source_state_artifact_sha256": "b" * 64,
                    "encoder_provenance_path": enc + ".prov.json", "source_state_provenance_path": ss + ".prov.json"}
     return _sub_manifest(substrates=subs)
 

@@ -294,8 +294,10 @@ def validate_substrate_request(disease, dev_cohorts, output_dir, *, seed=0, pipe
         "pipeline_config": dict(FROZEN_PIPELINE), "output_dir": output_dir, "env_lock_path": env_lock_path,
         "expected_artifacts": expected_artifact_paths(disease, output_dir),
         "encoder_artifact_fields": list(ENCODER_ARTIFACT_FIELDS),
-        "hash_schema": {"encoder_checkpoint_sha256": "sha256(canonical little-endian state_dict bytes)",
-                        "source_state_sha256": "acar.v3 SourceStateArtifact full-bytes hash",
+        "hash_schema": {"encoder_state_dict_sha256": "canonical semantic: sha256(sorted name|dtype|shape|LE-bytes)",
+                        "encoder_checkpoint_file_sha256": "sha256(.pt file bytes) — transport/integrity",
+                        "source_state_artifact_sha256": "acar.v3 SourceStateArtifact canonical (semantic) hash",
+                        "source_state_file_sha256": "sha256(.npz file bytes) — transport/integrity",
                         "provenance_sidecar_sha256": "sha256(<dump>.provenance.json) at external-dump time"},
         "substrate_kind": "NEW all-DEV V4 external representation substrate (NOT a recovered original encoder)",
         "authorized_to_train": False,
@@ -462,7 +464,13 @@ def validate_substrate_manifest(spec):
                    "source_state_provenance_path"):
             if not isinstance(sd.get(pf), str) or not sd[pf]:
                 raise ValueError(f"substrates[{d}].{pf} must be a non-empty path")
-        for hf in ("encoder_checkpoint_sha256", "source_state_sha256"):
+        for legacy in ("encoder_checkpoint_sha256", "source_state_sha256"):   # retired ambiguous (file-vs-semantic) names
+            if legacy in sd:
+                raise ValueError(f"substrates[{d}].{legacy} is a DEPRECATED ambiguous field; use the unambiguous "
+                                 f"encoder_state_dict_sha256/encoder_checkpoint_file_sha256/source_state_artifact_sha256/"
+                                 f"source_state_file_sha256")
+        for hf in ("encoder_state_dict_sha256", "encoder_checkpoint_file_sha256",
+                   "source_state_artifact_sha256", "source_state_file_sha256"):
             if not _is_hex(sd.get(hf, ""), 64):
                 raise ValueError(f"substrates[{d}].{hf} must be a 64-char lowercase sha-256")
     if not _is_hex(spec.get("env_lock_sha256", ""), 64):

@@ -225,10 +225,14 @@ class ExternalReaderNotWiredError(RuntimeError):
 # 0.5-45 Hz bandpass, 4s/512 windows, embedding_dim 16). The held-out pipeline MUST equal this.
 FROZEN_PIPELINE = {"resample_fs": 128, "bandpass": [0.5, 45.0], "window_sec": 4.0, "canon_channels": 19,
                    "encoder": "EEGNet", "embedding_dim": 16}
-ENCODER_ARTIFACT_FIELDS = ("encoder_checkpoint_path", "encoder_checkpoint_sha256", "encoder_architecture",
-                           "encoder_training_command", "encoder_training_data_scope", "encoder_seed", "determinism",
-                           "torch_version", "braindecode_version", "embedding_dim",
-                           "source_state_path", "source_state_sha256", "source_state_ref")
+# substrate-artifact identity uses the UNAMBIGUOUS dual-hash names (canonical SEMANTIC + file-bytes); the OLD bare names
+# encoder_checkpoint_sha256/source_state_sha256 are retired here (the only `source_state_sha256` that remains in this module
+# is the dump-PROVENANCE v3-recomputable hash in _SIDECAR_HASH_FIELDS — a different object, kept aligned with acar.v3).
+ENCODER_ARTIFACT_FIELDS = ("encoder_checkpoint_path", "encoder_checkpoint_file_sha256", "encoder_state_dict_sha256",
+                           "encoder_architecture", "encoder_training_command", "encoder_training_data_scope",
+                           "encoder_seed", "determinism", "torch_version", "braindecode_version", "embedding_dim",
+                           "source_state_path", "source_state_file_sha256", "source_state_artifact_sha256",
+                           "source_state_ref")
 
 
 def _sha256_file(path):
@@ -265,13 +269,23 @@ def require_encoder_artifact(meta):
         raise FrozenEncoderMissingError(f"frozen encoder/source-state artifact incomplete: missing {missing}")
     if int(meta["embedding_dim"]) != FROZEN_PIPELINE["embedding_dim"]:
         raise ValueError(f"encoder embedding_dim {meta['embedding_dim']} != frozen {FROZEN_PIPELINE['embedding_dim']}")
+    for legacy in ("encoder_checkpoint_sha256", "source_state_sha256"):   # retired ambiguous (file-vs-semantic) names
+        if legacy in meta:
+            raise ValueError(f"{legacy} is a DEPRECATED ambiguous field; use encoder_state_dict_sha256/"
+                             f"encoder_checkpoint_file_sha256/source_state_artifact_sha256/source_state_file_sha256")
+    for hf in ("encoder_state_dict_sha256", "encoder_checkpoint_file_sha256",
+               "source_state_artifact_sha256", "source_state_file_sha256"):
+        if not (isinstance(meta.get(hf), str) and len(meta[hf]) == 64):
+            raise ValueError(f"{hf} must be a 64-char sha-256")
     for pf in ("encoder_checkpoint_path", "source_state_path"):
         if not os.path.exists(meta[pf]):
             raise FrozenEncoderMissingError(f"{pf} not on disk: {meta[pf]!r} (archive the frozen DEV encoder first)")
-    if _sha256_file(meta["encoder_checkpoint_path"]) != meta["encoder_checkpoint_sha256"]:
-        raise ValueError("encoder_checkpoint_sha256 mismatch")
-    if _sha256_file(meta["source_state_path"]) != meta["source_state_sha256"]:
-        raise ValueError("source_state_sha256 mismatch")
+    # preflight verifies the FILE-byte hashes (stdlib); the canonical SEMANTIC hashes (encoder_state_dict_sha256,
+    # source_state_artifact_sha256) are re-verified by the loader at run time (needs torch/acar.v3), not via pickle-load here.
+    if _sha256_file(meta["encoder_checkpoint_path"]) != meta["encoder_checkpoint_file_sha256"]:
+        raise ValueError("encoder_checkpoint_file_sha256 mismatch")
+    if _sha256_file(meta["source_state_path"]) != meta["source_state_file_sha256"]:
+        raise ValueError("source_state_file_sha256 mismatch")
     return True
 
 

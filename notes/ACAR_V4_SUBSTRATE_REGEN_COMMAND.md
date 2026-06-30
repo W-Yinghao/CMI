@@ -31,7 +31,8 @@ repo_clean_required      MUST be true; git worktree must be clean (porcelain emp
 disease                  "PD" | "SCZ"
 dev_cohorts              EXACTLY DEV_SCOPE[disease]  (PD: ds002778,ds003490,ds004584 ; SCZ: ds003944,ds003947,ds004000,ds004367)
                          — any external/rejected id (zenodo14808296, ds007526, ds007020, 14178398, aszed) is REJECTED
-source_kind              "raw_bids" | "canonical_features"
+source_kind              MUST be "raw_bids" (B1b trains raw→encoder; canonical_features is rejected by the validator —
+                         SOURCE_KINDS=("raw_bids",), so a canonical_features bypass of raw→encoder training is impossible)
 source_paths             {cohort: ABSOLUTE path}, keyed by EXACTLY dev_cohorts
 source_file_manifest_sha256              64-hex   (overall raw file-list provenance; metadata only, no signal read)
 per_cohort_source_file_manifest_sha256   {cohort: 64-hex}, keyed by EXACTLY dev_cohorts (per-cohort raw-file-set provenance)
@@ -54,8 +55,10 @@ keys rejected.)
 Per disease (`regen_substrate.expected_artifact_paths`): `v4_alldev_encoder_<D>.pt`, `v4_alldev_source_state_<D>.npz`,
 `v4_alldev_substrate_<D>.provenance.json`. Plus, written into `--output`:
 ```
-encoder checkpoint        + encoder_checkpoint_sha256 = sha256(canonical little-endian state_dict bytes)
-source-state artifact     + source_state_sha256 = acar.v3 SourceStateArtifact full-bytes hash
+encoder checkpoint        + encoder_state_dict_sha256     = canonical semantic sha256(sorted name|dtype|shape|LE-bytes)
+                          + encoder_checkpoint_file_sha256 = sha256(.pt file bytes)  [transport/integrity]
+source-state artifact     + source_state_artifact_sha256  = acar.v3 SourceStateArtifact canonical (semantic) hash
+                          + source_state_file_sha256       = sha256(.npz file bytes) [transport/integrity]
 encoder provenance JSON    (ENCODER_ARTIFACT_FIELDS: arch=EEGNet, training command, data scope, seed, determinism,
                             torch/braindecode versions, embedding_dim==16, source_state_ref)
 source-state provenance JSON
@@ -101,8 +104,12 @@ partial directory is ever interpreted as a usable artifact.
 protocol_commit   40-hex (HEAD must match; clean worktree)
 candidate         EXACTLY {score_family: shift_margin, policy: benefit_ranked, loss: harm_indicator}  (NO reselection)
 alpha/budget/coverage_min  EXACTLY 0.10 / 0.10 / 0.15  (pinned operating point)
-substrates        {PD:{...}, SCZ:{...}} each: encoder_checkpoint_path + sha256, source_state_path + sha256,
+substrates        {PD:{...}, SCZ:{...}} each (H5 — the 4 unambiguous hashes; bare encoder_checkpoint_sha256/source_state_sha256
+                  REJECTED): encoder_checkpoint_path + encoder_state_dict_sha256 + encoder_checkpoint_file_sha256,
+                  source_state_path + source_state_artifact_sha256 + source_state_file_sha256,
                   encoder_provenance_path, source_state_provenance_path
+                  (preflight verifies the *_file_sha256 via stdlib; the canonical *_state_dict/_artifact shas are re-verified
+                  inside the authorized replay loader)
 dev_cohorts       {PD: DEV_SCOPE[PD], SCZ: DEV_SCOPE[SCZ]}  (exact)
 env_lock_sha256   64-hex
 ```
@@ -148,7 +155,7 @@ X,y,subj  = load_eligible_windows(spec, allowlist)          # per-eligible-subje
             check_training_set(y, subj, allowlist)          # every eligible subject present; labels {0,1}; both classes
 bb,dev,encoder_state_dict_sha256 = _train_encoder_and_save(X, y, enc_path)   # cuda-only ERM (RS.TRAINING_SCHEDULE) + canonical sha
 ss_art    = _fit_and_serialize_source_state(bb, dev, X, y, subj, spec, ss_path)  # acar.v3 fit→freeze→savez; embedding_dim==16 checked
-return {encoder_checkpoint_path, encoder_state_dict_sha256, source_state_path, source_state_sha256(=ss_art canonical),
+return {encoder_checkpoint_path, encoder_state_dict_sha256, source_state_path, source_state_artifact_sha256(=ss_art canonical),
         embedding_dim, training_schedule, n_train_windows, n_eligible_subjects}
 # _authorized_train_and_write: _verify_runtime_matches_lock (cuda+threads+versions) → mkdir → _train_substrate → add
 #   encoder_checkpoint_file_sha256 + source_state_file_sha256 (file bytes) → manifest.json → RESULT.json last. The stdlib
@@ -197,8 +204,15 @@ The authorized training path is hardened so any abnormal runtime, data, or model
 - **Encoder hash schema (no ambiguity):** the manifest records BOTH
   `encoder_state_dict_sha256` = `regen_substrate.canonical_state_dict_sha256` (sorted name|dtype|shape|little-endian bytes —
   the serialization-independent SEMANTIC provenance hash) AND `encoder_checkpoint_file_sha256` = sha256 of the `.pt` file bytes
-  (transport/integrity). The source-state likewise records `source_state_sha256` (the acar.v3 artifact's canonical hash) +
-  `source_state_file_sha256` (the `.npz` file bytes). The two meanings never overload one field.
+  (transport/integrity). The source-state likewise records `source_state_artifact_sha256` (the acar.v3 artifact's canonical
+  hash) + `source_state_file_sha256` (the `.npz` file bytes). The two meanings never overload one field. **(H5)** these four
+  unambiguous names are used pipeline-wide — regen output manifest, the substrate-compatibility manifest
+  (`validate_substrate_manifest` / `run_substrate_compatibility`), and the external encoder artifact
+  (`prepare_external_dump.ENCODER_ARTIFACT_FIELDS`); the retired bare names `encoder_checkpoint_sha256` /
+  `source_state_sha256` are now REJECTED in the substrate-artifact schema. (The only surviving `source_state_sha256` is the
+  dump-PROVENANCE v3-recomputable hash in the external dump manifest — a different object, kept aligned with the acar.v3
+  `SourceStateArtifact.source_state_sha256` attribute; same value as `source_state_artifact_sha256` by construction, verified
+  independently.)
 
 ## 7d. This patch CHANGES the runner → re-sequence required before B1b (no reusing earlier artifacts)
 The runner changed across H2 (e277f0d, eligible schema + auth gate), H3 (real executable training body + raw_bids-only), and
