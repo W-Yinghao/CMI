@@ -20,6 +20,20 @@ from acar.v4 import regen_envlock as EL
 from acar.v4.regen_substrate import canonical_pipeline_config_sha256
 
 
+def _nvidia_driver_version():
+    """NVIDIA driver version via a read-only nvidia-smi query (empty if unavailable). No training/data."""
+    import subprocess
+    try:
+        out = subprocess.run(["nvidia-smi", "--query-gpu=driver_version", "--format=csv,noheader"],
+                             capture_output=True, text=True, timeout=15)
+        if out.returncode == 0:
+            lines = [ln.strip() for ln in out.stdout.splitlines() if ln.strip()]
+            return lines[0] if lines else ""
+    except Exception:                                        # noqa
+        pass
+    return ""
+
+
 def _probe():
     """Import-probe the training stack (NO training/data). Returns (info: dict, stack_ok: bool, note: str)."""
     notes = []
@@ -45,9 +59,11 @@ def _probe():
         try:
             info["device_name"] = torch.cuda.get_device_name(0)
             info["cudnn_version"] = str(getattr(torch.backends.cudnn, "version", lambda: "")() or "")
-            info["driver_version"] = ""                       # driver string is environment-specific; left for operator
         except Exception as e:                                # noqa
             notes.append(f"cuda introspection warn: {e}")
+        info["driver_version"] = _nvidia_driver_version()     # NVIDIA driver string (read-only nvidia-smi query)
+        if not info["driver_version"]:
+            notes.append("driver_version unavailable (nvidia-smi query failed)")
     else:
         info["device_name"] = "cpu"
         notes.append("no CUDA device available on this node (cuda.is_available()==False)")
