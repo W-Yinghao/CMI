@@ -127,13 +127,16 @@ def main():
     ap.add_argument("--ms", type=int, nargs="+", default=[0, 20, 30])
     ap.add_argument("--n_subjects", type=int, default=36)
     ap.add_argument("--n_boot", type=int, default=200)
+    ap.add_argument("--control_seed", type=int, default=3000)
+    ap.add_argument("--power_seed", type=int, default=4000)
     ap.add_argument("--jobs", type=int, default=1)
     ap.add_argument("--canary", action="store_true")
     ap.add_argument("--out", type=str, default="csc/results/b3_p24d.json")
     a = ap.parse_args()
     cc, pc = (4, 4) if a.canary else (a.control_clusters, a.power_clusters)
     run(control_clusters=cc, power_clusters=pc, ms=tuple(a.ms), n_subjects=a.n_subjects, n_boot=a.n_boot,
-        n_jobs=a.jobs, out=(a.out.replace(".json", "_canary.json") if a.canary else a.out))
+        control_seed=a.control_seed, power_seed=a.power_seed, n_jobs=a.jobs,
+        out=(a.out.replace(".json", "_canary.json") if a.canary else a.out))
 
 
 if __name__ == "__main__":
