@@ -20,9 +20,10 @@ def _fsha(path):
 
 def _captured_lock(commit, pipeline_sha):
     lk = EL.schema_only_template(protocol_commit=commit, pipeline_config_sha256=pipeline_sha)
-    lk.update(status="CAPTURED_AND_VERIFIED", python_version="3.13.7", torch_version="2.6.0+cu124",
-              braindecode_version="0.8.1", numpy_version="2.4.4", scipy_version="1.17.0", sklearn_version="1.5.0",
-              device_kind="cpu", device_name="cpu")
+    lk.update(status="CAPTURED_AND_VERIFIED", python_version="3.13.14", torch_version="2.6.0+cu124",
+              torchvision_version="0.21.0+cu124", torchaudio_version="2.6.0+cu124", moabb_version="1.5.0",
+              mne_version="1.12.1", skorch_version="1.4.0", braindecode_version="1.5.2", numpy_version="2.4.4",
+              scipy_version="1.18.0", sklearn_version="1.9.0", device_kind="cpu", device_name="cpu")
     return lk
 
 

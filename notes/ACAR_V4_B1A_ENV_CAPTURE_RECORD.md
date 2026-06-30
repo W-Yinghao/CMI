@@ -1,43 +1,44 @@
-# ACAR v4 — B1a env-capture record **(COMPLETE — CAPTURED_AND_VERIFIED)**
+# ACAR v4 — B1a env-capture record **(env PROVEN; first lock SUPERSEDED; operational recapture pending, external)**
 
 ```
 DATE   : 2026-06-29/30 (machine UTC)
-RESULT : acar-v4-regen built (R1-A/A2), RUNTIME-IMPORT-VALIDATED, and GPU env lock CAPTURED_AND_VERIFIED on A40 (node30).
-         B1a COMPLETE. Still NO training / DEV-raw / held-out / source-state fit / compatibility replay / tag / external.
-STATUS : B1A_COMPLETE — ENV_CAPTURED_AND_VERIFIED
-LOCK   : notes/ACAR_V4_REGEN_ENV_LOCK.json · regen_env_lock_sha256 = 589ceedcc4d22b62043674de81902097cd31d8cf14da014a46e8b35863bdb90e
-         (cuda · NVIDIA A40 · driver 610.43.02 · cuda 12.4 · cudnn 90100 · torch 2.6.0+cu124 · braindecode 1.5.2 · seed 0 ·
-          deterministic=true · pipeline_config_sha256=canonical · protocol_commit=785d963…)
+RESULT : acar-v4-regen built (R1-A/A2) and RUNTIME-VALIDATED (CPU import + A40 CUDA acceptance). The FIRST captured lock
+         (A40, sha 589ceed…, commit 785d963) is a USEFUL DIAGNOSTIC but is SUPERSEDED — NOT an operational B1 lock —
+         because it had: torch_interop_threads=20 (training must pin interop=1), no import-critical version fields
+         (torchvision/torchaudio/moabb), and a commit self-reference (lock protocol_commit 785d963 ≠ record commit). It is
+         removed from the repo; a corrected operational lock is recaptured EXTERNALLY on the correction commit (see below).
+STATUS : B1A_ENV_PROVEN / OPERATIONAL_LOCK_PENDING_RECAPTURE
 ```
 
-## What was authorized + done
-- Built isolated `acar-v4-regen` (eeg2025 untouched); exact pins: torch 2.6.0+cu124 / torchvision 0.21.0+cu124 /
+## Proven (still NO training / DEV-raw / held-out / source-state fit / tag)
+- Isolated env `acar-v4-regen` built (eeg2025 untouched); exact pins: torch 2.6.0+cu124 / torchvision 0.21.0+cu124 /
   torchaudio 2.6.0+cu124 + braindecode 1.5.2 + moabb 1.5.0 (+ mne 1.12.1, skorch 1.4.0, numpy 2.4.4, scipy 1.18.0,
-  sklearn 1.9.0). Details: `notes/ACAR_V4_REGEN_ENV_INSTALL_LOG.md`.
-- Runtime import probe (CPU) PASSED: torch/torchaudio/torchvision import (ABI fixed); braindecode 1.5.2 + moabb 1.5.0
-  import (BNCI2014_001 path); `from braindecode.models import EEGNetv4` OK; `cmi.models.backbones build_backbone` OK;
-  `build_backbone("EEGNet",19,512)` constructs. ⇒ both eeg2025 import blockers resolved.
+  sklearn 1.9.0). See `notes/ACAR_V4_REGEN_ENV_INSTALL_LOG.md`.
+- Runtime imports PASS (CPU + A40): torch/torchaudio/torchvision; braindecode 1.5.2 + moabb 1.5.0; `EEGNetv4`;
+  `cmi build_backbone`; `build_backbone("EEGNet",19,512)`. A40 (node30) acceptance: `cuda.is_available()==True`. ⇒ both
+  eeg2025 blockers (torchaudio ABI + braindecode/moabb BNCI name) RESOLVED.
 
-## GPU capture — DONE (after the quota freed)
-- Earlier: 3 sbatch jobs (V100 876435; A40 876445, 876458) PENDING = **QOSMaxGRESPerUser** (my own p30B sweep held the
-  per-user GPU quota) → clean stop, no CPU substitution.
-- Once the sweep drained, capture was resubmitted. A first GPU run (876692) passed the asserts but the capture tool left
-  `driver_version=""` (validator rejects it for a CUDA lock) → fixed in commit 785d963 (`_nvidia_driver_version()` via
-  read-only nvidia-smi). Clean capture = job **876698**, A40 **node30** (~15 s; env introspection only, NO training/data) →
-  `status=CAPTURED_AND_VERIFIED`. Lock copied to `notes/ACAR_V4_REGEN_ENV_LOCK.json` (validates via regen_envlock).
-- NOTE for B1b: the lock records `torch_interop_threads=20` (node default at capture); the B1b training run MUST pin
-  interop=1 (deterministic) at run time.
+## Correction patch (this commit) — env-lock schema/capture hardened
+- `regen_envlock`: lock now carries `torchvision_version`/`torchaudio_version`/`moabb_version`/`mne_version`/
+  `skorch_version` (in the hash); a CAPTURED lock MUST have non-empty torchvision/torchaudio/moabb AND
+  `torch_intraop==torch_interop==omp==1`.
+- `capture_regen_envlock`: pins intra/inter/omp to 1 in the fresh capture process BEFORE any work, and records the new
+  version fields. (Guards added; suites green.)
+- The in-repo `notes/ACAR_V4_REGEN_ENV_LOCK.json` (the superseded 589ceed lock) is DELETED — the operational lock is
+  repo-external (commit-consistency, per REGEN_COMMAND §4).
 
-## Next (review point — still NO training/tag/external)
+## Operational recapture (the correct B1a completion)
+On a GPU node, against the CLEAN correction commit `H` (this patch), env introspection only — NO training/data:
 ```
-1. build fixed PD/SCZ regen input manifests (raw_bids; subject-list / diagnosis-label / per-cohort raw-file-list +
-   pipeline_config + env_lock hashes; env_lock_sha256 = 589ceed…; protocol_commit = current clean HEAD)
-2. run the fail-closed preflight: python -m acar.v4.run_regen_substrate --disease PD|SCZ ...
-   (expect SubstrateTrainingNotAuthorizedError — confirms B1 gate is the ONLY remaining blocker)
-3. record commit
-4. ask for B1b real all-DEV substrate training authorization
+PYTHONPATH=<repo> OMP_NUM_THREADS=1 .../acar-v4-regen/bin/python -m acar.v4.capture_regen_envlock \
+    --output /abs/acar_v4_regen_env_lock_<H>.json --protocol-commit <H>
+accept iff: status=CAPTURED_AND_VERIFIED · device_kind=cuda · torch_intraop=interop=omp=1 ·
+            torchvision 0.21.0 / torchaudio 2.6.0 / moabb 1.5.0 non-empty · torch 2.6.0 · braindecode 1.5.2 ·
+            pipeline_config_sha256=canonical · protocol_commit=H.
 ```
-(A CPU lock via capture --allow-cpu was NOT taken — it would be a separate substrate/runtime decision.)
+Then a record commit references ONLY the external lock path + `env_lock_sha256` (the lock stays out of the repo). After
+that: build fixed PD/SCZ manifests (`env_lock_path`=external, `env_lock_sha256`, `protocol_commit=H`) → fail-closed
+preflight (expect SubstrateTrainingNotAuthorizedError) → then ask for B1b.
 
-Boundary unchanged: no training/GPU-training/DEV-raw/held-out/source-state-fit/compatibility-replay/tag/external. eeg2025
-untouched; lockbox SEALED; v2/v3 frozen results+tags untouched.
+(A CPU lock via `--allow-cpu` was NOT taken — separate substrate/runtime decision.) Boundaries unchanged; lockbox SEALED;
+v2/v3 untouched.

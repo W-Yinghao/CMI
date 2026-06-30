@@ -19,17 +19,24 @@ DEVICE_KINDS = ("cuda", "cpu")
 
 _REQUIRED = (
     "schema_version", "status", "capture_note",
-    "python_version", "torch_version", "braindecode_version", "numpy_version", "scipy_version", "sklearn_version",
+    "python_version", "torch_version", "torchvision_version", "torchaudio_version",
+    "braindecode_version", "moabb_version", "mne_version", "skorch_version",
+    "numpy_version", "scipy_version", "sklearn_version",
     "cuda_version", "cudnn_version", "device_kind", "device_name", "driver_version",
     "torch_deterministic_algorithms", "seed",
     "torch_intraop_threads", "torch_interop_threads", "omp_num_threads", "threadpool_backends",
     "pipeline_config_sha256", "protocol_commit",
 )
-# version/identity fields a CAPTURED_AND_VERIFIED lock must fill with real (non-empty) values
-_CAPTURED_NONEMPTY = ("python_version", "torch_version", "braindecode_version", "numpy_version", "scipy_version",
-                      "sklearn_version", "device_name")
+# version/identity fields a CAPTURED_AND_VERIFIED lock must fill with real (non-empty) values. torchvision/torchaudio/moabb
+# are import-critical (the eeg2025 failure was exactly a torchaudio/torch + braindecode/moabb mismatch) -> they MUST be in
+# the lock (hence in the lock hash) and non-empty for a captured lock.
+_CAPTURED_NONEMPTY = ("python_version", "torch_version", "torchvision_version", "torchaudio_version",
+                      "braindecode_version", "moabb_version", "numpy_version", "scipy_version", "sklearn_version",
+                      "device_name")
 # extra fields required to be non-empty when device_kind == "cuda"
 _CUDA_NONEMPTY = ("cuda_version", "cudnn_version", "driver_version")
+# threads a CAPTURED lock must have pinned to 1 (deterministic) — the lock must capture the SAME runtime training uses
+_CAPTURED_THREADS_ONE = ("torch_intraop_threads", "torch_interop_threads", "omp_num_threads")
 
 
 def _is_hex(s, n):
@@ -75,8 +82,9 @@ def validate_regen_env_lock(lock):
         raise ValueError("pipeline_config_sha256 must be a 64-char lowercase sha-256")
     if not _is_hex(lock["protocol_commit"], 40):
         raise ValueError("protocol_commit must be a full 40-char lowercase git SHA-1")
-    for sf in ("python_version", "torch_version", "braindecode_version", "numpy_version", "scipy_version",
-               "sklearn_version", "cuda_version", "cudnn_version", "device_name", "driver_version"):
+    for sf in ("python_version", "torch_version", "torchvision_version", "torchaudio_version", "braindecode_version",
+               "moabb_version", "mne_version", "skorch_version", "numpy_version", "scipy_version", "sklearn_version",
+               "cuda_version", "cudnn_version", "device_name", "driver_version"):
         if not isinstance(lock[sf], str):
             raise ValueError(f"{sf} must be a string")
     if lock["status"] == "CAPTURED_AND_VERIFIED":
@@ -87,6 +95,10 @@ def validate_regen_env_lock(lock):
             empty_cuda = [f for f in _CUDA_NONEMPTY if not lock[f]]
             if empty_cuda:
                 raise ValueError(f"CAPTURED cuda lock must fill {empty_cuda}")
+        bad_threads = [f for f in _CAPTURED_THREADS_ONE if lock[f] != 1]
+        if bad_threads:
+            raise ValueError(f"CAPTURED lock must pin {bad_threads} to 1 (deterministic; the lock must capture the SAME "
+                             "single-thread runtime training uses)")
     return lock
 
 
@@ -104,8 +116,9 @@ def schema_only_template(*, protocol_commit, pipeline_config_sha256, device_kind
         raise ValueError(f"device_kind must be one of {DEVICE_KINDS}")
     return {
         "schema_version": SCHEMA_VERSION, "status": "SCHEMA_ONLY_NOT_CAPTURED", "capture_note": "",
-        "python_version": "", "torch_version": "", "braindecode_version": "", "numpy_version": "",
-        "scipy_version": "", "sklearn_version": "", "cuda_version": "", "cudnn_version": "",
+        "python_version": "", "torch_version": "", "torchvision_version": "", "torchaudio_version": "",
+        "braindecode_version": "", "moabb_version": "", "mne_version": "", "skorch_version": "",
+        "numpy_version": "", "scipy_version": "", "sklearn_version": "", "cuda_version": "", "cudnn_version": "",
         "device_kind": device_kind, "device_name": "", "driver_version": "",
         "torch_deterministic_algorithms": True, "seed": 0,
         "torch_intraop_threads": 1, "torch_interop_threads": 1, "omp_num_threads": 1, "threadpool_backends": [],

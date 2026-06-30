@@ -47,14 +47,11 @@ The clean capture (job **876698**, A40 **node30**, ~15 s; env introspection only
    EEGNetv4 + cmi build_backbone import OK ; PROBE_EXIT=0
 == capture == status=CAPTURED_AND_VERIFIED  CAPTURE_EXIT=0
 ```
-Lock → `notes/ACAR_V4_REGEN_ENV_LOCK.json` (validates via regen_envlock):
-```
-status=CAPTURED_AND_VERIFIED · device_kind=cuda · device_name=NVIDIA A40 · driver_version=610.43.02 · cuda_version=12.4 ·
-cudnn_version=90100 · torch 2.6.0+cu124 · braindecode 1.5.2 · numpy 2.4.4 · scipy 1.18.0 · sklearn 1.9.0 · seed=0 ·
-torch_deterministic_algorithms=true · torch_intraop_threads=1 · omp_num_threads=1 · threadpool_backends=[openblas,openmp] ·
-pipeline_config_sha256=38250f16…(canonical) · protocol_commit=785d963…
-regen_env_lock_sha256 = 589ceedcc4d22b62043674de81902097cd31d8cf14da014a46e8b35863bdb90e
-```
-NOTE for B1b: the lock records `torch_interop_threads=20` (node default at capture). The B1b training run MUST pin
-interop=1 (deterministic) at run time — the env lock snapshots the runtime; it does not itself enforce thread pinning.
-No binaries / wheels / checkpoints committed. eeg2025 untouched; no training/DEV-raw/held-out/tag; lockbox SEALED.
+That first lock (regen_env_lock_sha256 `589ceed…`, protocol_commit `785d963`, A40, driver 610.43.02, cuda 12.4) PROVED the
+env works on CUDA, but is **SUPERSEDED — a useful diagnostic, NOT the operational lock** — because it had
+`torch_interop_threads=20` (training must pin interop=1), no import-critical version fields (torchvision/torchaudio/moabb),
+and a commit self-reference. The env-lock schema + capture tool were corrected (interop/intra/omp pinned to 1 +
+torchvision/torchaudio/moabb in the lock hash; see notes/ACAR_V4_B1A_ENV_CAPTURE_RECORD.md), the in-repo lock JSON was
+removed, and the OPERATIONAL lock is recaptured EXTERNALLY against the clean correction commit (repo-external path +
+env_lock_sha256, per REGEN_COMMAND §4). No binaries / wheels / checkpoints committed. eeg2025 untouched; no
+training/DEV-raw/held-out/tag; lockbox SEALED.

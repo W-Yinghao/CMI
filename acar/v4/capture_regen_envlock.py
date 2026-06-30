@@ -39,14 +39,25 @@ def _probe():
     notes = []
     info = {"python_version": "", "torch_version": "", "braindecode_version": "", "numpy_version": "",
             "scipy_version": "", "sklearn_version": "", "cuda_version": "", "cudnn_version": "",
+            "torchvision_version": "", "torchaudio_version": "", "moabb_version": "", "mne_version": "",
+            "skorch_version": "",
             "device_kind": "cpu", "device_name": "", "driver_version": "",
             "torch_intraop_threads": 1, "torch_interop_threads": 1, "omp_num_threads": 1, "threadpool_backends": []}
     import sys
+    os.environ["OMP_NUM_THREADS"] = "1"                       # pin BEFORE recording / heavy import
     info["python_version"] = sys.version.split()[0]
     try:
         import torch
     except Exception as e:
         return info, False, f"torch import FAILED: {e!r}"
+    # PIN threads to 1 BEFORE any parallel work, so the lock captures the SAME deterministic single-thread runtime training
+    # will use (interop can only be set before the inter-op pool is first used — this is a fresh capture process).
+    for fn, name in ((lambda: torch.set_num_threads(1), "intraop"),
+                     (lambda: torch.set_num_interop_threads(1), "interop")):
+        try:
+            fn()
+        except Exception as e:                                # noqa
+            notes.append(f"could not pin {name}=1: {e!r}")
     info["torch_version"] = torch.__version__
     info["cuda_version"] = torch.version.cuda or ""
     try:
@@ -73,9 +84,12 @@ def _probe():
     except Exception:                                         # noqa
         pass
     info["omp_num_threads"] = int(os.environ.get("OMP_NUM_THREADS", "1") or "1")
-    for mod in ("numpy", "scipy", "sklearn", "braindecode"):
+    _ver_mods = {"numpy": "numpy_version", "scipy": "scipy_version", "sklearn": "sklearn_version",
+                 "braindecode": "braindecode_version", "moabb": "moabb_version", "mne": "mne_version",
+                 "skorch": "skorch_version", "torchvision": "torchvision_version", "torchaudio": "torchaudio_version"}
+    for mod, field in _ver_mods.items():
         try:
-            info[mod + "_version" if mod != "sklearn" else "sklearn_version"] = __import__(mod).__version__
+            info[field] = __import__(mod).__version__
         except Exception as e:                                # noqa
             notes.append(f"{mod} import FAILED: {e!r}")
     eeg_ok = True
@@ -99,7 +113,15 @@ def _probe():
 
 def capture(output_json, *, protocol_commit, require_gpu=True):
     info, stack_ok, note = _probe()
-    captured = stack_ok and (info["device_kind"] == "cuda" or not require_gpu)
+    threads_pinned = (info["torch_intraop_threads"] == 1 and info["torch_interop_threads"] == 1
+                      and info["omp_num_threads"] == 1)
+    versions_present = all(info[f] for f in ("torchvision_version", "torchaudio_version", "moabb_version"))
+    captured = (stack_ok and (info["device_kind"] == "cuda" or not require_gpu) and threads_pinned and versions_present)
+    if not captured:
+        if not threads_pinned:
+            note = (note + "; " if note else "") + "threads not pinned to 1 (intra/inter/omp)"
+        if not versions_present:
+            note = (note + "; " if note else "") + "missing torchvision/torchaudio/moabb version"
     lock = EL.schema_only_template(protocol_commit=protocol_commit,
                                    pipeline_config_sha256=canonical_pipeline_config_sha256(),
                                    device_kind=info["device_kind"])

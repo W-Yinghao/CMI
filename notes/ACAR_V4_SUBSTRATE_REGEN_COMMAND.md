@@ -61,16 +61,25 @@ manifest LAST (manifest_sha256; RESULT sentinel)   ← "output complete" iff thi
 Schema + validator + canonical hasher: `acar/v4/regen_envlock.py` (PURE; no torch capture). Required fields
 (`expected_regen_env_fields`):
 ```
-schema_version (acar_v4_regen_env_lock/1) · status · capture_note · python_version · torch_version · braindecode_version ·
+schema_version (acar_v4_regen_env_lock/1) · status · capture_note · python_version · torch_version ·
+torchvision_version · torchaudio_version · braindecode_version · moabb_version · mne_version · skorch_version ·
 numpy_version · scipy_version · sklearn_version · cuda_version · cudnn_version · device_kind ("cuda"|"cpu") · device_name ·
 driver_version · torch_deterministic_algorithms (true) · seed (int 0) · torch_intraop_threads · torch_interop_threads ·
 omp_num_threads · threadpool_backends · pipeline_config_sha256 · protocol_commit
 ```
 - `status` ∈ {`SCHEMA_ONLY_NOT_CAPTURED`, `CAPTURED_AND_VERIFIED`, `CAPTURE_FAILED`}. `schema_only_template(...)` builds a
-  reviewable skeleton (placeholder versions); a CAPTURED lock MUST fill real non-empty version/device fields (and, if
-  `device_kind == cuda`, cuda/cudnn/driver) — a skeleton cannot impersonate a captured runtime; `CAPTURE_FAILED` is an
-  honest failure record (probe ran but the stack/GPU was unsatisfiable; `capture_note` carries the reason). The capture
-  tool is `acar/v4/capture_regen_envlock.py` (env introspection only; NO training/data).
+  reviewable skeleton (placeholder versions); `CAPTURE_FAILED` is an honest failure record. A **CAPTURED_AND_VERIFIED** lock
+  MUST: fill real non-empty version/device fields incl. the **import-critical `torchvision_version`/`torchaudio_version`/
+  `moabb_version`** (the eeg2025 failure was exactly a torchaudio↔torch + braindecode↔moabb mismatch — these are in the lock
+  and therefore in its hash); if `device_kind==cuda`, fill cuda/cudnn/driver; and **pin `torch_intraop_threads ==
+  torch_interop_threads == omp_num_threads == 1`** (the lock must capture the SAME deterministic single-thread runtime the
+  training run uses — interop is set in a FRESH capture process before any inter-op work). A skeleton cannot impersonate a
+  captured runtime. Capture tool: `acar/v4/capture_regen_envlock.py` (env introspection only; NO training/data).
+- **Operational lock = repo-EXTERNAL, commit-consistent.** Capture against the CLEAN commit `H` that the preflight will run
+  at (`--protocol-commit H`); write the lock to an absolute path OUTSIDE the repo (e.g.
+  `/abs/acar_v4_regen_env_lock_<H>.json`); the manifest sets `env_lock_path`=that path + `env_lock_sha256`=its sha; the
+  record commit only references the path+sha. This avoids the self-reference where committing the lock into the repo moves
+  `HEAD` and makes `HEAD != protocol_commit` at preflight.
 - **`run_regen_substrate` requires `status == CAPTURED_AND_VERIFIED`**, that the lock file's sha equals the manifest
   `env_lock_sha256`, and that the lock's `protocol_commit` + `pipeline_config_sha256` match the manifest. Capturing the real
   runtime (torch import on the chosen training node) is part of B1 — NOT done here.
