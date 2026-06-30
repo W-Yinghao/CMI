@@ -70,11 +70,12 @@ weaker invariance penalty [C3]. On synthetic controls this certified gate produc
 is deliberately conservative (Fig 2D) --- an honest negative for default-on deletion, by design.
 
 \subsection{Frozen-feature EEG evaluation protocol}
-We evaluate on BCI-IV-2a (BNCI2014\_001) under leave-one-subject-out (LOSO), domain = subject. For each
+We evaluate on BCI-IV-2a (BNCI2014\_001) \cite{brunner2008bci}, loaded via the MOABB pipeline
+\cite{jayaram2018moabb}, under leave-one-subject-out (LOSO), domain = subject. For each
 fold we train a backbone, \textbf{freeze} it, and dump its penultimate latent $Z$ on the source subjects; all
 diagnostics (\S2.2--2.4) run on the frozen $Z$, and the held-out subject is used only for reporting target/LOSO
-accuracy. We compare two representations to test generality: TSMNet (LogEig/SPD tangent latent, $d_z=210$)
-and EEGNet (convolutional penultimate latent, $d_z=16$). As the standard baseline for ``global'' conditional
+accuracy. We compare two representations to test generality: TSMNet \cite{kobler2022spd} (LogEig/SPD tangent
+latent, $d_z=210$) and EEGNet \cite{lawhern2018eegnet} (convolutional penultimate latent, $d_z=16$). As the standard baseline for ``global'' conditional
 invariance we sweep an LPC penalty (CE + $\lambda \cdot I(Z;D|Y)$) over $\lambda$, with per-epoch instrumentation (task CE,
 feature norm, penalty, encoder gradient, effective rank) to diagnose \emph{how} it changes the representation
 (\S4.1). The instrumentation is read-only and flag-gated (default off), with verified zero effect on

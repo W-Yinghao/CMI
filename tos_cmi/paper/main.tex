@@ -11,9 +11,6 @@
 \usepackage{caption}
 \usepackage{subcaption}
 
-% --- visible, non-faked citation placeholder (resolve later) ---
-\newcommand{\needcite}[1]{\textcolor{red}{[CITE: #1]}}
-
 \graphicspath{{figures/}}
 
 \title{Selective Conditional Invariance in Task-Orthogonal EEG Subspaces:\\
@@ -42,9 +39,7 @@ A Measurement-to-Control Study}
 
 \input{sections/conclusion}
 
-% --- bibliography stub (citations are \needcite{} placeholders until resolved) ---
-\begin{thebibliography}{99}
-\bibitem{placeholder} Citations are unresolved; see the red \needcite{} markers in the text.
-\end{thebibliography}
+\bibliographystyle{plain}
+\bibliography{references}
 
 \end{document}
