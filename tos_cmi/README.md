@@ -1,9 +1,19 @@
 # TOS-CMI — (aspirationally) Task-Orthogonal Selective Conditional MI for EEG
 
 > Working title: *Selective Conditional Invariance in Task-Orthogonal EEG Subspaces.*
-> **Current status: a synthetic-only proof-of-concept of the selection + projection
-> scaffold.** It is not yet EEG-validated and not yet wired into the trainer/TSMNet — see
-> "Honest status" below and [`THEORY.md`](THEORY.md) §8.
+> **Current status (updated): synthetic scaffold + a completed frozen-feature EEG diagnostic study**
+> on BCI-IV-2a (BNCI2014_001), LOSO, two backbones (TSMNet z=210, EEGNet z=16). The score-Fisher
+> selector + projection + safety gate run on real frozen latents; flag-gated per-epoch instrumentation
+> is wired into `cmi/train/trainer.py` (`log_curves`, default-off). **Still NOT done / honest negatives:**
+> end-to-end TOS training (selective penalty in the loss), a *source-OOD benefit* gate, the architecture
+> vs latent-dimension factorial, and *certified default-on deletion* (an honest negative — see
+> [`notes/PHASE131_CERTIFICATION.md`](notes/PHASE131_CERTIFICATION.md)). Per-claim provenance:
+> [`CLAIMS_LEDGER.md`](CLAIMS_LEDGER.md). Paper draft + TMLR build: [`paper/`](paper/). `repos/TSMNet`
+> is a SYMLINK and must be pinned before camera-ready ([`INTEGRATION.md`](INTEGRATION.md)).
+>
+> Headline finding (measurement-to-control gap): conditional domain leakage is measurable and sometimes
+> (partially) removable, but neither measurement nor removal implies a cross-subject generalization
+> benefit. See [`THEORY.md`](THEORY.md) §8 for the score-Fisher redesign rationale.
 
 An **isolated** research package (peer to `h2cmi/`; does not import-with-side-effects or
 mutate the AAAI `cmi/` package). The whole pipeline runs without real EEG on a controllable

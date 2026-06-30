@@ -1,14 +1,16 @@
-# Integrating TOS-CMI with the real EEG stack — **a PLAN, not a result**
+# Integrating TOS-CMI with the real EEG stack
 
-> **Status.** None of this is wired yet: there is **no `tos_cmi` branch in
-> `cmi/train/trainer.py`**, the selector has not run on a single real trial, and
-> **`repos/TSMNet/` is an UNTRACKED external checkout** — it is not part of this git branch.
-> Before any EEG run, pin it (git submodule at a fixed commit, or vendor a patch) so results
-> are reproducible. Also note `TSMNetBackbone.forward` currently calls only
-> `return_latent=True`; the `return_prebn/return_postbn` API exists in the upstream
-> `tsmnet.py` but is not exercised by the wrapper. Treat the steps below as the build order,
-> and prefer the **score-Fisher redesign (THEORY §8) before** investing in EEG runs — the
-> mean-scatter selector is unlikely to beat global LPC on SPD geometry it cannot see.
+> **Status (updated).** The **frozen-feature** path is DONE: the selector/projection/gate run on real
+> frozen latents from TSMNet and EEGNet on BCI-IV-2a (LOSO) — see [`CLAIMS_LEDGER.md`](CLAIMS_LEDGER.md)
+> and the `run_eeg_frozen_pilot.py` / `run_lpc_curves.py` runners. Flag-gated **per-epoch instrumentation**
+> (`log_curves`, default-off) is wired into `cmi/train/trainer.py`; the global-LPC variants
+> (`lpc_pen_normalize`, `lam_warm_ramp`) are also flag-gated there. **Still NOT wired:** an end-to-end
+> *selective* TOS penalty in the training loss (a `tos_cmi` *method* branch), and the source-OOD benefit
+> gate. **Reproducibility caveat (still open):** `repos/TSMNet/` is a SYMLINK / untracked external checkout
+> — **pin it (git submodule at a fixed commit, or vendor a patch) before camera-ready.** `TSMNetBackbone.
+> forward` still calls only `return_latent=True` (the `return_prebn/return_postbn` API is unused). The
+> mean-scatter selector is superseded by the **score-Fisher** redesign (THEORY §8), which is what the EEG
+> study uses. Steps below remain the build order for the end-to-end (Track E) variant.
 
 The package is self-contained on the synthetic. To run on EEG it needs (a) a
 representation `Z` and (b) class/domain labels `(y, d)` per trial. Everything below
