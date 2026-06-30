@@ -32,8 +32,7 @@ sufficient for conditional task safety} \claimtag{C2}, and it motivates an expli
 
 \subsection{Weak task gates unsafe-accept; log-ratio gates reduce the failure}
 A naive task gate --- a small nested critic estimating the conditional task risk --- \emph{unsafe-accepts} such
-deletions: its probe task-risk upper bound sits far below the true Bayes gap, so the deletion passes (Fig
-2B). Replacing it with a cross-fitted one-step plug-in log-ratio estimator shrinks the gap between the
+deletions: its probe task-risk upper bound sits far below the true Bayes gap, so the deletion passes (Fig.~\ref{fig:synth}B). Replacing it with a cross-fitted one-step plug-in log-ratio estimator shrinks the gap between the
 estimated bound and the oracle, and the gap continues to close with calibration sample size (Fig.~\ref{fig:synth}C); the
 unsafe-accept occurs only in the small-sample, weak-critic regime \claimtag{C3}. The estimator is the bottleneck ---
 not the geometry --- so the gate must use a calibrated estimator, not a convenience critic.

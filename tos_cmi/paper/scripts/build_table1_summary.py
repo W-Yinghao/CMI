@@ -46,7 +46,8 @@ def _row(bb):
     subj0 = pl[lo]["subj"]["mean"]; subjhi = pl[hi]["subj"]["mean"]            # MEAN口径
     tgt0 = pl[lo]["tgt"]["mean"]; tgthi = pl[hi]["tgt"]["mean"]               # MEAN口径
     pt = _paired_t(bb, lo, 1.0) or _paired_t(bb, lo, hi)
-    pstr = (", paired-t p%s" % ("<0.001" if pt["p"] < 1e-3 else "=%.3f" % pt["p"])) if pt else ""
+    pstr = ((", paired-$t$ $p\\le0.001$ at $\\lambda\\ge1$" if pt["p"] < 1e-3
+             else ", paired-$t$ $p=%.3f$" % pt["p"]) if pt else "")
     if bb == "TSMNet":
         raw_lpc = "leakage falls via collapse (feature-norm to 0), task to chance"
         cf_lpc = "task restored, leakage returns to ERM (subj ~0.997)"
@@ -58,7 +59,7 @@ def _row(bb):
         cf_lpc = "raw LPC already collapse-free on this latent"
         delete_eff = "removes: subj linear %.2f to %.2f / MLP %.2f to %.2f (>> random %.2f); task kept" % (dZl, dRZl, dZ, dRZ, dRr)
         dg = "none: mean target %.2f to %.2f%s as leakage falls %.2f to %.2f" % (tgt0, tgthi, pstr, subj0, subjhi)
-        decision = "diagnostic deletion removes leakage but no DG gain"
+        decision = "diagnostic deletion reduces (does not eliminate) leakage; no DG gain"
     return {
         "Backbone": bb, "Latent dim": str(a["z_dim"]),
         "Subject decode (ERM)": "%.3f" % dZ,

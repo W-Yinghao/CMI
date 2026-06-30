@@ -4,7 +4,7 @@
 We freeze a trained backbone per LOSO fold and dump its penultimate latent $Z$ on the source subjects (the
 held-out target subject is used for reporting only, never in selection, gating, or probing). On the frozen
 $Z$ we (i) localize a candidate domain-rich, task-light subspace $V_D$ with the score-Fisher generalized
-eigenproblem (\S2.1), (ii) delete it by the $M$-oblique direct-sum projector (\S2.2) and measure subject and
+eigenproblem (\S2.2), (ii) delete it by the $M$-oblique direct-sum projector (\S2.3) and measure subject and
 task decodability on the complement $RZ=(I-P_N)Z$ with linear and MLP probes, against a same-$k$ random-removal
 control, and (iii) sweep a global LPC penalty (CE $+ \lambda \cdot I(Z;D|Y)$) to compare selective deletion with the
 standard global objective. We study two representations: TSMNet (LogEig/SPD tangent latent, $d_z=210$) and
@@ -61,7 +61,7 @@ insufficient because subject identity is redundantly re-encoded across the high-
 \label{fig:tsmnet}
 \end{figure}
 
-\subsection{EEGNet: low-rank deletion removes leakage (linearly), but removal yields no generalization benefit}
+\subsection{EEGNet: low-rank deletion linearly reduces leakage, but removal yields no generalization benefit}
 \textbf{EEGNet shows that the negative TSMNet result is not because score-Fisher deletion can never remove
 leakage: in a compact latent the same diagnostic deletion removes much more subject information --- yet this
 removal does not translate into target-domain improvement.} Deleting $V_D$ (nDcand $\approx$ 5 of 16) preserves the
@@ -74,7 +74,7 @@ above chance 0.125), so we report it as \emph{linearly reducible with a persiste
 elimination \claimtag{C8}.
 
 \textbf{But removable $\ne$ beneficial.} Sweeping the global LPC penalty on EEGNet reduces subject decode
-monotonically (0.89$\to$0.18) \emph{without} collapse (the feature norm never goes to 0; Fig.~\ref{fig:eegnet}D), yet \textbf{mean} LOSO
+monotonically (0.89$\to$0.17) \emph{without} collapse (the feature norm never goes to 0; Fig.~\ref{fig:eegnet}D), yet \textbf{mean} LOSO
 target accuracy is flat-to-worse (0.43$\to$0.39 across $\lambda$; paired-t worse at every $\lambda$, p$\le$0.001 at $\lambda\ge$1) and
 uncorrelated with leakage reduction (Pearson $-$0.14, n.s.). Removing the measured leakage --- by selective
 deletion or by a collapse-free global penalty --- does \textbf{not} improve cross-subject generalization on
@@ -84,14 +84,14 @@ obscure the paired decline.)}
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig5_eegnet_contrast.pdf}
-\caption{\textbf{EEGNet contrast: low-rank deletion removes leakage, but removal yields no DG gain}
+\caption{\textbf{EEGNet contrast: low-rank deletion linearly reduces leakage, but removal yields no DG gain}
 (ERM $d_z{=}16$ and its global-LPC sweep). (A--C) Same axes as Fig.~\ref{fig:tsmnet}: deleting $V_D$
 \emph{selectively} removes subject decode far below same-$k$ random removal (linear 0.82$\to$0.35, MLP
 0.88$\to$0.54) while preserving the task --- an order-of-magnitude larger informed-vs-random selectivity
 than TSMNet; a nonlinear residual remains (RZ MLP 0.54 $\gg$ chance). (D) Global LPC reduces subject decode
-(0.89$\to$0.18) \emph{without} collapse (feature norm never $\to0$), yet \emph{mean} LOSO target accuracy is
-flat-to-worse ($0.43\to0.39$, paired-$t$ worse, $p\le0.001$) --- removing the leakage does not improve target
-generalization. Curves show the mean over folds$\times$seeds.}
+(0.89$\to$0.17) \emph{without} collapse (feature norm never $\to0$), yet \emph{mean} LOSO target accuracy is
+flat-to-worse ($0.43\to0.39$, paired-$t$ worse, $p\le0.001$ at $\lambda\ge1$) --- removing the leakage does not improve target
+generalization. Curves show the mean over folds$\times$seeds ($n{=}27$).}
 \label{fig:eegnet}
 \end{figure}
 
@@ -110,8 +110,7 @@ framework should delete only when a source-risk certificate permits, and abstain
 TSMNet means abstain (deletion insufficient) and on EEGNet means a diagnostic deletion that removes leakage
 but is not claimed to improve generalization \claimtag{C10}.
 
-\textbf{Final claim.} Conditional domain leakage is measurable, and sometimes removable, but neither measurement
-nor removal is sufficient evidence of domain-generalization benefit.
+\textbf{In sum,} on these representations conditional domain leakage is measurable and sometimes (partially) removable, yet neither its measurement nor its removal demonstrates a cross-subject generalization benefit.
 
 \emph{Limitation flagged here (full text in \S6.3): representation type and latent dimensionality are collinear in
-this design (SPD$\leftrightarrow$210, conv$\leftrightarrow$16); Phase 3 establishes representation dependence, not its causal factor.}
+this design (SPD$\leftrightarrow$210, conv$\leftrightarrow$16); this study establishes representation dependence, not its causal factor.}

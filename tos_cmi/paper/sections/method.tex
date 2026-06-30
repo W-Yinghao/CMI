@@ -96,7 +96,7 @@ accuracy. We compare two representations to test generality: TSMNet \citep{koble
 latent, $d_z=210$) and EEGNet \citep{lawhern2018eegnet} (convolutional penultimate latent, $d_z=16$). As the standard baseline for ``global'' conditional
 invariance we sweep an LPC penalty (CE + $\lambda \cdot I(Z;D|Y)$) over $\lambda$, with per-epoch instrumentation (task CE,
 feature norm, penalty, encoder gradient, effective rank) to diagnose \emph{how} it changes the representation
-(\S4.1). The instrumentation is read-only and flag-gated (default off), with verified zero effect on
+(\S4.2). The instrumentation is read-only and flag-gated (default off), with verified zero effect on
 training dynamics. Probes (subject/task decode) use a 50/50 trial split with linear and MLP heads; the
 random-k removal control deletes the same number of M-orthonormal directions as $V_D$.
 
