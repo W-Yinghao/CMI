@@ -161,13 +161,16 @@ def _T_cv(prep, Yvec, D, g, cl, C):
     return float(np.mean([d0[s] - d1[s] for s in subs])), True
 
 
-def sample_h0_fixed_condition_margins(logp0, D, y0_idx, rng, n_swaps):
+def sample_h0_fixed_condition_margins(logp0, D, y0_idx, rng, n_swaps, return_diag=False):
     """B3-P2.4b null draw: within-condition Metropolis label swaps that PRESERVE the observed
     condition x class counts EXACTLY, with acceptance ∝ p0 (so Y* ~ p0(Y|Z,C) restricted to fixed
     per-condition margins). Returns class-INDEX labels. Per-condition label composition/prior is thus a
-    nuisance the null holds fixed, not concept evidence; the Z-dependent shared boundary stays via p0."""
-    y = np.asarray(y0_idx).copy(); D = np.asarray(D)
+    nuisance the null holds fixed, not concept evidence; the Z-dependent shared boundary stays via p0.
+    return_diag=True also returns mixing diagnostics (acceptance rate, changed-label fraction) -- this does
+    NOT change the swap behaviour, only instruments it (the audit uses it; the test path does not)."""
+    y0 = np.asarray(y0_idx); y = y0.copy(); D = np.asarray(D)
     conds = np.unique(D); cond_idx = {int(c): np.where(D == c)[0] for c in conds}
+    n_prop = n_acc = 0
     for _ in range(int(n_swaps)):
         c = conds[rng.integers(len(conds))]; idx = cond_idx[int(c)]
         if len(idx) < 2:
@@ -175,9 +178,17 @@ def sample_h0_fixed_condition_margins(logp0, D, y0_idx, rng, n_swaps):
         i = idx[rng.integers(len(idx))]; j = idx[rng.integers(len(idx))]
         if y[i] == y[j]:
             continue
+        n_prop += 1
         delta = (logp0[i, y[j]] + logp0[j, y[i]]) - (logp0[i, y[i]] + logp0[j, y[j]])
         if np.log(rng.random() + 1e-300) < delta:
-            y[i], y[j] = y[j], y[i]
+            y[i], y[j] = y[j], y[i]; n_acc += 1
+    if return_diag:
+        chg = float(np.mean(y != y0))
+        cw = {int(c): float(np.mean(y[D == c] != y0[D == c])) for c in conds}
+        diag = dict(n_swaps=int(n_swaps), n_proposals=int(n_prop), n_accepted=int(n_acc),
+                    acceptance_rate=(n_acc / n_prop if n_prop else 0.0), changed_fraction=chg,
+                    condition_changed_fraction=cw)
+        return y, diag
     return y
 
 
@@ -217,7 +228,8 @@ def _bootstrap(prep, D, g, cl, C, T, draw_fn, n_boot, invalid_frac_max, min_clas
 
 def paired_cv_test(Z, Y, D, groups, condition_coding="centered", rank=3, C=0.5, n_folds=N_FOLDS,
                    min_epochs=MIN_EPOCHS_PER_CONDITION, n_boot=200, seed=0, invalid_frac_max=0.20,
-                   min_classes=2, null_mode="fixed_margin", also_standard=True, n_swaps=None):
+                   min_classes=2, null_mode="fixed_margin", also_standard=True, n_swaps=None,
+                   null_generator="full_audit"):
     """Cross-fitted class-balanced paired conditional-change test on ELIGIBLE complete pairs only.
     null_mode="fixed_margin" (B3-P2.4b, PRIMARY): null preserves per-condition class margins (so label/prior
     composition cannot inflate T); "parametric" = P2.4a standard null. also_standard reports the standard
@@ -270,7 +282,14 @@ def paired_cv_test(Z, Y, D, groups, condition_coding="centered", rank=3, C=0.5, 
         return Ystar, False
 
     # fixed-margin null draw (PRIMARY): preserve per-condition class counts exactly.
-    logp0 = _h0_full_logp(Z, Y, D, g, cl, condition_coding, C)
+    # null_generator: "full_audit" = single full-audit h0 (default, P2.4b); "fold_local" = each point's p0
+    # from its OWN fold's train-h0 (audit-3 comparison; reuses the standard-null per-fold probs).
+    if null_generator == "fold_local":
+        logp0 = np.zeros((len(Y), len(cl)))
+        for p, prob in zip(prep, h0_draw):
+            logp0[p["ho"]] = np.log(np.clip(prob, 1e-12, 1.0))
+    else:
+        logp0 = _h0_full_logp(Z, Y, D, g, cl, condition_coding, C)
     y0_idx = np.searchsorted(cl, Y)
     sampler_seed = int(seed + 777); rng_fm = np.random.default_rng(sampler_seed)
     nsw = int(n_swaps) if n_swaps else max(20 * len(Y), 300)
