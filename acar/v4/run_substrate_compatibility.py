@@ -12,12 +12,14 @@ C1 structure (mirrors B1b run_regen_substrate):
 - STDLIB-FIRST preflight (schema + git + clean + output-absent + artifact/dev-input/env-lock FILE-byte hashes). Without a valid
   compatibility AUTHORIZATION manifest it raises SubstrateCompatibilityNotAuthorizedError BEFORE any torch/cmi import or DEV read.
 - With a valid, hash-bound authorization → atomic output claim → `_run_compatibility_replay` (gated): runtime==env-lock verify +
-  substrate SEMANTIC-hash verify + re-embed (real cmi DEV pipeline; the sha-pinned DEV-dump metadata supplies WindowKeys+order+
-  labels, the reader supplies ordered signal paired by position with a hard COUNT check) + derive-under-frozen-source-state +
-  1x1x1 exploration + compatibility_replay_pass — all REAL. The only DEV-raw read runs here, at the authorized C-run.
-  KNOWN RESIDUAL SOUNDNESS ASSUMPTION (C4): the by-position pairing assumes the live reader's per-subject window ORDER matches
-  the order in the producer dump (built from the scps cache / live load_crossdataset). Count/shape/finite/universe are
-  fail-closed, but a SAME-COUNT reordering is NOT yet detected → see notes/ACAR_V4_C1_COMPAT_REPLAY_READINESS.md "C5 OPEN".
+  substrate SEMANTIC-hash verify + re-embed (the sha-pinned DEV-dump metadata supplies WindowKeys+labels; windows come from the
+  SHA-PINNED scps cache by EXACT KEYED lookup `X[window_index]`, with `cache.subject[gi]==subject` & `cache.cohort[gi]==dataset_id`
+  verified per row) + derive-under-frozen-source-state + 1x1x1 exploration + compatibility_replay_pass — all REAL. The only DEV
+  read runs here (from the pinned cache), at the authorized C-run.
+  C5 RESOLVED — alignment is by EXACT KEYED lookup, NOT by-position trust: the dump's global `window_index_te` IS the scps cache
+  row index, so a SAME-COUNT reorder (or wrong cache) fails two ways — the pinned cache sha mismatches at preflight, and/or the
+  subject/cohort-at-index check fails. The live `load_cohort` raw reader is NOT used. See
+  notes/ACAR_V4_C1_COMPAT_REPLAY_READINESS.md "C5 RESOLVED".
 
 Usage:
     python -m acar.v4.run_substrate_compatibility --substrate-manifest /abs/substrate_manifest.json --output /abs/new_compat_dir
@@ -88,6 +90,11 @@ def _verify_compat_preflight_hashes(spec):
             got = _sha256_file(dp)
             if got != sd["dev_feat_dump_sha256"][cohort]:
                 raise ValueError(f"{d}/{cohort}: dev_feat_dump_sha256 mismatch ({got} != {sd['dev_feat_dump_sha256'][cohort]})")
+        cpath = sd["scps_cache_path"]                               # C5: the window source (keyed by the dump global index)
+        if not os.path.isfile(cpath):
+            raise FileNotFoundError(f"{d}: scps_cache missing: {cpath}")
+        if _sha256_file(cpath) != sd["scps_cache_sha256"]:
+            raise ValueError(f"{d}: scps_cache_sha256 mismatch ({_sha256_file(cpath)} != {sd['scps_cache_sha256']})")
     elp = spec["env_lock_path"]
     if not os.path.isfile(elp):
         raise FileNotFoundError(f"env_lock_path missing: {elp}")
@@ -157,52 +164,49 @@ def _raw_subjects_by_cohort(spec, disease):
     return out
 
 
-def _load_subject_raw_windows(disease, dataset_id, subject, cfg, cohort_dir):   # pragma: no cover — gated real DEV raw read; tests inject a fake
-    """The ONLY step that reads DEV raw: open EXACTLY ONE eligible subject's raw EEG via the SHARED, tested cmi DEV pipeline
-    (`cmi.data.bids_data.load_cohort` with a single-subject allowlist — the OLD-SEVEN DEV task/label rule from cmi.COHORTS, NOT
-    the held-out resting-only selector) under the FROZEN pipeline (19-ch 10-20 / 128 Hz / 0.5–45 Hz / 4 s/512 / trial z-score),
-    and return the subject's windows as an ORDERED np.ndarray [n,19,512] in the SAME order the DEV feat-dump producer used
-    (cmi `_windows`). The subjects={subject} allowlist skips every other subject at file-discovery (excluded never opened). It
-    does NOT re-fit a source-state and does NOT read held-out/external data. The DEV-dump metadata governs the KEYS + COUNT +
-    ORDER (see _load_subject_windows_and_keys); this reader only supplies signal — a count/shape/finite mismatch fail-closes
-    there (no silently-wrong verdict). Run ONLY at the authorized C-run; tests inject a synthetic provider."""
-    from cmi.data.bids_data import load_cohort, COHORTS
-    cs = COHORTS[dataset_id]
-    res = load_cohort(cohort_dir, cs["task"], cs["label"],
-                      fmin=cfg["bandpass"][0], fmax=cfg["bandpass"][1],
-                      resample=cfg["resample_fs"], win_sec=cfg["window_sec"], subjects={subject})  # discovery-stage allowlist
-    if res is None:
-        raise ValueError(f"{dataset_id}/{subject}: no usable windows from the DEV raw pipeline (eligible subject expected)")
-    Xc, _yc, _subs = res
-    return Xc                                                       # ORDERED [n,19,512] in cmi _windows order
+def _load_disease_cache(spec, disease):                            # pragma: no cover — gated DEV-signal read; tests inject a fake cache
+    """C5: read the SHA-PINNED per-condition scps cache (the SAME source that produced the DEV feat dumps) — the replay's window
+    source. The cache row index IS the dump's GLOBAL window_index (cmi.run_scps_crossdataset `load()` then te_g = where(te_mask)),
+    so a window is fetched by EXACT KEYED lookup `X[window_index]` (NOT by a same-count by-position guess), and the live raw
+    reader is NEVER used. Loaded allow_pickle=False (X float, subject/cohort str). Returns {"X","subject","cohort"} as the
+    producer's `load(condition, cohorts=DEV_SCOPE[disease])` order; the per-row subject/cohort are re-verified at lookup."""
+    import numpy as np
+    sd = spec["substrates"][disease]
+    with np.load(sd["scps_cache_path"], allow_pickle=False) as d:   # NO pickle (sha-pinned in the preflight)
+        X = np.asarray(d["X"], dtype="<f4")
+        subject = np.asarray(d["subject"]).astype(str)
+        cohort = np.asarray(d["cohort"]).astype(str)
+    keep = np.isin(cohort, sorted(RS.DEV_SCOPE[disease]))           # SAME cohort filter as the producer's load()
+    return {"X": X[keep], "subject": subject[keep], "cohort": cohort[keep]}
 
 
-def _load_subject_windows_and_keys(disease, dataset_id, subject, cfg, dump_rows, *, signal_loader):
-    """REAL alignment (synthetic-tested; no real raw in tests). The sha-pinned DEV-dump metadata is the SOURCE OF TRUTH:
-    `dump_rows` = list of (recording_id, window_index, label) for THIS subject. NOTE the dump's window_index_te is a GLOBAL
-    index in the producer's concatenated X (cmi run_scps_crossdataset), and recording_id_te == the subject — so a per-subject
-    reader cannot independently reproduce the global index. Therefore the dump rows SUPPLY the v3 WindowKeys (recording_id +
-    window_index, taken verbatim from the dump) and the producer ORDER (sorted by the dump window_index = cmi `_windows` order);
-    `signal_loader(disease,dataset_id,subject,cfg)` supplies the subject's windows as an ORDERED [n,19,512] and is paired BY
-    POSITION with the sorted dump rows. FAIL-CLOSED if the reader's window COUNT != the dump row count, on a wrong shape, a
-    non-finite window, or a duplicate (recording_id, window_index) — before any digest is trusted (no drift, no wrong verdict).
-    Returns (windows[n,19,512], WindowKeys[n], labels {WindowKey: int})."""
+def _load_subject_windows_and_keys(dataset_id, subject, cfg, dump_rows, *, cache):
+    """C5 REAL alignment by EXACT KEYED lookup (synthetic-tested; no real raw in tests). The sha-pinned DEV-dump metadata is the
+    SOURCE OF TRUTH: `dump_rows` = (recording_id, window_index, label) for THIS subject, where window_index is the GLOBAL cache
+    row index. `cache` = {"X","subject","cohort"} from the sha-pinned scps cache. For each dump row the window is fetched at
+    `cache["X"][window_index]` and VERIFIED: cache.subject[window_index] == subject AND cache.cohort[window_index] == dataset_id
+    (so a reordered/wrong cache — which would also change the pinned sha — cannot silently mispair; a same-count reorder fails
+    here, not just at the count). FAIL-CLOSED on out-of-range index, subject/cohort mismatch, wrong shape, non-finite, or a
+    duplicate (recording_id, window_index). Returns (windows[n,19,512], WindowKeys[n], labels {WindowKey:int})."""
     import numpy as np
     from acar.v3.set_features import WindowKey
-    rows = sorted(dump_rows, key=lambda r: int(r[1]))              # producer order (ascending global window_index)
-    windows_in = np.asarray(signal_loader(disease, dataset_id, subject, cfg), dtype="<f4")   # ORDERED reader windows
+    Xc, csub, ccoh = cache["X"], cache["subject"], cache["cohort"]
+    n_rows = Xc.shape[0]
     cfg_win = (cfg["canon_channels"], int(cfg["resample_fs"] * cfg["window_sec"]))
-    if windows_in.ndim != 3 or windows_in.shape[0] != len(rows):
-        raise ValueError(f"{dataset_id}/{subject}: reader produced {getattr(windows_in,'shape',None)} windows != "
-                         f"{len(rows)} dump rows (count/shape mismatch — re-embed universe drift)")
     windows, keys, labels = [], [], {}
-    for (rec_id, win_idx, label), w in zip(rows, windows_in):
+    for rec_id, win_idx, label in sorted(dump_rows, key=lambda r: int(r[1])):
+        gi = int(win_idx)
+        if gi < 0 or gi >= n_rows:
+            raise ValueError(f"{dataset_id}/{subject}: dump global window_index {gi} out of cache range [0,{n_rows})")
+        if str(csub[gi]) != subject or str(ccoh[gi]) != dataset_id:
+            raise ValueError(f"{dataset_id}/{subject}: cache row {gi} is {ccoh[gi]}/{csub[gi]} (subject/cohort mismatch — wrong/reordered cache)")
+        w = np.asarray(Xc[gi], dtype="<f4")
         if w.shape != cfg_win:
-            raise ValueError(f"{dataset_id}/{subject}: window shape {w.shape} != {cfg_win}")
-        wk = WindowKey(dataset_id, subject, str(rec_id), int(win_idx))   # KEY from the dump (source of truth), verbatim
+            raise ValueError(f"{dataset_id}/{subject}: cache window {gi} shape {w.shape} != {cfg_win}")
+        wk = WindowKey(dataset_id, subject, str(rec_id), gi)
         if wk in labels:
-            raise ValueError(f"{dataset_id}/{subject}: duplicate WindowKey ({rec_id},{win_idx}) in dump rows")
-        windows.append(np.asarray(w, dtype="<f4")); keys.append(wk); labels[wk] = int(label)
+            raise ValueError(f"{dataset_id}/{subject}: duplicate WindowKey ({rec_id},{gi}) in dump rows")
+        windows.append(w); keys.append(wk); labels[wk] = int(label)
     RS.assert_finite(np.asarray(windows, dtype="<f4"), f"{dataset_id}/{subject} windows")
     return np.asarray(windows, dtype="<f4"), keys, labels
 
@@ -248,9 +252,10 @@ def _reembed_dev_under_substrate(spec, frozen):                     # pragma: no
     """Re-embed the OLD-SEVEN eligible DEV windows (exact universe pinned by each disease's dev_input_manifest — PD 230 /
     SCZ 225, ds004000/sub-042 excluded, FROZEN_PIPELINE, cohort-aware keys) with the NEW all-DEV encoder, and build per-disease
     v3 DeploymentBatches (z = NEW embeddings; window/subject/recording keys + window_index from the DEV dump metadata;
-    source_state_ref = the FROZEN B1b artifact's ref) + labels_by_window. NO source-state is fitted here. Returns
-    {disease: {"artifact": art, "batches": [...], "labels": {...}}}. The actual DEV raw read + per-subject encoder forward run
-    ONLY at the authorized C-run; the v3 integrity machinery (digests, manifest, assert_compatible) fail-closes on any mismatch."""
+    source_state_ref = the FROZEN B1b artifact's ref) + labels_by_window. NO source-state is fitted here. C5: windows come from
+    the SHA-PINNED scps cache by EXACT KEYED lookup (cache row == dump global window_index), NOT a live raw reader. Returns
+    {disease: {"artifact": art, "batches": [...], "labels": {...}}}. The DEV-signal read runs ONLY at the authorized C-run; the
+    keyed lookup + per-row subject/cohort verification + v3 integrity machinery fail-close on any mismatch."""
     import numpy as np
     import torch
     from acar.v3.data import build_deployment_batches
@@ -261,6 +266,7 @@ def _reembed_dev_under_substrate(spec, frozen):                     # pragma: no
         m = _dev_input_manifest(spec, d)
         eligible = set(RS.check_eligible_subjects(d, _raw_subjects_by_cohort(spec, d), m))    # cohort-aware "dsid/sub"
         sd = spec["substrates"][d]
+        cache = _load_disease_cache(spec, d)                                                  # C5: sha-pinned scps cache = window source
         rows_by_ds, labels, seen = {}, {}, set()
         for cohort in m["dev_cohorts"]:
             meta = np.load(sd["dev_feat_dump_paths"][cohort], allow_pickle=False)             # METADATA (ids/index/labels); NOT raw signal / NOT old z
@@ -279,10 +285,8 @@ def _reembed_dev_under_substrate(spec, frozen):                     # pragma: no
                 if ns not in eligible:
                     continue
                 per_sub.setdefault(ns.split("/", 1)[1], []).append((r_, w_, y_))
-            cohort_dir = m["source_paths"][cohort]                                            # the DEV raw cohort dir (allowlist read)
-            loader = lambda dis, ds, sub, c, _cd=cohort_dir: _load_subject_raw_windows(dis, ds, sub, c, _cd)
             for sub, dump_rows in per_sub.items():
-                X, keys, lab = _load_subject_windows_and_keys(d, cohort, sub, cfg, dump_rows, signal_loader=loader)  # align to dump metadata
+                X, keys, lab = _load_subject_windows_and_keys(cohort, sub, cfg, dump_rows, cache=cache)  # KEYED cache lookup
                 with torch.no_grad():
                     z = bb(torch.as_tensor(np.asarray(X, dtype="<f4")))[1].cpu().numpy()       # NEW-encoder embeddings (forward → (logits, z))
                 RS.assert_finite(z, f"{cohort}/{sub} embeddings")

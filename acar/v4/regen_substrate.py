@@ -521,6 +521,12 @@ def validate_substrate_manifest(spec):
             raise ValueError(f"substrates[{d}].dev_feat_dump_paths must be {{cohort: path}} keyed by EXACTLY dev_cohorts[{d}]")
         if not (isinstance(dfs, dict) and set(dfs) == set(cohorts[d]) and all(_is_hex(v, 64) for v in dfs.values())):
             raise ValueError(f"substrates[{d}].dev_feat_dump_sha256 must be {{cohort: 64-hex}} keyed by EXACTLY dev_cohorts[{d}]")
+        # C5: the scps CACHE that produced the DEV feat dumps is the WINDOW SOURCE for the replay (keyed by the dump's global
+        # window_index = the cache row index). One sha-pinned per-condition cache per disease; the live raw reader is NOT used.
+        if not isinstance(sd.get("scps_cache_path"), str) or not sd["scps_cache_path"]:
+            raise ValueError(f"substrates[{d}].scps_cache_path must be a non-empty path (the per-condition scps cache .npz)")
+        if not _is_hex(sd.get("scps_cache_sha256", ""), 64):
+            raise ValueError(f"substrates[{d}].scps_cache_sha256 must be a 64-char lowercase sha-256")
         for legacy in ("encoder_checkpoint_sha256", "source_state_sha256"):   # retired ambiguous (file-vs-semantic) names
             if legacy in sd:
                 raise ValueError(f"substrates[{d}].{legacy} is a DEPRECATED ambiguous field; use the unambiguous "

@@ -200,7 +200,8 @@ def _sub_manifest(**over):
               "encoder_provenance_path": "/ep", "source_state_provenance_path": "/sp",
               "dev_input_manifest_path": "/dim", "dev_input_manifest_sha256": "b" * 64,
               "dev_feat_dump_paths": {c: "/dump/" + c for c in R.DEV_SCOPE[d]},
-              "dev_feat_dump_sha256": {c: "b" * 64 for c in R.DEV_SCOPE[d]}} for d in ("PD", "SCZ")}
+              "dev_feat_dump_sha256": {c: "b" * 64 for c in R.DEV_SCOPE[d]},
+              "scps_cache_path": "/cache/" + d + ".npz", "scps_cache_sha256": "b" * 64} for d in ("PD", "SCZ")}
     m = {"substrate_protocol_commit": "f" * 40, "compatibility_protocol_commit": "a" * 40,   # two-commit split (C1)
          "candidate": dict(R.FIXED_CANDIDATE), "alpha": R.ALPHA, "budget": R.BUDGET,
          "coverage_min": R.COVERAGE_MIN, "substrates": sd, "env_lock_path": "/abs/env_lock.json",
@@ -230,6 +231,10 @@ def test_validate_substrate_manifest():
     _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # dev_feat_dump sha bad hex
     sd = _sub_manifest(); del sd["substrates"]["SCZ"]["dev_feat_dump_paths"]
     _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # dev_feat_dump_paths required
+    sd = _sub_manifest(); del sd["substrates"]["PD"]["scps_cache_path"]
+    _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # scps_cache_path required (C5)
+    sd = _sub_manifest(); sd["substrates"]["PD"]["scps_cache_sha256"] = "short"
+    _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # scps_cache_sha256 bad hex
     sd = _sub_manifest(); del sd["substrates"]["SCZ"]
     _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # missing disease
     for hf in ("encoder_state_dict_sha256", "encoder_checkpoint_file_sha256",                  # each of the 4 unambiguous
@@ -527,13 +532,19 @@ def _sub_manifest_files(base, *, missing=False, bad=None, no_env=False):   # bad
                     f.write(("dump-" + d + c).encode())
             dfp[c] = dpath
             dfs[c] = "0" * 64 if bad == "dump" else (_fsha(dpath) if not missing else "b" * 64)
+        cache = os.path.join(base, f"cache_{d}.npz")                                            # C5: the scps cache (window source)
+        if not missing:
+            with open(cache, "wb") as f:
+                f.write(("cache-" + d).encode())
+        cache_sha = "0" * 64 if bad == "cache" else (_fsha(cache) if not missing else "b" * 64)
         subs[d] = {"encoder_checkpoint_path": enc, "encoder_checkpoint_file_sha256": _sha(enc, "enc"),
                    "encoder_state_dict_sha256": "b" * 64,                                       # canonical (verified at replay)
                    "source_state_path": ss, "source_state_file_sha256": _sha(ss, "ss"),
                    "source_state_artifact_sha256": "b" * 64,
                    "encoder_provenance_path": enc + ".prov.json", "source_state_provenance_path": ss + ".prov.json",
                    "dev_input_manifest_path": dim, "dev_input_manifest_sha256": _sha(dim, "dim"),
-                   "dev_feat_dump_paths": dfp, "dev_feat_dump_sha256": dfs}
+                   "dev_feat_dump_paths": dfp, "dev_feat_dump_sha256": dfs,
+                   "scps_cache_path": cache, "scps_cache_sha256": cache_sha}
     return _sub_manifest(substrates=subs, env_lock_path=env, env_lock_sha256=env_sha)
 
 
@@ -623,7 +634,7 @@ def test_run_substrate_compatibility_fail_closed():
         with open(pne, "w") as f:
             json.dump(_sub_manifest_files(base, no_env=True), f)
         _expect(FileNotFoundError, lambda: RSC.run(pne, out))                                   # env-lock file missing
-        for key in ("enc", "ss", "dim", "env", "dump"):                                        # EACH file-byte sha mismatch branch
+        for key in ("enc", "ss", "dim", "env", "dump", "cache"):                               # EACH file-byte sha mismatch branch
             pk = os.path.join(base, f"sub_bad_{key}.json")
             with open(pk, "w") as f:
                 json.dump(_sub_manifest_files(base, bad=key), f)
@@ -705,8 +716,8 @@ def test_compat_replay_alignment_and_no_refit():
     import numpy as np
     from acar.v4 import run_substrate_compatibility as RSC
     cfg = R.FROZEN_PIPELINE
-    # C4: _load_subject_raw_windows is now a REAL reader (no SubstrateReplayNotWiredError); the real DEV raw read happens only at
-    # the authorized C-run (here a fake ordered provider stands in). dump metadata governs KEYS+COUNT+ORDER; reader supplies signal.
+    # C5: windows come from the sha-pinned scps CACHE by EXACT KEYED lookup (cache row == dump global window_index); NO live raw
+    # reader. Here a synthetic cache stands in for the sha-pinned one. A same-count REORDER fails (subject/cohort-at-index check).
     n = (cfg["canon_channels"], int(cfg["resample_fs"] * cfg["window_sec"]))
     try:
         from acar.v3.set_features import WindowKey  # noqa: F401
@@ -714,20 +725,27 @@ def test_compat_replay_alignment_and_no_refit():
     except Exception as e:
         print(f"  [skip] alignment exercise (acar.v3.set_features import: {type(e).__name__})"); _have_wk = False
     if _have_wk:
-        rows = [("rec0", 0, 1), ("rec0", 1, 1), ("rec1", 5, 0)]                                 # (recording_id, GLOBAL window_index, label)
-        ordered = lambda k: (lambda *a, **kw: np.zeros((k,) + n, "<f4"))                         # reader returns ORDERED [k,19,512]
-        X, keys, labels = RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=ordered(3))
-        assert X.shape == (3,) + n and len(keys) == 3 and len(labels) == 3                       # paired by sorted-dump position
-        assert keys[0].recording_id == "rec0" and keys[0].window_index == 0                      # KEY taken verbatim from dump rows
-        assert keys[2].window_index == 5 and labels[keys[2]] == 0                                # rec1 global idx 5, label from dump
-        # reader window COUNT != dump rows -> fail (re-embed universe drift, the whole-subject 'missing window')
-        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=ordered(2)))
-        # wrong window shape -> fail
-        badshape = lambda *a, **k: np.zeros((3, 19, 7), "<f4")
-        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=badshape))
+        def _cache(subjects, cohorts):                                                          # synthetic scps cache {X,subject,cohort}
+            k = len(subjects)
+            return {"X": np.zeros((k,) + n, "<f4"), "subject": np.array(subjects), "cohort": np.array(cohorts)}
+        rows = [("rec0", 0, 1), ("rec0", 1, 1), ("rec0", 2, 0)]                                  # (recording_id, GLOBAL cache index, label)
+        good = _cache(["sub-1", "sub-1", "sub-1"], ["ds002778"] * 3)
+        X, keys, labels = RSC._load_subject_windows_and_keys("ds002778", "sub-1", cfg, rows, cache=good)
+        assert X.shape == (3,) + n and len(keys) == 3 and len(labels) == 3
+        assert keys[0].recording_id == "rec0" and keys[0].window_index == 0 and labels[keys[2]] == 0
+        # SAME-COUNT REORDER (cache row 1 is now a different subject) -> subject-at-index mismatch -> FAIL (the C5 guard)
+        shuffled = _cache(["sub-1", "sub-OTHER", "sub-1"], ["ds002778"] * 3)
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("ds002778", "sub-1", cfg, rows, cache=shuffled))
+        # cohort-at-index mismatch -> fail
+        wrongcoh = _cache(["sub-1"] * 3, ["ds002778", "ds003490", "ds002778"])
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("ds002778", "sub-1", cfg, rows, cache=wrongcoh))
+        # global index out of cache range -> fail
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("ds002778", "sub-1", cfg, [("rec0", 99, 1)], cache=good))
+        # wrong window shape in cache -> fail
+        badshape = {"X": np.zeros((3, 19, 7), "<f4"), "subject": np.array(["sub-1"] * 3), "cohort": np.array(["ds002778"] * 3)}
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("ds002778", "sub-1", cfg, rows, cache=badshape))
         # duplicate (recording_id, window_index) in dump rows -> fail
-        dup_rows = [("rec0", 0, 1), ("rec0", 0, 1)]
-        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, dup_rows, signal_loader=ordered(2)))
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("ds002778", "sub-1", cfg, [("rec0", 0, 1), ("rec0", 0, 1)], cache=good))
     # subject-universe reconciliation (PURE; runs on 3.9): re-embedded set must EQUAL eligible AND number EXACT_ELIGIBLE
     elig = {f"ds002778/s{i:03d}" for i in range(R.EXACT_ELIGIBLE["PD"])}                         # 230
     assert RSC._check_reembed_universe("PD", set(elig), elig) is True                            # happy
@@ -739,6 +757,7 @@ def test_compat_replay_alignment_and_no_refit():
     assert "build_cohort_input(" not in src and "build_cohort_inputs(" not in src, "replay must NOT call the refit build_cohort_input(s)()"
     assert "real_adapter.derive(" not in src and "RA.derive(" not in src, "replay must NOT call real_adapter.derive (refit path)"
     assert "fit_source_state" not in src, "replay must NOT fit a source-state"
+    assert "load_cohort(" not in src, "C5: replay must NOT use the live load_cohort raw reader — windows come from the pinned scps cache"
     assert "load_frozen_source_state_artifact" in src, "replay MUST consume the FROZEN B1b source-state"
 
 

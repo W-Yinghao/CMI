@@ -116,23 +116,28 @@ substrates        {PD:{...}, SCZ:{...}} each (H5 4 unambiguous hashes; bare enco
                   dev_feat_dump_paths {cohort: path} + dev_feat_dump_sha256 {cohort: 64-hex}   ← (C3) the DEV feat-dump
                   metadata (subject_id_te/recording_id_te/window_index_te/y_te) = the raw-window↔v3-WindowKey alignment
                   SOURCE OF TRUTH (sha-pinned; the re-embed order/keys cannot drift)
+                  scps_cache_path (non-empty) + scps_cache_sha256 (64-hex)   ← (C5) the WINDOW SOURCE: the SHA-PINNED
+                  per-condition scps cache {X,subject,cohort} the dump was built from; window_index_te IS its row index,
+                  so the replay fetches X[window_index] by EXACT KEYED lookup (no live raw reader, no by-position guess)
 dev_cohorts       {PD: DEV_SCOPE[PD], SCZ: DEV_SCOPE[SCZ]}  (exact)
 env_lock_path     non-empty (the substrate env lock; re-verified at replay)        env_lock_sha256  64-hex
 ```
 STDLIB preflight: schema + HEAD==compatibility_protocol_commit + clean worktree + output-absent + each PD/SCZ encoder/source
-file + the dev-input-manifest file + each per-cohort dev-feat-dump file + the env-lock file must EXIST and match their sha —
-fail-closed (FileNotFoundError / ValueError) before any torch import or DEV read.
+file + the dev-input-manifest file + each per-cohort dev-feat-dump file + each per-disease scps-cache file + the env-lock file
+must EXIST and match their sha — fail-closed (FileNotFoundError / ValueError) before any torch import or DEV read.
 
 **(C3) Safety gate uses the EXACT EVAL harm, not a proxy.** `compatibility_replay_pass`'s `L_harm_all_eval ≤ 0.10` is fed the
 EXACT all-batch-denominator EVAL harm_indicator loss (`develop.V4CandidateReport.eval_L_harm_all`, additive), NOT the
-conditional `harm_rate` (carried descriptively as `harm_among_adapted`, never gating). **(C4)** the raw-window↔v3-WindowKey
-alignment (`_load_subject_windows_and_keys`) is REAL + synthetic-tested: the pinned dev-feat-dump metadata supplies the
-WindowKeys (recording_id + window_index, verbatim) + producer order + labels, and `_load_subject_raw_windows` — now a REAL
-reader (cmi DEV pipeline, single-subject allowlist; NO source-state refit; NO held-out read) — supplies the subject's windows
-as an ORDERED [n,19,512] paired BY POSITION with a hard COUNT check (fail-closed on count/shape/dup/finite). `_check_reembed_universe`
-asserts the re-embedded eligible set == eligible and counts EXACT. NO `SubstrateReplayNotWiredError` raise-frontier remains; the
-only DEV-raw read runs at the authorized C-run (under acar-v4-regen py3.13). (window_index_te is a GLOBAL producer index, so
-alignment is dump-keys + ordered-position, not an independently-reproduced global key.)
+conditional `harm_rate` (carried descriptively as `harm_among_adapted`, never gating). **(C5)** the raw-window↔v3-WindowKey
+alignment (`_load_subject_windows_and_keys`) is REAL + synthetic-tested by EXACT KEYED lookup: the pinned dev-feat-dump metadata
+supplies the WindowKeys (recording_id + window_index, verbatim) + labels, and — because `window_index_te` IS the row index of the
+SHA-PINNED scps cache the dump was built from — `_load_disease_cache` loads the cohort-filtered {X,subject,cohort} from
+`scps_cache_path` (`allow_pickle=False`) and each window is fetched at `cache["X"][window_index]`, VERIFYING
+`cache.subject[gi]==subject` AND `cache.cohort[gi]==dataset_id` per row (NO live raw reader, NO by-position guess; NO source-state
+refit; NO held-out read). Fail-closed on cache-sha / out-of-range index / subject-or-cohort-at-index mismatch (catches a same-count
+REORDER) / shape / dup / finite. `_check_reembed_universe` asserts the re-embedded eligible set == eligible and counts EXACT. NO
+`SubstrateReplayNotWiredError` raise-frontier remains; the only DEV read runs at the authorized C-run from the pinned cache (under
+acar-v4-regen py3.13).
 
 **C1 authorization gate (executable body).** Without `--compat-authorization` → `SubstrateCompatibilityNotAuthorizedError`
 (no torch/cmi, no DEV read, no output). A valid compatibility authorization manifest (`validate_compat_authorization` +

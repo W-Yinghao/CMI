@@ -83,34 +83,47 @@ status = SUBSTRATE_COMPATIBILITY_PASS | _FAIL
   NOT alter coverage/red/harm_rate/g4 or any existing v2/v3 number (manifest assertions are relative; v3 uses a separate module).
 - **The pass-line** is the FROZEN `compatibility_replay_pass` (v2_replay HARD; per disease: CAL LTT λ* certified, coverage≥0.15,
   red>0, EVAL L_harm_all≤0.10, v2 evaluable, red>v2_replay_red; macro red>macro v2).
-- **(C3+C4) Raw-window↔v3-WindowKey alignment is REAL + synthetic-tested; the raw reader is REAL (no frontier).** The
-  sha-pinned DEV feat-dump metadata (per-disease/cohort `dev_feat_dump_paths`+`dev_feat_dump_sha256`) is the alignment SOURCE OF
-  TRUTH: it supplies the v3 WindowKeys (recording_id + window_index, VERBATIM) + the producer ORDER (sorted by the dump's
-  window_index) + the labels. NOTE the dump's `window_index_te` is a GLOBAL index in the producer's concatenated X
-  (cmi.run_scps_crossdataset; `recording_id_te==subject`), so a per-subject reader cannot reproduce it independently — therefore
-  `_load_subject_raw_windows` (C4) supplies the subject's windows as an ORDERED [n,19,512] via the SHARED, tested cmi DEV
-  pipeline (`cmi.data.bids_data.load_cohort` with a single-subject allowlist + the OLD-SEVEN cmi.COHORTS task/label rule, NOT the
-  held-out resting selector; subjects={subject} skips every other subject at file-discovery), and `_load_subject_windows_and_keys`
-  pairs it BY POSITION with the sorted dump rows. FAIL-CLOSED if the reader's window COUNT != the dump row count (the
-  whole-subject "missing window"), on a wrong shape, a non-finite window, or a duplicate (recording_id, window_index) — before any
-  digest. `_check_reembed_universe` additionally asserts the re-embedded eligible-subject set == eligible AND counts EXACT.
-  **No `SubstrateReplayNotWiredError` raise-frontier remains** — the whole replay path is real + executable; the only DEV-raw
-  read happens at the authorized C-run (tests inject a synthetic ordered provider). Everything (frozen-substrate load, no-refit
-  derive, alignment, real raw reader, 1×1×1 exploration, exact eval_L_harm_all extraction, pass-line) is REAL.
+- **(C3+C5) Raw-window↔v3-WindowKey alignment is REAL + synthetic-tested; the window reader is REAL + EXACT-KEYED (no frontier,
+  no by-position trust).** The sha-pinned DEV feat-dump metadata (per-disease/cohort `dev_feat_dump_paths`+`dev_feat_dump_sha256`)
+  is the alignment SOURCE OF TRUTH: it supplies the v3 WindowKeys (recording_id + window_index, VERBATIM) + the labels. The
+  dump's `window_index_te` is a GLOBAL index in the producer's concatenated X (cmi.run_scps_crossdataset `load()` then
+  `te_g=where(te_mask)`; `recording_id_te==subject`) — and that GLOBAL index IS the row index of the sha-pinned scps cache the
+  dump was built from. So `_load_disease_cache` loads the cohort-filtered `{X,subject,cohort}` from `scps_cache_path`
+  (`allow_pickle=False`), and `_load_subject_windows_and_keys` fetches each window at `cache["X"][window_index]` — an EXACT KEYED
+  lookup, NOT a same-count by-position pairing — VERIFYING `cache.subject[gi]==subject` AND `cache.cohort[gi]==dataset_id` at every
+  row. FAIL-CLOSED if the pinned cache sha mismatches (preflight), a global index is out of range, the subject/cohort-at-index
+  disagrees (catches a same-count REORDER or wrong cache), a wrong shape, a non-finite window, or a duplicate
+  (recording_id, window_index) — before any digest. `_check_reembed_universe` additionally asserts the re-embedded eligible-subject
+  set == eligible AND counts EXACT. The live `load_cohort` raw reader is NOT called in the replay (grep-guarded).
+  **No `SubstrateReplayNotWiredError` raise-frontier remains** — the whole replay path is real + executable; the only DEV
+  read happens at the authorized C-run from the pinned cache (tests inject a synthetic keyed cache). Everything (frozen-substrate
+  load, no-refit derive, keyed alignment, exact-keyed window reader, 1×1×1 exploration, exact eval_L_harm_all extraction,
+  pass-line) is REAL.
 
-> **C5 OPEN — by-position alignment soundness (adversarial review, MEDIUM; user decision before any C-run).** The dump rows
-> supply the keys/order/labels and the reader supplies an ORDERED ndarray paired BY POSITION, guarded only by a scalar COUNT
-> (+ shape/finite/universe). A reader that returns the right COUNT but a different per-window ORDER would pair windows with the
-> WRONG dump labels → a SILENTLY-WRONG PASS/FAIL (not an abort). This is NOT hypothetical: the DEV feat-dump was produced from a
-> pre-built scps CACHE (scripts/build_scps_cache.py) or a live `load_crossdataset` (cmi/run_scps_crossdataset.py:29-39), and the
-> live per-subject `load_cohort` reader's window order is NOT PROVEN identical (e.g. multi-file/session selection, cache-vs-live,
-> max_per_subject/crop_sec not in FROZEN_PIPELINE). Count is necessary but NOT sufficient (cannot detect a same-cardinality
-> permutation). **C4 implemented the real reader (the C4 deliverable) but does NOT close this — it must be resolved before the
-> replay is trusted.** Candidate C5 resolutions (user to choose): (a) read the windows from the SAME sha-pinned scps cache the
-> dump was built from (identical source ⇒ by-position provably sound); (b) add a per-window CONTENT/order verifier (e.g. store
-> per-window raw-content hashes when the dumps are next regenerated, and check them); (c) re-derive + verify the producer's
-> per-subject window ordinals. Until C5, the replay can produce a wrong verdict on an order divergence, so DO NOT authorize the
-> C-run on C4 alone.
+> **C5 RESOLVED — read from the sha-pinned scps cache by EXACT KEYED lookup.** The window source is now the SAME per-condition
+> scps cache (`{CACHE}/{condition}.npz`, X/subject/cohort) that produced the DEV feat dumps, sha-pinned per disease
+> (`scps_cache_path`+`scps_cache_sha256`, verified in the preflight). The dump's `window_index_te` IS the cache row index
+> (cmi.run_scps_crossdataset `load()` then `te_g=where(te_mask)`), so each window is fetched at `cache["X"][window_index]` —
+> EXACT keyed lookup, NOT a same-count by-position guess — and `_load_subject_windows_and_keys` VERIFIES `cache.subject[gi]==subject`
+> AND `cache.cohort[gi]==dataset_id` at every row. A same-count REORDER (or wrong cache) fails two ways: the pinned cache sha
+> mismatches at preflight, and/or the subject/cohort-at-index check fails — so it can NEVER silently mispair. The live
+> `load_cohort` raw reader is NOT used in the replay (grep-guarded); `_load_disease_cache` loads `allow_pickle=False`. Fail-closed:
+> cache missing/sha-mismatch, out-of-range index, subject/cohort-at-index mismatch, wrong shape, non-finite, duplicate WindowKey,
+> + `_check_reembed_universe` (re-embedded set==eligible & count==EXACT). Synthetic-tested incl. the same-count-reorder→FAIL case.
+>
+> **C5 adversarial review (4 lenses) = GO, no must-fix.** Empirically the real sha-pinned caches contain EXACTLY DEV_SCOPE and
+> nothing else (PD 8523 = ds002778:1240 + ds003490:2000 + ds004584:5283; SCZ 9000 = ds003944:3280 + ds003947:2440 + ds004000:1680
+> + ds004367:1600), so `np.isin(cohort, DEV_SCOPE)` is an all-True no-op and `X[keep]` is the full cache in producer order →
+> `cache["X"][gi]` is byte-identical to the producer's `X[gi]`. The `np.isin` filter (not a hard "== DEV_SCOPE" assert) is
+> DELIBERATE: it also stays correct if a cache is ever a SUPERSET of DEV_SCOPE with the producer having filtered to DEV_SCOPE
+> (identical order-preserving mask reproduces the producer's subset index). Two residuals were judged ACCEPTABLE (closed by
+> existing layered guards, NOT must-fix): (1) the producer's exact cohort set is not pinned as its own manifest field — a SUBSET
+> producer would omit whole cohorts/subjects from the dump → `_check_reembed_universe` FAILS (missing != eligible 230/225); a
+> SUPERSET producer → larger gi → out-of-range or subject/cohort-at-index mismatch. (2) a within-subject, same-cohort window
+> reorder (a different window of the RIGHT subject at index `gi`) is the one thing the per-row subject/cohort check cannot see
+> (the cache carries no per-window recording/content column) — but any such row reorder changes the cache BYTES → the pinned
+> `scps_cache_sha256` mismatches at preflight BEFORE any read. Closing (2) at the code level would need a per-window raw-content
+> hash in the dump = regenerating the DEV dumps, which is OUT of C5 scope; the sha-pin closes it as-is.
 - **(C4) runtime:** the replay executes under `acar-v4-regen` (python 3.13). The exact replay-path modules are green under 3.13
   (regen_substrate + develop suites — RSC import, the 1×1×1 run_dev_exploration path, eval_L_harm_all extraction,
   compatibility_replay_pass, the alignment subset). The home v4 suite is 3.9 (10/10); the alignment exercise needs
@@ -126,12 +139,15 @@ the old-seven-DEV-substrate compatibility check — NOT a new DEV selection run,
 V4_EXTERNAL_CONFIRMED / external-G2 / coverage-theorem vocabulary is emitted.
 
 ## 6. Synthetic guards (no real raw/torch/GPU)
-two-commit required + retired `protocol_commit` rejected; `env_lock_path` required; per-disease dev-input fields required;
-HEAD≠compatibility_protocol_commit → fail; reselection (candidate≠fixed) → fail; op-point drift → fail; missing/invalid compat
-authorization → fail before import/read/output; authorization hash mismatch → fail; wrong statement / extra / missing field →
-fail; fake replay body called exactly once only after authorization; PASS verdict & FAIL verdict both written; non-verdict
-status → abort+cleanup; replay raising → output cleaned; the two inner frontiers raise the controlled
-`SubstrateReplayNotWiredError`. Tests monkeypatch `_run_compatibility_replay`.
+two-commit required + retired `protocol_commit` rejected; `env_lock_path` required; per-disease dev-input fields required
+(incl. C3 `dev_feat_dump_paths`/`dev_feat_dump_sha256` AND C5 `scps_cache_path`/`scps_cache_sha256`); HEAD≠compatibility_protocol_commit
+→ fail; reselection (candidate≠fixed) → fail; op-point drift → fail; missing/invalid compat authorization → fail before
+import/read/output; authorization hash mismatch → fail; wrong statement / extra / missing field → fail; fake replay body called
+exactly once only after authorization; PASS verdict & FAIL verdict both written; non-verdict status → abort+cleanup; replay
+raising → output cleaned. **C5 keyed-alignment exercise (runs under 3.13):** keyed-cache happy path; same-count REORDERED cache
+→ FAIL (subject-at-index mismatch); cohort-at-index mismatch → FAIL; out-of-range global index → FAIL; bad window shape → FAIL;
+duplicate WindowKey → FAIL; grep-guard `load_cohort(` NOT in the replay source; `fit_source_state`/`build_cohort_input(`/
+`real_adapter.derive` NOT in the replay source (no-refit). Tests monkeypatch `_run_compatibility_replay` and inject a synthetic keyed cache.
 
 ## Next sequence (separate decisions; NOT started)
 1. (if the replay uses torch/GPU) capture/verify a runtime lock for the C1 commit;
