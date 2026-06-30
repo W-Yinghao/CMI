@@ -28,25 +28,23 @@ pip install torch==2.6.0 torchvision==0.21.0 torchaudio==2.6.0 \
 ```
 Directly fixes §A: torchaudio 2.6.0's binary matches torch 2.6.0 → no `undefined symbol`.
 
-## 2. braindecode / moabb pair (TRIAL MATRIX — resolve by import probe at install time, do NOT guess-pin as final)
-Precise constraint discovered (read-only, from the installed source):
-- `braindecode/datasets/__init__.py` → `from .moabb import BNCI2014001, HGD, MOABBDataset`; `datasets/moabb.py` →
-  `class BNCI2014001(...)` does `from moabb.datasets import BNCI2014001`. This import is reached eagerly via
-  `braindecode/__init__ → classifier → eegneuralnet → …datasets`.
-- moabb 1.5.0 exposes `BNCI2014_001` (present) but NOT `BNCI2014001` (removed; per MOABB docs the old alias was dropped at
-  moabb 1.1). ⇒ the installed braindecode 1.2.0 is incompatible with moabb ≥ 1.1.
+## 2. braindecode / moabb pair — RESOLVED by metadata probe (see notes/ACAR_V4_REGEN_ENV_METADATA_PROBE.md)
+Original constraint (installed braindecode 1.2.0): its `datasets/moabb.py` does `from moabb.datasets import BNCI2014001`,
+removed in moabb ≥ 1.1 → incompatible with moabb 1.5.0. The metadata probe settled the pair:
 ```
-Pair A1 (keep braindecode 1.2.0):  braindecode 1.2.0 + moabb pinned to the LAST release exposing BNCI2014001 (moabb 1.0.x).
-     RISK: moabb 1.0.x may pull older mne/numpy that conflict on py3.13 → may force python 3.11.
-Pair A2 (align to modern moabb):   a braindecode whose datasets import path uses BNCI2014_001, paired with moabb 1.5.0
-     (the modern name). Identify by import probe (do NOT assume a version number).
-DECIDE BY PROBE — accept the FIRST pair for which ALL of these import (no training, no data):
-     import braindecode
-     from braindecode.models import EEGNetv4
-     from cmi.models.backbones import build_backbone
-If neither A1 nor A2 yields all three imports → STOP (do not train); escalate to R1-B (§7) or re-review.
+Pair A1 (braindecode 1.2.0 + moabb<1.1): DROPPED — `moabb<1.1` → moabb 0.4.6, whose sdist FAILS to build on py3.13
+     ('build_ext' has no attribute 'cython_sources'). Not viable on py3.13.
+Pair A2 (RECOMMENDED first trial): braindecode 1.5.2 + moabb 1.5.0.
+     - dry-run RESOLVES with the §1 trio held (torch 2.6.0 / torchvision 0.21.0 / torchaudio 2.6.0) on py3.13;
+     - wheel-source inspection: braindecode 1.5.2 EXPORTS EEGNetv4 (deprecation does not bite ≤1.5.2) AND imports
+       `from moabb.datasets import BNCI2014_001` (modern name → moabb 1.5.0 compatible);
+     - braindecode requires torch>=2.0, torchaudio>=2.0, moabb>=1.4.3 — all satisfied.
+     pulls: mne 1.12.1 · skorch 1.4.0 · numpy 2.5.0 · scipy 1.18.0 · scikit-learn 1.9.0 (record exact pins in the install log).
 ```
-(skorch + mne + numpy/scipy/sklearn follow whatever the chosen braindecode/moabb pair requires; pin them in the install log.)
+Install ORDER matters (braindecode has no upper torch bound): install the cu124 trio FIRST, THEN `braindecode==1.5.2 moabb==1.5.0`.
+STILL verify by IMPORT PROBE post-install (metadata ≠ runtime): `import braindecode`,
+`from braindecode.models import EEGNetv4`, `from cmi.models.backbones import build_backbone` must all succeed; else STOP and
+fall back to braindecode 1.4.0 (same properties) or R1-B (§7).
 
 ## 3. Acceptance tests (ALL must pass on the intended GPU node BEFORE any env-lock capture; NO training)
 ```bash
