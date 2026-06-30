@@ -36,18 +36,25 @@ build_backbone("EEGNet", n_chans=19, n_times=512, n_classes=2, device="cpu") -> 
 ```
 ⇒ Both eeg2025 import blockers (torchaudio ABI + braindecode/moabb BNCI name) are RESOLVED in acar-v4-regen.
 
-## GPU acceptance capture — PENDING (blocked by per-user GPU quota, not a failure)
-GPU acceptance (`torch.cuda.is_available()==True` + `capture_regen_envlock --device-kind cuda → CAPTURED_AND_VERIFIED`)
-requires a GPU node. Three sbatch submissions (V100 job 876435; A40 jobs 876445, 876458) all stayed PENDING; reason
-resolved to **`QOSMaxGRESPerUser`** — my own large GPU sweep (`p30B_f*s*`, ~9 running V100 jobs + many pending) saturates my
-per-user GPU GRES quota under QOS `normal`. Those are active jobs (not mine to cancel). Per the B1a stop rule, the capture
-job was cancelled (clean stop) and CPU was NOT substituted. The env is READY; capture only needs a free GPU slot within quota.
-
-## To complete the capture (when a GPU slot is free under quota)
+## GPU acceptance capture — CAPTURED_AND_VERIFIED (A40, after the GPU sweep freed quota)
+History: 3 earlier submissions (V100 876435; A40 876445/876458) stayed PENDING = `QOSMaxGRESPerUser` (my own `p30B_f*s*` GPU
+sweep held the per-user GPU quota) → clean stop, no CPU substitution. Once the sweep drained, the capture was resubmitted.
+A first GPU run (job 876692) succeeded on the asserts but exposed a bug in the capture tool (it left `driver_version=""`,
+which the validator rejects for a CUDA lock) — fixed in commit 785d963 (`_nvidia_driver_version()` via read-only nvidia-smi).
+The clean capture (job **876698**, A40 **node30**, ~15 s; env introspection only, NO training/data):
 ```
-sbatch (A40/V100, --gres=gpu:1, --account=c2s --qos=normal, short --time, --mem=8G) running, from the repo:
-  PYTHONPATH=<repo> OMP_NUM_THREADS=1 .../acar-v4-regen/bin/python -m acar.v4.capture_regen_envlock \
-      --output <abs>/ACAR_V4_REGEN_ENV_LOCK.json --protocol-commit <HEAD>
-expect: status=CAPTURED_AND_VERIFIED, device_kind=cuda. (Sbatch template: scratch/envcap.sbatch.)
+== acceptance asserts == torch 2.6.0+cu124 | cuda 12.4 | avail True | dev NVIDIA A40 ; braindecode 1.5.2 + moabb 1.5.0 +
+   EEGNetv4 + cmi build_backbone import OK ; PROBE_EXIT=0
+== capture == status=CAPTURED_AND_VERIFIED  CAPTURE_EXIT=0
 ```
-No binaries / wheels / checkpoints are committed. eeg2025 untouched; no training/DEV-raw/held-out/tag; lockbox SEALED.
+Lock → `notes/ACAR_V4_REGEN_ENV_LOCK.json` (validates via regen_envlock):
+```
+status=CAPTURED_AND_VERIFIED · device_kind=cuda · device_name=NVIDIA A40 · driver_version=610.43.02 · cuda_version=12.4 ·
+cudnn_version=90100 · torch 2.6.0+cu124 · braindecode 1.5.2 · numpy 2.4.4 · scipy 1.18.0 · sklearn 1.9.0 · seed=0 ·
+torch_deterministic_algorithms=true · torch_intraop_threads=1 · omp_num_threads=1 · threadpool_backends=[openblas,openmp] ·
+pipeline_config_sha256=38250f16…(canonical) · protocol_commit=785d963…
+regen_env_lock_sha256 = 589ceedcc4d22b62043674de81902097cd31d8cf14da014a46e8b35863bdb90e
+```
+NOTE for B1b: the lock records `torch_interop_threads=20` (node default at capture). The B1b training run MUST pin
+interop=1 (deterministic) at run time — the env lock snapshots the runtime; it does not itself enforce thread pinning.
+No binaries / wheels / checkpoints committed. eeg2025 untouched; no training/DEV-raw/held-out/tag; lockbox SEALED.
