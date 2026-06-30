@@ -11,12 +11,25 @@ C=0.5, min_confirm_pairs=20).
 | # | criterion | result |
 |---|---|---|
 | 1 | m=0 → no CONCEPT_CONFIRMED (any kind) | **PASS** — 0.00 everywhere |
-| 2 | clean/cov/label/random controls don't inflate @ m≥20 | **PARTIAL** — clean @ baseline+moderate stress (≤2/24); but **creep to 3–4/24 under heavy stress** (see below) |
+| 2 | clean/cov/label/random controls don't inflate @ m≥20 | **PARTIAL (broader than first stated — see Red-team correction)** — pooled control FC rate 0.030, but **35/84 control cells @ m≥20 have ≥1 FC and 16/84 have ≥2/24**; creep is **kind-structured** (random_label 15, unequal_epochs_extreme 14, paired_label 13) not merely scenario-confined |
 | 3 | `concept` & `concept_plus_cov` high @ m=20 | **PASS (strong)** — **1.00 (CP-low 0.88) in ALL 6 scenarios** (concept_plus_cov 0.96 once, label_noise m30) |
 | 4 | `pure_conditional` nonzero & interpretable @ m=30 | **FRAGILE** — 0.75 baseline/high_nuisance, 0.62 imbalanced, 0.42 noise, **0.00 under high_subject_tau** |
-| 5 | missing-pair / invalid → fail closed | **PASS** — `missing_pair` never false-confirms (NO_CONCEPT_EVIDENCE/NEED_MORE; invalid_pair_rate 0); all-unpaired → INVALID (test_b3 #2) |
+| 5 | missing-pair / invalid → fail closed | **FAIL (corrected)** — `missing_pair` **DOES false-confirm 2/24** (`high_subject_tau` m20 1/24; `few_epochs` m30 1/24): a CONCEPT_CONFIRMED slipped the pair audit. All-unpaired still → INVALID (test_b3 #2), but the guard is **not** a clean fail-closed invariant under stress |
 | 6 | failure decomposition interpretable, no silent failures | **PASS** — max mean bootstrap-invalid frac = **0.000**; class-coverage failures = **0**; all states in the defined 5-set |
 | 7 | `pc_centered` is the only method into freeze | **PASS** — locked; full_z diagnostic-only |
+
+### Red-team correction (independent verifier audit of this note vs the artifact)
+
+An independent agent re-aggregated all 240 cells and corrected three things in an earlier draft of this
+note (now fixed above): (1) criterion 5 is a **FAIL, not PASS** — `missing_pair` false-confirms in 2 cells
+(2/24 total), so the advertised pair-audit "fail-closed" invariant is breached under stress; (2) criterion
+2's creep is **kind-structured** (random_label / unequal_epochs_extreme / paired_label leak across
+scenarios — `unequal_epochs_extreme` leaks 2/24 even at *baseline*/high_nuisance), so a scenario-keyed
+intake guard would NOT fully fix it; (3) the verdict's lean toward "(A) scope-and-freeze, primary is
+freeze-ready" was **overconfident** — the 24-cluster CP intervals are wide (power CP-low 0.88, not ≈1.00;
+clean-control CP-up 0.117–0.342), and freezing a certificate with a breached fail-closed guard repeats the
+project's recurring silent-safety-gap failure mode. Claims 1 (concept power 1.00 all scenarios) and 3
+(pure_conditional 0.00 under high_subject_tau) were verified exactly.
 
 ## Concern 1 — controls creep under heavy stress (the freeze blocker to weigh)
 
@@ -64,15 +77,20 @@ to 0.12–0.17 under heavy label-noise / very-few-epochs, and (b) `pure_conditio
 
 Two honest paths (reviewer's call), still NO freeze/confirmatory/real-EEG until decided:
 
-- **(A) Scope-and-freeze.** Freeze the **concept/concept_plus_cov** claim @ m=20 with a **pre-registered
-  operating envelope** that excludes the heavy-noise / very-few-epoch regimes (or adds a record-length /
-  label-quality guard); declare `pure_conditional` a development-only secondary. The primary is robust
-  enough to carry a confirmatory.
-- **(B) P2.4 calibration round.** Before any freeze, tighten the null calibration under label noise / few
-  epochs (e.g. a record-length / effective-sample guard, or a noise-robust null) so the controls stay
-  conservative across the full grid — then freeze the broader claim.
+- **(A) Scope-and-freeze.** Freeze the **concept/concept_plus_cov** claim @ m=20 with a pre-registered
+  operating envelope + record-length/label-quality intake guard; `pure_conditional` development-secondary.
+  **Weakness (per red-team):** the creep is kind-structured (random_label / unequal_epochs_extreme leak
+  even at baseline), so a regime-only envelope is incomplete, AND the `missing_pair` fail-closed breach
+  would be frozen unaddressed.
+- **(B) P2.4 calibration round (now the better-supported path).** Before any freeze: (i) **fix the
+  `missing_pair` pair-audit breach** (a CONCEPT_CONFIRMED must not slip when pairing is degraded); (ii)
+  tighten the null so the **kind-structured** control creep (random_label, unequal_epochs_extreme,
+  paired_label) stays conservative — e.g. an effective-sample / pairing-integrity guard or a noise-robust
+  null; then re-map and, if clean, freeze the broader claim.
 
-My lean: **(A)** — the concept claim is the real, robust result and is freeze-ready under a declared
-envelope; chasing finite-sample conservativeness under 10% label noise + 6-epoch records risks another
-long detour for a regime that a record-length/label-quality intake guard can simply exclude. But (B) is
-defensible if you want one clean method across the whole grid before freezing.
+My (revised) lean: **(B)**. The independent red-team showed the earlier "(A) freeze-ready" lean was
+overconfident — it rested on point estimates while the 24-cluster CP intervals are wide, treated a
+**breached fail-closed guard** (`missing_pair` 2/24) as a PASS, and proposed an envelope that does not
+cover the kind-structured component. The concept signal is genuinely strong, but freezing a *certificate*
+whose advertised safety guard demonstrably leaks under stress would repeat the project's recurring
+silent-safety-gap failure mode. Calibrate + fix the pair-audit breach first, then freeze.
