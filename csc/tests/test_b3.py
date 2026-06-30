@@ -216,6 +216,27 @@ def test_p24b_fixed_margin_closes_label_leak():
           f"concept {conc}/4 retained")
 
 
+# 14 -- B3-P2.4c studentized subject-consistency gate: keeps concept, fields present, requires LCB>0 -----
+def test_p24c_studentized_gate():
+    from csc.mininfo.paired_calibrated import certify_paired_calibrated
+    def cert(kind, seed):
+        cfg = SimConfig(seed=seed); geom = make_geom(cfg, np.random.default_rng(seed))
+        Z, Y, D, G, _ = make_paired_target(kind, geom, cfg, n_subjects=36, seed=10_000 + seed)
+        return certify_paired_calibrated(Z, Y, D, G, m=24, n_boot=120, seed=seed)
+    r = cert("paired_concept", 0)
+    for f in ("studentized_p_value", "subject_consistency_lcb", "studentized_stat", "mean_delta",
+              "old_decision_without_studentized_gate", "new_decision_with_studentized_gate"):
+        assert f in r, f"missing P2.4c field {f}"
+    # a CONCEPT_CONFIRMED must satisfy ALL three conditions
+    if r["state"] == CONCEPT_CONFIRMED:
+        assert r["p_value_cv"] <= 0.05 and r["studentized_p_value"] <= 0.05 and r["subject_consistency_lcb"] > 0
+    conc = sum(cert("paired_concept", s)["state"] == CONCEPT_CONFIRMED for s in range(4))
+    rand = sum(cert("random_label", s)["state"] == CONCEPT_CONFIRMED for s in range(4))
+    assert conc >= 3, f"studentized gate must keep concept power, got {conc}/4"
+    assert rand == 0, f"studentized gate must keep random_label closed, got {rand}/4"
+    print(f"OK P2.4c studentized gate: concept {conc}/4 kept, random_label {rand}/4 closed; LCB>0 enforced")
+
+
 if __name__ == "__main__":
     test_m0_abstains()
     test_invalid_pair_structure()
@@ -230,4 +251,5 @@ if __name__ == "__main__":
     test_p24_guards_and_power()
     test_p24b_fixed_margin_sampler()
     test_p24b_fixed_margin_closes_label_leak()
+    test_p24c_studentized_gate()
     print("\nall CSC Route B3 sanity + contract tests passed")

@@ -13,7 +13,12 @@ reviewer:
      + per-condition class-coverage gate. -> strips label/prior composition from the concept evidence.
   4. CROSS-FITTED paired T (subject-grouped folds; standardise + PC basis fit on TRAIN, evaluated on
      held-out; parametric-bootstrap null rerun through the same cross-fit pipeline). -> removes in-sample
-     overfit creep (random_label etc.). n_folds fixed (no sweep).
+     overfit creep. n_folds fixed (no sweep).
+  5. (B3-P2.4c) FIXED-MARGIN h0 BOOTSTRAP null (sample_h0_fixed_condition_margins): preserves per-condition
+     class margins so label/prior COMPOSITION cannot inflate T. + STUDENTIZED SUBJECT-CONSISTENCY GATE:
+     CONCEPT_CONFIRMED requires fixed-margin mean-T p<=alpha AND studentized Z=mean(delta_s)/se(delta_s)
+     p<=alpha AND 95% LCB(delta_s)>0 -- so a few subjects' noise improvements cannot confirm (fixes the
+     random_label finite-sample over-rejection that the null alone could not). Thresholds pre-fixed.
 
 DEVELOPMENT only; NO freeze/confirmatory; NO real EEG. calibration_version below is logged.
 """
@@ -28,7 +33,7 @@ from .paired_conditional_test import condition_code
 from .paired_certifier import (CONCEPT_CONFIRMED, NO_CONCEPT_EVIDENCE, NEED_MORE_LABELS,
                                INVALID_PAIR, UNIDENTIFIABLE)
 
-CALIBRATION_VERSION = "p24_pair_integrity_classbalanced_crossfit"
+CALIBRATION_VERSION = "p24c_studentized_subject_consistency_fixed_margin"
 PAIR_INTEGRITY_MIN = 0.95
 MIN_EPOCHS_PER_CONDITION = 8
 N_FOLDS = 3
@@ -138,27 +143,73 @@ def _prep_folds(Z, D, g, folds, coding, rank, C):
     return prep
 
 
+def _t_quantile(p, df):
+    """t_{p, df} quantile (scipy if available; else a Cornish-Fisher-ish normal approx)."""
+    try:
+        from scipy.stats import t as _t
+        return float(_t.ppf(p, max(int(df), 1)))
+    except Exception:
+        from math import sqrt
+        z = 1.6448536269514722 if abs(p - 0.95) < 1e-6 else _norm_ppf(p)
+        df = max(int(df), 1)
+        return float(z + (z ** 3 + z) / (4 * df))  # small-sample bump
+
+
+def _norm_ppf(p):
+    # Acklam-style rational approx (sufficient here); avoids hard scipy dependency
+    import math
+    a = [-3.969683028665376e+01, 2.209460984245205e+02, -2.759285104469687e+02,
+         1.383577518672690e+02, -3.066479806614716e+01, 2.506628277459239e+00]
+    b = [-5.447609879822406e+01, 1.615858368580409e+02, -1.556989798598866e+02,
+         6.680131188771972e+01, -1.328068155288572e+01]
+    c = [-7.784894002430293e-03, -3.223964580411365e-01, -2.400758277161838e+00,
+         -2.549732539343734e+00, 4.374664141464968e+00, 2.938163982698783e+00]
+    d = [7.784695709041462e-03, 3.224671290700398e-01, 2.445134137142996e+00, 3.754408661907416e+00]
+    pl = 0.02425
+    if p < pl:
+        q = math.sqrt(-2 * math.log(p))
+        return (((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)
+    if p <= 1 - pl:
+        q = p - 0.5; r = q*q
+        return (((((a[0]*r+a[1])*r+a[2])*r+a[3])*r+a[4])*r+a[5])*q / (((((b[0]*r+b[1])*r+b[2])*r+b[3])*r+b[4])*r+1)
+    q = math.sqrt(-2 * math.log(1 - p))
+    return -(((((c[0]*q+c[1])*q+c[2])*q+c[3])*q+c[4])*q+c[5]) / ((((d[0]*q+d[1])*q+d[2])*q+d[3])*q+1)
+
+
+def _studentize(deltas, eps=1e-9):
+    """Subject-consistency summary of per-subject improvements delta_s: mean, sd, se, studentized Z =
+    mean/(se+eps), and one-sided 95% lower confidence bound mean - t_{.95,S-1}*se. Random/noise labels give
+    inconsistent (high-variance, ~0-mean) delta_s -> small Z & LCB<=0; real concept -> consistent delta_s>0."""
+    v = np.asarray(list(deltas.values()), float); S = len(v)
+    mean = float(v.mean()) if S else 0.0
+    sd = float(v.std(ddof=1)) if S > 1 else 0.0
+    se = sd / np.sqrt(S) if S else 0.0
+    Z = mean / (se + eps)
+    lcb = mean - _t_quantile(0.95, S - 1) * se
+    return dict(mean=mean, sd=sd, se=float(se), Z=float(Z), lcb=float(lcb), S=int(S))
+
+
 def _T_cv(prep, Yvec, D, g, cl, C):
-    """Cross-fitted class-balanced T = mean_subject (cb_loss_h0 - cb_loss_h1) on held-out folds. Returns
-    (T, ok) where ok=False if any fold degenerates (a class missing in a train cell etc.)."""
+    """Cross-fitted class-balanced per-subject improvements delta_s = cb_loss_h0 - cb_loss_h1 on held-out
+    folds. Returns (T_mean, ok, deltas_dict); ok=False if any fold degenerates."""
     d0, d1 = {}, {}
     for p in prep:
         tr, ho = p["tr"], p["ho"]
         ytr = Yvec[tr]
         if len(np.unique(ytr)) < 2:
-            return float("nan"), False
+            return float("nan"), False, {}
         w_tr = class_balanced_weights(ytr, D[tr], g[tr])
         try:
             h0 = _fit(p["X0_tr"], ytr, C, w_tr)
             h1 = _fit(p["X1_tr"], ytr, C, w_tr)
         except Exception:
-            return float("nan"), False
+            return float("nan"), False, {}
         n0 = _nll(h0, p["X0_ho"], Yvec[ho], cl)
         n1 = _nll(h1, p["X1_ho"], Yvec[ho], cl)
         d0.update(cb_subject_losses(n0, Yvec[ho], D[ho], g[ho]))
         d1.update(cb_subject_losses(n1, Yvec[ho], D[ho], g[ho]))
-    subs = list(d0)
-    return float(np.mean([d0[s] - d1[s] for s in subs])), True
+    deltas = {s: d0[s] - d1[s] for s in d0}
+    return float(np.mean(list(deltas.values()))), True, deltas
 
 
 def sample_h0_fixed_condition_margins(logp0, D, y0_idx, rng, n_swaps, return_diag=False):
@@ -206,23 +257,27 @@ def _h0_full_logp(Z, Y, D, g, cl, coding, C):
     return np.log(full / full.sum(1, keepdims=True))
 
 
-def _bootstrap(prep, D, g, cl, C, T, draw_fn, n_boot, invalid_frac_max, min_classes):
-    """Run B replicates of a draw_fn -> Y*; recompute cross-fit T*; conservative invalid accounting.
-    p = (1 + #{T*>=T} + #invalid) / (1 + B)."""
-    ge, n_inv, n_fail, tstars = 1, 0, 0, []
+def _bootstrap(prep, D, g, cl, C, T, Z_obs, draw_fn, n_boot, invalid_frac_max, min_classes):
+    """Run B replicates of a draw_fn -> Y*; recompute cross-fit (T*, studentized Z*); conservative invalid
+    accounting (invalid charged extreme to BOTH p's). p = (1 + #{T*>=T} + #invalid)/(1+B); p_stud likewise
+    on the studentized subject-consistency statistic Z* = mean(delta*)/(se(delta*)+eps)."""
+    ge, ge_s, n_inv, n_fail, tstars, zstars = 1, 1, 0, 0, [], []
     for _ in range(n_boot):
         Ystar, failed = draw_fn()
         if failed:
-            n_fail += 1; n_inv += 1; ge += 1; continue
+            n_fail += 1; n_inv += 1; ge += 1; ge_s += 1; continue
         if any(len(np.unique(Ystar[D == c])) < min_classes for c in np.unique(D)):
-            n_inv += 1; ge += 1; continue
-        Ts, ok = _T_cv(prep, Ystar, D, g, cl, C)
+            n_inv += 1; ge += 1; ge_s += 1; continue
+        Ts, ok, dstar = _T_cv(prep, Ystar, D, g, cl, C)
         if not ok:
-            n_inv += 1; ge += 1; continue
-        tstars.append(Ts); ge += int(Ts >= T)
-    return dict(p=ge / (n_boot + 1), n_inv=int(n_inv), n_fail=int(n_fail),
+            n_inv += 1; ge += 1; ge_s += 1; continue
+        Zs = _studentize(dstar)["Z"]
+        tstars.append(Ts); zstars.append(Zs); ge += int(Ts >= T); ge_s += int(Zs >= Z_obs)
+    return dict(p=ge / (n_boot + 1), p_stud=ge_s / (n_boot + 1), n_inv=int(n_inv), n_fail=int(n_fail),
                 nmean=float(np.mean(tstars)) if tstars else float("nan"),
                 nsd=float(np.std(tstars)) if tstars else float("nan"),
+                snmean=float(np.mean(zstars)) if zstars else float("nan"),
+                snsd=float(np.std(zstars)) if zstars else float("nan"),
                 estimable=bool(n_inv <= invalid_frac_max * n_boot))
 
 
@@ -242,7 +297,10 @@ def paired_cv_test(Z, Y, D, groups, condition_coding="centered", rank=3, C=0.5, 
                 null_sd_cv=float("nan"), n_boot_invalid=0, n_sampler_failures=0, margin_preserved=False,
                 sampler_seed=int(seed + 777), null_version="condition_matched_fixed_margin_h0_bootstrap",
                 would_confirm_under_standard_null=False, n_eligible=0, fold_hash=None,
-                per_condition_classes={})
+                per_condition_classes={}, studentized_p_value=1.0, studentized_stat=float("nan"),
+                subject_consistency_lcb=float("nan"), mean_delta=float("nan"), sd_delta=float("nan"),
+                se_delta=float("nan"), n_subject_deltas=0, delta_subjects=[],
+                studentized_null_mean=float("nan"), studentized_null_sd=float("nan"))
     elig = eligible_complete_pairs(D, g, min_epochs)
     if len(elig) < n_folds * 2:
         return {**base, "n_eligible": len(elig), "reason": f"only {len(elig)} eligible complete pairs"}
@@ -257,10 +315,11 @@ def paired_cv_test(Z, Y, D, groups, condition_coding="centered", rank=3, C=0.5, 
     prep = _prep_folds(Z, D, g, folds, condition_coding, rank, C)
     if prep is None:
         return {**base, "n_eligible": len(elig), "fold_hash": fhash, "reason": "fold prep degenerate"}
-    T, ok = _T_cv(prep, Y, D, g, cl, C)
+    T, ok, deltas = _T_cv(prep, Y, D, g, cl, C)
     if not ok:
         return {**base, "n_eligible": len(elig), "fold_hash": fhash, "T_cv": T,
                 "reason": "observed cross-fit degenerate"}
+    st = _studentize(deltas); Z_obs = st["Z"]   # subject-consistency studentized statistic + LCB
 
     # standard (parametric) null draw: per-fold held-out Y* ~ fold-train-h0 (P2.4a) -- DIAGNOSTIC.
     h0_draw = []
@@ -298,8 +357,8 @@ def paired_cv_test(Z, Y, D, groups, condition_coding="centered", rank=3, C=0.5, 
         ys = sample_h0_fixed_condition_margins(logp0, D, y0_idx, rng_fm, nsw)
         return cl[ys], False
 
-    res_fm = _bootstrap(prep, D, g, cl, C, T, draw_fm, n_boot, invalid_frac_max, min_classes)
-    res_std = _bootstrap(prep, D, g, cl, C, T, draw_std, n_boot, invalid_frac_max, min_classes) \
+    res_fm = _bootstrap(prep, D, g, cl, C, T, Z_obs, draw_fm, n_boot, invalid_frac_max, min_classes)
+    res_std = _bootstrap(prep, D, g, cl, C, T, Z_obs, draw_std, n_boot, invalid_frac_max, min_classes) \
         if also_standard else None
     # margin-preservation self-check on one draw
     chk = sample_h0_fixed_condition_margins(logp0, D, y0_idx, np.random.default_rng(sampler_seed + 1), nsw)
@@ -313,7 +372,12 @@ def paired_cv_test(Z, Y, D, groups, condition_coding="centered", rank=3, C=0.5, 
                n_sampler_failures=res_fm["n_fail"], margin_preserved=bool(margin_ok),
                sampler_seed=sampler_seed, n_eligible=int(len(elig)), fold_hash=fhash,
                per_condition_classes=pcc,
-               would_confirm_under_standard_null=bool(res_std and res_std["p"] <= 0.05))
+               would_confirm_under_standard_null=bool(res_std and res_std["p"] <= 0.05),
+               studentized_p_value=primary["p_stud"], studentized_stat=float(Z_obs),
+               subject_consistency_lcb=float(st["lcb"]), mean_delta=float(st["mean"]),
+               sd_delta=float(st["sd"]), se_delta=float(st["se"]), n_subject_deltas=int(st["S"]),
+               delta_subjects=[float(v) for v in deltas.values()],
+               studentized_null_mean=primary["snmean"], studentized_null_sd=primary["snsd"])
     if not primary["estimable"]:
         out.update(valid=False, reason=f"null not estimable: {primary['n_inv']}/{n_boot} invalid")
         return out
@@ -357,10 +421,22 @@ def certify_paired_calibrated(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=
     t = paired_cv_test(Zq, Yq, Dq, Gq, condition_coding="centered", rank=rank, C=C, n_folds=n_folds,
                        min_epochs=min_epochs, n_boot=n_boot, seed=seed,
                        null_mode="fixed_margin", also_standard=True)
-    would = bool(t["valid"] and t["p_value_cv"] <= alpha)   # DECISION on the fixed-margin (primary) null
+    # B3-P2.4c: CONCEPT_CONFIRMED now requires the fixed-margin MEAN-T to be significant AND the
+    # studentized subject-consistency test to be significant AND the 95% subject-consistency LCB > 0.
+    would_meanT = bool(t["valid"] and t["p_value_cv"] <= alpha)               # old (P2.4b) condition
+    stud_ok = bool(t["valid"] and t["studentized_p_value"] <= alpha and t["subject_consistency_lcb"] > 0)
+    would = would_meanT and stud_ok                                          # new (P2.4c) condition
+    size_ok = bool(n_q >= min_confirm_pairs and t["n_eligible"] >= min_confirm_pairs)
+    old_decision = (CONCEPT_CONFIRMED if (would_meanT and size_ok)
+                    else NEED_MORE_LABELS if (would_meanT or n_q < decide_n) else NO_CONCEPT_EVIDENCE)
     log.update(valid=bool(t["valid"]), p_value=float(t["p_value_cv"]), T=float(t["T_cv"]),
                observed_T=float(t["T_cv"]), T_cv=float(t["T_cv"]), p_value_cv=float(t["p_value_cv"]),
                fixed_margin_null_p=float(t["fixed_margin_null_p"]), standard_null_p=float(t["standard_null_p"]),
+               studentized_p_value=float(t["studentized_p_value"]), studentized_stat=float(t["studentized_stat"]),
+               subject_consistency_lcb=float(t["subject_consistency_lcb"]), mean_delta=float(t["mean_delta"]),
+               sd_delta=float(t["sd_delta"]), se_delta=float(t["se_delta"]),
+               n_subject_deltas=int(t["n_subject_deltas"]), studentized_null_mean=t["studentized_null_mean"],
+               studentized_null_sd=t["studentized_null_sd"], delta_subjects=t.get("delta_subjects", []),
                would_confirm_under_standard_null=bool(t["would_confirm_under_standard_null"]),
                null_version=t["null_version"], n_sampler_failures=int(t["n_sampler_failures"]),
                margin_preserved=bool(t["margin_preserved"]), sampler_seed=int(t["sampler_seed"]),
@@ -369,19 +445,24 @@ def certify_paired_calibrated(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=
                n_eligible_queried=int(t["n_eligible"]), fold_hash=t["fold_hash"],
                class_cell_counts_by_condition=t["per_condition_classes"],
                class_balance_gate_status=("ok" if t["valid"] else "blocked"),
-               would_confirm_without_guard=would, reason=t["reason"])
+               would_confirm_without_guard=would_meanT,
+               old_decision_without_studentized_gate=old_decision, reason=t["reason"])
     if not t["valid"]:
         log["state"] = NEED_MORE_LABELS
-    elif would and n_q >= min_confirm_pairs and t["n_eligible"] >= min_confirm_pairs:
+    elif would and size_ok:
         log["state"] = CONCEPT_CONFIRMED
     elif would:
-        log["state"] = NEED_MORE_LABELS                       # significant but too few eligible pairs
+        log["state"] = NEED_MORE_LABELS                       # consistent+significant but too few eligible
+    elif would_meanT and size_ok:
+        # mean-T significant with enough labels, but the subject-consistency gate rejected -> refuse.
+        log["state"] = NO_CONCEPT_EVIDENCE
+        log["reason"] = ("STUDENTIZED_FIXED_MARGIN_NULL_NOT_SIG" if t["studentized_p_value"] > alpha
+                         else "SUBJECT_CONSISTENCY_GATE_NOT_MET")
     elif n_q >= decide_n:
         log["state"] = NO_CONCEPT_EVIDENCE
-        # diagnostic: the standard null WOULD have confirmed, but the fixed-margin null did not ->
-        # the apparent signal was per-condition label/prior composition, correctly refused.
         if t["would_confirm_under_standard_null"]:
             log["reason"] = "PRIOR_COMPOSITION_MATCHED_NULL_NOT_SIG"
     else:
         log["state"] = NEED_MORE_LABELS
+    log["new_decision_with_studentized_gate"] = log["state"]
     return log
