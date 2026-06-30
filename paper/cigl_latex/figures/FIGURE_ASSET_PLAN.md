@@ -1,6 +1,10 @@
-# CIGL Figure Asset Plan (Phase 4F / v0.4)
+# CIGL Figure Asset Plan (Phase 4F plan; Phase 4H assets)
 
-> Plans only — **no figure images generated** in this phase. Captions are in
+> **Phase 4H update:** draft assets now exist — see `../FIGURE_STATUS.md`. F2/F3 are generated PNG+SVG from
+> real JSON and embedded in the review PDF; F1/F4 are schematic SVG drafts shown as placeholder floats. The
+> plans below remain the spec for the final (camera-ready) versions.
+
+> Plans (original): Captions are in
 > `../../cigl/FIGURE_CAPTIONS_DRAFT.md`. Each plan states the data source, visual elements, what it supports,
 > what it must NOT be used to claim, and whether it is auto-generatable from existing JSON or hand-drawn.
 

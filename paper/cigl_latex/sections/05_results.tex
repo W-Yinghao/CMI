@@ -5,19 +5,36 @@
 graph and node objects carry strong, significant, and spatially stable leakage: the graph proxy is
 $\approx 8\times$ and the node proxy $\approx 15\times$ the permutation mean, clearing the null in $3/3$
 seeds, with a node-leakage map highly reproducible across seeds (mean pairwise correlation $\approx 0.945$).
-This is the first such audit on a backbone that \emph{also} learns the task (Table~2).
+This is the first such audit on a backbone that \emph{also} learns the task (Table~\ref{tab:leakage_audit}).
+
+\input{tables/table2_leakage_audit}
 
 \paragraph{Fixed regularizer reduces leakage at task retention --- two datasets.} On \textbf{BNCI2014\_001}
 (primary folds 1--8; fold-0 is the development fold and is excluded), the fixed \texttt{graph\_node\_010}
 passes all four source-only criteria in every primary fold while meeting the source-task retention gate
 (absolute drop $\le 0.02$); graph and node proxy reductions and their fold-level bootstrap confidence
-intervals are in Table~3. On \textbf{BNCI2015\_001} (all 12 LOSO folds), the same fixed candidate is
+intervals are in Table~\ref{tab:bnci2014}. On \textbf{BNCI2015\_001} (all 12 LOSO folds), the same fixed candidate is
 ERM-adequate, leakage-bearing, and leakage-reducing in $12/12$ folds, meets the retention gate in $11/12$
 folds (one fold misses the per-fold threshold; the dataset-level gate passes), and holds the
 evaluation-only target guardrail in $12/12$ folds, yielding
-$\texttt{confirmed\_with\_target\_guardrail} = \texttt{true}$; reductions and CIs are in Table~4. See also
-Figure~F2.
+$\texttt{confirmed\_with\_target\_guardrail} = \texttt{true}$; reductions and CIs are in
+Table~\ref{tab:bnci2015}. Figure~\ref{fig:retention} plots every fold's reduction against its source-task
+retention.
+
+\input{tables/table3_bnci2014}
+\input{tables/table4_bnci2015}
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.62\linewidth]{figures/fig2_reduction_vs_retention_draft.png}
+  \caption{\textbf{[DRAFT, from data]} Per-fold graph/node KL reduction (\%) vs source bAcc drop relative to
+  ERM, for BNCI2014\_001 (folds 1--8) and BNCI2015\_001 (12 folds). The $y$-axis is a \emph{retention} axis:
+  near-zero drop means the task is retained, not improved. The dashed line is the retention gate
+  ($\text{drop}\le 0.02$); the single BNCI2015\_001 point above it (fold9, $+0.024$) is annotated. Values
+  from the per-fold confirmation logs.}
+  \label{fig:retention}
+\end{figure}
 
 \paragraph{Partial, not total.} In every confirmation fold the \emph{regularized} leakage still clears the
-null --- CIGL reduces the proxy substantially (see Tables~3--4) but does not eliminate the leakage. We
-report reduction, not removal.
+null --- CIGL reduces the proxy substantially (see Tables~\ref{tab:bnci2014}--\ref{tab:bnci2015}) but does
+not eliminate the leakage. We report reduction, not removal.

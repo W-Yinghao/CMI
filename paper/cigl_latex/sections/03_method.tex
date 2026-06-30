@@ -22,12 +22,35 @@ the number of electrodes. We stress that $R_g$/$R_n$ are a \textbf{proxy}, not a
 \paragraph{Regularizer.} CIGL trains the backbone with $\mathcal{L} = \mathcal{L}_{\mathrm{CE}} +
 \lambda_g R_g + \lambda_n R_n$ (no edge term), using the established two-step scheme: Step~A fits the
 posterior heads on detached features; Step~B penalizes the encoder. Throughout the confirmation we use a
-single \textbf{fixed} weight $\lambda_g = \lambda_n = 0.010$ ($\lambda_{\mathrm{edge}} = 0$). See
-Figure~F1 (\texttt{figures/FIGURE\_ASSET\_PLAN.md}).
+single \textbf{fixed} weight $\lambda_g = \lambda_n = 0.010$ ($\lambda_{\mathrm{edge}} = 0$). The pipeline is
+sketched in Figure~\ref{fig:pipeline}.
+
+\begin{figure}[t]
+  \centering
+  \fbox{\parbox{0.92\linewidth}{\centering\small\textbf{[F1 --- schematic, DRAFT]}\\[2pt]
+  EEG $x$ $\to$ DGCNN temporal stem $\to$ \emph{static} adjacency / ChebConv $\to$ \texttt{node\_z},
+  \texttt{graph\_z} $\to$ task logits. Step-A posterior probes $q_g$/$q_n$ are fit on \emph{detached}
+  features; Step-B adds the encoder penalty $\lambda_g R_g + \lambda_n R_n$ ($\lambda=0.010$). The adjacency
+  is shared, so \texttt{edge\_logits = None} --- no edge term, edge-CMI out of scope. \\[2pt]
+  \textit{Draft vector asset: \texttt{figures/fig1\_pipeline\_draft.svg}.}}}
+  \caption{CIGL pipeline (graph/node only, static adjacency). The posterior-KL terms are a proxy, not an
+  unbiased CMI estimator. Schematic draft.}
+  \label{fig:pipeline}
+\end{figure}
 
 \paragraph{Audit.} To judge significance we re-fit fresh held-out conditional-domain probes on frozen
 features and compare to a \textbf{retrained, within-label permutation null} (permuting $D$ within label on
 the probe-training split only, preserving the within-label prior);
 $\texttt{clears\_null} = (\texttt{kl\_mean} > \texttt{permutation\_mean})\;\wedge\;
 (\texttt{permutation\_p} \le 0.05)$. The audit is the same proxy used as a measurement, never inverted into
-an information-theoretic guarantee. See Figure~F3.
+an information-theoretic guarantee. Figure~\ref{fig:audit} shows the audit against the null on the
+development fold.
+
+\begin{figure}[t]
+  \centering
+  \includegraphics[width=0.5\linewidth]{figures/fig3_audit_null_draft.png}
+  \caption{\textbf{[DRAFT, from data]} Source-only leakage audit on BNCI2014\_001 fold-0: observed
+  posterior-KL proxy vs the retrained within-label permutation null for the graph and node objects (clears
+  the null in 3/3 seeds, $p=0.020$). Values from the 3A-H audit; not an unbiased CMI estimate.}
+  \label{fig:audit}
+\end{figure}

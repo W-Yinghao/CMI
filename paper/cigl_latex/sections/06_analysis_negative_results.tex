@@ -18,5 +18,22 @@ The negative results are part of the contribution; they justify the bounded scop
 \end{itemize}
 
 The static-adjacency DGCNN is the only graph-compatible backbone that both learns the task and exposes
-usable graph/node objects, which is why CIGL is framed as graph/node only on this backbone. Table~5
-summarizes the negative results, and Figure~F4 shows the decision flow that fixed the scope.
+usable graph/node objects, which is why CIGL is framed as graph/node only on this backbone.
+Table~\ref{tab:negative_results} summarizes the negative results, and Figure~\ref{fig:flow} shows the
+decision flow that fixed the scope.
+
+\input{tables/table5_negative_results}
+
+\begin{figure}[t]
+  \centering
+  \fbox{\parbox{0.92\linewidth}{\centering\small\textbf{[F4 --- schematic, DRAFT]}\\[2pt]
+  3A-R: original graph backbone \emph{fails} (near-chance, source-only) $\to$ 3A-S: known-good decoders
+  \emph{pass} (protocol learnable; backbone was the bottleneck) $\to$ 3A-G: static-adjacency DGCNN
+  \emph{learns the task} while dynamic-edge designs \emph{overfit} (consistent with a fingerprint channel,
+  not a causal isolation) $\to$ 3A-H: graph/node audit \emph{clears the null} $\to$ 3A-I/J/K: fixed
+  regularizer gives \emph{partial reduction at retention} on two datasets. \\[2pt]
+  \textit{Draft vector asset: \texttt{figures/fig4\_decision\_flow\_draft.svg}.}}}
+  \caption{How the negative results scoped the method (qualitative gate decisions; quantitative results in
+  Tables~2--5). The bounded scope is a result of these checks. Schematic draft.}
+  \label{fig:flow}
+\end{figure}

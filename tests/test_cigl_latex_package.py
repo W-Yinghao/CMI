@@ -105,6 +105,40 @@ def test_main_uses_only_defined_citation_keys():
     assert not undefined, f"cited keys not present in REFERENCES_DRAFT.bib: {undefined}"
 
 
+# --- Phase 4H: figure assets + input/includegraphics targets resolve ---
+
+def test_phase4h_figure_and_doc_assets_exist():
+    figs = LATEX / "figures"
+    assert (figs / "fig1_pipeline_draft.svg").exists(), "missing fig1_pipeline_draft.svg"
+    assert (figs / "fig4_decision_flow_draft.svg").exists(), "missing fig4_decision_flow_draft.svg"
+    # F2/F3 are generated from real data and embedded -> their raster must exist
+    assert (figs / "fig2_reduction_vs_retention_draft.png").exists(), "missing fig2 png"
+    assert (figs / "fig3_audit_null_draft.png").exists(), "missing fig3 png"
+    assert (LATEX / "REVIEW_PDF_SMOKE_SUMMARY.md").exists(), "missing REVIEW_PDF_SMOKE_SUMMARY.md"
+    assert (LATEX / "FIGURE_STATUS.md").exists(), "missing FIGURE_STATUS.md"
+
+
+def test_all_input_and_graphics_targets_exist():
+    for p in _tex_files():
+        text = p.read_text()
+        for rel in re.findall(r"\\input\{([^}]+)\}", text):
+            rel = rel if rel.endswith(".tex") else rel + ".tex"
+            assert (LATEX / rel).exists(), f"{p.name}: \\input target missing: {rel}"
+        for rel in re.findall(r"\\includegraphics(?:\[[^\]]*\])?\{([^}]+)\}", text):
+            cand = [LATEX / rel] + [LATEX / (rel + ext) for ext in (".png", ".pdf", ".jpg", ".svg")]
+            assert any(c.exists() for c in cand), f"{p.name}: \\includegraphics target missing: {rel}"
+
+
+def test_tables_are_actually_included():
+    # all five table files must be \input somewhere (else the review PDF has no tables)
+    included = set()
+    for p in _tex_files():
+        for rel in re.findall(r"\\input\{(tables/[^}]+)\}", p.read_text()):
+            included.add(rel.split("/")[-1].replace(".tex", ""))
+    for t in TABLES:
+        assert t in included, f"table {t} is never \\input into the document"
+
+
 def _all_occurrences_negated(text, term, before=90, after=60):
     low = text.lower()
     term = term.lower()
