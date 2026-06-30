@@ -17,6 +17,8 @@
 | **Source-only firewall** | CIGL_36; firewall flags + target-corruption tests | "target labels evaluation-only; selection/confirmation source-only" | "target-informed"; "uses target labels for selection" | READY |
 | **Negative results** are evidence | CIGL_18 (3A-R), CIGL_21 (3A-S), CIGL_23 (3A-G) | "GraphCMINet failure, dynamic-edge overfitting reported as method-shaping evidence" | hide/omit negatives; "everything worked" | READY |
 | **Limitations** stated | CIGL_32/35 §7 | "proxy, partial, two MI datasets, one backbone, one λ, modest baselines" | downplay or omit limitations | READY |
+| **Dynamic-edge** overfitting is *consistent with* a subject-fingerprint risk but **not causal proof** | CIGL_23 (3A-G) | "the tested dynamic-adjacency designs overfit and carry leakage; consistent with `A(x)` as a fingerprint channel, but we do not causally isolate `A(x)`" | "`A(x)` is *the* cause"; "dynamic edge is task-harmful"; "edge-CMI fails because of A(x)" | READY |
+| **Source-task retention is gate-based**, not zero-cost in every fold | CIGL_29 (9/9 ≤0.02), CIGL_31 (11/12; fold9 +0.024) | "meets the pre-registered retention gate (≤0.02 drop) in the large majority of folds" | "at no task cost"; "never costs accuracy"; hide fold9 | READY |
 
 ## Global wording rules
 

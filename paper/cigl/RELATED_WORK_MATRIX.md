@@ -1,4 +1,11 @@
-# CIGL Related-Work Matrix (Phase 4B)
+# CIGL Related-Work Matrix (Phase 4B; verification updated Phase 4C)
+
+> **Verification status now lives in `REFERENCES_VERIFIED.md`** (Phase 4C). Where a key there is
+> "verified" (MOABB, EEGNet, ShallowConvNet/DeepConvNet, RGNN, LGGNet, conditional-invariant Li 2018, CCMI),
+> treat the `TODO: verify citation` cells below as resolved (exact vol/DOI still `TODO: verify`). Rows with
+> no confident reference (DGCNN exact venue, domain-adversarial DANN, dynamic-graph, dataset primaries)
+> remain `TODO`. No bibliographic details are fabricated.
+
 
 > Positioning grid. **Citations are not fabricated** — author-named where confidently known and marked
 > `TODO: verify citation` for exact venue/year/DOI; rows with no confident reference say

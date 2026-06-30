@@ -16,7 +16,9 @@ NEG_CUES = ("no ", "not ", "never", "without", "do not", "does not", "rather tha
 
 def _draft():
     assert DRAFT.exists(), f"missing {DRAFT}"
-    return DRAFT.read_text()
+    # strip markdown emphasis/code marks and collapse whitespace so literal phrase checks aren't broken by
+    # **bold** / `code` or by line-wrapping (e.g. "out of\nscope" -> "out of scope").
+    return re.sub(r"\s+", " ", DRAFT.read_text().replace("*", "").replace("`", ""))
 
 
 def test_required_terms_present():
@@ -35,9 +37,19 @@ def test_no_affirmative_overclaim_phrases():
         "we achieve state-of-the-art", "achieves state-of-the-art", "new state of the art",
         "state-of-the-art accuracy on", "eliminates leakage", "leakage-free", "removes the leakage",
         "unbiased estimate of cmi", "we provide an unbiased", "generalizes to all", "works for all eeg",
+        "at no task cost",                                   # Phase 4C: use the retention-gate wording instead
+        "per-sample a(x) is what memorizes",                 # Phase 4C: no causal isolation of A(x)
     ]
     hits = [p for p in forbidden_affirmative if p in t]
     assert not hits, f"affirmative overclaim phrasing present: {hits}"
+
+
+def test_dynamic_edge_wording_is_cautious():
+    """If 'task-harmful' appears, the cautious 'not causally isolate' qualifier must be present."""
+    t = _draft().lower()
+    if "task-harmful" in t:
+        assert "not causally isolate" in t or "do not causally isolate" in t
+    assert "not causally isolate" in t                       # the cautious dynamic-edge framing is present
 
 
 def _all_occurrences_negated(text, term, before=90, after=60):

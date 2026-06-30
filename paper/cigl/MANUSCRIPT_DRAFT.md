@@ -39,9 +39,21 @@ posterior-KL proxy with a retrained within-label permutation null and a strict n
 Second, we report a methodology chain — including its negative results — that establishes a key
 prerequisite: leakage control is only meaningful on a *task-capable* graph backbone, and identifying one is
 nontrivial. Third, we introduce a fixed graph/node conditional-information regularizer and show, under
-strict source-only DG on two MI datasets, that it partially and reproducibly reduces the audited leakage at
-no task cost. We do not claim state-of-the-art accuracy, leakage elimination, an unbiased CMI estimate, an
-edge-level method, or generality beyond this backbone and these two MI datasets.
+strict source-only DG on two MI datasets, that it partially and reproducibly reduces the audited leakage
+while meeting the pre-specified source-task retention criteria. We do not claim state-of-the-art accuracy,
+leakage elimination, an unbiased CMI estimate, an edge-level method, or generality beyond this backbone and
+these two MI datasets.
+
+**Contributions.** (C1) A **source-only audit** of label-conditional domain leakage in a graph network's
+`graph_z`/`node_z` objects: a posterior-KL plug-in proxy with a retrained within-label permutation null and
+a target-label firewall (we explicitly disclaim unbiased CMI). (C2) A **methodology chain, including its
+negative results**, showing that a *task-capable* graph backbone is a prerequisite — the original graph
+backbone is near-chance, dynamic-edge designs overfit, and a static-adjacency DGCNN is the one that learns
+the task. (C3) A **fixed-candidate, cross-dataset confirmation** that a graph/node conditional-information
+regularizer (`λ_g=λ_n=0.010`, no edge term) partially and reproducibly reduces the audited leakage while
+meeting the pre-registered source-task retention gate on two MI datasets. (C4) An explicit
+**negative-results + limitations** account that bounds the claim (proxy not unbiased CMI; partial not full;
+graph/node only; one backbone; two MI datasets).
 
 ## 2. Related Work
 
@@ -124,10 +136,12 @@ training and is not repairable by small training tweaks, so its (strong, control
 support a task-vs-leakage tradeoff. (ii) **The protocol is learnable.** Known-good convolutional decoders
 (EEGNet/ShallowConvNet/DeepConvNet) and a DGCNN all clear a source-accuracy floor on the same fold, showing
 the bottleneck was the specific graph backbone, not the data/protocol. (iii) **Dynamic-edge designs
-overfit.** Graph backbones with a per-sample (dynamic) adjacency memorize the source (train ≈ 1.0, source
-≈ chance) regardless of temporal stem, so a dynamic per-sample edge object — the `I(A;D|Y)` "fingerprint" —
-is currently task-harmful here, and **edge-CMI is out of scope**. The static-adjacency DGCNN is the only
-graph-compatible backbone that both learns the task and exposes usable graph/node objects, which is why
+overfit.** The tested dynamic-adjacency backbones overfit strongly (train ≈ 1.0, source ≈ chance)
+regardless of temporal stem, and carry leakage; this is consistent with a per-sample adjacency `A(x)`
+acting as a subject-fingerprint channel, but these experiments do **not** causally isolate `A(x)` as the
+only source of memorization. Either way, **dynamic-edge CIGL is unsupported here and edge-CMI is out of
+scope**. The static-adjacency DGCNN is the only graph-compatible backbone that both learns the task and
+exposes usable graph/node objects, which is why
 CIGL is framed as graph/node only on this backbone. [TABLE: negative-results summary — T5.] [FIGURE:
 negative-result decision flow — F4.]
 
