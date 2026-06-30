@@ -1,0 +1,75 @@
+[b3p24] host=nodecpu06 job=876948 cpus=24
+[b3p24] wrote csc/results/b3_p24_dev_map.json
+=== B3-P2.4 [baseline] confirm rate (pc_centered_calibrated; controls low / positives high) ===
+kind                       truth        m 0  m10  m20  m30
+  clean                   NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_covariate        NO_CONCEPT 0.00  0.00  0.00  0.04
+  paired_label            NO_CONCEPT 0.00  0.00  0.00  0.00
+  random_label            NO_CONCEPT 0.00  0.00  0.04  0.00
+  paired_covariate_plus_label NO_CONCEPT 0.00  0.00  0.00  0.00
+  missing_pair            NO_CONCEPT 0.00  0.00  0.00  0.00
+  unequal_epochs_extreme  NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_concept          CONCEPT    0.00  0.00  1.00  1.00
+  paired_concept_plus_cov CONCEPT    0.00  0.00  1.00  1.00
+  paired_pure_conditional CONCEPT    0.00  0.00  0.38  0.58
+=== B3-P2.4 [high_subject_tau] confirm rate (pc_centered_calibrated; controls low / positives high) ===
+kind                       truth        m 0  m10  m20  m30
+  clean                   NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_covariate        NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_label            NO_CONCEPT 0.00  0.00  0.04  0.00
+  random_label            NO_CONCEPT 0.00  0.00  0.12  0.00
+  paired_covariate_plus_label NO_CONCEPT 0.00  0.00  0.00  0.00
+  missing_pair            NO_CONCEPT 0.00  0.00  0.00  0.00
+  unequal_epochs_extreme  NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_concept          CONCEPT    0.00  0.00  1.00  1.00
+  paired_concept_plus_cov CONCEPT    0.00  0.00  1.00  1.00
+  paired_pure_conditional CONCEPT    0.00  0.00  0.25  0.54
+=== B3-P2.4 [high_nuisance] confirm rate (pc_centered_calibrated; controls low / positives high) ===
+kind                       truth        m 0  m10  m20  m30
+  clean                   NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_covariate        NO_CONCEPT 0.00  0.00  0.00  0.04
+  paired_label            NO_CONCEPT 0.00  0.00  0.00  0.00
+  random_label            NO_CONCEPT 0.00  0.00  0.04  0.00
+  paired_covariate_plus_label NO_CONCEPT 0.00  0.00  0.00  0.00
+  missing_pair            NO_CONCEPT 0.00  0.00  0.00  0.00
+  unequal_epochs_extreme  NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_concept          CONCEPT    0.00  0.00  1.00  1.00
+  paired_concept_plus_cov CONCEPT    0.00  0.00  1.00  1.00
+  paired_pure_conditional CONCEPT    0.00  0.00  0.38  0.58
+=== B3-P2.4 [imbalanced] confirm rate (pc_centered_calibrated; controls low / positives high) ===
+kind                       truth        m 0  m10  m20  m30
+  clean                   NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_covariate        NO_CONCEPT 0.00  0.00  0.04  0.04
+  paired_label            NO_CONCEPT 0.00  0.00  0.00  0.00
+  random_label            NO_CONCEPT 0.00  0.00  0.00  0.04
+  paired_covariate_plus_label NO_CONCEPT 0.00  0.00  0.00  0.00
+  missing_pair            NO_CONCEPT 0.00  0.00  0.00  0.00
+  unequal_epochs_extreme  NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_concept          CONCEPT    0.00  0.00  1.00  1.00
+  paired_concept_plus_cov CONCEPT    0.00  0.00  1.00  1.00
+  paired_pure_conditional CONCEPT    0.00  0.00  0.42  0.67
+=== B3-P2.4 [label_noise] confirm rate (pc_centered_calibrated; controls low / positives high) ===
+kind                       truth        m 0  m10  m20  m30
+  clean                   NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_covariate        NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_label            NO_CONCEPT 0.00  0.00  0.00  0.12
+  random_label            NO_CONCEPT 0.00  0.00  0.04  0.00
+  paired_covariate_plus_label NO_CONCEPT 0.00  0.00  0.08  0.17
+  missing_pair            NO_CONCEPT 0.00  0.00  0.00  0.00
+  unequal_epochs_extreme  NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_concept          CONCEPT    0.00  0.00  1.00  1.00
+  paired_concept_plus_cov CONCEPT    0.00  0.00  0.96  0.96
+  paired_pure_conditional CONCEPT    0.00  0.00  0.04  0.38
+=== B3-P2.4 [few_epochs] confirm rate (pc_centered_calibrated; controls low / positives high) ===
+kind                       truth        m 0  m10  m20  m30
+  clean                   NO_CONCEPT 0.00  0.00  0.04  0.04
+  paired_covariate        NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_label            NO_CONCEPT 0.00  0.00  0.00  0.00
+  random_label            NO_CONCEPT 0.00  0.00  0.04  0.00
+  paired_covariate_plus_label NO_CONCEPT 0.00  0.00  0.00  0.00
+  missing_pair            NO_CONCEPT 0.00  0.00  0.00  0.00
+  unequal_epochs_extreme  NO_CONCEPT 0.00  0.00  0.00  0.00
+  paired_concept          CONCEPT    0.00  0.00  0.29  0.29
+  paired_concept_plus_cov CONCEPT    0.00  0.00  0.29  0.29
+  paired_pure_conditional CONCEPT    0.00  0.00  0.08  0.00
+[b3p24] done rc=0
