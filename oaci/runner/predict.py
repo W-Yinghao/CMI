@@ -105,7 +105,7 @@ class RowPredictionCache:
             return self._store[key]
         from .replay_store import resolve_artifact
         self._comp[key] += 1
-        self._store[key] = resolve_artifact("prediction", key, fn)   # off/record/replay (C4b)
+        self._store[key] = resolve_artifact(f"logits:{key.role}", key, fn)   # role-segregated (C4b)
         return self._store[key]
 
     def total_requests(self): return int(sum(self._req.values()))

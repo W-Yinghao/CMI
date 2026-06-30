@@ -118,7 +118,7 @@ def run_post_selection_audit(intermediate, fold_data, fold_scope, execution_cfg,
                                       model_spec.model_spec_hash, execution_cfg.feature_chunk_size)
             feat = feat_cache.get_or_extract(fkey, lambda ms=mstate, h=mh, s=fseed: extract_frozen_features(
                 ms, h, model_factory, td, design, factory_seed=s,
-                chunk_size=execution_cfg.feature_chunk_size, device=device))
+                chunk_size=execution_cfg.feature_chunk_size, device=device), role="source_audit")
             skey = make_leakage_score_key(feat, sg, fold, boot, critic)
             leak = score_cache.get_or_compute(skey, lambda f=feat: compute_leakage_score(f.features, sg, fold, boot, critic))
             items.append((name, AuditMethodResult(name, "estimable", mh, leak, leakage_result_hash(leak))))

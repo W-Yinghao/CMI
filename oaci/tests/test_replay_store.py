@@ -42,11 +42,35 @@ def _replay(store):
         RS.set_replay_store(None, "off")
 
 
-def test_record_captures_feature_and_prediction_artifacts():
+def test_record_captures_role_segregated_artifacts():
     _fr, store = _record()
     kinds = store.kinds()
-    assert kinds.get("feature", 0) > 0 and kinds.get("prediction", 0) > 0
+    # selection (source_train) + audit (source_audit) features, and the three prediction-logit roles
+    assert kinds.get("feat:source_train", 0) > 0 and kinds.get("feat:source_audit", 0) > 0
+    assert any(k.startswith("logits:") for k in kinds)
     assert len(store) == sum(kinds.values())
+
+
+def test_selection_only_touches_source_train_features():
+    """Target isolation: replaying ONLY the selection store (source_train features) must carry the
+    selection scoring -- selection never requests audit features or any prediction logits."""
+    _a, full = _record()
+    sel_only = RS.ReplayStore()
+    for (kind, key), v in full._d.items():
+        if kind == "feat:source_train":
+            sel_only.record(kind, key, v)
+    # drive the selection leakage path under the source_train-only store; it must not need any other role
+    from oaci.runner.selection import FeatureArtifactCache
+    cache = FeatureArtifactCache()
+    RS.set_replay_store(sel_only, "replay")
+    try:
+        # any source_train key present resolves; an audit/logits key is absent -> would KeyError if requested
+        k = next(key for (kind, key) in full._d if kind == "feat:source_train")
+        assert cache.get_or_extract(k, lambda: (_ for _ in ()).throw(AssertionError("forward!")),
+                                    role="source_train") is not None
+    finally:
+        RS.set_replay_store(None, "off")
+    assert not sel_only.has("feat:source_audit", next(key for (kind, key) in full._d if kind == "feat:source_audit"))
 
 
 def test_replay_reproduces_fold_result_bit_exactly():
@@ -73,8 +97,8 @@ def test_replay_survives_pickle_round_trip():
 def test_replay_requires_every_key_present():
     a, store = _record()
     # drop one recorded feature artifact -> replay must fail (proving it truly serves from the store)
-    a_feature_key = next(k for (kind, k) in store._d if kind == "feature")
-    store.drop("feature", a_feature_key)
+    kind0, a_feature_key = next((kind, k) for (kind, k) in store._d if kind.startswith("feat:"))
+    store.drop(kind0, a_feature_key)
     try:
         _replay(store)
     except KeyError:

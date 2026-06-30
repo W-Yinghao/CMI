@@ -52,14 +52,14 @@ class FeatureArtifactCache:
         self._store = {}
         self._req = defaultdict(int); self._comp = defaultdict(int); self._hit = defaultdict(int)
 
-    def get_or_extract(self, key: FeatureArtifactKey, extract_fn):
+    def get_or_extract(self, key: FeatureArtifactKey, extract_fn, role: str = "source_train"):
         self._req[key] += 1
         if key in self._store:
             self._hit[key] += 1
             return self._store[key]
         from .replay_store import resolve_artifact
         self._comp[key] += 1
-        self._store[key] = resolve_artifact("feature", key, extract_fn)   # off/record/replay (C4b)
+        self._store[key] = resolve_artifact(f"feat:{role}", key, extract_fn)   # role-segregated (C4b)
         return self._store[key]
 
     def request_count(self, key): return int(self._req[key])
