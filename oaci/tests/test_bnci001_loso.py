@@ -7,11 +7,15 @@ from __future__ import annotations
 
 import os
 import tempfile
+from types import SimpleNamespace
 
 import oaci.protocol
+import oaci.confirmatory.staged_demo as staged_demo
 from oaci.confirmatory.aggregate import aggregate_loso
 from oaci.confirmatory.bnci001_loso import (expected_level_support, materialize_all_loso, validate_loso_plan)
 from oaci.confirmatory.loso_plan import loso_fold_spec, loso_plan
+from oaci.confirmatory.materialize import materialize_pilot_manifest
+from oaci.confirmatory.schema import load_confirmatory
 from oaci.confirmatory.submit import build_job_plan, print_plan, validate_launch
 
 _PROTO = os.path.join(os.path.dirname(oaci.protocol.__file__), "confirmatory_v2.yaml")
@@ -78,6 +82,59 @@ def test_bnci001_loso_dry_run_does_not_train():
     assert validate_loso_plan()["ok"]
     # no checkpoint artifacts produced by the dry run
     assert not any(f.endswith(".pt") for _root, _dirs, files in os.walk(d) for f in files)
+
+
+# ===================== staged executor materialization (regression: cyclic split, NOT sorted) =====================
+# The C6b GPU sweep materializes via staged_demo._materialize, NOT via the dry-run's materialize_all_loso.
+# These lock the executor's own materialization to the validated cyclic plan -- the gap that let the
+# sorted-vs-cyclic split bug through (the dry-run validated the cyclic plan; the sweep ran the sorted one).
+def _materialize_via_staged(target, out_path, *, dataset="BNCI2014_001", bootstrap_mode="full"):
+    args = SimpleNamespace(protocol=_PROTO, dataset=dataset, target_subject=target, manifest_out=out_path,
+                           model_seed=0, bootstrap_mode=bootstrap_mode)
+    return staged_demo._materialize(args)
+
+
+def test_staged_executor_materializes_cyclic_split_not_sorted_for_target2():
+    import yaml
+    p, _m = _materialize_via_staged(2, os.path.join(tempfile.mkdtemp(), "t2.yaml"))
+    pilot = yaml.safe_load(open(p))["pilot"]
+    assert pilot["source_audit_subjects"] == [3, 4]              # cyclic -- the sorted split would give [1, 3]
+    assert pilot["source_train_subjects"] == [5, 6, 7, 8, 9, 1]  # sorted would give [4, 5, 6, 7, 8, 9]
+    assert pilot["deleted_cell_level1"]["domain_id"].endswith("subject-005")   # sorted would delete subject-004
+    assert pilot["deleted_cell_level1"]["class_name"] == "feet"
+
+
+def test_staged_executor_split_matches_loso_plan_for_all_targets():
+    import yaml
+    d = tempfile.mkdtemp()
+    by_target = {f["target"]: f for f in loso_plan()}
+    for t in range(1, 10):
+        p, _m = _materialize_via_staged(t, os.path.join(d, f"t{t}.yaml"))
+        pilot = yaml.safe_load(open(p))["pilot"]
+        spec = by_target[t]
+        assert pilot["target_subjects"] == [t]
+        assert pilot["source_audit_subjects"] == spec["source_audit_subjects"]
+        assert pilot["source_train_subjects"] == spec["source_train_subjects"]
+        assert pilot["deleted_cell_level1"] == spec["deleted_cell"]
+
+
+def test_staged_target001_manifest_byte_identical_to_default_split():
+    # target-001: the cyclic and the default sorted split coincide, so the manifest must be byte-identical
+    # to the pre-C6 default-split path -- proving the C5/C4b target-001 staged runs stay valid.
+    d = tempfile.mkdtemp()
+    p_cyc, _ = _materialize_via_staged(1, os.path.join(d, "t1_cyclic.yaml"))
+    proto = load_confirmatory(_PROTO)
+    p_def, _ = materialize_pilot_manifest(proto, "BNCI2014_001", target_subject=1,
+                                          out_path=os.path.join(d, "t1_default.yaml"), model_seeds=[0])
+    assert open(p_cyc, "rb").read() == open(p_def, "rb").read()
+
+
+def test_staged_executor_rejects_non_bnci_loso_dataset():
+    try:
+        _materialize_via_staged(2, os.path.join(tempfile.mkdtemp(), "x.yaml"), dataset="OTHER")
+    except ValueError:
+        return
+    raise AssertionError("the LOSO cyclic split is BNCI2014_001-only; another dataset must be rejected")
 
 
 # ===================== submitter =====================

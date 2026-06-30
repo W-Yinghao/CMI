@@ -34,11 +34,23 @@ from .schema import load_confirmatory
 
 
 def _materialize(args):
+    """Materialize the confirmatory one-fold manifest using the BNCI2014_001 LOSO CYCLIC split (C6): the
+    SAME deterministic split (loso_fold_spec) the submitter and the dry-run use, derived from the target so
+    that loso_plan stays the single source of truth. Without this the executor fell back to the default
+    SORTED split (materialize.split_subjects), which agrees with the cyclic split ONLY for target-001 -- so
+    the GPU sweep would have silently run the wrong audit/train roles and wrong deleted cell for targets
+    2..9. For target-001 the cyclic and the default split coincide, so the manifest is byte-identical and
+    the earlier target-001 staged runs stay valid."""
+    from .loso_plan import explicit_split as _loso_split, loso_fold_spec
+    if str(args.dataset) != "BNCI2014_001":                            # the LOSO cyclic plan is the 9-subject BNCI
+        raise ValueError(f"staged confirmatory LOSO is defined for BNCI2014_001, not {args.dataset!r}")
     proto = load_confirmatory(args.protocol)
     override = VALIDATION_BOOTSTRAP if args.bootstrap_mode == "validation" else None
-    path, manifest = materialize_pilot_manifest(proto, args.dataset, target_subject=args.target_subject,
-                                                out_path=args.manifest_out, model_seeds=[int(args.model_seed)],
-                                                bootstrap_override=override)
+    spec = loso_fold_spec(int(args.target_subject), dataset_id=str(args.dataset))
+    path, manifest = materialize_pilot_manifest(
+        proto, args.dataset, target_subject=int(args.target_subject), out_path=args.manifest_out,
+        model_seeds=[int(args.model_seed)], bootstrap_override=override,
+        explicit_split=_loso_split(spec), deleted_cell=dict(spec["deleted_cell"]))
     return path, manifest
 
 
