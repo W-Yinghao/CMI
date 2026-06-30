@@ -1,0 +1,27 @@
+[b3p24d] host=nodecpu01 job=877663 cpus=24
+[b3p24d] wrote csc/results/b3_p24d.json
+=== B3-P2.4d CONTROLS (48/cell; alpha_budget=0.025; per-budget NEW vs OLD=P2.4c) ===
+pooled NEW 14/4032=0.0035 (CP-up 0.0054)   alpha_family=0.05 alpha_budget=0.025
+-- m=20 --
+  clean                      NEW 0.0000 (CP-up 0.0103) | OLD 0.0000  
+  missing_pair               NEW 0.0000 (CP-up 0.0103) | OLD 0.0000  
+  paired_covariate           NEW 0.0035 (CP-up 0.0164) | OLD 0.0104  
+  paired_covariate_plus_label NEW 0.0000 (CP-up 0.0103) | OLD 0.0174  
+  paired_label               NEW 0.0069 (CP-up 0.0217) | OLD 0.0139  
+  random_label               NEW 0.0000 (CP-up 0.0103) | OLD 0.0139  
+  unequal_epochs_extreme     NEW 0.0000 (CP-up 0.0103) | OLD 0.0000  
+-- m=30 --
+  clean                      NEW 0.0000 (CP-up 0.0103) | OLD 0.0035  
+  missing_pair               NEW 0.0000 (CP-up 0.0103) | OLD 0.0000  
+  paired_covariate           NEW 0.0069 (CP-up 0.0217) | OLD 0.0208  
+  paired_covariate_plus_label NEW 0.0069 (CP-up 0.0217) | OLD 0.0174  
+  paired_label               NEW 0.0000 (CP-up 0.0103) | OLD 0.0000  
+  random_label               NEW 0.0243 (CP-up 0.0452) | OLD 0.0347  
+  unequal_epochs_extreme     NEW 0.0000 (CP-up 0.0103) | OLD 0.0000  
+HARD-FAIL flags: NONE
+gate removals P2.4c->P2.4d (m>=20): controls=24 primary=4 secondary=24
+=== POWER (NEW P2.4d | OLD P2.4c) ===
+  paired_concept             m20 0.799|0.806  m30 0.819|0.819
+  paired_concept_plus_cov    m20 0.806|0.819  m30 0.826|0.833
+  paired_pure_conditional    m20 0.146|0.215  m30 0.250|0.347
+[b3p24d] done rc=0
