@@ -680,12 +680,52 @@ def test_run_substrate_compatibility_authorized_runs_gated_replay():
         shutil.rmtree(base, ignore_errors=True)
 
 
-def test_compat_replay_inner_frontiers_are_controlled():
-    """The re-embed + fixed-candidate stat-extraction frontiers raise a CONTROLLED SubstrateReplayNotWiredError (never a
-    silently-wrong verdict) until finalized at the authorized C-run."""
+def test_compat_replay_single_frontier_and_no_refit():
+    """C2: the ONLY remaining C-run frontier is the raw-window↔v3-WindowKey alignment (_load_subject_windows_and_keys) — it
+    raises a CONTROLLED SubstrateReplayNotWiredError (never a silently-wrong verdict). And the replay path NEVER re-fits the
+    source-state: it must not reference real_adapter.build_cohort_inputs / v3 build_cohort_input / real_adapter.derive."""
+    import inspect
     from acar.v4 import run_substrate_compatibility as RSC
-    _expect(R.SubstrateReplayNotWiredError, lambda: RSC._reembed_dev_under_substrate({}, "/tmp/x"))
-    _expect(R.SubstrateReplayNotWiredError, lambda: RSC._extract_fixed_candidate_stats(object(), {}))
+    _expect(R.SubstrateReplayNotWiredError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", R.FROZEN_PIPELINE))
+    src = inspect.getsource(RSC)                                                # check CALLS (with "("), not doc mentions
+    assert "build_cohort_input(" not in src and "build_cohort_inputs(" not in src, "replay must NOT call the refit build_cohort_input(s)()"
+    assert "real_adapter.derive(" not in src and "RA.derive(" not in src, "replay must NOT call real_adapter.derive (refit path)"
+    assert "fit_source_state" not in src, "replay must NOT fit a source-state"
+    assert "load_frozen_source_state_artifact" in src, "replay MUST consume the FROZEN B1b source-state"
+
+
+def _fc_report(disease, **over):
+    import types
+    fc = R.FIXED_CANDIDATE
+    base = dict(disease=disease, policy_family=fc["policy"], loss=fc["loss"], coverage=0.30, red=0.20,
+                harm_rate=0.05, c0_red=0.10, g4_harm_control_pass=True)
+    base.update(over)
+    return types.SimpleNamespace(**base)
+
+
+def test_extract_fixed_candidate_stats():
+    import types
+    from acar.v4 import run_substrate_compatibility as RSC
+    res = types.SimpleNamespace(reports=(_fc_report("PD"), _fc_report("SCZ")))
+    pd = RSC._extract_fixed_candidate_stats(res)
+    assert set(pd) == {"PD", "SCZ"}
+    assert pd["PD"]["lambda_certified"] is True and pd["PD"]["coverage"] == 0.30 and pd["PD"]["red"] == 0.20
+    assert pd["PD"]["L_harm_all_eval"] == 0.05 and pd["PD"]["v2_replay_red"] == 0.10 and pd["PD"]["v2_evaluable"] is True
+    # v2 comparator absent -> v2_evaluable False, v2_replay_red None (compatibility_replay_pass then HARD-fails)
+    res2 = types.SimpleNamespace(reports=(_fc_report("PD", c0_red=None), _fc_report("SCZ")))
+    assert RSC._extract_fixed_candidate_stats(res2)["PD"]["v2_evaluable"] is False
+    # non-finite harm_rate (nothing adapted) -> JSON-safe fail-safe 1.0 (not NaN), fails the budget gate
+    res_nan = types.SimpleNamespace(reports=(_fc_report("PD", harm_rate=float("nan")), _fc_report("SCZ")))
+    pn = RSC._extract_fixed_candidate_stats(res_nan)
+    assert pn["PD"]["L_harm_all_eval"] == 1.0 and json.dumps(pn, allow_nan=False)                    # JSON-serializable, no NaN
+    # the extracted stats actually drive the frozen pass-line
+    assert R.compatibility_replay_pass(RSC._extract_fixed_candidate_stats(res))[0] is True
+    # multi-report per disease (a reselection grid) -> fail closed
+    res3 = types.SimpleNamespace(reports=(_fc_report("PD"), _fc_report("PD"), _fc_report("SCZ")))
+    _expect(ValueError, lambda: RSC._extract_fixed_candidate_stats(res3))
+    # missing a disease -> fail closed
+    res4 = types.SimpleNamespace(reports=(_fc_report("PD"),))
+    _expect(ValueError, lambda: RSC._extract_fixed_candidate_stats(res4))
 
 
 def main():
@@ -700,7 +740,7 @@ def main():
               test_load_eligible_windows_excludes_before_open_and_cohort_aware,
               test_run_substrate_compatibility_fail_closed,
               test_run_substrate_compatibility_authorized_runs_gated_replay,
-              test_compat_replay_inner_frontiers_are_controlled,
+              test_compat_replay_single_frontier_and_no_refit, test_extract_fixed_candidate_stats,
               test_cmi_load_cohort_honors_subject_allowlist):
         t()
         print(f"  [ok] {t.__name__}")

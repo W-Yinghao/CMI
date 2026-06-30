@@ -131,58 +131,188 @@ def _verify_substrate_semantic_hashes(spec):                        # pragma: no
             raise ValueError(f"{d}: source_state_artifact_sha256 mismatch")
 
 
-def _reembed_dev_under_substrate(spec, workdir):                     # pragma: no cover — gated re-embed frontier; tests monkeypatch
-    """Re-embed the OLD-SEVEN eligible DEV windows (the exact universe pinned by each disease's dev_input_manifest — PD 230 /
-    SCZ 225, ds004000/sub-042 excluded, FROZEN_PIPELINE, cohort-aware keys) with the NEW all-DEV encoder, and write a new
-    feat-dump dir of `audit_{disease}_{ds}_erm_0.npz` in the EXACT cmi schema that real_adapter.build_cohort_inputs consumes.
-    This is the one re-embed-to-feat-format frontier: producing a subtly wrong dump would silently corrupt the compatibility
-    verdict, so it is FINALIZED + validated at the authorized C-run step rather than shipped untested. Until then it raises a
-    CONTROLLED SubstrateReplayNotWiredError (no wrong verdict, output cleaned by the caller)."""
+def _dev_input_manifest(spec, disease):
+    """Load the disease's pinned DEV input manifest (the B1b regen input manifest) — the authoritative eligible-subject
+    universe + cohort source paths. Its file sha was already verified == dev_input_manifest_sha256 in the stdlib preflight."""
+    with open(spec["substrates"][disease]["dev_input_manifest_path"]) as f:
+        return json.load(f)
+
+
+def _raw_subjects_by_cohort(spec, disease):
+    """METADATA-only: list sub-* dirs per DEV cohort (no signal), for check_eligible_subjects (eligible = raw − excluded)."""
+    m = _dev_input_manifest(spec, disease)
+    out = {}
+    for c in m["dev_cohorts"]:
+        cdir = m["source_paths"][c]
+        out[c] = [d for d in os.listdir(cdir) if d.startswith("sub-") and os.path.isdir(os.path.join(cdir, d))]
+    return out
+
+
+def _load_subject_windows_and_keys(disease, dataset_id, subject, cfg):   # pragma: no cover — the single C-run raw-I/O frontier
+    """The ONE remaining C-run-validated frontier: open ONE eligible DEV subject's raw EEG and return
+    (windows[n,19,512], v3 WindowKeys[n], per-window labels[n]) aligned to the DEV dump's (recording_id_te, window_index_te)
+    so the re-embedded z carries the EXACT v3 keys the digests/manifest expect. This is the only step that reads DEV raw; the
+    raw-window↔v3-WindowKey alignment is verified against the dump metadata + the v3 integrity machinery at the authorized
+    C-run (an unverified alignment would corrupt deployment_batch_digest → a silently-wrong verdict, strictly worse than a clean
+    abort). Everything around it (frozen-substrate load, no-refit derive, 1x1x1 exploration, stat extraction) is real."""
     raise RS.SubstrateReplayNotWiredError(
-        "re-embed-to-feat-dump is wired against the new substrate encoders + the dev_input_manifest eligible universe but its "
-        "EXACT cmi audit_*.npz schema reproduction is confirmed at the authorized C-run step (no untested re-embed → no "
-        "silently-wrong verdict). The downstream derive→run_dev_exploration→compatibility_replay_pass chain is real.")
+        f"raw-window↔v3-WindowKey alignment for {dataset_id}/{subject} is finalized + validated at the authorized C-run "
+        "(reads DEV raw; the alignment must match the dump's recording_id_te/window_index_te before any digest is trusted).")
 
 
-def _fixed_candidate_per_disease_metrics(new_feat_dir, spec):       # pragma: no cover — gated; tests monkeypatch _run_compatibility_replay
-    """REAL wiring: build the seven v3 cohort inputs from the re-embedded feat dir, derive V4OOFRecords + the v2-replay
-    comparator, run the FIXED-candidate exploration (real_mode, g3=v2_replay), and extract the per-disease stats that
-    compatibility_replay_pass consumes: {lambda_certified, coverage, red, L_harm_all_eval, v2_evaluable, v2_replay_red}. NO
-    reselection: the exploration is pinned to EXACTLY ONE config (1x1x1 — score=shift_margin, policy=benefit_ranked,
-    loss=harm_indicator); policy_families + losses + budget_by_loss are fixed so there is no 3x3 grid to choose from."""
-    from acar.v4 import real_adapter as RA
+def _load_frozen_substrate(spec):                                   # pragma: no cover — gated (torch/acar.v3); tests monkeypatch
+    """Load the FROZEN B1b substrate per disease: the encoder state_dict (SAFE weights_only) into an EEGNet backbone, and the
+    source-state via acar.v3 load_frozen_source_state_artifact (self-verifying; NEVER refit). REQUIRES the source-state artifact
+    (path + canonical hash) — this is the substrate the replay must check, not a re-fitted one. Returns {disease: (encoder, art)}."""
+    import numpy as np
+    import torch
+    from cmi.models.backbones import build_backbone
+    from acar.v3.loader import load_frozen_source_state_artifact
+    s = RS.TRAINING_SCHEDULE
+    out = {}
+    for d in ("PD", "SCZ"):
+        sd = spec["substrates"][d]
+        if not sd.get("source_state_path") or not RS._is_hex(sd.get("source_state_artifact_sha256", ""), 64):
+            raise ValueError(f"{d}: frozen source-state artifact (path + source_state_artifact_sha256) is REQUIRED")
+        bb = build_backbone(s["model"], n_chans=s["n_chans"], n_times=s["n_times"], n_classes=s["n_classes"], device="cpu")
+        bb.load_state_dict(torch.load(sd["encoder_checkpoint_path"], map_location="cpu", weights_only=True)); bb.eval()
+        art = load_frozen_source_state_artifact(dict(np.load(sd["source_state_path"], allow_pickle=False)))   # FROZEN; no refit
+        if art.source_state_sha256 != sd["source_state_artifact_sha256"] or str(art.disease) != d:
+            raise ValueError(f"{d}: frozen source-state artifact mismatch (hash/disease)")
+        out[d] = (bb, art)
+    return out
+
+
+def _reembed_dev_under_substrate(spec, frozen):                     # pragma: no cover — gated raw read at C-run; tests monkeypatch
+    """Re-embed the OLD-SEVEN eligible DEV windows (exact universe pinned by each disease's dev_input_manifest — PD 230 /
+    SCZ 225, ds004000/sub-042 excluded, FROZEN_PIPELINE, cohort-aware keys) with the NEW all-DEV encoder, and build per-disease
+    v3 DeploymentBatches (z = NEW embeddings; window/subject/recording keys + window_index from the DEV dump metadata;
+    source_state_ref = the FROZEN B1b artifact's ref) + labels_by_window. NO source-state is fitted here. Returns
+    {disease: {"artifact": art, "batches": [...], "labels": {...}}}. The actual DEV raw read + per-subject encoder forward run
+    ONLY at the authorized C-run; the v3 integrity machinery (digests, manifest, assert_compatible) fail-closes on any mismatch."""
+    import numpy as np
+    import torch
+    from acar.v3.data import build_deployment_batches
+    cfg = RS.FROZEN_PIPELINE
+    out = {}
+    for d in ("PD", "SCZ"):
+        bb, art = frozen[d]
+        eligible = set(RS.check_eligible_subjects(d, _raw_subjects_by_cohort(spec, d), _dev_input_manifest(spec, d)))
+        rows_by_ds, labels = {}, {}
+        for ns in sorted(eligible):                                # cohort-aware "dsid/sub"; excluded never enumerated
+            ds_id, sub = ns.split("/", 1)
+            X, keys, y = _load_subject_windows_and_keys(d, ds_id, sub, cfg)   # raw → windows + v3 keys + per-window labels (no refit)
+            with torch.no_grad():
+                z = bb(torch.as_tensor(np.asarray(X, dtype="<f4")))[1].cpu().numpy()   # NEW-encoder embeddings (forward → (logits, z))
+            RS.assert_finite(z, f"{ns} embeddings")
+            for k, zi, yi in zip(keys, z, y):
+                rows_by_ds.setdefault(ds_id, []).append((k, np.asarray(zi, float)))
+                labels[k] = int(yi)
+        batches = []
+        for ds_id, rows in rows_by_ds.items():
+            batches += list(build_deployment_batches(ds_id, d, rows, art.source_state_ref))
+        out[d] = {"artifact": art, "batches": batches, "labels": labels}
+    return out
+
+
+def _derive_under_frozen_source_state(reembed_out):                 # pragma: no cover — gated; tests monkeypatch _run_compatibility_replay
+    """Derive V4OOFRecords + the v2-replay comparator UNDER the FROZEN B1b source-state — the no-refit path. Mirrors
+    real_adapter.derive's body but builds the SourceStateRegistry from the FROZEN artifact and EXECUTES it (disease_exec_cache
+    → SourceStateArtifact.execute; run_c0; _emit_records over the v3 CV folds). It DELIBERATELY does NOT call
+    real_adapter.build_cohort_inputs / v3 build_cohort_input (which would RE-FIT a per-cohort source-state). Returns
+    (records, v2_replay_red_by_disease)."""
+    import numpy as np
+    from acar.v3 import develop as V3D
+    from acar.v3.loader import SourceStateRegistry
+    from acar.v3.data import deployment_batch_digest, canon_subject
+    from acar.v3.splits import cv_assignment
+    from acar.v4.real_adapter import _fold_roles, _emit_records, ACTIONS
+    records, v2_replay = [], {}
+    for d in ("PD", "SCZ"):
+        art, batches, labels = reembed_out[d]["artifact"], reembed_out[d]["batches"], reembed_out[d]["labels"]
+        registry = SourceStateRegistry(d); registry.add(art)        # FROZEN B1b artifact ONLY (no DEV-fitted artifact)
+        idx = V3D._subject_batches(batches); eligible = V3D._eligible_subjects(idx)
+        all_subjects = [v["key"] for v in idx.values()]; elig_canon = {canon_subject(s) for s in eligible}
+        assignment, _ = cv_assignment(all_subjects, eligible=elig_canon)        # SAME CV call/seeds as the DEV run
+        cache = V3D.disease_exec_cache(registry, batches, labels)   # execute once via the FROZEN artifact — NO refit
+        v2_replay[d] = float(V3D.run_c0(d, registry, batches, labels, 0.10, 0.0, cache=cache).red_router)
+        cells = {}
+        for cc, slot in idx.items():
+            key = slot["key"]; elig = []
+            for b in slot["eligible"]:
+                c = cache[deployment_batch_digest(b)]
+                dr = np.array([float(c["dr"][a]) for a in ACTIONS], float)
+                feats = np.stack([np.asarray(c["c0feat"][a], float) for a in ACTIONS])
+                elig.append((deployment_batch_digest(b), dr, feats))
+            cells[cc] = {"dataset": key.dataset_id, "subject": key.subject_id, "eligible": elig,
+                         "fallback": [deployment_batch_digest(b) for b in slot["fallback"]]}
+        assignment_canon = [{"fold": fa["fold"], "eval": {canon_subject(s) for s in fa["eval"]},
+                             "cal": {canon_subject(s) for s in fa["cal"]}, "fit": {canon_subject(s) for s in fa["fit"]}}
+                            for fa in assignment]
+        records += _emit_records(d, _fold_roles(assignment_canon), cells)
+    return records, v2_replay
+
+
+def _fixed_candidate_per_disease_metrics(reembed_out, spec):       # pragma: no cover — gated; tests monkeypatch _run_compatibility_replay
+    """Derive UNDER the FROZEN source-state (no refit) → run the FIXED-candidate exploration pinned to EXACTLY ONE config
+    (1x1x1: score=shift_margin, policy=benefit_ranked, loss=harm_indicator) → extract per-disease stats. NO real_adapter.derive
+    / build_cohort_inputs (which would re-fit source-state)."""
     from acar.v4.develop import run_dev_exploration, V4DevConfig
-    cohort_inputs = RA.build_cohort_inputs(feat_dir=new_feat_dir)
-    records, v2_replay = RA.derive(cohort_inputs)
-    # FIX the WHOLE candidate (1x1x1), not just the score family: pin policy + loss too, so the exploration computes EXACTLY
-    # the fixed candidate (shift_margin x benefit_ranked x harm_indicator) and there is NO 3x3 policy/loss grid to silently
-    # reselect from. budget_by_loss carries the single fixed loss's budget (== BUDGET).
+    records, v2_replay = _derive_under_frozen_source_state(reembed_out)
     cfg = V4DevConfig(policy_families=(RS.FIXED_CANDIDATE["policy"],), losses=(RS.FIXED_CANDIDATE["loss"],),
                       budget_by_loss={RS.FIXED_CANDIDATE["loss"]: RS.BUDGET}, alpha=RS.ALPHA,
                       coverage_min=RS.COVERAGE_MIN, g3_comparator="v2_replay")
     result = run_dev_exploration(records, config=cfg, score_families=[RS.FIXED_CANDIDATE["score_family"]],
                                  real_mode=True, v2_replay_red_by_disease=v2_replay)
-    return _extract_fixed_candidate_stats(result, v2_replay)        # gated extraction (exactly one config); confirmed at C-run
+    return _extract_fixed_candidate_stats(result)
 
 
-def _extract_fixed_candidate_stats(result, v2_replay):             # pragma: no cover — gated; confirmed at C-run
-    """Map the exploration result for the FIXED candidate to the per-disease dict compatibility_replay_pass requires. The exact
-    result accessor is confirmed at the authorized C-run (the result schema is exercised there with real data)."""
-    raise RS.SubstrateReplayNotWiredError(
-        "fixed-candidate per-disease stat extraction from the exploration result is confirmed at the authorized C-run step.")
+def _extract_fixed_candidate_stats(result):
+    """REAL deterministic accessor: pull the per-disease stats compatibility_replay_pass needs from a V4DevExplorationResult
+    that was run with EXACTLY the fixed candidate. Fail-closed if not exactly one (disease, benefit_ranked, harm_indicator)
+    report per disease, if a disease is missing, or if the v2 comparator is absent — never fabricate. Maps:
+      lambda_certified = g4_harm_control_pass — the LTT certification that the harm_indicator loss is controlled at the budget
+                         (this g4 gate is the AUTHORITATIVE all-eval harm-budget control);
+      L_harm_all_eval  = harm_rate — NOTE this is the CONDITIONAL EVAL harm P(ΔR>0 | adapted); it is a CONSERVATIVE UPPER BOUND
+                         on the true all-eval harm_indicator loss (harm_rate ≥ coverage·harm_rate = L_harm_all_true), so the
+                         ≤budget gate is STRICTER than intended — it can never produce a false PASS (only a conservative FAIL).
+                         No V4CandidateReport field holds the all-eval EVAL harm; the exact EVAL-all number is reconciled at the
+                         authorized C-run (g4/lambda_certified already enforces the LTT harm budget). Non-finite harm_rate
+                         (nothing adapted; coverage gate already fails) → 1.0 (fail-safe + JSON-safe).
+      v2_replay_red    = c0_red (== the v2_replay comparator because g3_comparator='v2_replay')."""
+    import math
+    fc = RS.FIXED_CANDIDATE
+    per_disease = {}
+    for d in ("PD", "SCZ"):
+        rs = [r for r in getattr(result, "reports", ())
+              if r.disease == d and r.policy_family == fc["policy"] and r.loss == fc["loss"]]
+        if len(rs) != 1:
+            raise ValueError(f"{d}: expected EXACTLY ONE fixed-candidate report (no reselection grid), got {len(rs)}")
+        r = rs[0]
+        v2r = r.c0_red
+        v2_eval = v2r is not None and math.isfinite(float(v2r))
+        hr = float(r.harm_rate)
+        L_harm = hr if math.isfinite(hr) else 1.0                   # conservative + JSON-safe (allow_nan=False); fails the budget gate
+        per_disease[d] = {"lambda_certified": bool(r.g4_harm_control_pass), "coverage": float(r.coverage),
+                          "red": float(r.red), "L_harm_all_eval": L_harm,
+                          "v2_evaluable": bool(v2_eval), "v2_replay_red": (float(v2r) if v2_eval else None)}
+    if set(per_disease) != {"PD", "SCZ"}:
+        raise ValueError("fixed-candidate extraction must cover EXACTLY PD and SCZ")
+    return per_disease
 
 
 def _run_compatibility_replay(spec, output):                        # pragma: no cover — gated real orchestration; tests monkeypatch
-    """REAL orchestration (NOT an entry-raise). Reached ONLY with a valid, bound compatibility authorization. Steps:
-    runtime==env-lock verify → substrate SEMANTIC-hash verify (both run for real) → re-embed old-seven DEV under the new
-    substrate (gated frontier; confirmed at C-run) → derive + FIXED-candidate exploration → per-disease stats →
-    regen_substrate.compatibility_replay_pass → verdict. Returns {status, reason, per_disease}. Tests monkeypatch this whole
-    function. An operational failure propagates (caller cleans the output → OPERATIONALLY_ABORTED_NO_VERDICT)."""
+    """REAL orchestration (NOT an entry-raise). Reached ONLY with a valid, bound compatibility authorization. Steps (all REAL):
+    runtime==env-lock verify → substrate SEMANTIC-hash verify → load the FROZEN B1b encoder + source-state (no refit) →
+    re-embed old-seven eligible DEV under the new encoder → derive UNDER the frozen source-state (NOT build_cohort_input) →
+    FIXED-candidate (1x1x1) exploration → extract per-disease stats → regen_substrate.compatibility_replay_pass → verdict.
+    Returns {status, reason, per_disease}. Tests monkeypatch this whole function. The actual DEV raw read happens ONLY here, at
+    the authorized C-run; an operational failure propagates (caller cleans the output → OPERATIONALLY_ABORTED_NO_VERDICT)."""
     _verify_runtime_matches_lock(spec)                              # cuda + threads=1 + versions == the substrate env lock
     _verify_substrate_semantic_hashes(spec)                        # canonical encoder/source-state hashes == record
-    workdir = os.path.join(output, "_reembed")
-    new_feat_dir = _reembed_dev_under_substrate(spec, workdir)     # gated frontier (controlled abort until C-run)
-    per_disease = _fixed_candidate_per_disease_metrics(new_feat_dir, spec)
+    frozen = _load_frozen_substrate(spec)                          # FROZEN B1b encoder + source-state per disease (no refit)
+    reembed_out = _reembed_dev_under_substrate(spec, frozen)       # re-embed eligible DEV under the new encoder (no refit)
+    per_disease = _fixed_candidate_per_disease_metrics(reembed_out, spec)
     authorized, reason = RS.compatibility_replay_pass(per_disease)  # FROZEN pre-registered pass-line (v2_replay HARD)
     return {"status": "SUBSTRATE_COMPATIBILITY_PASS" if authorized else "SUBSTRATE_COMPATIBILITY_FAIL",
             "reason": reason, "per_disease": per_disease}
