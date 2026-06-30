@@ -109,8 +109,10 @@ dynamic stems); this is the first on a task-capable one.
   known-good CNNs reached 0.52–0.56. So the task-vs-leakage **tradeoff headroom is limited**; a pilot
   must watch task cost carefully and not declare a method win on a thin baseline.
 - This is **graph/node only**. The DGCNN adjacency is static, so **edge-CMI remains out of scope**.
-- Leakage being a controllable *target* is established here; whether a regularizer can **reduce it
-  without destroying the (already modest) task** is the open question — exactly what a pilot would test.
+- Phase 3A-H establishes graph/node leakage as a **valid regularization target** on a task-capable graph
+  backbone; whether graph/node CMI regularization can reduce this leakage **without damaging the modest
+  task baseline remains the next pilot question** (controllability is **not** proven here — only a
+  regularizer pilot can establish it).
 
 **If authorized (reviewer-gated), the next step would be a graph/node CMI regularizer pilot on the DGCNN
 adapter** (small λ ladder, source-only selection, the same firewall) — **not** edge-CMI, **not** full
