@@ -15,8 +15,8 @@ BNCI2014_001 LOSO folds** (primary folds 1–8 = 8/8 on every criterion). That i
 ## Why BNCI2015_001, and why the candidate stays fixed
 
 BNCI2015_001 is a separate MI dataset (different subjects, channels, and task structure) that is close
-enough to test replication — **binary** Left/Right MI. The candidate is **frozen** (no λ search, no new
-configs):
+enough to test replication — **binary MI with right_hand vs feet labels, not left/right hand**. The
+candidate is **frozen** (no λ search, no new configs):
 
 | config | λ_g | λ_node | λ_edge |
 |---|---|---|---|
