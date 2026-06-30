@@ -1,4 +1,11 @@
-# ACAR_FROZEN_v4.md — v4 (CURB) candidate freeze **(DRAFT — §4 AUDITED + CLI IMPLEMENTED; NOT YET TAGGED)**
+# ACAR_FROZEN_v4.md — v4 (CURB) candidate freeze **(DRAFT — never tagged; SUPERSEDED — see CLOSEOUT)**
+
+> **⛔ SUPERSEDED / DEAD DRAFT (2026-07-01).** This protocol was NEVER tagged (`acar-v4-protocol` was never created) and is NOT
+> binding. v4 is **CLOSED as `SUBSTRATE_COMPATIBILITY_FAIL / NO_EXTERNAL / NO_LOCKBOX_CONSUMED`** — the fixed DEV candidate did
+> NOT transfer to the regenerated all-DEV (external-compatible) substrate (compat replay `c605e24`; coverage ≪0.15, deployed
+> red<0 on both diseases, fails v2-HARD). External Arm B is foreclosed; the lockbox stays SEALED; no post-replay tuning is
+> permitted. **Authoritative status: `notes/ACAR_V4_CLOSEOUT.md` (+ EVIDENCE_LEDGER A6/A7).** The text below is retained only as
+> the historical DRAFT and must NOT be read as a live protocol; any continuation is a NEW dated protocol (ACAR v5).
 
 ```
 STATE         : DRAFT — binding ONLY when committed AND tagged `acar-v4-protocol` after sign-off
