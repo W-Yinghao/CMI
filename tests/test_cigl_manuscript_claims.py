@@ -39,6 +39,7 @@ def test_no_affirmative_overclaim_phrases():
         "unbiased estimate of cmi", "we provide an unbiased", "generalizes to all", "works for all eeg",
         "at no task cost",                                   # Phase 4C: use the retention-gate wording instead
         "per-sample a(x) is what memorizes",                 # Phase 4C: no causal isolation of A(x)
+        "without harming source-task performance",           # Phase 4D: use the retention-gate wording instead
     ]
     hits = [p for p in forbidden_affirmative if p in t]
     assert not hits, f"affirmative overclaim phrasing present: {hits}"

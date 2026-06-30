@@ -1,43 +1,48 @@
-# CIGL Statistical Summary (Phase 4C draft)
+# CIGL Statistical Summary (Phase 4D draft)
 
-> Aggregates computed from the **existing** tracked summary JSON (no new runs):
+> Aggregates + **bootstrap 95% CIs** computed from the **existing** tracked summary JSON (no new runs):
 > `results/cigl/phase3a_dgcnn_gn_multifold_confirmation/BNCI2014_001_dgcnn_gn_multifold_summary.json` and
 > `results/cigl/phase3a_dgcnn_gn_second_dataset_confirmation/BNCI2015_001_dgcnn_gn_2nd_dataset_summary.json`.
-> Ranges are per-fold min–max (mean); seeds 0,1,2; n_perm=50; gate α=0.05.
+> **Bootstrap method:** resample folds with replacement, 10 000 resamples, percentile 2.5/97.5; **seed 0**
+> (`numpy.random.default_rng(0)`); statistic = mean over folds (each fold value is its 3-seed mean). Per-fold
+> values are the summary JSON; CIs are fold-level. The per-fold **tables** regenerate via
+> `scripts/collect_cigl_evidence_tables.py` (stdlib-only, no CI); the **CIs** here are from the documented
+> numpy fold-bootstrap above (re-run that snippet to reproduce). No numbers are invented.
 
-## BNCI2014_001 (CIGL_29) — 9 LOSO folds; **primary = folds 1–8** (fold-0 = dev, excluded)
+## BNCI2014_001 (CIGL_29) — **primary = folds 1–8** (fold-0 = dev, excluded); chance 0.25
 
-| quantity | value |
-|---|---|
-| ERM source bAcc | mean 0.484, range [0.457, 0.508] (chance 0.25) |
-| reg (`graph_node_010`) source bAcc | mean 0.486, range [0.455, 0.516] |
-| source drop vs ERM | mean −0.002, max +0.008 → **retain (≤0.02): 9/9** (primary 8/8) |
-| graph KL reduction | 35–58% (mean ≈ 44%) |
-| node KL reduction | 31–45% (mean ≈ 37%) |
-| ERM leakage clears / reg reduces ≥30% / source retained / target guardrail | **8 / 8 / 8 / 8** of the 8 primary folds |
-| regularized leakage still clears null | **every fold** (partial reduction, not elimination) |
-| decision | A (primary folds 1–8) |
+| quantity | mean | 95% CI (bootstrap, folds 1–8) | per-fold range |
+|---|---|---|---|
+| ERM source bAcc | 0.484 | — | [0.457, 0.508] |
+| reg (`graph_node_010`) source bAcc | 0.488 | [0.471, 0.505] | [0.455, 0.516] |
+| source drop vs ERM | −0.002 | [−0.007, 0.003] | max +0.008 → **retain ≤0.02: 8/8** |
+| graph KL reduction | 44.0% | [39.5%, 49.0%] | 35–58% |
+| node KL reduction | 36.9% | [33.6%, 40.3%] | 31–45% |
 
-## BNCI2015_001 (CIGL_31) — 12 LOSO folds (all confirmation; no dev fold)
+Criteria (folds 1–8): ERM leakage clears **8/8**, reg reduces ≥30% **8/8**, source retained **8/8**, target
+guardrail **8/8**; decision **A**.
 
-| quantity | value |
-|---|---|
-| ERM source bAcc | mean 0.706, range [0.682, 0.734] (chance 0.50) |
-| reg source bAcc | mean 0.700, range [0.676, 0.722] |
-| source drop vs ERM | mean +0.007, max +0.024 → **retain (≤0.02): 11/12** (fold9 = +0.024 miss) |
-| graph KL reduction | 43–77% (mean ≈ 66%) |
-| node KL reduction | 37–61% (mean ≈ 52%) |
-| ERM adequacy / ERM leakage / reg reduces / source retained / target guardrail | **12 / 12 / 12 / 11 / 12** of 12 folds |
-| three-layer verdict | `source_only_confirmed`=T, `target_guardrail_pass`=T, `confirmed_with_target_guardrail`=T → **A** |
-| regularized leakage still clears null | **every fold** (partial reduction, not elimination) |
+## BNCI2015_001 (CIGL_31) — all 12 LOSO folds (no dev fold); chance 0.50
+
+| quantity | mean | 95% CI (bootstrap, 12 folds) | per-fold range |
+|---|---|---|---|
+| ERM source bAcc | 0.706 | — | [0.682, 0.734] |
+| reg source bAcc | 0.700 | [0.693, 0.707] | [0.676, 0.722] |
+| source drop vs ERM | +0.007 | [+0.001, +0.012] | max +0.024 → **retain ≤0.02: 11/12** (fold9 miss) |
+| graph KL reduction | 66.2% | [60.6%, 71.0%] | 43–77% |
+| node KL reduction | 51.9% | [47.8%, 55.6%] | 37–61% |
+
+Criteria (12 folds): ERM adequacy **12/12**, ERM leakage **12/12**, reg reduces ≥30% **12/12**, source
+retained **11/12**, target guardrail **12/12**; `source_only_confirmed=T`, `target_guardrail_pass=T`,
+`confirmed_with_target_guardrail=T` → decision **A**.
 
 ## Reading
 
-- Both datasets: ERM is adequate, leakage exists, the fixed `graph_node_010` reduces graph/node leakage in
-  every (primary) fold, and source task is retained within the pre-registered gate (BNCI2014_001 9/9;
-  BNCI2015_001 11/12). Target guardrail holds throughout.
-- The reduction is **partial** — regularized leakage still clears the permutation null in every fold; we
-  report reduction, not elimination.
-- **TODO: finalize** mean ± 95% CI per quantity for the camera-ready (bootstrap over folds×seeds from the
-  per-seed JSON); the ranges above are exact per-fold min–max/means from the summary JSON, no invented
-  numbers. Regenerate with `python scripts/collect_cigl_evidence_tables.py --out_dir <dir>` (gitignored).
+- Both datasets: ERM adequate, leakage exists, the fixed `graph_node_010` reduces graph/node leakage in
+  every (primary) fold, and source task **meets the pre-registered retention gate** (BNCI2014_001 8/8 primary;
+  BNCI2015_001 11/12, with fold9 missing the per-fold threshold while the dataset-level gate passes). Target
+  guardrail holds throughout.
+- The reduction is **partial** — the *regularized* leakage **still clears the permutation null in every
+  fold**; we report reduction, not elimination.
+- CIs above are **fold-level bootstrap** (seed 0). A camera-ready may additionally bootstrap over
+  folds×seeds from the per-seed JSON (`TODO: finalize per-seed CI`); no numbers here are invented.

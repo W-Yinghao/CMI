@@ -26,31 +26,29 @@
 Node-leakage map stable across seeds (mean pairwise corr ≈ 0.945 ≫ null q95 ≈ 0.20). Edge: skipped
 (static adjacency; `edge_logits=None`).
 
-## T3 — BNCI2014_001 confirmation (CIGL_29; primary folds 1–8; fold-0 = dev, excluded)
+## T3–T4 — Cross-dataset confirmation of fixed `graph_node_010` (CIGL_29 / CIGL_31)
 
-| metric | value |
-|---|---|
-| ERM source bAcc (mean) | ≈ 0.48 (chance 0.25) |
-| reg source bAcc (mean) | ≈ 0.49 |
-| source drop ≤ 0.02 | **8/8** primary folds (mean drop ≈ −0.00) |
-| graph KL reduction | **35–58%** (mean ≈ 44%) |
-| node KL reduction | **31–45%** (mean ≈ 37%) |
-| criteria (erm adequacy / leakage / reduces / source-retained) | **8/8 each** |
-| edge | skipped (no per-sample edge object) |
-| verdict | Decision **A** (primary = folds 1–8) |
+Chance = 0.25 (BNCI2014_001, 4-class) and 0.50 (BNCI2015_001, binary). bAcc = balanced accuracy. KL
+reduction = `(ERM − reg)/ERM` of the posterior-KL leakage proxy, per fold/seed-matched. 95% CIs are
+fold-level bootstrap (seed 0, 10 000 resamples; see `STATISTICAL_SUMMARY_DRAFT.md`). "retain" = source drop
+≤ 0.02 absolute. Edge: skipped (static adjacency; no per-sample edge object). "meets retention gate" is
+gate-based, not zero-cost (one BNCI2015_001 fold misses the per-fold threshold; dataset-level gate passes).
 
-## T4 — BNCI2015_001 confirmation (CIGL_31; all 12 LOSO folds)
-
-| metric | value |
-|---|---|
-| ERM source bAcc (mean) | ≈ 0.71 (chance 0.50) |
-| reg source bAcc (mean) | ≈ 0.70 |
-| source drop ≤ 0.02 | **11/12** folds (fold9 drop +0.024 — the only retention miss) |
-| graph KL reduction | **43–77%** (mean ≈ 66%) |
-| node KL reduction | **37–61%** (mean ≈ 52%) |
-| erm adequacy / leakage / reduces / target-guardrail | **12/12 each**; source-retained **11/12** |
-| edge | skipped (no per-sample edge object) |
-| verdict | `confirmed_with_target_guardrail = true` → Decision **A** |
+| field | **T3 BNCI2014_001** | **T4 BNCI2015_001** |
+|---|---|---|
+| fold group | primary folds 1–8 (fold-0 = dev, excluded) | all LOSO folds |
+| n_folds | 8 | 12 |
+| ERM source bAcc (mean [range]) | 0.484 [0.457, 0.508] | 0.706 [0.682, 0.734] |
+| reg source bAcc (mean, 95% CI) | 0.488 [0.471, 0.505] | 0.700 [0.693, 0.707] |
+| source retention (drop ≤0.02) | **8/8** | **11/12** (fold9 +0.024) |
+| graph KL reduction (mean, 95% CI; range) | 44.0% [39.5, 49.0]; 35–58% | 66.2% [60.6, 71.0]; 43–77% |
+| node KL reduction (mean, 95% CI; range) | 36.9% [33.6, 40.3]; 31–45% | 51.9% [47.8, 55.6]; 37–61% |
+| ERM leakage clears null | 8/8 | 12/12 |
+| reg reduces ≥30% (≥2/3 seeds) | 8/8 | 12/12 |
+| target guardrail (drop ≤0.05) | 8/8 | 12/12 |
+| reg leakage still clears null | **every fold (partial, not elimination)** | **every fold (partial, not elimination)** |
+| edge status | skipped (edge_logits=None) | skipped (edge_logits=None) |
+| decision | **A** (primary folds 1–8) | **A** (`confirmed_with_target_guardrail=true`) |
 
 ## T5 — Negative-results summary
 

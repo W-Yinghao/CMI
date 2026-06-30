@@ -15,8 +15,8 @@ permutation null — and emphasize that this proxy is *not* an unbiased conditio
 estimator. On a task-capable graph backbone (a DGCNN with a shared/static adjacency), we find the graph
 and node representations carry significant such leakage. We then add a fixed **graph/node** conditional-
 information regularizer (no edge term) and show, under **strict source-only** domain generalization on two
-motor-imagery (MI) datasets, that it **partially but reproducibly reduces** this leakage **without harming
-source-task performance**. The reduction is partial (the regularized leakage still clears the null), the
+motor-imagery (MI) datasets, that it **partially but reproducibly reduces** this leakage **while meeting
+the pre-specified source-task retention criteria**. The reduction is partial (the regularized leakage still clears the null), the
 estimator is a proxy, the backbone is a single static-adjacency graph network, and the evidence is two MI
 datasets — we make no SOTA, leakage-elimination, edge-CMI, cross-architecture, or beyond-MI claim. We also
 report the negative results that shaped the method (a near-chance graph backbone and overfitting dynamic-
@@ -162,7 +162,7 @@ edge/dynamic-graph leakage control is future work.
 We presented CIGL, a source-only audit and graph/node regularizer for label-conditional domain leakage in
 EEG graph representations. On a task-capable static-adjacency DGCNN backbone, the audited graph/node leakage
 is significant, and a fixed graph/node conditional-information regularizer partially and reproducibly
-reduces it without harming source-task performance on two MI datasets. The contribution is a bounded,
+reduces it while meeting the pre-specified source-task retention criteria on two MI datasets. The contribution is a bounded,
 honestly-scoped measurement→control result, accompanied by the negative results that shaped it. Future work
 includes constrained dynamic-edge backbones that generalize (to enable an edge-level audit), additional
 datasets and paradigms, and tighter estimators than the posterior-KL proxy.
