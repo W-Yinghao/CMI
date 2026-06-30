@@ -1,0 +1,15 @@
+# Enforce deterministic, byte-stable line endings so committed/remote objects are always normal
+# multi-line text (no CRLF surprises, no accidental line-joining across platforms/editors).
+* text=auto eol=lf
+
+*.py   text eol=lf
+*.sh   text eol=lf
+*.md   text eol=lf
+*.json text eol=lf
+*.txt  text eol=lf
+
+# Never normalize true binaries.
+*.npz  binary
+*.npy  binary
+*.png  binary
+*.pdf  binary

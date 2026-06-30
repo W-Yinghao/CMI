@@ -26,3 +26,14 @@ Generated `*.json` are **gitignored**; the tracked record is the `docs/CIGL_2x` 
 - known-good decoder ≥ 0.45 while GraphCMINet ~0.33 → **A**: protocol usable, GraphCMINet is the blocker.
 - all near 0.33 → **B**: protocol / preprocessing / data diagnosis.
 - (C/D in `docs/CIGL_20`). The runner prints only an exploratory read; the **reviewer** decides the gate.
+
+## Provenance / reproduce
+
+- Each summary embeds `meta.commit_hash` and `meta.config_hash`; per-seed JSON embed the same plus the
+  held-out subject and the enc-train / probe-pool sizes, so any number here is traceable to a commit.
+- Real run: `sbatch scripts/sbatch_cigl_phase3a_backbone_sanity_bnci001.sh`
+  (`--dataset BNCI2014_001 --device cuda --fold 0 --seeds 0 1 2 --epochs 80 --probe_epochs 100 --leak_n_perm 10`).
+- CPU dry-run (pipeline + source-only firewall only, no GPU):
+  `python scripts/run_cigl_phase3a_backbone_sanity.py --dry_run_synthetic --device cpu --seeds 0 1 --epochs 3`.
+- These are **exploratory diagnostic** outputs (one dataset, one LOSO fold) — not a benchmark or SOTA
+  table. They feed the Gate-3A-S decision only.
