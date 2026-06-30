@@ -125,9 +125,14 @@ fail-closed (FileNotFoundError / ValueError) before any torch import or DEV read
 
 **(C3) Safety gate uses the EXACT EVAL harm, not a proxy.** `compatibility_replay_pass`'s `L_harm_all_eval ≤ 0.10` is fed the
 EXACT all-batch-denominator EVAL harm_indicator loss (`develop.V4CandidateReport.eval_L_harm_all`, additive), NOT the
-conditional `harm_rate` (carried descriptively as `harm_among_adapted`, never gating). The raw-window↔v3-WindowKey alignment
-(`_load_subject_windows_and_keys`) is REAL + synthetic-tested (by-key vs the pinned dev-feat-dump metadata; fail-closed on
-missing/extra/dup/shape); the ONLY step that reads DEV raw is `_load_subject_raw_windows`, run ONLY at the authorized C-run.
+conditional `harm_rate` (carried descriptively as `harm_among_adapted`, never gating). **(C4)** the raw-window↔v3-WindowKey
+alignment (`_load_subject_windows_and_keys`) is REAL + synthetic-tested: the pinned dev-feat-dump metadata supplies the
+WindowKeys (recording_id + window_index, verbatim) + producer order + labels, and `_load_subject_raw_windows` — now a REAL
+reader (cmi DEV pipeline, single-subject allowlist; NO source-state refit; NO held-out read) — supplies the subject's windows
+as an ORDERED [n,19,512] paired BY POSITION with a hard COUNT check (fail-closed on count/shape/dup/finite). `_check_reembed_universe`
+asserts the re-embedded eligible set == eligible and counts EXACT. NO `SubstrateReplayNotWiredError` raise-frontier remains; the
+only DEV-raw read runs at the authorized C-run (under acar-v4-regen py3.13). (window_index_te is a GLOBAL producer index, so
+alignment is dump-keys + ordered-position, not an independently-reproduced global key.)
 
 **C1 authorization gate (executable body).** Without `--compat-authorization` → `SubstrateCompatibilityNotAuthorizedError`
 (no torch/cmi, no DEV read, no output). A valid compatibility authorization manifest (`validate_compat_authorization` +

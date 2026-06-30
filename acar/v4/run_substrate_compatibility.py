@@ -12,9 +12,12 @@ C1 structure (mirrors B1b run_regen_substrate):
 - STDLIB-FIRST preflight (schema + git + clean + output-absent + artifact/dev-input/env-lock FILE-byte hashes). Without a valid
   compatibility AUTHORIZATION manifest it raises SubstrateCompatibilityNotAuthorizedError BEFORE any torch/cmi import or DEV read.
 - With a valid, hash-bound authorization → atomic output claim → `_run_compatibility_replay` (gated): runtime==env-lock verify +
-  substrate SEMANTIC-hash verify run for real; the re-embed-to-feat-dump frontier is finalized/validated at the authorized C-run
-  (raises SubstrateReplayNotWiredError until then — a CONTROLLED abort, NEVER a silently wrong verdict); the
-  derive→run_dev_exploration→compatibility_replay_pass chain is wired against the real machinery.
+  substrate SEMANTIC-hash verify + re-embed (real cmi DEV pipeline; the sha-pinned DEV-dump metadata supplies WindowKeys+order+
+  labels, the reader supplies ordered signal paired by position with a hard COUNT check) + derive-under-frozen-source-state +
+  1x1x1 exploration + compatibility_replay_pass — all REAL. The only DEV-raw read runs here, at the authorized C-run.
+  KNOWN RESIDUAL SOUNDNESS ASSUMPTION (C4): the by-position pairing assumes the live reader's per-subject window ORDER matches
+  the order in the producer dump (built from the scps cache / live load_crossdataset). Count/shape/finite/universe are
+  fail-closed, but a SAME-COUNT reordering is NOT yet detected → see notes/ACAR_V4_C1_COMPAT_REPLAY_READINESS.md "C5 OPEN".
 
 Usage:
     python -m acar.v4.run_substrate_compatibility --substrate-manifest /abs/substrate_manifest.json --output /abs/new_compat_dir
@@ -154,45 +157,52 @@ def _raw_subjects_by_cohort(spec, disease):
     return out
 
 
-def _load_subject_raw_windows(disease, dataset_id, subject, cfg):   # pragma: no cover — gated real DEV raw read; tests inject a fake
-    """The ONLY step that reads DEV raw: open ONE eligible subject's raw EEG (FROZEN_PIPELINE) and return windows keyed by
-    (recording_id, window_index): {(rec_id, win_idx): window[19,512]}. Lazy mne/cmi; run ONLY at the authorized C-run. It does
-    NOT raise SubstrateReplayNotWiredError — it does real work. Its exact (recording_id, window_index) keying is GUARDED by the
-    by-key alignment against the sha-pinned DEV-dump metadata in _load_subject_windows_and_keys: any wrong/missing/extra key →
-    fail-closed there (no silently-wrong verdict). Tests inject a synthetic provider, so real raw is never read in tests."""
-    raise RS.SubstrateReplayNotWiredError(
-        f"the DEV raw signal read for {dataset_id}/{subject} runs ONLY at the authorized C-run; tests inject a synthetic "
-        "provider. (The alignment + everything downstream is real and synthetic-tested.)")
+def _load_subject_raw_windows(disease, dataset_id, subject, cfg, cohort_dir):   # pragma: no cover — gated real DEV raw read; tests inject a fake
+    """The ONLY step that reads DEV raw: open EXACTLY ONE eligible subject's raw EEG via the SHARED, tested cmi DEV pipeline
+    (`cmi.data.bids_data.load_cohort` with a single-subject allowlist — the OLD-SEVEN DEV task/label rule from cmi.COHORTS, NOT
+    the held-out resting-only selector) under the FROZEN pipeline (19-ch 10-20 / 128 Hz / 0.5–45 Hz / 4 s/512 / trial z-score),
+    and return the subject's windows as an ORDERED np.ndarray [n,19,512] in the SAME order the DEV feat-dump producer used
+    (cmi `_windows`). The subjects={subject} allowlist skips every other subject at file-discovery (excluded never opened). It
+    does NOT re-fit a source-state and does NOT read held-out/external data. The DEV-dump metadata governs the KEYS + COUNT +
+    ORDER (see _load_subject_windows_and_keys); this reader only supplies signal — a count/shape/finite mismatch fail-closes
+    there (no silently-wrong verdict). Run ONLY at the authorized C-run; tests inject a synthetic provider."""
+    from cmi.data.bids_data import load_cohort, COHORTS
+    cs = COHORTS[dataset_id]
+    res = load_cohort(cohort_dir, cs["task"], cs["label"],
+                      fmin=cfg["bandpass"][0], fmax=cfg["bandpass"][1],
+                      resample=cfg["resample_fs"], win_sec=cfg["window_sec"], subjects={subject})  # discovery-stage allowlist
+    if res is None:
+        raise ValueError(f"{dataset_id}/{subject}: no usable windows from the DEV raw pipeline (eligible subject expected)")
+    Xc, _yc, _subs = res
+    return Xc                                                       # ORDERED [n,19,512] in cmi _windows order
 
 
-def _load_subject_windows_and_keys(disease, dataset_id, subject, cfg, dump_rows, *, signal_loader=None):
-    """REAL by-key alignment (synthetic-tested; no real raw in tests). `dump_rows` = the sha-pinned DEV-dump metadata rows for
-    THIS subject, in dump order: list of (recording_id, window_index, label). `signal_loader(disease,dataset_id,subject,cfg)` →
-    {(recording_id, window_index): window[19,512]} (defaults to the gated _load_subject_raw_windows; tests inject a fake). The
-    DEV-dump metadata is the SOURCE OF TRUTH: for each dump row we look up the raw window by (recording_id, window_index) and
-    build the v3 WindowKey from the dump row — so the re-embedded order/keys cannot drift. FAIL-CLOSED on a missing dump key,
-    an EXTRA raw window, a duplicate WindowKey, or a wrong shape — before any digest is trusted. Returns
-    (windows[n,19,512] aligned to dump order, WindowKeys[n], labels {WindowKey: int})."""
+def _load_subject_windows_and_keys(disease, dataset_id, subject, cfg, dump_rows, *, signal_loader):
+    """REAL alignment (synthetic-tested; no real raw in tests). The sha-pinned DEV-dump metadata is the SOURCE OF TRUTH:
+    `dump_rows` = list of (recording_id, window_index, label) for THIS subject. NOTE the dump's window_index_te is a GLOBAL
+    index in the producer's concatenated X (cmi run_scps_crossdataset), and recording_id_te == the subject — so a per-subject
+    reader cannot independently reproduce the global index. Therefore the dump rows SUPPLY the v3 WindowKeys (recording_id +
+    window_index, taken verbatim from the dump) and the producer ORDER (sorted by the dump window_index = cmi `_windows` order);
+    `signal_loader(disease,dataset_id,subject,cfg)` supplies the subject's windows as an ORDERED [n,19,512] and is paired BY
+    POSITION with the sorted dump rows. FAIL-CLOSED if the reader's window COUNT != the dump row count, on a wrong shape, a
+    non-finite window, or a duplicate (recording_id, window_index) — before any digest is trusted (no drift, no wrong verdict).
+    Returns (windows[n,19,512], WindowKeys[n], labels {WindowKey: int})."""
     import numpy as np
     from acar.v3.set_features import WindowKey
-    loader = signal_loader or _load_subject_raw_windows
-    raw = dict(loader(disease, dataset_id, subject, cfg))           # {(rec_id, win_idx): window}
+    rows = sorted(dump_rows, key=lambda r: int(r[1]))              # producer order (ascending global window_index)
+    windows_in = np.asarray(signal_loader(disease, dataset_id, subject, cfg), dtype="<f4")   # ORDERED reader windows
     cfg_win = (cfg["canon_channels"], int(cfg["resample_fs"] * cfg["window_sec"]))
-    windows, keys, labels, used = [], [], {}, set()
-    for rec_id, win_idx, label in dump_rows:
-        rk = (str(rec_id), int(win_idx))
-        if rk not in raw:
-            raise ValueError(f"{dataset_id}/{subject}: dump row {rk} has NO matching raw window (missing/misaligned)")
-        w = np.asarray(raw[rk], dtype="<f4")
+    if windows_in.ndim != 3 or windows_in.shape[0] != len(rows):
+        raise ValueError(f"{dataset_id}/{subject}: reader produced {getattr(windows_in,'shape',None)} windows != "
+                         f"{len(rows)} dump rows (count/shape mismatch — re-embed universe drift)")
+    windows, keys, labels = [], [], {}
+    for (rec_id, win_idx, label), w in zip(rows, windows_in):
         if w.shape != cfg_win:
-            raise ValueError(f"{dataset_id}/{subject}: window {rk} shape {w.shape} != {cfg_win}")
-        wk = WindowKey(dataset_id, subject, str(rec_id), int(win_idx))
+            raise ValueError(f"{dataset_id}/{subject}: window shape {w.shape} != {cfg_win}")
+        wk = WindowKey(dataset_id, subject, str(rec_id), int(win_idx))   # KEY from the dump (source of truth), verbatim
         if wk in labels:
-            raise ValueError(f"{dataset_id}/{subject}: duplicate WindowKey {rk}")
-        windows.append(w); keys.append(wk); labels[wk] = int(label); used.add(rk)
-    extra = set(raw) - used
-    if extra:
-        raise ValueError(f"{dataset_id}/{subject}: {len(extra)} raw windows have NO dump row (extra/misaligned): {sorted(extra)[:3]}")
+            raise ValueError(f"{dataset_id}/{subject}: duplicate WindowKey ({rec_id},{win_idx}) in dump rows")
+        windows.append(np.asarray(w, dtype="<f4")); keys.append(wk); labels[wk] = int(label)
     RS.assert_finite(np.asarray(windows, dtype="<f4"), f"{dataset_id}/{subject} windows")
     return np.asarray(windows, dtype="<f4"), keys, labels
 
@@ -269,8 +279,10 @@ def _reembed_dev_under_substrate(spec, frozen):                     # pragma: no
                 if ns not in eligible:
                     continue
                 per_sub.setdefault(ns.split("/", 1)[1], []).append((r_, w_, y_))
+            cohort_dir = m["source_paths"][cohort]                                            # the DEV raw cohort dir (allowlist read)
+            loader = lambda dis, ds, sub, c, _cd=cohort_dir: _load_subject_raw_windows(dis, ds, sub, c, _cd)
             for sub, dump_rows in per_sub.items():
-                X, keys, lab = _load_subject_windows_and_keys(d, cohort, sub, cfg, dump_rows)  # by-key align to dump metadata (real raw)
+                X, keys, lab = _load_subject_windows_and_keys(d, cohort, sub, cfg, dump_rows, signal_loader=loader)  # align to dump metadata
                 with torch.no_grad():
                     z = bb(torch.as_tensor(np.asarray(X, dtype="<f4")))[1].cpu().numpy()       # NEW-encoder embeddings (forward → (logits, z))
                 RS.assert_finite(z, f"{cohort}/{sub} embeddings")

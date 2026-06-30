@@ -4,10 +4,12 @@
 STATUS : run_substrate_compatibility.py is an EXECUTABLE, authorization-gated fixed-candidate DEV substrate-compatibility
          replay. C1 = two-commit split + auth gate + taxonomy. C2 = REAL replay body under the FROZEN B1b source-state (NO
          refit): _load_frozen_substrate + _reembed_dev_under_substrate + _derive_under_frozen_source_state (never
-         build_cohort_input) + REAL _extract_fixed_candidate_stats. C3 = REAL raw-window↔v3-WindowKey alignment by-key vs the
-         sha-pinned DEV feat-dump metadata + EXACT eval_L_harm_all (all-batch denominator; replaces the harm_rate proxy;
-         harm_among_adapted descriptive only); the ONLY remaining C-run frontier is the single DEV-raw read
-         (_load_subject_raw_windows). NO replay was run: without a valid compatibility authorization manifest it
+         build_cohort_input) + REAL _extract_fixed_candidate_stats. C3 = REAL alignment vs the sha-pinned DEV feat-dump metadata
+         + EXACT eval_L_harm_all (all-batch denominator; replaces the harm_rate proxy; harm_among_adapted descriptive only).
+         C4 = REAL _load_subject_raw_windows (cmi DEV pipeline, single-subject allowlist; the dump metadata supplies keys+order+
+         labels, reader supplies ordered signal paired by position with a hard COUNT check) — NO SubstrateReplayNotWiredError
+         raise-frontier remains; the only DEV-raw read happens at the authorized C-run (under acar-v4-regen 3.13). NO replay was
+         run: without a valid compatibility authorization manifest it
          fails closed (SubstrateCompatibilityNotAuthorizedError) before any torch/cmi import or DEV read. Synthetic-tested only.
          NO DEV raw read, NO re-embedding, NO held-out/external read, NO acar-v4-protocol tag. v2/v3 untouched; lockbox SEALED.
 DATE   : 2026-06-30 (machine UTC)
@@ -81,14 +83,40 @@ status = SUBSTRATE_COMPATIBILITY_PASS | _FAIL
   NOT alter coverage/red/harm_rate/g4 or any existing v2/v3 number (manifest assertions are relative; v3 uses a separate module).
 - **The pass-line** is the FROZEN `compatibility_replay_pass` (v2_replay HARD; per disease: CAL LTT λ* certified, coverage≥0.15,
   red>0, EVAL L_harm_all≤0.10, v2 evaluable, red>v2_replay_red; macro red>macro v2).
-- **(C3) Raw-window↔v3-WindowKey alignment is REAL + synthetic-tested.** `_load_subject_windows_and_keys` aligns the re-embedded
-  raw windows to the **sha-pinned DEV feat-dump metadata** (per-disease/cohort `dev_feat_dump_paths`+`dev_feat_dump_sha256`, the
-  alignment SOURCE OF TRUTH) BY KEY (recording_id, window_index): every dump row must have a matching raw window and vice-versa,
-  else FAIL-CLOSED (missing/extra/dup/shape) before any digest. The ONLY remaining C-run frontier is `_load_subject_raw_windows`
-  — the single step that reads DEV raw EEG, run ONLY at the authorized C-run (controlled `SubstrateReplayNotWiredError`; tests
-  inject a synthetic provider). Even an imperfect raw read can't yield a wrong verdict: the pinned dump metadata + by-key
-  alignment fail-close on any mismatch. Everything else (frozen-substrate load, no-refit derive, alignment, 1×1×1 exploration,
-  exact eval_L_harm_all extraction, pass-line) is REAL.
+- **(C3+C4) Raw-window↔v3-WindowKey alignment is REAL + synthetic-tested; the raw reader is REAL (no frontier).** The
+  sha-pinned DEV feat-dump metadata (per-disease/cohort `dev_feat_dump_paths`+`dev_feat_dump_sha256`) is the alignment SOURCE OF
+  TRUTH: it supplies the v3 WindowKeys (recording_id + window_index, VERBATIM) + the producer ORDER (sorted by the dump's
+  window_index) + the labels. NOTE the dump's `window_index_te` is a GLOBAL index in the producer's concatenated X
+  (cmi.run_scps_crossdataset; `recording_id_te==subject`), so a per-subject reader cannot reproduce it independently — therefore
+  `_load_subject_raw_windows` (C4) supplies the subject's windows as an ORDERED [n,19,512] via the SHARED, tested cmi DEV
+  pipeline (`cmi.data.bids_data.load_cohort` with a single-subject allowlist + the OLD-SEVEN cmi.COHORTS task/label rule, NOT the
+  held-out resting selector; subjects={subject} skips every other subject at file-discovery), and `_load_subject_windows_and_keys`
+  pairs it BY POSITION with the sorted dump rows. FAIL-CLOSED if the reader's window COUNT != the dump row count (the
+  whole-subject "missing window"), on a wrong shape, a non-finite window, or a duplicate (recording_id, window_index) — before any
+  digest. `_check_reembed_universe` additionally asserts the re-embedded eligible-subject set == eligible AND counts EXACT.
+  **No `SubstrateReplayNotWiredError` raise-frontier remains** — the whole replay path is real + executable; the only DEV-raw
+  read happens at the authorized C-run (tests inject a synthetic ordered provider). Everything (frozen-substrate load, no-refit
+  derive, alignment, real raw reader, 1×1×1 exploration, exact eval_L_harm_all extraction, pass-line) is REAL.
+
+> **C5 OPEN — by-position alignment soundness (adversarial review, MEDIUM; user decision before any C-run).** The dump rows
+> supply the keys/order/labels and the reader supplies an ORDERED ndarray paired BY POSITION, guarded only by a scalar COUNT
+> (+ shape/finite/universe). A reader that returns the right COUNT but a different per-window ORDER would pair windows with the
+> WRONG dump labels → a SILENTLY-WRONG PASS/FAIL (not an abort). This is NOT hypothetical: the DEV feat-dump was produced from a
+> pre-built scps CACHE (scripts/build_scps_cache.py) or a live `load_crossdataset` (cmi/run_scps_crossdataset.py:29-39), and the
+> live per-subject `load_cohort` reader's window order is NOT PROVEN identical (e.g. multi-file/session selection, cache-vs-live,
+> max_per_subject/crop_sec not in FROZEN_PIPELINE). Count is necessary but NOT sufficient (cannot detect a same-cardinality
+> permutation). **C4 implemented the real reader (the C4 deliverable) but does NOT close this — it must be resolved before the
+> replay is trusted.** Candidate C5 resolutions (user to choose): (a) read the windows from the SAME sha-pinned scps cache the
+> dump was built from (identical source ⇒ by-position provably sound); (b) add a per-window CONTENT/order verifier (e.g. store
+> per-window raw-content hashes when the dumps are next regenerated, and check them); (c) re-derive + verify the producer's
+> per-subject window ordinals. Until C5, the replay can produce a wrong verdict on an order divergence, so DO NOT authorize the
+> C-run on C4 alone.
+- **(C4) runtime:** the replay executes under `acar-v4-regen` (python 3.13). The exact replay-path modules are green under 3.13
+  (regen_substrate + develop suites — RSC import, the 1×1×1 run_dev_exploration path, eval_L_harm_all extraction,
+  compatibility_replay_pass, the alignment subset). The home v4 suite is 3.9 (10/10); the alignment exercise needs
+  acar.v3.set_features (py3.10+) so it SKIPS on 3.9 and RUNS under 3.13. (A pre-existing 3.13 numpy diff in
+  `frontiers.py::frontier_auc` makes the descriptive `frontiers_policies` AUC test red under 3.13 — NOT on the replay path, NOT
+  touched by C1–C4; green on 3.9.)
 
 ## 5. Result taxonomy (no selection/external/binding vocabulary)
 `regen_substrate.SUBSTRATE_COMPAT_STATUSES = (SUBSTRATE_COMPATIBILITY_PASS, SUBSTRATE_COMPATIBILITY_FAIL,

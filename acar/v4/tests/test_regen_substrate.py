@@ -705,31 +705,29 @@ def test_compat_replay_alignment_and_no_refit():
     import numpy as np
     from acar.v4 import run_substrate_compatibility as RSC
     cfg = R.FROZEN_PIPELINE
-    # the single raw-read frontier is controlled (run only at the authorized C-run)
-    _expect(R.SubstrateReplayNotWiredError, lambda: RSC._load_subject_raw_windows("PD", "ds002778", "sub-1", cfg))
-    # REAL by-key alignment (needs acar.v3.set_features WindowKey -> python>=3.10; skip on 3.9, exercised under acar-v4-regen)
+    # C4: _load_subject_raw_windows is now a REAL reader (no SubstrateReplayNotWiredError); the real DEV raw read happens only at
+    # the authorized C-run (here a fake ordered provider stands in). dump metadata governs KEYS+COUNT+ORDER; reader supplies signal.
+    n = (cfg["canon_channels"], int(cfg["resample_fs"] * cfg["window_sec"]))
     try:
         from acar.v3.set_features import WindowKey  # noqa: F401
         _have_wk = True
     except Exception as e:
         print(f"  [skip] alignment exercise (acar.v3.set_features import: {type(e).__name__})"); _have_wk = False
     if _have_wk:
-        n = (cfg["canon_channels"], int(cfg["resample_fs"] * cfg["window_sec"]))
-        rows = [("rec0", 0, 1), ("rec0", 1, 1), ("rec1", 0, 0)]                                 # (recording_id, window_index, label)
-        full = {("rec0", 0): np.zeros(n, "<f4"), ("rec0", 1): np.zeros(n, "<f4"), ("rec1", 0): np.zeros(n, "<f4")}
-        loader = lambda dis, ds, sub, c, raw=full: dict(raw)
-        X, keys, labels = RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=loader)
-        assert X.shape == (3,) + n and len(keys) == 3 and len(labels) == 3                       # aligned in dump order
-        assert keys[0].recording_id == "rec0" and keys[0].window_index == 0 and labels[keys[2]] == 0
-        miss = lambda *a, **k: {("rec0", 0): np.zeros(n, "<f4"), ("rec0", 1): np.zeros(n, "<f4")}  # dump row ('rec1',0) has no raw
-        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=miss))
-        extra = lambda *a, **k: {**full, ("rec1", 1): np.zeros(n, "<f4")}                        # raw window with no dump row
-        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=extra))
-        badshape = lambda *a, **k: {**full, ("rec1", 0): np.zeros((19, 7), "<f4")}               # wrong window shape
+        rows = [("rec0", 0, 1), ("rec0", 1, 1), ("rec1", 5, 0)]                                 # (recording_id, GLOBAL window_index, label)
+        ordered = lambda k: (lambda *a, **kw: np.zeros((k,) + n, "<f4"))                         # reader returns ORDERED [k,19,512]
+        X, keys, labels = RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=ordered(3))
+        assert X.shape == (3,) + n and len(keys) == 3 and len(labels) == 3                       # paired by sorted-dump position
+        assert keys[0].recording_id == "rec0" and keys[0].window_index == 0                      # KEY taken verbatim from dump rows
+        assert keys[2].window_index == 5 and labels[keys[2]] == 0                                # rec1 global idx 5, label from dump
+        # reader window COUNT != dump rows -> fail (re-embed universe drift, the whole-subject 'missing window')
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=ordered(2)))
+        # wrong window shape -> fail
+        badshape = lambda *a, **k: np.zeros((3, 19, 7), "<f4")
         _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, rows, signal_loader=badshape))
-        dup_rows = [("rec0", 0, 1), ("rec0", 0, 1)]                                              # two dump rows -> same WindowKey
-        one = lambda *a, **k: {("rec0", 0): np.zeros(n, "<f4")}
-        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, dup_rows, signal_loader=one))
+        # duplicate (recording_id, window_index) in dump rows -> fail
+        dup_rows = [("rec0", 0, 1), ("rec0", 0, 1)]
+        _expect(ValueError, lambda: RSC._load_subject_windows_and_keys("PD", "ds002778", "sub-1", cfg, dup_rows, signal_loader=ordered(2)))
     # subject-universe reconciliation (PURE; runs on 3.9): re-embedded set must EQUAL eligible AND number EXACT_ELIGIBLE
     elig = {f"ds002778/s{i:03d}" for i in range(R.EXACT_ELIGIBLE["PD"])}                         # 230
     assert RSC._check_reembed_universe("PD", set(elig), elig) is True                            # happy
