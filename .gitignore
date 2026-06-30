@@ -24,6 +24,7 @@ repos/
 results/cigl/phase2_real/*.json
 results/cigl/phase3a_pilot/*.json
 results/cigl/phase3a_baseline_repair/*.json
+results/cigl/phase3a_backbone_sanity/*.json
 
 # python caches
 __pycache__/
