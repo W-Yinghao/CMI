@@ -1,0 +1,17 @@
+[b3p24c] host=nodecpu02 job=877548 cpus=24
+[b3p24c] wrote csc/results/b3_p24c.json
+=== B3-P2.4c CONTROLS (48/cell; m=[20, 30]; NEW studentized gate vs OLD mean-T) ===
+pooled ALL: NEW 79/4032=0.0196 (CP-up 0.0236) | OLD 0.0263   alpha=0.05
+  clean                      NEW  16/576=0.0278 (CP-up 0.042) | OLD 0.0330  
+  missing_pair               NEW   0/576=0.0000 (CP-up 0.005) | OLD 0.0000  
+  paired_covariate           NEW   5/576=0.0087 (CP-up 0.018) | OLD 0.0191  
+  paired_covariate_plus_label NEW  13/576=0.0226 (CP-up 0.036) | OLD 0.0278  
+  paired_label               NEW  18/576=0.0312 (CP-up 0.046) | OLD 0.0382  
+  random_label               NEW  27/576=0.0469 (CP-up 0.064) | OLD 0.0660  
+  unequal_epochs_extreme     NEW   0/576=0.0000 (CP-up 0.005) | OLD 0.0000  
+HARD-FAIL flags: NONE
+=== POWER (NEW gate | OLD) ===
+  paired_concept             NEW 0.875 (CP-low 0.838) | OLD 0.889
+  paired_concept_plus_cov    NEW 0.868 (CP-low 0.831) | OLD 0.889
+  paired_pure_conditional    NEW 0.292 (CP-low 0.248) | OLD 0.382
+[b3p24c] done rc=0
