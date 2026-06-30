@@ -118,4 +118,12 @@ geometric compression). So: measurement-to-control POSITIVE for diagnosis (the f
 leakage subspace + correctly shows low-rank deletion is insufficient + the certified gate abstains),
 NEGATIVE for BOTH deployable knobs available here (global LPC = objective-scaling collapse; low-rank
 selective deletion = insufficient). NOT a frozen-projection pilot. task_protect + power_floor stay OFF;
-gate = diagnostic/refuse-to-delete. **Phase 2 (2.0 + 2.1) COMPLETE.**
+gate = diagnostic/refuse-to-delete. **Phase 2 (2.0 + 2.1 + 2.2) COMPLETE — see PHASE2_REPORT.md.**
+
+### Phase 2.2 (PHASE22_LPC_OBJECTIVE_SCALING_ABLATION.md) — KEYSTONE
+The collapse is a fixable OPTIMIZATION pathology (warm-up schedule avoids it at λ=1 AND λ=3;
+scale-invariant penalty avoids it at λ=1 not λ=3), but in EVERY collapse-free task-preserving cell the
+subject decode stays at ERM (0.997 vs 1.00) → **no collapse-free global LPC removes any leakage**; raw
+LPC's de-domaining was ENTIRELY a collapse artifact. Combined with 2.0 (low-rank deletion insufficient)
+and 2.1 (collapse=objective-scaling): on TSMNet/2a NO task-preserving CMI mechanism removes the subject
+leakage. Measurement→control POSITIVE for diagnosis, NEGATIVE for both deployable knobs.
