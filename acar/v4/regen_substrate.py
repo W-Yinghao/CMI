@@ -62,6 +62,23 @@ B1_AUTH_FIELDS = ("protocol_commit", "disease", "dev_input_manifest_sha256", "en
 REQUIRED_AUTH_STATEMENT = ("Authorize all-DEV substrate regeneration for this disease exactly under "
                            "ACAR_V4_SUBSTRATE_REGEN_COMMAND.md")
 
+# C1 compatibility-replay authorization manifest (the explicit, hash-bound human act that unlocks the fixed-candidate DEV
+# substrate-compatibility replay). Distinct from B1: it binds the SUBSTRATE-generation commit (b99fa4f, frozen) AND the
+# COMPATIBILITY executable-replay commit (the C1 code), so the runner can require HEAD==compatibility_protocol_commit while the
+# substrates stay authoritative under their substrate_protocol_commit.
+COMPAT_AUTH_FIELDS = ("compatibility_protocol_commit", "substrate_protocol_commit", "substrate_manifest_sha256",
+                      "env_lock_sha256", "output_path", "authorized_by", "authorization_time", "statement")
+REQUIRED_COMPAT_STATEMENT = ("Authorize fixed-candidate DEV substrate compatibility replay exactly under "
+                             "ACAR_V4_SUBSTRATE_REGEN_COMMAND.md")
+# the ONLY admissible compatibility-replay result statuses (NO selection / external / binding vocabulary)
+SUBSTRATE_COMPAT_STATUSES = ("SUBSTRATE_COMPATIBILITY_PASS", "SUBSTRATE_COMPATIBILITY_FAIL",
+                             "OPERATIONALLY_ABORTED_NO_VERDICT")
+
+
+class SubstrateReplayNotWiredError(RuntimeError):
+    """Raised if the gated compatibility-replay body is reached but a required inner step is not validated at the C-run step.
+    Distinct from SubstrateCompatibilityNotAuthorizedError (which is the AUTH gate). Tests monkeypatch the replay body."""
+
 
 def canonical_subject_list_sha256(subjects):
     """Canonical sha-256 over a subject id list (sorted unique, compact JSON). Shared by the manifest builder and the runner
@@ -230,6 +247,31 @@ def validate_b1_authorization(auth):
             raise ValueError(f"authorization {sf} must be a non-empty string")
     if auth["statement"] != REQUIRED_AUTH_STATEMENT:
         raise ValueError(f"authorization statement must be EXACTLY: {REQUIRED_AUTH_STATEMENT!r}")
+    return auth
+
+
+def validate_compat_authorization(auth):
+    """FAIL-CLOSED schema check for a C1 compatibility-replay authorization manifest (pure). Cross-checks vs the substrate
+    manifest/output happen in run_substrate_compatibility. Returns the auth."""
+    if not isinstance(auth, dict):
+        raise ValueError("compatibility authorization must be a JSON object")
+    missing = [f for f in COMPAT_AUTH_FIELDS if f not in auth]
+    if missing:
+        raise ValueError(f"compatibility authorization missing fields: {missing}")
+    extra = [f for f in auth if f not in COMPAT_AUTH_FIELDS]
+    if extra:
+        raise ValueError(f"compatibility authorization has unknown extra fields: {extra}")
+    for cf in ("compatibility_protocol_commit", "substrate_protocol_commit"):
+        if not _is_hex(auth[cf], 40):
+            raise ValueError(f"authorization {cf} must be 40-hex")
+    for hf in ("substrate_manifest_sha256", "env_lock_sha256"):
+        if not _is_hex(auth[hf], 64):
+            raise ValueError(f"authorization {hf} must be 64-hex")
+    for sf in ("output_path", "authorized_by", "authorization_time"):
+        if not isinstance(auth[sf], str) or not auth[sf]:
+            raise ValueError(f"authorization {sf} must be a non-empty string")
+    if auth["statement"] != REQUIRED_COMPAT_STATEMENT:
+        raise ValueError(f"authorization statement must be EXACTLY: {REQUIRED_COMPAT_STATEMENT!r}")
     return auth
 
 
@@ -441,8 +483,14 @@ def validate_substrate_manifest(spec):
     the FIXED candidate (NO reselection) + the pinned operating point. Returns the spec."""
     if not isinstance(spec, dict):
         raise ValueError("substrate manifest must be a JSON object")
-    if not _is_hex(spec.get("protocol_commit", ""), 40):
-        raise ValueError("protocol_commit must be a full 40-char lowercase git SHA-1")
+    if "protocol_commit" in spec:                                    # C1: the single ambiguous commit field is retired
+        raise ValueError("protocol_commit is DEPRECATED for the compat manifest; use substrate_protocol_commit "
+                         "(the b99fa4f substrate-generation commit) + compatibility_protocol_commit (the C1 replay commit)")
+    for cf in ("substrate_protocol_commit", "compatibility_protocol_commit"):
+        if not _is_hex(spec.get(cf, ""), 40):
+            raise ValueError(f"{cf} must be a full 40-char lowercase git SHA-1")
+    if not isinstance(spec.get("env_lock_path"), str) or not spec["env_lock_path"]:
+        raise ValueError("env_lock_path must be a non-empty path (the substrate-generation env lock, re-verified at replay)")
     if spec.get("candidate") != FIXED_CANDIDATE:
         raise ValueError(f"candidate must be EXACTLY the fixed candidate {FIXED_CANDIDATE} (no reselection)")
     for k, v in (("alpha", ALPHA), ("budget", BUDGET), ("coverage_min", COVERAGE_MIN)):
@@ -461,9 +509,11 @@ def validate_substrate_manifest(spec):
         if not isinstance(sd, dict):
             raise ValueError(f"substrates[{d}] must be an object")
         for pf in ("encoder_checkpoint_path", "source_state_path", "encoder_provenance_path",
-                   "source_state_provenance_path"):
+                   "source_state_provenance_path", "dev_input_manifest_path"):
             if not isinstance(sd.get(pf), str) or not sd[pf]:
                 raise ValueError(f"substrates[{d}].{pf} must be a non-empty path")
+        if not _is_hex(sd.get("dev_input_manifest_sha256", ""), 64):     # pins the EXACT eligible DEV universe to re-embed
+            raise ValueError(f"substrates[{d}].dev_input_manifest_sha256 must be a 64-char lowercase sha-256")
         for legacy in ("encoder_checkpoint_sha256", "source_state_sha256"):   # retired ambiguous (file-vs-semantic) names
             if legacy in sd:
                 raise ValueError(f"substrates[{d}].{legacy} is a DEPRECATED ambiguous field; use the unambiguous "

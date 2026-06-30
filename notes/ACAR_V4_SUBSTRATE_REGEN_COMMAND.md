@@ -17,9 +17,10 @@ python -m acar.v4.run_regen_substrate --disease PD \
 python -m acar.v4.run_regen_substrate --disease SCZ \
     --dev-input-manifest /abs/acar_v4_regen_scz_inputs.json --output /abs/new_scz_substrate_dir
 
-# (2) fixed-candidate DEV compatibility replay (B1-gated; raises SubstrateCompatibilityNotAuthorizedError)
+# (2) fixed-candidate DEV compatibility replay (C1; executable but AUTHORIZATION-gated; omit --compat-authorization => fails closed)
 python -m acar.v4.run_substrate_compatibility \
-    --substrate-manifest /abs/substrate_manifest.json --output /abs/new_compat_dir
+    --substrate-manifest /abs/substrate_manifest.json --output /abs/new_compat_dir \
+    [--compat-authorization /abs/compat_auth.json]
 ```
 No arbitrary cohort list / seed / pipeline config / candidate is accepted — every degree of freedom is pinned below and
 enforced by `acar.v4.regen_substrate` validators.
@@ -99,24 +100,38 @@ omp_num_threads · threadpool_backends · pipeline_config_sha256 · protocol_com
 the manifest LAST; on any abort removes the claimed dir. A run is COMPLETE iff its RESULT/manifest sentinel exists. No
 partial directory is ever interpreted as a usable artifact.
 
-## 6. run_substrate_compatibility manifest schema (validate_substrate_manifest, fail-closed)
+## 6. run_substrate_compatibility manifest schema (validate_substrate_manifest, fail-closed) — **C1 (executable, auth-gated)**
 ```
-protocol_commit   40-hex (HEAD must match; clean worktree)
+substrate_protocol_commit      40-hex — the FROZEN substrate-generation commit (b99fa4f); substrates were trained by it
+compatibility_protocol_commit  40-hex — the C1 replay code commit; HEAD must == THIS (NOT the substrate commit)  ← two-commit split
+                               (the retired bare `protocol_commit` is REJECTED)
 candidate         EXACTLY {score_family: shift_margin, policy: benefit_ranked, loss: harm_indicator}  (NO reselection)
 alpha/budget/coverage_min  EXACTLY 0.10 / 0.10 / 0.15  (pinned operating point)
-substrates        {PD:{...}, SCZ:{...}} each (H5 — the 4 unambiguous hashes; bare encoder_checkpoint_sha256/source_state_sha256
+substrates        {PD:{...}, SCZ:{...}} each (H5 4 unambiguous hashes; bare encoder_checkpoint_sha256/source_state_sha256
                   REJECTED): encoder_checkpoint_path + encoder_state_dict_sha256 + encoder_checkpoint_file_sha256,
                   source_state_path + source_state_artifact_sha256 + source_state_file_sha256,
-                  encoder_provenance_path, source_state_provenance_path
-                  (preflight verifies the *_file_sha256 via stdlib; the canonical *_state_dict/_artifact shas are re-verified
-                  inside the authorized replay loader)
+                  encoder_provenance_path, source_state_provenance_path,
+                  dev_input_manifest_path + dev_input_manifest_sha256   ← pins the EXACT eligible DEV universe to re-embed
+                  (PD 230 / SCZ 225, ds004000/sub-042 excluded, FROZEN_PIPELINE, cohort-aware keys)
 dev_cohorts       {PD: DEV_SCOPE[PD], SCZ: DEV_SCOPE[SCZ]}  (exact)
-env_lock_sha256   64-hex
+env_lock_path     non-empty (the substrate env lock; re-verified at replay)        env_lock_sha256  64-hex
 ```
-Before the (gated) replay, `run_substrate_compatibility` runs a PURE artifact file-hash preflight: each PD/SCZ
-encoder_checkpoint + source_state file must EXIST and its sha-256 must equal the manifest — fail-closed (FileNotFoundError /
-ValueError) before any torch import or DEV read. (Pre-B1 the trained artifacts do not exist, so this preflight fails by
-design.)
+STDLIB preflight: schema + HEAD==compatibility_protocol_commit + clean worktree + output-absent + each PD/SCZ encoder/source
+file + the dev-input-manifest file + the env-lock file must EXIST and match their sha — fail-closed (FileNotFoundError /
+ValueError) before any torch import or DEV read.
+
+**C1 authorization gate (executable body).** Without `--compat-authorization` → `SubstrateCompatibilityNotAuthorizedError`
+(no torch/cmi, no DEV read, no output). A valid compatibility authorization manifest (`validate_compat_authorization` +
+`COMPAT_AUTH_FIELDS` + exact `REQUIRED_COMPAT_STATEMENT`) that BINDS (compatibility_protocol_commit / substrate_protocol_commit
+/ substrate_manifest_sha256==this file / env_lock_sha256 / output_path) → `_authorized_replay_and_write`: atomic mkdir →
+`_run_compatibility_replay` (runtime==env-lock verify + substrate SEMANTIC-hash verify run for REAL; re-embed old-seven DEV
+under the new encoder + derive→FIXED-candidate exploration→`compatibility_replay_pass`) → `compat_manifest.json` then
+`compat_RESULT.json` LAST (`allow_nan=False`). Result taxonomy = `SUBSTRATE_COMPAT_STATUSES`
+(SUBSTRATE_COMPATIBILITY_PASS / _FAIL / OPERATIONALLY_ABORTED_NO_VERDICT — no selection/external/binding vocabulary). On any
+operational abort the claimed output is removed (a partial dir is NEVER read as a FAIL). The two data-heavy frontiers
+(`_reembed_dev_under_substrate`, `_extract_fixed_candidate_stats`) raise a CONTROLLED `SubstrateReplayNotWiredError` until
+finalized + validated at the authorized C-run (an untested re-embed would yield a silently-wrong verdict — worse than a clean
+abort). See notes/ACAR_V4_C1_COMPAT_REPLAY_READINESS.md.
 Pass-line = `regen_substrate.compatibility_replay_pass` (pure, pre-registered): per disease — CAL LTT λ* certified ∧
 coverage ≥ 0.15 ∧ red > 0 ∧ EVAL L_harm_all ≤ 0.10 ∧ **v2_replay EVALUABLE ∧ red > v2_replay_red (HARD — no waiver)**; macro
 — disease-macro red > disease-macro v2_replay. **If v2_replay is not evaluable for either disease, the replay FAILS and

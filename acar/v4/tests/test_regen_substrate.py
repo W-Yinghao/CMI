@@ -197,9 +197,11 @@ def _sub_manifest(**over):
     sd = {d: {"encoder_checkpoint_path": "/p", "encoder_state_dict_sha256": "b" * 64,
               "encoder_checkpoint_file_sha256": "b" * 64, "source_state_path": "/s",
               "source_state_artifact_sha256": "b" * 64, "source_state_file_sha256": "b" * 64,
-              "encoder_provenance_path": "/ep", "source_state_provenance_path": "/sp"} for d in ("PD", "SCZ")}
-    m = {"protocol_commit": "a" * 40, "candidate": dict(R.FIXED_CANDIDATE), "alpha": R.ALPHA, "budget": R.BUDGET,
-         "coverage_min": R.COVERAGE_MIN, "substrates": sd,
+              "encoder_provenance_path": "/ep", "source_state_provenance_path": "/sp",
+              "dev_input_manifest_path": "/dim", "dev_input_manifest_sha256": "b" * 64} for d in ("PD", "SCZ")}
+    m = {"substrate_protocol_commit": "f" * 40, "compatibility_protocol_commit": "a" * 40,   # two-commit split (C1)
+         "candidate": dict(R.FIXED_CANDIDATE), "alpha": R.ALPHA, "budget": R.BUDGET,
+         "coverage_min": R.COVERAGE_MIN, "substrates": sd, "env_lock_path": "/abs/env_lock.json",
          "dev_cohorts": {"PD": list(R.DEV_SCOPE["PD"]), "SCZ": list(R.DEV_SCOPE["SCZ"])}, "env_lock_sha256": "b" * 64}
     m.update(over)
     return m
@@ -209,9 +211,17 @@ def test_validate_substrate_manifest():
     assert R.validate_substrate_manifest(_sub_manifest()) is not None                          # happy
     _expect(ValueError, lambda: R.validate_substrate_manifest(_sub_manifest(candidate={})))    # reselection
     _expect(ValueError, lambda: R.validate_substrate_manifest(_sub_manifest(alpha=0.2)))       # op-point drift
-    _expect(ValueError, lambda: R.validate_substrate_manifest(_sub_manifest(protocol_commit="x")))
+    _expect(ValueError, lambda: R.validate_substrate_manifest(_sub_manifest(substrate_protocol_commit="x")))    # bad commit
+    _expect(ValueError, lambda: R.validate_substrate_manifest(_sub_manifest(compatibility_protocol_commit="x")))
+    _expect(ValueError, lambda: R.validate_substrate_manifest(_sub_manifest(protocol_commit="a" * 40)))  # retired single field
+    m = _sub_manifest(); del m["env_lock_path"]
+    _expect(ValueError, lambda: R.validate_substrate_manifest(m))                              # env_lock_path required
     sd = _sub_manifest(); sd["substrates"]["PD"]["encoder_checkpoint_file_sha256"] = "short"
     _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # bad artifact sha
+    sd = _sub_manifest(); sd["substrates"]["PD"]["dev_input_manifest_sha256"] = "short"
+    _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # bad dev-input sha
+    sd = _sub_manifest(); del sd["substrates"]["PD"]["dev_input_manifest_path"]
+    _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # dev-input path required
     sd = _sub_manifest(); del sd["substrates"]["SCZ"]
     _expect(ValueError, lambda: R.validate_substrate_manifest(sd))                             # missing disease
     for hf in ("encoder_state_dict_sha256", "encoder_checkpoint_file_sha256",                  # each of the 4 unambiguous
@@ -221,6 +231,26 @@ def test_validate_substrate_manifest():
     for legacy in ("encoder_checkpoint_sha256", "source_state_sha256"):                        # retired ambiguous names rejected
         sd = _sub_manifest(); sd["substrates"]["PD"][legacy] = "b" * 64
         _expect(ValueError, lambda sd=sd: R.validate_substrate_manifest(sd))
+
+
+def _compat_auth(**over):
+    a = {"compatibility_protocol_commit": "a" * 40, "substrate_protocol_commit": "f" * 40,
+         "substrate_manifest_sha256": "b" * 64, "env_lock_sha256": "c" * 64, "output_path": "/out",
+         "authorized_by": "yinghao", "authorization_time": "2026-06-30T12:00:00Z", "statement": R.REQUIRED_COMPAT_STATEMENT}
+    a.update(over)
+    return a
+
+
+def test_validate_compat_authorization():
+    assert R.validate_compat_authorization(_compat_auth()) is not None
+    _expect(ValueError, lambda: R.validate_compat_authorization(_compat_auth(compatibility_protocol_commit="x")))
+    _expect(ValueError, lambda: R.validate_compat_authorization(_compat_auth(substrate_protocol_commit="x")))
+    _expect(ValueError, lambda: R.validate_compat_authorization(_compat_auth(substrate_manifest_sha256="short")))
+    _expect(ValueError, lambda: R.validate_compat_authorization(_compat_auth(statement="ok go")))   # wrong statement
+    bad = _compat_auth(); bad["extra"] = 1
+    _expect(ValueError, lambda: R.validate_compat_authorization(bad))                          # extra field
+    bad = _compat_auth(); del bad["authorized_by"]
+    _expect(ValueError, lambda: R.validate_compat_authorization(bad))                          # missing field
 
 
 def _fake_git(commit="a" * 40, clean=True):
@@ -465,23 +495,29 @@ def test_run_regen_substrate_authorized_runs_gated_trainer():
         shutil.rmtree(base, ignore_errors=True)
 
 
-def _sub_manifest_files(base, *, missing=False, break_sha=False):
+def _sub_manifest_files(base, *, missing=False, bad=None, no_env=False):   # bad in {enc,ss,dim,env}; no_env drops the env lock file
     subs = {}
+    env = os.path.join(base, "ABSENT_env_lock.json" if no_env else "env_lock.json")            # absent path => FileNotFoundError
+    if not missing and not no_env:
+        with open(env, "wb") as f:
+            f.write(b"ENVLOCK")
+    env_sha = ("0" * 64 if bad == "env" else (_fsha(env) if (not missing and not no_env) else "b" * 64))
     for d in ("PD", "SCZ"):
         enc = os.path.join(base, f"enc_{d}.pt"); ss = os.path.join(base, f"ss_{d}.npz")
+        dim = os.path.join(base, f"dim_{d}.json")
         if not missing:
-            with open(enc, "wb") as f:
-                f.write(("enc-" + d).encode())
-            with open(ss, "wb") as f:
-                f.write(("ss-" + d).encode())
-        enc_sha = "0" * 64 if break_sha else (_fsha(enc) if not missing else "b" * 64)         # FILE-byte hash (preflight verifies)
-        ss_sha = _fsha(ss) if not missing else "b" * 64
-        subs[d] = {"encoder_checkpoint_path": enc, "encoder_checkpoint_file_sha256": enc_sha,
+            for path, payload in ((enc, "enc-" + d), (ss, "ss-" + d), (dim, "dim-" + d)):
+                with open(path, "wb") as f:
+                    f.write(payload.encode())
+        def _sha(path, key):                                                                   # FILE-byte hash (preflight verifies)
+            return "0" * 64 if bad == key else (_fsha(path) if not missing else "b" * 64)
+        subs[d] = {"encoder_checkpoint_path": enc, "encoder_checkpoint_file_sha256": _sha(enc, "enc"),
                    "encoder_state_dict_sha256": "b" * 64,                                       # canonical (verified at replay)
-                   "source_state_path": ss, "source_state_file_sha256": ss_sha,
+                   "source_state_path": ss, "source_state_file_sha256": _sha(ss, "ss"),
                    "source_state_artifact_sha256": "b" * 64,
-                   "encoder_provenance_path": enc + ".prov.json", "source_state_provenance_path": ss + ".prov.json"}
-    return _sub_manifest(substrates=subs)
+                   "encoder_provenance_path": enc + ".prov.json", "source_state_provenance_path": ss + ".prov.json",
+                   "dev_input_manifest_path": dim, "dev_input_manifest_sha256": _sha(dim, "dim")}
+    return _sub_manifest(substrates=subs, env_lock_path=env, env_lock_sha256=env_sha)
 
 
 def test_load_eligible_windows_excludes_before_open_and_cohort_aware():
@@ -540,39 +576,132 @@ def test_run_substrate_compatibility_fail_closed():
     from acar.v4 import run_substrate_compatibility as RSC
     base = tempfile.mkdtemp(); saved = RRS._git
     try:
-        RRS._git = _fake_git()
+        RRS._git = _fake_git()                                                                  # HEAD == "a"*40 == compatibility_protocol_commit
         out = os.path.join(base, "compat_out")
         p = os.path.join(base, "sub_ok.json")
         with open(p, "w") as f:
-            json.dump(_sub_manifest_files(base), f)                                             # real artifacts + sha
-        _expect(R.SubstrateCompatibilityNotAuthorizedError, lambda: RSC.run(p, out))            # preflight passes → gated
-        assert not os.path.exists(out) and "torch" not in sys.modules
+            json.dump(_sub_manifest_files(base), f)                                             # real artifacts + dev-input + env-lock + sha
+        _expect(R.SubstrateCompatibilityNotAuthorizedError, lambda: RSC.run(p, out))            # full preflight passes → gated (no auth)
+        assert not os.path.exists(out) and "torch" not in sys.modules                           # no output, no heavy import on this path
+        # HEAD must == compatibility_protocol_commit (NOT the substrate commit)
+        ph = os.path.join(base, "sub_headmm.json")
+        with open(ph, "w") as f:
+            json.dump(_sub_manifest_files(base, ), f)                                           # compatibility_protocol_commit="a"*40
+        RRS._git = _fake_git(commit="e" * 40)
+        _expect(ValueError, lambda: RSC.run(ph, out))                                           # HEAD != compatibility_protocol_commit
+        RRS._git = _fake_git()
         pb = os.path.join(base, "sub_bad.json")
         with open(pb, "w") as f:
             json.dump(_sub_manifest(candidate={"x": 1}), f)
         _expect(ValueError, lambda: RSC.run(pb, out))                                           # reselection → before gate
+        pp = os.path.join(base, "sub_proto.json")
+        with open(pp, "w") as f:
+            json.dump(_sub_manifest_files(base, ) | {"protocol_commit": "a" * 40}, f)           # retired single commit field
+        _expect(ValueError, lambda: RSC.run(pp, out))
         pm = os.path.join(base, "sub_missing.json")
         with open(pm, "w") as f:
             json.dump(_sub_manifest_files(os.path.join(base, "nope"), missing=True), f)
         _expect(FileNotFoundError, lambda: RSC.run(pm, out))                                    # artifact path missing
-        ps = os.path.join(base, "sub_shabad.json")
-        with open(ps, "w") as f:
-            json.dump(_sub_manifest_files(base, break_sha=True), f)
-        _expect(ValueError, lambda: RSC.run(ps, out))                                           # artifact sha mismatch
+        pne = os.path.join(base, "sub_noenv.json")
+        with open(pne, "w") as f:
+            json.dump(_sub_manifest_files(base, no_env=True), f)
+        _expect(FileNotFoundError, lambda: RSC.run(pne, out))                                   # env-lock file missing
+        for key in ("enc", "ss", "dim", "env"):                                                # EACH file-byte sha mismatch branch
+            pk = os.path.join(base, f"sub_bad_{key}.json")
+            with open(pk, "w") as f:
+                json.dump(_sub_manifest_files(base, bad=key), f)
+            _expect(ValueError, lambda pk=pk: RSC.run(pk, out))
+        assert "torch" not in sys.modules                                                       # no heavy import on any preflight path
     finally:
         RRS._git = saved; shutil.rmtree(base, ignore_errors=True)
+
+
+def test_run_substrate_compatibility_authorized_runs_gated_replay():
+    from acar.v4 import run_regen_substrate as RRS
+    from acar.v4 import run_substrate_compatibility as RSC
+    base = tempfile.mkdtemp()
+    saved = (RRS._git, RSC._run_compatibility_replay)
+    calls = []
+
+    def fake_replay(spec, output, status="SUBSTRATE_COMPATIBILITY_PASS"):
+        calls.append(output)
+        return {"status": status, "reason": "synthetic", "per_disease": {"PD": {}, "SCZ": {}}}
+    try:
+        RRS._git = _fake_git()
+        p = os.path.join(base, "sub_ok.json")
+        with open(p, "w") as f:
+            json.dump(_sub_manifest_files(base), f)
+        ims = _fsha(p); env_sha = json.load(open(p))["env_lock_sha256"]
+        out = os.path.join(base, "compat_run")
+
+        def _auth(outp, **over):
+            a = {"compatibility_protocol_commit": "a" * 40, "substrate_protocol_commit": "f" * 40,
+                 "substrate_manifest_sha256": ims, "env_lock_sha256": env_sha, "output_path": outp,
+                 "authorized_by": "yinghao", "authorization_time": "2026-06-30T12:00:00Z",
+                 "statement": R.REQUIRED_COMPAT_STATEMENT}
+            a.update(over); ap = os.path.join(base, f"auth_{os.path.basename(outp)}.json")
+            with open(ap, "w") as f: json.dump(a, f)
+            return ap
+        # PASS verdict -> compat_manifest + compat_RESULT(status) written; replay called once
+        RSC._run_compatibility_replay = fake_replay
+        body = RSC.run(p, out, compat_authorization=_auth(out))
+        assert calls == [out]
+        res = json.load(open(os.path.join(out, "compat_RESULT.json")))
+        man = json.load(open(os.path.join(out, "compat_manifest.json")))
+        assert res["status"] == "SUBSTRATE_COMPATIBILITY_PASS" and res["candidate"] == R.FIXED_CANDIDATE
+        assert man["verdict"]["status"] == "SUBSTRATE_COMPATIBILITY_PASS"
+        assert man["substrate_protocol_commit"] == "f" * 40 and man["compatibility_protocol_commit"] == "a" * 40
+        assert "SELECT" not in json.dumps(res) and "DEV_STOP" not in json.dumps(res)            # no selection/external vocab
+        # FAIL verdict is a normal written result (NOT an abort)
+        outf = os.path.join(base, "compat_fail")
+        RSC._run_compatibility_replay = lambda spec, output: fake_replay(spec, output, status="SUBSTRATE_COMPATIBILITY_FAIL")
+        RSC.run(p, outf, compat_authorization=_auth(outf))
+        assert json.load(open(os.path.join(outf, "compat_RESULT.json")))["status"] == "SUBSTRATE_COMPATIBILITY_FAIL"
+        assert calls == [out, outf]                                                             # replay called exactly once per run
+        # invalid-but-present authorizations -> fail in _load_compat_authorization BEFORE replay/output (replay NOT called)
+        for over in ({"substrate_manifest_sha256": "d" * 64}, {"env_lock_sha256": "d" * 64},
+                     {"compatibility_protocol_commit": "e" * 40}, {"statement": "ok go"}):
+            n = len(calls); outx = os.path.join(base, "compat_inv_" + list(over)[0])
+            _expect(ValueError, lambda outx=outx, over=over: RSC.run(p, outx, compat_authorization=_auth(outx, **over)))
+            assert not os.path.exists(outx) and len(calls) == n and "torch" not in sys.modules   # no replay, no output, no torch
+        # replay returns a non-verdict status -> abort + cleanup (OPERATIONALLY_ABORTED_NO_VERDICT; never read as FAIL)
+        out3 = os.path.join(base, "compat_nonverdict")
+        RSC._run_compatibility_replay = lambda spec, output: {"status": "OPERATIONALLY_ABORTED_NO_VERDICT"}
+        _expect(RuntimeError, lambda: RSC.run(p, out3, compat_authorization=_auth(out3)))
+        assert not os.path.exists(out3) and "torch" not in sys.modules
+        # replay raises operationally -> output cleaned (no partial)
+        out4 = os.path.join(base, "compat_boom")
+        def boom(spec, output): raise R.SubstrateReplayNotWiredError("frontier")
+        RSC._run_compatibility_replay = boom
+        _expect(R.SubstrateReplayNotWiredError, lambda: RSC.run(p, out4, compat_authorization=_auth(out4)))
+        assert not os.path.exists(out4) and "torch" not in sys.modules
+    finally:
+        RRS._git, RSC._run_compatibility_replay = saved
+        shutil.rmtree(base, ignore_errors=True)
+
+
+def test_compat_replay_inner_frontiers_are_controlled():
+    """The re-embed + fixed-candidate stat-extraction frontiers raise a CONTROLLED SubstrateReplayNotWiredError (never a
+    silently-wrong verdict) until finalized at the authorized C-run."""
+    from acar.v4 import run_substrate_compatibility as RSC
+    _expect(R.SubstrateReplayNotWiredError, lambda: RSC._reembed_dev_under_substrate({}, "/tmp/x"))
+    _expect(R.SubstrateReplayNotWiredError, lambda: RSC._extract_fixed_candidate_stats(object(), {}))
 
 
 def main():
     print("ACAR v4 regen_substrate guards (skeleton + B1-preflight command contract; NO training):")
     for t in (test_validate_substrate_request, test_train_not_authorized, test_compatibility_replay_pass,
               test_validate_regen_manifest, test_validate_substrate_manifest, test_check_eligible_subjects,
-              test_validate_b1_authorization, test_require_cuda, test_check_runtime_matches_lock, test_assert_finite,
+              test_validate_b1_authorization, test_validate_compat_authorization, test_require_cuda,
+              test_check_runtime_matches_lock, test_assert_finite,
               test_single_subject_label, test_check_training_set, test_canonical_state_dict_sha256,
               test_run_regen_substrate_fail_closed,
               test_run_regen_substrate_authorized_runs_gated_trainer,
               test_load_eligible_windows_excludes_before_open_and_cohort_aware,
-              test_run_substrate_compatibility_fail_closed, test_cmi_load_cohort_honors_subject_allowlist):
+              test_run_substrate_compatibility_fail_closed,
+              test_run_substrate_compatibility_authorized_runs_gated_replay,
+              test_compat_replay_inner_frontiers_are_controlled,
+              test_cmi_load_cohort_honors_subject_allowlist):
         t()
         print(f"  [ok] {t.__name__}")
     print("ALL V4 REGEN-SUBSTRATE GUARDS PASS")
