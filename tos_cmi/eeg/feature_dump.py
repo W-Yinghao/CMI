@@ -46,7 +46,7 @@ def _forward_dump(bb, X, device, bs=256):
 
 def dump_fold(dataset, target_subject, method, lam, seed, out_path, *, backbone="TSMNet",
               epochs=300, bs=64, warmup=40, device="cuda", tmin=0.5, tmax=3.5, resample=128,
-              domain_mode="subject"):
+              domain_mode="subject", backbone_kw=None):
     """Train on source (LOSO leaving target_subject out), dump frozen Z/logits/meta to out_path.npz."""
     configure_offline_moabb()
     X, y, meta, classes = load(dataset, tmin=tmin, tmax=tmax, resample=resample)
@@ -61,7 +61,7 @@ def dump_fold(dataset, target_subject, method, lam, seed, out_path, *, backbone=
     dtr, n_dom = _remap(dom_all[tr])
 
     torch.manual_seed(seed); np.random.seed(seed)
-    bb = build_backbone(backbone, X.shape[1], X.shape[2], n_cls, device=device)
+    bb = build_backbone(backbone, X.shape[1], X.shape[2], n_cls, device=device, **(backbone_kw or {}))
     bb, _post, diag = train_model(bb, Xtr, ytr, dtr, n_cls, method=method, lam=lam,
                                   epochs=epochs, bs=bs, warmup=warmup, device=device, seed=seed)
 
