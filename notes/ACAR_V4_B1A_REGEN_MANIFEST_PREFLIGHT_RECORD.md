@@ -2,10 +2,11 @@
 
 > **SUPERSEDED for B1b.** The 046507a manifests below lack the eligible-subject fields the runner now requires
 > (`eligible_subject_list_sha256`, `per_cohort_eligible_subject_list_sha256`, `n_eligible_subjects`, `excluded_subjects`) and
-> bind to commit 046507a. The runner has since changed twice — H2 (e277f0d, eligible schema + auth gate) and H3 (real
-> executable training body + raw_bids-only) — so B1b uses the latest-commit (H3) rebuilt manifests + H3-recaptured env lock
-> (see ACAR_V4_SUBSTRATE_REGEN_COMMAND.md §7d). These remain a valid record of the 046507a preflight only. The eligible
-> universe is pinned PD 230 / SCZ 225, with SCZ ds004000/sub-042 excluded (in raw dirs, not in DEV subject_id_te).
+> bind to commit 046507a. The runner has since changed through H2 (e277f0d, eligible schema + auth gate), H3 (real executable
+> training body + raw_bids-only), H4 (b2fbbe8, runtime-safety guards), and H5 (b99fa4f, unified dual-hash naming) — so B1b
+> uses the **H5-rebuilt manifests + H5-recaptured env lock**; see **ACAR_V4_H5_REGEN_PREFLIGHT_RECORD.md** (the authoritative,
+> current preflight record) and ACAR_V4_SUBSTRATE_REGEN_COMMAND.md §7d. These remain a valid record of the 046507a preflight
+> only. The eligible universe is pinned PD 230 / SCZ 225, with SCZ ds004000/sub-042 excluded (in raw dirs, not in DEV subject_id_te).
 
 ```
 DATE   : 2026-06-30 (machine UTC)
