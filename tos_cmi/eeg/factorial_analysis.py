@@ -44,7 +44,7 @@ def main():
         rr = []
         for p in paths:
             try:
-                rr.append(analyze(p))
+                rr.append(analyze(p, with_rlace=False))   # RLACE not needed for the LEACE residual-vs-dim curve
             except Exception as e:
                 print("[FAIL] %s : %r" % (p.split("/")[-1], e), flush=True)
         if not rr:
