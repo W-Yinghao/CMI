@@ -25,10 +25,15 @@ INVALID_PAIR = "INVALID_PAIR_STRUCTURE"
 UNIDENTIFIABLE = "UNIDENTIFIABLE"
 
 
-def certify_paired(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=4,
-                   rank=3, C=0.5, n_boot=200, seed=0):
+def certify_paired(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=4, min_confirm_pairs=20,
+                   h1_basis="pc", rank=3, C=None, n_boot=200, seed=0):
+    # NOTE: default basis = "pc" (the type-I-controlled low-rank). "full_z" (B3-P2.2 R1) is RETAINED but
+    # was a PRE-DECLARED NEGATIVE: it catastrophically inflates type-I (clean ~0.94, covariate ~1.00 @
+    # m=20) and does NOT recover pure_conditional (~0.12). See notes/CSC_B_P22_RESULT.md.
     """Query `m` paired target subjects' labels and run the within-subject conditional-change test.
-    Returns a dict with the certificate state + per-cluster log fields."""
+    `min_confirm_pairs` (B3-P2.2) forbids CONCEPT_CONFIRMED below a minimum audit size (small-m audits
+    are unstable) -> NEED_MORE_LABELS, logging `would_confirm_without_min_pairs`. Returns a dict with the
+    certificate state + per-cluster log fields."""
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D); G = np.asarray(G)
     paired_subs = [s for s in np.unique(G) if len(np.unique(D[G == s])) >= 2]
     log = dict(m=int(m), n_paired_available=len(paired_subs), n_queried=0, valid=False,
@@ -57,14 +62,20 @@ def certify_paired(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=4,
         log.update(state=NEED_MORE_LABELS, reason=f"audit not valid: {reason}")
         return log
 
-    t = paired_conditional_change_test(Zq, Yq, Dq, Gq, rank=rank, C=C, n_boot=n_boot, seed=seed)
+    t = paired_conditional_change_test(Zq, Yq, Dq, Gq, h1_basis=h1_basis, rank=rank, C=C,
+                                       n_boot=n_boot, seed=seed)
+    would_confirm = bool(t["valid"] and t["p_value"] <= alpha)   # raw significance (pre-guard)
     log.update(valid=bool(t["valid"]), p_value=float(t["p_value"]), T=float(t["T"]), reason=t["reason"],
                n_pairs=t["n_pairs"], classes_by_condition=t["classes_by_condition"],
-               n_boot_invalid=t["n_boot_invalid"])
+               n_boot_invalid=t["n_boot_invalid"], h1_basis=t["h1_basis"], C_used=t["C_used"],
+               n_features_interaction=t["n_features_interaction"], min_confirm_pairs=int(min_confirm_pairs),
+               would_confirm_without_min_pairs=would_confirm)
     if not t["valid"]:
         log["state"] = NEED_MORE_LABELS             # null not estimable on this audit -> need cleaner/more
-    elif t["p_value"] <= alpha:
-        log["state"] = CONCEPT_CONFIRMED
+    elif would_confirm and len(pick) >= min_confirm_pairs:
+        log["state"] = CONCEPT_CONFIRMED            # significant AND audit large enough to claim it
+    elif would_confirm:
+        log["state"] = NEED_MORE_LABELS             # GUARD: significant but audit too small to confirm
     elif len(pick) >= decide_n:
         log["state"] = NO_CONCEPT_EVIDENCE          # enough labels, no conditional change found
     else:

@@ -8,8 +8,9 @@ the within-subject pairing cancels the subject random effect).
 Tests whether P(Y|Z) depends on CONDITION beyond a condition intercept (which already absorbs a
 condition-specific covariate offset AND a condition-specific class prior). On the queried paired audit:
 
-  h0: logits ~ [Z_std, condition]                       # shared boundary + per-class condition intercept
-  h1: logits ~ [Z_std, condition, condition x Z_pc(r)]  # condition-dependent LOW-RANK boundary
+  h0:     logits ~ [Z_std, condition]                       # shared boundary + per-class condition intercept
+  h1 (full_z, B3-P2.2 R1, DEFAULT): [Z_std, condition, condition x Z_std]  # full condition-dependent boundary
+  h1 (pc, P2.1 baseline):           [Z_std, condition, condition x Z_pc(r)]  # low-rank (misses low-var dirs)
 
   T = vote(NLL_h0) - vote(NLL_h1)   >= 0    (subject-condition vote, the A-line estimand)
 
@@ -23,13 +24,19 @@ import numpy as np
 from sklearn.linear_model import LogisticRegression
 
 
-def _features(Zs, cond, Vr):
-    """[Z_std, condition, condition x (Z_std @ Vr)]."""
+def _features(Zs, cond, basis, Vr=None):
+    """h0:      [Z_std, condition]
+    full_z:  [Z_std, condition, condition x Z_std]            (B3-P2.2 R1 — keeps ALL directions)
+    pc:      [Z_std, condition, condition x (Z_std @ Vr)]     (P2.1 low-rank baseline)"""
     cond = np.asarray(cond, float)[:, None]
     base = np.hstack([Zs, cond])
-    if Vr is not None and Vr.shape[1]:
-        base = np.hstack([base, cond * (Zs @ Vr)])
-    return base
+    if basis == "h0":
+        return base
+    if basis == "full_z":
+        return np.hstack([base, cond * Zs])
+    if basis == "pc":
+        return np.hstack([base, cond * (Zs @ Vr)])
+    raise ValueError(f"unknown h1 basis {basis!r}")
 
 
 def _vote_nll(nll, groups, D):
@@ -87,17 +94,33 @@ def classes_by_condition(Y, D):
     return {int(c): int(len(np.unique(Y[D == c]))) for c in np.unique(D)}
 
 
-def paired_conditional_change_test(Z, Y, D, groups, rank=3, C=0.5, n_boot=200, seed=0,
-                                   invalid_frac_max=0.20):
+def _resolve_C(h1_basis, d, rank, C):
+    """Pre-declared regularisation (no sweep). full_z: C_full = 0.5*3/d (the rank-3 C=0.5 interaction
+    budget, scaled to the full-Z interaction); pc baseline: C=0.5. ONE C is used for BOTH h0 and h1."""
+    if C is not None:
+        return float(C), (d if h1_basis == "full_z" else max(1, rank))
+    if h1_basis == "full_z":
+        return 0.5 * 3 / d, d
+    return 0.5, max(1, rank)
+
+
+def paired_conditional_change_test(Z, Y, D, groups, h1_basis="full_z", rank=3, C=None, n_boot=200,
+                                   seed=0, invalid_frac_max=0.20):
     """One-sided parametric-bootstrap test that the boundary depends on condition (concept change).
-    Subject-condition-WEIGHTED fits (epoch-count invariant); conservative null invalid-accounting
-    (degenerate/fit-failed replicates charged as extreme; too many -> test INVALID, fail closed).
-    Returns T, p_value, valid, reason, n_pairs, classes_by_condition, n_boot_invalid."""
+    h1_basis="full_z" (B3-P2.2 R1) interacts condition with the FULL standardised Z under a fixed strong
+    L2 -> keeps all directions incl. the low-variance discriminative one; "pc" is the P2.1 low-rank
+    baseline. Subject-condition-WEIGHTED fits/standardise (epoch invariant); conservative null
+    invalid-accounting (degenerate/fit-failed charged extreme; too many -> INVALID, fail closed).
+    Returns T, p_value, valid, reason, n_pairs, classes_by_condition, n_boot_invalid, h1_basis, C_used,
+    n_features_interaction."""
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D); g = np.asarray(groups)
+    d = Z.shape[1]
+    C_used, n_feat_int = _resolve_C(h1_basis, d, rank, C)
     n_pairs = int(len([s for s in np.unique(g) if len(np.unique(D[g == s])) >= 2]))
     cbc = classes_by_condition(Y, D)
-    base = dict(T=float("nan"), p_value=1.0, valid=False, n_pairs=n_pairs,
-                classes_by_condition=cbc, n_boot_invalid=0)
+    base = dict(T=float("nan"), p_value=1.0, valid=False, n_pairs=n_pairs, classes_by_condition=cbc,
+                n_boot_invalid=0, h1_basis=h1_basis, C_used=float(C_used),
+                n_features_interaction=int(n_feat_int))
     ok, reason = paired_validity(Y, D, g)
     if not ok:
         return {**base, "reason": reason}
@@ -106,13 +129,15 @@ def paired_conditional_change_test(Z, Y, D, groups, rank=3, C=0.5, n_boot=200, s
     mu = (w[:, None] * Z).sum(0) / W                          # WEIGHTED standardise (epoch-invariant)
     sd = np.sqrt(np.clip((w[:, None] * (Z - mu) ** 2).sum(0) / W, 0, None)) + 1e-8
     Zs = (Z - mu) / sd                                       # weighted mean(Zs) == 0
-    Vt = np.linalg.svd(np.sqrt(w)[:, None] * Zs, full_matrices=False)[2]   # WEIGHTED PCs (epoch-invariant)
-    Vr = Vt[:max(1, rank)].T
+    Vr = None
+    if h1_basis == "pc":
+        Vt = np.linalg.svd(np.sqrt(w)[:, None] * Zs, full_matrices=False)[2]   # weighted PCs (epoch-inv)
+        Vr = Vt[:max(1, rank)].T
     cl = np.array(sorted(np.unique(Y)))
-    X0 = _features(Zs, D, None)
-    X1 = _features(Zs, D, Vr)
-    nll0, clf0 = _fit_nll(X0, Y, cl, C, w)
-    nll1, _ = _fit_nll(X1, Y, cl, C, w)
+    X0 = _features(Zs, D, "h0")
+    X1 = _features(Zs, D, h1_basis, Vr)
+    nll0, clf0 = _fit_nll(X0, Y, cl, C_used, w)
+    nll1, _ = _fit_nll(X1, Y, cl, C_used, w)
     T = _vote_nll(nll0, g, D) - _vote_nll(nll1, g, D)
     p0 = np.clip(clf0.predict_proba(X0), 1e-12, 1.0)
     order = [list(clf0.classes_).index(c) for c in cl]
@@ -126,8 +151,8 @@ def paired_conditional_change_test(Z, Y, D, groups, rank=3, C=0.5, n_boot=200, s
         if not paired_validity(ystar, D, g)[0]:
             n_invalid += 1; ge += 1; continue                 # invalid -> charge extreme (conservative)
         try:
-            n0s, _ = _fit_nll(X0, ystar, cl, C, w)
-            n1s, _ = _fit_nll(X1, ystar, cl, C, w)
+            n0s, _ = _fit_nll(X0, ystar, cl, C_used, w)
+            n1s, _ = _fit_nll(X1, ystar, cl, C_used, w)
             ge += int((_vote_nll(n0s, g, D) - _vote_nll(n1s, g, D)) >= T)
         except Exception:
             n_invalid += 1; ge += 1
@@ -135,5 +160,6 @@ def paired_conditional_change_test(Z, Y, D, groups, rank=3, C=0.5, n_boot=200, s
     if n_invalid > invalid_frac_max * n_boot:
         return {**base, "reason": f"null not estimable: {n_invalid}/{n_boot} invalid replicates",
                 "T": float(T), "n_boot_invalid": int(n_invalid)}
-    return dict(T=float(T), p_value=ge / (n_boot + 1), valid=True, reason=reason,
-                n_pairs=n_pairs, classes_by_condition=cbc, n_boot_invalid=int(n_invalid))
+    return dict(T=float(T), p_value=ge / (n_boot + 1), valid=True, reason=reason, n_pairs=n_pairs,
+                classes_by_condition=cbc, n_boot_invalid=int(n_invalid), h1_basis=h1_basis,
+                C_used=float(C_used), n_features_interaction=int(n_feat_int))
