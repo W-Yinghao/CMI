@@ -103,8 +103,9 @@ class RowPredictionCache:
         if key in self._store:
             self._hit[key] += 1
             return self._store[key]
+        from .replay_store import resolve_artifact
         self._comp[key] += 1
-        self._store[key] = fn()
+        self._store[key] = resolve_artifact("prediction", key, fn)   # off/record/replay (C4b)
         return self._store[key]
 
     def total_requests(self): return int(sum(self._req.values()))
