@@ -100,7 +100,7 @@ def main():
     args = ap.parse_args()
     for lam in args.lams:
         tag = "%s_sub%d_lam%g_seed%d" % (args.variant, args.target_subject, lam, args.seed)
-        out = "%s/%s.json" % (args.out_root, tag)
+        out = "%s/%s/%s.json" % (args.out_root, args.backbone, tag)   # backbone-specific (no cross-backbone collision)
         r = run(args.dataset, args.target_subject, lam, args.seed, args.variant, out,
                 backbone=args.backbone, epochs=args.epochs, curve_every=args.curve_every, device=args.device)
         fin = r["curves"][-1] if r["curves"] else {}

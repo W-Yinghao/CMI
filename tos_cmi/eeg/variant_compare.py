@@ -21,7 +21,8 @@ import json
 import os
 import numpy as np
 
-BASE = "tos_cmi/results/tos_cmi_eeg_frozen/lpc_collapse_curves"
+import os as _os
+BASE = "tos_cmi/results/tos_cmi_eeg_frozen/lpc_collapse_curves/%s" % _os.environ.get("TOS_BB", "TSMNet")
 CHANCE_TASK = 0.25
 
 
