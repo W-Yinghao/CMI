@@ -129,6 +129,39 @@ def test_prefetch_records_every_role_for_every_candidate():
         assert kinds.get(f"logits:{role}") == n
 
 
+# ============ two-phase persistence boundary (the 2-job analogue) ============
+def test_staged_two_phase_fold_matches_monolithic():
+    import tempfile
+
+    from oaci.runner.fake import run_fake_two_level_in_memory
+    from oaci.runner.staged_fold import staged_phase_a, staged_phase_b
+    mono = run_fake_two_level_in_memory(build_fake_fold(_MAN), model_seed=0)
+    d = tempfile.mkdtemp()
+    staged_phase_a(build_fake_fold(_MAN), dataset_id="FAKE_TWO_LEVEL", model_seed=0, gpu_device=_CPU, out_dir=d)
+    staged = staged_phase_b(build_fake_fold(_MAN), d)              # rebuilt fold + persisted trained/store
+    assert mono.fold_result_hash == staged.fold_result_hash
+    assert mono.fold_scope.fold_scope_hash == staged.fold_scope.fold_scope_hash
+    for (lva, lra), (lvb, lrb) in zip(mono.level_items, staged.level_items):
+        assert lra.level_result_hash == lrb.level_result_hash
+
+
+def test_phase_b_rejects_a_mismatched_fold():
+    import tempfile
+
+    from oaci.runner.staged_fold import staged_phase_a, staged_phase_b
+    d = tempfile.mkdtemp()
+    staged_phase_a(build_fake_fold(_MAN), dataset_id="FAKE_TWO_LEVEL", model_seed=0, gpu_device=_CPU, out_dir=d)
+    # tamper the persisted Phase-A manifest hash -> Phase B must refuse
+    import json
+    mp = os.path.join(d, "phase_a.json")
+    meta = json.load(open(mp)); meta["manifest_hash"] = "BAD"; json.dump(meta, open(mp, "w"))
+    try:
+        staged_phase_b(build_fake_fold(_MAN), d)
+    except ValueError:
+        return
+    raise AssertionError("Phase B must reject a fold whose manifest hash disagrees with Phase A")
+
+
 def _leak(v):
     from oaci.runner.scientific_hash import leakage_result_hash
     return None if v is None else leakage_result_hash(v)
