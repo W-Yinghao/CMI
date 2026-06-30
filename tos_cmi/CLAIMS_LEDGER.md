@@ -80,7 +80,21 @@ measurement_to_control_gap:                       # C10 (thesis)
 # ---------- NOT YET ATTEMPTED (future tracks; must not be claimed) ----------
 source_ood_benefit_gate:        {status: not_attempted, plan: Track B (inner source-LODO pseudo-target benefit)}
 architecture_x_dimension_factorial: {status: not_attempted, plan: Track C (low-dim TSMNet, high-dim EEGNet)}
-concept_erasure_baselines:      {status: not_attempted, plan: Track G (LEACE/RLACE/SPLINCE on frozen Z)}
+concept_erasure_baselines_vs_tos:                 # Track G (DONE; cross-seed stable)
+  status: supported
+  scripts: tos_cmi/eeg/erasure_baselines.py (self-contained LEACE + INLP; LEACE validated: linear subj->chance)
+  seeds: [0,1,2]; folds: 9; backbones: TSMNet-210, EEGNet-16 (2a frozen Z)
+  outputs: results/tos_cmi_eeg_frozen/BNCI2014_001_{TSMNet,EEGNet}_LOSO/erasure_report.json
+  findings:
+    - LEACE removes LINEAR subject decode to chance (0.115) on BOTH backbones, task preserved.
+    - LEACE DOMINATES TOS V_D deletion on subject removal at equal task cost (TSMNet MLP 0.74 vs TOS 0.96;
+      EEGNet MLP 0.39 vs TOS 0.55) -> the score-Fisher PROJECTION is NOT the contribution.
+    - nonlinear (MLP) residual after optimal linear erasure is the discriminator: TSMNet 0.74 (subject is
+      nonlinearly/redundantly encoded; NOT removable by ANY linear method) vs EEGNet 0.39.
+    - INLP drives subject->chance but DESTROYS task (TSMNet 0.75->0.55, EEGNet 0.64->0.25): over-erasure.
+  implication: reframe contribution to measurement + certification/refusal + measurement-to-control gap
+    (NOT the eraser); paper needs a concept-erasure baseline table + Related Work SS5.3 update. RLACE/SPLINCE
+    still optional (RLACE adversarial; SPLINCE = holstege2025 oblique).
 end_to_end_tos_training:        {status: not_attempted, plan: Track E (conditional-on-kept critic + PCGrad + anti-collapse)}
 ```
 
