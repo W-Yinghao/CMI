@@ -103,3 +103,13 @@ random-k removal control deletes the same number of M-orthonormal directions as 
 Note (frozen-feature scope): this protocol measures whether \emph{removing} localized leakage from a fixed
 representation helps; it does not retrain the encoder with a certified penalty. The end-to-end variant is
 out of scope here and flagged in \S6.3.
+
+\subsection{Linear concept-erasure controls}
+To separate our measurement and certification claims from the particular eraser used by TOS-CMI, we compare
+the TOS ($V_D$) deletion against standard \emph{linear concept-erasure} methods on the \emph{same} frozen
+latents: the closed-form optimal eraser LEACE \citep{belrose2023leace}, adversarial RLACE
+\citep{ravfogel2022rlace}, and iterative nullspace projection INLP \citep{ravfogel2020inlp}. These controls
+ask whether the measurement-to-control gap is merely an artifact of a weak eraser. Each method erases the
+subject variable $D$; we then report subject and task decodability (linear and MLP probes) on a held-out
+split, against the same-$k$ random-removal control. We use concept erasure here as a \emph{control}, not as
+a competing method --- the contribution is the measurement-to-control audit, not the eraser.

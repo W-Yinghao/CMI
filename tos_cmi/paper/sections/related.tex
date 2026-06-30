@@ -28,11 +28,15 @@ erasure / guarding --- iterative nullspace projection and closed-form linear era
 \citep{ravfogel2020inlp,ravfogel2022rlace,belrose2023leace} --- and more broadly as subspace/feature removal. These methods typically
 \emph{erase} a targeted concept and report that it is no longer (linearly) decodable; a closely related
 line studies task-preserving (oblique) concept removal \citep{holstege2025taskpreserving}.
-\textbf{Difference:} our localization is a conditional \textbf{score-Fisher} operator (second-order in the
-log-likelihood scores, so it sees covariance/synergy leakage a first-moment statistic misses), and ---
-more importantly --- we do not treat successful erasure as the end goal. We add a conditional task-risk certificate
-and show empirically that even successful (linear) erasure can leave a nonlinear residual and need not
-improve downstream generalization, so erasure is necessary-evidence but not sufficient-evidence of benefit.
+\textbf{Difference:} we do \emph{not} compete with concept erasure as an eraser --- we use it as a
+\emph{control}. Indeed we find that an optimal closed-form linear eraser (LEACE) removes more subject
+information than our score-Fisher deletion at equal task cost (\S4.4), so the projection is not our
+contribution. Our contribution is the measurement-to-control audit: a conditional \textbf{score-Fisher}
+localization (second-order in the log-likelihood scores, so it sees covariance/synergy leakage a
+first-moment statistic misses) used for diagnosis, a conditional task-risk certificate with refusal, and
+the empirical finding that even optimal linear erasure leaves a nonlinearly recoverable residual and does
+not establish a generalization benefit --- i.e.\ successful erasure is necessary- but not
+sufficient-evidence of usable control.
 
 \subsection{Certification, abstention, and safe intervention}
 Reliable ML increasingly couples decisions to calibrated uncertainty and the option to abstain
