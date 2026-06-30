@@ -79,8 +79,9 @@ measurement_to_control_gap:                       # C10 (thesis)
 
 # ---------- NOT YET ATTEMPTED (future tracks; must not be claimed) ----------
 source_ood_benefit_gate:        {status: not_attempted, plan: Track B (inner source-LODO pseudo-target benefit)}
-architecture_x_dimension_factorial:               # Track C (DONE, seed0; seeds 1,2 dumping)
-  status: supported  # VERDICT = CAPACITY-MEDIATED (not architecture-type)
+architecture_x_dimension_factorial:               # Track C (PROVISIONAL, seed0; seeds 1,2 + EEGNet-210 dumping)
+  status: provisional_seed0  # VERDICT = capacity-mediated (seed-0 factorial; NOT final until 3-seed + EEGNet d_z=210 matched cell)
+  hardening_needed: [seeds 1+2 (running), EEGNet F2=210 top-matched conv cell, multiseed analyzer w/ cluster-bootstrap CI + matched-dim contrast]
   scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_analysis.py
   cells: TSMNet m{6,8,10,14,20}=tangent{21,36,55,105,210} + EEGNet F2{16,32,64,128}; 9 folds; seed0
   outputs: results/tos_cmi_eeg_frozen/factorial/* ; factorial_removability_seed0.json

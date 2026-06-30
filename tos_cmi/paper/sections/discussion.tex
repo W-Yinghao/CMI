@@ -35,7 +35,7 @@ lever --- which is exactly why we do not equate removal with improvement.
 \item \textbf{Two backbones only.} TSMNet and EEGNet; the cross-representation contrast rests on two points.
 \item \textbf{Dimension-vs-type: tested, capacity-mediated.} The original two-point comparison confounded
   architecture with latent dimension (SPD/$210$ vs conv/$16$). The architecture$\times$dimension factorial
-  (\S4.5, Fig.~\ref{fig:capacity}) resolves this: the nonlinear erasure residual is a function of latent
+  (\S4.5, Fig.~\ref{fig:capacity}) indicates this (seed-0 factorial; multi-seed hardening in progress): the nonlinear erasure residual is a function of latent
   \emph{dimension}, with SPD and convolutional latents nearly coinciding at matched $d_z$ --- the contrast
   is capacity-mediated, not representation-type. Remaining caveats on this factorial: a single dataset
   (BCI-IV-2a), seed~0 (multi-seed in progress), and the LDA cap from $8$ source subjects.
@@ -60,5 +60,5 @@ norm, not effective rank), because a falling leakage proxy can coincide with a d
 task risk, and default to the identity map when a safe, useful deletion cannot be certified at the available
 sample size. (iii) \textbf{Do not treat leakage decodability as a generalization target:} measure whether
 removing it actually moves target accuracy before claiming a DG benefit. The natural next steps ---
-disentangling capacity from representation type, and folding the certificate into end-to-end training with
+multi-seed and multi-dataset hardening of the capacity-mediated verdict, source-OOD benefit gating on a large-$N$ dataset, and folding the certificate into end-to-end training with
 refusal --- are deferred to future work.

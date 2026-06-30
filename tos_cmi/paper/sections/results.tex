@@ -108,26 +108,28 @@ on the compact EEGNet latent. So the score-Fisher \emph{projection is not} the m
 The stronger eraser instead sharpens the phenomenon: after \emph{optimal} linear erasure a large
 \textbf{nonlinearly recoverable subject residual} remains under held-out MLP probes on TSMNet ($0.74\gg$
 chance $0.125$) versus a smaller one on EEGNet ($0.39$) --- consistent with nonlinear/redundant subject
-coding that linear erasure cannot reach. INLP can drive subject decodability to chance only by destroying
+coding that linear erasure cannot reach. INLP drives \emph{linear} subject decodability near chance (a nonlinear residual persists on TSMNet) only by sacrificing
 task information (task $0.75\to0.55$ TSMNet, $0.64\to0.25$ EEGNet): unconstrained erasure is not task-safe.
-Crucially, none of these erasers --- including the optimal linear one --- converts subject-leakage removal
-into a target-accuracy gain (the global-LPC sweep of \S4.3 makes the same point along a continuum). Successful
+Crucially, these controls establish that the source-side removal result is not limited by a weak eraser; whether
+source-side removal improves \emph{target} accuracy is a separate question, which the global-LPC sweep (\S4.3)
+answers in the negative for this setting (a frozen-erasure target-deployment test is left to future work). Successful
 erasure is therefore not the right endpoint; the relevant question is whether the intervention is task-safe
 \emph{and} beneficial for source-to-target generalization~\claimtag{C9,C10}.
 
 \input{figures/table2_erasure.tex}
 
 \subsection{Removability is capacity-mediated, not architecture-specific}
-\textbf{An architecture$\times$latent-dimension factorial shows that the TSMNet/EEGNet contrast is driven by
-latent \emph{dimension}, not by the SPD-vs-convolutional representation type.} We vary the latent dimension
+\textbf{A seed-0 architecture$\times$latent-dimension factorial indicates that the TSMNet/EEGNet contrast is
+driven largely by latent \emph{dimension} rather than the SPD-vs-convolutional representation type} (multi-seed
+hardening, and a dimension-matched convolutional cell at $d_z{=}210$, are in progress). We vary the latent dimension
 of each backbone (TSMNet tangent dimension via the SPD size; EEGNet penultimate width) and measure the
 nonlinear residual after optimal linear erasure (Fig.~\ref{fig:capacity}). The residual rises monotonically
 with latent dimension \emph{within both architectures}, and at \emph{matched} dimension the two are nearly
 indistinguishable (e.g.\ $d_z\!\approx\!16$--$21$: $0.40$ vs $0.40$; $d_z\!\approx\!32$--$36$: $0.50$ vs
 $0.50$; $d_z\!\approx\!105$--$128$: $0.65$ vs $0.61$). The earlier TSMNet-$0.74$-vs-EEGNet-$0.39$ gap is
-therefore explained by capacity ($210$ vs $16$), not by representation type: larger latents support
-redundant, nonlinearly-recoverable subject coding that survives optimal linear erasure. This resolves the
-dimension-vs-type confound that the two-point comparison alone could not (\S6.3).
+thus largely attributable to capacity ($210$ vs $16$) rather than representation type: larger latents support
+redundant, nonlinearly-recoverable subject coding that survives optimal linear erasure. This addresses the
+dimension-vs-type confound that the two-point comparison alone could not, pending multi-seed confirmation (\S6.3).
 
 \begin{figure}[t]
 \centering
@@ -147,14 +149,13 @@ the score-Fisher diagnostics localize, but it is \textbf{not a sufficient contro
 generalization (Table~\ref{tab:summary}). Removing it can (i) collapse the representation (TSMNet global LPC), (ii) leave
 redundant high-dimensional leakage essentially intact (TSMNet low-rank deletion), or (iii) genuinely
 remove leakage yet not improve transfer (EEGNet). Whether the leakage even \emph{sits} in a low-rank removable
-subspace is representation-dependent and, in our two-backbone design, \textbf{capacity-mediated}: a high-capacity
-210-d latent redundantly re-encodes subject identity outside any low-rank subspace, while a compact 16-d
-latent cannot. The correct operating principle is therefore a \textbf{certified intervention with refusal}: the
+subspace appears \textbf{capacity-mediated} (a seed-0 factorial, \S4.5): a higher-capacity latent redundantly
+re-encodes subject identity outside any low-rank subspace, while a compact latent cannot. The correct operating principle is therefore a \textbf{certified intervention with refusal}: the
 framework should delete only when a source-risk certificate permits, and abstain otherwise --- which on
 TSMNet means abstain (deletion insufficient) and on EEGNet means a diagnostic deletion that removes leakage
 but is not claimed to improve generalization \claimtag{C10}.
 
 \textbf{In sum,} on these representations conditional domain leakage is measurable and sometimes (partially) removable, yet neither its measurement nor its removal demonstrates a cross-subject generalization benefit.
 
-\emph{Limitation flagged here (full text in \S6.3): representation type and latent dimensionality are collinear in
-this design (SPD$\leftrightarrow$210, conv$\leftrightarrow$16); this study establishes representation dependence, not its causal factor.}
+\emph{Limitation flagged here (full text in \S6.3): the two backbones differ in both architecture and latent
+dimension; we disentangle these with a capacity factorial (\S4.5; seed-0, multi-seed in progress).}
