@@ -1,0 +1,25 @@
+[b3p24a] host=nodecpu06 job=877067 cpus=24
+[b3p24a] wrote csc/results/b3_p24a_controls.json
+=== B3-P2.4a CONTROL RESOLUTION (48/cell; decision m=[20, 30]) ===
+pooled ALL controls: 146/4032 = 0.0362 (CP-up 0.0414)   [alpha=0.05]
+by-kind pooled false-confirm (m>=20):
+  clean                       24/576  = 0.0417 (CP-up 0.058)
+  paired_covariate            11/576  = 0.0191 (CP-up 0.031)
+  paired_label                38/576  = 0.0660 (CP-up 0.086)
+  random_label                42/576  = 0.0729 (CP-up 0.093)
+  paired_covariate_plus_label  31/576  = 0.0538 (CP-up 0.072)
+  missing_pair                 0/576  = 0.0000 (CP-up 0.005)
+  unequal_epochs_extreme       0/576  = 0.0000 (CP-up 0.005)
+by-scenario pooled: {'baseline': '29/672', 'high_subject_tau': '25/672', 'high_nuisance': '30/672', 'imbalanced': '28/672', 'label_noise': '27/672', 'few_epochs': '7/672'}
+worst control cells (m>=20):
+  baseline|paired_label|m30                        5/48 CP-up=0.207
+  baseline|random_label|m20                        5/48 CP-up=0.207
+  baseline|paired_covariate_plus_label|m30         5/48 CP-up=0.207
+  high_nuisance|paired_label|m30                   5/48 CP-up=0.207
+  high_nuisance|random_label|m20                   5/48 CP-up=0.207
+  label_noise|paired_label|m20                     5/48 CP-up=0.207
+  label_noise|random_label|m20                     5/48 CP-up=0.207
+  high_subject_tau|random_label|m20                4/48 CP-up=0.181
+HARD-FAIL flags: ["random_label kind-concentrated elevation in ['baseline|random_label|m20', 'baseline|random_label|m30', 'high_subject_tau|random_label|m20', 'high_subject_tau|random_label|m30', 'high_nuisance|random_label|m20', 'high_nuisance|random_label|m30', 'imbalanced|random_label|m20', 'imbalanced|random_label|m30', 'label_noise|random_label|m20', 'label_noise|random_label|m30']", "paired_label kind-concentrated elevation in ['baseline|paired_label|m20', 'baseline|paired_label|m30', 'high_subject_tau|paired_label|m20', 'high_subject_tau|paired_label|m30', 'high_nuisance|paired_label|m20', 'high_nuisance|paired_label|m30', 'imbalanced|paired_label|m30', 'label_noise|paired_label|m20', 'label_noise|paired_label|m30']", "paired_covariate_plus_label kind-concentrated elevation in ['baseline|paired_covariate_plus_label|m20', 'baseline|paired_covariate_plus_label|m30', 'high_subject_tau|paired_covariate_plus_label|m20', 'high_nuisance|paired_covariate_plus_label|m20', 'high_nuisance|paired_covariate_plus_label|m30', 'imbalanced|paired_covariate_plus_label|m20', 'imbalanced|paired_covariate_plus_label|m30']", "clean repeated elevation in ['baseline|clean|m20', 'baseline|clean|m30', 'high_subject_tau|clean|m30', 'high_nuisance|clean|m20', 'high_nuisance|clean|m30', 'imbalanced|clean|m20', 'imbalanced|clean|m30', 'label_noise|clean|m20', 'label_noise|clean|m30', 'few_epochs|clean|m30']", "paired_covariate repeated elevation in ['high_subject_tau|paired_covariate|m30', 'high_nuisance|paired_covariate|m20', 'high_nuisance|paired_covariate|m30', 'imbalanced|paired_covariate|m20', 'imbalanced|paired_covariate|m30', 'label_noise|paired_covariate|m20']"]
+warning cells (1..5): 50
+[b3p24a] done rc=0
