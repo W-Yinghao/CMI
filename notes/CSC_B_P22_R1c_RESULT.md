@@ -28,11 +28,12 @@ CONFIRM rate (guarded, m≥20 only):
 2. **R1c's full-Z BASIS is NOT promoted.** It does not beat the centered-pc baseline: a mild control
    residual (`paired_label` 0.12, `random_label` 0.08 @ m20) and weak `pure_conditional` (0.12/0.17). The
    *coding*, not the *basis*, was the lever.
-3. **The winner is `pc_centered`** (the controlled low-rank basis under the new coding): type-I controlled
-   in development (clean/covariate 0.00; label/random ≤0.08 = ≤2/24, noise), `concept` &
-   `concept_plus_cov` power 1.00, and — the headline — **`pure_conditional` 0.00 → 0.33 (m20) → 0.75
-   (m30)**. The previously Z-only-*undetectable* invisible-relabel case is now **detectable with paired
-   labels**, on the type-I-controlled basis. This is the B3 thesis realised for the *hardest* shift.
+3. **The winner is `pc_centered`** (the low-rank basis under the new coding): **no observed false
+   confirmations in these development cells** (clean/covariate 0.00; label/random ≤0.08 = ≤2/24) —
+   finite-sample type-I control remains **unestablished**; `concept` & `concept_plus_cov` power 1.00, and
+   — the headline — **`pure_conditional` 0.00 → 0.33 (m20) → 0.75 (m30)**. The previously
+   Z-only-*undetectable* invisible-relabel case is now **detectable with paired labels** on this basis.
+   This is the B3 thesis realised for the *hardest* shift (development-level evidence).
 
 ## Why centered coding unlocks `pure_conditional` (principled, not a fluke)
 
@@ -58,10 +59,11 @@ winner. `full_z` retained only as the documented experiment (R1 0/1 = type-I cat
 fixes calibration but basis not promoted). `min_confirm_pairs=20` kept. Tests `csc/tests/test_b3.py` lock
 the coding fix.
 
-**Recommendation:** adopt `pc_centered` as the B3 method. It now delivers the full B3 claim — minimal
-paired labels move `UNIDENTIFIABLE → CONCEPT_CONFIRMED` for BOTH mean-shift concept (m20) AND invisible
-pure-conditional relabel (m30), with development type-I control, where Z-only must abstain. Next
-(needs authorization): pre-register endpoints (primary `paired_concept`/`concept_plus_cov`; `pure_conditional`
-now a *covered secondary* with m=30 budget) → NEW freeze tag (e.g. `csc-b3-confirmatory-v1`) → fail-closed
-audit → unseen-cluster confirmatory. Real EEG (PD ON/OFF) only after that passes. Still NO B
-freeze/confirmatory, NO real EEG until authorized.
+**Recommendation:** adopt `pc_centered` as the B3 method (development-level). It now delivers the full B3
+claim in development — minimal paired labels move `UNIDENTIFIABLE → CONCEPT_CONFIRMED` for BOTH mean-shift
+concept (m20) AND invisible pure-conditional relabel (m30), with no observed false confirmations in these
+cells, where Z-only must abstain. **Finite-sample type-I control is NOT claimed here** (that is the
+confirmatory's job). Next (reviewer chose): **B3-P2.3 expanded development** (more controls + stress axes,
+method locked to `pc_centered`, dev-only) to show this is not a P2.2 fluke — THEN, only if P2.3's
+promotion criteria pass, a NEW freeze tag (`csc-b3-confirmatory-v1`) → fail-closed audit → unseen-cluster
+confirmatory. Real EEG (PD ON/OFF) only after that passes. Still NO B freeze/confirmatory, NO real EEG.

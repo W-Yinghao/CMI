@@ -8,11 +8,14 @@ the within-subject pairing cancels the subject random effect).
 Tests whether P(Y|Z) depends on CONDITION beyond a condition intercept (which already absorbs a
 condition-specific covariate offset AND a condition-specific class prior). On the queried paired audit:
 
-  h0:     logits ~ [Z_std, condition]                       # shared boundary + per-class condition intercept
-  h1 (full_z, B3-P2.2 R1, DEFAULT): [Z_std, condition, condition x Z_std]  # full condition-dependent boundary
-  h1 (pc, P2.1 baseline):           [Z_std, condition, condition x Z_pc(r)]  # low-rank (misses low-var dirs)
+  h0:                       logits ~ [Z_std, c]              # shared boundary + per-class condition intercept
+  h1 (pc, ADOPTED):  [Z_std, c, c x Z_pc(r)]                 # low-rank; with CENTERED coding it sees the
+                                                             #   condition-antisymmetric boundary change
+  h1 (full_z, DIAGNOSTIC ONLY): [Z_std, c, c x Z_std]        # B3-P2.2 rejected as primary (see notes)
 
+  (c = condition_code(D, coding); B3-P2.2 adopted pc + CENTERED coding = "pc_centered".)
   T = vote(NLL_h0) - vote(NLL_h1)   >= 0    (subject-condition vote, the A-line estimand)
+  NB: h1_basis has NO default -- callers must pass it explicitly (freeze-safety; no implicit basis).
 
 Null is parametric bootstrap under the FITTED h0 (Y* ~ h0(.|Z,condition)): refit h0*,h1*, recompute T*;
 one-sided p = (1 + #{T* >= T}) / (B+1). A condition-dependent BOUNDARY (concept change) makes T exceed
@@ -117,16 +120,18 @@ def _resolve_C(h1_basis, d, rank, C):
     return 0.5, max(1, rank)
 
 
-def paired_conditional_change_test(Z, Y, D, groups, h1_basis="full_z", condition_coding="centered",
+def paired_conditional_change_test(Z, Y, D, groups, h1_basis=None, condition_coding="centered",
                                    rank=3, C=None, n_boot=200, seed=0, invalid_frac_max=0.20):
     """One-sided parametric-bootstrap test that the boundary depends on condition (concept change).
-    h1_basis="full_z" (R1c) interacts condition with the FULL standardised Z under a fixed strong L2
-    (keeps all directions); "pc" is the P2.1 low-rank baseline. condition_coding="centered" (R1c) uses
-    SYMMETRIC +-0.5 codes (fixes the 0/1 type-I trap; "01" reproduces the rejected failure). Fits are
-    subject-condition WEIGHTED (epoch invariant); conservative null invalid-accounting. Returns T,
-    p_value, valid, reason, n_pairs, classes_by_condition, n_boot_invalid, h1_basis, condition_coding,
-    condition_code_values, weighted_condition_mean_check, C_used, n_features_interaction, null_mean,
-    null_sd."""
+    h1_basis is REQUIRED (no default; freeze-safety): "pc" (ADOPTED low-rank) or "full_z" (DIAGNOSTIC
+    only -- rejected as primary in B3-P2.2). condition_coding="centered" uses SYMMETRIC +-0.5 codes (the
+    adopted fix; "01" reproduces the rejected type-I trap). Fits are subject-condition WEIGHTED (epoch
+    invariant); conservative null invalid-accounting. Returns T, p_value, valid, reason, n_pairs,
+    classes_by_condition, n_boot_invalid, h1_basis, condition_coding, condition_code_values,
+    weighted_condition_mean_check, C_used, n_features_interaction, null_mean, null_sd."""
+    if h1_basis is None:
+        raise ValueError("h1_basis must be passed explicitly ('pc' adopted / 'full_z' diagnostic) -- "
+                         "no implicit default (freeze-safety).")
     Z = np.asarray(Z, float); Y = np.asarray(Y); D = np.asarray(D); g = np.asarray(groups)
     d = Z.shape[1]
     C_used, n_feat_int = _resolve_C(h1_basis, d, rank, C)

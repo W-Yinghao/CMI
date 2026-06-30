@@ -27,10 +27,11 @@ UNIDENTIFIABLE = "UNIDENTIFIABLE"
 
 def certify_paired(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=4, min_confirm_pairs=20,
                    h1_basis="pc", condition_coding="centered", rank=3, C=None, n_boot=200, seed=0):
-    # NOTE: default condition_coding="centered" (+-0.5) — the 0/1 coding was a type-I trap for full_z.
-    # default basis="pc" (type-I-controlled low-rank). "full_z" + "01" coding was the PRE-DECLARED NEGATIVE
-    # R1 (clean ~0.96, covariate ~1.00 @ m=20). B3-P2.2 R1c = full_z + "centered" is under evaluation
-    # (the diagnosed coding fix). See notes/CSC_B_P22_RESULT.md.
+    # ADOPTED METHOD = "pc_centered": h1_basis="pc" + condition_coding="centered" (+-0.5). B3-P2.2:
+    # full_z+"01" was a PRE-DECLARED NEGATIVE (clean ~0.96/covariate ~1.00 @ m=20 = type-I catastrophe);
+    # the centered coding fixed that AND unlocked pure_conditional on pc (0->0.75 @ m30), but the full_z
+    # BASIS was NOT promoted (looser controls). full_z retained DIAGNOSTIC only. No finite-sample control
+    # is claimed -- development-clean only. See notes/CSC_B_P22_R1c_RESULT.md.
     """Query `m` paired target subjects' labels and run the within-subject conditional-change test.
     `min_confirm_pairs` (B3-P2.2) forbids CONCEPT_CONFIRMED below a minimum audit size (small-m audits
     are unstable) -> NEED_MORE_LABELS, logging `would_confirm_without_min_pairs`. Returns a dict with the
