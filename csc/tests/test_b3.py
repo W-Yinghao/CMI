@@ -159,6 +159,25 @@ def test_centered_pc_recovers_pure_conditional():
     print(f"OK centered pc recovers pure_conditional @ m=30: 0/1={hits01}/4 -> centered={hitc}/4")
 
 
+# 11 -- B3-P2.4 calibrated guards close the documented P2.3 leaks; power retained -----------------------
+def test_p24_guards_and_power():
+    from csc.mininfo.paired_calibrated import certify_paired_calibrated, INVALID_PAIR as INV
+    def cert(kind, seed=0, m=24, **mt):
+        cfg = SimConfig(seed=seed); geom = make_geom(cfg, np.random.default_rng(seed))
+        Z, Y, D, G, _ = make_paired_target(kind, geom, cfg, n_subjects=36, seed=10_000 + seed, **mt)
+        return certify_paired_calibrated(Z, Y, D, G, m=m, n_boot=80, seed=seed)
+    # pair-integrity guard closes missing_pair; eligibility guard closes unequal_epochs_extreme
+    assert cert("missing_pair")["state"] == INV, cert("missing_pair")["state"]
+    assert cert("unequal_epochs_extreme")["state"] == INV, cert("unequal_epochs_extreme")["state"]
+    # power retained on genuine concept; controls not confirmed
+    conf = sum(cert("paired_concept", s)["state"] == CONCEPT_CONFIRMED for s in range(3))
+    badr = sum(cert("random_label", s)["state"] == CONCEPT_CONFIRMED for s in range(3))
+    assert conf >= 2, f"calibrated concept power too low ({conf}/3)"
+    assert badr == 0, f"calibrated random_label false-confirmed ({badr}/3)"
+    print(f"OK P2.4 guards: missing_pair & unequal_epochs -> INVALID; concept {conf}/3 confirmed; "
+          f"random_label {badr}/3 (closed)")
+
+
 if __name__ == "__main__":
     test_m0_abstains()
     test_invalid_pair_structure()
@@ -170,4 +189,5 @@ if __name__ == "__main__":
     test_full_z_uses_all_directions()
     test_centered_coding_fixes_full_z_clean()
     test_centered_pc_recovers_pure_conditional()
+    test_p24_guards_and_power()
     print("\nall CSC Route B3 sanity + contract tests passed")
