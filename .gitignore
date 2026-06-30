@@ -27,6 +27,7 @@ results/cigl/phase3a_baseline_repair/*.json
 results/cigl/phase3a_backbone_sanity/*.json
 results/cigl/phase3a_graph_backbone_redesign/*.json
 results/cigl/phase3a_dgcnn_leakage_audit/*.json
+results/cigl/phase3a_dgcnn_gn_regularizer_pilot/*.json
 
 # python caches
 __pycache__/

@@ -122,6 +122,7 @@ class _GraphStemNet(nn.Module):
         self.stem = stem
         self.gh = _DynamicGraphHead(n_chans, stem.feat_dim, n_classes, hidden, hops)
         self.z_dim = self.gh.zdim
+        self.node_z_dim = hidden          # node_z feature dim (W output), distinct from the graph readout z_dim
         self.meta = dict(graph_compatible=True, edge_logits_dynamic=True, node_identity_preserved=True)
 
     def forward_graph(self, x):
@@ -164,6 +165,7 @@ class DGCNNForwardGraphAdapter(nn.Module):
         super().__init__()
         self.net = DGCNNBackbone(n_chans, n_times, n_classes, feat=feat, hidden=hidden)
         self.z_dim = self.net.z_dim
+        self.node_z_dim = hidden          # DGCNN node_z = ChebConv output [B,C,hidden]; != graph readout z_dim (64)
         self.meta = dict(graph_compatible=True, edge_logits_dynamic=False, node_identity_preserved=True)
 
     def _node_z(self, x):

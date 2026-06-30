@@ -108,7 +108,10 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 f"Use --backbone GraphCMI (or another graph backbone), or pick a non-graph method.")
         # For method='graphcmi' the (lam, gamma, lam_edge) knobs ARE (lambda_g, lambda_node,
         # lambda_edge); they are reported under those names in the returned diagnostics.
-        node_post = NodePosterior(backbone.z_dim, n_dom, n_cls, priors).to(device)
+        # node feature dim may differ from the graph readout dim (z_dim): e.g. the DGCNN adapter reads out
+        # graph_z=64 but node_z has hidden=16. Use an explicit node_z_dim when the backbone exposes it;
+        # GraphCMINet (node_Z dim == z_dim) has no such attr and falls back to z_dim unchanged.
+        node_post = NodePosterior(getattr(backbone, "node_z_dim", backbone.z_dim), n_dom, n_cls, priors).to(device)
         edge_post = EdgePosterior(int(Xtr.shape[1]), n_dom, n_cls, priors).to(device)
     is_iib = method == "iib"
     is_dual = method == "dual"                   # joint encoder I(Z;D|Y) + decoder I(Y;D|Z) invariance
@@ -235,9 +238,14 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 warm = min(1.0, ep / max(1, warmup))
                 with torch.no_grad():                     # Step A: fit all 3 posteriors on detached graph features
                     _, gz, nz, el = backbone.forward_graph(xb)
+                has_edge = el is not None                  # static-adjacency backbones (DGCNN adapter) -> edge_logits=None
+                if lam_edge != 0 and not has_edge:         # fail closed: cannot apply an edge term without an edge object
+                    raise ValueError("method='graphcmi' with lambda_edge!=0 needs per-sample edge_logits; "
+                                     "this backbone yields edge_logits=None (static/shared adjacency).")
                 for _ in range(n_inner):
-                    la = (post.posterior_loss(gz, yb, db) + node_post.step_a_loss(nz, yb, db)
-                          + edge_post.step_a_loss(el, yb, db))
+                    la = post.posterior_loss(gz, yb, db) + node_post.step_a_loss(nz, yb, db)
+                    if has_edge:
+                        la = la + edge_post.step_a_loss(el, yb, db)
                     opt_post.zero_grad(); la.backward(); opt_post.step()
                 logits, gz, nz, el = backbone.forward_graph(xb)   # Step B (grad to encoder)
                 # Three named leakage proxies; weights (lam, gamma, lam_edge) == (lambda_g, lambda_node,
@@ -245,27 +253,30 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 # the loss math is byte-identical to the prior inline form.
                 r_graph = post.reg("lpc_prior", gz, yb)   # lambda_g    : I(Z_g;D|Y)
                 r_node = node_post.reg(nz, yb)            # lambda_node : (1/C) Σ_v I(Z_v;D|Y)
-                r_edge = edge_post.reg(el, yb)            # lambda_edge : I(A;D|Y)
+                r_edge = edge_post.reg(el, yb) if has_edge else None   # lambda_edge : I(A;D|Y) (None -> no edge object)
                 ce = F.cross_entropy(logits, yb)
-                loss = (ce + lam * warm * r_graph
-                        + gamma * warm * r_node + lam_edge * warm * r_edge)
+                loss = ce + lam * warm * r_graph + gamma * warm * r_node
+                if r_edge is not None:
+                    loss = loss + lam_edge * warm * r_edge
                 opt_main.zero_grad(); loss.backward(); opt_main.step()
                 if last_epoch:
                     diag["inloop_reg"].append(_scalar(r_graph))   # back-compat: graph term == inloop_reg
                     diag["inloop_ce"].append(_scalar(ce))
                     diag["inloop_reg_graph"].append(_scalar(r_graph))
                     diag["inloop_reg_node"].append(_scalar(r_node))
-                    diag["inloop_reg_edge"].append(_scalar(r_edge))
+                    if r_edge is not None:
+                        diag["inloop_reg_edge"].append(_scalar(r_edge))
                     with torch.no_grad():   # Step-A critic quality per head (diagnostic only; no grad/loss effect)
                         gpred = post.q_dzy(torch.cat([gz, F.one_hot(yb, n_cls).float()], 1)).argmax(1)
                         npred = node_post._logits(nz, yb).argmax(-1)   # [B,C] per-channel domain pred
-                        epred = edge_post._logits(el, yb).argmax(1)    # [B]
                         diag["stepA_graph_correct"] += int((gpred == db).sum()); diag["stepA_graph_total"] += int(db.numel())
                         diag["stepA_node_correct"] += int((npred == db.unsqueeze(1)).sum()); diag["stepA_node_total"] += int(npred.numel())
-                        diag["stepA_edge_correct"] += int((epred == db).sum()); diag["stepA_edge_total"] += int(db.numel())
                         diag["stepA_graph_loss"].append(_scalar(post.posterior_loss(gz, yb, db)))
                         diag["stepA_node_loss"].append(_scalar(node_post.step_a_loss(nz, yb, db)))
-                        diag["stepA_edge_loss"].append(_scalar(edge_post.step_a_loss(el, yb, db)))
+                        if has_edge:                            # edge head only exists for per-sample edge objects
+                            epred = edge_post._logits(el, yb).argmax(1)    # [B]
+                            diag["stepA_edge_correct"] += int((epred == db).sum()); diag["stepA_edge_total"] += int(db.numel())
+                            diag["stepA_edge_loss"].append(_scalar(edge_post.step_a_loss(el, yb, db)))
                 continue
             # Step A: fit auxiliary predictor(s) on detached Z (CMI posteriors, or IIB's h)
             fits_qdzy = uses_cmi or is_dual or is_dualc or is_dualpc or is_dualpc_hinge or is_dualpc_marginal
