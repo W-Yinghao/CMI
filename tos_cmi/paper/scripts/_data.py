@@ -40,12 +40,19 @@ def load_ablation(backbone):
 def load_lpc_sweep(backbone, lams=(0.0, 0.3, 1.0, 3.0)):
     """Per-lambda arrays from the raw_lpc sweep jsons (handles TSMNet flat tags + EEGNet variant tags)."""
     d = os.path.join(LPC, backbone)
-    paths = sorted(glob.glob(os.path.join(d, "raw_lpc_sub*_seed*.json"))) or \
-            sorted(glob.glob(os.path.join(d, "sub*_lam*_seed*.json")))
+    # RAW global-LPC sweep only: Phase-2.1 flat tags (sub*_lam*_seed*) + Phase-2.2/3 raw_lpc_* tags;
+    # EXCLUDE the scale_invariant / warm_ramp variants. Dedup by (subject, lam, seed).
+    paths = sorted(p for p in set(glob.glob(os.path.join(d, "*sub*_lam*_seed*.json")))
+                   if "scale_invariant" not in os.path.basename(p) and "warm_ramp" not in os.path.basename(p))
     by = {}
     chance = None
+    seen = set()
     for p in paths:
         r = json.load(open(p)); lam = round(r["lam"], 3)
+        key = (r.get("target_subject"), lam, r.get("seed"))
+        if key in seen:
+            continue
+        seen.add(key)
         c = r.get("curves") or [{}]
         rec = {"src": r.get("final_source_bAcc"), "tgt": r.get("final_target_bAcc"),
                "subj": r.get("final_subject_decode"), "task_dec": r.get("final_task_decode"),
