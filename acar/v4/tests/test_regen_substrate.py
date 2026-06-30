@@ -18,12 +18,15 @@ def _fsha(path):
     return hashlib.sha256(open(path, "rb").read()).hexdigest()
 
 
-def _captured_lock(commit, pipeline_sha):
+def _captured_lock(commit, pipeline_sha, device_kind="cuda"):
     lk = EL.schema_only_template(protocol_commit=commit, pipeline_config_sha256=pipeline_sha)
     lk.update(status="CAPTURED_AND_VERIFIED", python_version="3.13.14", torch_version="2.6.0+cu124",
               torchvision_version="0.21.0+cu124", torchaudio_version="2.6.0+cu124", moabb_version="1.5.0",
               mne_version="1.12.1", skorch_version="1.4.0", braindecode_version="1.5.2", numpy_version="2.4.4",
-              scipy_version="1.18.0", sklearn_version="1.9.0", device_kind="cpu", device_name="cpu")
+              scipy_version="1.18.0", sklearn_version="1.9.0", device_kind=device_kind,
+              device_name=("NVIDIA A100" if device_kind == "cuda" else "cpu"))
+    if device_kind == "cuda":                                    # CAPTURED cuda lock requires the cuda fields non-empty
+        lk.update(cuda_version="12.4", cudnn_version="90100", driver_version="550.54.15")
     return lk
 
 
@@ -129,12 +132,13 @@ def test_compatibility_replay_pass():
 
 # ----------------------------------------------------------------------------- frozen command-contract manifests + CLIs
 
-def _regen_manifest(base, disease="PD", cohorts=None, lock_status="CAPTURED_AND_VERIFIED", break_env_sha=False, **over):
+def _regen_manifest(base, disease="PD", cohorts=None, lock_status="CAPTURED_AND_VERIFIED", break_env_sha=False,
+                    lock_device_kind="cuda", **over):
     cohorts = list(R.DEV_SCOPE[disease]) if cohorts is None else list(cohorts)
     pcfg = R.canonical_pipeline_config_sha256()
     commit = over.get("protocol_commit", "a" * 40)
     if lock_status == "CAPTURED_AND_VERIFIED":
-        lk = _captured_lock(commit, pcfg)
+        lk = _captured_lock(commit, pcfg, device_kind=lock_device_kind)
     else:
         lk = EL.schema_only_template(protocol_commit=commit, pipeline_config_sha256=pcfg)
         if lock_status == "CAPTURE_FAILED":
@@ -252,6 +256,8 @@ def test_run_regen_substrate_fail_closed():
         _expect(ValueError, lambda: RRS.run(pso, oso))                                          # SCHEMA_ONLY rejected
         pcf, ocf = _regen_manifest(base, lock_status="CAPTURE_FAILED")
         _expect(ValueError, lambda: RRS.run(pcf, ocf))                                          # CAPTURE_FAILED rejected
+        pcpu, ocpu = _regen_manifest(base, lock_device_kind="cpu")
+        _expect(ValueError, lambda: RRS.run(pcpu, ocpu))                                        # CPU env lock rejected at preflight
         px, ox = _regen_manifest(base, disease="SCZ"); os.makedirs(ox + "_x")
         _expect(FileExistsError, lambda: RRS.run(px, ox + "_x"))                                # output exists
         assert "torch" not in sys.modules                                                       # still no torch
@@ -303,10 +309,79 @@ def test_check_eligible_subjects():
     _expect(ValueError, lambda: R.check_eligible_subjects(dis, raw, m))                         # right count, wrong member
 
 
+def _good_runtime():
+    return {"device_kind": "cuda", "torch_intraop_threads": 1, "torch_interop_threads": 1, "omp_num_threads": 1,
+            "python_version": "3.11.0", "torch_version": "2.8.0+cu128", "torchvision_version": "0.23.0",
+            "torchaudio_version": "2.8.0", "braindecode_version": "1.1.0", "moabb_version": "1.2.0",
+            "mne_version": "1.12.1", "skorch_version": "1.2.0", "numpy_version": "2.1.0", "scipy_version": "1.14.0",
+            "sklearn_version": "1.5.0", "cuda_version": "12.8", "cudnn_version": "90100", "driver_version": "550.54.15"}
+
+
+def test_require_cuda():
+    assert R.require_cuda({"device": "cuda"}, True) == "cuda"
+    _expect(RuntimeError, lambda: R.require_cuda({"device": "cuda"}, False))                    # no silent CPU fallback
+    _expect(ValueError, lambda: R.require_cuda({"device": "cpu"}, True))                        # schedule must pin cuda
+
+
+def test_check_runtime_matches_lock():
+    rt = _good_runtime(); lock = dict(rt)
+    assert R.check_runtime_matches_lock(lock, rt) is True                                       # exact match
+    _expect(RuntimeError, lambda: R.check_runtime_matches_lock(lock, {**rt, "device_kind": "cpu"}))   # runtime not cuda
+    _expect(ValueError, lambda: R.check_runtime_matches_lock({**lock, "device_kind": "cpu"}, rt))     # lock not cuda
+    _expect(ValueError, lambda: R.check_runtime_matches_lock(lock, {**rt, "torch_intraop_threads": 4}))  # threads != 1
+    _expect(ValueError, lambda: R.check_runtime_matches_lock({**lock, "omp_num_threads": 8}, rt))     # lock threads != 1
+    _expect(ValueError, lambda: R.check_runtime_matches_lock(lock, {**rt, "torch_version": "2.7.0"}))  # version drift
+    _expect(ValueError, lambda: R.check_runtime_matches_lock(lock, {**rt, "moabb_version": "9.9"}))    # any version drift
+    _expect(ValueError, lambda: R.check_runtime_matches_lock(lock, {**rt, "cuda_version": "12.1"}))    # cuda toolkit drift
+    _expect(ValueError, lambda: R.check_runtime_matches_lock(lock, {**rt, "cudnn_version": "80000"}))  # cudnn drift
+    _expect(ValueError, lambda: R.check_runtime_matches_lock(lock, {**rt, "driver_version": "9.9"}))   # driver drift
+    _expect(ValueError, lambda: R.check_runtime_matches_lock(lock, {**rt, "skorch_version": ""}))      # empty != vacuous match
+    _expect(ValueError, lambda: R.check_runtime_matches_lock({**lock, "mne_version": ""}, rt))         # lock empty rejected
+
+
+def test_assert_finite():
+    import numpy as np
+    assert R.assert_finite([1.0, 2.0, 3.0], "x") is True
+    _expect(ValueError, lambda: R.assert_finite([1.0, np.nan], "x"))
+    _expect(ValueError, lambda: R.assert_finite([1.0, np.inf], "x"))
+    _expect(ValueError, lambda: R.assert_finite([], "x"))                                       # empty -> fail
+
+
+def test_single_subject_label():
+    assert R.single_subject_label([1, 1, 1], "c/s") == 1
+    assert R.single_subject_label([0, 0], "c/s") == 0
+    _expect(ValueError, lambda: R.single_subject_label([], "c/s"))                              # 0 windows
+    _expect(ValueError, lambda: R.single_subject_label([0, 1], "c/s"))                          # mixed within subject
+    _expect(ValueError, lambda: R.single_subject_label([2], "c/s"))                             # label outside {0,1}
+
+
+def test_check_training_set():
+    assert R.check_training_set([0, 0, 1, 1], ["A", "A", "B", "B"], {"A", "B"}) is True
+    _expect(ValueError, lambda: R.check_training_set([0, 1], ["A", "B"], {"A", "B", "C"}))       # eligible C has no windows
+    _expect(ValueError, lambda: R.check_training_set([0, 0], ["A", "A"], {"A"}))                 # single class
+    _expect(ValueError, lambda: R.check_training_set([0, 2], ["A", "B"], {"A", "B"}))            # label outside {0,1}
+    _expect(ValueError, lambda: R.check_training_set([0, 1], ["A", "Z"], {"A"}))                 # window from non-eligible
+
+
+def test_canonical_state_dict_sha256():
+    import numpy as np
+    sd = {"w": np.array([[1.0, 2.0], [3.0, 4.0]], dtype=np.float32), "b": np.array([0.5], dtype=np.float32)}
+    h0 = R.canonical_state_dict_sha256(sd)
+    assert h0 == R.canonical_state_dict_sha256({"b": sd["b"], "w": sd["w"]})                    # order-independent
+    h_val = R.canonical_state_dict_sha256({"w": sd["w"] * 2, "b": sd["b"]})
+    h_dtype = R.canonical_state_dict_sha256({"w": sd["w"].astype(np.float64), "b": sd["b"]})
+    h_shape = R.canonical_state_dict_sha256({"w": sd["w"].reshape(1, 4), "b": sd["b"]})
+    h_name = R.canonical_state_dict_sha256({"W": sd["w"], "b": sd["b"]})
+    assert len({h0, h_val, h_dtype, h_shape, h_name}) == 5                                      # sensitive to value/dtype/shape/name
+    be = {"w": sd["w"].astype(">f4"), "b": sd["b"].astype(">f4")}                               # big-endian, same values
+    assert R.canonical_state_dict_sha256(be) == h0                                              # serialization/endianness-independent
+    _expect(ValueError, lambda: R.canonical_state_dict_sha256({}))                              # empty -> fail
+
+
 def test_run_regen_substrate_authorized_runs_gated_trainer():
     from acar.v4 import run_regen_substrate as RRS
     base = tempfile.mkdtemp()
-    saved = (RRS._git, RRS._verify_eligible_subjects, RRS._train_substrate)
+    saved = (RRS._git, RRS._verify_eligible_subjects, RRS._train_substrate, RRS._verify_runtime_matches_lock)
     calls = []
 
     def fake_train(spec, output):
@@ -314,21 +389,38 @@ def test_run_regen_substrate_authorized_runs_gated_trainer():
         enc = os.path.join(output, "enc.pt"); ss = os.path.join(output, "ss.npz")
         with open(enc, "wb") as f: f.write(b"E")
         with open(ss, "wb") as f: f.write(b"S")
-        return {"encoder_checkpoint_path": enc, "source_state_path": ss}
+        return {"encoder_checkpoint_path": enc, "source_state_path": ss,                        # trainer reports BOTH:
+                "encoder_state_dict_sha256": "c" * 64, "source_state_sha256": "d" * 64}         # canonical (semantic) shas
     try:
         RRS._git = _fake_git(); RRS._verify_eligible_subjects = lambda spec: None
         RRS._train_substrate = fake_train
+        RRS._verify_runtime_matches_lock = lambda spec: None                                    # runtime==lock checked elsewhere
         p, out = _regen_manifest(base)                                                          # PD; protocol_commit "a"*40
-        dim_sha = _fsha(p); env_sha = "b" * 64                                                  # _regen_manifest sets env_lock_sha256="b"*64? no -> real
-        # read the manifest's actual env_lock_sha256 to bind the authorization
-        env_sha = json.load(open(p))["env_lock_sha256"]
+        dim_sha = _fsha(p)
+        env_sha = json.load(open(p))["env_lock_sha256"]                                         # bind auth to the run's env lock
         authp = os.path.join(base, "auth.json")
         with open(authp, "w") as f:
             json.dump(_b1_auth("a" * 40, dim_sha, env_sha, out), f)
         body = RRS.run(p, out, b1_authorization=authp)                                          # AUTHORIZED -> gated trainer runs
         assert calls == [out]                                                                   # trainer called exactly once
         assert os.path.isfile(os.path.join(out, "RESULT.json")) and os.path.isfile(os.path.join(out, "manifest.json"))
-        assert body["artifacts"]["encoder_checkpoint_sha256"] and body["artifacts"]["source_state_sha256"]
+        a = body["artifacts"]                                                                   # BOTH file + canonical shas recorded
+        assert a["encoder_state_dict_sha256"] == "c" * 64 and a["source_state_sha256"] == "d" * 64
+        assert len(a["encoder_checkpoint_file_sha256"]) == 64 and len(a["source_state_file_sha256"]) == 64
+        assert a["encoder_checkpoint_file_sha256"] != a["encoder_state_dict_sha256"]            # file-bytes hash != semantic hash
+        res = json.load(open(os.path.join(out, "RESULT.json")))
+        assert {"encoder_state_dict_sha256", "encoder_checkpoint_file_sha256",
+                "source_state_sha256", "source_state_file_sha256"} <= set(res)
+        # runtime mismatch -> fail BEFORE training + BEFORE output claim
+        def bad_runtime(spec):
+            raise ValueError("runtime torch_version != env lock")
+        RRS._verify_runtime_matches_lock = bad_runtime
+        outR = os.path.join(base, "outR")
+        with open(os.path.join(base, "authR.json"), "w") as f:
+            json.dump(_b1_auth("a" * 40, dim_sha, env_sha, outR), f)
+        _expect(ValueError, lambda: RRS.run(p, outR, b1_authorization=os.path.join(base, "authR.json")))
+        assert calls == [out] and not os.path.exists(outR)                                      # trainer not called; no output
+        RRS._verify_runtime_matches_lock = lambda spec: None
         # auth mismatch (wrong output_path) -> fail before training, no second call, output not created
         out2 = os.path.join(base, "out2")
         authp2 = os.path.join(base, "auth2.json")
@@ -336,6 +428,19 @@ def test_run_regen_substrate_authorized_runs_gated_trainer():
             json.dump(_b1_auth("a" * 40, dim_sha, env_sha, "/WRONG"), f)
         _expect(ValueError, lambda: RRS.run(p, out2, b1_authorization=authp2))
         assert calls == [out] and not os.path.exists(out2)
+        # trainer returns paths but OMITS the canonical (semantic) shas -> fail closed + cleanup
+        def nohash(spec, output):
+            enc = os.path.join(output, "enc.pt"); ss = os.path.join(output, "ss.npz")
+            with open(enc, "wb") as f: f.write(b"E")
+            with open(ss, "wb") as f: f.write(b"S")
+            return {"encoder_checkpoint_path": enc, "source_state_path": ss}                    # no encoder_state_dict_sha256
+        RRS._train_substrate = nohash
+        out4 = os.path.join(base, "out4")
+        with open(os.path.join(base, "auth4.json"), "w") as f:
+            json.dump(_b1_auth("a" * 40, dim_sha, env_sha, out4), f)
+        _expect(RuntimeError, lambda: RRS.run(p, out4, b1_authorization=os.path.join(base, "auth4.json")))
+        assert not os.path.exists(out4)                                                         # no manifest/RESULT without canonical shas
+        RRS._train_substrate = fake_train
         # trainer failure -> output cleaned
         def boom(spec, output):
             os.path.exists(output); raise RuntimeError("train boom")
@@ -347,7 +452,7 @@ def test_run_regen_substrate_authorized_runs_gated_trainer():
         _expect(RuntimeError, lambda: RRS.run(p, out3, b1_authorization=authp3))
         assert not os.path.exists(out3)                                                         # claimed dir removed on abort
     finally:
-        RRS._git, RRS._verify_eligible_subjects, RRS._train_substrate = saved
+        RRS._git, RRS._verify_eligible_subjects, RRS._train_substrate, RRS._verify_runtime_matches_lock = saved
         shutil.rmtree(base, ignore_errors=True)
 
 
@@ -451,7 +556,9 @@ def main():
     print("ACAR v4 regen_substrate guards (skeleton + B1-preflight command contract; NO training):")
     for t in (test_validate_substrate_request, test_train_not_authorized, test_compatibility_replay_pass,
               test_validate_regen_manifest, test_validate_substrate_manifest, test_check_eligible_subjects,
-              test_validate_b1_authorization, test_run_regen_substrate_fail_closed,
+              test_validate_b1_authorization, test_require_cuda, test_check_runtime_matches_lock, test_assert_finite,
+              test_single_subject_label, test_check_training_set, test_canonical_state_dict_sha256,
+              test_run_regen_substrate_fail_closed,
               test_run_regen_substrate_authorized_runs_gated_trainer,
               test_load_eligible_windows_excludes_before_open_and_cohort_aware,
               test_run_substrate_compatibility_fail_closed, test_cmi_load_cohort_honors_subject_allowlist):

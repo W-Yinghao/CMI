@@ -96,6 +96,9 @@ def _verify_env_lock(spec):
     if lock["status"] != "CAPTURED_AND_VERIFIED":
         raise ValueError(f"env lock status must be CAPTURED_AND_VERIFIED, got {lock['status']!r} "
                          "(capture the real runtime on the training node first)")
+    if lock["device_kind"] != "cuda":                                # B1b trains on GPU — reject a CPU lock at the cheap preflight
+        raise ValueError(f"env lock device_kind must be 'cuda' for B1b training, got {lock['device_kind']!r} "
+                         "(capture the lock on the GPU training node)")
     if lock["protocol_commit"] != spec["protocol_commit"]:
         raise ValueError("env lock protocol_commit != manifest protocol_commit")
     if lock["pipeline_config_sha256"] != spec["pipeline_config_sha256"]:
@@ -151,7 +154,9 @@ def _load_subject_signal(disease, cohort, subject, cohort_dir, pipeline_config):
     if res is None:
         raise RuntimeError(f"{cohort}/{subject}: no usable windows (eligible subject expected to have data)")
     Xc, yc, _subs = res
-    return Xc, int(yc[0])
+    RS.assert_finite(Xc, f"{cohort}/{subject} windows")             # no NaN/Inf in this subject's signal
+    label = RS.single_subject_label(yc, f"{cohort}/{subject}")      # non-empty, all identical, in {0,1}
+    return Xc, label
 
 
 def load_eligible_windows(spec, allowlist, *, signal_loader=None):
@@ -172,22 +177,37 @@ def load_eligible_windows(spec, allowlist, *, signal_loader=None):
             w = np.asarray(w, dtype="<f4")
             if w.ndim != 3 or w.shape[1:] != (cfg["canon_channels"], int(cfg["resample_fs"] * cfg["window_sec"])):
                 raise ValueError(f"{ns}: windows must be [n,{cfg['canon_channels']},512], got {w.shape}")
+            if len(w) == 0:
+                raise ValueError(f"{ns}: eligible subject returned 0 windows")
             Xs.append(w); ys += [int(label)] * len(w); subj += [ns] * len(w)
     if not Xs:
         raise RuntimeError("no eligible windows loaded")
-    return np.concatenate(Xs, 0), np.asarray(ys, dtype=np.int64), subj
+    X = np.concatenate(Xs, 0)
+    RS.assert_finite(X, "windows")                                  # no NaN/Inf across the whole training set
+    return X, np.asarray(ys, dtype=np.int64), subj
+
+
+def _assert_model_params_finite(bb, what):                          # pragma: no cover — gated torch; tests use RS.assert_finite
+    """Every parameter (and grad, if present) of the model must be finite — else abort (no NaN/Inf encoder written)."""
+    import torch
+    for nm, p in bb.named_parameters():
+        if not torch.isfinite(p).all():
+            raise ValueError(f"non-finite {what} parameter: {nm}")
+        if p.grad is not None and not torch.isfinite(p.grad).all():
+            raise ValueError(f"non-finite gradient: {nm}")
 
 
 def _train_encoder_and_save(X, y, enc_path):                         # pragma: no cover — gated torch ERM; tests monkeypatch _train_substrate
     """Deterministic ERM training of the erm:0 EEGNet per RS.TRAINING_SCHEDULE (seed 0, fixed epochs, Adam, CE,
     class-balanced); torch.save the encoder state_dict to enc_path. The backbone returns (logits, z); we train on logits.
-    Lazy torch + cmi backbone. Returns (model, device)."""
+    HARD-fails on no CUDA (no silent CPU fallback) and on any non-finite logits/loss/grad/parameter (no NaN encoder written).
+    Lazy torch + cmi backbone. Returns (model, device, canonical_state_dict_sha256)."""
     import torch
     import numpy as np
     from cmi.models.backbones import build_backbone
     s = RS.TRAINING_SCHEDULE
+    dev = RS.require_cuda(s, torch.cuda.is_available())              # 'cuda' or raise — NEVER CPU fallback
     torch.use_deterministic_algorithms(True); torch.manual_seed(s["seed"]); np.random.seed(s["seed"])
-    dev = s["device"] if torch.cuda.is_available() else "cpu"
     bb = build_backbone(s["model"], n_chans=s["n_chans"], n_times=s["n_times"], n_classes=s["n_classes"], device=dev)
     Xt = torch.as_tensor(np.asarray(X, dtype="<f4")).to(dev); yt = torch.as_tensor(np.asarray(y)).long().to(dev)
     cw = None
@@ -203,10 +223,15 @@ def _train_encoder_and_save(X, y, enc_path):                         # pragma: n
         perm = torch.randperm(n, generator=g)
         for i in range(0, n, bs):
             idx = perm[i:i + bs]
-            opt.zero_grad(); logits, _z = bb(Xt[idx]); loss = lossf(logits, yt[idx]); loss.backward(); opt.step()
+            opt.zero_grad(); logits, _z = bb(Xt[idx]); loss = lossf(logits, yt[idx])
+            RS.assert_finite(logits.detach().cpu().numpy(), "logits"); RS.assert_finite(float(loss.detach().cpu()), "loss")
+            loss.backward(); _assert_model_params_finite(bb, "post-backward"); opt.step()
+            _assert_model_params_finite(bb, "post-step")
     bb.eval()
-    torch.save(bb.state_dict(), enc_path)
-    return bb, dev
+    sd = bb.state_dict()
+    state_sha = RS.canonical_state_dict_sha256({k: v.detach().cpu().numpy() for k, v in sd.items()})
+    torch.save(sd, enc_path)
+    return bb, dev, state_sha
 
 
 def _embed(bb, X, dev):                                              # pragma: no cover — gated torch forward; tests monkeypatch _train_substrate
@@ -220,7 +245,9 @@ def _embed(bb, X, dev):                                              # pragma: n
         for i in range(0, Xt.shape[0], s["batch_size"]):
             _logits, z = bb(Xt[i:i + s["batch_size"]])
             zs.append(z.detach().cpu().numpy())
-    return np.concatenate(zs, 0)
+    Z = np.concatenate(zs, 0)
+    RS.assert_finite(Z, "embeddings")                               # never fit the source-state on NaN/Inf embeddings
+    return Z
 
 
 def _fit_and_serialize_source_state(bb, dev, X, y, subj, spec, ss_path):   # pragma: no cover — gated; tests monkeypatch _train_substrate
@@ -246,26 +273,57 @@ def _train_substrate(spec, output):                                  # pragma: n
     disease = spec["disease"]
     allowlist = set(_verify_eligible_subjects(spec))                  # eligible cohort-aware ids; excluded NOT included
     X, y, subj = load_eligible_windows(spec, allowlist)              # excluded subjects never opened
+    RS.check_training_set(y, subj, allowlist)                        # every eligible subject present; labels {0,1}; both classes
     enc_path = os.path.join(output, f"v4_alldev_encoder_{disease}.pt")
-    bb, dev = _train_encoder_and_save(X, y, enc_path)
+    bb, dev, encoder_state_dict_sha256 = _train_encoder_and_save(X, y, enc_path)
     ss_path = os.path.join(output, f"v4_alldev_source_state_{disease}.npz")
-    _fit_and_serialize_source_state(bb, dev, X, y, subj, spec, ss_path)
-    return {"encoder_checkpoint_path": enc_path, "source_state_path": ss_path,
-            "training_schedule": RS.TRAINING_SCHEDULE, "n_train_windows": int(len(X)), "n_eligible_subjects": len(allowlist)}
+    ss_art = _fit_and_serialize_source_state(bb, dev, X, y, subj, spec, ss_path)
+    if int(ss_art.embedding_dim) != RS.FROZEN_PIPELINE["embedding_dim"]:   # backbone width must equal the pinned 16
+        raise ValueError(f"trained embedding_dim {ss_art.embedding_dim} != frozen {RS.FROZEN_PIPELINE['embedding_dim']}")
+    return {"encoder_checkpoint_path": enc_path, "encoder_state_dict_sha256": encoder_state_dict_sha256,
+            "source_state_path": ss_path, "source_state_sha256": ss_art.source_state_sha256,
+            "embedding_dim": int(ss_art.embedding_dim), "training_schedule": RS.TRAINING_SCHEDULE,
+            "n_train_windows": int(len(X)), "n_eligible_subjects": len(allowlist)}
+
+
+def _capture_current_runtime():                                     # pragma: no cover — gated (imports torch); tests monkeypatch
+    """Snapshot the CURRENT training process's runtime via capture_regen_envlock._probe (SAME version-string methods as the
+    captured lock, and it pins threads to 1). Returns the runtime info dict; raises if the training stack fails to import."""
+    from acar.v4 import capture_regen_envlock as CAP
+    info, stack_ok, note = CAP._probe()
+    if not stack_ok:
+        raise RuntimeError(f"training stack import failed at runtime: {note}")
+    return info
+
+
+def _verify_runtime_matches_lock(spec):                             # pragma: no cover — gated; tests monkeypatch / RS.check_*
+    """The CURRENT runtime must match the captured env lock BEFORE any training. Reads the lock file (already file-hash-verified
+    in the stdlib preflight), snapshots this process, and compares (RS.check_runtime_matches_lock): device_kind=cuda is HARD,
+    the 3 thread fields ==1, and all library versions + the cuda toolkit/cudnn/driver fields must be non-empty and equal the
+    lock (device_name is recorded but NOT required to match). Raises before output is claimed or raw is read."""
+    with open(spec["env_lock_path"]) as f:
+        lock = json.load(f)
+    RS.check_runtime_matches_lock(lock, _capture_current_runtime())
 
 
 def _authorized_train_and_write(spec, output, report, auth):
-    """Run the gated trainer under an ATOMIC output claim and write provenance. os.mkdir(output) (race-free) → _train_substrate
-    (called exactly once) → verify + sha the encoder + source-state artifacts → manifest.json → RESULT.json LAST. Any abort
-    removes the claimed output (no partial)."""
+    """Run the gated trainer under an ATOMIC output claim and write provenance. FIRST verify the live runtime == env lock
+    (no-CUDA / thread / version mismatch → abort with NO output). Then os.mkdir(output) (race-free) → _train_substrate
+    (called exactly once) → record BOTH the .pt/.npz file-bytes sha AND the canonical (state_dict / acar.v3) semantic sha →
+    manifest.json → RESULT.json LAST. Any abort removes the claimed output (no partial)."""
+    _verify_runtime_matches_lock(spec)                              # runtime == lock; fails BEFORE any output / raw read
     os.mkdir(output)                                                 # atomic claim
     try:
         art = _train_substrate(spec, output)
         for k in ("encoder_checkpoint_path", "source_state_path"):
             if not (isinstance(art.get(k), str) and os.path.isfile(art[k])):
                 raise RuntimeError(f"trainer did not produce {k}")
-        art["encoder_checkpoint_sha256"] = _sha256_file(art["encoder_checkpoint_path"])
-        art["source_state_sha256"] = _sha256_file(art["source_state_path"])
+        for k in ("encoder_state_dict_sha256", "source_state_sha256"):
+            if not (isinstance(art.get(k), str) and len(art[k]) == 64):
+                raise RuntimeError(f"trainer did not produce canonical {k}")
+        # file-bytes hash (transport/integrity) is DISTINCT from the canonical semantic hash above
+        art["encoder_checkpoint_file_sha256"] = _sha256_file(art["encoder_checkpoint_path"])
+        art["source_state_file_sha256"] = _sha256_file(art["source_state_path"])
         body = {"protocol_commit": spec["protocol_commit"], "disease": spec["disease"],
                 "input_manifest_sha256": report.get("input_manifest_sha256"), "command": report.get("command"),
                 "env_lock_sha256": spec["env_lock_sha256"], "n_eligible_subjects": spec["n_eligible_subjects"],
@@ -275,8 +333,11 @@ def _authorized_train_and_write(spec, output, report, auth):
             json.dump(body, f, sort_keys=True, allow_nan=False, indent=2)
         with open(os.path.join(output, "RESULT.json"), "w") as f:    # written LAST = completion sentinel
             json.dump({"status": "SUBSTRATE_TRAINED", "disease": spec["disease"],
-                       "encoder_checkpoint_sha256": art["encoder_checkpoint_sha256"],
-                       "source_state_sha256": art["source_state_sha256"]}, f, sort_keys=True, allow_nan=False, indent=2)
+                       "encoder_state_dict_sha256": art["encoder_state_dict_sha256"],
+                       "encoder_checkpoint_file_sha256": art["encoder_checkpoint_file_sha256"],
+                       "source_state_sha256": art["source_state_sha256"],
+                       "source_state_file_sha256": art["source_state_file_sha256"]},
+                      f, sort_keys=True, allow_nan=False, indent=2)
         return body
     except BaseException:
         import shutil

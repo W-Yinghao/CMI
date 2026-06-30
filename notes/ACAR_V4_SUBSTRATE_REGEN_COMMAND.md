@@ -144,10 +144,15 @@ dev_input_manifest_sha256 / env_lock_sha256 / output_path / exact statement) →
 claims the output and calls `_train_substrate`, which orchestrates:
 ```
 allowlist = _verify_eligible_subjects(spec)                 # eligible cohort-aware ids; excluded NOT included
-X,y,subj  = load_eligible_windows(spec, allowlist)          # per-eligible-subject raw open (excluded NEVER opened)
-bb,dev    = _train_encoder_and_save(X, y, enc_path)         # real deterministic ERM loop (RS.TRAINING_SCHEDULE) + torch.save
-            _fit_and_serialize_source_state(bb, dev, X, y, subj, spec, ss_path)  # acar.v3 fit_source_state_artifact→freeze→savez
-return {encoder_checkpoint_path, source_state_path, training_schedule, n_train_windows, n_eligible_subjects}
+X,y,subj  = load_eligible_windows(spec, allowlist)          # per-eligible-subject raw open (excluded NEVER opened); finite-checked
+            check_training_set(y, subj, allowlist)          # every eligible subject present; labels {0,1}; both classes
+bb,dev,encoder_state_dict_sha256 = _train_encoder_and_save(X, y, enc_path)   # cuda-only ERM (RS.TRAINING_SCHEDULE) + canonical sha
+ss_art    = _fit_and_serialize_source_state(bb, dev, X, y, subj, spec, ss_path)  # acar.v3 fit→freeze→savez; embedding_dim==16 checked
+return {encoder_checkpoint_path, encoder_state_dict_sha256, source_state_path, source_state_sha256(=ss_art canonical),
+        embedding_dim, training_schedule, n_train_windows, n_eligible_subjects}
+# _authorized_train_and_write: _verify_runtime_matches_lock (cuda+threads+versions) → mkdir → _train_substrate → add
+#   encoder_checkpoint_file_sha256 + source_state_file_sha256 (file bytes) → manifest.json → RESULT.json last. The stdlib
+#   preflight (_verify_env_lock) also rejects a non-cuda env lock before the B1 gate.
 ```
 - **Excluded never read (B1):** `load_eligible_windows` iterates the ALLOWLIST only; `_load_subject_signal` calls the shared,
   tested `cmi.data.bids_data.load_cohort` with `subjects={subject}` — a discovery-stage filter that skips every other subject
@@ -172,11 +177,34 @@ loss=cross_entropy  class_weighting=balanced  val_split=0.0  device=cuda  seed=0
 The encoder embedding (readout input) is the backbone's z (forward → (logits, z)); the source-state f_0 is fit on the
 all-DEV eligible embeddings. Recorded in the substrate manifest's `training_schedule`.
 
+### B1b runtime / value / hash fail-closed guards (H4)
+The authorized training path is hardened so any abnormal runtime, data, or model value aborts with NO usable artifact:
+- **No silent CPU fallback:** `regen_substrate.require_cuda(schedule, cuda_available)` — training runs ONLY on cuda; if the
+  schedule isn't `device=cuda` or `torch.cuda.is_available()` is False, it raises (no CPU substitution). Enforced both in
+  `_train_encoder_and_save` and earlier by the runtime check below.
+- **Runtime == captured env lock:** before any output is claimed or raw is read, `_verify_runtime_matches_lock` snapshots the
+  live process with `capture_regen_envlock._probe` (same version-string methods as the lock; it also pins threads to 1) and
+  asserts via `regen_substrate.check_runtime_matches_lock`: `device_kind=cuda` on both, the three thread fields = 1, and every
+  version (`torch/torchvision/torchaudio/braindecode/moabb/mne/skorch/numpy/scipy/sklearn/python`) equals the lock. `device_name`
+  is RECORDED but NOT required to match (only `device_kind=cuda` is hard). Any drift → abort before training.
+- **Raw value / label fail-closed:** `_load_subject_signal` → `single_subject_label` (non-empty, all-identical, ∈{0,1}) +
+  `assert_finite` (no NaN/Inf windows); `load_eligible_windows` rejects any 0-window subject + `assert_finite` over the whole
+  set; `_train_substrate` → `check_training_set` (every eligible subject has ≥1 window, no non-eligible windows, labels ⊆{0,1},
+  BOTH classes present).
+- **Non-finite training fail-closed:** the ERM loop checks logits + loss finite each step, and parameters/grads finite after
+  backward and after step (`_assert_model_params_finite`); embeddings are `assert_finite` before the source-state fit. A NaN/Inf
+  model is never saved; the claimed output is removed on abort.
+- **Encoder hash schema (no ambiguity):** the manifest records BOTH
+  `encoder_state_dict_sha256` = `regen_substrate.canonical_state_dict_sha256` (sorted name|dtype|shape|little-endian bytes —
+  the serialization-independent SEMANTIC provenance hash) AND `encoder_checkpoint_file_sha256` = sha256 of the `.pt` file bytes
+  (transport/integrity). The source-state likewise records `source_state_sha256` (the acar.v3 artifact's canonical hash) +
+  `source_state_file_sha256` (the `.npz` file bytes). The two meanings never overload one field.
+
 ## 7d. This patch CHANGES the runner → re-sequence required before B1b (no reusing earlier artifacts)
-The runner changed twice now: H2 (e277f0d) added the eligible schema + auth gate; **H3 (this patch) makes the training body a
-real executable implementation** (raw allowlist loader + ERM loop + acar.v3 source-state) + restricts source_kind to raw_bids.
-So the 046507a env lock + manifests are STALE for the new code path. Before any B1b authorization, redo at the LATEST commit
-H = H3 (this patch):
+The runner changed across H2 (e277f0d, eligible schema + auth gate), H3 (real executable training body + raw_bids-only), and
+**H4 (this patch): runtime/value/hash fail-closed guards** (require_cuda, runtime==env-lock, finite/label checks, dual encoder
+hash). So the 046507a env lock + manifests are STALE for the current code path. Before any B1b authorization, redo at the
+LATEST commit H = H4 (this patch):
 ```
 H = the B1b executable-training-path commit (clean)
 recapture the regen env lock for H            (GPU; CAPTURED_AND_VERIFIED, interop=1, versions, protocol_commit=H)

@@ -69,6 +69,118 @@ def canonical_subject_list_sha256(subjects):
     return hashlib.sha256(json.dumps(sorted(set(subjects)), sort_keys=True, separators=(",", ":")).encode()).hexdigest()
 
 
+# ---- B1b runtime / value / hash safety (PURE; testable without torch / GPU / raw) -------------------------------------
+# The exact runtime fields that must MATCH the captured env lock when training actually runs (versions captured with the same
+# methods as capture_regen_envlock._probe). device_name is RECORDED but NOT required to match (device_kind=cuda is the hard
+# rule); thread fields must all be 1 (the deterministic single-thread runtime the lock pins).
+RUNTIME_VERSION_FIELDS = ("python_version", "torch_version", "torchvision_version", "torchaudio_version",
+                          "braindecode_version", "moabb_version", "mne_version", "skorch_version",
+                          "numpy_version", "scipy_version", "sklearn_version")
+# cuda toolkit / cudnn / driver drift from the captured GPU node (compared only when device_kind == cuda, which B1b requires)
+RUNTIME_CUDA_FIELDS = ("cuda_version", "cudnn_version", "driver_version")
+RUNTIME_THREAD_FIELDS = ("torch_intraop_threads", "torch_interop_threads", "omp_num_threads")
+
+
+def require_cuda(schedule, cuda_available):
+    """Fail closed unless the FROZEN schedule pins cuda AND CUDA is actually available — NEVER fall back to CPU.
+    Returns the device string 'cuda' on success."""
+    if schedule.get("device") != "cuda":
+        raise ValueError(f"TRAINING_SCHEDULE device must be 'cuda', got {schedule.get('device')!r}")
+    if not cuda_available:
+        raise RuntimeError("CUDA required by the frozen TRAINING_SCHEDULE but torch.cuda.is_available()==False "
+                           "(no silent CPU fallback — abort and run on a GPU node)")
+    return "cuda"
+
+
+def check_runtime_matches_lock(lock, runtime):
+    """FAIL-CLOSED: the CURRENT training runtime must match the captured env lock. device_kind must be 'cuda' on BOTH (no CPU
+    training); the three thread fields must all be 1; every version field (and, since cuda, the cuda toolkit/cudnn/driver
+    fields) must be NON-EMPTY and equal to the lock's. Raises on the first mismatch. (device_name is intentionally NOT
+    compared — only device_kind=cuda is hard.)"""
+    if lock.get("device_kind") != "cuda":
+        raise ValueError(f"env lock device_kind must be 'cuda' for B1b training, got {lock.get('device_kind')!r}")
+    if runtime.get("device_kind") != "cuda":
+        raise RuntimeError(f"current runtime device_kind must be 'cuda' (no CPU training), got "
+                           f"{runtime.get('device_kind')!r} — CUDA not available on this node")
+    for f in RUNTIME_THREAD_FIELDS:
+        if runtime.get(f) != 1:
+            raise ValueError(f"runtime {f} must be 1 (deterministic single-thread), got {runtime.get(f)!r}")
+        if lock.get(f) != 1:
+            raise ValueError(f"env lock {f} must be 1, got {lock.get(f)!r}")
+    for f in RUNTIME_VERSION_FIELDS + RUNTIME_CUDA_FIELDS:            # cuda fields compared because device_kind==cuda (B1b)
+        rv, lv = runtime.get(f), lock.get(f)
+        if not rv or not lv:                                         # empty would vacuously "match" — reject
+            raise ValueError(f"{f} must be recorded (non-empty) in BOTH runtime and env lock (got {rv!r} / {lv!r})")
+        if rv != lv:
+            raise ValueError(f"runtime {f} != env lock ({rv!r} != {lv!r}) — wrong/changed runtime")
+    return True
+
+
+def assert_finite(arr, name):
+    """Raise ValueError if `arr` contains any NaN/Inf (or is empty). Pure numpy; works on windows, labels, loss, grads."""
+    import numpy as np
+    a = np.asarray(arr, dtype=np.float64)
+    if a.size == 0:
+        raise ValueError(f"{name} is empty")
+    if not np.all(np.isfinite(a)):
+        raise ValueError(f"{name} contains non-finite values (NaN/Inf)")
+    return True
+
+
+def single_subject_label(y_arr, key):
+    """One eligible subject's per-window labels: must be non-empty, all identical, and in {0,1}. Returns the int label.
+    Guards against a subject whose windows carry mixed/out-of-range labels (silent training corruption)."""
+    import numpy as np
+    y = np.asarray(y_arr).ravel()
+    if y.size == 0:
+        raise ValueError(f"{key}: subject has 0 windows")
+    u = {int(v) for v in np.unique(y)}
+    if not u <= {0, 1}:
+        raise ValueError(f"{key}: labels must be in {{0,1}}, got {sorted(u)}")
+    if len(u) != 1:
+        raise ValueError(f"{key}: mixed labels within subject ({sorted(u)})")
+    return int(y[0])
+
+
+def check_training_set(y, subj, allowlist):
+    """Disease-level fail-closed checks BEFORE training: every eligible subject contributed ≥1 window; no windows from
+    non-eligible subjects; all labels in {0,1}; BOTH classes present. y/subj are per-window arrays; allowlist = eligible set."""
+    import numpy as np
+    yy = np.asarray(y).ravel()
+    seen = set(subj)
+    allow = set(allowlist)
+    missing = sorted(allow - seen)
+    if missing:
+        raise ValueError(f"eligible subjects with no windows: {missing[:5]}{'…' if len(missing) > 5 else ''}")
+    extra = sorted(seen - allow)
+    if extra:
+        raise ValueError(f"windows from non-eligible subjects present: {extra[:5]}")
+    u = {int(v) for v in np.unique(yy)} if yy.size else set()
+    if not u <= {0, 1}:
+        raise ValueError(f"labels must be in {{0,1}}, got {sorted(u)}")
+    if u != {0, 1}:
+        raise ValueError(f"training set must contain BOTH classes, got {sorted(u)}")
+    return True
+
+
+def canonical_state_dict_sha256(named_arrays):
+    """Serialization-INDEPENDENT canonical hash of an encoder state_dict: sorted by tensor name, each entry hashed as
+    name|dtype|shape|C-contiguous little-endian raw bytes. Stable across torch.save format / device changes — the SEMANTIC
+    provenance hash (distinct from the .pt file-bytes hash). `named_arrays` = {tensor_name: np.ndarray}."""
+    import numpy as np
+    if not named_arrays:
+        raise ValueError("state_dict is empty")
+    h = hashlib.sha256()
+    for name in sorted(named_arrays):
+        a = np.ascontiguousarray(named_arrays[name])
+        a = a.astype(a.dtype.newbyteorder("<"), copy=False)          # normalize endianness for byte-stable hashing
+        h.update(name.encode()); h.update(b"|")
+        h.update(str(a.dtype.str).encode()); h.update(b"|")
+        h.update(repr(tuple(a.shape)).encode()); h.update(b"|")
+        h.update(a.tobytes(order="C")); h.update(b";")
+    return h.hexdigest()
+
+
 def check_eligible_subjects(disease, raw_by_cohort, manifest):
     """PURE eligible-subject reconciliation (no FS). `raw_by_cohort` = {cohort: [local sub-* names]} discovered on disk.
     eligible = (all namespaced raw subjects) − excluded. FAIL-CLOSED: every excluded subject must exist in raw; eligible
