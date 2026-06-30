@@ -1,0 +1,60 @@
+\documentclass[10pt]{article} % TMLR submission
+\usepackage{tmlr}            % official TMLR style (anonymous by default).
+% Camera-ready: use \usepackage[accepted]{tmlr}. Preprint: \usepackage[preprint]{tmlr}.
+
+% --- content packages not provided by tmlr.sty (tmlr loads natbib, fontenc, lmodern) ---
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+\usepackage{hyperref}
+\usepackage{url}
+
+\graphicspath{{figures/}}
+
+% --- draft-mode claim tags (hidden in the PDF; traceability to claim_evidence_table.md) ---
+\newif\ifshowclaimtags
+\showclaimtagsfalse
+\newcommand{\claimtag}[1]{\ifshowclaimtags\textcolor{blue}{[#1]}\fi}
+
+\title{Selective Conditional Invariance in Task-Orthogonal EEG Subspaces:\\
+A Measurement-to-Control Study}
+
+% Anonymous submission: tmlr (without [accepted]/[preprint]) hides the author block.
+\author{\name Anonymous Author(s) \email anon@example.com \\
+      \addr Anonymous Institution}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+
+\input{sections/intro}
+
+\input{sections/method}
+
+\input{sections/synthetic}
+
+\input{sections/results}
+
+\input{sections/related}
+
+\input{sections/discussion}
+
+\input{sections/conclusion}
+
+\paragraph{Ethics and data statement.}
+Experiments use a public, de-identified EEG motor-imagery benchmark (BCI-IV-2a / BNCI2014-001) accessed via
+the MOABB pipeline; no new human-subject data were collected. The study analyzes representation-level domain
+(subject) information for the purpose of measuring and controlling cross-subject leakage, and reports an
+honest negative/diagnostic result; we are not aware of a heightened risk of harm beyond standard EEG
+benchmarking. Code to reproduce the analyses will be released as anonymous supplementary material / upon
+acceptance.
+
+\bibliographystyle{tmlr}
+\bibliography{references}
+
+\end{document}
