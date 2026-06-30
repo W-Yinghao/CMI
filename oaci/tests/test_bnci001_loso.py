@@ -1,0 +1,216 @@
+"""C6a CPU tests: the BNCI2014_001 LOSO plan/driver, the 18-job submitter, and the aggregation logic.
+No data, no training, no GPU.
+
+Standalone (`python -m oaci.tests.test_bnci001_loso`) and pytest-compatible.
+"""
+from __future__ import annotations
+
+import os
+import tempfile
+
+import oaci.protocol
+from oaci.confirmatory.aggregate import aggregate_loso
+from oaci.confirmatory.bnci001_loso import (expected_level_support, materialize_all_loso, validate_loso_plan)
+from oaci.confirmatory.loso_plan import loso_fold_spec, loso_plan
+from oaci.confirmatory.submit import build_job_plan, print_plan, validate_launch
+
+_PROTO = os.path.join(os.path.dirname(oaci.protocol.__file__), "confirmatory_v2.yaml")
+
+
+# ===================== plan / driver =====================
+def test_bnci001_loso_plan_has_9_unique_targets():
+    plan = loso_plan()
+    assert len(plan) == 9 and sorted(f["target"] for f in plan) == list(range(1, 10))
+    assert validate_loso_plan()["ok"]
+
+
+def test_bnci001_loso_cyclic_split_matches_target001_c5():
+    f1 = loso_fold_spec(1)
+    assert f1["source_audit_subjects"] == [2, 3] and f1["source_train_subjects"] == [4, 5, 6, 7, 8, 9]
+    assert f1["deleted_subject"] == 4 and f1["deleted_cell"] == {"domain_id": "BNCI2014_001|subject-004", "class_name": "feet"}
+    assert loso_fold_spec(2)["source_audit_subjects"] == [3, 4] and loso_fold_spec(2)["source_train_subjects"] == [5, 6, 7, 8, 9, 1]
+    assert loso_fold_spec(9)["source_audit_subjects"] == [1, 2] and loso_fold_spec(9)["source_train_subjects"] == [3, 4, 5, 6, 7, 8]
+
+
+def test_bnci001_loso_roles_are_disjoint_per_fold():
+    for f in loso_plan():
+        flat = [f["target"]] + f["source_audit_subjects"] + f["source_train_subjects"]
+        assert len(set(flat)) == 9 == len(flat) and set(flat) == set(range(1, 10))
+        assert len(f["source_audit_subjects"]) == 2 and len(f["source_train_subjects"]) == 6
+
+
+def test_bnci001_loso_deleted_cells_are_deterministic():
+    a, b = loso_plan(), loso_plan()
+    assert [f["deleted_cell"] for f in a] == [f["deleted_cell"] for f in b]
+    for f in loso_plan():                                       # first source-train subject x feet, cyclic
+        assert f["deleted_subject"] == f["source_train_subjects"][0] and f["deleted_cell"]["class_name"] == "feet"
+
+
+def test_bnci001_loso_level0_support_tables_are_exact():
+    for f in loso_plan():
+        sup = expected_level_support(f)
+        assert len(sup["level0"]) == 6 and all(len(r) == 4 for r in sup["level0"])
+        assert all(c == 144 for r in sup["level0"] for c in r)   # 6 x 4 matrix of 144s
+        assert sup["p_ref"] == [0.25, 0.25, 0.25, 0.25]
+
+
+def test_bnci001_loso_level1_deleted_cells_are_zero():
+    for f in loso_plan():
+        sup = expected_level_support(f)
+        z = [(i, j) for i, r in enumerate(sup["level1"]) for j, c in enumerate(r) if c == 0]
+        assert z == [(sup["deleted_row"], sup["deleted_col"])]   # exactly the deleted (subject, feet) cell
+        assert sup["level1"][sup["deleted_row"]][sup["deleted_col"]] == 0
+        assert sup["classes"][sup["deleted_col"]] == "feet"
+
+
+def test_bnci001_loso_all_methods_active():
+    d = tempfile.mkdtemp()
+    out = materialize_all_loso(_PROTO, d, model_seed=0, bootstrap_mode="full")
+    assert len(out) == 9
+    for spec, mp, m in out:
+        assert sorted(m.methods.names) == sorted(["ERM", "OACI", "global_lpc", "uniform"])
+        assert m.training.stage1_epochs == 200 and m.probe.audit_bootstrap == 2000   # full budget
+
+
+def test_bnci001_loso_dry_run_does_not_train():
+    d = tempfile.mkdtemp()
+    out = materialize_all_loso(_PROTO, d, model_seed=0, bootstrap_mode="full")   # writes manifests, no training
+    assert validate_loso_plan()["ok"]
+    # no checkpoint artifacts produced by the dry run
+    assert not any(f.endswith(".pt") for _root, _dirs, files in os.walk(d) for f in files)
+
+
+# ===================== submitter =====================
+_REPO = "/home/infres/yinwang/CMI_AAAI_oaci"
+_OUT = "/projects/EEG-foundation-model/yinghao/oaci-loso-test"
+
+
+def test_phase_a_phase_b_job_plan_has_18_jobs():
+    jobs = build_job_plan(_OUT, _REPO)
+    assert len(jobs) == 18
+    assert sum(1 for j in jobs if j["kind"] == "phase_a") == 9
+    assert sum(1 for j in jobs if j["kind"] == "phase_b") == 9
+
+
+def test_phase_b_depends_on_matching_phase_a():
+    jobs = build_job_plan(_OUT, _REPO)
+    for j in jobs:
+        if j["kind"] == "phase_b":
+            assert j["depends_on"].startswith(f"{j['fold_id']}:phase_a")
+            assert j["partition"] == "CPU" and j["gres"] is None     # no GPU in Phase B
+        else:
+            assert j["partition"] == "V100" and j["gres"] == "gpu:1"
+
+
+def test_submitter_dry_run_prints_all_paths_and_dependencies():
+    import io
+    jobs = build_job_plan(_OUT, _REPO)
+    buf = io.StringIO()
+    print_plan(jobs, loso_root=_OUT, file=buf)
+    s = buf.getvalue()
+    for t in range(1, 10):
+        assert f"target-{t:03d}" in s
+    assert "staging" in s and "artifact" in s and "depends" in s and "V100" in s and "CPU" in s
+
+
+def test_submitter_rejects_repo_internal_artifact_root():
+    try:
+        validate_launch(os.path.join(_REPO, "oaci", "inside"), _REPO, "/projects/EEG-foundation-model/datalake/raw")
+    except ValueError:
+        return
+    raise AssertionError("an in-repo LOSO root must be rejected")
+
+
+def test_submitter_rejects_missing_datalake():
+    try:
+        validate_launch(_OUT, _REPO, "/no/such/datalake")
+    except ValueError:
+        return
+    raise AssertionError("a missing datalake must be rejected")
+
+
+# ===================== aggregation =====================
+def _level(L, oaci_audit=0.80, erm_audit=0.75, oaci_bacc=0.45, erm_bacc=0.48):
+    base = lambda n, au, ba: {"method": n, "audit_ucl": au, "selection_ucl": 1.3, "target_bacc": ba,
+                              "target_nll": 1.2, "target_ece": 0.1, "selected_checkpoint": "c", "selected_risk": 0.85}
+    return {"level": L, "R_ERM_hat": 0.85, "tau": 0.88,
+            "methods": [base("ERM", erm_audit, erm_bacc), base("OACI", oaci_audit, oaci_bacc),
+                        base("global_lpc", 0.8, 0.46), base("uniform", 0.8, 0.46)]}
+
+
+def _fold(target, *, deep=True, tfit=True):
+    return {"target": target, "deep_verification_ok": deep, "target_fit_empty": tfit, "protocol_hash": "P",
+            "methods_present": ["ERM", "OACI", "global_lpc", "uniform"], "levels": [_level(0), _level(1)]}
+
+
+def _nine():
+    return [_fold(t) for t in range(1, 10)]
+
+
+def test_aggregation_requires_all_9_targets():
+    r = aggregate_loso(_nine(), protocol_hash="P")
+    assert r["n_folds"] == 9 and r["targets"] == list(range(1, 10))
+    try:
+        aggregate_loso(_nine()[:8], protocol_hash="P")
+    except ValueError:
+        return
+    raise AssertionError("fewer than 9 targets must be rejected")
+
+
+def test_aggregation_rejects_duplicate_or_missing_target():
+    bad = _nine(); bad[8] = _fold(1)                            # target 1 twice, 9 missing
+    try:
+        aggregate_loso(bad, protocol_hash="P")
+    except ValueError:
+        return
+    raise AssertionError("a duplicate/missing target must be rejected")
+
+
+def test_aggregation_rejects_failed_deep_verification():
+    bad = _nine(); bad[3] = _fold(4, deep=False)
+    try:
+        aggregate_loso(bad, protocol_hash="P")
+    except ValueError:
+        return
+    raise AssertionError("a failed deep verification must be rejected")
+
+
+def test_aggregation_rejects_target_fit_ids():
+    bad = _nine(); bad[5] = _fold(6, tfit=False)
+    try:
+        aggregate_loso(bad, protocol_hash="P")
+    except ValueError:
+        return
+    raise AssertionError("a non-empty target_fit must be rejected")
+
+
+def test_aggregation_reports_k1_k2_style_endpoints():
+    r = aggregate_loso(_nine(), protocol_hash="P")
+    assert len(r["k1_descriptive"]) == 2 and len(r["k2_descriptive"]) == 2
+    k1 = r["k1_descriptive"][0]
+    assert abs(k1["delta_leakage_ucl_mean"] - 0.05) < 1e-9      # OACI 0.80 - ERM 0.75
+    assert len(k1["per_fold"]) == 9
+    k2 = r["k2_descriptive"][0]
+    assert abs(k2["delta_target_bacc"]["d_mean"] - (0.45 - 0.48)) < 1e-9
+    assert k2["n_bacc_improved"] == 0                            # OACI bAcc below ERM here
+
+
+def test_aggregation_is_order_invariant():
+    import random
+    a = aggregate_loso(_nine(), protocol_hash="P")
+    shuffled = _nine(); random.Random(0).shuffle(shuffled)
+    b = aggregate_loso(shuffled, protocol_hash="P")
+    assert a["targets"] == b["targets"] and a["k1_descriptive"] == b["k1_descriptive"]
+    assert a["k2_descriptive"] == b["k2_descriptive"]
+
+
+def _run_all() -> None:
+    fns = [v for k, v in sorted(globals().items()) if k.startswith("test_") and callable(v)]
+    for fn in fns:
+        fn()
+        print(f"  ok  {fn.__name__}")
+    print(f"PASS  {len(fns)} bnci001-loso tests")
+
+
+if __name__ == "__main__":
+    _run_all()

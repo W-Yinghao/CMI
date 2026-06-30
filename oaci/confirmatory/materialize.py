@@ -57,7 +57,7 @@ def split_subjects(all_subjects, target_subject, *, source_audit_count=2) -> dic
 
 def materialize_pilot_manifest(protocol, dataset_name, *, target_subject, out_path,
                                all_subjects=None, model_seeds=None, source_audit_count=2,
-                               deleted_cell=None, bootstrap_override=None):
+                               deleted_cell=None, bootstrap_override=None, explicit_split=None):
     """Build + write a runnable `pilot` manifest_v2 yaml for one held-out target; returns
     (out_path, ProtocolManifestV2). Raises (via load_v2 + validate_complete) if anything is incomplete.
 
@@ -68,7 +68,13 @@ def materialize_pilot_manifest(protocol, dataset_name, *, target_subject, out_pa
     ds = protocol.dataset(dataset_name)
     pp = ds["preprocessing"]
     subs = list(all_subjects) if all_subjects is not None else list(BNCI2014_001_SUBJECTS)
-    split = split_subjects(subs, target_subject, source_audit_count=source_audit_count)
+    if explicit_split is not None:                                   # LOSO: an explicit cyclic split
+        split = {k: list(explicit_split[k]) for k in ("subjects", "target_subjects",
+                                                      "source_audit_subjects", "source_train_subjects")}
+        if [int(target_subject)] != [int(s) for s in split["target_subjects"]]:
+            raise ValueError("explicit_split target_subjects must equal [target_subject]")
+    else:
+        split = split_subjects(subs, target_subject, source_audit_count=source_audit_count)
     if deleted_cell is None:                                          # deterministic: first source_train subject, 'feet'
         first_train = split["source_train_subjects"][0]
         deleted_cell = {"domain_id": f"{dataset_name}|subject-{first_train:03d}", "class_name": "feet"}
