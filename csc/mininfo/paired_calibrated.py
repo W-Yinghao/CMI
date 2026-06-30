@@ -17,8 +17,11 @@ reviewer:
   5. (B3-P2.4c) FIXED-MARGIN h0 BOOTSTRAP null (sample_h0_fixed_condition_margins): preserves per-condition
      class margins so label/prior COMPOSITION cannot inflate T. + STUDENTIZED SUBJECT-CONSISTENCY GATE:
      CONCEPT_CONFIRMED requires fixed-margin mean-T p<=alpha AND studentized Z=mean(delta_s)/se(delta_s)
-     p<=alpha AND 95% LCB(delta_s)>0 -- so a few subjects' noise improvements cannot confirm (fixes the
-     random_label finite-sample over-rejection that the null alone could not). Thresholds pre-fixed.
+     p<=alpha AND LCB(delta_s)>0 -- so a few subjects' noise improvements cannot confirm.
+  6. (B3-P2.4d) CROSS-BUDGET ALPHA-SPENDING: the certifier may confirm at n_decision_budgets positive
+     budgets (m=20,30), so alpha_budget = alpha_family/n_decision_budgets (=0.025) is applied to BOTH the
+     mean-T and studentized p-gates AND the LCB is taken at 1-alpha_budget (97.5%). Deterministic
+     Bonferroni; no sweep. Fixes the per-budget m=30 control edge + random_label borderline.
 
 DEVELOPMENT only; NO freeze/confirmatory; NO real EEG. calibration_version below is logged.
 """
@@ -33,7 +36,7 @@ from .paired_conditional_test import condition_code
 from .paired_certifier import (CONCEPT_CONFIRMED, NO_CONCEPT_EVIDENCE, NEED_MORE_LABELS,
                                INVALID_PAIR, UNIDENTIFIABLE)
 
-CALIBRATION_VERSION = "p24c_studentized_subject_consistency_fixed_margin"
+CALIBRATION_VERSION = "p24d_cross_budget_alpha_spending_studentized_fixed_margin"
 PAIR_INTEGRITY_MIN = 0.95
 MIN_EPOCHS_PER_CONDITION = 8
 N_FOLDS = 3
@@ -387,7 +390,8 @@ def paired_cv_test(Z, Y, D, groups, condition_coding="centered", rank=3, C=0.5, 
 
 def certify_paired_calibrated(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=4, min_confirm_pairs=20,
                               pair_integrity_min=PAIR_INTEGRITY_MIN, min_epochs=MIN_EPOCHS_PER_CONDITION,
-                              rank=3, C=0.5, n_folds=N_FOLDS, n_boot=200, seed=0):
+                              rank=3, C=0.5, n_folds=N_FOLDS, n_boot=200, seed=0,
+                              alpha_family=0.05, n_decision_budgets=2):
     """B3-P2.4 calibrated certifier. Batch-level pair-integrity guard + eligible-complete-pair (min-epochs)
     guard + class-balanced cross-fitted test. A positive CONCEPT_CONFIRMED requires: pair_integrity >=
     pair_integrity_min, >= min_confirm_pairs ELIGIBLE complete pairs queried, valid cross-fit, p_cv<=alpha.
@@ -421,15 +425,28 @@ def certify_paired_calibrated(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=
     t = paired_cv_test(Zq, Yq, Dq, Gq, condition_coding="centered", rank=rank, C=C, n_folds=n_folds,
                        min_epochs=min_epochs, n_boot=n_boot, seed=seed,
                        null_mode="fixed_margin", also_standard=True)
-    # B3-P2.4c: CONCEPT_CONFIRMED now requires the fixed-margin MEAN-T to be significant AND the
-    # studentized subject-consistency test to be significant AND the 95% subject-consistency LCB > 0.
-    would_meanT = bool(t["valid"] and t["p_value_cv"] <= alpha)               # old (P2.4b) condition
-    stud_ok = bool(t["valid"] and t["studentized_p_value"] <= alpha and t["subject_consistency_lcb"] > 0)
-    would = would_meanT and stud_ok                                          # new (P2.4c) condition
+    # B3-P2.4d: CROSS-BUDGET ALPHA-SPENDING. The certifier may confirm at n_decision_budgets positive
+    # budgets (m=20,30) -> Bonferroni alpha_budget = alpha_family / n_decision_budgets (=0.025), applied to
+    # BOTH p-gates AND the lower-confidence-bound level (1 - alpha_budget = 0.975). Deterministic, no sweep.
+    alpha_budget = alpha_family / max(int(n_decision_budgets), 1)
+    lcb_level = 1.0 - alpha_budget
+    S = int(t.get("n_subject_deltas", 0) or 0)
+    lcb_budget = (float(t.get("mean_delta", float("nan")))
+                  - _t_quantile(lcb_level, max(S - 1, 1)) * float(t.get("se_delta", 0.0) or 0.0))
+    # P2.4c diagnostic (alpha_family=0.05, 95% LCB) -- kept only to show what alpha-spending removes
+    would_c = bool(t["valid"] and t["p_value_cv"] <= alpha_family
+                   and t["studentized_p_value"] <= alpha_family and t["subject_consistency_lcb"] > 0)
+    # P2.4d DECISION (alpha_budget=0.025, 97.5% LCB)
+    would_meanT = bool(t["valid"] and t["p_value_cv"] <= alpha_budget)
+    stud_ok = bool(t["valid"] and t["studentized_p_value"] <= alpha_budget and lcb_budget > 0)
+    would = would_meanT and stud_ok
     size_ok = bool(n_q >= min_confirm_pairs and t["n_eligible"] >= min_confirm_pairs)
-    old_decision = (CONCEPT_CONFIRMED if (would_meanT and size_ok)
-                    else NEED_MORE_LABELS if (would_meanT or n_q < decide_n) else NO_CONCEPT_EVIDENCE)
-    log.update(valid=bool(t["valid"]), p_value=float(t["p_value_cv"]), T=float(t["T_cv"]),
+    old_decision = (CONCEPT_CONFIRMED if (would_c and size_ok)
+                    else NEED_MORE_LABELS if (would_c or n_q < decide_n) else NO_CONCEPT_EVIDENCE)
+    log.update(alpha_family=float(alpha_family), alpha_budget=float(alpha_budget), lcb_level=float(lcb_level),
+               positive_decision_budgets=[20, 30], subject_consistency_lcb_budget=float(lcb_budget),
+               old_p24c_decision=old_decision,
+               valid=bool(t["valid"]), p_value=float(t["p_value_cv"]), T=float(t["T_cv"]),
                observed_T=float(t["T_cv"]), T_cv=float(t["T_cv"]), p_value_cv=float(t["p_value_cv"]),
                fixed_margin_null_p=float(t["fixed_margin_null_p"]), standard_null_p=float(t["standard_null_p"]),
                studentized_p_value=float(t["studentized_p_value"]), studentized_stat=float(t["studentized_stat"]),
@@ -454,10 +471,14 @@ def certify_paired_calibrated(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=
     elif would:
         log["state"] = NEED_MORE_LABELS                       # consistent+significant but too few eligible
     elif would_meanT and size_ok:
-        # mean-T significant with enough labels, but the subject-consistency gate rejected -> refuse.
+        # mean-T significant @ alpha_budget but the studentized/LCB consistency gate rejected -> refuse.
         log["state"] = NO_CONCEPT_EVIDENCE
-        log["reason"] = ("STUDENTIZED_FIXED_MARGIN_NULL_NOT_SIG" if t["studentized_p_value"] > alpha
+        log["reason"] = ("STUDENTIZED_FIXED_MARGIN_NULL_NOT_SIG" if t["studentized_p_value"] > alpha_budget
                          else "SUBJECT_CONSISTENCY_GATE_NOT_MET")
+    elif would_c and size_ok:
+        # P2.4c (alpha=0.05) WOULD have confirmed, but the cross-budget alpha-spending (0.025) removed it.
+        log["state"] = NO_CONCEPT_EVIDENCE
+        log["reason"] = "CROSS_BUDGET_ALPHA_SPENDING_NOT_MET"
     elif n_q >= decide_n:
         log["state"] = NO_CONCEPT_EVIDENCE
         if t["would_confirm_under_standard_null"]:
@@ -465,4 +486,5 @@ def certify_paired_calibrated(Z, Y, D, G, m, alpha=0.05, decide_n=20, min_pairs=
     else:
         log["state"] = NEED_MORE_LABELS
     log["new_decision_with_studentized_gate"] = log["state"]
+    log["new_p24d_decision"] = log["state"]
     return log
