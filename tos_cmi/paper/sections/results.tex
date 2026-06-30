@@ -97,6 +97,26 @@ generalization. Curves show the mean over folds$\times$seeds ($n{=}27$).}
 
 \input{figures/table1_summary.tex}
 
+\subsection{Stronger linear erasure does not close the control gap}
+\textbf{The measurement-to-control gap is not an artifact of a weak eraser: a stronger, closed-form optimal
+linear eraser removes more subject information than the TOS deletion, yet the gap remains} (Table~\ref{tab:erasure}).
+On both backbones LEACE --- the closed-form optimal linear eraser --- drives \emph{linearly} decodable
+subject identity to chance ($0.12$) and reduces subject decodability more than the TOS $V_D$ deletion at
+comparable task cost (MLP residual TSMNet $0.96\to0.74$, EEGNet $0.55\to0.39$); the rank-limited erasers
+(RLACE, TOS) by contrast fail on the redundant high-dimensional TSMNet latent ($0.86$--$0.96$) and only work
+on the compact EEGNet latent. So the score-Fisher \emph{projection is not} the methodological advantage [C7].
+The stronger eraser instead sharpens the phenomenon: after \emph{optimal} linear erasure a large
+\textbf{nonlinearly recoverable subject residual} remains under held-out MLP probes on TSMNet ($0.74\gg$
+chance $0.125$) versus a smaller one on EEGNet ($0.39$) --- consistent with nonlinear/redundant subject
+coding that linear erasure cannot reach. INLP can drive subject decodability to chance only by destroying
+task information (task $0.75\to0.55$ TSMNet, $0.64\to0.25$ EEGNet): unconstrained erasure is not task-safe.
+Crucially, none of these erasers --- including the optimal linear one --- converts subject-leakage removal
+into a target-accuracy gain (the global-LPC sweep of \S4.3 makes the same point along a continuum). Successful
+erasure is therefore not the right endpoint; the relevant question is whether the intervention is task-safe
+\emph{and} beneficial for source-to-target generalization [C9, C10].
+
+\input{figures/table2_erasure.tex}
+
 \subsection{Unified interpretation}
 Across both representations, conditional domain leakage is a \textbf{measurable} property of the EEG latent that
 the score-Fisher diagnostics localize, but it is \textbf{not a sufficient control target} for cross-subject
