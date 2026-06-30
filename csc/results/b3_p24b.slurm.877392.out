@@ -1,0 +1,18 @@
+[b3p24b] host=nodecpu01 job=877392 cpus=24
+[b3p24b] wrote csc/results/b3_p24b.json
+=== B3-P2.4b CONTROLS (48/cell; decision m=[20, 30]; FIXED-MARGIN null) ===
+pooled ALL controls: 106/4032 = 0.0263 (CP-up 0.0308)  [vs standard-null would: 158/4032 = 0.0392]   alpha=0.05
+by-kind pooled (fixed-margin / standard-would):
+  clean                       19/576 =0.0330 (CP-up 0.048)  std-would 26/576=0.0451
+  paired_covariate            11/576 =0.0191 (CP-up 0.031)  std-would 15/576=0.0260
+  paired_label                22/576 =0.0382 (CP-up 0.054)  std-would 42/576=0.0729
+  random_label                38/576 =0.0660 (CP-up 0.086)  std-would 42/576=0.0729
+  paired_covariate_plus_label  16/576 =0.0278 (CP-up 0.042)  std-would 33/576=0.0573
+  missing_pair                 0/576 =0.0000 (CP-up 0.005)  std-would 0/576=0.0000
+  unequal_epochs_extreme       0/576 =0.0000 (CP-up 0.005)  std-would 0/576=0.0000
+HARD-FAIL flags: ["random_label kind-concentrated ['baseline|random_label|m20', 'baseline|random_label|m30', 'high_subject_tau|random_label|m20', 'high_subject_tau|random_label|m30', 'high_nuisance|random_label|m20', 'high_nuisance|random_label|m30', 'imbalanced|random_label|m20', 'imbalanced|random_label|m30', 'label_noise|random_label|m20', 'label_noise|random_label|m30']", 'random_label pooled 38/576=0.066 > alpha', "paired_label kind-concentrated ['label_noise|paired_label|m20', 'label_noise|paired_label|m30']", "paired_covariate_plus_label kind-concentrated ['baseline|paired_covariate_plus_label|m30', 'high_subject_tau|paired_covariate_plus_label|m20', 'high_nuisance|paired_covariate_plus_label|m30']", "clean repeated ['baseline|clean|m30', 'high_subject_tau|clean|m30', 'high_nuisance|clean|m30', 'imbalanced|clean|m30', 'label_noise|clean|m20', 'label_noise|clean|m30', 'few_epochs|clean|m30']", "paired_covariate repeated ['high_subject_tau|paired_covariate|m30', 'high_nuisance|paired_covariate|m30', 'imbalanced|paired_covariate|m30', 'label_noise|paired_covariate|m20', 'label_noise|paired_covariate|m30']"]
+=== B3-P2.4b POWER (24/cell; FIXED-MARGIN null) ===
+  paired_concept           base m20=1.00  base m30=1.00  high m20=1.00  high m30=1.00  high m20=1.00  high m30=1.00  imba m20=1.00  imba m30=1.00  labe m20=1.00  labe m30=1.00  few_ m20=0.33  few_ m30=0.33
+  paired_concept_plus_cov  base m20=1.00  base m30=1.00  high m20=1.00  high m30=1.00  high m20=1.00  high m30=1.00  imba m20=1.00  imba m30=1.00  labe m20=1.00  labe m30=1.00  few_ m20=0.33  few_ m30=0.33
+  paired_pure_conditional  base m20=0.29  base m30=0.62  high m20=0.46  high m30=0.42  high m20=0.29  high m30=0.62  imba m20=0.46  imba m30=0.62  labe m20=0.38  labe m30=0.38  few_ m20=0.00  few_ m30=0.04
+[b3p24b] done rc=0
