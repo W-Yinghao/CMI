@@ -13,6 +13,7 @@ V100 through the leakage scoring). The result is bit-identical to the monolithic
 """
 from __future__ import annotations
 
+import dataclasses
 import json
 import os
 import pickle
@@ -27,6 +28,26 @@ from .staged import (DEFAULT_METHOD_ORDER, prefetch_level_gpu_artifacts, resume_
 from .support import build_level_support, level0_reference_prior
 
 _PHASE_A_MANIFEST = "phase_a.json"
+_FOLD_PKL = "fold.pkl"
+
+
+def _persistable_fold(fold):
+    """The fold without any heavy/unpicklable provisioning field (e.g. the MOABB load_result, used only
+    during the initial build, never in the resume)."""
+    return dataclasses.replace(fold, load_result=None) if hasattr(fold, "load_result") else fold
+
+
+def _save_fold(fold, out_dir) -> None:
+    with open(os.path.join(out_dir, _FOLD_PKL), "wb") as f:
+        pickle.dump(_persistable_fold(fold), f, protocol=pickle.HIGHEST_PROTOCOL)
+
+
+def load_phase_a_fold(out_dir):
+    """Load the EXACT fold Phase A used (data + scope) -- Phase B must NOT re-load the data: the offline
+    MNE/scipy preprocessing is not bit-reproducible across nodes, so a rebuild gives a different
+    target_tensor_hash / fold_scope_hash."""
+    with open(os.path.join(out_dir, _FOLD_PKL), "rb") as f:
+        return pickle.load(f)
 
 
 def _level_contexts(fold, model_seed, dataset_id):
@@ -49,6 +70,7 @@ def staged_phase_a(fold, *, dataset_id, model_seed=0, method_order=DEFAULT_METHO
     fd, fs = fold.fold_data, fold.fold_scope
     exec_cfg, model_spec = fold.execution_config, fold.model_spec
     os.makedirs(out_dir, exist_ok=True)
+    _save_fold(fold, out_dir)                                       # Phase B loads this EXACT fold (no re-load)
     levels = []
     for level, rk, ss, lp, plans in _level_contexts(fold, model_seed, dataset_id):
         stage1, trained = train_level(rk, lp, plans, ss, fs, exec_cfg, model_spec, fold.model_factory(),
@@ -67,15 +89,19 @@ def staged_phase_a(fold, *, dataset_id, model_seed=0, method_order=DEFAULT_METHO
     return out_dir
 
 
-def staged_phase_b(fold, out_dir, *, cpu_device="cpu"):
-    """CPU replay stage: rebuild the context, load the persisted trained state + store, resume each level
-    from the store (no GPU), and assemble the FoldRunResult."""
+def staged_phase_b(out_dir, *, fold=None, cpu_device="cpu"):
+    """CPU replay stage: LOAD the exact Phase-A fold (never re-load the data), rebuild the deterministic
+    context, load the persisted trained state + store, resume each level from the store (no GPU), and
+    assemble the FoldRunResult. ``fold`` may be passed (e.g. the in-process fake fixture); otherwise the
+    fold persisted by Phase A is loaded."""
     with open(os.path.join(out_dir, _PHASE_A_MANIFEST)) as f:
         meta = json.load(f)
+    if fold is None:
+        fold = load_phase_a_fold(out_dir)
     if fold.manifest_hash != meta["manifest_hash"]:
         raise ValueError("Phase B fold manifest hash does not match Phase A")
     if fold.fold_scope.fold_scope_hash != meta["fold_scope_hash"]:
-        raise ValueError("Phase B fold scope hash does not match Phase A")
+        raise ValueError("Phase B fold scope hash does not match Phase A (the data was re-loaded?)")
     fd, fs = fold.fold_data, fold.fold_scope
     exec_cfg, model_spec = fold.execution_config, fold.model_spec
     model_seed, method_order, dataset_id = meta["model_seed"], tuple(meta["method_order"]), meta["dataset_id"]

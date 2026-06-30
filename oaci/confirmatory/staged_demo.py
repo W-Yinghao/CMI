@@ -75,10 +75,10 @@ def main_phase_b(args) -> int:
     real = sys.stdout
     try:
         with contextlib.redirect_stdout(sys.stderr):
-            mpath, _m = _materialize(args)
-            fold = build_bnci_real_fold(mpath, args.datalake_root)
+            from ..runner.staged_fold import load_phase_a_fold
+            fold = load_phase_a_fold(args.staging_dir)        # the EXACT Phase-A fold; NEVER re-load the data
             fold.fold_data.assert_integrity()
-            fr = staged_phase_b(fold, args.staging_dir)
+            fr = staged_phase_b(args.staging_dir, fold=fold)
             ctx = build_fold_artifact_context(fold, fr, repo_root=args.repo_root)
             write = write_artifact_tree_atomic(fr, ctx, args.output_root)
             rep = verify_artifact_tree(write.artifact_dir, deep=True)

@@ -138,7 +138,7 @@ def test_staged_two_phase_fold_matches_monolithic():
     mono = run_fake_two_level_in_memory(build_fake_fold(_MAN), model_seed=0)
     d = tempfile.mkdtemp()
     staged_phase_a(build_fake_fold(_MAN), dataset_id="FAKE_TWO_LEVEL", model_seed=0, gpu_device=_CPU, out_dir=d)
-    staged = staged_phase_b(build_fake_fold(_MAN), d)              # rebuilt fold + persisted trained/store
+    staged = staged_phase_b(d)                                     # loads the EXACT persisted Phase-A fold
     assert mono.fold_result_hash == staged.fold_result_hash
     assert mono.fold_scope.fold_scope_hash == staged.fold_scope.fold_scope_hash
     for (lva, lra), (lvb, lrb) in zip(mono.level_items, staged.level_items):
@@ -156,7 +156,7 @@ def test_phase_b_rejects_a_mismatched_fold():
     mp = os.path.join(d, "phase_a.json")
     meta = json.load(open(mp)); meta["manifest_hash"] = "BAD"; json.dump(meta, open(mp, "w"))
     try:
-        staged_phase_b(build_fake_fold(_MAN), d)
+        staged_phase_b(d)
     except ValueError:
         return
     raise AssertionError("Phase B must reject a fold whose manifest hash disagrees with Phase A")
