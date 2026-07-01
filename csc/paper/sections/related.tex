@@ -1,25 +1,62 @@
 \section{Related work}
 \label{sec:related}
 
-\todo{Draft after abstract lock; add real citations to references.bib. Position against: (i) distribution
-shift / domain generalization and the covariate-vs-concept distinction; (ii) label-shift estimation and why
-it is the sharpest trap here; (iii) partial identification / bounds under untestable assumptions; (iv) EEG
-domain generalization and cross-subject/cross-site transfer; (v) pre-registration / frozen-evaluation
-discipline in ML.}
+\paragraph{Dataset shift, domain adaptation, and domain generalization.}
+Distribution shift is usually studied through the lens of \emph{adaptation}: given labeled source data and a
+shifted target, how should a predictor be trained or corrected to perform well on the target. Dataset-shift
+taxonomies formalize the ways train and test distributions can differ \cite{quinonero2009datasetshift};
+classical domain-adaptation theory bounds target risk in terms of source risk and a domain divergence,
+characterizing \emph{when} a source-trained classifier can be expected to transfer \cite{bendavid2010domains};
+and domain-generalization studies emphasize that apparent progress depends heavily on model selection and
+reproducible evaluation \cite{gulrajani2021domainbed}. Our question is different in kind. We do not assume that
+adaptation is the goal, and we do not propose a predictor. We ask whether the evidence available at deployment
+is sufficient to \emph{certify} that the conditional $P(Y\mid Z)$ has changed at all --- an identifiability
+question that precedes, and is logically independent of, how one might subsequently adapt.
 
-\paragraph{Distribution shift and the concept-shift subclass.}
-\todo{Covariate vs concept shift; why label-free concept detection is the hard subcase.}
-\cite{placeholder_dg}
+\paragraph{Covariate, label, and concept shift.}
+The shift taxonomy separates covariate shift (the feature marginal moves, the posterior is stable), label or
+prior shift (the class prior moves), and concept shift (the posterior itself moves)
+\cite{quinonero2009datasetshift}. Label shift is comparatively well understood: under an anticausal model with
+stable $P(Z\mid Y)$, a change in $P(Y)$ is identifiable and correctable from black-box predictions given an
+invertibility condition \cite{lipton2018labelshift}. For our purpose label shift is not merely another entry in
+the taxonomy; it is a \emph{failure mode} for a concept certificate. A change in class composition moves the
+pooled feature distribution along the class-mean subspace and can masquerade as boundary movement, so a naive
+detector reads prior change as concept change. This is exactly why Route~B3's null is condition-matched: the
+fixed-margin bootstrap (Sec.~\ref{sec:routeB3method}) holds the per-condition class composition fixed, so
+prior and label composition cannot leak into the evidence for a conditional change.
 
-\paragraph{Label shift.}
-\todo{Estimation/correction; contrast with our abstention on the label-shift row (Table~\ref{tab:taxonomy}).}
-\cite{placeholder_labelshift}
+\paragraph{Partial identification and abstention.}
+Our theoretical stance is one of \emph{partial identification}: when the data and maintained assumptions pin
+down a \emph{set} of admissible answers rather than a unique one, the honest output is that set, not a point
+\cite{manski2003partial}. Proposition~\ref{prop:impossible} is such a statement --- a fixed target marginal
+$Q_Z$ is compatible with many posteriors $Q(Y\mid Z)$ --- and the certificate's \stunid{} state is the
+corresponding refusal. This differs from the classical reject option and its modern descendants.
+Reject-option and selective-classification methods abstain \emph{per example}, trading coverage for lower
+conditional risk when an input is ambiguous \cite{chow1970reject,geifman2017selective}. Our abstention is not a
+per-example confidence heuristic; it is a \emph{distribution-level} identifiability decision about a claim
+(``the concept shifted'') that no function of $Q_Z$ can settle. Conformal prediction similarly builds reliable,
+distribution-free, set-valued predictions with finite-sample validity \cite{shafer2008conformal,vovk2005algorithmic};
+it certifies coverage of \emph{labels} rather than the presence or absence of a conditional \emph{shift}, and
+is complementary background rather than a competing certificate.
 
-\paragraph{Partial identification.}
-\todo{Bounds/certificates under untestable assumptions; our three-state output as a partial-identification
-device.}
-\cite{placeholder_partialid}
+\paragraph{EEG domain shift, BCI transfer, and paired designs.}
+EEG is a natural stress case for these questions: its dominant nuisance --- the subject random effect --- is
+large relative to task signal, and deployment routinely crosses subjects, sessions, and devices. Transfer
+learning for EEG-based brain--computer interfaces is an active area for precisely this reason
+\cite{wu2022eegtransfer}, supported by compact architectures \cite{lawhern2018eegnet} and reproducible
+cross-dataset benchmarks \cite{jayaram2018moabb}. We use this literature to justify the \emph{setting} and its
+reproducibility demands, not to claim a clinical result. Where unpaired transfer treats the target as an
+unlabeled marginal cloud, Route~B3 uses the paired within-subject structure (e.g.\ ON/OFF conditions) as an
+\emph{information source}: the subject serves as its own reference, cancelling the subject random effect and
+supplying exactly the observable that Proposition~\ref{prop:impossible} shows a marginal alone cannot provide.
+Real-EEG validation remains future work (Sec.~\ref{sec:discussion}).
 
-\paragraph{EEG domain generalization.}
-\todo{Cross-subject/cross-site transfer; where paired within-subject designs (e.g.\ ON/OFF) fit.}
-\cite{placeholder_eegdg}
+\paragraph{Frozen evaluation, adaptive overfitting, and audit discipline.}
+Finally, our development-then-frozen-confirmatory protocol responds to adaptive-analysis overfitting. Reusing a
+dataset to guide many analysis choices invalidates classical guarantees, and preserving validity under
+adaptivity requires either fresh data or mechanisms such as a reusable holdout \cite{dwork2015adaptive}. Both
+routes here are developed on development seeds and then \emph{frozen} --- a tagged manifest, pinned code hashes,
+and a fail-closed runner --- so that a single unseen confirmatory, not the development map, is what supports the
+headline claim. The Route~A negative (Sec.~\ref{sec:routeA}) makes the value of this discipline concrete: a
+development-favourable operating core did not survive the frozen test. Treating a development-selected region as
+if it were error control is the adaptive-overfitting trap, and the freeze is how we avoid it.

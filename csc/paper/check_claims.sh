@@ -17,6 +17,10 @@ chk "solved concept shift"    'solv(e|ed|es) concept[- ]shift'
 chk "no Z-only ever"          'no Z-only.{0,20}(can )?ever (work|succeed)'
 chk "real EEG validated"      'real[- ]eeg.{0,30}\b(validated|confirmed|solved|works)\b|validated on real'
 chk "general solution"        'general (solution|detector) (to|for) concept[- ]shift'
+# Related-work framing guards (reviewer-specified)
+chk "outperform DA/DG"        'outperform.{0,30}(domain adaptation|domain generalization|adaptation method)'
+chk "EEG transfer fails"      'transfer.{0,30}(fail|cannot|do not work).{0,20}concept'
+chk "conformal dismissed"     'conformal.{0,40}(irrelevant|not relevant|solves a different)'
 # C2 is pointwise: forbid only lines that CLAIM familywise/simultaneous control (allow the "not familywise" disclaimer)
 fw="$(grep -rniE 'familywise|simultaneous.{0,20}confidence' sections/ 2>/dev/null | grep -viE 'not (a )?(simultaneous|familywise)|pointwise, not|not familywise|not.{0,20}simultaneous' || true)"
 if [ -n "$fw" ]; then echo "FAIL [familywise-on-C2]:"; echo "$fw" | sed 's/^/    /'; fail=1; else echo "ok   [familywise-on-C2]"; fi

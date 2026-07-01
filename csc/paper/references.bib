@@ -1,30 +1,135 @@
-% CSC manuscript references (STUB — to be expanded during drafting).
-% Keep entries that are actually \cite'd so bibtex stays clean.
+% CSC manuscript references. All entries web-verified against authoritative sources
+% (DBLP / PMLR / IOPscience DOIs / JMLR / Springer / MIT Press); see csc/paper for provenance.
 
-@article{placeholder_dg,
-  title   = {Placeholder: domain generalization / distribution shift survey},
-  author  = {Anonymous},
-  journal = {TODO},
-  year    = {2025}
+% --- 1. dataset shift, domain adaptation, domain generalization ---
+@book{quinonero2009datasetshift,
+  editor    = {Joaquin Qui{\~n}onero-Candela and Masashi Sugiyama and Anton Schwaighofer and Neil D. Lawrence},
+  title     = {Dataset Shift in Machine Learning},
+  publisher = {The MIT Press},
+  series    = {Neural Information Processing},
+  year      = {2009},
+  isbn      = {9780262170055}
 }
 
-@article{placeholder_labelshift,
-  title   = {Placeholder: label shift estimation / correction},
-  author  = {Anonymous},
-  journal = {TODO},
-  year    = {2025}
+@article{bendavid2010domains,
+  author  = {Shai Ben-David and John Blitzer and Koby Crammer and Alex Kulesza and Fernando Pereira and Jennifer Wortman Vaughan},
+  title   = {A theory of learning from different domains},
+  journal = {Machine Learning},
+  volume  = {79},
+  number  = {1-2},
+  pages   = {151--175},
+  year    = {2010}
 }
 
-@article{placeholder_eegdg,
-  title   = {Placeholder: EEG domain generalization / cross-subject transfer},
-  author  = {Anonymous},
-  journal = {TODO},
-  year    = {2025}
+@inproceedings{gulrajani2021domainbed,
+  author    = {Ishaan Gulrajani and David Lopez-Paz},
+  title     = {In Search of Lost Domain Generalization},
+  booktitle = {9th International Conference on Learning Representations (ICLR)},
+  year      = {2021}
 }
 
-@article{placeholder_partialid,
-  title   = {Placeholder: partial identification / bounds under untestable assumptions},
-  author  = {Anonymous},
-  journal = {TODO},
-  year    = {2025}
+% --- 2. covariate / label / concept shift ---
+@inproceedings{lipton2018labelshift,
+  author    = {Zachary C. Lipton and Yu-Xiang Wang and Alexander J. Smola},
+  title     = {Detecting and Correcting for Label Shift with Black Box Predictors},
+  booktitle = {Proceedings of the 35th International Conference on Machine Learning (ICML)},
+  series    = {Proceedings of Machine Learning Research},
+  volume    = {80},
+  pages     = {3122--3130},
+  year      = {2018},
+  publisher = {PMLR}
+}
+
+% --- 3. partial identification and abstention ---
+@book{manski2003partial,
+  author    = {Charles F. Manski},
+  title     = {Partial Identification of Probability Distributions},
+  series    = {Springer Series in Statistics},
+  publisher = {Springer},
+  address   = {New York, NY},
+  year      = {2003},
+  doi       = {10.1007/b97478},
+  isbn      = {978-0-387-00454-9}
+}
+
+@article{chow1970reject,
+  author  = {C. K. Chow},
+  title   = {On optimum recognition error and reject tradeoff},
+  journal = {IEEE Transactions on Information Theory},
+  volume  = {16},
+  number  = {1},
+  pages   = {41--46},
+  year    = {1970}
+}
+
+@inproceedings{geifman2017selective,
+  author    = {Yonatan Geifman and Ran El-Yaniv},
+  title     = {Selective Classification for Deep Neural Networks},
+  booktitle = {Advances in Neural Information Processing Systems 30 (NIPS 2017)},
+  pages     = {4878--4887},
+  year      = {2017}
+}
+
+@article{shafer2008conformal,
+  author  = {Glenn Shafer and Vladimir Vovk},
+  title   = {A Tutorial on Conformal Prediction},
+  journal = {Journal of Machine Learning Research},
+  volume  = {9},
+  number  = {12},
+  pages   = {371--421},
+  year    = {2008}
+}
+
+@book{vovk2005algorithmic,
+  author    = {Vladimir Vovk and Alexander Gammerman and Glenn Shafer},
+  title     = {Algorithmic Learning in a Random World},
+  publisher = {Springer},
+  address   = {New York, NY},
+  year      = {2005}
+}
+
+% --- 4. EEG domain shift, BCI transfer, paired designs ---
+@article{wu2022eegtransfer,
+  author  = {Dongrui Wu and Yifan Xu and Bao-Liang Lu},
+  title   = {Transfer Learning for {EEG}-Based Brain-Computer Interfaces: A Review of Progress Made Since 2016},
+  journal = {IEEE Transactions on Cognitive and Developmental Systems},
+  volume  = {14},
+  number  = {1},
+  pages   = {4--19},
+  year    = {2022},
+  doi     = {10.1109/TCDS.2020.3007453}
+}
+
+@article{lawhern2018eegnet,
+  author  = {Vernon J. Lawhern and Amelia J. Solon and Nicholas R. Waytowich and Stephen M. Gordon and Chou P. Hung and Brent J. Lance},
+  title   = {{EEGNet}: a compact convolutional neural network for {EEG}-based brain--computer interfaces},
+  journal = {Journal of Neural Engineering},
+  volume  = {15},
+  number  = {5},
+  pages   = {056013},
+  year    = {2018},
+  doi     = {10.1088/1741-2552/aace8c}
+}
+
+@article{jayaram2018moabb,
+  author  = {Vinay Jayaram and Alexandre Barachant},
+  title   = {{MOABB}: trustworthy algorithm benchmarking for {BCIs}},
+  journal = {Journal of Neural Engineering},
+  volume  = {15},
+  number  = {6},
+  pages   = {066011},
+  year    = {2018},
+  doi     = {10.1088/1741-2552/aadea0}
+}
+
+% --- 5. frozen evaluation, adaptive overfitting, audit discipline ---
+@article{dwork2015adaptive,
+  author  = {Cynthia Dwork and Vitaly Feldman and Moritz Hardt and Toniann Pitassi and Omer Reingold and Aaron Roth},
+  title   = {The reusable holdout: Preserving validity in adaptive data analysis},
+  journal = {Science},
+  volume  = {349},
+  number  = {6248},
+  pages   = {636--638},
+  year    = {2015},
+  doi     = {10.1126/science.aaa9375}
 }
