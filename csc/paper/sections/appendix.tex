@@ -1,9 +1,6 @@
 \section{Appendix: audit protocol, provenance, and reproducibility}
 \label{app:audit}
 
-\todo{Fill from csc/PREREGISTRATION.md, the B3 freeze-candidate protocol, the confirmatory manifest, and
-the C6 red-team note. Keep exact hashes/seeds for reproducibility.}
-
 \subsection{Freeze-before-confirmatory protocol}
 Both routes follow: development (dev seeds) $\rightarrow$ freeze (annotated git tag $+$ machine-readable
 manifest with a canonical hash $+$ pinned code hashes) $\rightarrow$ a \emph{single} confirmatory on unseen
@@ -35,6 +32,43 @@ fixed-margin $h_0$ bootstrap ($n_{\text{boot}}=200$); studentized subject-consis
 $\alpha=0.05$, budgets $\{20,30\}$, $\alpha_{\text{budget}}=0.025$, LCB level $0.975$; $3$ folds; pair
 integrity $\geq 0.95$; $\geq 8$ epochs/condition; $\geq 20$ eligible labelled paired subjects.
 
+\subsection{Class-balanced subject-condition weighting (Route B3)}
+\label{app:weighting}
+The per-subject loss \eqref{eq:loss} is the class-balanced form of a weighted average with weights
+$w_{sce}=\bigl(|\mathcal{C}_s|\,|\mathcal{Y}|\,n_{scy}\bigr)^{-1}$ for an epoch $e$ in the $(s,c,y)$ cell,
+where $n_{scy}=|E_{scy}|$. These weights form $\ell_s$ and are also the sample weights of the logistic fits
+for $h_0,h_1$. Two invariances follow. (i) Each subject contributes total weight
+$\sum_{c\in\mathcal{C}_s}\sum_{y\in\mathcal{Y}}\sum_{e\in E_{scy}} w_{sce}=1$, so the fit weights over a
+training fold sum to the number of training \emph{subjects}, not epochs --- a subject with many epochs, or a
+dominant class, gains no leverage over the boundary. (ii) The estimand is invariant to per-cell epoch
+duplication: duplicating the epochs of a $(s,c,y)$ cell rescales $n_{scy}$ and leaves $\ell_s$, $T$, and the
+fitted boundary unchanged up to optimizer tolerance. This is what makes the subject, not the epoch, the
+exchangeable unit throughout.
+
+\subsection{Condition coding: $0/1$ vs.\ centered (Route B3)}
+\label{app:coding}
+The frozen method codes the condition as $c\in\{-\tfrac12,+\tfrac12\}$ rather than $\{0,1\}$. With $0/1$
+coding the interaction $c\times Z_{\mathrm{pc}}$ is supported only on the condition-$1$ rows, giving $h_1$
+extra feature capacity for one condition only. Under the $\ell_2$-shrunk null $h_0$, the fixed-margin
+bootstrap labels $Y^\ast$ are then systematically \emph{less} separable than the real labels, so the observed
+$T$ exceeds its bootstrap reference even with no conditional change --- a type-I inflation. In development
+audits the $0/1$ parameterization raw-rejected no-concept controls at rates far above $\alpha$, whereas the
+centered $\pm\tfrac12$ coding --- which shrinks the condition main effect and the interaction on the same
+footing --- restored calibration. The confirmatory (Sec.~\ref{sec:routeB3conf}) uses centered coding, and its
+controls satisfy the pointwise gates.
+
 \subsection{Reproducibility}
-\todo{Add exact commands: frozen-worktree checkout at the tag, the SLURM wrapper invocation, and the
-re-aggregation script. Reference the committed result artifacts and the C6 note.}
+Each frozen confirmatory runs from a detached git worktree checked out at its tag, via a fail-closed SLURM
+wrapper that re-verifies provenance before executing:
+\begin{itemize}
+  \item \textbf{Route B3:} \texttt{git worktree add --detach <dir> csc-b3-confirmatory-v1}; then
+        \texttt{sbatch --chdir=<dir> csc/mininfo/run\_b3\_confirmatory.sbatch}. Output:
+        \texttt{csc/results/b3\_confirmatory\_result.json} ($+$ \texttt{.sha256}); the $C_6$ re-aggregation
+        independently recomputes $C_1$--$C_5$ from the per-cluster records.
+  \item \textbf{Route A:} \texttt{git worktree add --detach <dir> csc-confirmatory-v1}; then
+        \texttt{sbatch --chdir=<dir> csc/run\_confirmatory.sbatch}. Output:
+        \texttt{csc/results/confirmatory.json}.
+\end{itemize}
+Both wrappers abort (infra-fail, non-zero exit) unless HEAD equals the tag commit, the tree is clean, the
+manifest hash matches, and the seed streams are disjoint; a scientific FAIL still preserves and hashes the
+artifact.

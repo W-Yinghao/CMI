@@ -1,49 +1,192 @@
 \section{Route B3: a paired within-subject, minimal-label certificate}
 \label{sec:routeB3method}
 
-\todo{Expand each component into method prose + a small algorithm box; add the pipeline figure caption
-cross-ref. All parameter values below are the frozen method lock (calibration\_version
-\texttt{p24d\_cross\_budget\_alpha\_spending\_studentized\_fixed\_margin}).}
+Proposition~\ref{prop:impossible} establishes that the target marginal $Q_Z$ (the unlabeled target
+marginal of Sec.~\ref{sec:theory}) alone cannot identify a
+change in the concept $P(Y\mid Z)$: a pure conditional shift is, in the worst case, indistinguishable from
+a benign covariate shift when only the feature distribution is observed. A certificate that reports
+\stconf{} must therefore acquire more than $Z$. Route~B3 supplies a small, targeted amount of information
+that breaks this tie while keeping the acquisition auditable and fail-closed. Two design commitments carry
+the section. First, the reference against which a conditional change is measured is \emph{target-internal}:
+each subject appears under two experimental conditions and serves as their own control, so that no source
+posterior is ever invoked. This is precisely the property that sidesteps the source-reference contamination
+and covariate-extrapolation failure modes that made an earlier unpaired few-label route fragile: a
+source-anchored decision boundary imported into the target extrapolates onto target-only feature regions and
+silently conflates covariate movement with concept movement. Second, the extra information is a
+\emph{small, targeted amount of labels} queried only on eligible paired subjects, and it enters the
+procedure through a formal eligibility contract rather than through post-hoc filtering.
+\claimtag{C-b3-idea}
+We name the method the \emph{paired minimal-label concept certificate}; ``minimal-label'' is a method name,
+not a formal optimality claim --- Proposition~\ref{prop:impossible} proves $Z$-only \emph{insufficiency}, not
+that the paired-plus-few-labels design is the unique or mathematically minimal information that suffices.
+All parameter values below are the frozen method lock
+(calibration version \texttt{p24d\_cross\_budget\_alpha\_spending\_studentized\_fixed\_margin}); the scope of
+the evidence in this paper is synthetic.
 
-\paragraph{The missing information.}
-Prop.~\ref{prop:impossible} says the target marginal is insufficient. Route B3 supplies the minimal extra
-information that breaks the tie: (i) a \emph{paired within-subject reference} --- each subject contributes
-two conditions (e.g.\ ON/OFF), so the subject is their \emph{own} control and the subject random effect
-cancels; and (ii) a \emph{few labels} on eligible paired subjects. Critically, the reference is
-\emph{target-internal}: no source posterior is used, so Route B3 sidesteps the source-reference
-contamination and covariate-extrapolation failure modes that make a source-anchored certificate fragile. \claimtag{C-b3-idea}
+\subsection{Paired target audit setup}
+\label{sec:b3-setup}
+The atomic observation is a triple $(s,c,e)$: $s$ indexes a biological subject, $c$ is a \emph{centered}
+condition code $c\in\{-\tfrac12,+\tfrac12\}$ encoding the subject's two experimental conditions (e.g.\ an
+ON and an OFF state), and $e$ indexes an epoch (trial) recorded for that subject under that condition. Each
+epoch carries a feature vector $Z_{sce}$ and, when queried, a label $Y_{sce}$. Labels are acquired at the
+epoch level within a queried subject--condition unit, but the analysis never treats individual epochs as the
+unit of evidence. Instead it aggregates each subject--condition cell into a \emph{subject-condition vote},
+and the biological subject is the unit of inference throughout (Section~\ref{sec:b3-stat}).
 
-\paragraph{Conditional-change test.}
-For a subject with conditions indexed by a centered code $c\in\{-\tfrac12,+\tfrac12\}$, we compare
-\[
-h_0:\ [\,Z,\ c\,] \qquad\text{vs.}\qquad h_1:\ [\,Z,\ c,\ c\times Z_{\mathrm{pc}}\,]
-\]
-where $Z_{\mathrm{pc}}$ is a low-rank (rank $3$) principal-component basis and the $c\times Z_{\mathrm{pc}}$
-interaction is the condition-dependent boundary change. The statistic is a subject-condition-vote
-difference of negative log-likelihoods, $T=\mathrm{vote}(\mathrm{NLL}_{h_0})-\mathrm{vote}(\mathrm{NLL}_{h_1})$,
-cross-fitted over $3$ folds. Centered ($\pm\tfrac12$) coding is essential: $0/1$ coding makes the
-interaction asymmetric and induces a type-I failure. \claimtag{C-b3-test}
+The label budget is a single integer $m$: the number of \emph{eligible} paired subjects for which labels are
+queried. A subject counts toward $m$ only if it satisfies the eligibility contract of
+Section~\ref{sec:b3-guards}; ineligible subjects are never converted into evidence, so $m$ is a budget of
+sound audit units, not of raw queries. The reference for every comparison is the subject's own other
+condition: for subject $s$ the boundary implied by $c=-\tfrac12$ is contrasted against the boundary implied
+by $c=+\tfrac12$, so that the subject random effect --- the dominant nuisance in cross-subject EEG --- cancels
+inside the subject. No quantity in the certificate is a function of a source-domain posterior; the entire
+decision is computed from the paired target batch and its queried labels.
 
-\paragraph{Calibrated inference (the method lock).}
-The frozen certifier (\texttt{pc\_centered\_calibrated}) combines:
+\subsection{Eligibility and fail-closed guards}
+\label{sec:b3-guards}
+The guards are stated as a \emph{contract}: a set of pre-conditions that must hold \emph{before} a positive
+confirmation is admissible. They are not post-hoc exclusions applied after inspecting the statistic. If any
+pre-condition fails, the certificate short-circuits to an abstention state
+(\stneed{} or \stinv{}) and the confirmatory branch is never entered.
+
 \begin{itemize}
-  \item \textbf{Pair-integrity + eligibility guards}: pair integrity $\geq 0.95$; an eligible complete pair
-        needs $\geq 8$ epochs per condition; per-condition class coverage required, else \stinv{}/\stneed{}.
-  \item \textbf{Condition-matched fixed-margin $h_0$ bootstrap}: within-condition label swaps that preserve
-        the per-condition class margins (Metropolis, acceptance $\propto p_0$); $n_{\text{boot}}=200$;
-        invalid replicates are \emph{counted}, not dropped.
-  \item \textbf{Studentized subject-consistency gate}: $Z=\overline{\Delta}_s/\mathrm{se}(\Delta_s)$ over
-        per-subject deltas, requiring the lower confidence bound on $\overline{\Delta}_s$ to exceed $0$.
-  \item \textbf{Cross-budget $\alpha$-spending}: family $\alpha=0.05$ split over the two positive-decision
-        budgets $m\in\{20,30\}$, giving $\alpha_{\text{budget}}=0.025$ on the $p$-gates and a $0.975$ LCB.
+  \item \textbf{Pair integrity} $\geq 0.95$: the fraction of subjects that form a well-formed two-condition
+        pair must meet this threshold, otherwise the batch is declared \stinv{}.
+  \item \textbf{Complete pair}: an eligible subject must have \emph{both} conditions present; a subject
+        missing one condition is not an audit unit.
+  \item \textbf{Epoch sufficiency}: each present condition must carry $\geq 8$ epochs, so that the
+        subject--condition vote is estimated from a non-degenerate cell.
+  \item \textbf{Per-condition class coverage}: each condition of an eligible subject must exhibit the
+        required class coverage, so that the within-subject contrast is defined for the classes it claims to
+        certify.
+  \item \textbf{Budget floor} $m\geq 20$: a positive confirmation is admissible only once at least $20$
+        eligible paired subjects have been queried; below the floor the output is \stneed{}.
 \end{itemize}
-A positive decision at budget $m$ requires the fixed-margin mean-$T$ $p\leq\alpha_{\text{budget}}$
-\emph{and} the studentized $p\leq\alpha_{\text{budget}}$ \emph{and} $\mathrm{LCB}_{0.975}(\Delta_s)>0$.
 
-\paragraph{Output states.}
-Route B3 emits \stconf{} / \stnoev{} / \stneed{} / \stinv{} / \stunid{} --- there is no \stcov{} state
-(covariate compatibility is not a Route-B3 claim). The design fails closed: unsound pairing, too few
-epochs, or too few eligible labelled subjects yield abstention, never a confirmation. \claimtag{C-b3-states}
+Because the guards are pre-conditions, their correctness is itself testable: the confirmatory design includes
+adversarial control conditions --- \texttt{missing\_pair} (subjects with a dropped condition) and
+\texttt{unequal\_epochs\_extreme} (grossly imbalanced epoch counts across the two conditions) --- constructed
+specifically to trip the contract. These controls exist to demonstrate that the guards \emph{fail closed}:
+each produces $0/576$ false confirmations, i.e.\ no adversarial batch is ever certified.
+
+\subsection{Conditional-change models}
+\label{sec:b3-models}
+Given the centered code $c$ and the feature $Z$, we contrast two logistic posteriors for the label $Y$:
+\begin{align}
+  h_0:&\quad P(Y\mid Z,c)\ \text{modeled from features}\ [\,Z,\ c\,], \label{eq:h0}\\
+  h_1:&\quad P(Y\mid Z,c)\ \text{modeled from features}\ [\,Z,\ c,\ c\times Z_{\mathrm{pc}}\,],
+  \label{eq:h1}
+\end{align}
+where $Z_{\mathrm{pc}}$ is a rank-$3$ principal-component basis of $Z$ and both models are $\ell_2$-regularized
+logistic regressions with inverse-penalty $C=0.5$. Model $h_0$ allows the condition to shift the class prior
+(a main effect of $c$) but forces the decision boundary in feature space to be \emph{shared} across
+conditions; model $h_1$ adds the interaction term $c\times Z_{\mathrm{pc}}$, which lets the boundary
+\emph{rotate} with the condition. A conditional-change (concept) shift is exactly the situation in which the
+interaction improves fit beyond what the main effect explains, so the $h_0$-vs-$h_1$ comparison isolates
+condition-dependent boundary movement rather than mere prior movement.
+
+Centered ($\pm\tfrac12$) coding of $c$ is load-bearing: with $0/1$ coding the interaction $c\times Z_{\mathrm{pc}}$
+has support only on the condition-$1$ rows and therefore aliases with the main effects under $\ell_2$
+shrinkage, a calibration pathology, whereas centered coding symmetrizes the condition main effect and the
+interaction so both are shrunk on the same footing. Development audits found the $0/1$ parameterization
+anti-calibrated and the frozen method uses centered coding; the full audit is deferred to
+Appendix~\ref{app:coding}.
+
+\subsection{Subject-condition weighted cross-fitted statistic}
+\label{sec:b3-stat}
+The per-subject loss is class-balanced and averaged hierarchically so that no epoch, class, or condition
+dominates. In simplified form, for a fitted model $h$ and subject $s$ with condition set $\mathcal{C}_s$,
+\begin{equation}
+  \ell_s(h)\ =\ \frac{1}{|\mathcal{C}_s|}\sum_{c\in\mathcal{C}_s}\ \frac{1}{|\mathcal{Y}|}\sum_{y\in\mathcal{Y}}\
+  \frac{1}{|E_{scy}|}\sum_{e\in E_{scy}}\ \bigl[-\log h_y(Z_{sce},\,c)\bigr],
+  \label{eq:loss}
+\end{equation}
+where $E_{scy}$ is the set of epochs of the $(s,c,y)$ cell and $h_y$ is the model's probability of the true
+class $y$. Averaging over conditions, then classes, then epochs makes $\ell_s$ a class-balanced,
+condition-balanced per-subject quantity; the full class-balanced weighting is given in
+Appendix~\ref{app:weighting}. The
+certificate statistic is the mean over subjects of the fit improvement of $h_1$ over $h_0$,
+\begin{equation}
+  T\ =\ \frac{1}{S}\sum_{s=1}^{S}\bigl[\,\ell_s(h_0)-\ell_s(h_1)\,\bigr],
+  \label{eq:Tstat}
+\end{equation}
+with $S$ the number of audited subjects. Three properties are enforced. (i) The \emph{subject} is the unit
+of inference: epochs never become independent samples, and $T$ is an average over $S$ subject deltas, not
+over epochs. (ii) The losses in \eqref{eq:loss} are \emph{cross-fitted} over $n_{\text{folds}}=3$ folds that
+are \emph{grouped by subject}, so a subject's own epochs never appear in both the fit and the evaluation
+of its delta. (iii) The fit weights \emph{sum to the number of training subjects} in a fold, not to the
+number of training epochs, so a subject with many epochs does not gain influence over the fitted boundary.
+
+\subsection{Fixed-margin \texorpdfstring{$h_0$}{h0} bootstrap}
+\label{sec:b3-bootstrap}
+The null hypothesis is ``no conditional concept change,'' i.e.\ the shared-boundary model $h_0$ is adequate.
+To calibrate $T$ under this null we resample labels from the fitted null posterior while holding fixed the
+one aspect of the data that is a \emph{nuisance} rather than concept evidence: the per-condition class
+composition. Concretely, we fit $h_0$ and draw bootstrap labels $Y^\ast\sim\hat{p}_0(Y\mid Z,c)$ subject to
+the constraint that the per-condition class margins are preserved,
+\begin{equation}
+  N^\ast_{c,y}\ =\ N_{c,y}\qquad\text{for every condition }c\text{ and class }y,
+  \label{eq:margins}
+\end{equation}
+implemented as within-condition label swaps with Metropolis acceptance proportional to $\hat{p}_0$. Fixing
+$N^\ast_{c,y}=N_{c,y}$ matters because condition-wise class/prior composition is exactly the kind of
+label-composition difference that $h_0$ is allowed to explain via its main effect of $c$; letting the
+margins drift would leak that composition into the null distribution of $T$ and inflate apparent evidence.
+We draw $n_{\text{boot}}=200$ replicates. Replicates that fail the fit (e.g.\ a degenerate resampled cell)
+are \emph{counted}, not silently dropped, so that instability inflates rather than deflates the $p$-value.
+
+\subsection{Studentized subject-consistency gate and cross-budget \texorpdfstring{$\alpha$}{alpha}-spending}
+\label{sec:b3-decision}
+A large mean $T$ can arise from one or two influential subjects; the certificate additionally requires that
+the effect be \emph{consistent across subjects}. Let $\Delta_s=\ell_s(h_0)-\ell_s(h_1)$ be the per-subject
+delta from \eqref{eq:Tstat}. We form the studentized subject statistic
+\begin{equation}
+  Z_{\mathrm{subj}}\ =\ \frac{\overline{\Delta}_s}{\mathrm{SE}(\Delta_s)},
+  \qquad
+  \overline{\Delta}_s=\frac1S\sum_s\Delta_s,
+  \label{eq:studentized}
+\end{equation}
+and require the one-sided lower confidence bound on the mean subject delta to be strictly positive,
+$\mathrm{LCB}_{0.975}(\Delta_s)>0$. The final decision at a given budget $m$ is \emph{conjunctive}, combining
+four independent conditions:
+\begin{equation}
+  \underbrace{p^{\text{fm}}_{\bar T}\le\alpha_{\text{budget}}}_{\text{fixed-margin mean-}T}
+  \ \wedge\
+  \underbrace{p^{\text{stud}}\le\alpha_{\text{budget}}}_{\text{studentized}}
+  \ \wedge\
+  \underbrace{\mathrm{LCB}_{0.975}(\Delta_s)>0}_{\text{subject consistency}}
+  \ \wedge\
+  \underbrace{\text{all guards pass}}_{\text{contract}} .
+  \label{eq:decision}
+\end{equation}
+The two $p$-values are the fixed-margin bootstrap $p$-value of the mean $T$ (Section~\ref{sec:b3-bootstrap})
+and the studentized $p$-value derived from \eqref{eq:studentized}. Because a positive decision may be sought
+at more than one budget, we control the family-wise error by $\alpha$-spending across the two positive-decision
+budgets $m\in\{20,30\}$: the family budget $\alpha_{\text{family}}=0.05$ is split evenly, giving
+$\alpha_{\text{budget}}=0.025$ per budget and correspondingly a $0.975$ level for the lower confidence bound.
+\claimtag{C-b3-test}
+
+\subsection{Output states}
+\label{sec:b3-states}
+Route~B3 is a deployment decision system rather than a binary test; it emits one of five states.
+\begin{itemize}
+  \item \stconf{} --- the conjunctive decision \eqref{eq:decision} passes at an admissible budget: there is
+        consistent within-subject evidence of a conditional concept change.
+  \item \stnoev{} --- the guards pass and the audit runs, but the evidence does not clear the calibrated
+        thresholds: no concept evidence after the pair audit.
+  \item \stneed{} --- the pair structure is sound but the eligible label budget is below the floor
+        ($m<20$): more labels are required before any confirmation is admissible.
+  \item \stinv{} --- the pairing contract itself fails (pair integrity below threshold, incomplete pairs,
+        insufficient epochs, or missing class coverage).
+  \item \stunid{} --- the input is out of the certifiable scope (the branch identified as unidentifiable in
+        Proposition~\ref{prop:impossible}), and the certificate abstains.
+\end{itemize}
+There is deliberately \emph{no} \stcov{} state: Route~B3 makes no covariate-compatibility claim, and
+therefore never asserts that a shift is benign. Every non-confirming path is an abstention, so the system
+fails closed --- unsound pairing, too few epochs, or too few eligible labelled subjects yield abstention,
+never a confirmation. These five states extend the $Z$-only three-state output of Sec.~\ref{sec:theory}
+(\stcov{}/\stsus{}/\stunid{}): the paired audit replaces the source-anchored \stsus{} with a confirmable
+\stconf{}, and adds the explicit data-adequacy states \stneed{} and \stinv{}. \claimtag{C-b3-states}
 
 \begin{figure*}[t]
 \centering
@@ -87,3 +230,42 @@ conjunctive pass. Every other path fails closed to \stnoev{}, \stneed{}, or \sti
 abstain (\stunid{}). No source posterior is used.}
 \label{fig:pipeline}
 \end{figure*}
+
+\subsection*{Algorithm}
+The complete procedure is summarized in Algorithm~1. Every step operates on the paired target batch and its
+queried labels; no source data or source posterior is referenced at any point.
+
+\begin{center}
+\fbox{\begin{minipage}{0.92\textwidth}
+\textbf{Algorithm 1: Paired minimal-label concept certificate.}\\[2pt]
+\textbf{Input:} paired target batch $\{(s,c,e,Z_{sce})\}$; queried labels $Y_{sce}$ on eligible
+subject--condition units; label budget $m$; frozen method manifest (rank-$3$ $Z_{\mathrm{pc}}$, $C=0.5$,
+$n_{\text{folds}}=3$, $n_{\text{boot}}=200$, $\alpha_{\text{family}}=0.05$).\\[4pt]
+\begin{enumerate}\setlength{\itemsep}{2pt}
+  \item \textbf{Integrity and eligibility contract.} Check pair integrity $\geq 0.95$, complete pairs,
+        $\geq 8$ epochs per condition, per-condition class coverage, and budget floor $m\geq 20$. If any
+        pre-condition fails, \textbf{return} \stinv{} or \stneed{} (fail closed).
+  \item \textbf{Subject-grouped folds.} Partition the eligible subjects into $n_{\text{folds}}=3$
+        cross-fitting folds grouped by subject (no subject split across fit and evaluation).
+  \item \textbf{Fit models with subject-condition weights.} On each fold's training subjects, fit $h_0$
+        (Eq.~\ref{eq:h0}) and $h_1$ (Eq.~\ref{eq:h1}) as $\ell_2$ logistic models with centered code $c$;
+        set fit weights to sum to the number of training subjects.
+  \item \textbf{Cross-fitted subject deltas and $T$.} On held-out subjects compute $\ell_s(h_0)$ and
+        $\ell_s(h_1)$ (Eq.~\ref{eq:loss}), the per-subject deltas $\Delta_s$, and the statistic $T$
+        (Eq.~\ref{eq:Tstat}).
+  \item \textbf{Fit $h_0$ null generator.} Refit $h_0$ on the audit set to obtain $\hat{p}_0(Y\mid Z,c)$.
+  \item \textbf{Fixed-margin $Y^\ast$ bootstrap.} For $n_{\text{boot}}=200$ replicates, draw
+        $Y^\ast\sim\hat{p}_0(Y\mid Z,c)$ preserving the per-condition margins $N^\ast_{c,y}=N_{c,y}$
+        (within-condition swaps, Metropolis $\propto\hat{p}_0$); recompute $T^\ast$; count invalid
+        replicates.
+  \item \textbf{$p$-values.} Compute the fixed-margin mean-$T$ $p$-value $p^{\text{fm}}_{\bar T}$ and the
+        studentized $p$-value $p^{\text{stud}}$ from $Z_{\mathrm{subj}}$ (Eq.~\ref{eq:studentized}).
+  \item \textbf{Cross-budget $\alpha$ and consistency gates.} Set
+        $\alpha_{\text{budget}}=\alpha_{\text{family}}/2=0.025$ across budgets $\{20,30\}$; evaluate the
+        conjunction $p^{\text{fm}}_{\bar T}\le\alpha_{\text{budget}}$, $p^{\text{stud}}\le\alpha_{\text{budget}}$,
+        $\mathrm{LCB}_{0.975}(\Delta_s)>0$, and all guards pass (Eq.~\ref{eq:decision}).
+  \item \textbf{Return state.} If the conjunction holds, \textbf{return} \stconf{}; else \textbf{return}
+        \stnoev{} (or \stneed{}/\stinv{}/\stunid{} per the contract). Fail closed on any failed gate.
+\end{enumerate}
+\end{minipage}}
+\end{center}

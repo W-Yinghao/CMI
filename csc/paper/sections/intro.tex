@@ -12,7 +12,7 @@ subject-structured, high-stakes settings --- clinical EEG being our motivating e
 expert annotation and are scarce while unlabeled target recordings are plentiful --- there is a strong
 temptation to certify concept shift from the unlabeled target alone, using a marginal move as a proxy for a
 conditional move. This paper asks, for that setting, three questions: \emph{when can such a proxy certify
-concept shift, when must it abstain, and what minimal extra information changes the answer?} We treat this as
+concept shift, when must it abstain, and what small amount of extra information changes the answer?} We treat this as
 an \emph{identifiability} problem, not a detection benchmark. \claimtag{C-motivation}
 
 \paragraph{A non-identifiability boundary.}
@@ -38,7 +38,7 @@ exactly the failure mode an abstention-equipped certificate exists to expose. \c
 
 \paragraph{A minimal-information positive.}
 The theorem is not only an obstruction; it is constructive, because it says precisely what is missing ---
-information that ties the target's posterior to something observable. We add the minimal such information:
+information that ties the target's posterior to something observable. We add a minimal-information escape hatch:
 a \emph{paired within-subject} structure (each subject contributes two conditions, e.g.\ ON/OFF, so the
 subject is its own reference and the subject random effect cancels) plus a \emph{small label audit} on
 eligible paired subjects. This yields a \emph{target-internal} conditional-change certificate that never
@@ -80,7 +80,7 @@ its own freeze and pre-registration; it is future work, not a claim of this pape
 \paragraph{The deployment view.}
 A recurring theme is that the correct output of a deployment-time certificate is not a binary shift/no-shift
 label but a \emph{fail-closed decision system} with explicit abstention, invalidity, and
-information-request states. Both routes emit such states; the difference is that Route~B3, given the minimal
-extra information the theorem demands, can \emph{leave} the abstention region and earn a confirmable
+information-request states. Both routes emit such states; the difference is that Route~B3, given the small
+amount of extra information the theorem shows is needed, can \emph{leave} the abstention region and earn a confirmable
 positive. The scope of that positive --- synthetic, paired, scoped envelope, weak on invisible
 pure-conditional shift --- is stated wherever the claim appears (Sec.~\ref{sec:discussion}).

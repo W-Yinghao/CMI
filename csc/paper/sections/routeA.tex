@@ -1,32 +1,77 @@
 \section{Route A: a source-anchored $Z$-only certificate, and its frozen negative}
 \label{sec:routeA}
 
-\todo{Expand method subsection from csc/THEORY.md \S3--\S4 (statistic, parametric-bootstrap null, support
-gate, atlas/direction-linked evidence). Keep the confirmatory numbers exactly as below (verified against
-csc/results/confirmatory.json).}
+Prop.~\ref{prop:impossible} is an impossibility statement about \emph{any} function of the target marginal.
+Route A is its empirical counterpart: we build the strongest source-anchored $Z$-only certificate we can,
+pre-register a falsifiable go/no-go, freeze it, and run it once on unseen synthetic data. It fails both endpoints. The
+value of the section is that the failure is \emph{audited} --- it is what Prop.~\ref{prop:impossible} predicts
+happens when a marginal certificate is asked to identify concept shift without extra information tying the
+source evidence to the target posterior.
 
-\subsection{Certificate design (summary)}
-Route A instantiates the three-state output of Sec.~\ref{sec:theory} as a \emph{source-anchored} certificate:
-a source-side concept statistic with a parametric-bootstrap null under the fitted no-shift model $h_0$; a
-\emph{support gate} (bipartite connectivity + minimum cell counts + design conditioning) that abstains on
-disconnected/rank-deficient designs; a low-moment \emph{atlas} of covariate/concept/label subspaces with
-direction-linked concept evidence; and a label subspace/gate for the label-shift trap
-(Table~\ref{tab:taxonomy}). The analysis unit is the subject (cluster-valid inference throughout). Under
-Assumption~\ref{ass:T} it emits \stcov{}/\stsus{}, and abstains (\stunid{}) otherwise. \claimtag{C-routeA-design}
+\subsection{What a $Z$-only certificate is allowed to see}
+The information budget is exactly the one covered by Prop.~\ref{prop:impossible}. The certifier observes the
+\emph{unlabeled} target marginal $Q_Z$ --- no target labels at all --- together with the labeled
+\emph{source} data $P_S(Z,Y)$ it uses to calibrate what a shift ``looks like.'' Whatever the certifier emits
+is therefore a function of $Q_Z$ (with source-derived parameters held fixed), so it is precisely the object
+$f(Q_Z)$ of the proposition: two target joints $Q_0,Q_1$ with $Q_0(Z)=Q_1(Z)=Q_Z$ but different posteriors
+are indistinguishable to it. Route A does not try to escape this budget; it asks whether, \emph{within} it, a
+heavily engineered instrument can still be useful in practice under the extra structure of
+Assumption~\ref{ass:T}.
 
-\subsection{Development sweep suggested an identifiable core}
-A pre-registered difficulty-envelope sweep (star design over effect size, subjects, epochs, correlation,
-imbalance, leakage, mechanism family) located an apparent favourable operating point $P_{\text{baseline}}$
-(concept effect $14$, $22$ subjects/domain, $30$ target subjects, balanced priors, correlation $0.2$,
-covariate leakage $10$, $3$ concept domains, $22$ epochs). Crucially, the development map \emph{itself}
-flagged that $12$ clusters/cell give only a Clopper--Pearson upper bound $\approx 0.221$ on the forbidden
-rate --- a boundary locator, \textbf{not} error control. \claimtag{C-routeA-dev}
+\subsection{Certificate design (high level)}
+The design is deliberately strong and source-anchored --- it is \textbf{not} a strawman thrown up to be
+knocked down. It instantiates the three-state output of Sec.~\ref{sec:theory} (\stcov{} / \stsus{} / \stunid{})
+from the following components. \claimtag{C-routeA-design}
+\begin{itemize}
+  \item A \emph{source-side concept statistic} that measures how far the target marginal has moved along the
+  boundary-relevant directions the source can span.
+  \item A \emph{parametric-bootstrap null} under the fitted no-shift model $h_0$: conditioning on $(Z,D)$ and
+  resampling $Y^\ast$ to obtain a calibrated reference for ``no concept shift,'' rather than relying on an
+  asymptotic approximation.
+  \item A \emph{support gate} that abstains on disconnected or rank-deficient designs (bipartite connectivity
+  via union--find, minimum cell counts, and design conditioning), so the certifier refuses when the
+  source--target overlap cannot support inference.
+  \item A low-moment \emph{atlas} of orthogonal covariate / concept / label subspaces, ordered by SNR, that
+  fixes the mechanism family the source spans (the span invoked by Assumption~\ref{ass:T}).
+  \item \emph{Direction-linked} concept evidence: a per-direction bootstrap with a global max-statistic /
+  step-down procedure, so evidence is attributed to specific atlas directions rather than to an undifferentiated
+  omnibus.
+  \item An explicit \emph{label subspace and label gate} for the label-shift trap of Table~\ref{tab:taxonomy}
+  (a change in $P(Y)$ mimicking concept movement along the class-mean subspace).
+  \item \emph{Subject-level, cluster-valid} inference throughout (a subject vote), so the analysis unit matches
+  the exchangeable unit and does not over-count epochs.
+  \item A \emph{fail-closed}, three-state verdict: it emits \stcov{}/\stsus{} only when the gates pass and
+  otherwise abstains (\stunid{}).
+\end{itemize}
+The estimator-level engineering (statistic construction, bootstrap wiring, and gate thresholds) is deferred to
+Appendix~\ref{app:audit}; the main flow needs only that the certificate is source-anchored and genuinely
+tries to extract concept evidence from $Q_Z$.
 
-\subsection{The frozen confirmatory falsifies the core}
-We froze the method (tag, manifest hash, fail-closed runner) and ran a single confirmatory on \emph{unseen}
-clusters (base seed $900000$; source seeds $900000\text{--}900065 \rightarrow$ target seeds
-$1800000\text{--}1800065$, disjoint). The pre-registered headline is a conjunction of a false-certification
-gate and a power gate. Both failed (Table~\ref{tab:routeA}). \claimtag{C-routeA-neg}
+\subsection{Development suggested an identifiable core}
+A pre-registered difficulty-envelope sweep (a star design over effect size, subjects, epochs, correlation,
+imbalance, leakage, and mechanism family) located an apparent favourable operating point $P_{\text{baseline}}$
+(concept effect $14$; $22$ subjects/domain; $30$ target subjects; balanced priors; correlation $0.2$;
+covariate leakage $10$; $3$ concept domains; $22$ epochs). At this point the development map showed visible-concept
+power $0.83$ (Clopper--Pearson lower bound $0.56$) with forbidden (false-certification) rate $0/12$.
+Crucially, the development map \emph{itself} flagged its own limitation: $12$ clusters/cell give only a
+Clopper--Pearson upper bound $\approx 0.221$ on the forbidden rate --- that is a \emph{boundary locator} for
+where to run a real confirmatory, \textbf{not} error control, and it was never treated as one.
+\claimtag{C-routeA-dev}
+
+\subsection{The frozen confirmatory protocol}
+We then froze the method: an annotated git tag \texttt{csc-confirmatory-v1} (commit \texttt{dee8958}), a
+machine-readable manifest with canonical hash \texttt{da2c0f4309\dots}, and a fail-closed runner that verifies
+the manifest hash, the pinned code hashes, that HEAD equals the tag commit, a clean tree, and seed disjointness
+before executing. A \emph{single} confirmatory then ran on \emph{unseen} synthetic clusters at base seed $900000$
+(source seeds $900000\text{--}900065 \rightarrow$ target seeds $1800000\text{--}1800065$, disjoint streams).
+The pre-registered headline is a \emph{conjunction} of a false-certification gate and a power gate: to pass,
+the certifier must both keep the forbidden rate controlled \emph{and} clear the power bar. The non-selection
+rules that make this falsifiable are fixed in advance: a fixed finite point list (no post-hoc cell addition),
+a conjunction headline (no disjunction, no pooling to mask elevation), maximum forbidden failures $=0$
+($0$-failure CP-UB $\leq \alpha$), a power bar of $0.50$ evaluated with a $\max(\text{conditional},
+\text{unconditional})$ guard so the source-invalid exclusion cannot inflate the headline, a minimum of $\geq
+59$ valid clusters (else \textsc{Inconclusive}), and the frozen-code plus freshness provenance guards of
+Appendix~\ref{app:audit}.
 
 \begin{table}[t]
 \centering
@@ -56,9 +101,23 @@ informed-selection/generalization effect \emph{surfaced} by the freeze$\rightarr
 \label{fig:devconf}
 \end{figure}
 
-\paragraph{Reading.}
-The negative is not a bug: it is the freeze-before-confirmatory protocol doing its job. Per protocol the
-result was committed and \emph{not} rerun; no threshold, seed, manifest, or tag was changed. Route A
-establishes that a plausible, heavily engineered $Z$-only development core can fail both endpoints on unseen
-data --- consistent with Prop.~\ref{prop:impossible}: without extra information tying source evidence to the
-target posterior, marginal concept evidence is fragile. This motivates Route B3. \claimtag{C-routeA-read}
+\subsection{The failure}
+The confirmatory refutes the development core on both endpoints (Table~\ref{tab:routeA};
+Fig.~\ref{fig:devconf}). Of $G=66$ generated clusters, $N_{\text{valid}}=65$ passed the source-validity gate.
+The forbidden gate fails: the certifier false-certified $1/65$ clusters, giving a Clopper--Pearson upper bound
+of $0.0709 > \alpha = 0.05$ (\texttt{forbidden\_pass=false}). The power gate also fails: it fired on only
+$28/65$ visible-concept clusters, for conditional power $0.4308$ (CP-LB $0.3262$) and unconditional power
+$0.4242$ (CP-LB $0.3209$), against a required $41$ fired for pass. Because the headline is the conjunction of
+the two gates, \texttt{headline\_core\_pass=false}. \claimtag{C-routeA-neg}
+
+\subsection{Reading}
+The negative is not a bug: it is the freeze-before-confirmatory protocol doing its job, and it is the
+empirical counterpart of Prop.~\ref{prop:impossible}. Per protocol the result was committed and \emph{not}
+rerun; no threshold, seed, manifest, or tag was changed after the fact, and the secondary descriptive point
+$P_{\text{strong}}$ was not run. Route A therefore establishes that even a plausible, heavily engineered,
+source-anchored $Z$-only certificate --- audited and frozen --- can fail both a false-certification bound and a
+power bar on unseen synthetic data. This is exactly what the proposition predicts: without extra information tying source
+evidence to the target posterior, marginal concept evidence is fragile. Because the failure is engineered,
+audited, and frozen rather than incidental, it is not an arbitrary excuse to add machinery; it motivates
+supplying a small, targeted amount of additional information in Route B3 (Sec.~\ref{sec:routeB3method}).
+\claimtag{C-routeA-read}

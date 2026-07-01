@@ -1,7 +1,7 @@
 # CSC manuscript (`csc/paper/`)
 
-**Title.** *When Can EEG Concept Shift Be Certified? From Z-only Abstention to Paired Minimal-Label
-Certificates.*
+**Title.** *When Can Concept Shift Be Certified? From Unlabeled Abstention to Paired Minimal-Label
+Certificates.* (A case study in EEG domain shift.)
 
 **Status.** Skeleton. Claims, scope, numbers, and tables are locked to committed artifacts (see
 `claim_evidence_table.md`); prose is stubbed with visible `[TODO: ...]` markers. This is not a finished
