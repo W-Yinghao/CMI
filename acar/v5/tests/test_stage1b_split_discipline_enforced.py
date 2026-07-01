@@ -1,20 +1,12 @@
 """Guard (Stage-1B2): the build hands the trainer EXACTLY the fold's FIT (train/val) subjects, computed by the subject-disjoint
 split. Synthetic only."""
 from __future__ import annotations
-from acar.v5 import protocol as P
 from acar.v5 import splits as SPL
 from acar.v5.substrate import stage1b_build as B
 from acar.v5.substrate import stage1b_authorization as SA
-from acar.v5.tests._util import ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer, stage1b_fake_subjects
+from acar.v5.tests._util import ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer, stage1b_fake_subjects, stage1b_subject_index
 
 FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
-
-
-def _disease_subjects(subs_by, disease):
-    s = set()
-    for c in P.DEV_COHORTS[disease]:
-        s.update(subs_by[(disease, c)])
-    return sorted(s)
 
 
 def test_trainer_receives_exactly_fit_split():
@@ -27,11 +19,11 @@ def test_trainer_receives_exactly_fit_split():
     for ref, got in trainer.received.items():
         disease = ref.split("/", 1)[0]
         fold = int(ref.split("fold")[1].split("/")[0])
-        split = SPL.make_fold(_disease_subjects(subs_by, disease), fold)
+        split = SPL.make_fold(stage1b_subject_index(subs_by, disease).subject_keys, fold)   # split on canonical SubjectKeys
         assert got["train"] == set(split["train"]), (ref, "train")
         assert got["val"] == set(split["val"]), (ref, "val")
         assert (got["train"] | got["val"]) == set(split["fit"]), (ref, "train∪val==fit")
-    ok("for every fold ref the trainer received EXACTLY split[train]/split[val] (== fit); subject-disjoint split enforced")
+    ok("for every fold ref the trainer received EXACTLY split[train]/split[val] (== fit) over canonical SubjectKeys")
 
 
 def main():

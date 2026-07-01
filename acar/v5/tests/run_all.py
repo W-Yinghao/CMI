@@ -36,6 +36,14 @@ MODULES = (
     "test_stage1b_split_discipline_enforced",
     "test_stage1b_no_cal_eval_fit_contamination",
     "test_stage1b_no_selection_or_external_imports",
+    "test_stage1b_factory_gate_before_instantiation",
+    "test_stage1b_source_paths_consistent_across_refs",
+    "test_stage1b_subject_key_canonicalization",
+    "test_stage1b_duplicate_subject_keys_rejected",
+    "test_stage1b_dataset_view_rejects_cal_eval_reads",
+    "test_stage1b_registry_population_exact_30",
+    "test_stage1b_artifact_hashes_computed_not_trusted",
+    "test_stage1b_real_wiring_imports_lazy",
 )
 
 

@@ -1,0 +1,63 @@
+"""Guard (Stage-1B3): with factories, the real reader/trainer are instantiated ONLY after the gate passes — a failing gate never
+constructs them (no pre-gate model init / GPU probe / BIDS scan). Synthetic only."""
+from __future__ import annotations
+from acar.v5.substrate import stage1b_build as B
+from acar.v5.substrate import stage1b_authorization as SA
+from acar.v5.tests._util import expect_raises, ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer
+
+FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
+
+
+class RecFactory:
+    def __init__(self, obj):
+        self.calls = 0
+        self._obj = obj
+
+    def __call__(self):
+        self.calls += 1
+        return self._obj
+
+
+def test_gate_failure_never_instantiates():
+    rf, tf = RecFactory(FakeDevReader()), RecFactory(FakeTrainer())
+    # prefix target sha → full-build gate rejects BEFORE any factory call
+    expect_raises(SA.Stage1BuildNotAuthorizedError,
+                  lambda: B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha="4278435"),
+                                              stage1b_lock(protocol_tag_target_sha="4278435"), execute=True,
+                                              dev_reader_factory=rf, trainer_factory=tf))
+    assert rf.calls == 0 and tf.calls == 0
+    ok("gate failure → neither factory is called (no pre-gate instantiation/import/probe)")
+
+
+def test_gate_pass_instantiates_once():
+    rf, tf = RecFactory(FakeDevReader()), RecFactory(FakeTrainer())
+    rep = B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
+                              stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
+                              dev_reader_factory=rf, trainer_factory=tf)
+    assert rep["status"] == "STAGE1B_BUILT" and rf.calls == 1 and tf.calls == 1
+    ok("gate pass → each factory called exactly once (instantiation happens post-gate)")
+
+
+def test_factory_pairing_and_exclusivity():
+    expect_raises(B.Stage1bBuildError,
+                  lambda: B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
+                                              stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
+                                              dev_reader_factory=RecFactory(FakeDevReader())))   # only one factory
+    expect_raises(B.Stage1bBuildError,
+                  lambda: B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
+                                              stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
+                                              dev_reader=FakeDevReader(), trainer=FakeTrainer(),
+                                              dev_reader_factory=RecFactory(FakeDevReader()), trainer_factory=RecFactory(FakeTrainer())))
+    ok("both factories required together; factories XOR objects (not both)")
+
+
+def main():
+    print("ACAR v5 Stage-1B3 guard: factory gate before instantiation")
+    test_gate_failure_never_instantiates()
+    test_gate_pass_instantiates_once()
+    test_factory_pairing_and_exclusivity()
+    print("ALL V5 STAGE1B-FACTORY-GATE GUARDS PASS")
+
+
+if __name__ == "__main__":
+    main()

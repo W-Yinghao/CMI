@@ -53,13 +53,21 @@ def stage1b_full_plan():
 
 
 def stage1b_fake_subjects(n_per_cohort=20):
-    """{(disease, cohort): [namespaced subject ids]} — synthetic, deterministic; enough per cohort for K=5 splits."""
+    """{(disease, cohort): [RAW subject ids]} — synthetic, deterministic; RAW (not namespaced) so the subject index must add
+    disease/cohort (raw ids intentionally repeat across cohorts to exercise no-collapse)."""
     from acar.v5 import protocol as P
     out = {}
     for d, cs in P.DEV_COHORTS.items():
         for c in cs:
-            out[(d, c)] = [f"{c}/sub-{i:03d}" for i in range(n_per_cohort)]
+            out[(d, c)] = [f"sub-{i:03d}" for i in range(n_per_cohort)]
     return out
+
+
+def stage1b_subject_index(subs_by, disease):
+    """Build the same canonical SubjectIndex the orchestrator builds, from a stage1b_fake_subjects() mapping (for test asserts)."""
+    from acar.v5 import protocol as P
+    from acar.v5.substrate import subject_index as SI
+    return SI.build_subject_index(disease, {c: subs_by[(disease, c)] for c in P.DEV_COHORTS[disease]})
 
 
 class FakeDevReader:
@@ -81,21 +89,27 @@ class FakeDevReader:
 
 
 class FakeTrainer:
-    """Synthetic trainer (no torch). Records exactly which (train, val) subjects the build handed it, and emits an artifact
-    manifest with a complete dummy registry hash set."""
+    """Synthetic trainer (no torch). New (Stage-1B3) signature: receives FIT subject KEYS + an AuthorizedFitDatasetView, reads
+    only via the view (proving CAL/EVAL are unreachable), and returns a RAW build output with bytes payloads (the artifact writer
+    computes the hashes)."""
 
     def __init__(self):
-        self.received = {}
+        self.received = {}          # ref -> {"train": set, "val": set}
+        self.reads = {}             # ref -> [subject_keys read via the view]
 
-    def train_fold(self, disease, fold, seed, train_subjects, val_subjects, cohort_paths):
-        import hashlib
-        from acar.v5 import protocol as P
+    def train_fold(self, disease, fold, seed, train_subject_keys, val_subject_keys, dataset_view):
+        from acar.v5.substrate import stage1b_artifact_writer as AW
         ref = f"{disease}/fold{fold}/seed{seed}"
-        self.received[ref] = {"train": set(train_subjects), "val": set(val_subjects)}
-        art = {"ref": ref, "disease": disease, "fold": fold, "seed": seed}
-        for h in P.REGISTRY_HASH_FIELDS:
-            art[h] = hashlib.sha256(f"{ref}:{h}".encode()).hexdigest()
-        return art
+        self.received[ref] = {"train": set(train_subject_keys), "val": set(val_subject_keys)}
+        rd = []
+        for k in list(train_subject_keys) + list(val_subject_keys):
+            dataset_view.read_windows(k)                       # only FIT keys → all allowed; a CAL/EVAL key would raise
+            rd.append(k)
+        self.reads[ref] = rd
+        raw = {"ref": ref, "disease": disease, "fold": fold, "seed": seed}
+        for bytes_key in sorted(set(AW.HASH_SOURCE.values())):
+            raw[bytes_key] = f"{ref}:{bytes_key}".encode()     # deterministic synthetic bytes; writer hashes them
+        return raw
 
 
 def batch(batch_id, **per_action):

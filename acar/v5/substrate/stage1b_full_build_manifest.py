@@ -44,12 +44,30 @@ def validate_source_paths_by_cohort(disease, mapping):
     return True
 
 
+def validate_source_paths_consistent(plan):
+    """Fail-closed: within a disease, ALL fold/seed refs must declare the IDENTICAL source_paths_by_cohort — so the subject
+    universe (listed once per disease) cannot silently disagree with the paths a later fold ref hands the trainer."""
+    by_disease = {}
+    for e in plan.get("fold_contained_refs", []):
+        spb = e.get("source_paths_by_cohort")
+        if spb is None:
+            continue
+        d = e["disease"]
+        if d not in by_disease:
+            by_disease[d] = (e["ref"], spb)
+        elif spb != by_disease[d][1]:
+            raise Stage1bFullBuildError(f"{d}: source_paths_by_cohort for {e['ref']} differs from {by_disease[d][0]} "
+                                        f"(all fold/seed refs of a disease must share one identical mapping)")
+    return True
+
+
 def validate_full_build_manifest(plan, auth):
     """Fail-closed FULL-build manifest check (given a validated auth). Requires: schema valid; final-external schema-only; ALL 30
     canonical fold refs present; each authorized + carrying a complete, cohort-exact source_paths_by_cohort. Returns the count of
     fold substrates that would be built (must be 30). Pure — opens nothing."""
     SCH.validate_build_manifest(plan)
     MAN.assert_final_external_schema_only(plan.get("final_external_refs", []))
+    validate_source_paths_consistent(plan)                     # per-disease identical source_paths_by_cohort
     allowed = set(auth["allowed_refs"])
     present = {e["ref"] for e in plan.get("fold_contained_refs", [])}
     if present != set(SA.CANONICAL_FOLD_REFS):
