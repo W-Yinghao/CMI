@@ -45,13 +45,45 @@ Route B3 emits \stconf{} / \stnoev{} / \stneed{} / \stinv{} / \stunid{} --- ther
 (covariate compatibility is not a Route-B3 claim). The design fails closed: unsound pairing, too few
 epochs, or too few eligible labelled subjects yield abstention, never a confirmation. \claimtag{C-b3-states}
 
-\begin{figure}[t]
+\begin{figure*}[t]
 \centering
-\includegraphics[width=0.92\linewidth]{fig2_pipeline_gates.png}
-\caption{Certificate pipeline and fail-closed gates. \todo{Regenerate a B3-specific pipeline figure:
-paired within-subject ON/OFF $\rightarrow$ pair-integrity/eligibility guards $\rightarrow$ centered
-conditional-change test $\rightarrow$ fixed-margin null $+$ studentized gate $+$ cross-budget
-$\alpha$-spending $\rightarrow$ \{\stconf, \stnoev, \stneed, \stinv, \stunid\}. Current figure is the
-Route-A pipeline placeholder.}}
+\begin{tikzpicture}[
+  font=\small,
+  node distance=6mm and 10mm,
+  stage/.style={draw, rounded corners, align=center, fill=blue!5,
+                text width=27mm, minimum height=13mm, inner sep=3pt},
+  gate/.style={draw, diamond, aspect=2, align=center, fill=orange!12,
+               inner sep=1pt, text width=17mm},
+  good/.style={draw, rounded corners, align=center, fill=green!12,
+               text width=26mm, minimum height=8mm, inner sep=2pt},
+  abst/.style={draw, rounded corners, align=center, fill=gray!12,
+               text width=26mm, minimum height=7mm, inner sep=2pt},
+  flow/.style={-{Latex[length=2mm]}, thick},
+]
+% main left-to-right spine
+\node[stage] (in) {Paired subjects\\ON/OFF $+$ few labels};
+\node[gate, right=of in] (guard) {sound pair?};
+\node[stage, right=14mm of guard] (test) {Conditional-change test\\$h_0:[Z,c]$ vs\\$h_1:[Z,c,c\!\times\!Z_{\mathrm{pc}}]$\\centered coding, vote $T$};
+\node[stage, right=of test] (dec) {Calibrated decision\\fixed-margin $h_0$ null\\studentized gate\\cross-budget $\alpha$-spend};
+% outputs
+\node[good, right=of dec] (conf) {\stconf};
+\node[abst, below=5mm of conf] (noev) {\stnoev};
+\node[abst, below=10mm of guard] (need) {\stneed};
+\node[abst, below=4mm of need] (inv) {\stinv};
+% edges
+\draw[flow] (in) -- (guard);
+\draw[flow] (guard) -- node[above,font=\scriptsize]{yes} (test);
+\draw[flow] (test) -- (dec);
+\draw[flow] (dec.east) -- node[above,font=\scriptsize]{pass} (conf.west);
+\draw[flow] (dec.east) to[out=-20,in=180] node[below,font=\scriptsize,pos=0.6]{fail} (noev.west);
+\draw[flow] (guard.south) to[out=-90,in=90] node[right,font=\scriptsize,pos=0.3]{too few labels} (need.north);
+\draw[flow] (guard.south) to[out=-110,in=110] node[left,font=\scriptsize]{bad pairing} (inv.north);
+\end{tikzpicture}
+\caption{Route~B3 certificate pipeline and fail-closed gates. Paired within-subject conditions plus a small
+label audit pass through eligibility/pair-integrity guards; a centered ($\pm\tfrac12$) conditional-change
+test produces a subject-vote statistic $T$; a calibrated decision (condition-matched fixed-margin $h_0$
+bootstrap, studentized subject-consistency gate, cross-budget $\alpha$-spending) emits \stconf{} only on a
+conjunctive pass. Every other path fails closed to \stnoev{}, \stneed{}, or \stinv{}; out-of-scope inputs
+abstain (\stunid{}). No source posterior is used.}
 \label{fig:pipeline}
-\end{figure}
+\end{figure*}

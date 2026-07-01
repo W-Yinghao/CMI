@@ -1,54 +1,86 @@
 \section{Introduction}
 \label{sec:intro}
 
-\todo{Full prose pass. Skeleton below fixes the claims, scope, and contributions; expand each bullet into
-1--2 paragraphs and add citations (see references.bib stubs).}
+\todo{Citations still to be added (see references.bib); prose is otherwise a full first draft, not a stub.}
 
-\paragraph{Problem.}
-When an EEG model trained on a source population is deployed on a new target (new subjects, sites, or
-conditions), the practical question is not only ``did the input distribution move'' but ``did the
-\emph{decision rule} $P(Y\mid Z)$ move'' --- a \emph{concept shift}. A tempting goal is a universal,
-label-free detector that reads concept shift off the unlabeled target embeddings $Z$.
-\claimtag{C-motivation}
-We show this goal is not attainable in general, reframe the object as a \emph{certificate with explicit
-abstention}, and ask the sharper question: \emph{what is the minimal information that turns abstention into
-a confirmable certificate, and does that certificate survive a frozen confirmatory test?}
+Deployed machine-learning systems are increasingly asked to monitor themselves for distribution shift. Most
+practical monitors watch the input or representation marginal --- they detect that $P(Z)$ has moved. But the
+question that actually governs whether a deployed decision rule is still trustworthy is a statement about the
+\emph{conditional}: has $P(Y\mid Z)$, the class posterior in representation space, changed? This is
+\emph{concept shift}, and it is the shift that a marginal monitor cannot see by construction. In
+subject-structured, high-stakes settings --- clinical EEG being our motivating example, where labels require
+expert annotation and are scarce while unlabeled target recordings are plentiful --- there is a strong
+temptation to certify concept shift from the unlabeled target alone, using a marginal move as a proxy for a
+conditional move. This paper asks, for that setting, three questions: \emph{when can such a proxy certify
+concept shift, when must it abstain, and what minimal extra information changes the answer?} We treat this as
+an \emph{identifiability} problem, not a detection benchmark. \claimtag{C-motivation}
 
-\paragraph{Two regimes, one discipline.}
-We compare two certificates under an identical audit protocol (development $\rightarrow$ freeze
-tag$+$manifest$+$fail-closed runner $\rightarrow$ single unseen confirmatory):
-\begin{itemize}
-  \item \textbf{Route A} --- a source-anchored, $Z$-only certificate. Its frozen confirmatory is a
-        \emph{negative} result (Sec.~\ref{sec:routeA}): the development-observed core did not generalize.
-  \item \textbf{Route B3} --- a paired within-subject, minimal-label certificate that supplies exactly the
-        extra information Prop.~\ref{prop:impossible} shows is missing. Its frozen confirmatory is a
-        \emph{positive} result within a pre-registered synthetic envelope (Sec.~\ref{sec:routeB3conf}).
-\end{itemize}
+\paragraph{A non-identifiability boundary.}
+Our first result is a boundary, not a method. We show (Prop.~\ref{prop:impossible}) that for \emph{any}
+observed target marginal $Q_Z$ there exist two target laws with the same $Q_Z$ but different posteriors
+$Q(Y\mid Z)$. Any certificate that is a function of the unlabeled target returns the same value on both, so
+it cannot decide ``posterior unchanged'' versus ``concept shift.'' There is therefore no universal,
+unlabeled-target concept-shift detector; the honest output must include an explicit \emph{abstention} state.
+This reframes the design goal from ``build a better detector'' to ``build a certificate that knows when it is
+entitled to a claim.'' \claimtag{C-impossible}
+
+\paragraph{An audited negative.}
+The natural objection is that a sufficiently engineered unlabeled-target certificate might still work in
+practice. We take that objection seriously. We build a \emph{strong} source-anchored, $Z$-only certificate
+--- it is not a strawman: it uses source-domain residual evidence, a support gate, bootstrap calibration,
+subject-level (cluster-valid) inference, and a fail-closed abstention path. In development sweeps it
+exhibited an apparent identifiable operating core. We then \emph{froze} it (a git tag, a machine-readable
+manifest with a canonical hash, and a fail-closed runner) and ran a single pre-registered confirmatory on
+\emph{unseen} clusters. It failed both endpoints: the false-certification rate exceeded $\alpha$ \emph{and}
+the power fell below the deployment bar (Sec.~\ref{sec:routeA}). This audited negative is the empirical
+counterpart of the theorem: source-free concept evidence, even after development selection, is fragile ---
+exactly the failure mode an abstention-equipped certificate exists to expose. \claimtag{C-routeA-neg}
+
+\paragraph{A minimal-information positive.}
+The theorem is not only an obstruction; it is constructive, because it says precisely what is missing ---
+information that ties the target's posterior to something observable. We add the minimal such information:
+a \emph{paired within-subject} structure (each subject contributes two conditions, e.g.\ ON/OFF, so the
+subject is its own reference and the subject random effect cancels) plus a \emph{small label audit} on
+eligible paired subjects. This yields a \emph{target-internal} conditional-change certificate that never
+consults a source posterior, thereby sidestepping the contaminated source-reference that broke a
+few-label unpaired route. Under the identical freeze-before-confirmatory discipline, this Route~B3
+certificate \emph{passed} all pre-registered criteria $C_1$--$C_6$ on unseen synthetic clusters, within a
+declared operating envelope (Secs.~\ref{sec:routeB3method}--\ref{sec:routeB3conf}). \claimtag{C-routeB3-pos}
+
+\paragraph{Why synthetic, and why this is the right environment.}
+Every empirical result here is synthetic, and deliberately so. This paper is about identifiability and
+certification, not clinical deployment. The synthetic environment is not a stand-in for a benchmark; it is a
+controlled \emph{falsification} environment in which pure-conditional shift, support-visible covariate
+shift, label-composition shift, paired-nuisance shift, and random-label controls are known by construction
+--- so that a false certification can be measured, not merely suspected. Introducing real EEG before the
+identifiability boundary is fixed would confound method failure with unknown ground truth. Real EEG (e.g.\
+Parkinson's ON/OFF paired recordings, cross-site nulls) is the intended next validation target and requires
+its own freeze and pre-registration; it is future work, not a claim of this paper (Sec.~\ref{sec:discussion}).
 
 \paragraph{Contributions.}
 \begin{enumerate}
-  \item \textbf{Impossibility + abstention (Sec.~\ref{sec:theory}).} A $Z$-only certificate cannot decide
-        concept shift for \emph{any} observed marginal (Prop.~\ref{prop:impossible}); the honest output is
-        three-state with an \stunid{} (abstain) branch.
-        \claimtag{C-impossible}
-  \item \textbf{An audited negative (Sec.~\ref{sec:routeA}).} A frozen confirmatory falsifies a plausible
-        $Z$-only development core --- forbidden (false-cert) rate above $\alpha$ \emph{and} power below the
-        deployment bar on unseen clusters.
-        \claimtag{C-routeA-neg}
-  \item \textbf{A minimal-information positive (Secs.~\ref{sec:routeB3method}--\ref{sec:routeB3conf}).}
-        A paired within-subject target-internal reference plus a few labels yields a certificate whose
-        frozen unseen-cluster synthetic confirmatory passes all pre-registered criteria within its declared
-        envelope (primary power $1.00$; false confirmation within the pointwise control gates).
-        \claimtag{C-routeB3-pos}
-  \item \textbf{The audit protocol as a contribution (Sec.~\ref{sec:routeB3conf}, appendix).}
-        Freeze-before-confirmatory with non-selection rules, conservative denominators, fail-closed
-        provenance, and an independent red-team re-aggregation --- the same machinery yields the negative
-        \emph{and} the positive verdict, which is why both are credible.
-        \claimtag{C-protocol}
+  \item \textbf{A non-identifiability result} for unlabeled-target concept-shift certification: no $Z$-only
+        certificate can decide concept shift for any observed marginal (Prop.~\ref{prop:impossible}),
+        forcing an abstention state. \claimtag{C-impossible}
+  \item \textbf{A fail-closed $Z$-only certificate and a frozen negative confirmatory}: a strong
+        source-anchored certificate that looked promising in development but failed both endpoints under
+        unseen-cluster testing (Sec.~\ref{sec:routeA}). \claimtag{C-routeA-neg}
+  \item \textbf{A paired minimal-label certificate} using a target-internal within-subject reference plus a
+        small label audit, which changes the statistical problem rather than the model
+        (Sec.~\ref{sec:routeB3method}). \claimtag{C-routeB3-pos}
+  \item \textbf{A frozen positive confirmatory} of that certificate within a scoped synthetic envelope
+        ($C_1$--$C_6$ pass; primary power $1.00$; false confirmation within the pointwise control gates),
+        independently red-teamed (Sec.~\ref{sec:routeB3conf}). \claimtag{C-routeB3-pos}
+  \item \textbf{A claim--evidence discipline for falsifiable shift-certification research}:
+        freeze-before-confirmatory with non-selection rules, conservative denominators, fail-closed
+        provenance, and independent re-aggregation --- the same machinery produced both the negative and the
+        positive verdict, which is why both are credible (Sec.~\ref{sec:routeB3conf}, appendix). \claimtag{C-protocol}
 \end{enumerate}
 
-\paragraph{Scope (stated up front).}
-All results are \textbf{synthetic}. Route B3's positive claim holds within a \emph{development-informed,
-frozen-before-confirmatory} operating envelope (Sec.~\ref{sec:routeB3conf}); it is not a claim that concept
-shift is solved in general, nor a real-EEG result. Real EEG (e.g.\ Parkinson's ON/OFF paired recordings)
-is future work requiring its own freeze and authorization (Sec.~\ref{sec:discussion}).
+\paragraph{The deployment view.}
+A recurring theme is that the correct output of a deployment-time certificate is not a binary shift/no-shift
+label but a \emph{fail-closed decision system} with explicit abstention, invalidity, and
+information-request states. Both routes emit such states; the difference is that Route~B3, given the minimal
+extra information the theorem demands, can \emph{leave} the abstention region and earn a confirmable
+positive. The scope of that positive --- synthetic, paired, scoped envelope, weak on invisible
+pure-conditional shift --- is stated wherever the claim appears (Sec.~\ref{sec:discussion}).

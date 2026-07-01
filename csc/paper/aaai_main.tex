@@ -1,15 +1,22 @@
-\documentclass[10pt]{article}
+\documentclass[letterpaper,10pt,twocolumn]{article}
 
 % ============================================================================
-% CSC manuscript — NEUTRAL build (self-contained, compiles with base LaTeX).
-% Story: identifiability/abstention boundary -> Route A Z-only frozen NEGATIVE
-%        -> Route B3 paired minimal-label frozen POSITIVE (synthetic).
-% Two-build convention (mirrors tos_cmi/paper): this main.tex is venue-neutral;
-% a venue stylefile build (venue_main.tex + <venue>.sty) drops in once the
-% venue is fixed -- see README.md. Do NOT hardcode a venue here.
+% CSC manuscript -- AAAI-oriented build (target: AAAI-27 main technical track).
+%
+% IMPORTANT: this is a two-column ARTICLE APPROXIMATION of the AAAI format so
+% the paper compiles and page count can be tracked NOW. It is NOT the official
+% AAAI style: the AAAI-27 author kit (aaai27.sty + aaai27.bst) is copyrighted
+% and is not present in this workspace (even the sibling nab_aaai.tex uses the
+% same article stand-in). At submission time: drop aaai27.sty/aaai27.bst into
+% this directory and replace the preamble below with the official
+% \documentclass[letterpaper]{article}\usepackage{aaai27} block per the kit.
+%
+% PHASE 1 (now): compiles; anonymous; claims unchanged; MAY exceed 7 pages.
+% PHASE 2 (later): official style + 7-page main-content compression pass.
+% Shares sections/ verbatim with the neutral build (main.tex).
 % ============================================================================
 
-\usepackage[margin=1in]{geometry}
+\usepackage[letterpaper,margin=0.75in]{geometry}
 \usepackage{times}
 \usepackage{amsmath,amssymb,amsfonts}
 \usepackage{graphicx}
@@ -29,17 +36,12 @@
 \newtheorem{proposition}{Proposition}
 \newtheorem{assumption}{Assumption}
 
-% --- draft-mode claim tags: traceability to claim_evidence_table.md, HIDDEN in PDF ---
-\newif\ifshowclaimtags
-\showclaimtagsfalse
+% draft toggles (same as main.tex). For a clean page-count pass, flip \showtodofalse.
+\newif\ifshowclaimtags \showclaimtagsfalse
 \newcommand{\claimtag}[1]{\ifshowclaimtags\textcolor{blue}{[#1]}\fi}
-
-% --- draft-mode TODO notes: VISIBLE in draft, flip to hide for a clean build ---
-\newif\ifshowtodo
-\showtodotrue
+\newif\ifshowtodo \showtodotrue
 \newcommand{\todo}[1]{\ifshowtodo\textcolor{red}{\textbf{[TODO: #1]}}\fi}
 
-% state-name shorthand (exact certifier states)
 \newcommand{\stcov}{\textsc{Covariate\_Compatible}}
 \newcommand{\stsus}{\textsc{Concept\_Suspect}}
 \newcommand{\stunid}{\textsc{Unidentifiable}}
@@ -49,9 +51,8 @@
 \newcommand{\stinv}{\textsc{Invalid\_Pair\_Structure}}
 
 \title{When Can Concept Shift Be Certified?\\
-From Unlabeled Abstention to Paired Minimal-Label Certificates\\
-\large\textnormal{A case study in EEG domain shift}}
-\author{Anonymous}
+From Unlabeled Abstention to Paired Minimal-Label Certificates}
+\author{Anonymous submission}
 \date{}
 
 \begin{document}

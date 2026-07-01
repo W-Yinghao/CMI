@@ -14,31 +14,41 @@ paper.
 4. **Route B3 confirmatory** — frozen unseen synthetic PASS (C1–C6) within a scoped envelope (`sections/routeB3_confirmatory.tex`).
 5. **Boundary** — synthetic-only, envelope limits, pure-conditional tail, real-EEG as future work (`sections/discussion.tex`).
 
+**Target venue: AAAI-27 main technical track.** Strategy: quality-first master draft now; page compression
+(7-page main content) is a later phase, not now.
+
 ## Build
 
 ```bash
-bash csc/paper/compile.sh        # neutral build -> main.pdf (self-contained, base LaTeX)
+bash csc/paper/compile.sh        # neutral build  -> main.pdf  (self-contained, base LaTeX, single column)
+bash csc/paper/compile_aaai.sh   # AAAI build     -> aaai_main.pdf + page count (two-column)
 bash csc/paper/check_claims.sh   # forbidden-wording + required-scope + compile gate
 ```
 
-### Two-build convention (venue build — OPEN DECISION)
-This mirrors `tos_cmi/paper` (neutral `main.tex` + an official-stylefile variant). The **venue is not yet
-chosen**, so only the neutral build is wired. To add the official build once the venue is fixed:
-1. drop the venue style/bst files into this directory (e.g. `aaai/neurips/tmlr`);
-2. add `venue_main.tex` = `main.tex` with the venue `\documentclass`/`\usepackage`, `\showtodofalse`, and
-   anonymization for the camera/submission variant;
-3. add `compile_venue.sh` (same 3-pass `pdflatex`/`bibtex` sequence).
-Do **not** hardcode a venue in `main.tex`.
+### Two-build convention
+Mirrors `tos_cmi/paper`: `main.tex` (neutral, single-column, for reading/review) and `aaai_main.tex`
+(AAAI-oriented, two-column) share `sections/` verbatim.
+
+**AAAI style file (Phase 2 swap).** `aaai_main.tex` is currently a two-column `article` *approximation* so
+the paper compiles and page count is trackable now. The official AAAI-27 kit (`aaai27.sty` + `aaai27.bst`)
+is copyrighted and is **not** in this workspace (the sibling `AAAI_2026/nab_overleaf/nab_aaai.tex` uses the
+same article stand-in). At submission: drop the kit files here and replace the `aaai_main.tex` preamble per
+the kit. Phase 1 (now): compiles, anonymous, claims unchanged, may exceed 7 pages. Phase 2 (later): official
+style + compression (proofs / large tables / C6 detail move to appendix/supplement).
 
 ## Draft toggles (in `main.tex`)
 - `\showtodotrue` → visible red `[TODO: ...]` notes (skeleton). Flip to `\showtodofalse` for a clean PDF.
 - `\showclaimtagsfalse` → claim tags hidden in the PDF; flip to `true` to see `\claimtag{...}` traceability.
 
-## Figures (`figures/`)
-- `fig1_taxonomy_boundary.png` — shift taxonomy + abstention boundary (reused, current).
-- `fig2_pipeline_gates.png` — pipeline/gates (Route-A **placeholder**; TODO: regenerate a B3-specific pipeline).
-- `fig3_dev_vs_confirmatory.png` — Route-A dev vs frozen confirmatory (current).
-Regenerate/extend via `csc/tools/make_paper_figures.py`.
+## Figures
+Planned 3 main figures for AAAI (Route-A pipeline demoted to appendix):
+- **Fig 1** `figures/fig1_taxonomy_boundary.png` — shift taxonomy + non-identifiability/abstention boundary.
+- **Fig 2** — Route-B3 paired minimal-label **pipeline**, now a native **TikZ** figure inline in
+  `sections/routeB3_method.tex` (no external asset). The old `figures/fig2_pipeline_gates.png` (Route-A
+  pipeline) is retained for possible appendix use.
+- **Fig 3** `figures/fig3_dev_vs_confirmatory.png` — frozen evidence summary (Route-A dev→confirmatory
+  collapse; TODO: add a Route-B3 C1–C6 PASS panel alongside).
+Raster figures regenerate/extend via `csc/tools/make_paper_figures.py`.
 
 ## Provenance of the numbers
 - Route A: tag `csc-confirmatory-v1` / `dee8958`; `csc/results/confirmatory.json`; `notes/CSC_CONFIRMATORY_RESULT.md`.
