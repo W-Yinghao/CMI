@@ -25,6 +25,10 @@ MODULES = (
     "test_stage1b_dev_source_whitelist",
     "test_stage1b_runtime_lock_required",
     "test_stage1b_fold_refs_only",
+    "test_stage1b_full_build_requires_30_refs",
+    "test_stage1b_source_paths_by_cohort",
+    "test_stage1b_runtime_lock_binds_implementation_sha",
+    "test_stage1b_build_gate_validates_schema",
 )
 
 

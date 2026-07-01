@@ -35,9 +35,21 @@ def stage1b_lock(run_id="run-syn-0001", device_kind="cpu", **over):
     """A fully-valid SYNTHETIC Stage-1B runtime lock (override any field via kwargs)."""
     from acar.v5.substrate import stage1b_authorization as SA
     lk = {"stage": "Stage-1B", "protocol_tag": SA.PROTOCOL_TAG, "protocol_tag_target_sha": "4278435",
-          "run_id": run_id, "device_kind": device_kind, "status": "CAPTURED_AND_VERIFIED"}
+          "implementation_base_sha": "0" * 40, "run_id": run_id, "device_kind": device_kind,
+          "status": "CAPTURED_AND_VERIFIED"}
     lk.update(over)
     return lk
+
+
+def stage1b_full_plan():
+    """A SYNTHETIC full-build plan: every one of the 30 fold refs carries source_paths_by_cohort with per-cohort synthetic DEV
+    paths (strings only; nothing is opened)."""
+    from acar.v5 import protocol as P
+    from acar.v5.substrate import plan as PLAN
+    pl = PLAN.build_substrate_plan()
+    for e in pl["fold_contained_refs"]:
+        e["source_paths_by_cohort"] = {c: f"/projects/datalake/raw/bids/{c}/sub-XXX" for c in P.DEV_COHORTS[e["disease"]]}
+    return pl
 
 
 def batch(batch_id, **per_action):

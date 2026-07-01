@@ -4,10 +4,13 @@ manifest passes the DEV whitelist + final-external schema-only. In Stage-1B0 no 
 exercised on synthetic contracts only.
 """
 from __future__ import annotations
+from acar.v5.substrate import build_manifest_schema as SCH
 from acar.v5.substrate import stage1b_authorization as SA
 from acar.v5.substrate import stage1b_manifest as MAN
+from acar.v5.substrate import stage1b_full_build_manifest as FBM
 
-RUNTIME_LOCK_FIELDS = ("stage", "protocol_tag", "protocol_tag_target_sha", "run_id", "device_kind", "status")
+RUNTIME_LOCK_FIELDS = ("stage", "protocol_tag", "protocol_tag_target_sha", "implementation_base_sha",
+                       "run_id", "device_kind", "status")
 VERIFIED_STATUS = "CAPTURED_AND_VERIFIED"
 
 
@@ -32,18 +35,40 @@ def validate_runtime_lock(lock, auth):
         raise Stage1RuntimeLockError("runtime lock.device_kind must be cpu|cuda")
     if str(lock["protocol_tag_target_sha"]).lower() != str(auth["protocol_tag_target_sha"]).lower():
         raise Stage1RuntimeLockError("runtime lock target sha must match the authorization")
+    if str(lock["implementation_base_sha"]).lower() != str(auth["implementation_base_sha"]).lower():
+        raise Stage1RuntimeLockError("runtime lock.implementation_base_sha must match the authorization")
     if lock["run_id"] != auth["run_id"]:
         raise Stage1RuntimeLockError("runtime lock.run_id must match the authorization.run_id")
     return lock
 
 
 def require_stage1b_ready(plan, authorization, runtime_lock):
-    """THE gate real Stage-1B build code must pass BEFORE any DEV read/train. Requires ALL of: (1) structured authorization
-    contract, (2) matching runtime lock, (3) build manifest DEV whitelist (fold-refs-only, disease-matched) + final-external
-    schema-only. Returns a readiness report; raises on any failure. Pure — validates contracts/strings; opens/reads NOTHING."""
+    """Dry-validation gate: requires ALL of: (0) build-manifest SCHEMA, (1) structured authorization contract, (2) matching
+    runtime lock, (3) build manifest DEV whitelist (fold-refs-only, disease-matched) + final-external schema-only. Returns a
+    readiness report; raises on any failure. Pure — validates contracts/strings; opens/reads NOTHING. (Used for partial/dry specs;
+    the full 30-substrate build gate is require_stage1b_full_build_ready.)"""
+    SCH.validate_build_manifest(plan)                         # (0) malformed plan cannot bypass into the gate
     auth = SA.validate_stage1b_authorization(authorization)   # (1)
     validate_runtime_lock(runtime_lock, auth)                 # (2)
     admitted = MAN.validate_stage1b_build_manifest(plan, auth)  # (3) whitelist + final-external schema-only
     return {"status": "STAGE1B_READY", "run_id": auth["run_id"], "admitted_fold_refs": admitted,
             "device_kind": runtime_lock["device_kind"],
             "note": "contract+lock+whitelist validated; the actual DEV read/build is separate code (not invoked here)"}
+
+
+def require_stage1b_full_build_ready(plan, authorization, runtime_lock):
+    """THE gate a REAL Stage-1B FULL build (all 30 fold substrates) must pass before any DEV read/train. Stricter than
+    require_stage1b_ready: (a) the authorization's protocol_tag_target_sha must be the FULL 40-hex tag commit (no prefix);
+    (b) the runtime lock must validate + cross-bind (target sha, implementation_base_sha, run_id); (c) the FULL build manifest
+    must contain ALL 30 canonical fold refs, each authorized and carrying a complete cohort-exact source_paths_by_cohort;
+    (d) final-external refs stay schema-only. Returns a readiness report; raises on any failure. Pure — opens/reads NOTHING."""
+    auth = SA.validate_stage1b_authorization(authorization)
+    if str(auth["protocol_tag_target_sha"]).lower() != SA.PROTOCOL_TAG_TARGET_SHA_FULL:
+        raise SA.Stage1BuildNotAuthorizedError("a REAL full Stage-1B build requires the FULL 40-hex protocol_tag_target_sha (not a prefix)")
+    validate_runtime_lock(runtime_lock, auth)                 # cross-binds target sha + implementation_base_sha + run_id
+    built = FBM.validate_full_build_manifest(plan, auth)      # ALL 30 refs, each with cohort-exact real DEV inputs
+    if built != FBM.EXPECTED_FOLD_BUILDS:
+        raise FBM.Stage1bFullBuildError(f"full build must construct {FBM.EXPECTED_FOLD_BUILDS} substrates, got {built}")
+    return {"status": "STAGE1B_FULL_BUILD_READY", "run_id": auth["run_id"], "built_fold_substrates": built,
+            "device_kind": runtime_lock["device_kind"],
+            "note": "contract+lock+full-manifest validated; the actual DEV read/train is separate code (not invoked here)"}
