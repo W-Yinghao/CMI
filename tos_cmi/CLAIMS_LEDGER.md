@@ -108,6 +108,18 @@ concept_erasure_baselines_vs_tos:                 # Track G (DONE; cross-seed st
   implication: reframe contribution to measurement + certification/refusal + measurement-to-control gap
     (NOT the eraser); paper needs a concept-erasure baseline table + Related Work SS5.3 update. RLACE/SPLINCE
     still optional (RLACE adversarial; SPLINCE = holstege2025 oblique).
+erasure_target_deployment:                        # Step 3 (DONE; SLURM 878002)
+  status: supported
+  scripts: tos_cmi/eeg/erasure_target_deploy.py (source-only eraser+head fit -> held-out target; file-parallel)
+  seeds: [0,1,2]; folds: 9 LOSO; backbones: TSMNet-210, EEGNet-16; methods: full/TOS_VD/LEACE/RLACE/INLP/random_k
+  outputs: results/tos_cmi_eeg_frozen/erasure_target_deploy/{*_seed*.csv,*_paired.csv,*_summary.json} ; paper Table 3
+  guard: target (Z_t,y_t) used ONLY for final scoring; NO eraser/head/hyperparam/calibration selected on target
+  finding: deployed on held-out target, NO eraser improves target bAcc. dbAcc[95% fold-cluster CI] vs full:
+    TSMNet LEACE +.001[-.004,.005], RLACE -.004[-.006,-.002], TOS -.000, INLP -.062 (src task .749->.533);
+    EEGNet LEACE -.011[-.021,-.002], RLACE -.012, TOS -.000, INLP -.160 (=chance, task destroyed).
+    Only movement = small NLL drop, but same-k RANDOM matches it (TSMNet LEACE dNLL -.031 vs random -.034;
+    random subj_dec .998 = NOT erased) => NON-SPECIFIC regularization, NOT a domain-removal benefit.
+    Closes the measurement-to-control loop: optimal erasure deployed on target != DG gain.
 end_to_end_tos_training:        {status: not_attempted, plan: Track E (conditional-on-kept critic + PCGrad + anti-collapse)}
 ```
 

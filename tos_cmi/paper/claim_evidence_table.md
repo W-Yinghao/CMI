@@ -7,7 +7,7 @@ Global forbidden phrasings (apply everywhere):
 `TOS-CMI improves EEG domain generalization` · `Selective deletion solves LPC collapse` ·
 `Domain leakage removal is sufficient for target transfer` · `Task-orthogonal geometry implies safe deletion` ·
 `EEG subject leakage is generally low-rank removable` · `global CMI always collapses` ·
-`the dim↔type confound is resolved` · `the contrast is capacity-mediated, not architecture-type` (empirically REFUTED at high d_z — permanently forbidden) · `a pure dimension effect` (a residual architecture×dimension interaction remains) · `frozen erasure yields no target gain` (forbidden until the Step-3 target-deployment test is run).
+`the dim↔type confound is resolved` · `the contrast is capacity-mediated, not architecture-type` (empirically REFUTED at high d_z — permanently forbidden) · `a pure dimension effect` (a residual architecture×dimension interaction remains) · `erasure improves target domain generalization` (Step-3 deployment: NO eraser improves target bAcc) · attributing the deployment NLL movement to domain removal (it is matched by same-k random removal).
 
 ---
 
@@ -75,7 +75,7 @@ Global forbidden phrasings (apply everywhere):
 - **Phase:** 3.0 (verified). **Fig/Table:** Fig 5 (panels b,c), Table 1.
 - **Artifacts:** `.../lpc_collapse_curves/EEGNet/raw_lpc_sub*_seed*.json` (tgt, subj_dec vs λ).
 - **Limitation:** frozen-feature pilot — shows leakage *removal per se* does not buy DG, not that end-to-end training cannot; EEGNet is a weak/high-variance backbone on 2a LOSO.
-- **Allowed:** "leakage removal can be real but still not improve target accuracy (EEGNet/2a)." **Forbidden:** "Domain leakage removal is sufficient for target transfer" / "TOS-CMI improves EEG domain generalization."
+- **Allowed:** "leakage removal can be real but still not improve target accuracy (EEGNet/2a)"; the frozen-erasure target-deployment test (**C12**, Table 3) confirms this directly. **Forbidden:** "Domain leakage removal is sufficient for target transfer" / "TOS-CMI improves EEG domain generalization."
 
 ### C10 — Unified thesis: measurement→control gap
 - **Claim:** conditional domain leakage is a measurable property of EEG representations but not a sufficient control target for cross-subject generalization; safe selective invariance should be a certified intervention with refusal, not an always-on regularizer.
@@ -92,6 +92,12 @@ Global forbidden phrasings (apply everywhere):
 - **Numbers (3 seeds × 9 folds, fold-cluster 95% CI):** LEACE residual TSMNet 21/36/55/105/210 = 0.397/0.498/0.559/0.648/0.740; EEGNet 16/32/64/128/210 = 0.393/0.507/0.574/0.609/0.628. Matched-dim (TSMNet−EEGNet): 21v16 +0.004[−0.008,0.014] (overlaps 0); 36v32 −0.008[−0.022,0.004] (overlaps 0); 55v64 −0.015[−0.024,−0.004]; 105v128 +0.039[0.028,0.051]; 210v210 +0.111[0.094,0.125] (excludes 0). OLS log(d_z) +0.089[0.086,0.092]; interaction +0.058[0.051,0.063].
 - **Status:** SUPPORTED (refined). Multi-seed + EEGNet d_z=210 complete. Remaining caveat: single dataset (2a), LDA cap from 8 source subjects.
 - **Allowed:** “largely capacity-mediated, with a residual architecture effect at high d_z (3 seeds, fold-cluster CI)” / “matching dimension removes ~2/3 of the gap; a residual architecture×dimension interaction remains.” **Forbidden:** “the dim↔type confound is resolved” / “capacity-mediated, not architecture-type” (empirically REFUTED at high d_z) / “a pure dimension effect.”
+
+### C12 — Frozen-erasure target deployment: no accuracy gain (Step 3)
+- **Claim:** deployed on the held-out target (source-only fit; NO target selection/calibration/tuning), no eraser (LEACE/RLACE/TOS-V_D/INLP) improves target balanced accuracy on either backbone; INLP collapses the task; the only NLL movement is non-specific (same-k random removal reproduces it).
+- **Phase:** Step 3 (SLURM 878002). **Fig/Table:** Table 3.
+- **Numbers (3 seeds × 9 folds; paired fold-cluster 95% CI; ΔbAcc vs full Z):** TSMNet LEACE +0.001[−0.004,0.005], RLACE −0.004[−0.006,−0.002], TOS −0.000, INLP −0.062 (src task 0.749→0.533); EEGNet LEACE −0.011[−0.021,−0.002], RLACE −0.012, TOS −0.000, INLP −0.160 (=chance). NLL: TSMNet LEACE ΔNLL −0.031 vs random −0.034 (matched; random subj-decode 0.998 = not erased).
+- **Status:** SUPPORTED. **Allowed:** "deployed on the target, no eraser improves target accuracy; the NLL movement is reproduced by random removal (non-specific)." **Forbidden:** "erasure improves target DG" / attributing the NLL blip to domain removal / calling INLP's NLL drop a benefit (it destroys the task).
 
 ---
 

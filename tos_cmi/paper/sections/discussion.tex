@@ -7,7 +7,7 @@ fails is representation-dependent: in a high-dimensional SPD/LogEig latent the l
 re-encoded and is not low-rank removable, and a global penalty removes it only by collapsing the
 representation; in a compact convolutional latent the leakage \emph{is} low-rank removable (linearly) on the
 source side, yet a separate collapse-free global penalty that reduces it does not improve target accuracy
-(the frozen selective erasers' target effect is left to a deployment test). The common thread is a gap between \textbf{localizing/measuring}
+(and deploying the frozen selective erasers on the target, \S4.5, gives no accuracy gain either). The common thread is a gap between \textbf{localizing/measuring}
 leakage and \textbf{controlling} it: neither localization nor removal is, by itself, evidence of a
 generalization benefit. This reframes selective conditional invariance as a \textbf{certified intervention with
 refusal} --- delete only when a source-risk certificate permits, and abstain otherwise.
@@ -20,7 +20,7 @@ preventing it returns the leakage to baseline, so the apparent de-domaining was 
 
 \subsection{Why leakage removal need not improve generalization}
 The EEGNet result is the cleanest case: leakage is genuinely (if partially) removable at no task cost, yet
-mean LOSO target accuracy is flat-to-worse and uncorrelated with the amount of leakage removed. Two
+mean LOSO target accuracy is flat-to-worse and uncorrelated with the amount of leakage removed. A direct target-deployment test of the frozen erasers (\S4.5, Table~\ref{tab:target_deploy}) reaches the same conclusion: none --- including the optimal linear eraser --- improves target accuracy, and the only NLL movement is reproduced by random removal. Two
 readings are consistent with our evidence. First, conditional domain leakage $I(Z;D|Y)$ may be \textbf{only weakly
 coupled to the component of cross-subject error that matters} on this paradigm --- subject identity is
 \emph{present and decodable} without being the \emph{cause} of the transfer gap. Second, removing a linearly-decodable

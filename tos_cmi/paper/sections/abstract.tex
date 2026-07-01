@@ -19,7 +19,8 @@ removable, but neither measurement nor removal is sufficient evidence of domain-
 Strong linear concept-erasure controls confirm this is not an artifact of a weak eraser: an optimal
 closed-form eraser removes more linearly-decodable subject information than our deletion at equal task cost,
 yet leaves nonlinearly recoverable residuals. Separately, the EEGNet global-LPC sweep shows that leakage
-reduction need not yield a target gain. A capacity-controlled factorial
+reduction need not yield a target gain, and deploying every source-fitted eraser on the held-out target confirms
+this directly --- none improves target accuracy, and the only NLL movement is matched by random removal. A capacity-controlled factorial
 (three seeds) further indicates that this representation-dependence is largely mediated by latent dimension ---
 SPD and convolutional latents coincide at matched low dimension --- though a residual architecture effect
 persists at high dimension. Safe selective invariance should

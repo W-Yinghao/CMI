@@ -78,8 +78,8 @@ elimination \claimtag{C8}.
 monotonically (0.89$\to$0.17) \emph{without} collapse (the feature norm never goes to 0; Fig.~\ref{fig:eegnet}D), yet \textbf{mean} LOSO
 target accuracy is flat-to-worse (0.43$\to$0.39 across $\lambda$; paired-t worse at every $\lambda$, p$\le$0.001 at $\lambda\ge$1) and
 uncorrelated with the amount of leakage reduced (Pearson $-$0.14, n.s.). Reducing the measured leakage via the (collapse-free) global penalty does \textbf{not} improve
-cross-subject generalization on EEGNet/2a; whether the frozen \emph{selective} erasers improve the target is
-left to a deployment test (future work) \claimtag{C9}. \emph{(We report the mean LOSO accuracy, the standard DG metric; the median is $\sim$flat and would
+cross-subject generalization on EEGNet/2a; and when the frozen \emph{selective} erasers are deployed on the
+target (\S4.5, Table~\ref{tab:target_deploy}), none improves target accuracy either \claimtag{C9}. \emph{(We report the mean LOSO accuracy, the standard DG metric; the median is $\sim$flat and would
 obscure the paired decline.)}
 
 \begin{figure}[t]
@@ -113,11 +113,29 @@ coding that linear erasure cannot reach. INLP drives \emph{linear} subject decod
 task information (task $0.75\to0.55$ TSMNet, $0.64\to0.25$ EEGNet): unconstrained erasure is not task-safe.
 Crucially, these controls establish that the source-side removal result is not limited by a weak eraser; whether
 source-side removal improves \emph{target} accuracy is a separate question, which the global-LPC sweep (\S4.3)
-answers in the negative for this setting (a frozen-erasure target-deployment test is left to future work). Successful
+and a direct frozen-erasure target-deployment test (\S4.5, Table~\ref{tab:target_deploy}) both answer in the
+negative. Successful
 erasure is therefore not the right endpoint; the relevant question is whether the intervention is task-safe
 \emph{and} beneficial for source-to-target generalization~\claimtag{C9,C10}.
 
 \input{figures/table2_erasure.tex}
+
+\subsection{Deploying the erasers on the target: no accuracy gain}
+\textbf{Deployed on the held-out target, no eraser improves target accuracy --- closing the loop the
+source-side controls (Table~\ref{tab:erasure}) leave open.} For each backbone, seed, and LOSO fold we fit each
+eraser on the source only, apply it to source and target, train a linear task head on the transformed source,
+and evaluate on the transformed held-out target; the target is never used for fitting, selection, or
+calibration (Table~\ref{tab:target_deploy}; paired fold-cluster $95\%$ CIs over $3$ seeds $\times\,9$ folds).
+Across both backbones, \emph{no eraser improves target balanced accuracy}: LEACE, RLACE, and TOS-$V_D$ have
+$\Delta$bAcc CIs that overlap or fall below zero, and INLP collapses the task to chance (target bAcc
+$0.33$/$0.25$; source task destroyed, $0.75\to0.53$ / $0.64\to0.25$). The \emph{only} positive movement is a
+small NLL reduction, and it is \textbf{not subject-erasure-specific}: same-$k$ \emph{random} removal reproduces
+it (TSMNet $\Delta$NLL $-0.034$ vs LEACE $-0.031$) while leaving source subject decode essentially intact
+($0.998$) --- a generic dimensionality/regularization effect, not a domain-removal benefit \claimtag{C12}. This
+is the deployment evidence the preceding sections deferred: even an \emph{optimal} linear eraser, applied to a
+frozen target, does not convert leakage removal into a cross-subject accuracy gain.
+
+\input{figures/table3_erasure_target.tex}
 
 \subsection{Removability is dominated by latent dimension, with a residual architecture effect at high $d_z$}
 \textbf{A three-seed architecture$\times$latent-dimension factorial shows that latent \emph{dimension} is the
