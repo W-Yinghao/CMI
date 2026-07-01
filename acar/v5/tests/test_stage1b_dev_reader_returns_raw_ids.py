@@ -45,10 +45,28 @@ def test_index_rejects_namespaced_raw():
     ok("a namespaced raw id ('ds002778/sub-1') → SubjectIndexError (readers must return raw ids)")
 
 
-def test_signal_read_is_seam():
-    expect_raises((NotImplementedError, ModuleNotFoundError, ImportError),
+def test_reader_contract_requires_label_and_unwired_fails_closed():
+    from acar.v5.substrate import dev_reader_contract as DR
+
+    class _NoLabelReader:                                      # implements only 2 of the 3 required reader methods
+        def list_subjects(self, disease, cohort, path):
+            return []
+
+        def read_subject_windows(self, disease, cohort, subject, path):
+            return None
+
+    expect_raises(DR.DevReaderNotWiredError, lambda: DR.require_reader(_NoLabelReader()))   # missing read_subject_label
+    expect_raises(DR.DevReaderNotWiredError,
+                  lambda: DR.UnwiredDevReader().read_subject_label("PD", "ds002778", "sub-1", "/p"))
+    ok("require_reader mandates read_subject_label; UnwiredDevReader.read_subject_label fails closed (not AttributeError)")
+
+
+def test_signal_read_delegates_to_mne_seam_fail_closed():
+    from acar.v5.substrate import real_mne_reader as RMR
+    # read_subject_windows now delegates to real_mne_reader (Stage-1B6); with no recordings under the subject dir it fail-closes
+    expect_raises(RMR.RealMneReaderError,
                   lambda: _reader("ds002778", "/tmp/x").read_subject_windows("PD", "ds002778", "sub-1", "/tmp/x"))
-    ok("read_subject_windows is the remaining seam (raises; real mne DSP wired at the Stage-1B run)")
+    ok("read_subject_windows delegates to real_mne_reader (deterministic discovery; fail-closed on missing recordings)")
 
 
 def main():
@@ -56,7 +74,8 @@ def main():
     test_lists_raw_sub_ids()
     test_missing_or_empty_cohort_dir_rejected()
     test_index_rejects_namespaced_raw()
-    test_signal_read_is_seam()
+    test_reader_contract_requires_label_and_unwired_fails_closed()
+    test_signal_read_delegates_to_mne_seam_fail_closed()
     print("ALL V5 STAGE1B-DEV-READER-RAW-IDS GUARDS PASS")
 
 

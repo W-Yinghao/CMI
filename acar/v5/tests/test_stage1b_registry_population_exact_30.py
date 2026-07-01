@@ -5,7 +5,7 @@ from acar.v5.substrate import stage1b_build as B
 from acar.v5.substrate import stage1b_authorization as SA
 from acar.v5.substrate import stage1b_registry_populate as RP
 from acar.v5.substrate.registry import substrate_ref
-from acar.v5.tests._util import expect_raises, ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer
+from acar.v5.tests._util import expect_raises, ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer, FakeDumper
 
 FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
 
@@ -13,7 +13,7 @@ FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
 def test_build_populates_exactly_30():
     rep = B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                               stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                              dev_reader=FakeDevReader(), trainer=FakeTrainer())
+                              dev_reader=FakeDevReader(), trainer=FakeTrainer(), dumper=FakeDumper())
     assert rep["n_registered"] == 30
     reg = rep["registry"]
     for ref in SA.CANONICAL_FOLD_REFS:
@@ -27,7 +27,7 @@ def test_build_populates_exactly_30():
 def test_no_silent_overwrite():
     rep = B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                               stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                              dev_reader=FakeDevReader(), trainer=FakeTrainer())
+                              dev_reader=FakeDevReader(), trainer=FakeTrainer(), dumper=FakeDumper())
     # re-populating the SAME registry with the same refs must fail (no overwrite)
     expect_raises((ValueError, RP.Stage1bRegistryPopulateError),
                   lambda: RP.populate_registry(rep["registry"], rep["artifacts"], git_commit="0" * 40,
@@ -41,7 +41,7 @@ def test_partial_artifacts_rejected():
     from acar.v5.substrate.registry import SubstrateRegistry
     rep = B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                               stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                              dev_reader=FakeDevReader(), trainer=FakeTrainer())
+                              dev_reader=FakeDevReader(), trainer=FakeTrainer(), dumper=FakeDumper())
     partial = dict(list(rep["artifacts"].items())[:29])
     expect_raises(RP.Stage1bRegistryPopulateError,
                   lambda: RP.populate_registry(SubstrateRegistry(), partial, git_commit="0" * 40, env_lock_sha256="a" * 64,

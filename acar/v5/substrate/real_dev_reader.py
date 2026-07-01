@@ -11,6 +11,29 @@ class RealReaderError(RuntimeError):
     pass
 
 
+def _check_approved(ctx, disease, cohort, path):
+    approved = ctx.source_paths(disease)                       # raises if disease not approved
+    if approved.get(cohort) != path:
+        raise RealReaderError(f"{disease}/{cohort}: path {path!r} is not the approved source for this run")
+
+
+class WindowsOnlyReader:
+    """A label-INCAPABLE reader facade for the embedding view. It holds ONLY the execution context (which has no label capability)
+    and exposes read_subject_windows — there is no read_subject_label here and no reference to any object that has one, so even a
+    closure-introspecting embedding dumper cannot reach labels through it."""
+
+    def __init__(self, context):
+        if context is None:
+            raise RealReaderError("WindowsOnlyReader requires a gate-issued Stage1BExecutionContext")
+        self._ctx = context
+
+    def read_subject_windows(self, disease, cohort, subject, path):
+        _check_approved(self._ctx, disease, cohort, path)
+        from acar.v5.substrate import real_mne_reader as RMR   # RMR lazy-imports mne inside preprocess_subject
+        subject_dir = os.path.join(path, subject)
+        return RMR.preprocess_subject(disease, cohort, subject, subject_dir)   # SIGNAL ONLY → validated SubjectWindows
+
+
 class RealBidsDevReader:
     def __init__(self, context):
         if context is None:
@@ -18,9 +41,11 @@ class RealBidsDevReader:
         self._ctx = context
 
     def _check_approved(self, disease, cohort, path):
-        approved = self._ctx.source_paths(disease)             # raises if disease not approved
-        if approved.get(cohort) != path:
-            raise RealReaderError(f"{disease}/{cohort}: path {path!r} is not the approved source for this run")
+        _check_approved(self._ctx, disease, cohort, path)
+
+    def windows_only(self):
+        """A label-incapable facade for the embedding view (bound only to the context, not to this label-capable reader)."""
+        return WindowsOnlyReader(self._ctx)
 
     def list_subjects(self, disease, cohort, path):
         self._check_approved(disease, cohort, path)
@@ -34,12 +59,16 @@ class RealBidsDevReader:
 
     def read_subject_windows(self, disease, cohort, subject, path):
         self._check_approved(disease, cohort, path)
-        import mne  # noqa: F401  (lazy)
-        raise NotImplementedError("real signal read (mne DSP → SubjectWindows per preprocessing_config) wired at the Stage-1B run")
+        from acar.v5.substrate import real_mne_reader as RMR   # RMR lazy-imports mne inside preprocess_subject
+        subject_dir = os.path.join(path, subject)
+        return RMR.preprocess_subject(disease, cohort, subject, subject_dir)   # SIGNAL ONLY → validated SubjectWindows
 
     def read_subject_label(self, disease, cohort, subject, path):
+        # reachable ONLY via AuthorizedFitDatasetView.read_label (FIT training only); pinned mapping, fail-closed
         self._check_approved(disease, cohort, path)
-        raise NotImplementedError("real label read (FIT training only) wired at the Stage-1B run")
+        from acar.v5.substrate import stage1b_label_source as LS
+        participants_tsv = os.path.join(path, "participants.tsv")
+        return LS.resolve_subject_label(participants_tsv, subject)
 
 
 def make_real_dev_reader(context):

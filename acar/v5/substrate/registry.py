@@ -58,6 +58,11 @@ class SubstrateRegistry:
     def is_registered(self, ref):
         return ref in self._entries
 
+    def _rollback(self, refs):
+        """Remove the given refs (used by populate_registry to guarantee all-or-none on a mid-loop register failure)."""
+        for r in refs:
+            self._entries.pop(r, None)
+
     def admit_embedding(self, embedding):
         """Fail-closed admission for a Stage-2/4/5 embedding. `embedding` MUST be a mapping carrying (1) a `substrate_ref`
         registered here AND (2) a `hashes` set that EXACTLY equals the registered substrate's hash set. Missing either ⇒

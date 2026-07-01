@@ -58,6 +58,15 @@ MODULES = (
     "test_stage1b_file_writer_output_root_containment",
     "test_stage1b_file_writer_rejects_symlink_escape",
     "test_stage1b_registry_population_all_or_none",
+    "test_stage1b_subject_windows_actual_payload",
+    "test_stage1b_mne_reader_fixture_contract",
+    "test_stage1b_label_loading_fit_only",
+    "test_stage1b_train_then_label_free_dump_order",
+    "test_stage1b_embedding_dump_all_fold_subjects",
+    "test_stage1b_per_ref_output_containment",
+    "test_stage1b_global_artifact_path_uniqueness",
+    "test_stage1b_config_files_canonical",
+    "test_stage1b_finalize_barrier_before_registry",
 )
 
 

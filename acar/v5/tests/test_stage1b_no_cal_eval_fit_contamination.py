@@ -3,7 +3,7 @@ from __future__ import annotations
 from acar.v5 import splits as SPL
 from acar.v5.substrate import stage1b_build as B
 from acar.v5.substrate import stage1b_authorization as SA
-from acar.v5.tests._util import ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer, stage1b_fake_subjects, stage1b_subject_index
+from acar.v5.tests._util import ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer, FakeDumper, stage1b_fake_subjects, stage1b_subject_index
 
 FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
 
@@ -13,7 +13,7 @@ def test_no_cal_or_eval_reaches_trainer():
     trainer = FakeTrainer()
     B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                         stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                        dev_reader=FakeDevReader(subs_by), trainer=trainer)
+                        dev_reader=FakeDevReader(subs_by), trainer=trainer, dumper=FakeDumper())
     total_checked = 0
     for ref, got in trainer.received.items():
         disease = ref.split("/", 1)[0]

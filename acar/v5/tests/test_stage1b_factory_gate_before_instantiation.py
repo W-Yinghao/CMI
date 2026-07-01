@@ -3,7 +3,7 @@ constructs them (no pre-gate model init / GPU probe / BIDS scan). Synthetic only
 from __future__ import annotations
 from acar.v5.substrate import stage1b_build as B
 from acar.v5.substrate import stage1b_authorization as SA
-from acar.v5.tests._util import expect_raises, ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer
+from acar.v5.tests._util import expect_raises, ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer, FakeDumper
 
 FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
 
@@ -22,22 +22,22 @@ class RecFactory:
 
 
 def test_gate_failure_never_instantiates():
-    rf, tf = RecFactory(FakeDevReader()), RecFactory(FakeTrainer())
+    rf, tf, df = RecFactory(FakeDevReader()), RecFactory(FakeTrainer()), RecFactory(FakeDumper())
     # prefix target sha → full-build gate rejects BEFORE any factory call
     expect_raises(SA.Stage1BuildNotAuthorizedError,
                   lambda: B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha="4278435"),
                                               stage1b_lock(protocol_tag_target_sha="4278435"), execute=True,
-                                              dev_reader_factory=rf, trainer_factory=tf, output_root=OUT))
-    assert rf.calls == 0 and tf.calls == 0
-    ok("gate failure → neither factory is called (no pre-gate instantiation/import/probe)")
+                                              dev_reader_factory=rf, trainer_factory=tf, dumper_factory=df, output_root=OUT))
+    assert rf.calls == 0 and tf.calls == 0 and df.calls == 0
+    ok("gate failure → no factory is called (no pre-gate instantiation/import/probe)")
 
 
 def test_gate_pass_instantiates_once():
-    rf, tf = RecFactory(FakeDevReader()), RecFactory(FakeTrainer())
+    rf, tf, df = RecFactory(FakeDevReader()), RecFactory(FakeTrainer()), RecFactory(FakeDumper())
     rep = B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                               stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                              dev_reader_factory=rf, trainer_factory=tf, output_root=OUT)
-    assert rep["status"] == "STAGE1B_BUILT" and rf.calls == 1 and tf.calls == 1
+                              dev_reader_factory=rf, trainer_factory=tf, dumper_factory=df, output_root=OUT)
+    assert rep["status"] == "STAGE1B_BUILT" and rf.calls == 1 and tf.calls == 1 and df.calls == 1
     ok("gate pass → each factory called exactly once (instantiation happens post-gate)")
 
 
@@ -45,18 +45,19 @@ def test_factory_pairing_and_exclusivity():
     expect_raises(B.Stage1bBuildError,
                   lambda: B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                                               stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                                              dev_reader_factory=RecFactory(FakeDevReader()), output_root=OUT))   # only one factory
+                                              dev_reader_factory=RecFactory(FakeDevReader()), output_root=OUT))   # not all factories
     expect_raises(B.Stage1bBuildError,
                   lambda: B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                                               stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                                              dev_reader=FakeDevReader(), trainer=FakeTrainer(),
+                                              dev_reader=FakeDevReader(), trainer=FakeTrainer(), dumper=FakeDumper(),
                                               dev_reader_factory=RecFactory(FakeDevReader()), trainer_factory=RecFactory(FakeTrainer()),
-                                              output_root=OUT))
+                                              dumper_factory=RecFactory(FakeDumper()), output_root=OUT))
     expect_raises(B.Stage1bBuildError,                        # factory path without output_root
                   lambda: B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                                               stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                                              dev_reader_factory=RecFactory(FakeDevReader()), trainer_factory=RecFactory(FakeTrainer())))
-    ok("both factories required together; factories XOR objects; factory path requires output_root")
+                                              dev_reader_factory=RecFactory(FakeDevReader()), trainer_factory=RecFactory(FakeTrainer()),
+                                              dumper_factory=RecFactory(FakeDumper())))
+    ok("all three factories required together; factories XOR objects; factory path requires output_root")
 
 
 def main():

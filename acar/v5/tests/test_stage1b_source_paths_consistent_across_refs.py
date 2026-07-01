@@ -3,7 +3,7 @@ from __future__ import annotations
 from acar.v5.substrate import stage1b_full_build_manifest as FBM
 from acar.v5.substrate import stage1b_build as B
 from acar.v5.substrate import stage1b_authorization as SA
-from acar.v5.tests._util import expect_raises, ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer
+from acar.v5.tests._util import expect_raises, ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer, FakeDumper
 
 FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
 
@@ -34,7 +34,7 @@ def test_inconsistent_rejected_by_build_gate():
     expect_raises(FBM.Stage1bFullBuildError,
                   lambda: B.run_stage1b_build(_inconsistent_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                                               stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                                              dev_reader=FakeDevReader(), trainer=FakeTrainer()))
+                                              dev_reader=FakeDevReader(), trainer=FakeTrainer(), dumper=FakeDumper()))
     ok("inconsistent per-disease paths → rejected by the full-build gate (before any read)")
 
 

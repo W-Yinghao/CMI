@@ -4,7 +4,7 @@ from __future__ import annotations
 from acar.v5.substrate import stage1b_build as B
 from acar.v5.substrate import stage1b_authorization as SA
 from acar.v5.substrate import stage1b_artifacts as ART
-from acar.v5.tests._util import ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer
+from acar.v5.tests._util import ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer, FakeDumper
 
 FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
 
@@ -12,7 +12,7 @@ FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
 def test_build_produces_exactly_30():
     rep = B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                               stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                              dev_reader=FakeDevReader(), trainer=FakeTrainer())
+                              dev_reader=FakeDevReader(), trainer=FakeTrainer(), dumper=FakeDumper())
     assert rep["status"] == "STAGE1B_BUILT" and rep["n_artifacts"] == 30
     assert set(rep["artifacts"]) == set(SA.CANONICAL_FOLD_REFS)
     for ref, art in rep["artifacts"].items():

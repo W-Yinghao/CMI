@@ -6,7 +6,7 @@ from acar.v5.substrate import stage1b_build as B
 from acar.v5.substrate import stage1b_authorization as SA
 from acar.v5.substrate import stage1b_registry_populate as RP
 from acar.v5.substrate.registry import SubstrateRegistry
-from acar.v5.tests._util import expect_raises, ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer
+from acar.v5.tests._util import expect_raises, ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeTrainer, FakeDumper
 
 FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
 _META = dict(git_commit="0" * 40, env_lock_sha256="a" * 64, channel_montage="10-20-19", sampling_rate=128, windowing_config="4s/512")
@@ -15,7 +15,7 @@ _META = dict(git_commit="0" * 40, env_lock_sha256="a" * 64, channel_montage="10-
 def _artifacts():
     rep = B.run_stage1b_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
                               stage1b_lock(protocol_tag_target_sha=FULL), execute=True,
-                              dev_reader=FakeDevReader(), trainer=FakeTrainer())
+                              dev_reader=FakeDevReader(), trainer=FakeTrainer(), dumper=FakeDumper())
     return rep["artifacts"]
 
 

@@ -2,6 +2,7 @@
 carries NO label field. Synthetic only."""
 from __future__ import annotations
 import dataclasses
+import numpy as np
 from acar.v5.substrate import preprocessing_config as PC
 from acar.v5.substrate import subject_windows as SW
 from acar.v5.tests._util import expect_raises, ok
@@ -10,7 +11,8 @@ from acar.v5.tests._util import expect_raises, ok
 def _sw(**over):
     base = dict(subject_key="PD/ds002778/sub-001", disease="PD", cohort="ds002778", raw_subject_id="sub-001",
                 n_windows=10, n_channels=19, n_samples=512, sfreq=128, channels=PC.CHANNELS_19,
-                preprocessing_config_sha256=PC.config_sha256(), provenance="synthetic")
+                preprocessing_config_sha256=PC.config_sha256(),
+                windows=np.zeros((10, 19, 512), dtype=np.float32), provenance="synthetic")
     base.update(over)
     return SW.SubjectWindows(**base)
 

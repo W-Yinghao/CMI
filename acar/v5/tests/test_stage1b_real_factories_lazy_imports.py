@@ -8,7 +8,7 @@ import sys
 from acar.v5.tests._util import ok
 
 HEAVY = ("torch", "mne", "braindecode", "moabb", "cmi", "numpy", "scipy", "sklearn")
-MODULES = ("real_dev_reader", "real_trainer", "stage1b_file_artifact_writer")
+MODULES = ("real_dev_reader", "real_trainer", "stage1b_file_artifact_writer", "real_mne_reader", "real_eegnet_trainer")
 
 
 def _toplevel_roots(mod):
@@ -42,10 +42,16 @@ def test_import_pulls_no_heavy_modules():
 def test_lazy_imports_are_inside_methods():
     from acar.v5.substrate import real_dev_reader as RDR
     from acar.v5.substrate import real_trainer as RT
-    assert "import mne" in inspect.getsource(RDR.RealBidsDevReader.read_subject_windows)
-    assert "import torch" in inspect.getsource(RT.RealSubstrateTrainer.train_fold)
-    assert "torch" not in _toplevel_roots(RT) and "mne" not in _toplevel_roots(RDR)
-    ok("mne is lazy inside read_subject_windows; torch is lazy inside train_fold")
+    from acar.v5.substrate import real_mne_reader as RMR
+    from acar.v5.substrate import real_eegnet_trainer as RET
+    # the DSP/numeric heavy imports now live in the seam modules; the reader/trainer DELEGATE (still view-bounded)
+    assert "import mne" in inspect.getsource(RMR.preprocess_subject), "mne must be lazy inside real_mne_reader.preprocess_subject"
+    assert "import torch" in inspect.getsource(RET.TorchEegnetBackend.set_deterministic), "torch must be lazy in the backend"
+    assert "real_mne_reader" in inspect.getsource(RDR.RealBidsDevReader.read_subject_windows), "reader must delegate to real_mne_reader"
+    assert "real_eegnet_trainer" in inspect.getsource(RT.RealSubstrateTrainer.train_fold), "trainer must delegate to real_eegnet_trainer"
+    for M in (RDR, RT, RMR, RET):
+        assert not (set(HEAVY) & _toplevel_roots(M)), (M.__name__, sorted(set(HEAVY) & _toplevel_roots(M)))
+    ok("mne lazy in real_mne_reader.preprocess_subject; torch lazy in the backend; reader/trainer delegate; no top-level heavy")
 
 
 def main():

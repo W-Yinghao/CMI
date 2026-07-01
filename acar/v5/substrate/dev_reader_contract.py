@@ -7,6 +7,9 @@ accidentally read real data. A reader must expose:
                                                           "/") is rejected there, fail-closed.
     read_subject_windows(disease, cohort, subject, path)  the actual signal read — only at an authorized real run, reachable by
                                                           the trainer ONLY via AuthorizedFitDatasetView.read_windows.
+    read_subject_label(disease, cohort, subject, path)    the FIT-only label read — reachable ONLY via
+                                                          AuthorizedFitDatasetView.read_label (the label-free embedding view has
+                                                          no label path). Pinned mapping, fail-closed (stage1b_label_source).
 """
 from __future__ import annotations
 
@@ -24,11 +27,14 @@ class UnwiredDevReader:
     def read_subject_windows(self, disease, cohort, subject, path):
         raise DevReaderNotWiredError("real DEV reader not wired (Stage-1B2): cannot read windows")
 
+    def read_subject_label(self, disease, cohort, subject, path):
+        raise DevReaderNotWiredError("real DEV reader not wired (Stage-1B2): cannot read label")
+
 
 def require_reader(dev_reader):
     if dev_reader is None:
         raise DevReaderNotWiredError("Stage-1B execute requires an authorized DEV reader (none supplied)")
-    for m in ("list_subjects", "read_subject_windows"):
+    for m in ("list_subjects", "read_subject_windows", "read_subject_label"):
         if not callable(getattr(dev_reader, m, None)):
             raise DevReaderNotWiredError(f"dev_reader is missing required method {m}()")
     return dev_reader
