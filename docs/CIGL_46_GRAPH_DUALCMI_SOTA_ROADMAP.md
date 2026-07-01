@@ -109,7 +109,13 @@ a strong static / constrained-dynamic hybrid:
 | graphdualpc decoder-only | `graphdualpc:0.000:0.000:0.000:0.100` | decoder residual only |
 | graphdualpc dual | `graphdualpc:0.010:0.010:0.000:0.100` | main method |
 | CDANN-DGCNNGraph | `cdann:1` | conditional-adversarial baseline |
-| EEGNet / ShallowConvNet ERM | (non-graph backbone) | task sanity (needs braindecode env) |
+
+Pilot 1 is **graph-only** (5 configs above). EEGNet / ShallowConvNet ERM are a **sidecar** task-sanity
+baseline, run separately in a braindecode-capable env (`icml`) after their own preflight — **not** part of
+pilot 1's approval gate.
+
+Gate metric note: use `worst_target_balanced_acc` and `per_target_balanced_acc_mean` (balanced accuracy),
+**not** the raw `worst_target_acc`, from the `run_loso` summary.
 
 ### Scale-up decision gate (NOT leakage-based)
 
@@ -124,12 +130,19 @@ a strong static / constrained-dynamic hybrid:
 
 If no target improvement → change architecture/objective **before** spending big compute.
 
-### Environment (must pass preflight first)
+### Environment (graph-only preflight PASSES as of P2c, 23ae29c/992c6ed)
 
-`scripts/preflight_moabb_env.py` currently reports, in `eeg2025`: `DGCNNGraph` builds ✅; **EEGNet fails**
-(braindecode/moabb `BNCI2014001` rename + torchaudio symbol) ; BNCI2014_001 loads ✅; **BNCI2015_001 fails**
-(datalake `001-2015` permission, same as Phase-3A-K → needs the readable symlink mirror). **Both must be
-resolved (or the affected item dropped) before a GPU pilot.**
+Env: `eeg2025` (do **not** switch to `icml` for pilot 1). Export the BNCI2015 readable mirror before any run:
+
+```bash
+export MNE_DATASETS_BNCI_PATH=/projects/EEG-foundation-model/yinghao/cigl_bnci_readable
+export MNE_DATA=/projects/EEG-foundation-model/yinghao/cigl_bnci_readable
+```
+
+`python scripts/preflight_moabb_env.py --datasets BNCI2014_001 BNCI2015_001 --backbones DGCNNGraph
+--subjects 1 --no-download` → **PASS (exit 0)**: `DGCNNGraph` builds; BNCI2014_001 loads (576/22ch/4cls);
+**BNCI2015_001 loads** (400/13ch/2cls) via the mirror (`results/preflight/bnci2015_readable_mirror_README.md`).
+braindecode/EEGNet remains a WARN — **sidecar only, not a pilot-1 blocker**.
 
 ### Run-spec template (submit separately for approval)
 
