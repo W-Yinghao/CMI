@@ -21,29 +21,44 @@ bit-for-bit v2-recipe comparator recomputed on the SAME pool/substrate (as in v3
 - **G4 — conditional adapted-harm (THE new gate v4 lacked).** `UCB[harm_among_adapted_disease] ≤ 0.30` (LTT-certified upper
   bound over the ADAPTED batches only). This is what makes "adapt rarely but badly" FAIL even when G3 passes — exactly the v4
   failure mode (v4 replay: adapted-harm 0.73 PD / 1.00 SCZ behind 2–5% coverage; see `notes/ACAR_V4_CLOSEOUT.md`).
-- **G5 — benefit retention.** `red(policy) ≥ 0.25 × red(upper-envelope)` (oracle / score-union envelope) OR
-  `red(policy) ≥ red(best-fixed-action-with-abstention)`. Guards against a router that passes G2's floor but captures a trivial
-  slice of the achievable benefit.
-- **G6 — robustness (BUILT-IN, not post-hoc).** G1–G5 must ALL hold on EVERY pre-registered substrate/seed/cohort stress test
-  S1–S3 (`ACAR_V5_SPLITS.md` §Robustness). A candidate that passes on one regenerated substrate but not across S1–S3 is NOT
-  eligible. This is the gate v4 never had as a precondition.
+- **G5 — benefit retention.** `red(policy) ≥ 0.25 × red_upper` OR `red(policy) ≥ red(best-fixed-action-with-abstention)`. Guards
+  against a router that passes G2's floor but captures a trivial slice of the achievable benefit. **Exact definitions (PINNED —
+  Step 2b):** for an eval batch `B` with allowed non-identity actions `A` and `ΔR_a(B) = R_B(f_a) − R_B(f_0)`,
+  ```
+  red_upper = − mean_subject[ min( 0, min_{a∈A} ΔR_a(B) ) ]     # identity is implicitly available → harmful oracle picks clip to no-op
+  ```
+  `red_upper` is a label-based EVALUATION quantity only — never visible to any routing function. **best-fixed-action-with-abstention
+  comparator** = the best-eligible **P3-family** config under the SAME pre-registered P3 grid, SAME FIT-only threshold generation,
+  SAME subject-level gates, SAME multiple-testing correction, and NO EVAL/external-driven reselection. **If `red_upper ≤ 0`** for a
+  disease, the upper-envelope arm of G5 is declared NON-INFORMATIVE and G5 falls back to the P3 comparator; G2 remains the real
+  positive-utility gate.
+- **G6 — robustness (BUILT-IN, not post-hoc).** G6 consists of **three stress-test modules S1–S3** (`ACAR_V5_SPLITS.md`
+  §Robustness); a candidate must pass **EVERY module**. The **S1 module pass criterion** is: the selected FIXED candidate passes
+  G1–G5 on **≥ 2 of 3** pre-registered seed substrates (3/3 is reported as strong robustness but is not required). **No
+  reselection across seeds/modules** — the same candidate identity, family, operating-point rule, and tie-break must be used
+  throughout. A candidate that passes on one regenerated substrate but fails any module is NOT eligible. This is the gate v4 never
+  had as a precondition.
 
 ## 2. Statistical certification (LTT for safety/coverage; effect-size for utility)
 Per (candidate, disease) the following are tested; safety/coverage use one-sided CIs (that is what LTT is for), utility uses the
 effect-size gate G2 plus the robustness guard G6:
 ```
-H1 (G3): UCB[L_harm_all]          ≤ 0.10
-H2 (G4): UCB[harm_among_adapted]  ≤ 0.30
-H3 (G1): LCB[coverage]            ≥ 0.15
-H4 (G2): point[red − v2_replay]   ≥ 0.02   (effect size; report LCB[red − v2_replay] as supporting)
+H1 (G3): UCB[L_harm_all]          ≤ 0.10     one-sided certification (LTT/Holm)
+H2 (G4): UCB[harm_among_adapted]  ≤ 0.30     one-sided certification (LTT/Holm)
+H3 (G1): LCB[coverage]            ≥ 0.15     one-sided certification (LTT/Holm)
 ```
-- **Estimators (subject is the cluster):** subject-level empirical-Bernstein bounds for bounded losses (harm in [0,1]); or
-  subject cluster-bootstrap / permutation (sign-flip) for `red − v2_replay`. The exact estimator + α are pinned at sign-off; do
-  NOT switch estimators after seeing results. **No batch-level p-values** (v2/v3 discipline).
-- **Multiple testing:** Holm correction across (candidate × disease × hypothesis) within the pre-registered space; the LTT
-  family-wise level is pinned at sign-off (proposed α = 0.05).
-- **λ / threshold certification:** for grid families, a config is eligible only if H1–H3 hold at its operating point AND G2's
-  effect-size margin holds; the finite-grid search itself is covered by the multiple-testing correction.
+`H1–H3 are the one-sided certification hypotheses.` **H4 (G2) is NOT a p-value / LTT hypothesis** — it is the pre-registered
+**effect-size gate** `point[red − v2_replay] ≥ 0.02 NLL` (per disease + macro), with `LCB[red − v2_replay]` REPORTED as
+supporting/descriptive evidence only. This keeps utility from becoming an underpowered CI gate, and keeps a point-estimate
+effect-size gate OUT of the Holm family.
+- **Estimators (subject is the cluster):** subject-level empirical-Bernstein bounds for the bounded harm/coverage losses ([0,1])
+  in H1–H3; subject cluster-bootstrap / permutation (sign-flip) for the reported `LCB[red − v2_replay]`. The exact estimator is
+  pinned at sign-off; do NOT switch estimators after seeing results. **No batch-level p-values** (v2/v3 discipline).
+- **Multiple testing (PINNED — Step 2b):** Holm correction applies to the **one-sided certification tests H1–H3 ONLY**, across
+  (candidate × disease × {H1,H2,H3}) within the pre-registered space, at **family-wise α = 0.05**. **H4 is excluded from Holm**
+  (it is the effect-size gate, not a hypothesis test).
+- **λ / threshold certification:** for grid families, a config is eligible only if H1–H3 hold (Holm-corrected) at its operating
+  point AND G2's effect-size margin (≥ 0.02) holds; the finite-grid search is covered by the H1–H3 multiple-testing correction.
 
 ## 3. Selection objective (Stage-2)
 Among G1–G5-eligible configs, select:

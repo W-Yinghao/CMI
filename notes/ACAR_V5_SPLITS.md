@@ -49,11 +49,19 @@ sees CAL, and G1–G5 are measured on outer EVAL. Subject is the cluster everywh
 trained/selected separately (2 substrates, 2 routers). Seeds/ratios pinned at sign-off. Enforced by `test_subject_disjoint`.
 
 ## 6. Substrate-robustness stress tests S1–S3 (= G6; BUILT-IN, run BEFORE external)
-A candidate must pass G1–G5 on ALL of:
-- **S1 — seed robustness.** Same disease + cohort set, train **3 all-DEV encoders with different seeds**. The candidate must pass
-  the hard gates on **≥ 2 of 3** (3/3 preferred). Catches policies that depend on one substrate's random geometry (the v4 mode).
+G6 = the three modules S1–S3; a candidate must pass **EVERY module** with G1–G5. The **selected FIXED candidate** (identity,
+family, operating-point rule, tie-break) is used UNCHANGED across all modules — **NO reselection across seeds/cohorts/modules**
+(enforced by `test_fixed_candidate_no_reselection`). Stress-test results may NOT be used to construct or alter a policy (e.g. the
+P4 agreement rule; see `ACAR_V5_CANDIDATE_SPACE.md` §1).
+- **S1 — seed robustness.** Same disease + cohort set, train **3 all-DEV encoders with different seeds**. **S1 module pass = the
+  selected fixed candidate passes G1–G5 on ≥ 2 of 3** pre-registered seed substrates (3/3 is reported as strong robustness but is
+  not required). Catches policies that depend on one substrate's random geometry (the v4 mode).
 - **S2 — leave-one-source-cohort pseudo-external.** For each DEV source cohort, train the encoder on the OTHER source cohorts and
   evaluate the held-out cohort as a pseudo-external site. The policy must hold across cohort compositions, not just one.
+  **FIT-only rule (PINNED — Step 2b):** the selected policy family + operating-point rule are FIXED; the source-side FIT-only
+  standardization / unlabeled score-quantile thresholds may be recomputed **by the frozen algorithm on the training-side cohorts
+  only**; the held-out source cohort's LABELS are used ONLY for the final gate evaluation. **No threshold, family, score, or action
+  may be chosen using held-out source labels** (substrate-local unlabeled normalization is allowed; label-driven retuning is not).
 - **S3 — representation-family robustness.** Beyond the EEGNet substrate, evaluate a light baseline substrate (e.g.
   log-cov / Riemannian tangent or frozen spectral features). Utility need not match, but the **action-gate direction must not
   invert** (a signed score that flips sign across representation families is disqualified — directly targets the v4 `d_margin`

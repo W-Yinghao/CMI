@@ -4,9 +4,10 @@ Pre-registers the ENTIRE policy search space for V5 Stage-2 DEV selection. Compa
 `ACAR_V5_ENDPOINTS.md`, `ACAR_V5_SPLITS.md`. **No runs authorized by this draft** (see the hard no-execution clause).
 
 ## 0. Principles (the v4 corrections)
-- **Bounded, interpretable, pre-registered.** v4's 14/90 pass had selection-bias risk. V5 caps the space at **≤ 5–8 policy
-  families × a small per-family grid**, with a **hard total budget of ≤ 24 (policy, grid) configurations across BOTH diseases**
-  (proposed; pinned at sign-off). No exploratory sweep, no "найти что-нибудь красивое" then post-hoc justify.
+- **Bounded, interpretable, pre-registered (PINNED — Step 2b).** v4's 14/90 pass had selection-bias risk. V5's policy space is
+  **EXACTLY the five families P1–P5** (no P6–P8 unless a NEW dated amendment is committed BEFORE any run), with a **hard total
+  budget of ≤ 24 (family, grid, disease-routing-spec) configurations across BOTH diseases**. No exploratory sweep, no
+  "find something pretty then post-hoc justify".
 - **No single signed-score sensitivity.** v4 hinged on one signed `d_margin` direction, which flipped under substrate
   regeneration. In V5, `d_margin` (and any signed score) may CONTRIBUTE to a benefit term but may **never alone decide an action**:
   every adapt decision must additionally pass an **adaptation-violence harm veto** built from `flip_rate` + `JS(p0,pa)` (+ optionally
@@ -18,7 +19,7 @@ Pre-registers the ENTIRE policy search space for V5 Stage-2 DEV selection. Compa
 - **Label-free features (paired pre→post), pinned:** `d_entropy`, `d_margin`, `flip_rate`, `JS(p0,pa)`, `Bures`, `post_sep`,
   `n_eff`. Labels are NEVER read by any routing function (enforced by `test_no_label_in_route`).
 
-## 1. Policy families (≤ 5–8; the 5 pinned for the draft)
+## 1. Policy families (EXACTLY P1–P5 — pinned; no additions without a dated pre-run amendment)
 Each family is an **abstaining router** `π(B) ∈ {identity, matched_coral, spdim, t3a}` with a small grid of pre-registered
 thresholds. All thresholds are on FIT-standardized features (subject-balanced standardization; see `ACAR_V5_SPLITS.md`).
 
@@ -29,16 +30,23 @@ thresholds. All thresholds are on FIT-standardized features (subject-balanced st
   low (`flip_rate ≤ τ_f` AND `JS ≤ τ_j`). Same bounded grid; emphasizes "improve confidence without disruptive relabeling".
 - **P3 — Best-fixed action with abstention.** No per-batch action ranking; pick ONE pre-registered action (per disease) and execute
   it only when a single safety gate clears (`flip_rate ≤ τ_f` AND `JS ≤ τ_j`). The most conservative family; a natural lower bound.
-- **P4 — Action-agreement gate.** Adapt only when ≥ k of {multiple substrate seeds (Stage-4 S1) OR multiple benefit-score variants}
-  agree on the SAME action; abstain otherwise. Directly buys substrate robustness into the policy. Grid: `k ∈ {2-of-3, 3-of-3}`.
+- **P4 — Action-agreement gate.** Adapt only when ≥ k sources agree on the SAME action; abstain otherwise. Grid: `k ∈ {2-of-3,
+  3-of-3}`. **P4 admissibility (PINNED — Step 2b):** the "seed-agreement" variant is admissible ONLY as a FROZEN 3-substrate
+  ensemble — all three seed encoders are trained, hashed, and registered (Stage-0/1) BEFORE selection; the SAME three-substrate
+  ensemble is used for DEV selection, G6 stress, AND external execution; external inference runs all three registered encoders and
+  abstains unless the pre-registered agreement rule fires. If that ensemble is not implemented, **P4 is restricted to
+  benefit-score-variant agreement only.** Stage-4 stress-test results (S1–S3) may NOT be used to create or alter the P4 agreement
+  rule (no robustness-driven post-hoc policy construction).
 - **P5 — Conservative direct-selective gate.** A v4-style directly-LTT-calibrated selective policy, BUT with a **hard conditional
   adapted-harm cap** (G4) and a **coverage floor** (G1) baked into the calibration objective, not just `L_harm_all`. This is the
   "fix v4 in place" family — included so the failure mode is tested head-on, NOT as a favored default.
 
-## 2. Calibration knob (shared)
-Where a family uses a finite λ grid (P5, and any thresholded family expressed as a λ sweep), the grid is **pre-registered and
-small** (proposed `λ ∈ {≤ 6 values}`, pinned at sign-off). λ selection is by the Stage-3 constrained criterion + LTT/Holm
-certification (`ACAR_V5_ENDPOINTS.md`), NOT by maximizing utility alone.
+## 2. Calibration knob (shared) — PINNED (Step 2b)
+Where a family uses a finite λ / threshold grid (P5, and any thresholded family expressed as a sweep), the operating grid is
+**≤ 6 operating points per λ-based family**, and every grid point is generated from **FIT-only unlabeled score quantiles**:
+`{q50, q60, q70, q80, q85, q90}`. **No CAL/EVAL labels and no external data may define or expand the grid.** λ/threshold selection
+is by the Stage-3 constrained criterion + the LTT/Holm certification of H1–H3 (`ACAR_V5_ENDPOINTS.md`), NOT by maximizing utility
+alone.
 
 ## 3. Selection rule (Stage-2)
 Among all pre-registered (family, grid) configs that are G1–G5 **eligible** on DEV-OOF, select by the constrained objective in

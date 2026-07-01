@@ -10,6 +10,11 @@ lineage            : v2 MEASUREMENT_ONLY (9b2f0c1/1528a94) · v3 DEV_STOP (817b0
 prior on v4        : the v4 DEV #001 candidate is a NEGATIVE PRIOR ONLY (did not survive substrate regeneration); it is NOT a
                      starting point and its score family / thresholds are NOT to be reused as defaults
 authoring sub-docs : notes/ACAR_V5_CANDIDATE_SPACE.md · notes/ACAR_V5_ENDPOINTS.md · notes/ACAR_V5_SPLITS.md
+step 2b (pre-tag)  : PINNED — policy space = EXACTLY P1–P5 (no P6–P8 without a dated pre-run amendment); ≤24 total configs;
+                     λ/threshold grid = FIT-only quantiles {q50,q60,q70,q80,q85,q90}, ≤6 pts/family; LTT Holm α=0.05 over H1–H3
+                     ONLY (H4 is the ε=0.02 effect-size gate, not Holm); G5 red_upper + best-fixed-P3 comparator defined; G6 =
+                     modules S1–S3 each required, S1 pass = ≥2/3 seeds, NO reselection; P4 seed-agreement = frozen 3-substrate
+                     ensemble or excluded; S2 = FIT-only unlabeled standardization, held-out labels evaluation-only
 ```
 
 > **⛔ HARD NO-EXECUTION CLAUSE.** No V5 code scaffold, DEV run, substrate training, candidate selection, compatibility replay,
@@ -40,8 +45,9 @@ for selection.
 - **Stage 1 — external-compatible DEV substrate** (`ACAR_V5_SPLITS.md`). Per-disease all-source DEV encoder + source-state on the
   pre-registered DEV cohorts, under the FROZEN pipeline; DEV evaluation embeddings come from the SAME kind of substrate the
   external arm will use (NOT old LOSO dumps).
-- **Stage 2 — pre-registered DEV selection** (`ACAR_V5_CANDIDATE_SPACE.md`). A SMALL, pre-registered policy space (≤5–8 families,
-  bounded grid; NO open 90-config sweep). Selection target = constrained utility (Stage-3 gates), NOT a single macro-red.
+- **Stage 2 — pre-registered DEV selection** (`ACAR_V5_CANDIDATE_SPACE.md`). The pre-registered policy space is EXACTLY the five
+  families P1–P5 with ≤24 total configs (NO open sweep). Selection target = constrained utility (Stage-3 gates), NOT a single
+  macro-red.
 - **Stage 3 — endpoints / gates** (`ACAR_V5_ENDPOINTS.md`). Primary gates G1–G6, statistical certification, stop rules.
 - **Stage 4 — substrate-robustness compatibility (BUILT-IN gate, not post-hoc).** A candidate must pass G1–G5 on ALL pre-registered
   stress tests S1–S3 (`ACAR_V5_SPLITS.md` §Robustness) = G6. Fail ⇒ STOP; do NOT proceed to external.
