@@ -99,6 +99,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     prior_fn = {"empirical": empirical_priors, "effective": effective_priors, "subject": subject_priors}[prior_mode]
     priors = prior_fn(ytr, dtr, n_dom, n_cls, alpha=prior_alpha)
     post = DomainPosteriors(backbone.z_dim, n_dom, n_cls, priors, device=device)
+    post_dec = post   # decoder-residual head (q(Y|Z)/h(Y|Z,D)/h0); ALIASES `post` unless a distinct
+    #                   fused_z backbone splits it below (P3-C) — keeps DGCNNGraph behavior byte-for-byte.
 
     uses_cmi = method in CMI_METHODS
     uses_supcon = method in SUPCON_METHODS
@@ -128,6 +130,14 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         node_post = NodePosterior(getattr(backbone, "node_z_dim", backbone.z_dim), n_dom, n_cls, priors,
                                   n_chans=int(Xtr.shape[1])).to(device)   # q(D|Z_v,e_v,Y): node-id-conditioned
         edge_post = EdgePosterior(int(Xtr.shape[1]), n_dom, n_cls, priors).to(device)
+        # P3-C: decoder residual acts on the representation the CLASSIFIER reads (fused_z). For DGCNNGraph
+        # z_dec == graph_z, so `post` already hosts the decoder probes (post_dec := post, exact CIGL_46
+        # behavior). A backbone declaring a DISTINCT fused_z (meta['distinct_fused_z']) gets its OWN
+        # DomainPosteriors on the fused_z dim, with INDEPENDENT params — encoder graph-CMI (on graph_z)
+        # and decoder residual (on fused_z) then never share heads.
+        if uses_graphdualpc and bool(getattr(backbone, "meta", {}).get("distinct_fused_z", False)):
+            fused_dim = int(getattr(backbone, "fused_z_dim", backbone.z_dim))
+            post_dec = DomainPosteriors(fused_dim, n_dom, n_cls, priors, device=device)
     is_iib = method == "iib"
     is_dual = method == "dual"                   # joint encoder I(Z;D|Y) + decoder I(Y;D|Z) invariance
     is_dualc = method == "dualc"                  # Route C: GLS-reweighted, RESIDUAL (intercept) decoder, gated
@@ -180,6 +190,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     post_params = list(post.parameters())
     if uses_graph:
         post_params += list(node_post.parameters()) + list(edge_post.parameters())
+    if post_dec is not post:                         # separate decoder head -> optimize its params too
+        post_params += list(post_dec.parameters())
     opt_post = torch.optim.Adam(post_params, lr=post_lr)
     gdro_q = torch.ones(n_dom, device=device) / n_dom   # GroupDRO domain weights
 
@@ -211,6 +223,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 stepA_graph_total=0, stepA_node_total=0, stepA_edge_total=0,
                 stepA_graph_loss=[], stepA_node_loss=[], stepA_edge_loss=[])
     backbone.train(); post.train()
+    if post_dec is not post:
+        post_dec.train()
     for ep in range(epochs):
         lam_t = lam * min(1.0, ep / max(1, warmup))
         gamma_t = gamma * min(1.0, ep / max(1, warmup))   # decoder-term warmup (dual)
@@ -301,25 +315,29 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 lambda_g, lambda_node, lambda_edge_w, gamma_dec = lam, beta, lam_edge, gamma
                 with torch.no_grad():                     # Step A: fit posteriors + decoder probes on detached features
                     _og = backbone.forward_graph(xb)
-                    # Fail closed on a DISTINCT fused_z: `post` currently hosts BOTH q(D|Z_g,Y) and the decoder
-                    # probes, which is only valid while z_dec == graph_z. A future backbone returning a separate
-                    # fused_z must use separate decoder heads (post_dec) -> do not silently optimize the wrong z.
-                    if len(_og) == 5 and _og[4] is not None and _og[4] is not _og[1]:
+                    # Fail closed on an UNDECLARED distinct fused_z: a separate post_dec is only allocated when
+                    # the backbone declares meta['distinct_fused_z']. If a backbone returns a distinct fused_z
+                    # WITHOUT declaring it, post_dec still aliases `post` (sized for graph_z) -> refuse rather
+                    # than silently fit the decoder probes on the wrong Z (see docs/CIGL_47 P3-C).
+                    if len(_og) == 5 and _og[4] is not None and _og[4] is not _og[1] and post_dec is post:
                         raise NotImplementedError(
-                            "graphdualpc with a distinct fused_z requires separate post_dec decoder heads; "
-                            "the shared `post` only supports z_dec == graph_z (see docs/CIGL_46).")
+                            "graphdualpc got a distinct fused_z but no separate decoder head was allocated; "
+                            "the backbone must declare meta['distinct_fused_z']=True and expose fused_z_dim "
+                            "so post_dec is sized on the fused_z dim (see docs/CIGL_47).")
                     _, gz_d, nz_d, el_d, zdec_d = _unpack_graph(_og)
                 has_edge = el_d is not None                # static-adjacency (DGCNN adapter) -> edge_logits=None
                 if lambda_edge_w != 0 and not has_edge:    # fail closed: no edge term without a per-sample edge object
                     raise ValueError("method='graphdualpc' with lambda_edge!=0 needs per-sample edge_logits; "
                                      "this backbone yields edge_logits=None (static/shared adjacency).")
                 for _ in range(n_inner):
-                    # NOTE: for DGCNNGraph, z_dec == graph_z, so `post` hosts BOTH q(D|Z_g,Y) and the decoder
-                    # probes q(Y|Z)/h(Y|Z,D)/h0. When a future backbone exposes a distinct fused_z, split into a
-                    # separate DomainPosteriors for the decoder side (see docs/CIGL_46).
-                    la = (post.posterior_loss(gz_d, yb, db, weight=wb)      # q(D|Z_g,Y)      [GLS]
-                          + post.iib_ce_h(zdec_d, yb, db, weight=wb)        # h(Y|Z,D) probe  [GLS]
-                          + node_post.step_a_loss(nz_d, yb, db, weight=wb)) # q(D|Z_v,e_v,Y)  [GLS]
+                    # Encoder head fits q(D|Z_g,Y) on graph_z; decoder head (post_dec) fits its q(Y|Z)/h0
+                    # (posterior_loss) and h(Y|Z,D) (iib_ce_h) on fused_z. When post_dec IS post (DGCNNGraph,
+                    # z_dec == graph_z), the extra posterior_loss is skipped -> byte-identical to CIGL_46.
+                    la = post.posterior_loss(gz_d, yb, db, weight=wb)       # q(D|Z_g,Y)      [GLS] (encoder)
+                    if post_dec is not post:
+                        la = la + post_dec.posterior_loss(zdec_d, yb, db, weight=wb)  # q(Y|fused),h0 [GLS] (decoder)
+                    la = (la + post_dec.iib_ce_h(zdec_d, yb, db, weight=wb)  # h(Y|Z,D) probe  [GLS] (decoder)
+                          + node_post.step_a_loss(nz_d, yb, db, weight=wb))  # q(D|Z_v,e_v,Y)  [GLS]
                     if has_edge:
                         la = la + edge_post.step_a_loss(el_d, yb, db, weight=wb)
                     opt_post.zero_grad(); la.backward(); opt_post.step()
@@ -332,8 +350,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 r_graph = post.reg("lpc_prior", gz, yb, weight=wb, reference="marginal")     # lambda_g   : I~(Z_g;D|Y)
                 r_node = node_post.reg(nz, yb, weight=wb, reference="marginal")              # lambda_node: (1/C) Σ_v I~(Z_v;D|Y)
                 r_edge = edge_post.reg(el, yb, weight=wb, reference="marginal") if has_edge else None  # lambda_edge: I~(A;D|Y)
-                r_dec_js = post.dec_js_residual(zdec, db, weight=wb)       # gamma_dec  : decoder residual JS (training loss)
-                r_dec_ce = post.dec_cmi_residual(zdec, yb, db, weight=wb)  # decoder residual CE (diagnostic only)
+                r_dec_js = post_dec.dec_js_residual(zdec, db, weight=wb)       # gamma_dec  : decoder residual JS (training loss) [on fused_z]
+                r_dec_ce = post_dec.dec_cmi_residual(zdec, yb, db, weight=wb)  # decoder residual CE (diagnostic only) [on fused_z]
                 loss = ce + lambda_g * warm * r_graph + lambda_node * warm * r_node
                 if r_edge is not None:
                     loss = loss + lambda_edge_w * warm * r_edge
