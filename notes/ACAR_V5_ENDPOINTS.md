@@ -73,9 +73,18 @@ effect-size gate OUT of the Holm family.
   It is reported/descriptive only (never a pass/fail gate); it must NOT be switched or re-chosen after seeing results, and the
   Step-3 synthetic scaffold may define its interface but may not select bootstrap-vs-permutation from real results. **No
   batch-level p-values** (v2/v3 discipline).
-- **Multiple testing (PINNED — Step 2b):** Holm correction applies to the **one-sided certification tests H1–H3 ONLY**, across
-  (candidate × disease × {H1,H2,H3}) within the pre-registered space, at **family-wise α = 0.05**. **H4 is excluded from Holm**
-  (it is the effect-size gate, not a hypothesis test).
+- **Multiple testing — Stage-2 selection (PINNED — Step 2b):** Holm correction applies to the **one-sided certification tests
+  H1–H3 ONLY**, across (candidate × disease × {H1,H2,H3}) within the pre-registered 22-config space, at **family-wise α = 0.05**.
+  **H4 is excluded from Holm** (it is the effect-size gate, not a hypothesis test).
+- **Multiple testing — Stage-4 / G6 robustness (PINNED — Step 2e):** the SAME H1–H3 empirical-Bernstein estimator; candidate
+  multiplicity is GONE (the single `candidate_id` is fixed). Holm is applied WITHIN each module at **α = 0.05** over these families
+  (H4/G2 excluded, as in Stage-2):
+  ```
+  S1 Holm family:  seed × disease × {H1,H2,H3}
+  S2 Holm family:  held-out-source-cohort instance × disease × {H1,H2,H3}
+  S3 Holm family:  disease × {H1,H2,H3}
+  ```
+  (This fixes whether robustness CIs are corrected per-seed, per-module, or globally: per-module.)
 - **λ / threshold certification:** for grid families, a config is eligible only if H1–H3 hold (Holm-corrected) at its operating
   point AND G2's effect-size margin (≥ 0.02) holds; the finite-grid search is covered by the H1–H3 multiple-testing correction.
 

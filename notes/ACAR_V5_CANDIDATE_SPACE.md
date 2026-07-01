@@ -79,6 +79,35 @@ P5 (conservative direct-selective; G4+G1 baked into CAL):  adapt a* iff d_margin
 Any change to this table (add/remove/retune a row, add the P4 seed-ensemble variant, add a family) is a NEW dated pre-run
 amendment committed BEFORE any DEV run — never a post-hoc edit.
 
+## 1.7 Action-record scalarization & quantile universe (PINNED — Step 2e; makes the 22 rows bit-executable)
+```
+Allowed non-identity actions:  A = {matched_coral, spdim, t3a}
+Action tie-break order:        matched_coral ≺ spdim ≺ t3a   (used for EVERY argmax / argmin / agreement tie)
+
+Per disease × fold × substrate × candidate_id, for every FIT batch B and every a ∈ A compute the action-indexed label-free
+features: d_entropy_a(B), d_margin_a(B), flip_rate_a(B), JS_a(B), Bures_a(B), post_sep_a(B), n_eff_a(B).
+
+Candidate proposed action a*(B):
+  P1: a*(B) = argmax_a d_margin_a(B)                          (tie → action order)
+  P2: a*(B) = argmax_a d_margin_a(B)                          (tie → action order)
+      "best-confidence" ≡ EXACTLY this benefit-ranked action PLUS the extra veto d_entropy_{a*} ≤ 0
+      (NO post-margin / min-entropy alternative selector is allowed)
+  P3: a*(B) = the fixed action named by the candidate row
+  P4: margin-best = argmax_a d_margin_a(B); post_sep-best = argmax_a post_sep_a(B); JS-min = argmin_a JS_a(B) (ties → action
+      order). If the k-of-3 agreement rule yields no agreed action, B has NO proposed-action record.
+  P5: a*(B) = argmax_a d_margin_a(B)                          (tie → action order)
+
+Harm veto at level v (all families):  flip_rate_{a*}(B) ≤ Qv[flip_rate]  AND  JS_{a*}(B) ≤ Qv[JS]
+
+FIT-only quantiles Qτ[x] (τ ∈ {q50,q60,q70,q80,q85,q90}):
+  computed over THIS candidate_id's FIT proposed-action records ONLY, using the scalar x_{a*}(B) actually used by the rule
+  (e.g. Qb[d_margin] over {d_margin_{a*}(B)}; Qv[flip_rate] over {flip_rate_{a*}(B)}; Qv[JS] over {JS_{a*}(B)};
+  P5's Qλ[d_margin] over {d_margin_{a*}(B)}). NO CAL/EVAL/external record may contribute.
+  If a candidate_id has ZERO FIT proposed-action records, it is NON-EVALUABLE and FAILS.
+
+At evaluation: thresholds are FIXED from FIT; the SAME scalarization + a*(B) rule is applied unchanged to CAL/EVAL/S1/S2/S3/external.
+```
+
 ## 2. Calibration knob (shared) — PINNED (Step 2b)
 Where a family uses a finite λ / threshold grid (P5, and any thresholded family expressed as a sweep), the operating grid is
 **≤ 6 operating points per λ-based family**, and every grid point is generated from **FIT-only unlabeled score quantiles**:

@@ -25,7 +25,14 @@ step 2d (pre-tag)  : PINNED — substrate FOLD-CONTAINED for Stage-2 ("all-sourc
                      Stage-2 selection seed=20260711 (12/13 = S1 only); candidate identity selected JOINTLY across diseases (one
                      candidate_id both diseases; per-disease FIT quantiles only); S3 = STRICT hard module on a frozen spectral-z
                      baseline (exact bands/PCA-16/logreg) requiring G1–G5 + the G2 margin; reported LCB[red−v2] = subject-cluster
-                     bootstrap 10k / one-sided 95% / seed 20260714 (non-gating, not in Holm). NO remaining pre-tag free parameters.
+                     bootstrap 10k / one-sided 95% / seed 20260714 (non-gating, not in Holm).
+step 2e (pre-tag)  : PINNED — action-record scalarization (CANDIDATE_SPACE §1.7): action tie-break matched_coral≺spdim≺t3a;
+                     P1/P2/P5 a*=argmax d_margin, P2 best-confidence ≡ that + d_entropy_{a*}≤0 (no alt selector), P4
+                     margin-best/post_sep-best/JS-min; Qτ over candidate FIT proposed-action a* records only; zero FIT records →
+                     non-evaluable/fail. S1 = fold-contained K=5 OOF PER seed ("all-DEV"=all cohorts, not all subjects; final
+                     external substrate not in G6); S2 pass = every leave-one-cohort instance; S3 = same fold-contained OOF.
+                     Stage-4/G6 Holm PER module (S1: seed×disease×{H1-3}; S2: instance×disease×{H1-3}; S3: disease×{H1-3}; α=0.05).
+                     NO remaining pre-tag free parameters.
 ```
 
 > **⛔ HARD NO-EXECUTION CLAUSE.** No V5 code scaffold, DEV run, substrate training, candidate selection, compatibility replay,
