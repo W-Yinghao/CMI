@@ -93,7 +93,7 @@ def aggregate_loso(fold_results, *, subjects=SUBJECTS, protocol_family=None, pro
                    "delta_target_ece": _q(dece, "d"), "n_ece_improved": sum(1 for x in dece if x < 0)})
     return {"n_folds": len(folds), "targets": targets,
             "protocol_family": next(iter(fams)), "provenance_hash": next(iter(provs)),
-            "per_fold_context_hashes": {int(f["target"]): f.get("context_hash") for f in folds},
+            "per_fold_context_hashes": {f"target-{int(f['target']):03d}": f.get("context_hash") for f in folds},
             "all_deep_verified": True, "all_target_fit_empty": True, "levels": levels,
             "k1_descriptive": k1, "k2_descriptive": k2, "per_fold": folds}
 

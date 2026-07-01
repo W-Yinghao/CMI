@@ -320,6 +320,17 @@ def test_aggregation_is_order_invariant():
     assert a["k2_descriptive"] == b["k2_descriptive"]
 
 
+def test_aggregate_output_is_canonical_json_serializable():
+    # The runner writes the aggregate via canonical_json (str keys only). CI never serialized it, so an
+    # int-keyed dict (per_fold_context_hashes) slipped through and crashed the report writer. Lock it.
+    import json
+    from oaci.artifacts.canonical_json import canonical_json_bytes
+    b = canonical_json_bytes(aggregate_loso(_nine()))
+    round_trip = json.loads(b.decode())
+    assert sorted(round_trip["per_fold_context_hashes"]) == [f"target-{t:03d}" for t in range(1, 10)]
+    assert all(isinstance(k, str) for k in round_trip["per_fold_context_hashes"])
+
+
 def test_render_report_md_contains_k1_k2_and_identity():
     md = render_report_md(aggregate_loso(_nine()))
     assert "# C6" in md and "## k1" in md and "## k2" in md
