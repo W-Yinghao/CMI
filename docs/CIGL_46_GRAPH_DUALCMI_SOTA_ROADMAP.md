@@ -158,3 +158,35 @@ Expected walltime / V100-hours:
 Artifacts (per-fold JSON + aggregate):
 Decision gate / abort criteria:
 ```
+
+---
+
+## 8. Pilot-1 result (G0/G1/G2, 2026-07-01) — static DGCNNGraph FAILS the SOTA gate → pivot
+
+Ran `erm / graphcmi / graphdualpc-decoder-only / graphdualpc-dual / cdann` on `DGCNNGraph`,
+BNCI2014_001 folds {0,1} + BNCI2015_001 folds {0,9}, seeds {0,1,2}, 300 ep. **8/8 G2 jobs `rc=0`,
+0 NaN/inf, MNE private-HOME held (0 stale-handle), graph branch load-bearing (zero_graph→chance).**
+Full evidence: `results/graphdualcmi_pilot/G2_SUMMARY.md` + `G2_AGGREGATE.csv`.
+
+| dataset | ERM mean | dual Δ vs ERM | decoder-only Δ | graphcmi Δ | source bAcc |
+|---|---|---|---|---|---|
+| BNCI2014_001 (chance .25) | 0.349 | **−0.020** | −0.008 | −0.018 | 1.000 (overfit) |
+| BNCI2015_001 (chance .50) | 0.594 | **−0.024** | −0.014 | +0.011 | 1.000 (overfit) |
+
+**Decision (PI-precommitted rules): Rule B + Rule D fire.**
+- **Rule B** — the seed-0 BNCI2015 dual +2.9pp gain did **not** survive seeds 0/1/2 (now −2.4pp); it was
+  seed noise → stop the static-DGCNN SOTA track.
+- **Rule D** — BNCI2014 all near-chance with source bAcc = 1.000 (cross-subject transfer failure,
+  method-independent) → static `DGCNNGraph` retained as **diagnostic backbone only**.
+- Rule A (scale-up) and Rule C (decoder-only salvage) do **not** trigger.
+
+**Caveat (not a falsification of dual-CMI):** the decoder residual was **dormant**
+(`dec_js_res ≈ 3e-4`, `dec_ce_res ≈ 0`; `[JS−τ]_+` never fired at `γdec=0.1`), so `I(Y;D|Z)` was never
+actually exercised. Encoder GLS terms *were* active and mildly hurt. `source bAcc = 1.000` flags missing
+source-domain validation.
+
+**Main line → FB-LGG-DualCMI** (`docs/CIGL_47_FB_LGG_DUALCMI_ROADMAP.md`): stronger filterbank-temporal
++ local–global graph backbone, **active** decoder residual (`dec_scale`), split encoder/decoder
+posterior heads, and source-only early stopping — all **non-GPU** first; GPU frozen until a fresh
+run-spec is approved. CIGL v0.6 bounded-audit contribution is unaffected; CIGL_45 hardening remains a
+fallback.

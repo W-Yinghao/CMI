@@ -32,6 +32,14 @@ results/cigl/phase3a_dgcnn_gn_multifold_confirmation/*.json
 results/cigl/phase3a_dgcnn_gn_second_dataset_confirmation/*.json
 # Phase 4A generated paper tables (regenerable from tracked docs/JSON; keep gitignored unless approved)
 results/cigl/paper_tables/
+# CIGL_46 Graph-DualCMI G2 pilot: commit only the reviewable evidence
+#   (*.json per-run summaries + G2_SUMMARY.md + G2_AGGREGATE.csv).
+# Prediction sidecars / checkpoints / slurm logs are excluded (also covered globally above);
+# re-stated here dir-scoped for reviewer clarity (PI gate 2026-07-01).
+results/graphdualcmi_pilot/*.preds.npz
+results/graphdualcmi_pilot/*.ckpt
+results/graphdualcmi_pilot/*.pt
+results/graphdualcmi_pilot/*.out
 
 # python caches
 __pycache__/

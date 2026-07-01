@@ -1,0 +1,11 @@
+dataset,config,name,chance,n_cells,mean_target_bacc,worst_target_balanced_acc,source_bacc,delta_vs_erm,worst_delta_vs_erm
+BNCI2014_001,erm:0,ERM,0.25,6,0.3492,0.2708,1.0,0.0,0.0
+BNCI2014_001,graphcmi:0.010:0.010:0.000,graphcmi,0.25,6,0.331,0.2847,1.0,-0.0182,0.0139
+BNCI2014_001,graphdualpc:0.000:0.000:0.000:0.100,graphdualpc_decoder_only,0.25,6,0.3411,0.2778,1.0,-0.0081,0.0069
+BNCI2014_001,graphdualpc:0.010:0.010:0.000:0.100,graphdualpc_dual,0.25,6,0.329,0.2587,1.0,-0.0203,-0.0122
+BNCI2014_001,cdann:1,cdann,0.25,6,0.3374,0.25,0.7477,-0.0119,-0.0208
+BNCI2015_001,erm:0,ERM,0.5,6,0.5935,0.5383,1.0,0.0,0.0
+BNCI2015_001,graphcmi:0.010:0.010:0.000,graphcmi,0.5,6,0.6044,0.5317,1.0,0.011,-0.0067
+BNCI2015_001,graphdualpc:0.000:0.000:0.000:0.100,graphdualpc_decoder_only,0.5,6,0.5796,0.5433,1.0,-0.0139,0.005
+BNCI2015_001,graphdualpc:0.010:0.010:0.000:0.100,graphdualpc_dual,0.5,6,0.5699,0.5283,1.0,-0.0236,-0.01
+BNCI2015_001,cdann:1,cdann,0.5,6,0.5406,0.475,0.6853,-0.0529,-0.0633
