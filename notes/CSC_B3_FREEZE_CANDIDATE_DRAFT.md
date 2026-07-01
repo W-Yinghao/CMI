@@ -63,8 +63,12 @@ lock + scenario_configs + seed spec + criteria + code hashes); the DRY-RUN valid
 
 ```
 seed block            = a SINGLE new unseen block, fixed in the manifest, DISJOINT from A's confirmatory
-                        block (900000) AND every B dev seed {0.., 1000, 2000, 3000, 4000, 700000} AND all
-                        smoke/test seeds (<100000)  =>  confirmatory base_seed = 1200000
+                        SOURCE (900000..900065) AND TARGET (1800000..1800065) streams, every B dev seed
+                        {0.., 1000, 2000, 3000, 4000, 700000}, and all smoke/test seeds (<100000).
+                        => base_seed = 3000000, cell_stride = 100000 (> target_offset 10000 + 48 reps, so a
+                        cell's make_paired_target RNG seed = cluster_seed + 10000 never collides with another
+                        cell's geom seed), seed_target_offset = 10000 ; cluster range [3000000, 14100047];
+                        verify_seed_schedule checks BOTH cluster seeds AND their target-offset partners.
 clusters/cell         = 48 (controls) ; 48 (primary positives)
 controls              = clean, paired_covariate, paired_label, random_label,
                         paired_covariate_plus_label, missing_pair, unequal_epochs_extreme
@@ -74,6 +78,12 @@ primary positives     = paired_concept, paired_concept_plus_cov   (4 strong scen
 secondary (reported)  = paired_pure_conditional (all scenarios; NOT gating)
 decision              = ONE pre-registered CONJUNCTION verdict (no best-of-seed, no re-run)
 runner                = fail-closed, frozen-code-hash guard, provenance-verified (A-line pattern)
+result payload        = machine-readable provenance stamped in the artifact: code_provenance {git_head,
+                        expected_code_ref, expected_code_commit, git_status_clean}, seed_schedule
+                        {base_seed, cell_stride, replicates, seed_target_offset, n_cells, n_clusters,
+                        seed_range, disjointness_checked}, slurm {job_id, hostname}. The sbatch freshness
+                        check re-verifies manifest_hash, base_seed==3000000, git_head==tag commit, clean
+                        tree, and disjointness before accepting the artifact.
 ```
 
 ### PASS criteria (CONJUNCTION — all must hold on the unseen block)

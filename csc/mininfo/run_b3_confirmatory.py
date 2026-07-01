@@ -95,23 +95,35 @@ def generate_seed_schedule(fp):
     return sched
 
 
-def verify_seed_schedule(fp):
-    """Every seed unique AND disjoint from A confirmatory + B dev + smoke/test ranges."""
-    sched = generate_seed_schedule(fp)
-    all_seeds = [s for c in sched for s in c["seeds"]]
-    errs = []
-    if len(all_seeds) != len(set(all_seeds)):
-        errs.append("duplicate seeds in schedule")
-    ex = fp["seed_spec"]["development_seed_exclusion"]
+def _forbidden(ex, stride, reps):
+    """Excluded seed integers: smoke/test (<100000), A confirmatory SOURCE + TARGET streams, B dev blocks."""
     forbidden = set(range(0, 100000))                      # smoke/test
-    forbidden |= set(range(ex["A_confirmatory"], ex["A_confirmatory"] + 1000))
-    reps = fp["seed_spec"]["replicates"]; stride = fp["seed_spec"]["cell_stride"]
-    for b in ex["B_development"]:
-        forbidden |= set(range(b, b + max(stride, reps)))
-    hit = set(all_seeds) & forbidden
+    for key in ("A_confirmatory_source_seeds", "A_confirmatory_target_seeds"):
+        if key in ex:
+            lo, hi = ex[key]
+            forbidden |= set(range(lo, hi + 1))
+    pad = max(stride, reps, 100)
+    for b in ex.get("B_development_blocks", []):
+        forbidden |= set(range(b, b + pad))
+    return forbidden
+
+
+def verify_seed_schedule(fp):
+    """ALL RNG seeds actually used (cluster seeds AND their target-offset partners) must be unique AND
+    disjoint from smoke/test, A confirmatory SOURCE + TARGET streams, and every B development block."""
+    ss = fp["seed_spec"]; sched = generate_seed_schedule(fp)
+    off = ss.get("seed_target_offset", 0)
+    cluster = [s for c in sched for s in c["seeds"]]
+    used = list(cluster)
+    if off:
+        used += [s + off for s in cluster]                # make_paired_target RNG seeds too
+    errs = []
+    if len(used) != len(set(used)):
+        errs.append("duplicate seeds (cluster or target-offset collision)")
+    hit = sorted(set(used) & _forbidden(ss["development_seed_exclusion"], ss["cell_stride"], ss["replicates"]))
     if hit:
-        errs.append(f"seed overlap with excluded ranges: {sorted(hit)[:5]}...")
-    return errs, len(all_seeds), (min(all_seeds), max(all_seeds))
+        errs.append(f"seed overlap with excluded ranges: {hit[:5]}...")
+    return errs, len(cluster), (min(cluster), max(cluster))
 
 
 # ----------------------------------------------------------------------------- git provenance (execute)
@@ -144,6 +156,7 @@ def run_grid(fp, n_jobs=1):
     from .paired_calibrated import certify_paired_calibrated
     from .paired_certifier import CONCEPT_CONFIRMED
     ml = fp["method_lock"]; cfgs = fp["scenario_configs"]; sched = generate_seed_schedule(fp)
+    off = fp["seed_spec"].get("seed_target_offset", 10_000)   # geom uses `seed`; target uses `seed+off`
 
     def one(phase, kind, scen, m, seed):
         sc = cfgs[scen]
@@ -152,7 +165,7 @@ def run_grid(fp, n_jobs=1):
                         epochs_max=sc.get("cfg_epochs_max", SimConfig.epochs_max))
         geom = make_geom(cfg, np.random.default_rng(seed))
         Z, Y, D, G, truth = make_paired_target(kind, geom, cfg, n_subjects=ml["n_subjects"],
-                                               seed=10_000 + seed, cov_scale=sc.get("cov_scale", 10.0),
+                                               seed=off + seed, cov_scale=sc.get("cov_scale", 10.0),
                                                base_prior=sc.get("base_prior"),
                                                label_noise=sc.get("label_noise", 0.0))
         log = certify_paired_calibrated(Z, Y, D, G, m=m, min_confirm_pairs=ml["min_confirm_pairs"],
@@ -272,9 +285,24 @@ def execute(path=MANIFEST, n_jobs=1, out=None, require_git=True, quiet=True):
     print(f"[b3-confirmatory EXECUTE] provenance clean; running frozen grid ({len(_cells(fp))} cells)...")
     records = run_grid(fp, n_jobs=n_jobs)
     verdict = evaluate_criteria(records, fp)
+    # machine-readable provenance stamped into the artifact
+    ref = mani.get("expected_code_ref") or fp.get("expected_code_ref")
+    tagc = _git("rev-parse", f"{ref}^{{commit}}")
+    serr, nseed, srange = verify_seed_schedule(fp)
+    code_provenance = dict(git_head=_git("rev-parse", "HEAD").stdout.strip(), expected_code_ref=ref,
+                           expected_code_commit=(tagc.stdout.strip() if tagc.returncode == 0 else None),
+                           git_status_clean=bool(_git("status", "--porcelain").stdout.strip() == ""))
+    seed_schedule = dict(base_seed=fp["seed_spec"]["base_seed"], cell_stride=fp["seed_spec"]["cell_stride"],
+                         replicates=fp["seed_spec"]["replicates"],
+                         seed_target_offset=fp["seed_spec"].get("seed_target_offset", 10000),
+                         n_cells=len(_cells(fp)), n_clusters=nseed, seed_range=list(srange),
+                         disjointness_checked=(not serr))
     payload = dict(protocol=fp["protocol"], version=fp["version"], manifest_hash=mani["manifest_hash"],
                    calibration_version=fp["calibration_version"], base_seed=fp["seed_spec"]["base_seed"],
-                   n_clusters=len(records), verdict=verdict, per_cluster=records,
+                   n_clusters=len(records), code_provenance=code_provenance, seed_schedule=seed_schedule,
+                   slurm=dict(job_id=os.environ.get("SLURM_JOB_ID"),
+                              hostname=os.environ.get("SLURMD_NODENAME") or os.environ.get("HOSTNAME")),
+                   verdict=verdict, per_cluster=records,
                    note="preliminary verdict EXCLUDES C6 (independent red-team required); synthetic only; NO real EEG")
     if out:
         os.makedirs(os.path.dirname(out), exist_ok=True)

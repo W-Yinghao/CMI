@@ -38,16 +38,33 @@ def test_scenarios_match_code():
 
 
 def test_seed_schedule_complete_and_disjoint():
-    fp = R.load_manifest()["frozen_payload"]
+    fp = R.load_manifest()["frozen_payload"]; ss = fp["seed_spec"]
     sched = R.generate_seed_schedule(fp)
-    all_seeds = [s for c in sched for s in c["seeds"]]
-    assert fp["seed_spec"]["base_seed"] == 1200000
-    assert len(all_seeds) == len(set(all_seeds)), "seeds must be unique"
-    assert len(sched) == 112 and len(all_seeds) == 5376, (len(sched), len(all_seeds))
-    assert min(all_seeds) >= 1_000_000, "confirmatory seeds must be a fresh high block"
-    errs, _, _ = R.verify_seed_schedule(fp)
+    cluster = [s for c in sched for s in c["seeds"]]
+    off = ss.get("seed_target_offset", 0)
+    used = set(cluster) | {s + off for s in cluster}          # cluster AND target-offset RNG seeds
+    assert ss["base_seed"] == 3000000, ss["base_seed"]
+    assert len(sched) == 112 and len(cluster) == 5376, (len(sched), len(cluster))
+    assert len(used) == 2 * len(cluster), "cluster and target seeds must not collide (stride > offset+reps)"
+    assert min(cluster) >= 1_000_000
+    errs, _, rng = R.verify_seed_schedule(fp)
     assert not errs, errs
-    print(f"OK seed schedule complete ({len(sched)} cells x 48 = {len(all_seeds)}) + disjoint from A/B/test")
+    # explicit A-line stream disjointness (source 900000..65 AND target 1800000..65)
+    assert not (used & set(range(900000, 900066))), "must not reuse A source seeds"
+    assert not (used & set(range(1800000, 1800066))), "must not reuse A target seeds"
+    print(f"OK seed schedule complete ({len(cluster)} cluster + {len(cluster)} target seeds) "
+          f"range {rng}, disjoint from A source+target / B dev / test")
+
+
+def test_a_target_stream_excluded():
+    fp = R.load_manifest()["frozen_payload"]
+    forb = R._forbidden(fp["seed_spec"]["development_seed_exclusion"], 100000, 48)
+    assert 900000 in forb and 1800000 in forb, "A source AND target streams must be excluded"
+    # a base that lands a cell on the A target stream must be caught (the 1200000/stride-10000 bug)
+    import copy
+    m = copy.deepcopy(fp); m["seed_spec"]["base_seed"] = 1200000; m["seed_spec"]["cell_stride"] = 10000
+    assert R.verify_seed_schedule(m)[0], "base 1200000/stride 10000 (hits A target 1800000) must be caught"
+    print("OK A confirmatory source(900000) AND target(1800000) streams both excluded; 1200000 bug caught")
 
 
 def test_fail_closed_tampering():
@@ -94,9 +111,10 @@ def _smoke_manifest(tmpdir):
                  "primary_positive_kinds": ["paired_concept"], "primary_scenarios": ["baseline"],
                  "primary_budgets": [20], "secondary_kinds": [], "decision_budgets": [20]},
         "scenario_configs": SCENARIOS,
-        "seed_spec": {"base_seed": 500000, "cell_stride": 10000, "replicates": 2,
-                      "development_seed_exclusion": {"A_confirmatory": 900000,
-                                                     "B_development": [0, 1000, 2000, 3000, 4000, 700000],
+        "seed_spec": {"base_seed": 200000, "cell_stride": 100000, "replicates": 2, "seed_target_offset": 10000,
+                      "development_seed_exclusion": {"A_confirmatory_source_seeds": [900000, 900065],
+                                                     "A_confirmatory_target_seeds": [1800000, 1800065],
+                                                     "B_development_blocks": [0, 1000, 2000, 3000, 4000, 700000],
                                                      "smoke_test_range": "<100000"}},
         "pass_criteria": {"type": "smoke"},
         "code_hashes_sha256": {r: _h(r) for r in ("csc/mininfo/paired_calibrated.py",
@@ -121,7 +139,12 @@ def test_smoke_execute_writes_artifact_and_evaluates():
         assert "verdict" in art and "criteria" in art["verdict"], "artifact must carry the C1-C5 verdict"
         assert art["verdict"]["red_team_required"] is True
         assert art["verdict"]["criteria"]["C6_independent_verification"]["passed"] is None
-        print(f"OK smoke execute wrote artifact + evaluated C1-C5 (verdict "
+        # provenance payload present (git head/ref/commit/clean + seed schedule summary + slurm)
+        for k in ("git_head", "expected_code_ref", "expected_code_commit", "git_status_clean"):
+            assert k in art["code_provenance"], f"missing code_provenance.{k}"
+        assert art["seed_schedule"]["base_seed"] == 200000 and art["seed_schedule"]["disjointness_checked"]
+        assert "slurm" in art
+        print(f"OK smoke execute wrote artifact + C1-C5 + provenance payload (verdict "
               f"{art['verdict']['preliminary_scientific_verdict_excluding_C6']}, C6 pending)")
 
 
@@ -134,6 +157,7 @@ if __name__ == "__main__":
     test_manifest_self_consistent()
     test_scenarios_match_code()
     test_seed_schedule_complete_and_disjoint()
+    test_a_target_stream_excluded()
     test_fail_closed_tampering()
     test_execute_refused_without_tag()
     test_smoke_execute_writes_artifact_and_evaluates()

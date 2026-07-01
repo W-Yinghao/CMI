@@ -43,10 +43,21 @@ RC=$?
 [ "$RC" -eq 2 ] && infra_fail "runner refused (fail-closed provenance) rc=2"
 [ "$RC" -ne 0 ] && infra_fail "runner crashed rc=$RC"
 
-# 4. freshness: the temp artifact must exist and belong to THIS job
+# 4. freshness + provenance: the temp artifact must exist and match the frozen manifest + this HEAD/job
 [ -f "$TMP_OUT" ] || infra_fail "no fresh artifact produced"
-python -c "import json,sys; d=json.load(open('$TMP_OUT')); sys.exit(0 if d.get('verdict') and d.get('manifest_hash') else 1)" \
-  || infra_fail "artifact missing verdict/manifest_hash"
+MANI="$FROZEN/csc/mininfo/b3_confirmatory_manifest.json"
+HEADC="$HEADC" TAGC="$TAGC" python - "$TMP_OUT" "$MANI" <<'PYCHK' || infra_fail "artifact provenance/freshness check failed"
+import json, os, sys
+art = json.load(open(sys.argv[1])); mani = json.load(open(sys.argv[2]))
+cp = art.get("code_provenance", {}); ss = art.get("seed_schedule", {})
+ok = (art.get("verdict") and art.get("manifest_hash") == mani["manifest_hash"]
+      and art.get("base_seed") == mani["frozen_payload"]["seed_spec"]["base_seed"]
+      and ss.get("base_seed") == 3000000 and ss.get("disjointness_checked") is True
+      and cp.get("git_status_clean") is True
+      and cp.get("git_head") == os.environ.get("HEADC")
+      and cp.get("expected_code_commit") == os.environ.get("TAGC"))
+sys.exit(0 if ok else 1)
+PYCHK
 mv "$TMP_OUT" "$OUT"
 
 # 5. integrity hashes of the preserved artifact + log

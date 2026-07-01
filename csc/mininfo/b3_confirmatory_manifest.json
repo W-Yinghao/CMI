@@ -1,9 +1,9 @@
 {
   "protocol": "csc-b3-confirmatory",
   "version": "v1",
-  "manifest_hash": "3b8e191f4b895a4aa72702d2ac7d8979dcc241017cde2d4e7c2b8e617d912110",
+  "manifest_hash": "a96dc0de55917c0f6dadf39807ea3cdd7539df1802f57917549ae1ddbb65cf62",
   "expected_code_ref": "refs/tags/csc-b3-confirmatory-v1",
-  "status": "FROZEN-CANDIDATE v1 -- executable package built; tag + unseen-cluster run pending final reviewer authorization; NO real EEG",
+  "status": "FROZEN-CANDIDATE v1 (seed-hotfix) -- executable package; tag + unseen run pending final reviewer authorization; NO real EEG",
   "never_touch": [
     "csc-confirmatory-v1",
     "dee8958"
@@ -100,12 +100,20 @@
       }
     },
     "seed_spec": {
-      "base_seed": 1200000,
-      "cell_stride": 10000,
+      "base_seed": 3000000,
+      "cell_stride": 100000,
       "replicates": 48,
+      "seed_target_offset": 10000,
       "development_seed_exclusion": {
-        "A_confirmatory": 900000,
-        "B_development": [
+        "A_confirmatory_source_seeds": [
+          900000,
+          900065
+        ],
+        "A_confirmatory_target_seeds": [
+          1800000,
+          1800065
+        ],
+        "B_development_blocks": [
           0,
           1000,
           2000,
