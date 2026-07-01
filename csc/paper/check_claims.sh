@@ -27,9 +27,11 @@ chk "general solution"        'general (solution|detector) (to|for) concept[- ]s
 chk "outperform DA/DG"        'outperform.{0,30}(domain adaptation|domain generalization|adaptation method)'
 chk "EEG transfer fails"      'transfer.{0,30}(fail|cannot|do not work).{0,20}concept'
 chk "conformal dismissed"     'conformal.{0,40}(irrelevant|not relevant|solves a different)'
-# C2 is pointwise: forbid only lines that CLAIM familywise/simultaneous control (allow the "not familywise" disclaimer)
+# C2 is pointwise: forbid a CLAIM of familywise/simultaneous control, but allow the "not familywise" disclaimer.
+# Sentence-scoped and newline-insensitive (join lines per file, split on '.') so line-wrapping cannot cause a
+# false positive OR a false negative.
 ran=$((ran+1))
-fw="$(grep -rniE 'familywise|simultaneous.{0,20}confidence' sections/ 2>/dev/null | grep -viE 'not (a )?(simultaneous|familywise)|pointwise, not|not familywise|not.{0,20}simultaneous' || true)"
+fw="$(for f in sections/*.tex; do tr '\n' ' ' < "$f" | grep -oiE "[^.]*(familywise|simultaneous [^.]*confidence)[^.]*"; done 2>/dev/null | grep -viE 'not (a )?(simultaneous|familywise)|pointwise' || true)"
 if [ -n "$fw" ]; then echo "FAIL [familywise-on-C2]:"; echo "$fw" | sed 's/^/    /'; fail=1; else echo "ok   [familywise-on-C2]"; fi
 
 echo "== required scope phrases (must be PRESENT somewhere in sections/) =="
