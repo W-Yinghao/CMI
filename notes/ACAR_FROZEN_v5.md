@@ -1,10 +1,13 @@
-# ACAR_FROZEN_v5.md — V5 protocol: Substrate-Robust Constrained-Utility Router **(DRAFT — UNTAGGED — NON-BINDING)**
+# ACAR_FROZEN_v5.md — V5 protocol: Substrate-Robust Constrained-Utility Router **(BINDING — TAGGED `acar-v5-protocol` @ 4278435)**
 
 ```
-STATE              : DRAFT / UNTAGGED / NON-BINDING
-                     NO CODE RUNS · NO DEV SELECTION · NO SUBSTRATE TRAINING · NO COMPATIBILITY REPLAY ·
-                     NO EXTERNAL READ · NO LOCKBOX CONSUMED
-binding when       : committed AND tagged `acar-v5-protocol` after explicit sign-off (NOT before)
+STATE              : BINDING — frozen at tag `acar-v5-protocol` @ 4278435975a72b1127803dd2cffab420c083e430 (signed off after
+                     five gated pre-tag review rounds: Step 2 / 2b / 2c / 2d / 2e). The SCIENCE is frozen; the tag alone
+                     authorizes NO data execution: NO CODE RUNS · NO DEV SELECTION · NO SUBSTRATE TRAINING · NO COMPATIBILITY
+                     REPLAY · NO EXTERNAL READ · NO LOCKBOX CONSUMED (each remains a separate later authorization).
+                     The frozen protocol text is the tagged commit 4278435; edits after the tag are amendments (dated), never
+                     in-place rewrites of the frozen content.
+binding when       : NOW (tag exists). Post-tag: Step 3 = synthetic-only scaffold + guard tests ONLY (no data).
 lineage            : v2 MEASUREMENT_ONLY (9b2f0c1/1528a94) · v3 DEV_STOP (817b04f/9f4e83f) ·
                      v4 SUBSTRATE_COMPATIBILITY_FAIL (b99fa4f/5237378/c605e24; see notes/ACAR_V4_CLOSEOUT.md)
 prior on v4        : the v4 DEV #001 candidate is a NEGATIVE PRIOR ONLY (did not survive substrate regeneration); it is NOT a

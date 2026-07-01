@@ -33,3 +33,11 @@ __pycache__/
 
 # slurm generated packages that reference local paths (optional; keep templates)
 slurm-*.out
+
+# ACAR v4 compute artifacts + detached preflight worktrees (the sandbox surfaces $HOME
+# absolute paths inside this tree; the authoritative copies live at $HOME on the cluster).
+# Recorded by path+hash in the notes; never committed. Root-anchored so acar/ (the package)
+# and results/ (tracked) are unaffected.
+/acar_v4_*/
+/ACAR_V4_*_PREFLIGHT_*/
+/_g1.log
