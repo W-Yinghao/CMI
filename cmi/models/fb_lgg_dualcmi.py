@@ -147,9 +147,10 @@ class FBLGGDualCMIBackbone(nn.Module):
 
     def __init__(self, n_chans, n_times, n_classes, ch_names=None,
                  n_filt=6, kernels=(11, 21, 45), loc_dim=16, node_z_dim=16,
-                 glob_dim=16, z_dim=32, temp_dim=32, fused_z_dim=32, max_groups=6):
+                 glob_dim=16, z_dim=32, temp_dim=32, fused_z_dim=32, max_groups=6, dropout=0.25):
         super().__init__()
         self.n_chans = int(n_chans)
+        self.drop = nn.Dropout(float(dropout))    # regularization vs source memorization (G2 had source bAcc=1.0)
         self.stem = _FilterBankStem(n_times, n_filt=n_filt, kernels=kernels)
         fin = self.stem.feat_dim
 
@@ -191,28 +192,29 @@ class FBLGGDualCMIBackbone(nn.Module):
         self.fused_z_dim = int(fused_z_dim)
 
         self.meta = dict(graph_compatible=True, edge_logits_dynamic=False,
-                         node_identity_preserved=True, distinct_fused_z=True)
+                         node_identity_preserved=True, distinct_fused_z=True,
+                         ablation_modes=("zero_graph", "zero_temporal", "permute_nodes"))
 
     # ---- internal branches (shared by forward_graph and ablate) ----
     def _graph_branch(self, node_raw):
         """node_raw [B,C,F_node] -> (graph_z [B,z_dim], node_z [B,C,node_z_dim])."""
-        node_h = F.elu(self.local_proj(node_raw))                       # [B,C,loc_dim]
+        node_h = self.drop(F.elu(self.local_proj(node_raw)))            # [B,C,loc_dim]
         S_local = _norm_adj(F.softplus(self.A_local) * self.group_mask)  # [C,C] within-group
         node_z = F.elu(self.local_gcn(torch.einsum("ij,bjf->bif", S_local, node_h)))  # [B,C,node_z_dim]
         grp = torch.einsum("gc,bcf->bgf", self.group_pool, node_z)      # [B,n_groups,node_z_dim]
         S_glob = _norm_adj(F.softplus(self.A_global))                    # [n_groups,n_groups] shared A0
         gh = F.elu(self.glob_gcn(torch.einsum("ij,bjf->bif", S_glob, grp)))  # [B,n_groups,glob_dim]
-        graph_z = F.elu(self.readout(gh.reshape(gh.shape[0], -1)))       # [B,z_dim]
+        graph_z = self.drop(F.elu(self.readout(gh.reshape(gh.shape[0], -1))))   # [B,z_dim]
         return graph_z, node_z
 
     def _temporal_branch(self, node_raw):
-        return F.elu(self.temp_proj(node_raw.mean(dim=1)))               # [B,temp_dim]
+        return self.drop(F.elu(self.temp_proj(node_raw.mean(dim=1))))    # [B,temp_dim]
 
     def _fuse(self, graph_z, temporal_z):
         gp = self.fuse_g(graph_z)                                        # [B,fused_z_dim]
         tp = self.fuse_t(temporal_z)                                     # [B,fused_z_dim]
         gate = torch.sigmoid(self.gate(torch.cat([gp, tp], dim=-1)))     # [B,fused_z_dim]
-        return gate * gp + (1.0 - gate) * tp                             # fused_z (distinct object)
+        return self.drop(gate * gp + (1.0 - gate) * tp)                  # fused_z (distinct object)
 
     # ---- CIGL graph contract ----
     def forward_graph(self, x):

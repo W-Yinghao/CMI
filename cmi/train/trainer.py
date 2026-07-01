@@ -291,7 +291,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
             if uses_graphcmi:                             # GNN: graph(global) + node + edge CMI
                 warm = min(1.0, ep / max(1, warmup))
                 with torch.no_grad():                     # Step A: fit all 3 posteriors on detached graph features
-                    _, gz, nz, el = backbone.forward_graph(xb)
+                    _, gz, nz, el, _ = _unpack_graph(backbone.forward_graph(xb))   # 4- or 5-tuple (FBLGG); graphcmi acts on graph_z
                 has_edge = el is not None                  # static-adjacency backbones (DGCNN adapter) -> edge_logits=None
                 if lam_edge != 0 and not has_edge:         # fail closed: cannot apply an edge term without an edge object
                     raise ValueError("method='graphcmi' with lambda_edge!=0 needs per-sample edge_logits; "
@@ -301,7 +301,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                     if has_edge:
                         la = la + edge_post.step_a_loss(el, yb, db)
                     opt_post.zero_grad(); la.backward(); opt_post.step()
-                logits, gz, nz, el = backbone.forward_graph(xb)   # Step B (grad to encoder)
+                logits, gz, nz, el, _ = _unpack_graph(backbone.forward_graph(xb))   # Step B (grad to encoder); 4- or 5-tuple safe
                 # Three named leakage proxies; weights (lam, gamma, lam_edge) == (lambda_g, lambda_node,
                 # lambda_edge). Each term computed into its own variable so it can be logged separately;
                 # the loss math is byte-identical to the prior inline form.

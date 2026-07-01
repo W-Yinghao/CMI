@@ -46,6 +46,28 @@ def _ablate_bacc(bb, Xte, yte, mode, device, bs=256):
     return float(classification_metrics(np.concatenate(probs), yte)["balanced_acc"])
 
 
+# 10-20 montage channel names for the MI datasets (MOABB order), so FBLGGGraph does LOCAL-GLOBAL grouping
+# on real electrode regions instead of a contiguous index partition. Only used when --backbone FBLGGGraph.
+_DATASET_CH_NAMES = {
+    "BNCI2014_001": ["Fz", "FC3", "FC1", "FCz", "FC2", "FC4", "C5", "C3", "C1", "Cz", "C2", "C4", "C6",
+                     "CP3", "CP1", "CPz", "CP2", "CP4", "P1", "Pz", "P2", "POz"],
+    "BNCI2015_001": ["FC3", "FCz", "FC4", "C5", "C3", "C1", "Cz", "C2", "C4", "C6", "CP3", "CPz", "CP4"],
+}
+
+
+def _infer_ch_names(dataset, n_ch):
+    """Return (ch_names, source_tag) for FBLGGGraph. Never SILENTLY misapplies a preset: a channel-count
+    mismatch loudly warns and falls back to index-partition grouping (ch_names=None)."""
+    names = _DATASET_CH_NAMES.get(dataset)
+    if names is not None and len(names) == n_ch:
+        return names, f"preset:{dataset}"
+    if names is not None:                                # preset exists but n_ch disagrees -> do NOT use it
+        print(f"WARNING: ch_names preset for {dataset} has {len(names)} channels but the data has {n_ch}; "
+              f"falling back to index-partition grouping.", flush=True)
+        return None, f"index_fallback(mismatch:{len(names)}!={n_ch})"
+    return None, "index_fallback(no_preset)"
+
+
 def parse_config(c, default_beta=0.0):
     """Parse a --configs entry 'method[:a[:b[:c[:d]]]]' -> (label, method, lam, gamma, lam_edge, z_margin,
     dec_scale, node_w). node_w is lambda_node for graphdualpc and default_beta (the VIB beta) otherwise, so
@@ -193,8 +215,8 @@ def _summarize(results, pooled):
             source_bacc_mean=float(np.mean([r.get("source_bacc", float("nan")) for r in results[m]])),
             worst_source_bacc=float(np.min([r.get("source_bacc", float("nan")) for r in results[m]])),
             n_folds=len(results[m]), per_target=results[m])
-        for _abl in ("ablate_zero_graph_target_bacc", "ablate_permute_nodes_target_bacc"):
-            if results[m] and _abl in results[m][0]:
+        if results[m]:                                   # aggregate every recorded ablation mode (incl zero_temporal)
+            for _abl in [k for k in results[m][0] if k.startswith("ablate_") and k.endswith("_target_bacc")]:
                 summary[m][_abl + "_mean"] = float(np.mean([r[_abl] for r in results[m]]))
         if results[m] and "ts_balanced_acc" in results[m][0]:          # CIPC transductive-corrected metrics
             summary[m]["transduct_balanced_acc_mean"] = float(np.mean([r["ts_balanced_acc"] for r in results[m]]))
@@ -324,8 +346,13 @@ def run(args):
             _srcdoms = np.unique(dtr_all)
             if len(_srcdoms) > 1:
                 sval_doms = [int(np.random.default_rng(args.seed).permutation(_srcdoms)[0])]
+        # FBLGGGraph name-aware electrode grouping (P3-F.3): map the dataset to a 10-20 montage preset;
+        # loud fallback to index-partition grouping if absent / channel-count mismatch.
+        ch_names, ch_names_source = (None, None)
+        if args.backbone == "FBLGGGraph":
+            ch_names, ch_names_source = _infer_ch_names(args.dataset, nch)
         for lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w in configs:
-            bb = build_backbone(args.backbone, nch, nt, n_cls, device=device)
+            bb = build_backbone(args.backbone, nch, nt, n_cls, device=device, ch_names=ch_names)
             if args.beta > 0 and method != "graphdualpc":   # VIB: stochastic bottleneck (graphdualpc uses beta=lambda_node, not VIB)
                 from cmi.methods.vib import VIBBackbone
                 bb = VIBBackbone(bb, n_cls).to(device)
@@ -411,11 +438,16 @@ def run(args):
             rec["method_config"] = lbl
             rec["backbone"] = args.backbone
             rec["git_sha"] = run_git_sha
+            if args.backbone == "FBLGGGraph":            # P3-F.3 provenance: was grouping name-aware or fallback?
+                rec["ch_names_source"] = ch_names_source
+                rec["channel_groups"] = [list(g) for g in getattr(bb, "groups", [])]
             rec["source_bacc"] = float(classification_metrics(predict(bb, Xtr_all[ei], device),
                                                               ytr_all[ei])["balanced_acc"])
             if callable(getattr(bb, "ablate", None)):
-                rec["ablate_zero_graph_target_bacc"] = _ablate_bacc(bb, Xte, yte, "zero_graph", device)
-                rec["ablate_permute_nodes_target_bacc"] = _ablate_bacc(bb, Xte, yte, "permute_nodes", device)
+                # Record every ablation the backbone declares. FB-LGG adds zero_temporal so we can see BOTH
+                # branch contributions (graph vs temporal); static DGCNN declares only zero_graph/permute_nodes.
+                for _mode in getattr(bb, "meta", {}).get("ablation_modes", ("zero_graph", "permute_nodes")):
+                    rec[f"ablate_{_mode}_target_bacc"] = _ablate_bacc(bb, Xte, yte, _mode, device)
             if method == "graphdualpc":
                 for k in ("lambda_g", "lambda_node", "lambda_edge", "gamma_dec", "reg_graph_gls",
                           "reg_node_gls", "reg_edge_gls", "dec_js_res", "dec_ce_res",

@@ -36,6 +36,7 @@ def test_fblgg_forward_graph_5tuple_and_shapes(C):
     B, T, n_cls = 4, 128, 2
     torch.manual_seed(0)
     bb = build_backbone("FBLGGGraph", C, T, n_cls, device="cpu")
+    bb.eval()                                          # dropout OFF: forward vs forward_graph must agree
     assert isinstance(bb, FBLGGDualCMIBackbone)
     assert callable(getattr(bb, "forward_graph", None))
     x = torch.randn(B, C, T)
@@ -59,6 +60,7 @@ def test_fblgg_ablations_each_change_logits():
     B, C, T, n_cls = 16, 22, 128, 2
     torch.manual_seed(1)
     bb = build_backbone("FBLGGGraph", C, T, n_cls, device="cpu")
+    bb.eval()                                          # isolate the ablation effect from dropout noise
     x = torch.randn(B, C, T)
     full = bb.forward_graph(x)[0]
     for mode in ("zero_graph", "zero_temporal", "permute_nodes"):
@@ -73,6 +75,7 @@ def test_fblgg_zero_graph_and_zero_temporal_differ():
     B, C, T, n_cls = 8, 13, 128, 2
     torch.manual_seed(2)
     bb = build_backbone("FBLGGGraph", C, T, n_cls, device="cpu")
+    bb.eval()                                          # isolate branch-drop difference from dropout noise
     x = torch.randn(B, C, T)
     zg = bb.ablate(x, "zero_graph")
     zt = bb.ablate(x, "zero_temporal")
