@@ -1,0 +1,24 @@
+[b3p24drep] host=nodecpu01 job=877724 cpus=24
+[b3p24d] wrote csc/results/b3_p24d_rep.json
+=== B3-P2.4d CONTROLS (48/cell; alpha_budget=0.025; per-budget NEW vs OLD=P2.4c) ===
+pooled NEW 20/4032=0.0050 (CP-up 0.0072)   alpha_family=0.05 alpha_budget=0.025
+-- m=20 --
+  clean                      NEW 0.0035 (CP-up 0.0164) | OLD 0.0104  
+  missing_pair               NEW 0.0000 (CP-up 0.0103) | OLD 0.0000  
+  paired_covariate           NEW 0.0035 (CP-up 0.0164) | OLD 0.0174  
+  paired_covariate_plus_label NEW 0.0069 (CP-up 0.0217) | OLD 0.0208  
+  paired_label               NEW 0.0000 (CP-up 0.0103) | OLD 0.0139  
+  random_label               NEW 0.0104 (CP-up 0.0267) | OLD 0.0104  
+  unequal_epochs_extreme     NEW 0.0000 (CP-up 0.0103) | OLD 0.0000  
+-- m=30 --
+  clean                      NEW 0.0139 (CP-up 0.0315) | OLD 0.0174  
+  missing_pair               NEW 0.0000 (CP-up 0.0103) | OLD 0.0000  
+  paired_covariate           NEW 0.0174 (CP-up 0.0362) | OLD 0.0312  
+  paired_covariate_plus_label NEW 0.0000 (CP-up 0.0103) | OLD 0.0069  
+  paired_label               NEW 0.0035 (CP-up 0.0164) | OLD 0.0208  
+  random_label               NEW 0.0104 (CP-up 0.0267) | OLD 0.0174  
+  unequal_epochs_extreme     NEW 0.0000 (CP-up 0.0103) | OLD 0.0000  
+HARD-FAIL flags: NONE
+gate removals P2.4c->P2.4d (m>=20): controls=28 primary=0 secondary=0
+=== POWER (NEW P2.4d | OLD P2.4c) ===
+[b3p24drep] done rc=0
