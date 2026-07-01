@@ -52,7 +52,8 @@ def parse_config(c, default_beta=0.0):
     existing methods are unaffected.
 
       graphcmi:<lambda_g>:<lambda_node>:<lambda_edge>            (unchanged: gamma == lambda_node)
-      graphdualpc:<lambda_g>:<lambda_node>:<lambda_edge>:<gamma_dec>   (lam=lg, node_w=lnode, lam_edge=le, gamma=gdec)
+      graphdualpc:<lambda_g>:<lambda_node>:<lambda_edge>:<gamma_dec>[:<dec_scale>]
+                                        (lam=lg, node_w=lnode, lam_edge=le, gamma=gdec; dec_scale default 1.0)
     """
     parts = c.split(":"); method = parts[0]
     nums = [float(x) for x in parts[1:]]
@@ -63,11 +64,12 @@ def parse_config(c, default_beta=0.0):
         lam, gamma = nums[0], nums[1]
     elif method == "graphcmi":                   # graphcmi:<lam=global>:<lam_node>:<lam_edge>  (gamma == lam_node)
         lam, gamma, lam_edge = nums[0], (nums[1] if len(nums) > 1 else 0.0), (nums[2] if len(nums) > 2 else 0.0)
-    elif method == "graphdualpc":                # graphdualpc:<lambda_g>:<lambda_node>:<lambda_edge>:<gamma_dec>
+    elif method == "graphdualpc":                # graphdualpc:<lambda_g>:<lambda_node>:<lambda_edge>:<gamma_dec>[:<dec_scale>]
         lam = nums[0] if nums else 0.0
         node_w = nums[1] if len(nums) > 1 else 0.0     # -> train_model(beta=node_w) == lambda_node
         lam_edge = nums[2] if len(nums) > 2 else 0.0
         gamma = nums[3] if len(nums) > 3 else 0.0       # -> gamma_dec
+        dec_scale = nums[4] if len(nums) > 4 else 1.0   # -> train_model(dec_scale=...); default 1.0 keeps 4-field configs unchanged
     elif method in ("dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal"):
         lam, gamma = nums[0], (nums[1] if len(nums) > 1 else nums[0])
         if method == "dualpc_hinge":

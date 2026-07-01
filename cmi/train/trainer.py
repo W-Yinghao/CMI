@@ -355,7 +355,11 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 loss = ce + lambda_g * warm * r_graph + lambda_node * warm * r_node
                 if r_edge is not None:
                     loss = loss + lambda_edge_w * warm * r_edge
-                loss = loss + gamma_dec * warm * dec_scale * F.relu(r_dec_js - dec_margin)
+                # P3-D: scale THEN threshold — [dec_scale·JS − dec_margin]_+ (matches the CIGL_47 objective).
+                # For graphdualpc dec_margin defaults to 0.0 and JS≥0, so this is identical to the CIGL_46
+                # form (dec_scale·relu(JS)) at dec_scale=1.0 → byte-compatible with the G2 runs.
+                r_dec_gate = F.relu(dec_scale * r_dec_js - dec_margin)
+                loss = loss + gamma_dec * warm * r_dec_gate
                 opt_main.zero_grad(); loss.backward(); opt_main.step()
                 if last_epoch:
                     diag["inloop_reg"].append(_scalar(r_graph))           # back-compat: graph term == inloop_reg
@@ -366,6 +370,12 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                         diag["inloop_reg_edge"].append(_scalar(r_edge))
                     diag.setdefault("inloop_dec_js", []).append(_scalar(r_dec_js))
                     diag.setdefault("inloop_dec_ce", []).append(_scalar(r_dec_ce))
+                    # P3-D decoder-activation diagnostics: is the [dec_scale*JS - dec_margin]_+ gate firing?
+                    # (CIGL_46 the decoder term was dormant: dec_js_res~3e-4, loss_dec_over_ce << 1%.)
+                    diag.setdefault("inloop_dec_js_scaled", []).append(_scalar(dec_scale * r_dec_js))
+                    diag.setdefault("inloop_loss_dec", []).append(gamma_dec * warm * float(r_dec_gate))
+                    diag.setdefault("inloop_dec_gate", []).append(
+                        1.0 if float(dec_scale * r_dec_js) > dec_margin else 0.0)
                     with torch.no_grad():   # Step-A critic quality per head (GLS diagnostic; probe underfit check)
                         gpred = post.q_dzy(torch.cat([gz, F.one_hot(yb, n_cls).float()], 1)).argmax(1)
                         npred = node_post._logits(nz, yb).argmax(-1)   # [B,C] per-channel domain pred
@@ -540,6 +550,12 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                    reg_edge_gls=_mean("inloop_reg_edge"),
                    dec_js_res=_mean("inloop_dec_js"), dec_ce_res=_mean("inloop_dec_ce"),
                    loss_ce=_mean("inloop_ce"),
+                   # P3-D decoder-activation diagnostics (target: loss_dec_over_ce ~ 1-10%; <0.1% == dormant)
+                   dec_js_res_raw=_mean("inloop_dec_js"),
+                   dec_js_res_scaled=_mean("inloop_dec_js_scaled"),
+                   loss_dec=_mean("inloop_loss_dec"),
+                   loss_dec_over_ce=(_mean("inloop_loss_dec") / max(_mean("inloop_ce"), 1e-8)),
+                   dec_gate_active_frac=_mean("inloop_dec_gate"),
                    stepA_graph_dom_acc_gls=diag["stepA_graph_correct"] / max(1, diag["stepA_graph_total"]),
                    stepA_node_dom_acc_gls=diag["stepA_node_correct"] / max(1, diag["stepA_node_total"]),
                    stepA_edge_dom_acc_gls=diag["stepA_edge_correct"] / max(1, diag["stepA_edge_total"]),
