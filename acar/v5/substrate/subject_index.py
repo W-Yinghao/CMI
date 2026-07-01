@@ -60,6 +60,9 @@ def build_subject_index(disease, per_cohort_raw):
             raw = str(raw)
             if not raw:
                 raise SubjectIndexError(f"{disease}/{cohort}: empty raw subject id")
+            if "/" in raw:                                     # readers must return RAW ids ("sub-001"), NOT namespaced ones
+                raise SubjectIndexError(f"{disease}/{cohort}: raw subject id {raw!r} must not be namespaced (no '/'); "
+                                        f"the reader returns raw ids and the orchestrator builds the canonical key")
             cr = (cohort, raw)
             if cr in seen_cohort_raw:
                 raise SubjectIndexError(f"{disease}: duplicate (cohort, raw) {cr}")

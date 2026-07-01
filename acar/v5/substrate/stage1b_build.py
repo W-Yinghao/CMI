@@ -19,6 +19,7 @@ from acar.v5.substrate import stage1b_full_build_manifest as FBM
 from acar.v5.substrate import subject_index as SI
 from acar.v5.substrate import fit_dataset_view as FV
 from acar.v5.substrate import stage1b_artifact_writer as AW
+from acar.v5.substrate import stage1b_file_artifact_writer as FW
 from acar.v5.substrate import stage1b_registry_populate as RP
 from acar.v5.substrate import dev_reader_contract as DR
 from acar.v5.substrate import train_contract as TR
@@ -37,10 +38,14 @@ def _disease_cohort_paths(plan, disease):
 
 
 def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
-                      dev_reader=None, trainer=None, dev_reader_factory=None, trainer_factory=None):
+                      dev_reader=None, trainer=None, dev_reader_factory=None, trainer_factory=None, artifact_writer=None):
     """Gate-first Stage-1B build. execute=False (default) reads/trains NOTHING. On execute=True, either pass ready-made
     dev_reader+trainer (synthetic test path) OR dev_reader_factory+trainer_factory (real path — instantiated ONLY after the gate).
-    Returns a report incl. the populated SubstrateRegistry."""
+    `artifact_writer(raw, *, expected_ref, disease, fold, seed)` defaults to the bytes writer; the real build passes the
+    file-backed writer. Returns a report incl. the populated SubstrateRegistry. (Production real runs use run_stage1b_real_build,
+    which forbids preconstructed objects.)"""
+    if artifact_writer is None:
+        artifact_writer = AW.write_artifact
     ready = RL.require_stage1b_full_build_ready(plan, authorization, runtime_lock)   # GATE BEFORE ANYTHING
     if not execute:
         return {"status": "STAGE1B_BUILD_DRYRUN", "n_would_build": ready["built_fold_substrates"],
@@ -70,7 +75,7 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
         allowed = set(split["train"]) | set(split["val"])     # FIT only
         view = FV.AuthorizedFitDatasetView(idx, allowed, dev_reader, cohort_paths)   # trainer gets NO raw roots
         raw = trainer.train_fold(disease, fold, seed, list(split["train"]), list(split["val"]), view)
-        art = AW.write_artifact(raw, expected_ref=e["ref"], disease=disease, fold=fold, seed=seed)   # hashes computed, not trusted
+        art = artifact_writer(raw, expected_ref=e["ref"], disease=disease, fold=fold, seed=seed)   # hashes computed, not trusted
         if e["ref"] in artifacts:
             raise Stage1bBuildError(f"duplicate built ref {e['ref']}")
         artifacts[e["ref"]] = art
@@ -84,6 +89,20 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
                              sampling_rate=128, windowing_config="4s/512")
     return {"status": "STAGE1B_BUILT", "n_artifacts": len(artifacts), "n_registered": n, "artifacts": artifacts,
             "registry": registry, "run_id": ready["run_id"], "device_kind": ready["device_kind"]}
+
+
+def run_stage1b_real_build(plan, authorization, runtime_lock, *, dev_reader_factory, trainer_factory, artifact_writer=None):
+    """PRODUCTION real-run entry. Accepts ONLY factories (no preconstructed objects) so the real reader/trainer can never be
+    instantiated before the gate. Defaults to the FILE-backed artifact writer (real trainers emit files, not in-memory bytes).
+    Both factories are required and must be callables. (Executing on real DEV data still requires an authorized run: the real
+    reader/trainer emit their signal read/training only at the Stage-1B run.)"""
+    if not callable(dev_reader_factory) or not callable(trainer_factory):
+        raise Stage1bBuildError("run_stage1b_real_build requires callable dev_reader_factory and trainer_factory")
+    if artifact_writer is None:
+        artifact_writer = FW.write_artifact_from_files
+    return run_stage1b_build(plan, authorization, runtime_lock, execute=True,
+                             dev_reader_factory=dev_reader_factory, trainer_factory=trainer_factory,
+                             artifact_writer=artifact_writer)
 
 
 def main(argv=None):  # pragma: no cover — CLI; default dry-run, real execute is unwired here

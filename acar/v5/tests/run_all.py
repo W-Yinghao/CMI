@@ -44,6 +44,12 @@ MODULES = (
     "test_stage1b_registry_population_exact_30",
     "test_stage1b_artifact_hashes_computed_not_trusted",
     "test_stage1b_real_wiring_imports_lazy",
+    "test_stage1b_real_run_requires_factories",
+    "test_stage1b_dev_reader_returns_raw_ids",
+    "test_stage1b_dataset_view_public_surface",
+    "test_stage1b_file_artifact_hashes_streamed",
+    "test_stage1b_real_trainer_no_raw_root_scan",
+    "test_stage1b_real_factories_lazy_imports",
 )
 
 

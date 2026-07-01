@@ -112,6 +112,32 @@ class FakeTrainer:
         return raw
 
 
+class FakeFileTrainer:
+    """Synthetic FILE-emitting trainer (no torch). Reads only via the view; writes tiny temp files per ref and returns their
+    paths (exercises the file-backed artifact writer). Never scans roots."""
+
+    def __init__(self, out_dir):
+        self.out_dir = out_dir
+        self.received = {}
+
+    def train_fold(self, disease, fold, seed, train_subject_keys, val_subject_keys, dataset_view):
+        import os
+        from acar.v5.substrate import stage1b_file_artifact_writer as FW
+        ref = f"{disease}/fold{fold}/seed{seed}"
+        self.received[ref] = {"train": set(train_subject_keys), "val": set(val_subject_keys)}
+        for k in list(train_subject_keys) + list(val_subject_keys):
+            dataset_view.read_windows(k)
+        d = os.path.join(self.out_dir, ref.replace("/", "_"))
+        os.makedirs(d, exist_ok=True)
+        raw = {"ref": ref, "disease": disease, "fold": fold, "seed": seed}
+        for path_key in sorted(set(FW.FILE_SOURCE.values())):
+            p = os.path.join(d, path_key + ".bin")
+            with open(p, "wb") as f:
+                f.write(f"{ref}:{path_key}".encode())
+            raw[path_key] = p
+        return raw
+
+
 def batch(batch_id, **per_action):
     """Build a synthetic action-indexed batch: batch(id, matched_coral={d_margin:..,flip_rate:..,JS:..,d_entropy:..,post_sep:..},
     spdim={...}, t3a={...}). Missing features default to neutral 0.0."""

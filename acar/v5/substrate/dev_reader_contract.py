@@ -1,8 +1,12 @@
 """ACAR V5 Stage-1B DEV reader CONTRACT (pure/stdlib; importing this module reads NOTHING). The REAL BIDS/mne DEV reader is a
 separate, later-authorized patch; here we only define the interface + a fail-closed unwired default, so Stage-1B code cannot
 accidentally read real data. A reader must expose:
-    list_subjects(disease, cohort, path) -> list[str]     (metadata listing; namespaced subject ids)
-    read_subject_windows(disease, cohort, subject, path)  (the actual signal read — only at an authorized real run)
+    list_subjects(disease, cohort, path) -> list[str]     RAW subject ids within THAT cohort only, e.g. "sub-001" (NOT
+                                                          namespaced — no "PD/ds002778/..."). The orchestrator builds the
+                                                          canonical SubjectKey (subject_index.py); a namespaced id (containing
+                                                          "/") is rejected there, fail-closed.
+    read_subject_windows(disease, cohort, subject, path)  the actual signal read — only at an authorized real run, reachable by
+                                                          the trainer ONLY via AuthorizedFitDatasetView.read_windows.
 """
 from __future__ import annotations
 

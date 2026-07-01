@@ -35,7 +35,8 @@ def test_cal_eval_and_unknown_rejected():
 
 def test_view_exposes_no_raw_roots():
     idx, split, allowed, view, reader = _setup()
-    assert not hasattr(view, "cohort_paths") and not hasattr(view, "_reader") or True  # internal only; public API is read_windows
+    assert not hasattr(view, "cohort_paths") and not hasattr(view, "_cohort_paths"), "no cohort roots on the view"
+    assert not hasattr(view, "reader") and not hasattr(view, "_reader"), "no reader attr on the view (it lives in the closure)"
     assert hasattr(view, "read_windows") and hasattr(view, "allowed_subject_keys")
     ok("the view's public surface is read_windows + allowed_subject_keys (no raw cohort roots exposed)")
 
