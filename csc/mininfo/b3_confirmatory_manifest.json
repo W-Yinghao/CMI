@@ -1,75 +1,134 @@
 {
   "protocol": "csc-b3-confirmatory",
-  "version": "v1-draft",
-  "status": "DRAFT -- pre-registration only; NOT frozen; no tag/manifest-hash-lock/confirmatory run authorized",
-  "calibration_version": "p24d_cross_budget_alpha_spending_studentized_fixed_margin",
-  "method_lock": {
-    "method": "pc_centered_calibrated",
-    "h1_basis": "pc",
-    "condition_coding": "centered",
-    "rank": 3,
-    "C": 0.5,
-    "null": "condition_matched_fixed_margin_h0_bootstrap",
-    "finite_sample_gate": "studentized_subject_consistency",
-    "alpha_family": 0.05,
-    "positive_decision_budgets": [20, 30],
-    "alpha_budget": 0.025,
-    "lcb_level": 0.975,
-    "min_confirm_pairs": 20,
-    "pair_integrity_min": 0.95,
-    "min_epochs_per_condition": 8,
-    "n_boot": 200,
-    "n_folds": 3,
-    "n_subjects": 36,
-    "clusters_per_cell": 48
-  },
-  "seed_spec": {
-    "confirmatory_base_seed": 1200000,
-    "disjoint_from": {
-      "A_confirmatory": 900000,
-      "B_development": [0, 1000, 2000, 3000, 4000, 700000],
-      "note": "confirmatory base 1200000 is disjoint from the A-line confirmatory block (900000), every B development block used so far (dev-map base 0..23, P2.4c controls 1000 / power 2000, P2.4d controls 3000 / power 4000, replication 700000), and all smoke/test seed ranges (< 100000)."
+  "version": "v1",
+  "manifest_hash": "3b8e191f4b895a4aa72702d2ac7d8979dcc241017cde2d4e7c2b8e617d912110",
+  "expected_code_ref": "refs/tags/csc-b3-confirmatory-v1",
+  "status": "FROZEN-CANDIDATE v1 -- executable package built; tag + unseen-cluster run pending final reviewer authorization; NO real EEG",
+  "never_touch": [
+    "csc-confirmatory-v1",
+    "dee8958"
+  ],
+  "frozen_payload": {
+    "protocol": "csc-b3-confirmatory",
+    "version": "v1",
+    "calibration_version": "p24d_cross_budget_alpha_spending_studentized_fixed_margin",
+    "expected_code_ref": "refs/tags/csc-b3-confirmatory-v1",
+    "method_lock": {
+      "method": "pc_centered_calibrated",
+      "h1_basis": "pc",
+      "condition_coding": "centered",
+      "rank": 3,
+      "C": 0.5,
+      "null": "condition_matched_fixed_margin_h0_bootstrap",
+      "finite_sample_gate": "studentized_subject_consistency",
+      "alpha_family": 0.05,
+      "positive_decision_budgets": [
+        20,
+        30
+      ],
+      "alpha_budget": 0.025,
+      "lcb_level": 0.975,
+      "min_confirm_pairs": 20,
+      "pair_integrity_min": 0.95,
+      "min_epochs_per_condition": 8,
+      "n_boot": 200,
+      "n_folds": 3,
+      "n_subjects": 36,
+      "clusters_per_cell": 48
+    },
+    "grid": {
+      "control_kinds": [
+        "clean",
+        "paired_covariate",
+        "paired_label",
+        "random_label",
+        "paired_covariate_plus_label",
+        "missing_pair",
+        "unequal_epochs_extreme"
+      ],
+      "control_scenarios": [
+        "baseline",
+        "high_subject_tau",
+        "high_nuisance",
+        "imbalanced",
+        "label_noise",
+        "few_epochs"
+      ],
+      "primary_positive_kinds": [
+        "paired_concept",
+        "paired_concept_plus_cov"
+      ],
+      "primary_scenarios": [
+        "baseline",
+        "high_nuisance",
+        "high_subject_tau",
+        "imbalanced"
+      ],
+      "primary_budgets": [
+        20,
+        30
+      ],
+      "secondary_kinds": [
+        "paired_pure_conditional"
+      ],
+      "decision_budgets": [
+        20,
+        30
+      ]
+    },
+    "scenario_configs": {
+      "baseline": {},
+      "high_subject_tau": {
+        "cfg_subject_tau": 1.0
+      },
+      "high_nuisance": {
+        "cov_scale": 18.0
+      },
+      "imbalanced": {
+        "base_prior": [
+          0.6,
+          0.25,
+          0.15
+        ]
+      },
+      "label_noise": {
+        "label_noise": 0.1
+      },
+      "few_epochs": {
+        "cfg_epochs_min": 6,
+        "cfg_epochs_max": 12
+      }
+    },
+    "seed_spec": {
+      "base_seed": 1200000,
+      "cell_stride": 10000,
+      "replicates": 48,
+      "development_seed_exclusion": {
+        "A_confirmatory": 900000,
+        "B_development": [
+          0,
+          1000,
+          2000,
+          3000,
+          4000,
+          700000
+        ],
+        "smoke_test_range": "<100000"
+      }
+    },
+    "pass_criteria": {
+      "type": "CONJUNCTION -- ALL must hold on the unseen block; any single failure => confirmatory FAILS",
+      "C1_guards": "missing_pair = 0 AND unequal_epochs_extreme = 0 false confirmations (all budgets)",
+      "C2_control_typeI": "every control kind x budget (pooled over all 6 scenarios, n=288): Clopper-Pearson one-sided upper (0.95) <= 0.05. POINTWISE by the pre-declared reporting unit (kind x budget); conjunction of pointwise gates, NOT a simultaneous familywise CI.",
+      "C3_no_hot_cell": "no scenario x kind x budget cell (n=48) >= 6/48; AND no kind x budget has MULTIPLE (>=2) scenario cells at >= 3/48.",
+      "C4_primary_power": "for EACH primary kind AND EACH budget m in {20,30}, pooled over the 4 primary scenarios: Clopper-Pearson one-sided lower (0.95) >= 0.60; ADDITIONALLY no primary scenario x kind x budget cell may have point power < 0.50.",
+      "C5_no_silent_failure": "0 sampler failures; null-invalid within cap; all states in the 5-state set.",
+      "C6_independent_verification": "independent red-team re-aggregation reproduces the verdict without correction (NOT auto-evaluable by the runner)."
+    },
+    "code_hashes_sha256": {
+      "csc/mininfo/paired_calibrated.py": "26e505ed8c1898a5f73fd7ecb319d7d1cb6299c4221e8ae1eceab7c9383be868",
+      "csc/mininfo/paired_conditional_test.py": "1263f67270d9a29464f7a0df890db445fbe66bf1eab47d5fc1ede08edace3c72",
+      "csc/mininfo/paired_sim.py": "b043a94521dcc455e0b7f9070e806f13d2c4a3de8cc9c4ca6ec6c91eef83bc8e"
     }
-  },
-  "grid": {
-    "control_kinds": ["clean", "paired_covariate", "paired_label", "random_label",
-                      "paired_covariate_plus_label", "missing_pair", "unequal_epochs_extreme"],
-    "control_scenarios": ["baseline", "high_subject_tau", "high_nuisance", "imbalanced",
-                          "label_noise", "few_epochs"],
-    "control_scenarios_note": "controls are evaluated over ALL 6 stress scenarios, INCLUDING label_noise and few_epochs, even though those two are excluded from the primary positive-power envelope.",
-    "primary_positive_kinds": ["paired_concept", "paired_concept_plus_cov"],
-    "primary_scenarios": ["baseline", "high_nuisance", "high_subject_tau", "imbalanced"],
-    "primary_budgets": [20, 30],
-    "secondary_kinds": ["paired_pure_conditional"],
-    "secondary_note": "pure_conditional reported over all scenarios; NOT gating.",
-    "excluded_from_primary_positive_power": ["label_noise", "few_epochs"],
-    "excluded_note": "development-informed exclusion: heavy label noise (~0.5 seed-variable primary power) and very-short records (<8 epochs/condition -> NEED_MORE_LABELS eligibility). Controls are still evaluated in these scenarios."
-  },
-  "scenario_configs": {
-    "baseline": {},
-    "high_subject_tau": {"cfg_subject_tau": 1.0},
-    "high_nuisance": {"cov_scale": 18.0},
-    "imbalanced": {"base_prior": [0.60, 0.25, 0.15]},
-    "label_noise": {"label_noise": 0.10},
-    "few_epochs": {"cfg_epochs_min": 6, "cfg_epochs_max": 12}
-  },
-  "scenario_configs_note": "EXACT simulator knobs (cfg_* -> SimConfig; rest -> make_paired_target). The dry-run runner asserts these match csc.mininfo.run_b3_p23.SCENARIOS byte-for-byte; any drift fails closed.",
-  "pass_criteria": {
-    "type": "CONJUNCTION -- ALL must hold on the unseen block; any single failure => confirmatory FAILS",
-    "C1_guards": "missing_pair = 0 AND unequal_epochs_extreme = 0 false confirmations (all budgets)",
-    "C2_control_typeI": "every control kind x budget (over all 6 scenarios pooled per kind x budget, n=288): Clopper-Pearson one-sided upper (0.95) <= 0.05. POINTWISE by the pre-declared reporting unit (kind x budget); the headline is a conjunction of pointwise gates, NOT a simultaneous familywise confidence interval over all cells.",
-    "C3_no_hot_cell": "no scenario x kind x budget cell (n=48) has >= 6/48 false confirmations; AND no kind x budget has MULTIPLE (>=2) scenario cells at >= 3/48 (kind-level leakage).",
-    "C4_primary_power": "for EACH primary positive kind in {paired_concept, paired_concept_plus_cov} AND EACH budget m in {20,30}, pooled over the 4 primary scenarios: Clopper-Pearson one-sided lower (0.95) >= 0.60. ADDITIONALLY: no primary positive scenario x kind x budget cell may have point power < 0.50.",
-    "C5_no_silent_failure": "0 sampler failures; null-invalid fraction within cap; all states in the 5-state set {CONCEPT_CONFIRMED, NO_CONCEPT_EVIDENCE_AFTER_PAIR_AUDIT, NEED_MORE_LABELS, INVALID_PAIR_STRUCTURE, UNIDENTIFIABLE}.",
-    "C6_independent_verification": "an independent red-team re-aggregation reproduces the verdict without correction."
-  },
-  "cp_semantics_note": "All Clopper-Pearson intervals are POINTWISE at the declared reporting unit (kind x budget for controls; kind x budget pooled over primary scenarios for positives). C3's scenario-cell hard flags are an ADDITIONAL safety gate, not a familywise CI.",
-  "code_hashes_sha256": {
-    "csc/mininfo/paired_calibrated.py": "26e505ed8c1898a5f73fd7ecb319d7d1cb6299c4221e8ae1eceab7c9383be868",
-    "csc/mininfo/paired_conditional_test.py": "1263f67270d9a29464f7a0df890db445fbe66bf1eab47d5fc1ede08edace3c72",
-    "csc/mininfo/paired_sim.py": "b043a94521dcc455e0b7f9070e806f13d2c4a3de8cc9c4ca6ec6c91eef83bc8e"
-  },
-  "not_authorized": ["create tag csc-b3-confirmatory-v1", "lock manifest hash", "run confirmatory (--execute)",
-                     "real EEG / PD ON-OFF"],
-  "never_touch": ["csc-confirmatory-v1", "dee8958"]
+  }
 }
