@@ -121,6 +121,6 @@ a competing method --- the contribution is the measurement-to-control audit, not
 To separate representation \emph{type} from latent \emph{dimension} in the removability contrast, we sweep
 the latent dimension of each backbone with the training protocol, dataset, and probes held fixed: TSMNet via
 the SPD size (tangent dimension $m(m{+}1)/2$ for $m\in\{6,8,10,14,20\}$, i.e.\ $d_z\in\{21,36,55,105,210\}$) and
-EEGNet via the penultimate width $F_2\in\{16,32,64,128\}$ (a dimension-matched $d_z{=}210$ cell is in progress).
+EEGNet via the penultimate width $F_2\in\{16,32,64,128,210\}$ (the $F_2{=}210$ cell provides the dimension-matched $d_z{=}210$ comparison).
 For each cell we re-train the backbone (ERM), freeze it, and report the nonlinear (MLP) subject-decode residual
 after optimal linear erasure as the removability response, over the LOSO folds (\S4.5, Fig.~\ref{fig:capacity}).

@@ -27,8 +27,9 @@ gate avoids unsafe deletion --- at the cost of frequent, deliberate abstention. 
 framework exposes a \textbf{gap between measuring leakage and controlling it}. In a high-dimensional SPD/LogEig
 representation (TSMNet), subject identity is redundantly re-encoded: the framework localizes a low-rank
 subject subspace, but deleting it does not remove the leakage, and a global penalty ``removes'' it only by
-collapsing the representation to the origin. In a compact convolutional representation (EEGNet), the same
-deletion does remove much of the leakage at no task cost --- yet removing it does not improve target accuracy.
+collapsing the representation to the origin. In a compact convolutional representation (EEGNet), the same diagnostic
+deletion does remove much of the source-side leakage at no task cost, while a separate collapse-free global-LPC
+sweep shows that reducing the leakage does not improve target accuracy.
 
 \textbf{Contributions.} (1) A measurement-to-certified-control framework for conditional domain leakage in EEG,
 with explicit refusal. (2) Synthetic evidence that geometry alone is not safety and that calibrated,

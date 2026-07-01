@@ -1,8 +1,8 @@
 """Fig 6 -- seed-averaged removability vs latent dimension for TSMNet (SPD/LogEig) and EEGNet (conv).
 Reads the multi-seed Track-C json (factorial_multiseed.json) written by
 tos_cmi.eeg.factorial_multiseed_analysis, and plots each removability signal with FOLD-CLUSTER 95% CI error
-bars over 3 seeds x 9 LOSO folds. The near-coincidence of the two arches at matched d_z is the (provisional)
-evidence on the architecture-vs-dimension confound; the console also prints the matched-dim contrast CIs and
+bars over 3 seeds x 9 LOSO folds. The two arches coincide at low d_z but diverge at high d_z (residual
+architecture effect); the console also prints the matched-dim contrast CIs and
 the OLS coefficient CIs so the figure and the verdict stay in sync.
   python -m tos_cmi.paper.scripts.plot_fig6_factorial
 """
@@ -33,7 +33,7 @@ def main():
     nseed = max(c["nseed"] for c in rows)
     fig, ax = plt.subplots(1, 4, figsize=(ps.PANEL_W * 4, 3.0))
     panels = [("full", "subject decode (MLP)", "Subject leakage grows\nwith latent capacity", None),
-              ("res", "MLP residual after LEACE", "LEACE residual rises with $d_z$;\narches coincide at matched $d_z$", None),
+              ("res", "MLP residual after LEACE", "LEACE residual rises with $d_z$;\ncoincide at low $d_z$, diverge at high", None),
               ("task_full", "task decode (linear)", "Task preserved across\ncapacity (full vs LEACE)", "task_leace"),
               ("tos", "MLP residual after deletion", "Rank-limited deletion (TOS)\ndegrades with capacity", "rand")]
     for i, (key, ylab, title, key2) in enumerate(panels):
@@ -54,7 +54,7 @@ def main():
         a.legend(fontsize=6.5, loc="best")
         ps.panel_label(a, "ABCD"[i])
     fig.suptitle("Seed-averaged removability vs latent dimension $d_z$ (%d seeds, fold-cluster 95%% CI): "
-                 "TSMNet (SPD) and EEGNet (conv) nearly coincide at matched $d_z$ (BCI-IV-2a; provisional)"
+                 "low-$d_z$ cells coincide; high-$d_z$ SPD retains more nonlinear residual than conv (BCI-IV-2a)"
                  % nseed, y=1.02)
     ps.save(fig, "fig6_capacity_factorial")
 

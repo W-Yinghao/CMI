@@ -59,7 +59,7 @@ def _row(bb):
         cf_lpc = "raw LPC already collapse-free on this latent"
         delete_eff = "removes: subj linear %.2f to %.2f / MLP %.2f to %.2f (>> random %.2f); task kept" % (dZl, dRZl, dZ, dRZ, dRr)
         dg = "none: mean target %.2f to %.2f%s as leakage falls %.2f to %.2f" % (tgt0, tgthi, pstr, subj0, subjhi)
-        decision = "diagnostic deletion reduces (does not eliminate) leakage; no DG gain"
+        decision = "diagnostic deletion reduces (does not eliminate) leakage; global-LPC leakage reduction gives no DG gain; frozen-erasure target deployment pending"
     return {
         "Backbone": bb, "Latent dim": str(a["z_dim"]),
         "Subject decode (ERM)": "%.3f" % dZ,

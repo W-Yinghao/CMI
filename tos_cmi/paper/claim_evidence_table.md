@@ -96,9 +96,10 @@ Global forbidden phrasings (apply everywhere):
 ---
 
 ## Dim↔type confound — exact limitation wording (use verbatim)
-> EEGNet differs from TSMNet in both architecture and latent dimensionality; therefore Phase 3 does not
-> isolate whether low-rank removability is driven by convolutional inductive bias, latent compression, or
-> both. The two-point comparison establishes representation dependence, not the causal factor behind it;
+> The original two-backbone Phase 3 comparison did not isolate architecture from latent dimension. The
+> Track-C factorial attributes MOST of the removability contrast to latent dimension, while retaining a
+> RESIDUAL high-capacity architecture effect (at matched d_z=210 the SPD latent keeps more nonlinear subject
+> residual than conv). So: the two-point comparison established representation dependence, not the causal factor;
 > the Track-C capacity factorial (C11; 3 seeds) attributes it LARGELY to latent dimension (≈2/3 of the gap)
 > but finds a RESIDUAL architecture effect at high d_z, so it must NOT be written as “resolved” or as
 > “not architecture-type” (the latter is empirically refuted at d_z=210).
