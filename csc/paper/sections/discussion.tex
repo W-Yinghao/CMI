@@ -1,0 +1,42 @@
+\section{Discussion, boundary, and limitations}
+\label{sec:discussion}
+
+\todo{Expand each limitation into a short paragraph. These must travel with every positive claim; do not
+soften them.}
+
+\paragraph{What the two results jointly establish.}
+Theory (Prop.~\ref{prop:impossible}) plus the Route-A negative shows a $Z$-only concept certificate is both
+non-identifiable in general \emph{and} empirically fragile when a plausible development core is tested
+frozen. The Route-B3 positive shows that the \emph{minimal} extra information --- a paired within-subject
+target-internal reference and a few labels --- is enough to obtain a confirmable certificate on unseen
+synthetic clusters. The story is a \emph{boundary}, not a detector: it says \emph{what information is
+required} and \emph{how to test whether a certificate earns its claim}.
+
+\paragraph{Limitations (each pre-registered, none hidden).}
+\begin{enumerate}
+  \item \textbf{Synthetic only.} Both confirmatories are on a simulator. No real-EEG (e.g.\ Parkinson's
+        ON/OFF) claim is made; real EEG needs its own freeze, audit, and authorization.
+        \claimtag{C-lim-synthetic}
+  \item \textbf{Development-informed envelope.} Route B3's primary power claim is scoped to four strong
+        scenarios $\times$ $m\in\{20,30\}$. Heavy label noise ($\sim$10\% flips) and very short records
+        ($<8$ epochs/condition $\rightarrow$ eligibility abstention) are pre-registered \emph{out} of the
+        power claim; controls, however, were evaluated over all six scenarios.
+        \claimtag{C-lim-envelope}
+  \item \textbf{Pure-conditional tail is weak.} The invisible pure-conditional relabel remains at power
+        $0.146$/$0.281$ ($m20$/$m30$); it is secondary and non-gating. Route B3 confirms class-conditional/
+        boundary concept shift, not all pure conditional shift.
+        \claimtag{C-lim-pure}
+  \item \textbf{Pointwise, not familywise.} The $C_2$ control gates are a conjunction of \emph{pointwise}
+        Clopper--Pearson bounds at the kind$\times$budget reporting unit, not a simultaneous familywise
+        confidence statement over all cells.
+        \claimtag{C-lim-pointwise}
+  \item \textbf{Paired structure is required.} Route B3 needs a genuine within-subject paired design; it
+        does not apply to unpaired target-only data (that is the regime where Prop.~\ref{prop:impossible}
+        bites and abstention is mandatory).
+        \claimtag{C-lim-paired}
+\end{enumerate}
+
+\paragraph{Future work.}
+The natural next step is a real-EEG paired confirmatory (PD ON/OFF, cross-site null) under the same
+freeze-before-confirmatory discipline --- a new pre-registration, not an extrapolation of the synthetic
+pass. A synthetic pass is a necessary precondition, not a real-data guarantee.

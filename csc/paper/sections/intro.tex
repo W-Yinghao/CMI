@@ -1,0 +1,54 @@
+\section{Introduction}
+\label{sec:intro}
+
+\todo{Full prose pass. Skeleton below fixes the claims, scope, and contributions; expand each bullet into
+1--2 paragraphs and add citations (see references.bib stubs).}
+
+\paragraph{Problem.}
+When an EEG model trained on a source population is deployed on a new target (new subjects, sites, or
+conditions), the practical question is not only ``did the input distribution move'' but ``did the
+\emph{decision rule} $P(Y\mid Z)$ move'' --- a \emph{concept shift}. A tempting goal is a universal,
+label-free detector that reads concept shift off the unlabeled target embeddings $Z$.
+\claimtag{C-motivation}
+We show this goal is not attainable in general, reframe the object as a \emph{certificate with explicit
+abstention}, and ask the sharper question: \emph{what is the minimal information that turns abstention into
+a confirmable certificate, and does that certificate survive a frozen confirmatory test?}
+
+\paragraph{Two regimes, one discipline.}
+We compare two certificates under an identical audit protocol (development $\rightarrow$ freeze
+tag$+$manifest$+$fail-closed runner $\rightarrow$ single unseen confirmatory):
+\begin{itemize}
+  \item \textbf{Route A} --- a source-anchored, $Z$-only certificate. Its frozen confirmatory is a
+        \emph{negative} result (Sec.~\ref{sec:routeA}): the development-observed core did not generalize.
+  \item \textbf{Route B3} --- a paired within-subject, minimal-label certificate that supplies exactly the
+        extra information Prop.~\ref{prop:impossible} shows is missing. Its frozen confirmatory is a
+        \emph{positive} result within a pre-registered synthetic envelope (Sec.~\ref{sec:routeB3conf}).
+\end{itemize}
+
+\paragraph{Contributions.}
+\begin{enumerate}
+  \item \textbf{Impossibility + abstention (Sec.~\ref{sec:theory}).} A $Z$-only certificate cannot decide
+        concept shift for \emph{any} observed marginal (Prop.~\ref{prop:impossible}); the honest output is
+        three-state with an \stunid{} (abstain) branch.
+        \claimtag{C-impossible}
+  \item \textbf{An audited negative (Sec.~\ref{sec:routeA}).} A frozen confirmatory falsifies a plausible
+        $Z$-only development core --- forbidden (false-cert) rate above $\alpha$ \emph{and} power below the
+        deployment bar on unseen clusters.
+        \claimtag{C-routeA-neg}
+  \item \textbf{A minimal-information positive (Secs.~\ref{sec:routeB3method}--\ref{sec:routeB3conf}).}
+        A paired within-subject target-internal reference plus a few labels yields a certificate whose
+        frozen unseen-cluster synthetic confirmatory passes all pre-registered criteria within its declared
+        envelope (primary power $1.00$; false confirmation within the pointwise control gates).
+        \claimtag{C-routeB3-pos}
+  \item \textbf{The audit protocol as a contribution (Sec.~\ref{sec:routeB3conf}, appendix).}
+        Freeze-before-confirmatory with non-selection rules, conservative denominators, fail-closed
+        provenance, and an independent red-team re-aggregation --- the same machinery yields the negative
+        \emph{and} the positive verdict, which is why both are credible.
+        \claimtag{C-protocol}
+\end{enumerate}
+
+\paragraph{Scope (stated up front).}
+All results are \textbf{synthetic}. Route B3's positive claim holds within a \emph{development-informed,
+frozen-before-confirmatory} operating envelope (Sec.~\ref{sec:routeB3conf}); it is not a claim that concept
+shift is solved in general, nor a real-EEG result. Real EEG (e.g.\ Parkinson's ON/OFF paired recordings)
+is future work requiring its own freeze and authorization (Sec.~\ref{sec:discussion}).

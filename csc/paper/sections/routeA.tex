@@ -1,0 +1,64 @@
+\section{Route A: a source-anchored $Z$-only certificate, and its frozen negative}
+\label{sec:routeA}
+
+\todo{Expand method subsection from csc/THEORY.md \S3--\S4 (statistic, parametric-bootstrap null, support
+gate, atlas/direction-linked evidence). Keep the confirmatory numbers exactly as below (verified against
+csc/results/confirmatory.json).}
+
+\subsection{Certificate design (summary)}
+Route A instantiates the three-state output of Sec.~\ref{sec:theory} as a \emph{source-anchored} certificate:
+a source-side concept statistic with a parametric-bootstrap null under the fitted no-shift model $h_0$; a
+\emph{support gate} (bipartite connectivity + minimum cell counts + design conditioning) that abstains on
+disconnected/rank-deficient designs; a low-moment \emph{atlas} of covariate/concept/label subspaces with
+direction-linked concept evidence; and a label subspace/gate for the label-shift trap
+(Table~\ref{tab:taxonomy}). The analysis unit is the subject (cluster-valid inference throughout). Under
+Assumption~\ref{ass:T} it emits \stcov{}/\stsus{}, and abstains (\stunid{}) otherwise. \claimtag{C-routeA-design}
+
+\subsection{Development sweep suggested an identifiable core}
+A pre-registered difficulty-envelope sweep (star design over effect size, subjects, epochs, correlation,
+imbalance, leakage, mechanism family) located an apparent favourable operating point $P_{\text{baseline}}$
+(concept effect $14$, $22$ subjects/domain, $30$ target subjects, balanced priors, correlation $0.2$,
+covariate leakage $10$, $3$ concept domains, $22$ epochs). Crucially, the development map \emph{itself}
+flagged that $12$ clusters/cell give only a Clopper--Pearson upper bound $\approx 0.221$ on the forbidden
+rate --- a boundary locator, \textbf{not} error control. \claimtag{C-routeA-dev}
+
+\subsection{The frozen confirmatory falsifies the core}
+We froze the method (tag, manifest hash, fail-closed runner) and ran a single confirmatory on \emph{unseen}
+clusters (base seed $900000$; source seeds $900000\text{--}900065 \rightarrow$ target seeds
+$1800000\text{--}1800065$, disjoint). The pre-registered headline is a conjunction of a false-certification
+gate and a power gate. Both failed (Table~\ref{tab:routeA}). \claimtag{C-routeA-neg}
+
+\begin{table}[t]
+\centering
+\caption{Route A, same operating point $P_{\text{baseline}}$, evaluated two ways. The frozen confirmatory
+($\geq 59$ valid clusters; $0$-failure CP-UB $\leq 0.05$; power bar $0.50$ with a
+$\max(\text{conditional},\text{unconditional})$ guard) refutes the development core:
+\texttt{headline\_core\_pass=false}.}
+\label{tab:routeA}
+\begin{tabular}{@{}lll@{}}
+\toprule
+ & development (P1.5 map, dev seeds) & confirmatory (frozen, unseen seed $900000$) \\
+\midrule
+clusters                 & $12$/cell                 & $G=66$, $N_{\text{valid}}=65$ \\
+visible-concept power     & $0.83$ (CP-LB $0.56$)     & $\mathbf{0.43}$ ($28/65$; CP-LB $\mathbf{0.326}$) \\
+forbidden (false-cert)    & $0/12$                    & $\mathbf{1/65}$, CP-UB $\mathbf{0.0709} > \alpha{=}0.05$ \\
+headline                  & apparent favourable core  & \textbf{FAIL both endpoints} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.9\linewidth]{fig3_dev_vs_confirmatory.png}
+\caption{Route A development operating map vs.\ frozen confirmatory: the development-favourable region does
+not reproduce on unseen clusters (power drops, forbidden rate exceeds $\alpha$). The gap is an
+informed-selection/generalization effect \emph{surfaced} by the freeze$\rightarrow$unseen protocol.}
+\label{fig:devconf}
+\end{figure}
+
+\paragraph{Reading.}
+The negative is not a bug: it is the freeze-before-confirmatory protocol doing its job. Per protocol the
+result was committed and \emph{not} rerun; no threshold, seed, manifest, or tag was changed. Route A
+establishes that a plausible, heavily engineered $Z$-only development core can fail both endpoints on unseen
+data --- consistent with Prop.~\ref{prop:impossible}: without extra information tying source evidence to the
+target posterior, marginal concept evidence is fragile. This motivates Route B3. \claimtag{C-routeA-read}

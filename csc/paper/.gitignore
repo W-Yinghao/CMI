@@ -1,0 +1,8 @@
+# LaTeX build products (regenerate with compile.sh)
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.toc
+*.pdf

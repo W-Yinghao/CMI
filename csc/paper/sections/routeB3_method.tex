@@ -1,0 +1,57 @@
+\section{Route B3: a paired within-subject, minimal-label certificate}
+\label{sec:routeB3method}
+
+\todo{Expand each component into method prose + a small algorithm box; add the pipeline figure caption
+cross-ref. All parameter values below are the frozen method lock (calibration\_version
+\texttt{p24d\_cross\_budget\_alpha\_spending\_studentized\_fixed\_margin}).}
+
+\paragraph{The missing information.}
+Prop.~\ref{prop:impossible} says the target marginal is insufficient. Route B3 supplies the minimal extra
+information that breaks the tie: (i) a \emph{paired within-subject reference} --- each subject contributes
+two conditions (e.g.\ ON/OFF), so the subject is their \emph{own} control and the subject random effect
+cancels; and (ii) a \emph{few labels} on eligible paired subjects. Critically, the reference is
+\emph{target-internal}: no source posterior is used, so Route B3 sidesteps the source-reference
+contamination and covariate-extrapolation failure modes that make a source-anchored certificate fragile. \claimtag{C-b3-idea}
+
+\paragraph{Conditional-change test.}
+For a subject with conditions indexed by a centered code $c\in\{-\tfrac12,+\tfrac12\}$, we compare
+\[
+h_0:\ [\,Z,\ c\,] \qquad\text{vs.}\qquad h_1:\ [\,Z,\ c,\ c\times Z_{\mathrm{pc}}\,]
+\]
+where $Z_{\mathrm{pc}}$ is a low-rank (rank $3$) principal-component basis and the $c\times Z_{\mathrm{pc}}$
+interaction is the condition-dependent boundary change. The statistic is a subject-condition-vote
+difference of negative log-likelihoods, $T=\mathrm{vote}(\mathrm{NLL}_{h_0})-\mathrm{vote}(\mathrm{NLL}_{h_1})$,
+cross-fitted over $3$ folds. Centered ($\pm\tfrac12$) coding is essential: $0/1$ coding makes the
+interaction asymmetric and induces a type-I failure. \claimtag{C-b3-test}
+
+\paragraph{Calibrated inference (the method lock).}
+The frozen certifier (\texttt{pc\_centered\_calibrated}) combines:
+\begin{itemize}
+  \item \textbf{Pair-integrity + eligibility guards}: pair integrity $\geq 0.95$; an eligible complete pair
+        needs $\geq 8$ epochs per condition; per-condition class coverage required, else \stinv{}/\stneed{}.
+  \item \textbf{Condition-matched fixed-margin $h_0$ bootstrap}: within-condition label swaps that preserve
+        the per-condition class margins (Metropolis, acceptance $\propto p_0$); $n_{\text{boot}}=200$;
+        invalid replicates are \emph{counted}, not dropped.
+  \item \textbf{Studentized subject-consistency gate}: $Z=\overline{\Delta}_s/\mathrm{se}(\Delta_s)$ over
+        per-subject deltas, requiring the lower confidence bound on $\overline{\Delta}_s$ to exceed $0$.
+  \item \textbf{Cross-budget $\alpha$-spending}: family $\alpha=0.05$ split over the two positive-decision
+        budgets $m\in\{20,30\}$, giving $\alpha_{\text{budget}}=0.025$ on the $p$-gates and a $0.975$ LCB.
+\end{itemize}
+A positive decision at budget $m$ requires the fixed-margin mean-$T$ $p\leq\alpha_{\text{budget}}$
+\emph{and} the studentized $p\leq\alpha_{\text{budget}}$ \emph{and} $\mathrm{LCB}_{0.975}(\Delta_s)>0$.
+
+\paragraph{Output states.}
+Route B3 emits \stconf{} / \stnoev{} / \stneed{} / \stinv{} / \stunid{} --- there is no \stcov{} state
+(covariate compatibility is not a Route-B3 claim). The design fails closed: unsound pairing, too few
+epochs, or too few eligible labelled subjects yield abstention, never a confirmation. \claimtag{C-b3-states}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.92\linewidth]{fig2_pipeline_gates.png}
+\caption{Certificate pipeline and fail-closed gates. \todo{Regenerate a B3-specific pipeline figure:
+paired within-subject ON/OFF $\rightarrow$ pair-integrity/eligibility guards $\rightarrow$ centered
+conditional-change test $\rightarrow$ fixed-margin null $+$ studentized gate $+$ cross-budget
+$\alpha$-spending $\rightarrow$ \{\stconf, \stnoev, \stneed, \stinv, \stunid\}. Current figure is the
+Route-A pipeline placeholder.}}
+\label{fig:pipeline}
+\end{figure}

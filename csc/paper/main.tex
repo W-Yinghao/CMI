@@ -1,0 +1,73 @@
+\documentclass[10pt]{article}
+
+% ============================================================================
+% CSC manuscript — NEUTRAL build (self-contained, compiles with base LaTeX).
+% Story: identifiability/abstention boundary -> Route A Z-only frozen NEGATIVE
+%        -> Route B3 paired minimal-label frozen POSITIVE (synthetic).
+% Two-build convention (mirrors tos_cmi/paper): this main.tex is venue-neutral;
+% a venue stylefile build (venue_main.tex + <venue>.sty) drops in once the
+% venue is fixed -- see README.md. Do NOT hardcode a venue here.
+% ============================================================================
+
+\usepackage[margin=1in]{geometry}
+\usepackage{times}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{amsthm}
+
+\graphicspath{{figures/}}
+
+\newtheorem{proposition}{Proposition}
+\newtheorem{assumption}{Assumption}
+
+% --- draft-mode claim tags: traceability to claim_evidence_table.md, HIDDEN in PDF ---
+\newif\ifshowclaimtags
+\showclaimtagsfalse
+\newcommand{\claimtag}[1]{\ifshowclaimtags\textcolor{blue}{[#1]}\fi}
+
+% --- draft-mode TODO notes: VISIBLE in draft, flip to hide for a clean build ---
+\newif\ifshowtodo
+\showtodotrue
+\newcommand{\todo}[1]{\ifshowtodo\textcolor{red}{\textbf{[TODO: #1]}}\fi}
+
+% state-name shorthand (exact certifier states)
+\newcommand{\stcov}{\textsc{Covariate\_Compatible}}
+\newcommand{\stsus}{\textsc{Concept\_Suspect}}
+\newcommand{\stunid}{\textsc{Unidentifiable}}
+\newcommand{\stconf}{\textsc{Concept\_Confirmed}}
+\newcommand{\stnoev}{\textsc{No\_Concept\_Evidence}}
+\newcommand{\stneed}{\textsc{Need\_More\_Labels}}
+\newcommand{\stinv}{\textsc{Invalid\_Pair\_Structure}}
+
+\title{When Can EEG Concept Shift Be Certified?\\
+From \texorpdfstring{$Z$}{Z}-only Abstention to Paired Minimal-Label Certificates}
+\author{Anonymous}
+\date{}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+\input{sections/intro}
+\input{sections/theory}
+\input{sections/routeA}
+\input{sections/routeB3_method}
+\input{sections/routeB3_confirmatory}
+\input{sections/related}
+\input{sections/discussion}
+\input{sections/conclusion}
+
+\appendix
+\input{sections/appendix}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\end{document}

@@ -1,0 +1,40 @@
+\section{Appendix: audit protocol, provenance, and reproducibility}
+\label{app:audit}
+
+\todo{Fill from csc/PREREGISTRATION.md, the B3 freeze-candidate protocol, the confirmatory manifest, and
+the C6 red-team note. Keep exact hashes/seeds for reproducibility.}
+
+\subsection{Freeze-before-confirmatory protocol}
+Both routes follow: development (dev seeds) $\rightarrow$ freeze (annotated git tag $+$ machine-readable
+manifest with a canonical hash $+$ pinned code hashes) $\rightarrow$ a \emph{single} confirmatory on unseen
+clusters run by a fail-closed runner (verifies manifest hash, code hashes, HEAD $=$ tag commit, clean tree,
+and seed disjointness before executing; a scientific FAIL still preserves the artifact). Non-selection
+rules: a fixed finite operating point/scenario list, a conjunction headline (no disjunction, no post-hoc
+cell addition, no pooling to mask elevation), conservative denominators (non-confirm states counted as
+non-fired), and a required independent red-team re-aggregation.
+
+\subsection{Route A confirmatory provenance}
+Tag \texttt{csc-confirmatory-v1} (commit \texttt{dee8958}); manifest \texttt{da2c0f4309\dots}; artifact
+\texttt{csc/results/confirmatory.json} (sha256 \texttt{8b07524e\dots}); SLURM $876329$; base seed $900000$
+(source $900000\text{--}900065 \rightarrow$ target $1800000\text{--}1800065$). Verdict:
+\texttt{headline\_core\_pass=false} (Table~\ref{tab:routeA}).
+
+\subsection{Route B3 confirmatory provenance and seed schedule}
+Tag \texttt{csc-b3-confirmatory-v1} (commit \texttt{0595f64}); manifest hash
+\texttt{a96dc0de55917c0f6dadf39807ea3cdd7539df1802f57917549ae1ddbb65cf62}; artifact
+\texttt{csc/results/b3\_confirmatory\_result.json} ($+$ \texttt{.sha256}); SLURM $878107$
+(cpu-high/nodecpu02). Seed schedule: cluster seed $=3000000 + 100000\cdot(\text{cell index}) +
+(\text{replicate})$; target offset $10000$; $5376$ clusters; range $[3000000,14100047]$; verified disjoint
+from Route-A source/target seeds ($900000\text{--}65$, $1800000\text{--}65$), development blocks, and the
+smoke/test range ($<100000$). $C_6$ red-team confirmed $C_1$--$C_5$ without correction.
+
+\subsection{Method lock (Route B3)}
+\texttt{calibration\_version = p24d\_cross\_budget\_alpha\_spending\_studentized\_fixed\_margin};
+$h_1$ basis $=$ pc (rank $3$), centered ($\pm\tfrac12$) condition coding, $C=0.5$; condition-matched
+fixed-margin $h_0$ bootstrap ($n_{\text{boot}}=200$); studentized subject-consistency gate; family
+$\alpha=0.05$, budgets $\{20,30\}$, $\alpha_{\text{budget}}=0.025$, LCB level $0.975$; $3$ folds; pair
+integrity $\geq 0.95$; $\geq 8$ epochs/condition; $\geq 20$ eligible labelled paired subjects.
+
+\subsection{Reproducibility}
+\todo{Add exact commands: frozen-worktree checkout at the tag, the SLURM wrapper invocation, and the
+re-aggregation script. Reference the committed result artifacts and the C6 note.}
