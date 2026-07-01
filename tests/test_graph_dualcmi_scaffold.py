@@ -93,11 +93,64 @@ def test_graphdualpc_cpu_tiny_run():
                                 lam=0.01, beta=0.01, lam_edge=0.0, gamma=0.1,
                                 epochs=2, bs=16, n_inner=1, warmup=1, device="cpu", seed=0)
     for k in ("lambda_g", "lambda_node", "lambda_edge", "gamma_dec",
-              "reg_graph_gls", "reg_node_gls", "dec_js_res", "dec_ce_res", "loss_ce"):
+              "reg_graph_gls", "reg_node_gls", "dec_js_res", "dec_ce_res", "loss_ce",
+              "stepA_graph_dom_acc_gls", "stepA_node_dom_acc_gls", "stepA_graph_loss_gls",
+              "stepA_node_loss_gls"):
         assert k in out, f"missing diagnostic {k}"
         assert math.isfinite(out[k]), f"{k} not finite: {out[k]}"
     assert out["lambda_g"] == 0.01 and out["lambda_node"] == 0.01 and out["gamma_dec"] == 0.1
     assert out["dec_js_res"] >= 0.0                      # JS residual is non-negative
+    assert 0.0 <= out["stepA_graph_dom_acc_gls"] <= 1.0
+
+
+def test_graphdualpc_label_correct_gls_ce_runs():
+    # label_correct=True -> GLS-weighted task CE path must run and stay finite (paper-facing semantics)
+    X, y, d = _synth()
+    C, T, n_cls = X.shape[1], X.shape[2], 2
+    bb = build_backbone("DGCNNGraph", C, T, n_cls, device="cpu")
+    bb, post, out = train_model(bb, X, y, d, n_cls, method="graphdualpc",
+                                lam=0.01, beta=0.01, lam_edge=0.0, gamma=0.1, label_correct=True,
+                                epochs=2, bs=16, n_inner=1, warmup=1, device="cpu")
+    assert math.isfinite(out["loss_ce"]) and math.isfinite(out["reg_graph_gls"])
+
+
+def test_graphdualpc_distinct_fused_z_fail_closed():
+    # a backbone whose forward_graph returns a DISTINCT fused_z (5-tuple) must fail closed until a
+    # separate decoder-posterior is implemented (shared `post` only valid for z_dec == graph_z).
+    class _FusedGraph(torch.nn.Module):
+        z_dim, node_z_dim = 8, 16
+        def __init__(self):
+            super().__init__()
+            self.g = torch.nn.Linear(16, 8); self.head = torch.nn.Linear(8, 2); self.f = torch.nn.Linear(8, 8)
+        def forward_graph(self, x):
+            B, C, T = x.shape
+            nz = x.mean(-1, keepdim=True).expand(B, C, 16).contiguous()
+            gz = torch.relu(self.g(nz.mean(1)))
+            return self.head(gz), gz, nz, None, self.f(gz)      # fused_z is a distinct object
+        def forward(self, x):
+            o = self.forward_graph(x); return o[0], o[1]
+
+    X, y, d = _synth()
+    with pytest.raises(NotImplementedError, match="fused_z"):
+        train_model(_FusedGraph(), X, y, d, 2, method="graphdualpc",
+                    lam=0.01, beta=0.01, lam_edge=0.0, gamma=0.1, epochs=1, bs=16, n_inner=1, warmup=1, device="cpu")
+
+
+def test_run_loso_graphdualpc_grammar():
+    from cmi.run_loso import parse_config
+    # graphdualpc:<lambda_g>:<lambda_node>:<lambda_edge>:<gamma_dec>  ->  lam=lg, node_w=lnode, lam_edge=le, gamma=gdec
+    lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w = parse_config(
+        "graphdualpc:0.010:0.020:0.000:0.100", default_beta=0.0)
+    assert method == "graphdualpc"
+    assert (lam, node_w, lam_edge, gamma) == (0.010, 0.020, 0.000, 0.100)
+    # decoder-only and encoder-only ablation configs parse
+    assert parse_config("graphdualpc:0:0:0:0.1")[2] == 0.0 and parse_config("graphdualpc:0:0:0:0.1")[3] == 0.1
+    # graphcmi grammar UNCHANGED (gamma == lambda_node; node_w falls back to default_beta)
+    g = parse_config("graphcmi:0.01:0.02:0.0", default_beta=0.5)
+    assert g[1] == "graphcmi" and (g[2], g[3], g[4]) == (0.01, 0.02, 0.0) and g[7] == 0.5
+    # erm still parses; node_w = default_beta (VIB beta preserved for non-graphdualpc methods)
+    e = parse_config("erm:0", default_beta=0.3)
+    assert e[1] == "erm" and e[2] == 0.0 and e[7] == 0.3
 
 
 def test_graphdualpc_edge_fail_closed_on_static_adjacency():

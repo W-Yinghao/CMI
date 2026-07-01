@@ -300,7 +300,15 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 # reference="marginal" (post-GLS domain marginal); decoder term is the JS residual.
                 lambda_g, lambda_node, lambda_edge_w, gamma_dec = lam, beta, lam_edge, gamma
                 with torch.no_grad():                     # Step A: fit posteriors + decoder probes on detached features
-                    _, gz_d, nz_d, el_d, zdec_d = _unpack_graph(backbone.forward_graph(xb))
+                    _og = backbone.forward_graph(xb)
+                    # Fail closed on a DISTINCT fused_z: `post` currently hosts BOTH q(D|Z_g,Y) and the decoder
+                    # probes, which is only valid while z_dec == graph_z. A future backbone returning a separate
+                    # fused_z must use separate decoder heads (post_dec) -> do not silently optimize the wrong z.
+                    if len(_og) == 5 and _og[4] is not None and _og[4] is not _og[1]:
+                        raise NotImplementedError(
+                            "graphdualpc with a distinct fused_z requires separate post_dec decoder heads; "
+                            "the shared `post` only supports z_dec == graph_z (see docs/CIGL_46).")
+                    _, gz_d, nz_d, el_d, zdec_d = _unpack_graph(_og)
                 has_edge = el_d is not None                # static-adjacency (DGCNN adapter) -> edge_logits=None
                 if lambda_edge_w != 0 and not has_edge:    # fail closed: no edge term without a per-sample edge object
                     raise ValueError("method='graphdualpc' with lambda_edge!=0 needs per-sample edge_logits; "
@@ -316,7 +324,11 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                         la = la + edge_post.step_a_loss(el_d, yb, db, weight=wb)
                     opt_post.zero_grad(); la.backward(); opt_post.step()
                 logits, gz, nz, el, zdec = _unpack_graph(backbone.forward_graph(xb))   # Step B (grad to encoder)
-                ce = F.cross_entropy(logits, yb, weight=ce_weight)         # task CE (GLS is applied to the CMI side, not CE)
+                if label_correct:                                          # optional GLS-weighted task CE (off by default)
+                    per = F.cross_entropy(logits, yb, weight=ce_weight, reduction="none")
+                    ce = (wb * per).sum() / wb.sum().clamp(min=1e-8)
+                else:
+                    ce = F.cross_entropy(logits, yb, weight=ce_weight)     # default: GLS on the CMI side, not on task CE
                 r_graph = post.reg("lpc_prior", gz, yb, weight=wb, reference="marginal")     # lambda_g   : I~(Z_g;D|Y)
                 r_node = node_post.reg(nz, yb, weight=wb, reference="marginal")              # lambda_node: (1/C) Σ_v I~(Z_v;D|Y)
                 r_edge = edge_post.reg(el, yb, weight=wb, reference="marginal") if has_edge else None  # lambda_edge: I~(A;D|Y)
@@ -336,6 +348,17 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                         diag["inloop_reg_edge"].append(_scalar(r_edge))
                     diag.setdefault("inloop_dec_js", []).append(_scalar(r_dec_js))
                     diag.setdefault("inloop_dec_ce", []).append(_scalar(r_dec_ce))
+                    with torch.no_grad():   # Step-A critic quality per head (GLS diagnostic; probe underfit check)
+                        gpred = post.q_dzy(torch.cat([gz, F.one_hot(yb, n_cls).float()], 1)).argmax(1)
+                        npred = node_post._logits(nz, yb).argmax(-1)   # [B,C] per-channel domain pred
+                        diag["stepA_graph_correct"] += int((gpred == db).sum()); diag["stepA_graph_total"] += int(db.numel())
+                        diag["stepA_node_correct"] += int((npred == db.unsqueeze(1)).sum()); diag["stepA_node_total"] += int(npred.numel())
+                        diag["stepA_graph_loss"].append(_scalar(post.posterior_loss(gz, yb, db, weight=wb)))
+                        diag["stepA_node_loss"].append(_scalar(node_post.step_a_loss(nz, yb, db, weight=wb)))
+                        if has_edge:
+                            epred = edge_post._logits(el, yb).argmax(1)    # [B]
+                            diag["stepA_edge_correct"] += int((epred == db).sum()); diag["stepA_edge_total"] += int(db.numel())
+                            diag["stepA_edge_loss"].append(_scalar(edge_post.step_a_loss(el, yb, db, weight=wb)))
                 continue
             # Step A: fit auxiliary predictor(s) on detached Z (CMI posteriors, or IIB's h)
             fits_qdzy = uses_cmi or is_dual or is_dualc or is_dualpc or is_dualpc_hinge or is_dualpc_marginal
@@ -490,14 +513,20 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                    stepA_edge_loss=_mean("stepA_edge_loss"),
                    stepA_dom_acc=graph_dom_acc)   # override legacy field (was a fake 0.0 for graphcmi)
     if uses_graphdualpc:
-        # Paper-facing Graph-DualCMI diagnostics: four explicit weights + GLS encoder terms + decoder residuals.
+        # Paper-facing Graph-DualCMI diagnostics: four explicit weights + GLS encoder terms + decoder residuals
+        # + Step-A critic quality (probe-underfit check: reg_*_gls is only interpretable if the critics fit).
         _mean = lambda k: float(np.mean(diag[k])) if diag.get(k) else 0.0
         out.update(lambda_g=float(lam), lambda_node=float(beta), lambda_edge=float(lam_edge),
                    gamma_dec=float(gamma),
                    reg_graph_gls=_mean("inloop_reg_graph"), reg_node_gls=_mean("inloop_reg_node"),
                    reg_edge_gls=_mean("inloop_reg_edge"),
                    dec_js_res=_mean("inloop_dec_js"), dec_ce_res=_mean("inloop_dec_ce"),
-                   loss_ce=_mean("inloop_ce"))
+                   loss_ce=_mean("inloop_ce"),
+                   stepA_graph_dom_acc_gls=diag["stepA_graph_correct"] / max(1, diag["stepA_graph_total"]),
+                   stepA_node_dom_acc_gls=diag["stepA_node_correct"] / max(1, diag["stepA_node_total"]),
+                   stepA_edge_dom_acc_gls=diag["stepA_edge_correct"] / max(1, diag["stepA_edge_total"]),
+                   stepA_graph_loss_gls=_mean("stepA_graph_loss"), stepA_node_loss_gls=_mean("stepA_node_loss"),
+                   stepA_edge_loss_gls=_mean("stepA_edge_loss"))
     if "inloop_reg_loss" in diag:
         out["inloop_reg_loss"] = float(np.mean(diag["inloop_reg_loss"]))
     if "inloop_dec" in diag:

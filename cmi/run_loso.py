@@ -18,8 +18,64 @@ For SCPS datasets (e.g. ADFTD) the per-target balanced accuracy is degenerate (o
 per subject); read the **pooled** and **subject-level** balanced accuracy in the summary.
 """
 from __future__ import annotations
-import argparse, json, time
+import argparse, json, os, subprocess, time
 import numpy as np
+
+
+def _git_sha():
+    try:
+        return subprocess.check_output(["git", "rev-parse", "HEAD"],
+                                       cwd=os.path.dirname(os.path.abspath(__file__)),
+                                       stderr=subprocess.DEVNULL).decode().strip()[:12]
+    except Exception:
+        return "unknown"
+
+
+def _ablate_bacc(bb, Xte, yte, mode, device, bs=256):
+    """Target balanced accuracy under a graph-usage ablation (zero_graph / permute_nodes). Requires
+    backbone.ablate(x, mode). zero_graph ~ chance proves no head/prior bypass; permute_nodes << normal
+    bAcc proves trial-specific node content is used."""
+    import torch
+    from cmi.eval.metrics import classification_metrics
+    bb.eval()
+    probs = []
+    with torch.no_grad():
+        for i in range(0, len(Xte), bs):
+            xb = torch.as_tensor(Xte[i:i + bs], dtype=torch.float32, device=device)
+            probs.append(torch.softmax(bb.ablate(xb, mode), 1).cpu().numpy())
+    return float(classification_metrics(np.concatenate(probs), yte)["balanced_acc"])
+
+
+def parse_config(c, default_beta=0.0):
+    """Parse a --configs entry 'method[:a[:b[:c[:d]]]]' -> (label, method, lam, gamma, lam_edge, z_margin,
+    dec_scale, node_w). node_w is lambda_node for graphdualpc and default_beta (the VIB beta) otherwise, so
+    existing methods are unaffected.
+
+      graphcmi:<lambda_g>:<lambda_node>:<lambda_edge>            (unchanged: gamma == lambda_node)
+      graphdualpc:<lambda_g>:<lambda_node>:<lambda_edge>:<gamma_dec>   (lam=lg, node_w=lnode, lam_edge=le, gamma=gdec)
+    """
+    parts = c.split(":"); method = parts[0]
+    nums = [float(x) for x in parts[1:]]
+    lam_edge, z_margin, dec_scale, node_w = 0.0, 0.0, 1.0, default_beta
+    if method == "supcon":                       # supcon:<gamma>
+        lam, gamma = 0.0, nums[0]
+    elif method in ("lpc_supcon", "lpc_simclr", "lpc_byol"):   # <method>:<lam=CMI>:<gamma=SSL>
+        lam, gamma = nums[0], nums[1]
+    elif method == "graphcmi":                   # graphcmi:<lam=global>:<lam_node>:<lam_edge>  (gamma == lam_node)
+        lam, gamma, lam_edge = nums[0], (nums[1] if len(nums) > 1 else 0.0), (nums[2] if len(nums) > 2 else 0.0)
+    elif method == "graphdualpc":                # graphdualpc:<lambda_g>:<lambda_node>:<lambda_edge>:<gamma_dec>
+        lam = nums[0] if nums else 0.0
+        node_w = nums[1] if len(nums) > 1 else 0.0     # -> train_model(beta=node_w) == lambda_node
+        lam_edge = nums[2] if len(nums) > 2 else 0.0
+        gamma = nums[3] if len(nums) > 3 else 0.0       # -> gamma_dec
+    elif method in ("dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal"):
+        lam, gamma = nums[0], (nums[1] if len(nums) > 1 else nums[0])
+        if method == "dualpc_hinge":
+            z_margin = nums[2] if len(nums) > 2 else 0.0
+            dec_scale = nums[3] if len(nums) > 3 else 1.0
+    else:                                        # erm | {marginal,chain,lpc_uniform,lpc_prior}:<lam>
+        lam, gamma = (nums[0] if nums else 0.0), 0.0
+    return (c, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w)
 import torch
 
 from cmi.data import moabb_data, emotion_data, diagnosis_data, processed_data
@@ -130,7 +186,14 @@ def _summarize(results, pooled):
             inloop_dec_loss=float(np.mean([r.get("inloop_dec_loss", 0.0) for r in results[m]])),
             train_dec_margin=float(np.mean([r.get("train_dec_margin", 0.0) for r in results[m]])),
             stepA_dom_acc=float(np.mean([r["stepA_dom_acc"] for r in results[m]])),
+            # Graph-DualCMI gate aggregates (source retention + graph-usage ablation); target side is
+            # per_target_balanced_acc_mean / worst_target_balanced_acc above.
+            source_bacc_mean=float(np.mean([r.get("source_bacc", float("nan")) for r in results[m]])),
+            worst_source_bacc=float(np.min([r.get("source_bacc", float("nan")) for r in results[m]])),
             n_folds=len(results[m]), per_target=results[m])
+        for _abl in ("ablate_zero_graph_target_bacc", "ablate_permute_nodes_target_bacc"):
+            if results[m] and _abl in results[m][0]:
+                summary[m][_abl + "_mean"] = float(np.mean([r[_abl] for r in results[m]]))
         if results[m] and "ts_balanced_acc" in results[m][0]:          # CIPC transductive-corrected metrics
             summary[m]["transduct_balanced_acc_mean"] = float(np.mean([r["ts_balanced_acc"] for r in results[m]]))
             summary[m]["transduct_balanced_acc_std"] = float(np.std([r["ts_balanced_acc"] for r in results[m]]))
@@ -206,29 +269,7 @@ def run(args):
     print(f"[{args.dataset}] X={X.shape} classes={classes} subjects={sorted(meta['subject'].unique())} "
           f"device={device}", flush=True)
 
-    configs = []  # (label, method, lam, gamma, lam_edge, z_margin, dec_scale)
-    for c in args.configs:
-        parts = c.split(":"); method = parts[0]
-        nums = [float(x) for x in parts[1:]]
-        lam_edge = 0.0
-        z_margin = 0.0
-        dec_scale = 1.0
-        if method == "supcon":                       # supcon:<gamma>
-            lam, gamma = 0.0, nums[0]
-        elif method in ("lpc_supcon", "lpc_simclr", "lpc_byol"):   # <method>:<lam=CMI>:<gamma=SSL>
-            lam, gamma = nums[0], nums[1]
-        elif method == "graphcmi":                   # graphcmi:<lam=global>:<lam_node>:<lam_edge>
-            lam, gamma, lam_edge = nums[0], (nums[1] if len(nums) > 1 else 0.0), (nums[2] if len(nums) > 2 else 0.0)
-        elif method in ("dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal"):
-            # dualpc:<lam=reference-factorized P(Z)>:<gamma=JS-consistency P(Y|Z)>
-            # dualpc_marginal keeps the direct marginal I_w(Z;D) ablation.
-            lam, gamma = nums[0], (nums[1] if len(nums) > 1 else nums[0])
-            if method == "dualpc_hinge":
-                z_margin = nums[2] if len(nums) > 2 else 0.0
-                dec_scale = nums[3] if len(nums) > 3 else 1.0
-        else:                                        # erm | {marginal,chain,lpc_uniform,lpc_prior}:<lam>
-            lam, gamma = (nums[0] if nums else 0.0), 0.0
-        configs.append((c, method, lam, gamma, lam_edge, z_margin, dec_scale))
+    configs = [parse_config(c, default_beta=args.beta) for c in args.configs]  # +node_w slot (lambda_node for graphdualpc)
     results = {lbl: [] for lbl, *_ in configs}
     pooled = {lbl: [] for lbl, *_ in configs}        # raw (y, pred, target) for global/subject metrics
     preds = {lbl: [] for lbl, *_ in configs}         # per-fold probabilities -> sidecar .npz
@@ -259,13 +300,13 @@ def run(args):
         rng = np.random.default_rng(args.seed)
         idx = rng.permutation(len(Xtr_all)); cut = int(0.7 * len(idx))
         pi, ei = idx[:cut], idx[cut:]
-        for lbl, method, lam, gamma, lam_edge, z_margin, dec_scale in configs:
+        for lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w in configs:
             bb = build_backbone(args.backbone, nch, nt, n_cls, device=device)
-            if args.beta > 0:                            # VIB: stochastic bottleneck + I(X;Z) compression
+            if args.beta > 0 and method != "graphdualpc":   # VIB: stochastic bottleneck (graphdualpc uses beta=lambda_node, not VIB)
                 from cmi.methods.vib import VIBBackbone
                 bb = VIBBackbone(bb, n_cls).to(device)
             bb, _, diag = train_model(bb, Xtr_all, ytr_all, dtr_all, n_cls, method=method,
-                                lam=lam, gamma=gamma, lam_edge=lam_edge, beta=args.beta, balance=args.balance,
+                                lam=lam, gamma=gamma, lam_edge=lam_edge, beta=node_w, balance=args.balance,
                                 label_correct=args.label_correct, reweight_dual=args.reweight_dual,
                                 dec_margin=resolve_dec_margin(method, args.dec_margin),
                                 z_margin=z_margin, dec_scale=dec_scale,
@@ -341,6 +382,21 @@ def run(args):
                 if f"{key}_null_q" in src:
                     rec[f"{prefix}_null_q"] = src[f"{key}_null_q"]
                     rec[f"{prefix}_excess"] = src[f"{key}_excess"]
+            # Graph-DualCMI gate metrics: source retention, graph-usage ablation, git provenance, GLS diagnostics.
+            rec["method_config"] = lbl
+            rec["backbone"] = args.backbone
+            rec["git_sha"] = _git_sha()
+            rec["source_bacc"] = float(classification_metrics(predict(bb, Xtr_all[ei], device),
+                                                              ytr_all[ei])["balanced_acc"])
+            if callable(getattr(bb, "ablate", None)):
+                rec["ablate_zero_graph_target_bacc"] = _ablate_bacc(bb, Xte, yte, "zero_graph", device)
+                rec["ablate_permute_nodes_target_bacc"] = _ablate_bacc(bb, Xte, yte, "permute_nodes", device)
+            if method == "graphdualpc":
+                for k in ("lambda_g", "lambda_node", "lambda_edge", "gamma_dec", "reg_graph_gls",
+                          "reg_node_gls", "reg_edge_gls", "dec_js_res", "dec_ce_res",
+                          "stepA_graph_dom_acc_gls", "stepA_node_dom_acc_gls", "stepA_edge_dom_acc_gls"):
+                    if k in diag:
+                        rec[k] = diag[k]
             results[lbl].append(rec)
             pooled[lbl].append((yte, prob.argmax(1), str(tgt)))
             preds[lbl].append((prob.astype("float32"), yte.astype("int16"), str(tgt)))
