@@ -56,27 +56,39 @@ block + the seed spec; the confirmatory runner would refuse to run if the hash o
 
 ## Pre-registered CONFIRMATORY design (to run only after authorization)
 
+The exact, machine-readable pre-registration lives in `csc/mininfo/b3_confirmatory_manifest.json` (method
+lock + scenario_configs + seed spec + criteria + code hashes); the DRY-RUN validator
+`csc/mininfo/run_b3_confirmatory.py` verifies provenance/scenario/seed and prints this plan, and refuses
+`--execute`. Tests: `csc/tests/test_b3_confirmatory.py`.
+
 ```
-seed block            = a SINGLE new unseen block, fixed in the manifest, disjoint from every dev seed
-                        used so far {0.., 1000, 2000, 3000, 4000, 700000}  (proposal: 900000)
+seed block            = a SINGLE new unseen block, fixed in the manifest, DISJOINT from A's confirmatory
+                        block (900000) AND every B dev seed {0.., 1000, 2000, 3000, 4000, 700000} AND all
+                        smoke/test seeds (<100000)  =>  confirmatory base_seed = 1200000
 clusters/cell         = 48 (controls) ; 48 (primary positives)
 controls              = clean, paired_covariate, paired_label, random_label,
                         paired_covariate_plus_label, missing_pair, unequal_epochs_extreme
+control scenarios     = ALL 6 stress scenarios (incl. label_noise AND few_epochs) -- controls are
+                        evaluated everywhere, even in the 2 scenarios excluded from the primary POWER claim
 primary positives     = paired_concept, paired_concept_plus_cov   (4 strong scenarios only)
-secondary (reported)  = paired_pure_conditional (all scenarios; not gating)
+secondary (reported)  = paired_pure_conditional (all scenarios; NOT gating)
 decision              = ONE pre-registered CONJUNCTION verdict (no best-of-seed, no re-run)
-runner                = fail-closed sbatch, frozen-code guard, provenance-verified (A-line pattern)
+runner                = fail-closed, frozen-code-hash guard, provenance-verified (A-line pattern)
 ```
 
 ### PASS criteria (CONJUNCTION — all must hold on the unseen block)
 
 ```
-C1  missing_pair = 0 AND unequal_epochs_extreme = 0 false confirmations (fail-closed guards hold);
-C2  every control kind x budget: Clopper-Pearson upper <= 0.05;
-C3  no control cell (scenario x kind x budget, n=48) >= 6/48; no kind with multiple cells >= 3/48;
-C4  primary positives: power >= a pre-registered bar (proposal: CP-lower >= 0.60 pooled over the 4 strong
-    scenarios at m=20) for BOTH paired_concept and paired_concept_plus_cov;
-C5  0 sampler failures / null-invalid over cap ; all states in the 5-state set (no silent failure);
+C1  missing_pair = 0 AND unequal_epochs_extreme = 0 false confirmations (all budgets; guards hold);
+C2  every control kind x budget (pooled over all 6 scenarios, n=288): Clopper-Pearson one-sided upper
+    (0.95) <= 0.05. NOTE: these are POINTWISE CP gates at the pre-declared reporting unit (kind x budget);
+    the headline is a CONJUNCTION of pointwise gates, NOT a simultaneous familywise CI over all cells;
+C3  no control cell (scenario x kind x budget, n=48) >= 6/48; AND no kind x budget has MULTIPLE (>=2)
+    scenario cells at >= 3/48 (kind-level leakage). (Additional safety gate on top of C2.)
+C4  primary positives: for EACH kind in {paired_concept, paired_concept_plus_cov} AND EACH budget
+    m in {20, 30}, pooled over the 4 primary scenarios: Clopper-Pearson one-sided lower (0.95) >= 0.60;
+    ADDITIONALLY no primary scenario x kind x budget cell may have point power < 0.50;
+C5  0 sampler failures / null-invalid within cap ; all states in the 5-state set (no silent failure);
 C6  independent red-team re-aggregation reproduces the verdict without correction.
 ```
 Any single failure → the confirmatory FAILS (honest negative, like the A line). A pass is a
