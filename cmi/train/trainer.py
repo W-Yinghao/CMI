@@ -83,17 +83,40 @@ def resolve_dec_margin(method, dec_margin):
     return default_dec_margin(method) if dec_margin is None else float(dec_margin)
 
 
+def _balanced_acc(y_true, y_pred, n_cls):
+    """Macro-recall (balanced accuracy) over present classes. Pure source-side metric (P3-E)."""
+    recs = [float((y_pred[y_true == c] == c).mean()) for c in range(n_cls) if (y_true == c).any()]
+    return float(np.mean(recs)) if recs else 0.0
+
+
 def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gamma=0.0,
                 lam_edge=0.0, beta=0.0, balance=False, label_correct=False, reweight_dual=False,
                 dec_margin=None, epochs=200, bs=64, warmup=40, n_inner=2,
                 z_margin=0.0, dec_scale=1.0,
                 lr=1e-3, post_lr=2e-3,
                 weight_decay=0.0, sampler="classbal", prior_mode="empirical", prior_alpha=1.0,
+                early_stop=False, source_val_domains=None,
                 device="cpu", seed=0, log_every=0):
     if method not in ALL_METHODS:
         raise ValueError(f"unknown method '{method}'; allowed: {sorted(ALL_METHODS)}")
     torch.manual_seed(seed)
     n_dom = int(dtr.max()) + 1
+    # P3-E: OPT-IN source-only early stopping. Hold out one or more SOURCE domains (subjects) as an inner
+    # validation set; select on source-val balanced accuracy (tie-break lower source-val CE) and restore the
+    # best-epoch weights before returning. Target labels are NEVER touched (val is a held-out SOURCE domain);
+    # n_dom is fixed from the FULL dtr so the domain space is stable, then Xtr/ytr/dtr are rebound to the
+    # train part so ALL downstream (priors, GLS weights, sampler, dataloader) uses source-train only.
+    # Default off (source_val_domains=None) -> zero behavior change for every existing method/run.
+    Xval = yval = None
+    es_val_domains = []
+    if early_stop and source_val_domains is not None:
+        _svd = np.asarray(list(source_val_domains))
+        Xtr, ytr, dtr = np.asarray(Xtr), np.asarray(ytr), np.asarray(dtr)
+        val_mask = np.isin(dtr, _svd)
+        if 0 < int(val_mask.sum()) < len(dtr) and int((~val_mask).sum()) > 0:
+            Xval, yval = Xtr[val_mask], ytr[val_mask]
+            es_val_domains = [int(v) for v in np.unique(dtr[val_mask])]
+            Xtr, ytr, dtr = Xtr[~val_mask], ytr[~val_mask], dtr[~val_mask]
     # KL target must be CONSISTENT with the sampler: 'empirical' pi_y for raw/classbal (which
     # preserve p(D|Y)); 'effective' (uniform-over-present) to match a domainbal sampler.
     prior_fn = {"empirical": empirical_priors, "effective": effective_priors, "subject": subject_priors}[prior_mode]
@@ -225,6 +248,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     backbone.train(); post.train()
     if post_dec is not post:
         post_dec.train()
+    _es_active = Xval is not None                     # P3-E source-only early stopping active this run?
+    best_state = None; best_vbacc = -1.0; best_vce = float("inf"); best_ep = -1; last_vbacc = float("nan")
     for ep in range(epochs):
         lam_t = lam * min(1.0, ep / max(1, warmup))
         gamma_t = gamma * min(1.0, ep / max(1, warmup))   # decoder-term warmup (dual)
@@ -516,8 +541,27 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                     loss = loss + dgp.adv_penalty(disc, z, yb, db, n_cls, method == "cdann", alpha=lam_t)
             opt_main.zero_grad(); loss.backward(); opt_main.step()
         sched.step()
+        if _es_active:                                # P3-E: source-only validation + best-epoch tracking
+            _vprob = predict(backbone, Xval, device)  # SOURCE held-out domain only; sets backbone.eval()
+            backbone.train()
+            _vp = _vprob.argmax(1)
+            last_vbacc = _balanced_acc(yval, _vp, n_cls)
+            _vce = float(-np.log(np.clip(_vprob[np.arange(len(yval)), yval], 1e-8, 1.0)).mean())
+            better = (last_vbacc > best_vbacc + 1e-9) or \
+                     (abs(last_vbacc - best_vbacc) <= 1e-9 and _vce < best_vce - 1e-9)
+            if better:
+                best_vbacc, best_vce, best_ep = last_vbacc, _vce, ep
+                best_state = {k: v.detach().cpu().clone() for k, v in backbone.state_dict().items()}
         if log_every and (ep + 1) % log_every == 0:
             print(f"  ep {ep+1}/{epochs} lam_t={lam_t:.3f} loss={loss.item():.4f}", flush=True)
+    es_out = {}
+    if _es_active:                                    # P3-E: finalize source-only early stopping
+        _tr_pred = predict(backbone, Xtr, device).argmax(1); backbone.train()   # final-epoch source-train bAcc
+        es_out = dict(source_val_subjects=es_val_domains, best_epoch=int(best_ep),
+                      best_source_val_bacc=float(best_vbacc), final_val_source_bacc=float(last_vbacc),
+                      final_train_source_bacc=float(_balanced_acc(np.asarray(ytr), _tr_pred, n_cls)))
+        if best_state is not None:
+            backbone.load_state_dict(best_state)      # restore best-source-val weights before returning
     out = dict(stepA_dom_acc=diag["stepA_dom_correct"] / max(1, diag["stepA_dom_total"]),
                inloop_reg=float(np.mean(diag["inloop_reg"])) if diag["inloop_reg"] else 0.0,
                sampler=diag["sampler"],
@@ -567,6 +611,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         out["inloop_dec"] = float(np.mean(diag["inloop_dec"]))
     if "inloop_dec_loss" in diag:
         out["inloop_dec_loss"] = float(np.mean(diag["inloop_dec_loss"]))
+    if es_out:                                        # P3-E source-only early-stopping metadata
+        out.update(es_out)
     return backbone, post, out
 
 

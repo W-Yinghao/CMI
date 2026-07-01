@@ -317,6 +317,13 @@ def run(args):
         rng = np.random.default_rng(args.seed)
         idx = rng.permutation(len(Xtr_all)); cut = int(0.7 * len(idx))
         pi, ei = idx[:cut], idx[cut:]
+        # P3-E: deterministic source-only early-stopping val subject (one held-out SOURCE domain, seeded).
+        # First-scaffold heuristic (upgradeable to inner LOSO); independent of the target and its labels.
+        sval_doms = None
+        if args.source_val_early_stop:
+            _srcdoms = np.unique(dtr_all)
+            if len(_srcdoms) > 1:
+                sval_doms = [int(np.random.default_rng(args.seed).permutation(_srcdoms)[0])]
         for lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w in configs:
             bb = build_backbone(args.backbone, nch, nt, n_cls, device=device)
             if args.beta > 0 and method != "graphdualpc":   # VIB: stochastic bottleneck (graphdualpc uses beta=lambda_node, not VIB)
@@ -330,6 +337,7 @@ def run(args):
                                 epochs=args.epochs, bs=args.bs,
                                 warmup=args.warmup, n_inner=args.n_inner, sampler=args.sampler,
                                 prior_mode=args.prior, prior_alpha=args.prior_alpha,
+                                early_stop=args.source_val_early_stop, source_val_domains=sval_doms,
                                 weight_decay=args.weight_decay, device=device, seed=args.seed)
             prob = predict(bb, Xte, device)
             cm = classification_metrics(prob, yte)   # per-target (valid only for MCPS targets)
@@ -411,9 +419,16 @@ def run(args):
             if method == "graphdualpc":
                 for k in ("lambda_g", "lambda_node", "lambda_edge", "gamma_dec", "reg_graph_gls",
                           "reg_node_gls", "reg_edge_gls", "dec_js_res", "dec_ce_res",
-                          "stepA_graph_dom_acc_gls", "stepA_node_dom_acc_gls", "stepA_edge_dom_acc_gls"):
+                          "stepA_graph_dom_acc_gls", "stepA_node_dom_acc_gls", "stepA_edge_dom_acc_gls",
+                          # P3-D decoder-activation diagnostics
+                          "dec_js_res_raw", "dec_js_res_scaled", "loss_dec", "loss_dec_over_ce",
+                          "dec_gate_active_frac"):
                     if k in diag:
                         rec[k] = diag[k]
+            for k in ("source_val_subjects", "best_epoch", "best_source_val_bacc",   # P3-E early-stopping metadata
+                      "final_val_source_bacc", "final_train_source_bacc"):
+                if k in diag:
+                    rec[k] = diag[k]
             results[lbl].append(rec)
             pooled[lbl].append((yte, prob.argmax(1), str(tgt)))
             preds[lbl].append((prob.astype("float32"), yte.astype("int16"), str(tgt)))
@@ -448,6 +463,11 @@ def build_parser():
                     help="run only these LOSO fold indices (0-based, in split order), e.g. 0 1 for the pilot "
                          "or 0 9 for BNCI2015_001. Default: all folds. Recorded in the output as "
                          "requested_target_indices / actual_target_subjects.")
+    ap.add_argument("--source_val_early_stop", action="store_true",
+                    help="P3-E: hold out one SOURCE subject (deterministic, seeded) as an inner validation "
+                         "set and restore the best-source-val-bAcc epoch. Target labels are never used. "
+                         "Records source_val_subjects/best_epoch/best_source_val_bacc/final_{train,val}_"
+                         "source_bacc per fold. Default OFF (fixed-epoch training, unchanged).")
     # configs = list of "method:lam" (one job can sweep lambda; splits shared across all)
     ap.add_argument("--configs", nargs="+",
                     default=["erm:0", "marginal:1", "chain:1", "lpc_uniform:1", "lpc_prior:1"])
