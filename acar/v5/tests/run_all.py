@@ -20,6 +20,11 @@ MODULES = (
     "test_stage1_external_sites_forbidden",
     "test_stage1_s1_seed_roles",
     "test_stage1_final_external_ref_separate",
+    "test_stage1b_authorization_contract",
+    "test_stage1b_final_external_still_forbidden",
+    "test_stage1b_dev_source_whitelist",
+    "test_stage1b_runtime_lock_required",
+    "test_stage1b_fold_refs_only",
 )
 
 
