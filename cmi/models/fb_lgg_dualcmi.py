@@ -90,6 +90,54 @@ def build_channel_groups(n_chans, ch_names=None, max_groups=6):
     return _index_partition(n_chans, max_groups)
 
 
+# --------------------------------------------------------------------------------------------------
+# central_strip_v1 — explicit sensorimotor-strip electrode groups for the MI datasets (P3-H).
+# The coarse region taxonomy degenerated on these caps (BNCI2014 -> one 17-node central blob;
+# BNCI2015 -> index fallback), which is not a credible "local-global montage graph". These presets
+# split the FC / C / CP strip by anterior-central-posterior x left-mid-right so no group dominates.
+# --------------------------------------------------------------------------------------------------
+_CENTRAL_STRIP_V1 = {
+    "BNCI2014_001": {
+        "FC_left": ["FC3", "FC1"], "FC_mid": ["Fz", "FCz"], "FC_right": ["FC2", "FC4"],
+        "C_left": ["C5", "C3", "C1"], "C_mid": ["Cz"], "C_right": ["C2", "C4", "C6"],
+        "CP_left": ["CP3", "CP1", "P1"], "CP_mid": ["CPz", "Pz", "POz"], "CP_right": ["CP2", "CP4", "P2"],
+    },
+    "BNCI2015_001": {   # 13 sparser channels -> keep FC/CP as strips, split only the dense C row L/mid/R
+        "FC_strip": ["FC3", "FCz", "FC4"],
+        "C_left": ["C5", "C3", "C1"], "C_mid": ["Cz"], "C_right": ["C2", "C4", "C6"],
+        "CP_strip": ["CP3", "CPz", "CP4"],
+    },
+}
+
+
+def central_strip_groups(dataset, ch_names):
+    """Resolve the central_strip_v1 preset for `dataset` against `ch_names` (matched BY NAME, so channel
+    order does not matter). Returns (index_groups, named_groups, warning).
+
+    Fail-closed: if the dataset has a preset but an electrode is missing or coverage is not exactly-once,
+    returns (None, None, <warning>) so the caller can refuse rather than silently mis-group. Datasets
+    with no preset return (None, None, "no preset ...").
+    """
+    spec = _CENTRAL_STRIP_V1.get(dataset)
+    if spec is None or ch_names is None:
+        return None, None, f"no central_strip_v1 preset for dataset={dataset}"
+    name_to_idx = {nm: i for i, nm in enumerate(ch_names)}
+    index_groups, named_groups, used = [], {}, []
+    for gname, elecs in spec.items():
+        idx = []
+        for e in elecs:
+            if e not in name_to_idx:
+                return None, None, f"central_strip_v1[{dataset}]: electrode {e!r} not in ch_names"
+            idx.append(name_to_idx[e])
+        index_groups.append(idx)
+        named_groups[gname] = list(elecs)
+        used.extend(idx)
+    if sorted(used) != list(range(len(ch_names))):
+        return None, None, (f"central_strip_v1[{dataset}] covers {sorted(set(used))} but data has "
+                            f"{len(ch_names)} channels (need each exactly once)")
+    return index_groups, named_groups, None
+
+
 def _norm_adj(A):
     """Symmetric GCN normalization with self-loops: D^-1/2 (A+I) D^-1/2. A: [n, n] non-negative."""
     n = A.shape[-1]
@@ -147,7 +195,8 @@ class FBLGGDualCMIBackbone(nn.Module):
 
     def __init__(self, n_chans, n_times, n_classes, ch_names=None,
                  n_filt=6, kernels=(11, 21, 45), loc_dim=16, node_z_dim=16,
-                 glob_dim=16, z_dim=32, temp_dim=32, fused_z_dim=32, max_groups=6, dropout=0.25):
+                 glob_dim=16, z_dim=32, temp_dim=32, fused_z_dim=32, max_groups=6, dropout=0.25,
+                 groups=None, group_names=None, grouping_scheme=None):
         super().__init__()
         self.n_chans = int(n_chans)
         self.drop = nn.Dropout(float(dropout))    # regularization vs source memorization (G2 had source bAcc=1.0)
@@ -155,9 +204,20 @@ class FBLGGDualCMIBackbone(nn.Module):
         fin = self.stem.feat_dim
 
         # --- channel groups + block-diagonal (within-group) mask and row-normalized group-pool ---
-        groups = build_channel_groups(self.n_chans, ch_names=ch_names, max_groups=max_groups)
-        self.groups = groups
-        self.n_groups = len(groups)
+        # Explicit `groups` (e.g. central_strip_v1, P3-H) override the region/index auto-builder.
+        if groups is not None:
+            self.groups = [list(g) for g in groups]
+            self.grouping_scheme = grouping_scheme or "explicit"
+        else:
+            self.groups = build_channel_groups(self.n_chans, ch_names=ch_names, max_groups=max_groups)
+            self.grouping_scheme = grouping_scheme or "region_or_index"
+        self.group_names = group_names            # {group_name: [electrode names]} for provenance, or None
+        # fail closed on a malformed grouping: every channel must appear in exactly one group
+        _flat = sorted(c for g in self.groups for c in g)
+        if _flat != list(range(self.n_chans)):
+            raise ValueError(f"channel groups must cover 0..{self.n_chans - 1} exactly once; got {self.groups}")
+        self.n_groups = len(self.groups)
+        groups = self.groups
         mask = torch.zeros(self.n_chans, self.n_chans)
         pool_mat = torch.zeros(self.n_groups, self.n_chans)
         for gi, grp in enumerate(groups):

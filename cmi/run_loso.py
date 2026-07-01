@@ -346,13 +346,25 @@ def run(args):
             _srcdoms = np.unique(dtr_all)
             if len(_srcdoms) > 1:
                 sval_doms = [int(np.random.default_rng(args.seed).permutation(_srcdoms)[0])]
-        # FBLGGGraph name-aware electrode grouping (P3-F.3): map the dataset to a 10-20 montage preset;
-        # loud fallback to index-partition grouping if absent / channel-count mismatch.
+        # FBLGGGraph electrode grouping: prefer the central_strip_v1 montage preset (P3-H); else the
+        # 10-20 region/index builder (P3-F.3). ch_names come from a dataset preset (P3-F.3).
         ch_names, ch_names_source = (None, None)
+        cs_groups = cs_named = grouping_scheme = grouping_warning = None
         if args.backbone == "FBLGGGraph":
             ch_names, ch_names_source = _infer_ch_names(args.dataset, nch)
+            from cmi.models.fb_lgg_dualcmi import central_strip_groups, _CENTRAL_STRIP_V1
+            cs_groups, cs_named, cs_warn = central_strip_groups(args.dataset, ch_names)
+            if cs_groups is not None:
+                grouping_scheme = "central_strip_v1"
+            elif args.dataset in _CENTRAL_STRIP_V1:
+                # dataset HAS a preset but it did not resolve -> fail closed (never run F0 on a mis-grouped
+                # MI montage, and never silently fall back to index partition).
+                raise SystemExit(f"ABORT: central_strip_v1 preset for {args.dataset} did not resolve: {cs_warn}")
+            else:
+                grouping_scheme, grouping_warning = "region_or_index", cs_warn
         for lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w in configs:
-            bb = build_backbone(args.backbone, nch, nt, n_cls, device=device, ch_names=ch_names)
+            bb = build_backbone(args.backbone, nch, nt, n_cls, device=device, ch_names=ch_names,
+                                groups=cs_groups, group_names=cs_named, grouping_scheme=grouping_scheme)
             if args.beta > 0 and method != "graphdualpc":   # VIB: stochastic bottleneck (graphdualpc uses beta=lambda_node, not VIB)
                 from cmi.methods.vib import VIBBackbone
                 bb = VIBBackbone(bb, n_cls).to(device)
@@ -438,9 +450,14 @@ def run(args):
             rec["method_config"] = lbl
             rec["backbone"] = args.backbone
             rec["git_sha"] = run_git_sha
-            if args.backbone == "FBLGGGraph":            # P3-F.3 provenance: was grouping name-aware or fallback?
+            if args.backbone == "FBLGGGraph":            # grouping provenance (P3-H)
                 rec["ch_names_source"] = ch_names_source
-                rec["channel_groups"] = [list(g) for g in getattr(bb, "groups", [])]
+                rec["grouping_scheme"] = getattr(bb, "grouping_scheme", grouping_scheme)
+                # named montage groups when available (central_strip_v1); else raw index groups
+                rec["channel_groups"] = (bb.group_names if getattr(bb, "group_names", None)
+                                         else [list(g) for g in getattr(bb, "groups", [])])
+                if grouping_warning:
+                    rec["grouping_warning"] = grouping_warning
             rec["source_bacc"] = float(classification_metrics(predict(bb, Xtr_all[ei], device),
                                                               ytr_all[ei])["balanced_acc"])
             if callable(getattr(bb, "ablate", None)):
@@ -453,7 +470,7 @@ def run(args):
                           "reg_node_gls", "reg_edge_gls", "dec_js_res", "dec_ce_res",
                           "stepA_graph_dom_acc_gls", "stepA_node_dom_acc_gls", "stepA_edge_dom_acc_gls",
                           # P3-D decoder-activation diagnostics
-                          "dec_js_res_raw", "dec_js_res_scaled", "loss_dec", "loss_dec_over_ce",
+                          "loss_ce", "dec_js_res_raw", "dec_js_res_scaled", "loss_dec", "loss_dec_over_ce",
                           "dec_gate_active_frac"):
                     if k in diag:
                         rec[k] = diag[k]

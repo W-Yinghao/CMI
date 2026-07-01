@@ -146,5 +146,7 @@ def build_backbone(name, n_chans, n_times, n_classes, device="cpu", **_):
         # DISTINCT fused_z (the classifier input), so graphdualpc runs a genuine encoder/decoder head
         # split. ch_names (optional) enables name-aware electrode grouping; absent -> index partition.
         from cmi.models.fb_lgg_dualcmi import FBLGGDualCMIBackbone
-        return FBLGGDualCMIBackbone(n_chans, n_times, n_classes, ch_names=_.get("ch_names")).to(device)
+        return FBLGGDualCMIBackbone(n_chans, n_times, n_classes, ch_names=_.get("ch_names"),
+                                    groups=_.get("groups"), group_names=_.get("group_names"),
+                                    grouping_scheme=_.get("grouping_scheme")).to(device)
     return HookedBackbone(name, n_chans, n_times, n_classes).to(device)
