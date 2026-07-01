@@ -68,8 +68,11 @@ effect-size gate OUT of the Holm family.
   **H2 sample rule:** the empirical-Bernstein sample for `harm_among_adapted` consists ONLY of subjects with `adapted_batches_s > 0`
   (so `L_harm_all` (G3) covers all-batch harm and `harm_among_adapted` (G4) is NOT diluted by non-adapting subjects — this is the
   formal close of the v4 low-coverage degeneracy). **If NO subject adapts, H2 is NON-EVALUABLE and the candidate FAILS.**
-  For the reported (non-gating) `LCB[red − v2_replay]`: subject cluster-bootstrap (or sign-flip permutation), estimator pinned
-  here; do NOT switch after seeing results. **No batch-level p-values** (v2/v3 discipline).
+  **Reported utility LCB (PINNED — Step 2d; NON-gating, NOT in Holm):** `LCB[red − v2_replay]` = subject-cluster bootstrap,
+  **10,000 resamples, one-sided 95% lower percentile, resampling subjects within disease, deterministic bootstrap seed = 20260714**.
+  It is reported/descriptive only (never a pass/fail gate); it must NOT be switched or re-chosen after seeing results, and the
+  Step-3 synthetic scaffold may define its interface but may not select bootstrap-vs-permutation from real results. **No
+  batch-level p-values** (v2/v3 discipline).
 - **Multiple testing (PINNED — Step 2b):** Holm correction applies to the **one-sided certification tests H1–H3 ONLY**, across
   (candidate × disease × {H1,H2,H3}) within the pre-registered space, at **family-wise α = 0.05**. **H4 is excluded from Holm**
   (it is the effect-size gate, not a hypothesis test).

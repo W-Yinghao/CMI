@@ -18,7 +18,14 @@ step 2b (pre-tag)  : PINNED — policy space = EXACTLY P1–P5 (no P6–P8 witho
 step 2c (pre-tag)  : PINNED — EXACT 22-row candidate manifest (CANDIDATE_SPACE §1.6; no q75; no "≤4 combos"/"same grid"); exact
                      H1–H3 subject-clustered empirical-Bernstein estimator + coverage_s/L_harm_all_s/harm_among_adapted_s defs +
                      H2 non-evaluable-if-no-adapt; DEV split K=5 · FIT/CAL 70/30 · TRAIN/VAL 80/20 · salt ACAR_V5_SPLIT_V1;
-                     S1 seeds {20260711,20260712,20260713}. Remaining still-open (post-tag OK): red-margin CI estimator specifics.
+                     S1 seeds {20260711,20260712,20260713}.
+step 2d (pre-tag)  : PINNED — substrate FOLD-CONTAINED for Stage-2 ("all-source"=all COHORTS not all subjects; encoder/source-state
+                     /standardization/thresholds fit on FIT(TRAIN+VAL) only; CAL=calibration, EVAL=eval; no CAL/EVAL labels in
+                     training); final all-source external substrate only AFTER candidate fixed (not for selection); canonical
+                     Stage-2 selection seed=20260711 (12/13 = S1 only); candidate identity selected JOINTLY across diseases (one
+                     candidate_id both diseases; per-disease FIT quantiles only); S3 = STRICT hard module on a frozen spectral-z
+                     baseline (exact bands/PCA-16/logreg) requiring G1–G5 + the G2 margin; reported LCB[red−v2] = subject-cluster
+                     bootstrap 10k / one-sided 95% / seed 20260714 (non-gating, not in Holm). NO remaining pre-tag free parameters.
 ```
 
 > **⛔ HARD NO-EXECUTION CLAUSE.** No V5 code scaffold, DEV run, substrate training, candidate selection, compatibility replay,
