@@ -11,15 +11,22 @@ from __future__ import annotations
 from pathlib import Path
 import torch
 import torch.nn as nn
-from braindecode.models import EEGNetv4, ShallowFBCSPNet, Deep4Net, EEGConformer
 
-_CONV = {"EEGNet": EEGNetv4, "ShallowConvNet": ShallowFBCSPNet, "Deep4Net": Deep4Net}
+# braindecode (and its moabb dependency) is imported LAZILY, only when a braindecode task backbone is
+# actually built. This keeps non-braindecode backbones (DGCNNGraph / GraphCMI / DGCNN / LogCov / TSMNet)
+# importable even if the installed braindecode/moabb versions are incompatible in the current env.
+
+
+def _braindecode_models():
+    from braindecode.models import EEGNetv4, ShallowFBCSPNet, Deep4Net, EEGConformer
+    return {"EEGNet": EEGNetv4, "ShallowConvNet": ShallowFBCSPNet, "Deep4Net": Deep4Net}, EEGConformer
 
 
 class HookedBackbone(nn.Module):
     def __init__(self, name, n_chans, n_times, n_classes):
         super().__init__()
         self.name = name
+        _CONV, EEGConformer = _braindecode_models()
         self._feat = None
         if name != "EEGConformer" and name not in _CONV:
             raise ValueError(f"unknown backbone {name}")
@@ -126,4 +133,11 @@ def build_backbone(name, n_chans, n_times, n_classes, device="cpu", **_):
         from cmi.models import gnn
         cls = {"GraphCMI": gnn.GraphCMINet, "DGCNN": gnn.DGCNNBackbone, "RGNN": gnn.RGNNBackbone}[name]
         return cls(n_chans, n_times, n_classes).to(device)
+    if name == "DGCNNGraph":
+        # Graph-DualCMI: the task-capable static-adjacency DGCNN adapter exposing
+        # forward_graph(x) -> (logits, graph_z, node_z, edge_logits=None). Distinct name from "DGCNN"
+        # (which maps to gnn.DGCNNBackbone and has NO forward_graph); this is the one graph/node CMI +
+        # decoder-CMI methods (graphcmi / graphdualpc) can run on. edge_logits is None (static adjacency).
+        from cmi.models.graph_task_backbones import DGCNNForwardGraphAdapter
+        return DGCNNForwardGraphAdapter(n_chans, n_times, n_classes).to(device)
     return HookedBackbone(name, n_chans, n_times, n_classes).to(device)

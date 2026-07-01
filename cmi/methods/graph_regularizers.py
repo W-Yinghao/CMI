@@ -21,16 +21,29 @@ def _kl_to_prior(logits, log_pi):                 # KL(q(.|.) || π) per row; lo
 
 
 class NodePosterior(nn.Module):
-    """Shared per-node q(D | Z_v, Y). reg() = mean_v Ê KL(q ‖ π_y) = the Σ_v I(Z_v;D|Y) estimate."""
-    def __init__(self, d, n_dom, n_cls, priors):
+    """Shared per-node q(D | Z_v, e_v, Y). reg() = mean_v Ê KL(q ‖ π_y) = the Σ_v I(Z_v;D|Y) estimate.
+
+    When ``n_chans`` is given, the head is conditioned on a learned per-node embedding ``e_v``
+    (``nn.Embedding(n_chans, node_emb_dim)``), matching the manuscript's ``q(D | Z_v, v, Y)`` — the shared
+    trunk can then distinguish electrodes even when their node features coincide. With ``n_chans=None`` the
+    head falls back to the earlier node-id-agnostic ``q(D | Z_v, Y)`` (byte-identical to the prior version)."""
+    def __init__(self, d, n_dom, n_cls, priors, n_chans=None, node_emb_dim=8):
         super().__init__()
-        self.body = _mlp(d + n_cls, n_dom)
         self.n_cls = n_cls
+        self.use_node_id = n_chans is not None
+        emb_dim = node_emb_dim if self.use_node_id else 0
+        if self.use_node_id:
+            self.node_emb = nn.Embedding(int(n_chans), int(node_emb_dim))   # e_v
+            self.register_buffer("node_ids", torch.arange(int(n_chans)))
+        self.body = _mlp(d + emb_dim + n_cls, n_dom)
         self.register_buffer("log_pi", torch.log(torch.as_tensor(priors[0], dtype=torch.float32) + 1e-8))  # [n_cls,n_dom]
 
     def _logits(self, node_Z, y):                 # node_Z [B,C,d] -> [B,C,n_dom]
         B, C, _ = node_Z.shape
         y_oh = F.one_hot(y, self.n_cls).float().unsqueeze(1).expand(B, C, self.n_cls)
+        if self.use_node_id:
+            e_v = self.node_emb(self.node_ids[:C]).unsqueeze(0).expand(B, C, -1)   # [B,C,node_emb_dim]
+            return self.body(torch.cat([node_Z, e_v, y_oh], -1))
         return self.body(torch.cat([node_Z, y_oh], -1))
 
     def step_a_loss(self, node_Z, y, d):          # fit q (detached Z): per-node domain CE

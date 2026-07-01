@@ -111,7 +111,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         # node feature dim may differ from the graph readout dim (z_dim): e.g. the DGCNN adapter reads out
         # graph_z=64 but node_z has hidden=16. Use an explicit node_z_dim when the backbone exposes it;
         # GraphCMINet (node_Z dim == z_dim) has no such attr and falls back to z_dim unchanged.
-        node_post = NodePosterior(getattr(backbone, "node_z_dim", backbone.z_dim), n_dom, n_cls, priors).to(device)
+        node_post = NodePosterior(getattr(backbone, "node_z_dim", backbone.z_dim), n_dom, n_cls, priors,
+                                  n_chans=int(Xtr.shape[1])).to(device)   # q(D|Z_v,e_v,Y): node-id-conditioned
         edge_post = EdgePosterior(int(Xtr.shape[1]), n_dom, n_cls, priors).to(device)
     is_iib = method == "iib"
     is_dual = method == "dual"                   # joint encoder I(Z;D|Y) + decoder I(Y;D|Z) invariance
