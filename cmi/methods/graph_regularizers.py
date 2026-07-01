@@ -37,6 +37,10 @@ class NodePosterior(nn.Module):
             self.register_buffer("node_ids", torch.arange(int(n_chans)))
         self.body = _mlp(d + emb_dim + n_cls, n_dom)
         self.register_buffer("log_pi", torch.log(torch.as_tensor(priors[0], dtype=torch.float32) + 1e-8))  # [n_cls,n_dom]
+        # GLS reference domain marginal p~(D)=p(D) (Route-B / dualpc semantics); used by reference="marginal".
+        p_d = torch.as_tensor(priors[1], dtype=torch.float32)
+        p_d = p_d / p_d.sum().clamp(min=1e-12)
+        self.register_buffer("log_pd_ref", torch.log(p_d + 1e-8))                                          # [n_dom]
 
     def _logits(self, node_Z, y):                 # node_Z [B,C,d] -> [B,C,n_dom]
         B, C, _ = node_Z.shape
@@ -46,14 +50,22 @@ class NodePosterior(nn.Module):
             return self.body(torch.cat([node_Z, e_v, y_oh], -1))
         return self.body(torch.cat([node_Z, y_oh], -1))
 
-    def step_a_loss(self, node_Z, y, d):          # fit q (detached Z): per-node domain CE
-        lg = self._logits(node_Z, y)
-        return F.cross_entropy(lg.reshape(-1, lg.shape[-1]),
-                               d.unsqueeze(1).expand(-1, lg.shape[1]).reshape(-1))
+    def step_a_loss(self, node_Z, y, d, weight=None):   # fit q (detached Z): per-node domain CE
+        lg = self._logits(node_Z, y)                    # [B,C,n_dom]
+        B, C, n_dom = lg.shape
+        tgt = d.unsqueeze(1).expand(-1, C).reshape(-1)
+        if weight is None:
+            return F.cross_entropy(lg.reshape(-1, n_dom), tgt)
+        per = F.cross_entropy(lg.reshape(-1, n_dom), tgt, reduction="none").reshape(B, C)   # Route-B GLS
+        return (weight[:, None] * per).sum() / (weight.sum() * C).clamp(min=1e-8)
 
-    def reg(self, node_Z, y):                      # penalty (grad to encoder)
-        lg = self._logits(node_Z, y)
-        return _kl_to_prior(lg, self.log_pi[y].unsqueeze(1)).mean()
+    def reg(self, node_Z, y, weight=None, reference="prior"):   # penalty (grad to encoder)
+        lg = self._logits(node_Z, y)                            # [B,C,n_dom]
+        log_ref = self.log_pd_ref.view(1, 1, -1) if reference == "marginal" else self.log_pi[y].unsqueeze(1)
+        kl = _kl_to_prior(lg, log_ref)                          # [B,C]
+        if weight is None:
+            return kl.mean()
+        return (weight[:, None] * kl).sum() / (weight.sum() * kl.shape[1]).clamp(min=1e-8)
 
     @torch.no_grad()
     def leakage_map(self, node_Z, y):              # length-C per-channel residual KL (diagnostic figure)
@@ -70,13 +82,25 @@ class EdgePosterior(nn.Module):
         self.body = _mlp(e_a + n_cls, n_dom)
         self.n_cls = n_cls
         self.register_buffer("log_pi", torch.log(torch.as_tensor(priors[0], dtype=torch.float32) + 1e-8))
+        p_d = torch.as_tensor(priors[1], dtype=torch.float32)
+        p_d = p_d / p_d.sum().clamp(min=1e-12)
+        self.register_buffer("log_pd_ref", torch.log(p_d + 1e-8))   # GLS reference domain marginal p~(D)
 
     def _logits(self, edge_logits, y):             # edge_logits [B,C,C] -> [B,n_dom]
         a = self.compress(edge_logits[:, self.iu0, self.iu1])     # upper-triangle -> e_a
         return self.body(torch.cat([a, F.one_hot(y, self.n_cls).float()], -1))
 
-    def step_a_loss(self, edge_logits, y, d):
-        return F.cross_entropy(self._logits(edge_logits, y), d)
+    def step_a_loss(self, edge_logits, y, d, weight=None):
+        lg = self._logits(edge_logits, y)          # [B,n_dom]
+        if weight is None:
+            return F.cross_entropy(lg, d)
+        per = F.cross_entropy(lg, d, reduction="none")
+        return (weight * per).sum() / weight.sum().clamp(min=1e-8)
 
-    def reg(self, edge_logits, y):
-        return _kl_to_prior(self._logits(edge_logits, y), self.log_pi[y]).mean()
+    def reg(self, edge_logits, y, weight=None, reference="prior"):
+        lg = self._logits(edge_logits, y)          # [B,n_dom]
+        log_ref = self.log_pd_ref.view(1, -1) if reference == "marginal" else self.log_pi[y]
+        kl = _kl_to_prior(lg, log_ref)             # [B]
+        if weight is None:
+            return kl.mean()
+        return (weight * kl).sum() / weight.sum().clamp(min=1e-8)

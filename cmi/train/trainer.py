@@ -17,7 +17,7 @@ from cmi.methods import dg_penalties as dgp
 
 # Every implemented framework. Anything else must fail loudly (not silently train ERM).
 ALL_METHODS = {
-    "erm", "iib", "graphcmi", "dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal",
+    "erm", "iib", "graphcmi", "graphdualpc", "dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal",
 } | CMI_METHODS | SUPCON_METHODS | dgp.DG_METHODS | FMCA_METHODS | ssl.ALL_SSL
 
 
@@ -58,13 +58,25 @@ def _scalar(x):
     return float(x.detach().cpu()) if torch.is_tensor(x) else float(x)
 
 
+def _unpack_graph(out):
+    """forward_graph may return a 4-tuple (logits, graph_z, node_z, edge_logits) or a future 5-tuple
+    (..., fused_z). Return (logits, graph_z, node_z, edge_logits, z_dec) where z_dec is the representation
+    the decoder-CMI term acts on: fused_z when present, else graph_z (the readout the classifier uses)."""
+    if len(out) == 5:
+        logits, gz, nz, el, fz = out
+    else:
+        logits, gz, nz, el = out
+        fz = None
+    return logits, gz, nz, el, (fz if fz is not None else gz)
+
+
 def default_dec_margin(method):
     """Method-specific default decoder gate.
 
-    Route-C `dualc` keeps a CE-residual null margin. DualPC uses a JS consistency loss whose
+    Route-C `dualc` keeps a CE-residual null margin. DualPC / graphdualpc use a JS consistency loss whose
     empirical scale is much smaller, so the paper-facing default must keep the P(Y|Z) side active.
     """
-    return 0.0 if method in {"dualpc", "dualpc_hinge", "dualpc_marginal"} else 0.02
+    return 0.0 if method in {"dualpc", "dualpc_hinge", "dualpc_marginal", "graphdualpc"} else 0.02
 
 
 def resolve_dec_margin(method, dec_margin):
@@ -95,17 +107,19 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     is_lpc_ssl = method in ssl.LPC_SSL_METHODS  # SSL framework hosting our CMI term
     ssl_kind = "byol" if "byol" in method else "simclr"
     uses_graphcmi = method == "graphcmi"        # GNN node/edge CMI (needs backbone.forward_graph)
+    uses_graphdualpc = method == "graphdualpc"  # Graph-DualCMI: encoder graph/node/edge I(Z;D|Y) [GLS] + decoder residual I(Y;D|Z)
+    uses_graph = uses_graphcmi or uses_graphdualpc
     node_post = edge_post = None
-    if uses_graphcmi:                           # global term reuses `post`; add node + edge heads
+    if uses_graph:                              # global term reuses `post`; add node + edge heads
         # Fail closed: the GNN branch calls backbone.forward_graph(x) -> (logits, graph_Z, node_Z,
-        # edge_logits). A non-graph backbone (EEGNet, TSMNet, ...) lacks it; without this guard the
-        # AttributeError would only surface mid-training. Raise a clear, actionable error up front.
+        # edge_logits[, fused_z]). A non-graph backbone (EEGNet, TSMNet, ...) lacks it; without this guard
+        # the AttributeError would only surface mid-training. Raise a clear, actionable error up front.
         if not callable(getattr(backbone, "forward_graph", None)):
             raise ValueError(
-                f"method='graphcmi' requires a graph backbone exposing "
-                f"forward_graph(x) -> (logits, graph_Z, node_Z, edge_logits); "
+                f"method='{method}' requires a graph backbone exposing "
+                f"forward_graph(x) -> (logits, graph_Z, node_Z, edge_logits[, fused_z]); "
                 f"{type(backbone).__name__} has no callable forward_graph. "
-                f"Use --backbone GraphCMI (or another graph backbone), or pick a non-graph method.")
+                f"Use --backbone DGCNNGraph (or another graph backbone), or pick a non-graph method.")
         # For method='graphcmi' the (lam, gamma, lam_edge) knobs ARE (lambda_g, lambda_node,
         # lambda_edge); they are reported under those names in the returned diagnostics.
         # node feature dim may differ from the graph readout dim (z_dim): e.g. the DGCNN adapter reads out
@@ -164,7 +178,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         opt_main = torch.optim.AdamW(main_params, lr=lr, weight_decay=weight_decay)
     sched = torch.optim.lr_scheduler.CosineAnnealingLR(opt_main, T_max=epochs)
     post_params = list(post.parameters())
-    if uses_graphcmi:
+    if uses_graph:
         post_params += list(node_post.parameters()) + list(edge_post.parameters())
     opt_post = torch.optim.Adam(post_params, lr=post_lr)
     gdro_q = torch.ones(n_dom, device=device) / n_dom   # GroupDRO domain weights
@@ -173,13 +187,13 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     # Carried as a 4th dataset column so it follows the sampler's row permutation exactly.
     # Needed by --label_correct (CE/decoder weighting) AND --reweight_dual (Route B: both CMIs).
     rw_dual = reweight_dual and is_dual    # Route B only meaningful for the joint 'dual' objective
-    if label_correct or rw_dual or is_dualc or is_dualpc or is_dualpc_hinge or is_dualpc_marginal:
-        wtr = _label_shift_weights(ytr, dtr, n_dom, n_cls)
+    if label_correct or rw_dual or is_dualc or is_dualpc or is_dualpc_hinge or is_dualpc_marginal or uses_graphdualpc:
+        wtr = _label_shift_weights(ytr, dtr, n_dom, n_cls)   # graphdualpc: GLS weights on encoder+decoder CMI terms
     else:
         wtr = np.ones(len(ytr), dtype="float32")
     ds = TensorDataset(torch.tensor(Xtr), torch.tensor(ytr), torch.tensor(dtr),
                        torch.tensor(wtr))
-    effective_sampler = "raw" if (is_dualpc or is_dualpc_hinge or is_dualpc_marginal) else sampler
+    effective_sampler = "raw" if (is_dualpc or is_dualpc_hinge or is_dualpc_marginal or uses_graphdualpc) else sampler
     # dualpc variants apply explicit GLS weights to the P(Z) and P(Y|Z) CMI estimators. A class/domain-
     # balanced sampler would impose a second, implicit reference distribution and break those semantics.
     smp = _make_sampler(ytr, dtr, effective_sampler)
@@ -278,6 +292,50 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                             epred = edge_post._logits(el, yb).argmax(1)    # [B]
                             diag["stepA_edge_correct"] += int((epred == db).sum()); diag["stepA_edge_total"] += int(db.numel())
                             diag["stepA_edge_loss"].append(_scalar(edge_post.step_a_loss(el, yb, db)))
+                continue
+            if uses_graphdualpc:                          # Graph-DualCMI: encoder graph/node/edge I(Z;D|Y) [GLS] + decoder residual I(Y;D|Z)
+                warm = min(1.0, ep / max(1, warmup))
+                # Four explicit, paper-facing weights (see docs/CIGL_46): lambda_g=lam, lambda_node=beta,
+                # lambda_edge=lam_edge, gamma_dec=gamma. Encoder terms use the DualPC GLS-reweighted
+                # reference="marginal" (post-GLS domain marginal); decoder term is the JS residual.
+                lambda_g, lambda_node, lambda_edge_w, gamma_dec = lam, beta, lam_edge, gamma
+                with torch.no_grad():                     # Step A: fit posteriors + decoder probes on detached features
+                    _, gz_d, nz_d, el_d, zdec_d = _unpack_graph(backbone.forward_graph(xb))
+                has_edge = el_d is not None                # static-adjacency (DGCNN adapter) -> edge_logits=None
+                if lambda_edge_w != 0 and not has_edge:    # fail closed: no edge term without a per-sample edge object
+                    raise ValueError("method='graphdualpc' with lambda_edge!=0 needs per-sample edge_logits; "
+                                     "this backbone yields edge_logits=None (static/shared adjacency).")
+                for _ in range(n_inner):
+                    # NOTE: for DGCNNGraph, z_dec == graph_z, so `post` hosts BOTH q(D|Z_g,Y) and the decoder
+                    # probes q(Y|Z)/h(Y|Z,D)/h0. When a future backbone exposes a distinct fused_z, split into a
+                    # separate DomainPosteriors for the decoder side (see docs/CIGL_46).
+                    la = (post.posterior_loss(gz_d, yb, db, weight=wb)      # q(D|Z_g,Y)      [GLS]
+                          + post.iib_ce_h(zdec_d, yb, db, weight=wb)        # h(Y|Z,D) probe  [GLS]
+                          + node_post.step_a_loss(nz_d, yb, db, weight=wb)) # q(D|Z_v,e_v,Y)  [GLS]
+                    if has_edge:
+                        la = la + edge_post.step_a_loss(el_d, yb, db, weight=wb)
+                    opt_post.zero_grad(); la.backward(); opt_post.step()
+                logits, gz, nz, el, zdec = _unpack_graph(backbone.forward_graph(xb))   # Step B (grad to encoder)
+                ce = F.cross_entropy(logits, yb, weight=ce_weight)         # task CE (GLS is applied to the CMI side, not CE)
+                r_graph = post.reg("lpc_prior", gz, yb, weight=wb, reference="marginal")     # lambda_g   : I~(Z_g;D|Y)
+                r_node = node_post.reg(nz, yb, weight=wb, reference="marginal")              # lambda_node: (1/C) Σ_v I~(Z_v;D|Y)
+                r_edge = edge_post.reg(el, yb, weight=wb, reference="marginal") if has_edge else None  # lambda_edge: I~(A;D|Y)
+                r_dec_js = post.dec_js_residual(zdec, db, weight=wb)       # gamma_dec  : decoder residual JS (training loss)
+                r_dec_ce = post.dec_cmi_residual(zdec, yb, db, weight=wb)  # decoder residual CE (diagnostic only)
+                loss = ce + lambda_g * warm * r_graph + lambda_node * warm * r_node
+                if r_edge is not None:
+                    loss = loss + lambda_edge_w * warm * r_edge
+                loss = loss + gamma_dec * warm * dec_scale * F.relu(r_dec_js - dec_margin)
+                opt_main.zero_grad(); loss.backward(); opt_main.step()
+                if last_epoch:
+                    diag["inloop_reg"].append(_scalar(r_graph))           # back-compat: graph term == inloop_reg
+                    diag["inloop_ce"].append(_scalar(ce))
+                    diag["inloop_reg_graph"].append(_scalar(r_graph))
+                    diag["inloop_reg_node"].append(_scalar(r_node))
+                    if r_edge is not None:
+                        diag["inloop_reg_edge"].append(_scalar(r_edge))
+                    diag.setdefault("inloop_dec_js", []).append(_scalar(r_dec_js))
+                    diag.setdefault("inloop_dec_ce", []).append(_scalar(r_dec_ce))
                 continue
             # Step A: fit auxiliary predictor(s) on detached Z (CMI posteriors, or IIB's h)
             fits_qdzy = uses_cmi or is_dual or is_dualc or is_dualpc or is_dualpc_hinge or is_dualpc_marginal
@@ -431,6 +489,15 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                    stepA_graph_loss=_mean("stepA_graph_loss"), stepA_node_loss=_mean("stepA_node_loss"),
                    stepA_edge_loss=_mean("stepA_edge_loss"),
                    stepA_dom_acc=graph_dom_acc)   # override legacy field (was a fake 0.0 for graphcmi)
+    if uses_graphdualpc:
+        # Paper-facing Graph-DualCMI diagnostics: four explicit weights + GLS encoder terms + decoder residuals.
+        _mean = lambda k: float(np.mean(diag[k])) if diag.get(k) else 0.0
+        out.update(lambda_g=float(lam), lambda_node=float(beta), lambda_edge=float(lam_edge),
+                   gamma_dec=float(gamma),
+                   reg_graph_gls=_mean("inloop_reg_graph"), reg_node_gls=_mean("inloop_reg_node"),
+                   reg_edge_gls=_mean("inloop_reg_edge"),
+                   dec_js_res=_mean("inloop_dec_js"), dec_ce_res=_mean("inloop_dec_ce"),
+                   loss_ce=_mean("inloop_ce"))
     if "inloop_reg_loss" in diag:
         out["inloop_reg_loss"] = float(np.mean(diag["inloop_reg_loss"]))
     if "inloop_dec" in diag:

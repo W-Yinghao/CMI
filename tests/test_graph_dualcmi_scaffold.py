@@ -6,14 +6,33 @@ Covers the two foundational grounding fixes from docs/CIGL_46:
   (c) NodePosterior conditions on a per-node embedding e_v  ->  q(D | Z_v, e_v, Y)  (manuscript formula),
       with a byte-compatible fallback to q(D | Z_v, Y) when n_chans is not supplied.
 """
+import math
+
+import numpy as np
+import pytest
 import torch
 
 from cmi.models.backbones import build_backbone
 from cmi.methods.graph_regularizers import NodePosterior
+from cmi.train.trainer import train_model, ALL_METHODS
+
+
+def _synth(n_per_cell=8, C=8, T=64, n_cls=2, n_dom=3, seed=0):
+    rng = np.random.default_rng(seed)
+    X, y, d = [], [], []
+    for yi in range(n_cls):
+        for di in range(n_dom):
+            X.append(rng.standard_normal((n_per_cell, C, T)).astype("float32"))
+            y += [yi] * n_per_cell
+            d += [di] * n_per_cell
+    return np.concatenate(X), np.array(y, "int64"), np.array(d, "int64")
 
 
 def _priors(n_cls, n_dom):
-    return (torch.full((n_cls, n_dom), 1.0 / n_dom),)
+    # (pi_y=p(D|Y), p_d=p(D), p_dy=p(D,Y)) — matches empirical_priors() output shape
+    return (torch.full((n_cls, n_dom), 1.0 / n_dom),
+            torch.full((n_dom,), 1.0 / n_dom),
+            torch.full((n_cls, n_dom), 1.0 / (n_cls * n_dom)))
 
 
 def test_dgcnn_graph_backbone_registered_and_static():
@@ -56,3 +75,61 @@ def test_nodeposterior_backward_compatible_without_n_chans():
     assert torch.allclose(per_node[0], per_node[1], atol=1e-6), "id-agnostic head must be node-invariant"
     # body input dim is d + n_cls (no embedding)
     assert post.body[0].in_features == d + n_cls
+
+
+# --- Part 2: graphdualpc method (encoder graph/node/edge I(Z;D|Y) [GLS] + decoder residual I(Y;D|Z)) ---
+
+def test_graphdualpc_registered():
+    assert "graphdualpc" in ALL_METHODS
+    assert {"graphcmi", "dualpc"} <= ALL_METHODS   # existing methods still present
+
+
+def test_graphdualpc_cpu_tiny_run():
+    X, y, d = _synth()
+    C, T, n_cls = X.shape[1], X.shape[2], 2
+    bb = build_backbone("DGCNNGraph", C, T, n_cls, device="cpu")
+    # lambda_g=lam=0.01, lambda_node=beta=0.01, lambda_edge=lam_edge=0 (static->must be 0), gamma_dec=gamma=0.1
+    bb, post, out = train_model(bb, X, y, d, n_cls, method="graphdualpc",
+                                lam=0.01, beta=0.01, lam_edge=0.0, gamma=0.1,
+                                epochs=2, bs=16, n_inner=1, warmup=1, device="cpu", seed=0)
+    for k in ("lambda_g", "lambda_node", "lambda_edge", "gamma_dec",
+              "reg_graph_gls", "reg_node_gls", "dec_js_res", "dec_ce_res", "loss_ce"):
+        assert k in out, f"missing diagnostic {k}"
+        assert math.isfinite(out[k]), f"{k} not finite: {out[k]}"
+    assert out["lambda_g"] == 0.01 and out["lambda_node"] == 0.01 and out["gamma_dec"] == 0.1
+    assert out["dec_js_res"] >= 0.0                      # JS residual is non-negative
+
+
+def test_graphdualpc_edge_fail_closed_on_static_adjacency():
+    X, y, d = _synth()
+    C, T, n_cls = X.shape[1], X.shape[2], 2
+    bb = build_backbone("DGCNNGraph", C, T, n_cls, device="cpu")   # static adjacency -> edge_logits=None
+    with pytest.raises(ValueError, match="edge_logits"):
+        train_model(bb, X, y, d, n_cls, method="graphdualpc",
+                    lam=0.01, beta=0.01, lam_edge=0.01, gamma=0.1,   # lambda_edge>0 must fail closed
+                    epochs=1, bs=16, n_inner=1, warmup=1, device="cpu")
+
+
+def test_graphcmi_still_runs_after_refactor():
+    # regression: the uses_graph refactor must not break the existing graphcmi method
+    X, y, d = _synth()
+    C, T, n_cls = X.shape[1], X.shape[2], 2
+    bb = build_backbone("DGCNNGraph", C, T, n_cls, device="cpu")
+    bb, post, out = train_model(bb, X, y, d, n_cls, method="graphcmi",
+                                lam=0.01, gamma=0.01, lam_edge=0.0,
+                                epochs=2, bs=16, n_inner=1, warmup=1, device="cpu")
+    assert math.isfinite(out["reg_graph"]) and out["lambda_g"] == 0.01
+
+
+def test_graphdualpc_requires_forward_graph_backbone():
+    # non-graph backbone must fail closed with a clear message
+    from cmi.models.backbones import HookedBackbone  # noqa: F401 (import path check only)
+
+    class _Plain(torch.nn.Module):
+        z_dim = 8
+        def __init__(self): super().__init__(); self.head = torch.nn.Linear(8, 2); self.enc = torch.nn.Linear(64, 8)
+        def forward(self, x): z = self.enc(x.flatten(1)); return self.head(z), z
+
+    X, y, d = _synth(C=8, T=8)
+    with pytest.raises(ValueError, match="forward_graph"):
+        train_model(_Plain(), X, y, d, 2, method="graphdualpc", epochs=1, device="cpu")
