@@ -11,7 +11,8 @@ from types import SimpleNamespace
 
 import oaci.protocol
 import oaci.confirmatory.staged_demo as staged_demo
-from oaci.confirmatory.aggregate import aggregate_loso
+from oaci.confirmatory.aggregate import (_protocol_family, aggregate_loso, collect_fold_artifacts,
+                                          render_report_md)
 from oaci.confirmatory.bnci001_loso import (expected_level_support, materialize_all_loso, validate_loso_plan)
 from oaci.confirmatory.loso_plan import loso_fold_spec, loso_plan
 from oaci.confirmatory.materialize import materialize_pilot_manifest
@@ -159,6 +160,32 @@ def test_phase_b_depends_on_matching_phase_a():
             assert j["partition"] == "V100" and j["gres"] == "gpu:1"
 
 
+def test_phase_a_jobs_are_parallel_and_do_not_self_chain_phase_b():
+    jobs = build_job_plan(_OUT, _REPO)
+    for j in jobs:
+        if j["kind"] == "phase_a":
+            assert j["depends_on"] is None                          # all Phase-A run in parallel
+            assert j["env"]["OACI_CHAIN_PHASE_B"] == "0"            # submitter owns the Phase-B graph
+            assert j["env"]["OACI_REPO"] == os.path.abspath(_REPO)
+
+
+def test_phase_b_rolling_cap_dependency_graph():
+    b = [j for j in build_job_plan(_OUT, _REPO, phase_b_cap=3) if j["kind"] == "phase_b"]
+    ids = [j["fold_id"] for j in b]
+    for i, j in enumerate(b):
+        assert j["depends_on_phase_a"] == j["fold_id"]              # afterok on its own Phase A
+        assert j["phase_b_cap"] == 3
+        assert j["depends_on_prior_phase_b"] == (ids[i - 3] if i >= 3 else None)   # rolling afterany:B_{i-3}
+    assert sum(1 for j in b if j["depends_on_prior_phase_b"] is None) == 3          # exactly cap start immediately
+
+
+def test_phase_b_cap_is_configurable():
+    b2 = [j for j in build_job_plan(_OUT, _REPO, phase_b_cap=2) if j["kind"] == "phase_b"]
+    ids = [j["fold_id"] for j in b2]
+    assert sum(1 for j in b2 if j["depends_on_prior_phase_b"] is None) == 2
+    assert b2[2]["depends_on_prior_phase_b"] == ids[0] and b2[8]["depends_on_prior_phase_b"] == ids[6]
+
+
 def test_submitter_dry_run_prints_all_paths_and_dependencies():
     import io
     jobs = build_job_plan(_OUT, _REPO)
@@ -195,8 +222,14 @@ def _level(L, oaci_audit=0.80, erm_audit=0.75, oaci_bacc=0.45, erm_bacc=0.48):
                         base("global_lpc", 0.8, 0.46), base("uniform", 0.8, 0.46)]}
 
 
-def _fold(target, *, deep=True, tfit=True):
-    return {"target": target, "deep_verification_ok": deep, "target_fit_empty": tfit, "protocol_hash": "P",
+_FAM = "oaci-confirmatory-v2-pilot-BNCI2014_001"
+
+
+def _fold(target, *, deep=True, tfit=True, family=_FAM, prov="PROV"):
+    # Real folds carry per-fold-DISTINCT context hashes (different manifest per target) but a SHARED
+    # protocol_family + provenance_hash; the identity check keys on the latter, not context_hash.
+    return {"target": target, "deep_verification_ok": deep, "target_fit_empty": tfit,
+            "protocol_family": family, "provenance_hash": prov, "context_hash": f"ctx-{target}",
             "methods_present": ["ERM", "OACI", "global_lpc", "uniform"], "levels": [_level(0), _level(1)]}
 
 
@@ -204,11 +237,37 @@ def _nine():
     return [_fold(t) for t in range(1, 10)]
 
 
+def test_protocol_family_strips_target_suffix():
+    ids = [f"{_FAM}-target{t:03d}" for t in range(1, 10)]
+    assert {_protocol_family(i) for i in ids} == {_FAM}          # all nine collapse to one family
+    assert _protocol_family("oaci-confirmatory-v2-pilot-validredbootstrap-BNCI2014_001-target007") \
+        == "oaci-confirmatory-v2-pilot-validredbootstrap-BNCI2014_001"
+
+
+def test_aggregation_accepts_distinct_context_hashes_same_family():
+    # The real-world case the old hard-coded "P" stub hid: nine folds, nine DIFFERENT context_hashes, one
+    # protocol_family + one provenance -> ACCEPTED (not false-rejected).
+    r = aggregate_loso(_nine(), protocol_family=_FAM, provenance_hash="PROV")
+    assert r["n_folds"] == 9 and r["protocol_family"] == _FAM and r["provenance_hash"] == "PROV"
+    assert len(set(r["per_fold_context_hashes"].values())) == 9   # per-fold hashes genuinely differ
+
+
+def test_aggregation_rejects_mixed_family_or_provenance():
+    bad_fam = _nine(); bad_fam[4] = _fold(5, family="other-protocol")
+    bad_prov = _nine(); bad_prov[4] = _fold(5, prov="other-commit")
+    for bad in (bad_fam, bad_prov):
+        try:
+            aggregate_loso(bad)
+        except ValueError:
+            continue
+        raise AssertionError("a mixed protocol family / provenance must be rejected")
+
+
 def test_aggregation_requires_all_9_targets():
-    r = aggregate_loso(_nine(), protocol_hash="P")
+    r = aggregate_loso(_nine())
     assert r["n_folds"] == 9 and r["targets"] == list(range(1, 10))
     try:
-        aggregate_loso(_nine()[:8], protocol_hash="P")
+        aggregate_loso(_nine()[:8])
     except ValueError:
         return
     raise AssertionError("fewer than 9 targets must be rejected")
@@ -217,7 +276,7 @@ def test_aggregation_requires_all_9_targets():
 def test_aggregation_rejects_duplicate_or_missing_target():
     bad = _nine(); bad[8] = _fold(1)                            # target 1 twice, 9 missing
     try:
-        aggregate_loso(bad, protocol_hash="P")
+        aggregate_loso(bad)
     except ValueError:
         return
     raise AssertionError("a duplicate/missing target must be rejected")
@@ -226,7 +285,7 @@ def test_aggregation_rejects_duplicate_or_missing_target():
 def test_aggregation_rejects_failed_deep_verification():
     bad = _nine(); bad[3] = _fold(4, deep=False)
     try:
-        aggregate_loso(bad, protocol_hash="P")
+        aggregate_loso(bad)
     except ValueError:
         return
     raise AssertionError("a failed deep verification must be rejected")
@@ -235,14 +294,14 @@ def test_aggregation_rejects_failed_deep_verification():
 def test_aggregation_rejects_target_fit_ids():
     bad = _nine(); bad[5] = _fold(6, tfit=False)
     try:
-        aggregate_loso(bad, protocol_hash="P")
+        aggregate_loso(bad)
     except ValueError:
         return
     raise AssertionError("a non-empty target_fit must be rejected")
 
 
 def test_aggregation_reports_k1_k2_style_endpoints():
-    r = aggregate_loso(_nine(), protocol_hash="P")
+    r = aggregate_loso(_nine())
     assert len(r["k1_descriptive"]) == 2 and len(r["k2_descriptive"]) == 2
     k1 = r["k1_descriptive"][0]
     assert abs(k1["delta_leakage_ucl_mean"] - 0.05) < 1e-9      # OACI 0.80 - ERM 0.75
@@ -254,11 +313,27 @@ def test_aggregation_reports_k1_k2_style_endpoints():
 
 def test_aggregation_is_order_invariant():
     import random
-    a = aggregate_loso(_nine(), protocol_hash="P")
+    a = aggregate_loso(_nine())
     shuffled = _nine(); random.Random(0).shuffle(shuffled)
-    b = aggregate_loso(shuffled, protocol_hash="P")
+    b = aggregate_loso(shuffled)
     assert a["targets"] == b["targets"] and a["k1_descriptive"] == b["k1_descriptive"]
     assert a["k2_descriptive"] == b["k2_descriptive"]
+
+
+def test_render_report_md_contains_k1_k2_and_identity():
+    md = render_report_md(aggregate_loso(_nine()))
+    assert "# C6" in md and "## k1" in md and "## k2" in md
+    assert _FAM in md and "Δ audit_ucl" in md
+    assert "level 0" in md and "level 1" in md and "not the final multi-seed" in md
+
+
+def test_collect_fold_artifacts_requires_all_nine():
+    d = tempfile.mkdtemp()                                       # empty -> target-001 artifact missing
+    try:
+        collect_fold_artifacts(d)
+    except ValueError:
+        return
+    raise AssertionError("a missing per-target artifact must be rejected")
 
 
 def _run_all() -> None:
