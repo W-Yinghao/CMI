@@ -10,9 +10,13 @@ for m in build_table1_summary build_table2_erasure; do
   echo ">>> $m"
   "$PY" -m tos_cmi.paper.scripts.$m
 done
-# Table 3 (frozen-erasure target deployment) -- only if its builder + results exist
-if [ -f tos_cmi/paper/scripts/build_table3_erasure_target.py ]; then
-  echo ">>> build_table3_erasure_target"
-  "$PY" -m tos_cmi.paper.scripts.build_table3_erasure_target
+# Table 3 (frozen-erasure target deployment): needs the committed aggregate summary JSON
+SUMM=tos_cmi/results/tos_cmi_eeg_frozen/erasure_target_deploy/erasure_target_deploy_summary.json
+if [ ! -f "$SUMM" ]; then
+  echo "ERROR: missing $SUMM" >&2
+  echo "  regenerate with: sbatch scripts/tos_eeg_erasure_deploy.sbatch --nrandom 8" >&2
+  exit 3
 fi
+echo ">>> build_table3_erasure_target"
+"$PY" -m tos_cmi.paper.scripts.build_table3_erasure_target
 echo "REPRODUCE_TABLES_DONE -> tos_cmi/paper/figures/table*.tex"

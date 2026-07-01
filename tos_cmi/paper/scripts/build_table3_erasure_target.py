@@ -1,7 +1,7 @@
 """Table 3 -- frozen-erasure TARGET-DEPLOYMENT test (Step 3). Built from erasure_target_deploy_summary.json so
 numbers stay locked to tos_cmi/eeg/erasure_target_deploy.py. Emits figures/table3_erasure_target.tex (booktabs)
 + prints markdown. Message: deployed on the held-out target (source-only fit), NO eraser improves target
-balanced accuracy; the only NLL movement is non-specific (same-k random removal matches it); INLP "improves"
+balanced accuracy; the only NLL movement is non-specific (random-k gives a same-sign drop); INLP "improves"
 NLL only by collapsing the task.
   python -m tos_cmi.paper.scripts.build_table3_erasure_target
 """
@@ -15,10 +15,10 @@ MLABEL = {"full": "(none)", "TOS_VD": "TOS ($V_D$)", "LEACE": "LEACE", "RLACE": 
           "INLP": "INLP", "random_k": "random-$k$"}
 NOTE = {"full": "reference (no erasure)",
         "TOS_VD": "low-rank deletion; no target change",
-        "LEACE": "optimal linear eraser; no bAcc gain, NLL $\\approx$ random-$k$",
+        "LEACE": "optimal linear eraser; no bAcc gain",
         "RLACE": "rank-$k$ adversarial; no bAcc gain",
         "INLP": "collapses the task (bAcc $\\to$ chance)",
-        "random_k": "same-$k$ random; NLL matches LEACE $\\Rightarrow$ non-specific"}
+        "random_k": "same-$k$ random; same-sign NLL drop $\\Rightarrow$ non-specific"}
 
 
 def _ci(m, lo, hi):
@@ -50,9 +50,9 @@ def main():
              "task head is trained on transformed source, and evaluated on the transformed target; the target "
              "is never used for fitting, selection, or calibration. \\emph{No eraser improves target balanced "
              "accuracy} on either backbone (all $\\Delta$bAcc CIs overlap or fall below zero; INLP collapses "
-             "the task to chance). The only positive movement is a small NLL reduction that same-$k$ "
-             "\\emph{random} removal reproduces without erasing subject identity (subj.\\ decode stays high) --- "
-             "a non-specific effect, not a domain-removal benefit.}",
+             "the task to chance). The only positive movement is a small NLL reduction, but it is not erasure-specific: same-$k$ "
+             "\\emph{random} removal produces a same-sign reduction without erasing subject identity, and INLP's "
+             "NLL drop coincides with task collapse --- not a domain-removal benefit.}",
              "\\label{tab:target_deploy}",
              "\\begin{tabularx}{\\linewidth}{l l c c c c c c}",
              "\\toprule",

@@ -126,12 +126,15 @@ source-side controls (Table~\ref{tab:erasure}) leave open.} For each backbone, s
 eraser on the source only, apply it to source and target, train a linear task head on the transformed source,
 and evaluate on the transformed held-out target; the target is never used for fitting, selection, or
 calibration (Table~\ref{tab:target_deploy}; paired fold-cluster $95\%$ CIs over $3$ seeds $\times\,9$ folds).
-Across both backbones, \emph{no eraser improves target balanced accuracy}: LEACE, RLACE, and TOS-$V_D$ have
+This is a frozen-representation linear-head deployment assay, so absolute bAcc is not comparable to the
+backbone/LPC classifier in Fig.~\ref{fig:eegnet}; the statistic of interest is the paired $\Delta$ against the
+full-$Z$ frozen baseline under the same head. Across both backbones, \emph{no eraser improves target balanced accuracy}: LEACE, RLACE, and TOS-$V_D$ have
 $\Delta$bAcc CIs that overlap or fall below zero, and INLP collapses the task to chance (target bAcc
 $0.33$/$0.25$; source task destroyed, $0.75\to0.53$ / $0.64\to0.25$). The \emph{only} positive movement is a
-small NLL reduction, and it is \textbf{not subject-erasure-specific}: same-$k$ \emph{random} removal reproduces
-it (TSMNet $\Delta$NLL $-0.034$ vs LEACE $-0.031$) while leaving source subject decode essentially intact
-($0.998$) --- a generic dimensionality/regularization effect, not a domain-removal benefit \claimtag{C12}. This
+small NLL reduction, and it is \textbf{not subject-erasure-specific}: same-$k$ \emph{random} removal produces a
+same-sign reduction (TSMNet $\Delta$NLL $-0.034$ vs LEACE $-0.031$; on EEGNet both are small) while leaving
+source subject decode essentially intact ($0.998$), and INLP's larger NLL drop coincides with task collapse ---
+a generic dimensionality/regularization effect, not a domain-removal benefit \claimtag{C12}. This
 is the deployment evidence the preceding sections deferred: even an \emph{optimal} linear eraser, applied to a
 frozen target, does not convert leakage removal into a cross-subject accuracy gain.
 

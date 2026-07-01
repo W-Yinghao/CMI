@@ -20,7 +20,7 @@ preventing it returns the leakage to baseline, so the apparent de-domaining was 
 
 \subsection{Why leakage removal need not improve generalization}
 The EEGNet result is the cleanest case: leakage is genuinely (if partially) removable at no task cost, yet
-mean LOSO target accuracy is flat-to-worse and uncorrelated with the amount of leakage removed. A direct target-deployment test of the frozen erasers (\S4.5, Table~\ref{tab:target_deploy}) reaches the same conclusion: none --- including the optimal linear eraser --- improves target accuracy, and the only NLL movement is reproduced by random removal. Two
+mean LOSO target accuracy is flat-to-worse and uncorrelated with the amount of leakage removed. A direct target-deployment test of the frozen erasers (\S4.5, Table~\ref{tab:target_deploy}) reaches the same conclusion: none --- including the optimal linear eraser --- improves target accuracy, and the NLL movement is not erasure-specific (same-sign under random removal, and INLP's NLL drop coincides with task collapse). Two
 readings are consistent with our evidence. First, conditional domain leakage $I(Z;D|Y)$ may be \textbf{only weakly
 coupled to the component of cross-subject error that matters} on this paradigm --- subject identity is
 \emph{present and decodable} without being the \emph{cause} of the transfer gap. Second, removing a linearly-decodable
