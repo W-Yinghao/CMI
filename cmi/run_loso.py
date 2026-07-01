@@ -237,6 +237,7 @@ def _save_out(out_path, args, classes, summary, preds, quiet=False):
 
 
 def run(args):
+    run_git_sha = _git_sha()          # capture ONCE at launch so all folds share one provenance SHA
     from cmi.train.trainer import ALL_METHODS
     bad = [c for c in args.configs if c.split(":")[0] not in ALL_METHODS]
     if bad:                                          # fail fast, before the slow data load
@@ -399,7 +400,7 @@ def run(args):
             # Graph-DualCMI gate metrics: source retention, graph-usage ablation, git provenance, GLS diagnostics.
             rec["method_config"] = lbl
             rec["backbone"] = args.backbone
-            rec["git_sha"] = _git_sha()
+            rec["git_sha"] = run_git_sha
             rec["source_bacc"] = float(classification_metrics(predict(bb, Xtr_all[ei], device),
                                                               ytr_all[ei])["balanced_acc"])
             if callable(getattr(bb, "ablate", None)):
