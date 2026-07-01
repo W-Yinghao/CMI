@@ -90,4 +90,21 @@ Route-A negative (Sec.~\ref{sec:routeA}) and this positive, which is why both ve
 Within its declared synthetic envelope, adding a paired within-subject target-internal reference plus a few
 labels moves the certificate from \stunid{} to a \emph{confirmable} \stconf{} that survives a frozen,
 unseen-cluster, independently red-teamed test. This is the minimal-information positive counterpart to the
-Route-A negative --- not a general solution (Sec.~\ref{sec:discussion}).
+Route-A negative --- not a general solution (Sec.~\ref{sec:discussion}). The two routes are contrasted on the
+pre-registered endpoints in Fig.~\ref{fig:evidence}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{fig3_routeA_negative_B3_positive.png}
+\caption{Frozen confirmatory evidence: Route A (left, $Z$-only) vs.\ Route B3 (right, paired minimal-label),
+on the two pre-registered endpoints --- \emph{top}: false-certification/confirmation rate against
+$\alpha=0.05$; \emph{bottom}: concept-shift power against the $0.50$ bar. \textbf{Both columns are frozen
+confirmatory results on unseen clusters, not development estimates}, and the two routes use \emph{disjoint}
+tags, manifests, and seed streams (Route~A \texttt{csc-confirmatory-v1}, base seed $900000$; Route~B3
+\texttt{csc-b3-confirmatory-v1}, base seed $3000000$). Route~A fails both endpoints (false-cert CP-upper
+$0.071>\alpha$; power $0.43$, CP-lower $0.326<0.50$; \texttt{headline\_core\_pass=false}); Route~B3 passes
+both (worst control CP-upper $0.027<\alpha$; primary power $1.000$, per-cell CP-lower $0.985$), with guards
+$0/576$, no silent failures ($C_5$), and the $C_6$ red-team reproducing the verdict without correction. Error
+bars are one-sided Clopper--Pearson bounds; grey bars show the Route~A \emph{development} point for contrast.}
+\label{fig:evidence}
+\end{figure*}

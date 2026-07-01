@@ -92,18 +92,12 @@ headline                  & apparent favourable core  & \textbf{FAIL both endpoi
 \end{tabular}
 \end{table}
 
-\begin{figure}[t]
-\centering
-\includegraphics[width=0.9\linewidth]{fig3_dev_vs_confirmatory.png}
-\caption{Route A development operating map vs.\ frozen confirmatory: the development-favourable region does
-not reproduce on unseen clusters (power drops, forbidden rate exceeds $\alpha$). The gap is an
-informed-selection/generalization effect \emph{surfaced} by the freeze$\rightarrow$unseen protocol.}
-\label{fig:devconf}
-\end{figure}
+% Route A's dev-vs-confirmatory collapse is panel (a) (left column) of the combined frozen-evidence
+% figure~\ref{fig:evidence}, in Sec.~\ref{sec:routeB3conf}.
 
 \subsection{The failure}
 The confirmatory refutes the development core on both endpoints (Table~\ref{tab:routeA};
-Fig.~\ref{fig:devconf}). Of $G=66$ generated clusters, $N_{\text{valid}}=65$ passed the source-validity gate.
+Fig.~\ref{fig:evidence}(a)). Of $G=66$ generated clusters, $N_{\text{valid}}=65$ passed the source-validity gate.
 The forbidden gate fails: the certifier false-certified $1/65$ clusters, giving a Clopper--Pearson upper bound
 of $0.0709 > \alpha = 0.05$ (\texttt{forbidden\_pass=false}). The power gate also fails: it fired on only
 $28/65$ visible-concept clusters, for conditional power $0.4308$ (CP-LB $0.3262$) and unconditional power

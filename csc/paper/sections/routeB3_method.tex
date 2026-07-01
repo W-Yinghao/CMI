@@ -56,9 +56,10 @@ pre-condition fails, the certificate short-circuits to an abstention state
         missing one condition is not an audit unit.
   \item \textbf{Epoch sufficiency}: each present condition must carry $\geq 8$ epochs, so that the
         subject--condition vote is estimated from a non-degenerate cell.
-  \item \textbf{Per-condition class coverage}: each condition of an eligible subject must exhibit the
-        required class coverage, so that the within-subject contrast is defined for the classes it claims to
-        certify.
+  \item \textbf{Per-condition class coverage}: within the queried audit set, each condition must contain the
+        required class support, so that the condition-wise boundary contrast is estimable. Individual
+        subjects need not contain every class; the biological subject remains the exchangeable unit through
+        grouped fitting and subject-level aggregation.
   \item \textbf{Budget floor} $m\geq 20$: a positive confirmation is admissible only once at least $20$
         eligible paired subjects have been queried; below the floor the output is \stneed{}.
 \end{itemize}
