@@ -119,29 +119,34 @@ erasure is therefore not the right endpoint; the relevant question is whether th
 
 \input{figures/table2_erasure.tex}
 
-\subsection{Seed-0 capacity factorial for nonlinear erasure residuals}
-\textbf{A seed-0 architecture$\times$latent-dimension factorial indicates that the TSMNet/EEGNet contrast is
-driven largely by latent \emph{dimension} rather than the SPD-vs-convolutional representation type} (multi-seed
-hardening, and a dimension-matched convolutional cell at $d_z{=}210$, are in progress). We vary the latent dimension
-of each backbone (TSMNet tangent dimension via the SPD size; EEGNet penultimate width) and measure the
-nonlinear residual after optimal linear erasure (Fig.~\ref{fig:capacity}). The residual rises monotonically
-with latent dimension \emph{within both architectures}, and at \emph{matched} dimension the two are nearly
-indistinguishable (e.g.\ $d_z\!\approx\!16$--$21$: $0.40$ vs $0.40$; $d_z\!\approx\!32$--$36$: $0.50$ vs
-$0.50$; $d_z\!\approx\!105$--$128$: $0.65$ vs $0.61$). The earlier TSMNet-$0.74$-vs-EEGNet-$0.39$ gap is
-thus largely attributable to capacity ($210$ vs $16$) rather than representation type: larger latents support
-redundant, nonlinearly-recoverable subject coding that survives optimal linear erasure. This addresses the
-dimension-vs-type confound that the two-point comparison alone could not, pending multi-seed confirmation (\S6.3).
+\subsection{Removability is dominated by latent dimension, with a residual architecture effect at high $d_z$}
+\textbf{A three-seed architecture$\times$latent-dimension factorial shows that latent \emph{dimension} is the
+dominant axis of the TSMNet/EEGNet removability contrast, but does \emph{not} fully account for it: a residual
+architecture effect persists at high dimension.} We vary the latent dimension of each backbone with the
+protocol, dataset, and probes held fixed (TSMNet tangent dimension via the SPD size, $d_z\in\{21,36,55,105,210\}$;
+EEGNet penultimate width, $d_z\in\{16,32,64,128,210\}$) and measure the nonlinear (MLP) subject-decode residual
+after optimal linear erasure over $3$ seeds $\times\,9$ LOSO folds, with fold-cluster $95\%$ CIs
+(Fig.~\ref{fig:capacity}). The residual rises monotonically with $d_z$ \emph{within both architectures}
+(OLS $\log d_z$ coefficient $+0.089$, CI $[0.086,0.092]$) and the two \emph{coincide} at low dimension
+(matched-dim contrasts at $d_z\!\approx\!16$--$21$ and $32$--$36$ straddle zero: $+0.004\,[{-}0.008,0.014]$ and
+$-0.008\,[{-}0.022,0.004]$). Matching dimension removes about two-thirds of the original
+TSMNet-$0.74$-vs-EEGNet-$0.39$ gap, so capacity is the primary driver. \emph{However}, the effect is not purely
+dimensional: TSMNet's residual grows faster with $d_z$ (interaction $+0.058\,[0.051,0.063]$), and at matched
+$d_z{=}210$ the SPD/LogEig latent retains significantly more recoverable subject identity than the
+convolutional one ($+0.111\,[0.094,0.125]$). We therefore report the contrast as \textbf{largely
+capacity-mediated with a residual architecture$\times$dimension interaction at high capacity}, not as a pure
+dimension effect (\S6.3) \claimtag{C11}.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{fig6_capacity_factorial.pdf}
-\caption{\textbf{Seed-0 capacity factorial (provisional; multi-seed and a matched $d_z{=}210$ conv cell in progress).} Removability signals vs latent dimension $d_z$ for
+\caption{\textbf{Capacity is the dominant axis of removability, with a residual architecture effect at high $d_z$}
+(3 seeds $\times$ 9 LOSO folds; fold-cluster 95\% CI error bars). Removability signals vs latent dimension $d_z$ for
 TSMNet (SPD/LogEig) and EEGNet (conv). (A) full-$Z$ subject decode rises with $d_z$; (B) the MLP residual
-after \emph{optimal} linear erasure (LEACE) rises with $d_z$ and the two architectures nearly coincide at
-matched $d_z$ --- a seed-0 trend consistent with a capacity-mediated (not architecture-type) contrast,
-pending multi-seed confirmation; (C) task decode is preserved
-after LEACE across $d_z$; (D) rank-limited deletion (TOS) degrades toward random-$k$ as $d_z$ grows. (Seed 0;
-multi-seed runs in progress.)}
+after \emph{optimal} linear erasure (LEACE) rises with $d_z$ in both architectures and the two coincide at
+low $d_z$ but diverge at high $d_z$ (TSMNet exceeds EEGNet by $+0.11$, CI $[0.09,0.13]$, at matched $d_z{=}210$);
+(C) task decode is preserved after LEACE across $d_z$; (D) rank-limited deletion (TOS) degrades toward
+random-$k$ as $d_z$ grows.}
 \label{fig:capacity}
 \end{figure}
 
@@ -151,8 +156,9 @@ the score-Fisher diagnostics localize, but it is \textbf{not a sufficient contro
 generalization (Table~\ref{tab:summary}). Removing it can (i) collapse the representation (TSMNet global LPC), (ii) leave
 redundant high-dimensional leakage essentially intact (TSMNet low-rank deletion), or (iii) genuinely
 remove leakage yet not improve transfer (EEGNet). Whether the leakage even \emph{sits} in a low-rank removable
-subspace appears \textbf{capacity-mediated} (a seed-0 factorial, \S4.5): a higher-capacity latent redundantly
-re-encodes subject identity outside any low-rank subspace, while a compact latent cannot. The correct operating principle is therefore a \textbf{certified intervention with refusal}: the
+subspace appears \textbf{largely capacity-mediated} (a 3-seed factorial, \S4.5): a higher-capacity latent
+redundantly re-encodes subject identity outside any low-rank subspace, while a compact latent cannot ---
+though a residual architecture effect remains at high $d_z$. The correct operating principle is therefore a \textbf{certified intervention with refusal}: the
 framework should delete only when a source-risk certificate permits, and abstain otherwise --- which on
 TSMNet means abstain (deletion insufficient) and on EEGNet means a diagnostic deletion that removes leakage
 but is not claimed to improve generalization \claimtag{C10}.
@@ -160,4 +166,5 @@ but is not claimed to improve generalization \claimtag{C10}.
 \textbf{In sum,} on these representations conditional domain leakage is measurable and sometimes (partially) removable, yet neither its measurement nor its removal demonstrates a cross-subject generalization benefit.
 
 \emph{Limitation flagged here (full text in \S6.3): the two backbones differ in both architecture and latent
-dimension; we disentangle these with a capacity factorial (\S4.5; seed-0, multi-seed in progress).}
+dimension; the capacity factorial (\S4.5; 3 seeds) shows the contrast is largely --- but not fully ---
+explained by latent dimension, with a residual architecture effect at high $d_z$.}

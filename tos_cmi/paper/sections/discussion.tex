@@ -33,12 +33,14 @@ lever --- which is exactly why we do not equate removal with improvement.
 \item \textbf{Single dataset.} All EEG results are on BCI-IV-2a (BNCI2014\_001); we do not claim generality to other
   paradigms, montages, or session structures.
 \item \textbf{Two backbones only.} TSMNet and EEGNet; the cross-representation contrast rests on two points.
-\item \textbf{Dimension-vs-type: provisionally addressed by capacity factorial.} The original two-point comparison confounded
-  architecture with latent dimension (SPD/$210$ vs conv/$16$). The architecture$\times$dimension factorial
-  (\S4.5, Fig.~\ref{fig:capacity}) indicates this (seed-0 factorial; multi-seed hardening in progress): the nonlinear erasure residual is a function of latent
-  \emph{dimension}, with SPD and convolutional latents nearly coinciding at matched $d_z$ --- a seed-0 trend consistent
-  with a capacity-mediated (not representation-type) contrast, to be confirmed multi-seed. Remaining caveats on this factorial: a single dataset
-  (BCI-IV-2a), seed~0 (multi-seed in progress), and the LDA cap from $8$ source subjects.
+\item \textbf{Dimension-vs-type: largely capacity, with a residual architecture effect at high $d_z$.} The original
+  two-point comparison confounded architecture with latent dimension (SPD/$210$ vs conv/$16$). The
+  architecture$\times$dimension factorial (\S4.5, Fig.~\ref{fig:capacity}; 3 seeds, fold-cluster CIs) shows the
+  nonlinear erasure residual is primarily a function of latent \emph{dimension} --- it rises with $d_z$ in both
+  architectures, the two coincide at low $d_z$, and matching dimension removes about two-thirds of the raw gap ---
+  but \emph{not} purely: at matched $d_z{=}210$ the SPD/LogEig latent retains significantly more recoverable
+  subject identity than the convolutional one ($+0.11$, CI $[0.09,0.13]$). So the confound is largely, not fully,
+  explained by capacity. Remaining caveats: a single dataset (BCI-IV-2a) and the LDA cap from $8$ source subjects.
 \item \textbf{No end-to-end TOS training.} The EEG study is a frozen-feature pilot: it measures whether \emph{removing}
   localized leakage from a fixed representation helps; it does not show that end-to-end training with a
   certified penalty cannot help.
@@ -60,5 +62,5 @@ norm, not effective rank), because a falling leakage proxy can coincide with a d
 task risk, and default to the identity map when a safe, useful deletion cannot be certified at the available
 sample size. (iii) \textbf{Do not treat leakage decodability as a generalization target:} measure whether
 removing it actually moves target accuracy before claiming a DG benefit. The natural next steps ---
-multi-seed and multi-dataset hardening of the capacity-mediated verdict, source-OOD benefit gating on a large-$N$ dataset, and folding the certificate into end-to-end training with
+multi-dataset hardening of the (largely) capacity-mediated verdict (the multi-seed factorial is complete on 2a), source-OOD benefit gating on a large-$N$ dataset, and folding the certificate into end-to-end training with
 refusal --- are deferred to future work.

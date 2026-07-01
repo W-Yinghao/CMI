@@ -79,16 +79,20 @@ measurement_to_control_gap:                       # C10 (thesis)
 
 # ---------- NOT YET ATTEMPTED (future tracks; must not be claimed) ----------
 source_ood_benefit_gate:        {status: not_attempted, plan: Track B (inner source-LODO pseudo-target benefit)}
-architecture_x_dimension_factorial:               # Track C (PROVISIONAL, seed0; seeds 1,2 + EEGNet-210 dumping)
-  status: provisional_seed0  # PROVISIONAL seed-0 TREND = capacity-mediated; final verdict gated on 3-seed + EEGNet d_z=210 matched cell + paired/cluster CI
-  hardening_needed: [seeds 1+2 (running), EEGNet F2=210 top-matched conv cell, multiseed analyzer w/ cluster-bootstrap CI + matched-dim contrast]
-  scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_analysis.py
-  cells: TSMNet m{6,8,10,14,20}=tangent{21,36,55,105,210} + EEGNet F2{16,32,64,128}; 9 folds; seed0
-  outputs: results/tos_cmi_eeg_frozen/factorial/* ; factorial_removability_seed0.json
-  finding: LEACE nonlinear residual rises monotonically with latent dim WITHIN both archs; at MATCHED dim
-    SPD~conv nearly coincide (16/21:0.40/0.40; 32/36:0.50/0.50; 105/128:0.65/0.61; TSMNet-210:0.74) ->
-    the TSMNet-0.74-vs-EEGNet-0.39 gap is (provisionally) capacity (210 vs 16) rather than SPD-vs-conv. Addresses the dim<->type
-    confound PROVISIONALLY (paper SS4.5, Fig 6). Caveat: 2a, seed0, no EEGNet-210 yet (multi-seed + matched cell in progress); NOT to be written as 'resolved' until then.
+architecture_x_dimension_factorial:               # Track C (DONE, 3-seed; SLURM 877939)
+  status: supported_refined  # 3-seed verdict = LARGELY capacity-mediated + RESIDUAL architecture effect at high d_z
+  scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_multiseed_analysis.py (file-parallel joblib; fold-cluster + paired + OLS CIs)
+  cells: TSMNet tangent d_z{21,36,55,105,210} (SPD m{6,8,10,14,20}) + EEGNet F2{16,32,64,128,210}; 9 LOSO folds; seeds{0,1,2}
+  outputs: results/tos_cmi_eeg_frozen/factorial/factorial_multiseed.json ; paper/figures/fig6_capacity_factorial.pdf
+  finding: LEACE nonlinear residual rises monotonically with d_z in BOTH archs (OLS log(d_z)=+0.089 [0.086,0.092]).
+    per-cell residual [95% fold-cluster CI]: TSMNet 21/36/55/105/210 = .397/.498/.559/.648/.740 ;
+    EEGNet 16/32/64/128/210 = .393/.507/.574/.609/.628. matched-dim (TSMNet-EEGNet):
+    21v16 +.004[-.008,.014] OVERLAP0 ; 36v32 -.008[-.022,.004] OVERLAP0 ; 55v64 -.015[-.024,-.004] ;
+    105v128 +.039[.028,.051] ; 210v210 +.111[.094,.125] EXCLUDES0. Matching dim removes ~68% of the raw
+    0.74-vs-0.39 gap => capacity is the DOMINANT axis; BUT interaction +.058[.051,.063] => TSMNet residual grows
+    faster with d_z, and at matched d_z=210 SPD retains +0.11 MORE recoverable subject id than conv.
+    VERDICT: LARGELY capacity-mediated WITH a residual architecture x dimension interaction at high capacity --
+    NOT pure capacity. 'capacity-mediated, not architecture-type' is REFUTED at high d_z. Caveat: single dataset (2a), LDA cap 8 subj.
 concept_erasure_baselines_vs_tos:                 # Track G (DONE; cross-seed stable)
   status: supported
   scripts: tos_cmi/eeg/erasure_baselines.py (self-contained LEACE + INLP; LEACE validated: linear subj->chance)

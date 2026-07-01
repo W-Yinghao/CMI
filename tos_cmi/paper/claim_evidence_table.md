@@ -7,7 +7,7 @@ Global forbidden phrasings (apply everywhere):
 `TOS-CMI improves EEG domain generalization` · `Selective deletion solves LPC collapse` ·
 `Domain leakage removal is sufficient for target transfer` · `Task-orthogonal geometry implies safe deletion` ·
 `EEG subject leakage is generally low-rank removable` · `global CMI always collapses` ·
-`the dim↔type confound is resolved` · `the contrast is capacity-mediated, not architecture-type` (bare, forbidden until 3-seed + EEGNet d_z=210) · `frozen erasure yields no target gain` (forbidden until the Step-3 target-deployment test is run).
+`the dim↔type confound is resolved` · `the contrast is capacity-mediated, not architecture-type` (empirically REFUTED at high d_z — permanently forbidden) · `a pure dimension effect` (a residual architecture×dimension interaction remains) · `frozen erasure yields no target gain` (forbidden until the Step-3 target-deployment test is run).
 
 ---
 
@@ -60,7 +60,7 @@ Global forbidden phrasings (apply everywhere):
 - **Claim:** on the compact EEGNet latent the same score-Fisher deletion removes a large fraction of subject leakage with negligible task cost — genuine V_D selectivity, not a delete-many-dims artifact — whereas on TSMNet it does not. Removability is representation/capacity-dependent.
 - **Phase:** 3.0 (verified wf_cb3b4958). **Fig/Table:** Fig 5, Table 1.
 - **Numbers:** EEGNet subject linear 0.82→0.35 (random-k 0.73), MLP 0.88→0.54 (random-k 0.81); selectivity 0.35–0.55 vs TSMNet 0.04–0.08; task 0.64→0.64.
-- **Limitation:** **dim↔type confound** — EEGNet differs in architecture AND latent dim (16 vs 210); collinear in the two-point comparison. The Track-C architecture×dimension factorial (**C11**) PROVISIONALLY attributes the contrast to capacity (latent dim) rather than type, but this is seed-0 (multi-seed + EEGNet d_z=210 pending); do NOT write “resolved” yet.
+- **Limitation:** **dim↔type confound** — EEGNet differs in architecture AND latent dim (16 vs 210); collinear in the two-point comparison. The Track-C architecture×dimension factorial (**C11**, 3-seed) shows the contrast is LARGELY capacity (latent dim) — coincident at low d_z, ~2/3 of the gap — but with a RESIDUAL architecture effect at high d_z; do NOT write “resolved” or “not architecture-type”.
 - **Allowed:** "low-rank removability is representation-dependent and capacity-mediated." **Forbidden:** "convolutional (SPD) representations are (un)removable" / asserting type as the causal axis.
 
 ### C8 — Removability is partial: nonlinear residual persists
@@ -86,12 +86,12 @@ Global forbidden phrasings (apply everywhere):
 
 ---
 
-### C11 — Dimension-vs-type (Track C capacity factorial; PROVISIONAL, seed-0)
-- **Claim:** an architecture×latent-dimension factorial (TSMNet tangent d_z∈{21,36,55,105,210} via SPD size; EEGNet width F2∈{16,32,64,128}; a matched d_z=210 conv cell in progress) shows the nonlinear erasure residual rises with d_z *within* both architectures and the two nearly coincide at matched d_z — suggesting the TSMNet-vs-EEGNet removability gap is mediated by latent dimension, not SPD-vs-conv type.
-- **Phase:** Track C. **Fig/Table:** Fig 6 (§4.5).
-- **Numbers (seed-0):** matched d_z 16/21: 0.40/0.40; 32/36: 0.50/0.50; 105/128: 0.65/0.61; TSMNet d_z=210: 0.74.
-- **Status:** PROVISIONAL (seed-0). Final verdict gated on 3-seed (running) + EEGNet d_z=210 matched cell + fold-cluster bootstrap CI + paired matched-dim contrast + OLS coefficient CIs.
-- **Allowed:** “a seed-0 factorial indicates the contrast is driven largely by latent dimension (provisional)” / “capacity-consistent, pending multi-seed confirmation.” **Forbidden:** “the dim↔type confound is resolved” / “capacity-mediated, not architecture-type” (bare, until 3-seed + EEGNet-210 complete).
+### C11 — Dimension-vs-type (Track C capacity factorial; 3-seed, DONE)
+- **Claim:** a 3-seed architecture×latent-dimension factorial shows the nonlinear erasure residual rises with d_z within BOTH architectures and the two coincide at low d_z, so latent dimension is the DOMINANT axis of the TSMNet-vs-EEGNet removability contrast (matching dimension removes ≈2/3 of the raw gap) — but NOT the only one: a residual architecture×dimension interaction persists, and at matched d_z=210 the SPD latent retains significantly more recoverable subject identity than conv.
+- **Phase:** Track C (SLURM 877939). **Fig/Table:** Fig 6 (§4.5).
+- **Numbers (3 seeds × 9 folds, fold-cluster 95% CI):** LEACE residual TSMNet 21/36/55/105/210 = 0.397/0.498/0.559/0.648/0.740; EEGNet 16/32/64/128/210 = 0.393/0.507/0.574/0.609/0.628. Matched-dim (TSMNet−EEGNet): 21v16 +0.004[−0.008,0.014] (overlaps 0); 36v32 −0.008[−0.022,0.004] (overlaps 0); 55v64 −0.015[−0.024,−0.004]; 105v128 +0.039[0.028,0.051]; 210v210 +0.111[0.094,0.125] (excludes 0). OLS log(d_z) +0.089[0.086,0.092]; interaction +0.058[0.051,0.063].
+- **Status:** SUPPORTED (refined). Multi-seed + EEGNet d_z=210 complete. Remaining caveat: single dataset (2a), LDA cap from 8 source subjects.
+- **Allowed:** “largely capacity-mediated, with a residual architecture effect at high d_z (3 seeds, fold-cluster CI)” / “matching dimension removes ~2/3 of the gap; a residual architecture×dimension interaction remains.” **Forbidden:** “the dim↔type confound is resolved” / “capacity-mediated, not architecture-type” (empirically REFUTED at high d_z) / “a pure dimension effect.”
 
 ---
 
@@ -99,8 +99,9 @@ Global forbidden phrasings (apply everywhere):
 > EEGNet differs from TSMNet in both architecture and latent dimensionality; therefore Phase 3 does not
 > isolate whether low-rank removability is driven by convolutional inductive bias, latent compression, or
 > both. The two-point comparison establishes representation dependence, not the causal factor behind it;
-> the Track-C capacity factorial (C11) PROVISIONALLY attributes it to latent dimension (seed-0; multi-seed
-> and a matched d_z=210 convolutional cell pending), so it must NOT be written as “resolved” until then.
+> the Track-C capacity factorial (C11; 3 seeds) attributes it LARGELY to latent dimension (≈2/3 of the gap)
+> but finds a RESIDUAL architecture effect at high d_z, so it must NOT be written as “resolved” or as
+> “not architecture-type” (the latter is empirically refuted at d_z=210).
 
 ## Cross-check before camera-ready
 - [ ] Every figure caption number traces to a row here.
