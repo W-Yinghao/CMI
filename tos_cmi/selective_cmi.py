@@ -4,8 +4,7 @@ This applies leakage pressure ONLY to the nuisance component `P_N Z` chosen by
 `SubspaceSelector`. The task-entangled component `(I - P_N) Z` is never pushed toward
 invariance, so the classifier keeps whatever label-bearing domain structure lives there.
 
-The estimator is the same label-prior-corrected posterior-KL plug-in used by the AAAI
-core (`cmi.methods.regularizers.DomainPosteriors.reg("lpc_prior")`):
+The estimator is the same label-prior-corrected posterior-KL plug-in used by the core CMI (`cmi.methods.regularizers.DomainPosteriors.reg("lpc_prior")`):
 
     I_hat(Z_N; D | Y) = E_i KL( q_psi(D | z_{N,i}, y_i) || pi_{y_i}(D) ),
 

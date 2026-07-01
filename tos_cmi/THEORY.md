@@ -75,7 +75,7 @@ L = CE(Z) + λ · I( P_N Z ; D | Y )
 The classifier still sees the full `Z`; only the *invariance pressure* is restricted to
 `P_N Z`. The task-entangled complement `(I − P_N) Z` is never pushed toward invariance,
 so label-bearing domain structure there is left intact. The leakage term is the same
-label-prior-corrected posterior-KL plug-in used by the AAAI core
+label-prior-corrected posterior-KL plug-in used by the core CMI
 (`E_i KL(q_ψ(D|z_{N,i}, y_i) ‖ π_{y_i}(D))`, tight at the Step-A critic optimum). Code:
 [`selective_cmi.py`](selective_cmi.py).
 

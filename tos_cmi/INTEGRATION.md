@@ -88,7 +88,7 @@ loss_A += post.posterior_loss(Zn.detach(), yb, db)
 loss_B += λ * post.reg("lpc_prior", Zn, yb)     # I(P_N Z; D|Y)
 ```
 
-This makes TOS-CMI a one-line wrapper (`z → P_N z`) around the validated AAAI penalty,
+This makes TOS-CMI a one-line wrapper (`z → P_N z`) around the validated CMI penalty,
 which is the cleanest ablation: identical estimator, the only change is *where* it acts.
 
 ## 5. Register as a trainer method

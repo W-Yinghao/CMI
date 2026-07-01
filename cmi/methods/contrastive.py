@@ -1,4 +1,4 @@
-"""Contrastive framework pieces for the Tri-CMI exploration.
+"""Contrastive framework pieces for the conditional-leakage exploration.
 
 Supervised contrastive loss (Khosla et al., arXiv 2004.11362), reimplemented MIT-clean.
 The DG-relevant "domain-aware" variant restricts positives to *same class, different

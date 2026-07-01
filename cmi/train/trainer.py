@@ -182,7 +182,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     is_iib = method == "iib"
     is_dual = method == "dual"                   # joint encoder I(Z;D|Y) + decoder I(Y;D|Z) invariance
     is_dualc = method == "dualc"                  # Route C: GLS-reweighted, RESIDUAL (intercept) decoder, gated
-    # AAAI candidate: factorized reference-P(Z) control + gated JS-consistency P(Y|Z).
+    # Candidate: factorized reference-P(Z) control + gated JS-consistency P(Y|Z).
     # Under GLS, Y and D have a common reference prior; driving I_w(Z;D|Y) to zero therefore
     # aligns the induced reference mixture P_w(Z|D)=sum_y pi*(y)P(Z|Y=y,D) without the label-erasure
     # risk of a direct marginal I_w(Z;D) penalty.
@@ -400,7 +400,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                         diag["inloop_reg"].append(_scalar(r_enc))
                         diag.setdefault("inloop_dec", []).append(_scalar(r_dec_res))
                 if is_dualpc or is_dualpc_hinge:
-                    # AAAI candidate objective:
+                    # Candidate objective:
                     #   task CE on the empirical source risk (or GLS CE only when --label_correct is explicit)
                     #   + λ · I~(Z;D|Y)          -> aligns the reference mixture P(Z) without erasing labels
                     #   + γ · [JS(h_full,h0)-τ]+ -> aligns P(Y|Z) only when domain-conditioned predictions

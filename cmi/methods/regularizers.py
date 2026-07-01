@@ -170,7 +170,7 @@ class DomainPosteriors(nn.Module):
         """Prediction-distribution residual for DualPC's P(Y|Z) side.
 
         The CE residual above is the diagnostic CMI estimate. As a training loss it can be noisy because it
-        optimizes a difference of two label CEs. For the AAAI DualPC objective, directly match the full
+        optimizes a difference of two label CEs. For the DualPC objective, directly match the full
         domain decoder h(Y|Z,D) to the intercept-only decoder h0(Y|Z,D)=u(Z)+b_D using Jensen-Shannon
         divergence. This is nonnegative, label-prior/calibration tolerant, and targets the predictor
         distribution P(Y|Z) more directly while keeping the same full-vs-intercept concept-shift contrast.

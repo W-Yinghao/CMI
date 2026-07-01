@@ -1,36 +1,48 @@
 #!/usr/bin/env bash
-# Artifact-level anonymity + completeness gate. Run over the assembled reviewer artifact tree.
+# Artifact-level gate: anonymity + legacy-framing + completeness + import/compile smoke.
+# Run over the assembled reviewer artifact tree.
 #   bash scripts/check_artifact.sh <artifact_root>
-# Exits non-zero on any identity leak, forbidden legacy wording, or missing required file.
 set -uo pipefail
 ROOT="${1:?usage: check_artifact.sh <artifact_root>}"
+cd "$ROOT"
 fail=0
-SELF="$(basename "$0")"
+EXC=(--exclude=check_artifact.sh --exclude=check_claims.sh --exclude-dir=.git)
 
-# identity / site strings that must not appear anywhere in the artifact (exclude this checker + .git)
-LEAK='W-Yinghao|yinghao|yinwang|/home/infres|CMI_AAAI|/projects/EEG-foundation|github\.com/W-'
-hits=$(grep -rInE "$LEAK" "$ROOT" --exclude="$SELF" --exclude-dir=.git 2>/dev/null || true)
-if [ -n "$hits" ]; then echo "FAIL [identity leak]:"; echo "$hits" | head -40 | sed 's/^/    /'; fail=1
-else echo "ok   [no identity/site leaks]"; fi
+# identity / site strings (references.bib legitimately cites AAAI venues -> AAAI handled separately)
+LEAK='W-Yinghao|Yinghao|yinwang|/home/|/projects/EEG-foundation|\binfres\b'
+h=$(grep -rInE "$LEAK" . "${EXC[@]}" 2>/dev/null || true)
+[ -n "$h" ] && { echo "FAIL [identity/site leak]:"; echo "$h" | head -30 | sed 's/^/    /'; fail=1; } || echo "ok   [no identity/site leaks]"
 
-# forbidden legacy framing (the artifact must read as TOS-CMI only)
-LEG='Tri-CMI|LINE CLOSED|AAAI-27|LPC-CMI failed'
-lhits=$(grep -rInE "$LEG" "$ROOT" --exclude="$SELF" --exclude-dir=.git 2>/dev/null || true)
-if [ -n "$lhits" ]; then echo "FAIL [legacy Tri-CMI framing]:"; echo "$lhits" | head -20 | sed 's/^/    /'; fail=1
-else echo "ok   [no legacy Tri-CMI framing]"; fi
+# legacy project framing
+LEG='Tri-CMI|LINE CLOSED|TUAB|lockbox|CLOSEOUT'
+h=$(grep -rInE "$LEG" . "${EXC[@]}" 2>/dev/null || true)
+[ -n "$h" ] && { echo "FAIL [legacy framing]:"; echo "$h" | head -20 | sed 's/^/    /'; fail=1; } || echo "ok   [no legacy framing]"
 
-# no submodule pointer (we vendor instead)
-if [ -f "$ROOT/.gitmodules" ]; then echo "FAIL [.gitmodules present -- vendor TSMNet instead]"; fail=1
-else echo "ok   [no .gitmodules]"; fi
+# project-AAAI references (cited AAAI venues in references.bib are allowed)
+h=$(grep -rInE "AAAI" . "${EXC[@]}" --exclude=references.bib --exclude=*.bbl 2>/dev/null || true)
+[ -n "$h" ] && { echo "FAIL [project-AAAI reference]:"; echo "$h" | head -20 | sed 's/^/    /'; fail=1; } || echo "ok   [no project-AAAI references]"
+
+# no submodule pointer (we vendor)
+[ -f .gitmodules ] && { echo "FAIL [.gitmodules present -- vendor instead]"; fail=1; } || echo "ok   [no .gitmodules]"
 
 # required files
-req=( "README.md" "repos/TSMNet/VENDORED.md" "repos/TSMNet/LICENSE"
-      "tos_cmi/results/tos_cmi_eeg_frozen/erasure_target_deploy/erasure_target_deploy_summary.json"
-      "tos_cmi/results/tos_cmi_eeg_frozen/factorial/factorial_multiseed.json" )
-for f in "${req[@]}"; do
-  if [ -e "$ROOT/$f" ]; then echo "ok   [present: $f]"; else echo "FAIL [missing: $f]"; fail=1; fi
+for f in README.md CMI_SUBSET.md repos/TSMNet/VENDORED.md repos/TSMNet/LICENSE requirements.txt \
+         tos_cmi/results/tos_cmi_eeg_frozen/erasure_target_deploy/erasure_target_deploy_summary.json \
+         tos_cmi/results/tos_cmi_eeg_frozen/factorial/factorial_multiseed.json; do
+  [ -e "$f" ] && echo "ok   [present: $f]" || { echo "FAIL [missing: $f]"; fail=1; }
 done
-# at least one built PDF
-if ls "$ROOT"/tos_cmi/paper/*.pdf >/dev/null 2>&1; then echo "ok   [PDF present]"; else echo "FAIL [no built PDF]"; fail=1; fi
+ls tos_cmi/paper/*.pdf >/dev/null 2>&1 && echo "ok   [PDF present]" || { echo "FAIL [no built PDF]"; fail=1; }
+
+# import smoke (slim cmi subset must satisfy tos_cmi imports) + byte-compile
+PY="${TOS_PY:-python}"
+PYTHONPATH="$ROOT" "$PY" - <<'PYEOF' && echo "ok   [import smoke]" || { echo "FAIL [import smoke]"; fail=1; }
+import importlib
+for m in ["tos_cmi.eeg.erasure_target_deploy","tos_cmi.eeg.factorial_multiseed_analysis",
+          "tos_cmi.eeg.erasure_baselines","tos_cmi.score_fisher",
+          "cmi.paths","cmi.data.moabb_data","cmi.models.backbones","cmi.train.trainer","cmi.methods"]:
+    importlib.import_module(m)
+print("IMPORT_SMOKE_PASS")
+PYEOF
+PYTHONPATH="$ROOT" "$PY" -m compileall -q tos_cmi cmi >/dev/null 2>&1 && echo "ok   [compileall]" || { echo "FAIL [compileall]"; fail=1; }
 
 [ "$fail" = 0 ] && echo "CHECK_ARTIFACT_PASS" || { echo "CHECK_ARTIFACT_FAIL"; exit 1; }

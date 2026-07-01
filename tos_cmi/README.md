@@ -16,7 +16,7 @@
 > benefit. See [`THEORY.md`](THEORY.md) §8 for the score-Fisher redesign rationale.
 
 An **isolated** research package (peer to `h2cmi/`; does not import-with-side-effects or
-mutate the AAAI `cmi/` package). The whole pipeline runs without real EEG on a controllable
+mutate the CMI `cmi/` package). The whole pipeline runs without real EEG on a controllable
 feature simulator, so every component is exercised by a unit test.
 
 ## The idea in one line
