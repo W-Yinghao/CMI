@@ -29,6 +29,13 @@ MODULES = (
     "test_stage1b_source_paths_by_cohort",
     "test_stage1b_runtime_lock_binds_implementation_sha",
     "test_stage1b_build_gate_validates_schema",
+    "test_stage1b_build_default_dry_run_no_read",
+    "test_stage1b_build_requires_full_gate_before_read",
+    "test_stage1b_artifact_manifest_hash_set_complete",
+    "test_stage1b_outputs_exact_30_refs",
+    "test_stage1b_split_discipline_enforced",
+    "test_stage1b_no_cal_eval_fit_contamination",
+    "test_stage1b_no_selection_or_external_imports",
 )
 
 

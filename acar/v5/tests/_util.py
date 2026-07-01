@@ -52,6 +52,52 @@ def stage1b_full_plan():
     return pl
 
 
+def stage1b_fake_subjects(n_per_cohort=20):
+    """{(disease, cohort): [namespaced subject ids]} — synthetic, deterministic; enough per cohort for K=5 splits."""
+    from acar.v5 import protocol as P
+    out = {}
+    for d, cs in P.DEV_COHORTS.items():
+        for c in cs:
+            out[(d, c)] = [f"{c}/sub-{i:03d}" for i in range(n_per_cohort)]
+    return out
+
+
+class FakeDevReader:
+    """Synthetic DEV reader (no filesystem). Records list/read calls so tests can prove the gate runs before any read and that
+    CAL/EVAL subjects are never read."""
+
+    def __init__(self, subjects_by=None):
+        self._subs = subjects_by if subjects_by is not None else stage1b_fake_subjects()
+        self.listed = []
+        self.read_calls = []
+
+    def list_subjects(self, disease, cohort, path):
+        self.listed.append((disease, cohort, path))
+        return list(self._subs.get((disease, cohort), []))
+
+    def read_subject_windows(self, disease, cohort, subject, path):
+        self.read_calls.append((disease, cohort, subject, path))
+        return {"marker": f"{disease}/{cohort}/{subject}"}
+
+
+class FakeTrainer:
+    """Synthetic trainer (no torch). Records exactly which (train, val) subjects the build handed it, and emits an artifact
+    manifest with a complete dummy registry hash set."""
+
+    def __init__(self):
+        self.received = {}
+
+    def train_fold(self, disease, fold, seed, train_subjects, val_subjects, cohort_paths):
+        import hashlib
+        from acar.v5 import protocol as P
+        ref = f"{disease}/fold{fold}/seed{seed}"
+        self.received[ref] = {"train": set(train_subjects), "val": set(val_subjects)}
+        art = {"ref": ref, "disease": disease, "fold": fold, "seed": seed}
+        for h in P.REGISTRY_HASH_FIELDS:
+            art[h] = hashlib.sha256(f"{ref}:{h}".encode()).hexdigest()
+        return art
+
+
 def batch(batch_id, **per_action):
     """Build a synthetic action-indexed batch: batch(id, matched_coral={d_margin:..,flip_rate:..,JS:..,d_entropy:..,post_sep:..},
     spdim={...}, t3a={...}). Missing features default to neutral 0.0."""

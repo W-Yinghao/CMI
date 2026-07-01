@@ -24,12 +24,12 @@ def validate_cohort_source_path(disease, cohort, path):
     if cohort not in P.DEV_COHORTS[disease]:
         raise Stage1bFullBuildError(f"{cohort!r} is not a {disease} DEV cohort")
     MAN.validate_dev_source_path(disease, path)                 # disease-matched; no foreign disease / site / artifact / cache
-    s = str(path)
-    if cohort not in s:
-        raise Stage1bFullBuildError(f"{disease}/{cohort}: path does not reference cohort {cohort}: {s}")
-    others = sorted(c for c in _ALL_DEV_COHORTS if c != cohort and c in s)
+    parts = set(str(path).replace("\\", "/").split("/"))        # PATH-SEGMENT exactness (Step 1B2): "ds002778_old" != "ds002778"
+    if cohort not in parts:
+        raise Stage1bFullBuildError(f"{disease}/{cohort}: path has no exact '{cohort}' segment: {path}")
+    others = sorted(c for c in _ALL_DEV_COHORTS if c != cohort and c in parts)
     if others:
-        raise Stage1bFullBuildError(f"{disease}/{cohort}: path also references other cohorts {others}: {s}")
+        raise Stage1bFullBuildError(f"{disease}/{cohort}: path also has other cohort segments {others}: {path}")
     return True
 
 
