@@ -140,4 +140,11 @@ def build_backbone(name, n_chans, n_times, n_classes, device="cpu", **_):
         # decoder-CMI methods (graphcmi / graphdualpc) can run on. edge_logits is None (static adjacency).
         from cmi.models.graph_task_backbones import DGCNNForwardGraphAdapter
         return DGCNNForwardGraphAdapter(n_chans, n_times, n_classes).to(device)
+    if name == "FBLGGGraph":
+        # CIGL_47 main line: FilterBank temporal + Local-Global electrode Graph + gated fusion.
+        # forward_graph(x) -> (logits, graph_z, node_z, edge_logits=None, fused_z) — a 5-tuple with a
+        # DISTINCT fused_z (the classifier input), so graphdualpc runs a genuine encoder/decoder head
+        # split. ch_names (optional) enables name-aware electrode grouping; absent -> index partition.
+        from cmi.models.fb_lgg_dualcmi import FBLGGDualCMIBackbone
+        return FBLGGDualCMIBackbone(n_chans, n_times, n_classes, ch_names=_.get("ch_names")).to(device)
     return HookedBackbone(name, n_chans, n_times, n_classes).to(device)
