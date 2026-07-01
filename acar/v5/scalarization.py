@@ -1,5 +1,5 @@
 """ACAR V5 action-record scalarization & FIT quantile universe (CANDIDATE_SPACE §1.7) — makes the 22 manifest rows bit-executable.
-Pure (numpy). Label-free: routing reads ONLY the action-indexed features, never labels.
+Pure/stdlib. Label-free: routing reads ONLY the action-indexed features, never labels.
 
 A synthetic "batch" is: {"batch_id": str, "features": {action -> {feature -> float}}} for every non-identity action in
 P.ACTIONS. The proposed action a*(B), the FIT-only quantile thresholds, and the adapt/abstain decision follow the pinned rules;

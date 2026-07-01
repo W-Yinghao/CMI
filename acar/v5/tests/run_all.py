@@ -14,6 +14,12 @@ MODULES = (
     "test_substrate_hash_required",
     "test_fixed_candidate_no_reselection",
     "test_verify_artifacts",
+    "test_stage1_plan_counts_and_refs",
+    "test_stage1_no_real_data_paths",
+    "test_stage1_registry_roundtrip_synthetic",
+    "test_stage1_external_sites_forbidden",
+    "test_stage1_s1_seed_roles",
+    "test_stage1_final_external_ref_separate",
 )
 
 

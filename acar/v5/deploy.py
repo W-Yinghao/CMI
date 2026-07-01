@@ -1,4 +1,4 @@
-"""ACAR V5 deployment-time guards (label firewall + external gate + fixed-candidate). Pure/stdlib+numpy.
+"""ACAR V5 deployment-time guards (label firewall + external gate + fixed-candidate). Pure/stdlib.
 
 - `route` is LABEL-FREE: it takes only (candidate, batch, thresholds) and reads only action-indexed features via scalarization.
   There is no label/y/target parameter; the DeploymentBatch carries no label. (Guarded by test_no_label_in_route.)
