@@ -257,6 +257,20 @@ def run(args):
         dom_mode, splits = "subject_session", list(leave_one_session_splits(meta))
     else:
         dom_mode, splits = "subject", list(loso_splits(meta))
+    # Explicit fold selection (pilot): keep only the requested LOSO indices, in split order. This is NOT
+    # --max_subjects (which truncates the SOURCE pool); it picks exactly which held-out targets to run,
+    # so e.g. BNCI2015_001 fold 9 can be named precisely. Recorded for provenance.
+    requested_target_indices = None
+    if args.target_indices is not None:
+        requested_target_indices = list(args.target_indices)
+        bad = [i for i in requested_target_indices if i < 0 or i >= len(splits)]
+        if bad:
+            raise ValueError(f"--target_indices {bad} out of range for {len(splits)} folds (0..{len(splits)-1})")
+        splits = [splits[i] for i in requested_target_indices]
+    args.requested_target_indices = requested_target_indices
+    args.actual_target_subjects = [str(s[0]) for s in splits]
+    print(f"  target selection: requested_indices={requested_target_indices} -> "
+          f"targets={args.actual_target_subjects} ({len(splits)} folds)", flush=True)
     dom_all, _ = domain_labels(meta, dom_mode)
     if args.fmin or args.fmax:                       # dual-band: encoder broadband vs covariance 8-30
         from cmi.data.alignment import bandpass
@@ -421,12 +435,16 @@ def run(args):
     return out
 
 
-def main():
+def build_parser():
     ap = argparse.ArgumentParser()
     ap.add_argument("--dataset", default="BNCI2014_001")
     ap.add_argument("--backbone", default="EEGNet",
                     choices=["EEGNet", "ShallowConvNet", "Deep4Net", "EEGConformer", "LogCov", "TSMNet",
-                             "GraphCMI", "DGCNN", "RGNN"])
+                             "GraphCMI", "DGCNN", "RGNN", "DGCNNGraph"])   # DGCNNGraph = static-adjacency graph adapter (graphcmi/graphdualpc)
+    ap.add_argument("--target_indices", type=int, nargs="+", default=None,
+                    help="run only these LOSO fold indices (0-based, in split order), e.g. 0 1 for the pilot "
+                         "or 0 9 for BNCI2015_001. Default: all folds. Recorded in the output as "
+                         "requested_target_indices / actual_target_subjects.")
     # configs = list of "method:lam" (one job can sweep lambda; splits shared across all)
     ap.add_argument("--configs", nargs="+",
                     default=["erm:0", "marginal:1", "chain:1", "lpc_uniform:1", "lpc_prior:1"])
@@ -476,7 +494,11 @@ def main():
     ap.add_argument("--transduct_gate", type=float, default=0.0, help="L1 gate on |pi_T-pi_S| for prior correction")
     ap.add_argument("--max_subjects", type=int, default=0)
     ap.add_argument("--out", default="")
-    run(ap.parse_args())
+    return ap
+
+
+def main():
+    run(build_parser().parse_args())
 
 
 if __name__ == "__main__":

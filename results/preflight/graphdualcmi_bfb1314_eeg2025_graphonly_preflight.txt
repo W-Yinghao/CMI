@@ -1,0 +1,24 @@
+/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/requests/__init__.py:113: RequestsDependencyWarning: urllib3 (2.6.3) or chardet (6.0.0.post1)/charset_normalizer (3.4.4) doesn't match a supported version!
+  warnings.warn(
+Choosing from all possible events
+==============================================================================
+Graph-DualCMI environment preflight
+==============================================================================
+python          : 3.13.7 (/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python)
+torch           : 2.6.0+cu124
+numpy           : 2.4.4
+moabb           : 1.5.0
+braindecode     : IMPORT FAIL (ImportError: cannot import name 'BNCI2014001' from 'moabb.datasets' (/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/moabb/datasets/__init__.py))
+MNE_DATA        : /projects/EEG-foundation-model/yinghao/cigl_bnci_readable
+MNE_DATASETS_BNCI_PATH: /projects/EEG-foundation-model/yinghao/cigl_bnci_readable
+download        : DISABLED (offline)
+
+-- backbones --
+  DGCNNGraph     PASS               z_dim=64 forward_graph=True
+
+-- datasets (offline load, 1 subject) --
+  BNCI2014_001   PASS               {'subject': 1, 'n_trials': 576, 'n_channels': 22, 'n_times': 385, 'n_classes': 4, 'class_names': ['feet', 'left_hand', 'right_hand', 'tongue'], 'y_unique': [0, 1, 2, 3]}
+  BNCI2015_001   PASS               {'subject': 1, 'n_trials': 400, 'n_channels': 13, 'n_times': 384, 'n_classes': 2, 'class_names': ['feet', 'right_hand'], 'y_unique': [0, 1]}
+
+==============================================================================
+PREFLIGHT: PASS — DGCNNGraph builds and all datasets load offline.

@@ -153,6 +153,17 @@ def test_run_loso_graphdualpc_grammar():
     assert e[1] == "erm" and e[2] == 0.0 and e[7] == 0.3
 
 
+def test_run_loso_cli_accepts_dgcnngraph_and_target_indices():
+    from cmi.run_loso import build_parser
+    args = build_parser().parse_args(
+        ["--dataset", "BNCI2014_001", "--backbone", "DGCNNGraph",
+         "--configs", "erm:0", "graphdualpc:0.010:0.010:0.000:0.100",
+         "--target_indices", "0", "9", "--epochs", "2", "--device", "cpu"])
+    assert args.backbone == "DGCNNGraph"          # was rejected by argparse choices before P2c
+    assert args.target_indices == [0, 9]
+    assert args.configs == ["erm:0", "graphdualpc:0.010:0.010:0.000:0.100"]
+
+
 def test_graphdualpc_edge_fail_closed_on_static_adjacency():
     X, y, d = _synth()
     C, T, n_cls = X.shape[1], X.shape[2], 2
