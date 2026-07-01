@@ -10,6 +10,7 @@ Guarantees (all synthetic-tested):
   5. artifact hashes are COMPUTED from the trainer's output bytes (not trusted); the registry is populated exactly once per ref.
 """
 from __future__ import annotations
+import functools
 import hashlib
 import json
 from acar.v5 import splits as SPL
@@ -21,6 +22,7 @@ from acar.v5.substrate import fit_dataset_view as FV
 from acar.v5.substrate import stage1b_artifact_writer as AW
 from acar.v5.substrate import stage1b_file_artifact_writer as FW
 from acar.v5.substrate import stage1b_registry_populate as RP
+from acar.v5.substrate import stage1b_execution_context as EC
 from acar.v5.substrate import dev_reader_contract as DR
 from acar.v5.substrate import train_contract as TR
 from acar.v5.substrate.registry import SubstrateRegistry
@@ -38,12 +40,12 @@ def _disease_cohort_paths(plan, disease):
 
 
 def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
-                      dev_reader=None, trainer=None, dev_reader_factory=None, trainer_factory=None, artifact_writer=None):
+                      dev_reader=None, trainer=None, dev_reader_factory=None, trainer_factory=None,
+                      artifact_writer=None, output_root=None):
     """Gate-first Stage-1B build. execute=False (default) reads/trains NOTHING. On execute=True, either pass ready-made
-    dev_reader+trainer (synthetic test path) OR dev_reader_factory+trainer_factory (real path — instantiated ONLY after the gate).
-    `artifact_writer(raw, *, expected_ref, disease, fold, seed)` defaults to the bytes writer; the real build passes the
-    file-backed writer. Returns a report incl. the populated SubstrateRegistry. (Production real runs use run_stage1b_real_build,
-    which forbids preconstructed objects.)"""
+    dev_reader+trainer (synthetic test path) OR dev_reader_factory+trainer_factory (real path — instantiated ONLY after the gate,
+    each called with the gate-issued Stage1BExecutionContext). `artifact_writer` defaults to the bytes writer; the real build
+    passes the file-backed writer. Returns a report incl. the populated SubstrateRegistry."""
     if artifact_writer is None:
         artifact_writer = AW.write_artifact
     ready = RL.require_stage1b_full_build_ready(plan, authorization, runtime_lock)   # GATE BEFORE ANYTHING
@@ -52,14 +54,17 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
                 "would_build_refs": sorted(SA.CANONICAL_FOLD_REFS), "reads": 0, "trained": 0,
                 "note": "dry-run; gate validated; NO read/train/instantiate"}
 
-    # gate passed → NOW resolve the reader/trainer. Factories are instantiated here (post-gate), never before.
+    # gate passed → NOW resolve the reader/trainer. Factories are instantiated here (post-gate), never before, bound to the context.
     if dev_reader_factory is not None or trainer_factory is not None:
         if dev_reader_factory is None or trainer_factory is None:
             raise Stage1bBuildError("both dev_reader_factory and trainer_factory are required (or neither)")
         if dev_reader is not None or trainer is not None:
             raise Stage1bBuildError("pass factories OR objects, not both")
-        dev_reader = dev_reader_factory()                     # <-- real import/model-init/GPU-probe happens here, post-gate
-        trainer = trainer_factory()
+        if not output_root:
+            raise Stage1bBuildError("factory path requires output_root (for the execution context)")
+        ctx = EC.build_execution_context(authorization, runtime_lock, plan, output_root=output_root)   # AFTER the gate
+        dev_reader = dev_reader_factory(ctx)                  # <-- real import/model-init/GPU-probe happens here, post-gate
+        trainer = trainer_factory(ctx)
     DR.require_reader(dev_reader)
     TR.require_trainer(trainer)
 
@@ -82,6 +87,8 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
     if set(artifacts) != set(SA.CANONICAL_FOLD_REFS):
         raise Stage1bBuildError(f"build produced {len(artifacts)} substrates != the 30 canonical fold refs")
 
+    # ALL-OR-NONE barrier: every one of the 30 artifacts is built + validated ABOVE (a failure mid-loop raises before this line,
+    # so the registry is never touched); only after all 30 exist do we populate — no partial registry population.
     registry = SubstrateRegistry()                            # populate exactly once per canonical ref
     env_lock_sha256 = hashlib.sha256(json.dumps(runtime_lock, sort_keys=True).encode()).hexdigest()
     n = RP.populate_registry(registry, artifacts, git_commit=authorization["implementation_base_sha"],
@@ -91,16 +98,18 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
             "registry": registry, "run_id": ready["run_id"], "device_kind": ready["device_kind"]}
 
 
-def run_stage1b_real_build(plan, authorization, runtime_lock, *, dev_reader_factory, trainer_factory, artifact_writer=None):
+def run_stage1b_real_build(plan, authorization, runtime_lock, *, output_root, dev_reader_factory, trainer_factory,
+                           artifact_writer=None):
     """PRODUCTION real-run entry. Accepts ONLY factories (no preconstructed objects) so the real reader/trainer can never be
-    instantiated before the gate. Defaults to the FILE-backed artifact writer (real trainers emit files, not in-memory bytes).
-    Both factories are required and must be callables. (Executing on real DEV data still requires an authorized run: the real
-    reader/trainer emit their signal read/training only at the Stage-1B run.)"""
+    instantiated before the gate; factories are called with the gate-issued execution context. Defaults to the FILE-backed
+    artifact writer (real trainers emit files) with output_root CONTAINMENT enforced. Both factories are required + callable."""
     if not callable(dev_reader_factory) or not callable(trainer_factory):
         raise Stage1bBuildError("run_stage1b_real_build requires callable dev_reader_factory and trainer_factory")
+    if not output_root:
+        raise Stage1bBuildError("run_stage1b_real_build requires output_root")
     if artifact_writer is None:
-        artifact_writer = FW.write_artifact_from_files
-    return run_stage1b_build(plan, authorization, runtime_lock, execute=True,
+        artifact_writer = functools.partial(FW.write_artifact_from_files, output_root=output_root)   # containment enforced
+    return run_stage1b_build(plan, authorization, runtime_lock, execute=True, output_root=output_root,
                              dev_reader_factory=dev_reader_factory, trainer_factory=trainer_factory,
                              artifact_writer=artifact_writer)
 

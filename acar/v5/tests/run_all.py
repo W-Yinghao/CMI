@@ -50,6 +50,14 @@ MODULES = (
     "test_stage1b_file_artifact_hashes_streamed",
     "test_stage1b_real_trainer_no_raw_root_scan",
     "test_stage1b_real_factories_lazy_imports",
+    "test_stage1b_execution_context_required",
+    "test_stage1b_preprocessing_config_pinned",
+    "test_stage1b_reader_window_payload_schema",
+    "test_stage1b_training_config_pinned",
+    "test_stage1b_embedding_dump_label_free",
+    "test_stage1b_file_writer_output_root_containment",
+    "test_stage1b_file_writer_rejects_symlink_escape",
+    "test_stage1b_registry_population_all_or_none",
 )
 
 

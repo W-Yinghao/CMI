@@ -1,5 +1,6 @@
 """Guard (Stage-1B4): the FIT dataset view exposes NO raw reader / cohort-root attributes (they live in a closure). Its public
-surface is read_windows + allowed_subject_keys + reads. Synthetic only."""
+surface is read_windows + read_label + allowed_subject_keys + reads (read_label is the Stage-1B5 FIT-only label read). Synthetic
+only."""
 from __future__ import annotations
 from acar.v5 import splits as SPL
 from acar.v5.substrate import fit_dataset_view as FV
@@ -26,9 +27,9 @@ def test_public_surface_is_minimal():
     v = _view()
     public = {a for a in dir(v) if not a.startswith("__")}
     # only these public names (plus the private _reads audit backing the reads property)
-    assert public <= {"read_windows", "allowed_subject_keys", "reads", "_reads"}, sorted(public)
-    assert callable(v.read_windows) and isinstance(v.reads, list)
-    ok("view public surface = read_windows + allowed_subject_keys + reads")
+    assert public <= {"read_windows", "read_label", "allowed_subject_keys", "reads", "_reads"}, sorted(public)
+    assert callable(v.read_windows) and callable(v.read_label) and isinstance(v.reads, list)
+    ok("view public surface = read_windows + read_label + allowed_subject_keys + reads")
 
 
 def main():

@@ -5,7 +5,18 @@ import os
 import tempfile
 from acar.v5.substrate import real_dev_reader as RDR
 from acar.v5.substrate import subject_index as SI
-from acar.v5.tests._util import expect_raises, ok
+from acar.v5.substrate import stage1b_execution_context as EC
+from acar.v5.substrate import stage1b_authorization as SA
+from acar.v5.tests._util import expect_raises, ok, stage1b_auth
+
+
+def _reader(cohort, path):
+    """A real reader bound to a context whose approved source path for (PD, cohort) == `path` (so the approval check passes and the
+    directory-listing / seam behaviour is what's under test)."""
+    plan = {"fold_contained_refs": [{"disease": "PD", "source_paths_by_cohort": {cohort: path}}]}
+    ctx = EC.build_execution_context(stage1b_auth(protocol_tag_target_sha=SA.PROTOCOL_TAG_TARGET_SHA_FULL), {}, plan,
+                                     output_root="/run/out")
+    return RDR.make_real_dev_reader(ctx)
 
 
 def test_lists_raw_sub_ids():
@@ -15,16 +26,16 @@ def test_lists_raw_sub_ids():
                 open(os.path.join(d, name), "w").close()
             else:
                 os.makedirs(os.path.join(d, name))
-        subs = RDR.RealBidsDevReader().list_subjects("PD", "ds002778", d)
+        subs = _reader("ds002778", d).list_subjects("PD", "ds002778", d)
         assert subs == ["sub-001", "sub-002", "sub-hc7"], subs      # RAW ids only; non-sub entries ignored
         assert all("/" not in s for s in subs)
     ok("RealBidsDevReader.list_subjects returns RAW sub-* ids (no namespacing), ignoring non-subject entries")
 
 
 def test_missing_or_empty_cohort_dir_rejected():
-    expect_raises(RDR.RealReaderError, lambda: RDR.RealBidsDevReader().list_subjects("PD", "ds002778", "/no/such/dir"))
+    expect_raises(RDR.RealReaderError, lambda: _reader("ds002778", "/no/such/dir").list_subjects("PD", "ds002778", "/no/such/dir"))
     with tempfile.TemporaryDirectory() as d:
-        expect_raises(RDR.RealReaderError, lambda: RDR.RealBidsDevReader().list_subjects("PD", "ds002778", d))
+        expect_raises(RDR.RealReaderError, lambda: _reader("ds002778", d).list_subjects("PD", "ds002778", d))
     ok("missing cohort dir / no sub-* dirs → RealReaderError")
 
 
@@ -36,7 +47,7 @@ def test_index_rejects_namespaced_raw():
 
 def test_signal_read_is_seam():
     expect_raises((NotImplementedError, ModuleNotFoundError, ImportError),
-                  lambda: RDR.RealBidsDevReader().read_subject_windows("PD", "ds002778", "sub-1", "/tmp/x"))
+                  lambda: _reader("ds002778", "/tmp/x").read_subject_windows("PD", "ds002778", "sub-1", "/tmp/x"))
     ok("read_subject_windows is the remaining seam (raises; real mne DSP wired at the Stage-1B run)")
 
 

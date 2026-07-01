@@ -25,8 +25,17 @@ class AuthorizedFitDatasetView:
             reads.append(subject_key)
             return reader.read_subject_windows(disease, cohort, raw, cps[cohort])
 
+        def _read_label(subject_key):
+            # labels are readable ONLY for FIT subjects and ONLY via this training view (never the embedding-dump view)
+            if subject_key not in allowed:
+                raise DatasetViewAccessError(f"label for {subject_key} refused (not in the authorized FIT set)")
+            cohort = index.cohort_of(subject_key)
+            raw = index.raw_of(subject_key)
+            return reader.read_subject_label(disease, cohort, raw, cps[cohort])
+
         # only these are set as attributes; reader/cohort_paths live in the closure above (not on the object)
         self.read_windows = _read
+        self.read_label = _read_label
         self.allowed_subject_keys = allowed
         self._reads = reads
 

@@ -1,7 +1,7 @@
-"""ACAR V5 Stage-1B REAL DEV reader (BIDS). NO heavy import at module level (mne is imported lazily, only inside the signal read).
-`list_subjects` is a plain directory listing that returns RAW subject ids ("sub-001"); the signal read is the remaining seam wired
-ONLY at an authorized Stage-1B real run. Constructed via its factory AFTER the gate. It performs NO real DEV read in Stage-1B4 —
-`read_subject_windows` raises until the real run wires the mne DSP.
+"""ACAR V5 Stage-1B REAL DEV reader (BIDS). Constructed by its factory with a gate-issued Stage1BExecutionContext, AFTER the gate.
+NO heavy import at module level (mne is lazy inside the signal read). `list_subjects` is a plain directory listing returning RAW
+subject ids; the mne signal read + label read are the remaining seams wired ONLY at an authorized Stage-1B run. Paths are validated
+against the context's approved per-disease source paths.
 """
 from __future__ import annotations
 import os
@@ -12,9 +12,18 @@ class RealReaderError(RuntimeError):
 
 
 class RealBidsDevReader:
-    """Returns RAW subject ids by listing sub-* dirs in a cohort BIDS root. The orchestrator builds the canonical SubjectKey."""
+    def __init__(self, context):
+        if context is None:
+            raise RealReaderError("RealBidsDevReader requires a gate-issued Stage1BExecutionContext")
+        self._ctx = context
+
+    def _check_approved(self, disease, cohort, path):
+        approved = self._ctx.source_paths(disease)             # raises if disease not approved
+        if approved.get(cohort) != path:
+            raise RealReaderError(f"{disease}/{cohort}: path {path!r} is not the approved source for this run")
 
     def list_subjects(self, disease, cohort, path):
+        self._check_approved(disease, cohort, path)
         if not path or not os.path.isdir(path):
             raise RealReaderError(f"{disease}/{cohort}: BIDS cohort dir not found: {path}")
         subs = sorted(d for d in os.listdir(path)
@@ -24,11 +33,15 @@ class RealBidsDevReader:
         return subs                                            # RAW ids, e.g. "sub-001" (never namespaced)
 
     def read_subject_windows(self, disease, cohort, subject, path):
-        # LAZY heavy import + real DSP is wired only at the authorized Stage-1B real run.
-        import mne  # noqa: F401  (lazy; not imported at module load)
-        raise NotImplementedError("real signal read (mne DSP → 19ch/128Hz/0.5-45Hz/4s windows) is wired at the Stage-1B real run")
+        self._check_approved(disease, cohort, path)
+        import mne  # noqa: F401  (lazy)
+        raise NotImplementedError("real signal read (mne DSP → SubjectWindows per preprocessing_config) wired at the Stage-1B run")
+
+    def read_subject_label(self, disease, cohort, subject, path):
+        self._check_approved(disease, cohort, path)
+        raise NotImplementedError("real label read (FIT training only) wired at the Stage-1B run")
 
 
-def make_real_dev_reader():
-    """Factory — construct AFTER the full-build gate (see run_stage1b_real_build)."""
-    return RealBidsDevReader()
+def make_real_dev_reader(context):
+    """Factory — construct AFTER the full-build gate, bound to the run's execution context."""
+    return RealBidsDevReader(context)

@@ -36,19 +36,30 @@ def _sha256_stream(path):
     return h.hexdigest()
 
 
-def write_artifact_from_files(raw, *, expected_ref, disease, fold, seed):
-    """Compute the artifact manifest by streaming sha256 over the trainer's output files. Any hash string in `raw` is IGNORED."""
+def write_artifact_from_files(raw, *, expected_ref, disease, fold, seed, output_root=None):
+    """Compute the artifact manifest by streaming sha256 over the trainer's output files. Any hash string in `raw` is IGNORED.
+    If `output_root` is given (real runs), EVERY artifact file must realpath-resolve INSIDE it, must not be a symlink, and the 6
+    files must be distinct (no path reused across artifacts)."""
     if not isinstance(raw, dict):
         raise Stage1bFileArtifactError("raw build output must be a dict")
     if raw.get("ref") != expected_ref:
         raise Stage1bFileArtifactError(f"raw ref {raw.get('ref')!r} != expected {expected_ref!r}")
-    art = {"ref": expected_ref, "disease": disease, "fold": fold, "seed": seed}
+    root_real = os.path.realpath(output_root) + os.sep if output_root else None
+    art, seen_paths = {"ref": expected_ref, "disease": disease, "fold": fold, "seed": seed}, {}
     for hash_field, path_key in FILE_SOURCE.items():
         path = raw.get(path_key)
         if not isinstance(path, str) or not path:
             raise Stage1bFileArtifactError(f"{expected_ref}: raw['{path_key}'] must be a non-empty path")
+        if os.path.islink(path):
+            raise Stage1bFileArtifactError(f"{expected_ref}: artifact path is a symlink (rejected): {path}")
         if not os.path.isfile(path):
             raise Stage1bFileArtifactError(f"{expected_ref}: artifact file missing: {path}")
+        real = os.path.realpath(path)
+        if root_real is not None and not (real + os.sep).startswith(root_real) and real != root_real.rstrip(os.sep):
+            raise Stage1bFileArtifactError(f"{expected_ref}: artifact {path} escapes output_root {output_root}")
+        if real in seen_paths:
+            raise Stage1bFileArtifactError(f"{expected_ref}: duplicate artifact path shared by {seen_paths[real]} and {path_key}")
+        seen_paths[real] = path_key
         art[hash_field] = _sha256_stream(path)                # streamed from the actual file bytes (computed, not trusted)
     ART.validate_artifact_manifest(art, expected_ref=expected_ref, disease=disease, fold=fold, seed=seed)
     return art

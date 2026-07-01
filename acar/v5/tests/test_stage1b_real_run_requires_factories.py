@@ -13,25 +13,26 @@ FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
 def test_signature_has_no_object_params():
     params = list(inspect.signature(B.run_stage1b_real_build).parameters)
     assert "dev_reader" not in params and "trainer" not in params, params
-    assert "dev_reader_factory" in params and "trainer_factory" in params
-    ok("run_stage1b_real_build exposes ONLY factories (no dev_reader/trainer object params)")
+    assert "dev_reader_factory" in params and "trainer_factory" in params and "output_root" in params
+    ok("run_stage1b_real_build exposes ONLY factories + output_root (no dev_reader/trainer object params)")
 
 
 def test_non_callable_factory_rejected():
     expect_raises(B.Stage1bBuildError,
                   lambda: B.run_stage1b_real_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
-                                                   stage1b_lock(protocol_tag_target_sha=FULL),
-                                                   dev_reader_factory=FakeDevReader(), trainer_factory=lambda: None))
+                                                   stage1b_lock(protocol_tag_target_sha=FULL), output_root="/tmp/x",
+                                                   dev_reader_factory=FakeDevReader(), trainer_factory=lambda ctx: None))
     ok("a non-callable dev_reader_factory → Stage1bBuildError")
 
 
 def test_real_build_end_to_end_file_backed():
     with tempfile.TemporaryDirectory() as d:
         rep = B.run_stage1b_real_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
-                                       stage1b_lock(protocol_tag_target_sha=FULL),
-                                       dev_reader_factory=lambda: FakeDevReader(), trainer_factory=lambda: FakeFileTrainer(d))
+                                       stage1b_lock(protocol_tag_target_sha=FULL), output_root=d,
+                                       dev_reader_factory=lambda ctx: FakeDevReader(),
+                                       trainer_factory=lambda ctx: FakeFileTrainer(ctx.output_root))
         assert rep["status"] == "STAGE1B_BUILT" and rep["n_artifacts"] == 30 and rep["n_registered"] == 30
-    ok("run_stage1b_real_build (factories + FILE artifact writer) → 30 substrates registered (synthetic, temp files)")
+    ok("run_stage1b_real_build (factories(ctx) + FILE writer + output_root containment) → 30 substrates registered (temp files)")
 
 
 def main():

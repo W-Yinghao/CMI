@@ -78,6 +78,7 @@ class FakeDevReader:
         self._subs = subjects_by if subjects_by is not None else stage1b_fake_subjects()
         self.listed = []
         self.read_calls = []
+        self.label_calls = []
 
     def list_subjects(self, disease, cohort, path):
         self.listed.append((disease, cohort, path))
@@ -86,6 +87,10 @@ class FakeDevReader:
     def read_subject_windows(self, disease, cohort, subject, path):
         self.read_calls.append((disease, cohort, subject, path))
         return {"marker": f"{disease}/{cohort}/{subject}"}
+
+    def read_subject_label(self, disease, cohort, subject, path):   # FIT-only (reachable only via the FIT training view)
+        self.label_calls.append((disease, cohort, subject, path))
+        return 0
 
 
 class FakeTrainer:
