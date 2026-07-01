@@ -6,13 +6,8 @@ and the assignment is permutation-independent (hash-based).
 """
 from __future__ import annotations
 import hashlib
+import math
 from acar.v5 import protocol as P
-
-
-def _u01(key):
-    """Deterministic uniform-ish [0,1) from a stable salted hash of a subject key (no RNG)."""
-    h = hashlib.sha256(f"{P.SPLIT_SALT}|{key}".encode()).hexdigest()
-    return int(h[:16], 16) / float(1 << 64)
 
 
 def _fold_of(key, k=P.OUTER_K):
@@ -28,12 +23,21 @@ def assign_outer_folds(subjects, k=P.OUTER_K):
     return {s: _fold_of(s, k) for s in subs}
 
 
-def _threshold_split(subjects, frac, tag):
-    """Split subjects into (A, B) with |A| ~ frac by a salted per-subject uniform; deterministic, permutation-independent."""
-    a, b = [], []
-    for s in sorted(set(subjects)):
-        (a if _u01(f"{tag}|{s}") < frac else b).append(s)
-    return a, b
+def _rank_split(subjects, frac, tag):
+    """Split subjects into (A, B) with EXACT nearest-integer |A| = round(frac·n) by a salted hash RANK (deterministic,
+    permutation-independent). For a nontrivial split (0<frac<1, n≥2) neither side is empty. (Step 3b: exact cardinality, not
+    an approximate per-subject threshold.)"""
+    subs = sorted(set(subjects))
+    if len(subs) != len(list(subjects)):
+        raise ValueError("duplicate subjects passed to split")
+    n = len(subs)
+    if n == 0:
+        return [], []
+    n_a = int(math.floor(frac * n + 0.5))                      # round-half-up nearest integer
+    if 0.0 < frac < 1.0 and n >= 2:
+        n_a = min(max(n_a, 1), n - 1)                          # keep both sides non-empty for a real split
+    ranked = sorted(subs, key=lambda s: (hashlib.sha256(f"{P.SPLIT_SALT}|{tag}|{s}".encode()).hexdigest(), s))
+    return sorted(ranked[:n_a]), sorted(ranked[n_a:])
 
 
 def make_fold(subjects, fold):
@@ -42,8 +46,8 @@ def make_fold(subjects, fold):
     folds = assign_outer_folds(subjects)
     eval_s = sorted(s for s, f in folds.items() if f == fold)
     non_eval = sorted(s for s, f in folds.items() if f != fold)
-    fit, cal = _threshold_split(non_eval, P.FIT_FRAC, "fitcal")
-    train, val = _threshold_split(fit, P.TRAIN_FRAC, "trainval")
+    fit, cal = _rank_split(non_eval, P.FIT_FRAC, "fitcal")
+    train, val = _rank_split(fit, P.TRAIN_FRAC, "trainval")
     out = {"fold": fold, "eval": eval_s, "cal": cal, "fit": sorted(fit), "train": sorted(train), "val": sorted(val)}
     _assert_disjoint(out)
     return out

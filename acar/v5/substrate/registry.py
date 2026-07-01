@@ -59,15 +59,18 @@ class SubstrateRegistry:
         return ref in self._entries
 
     def admit_embedding(self, embedding):
-        """Fail-closed admission for a Stage-2 selection embedding. `embedding` must be a mapping carrying a `substrate_ref`
-        that is registered here (== no hash ⇒ inadmissible). Returns the ref on success; raises otherwise."""
+        """Fail-closed admission for a Stage-2/4/5 embedding. `embedding` MUST be a mapping carrying (1) a `substrate_ref`
+        registered here AND (2) a `hashes` set that EXACTLY equals the registered substrate's hash set. Missing either ⇒
+        inadmissible (Step 3b: embedded hashes are MANDATORY, not optional — a feature dump cannot merely claim a ref without
+        carrying the hash set that proves it came from that substrate; this is the V4 artifact/substrate-mismatch class)."""
         if not isinstance(embedding, dict) or "substrate_ref" not in embedding:
             raise SubstrateHashMissingError("embedding has no substrate_ref — inadmissible for selection")
         ref = embedding["substrate_ref"]
         if not self.is_registered(ref):
             raise SubstrateHashMissingError(f"embedding substrate_ref {ref!r} is not registered — inadmissible for selection")
-        # if the embedding also carries hashes, they must match the registered set exactly (no substitution)
         emb_h = embedding.get("hashes")
-        if emb_h is not None and emb_h != self._entries[ref]["hashes"]:
+        if emb_h is None:
+            raise SubstrateHashMissingError(f"embedding {ref}: missing embedded substrate hash set — inadmissible (no hash ⇒ inadmissible)")
+        if emb_h != self._entries[ref]["hashes"]:
             raise SubstrateHashMissingError(f"embedding hashes disagree with the registered substrate {ref}")
         return ref

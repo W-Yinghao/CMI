@@ -6,7 +6,7 @@ P.ACTIONS. The proposed action a*(B), the FIT-only quantile thresholds, and the 
 a candidate with ZERO FIT proposed-action records is NON-EVALUABLE (fails).
 """
 from __future__ import annotations
-import numpy as np
+import math
 from acar.v5 import protocol as P
 
 
@@ -60,7 +60,22 @@ def proposed_action(candidate, batch):
 
 
 def _Q(xs, level):
-    return float(np.quantile(np.asarray(xs, dtype=float), P.QUANTILE_VALUE[level]))
+    """Explicit linear (Type-7) quantile — PINNED (Step 3b), no dependency on any library's default interpolation. This is
+    numpy's default 'linear' method, made bit-stable and permutation-independent (input is sorted)."""
+    q = P.QUANTILE_VALUE[level]
+    arr = sorted(float(x) for x in xs)
+    n = len(arr)
+    if n == 0:
+        raise NonEvaluableCandidate("empty quantile input")
+    if n == 1:
+        return arr[0]
+    h = (n - 1) * q
+    lo = int(math.floor(h))
+    hi = int(math.ceil(h))
+    if lo == hi:
+        return arr[lo]
+    w = h - lo
+    return (1.0 - w) * arr[lo] + w * arr[hi]
 
 
 def fit_quantiles(candidate, fit_batches):

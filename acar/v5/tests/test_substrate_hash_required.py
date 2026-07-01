@@ -18,15 +18,22 @@ def _reg():
 def test_register_and_admit():
     r = _reg()
     ref = r.register("PD", 0, P.SELECTION_SEED, hashes=GOOD_HASHES, meta=GOOD_META)
-    assert r.admit_embedding({"substrate_ref": ref}) == ref
+    # Step 3b: embedded hashes are MANDATORY — the ONLY admissible form carries the full matching hash set
     assert r.admit_embedding({"substrate_ref": ref, "hashes": GOOD_HASHES}) == ref
-    ok("register a complete substrate → its embeddings are admissible")
+    ok("register a complete substrate → an embedding carrying the matching hash set is admissible")
+
+
+def test_missing_embedding_hashes_rejected():
+    r = _reg()
+    ref = r.register("PD", 0, P.SELECTION_SEED, hashes=GOOD_HASHES, meta=GOOD_META)
+    expect_raises(SubstrateHashMissingError, lambda: r.admit_embedding({"substrate_ref": ref}), "no embedded hashes")
+    ok("embedding with a registered ref but NO embedded hash set → inadmissible (Step 3b: hashes mandatory)")
 
 
 def test_missing_ref_or_unregistered_rejected():
     r = _reg()
     expect_raises(SubstrateHashMissingError, lambda: r.admit_embedding({"foo": 1}), "no substrate_ref")
-    expect_raises(SubstrateHashMissingError, lambda: r.admit_embedding({"substrate_ref": "PD/fold0/seed20260711"}), "unregistered")
+    expect_raises(SubstrateHashMissingError, lambda: r.admit_embedding({"substrate_ref": "PD/fold0/seed20260711", "hashes": GOOD_HASHES}), "unregistered")
     ok("embedding with no substrate_ref, or an unregistered ref → inadmissible (no hash ⇒ inadmissible)")
 
 
@@ -59,6 +66,7 @@ def test_seed_and_fold_bounds():
 def main():
     print("ACAR v5 guard: substrate hash required")
     test_register_and_admit()
+    test_missing_embedding_hashes_rejected()
     test_missing_ref_or_unregistered_rejected()
     test_incomplete_or_bad_hashes_rejected()
     test_embedding_hash_substitution_rejected()
