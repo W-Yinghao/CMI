@@ -1,0 +1,6 @@
+[b3confirm] host=nodecpu02 job=878107 HEAD=0595f64cde0857c53fff2f9fc36347d663a65331 tag=csc-b3-confirmatory-v1 cpus=24
+[b3-confirmatory EXECUTE] provenance clean; running frozen grid (112 cells)...
+[b3-confirmatory EXECUTE] wrote /home/infres/yinwang/CMI_AAAI_csc_b3_frozen/csc/results/b3_confirmatory_result.878107.tmp.json
+[b3-confirmatory EXECUTE] preliminary verdict (EXCLUDING C6) = PASS ; red_team_required = True
+5471b9b18d6aa03775d0baf894246b3b2b37eaec769cd37e132a87ef5ea2d60e  /home/infres/yinwang/CMI_AAAI_csc_b3_frozen/csc/results/b3_confirmatory_result.json
+[b3confirm] done rc=0 (scientific verdict is inside /home/infres/yinwang/CMI_AAAI_csc_b3_frozen/csc/results/b3_confirmatory_result.json; C6 red-team still required)
