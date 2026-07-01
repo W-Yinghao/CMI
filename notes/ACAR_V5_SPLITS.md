@@ -42,20 +42,29 @@ Each disease's external arm is **single-site**; V5 results are reported as "sing
 generalization claim. The external arm runs ONCE, after Stage-4 passes, under an explicit external authorization (the lockbox
 stays SEALED until then). `test_no_external_before_tag` enforces no external read before the `acar-v5-protocol` tag + sign-off.
 
-## 5. DEV split (split-as-ONE-algorithm; subject-disjoint; disease-stratified)
-As in v3: a single deterministic, permutation-independent canonical-SubjectKey hashing. Outer K folds give EVAL; non-EVAL splits
-into FIT / CAL; FIT splits into TRAIN / VAL (early stop). The router/predictor sees FIT, the calibration (λ/threshold + LTT bounds)
-sees CAL, and G1–G5 are measured on outer EVAL. Subject is the cluster everywhere; FIT/CAL/EVAL are subject-disjoint; diseases are
-trained/selected separately (2 substrates, 2 routers). Seeds/ratios pinned at sign-off. Enforced by `test_subject_disjoint`.
+## 5. DEV split (split-as-ONE-algorithm; subject-disjoint; disease-stratified) — RATIOS/SEEDS PINNED (Step 2c)
+A single deterministic, permutation-independent canonical-SubjectKey hashing (as in v2/v3). The router/predictor sees FIT, the
+calibration (λ/threshold + LTT bounds) sees CAL, and G1–G5 are measured on outer EVAL. Subject is the cluster everywhere;
+FIT/CAL/EVAL are subject-disjoint; diseases are trained/selected separately (2 substrates, 2 routers). Enforced by
+`test_subject_disjoint`. **Pinned scheme:**
+```
+outer K = 5 folds, assigned by stable canonical SubjectKey hash; each subject is EVAL exactly once
+within each outer fold, over the non-EVAL subjects:   FIT = 70% · CAL = 30%
+within FIT:                                           TRAIN = 80% · VAL = 20%   (encoder/router early stopping where applicable)
+all splits: subject-disjoint · disease-stratified · deterministic by hash (NOT RNG permutation)
+canonical base split salt = "ACAR_V5_SPLIT_V1"        (no other salt may be substituted after tag)
+```
+(Consistent with v2's subject-level K=5, non-EVAL FIT 70% / CAL 30%.)
 
 ## 6. Substrate-robustness stress tests S1–S3 (= G6; BUILT-IN, run BEFORE external)
 G6 = the three modules S1–S3; a candidate must pass **EVERY module** with G1–G5. The **selected FIXED candidate** (identity,
 family, operating-point rule, tie-break) is used UNCHANGED across all modules — **NO reselection across seeds/cohorts/modules**
 (enforced by `test_fixed_candidate_no_reselection`). Stress-test results may NOT be used to construct or alter a policy (e.g. the
 P4 agreement rule; see `ACAR_V5_CANDIDATE_SPACE.md` §1).
-- **S1 — seed robustness.** Same disease + cohort set, train **3 all-DEV encoders with different seeds**. **S1 module pass = the
-  selected fixed candidate passes G1–G5 on ≥ 2 of 3** pre-registered seed substrates (3/3 is reported as strong robustness but is
-  not required). Catches policies that depend on one substrate's random geometry (the v4 mode).
+- **S1 — seed robustness.** Same disease + cohort set, train **3 all-DEV encoders with the PINNED seed set (Step 2c):
+  `{20260711, 20260712, 20260713}`** (no other seed may be substituted after tag). **S1 module pass = the selected fixed candidate
+  passes G1–G5 on ≥ 2 of 3** of these seed substrates (3/3 is reported as strong robustness but is not required). Catches policies
+  that depend on one substrate's random geometry (the v4 mode).
 - **S2 — leave-one-source-cohort pseudo-external.** For each DEV source cohort, train the encoder on the OTHER source cohorts and
   evaluate the held-out cohort as a pseudo-external site. The policy must hold across cohort compositions, not just one.
   **FIT-only rule (PINNED — Step 2b):** the selected policy family + operating-point rule are FIXED; the source-side FIT-only

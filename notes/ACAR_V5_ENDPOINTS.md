@@ -51,9 +51,25 @@ H3 (G1): LCB[coverage]            ≥ 0.15     one-sided certification (LTT/Holm
 **effect-size gate** `point[red − v2_replay] ≥ 0.02 NLL` (per disease + macro), with `LCB[red − v2_replay]` REPORTED as
 supporting/descriptive evidence only. This keeps utility from becoming an underpowered CI gate, and keeps a point-estimate
 effect-size gate OUT of the Holm family.
-- **Estimators (subject is the cluster):** subject-level empirical-Bernstein bounds for the bounded harm/coverage losses ([0,1])
-  in H1–H3; subject cluster-bootstrap / permutation (sign-flip) for the reported `LCB[red − v2_replay]`. The exact estimator is
-  pinned at sign-off; do NOT switch estimators after seeing results. **No batch-level p-values** (v2/v3 discipline).
+- **H1–H3 estimator (PINNED — Step 2c): subject-clustered one-sided empirical-Bernstein bounds** on per-subject variables in
+  `[0,1]`. For per-subject values `x_1..x_n` (n = eligible subjects), with `xbar` the mean and `var` the unbiased sample variance
+  clipped to `[0, 0.25]`:
+  ```
+  radius(α) = sqrt( 2 · var · log(3/α) / n ) + 3 · log(3/α) / n
+  UCB_α = min(1, xbar + radius(α))          LCB_α = max(0, xbar − radius(α))
+  ```
+  Raw one-sided p-values for Holm are obtained by inverting this bound (the smallest α at which the bound just crosses the gate
+  threshold). **Per-subject variables (PINNED):**
+  ```
+  coverage_s            = adapted_batches_s / total_eval_batches_s
+  L_harm_all_s          = harmful_adapted_batches_s / total_eval_batches_s   (identity/fallback batches contribute 0)
+  harm_among_adapted_s  = harmful_adapted_batches_s / adapted_batches_s      (defined ONLY for subjects with adapted_batches_s > 0)
+  ```
+  **H2 sample rule:** the empirical-Bernstein sample for `harm_among_adapted` consists ONLY of subjects with `adapted_batches_s > 0`
+  (so `L_harm_all` (G3) covers all-batch harm and `harm_among_adapted` (G4) is NOT diluted by non-adapting subjects — this is the
+  formal close of the v4 low-coverage degeneracy). **If NO subject adapts, H2 is NON-EVALUABLE and the candidate FAILS.**
+  For the reported (non-gating) `LCB[red − v2_replay]`: subject cluster-bootstrap (or sign-flip permutation), estimator pinned
+  here; do NOT switch after seeing results. **No batch-level p-values** (v2/v3 discipline).
 - **Multiple testing (PINNED — Step 2b):** Holm correction applies to the **one-sided certification tests H1–H3 ONLY**, across
   (candidate × disease × {H1,H2,H3}) within the pre-registered space, at **family-wise α = 0.05**. **H4 is excluded from Holm**
   (it is the effect-size gate, not a hypothesis test).

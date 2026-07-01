@@ -23,23 +23,61 @@ Pre-registers the ENTIRE policy search space for V5 Stage-2 DEV selection. Compa
 Each family is an **abstaining router** `π(B) ∈ {identity, matched_coral, spdim, t3a}` with a small grid of pre-registered
 thresholds. All thresholds are on FIT-standardized features (subject-balanced standardization; see `ACAR_V5_SPLITS.md`).
 
-- **P1 — Benefit score + harm veto.** Adapt with the best-benefit action only if `benefit(a) ≥ τ_b` AND the harm veto passes
-  (`flip_rate ≤ τ_f` AND `JS ≤ τ_j`). Grid: `τ_b ∈ {q60, q75}` (per-action benefit quantiles), `τ_f ∈ {q75, q90}`,
-  `τ_j ∈ {q75, q90}` — but pinned to ≤ 4 combinations per disease.
-- **P2 — Low-violence confidence gate.** Adapt only if confidence improves (`d_entropy ≤ −τ_e` OR `d_margin ≥ τ_m`) AND violence is
-  low (`flip_rate ≤ τ_f` AND `JS ≤ τ_j`). Same bounded grid; emphasizes "improve confidence without disruptive relabeling".
-- **P3 — Best-fixed action with abstention.** No per-batch action ranking; pick ONE pre-registered action (per disease) and execute
-  it only when a single safety gate clears (`flip_rate ≤ τ_f` AND `JS ≤ τ_j`). The most conservative family; a natural lower bound.
-- **P4 — Action-agreement gate.** Adapt only when ≥ k sources agree on the SAME action; abstain otherwise. Grid: `k ∈ {2-of-3,
-  3-of-3}`. **P4 admissibility (PINNED — Step 2b):** the "seed-agreement" variant is admissible ONLY as a FROZEN 3-substrate
-  ensemble — all three seed encoders are trained, hashed, and registered (Stage-0/1) BEFORE selection; the SAME three-substrate
-  ensemble is used for DEV selection, G6 stress, AND external execution; external inference runs all three registered encoders and
-  abstains unless the pre-registered agreement rule fires. If that ensemble is not implemented, **P4 is restricted to
-  benefit-score-variant agreement only.** Stage-4 stress-test results (S1–S3) may NOT be used to create or alter the P4 agreement
-  rule (no robustness-driven post-hoc policy construction).
-- **P5 — Conservative direct-selective gate.** A v4-style directly-LTT-calibrated selective policy, BUT with a **hard conditional
-  adapted-harm cap** (G4) and a **coverage floor** (G1) baked into the calibration objective, not just `L_harm_all`. This is the
-  "fix v4 in place" family — included so the failure mode is tested head-on, NOT as a favored default.
+Notation: `Qτ[x]` = the FIT-only τ-quantile of the unlabeled feature `x` over FIT batches (τ ∈ {q50,q60,q70,q80,q85,q90}),
+recomputed per disease by the frozen algorithm; the **harm veto at level v** = adapt only if `flip_rate ≤ Qv[flip_rate]` AND
+`JS ≤ Qv[JS]`. Concrete per-config values are enumerated EXACTLY in §1.6 (the family bullets fix only the RULE FORM).
+
+- **P1 — Benefit score + harm veto.** Rank actions by benefit `= d_margin` of the post-vs-pre adaptation; adapt the best action
+  `a*` iff `d_margin(a*) ≥ Qb[d_margin]` AND harm-veto(v). Free params: `(b, v)` (both from the allowed grid).
+- **P2 — Low-violence confidence gate.** Adapt the best-confidence action iff `d_margin ≥ Qc[d_margin]` AND `d_entropy ≤ 0`
+  (entropy non-increasing) AND harm-veto(v). Free params: `(c, v)`. Emphasizes "improve confidence without disruptive relabeling".
+- **P3 — Best-fixed action with abstention.** No per-batch ranking; execute ONE fixed action `a ∈ {matched_coral, spdim, t3a}`
+  only when harm-veto(v) clears. Free params: `(a, v)`. The most conservative family; the G5 best-fixed comparator pool.
+- **P4 — Action-agreement gate.** Adapt only when ≥ k of three benefit-score variants (`d_margin`-ranked best · `post_sep`-ranked
+  best · `JS`-min action) agree on the SAME action AND harm-veto(v). Free params: `(k, v)`. **P4 admissibility (PINNED — Step 2b):**
+  the manifest (§1.6) uses ONLY the benefit-score-variant agreement. A "seed-agreement" variant is admissible ONLY as a FROZEN
+  3-substrate ensemble (all three seed encoders trained/hashed/registered BEFORE selection; SAME ensemble for DEV selection + G6 +
+  external; external runs all three and abstains unless the rule fires) — and, since that ensemble is not in this manifest, adding
+  it requires a NEW dated pre-run amendment. Stage-4 stress results (S1–S3) may NOT create or alter the P4 rule.
+- **P5 — Conservative direct-selective gate.** A v4-style directly-calibrated selective policy on the selective score
+  `s = d_margin(a*)` of the benefit-ranked best action: adapt iff `s ≥ Qλ[s]`, with harm-veto FIXED at v=q90, and the operating
+  point λ admissible ONLY where the CAL certification already meets G4 (`UCB[harm_among_adapted] ≤ 0.30`) and G1
+  (`LCB[coverage] ≥ 0.15`) — i.e. the conditional-harm cap + coverage floor are baked into calibration, not just `L_harm_all`.
+  Free param: `λ` (6 points). Included so the v4 failure mode is tested head-on, NOT as a favored default.
+
+## 1.6 EXACT V5 candidate manifest (PINNED — Step 2c; total = 22 ≤ 24)
+The complete Stage-2 candidate set is exactly the rows below. **No implementation may add, remove, reorder, or reinterpret a
+candidate ID.** Every candidate has `disease_scope = both` (the SAME rule is evaluated on PD and SCZ separately; the frozen
+algorithm recomputes the per-disease FIT-only quantiles), `operating_grid_source = FIT-only unlabeled quantiles {q50…q90}`, and
+harm-veto(v) `= flip_rate ≤ Qv[flip_rate] AND JS ≤ Qv[JS]`. `comparator_role = candidate` unless noted.
+
+```
+P1 (benefit d_margin + harm veto):  adapt a*=argmax_a d_margin(a) iff d_margin(a*) ≥ Qb[d_margin] AND harm-veto(v)
+  V5-P1-001  b=q60  v=q80
+  V5-P1-002  b=q60  v=q90
+  V5-P1-003  b=q80  v=q80
+  V5-P1-004  b=q80  v=q90
+P2 (low-violence confidence):  adapt best-confidence a iff d_margin ≥ Qc[d_margin] AND d_entropy ≤ 0 AND harm-veto(v)
+  V5-P2-001  c=q60  v=q80
+  V5-P2-002  c=q60  v=q90
+  V5-P2-003  c=q80  v=q80
+  V5-P2-004  c=q80  v=q90
+P3 (best-fixed action + abstention):  adapt fixed action a iff harm-veto(v)   [comparator_role = candidate + G5 best-fixed pool]
+  V5-P3-001  a=matched_coral  v=q80
+  V5-P3-002  a=matched_coral  v=q90
+  V5-P3-003  a=spdim          v=q80
+  V5-P3-004  a=spdim          v=q90
+  V5-P3-005  a=t3a            v=q80
+  V5-P3-006  a=t3a            v=q90
+P4 (benefit-score-variant agreement):  adapt agreed action iff ≥k of {d_margin-best, post_sep-best, JS-min} agree AND harm-veto(v)
+  V5-P4-001  k=2of3  v=q90
+  V5-P4-002  k=3of3  v=q90
+P5 (conservative direct-selective; G4+G1 baked into CAL):  adapt a* iff d_margin(a*) ≥ Qλ[d_margin], harm-veto v=q90
+  V5-P5-001  λ=q50   V5-P5-002  λ=q60   V5-P5-003  λ=q70
+  V5-P5-004  λ=q80   V5-P5-005  λ=q85   V5-P5-006  λ=q90
+```
+Any change to this table (add/remove/retune a row, add the P4 seed-ensemble variant, add a family) is a NEW dated pre-run
+amendment committed BEFORE any DEV run — never a post-hoc edit.
 
 ## 2. Calibration knob (shared) — PINNED (Step 2b)
 Where a family uses a finite λ / threshold grid (P5, and any thresholded family expressed as a sweep), the operating grid is

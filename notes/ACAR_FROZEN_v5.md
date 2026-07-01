@@ -15,6 +15,10 @@ step 2b (pre-tag)  : PINNED — policy space = EXACTLY P1–P5 (no P6–P8 witho
                      ONLY (H4 is the ε=0.02 effect-size gate, not Holm); G5 red_upper + best-fixed-P3 comparator defined; G6 =
                      modules S1–S3 each required, S1 pass = ≥2/3 seeds, NO reselection; P4 seed-agreement = frozen 3-substrate
                      ensemble or excluded; S2 = FIT-only unlabeled standardization, held-out labels evaluation-only
+step 2c (pre-tag)  : PINNED — EXACT 22-row candidate manifest (CANDIDATE_SPACE §1.6; no q75; no "≤4 combos"/"same grid"); exact
+                     H1–H3 subject-clustered empirical-Bernstein estimator + coverage_s/L_harm_all_s/harm_among_adapted_s defs +
+                     H2 non-evaluable-if-no-adapt; DEV split K=5 · FIT/CAL 70/30 · TRAIN/VAL 80/20 · salt ACAR_V5_SPLIT_V1;
+                     S1 seeds {20260711,20260712,20260713}. Remaining still-open (post-tag OK): red-margin CI estimator specifics.
 ```
 
 > **⛔ HARD NO-EXECUTION CLAUSE.** No V5 code scaffold, DEV run, substrate training, candidate selection, compatibility replay,
