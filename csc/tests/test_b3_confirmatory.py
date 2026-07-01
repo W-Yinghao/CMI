@@ -1,8 +1,9 @@
 """
 CSC Route B3 confirmatory FREEZE-PACKAGE tests: manifest self-consistency, seed-schedule completeness +
 disjointness, fail-closed provenance (manifest-hash / code / scenario / seed tampering), --execute refused
-without the frozen tag, and a SMOKE execute (tiny grid, NOT base 1200000) that exercises the run+artifact+
-criteria machinery. Standalone:  python -m csc.tests.test_b3_confirmatory
+without the frozen tag, a SMOKE execute (tiny grid, NOT the real base 3000000) that exercises the
+run+artifact+criteria machinery, structured smoke-bypass refusal, and sbatch wrapper shape.
+Standalone:  python -m csc.tests.test_b3_confirmatory
 """
 import copy
 import hashlib
@@ -96,8 +97,8 @@ def test_execute_refused_without_tag():
 
 
 def _smoke_manifest(tmpdir):
-    """Valid tiny smoke manifest: all 6 scenario_configs (for verify_scenarios), tiny grid, base 500000
-    (NOT 1200000, disjoint from A/B/test), 2 replicates, n_boot small."""
+    """Valid tiny smoke manifest: all 6 scenario_configs (for verify_scenarios), tiny grid, base 200000
+    (NOT the real 3000000; disjoint from A/B/test), 2 replicates, n_boot small."""
     from csc.mininfo.run_b3_p23 import SCENARIOS
     fp = {
         "protocol": "csc-b3-confirmatory-SMOKE", "version": "smoke",
@@ -148,6 +149,45 @@ def test_smoke_execute_writes_artifact_and_evaluates():
               f"{art['verdict']['preliminary_scientific_verdict_excluding_C6']}, C6 pending)")
 
 
+def test_smoke_refuses_real_confirmatory():
+    # --smoke must NOT be usable to run the real manifest or the real base_seed (git-guard bypass path)
+    def smoke(mp):
+        return subprocess.run([sys.executable, "-m", "csc.mininfo.run_b3_confirmatory", "--smoke", mp],
+                              cwd=ROOT, capture_output=True, text=True,
+                              env={**os.environ, "PYTHONPATH": ROOT})
+    r = smoke(R.MANIFEST)                                  # the real manifest
+    assert r.returncode == 2 and "REFUSED" in (r.stdout + r.stderr), "--smoke on real manifest must refuse"
+    with tempfile.TemporaryDirectory() as td:
+        # a smoke manifest that (illegally) uses the real base_seed 3000000 must also be refused
+        m = json.load(open(R.MANIFEST)); m["frozen_payload"]["protocol"] = "smoke-x"
+        m["frozen_payload"]["seed_spec"]["base_seed"] = 3000000
+        m["manifest_hash"] = R.canonical_manifest_hash(m["frozen_payload"])
+        p = os.path.join(td, "bad.json"); json.dump(m, open(p, "w"))
+        rr = smoke(p)
+        assert rr.returncode == 2 and "REFUSED" in (rr.stdout + rr.stderr), "--smoke base 3000000 must refuse"
+    print("OK --smoke refuses real manifest AND real base_seed 3000000 (structured, not string match)")
+
+
+def test_sbatch_wrapper_shape():
+    p = os.path.join(ROOT, "csc/mininfo/run_b3_confirmatory.sbatch")
+    txt = open(p).read().splitlines()
+    assert subprocess.run(["bash", "-n", p]).returncode == 0, "sbatch must pass bash -n"
+    assert txt[0].startswith("#!/bin/bash"), "shebang line 1"
+    assert any(l.startswith("#SBATCH --chdir=") for l in txt), "needs #SBATCH --chdir on its own line"
+    assert "CMI_AAAI_csc_b3_frozen" in "\n".join(txt), "must run from the frozen worktree, not main workdir"
+    # every non-blank, non-#! line must be a comment, #SBATCH, or shell code -- no un-commented prose
+    for l in txt:
+        s = l.strip()
+        if not s or s.startswith("#"):
+            continue
+        assert not s.startswith("This wrapper"), f"un-commented prose line: {l!r}"
+    body = "\n".join(txt)
+    assert 'rm -f "$OUT"' in body and 'mv "$TMP_OUT" "$OUT"' in body, "stale-rm + temp->final mv required"
+    assert "infra_fail" in body and "sha256sum" in body, "fail-closed + integrity hash required"
+    assert "manifest_hash" in body and "base_seed" in body and "git_status_clean" in body, "freshness re-verify"
+    print(f"OK sbatch wrapper shape valid (bash -n, #SBATCH lines, frozen worktree, rm/mv, freshness re-verify)")
+
+
 def test_dry_run_clean():
     assert R.dry_run() is True
     print("OK dry-run provenance CLEAN on committed manifest")
@@ -161,5 +201,7 @@ if __name__ == "__main__":
     test_fail_closed_tampering()
     test_execute_refused_without_tag()
     test_smoke_execute_writes_artifact_and_evaluates()
+    test_smoke_refuses_real_confirmatory()
+    test_sbatch_wrapper_shape()
     test_dry_run_clean()
     print("\nall CSC B3 confirmatory freeze-package tests passed")

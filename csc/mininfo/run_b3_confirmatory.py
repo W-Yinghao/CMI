@@ -323,7 +323,19 @@ def main():
     ap.add_argument("--out", type=str, default=None)
     a = ap.parse_args()
     if a.smoke:
-        assert "1200000" not in open(a.smoke).read(), "smoke manifest must not use the real base_seed 1200000"
+        # structured refusal: --smoke bypasses the git frozen-code guard, so it must NOT be able to run
+        # the real confirmatory manifest / seed block by any path.
+        smoke = load_manifest(a.smoke); real = load_manifest(a.manifest)
+        sfp = smoke.get("frozen_payload", {}); rfp = real.get("frozen_payload", {})
+        for cond, msg in (
+            (smoke.get("manifest_hash") == real.get("manifest_hash"), "smoke manifest == real manifest hash"),
+            (sfp.get("protocol") == rfp.get("protocol"), "smoke uses the real protocol"),
+            (sfp.get("seed_spec", {}).get("base_seed") == rfp.get("seed_spec", {}).get("base_seed"),
+             "smoke uses the real confirmatory base_seed"),
+            (sfp.get("seed_spec", {}).get("base_seed") == 3000000, "smoke uses the real B3 seed block 3000000")):
+            if cond:
+                print(f"REFUSED: {msg}. --smoke may not run the real confirmatory.")
+                sys.exit(2)
         sys.exit(execute(a.smoke, n_jobs=a.jobs, out=a.out, require_git=False))
     if a.execute:
         sys.exit(execute(a.manifest, n_jobs=a.jobs, out=a.out, require_git=True))
