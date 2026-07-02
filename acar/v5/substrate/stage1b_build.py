@@ -120,18 +120,17 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
 
 
 def run_stage1b_real_build(plan, authorization, runtime_lock, *, output_root, dev_reader_factory, trainer_factory,
-                           dumper_factory, artifact_writer=None):
+                           dumper_factory):
     """PRODUCTION real-run entry. Accepts ONLY factories (no preconstructed objects) so the real reader/trainer/dumper can never be
-    instantiated before the gate; factories are called with the gate-issued execution context. Defaults to the FILE-backed artifact
-    writer (real trainers/dumpers emit files) with PER-REF output containment enforced (output_root/run_id/safe_ref_slug). All
-    three factories are required + callable."""
+    instantiated before the gate; factories are called with the gate-issued execution context. There is NO artifact_writer override:
+    the production entry ALWAYS uses the FILE-backed writer with PER-REF containment (output_root/run_id/safe_ref_slug), so a real run
+    can only ever emit the file-backed, hash-bound artifact package (registry.json + FINALIZED.json). All three factories required."""
     if not (callable(dev_reader_factory) and callable(trainer_factory) and callable(dumper_factory)):
         raise Stage1bBuildError("run_stage1b_real_build requires callable dev_reader_factory, trainer_factory and dumper_factory")
     if not output_root:
         raise Stage1bBuildError("run_stage1b_real_build requires output_root")
-    if artifact_writer is None:                               # per-ref containment via run_id
-        artifact_writer = functools.partial(FW.write_artifact_from_files, output_root=output_root,
-                                            run_id=authorization["run_id"])
+    artifact_writer = functools.partial(FW.write_artifact_from_files, output_root=output_root,   # ALWAYS file-backed (per-ref)
+                                        run_id=authorization["run_id"])
     return run_stage1b_build(plan, authorization, runtime_lock, execute=True, output_root=output_root,
                              dev_reader_factory=dev_reader_factory, trainer_factory=trainer_factory,
                              dumper_factory=dumper_factory, artifact_writer=artifact_writer)

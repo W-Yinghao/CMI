@@ -38,8 +38,8 @@ importing torch, per the runtime lock.)
 **Authorization JSON** (`stage1b_authorization.STAGE1B_AUTH_FIELDS`, exact set, no extras):
 `stage="Stage-1B"`; `protocol_tag="acar-v5-protocol"`; `protocol_tag_target_sha` = the FULL
 `4278435975a72b1127803dd2cffab420c083e430` (the full-build gate requires the full sha, not a prefix);
-`implementation_base_sha` = the FULL 40-hex commit of the reviewed real-run code (its short prefix must be `89bc5c1`, or the reviewed
-successor commit); `allowed_ref_type="fold_contained_only"`; `allowed_refs` = EXACTLY the 30 canonical fold refs;
+`implementation_base_sha` = the FULL 40-hex commit of the reviewed real-run code (for the current reviewed code its short prefix is
+`71e15c6` — or a reviewed successor commit); `allowed_ref_type="fold_contained_only"`; `allowed_refs` = EXACTLY the 30 canonical fold refs;
 `allowed_seeds=[20260711,20260712,20260713]`; `selection_seed=20260711`; `forbid_final_external_refs=forbid_external_sites=`
 `forbid_candidate_selection=forbid_external_read=True`; `run_id` = a fresh non-empty token; `statement` = the exact
 `REQUIRED_STAGE1B_STATEMENT`.

@@ -88,6 +88,7 @@ MODULES = (
     "test_stage1b_no_resume_or_overwrite",
     "test_stage1b_feature_dump_rejects_zero_dim_embedding",
     "test_stage1b_downstream_admission_requires_registry_and_marker",
+    "test_stage1b_real_entry_always_file_backed_writer",
 )
 
 
