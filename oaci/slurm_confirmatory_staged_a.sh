@@ -47,8 +47,11 @@ $PY -c "import json;r=json.load(open('$OACI_OUT_ROOT/phase-a-report.json'));prin
 # concurrency cap via an explicit afterok:A + afterany:B_{i-cap} dependency graph -- do NOT self-chain then
 # (that would double-submit Phase B and defeat the cap).
 if [ "${OACI_CHAIN_PHASE_B:-1}" = "1" ]; then
+  # forward OACI_COMPUTE_DECISIONS to the self-chained Phase B (C8 wave-controller sets it to 1 so the
+  # trickled fold-runs still compute native K1/K2 payloads).
   B=$(OACI_DATALAKE_ROOT="$OACI_DATALAKE_ROOT" OACI_OUT_ROOT="$OACI_OUT_ROOT" OACI_TARGET_SUBJECT="$TARGET" \
       OACI_MODEL_SEED="$SEED" OACI_BOOTSTRAP_MODE="$BMODE" OACI_LEAKAGE_JOBS="$LEAK_JOBS" OACI_REPO="$REPO" \
+      OACI_COMPUTE_DECISIONS="${OACI_COMPUTE_DECISIONS:-0}" \
       sbatch --parsable --output=/projects/EEG-foundation-model/yinghao/oaci-confirmatory-logs/%x-%j.out \
         oaci/slurm_confirmatory_staged_b.sh 2>&1)
   echo "=== submitted phase B: $B ==="
