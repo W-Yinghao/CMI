@@ -28,6 +28,14 @@ PREPROCESSING_CONFIG = {
     "extra_channel_policy": "drop_non_canonical_after_required_19_present",
     "duplicate_channel_policy": "fail_closed",
     "channel_output_order": "canonical_pinned",
+    # Stage-1B10: the OUTPUT montage stays the old-10-20 canonical order above; a PINNED input-channel alias layer maps common
+    # modern 10-10 temporal names to the same historical electrodes BEFORE the canonical pick (input names are stripped +
+    # case-normalized, so Fp1/FP1/fp1 collapse). Extra channels are still dropped; two raw channels mapping to the same logical
+    # channel FAIL. This makes old-name and modern-name cohorts semantically symmetric without changing the trained layout.
+    "logical_montage_policy": "old_10_20_canonical_with_reviewed_10_10_aliases",
+    "channel_alias_schema_version": "acar_v5_channel_alias_v1",
+    "input_channel_aliases": {"T7": "T3", "T8": "T4", "P7": "T5", "P8": "T6"},
+    "duplicate_logical_channel_policy": "fail_closed",
 }
 
 

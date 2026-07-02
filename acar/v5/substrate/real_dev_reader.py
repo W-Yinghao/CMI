@@ -64,21 +64,16 @@ class RealBidsDevReader:
         return RMR.preprocess_subject(disease, cohort, subject, subject_dir)   # SIGNAL ONLY → validated SubjectWindows
 
     def read_subject_label(self, disease, cohort, subject, path):
-        # reachable ONLY via AuthorizedFitDatasetView.read_label (FIT training only); pinned mapping, fail-closed
+        # reachable ONLY via AuthorizedFitDatasetView.read_label (FIT training only); COHORT-EXACT mapping, fail-closed
         self._check_approved(disease, cohort, path)
-        from acar.v5.substrate import stage1b_label_source as LS
-        participants_tsv = os.path.join(path, "participants.tsv")
-        return LS.resolve_subject_label(participants_tsv, subject)
+        from acar.v5.substrate import cohort_label_spec as CLS
+        return CLS.resolve_label(disease, cohort, subject, os.path.join(path, "participants.tsv"))
 
     def subject_label_resolvable(self, disease, cohort, subject, path):
         # eligibility check (build-time): returns a BOOLEAN only — the label VALUE never leaves this method (no leak into routing/dump)
         self._check_approved(disease, cohort, path)
-        from acar.v5.substrate import stage1b_label_source as LS
-        try:
-            LS.resolve_subject_label(os.path.join(path, "participants.tsv"), subject)
-            return True
-        except LS.LabelSourceError:
-            return False
+        from acar.v5.substrate import cohort_label_spec as CLS
+        return CLS.label_resolvable(disease, cohort, subject, os.path.join(path, "participants.tsv"))
 
 
 def make_real_dev_reader(context):

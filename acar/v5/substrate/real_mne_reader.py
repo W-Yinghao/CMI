@@ -37,23 +37,21 @@ def _per_trial_zscore(windows, np):
 
 def _windows_from_raw(raw, np):
     """SINGLE-recording DSP core → float32 window array (n_win, 19, 512). Windows are taken WITHIN this recording only."""
+    from acar.v5.substrate import channel_aliases as CA
     cfg = PC.PREPROCESSING_CONFIG
-    ch = list(raw.ch_names)
-    missing = [c for c in PC.CHANNELS_19 if c not in ch]      # required: all 19 canonical present (else fail)
-    if missing:
-        raise RealMneReaderError(f"recording missing montage channels {missing}")
-    dups = [c for c in PC.CHANNELS_19 if ch.count(c) > 1]     # duplicate_channel_policy = fail_closed
-    if dups:
-        raise RealMneReaderError(f"recording has duplicate montage channels {dups}")
-    raw = raw.pick(list(PC.CHANNELS_19))                      # select + reorder to canonical (extras dropped)
-    if tuple(raw.ch_names) != PC.CHANNELS_19:
-        raise RealMneReaderError("channels after pick are not the canonical 19-channel order")
+    try:                                                      # alias raw names → canonical; fail-closed on dup-logical / missing
+        ordered_src = CA.ordered_source_names(list(raw.ch_names))   # source names in CANONICAL order (length 19)
+    except CA.ChannelAliasError as e:
+        raise RealMneReaderError(str(e))
+    raw = raw.pick(ordered_src)                               # select the 19 source channels (extras dropped)
     raw.set_eeg_reference("average", projection=False)
     raw.filter(l_freq=cfg["bandpass_hz"][0], h_freq=cfg["bandpass_hz"][1])
     raw.resample(cfg["resample_hz"])
-    data = np.asarray(raw.get_data(units="uV"), dtype=np.float64)   # (19, n_times), microvolt
+    data = np.asarray(raw.get_data(units="uV"), dtype=np.float64)   # (n_selected, n_times), microvolt
     if data.ndim != 2 or data.shape[0] != 19:
         raise RealMneReaderError(f"expected (19, n_times) data, got {data.shape}")
+    cur = list(raw.ch_names)                                  # reorder data ROWS to canonical order (robust to pick ordering)
+    data = data[[cur.index(s) for s in ordered_src]]         # ordered_src is already in canonical order
     w = cfg["window_samples"]
     n_win = data.shape[1] // w
     if n_win < 1:

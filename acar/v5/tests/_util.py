@@ -322,6 +322,55 @@ def synthetic_canonical_paths(collide=False):
     return paths
 
 
+def modern_channel_names():
+    """The 19 canonical montage electrodes in MODERN 10-10 names (T3→T7, T4→T8, T5→P7, T6→P8; others unchanged)."""
+    from acar.v5.substrate import preprocessing_config as PC
+    m = {"T3": "T7", "T4": "T8", "T5": "P7", "T6": "P8"}
+    return [m.get(c, c) for c in PC.CHANNELS_19]
+
+
+def make_fake_raw(ch_names, n_times=1024):
+    """A minimal mne-Raw-like fixture (records DSP calls; deterministic varying data). Duck-typed for real_mne_reader."""
+    import numpy as np
+
+    class _FakeRaw:
+        def __init__(self, names, nt):
+            self._ch = list(names)
+            self._data = np.zeros((len(self._ch), nt), dtype=np.float64)
+            for i in range(len(self._ch)):
+                self._data[i, :] = np.linspace(-1, 1, nt) * (i + 1) + i
+            self.calls = []
+
+        @property
+        def ch_names(self):
+            return list(self._ch)
+
+        def pick(self, names):
+            idx = [self._ch.index(n) for n in names]
+            self._data = self._data[idx, :]
+            self._ch = list(names)
+            self.calls.append(("pick", tuple(names)))
+            return self
+
+        def set_eeg_reference(self, ref, projection=False):
+            self.calls.append(("ref", ref, projection))
+            return self
+
+        def filter(self, l_freq, h_freq):
+            self.calls.append(("filter", l_freq, h_freq))
+            return self
+
+        def resample(self, sfreq):
+            self.calls.append(("resample", sfreq))
+            return self
+
+        def get_data(self, units=None):
+            self.calls.append(("get_data", units))
+            return self._data
+
+    return _FakeRaw(ch_names, n_times)
+
+
 class FakeEegnetBackend:
     """Synthetic numeric backend for real_eegnet_trainer (NO torch). Records determinism/seed + fit/embed calls; returns
     deterministic bytes for the 4 model artifacts and the feature dump."""

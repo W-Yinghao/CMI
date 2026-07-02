@@ -89,6 +89,17 @@ MODULES = (
     "test_stage1b_feature_dump_rejects_zero_dim_embedding",
     "test_stage1b_downstream_admission_requires_registry_and_marker",
     "test_stage1b_real_entry_always_file_backed_writer",
+    "test_stage1b_channel_aliases_modern_to_canonical",
+    "test_stage1b_channel_aliases_duplicate_logical_fail",
+    "test_stage1b_channel_aliases_missing_canonical_fail",
+    "test_stage1b_channel_aliases_extra_channels_dropped",
+    "test_stage1b_channel_aliases_fp_case_normalized",
+    "test_stage1b_cohort_label_spec_all_7_fixtures",
+    "test_stage1b_cohort_label_unknown_value_fails",
+    "test_stage1b_cohort_label_wrong_column_fails",
+    "test_stage1b_cohort_label_duplicate_casefold_column_fails",
+    "test_stage1b_ds002778_subject_prefix_label",
+    "test_stage1b_embedding_view_still_has_no_label_path",
 )
 
 
