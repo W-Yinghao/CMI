@@ -102,5 +102,5 @@ smoke:
   source_train_subjects: null
   deletion_levels: [0, 1]
   deleted_cell_level1: {domain_id: S0, class_name: c1}
-k1: {statistic: smoke, grouped_permutation_scheme: smoke, n_permutations: 50, decision_rule: smoke}
-k2: {endpoints: [worst_domain_bacc], decision_rule: smoke}
+k1: {statistic: smoke, split_role: source_audit, permutation_scheme: paired_swap_within_y_recording_group, n_permutations: 10, alpha: 0.1, decision_rule: smoke, seed: 0}
+k2: {endpoints: [worst_domain_bacc], min_seeds: 1, level_policy: both_levels, bacc_margin: 0.0, nll_margin: 0.0, decision_rule: smoke}

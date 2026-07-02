@@ -109,5 +109,5 @@ smoke:
   source_train_subjects: [4, 5, 6]
   deletion_levels: [0, 1]
   deleted_cell_level1: {domain_id: BNCI2014_001|subject-004, class_name: feet}   # explicit level-1 deletion
-k1: {statistic: smoke, grouped_permutation_scheme: smoke, n_permutations: 100, decision_rule: smoke}
-k2: {endpoints: [worst_domain_bacc], decision_rule: smoke}
+k1: {statistic: smoke, split_role: source_audit, permutation_scheme: paired_swap_within_y_recording_group, n_permutations: 20, alpha: 0.1, decision_rule: smoke, seed: 0}
+k2: {endpoints: [worst_domain_bacc], min_seeds: 1, level_policy: both_levels, bacc_margin: 0.0, nll_margin: 0.0, decision_rule: smoke}

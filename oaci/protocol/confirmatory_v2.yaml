@@ -112,9 +112,16 @@ evaluation:
   prediction_prob_floor: 1.0e-6
 k1:
   statistic: grouped_max_probe_extractable_LQ_ov_OACI_minus_ERM
-  grouped_permutation_scheme: within_(Y,recording_group)
+  split_role: source_audit
+  permutation_scheme: paired_swap_within_y_recording_group
   n_permutations: 2000
-  decision_rule: "within permutation null band -> stop (no extractable grouped domain info)"
+  alpha: 0.05
+  decision_rule: stop_if_within_null_band
+  seed: 707
 k2:
   endpoints: [worst_domain_bacc, worst_domain_nll]
-  decision_rule: "no reproducible gain on either endpoint across seeds/levels -> stop"
+  min_seeds: 3
+  level_policy: both_levels
+  bacc_margin: 0.0
+  nll_margin: 0.0
+  decision_rule: stop_if_no_reproducible_gain

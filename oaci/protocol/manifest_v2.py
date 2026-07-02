@@ -135,15 +135,26 @@ class EvaluationBlock:
 
 @dataclass
 class K1Block:
+    """Pre-registered K1 (grouped-permutation held-out leakage null). Executable: ``split_role`` picks the
+    audit split, ``permutation_scheme`` selects the paired-swap null, ``seed`` drives ONLY the permutation
+    plan (never training/selection/audit/prediction)."""
     statistic: str | None = None
-    grouped_permutation_scheme: str | None = None
+    split_role: str | None = None
+    permutation_scheme: str | None = None
     n_permutations: int | None = None
+    alpha: float | None = None
     decision_rule: str | None = None
+    seed: int | None = None
 
 
 @dataclass
 class K2Block:
+    """Pre-registered K2 (reproducible multi-seed worst-domain gain)."""
     endpoints: list | None = None
+    min_seeds: int | None = None
+    level_policy: str | None = None
+    bacc_margin: float | None = None
+    nll_margin: float | None = None
     decision_rule: str | None = None
 
 
@@ -426,6 +437,21 @@ class ProtocolManifestV2:
             _chk(bb.mlp_z_dim is None and bb.mlp_hidden is None, "shallow_convnet must leave mlp fields unset")
         else:
             _chk(False, f"unknown backbone name {bb.name!r}")
+        # K1/K2 decision blocks — structural (the exact executable names are checked by decision/plans.py).
+        k1, k2 = self.k1, self.k2
+        _chk(all(bool(getattr(k1, a)) for a in ("statistic", "split_role", "permutation_scheme", "decision_rule")),
+             "k1 statistic/split_role/permutation_scheme/decision_rule must be non-empty")
+        _chk(k1.n_permutations is not None and int(k1.n_permutations) >= 1, "k1.n_permutations >= 1")
+        _chk(k1.alpha is not None and 0 < k1.alpha < 1, "0 < k1.alpha < 1")
+        _chk(k1.seed is not None and int(k1.seed) >= 0, "k1.seed >= 0")
+        _k2e = ("worst_domain_bacc", "worst_domain_nll")
+        _chk(bool(k2.endpoints) and all(e in _k2e for e in k2.endpoints),
+             f"k2.endpoints must be a non-empty subset of {_k2e}")
+        _chk(k2.min_seeds is not None and int(k2.min_seeds) >= 1, "k2.min_seeds >= 1")
+        _chk(k2.level_policy in ("both_levels",), f"k2.level_policy={k2.level_policy!r}")
+        _chk(k2.bacc_margin is not None and k2.bacc_margin >= 0, "k2.bacc_margin >= 0")
+        _chk(k2.nll_margin is not None and k2.nll_margin >= 0, "k2.nll_margin >= 0")
+        _chk(bool(k2.decision_rule), "k2.decision_rule non-empty")
 
     def assert_confirmatory(self) -> "ProtocolManifestV2":
         if self.status == "smoke":
