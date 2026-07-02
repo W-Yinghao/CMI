@@ -67,6 +67,13 @@ MODULES = (
     "test_stage1b_global_artifact_path_uniqueness",
     "test_stage1b_config_files_canonical",
     "test_stage1b_finalize_barrier_before_registry",
+    "test_stage1b_feature_dump_schema_parseable_label_free",
+    "test_stage1b_backend_uses_frozen_artifacts_for_embedding",
+    "test_stage1b_feature_dump_includes_all_fold_split_roles",
+    "test_stage1b_raw_bids_discovery_excludes_derivatives",
+    "test_stage1b_multi_recording_no_cross_boundary_windows",
+    "test_stage1b_finalize_marker_atomicity",
+    "test_stage1b_fit_record_validation",
 )
 
 

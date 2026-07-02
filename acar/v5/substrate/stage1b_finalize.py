@@ -16,6 +16,7 @@ from acar.v5.substrate import stage1b_output_layout as LO
 from acar.v5.substrate import stage1b_registry_populate as RP
 from acar.v5.substrate import preprocessing_config as PC
 from acar.v5.substrate import training_config as TC
+from acar.v5.substrate import stage1b_feature_dump_writer as FDW   # pure at import (numpy lazy inside)
 
 FINALIZED_MARKER = "FINALIZED.json"
 
@@ -84,6 +85,21 @@ def _validate_config_sidecars(artifacts, paths_by_ref, sidecars_by_ref, output_r
     return extra_meta
 
 
+def _validate_feature_dumps(paths_by_ref):
+    """Each ref's feat_dump.npz must parse as the pinned, label-free feature-dump schema (barrier-level, dumper-agnostic — even a
+    non-standard dumper's output is checked before it can be registered) and its provenance ref must match. Fail-closed."""
+    for ref in sorted(paths_by_ref):
+        fp = paths_by_ref[ref].get("feat_dump_path")
+        if not fp:
+            raise Stage1bFinalizeError(f"{ref}: missing feat_dump_path for finalize")
+        try:
+            summ = FDW.parse_feature_dump(fp)
+        except Exception as e:                                # unparseable / non-conforming / pickle → fail closed
+            raise Stage1bFinalizeError(f"{ref}: feature dump failed schema validation: {e}")
+        if summ.get("ref") != ref:
+            raise Stage1bFinalizeError(f"{ref}: feature dump provenance ref {summ.get('ref')!r} != {ref}")
+
+
 def finalize_and_populate(registry, artifacts, *, git_commit, env_lock_sha256, channel_montage, sampling_rate,
                           windowing_config, paths_by_ref=None, sidecars_by_ref=None, output_root=None, run_id=None):
     """Run the finalize barrier then populate. Registry untouched + no marker on any pre-populate failure. Returns n_registered."""
@@ -98,14 +114,40 @@ def finalize_and_populate(registry, artifacts, *, git_commit, env_lock_sha256, c
         except LO.Stage1bLayoutError as e:
             raise Stage1bFinalizeError(f"global artifact-path uniqueness failed: {e}")
         extra_meta = _validate_config_sidecars(artifacts, paths_by_ref, sidecars_by_ref, output_root, run_id)
-    # 4. barrier passed → populate (all-or-none) then write the FINALIZED marker
+        _validate_feature_dumps(paths_by_ref)                 # each feat_dump.npz must parse as the pinned label-free schema
+    # 4. barrier passed → populate (all-or-none). If a marker is due (file-backed), populate THEN write it ATOMICALLY; if the marker
+    #    write fails, roll the registry back so the invariant holds: a FINALIZED marker exists IFF the registry is fully populated.
     n = RP.populate_registry(registry, artifacts, git_commit=git_commit, env_lock_sha256=env_lock_sha256,
                              channel_montage=channel_montage, sampling_rate=sampling_rate,
                              windowing_config=windowing_config, extra_meta_by_ref=extra_meta)
     if output_root and run_id and paths_by_ref:               # marker only for file-backed real builds (with a layout on disk)
-        mp = marker_path(output_root, run_id)
-        os.makedirs(os.path.dirname(mp), exist_ok=True)
-        with open(mp, "w", encoding="utf-8") as f:
-            json.dump({"status": "FINALIZED", "n_registered": n, "n_refs": len(artifacts),
-                       "git_commit": git_commit, "env_lock_sha256": env_lock_sha256}, f, sort_keys=True)
+        payload = {"status": "FINALIZED", "n_registered": n, "n_refs": len(artifacts),
+                   "git_commit": git_commit, "env_lock_sha256": env_lock_sha256}
+        try:
+            write_finalized_marker(output_root, run_id, payload)
+        except Exception as e:                                # marker failed → undo the population (no registry-without-marker state)
+            registry._rollback(sorted(artifacts))
+            raise Stage1bFinalizeError(f"registry populated but FINALIZED marker write failed (rolled back): {e}")
     return n
+
+
+def write_finalized_marker(output_root, run_id, payload):
+    """Write the FINALIZED marker ATOMICALLY: serialize to <run_root>/FINALIZED.json.tmp then os.replace → FINALIZED.json, so a
+    reader never sees a partial marker (and the marker's presence means the write completed). Cleans up the temp on failure."""
+    mp = marker_path(output_root, run_id)
+    os.makedirs(os.path.dirname(mp), exist_ok=True)
+    tmp = mp + ".tmp"
+    try:
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(payload, f, sort_keys=True)
+            f.flush()
+            os.fsync(f.fileno())
+        os.replace(tmp, mp)                                   # atomic rename within the same directory
+    except Exception:
+        try:
+            if os.path.exists(tmp):
+                os.remove(tmp)
+        except OSError:
+            pass
+        raise
+    return mp

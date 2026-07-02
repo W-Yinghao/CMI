@@ -63,10 +63,11 @@ def test_reader_contract_requires_label_and_unwired_fails_closed():
 
 def test_signal_read_delegates_to_mne_seam_fail_closed():
     from acar.v5.substrate import real_mne_reader as RMR
-    # read_subject_windows now delegates to real_mne_reader (Stage-1B6); with no recordings under the subject dir it fail-closes
-    expect_raises(RMR.RealMneReaderError,
+    from acar.v5.substrate import raw_recording_manifest as RM
+    # read_subject_windows delegates to real_mne_reader → raw-BIDS-only discovery; a missing subject dir fail-closes
+    expect_raises((RMR.RealMneReaderError, RM.RawManifestError),
                   lambda: _reader("ds002778", "/tmp/x").read_subject_windows("PD", "ds002778", "sub-1", "/tmp/x"))
-    ok("read_subject_windows delegates to real_mne_reader (deterministic discovery; fail-closed on missing recordings)")
+    ok("read_subject_windows delegates to real_mne_reader (raw-BIDS-only discovery; fail-closed on missing recordings)")
 
 
 def main():

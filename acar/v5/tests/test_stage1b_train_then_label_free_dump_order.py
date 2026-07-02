@@ -11,8 +11,8 @@ from acar.v5.substrate import stage1b_execution_context as EC
 from acar.v5.substrate import stage1b_authorization as SA
 from acar.v5.substrate import real_trainer as RT
 from acar.v5.substrate import real_eegnet_trainer as RET
-from acar.v5.tests._util import (ok, expect_raises, FakeDevReader, FakeTrainer, FakeDumper, FakeEegnetBackend,
-                                 stage1b_fake_subjects, stage1b_subject_index, stage1b_auth, stage1b_full_plan)
+from acar.v5.tests._util import (ok, expect_raises, FakeDevReader, FakeWindowsDevReader, FakeTrainer, FakeDumper,
+                                 FakeEegnetBackend, stage1b_fake_subjects, stage1b_subject_index, stage1b_auth, stage1b_full_plan)
 
 FULL = SA.PROTOCOL_TAG_TARGET_SHA_FULL
 SEED = 20260711
@@ -57,9 +57,9 @@ def test_train_fold_cannot_emit_feat_dump():
 
 def test_embedding_view_handed_to_dumper_has_no_read_label():
     class _SpyDumper(FakeDumper):
-        def dump_embeddings(self, disease, fold, seed, embedding_view, all_keys, train_result):
+        def dump_embeddings(self, disease, fold, seed, embedding_view, all_keys, train_result, role_by_subject=None):
             self.view_has_read_label = hasattr(embedding_view, "read_label")
-            return super().dump_embeddings(disease, fold, seed, embedding_view, all_keys, train_result)
+            return super().dump_embeddings(disease, fold, seed, embedding_view, all_keys, train_result, role_by_subject)
     subs, idx, split, cps = _setup()
     du = _SpyDumper()
     ORC.build_fold_raw("PD", 0, SEED, REF, idx, split, FakeDevReader(subs), FakeTrainer(), du, cps)
@@ -73,14 +73,18 @@ def test_real_seam_two_phase_file_backed():
         ctx = EC.build_execution_context(stage1b_auth(protocol_tag_target_sha=FULL), {}, stage1b_full_plan(), output_root=d)
         be_t, be_d = FakeEegnetBackend(), FakeEegnetBackend()
         trainer, dumper = RT.RealSubstrateTrainer(ctx, backend=be_t), RET.RealEmbeddingDumper(ctx, backend=be_d)
-        raw, sidecars = ORC.build_fold_raw("PD", 0, SEED, REF, idx, split, FakeDevReader(subs), trainer, dumper, cps)
+        # FakeWindowsDevReader returns validated SubjectWindows so the real trainer's FIT-record validation + backend run
+        raw, sidecars = ORC.build_fold_raw("PD", 0, SEED, REF, idx, split, FakeWindowsDevReader(subs), trainer, dumper, cps)
         for pk in ("encoder_state_dict_path", "encoder_checkpoint_file_path", "source_state_artifact_path",
                    "source_state_file_path", "preprocessing_config_path", "feat_dump_path"):
             assert os.path.isfile(raw[pk]), pk
-        assert "feat_dump_bytes" not in raw and os.path.isfile(sidecars["training_config_path"])
+        assert raw["feat_dump_path"].endswith(".npz") and "feat_dump_bytes" not in raw
+        assert os.path.isfile(sidecars["training_config_path"])
         assert be_t.seeds == [SEED] and be_t.fit_calls == [(len(split["train"]), len(split["val"]))]
         assert be_d.embed_calls == [len(ORC.all_fold_subject_keys(split))] and be_d.fit_calls == []
-    ok("real seam: RealSubstrateTrainer fits FIT-only (seeded) + emits 5 files; RealEmbeddingDumper embeds ALL fold subjects → feat_dump")
+        assert be_d.embed_frozen_refs == [REF]                 # the dump was driven by THIS ref's frozen substrate
+    ok("real seam: trainer fits FIT-only (seeded, validated records) + 5 files; dumper embeds ALL fold subjects from the FROZEN "
+       "artifacts → schema feat_dump.npz")
 
 
 def main():

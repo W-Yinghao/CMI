@@ -3,52 +3,28 @@ raw BIDS recording(s) into a validated, SIGNAL-ONLY SubjectWindows under the PIN
 auditable pipeline (select+order 19 channels → average reference → 0.5–45 Hz bandpass → resample 128 Hz → 4 s / 512-sample
 non-overlapping windows → per-trial per-channel z-score, microvolt units); no labels are ever read here.
 
-Testability: `raw_to_windows(raw, ...)` is the mne-INDEPENDENT DSP core — it operates on any mne-Raw-like object (duck-typed:
-.ch_names / .pick / .set_eeg_reference / .filter / .resample / .get_data). `preprocess_subject(...)` does deterministic recording
-discovery + read via a LAZY (or INJECTED, for fixtures) mne module, then calls the core. A synthetic FakeRaw/fake-mne adapter drives
-the whole path in tests — no real DEV read, no real mne dependency.
+BOUNDARY SAFETY: each recording is windowed INDEPENDENTLY (windows never span two recordings); the per-recording window arrays are
+concatenated AFTER windowing. Recordings are discovered raw-BIDS-only (raw_recording_manifest: eeg/ and ses-*/eeg/ only).
 
-Interpretation note (reviewable): a recording is required to CONTAIN all 19 montage channels; they are picked and reordered to the
-canonical order (a permuted input yields canonical output). Any of the 19 missing → fail-closed. Extra non-montage channels are
-dropped by the pick. The final SubjectWindows is validated to carry exactly the 19 canonical channels.
+Testability: `raw_to_windows(raw, ...)` is the mne-INDEPENDENT single-recording DSP core — it operates on any mne-Raw-like object
+(duck-typed: .ch_names / .pick / .set_eeg_reference / .filter / .resample / .get_data). `preprocess_subject(...)` discovers the raw
+recordings and reads each via a LAZY (or INJECTED, for fixtures) mne module, windows each independently, then concatenates the
+window arrays. A synthetic FakeRaw/fake-mne adapter drives the whole path in tests.
+
+Interpretation (reviewable): a recording must CONTAIN all 19 montage channels; they are picked and reordered to the canonical order
+(a permuted input yields canonical output). Any of the 19 missing → fail-closed. Extra non-montage channels are dropped by the pick.
 """
 from __future__ import annotations
-import os
 from acar.v5.substrate import preprocessing_config as PC
 from acar.v5.substrate import subject_windows as SW
+from acar.v5.substrate import raw_recording_manifest as RM
 
-EEG_EXTENSIONS = (".edf", ".bdf", ".set", ".vhdr", ".fif")   # sorted, deterministic discovery
 _MNE_LOADER = {".edf": "read_raw_edf", ".bdf": "read_raw_bdf", ".set": "read_raw_eeglab",
                ".vhdr": "read_raw_brainvision", ".fif": "read_raw_fif"}
 
 
 class RealMneReaderError(RuntimeError):
     pass
-
-
-def discover_recordings(subject_dir):
-    """Deterministic, sorted list of EEG recording files under subject_dir (recursive). Fail-closed if none."""
-    if not subject_dir or not os.path.isdir(subject_dir):
-        raise RealMneReaderError(f"subject dir not found: {subject_dir}")
-    found = []
-    for root, _dirs, files in os.walk(subject_dir):
-        for f in files:
-            if os.path.splitext(f)[1].lower() in EEG_EXTENSIONS:
-                found.append(os.path.join(root, f))
-    if not found:
-        raise RealMneReaderError(f"no EEG recordings ({EEG_EXTENSIONS}) under {subject_dir}")
-    return sorted(found)
-
-
-def _read_concat_raw(files, mne):
-    raws = []
-    for path in files:                                        # already sorted → deterministic concatenation order
-        ext = os.path.splitext(path)[1].lower()
-        loader = getattr(mne.io, _MNE_LOADER[ext])
-        raws.append(loader(path, preload=True, verbose="ERROR"))
-    if len(raws) == 1:
-        return raws[0]
-    return mne.concatenate_raws(raws)
 
 
 def _per_trial_zscore(windows, np):
@@ -59,9 +35,8 @@ def _per_trial_zscore(windows, np):
     return (windows - mean) / std
 
 
-def raw_to_windows(raw, disease, cohort, raw_subject_id):
-    """mne-INDEPENDENT DSP core: raw (mne-Raw-like) → validated SubjectWindows under the pinned config. numpy imported lazily."""
-    import numpy as np
+def _windows_from_raw(raw, np):
+    """SINGLE-recording DSP core → float32 window array (n_win, 19, 512). Windows are taken WITHIN this recording only."""
     cfg = PC.PREPROCESSING_CONFIG
     missing = [c for c in PC.CHANNELS_19 if c not in list(raw.ch_names)]
     if missing:
@@ -79,23 +54,44 @@ def raw_to_windows(raw, disease, cohort, raw_subject_id):
     n_win = data.shape[1] // w
     if n_win < 1:
         raise RealMneReaderError(f"recording too short for one {w}-sample window (n_times={data.shape[1]})")
-    data = data[:, : n_win * w]
+    data = data[:, : n_win * w]                               # drop the trailing partial window (never spans recordings)
     windows = data.reshape(19, n_win, w).transpose(1, 0, 2)   # (n_win, 19, 512)
-    windows = _per_trial_zscore(windows, np)
+    return _per_trial_zscore(windows, np).astype(np.float32)
+
+
+def _wrap(windows, disease, cohort, raw_subject_id):
+    import numpy as np
     windows = np.ascontiguousarray(windows, dtype=np.float32)
     sw = SW.SubjectWindows(
         subject_key=f"{disease}/{cohort}/{raw_subject_id}", disease=disease, cohort=cohort, raw_subject_id=raw_subject_id,
-        n_windows=int(n_win), n_channels=19, n_samples=w, sfreq=cfg["resample_hz"], channels=PC.CHANNELS_19,
+        n_windows=int(windows.shape[0]), n_channels=19, n_samples=PC.PREPROCESSING_CONFIG["window_samples"],
+        sfreq=PC.PREPROCESSING_CONFIG["resample_hz"], channels=PC.CHANNELS_19,
         preprocessing_config_sha256=PC.config_sha256(), windows=windows, provenance="real_mne_reader")
     SW.validate_subject_windows(sw)                           # fail-closed vs the pinned config + payload shape/finiteness
     return sw
 
 
+def raw_to_windows(raw, disease, cohort, raw_subject_id):
+    """mne-INDEPENDENT single-recording DSP → validated SubjectWindows. numpy imported lazily."""
+    import numpy as np
+    return _wrap(_windows_from_raw(raw, np), disease, cohort, raw_subject_id)
+
+
+def _read_raw(path, mne):
+    import os
+    ext = os.path.splitext(path)[1].lower()
+    loader = getattr(mne.io, _MNE_LOADER[ext])
+    return loader(path, preload=True, verbose="ERROR")
+
+
 def preprocess_subject(disease, cohort, raw_subject_id, subject_dir, *, mne=None):
-    """Deterministic discovery + read (lazy or injected mne) → raw_to_windows. No labels are read."""
+    """Discover raw-BIDS recordings, window EACH independently (no cross-recording windows), concatenate the window arrays → one
+    validated SubjectWindows. mne is lazy (or injected for fixtures)."""
     if mne is None:
         import mne as _mne  # lazy — never imported at module load
         mne = _mne
-    files = discover_recordings(subject_dir)
-    raw = _read_concat_raw(files, mne)
-    return raw_to_windows(raw, disease, cohort, raw_subject_id)
+    import numpy as np
+    files = RM.discover_raw_recordings(subject_dir)           # raw-BIDS-only, deterministic, fail-closed
+    per_recording = [_windows_from_raw(_read_raw(p, mne), np) for p in files]   # windowed WITHIN each recording
+    windows = np.concatenate(per_recording, axis=0)           # concatenate WINDOWS, never raws
+    return _wrap(windows, disease, cohort, raw_subject_id)

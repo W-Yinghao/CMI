@@ -114,6 +114,53 @@ class _WindowsOnlyFakeReader:
         return {"marker": f"{disease}/{cohort}/{subject}"}
 
 
+def make_subject_windows(subject_key, n_windows=1):
+    """A tiny VALID SubjectWindows for tests that exercise the real trainer/dumper (which validate the payload)."""
+    import numpy as np
+    from acar.v5.substrate import subject_windows as SW
+    from acar.v5.substrate import preprocessing_config as PC
+    disease, cohort, raw = subject_key.split("/")
+    return SW.SubjectWindows(subject_key=subject_key, disease=disease, cohort=cohort, raw_subject_id=raw,
+                             n_windows=n_windows, n_channels=19, n_samples=512, sfreq=128, channels=PC.CHANNELS_19,
+                             preprocessing_config_sha256=PC.config_sha256(),
+                             windows=np.zeros((n_windows, 19, 512), dtype=np.float32), provenance="fake")
+
+
+class FakeWindowsDevReader:
+    """Like FakeDevReader but read_subject_windows returns a VALIDATED SubjectWindows (for real trainer/dumper tests). read_label
+    returns int 0/1. windows_only() returns a label-incapable facade that also yields SubjectWindows."""
+
+    def __init__(self, subjects_by=None):
+        self._subs = subjects_by if subjects_by is not None else stage1b_fake_subjects()
+        self.read_calls = []
+        self.label_calls = []
+
+    def list_subjects(self, disease, cohort, path):
+        return list(self._subs.get((disease, cohort), []))
+
+    def read_subject_windows(self, disease, cohort, subject, path):
+        self.read_calls.append((disease, cohort, subject, path))
+        return make_subject_windows(f"{disease}/{cohort}/{subject}")
+
+    def read_subject_label(self, disease, cohort, subject, path):
+        self.label_calls.append((disease, cohort, subject, path))
+        return 0
+
+    def windows_only(self):
+        return _WindowsOnlyWindowsFake(self.read_calls)
+
+
+class _WindowsOnlyWindowsFake:
+    """Label-incapable facade returning SubjectWindows (no read_subject_label, no back-reference to a label-capable reader)."""
+
+    def __init__(self, read_calls):
+        self.read_calls = read_calls
+
+    def read_subject_windows(self, disease, cohort, subject, path):
+        self.read_calls.append((disease, cohort, subject, path))
+        return make_subject_windows(f"{disease}/{cohort}/{subject}")
+
+
 class FakeTrainer:
     """Synthetic FIT-only trainer (no torch). Receives FIT subject KEYS + an AuthorizedFitDatasetView, reads signal+labels only via
     the view (proving CAL/EVAL are unreachable), and returns a RAW build output with the 5 NON-feat bytes payloads — it never emits
@@ -151,7 +198,7 @@ class FakeDumper:
     def __init__(self):
         self.reads = {}             # ref -> [ALL fold subject keys read (train∪val∪cal∪eval)]
 
-    def dump_embeddings(self, disease, fold, seed, embedding_view, all_fold_subject_keys, train_result):
+    def dump_embeddings(self, disease, fold, seed, embedding_view, all_fold_subject_keys, train_result, role_by_subject=None):
         ref = f"{disease}/fold{fold}/seed{seed}"
         rd = []
         for k in all_fold_subject_keys:
@@ -213,9 +260,10 @@ class FakeFileDumper:
         self.run_id = run_id
         self.reads = {}
 
-    def dump_embeddings(self, disease, fold, seed, embedding_view, all_fold_subject_keys, train_result):
+    def dump_embeddings(self, disease, fold, seed, embedding_view, all_fold_subject_keys, train_result, role_by_subject=None):
         import os
         from acar.v5.substrate import stage1b_output_layout as LO
+        from acar.v5.substrate import stage1b_feature_dump_writer as FDW
         ref = f"{disease}/fold{fold}/seed{seed}"
         rd = []
         for k in all_fold_subject_keys:
@@ -224,9 +272,12 @@ class FakeFileDumper:
         self.reads[ref] = rd
         d = LO.ref_output_dir(self.out_dir, self.run_id, ref)
         os.makedirs(d, exist_ok=True)
-        p = os.path.join(d, "feat_dump.bin")
-        with open(p, "wb") as f:
-            f.write(f"{ref}:feat_dump".encode())
+        p = os.path.join(d, "feat_dump.npz")                  # a schema-valid dump (finalize parses it)
+        role_by_subject = role_by_subject or {}
+        records = [(k, role_by_subject.get(k, "train"), 0, [0.0, 1.0, 2.0]) for k in all_fold_subject_keys]
+        FDW.write_feature_dump(p, ref=ref, disease=disease, fold=fold, seed=seed,
+                               preprocessing_config_sha256="0" * 64, training_config_sha256="0" * 64,
+                               encoder_checkpoint_file_sha256="0" * 64, source_state_file_sha256="0" * 64, records=records)
         return {"ref": ref, "disease": disease, "fold": fold, "seed": seed, "feat_dump_path": p}
 
 
@@ -271,6 +322,7 @@ class FakeEegnetBackend:
         self.seeds = []
         self.fit_calls = []          # list of (n_train, n_val)
         self.embed_calls = []        # list of n_subjects
+        self.embed_frozen_refs = []  # frozen-substrate ref each embed_from_artifacts was driven by
 
     def set_deterministic(self, seed):
         self.seeds.append(int(seed))
@@ -281,9 +333,12 @@ class FakeEegnetBackend:
         return {"encoder_state_dict": b"enc_sd:" + tag, "encoder_checkpoint_file": b"enc_ckpt:" + tag,
                 "source_state_artifact": b"ss_art:" + tag, "source_state_file": b"ss_file:" + tag}
 
-    def embed(self, windows_by_subject, training_config):
+    def embed_from_artifacts(self, windows_by_subject, frozen, training_config):
+        import numpy as np
         self.embed_calls.append(len(windows_by_subject))
-        return b"feat:" + ",".join(sorted(windows_by_subject)).encode()
+        self.embed_frozen_refs.append(frozen.ref)             # records which frozen substrate drove the dump
+        # deterministic tiny per-subject embedding (1 window × dim 4); content-independent (synthetic)
+        return {sk: np.zeros((1, 4), dtype=np.float32) + float(i) for i, sk in enumerate(sorted(windows_by_subject))}
 
 
 def batch(batch_id, **per_action):

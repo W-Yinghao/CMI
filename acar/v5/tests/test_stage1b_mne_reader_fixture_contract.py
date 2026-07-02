@@ -108,10 +108,12 @@ def test_preprocess_subject_via_fake_mne():
             return raws[0]
 
     with tempfile.TemporaryDirectory() as d:
-        open(os.path.join(d, "sub-001_task-rest_eeg.edf"), "w").close()   # discoverable recording
+        eeg = os.path.join(d, "eeg")                          # raw-BIDS location (sub-*/eeg/*)
+        os.makedirs(eeg)
+        open(os.path.join(eeg, "sub-001_task-rest_eeg.edf"), "w").close()   # discoverable raw recording
         sw = RMR.preprocess_subject("PD", "ds002778", "sub-001", d, mne=_Mne(_permuted_raw(1024)))
         assert SW.validate_subject_windows(sw) and sw.subject_key == "PD/ds002778/sub-001"
-    ok("preprocess_subject discovers the recording + drives the fake mne adapter → validated SubjectWindows (no real mne)")
+    ok("preprocess_subject discovers the raw recording under eeg/ + drives the fake mne adapter → validated SubjectWindows")
 
 
 def main():

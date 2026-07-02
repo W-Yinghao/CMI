@@ -32,7 +32,7 @@ class EmbeddingDumperNotWiredError(RuntimeError):
 
 
 class UnwiredEmbeddingDumper:
-    def dump_embeddings(self, disease, fold, seed, embedding_view, all_fold_subject_keys, train_result):
+    def dump_embeddings(self, disease, fold, seed, embedding_view, all_fold_subject_keys, train_result, role_by_subject=None):
         raise EmbeddingDumperNotWiredError("real Stage-1B embedding dumper not wired")
 
 
@@ -47,6 +47,15 @@ def require_dumper(dumper):
 def all_fold_subject_keys(split):
     """Every subject in the fold = train ∪ val ∪ cal ∪ eval (label-free embedding coverage)."""
     return sorted(set(split["train"]) | set(split["val"]) | set(split["cal"]) | set(split["eval"]))
+
+
+def split_role_by_subject(split):
+    """Map each fold subject to its split role (train/val/cal/eval) — attached to every feature-dump record."""
+    role = {}
+    for r in ("train", "val", "cal", "eval"):
+        for k in split[r]:
+            role[k] = r
+    return role
 
 
 def _assert_no_feat_dump(train_result):
@@ -84,7 +93,8 @@ def build_fold_raw(disease, fold, seed, ref, index, split, dev_reader, trainer, 
     emb_reader = dev_reader.windows_only() if hasattr(dev_reader, "windows_only") else dev_reader
     emb_view = EV.AuthorizedEmbeddingDatasetView(index, set(all_keys), emb_reader, cohort_paths)
     ED.assert_view_is_label_free(emb_view)                    # AuthorizedEmbeddingDatasetView, no read_label
-    dump_result = dumper.dump_embeddings(disease, fold, seed, emb_view, all_keys, train_result)
+    role_by_subject = split_role_by_subject(split)            # every dump record carries its split role
+    dump_result = dumper.dump_embeddings(disease, fold, seed, emb_view, all_keys, train_result, role_by_subject)
     if not isinstance(dump_result, dict) or dump_result.get("ref") != ref:
         raise Stage1bOrchestratorError(f"{ref}: dump_embeddings returned a bad/mismatched raw output")
     _assert_dump_is_feat_only(dump_result)
