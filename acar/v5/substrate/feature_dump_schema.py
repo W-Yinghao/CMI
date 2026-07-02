@@ -5,13 +5,17 @@ without ever seeing a label and can prove the dump came from the registered froz
 """
 from __future__ import annotations
 
-SCHEMA_VERSION = "ACAR_V5_STAGE1B_FEAT_DUMP_V1"
+SCHEMA_VERSION = "ACAR_V5_STAGE1B_FEAT_DUMP_V2"   # V2: + channel_alias/montage_completion policy hashes + per-subject completion map
 SPLIT_ROLES = ("train", "val", "cal", "eval")
 
-# scalar header fields (provenance)
+# scalar header fields (provenance). The 4 *_sha256 substrate hashes + the 2 policy hashes are all hex64.
+_HEX64_HEADER = ("preprocessing_config_sha256", "training_config_sha256", "encoder_checkpoint_file_sha256",
+                 "source_state_file_sha256", "channel_alias_policy_sha256", "montage_completion_policy_sha256")
 HEADER_FIELDS = ("schema_version", "ref", "disease", "fold", "seed",
                  "preprocessing_config_sha256", "training_config_sha256",
-                 "encoder_checkpoint_file_sha256", "source_state_file_sha256")
+                 "encoder_checkpoint_file_sha256", "source_state_file_sha256",
+                 "channel_alias_policy_sha256", "montage_completion_policy_sha256",
+                 "montage_completion_by_subject")   # JSON str: {subject_key: {interpolated,n_interpolated,donor_count}} — NO labels
 # per-record parallel arrays
 RECORD_ARRAYS = ("subject_key", "split_role", "window_id", "embedding")
 # a dump may NEVER carry a label-like field
@@ -26,6 +30,19 @@ class FeatureDumpSchemaError(RuntimeError):
 
 def _is_hex64(s):
     return isinstance(s, str) and len(s) == 64 and all(c in _HEX for c in s.lower())
+
+
+def _flatten_keys(obj):
+    """All nested dict keys (to scan a montage-completion map for label-like fields)."""
+    out = []
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            out.append(k)
+            out.extend(_flatten_keys(v))
+    elif isinstance(obj, list):
+        for v in obj:
+            out.extend(_flatten_keys(v))
+    return out
 
 
 def validate_loaded(mapping):
@@ -51,10 +68,19 @@ def validate_loaded(mapping):
 
     if str(_scalar("schema_version")) != SCHEMA_VERSION:
         raise FeatureDumpSchemaError(f"schema_version != {SCHEMA_VERSION}")
-    for h in ("preprocessing_config_sha256", "training_config_sha256",
-              "encoder_checkpoint_file_sha256", "source_state_file_sha256"):
+    for h in _HEX64_HEADER:
         if not _is_hex64(str(_scalar(h))):
             raise FeatureDumpSchemaError(f"{h} is not 64-hex")
+    import json
+    mcbs = str(_scalar("montage_completion_by_subject"))       # JSON str → dict; must carry no label-like field
+    try:
+        parsed = json.loads(mcbs)
+    except ValueError as e:
+        raise FeatureDumpSchemaError(f"montage_completion_by_subject is not valid JSON: {e}")
+    if not isinstance(parsed, dict):
+        raise FeatureDumpSchemaError("montage_completion_by_subject must be a JSON object")
+    if set(_flatten_keys(parsed)) & set(FORBIDDEN_FIELDS):
+        raise FeatureDumpSchemaError("montage_completion_by_subject carries a label-like field")
 
     subj = np.asarray(mapping["subject_key"])
     roles = np.asarray(mapping["split_role"])
@@ -79,4 +105,7 @@ def validate_loaded(mapping):
         raise FeatureDumpSchemaError(f"unknown split_role(s) {sorted(unknown)}")
     return {"n_records": int(n), "embedding_dim": int(emb.shape[1]), "split_roles_present": sorted(role_set),
             "ref": str(_scalar("ref")), "disease": str(_scalar("disease")),
-            "fold": int(_scalar("fold")), "seed": int(_scalar("seed"))}
+            "fold": int(_scalar("fold")), "seed": int(_scalar("seed")),
+            "channel_alias_policy_sha256": str(_scalar("channel_alias_policy_sha256")),
+            "montage_completion_policy_sha256": str(_scalar("montage_completion_policy_sha256")),
+            "montage_completion_by_subject": parsed}

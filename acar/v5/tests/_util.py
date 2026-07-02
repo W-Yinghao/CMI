@@ -329,6 +329,19 @@ def modern_channel_names():
     return [m.get(c, c) for c in PC.CHANNELS_19]
 
 
+def make_mne_raw(ch_names, n_times=2048, sfreq=256.0, seed=0, nan_channels=()):
+    """A synthetic mne RawArray fixture (real mne numerics, SYNTHETIC signal) for montage-completion tests. `nan_channels` sets
+    those channel rows to NaN (to exercise the non-finite fail-closed path). Lazy mne."""
+    import numpy as np
+    import mne
+    mne.set_log_level("ERROR")
+    data = (np.random.RandomState(seed).randn(len(ch_names), n_times) * 1e-5).astype("float64")
+    for c in nan_channels:
+        data[list(ch_names).index(c), :] = np.nan
+    info = mne.create_info(list(ch_names), float(sfreq), ["eeg"] * len(ch_names))
+    return mne.io.RawArray(data, info, verbose="ERROR")
+
+
 def make_fake_raw(ch_names, n_times=1024):
     """A minimal mne-Raw-like fixture (records DSP calls; deterministic varying data). Duck-typed for real_mne_reader."""
     import numpy as np

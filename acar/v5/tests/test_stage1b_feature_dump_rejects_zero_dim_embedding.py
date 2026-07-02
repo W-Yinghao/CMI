@@ -9,7 +9,8 @@ from acar.v5.substrate import stage1b_feature_dump_writer as FDW
 from acar.v5.tests._util import expect_raises, ok
 
 H = dict(preprocessing_config_sha256="a" * 64, training_config_sha256="b" * 64,
-         encoder_checkpoint_file_sha256="c" * 64, source_state_file_sha256="d" * 64)
+         encoder_checkpoint_file_sha256="c" * 64, source_state_file_sha256="d" * 64,
+         channel_alias_policy_sha256="e" * 64, montage_completion_policy_sha256="f" * 64)
 
 
 def test_validate_loaded_rejects_zero_dim():
@@ -17,6 +18,7 @@ def test_validate_loaded_rejects_zero_dim():
                "disease": np.asarray("PD"), "fold": np.asarray(0), "seed": np.asarray(20260711),
                "subject_key": np.asarray(["PD/ds/sub-1"]), "split_role": np.asarray(["train"]),
                "window_id": np.asarray([0]), "embedding": np.zeros((1, 0), np.float32),
+               "montage_completion_by_subject": np.asarray("{}"),
                **{k: np.asarray(v) for k, v in H.items()}}
     expect_raises(FS.FeatureDumpSchemaError, lambda: FS.validate_loaded(payload))
     ok("validate_loaded rejects a (n,0) zero-dim embedding at the parser/barrier level")

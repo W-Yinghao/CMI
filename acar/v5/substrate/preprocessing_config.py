@@ -36,7 +36,38 @@ PREPROCESSING_CONFIG = {
     "channel_alias_schema_version": "acar_v5_channel_alias_v1",
     "input_channel_aliases": {"T7": "T3", "T8": "T4", "P7": "T5", "P8": "T6"},
     "duplicate_logical_channel_policy": "fail_closed",
+    # Stage-1B11: reviewed montage-COMPLETION policy — the canonical output montage is UNCHANGED (old-10-20); a small, per-cohort
+    # WHITELISTED set of missing canonical electrodes may be interpolated (spherical-spline, standard positions) so the substrate's
+    # 19-channel logical layout is preserved. Any missing channel NOT in the whitelist → FAIL. Duplicate logical channels are never
+    # interpolated (fail-closed). Interpolation is audited (SubjectWindows.provenance + feature-dump policy hashes).
+    "montage_completion_policy_version": "ACAR_V5_STAGE1B11_MONTAGE_COMPLETION_V1",
+    "allowed_missing_by_cohort": {"ds004584": ["Pz"], "ds004000": ["F3", "F4", "P3", "P4"]},
+    "max_interpolated_canonical_channels_per_recording": 4,
+    "interpolation_method": "mne_interpolate_bads_spherical_spline_standard_1020",
+    "interpolation_mode": "accurate",
+    "min_donor_channels": 8,
+    "donor_policy": ("good_position_eeg_channels_only;interpolated_channels_not_donors;"
+                     "noncanonical_donors_dropped_after_canonical_output;unknown_position_channels_ignored"),
 }
+
+
+def _subset_sha256(keys):
+    import hashlib
+    sub = {k: PREPROCESSING_CONFIG[k] for k in keys}
+    return hashlib.sha256(json.dumps(sub, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def channel_alias_policy_sha256():
+    """Hash of ONLY the channel-alias policy subset (for provenance/feature-dump auditing)."""
+    return _subset_sha256(("channels", "input_channel_aliases", "logical_montage_policy", "channel_alias_schema_version",
+                           "duplicate_logical_channel_policy", "channel_output_order"))
+
+
+def montage_completion_policy_sha256():
+    """Hash of ONLY the montage-completion policy subset (for provenance/feature-dump auditing)."""
+    return _subset_sha256(("montage_completion_policy_version", "allowed_missing_by_cohort",
+                           "max_interpolated_canonical_channels_per_recording", "interpolation_method",
+                           "interpolation_mode", "min_donor_channels", "donor_policy"))
 
 
 def canonical_json():

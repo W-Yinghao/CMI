@@ -100,6 +100,16 @@ MODULES = (
     "test_stage1b_cohort_label_duplicate_casefold_column_fails",
     "test_stage1b_ds002778_subject_prefix_label",
     "test_stage1b_embedding_view_still_has_no_label_path",
+    "test_stage1b_montage_completion_ds004584_pz_only",
+    "test_stage1b_montage_completion_ds004000_four_only",
+    "test_stage1b_montage_completion_unlisted_missing_fails",
+    "test_stage1b_montage_completion_too_many_missing_fails",
+    "test_stage1b_montage_completion_nonfinite_output_fails",
+    "test_stage1b_montage_completion_provenance_recorded",
+    "test_stage1b_montage_completion_config_hash_changes",
+    "test_stage1b_duplicate_f7_raw_header_adjudication",
+    "test_stage1b_channels_tsv_duplicate_warns_not_decisive_if_raw_header_clean",
+    "test_stage1b_raw_header_duplicate_logical_fails",
 )
 
 

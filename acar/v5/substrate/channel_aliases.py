@@ -61,3 +61,37 @@ def ordered_source_names(ch_names):
     """The recording's source channel names in CANONICAL order (length 19) — i.e. [source for T-canonical in CHANNELS_19]."""
     canon_to_src = resolve_canonical_sources(ch_names)
     return [canon_to_src[c] for c in _CANONICAL]
+
+
+def logical_duplicates(names):
+    """Canonical channels that MORE THAN ONE raw channel maps to (after aliasing)."""
+    seen, dups = set(), set()
+    for n in names:
+        c = normalize_channel(n)
+        if c is None:
+            continue
+        if c in seen:
+            dups.add(c)
+        seen.add(c)
+    return sorted(dups)
+
+
+def adjudicate_channel_source(channels_tsv_names, raw_header_names):
+    """The RAW HEADER is decisive for DSP compatibility (the DSP consumes the raw header channel names). A duplicate logical channel
+    in the RAW HEADER is a signal-level ambiguity → FAIL. A duplicate only in channels.tsv (with a clean raw header) is a metadata
+    inconsistency → WARN (non-fatal). No 'keep-first' / no silent de-dup. Returns a verdict dict."""
+    tsv_dups = logical_duplicates(channels_tsv_names) if channels_tsv_names is not None else []
+    if raw_header_names is None:
+        if tsv_dups:
+            return {"verdict": "FAIL", "reason": f"channels.tsv duplicate logical {tsv_dups} and no raw header to adjudicate",
+                    "raw_duplicates": None, "tsv_duplicates": tsv_dups}
+        return {"verdict": "PASS", "reason": "no raw header; channels.tsv clean", "raw_duplicates": None, "tsv_duplicates": []}
+    raw_dups = logical_duplicates(raw_header_names)
+    if raw_dups:
+        return {"verdict": "FAIL", "reason": f"raw header duplicate logical channel(s) {raw_dups} (signal-level ambiguity)",
+                "raw_duplicates": raw_dups, "tsv_duplicates": tsv_dups}
+    if tsv_dups:
+        return {"verdict": "WARN_TSV_DUPLICATE",
+                "reason": f"channels.tsv duplicate logical {tsv_dups} but raw header is clean (metadata inconsistency)",
+                "raw_duplicates": [], "tsv_duplicates": tsv_dups}
+    return {"verdict": "PASS", "reason": "raw header + channels.tsv both clean", "raw_duplicates": [], "tsv_duplicates": []}

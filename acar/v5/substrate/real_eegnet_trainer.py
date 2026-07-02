@@ -175,11 +175,18 @@ def dump_fold_embeddings(disease, fold, seed, embedding_view, all_fold_subject_k
     os.makedirs(output_dir, exist_ok=True)
     ref = f"{disease}/fold{fold}/seed{seed}"
     feat_path = os.path.join(output_dir, "feat_dump.npz")
+
+    def _mc_summary(sw):                                       # per-subject montage-completion audit (native vs interpolated)
+        mc = getattr(sw, "montage_completion", None) or {}
+        return {"interpolated": mc.get("interpolated", []), "n_interpolated": mc.get("n_interpolated", 0),
+                "donor_count": mc.get("donor_count", 0)}
+    montage_by_subject = {sk: _mc_summary(windows_by_subject[sk]) for sk in sorted(emb_by_subject)}
     FDW.write_feature_dump(feat_path, ref=ref, disease=disease, fold=fold, seed=seed,
                            preprocessing_config_sha256=_sha256_file(frozen.preprocessing_config_path),
                            training_config_sha256=_sha256_file(frozen.training_config_path),
                            encoder_checkpoint_file_sha256=_sha256_file(frozen.encoder_checkpoint_file_path),
-                           source_state_file_sha256=_sha256_file(frozen.source_state_file_path), records=records)
+                           source_state_file_sha256=_sha256_file(frozen.source_state_file_path), records=records,
+                           montage_completion_by_subject=montage_by_subject)
     n_windows_by_subject = {sk: int(np.asarray(emb_by_subject[sk]).shape[0]) for sk in emb_by_subject}   # authoritative counts
     raw = {"ref": ref, "disease": disease, "fold": fold, "seed": seed, "feat_dump_path": feat_path,
            "n_windows_by_subject": n_windows_by_subject}

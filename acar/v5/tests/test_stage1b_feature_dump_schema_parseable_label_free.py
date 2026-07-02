@@ -11,6 +11,9 @@ from acar.v5.tests._util import expect_raises, ok
 
 H = {"preprocessing_config_sha256": "a" * 64, "training_config_sha256": "b" * 64,
      "encoder_checkpoint_file_sha256": "c" * 64, "source_state_file_sha256": "d" * 64}
+# V2 header extras for manual validate_loaded payloads (the writer defaults these; manual payloads must include them)
+HV2 = {"channel_alias_policy_sha256": "e" * 64, "montage_completion_policy_sha256": "f" * 64,
+       "montage_completion_by_subject": "{}"}
 
 
 def _records():
@@ -33,7 +36,7 @@ def test_write_parse_roundtrip():
 
 def test_forbidden_label_field_rejected():
     payload = {k: np.asarray(v) for k, v in {"schema_version": FS.SCHEMA_VERSION, "ref": "PD/fold0/seed20260711",
-               "disease": "PD", "fold": 0, "seed": 20260711, **H,
+               "disease": "PD", "fold": 0, "seed": 20260711, **H, **HV2,
                "subject_key": np.asarray(["PD/ds002778/sub-1"]), "split_role": np.asarray(["train"]),
                "window_id": np.asarray([0]), "embedding": np.zeros((1, 3), np.float32),
                "label": np.asarray([1])}.items()}
@@ -60,7 +63,7 @@ def test_wrong_schema_version_rejected():
                "disease": np.asarray("PD"), "fold": np.asarray(0), "seed": np.asarray(20260711),
                "subject_key": np.asarray(["PD/ds002778/sub-1"]), "split_role": np.asarray(["train"]),
                "window_id": np.asarray([0]), "embedding": np.zeros((1, 3), np.float32),
-               **{k: np.asarray(v) for k, v in H.items()}}
+               **{k: np.asarray(v) for k, v in {**H, **HV2}.items()}}
     expect_raises(FS.FeatureDumpSchemaError, lambda: FS.validate_loaded(payload))
     ok("a wrong schema_version → FeatureDumpSchemaError")
 
