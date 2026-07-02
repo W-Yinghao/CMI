@@ -149,4 +149,12 @@ def build_backbone(name, n_chans, n_times, n_classes, device="cpu", **_):
         return FBLGGDualCMIBackbone(n_chans, n_times, n_classes, ch_names=_.get("ch_names"),
                                     groups=_.get("groups"), group_names=_.get("group_names"),
                                     grouping_scheme=_.get("grouping_scheme")).to(device)
+    if name == "FBCSPLGGGraph":
+        # CIGL_49 P5: FBLGG + an FBCSP-style spatial-spectral branch (learned per-band spatial projection +
+        # log-var) with 3-way softmax-gated fusion (graph/temporal/spatial). Adds zero_spatial ablation and
+        # gate instrumentation; fixes the 4-class CSP gap found in P4/CIGL_48. Same central_strip_v1 grouping.
+        from cmi.models.fb_lgg_dualcmi import FBCSPLGGGraph
+        return FBCSPLGGGraph(n_chans, n_times, n_classes, ch_names=_.get("ch_names"),
+                             groups=_.get("groups"), group_names=_.get("group_names"),
+                             grouping_scheme=_.get("grouping_scheme")).to(device)
     return HookedBackbone(name, n_chans, n_times, n_classes).to(device)

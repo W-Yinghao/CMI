@@ -350,7 +350,7 @@ def run(args):
         # 10-20 region/index builder (P3-F.3). ch_names come from a dataset preset (P3-F.3).
         ch_names, ch_names_source = (None, None)
         cs_groups = cs_named = grouping_scheme = grouping_warning = None
-        if args.backbone == "FBLGGGraph":
+        if args.backbone in ("FBLGGGraph", "FBCSPLGGGraph"):
             ch_names, ch_names_source = _infer_ch_names(args.dataset, nch)
             from cmi.models.fb_lgg_dualcmi import central_strip_groups, _CENTRAL_STRIP_V1
             cs_groups, cs_named, cs_warn = central_strip_groups(args.dataset, ch_names)
@@ -450,7 +450,7 @@ def run(args):
             rec["method_config"] = lbl
             rec["backbone"] = args.backbone
             rec["git_sha"] = run_git_sha
-            if args.backbone == "FBLGGGraph":            # grouping provenance (P3-H)
+            if args.backbone in ("FBLGGGraph", "FBCSPLGGGraph"):   # grouping provenance (P3-H / P5)
                 rec["ch_names_source"] = ch_names_source
                 rec["grouping_scheme"] = getattr(bb, "grouping_scheme", grouping_scheme)
                 # named montage groups when available (central_strip_v1); else raw index groups
@@ -458,6 +458,11 @@ def run(args):
                                          else [list(g) for g in getattr(bb, "groups", [])])
                 if grouping_warning:
                     rec["grouping_warning"] = grouping_warning
+            if callable(getattr(bb, "gate_summary", None)):        # P5-D: fusion-gate instrumentation (aggregate)
+                try:
+                    rec.update(bb.gate_summary(torch.as_tensor(Xte[:256], dtype=torch.float32, device=device)))
+                except Exception as _e:
+                    rec["gate_summary_error"] = str(_e)
             rec["source_bacc"] = float(classification_metrics(predict(bb, Xtr_all[ei], device),
                                                               ytr_all[ei])["balanced_acc"])
             if callable(getattr(bb, "ablate", None)):
@@ -507,7 +512,7 @@ def build_parser():
     ap.add_argument("--dataset", default="BNCI2014_001")
     ap.add_argument("--backbone", default="EEGNet",
                     choices=["EEGNet", "ShallowConvNet", "Deep4Net", "EEGConformer", "LogCov", "TSMNet",
-                             "GraphCMI", "DGCNN", "RGNN", "DGCNNGraph", "FBLGGGraph"])   # DGCNNGraph = static-adjacency graph adapter; FBLGGGraph = CIGL_47 filterbank+local-global graph (distinct fused_z)
+                             "GraphCMI", "DGCNN", "RGNN", "DGCNNGraph", "FBLGGGraph", "FBCSPLGGGraph"])   # DGCNNGraph = static adjacency; FBLGGGraph = CIGL_47 filterbank+local-global graph; FBCSPLGGGraph = CIGL_49 + FBCSP spatial branch
     ap.add_argument("--target_indices", type=int, nargs="+", default=None,
                     help="run only these LOSO fold indices (0-based, in split order), e.g. 0 1 for the pilot "
                          "or 0 9 for BNCI2015_001. Default: all folds. Recorded in the output as "

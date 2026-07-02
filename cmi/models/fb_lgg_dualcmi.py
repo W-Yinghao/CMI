@@ -309,3 +309,127 @@ class FBLGGDualCMIBackbone(nn.Module):
             return self.head(self._fuse(graph_z_p, temporal_z))
         graph_z, _ = self._graph_branch(node_raw)
         return self.head(self._fuse(graph_z, temporal_z))
+
+
+# --------------------------------------------------------------------------------------------------
+# CIGL_49 P5 — FBCSP-style spatial-spectral branch (fixes the CSP gap found in P4/CIGL_48).
+# P4 showed FBLGG underperforms classical CSP+LDA on 4-class cross-subject because it omits spatial
+# collapse (channels stay as graph nodes). This branch reintroduces the CSP recipe:
+#   per temporal band -> learned per-band spatial projection (K components) -> log-variance.
+# --------------------------------------------------------------------------------------------------
+class _FBCSPBand(nn.Module):
+    """One filterbank band: temporal conv -> BN -> per-band spatial projection (C -> K, grouped per
+    temporal filter) -> log-variance over time. Output [B, n_filt*K] CSP-style features."""
+
+    def __init__(self, n_filt, kern, n_times, n_chans, K=4):
+        super().__init__()
+        kern = min(int(kern), max(2, n_times // 2))
+        self.temporal = nn.Conv2d(1, n_filt, (1, kern))
+        self.bn = nn.BatchNorm2d(n_filt)
+        # grouped (C,1) conv = independent spatial filters per temporal band -> K components each
+        self.spatial = nn.Conv2d(n_filt, n_filt * K, (n_chans, 1), groups=n_filt, bias=False)
+        self.out_dim = n_filt * K
+
+    def forward(self, x):                                  # x [B,1,C,T]
+        h = self.bn(self.temporal(x))                      # [B,n_filt,C,T']
+        h = self.spatial(h).squeeze(2)                     # [B,n_filt*K,T'] (spatially filtered)
+        return torch.log(h.var(dim=-1).clamp(min=1e-6))    # [B,n_filt*K] log-variance (CSP feature)
+
+
+class _FBCSPSpatialBranch(nn.Module):
+    """Multi-band FBCSP spatial-spectral branch -> spatial_z [B, spatial_z_dim]."""
+
+    def __init__(self, n_chans, n_times, n_filt=8, kernels=(11, 21, 45), K=4, spatial_z_dim=32, dropout=0.25):
+        super().__init__()
+        self.bands = nn.ModuleList(_FBCSPBand(n_filt, k, n_times, n_chans, K) for k in kernels)
+        feat = int(sum(b.out_dim for b in self.bands))
+        self.proj = nn.Linear(feat, spatial_z_dim)
+        self.drop = nn.Dropout(float(dropout))
+        self.out_dim = int(spatial_z_dim)
+
+    def forward(self, x):                                  # x [B,C,T]
+        xin = x.unsqueeze(1)                               # [B,1,C,T]
+        v = torch.cat([b(xin) for b in self.bands], dim=-1)  # [B, sum(n_filt*K)]
+        return self.drop(F.elu(self.proj(v)))              # [B, spatial_z_dim]
+
+
+class FBCSPLGGGraph(FBLGGDualCMIBackbone):
+    """FBLGG + an FBCSP-style spatial-spectral branch, combined by a 3-way softmax-gated fusion.
+
+    Branches: graph_z (local-global electrode graph), temporal_z (channel-mean temporal), spatial_z
+    (FBCSP per-band spatial projection + log-var). The softmax gate over the 3 branches is bounded and
+    sums to 1, so no branch can unconstrainedly dominate the scale; per-batch gate mean/std are exposed
+    for instrumentation. Keeps the CIGL 5-tuple contract with a distinct fused_z and central_strip_v1
+    grouping. ERM-capable; graphdualpc head-split works (distinct fused_z)."""
+
+    def __init__(self, n_chans, n_times, n_classes, ch_names=None, spatial_n_filt=8, spatial_K=4,
+                 spatial_z_dim=32, dropout=0.25, **kw):
+        super().__init__(n_chans, n_times, n_classes, ch_names=ch_names, dropout=dropout, **kw)
+        self.spatial = _FBCSPSpatialBranch(self.n_chans, n_times, n_filt=spatial_n_filt,
+                                           K=spatial_K, spatial_z_dim=spatial_z_dim, dropout=dropout)
+        self.spatial_z_dim = int(spatial_z_dim)
+        fdim = self.fused_z_dim
+        self.fuse_s = nn.Linear(spatial_z_dim, fdim)       # reuse super's fuse_g / fuse_t for graph/temporal
+        self.gate3 = nn.Linear(3 * fdim, 3)                # softmax over [graph, temporal, spatial]
+        self.head3 = nn.Linear(fdim, n_classes)            # new head on the 3-way fused_z
+        self.last_gate = None                              # [B,3] softmax weights (set each forward_graph)
+        self.last_aux = {}                                 # {graph_z, temporal_z, spatial_z, fused_z} (detached)
+        self.meta = dict(graph_compatible=True, edge_logits_dynamic=False, node_identity_preserved=True,
+                         distinct_fused_z=True, has_spatial_branch=True,
+                         ablation_modes=("zero_graph", "zero_temporal", "zero_spatial", "permute_nodes"))
+
+    def _spatial_branch(self, x):
+        return self.spatial(x)                             # [B, spatial_z_dim]
+
+    def _fuse3(self, graph_z, temporal_z, spatial_z):
+        gp = self.fuse_g(graph_z); tp = self.fuse_t(temporal_z); sp = self.fuse_s(spatial_z)  # [B,fdim] each
+        gate = torch.softmax(self.gate3(torch.cat([gp, tp, sp], dim=-1)), dim=-1)             # [B,3], sums to 1
+        self.last_gate = gate.detach()
+        fused = gate[:, 0:1] * gp + gate[:, 1:2] * tp + gate[:, 2:3] * sp
+        return self.drop(fused)
+
+    def forward_graph(self, x):
+        node_raw = self.stem(x)
+        graph_z, node_z = self._graph_branch(node_raw)
+        temporal_z = self._temporal_branch(node_raw)
+        spatial_z = self._spatial_branch(x)
+        fused_z = self._fuse3(graph_z, temporal_z, spatial_z)
+        self.last_aux = dict(graph_z=graph_z.detach(), temporal_z=temporal_z.detach(),
+                             spatial_z=spatial_z.detach(), fused_z=fused_z.detach())
+        return self.head3(fused_z), graph_z, node_z, None, fused_z
+
+    def forward(self, x):
+        logits, _, _, _, fused_z = self.forward_graph(x)
+        return logits, fused_z
+
+    @torch.no_grad()
+    def ablate(self, x, mode):
+        """zero_graph / zero_temporal / zero_spatial: fuse with that branch's z:=0. permute_nodes:
+        permute the graph-branch node features across the batch. Returns [B, n_cls] logits."""
+        node_raw = self.stem(x); B = node_raw.shape[0]
+        graph_z, _ = self._graph_branch(node_raw)
+        temporal_z = self._temporal_branch(node_raw)
+        spatial_z = self._spatial_branch(x)
+        if mode == "zero_graph":
+            graph_z = torch.zeros(B, self.z_dim, device=x.device, dtype=node_raw.dtype)
+        elif mode == "zero_temporal":
+            temporal_z = torch.zeros(B, self.temp_dim, device=x.device, dtype=node_raw.dtype)
+        elif mode == "zero_spatial":
+            spatial_z = torch.zeros(B, self.spatial_z_dim, device=x.device, dtype=node_raw.dtype)
+        elif mode == "permute_nodes":
+            perm = torch.randperm(B, device=node_raw.device)
+            graph_z, _ = self._graph_branch(node_raw[perm])
+        return self.head3(self._fuse3(graph_z, temporal_z, spatial_z))
+
+    @torch.no_grad()
+    def gate_summary(self, x):
+        """Per-batch fusion-gate stats [graph, temporal, spatial] — instrumentation only (aggregate)."""
+        was = self.training; self.eval()
+        self.forward_graph(x); g = self.last_gate
+        if was:
+            self.train()
+        names = ["graph", "temporal", "spatial"]
+        out = {}
+        for i, nm in enumerate(names):
+            out[f"gate_{nm}_mean"] = float(g[:, i].mean()); out[f"gate_{nm}_std"] = float(g[:, i].std())
+        return out
