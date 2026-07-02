@@ -144,6 +144,37 @@ def parallel_replicate_estimates(accepted_candidate_ids, feat, group_rows, by_id
     return _reduce_results(flat)
 
 
+def _permutation_chunk(args):
+    """Replay a CONTIGUOUS chunk of pre-planned permutation bit-rows -> [Δ, ...] in chunk order. The K1
+    paired-permutation delta is computed by the SAME function the sequential path uses (lazy import breaks
+    the decision<->leakage module cycle); single-threaded so each probe fit is bit-reproducible."""
+    from threadpoolctl import threadpool_limits
+
+    from ..decision.k1_permutation import k1_delta_for_bit_row
+    feat_erm, feat_oaci, stratum_index, support_graph, fold_plan, cfg, chunk = args
+    out = []
+    with threadpool_limits(limits=1):
+        for br in chunk:
+            out.append(k1_delta_for_bit_row(feat_erm, feat_oaci, stratum_index, support_graph, fold_plan,
+                                            cfg, br))
+    return out
+
+
+def parallel_paired_permutation_deltas(bit_rows, feat_erm, feat_oaci, stratum_index, support_graph,
+                                       fold_plan, cfg, n_jobs):
+    """Process-parallel replay of the permutation bit-rows over the PERSISTENT spawn pool. Returns the null
+    Δ list in EXACTLY ``bit_rows`` order (contiguous chunks mapped + concatenated in order) — bit-identical
+    to the sequential loop. Pure acceleration; enters no scientific hash."""
+    rows = list(bit_rows)
+    if not rows:
+        return []
+    pool = _get_pool(int(n_jobs))
+    chunks = _contiguous_chunks(rows, int(n_jobs))
+    args = [(feat_erm, feat_oaci, stratum_index, support_graph, fold_plan, cfg, ch) for ch in chunks]
+    chunk_results = pool.map(_permutation_chunk, args)           # order = chunks order
+    return [d for ch in chunk_results for d in ch]               # contiguous chunks -> bit_rows order
+
+
 def _reduce_results(results):
     """Reduce per-candidate worker results (already in ``accepted_candidate_ids`` order) into
     (reps, replicate_capacities); raise for the FIRST (in order) failed candidate with the sequential
