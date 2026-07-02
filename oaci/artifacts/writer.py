@@ -16,6 +16,7 @@ from ..runner.keys import canonical_json_hash as _keys_hash    # the hash that p
 from ..runner.provenance import RunnerPhase
 from ..runner.scientific_hash import scientific_value_hash
 from .canonical_json import canonical_json_bytes, canonical_json_hash
+from .decision_codec import add_level_decisions
 from .atomic import StagingDir, _sha256_file
 from .checkpoint import CheckpointStore, write_checkpoint_file
 from .deterministic_npz import write_deterministic_npz
@@ -249,7 +250,11 @@ def _opt(tree, base, kind, encoded):
     tree.json(base, kind, logical, {"present": True, **body}, arrays)
 
 
-def write_artifact_tree_atomic(fold_result, context, output_root, *, overwrite=False) -> ArtifactWriteResult:
+def write_artifact_tree_atomic(fold_result, context, output_root, *, overwrite=False,
+                               level_decisions=None) -> ArtifactWriteResult:
+    """``level_decisions`` (optional) = ``{level: {k1_body, k1_null_arrays, k2_body}}`` — the C7 pre-registered
+    K1/K2 decisions, written INDEXED under ``levels/<level>/decisions/``. Omitting it yields a legacy tree
+    (no decisions), which still verifies whole."""
     fr = fold_result
     a_hash = artifact_scientific_hash(fr.fold_result_hash, context.manifest_hash, context.context_hash)
     p_hash = artifact_pure_science_hash(fr.fold_result_hash, context.manifest_hash, context.pure_context_hash)
@@ -351,6 +356,9 @@ def write_artifact_tree_atomic(fold_result, context, output_root, *, overwrite=F
                 t.json(f"{md}/metrics", PR.METRICS_KIND,
                        scientific_value_hash([metrics_body[r]["metrics_hash"] for r in _ROLES]),
                        {"roles": metrics_body})
+            if level_decisions and int(lvl) in level_decisions:   # C7: additive, indexed decisions subtree
+                _d = level_decisions[int(lvl)]
+                add_level_decisions(t, int(lvl), _d["k1_body"], _d["k1_null_arrays"], _d["k2_body"])
 
         marker = {"schema_version": ARTIFACT_SCHEMA_VERSION, "artifact_profile": ARTIFACT_PROFILE,
                   "artifact_scientific_hash": a_hash, "artifact_pure_science_hash": p_hash,

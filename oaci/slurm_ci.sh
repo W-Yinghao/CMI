@@ -25,7 +25,7 @@ test_train_selector test_train_engine test_methods test_leakage_plan test_leakag
 test_plan_sampler test_runner_scoring test_runner_contracts test_runner_scope test_runner_plans \
 test_runner_train_select test_runner_audit test_runner_finalize test_runner_artifacts test_runner_fake test_runner_fake_artifact test_replay_store test_staged_executor test_scientific_hash test_artifact_pure_science_hash test_optimization_seed_decoupling test_rare_cell_sampler test_eval test_data_contract test_loader_protocol \
 test_sample_mass test_backbone test_real_data_blockers test_bnci_loader test_bnci_runner_adapter test_cuda_runtime test_bnci_gpu_compare test_bnci_gpu_script test_confirmatory_adapter test_confirmatory_report test_confirmatory_staged test_bnci001_loso \
-test_decision_k1 test_decision_k2 test_decision_plans"
+test_decision_k1 test_decision_k2 test_decision_plans test_decision_artifacts"
 
 echo "[oaci-ci] node=$(hostname) cpus=${SLURM_CPUS_PER_TASK:-?} commit=$(git rev-parse --short HEAD 2>/dev/null)"
 # every parallel job writes its return code to $WORK/<name>.rc; the final pass/fail folds ALL of them.
