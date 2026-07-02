@@ -65,3 +65,6 @@ paper/cigl_latex/**/*.out
 paper/cigl_latex/**/*.fls
 paper/cigl_latex/**/*.fdb_latexmk
 paper/cigl_latex/**/*.synctex.gz
+
+# CIGL v0.6 manuscript artifacts (PDF + planning docs; belong to the project/cigl line, regenerable)
+cigl_manu/
