@@ -251,3 +251,19 @@ graphdualpc <dual-active>        # dec_scale from P3-G calibration
 
 Do NOT rerun DGCNNGraph; CIGL_46 G2 is the reference. Detailed GPU spec (epochs/bs/lr/walltime/abort
 criteria) comes later under the standard run-spec template. CIGL_45 audit-hardening remains a fallback.
+
+## 9. F0 result (2026-07-02) — FBLGG ERM: 2015 PASS, 2014 FAIL → F1 frozen
+
+Ran `FBLGGGraph erm:0`, `--source_val_early_stop`, seeds 0/1/2 (F0 was expanded from seed 0 to seeds
+0/1/2, ERM-only, same folds). 12 cells, all `central_strip_v1`, 0 NaN, 0 warnings. Evidence:
+`results/fblgg_f0/F0_SUMMARY.md` (+ `F0_AGGREGATE.csv`, `F0_SEED_TABLE.csv`).
+
+| dataset | FBLGG ERM mean | DGCNN ERM ref | Δ | verdict |
+|---|---|---|---|---|
+| BNCI2015_001 (.50) | 0.627 | 0.575 | +0.052 | PASS (graph branch load-bearing: zero_graph 0.627→0.542) |
+| BNCI2014_001 (.25) | 0.296 | 0.342 | −0.046 | FAIL (near chance; fits source-train ~0.99 but no epoch transfers) |
+
+Per the PI rule (2a fails, 2015 improves → do NOT run F1; analyze the 4-class backbone bottleneck),
+**F1 is frozen**. Next: `docs/CIGL_48_BNCI2014_BOTTLENECK_ANALYSIS.md` (non-GPU) on branch
+`project/fblgg-2a-bottleneck-analysis`. `dec_scale=300` stays the F1 default *candidate* only, unused
+until a backbone clears the 4-class gate.
