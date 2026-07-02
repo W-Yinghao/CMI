@@ -1,0 +1,40 @@
+\section{Discussion, boundary, and limitations}
+\label{sec:discussion}
+
+\paragraph{What the two routes jointly establish.}
+Route~A and Route~B3 are not contradictory results; together they trace an \emph{information boundary} for
+concept-shift certification. Route~A shows that an unlabeled target marginal --- even when mined by a strong,
+source-anchored, fail-closed certificate --- does not carry enough information to certify a conditional shift,
+and that a development-favourable operating core need not survive a frozen test. Route~B3 shows that adding a
+small, targeted amount of target-side information (a paired within-subject reference plus a few labels) changes
+the statistical problem from unidentifiable to confirmable, moving the certificate from \stunid{} to a
+frozen-confirmed \stconf{}. The result is a ladder from abstention to confirmation, indexed by \emph{what is
+observed}, rather than a single detector.
+
+\paragraph{Why the negative matters.}
+The Route~A negative is not a failed baseline to be discarded; it is load-bearing. It is the empirical
+counterpart of Proposition~\ref{prop:impossible}: without extra information tying source evidence to the
+target posterior, marginal concept evidence is fragile. It is also a concrete instance of
+development-optimism --- a plausible operating region located on a development map failed \emph{both} endpoints
+on unseen synthetic clusters once the method was frozen. Reporting it, rather than quietly reselecting, is what
+makes the Route~B3 positive credible: the same audit machinery produced both verdicts.
+
+\paragraph{Scope of the Route~B3 positive.}
+The positive claim is deliberately narrow, and every qualifier travels with it. It is \textbf{synthetic}: no
+real-EEG or clinical claim is made. \claimtag{C-lim-synthetic} Its operating envelope is
+\emph{development-informed} --- primary power is claimed only in the four strong scenarios at budgets
+$m\in\{20,30\}$; heavy label noise and very-short-record regimes are pre-registered \emph{out} of the primary
+power claim, though controls were evaluated over all six scenarios. \claimtag{C-lim-envelope} It requires a
+genuine within-subject \emph{paired} design and at least $20$ eligible labelled paired subjects; it does not
+apply to unpaired target-only data, where Proposition~\ref{prop:impossible} bites and abstention is mandatory.
+\claimtag{C-lim-paired} The subtlest shift --- an invisible pure-conditional relabel --- remains weak
+(power $\approx 0.15$ and $0.28$ at $m{=}20$ and $30$) and is reported as a secondary, non-gating result, not
+part of the primary claim. \claimtag{C-lim-pure} Finally, the control gates are a conjunction of
+\emph{pointwise} Clopper--Pearson bounds at the kind$\times$budget reporting unit, not a simultaneous
+familywise confidence statement. \claimtag{C-lim-pointwise}
+
+\paragraph{Future work.}
+The natural next step is a real-EEG paired confirmatory --- e.g.\ Parkinson's ON/OFF recordings with a
+cross-site null --- under the \emph{same} freeze-before-confirmatory discipline. That would be a new
+pre-registration with its own tag, manifest, and single unseen run, \emph{not} an extrapolation of the present
+synthetic pass: a synthetic pass is a necessary precondition, not a real-data guarantee.

@@ -1,0 +1,22 @@
+\begin{abstract}
+We study \emph{when} a concept shift --- a change in the class posterior $P(Y\mid Z)$ of a learned
+representation --- can be \emph{certified} at deployment time, and when a method must instead abstain. We
+treat this as an identifiability problem rather than a detection benchmark, using clinical EEG (scarce
+labels, plentiful unlabeled target recordings) as the motivating high-stakes setting. We first prove that
+concept shift is not identifiable from the unlabeled target marginal $Z$ alone: for any observed marginal
+there exist joint laws with identical $Z$ but different posteriors (Prop.~\ref{prop:impossible}), so
+abstention is a necessary output, not a design weakness. We then contrast two operating regimes under a
+single, shared discipline of \emph{freeze-before-confirmatory} evaluation. \textbf{Route A} is a
+source-anchored, $Z$-only certificate: in development sweeps it exhibited an apparent identifiable core,
+but a frozen confirmatory test on unseen synthetic clusters \emph{failed both} the false-certification and
+the power endpoints --- an audited negative result that surfaces, rather than hides, an
+informed-selection/generalization gap. \textbf{Route B3} adds a small, targeted amount of information --- of the kind
+Prop.~\ref{prop:impossible} shows is required: a \emph{paired within-subject} target-internal reference (each subject's own
+alternative condition) plus a few labels. A pre-registered, frozen, unseen-cluster synthetic confirmatory
+of the Route-B3 certificate \emph{passed} all criteria within its declared operating envelope: false
+confirmation stayed within the pre-declared pointwise control gates and primary concept-shift power was
+$1.00$. The contribution is a formal and empirical \emph{boundary} for EEG concept-shift certification ---
+a $Z$-only impossibility with an audited negative confirmatory, and a minimal-information (paired,
+few-label) positive confirmatory --- together with the freeze-before-confirmatory audit protocol that
+produced both verdicts. All results are on synthetic data; real-EEG validation is future work.
+\end{abstract}

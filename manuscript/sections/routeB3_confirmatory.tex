@@ -1,0 +1,110 @@
+\section{Route B3 frozen confirmatory: a minimal-information positive}
+\label{sec:routeB3conf}
+
+\todo{Add prose framing around the tables; move full per-cell dumps + C6 red-team detail to the appendix if
+space is tight. All numbers below are verified against csc/results/b3\_confirmatory\_result.json
+(tag csc-b3-confirmatory-v1, commit 0595f64, manifest a96dc0de).}
+
+\subsection{Pre-registration and provenance}
+The Route-B3 method was frozen (method lock, machine-readable manifest, canonical hash, deterministic seed
+schedule, fail-closed runner) and a \emph{single} confirmatory was run on unseen synthetic clusters. Base
+seed $3000000$; $5376$ clusters ($112$ cells $\times$ $48$ replicates); seed range
+$[3000000,14100047]$, disjoint from the Route-A source/target seeds, the development seeds, and the
+smoke/test range. Provenance was verified (frozen tree clean, running code hash $=$ manifest, HEAD $=$ tag
+commit) and the artifact was independently re-aggregated by a red-team (Sec.~\ref{sec:b3-c6}). \claimtag{C-b3-prov}
+
+\subsection{The claim and its envelope}
+\textbf{Primary claim (scoped).} On paired within-subject targets with sound pairing (integrity $\geq 0.95$,
+$\geq 8$ epochs/condition) and $\geq 20$ eligible labelled paired subjects, the certifier confirms genuine
+class-conditional/boundary concept shift (\texttt{paired\_concept}, \texttt{paired\_concept\_plus\_cov})
+while controlling false confirmation at $\alpha$ --- within the pre-registered envelope: scenarios
+\{baseline, high\_nuisance, high\_subject\_tau, imbalanced\}, budgets $m\in\{20,30\}$. \emph{Controls} are
+evaluated over \emph{all six} stress scenarios (including \texttt{label\_noise} and \texttt{few\_epochs}).
+Heavy label noise and very-short-record regimes are \textbf{pre-registered out} of the primary
+\emph{power} claim (declared, not discovered afterward). \claimtag{C-b3-envelope}
+
+\subsection{Confirmatory criteria (all pass)}
+The verdict is a conjunction $C_1\wedge\dots\wedge C_6$ (Table~\ref{tab:b3criteria}).
+
+\begin{table}[t]
+\centering
+\caption{Route B3 frozen confirmatory, unseen clusters: $C_1$--$C_6$ all pass.}
+\label{tab:b3criteria}
+\begin{tabularx}{\linewidth}{@{}llX@{}}
+\toprule
+criterion & result & headline number \\
+\midrule
+$C_1$ guards (no false confirm) & PASS & \texttt{missing\_pair} $0/576$, \texttt{unequal\_epochs} $0/576$ \\
+$C_2$ control type-I (kind$\times$budget, $n{=}288$, CP-up $\leq .05$) & PASS & worst \texttt{clean}$|$m30 $=3/288$, CP-up $\mathbf{0.0267}$ \\
+$C_3$ no hot cell / no kind-leak & PASS & max control cell $2/48$; $0$ cells $\geq 6$; $0$ cells $\geq 3$ \\
+$C_4$ primary power (kind$\times$budget, $n{=}192$, CP-lo $\geq .60$) & PASS & all four $=\mathbf{1.000}$, CP-lo $\mathbf{0.9845}$ \\
+$C_5$ no silent failure & PASS & sampler $0$, boot-invalid $0$, $0$ out-of-set states \\
+$C_6$ red-team reproduces without correction & PASS & independent re-aggregation matches (Sec.~\ref{sec:b3-c6}) \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\paragraph{$C_2$ --- control false confirmation (all 14 cells, $n=288$ each, pooled over 6 scenarios).}
+Denominators are conservative (\stneed{}/\stinv{} retained). Stratified by budget, not pooled across
+budgets. Every CP-upper $\leq 0.05$; total control confirmations $=6$.
+
+\begin{table}[t]
+\centering
+\caption{$C_2$: control kind $\times$ budget, false-confirmation counts and one-sided $0.95$ CP-upper.}
+\label{tab:b3c2}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+control kind & m20 & CP-up & m30 & CP-up \\
+\midrule
+clean                          & $1/288$ & $0.0164$ & $\mathbf{3/288}$ & $\mathbf{0.0267}$ \\
+paired\_covariate              & $0/288$ & $0.0103$ & $1/288$ & $0.0164$ \\
+paired\_label                  & $0/288$ & $0.0103$ & $0/288$ & $0.0103$ \\
+random\_label                  & $0/288$ & $0.0103$ & $0/288$ & $0.0103$ \\
+paired\_covariate\_plus\_label & $1/288$ & $0.0164$ & $0/288$ & $0.0103$ \\
+missing\_pair (guard)          & $0/288$ & $0.0103$ & $0/288$ & $0.0103$ \\
+unequal\_epochs\_extreme (guard)& $0/288$ & $0.0103$ & $0/288$ & $0.0103$ \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{$C_4$ --- primary power (all 4 gating cells, $n=192$ each, pooled over the 4 strong scenarios).}
+Both concept kinds, both budgets: power $192/192=1.000$, CP-lower $0.9845$. Every per-scenario cell
+($n=48$) is $1.00$, so the $\geq 0.50$ per-cell floor holds everywhere.
+
+\subsection{Secondary, non-gating: the pure-conditional tail stays weak}
+The invisible pure-conditional relabel (\texttt{paired\_pure\_conditional}) remains hard even with the full
+machinery: power $42/288=0.146$ (m20) and $81/288=0.281$ (m30). This is \emph{reported, not gating}: Route
+B3's primary success is paired class-conditional/boundary concept shift, \textbf{not} all pure conditional
+shift. \claimtag{C-b3-secondary}
+
+\subsection{Independent red-team re-aggregation ($C_6$)}
+\label{sec:b3-c6}
+A separate agent re-aggregated all $5376$ per-cluster records from scratch (its own Clopper--Pearson
+implementation), verified the seed schedule, canonical manifest hash, code provenance, denominators, and
+state accounting, and reproduced $C_1$--$C_5$ \emph{without correction} (CP agreement to machine precision,
+$\max|\Delta|\approx 2.8\times10^{-17}$; no denominator inflation; controls confirmed evaluated over all $6$
+scenarios; confirmed-count accounting $6+768+123=897$ reconciles). The same audit machinery produced the
+Route-A negative (Sec.~\ref{sec:routeA}) and this positive, which is why both verdicts are credible. \claimtag{C-b3-c6}
+
+\paragraph{Reading.}
+Within its declared synthetic envelope, adding a paired within-subject target-internal reference plus a few
+labels moves the certificate from \stunid{} to a \emph{confirmable} \stconf{} that survives a frozen,
+unseen-cluster, independently red-teamed test. This is the minimal-information positive counterpart to the
+Route-A negative --- not a general solution (Sec.~\ref{sec:discussion}). The two routes are contrasted on the
+pre-registered endpoints in Fig.~\ref{fig:evidence}.
+
+\begin{figure*}[t]
+\centering
+\includegraphics[width=0.95\linewidth]{fig3_routeA_negative_B3_positive.png}
+\caption{Frozen confirmatory evidence: Route A (left, $Z$-only) vs.\ Route B3 (right, paired minimal-label),
+on the two pre-registered endpoints --- \emph{top}: false-certification/confirmation rate against
+$\alpha=0.05$; \emph{bottom}: concept-shift power against the $0.50$ bar. \textbf{Both columns are frozen
+confirmatory results on unseen clusters, not development estimates}, and the two routes use \emph{disjoint}
+tags, manifests, and seed streams (Route~A \texttt{csc-confirmatory-v1}, base seed $900000$; Route~B3
+\texttt{csc-b3-confirmatory-v1}, base seed $3000000$). Route~A fails both endpoints (false-cert CP-upper
+$0.071>\alpha$; power $0.43$, CP-lower $0.326<0.50$; \texttt{headline\_core\_pass=false}); Route~B3 passes
+both (worst control CP-upper $0.027<\alpha$; primary power $1.000$, per-cell CP-lower $0.985$), with guards
+$0/576$, no silent failures ($C_5$), and the $C_6$ red-team reproducing the verdict without correction. Error
+bars are one-sided Clopper--Pearson bounds; grey bars show the Route~A \emph{development} point for contrast.}
+\label{fig:evidence}
+\end{figure*}

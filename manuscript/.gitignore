@@ -1,0 +1,11 @@
+# LaTeX build products (regenerate with compile.sh)
+*.aux
+*.log
+*.out
+*.bbl
+*.blg
+*.toc
+# build-output PDFs only (keep vector figures under figures/ tracked)
+/main.pdf
+/aaai_main.pdf
+/venue_main.pdf
