@@ -11,8 +11,11 @@ Testability: `raw_to_windows(raw, ...)` is the mne-INDEPENDENT single-recording 
 recordings and reads each via a LAZY (or INJECTED, for fixtures) mne module, windows each independently, then concatenates the
 window arrays. A synthetic FakeRaw/fake-mne adapter drives the whole path in tests.
 
-Interpretation (reviewable): a recording must CONTAIN all 19 montage channels; they are picked and reordered to the canonical order
-(a permuted input yields canonical output). Any of the 19 missing → fail-closed. Extra non-montage channels are dropped by the pick.
+Channel handling (Stage-1B10 + Stage-1B11): raw channel names are case-normalized and aliased to the canonical 19 (modern 10-10
+names T7/T8/P7/P8 → old T3/T4/T5/T6; Fp case-normalized); extra non-canonical channels are dropped by the pick; a duplicate logical
+channel fails closed. A canonical channel that is missing after aliasing fails closed UNLESS it is in the reviewed per-cohort
+montage-completion whitelist (montage_completion), in which case it is interpolated (spherical-spline over standard positions) and the
+interpolation is recorded in the SubjectWindows provenance; the OUTPUT montage is always the old-10-20 canonical order.
 """
 from __future__ import annotations
 import os
