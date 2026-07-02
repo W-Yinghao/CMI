@@ -70,6 +70,16 @@ class RealBidsDevReader:
         participants_tsv = os.path.join(path, "participants.tsv")
         return LS.resolve_subject_label(participants_tsv, subject)
 
+    def subject_label_resolvable(self, disease, cohort, subject, path):
+        # eligibility check (build-time): returns a BOOLEAN only — the label VALUE never leaves this method (no leak into routing/dump)
+        self._check_approved(disease, cohort, path)
+        from acar.v5.substrate import stage1b_label_source as LS
+        try:
+            LS.resolve_subject_label(os.path.join(path, "participants.tsv"), subject)
+            return True
+        except LS.LabelSourceError:
+            return False
+
 
 def make_real_dev_reader(context):
     """Factory — construct AFTER the full-build gate, bound to the run's execution context."""

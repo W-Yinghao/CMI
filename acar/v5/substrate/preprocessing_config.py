@@ -21,7 +21,13 @@ PREPROCESSING_CONFIG = {
     "notch_hz": None,                        # explicitly none
     "units": "microvolt",
     "trial_normalization": "per_trial_zscore",
-    "bad_channel_policy": "fail_closed",     # missing/extra/reordered channels → fail
+    "bad_channel_policy": "fail_closed",     # missing / duplicate canonical channel → fail
+    # the 19 canonical channels must all be PRESENT (missing → fail) and are picked + reordered to the canonical order;
+    # extra non-canonical channels are dropped; a duplicated canonical channel fails closed. Code (real_mne_reader) matches this.
+    "required_channels": "all_19_canonical_present",
+    "extra_channel_policy": "drop_non_canonical_after_required_19_present",
+    "duplicate_channel_policy": "fail_closed",
+    "channel_output_order": "canonical_pinned",
 }
 
 

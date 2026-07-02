@@ -23,6 +23,7 @@ from acar.v5.substrate import training_config as TC
 from acar.v5.substrate import stage1b_embedding_dump as ED
 from acar.v5.substrate import stage1b_feature_dump_writer as FDW
 from acar.v5.substrate import subject_windows as SW
+from acar.v5.substrate.torch_eegnet_backend import TorchEegnetBackend   # real backend (torch lazy inside its methods)
 
 
 class RealEegnetError(RuntimeError):
@@ -72,24 +73,6 @@ class FrozenSubstrateHandle:
         if not (self.disease == disease and int(self.fold) == int(fold) and int(self.seed) == int(seed)
                 and self.ref == f"{disease}/fold{fold}/seed{seed}"):
             raise RealEegnetError(f"frozen substrate handle {self.ref} does not match dump target {disease}/fold{fold}/seed{seed}")
-
-
-class TorchEegnetBackend:
-    """Default numeric backend. torch is imported LAZILY here; the EEGNet fit + embedding-from-frozen-artifacts are the seam."""
-
-    def set_deterministic(self, seed):
-        import torch  # lazy — never imported at module load
-        torch.use_deterministic_algorithms(True)
-        torch.manual_seed(int(seed))
-        torch.set_num_threads(1)
-
-    def fit(self, train, val, training_config):
-        import torch  # noqa: F401  (lazy)
-        raise NotImplementedError("EEGNet + source-state fit under training_config wired at the authorized Stage-1B run")
-
-    def embed_from_artifacts(self, windows_by_subject, frozen, training_config):
-        import torch  # noqa: F401  (lazy)
-        raise NotImplementedError("frozen-encoder embedding (load from FrozenSubstrateHandle) wired at the authorized Stage-1B run")
 
 
 def _as_bytes(x, what):
@@ -175,13 +158,19 @@ def dump_fold_embeddings(disease, fold, seed, embedding_view, all_fold_subject_k
     emb_by_subject = backend.embed_from_artifacts(windows_by_subject, frozen, TC.TRAINING_CONFIG)
     if not isinstance(emb_by_subject, dict) or set(emb_by_subject) != set(all_fold_subject_keys):
         raise RealEegnetError("backend.embed_from_artifacts must return an embedding for EXACTLY every fold subject")
+    import numpy as np  # lazy
     records = []
     for sk in sorted(emb_by_subject):
         role = role_by_subject.get(sk)
         if role is None:
             raise RealEegnetError(f"no split role for fold subject {sk}")
-        mat = emb_by_subject[sk]
-        for wid in range(len(mat)):
+        mat = np.asarray(emb_by_subject[sk])
+        if mat.ndim != 2 or mat.shape[1] <= 0 or mat.dtype.kind != "f" or not bool(np.isfinite(mat).all()):
+            raise RealEegnetError(f"{sk}: embedding must be a finite 2-D float matrix with dim>0 (got {mat.shape}/{mat.dtype})")
+        nw = getattr(windows_by_subject.get(sk), "n_windows", None)   # rows must equal this subject's window count
+        if nw is not None and mat.shape[0] != int(nw):
+            raise RealEegnetError(f"{sk}: embedding has {mat.shape[0]} rows != SubjectWindows.n_windows {nw}")
+        for wid in range(mat.shape[0]):
             records.append((sk, role, wid, mat[wid]))
     os.makedirs(output_dir, exist_ok=True)
     ref = f"{disease}/fold{fold}/seed{seed}"
@@ -191,7 +180,9 @@ def dump_fold_embeddings(disease, fold, seed, embedding_view, all_fold_subject_k
                            training_config_sha256=_sha256_file(frozen.training_config_path),
                            encoder_checkpoint_file_sha256=_sha256_file(frozen.encoder_checkpoint_file_path),
                            source_state_file_sha256=_sha256_file(frozen.source_state_file_path), records=records)
-    raw = {"ref": ref, "disease": disease, "fold": fold, "seed": seed, "feat_dump_path": feat_path}
+    n_windows_by_subject = {sk: int(np.asarray(emb_by_subject[sk]).shape[0]) for sk in emb_by_subject}   # authoritative counts
+    raw = {"ref": ref, "disease": disease, "fold": fold, "seed": seed, "feat_dump_path": feat_path,
+           "n_windows_by_subject": n_windows_by_subject}
     ED.validate_embedding_dump_label_free(raw)               # the dump manifest carries NO label-like field
     return raw
 

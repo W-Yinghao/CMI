@@ -8,7 +8,8 @@ import sys
 from acar.v5.tests._util import ok
 
 HEAVY = ("torch", "mne", "braindecode", "moabb", "cmi", "numpy", "scipy", "sklearn")
-MODULES = ("real_dev_reader", "real_trainer", "stage1b_file_artifact_writer", "real_mne_reader", "real_eegnet_trainer")
+MODULES = ("real_dev_reader", "real_trainer", "stage1b_file_artifact_writer", "real_mne_reader", "real_eegnet_trainer",
+           "torch_eegnet_backend", "eegnet_architecture", "source_state")
 
 
 def _toplevel_roots(mod):

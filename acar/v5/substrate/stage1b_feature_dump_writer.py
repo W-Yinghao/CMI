@@ -54,3 +54,15 @@ def parse_feature_dump(path):
     with np.load(path, allow_pickle=False) as npz:
         mapping = {k: npz[k] for k in npz.files}
     return FS.validate_loaded(mapping)
+
+
+def load_feature_dump(path):
+    """Load + validate a feature dump AND return its per-record arrays (for completeness checks). numpy lazy."""
+    import numpy as np  # lazy
+    with np.load(path, allow_pickle=False) as npz:
+        mapping = {k: npz[k] for k in npz.files}
+    summary = FS.validate_loaded(mapping)
+    return {"summary": summary,
+            "subject_key": [str(x) for x in mapping["subject_key"].tolist()],
+            "split_role": [str(x) for x in mapping["split_role"].tolist()],
+            "window_id": [int(x) for x in mapping["window_id"].tolist()]}

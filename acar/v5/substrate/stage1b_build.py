@@ -28,6 +28,7 @@ from acar.v5.substrate import stage1b_embedding_orchestrator as ORC
 from acar.v5.substrate import stage1b_finalize as FIN
 from acar.v5.substrate import dev_reader_contract as DR
 from acar.v5.substrate import train_contract as TR
+from acar.v5.substrate import subject_eligibility as SE
 from acar.v5.substrate.registry import SubstrateRegistry
 
 
@@ -74,13 +75,15 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
     TR.require_trainer(trainer)
     ORC.require_dumper(dumper)
 
-    index_by_disease, artifacts, paths_by_ref, sidecars_by_ref = {}, {}, {}, {}
+    index_by_disease, artifacts, paths_by_ref, sidecars_by_ref, expected_by_ref = {}, {}, {}, {}, {}
     for e in plan["fold_contained_refs"]:
         disease, fold, seed, ref = e["disease"], int(e["fold"]), int(e["seed"]), e["ref"]
         cohort_paths = _disease_cohort_paths(plan, disease)
         if disease not in index_by_disease:                   # list raw subjects once per disease; canonical index (no collapse)
             per_cohort_raw = {c: list(dev_reader.list_subjects(disease, c, p)) for c, p in cohort_paths.items()}
-            index_by_disease[disease] = SI.build_subject_index(disease, per_cohort_raw)
+            idx0 = SI.build_subject_index(disease, per_cohort_raw)
+            SE.assert_all_eligible(idx0, dev_reader, cohort_paths)   # BEFORE any split — fix the subject universe (no label leak)
+            index_by_disease[disease] = idx0
         idx = index_by_disease[disease]
         split = SPL.make_fold(idx.subject_keys, fold)         # split on canonical SubjectKeys
         raw, sidecars = ORC.build_fold_raw(disease, fold, seed, ref, idx, split, dev_reader, trainer, dumper, cohort_paths)
@@ -91,6 +94,9 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
         if file_paths:
             paths_by_ref[ref] = file_paths
         sidecars_by_ref[ref] = sidecars
+        expected_by_ref[ref] = {"ref": ref, "disease": disease, "fold": fold, "seed": seed,
+                                "role_by_subject": ORC.split_role_by_subject(split),   # feat-dump completeness manifest
+                                "n_windows_by_subject": sidecars.get("n_windows_by_subject")}
         artifacts[ref] = art
     if set(artifacts) != set(SA.CANONICAL_FOLD_REFS):
         raise Stage1bBuildError(f"build produced {len(artifacts)} substrates != the 30 canonical fold refs")
@@ -102,7 +108,7 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
     n = FIN.finalize_and_populate(
         registry, artifacts, git_commit=authorization["implementation_base_sha"], env_lock_sha256=env_lock_sha256,
         channel_montage="10-20-19", sampling_rate=128, windowing_config="4s/512",
-        paths_by_ref=(paths_by_ref or None), sidecars_by_ref=sidecars_by_ref,
+        paths_by_ref=(paths_by_ref or None), sidecars_by_ref=sidecars_by_ref, expected_by_ref=expected_by_ref,
         output_root=output_root, run_id=ready["run_id"])
     return {"status": "STAGE1B_BUILT", "n_artifacts": len(artifacts), "n_registered": n, "artifacts": artifacts,
             "registry": registry, "run_id": ready["run_id"], "device_kind": ready["device_kind"]}

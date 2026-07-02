@@ -96,6 +96,9 @@ class FakeDevReader:
         self.label_calls.append((disease, cohort, subject, path))
         return 0
 
+    def subject_label_resolvable(self, disease, cohort, subject, path):
+        return True                                            # synthetic subjects are all eligible
+
     def windows_only(self):
         """A label-INCAPABLE facade for the embedding view — shares the read_calls audit list but has NO read_subject_label and no
         reference back to this label-capable reader."""
@@ -145,6 +148,9 @@ class FakeWindowsDevReader:
     def read_subject_label(self, disease, cohort, subject, path):
         self.label_calls.append((disease, cohort, subject, path))
         return 0
+
+    def subject_label_resolvable(self, disease, cohort, subject, path):
+        return True
 
     def windows_only(self):
         return _WindowsOnlyWindowsFake(self.read_calls)
@@ -278,7 +284,9 @@ class FakeFileDumper:
         FDW.write_feature_dump(p, ref=ref, disease=disease, fold=fold, seed=seed,
                                preprocessing_config_sha256="0" * 64, training_config_sha256="0" * 64,
                                encoder_checkpoint_file_sha256="0" * 64, source_state_file_sha256="0" * 64, records=records)
-        return {"ref": ref, "disease": disease, "fold": fold, "seed": seed, "feat_dump_path": p}
+        n_windows_by_subject = {k: 1 for k in all_fold_subject_keys}   # one record per subject → authoritative count = 1
+        return {"ref": ref, "disease": disease, "fold": fold, "seed": seed, "feat_dump_path": p,
+                "n_windows_by_subject": n_windows_by_subject}
 
 
 def synthetic_canonical_artifacts(hashval=None):
@@ -337,8 +345,12 @@ class FakeEegnetBackend:
         import numpy as np
         self.embed_calls.append(len(windows_by_subject))
         self.embed_frozen_refs.append(frozen.ref)             # records which frozen substrate drove the dump
-        # deterministic tiny per-subject embedding (1 window × dim 4); content-independent (synthetic)
-        return {sk: np.zeros((1, 4), dtype=np.float32) + float(i) for i, sk in enumerate(sorted(windows_by_subject))}
+        # deterministic per-subject embedding with ONE ROW PER WINDOW (dim 4); content-independent (synthetic)
+        out = {}
+        for i, sk in enumerate(sorted(windows_by_subject)):
+            nw = int(getattr(windows_by_subject[sk], "n_windows", 1) or 1)
+            out[sk] = np.zeros((nw, 4), dtype=np.float32) + float(i)
+        return out
 
 
 def batch(batch_id, **per_action):

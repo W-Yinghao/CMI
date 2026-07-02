@@ -30,11 +30,14 @@ class UnwiredDevReader:
     def read_subject_label(self, disease, cohort, subject, path):
         raise DevReaderNotWiredError("real DEV reader not wired (Stage-1B2): cannot read label")
 
+    def subject_label_resolvable(self, disease, cohort, subject, path):
+        raise DevReaderNotWiredError("real DEV reader not wired (Stage-1B2): cannot check label resolvability")
+
 
 def require_reader(dev_reader):
     if dev_reader is None:
         raise DevReaderNotWiredError("Stage-1B execute requires an authorized DEV reader (none supplied)")
-    for m in ("list_subjects", "read_subject_windows", "read_subject_label"):
+    for m in ("list_subjects", "read_subject_windows", "read_subject_label", "subject_label_resolvable"):
         if not callable(getattr(dev_reader, m, None)):
             raise DevReaderNotWiredError(f"dev_reader is missing required method {m}()")
     return dev_reader

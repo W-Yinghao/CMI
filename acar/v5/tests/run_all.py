@@ -74,6 +74,14 @@ MODULES = (
     "test_stage1b_multi_recording_no_cross_boundary_windows",
     "test_stage1b_finalize_marker_atomicity",
     "test_stage1b_fit_record_validation",
+    "test_stage1b_backend_fit_embed_fixture",
+    "test_stage1b_backend_embedding_rows_match_windows",
+    "test_stage1b_channel_policy_config_matches_reader",
+    "test_stage1b_raw_sidecar_manifest_brainvision_eeglab",
+    "test_stage1b_raw_manifest_hash_propagated",
+    "test_stage1b_feature_dump_expected_subject_role_completeness",
+    "test_stage1b_feature_dump_window_id_contiguous",
+    "test_stage1b_subject_eligibility_before_split",
 )
 
 

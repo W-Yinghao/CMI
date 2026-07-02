@@ -73,9 +73,62 @@ def _sha256_file(path):
     return h.hexdigest()
 
 
+def _brainvision_sidecars(vhdr_path):
+    """Parse DataFile / MarkerFile from a BrainVision .vhdr the SAME way mne (configparser) does — CASE-INSENSITIVE keys and
+    whitespace TOLERANT around '=' — so the audited sidecar set matches the bytes mne will actually consume. Sidecars MUST be a bare
+    basename in the SAME eeg dir (no path / escape). Fail-closed on a value that isn't a bare filename."""
+    out = []
+    with open(vhdr_path, encoding="latin-1", errors="replace") as f:
+        text = f.read()
+    for line in text.splitlines():
+        if "=" not in line:
+            continue
+        raw_key, raw_val = line.split("=", 1)
+        key = raw_key.strip().lower()                         # configparser lowercases keys + strips surrounding whitespace
+        if key not in ("datafile", "markerfile"):
+            continue
+        name = raw_val.strip()
+        if not name:
+            continue
+        if name != os.path.basename(name) or name in (".", ".."):
+            raise RawManifestError(f"{vhdr_path}: {key} must be a bare filename in the same eeg dir, got {name!r}")
+        out.append(os.path.join(os.path.dirname(vhdr_path), name))
+    return out
+
+
+def resolve_sidecars(primary_path):
+    """Format sidecars that mne will actually consume: BrainVision .vhdr→(.eeg/.dat via DataFile, .vmrk via MarkerFile); EEGLAB
+    .set→.fdt if present. Each must exist, be a non-symlink regular file in the SAME eeg dir. Fail-closed on missing/symlink/escape."""
+    ext = os.path.splitext(primary_path)[1].lower()
+    d = os.path.dirname(primary_path)
+    sidecars = []
+    if ext == ".vhdr":
+        sidecars = _brainvision_sidecars(primary_path)
+        if not sidecars:
+            raise RawManifestError(f"{primary_path}: BrainVision header declares no DataFile/MarkerFile")
+    elif ext == ".set":
+        fdt = os.path.join(d, os.path.splitext(os.path.basename(primary_path))[0] + ".fdt")
+        if os.path.isfile(fdt):                               # .fdt is optional (single-file .set is allowed)
+            sidecars = [fdt]
+    for sc in sidecars:
+        if os.path.islink(sc):
+            raise RawManifestError(f"symlinked sidecar rejected: {sc}")
+        if not os.path.isfile(sc):
+            raise RawManifestError(f"declared sidecar missing: {sc}")
+        if os.path.dirname(os.path.realpath(sc)) != os.path.realpath(d):
+            raise RawManifestError(f"sidecar escapes the recording's eeg dir: {sc}")
+    return sidecars
+
+
 def build_manifest(subject_dir):
-    """A hashed, deterministic manifest of the subject's raw recordings (path/sha256/size + a manifest_sha256 over them)."""
-    files = discover_raw_recordings(subject_dir)
-    entries = [{"path": p, "sha256": _sha256_file(p), "n_bytes": os.path.getsize(p)} for p in files]
+    """A hashed, deterministic manifest of the subject's raw recordings AND their format sidecars (BrainVision .eeg/.vmrk, EEGLAB
+    .fdt) — so the exact bytes mne consumes are audited, not just the header path. Each entry: path/sha256/n_bytes/role."""
+    primaries = discover_raw_recordings(subject_dir)
+    entries = []
+    for p in primaries:
+        entries.append({"path": p, "sha256": _sha256_file(p), "n_bytes": os.path.getsize(p), "role": "primary"})
+        for sc in resolve_sidecars(p):
+            entries.append({"path": sc, "sha256": _sha256_file(sc), "n_bytes": os.path.getsize(sc), "role": "sidecar"})
+    entries.sort(key=lambda e: e["path"])
     man = hashlib.sha256(json.dumps(entries, sort_keys=True).encode()).hexdigest()
     return {"subject_dir": subject_dir, "files": entries, "manifest_sha256": man}

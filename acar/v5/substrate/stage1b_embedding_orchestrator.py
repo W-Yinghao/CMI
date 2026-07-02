@@ -103,5 +103,6 @@ def build_fold_raw(disease, fold, seed, ref, index, split, dev_reader, trainer, 
     for k in FEAT_DUMP_KEYS:
         if k in dump_result:
             raw[k] = dump_result[k]                            # + the label-free feat dump
-    sidecars = {"training_config_path": train_result.get("training_config_path")}
+    sidecars = {"training_config_path": train_result.get("training_config_path"),
+                "n_windows_by_subject": dump_result.get("n_windows_by_subject")}   # authoritative per-subject window counts
     return raw, sidecars

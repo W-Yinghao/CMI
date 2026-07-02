@@ -85,23 +85,52 @@ def _validate_config_sidecars(artifacts, paths_by_ref, sidecars_by_ref, output_r
     return extra_meta
 
 
-def _validate_feature_dumps(paths_by_ref):
-    """Each ref's feat_dump.npz must parse as the pinned, label-free feature-dump schema (barrier-level, dumper-agnostic — even a
-    non-standard dumper's output is checked before it can be registered) and its provenance ref must match. Fail-closed."""
+def _validate_feature_dumps(paths_by_ref, expected_by_ref):
+    """Each ref's feat_dump.npz must parse as the pinned, label-free schema (barrier-level, dumper-agnostic) AND, when an expected
+    manifest is supplied, be COMPLETE + ref-consistent: dump ref/disease/fold/seed match the ref; the subject set equals the expected
+    fold subjects; each subject's split_role matches; and each subject's window_ids are exactly 0..n-1 (contiguous, unique).
+    Fail-closed."""
     for ref in sorted(paths_by_ref):
         fp = paths_by_ref[ref].get("feat_dump_path")
         if not fp:
             raise Stage1bFinalizeError(f"{ref}: missing feat_dump_path for finalize")
         try:
-            summ = FDW.parse_feature_dump(fp)
+            dump = FDW.load_feature_dump(fp)
         except Exception as e:                                # unparseable / non-conforming / pickle → fail closed
             raise Stage1bFinalizeError(f"{ref}: feature dump failed schema validation: {e}")
-        if summ.get("ref") != ref:
-            raise Stage1bFinalizeError(f"{ref}: feature dump provenance ref {summ.get('ref')!r} != {ref}")
+        summ = dump["summary"]
+        disease = ref.split("/")[0]
+        fold = int(ref.split("fold")[1].split("/")[0])
+        seed = int(ref.split("seed")[1])
+        if not (summ.get("ref") == ref and summ.get("disease") == disease and summ.get("fold") == fold
+                and summ.get("seed") == seed):
+            raise Stage1bFinalizeError(f"{ref}: feature dump provenance (ref/disease/fold/seed) inconsistent with the ref")
+        exp = (expected_by_ref or {}).get(ref)
+        if exp is None:
+            continue                                          # schema/provenance-only (direct finalize without an expected manifest)
+        role_by = exp["role_by_subject"]
+        subs = set(dump["subject_key"])
+        if subs != set(role_by):
+            missing = sorted(set(role_by) - subs)[:3]
+            extra = sorted(subs - set(role_by))[:3]
+            raise Stage1bFinalizeError(f"{ref}: feature dump subject set incomplete (missing {missing}, extra {extra})")
+        wids_by_sub = {}
+        for sk, role, wid in zip(dump["subject_key"], dump["split_role"], dump["window_id"]):
+            if role != role_by.get(sk):
+                raise Stage1bFinalizeError(f"{ref}: subject {sk} split_role {role!r} != expected {role_by.get(sk)!r}")
+            wids_by_sub.setdefault(sk, []).append(int(wid))
+        n_windows_by_subject = exp.get("n_windows_by_subject") or {}
+        for sk, wids in wids_by_sub.items():
+            if sorted(wids) != list(range(len(wids))):
+                raise Stage1bFinalizeError(f"{ref}: subject {sk} window_ids not contiguous 0..n-1 (got {sorted(wids)[:5]}…)")
+            expected_n = n_windows_by_subject.get(sk)         # authoritative window count (from the reader, via the dumper)
+            if expected_n is not None and len(wids) != int(expected_n):
+                raise Stage1bFinalizeError(f"{ref}: subject {sk} has {len(wids)} windows in the dump != expected {expected_n}")
 
 
 def finalize_and_populate(registry, artifacts, *, git_commit, env_lock_sha256, channel_montage, sampling_rate,
-                          windowing_config, paths_by_ref=None, sidecars_by_ref=None, output_root=None, run_id=None):
+                          windowing_config, paths_by_ref=None, sidecars_by_ref=None, expected_by_ref=None,
+                          output_root=None, run_id=None):
     """Run the finalize barrier then populate. Registry untouched + no marker on any pre-populate failure. Returns n_registered."""
     # 1. all-or-none count check FIRST (before any register, before any marker)
     if set(artifacts) != set(SA.CANONICAL_FOLD_REFS):
@@ -114,7 +143,7 @@ def finalize_and_populate(registry, artifacts, *, git_commit, env_lock_sha256, c
         except LO.Stage1bLayoutError as e:
             raise Stage1bFinalizeError(f"global artifact-path uniqueness failed: {e}")
         extra_meta = _validate_config_sidecars(artifacts, paths_by_ref, sidecars_by_ref, output_root, run_id)
-        _validate_feature_dumps(paths_by_ref)                 # each feat_dump.npz must parse as the pinned label-free schema
+        _validate_feature_dumps(paths_by_ref, expected_by_ref)   # schema + (when expected supplied) completeness/ref-consistency
     # 4. barrier passed → populate (all-or-none). If a marker is due (file-backed), populate THEN write it ATOMICALLY; if the marker
     #    write fails, roll the registry back so the invariant holds: a FINALIZED marker exists IFF the registry is fully populated.
     n = RP.populate_registry(registry, artifacts, git_commit=git_commit, env_lock_sha256=env_lock_sha256,
