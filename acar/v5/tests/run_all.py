@@ -82,6 +82,12 @@ MODULES = (
     "test_stage1b_feature_dump_expected_subject_role_completeness",
     "test_stage1b_feature_dump_window_id_contiguous",
     "test_stage1b_subject_eligibility_before_split",
+    "test_stage1b_registry_persisted_canonical",
+    "test_stage1b_finalized_marker_binds_registry_hash",
+    "test_stage1b_run_root_must_be_fresh",
+    "test_stage1b_no_resume_or_overwrite",
+    "test_stage1b_feature_dump_rejects_zero_dim_embedding",
+    "test_stage1b_downstream_admission_requires_registry_and_marker",
 )
 
 

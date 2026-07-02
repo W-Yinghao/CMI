@@ -67,6 +67,8 @@ def validate_loaded(mapping):
         raise FeatureDumpSchemaError("feature dump is empty")
     if emb.ndim != 2:
         raise FeatureDumpSchemaError(f"embedding must be 2-D [n_records, dim], got {emb.shape}")
+    if emb.shape[1] <= 0:                                     # parser-level: dim must be > 0 (dumper-agnostic barrier)
+        raise FeatureDumpSchemaError(f"embedding_dim must be > 0, got {emb.shape[1]}")
     if emb.dtype.kind != "f" or not bool(np.isfinite(emb).all()):
         raise FeatureDumpSchemaError("embedding must be floating and finite")
     if wins.dtype.kind not in ("i", "u"):

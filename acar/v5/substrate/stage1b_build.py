@@ -29,6 +29,7 @@ from acar.v5.substrate import stage1b_finalize as FIN
 from acar.v5.substrate import dev_reader_contract as DR
 from acar.v5.substrate import train_contract as TR
 from acar.v5.substrate import subject_eligibility as SE
+from acar.v5.substrate import stage1b_launch_guard as LG
 from acar.v5.substrate.registry import SubstrateRegistry
 
 
@@ -59,7 +60,11 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
                 "would_build_refs": sorted(SA.CANONICAL_FOLD_REFS), "reads": 0, "trained": 0,
                 "note": "dry-run; gate validated; NO read/train/instantiate"}
 
-    # gate passed → NOW resolve reader/trainer/dumper. Factories are instantiated here (post-gate), bound to the context.
+    # gate passed → run root must be FRESH before ANY factory instantiation / read / train (no resume / no overwrite)
+    if output_root:
+        LG.assert_fresh_run_root(output_root, ready["run_id"])
+
+    # NOW resolve reader/trainer/dumper. Factories are instantiated here (post-gate), bound to the context.
     if dev_reader_factory is not None or trainer_factory is not None or dumper_factory is not None:
         if not (dev_reader_factory is not None and trainer_factory is not None and dumper_factory is not None):
             raise Stage1bBuildError("dev_reader_factory, trainer_factory and dumper_factory are required together (or none)")

@@ -17,6 +17,7 @@ from acar.v5.substrate import stage1b_registry_populate as RP
 from acar.v5.substrate import preprocessing_config as PC
 from acar.v5.substrate import training_config as TC
 from acar.v5.substrate import stage1b_feature_dump_writer as FDW   # pure at import (numpy lazy inside)
+from acar.v5.substrate import stage1b_registry_io as RIO
 
 FINALIZED_MARKER = "FINALIZED.json"
 
@@ -149,14 +150,26 @@ def finalize_and_populate(registry, artifacts, *, git_commit, env_lock_sha256, c
     n = RP.populate_registry(registry, artifacts, git_commit=git_commit, env_lock_sha256=env_lock_sha256,
                              channel_montage=channel_montage, sampling_rate=sampling_rate,
                              windowing_config=windowing_config, extra_meta_by_ref=extra_meta)
-    if output_root and run_id and paths_by_ref:               # marker only for file-backed real builds (with a layout on disk)
-        payload = {"status": "FINALIZED", "n_registered": n, "n_refs": len(artifacts),
-                   "git_commit": git_commit, "env_lock_sha256": env_lock_sha256}
-        try:
-            write_finalized_marker(output_root, run_id, payload)
-        except Exception as e:                                # marker failed → undo the population (no registry-without-marker state)
+    if output_root and run_id and paths_by_ref:               # marker + registry file only for file-backed real builds
+        os.makedirs(LO.run_root(output_root, run_id), exist_ok=True)
+        reg_path = os.path.join(LO.run_root(output_root, run_id), RIO.REGISTRY_FILE)
+        try:                                                  # persist the registry as a canonical, hash-bound FILE artifact
+            reg_sha = RIO.write_registry(registry, reg_path)
+        except Exception as e:
             registry._rollback(sorted(artifacts))
-            raise Stage1bFinalizeError(f"registry populated but FINALIZED marker write failed (rolled back): {e}")
+            raise Stage1bFinalizeError(f"registry.json write failed (rolled back): {e}")
+        payload = {"status": "FINALIZED", "n_registered": n, "n_refs": len(artifacts), "registry_sha256": reg_sha,
+                   "git_commit": git_commit, "env_lock_sha256": env_lock_sha256}
+        try:                                                  # marker LAST + atomic → marker exists IFF registry fully populated+persisted
+            write_finalized_marker(output_root, run_id, payload)
+        except Exception as e:                                # marker failed → undo population + registry file (no half state)
+            registry._rollback(sorted(artifacts))
+            try:
+                os.remove(reg_path)
+                cleanup = "registry.json removed"
+            except OSError as rm:                             # surface (do NOT silently swallow) a failed cleanup
+                cleanup = f"WARNING registry.json may remain at {reg_path} (removal failed: {rm})"
+            raise Stage1bFinalizeError(f"registry populated but FINALIZED marker write failed (rolled back; {cleanup}): {e}")
     return n
 
 
