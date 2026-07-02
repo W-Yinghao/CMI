@@ -1,0 +1,16 @@
+{
+  "description": "P4-F classical CSP+LDA sanity baseline on the exact F0 folds (CPU, source-only LOSO). Data = same moabb load as F0 (tmin0.5/tmax3.5/resample128).",
+  "BNCI2014_001": {
+    "data_sanity": "9 subjects x 576 trials, class-balanced 144/144/144/144 (feet/left_hand/right_hand/tongue)",
+    "csp_lda_cross_subject": {"fold0_subj1": 0.483, "fold1_subj2": 0.248, "mean": 0.365},
+    "csp_lda_within_subject_5cv": {"subj1": 0.717, "subj2": 0.521, "mean": 0.619},
+    "fblgg_erm_seed0": {"subj1": 0.306, "subj2": 0.281},
+    "dgcnn_erm_seed0": {"subj1": 0.403, "subj2": 0.281}
+  },
+  "BNCI2015_001": {
+    "data_sanity": "12 subjects, class-balanced 2-class (feet/right_hand)",
+    "csp_lda_cross_subject": {"fold0_subj1": 0.672, "fold9_subj10": 0.585, "mean": 0.629},
+    "csp_lda_within_subject_5cv": {"subj1": 0.980, "subj10": 0.673, "mean": 0.827},
+    "fblgg_erm_seed0": {"subj1": 0.715, "subj10": 0.568}
+  }
+}

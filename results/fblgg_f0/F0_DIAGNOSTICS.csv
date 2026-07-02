@@ -1,0 +1,7 @@
+dataset,true_class,recall,predicted_as_json
+BNCI2014_001,feet,0.1898,"{""feet"": 164, ""left_hand"": 234, ""right_hand"": 190, ""tongue"": 276}"
+BNCI2014_001,left_hand,0.36,"{""feet"": 123, ""left_hand"": 311, ""right_hand"": 197, ""tongue"": 233}"
+BNCI2014_001,right_hand,0.2859,"{""feet"": 132, ""left_hand"": 277, ""right_hand"": 247, ""tongue"": 208}"
+BNCI2014_001,tongue,0.3472,"{""feet"": 154, ""left_hand"": 234, ""right_hand"": 176, ""tongue"": 300}"
+BNCI2015_001,feet,0.7873,"{""feet"": 1181, ""right_hand"": 319}"
+BNCI2015_001,right_hand,0.4473,"{""feet"": 829, ""right_hand"": 671}"
