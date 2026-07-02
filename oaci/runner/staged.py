@@ -112,7 +112,7 @@ def prefetch_level_gpu_artifacts(run_key, stage1, trained, fold_data, support_st
 
 def resume_level_from_store(run_key, fold_data, support_state, level_population, fold_scope, level_plans,
                             execution_cfg, model_spec, model_factory, stage1, trained, store,
-                            device="cpu", method_order=DEFAULT_METHOD_ORDER):
+                            device="cpu", method_order=DEFAULT_METHOD_ORDER, decision_ctx=None):
     """Stage-B CPU replay: select -> lock -> audit -> finalize entirely from ``store`` (no forward). This
     reproduces ``run_level_training_selection``'s assembly minus the (already-done) training."""
     set_replay_store(store, "replay")
@@ -132,14 +132,14 @@ def resume_level_from_store(run_key, fold_data, support_state, level_population,
                                           phase=RunnerPhase.SELECTION, invariants=inv)
         ai = run_post_selection_audit(ts, fold_data, fold_scope, execution_cfg, model_spec, model_factory, device)
         return finalize_level_run(ai, fold_data, fold_scope, support_state, level_population, level_plans,
-                                  execution_cfg, model_spec, model_factory, device)
+                                  execution_cfg, model_spec, model_factory, device, decision_ctx=decision_ctx)
     finally:
         set_replay_store(None, "off")
 
 
 def run_level_staged(run_key, fold_data, support_state, level_population, fold_scope, level_plans,
                      execution_cfg, model_spec, model_factory, gpu_device, *, cpu_device="cpu",
-                     method_order=DEFAULT_METHOD_ORDER, store=None):
+                     method_order=DEFAULT_METHOD_ORDER, store=None, decision_ctx=None):
     """One-process staged level (Stage A on ``gpu_device``, Stage B on ``cpu_device``). For the true
     two-job split, call train_level + prefetch_level_gpu_artifacts (GPU job) and resume_level_from_store
     (CPU job) with a persisted store. Returns (LevelRunResult, store)."""
@@ -151,5 +151,5 @@ def run_level_staged(run_key, fold_data, support_state, level_population, fold_s
                                  gpu_device, store)
     lr = resume_level_from_store(run_key, fold_data, support_state, level_population, fold_scope,
                                  level_plans, execution_cfg, model_spec, model_factory, stage1, trained,
-                                 store, device=cpu_device, method_order=method_order)
+                                 store, device=cpu_device, method_order=method_order, decision_ctx=decision_ctx)
     return lr, store

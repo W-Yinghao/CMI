@@ -90,7 +90,16 @@ def main_phase_b(args) -> int:
             from ..runner.staged_fold import load_phase_a_fold
             fold = load_phase_a_fold(args.staging_dir)        # the EXACT Phase-A fold; NEVER re-load the data
             fold.fold_data.assert_integrity()
-            fr = staged_phase_b(args.staging_dir, fold=fold)
+            dc = None
+            if getattr(args, "compute_decisions", False):     # C8: native K1/K2 payloads (2000-perm K1)
+                from ..decision.plans import k1_spec_from_manifest, k2_spec_from_manifest
+                from ..runner.decision import DecisionContext
+                _mp, manifest = _materialize(args)            # deterministic; carries the protocol k1/k2 blocks
+                nj = int(args.leakage_jobs)
+                dc = DecisionContext(enabled=True, k1_spec=k1_spec_from_manifest(manifest),
+                                     k2_spec=k2_spec_from_manifest(manifest), parallel_n_jobs=nj,
+                                     parallel_backend=("process" if nj > 1 else "sequential"))
+            fr = staged_phase_b(args.staging_dir, fold=fold, decision_ctx=dc)
             ctx = build_fold_artifact_context(fold, fr, repo_root=args.repo_root)
             write = write_artifact_tree_atomic(fr, ctx, args.output_root)
             rep = verify_artifact_tree(write.artifact_dir, deep=True)
@@ -136,6 +145,8 @@ def main(argv=None) -> int:
             p.add_argument("--output-root", required=True)
             p.add_argument("--repo-root", required=True)
             p.add_argument("--leakage-jobs", type=int, default=1)
+            p.add_argument("--compute-decisions", action="store_true",
+                           help="C8: compute + persist native K1/K2 decision payloads (2000-perm K1)")
     args = ap.parse_args(argv)
     return main_phase_a(args) if args.phase == "phase-a" else main_phase_b(args)
 

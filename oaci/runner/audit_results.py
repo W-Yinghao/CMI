@@ -1,7 +1,7 @@
 """Selection snapshot + post-lock audit result ABI (A2b-1b-ii-a). Phase stops at AUDIT."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass(frozen=True)
@@ -60,6 +60,15 @@ class LevelAuditIntermediate:
     provenance: object
     phase: object                              # RunnerPhase, must be AUDIT
     invariants: dict
+    # C8a: the SELECTED per-method source-audit features (deduped by model hash), retained so K1 reuses the
+    # already-extracted audit features (no re-forward). compare/repr=False -> stays OUT of every hash; the
+    # scientific identity of the decision lives in level_result_hash (via the decision payload hashes).
+    audit_feature_items: tuple = field(default=(), compare=False, repr=False)
+
+    @property
+    def audit_features(self) -> dict:
+        """method name -> the source-audit FeatureArtifact (empty when the audit is non-estimable)."""
+        return {name: feat for name, _mh, feat in self.audit_feature_items}
 
     @property
     def audit_methods(self) -> dict:

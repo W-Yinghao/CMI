@@ -89,7 +89,7 @@ def staged_phase_a(fold, *, dataset_id, model_seed=0, method_order=DEFAULT_METHO
     return out_dir
 
 
-def staged_phase_b(out_dir, *, fold=None, cpu_device="cpu"):
+def staged_phase_b(out_dir, *, fold=None, cpu_device="cpu", decision_ctx=None):
     """CPU replay stage: LOAD the exact Phase-A fold (never re-load the data), rebuild the deterministic
     context, load the persisted trained state + store, resume each level from the store (no GPU), and
     assemble the FoldRunResult. ``fold`` may be passed (e.g. the in-process fake fixture); otherwise the
@@ -112,5 +112,6 @@ def staged_phase_b(out_dir, *, fold=None, cpu_device="cpu"):
         store = ReplayStore.load(os.path.join(out_dir, f"level-{level}-store.pkl"))
         levels[level] = resume_level_from_store(rk, fd, ss, lp, fs, plans, exec_cfg, model_spec,
                                                 fold.model_factory(), t["stage1"], t["trained"], store,
-                                                device=cpu_device, method_order=method_order)
+                                                device=cpu_device, method_order=method_order,
+                                                decision_ctx=decision_ctx)
     return assemble_fold_run(fs, levels)

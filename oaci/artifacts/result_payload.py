@@ -68,14 +68,18 @@ def method_result_logical_payload(m) -> dict:
 
 def level_payload(*, run_key_hash, support_hash, level_support_hash, level_plans_hash, execution_config_hash,
                   model_spec_hash, erm, phase, selection_snapshot_hash, method_hashes, selection_cache_hash,
-                  audit_cache_hash, prediction_cache_hash, provenance_hash, invariant_items) -> dict:
-    return {"run_key": run_key_hash, "support_hash": support_hash, "level_support_hash": level_support_hash,
-            "level_plans_hash": level_plans_hash, "execution_config_hash": execution_config_hash,
-            "model_spec_hash": model_spec_hash, "erm": erm, "phase": phase,
-            "selection_snapshot_hash": selection_snapshot_hash, "methods": list(method_hashes),
-            "selection_cache": selection_cache_hash, "audit_cache": audit_cache_hash,
-            "prediction_cache": prediction_cache_hash, "provenance": provenance_hash,
-            "invariants": [[k, (v if isinstance(v, (bool, int)) else str(v))] for k, v in invariant_items]}
+                  audit_cache_hash, prediction_cache_hash, provenance_hash, invariant_items,
+                  decision_hashes=None) -> dict:
+    p = {"run_key": run_key_hash, "support_hash": support_hash, "level_support_hash": level_support_hash,
+         "level_plans_hash": level_plans_hash, "execution_config_hash": execution_config_hash,
+         "model_spec_hash": model_spec_hash, "erm": erm, "phase": phase,
+         "selection_snapshot_hash": selection_snapshot_hash, "methods": list(method_hashes),
+         "selection_cache": selection_cache_hash, "audit_cache": audit_cache_hash,
+         "prediction_cache": prediction_cache_hash, "provenance": provenance_hash,
+         "invariants": [[k, (v if isinstance(v, (bool, int)) else str(v))] for k, v in invariant_items]}
+    if decision_hashes is not None:                       # C8a: bind K1/K2 ONLY when decisions are enabled
+        p["decision"] = decision_hashes                   # (absent -> legacy payload byte-identical)
+    return p
 
 
 def _erm_block(erm_stage):
@@ -85,6 +89,12 @@ def _erm_block(erm_stage):
 
 
 def level_result_logical_payload(lr) -> dict:
+    # C8a: reconstruct the SAME decision binding finalize folded in, so the writer's re-hash of the payload
+    # matches lr.level_result_hash (and deep verify recomputes it identically). Absent when no decision.
+    decision_hashes = None
+    if getattr(lr, "decision", None) is not None:
+        from ..runner.decision import decision_binding_hashes
+        decision_hashes = decision_binding_hashes(lr.decision)
     return level_payload(
         run_key_hash=lr.run_key.run_key_hash, support_hash=lr.support_state.support_hash,
         level_support_hash=lr.support_state.level_support_hash, level_plans_hash=lr.plans.level_plans_hash,
@@ -93,7 +103,8 @@ def level_result_logical_payload(lr) -> dict:
         method_hashes=[m.method_result_hash for _, m in lr.method_items],
         selection_cache_hash=scientific_value_hash(lr.selection_cache_stats),
         audit_cache_hash=lr.audit_cache_stats.stats_hash, prediction_cache_hash=lr.prediction_cache_stats.stats_hash,
-        provenance_hash=lr.provenance.provenance_hash, invariant_items=lr.invariant_items)
+        provenance_hash=lr.provenance.provenance_hash, invariant_items=lr.invariant_items,
+        decision_hashes=decision_hashes)
 
 
 def fold_payload(*, fold_scope_hash, level_hashes) -> dict:

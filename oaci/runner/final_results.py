@@ -2,7 +2,7 @@
 read-only mapping views; every result carries a full SHA-256 identity. Phase reaches COMPLETE."""
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 from .metrics import EvaluationMetrics  # noqa: F401  (re-exported for callers)
 
@@ -67,6 +67,10 @@ class LevelRunResult:
     prediction_cache_stats: PredictionCacheStats
     invariant_items: tuple
     level_result_hash: str
+    # C8a: the native K1/K2 decision payloads ({level, k1_body, k1_null_arrays, k2_body}) or None (legacy /
+    # decisions disabled). compare=False keeps it OUT of the frozen dataclass hash; its scientific identity
+    # is bound into level_result_hash (via the decision binding hashes) ONLY when present.
+    decision: object = field(default=None, compare=False)
 
     @property
     def methods(self) -> dict:

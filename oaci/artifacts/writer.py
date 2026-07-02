@@ -256,6 +256,9 @@ def write_artifact_tree_atomic(fold_result, context, output_root, *, overwrite=F
     K1/K2 decisions, written INDEXED under ``levels/<level>/decisions/``. Omitting it yields a legacy tree
     (no decisions), which still verifies whole."""
     fr = fold_result
+    if level_decisions is None:                           # C8a: the decisions travel WITH the fold result
+        level_decisions = {int(l): lr.decision for l, lr in fr.level_items
+                           if getattr(lr, "decision", None) is not None}
     a_hash = artifact_scientific_hash(fr.fold_result_hash, context.manifest_hash, context.context_hash)
     p_hash = artifact_pure_science_hash(fr.fold_result_hash, context.manifest_hash, context.pure_context_hash)
     final = os.path.join(str(output_root), a_hash)

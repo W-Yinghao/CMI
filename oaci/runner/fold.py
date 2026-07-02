@@ -77,11 +77,12 @@ def run_level_through_audit(run_key, fold_data, support_state, level_population,
 
 
 def run_level_complete(run_key, fold_data, support_state, level_population, fold_scope, level_plans,
-                       execution_cfg, model_spec, model_factory, device, method_order=DEFAULT_METHOD_ORDER):
+                       execution_cfg, model_spec, model_factory, device, method_order=DEFAULT_METHOD_ORDER,
+                       decision_ctx=None):
     """Thin entry: train + select + audit + predictions + metrics. Reaches COMPLETE."""
     from .finalize import finalize_level_run
     ai = run_level_through_audit(run_key, fold_data, support_state, level_population, fold_scope,
                                  level_plans, execution_cfg, model_spec, model_factory, device,
                                  method_order=method_order)
     return finalize_level_run(ai, fold_data, fold_scope, support_state, level_population, level_plans,
-                              execution_cfg, model_spec, model_factory, device)
+                              execution_cfg, model_spec, model_factory, device, decision_ctx=decision_ctx)

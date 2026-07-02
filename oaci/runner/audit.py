@@ -108,7 +108,7 @@ def run_post_selection_audit(intermediate, fold_data, fold_scope, execution_cfg,
         td = build_training_data_for_design(fold_data, design)
         prov.record_fit("audit_estimator", overlap_probe_sample_ids(design, sg))
         feat_cache, score_cache = FeatureArtifactCache(), LeakageScoreCache()
-        items, hashes = [], set()
+        items, hashes, feat_items = [], set(), []
         for name in _ORDER:
             sel = selected[name].selection
             mh, mstate = sel.model_hash, sel.model_state
@@ -122,8 +122,10 @@ def run_post_selection_audit(intermediate, fold_data, fold_scope, execution_cfg,
             skey = make_leakage_score_key(feat, sg, fold, boot, critic)
             leak = score_cache.get_or_compute(skey, lambda f=feat: compute_leakage_score(f.features, sg, fold, boot, critic))
             items.append((name, AuditMethodResult(name, "estimable", mh, leak, leakage_result_hash(leak))))
+            feat_items.append((name, mh, feat))          # C8a: retain the selected source-audit feature (deduped)
         stats = _cache_stats(feat_cache, score_cache, len(hashes))
     else:
+        feat_items = []
         items = [(n, AuditMethodResult(n, audit.status, selected[n].selection.model_hash, None, None)) for n in _ORDER]
         stats = AuditCacheStats(4, 0, 0, 0, 0, 0, 0, 0, scientific_value_hash({"nonestimable": audit.status}))
 
@@ -151,4 +153,5 @@ def run_post_selection_audit(intermediate, fold_data, fold_scope, execution_cfg,
     }
     return LevelAuditIntermediate(training_selection=intermediate, selection_snapshot_before=snap_before,
                                   selection_snapshot_after=snap_after, audit_method_items=tuple(items),
-                                  audit_cache_stats=stats, provenance=prov, phase=RunnerPhase.AUDIT, invariants=inv)
+                                  audit_cache_stats=stats, provenance=prov, phase=RunnerPhase.AUDIT, invariants=inv,
+                                  audit_feature_items=tuple(feat_items))

@@ -32,8 +32,26 @@ def method_result_hash(name, trained_method, selected_method, audit_result, bund
         name, trained_method, selected_method, audit_result, bundle_by_role, metrics_by_role))
 
 
+def _k2_single_seed_units(run_key, metrics) -> list:
+    """The single-seed K2 unit for THIS run (Δ = OACI − ERM on the worst-domain target endpoints). A single
+    seed always abstains; the deltas are recorded so the multi-seed aggregation can decide K2. The metrics
+    are EvaluationMetrics dataclasses (``worst_domain_reference_bacc`` / ``worst_domain_nll``)."""
+    def _d(o, e):
+        if o is None or e is None:
+            return None
+        o, e = float(o), float(e)
+        return None if (o != o or e != e) else o - e            # NaN (missing-class domain) -> None
+    et, ot = metrics["ERM"]["target_audit"], metrics["OACI"]["target_audit"]
+    return [{"seed": int(run_key.model_seed), "level": int(run_key.deletion_level),
+             "deltas": {"worst_domain_bacc": _d(getattr(ot, "worst_domain_reference_bacc", None),
+                                                getattr(et, "worst_domain_reference_bacc", None)),
+                        "worst_domain_nll": _d(getattr(ot, "worst_domain_nll", None),
+                                               getattr(et, "worst_domain_nll", None))}}]
+
+
 def finalize_level_run(audit_intermediate, fold_data, fold_scope, support_state, level_population,
-                       level_plans, execution_cfg, model_spec, model_factory, device) -> LevelRunResult:
+                       level_plans, execution_cfg, model_spec, model_factory, device,
+                       decision_ctx=None) -> LevelRunResult:
     if audit_intermediate.phase != RunnerPhase.AUDIT or audit_intermediate.provenance.phase != RunnerPhase.AUDIT:
         raise ValueError("finalize requires an AUDIT-phase audit intermediate")
     ts = audit_intermediate.training_selection
@@ -117,6 +135,18 @@ def finalize_level_run(audit_intermediate, fold_data, fold_scope, support_state,
     inv = _level_invariants(prov, trained, selected, bundles, caches, snap0, snap_pred)
     inv_items = tuple(sorted(inv.items(), key=lambda kv: kv[0]))
     erm_stage = ts.stage1.erm_stage
+    # C8a: native K1/K2 decision (only when enabled). K1 runs post-lock on the retained ERM/OACI source-audit
+    # features; K2 is the single-seed abstain. Its binding hashes fold into level_result_hash ONLY when
+    # present, so a disabled/legacy run's level hash is byte-identical.
+    decision, decision_hashes = None, None
+    if decision_ctx is not None and getattr(decision_ctx, "enabled", False):
+        from .decision import build_level_decision, decision_binding_hashes
+        decision = build_level_decision(
+            run_key.deletion_level, audit_intermediate, fold_scope, execution_cfg,
+            k1_spec=decision_ctx.k1_spec, k2_spec=decision_ctx.k2_spec,
+            k2_units=_k2_single_seed_units(run_key, metrics),
+            parallel_n_jobs=decision_ctx.parallel_n_jobs, parallel_backend=decision_ctx.parallel_backend)
+        decision_hashes = decision_binding_hashes(decision)
     lvl_payload = level_payload(
         run_key_hash=run_key.run_key_hash, support_hash=support_state.support_hash,
         level_support_hash=support_state.level_support_hash, level_plans_hash=level_plans.level_plans_hash,
@@ -125,14 +155,15 @@ def finalize_level_run(audit_intermediate, fold_data, fold_scope, support_state,
         method_hashes=[m.method_result_hash for _, m in method_items],
         selection_cache_hash=scientific_value_hash(ts.leakage_cache_stats),
         audit_cache_hash=audit_intermediate.audit_cache_stats.stats_hash,
-        prediction_cache_hash=pc.stats_hash, provenance_hash=prov_snap.provenance_hash, invariant_items=inv_items)
+        prediction_cache_hash=pc.stats_hash, provenance_hash=prov_snap.provenance_hash, invariant_items=inv_items,
+        decision_hashes=decision_hashes)
     return LevelRunResult(
         run_key=run_key, support_state=support_state, plans=level_plans, erm_stage=erm_stage,
         method_items=tuple(method_items), execution_config_hash=execution_cfg.execution_config_hash,
         model_spec_hash=model_spec.model_spec_hash, provenance=prov_snap, phase=RunnerPhase.COMPLETE,
         selection_snapshot_hash=snap0.snapshot_hash, selection_cache_stats=ts.leakage_cache_stats,
         audit_cache_stats=audit_intermediate.audit_cache_stats, prediction_cache_stats=pc,
-        invariant_items=inv_items, level_result_hash=scientific_value_hash(lvl_payload))
+        invariant_items=inv_items, level_result_hash=scientific_value_hash(lvl_payload), decision=decision)
 
 
 def _prediction_cache_stats(caches) -> PredictionCacheStats:
