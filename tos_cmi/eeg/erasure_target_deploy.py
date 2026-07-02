@@ -35,9 +35,10 @@ from tos_cmi.score_fisher import (ScoreFisherConfig, _metric, _cross_fit_fisher,
 from tos_cmi.eeg.erasure_baselines import _ids, leace_eraser, inlp_eraser, rlace_eraser
 
 RESULTS = "tos_cmi/results/tos_cmi_eeg_frozen"
-DIRS = {"TSMNet": "%s/BNCI2014_001_TSMNet_LOSO" % RESULTS,
-        "EEGNet": "%s/BNCI2014_001_EEGNet_LOSO" % RESULTS}
-OUT = "%s/erasure_target_deploy" % RESULTS
+DATASET = "BNCI2014_001"   # overridden by --dataset; DIRS/OUT are rebuilt in main()
+DIRS = {"TSMNet": "%s/%s_TSMNet_LOSO" % (RESULTS, DATASET),
+        "EEGNet": "%s/%s_EEGNet_LOSO" % (RESULTS, DATASET)}
+OUT = "%s/erasure_target_deploy/%s" % (RESULTS, DATASET)
 METHODS = ["full", "TOS_VD", "LEACE", "RLACE", "INLP", "random_k"]
 N_JOBS = int(os.environ.get("SLURM_CPUS_PER_TASK", os.cpu_count() or 4))
 RNG = np.random.default_rng(0)
@@ -198,7 +199,7 @@ def _write(all_rows, summary, paired):
     for bb in DIRS:
         for s in sorted(set(r["seed"] for r in all_rows if r["backbone"] == bb)):
             rows = [r for r in all_rows if r["backbone"] == bb and r["seed"] == s]
-            with open("%s/BNCI2014_001_%s_seed%d.csv" % (OUT, bb, s), "w", newline="") as fh:
+            with open("%s/%s_%s_seed%d.csv" % (OUT, DATASET, bb, s), "w", newline="") as fh:
                 w = csv.DictWriter(fh, fieldnames=cols); w.writeheader()
                 for r in sorted(rows, key=lambda r: (r["fold"], r["method"])):
                     w.writerow({k: r[k] for k in cols})
@@ -218,7 +219,15 @@ def main():
     ap.add_argument("--nrandom", type=int, default=8)
     ap.add_argument("--no-rlace", action="store_true")
     ap.add_argument("--limit", type=int, default=0, help="dry-run: process only the first N dumps")
+    ap.add_argument("--dataset", default="BNCI2014_001")
     a = ap.parse_args()
+    global DATASET, DIRS, OUT
+    DATASET = a.dataset
+    DIRS = {"TSMNet": "%s/%s_TSMNet_LOSO" % (RESULTS, DATASET),
+            "EEGNet": "%s/%s_EEGNet_LOSO" % (RESULTS, DATASET)}
+    # BNCI2014_001 keeps the flat legacy path (committed Table-3 aggregate); others go in a subdir
+    OUT = ("%s/erasure_target_deploy" % RESULTS) if DATASET == "BNCI2014_001" \
+        else ("%s/erasure_target_deploy/%s" % (RESULTS, DATASET))
     tasks = []
     for bb, d in DIRS.items():
         for p in sorted(glob.glob("%s/sub*_erm_lam0_seed*.npz" % d)):

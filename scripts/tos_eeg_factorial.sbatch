@@ -7,4 +7,5 @@
 set -e
 cd /home/infres/yinwang/CMI_AAAI_tos
 export PYTHONPATH=/home/infres/yinwang/CMI_AAAI_tos
+export EEG_DATALAKE_RAW=/projects/EEG-foundation-model/datalake/raw
 /home/infres/yinwang/anaconda3/bin/conda run -n icml --no-capture-output python -u -m tos_cmi.run_capacity_factorial "$@"
