@@ -47,6 +47,8 @@ def main():
             method, lam = cfg.split(":"); lam = float(lam)
             tag = "sub%d_%s_lam%g_seed%d" % (tgt, method, lam, args.seed)
             out = "%s/%s.npz" % (base, tag)
+            if os.path.exists(out):                         # idempotent: never recompute a banked fold
+                print("[skip-existing] %s" % tag, flush=True); continue
             t0 = time.time()
             try:
                 dump_fold(args.dataset, tgt, method, lam, args.seed, out, backbone=args.backbone,
