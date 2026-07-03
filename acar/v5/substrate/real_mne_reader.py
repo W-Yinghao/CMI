@@ -88,11 +88,14 @@ def _provenance(raw_manifest_sha256, montage, read_repair):
     parts.append(f"channel_alias_policy_sha256={PC.channel_alias_policy_sha256()}")
     parts.append(f"montage_completion_policy_sha256={PC.montage_completion_policy_sha256()}")
     parts.append(f"brainvision_read_repair_policy_sha256={PC.brainvision_read_repair_policy_sha256()}")
+    parts.append(f"channel_name_repair_policy_sha256={PC.channel_name_repair_policy_sha256()}")
     parts.append(f"interpolated={montage['interpolated']}")
     parts.append(f"n_interpolated={montage['n_interpolated']}")
     parts.append(f"donor_count={montage['donor_count']}")
     parts.append(f"read_repaired={read_repair['repaired']}")
     parts.append(f"n_read_repaired={len(read_repair['repaired'])}")
+    parts.append(f"channel_name_repaired={read_repair.get('channel_name_repaired', [])}")
+    parts.append(f"n_channel_name_repaired={len(read_repair.get('channel_name_repaired', []))}")
     return ";".join(parts)
 
 
@@ -105,16 +108,20 @@ def _aggregate_montage(per_recording):
 
 
 def _aggregate_read_repair(manifests):
-    """Combine per-recording BrainVision read-repair manifests into a subject-level read_repair record (empty if none repaired)."""
+    """Combine per-recording BrainVision read-repair manifests into a subject-level read_repair record (empty if none repaired).
+    `channel_name_repaired` = the recordings whose header channel names were rewritten from channels.tsv (Stage-1B13 mode C)."""
+    from acar.v5.substrate import brainvision_read_repair as BR
     manifests = list(manifests or [])
-    return {"repaired": sorted(m["recording"] for m in manifests), "by_recording": manifests}
+    channel_named = sorted(m["recording"] for m in manifests if m.get("repair_mode") == BR.MODE_CHANNEL_NAMES_FROM_TSV)
+    return {"repaired": sorted(m["recording"] for m in manifests), "channel_name_repaired": channel_named,
+            "by_recording": manifests}
 
 
 def _wrap(windows, disease, cohort, raw_subject_id, raw_manifest_sha256=None, montage=None, read_repair=None):
     import numpy as np
     windows = np.ascontiguousarray(windows, dtype=np.float32)
     montage = montage or {"interpolated": [], "n_interpolated": 0, "donor_count": 0, "by_recording": []}
-    read_repair = read_repair or {"repaired": [], "by_recording": []}
+    read_repair = read_repair or {"repaired": [], "channel_name_repaired": [], "by_recording": []}
     sw = SW.SubjectWindows(
         subject_key=f"{disease}/{cohort}/{raw_subject_id}", disease=disease, cohort=cohort, raw_subject_id=raw_subject_id,
         n_windows=int(windows.shape[0]), n_channels=19, n_samples=PC.PREPROCESSING_CONFIG["window_samples"],

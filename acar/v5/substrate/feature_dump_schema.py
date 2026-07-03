@@ -5,20 +5,23 @@ without ever seeing a label and can prove the dump came from the registered froz
 """
 from __future__ import annotations
 
-SCHEMA_VERSION = "ACAR_V5_STAGE1B_FEAT_DUMP_V3"   # V3: + BrainVision read-repair policy hash + per-recording repair map + manifest hash
+SCHEMA_VERSION = "ACAR_V5_STAGE1B_FEAT_DUMP_V4"   # V4: + channels.tsv channel-NAME repair policy hash + per-recording rename map
 SPLIT_ROLES = ("train", "val", "cal", "eval")
 
-# scalar header fields (provenance). The 4 *_sha256 substrate hashes + the 2 policy hashes + the 2 Stage-1B12 repair hashes are hex64.
+# scalar header fields (provenance). The 4 *_sha256 substrate hashes + the policy hashes + the Stage-1B12/1B13 repair hashes are hex64.
 _HEX64_HEADER = ("preprocessing_config_sha256", "training_config_sha256", "encoder_checkpoint_file_sha256",
                  "source_state_file_sha256", "channel_alias_policy_sha256", "montage_completion_policy_sha256",
-                 "brainvision_read_repair_policy_sha256", "raw_header_repair_manifest_sha256")
+                 "brainvision_read_repair_policy_sha256", "raw_header_repair_manifest_sha256",
+                 "channel_name_repair_policy_sha256")
 HEADER_FIELDS = ("schema_version", "ref", "disease", "fold", "seed",
                  "preprocessing_config_sha256", "training_config_sha256",
                  "encoder_checkpoint_file_sha256", "source_state_file_sha256",
                  "channel_alias_policy_sha256", "montage_completion_policy_sha256",
                  "montage_completion_by_subject",   # JSON str: {subject_key: {interpolated,n_interpolated,donor_count}} — NO labels
                  "brainvision_read_repair_policy_sha256", "raw_header_repair_manifest_sha256",
-                 "brainvision_read_repair_by_recording")   # JSON str: {subject::recording: {repair_mode, *_sha256}} — NO labels
+                 "brainvision_read_repair_by_recording",   # JSON str: {subject::recording: {repair_mode, *_sha256}} — NO labels
+                 "channel_name_repair_policy_sha256",
+                 "channel_name_repair_by_recording")   # JSON str: {subject::recording: {channel_name_source, *_sha256}} — NO labels
 # per-record parallel arrays
 RECORD_ARRAYS = ("subject_key", "split_role", "window_id", "embedding")
 # a dump may NEVER carry a label-like field
@@ -90,6 +93,7 @@ def validate_loaded(mapping):
 
     parsed = _label_free_json_map("montage_completion_by_subject")
     repair_parsed = _label_free_json_map("brainvision_read_repair_by_recording")
+    name_repair_parsed = _label_free_json_map("channel_name_repair_by_recording")
 
     subj = np.asarray(mapping["subject_key"])
     roles = np.asarray(mapping["split_role"])
@@ -120,4 +124,6 @@ def validate_loaded(mapping):
             "montage_completion_by_subject": parsed,
             "brainvision_read_repair_policy_sha256": str(_scalar("brainvision_read_repair_policy_sha256")),
             "raw_header_repair_manifest_sha256": str(_scalar("raw_header_repair_manifest_sha256")),
-            "brainvision_read_repair_by_recording": repair_parsed}
+            "brainvision_read_repair_by_recording": repair_parsed,
+            "channel_name_repair_policy_sha256": str(_scalar("channel_name_repair_policy_sha256")),
+            "channel_name_repair_by_recording": name_repair_parsed}

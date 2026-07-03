@@ -342,12 +342,23 @@ def make_mne_raw(ch_names, n_times=2048, sfreq=256.0, seed=0, nan_channels=()):
     return mne.io.RawArray(data, info, verbose="ERROR")
 
 
+def channels_tsv_path_for(dirpath, stem):
+    """BIDS channels.tsv path for a recording stem (the trailing '_eeg' is replaced, not appended)."""
+    import os
+    base = stem[: -len("_eeg")] if stem.endswith("_eeg") else stem
+    return os.path.join(dirpath, base + "_channels.tsv")
+
+
 def make_brainvision_triplet(dirpath, stem, ch_names=("Fp1", "Fp2"), n_points=300, sfreq=256.0, with_marker=True,
-                             data_file=None, marker_file=None):
+                             data_file=None, marker_file=None, generic_header=False, write_channels_tsv=False,
+                             channels_tsv_names=None):
     """Write a minimal, valid BrainVision triplet (.vhdr + .eeg + optional .vmrk; MULTIPLEXED IEEE_FLOAT_32) into `dirpath` and
     return the .vhdr path. SYNTHETIC signal only. `with_marker=False` omits the MarkerFile line and writes no .vmrk (the marker-less
     defect). `data_file`/`marker_file` override the header's INTERNAL DataFile/MarkerFile pointer values (to synthesize the
-    stale-pointer defect) — the ACTUAL binary/marker are always written as the BIDS siblings <stem>.eeg / <stem>.vmrk."""
+    stale-pointer defect). `generic_header=True` writes the [Channel Infos] names as generic placeholders EEG001..EEG0NN (the
+    ds003944/ds003947 defect) — `ch_names` still drives the channel COUNT and the channels.tsv rows. `write_channels_tsv=True` writes a
+    BIDS channels.tsv (using `channels_tsv_names` if given, else `ch_names`)."""
+    import csv
     import os
     import numpy as np
     os.makedirs(dirpath, exist_ok=True)
@@ -355,7 +366,8 @@ def make_brainvision_triplet(dirpath, stem, ch_names=("Fp1", "Fp2"), n_points=30
     data = (np.random.RandomState(abs(hash(stem)) % (2**32)).randn(nch, n_points) * 1e-6).astype("<f4")
     data.T.tofile(os.path.join(dirpath, stem + ".eeg"))          # multiplexed: pt-major, channel-minor
     interval_us = int(round(1_000_000.0 / float(sfreq)))
-    ch_lines = "".join(f"Ch{i+1}={nm},,1,\N{MICRO SIGN}V\n" for i, nm in enumerate(ch_names))
+    header_names = [f"EEG{i+1:03d}" for i in range(nch)] if generic_header else list(ch_names)
+    ch_lines = "".join(f"Ch{i+1}={nm},,1,\N{MICRO SIGN}V\n" for i, nm in enumerate(header_names))
     dfl = data_file if data_file is not None else (stem + ".eeg")
     mfl = marker_file if marker_file is not None else (stem + ".vmrk")
     hdr = ["Brain Vision Data Exchange Header File Version 1.0", "", "[Common Infos]", "Codepage=UTF-8",
@@ -372,6 +384,13 @@ def make_brainvision_triplet(dirpath, stem, ch_names=("Fp1", "Fp2"), n_points=30
         with open(os.path.join(dirpath, stem + ".vmrk"), "w", encoding="utf-8") as f:
             f.write("Brain Vision Data Exchange Marker File, Version 1.0\n\n[Common Infos]\nCodepage=UTF-8\n"
                     f"DataFile={stem}.eeg\n\n[Marker Infos]\nMk1=New Segment,,1,1,0\n")
+    if write_channels_tsv:
+        rows = channels_tsv_names if channels_tsv_names is not None else list(ch_names)
+        with open(channels_tsv_path_for(dirpath, stem), "w", newline="") as f:
+            w = csv.writer(f, delimiter="\t")
+            w.writerow(["name", "type"])
+            for nm in rows:
+                w.writerow([nm, "EEG"])
     return vhdr_path
 
 

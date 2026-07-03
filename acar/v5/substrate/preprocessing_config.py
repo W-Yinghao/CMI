@@ -71,6 +71,23 @@ PREPROCESSING_CONFIG = {
     "brainvision_read_repair_data_extensions": [".eeg", ".dat"],
     "brainvision_read_repair_marker_synthesis": "minimal_single_new_segment_only_no_event_inference",
     "brainvision_read_repair_writes_into_raw_tree": False,
+    # Stage-1B13: reviewed channels.tsv-driven BrainVision channel-NAME repair (header/marker only; raw signal never touched). The
+    # Stage-1B12P preflight found ds003944/ds003947 BrainVision headers expose only GENERIC placeholder names (EEG001..EEG0NN) while
+    # the real electrode names live in the BIDS channels.tsv (which resolves all 19 canonical). This repair, for THOSE two cohorts
+    # ONLY, rewrites the staged header's [Channel Infos] names from the generic placeholders to the channels.tsv names by ROW ORDER
+    # (BIDS requires channels.tsv rows to be in EEG-data-file order) — no fuzzy/heuristic/partial matching. It composes with the
+    # missing_markerfile_minimal_vmrk marker fix. Everywhere else the raw header stays decisive (channels.tsv may only warn/audit,
+    # never rename); if a header carries real names that conflict with channels.tsv, do NOT override — fail and report.
+    "channel_name_repair_policy_version": "ACAR_V5_STAGE1B13_CHANNEL_NAME_REPAIR_V1",
+    "channel_name_repair_cohorts": ["ds003944", "ds003947"],
+    "channel_name_repair_source": "channels.tsv",
+    "channel_name_repair_generic_header_pattern": "EEG<1-based-sequential>",
+    "channel_name_repair_mapping": "channels_tsv_row_order_only",
+    "channel_name_repair_no_fuzzy_matching": True,
+    "channel_name_repair_requires_row_count_match": True,
+    "channel_name_repair_requires_unique_names_after_strip_casefold": True,
+    "channel_name_repair_requires_all_19_canonical_resolve": True,
+    "channel_name_repair_never_overrides_real_header_names": True,
 }
 
 
@@ -99,6 +116,16 @@ def brainvision_read_repair_policy_sha256():
     return _subset_sha256(("brainvision_read_repair_policy_version", "brainvision_read_repair_missing_markerfile_cohorts",
                            "brainvision_read_repair_pointer_rewrite", "brainvision_read_repair_data_extensions",
                            "brainvision_read_repair_marker_synthesis", "brainvision_read_repair_writes_into_raw_tree"))
+
+
+def channel_name_repair_policy_sha256():
+    """Hash of ONLY the channels.tsv-driven channel-name-repair policy subset (for provenance/feature-dump auditing)."""
+    return _subset_sha256(("channel_name_repair_policy_version", "channel_name_repair_cohorts", "channel_name_repair_source",
+                           "channel_name_repair_generic_header_pattern", "channel_name_repair_mapping",
+                           "channel_name_repair_no_fuzzy_matching", "channel_name_repair_requires_row_count_match",
+                           "channel_name_repair_requires_unique_names_after_strip_casefold",
+                           "channel_name_repair_requires_all_19_canonical_resolve",
+                           "channel_name_repair_never_overrides_real_header_names"))
 
 
 def canonical_json():

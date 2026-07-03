@@ -122,6 +122,18 @@ MODULES = (
     "test_stage1b_ds004367_f7_unconditional_whitelist_forbidden",
     "test_stage1b_feat_dump_v3_records_read_repair_and_completion",
     "test_stage1b_read_repair_preprocess_subject_staging_integration",
+    "test_stage1b_channels_tsv_rename_allowed_ds003944_ds003947",
+    "test_stage1b_channels_tsv_rename_forbidden_other_cohort",
+    "test_stage1b_channels_tsv_rename_requires_generic_sequential_header",
+    "test_stage1b_channels_tsv_rename_requires_row_count_match",
+    "test_stage1b_channels_tsv_rename_requires_unique_names",
+    "test_stage1b_channels_tsv_rename_requires_19_canonical_resolve",
+    "test_stage1b_channels_tsv_rename_requires_latin1_encodable",
+    "test_stage1b_channels_tsv_rename_no_fuzzy_matching",
+    "test_stage1b_channels_tsv_rename_preserves_raw_tree",
+    "test_stage1b_channels_tsv_rename_manifest_hashes",
+    "test_stage1b_feat_dump_v4_records_channel_name_repair",
+    "test_stage1b13p_generic_brainvision_channels_tsv_repair_classifies_pass",
 )
 
 
