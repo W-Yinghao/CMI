@@ -100,7 +100,18 @@ def _row(bb, seed, fold, tsub, nm, tb, tn, sb, sn, sd, k, n_cls):
 
 
 def _deploy_file(bb, p, with_rlace, n_random):
-    """One dump -> one row per method. Target only enters _task_metrics scoring."""
+    """One dump -> one row per method. Target only enters _task_metrics scoring.
+    Returns [] (not a crash) if the score-Fisher metric is degenerate for this cell (e.g. TSMNet on a
+    3-channel dataset -> rank-deficient 210-d tangent -> ill-conditioned whitening); a single degenerate
+    fold must not kill the whole dataset's deployment."""
+    try:
+        return _deploy_file_inner(bb, p, with_rlace, n_random)
+    except Exception as e:
+        print("[SKIP] %s %s : %r" % (bb, p.split('/')[-1], e), flush=True)
+        return []
+
+
+def _deploy_file_inner(bb, p, with_rlace, n_random):
     d = np.load(p, allow_pickle=True)
     Zs = d["Z_source"].astype(np.float64); ys = d["y_source"].astype(int)
     Zt = d["Z_target"].astype(np.float64); yt = d["y_target"].astype(int)
