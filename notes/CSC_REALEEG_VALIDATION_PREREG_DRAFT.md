@@ -1,11 +1,72 @@
-# CSC on REAL EEG — validation PRE-REGISTRATION (SIGNED-OFF DESIGN v3, not frozen, not run)
+# CSC on REAL EEG — validation PRE-REGISTRATION (SIGNED-OFF DESIGN v4, not frozen, not run)
 
-Status: **v3 — reviewer-signed-off choices frozen (2026-07-02).** Red-team-hardened (v1→v2 fixed 2 blockers)
-and now with the reviewer's §11 sign-off locked into the body. This document still creates no tag, writes no
-manifest, builds no adapter, and runs no validation bank. Authorized next steps (this design + build PLAN +
-dry-run/manifest build + a cache feasibility check that reads metadata and computes `Z`/rank) are bounded in
-§13. The frozen synthetic tags `csc-confirmatory-v1`/`dee8958` (A) and `csc-b3-confirmatory-v1`/`0595f64` (B3)
-are untouched; both certifier method locks are **byte-unchanged**.
+Status: **v4 — post-feasibility sign-off (2026-07-03).** Red-team-hardened (v1→v2 fixed 2 blockers); v3 froze
+the §11 reviewer choices; **v4 folds in the feasibility findings + the D1/D2 sign-off (below).** Still creates
+no tag, writes no manifest, runs no validation bank. The frozen synthetic tags `csc-confirmatory-v1`/`dee8958`
+(A) and `csc-b3-confirmatory-v1`/`0595f64` (B3) are untouched; both certifier method locks are **byte-unchanged**.
+
+## v4 UPDATE — feasibility outcome + D1/D2 sign-off (2026-07-03), SUPERSEDES the 17-ch montage/loader below
+
+Feasibility probes on Lee2019 (nodecpu01, eeg2025) found: **(a)** the feature fix is valid on real data —
+`Z=log-bandpower` from the UN-normalized signal is non-degenerate (std 0.65, full rank 16); **(b)** `FCz` is
+**absent** from Lee2019 (16/17 of the original montage present) → the pre-registered fail-closed guard fired;
+**(c)** both sessions are physically present on disk (54 subj × session1 + session2, 61 GB, 108 `.mat`), but
+the installed **moabb 1.5.0 exposes only session 1** (an API-surface gap, not missing data).
+
+**D1 (montage re-freeze).** The primary montage is re-frozen — *before any run, from the data dictionary, not
+from results* — to the **16 available sensorimotor channels** (`SM16_no_FCz`):
+`FC3, FC1, FC2, FC4, C5, C3, C1, Cz, C2, C4, C6, CP3, CP1, CPz, CP2, CP4`. **No substitute channel is allowed**
+(there is no true `FCz` equivalent; `Cz`/`FC1`/`FC2` are already in the montage). If any of these 16 is absent
+in any loaded file, the primary feature **fails closed**. `Z ∈ R^{16}`. No external PCA; tangent-space stays
+robustness-only.
+
+**D2 (loader).** The frozen real-feature cache is built by an **isolated direct `.mat` reader** — `moabb` is
+NOT used for the frozen cache because the installed loader exposes only session 1 despite both sessions being
+on disk. Parsing follows the canonical OpenBMI layout (verified against moabb's own `Lee2019.py`):
+`scipy.io.loadmat(path)`; structs `EEG_MI_train[0,0]` / `EEG_MI_test[0,0]` with fields `x` (continuous
+[time×ch]), `fs` (1000), `chan` (names), `t` (trial onset samples), `y_dec` (labels: 1=right\_hand, 2=left\_hand);
+epoch each onset over the frozen window, band-pass, and take log band-power. `h5py`/`pymatreader` only as a
+logged fallback if a file is v7.3.
+
+**Frozen feature pipeline (unchanged except montage):** `Z = log var_t(x_ch)`; band-pass 8–30 Hz
+(4th-order Butterworth, zero-phase `filtfilt`, applied to the continuous signal before epoching); window
+0.5–3.5 s; resample epoch to 128 Hz (384 samples) — note log-variance is essentially sample-rate-invariant, so
+resample is for spec-faithfulness, not numerical effect; `normalize=None`; 16-dim log-bandpower; frozen label
+map `{left_hand:0, right_hand:1}`.
+
+### Feasibility PASS gates (frozen; any PRIMARY gate FAIL ⇒ STOP + report, no montage/feature change)
+
+1. all 16 `SM16_no_FCz` channels present in every loaded file;
+2. 54 subjects with both session 1 and session 2 loadable, OR exact missingness reported;
+3. ≥ 20 eligible paired subjects (both sessions, both classes, enough trials);
+4. each eligible subject has both sessions;
+5. each session has both classes;
+6. each subject-session-class has ≥ 8 trials (downstream paired-audit floor);
+7. feature dim = 16;
+8. `rank(Z) ≥ 3` (preferably full);
+9. no NaN / inf in `Z`;
+10. non-degenerate variance (median per-channel feature std > 1e-6).
+
+### Direct-reader sanity checks (guard against mis-parsed events/labels)
+
+- **trial-count check:** per subject×session, recovered trial counts are as expected and L/R approximately balanced;
+- **session-1 cross-check:** for a small fixed subject subset, the direct reader's session-1 trial counts +
+  labels + session identity match the moabb-exposed loader (features need NOT match — moabb pre-processing
+  differs; trial indices / labels / session identity must).
+
+### Cache schema (`LEE2019_B3.npz`) + metadata JSON
+
+Per-trial arrays: `Z[n,16]`, `y`, `subject_id`, `session_id` (1|2), `trial_id`, plus frozen scalars/lists
+`channel_names`, `montage_name="SM16_no_FCz"`, `fs_raw`, `fs_resampled=128`, `bandpass=[8,30]`,
+`window=[0.5,3.5]`, `normalize=None`, `source_file`, `source_file_sha256` (or size+mtime if sha256 too costly),
+`parser`. Metadata JSON: `n_subjects`, `n_sessions_per_subject`, `trial_counts_by_subject_session_class`,
+`missing_subjects`, `missing_sessions`, `missing_channels`, `feature_dim`, `feature_rank`,
+`feature_std_{min,median,max}`, `nan_count`, `inf_count`, `eligible_paired_subjects`.
+
+**Authorized now:** pre-reg v4; `build_lee2019_b3_cache.py` (isolated, no `cmi`/no `moabb` for the frozen cache);
+build the feasibility cache + metadata + report; then **STOP**. **NOT authorized:** the validation-bank run,
+the semi-synthetic injected bank, creating `csc-realeeg-v1`, running Route A/B3 certifiers on the cache, 2b as
+gating, or switching feature family on a feasibility failure.
 
 ## 0. Motivation, ceiling, bridge, and Route-A framing
 
