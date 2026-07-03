@@ -139,9 +139,9 @@ def test_graphdualpc_distinct_fused_z_fail_closed():
 def test_run_loso_graphdualpc_grammar():
     from cmi.run_loso import parse_config
     # graphdualpc:<lambda_g>:<lambda_node>:<lambda_edge>:<gamma_dec>  ->  lam=lg, node_w=lnode, lam_edge=le, gamma=gdec
-    lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w = parse_config(
+    lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w, lam_spatial = parse_config(
         "graphdualpc:0.010:0.020:0.000:0.100", default_beta=0.0)
-    assert method == "graphdualpc"
+    assert method == "graphdualpc" and lam_spatial == 0.0
     assert (lam, node_w, lam_edge, gamma) == (0.010, 0.020, 0.000, 0.100)
     # decoder-only and encoder-only ablation configs parse
     assert parse_config("graphdualpc:0:0:0:0.1")[2] == 0.0 and parse_config("graphdualpc:0:0:0:0.1")[3] == 0.1

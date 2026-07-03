@@ -363,16 +363,18 @@ class FBCSPLGGGraph(FBLGGDualCMIBackbone):
     grouping. ERM-capable; graphdualpc head-split works (distinct fused_z)."""
 
     def __init__(self, n_chans, n_times, n_classes, ch_names=None, spatial_n_filt=8, spatial_K=4,
-                 spatial_z_dim=32, dropout=0.25, **kw):
+                 spatial_z_dim=32, dropout=0.25, fusion_floor=0.0, **kw):
         super().__init__(n_chans, n_times, n_classes, ch_names=ch_names, dropout=dropout, **kw)
         self.spatial = _FBCSPSpatialBranch(self.n_chans, n_times, n_filt=spatial_n_filt,
                                            K=spatial_K, spatial_z_dim=spatial_z_dim, dropout=dropout)
         self.spatial_z_dim = int(spatial_z_dim)
+        self.fusion_floor = float(fusion_floor)            # P6-B: gate floor eps; 0 -> plain softmax (off)
         fdim = self.fused_z_dim
         self.fuse_s = nn.Linear(spatial_z_dim, fdim)       # reuse super's fuse_g / fuse_t for graph/temporal
         self.gate3 = nn.Linear(3 * fdim, 3)                # softmax over [graph, temporal, spatial]
         self.head3 = nn.Linear(fdim, n_classes)            # new head on the 3-way fused_z
-        self.last_gate = None                              # [B,3] softmax weights (set each forward_graph)
+        self.last_gate = None                              # [B,3] gate weights (set each forward_graph)
+        self.last_spatial_z = None                         # P6-A: grad-carrying spatial_z for spatial encoder CMI
         self.last_aux = {}                                 # {graph_z, temporal_z, spatial_z, fused_z} (detached)
         self.meta = dict(graph_compatible=True, edge_logits_dynamic=False, node_identity_preserved=True,
                          distinct_fused_z=True, has_spatial_branch=True,
@@ -384,6 +386,9 @@ class FBCSPLGGGraph(FBLGGDualCMIBackbone):
     def _fuse3(self, graph_z, temporal_z, spatial_z):
         gp = self.fuse_g(graph_z); tp = self.fuse_t(temporal_z); sp = self.fuse_s(spatial_z)  # [B,fdim] each
         gate = torch.softmax(self.gate3(torch.cat([gp, tp, sp], dim=-1)), dim=-1)             # [B,3], sums to 1
+        if self.fusion_floor > 0.0:                          # P6-B: floor so no branch is fully starved
+            eps = self.fusion_floor
+            gate = (1.0 - 3.0 * eps) * gate + eps            # still sums to 1; each weight >= eps
         self.last_gate = gate.detach()
         fused = gate[:, 0:1] * gp + gate[:, 1:2] * tp + gate[:, 2:3] * sp
         return self.drop(fused)
@@ -394,6 +399,7 @@ class FBCSPLGGGraph(FBLGGDualCMIBackbone):
         temporal_z = self._temporal_branch(node_raw)
         spatial_z = self._spatial_branch(x)
         fused_z = self._fuse3(graph_z, temporal_z, spatial_z)
+        self.last_spatial_z = spatial_z                      # grad-carrying (for spatial encoder CMI, P6-A)
         self.last_aux = dict(graph_z=graph_z.detach(), temporal_z=temporal_z.detach(),
                              spatial_z=spatial_z.detach(), fused_z=fused_z.detach())
         return self.head3(fused_z), graph_z, node_z, None, fused_z
@@ -432,4 +438,6 @@ class FBCSPLGGGraph(FBLGGDualCMIBackbone):
         out = {}
         for i, nm in enumerate(names):
             out[f"gate_{nm}_mean"] = float(g[:, i].mean()); out[f"gate_{nm}_std"] = float(g[:, i].std())
+        ent = -(g.clamp(min=1e-8).log() * g).sum(dim=1)      # per-sample gate entropy (nats); max ln(3)=1.0986
+        out["gate_entropy_mean"] = float(ent.mean())         # low -> collapsed to one branch; high -> balanced
         return out

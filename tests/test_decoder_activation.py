@@ -28,9 +28,9 @@ def _synth(n_per_cell=8, C=22, T=128, n_cls=2, n_dom=3, seed=0):
 
 def test_grammar_dec_scale_optional_backward_compat():
     # 4-field config (CIGL_46 form) -> dec_scale defaults to 1.0
-    lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w = parse_config(
+    lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w, lam_spatial = parse_config(
         "graphdualpc:0.010:0.010:0.000:0.100", default_beta=0.0)
-    assert method == "graphdualpc"
+    assert method == "graphdualpc" and lam_spatial == 0.0
     assert (lam, node_w, lam_edge, gamma, dec_scale) == (0.010, 0.010, 0.000, 0.100, 1.0)
     # 5-field config -> dec_scale parsed
     p = parse_config("graphdualpc:0.010:0.010:0.000:0.100:50", default_beta=0.0)

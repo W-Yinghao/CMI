@@ -79,7 +79,7 @@ def parse_config(c, default_beta=0.0):
     """
     parts = c.split(":"); method = parts[0]
     nums = [float(x) for x in parts[1:]]
-    lam_edge, z_margin, dec_scale, node_w = 0.0, 0.0, 1.0, default_beta
+    lam_edge, z_margin, dec_scale, node_w, lam_spatial = 0.0, 0.0, 1.0, default_beta, 0.0
     if method == "supcon":                       # supcon:<gamma>
         lam, gamma = 0.0, nums[0]
     elif method in ("lpc_supcon", "lpc_simclr", "lpc_byol"):   # <method>:<lam=CMI>:<gamma=SSL>
@@ -92,6 +92,13 @@ def parse_config(c, default_beta=0.0):
         lam_edge = nums[2] if len(nums) > 2 else 0.0
         gamma = nums[3] if len(nums) > 3 else 0.0       # -> gamma_dec
         dec_scale = nums[4] if len(nums) > 4 else 1.0   # -> train_model(dec_scale=...); default 1.0 keeps 4-field configs unchanged
+    elif method == "fbdualpc":                   # fbdualpc:<lambda_g>:<lambda_node>:<lambda_spatial>:<lambda_edge>:<gamma_dec>[:<dec_scale>]
+        lam = nums[0] if nums else 0.0                  # lambda_g   (graph encoder CMI)
+        node_w = nums[1] if len(nums) > 1 else 0.0      # lambda_node (-> train_model beta)
+        lam_spatial = nums[2] if len(nums) > 2 else 0.0  # lambda_spatial (P6-A: FBCSP spatial encoder CMI)
+        lam_edge = nums[3] if len(nums) > 3 else 0.0     # lambda_edge
+        gamma = nums[4] if len(nums) > 4 else 0.0        # gamma_dec
+        dec_scale = nums[5] if len(nums) > 5 else 1.0
     elif method in ("dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal"):
         lam, gamma = nums[0], (nums[1] if len(nums) > 1 else nums[0])
         if method == "dualpc_hinge":
@@ -99,7 +106,7 @@ def parse_config(c, default_beta=0.0):
             dec_scale = nums[3] if len(nums) > 3 else 1.0
     else:                                        # erm | {marginal,chain,lpc_uniform,lpc_prior}:<lam>
         lam, gamma = (nums[0] if nums else 0.0), 0.0
-    return (c, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w)
+    return (c, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w, lam_spatial)
 import torch
 
 from cmi.data import moabb_data, emotion_data, diagnosis_data, processed_data
@@ -362,17 +369,18 @@ def run(args):
                 raise SystemExit(f"ABORT: central_strip_v1 preset for {args.dataset} did not resolve: {cs_warn}")
             else:
                 grouping_scheme, grouping_warning = "region_or_index", cs_warn
-        for lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w in configs:
+        for lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w, lam_spatial in configs:
             bb = build_backbone(args.backbone, nch, nt, n_cls, device=device, ch_names=ch_names,
-                                groups=cs_groups, group_names=cs_named, grouping_scheme=grouping_scheme)
-            if args.beta > 0 and method != "graphdualpc":   # VIB: stochastic bottleneck (graphdualpc uses beta=lambda_node, not VIB)
+                                groups=cs_groups, group_names=cs_named, grouping_scheme=grouping_scheme,
+                                fusion_floor=args.fusion_floor)
+            if args.beta > 0 and method not in ("graphdualpc", "fbdualpc"):   # VIB (graphdualpc/fbdualpc use beta=lambda_node, not VIB)
                 from cmi.methods.vib import VIBBackbone
                 bb = VIBBackbone(bb, n_cls).to(device)
             bb, _, diag = train_model(bb, Xtr_all, ytr_all, dtr_all, n_cls, method=method,
                                 lam=lam, gamma=gamma, lam_edge=lam_edge, beta=node_w, balance=args.balance,
                                 label_correct=args.label_correct, reweight_dual=args.reweight_dual,
                                 dec_margin=resolve_dec_margin(method, args.dec_margin),
-                                z_margin=z_margin, dec_scale=dec_scale,
+                                z_margin=z_margin, dec_scale=dec_scale, lam_spatial=lam_spatial,
                                 epochs=args.epochs, bs=args.bs,
                                 warmup=args.warmup, n_inner=args.n_inner, sampler=args.sampler,
                                 prior_mode=args.prior, prior_alpha=args.prior_alpha,
@@ -470,13 +478,15 @@ def run(args):
                 # branch contributions (graph vs temporal); static DGCNN declares only zero_graph/permute_nodes.
                 for _mode in getattr(bb, "meta", {}).get("ablation_modes", ("zero_graph", "permute_nodes")):
                     rec[f"ablate_{_mode}_target_bacc"] = _ablate_bacc(bb, Xte, yte, _mode, device)
-            if method == "graphdualpc":
+            if method in ("graphdualpc", "fbdualpc"):
                 for k in ("lambda_g", "lambda_node", "lambda_edge", "gamma_dec", "reg_graph_gls",
                           "reg_node_gls", "reg_edge_gls", "dec_js_res", "dec_ce_res",
                           "stepA_graph_dom_acc_gls", "stepA_node_dom_acc_gls", "stepA_edge_dom_acc_gls",
                           # P3-D decoder-activation diagnostics
                           "loss_ce", "dec_js_res_raw", "dec_js_res_scaled", "loss_dec", "loss_dec_over_ce",
-                          "dec_gate_active_frac"):
+                          "dec_gate_active_frac",
+                          # P6-A spatial encoder CMI diagnostics (fbdualpc)
+                          "lambda_spatial", "reg_spatial_gls", "loss_spatial", "stepA_spatial_loss_gls"):
                     if k in diag:
                         rec[k] = diag[k]
             for k in ("source_val_subjects", "best_epoch", "best_source_val_bacc",   # P3-E early-stopping metadata
@@ -522,6 +532,9 @@ def build_parser():
                          "set and restore the best-source-val-bAcc epoch. Target labels are never used. "
                          "Records source_val_subjects/best_epoch/best_source_val_bacc/final_{train,val}_"
                          "source_bacc per fold. Default OFF (fixed-epoch training, unchanged).")
+    ap.add_argument("--fusion_floor", type=float, default=0.0,
+                    help="P6-B: FBCSPLGGGraph 3-way gate floor eps -> (1-3eps)*softmax + eps, so no branch is "
+                         "fully starved. 0.0 = plain softmax (off). Try 0.05 / 0.10. Only affects FBCSPLGGGraph.")
     # configs = list of "method:lam" (one job can sweep lambda; splits shared across all)
     ap.add_argument("--configs", nargs="+",
                     default=["erm:0", "marginal:1", "chain:1", "lpc_uniform:1", "lpc_prior:1"])

@@ -156,5 +156,6 @@ def build_backbone(name, n_chans, n_times, n_classes, device="cpu", **_):
         from cmi.models.fb_lgg_dualcmi import FBCSPLGGGraph
         return FBCSPLGGGraph(n_chans, n_times, n_classes, ch_names=_.get("ch_names"),
                              groups=_.get("groups"), group_names=_.get("group_names"),
-                             grouping_scheme=_.get("grouping_scheme")).to(device)
+                             grouping_scheme=_.get("grouping_scheme"),
+                             fusion_floor=_.get("fusion_floor", 0.0)).to(device)
     return HookedBackbone(name, n_chans, n_times, n_classes).to(device)

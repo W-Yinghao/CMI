@@ -17,7 +17,7 @@ from cmi.methods import dg_penalties as dgp
 
 # Every implemented framework. Anything else must fail loudly (not silently train ERM).
 ALL_METHODS = {
-    "erm", "iib", "graphcmi", "graphdualpc", "dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal",
+    "erm", "iib", "graphcmi", "graphdualpc", "fbdualpc", "dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal",
 } | CMI_METHODS | SUPCON_METHODS | dgp.DG_METHODS | FMCA_METHODS | ssl.ALL_SSL
 
 
@@ -76,7 +76,7 @@ def default_dec_margin(method):
     Route-C `dualc` keeps a CE-residual null margin. DualPC / graphdualpc use a JS consistency loss whose
     empirical scale is much smaller, so the paper-facing default must keep the P(Y|Z) side active.
     """
-    return 0.0 if method in {"dualpc", "dualpc_hinge", "dualpc_marginal", "graphdualpc"} else 0.02
+    return 0.0 if method in {"dualpc", "dualpc_hinge", "dualpc_marginal", "graphdualpc", "fbdualpc"} else 0.02
 
 
 def resolve_dec_margin(method, dec_margin):
@@ -92,7 +92,7 @@ def _balanced_acc(y_true, y_pred, n_cls):
 def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gamma=0.0,
                 lam_edge=0.0, beta=0.0, balance=False, label_correct=False, reweight_dual=False,
                 dec_margin=None, epochs=200, bs=64, warmup=40, n_inner=2,
-                z_margin=0.0, dec_scale=1.0,
+                z_margin=0.0, dec_scale=1.0, lam_spatial=0.0,
                 lr=1e-3, post_lr=2e-3,
                 weight_decay=0.0, sampler="classbal", prior_mode="empirical", prior_alpha=1.0,
                 early_stop=False, source_val_domains=None,
@@ -132,9 +132,10 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     is_lpc_ssl = method in ssl.LPC_SSL_METHODS  # SSL framework hosting our CMI term
     ssl_kind = "byol" if "byol" in method else "simclr"
     uses_graphcmi = method == "graphcmi"        # GNN node/edge CMI (needs backbone.forward_graph)
-    uses_graphdualpc = method == "graphdualpc"  # Graph-DualCMI: encoder graph/node/edge I(Z;D|Y) [GLS] + decoder residual I(Y;D|Z)
+    uses_fbdualpc = method == "fbdualpc"        # P6-A: graphdualpc + a spatial encoder CMI term on spatial_z
+    uses_graphdualpc = method in ("graphdualpc", "fbdualpc")  # share the whole Graph-DualCMI branch
     uses_graph = uses_graphcmi or uses_graphdualpc
-    node_post = edge_post = None
+    node_post = edge_post = spatial_post = None
     if uses_graph:                              # global term reuses `post`; add node + edge heads
         # Fail closed: the GNN branch calls backbone.forward_graph(x) -> (logits, graph_Z, node_Z,
         # edge_logits[, fused_z]). A non-graph backbone (EEGNet, TSMNet, ...) lacks it; without this guard
@@ -161,6 +162,14 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         if uses_graphdualpc and bool(getattr(backbone, "meta", {}).get("distinct_fused_z", False)):
             fused_dim = int(getattr(backbone, "fused_z_dim", backbone.z_dim))
             post_dec = DomainPosteriors(fused_dim, n_dom, n_cls, priors, device=device)
+        # P6-A: fbdualpc adds an encoder CMI head on the FBCSP spatial branch, q(D|spatial_z,Y). Requires a
+        # backbone exposing a spatial branch (meta['has_spatial_branch']) + a grad-carrying last_spatial_z.
+        if uses_fbdualpc:
+            if not bool(getattr(backbone, "meta", {}).get("has_spatial_branch", False)):
+                raise ValueError("method='fbdualpc' needs a backbone with a spatial branch "
+                                 "(meta['has_spatial_branch']); use --backbone FBCSPLGGGraph.")
+            spatial_dim = int(getattr(backbone, "spatial_z_dim", backbone.z_dim))
+            spatial_post = DomainPosteriors(spatial_dim, n_dom, n_cls, priors, device=device)
     is_iib = method == "iib"
     is_dual = method == "dual"                   # joint encoder I(Z;D|Y) + decoder I(Y;D|Z) invariance
     is_dualc = method == "dualc"                  # Route C: GLS-reweighted, RESIDUAL (intercept) decoder, gated
@@ -215,6 +224,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         post_params += list(node_post.parameters()) + list(edge_post.parameters())
     if post_dec is not post:                         # separate decoder head -> optimize its params too
         post_params += list(post_dec.parameters())
+    if spatial_post is not None:                     # P6-A spatial encoder CMI head
+        post_params += list(spatial_post.parameters())
     opt_post = torch.optim.Adam(post_params, lr=post_lr)
     gdro_q = torch.ones(n_dom, device=device) / n_dom   # GroupDRO domain weights
 
@@ -248,6 +259,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     backbone.train(); post.train()
     if post_dec is not post:
         post_dec.train()
+    if spatial_post is not None:
+        spatial_post.train()
     _es_active = Xval is not None                     # P3-E source-only early stopping active this run?
     best_state = None; best_vbacc = -1.0; best_vce = float("inf"); best_ep = -1; last_vbacc = float("nan")
     for ep in range(epochs):
@@ -350,6 +363,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                             "the backbone must declare meta['distinct_fused_z']=True and expose fused_z_dim "
                             "so post_dec is sized on the fused_z dim (see docs/CIGL_47).")
                     _, gz_d, nz_d, el_d, zdec_d = _unpack_graph(_og)
+                    sz_d = backbone.last_spatial_z if uses_fbdualpc else None   # P6-A: detached spatial_z (Step-A)
                 has_edge = el_d is not None                # static-adjacency (DGCNN adapter) -> edge_logits=None
                 if lambda_edge_w != 0 and not has_edge:    # fail closed: no edge term without a per-sample edge object
                     raise ValueError("method='graphdualpc' with lambda_edge!=0 needs per-sample edge_logits; "
@@ -365,8 +379,11 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                           + node_post.step_a_loss(nz_d, yb, db, weight=wb))  # q(D|Z_v,e_v,Y)  [GLS]
                     if has_edge:
                         la = la + edge_post.step_a_loss(el_d, yb, db, weight=wb)
+                    if uses_fbdualpc:                       # P6-A: q(D|spatial_z,Y) on the FBCSP branch
+                        la = la + spatial_post.posterior_loss(sz_d, yb, db, weight=wb)
                     opt_post.zero_grad(); la.backward(); opt_post.step()
                 logits, gz, nz, el, zdec = _unpack_graph(backbone.forward_graph(xb))   # Step B (grad to encoder)
+                sz = backbone.last_spatial_z if uses_fbdualpc else None                # P6-A: grad-carrying spatial_z
                 if label_correct:                                          # optional GLS-weighted task CE (off by default)
                     per = F.cross_entropy(logits, yb, weight=ce_weight, reduction="none")
                     ce = (wb * per).sum() / wb.sum().clamp(min=1e-8)
@@ -377,7 +394,11 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 r_edge = edge_post.reg(el, yb, weight=wb, reference="marginal") if has_edge else None  # lambda_edge: I~(A;D|Y)
                 r_dec_js = post_dec.dec_js_residual(zdec, db, weight=wb)       # gamma_dec  : decoder residual JS (training loss) [on fused_z]
                 r_dec_ce = post_dec.dec_cmi_residual(zdec, yb, db, weight=wb)  # decoder residual CE (diagnostic only) [on fused_z]
+                r_spatial = (spatial_post.reg("lpc_prior", sz, yb, weight=wb, reference="marginal")
+                             if uses_fbdualpc else None)    # lambda_spatial: I~(Z_spatial;D|Y)  (P6-A)
                 loss = ce + lambda_g * warm * r_graph + lambda_node * warm * r_node
+                if r_spatial is not None:
+                    loss = loss + lam_spatial * warm * r_spatial
                 if r_edge is not None:
                     loss = loss + lambda_edge_w * warm * r_edge
                 # P3-D: scale THEN threshold — [dec_scale·JS − dec_margin]_+ (matches the CIGL_47 objective).
@@ -401,6 +422,10 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                     diag.setdefault("inloop_loss_dec", []).append(gamma_dec * warm * float(r_dec_gate))
                     diag.setdefault("inloop_dec_gate", []).append(
                         1.0 if float(dec_scale * r_dec_js) > dec_margin else 0.0)
+                    if r_spatial is not None:               # P6-A spatial encoder CMI diagnostics
+                        diag.setdefault("inloop_reg_spatial", []).append(_scalar(r_spatial))
+                        diag.setdefault("stepA_spatial_loss", []).append(
+                            _scalar(spatial_post.posterior_loss(sz, yb, db, weight=wb)))
                     with torch.no_grad():   # Step-A critic quality per head (GLS diagnostic; probe underfit check)
                         gpred = post.q_dzy(torch.cat([gz, F.one_hot(yb, n_cls).float()], 1)).argmax(1)
                         npred = node_post._logits(nz, yb).argmax(-1)   # [B,C] per-channel domain pred
@@ -605,6 +630,11 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                    stepA_edge_dom_acc_gls=diag["stepA_edge_correct"] / max(1, diag["stepA_edge_total"]),
                    stepA_graph_loss_gls=_mean("stepA_graph_loss"), stepA_node_loss_gls=_mean("stepA_node_loss"),
                    stepA_edge_loss_gls=_mean("stepA_edge_loss"))
+        if uses_fbdualpc:                            # P6-A: spatial encoder CMI diagnostics
+            out.update(lambda_spatial=float(lam_spatial),
+                       reg_spatial_gls=_mean("inloop_reg_spatial"),
+                       loss_spatial=float(lam_spatial) * _mean("inloop_reg_spatial"),
+                       stepA_spatial_loss_gls=_mean("stepA_spatial_loss"))
     if "inloop_reg_loss" in diag:
         out["inloop_reg_loss"] = float(np.mean(diag["inloop_reg_loss"]))
     if "inloop_dec" in diag:
