@@ -96,6 +96,22 @@ def _sha256_file(path):
     return h.hexdigest()
 
 
+def _read_repair_map_and_hash(windows_by_subject, subjects):
+    """Stage-1B12 audit: a LABEL-FREE {subject_key::recording: {repair_mode, *_sha256}} map (only repaired recordings appear) plus
+    the order-independent manifest-set hash over every repaired recording. Native subjects contribute nothing."""
+    from acar.v5.substrate import brainvision_read_repair as BR
+    by_recording, manifests = {}, []
+    for sk in subjects:
+        rr = getattr(windows_by_subject.get(sk), "read_repair", None) or {}
+        for m in rr.get("by_recording", []):
+            by_recording[f"{sk}::{m.get('recording')}"] = {
+                "repair_mode": m.get("repair_mode"), "original_header_sha256": m.get("original_header_sha256"),
+                "repaired_header_sha256": m.get("repaired_header_sha256"),
+                "generated_marker_sha256": m.get("generated_marker_sha256")}
+            manifests.append(m)
+    return by_recording, BR.manifest_set_sha256(manifests)
+
+
 def _validate_fit_records(disease, fold, seed, train, val):
     """Fail-closed FIT-record validation before the numeric backend sees anything."""
     if not train:
@@ -181,12 +197,15 @@ def dump_fold_embeddings(disease, fold, seed, embedding_view, all_fold_subject_k
         return {"interpolated": mc.get("interpolated", []), "n_interpolated": mc.get("n_interpolated", 0),
                 "donor_count": mc.get("donor_count", 0)}
     montage_by_subject = {sk: _mc_summary(windows_by_subject[sk]) for sk in sorted(emb_by_subject)}
+    repair_by_recording, repair_manifest_sha256 = _read_repair_map_and_hash(windows_by_subject, sorted(emb_by_subject))
     FDW.write_feature_dump(feat_path, ref=ref, disease=disease, fold=fold, seed=seed,
                            preprocessing_config_sha256=_sha256_file(frozen.preprocessing_config_path),
                            training_config_sha256=_sha256_file(frozen.training_config_path),
                            encoder_checkpoint_file_sha256=_sha256_file(frozen.encoder_checkpoint_file_path),
                            source_state_file_sha256=_sha256_file(frozen.source_state_file_path), records=records,
-                           montage_completion_by_subject=montage_by_subject)
+                           montage_completion_by_subject=montage_by_subject,
+                           brainvision_read_repair_by_recording=repair_by_recording,
+                           raw_header_repair_manifest_sha256=repair_manifest_sha256)
     n_windows_by_subject = {sk: int(np.asarray(emb_by_subject[sk]).shape[0]) for sk in emb_by_subject}   # authoritative counts
     raw = {"ref": ref, "disease": disease, "fold": fold, "seed": seed, "feat_dump_path": feat_path,
            "n_windows_by_subject": n_windows_by_subject}

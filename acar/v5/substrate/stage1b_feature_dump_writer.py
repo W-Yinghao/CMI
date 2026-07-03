@@ -4,6 +4,7 @@ The writer refuses to emit any label-like field and validates the result before 
 """
 from __future__ import annotations
 import json
+from acar.v5.substrate import brainvision_read_repair as BR
 from acar.v5.substrate import feature_dump_schema as FS
 from acar.v5.substrate import preprocessing_config as PC
 
@@ -15,7 +16,8 @@ class FeatureDumpWriteError(RuntimeError):
 def write_feature_dump(path, *, ref, disease, fold, seed, preprocessing_config_sha256, training_config_sha256,
                        encoder_checkpoint_file_sha256, source_state_file_sha256, records,
                        channel_alias_policy_sha256=None, montage_completion_policy_sha256=None,
-                       montage_completion_by_subject=None):
+                       montage_completion_by_subject=None, brainvision_read_repair_policy_sha256=None,
+                       brainvision_read_repair_by_recording=None, raw_header_repair_manifest_sha256=None):
     """`records` = iterable of (subject_key, split_role, window_id, embedding_vector). Writes a single .npz at `path` conforming to
     feature_dump_schema, validates it, and returns the validation summary. Fail-closed on an empty dump / bad role / non-finite."""
     import numpy as np  # lazy
@@ -38,7 +40,10 @@ def write_feature_dump(path, *, ref, disease, fold, seed, preprocessing_config_s
         raise FeatureDumpWriteError("embedding vectors must all have the same 1-D length")
     ca = channel_alias_policy_sha256 or PC.channel_alias_policy_sha256()          # default = the pinned policy hashes
     mc = montage_completion_policy_sha256 or PC.montage_completion_policy_sha256()
+    rr = brainvision_read_repair_policy_sha256 or PC.brainvision_read_repair_policy_sha256()
+    rrm = raw_header_repair_manifest_sha256 or BR.EMPTY_MANIFEST_SET_SHA256      # default = the no-repair sentinel manifest hash
     mcbs = json.dumps(montage_completion_by_subject or {}, sort_keys=True, separators=(",", ":"))
+    rrbs = json.dumps(brainvision_read_repair_by_recording or {}, sort_keys=True, separators=(",", ":"))
     payload = {
         "schema_version": np.asarray(FS.SCHEMA_VERSION), "ref": np.asarray(ref), "disease": np.asarray(disease),
         "fold": np.asarray(int(fold)), "seed": np.asarray(int(seed)),
@@ -48,6 +53,9 @@ def write_feature_dump(path, *, ref, disease, fold, seed, preprocessing_config_s
         "source_state_file_sha256": np.asarray(source_state_file_sha256),
         "channel_alias_policy_sha256": np.asarray(ca), "montage_completion_policy_sha256": np.asarray(mc),
         "montage_completion_by_subject": np.asarray(mcbs),
+        "brainvision_read_repair_policy_sha256": np.asarray(rr),
+        "raw_header_repair_manifest_sha256": np.asarray(rrm),
+        "brainvision_read_repair_by_recording": np.asarray(rrbs),
         "subject_key": np.asarray(subj), "split_role": np.asarray(roles),
         "window_id": np.asarray(wins, dtype=np.int64), "embedding": emb,
     }

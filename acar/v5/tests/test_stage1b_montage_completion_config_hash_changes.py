@@ -16,8 +16,8 @@ def _hex64(h):
 
 def test_policy_pinned_and_hashes():
     cfg = PC.PREPROCESSING_CONFIG
-    assert cfg["montage_completion_policy_version"] == "ACAR_V5_STAGE1B11_MONTAGE_COMPLETION_V1"
-    assert cfg["allowed_missing_by_cohort"] == {"ds004584": ["Pz"], "ds004000": ["F3", "F4", "P3", "P4"]}
+    assert cfg["montage_completion_policy_version"] == "ACAR_V5_STAGE1B12_MONTAGE_COMPLETION_V2"
+    assert cfg["allowed_missing_by_cohort"] == {"ds004584": ["Pz"], "ds004000": ["F3", "F4", "P3", "P4"], "ds004367": ["F7"]}
     ca, mc, full = PC.channel_alias_policy_sha256(), PC.montage_completion_policy_sha256(), PC.config_sha256()
     assert _hex64(ca) and _hex64(mc) and _hex64(full)
     assert ca != mc and ca != full and mc != full

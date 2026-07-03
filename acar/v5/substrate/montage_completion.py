@@ -27,6 +27,25 @@ def allowed_missing_for(cohort):
     return set(PC.PREPROCESSING_CONFIG["allowed_missing_by_cohort"].get(cohort, ()))
 
 
+def _require_conditional(cohort, missing, ch_names):
+    """Stage-1B12: a whitelisted channel that is CONDITIONAL (ds004367 F7) may be completed only when the raw header carries the
+    required duplicate-variant pattern (F7-0 AND F7-1). The variant names are NEVER aliased/kept-first/averaged into the canonical
+    channel — F7 is interpolated from good-position donors like any other whitelisted missing channel. Fail-closed otherwise: being
+    on the whitelist is not, by itself, authorization."""
+    cond = PC.PREPROCESSING_CONFIG["conditional_montage_completion"].get(cohort)
+    if not cond:
+        return
+    ch = cond["channel"]
+    if ch not in missing:
+        return                                                   # channel present natively → no completion, no condition to check
+    present = {str(n).strip().casefold() for n in ch_names}
+    needed = {str(v).strip().casefold() for v in cond["require_variant_names"]}
+    if not needed <= present:
+        raise MontageCompletionError(
+            f"{cohort}: {ch} completion requires the variant channels {list(cond['require_variant_names'])} in the raw header "
+            f"(present={sorted(needed & present)}) — whitelist alone is not sufficient; fail-closed")
+
+
 def _missing_and_dups(ch_names):
     canon_to_src, dups = {}, []
     for n in ch_names:
@@ -55,6 +74,7 @@ def complete_missing_channels(raw, disease, cohort, mne=None):
     if not set(missing) <= allowed:
         raise MontageCompletionError(f"{disease}/{cohort}: missing canonical {missing} not in the cohort whitelist "
                                      f"{sorted(allowed)} — no montage completion authorized")
+    _require_conditional(cohort, missing, list(raw.ch_names))    # ds004367 F7 requires the F7-0/F7-1 variant pattern (fail-closed)
     if len(missing) > int(cfg["max_interpolated_canonical_channels_per_recording"]):
         raise MontageCompletionError(f"{disease}/{cohort}: {len(missing)} missing > max "
                                      f"{cfg['max_interpolated_canonical_channels_per_recording']}")
@@ -68,8 +88,17 @@ def complete_missing_channels(raw, disease, cohort, mne=None):
         raw = raw.copy().add_channels([flat], force_update_info=True)
         raw.set_montage(_STD_MONTAGE, on_missing="ignore", match_case=False, verbose="ERROR")
         pos = raw.get_montage().get_positions()["ch_pos"]
-        donors = [ch for ch in raw.ch_names
-                  if ch not in missing and ch in pos and pos[ch] is not None and bool(np.isfinite(list(pos[ch])).all())]
+
+        def _has_pos(ch):
+            p = pos.get(ch)
+            return p is not None and bool(np.isfinite(list(p)).all())
+        # donor_policy: unknown_position_channels_ignored — DROP non-canonical channels with no standard position (e.g. ds004367's
+        # F7-0/F7-1, GSR/ECG) so they cannot poison the interpolation matrix with NaN coordinates; they are non-canonical and would
+        # be dropped by the later canonical pick anyway. The missing channels we are interpolating keep their (added) positions.
+        drop = [ch for ch in raw.ch_names if ch not in missing and not _has_pos(ch)]
+        if drop:
+            raw = raw.copy().drop_channels(drop)
+        donors = [ch for ch in raw.ch_names if ch not in missing and _has_pos(ch)]
         if len(donors) < int(cfg["min_donor_channels"]):
             raise MontageCompletionError(f"{disease}/{cohort}: insufficient donor geometry ({len(donors)} < "
                                          f"{cfg['min_donor_channels']})")

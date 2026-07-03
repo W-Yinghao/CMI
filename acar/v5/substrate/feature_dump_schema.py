@@ -5,17 +5,20 @@ without ever seeing a label and can prove the dump came from the registered froz
 """
 from __future__ import annotations
 
-SCHEMA_VERSION = "ACAR_V5_STAGE1B_FEAT_DUMP_V2"   # V2: + channel_alias/montage_completion policy hashes + per-subject completion map
+SCHEMA_VERSION = "ACAR_V5_STAGE1B_FEAT_DUMP_V3"   # V3: + BrainVision read-repair policy hash + per-recording repair map + manifest hash
 SPLIT_ROLES = ("train", "val", "cal", "eval")
 
-# scalar header fields (provenance). The 4 *_sha256 substrate hashes + the 2 policy hashes are all hex64.
+# scalar header fields (provenance). The 4 *_sha256 substrate hashes + the 2 policy hashes + the 2 Stage-1B12 repair hashes are hex64.
 _HEX64_HEADER = ("preprocessing_config_sha256", "training_config_sha256", "encoder_checkpoint_file_sha256",
-                 "source_state_file_sha256", "channel_alias_policy_sha256", "montage_completion_policy_sha256")
+                 "source_state_file_sha256", "channel_alias_policy_sha256", "montage_completion_policy_sha256",
+                 "brainvision_read_repair_policy_sha256", "raw_header_repair_manifest_sha256")
 HEADER_FIELDS = ("schema_version", "ref", "disease", "fold", "seed",
                  "preprocessing_config_sha256", "training_config_sha256",
                  "encoder_checkpoint_file_sha256", "source_state_file_sha256",
                  "channel_alias_policy_sha256", "montage_completion_policy_sha256",
-                 "montage_completion_by_subject")   # JSON str: {subject_key: {interpolated,n_interpolated,donor_count}} — NO labels
+                 "montage_completion_by_subject",   # JSON str: {subject_key: {interpolated,n_interpolated,donor_count}} — NO labels
+                 "brainvision_read_repair_policy_sha256", "raw_header_repair_manifest_sha256",
+                 "brainvision_read_repair_by_recording")   # JSON str: {subject::recording: {repair_mode, *_sha256}} — NO labels
 # per-record parallel arrays
 RECORD_ARRAYS = ("subject_key", "split_role", "window_id", "embedding")
 # a dump may NEVER carry a label-like field
@@ -72,15 +75,21 @@ def validate_loaded(mapping):
         if not _is_hex64(str(_scalar(h))):
             raise FeatureDumpSchemaError(f"{h} is not 64-hex")
     import json
-    mcbs = str(_scalar("montage_completion_by_subject"))       # JSON str → dict; must carry no label-like field
-    try:
-        parsed = json.loads(mcbs)
-    except ValueError as e:
-        raise FeatureDumpSchemaError(f"montage_completion_by_subject is not valid JSON: {e}")
-    if not isinstance(parsed, dict):
-        raise FeatureDumpSchemaError("montage_completion_by_subject must be a JSON object")
-    if set(_flatten_keys(parsed)) & set(FORBIDDEN_FIELDS):
-        raise FeatureDumpSchemaError("montage_completion_by_subject carries a label-like field")
+
+    def _label_free_json_map(field):
+        raw = str(_scalar(field))                               # JSON str → dict; must carry no label-like field
+        try:
+            parsed = json.loads(raw)
+        except ValueError as e:
+            raise FeatureDumpSchemaError(f"{field} is not valid JSON: {e}")
+        if not isinstance(parsed, dict):
+            raise FeatureDumpSchemaError(f"{field} must be a JSON object")
+        if set(_flatten_keys(parsed)) & set(FORBIDDEN_FIELDS):
+            raise FeatureDumpSchemaError(f"{field} carries a label-like field")
+        return parsed
+
+    parsed = _label_free_json_map("montage_completion_by_subject")
+    repair_parsed = _label_free_json_map("brainvision_read_repair_by_recording")
 
     subj = np.asarray(mapping["subject_key"])
     roles = np.asarray(mapping["split_role"])
@@ -108,4 +117,7 @@ def validate_loaded(mapping):
             "fold": int(_scalar("fold")), "seed": int(_scalar("seed")),
             "channel_alias_policy_sha256": str(_scalar("channel_alias_policy_sha256")),
             "montage_completion_policy_sha256": str(_scalar("montage_completion_policy_sha256")),
-            "montage_completion_by_subject": parsed}
+            "montage_completion_by_subject": parsed,
+            "brainvision_read_repair_policy_sha256": str(_scalar("brainvision_read_repair_policy_sha256")),
+            "raw_header_repair_manifest_sha256": str(_scalar("raw_header_repair_manifest_sha256")),
+            "brainvision_read_repair_by_recording": repair_parsed}

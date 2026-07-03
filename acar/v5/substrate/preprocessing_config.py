@@ -40,14 +40,37 @@ PREPROCESSING_CONFIG = {
     # WHITELISTED set of missing canonical electrodes may be interpolated (spherical-spline, standard positions) so the substrate's
     # 19-channel logical layout is preserved. Any missing channel NOT in the whitelist → FAIL. Duplicate logical channels are never
     # interpolated (fail-closed). Interpolation is audited (SubjectWindows.provenance + feature-dump policy hashes).
-    "montage_completion_policy_version": "ACAR_V5_STAGE1B11_MONTAGE_COMPLETION_V1",
-    "allowed_missing_by_cohort": {"ds004584": ["Pz"], "ds004000": ["F3", "F4", "P3", "P4"]},
+    # Stage-1B12: ds004367 F7 added to the whitelist but ONLY as a CONDITIONAL completion — F7 may be interpolated for a ds004367
+    # recording only when the raw header carries the known re-referenced/split duplicate-variant pattern (F7-0 AND F7-1) and no
+    # canonical F7. F7-0/F7-1 are non-canonical (no standard position) → they are NEVER aliased/kept-first/averaged into F7; F7 is
+    # interpolated from the good-position donors like any other whitelisted missing channel. A ds004367 recording missing F7 WITHOUT
+    # the variant pattern fails closed (the whitelist alone is not sufficient authorization).
+    "montage_completion_policy_version": "ACAR_V5_STAGE1B12_MONTAGE_COMPLETION_V2",
+    "allowed_missing_by_cohort": {"ds004584": ["Pz"], "ds004000": ["F3", "F4", "P3", "P4"], "ds004367": ["F7"]},
     "max_interpolated_canonical_channels_per_recording": 4,
     "interpolation_method": "mne_interpolate_bads_spherical_spline_standard_1020",
     "interpolation_mode": "accurate",
     "min_donor_channels": 8,
     "donor_policy": ("good_position_eeg_channels_only;interpolated_channels_not_donors;"
                      "noncanonical_donors_dropped_after_canonical_output;unknown_position_channels_ignored"),
+    "conditional_montage_completion": {"ds004367": {"channel": "F7", "require_variant_names": ["F7-0", "F7-1"]}},
+    "conditional_montage_completion_policy": ("whitelisted_channel_completed_only_if_all_required_variant_names_present_in_raw_"
+                                              "header;variant_names_never_aliased_or_kept_first_or_averaged_into_the_canonical_channel"),
+    # Stage-1B12: reviewed BrainVision READ-REPAIR policy (header/marker only; the raw signal is NEVER modified/copied). Two exact,
+    # whitelisted repair modes fix the header-READABILITY defects the Stage-1B11P preflight surfaced, so the pinned mne can open the
+    # recording. Everything else fails closed. (a) missing_markerfile_minimal_vmrk: ds003944/ds003947 .vhdr with a DataFile but NO
+    # MarkerFile and no .vmrk on disk → synthesize a minimal marker (a single New Segment; NO task/event inference) + a repaired
+    # header pointing at the ORIGINAL .eeg. (b) broken_internal_pointer_rewrite: ds004000/sub-042's two exact recordings whose .vhdr
+    # DataFile/MarkerFile point at non-existent (pre-BIDS-rename) files → a repaired header pointing at the existing BIDS sibling
+    # data/marker files. Both write ONLY into an ephemeral staging dir and produce an audited repair manifest.
+    "brainvision_read_repair_policy_version": "ACAR_V5_STAGE1B12_BV_READ_REPAIR_V1",
+    "brainvision_read_repair_missing_markerfile_cohorts": ["ds003944", "ds003947"],
+    "brainvision_read_repair_pointer_rewrite": {"cohort": "ds004000", "subject": "sub-042",
+                                                "recordings": ["sub-042_task-proposer_run-1_eeg.vhdr",
+                                                               "sub-042_task-responder_run-1_eeg.vhdr"]},
+    "brainvision_read_repair_data_extensions": [".eeg", ".dat"],
+    "brainvision_read_repair_marker_synthesis": "minimal_single_new_segment_only_no_event_inference",
+    "brainvision_read_repair_writes_into_raw_tree": False,
 }
 
 
@@ -67,7 +90,15 @@ def montage_completion_policy_sha256():
     """Hash of ONLY the montage-completion policy subset (for provenance/feature-dump auditing)."""
     return _subset_sha256(("montage_completion_policy_version", "allowed_missing_by_cohort",
                            "max_interpolated_canonical_channels_per_recording", "interpolation_method",
-                           "interpolation_mode", "min_donor_channels", "donor_policy"))
+                           "interpolation_mode", "min_donor_channels", "donor_policy",
+                           "conditional_montage_completion", "conditional_montage_completion_policy"))
+
+
+def brainvision_read_repair_policy_sha256():
+    """Hash of ONLY the BrainVision read-repair policy subset (for provenance/feature-dump auditing)."""
+    return _subset_sha256(("brainvision_read_repair_policy_version", "brainvision_read_repair_missing_markerfile_cohorts",
+                           "brainvision_read_repair_pointer_rewrite", "brainvision_read_repair_data_extensions",
+                           "brainvision_read_repair_marker_synthesis", "brainvision_read_repair_writes_into_raw_tree"))
 
 
 def canonical_json():

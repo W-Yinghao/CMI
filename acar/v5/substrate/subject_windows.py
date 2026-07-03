@@ -28,6 +28,7 @@ class SubjectWindows:
     windows: object = None                 # array-like [n_windows, 19, 512] float; duck-typed, validated lazily
     provenance: str = ""
     montage_completion: object = None      # {interpolated:[...], n_interpolated, donor_count, by_recording:[...]} or None
+    read_repair: object = None             # Stage-1B12: {repaired:[recording...], by_recording:[repair manifest...]} or None
     # NOTE: no `label` / `y` field here — labels are read separately and ONLY via the FIT training view.
 
 

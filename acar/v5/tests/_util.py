@@ -342,6 +342,39 @@ def make_mne_raw(ch_names, n_times=2048, sfreq=256.0, seed=0, nan_channels=()):
     return mne.io.RawArray(data, info, verbose="ERROR")
 
 
+def make_brainvision_triplet(dirpath, stem, ch_names=("Fp1", "Fp2"), n_points=300, sfreq=256.0, with_marker=True,
+                             data_file=None, marker_file=None):
+    """Write a minimal, valid BrainVision triplet (.vhdr + .eeg + optional .vmrk; MULTIPLEXED IEEE_FLOAT_32) into `dirpath` and
+    return the .vhdr path. SYNTHETIC signal only. `with_marker=False` omits the MarkerFile line and writes no .vmrk (the marker-less
+    defect). `data_file`/`marker_file` override the header's INTERNAL DataFile/MarkerFile pointer values (to synthesize the
+    stale-pointer defect) — the ACTUAL binary/marker are always written as the BIDS siblings <stem>.eeg / <stem>.vmrk."""
+    import os
+    import numpy as np
+    os.makedirs(dirpath, exist_ok=True)
+    nch = len(ch_names)
+    data = (np.random.RandomState(abs(hash(stem)) % (2**32)).randn(nch, n_points) * 1e-6).astype("<f4")
+    data.T.tofile(os.path.join(dirpath, stem + ".eeg"))          # multiplexed: pt-major, channel-minor
+    interval_us = int(round(1_000_000.0 / float(sfreq)))
+    ch_lines = "".join(f"Ch{i+1}={nm},,1,\N{MICRO SIGN}V\n" for i, nm in enumerate(ch_names))
+    dfl = data_file if data_file is not None else (stem + ".eeg")
+    mfl = marker_file if marker_file is not None else (stem + ".vmrk")
+    hdr = ["Brain Vision Data Exchange Header File Version 1.0", "", "[Common Infos]", "Codepage=UTF-8",
+           f"DataFile={dfl}"]
+    if with_marker:
+        hdr.append(f"MarkerFile={mfl}")
+    hdr += ["DataFormat=BINARY", "DataOrientation=MULTIPLEXED", f"NumberOfChannels={nch}",
+            f"DataPoints={n_points}", f"SamplingInterval={interval_us}", "", "[Binary Infos]",
+            "BinaryFormat=IEEE_FLOAT_32", "", "[Channel Infos]", ch_lines]
+    vhdr_path = os.path.join(dirpath, stem + ".vhdr")
+    with open(vhdr_path, "w", encoding="utf-8") as f:
+        f.write("\n".join(hdr))
+    if with_marker:
+        with open(os.path.join(dirpath, stem + ".vmrk"), "w", encoding="utf-8") as f:
+            f.write("Brain Vision Data Exchange Marker File, Version 1.0\n\n[Common Infos]\nCodepage=UTF-8\n"
+                    f"DataFile={stem}.eeg\n\n[Marker Infos]\nMk1=New Segment,,1,1,0\n")
+    return vhdr_path
+
+
 def make_fake_raw(ch_names, n_times=1024):
     """A minimal mne-Raw-like fixture (records DSP calls; deterministic varying data). Duck-typed for real_mne_reader."""
     import numpy as np

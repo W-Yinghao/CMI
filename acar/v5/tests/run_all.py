@@ -110,6 +110,18 @@ MODULES = (
     "test_stage1b_duplicate_f7_raw_header_adjudication",
     "test_stage1b_channels_tsv_duplicate_warns_not_decisive_if_raw_header_clean",
     "test_stage1b_raw_header_duplicate_logical_fails",
+    "test_stage1b_brainvision_missing_marker_repair_allowed_scZ",
+    "test_stage1b_brainvision_missing_marker_repair_forbidden_other_cohort",
+    "test_stage1b_brainvision_repair_does_not_modify_raw_tree",
+    "test_stage1b_brainvision_repair_manifest_hashes",
+    "test_stage1b_brainvision_broken_pointer_repair_sub042_only",
+    "test_stage1b_brainvision_broken_pointer_repair_forbidden_other_recording",
+    "test_stage1b_brainvision_repaired_header_preload_false_fixture",
+    "test_stage1b_ds004367_f7_interpolation_allowed_only_variant_pattern",
+    "test_stage1b_ds004367_f7_keep_first_forbidden",
+    "test_stage1b_ds004367_f7_unconditional_whitelist_forbidden",
+    "test_stage1b_feat_dump_v3_records_read_repair_and_completion",
+    "test_stage1b_read_repair_preprocess_subject_staging_integration",
 )
 
 

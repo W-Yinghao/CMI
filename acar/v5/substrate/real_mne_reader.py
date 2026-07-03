@@ -16,8 +16,17 @@ names T7/T8/P7/P8 → old T3/T4/T5/T6; Fp case-normalized); extra non-canonical 
 channel fails closed. A canonical channel that is missing after aliasing fails closed UNLESS it is in the reviewed per-cohort
 montage-completion whitelist (montage_completion), in which case it is interpolated (spherical-spline over standard positions) and the
 interpolation is recorded in the SubjectWindows provenance; the OUTPUT montage is always the old-10-20 canonical order.
+
+Header read-repair (Stage-1B12, opt-in via `preprocess_subject(..., staging_dir=...)`): a few real cohorts have BrainVision *header*
+defects (missing MarkerFile; internal DataFile/MarkerFile pointers left stale by BIDS renaming) that stop the pinned mne from even
+opening the recording. `brainvision_read_repair` materializes an EPHEMERAL, audited repaired header (+ a minimal synthesized marker,
+never inferred events) under the staging dir — the raw signal is NEVER modified, copied, or read for this — and the reader opens that
+repaired header. The repair is recorded in SubjectWindows.read_repair + provenance. Only the two reviewed, whitelisted repair modes
+apply; everything else opens the original header unchanged (fail-closed at mne if it is genuinely unreadable).
 """
 from __future__ import annotations
+import hashlib
+import json
 import os
 from acar.v5.substrate import preprocessing_config as PC
 from acar.v5.substrate import subject_windows as SW
@@ -72,15 +81,18 @@ def _windows_from_raw(raw, np, disease, cohort, mne=None):
     return _per_trial_zscore(windows, np).astype(np.float32), interp   # (10) z-score
 
 
-def _provenance(raw_manifest_sha256, montage):
+def _provenance(raw_manifest_sha256, montage, read_repair):
     parts = ["real_mne_reader"]
     if raw_manifest_sha256:
         parts.append(f"raw_manifest_sha256={raw_manifest_sha256}")
     parts.append(f"channel_alias_policy_sha256={PC.channel_alias_policy_sha256()}")
     parts.append(f"montage_completion_policy_sha256={PC.montage_completion_policy_sha256()}")
+    parts.append(f"brainvision_read_repair_policy_sha256={PC.brainvision_read_repair_policy_sha256()}")
     parts.append(f"interpolated={montage['interpolated']}")
     parts.append(f"n_interpolated={montage['n_interpolated']}")
     parts.append(f"donor_count={montage['donor_count']}")
+    parts.append(f"read_repaired={read_repair['repaired']}")
+    parts.append(f"n_read_repaired={len(read_repair['repaired'])}")
     return ";".join(parts)
 
 
@@ -92,16 +104,23 @@ def _aggregate_montage(per_recording):
             "donor_count": (min(donor_counts) if donor_counts else 0), "by_recording": per_recording}
 
 
-def _wrap(windows, disease, cohort, raw_subject_id, raw_manifest_sha256=None, montage=None):
+def _aggregate_read_repair(manifests):
+    """Combine per-recording BrainVision read-repair manifests into a subject-level read_repair record (empty if none repaired)."""
+    manifests = list(manifests or [])
+    return {"repaired": sorted(m["recording"] for m in manifests), "by_recording": manifests}
+
+
+def _wrap(windows, disease, cohort, raw_subject_id, raw_manifest_sha256=None, montage=None, read_repair=None):
     import numpy as np
     windows = np.ascontiguousarray(windows, dtype=np.float32)
     montage = montage or {"interpolated": [], "n_interpolated": 0, "donor_count": 0, "by_recording": []}
+    read_repair = read_repair or {"repaired": [], "by_recording": []}
     sw = SW.SubjectWindows(
         subject_key=f"{disease}/{cohort}/{raw_subject_id}", disease=disease, cohort=cohort, raw_subject_id=raw_subject_id,
         n_windows=int(windows.shape[0]), n_channels=19, n_samples=PC.PREPROCESSING_CONFIG["window_samples"],
         sfreq=PC.PREPROCESSING_CONFIG["resample_hz"], channels=PC.CHANNELS_19,
         preprocessing_config_sha256=PC.config_sha256(), windows=windows,
-        provenance=_provenance(raw_manifest_sha256, montage), montage_completion=montage)
+        provenance=_provenance(raw_manifest_sha256, montage, read_repair), montage_completion=montage, read_repair=read_repair)
     SW.validate_subject_windows(sw)                           # fail-closed vs the pinned config + payload shape/finiteness
     return sw
 
@@ -115,26 +134,66 @@ def raw_to_windows(raw, disease, cohort, raw_subject_id, mne=None):
 
 
 def _read_raw(path, mne):
-    import os
     ext = os.path.splitext(path)[1].lower()
     loader = getattr(mne.io, _MNE_LOADER[ext])
     return loader(path, preload=True, verbose="ERROR")
 
 
-def preprocess_subject(disease, cohort, raw_subject_id, subject_dir, *, mne=None):
+def _sha256_file(path):
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(1 << 20), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _repair_aware_reads(disease, cohort, subject, files, mne, staging_dir):
+    """Stage-1B12: for each discovered recording, apply the reviewed, header-only BrainVision read-repair (if any) into `staging_dir`
+    and open the (repaired-or-original) header; also build an audit hash over the ORIGINAL header + effective data/marker targets. The
+    raw signal is never modified/copied. Returns (list[(orig_path, raw)], manifests, raw_manifest_sha256)."""
+    from acar.v5.substrate import brainvision_read_repair as BR
+    reads, manifests, entries = [], [], []
+    for p in files:
+        read_path, manifest = BR.repaired_read_path(disease, cohort, subject, p, staging_dir)
+        if manifest is None:                                   # native / no reviewed repair → normal sidecar-audited manifest entry
+            entries.append(("primary", os.path.abspath(p), _sha256_file(p)))
+            for sc in RM.resolve_sidecars(p):
+                entries.append(("sidecar", os.path.abspath(sc), _sha256_file(sc)))
+        else:
+            manifests.append(manifest)
+            entries.append(("primary", manifest["original_vhdr_path"], manifest["original_header_sha256"]))
+            entries.append(("data_target", manifest["data_file_target"], _sha256_file(manifest["data_file_target"])))
+            entries.append(("marker_target", manifest["marker_file_target"], _sha256_file(manifest["marker_file_target"])))
+        reads.append((p, _read_raw(read_path, mne)))
+    raw_manifest_sha256 = hashlib.sha256(json.dumps(sorted(entries), sort_keys=True).encode()).hexdigest()
+    return reads, manifests, raw_manifest_sha256
+
+
+def preprocess_subject(disease, cohort, raw_subject_id, subject_dir, *, mne=None, staging_dir=None):
     """Discover raw-BIDS recordings, window EACH independently (no cross-recording windows), concatenate the window arrays → one
-    validated SubjectWindows. mne is lazy (or injected for fixtures)."""
+    validated SubjectWindows. mne is lazy (or injected for fixtures). When `staging_dir` is given, the reviewed BrainVision
+    read-repair layer (Stage-1B12) may materialize an EPHEMERAL repaired header there (raw signal never touched) so a header-defective
+    recording can be opened; the repair is audited in SubjectWindows.read_repair + provenance."""
     if mne is None:
         import mne as _mne  # lazy — never imported at module load
         mne = _mne
     import numpy as np
-    manifest = RM.build_manifest(subject_dir)                 # raw-BIDS-only discovery + hashed manifest (incl. format sidecars)
-    files = [e["path"] for e in manifest["files"] if e.get("role") == "primary"]
+    if staging_dir is None:
+        manifest = RM.build_manifest(subject_dir)             # raw-BIDS-only discovery + hashed manifest (incl. format sidecars)
+        files = [e["path"] for e in manifest["files"] if e.get("role") == "primary"]
+        reads = [(p, _read_raw(p, mne)) for p in files]
+        repair_manifests, raw_manifest_sha256 = [], manifest["manifest_sha256"]
+    else:                                                     # repair-aware read path (discovery = listing only; repair per recording)
+        subject = os.path.basename(os.path.normpath(subject_dir))
+        files = RM.discover_raw_recordings(subject_dir)
+        reads, repair_manifests, raw_manifest_sha256 = _repair_aware_reads(disease, cohort, subject, files, mne, staging_dir)
     per_windows, per_interp = [], []
-    for p in files:                                           # window EACH recording independently
-        wins, interp = _windows_from_raw(_read_raw(p, mne), np, disease, cohort, mne=mne)
+    for p, raw in reads:                                      # window EACH recording independently
+        wins, interp = _windows_from_raw(raw, np, disease, cohort, mne=mne)
         per_windows.append(wins)
         per_interp.append({"recording": os.path.basename(p), **interp})
     windows = np.concatenate(per_windows, axis=0)             # concatenate WINDOWS, never raws
     montage = _aggregate_montage(per_interp)
-    return _wrap(windows, disease, cohort, raw_subject_id, raw_manifest_sha256=manifest["manifest_sha256"], montage=montage)
+    read_repair = _aggregate_read_repair(repair_manifests)
+    return _wrap(windows, disease, cohort, raw_subject_id, raw_manifest_sha256=raw_manifest_sha256, montage=montage,
+                 read_repair=read_repair)
