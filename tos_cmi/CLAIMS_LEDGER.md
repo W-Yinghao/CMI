@@ -123,6 +123,14 @@ erasure_target_deployment:                        # Step 3 (DONE; SLURM 878002)
 end_to_end_tos_training:        {status: not_attempted, plan: Track E (conditional-on-kept critic + PCGrad + anti-collapse)}
 ```
 
+**Real-EEG multi-dataset validation (branch `tos`, in progress):** see `notes/REAL_EEG_VALIDATION.md`
+for the run manifest + pre-registered acceptance criteria. Key provenance: fold-cap bug fix `ede201a`
+(`--target-subjects all`/factorial FOLDS were hardcoded to 9 -> non-9-subject datasets dumped only 9 LOSO
+folds; now read from the real MOABB subject_list; existing 9-fold dumps verified full-source-pool),
+degenerate-metric guard `10c22e9`, group/array `%4` submission `99b767d`. Datasets = 2b, Lee2019 (54),
+Cho2017 (52), High-Gamma (14); Stieger2021 excluded (variable channels). Multi-dataset numbers do NOT
+enter the paper claim contract until the CONFIRM/MIXED/OVERTURN readout is in.
+
 **Verification rule for any new claim:** add a block here with `status`, runnable `script`, `dataset`,
 `seeds`, `outputs` (committed or regenerable), and `figure`; only then may it enter the paper. Mirrors the
 project's hard-won provenance discipline (see top-level `notes/EVIDENCE_LEDGER.md`, `CLOSEOUT.md`).
