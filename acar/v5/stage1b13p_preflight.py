@@ -26,7 +26,7 @@ from acar.v5.substrate import preprocessing_config as PC
 from acar.v5.substrate import raw_recording_manifest as RM
 
 PROTOCOL_TAG_TARGET_SHA = "4278435975a72b1127803dd2cffab420c083e430"
-IMPLEMENTATION_BASE_SHA = "STAGE1B13_PENDING_COMMIT"          # filled to the reviewed Stage-1B13 commit before the real Stage-1B13P run
+IMPLEMENTATION_BASE_SHA = "2e8b1face003775ae5b3e6a06b7e576dd7863463"   # reviewed Stage-1B13 commit
 
 _BASE = "/projects/EEG-foundation-model/datalake/raw/scps"
 COHORT_ROOTS = {
