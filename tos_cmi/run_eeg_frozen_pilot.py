@@ -33,8 +33,12 @@ def main():
     ap.add_argument("--out-root", default="tos_cmi/results/tos_cmi_eeg_frozen")
     args = ap.parse_args()
 
-    subjects = ([1, 2, 3, 4, 5, 6, 7, 8, 9] if args.target_subjects == ["all"]
-                else [int(s) for s in args.target_subjects])
+    if args.target_subjects == ["all"]:
+        import moabb.datasets as D
+        subjects = [int(s) for s in getattr(D, args.dataset)().subject_list]  # real LOSO folds (NOT hardcoded 9)
+    else:
+        subjects = [int(s) for s in args.target_subjects]
+    print("LOSO over %d subjects for %s: %s" % (len(subjects), args.dataset, subjects), flush=True)
     base = "%s/%s_%s_LOSO" % (args.out_root, args.dataset, args.backbone)
     os.makedirs(base, exist_ok=True)
     rows = []

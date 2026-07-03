@@ -34,12 +34,14 @@ def main():
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--out-root", default="tos_cmi/results/tos_cmi_eeg_frozen/factorial")
     args = ap.parse_args()
+    import moabb.datasets as D
+    folds = [int(s) for s in getattr(D, args.dataset)().subject_list]   # real LOSO folds (NOT hardcoded 9)
     kw = backbone_kw_for(args.backbone, args.dim)
     cell = "%s_dim%d" % (args.backbone, args.dim)            # e.g. TSMNet_dim8, EEGNet_dim64
     base = "%s/%s_%s" % (args.out_root, args.dataset, cell)
     os.makedirs(base, exist_ok=True)
     rows = []
-    for f in FOLDS:
+    for f in folds:
         out = "%s/sub%d_erm_lam0_seed%d.npz" % (base, f, args.seed)
         try:
             dump_fold(args.dataset, f, "erm", 0.0, args.seed, out, backbone=args.backbone,
