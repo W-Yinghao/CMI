@@ -29,7 +29,7 @@ from acar.v5.substrate import preprocessing_config as PC
 from acar.v5.substrate import raw_recording_manifest as RM
 
 PROTOCOL_TAG_TARGET_SHA = "4278435975a72b1127803dd2cffab420c083e430"
-IMPLEMENTATION_BASE_SHA = "STAGE1B14_PENDING_COMMIT"   # filled to the reviewed Stage-1B14 commit before the real Stage-1B14P run
+IMPLEMENTATION_BASE_SHA = "3fe885245133e2bc141651955da33bb7fd7adeac"   # reviewed Stage-1B14 commit
 
 _BASE = "/projects/EEG-foundation-model/datalake/raw/scps"
 COHORT_ROOTS = {
@@ -120,6 +120,9 @@ def classify(disease, cohort, subject, recording_path, staging_dir, mne_state, s
         counters[f"mode_{repair_mode}"] = counters.get(f"mode_{repair_mode}", 0) + 1
         counters["manifest_validated"] = counters.get("manifest_validated", 0) + 1
         name_repair = repair_mode == BR.MODE_CHANNEL_NAMES_FROM_TSV
+        if name_repair:                                        # Stage-1B14 report telemetry: pure_eeg vs type_prefixed ordinal
+            counters[f"subtype_{manifest.get('channel_name_repair_subtype')}"] = \
+                counters.get(f"subtype_{manifest.get('channel_name_repair_subtype')}", 0) + 1
         marker_repair = repair_mode in (BR.MODE_MISSING_MARKER, BR.MODE_POINTER_REWRITE) or \
             (name_repair and manifest.get("generated_marker_sha256") is not None)
 
@@ -240,6 +243,8 @@ def _fmt(per_cohort, failures, completion, counters, staging):
           f"  n_missing_markerfile_minimal_vmrk     = {counters.get('mode_' + BR.MODE_MISSING_MARKER, 0)}",
           f"  n_broken_internal_pointer_rewrite     = {counters.get('mode_' + BR.MODE_POINTER_REWRITE, 0)}",
           f"  n_channel_names_from_channels_tsv     = {counters.get('mode_' + BR.MODE_CHANNEL_NAMES_FROM_TSV, 0)}",
+          f"  n_pure_eeg_ordinal                    = {counters.get('subtype_pure_eeg_ordinal', 0)}",
+          f"  n_type_prefixed_ordinal               = {counters.get('subtype_type_prefixed_ordinal', 0)}",
           f"  n_repair_manifest_validated           = {counters.get('manifest_validated', 0)}",
           f"  n_repaired_header_preload_false_pass  = {counters.get('repaired_preload_false_pass', 0)}",
           f"  n_repaired_header_preload_false_fail  = {counters.get('repaired_preload_false_fail', 0)}", "", "montage summary:"]
