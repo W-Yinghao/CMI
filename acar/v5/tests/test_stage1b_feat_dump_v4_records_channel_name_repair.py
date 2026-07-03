@@ -24,7 +24,7 @@ def test_v4_records_channel_name_repair_map():
             "channel_name_source": "channels.tsv", "channels_tsv_sha256": "a" * 64,
             "channel_name_mapping_sha256": "b" * 64, "original_header_channel_names_sha256": "c" * 64,
             "repaired_header_channel_names_sha256": "d" * 64}})
-    assert str(FS.SCHEMA_VERSION) == "ACAR_V5_STAGE1B_FEAT_DUMP_V4"
+    assert str(FS.SCHEMA_VERSION) == "ACAR_V5_STAGE1B_FEAT_DUMP_V5"   # V4 fields persist under V5 (superset)
     assert len(summ["channel_name_repair_policy_sha256"]) == 64
     assert "SCZ/ds003944/sub-1448::sub-1448_task-Rest_eeg.vhdr" in summ["channel_name_repair_by_recording"]
     ok("V4 dump round-trips the channel-name repair policy hash + per-recording rename map")

@@ -18,7 +18,8 @@ def write_feature_dump(path, *, ref, disease, fold, seed, preprocessing_config_s
                        channel_alias_policy_sha256=None, montage_completion_policy_sha256=None,
                        montage_completion_by_subject=None, brainvision_read_repair_policy_sha256=None,
                        brainvision_read_repair_by_recording=None, raw_header_repair_manifest_sha256=None,
-                       channel_name_repair_policy_sha256=None, channel_name_repair_by_recording=None):
+                       channel_name_repair_policy_sha256=None, channel_name_repair_by_recording=None,
+                       channel_name_repair_subtype_by_recording=None):
     """`records` = iterable of (subject_key, split_role, window_id, embedding_vector). Writes a single .npz at `path` conforming to
     feature_dump_schema, validates it, and returns the validation summary. Fail-closed on an empty dump / bad role / non-finite."""
     import numpy as np  # lazy
@@ -47,6 +48,7 @@ def write_feature_dump(path, *, ref, disease, fold, seed, preprocessing_config_s
     mcbs = json.dumps(montage_completion_by_subject or {}, sort_keys=True, separators=(",", ":"))
     rrbs = json.dumps(brainvision_read_repair_by_recording or {}, sort_keys=True, separators=(",", ":"))
     cnrbs = json.dumps(channel_name_repair_by_recording or {}, sort_keys=True, separators=(",", ":"))
+    cnstbs = json.dumps(channel_name_repair_subtype_by_recording or {}, sort_keys=True, separators=(",", ":"))
     payload = {
         "schema_version": np.asarray(FS.SCHEMA_VERSION), "ref": np.asarray(ref), "disease": np.asarray(disease),
         "fold": np.asarray(int(fold)), "seed": np.asarray(int(seed)),
@@ -61,6 +63,7 @@ def write_feature_dump(path, *, ref, disease, fold, seed, preprocessing_config_s
         "brainvision_read_repair_by_recording": np.asarray(rrbs),
         "channel_name_repair_policy_sha256": np.asarray(cnr),
         "channel_name_repair_by_recording": np.asarray(cnrbs),
+        "channel_name_repair_subtype_by_recording": np.asarray(cnstbs),
         "subject_key": np.asarray(subj), "split_role": np.asarray(roles),
         "window_id": np.asarray(wins, dtype=np.int64), "embedding": emb,
     }

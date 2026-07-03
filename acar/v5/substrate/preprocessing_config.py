@@ -71,17 +71,22 @@ PREPROCESSING_CONFIG = {
     "brainvision_read_repair_data_extensions": [".eeg", ".dat"],
     "brainvision_read_repair_marker_synthesis": "minimal_single_new_segment_only_no_event_inference",
     "brainvision_read_repair_writes_into_raw_tree": False,
-    # Stage-1B13: reviewed channels.tsv-driven BrainVision channel-NAME repair (header/marker only; raw signal never touched). The
-    # Stage-1B12P preflight found ds003944/ds003947 BrainVision headers expose only GENERIC placeholder names (EEG001..EEG0NN) while
-    # the real electrode names live in the BIDS channels.tsv (which resolves all 19 canonical). This repair, for THOSE two cohorts
-    # ONLY, rewrites the staged header's [Channel Infos] names from the generic placeholders to the channels.tsv names by ROW ORDER
-    # (BIDS requires channels.tsv rows to be in EEG-data-file order) — no fuzzy/heuristic/partial matching. It composes with the
-    # missing_markerfile_minimal_vmrk marker fix. Everywhere else the raw header stays decisive (channels.tsv may only warn/audit,
-    # never rename); if a header carries real names that conflict with channels.tsv, do NOT override — fail and report.
-    "channel_name_repair_policy_version": "ACAR_V5_STAGE1B13_CHANNEL_NAME_REPAIR_V1",
+    # Stage-1B13/1B14: reviewed channels.tsv-driven BrainVision channel-NAME repair (header/marker only; raw signal never touched).
+    # The Stage-1B12P/1B13P preflights found ds003944/ds003947 BrainVision headers expose only ORDINAL PLACEHOLDER names — the i-th
+    # channel is <PREFIX><i> where the integer equals the 1-based data-column position and PREFIX ∈ {EEG,EOG,ECG} (EOG/ECG for the
+    # eye/cardiac channels) — while the real electrode names live in the BIDS channels.tsv (which resolves all 19 canonical). This
+    # repair, for THOSE two cohorts ONLY, rewrites the staged header's [Channel Infos] names from the ordinal placeholders to the
+    # channels.tsv names by ROW ORDER (BIDS requires channels.tsv rows in EEG-data-file order) — no fuzzy/heuristic/partial matching,
+    # only the pinned prefix set, and the ordinal MUST equal the position. It composes with the missing_markerfile_minimal_vmrk marker
+    # fix, and records a subtype (pure_eeg_ordinal vs type_prefixed_ordinal). Everywhere else the raw header stays decisive
+    # (channels.tsv may only warn/audit, never rename); a header with real names that conflict with channels.tsv → do NOT override.
+    # (Stage-1B14 widened the pinned prefix set from {EEG} to {EEG,EOG,ECG}; the mode identifier string is unchanged for provenance
+    # continuity, the widening is captured by the policy version + allowed-prefix set + subtype.)
+    "channel_name_repair_policy_version": "ACAR_V5_STAGE1B14_ORDINAL_CHANNEL_NAME_REPAIR_V2",
     "channel_name_repair_cohorts": ["ds003944", "ds003947"],
     "channel_name_repair_source": "channels.tsv",
-    "channel_name_repair_generic_header_pattern": "EEG<1-based-sequential>",
+    "channel_name_repair_allowed_ordinal_prefixes": ["EEG", "EOG", "ECG"],
+    "channel_name_repair_generic_header_pattern": "(EEG|EOG|ECG)<1-based-ordinal==position>",
     "channel_name_repair_mapping": "channels_tsv_row_order_only",
     "channel_name_repair_no_fuzzy_matching": True,
     "channel_name_repair_requires_row_count_match": True,
@@ -121,6 +126,7 @@ def brainvision_read_repair_policy_sha256():
 def channel_name_repair_policy_sha256():
     """Hash of ONLY the channels.tsv-driven channel-name-repair policy subset (for provenance/feature-dump auditing)."""
     return _subset_sha256(("channel_name_repair_policy_version", "channel_name_repair_cohorts", "channel_name_repair_source",
+                           "channel_name_repair_allowed_ordinal_prefixes",
                            "channel_name_repair_generic_header_pattern", "channel_name_repair_mapping",
                            "channel_name_repair_no_fuzzy_matching", "channel_name_repair_requires_row_count_match",
                            "channel_name_repair_requires_unique_names_after_strip_casefold",

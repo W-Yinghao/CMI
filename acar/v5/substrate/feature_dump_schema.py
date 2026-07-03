@@ -5,7 +5,7 @@ without ever seeing a label and can prove the dump came from the registered froz
 """
 from __future__ import annotations
 
-SCHEMA_VERSION = "ACAR_V5_STAGE1B_FEAT_DUMP_V4"   # V4: + channels.tsv channel-NAME repair policy hash + per-recording rename map
+SCHEMA_VERSION = "ACAR_V5_STAGE1B_FEAT_DUMP_V5"   # V5: + per-recording channel-name-repair SUBTYPE map (pure_eeg vs type_prefixed ordinal)
 SPLIT_ROLES = ("train", "val", "cal", "eval")
 
 # scalar header fields (provenance). The 4 *_sha256 substrate hashes + the policy hashes + the Stage-1B12/1B13 repair hashes are hex64.
@@ -21,7 +21,8 @@ HEADER_FIELDS = ("schema_version", "ref", "disease", "fold", "seed",
                  "brainvision_read_repair_policy_sha256", "raw_header_repair_manifest_sha256",
                  "brainvision_read_repair_by_recording",   # JSON str: {subject::recording: {repair_mode, *_sha256}} — NO labels
                  "channel_name_repair_policy_sha256",
-                 "channel_name_repair_by_recording")   # JSON str: {subject::recording: {channel_name_source, *_sha256}} — NO labels
+                 "channel_name_repair_by_recording",   # JSON str: {subject::recording: {channel_name_source, *_sha256}} — NO labels
+                 "channel_name_repair_subtype_by_recording")   # JSON str: {subject::recording: {subtype, ordinal_prefixes}} — NO labels
 # per-record parallel arrays
 RECORD_ARRAYS = ("subject_key", "split_role", "window_id", "embedding")
 # a dump may NEVER carry a label-like field
@@ -94,6 +95,7 @@ def validate_loaded(mapping):
     parsed = _label_free_json_map("montage_completion_by_subject")
     repair_parsed = _label_free_json_map("brainvision_read_repair_by_recording")
     name_repair_parsed = _label_free_json_map("channel_name_repair_by_recording")
+    name_repair_subtype_parsed = _label_free_json_map("channel_name_repair_subtype_by_recording")
 
     subj = np.asarray(mapping["subject_key"])
     roles = np.asarray(mapping["split_role"])
@@ -126,4 +128,5 @@ def validate_loaded(mapping):
             "raw_header_repair_manifest_sha256": str(_scalar("raw_header_repair_manifest_sha256")),
             "brainvision_read_repair_by_recording": repair_parsed,
             "channel_name_repair_policy_sha256": str(_scalar("channel_name_repair_policy_sha256")),
-            "channel_name_repair_by_recording": name_repair_parsed}
+            "channel_name_repair_by_recording": name_repair_parsed,
+            "channel_name_repair_subtype_by_recording": name_repair_subtype_parsed}

@@ -101,7 +101,7 @@ def _read_repair_map_and_hash(windows_by_subject, subjects):
     manifest-set hash. `by_recording` covers ALL read-repairs; `name_by_recording` covers ONLY the channels.tsv channel-name renames
     (Stage-1B13 mode C) with the rename provenance. Native subjects contribute nothing."""
     from acar.v5.substrate import brainvision_read_repair as BR
-    by_recording, name_by_recording, manifests = {}, {}, []
+    by_recording, name_by_recording, subtype_by_recording, manifests = {}, {}, {}, []
     for sk in subjects:
         rr = getattr(windows_by_subject.get(sk), "read_repair", None) or {}
         for m in rr.get("by_recording", []):
@@ -116,8 +116,11 @@ def _read_repair_map_and_hash(windows_by_subject, subjects):
                     "channel_name_mapping_sha256": m.get("channel_name_mapping_sha256"),
                     "original_header_channel_names_sha256": m.get("original_header_channel_names_sha256"),
                     "repaired_header_channel_names_sha256": m.get("repaired_header_channel_names_sha256")}
+                subtype_by_recording[key] = {                  # Stage-1B14: pure_eeg vs type_prefixed ordinal + the header prefixes
+                    "subtype": m.get("channel_name_repair_subtype"),
+                    "ordinal_prefixes": m.get("original_header_ordinal_prefixes")}
             manifests.append(m)
-    return by_recording, name_by_recording, BR.manifest_set_sha256(manifests)
+    return by_recording, name_by_recording, subtype_by_recording, BR.manifest_set_sha256(manifests)
 
 
 def _validate_fit_records(disease, fold, seed, train, val):
@@ -205,8 +208,8 @@ def dump_fold_embeddings(disease, fold, seed, embedding_view, all_fold_subject_k
         return {"interpolated": mc.get("interpolated", []), "n_interpolated": mc.get("n_interpolated", 0),
                 "donor_count": mc.get("donor_count", 0)}
     montage_by_subject = {sk: _mc_summary(windows_by_subject[sk]) for sk in sorted(emb_by_subject)}
-    repair_by_recording, name_repair_by_recording, repair_manifest_sha256 = _read_repair_map_and_hash(
-        windows_by_subject, sorted(emb_by_subject))
+    repair_by_recording, name_repair_by_recording, name_repair_subtype_by_recording, repair_manifest_sha256 = \
+        _read_repair_map_and_hash(windows_by_subject, sorted(emb_by_subject))
     FDW.write_feature_dump(feat_path, ref=ref, disease=disease, fold=fold, seed=seed,
                            preprocessing_config_sha256=_sha256_file(frozen.preprocessing_config_path),
                            training_config_sha256=_sha256_file(frozen.training_config_path),
@@ -215,7 +218,8 @@ def dump_fold_embeddings(disease, fold, seed, embedding_view, all_fold_subject_k
                            montage_completion_by_subject=montage_by_subject,
                            brainvision_read_repair_by_recording=repair_by_recording,
                            raw_header_repair_manifest_sha256=repair_manifest_sha256,
-                           channel_name_repair_by_recording=name_repair_by_recording)
+                           channel_name_repair_by_recording=name_repair_by_recording,
+                           channel_name_repair_subtype_by_recording=name_repair_subtype_by_recording)
     n_windows_by_subject = {sk: int(np.asarray(emb_by_subject[sk]).shape[0]) for sk in emb_by_subject}   # authoritative counts
     raw = {"ref": ref, "disease": disease, "fold": fold, "seed": seed, "feat_dump_path": feat_path,
            "n_windows_by_subject": n_windows_by_subject}

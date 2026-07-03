@@ -351,13 +351,15 @@ def channels_tsv_path_for(dirpath, stem):
 
 def make_brainvision_triplet(dirpath, stem, ch_names=("Fp1", "Fp2"), n_points=300, sfreq=256.0, with_marker=True,
                              data_file=None, marker_file=None, generic_header=False, write_channels_tsv=False,
-                             channels_tsv_names=None):
+                             channels_tsv_names=None, ordinal_prefix_overrides=None):
     """Write a minimal, valid BrainVision triplet (.vhdr + .eeg + optional .vmrk; MULTIPLEXED IEEE_FLOAT_32) into `dirpath` and
     return the .vhdr path. SYNTHETIC signal only. `with_marker=False` omits the MarkerFile line and writes no .vmrk (the marker-less
     defect). `data_file`/`marker_file` override the header's INTERNAL DataFile/MarkerFile pointer values (to synthesize the
-    stale-pointer defect). `generic_header=True` writes the [Channel Infos] names as generic placeholders EEG001..EEG0NN (the
-    ds003944/ds003947 defect) — `ch_names` still drives the channel COUNT and the channels.tsv rows. `write_channels_tsv=True` writes a
-    BIDS channels.tsv (using `channels_tsv_names` if given, else `ch_names`)."""
+    stale-pointer defect). `generic_header=True` writes the [Channel Infos] names as ORDINAL placeholders `<PREFIX>00i` (default
+    prefix EEG — the pure ds003944 defect); `ordinal_prefix_overrides={1-based position: prefix}` sets specific positions to a
+    different prefix (e.g. {62: 'EOG', 63: 'ECG'} — the type-prefixed ds003944/ds003947 defect). `ch_names` still drives the channel
+    COUNT and the channels.tsv rows. `write_channels_tsv=True` writes a BIDS channels.tsv (using `channels_tsv_names` if given, else
+    `ch_names`)."""
     import csv
     import os
     import numpy as np
@@ -366,7 +368,8 @@ def make_brainvision_triplet(dirpath, stem, ch_names=("Fp1", "Fp2"), n_points=30
     data = (np.random.RandomState(abs(hash(stem)) % (2**32)).randn(nch, n_points) * 1e-6).astype("<f4")
     data.T.tofile(os.path.join(dirpath, stem + ".eeg"))          # multiplexed: pt-major, channel-minor
     interval_us = int(round(1_000_000.0 / float(sfreq)))
-    header_names = [f"EEG{i+1:03d}" for i in range(nch)] if generic_header else list(ch_names)
+    ov = ordinal_prefix_overrides or {}
+    header_names = ([f"{ov.get(i + 1, 'EEG')}{i+1:03d}" for i in range(nch)] if generic_header else list(ch_names))
     ch_lines = "".join(f"Ch{i+1}={nm},,1,\N{MICRO SIGN}V\n" for i, nm in enumerate(header_names))
     dfl = data_file if data_file is not None else (stem + ".eeg")
     mfl = marker_file if marker_file is not None else (stem + ".vmrk")

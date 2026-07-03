@@ -30,6 +30,7 @@ from __future__ import annotations
 import hashlib
 import json
 import os
+import re
 from dataclasses import dataclass
 from acar.v5.substrate import channel_aliases as CA          # pure/stdlib (only pulls preprocessing_config)
 from acar.v5.substrate import preprocessing_config as PC
@@ -56,6 +57,8 @@ class RepairPlan:
     reason: str
     channel_name_map: tuple = ()   # Stage-1B13: channels.tsv names in ROW ORDER to rename [Channel Infos] (empty = no rename)
     channels_tsv_path: str = ""    # absolute path of the channels.tsv used as the rename source (empty = none)
+    channel_name_repair_subtype: str = ""          # Stage-1B14: 'pure_eeg_ordinal' | 'type_prefixed_ordinal' (mode C only)
+    original_header_ordinal_prefixes: tuple = ()   # Stage-1B14: the per-position header prefixes (e.g. EEG.,EOG,ECG) (mode C only)
 
 
 def _norm_sub(s):
@@ -170,15 +173,28 @@ def _parse_channel_infos(vhdr_path):
     return [n for _, n in pairs]
 
 
-def _is_generic_sequential(names):
-    """True iff the i-th (1-based) name is exactly the generic placeholder EEG<i> (any zero-padding), for every channel."""
+def _ordinal_re():
+    """A regex matching an ordinal placeholder name: one of the PINNED prefixes ({EEG,EOG,ECG}) + a positive (optionally zero-padded)
+    integer, anchored. Built from the config so the allowed prefix set is single-sourced."""
+    prefixes = PC.PREPROCESSING_CONFIG["channel_name_repair_allowed_ordinal_prefixes"]
+    return re.compile(r"^(" + "|".join(re.escape(p) for p in prefixes) + r")0*([1-9][0-9]*)$", re.IGNORECASE)
+
+
+def _ordinal_header_info(names):
+    """(is_ordinal, subtype, prefixes): True iff EVERY channel name is exactly <PREFIX><i> with PREFIX in the pinned set and the
+    integer == the 1-based position i. subtype = 'pure_eeg_ordinal' if every prefix is EEG, else 'type_prefixed_ordinal'. No fuzzy
+    matching; a single non-matching / position-mismatched name → (False, None, [])."""
     if not names:
-        return False
+        return False, None, []
+    rx = _ordinal_re()
+    prefixes = []
     for i, n in enumerate(names, 1):
-        s = str(n).strip()
-        if s[:3].upper() != "EEG" or not s[3:].isdigit() or int(s[3:]) != i:
-            return False
-    return True
+        m = rx.match(str(n).strip())
+        if m is None or int(m.group(2)) != i:
+            return False, None, []
+        prefixes.append(m.group(1).upper())
+    subtype = "pure_eeg_ordinal" if all(p == "EEG" for p in prefixes) else "type_prefixed_ordinal"
+    return True, subtype, prefixes
 
 
 def _validate_channels_tsv_for_rename(vhdr_path, n_header):
@@ -208,18 +224,22 @@ def _validate_channels_tsv_for_rename(vhdr_path, n_header):
 
 
 def _plan_channel_name_map(vhdr_path, cohort):
-    """(tuple channels.tsv names in row order, channels.tsv abs path) if a channels.tsv rename is authorized for this generic
-    BrainVision header, else None. Requires the cohort to be whitelisted AND the header exactly generic-sequential AND channels.tsv
-    valid for a row-order rename. Never overrides a header that already carries real (non-generic) names."""
+    """(tuple channels.tsv names in row order, channels.tsv abs path, subtype, ordinal prefixes) if a channels.tsv rename is
+    authorized for this ordinal-placeholder BrainVision header, else None. Requires the cohort to be whitelisted AND the header to be
+    an ordinal placeholder ({EEG,EOG,ECG}<i> with i==position) AND channels.tsv valid for a row-order rename. Never overrides a header
+    that already carries real (non-placeholder) names."""
     if cohort not in PC.PREPROCESSING_CONFIG["channel_name_repair_cohorts"]:
         return None
     header_names = _parse_channel_infos(vhdr_path)
-    if header_names is None or not _is_generic_sequential(header_names):
+    if header_names is None:
+        return None
+    is_ordinal, subtype, prefixes = _ordinal_header_info(header_names)
+    if not is_ordinal:
         return None
     tsv_names, ok = _validate_channels_tsv_for_rename(vhdr_path, len(header_names))
     if not ok:
         return None
-    return tuple(tsv_names), os.path.abspath(_channels_tsv_path(vhdr_path))
+    return tuple(tsv_names), os.path.abspath(_channels_tsv_path(vhdr_path)), subtype, tuple(prefixes)
 
 
 def plan_repair(disease, cohort, subject, recording_path):
@@ -250,13 +270,14 @@ def plan_repair(disease, cohort, subject, recording_path):
             marker_target = os.path.abspath(declared_mrk)      # keep the existing (resolvable) marker
         else:
             marker_target = None                               # ambiguous marker state → do not guess
-        cmap = _plan_channel_name_map(vhdr, cohort)            # generic-sequential header + valid channels.tsv?
+        cmap = _plan_channel_name_map(vhdr, cohort)            # ordinal-placeholder header ({EEG,EOG,ECG}<i>) + valid channels.tsv?
         if cmap is not None and marker_target is not None:
-            names, tsv_path = cmap
+            names, tsv_path, subtype, prefixes = cmap
             return RepairPlan(mode=MODE_CHANNEL_NAMES_FROM_TSV, disease=disease, cohort=cohort, subject=str(subject),
                               recording=base, original_vhdr_path=vhdr, data_target=declared_data, marker_target=marker_target,
-                              channel_name_map=names, channels_tsv_path=tsv_path,
-                              reason="generic EEG00N header names; rename [Channel Infos] from channels.tsv by row order"
+                              channel_name_map=names, channels_tsv_path=tsv_path, channel_name_repair_subtype=subtype,
+                              original_header_ordinal_prefixes=prefixes,
+                              reason=f"ordinal-placeholder header ({subtype}); rename [Channel Infos] from channels.tsv by row order"
                                      + ("" if marker_target else " and synthesize a minimal marker"))
         if marker_less:
             return RepairPlan(mode=MODE_MISSING_MARKER, disease=disease, cohort=cohort, subject=str(subject),
@@ -416,6 +437,9 @@ def apply_repair(plan, staging_dir):
         orig_names = _parse_channel_infos(plan.original_vhdr_path)
         if orig_names is None or len(orig_names) != len(plan.channel_name_map):
             raise BrainvisionReadRepairError("original header channel count does not match the channels.tsv rename map")
+        is_ordinal, subtype, prefixes = _ordinal_header_info(orig_names)   # re-derive from the ORIGINAL header (must match the plan)
+        if not is_ordinal or subtype != plan.channel_name_repair_subtype or tuple(prefixes) != tuple(plan.original_header_ordinal_prefixes):
+            raise BrainvisionReadRepairError("original header is not the pinned ordinal-placeholder pattern the plan asserted")
         text = _rewrite_channel_infos(text, list(plan.channel_name_map))
         channel_fields = {
             "channel_name_source": PC.PREPROCESSING_CONFIG["channel_name_repair_source"],
@@ -424,6 +448,7 @@ def apply_repair(plan, staging_dir):
             "original_header_channel_names_sha256": _names_sha256(orig_names),
             "repaired_header_channel_names_sha256": _names_sha256(plan.channel_name_map),
             "channel_name_repair_policy_sha256": PC.channel_name_repair_policy_sha256(),
+            "channel_name_repair_subtype": subtype, "original_header_ordinal_prefixes": list(prefixes),
         }
     try:
         repaired_bytes = text.encode("latin-1")               # BrainVision headers are latin-1; fail-closed if not encodable
@@ -486,7 +511,8 @@ def assert_manifest_consistent(manifest):
 
     if mode == MODE_CHANNEL_NAMES_FROM_TSV:
         need = ("channel_name_source", "channels_tsv_path", "channels_tsv_sha256", "channel_name_mapping_sha256",
-                "original_header_channel_names_sha256", "repaired_header_channel_names_sha256", "channel_name_repair_policy_sha256")
+                "original_header_channel_names_sha256", "repaired_header_channel_names_sha256", "channel_name_repair_policy_sha256",
+                "channel_name_repair_subtype", "original_header_ordinal_prefixes")
         missing = [k for k in need if k not in manifest]
         if missing:
             raise BrainvisionReadRepairError(f"channel-name repair manifest missing fields {missing}")
@@ -496,6 +522,11 @@ def assert_manifest_consistent(manifest):
         orig_names, rep_names = _parse_channel_infos(orig), _parse_channel_infos(rep)
         if orig_names is None or rep_names is None:
             raise BrainvisionReadRepairError("could not re-parse [Channel Infos] of the original/repaired header")
+        is_ordinal, subtype, prefixes = _ordinal_header_info(orig_names)   # the ORIGINAL header must still be the ordinal pattern
+        if not is_ordinal:
+            raise BrainvisionReadRepairError("original header is no longer an ordinal placeholder pattern")
+        if subtype != manifest["channel_name_repair_subtype"] or list(prefixes) != list(manifest["original_header_ordinal_prefixes"]):
+            raise BrainvisionReadRepairError("channel_name_repair_subtype / ordinal-prefixes mismatch vs the original header")
         if _names_sha256(orig_names) != manifest["original_header_channel_names_sha256"]:
             raise BrainvisionReadRepairError("original_header_channel_names_sha256 mismatch")
         if _names_sha256(rep_names) != manifest["repaired_header_channel_names_sha256"]:
@@ -523,7 +554,7 @@ def _manifest_digest(m):
     return {k: m.get(k) for k in ("repair_mode", "disease", "cohort", "subject", "recording",
                                   "original_header_sha256", "repaired_header_sha256", "generated_marker_sha256",
                                   "brainvision_read_repair_policy_sha256", "channel_name_mapping_sha256",
-                                  "channels_tsv_sha256", "channel_name_repair_policy_sha256")}
+                                  "channels_tsv_sha256", "channel_name_repair_policy_sha256", "channel_name_repair_subtype")}
 
 
 def manifest_set_sha256(manifests):

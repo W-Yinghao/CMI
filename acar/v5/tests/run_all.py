@@ -134,6 +134,16 @@ MODULES = (
     "test_stage1b_channels_tsv_rename_manifest_hashes",
     "test_stage1b_feat_dump_v4_records_channel_name_repair",
     "test_stage1b13p_generic_brainvision_channels_tsv_repair_classifies_pass",
+    "test_stage1b_type_prefixed_ordinal_rename_allowed_ds003944_ds003947",
+    "test_stage1b_type_prefixed_ordinal_requires_position_match",
+    "test_stage1b_type_prefixed_ordinal_forbidden_other_cohort",
+    "test_stage1b_type_prefixed_ordinal_rejects_arbitrary_prefix",
+    "test_stage1b_type_prefixed_ordinal_requires_all_channels_ordinal",
+    "test_stage1b_type_prefixed_ordinal_requires_channels_tsv_resolve_19",
+    "test_stage1b_type_prefixed_ordinal_never_overrides_real_header_names",
+    "test_stage1b_type_prefixed_ordinal_preserves_raw_tree",
+    "test_stage1b_feat_dump_v5_records_ordinal_repair_subtype",
+    "test_stage1b14p_type_prefixed_ordinals_classify_as_repair_required",
 )
 
 
