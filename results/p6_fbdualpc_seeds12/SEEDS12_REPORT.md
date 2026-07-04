@@ -52,3 +52,25 @@ decodable accuracy is flat-to-declining, and 2 of 3 seeds regress. This is consi
 baseline collapse. Per the pre-reg, SURVIVE = "a live candidate worth a wider sweep"; the honest expectation is
 that a wider sweep confirms null. **PI-gated:** whether the fragile pass warrants a wider spatialCMI sweep, or
 should be treated as effectively null with GPU focused on the P7a SOTA-track, is the PI's call.
+
+## FINAL PROJECT DECISION (PI, 2026-07-05)
+
+```
+Pre-registered verdict: SURVIVE by rule.
+Project decision:        fragile survive; not promoted.
+Operational treatment:   effectively null for resource allocation.
+No further seed/λ expansion.
+Next GPU:                P7a feature gate.
+```
+
+Rationale (PI): the pre-registered rule is honored (SURVIVE), but resource allocation cannot rest on "crossed
+the line" alone — the effect must be stable, model-driven, and mechanistically coherent. Here it is none:
+primary 3-seed mean +0.0082 with across-seed SD 0.0285, 2/3 seeds negative on the decodable subset, the
+positive mean driven by a seed2 ERM-baseline collapse (not a spatialCMI absolute gain), 2015 gain seed0-only.
+Consistent with the P6 seed0 null screen.
+
+**Executed:** no seed3+, no λ/dec_scale/fusion_floor sweep, no old graphcmi/graphdualpc, spatialCMI NOT
+promoted as a main method, no further P6 GPU. P6 has done its job — the current spatial-CMI regularizer is not
+the main lever; the next lever is representation quality (P7a).
+(Note: the "Next GPU: P7a" line reflects the plan at decision time; P7a has since RUN and FAILED its gate —
+primary 2a decodable Δ = −0.1233 — see docs/CIGL_51_P7A_GATE_REPORT.md on branch project/fbcov-tangent-spatial.)
