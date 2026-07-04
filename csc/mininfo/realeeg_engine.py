@@ -9,6 +9,7 @@ cache) so the wiring is verified without the authorized real run.
 Injection semantics are frozen to the bank manifest; they are scrutinized by the P1.2 audit red-team BEFORE any
 tag is created. Method locks (B3 certify_paired_calibrated, Route A run_frozen_protocol) are byte-unchanged.
 """
+import hashlib, json, os, time
 import numpy as np
 from sklearn.linear_model import LogisticRegression
 
@@ -297,6 +298,185 @@ def evaluate_verdict(records, bank):
             a=[r.get("A", {}).get("state") for r in genuine],
             note="DESCRIPTIVE only; a real CONCEPT_CONFIRMED is not validated truth"),
         note="Package verdict driven by TIER1 B3 real-feature safety (gating). Power (TIER2) and Route A (TIER3) REPORTED, non-gating. Red-team re-aggregation required for the final verdict.")
+
+
+# ================================================================ v2: PERFORMANCE-ONLY parallel execution
+# The serial run_validation() above is the FROZEN scientific reference (byte-unchanged from v1). v2 adds a
+# cohort-level PARALLEL executor that is NUMERICALLY IDENTICAL: each cohort's rng = default_rng(seed) is created
+# fresh inside the serial loop and NEVER carries state across cohorts, so every cohort is a pure deterministic
+# function of (condition, seed, cache). Parallelism therefore cannot change any per-cohort record; a canonical
+# sort by (condition_index, cohort_index) restores the exact serial record ORDER (required because the cohort
+# bootstrap resamples the fired-flag ARRAY, whose order must match serial for byte-identity). No feature /
+# montage / cache / injection / Route-A / B3 / n_boot / cohort-count / seed / gate / alpha / denominator changes.
+class InfraError(RuntimeError):
+    """Infrastructure/assembly failure (missing/duplicate/worker-errored task). NOT a scientific verdict:
+    the runner maps this to exit 2 and evaluates NO endpoint."""
+
+
+def build_task_table(bank, seed_base):
+    """Canonical, deterministic task table: one entry per (condition, cohort_index), in serial order
+    (condition_index asc, cohort_index asc). A task is fully self-describing: (condition, seed, routes)."""
+    R = bank["run_spec"]["cohorts_per_condition"]
+    stride = bank["seed_schedule"]["condition_stride"]
+    tasks = []
+    for ci, cond in enumerate(bank["conditions"]):
+        # identity guard: the serial loop uses the ENUMERATE index for the seed; it must equal condition_index
+        if cond.get("condition_index", ci) != ci:
+            raise InfraError(f"condition order != condition_index at {ci}: {cond['name']}")
+        name = cond["name"]
+        n_cohorts = 1 if name == "genuine_session_contrast_descriptive" else R
+        for r in range(n_cohorts):
+            seed = seed_base + ci * stride + r
+            tasks.append(dict(task_id=f"{ci:02d}:{name}:{r:04d}", condition_index=ci, cohort_index=r,
+                              condition=name, seed=int(seed), routes=list(cond["routes"]),
+                              is_gating=bool(cond["gating"]), ground_truth=cond["ground_truth"]))
+    tasks.sort(key=lambda t: (t["condition_index"], t["cohort_index"]))
+    return tasks
+
+
+def task_table_sha256(tasks):
+    """Stable hash of the canonical task table (the identity-bearing fields only)."""
+    canon = [[t["task_id"], t["condition"], t["cohort_index"], t["seed"], list(t["routes"]), bool(t["is_gating"])]
+             for t in tasks]
+    return hashlib.sha256(json.dumps(canon, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+
+
+def run_one_task(task, cache, m, b3_ml, cfg_A):
+    """PURE per-cohort task: reproduces the serial run_validation body for ONE task EXACTLY. Returns a record
+    with the SAME scientific keys as serial (+ task_id / condition_index for canonical ordering). Any crash
+    OUTSIDE the certifiers (selection / build_cohort / OOM) is captured as __worker_error__ so assembly fails
+    CLOSED -- a cohort is never silently dropped. (Certifier-internal errors already return ENGINE_ERROR states.)"""
+    name = task["condition"]; seed = task["seed"]; routes = task["routes"]
+    genuine = name == "genuine_session_contrast_descriptive"
+    try:
+        subjects = np.unique(cache["subject"])
+        rng = np.random.default_rng(seed)
+        subj = subjects if genuine else rng.choice(subjects, size=min(m, len(subjects)), replace=False)
+        sel = np.isin(cache["subject"], subj)
+        coh = {k: cache[k][sel] for k in ("Z", "y", "subject", "session")}
+        Z, Y, D, G = build_cohort(name, coh, rng)
+        rec = dict(task_id=task["task_id"], condition_index=task["condition_index"],
+                   condition=name, gating=bool(task["is_gating"]), cohort=task["cohort_index"],
+                   seed=int(seed), ground_truth=task["ground_truth"])
+        if "B3" in routes:
+            rec["B3"] = certify_b3(Z, Y, D, G, m=len(subj), seed=seed, ml=b3_ml)
+        if "A" in routes:
+            rec["A"] = certify_A(Z, Y, D, G, seed=seed, cfg=cfg_A)
+        return rec
+    except Exception as e:                          # pragma: no cover -- defensive; assembly turns this into InfraError
+        return dict(task_id=task["task_id"], __worker_error__=f"{type(e).__name__}: {str(e)[:300]}")
+
+
+def _read_jsonl(path):
+    out = []
+    if not path or not os.path.exists(path):
+        return out
+    with open(path) as f:
+        for line in f:
+            line = line.strip()
+            if line:
+                out.append(json.loads(line))
+    return out
+
+
+def _write_checkpoint(path, tasks, records, prov):
+    if not path:
+        return
+    done = sorted(r["task_id"] for r in records if "__worker_error__" not in r)
+    failed = sorted(r["task_id"] for r in records if "__worker_error__" in r)
+    ck = dict(task_table_sha256=prov.get("task_table_sha256"), n_total=len(tasks),
+              n_completed=len(done), n_failed=len(failed),
+              completed_task_ids=done, failed_task_ids=failed,
+              last_update_time=time.time())
+    for k in ("start_time", "git_head", "cache_sha256", "bank_manifest_sha256", "engine_sha256",
+              "expected_code_ref"):
+        if k in prov:
+            ck[k] = prov[k]
+    tmp = path + ".tmp"
+    with open(tmp, "w") as f:
+        json.dump(ck, f, indent=2, default=str)
+    os.replace(tmp, path)
+
+
+def _assemble_records(tasks, records):
+    """Fail-closed: exactly one non-errored record per task, no duplicate, no missing, no worker error.
+    Returns records canonically sorted (condition_index, cohort_index) == serial order."""
+    by_id, errors = {}, []
+    for rec in records:
+        if "__worker_error__" in rec:
+            errors.append((rec.get("task_id"), rec["__worker_error__"])); continue
+        tid = rec["task_id"]
+        if tid in by_id:
+            raise InfraError(f"duplicate task record: {tid}")
+        by_id[tid] = rec
+    if errors:
+        raise InfraError(f"{len(errors)} worker task error(s); first {errors[0]}")
+    want = {t["task_id"] for t in tasks}; got = set(by_id)
+    if want - got:
+        raise InfraError(f"{len(want - got)} missing task record(s); e.g. {sorted(want - got)[:3]}")
+    if got - want:
+        raise InfraError(f"unexpected task record(s): {sorted(got - want)[:3]}")
+    return sorted(by_id.values(), key=lambda r: (r["condition_index"], r["cohort"]))
+
+
+def run_validation_parallel(cache, bank, b3_ml, cfg_A, seed_base, n_jobs=1,
+                            partial_path=None, checkpoint_path=None, resume=False,
+                            provenance=None, progress=True):
+    """PERFORMANCE-ONLY parallel driver. Streams each cohort record to `partial_path` (JSONL) and periodically
+    rewrites `checkpoint_path`, so an infra kill leaves verifiable progress. Returns (ordered_records, tth).
+    Resume is allowed ONLY when the checkpoint binds to the SAME task-table / tag / cache / manifest / engine."""
+    from joblib import Parallel, delayed
+    m = bank["run_spec"]["subjects_per_cohort"]
+    tasks = build_task_table(bank, seed_base)
+    tth = task_table_sha256(tasks)
+    prov = dict(provenance or {}); prov["task_table_sha256"] = tth
+    prov.setdefault("start_time", time.time())
+
+    done = {}
+    if resume and partial_path and os.path.exists(partial_path):
+        ck = {}
+        if checkpoint_path and os.path.exists(checkpoint_path):
+            with open(checkpoint_path) as f:
+                ck = json.load(f)
+        if ck.get("task_table_sha256") != tth:
+            raise InfraError("resume refused: checkpoint task_table_sha256 mismatch (frozen inputs changed)")
+        for key in ("git_head", "cache_sha256", "bank_manifest_sha256", "engine_sha256", "expected_code_ref"):
+            # FAIL CLOSED on ABSENCE too (red-team v2): if the current run binds this field, a checkpoint that
+            # is missing/nulls it (truncated / hand-edited / written by a caller that omitted it) must be
+            # REFUSED, not silently accepted -- else a resume could mix records from a changed frozen input.
+            if key in prov and ck.get(key) != prov.get(key):
+                raise InfraError(f"resume refused: checkpoint {key} mismatch or missing")
+        for rec in _read_jsonl(partial_path):
+            if "__worker_error__" not in rec and rec.get("task_id"):
+                done[rec["task_id"]] = rec
+        if progress:
+            print(f"[realeeg-v2] resume: {len(done)}/{len(tasks)} cohorts already done", flush=True)
+    else:
+        if partial_path:                              # fresh: truncate any stale partial
+            open(partial_path, "w").close()
+
+    remaining = [t for t in tasks if t["task_id"] not in done]
+    records = list(done.values())
+    n_total = len(tasks)
+    chunk = max(1, int(n_jobs) * 4)                   # periodic checkpoint granularity
+    for i in range(0, len(remaining), chunk):
+        batch = remaining[i:i + chunk]
+        out = Parallel(n_jobs=int(n_jobs), backend="loky")(
+            delayed(run_one_task)(t, cache, m, b3_ml, cfg_A) for t in batch)
+        if partial_path:
+            with open(partial_path, "a") as f:
+                for rec in out:
+                    f.write(json.dumps(rec, default=str) + "\n")
+        records.extend(out)
+        _write_checkpoint(checkpoint_path, tasks, records, prov)
+        errs = [r for r in out if "__worker_error__" in r]
+        if progress:
+            print(f"[realeeg-v2] {len([r for r in records if '__worker_error__' not in r])}/{n_total} "
+                  f"cohorts done ({len(errs)} worker-error this batch)", flush=True)
+        if errs:                                      # fail FAST + closed on a genuine worker crash
+            raise InfraError(f"worker task error: {errs[0].get('task_id')}: {errs[0]['__worker_error__']}")
+    ordered = _assemble_records(tasks, records)
+    return ordered, tth
 
 
 def smoke(seed=111):

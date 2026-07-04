@@ -17,8 +17,34 @@
 
   "engine_provenance": {
     "engine_file": "csc/mininfo/realeeg_engine.py",
-    "engine_sha256": "7ec08ad495f3d94608c5ba41f6ca0431d68168eb4b907ea8d73055e5f77f986a",
-    "note": "the injection + verdict ENGINE is hash-pinned here (defense-in-depth beyond the git tag); the runner verifies it in dry_run AND execute (P1.2 audit H1). The runner is not self-pinned (it is the checker; it is protected by the git-frozen tag)."
+    "engine_sha256": "d5aaaf788970e18337169230cdeb80e3dfffae307bee4cf5ab4816ca84ae03cc",
+    "note": "the injection + verdict ENGINE is hash-pinned here (defense-in-depth beyond the git tag); the runner verifies it in dry_run AND execute (P1.2 audit H1). The runner is not self-pinned (it is the checker; it is protected by the git-frozen tag). v2 re-pin: engine now also contains the performance-only parallel executor (run_validation_parallel + task table + checkpoint/assembly); the serial run_validation reference is byte-unchanged and used by the serial==parallel identity tests."
+  },
+
+  "execution_provenance": {
+    "mode": "cohort_parallel",
+    "performance_only": true,
+    "engine_version": "v2",
+    "successor_of": "csc-realeeg-v1 (serial; infrastructure-infeasible: ~6.3 days serial > 5-day cpu-high wall, end-only write -> killed with no artifact)",
+    "n_tasks_expected": 801,
+    "task_count_breakdown": {
+      "n_multi_cohort_conditions": 8,
+      "cohorts_per_multi_cohort_condition": 100,
+      "n_genuine_descriptive_cohorts": 1,
+      "n_tasks_total": 801,
+      "arithmetic": "8 x 100 + 1 = 801",
+      "multi_cohort_conditions": ["NULL_real_session", "NULL_cov", "NULL_label", "NULL_cov_plus_label", "POS_concept", "POS_concept_plus_cov", "POS_pure_conditional", "random_label_control"],
+      "genuine_descriptive_conditions": ["genuine_session_contrast_descriptive"],
+      "label_note": "'multi-cohort' is NOT a synonym for 'injected': of the 8 multi-cohort conditions, 7 inject synthetic labels; NULL_real_session keeps REAL labels with a stratified pseudo-condition split. The genuine contrast keeps REAL labels and is DESCRIPTIVE only (1 cohort over all eligible subjects). So the honest count is 8 multi-cohort conditions x 100 + 1 genuine = 801 (NOT 9 x 100)."
+    },
+    "task_model": "each of the 801 (condition x cohort_index) tasks is a PURE deterministic function of (condition, seed, cache); rng=default_rng(seed) is created fresh per cohort and never carries state across cohorts, so parallelism cannot change any per-cohort record",
+    "canonical_sort": "records are re-sorted by (condition_index, cohort_index) == serial order BEFORE evaluate_verdict, because the cohort bootstrap resamples the fired-flag ARRAY whose order must match serial for byte-identity",
+    "fail_closed": "missing / duplicate / worker-errored task -> InfraError -> runner exit 2, NO endpoint evaluated (never a silent skip); a partial/checkpoint is progress evidence, NOT a scientific result",
+    "checkpointing": "each cohort streamed to <out>.partial.jsonl; periodic <out>.checkpoint.json; resume allowed ONLY when checkpoint task_table_sha256 + git_head + cache/bank/engine hashes all still match",
+    "blas_threads": {"OMP_NUM_THREADS": 1, "MKL_NUM_THREADS": 1, "OPENBLAS_NUM_THREADS": 1, "NUMEXPR_NUM_THREADS": 1},
+    "n_jobs_policy": "min(SLURM_CPUS_PER_TASK, 24)",
+    "unchanged_from_v1": ["feature", "montage", "cache", "injection definitions", "Route A method", "B3 method", "b_certifier_internal_null=200", "cohorts_per_condition=100", "subjects_per_cohort=30", "seed schedule", "gating set", "alpha", "denominators", "cohort bootstrap bound definition", "genuine contrast semantics"],
+    "note": "PERFORMANCE + artifact-safety change only. The verdict path (evaluate_verdict), the 4 gating controls, TIER1/2/3 definitions, and every statistic are byte-unchanged from v1. Numerical identity is proven by the serial==parallel identity tests on a smoke subset."
   },
 
   "pooled_boundary_note": "P_hat(Y|Z) 'pooled' means a single logistic fit on BOTH sessions jointly, applied IDENTICALLY to both sessions to draw Y*. It is a GENERATIVE fit (in-sample; NOT a subject-grouped cross-fit): the null P(Y*|Z) is condition-independent BY CONSTRUCTION (same boundary for both sessions), so type-I is not inflated regardless of cross-fitting. (P1.2 audit M1: corrected from an earlier 'cross-fit/no-leakage' wording.)",

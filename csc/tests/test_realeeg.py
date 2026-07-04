@@ -241,11 +241,13 @@ def test_random_label_demotion_fails_closed():
 
 
 def test_runner_docstring_not_stale():
-    # the runner now has a GUARDED execute() -> its docstring must not still claim dry-run-only / refuses-all
+    # the runner has a GUARDED, PARALLEL execute() at v2 -> its docstring must not claim dry-run-only / refuses-all
     doc = R.__doc__ or ""
     for bad in ("DRY-RUN ONLY", "structurally REFUSED", "implements NO path that runs injections"):
         assert bad not in doc, f"stale runner docstring claim contradicts the guarded execute(): {bad!r}"
-    assert "guarded execute" in doc and "csc-realeeg-v1" in doc
+    assert "guarded" in doc and "execute" in doc
+    assert "csc-realeeg-v2" in doc, "v2 docstring must name the v2 tag"
+    assert "performance-only" in doc.lower() or "parallel" in doc.lower()
 
 
 def test_sbatch_wrapper_shape_is_valid_multiline_shell():
@@ -262,6 +264,10 @@ def test_sbatch_wrapper_shape_is_valid_multiline_shell():
     # freshness check must verify the new provenance fields
     txt = open(sb).read()
     assert "base_seed" in txt and "synthetic_tags_untouched" in txt and "per_cohort" in txt
+    # v2: BLAS oversubscription pin (incl. NUMEXPR), v2 tag, and completeness (801 / n_tasks) in freshness check
+    assert "NUMEXPR_NUM_THREADS" in txt, "v2 wrapper must pin NUMEXPR threads"
+    assert "csc-realeeg-v2" in txt, "v2 wrapper must target the v2 tag"
+    assert "801" in txt and "n_tasks" in txt, "v2 freshness check must assert task completeness"
 
 
 def test_result_payload_provenance_fields_present():
@@ -270,7 +276,10 @@ def test_result_payload_provenance_fields_present():
     src = inspect.getsource(R.execute)
     for f in ("manifest_provenance", "engine_sha256", "runner_sha256", "cache_metadata_sha256",
               "frozen_refs", "routeA_synthetic_tag", "routeB3_synthetic_tag", "synthetic_tags_untouched",
-              "slurm", "seed_schedule", "genuine_contrast_descriptive_only"):
+              "slurm", "seed_schedule", "genuine_contrast_descriptive_only",
+              # v2 execution provenance + fail-closed handling
+              "execution", "task_table_sha256", "performance_only_change", "n_tasks_expected",
+              "InfraError", "blas_threads"):
         assert f in src, f"payload missing provenance field: {f}"
 
 
@@ -289,9 +298,10 @@ def test_bootstrap_reframed_as_cohort_not_subject_clustered():
 
 
 def test_no_validation_result_artifact_exists():
-    # the dry-run package must not ship a real validation result
-    for p in [os.path.join(os.path.dirname(R.__file__), "..", "results", "realeeg_validation_result.json")]:
-        assert not os.path.exists(p)
+    # the dry-run package must not ship a real validation result (v1 or v2 FINAL)
+    rd = os.path.join(os.path.dirname(R.__file__), "..", "results")
+    for n in ("realeeg_validation_result.json", "realeeg_validation_v2.final.json"):
+        assert not os.path.exists(os.path.join(rd, n)), f"unexpected result artifact: {n}"
 
 
 # ---- hardening from red-team (trap-control demotion, absent-cache builder hash, frozen fields, seed range) ----
@@ -333,6 +343,184 @@ def test_gating_flags_present_and_false():
         assert gf["R2_power_is_gating"] is False
         assert gf["R5_2b_is_gating"] is False
         assert gf["genuine_contrast_is_gating"] is False
+
+
+# ================================================================ v2: performance-only parallel execution
+def _mini_bank():
+    """Tiny bank (2 conditions x 2 cohorts) + toy cache + fast params for serial<->parallel identity tests.
+    TEST seed base (NOT REAL_BASE_SEED) + tiny certifier params (identity is param-independent)."""
+    import numpy as np
+    import csc.mininfo.realeeg_engine as E
+    import csc.protocol as P
+    cache = E._toy_cache(np.random.default_rng(20240705), n_subj=8, n_trials=32)
+    TEST_SEED_BASE = 555_000                    # disjoint from REAL_BASE_SEED (20_000_000)
+    ml = dict(min_confirm_pairs=3, pair_integrity_min=0.95, min_epochs=6, rank=3, C=0.5,
+              n_folds=3, n_boot=8, alpha_family=0.05, n_decision_budgets=2)
+    cfg = P.ProtocolConfig(n_boot=8, n_dir_boot=16, target_n_boot=16, tau_n_pseudotargets=32,
+                           label_unit="trial", analysis_unit="subject")
+    mini = {"run_spec": {"cohorts_per_condition": 2, "subjects_per_cohort": 5,
+                         "b_cohort_bootstrap": 100, "invalid_fraction_cap": 0.20},
+            "seed_schedule": {"realeeg_base_seed": TEST_SEED_BASE, "condition_stride": 1000},
+            "conditions": [
+                {"name": "NULL_cov", "condition_index": 0, "gating": True,
+                 "ground_truth": "NO_CONCEPT", "routes": ["A", "B3"]},
+                {"name": "POS_concept", "condition_index": 1, "gating": False,
+                 "ground_truth": "CONCEPT", "routes": ["A", "B3"]}],
+            "gating_summary": {"gating_conditions": ["NULL_cov"]}}
+    return E, cache, mini, ml, cfg, TEST_SEED_BASE
+
+
+_SHARED = ("condition", "gating", "cohort", "seed", "ground_truth", "B3", "A")
+
+
+def test_serial_parallel_identity_on_smoke_subset():
+    E, cache, mini, ml, cfg, sb = _mini_bank()
+    serial = E.run_validation(cache, mini, ml, cfg, sb)
+    with tempfile.TemporaryDirectory() as td:
+        def par(nj):
+            return E.run_validation_parallel(cache, mini, ml, cfg, sb, n_jobs=nj,
+                partial_path=os.path.join(td, f"p{nj}.jsonl"), checkpoint_path=os.path.join(td, f"c{nj}.json"),
+                resume=False, provenance={"git_head": "t", "cache_sha256": "h"}, progress=False)
+        par1, tth1 = par(1); par3, tth3 = par(3)
+    # FULL-record identity: compare EVERY serial-record field (condition, seed, cohort, gating, ground_truth,
+    # and the complete B3/A dicts = state + confirmed + n_sampler_failures + n_boot_invalid), not just a subset.
+    # (The parallel record only ADDS task_id / condition_index for ordering.) This proves per-cohort accounting
+    # -- Route A state, B3 state, invalid/abstain flags -- is byte-identical, not just the coarse verdict.
+    assert set(_SHARED) == set(serial[0].keys()), "identity comparison must cover the FULL serial record schema"
+    def full(rs): return {(r["condition"], r["cohort"]): {k: r.get(k) for k in _SHARED} for r in rs}
+    s, a, b = full(serial), full(par1), full(par3)
+    assert set(s) == set(a) == set(b)
+    assert all(json.dumps(s[k], sort_keys=True) == json.dumps(a[k], sort_keys=True) for k in s), \
+        "serial != parallel(n_jobs=1) on some per-cohort field"
+    assert all(json.dumps(s[k], sort_keys=True) == json.dumps(b[k], sort_keys=True) for k in s), \
+        "serial != parallel(n_jobs=3) on some per-cohort field"
+    assert tth1 == tth3, "task_table_sha256 unstable across n_jobs"
+    assert [(r["condition"], r["cohort"]) for r in par3] == [(r["condition"], r["cohort"]) for r in serial], \
+        "canonical order != serial order (bootstrap array-order not preserved)"
+    # verdict-level accounting (per-condition denominator contribution, boot_upper, invalid_frac, INCONCLUSIVE,
+    # status, tier2/tier3) must also be byte-identical
+    vs = json.dumps(E.evaluate_verdict(serial, mini), sort_keys=True, default=str)
+    vp = json.dumps(E.evaluate_verdict(par3, mini), sort_keys=True, default=str)
+    assert vs == vp, "verdict differs between serial and parallel"
+
+
+def test_task_count_breakdown_is_honest_801():
+    exe = json.load(open(R.BANK_MANIFEST))["execution_provenance"]["task_count_breakdown"]
+    assert exe["n_multi_cohort_conditions"] == 8 and exe["cohorts_per_multi_cohort_condition"] == 100
+    assert exe["n_genuine_descriptive_cohorts"] == 1 and exe["n_tasks_total"] == 801
+    assert len(exe["multi_cohort_conditions"]) == 8 and len(exe["genuine_descriptive_conditions"]) == 1
+    # honesty: NULL_real_session is a REAL-label pseudo-split, not an injected condition
+    assert "NULL_real_session" in exe["multi_cohort_conditions"]
+    assert "not a synonym for 'injected'" in exe["label_note"].lower() or "not injected" in exe["label_note"].lower() \
+        or "not a synonym" in exe["label_note"].lower()
+    # cross-check against the actual bank conditions
+    bank = json.load(open(R.BANK_MANIFEST))
+    multi = [c["name"] for c in bank["conditions"] if c["name"] != "genuine_session_contrast_descriptive"]
+    assert exe["multi_cohort_conditions"] == multi
+
+
+def test_canonical_task_table_deterministic_and_801():
+    import csc.mininfo.realeeg_engine as E
+    bank = json.load(open(R.BANK_MANIFEST)); base = bank["seed_schedule"]["realeeg_base_seed"]
+    stride = bank["seed_schedule"]["condition_stride"]
+    t1 = E.build_task_table(bank, base); t2 = E.build_task_table(bank, base)
+    assert t1 == t2 and len(t1) == 801, f"expected deterministic 801, got {len(t1)}"
+    assert len({t['task_id'] for t in t1}) == 801, "task_ids not unique"
+    assert [(t["condition_index"], t["cohort_index"]) for t in t1] == \
+           sorted((t["condition_index"], t["cohort_index"]) for t in t1), "not canonically sorted"
+    assert E.task_table_sha256(t1) == E.task_table_sha256(t2), "hash unstable"
+    for t in t1:
+        assert t["seed"] == base + t["condition_index"] * stride + t["cohort_index"], "seed formula drift"
+
+
+def test_duplicate_or_missing_task_fails_closed():
+    import csc.mininfo.realeeg_engine as E
+    tasks = [{"task_id": "00:X:0000", "condition_index": 0, "cohort_index": 0},
+             {"task_id": "00:X:0001", "condition_index": 0, "cohort_index": 1}]
+    good = [{"task_id": "00:X:0000", "condition_index": 0, "cohort": 0},
+            {"task_id": "00:X:0001", "condition_index": 0, "cohort": 1}]
+    assert len(E._assemble_records(tasks, good)) == 2
+    for bad in (good[:1], good + [good[0]]):                 # missing, then duplicate
+        try:
+            E._assemble_records(tasks, bad); assert False, "assembly did not fail closed"
+        except E.InfraError:
+            pass
+
+
+def test_worker_exception_is_infra_failure_not_silent_skip():
+    import csc.mininfo.realeeg_engine as E
+    import numpy as np
+    tasks = [{"task_id": "00:X:0000", "condition_index": 0, "cohort_index": 0}]
+    try:
+        E._assemble_records(tasks, [{"task_id": "00:X:0000", "__worker_error__": "ValueError: boom"}])
+        assert False, "worker error silently skipped"
+    except E.InfraError as e:
+        assert "error" in str(e).lower()
+    # a crash OUTSIDE the certifiers (unknown condition -> build_cohort raises) surfaces as a worker error
+    bad = {"task_id": "99:BAD:0000", "condition_index": 99, "cohort_index": 0, "condition": "not_a_condition",
+           "seed": 1, "routes": ["B3"], "is_gating": False, "ground_truth": "x"}
+    rec = E.run_one_task(bad, E._toy_cache(np.random.default_rng(1)), 3, {}, None)
+    assert "__worker_error__" in rec, "outside-certifier crash must surface as worker error, not a record"
+
+
+def test_resume_requires_same_task_table_and_binding():
+    E, cache, mini, ml, cfg, sb = _mini_bank()
+    with tempfile.TemporaryDirectory() as td:
+        p = os.path.join(td, "p.jsonl"); c = os.path.join(td, "c.json")
+        _, tth = E.run_validation_parallel(cache, mini, ml, cfg, sb, n_jobs=2, partial_path=p,
+            checkpoint_path=c, resume=False, provenance={"git_head": "GH", "cache_sha256": "CH"}, progress=False)
+
+        def resume_expect_fail(needle):
+            try:
+                E.run_validation_parallel(cache, mini, ml, cfg, sb, n_jobs=2, partial_path=p, checkpoint_path=c,
+                    resume=True, provenance={"git_head": "GH", "cache_sha256": "CH"}, progress=False)
+                assert False, f"resume did not fail closed on {needle}"
+            except E.InfraError as e:
+                assert needle in str(e).lower(), f"wrong refusal: {e}"
+
+        ck = json.load(open(c)); ck["task_table_sha256"] = "0" * 64; json.dump(ck, open(c, "w"))
+        resume_expect_fail("task_table")
+        ck["task_table_sha256"] = tth; ck["git_head"] = "DIFFERENT"; json.dump(ck, open(c, "w"))
+        resume_expect_fail("git_head")
+        # red-team v2: a NULL / ABSENT binding field must ALSO fail closed (not silently skip the guard)
+        ck["git_head"] = None; json.dump(ck, open(c, "w"))
+        resume_expect_fail("git_head")
+        ck.pop("git_head"); json.dump(ck, open(c, "w"))
+        resume_expect_fail("git_head")
+
+
+def test_partial_and_checkpoint_are_not_final_artifacts():
+    import inspect, csc.mininfo.realeeg_engine as E
+    src = inspect.getsource(E)
+    assert "_assemble_records" in src and "missing task record" in src
+    sb = open(os.path.join(os.path.dirname(R.__file__), "run_realeeg_validation.sbatch")).read()
+    assert 'mv "$TMP_OUT" "$OUT"' in sb
+    assert sb.index("n_tasks") < sb.index('mv "$TMP_OUT" "$OUT"'), "completeness must be checked before finalizing"
+
+
+def test_nboot_cohorts_seeds_and_denominators_unchanged_from_v1():
+    import csc.mininfo.realeeg_engine as E
+    bank = json.load(open(R.BANK_MANIFEST)); b3 = json.load(open(R.B3_MANIFEST)); rs = bank["run_spec"]
+    assert b3["statistics"]["b_certifier_internal_null"] == 200
+    assert rs["cohorts_per_condition"] == 100 and rs["subjects_per_cohort"] == 30
+    assert rs["b_cohort_bootstrap"] == 2000 and rs["invalid_fraction_cap"] == 0.20
+    assert rs["positive_decision_budgets"] == [20, 30]
+    assert bank["seed_schedule"]["realeeg_base_seed"] == 20000000
+    assert E.B3_DECIDED == ("CONCEPT_CONFIRMED", "NO_CONCEPT_EVIDENCE_AFTER_PAIR_AUDIT")
+    assert set(E.B3_ABSTAIN_INVALID) == {"NEED_MORE_LABELS", "INVALID_PAIR_STRUCTURE", "UNIDENTIFIABLE"}
+    assert hasattr(E, "cohort_bootstrap_upper")
+
+
+def test_execution_provenance_documents_performance_only_and_blas():
+    exe = json.load(open(R.BANK_MANIFEST))["execution_provenance"]
+    assert exe["mode"] == "cohort_parallel" and exe["performance_only"] is True
+    assert exe["n_tasks_expected"] == 801
+    for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS"):
+        assert str(exe["blas_threads"][v]) == "1"
+    txt = json.dumps(exe).lower()
+    for k in ("b_certifier_internal_null", "cohorts_per_condition", "seed schedule",
+              "denominators", "route a", "b3 method"):
+        assert k in txt, f"unchanged-science list missing {k!r}"
 
 
 if __name__ == "__main__":

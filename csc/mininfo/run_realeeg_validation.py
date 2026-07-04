@@ -1,19 +1,27 @@
-"""CSC real-EEG validation runner — dry-run by default; guarded execute after freeze (pre-reg v4).
+"""CSC real-EEG validation runner (v2) — dry-run by default; guarded, PARALLEL, checkpointed execute after freeze.
 
-Default mode verifies the manifests, cache provenance, seed disjointness, pinned method/engine hashes, and the
-fail-closed structure. The `--execute` path is DISABLED until the repository is checked out at
-`refs/tags/csc-realeeg-v1` with a clean tree and matching pinned method/cache/engine hashes; with no tag it
-always refuses (exit 2). After reviewer authorization, `--execute` runs the frozen real-feature semi-synthetic
-validation bank (Route A + B3 on the injected cohorts) via `realeeg_engine.run_validation`, evaluates the 3-tier
-verdict (TIER1 B3 safety gates; power + Route A reported), and writes a fresh provenance-stamped artifact. The
-genuine session contrast is executed only as descriptive output and cannot affect PASS/FAIL.
+v2 is a PERFORMANCE-ONLY successor to the serial v1 (`csc-realeeg-v1`), which was infrastructure-infeasible
+(serial ~6.3 days > the 5-day cpu-high wall, end-only write → killed with no artifact). The science is
+byte-identical: same feature/montage/cache/injections/Route-A/B3 method/`n_boot`/cohorts/seed schedule/gates/
+alpha/denominators. Only the EXECUTION changed — the 801 independent cohorts run in parallel and are canonically
+re-sorted (condition_index, cohort_index) before the verdict, which is numerically identical to serial (proven
+in tests). Each cohort streams to a JSONL partial + periodic checkpoint, so an infra kill leaves verifiable
+progress and can be resumed only under the SAME tag / cache / manifest / task-table.
+
+Default mode verifies the manifests, cache provenance, seed disjointness, pinned method/engine hashes, the
+801-task table, and the fail-closed structure. The `--execute` path is DISABLED until the repository is checked
+out at `refs/tags/csc-realeeg-v2` with a clean tree and matching pinned method/cache/engine hashes; with no tag
+it always refuses (exit 2). A missing/duplicate/worker-errored cohort is an INFRASTRUCTURE failure (exit 2, NO
+endpoint evaluated), never a silent skip. The genuine session contrast is descriptive-only and cannot affect
+PASS/FAIL.
 
 Usage:
-  python -m csc.mininfo.run_realeeg_validation            # dry-run report (exit 0 pass / 1 fail)
-  python -m csc.mininfo.run_realeeg_validation --execute  # guarded real run; refuses unless frozen tag/provenance checks pass (exit 2)
-  python -m csc.mininfo.run_realeeg_validation --smoke    # toy-cache plumbing self-test (non-real seed)
+  python -m csc.mininfo.run_realeeg_validation                       # dry-run report (exit 0 pass / 1 fail)
+  python -m csc.mininfo.run_realeeg_validation --execute --jobs 24   # guarded parallel run; refuses unless frozen tag/provenance checks pass (exit 2)
+  python -m csc.mininfo.run_realeeg_validation --execute --resume    # resume a killed run (same frozen inputs only)
+  python -m csc.mininfo.run_realeeg_validation --smoke               # toy-cache plumbing self-test (non-real seed)
 """
-import argparse, hashlib, json, os, sys
+import argparse, hashlib, json, os, sys, time
 
 HERE = os.path.dirname(os.path.abspath(__file__))                 # csc/mininfo
 CSC_ROOT = os.path.dirname(os.path.dirname(HERE))                 # repo root (contains csc/)
@@ -171,17 +179,45 @@ def dry_run():
         c.check(f"route[{rk}]_genuine_contrast_not_gating", gf.get("genuine_contrast_is_gating") is False)
     c.check("b3_bcertifier_200", b3["statistics"]["b_certifier_internal_null"] == 200)
 
-    # 8. no real validation RESULT artifact exists yet (must be absent in the dry-run package)
-    result_globs = [os.path.join(HERE, "..", "results", "realeeg_validation_result.json"),
-                    os.path.join(CSC_ROOT, "csc", "results", "realeeg_validation_result.json")]
+    # 8. no real validation RESULT artifact (v1 or v2 FINAL) exists yet (must be absent in the dry-run package).
+    #    A partial/checkpoint is progress evidence, NOT a result, and does not count here.
+    result_names = ["realeeg_validation_result.json", "realeeg_validation_v2.final.json"]
+    result_globs = [os.path.join(d, n)
+                    for d in (os.path.join(HERE, "..", "results"), os.path.join(CSC_ROOT, "csc", "results"))
+                    for n in result_names]
     c.check("no_real_validation_result_exists", not any(os.path.exists(p) for p in result_globs))
+
+    # 9. v2 execution: the task table is deterministically 801 tasks, and the bank documents the
+    #    performance-only parallel execution (n_boot / cohort counts / seeds UNCHANGED from v1).
+    try:
+        from . import realeeg_engine as _EG
+        n_tasks = len(_EG.build_task_table(bank, bank["seed_schedule"]["realeeg_base_seed"]))
+    except Exception as e:
+        n_tasks = -1; print(f"  (task-table build error: {e})")
+    exp_tasks = 8 * bank["run_spec"]["cohorts_per_condition"] + 1     # 8 conds x R + 1 genuine
+    c.check("dry_run_task_table_is_801", n_tasks == exp_tasks == 801, f"got {n_tasks} (expected {exp_tasks})")
+    exe = bank.get("execution_provenance", {})
+    c.check("bank_execution_is_parallel_performance_only",
+            exe.get("mode") == "cohort_parallel" and exe.get("performance_only") is True
+            and exe.get("n_tasks_expected") == 801,
+            "bank must document the v2 performance-only parallel execution")
+    c.check("bank_execution_unchanged_science_declared",
+            b3["statistics"]["b_certifier_internal_null"] == 200
+            and bank["run_spec"]["cohorts_per_condition"] == 100
+            and bank["run_spec"]["subjects_per_cohort"] == 30
+            and bank["seed_schedule"]["realeeg_base_seed"] == 20000000,
+            "v2 must not change n_boot / cohort counts / seed schedule")
+    c.check("bank_execution_blas_threads_pinned_to_1",
+            all(str(exe.get("blas_threads", {}).get(v)) == "1"
+                for v in ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS")),
+            "BLAS threads must be pinned to 1 to avoid oversubscription")
 
     ok = c.report()
     print("DRY_RUN_PASS" if ok else "DRY_RUN_FAIL")
     return ok
 
 
-TAG = "csc-realeeg-v1"
+TAG = "csc-realeeg-v2"
 
 
 def _git(*args):
@@ -211,9 +247,15 @@ def _method_hashes_ok():
     return True
 
 
-def execute(out=None, n_jobs=1):
-    """GUARDED real run. Returns 2 (fail-closed) unless frozen at TAG + clean tree + method/cache hashes verified.
-    With no csc-realeeg-v1 tag this ALWAYS refuses. The real validation is implemented in realeeg_engine."""
+BLAS_ENV_VARS = ("OMP_NUM_THREADS", "MKL_NUM_THREADS", "OPENBLAS_NUM_THREADS", "NUMEXPR_NUM_THREADS")
+MAX_JOBS = 24
+
+
+def execute(out=None, n_jobs=1, resume=False, partial_path=None, checkpoint_path=None):
+    """GUARDED, PARALLEL, checkpointed real run. Returns 2 (fail-closed) unless frozen at TAG + clean tree +
+    method/cache/engine hashes verified. With no csc-realeeg-v2 tag this ALWAYS refuses. A missing/duplicate/
+    worker-errored cohort is an INFRASTRUCTURE failure (exit 2, NO endpoint evaluated) -- never a silent skip.
+    The per-cohort science is byte-identical to the serial v1 (proven by the serial==parallel identity tests)."""
     cache_man = _load(CACHE_MANIFEST); prov = cache_man["provenance"]
     checks = {"git_frozen": verify_git_frozen()}
     if not _method_hashes_ok():
@@ -235,7 +277,11 @@ def execute(out=None, n_jobs=1):
         print(f"[run_realeeg EXECUTE] REFUSED (fail-closed): {bad}")
         return 2
 
-    print("[run_realeeg EXECUTE] provenance clean; running the frozen real-feature validation ...")
+    eff_jobs = max(1, min(int(n_jobs), MAX_JOBS))
+    partial_path = partial_path or ((out + ".partial.jsonl") if out else None)
+    checkpoint_path = checkpoint_path or ((out + ".checkpoint.json") if out else None)
+    print(f"[run_realeeg EXECUTE] provenance clean; running the frozen real-feature validation "
+          f"(v2 parallel, n_jobs={eff_jobs}, resume={resume}) ...")
     import numpy as np
     from . import realeeg_engine as EG
     b3 = _load(B3_MANIFEST); mlk = b3["method_lock"]
@@ -247,20 +293,42 @@ def execute(out=None, n_jobs=1):
     npz = np.load(cpath)
     cache = dict(Z=npz["Z"], y=npz["y"], subject=npz["subject_id"], session=npz["session_id"])
     seed_base = bank["seed_schedule"]["realeeg_base_seed"]
-    records = EG.run_validation(cache, bank, ml, EG.frozen_A_cfg(), seed_base)
+    engine_file = os.path.join(CSC_ROOT, bank["engine_provenance"]["engine_file"])
+    head = _git("rev-parse", "HEAD").stdout.strip()
+    # binding stamped into the checkpoint; resume is refused unless ALL of these still match
+    binding = dict(git_head=head, cache_sha256=prov["cache_sha256"],
+                   bank_manifest_sha256=_sha256(BANK_MANIFEST), engine_sha256=_sha256(engine_file),
+                   expected_code_ref=f"refs/tags/{TAG}", start_time=time.time())
+    n_tasks_expected = len(EG.build_task_table(bank, seed_base))
+    try:
+        records, tth = EG.run_validation_parallel(
+            cache, bank, ml, EG.frozen_A_cfg(), seed_base, n_jobs=eff_jobs,
+            partial_path=partial_path, checkpoint_path=checkpoint_path, resume=resume,
+            provenance=binding, progress=True)
+    except EG.InfraError as e:
+        print(f"[run_realeeg EXECUTE] INFRA-FAIL (no endpoint evaluated, exit 2): {e}")
+        return 2
     verdict = EG.evaluate_verdict(records, bank)
     tagc = _git("rev-parse", f"{TAG}^{{commit}}")
-    engine_file = os.path.join(CSC_ROOT, bank["engine_provenance"]["engine_file"])
     ss = bank["seed_schedule"]
     payload = dict(
-        protocol="csc-realeeg", route_A_label_unit="trial",
+        protocol="csc-realeeg", schema_version="v2", route_A_label_unit="trial",
+        execution=dict(
+            mode="cohort_parallel", performance_only_change=True, n_jobs=eff_jobs, joblib_backend="loky",
+            n_tasks=len(records), n_tasks_expected=n_tasks_expected, task_table_sha256=tth,
+            canonical_sort="(condition_index, cohort_index) == serial order (bootstrap array order preserved)",
+            resumed=bool(resume), partial_path=partial_path, checkpoint_path=checkpoint_path,
+            blas_threads={v: os.environ.get(v) for v in BLAS_ENV_VARS},
+            note="v2 = performance-only refactor of v1: identical per-cohort science, parallel over independent "
+                 "cohorts + canonical sort before verdict. feature/montage/cache/injections/RouteA/B3/"
+                 "n_boot=200/cohorts=100/seed schedule/gates/alpha/denominators UNCHANGED from v1."),
         manifest_provenance=dict(
             cache_manifest_sha256=_sha256(CACHE_MANIFEST), bank_manifest_sha256=_sha256(BANK_MANIFEST),
             routeA_manifest_sha256=_sha256(ROUTEA_MANIFEST), routeB3_manifest_sha256=_sha256(B3_MANIFEST),
             engine_sha256=_sha256(engine_file), runner_sha256=_sha256(os.path.abspath(__file__)),
             cache_sha256=prov["cache_sha256"], cache_metadata_sha256=prov["cache_metadata_sha256"]),
         frozen_refs=dict(
-            expected_code_ref=f"refs/tags/{TAG}", git_head=_git("rev-parse", "HEAD").stdout.strip(),
+            expected_code_ref=f"refs/tags/{TAG}", git_head=head,
             expected_code_commit=(tagc.stdout.strip() if tagc.returncode == 0 else None),
             git_status_clean=(_git("status", "--porcelain").stdout.strip() == ""),
             routeA_synthetic_tag="csc-confirmatory-v1/dee8958",
@@ -292,13 +360,19 @@ def smoke():
 
 if __name__ == "__main__":
     ap = argparse.ArgumentParser(description="CSC real-EEG validation runner (dry-run default; guarded --execute).")
-    ap.add_argument("--execute", action="store_true", help="GUARDED real run (fails closed without the frozen tag)")
+    ap.add_argument("--execute", action="store_true", help="GUARDED parallel real run (fails closed without the frozen tag)")
     ap.add_argument("--smoke", action="store_true", help="toy-cache plumbing self-test (non-real seed)")
     ap.add_argument("--out", type=str, default=None)
-    ap.add_argument("--jobs", type=int, default=1)
+    ap.add_argument("--jobs", type=int, default=int(os.environ.get("SLURM_CPUS_PER_TASK", 1)),
+                    help="parallel workers (capped at 24)")
+    ap.add_argument("--resume", action="store_true",
+                    help="resume a killed run from its partial/checkpoint (same frozen inputs only)")
+    ap.add_argument("--partial", type=str, default=None, help="JSONL partial path (default: <out>.partial.jsonl)")
+    ap.add_argument("--checkpoint", type=str, default=None, help="checkpoint path (default: <out>.checkpoint.json)")
     a = ap.parse_args()
     if a.smoke:
         sys.exit(smoke())
     if a.execute:
-        sys.exit(execute(out=a.out, n_jobs=a.jobs))
+        sys.exit(execute(out=a.out, n_jobs=a.jobs, resume=a.resume,
+                         partial_path=a.partial, checkpoint_path=a.checkpoint))
     sys.exit(0 if dry_run() else 1)
