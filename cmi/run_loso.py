@@ -372,7 +372,7 @@ def run(args):
         for lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w, lam_spatial in configs:
             bb = build_backbone(args.backbone, nch, nt, n_cls, device=device, ch_names=ch_names,
                                 groups=cs_groups, group_names=cs_named, grouping_scheme=grouping_scheme,
-                                fusion_floor=args.fusion_floor)
+                                fusion_floor=args.fusion_floor, spatial_init=args.spatial_init)
             if args.beta > 0 and method not in ("graphdualpc", "fbdualpc"):   # VIB (graphdualpc/fbdualpc use beta=lambda_node, not VIB)
                 from cmi.methods.vib import VIBBackbone
                 bb = VIBBackbone(bb, n_cls).to(device)
@@ -381,6 +381,7 @@ def run(args):
                                 label_correct=args.label_correct, reweight_dual=args.reweight_dual,
                                 dec_margin=resolve_dec_margin(method, args.dec_margin),
                                 z_margin=z_margin, dec_scale=dec_scale, lam_spatial=lam_spatial,
+                                spatial_aux_weight=args.spatial_aux_weight,
                                 epochs=args.epochs, bs=args.bs,
                                 warmup=args.warmup, n_inner=args.n_inner, sampler=args.sampler,
                                 prior_mode=args.prior, prior_alpha=args.prior_alpha,
@@ -493,6 +494,22 @@ def run(args):
                       "final_val_source_bacc", "final_train_source_bacc"):
                 if k in diag:
                     rec[k] = diag[k]
+            # P8: source-CSP init provenance + spatial auxiliary head diagnostics
+            for k in ("spatial_init", "spatial_aux_weight", "loss_spatial_aux",
+                      "spatial_aux_source_val_bacc", "csp_meta"):
+                if k in diag:
+                    rec[k] = diag[k]
+            if callable(getattr(bb, "spatial_aux_logits", None)):   # aux head eval on TARGET (eval-only, NOT selection)
+                try:
+                    _was = bb.training; bb.eval()
+                    with torch.no_grad():
+                        _ap = torch.softmax(bb.spatial_aux_logits(
+                            torch.as_tensor(Xte, dtype=torch.float32, device=device)), dim=1).cpu().numpy()
+                    if _was:
+                        bb.train()
+                    rec["spatial_aux_target_bacc"] = float(classification_metrics(_ap, yte)["balanced_acc"])
+                except Exception as _e:
+                    rec["spatial_aux_error"] = str(_e)
             results[lbl].append(rec)
             pooled[lbl].append((yte, prob.argmax(1), str(tgt)))
             preds[lbl].append((prob.astype("float32"), yte.astype("int16"), str(tgt)))
@@ -535,6 +552,12 @@ def build_parser():
     ap.add_argument("--fusion_floor", type=float, default=0.0,
                     help="P6-B: FBCSPLGGGraph 3-way gate floor eps -> (1-3eps)*softmax + eps, so no branch is "
                          "fully starved. 0.0 = plain softmax (off). Try 0.05 / 0.10. Only affects FBCSPLGGGraph.")
+    ap.add_argument("--spatial_init", choices=["random", "source_csp"], default="random",
+                    help="P8-A: FBCSPLGGGraph spatial-filter init. 'random' (default) | 'source_csp' (fit CSP on "
+                         "source-train only, excl. target+source-val; filters then trainable). Only FBCSPLGGGraph.")
+    ap.add_argument("--spatial_aux_weight", type=float, default=0.0,
+                    help="P8-B: weight on a source-only auxiliary classifier over spatial_z (L += w*CE). "
+                         "0.0 = off (default). Try 0.2. Only affects FBCSPLGGGraph erm path.")
     # configs = list of "method:lam" (one job can sweep lambda; splits shared across all)
     ap.add_argument("--configs", nargs="+",
                     default=["erm:0", "marginal:1", "chain:1", "lpc_uniform:1", "lpc_prior:1"])

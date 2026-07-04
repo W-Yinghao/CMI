@@ -352,6 +352,27 @@ class _FBCSPSpatialBranch(nn.Module):
         v = torch.cat([b(xin) for b in self.bands], dim=-1)  # [B, sum(n_filt*K)]
         return self.drop(F.elu(self.proj(v)))              # [B, spatial_z_dim]
 
+    @torch.no_grad()
+    def init_from_csp(self, W, disc):
+        """P8-A: write CSP filters into each band's per-temporal-filter K spatial slots (top-K by
+        discriminability, broadband/shared across bands). Extra slots keep their random init. Returns the
+        number of CSP filters written per group (k = min(K, n_csp))."""
+        import numpy as np
+        order = np.argsort(disc)[::-1]                     # most discriminative first
+        Wt = torch.as_tensor(W[order], dtype=torch.float32)  # [F, C]
+        used = 0
+        for band in self.bands:
+            conv = band.spatial                            # Conv2d(n_filt, n_filt*K, (C,1), groups=n_filt)
+            n_filt = conv.groups; K = conv.out_channels // n_filt
+            k = min(K, Wt.shape[0])
+            topk = Wt[:k].to(conv.weight.dtype)            # [k, C]
+            w = conv.weight.data                           # [n_filt*K, 1, C, 1]
+            for g in range(n_filt):
+                for j in range(k):
+                    w[g * K + j, 0, :, 0] = topk[j]
+            used = k
+        return used
+
 
 class FBCSPLGGGraph(FBLGGDualCMIBackbone):
     """FBLGG + an FBCSP-style spatial-spectral branch, combined by a 3-way softmax-gated fusion.
@@ -363,22 +384,55 @@ class FBCSPLGGGraph(FBLGGDualCMIBackbone):
     grouping. ERM-capable; graphdualpc head-split works (distinct fused_z)."""
 
     def __init__(self, n_chans, n_times, n_classes, ch_names=None, spatial_n_filt=8, spatial_K=4,
-                 spatial_z_dim=32, dropout=0.25, fusion_floor=0.0, **kw):
+                 spatial_z_dim=32, dropout=0.25, fusion_floor=0.0, spatial_init="random", **kw):
         super().__init__(n_chans, n_times, n_classes, ch_names=ch_names, dropout=dropout, **kw)
         self.spatial = _FBCSPSpatialBranch(self.n_chans, n_times, n_filt=spatial_n_filt,
                                            K=spatial_K, spatial_z_dim=spatial_z_dim, dropout=dropout)
         self.spatial_z_dim = int(spatial_z_dim)
+        self.n_classes = int(n_classes)
+        self.spatial_init = str(spatial_init)              # P8-A: 'random' (default) | 'source_csp'
         self.fusion_floor = float(fusion_floor)            # P6-B: gate floor eps; 0 -> plain softmax (off)
         fdim = self.fused_z_dim
         self.fuse_s = nn.Linear(spatial_z_dim, fdim)       # reuse super's fuse_g / fuse_t for graph/temporal
         self.gate3 = nn.Linear(3 * fdim, 3)                # softmax over [graph, temporal, spatial]
         self.head3 = nn.Linear(fdim, n_classes)            # new head on the 3-way fused_z
+        self.spatial_aux_head = nn.Linear(spatial_z_dim, n_classes)  # P8-B: source-only aux classifier on spatial_z
         self.last_gate = None                              # [B,3] gate weights (set each forward_graph)
         self.last_spatial_z = None                         # P6-A: grad-carrying spatial_z for spatial encoder CMI
         self.last_aux = {}                                 # {graph_z, temporal_z, spatial_z, fused_z} (detached)
+        self.csp_meta = {"spatial_init": self.spatial_init}  # P8-A: populated by init_spatial_from_csp
         self.meta = dict(graph_compatible=True, edge_logits_dynamic=False, node_identity_preserved=True,
-                         distinct_fused_z=True, has_spatial_branch=True,
+                         distinct_fused_z=True, has_spatial_branch=True, spatial_init=self.spatial_init,
                          ablation_modes=("zero_graph", "zero_temporal", "zero_spatial", "permute_nodes"))
+
+    @torch.no_grad()
+    def init_spatial_from_csp(self, X, y, n_cls, m=None, shrinkage=0.1, source_domains=None, excluded_val=None):
+        """P8-A: initialize the spatial branch from SOURCE-only CSP filters (target already excluded by the
+        LOSO caller; source-val excluded before this is called), then leave them trainable. Records
+        provenance in self.csp_meta. n_cls==2 -> binary CSP, n_cls>2 -> one-vs-rest."""
+        import numpy as np
+        from cmi.models.csp_init import source_csp_filters
+        conv0 = self.spatial.bands[0].spatial
+        K = conv0.out_channels // conv0.groups
+        m = int(m) if m else K
+        W, disc, present = source_csp_filters(X, y, n_cls, m, shrinkage=shrinkage)
+        used = self.spatial.init_from_csp(W, disc)
+        self.csp_meta = {
+            "spatial_init": "source_csp",
+            "csp_fit_subjects": (sorted(int(d) for d in np.unique(source_domains))
+                                 if source_domains is not None else None),
+            "csp_excluded_target": True,
+            "csp_excluded_source_val": sorted(int(v) for v in excluded_val) if excluded_val else [],
+            "csp_n_filters_used": int(used), "csp_n_filters_pool": int(W.shape[0]),
+            "csp_rank": int(np.linalg.matrix_rank(W)), "csp_cov_shrinkage": float(shrinkage),
+            "csp_m_per_contrast": int(m), "csp_classes_present": [int(c) for c in present],
+        }
+        return self.csp_meta
+
+    def spatial_aux_logits(self, x):
+        """P8-B: aux classifier logits on the (grad-carrying) spatial_z. Runs a forward first."""
+        self.forward_graph(x)
+        return self.spatial_aux_head(self.last_spatial_z)
 
     def _spatial_branch(self, x):
         return self.spatial(x)                             # [B, spatial_z_dim]

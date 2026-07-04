@@ -92,7 +92,7 @@ def _balanced_acc(y_true, y_pred, n_cls):
 def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gamma=0.0,
                 lam_edge=0.0, beta=0.0, balance=False, label_correct=False, reweight_dual=False,
                 dec_margin=None, epochs=200, bs=64, warmup=40, n_inner=2,
-                z_margin=0.0, dec_scale=1.0, lam_spatial=0.0,
+                z_margin=0.0, dec_scale=1.0, lam_spatial=0.0, spatial_aux_weight=0.0,
                 lr=1e-3, post_lr=2e-3,
                 weight_decay=0.0, sampler="classbal", prior_mode="empirical", prior_alpha=1.0,
                 early_stop=False, source_val_domains=None,
@@ -117,6 +117,11 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
             Xval, yval = Xtr[val_mask], ytr[val_mask]
             es_val_domains = [int(v) for v in np.unique(dtr[val_mask])]
             Xtr, ytr, dtr = Xtr[~val_mask], ytr[~val_mask], dtr[~val_mask]
+    # P8-A: source-CSP initialization of the spatial branch. Fit on source-train ONLY (target already
+    # removed by the LOSO caller; source-val removed just above) -> firewall-safe. Then train normally.
+    if getattr(backbone, "spatial_init", "random") == "source_csp" and hasattr(backbone, "init_spatial_from_csp"):
+        backbone.init_spatial_from_csp(np.asarray(Xtr), np.asarray(ytr), n_cls,
+                                       source_domains=np.asarray(dtr), excluded_val=es_val_domains)
     # KL target must be CONSISTENT with the sampler: 'empirical' pi_y for raw/classbal (which
     # preserve p(D|Y)); 'effective' (uniform-over-present) to match a domainbal sampler.
     prior_fn = {"empirical": empirical_priors, "effective": effective_priors, "subject": subject_priors}[prior_mode]
@@ -477,6 +482,12 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 else:
                     ce_q = F.cross_entropy(logits, yb, weight=ce_weight)   # balanced (BER) if balance=True
                 loss = ce_q
+                if (spatial_aux_weight > 0.0 and getattr(backbone, "spatial_aux_head", None) is not None
+                        and getattr(backbone, "last_spatial_z", None) is not None):
+                    aux = F.cross_entropy(backbone.spatial_aux_head(backbone.last_spatial_z), yb)
+                    loss = loss + spatial_aux_weight * aux   # P8-B: source-only spatial auxiliary supervision
+                    if last_epoch:
+                        diag.setdefault("inloop_spatial_aux", []).append(_scalar(aux))
                 if beta > 0 and getattr(backbone, "last_kl", None) is not None:
                     loss = loss + beta * backbone.last_kl   # VIB: + beta * E KL(q(z|x)||N(0,I)) >= beta*I(X;Z)
                     if last_epoch:
@@ -593,6 +604,20 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                dec_margin=float(dec_margin),
                z_margin=float(z_margin),
                dec_scale=float(dec_scale))
+    # P8: spatial-branch init provenance + auxiliary-head diagnostics (erm path; other methods unaffected).
+    out["spatial_init"] = getattr(backbone, "spatial_init", "random")
+    out["spatial_aux_weight"] = float(spatial_aux_weight)
+    if diag.get("inloop_spatial_aux"):
+        out["loss_spatial_aux"] = float(np.mean(diag["inloop_spatial_aux"]))
+    if spatial_aux_weight > 0.0 and Xval is not None and hasattr(backbone, "spatial_aux_logits"):
+        backbone.eval()
+        with torch.no_grad():
+            _av = backbone.spatial_aux_logits(
+                torch.as_tensor(Xval, dtype=torch.float32, device=device)).argmax(1).cpu().numpy()
+        backbone.train()
+        out["spatial_aux_source_val_bacc"] = float(_balanced_acc(np.asarray(yval), _av, n_cls))
+    if getattr(backbone, "csp_meta", None):
+        out["csp_meta"] = dict(backbone.csp_meta)
     if uses_graphcmi:
         # User-facing CIGL diagnostics: report the three weights under their spec names
         # (lambda_g/lambda_node/lambda_edge), NOT the internal lam/gamma/lam_edge, plus the
