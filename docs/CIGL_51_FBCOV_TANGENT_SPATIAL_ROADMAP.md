@@ -70,25 +70,32 @@ gate_summary sums to 1; central_strip_v1 resolves for 2a (22→253) and 2015 (13
 tiny ERM writes the cov diagnostics; CLI accepts `--spatial_mode/--cov_shrinkage/--cov_eps`; vech Frobenius
 isometry + `_spd_logm` round-trip. Plus full regression suite.
 
-## 5. GPU gate — full-LOSO seed0 (PI: NOT a cheap subset gate)
+## 5. GPU gate — full-LOSO seed0 at fusion_floor=0.05 (PI: NOT a cheap subset gate)
 
-After CPU tests + CPU smoke pass:
+After CPU tests + CPU smoke pass. **`--fusion_floor 0.05` is REQUIRED** (PI, post-smoke): the 2-epoch CPU
+smoke showed the natural gate starves the cov_tangent spatial branch to ~0 (gate_spatial 0.00 vs logvar's
+0.12–0.27), so a no-floor run would confound feature quality with gate starvation. Floor 0.05 also matches the
+accepted P6 pipeline, making this an apples-to-apples floor-matched feature comparison (P6 proved the floor
+itself moves the ERM control, so mixing floors is invalid).
 
 ```text
-Backbone FBCSPLGGGraph, config erm:0, --source_val_early_stop, seed 0, epochs 300 bs 64 warmup 40 n_inner 2
-Spatial modes: logvar  AND  cov_tangent      (same branch/runner/CLI -> apples-to-apples, no historical mix)
+Backbone FBCSPLGGGraph, config erm:0, --source_val_early_stop, --fusion_floor 0.05, seed 0,
+epochs 300 bs 64 warmup 40 n_inner 2
+Spatial modes: logvar  AND  cov_tangent      (same branch/runner/CLI/floor -> apples-to-apples)
 Datasets: BNCI2014_001 all 9 folds + BNCI2015_001 all 12 folds
-21 folds x 2 modes = 42 jobs, max concurrency 8
+21 folds x 2 modes = 42 jobs, max concurrency 8 (do NOT crowd out the running P6 seeds 1/2)
 out results/p7a_cov_tangent_s0/${DATASET}_t${TIDX}_${SPATIAL_MODE}_seed0.json
 ```
 
-**PASS (PI-pre-committed):**
-- PRIMARY: BNCI2014 CSP-decodable `{1,3,8,9}` mean, `cov_tangent − logvar ≥ +0.02`.
+**PASS (PI-pre-committed, floor-matched):**
+- PRIMARY: BNCI2014 CSP-decodable `{1,3,8,9}` mean, `cov_tangent(.05) − logvar(.05) ≥ +0.02`. Never compare
+  cov_tangent(.05) against the historical logvar(.0) — same floor, same branch, same runner only.
 - SECONDARY: 2a full-mean Δ non-negative; 2015 full-mean Δ `≥ −0.01` (prefer non-neg); `source_bacc` not ≈1.0
   with flat source-val/target; `zero_spatial` still load-bearing; cov diagnostics finite (no eig/log blow-up).
 - If `cov_tangent` only lifts the chance-band subjects and lowers `{1,3,8,9}` → **negative, treat like P6.**
-- 2a-decodable up but 2015 down 1–2pp → consider a dataset-sensitive branch, not an immediate general SOTA;
-  decide from the full table.
+- Memorization kill: `cov_tangent source_bacc ↑` while source-val/target flat, feature-norm near-constant, and
+  `zero_spatial` NOT load-bearing → covariance subject-memorization / non-informative geometry → stop P7a.
+- 2a-decodable up but 2015 down 1–2pp → consider a dataset-sensitive branch, not an immediate general SOTA.
 
 ## 6. Frozen
 
