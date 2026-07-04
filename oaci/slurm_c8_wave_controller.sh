@@ -24,6 +24,7 @@ case "$OACI_LOSO_ROOT" in "$REPO"/*|"$REPO") echo "loso root must be OUTSIDE the
 echo "[c8-wave-controller] node=$(hostname) commit=$(git -C "$REPO" rev-parse --short HEAD) root=$OACI_LOSO_ROOT"
 $PY -m oaci.confirmatory.c8_wave --loso-root "$OACI_LOSO_ROOT" --repo-root "$REPO" \
     --datalake-root "$OACI_DATALAKE_ROOT" --seeds "${OACI_SEEDS:-0,1,2}" \
+    --leakage-jobs "${OACI_LEAKAGE_JOBS:-16}" \
     --max-total "${OACI_MAX_TOTAL:-28}" --max-c8 "${OACI_MAX_C8:-8}" --poll "${OACI_POLL:-120}"
 rc=$?
 echo "=== c8-wave controller exited rc=$rc ==="
