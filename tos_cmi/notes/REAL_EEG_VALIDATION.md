@@ -72,7 +72,26 @@ low-N (HGD 14), CIs are wide → down-weight. Do **not** report only the mean.
   Parking lot (optional appendix only, must NOT enter main conclusions): if all big-N TSMNet jobs later fail,
   run a low-dim TSMNet (`subspacedims` → tangent ≤ 6) on 2b as a robustness check.
 
-### Lee2019_MI / Cho2017 / Schirrmeister2017 — PENDING (dumps running)
+### Lee2019 / Cho2017 — EARLY READOUT (complete cells; jobs 880896/880897). HGD pending.
 
-Run order when dumps land: **Track G + C12 first (NOT LPC/factorial)** → EEGNet erasure → EEGNet deployment →
-TSMNet erasure → TSMNet deployment → skipped/degenerate report → CONFIRM/MIXED/OVERTURN per the criteria above.
+**Headline: the central C12 thesis ("no eraser improves target bAcc") CONFIRMS across every dataset and
+backbone at 100+ subjects, including the decisive non-degenerate TSMNet.** ΔbAcc are paired subject-cluster CIs.
+
+| dataset | backbone | folds | C7/C8 profile | C12 deployment | note |
+|---|---|---|---|---|---|
+| Cho2017 | **TSMNet** | **156/156 COMPLETE** | **CONFIRM** | **CONFIRM** | LEACE ΔbAcc −0.001[−0.003,0.000], TOS −0.000, RLACE −0.000[−0.004,0.004] — no eraser helps target (52 subj, 64 ch, non-degenerate) |
+| Lee2019 | **EEGNet** | **162/162 COMPLETE** | MIXED | **CONFIRM** | LEACE ΔbAcc −0.185 (worse), TOS −0.001, RLACE −0.185; C7/C8 MIXED because LEACE drives task 0.79→0.50 (over-erasure) |
+| Lee2019 | TSMNet | 125/162 (topping up) | CONFIRM | **CONFIRM** | LEACE −0.002[−0.004,0.000], TOS −0.000, RLACE −0.002 |
+| Cho2017 | EEGNet | 131/156 (topping up) | MIXED | **CONFIRM** | LEACE −0.141 (worse, task→0.50), TOS −0.001, RLACE −0.141 |
+
+**C12 = CONFIRM everywhere** (all principled erasers' ΔbAcc upper CI < +0.01 → no practically meaningful gain).
+
+**C7/C8 nuance (honest):** TSMNet erasure profile CONFIRMS the 2a pattern (redundant high-dim leakage; LEACE
+removes linear subject, task preserved; INLP destroys task; TOS weak). But on the **binary** MI datasets
+(Lee/Cho) with **EEGNet** (compact 16-d), **LEACE is NOT task-safe** — erasing subject drives the task to
+chance (0.79→0.50), so the 2a "LEACE removes subject at ~no task cost" does not generalize there. This is
+representation/paradigm-dependent and **strengthens** the certification-with-refusal framing (erasure is not
+free), and C12 still holds. NOT an overturn of the main thesis.
+
+Run order when the rest land: Track G + C12 first (NOT LPC/factorial) → re-run full analysis + HGD →
+final CONFIRM/MIXED/OVERTURN table.
