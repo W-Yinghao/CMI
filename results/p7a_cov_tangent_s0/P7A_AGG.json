@@ -1,0 +1,160 @@
+{
+  "BNCI2014_001": {
+    "logvar": {
+      "mean_bacc": 0.37885802469135804,
+      "worst_bacc": 0.25,
+      "n": 9,
+      "source_bacc": 0.6705986118383966,
+      "best_source_val_bacc": 0.5154320987654322,
+      "final_val_source_bacc": 0.42978395061728397,
+      "ablate_zero_graph_target_bacc": 0.3960262345679012,
+      "ablate_zero_temporal_target_bacc": 0.3738425925925926,
+      "ablate_zero_spatial_target_bacc": 0.2743055555555555,
+      "ablate_permute_nodes_target_bacc": 0.36940586419753085,
+      "gate_graph_mean": 0.2974747079941962,
+      "gate_temporal_mean": 0.2489944729540083,
+      "gate_spatial_mean": 0.45353086127175224,
+      "gate_entropy_mean": 0.8595686952273051,
+      "cov_eig_min_mean": NaN,
+      "cov_eig_min_p05": NaN,
+      "cov_log_feature_norm_mean": NaN,
+      "cov_log_feature_norm_p95": NaN
+    },
+    "cov_tangent": {
+      "mean_bacc": 0.3132716049382716,
+      "worst_bacc": 0.2586805555555555,
+      "n": 9,
+      "source_bacc": 0.49130220273698444,
+      "best_source_val_bacc": 0.4239969135802469,
+      "final_val_source_bacc": 0.35088734567901236,
+      "ablate_zero_graph_target_bacc": 0.32060185185185186,
+      "ablate_zero_temporal_target_bacc": 0.3070987654320988,
+      "ablate_zero_spatial_target_bacc": 0.2962962962962963,
+      "ablate_permute_nodes_target_bacc": 0.28800154320987653,
+      "gate_graph_mean": 0.47954967121283215,
+      "gate_temporal_mean": 0.3007572665810585,
+      "gate_spatial_mean": 0.21969308786922032,
+      "gate_entropy_mean": 0.8741861648029752,
+      "cov_eig_min_mean": 0.0022911726652334132,
+      "cov_eig_min_p05": 0.0022822184384697014,
+      "cov_log_feature_norm_mean": 122.39666239420573,
+      "cov_log_feature_norm_p95": 124.2645746866862
+    },
+    "_per_subj": {
+      "logvar": {
+        "1": 0.5243055555555556,
+        "2": 0.29166666666666663,
+        "3": 0.548611111111111,
+        "4": 0.3333333333333333,
+        "5": 0.25,
+        "6": 0.3107638888888889,
+        "7": 0.2829861111111111,
+        "8": 0.4965277777777778,
+        "9": 0.3715277777777778
+      },
+      "cov_tangent": {
+        "1": 0.34375,
+        "2": 0.2586805555555555,
+        "3": 0.3767361111111111,
+        "4": 0.2916666666666667,
+        "5": 0.26388888888888895,
+        "6": 0.2881944444444445,
+        "7": 0.2690972222222222,
+        "8": 0.3489583333333333,
+        "9": 0.3784722222222222
+      }
+    },
+    "_decodable": {
+      "logvar": {
+        "mean_bacc": 0.4852430555555556,
+        "per_subj": {
+          "1": 0.5243055555555556,
+          "3": 0.548611111111111,
+          "8": 0.4965277777777778,
+          "9": 0.3715277777777778
+        }
+      },
+      "cov_tangent": {
+        "mean_bacc": 0.36197916666666663,
+        "per_subj": {
+          "1": 0.34375,
+          "3": 0.3767361111111111,
+          "8": 0.3489583333333333,
+          "9": 0.3784722222222222
+        }
+      }
+    }
+  },
+  "BNCI2015_001": {
+    "logvar": {
+      "mean_bacc": 0.5818055555555556,
+      "worst_bacc": 0.5,
+      "n": 12,
+      "source_bacc": 0.7502598578866078,
+      "best_source_val_bacc": 0.778125,
+      "final_val_source_bacc": 0.6975,
+      "ablate_zero_graph_target_bacc": 0.5949305555555555,
+      "ablate_zero_temporal_target_bacc": 0.5859027777777778,
+      "ablate_zero_spatial_target_bacc": 0.5338194444444444,
+      "ablate_permute_nodes_target_bacc": 0.5798611111111112,
+      "gate_graph_mean": 0.28717929994066554,
+      "gate_temporal_mean": 0.1887533739209175,
+      "gate_spatial_mean": 0.5240673696001371,
+      "gate_entropy_mean": 0.8598823448022207,
+      "cov_eig_min_mean": NaN,
+      "cov_eig_min_p05": NaN,
+      "cov_log_feature_norm_mean": NaN,
+      "cov_log_feature_norm_p95": NaN
+    },
+    "cov_tangent": {
+      "mean_bacc": 0.6176388888888888,
+      "worst_bacc": 0.5075000000000001,
+      "n": 12,
+      "source_bacc": 0.7765748735667285,
+      "best_source_val_bacc": 0.78,
+      "final_val_source_bacc": 0.6879166666666667,
+      "ablate_zero_graph_target_bacc": 0.6175,
+      "ablate_zero_temporal_target_bacc": 0.6256944444444444,
+      "ablate_zero_spatial_target_bacc": 0.5460416666666666,
+      "ablate_permute_nodes_target_bacc": 0.6014583333333333,
+      "gate_graph_mean": 0.4076237380504608,
+      "gate_temporal_mean": 0.2554834298789501,
+      "gate_spatial_mean": 0.33689286559820175,
+      "gate_entropy_mean": 0.8905181884765625,
+      "cov_eig_min_mean": 0.004107637098059058,
+      "cov_eig_min_p05": 0.003959740647890915,
+      "cov_log_feature_norm_mean": 78.38319396972656,
+      "cov_log_feature_norm_p95": 81.13609886169434
+    },
+    "_per_subj": {
+      "logvar": {
+        "1": 0.5475,
+        "2": 0.6575,
+        "3": 0.52,
+        "4": 0.7124999999999999,
+        "5": 0.63,
+        "6": 0.5925,
+        "7": 0.51,
+        "8": 0.5016666666666667,
+        "9": 0.6833333333333333,
+        "10": 0.625,
+        "11": 0.5016666666666667,
+        "12": 0.5
+      },
+      "cov_tangent": {
+        "1": 0.6825,
+        "2": 0.7224999999999999,
+        "3": 0.53,
+        "4": 0.8125,
+        "5": 0.73,
+        "6": 0.5599999999999999,
+        "7": 0.5075000000000001,
+        "8": 0.5716666666666667,
+        "9": 0.59,
+        "10": 0.63,
+        "11": 0.52,
+        "12": 0.5549999999999999
+      }
+    }
+  }
+}

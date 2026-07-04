@@ -1,0 +1,248 @@
+{
+  "config": {
+    "dataset": "BNCI2014_001",
+    "backbone": "FBCSPLGGGraph",
+    "target_indices": [
+      7
+    ],
+    "source_val_early_stop": true,
+    "fusion_floor": 0.05,
+    "spatial_mode": "cov_tangent",
+    "cov_shrinkage": 0.05,
+    "cov_eps": 0.0001,
+    "configs": [
+      "erm:0"
+    ],
+    "epochs": 300,
+    "bs": 64,
+    "warmup": 40,
+    "n_inner": 2,
+    "device": "cuda",
+    "weight_decay": 0.0001,
+    "sampler": "classbal",
+    "prior": "empirical",
+    "prior_alpha": 1.0,
+    "beta": 0.0,
+    "balance": false,
+    "label_correct": false,
+    "dec_margin": null,
+    "decoder_null_perms": 0,
+    "decoder_null_quantile": 0.95,
+    "reweight_dual": false,
+    "align": "none",
+    "fmin": null,
+    "fmax": null,
+    "protocol": "loso",
+    "imbalance": 0.0,
+    "tmin": 0.5,
+    "tmax": 3.5,
+    "resample": 128,
+    "seed": 0,
+    "transduct": "off",
+    "transduct_shrink": 0.1,
+    "transduct_gate": 0.0,
+    "max_subjects": 0,
+    "out": "results/p7a_cov_tangent_s0/BNCI2014_001_t7_cov_tangent_seed0.json",
+    "requested_target_indices": [
+      7
+    ],
+    "actual_target_subjects": [
+      "8"
+    ]
+  },
+  "classes": [
+    "feet",
+    "left_hand",
+    "right_hand",
+    "tongue"
+  ],
+  "summary": {
+    "erm:0": {
+      "per_target_balanced_acc_mean": 0.3489583333333333,
+      "per_target_balanced_acc_std": 0.0,
+      "worst_target_balanced_acc": 0.3489583333333333,
+      "worst_target_acc": 0.3489583333333333,
+      "macro_f1": 0.31213178602779257,
+      "pooled_balanced_acc": 0.3489583333333333,
+      "pooled_macro_f1": 0.31213178602779257,
+      "subject_balanced_acc": 0.0,
+      "subject_macro_f1": 0.0,
+      "leakage_kl": 0.7960219979286194,
+      "leakage_kl_rw": 0.7905460596084595,
+      "marginal_leakage_kl": 0.762369692325592,
+      "marginal_leakage_kl_rw": 0.7556275129318237,
+      "marginal_leakage_advantage": 0.4634851771511208,
+      "marginal_leakage_advantage_rw": 0.4605929139551699,
+      "decoder_cmi": 0.03668093681335449,
+      "decoder_cmi_rw": 0.039696335792541504,
+      "decoder_cmi_res": 0.01484370231628418,
+      "decoder_cmi_res_rw": 0.015331149101257324,
+      "decoder_js_res": 0.010014953091740608,
+      "decoder_js_res_rw": 0.010103356093168259,
+      "decoder_valid_frac": 1.0,
+      "decoder_min_domain_classes": 4,
+      "decoder_single_class_frac": 0.0,
+      "leakage_advantage": 0.4649313087490961,
+      "leakage_advantage_rw": 0.467823571945047,
+      "label_sep": 0.41576283441793205,
+      "inloop_reg": 0.0,
+      "inloop_dec": 0.0,
+      "inloop_dec_loss": 0.0,
+      "train_dec_margin": 0.02,
+      "stepA_dom_acc": 0.0,
+      "source_bacc_mean": 0.42428088174108836,
+      "worst_source_bacc": 0.42428088174108836,
+      "n_folds": 1,
+      "per_target": [
+        {
+          "target": "8",
+          "accuracy": 0.3489583333333333,
+          "balanced_acc": 0.3489583333333333,
+          "macro_f1": 0.31213178602779257,
+          "nll": 1.3198294639587402,
+          "ece": 0.058912371543960444,
+          "leakage_kl": 0.7960219979286194,
+          "cond_dom_acc": 0.5697758496023138,
+          "prior_dom_acc": 0.10484454085321765,
+          "leakage_advantage": 0.4649313087490961,
+          "leakage_kl_rw": 0.7905460596084595,
+          "leakage_advantage_rw": 0.467823571945047,
+          "marginal_leakage_kl": 0.762369692325592,
+          "marginal_leakage_kl_rw": 0.7556275129318237,
+          "marginal_leakage_advantage": 0.4634851771511208,
+          "marginal_leakage_advantage_rw": 0.4605929139551699,
+          "decoder_cmi": 0.03668093681335449,
+          "decoder_cmi_rw": 0.039696335792541504,
+          "decoder_cmi_res": 0.01484370231628418,
+          "decoder_cmi_res_rw": 0.015331149101257324,
+          "decoder_js_res": 0.010014953091740608,
+          "decoder_js_res_rw": 0.010103356093168259,
+          "decoder_valid": true,
+          "decoder_n_domains": 8,
+          "decoder_min_domain_classes": 4,
+          "decoder_mean_domain_classes": 4.0,
+          "decoder_single_class_frac": 0.0,
+          "decoder_domain_class_spans": [
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "decoder_domain_counts": [
+            576,
+            576,
+            576,
+            576,
+            576,
+            576,
+            576,
+            576
+          ],
+          "label_sep": 0.41576283441793205,
+          "inloop_reg": 0.0,
+          "inloop_dec": 0.0,
+          "inloop_dec_loss": 0.0,
+          "train_dec_margin": 0.02,
+          "train_sampler": "classbal",
+          "stepA_dom_acc": 0.0,
+          "method_config": "erm:0",
+          "backbone": "FBCSPLGGGraph",
+          "git_sha": "b032b0734eb3",
+          "ch_names_source": "preset:BNCI2014_001",
+          "grouping_scheme": "central_strip_v1",
+          "channel_groups": {
+            "FC_left": [
+              "FC3",
+              "FC1"
+            ],
+            "FC_mid": [
+              "Fz",
+              "FCz"
+            ],
+            "FC_right": [
+              "FC2",
+              "FC4"
+            ],
+            "C_left": [
+              "C5",
+              "C3",
+              "C1"
+            ],
+            "C_mid": [
+              "Cz"
+            ],
+            "C_right": [
+              "C2",
+              "C4",
+              "C6"
+            ],
+            "CP_left": [
+              "CP3",
+              "CP1",
+              "P1"
+            ],
+            "CP_mid": [
+              "CPz",
+              "Pz",
+              "POz"
+            ],
+            "CP_right": [
+              "CP2",
+              "CP4",
+              "P2"
+            ]
+          },
+          "gate_graph_mean": 0.2562309503555298,
+          "gate_graph_std": 0.11765708774328232,
+          "gate_temporal_mean": 0.4169411063194275,
+          "gate_temporal_std": 0.08355116844177246,
+          "gate_spatial_mean": 0.3268280029296875,
+          "gate_spatial_std": 0.13916464149951935,
+          "gate_entropy_mean": 1.0138217210769653,
+          "spatial_mode": "cov_tangent",
+          "cov_shrinkage": 0.05,
+          "cov_eps": 0.0001,
+          "cov_eig_min_mean": 0.002282248344272375,
+          "cov_eig_min_p05": 0.0022774331737309694,
+          "cov_log_feature_norm_mean": 123.96129608154297,
+          "cov_log_feature_norm_p95": 126.27174377441406,
+          "source_bacc": 0.42428088174108836,
+          "ablate_zero_graph_target_bacc": 0.3576388888888889,
+          "ablate_zero_temporal_target_bacc": 0.3871527777777778,
+          "ablate_zero_spatial_target_bacc": 0.29861111111111116,
+          "ablate_permute_nodes_target_bacc": 0.31770833333333337,
+          "source_val_subjects": [
+            2
+          ],
+          "best_epoch": 7,
+          "best_source_val_bacc": 0.3975694444444444,
+          "final_val_source_bacc": 0.3368055555555556,
+          "final_train_source_bacc": 0.970486111111111
+        }
+      ],
+      "ablate_zero_graph_target_bacc_mean": 0.3576388888888889,
+      "ablate_zero_temporal_target_bacc_mean": 0.3871527777777778,
+      "ablate_zero_spatial_target_bacc_mean": 0.29861111111111116,
+      "ablate_permute_nodes_target_bacc_mean": 0.31770833333333337,
+      "decoder_valid_n": 1,
+      "decoder_cmi_valid_mean": 0.03668093681335449,
+      "decoder_cmi_rw_valid_mean": 0.039696335792541504,
+      "decoder_cmi_res_valid_mean": 0.01484370231628418,
+      "decoder_cmi_res_rw_valid_mean": 0.015331149101257324,
+      "decoder_js_res_valid_mean": 0.010014953091740608,
+      "decoder_js_res_rw_valid_mean": 0.010103356093168259,
+      "decoder_cmi_res_null_q_valid_mean": null,
+      "decoder_cmi_res_excess_valid_mean": null,
+      "decoder_cmi_res_rw_null_q_valid_mean": null,
+      "decoder_cmi_res_rw_excess_valid_mean": null,
+      "decoder_js_res_null_q_valid_mean": null,
+      "decoder_js_res_excess_valid_mean": null,
+      "decoder_js_res_rw_null_q_valid_mean": null,
+      "decoder_js_res_rw_excess_valid_mean": null
+    }
+  }
+}
