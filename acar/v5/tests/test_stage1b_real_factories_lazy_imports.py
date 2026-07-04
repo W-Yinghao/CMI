@@ -48,7 +48,7 @@ def test_lazy_imports_are_inside_methods():
     # the DSP/numeric heavy imports now live in the seam modules; the reader/trainer DELEGATE (still view-bounded)
     assert "import mne" in inspect.getsource(RMR.preprocess_subject), "mne must be lazy inside real_mne_reader.preprocess_subject"
     assert "import torch" in inspect.getsource(RET.TorchEegnetBackend.set_deterministic), "torch must be lazy in the backend"
-    assert "real_mne_reader" in inspect.getsource(RDR.RealBidsDevReader.read_subject_windows), "reader must delegate to real_mne_reader"
+    assert "real_mne_reader" in inspect.getsource(RDR._read_windows_with_repair), "reader must delegate to real_mne_reader"
     assert "real_eegnet_trainer" in inspect.getsource(RT.RealSubstrateTrainer.train_fold), "trainer must delegate to real_eegnet_trainer"
     for M in (RDR, RT, RMR, RET):
         assert not (set(HEAVY) & _toplevel_roots(M)), (M.__name__, sorted(set(HEAVY) & _toplevel_roots(M)))

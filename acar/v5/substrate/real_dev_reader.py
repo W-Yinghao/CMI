@@ -2,6 +2,13 @@
 NO heavy import at module level (mne is lazy inside the signal read). `list_subjects` is a plain directory listing returning RAW
 subject ids; the mne signal read + label read are the remaining seams wired ONLY at an authorized Stage-1B run. Paths are validated
 against the context's approved per-disease source paths.
+
+Stage-1B15: BOTH signal-read paths (RealBidsDevReader + the label-incapable WindowsOnlyReader facade) go through
+`_read_windows_with_repair`, which drives `real_mne_reader.preprocess_subject(..., staging_dir=...)` — the reviewed Stage-1B12/1B13/
+1B14 BrainVision header repair (marker synth / pointer rewrite / channels.tsv ordinal rename). The staging dir is a fresh PER-CALL
+temp subdir under the gate-issued context's validated `repair_staging_root` (EPHEMERAL scratch, never a registered artifact); it is
+fail-closed (no staging root → refuse to read) and auto-removed after each read. The label firewall is unchanged: WindowsOnlyReader
+still carries only the (label-free) context — no read_subject_label and no reference to the label-capable reader.
 """
 from __future__ import annotations
 import os
@@ -17,6 +24,21 @@ def _check_approved(ctx, disease, cohort, path):
         raise RealReaderError(f"{disease}/{cohort}: path {path!r} is not the approved source for this run")
 
 
+def _read_windows_with_repair(ctx, disease, cohort, subject, path):
+    """Read one subject's SIGNAL-ONLY SubjectWindows through the reviewed Stage-1B12/1B13/1B14 BrainVision read-repair. Fail-closed:
+    the gate-issued context MUST carry a validated repair staging root; a fresh PER-CALL temp subdir is created under it (so repeated
+    reads across folds/seeds/phases never collide), passed to preprocess_subject as `staging_dir`, and cleaned up after the read (the
+    returned SubjectWindows holds the windows in memory — the ephemeral repaired headers are no longer needed)."""
+    import tempfile
+    from acar.v5.substrate import real_mne_reader as RMR       # RMR lazy-imports mne inside preprocess_subject
+    staging_root = getattr(ctx, "repair_staging_root", "")
+    if not (staging_root and os.path.isdir(staging_root)):
+        raise RealReaderError("real read requires a validated repair staging root in the execution context (Stage-1B15) — none present")
+    subject_dir = os.path.join(path, subject)
+    with tempfile.TemporaryDirectory(dir=staging_root) as sdir:   # PER-CALL scratch; auto-removed after the read
+        return RMR.preprocess_subject(disease, cohort, subject, subject_dir, staging_dir=sdir)
+
+
 class WindowsOnlyReader:
     """A label-INCAPABLE reader facade for the embedding view. It holds ONLY the execution context (which has no label capability)
     and exposes read_subject_windows — there is no read_subject_label here and no reference to any object that has one, so even a
@@ -29,9 +51,7 @@ class WindowsOnlyReader:
 
     def read_subject_windows(self, disease, cohort, subject, path):
         _check_approved(self._ctx, disease, cohort, path)
-        from acar.v5.substrate import real_mne_reader as RMR   # RMR lazy-imports mne inside preprocess_subject
-        subject_dir = os.path.join(path, subject)
-        return RMR.preprocess_subject(disease, cohort, subject, subject_dir)   # SIGNAL ONLY → validated SubjectWindows
+        return _read_windows_with_repair(self._ctx, disease, cohort, subject, path)   # SIGNAL ONLY → validated SubjectWindows
 
 
 class RealBidsDevReader:
@@ -59,9 +79,7 @@ class RealBidsDevReader:
 
     def read_subject_windows(self, disease, cohort, subject, path):
         self._check_approved(disease, cohort, path)
-        from acar.v5.substrate import real_mne_reader as RMR   # RMR lazy-imports mne inside preprocess_subject
-        subject_dir = os.path.join(path, subject)
-        return RMR.preprocess_subject(disease, cohort, subject, subject_dir)   # SIGNAL ONLY → validated SubjectWindows
+        return _read_windows_with_repair(self._ctx, disease, cohort, subject, path)   # SIGNAL ONLY → validated SubjectWindows
 
     def read_subject_label(self, disease, cohort, subject, path):
         # reachable ONLY via AuthorizedFitDatasetView.read_label (FIT training only); COHORT-EXACT mapping, fail-closed

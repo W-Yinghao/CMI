@@ -170,7 +170,10 @@ def _repair_aware_reads(disease, cohort, subject, files, mne, staging_dir):
             manifests.append(manifest)
             entries.append(("primary", manifest["original_vhdr_path"], manifest["original_header_sha256"]))
             entries.append(("data_target", manifest["data_file_target"], _sha256_file(manifest["data_file_target"])))
-            entries.append(("marker_target", manifest["marker_file_target"], _sha256_file(manifest["marker_file_target"])))
+            if manifest.get("generated_marker_sha256") is not None:   # SYNTHESIZED marker → its stable CONTENT hash (the marker
+                entries.append(("marker_synth", manifest["generated_marker_sha256"]))   # file lives in the EPHEMERAL staging dir, so
+            else:                                                                        # never fold its random path into the audit
+                entries.append(("marker_target", manifest["marker_file_target"], _sha256_file(manifest["marker_file_target"])))
         reads.append((p, _read_raw(read_path, mne)))
     raw_manifest_sha256 = hashlib.sha256(json.dumps(sorted(entries), sort_keys=True).encode()).hexdigest()
     return reads, manifests, raw_manifest_sha256

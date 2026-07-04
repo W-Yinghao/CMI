@@ -6,6 +6,7 @@ import inspect
 import os
 import tempfile
 from acar.v5.substrate import stage1b_build as B
+from acar.v5.tests._util import stage1b_repair_staging_root as _RSR
 from acar.v5.substrate import stage1b_authorization as SA
 from acar.v5.substrate import stage1b_registry_io as RIO
 from acar.v5.tests._util import expect_raises, ok, stage1b_auth, stage1b_lock, stage1b_full_plan, FakeDevReader, FakeFileTrainer, FakeFileDumper
@@ -26,7 +27,7 @@ def test_custom_artifact_writer_rejected():
     with tempfile.TemporaryDirectory() as d:
         expect_raises(TypeError,
                       lambda: B.run_stage1b_real_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
-                                                       stage1b_lock(protocol_tag_target_sha=FULL), output_root=d,
+                                                       stage1b_lock(protocol_tag_target_sha=FULL), output_root=d, repair_staging_root=_RSR(),
                                                        dev_reader_factory=lambda ctx: FakeDevReader(),
                                                        trainer_factory=lambda ctx: FakeFileTrainer(ctx.output_root, ctx.run_id),
                                                        dumper_factory=lambda ctx: FakeFileDumper(ctx.output_root, ctx.run_id),
@@ -37,7 +38,7 @@ def test_custom_artifact_writer_rejected():
 def test_default_writes_file_backed_package():
     with tempfile.TemporaryDirectory() as d:
         rep = B.run_stage1b_real_build(stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL),
-                                       stage1b_lock(protocol_tag_target_sha=FULL), output_root=d,
+                                       stage1b_lock(protocol_tag_target_sha=FULL), output_root=d, repair_staging_root=_RSR(),
                                        dev_reader_factory=lambda ctx: FakeDevReader(),
                                        trainer_factory=lambda ctx: FakeFileTrainer(ctx.output_root, ctx.run_id),
                                        dumper_factory=lambda ctx: FakeFileDumper(ctx.output_root, ctx.run_id))

@@ -45,6 +45,41 @@ def stage1b_lock(run_id="run-syn-0001", device_kind="cpu", **over):
     return lk
 
 
+def stage1b_repair_staging_root():
+    """A fresh, non-existent, absolute repair-staging root for Stage-1B real-build tests (parent dir exists + empty, child absent) —
+    passes stage1b_repair_staging validation (not a symlink, not under output_root/raw paths, absent-or-empty at launch)."""
+    import os
+    import tempfile
+    return os.path.join(tempfile.mkdtemp(prefix="acar_v5_repair_staging_"), "staging")
+
+
+def stage1b_reader_ctx(disease, cohort, path, repair_staging_root, output_root="/run/out"):
+    """A gate-issued-style execution context whose approved source path for (disease, cohort) == `path`, carrying a Stage-1B15
+    repair_staging_root — for exercising the production real reader without a full build."""
+    from acar.v5.substrate import stage1b_execution_context as EC
+    from acar.v5.substrate import stage1b_authorization as SA
+    plan = {"fold_contained_refs": [{"disease": disease, "source_paths_by_cohort": {cohort: path}}]}
+    return EC.build_execution_context(stage1b_auth(protocol_tag_target_sha=SA.PROTOCOL_TAG_TARGET_SHA_FULL), {}, plan,
+                                      output_root=output_root, repair_staging_root=repair_staging_root)
+
+
+def capture_preprocess_staging(fn):
+    """Monkeypatch real_mne_reader.preprocess_subject to CAPTURE the staging_dir of each call (no real read), run fn(), restore.
+    Returns (list_of_captured_staging_dirs, fn_result)."""
+    from acar.v5.substrate import real_mne_reader as RMR
+    cap, orig = [], RMR.preprocess_subject
+
+    def _fake(disease, cohort, subject, subject_dir, *, mne=None, staging_dir=None):
+        cap.append(staging_dir)
+        return f"WINDOWS:{disease}/{cohort}/{subject}"
+
+    RMR.preprocess_subject = _fake
+    try:
+        return cap, fn()
+    finally:
+        RMR.preprocess_subject = orig
+
+
 def stage1b_full_plan():
     """A SYNTHETIC full-build plan: every one of the 30 fold refs carries source_paths_by_cohort with per-cohort synthetic DEV
     paths (strings only; nothing is opened)."""

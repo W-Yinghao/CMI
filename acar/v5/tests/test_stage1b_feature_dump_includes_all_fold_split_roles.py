@@ -4,6 +4,7 @@ from __future__ import annotations
 import tempfile
 from acar.v5 import splits as SPL
 from acar.v5.substrate import stage1b_build as B
+from acar.v5.tests._util import stage1b_repair_staging_root as _RSR
 from acar.v5.substrate import stage1b_authorization as SA
 from acar.v5.substrate import stage1b_output_layout as LO
 from acar.v5.substrate import stage1b_feature_dump_writer as FDW
@@ -22,7 +23,7 @@ def test_every_ref_feat_dump_has_all_split_roles():
     with tempfile.TemporaryDirectory() as d:
         rep = B.run_stage1b_real_build(
             stage1b_full_plan(), stage1b_auth(protocol_tag_target_sha=FULL), stage1b_lock(protocol_tag_target_sha=FULL),
-            output_root=d, dev_reader_factory=lambda ctx: FakeWindowsDevReader(subs_by),
+            output_root=d, repair_staging_root=_RSR(), dev_reader_factory=lambda ctx: FakeWindowsDevReader(subs_by),
             trainer_factory=lambda ctx: RT.RealSubstrateTrainer(ctx, backend=FakeEegnetBackend()),
             dumper_factory=lambda ctx: RET.RealEmbeddingDumper(ctx, backend=FakeEegnetBackend()))
         assert rep["n_registered"] == 30

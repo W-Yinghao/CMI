@@ -21,6 +21,7 @@ class Stage1BExecutionContext:
     output_root: str
     approved_fold_refs: frozenset
     approved_source_paths_by_disease: tuple   # tuple of (disease, ((cohort, path), ...)) — hashable/immutable
+    repair_staging_root: str = ""             # Stage-1B15: per-run EPHEMERAL scratch for BrainVision header repair (NOT an artifact)
 
     def is_approved_ref(self, ref):
         return ref in self.approved_fold_refs
@@ -32,8 +33,9 @@ class Stage1BExecutionContext:
         raise Stage1bContextError(f"no approved source paths for disease {disease}")
 
 
-def build_execution_context(authorization, runtime_lock, plan, *, output_root):
-    """Build the context AFTER the gate has validated (authorization/lock/plan). Pure."""
+def build_execution_context(authorization, runtime_lock, plan, *, output_root, repair_staging_root=""):
+    """Build the context AFTER the gate has validated (authorization/lock/plan). Pure. `repair_staging_root` (Stage-1B15) is the
+    validated per-run EPHEMERAL scratch dir the real reader uses for BrainVision header repair — empty for the synthetic path."""
     if not isinstance(output_root, str) or not output_root:
         raise Stage1bContextError("output_root must be a non-empty path")
     spb = {}
@@ -45,4 +47,4 @@ def build_execution_context(authorization, runtime_lock, plan, *, output_root):
         protocol_tag_target_sha=str(authorization["protocol_tag_target_sha"]),
         implementation_base_sha=str(authorization["implementation_base_sha"]),
         output_root=output_root, approved_fold_refs=frozenset(SA.CANONICAL_FOLD_REFS),
-        approved_source_paths_by_disease=frozen_spb)
+        approved_source_paths_by_disease=frozen_spb, repair_staging_root=str(repair_staging_root or ""))

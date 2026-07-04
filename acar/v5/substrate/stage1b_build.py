@@ -24,6 +24,7 @@ from acar.v5.substrate import subject_index as SI
 from acar.v5.substrate import stage1b_artifact_writer as AW
 from acar.v5.substrate import stage1b_file_artifact_writer as FW
 from acar.v5.substrate import stage1b_execution_context as EC
+from acar.v5.substrate import stage1b_repair_staging as RS
 from acar.v5.substrate import stage1b_embedding_orchestrator as ORC
 from acar.v5.substrate import stage1b_finalize as FIN
 from acar.v5.substrate import dev_reader_contract as DR
@@ -47,7 +48,7 @@ def _disease_cohort_paths(plan, disease):
 def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
                       dev_reader=None, trainer=None, dumper=None,
                       dev_reader_factory=None, trainer_factory=None, dumper_factory=None,
-                      artifact_writer=None, output_root=None):
+                      artifact_writer=None, output_root=None, repair_staging_root=None):
     """Gate-first Stage-1B build. execute=False (default) reads/trains NOTHING. On execute=True, either pass ready-made
     dev_reader+trainer+dumper (synthetic test path) OR dev_reader_factory+trainer_factory+dumper_factory (real path —
     instantiated ONLY after the gate, each called with the gate-issued Stage1BExecutionContext). `artifact_writer` defaults to the
@@ -72,7 +73,16 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
             raise Stage1bBuildError("pass factories OR objects, not both")
         if not output_root:
             raise Stage1bBuildError("factory path requires output_root (for the execution context)")
-        ctx = EC.build_execution_context(authorization, runtime_lock, plan, output_root=output_root)   # AFTER the gate
+        # Stage-1B15: the production reader needs a validated per-run EPHEMERAL repair staging root (created AFTER the gate, BEFORE
+        # any factory/read); scratch only — never a registered artifact. Optional here (empty for synthetic factory tests that read
+        # via Fake readers), but run_stage1b_real_build requires it.
+        staged = ""
+        if repair_staging_root:
+            approved_src = sorted({p for e in plan["fold_contained_refs"] for p in e["source_paths_by_cohort"].values()})
+            staged = RS.create_repair_staging_root(repair_staging_root, output_root=output_root, run_id=ready["run_id"],
+                                                   approved_source_paths=approved_src)
+        ctx = EC.build_execution_context(authorization, runtime_lock, plan, output_root=output_root,
+                                         repair_staging_root=staged)   # AFTER the gate
         dev_reader = dev_reader_factory(ctx)                  # <-- real import/model-init/GPU-probe happens here, post-gate
         trainer = trainer_factory(ctx)
         dumper = dumper_factory(ctx)
@@ -119,21 +129,25 @@ def run_stage1b_build(plan, authorization, runtime_lock, *, execute=False,
             "registry": registry, "run_id": ready["run_id"], "device_kind": ready["device_kind"]}
 
 
-def run_stage1b_real_build(plan, authorization, runtime_lock, *, output_root, dev_reader_factory, trainer_factory,
-                           dumper_factory):
+def run_stage1b_real_build(plan, authorization, runtime_lock, *, output_root, repair_staging_root, dev_reader_factory,
+                           trainer_factory, dumper_factory):
     """PRODUCTION real-run entry. Accepts ONLY factories (no preconstructed objects) so the real reader/trainer/dumper can never be
     instantiated before the gate; factories are called with the gate-issued execution context. There is NO artifact_writer override:
     the production entry ALWAYS uses the FILE-backed writer with PER-REF containment (output_root/run_id/safe_ref_slug), so a real run
-    can only ever emit the file-backed, hash-bound artifact package (registry.json + FINALIZED.json). All three factories required."""
+    can only ever emit the file-backed, hash-bound artifact package (registry.json + FINALIZED.json). All three factories required.
+    `repair_staging_root` (Stage-1B15) is REQUIRED: an explicit per-run EPHEMERAL scratch dir (outside the raw tree and the artifact
+    package) where the production reader materializes the reviewed BrainVision header repair — validated + created after the gate."""
     if not (callable(dev_reader_factory) and callable(trainer_factory) and callable(dumper_factory)):
         raise Stage1bBuildError("run_stage1b_real_build requires callable dev_reader_factory, trainer_factory and dumper_factory")
     if not output_root:
         raise Stage1bBuildError("run_stage1b_real_build requires output_root")
+    if not repair_staging_root:
+        raise Stage1bBuildError("run_stage1b_real_build requires repair_staging_root (Stage-1B15: production reader repair staging)")
     artifact_writer = functools.partial(FW.write_artifact_from_files, output_root=output_root,   # ALWAYS file-backed (per-ref)
                                         run_id=authorization["run_id"])
     return run_stage1b_build(plan, authorization, runtime_lock, execute=True, output_root=output_root,
-                             dev_reader_factory=dev_reader_factory, trainer_factory=trainer_factory,
-                             dumper_factory=dumper_factory, artifact_writer=artifact_writer)
+                             repair_staging_root=repair_staging_root, dev_reader_factory=dev_reader_factory,
+                             trainer_factory=trainer_factory, dumper_factory=dumper_factory, artifact_writer=artifact_writer)
 
 
 def main(argv=None):  # pragma: no cover — CLI; default dry-run, real execute is unwired here

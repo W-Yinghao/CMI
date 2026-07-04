@@ -144,6 +144,19 @@ MODULES = (
     "test_stage1b_type_prefixed_ordinal_preserves_raw_tree",
     "test_stage1b_feat_dump_v5_records_ordinal_repair_subtype",
     "test_stage1b14p_type_prefixed_ordinals_classify_as_repair_required",
+    "test_stage1b_real_entry_requires_repair_staging_root",
+    "test_stage1b_repair_staging_root_rejects_raw_tree_overlap",
+    "test_stage1b_repair_staging_root_rejects_output_run_root",
+    "test_stage1b_repair_staging_root_rejects_symlink",
+    "test_stage1b_context_carries_repair_staging_root",
+    "test_stage1b_real_reader_passes_staging_dir",
+    "test_stage1b_windows_only_reader_passes_staging_dir",
+    "test_stage1b_repair_staging_per_call_tempdir",
+    "test_stage1b_repair_staging_tempdir_cleanup",
+    "test_stage1b_embedding_reader_still_label_incapable_after_staging",
+    "test_stage1b_real_reader_uses_repair_branch_for_scz_fixture",
+    "test_stage1b_repair_provenance_reproducible",
+    "test_stage1b_real_build_aborts_on_bad_repair_staging_root",
 )
 
 

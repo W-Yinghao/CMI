@@ -15,7 +15,7 @@ def _reader(cohort, path):
     directory-listing / seam behaviour is what's under test)."""
     plan = {"fold_contained_refs": [{"disease": "PD", "source_paths_by_cohort": {cohort: path}}]}
     ctx = EC.build_execution_context(stage1b_auth(protocol_tag_target_sha=SA.PROTOCOL_TAG_TARGET_SHA_FULL), {}, plan,
-                                     output_root="/run/out")
+                                     output_root="/run/out", repair_staging_root=tempfile.mkdtemp())   # Stage-1B15 staging root
     return RDR.make_real_dev_reader(ctx)
 
 
