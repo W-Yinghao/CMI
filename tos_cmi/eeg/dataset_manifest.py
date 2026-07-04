@@ -67,8 +67,12 @@ def main():
                          r["z_dim"], r["channels"], r["class_count"], r["chance_task_bAcc"],
                          r["source_subject_count_per_fold"], status))
     os.makedirs(RESULTS, exist_ok=True)
-    json.dump(out, open("%s/validation_manifest.json" % RESULTS, "w"), indent=1)
-    print("\nwrote %s/validation_manifest.json (%d cells)" % (RESULTS, len(out)))
+    mp = "%s/validation_manifest.json" % RESULTS
+    prev = json.load(open(mp)) if os.path.exists(mp) else []          # MERGE: keep other datasets' cells
+    prev = [c for c in prev if c["dataset"] not in set(datasets)]
+    merged = prev + out
+    json.dump(merged, open(mp, "w"), indent=1)
+    print("\nwrote %s (%d cells this run, %d total)" % (mp, len(out), len(merged)))
     print("MANIFEST_DONE")
 
 
