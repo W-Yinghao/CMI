@@ -372,7 +372,8 @@ def run(args):
         for lbl, method, lam, gamma, lam_edge, z_margin, dec_scale, node_w, lam_spatial in configs:
             bb = build_backbone(args.backbone, nch, nt, n_cls, device=device, ch_names=ch_names,
                                 groups=cs_groups, group_names=cs_named, grouping_scheme=grouping_scheme,
-                                fusion_floor=args.fusion_floor)
+                                fusion_floor=args.fusion_floor, spatial_mode=args.spatial_mode,
+                                cov_shrinkage=args.cov_shrinkage, cov_eps=args.cov_eps)
             if args.beta > 0 and method not in ("graphdualpc", "fbdualpc"):   # VIB (graphdualpc/fbdualpc use beta=lambda_node, not VIB)
                 from cmi.methods.vib import VIBBackbone
                 bb = VIBBackbone(bb, n_cls).to(device)
@@ -471,6 +472,11 @@ def run(args):
                     rec.update(bb.gate_summary(torch.as_tensor(Xte[:256], dtype=torch.float32, device=device)))
                 except Exception as _e:
                     rec["gate_summary_error"] = str(_e)
+            if callable(getattr(bb, "cov_summary", None)):         # P7a: covariance-tangent conditioning diag
+                try:
+                    rec.update(bb.cov_summary(torch.as_tensor(Xte[:256], dtype=torch.float32, device=device)))
+                except Exception as _e:
+                    rec["cov_summary_error"] = str(_e)
             rec["source_bacc"] = float(classification_metrics(predict(bb, Xtr_all[ei], device),
                                                               ytr_all[ei])["balanced_acc"])
             if callable(getattr(bb, "ablate", None)):
@@ -535,6 +541,14 @@ def build_parser():
     ap.add_argument("--fusion_floor", type=float, default=0.0,
                     help="P6-B: FBCSPLGGGraph 3-way gate floor eps -> (1-3eps)*softmax + eps, so no branch is "
                          "fully starved. 0.0 = plain softmax (off). Try 0.05 / 0.10. Only affects FBCSPLGGGraph.")
+    ap.add_argument("--spatial_mode", choices=["logvar", "cov_tangent"], default="logvar",
+                    help="P7a: FBCSPLGGGraph spatial branch feature. 'logvar' = P6 per-filter log-variance "
+                         "(default, byte-identical). 'cov_tangent' = per-band C x C covariance -> SPD tangent "
+                         "vech(logm(S)). Only affects FBCSPLGGGraph.")
+    ap.add_argument("--cov_shrinkage", type=float, default=0.05,
+                    help="P7a cov_tangent shrinkage alpha: S <- (1-a)*S + a*I/C (SPD floor, min eig >= a/C).")
+    ap.add_argument("--cov_eps", type=float, default=1e-4,
+                    help="P7a cov_tangent eigenvalue floor for logm and trace-normalization stability.")
     # configs = list of "method:lam" (one job can sweep lambda; splits shared across all)
     ap.add_argument("--configs", nargs="+",
                     default=["erm:0", "marginal:1", "chain:1", "lpc_uniform:1", "lpc_prior:1"])

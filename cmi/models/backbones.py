@@ -157,5 +157,8 @@ def build_backbone(name, n_chans, n_times, n_classes, device="cpu", **_):
         return FBCSPLGGGraph(n_chans, n_times, n_classes, ch_names=_.get("ch_names"),
                              groups=_.get("groups"), group_names=_.get("group_names"),
                              grouping_scheme=_.get("grouping_scheme"),
-                             fusion_floor=_.get("fusion_floor", 0.0)).to(device)
+                             fusion_floor=_.get("fusion_floor", 0.0),
+                             spatial_mode=_.get("spatial_mode", "logvar"),
+                             cov_shrinkage=_.get("cov_shrinkage", 0.05),
+                             cov_eps=_.get("cov_eps", 1e-4)).to(device)
     return HookedBackbone(name, n_chans, n_times, n_classes).to(device)

@@ -317,40 +317,130 @@ class FBLGGDualCMIBackbone(nn.Module):
 # collapse (channels stay as graph nodes). This branch reintroduces the CSP recipe:
 #   per temporal band -> learned per-band spatial projection (K components) -> log-variance.
 # --------------------------------------------------------------------------------------------------
-class _FBCSPBand(nn.Module):
-    """One filterbank band: temporal conv -> BN -> per-band spatial projection (C -> K, grouped per
-    temporal filter) -> log-variance over time. Output [B, n_filt*K] CSP-style features."""
+# CIGL_51 P7a — covariance-tangent spatial feature (replaces per-filter log-variance with the full
+# channel covariance mapped to its SPD tangent space). Motivation: P6 showed the spatial-CMI penalty
+# damages the CSP-decodable subjects because the log-var branch keeps only per-filter variance (the
+# diagonal after a learned point spatial filter) and underfits the second-order covariance geometry the
+# 4-class MI contrast lives in. `vech(logm(S_band))` exposes that full second-order structure to a linear
+# head (the Riemannian-tangent recipe of the strong MI baselines). spatial_mode='logvar' stays the exact
+# P6 path (byte/state-dict identical); 'cov_tangent' is the P7a hypothesis, gated ERM-first on full-LOSO.
+def _vech(M, off_scale):
+    """Half-vectorization (lower triangle incl diagonal) of a batch of symmetric matrices, with the
+    off-diagonal entries scaled so the vector L2 norm equals the matrix Frobenius norm (tangent isometry)."""
+    C = M.shape[-1]
+    idx = torch.tril_indices(C, C, device=M.device)          # [2, C(C+1)/2]
+    vals = M[..., idx[0], idx[1]]                            # [..., C(C+1)/2]
+    scale = torch.where(idx[0] == idx[1], M.new_ones(()), M.new_full((), off_scale))
+    return vals * scale
 
-    def __init__(self, n_filt, kern, n_times, n_chans, K=4):
+
+class _SPDLogm(torch.autograd.Function):
+    """Gradient-safe matrix log of a batch of SPD matrices. The generic torch.linalg.eigh backward has a
+    1/(l_i - l_j) term that yields NaN gradients when eigenvalues are (near-)degenerate — which happens on
+    low-rank band covariances whose small eigenvalues all pin to the shrinkage floor. We instead use the
+    Daleckii-Krein / Loewner formula for the differential of a symmetric matrix function: its off-diagonal
+    entry (log l_i - log l_j)/(l_i - l_j) has a finite 1/l_i limit as l_j -> l_i, so it is stable at
+    degeneracy. Eigenvectors within a degenerate block are non-unique but the result is invariant to that
+    choice (the Loewner block is constant), so the layer is well-defined."""
+
+    @staticmethod
+    def forward(ctx, S, eps):
+        evals, evecs = torch.linalg.eigh(S)                  # ascending evals [...,C], evecs [...,C,C]
+        evals_c = evals.clamp(min=eps)
+        log_ev = torch.log(evals_c)
+        logS = evecs @ torch.diag_embed(log_ev) @ evecs.transpose(-1, -2)
+        ctx.save_for_backward(evecs, evals_c, log_ev)
+        return logS
+
+    @staticmethod
+    def backward(ctx, grad_out):
+        evecs, evals_c, log_ev = ctx.saved_tensors
+        G = 0.5 * (grad_out + grad_out.transpose(-1, -2))     # symmetric part
+        Ghat = evecs.transpose(-1, -2) @ G @ evecs            # rotate into eigenbasis [...,C,C]
+        li = evals_c.unsqueeze(-1); lj = evals_c.unsqueeze(-2)
+        logi = log_ev.unsqueeze(-1); logj = log_ev.unsqueeze(-2)
+        dl = li - lj
+        near = dl.abs() < 1e-6                                # (near-)degenerate -> use the 1/l_i limit
+        L = torch.where(near, 1.0 / li.expand_as(dl), (logi - logj) / torch.where(near, torch.ones_like(dl), dl))
+        gradS = evecs @ (L * Ghat) @ evecs.transpose(-1, -2)
+        return gradS, None
+
+
+def _spd_logm(S, eps):
+    """Matrix log of a batch of SPD matrices via the gradient-safe _SPDLogm above. Returns (logS, evals);
+    evals (detached, unclamped) are for conditioning diagnostics only. log uses clamp(min=eps)."""
+    logS = _SPDLogm.apply(S, eps)
+    with torch.no_grad():
+        evals = torch.linalg.eigvalsh(S)
+    return logS, evals
+
+
+class _FBCSPBand(nn.Module):
+    """One filterbank band. spatial_mode='logvar' (default, P6): temporal conv -> BN -> per-band spatial
+    projection (C->K, grouped) -> log-variance over time -> [B, n_filt*K] (byte-identical to P6).
+    spatial_mode='cov_tangent' (P7a): temporal conv -> BN -> per-(sample,filter) C x C channel covariance
+    -> trace-normalize -> shrinkage -> matrix-log (SPD tangent) -> vech -> [B, n_filt*C(C+1)/2]."""
+
+    def __init__(self, n_filt, kern, n_times, n_chans, K=4, spatial_mode="logvar",
+                 cov_shrinkage=0.05, cov_eps=1e-4):
         super().__init__()
         kern = min(int(kern), max(2, n_times // 2))
         self.temporal = nn.Conv2d(1, n_filt, (1, kern))
         self.bn = nn.BatchNorm2d(n_filt)
-        # grouped (C,1) conv = independent spatial filters per temporal band -> K components each
+        # grouped (C,1) conv = independent spatial filters per temporal band -> K components each. Built in
+        # BOTH modes so the logvar path is byte/state-dict identical to P6; unused (no gradient) under cov_tangent.
         self.spatial = nn.Conv2d(n_filt, n_filt * K, (n_chans, 1), groups=n_filt, bias=False)
-        self.out_dim = n_filt * K
+        self.spatial_mode = str(spatial_mode)
+        self.cov_shrinkage = float(cov_shrinkage)
+        self.cov_eps = float(cov_eps)
+        self.n_chans = int(n_chans)
+        self.last_eig_min = None                             # [B] per-sample min eigenvalue (cov_tangent diag)
+        self.out_dim = (n_filt * (n_chans * (n_chans + 1) // 2)
+                        if self.spatial_mode == "cov_tangent" else n_filt * K)
 
-    def forward(self, x):                                  # x [B,1,C,T]
-        h = self.bn(self.temporal(x))                      # [B,n_filt,C,T']
-        h = self.spatial(h).squeeze(2)                     # [B,n_filt*K,T'] (spatially filtered)
-        return torch.log(h.var(dim=-1).clamp(min=1e-6))    # [B,n_filt*K] log-variance (CSP feature)
+    def forward(self, x):                                    # x [B,1,C,T]
+        h = self.bn(self.temporal(x))                        # [B,n_filt,C,T']
+        if self.spatial_mode != "cov_tangent":
+            h = self.spatial(h).squeeze(2)                   # [B,n_filt*K,T'] (spatially filtered)
+            return torch.log(h.var(dim=-1).clamp(min=1e-6))  # [B,n_filt*K] log-variance (CSP feature)
+        # --- P7a covariance-tangent path ---
+        B, nf, C, Tp = h.shape
+        hc = h - h.mean(dim=-1, keepdim=True)                # center over time
+        S = hc @ hc.transpose(-1, -2) / max(Tp - 1, 1)       # [B,nf,C,C] channel covariance per sub-band
+        tr = torch.diagonal(S, dim1=-2, dim2=-1).sum(-1)     # [B,nf]
+        S = S / tr.clamp(min=self.cov_eps)[..., None, None]  # trace-normalize (trace -> 1)
+        eye = torch.eye(C, device=S.device, dtype=S.dtype)
+        a = self.cov_shrinkage
+        S = (1.0 - a) * S + a * eye / C                      # shrinkage -> SPD, min eig >= a/C
+        logS, evals = _spd_logm(S, self.cov_eps)             # [B,nf,C,C]
+        self.last_eig_min = evals.amin(dim=(1, 2)).detach()  # [B] per-sample worst conditioning
+        feat = _vech(logS, float(2.0 ** 0.5))                # [B,nf,C(C+1)/2]
+        return feat.reshape(B, -1)                           # [B, n_filt*C(C+1)/2]
 
 
 class _FBCSPSpatialBranch(nn.Module):
     """Multi-band FBCSP spatial-spectral branch -> spatial_z [B, spatial_z_dim]."""
 
-    def __init__(self, n_chans, n_times, n_filt=8, kernels=(11, 21, 45), K=4, spatial_z_dim=32, dropout=0.25):
+    def __init__(self, n_chans, n_times, n_filt=8, kernels=(11, 21, 45), K=4, spatial_z_dim=32, dropout=0.25,
+                 spatial_mode="logvar", cov_shrinkage=0.05, cov_eps=1e-4):
         super().__init__()
-        self.bands = nn.ModuleList(_FBCSPBand(n_filt, k, n_times, n_chans, K) for k in kernels)
+        self.spatial_mode = str(spatial_mode)
+        self.bands = nn.ModuleList(
+            _FBCSPBand(n_filt, k, n_times, n_chans, K, spatial_mode=spatial_mode,
+                       cov_shrinkage=cov_shrinkage, cov_eps=cov_eps) for k in kernels)
         feat = int(sum(b.out_dim for b in self.bands))
         self.proj = nn.Linear(feat, spatial_z_dim)
         self.drop = nn.Dropout(float(dropout))
         self.out_dim = int(spatial_z_dim)
+        self.last_cov_stats = None                           # {'eig_min':[B],'feat_norm':[B]} (cov_tangent)
 
-    def forward(self, x):                                  # x [B,C,T]
-        xin = x.unsqueeze(1)                               # [B,1,C,T]
-        v = torch.cat([b(xin) for b in self.bands], dim=-1)  # [B, sum(n_filt*K)]
-        return self.drop(F.elu(self.proj(v)))              # [B, spatial_z_dim]
+    def forward(self, x):                                    # x [B,C,T]
+        xin = x.unsqueeze(1)                                 # [B,1,C,T]
+        v = torch.cat([b(xin) for b in self.bands], dim=-1)  # [B, sum(out_dim)]
+        if self.spatial_mode == "cov_tangent":
+            eig_min = torch.stack([b.last_eig_min for b in self.bands], dim=0).amin(dim=0)  # [B]
+            self.last_cov_stats = {"eig_min": eig_min.detach(), "feat_norm": v.detach().norm(dim=-1)}
+        return self.drop(F.elu(self.proj(v)))                # [B, spatial_z_dim]
 
 
 class FBCSPLGGGraph(FBLGGDualCMIBackbone):
@@ -363,10 +453,13 @@ class FBCSPLGGGraph(FBLGGDualCMIBackbone):
     grouping. ERM-capable; graphdualpc head-split works (distinct fused_z)."""
 
     def __init__(self, n_chans, n_times, n_classes, ch_names=None, spatial_n_filt=8, spatial_K=4,
-                 spatial_z_dim=32, dropout=0.25, fusion_floor=0.0, **kw):
+                 spatial_z_dim=32, dropout=0.25, fusion_floor=0.0, spatial_mode="logvar",
+                 cov_shrinkage=0.05, cov_eps=1e-4, **kw):
         super().__init__(n_chans, n_times, n_classes, ch_names=ch_names, dropout=dropout, **kw)
         self.spatial = _FBCSPSpatialBranch(self.n_chans, n_times, n_filt=spatial_n_filt,
-                                           K=spatial_K, spatial_z_dim=spatial_z_dim, dropout=dropout)
+                                           K=spatial_K, spatial_z_dim=spatial_z_dim, dropout=dropout,
+                                           spatial_mode=spatial_mode, cov_shrinkage=cov_shrinkage, cov_eps=cov_eps)
+        self.spatial_mode = str(spatial_mode)              # P7a: 'logvar' (P6) | 'cov_tangent'
         self.spatial_z_dim = int(spatial_z_dim)
         self.fusion_floor = float(fusion_floor)            # P6-B: gate floor eps; 0 -> plain softmax (off)
         fdim = self.fused_z_dim
@@ -377,7 +470,7 @@ class FBCSPLGGGraph(FBLGGDualCMIBackbone):
         self.last_spatial_z = None                         # P6-A: grad-carrying spatial_z for spatial encoder CMI
         self.last_aux = {}                                 # {graph_z, temporal_z, spatial_z, fused_z} (detached)
         self.meta = dict(graph_compatible=True, edge_logits_dynamic=False, node_identity_preserved=True,
-                         distinct_fused_z=True, has_spatial_branch=True,
+                         distinct_fused_z=True, has_spatial_branch=True, spatial_mode=self.spatial_mode,
                          ablation_modes=("zero_graph", "zero_temporal", "zero_spatial", "permute_nodes"))
 
     def _spatial_branch(self, x):
@@ -441,3 +534,24 @@ class FBCSPLGGGraph(FBLGGDualCMIBackbone):
         ent = -(g.clamp(min=1e-8).log() * g).sum(dim=1)      # per-sample gate entropy (nats); max ln(3)=1.0986
         out["gate_entropy_mean"] = float(ent.mean())         # low -> collapsed to one branch; high -> balanced
         return out
+
+    @torch.no_grad()
+    def cov_summary(self, x):
+        """P7a covariance-tangent conditioning diagnostics (empty-ish for logvar). eig_min is post-shrinkage
+        (floor a/C); eig_min near that floor => the raw band covariance was near-singular. feature_norm is the
+        L2 norm of the concatenated vech(logm(S)) tangent vector; a runaway p95 flags a log/eigen explosion."""
+        if self.spatial_mode != "cov_tangent":
+            return {"spatial_mode": self.spatial_mode}
+        was = self.training; self.eval()
+        self._spatial_branch(x)                              # populates self.spatial.last_cov_stats
+        if was:
+            self.train()
+        st = getattr(self.spatial, "last_cov_stats", None)
+        if not st:
+            return {"spatial_mode": self.spatial_mode}
+        em = st["eig_min"].float(); fn = st["feat_norm"].float()
+        b0 = self.spatial.bands[0]
+        return {"spatial_mode": self.spatial_mode, "cov_shrinkage": b0.cov_shrinkage, "cov_eps": b0.cov_eps,
+                "cov_eig_min_mean": float(em.mean()), "cov_eig_min_p05": float(torch.quantile(em, 0.05)),
+                "cov_log_feature_norm_mean": float(fn.mean()),
+                "cov_log_feature_norm_p95": float(torch.quantile(fn, 0.95))}
