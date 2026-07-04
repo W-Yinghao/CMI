@@ -1,7 +1,17 @@
 {
   "_doc": "Frozen Route-A (Z-only source-anchored certificate) manifest for the real-EEG validation (pre-reg v4). DRY-RUN package only. Route A is evaluated as a TRANSFER TEST of the historical A-negative; it is NOT required to fail. Method locks are byte-unchanged from the dee8958 line.",
   "route": "A",
-  "framing": "transfer test of the synthetic A-negative; unexpected good behavior on real-feature injections is a FINDING, not a protocol violation; it never changes any B3 claim.",
+  "framing": "TRANSFER DIAGNOSTIC of the Z-only/source-anchored certificate family on a TRIAL-LABEL real substrate. NOT a same-config revalidation of the synthetic subject-label A. Unexpected good behavior is a FINDING, not a protocol violation; it never changes any B3 claim; if A remains cautious/abstains it is consistent with the A-line result but does not, on its own, revalidate the synthetic A.",
+
+  "route_A_config": {
+    "label_unit": "trial",
+    "analysis_unit": "subject",
+    "cluster_unit": "biological_subject",
+    "note": "SAME byte-frozen Route-A CODE as dee8958; the label-generating-unit DECLARATION is matched to the substrate. Lee2019 MI is trial-level (each subject contributes both left and right trials), so label_unit='subject' is INVALID by construction and MUST fail closed; label_unit='trial' is the correct declaration; the biological subject remains the clustering/bootstrap unit (trials are NOT treated as independent).",
+    "synthetic_A": {"label_unit": "subject", "substrate": "subject-label synthetic simulator", "tag": "csc-confirmatory-v1 / dee8958"},
+    "real_mi_A": {"label_unit": "trial", "substrate": "Lee2019 motor imagery"},
+    "guardrail": "if label_unit is set to 'subject' on Lee2019 MI, the runner/engine FAILS CLOSED before any certificate is evaluated (REFUSED_label_unit_must_be_trial_for_MI)."
+  },
 
   "code_provenance": {
     "expected_tag_ref": "PLACEHOLDER refs/tags/csc-realeeg-v1 (tag NOT created in this dry-run package)",

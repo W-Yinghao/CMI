@@ -15,7 +15,32 @@
     "disjointness_note": "realeeg_base_seed 20000000 > 14100047 (B3 max) so all real-EEG seeds are disjoint from every synthetic and dev seed stream; the dry-run runner asserts this."
   },
 
-  "pooled_boundary_note": "P_hat(Y|Z) 'pooled' means a logistic fit on BOTH sessions jointly, subject-grouped cross-fit (no leakage), used to draw Y* so that the null P(Y|Z) is condition-independent by construction.",
+  "engine_provenance": {
+    "engine_file": "csc/mininfo/realeeg_engine.py",
+    "engine_sha256": "a925a7291dae5469976bd20c62f1fd90bae398d595f87e17ace9c858726a3f12",
+    "note": "the injection + verdict ENGINE is hash-pinned here (defense-in-depth beyond the git tag); the runner verifies it in dry_run AND execute (P1.2 audit H1). The runner is not self-pinned (it is the checker; it is protected by the git-frozen tag)."
+  },
+
+  "pooled_boundary_note": "P_hat(Y|Z) 'pooled' means a single logistic fit on BOTH sessions jointly, applied IDENTICALLY to both sessions to draw Y*. It is a GENERATIVE fit (in-sample; NOT a subject-grouped cross-fit): the null P(Y*|Z) is condition-independent BY CONSTRUCTION (same boundary for both sessions), so type-I is not inflated regardless of cross-fitting. (P1.2 audit M1: corrected from an earlier 'cross-fit/no-leakage' wording.)",
+
+  "run_spec": {
+    "cohorts_per_condition": 100,
+    "subjects_per_cohort": 30,
+    "positive_decision_budgets": [20, 30],
+    "b_subject_bootstrap": 2000,
+    "b_certifier_internal_null": 200,
+    "invalid_fraction_cap": 0.20,
+    "aggregation": {
+      "gating_null_false_confirm": "over R cohorts per GATING condition, subject-clustered bootstrap upper bound on the false-confirmation rate <= family 0.05 (per-cohort decision at alpha_budget 0.025); denominator = VALID cohorts; invalid/abstain fraction reported separately, capped at 0.20 -> INCONCLUSIVE above cap",
+      "power_reported": "over R cohorts on POS_concept / POS_concept_plus_cov: confirmation rate + subject-bootstrap lower bound (REPORTED, non-gating)",
+      "genuine_contrast": "ONE run over all eligible subjects; verdict + per-subject delta distribution (DESCRIPTIVE only)"
+    },
+    "output_tiers": [
+      "TIER 1 -- B3 real-feature SAFETY verdict (GATING false-confirm controls: NULL_cov [primary], NULL_label, NULL_cov_plus_label, random_label_control)",
+      "TIER 2 -- B3 real-feature POWER report (POS_concept, POS_concept_plus_cov; REPORTED, not gating)",
+      "TIER 3 -- Route A real-MI TRIAL-LABEL diagnostic (false-confirm / abstention / power behavior; transfer evidence for the A-negative story; NOT a revalidation of the subject-label synthetic A)"
+    ]
+  },
 
   "conditions": [
     {
@@ -37,7 +62,7 @@
       "condition_index": 1,
       "input_sessions": "real session 1 vs session 2 (real cross-session covariate drift)",
       "labels": "SYNTHETIC (Y* drawn)",
-      "label_model": "Y* ~ P_hat(Y|Z) from a SINGLE pooled boundary fit on both sessions (subject-grouped cross-fit)",
+      "label_model": "Y* ~ P_hat(Y|Z) from a SINGLE generative pooled boundary fit on both sessions, applied identically to both (see pooled_boundary_note)",
       "held_fixed": "P(Y|Z) condition-independent by construction",
       "injected_shift": "the REAL cross-session covariate drift is present; NO concept shift",
       "ground_truth": "NO_CONCEPT, real COVARIATE shift present",

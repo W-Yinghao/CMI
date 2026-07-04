@@ -34,6 +34,27 @@ logged fallback if a file is v7.3.
 resample is for spec-faithfulness, not numerical effect; `normalize=None`; 16-dim log-bandpower; frozen label
 map `{left_hand:0, right_hand:1}`.
 
+### Route A label-unit adaptation for MI (P1.2; reviewer sign-off 2026-07-04)
+
+Lee2019 **motor imagery** labels are **trial-level**: each subject contributes both left and right trials.
+Therefore Route A's synthetic `label_unit="subject"` is **invalid by construction on this substrate and must
+fail closed** (`validate_label_unit` raises `LabelUnitError`; the runner/engine additionally refuses before any
+certificate is evaluated). The real-feature Route A manifest freezes **`label_unit="trial"`**, with
+`analysis_unit="subject"` so the **biological subject remains the clustering/bootstrap unit** (trials are NOT
+treated as independent). This is the **same byte-frozen Route A code** with the label-generating-unit
+declaration matched to the data — a **transfer diagnostic on a trial-label real substrate**, NOT a same-config
+revalidation of the subject-label synthetic A:
+
+```
+Synthetic A confirmatory : label_unit = subject ; substrate = subject-label synthetic simulator ; tag dee8958
+Real-feature MI Route A  : label_unit = trial   ; substrate = Lee2019 motor imagery
+```
+
+Interpretation guard: if Route A behaves safely (no false-confirm) on real-MI trial labels, that does NOT
+overturn the A-negative (substrate/label-unit differ); if it fails or abstains heavily, that is consistent
+with the A-line cautionary result. Package PASS/FAIL is driven by the **B3 real-feature safety** tier; Route A
+is a **reported diagnostic** (tier 3).
+
 ### Feasibility PASS gates (frozen; any PRIMARY gate FAIL ⇒ STOP + report, no montage/feature change)
 
 1. all 16 `SM16_no_FCz` channels present in every loaded file;

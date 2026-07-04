@@ -125,6 +125,12 @@ def dry_run():
         c.check(f"bank_spec_complete[{cond['name']}]",
                 all(k in cond for k in ("input_sessions", "labels", "label_model", "held_fixed",
                                         "injected_shift", "ground_truth", "role", "gating", "routes")))
+    # H1: the injection+verdict engine is hash-pinned in the bank manifest
+    ep = bank.get("engine_provenance", {})
+    engp = os.path.join(CSC_ROOT, ep.get("engine_file", "__missing__"))
+    c.check("engine_sha256_pinned_matches",
+            os.path.exists(engp) and _sha256(engp) == ep.get("engine_sha256"),
+            "injection+verdict engine hash must match the pinned engine_sha256")
 
     # 5. seed schedule disjoint
     ss = bank["seed_schedule"]
@@ -171,19 +177,104 @@ def dry_run():
     return ok
 
 
-def refuse_execute():
-    print("[run_realeeg_validation] --execute REFUSED.")
-    print("  This is the CSC-realEEG-P1 DRY-RUN package. Running the injected bank / Route A or B3 certifiers /")
-    print("  the genuine session contrast, and creating tag csc-realeeg-v1, are NOT authorized here and are")
-    print("  not implemented in this file. A validation run requires: (1) an audited freeze package, (2) tag")
-    print("  creation, and (3) a separate explicit reviewer go. Exiting 2 (fail-closed).")
-    return 2
+TAG = "csc-realeeg-v1"
+
+
+def _git(*args):
+    import subprocess
+    return subprocess.run(["git", *args], capture_output=True, text=True, cwd=CSC_ROOT)
+
+
+def verify_git_frozen():
+    """HEAD == TAG^{commit} AND clean tree. Fails closed if the tag does not exist (it does not yet)."""
+    tag = _git("rev-parse", f"{TAG}^{{commit}}")
+    if tag.returncode != 0:
+        return [f"tag {TAG} does not exist (freeze/run not authorized)"]
+    errs = []
+    if _git("rev-parse", "HEAD").stdout.strip() != tag.stdout.strip():
+        errs.append(f"HEAD != {TAG} commit")
+    if _git("status", "--porcelain").stdout.strip():
+        errs.append("working tree not clean")
+    return errs
+
+
+def _method_hashes_ok():
+    for path in (ROUTEA_MANIFEST, B3_MANIFEST):
+        for rel, want in _load(path)["code_provenance"]["method_files_sha256"].items():
+            p = os.path.join(CSC_ROOT, rel)
+            if not os.path.exists(p) or _sha256(p) != want:
+                return False
+    return True
+
+
+def execute(out=None, n_jobs=1):
+    """GUARDED real run. Returns 2 (fail-closed) unless frozen at TAG + clean tree + method/cache hashes verified.
+    With no csc-realeeg-v1 tag this ALWAYS refuses. The real validation is implemented in realeeg_engine."""
+    cache_man = _load(CACHE_MANIFEST); prov = cache_man["provenance"]
+    checks = {"git_frozen": verify_git_frozen()}
+    if not _method_hashes_ok():
+        checks["method_hashes"] = ["pinned method hash mismatch"]
+    cpath = prov["cache_path"]
+    if not os.path.exists(cpath) or _sha256(cpath) != prov["cache_sha256"]:
+        checks["cache_hash"] = ["cache missing or sha256 mismatch"]
+    # gating set must include random_label_control (P1.1)
+    bank = _load(BANK_MANIFEST)
+    if bank["gating_summary"]["gating_conditions"] != ["NULL_cov", "NULL_label", "NULL_cov_plus_label", "random_label_control"]:
+        checks["gating_set"] = ["gating set is not the four frozen controls"]
+    # H1: pinned injection+verdict engine hash must match before any run
+    ep = bank.get("engine_provenance", {})
+    engp = os.path.join(CSC_ROOT, ep.get("engine_file", "__missing__"))
+    if not (os.path.exists(engp) and _sha256(engp) == ep.get("engine_sha256")):
+        checks["engine_hash"] = ["injection+verdict engine hash mismatch"]
+    bad = {k: v for k, v in checks.items() if v}
+    if bad:
+        print(f"[run_realeeg EXECUTE] REFUSED (fail-closed): {bad}")
+        return 2
+
+    print("[run_realeeg EXECUTE] provenance clean; running the frozen real-feature validation ...")
+    import numpy as np
+    from . import realeeg_engine as EG
+    b3 = _load(B3_MANIFEST); mlk = b3["method_lock"]
+    ml = dict(min_confirm_pairs=20, pair_integrity_min=0.95, min_epochs=8, rank=3,
+              C=mlk["regularisation_C"], n_folds=mlk["n_folds"],
+              n_boot=b3["statistics"]["b_certifier_internal_null"],
+              alpha_family=b3["statistics"]["alpha_family"],
+              n_decision_budgets=len(mlk["positive_decision_budgets"]))
+    npz = np.load(cpath)
+    cache = dict(Z=npz["Z"], y=npz["y"], subject=npz["subject_id"], session=npz["session_id"])
+    seed_base = bank["seed_schedule"]["realeeg_base_seed"]
+    records = EG.run_validation(cache, bank, ml, EG.frozen_A_cfg(), seed_base)
+    verdict = EG.evaluate_verdict(records, bank)
+    payload = dict(protocol="csc-realeeg", route_A_label_unit="trial",
+                   code_provenance=dict(git_head=_git("rev-parse", "HEAD").stdout.strip(), tag=TAG,
+                                        git_status_clean=(_git("status", "--porcelain").stdout.strip() == "")),
+                   cache_sha256=prov["cache_sha256"], seed_base=seed_base, verdict=verdict, per_cohort=records,
+                   note="Package PASS driven by TIER1 B3 real-feature safety; power + Route A reported; red-team required; NO clinical/PD claim.")
+    if out:
+        os.makedirs(os.path.dirname(out), exist_ok=True)
+        with open(out, "w") as f:
+            json.dump(payload, f, indent=2, default=str)
+        print(f"[run_realeeg EXECUTE] wrote {out}")
+    print(f"[run_realeeg EXECUTE] package_verdict = {verdict['package_verdict']} (red-team still required)")
+    return 0
+
+
+def smoke():
+    """Toy-cache self-test of the engine plumbing (smoke seed, never the real base seed / real cache)."""
+    from . import realeeg_engine as EG
+    EG.smoke()
+    return 0
 
 
 if __name__ == "__main__":
-    ap = argparse.ArgumentParser()
-    ap.add_argument("--execute", action="store_true", help="REFUSED in the dry-run package (exit 2)")
+    ap = argparse.ArgumentParser(description="CSC real-EEG validation runner (dry-run default; guarded --execute).")
+    ap.add_argument("--execute", action="store_true", help="GUARDED real run (fails closed without the frozen tag)")
+    ap.add_argument("--smoke", action="store_true", help="toy-cache plumbing self-test (non-real seed)")
+    ap.add_argument("--out", type=str, default=None)
+    ap.add_argument("--jobs", type=int, default=1)
     a = ap.parse_args()
+    if a.smoke:
+        sys.exit(smoke())
     if a.execute:
-        sys.exit(refuse_execute())
+        sys.exit(execute(out=a.out, n_jobs=a.jobs))
     sys.exit(0 if dry_run() else 1)

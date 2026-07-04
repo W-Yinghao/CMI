@@ -51,8 +51,87 @@ def test_dry_run_passes_on_real_package():
     assert R.dry_run() is True
 
 
-def test_execute_is_refused_exit2():
-    assert R.refuse_execute() == 2
+def test_execute_fails_closed_without_tag():
+    # no csc-realeeg-v1 tag exists -> guarded execute must fail closed (exit 2)
+    assert R.execute() == 2
+
+
+def test_smoke_uses_non_real_seed():
+    import csc.mininfo.realeeg_engine as E
+    assert E.REAL_BASE_SEED == 20_000_000
+    # smoke default seed must not be the real base seed
+    import inspect
+    src = inspect.getsource(E.smoke)
+    assert "REAL_BASE_SEED" in src and "seed != REAL_BASE_SEED" in src
+
+
+# ---- Route A label_unit adaptation for MI (reviewer-required) ----
+def _toy_cohort():
+    import csc.mininfo.realeeg_engine as E
+    import numpy as np
+    coh = E._toy_cache(np.random.default_rng(111))
+    return E, E.build_cohort("NULL_cov", coh, np.random.default_rng(7))
+
+
+def test_routeA_MI_label_unit_subject_fails_closed():
+    import csc.protocol as P
+    E, (Z, Y, D, G) = _toy_cohort()
+    r = E.certify_A(Z, Y, D, G, seed=111, cfg=P.ProtocolConfig(label_unit="subject"))
+    assert str(r["state"]).startswith("REFUSED_label_unit_must_be_trial")
+
+
+def test_routeA_MI_label_unit_trial_runs():
+    E, (Z, Y, D, G) = _toy_cohort()
+    r = E.certify_A(Z, Y, D, G, seed=111, cfg=E.frozen_A_cfg())
+    assert not str(r["state"]).startswith(("REFUSED", "ENGINE_ERROR"))  # a real Certificate
+
+
+def test_routeA_cluster_unit_is_subject_not_trial():
+    import csc.mininfo.realeeg_engine as E
+    cfg = E.frozen_A_cfg()
+    assert cfg.label_unit == "trial" and cfg.analysis_unit == "subject"
+
+
+def test_routeA_manifest_declares_trial_label_unit():
+    rc = json.load(open(R.ROUTEA_MANIFEST))["route_A_config"]
+    assert rc["label_unit"] == "trial"
+    assert rc["analysis_unit"] == "subject" and rc["cluster_unit"] == "biological_subject"
+    assert rc["synthetic_A"]["label_unit"] == "subject"
+
+
+def test_verdict_abstain_null_is_inconclusive_not_pass():
+    import csc.mininfo.realeeg_engine as E
+    rec = [dict(condition="NULL_cov", gating=True, B3=dict(state="NEED_MORE_LABELS", confirmed=False))
+           for _ in range(20)]
+    r = E._b3_rates(rec, "NULL_cov", 2000, 1, 0.20)
+    assert r["status"] == "INCONCLUSIVE" and r["n_valid"] == 0   # V1: abstain must NOT pad the type-I denominator
+
+
+def test_verdict_denominator_excludes_abstain_invalid():
+    import csc.mininfo.realeeg_engine as E
+    states = ["NO_CONCEPT_EVIDENCE_AFTER_PAIR_AUDIT"] * 10 + ["NEED_MORE_LABELS"] * 10
+    rec = [dict(condition="NULL_cov", gating=True, B3=dict(state=s, confirmed=False)) for s in states]
+    r = E._b3_rates(rec, "NULL_cov", 2000, 1, 0.20)
+    assert r["n_valid"] == 10 and abs(r["invalid_frac"] - 0.5) < 1e-9 and r["status"] == "INCONCLUSIVE"
+
+
+def test_engine_hash_pinned_and_mismatch_fails_closed():
+    ep = json.load(open(R.BANK_MANIFEST))["engine_provenance"]
+    assert len(ep["engine_sha256"]) == 64 and ep["engine_file"].endswith("realeeg_engine.py")
+    assert _dry_with_temp(lambda m: m["bank"]["engine_provenance"].__setitem__("engine_sha256", "0" * 64)) is False
+
+
+def test_routeA_returns_bare_state_not_full_repr():
+    E, (Z, Y, D, G) = _toy_cohort()
+    r = E.certify_A(Z, Y, D, G, seed=111, cfg=E.frozen_A_cfg())
+    assert not str(r["state"]).startswith("Certificate(")   # A1: bare state string, not the namedtuple repr
+
+
+def test_prereg_states_subject_vs_trial_label_units():
+    prereg = os.path.join(os.path.dirname(R.__file__), "..", "..", "notes",
+                          "CSC_REALEEG_VALIDATION_PREREG_DRAFT.md")
+    txt = open(prereg).read().lower()
+    assert "label_unit" in txt and "trial" in txt and "subject" in txt and "motor imagery" in txt
 
 
 # ---- fail-closed behaviors ----
