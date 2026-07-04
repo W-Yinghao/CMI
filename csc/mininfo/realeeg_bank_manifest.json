@@ -1,0 +1,148 @@
+{
+  "_doc": "Frozen semi-synthetic injected bank on REAL Lee2019 features (pre-reg v4). Real covariate/noise/subject structure + INJECTED known truth restores ground truth so false-confirmation AND power are measurable. DRY-RUN package only: definitions are frozen; NO bank is generated or run here. Each condition is regenerable from the seed schedule.",
+
+  "seed_schedule": {
+    "realeeg_base_seed": 20000000,
+    "condition_stride": 1000000,
+    "replicate_stride": 1,
+    "cohort_seed_formula": "realeeg_base_seed + condition_index*condition_stride + replicate_index",
+    "b_subject_bootstrap_seed": "realeeg_base_seed + 900000000",
+    "disjoint_from": {
+      "routeA_synthetic": "source 900000-900065, target 1800000-1800065",
+      "b3_synthetic": "base 3000000, range [3000000, 14100047]",
+      "realeeg_dev_probes": "none (feasibility builder is deterministic, used no RNG seeds)"
+    },
+    "disjointness_note": "realeeg_base_seed 20000000 > 14100047 (B3 max) so all real-EEG seeds are disjoint from every synthetic and dev seed stream; the dry-run runner asserts this."
+  },
+
+  "pooled_boundary_note": "P_hat(Y|Z) 'pooled' means a logistic fit on BOTH sessions jointly, subject-grouped cross-fit (no leakage), used to draw Y* so that the null P(Y|Z) is condition-independent by construction.",
+
+  "conditions": [
+    {
+      "name": "NULL_real_session",
+      "condition_index": 0,
+      "input_sessions": "within a single real session, split trials into two pseudo-conditions",
+      "labels": "REAL (kept)",
+      "label_model": "none",
+      "split": "stratified random (preserve L/R balance; random assignment, not contiguous)",
+      "held_fixed": "P(Z) identical across pseudo-conditions (no covariate shift); P(Y|Z) identical",
+      "injected_shift": "none",
+      "ground_truth": "NO_CONCEPT, NO_COVARIATE (exchangeable null)",
+      "role": "CALIBRATION check of the null machinery on real Z",
+      "gating": false,
+      "routes": ["A", "B3"]
+    },
+    {
+      "name": "NULL_cov",
+      "condition_index": 1,
+      "input_sessions": "real session 1 vs session 2 (real cross-session covariate drift)",
+      "labels": "SYNTHETIC (Y* drawn)",
+      "label_model": "Y* ~ P_hat(Y|Z) from a SINGLE pooled boundary fit on both sessions (subject-grouped cross-fit)",
+      "held_fixed": "P(Y|Z) condition-independent by construction",
+      "injected_shift": "the REAL cross-session covariate drift is present; NO concept shift",
+      "ground_truth": "NO_CONCEPT, real COVARIATE shift present",
+      "role": "PRIMARY type-I null under real covariate drift (the deployment failure mode)",
+      "gating": true,
+      "routes": ["A", "B3"]
+    },
+    {
+      "name": "NULL_label",
+      "condition_index": 2,
+      "input_sessions": "real session split",
+      "labels": "SYNTHETIC (prior-shifted resample)",
+      "label_model": "shift P(Y) across conditions with P(Z|Y) held fixed (class-conditional resampling of real trials)",
+      "held_fixed": "P(Z|Y); only the class prior P(Y) differs across conditions",
+      "injected_shift": "label/prior shift; NO concept shift",
+      "ground_truth": "NO_CONCEPT (label-shift trap; must abstain / not confirm)",
+      "role": "label-shift trap control",
+      "gating": true,
+      "routes": ["A", "B3"]
+    },
+    {
+      "name": "NULL_cov_plus_label",
+      "condition_index": 3,
+      "input_sessions": "real session 1 vs 2 (real covariate) + prior shift",
+      "labels": "SYNTHETIC (Y* pooled boundary then prior-shifted)",
+      "label_model": "Y* ~ pooled P_hat(Y|Z), then class-conditional prior shift across conditions",
+      "held_fixed": "P(Y|Z) boundary; covariate and prior both move",
+      "injected_shift": "covariate + label; NO concept shift",
+      "ground_truth": "NO_CONCEPT, covariate + label present",
+      "role": "combined-nuisance control",
+      "gating": true,
+      "routes": ["A", "B3"]
+    },
+    {
+      "name": "POS_concept",
+      "condition_index": 4,
+      "input_sessions": "real session split",
+      "labels": "SYNTHETIC (Y* with injected boundary rotation)",
+      "label_model": "Y* ~ pooled P_hat(Y|Z) in condition -1/2; in condition +1/2 apply an ANTISYMMETRIC boundary rotation of pre-registered magnitude before drawing Y*",
+      "held_fixed": "marginal P(Z) (real); only the decision boundary rotates with condition",
+      "injected_shift": "genuine class-conditional CONCEPT shift",
+      "ground_truth": "CONCEPT present",
+      "role": "POWER (reported)",
+      "gating": false,
+      "routes": ["A", "B3"]
+    },
+    {
+      "name": "POS_concept_plus_cov",
+      "condition_index": 5,
+      "input_sessions": "real session 1 vs 2 (real covariate) + injected rotation",
+      "labels": "SYNTHETIC (Y* with rotation on real covariate drift)",
+      "label_model": "as POS_concept but on top of the real cross-session covariate drift",
+      "held_fixed": "nothing (covariate real, boundary rotated)",
+      "injected_shift": "concept + covariate",
+      "ground_truth": "CONCEPT present (under covariate confound)",
+      "role": "POWER under confound (reported)",
+      "gating": false,
+      "routes": ["A", "B3"]
+    },
+    {
+      "name": "POS_pure_conditional",
+      "condition_index": 6,
+      "input_sessions": "real session split",
+      "labels": "SYNTHETIC (invisible relabel)",
+      "label_model": "relabel so P(Y|Z) changes while the marginal P(Z) is held fixed (no marginal trace)",
+      "held_fixed": "marginal P(Z)",
+      "injected_shift": "pure-conditional concept shift (Z-only unidentifiable by Prop.1)",
+      "ground_truth": "CONCEPT present but marginal-invisible",
+      "role": "SECONDARY reported (weak-by-theory; B3 target, A must abstain)",
+      "gating": false,
+      "routes": ["A", "B3"]
+    },
+    {
+      "name": "random_label_control",
+      "condition_index": 7,
+      "input_sessions": "real session split",
+      "labels": "SYNTHETIC (fully randomized)",
+      "label_model": "Y permuted uniformly (destroys P(Y|Z))",
+      "held_fixed": "marginal P(Z)",
+      "injected_shift": "none (no learnable boundary)",
+      "ground_truth": "NO_CONCEPT (sanity null)",
+      "role": "sanity null",
+      "gating": false,
+      "routes": ["A", "B3"]
+    },
+    {
+      "name": "genuine_session_contrast_descriptive",
+      "condition_index": 8,
+      "input_sessions": "real session 1 vs session 2, REAL labels",
+      "labels": "REAL (kept)",
+      "label_model": "none",
+      "held_fixed": "nothing (whatever the real world did)",
+      "injected_shift": "unknown (real)",
+      "ground_truth": "UNKNOWN (no ground truth)",
+      "role": "DESCRIPTIVE ONLY (report the verdict + subject-Delta distribution; NEVER gates PASS/FAIL; a CONCEPT_CONFIRMED here is not validated truth)",
+      "gating": false,
+      "routes": ["A", "B3"]
+    }
+  ],
+
+  "gating_summary": {
+    "gating_conditions": ["NULL_cov", "NULL_label", "NULL_cov_plus_label"],
+    "reported_conditions": ["NULL_real_session", "POS_concept", "POS_concept_plus_cov", "POS_pure_conditional", "random_label_control", "genuine_session_contrast_descriptive"],
+    "primary_type_I_gate": "NULL_cov",
+    "power_is_reported_not_gating": true,
+    "genuine_contrast_is_descriptive_only": true
+  }
+}

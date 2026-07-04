@@ -1,0 +1,57 @@
+{
+  "_doc": "Frozen real-feature cache manifest for the CSC real-EEG validation (pre-reg v4). DRY-RUN package; no tag, no validation run. The cache itself is not committed (rebuildable by build_lee2019_b3_cache.py); this manifest pins its provenance and the frozen feature pipeline.",
+  "dataset": "Lee2019/OpenBMI",
+  "feature_name": "SM16_no_FCz_logbandpower",
+  "channels": [
+    "FC3", "FC1", "FC2", "FC4",
+    "C5", "C3", "C1", "Cz", "C2", "C4", "C6",
+    "CP3", "CP1", "CPz", "CP2", "CP4"
+  ],
+  "bandpass_hz": [8, 30],
+  "window_sec": [0.5, 3.5],
+  "fs_resampled": 128,
+  "normalize": null,
+  "feature": "log_var_time",
+  "label_map": {"left_hand": 0, "right_hand": 1},
+  "run": "EEG_MI_train",
+  "expected_subjects": 54,
+  "expected_sessions": [1, 2],
+  "expected_trials_per_subject_session": 100,
+  "min_trials_per_subject_session_class": 8,
+  "min_eligible_paired_subjects": 20,
+  "feasibility_report_commit": "223c99e",
+
+  "provenance": {
+    "builder_file": "csc/mininfo/build_lee2019_b3_cache.py",
+    "builder_sha256": "5bf517d1f298752eb0d6ba63be572fbb89425526aa5f404d7171100edd466870",
+    "cache_path": "/home/infres/yinwang/realeeg_feas/cache/LEE2019_B3.npz",
+    "cache_metadata_path": "/home/infres/yinwang/realeeg_feas/cache/LEE2019_B3_metadata.json",
+    "cache_sha256": "5196b6d6460b31965f4a3bde4af40770f0419df1ecaaa15ffd0651cca0c22a68",
+    "cache_metadata_sha256": "68cd8c95c8d8bc61c54c51d77f0f018a42a39906df546fba070eb56e3dc529b9",
+    "trial_count_table": "held inside LEE2019_B3_metadata.json (trial_counts_by_subject_session_class); covered by cache_metadata_sha256",
+    "feasibility": {
+      "feasibility_PASS": true,
+      "eligible_paired_subjects": 54,
+      "n_trials_total": 10800,
+      "feature_dim": 16,
+      "feature_rank": 16,
+      "feature_std_min": 0.6533,
+      "feature_std_median": 0.6913,
+      "feature_std_max": 0.7526,
+      "nan_count": 0,
+      "inf_count": 0,
+      "missing_subjects": [],
+      "missing_sessions": [],
+      "missing_channels": []
+    },
+    "note_source_files": "per-file path/size/parser recorded in LEE2019_B3_metadata.json.source_files; the 61 GB raw .mat are not hashed (path+size+parser recorded); the CACHE sha256 above must be verified before any certifier executes."
+  },
+
+  "run_time_verification_required": [
+    "cache_sha256 matches provenance.cache_sha256 (or cache is rebuilt from builder_sha256 and re-verified)",
+    "cache_metadata_sha256 matches provenance.cache_metadata_sha256",
+    "feature_dim == 16 and feature_rank >= 3 and feature_std_median > 1e-6",
+    "eligible_paired_subjects >= min_eligible_paired_subjects",
+    "channel_names == channels (exact, ordered); no substitute channel"
+  ]
+}

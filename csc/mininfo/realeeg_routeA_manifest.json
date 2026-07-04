@@ -1,0 +1,57 @@
+{
+  "_doc": "Frozen Route-A (Z-only source-anchored certificate) manifest for the real-EEG validation (pre-reg v4). DRY-RUN package only. Route A is evaluated as a TRANSFER TEST of the historical A-negative; it is NOT required to fail. Method locks are byte-unchanged from the dee8958 line.",
+  "route": "A",
+  "framing": "transfer test of the synthetic A-negative; unexpected good behavior on real-feature injections is a FINDING, not a protocol violation; it never changes any B3 claim.",
+
+  "code_provenance": {
+    "expected_tag_ref": "PLACEHOLDER refs/tags/csc-realeeg-v1 (tag NOT created in this dry-run package)",
+    "expected_code_commit": "PLACEHOLDER (stamped at freeze)",
+    "method_files_sha256": {
+      "csc/protocol.py": "9c158ea7dd9601c8ff24d9ddd55876f82801818c2d901a619259bc03ccb1897d",
+      "csc/certificate/certifier.py": "ef6b734d835e668342033f723d1bb8613c33bc7a2816d8985e5538aca6c25c5a",
+      "csc/certificate/atlas.py": "aab2e60eb18a89491adf0606dffdff2d23f1c6788224dce39af7cbf36aa0f3aa",
+      "csc/certificate/residual_test.py": "5b8496e326ab7e200a2b950a2be5735c23e069bc4ebdc08c9ab5cd1b2a90c56f"
+    },
+    "method_lock_note": "Route-A method byte-unchanged from the synthetic frozen A line (tag csc-confirmatory-v1 / dee8958); the runner verifies these hashes before any execute."
+  },
+
+  "cache": {
+    "cache_manifest": "csc/mininfo/realeeg_lee2019_cache_manifest.json",
+    "cache_sha256": "5196b6d6460b31965f4a3bde4af40770f0419df1ecaaa15ffd0651cca0c22a68",
+    "verify_before_execute": true
+  },
+
+  "bank_manifest": "csc/mininfo/realeeg_bank_manifest.json",
+  "seed_manifest": "csc/mininfo/realeeg_bank_manifest.json#seed_schedule",
+
+  "statistics": {
+    "b_subject_bootstrap": 2000,
+    "b_certifier_internal_null": "A uses a parametric bootstrap under the fitted h0 (condition on (Z,D), resample Y*); its internal bootstrap count is the frozen A-method default, not changed for real EEG",
+    "invalid_fraction_cap": 0.20,
+    "alpha_budget_per_decision_cohort": 0.025,
+    "family_report_target": 0.05,
+    "denominator_rule": "false-confirmation rate over VALID cohorts only (test actually ran); invalid/abstain (INVALID/UNIDENTIFIABLE/NEED_MORE) reported SEPARATELY and never pad the type-I denominator; above the invalid cap the cohort family is NON-ESTIMABLE (INCONCLUSIVE), not PASS."
+  },
+
+  "endpoints": {
+    "R1_type_I_gating": "on NULL_cov: subject-clustered bootstrap (B_subject) upper bound on false-confirmation rate <= family 0.05; per-cohort decision at alpha_budget 0.025",
+    "R1b_gating_controls": "NULL_label and NULL_cov_plus_label also gated <= 0.05 (trap controls)",
+    "R3_guards_gating": "eligibility (>=20 eligible paired subjects, both sessions, both classes) -- gates BOTH routes (shared cache)",
+    "R2_power_reported_not_gating": "on POS_concept / POS_concept_plus_cov: confirmation rate reported (A expected low = transfer of the negative); NOT a gate",
+    "R5_stability_gating": "R1 replicates under Lee2019 subject-bootstrap / leave-k-subjects-out; 2b/tangent-space robustness-only (NOT gating)",
+    "R7_descriptive": "genuine_session_contrast + pure_conditional + random_label reported, non-gating"
+  },
+
+  "gating_flags": {
+    "R2_power_is_gating": false,
+    "R5_2b_is_gating": false,
+    "genuine_contrast_is_gating": false
+  },
+
+  "verdict_rules": {
+    "PASS": "all gating endpoints (R1, R1b, R3, R5) hold AND red-team reproduces them",
+    "FAIL": "any gating endpoint fails (an honest negative; reported, not retried; no feature/montage change)",
+    "INCONCLUSIVE": "invalid/abstain fraction above cap, or < min eligible paired subjects, or cache hash mismatch",
+    "note": "PASS asserts type-I control on constructed real-feature nulls; it does NOT validate any genuine real verdict, does NOT report power as a claim, and makes no clinical/PD claim."
+  }
+}
