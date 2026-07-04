@@ -1,5 +1,5 @@
 """CSC real-EEG validation ENGINE (pre-reg v4, P1.2). Implements the semi-synthetic injected bank on REAL
-Lee2019 features + the Route A / Route B3 certifier invocations + subject-clustered bounds + verdict.
+Lee2019 features + the Route A / Route B3 certifier invocations + cohort-level bounds + verdict.
 
 EXECUTABLE but GUARDED: this module is imported by run_realeeg_validation.py, which only calls run_validation()
 from the fail-closed --execute path (git-frozen tag + clean tree + cache/manifest hashes). It is NOT run here.
@@ -166,11 +166,14 @@ def certify_A(Z, Y, D, G, seed, cfg):
         return dict(state=f"ENGINE_ERROR:{type(e).__name__}", confirmed=False, error=str(e)[:200])
 
 
-# ---------------------------------------------------------------- subject-clustered bootstrap upper bound
-def subject_bootstrap_upper(per_subject_fired, B, seed, alpha=0.05):
-    """per_subject_fired: array over cohorts of fired flags is not subject-clustered; here we resample the
-    SUBJECT-level fire indicators. Returns the (1-alpha) upper bound on the false-confirmation rate."""
-    x = np.asarray(per_subject_fired, dtype=float)
+# ---------------------------------------------------------------- cohort bootstrap upper bound
+def cohort_bootstrap_upper(cohort_fired, B, seed, alpha=0.05):
+    """COHORT-level bootstrap: resample the per-cohort fired flags (each cohort = a fresh subject subsample of
+    the run_spec) and return the (1-alpha) upper quantile of the mean fire rate. HONEST SCOPE (P1.3 blocker 4):
+    subjects are the sampling unit WITHIN cohort generation, but this aggregate CI is COHORT-level, NOT a formal
+    subject-cluster (subject-block) bound -- it is a descriptive real-feature safety bound. A true
+    subject-block cluster bound is a future refinement, NOT claimed here."""
+    x = np.asarray(cohort_fired, dtype=float)
     if len(x) == 0:
         return float("nan")
     rng = np.random.default_rng(seed)
@@ -231,7 +234,7 @@ B3_VALID_5SET = set(B3_DECIDED) | set(B3_ABSTAIN_INVALID)
 _ERR = ("ENGINE_ERROR", "NOT_APPLICABLE", "REFUSED")
 
 
-def _b3_rates(records, cond, B_subject, seed, cap):
+def _b3_rates(records, cond, B_cohort, seed, cap):
     rs = [r["B3"] for r in records if r["condition"] == cond and "B3" in r]
     states = [str(x["state"]) for x in rs]
     decided = [x for x, s in zip(rs, states) if s in B3_DECIDED]          # denominator = DECIDED only (V1)
@@ -240,7 +243,7 @@ def _b3_rates(records, cond, B_subject, seed, cap):
     err = sum(1 for s in states if s.startswith(_ERR))
     invalid_frac = (absinv + err) / len(rs) if rs else 1.0
     fired = np.array([1 if x["confirmed"] else 0 for x in decided], dtype=float)
-    upper = subject_bootstrap_upper(fired, B_subject, seed) if n > 0 else float("nan")   # V2: bootstrap, not binomial
+    upper = cohort_bootstrap_upper(fired, B_cohort, seed) if n > 0 else float("nan")   # cohort bootstrap (V2; not subject-cluster)
     out_of_set = sorted({s for s in states if s not in B3_VALID_5SET and not s.startswith(_ERR)})
     if invalid_frac > cap or n == 0:
         status = "INCONCLUSIVE"
@@ -265,18 +268,18 @@ def _a_rates(records, cond):
 
 
 def evaluate_verdict(records, bank):
-    """3-tier. TIER1 B3 safety GATES the package (subject-clustered bootstrap upper on the 4 gating nulls,
+    """3-tier. TIER1 B3 safety GATES the package (COHORT bootstrap upper on the 4 gating nulls,
     DECIDED-only denominators, invalid cap -> INCONCLUSIVE); TIER2 B3 power REPORTED; TIER3 Route A trial-label
     diagnostic REPORTED. Package = FAIL if any gating FAIL/silent-state, INCONCLUSIVE elif any INCONCLUSIVE,
     else PASS."""
-    rs = bank["run_spec"]; cap = rs["invalid_fraction_cap"]; B_subject = rs["b_subject_bootstrap"]
+    rs = bank["run_spec"]; cap = rs["invalid_fraction_cap"]; B_cohort = rs["b_cohort_bootstrap"]
     gating = bank["gating_summary"]["gating_conditions"]
     seed0 = bank["seed_schedule"]["realeeg_base_seed"] + 900_000_000   # bootstrap-seed offset (disjoint)
-    tier1 = {c: _b3_rates(records, c, B_subject, seed0 + i, cap) for i, c in enumerate(gating)}
+    tier1 = {c: _b3_rates(records, c, B_cohort, seed0 + i, cap) for i, c in enumerate(gating)}
     statuses = [v["status"] for v in tier1.values()]
     package = ("FAIL" if any(s.startswith("FAIL") for s in statuses)
                else "INCONCLUSIVE" if "INCONCLUSIVE" in statuses else "PASS")
-    tier2 = {c: _b3_rates(records, c, B_subject, seed0 + 100 + i, cap)
+    tier2 = {c: _b3_rates(records, c, B_cohort, seed0 + 100 + i, cap)
              for i, c in enumerate(("POS_concept", "POS_concept_plus_cov"))}
     tier3 = {c: _a_rates(records, c) for c in gating + ["POS_concept", "POS_concept_plus_cov"]
              if any(r["condition"] == c and "A" in r for r in records)}
@@ -284,7 +287,7 @@ def evaluate_verdict(records, bank):
     return dict(
         package_verdict=package,
         tier1_B3_safety_gating=dict(per_condition=tier1,
-                                    denominator_rule="DECIDED-only (abstain/invalid -> invalid_frac, capped -> INCONCLUSIVE); subject-clustered bootstrap upper"),
+                                    denominator_rule="DECIDED-only (abstain/invalid -> invalid_frac, capped -> INCONCLUSIVE); COHORT bootstrap upper (subjects sampled within cohort generation; aggregate CI is cohort-level, NOT a formal subject-cluster bound)"),
         tier2_B3_power_reported=tier2,
         tier3_routeA_trial_label_diagnostic=dict(
             per_condition=tier3,

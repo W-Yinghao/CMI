@@ -130,9 +130,11 @@ normalize = None                       # NEVER the loader trial_zscore (v1 block
 feature   = log-bandpower              # primary family, single, frozen
 ```
 
-**Frozen montage (17 sensorimotor channels), exact:**
-`FC3, FC1, FCz, FC2, FC4, C5, C3, C1, Cz, C2, C4, C6, CP3, CP1, CPz, CP2, CP4`.
-→ `Z ∈ R^{17}` per trial.
+**Frozen montage — the 16-channel `SM16_no_FCz` (the v4 UPDATE at the top is authoritative; this §3 is the
+history).** The original 17-channel montage included `FCz`, which feasibility found is **absent** from
+Lee2019 → the montage is re-frozen to the **16 available sensorimotor channels**, exact:
+`FC3, FC1, FC2, FC4, C5, C3, C1, Cz, C2, C4, C6, CP3, CP1, CPz, CP2, CP4`.
+→ `Z ∈ R^{16}` per trial. No substitute channel (if any of the 16 is absent → fail closed).
 
 **Fail-closed feature rule (no substitution, ever):** if **any** frozen channel is absent from
 Lee2019/OpenBMI, or `Z`-dim < 6, or `rank(Z) < 3`, the primary feature **FAILS CLOSED**: the manifest build /
@@ -155,7 +157,7 @@ regardless of outcome, never in the main endpoint.
 - **Two distinct bootstraps (split terminology, no ambiguity):**
   - `B_certifier = 200` — the certifier's INTERNAL fixed-margin null bootstrap. **Fixed by the method lock; do
     NOT change for real EEG.**
-  - `B_subject = 2000` — the AGGREGATE subject-clustered bootstrap used only for REPORTED cohort bounds (R1/R5).
+  - `B_cohort = 2000` — the AGGREGATE cohort bootstrap used only for REPORTED cohort bounds (R1/R5).
     Not part of the method lock.
 - **α (frozen):** each null cohort's certifier decision uses `α_budget=0.025`; the AGGREGATE false-confirmation
   bound target is family `0.05`. Both intentional, frozen, not a post-hoc relaxation.
@@ -193,19 +195,19 @@ so a real `CONCEPT_CONFIRMED` is a reported verdict, **not** validated concept d
 ## 8. Endpoints / PASS criteria (validity, not truth-detection)
 
 Gating (conjunction), per route, on the §6 bank:
-- **R1 (primary type-I) — GATING:** on **NULL_cov**, the subject-clustered bootstrap (`B_subject=2000`) upper
-  bound on the false-confirmation rate ≤ family `0.05` (resample SUBJECTS, not label-draws). Denominator =
+- **R1 (primary type-I) — GATING:** on **NULL_cov**, the cohort bootstrap (`B_cohort=2000`) upper
+  bound on the false-confirmation rate ≤ family `0.05` (cohort bootstrap (subjects sampled within cohort generation)). Denominator =
   **valid** cohorts only; invalid/abstain fraction reported separately and capped at ≤ 20% (family
   non-estimable above the cap; abstains do NOT pad the type-I denominator). NULL_exch reported alongside.
 - **R2 (power) — REPORTED, NOT GATING:** on POS_concept / POS_concept+cov, B3's confirmation rate with a
-  subject-bootstrap lower bound, and the **A-vs-B3 gap** (the descriptive headline). **If B3 power is low, the
+  cohort bootstrap lower bound, and the **A-vs-B3 gap** (the descriptive headline). **If B3 power is low, the
   result is not re-run or rescued; it is reported as limited transfer of the synthetic positive to this
   real-feature pipeline.** Power never sets PASS/FAIL.
 - **R3 (guards) — GATING:** eligibility holds (§5).
 - **R4 (no silent failure) — GATING:** every state in the valid 5-state set; sampler/bootstrap invalid fraction
   below the pre-registered cap (NOT "exactly 0").
 - **R5 (stability of the type-I control) — GATING:** R1 (NULL_cov control) **replicates** on **Lee2019**
-  under subject-bootstrap / leave-k-subjects-out / disjoint subject-half. A control that does not replicate is
+  under leave-k-subjects-out / disjoint subject-half. A control that does not replicate is
   not a control. **`BNCI2014_004`/2b (tangent-space) is ROBUSTNESS-ONLY: reported if feasible, cannot change
   PASS/FAIL, NOT gating.**
 - **R6 (red-team) — GATING:** independent re-aggregation reproduces the GATING criteria **R1, R3, R4, R5**
@@ -225,7 +227,7 @@ never claims a genuine real verdict is correct (§1).
 - **Single frozen primary** feature + montage (§3); no feature-family selection after unblinding.
 - **Stopping rule:** a FAIL on R1 for the frozen primary is the reported result; it is **not** grounds to swap
   to the secondary and re-judge. A later feature is a NEW pre-registration disclosing the original FAIL.
-- No optional stopping / threshold search; feature, montage, α, bank, `B_certifier`, `B_subject`, invalid cap,
+- No optional stopping / threshold search; feature, montage, α, bank, `B_certifier`, `B_cohort`, invalid cap,
   criteria all frozen in the manifest before any run. Pin scipy in the run env so the exact Student-t LCB path
   executes; record which path ran; add a subject-bootstrap LCB robustness cross-check.
 
@@ -234,7 +236,7 @@ never claims a genuine real verdict is correct (§1).
 - **Isolated code** in `csc/mininfo/` (no `cmi` import): one-time `build_lee2019_b3_cache.py` runs in **eeg2025**
   → `LEE2019_B3.npz` (`Z, subject, session, y, classes, channel_list, exact counts, provenance`); certifier/
   runner read ONLY that cache (env `icml`, CPU/SLURM). Fail-closed if any frozen channel is absent (§3).
-- **Two manifests** (B3 + A): data source + exact counts + frozen 17-ch montage + bank spec + injection seeds
+- **Two manifests** (B3 + A): data source + exact counts + frozen 16-ch `SM16_no_FCz` montage + bank spec + injection seeds
   + criteria R1–R6 + pinned code hashes (both B3 files) + disjoint seed base (> all synthetic ranges, verified).
 - **Runners** (`run_b3_realeeg.py`, `run_a_realeeg.py`): dry-run + guarded `--execute`, fail-closed provenance,
   conservative denominators, SLURM wrapper. **Tag:** `csc-realeeg-v1`. Tests + independent audit **before** any
@@ -242,18 +244,18 @@ never claims a genuine real verdict is correct (§1).
 
 ## 11. FROZEN choices (reviewer sign-off, 2026-07-02)
 
-1. **Primary feature:** log-bandpower (`normalize=None`), 17-ch sensorimotor montage in §3. Frozen. Fail-closed,
+1. **Primary feature:** log-bandpower (`normalize=None`), 16-ch `SM16_no_FCz` montage (see the v4 UPDATE + §3). Frozen. Fail-closed,
    no substitute. Tangent-space = robustness-only.
 2. **Scope:** Route A **and** Route B3 on the same real-feature injected bank.
 3. **R2 power:** reported only, **not** gating; A-vs-B3 gap is the descriptive headline.
 4. **R5:** Lee2019 subject-half/bootstrap stability is **gating**; 2b/tangent-space is **robustness-only** (not
    gating).
-5. **Bootstraps:** `B_certifier = 200` (method lock, fixed); `B_subject = 2000` (subject-clustered reported
+5. **Bootstraps:** `B_certifier = 200` (method lock, fixed); `B_cohort = 2000` (cohort-level reported
    bounds). Invalid-fraction cap 20%. α = 0.025 per decision cohort / 0.05 family.
 6. **Tag** `csc-realeeg-v1`; cache build env `eeg2025`; certifier run env `icml`.
 
 Build-time reads (recorded in manifest, not frozen here): exact trials/class/session counts; confirmation that
-all 17 montage channels are present; the exact returned channel list.
+all 16 SM16_no_FCz channels are present; the exact returned channel list.
 
 ## 12. Out of scope / NOT authorized by this document
 
@@ -263,7 +265,7 @@ synthetic tags. See §13 for the exact authorization boundary.
 ## 13. Authorization boundary (reviewer, 2026-07-02)
 
 **Authorized now:** this v3 cleanup; the freeze-package build PLAN; a **dry-run / manifest build only**; a
-**cache feasibility check** that reads Lee2019 metadata and computes `Z`/rank (verify the 17 channels exist and
+**cache feasibility check** that reads Lee2019 metadata and computes `Z`/rank (verify the 16 channels exist and
 `Z` is non-degenerate with `rank ≥ 3`, `dim ≥ 6`).
 **NOT authorized:** running the real-EEG validation bank; creating the `csc-realeeg-v1` tag; executing Route A
 or B3 certifiers on real-feature injected cohorts; using 2b as gating; switching feature family after a

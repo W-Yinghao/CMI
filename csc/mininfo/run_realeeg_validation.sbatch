@@ -52,11 +52,20 @@ RC=$?
 
 # 5. freshness + provenance: the temp artifact must exist and match this HEAD/tag
 [ -f "$TMP_OUT" ] || infra_fail "no fresh artifact produced"
-HEADC="$HEADC" python - "$TMP_OUT" <<'PYCHK' || infra_fail "artifact provenance/freshness check failed"
-import json, os, sys
-art = json.load(open(sys.argv[1])); cp = art.get("code_provenance", {})
-ok = (art.get("verdict") and cp.get("git_status_clean") is True
-      and cp.get("git_head") == os.environ.get("HEADC") and cp.get("tag") == "csc-realeeg-v1")
+HEADC="$HEADC" python - "$TMP_OUT" "$FROZEN" <<'PYCHK' || infra_fail "artifact provenance/freshness check failed"
+import json, os, sys, hashlib
+art = json.load(open(sys.argv[1])); frozen = sys.argv[2]
+fr = art.get("frozen_refs", {}); mp = art.get("manifest_provenance", {})
+def sha(p):
+    h = hashlib.sha256(); h.update(open(p, "rb").read()); return h.hexdigest()
+bankp = os.path.join(frozen, "csc/mininfo/realeeg_bank_manifest.json")
+ok = (art.get("verdict") and art.get("per_cohort") is not None
+      and fr.get("git_status_clean") is True
+      and fr.get("git_head") == os.environ.get("HEADC")
+      and fr.get("expected_code_ref") == "refs/tags/csc-realeeg-v1"
+      and fr.get("synthetic_tags_untouched") is True
+      and art.get("base_seed") == 20000000
+      and mp.get("bank_manifest_sha256") == sha(bankp))
 sys.exit(0 if ok else 1)
 PYCHK
 mv "$TMP_OUT" "$OUT"

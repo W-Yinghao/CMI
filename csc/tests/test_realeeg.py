@@ -202,7 +202,7 @@ def test_alpha_and_bootstraps_frozen():
         assert s["alpha_budget_per_decision_cohort"] == 0.025
         assert s["family_report_target"] == 0.05
         assert s["invalid_fraction_cap"] == 0.20
-        assert s["b_subject_bootstrap"] == 2000
+        assert s["b_cohort_bootstrap"] == 2000
     assert json.load(open(R.B3_MANIFEST))["statistics"]["b_certifier_internal_null"] == 200
 
 
@@ -238,6 +238,46 @@ def test_random_label_demotion_fails_closed():
         gc = m["bank"]["gating_summary"]["gating_conditions"]
         m["bank"]["gating_summary"]["gating_conditions"] = [c for c in gc if c != "random_label_control"]
     assert _dry_with_temp(mut) is False
+
+
+def test_sbatch_wrapper_shape_is_valid_multiline_shell():
+    import subprocess
+    sb = os.path.join(os.path.dirname(R.__file__), "run_realeeg_validation.sbatch")
+    lines = open(sb).read().splitlines()
+    assert len(lines) > 40, "wrapper must be a real multi-line script, not a collapsed one-liner"
+    assert lines[0] in ("#!/usr/bin/env bash", "#!/bin/bash")
+    assert subprocess.run(["bash", "-n", sb]).returncode == 0, "bash -n must pass"
+    assert any(l.startswith("#SBATCH --chdir=") for l in lines), "frozen-worktree --chdir required"
+    # no UNCOMMENTED prose leaking to a command line
+    for l in lines:
+        assert not l.startswith(("NOT invoked", "worktree", "Runs ONLY")), f"uncommented prose leak: {l!r}"
+    # freshness check must verify the new provenance fields
+    txt = open(sb).read()
+    assert "base_seed" in txt and "synthetic_tags_untouched" in txt and "per_cohort" in txt
+
+
+def test_result_payload_provenance_fields_present():
+    # the execute() payload must carry full provenance (source inspection; execute itself refuses w/o tag)
+    import inspect
+    src = inspect.getsource(R.execute)
+    for f in ("manifest_provenance", "engine_sha256", "runner_sha256", "cache_metadata_sha256",
+              "frozen_refs", "routeA_synthetic_tag", "routeB3_synthetic_tag", "synthetic_tags_untouched",
+              "slurm", "seed_schedule", "genuine_contrast_descriptive_only"):
+        assert f in src, f"payload missing provenance field: {f}"
+
+
+def test_bootstrap_reframed_as_cohort_not_subject_clustered():
+    import csc.mininfo.realeeg_engine as E
+    assert hasattr(E, "cohort_bootstrap_upper") and not hasattr(E, "subject_bootstrap_upper")
+    # no manifest claims a subject-clustered bound anymore
+    for p in (R.BANK_MANIFEST, R.ROUTEA_MANIFEST, R.B3_MANIFEST):
+        assert "subject-clustered" not in open(p).read().lower()
+    # the ENGINE must not mislabel the R1 bound as a subject-clustered BOOTSTRAP (line 132's Route-A
+    # 'subject-clustered inference' is a different, correct usage and is allowed)
+    eng = open(E.__file__).read().lower()
+    assert "subject-clustered bootstrap" not in eng and "subject_bootstrap_upper" not in eng
+    assert "cohort_bootstrap_upper" in eng
+    assert "b_cohort_bootstrap" in json.load(open(R.BANK_MANIFEST))["run_spec"]
 
 
 def test_no_validation_result_artifact_exists():

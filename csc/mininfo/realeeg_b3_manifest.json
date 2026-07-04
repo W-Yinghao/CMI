@@ -35,7 +35,7 @@
   "seed_manifest": "csc/mininfo/realeeg_bank_manifest.json#seed_schedule",
 
   "statistics": {
-    "b_subject_bootstrap": 2000,
+    "b_cohort_bootstrap": 2000,
     "b_certifier_internal_null": 200,
     "invalid_fraction_cap": 0.20,
     "alpha_family": 0.05,
@@ -46,12 +46,12 @@
   },
 
   "endpoints": {
-    "R1_type_I_gating": "on NULL_cov: subject-clustered bootstrap (B_subject=2000) upper bound on false-confirmation rate <= family 0.05; per-cohort decision at alpha_budget=0.025",
+    "R1_type_I_gating": "on NULL_cov: cohort bootstrap (B_cohort=2000) upper bound on false-confirmation rate <= family 0.05; per-cohort decision at alpha_budget=0.025",
     "R1b_gating_controls": "NULL_label, NULL_cov_plus_label, and random_label_control also <= 0.05 (label-shift trap + random-label sanity controls)",
-    "R2_power_reported_not_gating": "on POS_concept / POS_concept_plus_cov: B3 confirmation rate + subject-bootstrap lower bound reported (the A-vs-B3 gap is the descriptive headline); NOT a gate. If B3 power is low it is reported as limited transfer, NOT re-run/rescued.",
+    "R2_power_reported_not_gating": "on POS_concept / POS_concept_plus_cov: B3 confirmation rate + cohort bootstrap lower bound reported (the A-vs-B3 gap is the descriptive headline); NOT a gate. If B3 power is low it is reported as limited transfer, NOT re-run/rescued.",
     "R3_guards_gating": "eligibility (>=20 eligible paired subjects, both sessions, both classes, >=8/cell, Z-dim 16, rank>=3)",
     "R4_no_silent_failure_gating": "all states in the valid 5-state set; sampler/bootstrap invalid fraction below cap (not exactly 0)",
-    "R5_stability_gating": "R1 (NULL_cov control) replicates under Lee2019 subject-bootstrap / leave-k-subjects-out; 2b/tangent-space robustness-only (NOT gating)",
+    "R5_stability_gating": "R1 (NULL_cov control) replicates under Lee2019 leave-k-subjects-out; 2b/tangent-space robustness-only (NOT gating)",
     "R6_redteam_gating": "independent re-aggregation reproduces the gating criteria R1,R1b,R3,R4,R5 without correction; R2/R7 reproduction reported, never changes PASS/FAIL",
     "R7_descriptive": "genuine_session_contrast (descriptive only) + POS_pure_conditional (secondary, weak) + NULL_real_session (calibration)"
   },

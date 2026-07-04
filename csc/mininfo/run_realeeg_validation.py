@@ -155,7 +155,7 @@ def dry_run():
                 rman["statistics"]["alpha_budget_per_decision_cohort"] == 0.025
                 and rman["statistics"]["family_report_target"] == 0.05)
         c.check(f"route[{rk}]_invalid_cap_020", rman["statistics"]["invalid_fraction_cap"] == 0.20)
-        c.check(f"route[{rk}]_bsubject_2000", rman["statistics"]["b_subject_bootstrap"] == 2000)
+        c.check(f"route[{rk}]_bcohort_2000", rman["statistics"]["b_cohort_bootstrap"] == 2000)
 
     # 7. explicit gating flags: R2 power NOT gating, R5 2b NOT gating, genuine contrast NOT gating
     for rk, rman in (("A", rA), ("B3", b3)):
@@ -245,11 +245,31 @@ def execute(out=None, n_jobs=1):
     seed_base = bank["seed_schedule"]["realeeg_base_seed"]
     records = EG.run_validation(cache, bank, ml, EG.frozen_A_cfg(), seed_base)
     verdict = EG.evaluate_verdict(records, bank)
-    payload = dict(protocol="csc-realeeg", route_A_label_unit="trial",
-                   code_provenance=dict(git_head=_git("rev-parse", "HEAD").stdout.strip(), tag=TAG,
-                                        git_status_clean=(_git("status", "--porcelain").stdout.strip() == "")),
-                   cache_sha256=prov["cache_sha256"], seed_base=seed_base, verdict=verdict, per_cohort=records,
-                   note="Package PASS driven by TIER1 B3 real-feature safety; power + Route A reported; red-team required; NO clinical/PD claim.")
+    tagc = _git("rev-parse", f"{TAG}^{{commit}}")
+    engine_file = os.path.join(CSC_ROOT, bank["engine_provenance"]["engine_file"])
+    ss = bank["seed_schedule"]
+    payload = dict(
+        protocol="csc-realeeg", route_A_label_unit="trial",
+        manifest_provenance=dict(
+            cache_manifest_sha256=_sha256(CACHE_MANIFEST), bank_manifest_sha256=_sha256(BANK_MANIFEST),
+            routeA_manifest_sha256=_sha256(ROUTEA_MANIFEST), routeB3_manifest_sha256=_sha256(B3_MANIFEST),
+            engine_sha256=_sha256(engine_file), runner_sha256=_sha256(os.path.abspath(__file__)),
+            cache_sha256=prov["cache_sha256"], cache_metadata_sha256=prov["cache_metadata_sha256"]),
+        frozen_refs=dict(
+            expected_code_ref=f"refs/tags/{TAG}", git_head=_git("rev-parse", "HEAD").stdout.strip(),
+            expected_code_commit=(tagc.stdout.strip() if tagc.returncode == 0 else None),
+            git_status_clean=(_git("status", "--porcelain").stdout.strip() == ""),
+            routeA_synthetic_tag="csc-confirmatory-v1/dee8958",
+            routeB3_synthetic_tag="csc-b3-confirmatory-v1/0595f64",
+            synthetic_tags_untouched=True, genuine_contrast_descriptive_only=True),
+        slurm=dict(job_id=os.environ.get("SLURM_JOB_ID"),
+                   hostname=os.environ.get("SLURMD_NODENAME") or os.environ.get("HOSTNAME")),
+        seed_schedule=dict(base_seed=ss["realeeg_base_seed"], conditions=len(bank["conditions"]),
+                           cohorts_per_condition=bank["run_spec"]["cohorts_per_condition"],
+                           condition_stride=ss["condition_stride"],
+                           bootstrap_seed=ss.get("b_cohort_bootstrap_seed")),
+        base_seed=seed_base, verdict=verdict, per_cohort=records,
+        note="Package verdict driven by TIER1 B3 real-feature safety; power (TIER2) + Route A (TIER3) reported; genuine contrast descriptive-only; red-team re-aggregation required; NO clinical/PD claim.")
     if out:
         os.makedirs(os.path.dirname(out), exist_ok=True)
         with open(out, "w") as f:
