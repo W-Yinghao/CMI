@@ -119,8 +119,8 @@
       "held_fixed": "marginal P(Z)",
       "injected_shift": "none (no learnable boundary)",
       "ground_truth": "NO_CONCEPT (sanity null)",
-      "role": "sanity null",
-      "gating": false,
+      "role": "GATING sanity null: fully-random labels have no P(Y|Z) structure; any concept confirmation here is a calibration failure and must FAIL the package",
+      "gating": true,
       "routes": ["A", "B3"]
     },
     {
@@ -139,10 +139,11 @@
   ],
 
   "gating_summary": {
-    "gating_conditions": ["NULL_cov", "NULL_label", "NULL_cov_plus_label"],
-    "reported_conditions": ["NULL_real_session", "POS_concept", "POS_concept_plus_cov", "POS_pure_conditional", "random_label_control", "genuine_session_contrast_descriptive"],
+    "gating_conditions": ["NULL_cov", "NULL_label", "NULL_cov_plus_label", "random_label_control"],
+    "reported_conditions": ["NULL_real_session", "POS_concept", "POS_concept_plus_cov", "POS_pure_conditional", "genuine_session_contrast_descriptive"],
     "primary_type_I_gate": "NULL_cov",
     "power_is_reported_not_gating": true,
-    "genuine_contrast_is_descriptive_only": true
+    "genuine_contrast_is_descriptive_only": true,
+    "note": "random_label_control is a GATING sanity null (NO_CONCEPT): random labels must not produce concept confirmation, else calibration failure -> package FAIL."
   }
 }

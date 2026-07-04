@@ -139,8 +139,26 @@ def test_genuine_contrast_and_power_not_gating():
     assert bank["genuine_session_contrast_descriptive"]["gating"] is False
     assert bank["POS_concept"]["gating"] is False
     assert bank["POS_concept_plus_cov"]["gating"] is False
-    # NULL_cov is the gating type-I null
+    assert bank["POS_pure_conditional"]["gating"] is False
+    # gating NO_CONCEPT controls
     assert bank["NULL_cov"]["gating"] is True
+    assert bank["random_label_control"]["gating"] is True
+
+
+def test_gating_set_is_exactly_the_four_controls():
+    gs = json.load(open(R.BANK_MANIFEST))["gating_summary"]["gating_conditions"]
+    assert gs == ["NULL_cov", "NULL_label", "NULL_cov_plus_label", "random_label_control"]
+
+
+def test_random_label_demotion_fails_closed():
+    def mut(m):
+        for cond in m["bank"]["conditions"]:
+            if cond["name"] == "random_label_control":
+                cond["gating"] = False
+        # also demote it in the summary to simulate a full demotion attempt
+        gc = m["bank"]["gating_summary"]["gating_conditions"]
+        m["bank"]["gating_summary"]["gating_conditions"] = [c for c in gc if c != "random_label_control"]
+    assert _dry_with_temp(mut) is False
 
 
 def test_no_validation_result_artifact_exists():

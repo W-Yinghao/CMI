@@ -116,8 +116,11 @@ def dry_run():
             byname["POS_concept"]["gating"] is False and byname["POS_concept_plus_cov"]["gating"] is False)
     c.check("bank_trap_controls_gating",
             byname["NULL_label"]["gating"] is True and byname["NULL_cov_plus_label"]["gating"] is True)
+    c.check("bank_random_label_control_gating", byname["random_label_control"]["gating"] is True,
+            "random labels have no P(Y|Z) structure; a confirmation here is a calibration failure -> must gate")
     c.check("bank_gating_set_exact",
-            bank["gating_summary"]["gating_conditions"] == ["NULL_cov", "NULL_label", "NULL_cov_plus_label"])
+            bank["gating_summary"]["gating_conditions"] ==
+            ["NULL_cov", "NULL_label", "NULL_cov_plus_label", "random_label_control"])
     for cond in bank["conditions"]:
         c.check(f"bank_spec_complete[{cond['name']}]",
                 all(k in cond for k in ("input_sessions", "labels", "label_model", "held_fixed",
