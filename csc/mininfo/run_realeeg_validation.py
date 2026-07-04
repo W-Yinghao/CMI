@@ -1,13 +1,17 @@
-"""CSC real-EEG validation runner — DRY-RUN ONLY (pre-reg v4, CSC-realEEG-P1).
+"""CSC real-EEG validation runner — dry-run by default; guarded execute after freeze (pre-reg v4).
 
-Authorized: DRY-RUN verification of the frozen package (manifests, cache provenance, seed disjointness,
-fail-closed structure). NOT authorized: running the injected bank or any certifier, creating a tag, or the
-genuine session contrast. `--execute` is structurally REFUSED (exit 2). This file intentionally implements NO
-path that runs injections or Route A/B3 certifiers.
+Default mode verifies the manifests, cache provenance, seed disjointness, pinned method/engine hashes, and the
+fail-closed structure. The `--execute` path is DISABLED until the repository is checked out at
+`refs/tags/csc-realeeg-v1` with a clean tree and matching pinned method/cache/engine hashes; with no tag it
+always refuses (exit 2). After reviewer authorization, `--execute` runs the frozen real-feature semi-synthetic
+validation bank (Route A + B3 on the injected cohorts) via `realeeg_engine.run_validation`, evaluates the 3-tier
+verdict (TIER1 B3 safety gates; power + Route A reported), and writes a fresh provenance-stamped artifact. The
+genuine session contrast is executed only as descriptive output and cannot affect PASS/FAIL.
 
 Usage:
   python -m csc.mininfo.run_realeeg_validation            # dry-run report (exit 0 pass / 1 fail)
-  python -m csc.mininfo.run_realeeg_validation --execute  # REFUSED, exit 2
+  python -m csc.mininfo.run_realeeg_validation --execute  # guarded real run; refuses unless frozen tag/provenance checks pass (exit 2)
+  python -m csc.mininfo.run_realeeg_validation --smoke    # toy-cache plumbing self-test (non-real seed)
 """
 import argparse, hashlib, json, os, sys
 

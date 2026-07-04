@@ -37,5 +37,16 @@ all fail closed on mutation).
 JSON valid; `py_compile` OK; **dry-run 54/54 PASS**; `--execute` REFUSED **exit 2**; **tests 35/35 PASS**;
 sbatch `bash -n` OK; engine re-pinned (`7ec08ad4…`).
 
+## P1.3b docstring hotfix (reviewer's last pre-tag item)
+The runner's top docstring still said "DRY-RUN ONLY / `--execute` is structurally REFUSED / implements NO path
+that runs injections" — contradicting the now-real guarded `execute()`. **Fixed (docstring + usage only; no
+logic/manifest/seed/cache/engine change):** "dry-run by default; guarded execute after freeze; `--execute`
+disabled until checked out at `refs/tags/csc-realeeg-v1` with clean tree + matching pinned hashes; after
+authorization runs the frozen bank and writes a fresh artifact; genuine contrast descriptive-only." Added
+`test_runner_docstring_not_stale` (forbids the stale phrases, requires "guarded execute" + "csc-realeeg-v1").
+Re-verified: py_compile OK, dry-run 54/54, `--execute` exit 2 (no tag), sbatch `bash -n` OK, **tests 36/36**.
+New runner `sha256 = 7ca5906ea105944c9e8d1f048b307df1b3fe226b243d03fb785e89aaef585f93` (the runner is not
+pinned in any manifest — the payload records it at run time; the engine remains the hash-pinned file).
+
 ## Next (each a separate go)
 create tag `csc-realeeg-v1` (freeze) → then run the validation. Still NOT authorized here. No clinical/PD claim.

@@ -240,6 +240,14 @@ def test_random_label_demotion_fails_closed():
     assert _dry_with_temp(mut) is False
 
 
+def test_runner_docstring_not_stale():
+    # the runner now has a GUARDED execute() -> its docstring must not still claim dry-run-only / refuses-all
+    doc = R.__doc__ or ""
+    for bad in ("DRY-RUN ONLY", "structurally REFUSED", "implements NO path that runs injections"):
+        assert bad not in doc, f"stale runner docstring claim contradicts the guarded execute(): {bad!r}"
+    assert "guarded execute" in doc and "csc-realeeg-v1" in doc
+
+
 def test_sbatch_wrapper_shape_is_valid_multiline_shell():
     import subprocess
     sb = os.path.join(os.path.dirname(R.__file__), "run_realeeg_validation.sbatch")
