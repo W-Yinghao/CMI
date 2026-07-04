@@ -1,0 +1,228 @@
+{
+  "config": {
+    "dataset": "BNCI2014_001",
+    "backbone": "FBLGGGraph",
+    "target_indices": [
+      6
+    ],
+    "source_val_early_stop": true,
+    "configs": [
+      "erm:0"
+    ],
+    "epochs": 300,
+    "bs": 64,
+    "warmup": 40,
+    "n_inner": 2,
+    "device": "cuda",
+    "weight_decay": 0.0001,
+    "sampler": "classbal",
+    "prior": "empirical",
+    "prior_alpha": 1.0,
+    "beta": 0.0,
+    "balance": false,
+    "label_correct": false,
+    "dec_margin": null,
+    "decoder_null_perms": 0,
+    "decoder_null_quantile": 0.95,
+    "reweight_dual": false,
+    "align": "none",
+    "fmin": null,
+    "fmax": null,
+    "protocol": "loso",
+    "imbalance": 0.0,
+    "tmin": 0.5,
+    "tmax": 3.5,
+    "resample": 128,
+    "seed": 2,
+    "transduct": "off",
+    "transduct_shrink": 0.1,
+    "transduct_gate": 0.0,
+    "max_subjects": 0,
+    "out": "results/reference_full_s012/FBLGGGraph_BNCI2014_001_t6_seed2_erm.json",
+    "requested_target_indices": [
+      6
+    ],
+    "actual_target_subjects": [
+      "7"
+    ]
+  },
+  "classes": [
+    "feet",
+    "left_hand",
+    "right_hand",
+    "tongue"
+  ],
+  "summary": {
+    "erm:0": {
+      "per_target_balanced_acc_mean": 0.2586805555555556,
+      "per_target_balanced_acc_std": 0.0,
+      "worst_target_balanced_acc": 0.2586805555555556,
+      "worst_target_acc": 0.2586805555555556,
+      "macro_f1": 0.25809704717953674,
+      "pooled_balanced_acc": 0.2586805555555556,
+      "pooled_macro_f1": 0.25809704717953674,
+      "subject_balanced_acc": 0.0,
+      "subject_macro_f1": 0.0,
+      "leakage_kl": 0.7415512800216675,
+      "leakage_kl_rw": 0.7446379065513611,
+      "marginal_leakage_kl": 0.7165128588676453,
+      "marginal_leakage_kl_rw": 0.7148237824440002,
+      "marginal_leakage_advantage": 0.37237888647866957,
+      "marginal_leakage_advantage_rw": 0.3680404916847433,
+      "decoder_cmi": 0.010647296905517578,
+      "decoder_cmi_rw": 0.019680261611938477,
+      "decoder_cmi_res": 0.011849522590637207,
+      "decoder_cmi_res_rw": 0.014839887619018555,
+      "decoder_js_res": 0.008246968500316143,
+      "decoder_js_res_rw": 0.008361103013157845,
+      "decoder_valid_frac": 1.0,
+      "decoder_min_domain_classes": 4,
+      "decoder_single_class_frac": 0.0,
+      "leakage_advantage": 0.38467100506146057,
+      "leakage_advantage_rw": 0.36442516268980474,
+      "label_sep": 0.5784526391901663,
+      "inloop_reg": 0.0,
+      "inloop_dec": 0.0,
+      "inloop_dec_loss": 0.0,
+      "train_dec_margin": 0.02,
+      "stepA_dom_acc": 0.0,
+      "source_bacc_mean": 0.5718501671853384,
+      "worst_source_bacc": 0.5718501671853384,
+      "n_folds": 1,
+      "per_target": [
+        {
+          "target": "7",
+          "accuracy": 0.2586805555555556,
+          "balanced_acc": 0.2586805555555556,
+          "macro_f1": 0.25809704717953674,
+          "nll": 1.7371875047683716,
+          "ece": 0.26596232467434466,
+          "leakage_kl": 0.7415512800216675,
+          "cond_dom_acc": 0.485177151120752,
+          "prior_dom_acc": 0.1005061460592914,
+          "leakage_advantage": 0.38467100506146057,
+          "leakage_kl_rw": 0.7446379065513611,
+          "leakage_advantage_rw": 0.36442516268980474,
+          "marginal_leakage_kl": 0.7165128588676453,
+          "marginal_leakage_kl_rw": 0.7148237824440002,
+          "marginal_leakage_advantage": 0.37237888647866957,
+          "marginal_leakage_advantage_rw": 0.3680404916847433,
+          "decoder_cmi": 0.010647296905517578,
+          "decoder_cmi_rw": 0.019680261611938477,
+          "decoder_cmi_res": 0.011849522590637207,
+          "decoder_cmi_res_rw": 0.014839887619018555,
+          "decoder_js_res": 0.008246968500316143,
+          "decoder_js_res_rw": 0.008361103013157845,
+          "decoder_valid": true,
+          "decoder_n_domains": 8,
+          "decoder_min_domain_classes": 4,
+          "decoder_mean_domain_classes": 4.0,
+          "decoder_single_class_frac": 0.0,
+          "decoder_domain_class_spans": [
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "decoder_domain_counts": [
+            576,
+            576,
+            576,
+            576,
+            576,
+            576,
+            576,
+            576
+          ],
+          "label_sep": 0.5784526391901663,
+          "inloop_reg": 0.0,
+          "inloop_dec": 0.0,
+          "inloop_dec_loss": 0.0,
+          "train_dec_margin": 0.02,
+          "train_sampler": "classbal",
+          "stepA_dom_acc": 0.0,
+          "method_config": "erm:0",
+          "backbone": "FBLGGGraph",
+          "git_sha": "071a4c9a9c6d",
+          "ch_names_source": "preset:BNCI2014_001",
+          "grouping_scheme": "central_strip_v1",
+          "channel_groups": {
+            "FC_left": [
+              "FC3",
+              "FC1"
+            ],
+            "FC_mid": [
+              "Fz",
+              "FCz"
+            ],
+            "FC_right": [
+              "FC2",
+              "FC4"
+            ],
+            "C_left": [
+              "C5",
+              "C3",
+              "C1"
+            ],
+            "C_mid": [
+              "Cz"
+            ],
+            "C_right": [
+              "C2",
+              "C4",
+              "C6"
+            ],
+            "CP_left": [
+              "CP3",
+              "CP1",
+              "P1"
+            ],
+            "CP_mid": [
+              "CPz",
+              "Pz",
+              "POz"
+            ],
+            "CP_right": [
+              "CP2",
+              "CP4",
+              "P2"
+            ]
+          },
+          "source_bacc": 0.5718501671853384,
+          "ablate_zero_graph_target_bacc": 0.29166666666666663,
+          "ablate_zero_temporal_target_bacc": 0.24999999999999997,
+          "ablate_permute_nodes_target_bacc": 0.24479166666666666,
+          "source_val_subjects": [
+            6
+          ],
+          "best_epoch": 33,
+          "best_source_val_bacc": 0.34895833333333337,
+          "final_val_source_bacc": 0.3159722222222222,
+          "final_train_source_bacc": 0.988095238095238
+        }
+      ],
+      "ablate_zero_graph_target_bacc_mean": 0.29166666666666663,
+      "ablate_zero_temporal_target_bacc_mean": 0.24999999999999997,
+      "ablate_permute_nodes_target_bacc_mean": 0.24479166666666666,
+      "decoder_valid_n": 1,
+      "decoder_cmi_valid_mean": 0.010647296905517578,
+      "decoder_cmi_rw_valid_mean": 0.019680261611938477,
+      "decoder_cmi_res_valid_mean": 0.011849522590637207,
+      "decoder_cmi_res_rw_valid_mean": 0.014839887619018555,
+      "decoder_js_res_valid_mean": 0.008246968500316143,
+      "decoder_js_res_rw_valid_mean": 0.008361103013157845,
+      "decoder_cmi_res_null_q_valid_mean": null,
+      "decoder_cmi_res_excess_valid_mean": null,
+      "decoder_cmi_res_rw_null_q_valid_mean": null,
+      "decoder_cmi_res_rw_excess_valid_mean": null,
+      "decoder_js_res_null_q_valid_mean": null,
+      "decoder_js_res_excess_valid_mean": null,
+      "decoder_js_res_rw_null_q_valid_mean": null,
+      "decoder_js_res_rw_excess_valid_mean": null
+    }
+  }
+}
