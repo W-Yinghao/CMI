@@ -1,0 +1,32 @@
+{
+ "shard": "B5:30000000:POS_concept:0",
+ "base": 30000000,
+ "condition": "POS_concept",
+ "start": 0,
+ "n": 25,
+ "jobs": 16,
+ "feature_family": "B5_0_random_eegnet",
+ "host": "nodecpu01",
+ "slurm_job": "883557",
+ "n_records": 25,
+ "n_worker_errors": 0,
+ "b5_cache_path": "/home/infres/yinwang/realeeg_feas/b5_features/b5_0_random_encoder/LEE2019_B5_0.npz",
+ "b5_cache_sha256": "3670f174f8f44406cd96f00d7b0cde285a1971ebe763d39247c00b12148dca70",
+ "b5_manifest_sha256": "9d4a749fea82a059161326d579f767b8c81677c0cabd146d764eba973bba931f",
+ "engine_sha256": "d5aaaf788970e18337169230cdeb80e3dfffae307bee4cf5ab4816ca84ae03cc",
+ "internal_forensic_sha256": "805714fbff0077a6655cdb6f80e9c9325853aaa870ba10005141cf156f5bf841",
+ "b3_manifest_sha256": "5b0faeb8bc3bc96d7573759db4026f498e5c849d00a479dafe48dd9c5cc61650",
+ "ml": {
+  "min_confirm_pairs": 20,
+  "pair_integrity_min": 0.95,
+  "min_epochs": 8,
+  "rank": 3,
+  "C": 0.5,
+  "n_folds": 3,
+  "n_boot": 200,
+  "alpha_family": 0.05,
+  "n_decision_budgets": 2
+ },
+ "development_only": true,
+ "not_deployable": true
+}

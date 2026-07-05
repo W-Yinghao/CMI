@@ -1,0 +1,710 @@
+{
+  "diagnostic_only": true,
+  "not_deployable": true,
+  "not_a_rescue_of_SM16": true,
+  "feature_family": "B5_0_random_eegnet",
+  "stage": "B5_0_frozen_random_encoder",
+  "montage_name": "SM16_no_FCz",
+  "channel_names": [
+    "FC3",
+    "FC1",
+    "FC2",
+    "FC4",
+    "C5",
+    "C3",
+    "C1",
+    "Cz",
+    "C2",
+    "C4",
+    "C6",
+    "CP3",
+    "CP1",
+    "CPz",
+    "CP2",
+    "CP4"
+  ],
+  "bandpass": [
+    8.0,
+    30.0
+  ],
+  "window": [
+    0.5,
+    3.5
+  ],
+  "fs_resampled": 128,
+  "n_times": 384,
+  "preprocessing": "IDENTICAL to SM16 (8-30Hz Butterworth filtfilt, 0.5-3.5s, resample 384); differs ONLY in representation (raw window -> frozen EEGNet embedding vs log-var)",
+  "encoder": {
+    "arch": "EEGNet(F1=8,D=2,F2=16,kern=64,pool1=4,pool2=8), penultimate flatten, no classifier",
+    "random_init": true,
+    "trained": false,
+    "eval_mode": true,
+    "dropout_disabled": true,
+    "seed": 20260706,
+    "weight_sha256": "a9f2dc944d6edf9608e09638e535bb815c28a1cb18c2234c7f3dd2dad1bf69ef",
+    "torch": "2.8.0+cu128",
+    "embedding_dim": 192
+  },
+  "normalization": "per-dim z-score (label-free)",
+  "norm_mean_sha256": "1a01ed94f79af659",
+  "embedding_shape": [
+    10800,
+    192
+  ],
+  "cache_sha256": "3670f174f8f44406cd96f00d7b0cde285a1971ebe763d39247c00b12148dca70",
+  "label_exposure": false,
+  "synthetic_label_exposure": false,
+  "real_MI_label_exposure": false,
+  "note": "encoder forward used ONLY the raw signal; y (real MI) stored for the injection bank ONLY (same as SM16); injection labels regenerated ON Z_deep, NOT transplanted from SM16",
+  "source_files": [
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s1/sess01_subj01_EEG_MI.mat",
+      "size": 609007751,
+      "n": 100,
+      "sha1_10": "f584acc183"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s1/sess02_subj01_EEG_MI.mat",
+      "size": 610856419,
+      "n": 100,
+      "sha1_10": "70d7939d9c"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s2/sess01_subj02_EEG_MI.mat",
+      "size": 620718142,
+      "n": 100,
+      "sha1_10": "c6339d4dd3"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s2/sess02_subj02_EEG_MI.mat",
+      "size": 598511386,
+      "n": 100,
+      "sha1_10": "7f82e612e1"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s3/sess01_subj03_EEG_MI.mat",
+      "size": 618772858,
+      "n": 100,
+      "sha1_10": "2ddfdb99a5"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s3/sess02_subj03_EEG_MI.mat",
+      "size": 623877684,
+      "n": 100,
+      "sha1_10": "13dbfb7bd2"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s4/sess01_subj04_EEG_MI.mat",
+      "size": 588517366,
+      "n": 100,
+      "sha1_10": "81e323bacf"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s4/sess02_subj04_EEG_MI.mat",
+      "size": 562424989,
+      "n": 100,
+      "sha1_10": "d802111e06"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s5/sess01_subj05_EEG_MI.mat",
+      "size": 601965664,
+      "n": 100,
+      "sha1_10": "2ff3f153cd"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s5/sess02_subj05_EEG_MI.mat",
+      "size": 611019530,
+      "n": 100,
+      "sha1_10": "e3101cc1ae"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s6/sess01_subj06_EEG_MI.mat",
+      "size": 599828983,
+      "n": 100,
+      "sha1_10": "266ff9f9fb"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s6/sess02_subj06_EEG_MI.mat",
+      "size": 602710709,
+      "n": 100,
+      "sha1_10": "e996d2cd7c"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s7/sess01_subj07_EEG_MI.mat",
+      "size": 604877711,
+      "n": 100,
+      "sha1_10": "1876c11b2c"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s7/sess02_subj07_EEG_MI.mat",
+      "size": 603155660,
+      "n": 100,
+      "sha1_10": "a5b92f0c14"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s8/sess01_subj08_EEG_MI.mat",
+      "size": 644856050,
+      "n": 100,
+      "sha1_10": "06e82f341e"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s8/sess02_subj08_EEG_MI.mat",
+      "size": 597082464,
+      "n": 100,
+      "sha1_10": "cbd84d8296"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s9/sess01_subj09_EEG_MI.mat",
+      "size": 656718979,
+      "n": 100,
+      "sha1_10": "477032e4bb"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s9/sess02_subj09_EEG_MI.mat",
+      "size": 575179904,
+      "n": 100,
+      "sha1_10": "8641595b0f"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s10/sess01_subj10_EEG_MI.mat",
+      "size": 647755496,
+      "n": 100,
+      "sha1_10": "fd8cb3a6c9"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s10/sess02_subj10_EEG_MI.mat",
+      "size": 622982576,
+      "n": 100,
+      "sha1_10": "8355419783"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s11/sess01_subj11_EEG_MI.mat",
+      "size": 619133876,
+      "n": 100,
+      "sha1_10": "c5e5f7d8ca"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s11/sess02_subj11_EEG_MI.mat",
+      "size": 588728022,
+      "n": 100,
+      "sha1_10": "3fb5f87444"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s12/sess01_subj12_EEG_MI.mat",
+      "size": 587987166,
+      "n": 100,
+      "sha1_10": "d9e9bea8cb"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s12/sess02_subj12_EEG_MI.mat",
+      "size": 596370747,
+      "n": 100,
+      "sha1_10": "aabb72dc07"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s13/sess01_subj13_EEG_MI.mat",
+      "size": 653378963,
+      "n": 100,
+      "sha1_10": "796f41f41b"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s13/sess02_subj13_EEG_MI.mat",
+      "size": 637876420,
+      "n": 100,
+      "sha1_10": "b86f823ff5"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s14/sess01_subj14_EEG_MI.mat",
+      "size": 602887528,
+      "n": 100,
+      "sha1_10": "8b3b29f2a6"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s14/sess02_subj14_EEG_MI.mat",
+      "size": 597752174,
+      "n": 100,
+      "sha1_10": "a8cff7374c"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s15/sess01_subj15_EEG_MI.mat",
+      "size": 573006932,
+      "n": 100,
+      "sha1_10": "7bbc0daf3c"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s15/sess02_subj15_EEG_MI.mat",
+      "size": 593495448,
+      "n": 100,
+      "sha1_10": "3d1cb68af2"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s16/sess01_subj16_EEG_MI.mat",
+      "size": 578388208,
+      "n": 100,
+      "sha1_10": "2042a9f0a1"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s16/sess02_subj16_EEG_MI.mat",
+      "size": 575125508,
+      "n": 100,
+      "sha1_10": "b7a0106ce3"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s17/sess01_subj17_EEG_MI.mat",
+      "size": 634876318,
+      "n": 100,
+      "sha1_10": "af08a0b206"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s17/sess02_subj17_EEG_MI.mat",
+      "size": 667450996,
+      "n": 100,
+      "sha1_10": "d56bcd8cd1"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s18/sess01_subj18_EEG_MI.mat",
+      "size": 608949647,
+      "n": 100,
+      "sha1_10": "b4b922aa77"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s18/sess02_subj18_EEG_MI.mat",
+      "size": 554277461,
+      "n": 100,
+      "sha1_10": "0e6526628d"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s19/sess01_subj19_EEG_MI.mat",
+      "size": 564550298,
+      "n": 100,
+      "sha1_10": "c85dc35c39"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s19/sess02_subj19_EEG_MI.mat",
+      "size": 563473098,
+      "n": 100,
+      "sha1_10": "41e87ebfae"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s20/sess01_subj20_EEG_MI.mat",
+      "size": 599006478,
+      "n": 100,
+      "sha1_10": "22e81221fa"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s20/sess02_subj20_EEG_MI.mat",
+      "size": 577213115,
+      "n": 100,
+      "sha1_10": "52e8131bcf"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s21/sess01_subj21_EEG_MI.mat",
+      "size": 607840846,
+      "n": 100,
+      "sha1_10": "9071e1d907"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s21/sess02_subj21_EEG_MI.mat",
+      "size": 598497418,
+      "n": 100,
+      "sha1_10": "88f899745d"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s22/sess01_subj22_EEG_MI.mat",
+      "size": 575460439,
+      "n": 100,
+      "sha1_10": "f7fc739b77"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s22/sess02_subj22_EEG_MI.mat",
+      "size": 581190087,
+      "n": 100,
+      "sha1_10": "57a72bf3af"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s23/sess01_subj23_EEG_MI.mat",
+      "size": 594525960,
+      "n": 100,
+      "sha1_10": "3372403379"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s23/sess02_subj23_EEG_MI.mat",
+      "size": 563579843,
+      "n": 100,
+      "sha1_10": "394ffb768c"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s24/sess01_subj24_EEG_MI.mat",
+      "size": 594751346,
+      "n": 100,
+      "sha1_10": "3f6f12facc"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s24/sess02_subj24_EEG_MI.mat",
+      "size": 584375518,
+      "n": 100,
+      "sha1_10": "51215c8a7a"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s25/sess01_subj25_EEG_MI.mat",
+      "size": 565988304,
+      "n": 100,
+      "sha1_10": "03297ed40b"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s25/sess02_subj25_EEG_MI.mat",
+      "size": 613051843,
+      "n": 100,
+      "sha1_10": "ddf3594d4f"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s26/sess01_subj26_EEG_MI.mat",
+      "size": 611689221,
+      "n": 100,
+      "sha1_10": "cb2d7fe2ec"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s26/sess02_subj26_EEG_MI.mat",
+      "size": 595603598,
+      "n": 100,
+      "sha1_10": "1b41aa4c4c"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s27/sess01_subj27_EEG_MI.mat",
+      "size": 582123205,
+      "n": 100,
+      "sha1_10": "ae83a00026"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s27/sess02_subj27_EEG_MI.mat",
+      "size": 573068078,
+      "n": 100,
+      "sha1_10": "768459f2a7"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s28/sess01_subj28_EEG_MI.mat",
+      "size": 582506475,
+      "n": 100,
+      "sha1_10": "36bdb048e0"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s28/sess02_subj28_EEG_MI.mat",
+      "size": 574219718,
+      "n": 100,
+      "sha1_10": "73c0ca9355"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s29/sess01_subj29_EEG_MI.mat",
+      "size": 613110875,
+      "n": 100,
+      "sha1_10": "620d025943"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s29/sess02_subj29_EEG_MI.mat",
+      "size": 591017684,
+      "n": 100,
+      "sha1_10": "9fec2d61bf"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s30/sess01_subj30_EEG_MI.mat",
+      "size": 657977782,
+      "n": 100,
+      "sha1_10": "c72304d680"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s30/sess02_subj30_EEG_MI.mat",
+      "size": 619220805,
+      "n": 100,
+      "sha1_10": "31a4bee904"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s31/sess01_subj31_EEG_MI.mat",
+      "size": 618592138,
+      "n": 100,
+      "sha1_10": "36d0a063ca"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s31/sess02_subj31_EEG_MI.mat",
+      "size": 564888787,
+      "n": 100,
+      "sha1_10": "b2450ec9de"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s32/sess01_subj32_EEG_MI.mat",
+      "size": 630185495,
+      "n": 100,
+      "sha1_10": "e31c3836ee"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s32/sess02_subj32_EEG_MI.mat",
+      "size": 588628315,
+      "n": 100,
+      "sha1_10": "874ec91091"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s33/sess01_subj33_EEG_MI.mat",
+      "size": 614910491,
+      "n": 100,
+      "sha1_10": "8b201d057e"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s33/sess02_subj33_EEG_MI.mat",
+      "size": 623660370,
+      "n": 100,
+      "sha1_10": "d6ba958416"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s34/sess01_subj34_EEG_MI.mat",
+      "size": 661816593,
+      "n": 100,
+      "sha1_10": "bc9f682970"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s34/sess02_subj34_EEG_MI.mat",
+      "size": 595910539,
+      "n": 100,
+      "sha1_10": "90ef4bd782"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s35/sess01_subj35_EEG_MI.mat",
+      "size": 585507536,
+      "n": 100,
+      "sha1_10": "0d543442d9"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s35/sess02_subj35_EEG_MI.mat",
+      "size": 609041189,
+      "n": 100,
+      "sha1_10": "ea5210f29e"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s36/sess01_subj36_EEG_MI.mat",
+      "size": 595291292,
+      "n": 100,
+      "sha1_10": "657c58610f"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s36/sess02_subj36_EEG_MI.mat",
+      "size": 587864107,
+      "n": 100,
+      "sha1_10": "bff73caec9"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s37/sess01_subj37_EEG_MI.mat",
+      "size": 580187540,
+      "n": 100,
+      "sha1_10": "0ee2df4c25"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s37/sess02_subj37_EEG_MI.mat",
+      "size": 572590819,
+      "n": 100,
+      "sha1_10": "13bf9ad988"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s38/sess01_subj38_EEG_MI.mat",
+      "size": 622508748,
+      "n": 100,
+      "sha1_10": "03b58a3379"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s38/sess02_subj38_EEG_MI.mat",
+      "size": 610758059,
+      "n": 100,
+      "sha1_10": "e6a3ca6ce4"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s39/sess01_subj39_EEG_MI.mat",
+      "size": 601744494,
+      "n": 100,
+      "sha1_10": "068c3a9068"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s39/sess02_subj39_EEG_MI.mat",
+      "size": 585256394,
+      "n": 100,
+      "sha1_10": "759220a9c8"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s40/sess01_subj40_EEG_MI.mat",
+      "size": 608097253,
+      "n": 100,
+      "sha1_10": "71c2dbf127"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s40/sess02_subj40_EEG_MI.mat",
+      "size": 599421595,
+      "n": 100,
+      "sha1_10": "b071051aca"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s41/sess01_subj41_EEG_MI.mat",
+      "size": 559937938,
+      "n": 100,
+      "sha1_10": "9d86fab937"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s41/sess02_subj41_EEG_MI.mat",
+      "size": 587277557,
+      "n": 100,
+      "sha1_10": "d7ef441223"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s42/sess01_subj42_EEG_MI.mat",
+      "size": 598611569,
+      "n": 100,
+      "sha1_10": "b555ce467c"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s42/sess02_subj42_EEG_MI.mat",
+      "size": 587103943,
+      "n": 100,
+      "sha1_10": "c7001bfc44"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s43/sess01_subj43_EEG_MI.mat",
+      "size": 643596235,
+      "n": 100,
+      "sha1_10": "cf6796fc69"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s43/sess02_subj43_EEG_MI.mat",
+      "size": 576207345,
+      "n": 100,
+      "sha1_10": "aeb20c1f56"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s44/sess01_subj44_EEG_MI.mat",
+      "size": 579360398,
+      "n": 100,
+      "sha1_10": "8d4444fd34"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s44/sess02_subj44_EEG_MI.mat",
+      "size": 566041123,
+      "n": 100,
+      "sha1_10": "3530cb4890"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s45/sess01_subj45_EEG_MI.mat",
+      "size": 641370581,
+      "n": 100,
+      "sha1_10": "9eac3010c2"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s45/sess02_subj45_EEG_MI.mat",
+      "size": 596393583,
+      "n": 100,
+      "sha1_10": "4af0c07c94"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s46/sess01_subj46_EEG_MI.mat",
+      "size": 628620681,
+      "n": 100,
+      "sha1_10": "b99c54356d"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s46/sess02_subj46_EEG_MI.mat",
+      "size": 620730044,
+      "n": 100,
+      "sha1_10": "0ddcaf74ce"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s47/sess01_subj47_EEG_MI.mat",
+      "size": 651688583,
+      "n": 100,
+      "sha1_10": "bb465558d7"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s47/sess02_subj47_EEG_MI.mat",
+      "size": 603089111,
+      "n": 100,
+      "sha1_10": "3783d59a9f"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s48/sess01_subj48_EEG_MI.mat",
+      "size": 562306863,
+      "n": 100,
+      "sha1_10": "1e02b69506"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s48/sess02_subj48_EEG_MI.mat",
+      "size": 577934891,
+      "n": 100,
+      "sha1_10": "2e1e4febd5"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s49/sess01_subj49_EEG_MI.mat",
+      "size": 581093477,
+      "n": 100,
+      "sha1_10": "50f87d3723"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s49/sess02_subj49_EEG_MI.mat",
+      "size": 582542614,
+      "n": 100,
+      "sha1_10": "ad969e0824"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s50/sess01_subj50_EEG_MI.mat",
+      "size": 551382464,
+      "n": 100,
+      "sha1_10": "92ea17b253"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s50/sess02_subj50_EEG_MI.mat",
+      "size": 628475076,
+      "n": 100,
+      "sha1_10": "e41c701b8d"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s51/sess01_subj51_EEG_MI.mat",
+      "size": 582919954,
+      "n": 100,
+      "sha1_10": "1acfb194fa"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s51/sess02_subj51_EEG_MI.mat",
+      "size": 599787711,
+      "n": 100,
+      "sha1_10": "69f77125ee"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s52/sess01_subj52_EEG_MI.mat",
+      "size": 669612541,
+      "n": 100,
+      "sha1_10": "542c1c6307"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s52/sess02_subj52_EEG_MI.mat",
+      "size": 568988503,
+      "n": 100,
+      "sha1_10": "bd494dd2dd"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s53/sess01_subj53_EEG_MI.mat",
+      "size": 568816590,
+      "n": 100,
+      "sha1_10": "43c33e540b"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s53/sess02_subj53_EEG_MI.mat",
+      "size": 581717099,
+      "n": 100,
+      "sha1_10": "107c7e100a"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session1/s54/sess01_subj54_EEG_MI.mat",
+      "size": 599410350,
+      "n": 100,
+      "sha1_10": "05901840d6"
+    },
+    {
+      "file": "/projects/EEG-foundation-model/datalake/raw/MNE-lee2019-mi-data/gigadb-datasets/live/pub/10.5524/100001_101000/100542/session2/s54/sess02_subj54_EEG_MI.mat",
+      "size": 641005938,
+      "n": 100,
+      "sha1_10": "c5df8f5c45"
+    }
+  ],
+  "build_seconds": 1084.7
+}

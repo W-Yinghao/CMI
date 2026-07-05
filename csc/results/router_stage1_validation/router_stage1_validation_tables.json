@@ -1,0 +1,75 @@
+{
+ "diagnostic_only": true,
+ "tau_R1": 0.004587196,
+ "tau_R1_source": "locked from calibration; NOT re-derived",
+ "per_condition": {
+  "NULL_cov": {
+   "n": 300,
+   "n_invalid": 0,
+   "method_confirm": 72,
+   "router_allow": 5,
+   "allow_rate": 0.0167,
+   "cp95u": 0.0347
+  },
+  "NULL_cov_plus_label": {
+   "n": 300,
+   "n_invalid": 0,
+   "method_confirm": 27,
+   "router_allow": 4,
+   "allow_rate": 0.0133,
+   "cp95u": 0.0303
+  },
+  "NULL_label": {
+   "n": 300,
+   "n_invalid": 0,
+   "method_confirm": 2,
+   "router_allow": 1,
+   "allow_rate": 0.0033,
+   "cp95u": 0.0157
+  },
+  "random_label_control": {
+   "n": 300,
+   "n_invalid": 0,
+   "method_confirm": 0,
+   "router_allow": 0,
+   "allow_rate": 0.0,
+   "cp95u": 0.0099
+  },
+  "POS_concept": {
+   "n": 300,
+   "n_invalid": 16,
+   "method_confirm": 69,
+   "router_allow": 52,
+   "allow_rate": 0.1733,
+   "cp95u": null
+  },
+  "POS_concept_plus_cov": {
+   "n": 300,
+   "n_invalid": 10,
+   "method_confirm": 70,
+   "router_allow": 53,
+   "allow_rate": 0.1767,
+   "cp95u": null
+  }
+ },
+ "main_summary": {
+  "NULL_cov": 5,
+  "NULL_cov_plus_label": 4,
+  "NULL_label": 1,
+  "random_label_control": 0,
+  "POS_concept": 52,
+  "POS_concept_plus_cov": 53
+ },
+ "primary_safety_pass": true,
+ "secondary_fail": false,
+ "utility_tier": "STRONG",
+ "verdict": "SAFETY-PASS + STRONG utility -> eligible for frozen-protocol discussion",
+ "red_team_down_scope": {
+  "integrity": "COMMIT-CLEAN: no peeking; tau re-derives byte-exact (hexfloat 3f72ca060cce336e, rank 81/88); calibration null-only; eval loads locked tau (never re-derives); monotonicity holds; invalid accounting conservative; no_retune honored; all sha256 pass.",
+  "down_scoped_verdict": "development-diagnostic; single-block SAFETY-PASS with a thin, drift-exposed margin and ~17% power against a SOFT covariate -- candidate for frozen-protocol DESIGN DISCUSSION, not a confirmatory result.",
+  "soft_covariate": "#1 caveat: session_auc~0.52, overlap~0.99 in ALL conditions -> type-I control shown only vs a near-negligible covariate. Raw certifier still false-confirms 72/300 here; router works ONLY because artifact-T stays below tau. Strong-covariate regime (router could fail) UNTESTED.",
+  "thin_tau_fragile": "NULL_cov 5 vs cap 7 (headroom 2); verified 2x calib->valid drift (allow 3->5) with n=1 block (no drift variance); tau*0.90 -> NULL_cov 11 breach; sibling tau_boundary(0.004049) would FAIL; cohort knife-edge min +3.4e-5 above tau.",
+  "utility_genuine_but_low": "power IS concept-driven (AUC~0.90; confirm-T tracks subject-consistency +0.86 not covariate +0.16) but 17% recall (83% abstained) on an EASY linear 25deg concept matched to a linear certifier; STRONG only vs 6.7% bar; the two POS endpoints are one DGP sampled twice (not independent).",
+  "path_to_confirmatory": "multiple independent validation blocks (bound drift) + a strong-covariate null (test failure mode) + second dataset / nonlinear concept."
+ }
+}

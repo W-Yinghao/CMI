@@ -1,0 +1,4 @@
+FROZEN feature cache (16MB, not committed).
+path: /home/infres/yinwang/realeeg_feas/b5_features/b5_0_random_encoder/LEE2019_B5_0.npz
+sha256: 3670f174f8f44406cd96f00d7b0cde285a1971ebe763d39247c00b12148dca70
+rebuild: scripts/b5_0_build_cache.py (frozen random EEGNet, seed 20260706, weight_sha256 in manifest)

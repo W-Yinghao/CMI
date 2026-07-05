@@ -1,0 +1,109 @@
+{
+ "scope": "B5.0 canary development-only; Z_deep frozen-random feature family; NOT confirmatory; NO tag",
+ "base_seed": 30000000,
+ "n_per_condition": {
+  "NULL_cov": 50,
+  "NULL_cov_plus_label": 50,
+  "NULL_label": 50,
+  "random_label_control": 50,
+  "POS_concept": 50,
+  "POS_concept_plus_cov": 50
+ },
+ "per_condition": {
+  "NULL_cov": {
+   "n": 50,
+   "n_decided": 50,
+   "n_confirm": 10,
+   "confirm_kind": "FALSE",
+   "confirm_rate": 0.2,
+   "null_sd_T_med": 0.00028756345463776907,
+   "T_z_med": 6.153136902298654,
+   "fixed_margin_p_floor_frac": 0.9,
+   "session_auc_med": 0.5184485000000001,
+   "ground_truth_noconcept": true
+  },
+  "NULL_cov_plus_label": {
+   "n": 50,
+   "n_decided": 50,
+   "n_confirm": 8,
+   "confirm_kind": "FALSE",
+   "confirm_rate": 0.16,
+   "null_sd_T_med": 0.0003126729883173675,
+   "T_z_med": 6.886175691053647,
+   "fixed_margin_p_floor_frac": 0.84,
+   "session_auc_med": 0.5333347777777778,
+   "ground_truth_noconcept": true
+  },
+  "NULL_label": {
+   "n": 50,
+   "n_decided": 50,
+   "n_confirm": 0,
+   "confirm_kind": "FALSE",
+   "confirm_rate": 0.0,
+   "null_sd_T_med": 0.00032774988496580713,
+   "T_z_med": 8.477641122268906,
+   "fixed_margin_p_floor_frac": 0.92,
+   "session_auc_med": 0.5313442222222222,
+   "ground_truth_noconcept": true
+  },
+  "random_label_control": {
+   "n": 50,
+   "n_decided": 50,
+   "n_confirm": 0,
+   "confirm_kind": "FALSE",
+   "confirm_rate": 0.0,
+   "null_sd_T_med": 9.352327365368105e-05,
+   "T_z_med": -0.019801527667249352,
+   "fixed_margin_p_floor_frac": 0.0,
+   "session_auc_med": 0.5275387777777778,
+   "ground_truth_noconcept": true
+  },
+  "POS_concept": {
+   "n": 50,
+   "n_decided": 50,
+   "n_confirm": 10,
+   "confirm_kind": "TRUE",
+   "confirm_rate": 0.2,
+   "null_sd_T_med": 0.0006937419263175347,
+   "T_z_med": 2.8338405289642217,
+   "fixed_margin_p_floor_frac": 0.46,
+   "session_auc_med": 0.5226648333333332,
+   "ground_truth_noconcept": false
+  },
+  "POS_concept_plus_cov": {
+   "n": 50,
+   "n_decided": 48,
+   "n_confirm": 12,
+   "confirm_kind": "TRUE",
+   "confirm_rate": 0.24,
+   "null_sd_T_med": 0.0004798138091401395,
+   "T_z_med": 3.4230433488096295,
+   "fixed_margin_p_floor_frac": 0.46,
+   "session_auc_med": 0.531539,
+   "ground_truth_noconcept": false
+  }
+ },
+ "null_false_confirm": {
+  "NULL_cov": 10,
+  "NULL_cov_plus_label": 8,
+  "NULL_label": 0,
+  "random_label_control": 0
+ },
+ "pos_true_confirm": {
+  "POS_concept": 10,
+  "POS_concept_plus_cov": 12
+ },
+ "null_cov_fail_persists": true,
+ "any_pos_signal": true,
+ "b5_cache_sha256": "3670f174f8f44406cd96f00d7b0cde285a1971ebe763d39247c00b12148dca70",
+ "red_team_caveat": {
+  "verdict": "fidelity PASS; persist FAIL(inconclusive); overclaim MINOR_ISSUE -> commit as diagnostic-only NO-OP control",
+  "any_pos_signal_flag": "MISLEADING: means only >=1 POS confirm; NOT concept power. POS_concept 10/50=0.20 is statistically IDENTICAL to NULL_cov 10/50=0.20 (Fisher OR=1.0,p=1.0); T_z higher for no-concept NULL_cov(6.15) than POS(2.83).",
+  "no_op_control": "B5.0 (frozen RANDOM encoder = near-isometry) is a statistical replica of SM16 on every axis (NULL 0.20 vs 0.19, T_z 6.1 vs 6.0, session_auc 0.52, null_sd 2.9e-4 vs 3.0e-4; between-family Fisher p=0.85 NULL). It reproduces SM16 by construction and does NOT establish feature-invariance; carries ~0 info about a LEARNED representation.",
+  "inconclusive_for_safety": "No separated positive control -> the low NULL_label/random rates carry ZERO safety information; the canary CANNOT adjudicate whether deep features resolve the FAIL.",
+  "under_dispersion_persists": "fixed_margin_p floor-pinned in 84-92% of NULL cohorts; T_z 6-8 vs tiny null_sd_T -- same SM16/B4 collapse signature.",
+  "pos_concept_plus_cov_denom": "n_decided=48 (2 undecided) -> 12/48=0.25.",
+  "ci_dependence": "50 cohorts draw 30 of 54 subjects under one global transductive z-score + one frozen encoder -> outcomes correlated (effective n<50); naive binomial/Wilson anti-conservative; NO subject-cluster bound; n=50 cannot certify safety (0/50->CP upper 5.8%).",
+  "next": "B5.1 (learned/SSL) is the ONLY informative continuation: positive-control-FIRST (POS must separate from NULL), then safety, n>=60, subject-cluster bound."
+ }
+}

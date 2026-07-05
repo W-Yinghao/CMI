@@ -1,0 +1,13 @@
+{
+ "n_trials": 10800,
+ "embedding_dim": 192,
+ "embedding_rank": 192,
+ "repro_max_abs_diff": 0.0,
+ "repro_ok": true,
+ "nan": 0,
+ "inf": 0,
+ "emb_std_min": 0.9999997153067683,
+ "emb_std_median": 0.9999998428467204,
+ "subjects": 54,
+ "missing_channels": []
+}
