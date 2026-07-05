@@ -134,7 +134,7 @@ def main():
                     ci_rows.append(dict(comparison=f"{m}_minus_CIGL", quantity=q, scope=scope, point=b["point"],
                                         ci_lo=b["lo"], ci_hi=b["hi"], n=b["n"], excludes_zero=b["excludes_zero"]))
     _w(out / "functional_vs_frozen_deltas.csv", delta_rows, ["method", "quantity", "dataset", "seed", "fold", "delta"])
-    _w(out / "functional_bootstrap_ci.csv", ci_rows,
+    _w(out / "functional_vs_oldcigl_bootstrap_ci.csv", ci_rows,
        ["comparison", "quantity", "scope", "point", "ci_lo", "ci_hi", "n", "excludes_zero"])
 
     _manifest(out, mrows, ci_rows)
@@ -166,7 +166,7 @@ def _manifest(out, mrows, ci_rows):
              "projector: {fit: source_train_only, excludes_target: true, excludes_source_val: true, k: 2}",
              f"n_fold_rows: {len(mrows)}", f"n_with_alignment: {n_align}",
              "bootstrap: {per_dataset: seed->fold, pooled: dataset->seed->fold, n_boot: 4000}",
-             "files: [functional_multiseed_metrics.csv, functional_multiseed_r3.csv, functional_multiseed_alignment.csv, functional_vs_frozen_deltas.csv, functional_bootstrap_ci.csv]"]
+             "files: [functional_multiseed_metrics.csv, functional_multiseed_r3.csv, functional_multiseed_alignment.csv, functional_vs_frozen_deltas.csv, functional_vs_oldcigl_bootstrap_ci.csv]"]
     (out / "MANIFEST.yaml").write_text("\n".join(lines) + "\n")
 
 

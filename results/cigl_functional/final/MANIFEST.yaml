@@ -8,4 +8,4 @@ projector: {fit: source_train_only, excludes_target: true, excludes_source_val: 
 n_fold_rows: 126
 n_with_alignment: 126
 bootstrap: {per_dataset: seed->fold, pooled: dataset->seed->fold, n_boot: 4000}
-files: [functional_multiseed_metrics.csv, functional_multiseed_r3.csv, functional_multiseed_alignment.csv, functional_vs_frozen_deltas.csv, functional_bootstrap_ci.csv]
+files: [functional_multiseed_metrics.csv, functional_multiseed_r3.csv, functional_multiseed_alignment.csv, functional_vs_frozen_deltas.csv, functional_vs_oldcigl_bootstrap_ci.csv]

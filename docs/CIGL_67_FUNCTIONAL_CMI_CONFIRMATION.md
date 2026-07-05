@@ -1,6 +1,11 @@
 # CIGL_67 — Functional CMI confirmation (seeds 0/1/2): alignment controllable, reliance NOT reduced
 
 ```
+STATUS: FROZEN — METHOD-LEVEL NEGATIVE (CIGL_67_FUNCTIONAL_CONFIRMATION_NEGATIVE).
+  seed0 positive did NOT replicate; alignment reduction DID replicate; reliance reduction did NOT.
+  fcigl_align NOT promoted; fcigl_removal_aug killed. No further FCIGL-align/removal_aug GPU.
+```
+```
 Method-level judgment (full-LOSO x seeds 0/1/2, BNCI2014_001 + BNCI2015_001). fcigl_align eta {0.01, 0.05} vs
 FROZEN CIGL_65 (seeds 0/1/2). 126 fold rows, replay_ok 126/126, random_subspace control ~0, leakage below ERM.
 Projector firewall: source-TRAIN only (excludes source-val + target), k=2, detached. Hierarchical bootstrap
@@ -80,7 +85,7 @@ the measured-leakage control point; FCIGL is an alignment control point that doe
 
 ## Artifacts (`results/cigl_functional/final/`)
 `functional_multiseed_metrics.csv` (126), `functional_multiseed_r3.csv`, `functional_multiseed_alignment.csv`,
-`functional_vs_frozen_deltas.csv`, `functional_bootstrap_ci.csv` (30), `MANIFEST.yaml`.
+`functional_vs_frozen_deltas.csv`, `functional_vs_oldcigl_bootstrap_ci.csv` (30), `MANIFEST.yaml`.
 Analysis: `scripts/analyze_functional_confirmation.py`.
 ```
 ```
