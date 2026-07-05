@@ -30,6 +30,28 @@ class Stage2EngineError(RuntimeError):
     pass
 
 
+def holm_family_keys_pvalues(per, manifest):
+    """Build the FIXED Holm family over ALL candidate × disease × {H1,H2,H3} cells (22×2×3=132). A NON-EVALUABLE cell (per is
+    None) contributes raw p = 1.0 for each hypothesis so the family size NEVER shrinks — skipping non-evaluable cells would
+    reduce the multiplicity correction and bias certification of the other candidates (Stage-2B0b correction)."""
+    keys, pvals = [], []
+    for cand in manifest:
+        cid = cand["id"]
+        for d in DISEASES:
+            ev = per.get((cid, d))
+            for h in ("H1", "H2", "H3"):
+                keys.append((cid, d, h))
+                pvals.append(ev["cal_raw"][h] if ev is not None else 1.0)
+    return keys, pvals
+
+
+def holm_adjusted_map(per, manifest):
+    """Holm-adjust the FIXED family (132 cells) together and return {(cid, disease, hypothesis): adjusted_p}."""
+    keys, pvals = holm_family_keys_pvalues(per, manifest)
+    adj = GATES.holm_adjust(pvals)
+    return {keys[i]: float(adj[i]) for i in range(len(keys))}
+
+
 def _fit_batches(by_subject, fit_keys, source_lda, action_provider):
     """Build FIT action-record batches at the SAME 32-window ACAR-B granularity that routing uses at CAL/EVAL — one record per
     32-window chunk over the FIT subjects. Sub-MIN_BATCH tails are forced to identity at CAL/EVAL (never routed), so they are
@@ -103,12 +125,14 @@ def _select_winner(eligible, per, manifest):
     return tied[0]
 
 
-def _dev_stop(reason, per_candidate=None, per_disease=None, macro=None):
+def _dev_stop(reason, per_candidate=None, per_disease=None, macro=None, extra_notes=None):
+    notes = {"dev_stop_reason": reason, "cal_eval": "H1-H3 Holm on CAL; G2/G5 + final G1-G5 report on EVAL"}
+    if extra_notes:
+        notes.update(extra_notes)
     return RPT.build_selection_report(
         outcome=RPT.OUTCOME_DEV_STOP, selected_candidate_id=None, per_candidate=per_candidate or {},
         per_disease=per_disease or {}, macro=macro or {}, holm_family_alpha=P.ALPHA,
-        objective="maximize min_disease(red - v2_replay_red)",
-        notes={"dev_stop_reason": reason, "cal_eval": "H1-H3 Holm on CAL; G2/G5 + final G1-G5 report on EVAL"})
+        objective="maximize min_disease(red - v2_replay_red)", notes=notes)
 
 
 def run_selection(authorization, *, stage1b_run_id, stage1b_registry_sha256, disease_inputs,
@@ -126,22 +150,19 @@ def run_selection(authorization, *, stage1b_run_id, stage1b_registry_sha256, dis
         for d in DISEASES:
             per[(cand["id"], d)] = _evaluate_candidate_on_disease(cand, disease_inputs[d]["folds"], action_provider)
 
-    # Holm over the certification family (candidate × disease × {H1,H2,H3}), evaluable cells only
-    keys, pvals = [], []
-    for (cid, d), ev in per.items():
-        if ev is None:
-            continue
-        for h in ("H1", "H2", "H3"):
-            keys.append((cid, d, h))
-            pvals.append(ev["cal_raw"][h])
-    adj_map = {}
-    if pvals:
-        adj = GATES.holm_adjust(pvals)
-        adj_map = {keys[i]: float(adj[i]) for i in range(len(keys))}
+    # Holm over the FIXED certification family: ALL candidate × disease × {H1,H2,H3} cells (22×2×3=132). Non-evaluable cells
+    # enter as raw p=1 (cert_pass=False) so the family size never shrinks (Stage-2B0b correction).
+    adj_map = holm_adjusted_map(per, manifest)
+    holm_family_size = len(adj_map)
+    n_nonevaluable = sum(1 for cand in manifest for d in DISEASES if per[(cand["id"], d)] is None)
+    holm_notes = {"holm_family_size": holm_family_size, "holm_nonevaluable_cells": n_nonevaluable}
     cert_pass = {}
-    for (cid, d), ev in per.items():
-        cert_pass[(cid, d)] = (ev is not None and GATES.cert_pass_from_adjusted(
-            adj_map[(cid, d, "H1")], adj_map[(cid, d, "H2")], adj_map[(cid, d, "H3")]))
+    for cand in manifest:
+        cid = cand["id"]
+        for d in DISEASES:
+            ev = per[(cid, d)]
+            cert_pass[(cid, d)] = (ev is not None and GATES.cert_pass_from_adjusted(
+                adj_map[(cid, d, "H1")], adj_map[(cid, d, "H2")], adj_map[(cid, d, "H3")]))
 
     # v2_replay_red per disease (fail-closed: missing ⇒ selection cannot run)
     v2 = {}
@@ -149,7 +170,7 @@ def run_selection(authorization, *, stage1b_run_id, stage1b_registry_sha256, dis
         for d in DISEASES:
             v2[d] = float(v2_replay_provider(d, {"disease_inputs": disease_inputs, "per": per}))
     except GATES.V2ReplayNotEvaluable as e:
-        return _dev_stop(f"v2_replay not evaluable: {e}")
+        return _dev_stop(f"v2_replay not evaluable: {e}", extra_notes=holm_notes)
     macro_v2 = float(sum(v2[d] for d in DISEASES) / len(DISEASES))
 
     # best-eligible P3 comparator (EVAL red among CAL-certified P3 candidates), per disease
@@ -186,15 +207,16 @@ def run_selection(authorization, *, stage1b_run_id, stage1b_registry_sha256, dis
     per_disease = {d: {"v2_replay_red": v2[d], "red_p3_best": red_p3_best[d]} for d in DISEASES}
     macro = {"v2_replay_red": macro_v2}
     if not eligible:
-        return _dev_stop("no candidate passed G1-G5 (both diseases + macro)", per_candidate, per_disease, macro)
+        return _dev_stop("no candidate passed G1-G5 (both diseases + macro)", per_candidate, per_disease, macro,
+                         extra_notes=holm_notes)
 
     winner = _select_winner(eligible, per, manifest)
     for d in DISEASES:                                                             # final OOF EVAL G1/G3/G4 gate
         if not per[(winner, d)]["eval_gate"]["certification_pass"]:
             return _dev_stop(f"selected {winner} failed the final EVAL G1/G3/G4 report on {d}",
-                             per_candidate, per_disease, macro)
+                             per_candidate, per_disease, macro, extra_notes=holm_notes)
     return RPT.build_selection_report(
         outcome=RPT.OUTCOME_SELECTED, selected_candidate_id=winner, per_candidate=per_candidate,
         per_disease=per_disease, macro=macro, holm_family_alpha=P.ALPHA,
         objective="maximize min_disease(red - v2_replay_red)",
-        notes={"cal_eval": "H1-H3 Holm on CAL; G2/G5 + final G1-G5 report on EVAL"})
+        notes={"cal_eval": "H1-H3 Holm on CAL; G2/G5 + final G1-G5 report on EVAL", **holm_notes})

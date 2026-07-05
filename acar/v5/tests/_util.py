@@ -624,3 +624,16 @@ def stage2b_disease_inputs(n_folds=2, D=8, seed=0, n_windows=16):
                 "label_view": DictLabelView(labels)}
     return {"PD": {"folds": [fold("PD", "ds002778", k) for k in range(n_folds)]},
             "SCZ": {"folds": [fold("SCZ", "ds003944", k) for k in range(n_folds)]}}
+
+
+def stage2b_holm_per(evaluable_p=0.001, nonevaluable_ids=()):
+    """Synthetic `per` map for Holm-family tests: {(candidate_id, disease): {"cal_raw": {H1,H2,H3}} or None}. Candidate ids in
+    `nonevaluable_ids` get None for BOTH diseases (non-evaluable cells)."""
+    from acar.v5 import protocol as P
+    from acar.v5 import stage2_selection_engine as ENG
+    non = set(nonevaluable_ids)
+    per = {}
+    for cid in P.CANDIDATE_IDS:
+        for d in ENG.DISEASES:
+            per[(cid, d)] = None if cid in non else {"cal_raw": {"H1": evaluable_p, "H2": evaluable_p, "H3": evaluable_p}}
+    return per

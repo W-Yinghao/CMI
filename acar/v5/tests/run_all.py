@@ -182,6 +182,12 @@ MODULES = (
     "test_stage2b_report_does_not_include_external_or_s1_results",
     "test_stage2b_binding_real_run_fails_without_stage2b_auth",
     "test_stage2b_f0_lda_and_action_records",
+    # ---- Stage-2B0b: Holm-universe correction (fixed 22×2×3=132 family; non-evaluable cells enter as p=1) ----
+    "test_stage2b_holm_family_includes_nonevaluable_cells",
+    "test_stage2b_holm_family_size_fixed_132",
+    "test_stage2b_nonevaluable_cell_pvalues_are_one",
+    "test_stage2b_nonevaluable_cells_cannot_certify",
+    "test_stage2b_excluding_nonevaluable_cells_changes_adjustment_guard",
 )
 
 

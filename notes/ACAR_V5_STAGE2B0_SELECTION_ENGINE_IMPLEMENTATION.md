@@ -90,6 +90,21 @@ test_stage2b_f0_lda_and_action_records                f_0 LDA matches the pinned
 Every `acar.v5` Stage-2B0 module imports with NO heavy dependency (numpy lazy; torch/sklearn only inside the real seams, never
 loaded in the label-free suite).
 
+## Stage-2B0b correction (Holm universe)
+
+```
+Holm family is fixed at 22 candidates × 2 diseases × 3 hypotheses = 132.
+Non-evaluable candidate/disease cells enter the family as p=1 for H1–H3 and cert_pass=False.
+```
+
+The Holm certification family is built over the FIXED 22×2×3 = 132 cells (`stage2_selection_engine.holm_family_keys_pvalues` /
+`holm_adjusted_map`). A non-evaluable candidate×disease cell (no FIT proposed-action records / no CAL subjects) contributes raw
+p = 1.0 for H1/H2/H3 and `cert_pass = False`; it is NOT skipped. Skipping non-evaluable cells would shrink the family, under-
+correct the multiplicity, and make the other candidates easier to certify (a selection-bias). The report notes record
+`holm_family_size` (132) and `holm_nonevaluable_cells`. Guards: `test_stage2b_holm_family_includes_nonevaluable_cells`,
+`_holm_family_size_fixed_132`, `_nonevaluable_cell_pvalues_are_one`, `_nonevaluable_cells_cannot_certify`,
+`_excluding_nonevaluable_cells_changes_adjustment_guard`.
+
 ## Real-run prerequisites (flagged, NOT silently implemented)
 
 - The three real action transforms (matched_coral/spdim/t3a) are wired to the FROZEN `acar.actions` via the LDA/state adapter but
