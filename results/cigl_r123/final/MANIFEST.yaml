@@ -18,3 +18,10 @@ files:
   r3_reliance.csv: {rows: 1512}
   bootstrap_ci.csv: {rows: 24}
   r1_hardened_nperm1000.csv: {rows: 126, fdr_sig: 126}
+cigl_66_gap_diagnostic:
+  outcome: A_alignment_explains_gap
+  primary_scalar: task_head_alignment_k2 (scale-invariant, within-run)
+  align_k2_erm_vs_cigl: {BNCI2014_001: [0.0044, 0.0321], BNCI2015_001: [0.0497, 0.4396]}
+  corr_alignment_vs_R3taskdrop_k2: {spearman_pooled: 0.338, ci: [0.168, 0.504], sig: true}
+  corr_graphkl_vs_R3taskdrop_k2: {spearman_pooled: -0.342, ci: [-0.507, -0.166], sig: true}
+  files: {gap_spectrum.csv: {rows: 378}, gap_alignment.csv: {rows: 756}, gap_correlations.csv: {rows: 24}, gap_graph_node_mismatch.csv: {rows: 4}, gap_diagnostic_summary.yaml: {}}

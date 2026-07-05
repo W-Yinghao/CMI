@@ -1,0 +1,12 @@
+# CIGL_66 gap-diagnostic summary (within-run scalars; cross-method compares scalars only)
+n_spectrum_rows: 378
+n_alignment_rows: 756
+graphz_scalars_by_dataset_method:
+  BNCI2014_001:
+    erm: {subject_energy: 80049.8140, effective_rank: 14.039, top2_energy_fraction: 0.6412, task_head_alignment_k2: 0.0044}
+    cigl_graph_node: {subject_energy: 13579.7947, effective_rank: 14.685, top2_energy_fraction: 0.6549, task_head_alignment_k2: 0.0321}
+    cdan: {subject_energy: 486440.2781, effective_rank: 9.878, top2_energy_fraction: 0.8622, task_head_alignment_k2: 0.0106}
+  BNCI2015_001:
+    erm: {subject_energy: 64574.4375, effective_rank: 11.241, top2_energy_fraction: 0.6685, task_head_alignment_k2: 0.0497}
+    cigl_graph_node: {subject_energy: 5741.1535, effective_rank: 8.219, top2_energy_fraction: 0.8712, task_head_alignment_k2: 0.4396}
+    cdan: {subject_energy: 271110355823.4365, effective_rank: 7.026, top2_energy_fraction: 0.9103, task_head_alignment_k2: 0.0186}
