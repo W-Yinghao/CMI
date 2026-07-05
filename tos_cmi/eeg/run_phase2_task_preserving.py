@@ -136,13 +136,21 @@ def _dumps(ds, bb, seed, nfolds):
 
 
 def _load_thresholds(path):
-    """Read the FROZEN gate thresholds from the config so they are authoritative, not decorative.
-    Falls back to the module constants if the key is absent."""
-    txt = open(path).read() if os.path.exists(path) else ""
-    def g(k, d):
-        m = re.search(r"^%s:\s*([0-9.]+)" % k, txt, re.M)
-        return float(m.group(1)) if m else d
-    return g("safety_reject_task_drop_ucb", SAFETY_EPS), g("benefit_accept_lcb", BENEFIT_LCB)
+    """Read the FROZEN gate thresholds from the config so they are authoritative, not decorative. Parses the
+    YAML (regex fallback if PyYAML is missing); falls back to the module constants if the key is absent."""
+    if not os.path.exists(path):
+        return SAFETY_EPS, BENEFIT_LCB
+    try:
+        import yaml
+        cfg = yaml.safe_load(open(path)) or {}
+        return (float(cfg.get("safety_reject_task_drop_ucb", SAFETY_EPS)),
+                float(cfg.get("benefit_accept_lcb", BENEFIT_LCB)))
+    except Exception:
+        txt = open(path).read()
+        def g(k, d):
+            m = re.search(r"^%s:\s*([0-9.]+)" % k, txt, re.M)
+            return float(m.group(1)) if m else d
+        return g("safety_reject_task_drop_ucb", SAFETY_EPS), g("benefit_accept_lcb", BENEFIT_LCB)
 
 
 def aggregate(rows, safety_eps=SAFETY_EPS, benefit_thr=BENEFIT_LCB):

@@ -1,24 +1,24 @@
-# V2 semi-synthetic acceptance-power benchmark --- DESIGN LOCK
+# V2 semi-synthetic source-only acceptance ceiling --- DESIGN LOCK
 
-Status: **BLOCKED on a PM decision --- see [V2_ACCEPTANCE_CEILING_FINDING.md](V2_ACCEPTANCE_CEILING_FINDING.md).**
-Scaffold written + adversarially reviewed (Worlds B/C, gate reuse, fair router, target-leakage CLEAN), but the
-acceptance-power leg (World A) is **not constructible as a gate-ACCEPT test**: across 144 constructions on real
-Lee/Cho latents, 0 accept, while 49 have a real target benefit the source-only gate cannot certify. This is a
-genuine acceptance-CEILING result, not a bug. World A must be reframed before locking. Thresholds stay frozen.
+Status: **LOCKED after Option 1.** V2 does **not** claim the gate can accept a beneficial erasure; it
+demonstrates a source-only **ceiling**: target-beneficial deployment-shift erasures can exist, but when the
+benefit is absent from source-domain evidence, a strict source-only gate cannot safely certify ACCEPT -- the
+correct action stays reject/abstain (see [V2_ACCEPTANCE_CEILING_FINDING.md](V2_ACCEPTANCE_CEILING_FINDING.md)
+for the 144-cell search that established this). Gate thresholds frozen; only world-generation params tune in smoke.
+
+* **World A** target-beneficial but source-uncertifiable -> expected **REJECT/ABSTAIN** (the ceiling; NOT accept).
+* **World B** task-entangled unsafe -> expected **REJECT** (safety).
+* **World C** removable but useless -> expected **REJECT/ABSTAIN** (domain-gain is evidence of erasure, not benefit).
 
 ## Why V2 exists
 
 Track B + Phase 2 established **rejection/abstention power** on real EEG: the source-only gate refuses every
 useless/harmful erasure (0 false-accepts, 8/8 harms prevented; task-preserving erasure preserves the deployed
-task decision but is transfer-flat). What is still **untested is acceptance power**: *when a genuine beneficial
-nuisance actually exists, does the same source-only gate ACCEPT it?* Real EEG has no positive, so we build a
-semi-synthetic benchmark on **real EEG latents** with an **injected, ground-truth-controlled nuisance**, and
-check the gate's decisions against known truth in three worlds:
-
-* **World A** beneficial nuisance  -> gate should **ACCEPT**  (acceptance power)
-* **World B** task-entangled nuisance -> gate should **REJECT** (safety)
-* **World C** removable-but-useless -> gate should **ABSTAIN/REJECT** (mirrors real EEG; proves *domain-gain is
-  evidence of erasure, not of benefit*)
+task decision but is transfer-flat). V2 asks the complementary question and answers it as a **limit result**:
+*even when a genuine target-beneficial erasure exists, can a source-only gate certify it?* No -- when the
+benefit is created by a source->target shift not represented in the source domains, source-only evidence is
+insufficient (Proposition below). We show this on a semi-synthetic benchmark built on **real EEG latents** with
+an **injected, ground-truth-controlled nuisance**, across three worlds:
 
 ## Key design decision: the erased domain D is the INJECTED nuisance z, not the real subject
 
@@ -127,6 +127,13 @@ with a high-domain-gain-useless cell. Outputs -> `tos_cmi/results/method_deepen/
 datasets x backbones(EEGNet,TSMNet) x seeds(0,1,2) x n_source(8,16,32,all) x alpha_grid x interventions,
 all folds. Main table + the ceiling scatter (source-LOSO benefit LCB vs actual target dbAcc LCB, colored by
 gate action) + naive-controller table.
+
+## Artifact safety (NOT reviewer-safe as-is)
+The method-branch sbatch scripts (`scripts/tos_v2_*.sbatch`, `scripts/tos_phase2*.sbatch`,
+`scripts/tos_trackB.sbatch`, etc.) contain **local absolute paths and identity** (`/home/infres/yinwang/...`,
+`/projects/...`, a conda-env path). This is acceptable on the internal method branch but is **NOT artifact-safe**
+-- **scrub before any reviewer-facing package** (anonymous artifact = aggregates-only tarball; never these
+scripts, never a GitHub URL, never identity/PDF-metadata leaks).
 
 ## Parked branch (NOT part of the present V2 claim): target-informed acceptance
 A target-informed branch could admit **unlabeled target** (does erasing reduce source-target mismatch while

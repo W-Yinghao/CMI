@@ -94,6 +94,25 @@ def test_worldA_ceiling():
     return "World A ceiling: oracle target gain +%.3f, deployable gate=%s (not ACCEPT)" % (orc_gain, act)
 
 
+def test_config_parses_and_has_required_keys():
+    """P0 gate: the frozen config MUST be valid YAML with all required keys and the locked values."""
+    import yaml
+    cfg = yaml.safe_load(open("tos_cmi/eeg/configs/v2_certificate_fixed.yaml"))
+    required = ["goal", "datasets", "backbones", "seeds", "safety_reject_task_drop_ucb", "benefit_accept_lcb",
+               "domain_gain_role", "target_usage", "world_A", "world_B", "world_C", "interventions"]
+    missing = [k for k in required if k not in cfg]
+    assert not missing, "missing config keys: %s" % missing
+    assert cfg["goal"] == "source_only_acceptance_ceiling", cfg["goal"]
+    assert cfg["safety_reject_task_drop_ucb"] == 0.02 and cfg["benefit_accept_lcb"] == 0.01
+    assert cfg["domain_gain_role"] == "diagnostic_only" and cfg["target_usage"] == "audit_only"
+    assert cfg["world_A"]["acceptance_expected"] is False
+    assert cfg["world_B"]["acceptance_expected"] is False
+    assert cfg["world_C"]["acceptance_expected"] is False
+    assert "oracle_nuisance_eraser_DIAGNOSTIC_ONLY" in cfg["interventions"]
+    assert "cc_leace_predicted_route_deployable" not in cfg["interventions"]
+    return "config parses (%d keys); goal=ceiling; thresholds 0.02/0.01; oracle in interventions" % len(cfg)
+
+
 def test_oracle_marked_diagnostic():
     assert "oracle_nuisance_eraser_DIAGNOSTIC_ONLY" in DIAGNOSTIC
     assert "oracle_nuisance_eraser_DIAGNOSTIC_ONLY" not in DEPLOYABLE
@@ -104,7 +123,8 @@ def test_oracle_marked_diagnostic():
     return "oracle eraser is DIAGNOSTIC (not deployable) and zeros the injected block"
 
 
-TESTS = [test_z_relationships, test_target_labels_not_used_by_gate, test_worldB_unsafe_reject,
+TESTS = [test_config_parses_and_has_required_keys, test_z_relationships,
+         test_target_labels_not_used_by_gate, test_worldB_unsafe_reject,
          test_worldC_removable_but_useless, test_worldA_ceiling, test_oracle_marked_diagnostic]
 
 
