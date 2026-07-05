@@ -89,6 +89,15 @@ def aggregate_selector_replay(replay_folds, *, margins=None, k2_min_seeds=3) -> 
     if len(idx) != n_expected:
         raise ValueError(f"replay coverage {len(idx)} != expected {n_expected} (seed×target×level)")
 
+    # identity summary (numeric gate: argmax parity + tiny logit tol vs stored .npz; byte-hash where node matched)
+    ich = [c for f in replay_folds for c in f.get("identity", [])]
+    diffs = [c["max_logit_diff"] for c in ich if c.get("max_logit_diff") is not None]
+    identity = {"n_checks": len(ich), "n_all_match": sum(1 for c in ich if c["match"]),
+                "n_byte_hash_match": sum(1 for c in ich if c.get("hash_match")),
+                "n_numeric_only": sum(1 for c in ich if c["match"] and not c.get("hash_match")),
+                "total_argmax_flips": sum(c.get("argmax_flips") or 0 for c in ich),
+                "max_logit_diff": (max(diffs) if diffs else None), "all_pass": all(c["match"] for c in ich)}
+
     choices, access = {}, {n: {"target_read": False, "read_source_audit": False, "forbidden": []} for n in SELECTORS}
     for (s, t, L), lv in idx.items():
         res = run_selectors_on_level(lv["candidates"], selected_oaci_hash=lv["selected"]["OACI"], margins=margins)
@@ -137,7 +146,7 @@ def aggregate_selector_replay(replay_folds, *, margins=None, k2_min_seeds=3) -> 
     return {"seeds": seeds, "targets": targets, "levels": levels, "selectors": per_selector,
             "source_only_reproducible": src_repro, "oracle_reproducible": oracle_repro,
             "s0_current_k2": per_selector["S0_current"]["k2_status"], "access_invariants_ok": access_ok,
-            "final_case": case}
+            "identity": identity, "final_case": case}
 
 
 # ---- CSV tables ----
@@ -233,7 +242,12 @@ def render_report_md(folds, transfer, *, part2=None) -> str:
               "The final case A/B/C call requires the source-only (S1–S4) and source-audit-oracle (S5) replay "
               "over OACI's own risk-feasible trajectory."]
         return "\n".join(L)
+    idn = part2["identity"]
     L += ["", "## Part 2 — epoch-level counterfactual selector replay (K2 vs ERM per selector)", "",
+          f"- **replay identity: {idn['n_all_match']}/{idn['n_checks']} selected-checkpoint checks pass** "
+          f"({idn['n_byte_hash_match']} byte-hash exact, {idn['n_numeric_only']} numeric-only) · "
+          f"total argmax flips **{idn['total_argmax_flips']}** · max|Δlogit| **{_f(idn['max_logit_diff'], 2) if idn['max_logit_diff'] is not None else 'n/a'}** "
+          "(cross-node FP; worst-domain bAcc is argmax-based ⇒ exact)",
           f"- access invariants OK (no selector reads target; S0–S4 never read source_audit): "
           f"**{part2['access_invariants_ok']}**",
           f"- S0_current K2 = `{part2['s0_current_k2']}` (must equal the C8 OACI verdict — consistency check)", "",
