@@ -1,0 +1,88 @@
+{
+ "diagnostic_only": true,
+ "not_confirmatory": true,
+ "not_deployable": true,
+ "not_a_certificate": true,
+ "stage": "Router_R1_fresh_calibration_and_heldout_validation",
+ "tag": null,
+ "seed_blocks": {
+  "calibration": {
+   "base_seed": 80000000,
+   "conditions": [
+    "NULL_cov",
+    "NULL_cov_plus_label"
+   ],
+   "n": 300,
+   "null_only": true
+  },
+  "heldout_validation": {
+   "base_seed": 90000000,
+   "conditions": [
+    "NULL_cov",
+    "NULL_label",
+    "NULL_cov_plus_label",
+    "POS_concept",
+    "POS_concept_plus_cov",
+    "random_label_control"
+   ],
+   "n": 300
+  }
+ },
+ "seed_formula": "base + condition_index*1e6 + r  (r=0..299)",
+ "condition_index": {
+  "NULL_cov": 1,
+  "NULL_label": 2,
+  "NULL_cov_plus_label": 3,
+  "POS_concept": 4,
+  "POS_concept_plus_cov": 5,
+  "random_label_control": 7
+ },
+ "disjointness": "calibration 80e6 & validation 90e6 disjoint from each other, from P3(20/50/60/70e6), and > forbidden max 14100047",
+ "router_rule": "ALLOW if B3_method_confirm(b3_state==CONCEPT_CONFIRMED) AND observed_T>=tau ; else ABSTAIN (monotone: allow-set is a strict subset of B3 confirms)",
+ "primary_deployable_score": "observed_T",
+ "comparison": ">=",
+ "report_only": [
+  "method_fixed_margin_p",
+  "method_studentized_p",
+  "subject_consistency_lcb",
+  "null_sd_T",
+  "T_z",
+  "overlap_frac",
+  "session_auc",
+  "ess_frac",
+  "condition"
+ ],
+ "forbidden_in_score": [
+  "oracle_confirm",
+  "oracle_p",
+  "oracle_null_sd",
+  "oracle_stratum",
+  "condition_label",
+  "future_validation_outcomes",
+  "recalibrated_or_inflated_p"
+ ],
+ "grid": "deterministic: sorted unique observed_T among CALIBRATION B3-method-confirms + sentinels {0, +inf}",
+ "tau_lock_rule": "tau_R1 = smallest grid tau s.t. NULL_cov allow<=3/300 AND NULL_cov_plus_label allow<=3/300 (conservative). Also report tau_boundary(<=7/300) and tau_zero(0/300). Lock tau_R1 (NOT the exposed R0 tau).",
+ "calibration_null_only": "POS conditions NOT run or inspected in calibration before tau lock",
+ "validation_endpoints": {
+  "primary_safety": "NULL_cov allow<=7/300 AND NULL_cov_plus_label allow<=7/300 (cap kept at 7 to avoid boundary; do NOT rely on CP borderline)",
+  "secondary_safety": "NULL_label<=3/300 preferred, random_label_control<=3/300 preferred; R1 SAFETY-FAIL if either secondary >7/300",
+  "utility": {
+   "strong": "POS_concept>=20/300 AND POS_concept_plus_cov>=15/300",
+   "weak": "primary safety passes AND POS_concept>0",
+   "fail": "POS_concept==0"
+  }
+ },
+ "invalid_accounting": "method-invalid => ABSTAIN; denominator=300 per condition; n_invalid reported explicitly; invalid NOT removed from denominator unless implementation failure",
+ "no_retune": "if held-out primary safety fails, do NOT retune tau on validation -- that IS the result",
+ "commit_sequence": [
+  "commit protocol before running",
+  "run calibration",
+  "lock tau_R1",
+  "commit/hash tau lock before validation",
+  "run held-out validation",
+  "red-team",
+  "commit final results"
+ ],
+ "worker": "realeeg_r1_forensic.py (reuses the validated P3 realeeg_internal_forensic.run_cohort = certify_paired_calibrated; B3 method path UNCHANGED)"
+}
