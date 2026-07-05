@@ -1,0 +1,7 @@
+selector,k2_status,reproduced,n_choose_erm,n_fold_levels,reads_source_audit,target_read,is_oracle
+S0_current,stop_no_reproducible_gain,,0,54,False,False,False
+S1_leakage_worst_source_bacc,stop_no_reproducible_gain,,27,54,False,False,False
+S2_leakage_worst_source_nll,stop_no_reproducible_gain,,0,54,False,False,False
+S3_leakage_calibration,stop_no_reproducible_gain,,1,54,False,False,False
+S4_conservative_source_only,stop_no_reproducible_gain,,28,54,False,False,False
+S5_source_audit_oracle,stop_no_reproducible_gain,,3,54,True,False,True

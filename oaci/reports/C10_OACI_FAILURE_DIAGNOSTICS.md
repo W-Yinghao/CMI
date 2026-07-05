@@ -37,4 +37,26 @@
 - **part1_lean: `case_C_candidate`** (audit⊥target=True, selection_optimism=True, max|audit-target r|=+0.133)
 - FINAL case A/B/C is decided in C10b with the epoch-level source-only + oracle replay; Part 1 alone cannot distinguish 'no good checkpoint exists' from 'selector picked badly'.
 
-> **Part 2 (epoch-level counterfactual selector replay) — PENDING C10b GPU replay.** The final case A/B/C call requires the source-only (S1–S4) and source-audit-oracle (S5) replay over OACI's own risk-feasible trajectory.
+
+## Part 2 — epoch-level counterfactual selector replay (K2 vs ERM per selector)
+
+- **replay identity: 216/216 selected-checkpoint checks pass** (64 byte-hash exact, 152 numeric-only) · total argmax flips **0** · max|Δlogit| **+0.00** (cross-node FP; worst-domain bAcc is argmax-based ⇒ exact)
+- access invariants OK (no selector reads target; S0–S4 never read source_audit): **True**
+- S0_current K2 = `stop_no_reproducible_gain` (must equal the C8 OACI verdict — consistency check)
+
+| selector | K2 | reproduced | chooses ERM | reads source_audit | oracle |
+|---|---|---|---:|---|---|
+| S0_current | `stop_no_reproducible_gain` | — | 0/54 | False | False |
+| S1_leakage_worst_source_bacc | `stop_no_reproducible_gain` | — | 27/54 | False | False |
+| S2_leakage_worst_source_nll | `stop_no_reproducible_gain` | — | 0/54 | False | False |
+| S3_leakage_calibration | `stop_no_reproducible_gain` | — | 1/54 | False | False |
+| S4_conservative_source_only | `stop_no_reproducible_gain` | — | 28/54 | False | False |
+| S5_source_audit_oracle | `stop_no_reproducible_gain` | — | 3/54 | True | True |
+
+## FINAL case A/B/C
+
+- source-only selectors reproducing K2 gain: none
+- source-audit oracle (S5) reproduces K2 gain: False
+- **FINAL CASE: `C_oracle_also_fails`**
+
+> Even the source-audit oracle cannot recover reproducible K2 gain: better OACI checkpoints do NOT exist in the trajectory as judged by held-out source signal. **Leakage control is not a downstream-benefit mechanism under this protocol — keep support-aware leakage as a measurement/falsification tool, stop investing in it as a control objective.**
