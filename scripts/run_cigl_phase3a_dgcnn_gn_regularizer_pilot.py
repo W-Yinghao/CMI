@@ -113,7 +113,7 @@ def decide_pilot_selection(agg, erm_label=ERM_LABEL, source_drop_max=0.02, reduc
 
 
 def _train_eval(label, lam_g, lam_node, fold, seed, args, device, n_perm, method_override=None,
-                fcigl_strength=0.0):
+                fcigl_strength=0.0, dcigl_gamma=0.5):
     from cmi.train.trainer import train_model, predict
     from cmi.eval.metrics import classification_metrics
     X, y, dom_all, tr_mask, te_mask, n_cls, heldout = fold
@@ -133,7 +133,8 @@ def _train_eval(label, lam_g, lam_node, fold, seed, args, device, n_perm, method
                                     warmup=max(1, args.epochs // 5), device=device, seed=seed,
                                     fcigl_strength=float(fcigl_strength),
                                     fcigl_k=int(getattr(args, "fcigl_k", 2)),
-                                    fcigl_update_every=int(getattr(args, "fcigl_update_every", 10)))
+                                    fcigl_update_every=int(getattr(args, "fcigl_update_every", 10)),
+                                    dcigl_gamma=float(getattr(args, "dcigl_gamma", dcigl_gamma)))
     train_m = classification_metrics(predict(net, Xs[enc_idx], device), ys[enc_idx])
     src = classification_metrics(predict(net, Xs[pool_idx], device), ys[pool_idx])
     tgt = classification_metrics(predict(net, X[te_mask], device), y[te_mask])

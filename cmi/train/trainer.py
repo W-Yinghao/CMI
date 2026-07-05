@@ -20,11 +20,17 @@ from cmi.methods import dg_penalties as dgp
 # fcigl_align: penalize head row-space energy inside the subject subspace. fcigl_removal_aug: also classify the
 # subspace-removed representation. Both build on the graphcmi graph/node CMI terms (lam=lambda_g, gamma=lambda_node).
 FCIGL_METHODS = {"fcigl_align", "fcigl_removal_aug"}
+# CIGL_68 direct-reliance CMI: the training-time R3 — prediction BEFORE the source-only subject-subspace removal
+# must match prediction AFTER (SymKL consistency) + the removed rep must still classify. Unlike fcigl_removal_aug
+# (which only requires z_removed to classify), this directly penalizes the classifier's dependence on the removed
+# subject directions. loss += beta*SymKL(softmax(logits), softmax(logits_rem)) + dcigl_gamma*CE(logits_rem, y).
+DCIGL_METHODS = {"dcigl_consistency"}
+PROJ_METHODS = FCIGL_METHODS | DCIGL_METHODS   # all methods that build the source-only subject-subspace projector
 
 # Every implemented framework. Anything else must fail loudly (not silently train ERM).
 ALL_METHODS = {
     "erm", "iib", "graphcmi", "dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal",
-} | FCIGL_METHODS | CMI_METHODS | SUPCON_METHODS | dgp.DG_METHODS | FMCA_METHODS | ssl.ALL_SSL
+} | PROJ_METHODS | CMI_METHODS | SUPCON_METHODS | dgp.DG_METHODS | FMCA_METHODS | ssl.ALL_SSL
 
 
 def _head_module(backbone):
@@ -119,7 +125,7 @@ def resolve_dec_margin(method, dec_margin):
 
 
 def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gamma=0.0,
-                lam_edge=0.0, beta=0.0, fcigl_strength=0.0, fcigl_k=2, fcigl_update_every=10,
+                lam_edge=0.0, beta=0.0, fcigl_strength=0.0, fcigl_k=2, fcigl_update_every=10, dcigl_gamma=0.5,
                 balance=False, label_correct=False, reweight_dual=False,
                 dec_margin=None, epochs=200, bs=64, warmup=40, n_inner=2,
                 z_margin=0.0, dec_scale=1.0,
@@ -143,7 +149,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     is_lpc_ssl = method in ssl.LPC_SSL_METHODS  # SSL framework hosting our CMI term
     ssl_kind = "byol" if "byol" in method else "simclr"
     uses_graphcmi = method == "graphcmi"        # GNN node/edge CMI (needs backbone.forward_graph)
-    uses_fcigl = method in FCIGL_METHODS         # functional CMI = graphcmi CMI terms + task-path penalty
+    uses_fcigl = method in PROJ_METHODS          # functional/direct CMI = graphcmi CMI terms + subject-subspace projector
+    uses_dcigl = method in DCIGL_METHODS
     node_post = edge_post = None
     if uses_graphcmi or uses_fcigl:             # global term reuses `post`; add node + edge heads
         # Fail closed: the GNN branch calls backbone.forward_graph(x) -> (logits, graph_Z, node_Z,
@@ -315,7 +322,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 loss = ce + lam * warm * r_graph + gamma * warm * r_node
                 if r_edge is not None:
                     loss = loss + lam_edge * warm * r_edge
-                # CIGL_67 functional CMI: penalize the intersection of the subject subspace with the task path.
+                # CIGL_67/68: penalize the classifier's use of the source-only subject subspace on the task path.
                 r_fcigl = None
                 if uses_fcigl and fcigl_P is not None:
                     head = _head_module(backbone)
@@ -323,10 +330,19 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                         Wt = head.weight.t()              # [Zg, n_cls] (live -> grad to head)
                         Ps = fcigl_S.t() @ fcigl_S        # projector ONTO the subject subspace
                         r_fcigl = (Ps @ Wt).pow(2).sum() / (Wt.pow(2).sum() + 1e-12)
-                    else:                                 # fcigl_removal_aug: classify the subspace-REMOVED graph_z
-                        z_rm = gz @ fcigl_P.t()           # (I - SᵀS) gz  (grad to encoder + head)
-                        r_fcigl = F.cross_entropy(head(z_rm), yb)
-                    loss = loss + fcigl_strength * warm * r_fcigl
+                        loss = loss + fcigl_strength * warm * r_fcigl
+                    elif method == "fcigl_removal_aug":   # classify the subspace-REMOVED graph_z
+                        r_fcigl = F.cross_entropy(head(gz @ fcigl_P.t()), yb)
+                        loss = loss + fcigl_strength * warm * r_fcigl
+                    elif uses_dcigl:                      # CIGL_68 direct reliance = training-time R3
+                        logits_rem = head(gz @ fcigl_P.t())   # prediction AFTER subject-subspace removal
+                        lp, lq = F.log_softmax(logits, 1), F.log_softmax(logits_rem, 1)
+                        symkl = 0.5 * (F.kl_div(lq, lp.exp(), reduction="batchmean")   # SymKL(before || after)
+                                       + F.kl_div(lp, lq.exp(), reduction="batchmean"))
+                        ce_rem = F.cross_entropy(logits_rem, yb)
+                        # loss += beta*SymKL + dcigl_gamma*CE_rem ; r_fcigl logs the combined functional term
+                        loss = loss + warm * (fcigl_strength * symkl + dcigl_gamma * ce_rem)
+                        r_fcigl = fcigl_strength * symkl + dcigl_gamma * ce_rem
                 opt_main.zero_grad(); loss.backward(); opt_main.step()
                 if uses_fcigl and last_epoch and r_fcigl is not None:
                     diag.setdefault("inloop_fcigl", []).append(_scalar(r_fcigl))
