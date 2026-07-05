@@ -1,0 +1,8 @@
+# Track B source-OOD benefit gate -- FIXED, pre-registered config. Do NOT tune per result.
+safety_reject_task_drop_ucb: 0.02      # REJECT if within-source task-drop UCB exceeds this
+benefit_accept_lcb: 0.01               # ACCEPT only if source-LOSO benefit LCB exceeds this
+domain_gain_role: diagnostic_only      # subject-decode drop is NEVER sufficient for accept
+target_usage: audit_only               # target labels used only in the post-hoc audit, never in the gate
+benefit_estimator: source_leave_one_source_subject_out
+ci_method: cluster_bootstrap_over_outer_fold
+n_pseudo_default: 8
