@@ -1,0 +1,11 @@
+# CIGL_67 functional confirmation manifest (seeds 0/1/2)
+phase: CIGL_67_FUNCTIONAL_CMI_CONFIRMATION
+branch: project/cigl-functional-cmi
+seeds: [0, 1, 2]
+methods: [fcigl_align_eta0.01, fcigl_align_eta0.05]
+comparators_frozen: [cigl_graph_node, erm, cdan]  # CIGL_65 seeds 0/1/2
+projector: {fit: source_train_only, excludes_target: true, excludes_source_val: true, k: 2}
+n_fold_rows: 126
+n_with_alignment: 126
+bootstrap: {per_dataset: seed->fold, pooled: dataset->seed->fold, n_boot: 4000}
+files: [functional_multiseed_metrics.csv, functional_multiseed_r3.csv, functional_multiseed_alignment.csv, functional_vs_frozen_deltas.csv, functional_bootstrap_ci.csv]
