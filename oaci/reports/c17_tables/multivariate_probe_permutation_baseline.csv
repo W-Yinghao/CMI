@@ -1,0 +1,4 @@
+metric,value
+permutation_mean_auc,0.5369346425820907
+permutation_p,0.008264462809917356
+beats_permutation,True
