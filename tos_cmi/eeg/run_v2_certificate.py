@@ -70,8 +70,24 @@ def _subsample_source(subj, n_source, seed):
     return np.array([s in keep for s in subj])
 
 
+DEGEN_COND = 1e12   # feature-covariance condition number above which LEACE/whitening is numerically unreliable
+
+
+def _cond(Z):
+    """Condition number (max/min positive eigenvalue) of the feature covariance -- degeneracy diagnostic."""
+    try:
+        ev = np.linalg.eigvalsh(np.cov(Z.T))
+        ev = ev[ev > 1e-12]
+        return float(ev.max() / ev.min()) if len(ev) else float("inf")
+    except Exception:
+        return float("inf")
+
+
 def _one(world, ds, bb, seed, p, n_source, alpha, interv, phi, beta, m, noise, n_pseudo):
     fold = int(re.search(r"sub(\d+)_", p.split("/")[-1]).group(1))
+    base = {"world": world, "dataset": ds, "backbone": bb, "seed": seed, "fold": fold,
+            "n_source": str(n_source), "alpha": alpha, "intervention": interv}
+    cond = float("nan")
     try:
         d = np.load(p, allow_pickle=True)
         Zs = d["Z_source"].astype(np.float64); ys = d["y_source"].astype(int)
@@ -80,15 +96,21 @@ def _one(world, ds, bb, seed, p, n_source, alpha, interv, phi, beta, m, noise, n
         keep = _subsample_source(subj, n_source, seed)
         Zs, ys, subj = Zs[keep], ys[keep], subj[keep]
         inj = inject(world, Zs, ys, subj, Zt, yt, alpha=alpha, beta=beta, phi=phi, seed=seed, m=m, noise=noise)
+        cond = _cond(inj["Zs2"])
+        if cond > DEGEN_COND:      # numerically unreliable metric -> DEGENERATE, do not average into the verdict
+            return {**base, "n_cls": n_cls, "cond": cond, "degenerate": True,
+                    "skip_reason": "ill-conditioned feature covariance (cond=%.1e > %.0e)" % (cond, DEGEN_COND)}
         F = oracle_nuisance_eraser_factory(m) if interv in DIAGNOSTIC else FACTORIES[interv]
-        sig = eval_v2(inj["Zs2"], ys, inj["z_src"], inj["grp_subj"], inj["Zt2"], yt, n_cls,
-                      F, seed, n_pseudo)
-        return {"world": world, "dataset": ds, "backbone": bb, "seed": seed, "fold": fold,
-                "n_source": str(n_source), "alpha": alpha, "intervention": interv,
-                "ground_truth": inj["ground_truth"], "n_cls": n_cls, **sig}
+        sig = eval_v2(inj["Zs2"], ys, inj["z_src"], inj["grp_subj"], inj["Zt2"], yt, n_cls, F, seed, n_pseudo)
+        return {**base, "ground_truth": inj["ground_truth"], "n_cls": n_cls,
+                "cond": cond, "degenerate": False, **sig}
+    except np.linalg.LinAlgError as e:
+        return {**base, "cond": cond, "degenerate": True, "skip_reason": "LinAlgError: " + repr(e)[:120]}
     except Exception as e:
-        return {"world": world, "dataset": ds, "backbone": bb, "seed": seed, "fold": fold,
-                "n_source": str(n_source), "alpha": alpha, "intervention": interv, "fail": repr(e)[:200]}
+        msg = repr(e)[:200]
+        degen = any(k in msg.lower() for k in ["singular", "linalg", "not positive", "converg", "eig", "nan"])
+        return {**base, "cond": cond, "fail": msg, "degenerate": degen,
+                "skip_reason": ("numerical: " + msg) if degen else ""}
 
 
 def _dumps(ds, bb, seed, nfolds):
@@ -98,8 +120,44 @@ def _dumps(ds, bb, seed, nfolds):
     return ps[:nfolds] if nfolds else ps
 
 
+def build_manifest(rows, expected_folds_by_cell):
+    """Per (dataset,backbone,seed): fold coverage + VALID/PARTIAL/DEGENERATE status + condition-number range.
+    A (dataset,backbone,seed,fold) is DEGENERATE if any of its tasks was flagged degenerate; VALID if it has
+    >=1 successful (non-degenerate, non-fail) task. Degenerate/failed folds are NOT averaged into the verdict."""
+    manifest = {}
+    keys = sorted(set((r["dataset"], r["backbone"], r["seed"]) for r in rows))
+    for (ds, bb, sd) in keys:
+        sub = [r for r in rows if (r["dataset"], r["backbone"], r["seed"]) == (ds, bb, sd)]
+        folds = sorted(set(r["fold"] for r in sub))
+        degen_folds, valid_folds, reasons, conds = [], [], {}, []
+        for f in folds:
+            fr = [r for r in sub if r["fold"] == f]
+            fdeg = [r for r in fr if r.get("degenerate")]
+            fok = [r for r in fr if not r.get("degenerate") and not r.get("fail")]
+            cvals = [r["cond"] for r in fr if r.get("cond") == r.get("cond")]
+            if cvals:
+                conds.append(float(np.median(cvals)))
+            if fdeg and not fok:
+                degen_folds.append(f)
+                reasons[str(f)] = next((r.get("skip_reason", "") for r in fdeg if r.get("skip_reason")), "degenerate")
+            elif fok:
+                valid_folds.append(f)
+        exp = expected_folds_by_cell.get((ds, bb, sd), len(folds))
+        status = ("VALID" if len(valid_folds) == exp and not degen_folds else
+                  "DEGENERATE" if not valid_folds else "PARTIAL")
+        manifest["%s|%s|%d" % (ds, bb, sd)] = {
+            "dataset": ds, "backbone": bb, "seed": sd, "status": status,
+            "expected_folds": exp, "valid_folds": valid_folds, "degenerate_folds": degen_folds,
+            "n_valid": len(valid_folds), "n_degenerate": len(degen_folds),
+            "frac_skipped": round((exp - len(valid_folds)) / exp, 3) if exp else 0.0,
+            "cond_median_min": round(min(conds), 1) if conds else None,
+            "cond_median_max": round(max(conds), 1) if conds else None,
+            "skip_reasons": reasons}
+    return manifest
+
+
 def aggregate(rows, safety_eps, benefit_thr):
-    rows = [r for r in rows if not r.get("fail")]
+    rows = [r for r in rows if not r.get("fail") and not r.get("degenerate")]   # exclude degenerate + failed
     summary = {}
     keys = sorted(set((r["world"], r["dataset"], r["backbone"], r["seed"], r["n_source"],
                        r["alpha"], r["intervention"]) for r in rows))
@@ -129,7 +187,8 @@ def aggregate(rows, safety_eps, benefit_thr):
             "src_task_full": float(np.mean([r["src_task_full"] for r in sub])),
             "src_task_eras": float(np.mean([r["src_task_eras"] for r in sub])),
             "dtgt_bacc": float(np.mean(db)), "dtgt_bacc_lo": dblo, "dtgt_bacc_hi": dbhi,
-            "router_acc": float(np.nanmean([r.get("router_acc", float("nan")) for r in sub])),
+            "router_acc": (lambda ra: float(np.mean(ra)) if ra else float("nan"))(
+                [r["router_acc"] for r in sub if r.get("router_acc") == r.get("router_acc")]),
             "gate_action": action,
             "is_safe": bool(tucb <= safety_eps),                       # source-defined safety
             "target_beneficial": bool(dblo > benefit_thr)}            # actual (post-hoc) target gain
@@ -152,7 +211,9 @@ def main():
     ap.add_argument("--m", type=int, default=4)
     ap.add_argument("--noise", type=float, default=0.1)
     ap.add_argument("--tag", default="smoke")
+    ap.add_argument("--outdir", default=OUT)
     a = ap.parse_args()
+    outdir = a.outdir
     safety_eps, benefit_thr = _load_thresholds(CONFIG)
     cfg_hash = hashlib.sha256(open(CONFIG).read().encode()).hexdigest()[:12] if os.path.exists(CONFIG) else "MISSING"
     tasks = []
@@ -171,27 +232,42 @@ def main():
         delayed(_one)(w, ds, bb, sd, p, ns, al, iv, a.phi, a.beta, a.m, a.noise, a.n_pseudo)
         for (w, ds, bb, sd, p, ns, al, iv) in tasks)
     nfail = sum(1 for r in rows if r.get("fail"))
-    if nfail:
-        print("[%d FAILED]" % nfail, flush=True)
-        for r in rows[:20]:
-            if r.get("fail"):
-                print("  [FAIL] %s %s %s %s a%s %s: %s" % (r["world"], r["dataset"], r["backbone"],
-                      r["n_source"], r["alpha"], r["intervention"], r["fail"]), flush=True)
+    ndeg = sum(1 for r in rows if r.get("degenerate"))
+    if nfail or ndeg:
+        print("[%d FAILED, %d DEGENERATE of %d tasks]" % (nfail, ndeg, len(rows)), flush=True)
+        for r in [r for r in rows if r.get("fail") or r.get("degenerate")][:20]:
+            print("  [%s] %s %s a%s %s: %s" % ("DEGEN" if r.get("degenerate") else "FAIL", r["dataset"],
+                  r["backbone"], r["alpha"], r["intervention"], r.get("skip_reason") or r.get("fail", "")), flush=True)
+    # expected folds per (ds,bb,seed) = folds actually attempted (first N available)
+    exp_folds = {}
+    for ds in a.datasets:
+        for bb in a.backbones:
+            for sd in a.seeds:
+                exp_folds[(ds, bb, sd)] = len(_dumps(ds, bb, sd, a.folds))
+    manifest = build_manifest(rows, exp_folds)
     summary = aggregate(rows, safety_eps, benefit_thr)
-    os.makedirs(OUT, exist_ok=True)
-    open("%s/v2_design_hash.txt" % OUT, "w").write("%s  %s\n" % (cfg_hash, CONFIG))
+    os.makedirs(outdir, exist_ok=True)
+    open("%s/v2_design_hash.txt" % outdir, "w").write("%s  %s\n" % (cfg_hash, CONFIG))
     cols = ["world", "dataset", "backbone", "seed", "fold", "n_source", "alpha", "intervention",
-            "ground_truth", "src_task_full", "src_task_eras", "task_drop", "z_full", "z_eras",
-            "domain_gain", "tgt_bacc_full", "tgt_bacc_eras", "router_acc"]
-    with open("%s/v2_%s_rows.csv" % (OUT, a.tag), "w", newline="") as fh:
+            "ground_truth", "degenerate", "cond", "skip_reason", "src_task_full", "src_task_eras", "task_drop",
+            "z_full", "z_eras", "domain_gain", "tgt_bacc_full", "tgt_bacc_eras", "router_acc"]
+    with open("%s/v2_%s_rows.csv" % (outdir, a.tag), "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore"); w.writeheader()
         for r in rows:
-            if not r.get("fail"):
-                w.writerow(r)
+            w.writerow(r)   # keep degenerate/fail rows in the CSV (flagged), for auditability
     json.dump({"config_hash": cfg_hash, "thresholds": {"safety_eps": safety_eps, "benefit_lcb": benefit_thr},
                "params": {"phi": a.phi, "beta": a.beta, "m": a.m, "noise": a.noise, "n_pseudo": a.n_pseudo},
+               "n_tasks": len(rows), "n_fail": nfail, "n_degenerate": ndeg,
                "summary": summary},
-              open("%s/v2_%s_summary.json" % (OUT, a.tag), "w"), indent=1)
+              open("%s/v2_%s_summary.json" % (outdir, a.tag), "w"), indent=1)
+    json.dump({"config_hash": cfg_hash, "manifest": manifest},
+              open("%s/v2_%s_manifest.json" % (outdir, a.tag), "w"), indent=1)
+    print("\n=== coverage manifest (degenerate/failed folds excluded from the verdict) ===")
+    for k in sorted(manifest):
+        v = manifest[k]
+        print("  %-11s %-7s seed%d : %-9s valid %d/%d, degenerate %d, cond med [%s..%s]"
+              % (v["dataset"], v["backbone"], v["seed"], v["status"], v["n_valid"], v["expected_folds"],
+                 v["n_degenerate"], v["cond_median_min"], v["cond_median_max"]), flush=True)
     # --- ceiling smoke verdict (World A is a CEILING demo: NO accept expected) ---
     def cells(world, group=None):
         return [v for v in summary.values() if v["world"] == world and (group is None or v["intervention"] in group)]

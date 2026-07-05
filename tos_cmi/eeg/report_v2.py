@@ -42,7 +42,7 @@ def _naive_controllers(cells, benefit_thr):
     return rows
 
 
-def _scatter(summ, tag, benefit_thr):
+def _scatter(summ, tag, benefit_thr, outdir):
     try:
         import matplotlib
         matplotlib.use("Agg")
@@ -66,14 +66,16 @@ def _scatter(summ, tag, benefit_thr):
           [Line2D([0], [0], marker="o", ls="", c="gray", label="safe"),
            Line2D([0], [0], marker="x", ls="", c="gray", label="unsafe")]
     ax.legend(handles=leg, fontsize=7, loc="best")
-    path = "%s/v2_%s_scatter.png" % (OUT, tag)
+    path = "%s/v2_%s_ceiling_scatter.png" % (outdir, tag)
     fig.tight_layout(); fig.savefig(path, dpi=130); plt.close(fig)
     return path
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--tag", default="smoke"); a = ap.parse_args()
-    S = json.load(open("%s/v2_%s_summary.json" % (OUT, a.tag)))
+    ap = argparse.ArgumentParser(); ap.add_argument("--tag", default="smoke")
+    ap.add_argument("--outdir", default=OUT); a = ap.parse_args()
+    outdir = a.outdir
+    S = json.load(open("%s/v2_%s_summary.json" % (outdir, a.tag)))
     summ, ch, th, pr = S["summary"], S.get("config_hash", "?"), S["thresholds"], S["params"]
     bt = th["benefit_lcb"]; st = th["safety_eps"]
     L = ["# V2 --- source-only acceptance CEILING / non-identifiability (%s)\n" % a.tag,
@@ -121,13 +123,20 @@ def main():
             L += ["", "**Useless-accept:** %d/%d principled cells ACCEPTED (want 0); high-domain-gain-but-useless "
                   "cell present=%s -> domain-gain != benefit -> %s.\n"
                   % (n_acc, len(prin), hi, "PASS" if verdicts["C"] else "FAIL")]
-    # naive controllers (all deployable cells)
+    # naive controllers (all deployable cells) -- markdown table + CSV
+    naive = _naive_controllers(list(summ.values()), bt)
     L += ["## Naive controllers (all deployable cells; a GOOD accept = actually target-beneficial)",
           "| controller | accepts | false-accepts (non-beneficial) | true-accepts (beneficial) |",
           "|---|---|---|---|"]
-    for b in _naive_controllers(list(summ.values()), bt):
+    for b in naive:
         L.append("| %s | %d | %d | %d |" % (b["controller"], b["accepts"], b["false_accepts"], b["true_accepts"]))
-    fig = _scatter(summ, a.tag, bt)
+    import csv as _csv
+    with open("%s/v2_%s_naive_controller_table.csv" % (outdir, a.tag), "w", newline="") as fh:
+        w = _csv.DictWriter(fh, fieldnames=["controller", "accepts", "false_accepts", "true_accepts"])
+        w.writeheader()
+        for b in naive:
+            w.writerow(b)
+    fig = _scatter(summ, a.tag, bt, outdir)
     L += ["", "Scatter (source-LOSO benefit LCB vs actual target ΔbAcc LCB, colored by gate action, o=safe "
           "x=unsafe): `%s`" % fig,
           "", "## Ceiling smoke verdict",
@@ -138,7 +147,7 @@ def main():
           "", "**Reading:** naive source-only controllers (domain-gain / safety) FALSE-ACCEPT; OUR gate accepts "
           "~nothing (conservative -- correct under the ceiling); only the ORACLE target-informed selector "
           "(diagnostic, uses target labels) picks the beneficial cells -> crossing the ceiling needs target info."]
-    open("%s/v2_%s_report.md" % (OUT, a.tag), "w").write("\n".join(L) + "\n")
+    open("%s/v2_%s_report.md" % (outdir, a.tag), "w").write("\n".join(L) + "\n")
     print("\n".join(L)); print("\nV2_REPORT_DONE")
 
 
