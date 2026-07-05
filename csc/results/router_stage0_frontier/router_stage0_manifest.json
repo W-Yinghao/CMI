@@ -1,0 +1,37 @@
+{
+ "diagnostic_only": true,
+ "not_confirmatory": true,
+ "not_deployable": true,
+ "not_a_certificate": true,
+ "stage": "Router_R0_exposed_frontier",
+ "rule": "ALLOW if B3 method_confirm==True AND observed_T>=tau ; else ABSTAIN_UNCERTIFIED (monotone: allow-set is a strict subset of B3 confirms; can only REMOVE, never add)",
+ "router_states": [
+  "ALLOW_CONCEPT_ALERT_UNDER_CALIBRATED_RISK",
+  "ABSTAIN_UNCERTIFIED",
+  "NO_ACTIONABLE_EVIDENCE"
+ ],
+ "primary_deployable_score": "observed_T",
+ "forbidden_in_score": [
+  "oracle_confirm",
+  "oracle_p",
+  "oracle_null_sd",
+  "oracle stratum",
+  "condition label",
+  "recalibrated/inflated p-values",
+  "new h0/h1/statistic/features"
+ ],
+ "grid": "deterministic: tau=0 + sorted unique observed_T among ALL B3 method-confirms",
+ "conditions": [
+  "NULL_cov",
+  "NULL_cov_plus_label",
+  "NULL_label",
+  "random_label_control",
+  "POS_concept",
+  "POS_concept_plus_cov"
+ ],
+ "kind_specific_nulls": "NULL_cov and NULL_cov_plus_label evaluated SEPARATELY (never pooled)",
+ "r1_eligibility": "NULL_cov allow<=7/300 AND NULL_cov_plus_label allow<=7/300 AND NULL_label<=1 AND random<=1 AND POS_concept>0",
+ "preferred_utility": "POS_concept allow>=20/300 AND POS_concept_plus_cov allow>=15/300",
+ "source_artifact": "csc/results/p3_forensics/p3_internal_forensics_merged.jsonl (committed, red-teamed)",
+ "exposed_development_only": "tau read off the EXPOSED bank; viability signal only; R1 fresh-seed validation NOT authorized"
+}

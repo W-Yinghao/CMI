@@ -1,0 +1,40 @@
+{
+ "all_match": false,
+ "per_lens": [
+  {
+   "lens": "reaggregation",
+   "verdict": "MINOR_DISCREPANCY",
+   "summary": "Independently re-derived the R0 frontier from the raw committed JSONL (csc/results/p3_forensics/p3_internal_forensics_merged.jsonl; 1 meta + 1800 data rows, 300 per condition). method_confirm=(b3_state=='CONCEPT_CONFIRMED'), score=observed_T. Baseline method_confirm counts reproduce EXACTLY: NULL_cov 57, NULL_cov_plus_label 32, NULL_label 1, random_label_control 0, POS_concept 81, POS_concept_plus_cov 78. At the true smallest R1-eligible grid cutpoint tau=0.0041848 (reported/displayed as 0.00418), allow=(method_confirm AND observed_T>=tau) reproduces EXACTLY: NULL_cov 7, NULL_cov_plus_label 7, NULL_label 1, random 0, POS_concept 61, POS_concept_plus_cov 56 \u2014 identical to both the reported row and the committed router_stage0_frontier.json row. Clopper-Pearson 95% upper: NULL_cov 7/300 = 0.04338 and NULL_cov_plus_label 7/300 = 0.04338, both ~0.043 < 0.05 as reported. VIABLE frontier CONFIRMED: both safety nulls allow<=7/300 with CP95u<0.05 while POS_concept allow=61>0. Deployable rows.jsonl contains NO oracle_* or ground-truth/DGP fields; the monotone rule uses only b3_state and observed_T (condition present only for per-kind evaluation, not scored). The only nuance: reported tau '0.00418' is a display truncation of the exact cutpoint 0.0041848; using the literal 0.00418 gives NULL_cov=8/300 (CP95u 0.0476, still <0.05) rather than 7, because one NULL_cov row's observed_T lies in [0.00418, 0.0041848). Substance (safety, viability, retention) is fully confirmed; the committed frontier JSON stores the exact tau and NULL_cov=7 correctly."
+  },
+  {
+   "lens": "guardrail",
+   "verdict": "MATCHES",
+   "summary": "Recomputed everything from the raw committed forensic (csc/results/p3_forensics/p3_internal_forensics_merged.jsonl, 1800 cohorts = 6x300) and cross-checked the frontier, rows, script, and manifest. method_confirm baseline /300 recomputes EXACTLY as reported: NULL_cov=57, NULL_cov_plus_label=32, NULL_label=1, random_label_control=0, POS_concept=81, POS_concept_plus_cov=78. Independently regenerating the deterministic grid ([0]+sorted unique round(observed_T,7) among all method-confirms = 248 unique + tau=0 = 249 = n_grid) and the per-condition allow counts reproduces the saved frontier with 0 tau mismatches and 0 count mismatches. GUARDRAILS all PASS: (a) allow<=method_confirm for every tau x condition (0 violations); at tau=0 allow equals the confirm baseline exactly (every confirm has a valid observed_T; allow-set is always a subset of B3 confirms) and the allow predicate literally requires mconf(r) so no method-negative cohort is ever allowed. (b) Decision path in router_stage0.py (lines 17-25) uses only b3_state (method_confirm) and observed_T>=tau; condition c only buckets rows for per-kind evaluation, never entering the allow predicate; the sole 'oracle' token in the script is the docstring asserting no oracle field; the deployable rows.jsonl contains NO oracle_*/ground_truth/false_confirm/true_confirm/dgp field (these exist in the source forensic and are stripped), and method_confirm mirrors b3_state=='CONCEPT_CONFIRMED' for all 1800 rows (0 mismatch). (c) NULL_cov and NULL_cov_plus_label are separate columns and the eligibility screen checks each <=7 independently, never pooled/summed. (d) grid deterministic and regenerable; the smallest R1-eligible tau=0.0041848 is a genuine grid cutpoint (not hand-picked) yielding NULL_cov 7 (CP95u 0.0434), NULL_cov_plus_label 7 (0.0434), NULL_label 1, random 0, POS_concept 61 (75.3%), POS_concept_plus_cov 56 (71.8%) -- exact match to REPORTED. (e) allow counts non-increasing in tau across all 6 conditions (0 violations). No oracle-field leak, no condition-label in the decision, no pooling of the two covariate nulls, no hand-picked off-grid tau, and no allowance of method-negatives."
+  }
+ ],
+ "serious_issues": [],
+ "all_issues": [
+  {
+   "lens": "reaggregation",
+   "severity": "low",
+   "summary": "Reported threshold 'tau=0.00418' is a 5-sig-fig display truncation of the exact grid cutpoint 0.0041848. Recomputing with the literal 0.00418 yields NULL_cov allow=8/300 (CP95u 0.0476) instead of the reported 7/300; the reported CP95u ~0.043 and NULL_cov=7 are only reproducible at the exact 0.0041848 (which the committed frontier JSON stores correctly). Safety (both <0.05) and viability are unaffected."
+  },
+  {
+   "lens": "reaggregation",
+   "severity": "low",
+   "summary": "Provenance path divergence: the router script (router_stage0.py) reads from realeeg_feas/p3_forensic/p3_internal_forensic_merged.json (a per_cohort JSON), not the LENS-cited raw csc committed JSONL. Results are consistent (my independent JSONL re-derivation matches the committed frontier JSON exactly), but the deployed script's source file differs from the cited forensic source."
+  },
+  {
+   "lens": "guardrail",
+   "severity": "low",
+   "summary": "Provenance nit only (not a correctness issue): router_stage0.py reads a local copy /home/infres/yinwang/realeeg_feas/p3_forensic/p3_internal_forensic_merged.json (dict with per_cohort) rather than the committed .jsonl directly. Verified the two are identical on all 1800 cohorts (equal key set; 0 mismatches on observed_T/b3_state/condition), the .json sha256 sidecar matches, the manifest documents source as the committed jsonl, and recomputing the frontier straight from the committed .jsonl reproduces the saved frontier exactly."
+  }
+ ],
+ "_flags": {
+  "diagnostic_only": true,
+  "not_confirmatory": true,
+  "not_deployable": true,
+  "not_a_certificate": true
+ },
+ "clarification": "0 serious issues; guardrails MATCHES (monotone, no oracle/condition-label in score, kind-specific, deterministic grid). MINOR_DISCREPANCY = display rounding: exact eligible tau=0.0041848 (NULL_cov 7/300, CP95u 0.0434); rounded 0.00418 -> 8/300 (CP95u 0.0476); both <0.05. Provenance: script reads a byte-identical local copy; committed source = p3_internal_forensics_merged.jsonl."
+}
