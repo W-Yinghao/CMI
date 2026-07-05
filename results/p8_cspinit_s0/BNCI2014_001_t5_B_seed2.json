@@ -1,0 +1,270 @@
+{
+  "config": {
+    "dataset": "BNCI2014_001",
+    "backbone": "FBCSPLGGGraph",
+    "target_indices": [
+      5
+    ],
+    "source_val_early_stop": true,
+    "fusion_floor": 0.05,
+    "spatial_init": "source_csp",
+    "spatial_aux_weight": 0.0,
+    "configs": [
+      "erm:0"
+    ],
+    "epochs": 300,
+    "bs": 64,
+    "warmup": 40,
+    "n_inner": 2,
+    "device": "cuda",
+    "weight_decay": 0.0001,
+    "sampler": "classbal",
+    "prior": "empirical",
+    "prior_alpha": 1.0,
+    "beta": 0.0,
+    "balance": false,
+    "label_correct": false,
+    "dec_margin": null,
+    "decoder_null_perms": 0,
+    "decoder_null_quantile": 0.95,
+    "reweight_dual": false,
+    "align": "none",
+    "fmin": null,
+    "fmax": null,
+    "protocol": "loso",
+    "imbalance": 0.0,
+    "tmin": 0.5,
+    "tmax": 3.5,
+    "resample": 128,
+    "seed": 2,
+    "transduct": "off",
+    "transduct_shrink": 0.1,
+    "transduct_gate": 0.0,
+    "max_subjects": 0,
+    "out": "results/p8_cspinit_s0/BNCI2014_001_t5_B_seed2.json",
+    "requested_target_indices": [
+      5
+    ],
+    "actual_target_subjects": [
+      "6"
+    ]
+  },
+  "classes": [
+    "feet",
+    "left_hand",
+    "right_hand",
+    "tongue"
+  ],
+  "summary": {
+    "erm:0": {
+      "per_target_balanced_acc_mean": 0.2986111111111111,
+      "per_target_balanced_acc_std": 0.0,
+      "worst_target_balanced_acc": 0.2986111111111111,
+      "worst_target_acc": 0.2986111111111111,
+      "macro_f1": 0.28863088213954957,
+      "pooled_balanced_acc": 0.2986111111111111,
+      "pooled_macro_f1": 0.28863088213954957,
+      "subject_balanced_acc": 1.0,
+      "subject_macro_f1": 1.0,
+      "leakage_kl": 1.269795298576355,
+      "leakage_kl_rw": 1.2660220861434937,
+      "marginal_leakage_kl": 1.222684621810913,
+      "marginal_leakage_kl_rw": 1.2205294370651245,
+      "marginal_leakage_advantage": 0.6760665220535069,
+      "marginal_leakage_advantage_rw": 0.6775126536514823,
+      "decoder_cmi": 0.031249403953552246,
+      "decoder_cmi_rw": 0.030164629220962524,
+      "decoder_cmi_res": 0.021934300661087036,
+      "decoder_cmi_res_rw": 0.02064916491508484,
+      "decoder_js_res": 0.0032087289728224277,
+      "decoder_js_res_rw": 0.003209149232134223,
+      "decoder_valid_frac": 1.0,
+      "decoder_min_domain_classes": 4,
+      "decoder_single_class_frac": 0.0,
+      "leakage_advantage": 0.7013738250180767,
+      "leakage_advantage_rw": 0.6818510484454086,
+      "label_sep": 0.8214027476500362,
+      "inloop_reg": 0.0,
+      "inloop_dec": 0.0,
+      "inloop_dec_loss": 0.0,
+      "train_dec_margin": 0.02,
+      "stepA_dom_acc": 0.0,
+      "source_bacc_mean": 0.8130471530832312,
+      "worst_source_bacc": 0.8130471530832312,
+      "n_folds": 1,
+      "per_target": [
+        {
+          "target": "6",
+          "accuracy": 0.2986111111111111,
+          "balanced_acc": 0.2986111111111111,
+          "macro_f1": 0.28863088213954957,
+          "nll": 2.573585271835327,
+          "ece": 0.41458656633686697,
+          "leakage_kl": 1.269795298576355,
+          "cond_dom_acc": 0.8018799710773681,
+          "prior_dom_acc": 0.1005061460592914,
+          "leakage_advantage": 0.7013738250180767,
+          "leakage_kl_rw": 1.2660220861434937,
+          "leakage_advantage_rw": 0.6818510484454086,
+          "marginal_leakage_kl": 1.222684621810913,
+          "marginal_leakage_kl_rw": 1.2205294370651245,
+          "marginal_leakage_advantage": 0.6760665220535069,
+          "marginal_leakage_advantage_rw": 0.6775126536514823,
+          "decoder_cmi": 0.031249403953552246,
+          "decoder_cmi_rw": 0.030164629220962524,
+          "decoder_cmi_res": 0.021934300661087036,
+          "decoder_cmi_res_rw": 0.02064916491508484,
+          "decoder_js_res": 0.0032087289728224277,
+          "decoder_js_res_rw": 0.003209149232134223,
+          "decoder_valid": true,
+          "decoder_n_domains": 8,
+          "decoder_min_domain_classes": 4,
+          "decoder_mean_domain_classes": 4.0,
+          "decoder_single_class_frac": 0.0,
+          "decoder_domain_class_spans": [
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "decoder_domain_counts": [
+            576,
+            576,
+            576,
+            576,
+            576,
+            576,
+            576,
+            576
+          ],
+          "label_sep": 0.8214027476500362,
+          "inloop_reg": 0.0,
+          "inloop_dec": 0.0,
+          "inloop_dec_loss": 0.0,
+          "train_dec_margin": 0.02,
+          "train_sampler": "classbal",
+          "stepA_dom_acc": 0.0,
+          "method_config": "erm:0",
+          "backbone": "FBCSPLGGGraph",
+          "git_sha": "8128cb0005d3",
+          "ch_names_source": "preset:BNCI2014_001",
+          "grouping_scheme": "central_strip_v1",
+          "channel_groups": {
+            "FC_left": [
+              "FC3",
+              "FC1"
+            ],
+            "FC_mid": [
+              "Fz",
+              "FCz"
+            ],
+            "FC_right": [
+              "FC2",
+              "FC4"
+            ],
+            "C_left": [
+              "C5",
+              "C3",
+              "C1"
+            ],
+            "C_mid": [
+              "Cz"
+            ],
+            "C_right": [
+              "C2",
+              "C4",
+              "C6"
+            ],
+            "CP_left": [
+              "CP3",
+              "CP1",
+              "P1"
+            ],
+            "CP_mid": [
+              "CPz",
+              "Pz",
+              "POz"
+            ],
+            "CP_right": [
+              "CP2",
+              "CP4",
+              "P2"
+            ]
+          },
+          "gate_graph_mean": 0.07945182919502258,
+          "gate_graph_std": 0.07116250693798065,
+          "gate_temporal_mean": 0.3970280885696411,
+          "gate_temporal_std": 0.19633682072162628,
+          "gate_spatial_mean": 0.5235201120376587,
+          "gate_spatial_std": 0.19919519126415253,
+          "gate_entropy_mean": 0.7989392280578613,
+          "source_bacc": 0.8130471530832312,
+          "ablate_zero_graph_target_bacc": 0.2899305555555556,
+          "ablate_zero_temporal_target_bacc": 0.3125,
+          "ablate_zero_spatial_target_bacc": 0.23958333333333331,
+          "ablate_permute_nodes_target_bacc": 0.3038194444444444,
+          "source_val_subjects": [
+            6
+          ],
+          "best_epoch": 52,
+          "best_source_val_bacc": 0.6354166666666666,
+          "final_val_source_bacc": 0.5104166666666666,
+          "final_train_source_bacc": 0.9982638888888888,
+          "spatial_init": "source_csp",
+          "spatial_aux_weight": 0.0,
+          "csp_meta": {
+            "spatial_init": "source_csp",
+            "csp_fit_subjects": [
+              0,
+              1,
+              2,
+              3,
+              4,
+              5,
+              7
+            ],
+            "csp_excluded_target": true,
+            "csp_excluded_source_val": [
+              6
+            ],
+            "csp_n_filters_used": 4,
+            "csp_n_filters_pool": 16,
+            "csp_rank": 16,
+            "csp_cov_shrinkage": 0.1,
+            "csp_m_per_contrast": 4,
+            "csp_classes_present": [
+              0,
+              1,
+              2,
+              3
+            ]
+          },
+          "spatial_aux_target_bacc": 0.2309027777777778
+        }
+      ],
+      "ablate_zero_graph_target_bacc_mean": 0.2899305555555556,
+      "ablate_zero_temporal_target_bacc_mean": 0.3125,
+      "ablate_zero_spatial_target_bacc_mean": 0.23958333333333331,
+      "ablate_permute_nodes_target_bacc_mean": 0.3038194444444444,
+      "decoder_valid_n": 1,
+      "decoder_cmi_valid_mean": 0.031249403953552246,
+      "decoder_cmi_rw_valid_mean": 0.030164629220962524,
+      "decoder_cmi_res_valid_mean": 0.021934300661087036,
+      "decoder_cmi_res_rw_valid_mean": 0.02064916491508484,
+      "decoder_js_res_valid_mean": 0.0032087289728224277,
+      "decoder_js_res_rw_valid_mean": 0.003209149232134223,
+      "decoder_cmi_res_null_q_valid_mean": null,
+      "decoder_cmi_res_excess_valid_mean": null,
+      "decoder_cmi_res_rw_null_q_valid_mean": null,
+      "decoder_cmi_res_rw_excess_valid_mean": null,
+      "decoder_js_res_null_q_valid_mean": null,
+      "decoder_js_res_excess_valid_mean": null,
+      "decoder_js_res_rw_null_q_valid_mean": null,
+      "decoder_js_res_rw_excess_valid_mean": null
+    }
+  }
+}

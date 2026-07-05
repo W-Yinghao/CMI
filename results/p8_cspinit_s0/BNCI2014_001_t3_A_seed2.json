@@ -1,0 +1,246 @@
+{
+  "config": {
+    "dataset": "BNCI2014_001",
+    "backbone": "FBCSPLGGGraph",
+    "target_indices": [
+      3
+    ],
+    "source_val_early_stop": true,
+    "fusion_floor": 0.05,
+    "spatial_init": "random",
+    "spatial_aux_weight": 0.0,
+    "configs": [
+      "erm:0"
+    ],
+    "epochs": 300,
+    "bs": 64,
+    "warmup": 40,
+    "n_inner": 2,
+    "device": "cuda",
+    "weight_decay": 0.0001,
+    "sampler": "classbal",
+    "prior": "empirical",
+    "prior_alpha": 1.0,
+    "beta": 0.0,
+    "balance": false,
+    "label_correct": false,
+    "dec_margin": null,
+    "decoder_null_perms": 0,
+    "decoder_null_quantile": 0.95,
+    "reweight_dual": false,
+    "align": "none",
+    "fmin": null,
+    "fmax": null,
+    "protocol": "loso",
+    "imbalance": 0.0,
+    "tmin": 0.5,
+    "tmax": 3.5,
+    "resample": 128,
+    "seed": 2,
+    "transduct": "off",
+    "transduct_shrink": 0.1,
+    "transduct_gate": 0.0,
+    "max_subjects": 0,
+    "out": "results/p8_cspinit_s0/BNCI2014_001_t3_A_seed2.json",
+    "requested_target_indices": [
+      3
+    ],
+    "actual_target_subjects": [
+      "4"
+    ]
+  },
+  "classes": [
+    "feet",
+    "left_hand",
+    "right_hand",
+    "tongue"
+  ],
+  "summary": {
+    "erm:0": {
+      "per_target_balanced_acc_mean": 0.2986111111111111,
+      "per_target_balanced_acc_std": 0.0,
+      "worst_target_balanced_acc": 0.2986111111111111,
+      "worst_target_acc": 0.2986111111111111,
+      "macro_f1": 0.274025974025974,
+      "pooled_balanced_acc": 0.2986111111111111,
+      "pooled_macro_f1": 0.274025974025974,
+      "subject_balanced_acc": 0.0,
+      "subject_macro_f1": 0.0,
+      "leakage_kl": 1.028529405593872,
+      "leakage_kl_rw": 1.0245305299758911,
+      "marginal_leakage_kl": 0.9975266456604004,
+      "marginal_leakage_kl_rw": 0.9976559281349182,
+      "marginal_leakage_advantage": 0.5965292841648591,
+      "marginal_leakage_advantage_rw": 0.5900216919739697,
+      "decoder_cmi": 0.024743616580963135,
+      "decoder_cmi_rw": 0.025960981845855713,
+      "decoder_cmi_res": 0.014870524406433105,
+      "decoder_cmi_res_rw": 0.015017390251159668,
+      "decoder_js_res": 0.002971457550302148,
+      "decoder_js_res_rw": 0.0029744384810328484,
+      "decoder_valid_frac": 1.0,
+      "decoder_min_domain_classes": 4,
+      "decoder_single_class_frac": 0.0,
+      "leakage_advantage": 0.6044830079537238,
+      "leakage_advantage_rw": 0.5871294287780189,
+      "label_sep": 0.7020968908170644,
+      "inloop_reg": 0.0,
+      "inloop_dec": 0.0,
+      "inloop_dec_loss": 0.0,
+      "train_dec_margin": 0.02,
+      "stepA_dom_acc": 0.0,
+      "source_bacc_mean": 0.6774435076813049,
+      "worst_source_bacc": 0.6774435076813049,
+      "n_folds": 1,
+      "per_target": [
+        {
+          "target": "4",
+          "accuracy": 0.2986111111111111,
+          "balanced_acc": 0.2986111111111111,
+          "macro_f1": 0.274025974025974,
+          "nll": 1.8400050401687622,
+          "ece": 0.31844636399505866,
+          "leakage_kl": 1.028529405593872,
+          "cond_dom_acc": 0.7093275488069414,
+          "prior_dom_acc": 0.10484454085321765,
+          "leakage_advantage": 0.6044830079537238,
+          "leakage_kl_rw": 1.0245305299758911,
+          "leakage_advantage_rw": 0.5871294287780189,
+          "marginal_leakage_kl": 0.9975266456604004,
+          "marginal_leakage_kl_rw": 0.9976559281349182,
+          "marginal_leakage_advantage": 0.5965292841648591,
+          "marginal_leakage_advantage_rw": 0.5900216919739697,
+          "decoder_cmi": 0.024743616580963135,
+          "decoder_cmi_rw": 0.025960981845855713,
+          "decoder_cmi_res": 0.014870524406433105,
+          "decoder_cmi_res_rw": 0.015017390251159668,
+          "decoder_js_res": 0.002971457550302148,
+          "decoder_js_res_rw": 0.0029744384810328484,
+          "decoder_valid": true,
+          "decoder_n_domains": 8,
+          "decoder_min_domain_classes": 4,
+          "decoder_mean_domain_classes": 4.0,
+          "decoder_single_class_frac": 0.0,
+          "decoder_domain_class_spans": [
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4,
+            4
+          ],
+          "decoder_domain_counts": [
+            576,
+            576,
+            576,
+            576,
+            576,
+            576,
+            576,
+            576
+          ],
+          "label_sep": 0.7020968908170644,
+          "inloop_reg": 0.0,
+          "inloop_dec": 0.0,
+          "inloop_dec_loss": 0.0,
+          "train_dec_margin": 0.02,
+          "train_sampler": "classbal",
+          "stepA_dom_acc": 0.0,
+          "method_config": "erm:0",
+          "backbone": "FBCSPLGGGraph",
+          "git_sha": "8128cb0005d3",
+          "ch_names_source": "preset:BNCI2014_001",
+          "grouping_scheme": "central_strip_v1",
+          "channel_groups": {
+            "FC_left": [
+              "FC3",
+              "FC1"
+            ],
+            "FC_mid": [
+              "Fz",
+              "FCz"
+            ],
+            "FC_right": [
+              "FC2",
+              "FC4"
+            ],
+            "C_left": [
+              "C5",
+              "C3",
+              "C1"
+            ],
+            "C_mid": [
+              "Cz"
+            ],
+            "C_right": [
+              "C2",
+              "C4",
+              "C6"
+            ],
+            "CP_left": [
+              "CP3",
+              "CP1",
+              "P1"
+            ],
+            "CP_mid": [
+              "CPz",
+              "Pz",
+              "POz"
+            ],
+            "CP_right": [
+              "CP2",
+              "CP4",
+              "P2"
+            ]
+          },
+          "gate_graph_mean": 0.4705347418785095,
+          "gate_graph_std": 0.22178389132022858,
+          "gate_temporal_mean": 0.19131332635879517,
+          "gate_temporal_std": 0.13144059479236603,
+          "gate_spatial_mean": 0.3381519615650177,
+          "gate_spatial_std": 0.15824168920516968,
+          "gate_entropy_mean": 0.9040768146514893,
+          "source_bacc": 0.6774435076813049,
+          "ablate_zero_graph_target_bacc": 0.3055555555555556,
+          "ablate_zero_temporal_target_bacc": 0.3072916666666667,
+          "ablate_zero_spatial_target_bacc": 0.28125,
+          "ablate_permute_nodes_target_bacc": 0.3003472222222222,
+          "source_val_subjects": [
+            6
+          ],
+          "best_epoch": 29,
+          "best_source_val_bacc": 0.5798611111111112,
+          "final_val_source_bacc": 0.5190972222222222,
+          "final_train_source_bacc": 0.9977678571428572,
+          "spatial_init": "random",
+          "spatial_aux_weight": 0.0,
+          "csp_meta": {
+            "spatial_init": "random"
+          },
+          "spatial_aux_target_bacc": 0.2708333333333333
+        }
+      ],
+      "ablate_zero_graph_target_bacc_mean": 0.3055555555555556,
+      "ablate_zero_temporal_target_bacc_mean": 0.3072916666666667,
+      "ablate_zero_spatial_target_bacc_mean": 0.28125,
+      "ablate_permute_nodes_target_bacc_mean": 0.3003472222222222,
+      "decoder_valid_n": 1,
+      "decoder_cmi_valid_mean": 0.024743616580963135,
+      "decoder_cmi_rw_valid_mean": 0.025960981845855713,
+      "decoder_cmi_res_valid_mean": 0.014870524406433105,
+      "decoder_cmi_res_rw_valid_mean": 0.015017390251159668,
+      "decoder_js_res_valid_mean": 0.002971457550302148,
+      "decoder_js_res_rw_valid_mean": 0.0029744384810328484,
+      "decoder_cmi_res_null_q_valid_mean": null,
+      "decoder_cmi_res_excess_valid_mean": null,
+      "decoder_cmi_res_rw_null_q_valid_mean": null,
+      "decoder_cmi_res_rw_excess_valid_mean": null,
+      "decoder_js_res_null_q_valid_mean": null,
+      "decoder_js_res_excess_valid_mean": null,
+      "decoder_js_res_rw_null_q_valid_mean": null,
+      "decoder_js_res_rw_excess_valid_mean": null
+    }
+  }
+}
