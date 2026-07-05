@@ -1,0 +1,8 @@
+quantity,value
+case_label,C3_calibration_not_discrimination
+source_audit_oracle_k2,stop_no_reproducible_gain
+target_oracle_bacc_k2,reproducible_gain
+target_oracle_joint_k2,stop_no_reproducible_gain
+target_oracle_rescues_bacc,True
+target_oracle_rescues_joint,False
+source_oracle_rescues,False
