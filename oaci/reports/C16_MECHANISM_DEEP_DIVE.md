@@ -11,4 +11,7 @@
 - SRC anti-transfer is MEMORIZATION: 6/6 cells flagged, mean index +1.965.
 
 ## Synthesis
-> The measurement→control gap is not 'OACI is broken': the trajectory contains target-accuracy-good checkpoints that **source signal cannot observe**, and accuracy trades off against calibration so no single checkpoint jointly wins both. SRC's anti-transfer is source **memorization**. See C16_TARGET_ORACLE_CEILING.md, C16_HARM_DECOMPOSITION.md.
+> The measurement→control gap is not 'OACI is broken': the trajectory contains target-accuracy-good checkpoints that **source signal cannot observe**, and accuracy trades off against calibration so no single checkpoint jointly wins both. SRC's anti-transfer is source **memorization**. See C16_TARGET_ORACLE_CEILING.md, C16_HARM_DECOMPOSITION.md, C16_BATTERY_DISCRIMINATIVE_VALIDITY.md.
+
+## C16-C — Battery discriminative validity
+- positive controls certified: 1/1; negative controls falsified: 2/2; **discriminative_validity = True**

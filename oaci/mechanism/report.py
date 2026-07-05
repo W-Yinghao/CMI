@@ -152,6 +152,40 @@ def build_harm(loso_root, c12_json):
     return build(loso_root, c12_path=c12_json)
 
 
+# ---- C16-C discriminative validity ----
+def build_dv():
+    from .discriminative_controls import run_controls
+    return run_controls()
+
+
+def write_dv_tables(dv, outdir) -> list:
+    reg = dv["regimes"]
+    _wcsv(os.path.join(outdir, "synthetic_regime_catalog.csv"), ["regime", "rho", "expected"],
+          [[n, r["rho"], r["expected"]] for n, r in reg.items()])
+    _wcsv(os.path.join(outdir, "positive_control_results.csv"), ["regime", "battery_status", "correct"],
+          [[n, r["battery_status"], r["correct"]] for n, r in reg.items() if r["expected"] == "control_hypothesis_supported"])
+    _wcsv(os.path.join(outdir, "negative_control_results.csv"), ["regime", "battery_status", "reasons", "correct"],
+          [[n, r["battery_status"], r["falsification_reasons"], r["correct"]] for n, r in reg.items() if r["expected"] == "falsified"])
+    _wcsv(os.path.join(outdir, "battery_confusion_matrix.csv"), ["true", "battery_predicted", "count"],
+          [[t, p, c] for t, row in dv["confusion_matrix"].items() for p, c in row.items()])
+    _wcsv(os.path.join(outdir, "competence_region_summary.csv"), ["quantity", "value"],
+          [["positive_pass", f"{dv['positive_pass']}/{dv['positive_total']}"],
+           ["negative_pass", f"{dv['negative_pass']}/{dv['negative_total']}"],
+           ["discriminative_validity", dv["discriminative_validity"]]])
+    return [1] * 5
+
+
+def render_dv_md(dv) -> str:
+    L = ["# C16-C — Battery discriminative validity (synthetic controls)", "",
+         f"- **discriminative_validity: `{dv['discriminative_validity']}`** — positive certified "
+         f"{dv['positive_pass']}/{dv['positive_total']}, negative falsified {dv['negative_pass']}/{dv['negative_total']}", "",
+         "| regime | rho | expected | battery | correct |", "|---|---:|---|---|:--:|"]
+    for n, r in dv["regimes"].items():
+        L.append(f"| {n} | {r['rho']:+.1f} | {r['expected']} | {r['battery_status']} | {r['correct']} |")
+    L += ["", f"> {dv['note']}"]
+    return "\n".join(L)
+
+
 def render_mechanism_md(tor, harm, dv=None) -> str:
     L = ["# C16 — Mechanism & discriminative-validity deep dive (combined)", "",
          "> Explains the measurement→control decoupling and source→target anti-transfer WITHOUT a new control "
@@ -204,14 +238,20 @@ def main(argv=None) -> int:
     write_harm_tables(harm, args.tables_dir)
     with open(os.path.join(args.reports_dir, "C16_HARM_DECOMPOSITION.md"), "w") as f:
         f.write(render_harm_md(harm))
+    # C16-C
+    dv = build_dv()
+    write_dv_tables(dv, args.tables_dir)
+    with open(os.path.join(args.reports_dir, "C16_BATTERY_DISCRIMINATIVE_VALIDITY.md"), "w") as f:
+        f.write(render_dv_md(dv))
     # combined
-    combined = {"target_oracle": tor, "harm_decomposition": harm}
+    combined = {"target_oracle": tor, "harm_decomposition": harm, "discriminative_validity": dv}
     with open(os.path.join(args.reports_dir, "C16_MECHANISM_DEEP_DIVE.json"), "wb") as f:
         f.write(canonical_json_bytes(combined))
     with open(os.path.join(args.reports_dir, "C16_MECHANISM_DEEP_DIVE.md"), "w") as f:
-        f.write(render_mechanism_md(tor, harm))
+        f.write(render_mechanism_md(tor, harm, dv))
     print(f"C16-A case={tor['case_label']}; C16-B verdict={harm['selected_checkpoint_verdict']}; "
-          f"SRC memo flagged={harm['src_source_memorization']['n_flagged'] if harm.get('src_source_memorization') else 0}")
+          f"SRC memo flagged={harm['src_source_memorization']['n_flagged'] if harm.get('src_source_memorization') else 0}; "
+          f"C16-C discriminative_validity={dv['discriminative_validity']}")
     return 0
 
 

@@ -1,0 +1,3 @@
+regime,battery_status,reasons,correct
+decoupled,falsified,"['falsified_by_no_endpoint_transfer', 'falsified_by_oracle_failure']",True
+anti_transfer,falsified,"['falsified_by_no_endpoint_transfer', 'falsified_by_oracle_failure', 'falsified_by_source_target_antitransfer']",True
