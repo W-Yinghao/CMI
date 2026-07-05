@@ -632,6 +632,23 @@ def has_torch():
     return importlib.util.find_spec("torch") is not None
 
 
+def stage2b_rank_deficient_batch(n=32, D=256, rank=5, seed=0, noise=1e-6):
+    """A rank-deficient [n, D] batch (n windows spanned by `rank` latent directions + tiny noise) — the regime that made the
+    frozen CORAL target covariance near-singular / overflow-prone. rank << min(n, D)."""
+    import numpy as np
+    r = np.random.RandomState(seed)
+    return (r.randn(n, rank) @ r.randn(rank, D)) + noise * r.randn(n, D)
+
+
+def stage2b_scaled_source_state(D=64, scale=1000.0, seed=0):
+    """Synthetic source_state with a LARGE-eigenvalue pooled covariance (to force the raw whiten-color operator gain above the
+    SVD cap so the cap is demonstrably active)."""
+    import numpy as np
+    r = np.random.RandomState(seed)
+    return {"means": (r.randn(2, D) * 0.5), "cov": scale * (np.eye(D) + 0.02), "priors": np.array([0.5, 0.5]),
+            "classes": np.array([0, 1])}
+
+
 def stage2b_holm_per(evaluable_p=0.001, nonevaluable_ids=()):
     """Synthetic `per` map for Holm-family tests: {(candidate_id, disease): {"cal_raw": {H1,H2,H3}} or None}. Candidate ids in
     `nonevaluable_ids` get None for BOTH diseases (non-evaluable cells)."""

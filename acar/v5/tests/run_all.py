@@ -202,6 +202,17 @@ MODULES = (
     "test_stage2b_v2_replay_nonfinite_feature_vector_fails",
     "test_stage2b_v2_replay_does_not_enter_routing_or_thresholds",
     "test_stage2b_real_runner_still_fails_without_stage2b_auth",
+    # ---- Stage-2B2: stable_matched_coral_v1 numeric amendment (bounded, rank-aware CORAL; V5 Stage-2-local; no pmct) ----
+    "test_stage2b_stable_coral_rank_deficient_32x256_finite",
+    "test_stage2b_stable_coral_operator_norm_capped",
+    "test_stage2b_stable_coral_condition_number_capped",
+    "test_stage2b_stable_coral_no_pmct_unsafe_call",
+    "test_stage2b_stable_coral_no_silent_identity_fallback",
+    "test_stage2b_stable_coral_label_free",
+    "test_stage2b_stable_coral_preserves_shape_and_probability_contract",
+    "test_stage2b_stable_coral_feature_finiteness_contract",
+    "test_stage2b_stable_coral_deterministic_repeated_calls",
+    "test_stage2b_real_runner_still_requires_stage2b_auth",
 )
 
 
