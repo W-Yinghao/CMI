@@ -53,7 +53,7 @@ Frozen tables under results/cigl_r123/final/. This is the evidence freeze, NOT a
 - `head_replay_check.csv` (315) — per fold max_abs_diff, max_abs_logit, replay_ok_abs / replay_ok_rel /
   primary_replay_ok.
 - `bootstrap_ci.csv` (24) — the CIs above.
-- `r1_hardened_nperm1000.csv` — **PENDING** (CPU job in progress; see below).
+- `r1_hardened_nperm1000.csv` (126) — **DONE** (n_perm=1000; see below).
 - `MANIFEST.yaml`, `data_access_note.md`.
 
 ## Head-replay (honest, corrects the earlier seed0 "every fold" wording)
@@ -65,12 +65,14 @@ Frozen tables under results/cigl_r123/final/. This is the evidence freeze, NOT a
   for all methods). This is a measurement-instrument tolerance choice, recomputed from stored fields (no rerun);
   it does not touch the primary ERM-vs-CIGL result.
 
-## R1 hardened (n_perm=1000) — status
-Confirmatory only. Two CPU attempts (883209, 883257) at n_perm=1000 are **impractically slow** on the contended
-cluster (~40–60 min/fold; 0/63 completed in ~1 h each). **Significance is already established:** in-run n_perm=50
-gives p=0.0196 (0/50 exceed) on **all** folds (BH-FDR significant); a 1-fold n_perm=200 spot-check gives p=0.005
-(0/200). n_perm=1000 would only tighten p→~0.001 (report as `1/1001≈0.000999`, never 0). `r1_hardened_nperm1000.csv`
-will be appended when a run completes (or downshifted to n_perm=200 on PM confirmation).
+## R1 hardened (n_perm=1000) — DONE (confirmatory)
+`r1_hardened_nperm1000.csv` (jobs 883275/883276/883277, chunked by method to avoid worker oversubscription;
+recomputed from the SEED0 saved features, no retrain). **The n_perm=1000 hardened audit confirms the seed0 /
+multi-seed leakage significance pattern:** for **all 126 rows** (ERM, CIGL, CDAN × 21 folds × {graph, node}),
+**num_exceed = 0 / 1000** → `exact_p = 1/1001 ≈ 0.000999` and **BH-FDR-significant 126/126** (max q = 0.000999).
+Even CIGL's *reduced* leakage (2a graph 0.741, 2015 graph 0.314; node 0.319 / 0.255) remains FDR-significant —
+CIGL reduces but **does not eliminate** measured leakage (frozen point #4). n_perm=1000 **does not change the
+scientific conclusion**; it tightens the significance evidence. (Recorded as `1/1001`, never `p=0`.)
 
 ## Data access
 See `data_access_note.md`: BNCI2015_001 datalake `.mat` are owner-only; loaded read-only via a world-readable

@@ -9,7 +9,7 @@ backbone: dgcnn_forward_graph_adapter
 cigl_lambda: {graph: 0.010, node: 0.010}
 gate_jobs: {seed0: [883118, 883120], seed1: [883206, 883207], seed2: [883203, 883204]}
 n_perm_in_run: 50
-r1_hardened_n_perm: 1000
+r1_hardened: {n_perm: 1000, jobs: [883275, 883276, 883277], methods: [erm, cigl_graph_node, cdan], all_folds_FDR_significant: true, num_exceed_max: 0, exact_p: 0.000999000999000999}
 firewall: strict_source_only; target_eval_only; firewall_passed_all_folds: true
 head_replay: {erm: absolute_1e-5, cigl: absolute_1e-5, adversarial_2015: relative_1e-4_recovered}
 files:
@@ -17,3 +17,4 @@ files:
   head_replay_check.csv: {rows: 315}
   r3_reliance.csv: {rows: 1512}
   bootstrap_ci.csv: {rows: 24}
+  r1_hardened_nperm1000.csv: {rows: 126, fdr_sig: 126}
