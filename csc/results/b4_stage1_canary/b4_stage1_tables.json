@@ -1,0 +1,79 @@
+{
+ "_flags": {
+  "diagnostic_only": true,
+  "not_confirmatory": true,
+  "not_deployable": true,
+  "no_method_change": true,
+  "no_B4_promotion": true
+ },
+ "merged_sha256": "26685ac9f4f01f49168e9fe8b50069e5db4a0e6d7274e90e5beb26bf83262cf2",
+ "hard_safety_screen": {
+  "NULL_cov:m+/o-": {
+   "n": 20,
+   "method": 20,
+   "b4a": 17,
+   "b4b": 16,
+   "oracle_archived": 0,
+   "cap": 5
+  },
+  "NULL_cov:m-/o-": {
+   "n": 20,
+   "method": 0,
+   "b4a": 1,
+   "b4b": 1,
+   "oracle_archived": 0,
+   "cap": 1
+  },
+  "NULL_cov_plus_label:m+/o-": {
+   "n": 20,
+   "method": 20,
+   "b4a": 14,
+   "b4b": 14,
+   "oracle_archived": 0,
+   "cap": 5
+  },
+  "NULL_cov_plus_label:m-/o-": {
+   "n": 20,
+   "method": 0,
+   "b4a": 1,
+   "b4b": 0,
+   "oracle_archived": 0,
+   "cap": 1
+  }
+ },
+ "pos_usefulness": {
+  "POS_concept": {
+   "n": 20,
+   "method": 20,
+   "b4a": 20,
+   "b4b": 20,
+   "oracle_archived": 20
+  },
+  "POS_concept_plus_cov": {
+   "n": 20,
+   "method": 20,
+   "b4a": 19,
+   "b4b": 19,
+   "oracle_archived": 20
+  }
+ },
+ "null_dispersion": {
+  "convention": "ratio-of-medians (consistent across arms)",
+  "method_null_sd_median": 0.000408,
+  "b4a_null_sd_median": 0.000461,
+  "b4b_null_sd_median": 0.000475,
+  "oracle_null_sd_median": 0.000677,
+  "b4a_over_method": 1.128,
+  "b4b_over_method": 1.162,
+  "oracle_over_method": 1.657,
+  "gap_fraction_closed_b4a": 0.195,
+  "gap_fraction_closed_b4b": 0.246
+ },
+ "eligibility": {
+  "b4a_hard_safety_pass": false,
+  "b4b_hard_safety_pass": false,
+  "verdict": "Both B4a and B4b FAIL the hard-safety screen (NULL m+/o- confirms >> cap 5). Neither eligible for Stage 2.",
+  "stage1_question": "Can uncertainty-aware estimation of the CURRENT h0 null approximate the oracle null dispersion?",
+  "stage1_answer": "NO -- bagging/nesting captures h0 estimation VARIANCE (~13-16% widening; ~20-25% of the gap) but not the h0 misspecification BIAS the oracle exposes (~66% wider). The fitted-logistic-h0 <-> true-generator gap is bias-dominated."
+ }
+}

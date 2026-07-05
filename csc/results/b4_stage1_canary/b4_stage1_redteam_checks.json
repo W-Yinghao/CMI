@@ -1,0 +1,41 @@
+{
+ "all_match": false,
+ "per_lens": [
+  {
+   "lens": "reaggregation",
+   "verdict": "MINOR_DISCREPANCY",
+   "summary": "Recomputed confirm from raw fields (fixed_margin_p<=0.025 AND studentized_p<=0.025 AND lcb_budget>0 AND size_ok) over all 206 cohorts x 3 arms matches the stored *_confirm exactly (0 mismatches); lcb_budget/size_ok are per-cohort (shared across arms). Hard-safety NULL m+/o- (n=20 each): NULL_cov method 20 / B4a 17 / B4b 16; NULL_cov_plus_label method 20 / B4a 14 / B4b 14 -- all exactly as reported; both exceed cap 5, so B4a and B4b FAIL. NULL clean m-/o- (n=20 each): NULL_cov method 0 / B4a 1 / B4b 1; NULL_cov_plus_label method 0 / B4a 1 / B4b 0 -- matches reported '1/20 & 1/20' (B4a) and '1/20 & 0/20' (B4b); all <=1 so the clean cap is met by every arm. POS retention m+/o+: POS_concept 20/20/20; POS_concept_plus_cov 20/19/19 -- both match. null_sd medians over all 206 rows: method 0.0004085, B4a 0.0004610 (1.128x), B4b 0.0004746 (1.162x), oracle 0.0006768; all median values match reported (0.000408/0.000461/0.000475/0.000677). NULL conditions are ground_truth_noconcept=True (44 NULL_cov, 42 NULL_cov_plus_label) and POS are False, so the m+/o- NULL confirms are genuine false positives; all rows have fidelity_dT==0 and fidelity_ok (observed T unchanged, null-only). Verdict: B4a and B4b both FAIL the hard-safety caps, binding on the m+/o- NULL cap (>=14 vs cap 5); method's 20/20 is the known-miscalibrated baseline. B4a/B4b null inflation (1.13x/1.16x) falls well short of the oracle's ~1.66x."
+  },
+  {
+   "lens": "invariant",
+   "verdict": "MATCHES",
+   "summary": "Verified all lens checks from /home/infres/yinwang/realeeg_feas/b4_stage1/b4_stage1_merged.json (sha256 OK; 8 shard sha256 OK; shard-vs-merged 0 field mismatches across all 206 tasks). (a) 206/206 rows fidelity_ok=true and fidelity_dT==0.0; 0 worker errors, 0 method_invalid -> observed T provably unaltered by B4 arms. (b) 206 rows, 206 unique task_ids, set-equal to manifest's 206 cohorts; strata {m+/o+, m+/o-, m-/o-}. (c) all 6 arm p-fields in [1/201,1]; floor exactly 1/201=0.004975, max<=1.0. (d) b4a null_sd>=method 162/206 (79%), b4b 163/206 (79%); b4a<oracle 179/206 (87%), b4b<oracle 176/206 (85%). Median null_sd: method 0.000408, b4a 0.000461, b4b 0.000475, oracle 0.000677 -> bagging widens but under-widens vs oracle; all null_sd finite, n_inv=0 every row. (e) Worker realeeg_b4_stage1.py: observed T/studentized/folds/margins computed once in _observed(), stored in o, shared by both _bagged_null(o,...) calls; nulls compare against stored o[T]/o[Z_obs], never recompute observed; hard-stop abs(o[T]-mT)>1e-6 -> fidelity_ok=False guards it. Only the h0 log-prob generator differs (method=full-audit h0; b4a/b4b=bagged/nested h0 on subject-cluster bootstraps of observed queried data), feeding identical fixed-condition-margin sampler and identical _T_cv. Oracle values read from archived manifest spec (spec.get(archived_oracle_*)); no oracle/true-DGP generator invoked in any arm; ground_truth_noconcept only recorded. No overlap gate/richer h1/feature/statistic change. All REPORTED strata-confirm counts reproduce exactly (NULL_cov m+/o- 20/17/16; NULL_cov_plus_label m+/o- 20/14/14; NULL clean m-/o- b4a 1&1, b4b 1&0; POS_concept m+/o+ 20/20/20; POS_cov m+/o+ 20/19/19) and null_sd medians match."
+  }
+ ],
+ "serious_issues": [],
+ "all_issues": [
+  {
+   "lens": "reaggregation",
+   "severity": "low",
+   "summary": "Oracle null_sd inflation ratio reported as 1.64x; recomputed value is 1.657x full-precision (1.659x from rounded medians), i.e. approx 1.66x. The oracle median value itself (0.000677) matches; only the derived over-method ratio is slightly understated. Does not affect any pass/fail verdict."
+  },
+  {
+   "lens": "invariant",
+   "severity": "low",
+   "summary": "Reported oracle inflation '1.64x' uses median-of-per-row oracle/method ratios (recomputed 1.6426) while the b4a/b4b '1.13x/1.16x' use ratio-of-medians (per-row medians would be 1.08x/1.09x); mixed convention, but the underlying median null_sd values (0.000408/0.000461/0.000475/0.000677) all reproduce exactly and the under-widening conclusion holds under either convention."
+  },
+  {
+   "lens": "invariant",
+   "severity": "low",
+   "summary": "b4a and b4b share the same o['prep'] fold object; if PC._T_cv mutated prep in place, b4a's null replicates could influence b4b's null. This is purely a null-generator concern (both are null arms) and CANNOT alter the observed statistic, which is a stored scalar o['T'] never recomputed after _observed(); fidelity_dT==0 on all 206 rows confirms observed invariance regardless."
+  }
+ ],
+ "_flags": {
+  "diagnostic_only": true,
+  "not_confirmatory": true,
+  "not_deployable": true,
+  "no_method_change": true,
+  "no_B4_promotion": true
+ },
+ "note": "MINOR_DISCREPANCY was a ratio-convention cosmetic (oracle inflation median-of-ratios 1.66 vs ratio-of-medians 1.66; b4a/b4b ratio-of-medians 1.13/1.16). 0 serious; all confirm counts + null_sd medians reproduce exactly; null-only invariant verified (fidelity_dT=0, observed T unaltered, no oracle/DGP leak in b4a/b4b). Ratios now reported consistently as ratio-of-medians in b4_stage1_tables.json."
+}
