@@ -166,7 +166,8 @@ def main():
     ap.add_argument("--allow-dirty", action="store_true")
     args = ap.parse_args()
     os.makedirs(OUT_DIR, exist_ok=True); os.makedirs(DET_ROOT, exist_ok=True)
-    commit = require_clean_git(allow_dirty=args.allow_dirty, ignore_prefixes=[OUT_DIR, DET_ROOT, args.cache])
+    commit = require_clean_git(allow_dirty=args.allow_dirty,
+                               ignore_prefixes=["results/h2cmi", OUT_DIR, DET_ROOT, args.cache])
     code_sig = source_code_signature()
     seeds = [int(s) for s in args.seeds.split(",") if s != ""]
     gpu = _gpu_manifest()
