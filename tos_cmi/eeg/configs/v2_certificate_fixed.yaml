@@ -1,44 +1,55 @@
-# V2 -- source-only acceptance CEILING / non-identifiability demo (reframed from "acceptance power").
-# Gate thresholds are FROZEN (identical to Track B / Phase 2); only world-generation params may be tuned in smoke.
-goal: source_only_acceptance_ceiling      # was: acceptance_power (unconstructible -- see V2_ACCEPTANCE_CEILING_FINDING.md)
+# V2 -- source-only acceptance CEILING / non-identifiability demo.
+# Reframed from "acceptance power" (unconstructible; see V2_ACCEPTANCE_CEILING_FINDING.md).
+# Gate thresholds are FROZEN (identical to Track B / Phase 2); only world-generation params tune in smoke.
 
-datasets: [Lee2019_MI, Cho2017]
-backbones: [EEGNet, TSMNet]
+goal: source_only_acceptance_ceiling
+
+datasets:
+  - Lee2019_MI
+  - Cho2017
+
+backbones:
+  - EEGNet
+  - TSMNet
+
 seeds: [0, 1, 2]
-
 source_subject_counts: [8, 16, 32, all]
 alpha_grid: [0.25, 0.5, 1.0, 2.0]
 random_repeats: 8
 
-# --- FROZEN gate thresholds (do NOT tune per world/result) ---
+# FROZEN gate thresholds (do NOT tune per world/result)
 safety_reject_task_drop_ucb: 0.02
 benefit_accept_lcb: 0.01
 domain_gain_role: diagnostic_only
 target_usage: audit_only
 
-# --- world-generation params (tunable in SMOKE ONLY, never the thresholds above) ---
-nuisance_dim: 4                # m, appended nuisance block width
-nuisance_noise: 0.1            # isotropic noise on the nuisance block
-worldA_variant: aligned_noise_flip   # target-beneficial (target nuisance reversed) but source-uncertifiable
-worldA_f_align: 0.15                 # fraction of source subjects carrying the spurious shortcut (minority)
-worldB_beta: 1.0                     # task-entanglement strength (z == y -> erasing z destroys task)
+# World-generation params (tunable in SMOKE ONLY, never the thresholds above)
+nuisance_dim: 4
+nuisance_noise: 0.1
+worldA_variant: aligned_noise_flip
+worldA_f_align: 0.15
+worldB_beta: 1.0
 
-# --- world roles (ground truth for scoring; World A expects NO accept -- the ceiling) ---
+# World roles (ground truth for scoring; every world expects NO accept -- the ceiling)
 world_A:
   role: target_beneficial_but_source_uncertifiable
   acceptance_expected: false
   diagnostic_oracle_expected: positive_target_gain
   gate_expected: reject_or_abstain
+
 world_B:
   role: task_entangled_unsafe
   acceptance_expected: false
   gate_expected: reject
+
 world_C:
   role: removable_but_useless_identity
   acceptance_expected: false
   gate_expected: reject_or_abstain
 
-# --- fixed intervention set ---
+# Fixed intervention set.
+# cc_leace_predicted_route_deployable is EXCLUDED (known tautology, Phase 2).
+# oracle_label_router_DIAGNOSTIC_ONLY is parked (Phase 2 diagnostic), not run in V2.
 interventions:
   - identity
   - random_k
@@ -49,6 +60,4 @@ interventions:
   - tp_leace
   - alpha_leace
   - fair_conditional_leace_disjoint_router
-  - oracle_nuisance_eraser_DIAGNOSTIC_ONLY     # removes injected nuisance block via ground-truth dims; NOT deployable
-# cc_leace_predicted_route_deployable EXCLUDED (known tautology, Phase 2).
-# oracle_label_router_DIAGNOSTIC_ONLY: parked (Phase 2 diagnostic), not run in V2.
+  - oracle_nuisance_eraser_DIAGNOSTIC_ONLY
