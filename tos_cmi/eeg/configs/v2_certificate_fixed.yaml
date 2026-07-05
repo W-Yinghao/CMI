@@ -1,5 +1,7 @@
-# V2 semi-synthetic acceptance-power benchmark -- FIXED config.
+# V2 -- source-only acceptance CEILING / non-identifiability demo (reframed from "acceptance power").
 # Gate thresholds are FROZEN (identical to Track B / Phase 2); only world-generation params may be tuned in smoke.
+goal: source_only_acceptance_ceiling      # was: acceptance_power (unconstructible -- see V2_ACCEPTANCE_CEILING_FINDING.md)
+
 datasets: [Lee2019_MI, Cho2017]
 backbones: [EEGNet, TSMNet]
 seeds: [0, 1, 2]
@@ -15,24 +17,38 @@ domain_gain_role: diagnostic_only
 target_usage: audit_only
 
 # --- world-generation params (tunable in SMOKE ONLY, never the thresholds above) ---
-nuisance_dim: 4                 # m, appended nuisance block width
+nuisance_dim: 4                # m, appended nuisance block width
 nuisance_noise: 0.1            # isotropic noise on the nuisance block
-worldA_phi_reversed: 0.35     # fraction of source subjects whose spurious feature is reversed (beneficial world)
-worldB_beta: 1.0              # task-entanglement strength (z == y -> erasing z destroys task)
+worldA_variant: aligned_noise_flip   # target-beneficial (target nuisance reversed) but source-uncertifiable
+worldA_f_align: 0.15                 # fraction of source subjects carrying the spurious shortcut (minority)
+worldB_beta: 1.0                     # task-entanglement strength (z == y -> erasing z destroys task)
 
+# --- world roles (ground truth for scoring; World A expects NO accept -- the ceiling) ---
+world_A:
+  role: target_beneficial_but_source_uncertifiable
+  acceptance_expected: false
+  diagnostic_oracle_expected: positive_target_gain
+  gate_expected: reject_or_abstain
+world_B:
+  role: task_entangled_unsafe
+  acceptance_expected: false
+  gate_expected: reject
+world_C:
+  role: removable_but_useless_identity
+  acceptance_expected: false
+  gate_expected: reject_or_abstain
+
+# --- fixed intervention set ---
 interventions:
   - identity
+  - random_k
   - leace_baseline
-  - tos_vd
   - rlace
+  - tos_vd
   - inlp
   - tp_leace
   - alpha_leace
   - fair_conditional_leace_disjoint_router
-  - random_k
-# cc_leace_predicted_route_deployable is EXCLUDED as a clean method (known tautology, Phase 2); control-only.
-
-worlds:
-  A: beneficial_spurious_nuisance        # gate should ACCEPT (acceptance power)
-  B: task_entangled_nuisance             # gate should REJECT (safety)
-  C: removable_but_useless_identity      # gate should ABSTAIN/REJECT (domain-gain != benefit)
+  - oracle_nuisance_eraser_DIAGNOSTIC_ONLY     # removes injected nuisance block via ground-truth dims; NOT deployable
+# cc_leace_predicted_route_deployable EXCLUDED (known tautology, Phase 2).
+# oracle_label_router_DIAGNOSTIC_ONLY: parked (Phase 2 diagnostic), not run in V2.

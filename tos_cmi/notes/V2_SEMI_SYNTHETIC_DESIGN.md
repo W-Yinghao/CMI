@@ -37,19 +37,20 @@ which is SEPARATE from the erased domain D=z. (The driver therefore threads two 
 
 Let `sy = 2*y - 1`. Source subjects are split by reliability; `u = ones(m)/sqrt(m)`; isotropic noise 0.1.
 
-### World A --- beneficial spurious nuisance (target should ACCEPT)
-* A fraction `phi` of source subjects are **reversed**, the rest **aligned**:
-  aligned subject: `z_i = y_i`; reversed subject: `z_i = 1 - y_i`.
-  => pooled source corr(z, y) = (1 - 2*phi) > 0, so a linear head trained on `[Z, N]` **uses** N.
-* **Target**: `z_i = 1 - y_i` (reversed) -> N is **misleading** at deployment.
-* Ground truth: **beneficial** -- removing z (hence N) recovers the honest real-Z task signal on
-  held-out/reversed subjects and on target.
-* Why the gate can see it: LOSO over real subjects holds out reversed subjects where N mispredicts -> erasing
-  z gives a positive held-out gain. Aligned subjects give a small loss; with moderate `phi` the **net**
-  source-LOSO benefit LCB can exceed +0.01. `alpha` is tuned so within-source safety drop stays <= 0.02
-  (real-Z carries the honest task; N is a modest add-on). At large `alpha`, N dominates in-distribution ->
-  erasing hurts source -> gate correctly REJECTs (expected accept-rate falls with alpha).
-* **Expected**: principled eraser (LEACE / fair-conditional) -> ACCEPT with actual target dbAcc LCB > +0.01.
+### World A --- target-beneficial but SOURCE-UNCERTIFIABLE (the ceiling; gate should NOT accept)
+Reframed after the design review + 144-cell search proved no injected nuisance yields a source-LOSO ACCEPT
+(see [V2_ACCEPTANCE_CEILING_FINDING.md](V2_ACCEPTANCE_CEILING_FINDING.md)). World A now DEMONSTRATES the ceiling.
+* Variant `aligned_noise_flip`: a MINORITY (`f_align`, default 0.15) of source subjects carry the spurious
+  shortcut `z_i = y_i`; for the MAJORITY `z_i` is **noise** (independent of y). Pooled corr(z,y)=`f_align`>0,
+  so the head USES the nuisance direction u; for the noise-majority the head injects `w_u*noise`.
+* **Target**: `z_i = 1 - y_i` (reversed) -> N is **misleading** at deployment. An ORACLE nuisance eraser
+  (zeros the injected block) recovers the honest real-Z signal -> **real positive target gain**
+  (empirically target dbAcc +0.06..+0.10 in the safe regime, up to +0.46 in the unsafe regime).
+* **Ground truth: target-beneficial but source-uncertifiable.** The benefit lives in the source->target shift.
+  Held-out SOURCE subjects share the source shortcut, so the source-LOSO benefit LCB is <= 0 (empirically
+  negative, e.g. -0.05) even for the SAFE cells. The source-only gate therefore correctly does **not** ACCEPT.
+* **Expected**: principled erasers -> REJECT (unsafe cells) or ABSTAIN (safe cells); ACCEPT count = 0. The
+  oracle diagnostic shows the target gain exists; random-k does not reproduce it. This is a CEILING, not a pass.
 
 ### World B --- task-entangled nuisance (target should REJECT)
 * `z_i = y_i` for ALL subjects and target (nuisance is **confounded with the true label**).
@@ -64,11 +65,28 @@ Let `sy = 2*y - 1`. Source subjects are split by reliability; `u = ones(m)/sqrt(
 * **Expected**: safe (task-drop ~ 0) but source-LOSO benefit LCB <= +0.01 -> **ABSTAIN** (or REJECT via
   random-noise); **no ACCEPT**. Demonstrates *domain-gain is evidence of erasure, not of benefit*.
 
+## Proposition (source-only non-identifiability of deployment-shift benefit)
+Let a gate `g` depend only on source data `S` (drawn from source subjects/domains `P_S(Z,Y,D)`). Consider two
+worlds `W+` and `W-` with **identical source distribution** `P_S(Z,Y,D)` -- hence identical gate inputs and
+identical source-LOSO statistics -- but different target laws: in `W+`, erasing nuisance `z` **reduces** target
+risk; in `W-`, the same erasure is **neutral or harmful** on target. Because `g(S)` sees the same inputs in
+both, any source-only rule that ACCEPTs in `W+` also ACCEPTs in `W-` (a false/unsafe accept); any rule that
+avoids false accepts across both must REJECT/ABSTAIN in `W+`.
+
+**Therefore: target-beneficial deployment-shift erasure is NOT source-only identifiable** -- *without source
+domains that already represent the target shift, and without target information*, source-only certification
+cannot license deployment-shift benefit. (This is a conditional non-identifiability statement, not a claim that
+source-only benefit is impossible in general; if the source domains encode the shift, or target information is
+admitted, the ceiling can be crossed -- see the parked target-informed branch.) World A is the empirical
+witness: real target gain exists (oracle), yet the source-only inputs are identical to a no-benefit world, so
+the gate abstains/rejects.
+
 ## Interventions (each erases D = z; uniform factory(Zf,yf,z_f,n_cls,seed)->apply(X))
-identity, leace_baseline, tos_vd, rlace, inlp, tp_leace, alpha_leace(alpha_grid),
-`fair_conditional_leace_disjoint_router`, random_k.
-**`cc_leace_predicted_route_deployable` is NOT a clean deployable** (known tautology, Phase 2); it may appear
-only as a labeled control, never as the acceptance-power method.
+identity, random_k, leace_baseline, rlace, tos_vd, inlp, tp_leace, alpha_leace,
+`fair_conditional_leace_disjoint_router`, and `oracle_nuisance_eraser_DIAGNOSTIC_ONLY` (removes the injected
+nuisance block via ground-truth dims; **NOT deployable** -- shows the target gain exists).
+**`cc_leace_predicted_route_deployable` is EXCLUDED** (known tautology, Phase 2). `oracle_label_router` (Phase 2
+true-label routing) is parked, not run in V2. Oracle paths are DIAGNOSTIC and never counted as a method result.
 
 ### fair_conditional_leace_disjoint_router (replaces the tautological cc-predicted)
 Breaks the "probe re-learns the router" tautology by making the router **data-disjoint AND architecture-different**
@@ -84,27 +102,34 @@ from the evaluation probe:
 safety task-drop UCB <= 0.02 -> REJECT; source-LOSO benefit LCB > +0.01 -> ACCEPT; else ABSTAIN.
 domain-gain = diagnostic only. target = audit only (enters ONLY the post-hoc scoring). NaN safety -> ABSTAIN.
 
-## Correctness scoring
-* World A: `correct` = principled eraser ACCEPT **and** actual target dbAcc LCB > +0.01; report
-  **acceptance power** = accept-rate of the principled eraser vs n_source and alpha.
-* World B: `correct` = no unsafe ACCEPT (every z-removing eraser REJECT); report **unsafe-accept rate**.
-* World C: `correct` = no ACCEPT; report accept-rate (~0) with high domain-gain.
+## Correctness scoring (ceiling framing; NO world expects ACCEPT)
+* World A: `correct` = a SAFE cell with real target gain (target dbAcc LCB>+0.01) exists that the gate does
+  NOT accept, its source-LOSO benefit LCB<=+0.01, and random-k does not reproduce the oracle target gain.
+* World B: `correct` = no unsafe ACCEPT (every z-removing eraser REJECT); report **unsafe-accept rate** (want 0).
+* World C: `correct` = no ACCEPT and a high-domain-gain-but-useless cell exists (domain-gain != benefit).
 
 ## Honest limitations (disclosed up front)
-* This is **semi-synthetic**: real latents, injected nuisance. It tests the *decision machinery*, not a new
-  real-EEG claim. It is method-deepening evidence, **not** a main-paper result.
-* Under a strictly **linear** gate + head, a source-LOSO-detectable beneficial nuisance requires the nuisance's
-  reliability to vary across source subjects (World A `phi`); a nuisance that is uniformly reliable across all
-  source subjects but fails only at target is, by construction, **undetectable source-only** -- and the gate
-  correctly ABSTAINs there (not a failure; the honest ceiling of source-only certification).
-* If World A cannot produce any ACCEPT in smoke, we tune the **world generator** (`phi`, `alpha`, `m`,
-  n_source), **never** the gate thresholds.
+* This is **semi-synthetic**: real latents, injected nuisance. It tests the *decision machinery* / the source-
+  only ceiling, not a new real-EEG claim. Method-deepening evidence, **not** a main-paper result.
+* The ceiling is a **conditional** non-identifiability statement (see Proposition): it holds when the source
+  domains do not encode the target shift and no target information is admitted. It is NOT a claim that erasure
+  benefit is impossible in every setting.
+* Gate thresholds are **never** tuned; only world-generation params (`variantA`, `f_align`, `alpha`, `m`,
+  n_source) may be adjusted in smoke.
 
-## Smoke test (Step 1; requires PM go)
+## Smoke test (Step 1; requires PM go) --- CEILING smoke
 `Lee2019_MI` & `Cho2017`, EEGNet, seed0, **first 5 folds**, all three worlds, all interventions, alpha_grid.
-Pass iff: World A shows >= 1 ACCEPT; World B shows 0 unsafe-accept; World C shows 0 ACCEPT.
-Outputs -> `tos_cmi/results/method_deepen/v2/v2_smoke_*`.
+Pass iff (per the ceiling scoring above): World A has a safe target-beneficial cell the gate does NOT accept
+(source benefit LCB<=+0.01, random-k does not reproduce oracle gain); World B 0 unsafe-accept; World C 0 accept
+with a high-domain-gain-useless cell. Outputs -> `tos_cmi/results/method_deepen/v2/v2_smoke_*` (+ scatter PNG).
 
 ## Full benchmark (Step 2; requires PM go AFTER smoke passes)
 datasets x backbones(EEGNet,TSMNet) x seeds(0,1,2) x n_source(8,16,32,all) x alpha_grid x interventions,
-all folds. Main table + acceptance-power / unsafe-accept / target-gain figures.
+all folds. Main table + the ceiling scatter (source-LOSO benefit LCB vs actual target dbAcc LCB, colored by
+gate action) + naive-controller table.
+
+## Parked branch (NOT part of the present V2 claim): target-informed acceptance
+A target-informed branch could admit **unlabeled target** (does erasing reduce source-target mismatch while
+preserving source task?), a **few labeled target** trials (few-shot benefit probe), or target calibration data
+to license erasure, and quantify *how much target information crosses the source-only ceiling*. That is not
+strict source-only DG and is deferred; it connects to EA-transductive / SCPS. Not implemented now.

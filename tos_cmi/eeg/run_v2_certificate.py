@@ -24,7 +24,8 @@ from tos_cmi.eeg.source_ood_benefit_gate import (_bacc, _subj_acc, _boot_bound, 
                                                  SAFETY_EPS, BENEFIT_LCB)
 from tos_cmi.eeg.run_phase2_task_preserving import _task_scores, _stratified_split, _load_thresholds
 from tos_cmi.eeg.semi_synthetic_real_latent import inject
-from tos_cmi.eeg.v2_worlds import WORLDS, FACTORIES, INTERVENTIONS, PRINCIPLED, CONTROLS
+from tos_cmi.eeg.v2_worlds import (WORLDS, FACTORIES, INTERVENTIONS, DEPLOYABLE, DIAGNOSTIC, PRINCIPLED,
+                                   CONTROLS, oracle_nuisance_eraser_factory)
 
 RESULTS = "tos_cmi/results/tos_cmi_eeg_frozen"
 OUT = "tos_cmi/results/method_deepen/v2"
@@ -79,8 +80,9 @@ def _one(world, ds, bb, seed, p, n_source, alpha, interv, phi, beta, m, noise, n
         keep = _subsample_source(subj, n_source, seed)
         Zs, ys, subj = Zs[keep], ys[keep], subj[keep]
         inj = inject(world, Zs, ys, subj, Zt, yt, alpha=alpha, beta=beta, phi=phi, seed=seed, m=m, noise=noise)
+        F = oracle_nuisance_eraser_factory(m) if interv in DIAGNOSTIC else FACTORIES[interv]
         sig = eval_v2(inj["Zs2"], ys, inj["z_src"], inj["grp_subj"], inj["Zt2"], yt, n_cls,
-                      FACTORIES[interv], seed, n_pseudo)
+                      F, seed, n_pseudo)
         return {"world": world, "dataset": ds, "backbone": bb, "seed": seed, "fold": fold,
                 "n_source": str(n_source), "alpha": alpha, "intervention": interv,
                 "ground_truth": inj["ground_truth"], "n_cls": n_cls, **sig}
@@ -115,11 +117,12 @@ def aggregate(rows, safety_eps, benefit_thr):
         db = [r["tgt_bacc_eras"] - r["tgt_bacc_full"] for r in sub]
         dblo = _boot_bound(db, folds, "lower", rng=np.random.default_rng(1))
         dbhi = _boot_bound(db, folds, "upper", rng=np.random.default_rng(2))
-        action = gate_action(tucb, blcb, safety_eps, benefit_thr)
+        deployable = iv in DEPLOYABLE
+        action = gate_action(tucb, blcb, safety_eps, benefit_thr) if deployable else "DIAGNOSTIC"
         summary["|".join(map(str, (w, ds, bb, sd, ns, al, iv)))] = {
             "world": w, "dataset": ds, "backbone": bb, "seed": sd, "n_source": ns, "alpha": al,
-            "intervention": iv, "ground_truth": sub[0]["ground_truth"], "n_folds": len(set(folds)),
-            "task_drop_ucb": tucb, "benefit_lcb": blcb,
+            "intervention": iv, "deployable": deployable, "ground_truth": sub[0]["ground_truth"],
+            "n_folds": len(set(folds)), "task_drop_ucb": tucb, "benefit_lcb": blcb,
             "domain_gain": float(np.nanmean([r["domain_gain"] for r in sub])),
             "z_full": float(np.nanmean([r["z_full"] for r in sub])),
             "z_eras": float(np.nanmean([r["z_eras"] for r in sub])),
@@ -127,7 +130,9 @@ def aggregate(rows, safety_eps, benefit_thr):
             "src_task_eras": float(np.mean([r["src_task_eras"] for r in sub])),
             "dtgt_bacc": float(np.mean(db)), "dtgt_bacc_lo": dblo, "dtgt_bacc_hi": dbhi,
             "router_acc": float(np.nanmean([r.get("router_acc", float("nan")) for r in sub])),
-            "gate_action": action}
+            "gate_action": action,
+            "is_safe": bool(tucb <= safety_eps),                       # source-defined safety
+            "target_beneficial": bool(dblo > benefit_thr)}            # actual (post-hoc) target gain
     return summary
 
 
@@ -142,7 +147,7 @@ def main():
     ap.add_argument("--interventions", nargs="+", default=INTERVENTIONS)
     ap.add_argument("--folds", type=int, default=5)
     ap.add_argument("--n-pseudo", type=int, default=8)
-    ap.add_argument("--phi", type=float, default=0.35)
+    ap.add_argument("--phi", type=float, default=0.15)   # World A f_align (fraction carrying the shortcut)
     ap.add_argument("--beta", type=float, default=1.0)
     ap.add_argument("--m", type=int, default=4)
     ap.add_argument("--noise", type=float, default=0.1)
@@ -187,15 +192,34 @@ def main():
                "params": {"phi": a.phi, "beta": a.beta, "m": a.m, "noise": a.noise, "n_pseudo": a.n_pseudo},
                "summary": summary},
               open("%s/v2_%s_summary.json" % (OUT, a.tag), "w"), indent=1)
-    # quick smoke verdict
-    def acc(world, group):
-        cells = [v for v in summary.values() if v["world"] == world and v["intervention"] in group]
-        return sum(1 for v in cells if v["gate_action"] == "ACCEPT"), len(cells)
-    aA, nA = acc("A", PRINCIPLED); uB, nB = acc("B", PRINCIPLED); aC, nC = acc("C", PRINCIPLED)
-    print("\n=== V2 %s smoke verdict (principled erasers) ===" % a.tag)
-    print("  World A ACCEPTs: %d/%d  (want >=1 : %s)" % (aA, nA, "PASS" if aA >= 1 else "FAIL"))
-    print("  World B unsafe-ACCEPTs: %d/%d  (want 0 : %s)" % (uB, nB, "PASS" if uB == 0 else "FAIL"))
-    print("  World C ACCEPTs: %d/%d  (want 0 : %s)" % (aC, nC, "PASS" if aC == 0 else "FAIL"))
+    # --- ceiling smoke verdict (World A is a CEILING demo: NO accept expected) ---
+    def cells(world, group=None):
+        return [v for v in summary.values() if v["world"] == world and (group is None or v["intervention"] in group)]
+    prinA = cells("A", PRINCIPLED); prinB = cells("B", PRINCIPLED); prinC = cells("C", PRINCIPLED)
+    oracleA = cells("A", DIAGNOSTIC); rndA = cells("A", ["random_k"])
+    # World A: a safe target-beneficial cell exists that the gate does NOT accept, and its source-LOSO benefit
+    # is not detectable; and random-k does not reproduce the oracle target gain.
+    safe_ben = [v for v in prinA + oracleA if v["is_safe"] and v["target_beneficial"]]
+    a_no_accept = all(v["gate_action"] != "ACCEPT" for v in prinA)
+    oracle_gain = max([v["dtgt_bacc"] for v in oracleA], default=float("nan"))
+    rnd_gain = max([v["dtgt_bacc"] for v in rndA], default=float("nan"))
+    rnd_no_repro = not (rnd_gain == rnd_gain and rnd_gain > 0.01)
+    A_pass = (len(safe_ben) >= 1) and a_no_accept and rnd_no_repro
+    # World B: no unsafe accept
+    uB = sum(1 for v in prinB if v["gate_action"] == "ACCEPT"); B_pass = uB == 0
+    # World C: no accept AND a high-domain-gain cell exists with no target benefit
+    aC = sum(1 for v in prinC if v["gate_action"] == "ACCEPT")
+    hi_dg_useless = any(v["domain_gain"] > 0.05 and not v["target_beneficial"] for v in prinC)
+    C_pass = (aC == 0) and hi_dg_useless
+    print("\n=== V2 %s CEILING smoke verdict ===" % a.tag)
+    print("  World A (target-beneficial but source-uncertifiable): safe+target-beneficial cells=%d, "
+          "principled ACCEPTs=%d (want 0), oracle target dbAcc=%+.3f vs random_k=%+.3f -> %s"
+          % (len(safe_ben), sum(1 for v in prinA if v["gate_action"] == "ACCEPT"), oracle_gain, rnd_gain,
+             "PASS" if A_pass else "FAIL"))
+    print("  World B (unsafe): unsafe-ACCEPTs=%d/%d (want 0) -> %s" % (uB, len(prinB), "PASS" if B_pass else "FAIL"))
+    print("  World C (useless): ACCEPTs=%d/%d (want 0), high-domain-gain-useless cell present=%s -> %s"
+          % (aC, len(prinC), hi_dg_useless, "PASS" if C_pass else "FAIL"))
+    print("  OVERALL: %s" % ("PASS" if (A_pass and B_pass and C_pass) else "FAIL"))
     print("V2_%s_DONE" % a.tag.upper())
 
 

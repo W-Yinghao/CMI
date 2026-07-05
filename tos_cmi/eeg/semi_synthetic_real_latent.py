@@ -20,8 +20,8 @@ def _reliability(subs, phi, rng):
     return {s: (-1 if s in rev else +1) for s in subs}
 
 
-def inject(world, Zs, ys, subj, Zt, yt, alpha=1.0, beta=1.0, phi=0.35, seed=0, m=4, noise=0.1,
-           variantA="aligned_noise"):
+def inject(world, Zs, ys, subj, Zt, yt, alpha=1.0, beta=1.0, phi=0.15, seed=0, m=4, noise=0.1,
+           variantA="aligned_noise_flip"):
     rng = np.random.default_rng(10_000 + seed)
     ys = ys.astype(int); yt = yt.astype(int)
     # z-score the real block so alpha is on a comparable scale (fit on source, apply to both)
@@ -31,8 +31,8 @@ def inject(world, Zs, ys, subj, Zt, yt, alpha=1.0, beta=1.0, phi=0.35, seed=0, m
     subs = sorted(set(subj.tolist()))
     sy = (2 * ys - 1).astype(float); ty = (2 * yt - 1).astype(float)
 
-    if world == "A":                               # beneficial spurious nuisance (see variantA)
-        gt = "beneficial"
+    if world == "A":                               # target-beneficial but source-UNcertifiable (see variantA)
+        gt = "target_beneficial_source_uncertifiable"
         if variantA == "reversed":                 # [DEPRECATED] symmetric -> net LOSO benefit <=0 (design review)
             rel = _reliability(subs, phi, rng)
             z_src = np.array([ys[i] if rel[subj[i]] > 0 else 1 - ys[i] for i in range(len(ys))], int)
