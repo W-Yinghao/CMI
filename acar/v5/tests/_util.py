@@ -570,3 +570,57 @@ def write_synthetic_feat_dump(path, ref="PD/fold0/seed20260711", disease="PD", f
                            preprocessing_config_sha256="0" * 64, training_config_sha256="0" * 64,
                            encoder_checkpoint_file_sha256="0" * 64, source_state_file_sha256="0" * 64, records=recs)
     return path
+
+
+# ---- Stage-2B0 synthetic fixtures (engine tests; torch/sklearn-free) ----
+def stage2b_auth(**over):
+    """A fully-valid SYNTHETIC Stage-2B authorization (override any field via kwargs)."""
+    from acar.v5 import stage2b_authorization as SA
+    a = {"stage": "Stage-2B", "protocol_tag": SA.PROTOCOL_TAG, "protocol_tag_target_sha": SA.PROTOCOL_TAG_TARGET_SHA_FULL,
+         "implementation_base_sha": "0" * 40, "stage1b_run_id": "acar-v5-stage1b-c4412b4-r1",
+         "stage1b_registry_sha256": "a" * 64, "allowed_selection_refs": list(SA.CANONICAL_SELECTION_REFS),
+         "allowed_candidate_ids": list(SA.CANONICAL_CANDIDATE_IDS), "forbid_s1_refs_for_selection": True,
+         "forbid_external_read": True, "forbid_lockbox": True, "run_id": "syn-stage2b",
+         "statement": SA.REQUIRED_STAGE2B_STATEMENT}
+    a.update(over)
+    return a
+
+
+class DictLabelView:
+    """A minimal evaluation-only label view (resolve_label from a dict) for engine tests — no bulk dump, no path attribute."""
+
+    def __init__(self, labels):
+        _labels = dict(labels)
+
+        def _resolve(sk):
+            return int(_labels[sk])
+        self._resolve = _resolve
+
+    def resolve_label(self, subject_key):
+        return self._resolve(subject_key)
+
+
+def stage2b_synthetic_source_state(D=8, seed=0):
+    import numpy as np
+    r = np.random.RandomState(seed)
+    return {"means": (r.randn(2, D) * 0.5), "cov": np.eye(D) + 0.02, "priors": np.array([0.5, 0.5]),
+            "classes": np.array([0, 1])}
+
+
+def stage2b_disease_inputs(n_folds=2, D=8, seed=0, n_windows=16):
+    """Synthetic {disease: {"folds": [{by_subject, source_lda, label_view}, ...]}} for the selection engine (torch-free)."""
+    import numpy as np
+    from acar.v5 import stage2_action_records as AR
+    r = np.random.RandomState(seed)
+
+    def fold(disease, cohort, k):
+        by_subject, labels = {}, {}
+        for i, role in enumerate(["train", "train", "val", "cal", "eval", "eval"]):
+            sk = f"{disease}/{cohort}/sub-f{k}i{i}"
+            by_subject[sk] = {"embedding": (r.randn(n_windows, D) * 0.3), "split_role": role}
+            labels[sk] = i % 2
+        return {"by_subject": by_subject,
+                "source_lda": AR.SourceLDA(stage2b_synthetic_source_state(D, seed + k + (0 if disease == "PD" else 100))),
+                "label_view": DictLabelView(labels)}
+    return {"PD": {"folds": [fold("PD", "ds002778", k) for k in range(n_folds)]},
+            "SCZ": {"folds": [fold("SCZ", "ds003944", k) for k in range(n_folds)]}}

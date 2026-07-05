@@ -167,6 +167,21 @@ MODULES = (
     "test_stage2_no_label_in_routing",
     "test_stage2_dryrun_no_candidate_selected",
     "test_stage2_g4_conditional_adapted_non_evaluable_fail",
+    # ---- Stage-2B0: selection-engine implementation (code + synthetic/fixture tests; NO real labels/scoring/selection) ----
+    "test_stage2b_authorization_contract_required",
+    "test_stage2b_rejects_nonselection_seed_refs",
+    "test_stage2b_exact_22_candidate_universe",
+    "test_stage2b_joint_pd_scz_single_candidate_identity",
+    "test_stage2b_fit_quantiles_use_fit_only",
+    "test_stage2b_labels_do_not_enter_scalarization",
+    "test_stage2b_g4_no_adapted_subjects_fails",
+    "test_stage2b_holm_family_candidate_disease_h1h2h3_only",
+    "test_stage2b_g2_effect_size_not_in_holm",
+    "test_stage2b_g5_p3_fallback_when_upper_noninformative",
+    "test_stage2b_tiebreak_deterministic",
+    "test_stage2b_report_does_not_include_external_or_s1_results",
+    "test_stage2b_binding_real_run_fails_without_stage2b_auth",
+    "test_stage2b_f0_lda_and_action_records",
 )
 
 
