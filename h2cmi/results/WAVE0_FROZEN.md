@@ -72,34 +72,54 @@ external datasets are required; all Wave 0 compute reuses existing cached real E
 
 ### W0.2 — Fixed-reservoir prevalence UTILITY curves (movement → harm/benefit)
 - **Data:** the existing fixed reservoir — same real EEG trials, **reweighted** (effective-count
-  weights) at a **q-grid `q ∈ {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}`** (0.5 = reference).
-  Trial identity and temporal position are invariant across q by construction (P0-2-correct).
-- **Displacement panel (vs q):** transform norm, translation norm, log-scale norm, evaluation-embedding
-  displacement — per operator {pooled, FRSC, fixed_iterative, joint, oracle}.
-- **Utility panel (vs q):** balanced accuracy, **ordinary accuracy**, macro-F1, NLL/calibration (ECE),
-  negative-change rate — per operator and per decision prior.
-- **Purpose:** convert "FRSC is not prevalence-invariant" into "**this movement is harmful under BA with
-  π_dec=π_J, and may be benign/beneficial under ordinary accuracy with π_dec=ρ_T**."
+  weights) at a **q-grid `q ∈ {0.1..0.9}` step 0.1**, anchor `q=0.5`. Trial identity + temporal position
+  invariant across q (P0-2-correct). Per operator {pooled, FRSC, fixed_iterative, joint, oracle}.
+- **Primary — displacement from q=0.5:** eval-embedding displacement, translation norm, log-scale norm.
+- **Primary — utility under fixed evaluation:** BA, macro-F1, NLL, negative-change rate vs q=0.5.
+- **Secondary — matched-prevalence ordinary accuracy:**
+  `ordinary_acc_q = q·recall_class0 + (1−q)·recall_class1`; compare `π_dec = Unif`, `π_dec = π_J`, and the
+  **oracle q decision prior** (diagnostic).
+- **Three separated questions:** (A) *do prevalence-only weights induce geometry movement?* → displacement
+  / translation / log-scale. (B) *is that movement useful for a balanced objective?* → BA / macro-F1 /
+  negative-change. (C) *does the estimated prior have a legitimate use under an ordinary-accuracy
+  objective?* → matched-prevalence ordinary accuracy. This keeps the paper from reading as "estimated
+  prevalence is never useful": the claim is metric-conditional (π_dec is set by the metric; `π_J` is a
+  diagnostic branch, not the default predictor).
 
-### W0.3 — Same-session fake-split NULL (real negative control)
-- **Data:** within-subject, within-session stratified fake split (adapt/eval), **prevalence held equal**.
-- **Pre-registered expectation:** `G ≈ 0` (CI includes 0) and the π branches produce **no systematic**
-  gain or harm (negative-change rate ≈ the identity baseline). Any non-zero `G` here is flagged as
-  leakage or model-mismatch, not adaptation benefit.
+### W0.3 — Same-session **consistency control** (within-session fake-split control)
+- **Renamed (user, 2026-07-06): NOT an "identity-geometry null".** A real same-session split can still have
+  a genuine subject-geometry gap, so `G ≈ 0` is **not** the pre-registered expectation and we do not claim
+  "adaptation should have no effect."
+- **Data:** within-subject, within-session stratified fake split (equal prevalence), both directions.
+- **Primary endpoints:** (1) **directional asymmetry** `Δ(A adapt→B eval) − Δ(B adapt→A eval)` — should be
+  ~0 (no systematic direction effect); (2) **branch stability** — distribution of `G/P/I_int` under
+  stratified same-session fake splits; (3) **mechanistic comparison** — magnitude of minority-stage recall
+  collapse here vs the W0.1 cross-night collapse (expected **weaker** because `π_J` is closer to the
+  evaluation prevalence within a session).
+- **What it tests:** that branch bookkeeping + real-subject addressing are stable with no true night shift,
+  the stratified split does not manufacture a cross-night-like large `P` collapse, and the decision-prior
+  harm is markedly smaller when `π_J ≈ ρ_eval`.
 
 ### W0.4 — Adaptation batch-size sweep (theory ↔ real EEG)
-- **Data:** real EEG target adapt batches at `n ∈ {16, 32, 64, 128, 256}`.
-- **Pre-registered prediction (from weak identification):** at **small n**, geometry and prevalence are
-  more confounded → larger variance / instability in `G` and `P` and larger optimization
-  non-determinism; the confound attenuates as n grows. Report `G`, `P`, `I_int`, transform-norm variance,
-  and self-replay reproducibility as functions of n.
+- **Design (frozen):** `batch_n ∈ {16, 32, 64, 128, 256}`; **draws_per_unit = fixed predeclared** count;
+  **stratified** sampling where possible else natural-prevalence with recorded class counts; **evaluation
+  set fixed across n**; source/eval hashes fixed; **average draws within the biological unit before**
+  cluster bootstrap.
+- **Three required curves** (not just mean-BA-vs-n): (1) `|π_J − ρ_eval|` vs n; (2) transform-norm /
+  displacement vs n; (3) BA / negative-change-rate vs n.
+- **Pre-registered prediction (weak identification):** at small n, prevalence/geometry are harder to
+  separate → `π_J` less stable, `P` worse, geometry movement larger; the confound attenuates as n grows.
 
 ### W0.5 — Metric-switch (which objective each prior serves) — cross-cutting
-- Applied across W0.1 and W0.2. **Pre-registered claim:** under **balanced accuracy** the correct
-  decision prior is **uniform** (`π_dec = Unif`), and using estimated prevalence as `π_dec` is *wrong*;
-  under **ordinary accuracy** or a **deployment-prevalence objective**, `π_dec = ρ_T` (or `π_J` as its
-  estimate) can be *correct*. We report both objectives side-by-side so the estimated prevalence is shown
-  to be *useful for the right objective*, not uniformly rejected.
+- **Reuses W0.1/W0.2 branch logits** (independent endpoint, **no model recompute**; pre-declared as such).
+- **Level 1 — natural W2 metric-switch:** BA → `π_dec = Unif` is metric-correct; ordinary accuracy →
+  compare `π_dec ∈ {Unif, π_J, oracle ρ_eval(diagnostic)}`. Interpretation: `π_J` estimates the
+  *adaptation-window* prevalence, not necessarily the *eval-night* prevalence.
+- **Level 2 — fixed-reservoir matched metric-switch:** q controls **both** adaptation prevalence and the
+  ordinary-accuracy evaluation weights; when the deployment objective truly matches q, prevalence-aware
+  decisions may help.
+- **Claim:** not "`π_J` is always bad" but "`π_J` must not be used **unconditionally** as a
+  balanced-accuracy decision prior"; the correct `π_dec` is metric-dependent.
 
 ## 3. Falsification / expected-informative outcomes (pre-committed)
 
@@ -110,8 +130,9 @@ external datasets are required; all Wave 0 compute reuses existing cached real E
   it as **bounding where the method applies**, not as a failure. *(Geometry-only real perturbations are
   specified here for continuity but their confirmatory run is Wave 1; Wave 0 freezes only the null,
   prevalence, batch-size, deterministic-W2, and metric-switch groups on existing data.)*
-- **W0.3 null must show `G ≈ 0`.** A significant `G` under an equal-prevalence same-session split
-  falsifies the protocol's negative control (→ investigate leakage/model-mismatch before any positive
+- **W0.3 consistency control: directional asymmetry ≈ 0, not `G ≈ 0`.** A large `Δ(A→B) − Δ(B→A)`
+  asymmetry, or a cross-night-sized `P` collapse under an equal-prevalence same-session split, falsifies
+  the control (→ investigate leakage/model-mismatch/bookkeeping before any positive
   claim).
 - **W0.1 must be bit-reproducible.** Acceptance = two back-to-back identical runs on the pinned GPU type
   produce **identical prediction hashes** for all branches; only then are per-stage recall / confusion
@@ -123,7 +144,7 @@ external datasets are required; all Wave 0 compute reuses existing cached real E
 |---|---|
 | W0.1 | self-replay prediction hashes identical on pinned GPU; all branch artifacts saved + hash-manifested; `G/P/I_int` re-confirmed (aggregate within the characterized band); per-stage confusion then admitted |
 | W0.2 | full displacement + utility panels over the 9-point q-grid, cluster-bootstrapped; metric-switch shown (BA vs ordinary-accuracy sign) |
-| W0.3 | `G` CI includes 0 **and** π-branch negative-change ≈ identity baseline (else flag leakage/mismatch) |
+| W0.3 | directional asymmetry `Δ(A→B)−Δ(B→A)` CI includes 0; `G/P/I_int` distribution reported; minority-stage recall collapse **weaker** than W0.1 cross-night (else flag leakage/mismatch/bookkeeping) |
 | W0.4 | `G/P/I_int` + variance + reproducibility reported across all 5 batch sizes; monotone-attenuation trend stated (confirmed or refuted) |
 | W0.5 | BA and ordinary-accuracy objectives reported side-by-side for W0.1/W0.2; π-usefulness statement supported or refuted |
 
@@ -144,3 +165,23 @@ external datasets are required; all Wave 0 compute reuses existing cached real E
   single GPU type.
 - Terminal artifacts (`278fc85`, tag `h2cmi-review-p0-terminal`) are **read-only**; Wave 0 never
   modifies or re-tags them.
+
+## 7. Fan-out addressing invariant (regression-gated) + GO/NO-GO
+
+**Invariant (enforced by `h2cmi/wave0_fanout.py` + `test_wave0_fanout.py`):** `bench_index` is **never** an
+identity — not a job key, output path, merge key, or CLI identity argument; only a non-identifying log
+field. Units are addressed by the canonical key
+`(dataset, real_subject_id, session/night, pair_id, source_seed, split_seed, wave, q|batch_n, branch)`.
+Downstream joins use real ids / session / wave variables only.
+
+**GO for the next fan-out wave (W0.2 …) only after ALL of:**
+1. fan-out real-id fix committed **and** `test_wave0_fanout.py` passes (shuffle-invariant unit set; each
+   real_subject covered once-and-only-once; no bench-index in identity; preflight catches dup);
+2. `WAVE0_FROZEN.md` updated with that wave's endpoints (this file);
+3. an **expected-unit coverage report** generated (`python -m h2cmi.wave0_fanout --wave … --coverage`)
+   **before** job submission;
+4. no W0.1 outputs modified after `e75a0b0` except manuscript-facing summaries.
+
+**NO-GO if any of:** a job still addresses subjects by bench index; an output merge key uses bench index
+as identity; q-grid coverage differs across operators without a pre-declared exclusion; the deterministic
+hash manifest (logits/preds/confusion) is missing.
