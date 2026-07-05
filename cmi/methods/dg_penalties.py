@@ -19,7 +19,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 
 PENALTY_METHODS = {"coral", "mmd", "irm", "vrex", "chsic", "scldgn"}
-ADV_METHODS = {"dann", "cdann"}
+ADV_METHODS = {"dann", "cdann", "cdan"}   # cdan = CDAN multilinear conditioning (R2, additive)
 DG_METHODS = PENALTY_METHODS | ADV_METHODS | {"groupdro"}
 
 
@@ -152,4 +152,19 @@ def adv_penalty(disc, z, y, d, n_cls, conditional, alpha=1.0):
     The discriminator minimizes domain CE; the GRL flips the gradient into the encoder,
     so the encoder is pushed to make Z (conditionally) uninformative of D."""
     feat = z if not conditional else torch.cat([z, F.one_hot(y, n_cls).float()], 1)
+    return F.cross_entropy(disc(grad_reverse(feat, alpha)), d)
+
+
+def make_cdan_discriminator(z_dim, n_dom, n_cls, hidden=128):
+    """CDAN (Long et al. 2018): discriminator over the multilinear map z (outer) yhat -> dim z_dim*n_cls."""
+    return nn.Sequential(nn.Linear(z_dim * n_cls, hidden), nn.ReLU(), nn.Linear(hidden, n_dom))
+
+
+def cdan_penalty(disc, z, logits, d, alpha=1.0):
+    """CDAN: multilinear conditional adversarial. The discriminator predicts D from the outer product
+    z (outer) softmax(yhat), gradient-reversed into the encoder. Conditions the domain alignment on the
+    classifier's PREDICTION (detached) rather than the true label (marginal DANN) or a concatenated one-hot
+    (CDANN) — captures cross-covariance between features and class predictions."""
+    yhat = F.softmax(logits.detach(), dim=1)                 # condition on prediction (standard CDAN, detached)
+    feat = (z.unsqueeze(2) * yhat.unsqueeze(1)).flatten(1)   # [B, z_dim * n_cls] multilinear map
     return F.cross_entropy(disc(grad_reverse(feat, alpha)), d)

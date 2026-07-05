@@ -135,8 +135,9 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     is_gdro = method == "groupdro"
 
     # adversarial frameworks own a discriminator, optimized jointly via gradient reversal
-    disc = dgp.make_discriminator(backbone.z_dim, n_dom, method == "cdann", n_cls).to(device) \
-        if is_adv else None
+    disc = ((dgp.make_cdan_discriminator(backbone.z_dim, n_dom, n_cls) if method == "cdan"
+             else dgp.make_discriminator(backbone.z_dim, n_dom, method == "cdann", n_cls)).to(device)
+            if is_adv else None)
     # self-supervised contrastive heads (SimCLR: projector; BYOL: + predictor + EMA target)
     ssl_proj = ssl_pred = tgt_bb = tgt_proj = None
     if uses_ssl:
@@ -403,7 +404,10 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                     # adversarial-strength knob. (The old code also multiplied the term by lam ->
                     # encoder gradient ~ lam*lam_t = lam^2; at lam=1 it coincided with this canonical
                     # form, so the lam=1 runs are unaffected; only lam!=1 sweep points were distorted.)
-                    loss = loss + dgp.adv_penalty(disc, z, yb, db, n_cls, method == "cdann", alpha=lam_t)
+                    if method == "cdan":                  # CDAN multilinear conditioning on z (outer) yhat
+                        loss = loss + dgp.cdan_penalty(disc, z, logits, db, alpha=lam_t)
+                    else:
+                        loss = loss + dgp.adv_penalty(disc, z, yb, db, n_cls, method == "cdann", alpha=lam_t)
             opt_main.zero_grad(); loss.backward(); opt_main.step()
         sched.step()
         if log_every and (ep + 1) % log_every == 0:

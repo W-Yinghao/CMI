@@ -11,9 +11,13 @@ from __future__ import annotations
 from pathlib import Path
 import torch
 import torch.nn as nn
-from braindecode.models import EEGNetv4, ShallowFBCSPNet, Deep4Net, EEGConformer
-
-_CONV = {"EEGNet": EEGNetv4, "ShallowConvNet": ShallowFBCSPNet, "Deep4Net": Deep4Net}
+# braindecode (+ its moabb dependency) is imported LAZILY — only when a braindecode task backbone is actually
+# built — so the pure-torch backbones (DGCNNGraph / DGCNN / graphcmi / graph_task_backbones) stay importable in
+# envs where the installed braindecode/moabb versions are incompatible (e.g. eeg2025). R2 CPU scaffold/tests
+# build DGCNNGraph, which never touches this path.
+def _braindecode_models():
+    from braindecode.models import EEGNetv4, ShallowFBCSPNet, Deep4Net, EEGConformer
+    return {"EEGNet": EEGNetv4, "ShallowConvNet": ShallowFBCSPNet, "Deep4Net": Deep4Net}, EEGConformer
 
 
 class HookedBackbone(nn.Module):
@@ -21,6 +25,7 @@ class HookedBackbone(nn.Module):
         super().__init__()
         self.name = name
         self._feat = None
+        _CONV, EEGConformer = _braindecode_models()
         if name != "EEGConformer" and name not in _CONV:
             raise ValueError(f"unknown backbone {name}")
         # Build + probe z_dim. Some backbones only accept certain n_times (verified:
