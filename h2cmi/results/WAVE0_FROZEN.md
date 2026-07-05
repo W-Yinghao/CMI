@@ -41,7 +41,15 @@ external datasets are required; all Wave 0 compute reuses existing cached real E
 
 ## 2. Experiment groups (FROZEN)
 
-### W0.1 — W2 deterministic rerun (closes the reproducibility hole)
+### W0.1 — W2 deterministic re-evaluation (closes the reproducibility hole)
+- **AMENDMENT (design, 2026-07-06): eval-only reuse of the frozen terminal bundles, not a retrain.** The
+  REVIEW_P0 replay non-determinism was in the **eval** (EM/Adam transform fit), not training; and the
+  encoder's only non-deterministic op (`adaptive_avg_pool2d_backward`) is a *training* backward — its
+  forward (inference) is deterministic. So W0.1 **reuses the frozen terminal bundles** (`p0_w2_bundles`,
+  code_sig `763bf49d`, read-only) and re-runs a **deterministic eval**. The confusion is therefore for the
+  **actual terminal models** (more faithful than a fresh retrain), and no encoder change is needed (which
+  would change `code_sig` and break reuse). If a fresh retrain were ever required, its training-side
+  non-determinism would be hardened separately under a new freeze.
 - **Data:** existing `p0_sleep_cache` (Sleep-Cassette, all 75 paired-night subjects), both protocols
   (primary night1→night2; secondary within-night-2). No re-download.
 - **Determinism controls (fixed):** `torch.use_deterministic_algorithms(True)`,

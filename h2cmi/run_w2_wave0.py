@@ -1,9 +1,13 @@
-"""WAVE 0 / W0.1 — W2 DETERMINISTIC rerun (closes the REVIEW_P0 confusion reproducibility hole).
+"""WAVE 0 / W0.1 — W2 DETERMINISTIC eval-only re-evaluation (closes the REVIEW_P0 confusion repro hole).
 
-Reuses the existing p0_sleep_cache; trains all seeds DETERMINISTICALLY into a NEW root
-(p0_w2_det_bundles) so the terminal 278fc85 bundles are untouched. Full per-(subject,seed,branch)
-logging: pred_hash, logit_hash, confusion, per_stage_recall, pi_J, T_J params/norm + a per-fold
-provenance manifest (GPU type, cuda/torch/lib versions, adapt/eval split hash, source-bundle SHA, seed).
+The REVIEW_P0 replay non-determinism was in the EVAL (EM/Adam transform fit), not training, and the
+encoder's adaptive-pool non-determinism is only in its BACKWARD (training) -- its forward (used at
+inference) is deterministic. So W0.1 REUSES the frozen terminal bundles (p0_w2_bundles, code_sig
+763bf49d) and re-runs a DETERMINISTIC eval (use_deterministic_algorithms + fixed seed); the resulting
+per-stage confusion is for the ACTUAL terminal models. No retraining; terminal bundles are read-only.
+Full per-(subject,seed,branch) logging: pred_hash, logit_hash, confusion, per_stage_recall, pi_J,
+T_J params/norm + a per-fold provenance manifest (GPU type, cuda/torch/lib versions, split hash,
+source-bundle SHA, seed).
 
 Append-only, one file per subject (results/h2cmi/wave0_w2det/p0w2det_<subj>.jsonl); a (seed) already
 present is SKIPPED -> no completed fold is ever recomputed or lost on a walltime kill.
@@ -35,7 +39,7 @@ ALL_BRANCHES = ("identity_uniform", "identity_joint_prior", "joint_geometry_unif
                 "joint_geometry_joint_prior", "fixed_iterative_geometry_uniform",
                 "fixed_reference_oneshot_uniform", "pooled_uniform", "latent_im_diag_uniform",
                 "source_recolored_ea")
-DET_ROOT = "results/h2cmi/p0_w2_det_bundles"
+TERMINAL_ROOT = "results/h2cmi/p0_w2_bundles"   # frozen terminal bundles, REUSED read-only (no retrain)
 OUT_DIR = "results/h2cmi/wave0_w2det"
 
 
@@ -96,7 +100,7 @@ def run_subject(tgt, seeds, protocol, cache, out_path, code_sig, commit, gpu_man
             print(f"[W0.1] subj {tgt} seed {seed} already recorded -> skip", flush=True); continue
         determinism_setup(seed)
         cfg = sleep_cfg(epochs, device, seed=seed)
-        tag = f"W2W0:sleep:loso{tgt}:nb{N}"
+        tag = f"W2P0:sleep:loso{tgt}:nb{N}"          # SAME tag as run_w2_p0 -> reuse terminal bundles
         srcX = srcY = None
         def _data_fn():
             nonlocal srcX, srcY
@@ -104,7 +108,7 @@ def run_subject(tgt, seeds, protocol, cache, out_path, code_sig, commit, gpu_man
             return X, y, subj
         det_fail = None
         try:
-            model, pooled_ref, R_src, pi_star, val = get_source_p0(DET_ROOT, DET_ROOT, tag, cfg, code_sig, NC, _data_fn)
+            model, pooled_ref, R_src, pi_star, val = get_source_p0(TERMINAL_ROOT, TERMINAL_ROOT, tag, cfg, code_sig, NC, _data_fn)
         except ProvenanceError as pe:
             append_row(out_path, dict(panel="W2_W0", protocol=protocol, target_subject=int(tgt),
                                       seed=int(seed), provenance_fail=str(pe))); print(f"PROV FAIL: {pe}"); continue
@@ -118,7 +122,7 @@ def run_subject(tgt, seeds, protocol, cache, out_path, code_sig, commit, gpu_man
         src_sha = None
         try:
             from h2cmi.p0_source import source_sig
-            src_sha = sha256_file(os.path.join(DET_ROOT, f"{source_sig(tag, code_sig, cfg)}.pt"))[:16]
+            src_sha = sha256_file(os.path.join(TERMINAL_ROOT, f"{source_sig(tag, code_sig, cfg)}.pt"))[:16]
         except Exception:
             pass
         rho_source = _rho(srcY) if srcY is not None else None
@@ -165,9 +169,9 @@ def main():
     ap.add_argument("--self-replay", type=int, default=-1, help="subject id: re-run into scratch + compare hashes")
     ap.add_argument("--allow-dirty", action="store_true")
     args = ap.parse_args()
-    os.makedirs(OUT_DIR, exist_ok=True); os.makedirs(DET_ROOT, exist_ok=True)
+    os.makedirs(OUT_DIR, exist_ok=True)
     commit = require_clean_git(allow_dirty=args.allow_dirty,
-                               ignore_prefixes=["results/h2cmi", OUT_DIR, DET_ROOT, args.cache])
+                               ignore_prefixes=["results/h2cmi", OUT_DIR, TERMINAL_ROOT, args.cache])
     code_sig = source_code_signature()
     seeds = [int(s) for s in args.seeds.split(",") if s != ""]
     gpu = _gpu_manifest()
