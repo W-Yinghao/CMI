@@ -22,9 +22,13 @@ def _finite(v):
 
 
 def _matrix(rows, label="tgt__target_bacc_good"):
-    cols = ["src__" + s for s in SOURCE_SIGNALS]
-    keep = [r for r in rows if all(_finite(r[c]) for c in cols)]
-    X = np.array([[float(r[c]) for c in cols] for r in keep], dtype=np.float64)
+    allcols = ["src__" + s for s in SOURCE_SIGNALS]
+    # Drop columns that are ENTIRELY non-finite (an absent / estimability-dropped signal); otherwise the
+    # all-columns-finite row filter below would drop every ROW instead of removing the column.
+    cols = [c for c in allcols if any(_finite(r.get(c)) for r in rows)]
+    keep = [r for r in rows if cols and all(_finite(r.get(c)) for c in cols)]
+    X = (np.array([[float(r[c]) for c in cols] for r in keep], dtype=np.float64) if keep
+         else np.zeros((0, len(cols)), dtype=np.float64))
     y = np.array([1 if r[label] else 0 for r in keep], dtype=int)
     groups_t = np.array([r["target"] for r in keep])
     groups_s = np.array([r["seed"] for r in keep])
