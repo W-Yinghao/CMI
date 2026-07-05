@@ -626,6 +626,12 @@ def stage2b_disease_inputs(n_folds=2, D=8, seed=0, n_windows=16):
             "SCZ": {"folds": [fold("SCZ", "ds003944", k) for k in range(n_folds)]}}
 
 
+def has_torch():
+    """True iff torch is importable (spdim's real action transform needs it; py3.9 home has no torch)."""
+    import importlib.util
+    return importlib.util.find_spec("torch") is not None
+
+
 def stage2b_holm_per(evaluable_p=0.001, nonevaluable_ids=()):
     """Synthetic `per` map for Holm-family tests: {(candidate_id, disease): {"cal_raw": {H1,H2,H3}} or None}. Candidate ids in
     `nonevaluable_ids` get None for BOTH diseases (non-evaluable cells)."""

@@ -188,6 +188,20 @@ MODULES = (
     "test_stage2b_nonevaluable_cell_pvalues_are_one",
     "test_stage2b_nonevaluable_cells_cannot_certify",
     "test_stage2b_excluding_nonevaluable_cells_changes_adjustment_guard",
+    # ---- Stage-2B1: real-seam readiness (production action transforms + v2-replay comparator; synthetic fixtures only) ----
+    "test_stage2b_real_actions_call_frozen_acar_actions",
+    "test_stage2b_real_actions_are_label_free",
+    "test_stage2b_real_actions_probability_shape_and_finite",
+    "test_stage2b_t3a_allows_only_geometry_nan",
+    "test_stage2b_matched_coral_spdim_geometry_features_finite",
+    "test_stage2b_p4_post_sep_nan_does_not_select_t3a",
+    "test_stage2b_source_state_adapter_required_fields",
+    "test_stage2b_source_state_adapter_class_order_fail_closed",
+    "test_stage2b_v2_replay_uses_actionregressor_seed0",
+    "test_stage2b_v2_replay_missing_disease_fails",
+    "test_stage2b_v2_replay_nonfinite_feature_vector_fails",
+    "test_stage2b_v2_replay_does_not_enter_routing_or_thresholds",
+    "test_stage2b_real_runner_still_fails_without_stage2b_auth",
 )
 
 
