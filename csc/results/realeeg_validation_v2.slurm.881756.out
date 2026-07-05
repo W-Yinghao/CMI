@@ -1,0 +1,15 @@
+[realeeg-v2] host=nodecpu01 job=881756 HEAD=5cce74497b6f0adaed85595ce2710797a9a33d1d tag=csc-realeeg-v2 jobs=24 resume=0
+[run_realeeg EXECUTE] provenance clean; running the frozen real-feature validation (v2 parallel, n_jobs=24, resume=False) ...
+[realeeg-v2] 96/801 cohorts done (0 worker-error this batch)
+[realeeg-v2] 192/801 cohorts done (0 worker-error this batch)
+[realeeg-v2] 288/801 cohorts done (0 worker-error this batch)
+[realeeg-v2] 384/801 cohorts done (0 worker-error this batch)
+[realeeg-v2] 480/801 cohorts done (0 worker-error this batch)
+[realeeg-v2] 576/801 cohorts done (0 worker-error this batch)
+[realeeg-v2] 672/801 cohorts done (0 worker-error this batch)
+[realeeg-v2] 768/801 cohorts done (0 worker-error this batch)
+[realeeg-v2] 801/801 cohorts done (0 worker-error this batch)
+[run_realeeg EXECUTE] wrote /home/infres/yinwang/CMI_AAAI_csc_realeeg_v2_frozen/csc/results/realeeg_validation_v2.final.881756.tmp.json
+[run_realeeg EXECUTE] package_verdict = FAIL (red-team still required)
+e39bdfa9109c65e696a91abbcbbd788d9dfd9497cbb34ba3fd1414e7ec8b7b36  /home/infres/yinwang/CMI_AAAI_csc_realeeg_v2_frozen/csc/results/realeeg_validation_v2.final.json
+[realeeg-v2] done rc=0 (verdict inside /home/infres/yinwang/CMI_AAAI_csc_realeeg_v2_frozen/csc/results/realeeg_validation_v2.final.json; TIER1 B3 safety gates PASS/FAIL; red-team still required)
