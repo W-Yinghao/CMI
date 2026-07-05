@@ -236,11 +236,13 @@ def aggregate_c8(fold_records, *, seeds, subjects=SUBJECTS, k2_min_seeds=3, k2_m
                 else:
                     other += 1
         n = det + stop + other
-        k1_counts[L] = {"leakage_reduction_detected": det, "stop_no_detectable_heldout_leakage_reduction": stop,
-                        "other": other, "n": n, "fraction_detected": (det / n if n else None)}
+        # NOTE: string keys ("0"/"1") — canonical_json forbids int mapping keys.
+        k1_counts[str(L)] = {"level": L, "leakage_reduction_detected": det,
+                             "stop_no_detectable_heldout_leakage_reduction": stop,
+                             "other": other, "n": n, "fraction_detected": (det / n if n else None)}
         dnn = [d for d in deltas if d is not None]
-        k1_stats[L] = {"mean": _mean(dnn), "median": _median(dnn),
-                       "min": (min(dnn) if dnn else None), "max": (max(dnn) if dnn else None)}
+        k1_stats[str(L)] = {"level": L, "mean": _mean(dnn), "median": _median(dnn),
+                            "min": (min(dnn) if dnn else None), "max": (max(dnn) if dnn else None)}
     ndet = sum(c["leakage_reduction_detected"] for c in k1_counts.values())
     ntot = sum(c["n"] for c in k1_counts.values())
     dnn_all = [d for d in all_delta if d is not None]
@@ -326,7 +328,7 @@ def render_c8_report_md(agg) -> str:
          "## K1 — held-out audit permutation null (pre-registered PER-FOLD; sweep line is descriptive)", ""]
     for lvl, c in agg["k1_counts"].items():
         s = agg["k1_stats"][lvl]
-        L.append(f"- level {lvl}: detected **{c['leakage_reduction_detected']}/{c['n']}**, stop "
+        L.append(f"- level {c['level']}: detected **{c['leakage_reduction_detected']}/{c['n']}**, stop "
                  f"{c['stop_no_detectable_heldout_leakage_reduction']}/{c['n']}, other {c['other']} · "
                  f"Δ mean {_f(s['mean'])}, median {_f(s['median'])}, min {_f(s['min'])}, max {_f(s['max'])}")
     m = ko["multiplicity"]

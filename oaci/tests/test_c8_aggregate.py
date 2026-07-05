@@ -119,10 +119,19 @@ def test_c8_k1_counts_and_stats_per_level():
     folds = _all(k1=_STOP)
     folds[0]["levels"][0]["k1"]["k1_status"] = _DET
     r = aggregate_c8(folds, seeds=[0, 1, 2])
-    assert r["k1_counts"][0]["leakage_reduction_detected"] == 1 and r["k1_counts"][0]["n"] == 27
-    assert r["k1_counts"][1]["stop_no_detectable_heldout_leakage_reduction"] == 27
+    assert r["k1_counts"]["0"]["leakage_reduction_detected"] == 1 and r["k1_counts"]["0"]["n"] == 27
+    assert r["k1_counts"]["1"]["stop_no_detectable_heldout_leakage_reduction"] == 27
     assert len(r["k1_per_fold"]) == 54
-    assert r["k1_stats"][0]["mean"] is not None and r["k1_overall"]["n_tests"] == 54
+    assert r["k1_stats"]["0"]["mean"] is not None and r["k1_overall"]["n_tests"] == 54
+
+
+def test_c8_aggregate_is_canonical_json_serializable():
+    """Regression: the whole aggregate must serialize via canonical_json (no int mapping keys). This is the
+    main() write path a logic/render test does not exercise."""
+    from oaci.artifacts.canonical_json import canonical_json_bytes
+    r = aggregate_c8(_all(), seeds=[0, 1, 2], transition_commits=["7931091", "a1a09b8"])
+    b = canonical_json_bytes(r)                                    # raises TypeError on any int/non-str key
+    assert b and isinstance(b, (bytes, bytearray)) and b'"k1_counts"' in b
 
 
 def test_c8_k1_sweep_stop_when_no_bh_survivor():
