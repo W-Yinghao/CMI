@@ -516,3 +516,57 @@ def batch(batch_id, **per_action):
             d.setdefault(f, 0.0)
         feats[a] = d
     return {"batch_id": batch_id, "features": feats}
+
+
+def synthetic_registry(meta_over=None):
+    """A fully-populated 30-ref SubstrateRegistry with placeholder 64-hex hashes + valid meta (for Stage-2 intake tests). No build,
+    no torch, no files. `meta_over(ref, disease, fold, seed) -> dict` (or a plain dict) overrides meta per entry (e.g. to inject a
+    forbidden site token into cohort_inclusion_list)."""
+    from acar.v5 import protocol as P
+    from acar.v5.substrate import stage1b_authorization as SA
+    from acar.v5.substrate import registry as REG
+    reg = REG.SubstrateRegistry()
+    for ref in sorted(SA.CANONICAL_FOLD_REFS):
+        disease = ref.split("/")[0]
+        fold = int(ref.split("fold")[1].split("/")[0])
+        seed = int(ref.split("seed")[1])
+        hashes = {h: "a" * 64 for h in P.REGISTRY_HASH_FIELDS}
+        meta = {"channel_montage": "std_1020_19", "sampling_rate": 128, "windowing_config": "4s_nonoverlap",
+                "cohort_inclusion_list": list(P.DEV_COHORTS[disease]), "random_seed": seed,
+                "git_commit": "0" * 40, "env_lock_sha256": "b" * 64}
+        if meta_over is not None:
+            meta.update(meta_over(ref, disease, fold, seed) if callable(meta_over) else meta_over)
+        reg.register(disease, fold, seed, hashes=hashes, meta=meta)
+    return reg
+
+
+def stage1b_finalized_package(root, run_id="run-syn-0001", *, registry=None, reg=True, marker=True, sha=None, n_refs=30,
+                              status="FINALIZED"):
+    """Write a synthetic finalized Stage-1B package (registry.json + FINALIZED.json) under root/run_id, mirroring the finalize
+    barrier's marker payload. Returns run_root. Overrides let a test tamper the marker (bad sha / n_refs / status / missing file)."""
+    import json
+    import os
+    from acar.v5.substrate import stage1b_registry_io as RIO
+    registry = registry if registry is not None else synthetic_registry()
+    run_root = os.path.join(root, run_id)
+    os.makedirs(run_root, exist_ok=True)
+    reg_sha = RIO.registry_sha256(registry)
+    if reg:
+        reg_sha = RIO.write_registry(registry, os.path.join(run_root, RIO.REGISTRY_FILE))
+    if marker:
+        payload = {"status": status, "n_registered": 30, "n_refs": n_refs,
+                   "registry_sha256": (sha if sha is not None else reg_sha),
+                   "git_commit": "0" * 40, "env_lock_sha256": "b" * 64}
+        with open(os.path.join(run_root, RIO.MARKER_FILE), "w") as f:
+            json.dump(payload, f, sort_keys=True)
+    return run_root
+
+
+def write_synthetic_feat_dump(path, ref="PD/fold0/seed20260711", disease="PD", fold=0, seed=20260711, records=None):
+    """Write a schema-valid, LABEL-FREE feat_dump.npz via the real writer (used by Stage-2 header-peek tests). One record default."""
+    from acar.v5.substrate import stage1b_feature_dump_writer as FDW
+    recs = records if records is not None else [(f"{disease}/ds-xxx/sub-001", "eval", 0, [0.0, 1.0, 2.0])]
+    FDW.write_feature_dump(path, ref=ref, disease=disease, fold=fold, seed=seed,
+                           preprocessing_config_sha256="0" * 64, training_config_sha256="0" * 64,
+                           encoder_checkpoint_file_sha256="0" * 64, source_state_file_sha256="0" * 64, records=recs)
+    return path

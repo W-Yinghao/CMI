@@ -157,6 +157,16 @@ MODULES = (
     "test_stage1b_real_reader_uses_repair_branch_for_scz_fixture",
     "test_stage1b_repair_provenance_reproducible",
     "test_stage1b_real_build_aborts_on_bad_repair_staging_root",
+    # ---- Stage-2A: selection-readiness / package-intake / runner-preflight (no selection, no labels, no real scoring) ----
+    "test_stage2_intake_admits_stage1b_package",
+    "test_stage2_uses_selection_seed_only",
+    "test_stage2_rejects_s1_seed_for_selection",
+    "test_stage2_exact_22_candidate_manifest",
+    "test_stage2_joint_disease_selection_only",
+    "test_stage2_no_external_tokens",
+    "test_stage2_no_label_in_routing",
+    "test_stage2_dryrun_no_candidate_selected",
+    "test_stage2_g4_conditional_adapted_non_evaluable_fail",
 )
 
 
