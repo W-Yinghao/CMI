@@ -1,0 +1,38 @@
+{
+  "dataset": "Cho2017",
+  "repo_loader_supported": true,
+  "repo_defaults": {
+    "binary": true,
+    "fmin": 8,
+    "fmax": 30
+  },
+  "paradigm_routing": "binary=True -> LeftRightImagery (CORRECT: events are left/right hand, no BNCI2015-style trap)",
+  "n_subjects": 52,
+  "event_id": {
+    "left_hand": 1,
+    "right_hand": 2
+  },
+  "n_classes": 2,
+  "moabb_interval_s": [
+    0,
+    3
+  ],
+  "window_compat_0p5_3p5": false,
+  "window_issue": "MOABB interval [0, 3] (len 3s); default tmin=0.5/tmax=3.5 overruns by 1.0s -> use tmax<=3.0 (e.g. window [0.5,3.0]=2.5s)",
+  "channels_sfreq": "N/A without load (literature: 64ch, 512Hz) -> verify on a 1-subject load",
+  "data_cached": false,
+  "download_required": true,
+  "in_datalake_mirror": false,
+  "central_strip_v1_preset": "NONE for Cho2017 (only BNCI2014_001/BNCI2015_001) -> FBCSPLGGGraph graph branch needs a new 64ch montage preset OR channel-subset mapping",
+  "csp_init_source_only_feasible": true,
+  "decodable_subset_applies": false,
+  "reported_endpoint_if_run": "full-LOSO mean + worst bAcc (2-class; the {1,3,8,9} 4-class subset is 2a-specific)",
+  "firewall": "LOSO source-only + target eval-only (same protocol) \u2014 feasible",
+  "actions_before_gpu": [
+    "download Cho2017 (~GB, not in datalake mirror) OR locate a readable mirror",
+    "set tmax<=3.0 for the [0,3] interval",
+    "verify channels/sfreq on a 1-subject load",
+    "add a central_strip_v1 preset for the Cho2017 montage OR map to a sensorimotor channel subset",
+    "CSP-init source-only smoke on Cho2017 montage"
+  ]
+}
