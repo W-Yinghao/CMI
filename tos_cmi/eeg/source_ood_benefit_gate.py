@@ -91,12 +91,15 @@ def gate_signals(Zs, ys, subj, n_cls, method, cfg, seed, n_pseudo=8):
 
 def _boot_bound(vals, clusters, side, B=2000, rng=None):
     """Cluster bootstrap one-sided bound. side='upper'->97.5 pct, side='lower'->2.5 pct of the mean."""
-    vals = np.asarray(vals, float); vals = vals[~np.isnan(vals)]
+    vals = np.asarray(vals, float)
+    clusters = np.asarray(clusters)[:len(vals)]           # align clusters to vals BEFORE NaN masking
+    mask = ~np.isnan(vals)                                 # drop NaNs from vals AND their clusters together
+    vals, clusters = vals[mask], clusters[mask]            # (prior code truncated clusters[:len] -> misalign if a NaN wasn't at the tail)
     if len(vals) == 0:
         return float("nan")
     rng = rng or np.random.default_rng(0)
     by = {}
-    for i, c in enumerate(clusters[:len(vals)]):
+    for i, c in enumerate(clusters):
         by.setdefault(c, []).append(i)
     uniq = sorted(by); means = []
     for _ in range(B):
@@ -106,9 +109,15 @@ def _boot_bound(vals, clusters, side, B=2000, rng=None):
     return float(np.percentile(means, 97.5 if side == "upper" else 2.5))
 
 
-def gate_action(task_drop_ucb, benefit_lcb):
-    if not np.isnan(task_drop_ucb) and task_drop_ucb > SAFETY_EPS:
+def gate_action(task_drop_ucb, benefit_lcb, safety_eps=SAFETY_EPS, benefit_thr=BENEFIT_LCB):
+    """Pre-registered action. safety_eps/benefit_thr default to the module constants but may be supplied
+    from a frozen config so the thresholds are authoritative rather than decorative. NaN safety is treated
+    as UNCERTIFIABLE -> never ACCEPT/REJECT (closes the hole where a NaN task-drop bypassed the safety guard).
+    All non-NaN behaviour is identical to the prior version (Track B results unchanged: its UCBs are non-NaN)."""
+    if np.isnan(task_drop_ucb):
+        return "ABSTAIN"           # safety undefined -> cannot certify safe; refuse
+    if task_drop_ucb > safety_eps:
         return "REJECT"            # unsafe: erasing hurts the task
-    if not np.isnan(benefit_lcb) and benefit_lcb > BENEFIT_LCB:
+    if not np.isnan(benefit_lcb) and benefit_lcb > benefit_thr:
         return "ACCEPT"            # safe AND source-OOD benefit supported
     return "ABSTAIN"               # safe but no supported benefit

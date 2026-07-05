@@ -1,0 +1,16 @@
+# Phase 2 task-preserving / conditional erasure -- FIXED config (reuses Track B gate thresholds; no per-result tuning).
+datasets: [Lee2019_MI, Cho2017]
+backbones: [EEGNet]
+seeds: [0]
+fold_mode: first15_subjects_subset
+target_usage: audit_only
+safety_reject_task_drop_ucb: 0.02      # same as Track B (config ac4ba42b961a)
+benefit_accept_lcb: 0.01
+domain_gain_role: diagnostic_only
+n_pseudo: 8
+erasers:
+  - leace_baseline                       # plain marginal LEACE (the harmful one on Lee/Cho EEGNet)
+  - tp_leace_task_carrier_preserving     # LEACE on the task-orthogonal complement only
+  - cc_leace_predicted_route_deployable  # class-conditional LEACE, routed by a source-trained predictor
+  - random_k                             # non-specific control
+  - cc_leace_oracle_route_diagnostic     # class-conditional LEACE with true labels (UPPER BOUND, not deployable)
