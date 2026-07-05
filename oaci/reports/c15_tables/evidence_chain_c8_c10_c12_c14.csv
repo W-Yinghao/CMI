@@ -1,0 +1,6 @@
+phase,what_tested,result,key_numbers
+C8,"OACI native K1/K2, BNCI001 LOSO seeds[0,1,2]",K1 stop_no_detectable_heldout_leakage_reduction; K2 stop_no_reproducible_gain,11 nominal / 0 BH survivors / 54
+C10a,artifact-only transfer diagnostics,selection->audit optimism; audit orthogonal to target,"Δsel -0.326 vs Δaudit 0.008, corr 0.004"
+C10b,counterfactual selector replay S0-S5 incl. oracle,C_oracle_also_fails,"oracle fails; identity 216/216, 0 flips; S0==C8"
+C12,SRC endpoint stress replication (3 targets x 2 temps),stop_SRC_pivot_measurement_only,"anti-transfer; blowup 6/12, ATI 1.0, STI 1.0"
+C14,falsification battery,falsified,falsified_by_no_endpoint_transfer; falsified_by_oracle_failure; falsified_by_source_target_antitransfer
