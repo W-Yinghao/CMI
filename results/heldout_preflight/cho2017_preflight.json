@@ -19,9 +19,9 @@
   ],
   "window_compat_0p5_3p5": false,
   "window_issue": "MOABB interval [0, 3] (len 3s); default tmin=0.5/tmax=3.5 overruns by 1.0s -> use tmax<=3.0 (e.g. window [0.5,3.0]=2.5s)",
-  "channels_sfreq": "N/A without load (literature: 64ch, 512Hz) -> verify on a 1-subject load",
-  "data_cached": false,
-  "download_required": true,
+  "channels_sfreq": "VERIFIED: 69 channels, 512 Hz (first: Fp1/AF7/AF3/F1/F3/F5)",
+  "data_cached": "ALREADY in datalake at /projects/EEG-foundation-model/datalake/raw/MNE-gigadb-data/gigadb-datasets/ (all 52/52 subjects readable) \u2014 NO download needed",
+  "download_required": false,
   "in_datalake_mirror": false,
   "central_strip_v1_preset": "NONE for Cho2017 (only BNCI2014_001/BNCI2015_001) -> FBCSPLGGGraph graph branch needs a new 64ch montage preset OR channel-subset mapping",
   "csp_init_source_only_feasible": true,
@@ -34,5 +34,7 @@
     "verify channels/sfreq on a 1-subject load",
     "add a central_strip_v1 preset for the Cho2017 montage OR map to a sensorimotor channel subset",
     "CSP-init source-only smoke on Cho2017 montage"
-  ]
+  ],
+  "n_channels_verified": 69,
+  "sfreq_verified": 512.0
 }

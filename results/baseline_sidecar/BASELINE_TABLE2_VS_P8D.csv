@@ -1,0 +1,6 @@
+model,2a_dec_delta_vs_P8D,2a_full_delta_vs_P8D,2015_delta_vs_P8D
+EEGNetMini,+0.0572,+0.0285,-0.0053
+ShallowConvNetMini,+0.0142,+0.0020,-0.0095
+DeepConvNetMini,+0.0115,+0.0027,+0.0251
+CSP_all_source,-0.0240,-0.0227,-0.0145
+CSP_srcval_matched,-0.0305,-0.0234,-0.0175
