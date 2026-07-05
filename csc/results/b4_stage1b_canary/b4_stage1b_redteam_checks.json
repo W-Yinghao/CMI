@@ -1,0 +1,66 @@
+{
+ "all_match": true,
+ "per_lens": [
+  {
+   "lens": "reaggregation",
+   "verdict": "MATCHES",
+   "summary": "Re-aggregated /home/infres/yinwang/realeeg_feas/b4_stage1b/b4_stage1b_merged.json (206 applicable cohorts; same 206-cohort manifest as Stage 1a). Recomputed b4c_confirm independently per record from raw fields as (b4c_fixed_margin_p<=0.025 AND b4c_studentized_p<=0.025 AND b4c_lcb_budget>0 AND size_ok), NOT trusting the stored b4c_confirm; the recomputed flag agreed with the stored flag for all 206/206 records. Every reported number reproduces exactly. HARD-SAFETY (NULL, ground_truth_noconcept=True): NULL_cov m+/o- = 20/20 confirm, NULL_cov_plus_label m+/o- = 20/20 confirm -> B4c HARD-FAILS (20/20 >= 10/20 cap) in both NULL conditions at the m+/o- stratum. CLEAN stratum m-/o-: NULL_cov = 4/20, NULL_cov_plus_label = 3/20 -> both exceed the clean cap of 1 (safety regression). The frozen B3 method confirmed 0/20 in BOTH clean m-/o- NULL conditions, so all 4 (cohorts 0,3,22,24) and all 3 (cohorts 1,4,12) B4c confirmations are NEW false positives the method did not make. POS retention: POS_concept m+/o+ = 16/20, POS_concept_plus_cov (POS_cov) m+/o+ = 19/20 (both match report). null_sd medians (all applicable): method 0.0004085, B4a 0.0004608, B4b 0.0004745, B4c 0.0003592 (NARROWER than method), oracle 0.0006768 -- all match. NULL_cov m+/o- observed_T median grew from B3 0.002229 -> B4c 0.003310. Reproducibility: observed_T_repro_ok True for all 206/206 (the richer shared family changed observed T but it is reproducible, as required); b4c_margin_preserved True for all 206. Conclusion: the richer shared quadratic-PC nuisance trunk does NOT fix the m+/o- null contamination (still 20/20, and observed T actually grew) and INTRODUCES a new clean-cohort false-positive regression (method 0 -> B4c 4 and 3, both above cap 1). B4c fails go/no-go on both the NULL m+/o- hard-fail and the clean-cap criteria."
+  },
+  {
+   "lens": "invariant",
+   "verdict": "MATCHES",
+   "summary": "Independent recomputation from raw confirms the B4c Stage-1b invariant holds and the reported numbers are accurate. (a) 206/206 rows have unique task_ids exactly equal to the manifest's 206 cohorts; 0 worker errors; all rows b4c_applicable=true and observed_T_repro_ok=true; shard prov files report n_worker_errors=0, n_repro_fail=0 (all on nodecpu01); merged sha256 self-verifies. (b) Numeric feature decomposition shows X1-X0 adds EXACTLY 3 columns == c*U (U=top-3 PC), byte-identical to B3's cv*(Zs@Vr) -- interaction channel UNCHANGED, no extra condition-specific terms. (c) The only added terms are the 6 quadratic PC terms (u_i^2, u_i u_j), present identically in BOTH h0 and h1 (X1[:, :23]==X0) and invariant to flipping D (no hidden c-interaction in the trunk). (d) X0[:, :17] equals B3's _features trunk exactly; weighted standardize + PC basis, _make_folds, class_balanced_weights, sample_h0_fixed_condition_margins, and estimand PC._T_cv (CE(h0)-CE(h1)) all reuse frozen B3 internals unchanged. (e) The worker discards clf_oracle (_,Z,Y,D,G,_ = OF._reconstruct); ground_truth_noconcept / stratum / archived oracle fields feed only record labels and archived comparison, never fitting, null, or confirm -- no oracle or true-DGP leak. (f) all b4c p-fields in [1/201,1] (min exactly 1/201, max 200/201), B=200, C=0.25. Reported stratum numbers reproduce exactly: NULL_cov m+/o- b4c_confirm 20/20 (HARD FAIL), NULL_cov_plus_label m+/o- 20/20, NULL_cov m-/o- 4/20 and NULL_cov_plus_label m-/o- 3/20 (both > cap 1 = safety regression), POS_concept m+/o+ 16/20, POS_concept_plus_cov m+/o+ 19/20; null_sd medians method 0.000408 / B4a 0.000461 / B4b 0.000475 / B4c 0.000359 (narrower than method) / oracle 0.000677; NULL_cov m+/o- observed_T median grew 0.00223 (B3) -> 0.00331 (B4c). Implementation is faithful to the declared design; the candidate is a genuine, honestly-reported scientific failure -- the richer shared trunk narrows the interaction null and grows observed T on m+/o-, worsening false confirms and regressing m-/o- safety. No hidden interaction-channel expansion, feature change, oracle leak, or non-reproducibility."
+  }
+ ],
+ "serious_issues": [
+  {
+   "lens": "reaggregation",
+   "severity": "critical",
+   "summary": "B4c HARD-FAILS the NULL m+/o- safety criterion: 20/20 confirm in NULL_cov m+/o- and 20/20 in NULL_cov_plus_label m+/o- (>= 10/20 cap), both verified by independent recompute of confirm from raw fixed_margin_p/studentized_p/lcb_budget/size_ok. The richer shared trunk did not help; observed_T median grew B3 0.002229 -> B4c 0.003310."
+  },
+  {
+   "lens": "reaggregation",
+   "severity": "high",
+   "summary": "New clean-cohort safety regression at m-/o-: B4c confirms NULL_cov 4/20 (cohorts 0,3,22,24) and NULL_cov_plus_label 3/20 (cohorts 1,4,12), both above the clean cap of 1. The frozen B3 method confirmed 0/20 in both, so every B4c clean confirmation is a false positive the method did not make."
+  }
+ ],
+ "all_issues": [
+  {
+   "lens": "reaggregation",
+   "severity": "critical",
+   "summary": "B4c HARD-FAILS the NULL m+/o- safety criterion: 20/20 confirm in NULL_cov m+/o- and 20/20 in NULL_cov_plus_label m+/o- (>= 10/20 cap), both verified by independent recompute of confirm from raw fixed_margin_p/studentized_p/lcb_budget/size_ok. The richer shared trunk did not help; observed_T median grew B3 0.002229 -> B4c 0.003310."
+  },
+  {
+   "lens": "reaggregation",
+   "severity": "high",
+   "summary": "New clean-cohort safety regression at m-/o-: B4c confirms NULL_cov 4/20 (cohorts 0,3,22,24) and NULL_cov_plus_label 3/20 (cohorts 1,4,12), both above the clean cap of 1. The frozen B3 method confirmed 0/20 in both, so every B4c clean confirmation is a false positive the method did not make."
+  },
+  {
+   "lens": "reaggregation",
+   "severity": "medium",
+   "summary": "B4c null spread is over-narrow relative to the method: null_sd median 0.0003592 vs method 0.0004085 (and vs oracle 0.0006768), which inflates confirmations on nulls -- consistent with the m+/o- 20/20 hard fail and the clean-cap breach."
+  },
+  {
+   "lens": "reaggregation",
+   "severity": "low",
+   "summary": "No discrepancy in the reported summary: all reported counts (20/20, 20/20, 4/20, 3/20, 16/20, 19/20), null_sd medians, and the NULL_cov m+/o- observed_T B3->B4c median all reproduce exactly; stored b4c_confirm equals independent recompute for all 206/206 records; observed_T_repro_ok and margin_preserved True for all 206."
+  },
+  {
+   "lens": "invariant",
+   "severity": "low",
+   "summary": "Regularization C=0.25 differs from B3's LOCKED C=0.5. This is predeclared in the B4c candidate spec and applied SYMMETRICALLY to h0, h1, and the null-h0 fit (via C_B4C in _T_cv and _h0_logp_b4c), so it does not distort the CE(h0)-CE(h1) contrast; not a hidden change and not one of the flagged categories, noted only for transparency."
+  },
+  {
+   "lens": "invariant",
+   "severity": "low",
+   "summary": "The observed_T reproducibility self-check (b vs b2, B=5) runs in-process on the same node (all shards on nodecpu01). Because observed_T is fully deterministic given seed, this passing 206/206 primarily guards against global-RNG contamination of the observed statistic; it does not test cross-node lbfgs determinism. This is consistent with the code's stated 'same node' reproducibility requirement, not a defect."
+  }
+ ],
+ "_flags": {
+  "diagnostic_only": true,
+  "not_confirmatory": true,
+  "not_deployable": true,
+  "no_method_promotion": true
+ },
+ "clarification": "Both lenses MATCHES (all_match=true): implementation VERIFIED faithful (interaction channel c x PC1:3 unchanged; only shared quadratic-PC trunk added to BOTH h0 and h1; no oracle/DGP leak; observed-T reproducible; p in [1/201,1]; C=0.25 predeclared+symmetric). The critical/high 'serious_issues' are the SCIENTIFIC hard-fail (B4c NULL m+/o- 20/20 + clean m-/o- regression 4&3), i.e. the honestly-reported negative RESULT, NOT implementation defects. The red-team calls it 'a genuine, honestly-reported scientific failure.'"
+}

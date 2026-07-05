@@ -1,0 +1,74 @@
+{
+ "_flags": {
+  "diagnostic_only": true,
+  "not_confirmatory": true,
+  "not_deployable": true,
+  "no_method_promotion": true
+ },
+ "candidate": "B4c-Q3 richer shared quadratic-PC trunk (h0 & h1); interaction c x PC1:3 unchanged; C=0.25",
+ "merged_sha256": "3eee5a49822960b3b32415ce9d406b3e632012e5f52c1f33481f2b64ef94879d",
+ "hard_safety_screen": {
+  "NULL_cov:m+/o-": {
+   "n": 20,
+   "method": 20,
+   "b4c": 20,
+   "oracle": 0,
+   "cap": 5
+  },
+  "NULL_cov:m-/o-": {
+   "n": 20,
+   "method": 0,
+   "b4c": 4,
+   "oracle": 0,
+   "cap": 1
+  },
+  "NULL_cov_plus_label:m+/o-": {
+   "n": 20,
+   "method": 20,
+   "b4c": 20,
+   "oracle": 0,
+   "cap": 5
+  },
+  "NULL_cov_plus_label:m-/o-": {
+   "n": 20,
+   "method": 0,
+   "b4c": 3,
+   "oracle": 0,
+   "cap": 1
+  }
+ },
+ "pos_usefulness": {
+  "POS_concept": {
+   "n": 20,
+   "method": 20,
+   "b4c": 16,
+   "oracle": 20
+  },
+  "POS_concept_plus_cov": {
+   "n": 20,
+   "method": 20,
+   "b4c": 19,
+   "oracle": 20
+  }
+ },
+ "observed_T_and_dispersion": {
+  "nullcov_mpom_B3_observed_T_median": 0.002229,
+  "nullcov_mpom_B4c_observed_T_median": 0.00331,
+  "observed_T_change_pct": 48.5,
+  "null_sd_median": {
+   "method": 0.000408,
+   "b4a": 0.000461,
+   "b4b": 0.000475,
+   "b4c": 0.000359,
+   "oracle": 0.000677
+  },
+  "nullcov_mpom_b4c_fmp_at_floor": "20/20",
+  "nullcov_mpom_b4c_studentized_p_median": 0.005
+ },
+ "eligibility": {
+  "b4c_hard_safety_pass": false,
+  "hard_fail_triggered": true,
+  "verdict": "B4c-Q3 HARD FAILS: removes 0/20 NULL_cov m+/o- false-confirms (>=10/20 hard-fail) AND regresses safety (clean m-/o- false-adds 4/20 & 3/20 > cap 1). Enriching the FITTED shared trunk narrows the null (0.000359 < method 0.000408) and grows observed T (+49%) -- worse than B4a/B4b.",
+  "stage1b_answer": "NO -- a richer estimable/fitted shared nuisance family does NOT approximate the oracle null; it is more overfit, not less biased."
+ }
+}
