@@ -23,7 +23,7 @@ from ..leakage.crossfit import FrozenFeatures, make_fold_plan_from_design
 from ..leakage.design import make_leakage_design
 from ..leakage.errors import LeakageNonEstimableError
 from ..leakage.estimate import estimate_extractable_leakage
-from ..support_graph import build_support_graph
+from ..support_graph import build_support_graph, counts_from_labels
 from . import masks, schema
 from . import stress_plan as sp
 
@@ -101,20 +101,24 @@ def _leakage(featz, ci, name_actions, base_sg, critic, n_folds, *, seed, target,
     if len(keep) == 0:
         return None
     d_code = featz["d_code"][keep]; yk = featz["y"][keep]
-    grp = [featz["group"][i] for i in keep]; sid = [featz["sample_id"][i] for i in keep]
+    grp = [str(featz["group"][i]) for i in keep]; sid = [str(featz["sample_id"][i]) for i in keep]
     mass = np.ones(len(yk), dtype=np.float64); Z = np.asarray(featz["Z"][ci])[keep]
-    masked_sg = masks.apply_to_support_graph(name_actions, base_sg)
+    # support graph DERIVED from the MASKED rows (design cell_mass = per-cell row mass sum -> matches by
+    # construction; abstractly-masked cell_mass would mismatch for skew/rare). Reference prior stays FIXED.
+    D, C = base_sg.counts.shape
+    counts = counts_from_labels(d_code, yk, n_domains=D, n_classes=C)
+    cell_mass = np.zeros((D, C), dtype=np.float64); np.add.at(cell_mass, (d_code, yk), mass)
+    sg = build_support_graph(counts, int(base_sg.m), cell_mass=cell_mass,
+                             reference_prior=np.asarray(base_sg.reference_prior, dtype=np.float64),
+                             domain_names=list(base_sg.domain_names), class_names=list(base_sg.class_names))
     try:
-        design = make_leakage_design(tuple(sid), yk, d_code, [str(g) for g in grp], mass, masked_sg)
-        fp = make_fold_plan_from_design(design, masked_sg, n_folds=int(n_folds),
+        design = make_leakage_design(tuple(sid), yk, d_code, grp, mass, sg)
+        fp = make_fold_plan_from_design(design, sg, n_folds=int(n_folds),
                                         seed=sp._fold_seed(seed, target, level, salt))
-        feat = FrozenFeatures(Z=Z, y=yk, d=d_code, group=np.array([str(g) for g in grp]),
-                              sample_mass=mass, sample_id=tuple(sid))
-        return float(estimate_extractable_leakage(feat, masked_sg, fp, critic)["L_abs"])
+        feat = FrozenFeatures(Z=Z, y=yk, d=d_code, group=np.array(grp), sample_mass=mass, sample_id=tuple(sid))
+        return float(estimate_extractable_leakage(feat, sg, fp, critic)["L_abs"])
     except LeakageNonEstimableError:
-        return None                                                    # abstain -> H5 non-estimability signal
-    except Exception:
-        return None
+        return None                                                    # GENUINE abstention -> H5 signal (not a bug swallow)
 
 
 def recompute_candidate(fld, ci, source_na, audit_na, *, edges, classes, with_leakage=True):
