@@ -287,12 +287,13 @@ hours by collapsing ~23x redundant preprocessing); process parallelism then comp
 ## 11. Authorization status
 
 ```
-STATUS: DESIGN ONLY. UNREVIEWED. UNAUTHORIZED. UNCOMMITTED.
+STATUS: DESIGN ONLY / COMMITTED AS NOTES / UNAUTHORIZED FOR IMPLEMENTATION.
+No code change, no cache created, no rerun authorized.
 ```
 
 - This note changes no code and creates no cache.
-- It is held **uncommitted** while job `881227` is running, so the running Stage-1B package stays cleanly associated
-  with `c4412b40cb8218ed39c586ff2a4e48247648aa07`.
+- Committed as a NOTE in `7000cab` AFTER job `881227` completed and the package was admitted (no package artifact was
+  committed); the admitted Stage-1B package stays cleanly bound to `c4412b40cb8218ed39c586ff2a4e48247648aa07`.
 - After `881227` completes or stops, report the Stage-1B package status FIRST; only then decide whether to commit this
   note and whether any optimized future build is worth pursuing. A cache implementation, if pursued, is a **new,
   separately-authorized** stage (code + synthetic/fixture tests only, adversarial review, two-Python verification),
