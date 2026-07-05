@@ -1,0 +1,90 @@
+{
+ "_flags": {
+  "diagnostic_only": true,
+  "oracle_uses_true_DGP": true,
+  "not_deployable": true,
+  "no_method_change": true,
+  "no_B4": true
+ },
+ "verdict": "VERIFIED - all 3 lenses MATCHES, 0 serious issues",
+ "all_match": true,
+ "n_serious_issues": 0,
+ "per_lens": [
+  {
+   "lens": "reaggregation",
+   "verdict": "MATCHES",
+   "summary": "Re-aggregated all of Tables A-D directly from the 1200 raw per_cohort rows of p3_oracle_merged.json, recomputing method_confirm (method_state=='CONCEPT_CONFIRMED'), oracle_confirm (oracle_fixed_margin_p<=0.025 AND oracle_studentized_p<=0.025 AND lcb_budget>0 AND size_ok), and invalidity from raw fields rather than trusting the artifact's precomputed booleans. Every reported figure reproduces.\n\nTABLE A (each condition n=300; method_rate -> oracle_rate; n_invalid):\n- NULL_cov: 56/300=0.1867 (rounds 0.187) -> 4/300=0.0133 (0.013); n_invalid=0. MATCH.\n- NULL_cov_plus_label: 32/300=0.1067 (0.107) -> 2/300=0.0067 (0.007); n_invalid=0. MATCH.\n- POS_concept: 80/300=0.2667 (0.267) -> 40/300=0.1333 (0.133); n_invalid=9. MATCH.\n- POS_concept_plus_cov: 75/300=0.2500 (0.250) -> 34/300=0.1133 (0.113); n_invalid=7. MATCH.\nInvalid denominators are the full 300 (invalid counted as non-confirm), exactly as specified.\n\nTABLE D (m+/o+, m+/o-, m-/o+, m-/o-):\n- NULL_cov: 4/52/0/244. MATCH.\n- NULL_cov_plus_label: 2/30/0/268. MATCH.\n- POS_concept: 40/40/0/220. MATCH.\n- POS_concept_plus_cov: 34/41/0/225. MATCH.\nAll four rows sum to 300. Notably m-/o+ = 0 in every condition: oracle confirms are a strict subset of method confirms (the oracle only ever removes confirms, never adds).\n\nTABLE B (NULL_cov): 56 method false-confirms; oracle confirms 4 of them = 7.1% (\"7%\"). MATCH. oracle null_sd 0.00049 = median of oracle_null_sd_T over the 56 (mean=0.00050). method null_sd 0.0003 = mean/median of the internal-forensic null_sd_T seed-matched to the same 56 cohorts (mean=0.000281, median=0.000284). oracle_null_sd > method_null_sd holds under both mean and median. MATCH (see note on provenance/aggregation).\n\nTABLE C: oracle keeps 40/80 = 50.0% of POS_concept true-confirms (\"~50%\") and 34/75 = 45.3% of POS_concept_plus_cov true-confirms (\"~45%\"). MATCH.\n\nSanity: oracle_p_floor=1/201, oracle_B=200, ALPHA_BUDGET=0.025. My raw recompute also equals the artifact's precomputed method_false/true_confirm and oracle_confirm fields for all four conditions. No CONCEPT_CONFIRMED cohort is also invalid.",
+   "confidence": "high"
+  },
+  {
+   "lens": "integrity",
+   "verdict": "MATCHES",
+   "summary": "All reported numbers reproduce EXACTLY from the raw per_cohort rows (denominator 300 per condition, method-invalid counted as non-confirms). TABLE A: NULL_cov method 56/300=0.187 -> oracle 4/300=0.013; NULL_cov_plus_label 32/300=0.107 -> 2/300=0.007; POS_concept 80/300=0.267 -> 40/300=0.133; POS_concept_plus_cov 75/300=0.250 -> 34/300=0.113. n_invalid POS_concept 9, POS_cov 7, NULL 0. TABLE D (m+/o+ m+/o- m-/o+ m-/o-): NULL_cov 4/52/0/244; NULL_cov_plus_label 2/30/0/268; POS_concept 40/40/0/220; POS_concept_plus_cov 34/41/0/225. TABLE B: 56 NULL_cov method-FC, oracle confirms 4 = 7.1%; oracle null wider than method null (oracle_null_sd_T median over the 56 FC = 0.000492 ~ 0.00049; method null_sd_T = 0.000303 ~ 0.0003). TABLE C: oracle keeps 40/80=50.0% POS_concept and 34/75=45.3% POS_cov true-confirms. Recomputed oracle_confirm (fixed_margin_p<=0.025 AND studentized_p<=0.025 AND lcb_budget>0 AND size_ok) matched the stored oracle_confirm field with 0/1200 mismatches; recomputed method_confirm (method_state=='CONCEPT_CONFIRMED') matched method_false_confirm/method_true_confirm with 0 mismatches. INTEGRITY (oracle 1200): 1200 unique task_ids no dup/missing (every seed_block x condition cell = 100); all 1200 fidelity_ok==true (0 fail-closed, applicable fidelity_dT exactly 0.0); 1184 applicable records all have oracle_fixed_margin_p & oracle_studentized_p in [1/201,1] and oracle_margin_preserved==true; 16 method-invalid (method_state NEED_MORE_LABELS, observed_T nan) all have oracle_applicable==false, oracle_confirm==false, and are not CONCEPT_CONFIRMED (POS_concept 9 + POS_cov 7). INTEGRITY (internal 1800): 1800 unique task_ids no dup/missing (18 cells x100); 1784 valid all margin_preserved==true; 16 invalid (POS 9+7). sha256 of BOTH merged files recomputed and match their .sha256 (oracle 1503e95b...837baf3; internal ad8f5f7b...dab27bb). NULL-DISTRIBUTION DIFFERENCE confirmed: for NULL_cov the METHOD fixed_margin_p sits at the 1/201 floor for 279/300=93% (only 8 unique values) while the ORACLE fixed_margin_p has 162 unique values spread across the full [0.005,1.0] range (0% at floor) -- the method null collapses, the oracle null is estimable-spread.",
+   "confidence": "high"
+  },
+  {
+   "lens": "implementation",
+   "verdict": "MATCHES",
+   "summary": "All reported numbers reproduce EXACTLY from the raw per_cohort rows of p3_oracle_merged.json (1200 rows = 3 blocks x 4 conds x 100; sha256 verified; merge = faithful concat of the 12 oracle/oracle_*.jsonl shards). TABLE A (confirm = fixed_p<=0.025 AND stud_p<=0.025 AND lcb_budget>0 AND size_ok; method-invalid -> non-confirm): NULL_cov method 56/300=0.187 -> oracle 4/300=0.0133; NULL_cov_plus_label 32/300=0.107 -> 2/300=0.0067; POS_concept 80/300=0.267 -> 40/300=0.1333; POS_concept_plus_cov 75/300=0.250 -> 34/300=0.1133; n_invalid POS_concept=9, POS_cov=7, NULL=0. TABLE D: NULL_cov 4/52/0/244; NULL_cov_plus_label 2/30/0/268; POS_concept 40/40/0/220; POS_concept_plus_cov 34/41/0/225 (all exact). TABLE B: 56 NULL_cov method-FC, oracle confirms 4 (7%); oracle_null_sd_T over method-FC mean 0.000503 / median 0.000492 (~0.00049) > method null_sd_T (from internal-forensic) mean 0.000283 over NULL_cov FC (~0.0003) -- oracle null is genuinely WIDER. TABLE C: POS_concept 40/80=50% retained, POS_cov 34/75=45% retained. Stored oracle_confirm flags match the recomputed definition with 0 mismatches across all 1200 rows. ORACLE FAITHFULNESS (code lens): (a) YES -- oracle draws Y* from clf_oracle=EG._pooled_clf(coh_Z, coh_y), which is BYTE-IDENTICAL (same C=0.5 LogisticRegression on the same raw coh_Z/coh_y) to the clf that build_cohort uses to GENERATE the labels, i.e. the true session-independent p_oracle(Y|Z); it is fed through sample_h0_fixed_condition_margins with the SAME observed condition x class margins (y0_idx=searchsorted(cl,Y2)), the SAME query/folds/_prep_folds/_T_cv/_studentize/_bootstrap path, swapping ONLY logp0. Class alignment into cl and 1e-12 flooring mirror _h0_full_logp exactly. (b) YES -- observed T/Z are recomputed in-process on the identical pipeline and asserted equal to the method's (fidelity_dT=0.0 for ALL 584 oracle_applicable rows, max=0.0). (c) YES, genuinely distinct -- method null uses _h0_full_logp refit on OBSERVED Y WITH the condition covariate; oracle uses the pooled generator on REAL y with NO condition term; empirically the two p-values differ per row (e.g. NULL_cov cohort0 method_fmp=0.00498 vs oracle_fmp=0.587). (d) No clearing/dropping bug found: because clf_oracle is the exact generating boundary, for NULL_cov the oracle is the CORRECTLY-SPECIFIED null (collapse to ~1.3% is honest size, not spurious conservatism), and for POS the unrotated clf is the correct no-concept null (25deg-rotation cohorts that clear it are genuine; ~50% drop = correctly-specified null is stricter than the fitted-h0 null, not a bug). The wider oracle null (0.0005 vs 0.0003) is the expected signature of using the true generator vs an in-sample-overfit fitted h0 -> supports the 'fitted-h0 null is too liberal' reading.",
+   "confidence": "high"
+  }
+ ],
+ "findings": [
+  {
+   "severity": "low",
+   "lens": "reaggregation",
+   "summary": "Schema split in the merged artifact: the 600 NULL rows (generated ~14:30) carry oracle_estimable and lack oracle_applicable/method_invalid, while the 600 POS rows (~17:35) carry oracle_applicable/method_invalid and lack oracle_estimable-as-the-invalidity-signal. Results are unaffected because NULL n_invalid=0 and the fields needed for confirm decisions (oracle_fixed_margin_p, oracle_studentized_p, lcb_budget, size_ok, method_state) are present in both schemas; a naive literal 'oracle_applicable==False' filter would silently miss NULL invalidity, but there is none."
+  },
+  {
+   "severity": "low",
+   "lens": "reaggregation",
+   "summary": "Table B's 'method null_sd 0.0003' is not present anywhere in p3_oracle_merged.json (which has no method-side null_sd field; se_delta over the 56 method-FC is ~0.00072-0.00077, not 0.0003). The 0.0003 value is only reproducible by seed-joining to the internal-forensic artifact's null_sd_T (0.000281 mean). The number is correct but its provenance is cross-artifact and should be documented."
+  },
+  {
+   "severity": "low",
+   "lens": "reaggregation",
+   "summary": "Minor aggregation inconsistency in Table B: the reported oracle null_sd (0.00049) is the median of oracle_null_sd_T while the reported method null_sd (0.0003) matches the mean of the internal null_sd_T. The oracle>method inequality is robust to the choice (oracle mean=0.00050/median=0.00049 vs method mean=0.00028/median=0.00028), so no conclusion changes."
+  },
+  {
+   "severity": "low",
+   "lens": "integrity",
+   "summary": "Table B null_sd values are not stored in the oracle merged file: the method null_sd (0.0003) was recovered from the SEPARATE internal_forensic file's null_sd_T; the oracle figure 0.00049 matches the median oracle_null_sd_T over the 56 method-FC subset (0.000492), whereas over ALL 300 NULL_cov it is 0.000537. The qualitative claim (oracle null wider than method null) is robustly confirmed regardless."
+  },
+  {
+   "severity": "low",
+   "lens": "integrity",
+   "summary": "The 1800-record internal_forensic file has no fidelity_ok field (it is a method-only forensic with no oracle re-derivation), so the checklist's 'ALL records fidelity_ok==true' clause is not applicable to it; its analogue margin_preserved==true holds for all 1784 valid records (16 invalid: POS_concept 9, POS_cov 7)."
+  },
+  {
+   "severity": "low",
+   "lens": "integrity",
+   "summary": "Informational: cross-file method observed_T differs between the oracle file (in-process recompute) and the internal_forensic file (SLURM-computed) by up to 0.0047 (mean 1.9e-5), attributable to cross-machine lbfgs nondeterminism the worker deliberately avoids by recomputing the method in-process; within-oracle-file fidelity_dT is exactly 0, so this does not affect any confirm counts."
+  },
+  {
+   "severity": "medium",
+   "lens": "implementation",
+   "summary": "PROVENANCE GAP: the two NULL-condition oracle shards (oracle_*_NULL_cov.jsonl, oracle_*_NULL_cov_plus_label.jsonl; SLURM 882564, mtime 14:27-14:32) were produced ~1.5h BEFORE realeeg_oracle_forensic.py was last modified (mtime 15:55), whereas the POS shards (SLURM 883123, mtime 17:32-17:34) came AFTER. realeeg_feas is not a git repo and no backup of the pre-15:55 worker exists, so the exact code that produced the headline NULL collapse (0.187->0.013) is not the code I audited. Evidence that it is nonetheless faithful: NULL rows differ from current-code POS-valid rows by EXACTLY one key (the added 'oracle_applicable'), carry identical oracle_generator_spec format and all valid-branch fields (fidelity_dT=0.0, oracle_estimable, etc.), and the missing key does not enter the confirm definition; a byte-reproduction run of the CURRENT worker on NULL_cov block 50e6 was launched but had not finished at finalize time."
+  },
+  {
+   "severity": "low",
+   "lens": "implementation",
+   "summary": "Schema drift, benign: all 600 NULL-condition rows lack the 'oracle_applicable' key so r.get('oracle_applicable') returns None (not True). This does not affect any reported count because the stated oracle_confirm definition gates on p-values/lcb/size_ok, not on oracle_applicable (method-invalid rows self-exclude by having null oracle p-values). A naive recompute that gates on oracle_applicable truthiness under-counts NULL oracle-confirms to 0 -- the reported 4/2 (and Table D m+ column) are correct; the naive-gate 0 is wrong."
+  },
+  {
+   "severity": "low",
+   "lens": "implementation",
+   "summary": "Method-count basis mismatch to note (not an error): the '56' NULL_cov method-FC in the oracle artifact is the IN-PROCESS certify count; the internal-forensic artifact (SLURM-computed) shows 57 NULL_cov b3-confirmed. The 1-cohort difference is the cross-node lbfgs(tol=1e-4) nondeterminism the worker comment explicitly anticipates and neutralizes by running certify in-process; Table B's method_null_sd~0.0003 is sourced from the internal-forensic file, so it is compared across the two artifacts rather than within one."
+  }
+ ],
+ "resolution": {
+  "provenance_gap_medium": "NULL oracle shards re-run with committed worker (uniform git-tracked provenance)",
+  "schema_split_low": "resolved by NULL re-run (uniform schema)",
+  "tableB_nullsd_provenance_low": "documented: method null_sd from internal-forensic artifact",
+  "count_56_vs_57_low": "documented: cross-node lbfgs(tol=1e-4) +-1, full-300 denominator, non-impacting"
+ },
+ "post_rerun": {
+  "merged_sha256": "83b45c8c6e42358a2272a8e40bc41a837506a5f9efe3c76e118f03d652bf96fb",
+  "numbers_identical_to_prerun": true,
+  "note": "NULL shards re-run with committed worker; archived decision based on post-rerun merged"
+ }
+}

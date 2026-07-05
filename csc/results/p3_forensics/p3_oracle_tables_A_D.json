@@ -1,0 +1,94 @@
+{
+ "_flags": {
+  "diagnostic_only": true,
+  "not_used_for_certificate": true,
+  "oracle_uses_true_DGP": true,
+  "not_deployable": true,
+  "no_method_change": true,
+  "no_B4": true
+ },
+ "merged_sha256_basis": "83b45c8c6e42358a2272a8e40bc41a837506a5f9efe3c76e118f03d652bf96fb",
+ "tableA_calibration": {
+  "NULL_cov": {
+   "n": 300,
+   "n_invalid": 0,
+   "method_confirm": 56,
+   "method_confirm_rate": 0.1867,
+   "oracle_confirm": 4,
+   "oracle_confirm_rate": 0.0133,
+   "oracle_studentized_p_median": 0.5522388059701493
+  },
+  "NULL_cov_plus_label": {
+   "n": 300,
+   "n_invalid": 0,
+   "method_confirm": 32,
+   "method_confirm_rate": 0.1067,
+   "oracle_confirm": 2,
+   "oracle_confirm_rate": 0.0067,
+   "oracle_studentized_p_median": 0.7412935323383084
+  },
+  "POS_concept": {
+   "n": 300,
+   "n_invalid": 9,
+   "method_confirm": 80,
+   "method_confirm_rate": 0.2667,
+   "oracle_confirm": 40,
+   "oracle_confirm_rate": 0.1333,
+   "oracle_studentized_p_median": 0.2835820895522388
+  },
+  "POS_concept_plus_cov": {
+   "n": 300,
+   "n_invalid": 7,
+   "method_confirm": 75,
+   "method_confirm_rate": 0.25,
+   "oracle_confirm": 34,
+   "oracle_confirm_rate": 0.1133,
+   "oracle_studentized_p_median": 0.22885572139303484
+  }
+ },
+ "tableD_decision_matrix": {
+  "NULL_cov": {
+   "m_pos_o_pos": 4,
+   "m_pos_o_neg": 52,
+   "m_neg_o_pos": 0,
+   "m_neg_o_neg": 244
+  },
+  "NULL_cov_plus_label": {
+   "m_pos_o_pos": 2,
+   "m_pos_o_neg": 30,
+   "m_neg_o_pos": 0,
+   "m_neg_o_neg": 268
+  },
+  "POS_concept": {
+   "m_pos_o_pos": 40,
+   "m_pos_o_neg": 40,
+   "m_neg_o_pos": 0,
+   "m_neg_o_neg": 220
+  },
+  "POS_concept_plus_cov": {
+   "m_pos_o_pos": 34,
+   "m_pos_o_neg": 41,
+   "m_neg_o_pos": 0,
+   "m_neg_o_neg": 225
+  }
+ },
+ "tableB_nullcov_mechanism": {
+  "n_method_FC": 56,
+  "oracle_still_confirms": 4,
+  "oracle_null_sd_T_FC_median": 0.0004921721867551438,
+  "oracle_studentized_p_FC_median": 0.22139303482587064,
+  "note": "method null_sd (~0.0003) is from the internal-forensic artifact null_sd_T; oracle null wider (robust to mean/median)"
+ },
+ "tableC_pos_separation": {
+  "POS_concept": {
+   "n_method_TC": 80,
+   "oracle_keeps": 40,
+   "oracle_keeps_frac": 0.5
+  },
+  "POS_concept_plus_cov": {
+   "n_method_TC": 75,
+   "oracle_keeps": 34,
+   "oracle_keeps_frac": 0.4533
+  }
+ }
+}
