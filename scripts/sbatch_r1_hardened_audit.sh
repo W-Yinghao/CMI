@@ -1,8 +1,8 @@
 #!/bin/bash
 #SBATCH --job-name=cigl-r1-hardened
 #SBATCH --partition=CPU
-#SBATCH --cpus-per-task=16
-#SBATCH --mem=32G
+#SBATCH --cpus-per-task=32
+#SBATCH --mem=48G
 #SBATCH --output=logs/cigl/cigl-r1-hardened-%j.out
 #SBATCH --error=logs/cigl/cigl-r1-hardened-%j.out
 # CPU-only confirmatory audit (no GPU). No --qos/--time (cluster convention).
@@ -21,5 +21,5 @@ echo "host=$(hostname)  branch=$(git rev-parse --abbrev-ref HEAD)  commit=$(git 
   --seed 0 \
   --n_perm 1000 \
   --epochs 100 \
-  --workers 16 \
+  --workers 32 \
   --methods erm cigl_graph_node cdan

@@ -1,0 +1,19 @@
+# CIGL_65 evidence-freeze manifest
+commit: d3593c8ff4b999abb73e5197e2ad83f8aa28cf33
+branch: project/cigl-r123-scaffold
+scientific_level: method-level (full-LOSO x seeds 0/1/2)
+datasets: [BNCI2014_001, BNCI2015_001]
+seeds: [0, 1, 2]
+methods: [erm, cigl_graph_node, dann, cond_dann, cdan]
+backbone: dgcnn_forward_graph_adapter
+cigl_lambda: {graph: 0.010, node: 0.010}
+gate_jobs: {seed0: [883118, 883120], seed1: [883206, 883207], seed2: [883203, 883204]}
+n_perm_in_run: 50
+r1_hardened_n_perm: 1000
+firewall: strict_source_only; target_eval_only; firewall_passed_all_folds: true
+head_replay: {erm: absolute_1e-5, cigl: absolute_1e-5, adversarial_2015: relative_1e-4_recovered}
+files:
+  multiseed_pareto.csv: {rows: 30}
+  head_replay_check.csv: {rows: 315}
+  r3_reliance.csv: {rows: 1512}
+  bootstrap_ci.csv: {rows: 24}
