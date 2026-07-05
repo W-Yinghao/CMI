@@ -31,8 +31,10 @@ lever --- which is exactly why we do not equate removal with improvement.
 
 \subsection{Limitations}
 \begin{itemize}
-\item \textbf{Single dataset.} All EEG results are on BCI-IV-2a (BNCI2014\_001); we do not claim generality to other
-  paradigms, montages, or session structures.
+\item \textbf{Scope of validation.} The primary mechanism figures are on BCI-IV-2a, but the target-deployment
+  conclusion is validated on four additional real EEG datasets (2b, Lee2019, Cho2017, High-Gamma; $129$ further
+  subjects; \S4.7). The validation is not exhaustive over all EEG paradigms, montages, or model families, and
+  2b-TSMNet is excluded because the $3$-channel montage makes the high-dimensional SPD tangent diagnostic degenerate.
 \item \textbf{Two backbones only.} TSMNet and EEGNet; the cross-representation contrast rests on two points.
 \item \textbf{Dimension-vs-type: largely capacity, with a residual architecture effect at high $d_z$.} The original
   two-point comparison confounded architecture with latent dimension (SPD/$210$ vs conv/$16$). The
@@ -41,7 +43,7 @@ lever --- which is exactly why we do not equate removal with improvement.
   architectures, the two coincide at low $d_z$, and matching dimension removes about two-thirds of the raw gap ---
   but \emph{not} purely: at matched $d_z{=}210$ the SPD/LogEig latent retains significantly more recoverable
   subject identity than the convolutional one ($+0.11$, CI $[0.09,0.13]$). So the confound is largely, not fully,
-  explained by capacity. Remaining caveats: a single dataset (BCI-IV-2a) and the LDA cap from $8$ source subjects.
+  explained by capacity. Remaining caveats: the factorial is run on BCI-IV-2a only, and the LDA cap from $8$ source subjects.
 \item \textbf{No end-to-end TOS training.} The EEG study is a frozen-feature pilot: it measures whether \emph{removing}
   localized leakage from a fixed representation helps; it does not show that end-to-end training with a
   certified penalty cannot help.

@@ -124,3 +124,22 @@ the SPD size (tangent dimension $m(m{+}1)/2$ for $m\in\{6,8,10,14,20\}$, i.e.\ $
 EEGNet via the penultimate width $F_2\in\{16,32,64,128,210\}$ (the $F_2{=}210$ cell provides the dimension-matched $d_z{=}210$ comparison).
 For each cell we re-train the backbone (ERM), freeze it, and report the nonlinear (MLP) subject-decode residual
 after optimal linear erasure as the removability response, over the LOSO folds (\S4.5, Fig.~\ref{fig:capacity}).
+
+\subsection{Multi-dataset validation protocol}
+To test whether the frozen target-deployment conclusion (\S4.5) is specific to BCI-IV-2a, we replicate the
+Track-G erasure controls and the target-deployment test on four additional real EEG motor-imagery datasets,
+loaded through the same offline MOABB pipeline: BCI-IV-2b \citep{leeb2008bci}, Lee2019/OpenBMI
+\citep{lee2019eeg}, Cho2017 \citep{cho2017eeg}, and the High-Gamma dataset \citep{schirrmeister2017deep}.
+Subject counts are $9$, $9$, $54$, $52$, and $14$ (2a, 2b, Lee, Cho, HGD; $129$ beyond 2a), with two
+classes (2b, Lee, Cho) or four (2a, HGD) and $3$--$128$ channels. For each dataset we train both backbones
+(EEGNet, TSMNet) per LOSO fold, freeze, and apply the identical protocol (\S2.6): fit each eraser on the
+source, deploy on the held-out target, and use the target labels only for final scoring. Cross-dataset
+comparison uses the \emph{paired} $\Delta$bAcc against the full-$Z$ frozen baseline, never absolute bAcc
+(chance differs across paradigms). We \textbf{pre-register} the acceptance rule: a principled eraser (LEACE,
+TOS-$V_D$, RLACE) shows \emph{no practically meaningful target gain} iff its $\Delta$bAcc \emph{upper} $95\%$
+subject-cluster CI is $<{+}0.01$; a cell is \emph{confirmed} iff all principled erasers meet this, and would be
+an \emph{overturn} only if some principled eraser had a \emph{lower} CI $>{+}0.01$ with a source-task drop
+$\le 0.02$ that same-$k$ random removal does not reproduce. TSMNet on the $3$-channel 2b montage yields an
+ill-conditioned $210$-d tangent metric; those folds are skipped by a degeneracy guard and reported as a
+not-evaluated configuration, not a negative cell.
+

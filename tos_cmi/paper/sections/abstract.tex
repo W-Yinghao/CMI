@@ -24,6 +24,11 @@ this directly --- none improves target accuracy, and the NLL movement is not era
 removal produces a same-sign reduction without erasing subject identity). A capacity-controlled factorial
 (three seeds) further indicates that this representation-dependence is largely mediated by latent dimension ---
 SPD and convolutional latents coincide at matched low dimension --- though a residual architecture effect
-persists at high dimension. Safe selective invariance should
+persists at high dimension. Across four additional real EEG datasets (BCI-IV-2b, Lee2019, Cho2017, High-Gamma;
+$129$ subjects beyond 2a), the target-deployment result persists: no source-fitted eraser --- including the
+optimal linear eraser LEACE --- yields a practically meaningful target-accuracy gain in any valid
+dataset--backbone cell (2b-TSMNet is excluded as a degenerate low-channel SPD configuration). The validation
+also exposes task-safety heterogeneity: in compact binary EEGNet latents, erasing subject identity can drive
+the task to chance. Safe selective invariance should
 therefore be treated as a certified intervention with refusal, not as an always-on regularizer.
 \end{abstract}

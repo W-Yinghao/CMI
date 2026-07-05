@@ -1,7 +1,8 @@
 # Real-EEG multi-dataset validation of the TOS-CMI conclusions
 
 Branch `tos`. Purpose: test whether the 2a (BCI-IV-2a, 9 subjects) frozen-feature conclusions replicate on
-additional real EEG datasets — **not** on synthetic. Status: **in progress** (big-N dumps running). This file
+additional real EEG datasets — **not** on synthetic. Status: **FINAL — readout complete; C12 CONFIRM on 9/9
+valid dataset-backbone cells** (integrated into the paper, Case 1). This file
 is the validation-branch provenance / run manifest; the paper's claim contract stays in
 `paper/claim_evidence_table.md` and is **not** edited until the big-N readout is in.
 

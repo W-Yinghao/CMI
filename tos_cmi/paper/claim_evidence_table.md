@@ -101,6 +101,12 @@ Global forbidden phrasings (apply everywhere):
 
 ---
 
+### C13 — Multi-dataset target-deployment validation (branch tos, DONE)
+- **Claim:** across four additional real EEG datasets (2b, Lee2019, Cho2017, High-Gamma; 129 subjects beyond 2a), no principled source-fitted eraser (LEACE/TOS/RLACE) yields a practically meaningful target-bAcc gain in any valid dataset-backbone cell; C12 CONFIRM on 9/9 valid cells. Erasure task-safety is heterogeneous: on binary Lee/Cho with EEGNet, LEACE/RLACE drive the source task to chance, so deployment actively HARMS the target.
+- **Phase:** branch tos multi-dataset validation. **Fig/Table:** compact `tab:bigN_compact` (main) + `tab:bigN_full` (appendix).
+- **Numbers (paired subject-cluster 95% CI):** Cho2017-TSMNet LEACE −0.001[−0.003,+0.000]; Lee2019-TSMNet −0.002[−0.003,+0.000]; High-Gamma-TSMNet −0.001[−0.005,+0.003]; Lee/Cho-EEGNet LEACE/RLACE −0.15..−0.19 (task→chance). All principled upper CIs < +0.01.
+- **Status:** SUPPORTED. 2b-TSMNet excluded (degenerate 3-channel SPD metric). **Allowed:** "across additional real EEG datasets, source-fitted erasers do not yield practically meaningful target-bAcc gains in any valid dataset-backbone cell." **Forbidden:** "erasure never helps domain generalization" / "conditional invariance is useless" / "all backbones on all datasets were valid" / "2b confirms TSMNet" / "LEACE is task-safe across datasets".
+
 ## Dim↔type confound — exact limitation wording (use verbatim)
 > The original two-backbone Phase 3 comparison did not isolate architecture from latent dimension. The
 > Track-C factorial attributes MOST of the removability contrast to latent dimension, while retaining a

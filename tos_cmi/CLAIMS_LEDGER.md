@@ -120,10 +120,21 @@ erasure_target_deployment:                        # Step 3 (DONE; SLURM 878002)
     Only movement = small NLL drop, but same-k RANDOM matches it (TSMNet LEACE dNLL -.031 vs random -.034;
     random subj_dec .998 = NOT erased) => NON-SPECIFIC regularization, NOT a domain-removal benefit.
     Closes the measurement-to-control loop: optimal erasure deployed on target != DG gain.
+real_eeg_multidataset_erasure_deployment_no_gain:  # C12-real (branch tos; DONE, Case 1 integrated)
+  status: supported
+  scope: 9 valid dataset-backbone cells (2a both, 2b-EEGNet, Lee/Cho/HGD both); 2b-TSMNet excluded (degenerate 3ch)
+  datasets: [BNCI2014_001, BNCI2014_004, Lee2019_MI, Cho2017, Schirrmeister2017]   # 129 subjects beyond 2a
+  scripts: [tos_cmi/eeg/erasure_target_deploy.py, tos_cmi/eeg/bigN_report.py, tos_cmi/eeg/dataset_manifest.py]
+  acceptance_rule: upper 95% subject-cluster CI < +0.01 for ALL principled erasers (LEACE/TOS_VD/RLACE)
+  finding: no principled source-fitted eraser yields a practically meaningful target-bAcc gain in any valid cell
+    (e.g. Cho2017-TSMNet LEACE -0.001[-0.003,+0.000]; Lee2019-TSMNet -0.002[-0.003,+0.000]; HGD-TSMNet -0.001[-0.005,+0.003])
+  caveat: task-safety heterogeneous -- Lee/Cho EEGNet LEACE/RLACE drive task to chance -> deployment HARMS target -0.15..-0.19
+  outputs: notes/REAL_EEG_VALIDATION.md ; results/tos_cmi_eeg_frozen/{validation_manifest.json, erasure_target_deploy/*}
+  figure: paper SS4.7 Table (tab:bigN_compact) + App (tab:bigN_full)
 end_to_end_tos_training:        {status: not_attempted, plan: Track E (conditional-on-kept critic + PCGrad + anti-collapse)}
 ```
 
-**Real-EEG multi-dataset validation (branch `tos`, in progress):** see `notes/REAL_EEG_VALIDATION.md`
+**Real-EEG multi-dataset validation (branch `tos`, DONE; C12-real supported):** see `notes/REAL_EEG_VALIDATION.md`
 for the run manifest + pre-registered acceptance criteria. Key provenance: fold-cap bug fix `ede201a`
 (`--target-subjects all`/factorial FOLDS were hardcoded to 9 -> non-9-subject datasets dumped only 9 LOSO
 folds; now read from the real MOABB subject_list; existing 9-fold dumps verified full-source-pool),

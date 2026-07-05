@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT"
 export PYTHONPATH="$ROOT"
 PY="${TOS_PY:-python}"
-for m in build_table1_summary build_table2_erasure; do
+for m in build_table1_summary build_table2_erasure build_table4_bigN; do
   echo ">>> $m"
   "$PY" -m tos_cmi.paper.scripts.$m
 done

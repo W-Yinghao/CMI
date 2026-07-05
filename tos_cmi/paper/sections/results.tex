@@ -171,6 +171,22 @@ random-$k$ as $d_z$ grows.}
 \label{fig:capacity}
 \end{figure}
 
+\subsection{Multi-dataset deployment validation: erasure still does not become a DG lever}
+\textbf{The target-deployment conclusion is not specific to 2a: across four additional real EEG datasets, no
+principled source-fitted eraser yields a practically meaningful target-accuracy gain in any valid
+dataset--backbone cell} (Table~\ref{tab:bigN_compact}; full per-eraser table with CIs in
+App.~\ref{tab:bigN_full}). C12 is confirmed on all $9$ valid cells (2a, 2b-EEGNet, and Lee/Cho/High-Gamma both
+backbones); 2b-TSMNet is excluded as a degenerate $3$-channel SPD configuration, not a negative cell. The
+decisive additions are the \emph{non-degenerate} big-$N$ TSMNet cells: LEACE $\Delta$bAcc is $-0.001$
+(Cho2017, $52$ subjects), $-0.002$ (Lee2019, $54$), and $-0.001$ (High-Gamma), all with $95\%$ CIs inside
+$[-0.006,+0.003]$ --- so the TSMNet result is not a $9$-subject / $22$-channel artifact. \emph{Task-safety is heterogeneous, however}: on the binary datasets (Lee, Cho) with the compact
+EEGNet latent, LEACE and RLACE drive the source task to chance ($0.79\to0.50$, $0.77\to0.50$), so at deployment
+they \textbf{actively harm} the target ($\Delta$bAcc $-0.15$ to $-0.19$) --- a task-safety failure, not useful
+invariance. This makes the certified-intervention-with-refusal framing more, not less, necessary: an always-on
+eraser would degrade these datasets \claimtag{C13}.
+
+\input{figures/table_bigN_compact.tex}
+
 \subsection{Unified interpretation}
 Across both representations, conditional domain leakage is a \textbf{measurable} property of the EEG latent that
 the score-Fisher diagnostics localize, but it is \textbf{not a sufficient control target} for cross-subject
