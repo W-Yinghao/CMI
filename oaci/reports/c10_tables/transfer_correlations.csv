@@ -1,0 +1,9 @@
+x,y,pearson,spearman,n
+audit_leakage,target_worst_bacc,-0.06439408516678274,-0.22159102420932178,54
+audit_leakage,target_worst_nll,-0.13336914134822594,-0.05546026300743282,54
+audit_leakage,target_worst_ece,-0.11444605457821762,-0.008652563369544501,54
+selection_leakage,audit_leakage,0.0044811198122375745,0.09060415475509816,54
+corr_lambda_vs_delta_target_worst_bacc,,-0.28932517518620365,-0.26103369114348624,54
+corr_lambda_vs_delta_target_worst_nll,,0.2707836698679886,0.24987611096902823,54
+corr_R_src_gap_vs_delta_target_worst_bacc,,0.1525224646496915,0.21327945447813937,54
+corr_epoch_vs_delta_target_worst_bacc,,0.2530638758520863,0.18444721840647407,54
