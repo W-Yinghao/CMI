@@ -7,6 +7,7 @@
 #SBATCH --output=logs/cigl/cigl-r2gate-bnci2015-%j.out
 #SBATCH --error=logs/cigl/cigl-r2gate-bnci2015-%j.out
 # NOTE: no --qos and no --time on purpose (cluster convention: default QOS, no walltime cap).
+# Seed parameterized via GATE_SEED (default 0). Seed is NOT method semantics; training identical across seeds.
 
 set -euo pipefail
 cd "${SLURM_SUBMIT_DIR:-$(pwd)}"
@@ -14,9 +15,18 @@ mkdir -p logs/cigl
 
 export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK:-8}"
 export MKL_NUM_THREADS="${SLURM_CPUS_PER_TASK:-8}"
+GATE_SEED="${GATE_SEED:-0}"
+
+# Data-access ONLY (no science change): the datalake ~bci/001-2015/*.mat are owner-only (tmaye, not
+# group-readable); a world-readable copy lives at database/data-sets/001-2015. cmi.paths uses os.environ
+# .setdefault, so pre-setting MNE_DATASETS_BNCI_PATH to a staged symlink tree wins. The tree symlinks the
+# readable copy into the expected MNE-bnci-data/~bci/database/001-2015 layout.
+STAGE="${MNE_BNCI_STAGE:-/home/infres/yinwang/mne_stage_bnci}"
+export MNE_DATASETS_BNCI_PATH="${STAGE}"
+export MNE_DATA="${STAGE}"
 
 PY=/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python
-echo "host=$(hostname)  branch=$(git rev-parse --abbrev-ref HEAD)  commit=$(git rev-parse --short HEAD)"
+echo "host=$(hostname)  branch=$(git rev-parse --abbrev-ref HEAD)  commit=$(git rev-parse --short HEAD)  seed=${GATE_SEED}  bnci_path=${STAGE}"
 
 # Fail closed: the gate must run on GPU (never silently fall back to CPU).
 if ! "$PY" -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)"; then
@@ -24,13 +34,10 @@ if ! "$PY" -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)
   exit 1
 fi
 
-# R2 seed0 gate: 5 approved methods (erm, cigl_graph_node, dann, cond_dann, cdan) on the SAME DGCNN adapter,
-# ALL LOSO folds, seed 0. Resumable (existing per-(fold,method) JSON is skipped). Writes metrics JSON +
-# Pareto rows + verified head-replay .audit.npz + firewall metadata.
 "$PY" scripts/run_cigl_r2_seed0_gate.py \
   --dataset BNCI2015_001 \
   --device cuda \
-  --seed 0 \
+  --seed "${GATE_SEED}" \
   --epochs 80 \
   --probe_epochs 100 \
   --n_perm 50 \
