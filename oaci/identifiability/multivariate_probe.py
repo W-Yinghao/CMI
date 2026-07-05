@@ -80,6 +80,11 @@ def _loto(X, y, groups):
 
 def multivariate_probe(rows, *, perm_seed=0, n_perm=_N_PERM) -> dict:
     X, y, gt, gs, fold, cols = _matrix(rows)
+    if len(y) == 0 or len(cols) == 0 or len(np.unique(gt)) < 2:       # degenerate atlas (masks dropped all/most)
+        return {"n_used": int(len(y)), "n_features": len(cols),
+                "base_rate": (float(y.mean()) if len(y) else None), "loto_auc": None, "loso_auc": None,
+                "per_target_auc": {}, "permutation_mean_auc": None, "permutation_p": None,
+                "beats_permutation": False, "non_deployable": NON_DEPLOYABLE, "note": "degenerate atlas"}
     loto_auc, _ = _loto(X, y, gt)
     loso_auc, _ = _loto(X, y, gs)
     per_target = {}
