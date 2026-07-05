@@ -160,7 +160,7 @@ def run_subject(tgt, seeds, protocol, cache, out_path, code_sig, commit, gpu_man
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--targets", default="")
+    ap.add_argument("--subjects", default="", help="comma-separated REAL subject ids (NOT bench indices)")
     ap.add_argument("--seeds", default="0,1,2")
     ap.add_argument("--protocol", default="primary", choices=["primary", "secondary"])
     ap.add_argument("--cache", default="results/h2cmi/p0_sleep_cache")
@@ -182,14 +182,19 @@ def main():
         if os.path.exists(scratch):
             os.remove(scratch)
         run_subject(tgt, seeds, args.protocol, args.cache, scratch, code_sig, commit, gpu, args.device, args.epochs)
-        orig = os.path.join(OUT_DIR, f"p0w2det_{args.protocol}_{tgt}.jsonl")
+        from h2cmi.wave0_fanout import output_path as _op
+        orig = _op(dict(wave="W0.1", protocol=args.protocol, real_subject_id=int(tgt)), OUT_DIR)
         _compare_replay(orig, scratch)
         return
-    targets = bench
-    if args.targets:
-        a, b = (int(x) for x in args.targets.split("-")); targets = bench[a:b + 1]
+    # Address by REAL subject id (bench index is NEVER an identity -- see h2cmi.wave0_fanout).
+    targets = list(bench) if not args.subjects else [int(s) for s in args.subjects.split(",") if s != ""]
+    bad = [t for t in targets if t not in bench]
+    if bad:
+        raise SystemExit(f"subjects {bad} not in benchmark (must be REAL subject ids, not indices)")
+    from h2cmi.wave0_fanout import output_path
     for tgt in targets:
-        out_path = os.path.join(OUT_DIR, f"p0w2det_{args.protocol}_{tgt}.jsonl")
+        u = dict(wave="W0.1", protocol=args.protocol, real_subject_id=int(tgt))
+        out_path = output_path(u, OUT_DIR)
         run_subject(tgt, seeds, args.protocol, args.cache, out_path, code_sig, commit, gpu, args.device, args.epochs)
 
 
