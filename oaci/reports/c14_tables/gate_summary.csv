@@ -1,0 +1,7 @@
+gate,status
+G0_integrity,integrity_ok
+G1_selection_optimism,selection_optimism_present
+G2_heldout_leakage,weak_nominal_nonmultiplicity_signal
+G3_endpoint_transfer,stop_no_reproducible_gain
+G4_oracle_rescue,oracle_fails_to_rescue
+G5_source_target_transfer,source_target_antitransfer_detected
