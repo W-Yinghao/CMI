@@ -46,9 +46,15 @@ external datasets are required; all Wave 0 compute reuses existing cached real E
   (primary night1→night2; secondary within-night-2). No re-download.
 - **Determinism controls (fixed):** `torch.use_deterministic_algorithms(True)`,
   `CUBLAS_WORKSPACE_CONFIG=:4096:8`, `cudnn.deterministic=True` / `benchmark=False`, fixed per-unit
-  seeds (`stable_hash_int`), and **all W0.1 jobs pinned to a single GPU type** (declared at submit;
-  recorded in the manifest). If any op lacks a deterministic implementation it raises — we do **not**
-  silently fall back.
+  seeds (`stable_hash_int`). If any op lacks a deterministic implementation it raises and that fold is
+  recorded as `determinism_fail` — we do **not** silently fall back.
+- **AMENDMENT (user-directed, 2026-07-06): per-fold GPU-type reproducibility, not a single global pin.**
+  Jobs are scheduled by SLURM across **{A100, H100, A40, V100}** (throughput). Each fold **records its
+  GPU type + CUDA/torch/library manifest**. The self-replay reproducibility gate re-runs a fold on **its
+  own recorded GPU type** and requires identical prediction/logit hashes. Cross-architecture float
+  differences are therefore never compared; each fold's confusion is admissible iff it is bit-reproducible
+  on the architecture that produced it. Walltime honors the queue caps (A100/H100 ≤ 23:59:59; A40/V100 ≤
+  2 days); **per-fold append + skip-if-done** guarantees no completed fold is lost on a walltime kill.
 - **Full logging per (subject, seed, branch):** logits, hard predictions, confusion matrix, per-stage
   recall, `π_J`, transform params `T_J=(a,b)` and its norm, source-bundle SHA, adapt/eval split hash,
   optimizer seed, and a GPU/CUDA/library manifest.
