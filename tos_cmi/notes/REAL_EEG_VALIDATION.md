@@ -76,31 +76,33 @@ low-N (HGD 14), CIs are wide → down-weight. Do **not** report only the mean.
   Parking lot (optional appendix only, must NOT enter main conclusions): if all big-N TSMNet jobs later fail,
   run a low-dim TSMNet (`subspacedims` → tangent ≤ 6) on 2b as a robustness check.
 
-### Lee2019 / Cho2017 — EARLY READOUT (complete cells; jobs 880896/880897). HGD pending.
+### FINAL big-N readout (all cells COMPLETE, re-analyzed on full dumps; jobs 882380/1/2)
 
-**Headline (EARLY, not final): the completed decisive cells CONFIRM C12; the partial cells provisionally
-agree; HGD and the two partial cells are pending top-up before the final verdict.** The most important new
-cell is Cho2017-TSMNet (52 subj, 64 ch, non-degenerate, 156/156 complete) — the first big-N high-channel
-TSMNet confirmation. ΔbAcc are paired subject-cluster CIs.
+**C12 (main thesis "no principled eraser yields a meaningful target-bAcc gain") = CONFIRM on ALL valid cells:
+2a (both), 2b-EEGNet, Lee2019 (both), Cho2017 (both), High-Gamma (both) — 9/9 valid (dataset,backbone) cells;
+2b-TSMNet excluded (degenerate). No OVERTURN anywhere.** ΔbAcc = paired subject-cluster 95% CI vs full-Z.
 
-| dataset | backbone | folds | C7/C8 profile | C12 deployment | note |
-|---|---|---|---|---|---|
-| Cho2017 | **TSMNet** | **156/156 COMPLETE** | **CONFIRM** | **CONFIRM** | LEACE ΔbAcc −0.001[−0.003,0.000], TOS −0.000, RLACE −0.000[−0.004,0.004] — no eraser helps target (52 subj, 64 ch, non-degenerate) |
-| Lee2019 | **EEGNet** | **162/162 COMPLETE** | MIXED | **CONFIRM** | LEACE ΔbAcc −0.185 (worse), TOS −0.001, RLACE −0.185; C7/C8 MIXED because LEACE drives task 0.79→0.50 (over-erasure) |
-| Lee2019 | TSMNet | 125/162 (topping up) | CONFIRM | **CONFIRM (PROVISIONAL)** | LEACE −0.002[−0.004,0.000], TOS −0.000, RLACE −0.002 |
-| Cho2017 | EEGNet | 131/156 (topping up) | MIXED | **CONFIRM (PROVISIONAL)** | LEACE −0.141 (worse, task→0.50), TOS −0.001, RLACE −0.141 |
+| dataset | subj | cls | backbone | C7/C8 | **C12** | LEACE ΔbAcc [CI] | TOS ΔbAcc [CI] | RLACE ΔbAcc [CI] |
+|---|---|---|---|---|---|---|---|---|
+| Lee2019 | 54 | 2 | EEGNet | MIXED | **CONFIRM** | −0.185 [−0.220,−0.152] | −0.001 [−0.002,+0.001] | −0.185 [−0.219,−0.150] |
+| Lee2019 | 54 | 2 | TSMNet | CONFIRM | **CONFIRM** | −0.002 [−0.003,+0.000] | −0.000 [−0.001,+0.001] | −0.003 [−0.006,−0.000] |
+| Cho2017 | 52 | 2 | EEGNet | MIXED | **CONFIRM** | −0.150 [−0.185,−0.118] | −0.001 [−0.002,−0.000] | −0.150 [−0.185,−0.118] |
+| Cho2017 | 52 | 2 | TSMNet | CONFIRM | **CONFIRM** | −0.001 [−0.003,+0.000] | −0.000 [−0.001,+0.001] | −0.000 [−0.004,+0.004] |
+| High-Gamma | 14 | 4 | EEGNet | CONFIRM | **CONFIRM** | −0.091 [−0.113,−0.070] | +0.001 [−0.000,+0.002] | −0.038 [−0.051,−0.024] |
+| High-Gamma | 14 | 4 | TSMNet | CONFIRM | **CONFIRM** | −0.001 [−0.005,+0.003] | +0.000 [−0.000,+0.000] | −0.003 [−0.008,+0.001] |
 
-**C12: CONFIRM on the two COMPLETE cells (Cho-TSMNet, Lee-EEGNet); PROVISIONAL CONFIRM on the two partial
-cells; HGD pending.** All principled erasers' ΔbAcc upper CI < +0.01 on the reported cells. Final table must
-report a subject-cluster CI for **every** eraser (LEACE/TOS/RLACE/random-k/INLP + INLP source-task cost); a
-cell without CIs stays a provisional point estimate, not a final CONFIRM.
+(2a both CONFIRM/CONFIRM; 2b-EEGNet CONFIRM/CONFIRM; 2b-TSMNet DEGENERATE.) Every principled eraser's upper
+CI < +0.01 (most strictly negative). INLP always collapses source task (e.g. HGD-TSMNet 1.00→0.52); random-k
+NLL movements are non-specific.
 
-**C7/C8 nuance (honest):** TSMNet erasure profile CONFIRMS the 2a pattern (redundant high-dim leakage; LEACE
-removes linear subject, task preserved; INLP destroys task; TOS weak). But on the **binary** MI datasets
-(Lee/Cho) with **EEGNet** (compact 16-d), **LEACE is NOT task-safe** — erasing subject drives the task to
-chance (0.79→0.50), so the 2a "LEACE removes subject at ~no task cost" does not generalize there. This is
-representation/paradigm-dependent and **strengthens** the certification-with-refusal framing (erasure is not
-free), and C12 still holds. NOT an overturn of the main thesis.
+**C7/C8 (erasure profile) — the one honest heterogeneity:** CONFIRM for TSMNet everywhere (non-degenerate),
+and for EEGNet on the **4-class** datasets (2a, HGD). **MIXED for EEGNet on the two BINARY datasets (Lee, Cho)**
+because LEACE/RLACE drive the source task to chance (0.79→0.50, 0.77→0.50) — subject and task are entangled in
+the compact 16-d binary latent, so linear subject erasure is NOT task-safe. Consequence at deployment: naive
+LEACE/RLACE on Lee/Cho-EEGNet **actively HARMS** the target (ΔbAcc −0.15 to −0.19), not merely "no gain". This
+is paradigm-dependent and **strengthens** the certified-intervention-with-refusal thesis (erasing without a
+task-risk certificate can hurt), and it does **not** overturn C12.
 
-Run order when the rest land: Track G + C12 first (NOT LPC/factorial) → re-run full analysis + HGD →
-final CONFIRM/MIXED/OVERTURN table.
+**Verdict class (PM framework): Case 1 for C12** (full multi-dataset confirmation; not underpowered — HGD CIs
+are tight), plus a new honest sub-finding (erasure task-safety is representation/paradigm dependent). No
+Case-3 overturn. Paper integration decision is the PM's.
