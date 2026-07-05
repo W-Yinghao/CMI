@@ -1,0 +1,38 @@
+# V2 semi-synthetic acceptance-power benchmark -- FIXED config.
+# Gate thresholds are FROZEN (identical to Track B / Phase 2); only world-generation params may be tuned in smoke.
+datasets: [Lee2019_MI, Cho2017]
+backbones: [EEGNet, TSMNet]
+seeds: [0, 1, 2]
+
+source_subject_counts: [8, 16, 32, all]
+alpha_grid: [0.25, 0.5, 1.0, 2.0]
+random_repeats: 8
+
+# --- FROZEN gate thresholds (do NOT tune per world/result) ---
+safety_reject_task_drop_ucb: 0.02
+benefit_accept_lcb: 0.01
+domain_gain_role: diagnostic_only
+target_usage: audit_only
+
+# --- world-generation params (tunable in SMOKE ONLY, never the thresholds above) ---
+nuisance_dim: 4                 # m, appended nuisance block width
+nuisance_noise: 0.1            # isotropic noise on the nuisance block
+worldA_phi_reversed: 0.35     # fraction of source subjects whose spurious feature is reversed (beneficial world)
+worldB_beta: 1.0              # task-entanglement strength (z == y -> erasing z destroys task)
+
+interventions:
+  - identity
+  - leace_baseline
+  - tos_vd
+  - rlace
+  - inlp
+  - tp_leace
+  - alpha_leace
+  - fair_conditional_leace_disjoint_router
+  - random_k
+# cc_leace_predicted_route_deployable is EXCLUDED as a clean method (known tautology, Phase 2); control-only.
+
+worlds:
+  A: beneficial_spurious_nuisance        # gate should ACCEPT (acceptance power)
+  B: task_entangled_nuisance             # gate should REJECT (safety)
+  C: removable_but_useless_identity      # gate should ABSTAIN/REJECT (domain-gain != benefit)

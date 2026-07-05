@@ -53,3 +53,32 @@ def cc_leace_apply_oracle(Zfit, yfit, subjfit, n_cls):
     """DIAGNOSTIC upper bound: returns apply(X, Ytrue) that routes by TRUE labels. NOT deployable."""
     Es = _per_class_leace(Zfit, yfit, subjfit, n_cls)
     return lambda X, Ytrue: _apply_by_labels(X, np.asarray(Ytrue), Es, n_cls)
+
+
+def fair_conditional_leace_factory(Zf, yf, subjf, n_cls, seed=0):
+    """V2 DEPLOYABLE class-conditional LEACE that AVOIDS the cc-predicted tautology by routing with a
+    predictor that is (i) DATA-DISJOINT from and (ii) a DIFFERENT ESTIMATOR (LDA) than the downstream eval
+    probe (LogReg). Splits the source subset into disjoint halves R (router + per-class erasers) and H
+    (held-out, used only to score router accuracy). Per-class LEACE erases D=subjf within each task class,
+    fit on R with true R-labels; apply() routes ANY X by the R-trained LDA (target true labels never used).
+    Because the router is a different function on different data, route-vs-probe disagreement is nonzero, so
+    the transform can genuinely move the argmax where a real benefit exists. Stashes router_acc on the fn."""
+    from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+    rng = np.random.default_rng(7_000 + seed)
+    idx = rng.permutation(len(yf)); h = len(yf) // 2
+    R, H = idx[:h], idx[h:]
+    router = None
+    if len(np.unique(yf[R])) > 1:
+        try:
+            router = LinearDiscriminantAnalysis().fit(Zf[R], yf[R])
+        except Exception:
+            router = LogisticRegression(max_iter=200).fit(Zf[R], yf[R])
+    Es = _per_class_leace(Zf[R], yf[R], subjf[R], n_cls)
+
+    def apply(X):
+        yhat = router.predict(X) if router is not None else np.zeros(len(X), int)
+        return _apply_by_labels(X, yhat, Es, n_cls)
+
+    apply.router_acc = (float((router.predict(Zf[H]) == yf[H]).mean())
+                        if router is not None and len(H) and len(np.unique(yf[H])) > 1 else float("nan"))
+    return apply
