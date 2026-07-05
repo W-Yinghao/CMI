@@ -83,7 +83,15 @@ def _cond(Z):
         return float("inf")
 
 
-def _one(world, ds, bb, seed, p, n_source, alpha, interv, phi, beta, m, noise, n_pseudo):
+def _nuisance_m(z_dim, mode, fraction, m_min):
+    """Nuisance-block width normalized to latent capacity: m = max(m_min, round(fraction*z_dim)) in fraction
+    mode (removes the latent-dimension scaling artifact), else the fixed m_min."""
+    if mode == "fraction_of_z_dim":
+        return int(max(m_min, round(fraction * z_dim)))
+    return int(m_min)
+
+
+def _one(world, ds, bb, seed, p, n_source, alpha, interv, phi, beta, m_min, mode, fraction, noise, n_pseudo):
     fold = int(re.search(r"sub(\d+)_", p.split("/")[-1]).group(1))
     base = {"world": world, "dataset": ds, "backbone": bb, "seed": seed, "fold": fold,
             "n_source": str(n_source), "alpha": alpha, "intervention": interv}
@@ -95,14 +103,16 @@ def _one(world, ds, bb, seed, p, n_source, alpha, interv, phi, beta, m, noise, n
         subj = _ids(d["subject_source"])[0]; n_cls = int(d["n_cls"])
         keep = _subsample_source(subj, n_source, seed)
         Zs, ys, subj = Zs[keep], ys[keep], subj[keep]
+        z_dim = Zs.shape[1]
+        m = _nuisance_m(z_dim, mode, fraction, m_min)     # normalized to latent capacity
         inj = inject(world, Zs, ys, subj, Zt, yt, alpha=alpha, beta=beta, phi=phi, seed=seed, m=m, noise=noise)
         cond = _cond(inj["Zs2"])
         if cond > DEGEN_COND:      # numerically unreliable metric -> DEGENERATE, do not average into the verdict
-            return {**base, "n_cls": n_cls, "cond": cond, "degenerate": True,
+            return {**base, "n_cls": n_cls, "z_dim": z_dim, "m_eff": m, "cond": cond, "degenerate": True,
                     "skip_reason": "ill-conditioned feature covariance (cond=%.1e > %.0e)" % (cond, DEGEN_COND)}
         F = oracle_nuisance_eraser_factory(m) if interv in DIAGNOSTIC else FACTORIES[interv]
         sig = eval_v2(inj["Zs2"], ys, inj["z_src"], inj["grp_subj"], inj["Zt2"], yt, n_cls, F, seed, n_pseudo)
-        return {**base, "ground_truth": inj["ground_truth"], "n_cls": n_cls,
+        return {**base, "ground_truth": inj["ground_truth"], "n_cls": n_cls, "z_dim": z_dim, "m_eff": m,
                 "cond": cond, "degenerate": False, **sig}
     except np.linalg.LinAlgError as e:
         return {**base, "cond": cond, "degenerate": True, "skip_reason": "LinAlgError: " + repr(e)[:120]}
@@ -195,6 +205,18 @@ def aggregate(rows, safety_eps, benefit_thr):
     return summary
 
 
+def _load_nuisance_cfg(path):
+    """Load the World-A nuisance-dimension rule from the frozen config (authoritative). Default = latent-
+    capacity-normalized m = max(min, round(fraction*z_dim)), which removes the latent-dimension scaling artifact."""
+    try:
+        import yaml
+        c = yaml.safe_load(open(path)) or {}
+        return (str(c.get("nuisance_dim_mode", "fraction_of_z_dim")),
+                float(c.get("nuisance_fraction", 0.20)), int(c.get("nuisance_dim_min", 4)))
+    except Exception:
+        return "fraction_of_z_dim", 0.20, 4
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--worlds", nargs="+", default=["A", "B", "C"])
@@ -208,13 +230,19 @@ def main():
     ap.add_argument("--n-pseudo", type=int, default=8)
     ap.add_argument("--phi", type=float, default=0.15)   # World A f_align (fraction carrying the shortcut)
     ap.add_argument("--beta", type=float, default=1.0)
-    ap.add_argument("--m", type=int, default=4)
+    ap.add_argument("--nuisance-mode", default=None, help="fraction_of_z_dim | fixed (default: from config)")
+    ap.add_argument("--nuisance-fraction", type=float, default=None)
+    ap.add_argument("--m", type=int, default=None, help="nuisance_dim_min (default: from config)")
     ap.add_argument("--noise", type=float, default=0.1)
     ap.add_argument("--tag", default="smoke")
     ap.add_argument("--outdir", default=OUT)
     a = ap.parse_args()
     outdir = a.outdir
     safety_eps, benefit_thr = _load_thresholds(CONFIG)
+    nmode0, nfrac0, nmin0 = _load_nuisance_cfg(CONFIG)
+    nmode = a.nuisance_mode or nmode0
+    nfrac = a.nuisance_fraction if a.nuisance_fraction is not None else nfrac0
+    nmin = a.m if a.m is not None else nmin0
     cfg_hash = hashlib.sha256(open(CONFIG).read().encode()).hexdigest()[:12] if os.path.exists(CONFIG) else "MISSING"
     tasks = []
     for w in a.worlds:
@@ -226,10 +254,12 @@ def main():
                             for al in a.alphas:
                                 for iv in a.interventions:
                                     tasks.append((w, ds, bb, sd, p, ns, al, iv))
-    print("V2 %s: %d tasks (n_jobs=%d), config %s, safety<=%.3f benefit>%.3f, phi=%.2f beta=%.2f m=%d"
-          % (a.tag, len(tasks), N_JOBS, cfg_hash, safety_eps, benefit_thr, a.phi, a.beta, a.m), flush=True)
+    print("V2 %s: %d tasks (n_jobs=%d), config %s, safety<=%.3f benefit>%.3f, phi=%.2f beta=%.2f, "
+          "nuisance=%s frac=%.2f min=%d (EEGNet z=16->m=%d, TSMNet z=210->m=%d)"
+          % (a.tag, len(tasks), N_JOBS, cfg_hash, safety_eps, benefit_thr, a.phi, a.beta, nmode, nfrac, nmin,
+             _nuisance_m(16, nmode, nfrac, nmin), _nuisance_m(210, nmode, nfrac, nmin)), flush=True)
     rows = Parallel(n_jobs=N_JOBS, backend="loky")(
-        delayed(_one)(w, ds, bb, sd, p, ns, al, iv, a.phi, a.beta, a.m, a.noise, a.n_pseudo)
+        delayed(_one)(w, ds, bb, sd, p, ns, al, iv, a.phi, a.beta, nmin, nmode, nfrac, a.noise, a.n_pseudo)
         for (w, ds, bb, sd, p, ns, al, iv) in tasks)
     nfail = sum(1 for r in rows if r.get("fail"))
     ndeg = sum(1 for r in rows if r.get("degenerate"))
@@ -249,14 +279,18 @@ def main():
     os.makedirs(outdir, exist_ok=True)
     open("%s/v2_design_hash.txt" % outdir, "w").write("%s  %s\n" % (cfg_hash, CONFIG))
     cols = ["world", "dataset", "backbone", "seed", "fold", "n_source", "alpha", "intervention",
-            "ground_truth", "degenerate", "cond", "skip_reason", "src_task_full", "src_task_eras", "task_drop",
-            "z_full", "z_eras", "domain_gain", "tgt_bacc_full", "tgt_bacc_eras", "router_acc"]
+            "ground_truth", "z_dim", "m_eff", "degenerate", "cond", "skip_reason", "src_task_full",
+            "src_task_eras", "task_drop", "z_full", "z_eras", "domain_gain", "tgt_bacc_full",
+            "tgt_bacc_eras", "router_acc"]
     with open("%s/v2_%s_rows.csv" % (outdir, a.tag), "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore"); w.writeheader()
         for r in rows:
             w.writerow(r)   # keep degenerate/fail rows in the CSV (flagged), for auditability
     json.dump({"config_hash": cfg_hash, "thresholds": {"safety_eps": safety_eps, "benefit_lcb": benefit_thr},
-               "params": {"phi": a.phi, "beta": a.beta, "m": a.m, "noise": a.noise, "n_pseudo": a.n_pseudo},
+               "params": {"phi": a.phi, "beta": a.beta, "nuisance_mode": nmode, "nuisance_fraction": nfrac,
+                          "nuisance_dim_min": nmin, "noise": a.noise, "n_pseudo": a.n_pseudo,
+                          "m_EEGNet": _nuisance_m(16, nmode, nfrac, nmin),
+                          "m_TSMNet": _nuisance_m(210, nmode, nfrac, nmin)},
                "n_tasks": len(rows), "n_fail": nfail, "n_degenerate": ndeg,
                "summary": summary},
               open("%s/v2_%s_summary.json" % (outdir, a.tag), "w"), indent=1)

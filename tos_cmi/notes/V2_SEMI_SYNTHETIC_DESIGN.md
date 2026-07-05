@@ -20,6 +20,17 @@ benefit is created by a source->target shift not represented in the source domai
 insufficient (Proposition below). We show this on a semi-synthetic benchmark built on **real EEG latents** with
 an **injected, ground-truth-controlled nuisance**, across three worlds:
 
+## Nuisance dimension is normalized to latent capacity (removes a scaling artifact)
+World A uses a nuisance block whose dimension is normalized as a **fraction of the latent dimension**
+(`m = max(4, round(0.20 * z_dim))`; EEGNet z=16 -> m=4, TSMNet z=210 -> m=42), so that the injected
+deployment-shift nuisance has **comparable representation capacity across compact and high-dimensional latents**.
+A fixed absolute `m=4` would be ~25% of a 16-d latent but only ~2% of a 210-d latent, turning any
+backbone difference in World A into a **latent-dimension scaling artifact** rather than a real test of whether
+the source-only acceptance ceiling holds across representation capacity. This is an effect-size normalization of
+the world generator; the **gate thresholds stay frozen** (safety 0.02 / benefit 0.01) and the alpha grid is
+unchanged. The rule is recorded in the config (`nuisance_dim_mode: fraction_of_z_dim`, `nuisance_fraction: 0.20`,
+`nuisance_dim_min: 4`) and the per-backbone `m_eff` is written into every result row.
+
 ## Key design decision: the erased domain D is the INJECTED nuisance z, not the real subject
 
 We start from a frozen LOSO dump (real Z_source, y_source, real subject, held-out Z_target, y_target),

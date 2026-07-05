@@ -18,7 +18,10 @@ benefit_accept_lcb: 0.01
 domain_gain_role: diagnostic_only
 target_usage: audit_only
 
-nuisance_dim: 4
+nuisance_dim_mode: fraction_of_z_dim
+nuisance_fraction: 0.20
+nuisance_dim_min: 4
+nuisance_dim_rounding: nearest_with_min
 nuisance_noise: 0.1
 worldA_variant: aligned_noise_flip
 worldA_f_align: 0.15

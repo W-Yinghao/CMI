@@ -78,11 +78,15 @@ def main():
     S = json.load(open("%s/v2_%s_summary.json" % (outdir, a.tag)))
     summ, ch, th, pr = S["summary"], S.get("config_hash", "?"), S["thresholds"], S["params"]
     bt = th["benefit_lcb"]; st = th["safety_eps"]
+    mdesc = ("m=%s(frac %.2f of z_dim, min %d): EEGNet->%s TSMNet->%s"
+             % (pr.get("nuisance_mode", "?"), pr.get("nuisance_fraction", float("nan")),
+                pr.get("nuisance_dim_min", 0), pr.get("m_EEGNet", "?"), pr.get("m_TSMNet", "?"))
+             if "nuisance_mode" in pr else "m=%s" % pr.get("m", "?"))
     L = ["# V2 --- source-only acceptance CEILING / non-identifiability (%s)\n" % a.tag,
          "Config sha256:`%s`; thresholds FROZEN (safety UCB<=%.3f, benefit LCB>%.3f, domain diagnostic-only, "
-         "target audit-only). **No world expects ACCEPT.** World-gen: variantA=%s f_align/phi=%.2f beta=%.2f "
-         "m=%d. **Semi-synthetic (real latents + injected nuisance); a limit result, not a main-paper claim.**\n"
-         % (ch, st, bt, pr.get("variantA", "?"), pr["phi"], pr["beta"], pr["m"])]
+         "target audit-only). **No world expects ACCEPT.** World-gen: f_align/phi=%.2f beta=%.2f, nuisance %s. "
+         "**Semi-synthetic (real latents + injected nuisance); a limit result, not a main-paper claim.**\n"
+         % (ch, st, bt, pr["phi"], pr["beta"], mdesc)]
     verdicts = {}
     for wk in ["A", "B", "C"]:
         cells = [v for v in summ.values() if v["world"] == wk]
