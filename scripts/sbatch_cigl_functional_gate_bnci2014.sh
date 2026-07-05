@@ -17,4 +17,4 @@ if ! "$PY" -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)
   echo "FATAL: CUDA not available on $(hostname); refusing to run on CPU." >&2; exit 1
 fi
 "$PY" scripts/run_cigl_functional_gate.py --dataset BNCI2014_001 --device cuda --seed "${GATE_SEED:-0}" \
-  --epochs 80 --probe_epochs 100 --n_perm 50 --fcigl_k 2 --fcigl_update_every 10
+  --epochs 80 --probe_epochs 100 --n_perm 50 --fcigl_k 2 --fcigl_update_every 10 --methods ${FGATE_METHODS:-fcigl_align_eta0.01 fcigl_align_eta0.05}
