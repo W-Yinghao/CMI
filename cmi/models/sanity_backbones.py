@@ -108,6 +108,48 @@ class DeepConvNetMini(nn.Module):
         return self.head(z), z
 
 
+class EEGNetMiniCSPInit(EEGNetMini):
+    """CIGL_56 P10: EEGNetMini whose DEPTHWISE SPATIAL conv (block1[2]: Conv2d(F1, F1*D, (C,1), groups=F1))
+    is initialized from SOURCE-only CSP filters, then trained normally (not frozen). `spatial_init='source_csp'`
+    triggers train_model's generic CSP hook, which fits CSP on source-train ONLY (target excluded by LOSO,
+    source-val excluded before the fit) and calls init_spatial_from_csp. Tests whether the CSP-init mechanism
+    (proven on the FBCSP-LGG graph model in P8) also helps the strongest compact decoder. EEGNetMini itself is
+    unchanged (frozen baseline)."""
+
+    def __init__(self, n_chans, n_times, n_classes, cov_shrinkage=0.1, **kw):
+        super().__init__(n_chans, n_times, n_classes, **kw)
+        self.n_classes = int(n_classes)
+        self.spatial_init = "source_csp"
+        self.cov_shrinkage = float(cov_shrinkage)
+        self.csp_meta = {"spatial_init": "source_csp"}
+
+    @torch.no_grad()
+    def init_spatial_from_csp(self, X, y, n_cls, m=None, source_domains=None, excluded_val=None):
+        import numpy as np
+        from cmi.models.csp_init import source_csp_filters
+        conv = self.block1[2]                              # depthwise spatial conv, weight [F1*D, 1, C, 1]
+        n_out, _, C, _ = conv.weight.shape
+        n_contrasts = n_cls if n_cls > 2 else 2            # one-vs-rest (n_cls) or binary (2)
+        m = int(m) if m else max(1, -(-n_out // n_contrasts))   # ceil(n_out/n_contrasts): pool >= n_out slots
+        W, disc, present = source_csp_filters(X, y, n_cls, m, shrinkage=self.cov_shrinkage)
+        order = np.argsort(disc)[::-1]                     # most discriminative first
+        Wt = torch.as_tensor(W[order], dtype=conv.weight.dtype)
+        k = min(n_out, Wt.shape[0])
+        for o in range(k):
+            conv.weight.data[o, 0, :, 0] = Wt[o]           # top-k CSP filters -> spatial slots; rest random
+        self.csp_meta = {
+            "spatial_init": "source_csp",
+            "csp_fit_subjects": (sorted(int(d) for d in np.unique(source_domains))
+                                 if source_domains is not None else None),
+            "csp_excluded_target": True,
+            "csp_excluded_source_val": sorted(int(v) for v in excluded_val) if excluded_val else [],
+            "csp_n_filters_used": int(k), "csp_n_filters_pool": int(W.shape[0]),
+            "csp_rank": int(np.linalg.matrix_rank(W)), "csp_cov_shrinkage": float(self.cov_shrinkage),
+            "csp_m_per_contrast": int(m), "csp_classes_present": [int(c) for c in present],
+        }
+        return self.csp_meta
+
+
 def build_sanity_backbone(name, n_chans, n_times, n_classes):
     """name -> pure-torch (logits, z) decoder. graphcmi/dgcnn come from cmi.models.gnn (graph backbones);
     eegnet/shallow_convnet/deep_convnet are the minimal internal CNNs here."""

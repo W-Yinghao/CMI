@@ -159,14 +159,16 @@ def build_backbone(name, n_chans, n_times, n_classes, device="cpu", **_):
                              grouping_scheme=_.get("grouping_scheme"),
                              fusion_floor=_.get("fusion_floor", 0.0),
                              spatial_init=_.get("spatial_init", "random")).to(device)
-    if name in ("EEGNetMini", "ShallowConvNetMini", "DeepConvNetMini"):
+    if name in ("EEGNetMini", "ShallowConvNetMini", "DeepConvNetMini", "EEGNetMiniCSPInit"):
         # P9-F baseline sidecar: pure-torch FAITHFUL MINIMAL reimplementations of EEGNet/ShallowConvNet/
         # DeepConvNet (cmi/models/sanity_backbones.py) — NO braindecode dependency, run in eeg2025. DISTINCT
         # names from the braindecode "EEGNet"/"ShallowConvNet"/"Deep4Net" (HookedBackbone path, needs
         # braindecode) so paper/logs never conflate the two. forward(x)->(logits,z), probed z_dim -> plain
-        # ERM via train_model exactly like the other backbones.
-        from cmi.models.sanity_backbones import EEGNetMini, ShallowConvNetMini, DeepConvNetMini
+        # ERM via train_model exactly like the other backbones. EEGNetMiniCSPInit (P10) = EEGNetMini whose
+        # depthwise spatial conv is source-CSP-initialized (spatial_init='source_csp'); EEGNetMini unchanged.
+        from cmi.models.sanity_backbones import (EEGNetMini, ShallowConvNetMini, DeepConvNetMini,
+                                                 EEGNetMiniCSPInit)
         cls = {"EEGNetMini": EEGNetMini, "ShallowConvNetMini": ShallowConvNetMini,
-               "DeepConvNetMini": DeepConvNetMini}[name]
+               "DeepConvNetMini": DeepConvNetMini, "EEGNetMiniCSPInit": EEGNetMiniCSPInit}[name]
         return cls(n_chans, n_times, n_classes).to(device)
     return HookedBackbone(name, n_chans, n_times, n_classes).to(device)

@@ -540,7 +540,7 @@ def build_parser():
     ap.add_argument("--backbone", default="EEGNet",
                     choices=["EEGNet", "ShallowConvNet", "Deep4Net", "EEGConformer", "LogCov", "TSMNet",
                              "GraphCMI", "DGCNN", "RGNN", "DGCNNGraph", "FBLGGGraph", "FBCSPLGGGraph",
-                             "EEGNetMini", "ShallowConvNetMini", "DeepConvNetMini"])   # DGCNNGraph = static adjacency; FBLGGGraph = CIGL_47 filterbank+local-global graph; FBCSPLGGGraph = CIGL_49 + FBCSP spatial branch; *Mini = P9-F pure-torch baseline sidecar (no braindecode)
+                             "EEGNetMini", "ShallowConvNetMini", "DeepConvNetMini", "EEGNetMiniCSPInit"])   # DGCNNGraph = static adjacency; FBLGGGraph = CIGL_47 filterbank+local-global graph; FBCSPLGGGraph = CIGL_49 + FBCSP spatial branch; *Mini = P9-F pure-torch baseline sidecar (no braindecode); EEGNetMiniCSPInit = P10 CSP-init depthwise spatial
     ap.add_argument("--target_indices", type=int, nargs="+", default=None,
                     help="run only these LOSO fold indices (0-based, in split order), e.g. 0 1 for the pilot "
                          "or 0 9 for BNCI2015_001. Default: all folds. Recorded in the output as "
