@@ -43,7 +43,9 @@ def make_data(with_head=True, seed=0):
         lr = LogisticRegression(max_iter=500).fit(z[src], y[src])
         W = np.zeros((N_CLS, ZDIM)); W[1] = lr.coef_[0]          # 2-class -> 2-row head
         b = np.array([0.0, float(lr.intercept_[0])])
-        data.update(task_head_weight=W, task_head_bias=b, task_head_kind="linear", task_head_input="graph_z")
+        data["model_logits"] = z @ W.T + b                       # consistent -> head-replay verifies exactly
+        data.update(task_head_weight=W, task_head_bias=b, task_head_kind="linear", task_head_input="graph_z",
+                    task_head_replay_ok=True, task_head_replay_max_abs_diff=0.0)
     return data
 
 

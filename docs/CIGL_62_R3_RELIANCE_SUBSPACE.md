@@ -55,12 +55,24 @@ Fit a k-dim subject subspace on SOURCE `z`, project it out (`P = I − dirsᵀdi
 > **head-replay = classifier reliance; source-fit probe = representation-level reliance.**
 > The only reliance *claim* R3 will make on real EEG comes from the flagship differential (ERM vs CIGL task drop).
 
-## `.audit.npz` interface (R2→R3)
+## `.audit.npz` interface (R2→R3) + R2.5 verified head-replay export
 Consumes `graph_z, node_z, y, d, model_logits` (+ `fold/seed/target_subject/method/dataset`) and optional
-`node_leakage_map, task_saliency_map`. R3 **added** optional head-replay fields (`cmi/eval/audit_npz.py`):
-`task_head_weight [n_cls,Zin]`, `task_head_bias [n_cls]`, `task_head_kind="linear"`, `task_head_input` (repr name).
-**Absent → validation still passes and R3 falls back to the probe path.** Recommended to become *required* for the
-first real-EEG R3 gate if technically feasible (so the primary claim is classifier-, not probe-, level).
+`node_leakage_map, task_saliency_map`.
+
+**R2.5 (head-replay export wiring).** For the *classifier*-reliance claim, `.audit.npz` now carries the task
+classifier's linear head and a **fail-closed** replay check (`cmi/eval/audit_npz.py:pack_task_head_fields`,
+`cmi/eval/head_export.py`):
+`task_head_weight [n_cls,Zin]`, `task_head_bias [n_cls]`, `task_head_kind`, `task_head_input`, and
+`task_head_replay_ok`, `task_head_replay_max_abs_diff`, `task_head_replay_mean_abs_diff`.
+`task_head_replay_ok` is **True only when** `kind=="linear"` **and** `max|model_logits − (graph_z @ Wᵀ + b)| ≤ 1e-5`.
+The DGCNN adapter classifies with a single `nn.Linear(64→n_cls)` over the post-ELU `graph_z`, so replay is exact
+(observed `max_abs_diff ≈ 3e-8` on real forward). Nonlinear/BN/dropout/fusion heads → `replay_ok=False` and **no
+fabricated head-replay**. `cmi/eval/leakage_removal.py` uses head-replay **only when `head_replay_ok(data)`**, else
+falls back to the source-fit probe (representation reliance, labeled). Also exported for firewall proof:
+`source_indices, target_indices, source_val_indices`. Back-compat: absent head fields → validation still passes,
+R3 uses the probe path. Wired into the run path at `scripts/run_cigl_phase3a_dgcnn_gn_regularizer_pilot.py`
+`_train_eval` (guarded by `--audit_dir`; off by default so frozen confirmation runners are byte-unaffected); the
+LOSO target subject is appended **eval-only** with a distinct domain id so R3 can hold it out.
 
 ## Firewall suite (`tests/test_leakage_removal.py`) — 8 + 1
 F1 corrupting target labels leaves the fitted subspace unchanged · F2 corrupting target logits leaves the reliance
@@ -76,7 +88,11 @@ source_task_bacc_before/after, target_task_bacc_before/after, task_drop, source_
 subject_leakage_drop, head_replay_available, probe_replay_used, firewall_passed`. Conditioning ∈
 {label_conditional (primary), marginal_domain (control), random_subspace (control)}.
 
-## Tests: 27 CPU tests pass (leakage_removal 14 · node_masking 3 · spatial_correlation 6 · topomaps 6). No GPU.
+## Tests: 37 CPU tests pass — R3 scaffold (leakage_removal 12 · node_masking 3 · spatial_correlation 6 ·
+topomaps 6) + R2.5 head-replay export (head_export 8 incl. real DGCNN-adapter replay roundtrip, mismatch/
+unsupported fail-closed, back-compat, R3-uses-head-when-ok, R3-probe-fallback, save_fold_audit e2e) + audit_npz 2.
+End-to-end run-path check: `_train_eval --audit_dir` writes verified sidecars (`head_replay_ok=True`,
+`max_abs_diff≈3e-8`) for ERM + CIGL graph_node. No GPU.
 
 ## Still gated (NOT launched — awaits PM)
 Real-EEG full-LOSO seed0 `.audit.npz` for ERM / CIGL(graph+node) / DANN / cond-DANN / CDAN on 2a + 2015, then run

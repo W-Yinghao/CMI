@@ -17,7 +17,7 @@ from sklearn.discriminant_analysis import LinearDiscriminantAnalysis as LDA
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import balanced_accuracy_score
 
-from cmi.eval.audit_npz import has_task_head, replay_head
+from cmi.eval.audit_npz import has_task_head, head_replay_ok, replay_head
 
 CONDITIONINGS = ("label_conditional", "marginal_domain", "random_subspace")
 DEFAULT_K_CURVE = (1, 2, 4, 8)
@@ -103,7 +103,8 @@ def evaluate_reliance(data, target_domain, k=PRIMARY_K, conditioning=PRIMARY_CON
     P, _ = fit_leakage_subspace(z[src], y[src], d[src], k, conditioning, seed)   # SOURCE-only fit
     z_rm = remove_subspace(z, P)
 
-    head = has_task_head(data) and data.get("task_head_input", representation) == representation
+    # head-replay ONLY when a VERIFIED (fail-closed) linear head over this representation exists; else probe.
+    head = head_replay_ok(data) and data.get("task_head_input", representation) == representation
     mode = "head_replay" if head else "probe_replay"
     if head:
         s_before = _task_bacc_headreplay(data, z[src], y[src]); s_after = _task_bacc_headreplay(data, z_rm[src], y[src])
@@ -126,7 +127,7 @@ def evaluate_reliance(data, target_domain, k=PRIMARY_K, conditioning=PRIMARY_CON
         "target_task_bacc_before": t_before, "target_task_bacc_after": t_after, "task_drop": float(task_drop),
         "source_subject_bacc_before": subj_before, "source_subject_bacc_after": subj_after,
         "subject_leakage_drop": float(subj_before - subj_after) if subj_before == subj_before else float("nan"),
-        "head_replay_available": bool(has_task_head(data)), "probe_replay_used": (mode == "probe_replay"),
+        "head_replay_available": bool(head), "probe_replay_used": (mode == "probe_replay"),
         "firewall_passed": firewall_ok,
     }
 

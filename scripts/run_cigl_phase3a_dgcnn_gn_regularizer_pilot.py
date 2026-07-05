@@ -142,6 +142,25 @@ def _train_eval(label, lam_g, lam_node, fold, seed, args, device, n_perm):
     au = audit_graph_node_objects(gz, nz, yp, dp, n_cls, n_dom, n_perm=n_perm, seed=seed,
                                   device=device, epochs=args.probe_epochs, train_idx=tr_i, val_idx=va_i)
 
+    # R2.5 optional per-fold R3 sidecar (verified head-replay). OFF unless args.audit_dir is set -> frozen
+    # confirmation runners (no such arg) are byte-unaffected. Source = probe pool (multi-subject); the LOSO
+    # target is appended EVAL-ONLY with a distinct domain id so R3 can hold it out.
+    audit_dir = getattr(args, "audit_dir", None)
+    if audit_dir:
+        from pathlib import Path as _Path
+        from cmi.eval.head_export import save_fold_audit
+        _Path(audit_dir).mkdir(parents=True, exist_ok=True)
+        ap = str(_Path(audit_dir) / f"fold{heldout}_{label}_seed{int(seed)}")
+        _, replay_ok, mad = save_fold_audit(
+            ap, model=net, X_source=Xs[pool_idx], y_source=yp, d_source=dp, device=device,
+            fold=int(getattr(args, "fold", -1)), seed=int(seed), target_subject=heldout,
+            method=method, dataset=getattr(args, "dataset", ""),
+            X_target=X[te_mask], y_target=y[te_mask], target_domain=int(n_dom),
+            source_indices=np.arange(len(pool_idx)),
+            target_indices=np.arange(len(pool_idx), len(pool_idx) + int(te_mask.sum())),
+            source_val_indices=np.asarray(va_i))
+        print(f"    [audit] {ap}.audit.npz head_replay_ok={replay_ok} max_abs_diff={mad:.2e}", flush=True)
+
     def _blk(o):
         b = au[o]
         return dict(kl_mean=b["kl_mean"], permutation_mean=b["permutation_mean"], permutation_p=b["permutation_p"],
@@ -199,6 +218,8 @@ def main():
     ap.add_argument("--tmin", type=float, default=0.5)
     ap.add_argument("--tmax", type=float, default=3.5)
     ap.add_argument("--resample", type=int, default=128)
+    ap.add_argument("--audit_dir", default=None,
+                    help="R2.5: if set, write a verified head-replay .audit.npz per fold/config into this dir")
     args = ap.parse_args()
     if args.device == "cuda" and not torch.cuda.is_available():
         raise SystemExit("[phase3a-I] --device cuda requested but CUDA unavailable")
