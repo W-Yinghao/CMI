@@ -99,7 +99,17 @@ def evaluate_reliance(data, target_domain, k=PRIMARY_K, conditioning=PRIMARY_CON
     y = np.asarray(data["y"]); d = np.asarray(data["d"])
     src = d != target_domain
     tgt = d == target_domain
-    firewall_ok = bool(src.sum() > 0 and tgt.sum() >= 0 and target_domain not in np.unique(d[src]))
+    # firewall_passed must VERIFY, not restate: `target_domain not in d[src]` is vacuously true (src IS d!=target).
+    # When the sidecar carries index provenance, cross-check the recomputed split against it — a MIS-SPECIFIED
+    # target_domain (which would fold target rows into the source fit) then yields firewall_passed=False.
+    firewall_ok = bool(src.sum() > 0)
+    if "target_indices" in data and len(np.asarray(data["target_indices"])):
+        ti = np.asarray(data["target_indices"]).ravel()
+        si = np.asarray(data["source_indices"]).ravel() if "source_indices" in data else np.where(src)[0]
+        firewall_ok = bool(firewall_ok
+                           and np.all(d[ti] == target_domain)        # every declared-target row is the target
+                           and not np.any(d[si] == target_domain)    # no declared-source row is the target
+                           and set(np.where(tgt)[0].tolist()) == set(ti.tolist()))  # split == stored provenance
     P, _ = fit_leakage_subspace(z[src], y[src], d[src], k, conditioning, seed)   # SOURCE-only fit
     z_rm = remove_subspace(z, P)
 

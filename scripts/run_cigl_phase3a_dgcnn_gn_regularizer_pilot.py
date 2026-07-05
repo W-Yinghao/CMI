@@ -112,7 +112,7 @@ def decide_pilot_selection(agg, erm_label=ERM_LABEL, source_drop_max=0.02, reduc
                 pilot_pass_with_target_retention=bool(erm_reproduces and final_target_retaining))
 
 
-def _train_eval(label, lam_g, lam_node, fold, seed, args, device, n_perm):
+def _train_eval(label, lam_g, lam_node, fold, seed, args, device, n_perm, method_override=None):
     from cmi.train.trainer import train_model, predict
     from cmi.eval.metrics import classification_metrics
     X, y, dom_all, tr_mask, te_mask, n_cls, heldout = fold
@@ -120,7 +120,9 @@ def _train_eval(label, lam_g, lam_node, fold, seed, args, device, n_perm):
     ds, n_dom = _remap_contiguous(dom_all[tr_mask])
     enc_idx, pool_idx, _ = stratified_trial_split_by_y_d(ys, ds, train_frac=args.enc_train_frac,
                                                          seed=seed, min_per_cell=args.min_per_cell)
-    method = "erm" if (lam_g == 0.0 and lam_node == 0.0) else "graphcmi"      # graph/node CMI; NO edge term
+    # method_override lets the R2 seed0 gate run the adversarial baselines (dann/cdann/cdan) on the SAME
+    # adapter; None keeps the frozen erm/graphcmi selection (lam-driven).
+    method = method_override or ("erm" if (lam_g == 0.0 and lam_node == 0.0) else "graphcmi")   # graph/node CMI; NO edge term
     torch.manual_seed(int(seed)); np.random.seed(int(seed))                  # seed BEFORE construction
     net = build_graph_task_backbone(CANDIDATE, X.shape[1], X.shape[2], n_cls).to(device)
     assert net.meta.get("edge_logits_dynamic") is False
@@ -150,7 +152,8 @@ def _train_eval(label, lam_g, lam_node, fold, seed, args, device, n_perm):
         from pathlib import Path as _Path
         from cmi.eval.head_export import save_fold_audit
         _Path(audit_dir).mkdir(parents=True, exist_ok=True)
-        ap = str(_Path(audit_dir) / f"fold{heldout}_{label}_seed{int(seed)}")
+        _ds = getattr(args, "dataset", "ds"); _fi = int(getattr(args, "fold", -1))
+        ap = str(_Path(audit_dir) / f"{_ds}_fold{_fi}_sub{heldout}_{label}_seed{int(seed)}")
         _, replay_ok, mad = save_fold_audit(
             ap, model=net, X_source=Xs[pool_idx], y_source=yp, d_source=dp, device=device,
             fold=int(getattr(args, "fold", -1)), seed=int(seed), target_subject=heldout,
