@@ -5,6 +5,8 @@ sign agreement, and a within-(target,seed,level) permutation p-value (shuffle ta
 fold-level; deterministic). The verdict per signal: does it identify ACCURACY, only CALIBRATION, or neither."""
 from __future__ import annotations
 
+import math
+
 import numpy as np
 
 from .signal_atlas import SIGNAL_AXIS, SOURCE_SIGNALS
@@ -42,7 +44,7 @@ def _spearman(x, y):
 
 
 def _finite(v):
-    return v is not None and not (isinstance(v, float) and v != v)     # drop None AND NaN
+    return v is not None and not (isinstance(v, float) and not math.isfinite(v))   # drop None, NaN, +/-inf
 
 
 def _by_fold(rows):

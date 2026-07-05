@@ -9,6 +9,8 @@ artifact and makes no deployment claim.
 """
 from __future__ import annotations
 
+import math
+
 import numpy as np
 
 from .signal_atlas import SOURCE_SIGNALS
@@ -18,7 +20,7 @@ NON_DEPLOYABLE = True                       # hard flag: this module never retur
 
 
 def _finite(v):
-    return v is not None and not (isinstance(v, float) and v != v)     # drop None AND NaN
+    return v is not None and not (isinstance(v, float) and not math.isfinite(v))   # drop None, NaN, +/-inf
 
 
 def _matrix(rows, label="tgt__target_bacc_good"):

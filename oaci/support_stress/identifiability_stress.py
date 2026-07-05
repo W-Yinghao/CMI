@@ -9,6 +9,7 @@
 Target labels are joined POST HOC (G5) and every fit is finite-filtered (G6, in the C17 probe)."""
 from __future__ import annotations
 
+from ..identifiability.axis_decomposition import axis_decomposition
 from ..identifiability.multivariate_probe import multivariate_probe
 from ..identifiability.univariate import univariate_identifiability
 from . import feature_inventory, schema
@@ -54,19 +55,24 @@ def identity_probe(extract_dir, c10_dir, *, n_perm=None, folds=None) -> dict:
             "G4_no_strong_scalar": bool(u["n_strong_accuracy_signals"] == 0)}
 
 
-def mask_stress_probe(extract_dir, c10_dir, regime, *, boundary_classes, n_perturb=2, n_perm=None, folds=None) -> dict:
+def mask_stress_probe(extract_dir, c10_dir, regime, *, boundary_classes, n_perturb=2, n_perm=None, folds=None,
+                      leakage_cache=None) -> dict:
     rows = ssr.build_regime_atlas(extract_dir, c10_dir, regime, boundary_classes=boundary_classes,
-                                  n_perturb=n_perturb, folds=folds)
+                                  n_perturb=n_perturb, folds=folds, leakage_cache=leakage_cache)
     _assert_no_target_features(rows)
     feature_inventory.assert_only_recomputable_used(["src__" + s for s in feature_inventory.recomputable_features()])
     rows_r = _nan_out_static(rows)
     u = univariate_identifiability(rows_r)
     m = multivariate_probe(rows_r) if n_perm is None else multivariate_probe(rows_r, n_perm=n_perm)
+    ax = axis_decomposition(u)
     return {"regime": regime, "n_rows": len(rows), "n_used": m["n_used"], "n_features": m["n_features"],
             "loto_auc": m["loto_auc"], "loso_auc": m["loso_auc"], "permutation_p": m["permutation_p"],
             "permutation_mean_auc": m["permutation_mean_auc"], "beats_permutation": m["beats_permutation"],
             "base_rate": m["base_rate"], "univariate_verdict": u["univariate_verdict"],
-            "n_weak_accuracy": u["n_weak_accuracy_signals"], "max_abs_accuracy_spearman": u["max_abs_accuracy_spearman"]}
+            "n_weak_accuracy": u["n_weak_accuracy_signals"], "max_abs_accuracy_spearman": u["max_abs_accuracy_spearman"],
+            "accuracy_visibility": ax["accuracy_axis_target_bacc_visibility"],
+            "calibration_visibility": ax["calibration_axis_target_nll_visibility"],
+            "source_signals_calibration_biased": ax["source_signals_see_calibration_more_than_accuracy"]}
 
 
 def run_all(extract_dir, c10_dir, *, boundary_classes, n_perturb=2, n_perm=None, folds=None) -> dict:

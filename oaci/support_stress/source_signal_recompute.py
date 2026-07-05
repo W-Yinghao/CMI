@@ -60,7 +60,8 @@ def load_fold_level(extract_dir, seed, target, level) -> dict:
     d["support_audit"] = _load_support(ap) if os.path.exists(ap) else None
     d["config"] = json.load(open(os.path.join(p, "config.json")))
     d["cand_meta"] = json.load(open(os.path.join(p, "cand_meta.json")))
-    d["s0_scalars"] = {r["model_hash"]: r for r in json.load(open(os.path.join(p, "s0_scalars.json")))}
+    s0p = os.path.join(p, "s0_scalars.json")                          # optional (needed only by self-check/identity)
+    d["s0_scalars"] = {r["model_hash"]: r for r in json.load(open(s0p))} if os.path.exists(s0p) else {}
     return d
 
 
@@ -159,13 +160,16 @@ def _target_labels(c10_dir) -> dict:
             {k: r[k] for k in r if k.startswith("tgt__")} for r in rows}
 
 
-def build_regime_atlas(extract_dir, c10_dir, regime, *, boundary_classes, n_perturb=2, folds=None) -> list:
+def build_regime_atlas(extract_dir, c10_dir, regime, *, boundary_classes, n_perturb=2, folds=None,
+                       leakage_cache=None) -> list:
     """CPU-recomputed atlas rows for ONE regime across all extracted folds/levels. Feasible-OACI candidates
     only (the C17 probe population). src__ = masked recompute (recomputable) + extracted-S0 (static); tgt__ =
-    C10 labels (unmasked)."""
+    C10 labels (unmasked). leakage_cache[(seed,target,level,regime,model_hash)]=(sel,audit) (from the parallel
+    precompute) avoids re-fitting the leakage probes here; when absent, leakage is recomputed inline (slow)."""
     labels = _target_labels(c10_dir)
     fold_dirs = folds if folds is not None else _list_folds(extract_dir)
     edges = fixed_bin_edges(15)
+    inline_leak = leakage_cache is None
     rows = []
     for (seed, target) in fold_dirs:
         for level in _levels(extract_dir, seed, target):
@@ -181,7 +185,11 @@ def build_regime_atlas(extract_dir, c10_dir, regime, *, boundary_classes, n_pert
                 key = (seed, target, level, cm["model_hash"])
                 if key not in labels:
                     continue
-                rec = recompute_candidate(fld, ci, source_na, audit_na, edges=edges, classes=classes)
+                rec = recompute_candidate(fld, ci, source_na, audit_na, edges=edges, classes=classes,
+                                          with_leakage=inline_leak)
+                if not inline_leak:
+                    sel, aud = leakage_cache.get((seed, target, level, regime, cm["model_hash"]), (None, None))
+                    rec["selection_leakage_point"], rec["audit_leakage_point"] = sel, aud
                 row = {"seed": seed, "target": target, "level": level, "model_hash": cm["model_hash"],
                        "regime": regime, "diagnostic_only_non_deployable": True}
                 for s in _RECOMPUTABLE:
@@ -191,6 +199,47 @@ def build_regime_atlas(extract_dir, c10_dir, regime, *, boundary_classes, n_pert
                 row.update(labels[key])
                 rows.append(row)
     return rows
+
+
+def _fold_regime_leakage(extract_dir, seed, target, level, boundary_classes, n_perturb):
+    """Worker: all feasible-OACI candidates' (selection, audit) leakage for EVERY regime at one fold-level.
+    Pure numpy/sklearn (no GPU/torch); amortizes the fold load across regimes. Returns a flat dict."""
+    fld = load_fold_level(extract_dir, seed, target, level)
+    critic = _critic(fld["config"]); cfg = fld["config"]
+    out = {}
+    for regime in schema.REGIME_ORDER:
+        source_na, _ = _regime_name_actions(regime, fld["support_source"], boundary_classes=boundary_classes,
+                                            seed=seed, target=target, level=level, n_perturb=n_perturb)
+        audit_na, _ = _regime_name_actions(regime, fld["support_audit"], boundary_classes=boundary_classes,
+                                           seed=seed, target=target, level=level, n_perturb=n_perturb)
+        for cm in fld["cand_meta"]:
+            if cm["is_erm"] or not cm["feasible"]:
+                continue
+            ci = cm["index"]
+            sel = _leakage(fld["featz"].get("selection"), ci, source_na, fld["support_source"], critic,
+                           cfg.get("selection_n_folds"), seed=seed, target=target, level=level, salt="sel_leak")
+            aud = _leakage(fld["featz"].get("audit"), ci, audit_na, fld["support_audit"], critic,
+                           cfg.get("audit_n_folds"), seed=seed, target=target, level=level, salt="audit_leak")
+            out[(seed, target, level, regime, cm["model_hash"])] = (sel, aud)
+    return out
+
+
+def precompute_all_leakage(extract_dir, *, boundary_classes, n_perturb=2, folds=None, n_workers=8) -> dict:
+    """Parallel (process-level) leakage precompute across all fold-levels x regimes. Returns
+    {(seed,target,level,regime,model_hash): (selection_leakage, audit_leakage)}."""
+    fold_dirs = folds if folds is not None else _list_folds(extract_dir)
+    tasks = [(extract_dir, s, t, level, tuple(boundary_classes), n_perturb)
+             for (s, t) in fold_dirs for level in _levels(extract_dir, s, t)]
+    cache = {}
+    if n_workers <= 1:
+        for tk in tasks:
+            cache.update(_fold_regime_leakage(*tk))
+        return cache
+    from multiprocessing import Pool
+    with Pool(n_workers) as pool:
+        for part in pool.starmap(_fold_regime_leakage, tasks):
+            cache.update(part)
+    return cache
 
 
 def build_identity_atlas(extract_dir, c10_dir, *, folds=None) -> list:
