@@ -112,7 +112,8 @@ def decide_pilot_selection(agg, erm_label=ERM_LABEL, source_drop_max=0.02, reduc
                 pilot_pass_with_target_retention=bool(erm_reproduces and final_target_retaining))
 
 
-def _train_eval(label, lam_g, lam_node, fold, seed, args, device, n_perm, method_override=None):
+def _train_eval(label, lam_g, lam_node, fold, seed, args, device, n_perm, method_override=None,
+                fcigl_strength=0.0):
     from cmi.train.trainer import train_model, predict
     from cmi.eval.metrics import classification_metrics
     X, y, dom_all, tr_mask, te_mask, n_cls, heldout = fold
@@ -120,15 +121,19 @@ def _train_eval(label, lam_g, lam_node, fold, seed, args, device, n_perm, method
     ds, n_dom = _remap_contiguous(dom_all[tr_mask])
     enc_idx, pool_idx, _ = stratified_trial_split_by_y_d(ys, ds, train_frac=args.enc_train_frac,
                                                          seed=seed, min_per_cell=args.min_per_cell)
-    # method_override lets the R2 seed0 gate run the adversarial baselines (dann/cdann/cdan) on the SAME
-    # adapter; None keeps the frozen erm/graphcmi selection (lam-driven).
+    # method_override lets the R2 seed0 gate run the adversarial baselines (dann/cdann/cdan) and the CIGL_67
+    # functional variants (fcigl_align / fcigl_removal_aug, strength via fcigl_strength) on the SAME adapter;
+    # None keeps the frozen erm/graphcmi selection (lam-driven).
     method = method_override or ("erm" if (lam_g == 0.0 and lam_node == 0.0) else "graphcmi")   # graph/node CMI; NO edge term
     torch.manual_seed(int(seed)); np.random.seed(int(seed))                  # seed BEFORE construction
     net = build_graph_task_backbone(CANDIDATE, X.shape[1], X.shape[2], n_cls).to(device)
     assert net.meta.get("edge_logits_dynamic") is False
     net, _post, _diag = train_model(net, Xs[enc_idx], ys[enc_idx], ds[enc_idx], n_cls, method=method,
                                     lam=lam_g, gamma=lam_node, lam_edge=0.0, epochs=args.epochs, bs=args.bs,
-                                    warmup=max(1, args.epochs // 5), device=device, seed=seed)
+                                    warmup=max(1, args.epochs // 5), device=device, seed=seed,
+                                    fcigl_strength=float(fcigl_strength),
+                                    fcigl_k=int(getattr(args, "fcigl_k", 2)),
+                                    fcigl_update_every=int(getattr(args, "fcigl_update_every", 10)))
     train_m = classification_metrics(predict(net, Xs[enc_idx], device), ys[enc_idx])
     src = classification_metrics(predict(net, Xs[pool_idx], device), ys[pool_idx])
     tgt = classification_metrics(predict(net, X[te_mask], device), y[te_mask])

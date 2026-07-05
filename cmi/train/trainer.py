@@ -15,10 +15,57 @@ from cmi.methods import augment as ssl
 from cmi.methods.graph_regularizers import NodePosterior, EdgePosterior
 from cmi.methods import dg_penalties as dgp
 
+# CIGL_67 functional CMI: penalize the intersection of the label-conditional subject subspace with the task path
+# (CIGL_66 Outcome A: CIGL reduces measured leakage but the residual subject subspace becomes task-head-aligned).
+# fcigl_align: penalize head row-space energy inside the subject subspace. fcigl_removal_aug: also classify the
+# subspace-removed representation. Both build on the graphcmi graph/node CMI terms (lam=lambda_g, gamma=lambda_node).
+FCIGL_METHODS = {"fcigl_align", "fcigl_removal_aug"}
+
 # Every implemented framework. Anything else must fail loudly (not silently train ERM).
 ALL_METHODS = {
     "erm", "iib", "graphcmi", "dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal",
-} | CMI_METHODS | SUPCON_METHODS | dgp.DG_METHODS | FMCA_METHODS | ssl.ALL_SSL
+} | FCIGL_METHODS | CMI_METHODS | SUPCON_METHODS | dgp.DG_METHODS | FMCA_METHODS | ssl.ALL_SSL
+
+
+def _head_module(backbone):
+    """The single nn.Linear task head over graph_z (DGCNN adapter -> net.head; graph-stem -> gh.head)."""
+    import torch.nn as _nn
+    for attr in (("net", "head"), ("gh", "head")):
+        obj = backbone
+        for a in attr:
+            obj = getattr(obj, a, None)
+        if isinstance(obj, _nn.Linear):
+            return obj
+    return getattr(backbone, "head", None)
+
+
+def _fcigl_subject_projector(backbone, X, y, d, k, device, bs=256):
+    """SOURCE-only label-conditional subject subspace on graph_z (X/y/d are the training set = all source).
+    Returns detached (S [k,Zg] orthonormal, P = I - SᵀS [Zg,Zg]). Recomputed periodically; no target labels."""
+    was_training = backbone.training
+    backbone.eval()
+    with torch.no_grad():
+        gz = []
+        for i in range(0, len(X), bs):
+            xb = torch.as_tensor(X[i:i + bs], dtype=torch.float32, device=device)
+            _, g, _, _ = backbone.forward_graph(xb)
+            gz.append(g.cpu().numpy())
+    if was_training:
+        backbone.train()
+    gz = np.concatenate(gz); y = np.asarray(y); d = np.asarray(d)
+    rows = []
+    for yy in np.unique(y):
+        my = y == yy; mu = gz[my].mean(0)
+        for dd in np.unique(d[my]):
+            m = my & (d == dd)
+            if m.sum() > 0:
+                rows.append(np.sqrt(m.sum()) * (gz[m].mean(0) - mu))
+    M = np.stack(rows) if rows else np.zeros((1, gz.shape[1]))
+    Vt = np.linalg.svd(M, full_matrices=False)[2]
+    S = Vt[:min(int(k), Vt.shape[0])]
+    P = np.eye(gz.shape[1]) - S.T @ S
+    return (torch.tensor(S, dtype=torch.float32, device=device),
+            torch.tensor(P, dtype=torch.float32, device=device))
 
 
 def _make_sampler(y, d, mode):
@@ -72,7 +119,8 @@ def resolve_dec_margin(method, dec_margin):
 
 
 def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gamma=0.0,
-                lam_edge=0.0, beta=0.0, balance=False, label_correct=False, reweight_dual=False,
+                lam_edge=0.0, beta=0.0, fcigl_strength=0.0, fcigl_k=2, fcigl_update_every=10,
+                balance=False, label_correct=False, reweight_dual=False,
                 dec_margin=None, epochs=200, bs=64, warmup=40, n_inner=2,
                 z_margin=0.0, dec_scale=1.0,
                 lr=1e-3, post_lr=2e-3,
@@ -95,17 +143,21 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     is_lpc_ssl = method in ssl.LPC_SSL_METHODS  # SSL framework hosting our CMI term
     ssl_kind = "byol" if "byol" in method else "simclr"
     uses_graphcmi = method == "graphcmi"        # GNN node/edge CMI (needs backbone.forward_graph)
+    uses_fcigl = method in FCIGL_METHODS         # functional CMI = graphcmi CMI terms + task-path penalty
     node_post = edge_post = None
-    if uses_graphcmi:                           # global term reuses `post`; add node + edge heads
+    if uses_graphcmi or uses_fcigl:             # global term reuses `post`; add node + edge heads
         # Fail closed: the GNN branch calls backbone.forward_graph(x) -> (logits, graph_Z, node_Z,
         # edge_logits). A non-graph backbone (EEGNet, TSMNet, ...) lacks it; without this guard the
         # AttributeError would only surface mid-training. Raise a clear, actionable error up front.
         if not callable(getattr(backbone, "forward_graph", None)):
             raise ValueError(
-                f"method='graphcmi' requires a graph backbone exposing "
+                f"method='{method}' requires a graph backbone exposing "
                 f"forward_graph(x) -> (logits, graph_Z, node_Z, edge_logits); "
                 f"{type(backbone).__name__} has no callable forward_graph. "
                 f"Use --backbone GraphCMI (or another graph backbone), or pick a non-graph method.")
+        if uses_fcigl and _head_module(backbone) is None:
+            raise ValueError(f"method='{method}' needs a linear task head over graph_z; "
+                             f"{type(backbone).__name__} exposes none (net.head / gh.head).")
         # For method='graphcmi' the (lam, gamma, lam_edge) knobs ARE (lambda_g, lambda_node,
         # lambda_edge); they are reported under those names in the returned diagnostics.
         # node feature dim may differ from the graph readout dim (z_dim): e.g. the DGCNN adapter reads out
@@ -197,10 +249,14 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 stepA_graph_total=0, stepA_node_total=0, stepA_edge_total=0,
                 stepA_graph_loss=[], stepA_node_loss=[], stepA_edge_loss=[])
     backbone.train(); post.train()
+    fcigl_S = fcigl_P = None                              # source-only subject subspace projector (detached)
     for ep in range(epochs):
         lam_t = lam * min(1.0, ep / max(1, warmup))
         gamma_t = gamma * min(1.0, ep / max(1, warmup))   # decoder-term warmup (dual)
         last_epoch = ep == epochs - 1
+        if uses_fcigl and ep >= warmup and (fcigl_P is None or (ep - warmup) % max(1, fcigl_update_every) == 0):
+            # periodic SOURCE-only projector refresh (detached); no target labels ever
+            fcigl_S, fcigl_P = _fcigl_subject_projector(backbone, Xtr, ytr, dtr, fcigl_k, device)
         for xb, yb, db, wb in dl:
             xb, yb, db, wb = xb.to(device), yb.to(device), db.to(device), wb.to(device)
             if uses_ssl:                                  # self-supervised contrastive framework
@@ -235,7 +291,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                                         list(tgt_bb.parameters()) + list(tgt_proj.parameters())):
                             t.mul_(0.99).add_(o, alpha=0.01)
                 continue
-            if uses_graphcmi:                             # GNN: graph(global) + node + edge CMI
+            if uses_graphcmi or uses_fcigl:               # GNN graph/node CMI (+ functional CMI term)
                 warm = min(1.0, ep / max(1, warmup))
                 with torch.no_grad():                     # Step A: fit all 3 posteriors on detached graph features
                     _, gz, nz, el = backbone.forward_graph(xb)
@@ -259,7 +315,21 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 loss = ce + lam * warm * r_graph + gamma * warm * r_node
                 if r_edge is not None:
                     loss = loss + lam_edge * warm * r_edge
+                # CIGL_67 functional CMI: penalize the intersection of the subject subspace with the task path.
+                r_fcigl = None
+                if uses_fcigl and fcigl_P is not None:
+                    head = _head_module(backbone)
+                    if method == "fcigl_align":           # ||P_S Wᵀ||²/||Wᵀ||²: push the head OUT of the subject subspace
+                        Wt = head.weight.t()              # [Zg, n_cls] (live -> grad to head)
+                        Ps = fcigl_S.t() @ fcigl_S        # projector ONTO the subject subspace
+                        r_fcigl = (Ps @ Wt).pow(2).sum() / (Wt.pow(2).sum() + 1e-12)
+                    else:                                 # fcigl_removal_aug: classify the subspace-REMOVED graph_z
+                        z_rm = gz @ fcigl_P.t()           # (I - SᵀS) gz  (grad to encoder + head)
+                        r_fcigl = F.cross_entropy(head(z_rm), yb)
+                    loss = loss + fcigl_strength * warm * r_fcigl
                 opt_main.zero_grad(); loss.backward(); opt_main.step()
+                if uses_fcigl and last_epoch and r_fcigl is not None:
+                    diag.setdefault("inloop_fcigl", []).append(_scalar(r_fcigl))
                 if last_epoch:
                     diag["inloop_reg"].append(_scalar(r_graph))   # back-compat: graph term == inloop_reg
                     diag["inloop_ce"].append(_scalar(ce))
@@ -414,6 +484,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
             print(f"  ep {ep+1}/{epochs} lam_t={lam_t:.3f} loss={loss.item():.4f}", flush=True)
     out = dict(stepA_dom_acc=diag["stepA_dom_correct"] / max(1, diag["stepA_dom_total"]),
                inloop_reg=float(np.mean(diag["inloop_reg"])) if diag["inloop_reg"] else 0.0,
+               inloop_fcigl=(float(np.mean(diag["inloop_fcigl"])) if diag.get("inloop_fcigl") else None),
                sampler=diag["sampler"],
                dec_margin=float(dec_margin),
                z_margin=float(z_margin),
