@@ -35,3 +35,4 @@ __pycache__/
 slurm-*.out
 /repos/
 artifact_build/
+topup_watcher.log
