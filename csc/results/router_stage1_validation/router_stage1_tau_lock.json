@@ -1,0 +1,30 @@
+{
+ "diagnostic_only": true,
+ "null_only_calibration": true,
+ "not_deployable": true,
+ "tau_R1": 0.004587196,
+ "tau_R1_hexfloat": "3f72ca060cce336e",
+ "grid_rank": 81,
+ "grid_size": 88,
+ "comparison": ">=",
+ "tau_boundary_le7": 0.004048782,
+ "tau_zero": 0.005905479,
+ "calibration_counts_at_tau_R1": {
+  "NULL_cov": 3,
+  "NULL_cov_plus_label": 2
+ },
+ "calibration_counts_at_boundary": {
+  "NULL_cov": 7,
+  "NULL_cov_plus_label": 5
+ },
+ "cp95u_at_tau_R1": {
+  "NULL_cov": 0.0256,
+  "NULL_cov_plus_label": 0.0208
+ },
+ "method_confirm_baseline": {
+  "NULL_cov": 62,
+  "NULL_cov_plus_label": 24
+ },
+ "abstention_only": false,
+ "note": "locked from CALIBRATION only; evaluated ONCE on held-out; NOT the exposed R0 tau"
+}
