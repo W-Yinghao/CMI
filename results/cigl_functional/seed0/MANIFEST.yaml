@@ -1,0 +1,15 @@
+# CIGL_67 functional seed0 readout manifest
+phase: CIGL_67_SEED0_FUNCTIONAL_GATE
+branch: project/cigl-functional-cmi
+seed: 0
+backbone: dgcnn_forward_graph_adapter
+projector: {fit: source_train_only, excludes_target: true, excludes_source_val: true, k: 2, detached: true}
+n_fold_rows: 84
+n_with_alignment: 84
+comparators_frozen: [erm, cigl_graph_node, cdan]  # from CIGL_65 seed0
+files: [functional_seed0_metrics.csv, functional_seed0_r3.csv, functional_seed0_alignment.csv, functional_seed0_pareto_against_frozen.csv]
+classification_by_variant:
+  fcigl_align_eta0.01: functional
+  fcigl_align_eta0.05: bounded
+  fcigl_removal_aug_a0.5: fail
+  fcigl_removal_aug_a1.0: fail
