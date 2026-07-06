@@ -5,8 +5,9 @@ does Conformer beat EEGNetMini under strict source-only LOSO, and is its feature
 Phase 2 adds metace / metacmi_direct (source-episodic).
 
 Per (backbone, fold, method): metrics JSON + Pareto row + verified feature_z .audit.npz (head-replay) + firewall
-metadata. Firewall: source-only training (enc_idx), source-val early-stop (pool_idx), target eval-only; the
-projector / meta objective (Phase 2) fit on source-train subjects only.
+metadata. Firewall: training on source_TRAIN only (enc_idx); the source hold-out pool (pool_idx) feeds source
+metrics + leakage/R3 audit ONLY (fixed epochs, NO early stopping / selection); outer target eval-only; the
+projector / meta objective (Phase 2) fit on source-train subjects only (meta_train subset).
 
     python scripts/run_metacmi_gate.py --dry_run_synthetic --device cpu --backbones eegnet conformer --methods erm --folds 0 --epochs 2 --probe_epochs 3 --n_perm 3
     python scripts/run_metacmi_gate.py --dataset BNCI2014_001 --device cuda --backbones eegnet conformer --methods erm --epochs 80 --probe_epochs 100 --n_perm 50
@@ -142,10 +143,28 @@ def main():
                 print(f"  [run] fold{f} sub{fold[6]} {bb}:{label}", flush=True)
                 rec = _train_eval_feature(bb, label, method, beta, fold, args.seed, args, args.device)
                 row = _row(rec, dataset, args.seed); rec["row"] = row
+                is_meta = method in ("metace", "metacmi_direct")
                 rec["meta"] = dict(phase=PHASE, backbone=bb, setting="strict_source_only_DG", commit_hash=commit,
                                    config_hash=cfg_hash, used_target_labels_for_training=False,
                                    used_target_labels_for_selection=False, target_eval_is_evaluation_only=True,
-                                   representation="feature_z", projector_source_train_only=True)
+                                   representation="feature_z", projector_source_train_only=True,
+                                   # training uses source_TRAIN only (enc_idx); the source hold-out pool (pool_idx)
+                                   # is used for source metrics + leakage/R3 audit ONLY (fixed-epoch training, NO
+                                   # early stopping / model selection -> no data-dependent selection leakage).
+                                   source_holdout_pool_used_for="source_metrics+leakage_R3_audit",
+                                   early_stopping=False, fixed_epochs=int(args.epochs),
+                                   is_meta_method=is_meta,
+                                   meta_firewall=(dict(
+                                       outer_target_eval_only=True,
+                                       training_on_source_train_only=True,
+                                       meta_split_over_source_train_subjects_only=True,
+                                       meta_heldout_are_source_subjects_not_target=True,
+                                       projector_fit_on_meta_train_subjects_only=True,
+                                       projector_excludes_meta_heldout_pool_and_target=True,
+                                       projector_detached_before_applied_to_meta_heldout=True,
+                                       meta_rho=float(args.meta_rho), meta_train_frac=float(args.meta_train_frac),
+                                       subspace_k=int(args.fcigl_k),
+                                   ) if is_meta else None))
                 _atomic_dump(rec, jp); rows.append(row)
                 print(f"    src={row['source_bacc']:.3f} tgt={row['target_bacc']:.3f} featKL={row['graph_kl_proxy']:.3f} "
                       f"replay_ok={rec['head_replay_ok']}({rec['head_replay_max_abs_diff']:.1e})", flush=True)
