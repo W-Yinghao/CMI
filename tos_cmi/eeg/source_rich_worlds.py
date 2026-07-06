@@ -6,9 +6,13 @@ E_oracle leave-one-REGIME-out sees it; E2/E4/E5 test whether source-only environ
 
 Construction. Each source subject gets a REGIME r_s in {aligned, reversed, noisy} (fractions imbalanced toward
 aligned so the pooled head USES the shortcut). Trial shortcut z: aligned -> z=y, reversed -> z=1-y, noisy ->
-random. Injected nuisance N = alpha*(2z-1)*u + noise, appended to z-scored Z. The eraser erases D = z. Target
-subject regime = reversed (REPRESENTED in source) -> the aligned-majority head misleads the target -> erasing z
-helps the target, and holding out the reversed regime reproduces that on source (source-visible benefit).
+random. Injected nuisance N = alpha*(2z-1)*u + noise, appended to z-scored Z. The eraser erases D_nuis = z.
+Target subject regime = reversed (REPRESENTED in source) -> the aligned-majority head misleads the target ->
+erasing D_nuis helps the target, and holding out the reversed regime reproduces that on source.
+
+NOTE: the erased concept `z_src` is the KNOWN INJECTED nuisance factor D_nuis = z, NOT the original EEG subject
+identity (D = subject). This tests source-rich certification WHEN THE NUISANCE IS KNOWN; it does NOT solve
+nuisance discovery in real EEG. Environments E0-E5 are SEPARATE from D_nuis. See SOURCE_RICH_PHASE1A_VERDICT.md.
 """
 from __future__ import annotations
 import numpy as np
