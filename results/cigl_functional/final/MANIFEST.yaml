@@ -9,3 +9,6 @@ n_fold_rows: 126
 n_with_alignment: 126
 bootstrap: {per_dataset: seed->fold, pooled: dataset->seed->fold, n_boot: 4000}
 files: [functional_multiseed_metrics.csv, functional_multiseed_r3.csv, functional_multiseed_alignment.csv, functional_vs_frozen_deltas.csv, functional_vs_oldcigl_bootstrap_ci.csv]
+raw_audit_npz_pruned: true   # results/cigl/functional_gate/**/audit/*.npz deleted to reclaim ~404MB
+raw_audit_npz_regen: "git checkout project/cigl-functional-cmi @c6f4934; for D in BNCI2014_001 BNCI2015_001; do sbatch scripts/sbatch_cigl_functional_gate_${D,,}.sh (seed0=all 4 variants); GATE_SEED=1/2 for the 2 align variants; then scripts/analyze_functional_{seed0,confirmation}.py"
+raw_audit_npz_derived_committed: [results/cigl_functional/seed0/, results/cigl_functional/final/]
