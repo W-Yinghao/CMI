@@ -102,3 +102,33 @@ deep encoder, threshold tuning, p-value recalibration, B7 variants, real-data va
 Dev code: `realeeg_feas/realeeg_b8_1.py` (emulator + `check_contract_b8_1` + `resample_C_exact_b8_1` + `b8_1_certify`).
 Package (after canary): `csc/results/b8_stage1_class_balanced_contract/`. Builds on [[csc-b8-information-contract]],
 [[b8_information_contract]], [[b7_stage1_full_replay]].
+
+---
+
+## RESULT (post-run, 2026-07-07) — MEETS pre-registered targets on the emulator (MODEST, masking-dependent), NOT "strong", NOT a statistic-level collider fix. NO tag.
+
+12 worlds × 50 = 600 cohorts, base 420e6, SM16. Result red-team `wvfdv8j1c`: accounting/isolation **PASS** (600 rows
+reproduced, 0 mismatches, seeds disjoint, isolation clean, T byte-identical); science **MINOR_ISSUE** — the decision-level
+screen is genuinely MET but the auto-label "STRONG"/"collider FIXED" **over-claimed** (caught + corrected).
+
+**Decision-level screen MET:** all contract nulls ≤3/50 (`prior_only` **2/50**, `cov_plus_prior` **1/50** retained,
+`balanced` 1, `random_label` 2); all 6 violations **CONTRACT_INVALID 50/50 + 0 alerts**; quiet stress cells **50/50 AUC≤τ
+yet 50/50 provenance-refused**, 0 alerts incl `quiet_cov_plus_concept` (real concept, refused contract-first);
+`POS_boundary` **8/50 ≥5**.
+
+**But the honest reading (do NOT say strong/fixed):**
+1. **Collider CONTROLLED (decision-level), not FIXED (statistic-level).** `prior_only` mean-T-**alone** is INTACT at 5/50
+   (= B8.0's both-gate level; binom vs 0.025 p=0.008). The both-gate 2/50 holds only because the studentized AND-gate did
+   not co-fire (imperfectly — 2 of 3 studentized fires coincide with mean-T, residual leaks into the 2 alerts). The 5→2
+   drop is CI-overlapping (Fisher p=0.22). Safety on prior worlds leans on the conservative studentized gate.
+2. **Aggregate null control FLAT:** pooled 7/200 (B8.0) → 6/200 (B8.1); `balanced` 0→1 and `random_label` 1→2 got worse;
+   only `prior_only` moved = redistribution within noise.
+3. **POS modest + statistically unchanged vs B8.0:** 8/50 = 16% (84% miss); separates from the *pooled* floor (p=0.002)
+   but not the mean-T floor (5/50, p=0.28); 4→8 vs B8.0 is p=0.36 (not higher).
+4. **Genuine:** mixed retained (1/50); the stress-gap closure (provenance H3 catches the quiet confound AUC misses). But
+   violation refusal is **by construction** (schedule deviation → H3 → contract-first).
+
+**NEXT (reviewer decision, NOT authorized):** recalibrate the mean-T gate on prior worlds (so control does not lean on the
+studentized AND-gate); an audit/label budget frontier to lift POS above the *mean-T* floor (not just the pooled floor); a
+multi-seed replication to resolve the CI-overlapping 5→2 / 4→8; or genuinely randomized-audit data. NOT threshold tuning,
+NOT a new statistic, NOT a paper claim. Committed diagnostic-only; package `csc/results/b8_stage1_class_balanced_contract/`.
