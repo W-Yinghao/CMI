@@ -1,7 +1,11 @@
-"""Project B deployment router (Step-2B: reason / action / feature contract only).
+"""Project B deployment router.
 
-RefusalFirstRouter is intentionally NOT exported yet — router.py / acar.py / router_harness.py
-are later steps. This package currently locks the fail-loud feature & reason-code contracts.
+Contract + policy layers (no model / TTA / harness):
+  - actions / reasons / features  (Step-2B): action + OACI reason + fail-loud feature contracts;
+  - acar                          (Step-2C): ACAR conformal calibration-state contract;
+  - router                        (Step-2D): RefusalFirstRouter policy with action-specific blockers.
+
+router_harness integration (route_target over a real model) is a later step and is NOT here.
 """
 from __future__ import annotations
 
@@ -25,6 +29,12 @@ from h2cmi.router.acar import (
     fit_risk_calibration,
     fit_acar_state,
 )
+from h2cmi.router.router import (
+    RouterConfig,
+    ActionRiskPrediction,
+    RouterDecision,
+    RefusalFirstRouter,
+)
 
 __all__ = [
     "RouterAction",
@@ -44,4 +54,9 @@ __all__ = [
     "conformal_quantile",
     "fit_risk_calibration",
     "fit_acar_state",
+    # Router policy (Step-2D)
+    "RouterConfig",
+    "ActionRiskPrediction",
+    "RouterDecision",
+    "RefusalFirstRouter",
 ]
