@@ -1,0 +1,11 @@
+{
+ "base": 200000000,
+ "condition": "NULL_cov_plus_label_soft",
+ "start": 0,
+ "n": 50,
+ "n_records": 50,
+ "n_worker_errors": 0,
+ "host": "nodecpu01",
+ "slurm": "885158",
+ "diagnostic_only": true
+}
