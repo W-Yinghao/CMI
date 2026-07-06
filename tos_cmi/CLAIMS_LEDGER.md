@@ -77,8 +77,29 @@ measurement_to_control_gap:                       # C10 (thesis)
   status: supported (synthesis of C4-C9)
   figure: Table 1
 
+# ---------- METHOD-DEEPENING (branch method-deepen-v1, tag tos-cmi-method-deepen-v2-final @ 0ef7be3; DONE) ----------
+source_ood_benefit_gate:          # Track B (DONE)
+  status: supported
+  scope: Lee/Cho sampled pilot (15 of 52/54 folds; labeled pilot, not full LOSO)
+  scripts: [tos_cmi/eeg/source_ood_benefit_gate.py, tos_cmi/eeg/run_trackB_benefit_gate.py, tos_cmi/eeg/report_trackB.py]
+  finding: benefit+safety source-only gate = 0 false accepts, 8/8 harms prevented, 20/20 correct; naive domain-gain/safety controllers false-accept harmful/useless erasures
+  caveat: acceptance power UNTESTED on real EEG (no real positive)
+  outputs: notes/METHOD_DEEPENING_FINAL_VERDICT.md ; results/method_deepen/trackB/*
+task_preserving_erasure_phase2:   # Phase 2 (DONE, commit f8bd0ef)
+  status: supported
+  scope: Lee/Cho EEGNet seed0 first-15 folds
+  finding: tp-LEACE preserves the deployed task decision (task-drop UCB +0.000) AND erases source subject (0.31->0.03) but target transfer FLAT (+0.000) -> gate ABSTAINS
+  caveat: cc-predicted exact-zero is a structural tautology (probe re-learns router); tp-LEACE is the clean result
+  outputs: notes/METHOD_DEEPENING_FINAL_VERDICT.md ; results/method_deepen/phase2/*
+v2_source_only_acceptance_ceiling:  # V2 (DONE, Stage 1/1B/2; config b8e24e34fc84)
+  status: supported_semisynthetic
+  scope: real Lee/Cho EEGNet+TSMNet latents + injected ground-truth nuisance; Stage 2 scoped 72,000 tasks, 0 fail/degenerate
+  finding: EEGNet World A clean source-only acceptance CEILING robust across source_subject_counts {8,16,32,all}xseeds (0 principled ACCEPT, oracle-supported, random-k LCB<=+0.006); World B/C robust refusal both backbones; 0 false accepts across all cells
+  caveat: TSMNet World A NOT cleanly demonstrable under appended-nuisance construction (oracle unsupported at all nuisance_fraction {0.15..0.30}); gate has safe REFUSAL power + acceptance CEILING, NOT acceptance power
+  outputs: notes/{V2_STAGE1B_VERDICT,V2_STAGE2_VERDICT,METHOD_DEEPENING_FINAL_VERDICT}.md ; results/method_deepen/v2_stage2/*
+
 # ---------- NOT YET ATTEMPTED (future tracks; must not be claimed) ----------
-source_ood_benefit_gate:        {status: not_attempted, plan: Track B (inner source-LODO pseudo-target benefit)}
+target_informed_acceptance:     {status: parked, plan: "how much target information crosses the source-only ceiling? (unlabeled target mismatch / few target labels); NOT strict source-only DG"}
 architecture_x_dimension_factorial:               # Track C (DONE, 3-seed; SLURM 877939)
   status: supported_refined  # 3-seed verdict = LARGELY capacity-mediated + RESIDUAL architecture effect at high d_z
   scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_multiseed_analysis.py (file-parallel joblib; fold-cluster + paired + OLS CIs)

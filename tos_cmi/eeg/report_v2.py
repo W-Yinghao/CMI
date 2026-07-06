@@ -100,8 +100,11 @@ def _scatter(summ, tag, benefit_thr, outdir):
 
 
 def main():
-    ap = argparse.ArgumentParser(); ap.add_argument("--tag", default="smoke")
-    ap.add_argument("--outdir", default=OUT); a = ap.parse_args()
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--tag", "--stage", default="smoke", dest="tag")
+    ap.add_argument("--outdir", "--out-dir", default=OUT, dest="outdir")
+    ap.add_argument("--rows", default=None, help="accepted for CLI compat; the report reads the merged summary")
+    a = ap.parse_args()
     outdir = a.outdir
     S = json.load(open("%s/v2_%s_summary.json" % (outdir, a.tag)))
     summ, ch, th, pr = S["summary"], S.get("config_hash", "?"), S["thresholds"], S["params"]
