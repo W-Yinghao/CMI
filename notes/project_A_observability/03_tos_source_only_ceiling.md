@@ -62,13 +62,22 @@ O_0(P) = P_S = O_0(Q).
 But `T(P) = T(P_T) ≠ T(Q_T) = T(Q)`. By the `OA-0` contrapositive, `T` is not identifiable
 under `(R0, C)`. ∎
 
-**Remark (why contracts are the only escape).** The proof breaks exactly when `C` forces `P_T`
-to be a function of `P_S` — e.g. C2 (shared class-conditional geometry) pins `p_T(z|y)=p_S(z|y)`,
-which combined with an *observed* `p_T(z)` (that is regime R1, not R0) identifies `π_T`. Under
-strict R0 there is no observed target coordinate for any contract to act on, so **no** contract
-of the "shared-mechanism" type rescues a target functional at R0. This is the precise sense in
-which R0 is a ceiling: target claims need target *observation* (R1/R2), not merely target
-*assumptions*.
+**Remark (why contracts are the only escape, and what "escape" means).** The proof breaks only
+when `C` forces `P_T` to be a function of `P_S`. Two cases must be distinguished:
+
+- **(i) Ordinary shared-mechanism contracts that still leave a target coordinate free** — e.g.
+  C2 alone (`p_T(z|y)=p_S(z|y)`) with `π_T`, target concept, or transport still unconstrained —
+  **do not** identify any target-specific functional under R0: there is no observed target
+  coordinate for them to act on. They bite only once such a coordinate is *observed* — e.g.
+  C2 **plus an observed `p_T(z)`** identifies `π_T`, but that is regime R1, not R0.
+- **(ii) A contract that *fully fixes* `P_T` as a function of `P_S`** (the extreme `P_T=P_S`) can
+  of course "yield" target quantities — but then the target law is an **external axiom**, not
+  something *identified from R0 observations*. Project A records such assumptions as **declared
+  target-law axioms**, never as source-only evidence.
+
+Either way, target *claims* require target *observation* (R1/R2) or an explicitly-declared
+target-law axiom — not target *assumptions* dressed as inference. This is the precise sense in
+which R0 is a ceiling.
 
 ## 4. Binary exact counterexample (the `G / B` world pair)
 

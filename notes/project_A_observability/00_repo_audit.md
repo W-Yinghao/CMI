@@ -260,6 +260,13 @@ paired target anchors** (they shrink source-side variance, not the target-world 
 Each contract is a declared assumption an adaptation method *depends on*; Project A's job is
 to say, per regime, whether it can be **falsified from data** or must be **assumed**.
 
+> **Note — this is a first-pass sketch.** The **canonical registry is
+> `02_contract_taxonomy.md` (C1–C12)**. Identical entries: C1/C2/C3/C5/C7/C8/C9/C10. Two changed
+> meaning: this sketch's **C4** (acquisition-vs-label-mechanism separation) is canonical **C12**;
+> this sketch's **C6** (domain-class span) is folded into canonical **C6**'s data-coverage
+> precondition. Canonical adds **C4** (stable label mechanism), **C6** (representation
+> sufficiency), **C11** (anchor validity). Read any C4/C6 below through that crosswalk.
+
 ### C1 — Class support overlap
 **Statement:** `supp p_T(z|y) ⊆ supp p_S(z|y)` for every class `y` (no target mass off the
 source class-conditional manifold). **Needed for:** any transport/risk transfer; the TTA EM.
@@ -365,30 +372,35 @@ found supporting or contradicting evidence.
   with source class-conditional geometry, one with a rotated class→source map (`concept>0`) or
   a shifted `π_T` — that are **observationally identical to a source-only observer** yet have
   opposite-sign adaptation gain. *File:* `03_tos_source_only_ceiling.md`. **Counterexample
-  NEEDED — buildable now** on `eeg_simulator.py` (tune `concept`/`prior` with matched source
-  sites; `meta` carries oracle params for the ground-truth check). **Supported by** the
+  attached:** CE-R0-1/2 (the binary `G/B` world pair) + CE-R0-3 (a standalone two-prior world) in
+  `07_counterexample_catalog.md`, executed by `counterexamples/run_counterexamples.py` (risk 0
+  vs 1, gain sign −1 vs +1); a simulator instance is buildable on `eeg_simulator.py`.
+  **Supported by** the
   existing negatives (EA-transductive, gate falsification, measurement→control gap).
 
 - **`TU-1` — target-unlabeled prior identifiability under mixture/GLS contract.** Under R1,
   `π_T(y)` is identifiable iff **C2 ∧ C1 ∧ C3** (shared class-conditionals, support, full-rank
   `C`). *Proof strategy:* uniqueness of the mixture decomposition `p_T(z)=Σ_y π_T(y)p_ref(z|y)`;
   reduce to `w=C⁻¹μ` (Lipton'18 / Combes'20). *File:* `02_resolution.md` extension +
-  `01_information_regimes.md`. **Counterexample needed:** two `π_T` giving the same `p_T(z)`
-  when C3 fails (degenerate classes).
+  `01_information_regimes.md`. **Necessity/failure certificate attached:** CE-R1-2 (rank-1
+  class-conditionals ⇒ two `π_T` give the same `p_T(z)`; the C3-failure boundary of this
+  *positive* theorem) in `07_counterexample_catalog.md` + `run_counterexamples.py`.
 
 - **`TU-2` — concept-shift non-identifiability from unlabeled target.** Under R1 (no target
   labels, no label-mechanism anchor), `p_T(y|z)` is **not** identifiable: two label mechanisms
   induce the same `p_T(z)`. *Proof strategy:* explicit pair via `label_mechanism_rho` vs a
-  matching prior change. *File:* `07_counterexample_catalog.md`. **Counterexample NEEDED.**
-  **Strongly supported by P0-4** (the residual is a predictive-insufficiency diagnostic) and
-  the C6 degeneracy — this is arguably Project A's most defensible theorem.
+  matching prior change. *File:* `07_counterexample_catalog.md`. **Counterexample attached:**
+  CE-R1-1 (same `p_T(X)`, opposite `p_T(Y|X)`) in `07_counterexample_catalog.md` +
+  `run_counterexamples.py`. **Strongly supported by P0-4** (the residual is a
+  predictive-insufficiency diagnostic) and the C6 degeneracy — Project A's most defensible theorem.
 
 - **`MP-1` — minimal-paired transport identifiability.** Under R2, if the transform family is
   low-dim, invertible, full-rank, with sufficient overlap (**C8**), the acquisition/montage/
   session transform is identifiable to statistical error; otherwise only a bound. *Proof
   strategy:* moment-matching / procrustes identifiability on the paired anchors; degrade to a
   bound when C8 relaxes. *File:* `04_prior_decoupled_theory.md` or a new `08`-transport note.
-  **Counterexample needed:** high-dim transform under-determined by `k` pairs.
+  **Counterexample needed (deferred to the MP/transport step):** high-dim transform
+  under-determined by `k` pairs.
 
 - **`PD-1` — prior-decoupled additive relation.** Under the reference prior `π*` and GLS
   reweighting (**C7**), `Ĩ(Y;D)=0` and the `ID-1` identity becomes the all-positive additive
@@ -403,8 +415,8 @@ found supporting or contradicting evidence.
   the added information *type* is not interchangeable (source breadth ≠ target-unlabeled ≠
   paired). *Proof strategy:* monotonicity of the "consistent worlds" preimage under refinement
   of `Observed_R`; a separating example that more source subjects leave the target world
-  ambiguous. *File:* `01_information_regimes.md`. **Counterexample needed:** two target worlds
-  separated only by target `X_T`, provably unshrinkable by adding source subjects.
+  ambiguous. *File:* `01_information_regimes.md`. **Counterexample needed (deferred):** two
+  target worlds separated only by target `X_T`, provably unshrinkable by adding source subjects.
 
 ---
 

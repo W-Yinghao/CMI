@@ -1,6 +1,6 @@
 # Project A — Counterexample Catalog
 
-> The evidence库 for every non-identifiability claim. Each claim ships two worlds that are
+> The evidence library for every non-identifiability claim. Each claim ships two worlds that are
 > **identical under the relevant observation operator** but **disagree on the target
 > estimand** (`OA-0` contrapositive, `01_information_regimes.md` §5). Exact-discrete
 > counterexamples are the **proofs**; the `h2cmi` simulator is used only as an **illustration**.
