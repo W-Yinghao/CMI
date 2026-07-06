@@ -1,0 +1,60 @@
+# CIGL_70 — source-only CMI reliance-control: negative gates (frozen)
+# Each gate is a real-EEG decision point that the source-only CMI control line did NOT pass.
+# Positive parts (audit + partial proxy control) are recorded as durable; the reliance/generalization
+# gates are the closed negatives.
+
+closure_verdict: SOURCE_ONLY_CMI_RELIANCE_CONTROL_FAILED_AND_CLOSED
+not_a_project_failure: true            # the CMI project is not closed; only the source-only reliance-control route
+
+durable_positive:
+  cmi_audit:
+    claim: "label-conditional domain leakage is measurable, permutation-significant, head-replay-verified"
+    status: RETAINED
+    evidence: [CIGL_65, CIGL_69A, CIGL_69C]
+  cmi_proxy_control_partial:
+    claim: "measured leakage is reducible without task collapse (CIGL ~40-65% on 2 datasets; MetaCMI reduces featKL a bit more than MetaCE)"
+    status: RETAINED_PARTIAL
+    evidence: [CIGL_65, CIGL_69C]
+
+closed_negative_gates:
+  - gate: reliance_reduction_via_global_leakage_control
+    route: CIGL_global_leakage
+    result: FAIL
+    detail: "leakage reduced + task retained, but R3 functional reliance NOT reduced (measurement->control gap)"
+    evidence: CIGL_65 (d3593c8), CIGL_66 gap diagnostic (alignment explains gap)
+  - gate: reliance_reduction_via_task_head_alignment_control
+    route: FCIGL_task_head_alignment
+    result: FAIL
+    detail: "alignment reduced + task retained, but R3 reliance NOT reduced"
+    evidence: CIGL_67 (d02c400)
+  - gate: reliance_reduction_via_direct_counterfactual_objective
+    route: dCIGL_direct_counterfactual
+    result: FAIL
+    detail: "seed0 signal did NOT reproduce across seeds 0/1/2"
+    evidence: CIGL_68
+  - gate: cmi_specific_gain_via_source_episodic_metacmi
+    route: MetaCMI_source_episodic
+    result: FAIL
+    detail: "MetaCMI <= MetaCE on target in all 4 cells; R3 reduction within noise; no accuracy/functional gain"
+    evidence: CIGL_69C (8068191)
+
+common_failure_basin: >
+  In the strict source-only EEG setting, label-conditional leakage can be measured and reduced as a proxy,
+  but neither global leakage control, task-head-alignment control, direct counterfactual consistency, nor
+  source-episodic MetaCMI reliably reduces functional reliance or improves target generalization on the
+  held-out subject. Source subjects do not carry enough information to stably control the held-out subject's
+  functional nuisance structure.
+
+frozen_prohibitions:
+  - no more beta/eta/alpha/k/lambda sweeps on any source-only CMI route
+  - no MetaCMI seeds 1/2
+  - no ConformerFull MetaCMI
+  - no new source-only backbone for CMI reliance control
+  - no source-only CMI schedule sweep
+  - no static-DGCNN CIGL/FCIGL/dCIGL revival
+
+next_setting_only_if_authorized:
+  name: target_unlabeled_cmi_adaptation
+  branch: project/cita-target-unlabeled-cmi
+  distinct_information_regime: "target X allowed at adaptation; target y forbidden entirely"
+  note: "success there must be stated as 'target-unlabeled CMI adaptation works', NOT 'CIGL source-only works'"

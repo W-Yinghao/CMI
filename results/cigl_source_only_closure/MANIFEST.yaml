@@ -1,0 +1,36 @@
+# CIGL_70_SOURCE_ONLY_CMI_CLOSURE — manifest
+phase: CIGL_70_SOURCE_ONLY_CMI_CLOSURE
+branch: project/metacmi-eegnet-conformer
+purpose: >
+  Freeze the source-only CMI reliance-control route as a systematic negative. Four control routes
+  (CIGL global leakage, FCIGL task-head alignment, dCIGL direct counterfactual, MetaCMI source-episodic)
+  all measured/reduced a CMI proxy but none reliably reduced functional reliance or improved target
+  generalization on the held-out subject. CMI audit + partial proxy control are retained as durable.
+
+scientific_levels:
+  CIGL_65:  method-level (full-LOSO x seeds 0/1/2)
+  CIGL_67:  method-level (full-LOSO x seeds 0/1/2)
+  CIGL_68:  method-level (full-LOSO x seeds 0/1/2)
+  CIGL_69C: scientific screening (full-LOSO seed0) -- key MetaCMI-vs-MetaCE attribution decisive at seed0
+
+datasets: [BNCI2014_001, BNCI2015_001]
+backbones_by_route:
+  static_dgcnn: [CIGL_65, CIGL_67, CIGL_68]
+  feature_z_mini: [CIGL_69C]   # EEGNetMini + EEGConformerMini (internal/faithful-minimal, NOT official)
+
+files:
+  route_summary.csv: {rows: 4, columns: [route, backbone, setting, cmi_object_or_proxy, real_eeg_gate, scientific_level, positive_part, failed_part, decision]}
+  negative_gates.yaml: {closed_negative_gates: 4, durable_positive: 2}
+  MANIFEST.yaml: this file
+
+frozen_evidence_pointers:
+  CIGL_65:  results/cigl_r123/final/            # commit d3593c8
+  CIGL_67:  results/cigl_functional/final/      # commit d02c400
+  CIGL_68:  results/cigl_direct_reliance/final/
+  CIGL_69A: docs/CIGL_69A_PREFLIGHT_READOUT.md
+  CIGL_69A2:docs/CIGL_69A2_FULL_CONFORMER_ERM_READOUT.md
+  CIGL_69C: docs/CIGL_69C_METACMI_PHASE2_READOUT.md, results/cigl/metacmi_phase2/  # commit 8068191
+
+verdict: SOURCE_ONLY_CMI_RELIANCE_CONTROL_FAILED_AND_CLOSED
+retained_contribution: "CMI audit works; CMI proxy control works partially; CMI source-only reliance control fails robustly"
+next: project/cita-target-unlabeled-cmi (target-unlabeled CMI adaptation, distinct information regime)
