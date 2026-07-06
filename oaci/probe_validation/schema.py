@@ -35,10 +35,13 @@ PERM_SEED = c19.PERM_SEED                        # 707
 
 # ---- C20 case taxonomy -----------------------------------------------------------------------------
 CASE_GENERALIZES = "frozen_robust_core_generalizes_to_heldout_regimes"
+CASE_PARTIAL = "partial_marginal_cross_regime_generalization"
 CASE_SURVIVES_NONDELETION = "survives_block_rare_but_not_deletion"
 CASE_REGIME_LOCAL = "c19_positive_is_regime_local_no_external_generalization"
 CASE_AVAILABILITY_LIMITED = "validity_limited_by_feature_availability_not_relationship"
-ALL_CASES = (CASE_GENERALIZES, CASE_SURVIVES_NONDELETION, CASE_REGIME_LOCAL, CASE_AVAILABILITY_LIMITED)
+ALL_CASES = (CASE_GENERALIZES, CASE_PARTIAL, CASE_SURVIVES_NONDELETION, CASE_REGIME_LOCAL,
+             CASE_AVAILABILITY_LIMITED)
+AVAILABILITY_FLOOR = 0.5      # robust-core scored_rate below this on failing regimes -> availability-limited
 
 # a regime is "deletion" (bAcc-endpoint fragile) vs "non-deletion" for the taxonomy split
 DELETION_HELD_OUT = ("S4_missing_cells", "S6_boundary_aligned_mask", "S7_random_matched_mask")

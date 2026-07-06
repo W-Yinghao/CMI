@@ -45,25 +45,38 @@ def _atlas_by_regime(extract_dir, c10_dir, bnd, folds, n_workers):
 
 def _taxonomy(heldout, availability) -> dict:
     passes = {r: bool(heldout[r]["primary"]["passes"]) for r in schema.HELD_OUT_REGIMES}
+    n_pass = sum(passes.values())
     del_pass = [passes[r] for r in schema.DELETION_HELD_OUT]
     s5_pass = passes.get("S5_block_class_by_domain", False)
     failing = [r for r in schema.HELD_OUT_REGIMES if not passes[r]]
-    low_avail = [r for r in failing if (availability[r]["robust_core_scored_rate"] or 0.0) < 0.5]
-    if all(passes.values()):
+    # availability is the LIMITER only if the ROBUST-CORE features are themselves unavailable on failing regimes
+    low_avail = [r for r in failing if (availability[r]["robust_core_scored_rate"] or 0.0) < schema.AVAILABILITY_FLOOR]
+    avail_limited = bool(failing) and len(low_avail) == len(failing)      # ALL failing regimes robust-unavailable
+    if n_pass == len(schema.HELD_OUT_REGIMES):
         case = schema.CASE_GENERALIZES
+    elif avail_limited:
+        case = schema.CASE_AVAILABILITY_LIMITED
     elif s5_pass and not any(del_pass):
         case = schema.CASE_SURVIVES_NONDELETION
-    elif failing and len(low_avail) >= max(1, len(failing) // 2):
-        case = schema.CASE_AVAILABILITY_LIMITED
+    elif n_pass >= 1:
+        case = schema.CASE_PARTIAL                                       # some pass with robust core AVAILABLE
     else:
         case = schema.CASE_REGIME_LOCAL
+    passing_regimes = [r for r in schema.HELD_OUT_REGIMES if passes[r]]
     nxt = {
         schema.CASE_GENERALIZES: "C20-B external-dataset protocol may proceed to C21 execution (still diagnostic-only).",
+        schema.CASE_PARTIAL: (f"cross-regime generalization is PARTIAL/marginal (passes {passing_regimes} at thin "
+                              "margins; fails the rest). Robust-core features ARE available, so failures are "
+                              "relationship-level not availability-level. Scope the claim to the passing regimes; "
+                              "do NOT claim general external generalization. Treat marginal passes as fragile "
+                              "(multiple-comparisons across held-out regimes)."),
         schema.CASE_SURVIVES_NONDELETION: "signal robust to block/rare/nonestimable but not deletion; scope the claim to non-deletion support stress.",
         schema.CASE_REGIME_LOCAL: "C19 positive is regime-local; report the boundary; do NOT externally generalize the claim.",
-        schema.CASE_AVAILABILITY_LIMITED: "held-out validity is limited by observable AVAILABILITY (endpoint/leakage non-estimability), not the source-target relationship; strengthens the C18 endpoint-estimability framing.",
+        schema.CASE_AVAILABILITY_LIMITED: "held-out validity is limited by observable AVAILABILITY (robust-core non-estimability), not the source-target relationship.",
     }[case]
-    return {"case_label": case, "held_out_pass": passes, "next_science": nxt, "diagnostic_only_non_deployable": True}
+    return {"case_label": case, "held_out_pass": passes, "n_pass": n_pass, "passing_regimes": passing_regimes,
+            "robust_core_available_on_failing": {r: availability[r]["robust_core_scored_rate"] for r in failing},
+            "next_science": nxt, "diagnostic_only_non_deployable": True}
 
 
 def run(extract_dir, c10_dir, *, folds=None, n_perm=schema.N_PERM, n_workers=8,
@@ -136,8 +149,10 @@ def write_tables(res, tdir) -> None:
     _writecsv(os.path.join(tdir, "feature_availability_by_regime.csv"),
               [{"held_out_regime": r, "robust_core_scored_rate": res["availability"][r]["robust_core_scored_rate"],
                 "robust_core_insufficient_rate": res["availability"][r]["robust_core_insufficient_rate"],
+                "endpoint_available_rate": res["availability"][r]["endpoint_available_rate"],
                 "endpoint_nonestimable_rate": res["availability"][r]["endpoint_nonestimable_rate"]} for r in H],
-              ["held_out_regime", "robust_core_scored_rate", "robust_core_insufficient_rate", "endpoint_nonestimable_rate"])
+              ["held_out_regime", "robust_core_scored_rate", "robust_core_insufficient_rate",
+               "endpoint_available_rate", "endpoint_nonestimable_rate"])
     _writecsv(os.path.join(tdir, "abstention_by_regime.csv"),
               [{"held_out_regime": r, "status": s, "count": res["availability"][r]["counts"][s]}
                for r in H for s in c19.SCORE_STATUS], ["held_out_regime", "status", "count"])
