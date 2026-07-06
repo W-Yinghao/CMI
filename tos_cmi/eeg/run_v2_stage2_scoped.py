@@ -29,6 +29,35 @@ def _cfg():
     return yaml.safe_load(open(CONFIG))
 
 
+def target_leak_structural_check(datasets, nmode, nfrac, nmin):
+    """Pre-run STRUCTURAL gate for stop-condition #2 (target labels used only in the audit). Enforces:
+      (a) oracle diagnostic interventions are NOT in the deployable set (never a method result);
+      (b) permuting the target labels used for SCORING does not change ANY source-only gate signal
+          (task_drop / source-LOSO benefit / domain_gain) -- i.e. y_target enters only the final audit.
+    Raises AssertionError (-> job halts) on failure; prints TARGET_LEAK_STRUCTURAL_PASS on success."""
+    from tos_cmi.eeg.v2_worlds import DEPLOYABLE as DEP, DIAGNOSTIC as DIAG, FACTORIES
+    from tos_cmi.eeg.run_v2_certificate import eval_v2
+    from tos_cmi.eeg.semi_synthetic_real_latent import inject
+    from tos_cmi.eeg.erasure_baselines import _ids
+    assert set(DIAG).isdisjoint(set(DEP)), "oracle diagnostic intervention leaked into the deployable set"
+    ps = _dumps(datasets[0], "EEGNet", 0, 1)
+    d = np.load(ps[0], allow_pickle=True)
+    Zs = d["Z_source"].astype(np.float64); ys = d["y_source"].astype(int)
+    Zt = d["Z_target"].astype(np.float64); yt = d["y_target"].astype(int)
+    subj = _ids(d["subject_source"])[0]; n_cls = int(d["n_cls"])
+    m = _nuisance_m(Zs.shape[1], nmode, nfrac, nmin)
+    inj = inject("A", Zs, ys, subj, Zt, yt, seed=0, m=m)
+    F = FACTORIES["leace_baseline"]
+    s1 = eval_v2(inj["Zs2"], ys, inj["z_src"], inj["grp_subj"], inj["Zt2"], yt, n_cls, F, 0, 6)
+    ytp = np.random.default_rng(1).permutation(yt)
+    s2 = eval_v2(inj["Zs2"], ys, inj["z_src"], inj["grp_subj"], inj["Zt2"], ytp, n_cls, F, 0, 6)
+    assert abs(s1["task_drop"] - s2["task_drop"]) < 1e-9, "task_drop changed under target-label permutation"
+    assert abs(s1["domain_gain"] - s2["domain_gain"]) < 1e-9, "domain_gain changed under target-label permutation"
+    assert np.allclose(s1["benefit"], s2["benefit"]), "source-LOSO benefit changed under target-label permutation"
+    assert abs(s1["tgt_bacc_full"] - s2["tgt_bacc_full"]) > 1e-6, "sanity: the target AUDIT should change"
+    print("TARGET_LEAK_STRUCTURAL_PASS", flush=True)
+
+
 def stop_conditions(summary, manifest, bt):
     """Return (halt, findings). Encodes the 7 Stage-2 stop conditions."""
     f = []
@@ -105,6 +134,8 @@ def main():
     print("  task composition (world,backbone): %s" % dict(sorted(comp.items())), flush=True)
     if a.dry_run:
         print("DRY_RUN (no execution). tasks=%d" % len(tasks)); return
+    # stop-condition #2: target-leak structural gate (HALTs the run on failure)
+    target_leak_structural_check(datasets, nmode, nfrac, nmin)
     rows = Parallel(n_jobs=N_JOBS, backend="loky")(
         delayed(_one)(w, ds, bb, sd, p, ns, al, iv, 0.15, 1.0, nmin, nmode, nfrac, 0.1, n_pseudo)
         for (w, ds, bb, sd, p, ns, al, iv) in tasks)
@@ -154,6 +185,7 @@ def main():
                 print("  World %s %-7s n_source=%-4s : principled ACCEPT %d ; high-dg-useless %d" % (wk, bb, ns, nacc, hidg))
     halt, findings = stop_conditions(summary, manifest, benefit_thr)
     print("\n=== stop conditions ===")
+    print("  %-45s : %s" % ("2 target-leak (PRE-RUN structural gate)", "TARGET_LEAK_STRUCTURAL_PASS (asserted before run)"))
     for name, val in findings:
         print("  %-45s : %s" % (name, val))
     print("  degenerate %d / fail %d of %d tasks" % (ndeg, nfail, len(rows)))

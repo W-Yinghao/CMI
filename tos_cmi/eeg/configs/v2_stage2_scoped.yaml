@@ -1,40 +1,40 @@
 stage2_goal: eegnet_worldA_ceiling_plus_BC_refusal_robustness
 
-# World-A ceiling is run on EEGNet only (Stage-1B: TSMNet World-A not cleanly demonstrable under the
-# appended-nuisance construction; oracle unsupported at all nuisance_fraction values). B/C refusal robustness
-# is run on both backbones. TSMNet World-A is SKIPPED (verdict carried forward from Stage 1B).
 world_A:
-  include_backbones: [EEGNet]
+  include_backbones:
+    - EEGNet
   exclude_backbones:
     TSMNet: oracle_unsupported_under_appended_nuisance_construction
 
 world_B:
-  include_backbones: [EEGNet, TSMNet]
+  include_backbones:
+    - EEGNet
+    - TSMNet
 
 world_C:
-  include_backbones: [EEGNet, TSMNet]
+  include_backbones:
+    - EEGNet
+    - TSMNet
 
-datasets: [Lee2019_MI, Cho2017]
+datasets:
+  - Lee2019_MI
+  - Cho2017
+
 seeds: [0, 1, 2]
 source_subject_counts: [8, 16, 32, all]
-
-# folds/alpha kept modest to keep the n_source-grid run tractable (see V2_STAGE2_PLAN.md for the runtime math);
-# the NEW robustness axis in Stage 2 is source_subject_counts, not more folds.
 folds: 15
 alpha_grid: [0.25, 0.5, 1.0, 2.0]
 n_pseudo: 8
 
-# nuisance-dim rule inherited (latent-capacity normalized); EEGNet m=4.
 nuisance_dim_mode: fraction_of_z_dim
 nuisance_fraction: 0.20
 nuisance_dim_min: 4
 
-# FROZEN gate thresholds (identical to Stage 1; do NOT tune).
 thresholds:
   safety_reject_task_drop_ucb: 0.02
   benefit_accept_lcb: 0.01
-domain_gain_role: diagnostic_only
-target_usage: audit_only
+  domain_gain_role: diagnostic_only
+  target_usage: audit_only
 
 interventions:
   - identity
@@ -48,7 +48,11 @@ interventions:
   - fair_conditional_leace_disjoint_router
   - oracle_nuisance_eraser_DIAGNOSTIC_ONLY
 
-# Stage-2 stop conditions (halt + report; do not auto-extend/rewrite):
-#  1 our gate any false ACCEPT ; 2 target labels used outside audit ; 3 EEGNet World-A clean positives disappear
-#  4 random-k reproduces EEGNet World-A oracle/deployable gain ; 5 World-B unsafe accept > 0
-#  6 World-C principled ACCEPT > 0 ; 7 TSMNet B/C degeneracy > 20%
+stop_conditions:
+  false_accept: true
+  target_leak_structural: true
+  eegnet_worldA_clean_positives_per_n_source: true
+  random_reproduces_eegnet_worldA_gain: true
+  worldB_unsafe_accept: true
+  worldC_principled_accept: true
+  tsmnet_BC_degeneracy_gt_20pct: true

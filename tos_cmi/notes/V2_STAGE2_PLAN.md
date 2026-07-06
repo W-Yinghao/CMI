@@ -4,7 +4,7 @@ Per V2_STAGE1B_VERDICT.md: accept the honest asymmetric result; scope Stage 2 to
 ceiling and (ii) B/C refusal robustness on both backbones, across `source_subject_counts`. **No World-A
 redesign; gate thresholds FROZEN; TSMNet World A skipped** (Stage-1B verdict carried forward).
 
-## Scope (config `v2_stage2_scoped.yaml`, hash 267edcd6584a)
+## Scope (config `v2_stage2_scoped.yaml`, hash b8e24e34fc84)
 ```
 World A : EEGNet only              (clean ceiling robustness)
 World B : EEGNet + TSMNet          (unsafe-erasure refusal robustness)
@@ -21,8 +21,8 @@ Estimated ~13.5 h on a single 128-core node (TSMNet B/C 28,800 heavy tasks domin
 Optional reductions if faster wall-clock is wanted (not applied unless the PM asks): B/C alpha grid -> {0.5,1.0}
 (B/C are alpha-insensitive) ~halves it; or a 5-shard job array by (world,backbone) for ~3-4 h wall.
 
-## Stage-2 stop conditions (encoded in run_v2_stage2_scoped.stop_conditions; HALT+report, no auto-extend)
-1 our gate any false ACCEPT ; 2 target labels used outside audit (structural; tests) ; 3 EEGNet World-A clean
+## Stage-2 stop conditions (6 runtime in stop_conditions() + 1 pre-run structural gate; HALT+report)
+1 our gate any false ACCEPT ; 2 target labels used outside audit -- PRE-RUN structural gate target_leak_structural_check() -> TARGET_LEAK_STRUCTURAL_PASS or halt ; 3 EEGNet World-A clean
 positives disappear at any n_source ; 4 random-k reproduces EEGNet World-A oracle/deployable gain ; 5 World-B
 unsafe accept > 0 ; 6 World-C principled ACCEPT > 0 ; 7 TSMNet B/C degeneracy > 20%.
 

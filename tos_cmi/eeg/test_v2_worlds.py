@@ -113,6 +113,29 @@ def test_config_parses_and_has_required_keys():
     return "config parses (%d keys); goal=ceiling; thresholds 0.02/0.01; oracle in interventions" % len(cfg)
 
 
+def test_stage2_config_parses_and_scoped():
+    """Stage-2 scoped config: valid YAML, required keys, World A=EEGNet-only / B,C=both, thresholds frozen,
+    stop_conditions all set, oracle in interventions."""
+    import yaml
+    from pathlib import Path
+    p = Path("tos_cmi/eeg/configs/v2_stage2_scoped.yaml")
+    assert b"\r" not in p.read_bytes()
+    cfg = yaml.safe_load(p.read_text())
+    req = ["stage2_goal", "world_A", "world_B", "world_C", "datasets", "seeds", "source_subject_counts",
+           "folds", "alpha_grid", "thresholds", "interventions", "stop_conditions"]
+    assert not [k for k in req if k not in cfg], [k for k in req if k not in cfg]
+    assert cfg["world_A"]["include_backbones"] == ["EEGNet"]
+    assert "TSMNet" in cfg["world_A"]["exclude_backbones"]
+    assert sorted(cfg["world_B"]["include_backbones"]) == ["EEGNet", "TSMNet"]
+    assert sorted(cfg["world_C"]["include_backbones"]) == ["EEGNet", "TSMNet"]
+    assert cfg["thresholds"]["safety_reject_task_drop_ucb"] == 0.02
+    assert cfg["thresholds"]["benefit_accept_lcb"] == 0.01
+    assert cfg["thresholds"]["target_usage"] == "audit_only"
+    assert "oracle_nuisance_eraser_DIAGNOSTIC_ONLY" in cfg["interventions"]
+    assert all(cfg["stop_conditions"].values())
+    return "stage2 config parses; World A=EEGNet-only, B/C=both, thresholds frozen, 7 stop_conditions set"
+
+
 def test_oracle_marked_diagnostic():
     assert "oracle_nuisance_eraser_DIAGNOSTIC_ONLY" in DIAGNOSTIC
     assert "oracle_nuisance_eraser_DIAGNOSTIC_ONLY" not in DEPLOYABLE
@@ -123,8 +146,8 @@ def test_oracle_marked_diagnostic():
     return "oracle eraser is DIAGNOSTIC (not deployable) and zeros the injected block"
 
 
-TESTS = [test_config_parses_and_has_required_keys, test_z_relationships,
-         test_target_labels_not_used_by_gate, test_worldB_unsafe_reject,
+TESTS = [test_config_parses_and_has_required_keys, test_stage2_config_parses_and_scoped,
+         test_z_relationships, test_target_labels_not_used_by_gate, test_worldB_unsafe_reject,
          test_worldC_removable_but_useless, test_worldA_ceiling, test_oracle_marked_diagnostic]
 
 
