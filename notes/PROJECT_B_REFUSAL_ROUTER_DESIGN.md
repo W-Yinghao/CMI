@@ -485,13 +485,30 @@ acar_bound_vs_realized        # per action: mean(upper_harm_a) vs realized risk_
 ```
 Deltas use `panel_delta` + `cluster_bootstrap_ci` (domains as clusters), exactly as the existing harness.
 
-### 9.2 Worlds (synthetic substrate, `run_synthetic`/`eeg_simulator`)
-- **Recoverable world** (`--concept 0.0`, covariate/montage/prior shift): router should **accept**
-  `OFFLINE_TTA` and realise the same gain the raw TTA does — refusing here is a false refusal.
-- **Concept-shift world** (`--concept 0.6 --concept_frac 0.5`): router should **refuse or fall to IDENTITY**
-  and avoid the harm the raw TTA incurs.
-- **NULL canary** (`disable_all_gates=True`): confirms accepted-bAcc collapses to raw-TTA (harness is not
-  self-fulfilling).
+### 9.2 Worlds (synthetic substrate, FULL training — NOT `--fast`; established in Step-2A)
+Step-2A (`scripts/project_b_sweep_synthetic.py`, 30 epochs) established these worlds and **two distinct
+harmful regimes that must never be merged into one metric**:
+- **Recoverable world = R2** (`cov1.2/prior0.4/montage0.2/concept0`): raw OFFLINE_TTA reliably HELPS
+  (d_bAcc +0.071, p_gt0 0.95, 3/3 seeds). Router should **accept** — refusing here is a false refusal.
+- **Harmful-CAL (H-CAL)** — the *source-calibratable* harmful world (`concept_frac≈0.5` → ~3 concept sites,
+  target hits one, ~2 remain in source, so `source_concept_count≈2`). The **primary** harmful substrate for
+  ACAR go/no-go, because it is the only regime in which source pseudo-targets *could* exhibit TTA harm and
+  give the gate/ACAR a calibration signal. Router should **refuse or fall to IDENTITY**. [best config chosen
+  by the HFRAC sweep; acceptance additionally requires ≥4/5 seeds with a 2-class pseudo-gain, i.e.
+  `gate_auroc` finite.]
+- **Harmful-OOD (H-OOD) stress = seed-32 @ `concept_frac=0.17`** (lone concept site held out as target →
+  `source_concept_count=0`): harm is real (d_bAcc −0.11..−0.29 across H configs) but **not source-
+  identifiable** (`gate_auroc` NaN — source stays concept-free). Used ONLY to stress **TOS/support-aware
+  refusal** (§4); **never** as ACAR calibration evidence. This is the substrate face of the source-only
+  non-identifiability barrier.
+- **NULL canary** (`disable_all_gates=True`): accepted-bAcc collapses to raw-TTA (harness not self-fulfilling).
+
+> **Open caveat (Step-2A, under test):** `train_safety_gate` measures TTA gain on source subjects the model
+> was *trained on* (in-distribution), so pseudo-targets may never be OOD-harmed regardless of source concept
+> shift (`pseudo_harm=0` even at `source_concept_count=2` in the HF2/seed3 probe). If the HFRAC sweep confirms
+> this across seeds, the ACAR calibration signal is unavailable **by gate design** (not by shift strength),
+> and a true nested-LODO gate (retrain excluding each pseudo-domain) would be required — a deeper finding
+> than "raise `concept_frac`".
 
 > **Baseline reality check (2026-07-06, `--fast` → 4 epochs).** The two Step-1 baseline runs do **not** yet
 > realise the intended recoverable-vs-harmful contrast, and Step 2 must fix the world config before using it
