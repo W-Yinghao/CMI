@@ -1,0 +1,71 @@
+{
+ "stage": "B7.1 exposed full development replay (dual-witness) -- development-only, NOT confirmatory, NOT deployable, NOT a universal type-I guarantee, NO tag",
+ "primary_rule": "B7_primary_confirm = (old_b3_state==CONCEPT_CONFIRMED) AND (b6_state==CONCEPT_CONFIRMED_B6)  [gated component states; p_dual=max(p_old,p_C) DIAGNOSTIC only]",
+ "three_state": [
+  "DUAL_CONCEPT_ALERT",
+  "NO_ACTIONABLE_CONCEPT_EVIDENCE",
+  "UNIDENTIFIABLE_OR_INVALID"
+ ],
+ "witnesses": {
+  "old_B3": "certify_paired_calibrated (FROZEN fixed-margin Y-null path; prior-shift witness; own gates: fixed-margin+studentized+LCB; NO recalibration)",
+  "B6_plain": "realeeg_crt.crt_test (FROZEN plain C|Z,S condition-randomization, exact-CB Metropolis, marginal propensity; covariate-process witness; NO fixed-class-margin FM, NO P(C|Z,S,Y), NO within-class Z balancing)"
+ },
+ "base_seed": 300000000,
+ "seed_formula": "seed = base + condition_index*1_000_000 + r",
+ "condition_index": {
+  "NULL_cov_soft": 1,
+  "NULL_cov_plus_label_soft": 3,
+  "NULL_cov_strong_auc0.81": 8,
+  "NULL_cov_strong_auc0.94": 9,
+  "NULL_label": 2,
+  "random_label_control": 7,
+  "POS_concept": 4,
+  "POS_concept_plus_cov": 5
+ },
+ "n_per_condition": 300,
+ "conditions": [
+  "NULL_cov_soft",
+  "NULL_cov_plus_label_soft",
+  "NULL_cov_strong_auc0.81",
+  "NULL_cov_strong_auc0.94",
+  "NULL_label",
+  "random_label_control",
+  "POS_concept",
+  "POS_concept_plus_cov"
+ ],
+ "total_cohorts": 2400,
+ "disjointness": "base 300e6 disjoint from B6.0/B7.0 (200e6), P3 (20/50/60/70e6), R1 (80/90e6), B5 (30/40e6), strong-cov(100e6)",
+ "primary_safety": "EACH null kind separately: B7_primary_confirm <= 7/300 (CP95 upper reported per kind); NO pooling. Preferred stricter: random_label_control<=3, NULL_label<=3, strong covariate nulls<=3",
+ "utility": {
+  "strong": "POS_concept>=20/300 AND POS_concept_plus_cov>=15/300",
+  "weak": "all primary safety pass AND POS_concept>0",
+  "fail": "POS_concept==0"
+ },
+ "invalid_accounting": "method-invalid OR B6-invalid OR B6-lock => NOT confirm; denominator stays 300; disjoint partition both+old_only+B6_only+neither_valid+invalid==300; invalid==UNIDENTIFIABLE_OR_INVALID",
+ "forbidden": [
+  "threshold tuning",
+  "B6-FM substitution/primary",
+  "best-of-witness selection",
+  "router threshold",
+  "observed_T threshold",
+  "p-value recalibration",
+  "variance inflation",
+  "feature/montage change",
+  "oracle field in score",
+  "condition-label decision rule",
+  "confirmatory tag",
+  "validation/failure results influencing the rule"
+ ],
+ "commit_sequence": [
+  "commit/hash protocol BEFORE run",
+  "smoke",
+  "full 2400-cohort replay",
+  "merge fail-closed",
+  "red-team",
+  "commit diagnostic-only results",
+  "NO tag"
+ ],
+ "worker": "realeeg_b6_canary.py (runs OLD certifier + B6.0 plain crt_test on the SAME cohort per row -> both witnesses same observed_T, fidelity_dT recorded; B6-FM NOT run in B7.1 primary)",
+ "diagnostic_only": true,
+ "not_confirmatory": true
+}
