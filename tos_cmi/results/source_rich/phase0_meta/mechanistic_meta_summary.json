@@ -1,0 +1,63 @@
+{
+ "n_cells": 20,
+ "datasets": [
+  "Cho2017",
+  "Lee2019_MI"
+ ],
+ "correlations": {
+  "dsubj_lin": {
+   "pearson": 0.04230404608297676,
+   "spearman": -0.16617283842071437,
+   "ci": [
+    0.026467913194145855,
+    0.05085409987204318
+   ]
+  },
+  "dsubj_mlp": {
+   "pearson": -0.17453706767992677,
+   "spearman": -0.2222244170421181,
+   "ci": [
+    -0.23835247480879887,
+    -0.13987888818981836
+   ]
+  },
+  "domain_gain": {
+   "pearson": -0.1369442192704233,
+   "spearman": -0.41254276590045813,
+   "ci": [
+    -0.15054996858196482,
+    -0.13275712611833038
+   ]
+  },
+  "task_drop_ucb": {
+   "pearson": -0.8862893152208632,
+   "spearman": -0.7685325264750378,
+   "ci": [
+    -0.9173183302178971,
+    -0.856613998597155
+   ]
+  },
+  "benefit_mean": {
+   "pearson": 0.8674581299418279,
+   "spearman": 0.7428139183055975,
+   "ci": [
+    0.8378978588474115,
+    0.9047546902860729
+   ]
+  },
+  "benefit_lcb": {
+   "pearson": 0.8711765032654701,
+   "spearman": 0.75642965204236,
+   "ci": [
+    0.8443986738544887,
+    0.9072681397215694
+   ]
+  }
+ },
+ "sign_agreement": 0.9,
+ "figs": [
+  "tos_cmi/results/source_rich/phase0_meta/figs/subject_reduction_vs_target_delta.png",
+  "tos_cmi/results/source_rich/phase0_meta/figs/source_loso_vs_target_delta.png",
+  "tos_cmi/results/source_rich/phase0_meta/figs/task_drop_vs_target_delta.png"
+ ]
+}
