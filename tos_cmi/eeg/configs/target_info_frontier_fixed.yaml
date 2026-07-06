@@ -1,85 +1,58 @@
-# Fork 1 --- Target-information frontier: DESIGN-LOCK config (DRAFT for PM review; freeze hash after approval).
-# Canonical block YAML: block lists, comments on their own lines. No experiments run from this file yet.
-# Companion design doc: notes/TARGET_INFORMATION_FRONTIER_DESIGN.md
+goal: target_information_needed_to_cross_source_only_ceiling
+status: design_lock_draft_for_review
 
-goal:
-  # How much target information is needed to safely license accept when source-only evidence cannot?
-  question: target_information_needed_to_cross_the_source_only_ceiling
-  measures:
-    - true_accept_rate_vs_budget
-    - false_accept_rate
-    - held_out_audit_split_target_gain
-    - label_budget_curve_approaches_oracle
-
-# ---------------- target-information budgets (pre-registered ladder) ----------------
 budgets:
-  - name: B0_source_only
+  B0_source_only:
     info: source_only
     accept_allowed: false
-  - name: B1_unlabeled_target
+
+  B1_unlabeled_target:
     info: unlabeled_target_Z_or_X
     accept_allowed: false
-    # unlabeled target is a TRIAGE / needs-labels trigger, NOT an accept certificate
-    actions:
-      - reject
-      - abstain
-      - request_labels
-  - name: B2_k_labels_per_class
+    allowed_actions: [reject, abstain, request_labels]
+
+  B2_k_labels_per_class:
     info: k_labeled_target_trials_per_class
     accept_allowed: true
-    k_grid:
-      - 1
-      - 2
-      - 4
-      - 8
-      - 16
-  - name: B3_active_calibration
-    info: sequential_active_target_labels
+    k_grid: [1, 2, 4, 8, 16]
+    k_unavailable_policy: mark_unavailable_never_reuse_audit_labels
+
+  B3_sequential_calibration:
+    info: sequential_target_labels_with_early_stop
     accept_allowed: true
-  - name: B4_oracle_selector
+    k_grid: [1, 2, 4, 8, 16]
+    active_query_policy: deferred
+    k_unavailable_policy: mark_unavailable_never_reuse_audit_labels
+
+  B4_oracle_selector:
     info: oracle_target_informed_selector
     accept_allowed: true
     diagnostic_only: true
-    # upper bound, NOT a deployable method
 
-# ---------------- clean evaluation split (labels never both decide and evaluate) ----------------
 split:
-  target_calibration_split: used_by_target_informed_gate
-  target_audit_split: final_evaluation_only
-  stratify_by_class: true
   repeats_R: 10
-  cross_fitting: true
+  stratify_by_class: true
+  calibration_split: used_by_gate_only
+  audit_split: final_evaluation_only
   paired_ci: subject_x_split_subject_clustered_bootstrap
-  guard:
-    calibration_audit_disjoint: required
-    audit_labels_read_before_scoring: forbidden
-    structural_precheck_token: TARGET_LEAK_STRUCTURAL_PASS
+  report_effective_n_per_class: true
 
-# ---------------- gate design (frozen thresholds; reuse existing controller) ----------------
 gate:
   source_safety:
-    rule: reject_if_source_task_drop_UCB_gt
-    threshold: 0.02
+    reject_if_task_drop_ucb_gt: 0.02
   target_benefit:
-    rule: accept_only_if_target_calibration_dbacc_LCB_gt
-    threshold: 0.01
-    split: calibration_only
+    accept_if_calibration_dbacc_lcb_gt: 0.01
   domain_gain:
     role: diagnostic_only
   specificity_control:
-    rule: accepted_intervention_must_beat_same_k_random_or_flag_non_specific
+    same_k_random_required: true
   unlabeled_target:
-    role: triage_only
-    accept_from_unlabeled_only: forbidden
+    accept_from_unlabeled_only: false
 
-# ---------------- main experiment objects (semi-synthetic FIRST, real EEG SECOND) ----------------
 tier1_semi_synthetic:
   role: development
-  datasets:
-    - Lee2019_MI
-    - Cho2017
-  backbones:
-    - EEGNet
+  datasets: [Lee2019_MI, Cho2017]
+  backbones: [EEGNet]
   worlds:
     - v2_world_a_source_invisible
     - source_rich_world_a_source_visible
@@ -87,36 +60,50 @@ tier1_semi_synthetic:
     - B0_source_only
     - B1_unlabeled_target
     - B2_k_labels_per_class
-    - B3_active_calibration
+    - B3_sequential_calibration
     - B4_oracle_selector
-  objective: gate_moves_abstain_to_accept_as_k_grows_with_false_accept_near_zero
 
 tier2_real_eeg:
   role: false_accept_control
+  datasets: [Lee2019_MI, Cho2017]
+  backbones: [EEGNet, TSMNet]
+  seeds: [0, 1, 2]
+  folds: first15
   expectation: gate_still_rejects_or_abstains_no_target_beneficial_erasure_exists
   on_accept: audit_whether_accepted_target_gain_real_or_overfit
+  secondary:
+    datasets: [High-Gamma]
+    role: four_class_stress_test
 
-# ---------------- pass / fail (pre-registered) ----------------
 pass_fail:
-  success:
-    semi_synthetic:
-      - target_label_budget_increases_true_accept_rate
-      - false_accept_remains_near_zero
-      - accepted_interventions_have_positive_held_out_target_gain
-      - label_budget_curve_approaches_oracle
-    real_eeg:
-      - gate_does_not_spuriously_accept_useless_or_harmful_erasures
+  success_semi_synthetic:
+    - target_label_budget_increases_true_accept_rate
+    - false_accept_remains_near_zero
+    - accepted_interventions_have_positive_held_out_target_gain
+    - label_budget_curve_approaches_oracle
+  success_real_eeg:
+    - gate_does_not_spuriously_accept_useless_or_harmful_erasures
   failure:
     - few_shot_target_gate_overfits_and_false_accepts
     - unlabeled_target_screen_accepts_harmful_cells
-    - active_calibration_fails_to_reduce_label_budget
+    - sequential_calibration_fails_to_reduce_label_budget
 
-# ---------------- provenance / discipline ----------------
+forbidden_claims:
+  - unsupervised_target_adaptation_from_unlabeled_only
+  - active_learning_result_in_first_round
+  - real_eeg_target_gain
+  - source_rich_solves_source_only_acceptance
+
+structural_checks:
+  calibration_audit_disjoint: true
+  audit_labels_read_before_scoring: false
+  b1_accept_forbidden: true
+  oracle_diagnostic_only: true
+
 provenance:
   branch: science-target-info-v1
   parent_branch: science-source-rich-v1
   is_strict_source_only: false
   target_labels: object_of_study_but_never_decide_and_evaluate_with_same_labels
-  status: design_lock_draft_for_review
   freeze_hash_after: pm_review
   do_not_run_yet: true
