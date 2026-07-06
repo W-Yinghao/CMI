@@ -41,3 +41,13 @@ Joined 20 real-EEG cells (Track B source-only gate x erasure_report x deployment
 - If the source-LOSO<->target correlation (#5/#7) is ~0 / CI spans 0 under E0 subject environments, the E0 baseline does NOT make benefit source-visible -> E1-E5 must materially improve source-target alignment for Fork 2 to have a positive route.
 - If leakage reduction (#1/#2) is uncorrelated with target ΔbAcc, this supports 'leakage removal is not a benefit certificate' (do NOT overstate as 'leakage can never matter').
 - Any target-positive subgroup is a CANDIDATE only -> must be reproduced under the pre-registered dev/confirm split with random-k / task-drop / leakage audits before any claim.
+
+---
+## Phase 0 VERDICT (safety-axis baseline, not acceptance-axis success)
+Phase 0 establishes an E0 safety-axis baseline, not an acceptance-axis success. The high source-LOSO/target
+correlation is driven by task-destruction harms (task-drop UCB vs target r -0.886; benefit-vs-target r +0.87 is
+carried by task-destroying erasers hurting both source and target). No real EEG positive cells exist in the
+joined Lee/Cho Track-B deployment table (REJECT=harmful, ABSTAIN=neutral, ACCEPT=0). Leakage reduction is not a
+benefit proxy (Δsubject decode vs target ~ uncorrelated / weakly negative). Therefore the next test must be
+semi-synthetic source-rich World A, where a positive target benefit is CONSTRUCTED and REPRESENTED among source
+environments -- the constructive side of Proposition 2 that real EEG cannot exhibit (no real positive exists).

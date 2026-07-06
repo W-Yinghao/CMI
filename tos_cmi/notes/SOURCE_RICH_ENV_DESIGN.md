@@ -112,3 +112,16 @@ Phase 0 (cheap mechanistic meta-analysis, no new training) -> Phase 1 (this desi
 smoke) -> Phase 3 (real EEG) -> decide. NOT now: target-information budget experiment, few-shot/active target
 labels, Track E, paper rewrite, dataset expansion, World-A redesign. Fork 1 is postponed, not cancelled: Fork 2
 is its pre-flight diagnostic (source-rich coverage vs target labels).
+
+---
+## World-gen tuning disclosure (Phase 1A, frac)
+The source-rich World A regime fractions were tuned (world-gen only; gate thresholds FROZEN) to construct a
+SAFE source-visible positive: `frac=(aligned 0.4, reversed 0.3, noisy 0.3)`. At the initial (0.5,0.3,0.2) the
+shortcut was too strong -> erasing it dropped source task-drop UCB to +0.025 (>0.02, unsafe -> REJECT). At
+(0.4,0.3,0.3): E_oracle (leave-one-regime-out) task-drop UCB +0.010 (SAFE), benefit LCB +0.283, target dbAcc
+LCB +0.020 -> ACCEPT a genuinely target-beneficial intervention. This tuning uses the E_oracle DIAGNOSTIC signal
++ the target AUDIT to ensure the WORLD contains a safe source-visible positive (world construction, analogous to
+V2 World A tuning). It does NOT tune any DISCOVERED environment (E2/E4/E5) or use target to SELECT an
+environment; whether source-only discovered environments recover the oracle is the UNtuned test (Case A/B).
+Self-check (Lee EEGNet, real fold): E0 subject benefit -0.013 (misses), E_oracle +0.36 (sees), E2 covariance
++0.066 (partial recover), E4 margin ~0.
