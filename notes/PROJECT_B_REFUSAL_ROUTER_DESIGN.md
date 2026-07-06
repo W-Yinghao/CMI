@@ -181,13 +181,25 @@ but target-prior NLL is fine (`support_gap` large positive), the degradation is 
 refuse**; emit `OACI_PRIOR_SHIFT_ONLY_INFO`. Only when target-prior NLL is *also* bad is it genuine support
 mismatch → `OACI_TOS_DENSITY_OOD` / `OACI_TOS_SUPPORT_MISMATCH`.
 
-### 4.3 `cmi_residual` remediation (from §2.4-5)
-Because the substrate hard-codes `cmi_residual = 0.0`, the router populates it before feeding the gate/ACAR:
-at route time, compute a frozen-encoder signed leakage on the target embedding via
-`crossfit_conditional_leakage(Z=embed(X_tgt), y=pseudo_labels, domains, dag, C, n_perm=P)` and use the
-worst-factor `excess` (or `HierarchicalCMI.estimate` signed `I_hat`) as `cmi_residual`. If neither is
-available at route time (no domain labels on the target), `cmi_residual` stays `0.0` and the router records
-`OACI_LEAKAGE_RESIDUAL_UNAVAILABLE` (audit-only, not a refusal) — never a silent zero.
+### 4.3 `cmi_residual` remediation (from §2.4-5) — labels-permitting only
+Because the substrate hard-codes `cmi_residual = 0.0` it carries no signal until populated — but population is
+**only legitimate when true labels are available**. Pseudo-label leakage is explicitly **not** a trusted
+refusal signal: `I(Z;D|Ŷ)` conditioned on the model's own pseudo-labels is not the target estimand
+`I(Z;D|Y)`; it can be masked by the model's own errors, or worse, report the model's own bias as leakage.
+Two disjoint modes:
+
+**Calibration / evaluation mode** (source pseudo-targets, or any split where true `y` + `domains` exist):
+`leakage_excess_true` = worst-factor `excess` of
+`crossfit_conditional_leakage(Z=embed(X), y=y_true, domains, dag, C, n_perm>0)`. This MAY populate
+`cmi_residual` for source-pseudo-target calibration and for evaluation reports. `n_perm` **must be `> 0`** (the
+substrate defaults it to `0`, i.e. no null → no `excess`).
+
+**Deployment route mode** (`route_target`, target `y` unavailable):
+Do **not** use pseudo-label leakage as a trusted `cmi_residual`. Set `cmi_residual = 0.0`, emit
+`OACI_LEAKAGE_RESIDUAL_UNAVAILABLE` (audit-only, never a refusal), and set
+`diagnostics["cmi_residual_available"] = False`. An optional `pseudo_cmi_residual` MAY be logged separately
+for audit, but it is **not** a refusal trigger in v1. `HierarchicalCMI.estimate`'s signed `I_hat` (no null
+correction) is a fallback/ablation source only — never the v1 primary. Never a silent zero.
 
 ### 4.4 Thresholds (structure only; numbers frozen at Step 2)
 Each check is `feature (>|<) τ`. Defaults live in `RouterConfig` (§8); a `NULL_*` canary config disables all
@@ -256,20 +268,31 @@ hold each unit out as a pseudo-target, run each action on it, and record `(featu
 `features[a,u] = concat(gate_features(diag[a,u]), [support_gap, density_nll_under_target_prior, ...])`. A
 pseudo-unit with `mask.sum() < cfg.tta.min_target` is skipped (matches the harness).
 
-### 6.3 Per-action conformal calibration
-Train a per-action harm regressor `r̂_a = f_a(features)` (ridge/GBT). Then split-conformal on the residuals:
+### 6.3 Per-action conformal calibration — DUAL bounds (error AND harm)
+Controlling harm alone is insufficient: `IDENTITY` has `risk_harm ≡ 0` by construction, so a harm-only router
+makes IDENTITY *tautologically* safe and can never answer "is this target even eligible to be predicted?".
+So **both** estimands of §6.1 are calibrated. Per action `a`, fit two regressors and two split-conformal
+quantiles (ridge/GBT):
 ```
-score[a,u]      = max(0, risk_harm[a,u] - r̂_a(features[a,u]))
-q_a             = Quantile_{1-α_a}( { score[a,u] } )        # finite-sample conformal quantile
-upper_harm_a(x) = r̂_a(features[a,x]) + q_a
+r̂_error_a = f_error_a(features)                 r̂_harm_a = f_harm_a(features)
+score_error[a,u] = max(0, risk_error[a,u] - r̂_error_a(features[a,u]))
+score_harm[a,u]  = max(0, risk_harm[a,u]  - r̂_harm_a(features[a,u]))
+q_error_a = Quantile_{1-α_a}({score_error[a,u]})    q_harm_a = Quantile_{1-α_a}({score_harm[a,u]})
+upper_error_a(x) = r̂_error_a(features[a,x]) + q_error_a    # bounds ABSOLUTE risk -> "eligible to output?"
+upper_harm_a(x)  = r̂_harm_a(features[a,x])  + q_harm_a     # bounds harm vs identity -> "allowed to adapt?"
 ```
-Action `a` is **admissible** for target `x` iff:
+Admissibility (IDENTITY is exempt from the harm bound, which is ~0 by construction):
 ```
-upper_harm_a(x) <= harm_budget[a]   AND   all TOS checks (§4) pass for a   AND   #calib(a) >= min_calib
+IDENTITY:                TOS pass  AND  upper_error_identity <= error_budget["identity"]
+OFFLINE_TTA / ONLINE_TTA: TOS pass  AND  TTA-stability pass
+                          AND upper_error_action <= error_budget[action]
+                          AND upper_harm_action  <= harm_budget[action]
 ```
-If `#calib(a) < min_calib` → drop `a` with `OACI_ACAR_INSUFFICIENT_CALIBRATION`. If no action is admissible →
-`REFUSE` with `OACI_CONF_EMPTY_ACTION_SET`. Among admissible actions, pick the one with the lowest
-`upper_harm_a` (ties → the *least* interventional action, i.e. `IDENTITY < OFFLINE_TTA < ONLINE_TTA`).
+`risk_harm` governs *whether adaptation is allowed*; `risk_error` governs *whether the target is eligible to
+be predicted at all*. They are never conflated. If `#calib(a) < min_calib` → drop `a` with
+`OACI_ACAR_INSUFFICIENT_CALIBRATION`. If no prediction action is admissible → `REFUSE` with
+`OACI_CONF_EMPTY_ACTION_SET`. Selection among admissible actions follows the safe-beneficial policy of §6.6
+(NOT a naive least-interventional pick).
 
 ### 6.4 Relationship to `SafetyGate`
 The learned `SafetyGate.predict_harm_prob` becomes **one feature and one baseline**, not the decision. ACAR's
@@ -287,8 +310,32 @@ The action-conditional-conformal framing follows recent conformal risk-averse de
 **citation verified 2026-07-06**). That work (i) builds action-conditional conformal prediction sets, (ii)
 uses them as a proxy for the feasible decision space of a risk-averse (action-conditional VaR) decision maker,
 and (iii) gives a finite-sample pinball-loss algorithm — strengthening Kiyani et al. (2025)'s *marginal-only*
-guarantee to a *per-action* one. ACAR (§6.3) is the EEG-deployment instantiation: our `q_a` quantile and
-`upper_harm_a` bound are the pinball/split-conformal analogue applied to the harm estimand of §6.1.
+guarantee to a *per-action* one. ACAR (§6.3) is the EEG-deployment instantiation: our `q_a` quantiles and
+`upper_error_a` / `upper_harm_a` bounds are the pinball/split-conformal analogue applied to the two estimands
+of §6.1.
+
+### 6.6 Action-selection policy (safe-beneficial, NOT least-interventional)
+A naive "pick the least-interventional admissible action" self-locks to `IDENTITY` whenever IDENTITY is
+admissible, so `OFFLINE_TTA` could never be chosen even when it clearly helps. The router therefore uses a
+safe-beneficial policy:
+```
+1. default REFUSE.
+2. run TOS / support / prior-decoupled checks (§4, §7).
+3. build the admissible prediction-action set (§6.3).
+4. if NO prediction action is admissible          -> REFUSE (OACI_CONF_EMPTY_ACTION_SET).
+5. if a TTA action satisfies ALL of:
+       upper_error_action    <= error_budget[action]
+       upper_harm_action     <= harm_budget[action]
+       predicted_gain_action >= min_expected_gain
+       delta_density_nll      >= min_delta_density_nll
+   -> select that TTA action (prefer OFFLINE_TTA over ONLINE_TTA on ties).
+6. else if IDENTITY admissible                     -> IDENTITY.
+7. else                                            -> REFUSE.
+```
+v1 defines `predicted_gain_action = − r̂_harm_action` (expected reduction in harm vs identity; a proper
+conformal *lower* bound on gain is deferred to a later version). `min_expected_gain` (default `0.02`) lives in
+`RouterConfig`. This keeps the router refusal-first **without** letting it collapse to a permanent IDENTITY
+policy — `risk_harm` still guards against harmful adaptation, but a beneficial TTA action can win.
 
 ---
 
@@ -376,8 +423,12 @@ class RouterConfig:
     harm_budget: dict = field(default_factory=lambda: {"identity": 0.0,
                                                        "offline_tta": 0.02,
                                                        "online_tta": 0.02})
+    error_budget: dict = field(default_factory=lambda: {"identity": 0.45,   # require upper-bounded bAcc >= 0.55
+                                                        "offline_tta": 0.45,
+                                                        "online_tta": 0.45})
+    min_expected_gain: float = 0.02      # safe-beneficial policy (SS6.6): a TTA action must beat this
     min_calib: int = 8
-    leakage_n_perm: int = 200            # crossfit_conditional_leakage null
+    leakage_n_perm: int = 200            # crossfit_conditional_leakage null (MUST be > 0)
     # meta
     refusal_first: bool = True
     disable_all_gates: bool = False      # NULL_* canary
@@ -389,8 +440,8 @@ class RouterDecision:
     accepted: bool
     reason_codes: list          # list[OACIReason]
     diagnostics: dict           # merged TTA/gate/prior/leakage diagnostics (incl. audit-only info)
-    action_scores: dict         # {action_name: r_hat}
-    conformal_bounds: dict      # {action_name: upper_harm_a}
+    action_scores: dict         # {action_name: {r_hat_error, r_hat_harm, predicted_gain}}
+    conformal_bounds: dict      # {action_name: {upper_error, upper_harm}}
 
 
 class RefusalFirstRouter:
@@ -405,7 +456,9 @@ class RefusalFirstRouter:
 
     def route_target(self, model, X_tgt, domain_tgt, source_prior, mode: str = "offline"):
         """Return a RouterDecision for one unlabelled target batch/stream. Default REFUSE.
-        Promotes to the least-interventional admissible action per SS4-6. mode in {offline, online}."""
+        Applies the safe-beneficial selection policy (SS6.6): promote to a TTA action only when its
+        conformal error+harm bounds and the expected-gain gate all pass, else IDENTITY if eligible, else
+        REFUSE. Never uses pseudo-label leakage as a trusted cmi_residual (SS4.3). mode in {offline, online}."""
         ...
 ```
 
