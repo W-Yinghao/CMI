@@ -190,7 +190,23 @@ Every target-label use MUST be tagged `NO` / `YES_FORBIDDEN` / `AUDIT_ONLY` / `U
 ## 10. Phase gates
 
 - **Phase 0 — Evidence freeze & artifact map** (this Step 1). Gate: locate CIGL R3 / gap diagnostics, CIGL source-only closure summary, CITA λ=1.0 readout, TOS erasure/LEACE/refusal evidence, FBCSP-LGG branch ablation / gate summaries; mark missing metrics rather than inventing them.
-- **Phase 1 — Unified metric schema.** Gate: every route lands on ≥3 of {L1, L2, L5, L6}; every claim has an artifact path; every target-label use is tagged.
+- **Phase 1 — Unified metric schema.** Gate (revised 2026-07-06, PM patch — replaces the earlier "≥3 of {L1,L2,L5,L6}", which was over-strict and penalised honest diagnostic rows):
+  ```text
+  Phase-1 quantitative inclusion gate:
+    A route may enter a cross-level quantitative test only if it has
+    at least one predictor-side level among {L1, L2, L3, L4}
+    and at least one endpoint-side level among {L5, L6}.
+
+  Support-only / boundary / protocol rows are allowed, but must be tagged:
+    SUPPORT_ONLY
+    BOUNDARY_ONLY
+    PROTOCOL_ONLY
+    BACKGROUND_ONLY
+
+  They may support interpretation but may not be used in RQ1/RQ2/RQ3 regression
+  unless the required predictor and endpoint levels are present.
+  ```
+  This is not a lowered bar — it is an executable, auditable one. Example: FBCSP's spatial branch is strong **L4** evidence (`zero_spatial` −7.4pp on 2a, −8.8pp on 2015 = load-bearing), but with **no per-branch leakage probe** it has no L1/L5 pairing, so it is `SUPPORT_ONLY` (branch-locality background) and cannot enter the RQ4 leakage×branch quantitative test. Every claim still needs an artifact path; every target-label use still tagged.
 - **Phase 2 — Frozen CPU re-analysis.** No new models. Compute `corr(L,R)`, `corr(E,T)`, `corr(A,R)`; mixed-effects `R ~ L + A + branch + dataset + backbone`; hierarchical bootstrap CIs; random-subspace control; per-dataset leave-one-out. Gate: if A explains R better than L ⇒ mechanism-positive main line; else ⇒ stronger boundary line.
 - **Phase 3 — Branch-local audit.** Bring in FBCSP-LGG spatial branch, no CMI training. Gate: frozen branch ablation + gate summary suffice for the "load-bearing branch" background; if `spatial_z` frozen embeddings are missing, record as missing metric; only after Phase 2 discuss whether to approve a small frozen-probe run.
 - **Phase 4 — Minimal confirmatory GPU run (optional).** Approved only if Phase 2 shows a specific gap. Allowed: frozen representation extraction, frozen `spatial_z/graph_z/node_z` probe, R3-style branch/subspace-removal replay. Forbidden: `fbdualpc` training, CMI regularizer sweeps, new graph-architecture search, ConformerFull rescue.

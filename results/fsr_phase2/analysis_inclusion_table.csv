@@ -1,0 +1,38 @@
+route,cluster,predictor_levels,endpoint_levels,inclusion_tag,include_rq1,include_rq2,include_rq3,include_rq4,gate_predictor_ok,gate_endpoint_ok,reason
+CIGL_70_closure,frozen_premise,none,none,BACKGROUND_ONLY,NO,NO,NO,NO,NO,NO,"frozen premise (closure), not an analysis route"
+CMI_SYNTHESIS,frozen_premise,none,none,BACKGROUND_ONLY,NO,NO,NO,NO,NO,NO,"frozen premise (synthesis), not an analysis route"
+CIGL,CMI_control,L1|L2|L4,L5|L6,INCLUDED,YES,NO,YES,NO,YES,YES,per-unit leakage+alignment+R3 (n=126) supports RQ1/RQ3
+FCIGL,CMI_control,L1|L2|L4,L5|L6,SUPPORT_ONLY,NO,NO,NO,NO,YES,YES,"frozen paired-delta vs CIGL, not a per-unit leakage-reliance scatter; supports RQ1/RQ3 interpretation only"
+dCIGL,CMI_control,L1|L2|L4,L5|L6,SUPPORT_ONLY,NO,NO,NO,NO,YES,YES,frozen paired-delta vs CIGL; supports interpretation only
+MetaCMI,CMI_control,L1|L2,L5|L6,SUPPORT_ONLY,NO,NO,NO,NO,YES,YES,seed0-screening only; R3 not in phase2 JSON (readout only); supports interpretation
+CITA_lambda_1,CMI_control,L1,L5|L6,SUPPORT_ONLY,NO,NO,NO,NO,YES,YES,"target-unlabeled; endpoint is CITA-minus-TTA (control contrast), not a leakage-reliance scatter"
+CITA_lambda_0.010,CMI_control,L1,L5|L6,SUPPORT_ONLY,NO,NO,NO,NO,YES,YES,inert-lambda baseline; control contrast only
+TTA_Control_non_CMI,CMI_control,none,L5|L6,SUPPORT_ONLY,NO,NO,NO,NO,NO,YES,"non-CMI positive; informs RQ2 (target benefit decoupled from reliance) as context, not an erasure route"
+TOS_mean_scatter,TOS_erasure,L1|L3|L4,L6,INCLUDED,NO,YES,NO,NO,YES,YES,L3 erasability + L6 target present
+TOS_LEACE,TOS_erasure,L1|L3|L4,L6,INCLUDED,NO,YES,NO,NO,YES,YES,L3 erasability + L6 target present
+TOS_INLP,TOS_erasure,L1|L3|L4,L6,INCLUDED,NO,YES,NO,NO,YES,YES,L3 erasability + L6 target present (negative control for RQ2)
+TOS_RLACE,TOS_erasure,L1|L3|L4,L6,INCLUDED,NO,YES,NO,NO,YES,YES,L3 erasability + L6 target present
+TOS_random_k,TOS_erasure,L3,L6,INCLUDED,NO,YES,NO,NO,YES,YES,falsifier control for RQ2 (L3 non-removal + L6 NLL)
+TOS_refusal_gate,TOS_erasure,L1,L6,BOUNDARY_ONLY,NO,NO,NO,NO,YES,YES,decision/certification evidence; L6 is a refusal decision not a target-metric endpoint
+TOS_global_LPC_collapse,TOS_erasure,L1|L2,L6,BOUNDARY_ONLY,NO,NO,NO,NO,YES,YES,"in-loss global penalty boundary result (collapse/harm), not a controlled erasure route for RQ2"
+TOS_task_preserving_erasure,TOS_erasure,L1|L2|L3,none,BOUNDARY_ONLY,NO,NO,NO,NO,YES,NO,in-loss boundary result (removes nothing when collapse-free); no target endpoint
+TOS_capacity_factorial,TOS_erasure,L3,none,SUPPORT_ONLY,NO,NO,NO,NO,YES,NO,mechanism (removability vs capacity); no endpoint level
+FBCSP_LGG_branch_ablation,FBCSP_branch,L1|L4,none,SUPPORT_ONLY,NO,NO,NO,NO,YES,NO,L4 branch-load only; per-branch leakage(L1) + per-branch reliance(L5) missing -> cannot enter RQ4
+FBCSP_LGG_gate_summary,FBCSP_branch,L2,L6,BOUNDARY_ONLY,NO,NO,NO,NO,YES,YES,fragile-survive/not-promoted spatial-CMI outcome; effectively null
+FBCSP_LGG_bottleneck_analysis,FBCSP_branch,L4,none,SUPPORT_ONLY,NO,NO,NO,NO,YES,NO,branch-locality background (accuracy diagnostic); no leakage/reliance endpoint
+FBCSP_LGG_graph_starvation,FBCSP_branch,L4,none,SUPPORT_ONLY,NO,NO,NO,NO,YES,NO,branch-locality background; no endpoint
+CIGL_35_blueprint,background,L1|L2,none,BACKGROUND_ONLY,NO,NO,NO,NO,YES,NO,claim-boundary contract for the DGCNN CIGL line (background)
+P6_spatial_CMI_scaffold,FBCSP_branch,none,none,BACKGROUND_ONLY,NO,NO,NO,NO,NO,NO,"scaffold only, never run (red-flag 11); nothing measured"
+OACI_selection_leakage_not_target,observability,L1|L2,L6,SUPPORT_ONLY,NO,NO,NO,NO,YES,YES,observability failure (selection vs audit vs target); corroborates but not a CIGL/TOS RQ regression
+OACI_source_audit_oracle_failure,observability,L1,L6,SUPPORT_ONLY,NO,NO,NO,NO,YES,YES,oracle-robust negative; corroboration
+OACI_multivariate_weak_identifiability,observability,L1,L6,SUPPORT_ONLY,NO,NO,NO,NO,YES,YES,
+OACI_endpoint_estimability_limit,observability,none,L6,SUPPORT_ONLY,NO,NO,NO,NO,NO,YES,
+ACAR_paired_action_risk_design,deployment,none,none,PROTOCOL_ONLY,NO,NO,NO,NO,NO,NO,design/estimand only; no efficacy
+ACAR_v5_protocol_substrate_success,deployment,none,none,PROTOCOL_ONLY,NO,NO,NO,NO,NO,NO,"engineering/protocol success, not efficacy"
+ACAR_stage2b_dev_stop,deployment,L4,L6,INCLUDED_BOUNDARY,NO,NO,NO,NO,YES,YES,completed DEV_STOP (deployment corroboration; not pending)
+CSC_Z_only_unidentifiable,information_contract,L1,L6,BOUNDARY_ONLY,NO,NO,NO,NO,YES,YES,"information-contract boundary; simulator+semisynth, unidentifiability proven"
+CSC_dual_witness_candidate,information_contract,L1,none,PROTOCOL_ONLY,NO,NO,NO,NO,YES,NO,B7.1 confirmatory committed-but-UNRUN (protocol-only)
+CSC_information_contract_boundary,information_contract,L1,L6,BOUNDARY_ONLY,NO,NO,NO,NO,YES,YES,the publishable partial-identification boundary; corroboration
+LPC_CMI_legacy_boundary,legacy_boundary,L1|L2,L6,BOUNDARY_ONLY,NO,NO,NO,NO,YES,YES,"closed legacy; measurement survives, control/calibration/accuracy dropped; do NOT restart"
+PriorDecoupled_four_branch_protocol,background,none,L6,BACKGROUND_ONLY,NO,NO,NO,NO,NO,YES,prior-decoupled TTA; NOT FSR leakage/reliance evidence
+PriorDecoupled_geometry_vs_prevalence,background,none,L6,BACKGROUND_ONLY,NO,NO,NO,NO,NO,YES,prior-decoupled TTA; background

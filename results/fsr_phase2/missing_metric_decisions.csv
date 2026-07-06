@@ -1,0 +1,23 @@
+route,cluster,missing_level,missing_metric,policy,needed_for_rq,resolution,notes
+MetaCMI,CMI_control,L4,task_coupling/align,not_measured,RQ3/RQ4,defer,seed0-screening only; R3 not in phase2 JSON (readout only); supports interpretation
+CITA_lambda_1,CMI_control,L4,task_coupling/align,not_measured,RQ3/RQ4,defer,"target-unlabeled; endpoint is CITA-minus-TTA (control contrast), not a leakage-reliance scatter"
+CITA_lambda_0.010,CMI_control,L4,task_coupling/align,not_measured,RQ3/RQ4,defer,inert-lambda baseline; control contrast only
+TTA_Control_non_CMI,CMI_control,L4,task_coupling/align,not_measured,RQ3/RQ4,defer,"non-CMI positive; informs RQ2 (target benefit decoupled from reliance) as context, not an erasure route"
+TOS_mean_scatter,TOS_erasure,L5,R3_functional_reliance,not_measured,RQ1/RQ3/RQ4,defer,L3 erasability + L6 target present
+TOS_LEACE,TOS_erasure,L5,R3_functional_reliance,not_measured,RQ1/RQ3/RQ4,defer,L3 erasability + L6 target present
+TOS_INLP,TOS_erasure,L5,R3_functional_reliance,not_measured,RQ1/RQ3/RQ4,defer,L3 erasability + L6 target present (negative control for RQ2)
+TOS_RLACE,TOS_erasure,L5,R3_functional_reliance,not_measured,RQ1/RQ3/RQ4,defer,L3 erasability + L6 target present
+TOS_random_k,TOS_erasure,L5,R3_functional_reliance,not_measured,RQ1/RQ3/RQ4,defer,falsifier control for RQ2 (L3 non-removal + L6 NLL)
+TOS_global_LPC_collapse,TOS_erasure,L5,R3_functional_reliance,not_measured,RQ1/RQ3/RQ4,defer,"in-loss global penalty boundary result (collapse/harm), not a controlled erasure route for RQ2"
+TOS_task_preserving_erasure,TOS_erasure,L5,R3_functional_reliance,not_measured,RQ1/RQ3/RQ4,defer,in-loss boundary result (removes nothing when collapse-free); no target endpoint
+TOS_task_preserving_erasure,TOS_erasure,L6,target_consequence,not_measured,RQ2,defer,in-loss boundary result (removes nothing when collapse-free); no target endpoint
+FBCSP_LGG_branch_ablation,FBCSP_branch,L5,R3_functional_reliance,needs_small_frozen_probe,RQ1/RQ3/RQ4,"small_frozen_probe (Phase 3/4, gated)",L4 branch-load only; per-branch leakage(L1) + per-branch reliance(L5) missing -> cannot enter RQ4
+FBCSP_LGG_gate_summary,FBCSP_branch,L5,R3_functional_reliance,not_measured,RQ1/RQ3/RQ4,defer,fragile-survive/not-promoted spatial-CMI outcome; effectively null
+P6_spatial_CMI_scaffold,FBCSP_branch,L1,leakage/probe,not_measured,RQ1/RQ3/RQ4,defer,"scaffold only, never run (red-flag 11); nothing measured"
+P6_spatial_CMI_scaffold,FBCSP_branch,L2,delta_leakage,not_measured,RQ1,defer,"scaffold only, never run (red-flag 11); nothing measured"
+P6_spatial_CMI_scaffold,FBCSP_branch,L5,R3_functional_reliance,not_measured,RQ1/RQ3/RQ4,defer,"scaffold only, never run (red-flag 11); nothing measured"
+P6_spatial_CMI_scaffold,FBCSP_branch,L6,target_consequence,not_measured,RQ2,defer,"scaffold only, never run (red-flag 11); nothing measured"
+ACAR_paired_action_risk_design,deployment,L6,target_consequence,not_measured,RQ2,defer,design/estimand only; no efficacy
+ACAR_v5_protocol_substrate_success,deployment,L6,target_consequence,not_measured,RQ2,defer,"engineering/protocol success, not efficacy"
+CSC_dual_witness_candidate,information_contract,L6,target_consequence,not_measured,RQ2,defer,B7.1 confirmatory committed-but-UNRUN (protocol-only)
+LPC_CMI_legacy_boundary,legacy_boundary,L5,R3_functional_reliance,not_measured,RQ1/RQ3/RQ4,defer,"closed legacy; measurement survives, control/calibration/accuracy dropped; do NOT restart"

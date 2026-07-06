@@ -1,0 +1,10 @@
+scope,x,y,kind,rho_recomputed,ci_lo_recomputed,ci_hi_recomputed,n,excludes_zero,rho_frozen,ci_lo_frozen,ci_hi_frozen
+pooled,task_head_alignment_k2,R3_task_drop_k2,recomputed,0.338188,0.167069,0.505543,126,True,0.338188,0.167988,0.503628
+BNCI2014_001,task_head_alignment_k2,R3_task_drop_k2,recomputed,0.466701,0.223936,0.652167,54,True,0.466701,0.212933,0.647857
+BNCI2015_001,task_head_alignment_k2,R3_task_drop_k2,recomputed,0.103314,-0.143969,0.340509,72,False,0.103314,-0.146873,0.344974
+seed0,task_head_alignment_k2,R3_task_drop_k2,recomputed,0.397002,0.075494,0.674874,42,True,,,
+seed1,task_head_alignment_k2,R3_task_drop_k2,recomputed,0.240681,-0.055664,0.51995,42,False,,,
+seed2,task_head_alignment_k2,R3_task_drop_k2,recomputed,0.358037,0.03106,0.633906,42,True,,,
+seed0,graph_kl,R3_task_drop_k2,recomputed_seed0_only,-0.419125,-0.685205,-0.107677,42,True,,,
+seed0,align_k2_minus_graph_kl,R3_task_drop_k2,difference_seed0,0.816126,0.218708,1.333132,42,True,,,
+pooled,graph_kl,R3_task_drop_k2,frozen_not_recomputable,,,,126,True,-0.341674,-0.506695,-0.166235

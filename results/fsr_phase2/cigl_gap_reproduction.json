@@ -1,0 +1,70 @@
+{
+  "script": "fsr/analyze_cigl_gap.py",
+  "unit_definition": "(dataset, method in {erm, cigl_graph_node}, seed, fold); align_k2=graph_z k=2; R3=label_conditional task_drop k=2",
+  "datasets": [
+    "BNCI2014_001",
+    "BNCI2015_001"
+  ],
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "boot": {
+    "n_boot": 2000,
+    "seed": 0,
+    "ci": "percentile[2.5,97.5]"
+  },
+  "verdict": "REPRODUCED",
+  "headline_reproduced": true,
+  "graph_kl_sign_confirmed_seed0": true,
+  "acceptance": {
+    "align_k2_pooled": {
+      "recomputed_rho": 0.338188,
+      "recomputed_ci": [
+        0.167069,
+        0.505543
+      ],
+      "frozen_rho": 0.338188,
+      "frozen_ci": [
+        0.167988,
+        0.503628
+      ],
+      "n": 126,
+      "delta_rho": 0.0,
+      "delta_ci_lo": 0.000919,
+      "delta_ci_hi": 0.001915,
+      "within_tolerance": true
+    },
+    "graph_kl_pooled": {
+      "frozen_rho": -0.341674,
+      "frozen_ci": [
+        -0.506695,
+        -0.166235
+      ],
+      "n": 126,
+      "recomputable_at_n126": false,
+      "reason": "per-fold graph_kl for seeds 1/2 pruned (raw audit .npz + r2-gate JSONs not committed on any branch); only seed0 recomputable via r1_hardened_nperm1000.csv"
+    },
+    "graph_kl_seed0": {
+      "recomputed_rho": -0.419125,
+      "recomputed_ci": [
+        -0.685205,
+        -0.107677
+      ],
+      "n": 42,
+      "sign": "negative",
+      "sign_matches_frozen_pooled": true
+    },
+    "difference_seed0_align_minus_graph_kl": {
+      "rho_diff": 0.816126,
+      "ci": [
+        0.218708,
+        1.333132
+      ],
+      "n": 42,
+      "excludes_zero": true
+    }
+  },
+  "note": "align_k2 (the right-sign result) reproduces exactly at n=126; graph_kl (wrong-sign) reproduces in SIGN at seed0 (n=42), pooled n=126 carried from frozen output because per-fold graph_kl for seeds 1/2 was pruned. This is a provenance limit, not a mismatch."
+}

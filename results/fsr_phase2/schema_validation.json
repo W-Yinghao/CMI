@@ -1,0 +1,105 @@
+{
+  "validator": "fsr/validate_step1_index.py",
+  "index": "results/fsr_artifact_index/artifact_index.csv",
+  "expected_row_count": 37,
+  "expected_columns": [
+    "source_branch",
+    "source_sha",
+    "component",
+    "route",
+    "dataset",
+    "backbone",
+    "method",
+    "info_regime",
+    "seeds",
+    "folds_or_subjects",
+    "representation_or_branch",
+    "artifact_path",
+    "artifact_exists",
+    "metrics_available",
+    "target_labels_used_for_fit",
+    "target_labels_used_for_eval",
+    "status",
+    "notes"
+  ],
+  "all_pass": true,
+  "n_checks": 15,
+  "n_pass": 15,
+  "checks": [
+    {
+      "check": "parse_csv_reader",
+      "pass": true,
+      "detail": "parsed 38 lines (incl header)"
+    },
+    {
+      "check": "parse_pandas",
+      "pass": true,
+      "detail": "pandas read 37 data rows x 18 cols"
+    },
+    {
+      "check": "header_exact_18col",
+      "pass": true,
+      "detail": "OK"
+    },
+    {
+      "check": "row_count_37",
+      "pass": true,
+      "detail": "row_count=37"
+    },
+    {
+      "check": "all_rows_18_fields",
+      "pass": true,
+      "detail": "OK"
+    },
+    {
+      "check": "all_required_routes_present",
+      "pass": true,
+      "detail": "OK"
+    },
+    {
+      "check": "routes_unique",
+      "pass": true,
+      "detail": "OK"
+    },
+    {
+      "check": "fit_tag_in_vocab",
+      "pass": true,
+      "detail": "OK"
+    },
+    {
+      "check": "yes_forbidden_scope",
+      "pass": true,
+      "detail": "OK (only scoped legacy)"
+    },
+    {
+      "check": "unknown_rows_have_notes",
+      "pass": true,
+      "detail": "OK (no UNKNOWN rows)"
+    },
+    {
+      "check": "artifact_exists_in_vocab",
+      "pass": true,
+      "detail": "OK"
+    },
+    {
+      "check": "status_in_vocab",
+      "pass": true,
+      "detail": "OK"
+    },
+    {
+      "check": "no_unexpected_positive_status",
+      "pass": true,
+      "detail": "OK"
+    },
+    {
+      "check": "no_cmi_control_failure_as_positive",
+      "pass": true,
+      "detail": "OK (only TTA_Control_non_CMI is positive, explicitly non-CMI)"
+    },
+    {
+      "check": "no_blank_key_fields",
+      "pass": true,
+      "detail": "OK"
+    }
+  ]
+}
