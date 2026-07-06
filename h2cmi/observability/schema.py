@@ -12,7 +12,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import FrozenSet, List, Optional, Tuple
+from typing import Any, Dict, FrozenSet, List, Optional, Tuple
 
 
 class Regime(str, Enum):
@@ -66,6 +66,9 @@ class Claim:
     has_target_labels: bool = False                      # R2 labeled slice available
     has_anchors: bool = False                            # R2 paired/transport/calibration anchors available
     conclusion: bool = True                              # is this a finalised conclusion? (guarded)
+    # evaluation EVIDENCE (metric values). Does NOT change allowed/identifiable/reportable — the
+    # audit verdict is keyed off (regime, estimand, contracts, flags), never the numbers.
+    metric_payload: Optional[Dict[str, Any]] = None
 
     def __post_init__(self):
         # normalise a plain set / list of contracts to a frozenset of ContractID

@@ -19,6 +19,19 @@ from sklearn.metrics import balanced_accuracy_score
 
 
 # ----------------------------------------------------------------- prediction helpers
+def _json_safe(x):
+    """Coerce numpy scalars / arrays (and nested containers) to plain JSON-serialisable types."""
+    if isinstance(x, np.ndarray):
+        return x.tolist()
+    if isinstance(x, np.generic):        # numpy scalars (floating / integer / bool_) -> python
+        return x.item()
+    if isinstance(x, (list, tuple)):
+        return [_json_safe(v) for v in x]
+    if isinstance(x, dict):
+        return {k: _json_safe(v) for k, v in x.items()}
+    return x
+
+
 def _embed(model, X, device):
     return torch.as_tensor(model.embed(X, device=device), dtype=torch.float32, device=device)
 
@@ -86,12 +99,15 @@ def evaluate_offline_tta(model, X, y, domain, cfg: H2Config, source_prior: np.nd
     proba_ad = np.zeros((len(y), cfg.n_classes))
     proba_sel = np.zeros((len(y), cfg.n_classes))
     per_dom_gain, per_dom_decision = {}, {}
+    per_dom_pi_T, per_dom_diag = {}, {}          # evidence exported for the audited eval bridge
     for d in np.unique(domain):
         m = domain == d
         U = _embed(model, X[m], device)
         p_id = _predict_generative(model, U, source_prior)
         res = tta.fit(U, pseudo_labels=p_id.argmax(1))
         p_ad = _predict_transform(model, U, res.transform, res.pi_T)
+        per_dom_pi_T[int(d)] = _json_safe(res.pi_T)                 # estimated target prior pi_T
+        per_dom_diag[int(d)] = _json_safe(res.diagnostics)         # TTA diagnostics (density-NLL, etc.)
         proba_id[m] = p_id; proba_ad[m] = p_ad
         # gate decision (selective)
         do_adapt = res.adapted
@@ -119,6 +135,8 @@ def evaluate_offline_tta(model, X, y, domain, cfg: H2Config, source_prior: np.nd
                 delta_selective=panel_delta(panel_sel, panel_id),
                 per_domain_gain=per_dom_gain, gain_bootstrap=boot,
                 gate_decisions=per_dom_decision,
+                per_domain_pi_T=per_dom_pi_T,                       # exported evidence (audit bridge)
+                per_domain_tta_diagnostics=per_dom_diag,
                 selective_risk=dict(coverage=len(adapted_doms) / max(1, len(per_dom_decision)),
                                     avoided_harm=avoided_harm, missed_benefit=missed_benefit,
                                     selective_gain=selective_gain))

@@ -52,6 +52,8 @@ def _claim_record(claim: Claim, verdict: Verdict) -> Dict[str, Any]:
         "certificate_passed": verdict.failure_certificate,
         "oracle_fields_used_for_validation_only": (
             [f"{claim.estimand.value} (marked oracle/evaluation-only)"] if claim.oracle else []),
+        # evaluation evidence: does NOT affect the verdict (allowed/identifiable/reportable)
+        "metric_payload": claim.metric_payload,
         # extras
         "missing_contracts": _sorted_ids(verdict.missing_contracts),
         "failure_certificates_if_contracts_break": attach_failure_certificates(claim),

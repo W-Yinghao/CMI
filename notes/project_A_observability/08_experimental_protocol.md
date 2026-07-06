@@ -117,9 +117,33 @@ pinned down by the regime under `OA-0`). The audit layer separates these
 Executable: `h2cmi/tests/test_observability_eval_bridge.py` (acceptance tests) and
 `notes/project_A_observability/examples/make_audited_eval_bridge_smoke.py` (smoke → JSON/MD).
 
+## 7. Real EEG audited pilot
+
+A real EEG number is **admissible only if accompanied by**:
+- `raw_results.json` — the harness output (incl. `per_domain_pi_T` / TTA diagnostics);
+- `observability_report.json` + `observability_report.md` — the audited claim ledger;
+- `run_manifest.json` — dataset / subject / seed / config / environment provenance.
+
+Rules for the pilot:
+- Target metrics computed with held-out target labels are **evaluation-only** (oracle;
+  `identifiable_estimand = null`) unless the regime is R2 and the labeled slice is declared.
+- The offline-TTA **target prior** is **reported** (its `pi_T` estimate is evidence) but **not
+  claimed identified** — no TU-1 contracts are asserted for a pilot, so the prior claim is
+  rejected-but-flagged (`conclusion=false`), keeping the report clean *and* honest.
+- The first pilot is **one dataset, one target subject, one seed** — an interface and
+  claim-boundary validation, **not a performance claim**. It gracefully **skips** (legal skip
+  artifact, exit 0) if the local MOABB cache is unavailable.
+
+Runner: `h2cmi/run_real_audited.py` (`--dataset synthetic` validates the whole path
+self-contained; `--dataset <MOABB name>` loads offline). Wrapper:
+`notes/project_A_observability/examples/run_real_eeg_audit_pilot.py`. Batch:
+`scripts/project_A_real_eeg_audit_pilot.slurm`
+(real GPU runs belong on SLURM, not the login node). Contract test:
+`h2cmi/tests/test_eval_bridge_harness_contract.py`.
+
 ---
 
-**Scope.** This protocol governs how results are *reported and bounded*; it does not itself run
-experiments or modify training code. Tier 0 is live (`run_counterexamples.py`); the audited
-evaluation bridge (§6) is live (`eval_bridge.py`); Tiers 1–2 are the template for any future
-simulator / real-EEG audit under Project A.
+**Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
+(`run_counterexamples.py`); the audited evaluation bridge (§6) and the real-EEG audited pilot
+(§7, `run_real_audited.py`) are live; a full multi-dataset / multi-seed table remains future
+work under this same audited discipline.

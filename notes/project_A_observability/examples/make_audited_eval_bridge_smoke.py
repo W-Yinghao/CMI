@@ -28,7 +28,8 @@ from h2cmi.observability import (ContractID as C, assert_forbidden_claims_not_ma
 STRICT_DG = {"setting": "strict_dg", "balanced_acc": 0.72, "worst_domain_bacc": 0.61}
 OFFLINE_TTA = {"identity": {"balanced_acc": 0.70}, "adapt": {"balanced_acc": 0.76},
                "delta_adapt": {"d_balanced_acc": 0.06},
-               "selective_risk": {"coverage": 0.8, "avoided_harm": 0.03}}
+               "selective_risk": {"coverage": 0.8, "avoided_harm": 0.03},
+               "per_domain_pi_T": {"1": [0.48, 0.52]}}          # prior estimate present
 ONLINE_TTA = {"setting": "online_tta", "balanced_acc": 0.73}
 LEAKAGE = {"site": {"I_hat": 0.12, "excess": 0.04}, "subject": {"I_hat": 0.30, "excess": 0.21}}
 

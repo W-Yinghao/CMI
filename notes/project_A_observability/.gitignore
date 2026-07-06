@@ -1,0 +1,3 @@
+# Non-deterministic pilot run outputs (training-derived; regenerable via run_real_audited)
+results/
+examples/out/real_eeg_audit_pilot/

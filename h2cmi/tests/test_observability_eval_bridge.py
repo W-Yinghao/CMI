@@ -19,7 +19,9 @@ from h2cmi.observability import (Claim, ContractID as C, Estimand, ForbiddenClai
 STRICT_DG = {"setting": "strict_dg", "balanced_acc": 0.72, "worst_domain_bacc": 0.61}
 OFFLINE_TTA = {"identity": {"balanced_acc": 0.70}, "adapt": {"balanced_acc": 0.76},
                "delta_adapt": {"d_balanced_acc": 0.06},
-               "selective_risk": {"coverage": 0.8, "avoided_harm": 0.03}}
+               "selective_risk": {"coverage": 0.8, "avoided_harm": 0.03},
+               "per_domain_pi_T": {"1": [0.48, 0.52]}}          # prior estimate present
+OFFLINE_TTA_NO_PRIOR = {"delta_adapt": {"d_balanced_acc": 0.06}}  # gain but NO prior estimate
 ONLINE_TTA = {"setting": "online_tta", "balanced_acc": 0.73}
 LEAKAGE = {"site": {"I_hat": 0.12, "excess": 0.04}, "subject": {"I_hat": 0.30, "excess": 0.21}}
 
@@ -71,7 +73,7 @@ def test_offline_tta_gain_is_oracle_evaluation_only_not_identified():
         "measured TTA gain is oracle/eval-only, not an R1-identified gain"
 
 
-def test_offline_tta_prior_claim_requires_c1_c2_c3():
+def test_offline_tta_prior_claim_requires_c1_c2_c3_when_payload_present():
     # with C1∧C2∧C3 declared -> allowed under TU-1 (identifiable)
     with_c = claims_for_offline_tta(OFFLINE_TTA, prior_contracts={C.C1, C.C2, C.C3})
     prior = [c for c in with_c if c.estimand == Estimand.TARGET_PRIOR][0]
@@ -82,6 +84,39 @@ def test_offline_tta_prior_claim_requires_c1_c2_c3():
     prior2 = [c for c in without_c if c.estimand == Estimand.TARGET_PRIOR][0]
     v_bad = check_claim_allowed(prior2)
     assert v_bad.rejected and v_bad.failure_certificate == "CE-R1-2"
+
+
+def test_offline_tta_prior_claim_not_emitted_without_prior_payload():
+    # no prior estimate in the harness output -> NO target-prior claim is asserted at all
+    claims = claims_for_offline_tta(OFFLINE_TTA_NO_PRIOR, prior_contracts={C.C1, C.C2, C.C3})
+    assert not any(c.estimand == Estimand.TARGET_PRIOR for c in claims), \
+        "a target-prior claim must not be emitted without a prior estimate in the output"
+    # the gain claim is still emitted (delta_adapt present)
+    assert any(c.estimand == Estimand.TARGET_GAIN for c in claims)
+
+
+def test_metric_payload_serialized_without_changing_identifiability():
+    # the metric payload is serialised but does NOT change the audit verdict
+    v_no = check_claim_allowed(Claim("bacc", Regime.R0, Estimand.BALANCED_ACCURACY,
+                                     observed=("X_s", "Y_s", "heldout_target_labels"), oracle=True))
+    v_yes = check_claim_allowed(Claim("bacc", Regime.R0, Estimand.BALANCED_ACCURACY,
+                                      observed=("X_s", "Y_s", "heldout_target_labels"), oracle=True,
+                                      metric_payload={"balanced_acc": 0.99}))
+    assert (v_no.allowed, v_no.identifiable, v_no.reportable) == \
+           (v_yes.allowed, v_yes.identifiable, v_yes.reportable)
+    from h2cmi.observability import build_report, report_to_dict
+    data = report_to_dict(build_report("p", [
+        Claim("m", Regime.R0, Estimand.BALANCED_ACCURACY,
+              observed=("X_s", "heldout_target_labels"), oracle=True,
+              metric_payload={"balanced_acc": 0.99})]))
+    assert data["claims"][0]["metric_payload"] == {"balanced_acc": 0.99}
+
+
+def test_oracle_target_metric_with_value_still_not_identifiable():
+    # even with a concrete value attached, an oracle target metric is NOT identifiable
+    v = check_claim_allowed(Claim("g", Regime.R1, Estimand.TARGET_GAIN, observed=("X_T",),
+                                  oracle=True, metric_payload={"d_balanced_acc": 0.42}))
+    assert v.allowed and v.reportable and not v.identifiable and not v.licenses_target_risk
 
 
 def test_online_tta_target_bacc_is_oracle_evaluation_only():
@@ -149,7 +184,10 @@ ALL_TESTS = [
     test_r1_oracle_target_metric_reportable_but_not_identifiable,
     test_strict_dg_target_bacc_is_oracle_evaluation_only,
     test_offline_tta_gain_is_oracle_evaluation_only_not_identified,
-    test_offline_tta_prior_claim_requires_c1_c2_c3,
+    test_offline_tta_prior_claim_requires_c1_c2_c3_when_payload_present,
+    test_offline_tta_prior_claim_not_emitted_without_prior_payload,
+    test_metric_payload_serialized_without_changing_identifiability,
+    test_oracle_target_metric_with_value_still_not_identifiable,
     test_online_tta_target_bacc_is_oracle_evaluation_only,
     test_leakage_bridge_diagnostic_not_risk,
     test_bridge_fail_loud_when_prior_contracts_undeclared,
