@@ -1,0 +1,5 @@
+protocol,metric,Unif,rho_A,rho_E,pi_J,argmax
+crossnight,BA,0.6572,0.4898,0.4953,0.5133,Unif
+crossnight,OrdAcc,0.7733,0.7119,0.7287,0.6862,Unif
+samesession,BA,0.6488,0.4876,0.4877,0.5154,Unif
+samesession,OrdAcc,0.7762,0.7377,0.7377,0.7073,Unif
