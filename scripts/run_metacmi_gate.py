@@ -63,7 +63,8 @@ def _train_eval_feature(backbone, label, method, beta, fold, seed, args, device)
                                     lam=0.0, gamma=0.0, epochs=args.epochs, bs=args.bs,
                                     warmup=max(1, args.epochs // 5), device=device, seed=seed,
                                     fcigl_strength=float(beta), fcigl_k=int(args.fcigl_k),
-                                    fcigl_update_every=int(args.fcigl_update_every), dcigl_gamma=float(args.dcigl_gamma))
+                                    fcigl_update_every=int(args.fcigl_update_every), dcigl_gamma=float(args.dcigl_gamma),
+                                    meta_rho=float(args.meta_rho), meta_train_frac=float(args.meta_train_frac))
     train_m = classification_metrics(predict(net, Xs[enc_idx], device), ys[enc_idx])
     src = classification_metrics(predict(net, Xs[pool_idx], device), ys[pool_idx])
     tgt = classification_metrics(predict(net, X[te_mask], device), y[te_mask])
@@ -109,6 +110,8 @@ def main():
     ap.add_argument("--min_per_cell", type=int, default=2)
     ap.add_argument("--fcigl_k", type=int, default=2); ap.add_argument("--fcigl_update_every", type=int, default=10)
     ap.add_argument("--dcigl_gamma", type=float, default=0.5)
+    ap.add_argument("--meta_rho", type=float, default=1.0)           # meta_heldout CE weight
+    ap.add_argument("--meta_train_frac", type=float, default=0.7)    # fraction of source subjects used as meta_train
     ap.add_argument("--tmin", type=float, default=0.5); ap.add_argument("--tmax", type=float, default=3.5); ap.add_argument("--resample", type=int, default=128)
     ap.add_argument("--out_dir", default=None); ap.add_argument("--overwrite", action="store_true")
     args = ap.parse_args()

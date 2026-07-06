@@ -22,6 +22,14 @@ Conformer instability. The anchor disambiguates.
   flattened transformer output. **Head-replay exact** (0.0 diff): `logits = feature_z @ headᵀ + b` in eval.
   z_dim probed dynamically (2a 544, 2015 1696); ~35–43k params.
 
+## Naming/claim guard (REQUIRED)
+For the non-graph backbones (EEGNetMini / EEGConformerMini): **`graph_z` in the `.audit.npz` means the generic
+pre-classifier `feature_z`** (stored there only to reuse the head-replay-verified R3 slot), and **`node_z` is a
+`[N,1,1]` dummy schema filler**. **No graph/node leakage claim is made for these CNN/transformer backbones** — the
+audit measures label-conditional *subject* leakage on `feature_z`, not any graph/node structure.
+`EEGConformerMini` / `EEGNetMini` are project-internal minimal pure-torch reimplementations, **NOT** the official
+EEGNet / braindecode EEG Conformer.
+
 ## feature_z audit (no graph objects)
 `cmi/eval/head_export.py`: `forward_feature_capture` (forward→(logits, feature_z, dummy node_z)) +
 `save_fold_audit` auto-dispatch (uses forward_graph for graph backbones, forward for feature backbones). feature_z
@@ -48,10 +56,17 @@ LOSO, and is its feature_z auditable (R3 + head-replay)?**
 - feature_z auditable on both (replay_ok, R3 consumable) — already verified on synthetic; real-EEG confirmation
   is the gate.
 
-## Phase 2 (only if preflight healthy)
-Add `metace` (CE(meta_train)+ρ·CE(meta_heldout)) + `metacmi_direct` (β·SymKL(h(z_mh), h((I−P)z_mh)) on
-source-heldout pseudo-target subjects; P fit on meta_train subjects only). MetaCMI gate: ERM / MetaCE /
-MetaCMI-Direct β0.1 on {EEGNetMini, Conformer} × {2a, 2015}, seed0 (≈126 runs). Not launched until CIGL_69A passes.
+## Phase 2 (only if preflight healthy) — see CIGL_69B
+CPU scaffold built + tested in `docs/CIGL_69B_METACMI_SCAFFOLD.md`: `metace` (CE(meta_train)+ρ·CE(meta_heldout))
++ `metacmi_direct` β0.1 (SymKL removal on meta_heldout; projector fit on meta_train subjects only). First GPU
+gate reuses the frozen CIGL_69A ERM comparators (no ERM rerun) → adds only the 2 new methods × 2 backbones ×
+(9+12) folds. **NO β=0.5 in the first gate.** GPU HELD until the Phase-1 readout + PM approval.
+
+## Interpretation guardrail (Mini ≠ official)
+`EEGConformerMini` is internal faithful-minimal, NOT official/braindecode. A positive MetaCMI signal on it =
+*"CMI helps an audit-compatible ConformerMini; validate on full/official (or equal-param) Conformer next"* —
+never "CMI works on Conformer". A negative on Mini does not kill the Conformer family. Any family-level claim
+needs the full/fuller Conformer arm (**CIGL_69A2 full-Conformer preflight**), not Mini alone.
 
 ## Frozen constraints
 No old-CIGL/FCIGL/dCIGL sweep, no P10, no baseline zoo, no architecture search without CMI, no official-braindecode

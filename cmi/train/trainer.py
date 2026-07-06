@@ -25,12 +25,19 @@ FCIGL_METHODS = {"fcigl_align", "fcigl_removal_aug"}
 # (which only requires z_removed to classify), this directly penalizes the classifier's dependence on the removed
 # subject directions. loss += beta*SymKL(softmax(logits), softmax(logits_rem)) + dcigl_gamma*CE(logits_rem, y).
 DCIGL_METHODS = {"dcigl_consistency"}
-PROJ_METHODS = FCIGL_METHODS | DCIGL_METHODS   # all methods that build the source-only subject-subspace projector
+# CIGL_69 source-episodic Meta-CMI (a DIFFERENT setting, not a static-DGCNN proxy tweak): inside source_train,
+# repeatedly sample meta_train vs meta_heldout SUBJECTS; optimize task + reliance on the source-HELDOUT pseudo-
+# target subjects. metace = CE(meta_train) + rho*CE(meta_heldout). metacmi_direct = metace + beta*SymKL(h(z_mh),
+# h((I-SᵀS) z_mh)) where the subject subspace S is fit on meta_train SUBJECTS ONLY (label-conditional), detached,
+# applied to meta_heldout feature_z. Firewall: meta_train/meta_heldout are BOTH inside source_train; source_val and
+# outer target never enter the meta objective or the projector.
+META_METHODS = {"metace", "metacmi_direct"}
+PROJ_METHODS = FCIGL_METHODS | DCIGL_METHODS   # methods that build the source-TRAIN subject-subspace projector
 
 # Every implemented framework. Anything else must fail loudly (not silently train ERM).
 ALL_METHODS = {
     "erm", "iib", "graphcmi", "dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal",
-} | PROJ_METHODS | CMI_METHODS | SUPCON_METHODS | dgp.DG_METHODS | FMCA_METHODS | ssl.ALL_SSL
+} | PROJ_METHODS | META_METHODS | CMI_METHODS | SUPCON_METHODS | dgp.DG_METHODS | FMCA_METHODS | ssl.ALL_SSL
 
 
 def _head_module(backbone):
@@ -70,6 +77,36 @@ def _fcigl_subject_projector(backbone, X, y, d, k, device, bs=256):
     Vt = np.linalg.svd(M, full_matrices=False)[2]
     S = Vt[:min(int(k), Vt.shape[0])]
     P = np.eye(gz.shape[1]) - S.T @ S
+    return (torch.tensor(S, dtype=torch.float32, device=device),
+            torch.tensor(P, dtype=torch.float32, device=device))
+
+
+def _feature_subject_projector(backbone, X, y, d, k, device, bs=256):
+    """CIGL_69 Meta-CMI: label-conditional subject subspace on feature_z (backbone forward -> (logits, z)), fit on
+    the given rows (meta_train SUBJECTS ONLY). Returns detached (S [k,Zf], P = I - SᵀS). Excludes meta_heldout,
+    source_val, and target by construction (only meta_train rows are passed in)."""
+    was_training = backbone.training
+    backbone.eval()
+    with torch.no_grad():
+        Z = []
+        for i in range(0, len(X), bs):
+            xb = torch.as_tensor(X[i:i + bs], dtype=torch.float32, device=device)
+            _, z = backbone(xb)
+            Z.append(z.cpu().numpy())
+    if was_training:
+        backbone.train()
+    Z = np.concatenate(Z); y = np.asarray(y); d = np.asarray(d)
+    rows = []
+    for yy in np.unique(y):
+        my = y == yy; mu = Z[my].mean(0)
+        for dd in np.unique(d[my]):
+            m = my & (d == dd)
+            if m.sum() > 0:
+                rows.append(np.sqrt(m.sum()) * (Z[m].mean(0) - mu))
+    M = np.stack(rows) if rows else np.zeros((1, Z.shape[1]))
+    Vt = np.linalg.svd(M, full_matrices=False)[2]
+    S = Vt[:min(int(k), Vt.shape[0])]
+    P = np.eye(Z.shape[1]) - S.T @ S
     return (torch.tensor(S, dtype=torch.float32, device=device),
             torch.tensor(P, dtype=torch.float32, device=device))
 
@@ -126,6 +163,7 @@ def resolve_dec_margin(method, dec_margin):
 
 def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gamma=0.0,
                 lam_edge=0.0, beta=0.0, fcigl_strength=0.0, fcigl_k=2, fcigl_update_every=10, dcigl_gamma=0.5,
+                meta_rho=1.0, meta_train_frac=0.7,
                 balance=False, label_correct=False, reweight_dual=False,
                 dec_margin=None, epochs=200, bs=64, warmup=40, n_inner=2,
                 z_margin=0.0, dec_scale=1.0,
@@ -151,6 +189,9 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     uses_graphcmi = method == "graphcmi"        # GNN node/edge CMI (needs backbone.forward_graph)
     uses_fcigl = method in PROJ_METHODS          # functional/direct CMI = graphcmi CMI terms + subject-subspace projector
     uses_dcigl = method in DCIGL_METHODS
+    uses_meta = method in META_METHODS           # CIGL_69 source-episodic Meta-CMI (non-graph feature_z backbone)
+    if uses_meta and _head_module(backbone) is None:
+        raise ValueError(f"method='{method}' needs a linear head over feature_z; {type(backbone).__name__} has none.")
     node_post = edge_post = None
     if uses_graphcmi or uses_fcigl:             # global term reuses `post`; add node + edge heads
         # Fail closed: the GNN branch calls backbone.forward_graph(x) -> (logits, graph_Z, node_Z,
@@ -257,6 +298,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                 stepA_graph_loss=[], stepA_node_loss=[], stepA_edge_loss=[])
     backbone.train(); post.train()
     fcigl_S = fcigl_P = None                              # source-only subject subspace projector (detached)
+    meta_mt_subj = meta_mh_subj = meta_P = None          # CIGL_69 source-episodic partition + meta_train projector
+    _src_subj = np.unique(dtr)                            # source_TRAIN subjects (dtr = ds[enc_idx]); no target/val
     for ep in range(epochs):
         lam_t = lam * min(1.0, ep / max(1, warmup))
         gamma_t = gamma * min(1.0, ep / max(1, warmup))   # decoder-term warmup (dual)
@@ -264,8 +307,37 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
         if uses_fcigl and ep >= warmup and (fcigl_P is None or (ep - warmup) % max(1, fcigl_update_every) == 0):
             # periodic SOURCE-only projector refresh (detached); no target labels ever
             fcigl_S, fcigl_P = _fcigl_subject_projector(backbone, Xtr, ytr, dtr, fcigl_k, device)
+        if uses_meta and (meta_mt_subj is None or ep % max(1, fcigl_update_every) == 0):
+            # episodic re-partition of SOURCE-TRAIN subjects into meta_train vs meta_heldout (deterministic per ep)
+            rng = np.random.default_rng(int(seed) + ep); perm = rng.permutation(_src_subj)
+            n_mt = min(len(perm) - 1, max(1, int(round(meta_train_frac * len(perm)))))
+            meta_mt_subj = perm[:n_mt]; meta_mh_subj = perm[n_mt:]        # both non-empty (>=1 heldout subject)
+            if method == "metacmi_direct":                                # projector fit on meta_train SUBJECTS ONLY
+                mt_all = np.isin(dtr, meta_mt_subj)
+                _, meta_P = _feature_subject_projector(backbone, Xtr[mt_all], ytr[mt_all], dtr[mt_all], fcigl_k, device)
         for xb, yb, db, wb in dl:
             xb, yb, db, wb = xb.to(device), yb.to(device), db.to(device), wb.to(device)
+            if uses_meta:                                 # CIGL_69 source-episodic Meta-CMI (feature_z backbone)
+                logits, z = backbone(xb)
+                mt = torch.as_tensor(np.isin(db.cpu().numpy(), meta_mt_subj), device=device)
+                mh = ~mt                                  # meta_heldout = source-heldout pseudo-target subjects
+                ce_mt = F.cross_entropy(logits[mt], yb[mt]) if mt.any() else logits.new_zeros(())
+                ce_mh = F.cross_entropy(logits[mh], yb[mh]) if mh.any() else logits.new_zeros(())
+                loss = ce_mt + meta_rho * ce_mh
+                r_meta = None
+                if method == "metacmi_direct" and meta_P is not None and bool(mh.any()):
+                    warm = min(1.0, ep / max(1, warmup))
+                    logits_rm = _head_module(backbone)(z[mh] @ meta_P.t())   # prediction AFTER meta_train subject removal
+                    lp, lq = F.log_softmax(logits[mh], 1), F.log_softmax(logits_rm, 1)
+                    r_meta = 0.5 * (F.kl_div(lq, lp.exp(), reduction="batchmean")
+                                    + F.kl_div(lp, lq.exp(), reduction="batchmean"))   # SymKL on meta_heldout
+                    loss = loss + warm * fcigl_strength * r_meta
+                opt_main.zero_grad(); loss.backward(); opt_main.step()
+                if last_epoch:
+                    diag.setdefault("inloop_meta_ce", []).append(_scalar(ce_mh))
+                    if r_meta is not None:
+                        diag.setdefault("inloop_meta_symkl", []).append(_scalar(r_meta))
+                continue
             if uses_ssl:                                  # self-supervised contrastive framework
                 if is_lpc_ssl:                            # Step A: fit CMI posterior on detached clean z
                     with torch.no_grad():
@@ -501,6 +573,8 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     out = dict(stepA_dom_acc=diag["stepA_dom_correct"] / max(1, diag["stepA_dom_total"]),
                inloop_reg=float(np.mean(diag["inloop_reg"])) if diag["inloop_reg"] else 0.0,
                inloop_fcigl=(float(np.mean(diag["inloop_fcigl"])) if diag.get("inloop_fcigl") else None),
+               inloop_meta_ce=(float(np.mean(diag["inloop_meta_ce"])) if diag.get("inloop_meta_ce") else None),
+               inloop_meta_symkl=(float(np.mean(diag["inloop_meta_symkl"])) if diag.get("inloop_meta_symkl") else None),
                sampler=diag["sampler"],
                dec_margin=float(dec_margin),
                z_margin=float(z_margin),
