@@ -34,14 +34,25 @@ N_PERM = c19.N_PERM                              # 200
 PERM_SEED = c19.PERM_SEED                        # 707
 
 # ---- C20 case taxonomy -----------------------------------------------------------------------------
+# Headline label is deliberately CONSERVATIVE: a mixed result where only some held-out regimes marginally
+# clear the strict chance bar is NOT "partial success" -- the primary verdict is that broad external
+# generalization is NOT established, with the passing regimes reported as marginal secondary exceptions.
 CASE_GENERALIZES = "frozen_robust_core_generalizes_to_heldout_regimes"
-CASE_PARTIAL = "partial_marginal_cross_regime_generalization"
+CASE_LARGELY_REGIME_LOCAL = "largely_regime_local_with_marginal_exceptions"      # the mixed/marginal case
 CASE_SURVIVES_NONDELETION = "survives_block_rare_but_not_deletion"
-CASE_REGIME_LOCAL = "c19_positive_is_regime_local_no_external_generalization"
+CASE_REGIME_LOCAL = "c19_positive_is_regime_local_no_external_generalization"    # 0 held-out pass
 CASE_AVAILABILITY_LIMITED = "validity_limited_by_feature_availability_not_relationship"
-ALL_CASES = (CASE_GENERALIZES, CASE_PARTIAL, CASE_SURVIVES_NONDELETION, CASE_REGIME_LOCAL,
+ALL_CASES = (CASE_GENERALIZES, CASE_LARGELY_REGIME_LOCAL, CASE_SURVIVES_NONDELETION, CASE_REGIME_LOCAL,
              CASE_AVAILABILITY_LIMITED)
 AVAILABILITY_FLOOR = 0.5      # robust-core scored_rate below this on failing regimes -> availability-limited
+
+# layered verdict vocabulary (primary / secondary / failure-mode / availability / strength)
+PRIMARY_NOT_ESTABLISHED = "external_new_regime_generalization_not_established"
+PRIMARY_ESTABLISHED = "external_new_regime_generalization_established"
+FAILURE_RELATIONSHIP = "relationship_level_regime_shift_not_feature_availability"
+FAILURE_AVAILABILITY = "feature_availability_collapse"
+AVAILABILITY_OK = "robust_core_available_all_heldout_regimes"
+CLAIM_WEAK_DIAGNOSTIC = "weak_diagnostic_only"
 
 # a regime is "deletion" (bAcc-endpoint fragile) vs "non-deletion" for the taxonomy split
 DELETION_HELD_OUT = ("S4_missing_cells", "S6_boundary_aligned_mask", "S7_random_matched_mask")
