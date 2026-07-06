@@ -132,3 +132,32 @@ yet 50/50 provenance-refused**, 0 alerts incl `quiet_cov_plus_concept` (real con
 studentized AND-gate); an audit/label budget frontier to lift POS above the *mean-T* floor (not just the pooled floor); a
 multi-seed replication to resolve the CI-overlapping 5→2 / 4→8; or genuinely randomized-audit data. NOT threshold tuning,
 NOT a new statistic, NOT a paper claim. Committed diagnostic-only; package `csc/results/b8_stage1_class_balanced_contract/`.
+
+---
+
+## B8.2 RESULT (multi-seed stability, 2026-07-07) — B8.1's decision-level stability FALSIFIED. NO tag.
+
+Reviewer authorized B8.2 = multi-seed stability replication (NOT mean-T recalibration, NOT power frontier, NOT real data).
+Engine BYTE-IDENTICAL to committed B8.1 (module sha `dae229e39d89c940`, worker `86f8dd0bb6da4ec9`); 6 fresh disjoint seed
+blocks (bases 500/520/540/560/580/600e6) × 12 conditions × 50 = 3600 cohorts. Protocol pre-registered + committed `d2aaf5f`
+(sha `62cf256e08d62551`) BEFORE the run. Package `csc/results/b8_stage2_multiseed_stability/`; note commit + results commit
+separate; NO tag. Result red-team `w3u5q3x10`: accounting/isolation **PASS** (3600 reproduced, engine byte-identical, seeds
+disjoint, both-gate recompute matches, no fabrication); science **MINOR_ISSUE** (negative genuine + honestly framed).
+
+**FALSIFIED (Case C AND Case D):** B8.1's decision-level "meets targets" does NOT replicate. At n=300:
+- `CONTRACT_NULL_prior_only` **18/300 = 6.0%** (CP95 [3.6,9.3]%, strictly > nominal 2.5%, binom p=6.6e-4) — **FAILS** ≤7/300.
+- `CONTRACT_NULL_cov_plus_prior` **13/300 = 4.3%** (fails the 7/300 screen, binom p=0.041; 95% CI touches nominal) — **FAILS**.
+- per-block prior_only [2,2,3,3,3,5], mixed [3,1,3,2,2,2] — fail across ALL 6 blocks, not one outlier.
+- **B8.1's 2/50 & 1/50 were TYPICAL underpowered single-block draws** from a true ~4-6% rate (block 0 reproduced 2/50
+  exactly); the n=50 screen could not resolve ~5% from 2.5%. B8.1 never had genuine control — it lacked the power to see it.
+- The studentized both-gate is **anti-conservative on prior-bearing nulls** (clean balanced/random 5/300 ≈1.7% well-
+  calibrated; prior/mixed 2-2.4× nominal). mean-T-alone 46/49 (~15%); studentized masks ~60-75% but leaks a seed-dependent
+  residual. Exactly the B8.1 result-red-team prediction.
+
+**Survivors (NOT falsified — the direction is not dead):** violations 0/300 alerts, 300/300 refused, every block 0 (but
+**by construction** via H3); POS genuine-but-modest (POS_boundary 37/300 ≈12.3% ≥20; POS+prior 39/300 ≥15; Fisher p=0.010
+vs the failing null, but CP95 overlaps prior_only at the margin — not a clean detector).
+
+**NEXT (reviewer, NOT authorized):** contract redesign / narrow the estimand + diagnose contract construction (Case C+D) —
+**NOT** mean-T gate recalibration (explicitly rejected; would be post-hoc null repair), NOT p-tuning, NOT a budget frontier
+(power isn't the blocker; null control is). Builds on [[csc-b8-information-contract]].
