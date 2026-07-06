@@ -1,0 +1,124 @@
+{
+  "detection_pass": true,
+  "localized_to_injected_branch": true,
+  "attribution_exact_recovery_ok": true,
+  "l5_erasing_helps": false,
+  "oracle_repair_pass": false,
+  "source_estimated_repair_pass": false,
+  "primary_branch": "spatial_z",
+  "primary_alpha": 1.0,
+  "alpha_selection_used_target": false,
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_final_eval_only": true,
+  "sanity_alpha0_recovers_original": true,
+  "token_class_shift_positive": true,
+  "attribution_exact_token_recovery": 1.0,
+  "erasure_repair_insufficient": true,
+  "detection": {
+    "alpha1.0": {
+      "alpha": 1.0,
+      "induced_harm": {
+        "mean": 0.0407,
+        "lo": 0.0125,
+        "hi": 0.0715,
+        "n": 21,
+        "excludes_zero": true
+      },
+      "l5_task_drop": {
+        "mean": 0.0138,
+        "lo": -0.0213,
+        "hi": 0.0467,
+        "n": 21,
+        "excludes_zero": false
+      },
+      "harm_positive": true,
+      "l5_erasing_helps": false
+    },
+    "alpha2.0": {
+      "alpha": 2.0,
+      "induced_harm": {
+        "mean": 0.0655,
+        "lo": 0.0283,
+        "hi": 0.1023,
+        "n": 21,
+        "excludes_zero": true
+      },
+      "l5_task_drop": {
+        "mean": 0.0001,
+        "lo": -0.024,
+        "hi": 0.0229,
+        "n": 21,
+        "excludes_zero": false
+      },
+      "harm_positive": true,
+      "l5_erasing_helps": false
+    }
+  },
+  "repair": {
+    "R0_exact": {
+      "1.0": {
+        "pooled_recovery": 1.0,
+        "repaired_bacc": 0.4956,
+        "injected_bacc": 0.4549,
+        "orig_bacc": 0.4956,
+        "n": 21
+      },
+      "2.0": {
+        "pooled_recovery": 1.0,
+        "repaired_bacc": 0.4956,
+        "injected_bacc": 0.4301,
+        "orig_bacc": 0.4956,
+        "n": 21
+      }
+    },
+    "R1_oracle_subspace": {
+      "1.0": {
+        "pooled_recovery": -0.1864,
+        "repaired_bacc": 0.4473,
+        "injected_bacc": 0.4549,
+        "orig_bacc": 0.4956,
+        "n": 21
+      },
+      "2.0": {
+        "pooled_recovery": 0.2632,
+        "repaired_bacc": 0.4473,
+        "injected_bacc": 0.4301,
+        "orig_bacc": 0.4956,
+        "n": 21
+      }
+    },
+    "R2_source_est": {
+      "1.0": {
+        "pooled_recovery": -0.3391,
+        "repaired_bacc": 0.4411,
+        "injected_bacc": 0.4549,
+        "orig_bacc": 0.4956,
+        "n": 21
+      },
+      "2.0": {
+        "pooled_recovery": -0.0009,
+        "repaired_bacc": 0.43,
+        "injected_bacc": 0.4301,
+        "orig_bacc": 0.4956,
+        "n": 21
+      }
+    },
+    "R3_random_k": {
+      "1.0": {
+        "pooled_recovery": -0.0599,
+        "repaired_bacc": 0.4525,
+        "injected_bacc": 0.4549,
+        "orig_bacc": 0.4956,
+        "n": 21
+      },
+      "2.0": {
+        "pooled_recovery": 0.0094,
+        "repaired_bacc": 0.4307,
+        "injected_bacc": 0.4301,
+        "orig_bacc": 0.4956,
+        "n": 21
+      }
+    }
+  },
+  "interpretation": "PC1: the injected spatial subject-token shortcut is DETECTED (induced target harm +0.043/+0.076, monotone in alpha) and LOCALIZED to the injected branch. The harm is fully attributable to the token (exact subtraction recovers ~1.0). But ERASURE-based repair (oracle-subspace/source-est/random) does NOT recover: the injected harm acts through TASK-COUPLED logit directions, so subspace erasure cannot cleanly remove it -- the same task-entanglement seen naturally. => detection+localization proven; a REPAIR demonstration needs a LEARNED shortcut (PC2 prevalence-stress refit, GPU) or a counterfactual/task-protected primitive (Phase 4D), not erasure. Positive control ONLY; not natural evidence."
+}

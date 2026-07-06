@@ -1,0 +1,24 @@
+{
+  "spatial_z": {
+    "mean": 0.0407,
+    "lo": 0.0135,
+    "hi": 0.0723,
+    "n": 21,
+    "excludes_zero": true
+  },
+  "graph_z": {
+    "mean": 0.0211,
+    "lo": 0.0039,
+    "hi": 0.0418,
+    "n": 21,
+    "excludes_zero": true
+  },
+  "temporal_z": {
+    "mean": 0.02,
+    "lo": 0.0044,
+    "hi": 0.0379,
+    "n": 21,
+    "excludes_zero": true
+  },
+  "localized_to_spatial": true
+}
