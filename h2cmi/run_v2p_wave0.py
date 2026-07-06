@@ -55,9 +55,11 @@ def _ord_acc(ye, preds, q):
     return float(q * r0 + (1 - q) * r1)
 
 
-def _pair_units(pairs, seeds, args, code_sig, commit):
+def _pair_units(pairs, seeds, args, code_sig, commit, only_subj=None):
     for ds, s_src, s_tgt in pairs:
-        ep = load_dataset(ds, MOABB_CLASS(ds)().subject_list)
+        # load ONLY the requested subjects (avoids the 3x-redundant full 54-subject Lee load per chunk)
+        sub_list = sorted(only_subj) if only_subj else MOABB_CLASS(ds)().subject_list
+        ep = load_dataset(ds, sub_list)
         for subj in np.unique(ep.subject):
             m_src = (ep.subject == subj) & (ep.session == s_src)
             cfg0 = build_cfg(ep.X.shape[1], args.epochs, args.device, seed=0)
@@ -103,7 +105,7 @@ def main():
                 if r.get("ratio") == "__disp__" and r.get("estimator") == EST[-1]:
                     done.add((int(r["subject"]), int(r["seed"])))
     uni = np.full(K, 1.0 / K)
-    for ds, s_src, s_tgt, subj, ai, ei, Xa, ya, Xe, ye, ep, m_src in _pair_units(pairs, seeds, args, code_sig, commit):
+    for ds, s_src, s_tgt, subj, ai, ei, Xa, ya, Xe, ye, ep, m_src in _pair_units(pairs, seeds, args, code_sig, commit, only_subj):
         if only_subj is not None and int(subj) not in only_subj:
             continue
         for seed in seeds:
