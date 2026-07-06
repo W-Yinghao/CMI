@@ -1,0 +1,5 @@
+path,exists,bytes,mtime,sha256,dataset_guess,seed_guess,fold_guess,branch_guess,config_guess,matches_f0_config,load_test_status,state_dict_key_match,notes
+(none found),NO,,,,,,,,,NO,no_candidate,NO,"0 FBCSP-LGG checkpoint files found under /projects/EEG-foundation-model/yinghao (maxdepth 6) or /home/infres/yinwang (maxdepth 4); no fbcsp/lgg output path exists on the cluster user dir"
+/projects/EEG-foundation-model/yinghao,scope,,,,,,,,,,scope_searched,,"user output dir: contains acar_v5_*, oaci-*, cigl_bnci_readable (raw MNE data) — NO fbcsp/lgg run output, 0 checkpoint files"
+/home/infres/yinwang,scope,,,,,,,,,,scope_searched,,"home + worktrees: 0 fbcsp/lgg checkpoints"
+project/fbcsp-lgg-* (git),scope,,,,,,,,,,scope_searched,,"0 committed checkpoints; F0 pipeline saves summary JSON only; trainer best_state held in RAM, never torch.save (trainer.py:554)"

@@ -1,0 +1,20 @@
+{
+  "task": "Option A read-only FBCSP-LGG checkpoint search + CPU load-test",
+  "executed": "read-only find + directory inspection; no inference, no dump, no training, no target labels",
+  "num_candidate_files": 0,
+  "num_loadable_state_dicts": 0,
+  "num_matching_fbcsp_lgg": 0,
+  "complete_dataset_seed_fold_coverage": false,
+  "load_test_run": false,
+  "load_test_skipped_reason": "no candidate checkpoint files to load",
+  "scopes_searched": [
+    "/projects/EEG-foundation-model/yinghao (maxdepth 6): 0 checkpoints, no fbcsp/lgg output dir",
+    "/projects/EEG-foundation-model/yinghao/cigl_bnci_readable: raw MNE dataset cache only, no weights",
+    "/home/infres/yinwang (maxdepth 4): 0 fbcsp/lgg checkpoints",
+    "git branches project/fbcsp-lgg-*: 0 committed checkpoints"
+  ],
+  "root_full_find": "timed out on the shared datalake tree; the user output dir (yinghao) is the only plausible checkpoint location and is empty",
+  "corroboration": "FBCSP-LGG F0 pipeline persists summary JSON only; cmi/train/trainer.py:554 clones best_state to RAM but never torch.save-s it",
+  "conclusion": "NOT_USABLE",
+  "recommended_next_action": "RQ4 remains BLOCKED (descriptive only, C7 READY). Do NOT request an ERM re-fit (PM Option B not approved). Record 'no usable checkpoint' as the frozen provenance for the RQ4 gap."
+}

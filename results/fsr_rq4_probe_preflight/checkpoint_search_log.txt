@@ -1,0 +1,71 @@
+=== checkpoint search 2026-07-06T20:05:12Z ===
+root: /projects/EEG-foundation-model
+-- all checkpoint-extension files, filtered to fbcsp/lgg/f0/spatial --
+=== yinghao/ output dir structure (depth 1) ===
+/projects/EEG-foundation-model/yinghao/acar_v5_stage1b_launch/
+/projects/EEG-foundation-model/yinghao/acar_v5_stage1b_out/
+/projects/EEG-foundation-model/yinghao/acar_v5_stage1b_repair/
+/projects/EEG-foundation-model/yinghao/acar_v5_stage1b_reports/
+/projects/EEG-foundation-model/yinghao/acar_v5_stage2b/
+/projects/EEG-foundation-model/yinghao/acar_v5_stage2b1p/
+/projects/EEG-foundation-model/yinghao/acar_v5_stage2b2p/
+/projects/EEG-foundation-model/yinghao/acar_v5_stage2b3p/
+/projects/EEG-foundation-model/yinghao/acar_v5_stage2b_ba09777/
+/projects/EEG-foundation-model/yinghao/acar_v5_stage2b_f079aca/
+/projects/EEG-foundation-model/yinghao/cigl_bnci_readable/
+/projects/EEG-foundation-model/yinghao/mne_data/
+/projects/EEG-foundation-model/yinghao/oaci-c10-replay/
+/projects/EEG-foundation-model/yinghao/oaci-c10-scratch/
+/projects/EEG-foundation-model/yinghao/oaci-c11-scratch/
+/projects/EEG-foundation-model/yinghao/oaci-c12-stress/
+/projects/EEG-foundation-model/yinghao/oaci-c18-extract/
+/projects/EEG-foundation-model/yinghao/oaci-confirmatory-logs/
+/projects/EEG-foundation-model/yinghao/oaci-confirmatory-onefold/
+/projects/EEG-foundation-model/yinghao/oaci-confirmatory-preflight/
+/projects/EEG-foundation-model/yinghao/oaci-confirmatory-staged/
+/projects/EEG-foundation-model/yinghao/oaci-gpu-artifacts/
+/projects/EEG-foundation-model/yinghao/oaci-gpu-logs/
+/projects/EEG-foundation-model/yinghao/oaci-loso-dryrun/
+/projects/EEG-foundation-model/yinghao/oaci-loso-seed0/
+/projects/EEG-foundation-model/yinghao/oaci-loso-seeds012/
+
+=== fbcsp/lgg-related dirs under yinghao/ ===
+/projects/EEG-foundation-model/yinghao/acar_v5_stage2b_f079aca/
+/projects/EEG-foundation-model/yinghao/cigl_bnci_readable/
+
+=== checkpoint files under yinghao/ (scoped, all extensions) ===
+TOTAL checkpoint files under yinghao (maxdepth4): 0
+=== deeper find (maxdepth 6) checkpoints under yinghao ===
+count: 0
+=== any path containing fbcsp/lgg anywhere under yinghao ===
+(empty above = no fbcsp/lgg outputs on cluster)
+=== cigl_bnci_readable contents ===
+/projects/EEG-foundation-model/yinghao/cigl_bnci_readable/:
+MNE-bnci-data
+
+/projects/EEG-foundation-model/yinghao/cigl_bnci_readable/MNE-bnci-data:
+competition
+database
+~bci
+
+/projects/EEG-foundation-model/yinghao/cigl_bnci_readable/MNE-bnci-data/~bci:
+database
+
+/projects/EEG-foundation-model/yinghao/cigl_bnci_readable/MNE-bnci-data/~bci/database:
+001-2014
+001-2015
+001-2025
+002-2014
+003-2015
+004-2014
+004-2015
+008-2014
+=== checkpoints in user home / scratch worktrees ===
+home fbcsp/lgg checkpoint count: 0
+
+=== CONCLUSION 2026-07-06T20:09:01Z ===
+candidate FBCSP-LGG checkpoints found: 0
+scopes searched: /projects/EEG-foundation-model/yinghao (maxdepth 6), /home/infres/yinwang (maxdepth 4), cigl_bnci_readable (= raw MNE data, no weights)
+root datalake full find: timed out (huge shared tree) but user output dir (yinghao) is the only plausible location and is empty of checkpoints
+corroboration: FBCSP-LGG F0 pipeline saves summary JSON only; trainer holds best_state in RAM, never torch.save (trainer.py:554)
+VERDICT: NOT_USABLE -> RQ4 remains BLOCKED; no ERM re-fit requested (per PM Option B not approved)
