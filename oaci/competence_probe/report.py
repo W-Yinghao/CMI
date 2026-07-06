@@ -219,8 +219,9 @@ def render_md(res) -> str:
           f"**{res['gates']['fragile_endpoints_excluded_from_primary']}** · targets post-hoc "
           f"**{res['gates']['targets_joined_post_hoc']}** · finite-filter **{res['gates']['finite_filter']}** · "
           f"no selector artifact **{res['gates']['no_selector_artifact']}**", "",
-          "> DIAGNOSTIC-ONLY. Any positive result reads only as: a pre-registered low-freedom source-only "
-          "diagnostic probe recovers weak competence information — NOT that a deployable selector is validated."]
+          "> DIAGNOSTIC-ONLY. A positive result means only that a pre-registered low-freedom source-only "
+          "diagnostic probe recovers weak competence information; it is NOT evidence of a deployment-ready "
+          "target-free checkpoint chooser, and no such artifact is produced."]
     return "\n".join(L)
 
 
