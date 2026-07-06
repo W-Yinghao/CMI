@@ -73,19 +73,27 @@ C17_CLASS_BOUNDARY_CORR = 0.547
 
 # ---- support-severity response taxonomy (outcomes) ----------------------------------------------
 CASE_PRESERVED = "case_III_preserved"
-CASE_COLLAPSED_II = "collapsed_to_case_II_calibration_only"
+CASE_COLLAPSED_II = "collapsed_to_case_II_calibration_only_signal"      # SIGNAL-level: even cell-present stress fails
+CASE_ENDPOINT_NONESTIMABILITY = "collapsed_by_accuracy_endpoint_nonestimability"  # bAcc->NaN under DELETION, not signal
 CASE_COLLAPSED_IV = "collapsed_to_case_IV_source_unidentifiable"
 CASE_BOUNDARY_DESTROYED = "boundary_visibility_destroyed"
 CASE_ABSTENTION_DOMINANT = "support_abstention_dominant"
-CASE_INCONCLUSIVE = "inconclusive_due_to_estimability_loss"
+CASE_INCONCLUSIVE = "support_stress_inconclusive_due_to_feature_loss"
 TAXONOMY_INTERPRETATION = {
-    CASE_PRESERVED: "weak source-side competence information is not merely a full-support artifact; it survives support degradation.",
-    CASE_COLLAPSED_II: "support mismatch destroys accuracy observability; only calibration remains source-visible.",
-    CASE_COLLAPSED_IV: "support mismatch destroys source-side observability of target accuracy entirely.",
+    CASE_PRESERVED: "weak source-side competence information is not merely a full-support artifact; it survives support degradation that keeps cells present.",
+    CASE_COLLAPSED_II: "even support stress that keeps cells present collapses accuracy identifiability while calibration stays source-visible -> a genuine signal-level calibration bias.",
+    CASE_ENDPOINT_NONESTIMABILITY: "the weak signal SURVIVES cell-present stress (rare/nonestimable); it collapses only under cell DELETION, and there because the worst-domain accuracy ENDPOINT becomes non-estimable (a domain loses a class -> reference bAcc NaN), not because the model signal vanished. Support deletion destroys accuracy-observable availability before it forces leakage abstention.",
+    CASE_COLLAPSED_IV: "support degradation destroys source-side observability of target accuracy entirely (even cell-present stress, with accuracy features still computable).",
     CASE_BOUNDARY_DESTROYED: "source-visible class-boundary structure depends on support coverage of boundary-relevant cells.",
     CASE_ABSTENTION_DOMINANT: "the measurement framework refuses to hallucinate unsupported conditional invariance; it abstains rather than smoothing.",
     CASE_INCONCLUSIVE: "estimability loss removed too many source signals to decide; not a scientific collapse.",
 }
+ALL_CASES = (CASE_PRESERVED, CASE_COLLAPSED_II, CASE_ENDPOINT_NONESTIMABILITY, CASE_COLLAPSED_IV,
+             CASE_BOUNDARY_DESTROYED, CASE_ABSTENTION_DOMINANT, CASE_INCONCLUSIVE)
+
+# ---- per-regime collapse-reason enum (reason-code BEFORE taxonomy; free text is forbidden) -------
+COLLAPSE_REASONS = ("none", "implemented_noop", "signal_loss", "endpoint_metric_nonestimability",
+                    "leakage_nonestimability", "feature_engineering_bug", "insufficient_rows", "inconclusive")
 
 # ---- allowed / forbidden claim guards (asserted by report + tests) ------------------------------
 FORBIDDEN_CLAIM_SUBSTRINGS = (

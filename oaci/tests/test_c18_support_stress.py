@@ -154,11 +154,30 @@ def test_severity_response_is_order_invariant():
 
 
 def test_taxonomy_deterministic_and_diagnostic_only():
-    probe = {r: {"loto_auc": 0.60, "beats_permutation": True} for r in schema.REGIME_ORDER}
+    probe = {r: {"loto_auc": 0.60, "beats_permutation": True, "n_features": 8, "accuracy_visibility": 0.1,
+                 "n_used": 600} for r in schema.REGIME_ORDER}
     t1 = severity_taxonomy(probe_by_regime=probe); t2 = severity_taxonomy(probe_by_regime=probe)
     assert t1["case_label"] == t2["case_label"] and t1["diagnostic_only_non_deployable"]
-    assert t1["case_label"] in (schema.CASE_PRESERVED, schema.CASE_COLLAPSED_II, schema.CASE_COLLAPSED_IV,
-                                schema.CASE_BOUNDARY_DESTROYED, schema.CASE_ABSTENTION_DOMINANT, schema.CASE_INCONCLUSIVE)
+    assert t1["case_label"] in schema.ALL_CASES and "regime_collapse_reason" in t1
+
+
+def test_taxonomy_reason_codes_endpoint_vs_signal():
+    # cell-present regimes preserve (beat); cell-deletion regimes fail with accuracy features gone (bAcc NaN)
+    probe = {"S0_full_support": {"loto_auc": 0.60, "beats_permutation": True, "n_features": 8, "accuracy_visibility": 0.1, "n_used": 600},
+             "S1_label_marginal_skew": {"loto_auc": 0.60, "beats_permutation": True, "n_features": 8, "accuracy_visibility": 0.1, "n_used": 600},
+             "S2_rare_cells": {"loto_auc": 0.60, "beats_permutation": True, "n_features": 8, "accuracy_visibility": 0.1, "n_used": 600},
+             "S3_nonestimable_cells": {"loto_auc": 0.58, "beats_permutation": True, "n_features": 8, "accuracy_visibility": 0.1, "n_used": 600},
+             "S5_block_class_by_domain": {"loto_auc": 0.58, "beats_permutation": True, "n_features": 8, "accuracy_visibility": 0.1, "n_used": 600},
+             "S4_missing_cells": {"loto_auc": 0.46, "beats_permutation": False, "n_features": 6, "accuracy_visibility": None, "n_used": 1200},
+             "S6_boundary_aligned_mask": {"loto_auc": 0.51, "beats_permutation": False, "n_features": 6, "accuracy_visibility": None, "n_used": 1200},
+             "S7_random_matched_mask": {"loto_auc": 0.45, "beats_permutation": False, "n_features": 6, "accuracy_visibility": None, "n_used": 1200}}
+    t = severity_taxonomy(probe_by_regime=probe,
+                          axis_by_regime={r: {"accuracy_visibility": probe[r]["accuracy_visibility"], "calibration_visibility": 0.14} for r in probe})
+    assert t["case_label"] == schema.CASE_ENDPOINT_NONESTIMABILITY
+    rc = t["regime_collapse_reason"]
+    assert rc["S1_label_marginal_skew"] == "implemented_noop"
+    assert rc["S4_missing_cells"] == "endpoint_metric_nonestimability"
+    assert rc["S2_rare_cells"] == "none"
 
 
 def test_report_forbids_support_mismatch_causal_overclaim():
