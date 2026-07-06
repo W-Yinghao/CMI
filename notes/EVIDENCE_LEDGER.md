@@ -83,6 +83,19 @@ CAL-EVAL interpretation / v2-replay comparator / batch size / MIN_BATCH; any con
 hypothesis), never an in-place edit of `4278435` / `ba09777` or these results. See `notes/ACAR_V5_CLOSEOUT.md` +
 `notes/ACAR_V5_STAGE2B_CLOSEOUT.md`.**
 
+**ACAR v6 direction (PLANNED — diagnostic-only, NOT RUN; `notes/ACAR_V6_A0_ACTION_VIABILITY_AUDIT_PLAN.md`).** V6 must first ask
+*"is any adaptation action worth routing?"* before writing a router. Grounding already in hand from the V5 report: the
+policy-independent oracle envelope `red_upper` is **PD +0.3725 / SCZ +0.5793** (constant across all 21 evaluable candidates) —
+substantial benefit is *available* to an oracle, yet the label-free router lost up to −12, i.e. the actions are **bimodal** and the
+router cannot separate benefit from harm. **V6-A0** (a separately-authorized, EXPLORATORY, label-consuming diagnostic on the
+admitted V5 substrate) will decide `V6_CONTINUE` vs `V6_STOP` on a pre-registered gate: oracle_red_upper > 0.02 (likely pass) AND
+beneficial_coverage ≥ 0.15 AND sign-predictability subject-clustered AUROC ≥ 0.60 with permutation p ≤ 0.05 (the binding test). If
+V6 continues, its action family PIVOTS from feature-space transport (matched_coral/spdim/t3a — proven harmful) to
+**identity-dominant bounded logit/probability calibration** (prior-shift / temperature / convex trust-region), ≤12 configs, gates
+NOT relaxed. Firewall: the audit may only DECIDE whether to write a V6 protocol; it must NOT reverse-engineer a policy from the
+observed DEV ΔR and claim confirmatory success — a real V6 efficacy claim requires a NEW dated protocol on a still-sealed
+held-out/external substrate. Nothing executed yet; the plan is a plan.
+
 **SURVIVOR AUDIT COMPLETE (steps 1–4 done; NO open items).** LPC's three pillars all collapsed (leakage = via
 representation collapse, calibration = a single-temperature side-effect, accuracy = the generic matched-CORAL
 transductive lever, not CMI/LPC). The harm-gate/rollback/abstention direction is closed (DIAGNOSTIC_ONLY,
