@@ -49,7 +49,7 @@ test — **but Mini parity is not a Conformer-family verdict.**
 
 ### Recommended next (for PM approval; NO GPU launched yet)
 1. **CIGL_69A2 full-Conformer preflight** (CPU + import check): official braindecode `EEGConformer` if the env
-   imports it, else an in-repo equal-param `EEGConformerFull` (official arch: emb 40, depth 6, 10 heads, MLP
+   imports it, else an internal full-capacity `EEGConformerFull` (official-geometry-inspired: emb 40, depth 6, 10 heads, MLP
    head). Check: feature_z extraction, probe-compatible head (MLP head ⇒ R3 falls back to source-fit probe,
    replay_ok=False — allowed), source-only LOSO path, no target leakage, R3-consumable artifact, one-fold CPU
    smoke. THEN decide full-Conformer LOSO seed0.

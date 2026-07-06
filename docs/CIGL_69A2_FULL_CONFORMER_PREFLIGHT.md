@@ -1,18 +1,25 @@
-# CIGL_69A2 — Full / equal-param EEG Conformer preflight (CPU engineering only)
+# CIGL_69A2 — Internal full-capacity Conformer preflight (CPU engineering only)
 
 ```
 Branch project/metacmi-eegnet-conformer. Answers the PM directive: ConformerMini parity/leakage results are
-NOT a Conformer-family verdict; validate on the ORIGINAL Conformer or an equal-param model. This preflight
-builds that high-capacity arm and proves it is audit-compatible (feature_z + probe R3), source-only-LOSO ready,
-and leak-proof. NO GPU launched. Full-Conformer LOSO seed0 is HELD for PM approval.
+NOT a Conformer-family verdict; validate on the ORIGINAL Conformer or an equal-param model. Because the OFFICIAL
+braindecode EEGConformer is UNAVAILABLE in eeg2025, we therefore use an INTERNAL full-capacity `conformer_full`
+arm (official-geometry-INSPIRED, NOT the official model). This preflight builds that high-capacity arm and
+proves it is audit-compatible (feature_z + probe R3), source-only-LOSO ready, and leak-proof. NO GPU launched.
 ```
+
+## Naming guardrail (PM-required)
+`EEGConformerFull` / `conformer_full` is an **internal full-capacity / official-geometry-inspired Conformer
+arm**. It is **NOT** to be called the "official EEG Conformer". The honest framing everywhere is:
+> official braindecode implementation unavailable in eeg2025; we therefore use an internal full-capacity
+> `conformer_full` arm.
 
 ## Official-import status (recorded, env-dependent)
 - **Official braindecode `EEGConformer` is NOT importable in `eeg2025`**: `ImportError: cannot import name
   'BNCI2014001' from 'moabb.datasets'` (the known eager-import break; `moabb` in this env lacks that symbol).
-- ⇒ the official class cannot be run here without env surgery. The preflight therefore provides an **in-repo
-  equal-param stand-in** faithful to the published architecture, and records the import status so we can also run
-  the literal official model later if/when a compatible env is available.
+- ⇒ the official class cannot be run here without env surgery. The preflight therefore provides the **internal
+  full-capacity `conformer_full` arm** (equal-param, official-geometry-inspired), and records the import status
+  so we can also run the literal official model later if/when a compatible env is available.
 
 ## `EEGConformerFull` (`cmi/models/sanity_backbones.py`) — the high-capacity arm
 Faithful to Song et al. 2022 (arXiv:2106.11170):

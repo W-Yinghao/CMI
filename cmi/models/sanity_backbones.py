@@ -144,17 +144,19 @@ class EEGConformerMini(nn.Module):
 
 
 class EEGConformerFull(nn.Module):
-    """Equal-parameter / official-geometry EEG Conformer (Song et al. 2022, arXiv:2106.11170) — the CIGL_69A2
-    high-capacity VALIDATION arm for the ConformerMini audit. Faithful to the published architecture: shallow
-    conv tokenizer with the official kernels (temporal (1,25) -> spatial (chans,1) -> BN/ELU -> AvgPool(1,75)
-    stride 15 -> 1x1 projection), a depth-6 / emb-40 / 10-head Transformer, then the official 3-layer MLP
-    classification head (Linear->ELU->Drop->Linear->ELU->Drop->Linear). ~10x the params of EEGConformerMini.
+    """INTERNAL full-capacity / official-geometry-INSPIRED EEG Conformer arm (after Song et al. 2022,
+    arXiv:2106.11170) — the CIGL_69A2 high-capacity VALIDATION arm for the ConformerMini audit. This is NOT the
+    official braindecode EEGConformer (that class is unimportable in eeg2025 -- moabb lacks BNCI2014001); it is a
+    project-internal pure-torch reimplementation that mirrors the published GEOMETRY: shallow conv tokenizer with
+    the paper's kernels (temporal (1,25) -> spatial (chans,1) -> BN/ELU -> AvgPool(1,75) stride 15 -> 1x1
+    projection), a depth-6 / emb-40 / 10-head Transformer, then the paper's 3-layer MLP classification head
+    (Linear->ELU->Drop->Linear->ELU->Drop->Linear). ~8-10x the params of EEGConformerMini.
 
     Contract `forward(x[B,C,T]) -> (logits, feature_z)` with feature_z = the flattened transformer output = the
     INPUT to the MLP head. Because the head is an MLP (not a single nn.Linear), head-replay is NOT exact; R3
-    therefore falls back to the source-fit probe (removal_mode='probe_replay'). Still pure torch (no braindecode),
-    single env. Official geometry needs n_times >= ~100 (temporal conv is valid); the pool is clamped only for
-    tiny synthetic smokes so it never crashes, and equals the official (75,15) on real EEG."""
+    therefore falls back to the source-fit probe (removal_mode='probe_replay'). Pure torch (no braindecode),
+    single env. The paper geometry needs n_times >= ~100 (temporal conv is valid); the pool is clamped only for
+    tiny synthetic smokes so it never crashes, and equals the paper's (75,15) on real EEG."""
     def __init__(self, n_chans, n_times, n_classes, emb=40, depth=6, heads=10, k_t=25,
                  pool=75, stride=15, drop=0.5, mlp_hidden=(256, 32)):
         super().__init__()

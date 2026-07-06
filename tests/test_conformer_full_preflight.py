@@ -1,10 +1,11 @@
-"""CIGL_69A2 — full/equal-param EEG Conformer preflight (CPU only, engineering; NOT scientific evidence).
+"""CIGL_69A2 — internal full-capacity Conformer preflight (CPU only, engineering; NOT scientific evidence).
 
-EEGConformerFull is the high-capacity VALIDATION arm for the ConformerMini audit: official EEG-Conformer
-geometry (emb 40, depth 6, 10 heads, official conv kernels, 3-layer MLP head), ~8-10x the Mini params. Because
-its head is an MLP (not a single nn.Linear), head-replay is NOT exact and R3 falls back to the source-fit probe
-(removal_mode='probe_replay') — the PM-allowed "probe-compatible" path. These checks: builds/forwards, is
-genuinely high-capacity, feature_z extractable, probe-compatible R3 artifact, and no target-label leakage.
+EEGConformerFull (conformer_full) is an INTERNAL full-capacity / official-geometry-INSPIRED Conformer arm, NOT
+the official braindecode EEGConformer (unavailable in eeg2025). High-capacity VALIDATION arm for the
+ConformerMini audit: emb 40, depth 6, 10 heads, paper-style conv kernels, 3-layer MLP head, ~8-10x the Mini
+params. Because its head is an MLP (not a single nn.Linear), head-replay is NOT exact and R3 falls back to the
+source-fit probe (removal_mode='probe_replay') — the PM-allowed "probe-compatible" path. These checks:
+builds/forwards, is genuinely high-capacity, feature_z extractable, probe-compatible R3 artifact, no leakage.
 """
 import numpy as np
 import pytest
