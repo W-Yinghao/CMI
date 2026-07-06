@@ -49,7 +49,9 @@ task_collapse                                           : 10 / 40 cells
 binary_harm (Lee/Cho EEGNet LEACE/RLACE, HGD)           : 8 / 40 cells
 NLL non-specific (random-k matches LEACE)               : 1 / 8 LEACE-vs-random_k cells (canonical 2a-TSMNet)
 ```
-**Decision:** *erasure strength is NEGATIVELY associated with target benefit (more subject removal → worse target bAcc); the old positive erasure hypothesis is refuted.* **No eraser certifies a proven target benefit** (`benefit_claimable=0`); the one recomputable non-specific NLL cell (2a-TSMNet, LEACE dNLL −0.031 matched by random-k −0.034 at unremoved subject 0.998) confirms that NLL movement there is not a domain-removal benefit. **Forbidden phrasing:** "LEACE improves target NLL" as a DG claim; the raw `improves_target` flag is renamed `raw_improves_target_flag` and never enters a paper claim.
+**Decision (robust):** *subject signal is erasable, but erasure strength does not certify target benefit* — **`benefit_claimable = 0/40`**. This is the headline and is independent of the eraser subset.
+
+**On the negative correlation (Step 2C sensitivity — do NOT headline):** the all-cells `corr(E, target_bAcc)` is negative and excludes 0, but it is **not robust**: it flips to **+0.54 (excludes 0) on the principled-eraser subset (LEACE/RLACE only)** and is ns when INLP and/or random_k are dropped (see `results/fsr_phase2c/`). It is driven by INLP over-erasure and the random-k anchor, not a real "more removal → worse target" law. So the RQ2 finding is the *absence of certified benefit* (0/40), not a negative association. The one recomputable non-specific NLL cell (2a-TSMNet, LEACE dNLL −0.031 matched by random-k −0.034 at unremoved subject 0.998) further confirms NLL movement there is not a domain-removal benefit. **Forbidden phrasing:** "LEACE improves target NLL" and "more subject removal harms the target"; the raw `improves_target` flag is `raw_improves_target_flag` and never enters a paper claim.
 
 ---
 
@@ -88,7 +90,7 @@ L1 leakage is measurable, but raw leakage does NOT certify L5 reliance
 L4 task-head alignment is closer to L5 reliance (correctly signed; difference excludes 0),
    but it is NOT yet a validated estimator (dataset-heterogeneous; partial betas ns).
 L3 erasure can remove subject signal, but erasure strength does NOT certify L6 target benefit
-   (corr negative; 0/40 proven-benefit cells; NLL move non-specific where recomputable).
+   (0/40 proven-benefit cells; the negative corr is a non-robust confound artifact, not a finding).
 L4 branch load matters (spatial load-bearing), but RQ4 is BLOCKED until per-branch
    leakage + reliance probes exist.
 ```

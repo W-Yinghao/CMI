@@ -1,0 +1,8 @@
+subset,rho,ci_lo,ci_hi,n,sign,excludes_zero
+1_all_cells,-0.4204,-0.6824,-0.1133,40,neg,True
+2_clean_cells_no_collapse_no_harm,-0.4348,-0.7311,-0.0574,30,neg,True
+3_excl_random_k,-0.2617,-0.5867,0.1251,32,neg,False
+4_excl_INLP,-0.3086,-0.6448,0.0617,32,neg,False
+5_excl_INLP_and_random_k,-0.1453,-0.5848,0.2969,24,neg,False
+6_LEACE_RLACE_only,0.5394,0.0671,0.8617,16,pos,True
+7_within_dataset_backbone_rank_resid,-0.7014,-0.8576,-0.4966,40,neg,True

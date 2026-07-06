@@ -37,10 +37,11 @@ Status vocabulary: `READY` (state as a finding) · `READY_WITH_CAVEAT` (state wi
 - **Caveat:** a nonlinear MLP residual persists after linear erasure (erasable ≠ fully removed).
 - **Forbidden:** "LEACE removes subject leakage" (nonlinear residual remains).
 
-### C4 — Erasure strength does not certify target benefit. — **READY**
-- **Ladder:** L3 → L6. **Evidence:** the 5 TOS erasers (RQ2).
-- **Allowed:** "Across 40 cells, erasure strength is *negatively* associated with target bAcc (ρ=−0.42 all, −0.44 clean; both exclude 0); no eraser certifies a proven target benefit (0/40)." More removal → worse target.
-- **Forbidden:** "erasing subject signal improves DG"; counting a positive point estimate whose CI includes 0 as a benefit.
+### C4 — Erasure strength does not certify target benefit. — **READY** (main claim)
+- **Ladder:** L3 → L6. **Evidence:** the 5 TOS erasers (RQ2 + RQ2 sensitivity, Step 2C).
+- **Allowed (main, robust):** "No eraser certifies a proven target benefit — `benefit_claimable = 0/40` (positive bAcc point **and** 95% CI lower > 0, no task-collapse, no binary-harm, not random-k-matched)." This is the robust basis and is independent of the eraser subset.
+- **Supporting negative-association result — `NOT_ROBUST_DO_NOT_HEADLINE`.** The all-cells correlation `corr(E_subject_removed, target_bAcc)` is −0.42 [−0.68,−0.11], but Step 2C shows it is **not robust**: it flips to **+0.54 (excludes 0)** on the principled-eraser subset (LEACE/RLACE only) and is ns when INLP and/or random_k are dropped. It is driven by INLP over-erasure and the random-k anchor, not a real "more removal → worse target" law. **Do not report the negative correlation as a finding.**
+- **Forbidden:** "erasing subject signal improves DG"; "more subject removal harms the target" (the negative correlation is a confound artifact); counting a positive point estimate whose CI includes 0 as a benefit.
 
 ### C5 — Random-k falsifies non-specific NLL movement. — **READY_WITH_CAVEAT**
 - **Ladder:** L3 control → L6. **Evidence:** TOS_random_k vs TOS_LEACE (RQ2).

@@ -1,0 +1,15 @@
+group_kind,group,rho,ci_lo,ci_hi,n,sign,excludes_zero
+8_per_dataset,BNCI2014_001,-0.3818,-0.9627,0.425,10,neg,False
+8_per_dataset,Cho2017,-0.3497,-0.8527,0.4637,10,neg,False
+8_per_dataset,Lee2019_MI,-0.4658,-0.9608,0.3706,10,neg,False
+8_per_dataset,Schirrmeister2017,-0.6364,-0.9873,-0.0566,10,neg,True
+9_per_backbone,EEGNet,-0.3105,-0.6606,0.2031,20,neg,False
+9_per_backbone,TSMNet,-0.5789,-0.8123,-0.1951,20,neg,True
+cell_dataset_backbone,BNCI2014_001|EEGNet,-0.8,-1.0,-0.1111,5,neg,True
+cell_dataset_backbone,BNCI2014_001|TSMNet,0.0,-1.0,1.0,5,zero,False
+cell_dataset_backbone,Cho2017|EEGNet,-0.7826,-1.0,-0.1111,5,neg,True
+cell_dataset_backbone,Cho2017|TSMNet,-0.8,-1.0,-0.1111,5,neg,True
+cell_dataset_backbone,Lee2019_MI|EEGNet,-0.875,-1.0,-0.1111,5,neg,True
+cell_dataset_backbone,Lee2019_MI|TSMNet,-0.7,-1.0,0.6667,5,neg,False
+cell_dataset_backbone,Schirrmeister2017|EEGNet,-0.9,-1.0,-0.1111,5,neg,True
+cell_dataset_backbone,Schirrmeister2017|TSMNet,-0.8,-1.0,-0.1111,5,neg,True

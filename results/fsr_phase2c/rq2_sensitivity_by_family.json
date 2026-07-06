@@ -1,0 +1,99 @@
+{
+  "subsets": {
+    "1_all_cells": {
+      "rho": -0.4204,
+      "ci_lo": -0.6824,
+      "ci_hi": -0.1133,
+      "n": 40,
+      "sign": "neg",
+      "excludes_zero": true
+    },
+    "2_clean_cells_no_collapse_no_harm": {
+      "rho": -0.4348,
+      "ci_lo": -0.7311,
+      "ci_hi": -0.0574,
+      "n": 30,
+      "sign": "neg",
+      "excludes_zero": true
+    },
+    "3_excl_random_k": {
+      "rho": -0.2617,
+      "ci_lo": -0.5867,
+      "ci_hi": 0.1251,
+      "n": 32,
+      "sign": "neg",
+      "excludes_zero": false
+    },
+    "4_excl_INLP": {
+      "rho": -0.3086,
+      "ci_lo": -0.6448,
+      "ci_hi": 0.0617,
+      "n": 32,
+      "sign": "neg",
+      "excludes_zero": false
+    },
+    "5_excl_INLP_and_random_k": {
+      "rho": -0.1453,
+      "ci_lo": -0.5848,
+      "ci_hi": 0.2969,
+      "n": 24,
+      "sign": "neg",
+      "excludes_zero": false
+    },
+    "6_LEACE_RLACE_only": {
+      "rho": 0.5394,
+      "ci_lo": 0.0671,
+      "ci_hi": 0.8617,
+      "n": 16,
+      "sign": "pos",
+      "excludes_zero": true
+    },
+    "7_within_dataset_backbone_rank_resid": {
+      "rho": -0.7014,
+      "ci_lo": -0.8576,
+      "ci_hi": -0.4966,
+      "n": 40,
+      "sign": "neg",
+      "excludes_zero": true
+    }
+  },
+  "verdict": {
+    "primary_claim": {
+      "text": "Subject signal is erasable, but erasure strength does not certify target benefit.",
+      "status": "READY",
+      "basis": "benefit_claimable=0/40 (proven-bAcc rule); independent of the sensitivity subsets."
+    },
+    "supporting_result": {
+      "text": "Stronger subject removal is negatively associated with target bAcc in the frozen TOS cells.",
+      "status": "NOT_ROBUST_DO_NOT_HEADLINE",
+      "basis": {
+        "core_subsets_negative": "6/7",
+        "core_subsets_negative_and_ci_excludes_0": "3/7",
+        "all_per_dataset_negative": true,
+        "all_per_backbone_negative": true,
+        "LEACE_RLACE_only": {
+          "rho": 0.5394,
+          "ci_lo": 0.0671,
+          "ci_hi": 0.8617,
+          "n": 16,
+          "sign": "pos",
+          "excludes_zero": true
+        },
+        "within_dataset_backbone_rank_resid": {
+          "rho": -0.7014,
+          "ci_lo": -0.8576,
+          "ci_hi": -0.4966,
+          "n": 40,
+          "sign": "neg",
+          "excludes_zero": true
+        },
+        "sign_flips_on_principled_erasers": true
+      },
+      "caveat": "negative association is NOT robust: it FLIPS to positive (rho=0.5394, excludes 0) on the principled-eraser subset (LEACE/RLACE only) and is ns when INLP and/or random_k are dropped -> it is driven by over-erasure (INLP) and the random-k anchor, NOT a real 'more removal, worse target' law. DO NOT report the negative association as a finding. The robust, headline-eligible result is the PRIMARY claim (benefit_claimable=0/40)."
+    },
+    "boot": {
+      "n_boot": 2000,
+      "seed": 0
+    }
+  }
+}

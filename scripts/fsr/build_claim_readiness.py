@@ -35,6 +35,9 @@ def main():
     rq3 = jload("rq3_alignment_mechanism.json")
     rq4_rows = list(csv.DictReader(open(P2B / "rq4_branch_load_descriptive.csv"))) if (P2B / "rq4_branch_load_descriptive.csv").exists() else []
     index = {r["route"]: r for r in csv.DictReader(open(INDEX))}
+    p2c = REPO / "results" / "fsr_phase2c" / "rq2_sensitivity_by_family.json"
+    rq2c = json.loads(p2c.read_text()) if p2c.exists() else {}
+    neg_assoc_status = rq2c.get("verdict", {}).get("supporting_result", {}).get("status", "not_yet_hardened")
 
     # --- derive evidence signals ---
     a_pool = rq1.get("RQ1A_align_full_n126", {}).get("pooled", {})
@@ -92,12 +95,14 @@ def main():
         "linear subject decode driven to chance by LEACE on both backbones; a nonlinear MLP residual persists "
         "(erasable != fully removed).", "rq2_erasure_vs_target.csv; erasure_report.json")
     # C4
-    c4 = "READY" if (n_benefit == 0 and corr_neg_sig) else ("READY_WITH_CAVEAT" if n_benefit == 0 else "NOT_READY")
+    c4 = "READY" if n_benefit == 0 else "NOT_READY"  # robust basis = 0 proven benefits (NOT the correlation)
     add("C4", "Erasure strength does not certify target benefit.", "L3->L6",
         "TOS_mean_scatter, TOS_LEACE, TOS_INLP, TOS_RLACE, TOS_random_k", c4,
-        f"benefit_claimable=0/{counts.get('cells')} cells; corr(E,target_bAcc)={corr_bacc.get('rho')} "
-        f"[{corr_bacc.get('ci_lo')},{corr_bacc.get('ci_hi')}] (negative, excludes 0 -> more removal, worse target).",
-        "rq2_erasure_vs_target.json")
+        f"ROBUST BASIS = benefit_claimable=0/{counts.get('cells')} cells (proven-bAcc rule). The all-cells "
+        f"corr(E,target_bAcc)={corr_bacc.get('rho')} is NEGATIVE but Step 2C shows it is "
+        f"'{neg_assoc_status}' (flips to positive on LEACE/RLACE-only; driven by INLP over-erasure + random-k "
+        "anchor) -> the negative correlation is NOT a finding; the claim rests on 0 proven benefits.",
+        "rq2_erasure_vs_target.json; fsr_phase2c/rq2_sensitivity_by_family.json")
     # C5
     c5 = "READY_WITH_CAVEAT" if (n_nonspec is not None and n_nonspec >= 1) else "NOT_READY"
     add("C5", "Random-k falsifies nonspecific NLL movement.", "L3 control -> L6",
