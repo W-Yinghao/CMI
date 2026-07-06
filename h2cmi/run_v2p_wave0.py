@@ -23,7 +23,7 @@ from h2cmi.eval.harness import _embed, _predict_generative, _predict_transform
 from h2cmi.eval.p0_eval import _record
 from h2cmi.tta.weighted_tta import fit_weighted_pooled, fit_weighted_em, effective_weights, canonical_weights
 from h2cmi.p0_source import get_source_p0, ProvenanceError
-from h2cmi.run_w2_wave0 import determinism_setup, _gpu_manifest
+from h2cmi.run_w2_wave0 import _gpu_manifest
 from h2cmi.run_v2 import build_cfg, PAIRS_B
 from h2cmi.data.real_eeg import load_dataset, contiguous_split
 from h2cmi.data.real_metadata import MOABB_CLASS
@@ -109,7 +109,9 @@ def main():
         for seed in seeds:
             if (int(subj), int(seed)) in done:
                 print(f"[V2PW0] subj {int(subj)} seed {seed} already recorded -> skip", flush=True); continue
-            determinism_setup(seed)                          # deterministic eval-only reuse (reproducible curves)
+            # NB: no use_deterministic_algorithms here -- W0.2 is aggregate utility curves (seed-averaged +
+            # bootstrapped), like the non-deterministic terminal V2P; forcing it crashed on the frozen
+            # encoder's adaptive_pool BACKWARD (reached only because embeddings weren't detached; now fixed).
             cfg = build_cfg(ep.X.shape[1], args.epochs, args.device, seed=seed)
             tag = f"B:{ds}:s{int(subj)}:sess{s_src}"
             try:
@@ -119,7 +121,7 @@ def main():
             except ProvenanceError as pe:
                 append_row(args.out, dict(panel="V2PW0", pair=f"{ds}:{s_src}>{s_tgt}", subject=int(subj),
                                           seed=int(seed), provenance_fail=str(pe))); print(f"PROV FAIL: {pe}"); continue
-            Ua = _embed(model, Xa, args.device); Ue = _embed(model, Xe, args.device)
+            Ua = _embed(model, Xa, args.device).detach(); Ue = _embed(model, Xe, args.device).detach()  # frozen encoder: no backward into it
             density = model.head.density
             base = dict(panel="V2PW0", commit=commit, code_sig=code_sig, pair=f"{ds}:{s_src}>{s_tgt}",
                         dataset=ds, subject=int(subj), src_sess=s_src, tgt_sess=s_tgt, seed=int(seed),
