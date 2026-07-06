@@ -1,0 +1,5 @@
+FSR bib hygiene check
+========================================
+entries: 13; cited keys: 13; internal-marked: 3
+
+PASS — no issues

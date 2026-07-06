@@ -1,0 +1,23 @@
+\section{Route inclusion ledger}
+\label{app:routes}
+
+The audit spans 37 routes across the repository's measurement/control lines. Under the Phase-1
+quantitative-inclusion gate (Section~\ref{sec:ladder}), a route enters a cross-level test only if it
+carries $\geq 1$ predictor-side level \{L1--L4\} \emph{and} $\geq 1$ endpoint-side level \{L5,L6\}. Six
+routes qualify; the remainder are support/boundary/protocol/background and inform interpretation only.
+No target-label-fit route enters any quantitative test.
+
+\begin{table}[h]
+\centering\small
+\input{tables/table2_route_firewall}
+\caption{Route inclusion. Only routes with a predictor$+$endpoint pairing enter quantitative tests; no
+target-label-fit route does.}
+\label{tab:routes}
+\end{table}
+
+The excluded routes fall into four tags: \textsf{SUPPORT\_ONLY} (a predictor or endpoint level is
+present but not the pairing a specific RQ needs --- e.g.\ FBCSP branch load is L4-only), \textsf{BOUNDARY\_ONLY}
+(a boundary/decision result such as the erasure refusal gate), \textsf{PROTOCOL\_ONLY} (an executed
+protocol without an efficacy endpoint), and \textsf{BACKGROUND\_ONLY} (context lines, e.g.\ the
+prior-decoupled adaptation decomposition). The full per-route ladder mapping, missing-metric policy,
+and target-label tags are released with the artifacts.

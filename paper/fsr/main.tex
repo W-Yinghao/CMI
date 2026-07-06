@@ -19,20 +19,20 @@
 \maketitle
 
 \begin{abstract}
-Subject/domain information is strongly decodable from EEG representations, and the field often reads
-``leakage is decodable'' as ``the model relies on a harmful shortcut.'' We argue this inference is
-unlicensed and provide an audit that separates \emph{measurable} domain information from
-\emph{functionally relied-upon} domain information. We define a six-level functional-shortcut-reliance
-(FSR) ladder --- detectability, reducibility, erasability, task coupling, functional reliance, target
-consequence --- and require any shortcut claim to be a relationship between levels rather than a leap
-from a low level to a high one. Re-analysing frozen artifacts across graph-CMI, concept-erasure, and
-branch-fusion pipelines (no new training), we find: (i) measured leakage magnitude does not certify
-reliance --- in a frozen graph-CMI diagnostic, task-head alignment is positively associated with
-functional reliance while recomputable leakage carries the wrong sign; (ii) subject signal is
-erasable, but erasure strength does not certify a target benefit (0/40 cells achieve a proven gain);
-and (iii) branch load matters --- the spatial branch of a fusion backbone is load-bearing --- but
-branch-local leakage/reliance is not measured, so branch-local shortcut claims require an instrument
-that does not yet exist. FSR is an \emph{audit framework}, not a new domain-generalization method.
+Subject and domain information is strongly decodable from EEG representations, and it is often assumed
+that decodable leakage means the model relies on a harmful shortcut. We argue this inference is
+unlicensed: probing shows what is \emph{encoded}, not what is \emph{used}. We define a six-level
+functional-shortcut-reliance (FSR) ladder --- detectability, reducibility, erasability, task coupling,
+functional reliance, and target consequence --- and require any shortcut claim to relate levels rather
+than leap from a low one to a high one. We instantiate the ladder by re-analysing frozen artifacts
+across graph-CMI, concept-erasure, and branch-fusion pipelines, training nothing. First, measured
+leakage magnitude does not certify functional reliance: task-head alignment is positively associated
+with reliance while recomputable leakage carries the wrong sign. Second, subject signal is erasable,
+yet no eraser achieves a proven target benefit across 40 held-out-target cells, and aggressive erasure
+can harm the target. Third, a fusion backbone's spatial branch is load-bearing, but branch-local
+leakage and reliance are unmeasured and cannot be measured without a new run. FSR is an
+\emph{audit framework}, not a domain-generalization method: it makes explicit what measurement is
+required to support what control conclusion.
 \end{abstract}
 
 \input{sections/01_intro}
@@ -44,6 +44,10 @@ that does not yet exist. FSR is an \emph{audit framework}, not a new domain-gene
 \input{sections/07_related_work}
 \input{sections/08_limitations}
 \input{sections/09_conclusion}
+
+\appendix
+\input{appendix/provenance_appendix}
+\input{appendix/route_ledger_appendix}
 
 \bibliographystyle{plainnat}
 \bibliography{refs}

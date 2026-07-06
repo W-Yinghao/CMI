@@ -1,30 +1,42 @@
 \section{Related work}
 \label{sec:related}
 
-\paragraph{Probing measures encoding, not use.} Probe accuracy establishes that an attribute is
-decodable, not that a model relies on it; amnesic/counterfactual probing makes the distinction
-operational by intervening on the representation and observing behavior~\citep{elazar2021amnesic}. Our
-L1$\leftrightarrow$L5 separation is the EEG instance of this, with head-replay $R3$ as the
-representation-level intervention.
+\paragraph{Probing measures encoding, not use.} A probe establishes that an attribute is
+\emph{decodable} from a representation, not that a model \emph{uses} it; amnesic and counterfactual
+probing make the distinction operational by intervening on the representation and observing behavior,
+and show that decodability and causal use can dissociate~\citep{elazar2021amnesic}. Our
+L1$\leftrightarrow$L5 separation is the EEG realization of this: a subject probe measures detectability,
+while head-replay $R3$ measures whether removing the subspace actually changes the task head's output.
 
-\paragraph{Concept erasure removes a signal without conferring benefit.} LEACE erases a linearly-
-decodable concept in closed form with minimal collateral damage~\citep{belrose2023leace}; INLP removes
-it by iterative nullspace projection~\citep{ravfogel2020inlp}; RLACE by a relaxed adversarial
-game~\citep{ravfogel2022rlace}; scatter/moment-based methods target invariant subspaces via generalized
-eigenproblems~\citep{ghifary2015scatter}. These are our L3 operators. We deploy them source-to-target
-and show removability (L3) does not entail a target benefit (L6).
+\paragraph{Concept erasure: removed is not beneficial.} A family of methods removes a linearly-decodable
+concept from a representation: LEACE erases it in closed form with provably minimal collateral
+damage~\citep{belrose2023leace}; INLP removes it by iterative nullspace projection~\citep{ravfogel2020inlp};
+RLACE by a relaxed adversarial minimax~\citep{ravfogel2022rlace}; and scatter/moment methods target
+invariant subspaces through a generalized eigenproblem~\citep{ghifary2017sca}. These are precisely our
+L3 operators. Prior work establishes \emph{removability}; we deploy the same operators source-to-target
+and test the downstream consequence, finding that erasure strength does not certify a target benefit.
 
-\paragraph{Domain generalization needs selection rigor.} With careful model selection and strong ERM
-baselines, many invariance methods fail to beat ERM~\citep{gulrajani2021domainbed}. This is the direct
-warning against reading a moving invariance proxy as a generalization gain; our closed
-conditional-invariance/CMI-control premise is the EEG instance, and we deliberately propose no DG
-method.
+\paragraph{Domain generalization needs selection rigor.} Under careful model selection with a strong
+ERM baseline, many invariance-based methods fail to beat ERM, and apparent gains often reflect
+selection rather than a robust effect~\citep{gulrajani2021domainbed}. This is the direct warning against
+reading a moving invariance proxy as a generalization gain, and it motivates our refusal to propose a
+new method: we audit whether the measured proxies even predict the reliance/consequence they are assumed
+to control.
 
-\paragraph{EEG subject identity is strong and entangled.} Audits of EEG foundation models show subject
-identity is highly decodable and can confound label/cohort structure~\citep{identitytrap2026}, which is
-precisely why equating ``decodable subject'' with ``harmful shortcut'' is tempting and wrong.
+\paragraph{EEG subject identity is strong and entangled.} Audits of EEG foundation models report that
+subject identity is highly decodable and can confound label/cohort structure, an ``identity
+trap''~\citep{lin2026identitytrap}. Because the signal is strong, equating ``decodable subject'' with
+``harmful shortcut'' is tempting; our audit is designed to separate the two.
 
-\paragraph{Decompose a joint effect into pathways.} A single unlabeled adaptation number conflates
-geometry and prevalence/decision-prior pathways and admits an exact decomposition; FSR applies the same
-measurement-then-decompose discipline to leakage, erasure, task-coupling, reliance, and consequence,
-rather than collapsing them into one ``shortcut'' scalar~\citep{tos_cmi_internal,cigl_internal}.
+\paragraph{EEG decoders and branch structure.} The backbones we analyse are standard: filter-bank
+common spatial patterns for oscillatory motor-imagery features~\citep{ang2012fbcsp}, the compact
+convolutional EEGNet~\citep{lawhern2018eegnet}, and the SPD/tangent-space TSMNet with domain-specific
+normalization~\citep{kobler2022tsmnet}. Branch-locality (a gated fusion over graph/temporal/spatial
+branches) lets us ask whether leakage means something different in a load-bearing branch --- a question
+we can pose but, for want of an instrument, not yet answer quantitatively.
+
+\paragraph{Decompose a joint effect into pathways.} A single unlabeled adaptation number conflates a
+geometry pathway and a prevalence/decision-prior pathway and admits an exact
+decomposition~\citep{prior_decoupled_tta_internal}. FSR applies the same measurement-then-decompose
+discipline to a different object --- leakage, erasure, task-coupling, functional reliance, and target
+consequence --- rather than collapsing them into a single ``shortcut'' scalar.

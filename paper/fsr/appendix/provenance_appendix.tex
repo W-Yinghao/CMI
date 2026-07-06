@@ -1,0 +1,51 @@
+\section{Provenance and reproducibility}
+\label{app:provenance}
+
+All results re-analyse frozen artifacts from three internal repository lines; no model is trained,
+tuned, or selected on the analysed data. The CIGL graph-CMI line and the TOS erasure line are the
+internal evidence sources~\citep{cigl_internal,tos_cmi_internal}; the FBCSP-LGG branch line supplies the
+branch-load descriptives.
+
+\paragraph{Artifact sources.}
+\begin{center}\small
+\begin{tabular}{lll}
+\toprule
+RQ & Pipeline & Frozen source (branch @ short-SHA) \\
+\midrule
+RQ1/RQ3 & CIGL graph-CMI (2a, 2015; LOSO; seeds 0,1,2) & cigl-r123-scaffold @ d3593c8 \\
+RQ2 & TOS frozen-feature erasure (2a, Lee, Cho, HGD) & tos @ 1c65d79 \\
+RQ4 & FBCSP-LGG branch ablation + gate & fbcsp-lgg-spatial-cmi-fusion @ 39c245a \\
+\bottomrule
+\end{tabular}
+\end{center}
+
+\paragraph{Claim-strength tiers.} Every quantitative statement carries one tier:
+\textsf{RECOMPUTED} (recomputed from committed per-unit data), \textsf{RECOMPUTED\_SIGN\_ONLY} (only a
+recomputable slice confirms the sign; e.g.\ per-fold graph leakage survives at seed0 only),
+\textsf{FROZEN\_NOT\_RECOMPUTABLE} (carried from a frozen output whose per-unit inputs were pruned ---
+support only, never a reproduction). A fail-closed schema validator and a reproduction script (which
+halts if the headline drifts beyond tolerance) enforce these.
+
+\paragraph{Target-label firewall.} Target labels score the L6 endpoint only; they never enter
+probe/eraser fitting, subspace fitting, model selection, hyper-parameter selection, or early stopping.
+\begin{center}\small
+\begin{tabular}{lll}
+\toprule
+Route family & fit uses target $y$? & eval uses target $y$? \\
+\midrule
+CIGL (RQ1/RQ3) & NO (source-only) & YES (scoring) \\
+TOS erasers (RQ2) & NO (source-only) & YES (deploy scoring) \\
+\bottomrule
+\end{tabular}
+\end{center}
+Every route in the audit carries a fit-tag in \{NO, YES\_FORBIDDEN, AUDIT\_ONLY, UNKNOWN\}; only
+NO-tagged routes enter quantitative tests, and the single YES\_FORBIDDEN route (a retracted, disclosed
+target-label leak in a legacy line) is excluded from all tests (Appendix~\ref{app:routes}).
+
+\paragraph{RQ4 checkpoint search (provenance of the blocked status).} Answering RQ4 quantitatively
+requires per-branch leakage (L1) and per-branch reliance (L5), neither of which is on disk; more
+fundamentally, \emph{no trained checkpoint exists}. A read-only search of the compute store
+(\texttt{/projects/\dots/yinghao}, maxdepth 6), the user home, and the git branches returned zero
+matching FBCSP-LGG checkpoints, consistent with a training pipeline that persists only scalar summaries
+and holds the best-epoch state in memory without serializing it. RQ4 is therefore reported as blocked;
+producing the metric would require retraining, which we do not do.
