@@ -1,0 +1,4 @@
+regime,base_rate,robust_core_passes,endpoint_augmented_passes
+S0_full_support,0.47318611987381703,True,True
+S2_rare_cells,0.47318611987381703,True,False
+S3_nonestimable_cells,0.47318611987381703,True,True

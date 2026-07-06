@@ -1,0 +1,8 @@
+check,pass
+preregistration_config_hash,664007686afb520f
+feature_registry_frozen,True
+static_columns_excluded_from_primary,True
+fragile_endpoints_excluded_from_primary,True
+targets_joined_post_hoc,True
+finite_filter,True
+no_selector_artifact,True
