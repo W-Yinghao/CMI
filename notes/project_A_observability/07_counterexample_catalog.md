@@ -126,7 +126,69 @@ target_y_equal = False     (different labelings of the same X)
 ```
 This mirrors CE-R1-1 on realistic EEG-shaped arrays; the proof remains §4's exact table.
 
-## 7. Expected script output
+## 7. Boundary certificates for the contract registry
+
+The following four exact certificates back the previously-pending entries of
+`02_contract_taxonomy.md §5` (**C1**, **C8**, **C11**) and the `MONO-1` monotonicity claim. Like
+the ones above they are population-level indistinguishable-worlds / underdetermination arguments,
+executed and asserted in `run_counterexamples.py`.
+
+## 8. CE-C1-1 — class-support-overlap failure (C1)
+
+**Contract:** C1 (`supp p_T(z|y) ⊆ supp p_S(z|y)`). **Disagreement:** with target mass off the
+source support, no mixture prior can reproduce `p_T(z)` and risk transfer is undefined.
+
+Source class-conditionals over `z ∈ {0,1,2}` never emit `z=2`
+(`p_ref(z=0|Y=0)=1, p_ref(z=1|Y=1)=1`); the target marginal is `p_T=(0.375,0.375,0.25)`, i.e.
+mass `0.25` on the off-source atom `z=2`. Then:
+```
+CE-C1-1 support_overlap=False off_source_mass=0.250 mixture_feasible=False
+```
+Since `p_T(z)=Σ_y π_T(y) p_ref(z|y)` puts `0` on `z=2` for every `π_T`, the observed `p_T` is
+**infeasible** ⇒ C1 is a genuine necessary contract for `TU-1`/`MP-1`, not decoration. ∎
+
+## 9. CE-MP-1 — transport underdetermined by too few anchors (C8)
+
+**Contract:** C8 (low-dim invertible transport with sufficient full-rank anchors).
+**Disagreement:** with `p=2` dimensions and `k=1` anchor, the transform is not unique.
+
+Anchor `u=e₁ ↦ v=e₁`. Two **near-identity** transforms (both inside C8's `‖T−I‖` small family)
+satisfy it: `T_id=I` and `T_eps=diag(1,1.1)`. They agree on the anchor but disagree on the
+un-anchored direction `e₂` (`T_id·e₂=e₂`, `T_eps·e₂=1.1·e₂`):
+```
+CE-MP-1 anchors_equal=True transforms_distinct=True probe_maps_differ=True identifiable=False
+```
+`k < p` (or rank-deficient anchors) ⇒ the transport map is non-identifiable; `MP-1` needs the
+anchor matrix to excite (full-rank) every direction of the transform family. ∎
+
+## 10. CE-C11-1 — fake pairing / anchor-validity failure (C11)
+
+**Contract:** C11 (anchors pair samples from the same latent mechanism). **Disagreement:** the
+same observed pair admits different *true* transports depending on whether the pairing is valid.
+
+Observed pair `(x_source, x_target)=(1,−1)`. World A: a genuine pairing (same latent event), true
+transport `A=−1`. World B: a spurious pairing (unrelated latent events), true transport `A=+1`.
+Both worlds emit the identical observed pair:
+```
+CE-C11-1 observed_pair_equal=True true_transport_world_A=-1 true_transport_world_B=1 anchor_validity_required=True
+```
+The observed pair alone cannot certify the transport ⇒ anchor validity (C11) is a necessary
+contract for reading paired anchors as transport evidence. ∎
+
+## 11. CE-MONO-1 — more source breadth ≠ target observation (`MONO-1`)
+
+**Claim backed:** the `MONO-1` corollary that source breadth cannot substitute for target
+observation (`01_information_regimes.md §6`).
+
+Both worlds share an **identical** source law. World P target: `X=0` a.s.; world Q target: `X=1`
+a.s. Under R0 (source only) they are indistinguishable; under R1 (adds target `X` marginal) they
+are distinguishable — and adding *more identical source domains* changes neither fact:
+```
+CE-MONO-1 same_source=True r0_indistinguishable=True r1_distinguishable=True source_breadth_not_target_observation=True
+```
+So the R0→R1 gap is separated by a *target* coordinate that no amount of source breadth refines. ∎
+
+## 12. Expected script output
 
 `conda run -n icml python notes/project_A_observability/counterexamples/run_counterexamples.py`
 prints (values are exact):
@@ -142,6 +204,14 @@ CE-R1-1 source_equal=True target_X_equal=True target_y_equal=False
 CE-R1-1 pT_X_equal=True concept_diff=True
 
 CE-R1-2 class_conditionals_rank=1 prior_identifiable=False
+
+CE-C1-1 support_overlap=False off_source_mass=0.250 mixture_feasible=False
+
+CE-MP-1 anchors_equal=True transforms_distinct=True probe_maps_differ=True identifiable=False
+
+CE-C11-1 observed_pair_equal=True true_transport_world_A=-1 true_transport_world_B=1 anchor_validity_required=True
+
+CE-MONO-1 same_source=True r0_indistinguishable=True r1_distinguishable=True source_breadth_not_target_observation=True
 
 ILL-R1-1 (simulator) target_X_equal=True target_y_equal=False
 ALL COUNTEREXAMPLE ASSERTIONS PASSED

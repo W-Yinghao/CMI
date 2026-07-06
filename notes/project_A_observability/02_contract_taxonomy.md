@@ -41,17 +41,17 @@ contract can be checkable and false, or true and uncheckable.
 
 | ID | Name | Statement (informal) | Supports | R0 check | R1 check | R2 check | Failure certificate |
 |---|---|---|---|---|---|---|---|
-| **C1** | class support overlap | `supp p_T(z\|y) ⊆ supp p_S(z\|y)` ∀y | TU-1, MP-1, risk transfer | ✗ | partial (target Z mass vs source support) | ✓ on paired slice | target mass off source manifold |
+| **C1** | class support overlap | `supp p_T(z\|y) ⊆ supp p_S(z\|y)` ∀y | TU-1, MP-1, risk transfer | ✗ | partial (target Z mass vs source support) | ✓ on paired slice | **CE-C1-1** (target mass off source support) |
 | **C2** | shared class-conditional geometry | `p_T(z\|y)=p_S(z\|y)=p_ref(z\|y)` ∀y | TU-1, PD-1 residual reading | ✗ | ✗ (≡ prior/concept change) | ✓ with anchors | **CE-R1-1** |
 | **C3** | mixture / full-rank identifiability | `B_{z,y}=p_ref(z\|y)` has full **column** rank (=\|Y\|); confusion `C` invertible | **TU-1** | ✓ (source `B`/`C` rank observable) | ✓ | ✓ | **CE-R1-2** |
 | **C4** | stable label mechanism / no target concept shift | `p_T(Y\|Y*,D)=p_S(Y\|Y*,D)` and `p_T(Y*\|X)=p_S(Y*\|X)` | target-risk transfer, concept reading | ✗ | ✗ | partial (few target labels test it) | **CE-R1-1** |
 | **C5** | critic / estimator sufficiency | `q_ψ → p_θ(D\|Z,Y)` (Step-A converged) — **estimator layer, not observability** | measured leakage = population leakage | diagnosable only (bounded) | diagnosable only | diagnosable only | **P0-2** (`q_ψ=π_y ⇒ R=0` while CMI>0) |
 | **C6** | representation sufficiency / predictive span | `I(Y;X)=I(Y;Z)` (Z sufficient for Y); **precond.** each domain spans ≥2 classes | interpreting `I(Y;D\|Z)` as concept, not Z-loss | partial (source `I(Y;Z)` vs strong ref; span checkable ✓) | partial | partial | **P0-4** (Z-insufficiency inflates `I(Y;D\|Z)`) |
 | **C7** | reference-prior / GLS reweighting availability | per-domain `π_d(y)=p(y\|D=d)` known; `w_d(y)=π*(y)/π_d(y)` ⇒ `Ĩ(Y;D)=0` | **PD-1** | **source-side ✓; target-side ✗** | target prior only via **TU-1** (C1∧C2∧C3) | ✓ with anchors | **CE-R1-2** |
-| **C8** | low-dimensional invertible transport | transform in low-dim invertible family (near-identity affine, `‖A−I‖` small), full-rank, overlap | **MP-1** | ✗ | weak (marginal shift visible, transform not) | ✓ with paired anchors | underdetermined high-dim map |
+| **C8** | low-dimensional invertible transport | transform in low-dim invertible family (near-identity affine, `‖A−I‖` small), full-rank, overlap | **MP-1** | ✗ | weak (marginal shift visible, transform not) | ✓ with paired anchors | **CE-MP-1** (transform not unique; too few anchors) |
 | **C9** | source-to-target safety transfer | inner-LOSO source gain dist. `Δ` transfers to unseen targets | safety gate | source proxy only | weak | calibratable with target labels | **CE-R0-2 / TOS-1** (gain-sign flip) |
 | **C10** | zero-Bayes / `D⊥Y\|Z` escape | `H(Y\|Z)=0` **sufficient not necessary**; correct: `I(Z;D\|Y)=0 ⇒` both CMIs 0 **iff** `I(Z;D)=I(Y;D)` ⇔ `D⊥Y\|Z` | legacy escape only | source diagnostic (`I(Z;D)` vs `I(Y;D)`, `D⊥Y\|Z` test) | source diagnostic persists; target-side ✗ | anchored | **P0-3** counterexample |
-| **C11** | anchor validity | anchors pair samples from the **same** latent event / subject / device mechanism (no fake pairing, no label leakage) | **MP-1** | ✗ | ✗ | partial (anchor consistency checks) | fake / spurious pairing |
+| **C11** | anchor validity | anchors pair samples from the **same** latent event / subject / device mechanism (no fake pairing, no label leakage) | **MP-1** | ✗ | ✗ | partial (anchor consistency checks) | **CE-C11-1** (same observed pair, different true transport) |
 | **C12** | domain-factor separability | each `D_j` validly assigned acquisition (invariance-eligible) vs label-mechanism role; `determines_label` correct | OACI / CSC, legitimacy of invariance | metadata + test `D_j⇒Y` | source `D_j⇒Y` test (as R0) + target metadata | better with anchors | **P0-4** (subject=label `Y=g(D)`) |
 
 ## 3. Contracts that need the most care
@@ -115,9 +115,9 @@ Every contract fires a specific, executable-or-cited certificate when it breaks:
 | C5 (estimator overclaim) | **P0-2** (posterior-KL is not an upper bound) | `h2cmi/THEORY.md` |
 | C6 (Z-insufficiency) | **P0-4** (`I(Y;D\|Z)` is a predictive-insufficiency diagnostic) | `h2cmi/THEORY.md` |
 | C12 (subject=label / `determines_label` degeneracy) | **P0-4** (clinical degeneracy `D=subject⇒Y=g(D) ⇒ I(Y;D\|Z)=H(Y\|Z)`) | `h2cmi/THEORY.md` |
-| C1 (support overlap) | pending (MP/transport step) | — |
-| C11 (fake pairing) | pending (MP/transport step) | — |
-| C8 (high-dim transport) | pending (MP/transport step) | — |
+| C1 (support overlap) | **CE-C1-1** (target mass off source support ⇒ mixture infeasible) | `07_…` §8, `run_counterexamples.py` |
+| C8 (high-dim transport) | **CE-MP-1** (transform not unique under too few anchors) | `07_…` §9, `run_counterexamples.py` |
+| C11 (fake pairing) | **CE-C11-1** (same observed pair, different true transport) | `07_…` §10, `run_counterexamples.py` |
 
 ## 6. Contract-vs-estimator, and the declaration template
 

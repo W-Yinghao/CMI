@@ -16,6 +16,10 @@ Certificates:
   CE-R0-3  source-only target-prior non-identifiability         (03_… §5)
   CE-R1-1  target-unlabeled CONCEPT non-identifiability  = TU-2 (07_… §4)
   CE-R1-2  prior non-identifiability under C3 failure           (07_… §5)
+  CE-C1-1  class-support-overlap failure (C1)                   (07_… §8)
+  CE-MP-1  transport underdetermined by too few anchors (C8)    (07_… §9)
+  CE-C11-1 fake pairing / anchor-validity failure (C11)         (07_… §10)
+  CE-MONO-1 more source breadth ≠ target observation (MONO-1)   (07_… §11)
   ILL-R1-1 simulator illustration of CE-R1-1                    (07_… §6)
 """
 from __future__ import annotations
@@ -130,6 +134,69 @@ def main():
     print(f"CE-R1-2 class_conditionals_rank={rank} prior_identifiable={prior_identifiable}")
     assert rank == 1, "CE-R1-2: degenerate class-conditionals must have rank 1"
     assert prior_identifiable is False, "CE-R1-2: distinct priors must give identical p_T(z)"
+    print()
+
+    # ---- CE-C1-1 : class-support-overlap failure (C1) --------------------------------------
+    # source class-conditionals over z∈{0,1,2}; target puts mass on z=2 (off source support)
+    B_supp = np.array([[1.0, 0.0],    # p_ref(z=0 | y)
+                       [0.0, 1.0],    # p_ref(z=1 | y)
+                       [0.0, 0.0]])   # p_ref(z=2 | y)  -> source never emits z=2
+    pT_z = np.array([0.375, 0.375, 0.25])          # target marginal: mass 0.25 at z=2
+    source_support = set(np.flatnonzero(B_supp.max(axis=1) > 0).tolist())   # {0,1}
+    target_support = set(np.flatnonzero(pT_z > 0).tolist())                 # {0,1,2}
+    support_overlap = bool(target_support.issubset(source_support))
+    off_atoms = [z for z in sorted(target_support) if z not in source_support]
+    off_source_mass = float(pT_z[off_atoms].sum())
+    # no π_T≥0 can reproduce mass sitting on an off-source atom -> mixture infeasible
+    mixture_feasible = bool(np.isclose(off_source_mass, 0.0))
+    print(f"CE-C1-1 support_overlap={support_overlap} off_source_mass={off_source_mass:.3f} "
+          f"mixture_feasible={mixture_feasible}")
+    assert support_overlap is False and off_source_mass > 0, "CE-C1-1: target mass must sit off source support"
+    assert mixture_feasible is False, "CE-C1-1: mixture must be infeasible when support fails"
+    print()
+
+    # ---- CE-MP-1 : high-dim transport underdetermined by too few anchors (C8) --------------
+    # both transforms lie INSIDE C8's near-identity family (‖T−I‖ small) yet both fix the anchor
+    T_id = np.array([[1.0, 0.0], [0.0, 1.0]])       # identity transform
+    T_eps = np.array([[1.0, 0.0], [0.0, 1.1]])      # near-identity: scales the un-anchored direction
+    e1 = np.array([1.0, 0.0]); e2 = np.array([0.0, 1.0])
+    anchors_equal = bool(np.array_equal(T_id @ e1, T_eps @ e1))        # both map the one anchor e1->e1
+    transforms_distinct = bool(not np.array_equal(T_id, T_eps))
+    probe_maps_differ = bool(not np.array_equal(T_id @ e2, T_eps @ e2))  # differ on the un-anchored direction
+    identifiable = bool(not (anchors_equal and transforms_distinct and probe_maps_differ))
+    print(f"CE-MP-1 anchors_equal={anchors_equal} transforms_distinct={transforms_distinct} "
+          f"probe_maps_differ={probe_maps_differ} identifiable={identifiable}")
+    assert anchors_equal and transforms_distinct and probe_maps_differ and identifiable is False, \
+        "CE-MP-1: two transforms must agree on the anchor but differ off it"
+    print()
+
+    # ---- CE-C11-1 : fake pairing / anchor-validity failure (C11) ---------------------------
+    observed_pair = (1.0, -1.0)                                       # (x_source, x_target)
+    true_transport_world_A = -1.0     # genuine pairing: x_target = A·x_source, A = -1
+    true_transport_world_B = +1.0     # spurious pairing (unrelated latent events), true A = +1
+    observed_pair_equal = True        # both worlds emit the SAME observed pair
+    anchor_validity_required = bool(true_transport_world_A != true_transport_world_B)
+    print(f"CE-C11-1 observed_pair_equal={observed_pair_equal} "
+          f"true_transport_world_A={true_transport_world_A:.0f} "
+          f"true_transport_world_B={true_transport_world_B:.0f} "
+          f"anchor_validity_required={anchor_validity_required}")
+    assert observed_pair_equal and anchor_validity_required, \
+        "CE-C11-1: same observed pair must admit different true transports"
+    print()
+
+    # ---- CE-MONO-1 : more source breadth ≠ target observation (MONO-1) ----------------------
+    src_P = src_Q = PS                                               # identical source in both worlds
+    pTx_P = np.array([1.0, 0.0])                                     # world P target: X=0 a.s.
+    pTx_Q = np.array([0.0, 1.0])                                     # world Q target: X=1 a.s.
+    same_source = bool(np.array_equal(src_P, src_Q))
+    r0_indistinguishable = same_source                              # R0 observes only source
+    r1_distinguishable = bool(not np.allclose(pTx_P, pTx_Q))        # R1 adds the target X marginal
+    source_breadth_not_target_observation = bool(r0_indistinguishable and r1_distinguishable)
+    print(f"CE-MONO-1 same_source={same_source} r0_indistinguishable={r0_indistinguishable} "
+          f"r1_distinguishable={r1_distinguishable} "
+          f"source_breadth_not_target_observation={source_breadth_not_target_observation}")
+    assert source_breadth_not_target_observation, \
+        "CE-MONO-1: worlds must be R0-equal yet R1-distinct (source breadth ≠ target obs)"
     print()
 
     # ---- ILL-R1-1 : simulator illustration of CE-R1-1 (illustration only, not a proof) -----

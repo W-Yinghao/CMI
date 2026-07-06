@@ -399,8 +399,9 @@ found supporting or contradicting evidence.
   session transform is identifiable to statistical error; otherwise only a bound. *Proof
   strategy:* moment-matching / procrustes identifiability on the paired anchors; degrade to a
   bound when C8 relaxes. *File:* `04_prior_decoupled_theory.md` or a new `08`-transport note.
-  **Counterexample needed (deferred to the MP/transport step):** high-dim transform
-  under-determined by `k` pairs.
+  **Counterexample attached:** CE-MP-1 (`07_counterexample_catalog.md` §9;
+  `run_counterexamples.py` — `k=1` anchor in `p=2` dims, two admissible near-identity transforms
+  agree on the anchor and differ off it).
 
 - **`PD-1` — prior-decoupled additive relation.** Under the reference prior `π*` and GLS
   reweighting (**C7**), `Ĩ(Y;D)=0` and the `ID-1` identity becomes the all-positive additive
@@ -415,8 +416,10 @@ found supporting or contradicting evidence.
   the added information *type* is not interchangeable (source breadth ≠ target-unlabeled ≠
   paired). *Proof strategy:* monotonicity of the "consistent worlds" preimage under refinement
   of `Observed_R`; a separating example that more source subjects leave the target world
-  ambiguous. *File:* `01_information_regimes.md`. **Counterexample needed (deferred):** two
-  target worlds separated only by target `X_T`, provably unshrinkable by adding source subjects.
+  ambiguous. *File:* `01_information_regimes.md`. **Counterexample attached:** CE-MONO-1
+  (`07_counterexample_catalog.md` §11; `run_counterexamples.py` — identical source,
+  R0-indistinguishable, R1-distinct via the target `X` marginal; source breadth cannot refine
+  the separating target coordinate).
 
 ---
 
@@ -510,6 +513,9 @@ Priority order, respecting the `OA-0`→`TOS-1` and `TOS-1`→counterexample dep
    pair. `TOS-1` and `TU-2` are only *certificates* once these worlds exist, so this file is
    the empirical spine of the ledger.
 
-(Deferred to later steps: `02_contract_taxonomy.md`, `04_prior_decoupled_theory.md` — mostly
-an import of the proved `PD-1` (★), `05_csc_shift_calculus.md`, `06_oaci_identifiability.md`
-if `OA-0` outgrows `01`, `08_experimental_protocol.md`.)
+> **Status (as of Step 4):** this §9 is the original Step-1 roadmap, retained for provenance.
+> All of `01`–`08` are now written — `01_information_regimes.md`, `02_contract_taxonomy.md`,
+> `03_tos_source_only_ceiling.md`, `04_prior_decoupled_theory.md` (`PD-1`),
+> `05_csc_shift_calculus.md`, `06_oaci_identifiability.md`, `07_counterexample_catalog.md`,
+> `08_experimental_protocol.md` — plus `counterexamples/run_counterexamples.py`. Remaining work
+> is real-EEG Tier-2 audits under `08`'s protocol (no doc is now "deferred").
