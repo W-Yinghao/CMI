@@ -178,7 +178,15 @@ def main():
                                        target_entropy_after=ad.get("target_entropy_after"),
                                        target_label_balance_before=ad.get("target_label_balance_before"),
                                        target_label_balance_after=ad.get("target_label_balance_after"),
-                                       final_cond_domain=ad.get("final_cond_domain")))
+                                       final_source_ce=ad.get("final_source_ce"),
+                                       final_target_entropy=ad.get("final_target_entropy"),
+                                       final_label_balance_kl=ad.get("final_label_balance_kl"),
+                                       final_cond_domain=ad.get("final_cond_domain"),
+                                       lambda_times_cond_domain=ad.get("lambda_times_cond_domain"),
+                                       final_total_loss=ad.get("final_total_loss"),
+                                       cond_domain_fraction_of_total_loss=ad.get("cond_domain_fraction_of_total_loss"),
+                                       cond_domain_gradient_norm=ad.get("cond_domain_gradient_norm"),
+                                       lambda_cita_used=ad.get("lambda_cita_used")))
                 _atomic_dump(rec, jps[m]); rows.append(row)
                 print(f"    {m:14s} src={row['source_bacc']:.3f} tgt={row['target_bacc']:.3f} "
                       f"featKL={row['graph_kl_proxy']:.3f} replay_ok={rec['head_replay_ok']}", flush=True)

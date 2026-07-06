@@ -130,14 +130,25 @@ def adapt(model, Xs, ys, Xt, method, *, steps=50, bs=64, lr=1e-3, tau=1.0, mu=1.
             loss = loss + lam_cita * cond
         if step == 0:                                                      # BEFORE adaptation (initial M0 forward)
             ce_0, ent_0, bal_0 = float(ce), float(ent), float(bal)
-        opt.zero_grad(); loss.backward(); opt.step()
-        if step == int(steps) - 1:                                         # AFTER adaptation (final step)
-            ce_l, ent_l, bal_l = float(ce), float(ent), float(bal)
+        if step == int(steps) - 1:                                         # AFTER adaptation — loss-scale diagnostics
+            ce_l, ent_l, bal_l = float(ce), float(ent), float(bal)         # (computed BEFORE the step frees graph)
             cond_l = float(cond) if cond is not None else None
+            total_l = float(loss)
+            lam_cond_l = float(lam_cita * cond) if cond is not None else 0.0
+            frac_l = (lam_cond_l / total_l) if (cond is not None and abs(total_l) > 1e-12) else 0.0
+            cond_gn = None
+            if method == "cita_cmi" and cond is not None:                  # grad-norm of the CMI term on the encoder
+                gs = torch.autograd.grad(lam_cita * cond, [p for p in model.parameters() if p.requires_grad],
+                                         retain_graph=True, allow_unused=True)
+                cond_gn = float(torch.sqrt(sum((g.detach() ** 2).sum() for g in gs if g is not None)))
+        opt.zero_grad(); loss.backward(); opt.step()
     diag.update(source_replay_ce_before=ce_0, source_replay_ce_after=ce_l,
                 target_entropy_before=ent_0, target_entropy_after=ent_l,
                 target_label_balance_before=bal_0, target_label_balance_after=bal_l,
-                final_cond_domain=cond_l, steps=int(steps),
+                final_source_ce=ce_l, final_target_entropy=ent_l, final_label_balance_kl=bal_l,
+                final_cond_domain=cond_l, lambda_times_cond_domain=lam_cond_l,
+                final_total_loss=total_l, cond_domain_fraction_of_total_loss=frac_l,
+                cond_domain_gradient_norm=cond_gn, lambda_cita_used=float(lam_cita), steps=int(steps),
                 # legacy aliases kept for any earlier reader
                 final_ce=ce_l, final_entropy=ent_l, final_balance=bal_l)
     model.eval()                                                  # return inference-ready (deterministic; dropout off)
