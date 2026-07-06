@@ -144,9 +144,22 @@ source_rich_environment_constructive_support:   # Fork 2 (branch science-source-
     results/source_rich/smoke/source_rich_{smoke,confirm_cho,tsmnet_lee,tsmnet_cho}_{summary.json,report.md}
 
 # ---------- NOT YET ATTEMPTED (future tracks; must not be claimed) ----------
-target_informed_acceptance:     # Fork 1 (branch science-target-info-v1; DESIGN-LOCKED, no experiments yet)
-  status: design_locked
-  plan: "how much target information crosses the source-only ceiling? budgets B0 source-only / B1 unlabeled target (triage only) / B2 k labels-per-class {1,2,4,8,16} / B3 active calibration / B4 oracle selector DIAGNOSTIC; clean target calibration/audit split (labels never both decide and evaluate); NOT strict source-only DG"
+target_information_frontier:    # Fork 1 (branch science-target-info-v1; DESIGN-LOCK FROZEN @ ceb00f8, PM-approved)
+  status: design_locked_frozen
+  approved_content_hash: 3ad4ef312e325fa6   # hash of the config BEFORE freeze-metadata insertion
+  scope:
+    tier1: semi_synthetic target-information budget
+    tier2: real EEG false-accept control
+  not_yet:
+    - driver
+    - experiments
+    - manuscript claim
+  approved_budget_ladder:
+    - B0 source-only
+    - B1 unlabeled target triage-only
+    - B2 k labels/class
+    - B3 sequential calibration
+    - B4 oracle diagnostic
   design: notes/TARGET_INFORMATION_FRONTIER_DESIGN.md ; config: eeg/configs/target_info_frontier_fixed.yaml
 architecture_x_dimension_factorial:               # Track C (DONE, 3-seed; SLURM 877939)
   status: supported_refined  # 3-seed verdict = LARGELY capacity-mediated + RESIDUAL architecture effect at high d_z

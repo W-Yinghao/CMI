@@ -1,5 +1,15 @@
 # Fork 1 — Target-information frontier (DESIGN-LOCK; NO experiments)
 
+**Status: DESIGN LOCK FROZEN.**
+
+Approved content hash: `3ad4ef312e325fa6`.
+No driver, no experiment, and no target-label run is permitted until a separate PM go.
+
+Locked discipline (kept explicit):
+- B3 = sequential calibration; true active acquisition deferred.
+- B1 unlabeled target is triage-only; accept is forbidden.
+- Tier 2 real EEG is false-accept control, not a real-target-gain claim.
+
 Branch `science-target-info-v1` (from `science-source-rich-v1`).
 This is a design-lock document only: no driver, no runs.
 
