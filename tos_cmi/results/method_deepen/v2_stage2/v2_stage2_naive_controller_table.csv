@@ -1,0 +1,6 @@
+controller,accepts,false_accepts,true_accepts
+domain-gain-only (accept if subj/z removed),2089,1807,282
+safety-only (accept if source task safe),3604,3368,236
+always-erase-if-any-domain-gain,2324,2040,284
+"OUR GATE (benefit+safety, source-only)",0,0,0
+"ORACLE target-informed selector [DIAGNOSTIC, uses target labels]",284,0,284
