@@ -97,6 +97,22 @@ v2_source_only_acceptance_ceiling:  # V2 (DONE, Stage 1/1B/2; config b8e24e34fc8
   finding: EEGNet World A clean source-only acceptance CEILING robust across source_subject_counts {8,16,32,all}xseeds (0 principled ACCEPT, oracle-supported, random-k LCB<=+0.006); World B/C robust refusal both backbones; 0 false accepts across all cells
   caveat: TSMNet World A NOT cleanly demonstrable under appended-nuisance construction (oracle unsupported at all nuisance_fraction {0.15..0.30}); gate has safe REFUSAL power + acceptance CEILING, NOT acceptance power
   outputs: notes/{V2_STAGE1B_VERDICT,V2_STAGE2_VERDICT,METHOD_DEEPENING_FINAL_VERDICT}.md ; results/method_deepen/v2_stage2/*
+source_only_acceptance_ceiling_theory:   # theory spine (notes/CEILING_THEORY.md)
+  status: theory_note
+  evidence:
+    - V2 source-only ceiling
+    - World A target-beneficial source-invisible construction
+    - Proposition 1 non-identifiability
+    - Proposition 2 source-rich sufficiency
+  allowed:
+    - "Strict source-only certification cannot license deployment-shift benefit that is not represented in source-domain variation."
+    - "Refusal is the safe action when benefit is source-invisible."
+    - "Source-rich environments or target information can break the ceiling."
+  forbidden:
+    - "Source-only acceptance is impossible in general."
+    - "The gate has acceptance power."
+    - "V2 proves no erasure can ever help."
+    - "Target-informed oracle is a deployable method."
 
 # ---------- NOT YET ATTEMPTED (future tracks; must not be claimed) ----------
 target_informed_acceptance:     {status: parked, plan: "how much target information crosses the source-only ceiling? (unlabeled target mismatch / few target labels); NOT strict source-only DG"}
