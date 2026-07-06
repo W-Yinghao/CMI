@@ -490,12 +490,12 @@ Step-2A (`scripts/project_b_sweep_synthetic.py`, 30 epochs) established these wo
 harmful regimes that must never be merged into one metric**:
 - **Recoverable world = R2** (`cov1.2/prior0.4/montage0.2/concept0`): raw OFFLINE_TTA reliably HELPS
   (d_bAcc +0.071, p_gt0 0.95, 3/3 seeds). Router should **accept** — refusing here is a false refusal.
-- **Harmful-CAL (H-CAL)** — the *source-calibratable* harmful world (`concept_frac≈0.5` → ~3 concept sites,
-  target hits one, ~2 remain in source, so `source_concept_count≈2`). The **primary** harmful substrate for
-  ACAR go/no-go, because it is the only regime in which source pseudo-targets *could* exhibit TTA harm and
-  give the gate/ACAR a calibration signal. Router should **refuse or fall to IDENTITY**. [best config chosen
-  by the HFRAC sweep; acceptance additionally requires ≥4/5 seeds with a 2-class pseudo-gain, i.e.
-  `gate_auroc` finite.]
+- **Harmful-CAL (H-CAL)** — the *attempted* source-calibratable harmful world (`concept_frac≈0.5` → ~3
+  concept sites, target hits one, ~2 remain in source, `source_concept_count=2`). **Step-2A RESULT: NOT
+  achievable with the current gate design (Case B).** Across all 30 HFRAC runs the target is often reliably
+  harmed (HF3 concept=1.2: 4/5 seeds negative, harmful seeds p_gt0=0.00) but **`pseudo_gain ≡ 0` in every
+  run** (`pseudo_gain_min=max=0`, `2class=0/30`, `gate_auroc` NaN 30/30) — even at `source_concept_count=2`.
+  See the confirmed caveat below.
 - **Harmful-OOD (H-OOD) stress = seed-32 @ `concept_frac=0.17`** (lone concept site held out as target →
   `source_concept_count=0`): harm is real (d_bAcc −0.11..−0.29 across H configs) but **not source-
   identifiable** (`gate_auroc` NaN — source stays concept-free). Used ONLY to stress **TOS/support-aware
@@ -503,12 +503,17 @@ harmful regimes that must never be merged into one metric**:
   non-identifiability barrier.
 - **NULL canary** (`disable_all_gates=True`): accepted-bAcc collapses to raw-TTA (harness not self-fulfilling).
 
-> **Open caveat (Step-2A, under test):** `train_safety_gate` measures TTA gain on source subjects the model
-> was *trained on* (in-distribution), so pseudo-targets may never be OOD-harmed regardless of source concept
-> shift (`pseudo_harm=0` even at `source_concept_count=2` in the HF2/seed3 probe). If the HFRAC sweep confirms
-> this across seeds, the ACAR calibration signal is unavailable **by gate design** (not by shift strength),
-> and a true nested-LODO gate (retrain excluding each pseudo-domain) would be required — a deeper finding
-> than "raise `concept_frac`".
+> **CONFIRMED finding (Step-2A HFRAC, 30 runs, commit pending):** the ACAR/`SafetyGate` source-only harm
+> signal is **structurally unavailable by gate design**, not by shift strength. `train_safety_gate` measures
+> TTA gain on source subjects the model was *trained on* (in-distribution); on those, TTA is **inert**
+> (`pseudo_gain ≡ 0` — min=mean=max=0 in all 30 runs, so 0/30 two-class, `gate_auroc` NaN 30/30), even when
+> `source_concept_count=2`. Harm manifests only on the truly-held-out **OOD** target (HF3: reliable target
+> harm, p_gt0=0.00). **Consequence for Project B:** a purely source-calibrated harm regressor (ACAR §6.3,
+> `SafetyGate` §6.4) has a **degenerate all-zero calibration set** and cannot be fit — this is the source-only
+> non-identifiability barrier, made concrete and reproducible at the substrate. A fix requires calibrating on
+> genuinely-OOD pseudo-targets, i.e. a **nested-LODO gate** that retrains the encoder excluding each
+> pseudo-domain (expensive; and whether even that transfers is the same open source-only question). This is a
+> load-bearing negative result and must gate the Step-2B/ACAR design decision.
 
 > **Baseline reality check (2026-07-06, `--fast` → 4 epochs).** The two Step-1 baseline runs do **not** yet
 > realise the intended recoverable-vs-harmful contrast, and Step 2 must fix the world config before using it
