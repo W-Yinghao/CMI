@@ -108,7 +108,17 @@ external datasets are required; all Wave 0 compute reuses existing cached real E
 - **Three required curves** (not just mean-BA-vs-n): (1) `|π_J − ρ_eval|` vs n; (2) transform-norm /
   displacement vs n; (3) BA / negative-change-rate vs n.
 - **Pre-registered prediction (weak identification):** at small n, prevalence/geometry are harder to
-  separate → `π_J` less stable, `P` worse, geometry movement larger; the confound attenuates as n grows.
+  separate → `π_J` less stable, geometry movement larger; the confound attenuates as n grows.
+- **W0.3-INFORMED prediction (frozen 2026-07-06, before any W0.4 aggregate; supersedes the naive
+  "larger n → less harmful P").** Under the W0.3 mechanism (P is dominated by metric-prior mismatch, and
+  `π_J`'s deviation from `ρ_A` *positively offsets* the oracle-prevalence harm), **improved prevalence
+  estimation need not improve BA.** As n grows and `π_J → ρ_A` (the true non-uniform adaptation prevalence),
+  the positive deviation offset `B_E(π_J) − B_E(ρ_A)` **shrinks toward 0**, so the BA decision-prior branch
+  `P_J(n)` may become **MORE negative** (approaching the oracle-prevalence harm `B_E(ρ_A) − B_E(Unif)`),
+  not less — because π_J is converging to a prevalence prior that BA does not want. W0.4 reports
+  `P_J(n) = metric_mismatch(n) + transfer(n) + prior_estimate_deviation(n)` (the same 3-part split) plus
+  `TV(π_J, ρ_A)` and `min_y π_{J,y}` vs n. Expected: metric-mismatch ~flat, deviation → 0 from above,
+  `TV(π_J,ρ_A) → 0`.
 
 ### W0.5 — Metric-switch (which objective each prior serves) — cross-cutting
 - **Reuses W0.1/W0.2 branch logits** (independent endpoint, **no model recompute**; pre-declared as such).
