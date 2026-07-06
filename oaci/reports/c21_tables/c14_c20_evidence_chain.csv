@@ -1,0 +1,7 @@
+stage,finding,key
+C14,OACI-control / SRC-control closed by falsification battery,verdict falsified
+C16,target-accuracy-good checkpoints exist but source-unobservable; calibration barrier; SRC memorization,6/6 oracle gain; source-audit oracle fails
+C17,no strong scalar source signal; weak multivariate signal; boundary source-mirrored; calibration-biased,LOTO 0.6023 p=0.008; boundary corr +0.547
+C18,weak signal survives cell-present stress; deletion collapse = accuracy-endpoint non-estimability,S2/S3 beat perm; leakage/boundary robust
+C19,pre-registered robust-core probe recovers weak IN-REGIME competence,pooled 0.561 p=0.005
+C20,frozen cross-regime validation NOT established; signal largely regime-local,pooled 0.50-0.54; Holm 0/4; Simpson

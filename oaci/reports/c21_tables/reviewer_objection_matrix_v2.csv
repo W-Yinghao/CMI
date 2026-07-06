@@ -1,0 +1,7 @@
+objection,response
+Isn't this just a negative result?,No -- it localizes the failure (observability + estimand boundary) and recovers a real in-regime weak positive (C19). The contribution is a falsification + observability framework.
+C19's positive could be noise / a fishing result.,Config frozen + committed BEFORE the run (hash 664007686afb520f); beat 200/200 permutations; holds vs strict chance; endpoint-augmented adds nothing.
+The C20 S6/S7 'passes' show partial generalization.,"No -- Holm 2/4->0/4, permutation p-floor non-discriminative, 95% CI includes chance, S7 is the random control exceeding the S6 treatment, and the split is severity-local + Simpson-confounded."
+The within-target 0.64 means the probe works.,"It is within-target RANKING, NOT the pre-registered pooled estimand; regime-nonspecific; reported as future-work calibration question, not a success."
+A metric bug undermines trust.,The availability-metric bug was caught GATE-FIRST before any claim and fixed (fail-loud); reason-code-feature-loss discipline. Same for C18 v1 leakage bug.
+Why not just try BNCI2014_004?,"External validation needs a pre-registered protocol + approval (C20-B), not an ad-hoc second dataset; BNCI2014_004 stays barred."

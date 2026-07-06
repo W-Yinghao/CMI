@@ -1,0 +1,4 @@
+id,future_work,allowed_now,reason
+F1,Score CALIBRATION / a target-free competence ESTIMAND that transports cross-regime: within-target ranking appears stable (~0.64) and suggests a future score-calibration question.,False,manuscript locked; no experiment drift; needs approval / new protocol
+F2,"External-dataset validation on a genuinely new cohort, via a pre-registered protocol (C20-B) -> C21+ execution ONLY after approval. BNCI2014_004 remains BARRED.",False,manuscript locked; no experiment drift; needs approval / new protocol
+F3,"Real support-mismatched clinical EEG validation (hierarchical D=(cohort,subject)) is future work.",False,manuscript locked; no experiment drift; needs approval / new protocol

@@ -1,0 +1,8 @@
+quantity,value
+c19_pooled_loto_auc_in_regime,0.561
+c20_pooled_loto_auc_cross_regime_range,"[0.5, 0.536]"
+within_target_mean_auc_range,"[0.632, 0.652]"
+c19_per_target_auc_range,"[0.57, 0.73]"
+resolution,"The probe contains within-target RANKING information, but its score is not calibrated as a stable pooled cross-target / cross-regime competence estimand. Competence information exists; the estimand does not transport."
+why_c19_stands,"C19's pooled 0.561 is CONSERVATIVE relative to its per-target ~0.64 (pooling misaligns cross-target offsets and lowers the AUC), so C19's in-regime positive is if anything under-stated by pooling -- it stands."
+forbidden_reading,"C20 did NOT succeed under a better estimand. within-target ~0.64 is a mechanism / future-work observation, NOT a retroactive replacement of the pre-registered pooled estimand."
