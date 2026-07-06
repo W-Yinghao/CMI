@@ -1,0 +1,9 @@
+regime,n_class_fold_points,source_target_recall_delta_corr,boundary_source_visible
+S0_full_support,216,0.5465538970611915,True
+S1_label_marginal_skew,216,0.5465538970611915,True
+S2_rare_cells,216,0.47461497373351763,True
+S3_nonestimable_cells,216,0.4727902943653277,True
+S4_missing_cells,216,0.4657891761515076,True
+S5_block_class_by_domain,216,0.49647244468735646,True
+S6_boundary_aligned_mask,162,0.5110324718441439,True
+S7_random_matched_mask,195,0.46207633725439035,True

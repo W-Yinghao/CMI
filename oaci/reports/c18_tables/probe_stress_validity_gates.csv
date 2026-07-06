@@ -1,0 +1,13 @@
+gate,pass
+G1_replay_identity,True
+G2_c17_identity_probe,True
+G3_static_columns_excluded_from_mask_claims,True
+G4_target_labels_joined_after_source_generation,True
+G5_finite_filter,True
+G6_no_selector_artifact,True
+c17_all_column_auc,0.6023104389834069
+c17_auc_target,0.6023104389834069
+oracle_rho_reproduces,True
+no_strong_scalar,True
+replay_identity_source,C18_P0_SMOKE.json verdict=PASS identity=8/8 s0=42/42
+all_gates_pass,True

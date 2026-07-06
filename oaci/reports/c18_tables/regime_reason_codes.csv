@@ -1,0 +1,9 @@
+regime,severity,cell_action,n_features,loto_auc,beats_permutation,accuracy_features_estimable,collapse_reason,is_noop_negative_control
+S0_full_support,0,none,8,0.5929636630959882,True,True,none,False
+S1_label_marginal_skew,1,reweight_noop,8,0.5929636630959882,True,True,implemented_noop,True
+S2_rare_cells,2,cell_present_downweight,8,0.6025939928586431,True,True,none,False
+S3_nonestimable_cells,3,cell_present_downweight,8,0.5624133585381222,True,True,none,False
+S4_missing_cells,4,cell_deletion,6,0.45972305389221557,False,False,endpoint_metric_nonestimability,False
+S5_block_class_by_domain,4,cell_present_downweight,8,0.5772526780088216,False,True,signal_loss,False
+S6_boundary_aligned_mask,3,cell_deletion,6,0.5137674650698603,False,False,endpoint_metric_nonestimability,False
+S7_random_matched_mask,3,cell_deletion,6,0.44802145708582836,False,False,endpoint_metric_nonestimability,False

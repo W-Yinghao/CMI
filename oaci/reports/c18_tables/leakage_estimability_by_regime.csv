@@ -1,0 +1,9 @@
+regime,n_fold_levels,severity,mean_src_eligible_cells_removed,mean_src_comparable_classes_lost,mean_audit_comparable_classes_lost,mean_mass_removed_fraction,source_estimable_fraction,audit_estimable_fraction,any_estimable
+S0_full_support,54,0,0.0,0.0,0.0,0.0,1.0,1.0,True
+S1_label_marginal_skew,54,1,0.0,0.0,0.0,0.2554347826086956,1.0,1.0,True
+S2_rare_cells,54,2,0.0,0.0,0.0,0.0,1.0,1.0,True
+S3_nonestimable_cells,54,3,2.0,0.0,2.0,0.0,1.0,1.0,True
+S4_missing_cells,54,4,2.0,0.0,2.0,0.08514492753623193,1.0,1.0,True
+S5_block_class_by_domain,54,4,3.0,0.0,1.0,0.0,1.0,1.0,True
+S6_boundary_aligned_mask,54,3,3.0,0.0,2.0,0.1277173913043478,1.0,1.0,True
+S7_random_matched_mask,54,3,3.0,0.0,2.611111111111111,0.1277173913043478,1.0,1.0,True

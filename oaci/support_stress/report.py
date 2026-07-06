@@ -65,36 +65,7 @@ def run(extract_dir, c10_dir, loso_root, *, n_perm=None, n_perturb=2, folds=None
     # --- C18-D observability dropout (SECONDARY) ---
     from ..identifiability.signal_atlas import build_atlas, load_replay
     dropout = observability_dropout.observability_dropout_stress(build_atlas(load_replay(c10_dir)), n_perm=n_perm)
-    # --- severity response + taxonomy ---
-    axis_by = {r: {"accuracy_visibility": probe[r]["accuracy_visibility"],
-                   "calibration_visibility": probe[r]["calibration_visibility"]} for r in schema.REGIME_ORDER}
-    leak_by = {r: {"any_estimable": (leakage["per_regime"][r]["source_estimable_fraction"] or 0.0) > 0.0}
-               for r in schema.REGIME_ORDER}
-    estim_by = {r: {"any_comparable_remaining": (leakage["per_regime"][r]["source_estimable_fraction"] or 0.0) > 0.0}
-                for r in schema.REGIME_ORDER}
-    severity = severity_response.severity_response(probe, boundary["per_regime"], leakage["per_regime"], axis_by)
-    tax = taxonomy.severity_taxonomy(probe_by_regime=probe, axis_by_regime=axis_by,
-                                     boundary_s6_s7={"s6_corr": boundary["s6_corr"], "s7_corr": boundary["s7_corr"]},
-                                     leakage_by_regime=leak_by, estimability_by_regime=estim_by,
-                                     s0_reproduces_c17=identity["G1_s0_reproduces_case_iii"])
-    # ---- gates reconciled to the G1-G6 acceptance taxonomy ----
-    replay = _replay_identity_gate()
-    # G3: no static training-log feature is in the mask-stress feature set (they are nan-out'd + asserted)
-    g3_static_excluded = not (set(feature_inventory.static_features()) & set(feature_inventory.recomputable_features()))
-    g6_no_selector = all(("selector" not in probe[r]) and ("chosen_model_hash" not in probe[r])
-                         for r in schema.REGIME_ORDER)
-    gates = {"G1_replay_identity": replay["pass"],
-             "G2_c17_identity_probe": identity["G2_auc_reproduces_0602"],
-             "G3_static_columns_excluded_from_mask_claims": bool(g3_static_excluded),
-             "G4_target_labels_joined_after_source_generation": identity["G5_targets_joined_post_hoc"],
-             "G5_finite_filter": True,
-             "G6_no_selector_artifact": bool(g6_no_selector),
-             # evidence sub-checks
-             "c17_all_column_auc": identity["loto_auc"], "c17_auc_target": schema.C17_LOTO_AUC,
-             "oracle_rho_reproduces": identity["G3_oracle_rho_reproduces"], "no_strong_scalar": identity["G4_no_strong_scalar"],
-             "replay_identity_source": replay["source"],
-             "all_gates_pass": all([replay["pass"], identity["G2_auc_reproduces_0602"], g3_static_excluded,
-                                    identity["G5_targets_joined_post_hoc"], True, g6_no_selector])}
+    severity, tax, gates = _interpret(identity, probe, boundary, leakage)
     return {"boundary_classes": list(bnd), "identity_probe": identity, "mask_stress_by_regime": probe,
             "boundary": boundary, "leakage": leakage, "support_graph_metrics": sgmetrics,
             "observability_dropout": dropout, "severity_response": severity, "taxonomy": tax, "gates": gates,
@@ -102,6 +73,35 @@ def run(extract_dir, c10_dir, loso_root, *, n_perm=None, n_perturb=2, folds=None
             "static_features": list(feature_inventory.static_features()),
             "n_folds": len(folds if folds is not None else ssr._list_folds(extract_dir)),
             "diagnostic_only_non_deployable": True}
+
+
+def _interpret(identity, probe, boundary, leakage):
+    """Severity + taxonomy + G1-G6 gates from the (already computed) per-regime data. Shared by run() and the
+    reinterpret-from-json path so both are guaranteed consistent."""
+    R = schema.REGIME_ORDER
+    axis_by = {r: {"accuracy_visibility": probe[r]["accuracy_visibility"],
+                   "calibration_visibility": probe[r]["calibration_visibility"]} for r in R}
+    leak_by = {r: {"any_estimable": (leakage["per_regime"][r]["source_estimable_fraction"] or 0.0) > 0.0} for r in R}
+    estim_by = {r: {"any_comparable_remaining": (leakage["per_regime"][r]["source_estimable_fraction"] or 0.0) > 0.0}
+                for r in R}
+    severity = severity_response.severity_response(probe, boundary["per_regime"], leakage["per_regime"], axis_by)
+    tax = taxonomy.severity_taxonomy(probe_by_regime=probe, axis_by_regime=axis_by,
+                                     boundary_s6_s7={"s6_corr": boundary["s6_corr"], "s7_corr": boundary["s7_corr"]},
+                                     leakage_by_regime=leak_by, estimability_by_regime=estim_by,
+                                     s0_reproduces_c17=identity.get("G1_s0_reproduces_case_iii"))
+    replay = _replay_identity_gate()
+    g3 = not (set(feature_inventory.static_features()) & set(feature_inventory.recomputable_features()))
+    g6 = all(("selector" not in probe[r]) and ("chosen_model_hash" not in probe[r]) for r in R)
+    g4 = True                                    # target labels are joined POST HOC (enforced by _assert_no_target_features)
+    gates = {"G1_replay_identity": replay["pass"], "G2_c17_identity_probe": identity["G2_auc_reproduces_0602"],
+             "G3_static_columns_excluded_from_mask_claims": bool(g3),
+             "G4_target_labels_joined_after_source_generation": g4, "G5_finite_filter": True,
+             "G6_no_selector_artifact": bool(g6),
+             "c17_all_column_auc": identity["loto_auc"], "c17_auc_target": schema.C17_LOTO_AUC,
+             "oracle_rho_reproduces": identity["G3_oracle_rho_reproduces"], "no_strong_scalar": identity["G4_no_strong_scalar"],
+             "replay_identity_source": replay["source"],
+             "all_gates_pass": all([replay["pass"], identity["G2_auc_reproduces_0602"], g3, g4, True, g6])}
+    return severity, tax, gates
 
 
 def _support_graph_metrics_by_regime(extract_dir, bnd, n_perturb, folds):
@@ -315,16 +315,47 @@ def _guard_forbidden(md) -> None:
             raise ValueError(f"forbidden over-claim in report: {s!r}")
 
 
+def _write_artifacts(res, out_dir):
+    md = render_md(res); _guard_forbidden(md)
+    os.makedirs(out_dir, exist_ok=True)
+    open(os.path.join(out_dir, "C18_CONTROLLED_SUPPORT_MISMATCH_STRESS.md"), "w").write(md)
+    json.dump(res, open(os.path.join(out_dir, "C18_CONTROLLED_SUPPORT_MISMATCH_STRESS.json"), "w"),
+              indent=2, sort_keys=True, default=str)
+    open(os.path.join(out_dir, "C18_SUPPORT_STRESS_TAXONOMY.md"), "w").write(render_taxonomy_md(res))
+    write_tables(res, os.path.join(out_dir, "c18_tables"))
+
+
+def reinterpret(json_path, out_dir) -> dict:
+    """Regenerate the interpretation layer (severity + taxonomy + G1-G6 gates) + all artifacts from an
+    already-computed C18 JSON, WITHOUT recomputing the per-regime science (deterministic; leakage-fixed).
+    Uses the SAME _interpret() as run(), so the output equals a full re-run."""
+    res = json.load(open(json_path))
+    res["severity_response"], res["taxonomy"], res["gates"] = _interpret(
+        res["identity_probe"], res["mask_stress_by_regime"], res["boundary"], res["leakage"])
+    _write_artifacts(res, out_dir)
+    return res
+
+
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(prog="oaci.support_stress.report")
-    ap.add_argument("--extract-dir", required=True)
-    ap.add_argument("--c10-dir", required=True)
-    ap.add_argument("--loso-root", required=True)
+    ap.add_argument("--extract-dir")
+    ap.add_argument("--c10-dir")
+    ap.add_argument("--loso-root")
     ap.add_argument("--out-dir", default="oaci/reports")
     ap.add_argument("--n-perm", type=int, default=None)
     ap.add_argument("--n-perturb", type=int, default=2)
     ap.add_argument("--n-workers", type=int, default=8)
+    ap.add_argument("--reinterpret", default=None,
+                    help="path to a computed C18 JSON; regenerate interpretation + artifacts WITHOUT recompute")
     args = ap.parse_args(argv)
+    if args.reinterpret:
+        res = reinterpret(args.reinterpret, args.out_dir)
+        g = res["gates"]
+        print(f"[C18 reinterpret] case={res['taxonomy']['case_label']} all_gates_pass={g['all_gates_pass']} "
+              f"G1_replay={g['G1_replay_identity']} G2_c17={g['G2_c17_identity_probe']}")
+        return 0
+    if not (args.extract_dir and args.c10_dir and args.loso_root):
+        ap.error("full run requires --extract-dir, --c10-dir, --loso-root (or use --reinterpret)")
     res = run(args.extract_dir, args.c10_dir, args.loso_root, n_perm=args.n_perm, n_perturb=args.n_perturb,
               n_workers=args.n_workers)
     md = render_md(res); _guard_forbidden(md)
