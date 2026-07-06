@@ -1,0 +1,8 @@
+{
+  "n_folds": 21,
+  "target_labels_used_for_fit": false,
+  "alpha_selection_used_target": false,
+  "token_assignment_used_target": false,
+  "repair_fit_used_target": false,
+  "target_labels_used_for_final_eval_only": true
+}
