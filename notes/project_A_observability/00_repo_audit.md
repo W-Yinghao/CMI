@@ -116,7 +116,7 @@ from `cmi/`.
   `A,B` independent, `D=A`, `Y=(A,B)`, `Z=A` ⇒ `D→Y→Z` holds and
   `I(Z;D|Y)=I(Y;D|Z)=0`, yet `H(Y|Z)=H(B)>0`. The correct DPI-equality condition is
   `D ⊥ Y | Z` (Z sufficient for the D-information in Y), **not** `Y=f(Z)`. This contradicts
-  the **A3** theorem asserted across `01/02/03/04`.
+  the **legacy A3** theorem asserted across `01/02/03/04`.
 - **P0-4** — `I(Y;D|Z)=H(Y|Z)−H(Y|Z,D)` is a **conditional predictive-insufficiency
   diagnostic, not "genuine concept shift."** It can arise from a true `p(y|x,d)` change *or*
   from `Z` discarding task info, misspecification, incomplete label-shift correction,
@@ -159,22 +159,30 @@ lockbox). The modules take ordinary `(X[n,chans,times], y, DomainLabels)` arrays
 ## 2. Theory anchors already present
 
 ### `notes/theory/01_tension.md` — Pillar 1, the Tension Theorem (~290 lines)
-- **Exact identity (A1), verbatim:** `I(Z;D|Y) − I(Y;D|Z) = I(Z;D) − I(Y;D).` Proved via
-  chain rule `I((Y,Z);D)=I(Y;D)+I(Z;D|Y)=I(Z;D)+I(Y;D|Z)`. Numerically verified to
-  `2.22e-15` over 3000 random discrete joints (`verify_tension.py`).
-- **What it proves:** A2 — setting `I(Z;D|Y)=0` forces `I(Y;D|Z)=I(Y;D)−I(Z;D)>0` under
-  label shift (encoder invariance ⇒ decoder leakage). A4 — GLS reweighting resolves it.
-- **What Project A can reuse:** A1 is the load-bearing **observability accounting** — it
+
+> **Naming (read once).** This file's legacy label `A1` (the chain-rule identity) is called
+> **`ID-1`** below; its legacy `A3` (zero-Bayes-error escape) is **retracted** and kept only
+> as "legacy A3". Project A's own theorems use the unified scheme
+> **`OA-0 / TOS-1 / TU-1 / TU-2 / MP-1 / PD-1 / MONO-1`** (§5) — never `A1…A6`, which would
+> collide with the legacy `notes/theory` labels.
+
+- **Exact identity (`ID-1`, legacy chain-rule identity), verbatim:** `I(Z;D|Y) − I(Y;D|Z) =
+  I(Z;D) − I(Y;D).` Proved via chain rule `I((Y,Z);D)=I(Y;D)+I(Z;D|Y)=I(Z;D)+I(Y;D|Z)`.
+  Numerically verified to `2.22e-15` over 3000 random discrete joints (`verify_tension.py`).
+- **What it proves:** legacy-A2 — setting `I(Z;D|Y)=0` forces `I(Y;D|Z)=I(Y;D)−I(Z;D)>0`
+  under label shift (encoder invariance ⇒ decoder leakage). legacy-A4 — GLS reweighting
+  resolves it.
+- **What Project A can reuse:** `ID-1` is the load-bearing **observability accounting** — it
   exactly partitions the domain-information budget `I((Y,Z);D)` into encoder vs decoder
   attributions. Assumption-light; safe.
-- **What Project A must NOT overclaim:** A3 ("both CMIs 0 ⇔ `Y=f(Z)` / zero Bayes error") is
-  **retracted by P0-3** (`D⊥Y|Z` is the true condition). The `D→Y→Z` Markov assumption is a
-  *contract*, not a fact. Everything here is simulator-only.
+- **What Project A must NOT overclaim:** legacy A3 ("both CMIs 0 ⇔ `Y=f(Z)` / zero Bayes
+  error") is **retracted by P0-3** (`D⊥Y|Z` is the true condition, *not* `Y=f(Z)`). The
+  `D→Y→Z` Markov assumption is a *contract*, not a fact. Everything here is simulator-only.
 
 ### `notes/theory/02_resolution.md` — Pillar 2, the GLS Resolution (~176 lines)
 - **GLS / reference-prior correction, verbatim:** `w_d(y) = π*(y) / π_d(y)`,
   `p̃(z,y,d) ∝ w_d(y)·p(z,y,d)`. **Lemma 2.1** (exact algebra): under `p̃`,
-  `p̃(Y=y|D=d)=π*(y) ∀d ⇒ Y⟂D ⇒ Ĩ(Y;D)=0`. **Corollary 2.2 (★):**
+  `p̃(Y=y|D=d)=π*(y) ∀d ⇒ Y⟂D ⇒ Ĩ(Y;D)=0`. **Corollary 2.2 — the `PD-1` additive relation (★):**
   `Ĩ(Z;D|Y) = Ĩ(Y;D|Z) + Ĩ(Z;D)` — all non-negative, so zeroing the encoder term forces
   both others to 0. **No forced trade-off.**
 - **Identifiable under which contract:** reweighting *requires* per-domain `π_d(y)=p(y|D=d)`;
@@ -183,9 +191,9 @@ lockbox). The modules take ordinary `(X[n,chans,times], y, DomainLabels)` arrays
   separately-zeroable terms is available **only under the GLS contract** (C7 below).
 - **What stays unidentifiable without target info:** the concept residual — a *control*
   experiment in `verify_resolution.py` shows reweighting alone leaves `Ĩ(Y;D|Z)=0.145>0`.
-- **Overclaim to avoid:** presenting reweighting as freely available source-only; the "A3
-  dissolved" prose inherits the retracted A3. Per P0-4, the residual is *not* certified
-  concept shift.
+- **Overclaim to avoid:** presenting reweighting as freely available source-only; the "legacy
+  A3 dissolved" prose inherits the retracted legacy A3. Per P0-4, the residual is *not*
+  certified concept shift.
 
 ### `notes/theory/03_estimators.md` — Pillar 3, the two estimators (~165 lines)
 - **Estimator claims:** encoder term via posterior-KL, **claimed an UPPER bound** on
@@ -202,9 +210,11 @@ lockbox). The modules take ordinary `(X[n,chans,times], y, DomainLabels)` arrays
   estimator's fidelity is itself a contract (C5: critic sufficiency).
 
 ### `notes/theory/04_positioning.md` — Pillar 4, Positioning & Novelty (~209 lines)
-- **Novelty:** three-shift↔three-term map (covariate `= I(Z;D|Y)`; label `=` reweighting;
-  concept `=` residual `I(Y;D|Z)`); tension-theorem framing; concept shift as a first-class
-  estimated quantity for psychiatric cross-site EEG.
+- **Novelty (as the legacy file frames it — `I(Y;D|Z)` is relabeled to a predictive-
+  insufficiency residual per P0-4 below, *not* certified concept shift):** three-shift↔three-term
+  map (covariate `= I(Z;D|Y)`; label `=` reweighting; concept-*residual* `= I(Y;D|Z)`);
+  tension-theorem framing; concept shift as a first-class estimated quantity for psychiatric
+  cross-site EEG.
 - **Closest prior works:** Zhao19 (ICML'19 joint-error lower bound — marginal invariance is
   *harmful* under label shift; the "wall we route around"); GLS/Combes'20 (NeurIPS'20 — we
   adopt its reweighting as term 2); entropyDG/Zhao'20 (NeurIPS'20 conditional-entropy
@@ -219,13 +229,13 @@ lockbox). The modules take ordinary `(X[n,chans,times], y, DomainLabels)` arrays
 
 ### `h2cmi/THEORY.md` — the authoritative corrections file (~134 lines)
 Not under `notes/theory/` but **overrides** the four pillars on three load-bearing points
-(P0-2 estimator, P0-3 A3, P0-4 concept). This is the file Project A treats as authoritative
+(P0-2 estimator, P0-3 legacy A3, P0-4 concept). This is the file Project A treats as authoritative
 for the **estimator-vs-estimand** distinction. Caveat: its assertion *"none of the disputed
 claims appear in code"* is a claim about the code — independently confirmed by this audit for
 `cmi/hierarchical.py` (signed `H_ref−CE`), `align/reference_marginal.py` (weighted bincount),
 and `eval/leakage.py` (permutation null, no truncation).
 
-**Verification scripts:** `verify_tension.py` (A1 over random discrete joints),
+**Verification scripts:** `verify_tension.py` (`ID-1` over random discrete joints),
 `verify_resolution.py` (GLS resolution + the concept-residual control). Both discrete/synthetic.
 
 ---
@@ -234,11 +244,11 @@ and `eval/leakage.py` (permutation null, no truncation).
 
 | Regime | Observed | Not observed | Identifiable **without** extra contract | Identifiable **only with** contract | **Non-identifiable** |
 |---|---|---|---|---|---|
-| **R0 source-only** | multi-source `(X_s,Y_s,D_s)`, DAG `site→subject→session`; source class-conditionals `p_S(z|y)`; per-domain `π_d(y)` | target `X_T`, `Y_T`, `π_T(y)`, target concept/transform | source-side residual `I(Z;D|Y)` (up to C5 critic quality); `I(Z;D)`, `I(Y;D|Z)` on source (up to C6 span); source LOSO harm↔gain map; `label_sep`; the A1 identity among source terms | source→target **risk bound** (needs C1+C2); GLS decoupling into (★) on source (needs C7 per-domain `π_d(y)`, which *is* on source) | **target adaptation gain**, target `π_T(y)`, target concept `p_T(y|z)`, target harm — **the TOS ceiling (A1-thm)** |
-| **R1 target-unlabeled** | R0 **+** target unlabeled `X_T` ⇒ `p_T(z)` | target `Y_T` | target feature marginal `p_T(z)` | target prior `π_T(y)` via `p_T(z)=Σ_y π_T(y)p_ref(z|y)` **under C2+C1+C3** (mixture separability / full-rank `C`); GLS `w=C⁻¹μ` | target **accuracy** (needs labels); target **concept shift** `p_T(y|z)` — **A3-thm**; whether adaptation *helped* |
+| **R0 source-only** | multi-source `(X_s,Y_s,D_s)`, DAG `site→subject→session`; source class-conditionals `p_S(z|y)`; per-domain `π_d(y)` | target `X_T`, `Y_T`, `π_T(y)`, target concept/transform | source-side residual `I(Z;D|Y)` (up to C5 critic quality); `I(Z;D)`, `I(Y;D|Z)` on source (up to C6 span); source LOSO harm↔gain map; `label_sep`; the `ID-1` identity among source terms | source→target **risk bound** (needs C1+C2); GLS decoupling into the `PD-1` relation (★) on source (needs C7 per-domain `π_d(y)`, which *is* on source) | **target adaptation gain**, target `π_T(y)`, target concept `p_T(y|z)`, target harm — **the `TOS-1` ceiling** |
+| **R1 target-unlabeled** | R0 **+** target unlabeled `X_T` ⇒ `p_T(z)` | target `Y_T` | target feature marginal `p_T(z)` | target prior `π_T(y)` via `p_T(z)=Σ_y π_T(y)p_ref(z|y)` **under C2+C1+C3** (mixture separability / full-rank `C`); GLS `w=C⁻¹μ` | target **accuracy** (needs labels); target **concept shift** `p_T(y|z)` — **`TU-2`**; whether adaptation *helped* |
 | **R2 minimal-paired** | R1 **+** few target labels / paired sessions / montage anchors / pre→post pairs | the bulk of target `Y_T` | direct target risk on the small labeled slice; observed pairing | low-dim transport `(A,b)` **under C8** (low-dim, invertible, full-rank, overlap); label-mechanism residual; tighter risk **bound** | high-dim / unconstrained transport; full concept mechanism without enough anchors |
 
-**Information monotonicity (A6).** `R0 ⊂ R1 ⊂ R2`: more observation ⇒ smaller set of
+**Information monotonicity (`MONO-1`).** `R0 ⊂ R1 ⊂ R2`: more observation ⇒ smaller set of
 compatible target worlds ⇒ more identifiable objects ⇒ tighter bounds. But the *type* of
 information matters — **more source subjects cannot substitute for target-unlabeled `X_T` or
 paired target anchors** (they shrink source-side variance, not the target-world ambiguity).
@@ -262,7 +272,7 @@ vs source support). **Minimal-paired?** Yes, on the paired slice.
 rule is invariant). **Observed evidence:** matched class-conditional moments on paired data.
 **Needed for:** target-prior identifiability (R1), GLS. **Failure mode:** concept shift — a
 rotation of the class→source-power map (`ShiftSpec.concept`) breaks it. **Falsifiable
-source-only?** No. **Target-unlabeled?** No (indistinguishable from a prior change — the A3
+source-only?** No. **Target-unlabeled?** No (indistinguishable from a prior change — the `TU-2`
 world pair). **Minimal-paired?** Yes.
 
 ### C3 — Label-prior identifiability (mixture separability / full-rank confusion)
@@ -301,7 +311,7 @@ rather than a single-class-prior artifact. **Observed evidence:** `domain_class_
 
 ### C7 — GLS within-domain reweighting availability
 **Statement:** per-domain `π_d(y)=p(y|D=d)` is known (or estimable via `w=C⁻¹μ`), enabling
-`Ĩ(Y;D)=0` and the (★) decoupling. **Observed evidence:** source labels give source `π_d(y)`;
+`Ĩ(Y;D)=0` and the `PD-1` (★) decoupling. **Observed evidence:** source labels give source `π_d(y)`;
 target needs C3 + target `X_T`. **Failure mode:** source-only DG has no target `π_T`, so the
 *target-side* decoupling is unavailable — a frequent overclaim. **Falsifiable source-only?**
 Source side yes; target side **no** (that is exactly what R1 buys and R0 lacks).
@@ -309,7 +319,7 @@ Source side yes; target side **no** (that is exactly what R1 buys and R0 lacks).
 ### C8 — Low-dimensional invertible transport with overlap
 **Statement:** the acquisition/montage/session transform lies in a low-dim invertible family
 (e.g. near-identity affine `A=I+UVᵀ`, `‖A−I‖` small) with sufficient class overlap.
-**Needed for:** minimal-paired transport identifiability (A4). **Failure mode:** high-dim or
+**Needed for:** minimal-paired transport identifiability (`MP-1`). **Failure mode:** high-dim or
 non-invertible transform → only a bound, not point identification; the TTA trust region
 (`τ‖A−I‖²`) *encodes* this contract. **Falsifiable source-only?** No. **Minimal-paired?** Yes.
 
@@ -322,27 +332,34 @@ predictor generalizes. **Needed for:** `gate/safety_gate.py` validity. **Failure
 source (inner-LOSO AUROC); its *target* transfer is precisely what R0 cannot certify — a
 prime Project A non-identifiability target.
 
-### C10 — Bounded Bayes error / label-noise regime (A3 escape)
-**Statement:** `H(Y|Z)=0` (zero Bayes error) — the only regime in which both CMIs can vanish
-jointly *without* GLS. **Failure mode:** clinical EEG has irreducible label noise `H(Y|Z)>0`,
-so the escape is unreachable; invoking A3 as if C10 held is the retracted-P0-3 overclaim.
-**Falsifiable:** `H(Y|Z)>0` is estimable source-only (task Bayes-error lower bound).
+### C10 — Zero-Bayes-error as a *sufficient legacy escape*, not a *necessary* condition
+**Statement:** `H(Y|Z)=0` (zero Bayes error) is a strong **sufficient** condition that can make
+the legacy "escape" intuition work under additional Markov/sufficiency assumptions, but it is
+**not necessary.** **Correct condition:** if `I(Z;D|Y)=0`, then both CMIs vanish **iff**
+`I(Z;D)=I(Y;D)` (directly from `ID-1`); under a `D→Y→Z` Markov contract this equality means `Z`
+is sufficient for the `D`-information carried by `Y`, equivalently `D ⊥ Y | Z` — it does **not**
+imply `Y=f(Z)`. **Failure mode:** using `H(Y|Z)=0` as the *necessary* escape condition repeats
+the retracted legacy-A3 claim (P0-3). **Falsifiable source-only?** `I(Z;D)` vs `I(Y;D)`,
+`H(Y|Z)`, and (given an encoder) the `D⊥Y|Z` conditional-independence test are all estimable on
+source — the `D⊥Y|Z` condition is the one to check, not `H(Y|Z)=0`.
 
 ---
 
 ## 5. Candidate theorem ledger
 
-Proposed theorems (the user's A0–A6). For each: statement · regime · required contracts ·
-proof strategy · file where the proof should live · whether a simulator counterexample is
-needed. **Bold** marks where this audit already found supporting or contradicting evidence.
+Proposed theorems under the unified scheme (**`OA-0 / TOS-1 / TU-1 / TU-2 / MP-1 / PD-1 /
+MONO-1`** — never `A1…A6`, to avoid colliding with the legacy `notes/theory` labels). For
+each: statement · regime · required contracts · proof strategy · file where the proof should
+live · whether a simulator counterexample is needed. **Bold** marks where this audit already
+found supporting or contradicting evidence.
 
-- **A0 — OACI identifiability definition.** `T(P)` is identifiable under regime `R` and
+- **`OA-0` — OACI identifiability definition.** `T(P)` is identifiable under regime `R` and
   contracts `C` iff for all worlds `P₁,P₂` with `Observed_R(P₁)=Observed_R(P₂)` and both
   satisfying `C`, `T(P₁)=T(P₂)`. *Regime:* all. *Contracts:* none (it is the frame). *Proof
   strategy:* definitional; instantiate `Observed_R` for R0/R1/R2 concretely against the DAG +
-  simulator. *File:* `06_oaci_identifiability.md` (prerequisite for A1). *Counterexample:* n/a.
+  simulator. *File:* `01_information_regimes.md` (the frame `TOS-1` cites). *Counterexample:* n/a.
 
-- **A1 — TOS source-only ceiling.** Under R0, target risk, `π_T(y)`, target concept shift, and
+- **`TOS-1` — source-only ceiling.** Under R0, target risk, `π_T(y)`, target concept shift, and
   target adaptation gain are **non-identifiable.** *Contracts:* holds even granting C4–C7 on
   the source. *Proof strategy:* fix the source joint exactly; build two target worlds — one
   with source class-conditional geometry, one with a rotated class→source map (`concept>0`) or
@@ -352,40 +369,40 @@ needed. **Bold** marks where this audit already found supporting or contradictin
   sites; `meta` carries oracle params for the ground-truth check). **Supported by** the
   existing negatives (EA-transductive, gate falsification, measurement→control gap).
 
-- **A2 — Target-unlabeled prior identifiability under mixture/GLS contract.** Under R1, `π_T(y)`
-  is identifiable iff **C2 ∧ C1 ∧ C3** (shared class-conditionals, support, full-rank `C`).
-  *Proof strategy:* uniqueness of the mixture decomposition `p_T(z)=Σ_y π_T(y)p_ref(z|y)`;
+- **`TU-1` — target-unlabeled prior identifiability under mixture/GLS contract.** Under R1,
+  `π_T(y)` is identifiable iff **C2 ∧ C1 ∧ C3** (shared class-conditionals, support, full-rank
+  `C`). *Proof strategy:* uniqueness of the mixture decomposition `p_T(z)=Σ_y π_T(y)p_ref(z|y)`;
   reduce to `w=C⁻¹μ` (Lipton'18 / Combes'20). *File:* `02_resolution.md` extension +
-  `06_oaci_identifiability.md`. **Counterexample needed:** two `π_T` giving the same `p_T(z)`
+  `01_information_regimes.md`. **Counterexample needed:** two `π_T` giving the same `p_T(z)`
   when C3 fails (degenerate classes).
 
-- **A3 — Concept-shift non-identifiability from unlabeled target.** Under R1 (no target labels,
-  no label-mechanism anchor), `p_T(y|z)` is **not** identifiable: two label mechanisms induce
-  the same `p_T(z)`. *Proof strategy:* explicit pair via `label_mechanism_rho` vs a matching
-  prior change. *File:* `07_counterexample_catalog.md`. **Counterexample NEEDED.** **Strongly
-  supported by P0-4** (the residual is a predictive-insufficiency diagnostic) and the C6
-  degeneracy — this is arguably Project A's most defensible theorem.
+- **`TU-2` — concept-shift non-identifiability from unlabeled target.** Under R1 (no target
+  labels, no label-mechanism anchor), `p_T(y|z)` is **not** identifiable: two label mechanisms
+  induce the same `p_T(z)`. *Proof strategy:* explicit pair via `label_mechanism_rho` vs a
+  matching prior change. *File:* `07_counterexample_catalog.md`. **Counterexample NEEDED.**
+  **Strongly supported by P0-4** (the residual is a predictive-insufficiency diagnostic) and
+  the C6 degeneracy — this is arguably Project A's most defensible theorem.
 
-- **A4 — Minimal-paired transport identifiability.** Under R2, if the transform family is
+- **`MP-1` — minimal-paired transport identifiability.** Under R2, if the transform family is
   low-dim, invertible, full-rank, with sufficient overlap (**C8**), the acquisition/montage/
   session transform is identifiable to statistical error; otherwise only a bound. *Proof
   strategy:* moment-matching / procrustes identifiability on the paired anchors; degrade to a
   bound when C8 relaxes. *File:* `04_prior_decoupled_theory.md` or a new `08`-transport note.
   **Counterexample needed:** high-dim transform under-determined by `k` pairs.
 
-- **A5 — Prior-decoupled CMI.** Under the reference prior `π*` and GLS reweighting (**C7**),
-  `Ĩ(Y;D)=0` and the A1 identity becomes the all-positive additive relation
-  `Ĩ(Z;D|Y)=Ĩ(Y;D|Z)+Ĩ(Z;D)` (★), so encoder and decoder leakage no longer trade off.
+- **`PD-1` — prior-decoupled additive relation.** Under the reference prior `π*` and GLS
+  reweighting (**C7**), `Ĩ(Y;D)=0` and the `ID-1` identity becomes the all-positive additive
+  relation `Ĩ(Z;D|Y)=Ĩ(Y;D|Z)+Ĩ(Z;D)` (★), so encoder and decoder leakage no longer trade off.
   *Proof strategy:* **already proved** — Lemma 2.1 + Corollary 2.2 in `02_resolution.md`
   (exact algebra, verified `≤8.3e-17`). *File:* `04_prior_decoupled_theory.md` (import + state
-  the contract C7 explicitly, drop the A3-dependent prose). **No new counterexample**; reuse
-  the `verify_resolution.py` concept-residual control.
+  the contract C7 explicitly, drop the legacy-A3-dependent prose). **No new counterexample**;
+  reuse the `verify_resolution.py` concept-residual control.
 
-- **A6 — Information monotonicity.** `Observed`-set inclusion `R0⊆R1⊆R2` ⇒ the compatible-
-  target-world set shrinks ⇒ identifiable-estimand set grows and bounds tighten; but the added
-  information *type* is not interchangeable (source breadth ≠ target-unlabeled ≠ paired).
-  *Proof strategy:* monotonicity of the "consistent worlds" preimage under refinement of
-  `Observed_R`; a separating example that more source subjects leave the target world
+- **`MONO-1` — information monotonicity.** `Observed`-set inclusion `R0⊆R1⊆R2` ⇒ the
+  compatible-target-world set shrinks ⇒ identifiable-estimand set grows and bounds tighten; but
+  the added information *type* is not interchangeable (source breadth ≠ target-unlabeled ≠
+  paired). *Proof strategy:* monotonicity of the "consistent worlds" preimage under refinement
+  of `Observed_R`; a separating example that more source subjects leave the target world
   ambiguous. *File:* `01_information_regimes.md`. **Counterexample needed:** two target worlds
   separated only by target `X_T`, provably unshrinkable by adding source subjects.
 
@@ -419,7 +436,7 @@ the inventory, if Project A touches the graph layer.
 1. **"LPC-CMI is a posterior-KL upper bound."** `README.md:59` still says this; retracted by
    `PROJECT_SUMMARY.md` **and** `h2cmi/THEORY.md` P0-2 (`q_ψ=π_y ⇒ R=0` while CMI > 0). Use
    "consistent plug-in, exact only at Step-A convergence, can under-estimate."
-2. **"Both CMIs zero ⇔ zero Bayes error (A3)."** Asserted across `01/02/03/04`; **retracted by
+2. **"Both CMIs zero ⇔ zero Bayes error (legacy A3)."** Asserted across `01/02/03/04`; **retracted by
    P0-3** (`D⊥Y|Z` is the real condition; counterexample `D=A,Y=(A,B),Z=A`). The four pillars
    were never updated — a **live internal inconsistency** to resolve, not inherit.
 3. **"`I(Y;D|Z)>0` means concept shift."** P0-4: it is a predictive-insufficiency diagnostic
@@ -428,7 +445,7 @@ the inventory, if Project A touches the graph layer.
 4. **Treating the source-only safety gate as target-gain identification.** C9 / the
    measurement→control gap; the project's own gate lines are NEGATIVE. Source inner-LOSO AUROC
    is not target certification.
-5. **Treating an unlabeled target feature marginal as target concept identification.** A3:
+5. **Treating an unlabeled target feature marginal as target concept identification.** `TU-2`:
    `p_T(z)` is compatible with many `p_T(y|z)`.
 6. **Treating a single-class target as class-conditional-transport identifiable.** The TTA
    identity-fallback (`min_effective_classes`) exists precisely because it is not; don't route
@@ -468,19 +485,19 @@ the inventory, if Project A touches the graph layer.
 
 ## 9. Proposed next files
 
-Priority order, respecting the A0→A1 and A1→counterexample dependencies:
+Priority order, respecting the `OA-0`→`TOS-1` and `TOS-1`→counterexample dependencies:
 
 1. **`01_information_regimes.md`** — formalize R0/R1/R2 and the `Observed_R` operator; state
-   **A0** (OACI identifiability definition) and **A6** (monotonicity). This is the frame every
-   later theorem cites.
-2. **`03_tos_source_only_ceiling.md`** — the flagship **A1** proof, with its indistinguishable-
-   worlds construction spelled out and *executed* on `eeg_simulator.py` (matched source sites,
-   divergent target concept/prior; oracle check via `meta`).
-3. **`07_counterexample_catalog.md`** — the reusable simulator constructions: the A1 target-
-   world pair, the **A3** label-mechanism-vs-prior pair, and the A2/C3 degenerate-mixture pair.
-   A1 and A3 are only *certificates* once these worlds exist, so this file is the empirical
-   spine of the ledger.
+   **`OA-0`** (OACI identifiability definition) and **`MONO-1`** (monotonicity). This is the
+   frame every later theorem cites.
+2. **`03_tos_source_only_ceiling.md`** — the flagship **`TOS-1`** proof, with its
+   indistinguishable-worlds construction spelled out and *executed* on `eeg_simulator.py`
+   (matched source sites, divergent target concept/prior; oracle check via `meta`).
+3. **`07_counterexample_catalog.md`** — the reusable constructions: the `TOS-1` target-world
+   pair, the **`TU-2`** label-mechanism-vs-prior pair, and the `TU-1`/C3 degenerate-mixture
+   pair. `TOS-1` and `TU-2` are only *certificates* once these worlds exist, so this file is
+   the empirical spine of the ledger.
 
 (Deferred to later steps: `02_contract_taxonomy.md`, `04_prior_decoupled_theory.md` — mostly
-an import of the proved A5/(★), `05_csc_shift_calculus.md`, `06_oaci_identifiability.md` if A0
-outgrows `01`, `08_experimental_protocol.md`.)
+an import of the proved `PD-1` (★), `05_csc_shift_calculus.md`, `06_oaci_identifiability.md`
+if `OA-0` outgrows `01`, `08_experimental_protocol.md`.)
