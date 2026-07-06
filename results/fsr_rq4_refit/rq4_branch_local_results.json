@@ -1,0 +1,332 @@
+{
+  "seed": 0,
+  "n_folds": {
+    "BNCI2014_001": 9,
+    "BNCI2015_001": 12
+  },
+  "sign_convention": "task_drop=bacc_orig-bacc_erased; <0 erasing HELPS target=HARMFUL; >0 erasing HURTS target=task-useful/benign",
+  "branches": {
+    "BNCI2014_001": {
+      "graph_z": {
+        "L1_subject_probe_bacc": {
+          "mean": 0.4329,
+          "lo": 0.4022,
+          "hi": 0.463,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L1_chance": 0.125,
+        "L4_ablation_drop": {
+          "mean": -0.0268,
+          "lo": -0.059,
+          "hi": -0.0025,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L4_gate_weight": 0.296,
+        "L5_task_drop": {
+          "mean": -0.0139,
+          "lo": -0.0278,
+          "hi": 0.0008,
+          "n": 9,
+          "excludes_zero": false
+        },
+        "L5_task_drop_specificity_vs_random": {
+          "mean": -0.0145,
+          "lo": -0.0276,
+          "hi": -0.0006,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L5_logit_symkl": {
+          "mean": 0.2809,
+          "lo": 0.0888,
+          "hi": 0.5307,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L5_logit_symkl_specificity": {
+          "mean": 0.2775,
+          "lo": 0.0844,
+          "hi": 0.5469,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "verdict": "MEASURABLE_ONLY"
+      },
+      "temporal_z": {
+        "L1_subject_probe_bacc": {
+          "mean": 0.5837,
+          "lo": 0.555,
+          "hi": 0.6057,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L1_chance": 0.125,
+        "L4_ablation_drop": {
+          "mean": -0.0176,
+          "lo": -0.0314,
+          "hi": -0.0033,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L4_gate_weight": 0.224,
+        "L5_task_drop": {
+          "mean": -0.0069,
+          "lo": -0.0214,
+          "hi": 0.0093,
+          "n": 9,
+          "excludes_zero": false
+        },
+        "L5_task_drop_specificity_vs_random": {
+          "mean": -0.0064,
+          "lo": -0.0203,
+          "hi": 0.0106,
+          "n": 9,
+          "excludes_zero": false
+        },
+        "L5_logit_symkl": {
+          "mean": 0.0972,
+          "lo": 0.0573,
+          "hi": 0.1573,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L5_logit_symkl_specificity": {
+          "mean": 0.088,
+          "lo": 0.0523,
+          "hi": 0.1412,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "verdict": "MEASURABLE_ONLY"
+      },
+      "spatial_z": {
+        "L1_subject_probe_bacc": {
+          "mean": 0.9225,
+          "lo": 0.9084,
+          "hi": 0.938,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L1_chance": 0.125,
+        "L4_ablation_drop": {
+          "mean": 0.0855,
+          "lo": 0.0355,
+          "hi": 0.1339,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L4_gate_weight": 0.48,
+        "L5_task_drop": {
+          "mean": 0.015,
+          "lo": -0.0035,
+          "hi": 0.0376,
+          "n": 9,
+          "excludes_zero": false
+        },
+        "L5_task_drop_specificity_vs_random": {
+          "mean": 0.0168,
+          "lo": -0.0019,
+          "hi": 0.0395,
+          "n": 9,
+          "excludes_zero": false
+        },
+        "L5_logit_symkl": {
+          "mean": 0.5989,
+          "lo": 0.28,
+          "hi": 0.9855,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L5_logit_symkl_specificity": {
+          "mean": 0.5897,
+          "lo": 0.2747,
+          "hi": 0.9769,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "verdict": "MEASURABLE_COUPLED_BUT_NOT_HARMFUL"
+      },
+      "fused_z": {
+        "L1_subject_probe_bacc": {
+          "mean": 0.7328,
+          "lo": 0.7029,
+          "hi": 0.7627,
+          "n": 9,
+          "excludes_zero": true
+        },
+        "L1_chance": 0.125
+      },
+      "L6_target_bacc": {
+        "mean": 0.3582,
+        "lo": 0.3023,
+        "hi": 0.4149,
+        "n": 9,
+        "excludes_zero": true
+      }
+    },
+    "BNCI2015_001": {
+      "graph_z": {
+        "L1_subject_probe_bacc": {
+          "mean": 0.307,
+          "lo": 0.2811,
+          "hi": 0.3286,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L1_chance": 0.091,
+        "L4_ablation_drop": {
+          "mean": -0.0123,
+          "lo": -0.0202,
+          "hi": -0.0042,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L4_gate_weight": 0.36,
+        "L5_task_drop": {
+          "mean": -0.01,
+          "lo": -0.0184,
+          "hi": -0.0026,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L5_task_drop_specificity_vs_random": {
+          "mean": -0.0103,
+          "lo": -0.0179,
+          "hi": -0.0037,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L5_logit_symkl": {
+          "mean": 0.1878,
+          "lo": 0.0284,
+          "hi": 0.39,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L5_logit_symkl_specificity": {
+          "mean": 0.1873,
+          "lo": 0.0267,
+          "hi": 0.3977,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "verdict": "MEASURABLE_ONLY"
+      },
+      "temporal_z": {
+        "L1_subject_probe_bacc": {
+          "mean": 0.4109,
+          "lo": 0.3951,
+          "hi": 0.4311,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L1_chance": 0.091,
+        "L4_ablation_drop": {
+          "mean": -0.0165,
+          "lo": -0.0419,
+          "hi": 0.0039,
+          "n": 12,
+          "excludes_zero": false
+        },
+        "L4_gate_weight": 0.184,
+        "L5_task_drop": {
+          "mean": -0.0075,
+          "lo": -0.0213,
+          "hi": 0.0052,
+          "n": 12,
+          "excludes_zero": false
+        },
+        "L5_task_drop_specificity_vs_random": {
+          "mean": -0.0088,
+          "lo": -0.0232,
+          "hi": 0.004,
+          "n": 12,
+          "excludes_zero": false
+        },
+        "L5_logit_symkl": {
+          "mean": 0.047,
+          "lo": 0.0087,
+          "hi": 0.1114,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L5_logit_symkl_specificity": {
+          "mean": 0.0429,
+          "lo": 0.0085,
+          "hi": 0.1026,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "verdict": "MEASURABLE_ONLY"
+      },
+      "spatial_z": {
+        "L1_subject_probe_bacc": {
+          "mean": 0.821,
+          "lo": 0.8112,
+          "hi": 0.83,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L1_chance": 0.091,
+        "L4_ablation_drop": {
+          "mean": 0.0853,
+          "lo": 0.039,
+          "hi": 0.1338,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L4_gate_weight": 0.456,
+        "L5_task_drop": {
+          "mean": 0.0499,
+          "lo": 0.0129,
+          "hi": 0.0883,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L5_task_drop_specificity_vs_random": {
+          "mean": 0.0508,
+          "lo": 0.0174,
+          "hi": 0.0881,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L5_logit_symkl": {
+          "mean": 0.3179,
+          "lo": 0.121,
+          "hi": 0.6027,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L5_logit_symkl_specificity": {
+          "mean": 0.3158,
+          "lo": 0.116,
+          "hi": 0.6005,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "verdict": "MEASURABLE_COUPLED_BUT_NOT_HARMFUL"
+      },
+      "fused_z": {
+        "L1_subject_probe_bacc": {
+          "mean": 0.5599,
+          "lo": 0.5374,
+          "hi": 0.5799,
+          "n": 12,
+          "excludes_zero": true
+        },
+        "L1_chance": 0.091
+      },
+      "L6_target_bacc": {
+        "mean": 0.5986,
+        "lo": 0.5501,
+        "hi": 0.6506,
+        "n": 12,
+        "excludes_zero": true
+      }
+    }
+  },
+  "natural_eeg_verdict": "NO_VERIFIED_HARMFUL_BRANCH_SHORTCUT",
+  "interpretation": "the most subject-leaky, load-bearing branch (spatial) is functionally coupled (logit SymKL >> random) but its subject subspace is target-USEFUL (erasing it HURTS the target: task_drop>0), so it fails the target-harmful condition -> not a harmful shortcut; blind erasure would harm. Motivates refusal + the injected positive control (4C)."
+}

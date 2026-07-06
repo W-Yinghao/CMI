@@ -1,0 +1,5 @@
+{
+  "n_folds": 21,
+  "all_clean": true,
+  "rule": "target y for final eval only; probes/subspaces source-fit"
+}
