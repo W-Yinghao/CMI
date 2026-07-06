@@ -240,7 +240,7 @@ LADDER = {
         L4=M("coverage_G1", "PD 13/22, SCZ 19/22 (adapt ok)"), L5=MISS(NOT_APPLICABLE),
         L6=M("eligible / EVAL_red", "0/22 eligible; DEV_STOP; router refuted; harm UCB 0.61-0.87"),
         task_safety=("harm_control_G3/G4", "FAIL 0/22"), collapse_guard="N/A", random_control="v2_replay",
-        tag="INCLUDED_BOUNDARY", reason="completed DEV_STOP (deployment corroboration; not pending)"),
+        tag=BOUNDARY, reason="completed DEV_STOP (deployment corroboration; not pending)"),
     "CSC_Z_only_unidentifiable": dict(
         L1=M("residual_decoder_T", "dev power 0.83 -> confirmatory 28/65"), L2=MISS(NOT_APPLICABLE),
         L3=MISS(NOT_APPLICABLE), L4=MISS(NOT_APPLICABLE), L5=MISS(NOT_APPLICABLE),
@@ -344,6 +344,12 @@ def main():
                     missing_metric=_expected_metric(name), policy=m["value"],
                     needed_for_rq=_needed_rq(name), resolution=_resolution(m["value"]),
                     notes=reason))
+
+    # fail-closed: inclusion_tag must be in the FSR_00 vocabulary (+ "INCLUDED" for quantitative rows)
+    allowed_tags = {"INCLUDED", SUPPORT, BOUNDARY, PROTOCOL, BACKGROUND}
+    bad_tags = sorted({r["inclusion_tag"] for r in incl_rows if r["inclusion_tag"] not in allowed_tags})
+    if bad_tags:
+        raise SystemExit(f"inclusion_tag out of vocabulary: {bad_tags} (allowed {sorted(allowed_tags)})")
 
     _wcsv(OUT / "route_metric_table.csv", metric_rows)
     _wcsv(OUT / "analysis_inclusion_table.csv", incl_rows)

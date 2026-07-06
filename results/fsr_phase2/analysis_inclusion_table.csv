@@ -29,7 +29,7 @@ OACI_multivariate_weak_identifiability,observability,L1,L6,SUPPORT_ONLY,NO,NO,NO
 OACI_endpoint_estimability_limit,observability,none,L6,SUPPORT_ONLY,NO,NO,NO,NO,NO,YES,
 ACAR_paired_action_risk_design,deployment,none,none,PROTOCOL_ONLY,NO,NO,NO,NO,NO,NO,design/estimand only; no efficacy
 ACAR_v5_protocol_substrate_success,deployment,none,none,PROTOCOL_ONLY,NO,NO,NO,NO,NO,NO,"engineering/protocol success, not efficacy"
-ACAR_stage2b_dev_stop,deployment,L4,L6,INCLUDED_BOUNDARY,NO,NO,NO,NO,YES,YES,completed DEV_STOP (deployment corroboration; not pending)
+ACAR_stage2b_dev_stop,deployment,L4,L6,BOUNDARY_ONLY,NO,NO,NO,NO,YES,YES,completed DEV_STOP (deployment corroboration; not pending)
 CSC_Z_only_unidentifiable,information_contract,L1,L6,BOUNDARY_ONLY,NO,NO,NO,NO,YES,YES,"information-contract boundary; simulator+semisynth, unidentifiability proven"
 CSC_dual_witness_candidate,information_contract,L1,none,PROTOCOL_ONLY,NO,NO,NO,NO,YES,NO,B7.1 confirmatory committed-but-UNRUN (protocol-only)
 CSC_information_contract_boundary,information_contract,L1,L6,BOUNDARY_ONLY,NO,NO,NO,NO,YES,YES,the publishable partial-identification boundary; corroboration

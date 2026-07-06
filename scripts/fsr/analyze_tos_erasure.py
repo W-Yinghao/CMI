@@ -72,6 +72,8 @@ def main():
             chance = _num(full.get("chance_task"))
             rep = reports.get(bb) if ds == "BNCI2014_001" else None
             agg = rep.get("aggregate", {}) if rep else {}
+            _leace, _rk = s.get(f"{bb}|LEACE"), s.get(f"{bb}|random_k")
+            nonspec = _nonspecific(_leace, _rk) if (_leace and _rk) else "unknown"
             for er in ERASERS:
                 cell = s.get(f"{bb}|{er}")
                 if cell is None:
@@ -84,12 +86,14 @@ def main():
                 dtgt_bacc = _num(cell.get("dtgt_bacc"))
                 tgt_nll = _num(cell.get("tgt_nll_mean"))
                 dtgt_nll = _num(cell.get("dtgt_nll"))
+                raw_flag = cell.get("improves_target", "")
+                bc, br = _benefit(er, dtgt_bacc, cell.get("dtgt_bacc_lo"), tgt_bacc, chance, nonspec, raw_flag)
                 summ_rows.append(dict(
                     dataset=ds, backbone=bb, eraser=er, chance_task=chance,
                     subj_lin_2a=subj_lin, subj_mlp_2a=subj_mlp, subj_dec_after=subj_dec_after,
                     tgt_bacc=tgt_bacc, dtgt_bacc=dtgt_bacc, tgt_nll=tgt_nll, dtgt_nll=dtgt_nll,
                     worst_subject_tgt_bacc=_num(cell.get("worst_subject_tgt_bacc")),
-                    improves_target=cell.get("improves_target", ""),
+                    raw_improves_target_flag=raw_flag, benefit_claimable=bc, benefit_block_reason=br,
                     verdict=_verdict(er, dtgt_bacc, tgt_bacc, chance)))
 
                 # task-safety flags
@@ -117,10 +121,13 @@ def main():
 
     # documented boundary rows the RQ2 tables must acknowledge (numeric JSON not committed on tos)
     summ_rows.append(dict(dataset="2a", backbone="TSMNet(in-loss)", eraser="LPC_global_collapse",
+                          benefit_claimable="NO", benefit_block_reason="boundary_route",
                           note="TSMNet feat_norm 1.09->0.00, CE->ln4 collapse (source: notes/PHASE21 + CLAIMS_LEDGER C5; not a deploy cell)"))
     summ_rows.append(dict(dataset="2a", backbone="TSMNet(in-loss)", eraser="collapse_free_removes_nothing",
+                          benefit_claimable="NO", benefit_block_reason="boundary_route",
                           note="warm_ramp collapse 0/9; collapse-free subj_dec ~0.997 = ERM (source: CLAIMS_LEDGER C6; variant_compare.json not committed on tos)"))
     summ_rows.append(dict(dataset="2a", backbone="TSMNet", eraser="refusal_gate",
+                          benefit_claimable="NO", benefit_block_reason="boundary_route",
                           note="source-only gate: 0 unsafe-accepts w/ power floor vs 6; EEG accept 5/9 VACUOUS (certified_accept=False); default-on NOT certified (source: PHASE131 + PHASE2_EEG_FROZEN_PILOT)"))
 
     _wcsv(OUT / "tos_erasure_summary.csv", summ_rows, _summ_cols())
@@ -138,6 +145,31 @@ def main():
     harm = [r for r in safety_rows if r["binary_harm_flag"] == "YES"]
     print(f"INLP task-collapse cells: {[(r['dataset'], r['backbone']) for r in inlp]}")
     print(f"binary-EEGNet harm cells (dtgt_bacc<=-0.05): {[(r['dataset'], r['backbone'], r['eraser']) for r in harm]}")
+
+
+def _benefit(er, dtgt_bacc, dtgt_bacc_lo, tgt_bacc, chance, nonspec, raw_flag):
+    """A target benefit is claimable ONLY with a PROVEN positive bAcc gain (point>0 AND CI lower>0),
+    no task-collapse, no binary-harm, and not a random-k-matched non-specific NLL move. A positive
+    point estimate whose 95% CI includes 0 is NOT a proven gain -> no_bacc_gain. Vocabulary fixed."""
+    if er == "full":
+        return "NO", "baseline"
+    task_collapse = (isinstance(tgt_bacc, float) and isinstance(chance, float) and tgt_bacc <= chance + 0.02)
+    binary_harm = (isinstance(chance, float) and chance >= 0.5
+                   and isinstance(dtgt_bacc, float) and dtgt_bacc <= -0.05)
+    if task_collapse:
+        return "NO", "task_collapse"
+    if binary_harm:
+        return "NO", "binary_harm"
+    try:
+        ci_lo_pos = dtgt_bacc_lo is not None and float(dtgt_bacc_lo) > 0
+    except (TypeError, ValueError):
+        ci_lo_pos = False
+    proven_gain = isinstance(dtgt_bacc, float) and dtgt_bacc > 0 and ci_lo_pos
+    if not proven_gain:
+        if str(raw_flag) in ("True", "true", "1") and nonspec == "YES":
+            return "NO", "nll_nonspecific_randomk"
+        return "NO", "no_bacc_gain"
+    return "YES", ""
 
 
 def _verdict(er, dtgt_bacc, tgt_bacc, chance):
@@ -167,7 +199,8 @@ def _nonspecific(leace, rk):
 def _summ_cols():
     return ["dataset", "backbone", "eraser", "chance_task", "subj_lin_2a", "subj_mlp_2a",
             "subj_dec_after", "tgt_bacc", "dtgt_bacc", "tgt_nll", "dtgt_nll",
-            "worst_subject_tgt_bacc", "improves_target", "verdict", "note"]
+            "worst_subject_tgt_bacc", "raw_improves_target_flag", "benefit_claimable",
+            "benefit_block_reason", "verdict", "note"]
 
 
 def _wcsv(path, rows, cols):

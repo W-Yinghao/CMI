@@ -18,6 +18,11 @@
   "verdict": "REPRODUCED",
   "headline_reproduced": true,
   "graph_kl_sign_confirmed_seed0": true,
+  "claim_strength": {
+    "align_k2_full_n126_status": "RECOMPUTED",
+    "graph_kl_seed0_status": "RECOMPUTED_SIGN_ONLY",
+    "graph_kl_pooled_n126_status": "FROZEN_NOT_RECOMPUTABLE"
+  },
   "acceptance": {
     "align_k2_pooled": {
       "recomputed_rho": 0.338188,

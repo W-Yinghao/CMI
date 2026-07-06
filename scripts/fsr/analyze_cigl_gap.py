@@ -221,6 +221,11 @@ def main() -> int:
         "verdict": verdict,
         "headline_reproduced": bool(align_reproduced),
         "graph_kl_sign_confirmed_seed0": bool(gkl_sign_confirmed),
+        "claim_strength": {
+            "align_k2_full_n126_status": "RECOMPUTED",
+            "graph_kl_seed0_status": "RECOMPUTED_SIGN_ONLY",
+            "graph_kl_pooled_n126_status": "FROZEN_NOT_RECOMPUTABLE",
+        },
         "acceptance": acceptance,
         "note": "align_k2 (the right-sign result) reproduces exactly at n=126; graph_kl (wrong-sign) "
                 "reproduces in SIGN at seed0 (n=42), pooled n=126 carried from frozen output because "
