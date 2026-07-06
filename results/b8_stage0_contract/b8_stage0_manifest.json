@@ -1,0 +1,60 @@
+{
+  "scope": "B8.0 information-contract / randomized paired audit canary -- manifest (pins).",
+  "status": "development-only | NOT confirmatory | NOT deployable | NOT validation (Lee2019 SM16 geometry is a realistic Z/subject substrate, NOT a real randomized audit) | NO tag",
+  "authorized": "reviewer-authorized 2026-07-06 after B7.1 SAFETY-FAIL closed the observational null-repair line (B3->B4->B5->B6->B7)",
+  "estimand": "condition-specific boundary/conditional-structure evidence BEYOND label-prior shift, under a randomized/counterbalanced paired audit contract (a condition x Z boundary interaction not explainable by randomized assignment variation, label-prior margins, or block/time/session nuisance). Prior shift stays a nuisance.",
+  "method": {
+    "inversion": "stop repairing observational nulls; REQUIRE a known randomization contract (C assigned by balanced randomization within subject x block -> C _|_ Z within block by design); use an EXACT block-stratified randomization null; REFUSE when the contract is unmet.",
+    "contract_validator": "check_contract(Z,C,G,Block,seed) [NO Y]: (1) block-adjusted cross-fit AUC(C~Z) <= TAU_CONTRACT_AUC; (2) >= MIN_SUPPORT_BLOCKS blocks with both conditions. Fail -> CONTRACT_INVALID_OR_UNIDENTIFIABLE. Run BEFORE T.",
+    "exact_null": "resample_C_exact: within each (subject,block,class) stratum, uniform permutation of C preserving per-(block,class) counts EXACTLY (the KNOWN within-block randomization; class margins held -> prior is nuisance). NOT a fitted propensity. Recompute the byte-reused B3 cross-fit contrast T(Y,Z,C*).",
+    "alert_rule": "ALERT (B8_CONCEPT_ALERT) iff estimable (n_exact_invalid <= 0.20*n_boot) AND p_meanT <= ALPHA_BUDGET AND p_stud <= ALPHA_BUDGET AND n_eligible >= min_confirm_pairs. No oracle/router/observed_T threshold; no B7 witness state.",
+    "states": ["B8_CONCEPT_ALERT", "NO_ACTIONABLE_CONCEPT_EVIDENCE", "CONTRACT_INVALID_OR_UNIDENTIFIABLE", "INSUFFICIENT_LABELS", "SAMPLER_INVALID"]
+  },
+  "constants": {
+    "ALPHA_BUDGET": 0.025,
+    "TAU_CONTRACT_AUC": 0.60,
+    "MIN_SUPPORT_BLOCKS": 8,
+    "BLOCK_SIZE": 8,
+    "LO_HI": [1, 2],
+    "PRIOR_SHIFT": 0.62,
+    "n_boot": 200,
+    "n_folds": 3,
+    "C_reg": 0.5,
+    "min_confirm_pairs": 20,
+    "estimable_max_invalid_frac": 0.20,
+    "M_subjects_per_cohort": 30
+  },
+  "seeds": {
+    "base": 400000000,
+    "STRIDE": 1000000,
+    "formula": "seed = base + world_index*STRIDE + cohort",
+    "range": [400000000, 411000049],
+    "note": "600 seeds all unique; zero intersection with all prior CSC jsonl (B5/P3/R1/B6/B7). No seed reuse."
+  },
+  "substrate": {
+    "dataset": "Lee2019 / OpenBMI SM16 log-bandpower features (real EEG geometry)",
+    "role": "realistic Z/subject substrate for the emulator; semi-synthetic worlds injected on top; NOT validation"
+  },
+  "worlds": {
+    "n_per_world": 50,
+    "contract_satisfying_nulls": ["CONTRACT_NULL_balanced", "CONTRACT_NULL_cov_balanced", "CONTRACT_NULL_prior_only", "CONTRACT_NULL_cov_plus_prior", "CONTRACT_random_label"],
+    "contract_satisfying_pos": ["CONTRACT_POS_boundary", "CONTRACT_POS_boundary_plus_prior"],
+    "contract_violating": ["VIOLATION_cov_confound", "VIOLATION_cov_plus_prior", "VIOLATION_no_within_block_rand", "VIOLATION_borderline_confound", "VIOLATION_lowvar_confound"],
+    "note": "12 worlds run in this canary. VIOLATION_cov_plus_prior is the B7.1-killer's confounded form (expect REFUSE); CONTRACT_NULL_cov_plus_prior is its randomized form (expect controlled)."
+  },
+  "screen": {
+    "contract_valid_nulls": "B8_CONCEPT_ALERT <= 3/50 each (pre-declared)",
+    "contract_valid_pos": "CONTRACT_POS_boundary ALERT > 0 (>= 5/50 strong)",
+    "contract_violating": "CONTRACT_INVALID high AND B8_CONCEPT_ALERT <= 3/50 (correct REFUSAL, not false-alert)"
+  },
+  "files": {
+    "b8_stage0_manifest.json": "this file (pins)",
+    "b8_stage0_rows.jsonl": "600 per-cohort B8 rows (12 shards concatenated in world_index order)",
+    "b8_stage0_tables.json": "per-world state distribution + medians + kind-specific screen + verdict + red_team block",
+    "b8_stage0_redteam_checks.json": "result red-team (wtnmjmp1d): accounting_isolation=PASS, science=MINOR_ISSUE + 1 HIGH asterisk",
+    "shards/": "12 raw worker jsonl + .prov.json + .sha256 (unmodified worker output)",
+    "scripts/": "realeeg_b8.py (emulator+validator+exact-null+certifier), realeeg_b8_canary.py (worker), b8_canary_merge.py (merge)",
+    "SHA256SUMS": "checksums for all package files",
+    "README.md": "human-readable summary + the two red-team caveats"
+  }
+}

@@ -1,0 +1,11 @@
+{
+ "base": 400000000,
+ "world": "VIOLATION_borderline_confound",
+ "start": 0,
+ "n": 50,
+ "n_records": 50,
+ "n_worker_errors": 0,
+ "host": "nodecpu02",
+ "slurm": "887268",
+ "diagnostic_only": true
+}
