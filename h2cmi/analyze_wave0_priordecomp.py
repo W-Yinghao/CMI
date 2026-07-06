@@ -48,15 +48,39 @@ def _cluster_boot_vals(subj_vals, seed=0):
 
 
 def _decomp_table(rows):
+    # NB: runner field "estimation" is reported under the NEUTRAL name "prior_estimate_deviation"
+    # (a biased-toward-uniform pi_J can IMPROVE BA vs true prevalence, so "error" is the wrong word).
     out = {}
-    for f in ("P_J", "metric_mismatch", "transfer", "estimation"):
-        out[f] = _cluster_boot_vals(_subject_mean(rows, f))
-    # exactness check
-    resid = max(abs(float(r["residual"])) for r in rows) if rows else 0.0
-    out["max_residual"] = resid
-    # consistency vs main run
+    for f, key in (("P_J", "P_J"), ("metric_mismatch", "metric_mismatch"), ("transfer", "transfer"),
+                   ("estimation", "prior_estimate_deviation")):
+        out[key] = _cluster_boot_vals(_subject_mean(rows, f))
+    out["max_residual"] = max(abs(float(r["residual"])) for r in rows) if rows else 0.0
     out["max_abs_consistency_B_piJ_vs_main"] = max(abs(float(r.get("consistency_B_piJ_vs_main", 0))) for r in rows) if rows else 0.0
     return out
+
+
+def _per_stage_decomp(rows):
+    """Algebraically exact per-stage split: M_y+T_y+E_y = (1/K)[Recall_y(piJ)-Recall_y(Unif)];
+    sum_y of each column == the scalar term. Aggregated: per-subject mean (seeds[+dirs]) then over subjects."""
+    K = len(STAGES)
+    def stage_term(a, b):
+        res = []
+        for c in range(K):
+            sv = defaultdict(list)
+            for r in rows:
+                if r.get(a) and r.get(b) and r[a][c] == r[a][c] and r[b][c] == r[b][c]:
+                    sv[int(r["target_subject"])].append((r[a][c] - r[b][c]) / K)
+            subj = [float(np.mean(v)) for v in sv.values()]
+            res.append(round(float(np.mean(subj)), 4) if subj else None)
+        return dict(zip(STAGES, res))
+    M = stage_term("recall_rhoE", "recall_unif")
+    T = stage_term("recall_rhoA", "recall_rhoE")
+    E = stage_term("recall_piJ", "recall_rhoA")
+    total = {s: round((M[s] or 0) + (T[s] or 0) + (E[s] or 0), 4) for s in STAGES}
+    return dict(metric_mismatch=M, transfer=T, prior_estimate_deviation=E, total_P_J_contrib=total,
+                column_sums=dict(metric_mismatch=round(sum(v for v in M.values() if v), 4),
+                                 transfer=round(sum(v for v in T.values() if v), 4),
+                                 prior_estimate_deviation=round(sum(v for v in E.values() if v), 4)))
 
 
 def _recall_table(rows):
@@ -114,22 +138,33 @@ def main():
     ba = _subject_mean([r for r in same if r["direction"] == "BA"], "P_J")
     dir_c = sorted(set(ab) & set(ba))
     dir_delta = _cluster_boot_vals({s: ab[s] - ba[s] for s in dir_c})
+    dcross = _decomp_table(cross); dsame = _decomp_table(same)
+    # primary mechanistic table: each signed term, cross-night vs same-session
+    mech = {}
+    for term in ("P_J", "metric_mismatch", "transfer", "prior_estimate_deviation"):
+        mech[term] = dict(crossnight=dcross[term], samesession=dsame[term])
     rep = dict(marker="WAVE0_PRIORDECOMP", n_subjects_cross=len(Pc), n_subjects_same=len(Ps),
                main_table=dict(P_cross=_cluster_boot_vals(Pc), P_same=_cluster_boot_vals(Ps),
-                               P_cross_minus_same=_cluster_boot_vals(dP), ratio_same_over_cross=R),
-               decomposition_crossnight=_decomp_table(cross), decomposition_samesession=_decomp_table(same),
+                               P_cross_minus_same=_cluster_boot_vals(dP), ratio_same_over_cross=R,
+                               ratio_note="R is FRAGILE under signed cancellation (|metric_mismatch| can exceed |P_J|); "
+                                          "interpret via the signed component table, not a percentage."),
+               mechanistic_table=mech,
+               decomposition_crossnight=dcross, decomposition_samesession=dsame,
+               per_stage_decomposition_crossnight=_per_stage_decomp(cross),
+               per_stage_decomposition_samesession=_per_stage_decomp(same),
                per_stage_recall_samesession=_recall_table(same), per_stage_recall_crossnight=_recall_table(cross),
                prior_quality_samesession=_prior_quality(same), prior_quality_crossnight=_prior_quality(cross),
                directionality_P_AB_minus_BA=dir_delta)
     json.dump(rep, open(args.out, "w"), indent=2, default=str)
     m = rep["main_table"]
     print(f"[PRIORDECOMP] cross_subj={len(Pc)} same_subj={len(Ps)}")
-    print(f"  P_cross={m['P_cross']['mean']:+.4f} {m['P_cross']['ci']}")
-    print(f"  P_same ={m['P_same']['mean']:+.4f} {m['P_same']['ci']}")
-    print(f"  P_cross-P_same={m['P_cross_minus_same']['mean']:+.4f} {m['P_cross_minus_same']['ci']}")
-    print(f"  R=|P_same|/|P_cross|={m['ratio_same_over_cross']['mean']:.3f} {m['ratio_same_over_cross']['ci']}")
-    dc = rep["decomposition_samesession"]
-    print(f"  W0.3 split: metric_mismatch={dc['metric_mismatch']['mean']:+.4f} transfer={dc['transfer']['mean']:+.4f} estimation={dc['estimation']['mean']:+.4f} (resid {dc['max_residual']:.1e}, consistency {dc['max_abs_consistency_B_piJ_vs_main']:.1e})")
+    print(f"  P_cross={m['P_cross']['mean']:+.4f} {m['P_cross']['ci']} | P_same={m['P_same']['mean']:+.4f} {m['P_same']['ci']}")
+    for term in ("metric_mismatch", "transfer", "prior_estimate_deviation"):
+        c = mech[term]['crossnight']; s = mech[term]['samesession']
+        print(f"  {term:26s} cross={c['mean']:+.4f} {c.get('ci')}  same={s['mean']:+.4f} {s.get('ci')}")
+    print(f"  residual cross={dcross['max_residual']:.1e} same={dsame['max_residual']:.1e} | consistency vs main={max(dcross['max_abs_consistency_B_piJ_vs_main'], dsame['max_abs_consistency_B_piJ_vs_main']):.1e}")
+    print(f"  per-stage (same-session) prior_estimate_deviation by stage: {rep['per_stage_decomposition_samesession']['prior_estimate_deviation']}")
+    print(f"  directionality P_AB-P_BA (same)={dir_delta['mean']:+.4f} {dir_delta.get('ci')}")
     print(f"  -> {args.out}")
 
 
