@@ -15,6 +15,16 @@ from h2cmi.router.features import (
     build_router_features,
     assess_acar_harm_calibration,
 )
+from h2cmi.router.acar import (
+    ACARConfig,
+    ACARRiskType,
+    ACARRiskCalibration,
+    ACARActionState,
+    ACARState,
+    conformal_quantile,
+    fit_risk_calibration,
+    fit_acar_state,
+)
 
 __all__ = [
     "RouterAction",
@@ -25,4 +35,13 @@ __all__ = [
     "RouterFeatureBundle",
     "build_router_features",
     "assess_acar_harm_calibration",
+    # ACAR (Step-2C)
+    "ACARConfig",
+    "ACARRiskType",
+    "ACARRiskCalibration",
+    "ACARActionState",
+    "ACARState",
+    "conformal_quantile",
+    "fit_risk_calibration",
+    "fit_acar_state",
 ]
