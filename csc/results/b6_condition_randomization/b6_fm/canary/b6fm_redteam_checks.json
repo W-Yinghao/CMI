@@ -1,0 +1,53 @@
+{
+ "all_pass": true,
+ "per_lens": [
+  {
+   "lens": "accounting_intersections",
+   "verdict": "PASS",
+   "summary": "Independently recomputed the entire B6-FM canary accounting and the row-level intersection joins from the raw JSONL; every claimed number reproduces exactly. No join error, no duplicate, no aggregate-inference contamination, no state-derivation defect.\n\n(a) ACCOUNTING \u2014 CLEAN. B6-FM = exactly 8 conditions x 50 = 400 rows (each condition 50); 0 worker-error rows; 400 unique task_ids, 0 duplicates (task_id format base:cidx:cond:cohort well-formed, cohorts 0..49 complete per condition). margin_fidelity_max_err==0 AND max_subject_count_err==0 for EVERY one of the 400 rows (not just the max). fidelity_dT: 399 valid rows all ==0 -> max|T_old-T_crt|=0.0; exactly 1 nan = 200000000:04:POS_concept:0045 (cohort 45), which is benign: the OLD certifier returned NEED_MORE_LABELS (observed_T=nan) so fidelity_dT is nan on BOTH the B6.0 and B6-FM sides, while the FM null still computed observed_T_crt=-0.00099 and returned NO_ACTIONABLE (no confirm) -> the nan touches no confirm count. sampler_invalid=0 (both field and state). All six accounting scalars match tables.json.\n\n(b) STATE RE-DERIVATION \u2014 CLEAN. Re-derived from raw fields (n_crt_invalid<=40 => estimable; p_C_FM_meanT<=0.025 AND p_C_FM_stud<=0.025 => p-gate; margin_fidelity_max_err=0; margin_feasible_swaps>=5; unique_Cstar>=3): the p-gate confirm set reproduces the CONCEPT_CONFIRMED set with 0 mismatches; fm_margin_lock / fm_sampler_invalid / fm_false_confirm / fm_true_confirm flags all consistent with fm_state and ground truth. 0 SAMPLER_INVALID, 0 MARGIN_LOCK, 0 NEED_MORE_LABELS; states sum to 50 per condition. Per-condition fm_confirm (2/15/0/0/22/0/12/9) match tables exactly.\n\n(c) INTERSECTIONS \u2014 CLEAN. Recomputed all 4 quantities (old_and_plain, old_and_fm, plain_and_fm, triple) per condition by EXACT task_id join across B6.0 rows (old+plain) and B6-FM rows (old+fm) on the same cohorts \u2014 every value matches b6_intersections.json exactly (soft 1/1/2/1; plabel 3/3/13/2; strong 0/0; NULL_label 0/0/22/0; POS 7/7/9/6; POS+cov 7/6/7/5). Join integrity verified: task_id sets identical (50) between the two files per condition; OLD-confirm sets agree between B6.0 file and B6-FM file (byte-reused); observed_T byte-identical where both non-nan. Single counts (old/plain/fm) match both the intersections file AND tables.json AND direct raw counts.\n\n(d) KEY AUDIT \u2014 CONFIRMED. NULL_cov_plus_label_soft old_and_plain = exactly 3 cohorts (0020, 0040, 0046), each with old_b3_state==CONCEPT_CONFIRMED AND b6_state==CONCEPT_CONFIRMED_B6. OLD-confirmed={0010,0020,0040,0046} (n=4); the only OLD-confirm NOT co-occurring with plain is 0010. Of the 3, FM re-confirms 0020 and 0040 (triple=2) and drops 0046 to NO_ACTIONABLE \u2014 matching triple=2. Structural-failure evidence corroborated: NULL_label plain_and_fm=22 with fm(22) fully nested in plain(25) and old=0 => FM's confirms are all within the prior-shift plain confirms and do not cancel the prior."
+  },
+  {
+   "lens": "science_verdict",
+   "verdict": "PASS",
+   "summary": "Independent recompute (task_id join, n=400) reproduces b6fm_canary_tables.json and b6_intersections.json byte-for-byte: margin_fidelity_max_err=0, sampler_invalid=0, fidelity_max_dT=0; OLD/B6.0/B6-FM per condition match exactly. (1) NULL_label 22/50 is a CONFIRMED structural finding: the DGP (realeeg_engine.py:85) makes NULL_label a per-session prior shift with D=session, and session is a real covariate, so within each class session-1 vs session-2 Z differ; fixed margins neutralize the pure-prior nuisance but the residual false-confirm is driven by within-class session-covariate drift the marginal Y-free propensity (median AUC 0.63, p_C 0.007) cannot reproduce -> matches the design-red-team prediction, barely below B6.0's 25, and B6-FM does NOT close the prior-shift gap (NULL_cov_plus_label unchanged at 15). (2) strong-cov 0/50 is genuine and p-value-driven (median p_C 0.731/0.818, propensity AUC 0.979/0.998, lock=0, 50/50 NO_ACTIONABLE) - same mechanism as B6.0, correctly retained, but does NOT rescue B6-FM (hard screen <=3; NULL_label 22 and NULL_cov_plus_label 15 both fail; passed=False). (3) POS retention genuine (POS_concept 12=OLD exactly; POS+cov 9 vs OLD 13, modestly attenuated). (4) Merge verdict is honest and not overclaimed: reports FAILURE, attributes it to within-class-covariate-vs-concept non-separation, flags marginal propensity and marginal-only covariate_auc_gap, does not sell strong-cov as a rescue. (5) Dual-witness decision input is structurally sound: old&plain NULL_label=0, plain&fm NULL_label=22 - OLD is the prior-witness (NULL_label 0 but strong-cov 18/28), plain/FM are covariate-witnesses (strong-cov 0 but NULL_label 25/22), complementary blind spots so OLD AND a covariate-witness cancels both modes while two same-type C-nulls cannot (summed NULL false confirms old&plain=4 vs plain&fm=37, POS 7/7 retained). Correctly framed as decision input, NOT a B7 pass."
+  }
+ ],
+ "serious_issues": [],
+ "all_issues": [
+  {
+   "lens": "accounting_intersections",
+   "severity": "low",
+   "summary": "n_eligible_crt (the size-gate input) is not persisted in the B6-FM JSONL rows, so CONCEPT_CONFIRMED vs NEED_MORE_LABELS cannot be distinguished from row fields alone; benign here because there are 0 NEED_MORE_LABELS/lock/invalid rows, so the fully re-derivable p-gate (p_C_FM_meanT/p_C_FM_stud/n_crt_invalid) exactly reproduces the confirm set. Observability gap only, no count affected."
+  },
+  {
+   "lens": "accounting_intersections",
+   "severity": "low",
+   "summary": "In B6.0 rows the b6_confirm field is the p-only pre-gate flag (identical to b6_confirm_p_only), not the gated confirm; the correct 'plain' definition is b6_state==CONCEPT_CONFIRMED_B6 (matches tables B6_confirm). For these specific cohorts the two counts coincide per condition, so the distinction does not change any number, but future joins must use the gated state, not the b6_confirm field."
+  },
+  {
+   "lens": "science_verdict",
+   "severity": "medium",
+   "summary": "Q5 dual-witness (OLD prior-witness AND a covariate-witness) is a valid, structurally-motivated DECISION INPUT but NOT a B7 pass: it is post-hoc on the same 50-task cohorts, still leaves residual soft-cov false-confirms (old&plain NULL_cov_plus_label=3, NULL_cov_soft=1), and the AND-rule costs genuine-concept power (POS 7 vs OLD 12-13). Any next step needs its own pre-registered packaged canary + independent red-team; do not read old&plain=7 as a validated result."
+  },
+  {
+   "lens": "science_verdict",
+   "severity": "low",
+   "summary": "The residual NULL_label false-confirm is mechanistically within-class session-covariate drift, NOT unhandled prior (the pure prior IS held fixed exactly). The verdict's mechanism clause ('does not separate within-class covariate from concept') is correct and internally consistent, so 'does not fix the prior-shift gap' is honest operationally (22 vs 25 barely moved), but the precise driver should be stated as within-class covariate, not prior."
+  },
+  {
+   "lens": "science_verdict",
+   "severity": "low",
+   "summary": "covariate_auc_gap medians are ~0 (e.g. NULL_label -0.0156) and must NOT be read as 'covariate preserved' - it is a marginal-only, Y-free diagnostic blind to the within-class covariate that drives the failure. This is disclosed in the tables caveat and code (realeeg_crt_fm.py:122-123), so no defect, but the caveat must be preserved in any writeup."
+  },
+  {
+   "lens": "science_verdict",
+   "severity": "low",
+   "summary": "POS+cov retention (9) is below OLD (13) and B6.0 (12) - a genuine but modest power cost of the tighter fixed-margin null on covariate-entangled concept; disclosed in the table, should be surfaced rather than folded into 'POS retained'."
+  },
+  {
+   "lens": "science_verdict",
+   "severity": "low",
+   "summary": "Minor hard-screen asymmetry: strong94 uses fm_confirm<=5 while all other conditions use <=3 (b6fm_canary_merge.py:88). Immaterial here (strong94=0) but the looser threshold on one cell is undocumented in the verdict."
+  }
+ ]
+}

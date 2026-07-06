@@ -1,0 +1,74 @@
+{
+ "NULL_cov_soft": {
+  "old": 11,
+  "plain": 2,
+  "fm": 2,
+  "old_and_plain": 1,
+  "old_and_fm": 1,
+  "plain_and_fm": 2,
+  "triple": 1
+ },
+ "NULL_cov_plus_label_soft": {
+  "old": 4,
+  "plain": 15,
+  "fm": 15,
+  "old_and_plain": 3,
+  "old_and_fm": 3,
+  "plain_and_fm": 13,
+  "triple": 2
+ },
+ "NULL_cov_strong_auc0.81": {
+  "old": 18,
+  "plain": 0,
+  "fm": 0,
+  "old_and_plain": 0,
+  "old_and_fm": 0,
+  "plain_and_fm": 0,
+  "triple": 0
+ },
+ "NULL_cov_strong_auc0.94": {
+  "old": 28,
+  "plain": 0,
+  "fm": 0,
+  "old_and_plain": 0,
+  "old_and_fm": 0,
+  "plain_and_fm": 0,
+  "triple": 0
+ },
+ "NULL_label": {
+  "old": 0,
+  "plain": 25,
+  "fm": 22,
+  "old_and_plain": 0,
+  "old_and_fm": 0,
+  "plain_and_fm": 22,
+  "triple": 0
+ },
+ "random_label_control": {
+  "old": 0,
+  "plain": 0,
+  "fm": 0,
+  "old_and_plain": 0,
+  "old_and_fm": 0,
+  "plain_and_fm": 0,
+  "triple": 0
+ },
+ "POS_concept": {
+  "old": 12,
+  "plain": 15,
+  "fm": 12,
+  "old_and_plain": 7,
+  "old_and_fm": 7,
+  "plain_and_fm": 9,
+  "triple": 6
+ },
+ "POS_concept_plus_cov": {
+  "old": 13,
+  "plain": 12,
+  "fm": 9,
+  "old_and_plain": 7,
+  "old_and_fm": 6,
+  "plain_and_fm": 7,
+  "triple": 5
+ }
+}
