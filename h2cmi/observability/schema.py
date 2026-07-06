@@ -87,6 +87,10 @@ class Verdict:
     uncheckable: FrozenSet[ContractID] = field(default_factory=frozenset)
     is_diagnostic: bool = False                          # True for leakage-style diagnostics
     licenses_target_risk: bool = False                   # True only when an allowed target risk/gain
+    # A metric can be REPORTABLE (an oracle/evaluation-only benchmark number) without being
+    # IDENTIFIABLE (a target functional pinned down by the regime's observation under OA-0).
+    reportable: bool = True                              # may appear in a results table
+    identifiable: bool = False                           # pinned down by (regime, contracts) under OA-0
 
     @property
     def rejected(self) -> bool:

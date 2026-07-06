@@ -26,6 +26,7 @@
       "checkable_contracts": [],
       "uncheckable_contracts": [],
       "identifiable_estimand": "source_loso",
+      "reportable_metric": true,
       "observation_used": [
         "X_s",
         "Y_s",
@@ -50,6 +51,7 @@
       "checkable_contracts": [],
       "uncheckable_contracts": [],
       "identifiable_estimand": null,
+      "reportable_metric": false,
       "observation_used": [],
       "estimator": "source safety gate",
       "certificate_passed": "CE-R0-2",
@@ -79,6 +81,7 @@
         "C2"
       ],
       "identifiable_estimand": "target_prior",
+      "reportable_metric": true,
       "observation_used": [
         "X_T"
       ],
@@ -105,6 +108,7 @@
       "checkable_contracts": [],
       "uncheckable_contracts": [],
       "identifiable_estimand": null,
+      "reportable_metric": false,
       "observation_used": [
         "X_T"
       ],
@@ -133,6 +137,7 @@
       ],
       "uncheckable_contracts": [],
       "identifiable_estimand": "target_transport",
+      "reportable_metric": true,
       "observation_used": [
         "anchors",
         "paired_sessions"

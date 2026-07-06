@@ -81,7 +81,8 @@ regime
 contracts_invoked
 checkable_contracts
 uncheckable_contracts
-identifiable_estimand          # or identified_set
+identifiable_estimand          # or identified_set; null unless pinned down under OA-0
+reportable_metric              # oracle/eval-only benchmark number: reportable without being identifiable
 observation_used
 estimator                      # incl. C5 fidelity diagnostics (stepA_dom_acc, probe gap)
 certificate_passed             # which CE/P0 checks ran and their result
@@ -92,8 +93,33 @@ The report makes the *claim boundary* auditable independently of the accuracy ta
 can verify that every asserted estimand is licensed by `(regime, contracts)` under `OA-0`, and
 that every forbidden claim was explicitly checked and not made.
 
+## 6. Audited evaluation bridge
+
+Real EEG benchmark labels are allowed for **evaluation**, but they are **not part of the R0/R1
+adaptation observation operator** (`06 §2`). A metric may therefore be **reportable** (an
+oracle/evaluation-only benchmark number) without being **identifiable** (a target functional
+pinned down by the regime under `OA-0`). The audit layer separates these
+(`Verdict.reportable` vs `Verdict.identifiable`); the bridge
+(`h2cmi/observability/eval_bridge.py`) turns `h2cmi/eval/harness.py` outputs into audited claims:
+
+- **strict-DG target bAcc** → `R0`, **oracle/evaluation-only** (reportable,
+  `identifiable_estimand = null`);
+- **offline / online TTA target gain / bAcc** → `R1`, **oracle/evaluation-only** (the measured
+  gain is not an `R1`-identified gain);
+- **offline-TTA target prior** → `R1`, identifiable **only under `TU-1` (C1∧C2∧C3)**, else rejected;
+- **leakage** → a diagnostic, never a target-risk guarantee;
+- the audit rejects any claim whose declared `regime` conflicts with its observed coordinates:
+  target **labels** under `R0`/`R1` are allowed only with an oracle/eval mark, while target
+  **data** and **anchors** under `R0`/`R1` are rejected **regardless** of the oracle mark
+  (anchors are R2-only); an **unregistered** coordinate is itself a mismatch (deny-by-default);
+- **no target metric may be reported without an `ObservabilityReport` entry.**
+
+Executable: `h2cmi/tests/test_observability_eval_bridge.py` (acceptance tests) and
+`notes/project_A_observability/examples/make_audited_eval_bridge_smoke.py` (smoke → JSON/MD).
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*; it does not itself run
-experiments or modify training code. Tier 0 is live (`run_counterexamples.py`); Tiers 1–2 are the
-template for any future simulator / real-EEG audit under Project A.
+experiments or modify training code. Tier 0 is live (`run_counterexamples.py`); the audited
+evaluation bridge (§6) is live (`eval_bridge.py`); Tiers 1–2 are the template for any future
+simulator / real-EEG audit under Project A.

@@ -21,6 +21,7 @@ REQUIRED_CLAIM_FIELDS = (
     "checkable_contracts",
     "uncheckable_contracts",
     "identifiable_estimand",
+    "reportable_metric",
     "observation_used",
     "estimator",
     "certificate_passed",
@@ -44,7 +45,8 @@ def _claim_record(claim: Claim, verdict: Verdict) -> Dict[str, Any]:
         "contracts_invoked": _sorted_ids(claim.contracts),
         "checkable_contracts": _sorted_ids(verdict.checkable),
         "uncheckable_contracts": _sorted_ids(verdict.uncheckable),
-        "identifiable_estimand": claim.estimand.value if verdict.allowed else None,
+        "identifiable_estimand": claim.estimand.value if verdict.identifiable else None,
+        "reportable_metric": verdict.reportable,
         "observation_used": list(claim.observed),
         "estimator": claim.estimator,
         "certificate_passed": verdict.failure_certificate,
@@ -96,7 +98,12 @@ def write_observability_report_md(report: ObservabilityReport, path: str) -> str
                  "contracts (checkable / assumed) | reason |")
     lines.append("|---|---|---|---|---|---|---|---|")
     for i, r in enumerate(data["claims"], 1):
-        verdict = "✅ allowed" if r["allowed"] else "⛔ rejected"
+        if not r["allowed"]:
+            verdict = "⛔ rejected"
+        elif r["identifiable_estimand"] is not None:
+            verdict = "✅ identifiable"
+        else:
+            verdict = "📊 reportable (oracle/eval-only)"
         lic = r["theorem"] or ""
         cert = r["certificate_passed"] or ""
         liccert = " / ".join(x for x in (lic, cert) if x)

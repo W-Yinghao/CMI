@@ -118,6 +118,9 @@ def test_report_contains_required_08_fields():
               observed=("X_T",)),
         # a rejected DEMO (conclusion=False) -> clean report, but exercises the rejected record
         Claim("concept_demo", Regime.R1, Estimand.TARGET_CONCEPT, conclusion=False),
+        # allowed BUT NOT identifiable (oracle/eval-only) -> pins identifiable keyed off .identifiable
+        Claim("oracle_bacc", Regime.R0, Estimand.BALANCED_ACCURACY,
+              observed=("X_s", "Y_s", "heldout_target_labels"), oracle=True),
     ])
     with tempfile.NamedTemporaryFile("w", suffix=".json", delete=False) as f:
         path = f.name
@@ -135,6 +138,10 @@ def test_report_contains_required_08_fields():
     assert by_name["prior"]["identifiable_estimand"] == "target_prior"
     assert by_name["concept_demo"]["identifiable_estimand"] is None
     assert by_name["concept_demo"]["allowed"] is False
+    # allowed oracle metric: reportable but NOT identifiable (keyed off .identifiable, not .allowed)
+    assert by_name["oracle_bacc"]["allowed"] is True
+    assert by_name["oracle_bacc"]["reportable_metric"] is True
+    assert by_name["oracle_bacc"]["identifiable_estimand"] is None
 
 
 def test_forbidden_violation_serialized():

@@ -14,7 +14,10 @@ Quick use:
 from __future__ import annotations
 
 from .audit import (assert_forbidden_claims_not_made, attach_failure_certificates, build_report,
-                    check_claim_allowed, split_checkable_uncheckable_contracts)
+                    check_claim_allowed, split_checkable_uncheckable_contracts,
+                    validate_observed_coordinates)
+from .eval_bridge import (build_audited_eval_report, claims_for_leakage, claims_for_offline_tta,
+                          claims_for_online_tta, claims_for_strict_dg)
 from .registry import CONTRACTS, FORBIDDEN_CLAIMS, THEOREMS, check_monotone_checkability
 from .report import (REQUIRED_CLAIM_FIELDS, report_to_dict, write_observability_report_json,
                      write_observability_report_md)
@@ -26,7 +29,10 @@ __all__ = [
     "ForbiddenClaimViolation",
     "check_claim_allowed", "build_report", "split_checkable_uncheckable_contracts",
     "attach_failure_certificates", "assert_forbidden_claims_not_made",
+    "validate_observed_coordinates",
     "CONTRACTS", "THEOREMS", "FORBIDDEN_CLAIMS", "check_monotone_checkability",
     "report_to_dict", "write_observability_report_json", "write_observability_report_md",
     "REQUIRED_CLAIM_FIELDS",
+    "build_audited_eval_report", "claims_for_strict_dg", "claims_for_offline_tta",
+    "claims_for_online_tta", "claims_for_leakage",
 ]
