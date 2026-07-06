@@ -24,6 +24,17 @@ emits an auditable reason for the choice. The layer is:
   recorded as audit information and separated from covariate/support/concept shift.
 - **Zero target labels**: the router consumes target `X` only. No target `y`, no target-label calibration.
 
+> **Positioning (revised after the Step-2A substrate study, §9.2).** Project B's primary contribution is
+> **NOT** a source-only learned harm regressor — Step-2A showed that harm on the deployment target is real but
+> the source-side harm-calibration signal is degenerate (non-nested subject gate: `pseudo_gain ≡ 0`) and
+> non-transferable (nested source-site LODO: `corr(target,nested)=+0.06`). The load-bearing safeguard is
+> therefore **TOS/support-aware refusal (§4)** plus **prior-decoupled diagnostics (§7)** and **OACI reason
+> codes (§5)**. **ACAR-style action risk (§6) is a *conditional* module**, active only when its calibration
+> set is non-degenerate; otherwise the router emits `OACI_ACAR_HARM_CALIBRATION_DEGENERATE` and falls through
+> to support/refusal logic. The learned `SafetyGate` is a **baseline / negative control**, not a foundation.
+> The honest thesis: *when harm is not source-identifiable, do not pretend to predict it — refuse on support
+> grounds and say why.*
+
 ### 1.2 Non-goals
 - Not a new EEG encoder. The encoder, density head, and classifier are **frozen** after source training.
 - Not a retraining/fine-tuning method. Actions only estimate an affine transform `(A,b)` on the *frozen
@@ -236,6 +247,9 @@ OACI_PRIOR_DECOUPLING_FAILED         # could not separate prior from support (bo
 # --- ACAR (action-conditional conformal) ---
 OACI_ACAR_HIGH_ACTION_RISK            # calibrated upper harm bound for action a > harm_budget[a]
 OACI_ACAR_INSUFFICIENT_CALIBRATION    # too few pseudo-targets to calibrate action a
+OACI_ACAR_HARM_CALIBRATION_DEGENERATE # source pseudo-target gains carry NO learnable harm signal
+                                      #   (all-zero / single-class), NOT an error and NOT too-few-samples
+                                      #   -> ACAR-harm unavailable; fall through to TOS/support refusal
 OACI_CONF_EMPTY_ACTION_SET            # every non-refuse action failed -> REFUSE
 
 # --- legacy gate / leakage / audit ---
@@ -514,6 +528,25 @@ harmful regimes that must never be merged into one metric**:
 > genuinely-OOD pseudo-targets, i.e. a **nested-LODO gate** that retrains the encoder excluding each
 > pseudo-domain (expensive; and whether even that transfers is the same open source-only question). This is a
 > load-bearing negative result and must gate the Step-2B/ACAR design decision.
+
+> **Nested source-SITE LODO probe (Step-2A-NL, HF3, same 5 seeds, 25 runs — bounds the claim).** To avoid
+> overclaiming, we asked whether calibrating on genuinely held-out source *sites* (nested LODO: retrain on 4
+> sites excluding {target, pseudo-site}, evaluate TTA on the OOD held-out source site) yields a
+> non-degenerate signal where the non-nested subject gate saw `pseudo_gain ≡ 0`. **Result: POSITIVE by the
+> pre-registered rule but not usefully so** — 3/5 seeds show a 2-class pseudo-gain (vs 0/5 for the subject
+> gate), so the degeneracy is a property of the *non-nested* protocol, NOT proof that every source-only
+> protocol is impossible. **However the signal is (a) borderline** (exactly 3/5, 3/5 thresholds), **(b) driven
+> by cross-site variance, not concept shift** (concept pseudo-sites mean d +0.027 vs non-concept +0.037), and
+> **(c) NON-TRANSFERABLE to the deployment target**: `corr(target_delta_bacc, nested_pseudo_gain_mean) = +0.06`
+> — the seed with the *strongest* target harm (seed8, −0.153, p=0.00) has **0/5** nested pseudo-harm, while
+> seed4 (−0.137) has 4/5. Worse, where nested harm is real (seed4/u3, −0.183) it coincides with extreme TOS
+> flags (`transform_norm≈20`, `ess≈5`) that support-aware refusal (§4) catches anyway.
+> **Net:** a source-only ACAR-harm regressor is *not literally impossible* but is degenerate under the cheap
+> protocol and non-predictive of target harm under the nested protocol. **Project B v1 therefore treats
+> ACAR-harm as a conditional module (emit `OACI_ACAR_HARM_CALIBRATION_DEGENERATE` when the calibration set is
+> degenerate) and makes TOS/support-aware refusal (§4) the load-bearing safeguard.** Nested calibration is
+> recorded as a possible *future* expensive optional mode, not a v1 dependency; the Step-2B scope is
+> unchanged (`reasons`/`actions`/`features` first).
 
 > **Baseline reality check (2026-07-06, `--fast` → 4 epochs).** The two Step-1 baseline runs do **not** yet
 > realise the intended recoverable-vs-harmful contrast, and Step 2 must fix the world config before using it
