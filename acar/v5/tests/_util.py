@@ -657,6 +657,20 @@ def stage2b_by_subject(specs, D=8, seed=0):
     return by_subject, DictLabelView(labels)
 
 
+def has_sklearn():
+    """True iff sklearn is importable (the V6-A0 sign-predictability model needs it; imported lazily)."""
+    import importlib.util
+    return importlib.util.find_spec("sklearn") is not None
+
+
+def v6a0_eval_fold(specs, D=8, seed=0, source_seed=0):
+    """(V6-A0) One {by_subject, source_lda, label_view} fold from specs=[(sk, role, n_windows, label)] (torch-free)."""
+    from acar.v5 import stage2_action_records as AR
+    by_subject, lv = stage2b_by_subject(specs, D=D, seed=seed)
+    lda = AR.SourceLDA(stage2b_synthetic_source_state(D=D, seed=source_seed))
+    return {"by_subject": by_subject, "source_lda": lda, "label_view": lv}
+
+
 def stage2b_first_evaluable(fit_batches, candidates=None):
     """(Stage-2B3) Return (candidate, thresholds) for the first candidate whose thresholds fit on `fit_batches` (torch-free)."""
     from acar.v5 import protocol as P

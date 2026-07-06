@@ -223,6 +223,13 @@ MODULES = (
     "test_stage2b_full_batch_still_calls_all_actions",
     "test_stage2b_partial_but_eligible_batch_still_calls_all_actions",
     "test_stage2b_run_selection_handles_n1_tail_without_crash_synthetic",
+    "test_v6a0_eval_only_primary_gate",
+    "test_v6a0_forced_tails_excluded_from_action_envelope",
+    "test_v6a0_primary_action_set_uses_stable_matched_coral",
+    "test_v6a0_labels_only_in_deltaR_evaluator",
+    "test_v6a0_subject_grouped_cv_no_leakage",
+    "test_v6a0_permutation_null_subject_blocked",
+    "test_v6a0_continue_gate_requires_both_diseases",
 )
 
 

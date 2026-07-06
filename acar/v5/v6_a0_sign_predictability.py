@@ -1,0 +1,169 @@
+"""ACAR V6-A0 — sign predictability (Q3), the BINDING gate.
+
+DIAGNOSTIC-ONLY / EXPLORATORY. CODE + SYNTHETIC TESTS ONLY. numpy + sklearn imported LAZILY (NO torch here).
+
+Primary (pinned): pooled action-record L2 logistic regression predicting beneficial(a,B)=1[ΔR_a<0] from label-free features,
+subject-GROUPED 5-fold OOF (canonical SubjectKey hash — all of a subject's records stay in one fold), per-disease AUROC, and a
+SUBJECT-BLOCK permutation null (1000 perms, seed 0). Model = LogisticRegression(C=1.0, class_weight='balanced', seed 0);
+train-standardization fit on TRAIN subjects only. Secondary (descriptive only; never overrides the primary gate): per-action
+AUROC/AUPRC, harmful target, calibration, coefficients.
+"""
+from __future__ import annotations
+import hashlib
+from acar.v5 import protocol as P
+
+SIGN_CV_SALT = "ACAR_V6A0_SIGN_CV_V1"
+N_FOLDS = 5
+PRIMARY_C = 1.0
+N_PERM = 1000
+PRIMARY_ACTIONS = P.ACTIONS
+_PAIRED = ("d_entropy", "d_margin", "flip_rate", "JS", "Bures", "post_sep", "n_eff")
+
+
+def sign_cv_fold(subject_key, seed=0, n_folds=N_FOLDS):
+    """Deterministic subject-grouped fold (permutation-independent; a DIFFERENT salt than the substrate splits)."""
+    h = hashlib.sha256(f"{SIGN_CV_SALT}|{seed}|{subject_key}".encode()).hexdigest()
+    return int(h[:8], 16) % n_folds
+
+
+def feature_names(provenance_tags):
+    return (list(_PAIRED) + ["source_confidence", "batch_entropy", "batch_size"]
+            + [f"action::{a}" for a in PRIMARY_ACTIONS] + [f"prov::{t}" for t in provenance_tags])
+
+
+def build_sign_records(records):
+    """Flatten eligible EVAL batch records into per-(subject, batch, action) sign records. beneficial = 1[ΔR_a<0] (from ΔR)."""
+    prov_tags = sorted({r["provenance"] for r in records})
+    out = []
+    for r in records:
+        for a in PRIMARY_ACTIONS:
+            out.append({"subject_key": r["subject_key"], "batch_id": r["batch_id"], "action_id": a,
+                        "provenance": r["provenance"], "features": r["features"],
+                        "beneficial": int(r["delta_r"][a] < 0.0)})
+    return out, prov_tags
+
+
+def _row(sr, prov_tags):
+    import numpy as np
+    f = sr["features"]
+    pa = f["per_action"][sr["action_id"]]
+    row = [pa[k] for k in _PAIRED] + [f["source_confidence"], f["batch_entropy"], float(f["batch_size"])]
+    row += [1.0 if sr["action_id"] == a else 0.0 for a in PRIMARY_ACTIONS]
+    row += [1.0 if sr["provenance"] == t else 0.0 for t in prov_tags]
+    return np.asarray(row, float)
+
+
+def design_matrix(sign_records, prov_tags):
+    import numpy as np
+    X = np.vstack([_row(sr, prov_tags) for sr in sign_records])
+    # t3a is prob-only -> its Bures/post_sep are structurally NaN; map NaN->0 (the v2 feature_vector convention). The action::t3a
+    # one-hot absorbs the resulting constant, so this does not leak or bias across actions.
+    X = np.nan_to_num(X, nan=0.0, posinf=0.0, neginf=0.0)
+    y = np.asarray([int(sr["beneficial"]) for sr in sign_records], dtype=int)
+    groups = np.asarray([str(sr["subject_key"]) for sr in sign_records], dtype=object)
+    return X, y, groups
+
+
+def _oof_scores(X, y, groups, seed):
+    """Subject-grouped 5-fold OOF probability of beneficial=1. sklearn LAZY. Standardize on TRAIN subjects only."""
+    import numpy as np
+    from sklearn.linear_model import LogisticRegression
+    subs = sorted(set(groups.tolist()))
+    fold_of = {s: sign_cv_fold(s, seed) for s in subs}
+    oof = np.full(len(y), np.nan)
+    for k in range(N_FOLDS):
+        te = np.array([fold_of[g] == k for g in groups])
+        tr = ~te
+        if tr.sum() == 0 or te.sum() == 0:
+            continue
+        mu = X[tr].mean(axis=0)
+        sd = X[tr].std(axis=0)
+        sd[sd == 0] = 1.0
+        if len(set(y[tr].tolist())) < 2:                                        # degenerate train fold -> constant prevalence
+            oof[te] = float(y[tr].mean())
+            continue
+        clf = LogisticRegression(C=PRIMARY_C, class_weight="balanced", max_iter=1000, random_state=seed)
+        clf.fit((X[tr] - mu) / sd, y[tr])
+        idx = list(clf.classes_).index(1) if 1 in clf.classes_ else None
+        oof[te] = clf.predict_proba((X[te] - mu) / sd)[:, idx] if idx is not None else 0.0
+    return oof
+
+
+def _auroc(y, scores):
+    import numpy as np
+    from sklearn.metrics import roc_auc_score
+    m = ~np.isnan(scores)
+    if len(set(y[m].tolist())) != 2:
+        return float("nan")
+    return float(roc_auc_score(y[m], scores[m]))
+
+
+def primary_sign_auroc(sign_records, prov_tags, seed=0):
+    """Per-disease pooled action-record subject-clustered OOF AUROC (the primary metric)."""
+    import numpy as np
+    X, y, groups = design_matrix(sign_records, prov_tags)
+    return _auroc(y, _oof_scores(X, y, groups, seed))
+
+
+def _subject_index(groups):
+    """Return (subjects-in-first-seen order, {subject: [record indices in original order]})."""
+    subs, idx_of = [], {}
+    for i, g in enumerate(groups):
+        s = str(g)
+        if s not in idx_of:
+            idx_of[s] = []
+            subs.append(s)
+        idx_of[s].append(i)
+    return subs, idx_of
+
+
+def n_permutable_subjects(groups):
+    """Subjects that belong to an equal-record-count stratum with >=2 members (i.e. actually permutable). A LOW value means the
+    subject-block null is weak/degenerate — surfaced so V6-A0b can judge null power rather than over-trust perm_p."""
+    subs, idx_of = _subject_index(groups)
+    by_size = {}
+    for s in subs:
+        by_size.setdefault(len(idx_of[s]), []).append(s)
+    return sum(len(m) for m in by_size.values() if len(m) >= 2)
+
+
+def subject_block_permute(y, groups, rng):
+    """SUBJECT-BLOCK permutation null, RESPECTING record counts: subjects are stratified by their number of records and permuted
+    ONLY within each equal-size stratum — a subject's INTACT label-block is reassigned to another same-size subject. This preserves
+    the label multiset AND every subject's within-block structure (a subject NEVER receives a within/cross-subject-scrambled label
+    vector — the bug the equal-size-only implementation had). Singleton-size subjects are not permutable and keep their own block.
+    Identity stratum shuffles return `y` unchanged. Deterministic given `rng`."""
+    import numpy as np
+    subs, idx_of = _subject_index(groups)
+    blocks = {s: [y[i] for i in idx_of[s]] for s in subs}
+    by_size = {}
+    for s in subs:
+        by_size.setdefault(len(idx_of[s]), []).append(s)
+    yp = np.array(y, copy=True)
+    for _size, members in by_size.items():
+        if len(members) < 2:
+            continue                                                           # singleton stratum: not permutable (block kept)
+        src = list(members)
+        rng.shuffle(src)                                                        # permute source-subject order WITHIN the stratum
+        for tgt, source in zip(members, src):                                  # target subject <- source subject's INTACT block
+            for pos, i in enumerate(idx_of[tgt]):                              # |idx_of[tgt]| == |blocks[source]| (same stratum)
+                yp[i] = blocks[source][pos]
+    return yp
+
+
+def permutation_pvalue(sign_records, prov_tags, observed_auroc, seed=0, n_perm=N_PERM):
+    """Subject-block permutation null. p = (1 + #{null_AUROC >= observed}) / (1 + n_valid). Deterministic (seed). sklearn lazy."""
+    import numpy as np
+    X, y, groups = design_matrix(sign_records, prov_tags)
+    rng = np.random.RandomState(seed)
+    ge = valid = 0
+    for _ in range(n_perm):
+        yp = subject_block_permute(y, groups, rng)
+        a = _auroc(yp, _oof_scores(X, yp, groups, seed))
+        if a == a:                                                             # not NaN
+            valid += 1
+            if a >= observed_auroc:
+                ge += 1
+    return {"p_value": ((1 + ge) / (1 + valid)) if valid else 1.0, "n_perm_valid": valid, "n_ge": ge,
+            "n_permutable_subjects": n_permutable_subjects(groups),            # null-power diagnostic (low -> weak null)
+            "n_subjects": len(set(groups.tolist()))}
