@@ -42,6 +42,34 @@ def _naive_controllers(cells, benefit_thr):
     return rows
 
 
+def _worldA_taxonomy(cellsA, bt):
+    """Per (dataset,backbone) World-A classification (see V2_FULL_LITE_AUDIT.md):
+      target_beneficial     : deployable principled cell that is SAFE (task-drop UCB<=0.02) AND target dbAcc LCB>bt
+      oracle_supported      : the injected-nuisance ORACLE eraser is target-beneficial (LCB>bt) AND random_k
+                              does NOT reproduce it (no random_k cell with LCB>bt)
+      clean_worldA_positive : target_beneficial AND oracle_supported (ceiling cleanly tied to the injected nuisance)
+    status = CLEAN (>=1 clean positive, 0 accept) / MIXED (target-beneficial exists but oracle-unsupported) / NONE."""
+    out = []
+    for ds, bb in sorted(set((v["dataset"], v["backbone"]) for v in cellsA)):
+        A = [v for v in cellsA if v["dataset"] == ds and v["backbone"] == bb]
+        prin = [v for v in A if v["intervention"] in PRINCIPLED]
+        orc = [v for v in A if v["intervention"] in DIAGNOSTIC]
+        rnd = [v for v in A if v["intervention"] == "random_k"]
+        tb = [v for v in prin if v["is_safe"] and v["dtgt_bacc_lo"] > bt]
+        oracle_tb = any(v["dtgt_bacc_lo"] > bt for v in orc)
+        rnd_repro = any(v["dtgt_bacc_lo"] > bt for v in rnd)
+        oracle_supported = bool(oracle_tb and not rnd_repro)
+        n_acc = sum(1 for v in prin if v["gate_action"] == "ACCEPT")
+        n_clean = len(tb) if oracle_supported else 0
+        status = ("CLEAN" if (n_clean >= 1 and n_acc == 0) else
+                  "MIXED" if (len(tb) >= 1 and not oracle_supported) else "NONE")
+        out.append({"ds": ds, "bb": bb, "n_target_beneficial": len(tb),
+                    "oracle_best": max([v["dtgt_bacc"] for v in orc], default=float("nan")),
+                    "oracle_supported": oracle_supported, "n_clean": n_clean, "n_accept": n_acc,
+                    "status": status, "carriers": sorted(set(v["intervention"] for v in tb))})
+    return out
+
+
 def _scatter(summ, tag, benefit_thr, outdir):
     try:
         import matplotlib
@@ -107,16 +135,29 @@ def main():
         rnd = [v for v in cells if v["intervention"] == "random_k"]
         n_acc = sum(1 for v in prin if v["gate_action"] == "ACCEPT")
         if wk == "A":
-            safe_ben = [v for v in prin + orc if v["is_safe"] and v["target_beneficial"]]
-            og = max([v["dtgt_bacc"] for v in orc], default=float("nan"))
-            rg = max([v["dtgt_bacc"] for v in rnd], default=float("nan"))
-            rnd_no = not (rg == rg and rg > bt)
-            verdicts["A"] = (len(safe_ben) >= 1) and n_acc == 0 and rnd_no
-            L += ["", "**Ceiling:** %d SAFE cell(s) with a real target gain (target dbAcc LCB>+%.2f) that the gate "
-                  "does NOT accept (principled ACCEPTs=%d). oracle target dbAcc=%+.3f vs random_k=%+.3f "
-                  "(random reproduces oracle? %s). -> %s.\n"
-                  % (len(safe_ben), bt, n_acc, og, rg, "yes" if not rnd_no else "no",
-                     "PASS" if verdicts["A"] else "FAIL")]
+            tax = _worldA_taxonomy(cells, bt)
+            L += ["", "**World A taxonomy** (target_beneficial = safe AND target dbAcc LCB>+%.2f; "
+                  "oracle_supported = oracle nuisance-eraser target LCB>+%.2f AND random_k does not reproduce; "
+                  "clean_worldA_positive = both):" % (bt, bt),
+                  "| dataset | backbone | target_beneficial cells | oracle best ΔbAcc | oracle_supported | "
+                  "clean positives | principled ACCEPT | carriers | **status** |",
+                  "|---|---|---|---|---|---|---|---|---|"]
+            for t in tax:
+                L.append("| %s | %s | %d | %+.3f | %s | %d | %d | %s | **%s** |"
+                         % (t["ds"], t["bb"], t["n_target_beneficial"], t["oracle_best"],
+                            "Y" if t["oracle_supported"] else "n", t["n_clean"], t["n_accept"],
+                            ",".join(c.split("_")[0] for c in t["carriers"]) or "-", t["status"]))
+            clean_bb = [t for t in tax if t["status"] == "CLEAN"]
+            mixed_bb = [t for t in tax if t["status"] == "MIXED"]
+            any_acc = any(t["n_accept"] > 0 for t in tax)
+            verdicts["A"] = (len(clean_bb) >= 1) and (len(mixed_bb) == 0) and not any_acc
+            overallA = ("CLEAN PASS" if verdicts["A"] else
+                        ("MIXED (clean on %s; oracle-unsupported/mixed on %s)"
+                         % (",".join(t["bb"] for t in clean_bb) or "none",
+                            ",".join(t["bb"] for t in mixed_bb) or "none") if not any_acc else "FAIL (a gate ACCEPT occurred)"))
+            L += ["", "**World A verdict:** %d/%d dataset-backbone cells CLEAN, %d MIXED (target-beneficial but "
+                  "oracle-unsupported), total principled ACCEPT=%d -> **World A = %s**.\n"
+                  % (len(clean_bb), len(tax), len(mixed_bb), sum(t["n_accept"] for t in tax), overallA)]
         elif wk == "B":
             verdicts["B"] = n_acc == 0
             L += ["", "**Unsafe-accept:** %d/%d principled cells ACCEPTED (want 0) -> %s.\n"
@@ -143,11 +184,15 @@ def main():
     fig = _scatter(summ, a.tag, bt, outdir)
     L += ["", "Scatter (source-LOSO benefit LCB vs actual target ΔbAcc LCB, colored by gate action, o=safe "
           "x=unsafe): `%s`" % fig,
-          "", "## Ceiling smoke verdict",
-          "- World A (target-beneficial but source-uncertifiable, NO accept): %s" % _pf(verdicts.get("A")),
+          "", "## Ceiling verdict",
+          "- World A (clean = target-beneficial AND oracle-supported, NO accept): %s"
+          % ("CLEAN PASS" if verdicts.get("A") else "MIXED (see World A taxonomy: clean on some backbones, "
+             "oracle-unsupported on others)"),
           "- World B (no unsafe accept): %s" % _pf(verdicts.get("B")),
           "- World C (no useless accept; domain-gain != benefit): %s" % _pf(verdicts.get("C")),
-          "- **overall: %s**" % _pf(all(verdicts.get(k) for k in ("A", "B", "C"))),
+          "- **overall: %s**" % ("CLEAN PASS" if all(verdicts.get(k) for k in ("A", "B", "C"))
+                                 else ("MIXED (B/C pass, no false accepts, but World A not clean on all backbones)"
+                                       if verdicts.get("B") and verdicts.get("C") else "FAIL")),
           "", "**Reading:** naive source-only controllers (domain-gain / safety) FALSE-ACCEPT; OUR gate accepts "
           "~nothing (conservative -- correct under the ceiling); only the ORACLE target-informed selector "
           "(diagnostic, uses target labels) picks the beneficial cells -> crossing the ceiling needs target info."]

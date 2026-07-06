@@ -486,7 +486,15 @@ Config sha256:`6b4d2622bdde`; thresholds FROZEN (safety UCB<=0.020, benefit LCB>
 | tp_leace | all | 2.00 | +0.000 | -0.000 | +0.396 | **ABSTAIN** | +0.001 [+0.000,+0.002] | Y | n |
 | tp_leace | all | 2.00 | +0.000 | -0.000 | +0.386 | **ABSTAIN** | +0.000 [-0.001,+0.002] | Y | n |
 
-**Ceiling:** 90 SAFE cell(s) with a real target gain (target dbAcc LCB>+0.01) that the gate does NOT accept (principled ACCEPTs=0). oracle target dbAcc=+0.065 vs random_k=+0.003 (random reproduces oracle? no). -> PASS.
+**World A taxonomy** (target_beneficial = safe AND target dbAcc LCB>+0.01; oracle_supported = oracle nuisance-eraser target LCB>+0.01 AND random_k does not reproduce; clean_worldA_positive = both):
+| dataset | backbone | target_beneficial cells | oracle best ΔbAcc | oracle_supported | clean positives | principled ACCEPT | carriers | **status** |
+|---|---|---|---|---|---|---|---|---|
+| Cho2017 | EEGNet | 29 | +0.065 | Y | 29 | 0 | fair,leace,rlace | **CLEAN** |
+| Cho2017 | TSMNet | 6 | +0.006 | n | 0 | 0 | rlace | **MIXED** |
+| Lee2019_MI | EEGNet | 24 | +0.063 | Y | 24 | 0 | fair,leace,rlace | **CLEAN** |
+| Lee2019_MI | TSMNet | 7 | +0.009 | n | 0 | 0 | rlace | **MIXED** |
+
+**World A verdict:** 2/4 dataset-backbone cells CLEAN, 2 MIXED (target-beneficial but oracle-unsupported), total principled ACCEPT=0 -> **World A = MIXED (clean on EEGNet,EEGNet; oracle-unsupported/mixed on TSMNet,TSMNet)**.
 
 ## World B --- task_entangled_unsafe (expect REJECT)
 | intervention | n_src | alpha | task-drop UCB | src-LOSO benefit LCB | domain-gain | gate | target ΔbAcc [CI] | safe | tgt-benef |
@@ -1471,10 +1479,10 @@ Config sha256:`6b4d2622bdde`; thresholds FROZEN (safety UCB<=0.020, benefit LCB>
 
 Scatter (source-LOSO benefit LCB vs actual target ΔbAcc LCB, colored by gate action, o=safe x=unsafe): `tos_cmi/results/method_deepen/v2_full_lite/v2_full_lite_ceiling_scatter.png`
 
-## Ceiling smoke verdict
-- World A (target-beneficial but source-uncertifiable, NO accept): PASS
+## Ceiling verdict
+- World A (clean = target-beneficial AND oracle-supported, NO accept): MIXED (see World A taxonomy: clean on some backbones, oracle-unsupported on others)
 - World B (no unsafe accept): PASS
 - World C (no useless accept; domain-gain != benefit): PASS
-- **overall: PASS**
+- **overall: MIXED (B/C pass, no false accepts, but World A not clean on all backbones)**
 
 **Reading:** naive source-only controllers (domain-gain / safety) FALSE-ACCEPT; OUR gate accepts ~nothing (conservative -- correct under the ceiling); only the ORACLE target-informed selector (diagnostic, uses target labels) picks the beneficial cells -> crossing the ceiling needs target info.
