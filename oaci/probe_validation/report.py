@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import csv
 import json
+import math
 import os
 
 from ..competence_probe import feature_registry
@@ -41,6 +42,58 @@ def _atlas_by_regime(extract_dir, c10_dir, bnd, folds, n_workers):
         out[regime] = feature_registry.build_atlas(extract_dir, c10_dir, regime, boundary_classes=bnd,
                                                     leakage_lookup=lk, folds=folds)
     return out
+
+
+def _hanley_se(auc, n_pos, n_neg):
+    if not auc or n_pos < 1 or n_neg < 1:
+        return None
+    q1 = auc / (2 - auc); q2 = 2 * auc * auc / (1 + auc)
+    var = (auc * (1 - auc) + (n_pos - 1) * (q1 - auc * auc) + (n_neg - 1) * (q2 - auc * auc)) / (n_pos * n_neg)
+    return var ** 0.5 if var > 0 else None
+
+
+def _norm_sf(z):
+    return 0.5 * math.erfc(z / (2 ** 0.5))
+
+
+def robustness_analysis(heldout, *, base_rate=0.473) -> dict:
+    """Post-hoc DISCLOSURE (does NOT change the pre-registered per-regime pass/fail): DeLong/Hanley SE + 95%
+    CI on the pooled held-out AUC, one-sided z vs 0.5, Holm multiplicity across the 4 correlated held-out
+    regimes, and the Simpson check (per-target mean AUC vs the pooled statistic). SE is the IID lower bound;
+    per-target clustering inflates it. base_rate approximated from C19 (same candidate population)."""
+    H = schema.HELD_OUT_REGIMES
+    per = {}
+    for r in H:
+        p = heldout[r]["primary"]; auc = p.get("loto_auc"); n = p.get("n_used") or 0
+        npos = round(base_rate * n); nneg = n - npos
+        se = _hanley_se(auc, npos, nneg)
+        z = ((auc - 0.5) / se) if (auc is not None and se) else None
+        pt = [v for v in (p.get("per_target_auc") or {}).values() if v is not None]
+        per[r] = {"auc": auc, "se_iid": se, "ci_low": (auc - 1.96 * se) if se else None,
+                  "ci_high": (auc + 1.96 * se) if se else None, "z_vs_chance": z,
+                  "one_sided_p_vs_chance": (_norm_sf(z) if z is not None else None),
+                  "per_target_mean_auc": (sum(pt) / len(pt) if pt else None),
+                  "preregistered_passes": bool(p.get("passes"))}
+    # Holm across the 4 one-sided p-values
+    ps = sorted(((per[r]["one_sided_p_vs_chance"], r) for r in H if per[r]["one_sided_p_vs_chance"] is not None))
+    holm_survive = {}; m = len(ps)
+    for i, (pval, r) in enumerate(ps):
+        thr = 0.05 / (m - i)
+        holm_survive[r] = bool(pval <= thr and all(holm_survive.get(pr, True) for _, pr in ps[:i]))
+    n_holm = sum(1 for r in H if holm_survive.get(r))
+    pt_means = [per[r]["per_target_mean_auc"] for r in H if per[r]["per_target_mean_auc"] is not None]
+    return {"per_regime": {r: {**per[r], "holm_survives_vs_chance": holm_survive.get(r, False)} for r in H},
+            "n_preregistered_pass": sum(per[r]["preregistered_passes"] for r in H),
+            "n_holm_survive_vs_chance": n_holm,
+            "per_target_mean_auc_range": ([min(pt_means), max(pt_means)] if pt_means else None),
+            "pooled_auc_range": [min(per[r]["auc"] for r in H if per[r]["auc"] is not None),
+                                 max(per[r]["auc"] for r in H if per[r]["auc"] is not None)],
+            "simpson_pooled_decoupled_from_within_target": bool(
+                pt_means and (max(pt_means) - min(pt_means)) < 0.05),   # per-target ~constant across regimes
+            "within_target_underclaim_auc": (sum(pt_means) / len(pt_means) if pt_means else None),
+            "note": ("DISCLOSURE only. Pre-registered per-regime pass/fail is unchanged; this shows the 2/N pass "
+                     "collapses under multiplicity/CI and that the pooled pass/fail is Simpson-confounded (per-"
+                     "target discrimination is regime-nonspecific ~const, NOT the pre-registered pooled estimand).")}
 
 
 def _taxonomy(heldout, availability) -> dict:
@@ -119,7 +172,8 @@ def run(extract_dir, c10_dir, *, folds=None, n_perm=schema.N_PERM, n_workers=8,
              "success_margin_vs_strict_chance": schema.SUCCESS_AUC_MARGIN_VS_CHANCE}
     return {"boundary_classes": list(bnd), "split_plan": regime_splits.split_plan(),
             "feature_lock": feature_lock.lock_audit(), "held_out": heldout, "availability": avail,
-            "taxonomy": tax, "gates": gates, "config_hash": frozen_config.assert_locked(),
+            "taxonomy": tax, "robustness_analysis": robustness_analysis(heldout), "gates": gates,
+            "config_hash": frozen_config.assert_locked(),
             "n_folds": len(folds) if folds is not None else None, "diagnostic_only_non_deployable": True}
 
 
@@ -188,6 +242,17 @@ def write_tables(res, tdir) -> None:
               ["dataset", "role", "status", "note"])
     _writecsv(os.path.join(tdir, "no_selector_artifact_gate.csv"),
               [{"check": k, "pass": v} for k, v in res["gates"].items()], ["check", "pass"])
+    ra = res.get("robustness_analysis", {})
+    _writecsv(os.path.join(tdir, "multiplicity_ci_simpson.csv"),
+              [{"held_out_regime": r, "pooled_auc": ra["per_regime"][r]["auc"],
+                "se_iid": ra["per_regime"][r]["se_iid"], "ci_low": ra["per_regime"][r]["ci_low"],
+                "ci_high": ra["per_regime"][r]["ci_high"], "one_sided_p_vs_chance": ra["per_regime"][r]["one_sided_p_vs_chance"],
+                "holm_survives_vs_chance": ra["per_regime"][r]["holm_survives_vs_chance"],
+                "preregistered_passes": ra["per_regime"][r]["preregistered_passes"],
+                "per_target_mean_auc": ra["per_regime"][r]["per_target_mean_auc"]} for r in H],
+              ["held_out_regime", "pooled_auc", "se_iid", "ci_low", "ci_high", "one_sided_p_vs_chance",
+               "holm_survives_vs_chance", "preregistered_passes", "per_target_mean_auc"])
+
     lv = res["taxonomy"]["layered_verdict"]
     _writecsv(os.path.join(tdir, "c20_case_taxonomy.csv"),
               [{"case_label": res["taxonomy"]["case_label"], "primary_verdict": lv["primary_verdict"],
@@ -201,6 +266,10 @@ def write_tables(res, tdir) -> None:
 
 def _f(x):
     return "n/a" if x is None else (f"{x:+.3f}" if isinstance(x, float) else str(x))
+
+
+def _rng(x):
+    return "n/a" if not x else f"[{x[0]:.3f}, {x[1]:.3f}]"
 
 
 def render_md(res) -> str:
@@ -251,7 +320,22 @@ def render_md(res) -> str:
           f">= S6 boundary-aligned ({_f(ho['S6_boundary_aligned_mask']['primary'].get('loto_auc'))}), so the marginal "
           f"transfer is NOT a boundary mechanism. The only above-chance regimes (S6/S7) are the LOWER-severity ones "
           f"(sev 3) vs the failing S4/S5 (sev 4): severity_local_marginal_transfer = **{t['severity_local_marginal_transfer']}** "
-          "→ a severity gradient, not novel-regime generalization.", "",
+          "→ a severity gradient, not novel-regime generalization. (S7 is C18's RANDOM NEGATIVE CONTROL, yet "
+          "'passes' above the S6 treatment — the probe cannot separate structured from random deletion.)", "",
+          "## 4b. Robustness disclosure (post-hoc; pre-registered pass/fail unchanged)", ""]
+    ra = res.get("robustness_analysis", {})
+    L += [f"- Multiplicity: {ra.get('n_preregistered_pass')}/4 pre-registered passes collapse to "
+          f"**{ra.get('n_holm_survive_vs_chance')}/4** surviving Holm correction (one-sided z vs 0.5, Hanley SE~0.016). "
+          "The permutation gate is non-discriminating (sub-0.5 null → p at the ~0.005 floor for ALL regimes incl "
+          "at-chance S4), so only the single margin-vs-0.5 gate does any work and it does not survive multiplicity.",
+          f"- **Simpson / pooling confound**: per-target mean AUC is essentially constant across ALL four regimes "
+          f"(range {_rng(ra.get('per_target_mean_auc_range'))}) while the pooled pass/fail AUC ranges "
+          f"{_rng(ra.get('pooled_auc_range'))} — so the pooled statistic that drives pass/fail is a between-target "
+          f"offset artifact DECOUPLED from within-target signal. simpson_decoupled = "
+          f"**{ra.get('simpson_pooled_decoupled_from_within_target')}**.",
+          f"- **Under-claim (disclosed, honest)**: a consistent WITHIN-target AUC ≈ {_f(ra.get('within_target_underclaim_auc'))} "
+          "exists in EVERY held-out regime — a genuine competence signal — BUT it is regime-nonspecific and is NOT "
+          "the pre-registered pooled estimand, so it cannot rescue the generalization claim.", "",
           "## 5. Endpoint-augmented (SECONDARY — cannot rescue primary)", "",
           "| held-out regime | n_endpoint_estimable | loto_auc | passes |", "|---|---:|---:|:--:|"]
     for r in schema.HELD_OUT_REGIMES:
@@ -321,6 +405,7 @@ def reinterpret(json_path, out_dir) -> dict:
     the deterministic cross-regime LOTO / permutation. Uses the SAME _taxonomy()."""
     res = json.load(open(json_path))
     res["taxonomy"] = _taxonomy(res["held_out"], res["availability"])
+    res["robustness_analysis"] = robustness_analysis(res["held_out"])
     _write_artifacts(res, out_dir)
     return res
 
