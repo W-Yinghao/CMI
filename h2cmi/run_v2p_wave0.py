@@ -140,13 +140,14 @@ def main():
                 for est in EST:
                     T, piJ = _fit(est, density, Ua, w, pi_star, cfg, args.device, ya, pooled_ref, ts)
                     a = np.asarray(T.a.detach().cpu().numpy(), float); b = np.asarray(T.b.detach().cpu().numpy(), float)
-                    p_unif = _predict_transform(model, Ue, T, uni)
+                    p_unif = _predict_transform(model, Ue, T, uni)      # probabilities [N,K]
                     rec = _record(p_unif, ye, K, T)
-                    r0, r1 = _recalls(ye, p_unif)
-                    # matched-prevalence ordinary accuracy under three decision priors
-                    ord_unif = _ord_acc(ye, p_unif, q)
-                    ord_piJ = _ord_acc(ye, _predict_transform(model, Ue, T, piJ), q)
-                    ord_oracleq = _ord_acc(ye, _predict_transform(model, Ue, T, np.array([q, 1 - q])), q)
+                    pred_unif = np.asarray(p_unif).argmax(1)            # HARD predictions for recalls/ord-acc
+                    r0, r1 = _recalls(ye, pred_unif)
+                    # matched-prevalence ordinary accuracy under three decision priors (argmax hard preds)
+                    ord_unif = _ord_acc(ye, pred_unif, q)
+                    ord_piJ = _ord_acc(ye, np.asarray(_predict_transform(model, Ue, T, piJ)).argmax(1), q)
+                    ord_oracleq = _ord_acc(ye, np.asarray(_predict_transform(model, Ue, T, np.array([q, 1 - q]))).argmax(1), q)
                     row = dict(base, estimator=est, ratio=rname, q=q, class0_mass=cmass[0], class1_mass=cmass[1],
                                weight_sum=float(w.sum()), pi_J=[float(x) for x in piJ],
                                recall_class0=r0, recall_class1=r1,
