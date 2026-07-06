@@ -79,9 +79,11 @@ def main():
     ap.add_argument("--seed0-root", default="results/h2cmi/v2_bundles")
     ap.add_argument("--new-root", default="results/h2cmi/p0_v2pw_bundles")   # REUSE frozen V2P bundles
     ap.add_argument("--out", required=True)
+    ap.add_argument("--subjects", default="", help="optional comma-separated REAL subject ids to restrict to")
     ap.add_argument("--epochs", type=int, default=20); ap.add_argument("--device", default="cuda")
     ap.add_argument("--allow-dirty", action="store_true")
     args = ap.parse_args()
+    only_subj = set(int(s) for s in args.subjects.split(",") if s != "") if args.subjects else None
     os.makedirs(OUT_DIR, exist_ok=True)
     commit = require_clean_git(allow_dirty=args.allow_dirty,
                                ignore_prefixes=["results/h2cmi", args.new_root, args.seed0_root])
@@ -91,11 +93,22 @@ def main():
     for p in (args.pairs.split(",") if args.pairs else []):
         d, ss = p.split(":"); a, b = ss.split(">"); pairs.append((d, int(a), int(b)))
     pairs = pairs or PAIRS_B
+    # append-only + skip-if-done: (subject,seed) already carrying a __disp__ row is never recomputed
+    done = set()
     if os.path.exists(args.out):
-        os.remove(args.out)
+        import json as _json
+        for l in open(args.out):
+            if l.strip():
+                r = _json.loads(l)
+                if r.get("ratio") == "__disp__" and r.get("estimator") == EST[-1]:
+                    done.add((int(r["subject"]), int(r["seed"])))
     uni = np.full(K, 1.0 / K)
     for ds, s_src, s_tgt, subj, ai, ei, Xa, ya, Xe, ye, ep, m_src in _pair_units(pairs, seeds, args, code_sig, commit):
+        if only_subj is not None and int(subj) not in only_subj:
+            continue
         for seed in seeds:
+            if (int(subj), int(seed)) in done:
+                print(f"[V2PW0] subj {int(subj)} seed {seed} already recorded -> skip", flush=True); continue
             determinism_setup(seed)                          # deterministic eval-only reuse (reproducible curves)
             cfg = build_cfg(ep.X.shape[1], args.epochs, args.device, seed=seed)
             tag = f"B:{ds}:s{int(subj)}:sess{s_src}"
