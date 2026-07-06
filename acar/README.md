@@ -2,6 +2,14 @@
 
 > *Predicting Negative Transfer, Not Distribution Shift, for Safe EEG Test-Time Adaptation.*
 
+> ⛔ **STATUS (2026-07-06) — CLOSED THROUGH v5. `DEV_STOP / NO_CANDIDATE_SELECTED`.** The v5 Stage-2B real DEV selection ran
+> clean (rc=0) and no candidate in the frozen 22-policy universe passed the pre-registered safety/utility gates (0/22 eligible;
+> failure = HARM control, not coverage). **Engineering/protocol recovery SUCCEEDED (A9); the router hypothesis is REFUTED on DEV
+> (A8).** No Stage-4/S1–S3, no external/held-out/ASZED, lockbox SEALED; any continuation is a NEW dated protocol (v6). The
+> `v3`-centric text below is historical. Authoritative: [`../notes/ACAR_V5_CLOSEOUT.md`](../notes/ACAR_V5_CLOSEOUT.md),
+> [`../notes/ACAR_V5_STAGE2B_CLOSEOUT.md`](../notes/ACAR_V5_STAGE2B_CLOSEOUT.md),
+> [`../notes/EVIDENCE_LEDGER.md`](../notes/EVIDENCE_LEDGER.md).
+
 Isolated package for **Direction 2**: the leak-proof successor to the closed gate-falsification line
 (A0 / A0′ / A0′-R / A0-PILOT). Pre-registration: [`../notes/ACAR_FROZEN.md`](../notes/ACAR_FROZEN.md) (v1), **amended
 and superseded for execution by** [`../notes/ACAR_FROZEN_v2.md`](../notes/ACAR_FROZEN_v2.md) — the v2 amendment is the

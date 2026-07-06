@@ -1,5 +1,23 @@
 # ACAR — Project Overview (read-me-first)
 
+> **CURRENT AUTHORITATIVE STATUS (2026-07-06) — ACAR IS CLOSED THROUGH v5. The body below is v3-era history; read it as lineage,
+> not current state.**
+>
+> ```
+> ACAR-V5: Stage-1B substrate/package succeeded; Stage-2B real DEV selection ended in DEV_STOP.
+> No candidate in the frozen 22-policy universe passed the pre-registered safety/utility gates.
+> No Stage-4 robustness or external evaluation was run; lockbox remains sealed.
+> ```
+>
+> Split the v5 result cleanly (do NOT conflate): **engineering/protocol recovery = SUCCESS** (hash-bound external-compatible
+> Stage-1B substrate + guarded label-firewalled Stage-2 pipeline running to a clean pre-registered verdict — the object v4 lacked;
+> ledger **A9 SUPPORTED**) vs **scientific router hypothesis = FAIL/REFUTED ON DEV** (Stage-2B `DEV_STOP`, 0/22 eligible, driven by
+> HARM control not coverage; ledger **A8 REFUTED**). The measurement→control gap is **NOT closed** across v2→v5. Authoritative
+> docs: `notes/ACAR_V5_CLOSEOUT.md` (lineage + engineering-vs-science split), `notes/ACAR_V5_STAGE2B_CLOSEOUT.md` (the run + full
+> gate table), `notes/EVIDENCE_LEDGER.md` (claim status). Lineage: v2 `MEASUREMENT_ONLY` → v3 `DEV_STOP` (coverage collapse) → v4
+> `SUBSTRATE_COMPATIBILITY_FAIL` → v5 `DEV_STOP` (harm-control, on a clean substrate). No rerun/tuning/Stage-4/external/lockbox;
+> any continuation is a NEW dated protocol (v6, a new hypothesis).
+
 *A single document to understand the whole project: where it came from, what ACAR is, how the v3 code is built, what
 is frozen, what was run, and what is still gated. (Prose dates like "2026-06-24" reflect the working-session calendar;
 the authoritative timestamps are the git commit dates, which read 2026-06-29 — e.g. the DEV-lock + DEV run are stamped

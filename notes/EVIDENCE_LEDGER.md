@@ -53,25 +53,35 @@ ACAR is the leak-proof successor to the closed A0 line. Estimand = action-condit
 | A5 | Any **external Arm-B / held-out lockbox** ACAR result (binding G2, site-local coverage, harmful-rate, two-site) | **OPEN — NOT RUN; NOT AUTHORIZED** | v3 stopped at the DEV gate; lockbox NOT consumed; external freeze never reached |
 | A6 | The v4 **control-first redesign** (CURB: calibrate the EXECUTED policy's subject risk on a finite λ grid, not the all-action conformal upper bound) yields a usable DEV router | **EXPLORATORY_CANDIDATE — DEV-only; SUPERSEDED by A7 (did NOT transfer)** | v4 DEV exploration #001 (`acar` @ `e9760e6`; `results/acar_v4_dev_exploration_001/`): `V4_DEV_CANDIDATE_FOUND_FOR_POSSIBLE_FREEZE`. 14/90 both-disease configs pass pre-registered G0–G6 OOF: coverage 16–86 %, deployed NLL reduction beating the v2-replay comparator (macro 0.0985, == v3 C0) on BOTH diseases. **Caveat: model-selection over 90 configs (selection bias); DEV-only; harm rate 15–46 % of adapted batches; no lockbox/external. NON-BINDING — read now as a NEGATIVE PRIOR (see A7).** |
 | A7 | The fixed v4 candidate **transfers to the regenerated all-DEV (external-compatible) substrate** (the prerequisite for external Arm B) | **REFUTED → `SUBSTRATE_COMPATIBILITY_FAIL / NO_EXTERNAL / NO_LOCKBOX_CONSUMED`** | v4 substrate-compatibility replay (substrate `b99fa4f`, compat `5237378`/C5b; result `c605e24`, `notes/ACAR_V4_C5B_COMPAT_REPLAY_RESULT.md`; SLURM A40 877665). The fixed candidate (`shift_margin+benefit_ranked+harm_indicator`) on the B1b all-DEV substrate: PD coverage 0.024 / red −0.0022 / harm-among-adapted 0.73; SCZ coverage 0.049 / red −0.019 / harm-among-adapted 1.00; fails coverage≥0.15, red>0, red>v2_replay (v2 evaluable both). It barely adapts and is net-harmful where it does → does NOT transfer. External Arm B foreclosed; **no post-replay tuning** (NEW dated protocol only). Closeout: `notes/ACAR_V4_CLOSEOUT.md` |
+| A8 | **ACAR-V5 closes the label-free adaptation deployment gap on PD/SCZ DEV** (a safe+beneficial routing candidate exists in the frozen 22-policy universe under the pre-registered G1–G5 gates) | **REFUTED → `DEV_STOP / NO_CANDIDATE_SELECTED`** | v5 Stage-2B real DEV selection (`acar-v5-protocol @ 4278435`; substrate run `acar-v5-stage1b-c4412b4-r1`; selection run `acar-v5-stage2b-ba09777-r1` @ impl `ba09777`; result commit `d287635`; SLURM 885395, 8.18 h, rc=0). **0/22 candidates eligible; CAL cert 0/22 on BOTH diseases.** Failure mode = **harm control, not coverage** (unlike v3): G1 coverage passes PD 13/22 · SCZ 19/22, but **G4 harm_among_adapted UCB ∈ [0.61,0.87] ≫ 0.30 on all 42 evaluable cells** and G3 L_harm_all UCB > 0.10 almost everywhere (PD 1/22, SCZ 0/22); EVAL `red` = −12.12 .. +0.01 (adaptation increases NLL loss); v2_replay_red PD −0.079 / SCZ −0.049 (comparator also harmful). Identity/source-state LDA `f_0` dominates. 1 non-evaluable candidate (V5-P4-002 both diseases; Holm family fixed 132). Note independently re-verified (all 9 claims + full 22-row table CONFIRMED). Consequence: **no Stage-4, no external, lockbox sealed, no rerun/tuning/reselection** — NEW dated protocol only. Closeout: `notes/ACAR_V5_STAGE2B_CLOSEOUT.md`, `notes/ACAR_V5_CLOSEOUT.md` |
+| A9 | **ACAR-V5 built and admitted an external-compatible, hash-bound Stage-1B DEV substrate + a guarded, label-firewalled Stage-2 selection pipeline that runs to a clean pre-registered verdict** | **SUPPORTED (engineering/protocol only — NOT efficacy)** | 30/30 substrates admitted; registry / FINALIZED package verified (registry_sha256 `2bbe55f4…bbcbb76d`); single external-compatible source-state per fold; repair/montage/channel provenance recorded (`notes/ACAR_V5_STAGE1B*.md`). Stage-2 pipeline = FIT thresholds / CAL Holm-132 / EVAL G1–G5, with `stable_matched_coral_v1` (bounded rank-aware CORAL) + forced-tail identity-only correction, each adversarially reviewed + label-free stress-tested on the real package across two distinct nodes (`…STAGE2B2P_*`, `…STAGE2B3P_*`); the binding run completed rc=0 with the forced-tail contract holding (0/405 forced tails routed). **Scope: this is the machinery/recovery success (the object v4 never had), NOT a claim that the router works — see A8.** |
 
-**ACAR net statement (updated 2026-07-01):** v2 (`MEASUREMENT_ONLY`) and v3 (`DEV_STOP`) established the
-measurement→control gap; v4's control-first redesign (CURB) found a DEV-only candidate that looked like it might close it
-(A6), **but the candidate does NOT transfer to the regenerated external-compatible substrate (A7): `SUBSTRATE_COMPATIBILITY_FAIL`**.
-v4 therefore dies at the substrate-compatibility gate — BEFORE external Arm B, with the lockbox NOT consumed. The measurement→control
-gap is **NOT closed**. **Authoritative ACAR claim status: measurement replicated (v2/v3); v4's DEV-only candidate is a NEGATIVE
-PRIOR (selection bias on the old LOSO substrate; does not survive substrate regeneration); calibrated control is NOT confirmed.**
-Binding for write-up: do NOT claim a safe deployable router, an external lockbox result, a verified coverage theorem on an
-external site, that the v4 DEV candidate is usable, or that SCZ's local signal supports deployment. No threshold/δ/seed/candidate
-search to chase a pass — any continuation is a NEW dated, separately-tagged protocol (ACAR v5), never an in-place edit of
-`817b04f` / `b99fa4f` / `5237378` or these results.
+**ACAR net statement (updated 2026-07-06):** v2 (`MEASUREMENT_ONLY`) and v3 (`DEV_STOP`, coverage collapse) established the
+measurement→control gap; v4's control-first redesign (CURB) found a DEV-only candidate that did NOT transfer to the regenerated
+external-compatible substrate (A7, `SUBSTRATE_COMPATIBILITY_FAIL`, before external Arm B). **v5 (the substrate-robust
+constrained-utility router) RECOVERED the machinery v4 lacked — a hash-bound external-compatible Stage-1B substrate + a guarded,
+label-firewalled Stage-2 pipeline that runs to a clean pre-registered verdict (A9, `SUPPORTED`, engineering-only) — and then
+produced the sharpest negative yet: Stage-2B real DEV selection = `DEV_STOP / NO_CANDIDATE_SELECTED` (A8, `REFUTED`), driven by
+HARM control (G3/G4), not coverage. On a clean external-compatible substrate with proper harm gates, no policy in the frozen
+22-candidate universe is safe or beneficial; the identity/source-state LDA `f_0` dominates.** The measurement→control gap is
+**NOT closed** across v2→v5. **Authoritative ACAR claim status: measurement replicated (v2/v3); v5 substrate+pipeline engineering
+SUPPORTED but efficacy REFUTED on DEV; calibrated safe/beneficial control is NOT achieved by any ACAR version.** Binding for
+write-up: do NOT claim a safe deployable router, an external lockbox result, a verified coverage theorem on an external site, that
+any DEV candidate (v4 or v5) is usable, or that SCZ's local signal supports deployment. Split the two v5 results cleanly:
+engineering/protocol success (A9) is NOT router success (A8). No threshold/δ/seed/candidate search to chase a pass — any
+continuation is a NEW dated, separately-tagged protocol (ACAR v6, a new hypothesis), never an in-place edit of `817b04f` /
+`b99fa4f` / `5237378` / `4278435` / `ba09777` or these results.
 
 ## Standing constraints
 No new gate / LPC / coverage / cohort / score search (per the frozen A0-PILOT rule). Deployment control uses no
 target labels and no source examples. TUAB stays sealed pending the exposure audit's disposition. **ACAR: v3 is
-terminated at `DEV_STOP`; v4 is terminated at `SUBSTRATE_COMPATIBILITY_FAIL` (A7) — the DEV-only v4 candidate (A6) did NOT
-transfer to the regenerated external-compatible substrate. The lockbox is NOT consumed, external Arm B is NOT authorized, and
-the `acar-v4-protocol` tag was NOT created. No post-replay tuning of the candidate / score family / policy / loss / λ grid /
-comparator / thresholds; any continuation is a NEW dated protocol (ACAR v5). See `notes/ACAR_V4_CLOSEOUT.md`.**
+terminated at `DEV_STOP` (coverage collapse); v4 is terminated at `SUBSTRATE_COMPATIBILITY_FAIL` (A7); v5 is terminated at
+`DEV_STOP / NO_CANDIDATE_SELECTED` (A8, harm-control failure) after recovering the substrate+pipeline (A9). The lockbox is NOT
+consumed, external / held-out / ASZED is NOT authorized, and Stage-4 (S1/S2/S3) is NOT run (it needs a selected candidate — there
+is none). No tuning / reselection / rerun of the candidate universe / score family / policy / G3-G4 gates / λ-threshold grid /
+CAL-EVAL interpretation / v2-replay comparator / batch size / MIN_BATCH; any continuation is a NEW dated protocol (ACAR v6, a new
+hypothesis), never an in-place edit of `4278435` / `ba09777` or these results. See `notes/ACAR_V5_CLOSEOUT.md` +
+`notes/ACAR_V5_STAGE2B_CLOSEOUT.md`.**
 
 **SURVIVOR AUDIT COMPLETE (steps 1–4 done; NO open items).** LPC's three pillars all collapsed (leakage = via
 representation collapse, calibration = a single-temperature side-effect, accuracy = the generic matched-CORAL

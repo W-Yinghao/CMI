@@ -1,5 +1,15 @@
 # ACAR_FROZEN_v5.md — V5 protocol: Substrate-Robust Constrained-Utility Router **(BINDING — TAGGED `acar-v5-protocol` @ 4278435)**
 
+> **OUTCOME AMENDMENT (2026-07-06) — V5 EXECUTED AND CLOSED. `DEV_STOP / NO_CANDIDATE_SELECTED`.**
+> This pre-registration was executed in full: Stage-1B substrate admitted (`acar-v5-stage1b-c4412b4-r1`, 30/30, registry
+> `2bbe55f4…bbcbb76d`); Stage-2B real DEV selection ran clean (impl `ba09777`, run `acar-v5-stage2b-ba09777-r1`, result commit
+> `d287635`, rc=0). **Outcome = DEV_STOP: 0/22 candidates eligible; CAL cert 0/22 both diseases; failure mode = HARM control
+> (G4 harm_among_adapted UCB ∈ [0.61,0.87] ≫ 0.30 everywhere; G3 fails almost everywhere), NOT coverage; EVAL red strongly
+> negative; identity/source-state f_0 dominates.** This is a terminal DEV outcome: NO Stage-4/S1-S3, NO external/held-out/ASZED,
+> lockbox SEALED, no tuning/reselection/rerun — any continuation is a NEW dated protocol (v6). The frozen protocol text below is
+> UNCHANGED (this is a dated amendment, not an in-place rewrite). Authoritative closeout: `notes/ACAR_V5_CLOSEOUT.md` +
+> `notes/ACAR_V5_STAGE2B_CLOSEOUT.md`; claim status A8/A9 in `notes/EVIDENCE_LEDGER.md`.
+
 ```
 STATE              : BINDING — frozen at tag `acar-v5-protocol` @ 4278435975a72b1127803dd2cffab420c083e430 (signed off after
                      five gated pre-tag review rounds: Step 2 / 2b / 2c / 2d / 2e). The SCIENCE is frozen; the tag alone
