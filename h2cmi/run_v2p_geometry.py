@@ -64,7 +64,7 @@ def _coral_latent(model, Us, Ua_p, Ue_p, uni, eps=1e-4):
         return (V * p) @ V.T
     A = msqrt(Ct, True) @ msqrt(Cs, False)
     Ue_c = (Ue_p - mu_t) @ A + mu_s
-    return _predict_generative(model, Ue_c, uni)
+    return np.asarray(_predict_generative(model, Ue_c, uni)).argmax(1)   # HARD predictions for _bacc
 
 
 def _bacc(pred, ye):
