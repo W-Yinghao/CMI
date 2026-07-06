@@ -98,6 +98,8 @@ def main():
     ap.add_argument("--n-source", nargs="+", default=None)
     ap.add_argument("--alphas", nargs="+", type=float, default=None)
     ap.add_argument("--dry-run", action="store_true", help="print task count/composition, do not run")
+    ap.add_argument("--only-worlds", nargs="+", default=None, help="shard restriction (subset of A B C)")
+    ap.add_argument("--only-backbones", nargs="+", default=None, help="shard restriction (subset of EEGNet TSMNet)")
     ap.add_argument("--tag", default="stage2_scoped")
     ap.add_argument("--outdir", default=OUT)
     a = ap.parse_args()
@@ -115,10 +117,13 @@ def main():
     world_bb = {"A": C["world_A"]["include_backbones"], "B": C["world_B"]["include_backbones"],
                 "C": C["world_C"]["include_backbones"]}
     cfg_hash = hashlib.sha256(open(CONFIG).read().encode()).hexdigest()[:12]
+    worlds_run = a.only_worlds or ["A", "B", "C"]
     tasks = []
-    for w in ["A", "B", "C"]:
+    for w in worlds_run:
         for ds in datasets:
             for bb in world_bb[w]:
+                if a.only_backbones is not None and bb not in a.only_backbones:
+                    continue                     # shard restriction (launch plumbing; scoping still from config)
                 for sd in seeds:
                     for p in _dumps(ds, bb, sd, folds):
                         for ns in nsrc:
