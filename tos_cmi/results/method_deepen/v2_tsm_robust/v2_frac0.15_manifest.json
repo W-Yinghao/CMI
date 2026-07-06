@@ -1,0 +1,47 @@
+{
+ "config_hash": "6b4d2622bdde",
+ "manifest": {
+  "Cho2017|TSMNet|0": {
+   "dataset": "Cho2017",
+   "backbone": "TSMNet",
+   "seed": 0,
+   "status": "VALID",
+   "expected_folds": 5,
+   "valid_folds": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "degenerate_folds": [],
+   "n_valid": 5,
+   "n_degenerate": 0,
+   "frac_skipped": 0.0,
+   "cond_median_min": 4112.2,
+   "cond_median_max": 4261.1,
+   "skip_reasons": {}
+  },
+  "Lee2019_MI|TSMNet|0": {
+   "dataset": "Lee2019_MI",
+   "backbone": "TSMNet",
+   "seed": 0,
+   "status": "VALID",
+   "expected_folds": 5,
+   "valid_folds": [
+    1,
+    2,
+    3,
+    4,
+    5
+   ],
+   "degenerate_folds": [],
+   "n_valid": 5,
+   "n_degenerate": 0,
+   "frac_skipped": 0.0,
+   "cond_median_min": 3398.6,
+   "cond_median_max": 3492.9,
+   "skip_reasons": {}
+  }
+ }
+}

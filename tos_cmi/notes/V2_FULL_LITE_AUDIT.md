@@ -49,10 +49,33 @@ RLACE moves it more (+0.03..+0.04). So RLACE's TSMNet target gain is NOT injecte
 removes broader z-correlated structure. The injected deployment-shift nuisance at fraction 0.20 is too weak a
 target-harm on a 210-d latent to be the clean carrier of the ceiling.
 
-## Next step (Stage 1B): TSMNet World-A robustness probe
-Sweep world-gen `nuisance_fraction in {0.15, 0.20, 0.25, 0.30}` (TSMNet, Lee+Cho, seed0, first-5, World A only,
-all interventions, alpha grid) with gate thresholds FROZEN, to find the SMALLEST fraction that makes the TSMNet
-oracle target-beneficial (LCB > +0.01) while the source-only gate still does not accept. If found -> Stage 2;
-if not -> keep the honest result (EEGNet clean ceiling; TSMNet B/C + no-false-accept, World A not cleanly
-demonstrable). No threshold changes; no alpha expansion before the fraction probe concludes; report the full
-grid (no cherry-pick).
+## Stage 1B result (TSMNet World-A robustness probe) --- NEGATIVE
+Sweep of world-gen `nuisance_fraction in {0.15, 0.20, 0.25, 0.30}` (TSMNet, Lee+Cho, seed0, first-5, World A
+only, all interventions, alpha grid, gate thresholds FROZEN; job 885017). Full grid (no cherry-pick):
+
+| fraction | m (TSMNet) | oracle best ΔbAcc [CI] | oracle_supported | clean positives | target_beneficial | ACCEPT | random_k |
+|---|---|---|---|---|---|---|---|
+| 0.15 | 32 | +0.008 [+0.001,+0.015] | no | 0 | 6 | 0 | +0.002 |
+| 0.20 | 42 | +0.009 [+0.001,+0.018] | no | 0 | 5 | 0 | +0.003 |
+| 0.25 | 52 | +0.009 [+0.003,+0.016] | no | 0 | 3 | 0 | +0.001 |
+| 0.30 | 63 | +0.008 [+0.001,+0.017] | no | 0 | 4 | 0 | +0.002 |
+
+**NO fraction makes the TSMNet oracle target-beneficial** (best +0.009, LCB never > +0.01), and the oracle gain
+does NOT increase with m (flat ~+0.008..+0.009, even dips at 0.30). This is NOT a fraction-tuning problem.
+
+**Mechanism:** the nuisance is APPENDED as an orthogonal block, and on a 210-d high-quality latent the real-Z
+task signal dominates the head; the injected deployment-shift nuisance -- at any block size 15-30% of the
+latent -- is too weak a target-harm for its removal (oracle) to be clearly beneficial. Adding more nuisance
+dimensions of the same weak subject-gated shortcut does not increase the head's reliance proportionally.
+
+**Conclusion (per the pre-registered fallback):** TSMNet World A is **not cleanly demonstrable** under the
+appended-nuisance construction via fraction tuning. We keep the honest asymmetric result:
+```
+EEGNet: source-only acceptance ceiling cleanly demonstrated (oracle-supported, multi-method).
+TSMNet: B/C + no-false-accept confirmed; World A target-beneficial RLACE cells exist and are NOT accepted,
+        but the injected-nuisance oracle is not target-beneficial at any fraction -> World A ceiling NOT
+        cleanly established for high-dimensional latents under this construction.
+```
+Per the ban on tuning after a negative fraction probe: NO alpha expansion, NO threshold changes, NO f_align
+tuning without explicit approval. Decision (redesign World A vs accept-as-not-demonstrable vs Stage-2-for-
+EEGNet/B/C-only) deferred to the PM.
