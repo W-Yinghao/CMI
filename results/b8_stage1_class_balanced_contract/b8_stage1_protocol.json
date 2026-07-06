@@ -1,0 +1,61 @@
+{
+  "scope": "B8.1 class-balanced randomized-audit contract canary -- PRE-REGISTERED PROTOCOL (committed + hash-pinned BEFORE the run).",
+  "status": "development-only | NOT confirmatory | NOT deployable | NOT validation (Lee2019 SM16 real-geometry emulator, not a real randomized audit) | NO tag",
+  "authorized": "reviewer-authorized 2026-07-06 after B8.0 MIXED (controls mixed cov+prior 1/50 + refuses violations, but prior-only collider floor 5/50 + POS power 4/50 not separated from it)",
+  "targets": {
+    "primary_1": "reduce CONTRACT_NULL_prior_only B8_ALERT floor (B8.0 was 5/50=10%; the observed-Y collider)",
+    "primary_2": "keep CONTRACT_NULL_cov_plus_prior controlled (B8.0 was 1/50)",
+    "primary_3": "test whether CONTRACT_POS_boundary power rises ABOVE the (now-lower) null floor"
+  },
+  "core_change": {
+    "design_class": "Dc = the real cued class y0 -- a PRE-ASSIGNMENT / pre-outcome design variable (NOT the observed/generated post-hoc Y)",
+    "randomization": "C balanced-randomized WITHIN (subject x block x Dc) strata (class-balanced randomization)",
+    "exact_null": "resample C* WITHIN (block, Dc) strata -- pre-assignment stratifier -> NO collider (the single causal change vs B8.0)",
+    "unchanged": "B3 contrast T, studentized gate, estimability (n_exact_invalid <= 0.20*n_boot), min_confirm_pairs, feature cache -- BYTE-UNCHANGED from B8.0. No statistic change, no feature/montage change, no p-value retuning."
+  },
+  "provenance_gate": {
+    "primary_hard": ["H1 registered schedule exists", "H2 schedule hash matches pin (integrity, full-cohort)", "H3 executed C follows schedule (adherence C==C_table)", "H4 within-(block,Dc) support >= 8 strata", "H5 schedule balanced within (block,Dc) (|nHI-nLO|<=1)"],
+    "secondary_diagnostic": "D1 block-adjusted AUC(C~Z) <= tau=0.60 (fail-closed; reported for EVERY cohort)",
+    "principle": "provenance is PRIMARY; a QUIET confound (small schedule deviation, low AUC) is refused by H3 adherence even though D1 AUC passes -> closes the B8.0 stress-design gap. Contract-FIRST: invalid contract refuses BEFORE T is computed (so a genuine concept under an invalid contract is REFUSED, not alerted).",
+    "honesty": "H3 schedule-adherence is a PRE-REGISTRATION verification (executed==pinned schedule), NOT a claim to discover confounding from observational data (that is what B3->B7 failed at). The contract value is REQUIRING+VERIFYING a known randomization.",
+    "gates_exercised_in_emulator": "DESIGN-RED-TEAM (wtp17jn53): H1/H2/H5 are NON-DISCRIMINATIVE BY CONSTRUCTION here (H2 hash-integrity + H5 balance always pass; no world corrupts the table). The canary exercises only H3(adherence, the operative gate) + H4(support, fires on condition_lock) + D1(AUC, secondary). Interpret as an H3/H4 test, NOT a 5-gate validation. H3 is zero-tolerance (match<1 refuses); robustness to noisy/graded real-world adherence is out of scope. _schedule_hash pins per-(block,Dc) COUNTS not per-trial assignment (H3 is per-trial).",
+    "second_order_residual": "permuting C with Y held fixed breaks the C->Y prior main-effect link, so the null is exact only for the sharp interaction-null (h0 absorbs the main effect). prior_only safety leans on the studentized AND-gate; the merge reports mean-T-alone vs both-gate co-fire (section E).",
+    "invalid_reasons": ["missing_randomization_table", "assignment_hash_mismatch", "assignment_not_following_schedule", "insufficient_support", "condition_lock_no_within_stratum", "balance_diagnostic_fail", "block_confounding_auc"]
+  },
+  "states": ["B8_CONCEPT_ALERT", "NO_ACTIONABLE_CONCEPT_EVIDENCE", "CONTRACT_INVALID_OR_UNIDENTIFIABLE", "INSUFFICIENT_LABELS", "SAMPLER_INVALID"],
+  "constants": {
+    "ALPHA_BUDGET": 0.025, "TAU_CONTRACT_AUC": 0.60, "MIN_SUPPORT_BLOCKS": 8, "BLOCK_SIZE": 8,
+    "LO_HI": [1, 2], "PRIOR_SHIFT": 0.62, "BALANCE_TOL": 1, "QUIET_FLIP_FRAC": 0.12,
+    "n_boot": 200, "n_folds": 3, "C_reg": 0.5, "rank": 3, "min_confirm_pairs": 20,
+    "estimable_max_invalid_frac": 0.20, "M_subjects_per_cohort": 30
+  },
+  "seeds": {
+    "base": 420000000, "STRIDE": 1000000, "formula": "seed = base + world_index*STRIDE + cohort",
+    "range": [420000000, 431000049],
+    "disjointness": "clear of B8.0 [400e6,411e6], B7 300e6, B6 200e6, R1/strong-cov 80-120e6, P3 50-70e6, B5 30/40e6; smoke used 771e6"
+  },
+  "substrate": {"dataset": "Lee2019 / OpenBMI SM16 log-bandpower (real EEG geometry)", "role": "realistic Z/subject substrate; semi-synthetic injections; NOT validation"},
+  "worlds": {
+    "n_per_world": 50,
+    "contract_valid_nulls": ["CONTRACT_NULL_balanced", "CONTRACT_NULL_prior_only", "CONTRACT_NULL_cov_plus_prior", "CONTRACT_random_label"],
+    "contract_valid_pos": ["CONTRACT_POS_boundary", "CONTRACT_POS_boundary_plus_prior"],
+    "contract_violating": ["VIOLATION_cov_session", "VIOLATION_prior_shift", "VIOLATION_cov_plus_prior", "VIOLATION_condition_lock", "VIOLATION_quiet_cov_no_concept", "VIOLATION_quiet_cov_plus_concept"],
+    "stress_cells": "quiet_cov_no_concept + quiet_cov_plus_concept close the B8.0 stress-design gap (quiet confound that PASSES tau, +/- a real concept); success = REFUSE via provenance (H3), NOT alert"
+  },
+  "screen_preregistered": {
+    "contract_valid_nulls": "B8_ALERT <= 3/50 each; CONTRACT_NULL_prior_only is PRIMARY (was 5/50); CONTRACT_NULL_cov_plus_prior must STAY <= 3/50; CONTRACT_random_label <= 1/50 preferred",
+    "contract_valid_pos": "CONTRACT_POS_boundary B8_ALERT > 0 (>=5/50 strong); CONTRACT_POS_boundary_plus_prior reported separately. POS expected weak on this substrate (studentized-gate property, B8.0 was 4/50) -- safe-but-weak/powerless is NOT a regression",
+    "contract_violating": "CONTRACT_INVALID high AND B8_ALERT == 0 each (contract-FIRST GUARANTEES 0 violation alerts; ANY violation alert = provenance LEAK = hard-stop, NOT tolerated up to 3). For quiet_cov_plus_concept success = REFUSE (invalid contract), NOT alert-because-concept-exists",
+    "interpretation": {
+      "prior_controlled_mixed_controlled_pos_strong": "direction strong; discuss budget frontier LATER (NOT authorized now)",
+      "prior_controlled_mixed_controlled_pos_weak": "safe-but-weak; next step = audit-budget frontier (separate authorization)",
+      "prior_still_high": "class-balanced contract did NOT fix the collider; inspect design, do NOT retune p",
+      "mixed_fails": "direction unstable; STOP + diagnose contract construction",
+      "violation_alert": "provenance/validator bug; fix before any science claim"
+    }
+  },
+  "hard_stops": ["observed/generated Y used as a randomization stratum", "contract-invalid world alerts before provenance refusal", "schedule generated after outcome/injection", "state counts do not sum to n", "the statistic or feature cache changes"],
+  "not_authorized": ["B8.2 n=300 scale-up", "audit-budget/power frontier", "new statistic", "new feature family", "deep encoder", "threshold tuning", "p-value recalibration", "B7 variants", "real-data validation claim", "paper writing"],
+  "code": {"module": "realeeg_feas/realeeg_b8_1.py", "worker": "realeeg_feas/realeeg_b8_1_canary.py", "merge": "realeeg_feas/b8_1_canary_merge.py"},
+  "commit_discipline": ["1 commit+hash protocol BEFORE run", "2 smoke", "3 n=50 canary", "4 merge fail-closed", "5 result red-team", "6 commit diagnostic-only", "7 NO tag"]
+}
