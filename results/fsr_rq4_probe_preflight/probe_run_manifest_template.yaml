@@ -1,0 +1,71 @@
+# RQ4 frozen-probe run manifest TEMPLATE (spec only — not an executed run)
+# Fill and bind at approval time. Presence of a real checkpoint_sha is a hard precondition.
+
+run:
+  name: fsr_rq4_branch_probe            # set at approval
+  status: NOT_APPROVED_NOT_RUN          # must flip to APPROVED before any execution
+  option: null                          # A_located_checkpoints | B_erm_refit (FSR_11)
+  cpu_only_preferred: true
+  gpu_budget: null                      # set at approval; bounded to ERM refit + dump + probe
+
+provenance:
+  backbone: FBCSPLGGGraph
+  model_code_branch: project/fbcsp-lgg-dualcmi-scaffold
+  model_code_sha: eb47bd0
+  model_code_path: cmi/models/fb_lgg_dualcmi.py
+  fusion_branches: [graph, temporal, spatial]   # gate3; NO node fusion branch
+  extra_latent_not_a_branch: node_z             # [B,C,node_z_dim] per-channel; label as non-branch
+  checkpoint_sha: null                          # REQUIRED before run; none exist yet (FSR_11 Q1)
+  config_hash: null
+
+datasets:
+  - name: BNCI2014_001
+    folds: 9
+  - name: BNCI2015_001
+    folds: 12
+seeds: [0, 1, 2]
+protocol: source_only_LOSO
+preprocessing: central_strip_v1 + F0 filter-bank (must match F0 exactly)
+
+dump:
+  latents: [graph_z, temporal_z, spatial_z, fused_z, node_z]
+  gate: last_gate
+  determinism_check: max_abs_delta_le_1e-5      # dump twice; STOP on fail
+  aligned: [y_task, d_domain, source_indices]
+
+metrics:
+  L1_leakage_per_branch:
+    - leakage_auc          # subject decode bAcc, source-fit probe
+    - leakage_kl           # label-conditional posterior-KL proxy (NOT unbiased CMI)
+    - perm_p               # within-label permutation null
+    - random_ctrl_auc      # matched-dim random projection control
+  L5_reliance_per_branch:
+    - ablation_task_drop   # bAcc(full) - bAcc(zero_branch); uses existing model ablation
+    - r3_subspace_task_drop # head-replay drop after removing top-k label-conditional subject subspace of z_b
+    - random_subspace_drop # control ~0
+
+firewall:                  # see target_label_firewall.md — all recorded per artifact
+  target_labels_used_for_fit: NO
+  target_labels_used_for_eval: YES
+  probe_train_domains: source_only
+
+output_schema:
+  path: results/fsr_rq4_probe/<dataset>/<dataset>_fold{F}_seed{S}_branch{B}.npz
+  row_keys: [dataset, fold, seed, branch, leakage_auc, leakage_kl, perm_p, random_ctrl_auc,
+             ablation_task_drop, r3_subspace_task_drop, random_subspace_drop,
+             n_source_subjects, replay_ok, firewall_ok, checkpoint_sha]
+
+stop_conditions:            # FSR_11 Q11
+  - no_checkpoint_and_no_refit_approved
+  - nondeterministic_dump
+  - node_z_treated_as_fusion_branch
+  - target_y_in_probe_or_subspace_fit
+  - any_fbdualpc_or_cmi_loss_training
+  - p6_spatial_cmi_treated_as_result
+
+forbidden:
+  - fbdualpc_training
+  - cmi_loss_training
+  - new_architecture_search
+  - target_label_fit_or_selection
+  - treating_spatial_cmi_p6_as_result

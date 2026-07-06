@@ -1,0 +1,10 @@
+item,branch,path,exists,kind,notes
+FBCSPLGGGraph model code,project/fbcsp-lgg-dualcmi-scaffold,cmi/models/fb_lgg_dualcmi.py,YES,source,"forward_graph exposes self.last_aux={graph_z,temporal_z,spatial_z,fused_z} (detached) + self.last_gate [B,3]; node_z returned in forward_graph tuple"
+trainer best_state (RAM only),project/fbcsp-lgg-dualcmi-scaffold,cmi/train/trainer.py:554,YES,source,"best_state = backbone.state_dict() cloned to CPU in-memory for best-epoch restore; NOT torch.save-d to disk"
+F0 result summaries,project/fbcsp-lgg-spatial-cmi-fusion,results/fbcsp_lgg_f0_full_s012/*.json,YES,summary_json,"keys = config/classes/summary only; scalar metrics; NO weights, NO latents, NO checkpoint path"
+on-disk checkpoints (.pt/.pth/.ckpt/.safetensors),both fbcsp branches,-,NO,checkpoint,"0 committed on either branch; no torch.save in the training pipeline; F0 persisted only summary JSONs"
+cluster checkpoint output_root,cluster,/projects/EEG-foundation-model/...,UNKNOWN,checkpoint,"F0 pipeline does not save weights, so likely none exist on cluster either; must be confirmed before any re-inference"
+frozen per-branch latents (spatial_z/graph_z/temporal_z),both,-,NO,embedding,"0 binary artifacts on branch; must be dumped by a re-inference run from a saved checkpoint"
+node_z latent,project/fbcsp-lgg-dualcmi-scaffold,cmi/models/fb_lgg_dualcmi.py,YES_IN_CODE,embedding,"exists as [B,C,node_z_dim] per-channel latent in forward_graph return; NOT a gated fusion branch (the 3 fusion branches are graph/temporal/spatial); not dumpable until re-inference"
+per-branch leakage probe (L1),both,-,NO,probe,"does not exist — the RQ4 L1 missing metric"
+per-branch functional reliance R3 (L5),both,-,NO,reliance,"does not exist — the RQ4 L5 missing metric (branch ablation drop exists at the model level but not a per-branch subspace-removal R3)"
