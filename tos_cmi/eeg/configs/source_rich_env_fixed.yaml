@@ -1,0 +1,44 @@
+goal: source_rich_environment_discovery
+
+datasets:
+  development: Lee2019_MI
+  confirmation: Cho2017
+  secondary: Schirrmeister2017
+
+environment_definitions:
+  - subject
+  - session
+  - subject_session
+  - covariance_cluster
+  - spectral_cluster
+  - margin_cluster
+  - augmentation_shift
+
+cluster_k: [4, 8, 16]
+
+interventions:
+  - identity
+  - leace
+  - rlace
+  - tos_vd
+  - tp_leace
+  - alpha_leace
+  - random_k
+
+thresholds:
+  safety_reject_task_drop_ucb: 0.02
+  benefit_accept_lcb: 0.01
+
+target_usage: audit_only
+selection_uses_target: false
+
+# p-hacking controls (enforced by the driver/report; see SOURCE_RICH_ENV_DESIGN.md)
+report_full_candidate_set: true          # all E0-E6 available + size-matched random partitions + oracle DIAGNOSTIC
+environment_selection_scores:            # source-only only
+  - source_loeo_stability
+  - source_only_calibration
+  - environment_coverage
+forbidden_selection_inputs:              # never used to pick an environment
+  - target_delta
+  - target_labels
+  - target_performance
