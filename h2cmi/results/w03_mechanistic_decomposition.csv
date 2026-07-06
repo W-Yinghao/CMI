@@ -1,0 +1,5 @@
+term,crossnight_mean,crossnight_ci_lo,crossnight_ci_hi,samesession_mean,samesession_ci_lo,samesession_ci_hi
+P_J,-0.1439,-0.1598,-0.1281,-0.1335,-0.1497,-0.1178
+metric_mismatch,-0.1619,-0.1807,-0.1438,-0.1612,-0.1789,-0.1435
+transfer,-0.0055,-0.0162,0.0054,-0.0,-0.0002,0.0001
+prior_estimate_deviation,0.0235,0.0068,0.0408,0.0277,0.012,0.0432
