@@ -14,7 +14,9 @@ COVERAGE_MIN = 0.15
 AUROC_MIN = 0.60
 PERM_P_MAX = 0.05
 DISEASES = ("PD", "SCZ")
-_REQUIRED_METRICS = ("oracle_red_upper", "beneficial_coverage", "sign_auroc", "perm_p")
+# the gate reads EXACTLY these subject-balanced fields (V6-A0a2): no ambiguity about which metric fed the decision
+_REQUIRED_METRICS = ("oracle_red_upper", "beneficial_coverage_subject_macro", "sign_auroc_subject_balanced",
+                     "perm_p_subject_block")
 # exact lowercased keys that may NOT appear ANYWHERE in the report (a diagnostic never selects / routes / certifies / goes external)
 FORBIDDEN_REPORT_KEYS = ("candidate_id", "selected_candidate_id", "selected_candidate", "threshold", "thresholds", "route",
                          "routing", "g1", "g2", "g3", "g4", "g5", "g6", "stage4", "stage_4", "s1", "s2", "s3",
@@ -34,12 +36,13 @@ def continuation_gate(per_disease_eval):
             detail[d] = {"pass": False, "reason": "missing/incomplete disease metrics"}
             ok_all = False
             continue
-        auroc = m["sign_auroc"]
-        checks = {
-            "oracle_red_upper_gt_0.02": bool(m["oracle_red_upper"] > RED_UPPER_MIN),
-            "beneficial_coverage_ge_0.15": bool(m["beneficial_coverage"] >= COVERAGE_MIN),
-            "sign_auroc_ge_0.60": bool(auroc == auroc and auroc >= AUROC_MIN),   # NaN AUROC fails
-            "perm_p_le_0.05": bool(m["perm_p"] <= PERM_P_MAX),
+        ru, cov = m["oracle_red_upper"], m["beneficial_coverage_subject_macro"]
+        auroc, pp = m["sign_auroc_subject_balanced"], m["perm_p_subject_block"]
+        checks = {                                                              # NaN fails every threshold (v == v guard)
+            "oracle_red_upper_gt_0.02": bool(ru == ru and ru > RED_UPPER_MIN),
+            "beneficial_coverage_subject_macro_ge_0.15": bool(cov == cov and cov >= COVERAGE_MIN),
+            "sign_auroc_subject_balanced_ge_0.60": bool(auroc == auroc and auroc >= AUROC_MIN),
+            "perm_p_subject_block_le_0.05": bool(pp == pp and pp <= PERM_P_MAX),
         }
         dp = all(checks.values())
         detail[d] = {"pass": dp, "checks": checks}

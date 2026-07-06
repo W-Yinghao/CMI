@@ -48,13 +48,13 @@ def test_permutation_is_subject_block_unequal_sizes():
     ok("subject-block null permutes INTACT blocks within equal-size strata (unequal sizes handled); singletons fixed; multiset kept")
 
 
-def test_pvalue_formula():
+def test_pvalue_fields_and_failclosed_integration():
     if not has_sklearn():
-        ok("sklearn absent — p-value arithmetic path skipped (structure covered above)")
+        ok("sklearn absent — end-to-end p-value path skipped (subject-block structure covered above)")
         return
     r = np.random.RandomState(0)
     recs = []
-    for si in range(8):
+    for si in range(8):                                       # 8 subjects -> underpowered subject-block null (< 20)
         sk = f"PD/ds002778/sub-{si:02d}"
         for bi in range(4):
             for a in SP.PRIMARY_ACTIONS:
@@ -64,18 +64,18 @@ def test_pvalue_formula():
                 recs.append({"subject_key": sk, "batch_id": bi, "action_id": a, "provenance": "native",
                              "features": feats, "beneficial": int(r.rand() < 0.5)})
     prov = ["native"]
-    obs = SP.primary_sign_auroc(recs, prov, seed=0)
+    obs = SP.primary_sign_auroc(recs, prov, seed=0)           # subject-balanced AUROC runs end-to-end
+    assert (obs != obs) or (0.0 <= obs <= 1.0)
     out = SP.permutation_pvalue(recs, prov, obs, seed=0, n_perm=12)
-    assert out["n_perm_valid"] <= 12 and 0 <= out["n_ge"] <= out["n_perm_valid"]
-    assert abs(out["p_value"] - (1 + out["n_ge"]) / (1 + out["n_perm_valid"])) < 1e-12
-    assert 0.0 < out["p_value"] <= 1.0
-    ok("permutation p = (1+#{null>=obs})/(1+n_valid), in (0,1], deterministic")
+    assert set(out) >= {"perm_p_subject_block", "raw_p_value", "reason", "n_perm_valid", "n_permutable_subjects", "n_subjects"}
+    assert out["perm_p_subject_block"] == 1.0 and out["reason"] == "permutation_null_underpowered"   # 8 subjects -> fail-closed
+    ok("primary_sign_auroc + permutation_pvalue run end-to-end; 8-subject null is underpowered -> fail-closed perm_p=1.0")
 
 
 def main():
     print("ACAR v5 V6-A0a guard: permutation null is subject-blocked")
     test_permutation_is_subject_block_unequal_sizes()
-    test_pvalue_formula()
+    test_pvalue_fields_and_failclosed_integration()
     print("ALL V6A0-PERMUTATION-SUBJECT-BLOCK GUARDS PASS")
 
 

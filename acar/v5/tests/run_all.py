@@ -230,6 +230,14 @@ MODULES = (
     "test_v6a0_subject_grouped_cv_no_leakage",
     "test_v6a0_permutation_null_subject_blocked",
     "test_v6a0_continue_gate_requires_both_diseases",
+    "test_v6a0_beneficial_coverage_subject_macro_not_batch_weighted",
+    "test_v6a0_subject_with_many_batches_does_not_dominate_coverage",
+    "test_v6a0_sign_auroc_subject_balanced_not_record_weighted",
+    "test_v6a0_subject_with_many_records_does_not_dominate_auroc",
+    "test_v6a0_permutation_uses_same_subject_weights_as_observed",
+    "test_v6a0_permutation_null_underpowered_fails_gate",
+    "test_v6a0_valid_permutation_count_required",
+    "test_v6a0_report_gate_uses_subject_balanced_field_names",
 )
 
 

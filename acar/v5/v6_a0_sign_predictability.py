@@ -16,6 +16,9 @@ SIGN_CV_SALT = "ACAR_V6A0_SIGN_CV_V1"
 N_FOLDS = 5
 PRIMARY_C = 1.0
 N_PERM = 1000
+PERM_MIN_PERMUTABLE = 20             # a subject-block null with fewer permutable subjects is underpowered -> fail-closed
+PERM_MIN_PERMUTABLE_FRAC = 0.25      # ...also require >= 25% of subjects permutable
+PERM_MIN_VALID = 900                 # need this many valid (non-NaN) permutations for an evaluable p-value
 PRIMARY_ACTIONS = P.ACTIONS
 _PAIRED = ("d_entropy", "d_margin", "flip_rate", "JS", "Bures", "post_sep", "n_eff")
 
@@ -89,20 +92,36 @@ def _oof_scores(X, y, groups, seed):
     return oof
 
 
-def _auroc(y, scores):
+def subject_weights(groups):
+    """Per-record weight = 1/n_records(subject) so every subject contributes TOTAL weight 1 (subject-balanced: batch-rich subjects
+    do NOT dominate the AUROC or the permutation null)."""
+    import numpy as np
+    from collections import Counter
+    c = Counter(str(g) for g in groups)
+    return np.asarray([1.0 / c[str(g)] for g in groups], dtype=float)
+
+
+def _auroc(y, scores, weights=None):
     import numpy as np
     from sklearn.metrics import roc_auc_score
     m = ~np.isnan(scores)
     if len(set(y[m].tolist())) != 2:
         return float("nan")
-    return float(roc_auc_score(y[m], scores[m]))
+    sw = None if weights is None else weights[m]
+    return float(roc_auc_score(y[m], scores[m], sample_weight=sw))
 
 
 def primary_sign_auroc(sign_records, prov_tags, seed=0):
-    """Per-disease pooled action-record subject-clustered OOF AUROC (the primary metric)."""
-    import numpy as np
+    """PRIMARY metric: per-disease SUBJECT-BALANCED OOF AUROC. Subject-grouped OOF scores (unchanged), then a weighted AUROC with
+    per-record weight 1/n_records(subject) so each subject is equal-weight."""
     X, y, groups = design_matrix(sign_records, prov_tags)
-    return _auroc(y, _oof_scores(X, y, groups, seed))
+    return _auroc(y, _oof_scores(X, y, groups, seed), subject_weights(groups))
+
+
+def record_weighted_sign_auroc(sign_records, prov_tags, seed=0):
+    """DESCRIPTIVE only (NOT the gate metric): the unweighted record-level OOF AUROC (batch-rich subjects dominate)."""
+    X, y, groups = design_matrix(sign_records, prov_tags)
+    return _auroc(y, _oof_scores(X, y, groups, seed), None)
 
 
 def _subject_index(groups):
@@ -152,18 +171,34 @@ def subject_block_permute(y, groups, rng):
 
 
 def permutation_pvalue(sign_records, prov_tags, observed_auroc, seed=0, n_perm=N_PERM):
-    """Subject-block permutation null. p = (1 + #{null_AUROC >= observed}) / (1 + n_valid). Deterministic (seed). sklearn lazy."""
+    """SUBJECT-BLOCK permutation null with the SAME subject-balanced weighting as the observed statistic (so the null and the
+    observed AUROC are comparable). Fail-CLOSED: if the subject-block null is underpowered (too few permutable subjects) OR there
+    are too few valid permutations, `perm_p_subject_block` is forced to 1.0 with a reason — the continuation gate cannot pass on a
+    degenerate null. Raw p = (1+#{null≥obs})/(1+n_valid). Deterministic (seed). sklearn lazy."""
     import numpy as np
     X, y, groups = design_matrix(sign_records, prov_tags)
+    n_subjects = len(set(groups.tolist()))
+    n_perm_subj = n_permutable_subjects(groups)
+    base = {"n_permutable_subjects": n_perm_subj, "n_subjects": n_subjects}
+    if not (observed_auroc == observed_auroc):                                # NaN observed statistic -> non-evaluable (fail-closed)
+        return {"perm_p_subject_block": 1.0, "raw_p_value": float("nan"), "reason": "observed_auroc_non_evaluable",
+                "n_ge": 0, "n_perm_valid": 0, **base}
+    if n_perm_subj < PERM_MIN_PERMUTABLE or n_perm_subj < PERM_MIN_PERMUTABLE_FRAC * n_subjects:   # short-circuit (no sklearn)
+        return {"perm_p_subject_block": 1.0, "raw_p_value": float("nan"), "reason": "permutation_null_underpowered",
+                "n_ge": 0, "n_perm_valid": 0, **base}
+    w = subject_weights(groups)
     rng = np.random.RandomState(seed)
     ge = valid = 0
     for _ in range(n_perm):
         yp = subject_block_permute(y, groups, rng)
-        a = _auroc(yp, _oof_scores(X, yp, groups, seed))
+        a = _auroc(yp, _oof_scores(X, yp, groups, seed), w)                    # SAME subject-balanced weights as observed
         if a == a:                                                             # not NaN
             valid += 1
             if a >= observed_auroc:
                 ge += 1
-    return {"p_value": ((1 + ge) / (1 + valid)) if valid else 1.0, "n_perm_valid": valid, "n_ge": ge,
-            "n_permutable_subjects": n_permutable_subjects(groups),            # null-power diagnostic (low -> weak null)
-            "n_subjects": len(set(groups.tolist()))}
+    raw_p = ((1 + ge) / (1 + valid)) if valid else 1.0
+    if valid < PERM_MIN_VALID:
+        return {"perm_p_subject_block": 1.0, "raw_p_value": raw_p, "reason": "insufficient_valid_permutations",
+                "n_ge": ge, "n_perm_valid": valid, **base}
+    return {"perm_p_subject_block": raw_p, "raw_p_value": raw_p, "reason": "evaluable",
+            "n_ge": ge, "n_perm_valid": valid, **base}

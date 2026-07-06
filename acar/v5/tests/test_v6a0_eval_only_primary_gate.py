@@ -21,8 +21,8 @@ def test_collect_processes_eval_subjects_only():
 
 
 def test_gate_reads_eval_only_descriptive_cannot_flip():
-    passing = {d: {"oracle_red_upper": 0.30, "beneficial_coverage": 0.40, "sign_auroc": 0.70, "perm_p": 0.01}
-               for d in ("PD", "SCZ")}
+    passing = {d: {"oracle_red_upper": 0.30, "beneficial_coverage_subject_macro": 0.40,
+                   "sign_auroc_subject_balanced": 0.70, "perm_p_subject_block": 0.01} for d in ("PD", "SCZ")}
     # a 'failing' FIT/CAL descriptive block must NOT change the decision (gate reads per_disease_eval only)
     rep = RPT.build_v6a0_report(per_disease_eval=passing,
                                 descriptive={"FIT": {"note": "worse"}, "CAL": {"note": "worse"}, "per_action": {"t3a": 0.5}})

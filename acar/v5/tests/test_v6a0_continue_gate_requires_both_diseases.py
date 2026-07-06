@@ -4,7 +4,8 @@ from __future__ import annotations
 from acar.v5 import v6_a0_report as RPT
 from acar.v5.tests._util import ok, expect_raises
 
-_PASS = {"oracle_red_upper": 0.30, "beneficial_coverage": 0.40, "sign_auroc": 0.70, "perm_p": 0.01}
+_PASS = {"oracle_red_upper": 0.30, "beneficial_coverage_subject_macro": 0.40,
+         "sign_auroc_subject_balanced": 0.70, "perm_p_subject_block": 0.01}
 
 
 def _both(pd_over=None, scz_over=None):
@@ -16,15 +17,18 @@ def _both(pd_over=None, scz_over=None):
 def test_gate_requires_both_and_all_four():
     assert RPT.continuation_gate(_both())[0] == RPT.CONTINUE
     # each sub-gate, boundary-correct, one disease at a time -> STOP
-    for over in ({"oracle_red_upper": 0.02},              # strict > 0.02 -> 0.02 fails
-                 {"beneficial_coverage": 0.149},          # >= 0.15 -> 0.149 fails
-                 {"sign_auroc": 0.599},                   # >= 0.60 -> 0.599 fails
-                 {"sign_auroc": float("nan")},            # NaN AUROC fails
-                 {"perm_p": 0.051}):                      # <= 0.05 -> 0.051 fails
+    for over in ({"oracle_red_upper": 0.02},                          # strict > 0.02 -> 0.02 fails
+                 {"beneficial_coverage_subject_macro": 0.149},        # >= 0.15 -> 0.149 fails
+                 {"sign_auroc_subject_balanced": 0.599},              # >= 0.60 -> 0.599 fails
+                 {"sign_auroc_subject_balanced": float("nan")},       # NaN AUROC fails
+                 {"beneficial_coverage_subject_macro": float("nan")}, # NaN coverage (no eligible subject) fails
+                 {"oracle_red_upper": float("nan")},                  # NaN red_upper fails
+                 {"perm_p_subject_block": 0.051}):                    # <= 0.05 -> 0.051 fails
         assert RPT.continuation_gate(_both(pd_over=over))[0] == RPT.STOP, f"PD {over} should STOP"
         assert RPT.continuation_gate(_both(scz_over=over))[0] == RPT.STOP, f"SCZ {over} should STOP"
     # boundaries that PASS: coverage exactly 0.15, auroc exactly 0.60, perm_p exactly 0.05, red_upper just over 0.02
-    assert RPT.continuation_gate(_both(pd_over={"beneficial_coverage": 0.15, "sign_auroc": 0.60, "perm_p": 0.05,
+    assert RPT.continuation_gate(_both(pd_over={"beneficial_coverage_subject_macro": 0.15,
+                                                "sign_auroc_subject_balanced": 0.60, "perm_p_subject_block": 0.05,
                                                 "oracle_red_upper": 0.0201}))[0] == RPT.CONTINUE
     # a missing disease -> STOP
     assert RPT.continuation_gate({"PD": _PASS})[0] == RPT.STOP

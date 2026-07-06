@@ -77,30 +77,40 @@ def collect_eval_records(disease_folds, action_provider, *, provenance_by_subjec
 
 
 def oracle_envelope(records):
-    """Q1 on ELIGIBLE EVAL batches, subject-weighted. `red_upper` = −mean_subject mean_batch min(0, min_a ΔR_a) (best action OR
-    no-op per batch; benefit only). `beneficial_coverage` = fraction of eligible batches with min_a ΔR_a < 0. `oracle_conditional_
-    harm` = harmful fraction among batches the oracle WOULD adapt (0 by construction; a non-zero flags a bug). Descriptive:
-    `no_safe_action_rate` = fraction of eligible batches where EVERY action is harmful."""
+    """Q1 on ELIGIBLE EVAL batches, SUBJECT-MACRO (each subject weight 1 — batch-rich subjects do NOT dominate the gate).
+    `oracle_red_upper` = −mean_subject mean_batch min(0, min_a ΔR_a) (best action OR no-op per batch; benefit only).
+    `beneficial_coverage_subject_macro` = mean_subject (eligible batches with min_a ΔR_a < 0 / eligible batches) — the PRIMARY
+    coverage that feeds the continuation gate. `beneficial_coverage_batch_weighted` = the global batch fraction (descriptive only).
+    `oracle_conditional_harm` = 0 by construction (oracle adapts only when best<0). `no_safe_action_rate_subject_macro` = mean_
+    subject fraction of eligible batches where EVERY action is harmful (descriptive). If NO subject has an eligible EVAL batch the
+    primary metrics are NaN (the gate then fails)."""
     import numpy as np
     by_subj = {}
     for r in records:
         by_subj.setdefault(r["subject_key"], []).append(r)
-    upper_terms = []
+    upper_terms, benef_frac, nosafe_frac = [], [], []
     n_batches = n_benef = n_no_safe = 0
     for _sk, rs in by_subj.items():
-        ut = []
+        ut, b_s, ns_s = [], 0, 0
         for r in rs:
             best = min(r["delta_r"].values())                                  # label-aware oracle: best of the 3 actions
             ut.append(min(0.0, best))
             n_batches += 1
             if best < 0.0:
+                b_s += 1
                 n_benef += 1
             else:
+                ns_s += 1
                 n_no_safe += 1                                                  # no beneficial action -> oracle no-ops
-        upper_terms.append(float(np.mean(ut)) if ut else 0.0)
-    red_upper = -float(np.mean(upper_terms)) if upper_terms else 0.0
-    return {"oracle_red_upper": red_upper,
-            "beneficial_coverage": (n_benef / n_batches) if n_batches else 0.0,
-            "oracle_conditional_harm": 0.0,                                      # oracle adapts only when best<0 -> never harmful
-            "no_safe_action_rate": (n_no_safe / n_batches) if n_batches else 0.0,
-            "n_eligible_batches": n_batches, "n_subjects": len(by_subj)}
+        n_s = len(rs)
+        upper_terms.append(float(np.mean(ut)))
+        benef_frac.append(b_s / n_s)                                           # per-subject beneficial fraction
+        nosafe_frac.append(ns_s / n_s)
+    nan = float("nan")
+    have = len(by_subj) > 0
+    return {"oracle_red_upper": (-float(np.mean(upper_terms)) if have else nan),
+            "beneficial_coverage_subject_macro": (float(np.mean(benef_frac)) if have else nan),      # PRIMARY (gate)
+            "beneficial_coverage_batch_weighted": ((n_benef / n_batches) if n_batches else nan),      # descriptive
+            "no_safe_action_rate_subject_macro": (float(np.mean(nosafe_frac)) if have else nan),      # descriptive
+            "oracle_conditional_harm": 0.0,
+            "n_eligible_batches": n_batches, "n_subjects_with_eligible": len(by_subj)}

@@ -77,6 +77,30 @@ policy designed from these observations is **exploratory**; efficacy is not esta
 still-sealed held-out/external substrate. The runner must NEVER be turned into a selector: `validate_v6a0_report` fail-closes on any
 selection/routing/gate-pass/later-stage key, and `V6_CONTINUE` authorizes only *drafting* a V6 protocol.
 
+## V6-A0a2 correction (subject-cluster metrics — the metrics that feed the binding gate are now subject-balanced)
+
+The plan/note specify subject-CLUSTERED primary metrics, but the first V6-A0a implementation left `beneficial_coverage`
+batch-weighted and `sign_auroc` record-level unweighted — so batch-rich subjects would have dominated the continuation gate. Fixed:
+
+```
+beneficial_coverage_subject_macro   = mean_subject (eligible batches with min_a ΔR_a<0 / eligible batches)   <- PRIMARY (gate)
+beneficial_coverage_batch_weighted  = global eligible-batch fraction                                          <- descriptive only
+  (no subject with an eligible EVAL batch -> beneficial_coverage_subject_macro = NaN -> gate fails)
+sign_auroc_subject_balanced         = OOF AUROC weighted by 1/n_records(subject) (each subject weight 1)       <- PRIMARY (gate)
+sign_auroc_record_weighted          = unweighted record-level OOF AUROC                                        <- descriptive only
+perm_p_subject_block                = subject-block permutation null computed with the SAME subject-balanced weights as observed
+  null-power fail-closed: perm_p forced to 1.0 with a reason when the null is degenerate —
+    permutation_null_underpowered   iff n_permutable_subjects < 20 OR < 0.25·n_subjects
+    insufficient_valid_permutations iff n_perm_valid < 900
+```
+`no_safe_action_rate_subject_macro` is likewise subject-macro (descriptive). The gate reads EXACTLY
+`{oracle_red_upper, beneficial_coverage_subject_macro, sign_auroc_subject_balanced, perm_p_subject_block}` (a report using the old
+batch/record-level names is treated as missing → STOP). Guards (8, added; full suite now 230 modules, green py3.9 + py3.13):
+`test_v6a0_beneficial_coverage_subject_macro_not_batch_weighted`, `…subject_with_many_batches_does_not_dominate_coverage`,
+`…sign_auroc_subject_balanced_not_record_weighted`, `…subject_with_many_records_does_not_dominate_auroc`,
+`…permutation_uses_same_subject_weights_as_observed`, `…permutation_null_underpowered_fails_gate`,
+`…valid_permutation_count_required`, `…report_gate_uses_subject_balanced_field_names`.
+
 ## Next
 
 `V6-A0b` (separate authorization): the real, label-consuming diagnostic execution — no-label guard, then per-batch ΔR_a / oracle
