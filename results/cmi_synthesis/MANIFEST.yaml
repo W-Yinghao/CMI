@@ -1,0 +1,49 @@
+# CMI Synthesis — manifest
+phase: CMI_SYNTHESIS_01
+branch: project/cita-target-unlabeled-cmi
+purpose: >
+  Project-level scientific closure of the CMI CONTROL research line after the active-CMI probe (CITA lambda=1.0)
+  fairly failed. Spans source-only (CIGL_70) and target-unlabeled (CITA) regimes. Records the three frozen
+  claims: CMI audit durable; CMI proxy control partial; CMI control does not deliver functional/generalization
+  gains in either regime; TTA-Control is a separate non-CMI positive.
+
+verdict: CMI_CONTROL_CLOSED_BOTH_REGIMES
+durable_contributions:
+  - CMI audit (label-conditional leakage measurable + permutation-significant + classifier-level head-replay R3
+    + valid random-subspace control)
+  - CMI proxy control partial (measured leakage reducible without task collapse)
+non_cmi_positive:
+  name: TTA_Control_target_unlabeled_adaptation
+  effect: "target_bacc +0.035..+0.093 across all 4 dataset x backbone cells, no entropy/label collapse"
+  caveat: "NOT a CMI result (CITA-CMI - TTA-Control ~= 0 at lambda=0.010 AND lambda=1.0-active)"
+
+regimes:
+  source_only:
+    routes: [CIGL_65, CIGL_67, CIGL_68, CIGL_69C]
+    result: closed_negative
+    closure_doc: docs/CIGL_70_SOURCE_ONLY_CMI_CLOSURE.md
+  target_unlabeled:
+    routes: [CITA_02_lambda0.010_TTA_only_pass, CITA_03_lambda1.0_active_fair_failure]
+    result: closed_negative_for_CMI_control; TTA_Control_positive_non_CMI
+    docs: [docs/CITA_01_TARGET_UNLABELED_PROTOCOL.md, docs/CITA_02_SEED0_READOUT.md, docs/CITA_03_ACTIVE_LAMBDA_READOUT.md]
+
+active_cmi_probe_validation:
+  lambda_cita: 1.0
+  cond_domain_fraction_of_total_loss: {eegnet: [0.018, 0.041], conformer: [0.178, 0.293]}
+  grad_norm: {eegnet: [0.15, 0.22], conformer: [0.86, 1.02]}
+  conclusion: "CMI term genuinely active; adds nothing over TTA on target or R3 -> fair failure"
+
+files:
+  synthesis_route_summary.csv: {rows: 7, regimes: [source_only, target_unlabeled]}
+  MANIFEST.yaml: this file
+  narrative: docs/CMI_SYNTHESIS_01.md
+
+frozen_prohibitions:
+  - no lambda/beta/eta/alpha/k sweep on any CMI-control route
+  - no new CITA objective, no new backbone for CMI control
+  - no source-only revival (static-DGCNN CIGL/FCIGL/dCIGL, source-only MetaCMI)
+  - no ConformerFull CMI arm, no external-dataset CMI method search
+
+open_non_cmi_only_if_directed:
+  target_unlabeled_adaptation: "TTA-Control as a standalone non-CMI line (stronger objectives, more datasets,
+    seeds 0/1/2); boundary: 'CMI control does not add to it'"
