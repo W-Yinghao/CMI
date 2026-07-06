@@ -119,11 +119,15 @@ constant on the subset `K_a` (identifiability monotone); and `I_a = T(K_a) ⊆ T
 ## 9. Contract-strength monotonicity
 
 > **Contract-strength.** If `C_strong ⟹ C_weak` (every world satisfying `C_strong` satisfies
-> `C_weak`), then `M(C_strong) ⊆ M(C_weak)`, so `K_{R,C_strong} ⊆ K_{R,C_weak}` and the
-> identifiable set is monotone non-decreasing in contract strength.
+> `C_weak`), then `M(C_strong) ⊆ M(C_weak)` and `K_{R,C_strong} ⊆ K_{R,C_weak}`. Therefore, as
+> assumptions strengthen:
+> - the **class of point-identifiable functionals** can **expand**;
+> - for a **fixed** functional `T`, the **identified set** `I_{R,C}(o_R; T)` can only **shrink**.
 
-Crucially this is **assumption-strength, not evidence.** Shrinking `M(C)` by assuming more can
-manufacture point-identifiability that the data did not provide. OACI therefore always reports
+(Do not conflate these: the *set of functionals that become point-identifiable* grows, while the
+*identified set of any one `T`* shrinks.) Crucially this is **assumption-strength, not
+evidence.** Shrinking `M(C)` by assuming more can manufacture point-identifiability that the data
+did not provide. OACI therefore always reports
 *which* contracts are **checkable** in `R` (data-supported) vs **assumed** (declared but
 unfalsifiable in `R`) — the audit's and `02`'s R0/R1/R2 checkability columns.
 

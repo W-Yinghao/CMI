@@ -1,0 +1,152 @@
+{
+  "title": "Project A smoke — 5-claim ledger",
+  "summary": {
+    "n_claims": 5,
+    "n_allowed": 3,
+    "n_rejected": 2
+  },
+  "forbidden_claims_checked": [
+    "target concept shift detected from unlabeled target",
+    "source-only target safety certified",
+    "CMI/leakage guarantees accuracy",
+    "GLS gives the target prior source-only",
+    "R0 source metric reported as a target risk/gain/concept guarantee",
+    "R1 unlabeled-target balanced accuracy reported as identifiable target metric"
+  ],
+  "forbidden_claims_violated": [],
+  "claims": [
+    {
+      "name": "source_loso_bacc",
+      "regime": "R0",
+      "estimand": "source_loso",
+      "allowed": true,
+      "reason": "source-side quantity; identifiable in R0+ (source law observed)",
+      "theorem": null,
+      "contracts_invoked": [],
+      "checkable_contracts": [],
+      "uncheckable_contracts": [],
+      "identifiable_estimand": "source_loso",
+      "observation_used": [
+        "X_s",
+        "Y_s",
+        "D_s"
+      ],
+      "estimator": "EEGNet + LOSO",
+      "certificate_passed": null,
+      "oracle_fields_used_for_validation_only": [],
+      "missing_contracts": [],
+      "failure_certificates_if_contracts_break": [],
+      "is_diagnostic": false,
+      "conclusion": true
+    },
+    {
+      "name": "target_gain_r0",
+      "regime": "R0",
+      "estimand": "target_gain",
+      "allowed": false,
+      "reason": "target risk/gain non-identifiable under R0 (TOS-1)",
+      "theorem": null,
+      "contracts_invoked": [],
+      "checkable_contracts": [],
+      "uncheckable_contracts": [],
+      "identifiable_estimand": null,
+      "observation_used": [],
+      "estimator": "source safety gate",
+      "certificate_passed": "CE-R0-2",
+      "oracle_fields_used_for_validation_only": [],
+      "missing_contracts": [],
+      "failure_certificates_if_contracts_break": [],
+      "is_diagnostic": false,
+      "conclusion": false
+    },
+    {
+      "name": "target_prior_r1",
+      "regime": "R1",
+      "estimand": "target_prior",
+      "allowed": true,
+      "reason": "target prior identifiable under TU-1 (C1∧C2∧C3)",
+      "theorem": "TU-1",
+      "contracts_invoked": [
+        "C1",
+        "C2",
+        "C3"
+      ],
+      "checkable_contracts": [
+        "C1",
+        "C3"
+      ],
+      "uncheckable_contracts": [
+        "C2"
+      ],
+      "identifiable_estimand": "target_prior",
+      "observation_used": [
+        "X_T"
+      ],
+      "estimator": "mixture w=C^-1 mu",
+      "certificate_passed": "CE-R1-2",
+      "oracle_fields_used_for_validation_only": [],
+      "missing_contracts": [],
+      "failure_certificates_if_contracts_break": [
+        "CE-C1-1",
+        "CE-R1-1",
+        "CE-R1-2"
+      ],
+      "is_diagnostic": false,
+      "conclusion": true
+    },
+    {
+      "name": "target_concept_r1",
+      "regime": "R1",
+      "estimand": "target_concept",
+      "allowed": false,
+      "reason": "concept non-identifiable from unlabeled target (TU-2)",
+      "theorem": null,
+      "contracts_invoked": [],
+      "checkable_contracts": [],
+      "uncheckable_contracts": [],
+      "identifiable_estimand": null,
+      "observation_used": [
+        "X_T"
+      ],
+      "estimator": "decoder I(Y;D|Z)",
+      "certificate_passed": "CE-R1-1",
+      "oracle_fields_used_for_validation_only": [],
+      "missing_contracts": [],
+      "failure_certificates_if_contracts_break": [],
+      "is_diagnostic": false,
+      "conclusion": false
+    },
+    {
+      "name": "transport_r2",
+      "regime": "R2",
+      "estimand": "target_transport",
+      "allowed": true,
+      "reason": "transport identifiable (or bounded) under MP-1 (C8∧C11)",
+      "theorem": "MP-1",
+      "contracts_invoked": [
+        "C11",
+        "C8"
+      ],
+      "checkable_contracts": [
+        "C11",
+        "C8"
+      ],
+      "uncheckable_contracts": [],
+      "identifiable_estimand": "target_transport",
+      "observation_used": [
+        "anchors",
+        "paired_sessions"
+      ],
+      "estimator": "near-identity affine (A,b)",
+      "certificate_passed": "CE-MP-1",
+      "oracle_fields_used_for_validation_only": [],
+      "missing_contracts": [],
+      "failure_certificates_if_contracts_break": [
+        "CE-C11-1",
+        "CE-MP-1"
+      ],
+      "is_diagnostic": false,
+      "conclusion": true
+    }
+  ]
+}

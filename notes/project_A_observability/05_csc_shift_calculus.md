@@ -39,7 +39,7 @@ collapsing them is how "domain shift" hides an incompatible mechanism.
 | Shift claim | Minimal regime | Required contracts | Identifiable object | Failure certificate |
 |---|---|---|---|---|
 | target **prior** shift | R1 | C1 ∧ C2 ∧ C3 | `π_T` (theorem `TU-1`) | **CE-R1-2** |
-| target **concept** shift | R2 | C4 ∧ C6 ∧ C5 (+ anchors/labels) | a **bounded / tested** residual, not a point value | **CE-R1-1** (loss of R2 anchors → R1 non-ID); anchor rank/validity failure → **CE-MP-1 / CE-C11-1** |
+| target concept-mechanism residual / **C4 violation** | R2 | target labels/anchors + C6 + C5; **C4 is the null/stability contract being *tested*, not assumed true** | a **bounded / tested** residual, or C4-violation evidence — not a point value | **CE-R1-1** (loss of R2 anchors → R1 non-ID); anchor rank/validity failure → **CE-MP-1 / CE-C11-1** |
 | **support** failure | R1 | marginal support: none; class support: labels | off-source target mass | **CE-C1-1** |
 | montage / **transport** | R2 | C8 ∧ C11 | transform, or a bound | **CE-MP-1 / CE-C11-1** |
 | source **safety** transfer | R0 **+ target-law axiom** | C9 | source proxy only (unless the axiom is declared) | **CE-R0-2** |
@@ -47,6 +47,11 @@ collapsing them is how "domain shift" hides an incompatible mechanism.
 Read the table with `06 §7`: where the "identifiable object" is a bound, it must cover the
 identified set `I_{R,C}`; where it needs a target-law axiom (safety transfer), that axiom is a
 declared assumption, not source-only evidence (`06 §10`).
+
+> **Do not list C4 as a truth assumption for "concept shift".** Concept-shift evidence is a
+> possible **R2-level violation** of the C4 stability contract, established only *after*
+> representation sufficiency (C6), estimator fidelity (C5), and anchor/label validity are
+> addressed — never a claim that "C4 holds" nor a concept read from unlabeled target data.
 
 ## 4. CSC rules
 
