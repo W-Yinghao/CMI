@@ -1,0 +1,535 @@
+{
+ "scope": "B8.2 multi-seed stability replication; development-only; NOT confirmatory; NOT validation (Lee2019 emulator); NO tag; engine byte-identical to B8.1 3109c0f",
+ "seed_bases": [
+  500000000,
+  520000000,
+  540000000,
+  560000000,
+  580000000,
+  600000000
+ ],
+ "n_per_block": 50,
+ "n_aggregate": 300,
+ "main_table": {
+  "CONTRACT_NULL_balanced": {
+   "condition": "CONTRACT_NULL_balanced",
+   "world_class": "contract",
+   "has_concept": false,
+   "n": 300,
+   "B8_ALERT": 5,
+   "NO_ACTIONABLE": 295,
+   "CONTRACT_INVALID": 0,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.038463744964996424,
+   "median_p_exact": 0.4975124378109453,
+   "p_floor_frac": 0.0033333333333333335,
+   "median_effective_randomization": 1.0,
+   "median_assignment_support": 1451.0,
+   "median_C_auc": 0.49661725135431994
+  },
+  "CONTRACT_NULL_prior_only": {
+   "condition": "CONTRACT_NULL_prior_only",
+   "world_class": "contract",
+   "has_concept": false,
+   "n": 300,
+   "B8_ALERT": 18,
+   "NO_ACTIONABLE": 282,
+   "CONTRACT_INVALID": 0,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.09317029607198862,
+   "median_p_exact": 0.24378109452736318,
+   "p_floor_frac": 0.06666666666666667,
+   "median_effective_randomization": 1.0,
+   "median_assignment_support": 1452.0,
+   "median_C_auc": 0.49903748790861624
+  },
+  "CONTRACT_NULL_cov_plus_prior": {
+   "condition": "CONTRACT_NULL_cov_plus_prior",
+   "world_class": "contract",
+   "has_concept": false,
+   "n": 300,
+   "B8_ALERT": 13,
+   "NO_ACTIONABLE": 287,
+   "CONTRACT_INVALID": 0,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.0729614642202821,
+   "median_p_exact": 0.263681592039801,
+   "p_floor_frac": 0.07666666666666666,
+   "median_effective_randomization": 1.0,
+   "median_assignment_support": 1451.0,
+   "median_C_auc": 0.4987327442021409
+  },
+  "CONTRACT_random_label": {
+   "condition": "CONTRACT_random_label",
+   "world_class": "contract",
+   "has_concept": false,
+   "n": 300,
+   "B8_ALERT": 5,
+   "NO_ACTIONABLE": 295,
+   "CONTRACT_INVALID": 0,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.038463744964996424,
+   "median_p_exact": 0.5174129353233831,
+   "p_floor_frac": 0.006666666666666667,
+   "median_effective_randomization": 1.0,
+   "median_assignment_support": 1452.0,
+   "median_C_auc": 0.4973465305677711
+  },
+  "CONTRACT_POS_boundary": {
+   "condition": "CONTRACT_POS_boundary",
+   "world_class": "contract",
+   "has_concept": true,
+   "n": 300,
+   "B8_ALERT": 37,
+   "NO_ACTIONABLE": 263,
+   "CONTRACT_INVALID": 0,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.16597270217334056,
+   "median_p_exact": 0.004975124378109453,
+   "p_floor_frac": 0.5233333333333333,
+   "median_effective_randomization": 1.0,
+   "median_assignment_support": 1452.0,
+   "median_C_auc": 0.49856442677578366
+  },
+  "CONTRACT_POS_boundary_plus_prior": {
+   "condition": "CONTRACT_POS_boundary_plus_prior",
+   "world_class": "contract",
+   "has_concept": true,
+   "n": 300,
+   "B8_ALERT": 39,
+   "NO_ACTIONABLE": 261,
+   "CONTRACT_INVALID": 0,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.17340483944723312,
+   "median_p_exact": 0.004975124378109453,
+   "p_floor_frac": 0.53,
+   "median_effective_randomization": 1.0,
+   "median_assignment_support": 1451.0,
+   "median_C_auc": 0.4986998642034489
+  },
+  "VIOLATION_cov_session": {
+   "condition": "VIOLATION_cov_session",
+   "world_class": "violation",
+   "has_concept": false,
+   "n": 300,
+   "B8_ALERT": 0,
+   "NO_ACTIONABLE": 0,
+   "CONTRACT_INVALID": 300,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.012220974694293552,
+   "median_p_exact": 1.0,
+   "p_floor_frac": NaN,
+   "median_effective_randomization": 0.49893020594965676,
+   "median_assignment_support": 563.0,
+   "median_C_auc": 0.7843818236210935
+  },
+  "VIOLATION_prior_shift": {
+   "condition": "VIOLATION_prior_shift",
+   "world_class": "violation",
+   "has_concept": false,
+   "n": 300,
+   "B8_ALERT": 0,
+   "NO_ACTIONABLE": 0,
+   "CONTRACT_INVALID": 300,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.012220974694293552,
+   "median_p_exact": 1.0,
+   "p_floor_frac": NaN,
+   "median_effective_randomization": 0.5006666666666667,
+   "median_assignment_support": 1010.0,
+   "median_C_auc": 0.9122253333333332
+  },
+  "VIOLATION_cov_plus_prior": {
+   "condition": "VIOLATION_cov_plus_prior",
+   "world_class": "violation",
+   "has_concept": false,
+   "n": 300,
+   "B8_ALERT": 0,
+   "NO_ACTIONABLE": 0,
+   "CONTRACT_INVALID": 300,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.012220974694293552,
+   "median_p_exact": 1.0,
+   "p_floor_frac": NaN,
+   "median_effective_randomization": 0.49772727272727274,
+   "median_assignment_support": 569.0,
+   "median_C_auc": 0.7847045134143752
+  },
+  "VIOLATION_condition_lock": {
+   "condition": "VIOLATION_condition_lock",
+   "world_class": "violation",
+   "has_concept": false,
+   "n": 300,
+   "B8_ALERT": 0,
+   "NO_ACTIONABLE": 0,
+   "CONTRACT_INVALID": 300,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.012220974694293552,
+   "median_p_exact": 1.0,
+   "p_floor_frac": NaN,
+   "median_effective_randomization": 0.5,
+   "median_assignment_support": 0.0,
+   "median_C_auc": 0.4594925908634528
+  },
+  "VIOLATION_quiet_cov_no_concept": {
+   "condition": "VIOLATION_quiet_cov_no_concept",
+   "world_class": "violation",
+   "has_concept": false,
+   "n": 300,
+   "B8_ALERT": 0,
+   "NO_ACTIONABLE": 0,
+   "CONTRACT_INVALID": 300,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.012220974694293552,
+   "median_p_exact": 1.0,
+   "p_floor_frac": NaN,
+   "median_effective_randomization": 0.88,
+   "median_assignment_support": 1363.0,
+   "median_C_auc": 0.5360816989477206
+  },
+  "VIOLATION_quiet_cov_plus_concept": {
+   "condition": "VIOLATION_quiet_cov_plus_concept",
+   "world_class": "violation",
+   "has_concept": true,
+   "n": 300,
+   "B8_ALERT": 0,
+   "NO_ACTIONABLE": 0,
+   "CONTRACT_INVALID": 300,
+   "INSUFFICIENT_LABELS": 0,
+   "SAMPLER_INVALID": 0,
+   "NEED_MORE": 0,
+   "CP95u_ALERT": 0.012220974694293552,
+   "median_p_exact": 1.0,
+   "p_floor_frac": NaN,
+   "median_effective_randomization": 0.88,
+   "median_assignment_support": 1363.0,
+   "median_C_auc": 0.5311460690286777
+  }
+ },
+ "per_seed_variability": {
+  "CONTRACT_NULL_balanced": {
+   "alerts_per_block": [
+    3,
+    1,
+    1,
+    0,
+    0,
+    0
+   ],
+   "alert_min": 0,
+   "alert_max": 3,
+   "alert_range": 3,
+   "alert_mean": 0.8333333333333334,
+   "alert_sd": 1.0671873729054748,
+   "cinval_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "CONTRACT_NULL_prior_only": {
+   "alerts_per_block": [
+    2,
+    2,
+    3,
+    3,
+    3,
+    5
+   ],
+   "alert_min": 2,
+   "alert_max": 5,
+   "alert_range": 3,
+   "alert_mean": 3.0,
+   "alert_sd": 1.0,
+   "cinval_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "CONTRACT_NULL_cov_plus_prior": {
+   "alerts_per_block": [
+    3,
+    1,
+    3,
+    2,
+    2,
+    2
+   ],
+   "alert_min": 1,
+   "alert_max": 3,
+   "alert_range": 2,
+   "alert_mean": 2.1666666666666665,
+   "alert_sd": 0.6871842709362768,
+   "cinval_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "CONTRACT_random_label": {
+   "alerts_per_block": [
+    0,
+    1,
+    2,
+    2,
+    0,
+    0
+   ],
+   "alert_min": 0,
+   "alert_max": 2,
+   "alert_range": 2,
+   "alert_mean": 0.8333333333333334,
+   "alert_sd": 0.8975274678557507,
+   "cinval_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "CONTRACT_POS_boundary": {
+   "alerts_per_block": [
+    6,
+    5,
+    6,
+    3,
+    6,
+    11
+   ],
+   "alert_min": 3,
+   "alert_max": 11,
+   "alert_range": 8,
+   "alert_mean": 6.166666666666667,
+   "alert_sd": 2.4094720491334933,
+   "cinval_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "CONTRACT_POS_boundary_plus_prior": {
+   "alerts_per_block": [
+    9,
+    4,
+    8,
+    8,
+    3,
+    7
+   ],
+   "alert_min": 3,
+   "alert_max": 9,
+   "alert_range": 6,
+   "alert_mean": 6.5,
+   "alert_sd": 2.217355782608345,
+   "cinval_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "VIOLATION_cov_session": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "alert_min": 0,
+   "alert_max": 0,
+   "alert_range": 0,
+   "alert_mean": 0.0,
+   "alert_sd": 0.0,
+   "cinval_per_block": [
+    50,
+    50,
+    50,
+    50,
+    50,
+    50
+   ]
+  },
+  "VIOLATION_prior_shift": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "alert_min": 0,
+   "alert_max": 0,
+   "alert_range": 0,
+   "alert_mean": 0.0,
+   "alert_sd": 0.0,
+   "cinval_per_block": [
+    50,
+    50,
+    50,
+    50,
+    50,
+    50
+   ]
+  },
+  "VIOLATION_cov_plus_prior": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "alert_min": 0,
+   "alert_max": 0,
+   "alert_range": 0,
+   "alert_mean": 0.0,
+   "alert_sd": 0.0,
+   "cinval_per_block": [
+    50,
+    50,
+    50,
+    50,
+    50,
+    50
+   ]
+  },
+  "VIOLATION_condition_lock": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "alert_min": 0,
+   "alert_max": 0,
+   "alert_range": 0,
+   "alert_mean": 0.0,
+   "alert_sd": 0.0,
+   "cinval_per_block": [
+    50,
+    50,
+    50,
+    50,
+    50,
+    50
+   ]
+  },
+  "VIOLATION_quiet_cov_no_concept": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "alert_min": 0,
+   "alert_max": 0,
+   "alert_range": 0,
+   "alert_mean": 0.0,
+   "alert_sd": 0.0,
+   "cinval_per_block": [
+    50,
+    50,
+    50,
+    50,
+    50,
+    50
+   ]
+  },
+  "VIOLATION_quiet_cov_plus_concept": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "alert_min": 0,
+   "alert_max": 0,
+   "alert_range": 0,
+   "alert_mean": 0.0,
+   "alert_sd": 0.0,
+   "cinval_per_block": [
+    50,
+    50,
+    50,
+    50,
+    50,
+    50
+   ]
+  }
+ },
+ "screen": {
+  "nulls_le7": false,
+  "prior_only_le7_PRIMARY": false,
+  "mixed_le7_retain": false,
+  "random_label_le3_pref": false,
+  "violations_zero_alert": true,
+  "violations_refuse_dominant": true,
+  "pos_boundary_ge20": true,
+  "pos_plus_prior_ge15": true,
+  "pos_boundary_gt0": true,
+  "null_block_stable_max_le3": false,
+  "viol_block_stable_max0": true,
+  "HARD_STOP_violation_leak": false,
+  "pooled_null_ALL_KINDS": "41/1200",
+  "prior_only_meanT_alone": "46/300"
+ },
+ "verdict": "B8.2 Case C AND Case D -- B8.1 DECISION-LEVEL STABILITY FALSIFIED. prior_only 18/300=6.0% (CI-excluded from nominal 2.5%) AND cov_plus_prior 13/300=4.3% (exceeds the 7/300 screen; 95% CI touches nominal) both FAIL <=7/300 across ALL 6 blocks. B8.1's 2/50 & 1/50 were TYPICAL single-block draws from a true ~4-6% rate (the n=50 screen was underpowered to resolve ~5% from 2.5%), NOT lucky. The studentized both-gate is ANTI-CONSERVATIVE on prior-bearing nulls (masks ~60-75% of the collider: mean-T 46/49 -> 18/13, leaks a seed-dependent residual; clean balanced/random nulls ~1.7% = well-calibrated). SURVIVORS (NOT falsified): violation refusal 300/300 (BY CONSTRUCTION, H3) + genuine-but-modest POS (37/300 ~12%, CI overlaps prior_only at margin). NEXT = contract redesign / narrow estimand (Case C) + STOP+diagnose contract construction (Case D) -- do NOT recalibrate the mean-T gate (rejected). Emulator/dev-only.",
+ "vs_b8_1": "B8.1 (n=50): prior_only both-gate 2/50, mean-T-alone 5/50, cov_plus_prior 1/50, POS_boundary 8/50, pooled null 6/200 -- RE-CHARACTERIZED by B8.2: those were TYPICAL underpowered single-block draws from a true ~4-6% rate, NOT genuine control",
+ "result_redteam": {
+  "workflow": "w3u5q3x10",
+  "accounting": "PASS (3600 reproduced, 0 mismatches, engine byte-identical to committed B8.1, seeds disjoint, both-gate recompute matches, no fabrication)",
+  "science": "MINOR_ISSUE -- negative GENUINE + honestly framed; wording refined",
+  "honest_label": "B8.1 decision-level stability FALSIFIED by multi-seed replication: prior_only 18/300=6.0% (CP95 [3.6,9.3]%, strictly > nominal 2.5%) AND mixed cov_plus_prior 13/300=4.3% (fails the 7/300 screen; binom p=0.041; 95% CI [2.33,7.30]% touches nominal) both fail across ALL 6 seed blocks; B8.1's 2/50 & 1/50 were TYPICAL underpowered single-block draws (n=50 cannot resolve ~5% from 2.5%), NOT lucky. Both-gate anti-conservative on prior nulls (masks 60-75% of the collider, mean-T 46/49 -> 18/13, leaks a seed-dependent residual; clean nulls ~1.7% well-calibrated). Survivors NOT falsified: violation refusal 300/300 (by construction) + genuine-but-modest POS 37/300 & 39/300 (~12-13%, CP95 [8.8,16.6]%, Fisher p=0.010/0.0002 vs the failing null, CI overlaps at margin). NEXT = contract redesign / narrow estimand (Case C+D), NOT mean-T recalibration. Emulator/dev-only, NO tag.",
+  "prov_note": "low: .prov.json records host/slurm/base/world but NOT the engine sha256; run-time byte-identity rests on on-disk hash + protocol pin (future: embed engine sha256 per shard)"
+ },
+ "scope_limits": "decision-level (both-gate) STABILITY across seed blocks; does NOT fix the statistic-level mean-T collider (reported, not gated); emulator (Lee2019 SM16), semi-synthetic; violations refused BY CONSTRUCTION (H3 schedule-adherence); H1/H2/H5 vacuous-by-construction (H3/H4/D1 exercised)"
+}

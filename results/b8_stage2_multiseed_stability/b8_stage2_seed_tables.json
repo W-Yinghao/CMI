@@ -1,0 +1,758 @@
+{
+ "scope": "B8.2 multi-seed stability replication; development-only; NOT confirmatory; NOT validation (Lee2019 emulator); NO tag; engine byte-identical to B8.1 3109c0f",
+ "seed_bases": [
+  500000000,
+  520000000,
+  540000000,
+  560000000,
+  580000000,
+  600000000
+ ],
+ "seed_table": {
+  "CONTRACT_NULL_balanced": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 3,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 47,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 1,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 49,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 1,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 49,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 50,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 50,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 50,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "CONTRACT_NULL_prior_only": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 2,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 48,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 2,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 48,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 3,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 47,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 3,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 47,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 3,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 47,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 5,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 45,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "CONTRACT_NULL_cov_plus_prior": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 3,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 47,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 1,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 49,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 3,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 47,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 2,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 48,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 2,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 48,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 2,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 48,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "CONTRACT_random_label": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 50,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 1,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 49,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 2,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 48,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 2,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 48,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 50,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 50,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "CONTRACT_POS_boundary": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 6,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 44,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 5,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 45,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 6,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 44,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 3,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 47,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 6,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 44,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 11,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 39,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "CONTRACT_POS_boundary_plus_prior": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 9,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 41,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 4,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 46,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 8,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 42,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 8,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 42,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 3,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 47,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 7,
+    "CONTRACT_INVALID": 0,
+    "NO_ACTIONABLE": 43,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "VIOLATION_cov_session": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "VIOLATION_prior_shift": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "VIOLATION_cov_plus_prior": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "VIOLATION_condition_lock": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "VIOLATION_quiet_cov_no_concept": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ],
+  "VIOLATION_quiet_cov_plus_concept": [
+   {
+    "seed_block": 0,
+    "base": 500000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 1,
+    "base": 520000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 2,
+    "base": 540000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 3,
+    "base": 560000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 4,
+    "base": 580000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   },
+   {
+    "seed_block": 5,
+    "base": 600000000,
+    "n": 50,
+    "B8_ALERT": 0,
+    "CONTRACT_INVALID": 50,
+    "NO_ACTIONABLE": 0,
+    "INSUFFICIENT": 0,
+    "SAMPLER_INVALID": 0
+   }
+  ]
+ },
+ "note": "per condition x seed_block: B8_ALERT + CONTRACT_INVALID + state counts (the CORE per-seed variability output)"
+}

@@ -1,0 +1,48 @@
+{
+ "scope": "B8.2 multi-seed stability replication -- manifest",
+ "status": "development-only | NOT confirmatory | NOT validation (Lee2019 emulator) | NO tag",
+ "engine": {
+  "base_protocol": "B8.1 3109c0f",
+  "module": "realeeg_b8_1.py",
+  "module_sha256_16": "dae229e39d89c940",
+  "worker": "realeeg_b8_1_canary.py",
+  "worker_sha256_16": "86f8dd0bb6da4ec9",
+  "guarantee": "byte-identical to committed B8.1; NO logic/gate/statistic/feature change"
+ },
+ "replication": {
+  "seed_blocks": 6,
+  "bases": [
+   500000000,
+   520000000,
+   540000000,
+   560000000,
+   580000000,
+   600000000
+  ],
+  "per_block": 50,
+  "aggregate": 300,
+  "conditions": 12,
+  "total": 3600,
+  "seed_formula": "base + world_index*1e6 + cohort",
+  "range": [
+   500000000,
+   611000049
+  ],
+  "disjointness": "0 intersection with all prior CSC seeds (verified)"
+ },
+ "decision": "B8.1 locked both-gate (contract-first; mean-T-alone diagnostic only; NOT recalibrated)",
+ "verdict": "Case C AND Case D -- B8.1 decision-level stability FALSIFIED (prior_only 18/300 + mixed 13/300 fail <=7/300); survivors = violation refusal (by construction) + modest POS; NEXT = contract redesign / narrow estimand, NOT mean-T recalibration",
+ "files": [
+  "b8_stage2_protocol.json (pre-registered)",
+  "b8_stage2_manifest.json",
+  "b8_stage2_rows.jsonl (3600)",
+  "b8_stage2_tables.json (main+screen+verdict+per_seed+result_redteam)",
+  "b8_stage2_seed_tables.json",
+  "b8_stage2_mechanism_tables.json",
+  "b8_stage2_redteam_checks.json (w3u5q3x10)",
+  "shards/ (72 raw)",
+  "scripts/",
+  "SHA256SUMS",
+  "README.md"
+ ]
+}

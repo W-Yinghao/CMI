@@ -1,0 +1,11 @@
+{
+ "base": 500000000,
+ "world": "CONTRACT_POS_boundary",
+ "start": 0,
+ "n": 50,
+ "n_records": 50,
+ "n_worker_errors": 0,
+ "host": "nodecpu01",
+ "slurm": "887372",
+ "diagnostic_only": true
+}

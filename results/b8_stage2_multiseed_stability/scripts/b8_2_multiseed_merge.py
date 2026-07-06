@@ -172,12 +172,25 @@ def main():
                   pooled_null_ALL_KINDS=f"{pooled_null}/{4*NAGG}", prior_only_meanT_alone=f"{prior_meanT}/300")
 
     safety_stable = nulls_ok and prior_ok and mixed_ok and viol_no_alert and viol_refuse and null_block_stable and viol_block_stable
+    prA = main_tab["CONTRACT_NULL_prior_only"]["B8_ALERT"]; cpA = main_tab["CONTRACT_NULL_cov_plus_prior"]["B8_ALERT"]
+    both_null_fail = (not prior_ok) and (not mixed_ok)
     if hard_stop:
         verdict = f"B8.2 HARD-STOP (Case E): violation ALERT leak {viol_leaks} -- contract validator failure, fix before any science claim"
+    elif both_null_fail:
+        verdict = (f"B8.2 Case C AND Case D -- B8.1 DECISION-LEVEL STABILITY FALSIFIED. prior_only {prA}/300={100*prA/NAGG:.1f}% "
+                   f"(CI-excluded from nominal 2.5%) AND cov_plus_prior {cpA}/300={100*cpA/NAGG:.1f}% (exceeds the 7/300 screen; "
+                   f"95% CI touches nominal) both FAIL <=7/300 across ALL 6 blocks. B8.1's 2/50 & 1/50 were TYPICAL single-block "
+                   f"draws from a true ~4-6% rate (the n=50 screen was underpowered to resolve ~5% from 2.5%), NOT lucky. The "
+                   f"studentized both-gate is ANTI-CONSERVATIVE on prior-bearing nulls (masks ~60-75% of the collider: mean-T "
+                   f"{mech_tab['CONTRACT_NULL_prior_only']['meanT_alone_alert']}/{mech_tab['CONTRACT_NULL_cov_plus_prior']['meanT_alone_alert']}"
+                   f" -> {prA}/{cpA}, leaks a seed-dependent residual; clean balanced/random nulls ~1.7% = well-calibrated). "
+                   f"SURVIVORS (NOT falsified): violation refusal 300/300 (BY CONSTRUCTION, H3) + genuine-but-modest POS "
+                   f"({posb}/300 ~{100*posb/NAGG:.0f}%, CI overlaps prior_only at margin). NEXT = contract redesign / narrow "
+                   f"estimand (Case C) + STOP+diagnose contract construction (Case D) -- do NOT recalibrate the mean-T gate (rejected). Emulator/dev-only.")
     elif not prior_ok:
-        verdict = f"B8.2 Case C: prior_only {main_tab['CONTRACT_NULL_prior_only']['B8_ALERT']}/300 > 7 -- class-balanced contract controls prior UNSTABLY -> contract redesign / narrow estimand (do NOT recalibrate mean-T gate)"
+        verdict = f"B8.2 Case C: prior_only {prA}/300 > 7 -- class-balanced contract controls prior UNSTABLY -> contract redesign / narrow estimand (do NOT recalibrate mean-T gate)"
     elif not mixed_ok:
-        verdict = f"B8.2 Case D: cov_plus_prior {main_tab['CONTRACT_NULL_cov_plus_prior']['B8_ALERT']}/300 > 7 -- mixed-cell control LOST -> STOP + diagnose contract construction"
+        verdict = f"B8.2 Case D: cov_plus_prior {cpA}/300 > 7 -- mixed-cell control LOST -> STOP + diagnose contract construction"
     elif safety_stable and posb >= 20:
         verdict = ("B8.2 Case A: SAFETY STABLE across 6 seed blocks (nulls+mixed<=7/300, violations refuse 0-alert, per-block stable) + POS>=20/300 -- "
                    f"B8 direction stable enough to discuss B8.3 budget frontier / real-audit protocol (reviewer). CAVEAT: decision-level (both-gate) stability; prior_only mean-T-alone still {prior_meanT}/300 (statistic-level collider remains). Emulator, NOT validation.")
@@ -198,7 +211,11 @@ def main():
     out = dict(scope="B8.2 multi-seed stability replication; development-only; NOT confirmatory; NOT validation (Lee2019 emulator); NO tag; engine byte-identical to B8.1 3109c0f",
                seed_bases=BASES, n_per_block=NPB, n_aggregate=NAGG, main_table=main_tab, seed_table=seed_tab,
                mechanism_table=mech_tab, per_seed_variability=perseed, screen=screen, verdict=verdict,
-               vs_b8_1="B8.1 (n=50): prior_only both-gate 2/50, mean-T-alone 5/50, cov_plus_prior 1/50, POS_boundary 8/50, pooled null 6/200",
+               vs_b8_1="B8.1 (n=50): prior_only both-gate 2/50, mean-T-alone 5/50, cov_plus_prior 1/50, POS_boundary 8/50, pooled null 6/200 -- RE-CHARACTERIZED by B8.2: those were TYPICAL underpowered single-block draws from a true ~4-6% rate, NOT genuine control",
+               result_redteam=dict(workflow="w3u5q3x10", accounting="PASS (3600 reproduced, 0 mismatches, engine byte-identical to committed B8.1, seeds disjoint, both-gate recompute matches, no fabrication)",
+                                   science="MINOR_ISSUE -- negative GENUINE + honestly framed; wording refined",
+                                   honest_label="B8.1 decision-level stability FALSIFIED by multi-seed replication: prior_only 18/300=6.0% (CP95 [3.6,9.3]%, strictly > nominal 2.5%) AND mixed cov_plus_prior 13/300=4.3% (fails the 7/300 screen; binom p=0.041; 95% CI [2.33,7.30]% touches nominal) both fail across ALL 6 seed blocks; B8.1's 2/50 & 1/50 were TYPICAL underpowered single-block draws (n=50 cannot resolve ~5% from 2.5%), NOT lucky. Both-gate anti-conservative on prior nulls (masks 60-75% of the collider, mean-T 46/49 -> 18/13, leaks a seed-dependent residual; clean nulls ~1.7% well-calibrated). Survivors NOT falsified: violation refusal 300/300 (by construction) + genuine-but-modest POS 37/300 & 39/300 (~12-13%, CP95 [8.8,16.6]%, Fisher p=0.010/0.0002 vs the failing null, CI overlaps at margin). NEXT = contract redesign / narrow estimand (Case C+D), NOT mean-T recalibration. Emulator/dev-only, NO tag.",
+                                   prov_note="low: .prov.json records host/slurm/base/world but NOT the engine sha256; run-time byte-identity rests on on-disk hash + protocol pin (future: embed engine sha256 per shard)"),
                scope_limits="decision-level (both-gate) STABILITY across seed blocks; does NOT fix the statistic-level mean-T collider (reported, not gated); emulator (Lee2019 SM16), semi-synthetic; violations refused BY CONSTRUCTION (H3 schedule-adherence); H1/H2/H5 vacuous-by-construction (H3/H4/D1 exercised)")
     json.dump(out, open(f"{CDIR}/b8_2_multiseed_tables.json", "w"), indent=1, default=str)
     print(f"\n  saved {CDIR}/b8_2_multiseed_tables.json")
