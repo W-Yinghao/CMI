@@ -1,0 +1,5 @@
+contrast,mean,ci_lo,ci_hi,sig
+Delta_256_16_P_J,-0.0445,-0.0539,-0.0355,True
+Delta_256_16_prior_estimate_deviation,-0.05,-0.0605,-0.0399,True
+Delta_256_16_TV_piJ_rhoA_full,0.0177,0.0012,0.0341,True
+Delta_256_16_metric_mismatch,0.0,0.0,0.0,False
