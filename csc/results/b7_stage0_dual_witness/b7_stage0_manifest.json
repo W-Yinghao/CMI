@@ -1,0 +1,41 @@
+{
+ "scope": "B7-primary Stage-0 dual-witness canary; exposed row-level re-analysis of committed B6.0 cohorts; development-only; NOT confirmatory; NOT deployable; NOT a universal type-I guarantee",
+ "primary_rule": "B7_primary_confirm = (old_b3_state==CONCEPT_CONFIRMED) AND (b6_state==CONCEPT_CONFIRMED_B6)",
+ "base_seed": 200000000,
+ "conditions": [
+  "NULL_cov_soft",
+  "NULL_cov_plus_label_soft",
+  "NULL_cov_strong_auc0.81",
+  "NULL_cov_strong_auc0.94",
+  "NULL_label",
+  "random_label_control",
+  "POS_concept",
+  "POS_concept_plus_cov"
+ ],
+ "n_per_condition": 50,
+ "source_b6_0_dir": "/home/infres/yinwang/realeeg_feas/b6_canary",
+ "source_b6_fm_dir_secondary": "/home/infres/yinwang/realeeg_feas/b6fm_canary",
+ "b6_0_row_sha256": {
+  "NULL_cov_soft": "865c67270f8ff0b002ae7c57f3d7dad74f6842563ee6c6ee60658e5b68895fa3",
+  "NULL_cov_plus_label_soft": "1166033450d3b814a8462c222436d8aad2250f935586df07a3881c1ea38b64d1",
+  "NULL_cov_strong_auc0.81": "dbaee72e5e8b8e259c509962e85007cc0c75c5eb99aa5ba31d0e2e430b993e81",
+  "NULL_cov_strong_auc0.94": "c9159fd97ff50fc0c49ca9aa28f445cf135dcd6c1350940e74b65a7a082ae43c",
+  "NULL_label": "c1f5fa8bf64081b7fd64f38ba9085d03793b190b1a0e328d7b1e9f64649fe98a",
+  "random_label_control": "7dd41b669f91eda88616091dad939db290ab26278672156512a8148bb4bee90a",
+  "POS_concept": "dff477f8a764bf515494b695b881ac881b49bbd95cf3b8344289bbfb7d410787",
+  "POS_concept_plus_cov": "e9232e22e5ec949a61a4c9c8feeef9f3f7fb4b85872ec7cb02884970fbea9f54"
+ },
+ "forbidden": [
+  "old_and_FM as primary",
+  "best-of-B6",
+  "router/observed_T threshold",
+  "p-recalibration",
+  "P(C|Z,S,Y)",
+  "within-class Z balancing",
+  "oracle field",
+  "condition-label rule",
+  "confirmatory tag"
+ ],
+ "diagnostic_only": true,
+ "not_confirmatory": true
+}

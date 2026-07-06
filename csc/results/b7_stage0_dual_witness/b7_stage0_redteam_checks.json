@@ -1,0 +1,33 @@
+{
+ "all_pass": true,
+ "per_lens": [
+  {
+   "lens": "rowjoin_state",
+   "verdict": "PASS",
+   "summary": "Independent recompute from source B6.0 JSONL reproduces the B7 canary exactly with zero discrepancies. All lens checks pass. 400 rows equal 8 conditions times 50 with unique task_ids and cohorts 0 to 49 complete at row level. old_B3_confirm from old_b3_state equal CONCEPT_CONFIRMED agrees with old_false or true_confirm on all 400. B6_plain_confirm uses the gated b6_state equal CONCEPT_CONFIRMED_B6 which coincides with the p-only flag at 69 each. b7_primary_confirm is a pure AND, invalid can never be DUAL, and DUAL equals both per condition. Four-cell and state counts each sum to 50 per condition. The single UNIDENTIFIABLE POS_concept cohort 45 with old NEED_MORE_LABELS is correctly excluded. All 8 source SHA-256 match the manifest, the 400-row cross-check and every table cell match, and per-condition confirm is 1,3,0,0,0,0,7,7 with the hard screen PASSED as claimed. One low coverage caveat only: the B6-invalid routing branch is never exercised in this data (0 invalid, 0 locks), so that path is structurally correct but only vacuously tested."
+  },
+  {
+   "lens": "isolation_audit",
+   "verdict": "PASS",
+   "summary": "B7-primary Stage-0 dual-witness canary re-analysis is clean under the data-isolation + key-audit + set-conservatism lens. Independent recompute directly from the raw committed B6.0 rows (never opening the B6-FM directory) reproduces the committed tables exactly: per-condition b7_primary_confirm = NULL_cov_soft 1, NULL_cov_plus_label 3, strong0.81 0, strong0.94 0, NULL_label 0, random 0, POS_concept 7, POS_concept_plus_cov 7; screen PASSED. (a) Isolation intact: the decision function b7_state() reads only the two witnesses' gated states + validity; B6-FM only feeds clearly-labelled SECONDARY counters; no oracle/router/observed_T/p-recalibration/condition-label rule enters the primary; p_dual is stored as a diagnostic and never read. Asserted on all 400 rows that every b7_primary_confirm has BOTH witnesses confirming. (b) Set-conservative holds: b7 <= both <= min(old_confirm, b6_plain_confirm) for all 8 conditions, and since CONFIRMED implies valid (0 gated-confirms invalid), b7 == both exactly, with every DUAL_ALERT having both witnesses. (c) NULL_cov_plus_label both=3 are exactly cohorts 0020/0040/0046, each old==CONCEPT_CONFIRMED and b6==CONCEPT_CONFIRMED_B6. (d) The 14 positives (7+7) are all genuine dual-confirms; POS_concept's 1 UNIDENTIFIABLE cohort (45, old=NEED_MORE_LABELS) is correctly excluded. (e) NULL_label both=0, strong 0/0, random 0 confirmed. (f) Manifest b6_0_row_sha256 matches recomputed hashes and sidecar files. (g) tables.json/manifest.json carry development-only / NOT confirmatory / NOT deployable / NOT a universal type-I guarantee / set-conservative framing with no B7-proves-concept or universal-type-I-control claim. No isolation breach, no over-claim, no audit failure."
+  }
+ ],
+ "serious_issues": [],
+ "all_issues": [
+  {
+   "lens": "isolation_audit",
+   "severity": "low",
+   "summary": "4 dual FALSE-confirms occur in null conditions (1 in NULL_cov_soft cohort 27; the 3 NULL_cov_plus_label cohorts 0020/0040/0046) - genuine type-I events of the AND rule on null data. Correctly disclosed in b7_false_confirm and within the pre-stated development screen (soft cap <=5), but NULL_cov_plus_label at 3 is the flagged residual safety risk; not a defect, just the canary's honest blind spot and a reason the screen is explicitly NOT a type-I guarantee."
+  },
+  {
+   "lens": "isolation_audit",
+   "severity": "low",
+   "summary": "On this dataset the gated B6 confirm (b6_state==CONCEPT_CONFIRMED_B6) coincides exactly with the p-only flag (69==69 across 400 cohorts), so the gate removes nothing here. The script correctly uses the stricter b6_state field as pinned, but the gated-vs-p-only safety margin is currently inactive/untested on this exposed data."
+  },
+  {
+   "lens": "isolation_audit",
+   "severity": "low",
+   "summary": "No standalone README exists in b7_stage0/; the development-only / not-confirmatory / not-deployable / not-a-universal-type-I-guarantee / set-conservative framing is carried entirely by scope and set_conservative fields inside tables.json and manifest.json. Framing requirement is met, but a reader who opens only rows.jsonl would not see the disclaimers."
+  }
+ ]
+}
