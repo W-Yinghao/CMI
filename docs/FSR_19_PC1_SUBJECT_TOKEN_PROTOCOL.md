@@ -29,11 +29,30 @@ Per LOSO fold (dataset, held-out subject), operating on the frozen dumps:
 `recovery_fraction = (bAcc_repaired − bAcc_injected) / (bAcc_original − bAcc_injected)`.
 
 ## Pass/fail
-- **Detection pass** (primary `spatial_z`, α=1.0 or predeclared α=2.0): L1 does not fall; **L5 task_drop < 0** (erasing the injected token helps target); L5 SymKL specificity > random; **L6 injected target bAcc < original**; injected branch correctly localized.
-- **Repair pass:** **R1** `recovery_fraction ≥ 0.70` and clearly > random-k; **R2** `recovery_fraction >` random-k and no source-val task-safety failure. If R1 passes but R2 fails ⇒ "detect+localize+oracle-repairable; source-estimated repair imperfect." If both ⇒ "detect+localize+repair with source-estimated erasure."
+
+> **Terminology patch (PM Phase-4C review, applied post-run).** The original single `detection_pass`
+> below folded an *erasure-based* criterion (`L5 task_drop < 0` = erasing the injected token helps target)
+> into "detection". That L5/recovery criterion is a **repair** test, not a detection test. Per the review we
+> **split the statuses** and never report PC1 as a "detection pass" in the erasure sense:
+> ```
+> harm_induction_pass        = TRUE
+> localization_pass          = TRUE
+> exact_attribution_pass     = TRUE   (exact token subtraction recovers ~1.0)
+> erasure_based_l5_pass      = FALSE  (erasing the injected token does NOT help target)
+> oracle_erasure_repair_pass = FALSE
+> source_estimated_repair_pass = FALSE
+> repair_pass                = FALSE
+> ```
+> The composite reported to the PM is **`harm_localization_attribution_pass = harm_induction ∧ localized ∧
+> exact_attribution`** (renamed from `detection_pass`). PC1 licenses "FSR detects, localizes, and attributes a
+> known harmful shortcut; erasure fails as repair" — **not** "FSR detects and repairs the shortcut."
+
+- **Harm-localization-attribution pass** (primary `spatial_z`, α=1.0 or predeclared α=2.0): **L6 injected target bAcc < original** (harm induced, CI excludes 0); injected branch correctly localized (largest injected harm); harm exactly attributable to the token (R0 exact subtraction recovery ≈ 1.0). *[This is what PC1 achieves.]*
+- **Erasure-based L5 pass** *(repair criterion, separate)*: **L5 task_drop < 0** (erasing the injected token helps target) and L5 SymKL specificity > random. *[FALSE here.]*
+- **Repair pass:** **R1** `recovery_fraction ≥ 0.70` and clearly > random-k; **R2** `recovery_fraction >` random-k and no source-val task-safety failure. If R1 passes but R2 fails ⇒ "detect+localize+oracle-repairable; source-estimated repair imperfect." If both ⇒ "detect+localize+repair with source-estimated erasure." *[FALSE here — every erasure arm has negative recovery; motivates Phase 4D task-protected repair.]*
 
 ## Outputs (`results/fsr_pc1_subject_token/`)
-`pc1_injection_manifest.csv`, `pc1_alpha_grid.csv`, `pc1_token_direction_sanity.csv`, `pc1_l1_subject_decode.csv`, `pc1_l5_l6_harm_curve.csv`, `pc1_repair_results.csv`, `pc1_randomk_specificity.csv`, `pc1_localization_summary.json`, `pc1_target_label_firewall.json`, `pc1_verdict.json` (with `detection_pass`, `oracle_repair_pass`, `source_estimated_repair_pass`, `primary_branch`, `primary_alpha`, `alpha_selection_used_target=false`, `target_labels_used_for_fit=false`, `target_labels_used_for_final_eval_only=true`).
+`pc1_injection_manifest.csv`, `pc1_alpha_grid.csv`, `pc1_token_direction_sanity.csv`, `pc1_l1_subject_decode.csv`, `pc1_l5_l6_harm_curve.csv`, `pc1_repair_results.csv`, `pc1_randomk_specificity.csv`, `pc1_localization_summary.json`, `pc1_target_label_firewall.json`, `pc1_verdict.json` (with split statuses `harm_localization_attribution_pass`, `harm_induction_pass`, `localization_pass`, `exact_attribution_pass`, `erasure_based_l5_pass`, `oracle_erasure_repair_pass`, `source_estimated_repair_pass`, `repair_pass`, `primary_branch`, `primary_alpha`, `alpha_selection_used_target=false`, `target_labels_used_for_fit=false`, `target_labels_used_for_final_eval_only=true`).
 
 ## STOP rules
 ```text

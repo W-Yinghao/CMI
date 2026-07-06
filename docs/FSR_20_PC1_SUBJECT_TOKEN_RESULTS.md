@@ -8,7 +8,26 @@ The FSR verification protocol **detects, localizes, and attributes** an injected
 ## Sanity (STOP-rules clear)
 `α=0` reproduces the original logits/metrics exactly; the token produces a positive source class-directed logit shift (`token_class_shift_positive=True`); exact token subtraction recovers **1.0** — so the induced harm is 100% attributable to the injected token (no bug, no confound). Firewall: target labels used only for final scoring; token assignment, α selection, and repair fits are source-only.
 
-## Detection + localization — PASS
+## Status (terminology patch — PM Phase-4C review)
+The original doc reported a single `detection_pass`. Per review this is **split** so the erasure-based
+criterion (a *repair* test) is never folded into "detection":
+
+```text
+harm_induction_pass            = TRUE    (injected token induces target harm, CI excludes 0)
+localization_pass              = TRUE    (harm localized to the injected spatial branch)
+exact_attribution_pass         = TRUE    (exact token subtraction recovers ~1.0)
+erasure_based_l5_pass          = FALSE   (erasing the injected token does NOT help target)
+oracle_erasure_repair_pass     = FALSE
+source_estimated_repair_pass   = FALSE
+repair_pass                    = FALSE
+--------------------------------------------------------------------
+harm_localization_attribution_pass = TRUE   (= harm_induction ∧ localized ∧ exact_attribution)
+```
+
+**Claim language.** PC1 proves *"FSR detects, localizes, and exactly attributes a known harmful branch-local
+shortcut; erasure fails as repair."* It does **not** prove *"FSR detects and repairs the shortcut."*
+
+## Harm induction + localization + attribution — PASS
 Injecting into `spatial_z` (the strongest natural candidate), induced target-bAcc harm rises monotonically with α and excludes zero at α≥1:
 
 | α | induced harm (bAcc_orig − bAcc_inj) | 
@@ -19,7 +38,7 @@ Injecting into `spatial_z` (the strongest natural candidate), induced target-bAc
 | **1.0** | **+0.041 [+0.013, +0.072]** |
 | **2.0** | **+0.066 [+0.028, +0.102]** |
 
-**Localization** (α=1.0 induced harm): spatial **+0.041** > graph +0.021 > temporal +0.020 → the injected branch is correctly flagged as the most harmful. `detection_pass=True` (harm + localized + exact-attributable).
+**Localization** (α=1.0 induced harm): spatial **+0.041** > graph +0.021 > temporal +0.020 → the injected branch is correctly flagged as the most harmful. `harm_localization_attribution_pass=True` (harm + localized + exact-attributable).
 
 ## Erasure repair — FAILS (a finding, not a null)
 Pooled recovery fraction at α=1.0 (`(bAcc_repaired − bAcc_injected)/(bAcc_orig − bAcc_injected)`):
@@ -35,11 +54,13 @@ Every erasure arm makes the target **worse** (negative recovery), including the 
 
 ## Verdict
 ```json
-{"detection_pass": true, "localized_to_injected_branch": true,
- "attribution_exact_recovery_ok": true, "l5_erasing_helps": false,
- "oracle_repair_pass": false, "source_estimated_repair_pass": false,
+{"harm_localization_attribution_pass": true,
+ "harm_induction_pass": true, "localization_pass": true, "exact_attribution_pass": true,
+ "erasure_based_l5_pass": false, "repair_pass": false,
+ "oracle_erasure_repair_pass": false, "source_estimated_repair_pass": false,
  "primary_branch": "spatial_z", "primary_alpha": 1.0,
- "alpha_selection_used_target": false, "target_labels_used_for_fit": false}
+ "alpha_selection_used_target": false, "target_labels_used_for_fit": false,
+ "target_labels_used_for_final_eval_only": true}
 ```
 
 ## What this licenses
