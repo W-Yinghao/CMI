@@ -1,9 +1,14 @@
 {
-  "detection_pass": true,
+  "harm_localization_attribution_pass": true,
+  "harm_induction_pass": true,
+  "localization_pass": true,
+  "exact_attribution_pass": true,
+  "erasure_based_l5_pass": false,
+  "repair_pass": false,
   "localized_to_injected_branch": true,
   "attribution_exact_recovery_ok": true,
   "l5_erasing_helps": false,
-  "oracle_repair_pass": false,
+  "oracle_erasure_repair_pass": false,
   "source_estimated_repair_pass": false,
   "primary_branch": "spatial_z",
   "primary_alpha": 1.0,
@@ -120,5 +125,6 @@
       }
     }
   },
+  "claim_language": "PC1 proves: FSR detects, localizes, and exactly attributes a known harmful branch-local shortcut; erasure-based L5/recovery FAILS. It does NOT prove FSR 'detects and repairs' the shortcut. Report as harm_localization_attribution_pass with repair_pass=false, NOT as detection_pass.",
   "interpretation": "PC1: the injected spatial subject-token shortcut is DETECTED (induced target harm +0.043/+0.076, monotone in alpha) and LOCALIZED to the injected branch. The harm is fully attributable to the token (exact subtraction recovers ~1.0). But ERASURE-based repair (oracle-subspace/source-est/random) does NOT recover: the injected harm acts through TASK-COUPLED logit directions, so subspace erasure cannot cleanly remove it -- the same task-entanglement seen naturally. => detection+localization proven; a REPAIR demonstration needs a LEARNED shortcut (PC2 prevalence-stress refit, GPU) or a counterfactual/task-protected primitive (Phase 4D), not erasure. Positive control ONLY; not natural evidence."
 }

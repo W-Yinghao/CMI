@@ -82,16 +82,27 @@ def main():
     best_a = 1.0 if d1["harm_positive"] else 2.0
     R0v = r0[best_a]["pooled_recovery"]
     R1, R2, R3 = r1[best_a]["pooled_recovery"], r2[best_a]["pooled_recovery"], r3[best_a]["pooled_recovery"]
-    # DETECTION = induced harm (L6) + localized + fully attributable to the token (exact recovery ~1)
+    # HARM-LOCALIZATION-ATTRIBUTION = induced harm (L6) + localized + fully attributable to token (exact ~1).
+    # NOTE (terminology patch per PM Phase-4C review): this is NOT the original "detection_pass" that also
+    # required the erasure-based L5 criterion (erasing the injected token helps target). That L5/recovery
+    # criterion is a *repair* test, and it FAILS here -- so we split the statuses and never label PC1 as a
+    # "detection pass" in the erasure sense. See docs/FSR_20.
+    harm_induction_pass = bool(d1["harm_positive"] or d2["harm_positive"])
     attribution_ok = bool(R0v is not None and R0v > 0.9)
-    detection_pass = bool((d1["harm_positive"] or d2["harm_positive"]) and localized and attribution_ok)
+    harm_localization_attribution_pass = bool(harm_induction_pass and localized and attribution_ok)
     l5_erasing_helps = bool(d1["l5_erasing_helps"] or d2["l5_erasing_helps"])
+    erasure_based_l5_pass = l5_erasing_helps  # erasing injected token helps target -> FALSE here
     oracle_pass = bool(R1 is not None and R1 >= 0.70 and R1 > (R3 if R3 is not None else -9))
     src_pass = bool(R2 is not None and R3 is not None and R2 > R3)
+    repair_pass = bool(oracle_pass or src_pass)  # any erasure arm repairs -> FALSE here
 
-    verdict = dict(detection_pass=detection_pass, localized_to_injected_branch=localized,
+    verdict = dict(harm_localization_attribution_pass=harm_localization_attribution_pass,
+                   harm_induction_pass=harm_induction_pass,
+                   localization_pass=localized, exact_attribution_pass=attribution_ok,
+                   erasure_based_l5_pass=erasure_based_l5_pass, repair_pass=repair_pass,
+                   localized_to_injected_branch=localized,
                    attribution_exact_recovery_ok=attribution_ok, l5_erasing_helps=l5_erasing_helps,
-                   oracle_repair_pass=oracle_pass, source_estimated_repair_pass=src_pass,
+                   oracle_erasure_repair_pass=oracle_pass, source_estimated_repair_pass=src_pass,
                    primary_branch="spatial_z", primary_alpha=best_a,
                    alpha_selection_used_target=False, target_labels_used_for_fit=False,
                    target_labels_used_for_final_eval_only=True,
@@ -101,6 +112,10 @@ def main():
                    detection={"alpha1.0": d1, "alpha2.0": d2},
                    repair={"R0_exact": {str(a): r0[a] for a in r0}, "R1_oracle_subspace": {str(a): r1[a] for a in r1},
                            "R2_source_est": {str(a): r2[a] for a in r2}, "R3_random_k": {str(a): r3[a] for a in r3}},
+                   claim_language=("PC1 proves: FSR detects, localizes, and exactly attributes a known harmful "
+                                   "branch-local shortcut; erasure-based L5/recovery FAILS. It does NOT prove FSR "
+                                   "'detects and repairs' the shortcut. Report as harm_localization_attribution_pass "
+                                   "with repair_pass=false, NOT as detection_pass."),
                    interpretation=("PC1: the injected spatial subject-token shortcut is DETECTED (induced target "
                                    "harm +0.043/+0.076, monotone in alpha) and LOCALIZED to the injected branch. "
                                    "The harm is fully attributable to the token (exact subtraction recovers ~1.0). "
@@ -130,8 +145,10 @@ def main():
     print(f"  ERASURE repair @alpha={best_a} (pooled recovery frac): R1_oracle_subspace={R1} R2_source_est={R2} R3_random={R3}")
     print(f"    (orig={r1[best_a]['orig_bacc']} injected={r1[best_a]['injected_bacc']} "
           f"R1_bacc={r1[best_a]['repaired_bacc']} R2_bacc={r2[best_a]['repaired_bacc']} R3_bacc={r3[best_a]['repaired_bacc']})")
-    print(f"  DETECTION_PASS={detection_pass} (harm+localized+attributable)  L5_erasing_helps={l5_erasing_helps}")
-    print(f"  ERASURE_REPAIR: oracle_subspace_pass={oracle_pass} source_est_pass={src_pass} (all erasure recoveries <= 0 => erasure is NOT a repair)")
+    print(f"  HARM_LOCALIZATION_ATTRIBUTION_PASS={harm_localization_attribution_pass} "
+          f"(harm_induction={harm_induction_pass} + localized={localized} + exact_attribution={attribution_ok})")
+    print(f"  ERASURE_BASED_L5_PASS={erasure_based_l5_pass}  REPAIR_PASS={repair_pass} "
+          f"(oracle_subspace={oracle_pass} source_est={src_pass}; all erasure recoveries <= 0 => erasure is NOT a repair)")
 
 
 if __name__ == "__main__":
