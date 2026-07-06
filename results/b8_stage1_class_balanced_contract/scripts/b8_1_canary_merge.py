@@ -122,17 +122,32 @@ def main():
                   pos_boundary_power=bool(pos > 0), pos_boundary_strong=bool(pos >= 5),
                   quiet_stress_gap_closed=bool(quiet_stress), HARD_STOP_violation_leak=hard_stop_hit)
 
+    # RESULT-RED-TEAM (wvfdv8j1c) HONESTY CORRECTION: the decision-level SCREEN can be MET while "STRONG"/"FIXED"
+    # OVER-CLAIMS. The prior-collider is CONTROLLED by the conservative studentized AND-gate, NOT fixed at the statistic
+    # level (mean-T-alone residual is intact). Report the pooled null rate + mean-T floor so the redistribution/masking is
+    # visible; never say FIXED/STRONG. Decision-level screen-met => "MEETS-PRE-REGISTERED-TARGETS-ON-EMULATOR" (caveated).
+    pooled_null_alerts = sum(rows[w]["alert"] for w in contract_nulls); pooled_null_n = 50 * len(contract_nulls)
+    prior_meanT_alone = rows["CONTRACT_NULL_prior_only"]["meanT_alone_alert"]   # the WORST cell (= B8.0's total)
+    screen["pooled_null_alerts"] = f"{pooled_null_alerts}/{pooled_null_n}"
+    screen["prior_only_meanT_alone_residual"] = f"{prior_meanT_alone}/50 (B8.0 both-gate was 5/50; the collider's mean-T signature is INTACT -- decision-level control leans on the studentized AND-gate)"
     ok_core = null_ok and prior_ok and mixed_ok and viol_no_alert and viol_refuse
     if hard_stop_hit:
         verdict = f"B8.1 HARD-STOP: violation ALERT leak {viol_leaks} -- provenance gate failed (contract-invalid world alerted before refusal). Fix before any science claim."
     elif ok_core and pos >= 5:
-        verdict = "B8.1 STRONG: prior_only collider FIXED + all nulls controlled + mixed controlled + violations refused (0 alerts) + POS>=5 (direction strong; budget frontier LATER, NOT now)"
+        verdict = ("B8.1 MEETS-PRE-REGISTERED-TARGETS-ON-EMULATOR (decision-level), NOT 'strong'/'fixed': all nulls controlled "
+                   "+ mixed retained + violations refused (0 alerts) + POS>=5. CAVEATS (result-red-team): prior-collider is "
+                   f"CONTROLLED by the studentized AND-gate NOT fixed -- mean-T-alone residual INTACT {prior_meanT_alone}/50; "
+                   f"5->2 both-gate is CI-overlapping (Fisher p~0.22); pooled null FLAT {pooled_null_alerts}/{pooled_null_n} "
+                   "(B8.0 7/200) = redistribution not tightening; POS modest (POS/50) & statistically UNCHANGED vs B8.0 4/50 "
+                   "(p~0.36), separates from the POOLED floor not the mean-T floor; violations refused BY CONSTRUCTION (H3). "
+                   "Emulator, single seed, n=50. Budget frontier LATER, NOT now.")
     elif ok_core and pos > 0:
-        verdict = "B8.1 SAFE-BUT-WEAK: prior_only FIXED + all nulls+mixed controlled + violations refused (0 alerts) but POS weak (next=audit-budget frontier, separate authorization)"
+        verdict = ("B8.1 MEETS-TARGETS-BUT-POS-WEAK (decision-level): nulls+mixed controlled + violations refused, POS>0 but <5. "
+                   "Same CAVEATS: collider CONTROLLED-not-fixed (mean-T residual intact), pooled null flat, emulator/single-seed.")
     elif ok_core and pos == 0:
-        verdict = "B8.1 SAFE-POWERLESS: all nulls+violations controlled but POS=0 (contract too strong / label budget too small)"
+        verdict = "B8.1 SAFE-POWERLESS: nulls+violations controlled but POS=0 (contract too strong / label budget too small)"
     elif not prior_ok:
-        verdict = f"B8.1 prior_only STILL HIGH ({rows['CONTRACT_NULL_prior_only']['alert']}/50): class-balanced contract did NOT fix the collider -- inspect design, do NOT retune p"
+        verdict = f"B8.1 prior_only STILL HIGH ({rows['CONTRACT_NULL_prior_only']['alert']}/50): class-balanced contract did NOT even decision-level-control the collider -- inspect, do NOT retune p"
     elif not mixed_ok:
         verdict = f"B8.1 MIXED-CELL REGRESSION ({rows['CONTRACT_NULL_cov_plus_prior']['alert']}/50): B8.0's mixed control lost -- STOP + diagnose"
     elif not null_ok:
@@ -143,14 +158,21 @@ def main():
         print(f"\n  !!! HARD-STOP: violation ALERT leak {viol_leaks} (contract-first must give 0 violation alerts) !!!")
     print(f"\n  >>> screen: {screen}")
     print(f"  >>> B8.1 VERDICT: {verdict}")
-    print(f"  >>> KEY vs B8.0: prior_only {rows['CONTRACT_NULL_prior_only']['alert']}/50 (B8.0 5/50) | "
-          f"cov_plus_prior {rows['CONTRACT_NULL_cov_plus_prior']['alert']}/50 (B8.0 1/50) | POS_boundary {pos}/50 (B8.0 4/50)")
+    print(f"  >>> KEY vs B8.0 (n=50, CIs wide): prior_only both-gate {rows['CONTRACT_NULL_prior_only']['alert']}/50 (B8.0 5/50; "
+          f"CI-overlapping) | prior_only mean-T-ALONE {prior_meanT_alone}/50 (residual INTACT vs B8.0 5/50) | "
+          f"cov_plus_prior {rows['CONTRACT_NULL_cov_plus_prior']['alert']}/50 (B8.0 1/50) | pooled null {pooled_null_alerts}/{pooled_null_n} (B8.0 7/200, FLAT) | "
+          f"POS_boundary {pos}/50 (B8.0 4/50; p~0.36 UNCHANGED)")
 
     tables = dict(scope="B8.1 class-balanced randomized-audit contract canary; development-only; NOT confirmatory; NOT validation (Lee2019 emulator); NO tag",
                   base_seed=420_000_000, n_per_world=N, per_world=rows, screen=screen, verdict=verdict,
-                  vs_b8_0=dict(prior_only=dict(b8_1=rows["CONTRACT_NULL_prior_only"]["alert"], b8_0="5/50"),
-                               cov_plus_prior=dict(b8_1=rows["CONTRACT_NULL_cov_plus_prior"]["alert"], b8_0="1/50"),
-                               pos_boundary=dict(b8_1=pos, b8_0="4/50")),
+                  vs_b8_0=dict(prior_only_both_gate=dict(b8_1=rows["CONTRACT_NULL_prior_only"]["alert"], b8_0="5/50", note="CI-overlapping; Fisher 5->2 p~0.22 not decisive at n=50"),
+                               prior_only_meanT_alone=dict(b8_1=prior_meanT_alone, b8_0="5/50", note="RESIDUAL INTACT -- the collider's mean-T signature is unchanged; decision-level control is via the studentized AND-gate (masking), NOT a statistic-level fix"),
+                               cov_plus_prior=dict(b8_1=rows["CONTRACT_NULL_cov_plus_prior"]["alert"], b8_0="1/50", note="mixed control genuinely retained"),
+                               pooled_null=dict(b8_1=f"{pooled_null_alerts}/{pooled_null_n}", b8_0="7/200", note="FLAT -- aggregate null control unchanged; only prior_only moved (redistribution within noise; balanced 0->1, random_label 1->2 got worse)"),
+                               pos_boundary=dict(b8_1=pos, b8_0="4/50", note="statistically UNCHANGED (Fisher 4->8 p~0.36); modest 16% (84% miss); separates from the POOLED null floor (p~0.002) but NOT from prior_only's mean-T floor 5/50 (p~0.28)")),
+                  result_redteam=dict(workflow="wvfdv8j1c", accounting="PASS (clean, 0 mismatches, disjoint seeds, isolation clean)",
+                                      science="MINOR_ISSUE -- 'STRONG'/'FIXED' OVER-CLAIMED; decision-level screen met but relabel to MEETS-PRE-REGISTERED-TARGETS-ON-EMULATOR with caveats",
+                                      honest_label="MEETS-PRE-REGISTERED-TARGETS-ON-EMULATOR (decision-level); prior-collider CONTROLLED by studentized AND-gate NOT fixed (mean-T residual intact); pooled null flat; POS modest+unchanged vs B8.0; violations refused by construction (H3); emulator/single-seed/n=50"),
                   core_change="null stratifier: observed post-treatment Y (B8.0 collider) -> pre-assignment design_class Dc (=cued class y0); class-balanced randomization within (block,Dc); hard provenance gate",
                   provenance_gates_exercised="Of the 5 hard gates, H1(table exists)/H2(hash integrity)/H5(schedule balance) are NON-DISCRIMINATIVE BY CONSTRUCTION in this emulator (H2/H5 always pass; no world corrupts the table). The canary exercises only H3(schedule-adherence, the sole novel discriminator carrying every violation refusal) + H4(support, fires on condition_lock) + D1(AUC, secondary backstop). Read as an H3/H4 test, NOT a 5-gate validation.",
                   two_gate_note="2nd-order mean-T residual: permuting C with Y held fixed breaks the C->Y prior main-effect link, so the null is exact only for the sharp interaction-null (h0 absorbs the main effect). prior_only safety leans on the studentized AND-gate; section E reports meanT-alone vs both-gate so a mean-T drift toward 0.025 is visible.",

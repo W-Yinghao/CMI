@@ -1,0 +1,11 @@
+{
+ "base": 420000000,
+ "world": "VIOLATION_cov_plus_prior",
+ "start": 0,
+ "n": 50,
+ "n_records": 50,
+ "n_worker_errors": 0,
+ "host": "nodecpu02",
+ "slurm": "887361",
+ "diagnostic_only": true
+}

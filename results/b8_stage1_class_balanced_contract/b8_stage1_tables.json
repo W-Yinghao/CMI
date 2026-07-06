@@ -1,0 +1,406 @@
+{
+ "scope": "B8.1 class-balanced randomized-audit contract canary; development-only; NOT confirmatory; NOT validation (Lee2019 emulator); NO tag",
+ "base_seed": 420000000,
+ "n_per_world": 50,
+ "per_world": {
+  "CONTRACT_NULL_balanced": {
+   "n": 50,
+   "world_class": "contract",
+   "has_concept": false,
+   "alert": 1,
+   "no_actionable": 49,
+   "contract_invalid": 0,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 50,
+   "invalid_reason_breakdown": {},
+   "auc_le_tau": 50,
+   "provenance_only_refused": 0,
+   "n_tested": 50,
+   "meanT_alone_alert": 1,
+   "stud_alone_alert": 2,
+   "both_gate_alert": 1,
+   "median_auc": 0.4974971869498678,
+   "median_match": 1.0,
+   "median_support": 1449.5,
+   "median_p_meanT": 0.47263681592039797,
+   "median_p_stud": 0.44527363184079605,
+   "states": {
+    "NO_ACTIONABLE_CONCEPT_EVIDENCE": 49,
+    "B8_CONCEPT_ALERT": 1
+   }
+  },
+  "CONTRACT_NULL_prior_only": {
+   "n": 50,
+   "world_class": "contract",
+   "has_concept": false,
+   "alert": 2,
+   "no_actionable": 48,
+   "contract_invalid": 0,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 50,
+   "invalid_reason_breakdown": {},
+   "auc_le_tau": 50,
+   "provenance_only_refused": 0,
+   "n_tested": 50,
+   "meanT_alone_alert": 5,
+   "stud_alone_alert": 3,
+   "both_gate_alert": 2,
+   "median_auc": 0.4994773827484489,
+   "median_match": 1.0,
+   "median_support": 1451.0,
+   "median_p_meanT": 0.2537313432835821,
+   "median_p_stud": 0.5049751243781094,
+   "states": {
+    "NO_ACTIONABLE_CONCEPT_EVIDENCE": 48,
+    "B8_CONCEPT_ALERT": 2
+   }
+  },
+  "CONTRACT_NULL_cov_plus_prior": {
+   "n": 50,
+   "world_class": "contract",
+   "has_concept": false,
+   "alert": 1,
+   "no_actionable": 49,
+   "contract_invalid": 0,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 50,
+   "invalid_reason_breakdown": {},
+   "auc_le_tau": 50,
+   "provenance_only_refused": 0,
+   "n_tested": 50,
+   "meanT_alone_alert": 4,
+   "stud_alone_alert": 1,
+   "both_gate_alert": 1,
+   "median_auc": 0.49906039216917913,
+   "median_match": 1.0,
+   "median_support": 1452.5,
+   "median_p_meanT": 0.42288557213930345,
+   "median_p_stud": 0.5149253731343284,
+   "states": {
+    "NO_ACTIONABLE_CONCEPT_EVIDENCE": 49,
+    "B8_CONCEPT_ALERT": 1
+   }
+  },
+  "CONTRACT_random_label": {
+   "n": 50,
+   "world_class": "contract",
+   "has_concept": false,
+   "alert": 2,
+   "no_actionable": 48,
+   "contract_invalid": 0,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 50,
+   "invalid_reason_breakdown": {},
+   "auc_le_tau": 50,
+   "provenance_only_refused": 0,
+   "n_tested": 50,
+   "meanT_alone_alert": 2,
+   "stud_alone_alert": 2,
+   "both_gate_alert": 2,
+   "median_auc": 0.49859804599630014,
+   "median_match": 1.0,
+   "median_support": 1453.0,
+   "median_p_meanT": 0.6019900497512438,
+   "median_p_stud": 0.5746268656716418,
+   "states": {
+    "NO_ACTIONABLE_CONCEPT_EVIDENCE": 48,
+    "B8_CONCEPT_ALERT": 2
+   }
+  },
+  "CONTRACT_POS_boundary": {
+   "n": 50,
+   "world_class": "contract",
+   "has_concept": true,
+   "alert": 8,
+   "no_actionable": 42,
+   "contract_invalid": 0,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 50,
+   "invalid_reason_breakdown": {},
+   "auc_le_tau": 50,
+   "provenance_only_refused": 0,
+   "n_tested": 50,
+   "meanT_alone_alert": 28,
+   "stud_alone_alert": 9,
+   "both_gate_alert": 8,
+   "median_auc": 0.49662511182926206,
+   "median_match": 1.0,
+   "median_support": 1451.0,
+   "median_p_meanT": 0.007462686567164179,
+   "median_p_stud": 0.3681592039800995,
+   "states": {
+    "NO_ACTIONABLE_CONCEPT_EVIDENCE": 42,
+    "B8_CONCEPT_ALERT": 8
+   }
+  },
+  "CONTRACT_POS_boundary_plus_prior": {
+   "n": 50,
+   "world_class": "contract",
+   "has_concept": true,
+   "alert": 7,
+   "no_actionable": 43,
+   "contract_invalid": 0,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 50,
+   "invalid_reason_breakdown": {},
+   "auc_le_tau": 50,
+   "provenance_only_refused": 0,
+   "n_tested": 50,
+   "meanT_alone_alert": 24,
+   "stud_alone_alert": 7,
+   "both_gate_alert": 7,
+   "median_auc": 0.4973005395083384,
+   "median_match": 1.0,
+   "median_support": 1451.5,
+   "median_p_meanT": 0.03482587064676617,
+   "median_p_stud": 0.7164179104477613,
+   "states": {
+    "NO_ACTIONABLE_CONCEPT_EVIDENCE": 43,
+    "B8_CONCEPT_ALERT": 7
+   }
+  },
+  "VIOLATION_cov_session": {
+   "n": 50,
+   "world_class": "violation",
+   "has_concept": false,
+   "alert": 0,
+   "no_actionable": 0,
+   "contract_invalid": 50,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 0,
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 50,
+    "block_confounding_auc": 50
+   },
+   "auc_le_tau": 0,
+   "provenance_only_refused": 0,
+   "n_tested": 0,
+   "meanT_alone_alert": 0,
+   "stud_alone_alert": 0,
+   "both_gate_alert": 0,
+   "median_auc": 0.7815722784275874,
+   "median_match": 0.4986174242424243,
+   "median_support": 550.0,
+   "median_p_meanT": 1.0,
+   "median_p_stud": 1.0,
+   "states": {
+    "CONTRACT_INVALID_OR_UNIDENTIFIABLE": 50
+   }
+  },
+  "VIOLATION_prior_shift": {
+   "n": 50,
+   "world_class": "violation",
+   "has_concept": false,
+   "alert": 0,
+   "no_actionable": 0,
+   "contract_invalid": 50,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 0,
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 50,
+    "block_confounding_auc": 50
+   },
+   "auc_le_tau": 0,
+   "provenance_only_refused": 0,
+   "n_tested": 0,
+   "meanT_alone_alert": 0,
+   "stud_alone_alert": 0,
+   "both_gate_alert": 0,
+   "median_auc": 0.9105597777777777,
+   "median_match": 0.49983333333333335,
+   "median_support": 1015.0,
+   "median_p_meanT": 1.0,
+   "median_p_stud": 1.0,
+   "states": {
+    "CONTRACT_INVALID_OR_UNIDENTIFIABLE": 50
+   }
+  },
+  "VIOLATION_cov_plus_prior": {
+   "n": 50,
+   "world_class": "violation",
+   "has_concept": false,
+   "alert": 0,
+   "no_actionable": 0,
+   "contract_invalid": 50,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 0,
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 50,
+    "block_confounding_auc": 50
+   },
+   "auc_le_tau": 0,
+   "provenance_only_refused": 0,
+   "n_tested": 0,
+   "meanT_alone_alert": 0,
+   "stud_alone_alert": 0,
+   "both_gate_alert": 0,
+   "median_auc": 0.7839787325266002,
+   "median_match": 0.49662280701754385,
+   "median_support": 555.5,
+   "median_p_meanT": 1.0,
+   "median_p_stud": 1.0,
+   "states": {
+    "CONTRACT_INVALID_OR_UNIDENTIFIABLE": 50
+   }
+  },
+  "VIOLATION_condition_lock": {
+   "n": 50,
+   "world_class": "violation",
+   "has_concept": false,
+   "alert": 0,
+   "no_actionable": 0,
+   "contract_invalid": 50,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 0,
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 50,
+    "condition_lock_no_within_stratum": 50,
+    "insufficient_support": 50
+   },
+   "auc_le_tau": 50,
+   "provenance_only_refused": 50,
+   "n_tested": 0,
+   "meanT_alone_alert": 0,
+   "stud_alone_alert": 0,
+   "both_gate_alert": 0,
+   "median_auc": 0.4583382634349761,
+   "median_match": 0.5,
+   "median_support": 0.0,
+   "median_p_meanT": 1.0,
+   "median_p_stud": 1.0,
+   "states": {
+    "CONTRACT_INVALID_OR_UNIDENTIFIABLE": 50
+   }
+  },
+  "VIOLATION_quiet_cov_no_concept": {
+   "n": 50,
+   "world_class": "violation",
+   "has_concept": false,
+   "alert": 0,
+   "no_actionable": 0,
+   "contract_invalid": 50,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 0,
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 50
+   },
+   "auc_le_tau": 50,
+   "provenance_only_refused": 50,
+   "n_tested": 0,
+   "meanT_alone_alert": 0,
+   "stud_alone_alert": 0,
+   "both_gate_alert": 0,
+   "median_auc": 0.5295366398351088,
+   "median_match": 0.88,
+   "median_support": 1362.0,
+   "median_p_meanT": 1.0,
+   "median_p_stud": 1.0,
+   "states": {
+    "CONTRACT_INVALID_OR_UNIDENTIFIABLE": 50
+   }
+  },
+  "VIOLATION_quiet_cov_plus_concept": {
+   "n": 50,
+   "world_class": "violation",
+   "has_concept": true,
+   "alert": 0,
+   "no_actionable": 0,
+   "contract_invalid": 50,
+   "insufficient": 0,
+   "sampler_invalid": 0,
+   "need_more": 0,
+   "contract_valid": 0,
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 50
+   },
+   "auc_le_tau": 50,
+   "provenance_only_refused": 50,
+   "n_tested": 0,
+   "meanT_alone_alert": 0,
+   "stud_alone_alert": 0,
+   "both_gate_alert": 0,
+   "median_auc": 0.5326506765560453,
+   "median_match": 0.88,
+   "median_support": 1363.0,
+   "median_p_meanT": 1.0,
+   "median_p_stud": 1.0,
+   "states": {
+    "CONTRACT_INVALID_OR_UNIDENTIFIABLE": 50
+   }
+  }
+ },
+ "screen": {
+  "contract_nulls_le3": true,
+  "random_label_le1": false,
+  "prior_only_le3_PRIMARY": true,
+  "mixed_cov_plus_prior_le3": true,
+  "violations_zero_alert": true,
+  "violations_refused": true,
+  "pos_boundary_power": true,
+  "pos_boundary_strong": true,
+  "quiet_stress_gap_closed": true,
+  "HARD_STOP_violation_leak": false,
+  "pooled_null_alerts": "6/200",
+  "prior_only_meanT_alone_residual": "5/50 (B8.0 both-gate was 5/50; the collider's mean-T signature is INTACT -- decision-level control leans on the studentized AND-gate)"
+ },
+ "verdict": "B8.1 MEETS-PRE-REGISTERED-TARGETS-ON-EMULATOR (decision-level), NOT 'strong'/'fixed': all nulls controlled + mixed retained + violations refused (0 alerts) + POS>=5. CAVEATS (result-red-team): prior-collider is CONTROLLED by the studentized AND-gate NOT fixed -- mean-T-alone residual INTACT 5/50; 5->2 both-gate is CI-overlapping (Fisher p~0.22); pooled null FLAT 6/200 (B8.0 7/200) = redistribution not tightening; POS modest (POS/50) & statistically UNCHANGED vs B8.0 4/50 (p~0.36), separates from the POOLED floor not the mean-T floor; violations refused BY CONSTRUCTION (H3). Emulator, single seed, n=50. Budget frontier LATER, NOT now.",
+ "vs_b8_0": {
+  "prior_only_both_gate": {
+   "b8_1": 2,
+   "b8_0": "5/50",
+   "note": "CI-overlapping; Fisher 5->2 p~0.22 not decisive at n=50"
+  },
+  "prior_only_meanT_alone": {
+   "b8_1": 5,
+   "b8_0": "5/50",
+   "note": "RESIDUAL INTACT -- the collider's mean-T signature is unchanged; decision-level control is via the studentized AND-gate (masking), NOT a statistic-level fix"
+  },
+  "cov_plus_prior": {
+   "b8_1": 1,
+   "b8_0": "1/50",
+   "note": "mixed control genuinely retained"
+  },
+  "pooled_null": {
+   "b8_1": "6/200",
+   "b8_0": "7/200",
+   "note": "FLAT -- aggregate null control unchanged; only prior_only moved (redistribution within noise; balanced 0->1, random_label 1->2 got worse)"
+  },
+  "pos_boundary": {
+   "b8_1": 8,
+   "b8_0": "4/50",
+   "note": "statistically UNCHANGED (Fisher 4->8 p~0.36); modest 16% (84% miss); separates from the POOLED null floor (p~0.002) but NOT from prior_only's mean-T floor 5/50 (p~0.28)"
+  }
+ },
+ "result_redteam": {
+  "workflow": "wvfdv8j1c",
+  "accounting": "PASS (clean, 0 mismatches, disjoint seeds, isolation clean)",
+  "science": "MINOR_ISSUE -- 'STRONG'/'FIXED' OVER-CLAIMED; decision-level screen met but relabel to MEETS-PRE-REGISTERED-TARGETS-ON-EMULATOR with caveats",
+  "honest_label": "MEETS-PRE-REGISTERED-TARGETS-ON-EMULATOR (decision-level); prior-collider CONTROLLED by studentized AND-gate NOT fixed (mean-T residual intact); pooled null flat; POS modest+unchanged vs B8.0; violations refused by construction (H3); emulator/single-seed/n=50"
+ },
+ "core_change": "null stratifier: observed post-treatment Y (B8.0 collider) -> pre-assignment design_class Dc (=cued class y0); class-balanced randomization within (block,Dc); hard provenance gate",
+ "provenance_gates_exercised": "Of the 5 hard gates, H1(table exists)/H2(hash integrity)/H5(schedule balance) are NON-DISCRIMINATIVE BY CONSTRUCTION in this emulator (H2/H5 always pass; no world corrupts the table). The canary exercises only H3(schedule-adherence, the sole novel discriminator carrying every violation refusal) + H4(support, fires on condition_lock) + D1(AUC, secondary backstop). Read as an H3/H4 test, NOT a 5-gate validation.",
+ "two_gate_note": "2nd-order mean-T residual: permuting C with Y held fixed breaks the C->Y prior main-effect link, so the null is exact only for the sharp interaction-null (h0 absorbs the main effect). prior_only safety leans on the studentized AND-gate; section E reports meanT-alone vs both-gate so a mean-T drift toward 0.025 is visible.",
+ "scope_limits": "emulator (Lee2019 SM16 geometry), semi-synthetic, n=50/world, single base seed; provenance H3 = pre-registration schedule-adherence with ZERO tolerance (verifies a known randomization; does NOT discover confounding from observational data; robustness to noisy/graded real-world adherence out of scope); _schedule_hash pins per-(block,Dc) COUNTS not per-trial assignment (H3 is the per-trial gate); AUC validator linear top-8-PC (secondary)"
+}
