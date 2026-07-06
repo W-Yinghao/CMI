@@ -1,0 +1,462 @@
+{
+  "availability": {
+    "S4_missing_cells": {
+      "counts": {
+        "abstained_constant_or_degenerate_fold": 0,
+        "abstained_insufficient_finite_features": 0,
+        "abstained_source_accuracy_endpoint_nonestimable": 0,
+        "scored": 1268
+      },
+      "endpoint_available_rate": 0.0,
+      "endpoint_nonestimable_rate": 1.0,
+      "n_candidates": 1268,
+      "robust_core_insufficient_rate": 0.0,
+      "robust_core_scored_rate": 1.0
+    },
+    "S5_block_class_by_domain": {
+      "counts": {
+        "abstained_constant_or_degenerate_fold": 0,
+        "abstained_insufficient_finite_features": 0,
+        "abstained_source_accuracy_endpoint_nonestimable": 0,
+        "scored": 1268
+      },
+      "endpoint_available_rate": 0.48974763406940064,
+      "endpoint_nonestimable_rate": 0.5102523659305994,
+      "n_candidates": 1268,
+      "robust_core_insufficient_rate": 0.0,
+      "robust_core_scored_rate": 1.0
+    },
+    "S6_boundary_aligned_mask": {
+      "counts": {
+        "abstained_constant_or_degenerate_fold": 0,
+        "abstained_insufficient_finite_features": 0,
+        "abstained_source_accuracy_endpoint_nonestimable": 0,
+        "scored": 1268
+      },
+      "endpoint_available_rate": 0.0,
+      "endpoint_nonestimable_rate": 1.0,
+      "n_candidates": 1268,
+      "robust_core_insufficient_rate": 0.0,
+      "robust_core_scored_rate": 1.0
+    },
+    "S7_random_matched_mask": {
+      "counts": {
+        "abstained_constant_or_degenerate_fold": 0,
+        "abstained_insufficient_finite_features": 0,
+        "abstained_source_accuracy_endpoint_nonestimable": 0,
+        "scored": 1268
+      },
+      "endpoint_available_rate": 0.0,
+      "endpoint_nonestimable_rate": 1.0,
+      "n_candidates": 1268,
+      "robust_core_insufficient_rate": 0.0,
+      "robust_core_scored_rate": 1.0
+    }
+  },
+  "boundary_classes": [
+    1,
+    3
+  ],
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "feature_lock": {
+    "endpoint_secondary": [
+      "source_guard_worst_bacc",
+      "source_audit_worst_bacc"
+    ],
+    "endpoints_excluded_from_primary": true,
+    "n_robust_core": 16,
+    "robust_core": [
+      "source_guard_nll",
+      "source_guard_ece",
+      "source_guard_entropy",
+      "source_guard_confidence",
+      "source_guard_margin",
+      "source_guard_logit_norm",
+      "source_guard_conf_on_wrong",
+      "source_audit_nll",
+      "source_audit_ece",
+      "source_audit_entropy",
+      "source_audit_confidence",
+      "source_audit_margin",
+      "source_audit_logit_norm",
+      "source_audit_conf_on_wrong",
+      "selection_leakage_point",
+      "audit_leakage_point"
+    ],
+    "robust_core_matches_c19": true,
+    "static_excluded": [
+      "R_src",
+      "balanced_err",
+      "train_surrogate",
+      "epoch"
+    ],
+    "static_excluded_from_primary": true
+  },
+  "gates": {
+    "development_heldout_disjoint": true,
+    "endpoints_excluded_from_primary": true,
+    "feature_lock": true,
+    "finite_filter": true,
+    "locked_c19_config_hash": "664007686afb520f",
+    "no_selector_artifact": true,
+    "success_margin_vs_strict_chance": 0.03,
+    "targets_joined_post_hoc": true
+  },
+  "held_out": {
+    "S4_missing_cells": {
+      "endpoint_secondary": {
+        "beats_permutation": false,
+        "is_secondary": true,
+        "loto_auc": null,
+        "meets_margin_vs_chance": false,
+        "n_endpoint_estimable_val": 0,
+        "n_used": 0,
+        "note": "SECONDARY: cannot rescue a failed robust-core primary.",
+        "passes": false,
+        "per_target_auc": {},
+        "permutation_mean_auc": null,
+        "permutation_p": null
+      },
+      "primary": {
+        "beats_permutation": true,
+        "loto_auc": 0.49987774451097805,
+        "margin_vs_chance": -0.0001222554890219496,
+        "meets_margin_vs_chance": false,
+        "n_test_by_target": {
+          "1": 134,
+          "2": 166,
+          "3": 152,
+          "4": 153,
+          "5": 126,
+          "6": 132,
+          "7": 136,
+          "8": 130,
+          "9": 139
+        },
+        "n_used": 1268,
+        "non_deployable": true,
+        "note": "DIAGNOSTIC-ONLY cross-regime LOTO of the frozen C19 probe; no selector emitted.",
+        "passes": false,
+        "per_target_auc": {
+          "1": 0.6763392857142857,
+          "2": 0.7141812865497076,
+          "3": 0.6888392857142858,
+          "4": 0.7042671614100185,
+          "5": 0.5748311411304657,
+          "6": 0.549161230195713,
+          "7": 0.6456140350877193,
+          "8": 0.5726537613330066,
+          "9": 0.646485260770975
+        },
+        "per_target_spread": 0.16502005635399464,
+        "permutation_mean_auc": 0.45698319610778443,
+        "permutation_p": 0.004975124378109453
+      }
+    },
+    "S5_block_class_by_domain": {
+      "endpoint_secondary": {
+        "beats_permutation": true,
+        "is_secondary": true,
+        "loto_auc": 0.5190821256038647,
+        "margin_vs_chance": 0.019082125603864686,
+        "meets_margin_vs_chance": false,
+        "n_endpoint_estimable_val": 621,
+        "n_test_by_target": {
+          "1": 69,
+          "2": 76,
+          "3": 73,
+          "4": 73,
+          "5": 60,
+          "6": 66,
+          "7": 68,
+          "8": 66,
+          "9": 70
+        },
+        "n_used": 621,
+        "non_deployable": true,
+        "note": "SECONDARY: cannot rescue a failed robust-core primary.",
+        "passes": false,
+        "per_target_auc": {
+          "1": 0.8017408123791102,
+          "2": 0.5680056377730797,
+          "3": 0.6201201201201201,
+          "4": 0.33879781420765026,
+          "5": 0.7417142857142857,
+          "6": 0.4380242311276794,
+          "7": 0.5100261551874455,
+          "8": 0.618421052631579,
+          "9": 0.7361455748552522
+        },
+        "per_target_spread": 0.46294299817145995,
+        "permutation_mean_auc": 0.4368294475950431,
+        "permutation_p": 0.004975124378109453
+      },
+      "primary": {
+        "beats_permutation": true,
+        "loto_auc": 0.5114446107784432,
+        "margin_vs_chance": 0.011444610778443165,
+        "meets_margin_vs_chance": false,
+        "n_test_by_target": {
+          "1": 134,
+          "2": 166,
+          "3": 152,
+          "4": 153,
+          "5": 126,
+          "6": 132,
+          "7": 136,
+          "8": 130,
+          "9": 139
+        },
+        "n_used": 1268,
+        "non_deployable": true,
+        "note": "DIAGNOSTIC-ONLY cross-regime LOTO of the frozen C19 probe; no selector emitted.",
+        "passes": false,
+        "per_target_auc": {
+          "1": 0.6375,
+          "2": 0.6850877192982456,
+          "3": 0.7073660714285714,
+          "4": 0.7510204081632653,
+          "5": 0.5684322787060079,
+          "6": 0.5573159366262814,
+          "7": 0.5973684210526315,
+          "8": 0.5797598627787307,
+          "9": 0.6238095238095238
+        },
+        "per_target_spread": 0.1937044715369839,
+        "permutation_mean_auc": 0.46661514471057886,
+        "permutation_p": 0.004975124378109453
+      }
+    },
+    "S6_boundary_aligned_mask": {
+      "endpoint_secondary": {
+        "beats_permutation": false,
+        "is_secondary": true,
+        "loto_auc": null,
+        "meets_margin_vs_chance": false,
+        "n_endpoint_estimable_val": 0,
+        "n_used": 0,
+        "note": "SECONDARY: cannot rescue a failed robust-core primary.",
+        "passes": false,
+        "per_target_auc": {},
+        "permutation_mean_auc": null,
+        "permutation_p": null
+      },
+      "primary": {
+        "beats_permutation": true,
+        "loto_auc": 0.5318413173652694,
+        "margin_vs_chance": 0.031841317365269406,
+        "meets_margin_vs_chance": true,
+        "n_test_by_target": {
+          "1": 134,
+          "2": 166,
+          "3": 152,
+          "4": 153,
+          "5": 126,
+          "6": 132,
+          "7": 136,
+          "8": 130,
+          "9": 139
+        },
+        "n_used": 1268,
+        "non_deployable": true,
+        "note": "DIAGNOSTIC-ONLY cross-regime LOTO of the frozen C19 probe; no selector emitted.",
+        "passes": true,
+        "per_target_auc": {
+          "1": 0.5707589285714286,
+          "2": 0.7048245614035088,
+          "3": 0.7207589285714285,
+          "4": 0.7532467532467533,
+          "5": 0.5897618201208674,
+          "6": 0.5992544268406338,
+          "7": 0.6087719298245614,
+          "8": 0.5998529772114678,
+          "9": 0.7183673469387755
+        },
+        "per_target_spread": 0.18248782467532465,
+        "permutation_mean_auc": 0.47448555389221553,
+        "permutation_p": 0.004975124378109453
+      }
+    },
+    "S7_random_matched_mask": {
+      "endpoint_secondary": {
+        "beats_permutation": false,
+        "is_secondary": true,
+        "loto_auc": null,
+        "meets_margin_vs_chance": false,
+        "n_endpoint_estimable_val": 0,
+        "n_used": 0,
+        "note": "SECONDARY: cannot rescue a failed robust-core primary.",
+        "passes": false,
+        "per_target_auc": {},
+        "permutation_mean_auc": null,
+        "permutation_p": null
+      },
+      "primary": {
+        "beats_permutation": true,
+        "loto_auc": 0.5359505988023953,
+        "margin_vs_chance": 0.03595059880239526,
+        "meets_margin_vs_chance": true,
+        "n_test_by_target": {
+          "1": 134,
+          "2": 166,
+          "3": 152,
+          "4": 153,
+          "5": 126,
+          "6": 132,
+          "7": 136,
+          "8": 130,
+          "9": 139
+        },
+        "n_used": 1268,
+        "non_deployable": true,
+        "note": "DIAGNOSTIC-ONLY cross-regime LOTO of the frozen C19 probe; no selector emitted.",
+        "passes": true,
+        "per_target_auc": {
+          "1": 0.6488839285714286,
+          "2": 0.6883040935672514,
+          "3": 0.6229910714285715,
+          "4": 0.5552875695732838,
+          "5": 0.6910771418414504,
+          "6": 0.5657036346691519,
+          "7": 0.606140350877193,
+          "8": 0.5653026219063955,
+          "9": 0.7428571428571429
+        },
+        "per_target_spread": 0.18756957328385904,
+        "permutation_mean_auc": 0.47050294411177646,
+        "permutation_p": 0.004975124378109453
+      }
+    }
+  },
+  "n_folds": null,
+  "robustness_analysis": {
+    "n_holm_survive_vs_chance": 0,
+    "n_preregistered_pass": 2,
+    "note": "DISCLOSURE only. Pre-registered per-regime pass/fail is unchanged; this shows the 2/N pass collapses under multiplicity/CI and that the pooled pass/fail is Simpson-confounded (per-target discrimination is regime-nonspecific ~const, NOT the pre-registered pooled estimand).",
+    "per_regime": {
+      "S4_missing_cells": {
+        "auc": 0.49987774451097805,
+        "ci_high": 0.5317146237670384,
+        "ci_low": 0.46804086525491767,
+        "holm_survives_vs_chance": false,
+        "one_sided_p_vs_chance": 0.5030026168240237,
+        "per_target_mean_auc": 0.6413747164340196,
+        "preregistered_passes": false,
+        "se_iid": 0.016243305742887945,
+        "z_vs_chance": -0.00752651528925869
+      },
+      "S5_block_class_by_domain": {
+        "auc": 0.5114446107784432,
+        "ci_high": 0.5432844523597173,
+        "ci_low": 0.47960476919716893,
+        "holm_survives_vs_chance": false,
+        "one_sided_p_vs_chance": 0.2405580978976355,
+        "per_target_mean_auc": 0.6341844690959175,
+        "preregistered_passes": false,
+        "se_iid": 0.01624481713330318,
+        "z_vs_chance": 0.704508440109233
+      },
+      "S6_boundary_aligned_mask": {
+        "auc": 0.5318413173652694,
+        "ci_high": 0.5636355740808597,
+        "ci_low": 0.5000470606496791,
+        "holm_survives_vs_chance": false,
+        "one_sided_p_vs_chance": 0.024828832458396486,
+        "per_target_mean_auc": 0.6517330747477138,
+        "preregistered_passes": true,
+        "se_iid": 0.016221559548770588,
+        "z_vs_chance": 1.9629011174626931
+      },
+      "S7_random_matched_mask": {
+        "auc": 0.5359505988023953,
+        "ci_high": 0.5677278060220315,
+        "ci_low": 0.504173391582759,
+        "holm_survives_vs_chance": false,
+        "one_sided_p_vs_chance": 0.013297461215079706,
+        "per_target_mean_auc": 0.6318386172546522,
+        "preregistered_passes": true,
+        "se_iid": 0.01621286082634504,
+        "z_vs_chance": 2.2174124102747768
+      }
+    },
+    "per_target_mean_auc_range": [
+      0.6318386172546522,
+      0.6517330747477138
+    ],
+    "pooled_auc_range": [
+      0.49987774451097805,
+      0.5359505988023953
+    ],
+    "simpson_pooled_decoupled_from_within_target": true,
+    "within_target_underclaim_auc": 0.6397827193830758
+  },
+  "split_plan": {
+    "deletion_held_out": [
+      "S4_missing_cells",
+      "S6_boundary_aligned_mask",
+      "S7_random_matched_mask"
+    ],
+    "development_regimes": [
+      "S0_full_support",
+      "S2_rare_cells",
+      "S3_nonestimable_cells"
+    ],
+    "disjoint": true,
+    "held_out_regimes": [
+      "S4_missing_cells",
+      "S5_block_class_by_domain",
+      "S6_boundary_aligned_mask",
+      "S7_random_matched_mask"
+    ],
+    "nondeletion_held_out": [
+      "S5_block_class_by_domain"
+    ],
+    "noop_negative_control": "S1_label_marginal_skew"
+  },
+  "taxonomy": {
+    "case_label": "largely_regime_local_with_marginal_exceptions",
+    "diagnostic_only_non_deployable": true,
+    "held_out_pass": {
+      "S4_missing_cells": false,
+      "S5_block_class_by_domain": false,
+      "S6_boundary_aligned_mask": true,
+      "S7_random_matched_mask": true
+    },
+    "layered_verdict": {
+      "availability_status": "robust_core_available_all_heldout_regimes",
+      "claim_strength": "weak_diagnostic_only",
+      "failure_mode": "relationship_level_regime_shift_not_feature_availability",
+      "primary_verdict": "external_new_regime_generalization_not_established",
+      "secondary_observation": "marginal_above_chance_transfer_in_S6_boundary_aligned_mask_S7_random_matched_mask"
+    },
+    "n_pass": 2,
+    "next_science": "Broad external new-regime generalization is NOT established. Robust-core features are available in all held-out regimes, so the failures are RELATIONSHIP-level regime shift, not feature availability. 2/4 held-out regimes (['S6_boundary_aligned_mask', 'S7_random_matched_mask']) only MARGINALLY clear the strict chance bar and are reported as secondary exceptions, not a generalization claim. Remain diagnostic-only; do NOT proceed to C20-B external execution on this evidence.",
+    "passing_regimes": [
+      "S6_boundary_aligned_mask",
+      "S7_random_matched_mask"
+    ],
+    "robust_core_available_on_failing": {
+      "S4_missing_cells": 1.0,
+      "S5_block_class_by_domain": 1.0
+    },
+    "secondary_marginal_exceptions": [
+      {
+        "clears_bar_by": 0.001841317365269407,
+        "margin_vs_chance": 0.031841317365269406,
+        "marginal": true,
+        "regime": "S6_boundary_aligned_mask",
+        "severity": 3
+      },
+      {
+        "clears_bar_by": 0.005950598802395263,
+        "margin_vs_chance": 0.03595059880239526,
+        "marginal": true,
+        "regime": "S7_random_matched_mask",
+        "severity": 3
+      }
+    ],
+    "severity_local_marginal_transfer": true,
+    "severity_note": "the only above-chance held-out regimes are the LOWER-severity ones (severity [3] pass vs [4] fail) -> a severity gradient, NOT novel-regime generalization"
+  }
+}

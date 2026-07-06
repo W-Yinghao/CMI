@@ -1,0 +1,5 @@
+held_out_regime,n_used,loto_auc,margin_vs_chance,beats_permutation,meets_margin_vs_chance,passes
+S4_missing_cells,1268,0.49987774451097805,-0.0001222554890219496,True,False,False
+S5_block_class_by_domain,1268,0.5114446107784432,0.011444610778443165,True,False,False
+S6_boundary_aligned_mask,1268,0.5318413173652694,0.031841317365269406,True,True,True
+S7_random_matched_mask,1268,0.5359505988023953,0.03595059880239526,True,True,True

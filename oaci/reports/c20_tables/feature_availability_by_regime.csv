@@ -1,0 +1,5 @@
+held_out_regime,robust_core_scored_rate,robust_core_insufficient_rate,endpoint_available_rate,endpoint_nonestimable_rate
+S4_missing_cells,1.0,0.0,0.0,1.0
+S5_block_class_by_domain,1.0,0.0,0.48974763406940064,0.5102523659305994
+S6_boundary_aligned_mask,1.0,0.0,0.0,1.0
+S7_random_matched_mask,1.0,0.0,0.0,1.0
