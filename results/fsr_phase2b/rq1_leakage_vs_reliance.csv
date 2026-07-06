@@ -1,0 +1,18 @@
+analysis,scope,predictor,endpoint,rho,ci_lo,ci_hi,n,excludes_zero,status,note
+RQ1A,pooled,align_k2,R3_task_drop_k2,0.3382,0.168,0.5036,126,True,RECOMPUTED,
+RQ1A,BNCI2014_001,align_k2,R3_task_drop_k2,0.4667,0.2129,0.6479,54,True,RECOMPUTED,
+RQ1A,LODO_excl_BNCI2014_001,align_k2,R3_task_drop_k2,0.1033,-0.1469,0.345,72,False,RECOMPUTED,2 datasets -> LODO reduces to the other stratum
+RQ1A,BNCI2015_001,align_k2,R3_task_drop_k2,0.1033,-0.1469,0.345,72,False,RECOMPUTED,
+RQ1A,LODO_excl_BNCI2015_001,align_k2,R3_task_drop_k2,0.4667,0.2129,0.6479,54,True,RECOMPUTED,2 datasets -> LODO reduces to the other stratum
+RQ1A,seed0,align_k2,R3_task_drop_k2,0.397,0.0718,0.6687,42,True,RECOMPUTED,
+RQ1A,seed1,align_k2,R3_task_drop_k2,0.2407,-0.0748,0.5241,42,False,RECOMPUTED,
+RQ1A,seed2,align_k2,R3_task_drop_k2,0.358,0.0248,0.6349,42,True,RECOMPUTED,
+RQ1A,method_erm,align_k2,R3_task_drop_k2,0.2375,-0.0206,0.4766,63,False,RECOMPUTED,
+RQ1A,method_cigl_graph_node,align_k2,R3_task_drop_k2,0.2246,-0.0339,0.4587,63,False,RECOMPUTED,
+RQ1A,within_dataset_rank_resid,align_k2,R3_task_drop_k2,0.2111,0.0349,0.3861,126,True,RECOMPUTED,dataset-controlled (ranks within dataset)
+RQ1B,seed0_pooled,graph_kl,R3_task_drop_k2,-0.4191,-0.6795,-0.1004,42,True,RECOMPUTED_SIGN_ONLY,n=42 seed0
+RQ1B,seed0_BNCI2014_001,graph_kl,R3_task_drop_k2,-0.6405,-0.8462,-0.1909,18,True,RECOMPUTED_SIGN_ONLY,
+RQ1B,seed0_BNCI2015_001,graph_kl,R3_task_drop_k2,-0.3296,-0.6856,0.0656,24,False,RECOMPUTED_SIGN_ONLY,
+RQ1B,seed0_method_erm,graph_kl,R3_task_drop_k2,-0.3007,-0.7022,0.1765,21,False,RECOMPUTED_SIGN_ONLY,
+RQ1B,seed0_method_cigl_graph_node,graph_kl,R3_task_drop_k2,-0.3455,-0.7329,0.0908,21,False,RECOMPUTED_SIGN_ONLY,
+RQ1C,pooled,graph_kl,R3_task_drop_k2,-0.342,-0.507,-0.166,126,True,FROZEN_NOT_RECOMPUTABLE,seeds1/2 per-fold graph_kl pruned; support only

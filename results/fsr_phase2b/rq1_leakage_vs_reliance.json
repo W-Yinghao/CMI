@@ -1,0 +1,56 @@
+{
+  "unit_definition": "(dataset, method in {erm,cigl}, seed, fold)",
+  "boot": {
+    "n_boot": 2000,
+    "seed": 0
+  },
+  "RQ1A_align_full_n126": {
+    "pooled": {
+      "rho": 0.3382,
+      "ci_lo": 0.168,
+      "ci_hi": 0.5036,
+      "n": 126,
+      "excludes_zero": true
+    },
+    "by_dataset": {
+      "BNCI2014_001": {
+        "rho": 0.4667,
+        "ci_lo": 0.2129,
+        "ci_hi": 0.6479,
+        "n": 54,
+        "excludes_zero": true
+      },
+      "BNCI2015_001": {
+        "rho": 0.1033,
+        "ci_lo": -0.1469,
+        "ci_hi": 0.345,
+        "n": 72,
+        "excludes_zero": false
+      }
+    },
+    "decision": "pooled mechanism-positive, dataset-heterogeneous; not universal.",
+    "claim_strength": "RECOMPUTED"
+  },
+  "RQ1B_graph_kl_seed0_n42": {
+    "pooled": {
+      "rho": -0.4191,
+      "ci_lo": -0.6795,
+      "ci_hi": -0.1004,
+      "n": 42,
+      "excludes_zero": true
+    },
+    "decision": "raw graph leakage does NOT show the expected positive relationship with reliance in the recomputable seed0 slice; its sign is negative.",
+    "claim_strength": "RECOMPUTED_SIGN_ONLY"
+  },
+  "RQ1C_graph_kl_pooled_n126": {
+    "rho": -0.342,
+    "ci": [
+      -0.507,
+      -0.166
+    ],
+    "n": 126,
+    "claim_strength": "FROZEN_NOT_RECOMPUTABLE",
+    "use": "support only \u2014 NOT a full reproduction"
+  },
+  "forbidden_phrasing": "we fully reproduced both pooled correlations"
+}

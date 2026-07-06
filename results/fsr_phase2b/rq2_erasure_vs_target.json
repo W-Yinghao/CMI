@@ -1,0 +1,136 @@
+{
+  "cells": 40,
+  "erasers": [
+    "TOS_VD",
+    "LEACE",
+    "INLP",
+    "RLACE",
+    "random_k"
+  ],
+  "datasets": [
+    "BNCI2014_001",
+    "Lee2019_MI",
+    "Cho2017",
+    "Schirrmeister2017"
+  ],
+  "corr_E_subject_removed_vs": {
+    "target_bAcc_all": {
+      "rho": -0.4204,
+      "ci_lo": -0.6824,
+      "ci_hi": -0.1133,
+      "n": 40,
+      "excludes_zero": true
+    },
+    "target_NLL_all": {
+      "rho": -0.3338,
+      "ci_lo": -0.639,
+      "ci_hi": 0.039,
+      "n": 40,
+      "excludes_zero": false
+    },
+    "target_bAcc_clean": {
+      "rho": -0.4348,
+      "ci_lo": -0.7311,
+      "ci_hi": -0.0574,
+      "n": 30,
+      "excludes_zero": true
+    },
+    "target_NLL_clean": {
+      "rho": -0.2156,
+      "ci_lo": -0.5845,
+      "ci_hi": 0.1899,
+      "n": 30,
+      "excludes_zero": false
+    }
+  },
+  "randomk_specificity": [
+    {
+      "dataset": "BNCI2014_001",
+      "backbone": "EEGNet",
+      "leace_dtgt_nll": -0.06956,
+      "randomk_dtgt_nll": -0.01832,
+      "randomk_subj_dec_after": 0.74344,
+      "leace_dtgt_bacc": -0.01125,
+      "nll_move_nonspecific": "NO"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "backbone": "TSMNet",
+      "leace_dtgt_nll": -0.03087,
+      "randomk_dtgt_nll": -0.03404,
+      "randomk_subj_dec_after": 0.99771,
+      "leace_dtgt_bacc": 0.00071,
+      "nll_move_nonspecific": "YES"
+    },
+    {
+      "dataset": "Lee2019_MI",
+      "backbone": "EEGNet",
+      "leace_dtgt_nll": 0.05446,
+      "randomk_dtgt_nll": -0.00618,
+      "randomk_subj_dec_after": 0.17173,
+      "leace_dtgt_bacc": -0.18546,
+      "nll_move_nonspecific": "NO"
+    },
+    {
+      "dataset": "Lee2019_MI",
+      "backbone": "TSMNet",
+      "leace_dtgt_nll": -0.03605,
+      "randomk_dtgt_nll": -0.49595,
+      "randomk_subj_dec_after": 0.98955,
+      "leace_dtgt_bacc": -0.0017,
+      "nll_move_nonspecific": "NO"
+    },
+    {
+      "dataset": "Cho2017",
+      "backbone": "EEGNet",
+      "leace_dtgt_nll": -0.00807,
+      "randomk_dtgt_nll": -0.02065,
+      "randomk_subj_dec_after": 0.20185,
+      "leace_dtgt_bacc": -0.14957,
+      "nll_move_nonspecific": "NO"
+    },
+    {
+      "dataset": "Cho2017",
+      "backbone": "TSMNet",
+      "leace_dtgt_nll": 0.09598,
+      "randomk_dtgt_nll": -0.59095,
+      "randomk_subj_dec_after": 0.9954,
+      "leace_dtgt_bacc": -0.0013,
+      "nll_move_nonspecific": "NO"
+    },
+    {
+      "dataset": "Schirrmeister2017",
+      "backbone": "EEGNet",
+      "leace_dtgt_nll": -0.03676,
+      "randomk_dtgt_nll": -0.00297,
+      "randomk_subj_dec_after": 0.64847,
+      "leace_dtgt_bacc": -0.09122,
+      "nll_move_nonspecific": "NO"
+    },
+    {
+      "dataset": "Schirrmeister2017",
+      "backbone": "TSMNet",
+      "leace_dtgt_nll": 0.20428,
+      "randomk_dtgt_nll": 0.00201,
+      "randomk_subj_dec_after": 0.99946,
+      "leace_dtgt_bacc": -0.0008,
+      "nll_move_nonspecific": "NO"
+    }
+  ],
+  "counts": {
+    "cells": 40,
+    "task_collapse": 10,
+    "binary_harm": 8,
+    "benefit_claimable": 0,
+    "nll_nonspecific_cells": 1
+  },
+  "decision": {
+    "corr_E_vs_target_bAcc_all_cells": "erasure strength is NEGATIVELY associated with target benefit (more subject removal -> WORSE target bAcc); the old positive erasure hypothesis is refuted.",
+    "corr_E_vs_target_bAcc_clean_cells": "erasure strength is NEGATIVELY associated with target benefit (more subject removal -> WORSE target bAcc); the old positive erasure hypothesis is refuted.",
+    "benefit": "no eraser certifies a proven target benefit (benefit_claimable=0)",
+    "nll": "NLL movement is non-specific in 1/8 LEACE-vs-random_k comparisons; not attributable to subject erasure where flagged",
+    "task_safety": "10/40 cells task-collapse; 8/40 binary-harm (hard guardrail failures)",
+    "headline": "subject signal is erasable, but erasure strength does not certify target benefit.",
+    "forbidden_phrasing": "LEACE improves target NLL (as a DG claim)"
+  }
+}

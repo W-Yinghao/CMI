@@ -1,0 +1,6 @@
+model,n,term,std_coef,ci_lo,ci_hi,excludes_zero,note
+A_align_full_n126,126,z(align_k2),0.1573,-0.1442,0.5326,False,
+B_paired_seed0_n42,42,z(align_k2),0.2629,-0.6331,1.1439,False,
+B_paired_seed0_n42,42,z(graph_kl),-0.3716,-1.6962,1.0516,False,
+B_paired_seed0_n42,42,spearman_diff(align-graph_kl),0.8161,0.2187,1.3331,True,primary: alignment more positively associated than leakage
+C_frozen_summary,126,graph_kl_pooled,,,,,FROZEN_NOT_RECOMPUTABLE; sign negative; support only

@@ -1,0 +1,7 @@
+dataset,branch,mean_bacc,zero_branch_bacc,branch_ablation_drop,gate_weight,load_bearing_status,has_branch_leakage_probe,has_branch_R3_reliance,rq4_quantitative_status
+BNCI2014_001,graph,0.349,0.3664,-0.0174,0.2791,neutral_or_slightly_harmful,NO,NO,BLOCKED_MISSING_METRIC
+BNCI2014_001,temporal,0.349,0.3617,-0.0127,0.2322,neutral_or_slightly_harmful,NO,NO,BLOCKED_MISSING_METRIC
+BNCI2014_001,spatial,0.349,0.2754,0.0736,0.4888,load_bearing,NO,NO,BLOCKED_MISSING_METRIC
+BNCI2015_001,graph,0.608,0.6157,-0.0077,0.2387,neutral_or_slightly_harmful,NO,NO,BLOCKED_MISSING_METRIC
+BNCI2015_001,temporal,0.608,0.6099,-0.0019,0.1891,neutral_or_slightly_harmful,NO,NO,BLOCKED_MISSING_METRIC
+BNCI2015_001,spatial,0.608,0.52,0.088,0.5723,load_bearing,NO,NO,BLOCKED_MISSING_METRIC

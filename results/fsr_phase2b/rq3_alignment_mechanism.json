@@ -1,0 +1,54 @@
+{
+  "model_A_align_full_n126": {
+    "n": 126,
+    "align_k2": {
+      "std_coef": 0.1573,
+      "ci_lo": -0.1442,
+      "ci_hi": 0.5326,
+      "excludes_zero": false
+    },
+    "note": "align beta positive; CI includes 0 after dataset control (heterogeneous)"
+  },
+  "model_B_paired_seed0_n42": {
+    "n": 42,
+    "align_k2": {
+      "std_coef": 0.2629,
+      "ci_lo": -0.6331,
+      "ci_hi": 1.1439,
+      "excludes_zero": false
+    },
+    "graph_kl": {
+      "std_coef": -0.3716,
+      "ci_lo": -1.6962,
+      "ci_hi": 1.0516,
+      "excludes_zero": false
+    },
+    "spearman_diff_align_minus_graph_kl": {
+      "point": 0.8161,
+      "ci": [
+        0.2187,
+        1.3331
+      ],
+      "excludes_zero": true
+    },
+    "align_correct_sign": true,
+    "graph_kl_wrong_sign": true,
+    "align_abs_gt_graph_beta": false
+  },
+  "model_C_frozen_summary": {
+    "graph_kl_pooled": {
+      "rho": -0.342,
+      "ci": [
+        -0.507,
+        -0.166
+      ],
+      "n": 126,
+      "status": "frozen_not_recomputable",
+      "sign": "negative",
+      "use": "support only"
+    }
+  },
+  "decision": "in the fully recomputable data, task-head alignment is the more positively-associated / correctly-signed reliance predictor (Spearman difference align-graph_kl excludes 0); raw graph leakage carries the WRONG (negative) sign in the seed0 paired analysis and the frozen pooled summary. Within-group partial betas are not individually significant at this n, reflecting the dataset-heterogeneity found in RQ1A; graph_kl is larger in |beta| but negatively signed, so it is not a valid positive reliance predictor.",
+  "primary_test": "Spearman difference (align - graph_kl) on seed0 units where both are present",
+  "forbidden_phrasing": "align_k2 is a validated reliance estimator"
+}
