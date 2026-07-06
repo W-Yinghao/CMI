@@ -1,0 +1,5 @@
+perturbation,maxFC_minus_maxDIAG,ci_lo,ci_hi,sig,identity_BA_drop,id_drop_ci_lo,id_drop_ci_hi,CORAL_minus_FRSC,EA_minus_CORAL
+none,-0.0033,-0.0081,0.0013,False,,,,0.0575,-0.0024
+reref,-0.0063,-0.0115,-0.0011,True,0.0375,0.0227,0.0532,0.0508,-0.0085
+gain,-0.0036,-0.0097,0.0024,False,0.0209,0.0125,0.0296,0.0635,0.0023
+dropout,-0.0001,-0.0068,0.0064,False,0.028,0.0193,0.0366,0.0665,0.0027

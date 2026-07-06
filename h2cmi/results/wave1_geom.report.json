@@ -1,0 +1,451 @@
+{
+  "marker": "WAVE1_GEOMETRY",
+  "n_units": 72,
+  "n_units_per_dataset": {
+    "Lee2019_MI": 54,
+    "BNCI2014_004": 9,
+    "BNCI2014_001": 9
+  },
+  "per_perturbation": {
+    "none": {
+      "falsification_maxFC_minus_maxDIAG": {
+        "mean": -0.0033,
+        "ci": [
+          -0.0081,
+          0.0013
+        ],
+        "excludes_0": false,
+        "n": 72
+      },
+      "identity_BA_drop_vs_none": null,
+      "coral_minus_FRSC": {
+        "mean": 0.0575,
+        "ci": [
+          0.0433,
+          0.0722
+        ],
+        "excludes_0": true,
+        "n": 72
+      },
+      "EA_minus_CORAL": {
+        "mean": -0.0024,
+        "ci": [
+          -0.009,
+          0.0039
+        ],
+        "excludes_0": false,
+        "n": 72
+      },
+      "per_operator_BA": {
+        "identity_uniform": {
+          "mean": 0.5818,
+          "ci": [
+            0.561,
+            0.6039
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "fixed_reference_oneshot_uniform": {
+          "mean": 0.5243,
+          "ci": [
+            0.5136,
+            0.5369
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "fixed_iterative_geometry_uniform": {
+          "mean": 0.5016,
+          "ci": [
+            0.5,
+            0.5046
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "joint_geometry_uniform": {
+          "mean": 0.5016,
+          "ci": [
+            0.5,
+            0.5046
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "latent_im_diag_uniform": {
+          "mean": 0.5803,
+          "ci": [
+            0.5583,
+            0.6032
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "pooled_uniform": {
+          "mean": 0.5827,
+          "ci": [
+            0.5627,
+            0.6042
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "coral_latent": {
+          "mean": 0.5818,
+          "ci": [
+            0.5612,
+            0.604
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "source_recolored_ea": {
+          "mean": 0.5794,
+          "ci": [
+            0.5588,
+            0.6013
+          ],
+          "excludes_0": true,
+          "n": 72
+        }
+      }
+    },
+    "reref": {
+      "falsification_maxFC_minus_maxDIAG": {
+        "mean": -0.0063,
+        "ci": [
+          -0.0115,
+          -0.0011
+        ],
+        "excludes_0": true,
+        "n": 72
+      },
+      "identity_BA_drop_vs_none": {
+        "mean": 0.0375,
+        "ci": [
+          0.0227,
+          0.0532
+        ],
+        "excludes_0": true,
+        "n": 72
+      },
+      "coral_minus_FRSC": {
+        "mean": 0.0508,
+        "ci": [
+          0.0359,
+          0.0671
+        ],
+        "excludes_0": true,
+        "n": 72
+      },
+      "EA_minus_CORAL": {
+        "mean": -0.0085,
+        "ci": [
+          -0.0174,
+          0.0003
+        ],
+        "excludes_0": false,
+        "n": 72
+      },
+      "per_operator_BA": {
+        "identity_uniform": {
+          "mean": 0.5443,
+          "ci": [
+            0.5304,
+            0.5596
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "fixed_reference_oneshot_uniform": {
+          "mean": 0.5096,
+          "ci": [
+            0.5039,
+            0.5169
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "fixed_iterative_geometry_uniform": {
+          "mean": 0.5,
+          "ci": [
+            0.4999,
+            0.5002
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "joint_geometry_uniform": {
+          "mean": 0.5,
+          "ci": [
+            0.4999,
+            0.5
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "latent_im_diag_uniform": {
+          "mean": 0.5617,
+          "ci": [
+            0.5428,
+            0.5819
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "pooled_uniform": {
+          "mean": 0.564,
+          "ci": [
+            0.5454,
+            0.5842
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "coral_latent": {
+          "mean": 0.5604,
+          "ci": [
+            0.543,
+            0.5795
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "source_recolored_ea": {
+          "mean": 0.5519,
+          "ci": [
+            0.5363,
+            0.5687
+          ],
+          "excludes_0": true,
+          "n": 72
+        }
+      }
+    },
+    "gain": {
+      "falsification_maxFC_minus_maxDIAG": {
+        "mean": -0.0036,
+        "ci": [
+          -0.0097,
+          0.0024
+        ],
+        "excludes_0": false,
+        "n": 72
+      },
+      "identity_BA_drop_vs_none": {
+        "mean": 0.0209,
+        "ci": [
+          0.0125,
+          0.0296
+        ],
+        "excludes_0": true,
+        "n": 72
+      },
+      "coral_minus_FRSC": {
+        "mean": 0.0635,
+        "ci": [
+          0.0463,
+          0.0819
+        ],
+        "excludes_0": true,
+        "n": 72
+      },
+      "EA_minus_CORAL": {
+        "mean": 0.0023,
+        "ci": [
+          -0.0041,
+          0.0085
+        ],
+        "excludes_0": false,
+        "n": 72
+      },
+      "per_operator_BA": {
+        "identity_uniform": {
+          "mean": 0.5609,
+          "ci": [
+            0.5443,
+            0.5786
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "fixed_reference_oneshot_uniform": {
+          "mean": 0.5133,
+          "ci": [
+            0.5059,
+            0.5226
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "fixed_iterative_geometry_uniform": {
+          "mean": 0.5003,
+          "ci": [
+            0.5,
+            0.5007
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "joint_geometry_uniform": {
+          "mean": 0.5001,
+          "ci": [
+            0.5,
+            0.5002
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "latent_im_diag_uniform": {
+          "mean": 0.5798,
+          "ci": [
+            0.5584,
+            0.6025
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "pooled_uniform": {
+          "mean": 0.5762,
+          "ci": [
+            0.5558,
+            0.5983
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "coral_latent": {
+          "mean": 0.5768,
+          "ci": [
+            0.5559,
+            0.5995
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "source_recolored_ea": {
+          "mean": 0.5791,
+          "ci": [
+            0.5584,
+            0.6015
+          ],
+          "excludes_0": true,
+          "n": 72
+        }
+      }
+    },
+    "dropout": {
+      "falsification_maxFC_minus_maxDIAG": {
+        "mean": -0.0001,
+        "ci": [
+          -0.0068,
+          0.0064
+        ],
+        "excludes_0": false,
+        "n": 72
+      },
+      "identity_BA_drop_vs_none": {
+        "mean": 0.028,
+        "ci": [
+          0.0193,
+          0.0366
+        ],
+        "excludes_0": true,
+        "n": 72
+      },
+      "coral_minus_FRSC": {
+        "mean": 0.0665,
+        "ci": [
+          0.0484,
+          0.0862
+        ],
+        "excludes_0": true,
+        "n": 72
+      },
+      "EA_minus_CORAL": {
+        "mean": 0.0027,
+        "ci": [
+          -0.0057,
+          0.0106
+        ],
+        "excludes_0": false,
+        "n": 72
+      },
+      "per_operator_BA": {
+        "identity_uniform": {
+          "mean": 0.5538,
+          "ci": [
+            0.5367,
+            0.5728
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "fixed_reference_oneshot_uniform": {
+          "mean": 0.5075,
+          "ci": [
+            0.5034,
+            0.5122
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "fixed_iterative_geometry_uniform": {
+          "mean": 0.5001,
+          "ci": [
+            0.5,
+            0.5002
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "joint_geometry_uniform": {
+          "mean": 0.5001,
+          "ci": [
+            0.5,
+            0.5002
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "latent_im_diag_uniform": {
+          "mean": 0.5745,
+          "ci": [
+            0.5536,
+            0.5971
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "pooled_uniform": {
+          "mean": 0.5758,
+          "ci": [
+            0.5557,
+            0.5974
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "coral_latent": {
+          "mean": 0.574,
+          "ci": [
+            0.554,
+            0.5959
+          ],
+          "excludes_0": true,
+          "n": 72
+        },
+        "source_recolored_ea": {
+          "mean": 0.5767,
+          "ci": [
+            0.5561,
+            0.5989
+          ],
+          "excludes_0": true,
+          "n": 72
+        }
+      }
+    }
+  }
+}
