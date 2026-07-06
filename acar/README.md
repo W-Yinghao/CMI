@@ -2,13 +2,15 @@
 
 > *Predicting Negative Transfer, Not Distribution Shift, for Safe EEG Test-Time Adaptation.*
 
-> ⛔ **STATUS (2026-07-06) — CLOSED THROUGH v5. `DEV_STOP / NO_CANDIDATE_SELECTED`.** The v5 Stage-2B real DEV selection ran
-> clean (rc=0) and no candidate in the frozen 22-policy universe passed the pre-registered safety/utility gates (0/22 eligible;
-> failure = HARM control, not coverage). **Engineering/protocol recovery SUCCEEDED (A9); the router hypothesis is REFUTED on DEV
-> (A8).** No Stage-4/S1–S3, no external/held-out/ASZED, lockbox SEALED; any continuation is a NEW dated protocol (v6). The
-> `v3`-centric text below is historical. Authoritative: [`../notes/ACAR_V5_CLOSEOUT.md`](../notes/ACAR_V5_CLOSEOUT.md),
-> [`../notes/ACAR_V5_STAGE2B_CLOSEOUT.md`](../notes/ACAR_V5_STAGE2B_CLOSEOUT.md),
-> [`../notes/EVIDENCE_LEDGER.md`](../notes/EVIDENCE_LEDGER.md).
+> ⛔ **STATUS (2026-07-06) — CLOSED THROUGH v5 + the v6-A0 diagnostic. Engineering/protocol: success. ACAR deployment router: not
+> supported. V6 diagnostic: `V6_STOP`.** v5 Stage-2B ran clean (rc=0) and no candidate in the frozen 22-policy universe passed the
+> pre-registered gates (0/22; HARM control not coverage; router REFUTED on DEV = A8). **v6-A0** then refined it: an oracle action
+> **benefit envelope EXISTS** on both diseases (A11), but a **dual-disease label-free router is not justified** — PD's sign signal is
+> significant, SCZ's is not (fails the subject-block permutation gate), so `V6_STOP` (A10). Engineering/protocol recovery SUCCEEDED
+> (A9). No V6 protocol draft, no policy fitting/selection, no Stage-4/S1–S3, no external/held-out/ASZED; lockbox SEALED. Any
+> continuation is a NEW dated protocol (a new hypothesis, not a "v6 continuation"). The `v3`-centric text below is historical.
+> Authoritative: [`../notes/ACAR_V6_A0_CLOSEOUT.md`](../notes/ACAR_V6_A0_CLOSEOUT.md),
+> [`../notes/ACAR_V5_CLOSEOUT.md`](../notes/ACAR_V5_CLOSEOUT.md), [`../notes/EVIDENCE_LEDGER.md`](../notes/EVIDENCE_LEDGER.md).
 
 Isolated package for **Direction 2**: the leak-proof successor to the closed gate-falsification line
 (A0 / A0′ / A0′-R / A0-PILOT). Pre-registration: [`../notes/ACAR_FROZEN.md`](../notes/ACAR_FROZEN.md) (v1), **amended
