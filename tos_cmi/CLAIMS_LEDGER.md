@@ -113,9 +113,41 @@ source_only_acceptance_ceiling_theory:   # theory spine (notes/CEILING_THEORY.md
     - "The gate has acceptance power."
     - "V2 proves no erasure can ever help."
     - "Target-informed oracle is a deployable method."
+source_rich_environment_constructive_support:   # Fork 2 (branch science-source-rich-v1; DONE, PARTIAL; commit 8174483)
+  status: supported_with_caveats
+  scope:
+    positive: EEGNet semi-synthetic Lee->Cho source-rich World A (Phase 1A/1B, commit 69ec85c)
+    limitation: TSMNet source-rich discovery fails / oracle fragile (Phase 1C, commit 8174483)
+  construction: real EEG latents + injected KNOWN nuisance D_nuis=z with source regimes {aligned,reversed,noisy};
+    target regime REPRESENTED in source; frozen frac 0.4/0.3/0.3, thresholds 0.02/0.01, k=8, seed0, first5;
+    m=max(4,round(0.20*z_dim)) (EEGNet 4, TSMNet 42); target labels AUDIT-ONLY (selection_uses_target=false)
+  environments: E0 subject / E_oracle regime DIAGNOSTIC / E2 covariance_cluster / E4 margin_cluster /
+    E5 augmentation_shift / random
+  finding: EEGNet -- E_oracle accepts safe target-beneficial erasers AND source-only E2 covariance_cluster recovers
+    the accept (Lee oracle6/cov5, Cho oracle6/cov6), random 0, margin/aug 0 -> clean source-only positive witness.
+    TSMNet -- Lee E_oracle accepts (Case B) but E2 covariance benefit_lcb NEGATIVE (max discovered lcb +0.0001);
+    Cho E_oracle safe target-beneficial NEAR-MISS (benefit_lcb ~+0.007<0.010 -> abstain, target +0.033..+0.041
+    LCB>0.01 all folds); E2/E4/E5/random 0 both. covariance-vs-regime AMI +0.365 EEGNet vs -0.011 TSMNet (chance)
+    -> EEGNet discovery was a LOW-DIM ARTIFACT. Gate SAFE at 210-dim: 0 harmful, 0 discovered-env accepts both.
+  verified: adversarial workflow wf_650c9d1f-aec (high confidence, 0 inconsistencies, integrity clean)
+  allowed:
+    - "Source-rich environments can make target-beneficial erasure source-visible in a semi-synthetic EEGNet setting."
+    - "Covariance environments recover the constructed source-visible shift on EEGNet but not on high-dimensional TSMNet."
+    - "Source-rich sufficiency is constructive but environment discovery is representation-dependent."
+    - "The source-only gate did not misfire on high-dimensional latents (0 harmful, 0 discovered-env accepts)."
+  forbidden:
+    - "Source-rich environments solve source-only acceptance."
+    - "Covariance clustering generally discovers target-beneficial shifts."
+    - "TSMNet confirms the source-rich positive."
+    - "This is a real EEG target-gain result."
+  outputs: notes/{SOURCE_RICH_FINAL_VERDICT,SOURCE_RICH_PHASE1A_VERDICT,SOURCE_RICH_PHASE1C_VERDICT}.md ;
+    results/source_rich/smoke/source_rich_{smoke,confirm_cho,tsmnet_lee,tsmnet_cho}_{summary.json,report.md}
 
 # ---------- NOT YET ATTEMPTED (future tracks; must not be claimed) ----------
-target_informed_acceptance:     {status: parked, plan: "how much target information crosses the source-only ceiling? (unlabeled target mismatch / few target labels); NOT strict source-only DG"}
+target_informed_acceptance:     # Fork 1 (branch science-target-info-v1; DESIGN-LOCKED, no experiments yet)
+  status: design_locked
+  plan: "how much target information crosses the source-only ceiling? budgets B0 source-only / B1 unlabeled target (triage only) / B2 k labels-per-class {1,2,4,8,16} / B3 active calibration / B4 oracle selector DIAGNOSTIC; clean target calibration/audit split (labels never both decide and evaluate); NOT strict source-only DG"
+  design: notes/TARGET_INFORMATION_FRONTIER_DESIGN.md ; config: eeg/configs/target_info_frontier_fixed.yaml
 architecture_x_dimension_factorial:               # Track C (DONE, 3-seed; SLURM 877939)
   status: supported_refined  # 3-seed verdict = LARGELY capacity-mediated + RESIDUAL architecture effect at high d_z
   scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_multiseed_analysis.py (file-parallel joblib; fold-cluster + paired + OLS CIs)
