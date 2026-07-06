@@ -267,6 +267,76 @@ def _save_out(out_path, args, classes, summary, preds, quiet=False):
     return out
 
 
+def _rq4_save_dump(bb, Xtr, ytr, dtr, Xte, yte, te_dom, args, tgt, lbl, device):
+    """FSR Phase-4B instrument (default-off): persist best_state + dump per-branch latents
+    {graph_z,temporal_z,spatial_z,fused_z}+gate for source & target, run a recompose-identity check
+    (head3(_fuse3(dumped branch z)) vs forward logits), and record the target-label firewall. Source =
+    training subjects only; target y is NEVER used here (dumped for the L6 eval only). ERM/FBCSPLGGGraph
+    only; no training, no target-label fit."""
+    import os, json
+    if not (hasattr(bb, "forward_graph") and hasattr(bb, "_fuse3") and hasattr(bb, "head3")):
+        return None
+    ckpt_dir = args.save_ckpt_dir
+    dump_dir = args.dump_latent_dir or args.save_ckpt_dir
+    os.makedirs(ckpt_dir, exist_ok=True); os.makedirs(dump_dir, exist_ok=True)
+    ti = args.target_indices[0] if args.target_indices else -1
+    tag = f"{args.dataset}_s{tgt}_seed{args.seed}"   # tag by ACTUAL held-out subject (unique per LOSO fold)
+    was_training = bb.training
+    bb.eval()
+    ckpt_path = os.path.join(ckpt_dir, f"{tag}_ckpt_best.pt")
+    safe_cfg = {k: (v if isinstance(v, (int, float, str, bool, type(None), list)) else str(v))
+                for k, v in vars(args).items()}
+    torch.save({"state_dict": bb.state_dict(), "config": safe_cfg, "target_subject": str(tgt),
+                "method": lbl, "backbone": args.backbone}, ckpt_path)
+
+    keys = ("graph_z", "temporal_z", "spatial_z", "fused_z")
+
+    def collect(X):
+        acc = {k: [] for k in keys}; logit = []; gate = []; rc_max = 0.0
+        with torch.no_grad():
+            for i in range(0, len(X), 256):
+                xb = torch.as_tensor(np.asarray(X[i:i + 256]), dtype=torch.float32, device=device)
+                lg = bb.forward_graph(xb)[0]
+                aux = bb.last_aux
+                for k in keys:
+                    acc[k].append(aux[k].detach().cpu().numpy())
+                logit.append(lg.detach().cpu().numpy())
+                if getattr(bb, "last_gate", None) is not None:
+                    gate.append(bb.last_gate.detach().cpu().numpy())
+                rc = bb.head3(bb._fuse3(aux["graph_z"], aux["temporal_z"], aux["spatial_z"]))
+                rc_max = max(rc_max, float((rc - lg).abs().max().cpu()))
+        out = {k: np.concatenate(acc[k]) for k in keys}
+        out["logits"] = np.concatenate(logit)
+        if gate:
+            out["gate"] = np.concatenate(gate)
+        return out, rc_max
+
+    src, rc_src = collect(Xtr)
+    tdump, rc_tgt = collect(Xte)
+    np.savez_compressed(os.path.join(dump_dir, f"{tag}_source_latents.npz"),
+                        y=np.asarray(ytr), d=np.asarray(dtr), **{f"src_{k}": v for k, v in src.items()})
+    np.savez_compressed(os.path.join(dump_dir, f"{tag}_target_latents.npz"),
+                        y=np.asarray(yte), d=np.asarray(te_dom), **{f"tgt_{k}": v for k, v in tdump.items()})
+    rc_ok = bool(max(rc_src, rc_tgt) < 1e-5)
+    manifest = dict(tag=tag, dataset=args.dataset, target_index=ti, target_subject=str(tgt),
+                    seed=args.seed, method=lbl, backbone=args.backbone, checkpoint=ckpt_path,
+                    fusion_branches=["graph_z", "temporal_z", "spatial_z"],
+                    node_z_is_fusion_branch=False,
+                    recompose_identity_max_abs_diff_source=rc_src,
+                    recompose_identity_max_abs_diff_target=rc_tgt,
+                    recompose_identity_ok=rc_ok, n_source=int(len(ytr)), n_target=int(len(yte)),
+                    firewall=dict(target_y_used_for_training=False, target_y_used_for_selection=False,
+                                  target_y_used_for_probe_fit=False, target_y_used_for_final_eval_only=True,
+                                  source_val_early_stop=bool(args.source_val_early_stop),
+                                  probe_train_domains="source_only"))
+    json.dump(manifest, open(os.path.join(dump_dir, f"{tag}_latent_dump_manifest.json"), "w"), indent=2)
+    if was_training:
+        bb.train()
+    print(f"[rq4] {tag}: saved ckpt+latents; recompose_identity_max={max(rc_src, rc_tgt):.2e} ok={rc_ok}",
+          flush=True)
+    return manifest
+
+
 def run(args):
     run_git_sha = _git_sha()          # capture ONCE at launch so all folds share one provenance SHA
     from cmi.train.trainer import ALL_METHODS
@@ -387,6 +457,9 @@ def run(args):
                                 early_stop=args.source_val_early_stop, source_val_domains=sval_doms,
                                 weight_decay=args.weight_decay, device=device, seed=args.seed)
             prob = predict(bb, Xte, device)
+            if args.save_ckpt_dir and args.backbone == "FBCSPLGGGraph" and method == "erm":
+                _rq4_save_dump(bb, Xtr_all, ytr_all, dtr_all, Xte, yte,
+                               np.full(len(yte), int(n_dom)), args, tgt, lbl, device)
             cm = classification_metrics(prob, yte)   # per-target (valid only for MCPS targets)
             ts = {}
             if args.transduct != "off":              # CIPC: transductive correction on penultimate features
@@ -535,6 +608,12 @@ def build_parser():
     ap.add_argument("--fusion_floor", type=float, default=0.0,
                     help="P6-B: FBCSPLGGGraph 3-way gate floor eps -> (1-3eps)*softmax + eps, so no branch is "
                          "fully starved. 0.0 = plain softmax (off). Try 0.05 / 0.10. Only affects FBCSPLGGGraph.")
+    ap.add_argument("--save_ckpt_dir", default=None,
+                    help="FSR Phase-4B (default off): dir to torch.save best_state per fold "
+                         "(FBCSPLGGGraph ERM only). Enables the RQ4 branch-local instrument.")
+    ap.add_argument("--dump_latent_dir", default=None,
+                    help="FSR Phase-4B (default off): dir for per-branch latent .npz dumps "
+                         "(graph_z/temporal_z/spatial_z/fused_z + gate). Defaults to --save_ckpt_dir.")
     # configs = list of "method:lam" (one job can sweep lambda; splits shared across all)
     ap.add_argument("--configs", nargs="+",
                     default=["erm:0", "marginal:1", "chain:1", "lpc_uniform:1", "lpc_prior:1"])
