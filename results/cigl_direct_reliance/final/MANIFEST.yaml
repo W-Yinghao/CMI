@@ -1,0 +1,11 @@
+# CIGL_68 direct-reliance confirmation manifest (seeds 0/1/2)
+phase: CIGL_68_DIRECT_RELIANCE_CONFIRMATION
+branch: project/cigl-direct-reliance-cmi
+method: dcigl_consistency_beta0.1 (gamma=0.5, k=2)
+seeds: [0, 1, 2]
+comparators_frozen: [cigl_graph_node, fcigl_align_eta0.01]
+projector: {fit: source_train_only, excludes_target: true, excludes_source_val: true, k: 2}
+anti_triviality: logit_norm/margin/entropy/removed_agreement/removed_target_bacc reported
+bootstrap: {per_dataset: seed->fold, pooled: dataset->seed->fold, n_boot: 4000}
+n_fold_rows: 189
+files: [direct_reliance_metrics.csv, direct_reliance_r3.csv, direct_reliance_vs_frozen.csv, direct_reliance_bootstrap_ci.csv, direct_reliance_logit_diagnostics.csv]
