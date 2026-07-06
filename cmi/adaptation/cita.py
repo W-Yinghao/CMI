@@ -68,9 +68,18 @@ def adapt(model, Xs, ys, Xt, method, *, steps=50, bs=64, lr=1e-3, tau=1.0, mu=1.
     Firewall by construction: signature has no target-y; target pseudo-labels are detached; source CE uses ys
     only; target entropy uses Xt only. `adaptation_uses_all_target_X` (offline transductive): every step samples
     from the full Xt."""
-    diag = {"method": method, "adapted": method in ADAPT_METHODS,
-            "adaptation_mode": "offline_transductive", "adaptation_uses_all_target_X": True,
-            "target_y_used": False, "cond_domain_active": method == "cita_cmi"}
+    is_adapt = method in ADAPT_METHODS
+    # adaptation budget (steps/lr/bs/tau/mu are SHARED across tta_control & cita_cmi; only lambda_cita differs)
+    budget = dict(adapt_steps=int(steps), adapt_lr=float(lr), adapt_batch_size_source=int(bs),
+                  adapt_batch_size_target=int(bs), tau_entropy=float(tau), mu_label_balance=float(mu),
+                  lambda_cita=(float(lam_cita) if method == "cita_cmi" else 0.0), cond_inner=int(cond_inner),
+                  source_label_prior_source="source_train_only", pseudo_label_mode="detached_soft")
+    # model-mode policy during adaptation (IDENTICAL for tta_control & cita_cmi: same model.train() code path)
+    mode_policy = dict(adaptation_train_mode=is_adapt, dropout_active_during_adapt=is_adapt,
+                       batchnorm_updates_during_adapt=is_adapt)
+    diag = {"method": method, "adapted": is_adapt, "adaptation_mode": "offline_transductive",
+            "adaptation_uses_all_target_X": True, "target_y_used": False,
+            "cond_domain_active": method == "cita_cmi", "budget": budget, "mode_policy": mode_policy}
     if method == "erm_no_adapt":
         model.eval()                                              # return inference-ready (deterministic)
         return model, diag
@@ -119,10 +128,17 @@ def adapt(model, Xs, ys, Xt, method, *, steps=50, bs=64, lr=1e-3, tau=1.0, mu=1.
             cond = (q_t * (q_t / pi).clamp_min(1e-8).log()
                     + (1 - q_t) * ((1 - q_t) / (1 - pi)).clamp_min(1e-8).log()).mean()   # KL(q(D|z,y)||prior)
             loss = loss + lam_cita * cond
+        if step == 0:                                                      # BEFORE adaptation (initial M0 forward)
+            ce_0, ent_0, bal_0 = float(ce), float(ent), float(bal)
         opt.zero_grad(); loss.backward(); opt.step()
-        if step == int(steps) - 1:
+        if step == int(steps) - 1:                                         # AFTER adaptation (final step)
             ce_l, ent_l, bal_l = float(ce), float(ent), float(bal)
             cond_l = float(cond) if cond is not None else None
-    diag.update(final_ce=ce_l, final_entropy=ent_l, final_balance=bal_l, final_cond_domain=cond_l, steps=int(steps))
+    diag.update(source_replay_ce_before=ce_0, source_replay_ce_after=ce_l,
+                target_entropy_before=ent_0, target_entropy_after=ent_l,
+                target_label_balance_before=bal_0, target_label_balance_after=bal_l,
+                final_cond_domain=cond_l, steps=int(steps),
+                # legacy aliases kept for any earlier reader
+                final_ce=ce_l, final_entropy=ent_l, final_balance=bal_l)
     model.eval()                                                  # return inference-ready (deterministic; dropout off)
     return model, diag

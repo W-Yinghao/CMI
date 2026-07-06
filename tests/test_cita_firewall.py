@@ -156,6 +156,34 @@ def test_conditioning_posterior_shapes_and_no_target_label_leak():
     assert set(ADAPT_METHODS) == {"tta_control", "cita_cmi"} and "erm_no_adapt" in CITA_METHODS
 
 
+# 11 (metadata guardrails) ---------------------------------------------------
+def test_adapt_records_budget_mode_and_before_after():
+    Xs, ys, _ = _src(); Xt = _target()
+    _, d = adapt(_m0(), Xs, ys, Xt, "cita_cmi", steps=8, bs=32, device="cpu", seed=0, tau=1.0, mu=1.0, lam_cita=0.010)
+    b = d["budget"]
+    for k in ("adapt_steps", "adapt_lr", "adapt_batch_size_source", "adapt_batch_size_target", "tau_entropy",
+              "mu_label_balance", "lambda_cita", "source_label_prior_source", "pseudo_label_mode"):
+        assert k in b
+    assert b["lambda_cita"] == 0.010 and b["source_label_prior_source"] == "source_train_only" and b["pseudo_label_mode"] == "detached_soft"
+    mp = d["mode_policy"]
+    assert mp["adaptation_train_mode"] and mp["dropout_active_during_adapt"] and mp["batchnorm_updates_during_adapt"]
+    for k in ("source_replay_ce_before", "source_replay_ce_after", "target_entropy_before", "target_entropy_after",
+              "target_label_balance_before", "target_label_balance_after"):
+        assert d[k] is not None
+
+
+def test_tta_and_cita_share_budget_and_mode_except_lambda():
+    """The CITA-vs-TTA attribution requires identical budget (except lambda_cita) and identical model-mode."""
+    Xs, ys, _ = _src(); Xt = _target()
+    _, dt = adapt(_m0(), Xs, ys, Xt, "tta_control", steps=8, bs=32, lr=1e-3, tau=1.0, mu=1.0, device="cpu", seed=0)
+    _, dc = adapt(_m0(), Xs, ys, Xt, "cita_cmi", steps=8, bs=32, lr=1e-3, tau=1.0, mu=1.0, lam_cita=0.010, device="cpu", seed=0)
+    bt = {k: v for k, v in dt["budget"].items() if k != "lambda_cita"}
+    bc = {k: v for k, v in dc["budget"].items() if k != "lambda_cita"}
+    assert bt == bc                                                  # budget identical except lambda
+    assert dt["mode_policy"] == dc["mode_policy"]                    # BN/dropout/train-mode identical
+    assert dt["budget"]["lambda_cita"] == 0.0 and dc["budget"]["lambda_cita"] == 0.010   # lambda is the only diff
+
+
 def test_no_dependency_breakage():
     import importlib
     importlib.import_module("cmi.adaptation.cita")

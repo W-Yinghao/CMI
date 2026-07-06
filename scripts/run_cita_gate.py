@@ -82,6 +82,17 @@ def _run_fold(backbone, fold, seed, args, device):
                          n_classes=int(n_cls), source_bacc=src["balanced_acc"], target_bacc=tgt["balanced_acc"],
                          feature_kl=fkl, feature_perm_p=fp, head_replay_ok=bool(replay_ok),
                          head_replay_max_abs_diff=float(mad), adapt_diag=adiag))
+    # STOP-CONDITION: TTA-Control and CITA-CMI must share the EXACT adaptation budget (except lambda_cita) and the
+    # EXACT model-mode policy, else the CITA-vs-TTA attribution is polluted. Fail closed if they diverge.
+    by_m = {r["method"]: r["adapt_diag"] for r in recs}
+    if "tta_control" in by_m and "cita_cmi" in by_m:
+        bt, bc = dict(by_m["tta_control"]["budget"]), dict(by_m["cita_cmi"]["budget"])
+        bt.pop("lambda_cita"); bc.pop("lambda_cita")               # lambda is the ONLY allowed difference
+        if bt != bc:
+            raise RuntimeError(f"CITA firewall: TTA vs CITA adaptation budget differs (attribution polluted): {bt} != {bc}")
+        if by_m["tta_control"]["mode_policy"] != by_m["cita_cmi"]["mode_policy"]:
+            raise RuntimeError(f"CITA firewall: TTA vs CITA model-mode policy differs: "
+                               f"{by_m['tta_control']['mode_policy']} != {by_m['cita_cmi']['mode_policy']}")
     return recs
 
 
@@ -145,18 +156,29 @@ def main():
             print(f"  [run] fold{f} sub{fold[6]} {bb}: {args.methods}", flush=True)
             for rec in _run_fold(bb, fold, args.seed, args, args.device):
                 m = rec["method"]; row = _row(rec, dataset, args.seed); rec["row"] = row
-                rec["meta"] = dict(phase=PHASE, backbone=bb, method=m, setting="target_unlabeled_offline_transductive",
-                                   commit_hash=commit, config_hash=cfg_hash,
-                                   cita_firewall=dict(target_X_allowed=True, target_y_used=False,
-                                                      target_y_for_training=False, target_y_for_adaptation=False,
-                                                      target_y_for_model_selection=False,
-                                                      target_y_for_hyperparameter_selection=False,
-                                                      adaptation_uses_all_target_X=bool(rec["adapt_diag"]["adaptation_uses_all_target_X"]),
-                                                      adaptation_mode=rec["adapt_diag"]["adaptation_mode"],
-                                                      target_eval_same_X_as_adapt=True,
-                                                      cond_domain_active=bool(rec["adapt_diag"]["cond_domain_active"]),
-                                                      early_stopping=False, source_replay_uses_source_labels_only=True),
-                                   representation="feature_z")
+                ad = rec["adapt_diag"]
+                rec["meta"] = dict(phase=PHASE, backbone=bb, method=m,
+                                   setting="offline_transductive_target_unlabeled",
+                                   commit_hash=commit, config_hash=cfg_hash, representation="feature_z",
+                                   cita_firewall=dict(
+                                       target_X_allowed=True,
+                                       target_y_used_for_training=False, target_y_used_for_adaptation=False,
+                                       target_y_used_for_model_selection=False,
+                                       target_y_used_for_hyperparameter_selection=False,
+                                       adaptation_uses_target_X=bool(ad["adaptation_uses_all_target_X"]),
+                                       target_eval_same_X_as_adapt=True, early_stopping=False,
+                                       source_replay_uses_source_labels_only=True,
+                                       cond_domain_active=bool(ad["cond_domain_active"])),
+                                   adaptation_budget=ad["budget"], model_mode_policy=ad["mode_policy"],
+                                   shared_budget_and_mode_across_tta_and_cita=True,
+                                   adaptation_diagnostics=dict(
+                                       source_replay_ce_before=ad.get("source_replay_ce_before"),
+                                       source_replay_ce_after=ad.get("source_replay_ce_after"),
+                                       target_entropy_before=ad.get("target_entropy_before"),
+                                       target_entropy_after=ad.get("target_entropy_after"),
+                                       target_label_balance_before=ad.get("target_label_balance_before"),
+                                       target_label_balance_after=ad.get("target_label_balance_after"),
+                                       final_cond_domain=ad.get("final_cond_domain")))
                 _atomic_dump(rec, jps[m]); rows.append(row)
                 print(f"    {m:14s} src={row['source_bacc']:.3f} tgt={row['target_bacc']:.3f} "
                       f"featKL={row['graph_kl_proxy']:.3f} replay_ok={rec['head_replay_ok']}", flush=True)
