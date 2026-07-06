@@ -1,0 +1,37 @@
+\section{Erasable is not beneficial (RQ2)}
+\label{sec:rq2}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig3_erasure_no_benefit.pdf}
+\caption{Erasure strength vs target benefit across 40 held-out-target cells. \textbf{A}: no eraser
+achieves a proven target-bAcc gain (benefit\_claimable $=0/40$); many cells task-collapse (INLP) or
+harm a binary-latent target (LEACE/RLACE on Lee/Cho EEGNet). \textbf{B}: the apparent negative
+$\rho(\text{subject-removed},\Delta\text{target bAcc})$ is \emph{not robust} --- it flips to $+0.54$ on
+the principled-eraser subset (LEACE/RLACE) and is non-significant when INLP or random-$k$ are dropped;
+it is therefore not reported as a finding.}
+\label{fig:erasure}
+\end{figure}
+
+Subject signal is erasable: LEACE drives linear subject decodability to chance on both backbones (a
+nonlinear MLP residual persists), and INLP drives it to chance entirely. The question is whether that
+removability confers a target benefit.
+
+\paragraph{No certified benefit.} Deploying source-fitted erasers to held-out target subjects, we find
+\textbf{no eraser achieves a proven target-bAcc gain in any of 40 cells} (benefit\_claimable $=0/40$
+under a rule requiring a positive point estimate whose 95\% CI lower bound exceeds zero, no
+task-collapse, no binary-latent harm, and no random-$k$-matched non-specific NLL move;
+Figure~\ref{fig:erasure}A). Erasure can actively harm the target: INLP over-erases and drives task to
+chance in several cells, and on the compact binary EEGNet latent (Lee2019, Cho2017) LEACE and RLACE
+drive task-bAcc to chance, a task-safety failure. On 2a-TSMNet the small NLL improvement under LEACE is
+matched by a same-rank random removal that leaves the subject fully decodable, so that NLL movement is
+non-specific regularization, not domain removal.
+
+\paragraph{The negative correlation is not a finding.} Pooled across all 40 cells,
+$\rho(\text{subject-removed}, \Delta\text{target bAcc})$ is negative and excludes zero. A sensitivity
+battery (Figure~\ref{fig:erasure}B) shows this is not robust: it is non-significant when INLP or
+random-$k$ are removed, and it \emph{flips to $+0.54$} (excluding zero) on the principled-eraser
+subset (LEACE/RLACE only). The negative sign is driven by INLP over-erasure and the random-$k$ anchor,
+not by a ``more removal, worse target'' law. We therefore report only the robust result --- the absence
+of a certified benefit --- and do not headline a negative association. The upshot: subject signal is
+erasable, but erasure strength does not certify target benefit.

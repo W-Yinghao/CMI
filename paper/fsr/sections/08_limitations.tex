@@ -1,0 +1,27 @@
+\section{Limitations}
+\label{sec:limitations}
+
+We state the limitations plainly; for an audit paper they are part of the contribution.
+\begin{itemize}
+\item \textbf{Provenance limit.} The pooled leakage$\to$reliance correlation is not recomputable
+(per-fold leakage for two of three seeds was pruned); it is reproduced only at seed0 (sign) and carried
+as \claim{FROZEN\_NOT\_RECOMPUTABLE} at pooled. Only alignment$\to$reliance is fully recomputed.
+\item \textbf{Heterogeneity / small $n$.} The alignment$\to$reliance association is significant on 2a
+but not on 2015; the alignment-vs-leakage contrast is at seed0, $n{=}42$, with non-significant
+within-group partial betas.
+\item \textbf{$\mathrm{align}_k$ is not a validated estimator}, only closer to reliance than raw
+leakage.
+\item \textbf{The RQ2 negative correlation is not a finding} --- it is a non-robust confound of
+over-erasure and the random-$k$ anchor (Figure~\ref{fig:erasure}B); the RQ2 result is the absence of a
+certified benefit (0/40).
+\item \textbf{RQ4 is blocked}, not answered: per-branch leakage/reliance are unmeasured and no
+checkpoint exists to measure them without retraining.
+\item \textbf{Proxies, not CMI.} L1/L2 use a label-conditional linear-probe posterior-KL surrogate and
+a linear-probe advantage, not an unbiased mutual information; we say ``extractable conditional domain
+information,'' not ``CMI.''
+\item \textbf{Erasability $\neq$ full removal} (LEACE leaves a nonlinear residual); the one
+target-unlabeled positive we cite (a non-CMI adaptation control) is seed0-only support, not an FSR
+result.
+\item \textbf{Frozen scope.} All results re-analyse frozen artifacts on specific backbones; generality
+beyond them is not claimed.
+\end{itemize}

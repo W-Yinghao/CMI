@@ -1,0 +1,30 @@
+\section{Related work}
+\label{sec:related}
+
+\paragraph{Probing measures encoding, not use.} Probe accuracy establishes that an attribute is
+decodable, not that a model relies on it; amnesic/counterfactual probing makes the distinction
+operational by intervening on the representation and observing behavior~\citep{elazar2021amnesic}. Our
+L1$\leftrightarrow$L5 separation is the EEG instance of this, with head-replay $R3$ as the
+representation-level intervention.
+
+\paragraph{Concept erasure removes a signal without conferring benefit.} LEACE erases a linearly-
+decodable concept in closed form with minimal collateral damage~\citep{belrose2023leace}; INLP removes
+it by iterative nullspace projection~\citep{ravfogel2020inlp}; RLACE by a relaxed adversarial
+game~\citep{ravfogel2022rlace}; scatter/moment-based methods target invariant subspaces via generalized
+eigenproblems~\citep{ghifary2015scatter}. These are our L3 operators. We deploy them source-to-target
+and show removability (L3) does not entail a target benefit (L6).
+
+\paragraph{Domain generalization needs selection rigor.} With careful model selection and strong ERM
+baselines, many invariance methods fail to beat ERM~\citep{gulrajani2021domainbed}. This is the direct
+warning against reading a moving invariance proxy as a generalization gain; our closed
+conditional-invariance/CMI-control premise is the EEG instance, and we deliberately propose no DG
+method.
+
+\paragraph{EEG subject identity is strong and entangled.} Audits of EEG foundation models show subject
+identity is highly decodable and can confound label/cohort structure~\citep{identitytrap2026}, which is
+precisely why equating ``decodable subject'' with ``harmful shortcut'' is tempting and wrong.
+
+\paragraph{Decompose a joint effect into pathways.} A single unlabeled adaptation number conflates
+geometry and prevalence/decision-prior pathways and admits an exact decomposition; FSR applies the same
+measurement-then-decompose discipline to leakage, erasure, task-coupling, reliance, and consequence,
+rather than collapsing them into one ``shortcut'' scalar~\citep{tos_cmi_internal,cigl_internal}.

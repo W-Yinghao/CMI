@@ -1,0 +1,41 @@
+\section{The FSR audit ladder}
+\label{sec:ladder}
+
+Let $Z$ be an EEG representation, $Y$ the task label, and $D$ the domain (subject/recording).
+Figure~\ref{fig:ladder} defines the six levels.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.86\linewidth]{fig1_ladder.pdf}
+\caption{The six-level functional-shortcut-reliance ladder. Predictor-side levels \{L1--L4\} and
+endpoint-side levels \{L5,L6\}. A shortcut claim must relate levels; inferring L5/L6 from L1/L2 is
+forbidden.}
+\label{fig:ladder}
+\end{figure}
+
+\begin{itemize}
+\item \textbf{L1 Detectability.} Can $D$ be decoded from $Z$ given $Y$? A label-conditional domain
+probe / posterior-KL proxy $I_w(Z;D\mid Y)$ (a plug-in linear-probe surrogate, \emph{not} an unbiased
+mutual information) with a within-label permutation null.
+\item \textbf{L2 Reducibility.} Does a method reduce the \emph{measured} leakage (paired $\Delta$KL /
+$\Delta$probe accuracy vs a matched baseline)?
+\item \textbf{L3 Erasability.} Can a linear/non-linear eraser remove the subject signal? Post-eraser
+residual subject decodability for LEACE/INLP/RLACE/mean-scatter, with a same-rank random-$k$ control.
+\item \textbf{L4 Task coupling.} Is the subspace aligned with the task head? The fraction of linear
+task-head row-space energy in the top-$k$ label-conditional subject subspace ($\mathrm{align}_k$), and,
+for multi-branch models, branch-ablation drop plus fusion-gate weight.
+\item \textbf{L5 Functional reliance.} Does removing the subspace change the task head's output?
+Head-replay task-drop $R3$ after removing the top-$k$ subject subspace (source-only fit), with a
+random-subspace control and an exact-replay firewall.
+\item \textbf{L6 Target consequence.} Is that reliance harmful, benign, or useful? Held-out-target
+bAcc/NLL/ECE delta and worst-subject delta, with target labels used only for scoring.
+\end{itemize}
+
+\paragraph{Direction contract.} Under the naive ``leakage-is-shortcut'' hypothesis,
+$\mathrm{corr}(\text{leakage}, R3)$ and $\mathrm{corr}(\text{subject-removed}, \text{target-benefit})$
+should be \emph{positive}. The FSR questions ask whether they are.
+
+\paragraph{Quantitative-inclusion gate.} A route may enter a cross-level quantitative test only if it
+carries $\geq 1$ predictor-side level \{L1--L4\} \emph{and} $\geq 1$ endpoint-side level \{L5,L6\};
+otherwise it is tagged support/boundary/protocol/background and informs interpretation only. Of the
+audited routes, only a small set is quantitatively includable (Table~\ref{tab:routes}).

@@ -1,0 +1,32 @@
+\section{Setup and provenance discipline}
+\label{sec:setup}
+
+All results are re-analyses of \emph{frozen} artifacts; we train, tune, and select nothing on the
+analysed data. Three pipelines supply the levels. \textbf{CIGL} (RQ1/RQ3): a static graph backbone on
+BCI-IV-2a (BNCI2014\_001) and BNCI2015\_001, leave-one-subject-out (LOSO), seeds \{0,1,2\}, providing
+per-unit $\mathrm{align}_k$, graph leakage, and $R3$. \textbf{TOS} (RQ2): frozen-feature erasure on
+2a, Lee2019, Cho2017, and Schirrmeister2017, backbones TSMNet~\citep{kobler2022tsmnet}
+(SPD, $z{=}210$) and EEGNet~\citep{lawhern2018eegnet} ($z{=}16$), erasers
+LEACE~\citep{belrose2023leace}, INLP~\citep{ravfogel2020inlp}, RLACE~\citep{ravfogel2022rlace},
+mean-scatter, and random-$k$; source-only fit, held-out-target deploy. \textbf{FBCSP-LGG} (RQ4): a
+filter-bank CSP~\citep{ang2012fbcsp} plus learnable-graph backbone with a three-way gated fusion over
+graph/temporal/spatial branches; branch ablation and gate weights only.
+
+\paragraph{Claim-strength tiers.} Every quantitative statement is tagged \claim{RECOMPUTED} (recomputed
+from committed per-unit data), \claim{RECOMPUTED\_SIGN\_ONLY} (only a recomputable slice confirms the
+sign), or \claim{FROZEN\_NOT\_RECOMPUTABLE} (carried from a frozen output whose per-unit inputs are
+unavailable --- support only, never a reproduction). A fail-closed validator enforces the schema, and a
+reproduction script re-derives the headline and halts if it drifts beyond tolerance.
+
+\paragraph{Target-label firewall.} Target labels $y_T$ are used only to score the L6 endpoint; they
+never enter probe/eraser fitting, model selection, hyper-parameter selection, or early stopping. Each
+route carries a fit-tag in \{NO, YES\_FORBIDDEN, AUDIT\_ONLY, UNKNOWN\}; every quantitative test uses
+only NO-tagged routes. One legacy route is YES\_FORBIDDEN (a retracted, disclosed target-label leak)
+and is excluded from all tests (Table~\ref{tab:routes}).
+
+\paragraph{Statistics.} Spearman correlations with a paired bootstrap CI ($\mathrm{rng}(0)$, 2000
+resamples, percentile$[2.5,97.5]$); the alignment-vs-leakage comparison uses a signed-difference
+bootstrap. Mechanism regressions use OLS with a z-scored outcome and predictors plus one-hot
+dataset/seed/method controls. Robustness includes dataset-stratification, per-seed, per-method,
+leave-one-dataset-out, within-group rank-residualization, and, for erasure, subset sensitivity across
+eraser families. All analyses are CPU-only over frozen artifacts.

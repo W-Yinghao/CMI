@@ -1,0 +1,33 @@
+\section{Measurable is not reliance (RQ1/RQ3)}
+\label{sec:rq1}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig2_alignment_vs_leakage.pdf}
+\caption{Alignment vs leakage as predictors of functional reliance ($R3$). \textbf{A}: task-head
+alignment is positively associated with reliance ($\rho{=}{+}0.34$ [$+0.17,+0.50$], $n{=}126$,
+\claim{RECOMPUTED}); the association is dataset-heterogeneous (2a significant, 2015 not). \textbf{B}:
+recomputable graph leakage carries the wrong (negative) sign ($\rho{=}{-}0.42$ seed0, $n{=}42$,
+\claim{RECOMPUTED\_SIGN\_ONLY}); the pooled $-0.34$ is \claim{FROZEN\_NOT\_RECOMPUTABLE}. The signed
+Spearman difference (align $-$ leakage) $={+}0.816$ [$+0.219,+1.333$] excludes zero.}
+\label{fig:align}
+\end{figure}
+
+\paragraph{RQ1 --- does measured leakage predict functional reliance?} We report three claim-strength
+tiers. \textbf{(RQ1A, \claim{RECOMPUTED})} Task-head alignment is positively associated with $R3$:
+pooled Spearman $\rho{=}{+}0.34$ [$+0.17,+0.50$], $n{=}126$; the association is significant on 2a
+($\rho{\approx}{+}0.47$) but not on 2015 ($\rho{\approx}{+}0.10$), i.e.\ pooled-positive but not
+universal. \textbf{(RQ1B, \claim{RECOMPUTED\_SIGN\_ONLY})} Graph leakage carries the \emph{wrong} sign:
+seed0 $\rho{=}{-}0.42$ [$-0.68,-0.10$], $n{=}42$. \textbf{(RQ1C, \claim{FROZEN\_NOT\_RECOMPUTABLE})}
+The pooled leakage correlation $-0.34$ is carried from a frozen output whose per-fold inputs for two
+of three seeds were pruned; we do not present it as a reproduction. Thus measured leakage magnitude
+does not certify reliance, and where recomputable it points the wrong way.
+
+\paragraph{RQ3 --- is alignment a better reliance predictor than leakage?} The primary test is the
+signed Spearman \emph{difference} (align $-$ leakage) $={+}0.816$ [$+0.219,+1.333$], which excludes
+zero: alignment is more positively associated with reliance than leakage. In a paired standardized
+regression on the recomputable seed0 units, alignment is correctly signed ($\beta{=}{+}0.26$) and
+leakage wrongly signed ($\beta{=}{-}0.37$); with a dataset control, the alignment partial effect is
+positive but not individually significant, reflecting the RQ1A heterogeneity. We therefore state that
+\emph{task-head alignment is closer to functional reliance than raw leakage in this frozen diagnostic}
+--- and explicitly \emph{not} that $\mathrm{align}_k$ is a validated reliance estimator.

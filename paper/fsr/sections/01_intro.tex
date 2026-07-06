@@ -1,0 +1,36 @@
+\section{Introduction}
+\label{sec:intro}
+
+EEG representations carry strong subject- and recording-identity information: a linear or shallow
+probe recovers subject identity with high accuracy, and this signal is often entangled with the
+cohort/label structure of a dataset~\citep{identitytrap2026}. A common inference follows: if subject
+information is decodable from the representation, the model must be \emph{relying} on it as a harmful
+shortcut, and removing it should improve cross-subject generalization. This paper argues that the
+inference is unlicensed and provides the audit that separates its premises from its conclusion.
+
+The gap is the same one identified in the probing literature: a probe measures what is
+\emph{encoded}, not what is \emph{used}~\citep{elazar2021amnesic}. Concept-erasure methods sharpen
+the point --- they can remove a linearly-decodable attribute in closed form~\citep{belrose2023leace}
+or by nullspace/adversarial projection~\citep{ravfogel2020inlp,ravfogel2022rlace} --- but removability
+is a statement about the representation, not a guarantee of a downstream benefit. And the domain-
+generalization literature warns that a moving invariance proxy does not imply a generalization gain
+once selection and baselines are controlled~\citep{gulrajani2021domainbed}.
+
+We formalize this as a six-level \emph{functional-shortcut-reliance} (FSR) ladder
+(Figure~\ref{fig:ladder}): detectability (L1), reducibility (L2), erasability (L3), task coupling
+(L4), functional reliance (L5), and target consequence (L6). A harmful functional shortcut requires
+domain information that is simultaneously measurable, localizable, interventionable, functionally
+relied upon, and harmful in target consequence; a claim about a shortcut must therefore be a
+relationship \emph{between} levels, never a leap from L1 to L5/L6.
+
+\paragraph{Contributions.} Re-analysing frozen artifacts (no new training) across a graph-CMI
+diagnostic, a frozen-feature concept-erasure study, and a branch-fusion backbone, we show:
+(1) \textbf{measurable $\neq$ relied-upon} --- measured leakage magnitude does not certify functional
+reliance; in a frozen diagnostic, task-head alignment is positively associated with reliance while
+recomputable leakage carries the wrong sign;
+(2) \textbf{erasable $\neq$ beneficial} --- subject signal is erasable, but erasure strength does not
+certify a target benefit (no eraser achieves a proven gain in 40 held-out-target cells);
+(3) \textbf{branch load matters but is unmeasured} --- the spatial branch of a fusion backbone is
+load-bearing, yet branch-local leakage/reliance is not measured and cannot be without a new run.
+FSR is an audit framework, not a domain-generalization method; a companion premise is that
+conditional-invariance/CMI \emph{control} on these representations is already a closed negative.

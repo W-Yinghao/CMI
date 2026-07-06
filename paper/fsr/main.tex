@@ -1,0 +1,50 @@
+\documentclass[10pt,conference]{article}
+% FSR manuscript skeleton (Phase 3A). Draft only; numbers are frozen from results/fsr_phase2*/.
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{amsmath,amssymb}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{xcolor}
+
+\graphicspath{{figures/}}
+\newcommand{\claim}[1]{\textsf{#1}}
+
+\title{Measurable Is Not Reliance:\\ Functional Shortcut Auditing in EEG Representations}
+\author{Anonymous (FSR project draft)}
+\date{Draft --- \today}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+Subject/domain information is strongly decodable from EEG representations, and the field often reads
+``leakage is decodable'' as ``the model relies on a harmful shortcut.'' We argue this inference is
+unlicensed and provide an audit that separates \emph{measurable} domain information from
+\emph{functionally relied-upon} domain information. We define a six-level functional-shortcut-reliance
+(FSR) ladder --- detectability, reducibility, erasability, task coupling, functional reliance, target
+consequence --- and require any shortcut claim to be a relationship between levels rather than a leap
+from a low level to a high one. Re-analysing frozen artifacts across graph-CMI, concept-erasure, and
+branch-fusion pipelines (no new training), we find: (i) measured leakage magnitude does not certify
+reliance --- in a frozen graph-CMI diagnostic, task-head alignment is positively associated with
+functional reliance while recomputable leakage carries the wrong sign; (ii) subject signal is
+erasable, but erasure strength does not certify a target benefit (0/40 cells achieve a proven gain);
+and (iii) branch load matters --- the spatial branch of a fusion backbone is load-bearing --- but
+branch-local leakage/reliance is not measured, so branch-local shortcut claims require an instrument
+that does not yet exist. FSR is an \emph{audit framework}, not a new domain-generalization method.
+\end{abstract}
+
+\input{sections/01_intro}
+\input{sections/02_ladder}
+\input{sections/03_setup_provenance}
+\input{sections/04_measurable_not_reliance}
+\input{sections/05_erasable_not_beneficial}
+\input{sections/06_branch_blocked}
+\input{sections/07_related_work}
+\input{sections/08_limitations}
+\input{sections/09_conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{refs}
+\end{document}
