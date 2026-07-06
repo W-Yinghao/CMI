@@ -205,13 +205,13 @@ def build_regime_atlas(extract_dir, c10_dir, regime, *, boundary_classes, n_pert
     return rows
 
 
-def _fold_regime_leakage(extract_dir, seed, target, level, boundary_classes, n_perturb):
-    """Worker: all feasible-OACI candidates' (selection, audit) leakage for EVERY regime at one fold-level.
-    Pure numpy/sklearn (no GPU/torch); amortizes the fold load across regimes. Returns a flat dict."""
+def _fold_regime_leakage(extract_dir, seed, target, level, boundary_classes, n_perturb, regimes=None):
+    """Worker: all feasible-OACI candidates' (selection, audit) leakage for the requested regimes at one
+    fold-level. Pure numpy/sklearn (no GPU/torch); amortizes the fold load across regimes. Returns a flat dict."""
     fld = load_fold_level(extract_dir, seed, target, level)
     critic = _critic(fld["config"]); cfg = fld["config"]
     out = {}
-    for regime in schema.REGIME_ORDER:
+    for regime in (regimes if regimes is not None else schema.REGIME_ORDER):
         source_na, _ = _regime_name_actions(regime, fld["support_source"], boundary_classes=boundary_classes,
                                             seed=seed, target=target, level=level, n_perturb=n_perturb)
         audit_na, _ = _regime_name_actions(regime, fld["support_audit"], boundary_classes=boundary_classes,
@@ -228,11 +228,12 @@ def _fold_regime_leakage(extract_dir, seed, target, level, boundary_classes, n_p
     return out
 
 
-def precompute_all_leakage(extract_dir, *, boundary_classes, n_perturb=2, folds=None, n_workers=8) -> dict:
-    """Parallel (process-level) leakage precompute across all fold-levels x regimes. Returns
-    {(seed,target,level,regime,model_hash): (selection_leakage, audit_leakage)}."""
+def precompute_all_leakage(extract_dir, *, boundary_classes, n_perturb=2, folds=None, n_workers=8, regimes=None) -> dict:
+    """Parallel (process-level) leakage precompute across all fold-levels x regimes (default all; pass
+    `regimes` to restrict). Returns {(seed,target,level,regime,model_hash): (selection_leakage, audit_leakage)}."""
     fold_dirs = folds if folds is not None else _list_folds(extract_dir)
-    tasks = [(extract_dir, s, t, level, tuple(boundary_classes), n_perturb)
+    rg = tuple(regimes) if regimes is not None else None
+    tasks = [(extract_dir, s, t, level, tuple(boundary_classes), n_perturb, rg)
              for (s, t) in fold_dirs for level in _levels(extract_dir, s, t)]
     cache = {}
     if n_workers <= 1:
