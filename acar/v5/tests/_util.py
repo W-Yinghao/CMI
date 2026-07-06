@@ -632,6 +632,43 @@ def has_torch():
     return importlib.util.find_spec("torch") is not None
 
 
+def stage2b_spy_provider(base=None):
+    """(Stage-2B3) A spying action provider that records every (name, n_windows) call then delegates to the synthetic provider
+    (torch-free). Returns (provider, calls) where calls is a list of {"name","n"}. Use to assert forced tails make no call."""
+    from acar.v5 import stage2_action_records as AR
+    import numpy as np
+    _base = base or AR.synthetic_action_provider
+    calls = []
+
+    def _prov(name, source_lda, Z):
+        calls.append({"name": name, "n": int(np.asarray(Z, float).shape[0])})
+        return _base(name, source_lda, Z)
+    return _prov, calls
+
+
+def stage2b_by_subject(specs, D=8, seed=0):
+    """(Stage-2B3) Build ({sk: {"embedding":[n,D], "split_role":role}}, DictLabelView) from specs = [(sk, role, n_windows, label)]."""
+    import numpy as np
+    r = np.random.RandomState(seed)
+    by_subject, labels = {}, {}
+    for sk, role, nwin, lab in specs:
+        by_subject[sk] = {"embedding": (r.randn(nwin, D) * 0.3), "split_role": role}
+        labels[sk] = int(lab)
+    return by_subject, DictLabelView(labels)
+
+
+def stage2b_first_evaluable(fit_batches, candidates=None):
+    """(Stage-2B3) Return (candidate, thresholds) for the first candidate whose thresholds fit on `fit_batches` (torch-free)."""
+    from acar.v5 import protocol as P
+    from acar.v5 import stage2_thresholds as TH
+    for c in (candidates or P.CANDIDATE_MANIFEST):
+        try:
+            return c, TH.fit_thresholds(c, fit_batches)
+        except TH.NonEvaluableCandidate:
+            continue
+    raise AssertionError("no evaluable candidate on the synthetic FIT batches")
+
+
 def stage2b_rank_deficient_batch(n=32, D=256, rank=5, seed=0, noise=1e-6):
     """A rank-deficient [n, D] batch (n windows spanned by `rank` latent directions + tiny noise) — the regime that made the
     frozen CORAL target covariance near-singular / overflow-prone. rank << min(n, D)."""

@@ -67,6 +67,10 @@ def transport_operator(source_lda, Z):
     """Build the bounded whiten-color transport operator M and report its conditioning (for tests + diagnostics)."""
     import numpy as np
     Z = np.asarray(Z, float)
+    if Z.ndim != 2 or Z.shape[0] < 2:                                          # target covariance undefined for n<2
+        raise Stage2StableCoralError(
+            "transport_operator: target covariance undefined for n<2; forced-tail (sub-MIN_BATCH) batches must be "
+            "identity-only and must not be routed through matched_coral")
     C_T = np.cov(Z, rowvar=False)
     C_R = np.asarray(source_lda.old_state["Sig_pool0"], float)
     C_T_s, C_R_s = _shrink(C_T), _shrink(C_R)
@@ -86,6 +90,10 @@ def stable_matched_coral_v1(source_lda, Z):
     if Z.ndim != 2:
         raise Stage2StableCoralError(f"Z must be [n, D], got {Z.shape}")
     n, D = Z.shape
+    if n < 2:                                                                  # target covariance undefined for n<2
+        raise Stage2StableCoralError(
+            "stable_matched_coral_v1: target covariance undefined for n<2; forced-tail (sub-MIN_BATCH) batches must be "
+            "identity-only and must not be routed through matched_coral (no silent identity fallback)")
     mu_T = Z.mean(axis=0)
     mu_R = np.asarray(source_lda.old_state["mu_pool"], float)
     op = transport_operator(source_lda, Z)

@@ -53,16 +53,23 @@ def evaluate_candidate_disease(candidate, thresholds, subject_keys, by_subject, 
         y = int(label_view.resolve_label(sk))                    # LABEL enters ONLY here (evaluation view)
         batch_meta, chosen_drs, upper_drs = [], [], []
         for zb, forced_id in window_batches(Z, batch_size, min_batch):
-            outputs = AR.subject_action_outputs(zb, source_lda, action_provider=action_provider)   # label-free
+            if forced_id:                                                       # sub-MIN_BATCH tail: adaptation-INELIGIBLE.
+                # Identity-only: NO non-identity action is evaluated (matched_coral/spdim/t3a are NOT called — the action
+                # provider is not invoked at all). The batch still counts in the all-batch denominator; its coverage, harm,
+                # chosen-ΔR, and red_upper contributions are all identity (0). This is not dropping the tail — it is the
+                # identity-only oracle on a batch whose adaptation unit is not evaluable. (Stage-2B3 forced-tail contract.)
+                batch_meta.append({"adapted": False, "harmful": False, "forced_identity": True})
+                chosen_drs.append(0.0)
+                upper_drs.append(0.0)                                           # red_upper contribution = 0 (no min_a ΔR_a)
+                continue
+            outputs = AR.subject_action_outputs(zb, source_lda, action_provider=action_provider)   # label-free (eligible only)
             r0 = _nll(outputs["identity"][0], y)
             dr = {a: (_nll(outputs[a][0], y) - r0) for a in P.ACTIONS}          # ΔR_a
-            if forced_id:
-                chosen = P.IDENTITY
-            else:
-                chosen = SCAL.decide(candidate, AR.batch_from_outputs(sk, outputs), thresholds)
+            chosen = SCAL.decide(candidate, AR.batch_from_outputs(sk, outputs), thresholds)
             dr_chosen = 0.0 if chosen == P.IDENTITY else float(dr[chosen])
             adapted = chosen != P.IDENTITY
-            batch_meta.append({"adapted": bool(adapted), "harmful": bool(adapted and dr_chosen > 0.0)})
+            batch_meta.append({"adapted": bool(adapted), "harmful": bool(adapted and dr_chosen > 0.0),
+                               "forced_identity": False})
             chosen_drs.append(dr_chosen)
             upper_drs.append(min(0.0, min(dr.values())))                        # harmful-oracle clip to no-op
         subject_records.append({"subject": sk, "batches": batch_meta})

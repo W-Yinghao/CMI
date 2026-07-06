@@ -213,6 +213,16 @@ MODULES = (
     "test_stage2b_stable_coral_feature_finiteness_contract",
     "test_stage2b_stable_coral_deterministic_repeated_calls",
     "test_stage2b_real_runner_still_requires_stage2b_auth",
+    "test_stage2b_forced_tail_does_not_call_action_provider",
+    "test_stage2b_forced_tail_red_upper_zero",
+    "test_stage2b_forced_tail_counts_in_denominator",
+    "test_stage2b_forced_tail_adapted_false_harmful_false",
+    "test_stage2b_thresholds_exclude_forced_tails",
+    "test_stage2b_v2_replay_excludes_forced_tails",
+    "test_stage2b_stable_coral_n1_direct_call_fails_closed",
+    "test_stage2b_full_batch_still_calls_all_actions",
+    "test_stage2b_partial_but_eligible_batch_still_calls_all_actions",
+    "test_stage2b_run_selection_handles_n1_tail_without_crash_synthetic",
 )
 
 
