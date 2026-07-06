@@ -161,6 +161,15 @@ target_information_frontier:    # Fork 1 (branch science-target-info-v1; DESIGN-
     - B3 sequential calibration
     - B4 oracle diagnostic
   design: notes/TARGET_INFORMATION_FRONTIER_DESIGN.md ; config: eeg/configs/target_info_frontier_fixed.yaml
+target_information_tier1_smoke_driver:   # Tier-1 smoke DRIVER DESIGN (branch science-target-info-v1; DESIGN ONLY)
+  status: design_only
+  scope: Lee/Cho x EEGNet x (V2 source-invisible + source-rich source-visible World A) x seed0 x first5 x R=10 ;
+    budgets B0/B1-triage/B2 k{1,2,4,8,16}/B3-sequential/B4-oracle-diagnostic
+  not_yet:
+    - implementation
+    - runs
+    - manuscript claim
+  design: notes/TARGET_INFO_TIER1_SMOKE_DRIVER_DESIGN.md
 architecture_x_dimension_factorial:               # Track C (DONE, 3-seed; SLURM 877939)
   status: supported_refined  # 3-seed verdict = LARGELY capacity-mediated + RESIDUAL architecture effect at high d_z
   scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_multiseed_analysis.py (file-parallel joblib; fold-cluster + paired + OLS CIs)
