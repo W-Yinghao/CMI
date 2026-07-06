@@ -1,0 +1,60 @@
+{
+  "scope": "B8.2 multi-seed stability replication -- PRE-REGISTERED PROTOCOL (committed + hash-pinned BEFORE run).",
+  "status": "development-only | NOT confirmatory | NOT deployable | NOT validation (Lee2019 SM16 emulator) | NO tag",
+  "authorized": "reviewer-authorized 2026-07-07 after B8.1 (MEETS pre-registered targets on emulator, modest, masking-dependent). B8.2 asks ONLY: is B8.1's decision-level prior control + mixed-cell control + POS signal STABLE across multiple fresh seed blocks? It does NOT ask how to raise power, does NOT fix the mean-T collider, does NOT validate on real data.",
+  "locked_engine": {
+    "base_protocol_commit": "3109c0f (B8.1 pre-registration)",
+    "module": "realeeg_b8_1.py",
+    "module_sha256_16": "dae229e39d89c940",
+    "worker": "realeeg_b8_1_canary.py (REUSED VERBATIM; byte-identical to committed B8.1)",
+    "worker_sha256_16": "86f8dd0bb6da4ec9",
+    "guarantee": "NO logic/gate/statistic/feature change vs B8.1. The exact class-balanced contract (design_class Dc=y0 pre-assignment; C balanced-randomized within (block,Dc); hard provenance gate H3), the exact both-gate decision, the exact B3 contrast T, and the exact feature cache. HARD-STOP if any B8.1 logic changes."
+  },
+  "locked_decision": {
+    "B8_ALERT": "contract_valid AND estimable (n_exact_invalid<=0.20*n_boot) AND p_exact_meanT<=0.025 AND p_exact_stud<=0.025 AND n_eligible>=20  (== B8.1 both-gate, UNCHANGED)",
+    "mean_T_alone": "DIAGNOSTIC ONLY (reported, never a decision)",
+    "contract_invalid": "fail-closed BEFORE any p-value inspection",
+    "no_retuning": "do NOT change any gate based on prior_only or POS results"
+  },
+  "replication": {
+    "seed_blocks": 6,
+    "cohorts_per_condition_per_block": 50,
+    "aggregate_per_condition": 300,
+    "conditions": 12,
+    "total_cohorts": 3600,
+    "seed_bases": [500000000, 520000000, 540000000, 560000000, 580000000, 600000000],
+    "seed_formula": "seed = base + world_index*STRIDE(1e6) + cohort; each base = one seed block",
+    "seed_range": [500000000, 611000049],
+    "disjointness": "VERIFIED 0 intersection with all 11980 prior CSC seeds (B8.0/B8.1/B7/B6/R1/P3/B5/smoke); 6 bases mutually disjoint (spaced 20e6, each spans 11e6+49)"
+  },
+  "conditions": ["CONTRACT_NULL_balanced", "CONTRACT_NULL_prior_only", "CONTRACT_NULL_cov_plus_prior", "CONTRACT_random_label", "CONTRACT_POS_boundary", "CONTRACT_POS_boundary_plus_prior", "VIOLATION_cov_session", "VIOLATION_prior_shift", "VIOLATION_cov_plus_prior", "VIOLATION_condition_lock", "VIOLATION_quiet_cov_no_concept", "VIOLATION_quiet_cov_plus_concept"],
+  "primary_question": "Is B8.1's decision-level (both-gate) prior_only control, cov_plus_prior mixed control, and POS signal STABLE across 6 fresh seed blocks? per-seed variability is the CORE output, not an appendix.",
+  "screens_preregistered": {
+    "no_pooling": "each NULL kind reported SEPARATELY; no pooled safety claim",
+    "contract_valid_nulls": {
+      "CONTRACT_NULL_balanced": "ALERT <= 7/300",
+      "CONTRACT_NULL_prior_only": "ALERT <= 7/300 (PRIMARY stability target)",
+      "CONTRACT_NULL_cov_plus_prior": "ALERT <= 7/300 (must RETAIN B8.0/B8.1 mixed-cell control)",
+      "CONTRACT_random_label": "ALERT <= 3/300 preferred, <= 7/300 maximum"
+    },
+    "also_report_for_nulls": "mean-T-alone alert count + both-gate alert count + studentized-gate contribution. If prior_only both-gate passes but mean-T-alone stays high -> write 'decision-level controlled, statistic-level collider remains.'",
+    "violations": "ALERT <= 7/300 each; more importantly CONTRACT_INVALID_OR_UNIDENTIFIABLE should DOMINATE. For VIOLATION_quiet_cov_plus_concept: success = refuse because contract invalid, NOT alert because a true concept exists.",
+    "pos": {"CONTRACT_POS_boundary": ">0 min, >=20/300 strong", "CONTRACT_POS_boundary_plus_prior": ">0 min, >=15/300 strong"}
+  },
+  "required_tables": {
+    "main": ["condition", "n", "B8_ALERT", "NO_ACTIONABLE", "CONTRACT_INVALID_OR_UNIDENTIFIABLE", "INSUFFICIENT_LABELS", "SAMPLER_INVALID", "CP95u_ALERT", "median_p_exact", "p_floor_frac", "median_effective_randomization", "median_assignment_support", "median_C_auc"],
+    "seed": ["condition", "seed_block", "n", "B8_ALERT", "CONTRACT_INVALID", "POS/NULL state counts"],
+    "mechanism": ["condition", "meanT_alone_alert", "studentized_gate_pass", "both_gate_alert", "median_observed_T", "median_null_mean_T", "median_null_sd_T", "median_T_z"]
+  },
+  "decision_tree": {
+    "A_safety_stable_pos_strong": "prior_only<=7 AND cov_plus_prior<=7 AND violations refuse AND POS_boundary>=20 -> B8 direction strong enough to discuss B8.3 budget frontier OR real randomized-audit protocol (reviewer)",
+    "B_safety_stable_pos_weak": "-> audit/label budget frontier (power = design-budget question, NOT statistic-tuning)",
+    "C_prior_only_fails": "do NOT recalibrate mean-T gate -> means class-balanced contract controls prior unstably or by masking -> contract redesign or narrow estimand",
+    "D_mixed_fails": "undermines the main B8 positive -> STOP + diagnose contract construction",
+    "E_violation_alerts": "contract validator failure, NOT a concept result -> fix provenance/invalid-state logic before any science claim"
+  },
+  "hard_stops": ["any B8.1 logic change", "any post-hoc gate adjustment", "any use of outcome Y as design_class", "any violation world bypassing provenance refusal", "state-count mismatch", "any seed-block overlap"],
+  "not_authorized": ["mean-T gate recalibration", "p-value retuning", "audit/label budget frontier (yet)", "real randomized-audit data (yet)", "statistic change", "feature/montage change", "B7/router/oracle fields", "paper writing"],
+  "code": {"module": "realeeg_feas/realeeg_b8_1.py (unchanged)", "worker": "realeeg_feas/realeeg_b8_1_canary.py (unchanged, reused verbatim, 6 bases)", "merge": "realeeg_feas/b8_2_multiseed_merge.py"},
+  "commit_discipline": ["1 commit+hash protocol BEFORE run", "2 smoke", "3 full 6-seed x 12-condition replication", "4 merge fail-closed", "5 result red-team", "6 commit diagnostic-only", "7 NO tag"]
+}
