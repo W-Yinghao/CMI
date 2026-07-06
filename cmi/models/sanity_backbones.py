@@ -143,6 +143,51 @@ class EEGConformerMini(nn.Module):
         return self.head(z), z
 
 
+class EEGConformerFull(nn.Module):
+    """Equal-parameter / official-geometry EEG Conformer (Song et al. 2022, arXiv:2106.11170) — the CIGL_69A2
+    high-capacity VALIDATION arm for the ConformerMini audit. Faithful to the published architecture: shallow
+    conv tokenizer with the official kernels (temporal (1,25) -> spatial (chans,1) -> BN/ELU -> AvgPool(1,75)
+    stride 15 -> 1x1 projection), a depth-6 / emb-40 / 10-head Transformer, then the official 3-layer MLP
+    classification head (Linear->ELU->Drop->Linear->ELU->Drop->Linear). ~10x the params of EEGConformerMini.
+
+    Contract `forward(x[B,C,T]) -> (logits, feature_z)` with feature_z = the flattened transformer output = the
+    INPUT to the MLP head. Because the head is an MLP (not a single nn.Linear), head-replay is NOT exact; R3
+    therefore falls back to the source-fit probe (removal_mode='probe_replay'). Still pure torch (no braindecode),
+    single env. Official geometry needs n_times >= ~100 (temporal conv is valid); the pool is clamped only for
+    tiny synthetic smokes so it never crashes, and equals the official (75,15) on real EEG."""
+    def __init__(self, n_chans, n_times, n_classes, emb=40, depth=6, heads=10, k_t=25,
+                 pool=75, stride=15, drop=0.5, mlp_hidden=(256, 32)):
+        super().__init__()
+        feat_t = n_times - (int(k_t) - 1)                                        # valid temporal conv output width
+        pool = max(2, min(int(pool), feat_t)); stride = max(1, min(int(stride), max(1, pool // 5)))
+        self.tok = nn.Sequential(
+            nn.Conv2d(1, emb, (1, k_t)),                                          # temporal (valid, official)
+            nn.Conv2d(emb, emb, (n_chans, 1)),                                   # spatial (collapse channels)
+            nn.BatchNorm2d(emb), nn.ELU(),
+            nn.AvgPool2d((1, pool), stride=(1, stride)), nn.Dropout(drop),
+            nn.Conv2d(emb, emb, (1, 1)))                                          # 1x1 projection (official)
+        layer = nn.TransformerEncoderLayer(emb, heads, dim_feedforward=emb * 4, dropout=drop,
+                                           activation="gelu", batch_first=True)
+        self.transformer = nn.TransformerEncoder(layer, depth)
+        with torch.no_grad():
+            z = self._features(torch.zeros(1, 1, n_chans, n_times))
+        self.z_dim = int(z.shape[1])
+        h1, h2 = mlp_hidden                                                       # official 3-layer MLP head (NOT linear)
+        self.head = nn.Sequential(nn.Linear(self.z_dim, h1), nn.ELU(), nn.Dropout(drop),
+                                  nn.Linear(h1, h2), nn.ELU(), nn.Dropout(0.3),
+                                  nn.Linear(h2, n_classes))
+
+    def _features(self, x):
+        h = self.tok(x)                                                          # [B, emb, 1, T']
+        h = h.squeeze(2).transpose(1, 2)                                         # [B, T', emb] tokens
+        h = self.transformer(h)                                                  # [B, T', emb]
+        return h.flatten(1)                                                      # [B, T'*emb] pre-head feature_z
+
+    def forward(self, x):
+        z = self._features(x.unsqueeze(1))
+        return self.head(z), z
+
+
 def build_sanity_backbone(name, n_chans, n_times, n_classes):
     """name -> pure-torch (logits, z) decoder. graphcmi/dgcnn come from cmi.models.gnn (graph backbones);
     eegnet/shallow_convnet/deep_convnet/conformer are the minimal internal decoders here."""
@@ -153,4 +198,5 @@ def build_sanity_backbone(name, n_chans, n_times, n_classes):
         from cmi.models.gnn import DGCNNBackbone
         return DGCNNBackbone(n_chans, n_times, n_classes)
     return {"eegnet": EEGNetMini, "shallow_convnet": ShallowConvNetMini,
-            "deep_convnet": DeepConvNetMini, "conformer": EEGConformerMini}[name](n_chans, n_times, n_classes)
+            "deep_convnet": DeepConvNetMini, "conformer": EEGConformerMini,
+            "conformer_full": EEGConformerFull}[name](n_chans, n_times, n_classes)
