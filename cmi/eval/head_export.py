@@ -51,6 +51,22 @@ def forward_graph_capture(model, X, device, bs=256):
     return np.concatenate(L), np.concatenate(G), np.concatenate(N)
 
 
+@torch.no_grad()
+def forward_feature_capture(model, X, device, bs=256):
+    """Eval-mode forward over X for a NON-graph decoder with forward(x)->(logits, feature_z). Returns
+    (model_logits, feature_z, dummy_node_z). node_z is a [N,1,1] zero placeholder — it is never read by R3 /
+    head-replay / reliance (they use the graph_z slot, where feature_z is stored); it only satisfies the
+    .audit.npz schema."""
+    model.eval()
+    L, Z = [], []
+    for i in range(0, len(X), bs):
+        xb = torch.as_tensor(X[i:i + bs], dtype=torch.float32, device=device)
+        lo, z = model(xb)
+        L.append(lo.cpu().numpy()); Z.append(z.cpu().numpy())
+    logits = np.concatenate(L); feat = np.concatenate(Z)
+    return logits, feat, np.zeros((len(feat), 1, 1), dtype="float32")
+
+
 def save_fold_audit(path, *, model, X_source, y_source, d_source, device, fold, seed, target_subject,
                     method="", dataset="", X_target=None, y_target=None, target_domain=None,
                     source_indices=None, target_indices=None, source_val_indices=None,
@@ -62,13 +78,17 @@ def save_fold_audit(path, *, model, X_source, y_source, d_source, device, fold, 
 
     Firewall: X_target is forwarded in eval() only; y_target is stored for a final reported target metric and is
     NEVER used to fit anything. `target_domain` must differ from every value in d_source."""
-    logits_s, gz_s, nz_s = forward_graph_capture(model, X_source, device, capture_bs)
+    # graph backbones expose forward_graph -> graph_z; non-graph decoders (EEGNetMini / EEGConformerMini) expose
+    # forward -> (logits, feature_z). Store feature_z in the graph_z slot (head-replay verification is hardwired
+    # to it) with a dummy node_z, so the SAME audit/R3/head-replay works on feature_z.
+    _cap = forward_graph_capture if callable(getattr(model, "forward_graph", None)) else forward_feature_capture
+    logits_s, gz_s, nz_s = _cap(model, X_source, device, capture_bs)
     y = np.asarray(y_source).astype("int64"); d = np.asarray(d_source).astype("int64")
     gz, nz, logits = gz_s, nz_s, logits_s
     if X_target is not None and len(X_target) > 0:
         if target_domain is None or target_domain in np.unique(d):
             raise ValueError(f"target_domain={target_domain} must be a distinct id not present in d_source")
-        logits_t, gz_t, nz_t = forward_graph_capture(model, X_target, device, capture_bs)
+        logits_t, gz_t, nz_t = _cap(model, X_target, device, capture_bs)
         gz = np.concatenate([gz_s, gz_t]); nz = np.concatenate([nz_s, nz_t])
         logits = np.concatenate([logits_s, logits_t])
         y = np.concatenate([y, np.asarray(y_target).astype("int64")])

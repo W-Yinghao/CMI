@@ -108,9 +108,44 @@ class DeepConvNetMini(nn.Module):
         return self.head(z), z
 
 
+class EEGConformerMini(nn.Module):
+    """Faithful-minimal EEG Conformer (Song et al. 2022, arXiv:2106.11170): a shallow conv tokenizer (temporal
+    conv -> spatial conv collapsing channels -> BN/ELU -> windowed avgpool) turns the raw EEG into a token
+    sequence, a small Transformer encoder mixes the tokens, then flatten -> a SINGLE nn.Linear head. Same harness
+    contract `forward(x[B,C,T]) -> (logits, z)` with feature_z = flattened transformer output, so head-replay is
+    exact (logits = z @ head.Wᵀ + b in eval). Minimal INTERNAL reimplementation — NOT the official/braindecode
+    EEGConformer (pure torch, single env). High-capacity arm vs the EEGNetMini anchor."""
+    def __init__(self, n_chans, n_times, n_classes, emb=32, depth=2, heads=4, k_t=25, pool=15, stride=7, drop=0.3):
+        super().__init__()
+        k_t = min(int(k_t), max(2, n_times // 2))
+        pool = min(int(pool), max(2, n_times // 4)); stride = min(int(stride), max(1, pool // 2))
+        self.tok = nn.Sequential(
+            nn.Conv2d(1, emb, (1, k_t), padding=(0, k_t // 2)),                  # temporal
+            nn.Conv2d(emb, emb, (n_chans, 1)),                                  # spatial (collapse channels)
+            nn.BatchNorm2d(emb), nn.ELU(),
+            nn.AvgPool2d((1, pool), stride=(1, stride)), nn.Dropout(drop))
+        layer = nn.TransformerEncoderLayer(emb, heads, dim_feedforward=emb * 2, dropout=drop,
+                                           activation="gelu", batch_first=True)
+        self.transformer = nn.TransformerEncoder(layer, depth)
+        with torch.no_grad():
+            z = self._features(torch.zeros(1, 1, n_chans, n_times))
+        self.z_dim = int(z.shape[1])
+        self.head = nn.Linear(self.z_dim, n_classes)
+
+    def _features(self, x):
+        h = self.tok(x)                                                          # [B, emb, 1, T']
+        h = h.squeeze(2).transpose(1, 2)                                         # [B, T', emb] tokens
+        h = self.transformer(h)                                                  # [B, T', emb]
+        return h.flatten(1)                                                      # [B, T'*emb] pre-head feature
+
+    def forward(self, x):
+        z = self._features(x.unsqueeze(1))
+        return self.head(z), z
+
+
 def build_sanity_backbone(name, n_chans, n_times, n_classes):
     """name -> pure-torch (logits, z) decoder. graphcmi/dgcnn come from cmi.models.gnn (graph backbones);
-    eegnet/shallow_convnet/deep_convnet are the minimal internal CNNs here."""
+    eegnet/shallow_convnet/deep_convnet/conformer are the minimal internal decoders here."""
     if name in ("graphcmi", "graphcmi_current_ref"):
         from cmi.models.gnn import GraphCMINet
         return GraphCMINet(n_chans, n_times, n_classes)
@@ -118,4 +153,4 @@ def build_sanity_backbone(name, n_chans, n_times, n_classes):
         from cmi.models.gnn import DGCNNBackbone
         return DGCNNBackbone(n_chans, n_times, n_classes)
     return {"eegnet": EEGNetMini, "shallow_convnet": ShallowConvNetMini,
-            "deep_convnet": DeepConvNetMini}[name](n_chans, n_times, n_classes)
+            "deep_convnet": DeepConvNetMini, "conformer": EEGConformerMini}[name](n_chans, n_times, n_classes)
