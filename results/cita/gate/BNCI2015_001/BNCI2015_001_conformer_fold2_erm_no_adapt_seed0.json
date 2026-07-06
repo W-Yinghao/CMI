@@ -1,0 +1,106 @@
+{
+  "backbone": "conformer",
+  "method": "erm_no_adapt",
+  "heldout_subject": "3",
+  "fold_index": 2,
+  "n_classes": 2,
+  "source_bacc": 0.7474358974358974,
+  "target_bacc": 0.55,
+  "feature_kl": 1.5002875328063965,
+  "feature_perm_p": 0.0196078431372549,
+  "head_replay_ok": true,
+  "head_replay_max_abs_diff": 4.8580110068030535e-06,
+  "adapt_diag": {
+    "method": "erm_no_adapt",
+    "adapted": false,
+    "adaptation_mode": "offline_transductive",
+    "adaptation_uses_all_target_X": true,
+    "target_y_used": false,
+    "cond_domain_active": false,
+    "budget": {
+      "adapt_steps": 50,
+      "adapt_lr": 0.001,
+      "adapt_batch_size_source": 64,
+      "adapt_batch_size_target": 64,
+      "tau_entropy": 1.0,
+      "mu_label_balance": 1.0,
+      "lambda_cita": 0.0,
+      "cond_inner": 1,
+      "source_label_prior_source": "source_train_only",
+      "pseudo_label_mode": "detached_soft"
+    },
+    "mode_policy": {
+      "adaptation_train_mode": false,
+      "dropout_active_during_adapt": false,
+      "batchnorm_updates_during_adapt": false
+    }
+  },
+  "row": {
+    "dataset": "BNCI2015_001",
+    "fold": 2,
+    "target_subject": "3",
+    "seed": 0,
+    "method": "conformer:erm_no_adapt",
+    "lambda_g": 0.0,
+    "lambda_node": 0.0,
+    "source_bacc": 0.7474358974358974,
+    "target_bacc": 0.55,
+    "graph_kl_proxy": 1.5002875328063965,
+    "node_kl_proxy": NaN,
+    "graph_perm_p": 0.0196078431372549,
+    "node_perm_p": NaN,
+    "graph_fdr_q": null,
+    "node_fdr_q": null,
+    "multiprobe_detect_count": null,
+    "task_retention_delta": null,
+    "leakage_reduction_delta": null
+  },
+  "meta": {
+    "phase": "CITA_01_target_unlabeled_gate",
+    "backbone": "conformer",
+    "method": "erm_no_adapt",
+    "setting": "offline_transductive_target_unlabeled",
+    "commit_hash": "566c7f983f23abe797b35fb32fe1c521e4f5e7e9",
+    "config_hash": "cc32461ae6e5",
+    "representation": "feature_z",
+    "cita_firewall": {
+      "target_X_allowed": true,
+      "target_y_used_for_training": false,
+      "target_y_used_for_adaptation": false,
+      "target_y_used_for_model_selection": false,
+      "target_y_used_for_hyperparameter_selection": false,
+      "adaptation_uses_target_X": true,
+      "target_eval_same_X_as_adapt": true,
+      "early_stopping": false,
+      "source_replay_uses_source_labels_only": true,
+      "cond_domain_active": false
+    },
+    "adaptation_budget": {
+      "adapt_steps": 50,
+      "adapt_lr": 0.001,
+      "adapt_batch_size_source": 64,
+      "adapt_batch_size_target": 64,
+      "tau_entropy": 1.0,
+      "mu_label_balance": 1.0,
+      "lambda_cita": 0.0,
+      "cond_inner": 1,
+      "source_label_prior_source": "source_train_only",
+      "pseudo_label_mode": "detached_soft"
+    },
+    "model_mode_policy": {
+      "adaptation_train_mode": false,
+      "dropout_active_during_adapt": false,
+      "batchnorm_updates_during_adapt": false
+    },
+    "shared_budget_and_mode_across_tta_and_cita": true,
+    "adaptation_diagnostics": {
+      "source_replay_ce_before": null,
+      "source_replay_ce_after": null,
+      "target_entropy_before": null,
+      "target_entropy_after": null,
+      "target_label_balance_before": null,
+      "target_label_balance_after": null,
+      "final_cond_domain": null
+    }
+  }
+}
