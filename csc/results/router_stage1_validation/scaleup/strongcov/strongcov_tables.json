@@ -1,0 +1,50 @@
+{
+ "diagnostic_only": true,
+ "tau_R1": 0.004587196,
+ "tau_source": "locked; not re-derived",
+ "base": 100000000,
+ "soft_covariate_reference": {
+  "condition": "NULL_cov",
+  "session_auc_approx": 0.52,
+  "allow": 5,
+  "cp95u": 0.0347
+ },
+ "per_delta": {
+  "1.5": {
+   "n": 300,
+   "session_auc_med": 0.8137697222222222,
+   "method_confirm": 117,
+   "router_allow": 22,
+   "allow_rate": 0.0733,
+   "cp95u": 0.1031,
+   "T_z_med": 10.60735743267515,
+   "ffp_floor": 0.9966666666666667,
+   "n_invalid": 0
+  },
+  "2.5": {
+   "n": 300,
+   "session_auc_med": 0.9368918333333334,
+   "method_confirm": 173,
+   "router_allow": 78,
+   "allow_rate": 0.26,
+   "cp95u": 0.305,
+   "T_z_med": 17.16428739302959,
+   "ffp_floor": 1.0,
+   "n_invalid": 0
+  }
+ },
+ "cap": 7,
+ "breach": {
+  "1.5": 22,
+  "2.5": 78
+ },
+ "router_holds_under_strong_covariate": false,
+ "red_team": {
+  "verdict": "strongcov_validity PASS -- SOUND demonstration",
+  "construction_sound": "w.v_hat ~1e-14 (exact orthogonality) -> w.Zp==w.Z -> Y* session-invariant to machine precision -> genuinely NO_CONCEPT; delta=0 gives Zp==Z bit-identical (==NULL_cov), auc~0.52 anchor matches real soft covariate.",
+  "oracle_null_decisive": "Regenerating Y* from the TRUE boundary through the identical cross-fit puts observed T in the bulk of the true null (oracle_p~Uniform, oracle_Tz +/-2), while the certifier's fixed-margin swap-null is mis-centered ~7-10x too low and 2-3x under-dispersed -> pins fixed_margin_p at floor, T_z 10-28. The STATISTIC (cross-fit observed_T) is NOT indicted; the fixed-margin NULL is.",
+  "genuine_false_confirm": "valid=True, n_invalid=0 for all 600 (confident false-confirms, not abstentions); confirms also defeat the subject-consistency gate (systematic covariate -> systematic per-subject interaction overfit).",
+  "mechanism": "the shift lands 100% in the certifier's rank-3 PC interaction basis (sessmean_in_top3PC=1.000); a strong marginal covariate inflates the finite-sample cross-fit interaction-overfit T (artifact-T up to ~0.0085) into the genuine-concept range (POS median ~0.0097); the observed_T>=tau gate that filtered the soft artifact (T<0.006) provably cannot filter it.",
+  "scope": "demonstrated for a covariate along the leading PC orthogonal to w (lands in the top-3 PC interaction subspace = the generic strong-marginal-shift case); a strong covariate OUTSIDE the top-3 PCs is UNTESTED. One held-out block per strength; 3-point dose-response (thin but unambiguous, T_z 10-28 dwarfs block noise)."
+ }
+}

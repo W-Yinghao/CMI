@@ -1,0 +1,4 @@
+FROZEN SSL feature cache (16MB, not committed).
+path: /home/infres/yinwang/realeeg_feas/b5_features/b5_1_ssl_encoder/LEE2019_B5_1.npz
+sha256: 04d07143795a317b02ff7ff999b915f54de5daa296c7b1d4ed3c13e6ce3442ce
+rebuild: scripts/b5_1_build_cache.py (SSL masked-recon, seed 20260707, weight_sha256 in manifest)

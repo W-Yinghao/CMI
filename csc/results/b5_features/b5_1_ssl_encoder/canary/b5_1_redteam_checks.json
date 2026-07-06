@@ -1,0 +1,74 @@
+{
+ "all_pass": false,
+ "per_lens": [
+  {
+   "lens": "posfirst",
+   "verdict": "PASS",
+   "summary": "All six confirm counts reproduce exactly from the raw JSONL shards (NULL_cov 18/80=0.225, POS_concept 24/80=0.30, NULL_cov_plus_label 12/80, NULL_label 0/80, random 0/80, POS_concept_plus_cov 20/80). Fisher one-sided POS(24/80)>NULL_cov(18/80) gives OR=1.476, p=0.1846 (two-sided 0.369) \u2014 POS does NOT significantly exceed the covariate null. T_z_med is higher for no-concept NULL_cov (6.35) than for concept POS_concept (3.67), the same covariate-driven-firing signature as B5.0 (6.15>2.83) \u2014 a genuine detector would show the opposite. The honest verdict is INCONCLUSIVE for safety: a LEARNED SSL encoder gives the certifier no more concept-vs-covariate separation than the random B5.0 no-op (learned-encoder negative). The 30-vs-22.5% gap is not material even if it were significant (working detectors need POS>>NULL, cf B4 synthetic ~1.0 vs ~0.05). The note reports this correctly and conservatively with no overclaim; the reported interpretation is accurate."
+  },
+  {
+   "lens": "overclaim",
+   "verdict": "MINOR_ISSUE",
+   "summary": "Recompute is exact \u2014 every table number reproduces (NULL_cov 18/80=0.225, POS_concept 24/80=0.30, Fisher one-sided p=0.1846, T_z medians, ffp floors), and the 2 invalid POS records don't move it (denom 78 -> p=0.16). The science is honestly caveated (scope development-only, NOT confirmatory, NO tag, interpretation=\"inconclusive\"), so the artifact is sound as a diagnostic; the risk is purely in FRAMING if leaned on as a strong negative. Skeptical-fair verdict on the five attacks: (a) NO defensible read of real partial separation \u2014 POS 0.30 vs NULL 0.225 is p=0.18 with a Newcombe diff-CI of [-0.19,+0.34] spanning 0, and the mechanism markers (T_z inversion: no-concept nulls 6.3-9.0 run HIGHER than concept positives 2.7-3.7; session_auc ~0.52 flat across ALL conditions) say the firing is covariate/under-dispersion-driven, not concept; the second positive condition (POS+cov 0.25) fails to separate from NULL_cov (p=0.43), so the +0.075 bump is sampling noise, non-significant AND non-material. (b) YES, spurious-structure inflation is the leading alternative, not separation: B5.0->B5.1 both NULL (0.20->0.225, p=0.83) and POS (0.20->0.30, p=0.23) rose together with the concept-vs-covariate GAP unchanged; label-free training rules out label-memorization but subject/session covariance overfit (30 of 54 subjects shared across cohorts) is exactly the covariate structure the certifier keys on and can drive correlated confirms in BOTH arms. (c) The \"does not fix the fitted-null under-dispersion\" half is fully supported (loud FAIL: NULL_cov ~9x the 0.025 budget, fixed-margin-p floor-pinned in 92.5% of no-concept cohorts, T_z 6-9, inversion intact) but the \"feature richness is not the lever\" half must be scoped to random + THIS one SSL EEGNet encoder (n=1 learned family), not stated as universal. (d) Calling it a strong \"LEARNED-encoder negative\" is NOT fair \u2014 it is UNDERPOWERED/INCONCLUSIVE: at n=80 power to detect the observed 0.30-vs-0.225 is only ~24% (needs true POS ~0.42+ for 80%), so the study cannot distinguish \"no separation\" from \"modest real separation\"; the FAIL-reproduction is a genuine positive finding, but the separation claim must not be cited as affirmative evidence learned features fail. (e) Neutralize before commit: reword \"learned-encoder negative\"->\"inconclusive/underpowered, did not clear the positive-control gate\"; pre-empt the POS-vs-NULL_cov_plus_label p=0.018 comparator-shopping cell; never report 0.30>0.20 as \"learned improves POS power\" (p=0.23 n.s.); keep the subject-cluster/anti-conservative caveat and \"vacuous because POS doesn't separate\" note on the NULL_cov type-I CI. Most defensible one-sentence conclusion: \"Even a learned label-free SSL EEGNet representation leaves the certifier's fitted-null under-dispersion FAIL fully intact (NULL_cov false-confirm 0.225 ~= 9x budget, fixed-margin-p floor-pinned in 92.5% of no-concept cohorts, T_z 6-9 with the no-concept>concept inversion preserved) and does NOT clear the positive-control gate (POS 0.30 vs NULL 0.225, Fisher one-sided p=0.18, diff-CI [-0.19,+0.34], ~24% power), so the only supported reading is that feature richness \u2014 random or this learned encoder \u2014 is not the lever, while the study remains too underpowered to be leaned on as affirmative proof that learned features fail.\""
+  }
+ ],
+ "serious_issues": [
+  {
+   "lens": "overclaim",
+   "severity": "high",
+   "summary": "The 'LEARNED-encoder negative' label overstates: the POS-vs-NULL_cov separation test is underpowered (Fisher p=0.1846; ~24% power at n=80 for the observed 0.30-vs-0.225; needs true POS ~0.42+ for 80%), so it is INCONCLUSIVE, not a strong negative \u2014 the n>=60 bar was set to confirm a FAIL, not to power the separation test, and must not be leaned on as affirmative evidence learned features fail."
+  },
+  {
+   "lens": "overclaim",
+   "severity": "high",
+   "summary": "The +0.075 (0.30 vs 0.225) numerical bump must not be read as 'learned features help': it is non-significant (OR=1.48, p=0.18, Newcombe diff-CI [-0.19,+0.34] spans 0), the mechanism markers contradict a concept read (T_z inversion \u2014 no-concept nulls 6.3-9.0 HIGHER than concept positives 2.7-3.7; session_auc ~0.52 flat everywhere including the random control), and the second positive condition POS_concept_plus_cov (0.25) fails to separate from NULL_cov (p=0.43)."
+  }
+ ],
+ "all_issues": [
+  {
+   "lens": "posfirst",
+   "severity": "medium",
+   "summary": "Power at n=80 is asymmetric: ~0.23 at observed POS=0.30, ~0.60 at 0.375, ~0.91 at 0.45. A modest true concept signal could be missed, so INCONCLUSIVE must NOT harden into 'no effect exists.' But this does not rescue the method \u2014 the effect sizes n=80 is blind to (POS ~0.30-0.38, 1.3-1.7x null) are precisely those too small to be a usable safety detector; n=80 IS well-powered for the ~2x separation a working certifier would need, and found none."
+  },
+  {
+   "lens": "posfirst",
+   "severity": "low",
+   "summary": "NULL_cov type-I bound (CP95u=0.315, cohort-boot CI [0.14,0.33]) is anti-conservative: the 80 cohorts share 30 of 54 subjects under one global z-score, so a subject-cluster bound is required before any 'safe' claim. Moot here since POS does not separate, but the raw-count CI should not be read as a genuine type-I certificate."
+  },
+  {
+   "lens": "posfirst",
+   "severity": "low",
+   "summary": "POS_concept has 2/80 rows with NaN T_z counted as non-confirms in denominator 80; treating them as undecided and dropping them gives 24/78 (Fisher p=0.160) \u2014 still non-significant, so no impact on the verdict. Handling is consistent and does not change the conclusion."
+  },
+  {
+   "lens": "overclaim",
+   "severity": "high",
+   "summary": "The 'LEARNED-encoder negative' label overstates: the POS-vs-NULL_cov separation test is underpowered (Fisher p=0.1846; ~24% power at n=80 for the observed 0.30-vs-0.225; needs true POS ~0.42+ for 80%), so it is INCONCLUSIVE, not a strong negative \u2014 the n>=60 bar was set to confirm a FAIL, not to power the separation test, and must not be leaned on as affirmative evidence learned features fail."
+  },
+  {
+   "lens": "overclaim",
+   "severity": "high",
+   "summary": "The +0.075 (0.30 vs 0.225) numerical bump must not be read as 'learned features help': it is non-significant (OR=1.48, p=0.18, Newcombe diff-CI [-0.19,+0.34] spans 0), the mechanism markers contradict a concept read (T_z inversion \u2014 no-concept nulls 6.3-9.0 HIGHER than concept positives 2.7-3.7; session_auc ~0.52 flat everywhere including the random control), and the second positive condition POS_concept_plus_cov (0.25) fails to separate from NULL_cov (p=0.43)."
+  },
+  {
+   "lens": "overclaim",
+   "severity": "medium",
+   "summary": "Spurious-structure/inflation confound is the leading alternative to 'separation': B5.0->B5.1 both NULL (0.20->0.225, p=0.83) and POS (0.20->0.30, p=0.23) rose together with the gap unchanged; label-free SSL rules out label-memorization but subject/session covariance overfit (30 of 54 subjects shared across cohorts, one global transductive z-score) can inflate BOTH arms \u2014 the encoder plausibly added covariate structure rather than concept power."
+  },
+  {
+   "lens": "overclaim",
+   "severity": "medium",
+   "summary": "Comparator-shopping risk: the only nominally significant cell is POS_concept vs NULL_cov_plus_label (24 vs 12, p=0.0182), but the red-team-mandated gate comparator is the covariate floor NULL_cov (p=0.18) \u2014 the framing must pre-empt anyone quoting the 0.018 cell, and note that the two positive conditions disagree (0.30 separates from the weaker null, 0.25 does not separate from the stronger null), a noise signature."
+  },
+  {
+   "lens": "overclaim",
+   "severity": "medium",
+   "summary": "'Feature richness is not the lever' is supported only for random + this single SSL EEGNet encoder (n=1 learned family, one masked-reconstruction objective, one architecture); stating it as a universal law over all learned representations is an over-generalization and should be explicitly scoped."
+  },
+  {
+   "lens": "overclaim",
+   "severity": "low",
+   "summary": "Minor residual overclaim vectors: session_auc ~0.52 across all conditions means the 'learned/rich/reshaping' representation is near-chance-separable at the certifier's decision layer (mild overclaim in the 'learned' framing); and POS_concept uses denom 80 despite 2 invalid records (denom 78 -> p=0.16, still n.s.) \u2014 conservative here but inconsistent with B5.0's denom-48 handling and worth a footnote; keep the subject-cluster and cohort-bootstrap anti-conservative caveats on the NULL_cov type-I CI, which are vacuous anyway because POS does not separate."
+  }
+ ]
+}

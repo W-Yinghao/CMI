@@ -1,0 +1,81 @@
+{
+ "scope": "B5.1 SSL-encoder canary; development-only; NOT confirmatory; NO tag",
+ "base_seed": 40000000,
+ "n_per_condition": 80,
+ "per_condition": {
+  "NULL_cov": {
+   "n": 80,
+   "confirm": 18,
+   "rate": 0.225,
+   "T_z_med": 6.353406156148146,
+   "ffp_floor": 0.925,
+   "session_auc_med": 0.5212654444444444
+  },
+  "NULL_cov_plus_label": {
+   "n": 80,
+   "confirm": 12,
+   "rate": 0.15,
+   "T_z_med": 6.205344766260131,
+   "ffp_floor": 0.85,
+   "session_auc_med": 0.5309845555555555
+  },
+  "NULL_label": {
+   "n": 80,
+   "confirm": 0,
+   "rate": 0.0,
+   "T_z_med": 8.947690128135893,
+   "ffp_floor": 0.925,
+   "session_auc_med": 0.5233435
+  },
+  "random_label_control": {
+   "n": 80,
+   "confirm": 0,
+   "rate": 0.0,
+   "T_z_med": 0.01360881339952732,
+   "ffp_floor": 0.0125,
+   "session_auc_med": 0.5188041111111111
+  },
+  "POS_concept": {
+   "n": 80,
+   "confirm": 24,
+   "rate": 0.3,
+   "T_z_med": 3.667802186381976,
+   "ffp_floor": 0.525,
+   "session_auc_med": 0.5332942777777778
+  },
+  "POS_concept_plus_cov": {
+   "n": 80,
+   "confirm": 20,
+   "rate": 0.25,
+   "T_z_med": 2.694230790508634,
+   "ffp_floor": 0.4375,
+   "session_auc_med": 0.5379698888888889
+  }
+ },
+ "positive_control_first": {
+  "pos_concept_confirm": 24,
+  "null_cov_false_confirm": 18,
+  "fisher_one_sided_p": 0.18455542009995132,
+  "pos_separates_from_null": false,
+  "interpretation": "no decision-level separation -> inconclusive for safety (learned-encoder negative)"
+ },
+ "null_cov_type_I": {
+  "confirm": 18,
+  "cohort_boot_ci": [
+   0.1375,
+   0.325
+  ],
+  "cp95u": 0.3151691145910047,
+  "caveat": "cohorts share subjects; needs subject-cluster bound for a safe claim; only meaningful if POS separates"
+ },
+ "b5_1_cache_sha256": "04d07143795a317b02ff7ff999b915f54de5daa296c7b1d4ed3c13e6ce3442ce",
+ "red_team_caveat": {
+  "verdict": "posfirst PASS; overclaim MINOR_ISSUE -> commit diagnostic-only; SCOPE the framing",
+  "supported": "The fitted-null under-dispersion FAIL is fully INTACT under this learned SSL encoder: NULL_cov false-confirm 0.225 (~9x the 0.025 budget), fixed-margin-p floor-pinned in 92.5% of no-concept cohorts, T_z 6-9, and the no-concept(NULL_cov 6.35) > concept(POS 3.67) T_z INVERSION preserved (covariate-driven firing, same as B5.0).",
+  "NOT_a_strong_negative": "The positive-control separation test is UNDERPOWERED: POS_concept 24/80 (0.30) vs NULL_cov 18/80 (0.225), Fisher one-sided p=0.1846, Newcombe diff-CI [-0.19,+0.34] spans 0, ~24% power at n=80 (needs true POS ~0.42+ for 80%). n>=60 was set to CONFIRM a FAIL, not to power separation. So this is INCONCLUSIVE for separation, NOT affirmative proof that learned features fail.",
+  "do_not_read_as": "POS 0.30 > B5.0's 0.20 / > NULL 0.225 is NOT 'learned features help' (p=0.23 vs B5.0, p=0.18 vs NULL, both n.s.); POS_concept_plus_cov 0.25 also fails to separate from NULL (p=0.43). Do NOT comparator-shop the POS vs NULL_cov_plus_label p=0.018 cell.",
+  "scope": "'feature richness is not the lever' is supported for RANDOM (B5.0) + THIS ONE SSL EEGNet encoder only (n=1 learned family), NOT universal.",
+  "type_I_caveat": "NULL_cov CP95u 0.315 / cohort-boot CI anti-conservative (30 of 54 subjects shared); needs subject-cluster bound; moot since POS does not separate.",
+  "defensible_conclusion": "Even a learned label-free SSL EEGNet representation leaves the certifier's fitted-null under-dispersion FAIL fully intact and does NOT clear the positive-control gate (underpowered, p=0.18, ~24% power); feature richness -- random or this learned encoder -- is not the lever, while the study is too underpowered to be leaned on as affirmative proof that learned features fail."
+ }
+}

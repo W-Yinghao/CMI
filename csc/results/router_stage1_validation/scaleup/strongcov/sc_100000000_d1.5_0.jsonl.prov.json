@@ -1,0 +1,11 @@
+{
+ "base": 100000000,
+ "delta": 1.5,
+ "start": 0,
+ "n": 300,
+ "n_records": 300,
+ "n_worker_errors": 0,
+ "host": "nodecpu01",
+ "slurm": "883846",
+ "diagnostic_only": true
+}

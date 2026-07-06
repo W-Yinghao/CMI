@@ -1,0 +1,11 @@
+{
+ "base": 110000000,
+ "condition": "POS_concept",
+ "start": 0,
+ "n": 300,
+ "n_records": 300,
+ "n_worker_errors": 0,
+ "host": "nodecpu02",
+ "slurm": "883844",
+ "diagnostic_only": true
+}

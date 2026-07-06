@@ -1,0 +1,100 @@
+{
+ "diagnostic_only": true,
+ "tau_R1": 0.004587196,
+ "tau_source": "locked; not re-derived",
+ "n_blocks": 4,
+ "bases": [
+  90000000,
+  100000000,
+  110000000,
+  120000000
+ ],
+ "per_block": {
+  "90000000": {
+   "NULL_cov": 5,
+   "NULL_cov_plus_label": 4,
+   "POS_concept": 52
+  },
+  "100000000": {
+   "NULL_cov": 1,
+   "NULL_cov_plus_label": 6,
+   "POS_concept": 61
+  },
+  "110000000": {
+   "NULL_cov": 5,
+   "NULL_cov_plus_label": 3,
+   "POS_concept": 56
+  },
+  "120000000": {
+   "NULL_cov": 3,
+   "NULL_cov_plus_label": 4,
+   "POS_concept": 54
+  }
+ },
+ "drift_summary": {
+  "NULL_cov": {
+   "kind": "NULL",
+   "per_block_allow": [
+    5,
+    1,
+    5,
+    3
+   ],
+   "per_block_cp95u": [
+    0.0347,
+    0.0157,
+    0.0347,
+    0.0256
+   ],
+   "min": 1,
+   "max": 5,
+   "mean": 3.5,
+   "max_cp95u": 0.0347
+  },
+  "NULL_cov_plus_label": {
+   "kind": "NULL",
+   "per_block_allow": [
+    4,
+    6,
+    3,
+    4
+   ],
+   "per_block_cp95u": [
+    0.0303,
+    0.0391,
+    0.0256,
+    0.0303
+   ],
+   "min": 3,
+   "max": 6,
+   "mean": 4.25,
+   "max_cp95u": 0.0391
+  },
+  "POS_concept": {
+   "kind": "POS",
+   "per_block_allow": [
+    52,
+    61,
+    56,
+    54
+   ],
+   "per_block_cp95u": [
+    0.2133,
+    0.2453,
+    0.2276,
+    0.2205
+   ],
+   "min": 52,
+   "max": 61,
+   "mean": 55.75,
+   "max_cp95u": 0.2453
+  }
+ },
+ "all_primary_nulls_within_cap": true,
+ "red_team": {
+  "verdict": "drift_validity MINOR_ISSUE -- reproducible but NARROWER than 'generalizes across held-out blocks'",
+  "what_it_shows": "Monte-Carlo SUBSAMPLING stability on ONE Lee2019 cache at ONE soft covariate: all 4 blocks resample 30-of-54 subjects from the SAME 54-subject pool at session_auc~0.52 / overlap~0.989. NULL_cov=[5,1,5,3] all <=7 reproduces exactly; POS stable 17-20%.",
+  "what_it_does_NOT_show": "NOT independent datasets, NOT distributional/covariate drift, NOT cross-site generalization. Part A varies only the RNG seed; the #1 caveat (covariate strength) is untouched here and REFUTED in the adverse direction by the strong-cov study (7.3%/26% breach). n=4 correlated points cannot bound the drift tail.",
+  "calibration_optimism": "tau calibrated on the same 54-subject pool (80e6 calib NULL_cov->3; 90e6 held-out->5): mild calibration optimism; off-distribution transfer untested."
+ }
+}

@@ -1,0 +1,32 @@
+{
+ "shard": "B5:40000000:POS_concept:0",
+ "base": 40000000,
+ "condition": "POS_concept",
+ "start": 0,
+ "n": 80,
+ "jobs": 64,
+ "feature_family": "B5_1_ssl_eegnet",
+ "host": "nodecpu01",
+ "slurm_job": "883852",
+ "n_records": 80,
+ "n_worker_errors": 0,
+ "b5_cache_path": "/home/infres/yinwang/realeeg_feas/b5_features/b5_1_ssl_encoder/LEE2019_B5_1.npz",
+ "b5_cache_sha256": "04d07143795a317b02ff7ff999b915f54de5daa296c7b1d4ed3c13e6ce3442ce",
+ "b5_manifest_sha256": "0d3ce1887f1b118a0a966e4b71b0c375f7e57ba6821fb8f5f7efcddd0f18f88c",
+ "engine_sha256": "d5aaaf788970e18337169230cdeb80e3dfffae307bee4cf5ab4816ca84ae03cc",
+ "internal_forensic_sha256": "805714fbff0077a6655cdb6f80e9c9325853aaa870ba10005141cf156f5bf841",
+ "b3_manifest_sha256": "5b0faeb8bc3bc96d7573759db4026f498e5c849d00a479dafe48dd9c5cc61650",
+ "ml": {
+  "min_confirm_pairs": 20,
+  "pair_integrity_min": 0.95,
+  "min_epochs": 8,
+  "rank": 3,
+  "C": 0.5,
+  "n_folds": 3,
+  "n_boot": 200,
+  "alpha_family": 0.05,
+  "n_decision_budgets": 2
+ },
+ "development_only": true,
+ "not_deployable": true
+}
