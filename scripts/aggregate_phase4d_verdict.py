@@ -131,11 +131,33 @@ def main():
         level = "none"
     cf_pass = bool(level in ("partial", "strong"))
 
-    # alpha=2 secondary D1-vs-D3a margin (reported, never headline)
-    d1_minus_rand_a2 = None
+    # alpha=2 secondary D1-vs-D3a margin + CI (reported, never headline)
+    d1_minus_rand_a2, d1_minus_rand_a2_ci = None, None
     if a2 is not None:
         P2 = per_alpha[str(a2)]
         d1_minus_rand_a2 = round(P2["D1"]["repaired"] - P2["D3a"]["repaired"], 4)
+        d1_minus_rand_a2_ci = list(boot_diff_ci(rows_at(a2), "D1_cf_adapter_bacc", "D3a_rand_adapter_bacc"))
+
+    # target-harm-CONDITIONED diagnostics (exploratory; NOT headline; folds selected by target harm >= floor)
+    diag = {}
+    for a in (a1, a2):
+        if a is None:
+            continue
+        sub = [r for r in rows_at(a) if (fl(r["induced_harm"]) or 0) >= HARM_FLOOR]
+        if len(sub) < 2:
+            diag[str(a)] = dict(n=len(sub), note="too few harm-established folds")
+            continue
+        d1r, _ = pooled_recovery(sub, "D1_cf_adapter_bacc")
+        d3r, _ = pooled_recovery(sub, "D3a_rand_adapter_bacc")
+        A = col(sub, "D1_cf_adapter_bacc"); B = col(sub, "D3a_rand_adapter_bacc")
+        margin = float(A.mean() - B.mean())
+        ci = list(boot_diff_ci(sub, "D1_cf_adapter_bacc", "D3a_rand_adapter_bacc"))
+        diag[str(a)] = dict(n=len(sub),
+                            d1_recovery_ratio_of_pooled_means=round(d1r, 4) if d1r is not None else None,
+                            d3a_recovery_ratio_of_pooled_means=round(d3r, 4) if d3r is not None else None,
+                            d1_minus_d3a_bacc=round(margin, 4), d1_minus_d3a_bacc_ci=ci,
+                            d1_minus_d3a_ci_excludes_zero=bool(ci[0] > 0 or ci[1] < 0),
+                            d1_beats_d3a_folds=int((A > B).sum()), n_folds=len(sub))
 
     verdict = dict(
         counterfactual_repair_pass=cf_pass, repair_claim_level=level,
@@ -150,7 +172,14 @@ def main():
                                   else None),
         d1_repaired_bacc_alpha1=d1_bacc, d3a_repaired_bacc_alpha1=d3a_bacc, injected_bacc_alpha1=inj_bacc,
         d1_minus_random_bacc_alpha1=d1_minus_d3a_bacc, d1_minus_random_bacc_alpha1_ci=d1_minus_d3a_ci,
-        d1_minus_random_bacc_alpha2=d1_minus_rand_a2,
+        d1_minus_random_bacc_alpha2=d1_minus_rand_a2, d1_minus_random_bacc_alpha2_ci=d1_minus_rand_a2_ci,
+        d1_beats_d3a_folds_alpha1=int((col(rows_at(a1), "D1_cf_adapter_bacc") >
+                                       col(rows_at(a1), "D3a_rand_adapter_bacc")).sum()),
+        d1_beats_d3a_folds_alpha2=(int((col(rows_at(a2), "D1_cf_adapter_bacc") >
+                                        col(rows_at(a2), "D3a_rand_adapter_bacc")).sum()) if a2 else None),
+        diagnostics_target_harm_conditioned=diag,
+        diagnostics_note=("harm-conditioned subsets select folds by target harm >= HARM_FLOOR -- exploratory, "
+                          "target-derived selection, NOT a pre-registered headline (STOP rule 4)."),
         random_control_beaten_point=beats_random_point, random_control_beaten_strong=beats_random_strong,
         delta_bacc_margin=DELTA_BACC,
         target_improved_over_injected=improves,
