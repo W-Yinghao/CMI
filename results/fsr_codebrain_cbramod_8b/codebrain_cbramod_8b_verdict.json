@@ -100,5 +100,24 @@
   "f0_pooled_l4_l5_l6_status": "superseded_by_F1 (weak-task confound resolved: F1 recovers MI 0.53->0.60)",
   "f1_spatial_task_gate_codebrain": true,
   "f1_spatial_task_gate_cbramod": true,
-  "headline_final": "On a spatially-preserving feature that RECOVERS the MI task (0.60/0.60, gate PASS both), both frozen FM encoders STRONGLY encode subject identity (L1 0.628/0.562 vs 0.04 chance, class-conditional) but do NOT functionally rely on it: subject-subspace erase does not beat a variance-matched erase (L5), and does not change the target (L6~0). Architecture-general. Subject encoding != harmful reliance, on a decodable task."
+  "headline_final": "On a spatially-preserving feature that RECOVERS the MI task (0.60/0.60, gate PASS both), both frozen FM encoders STRONGLY encode subject identity (L1 0.628/0.562 vs 0.04 chance, class-conditional) but do NOT functionally rely on it: subject-subspace erase does not beat a variance-matched erase (L5), and does not change the target (L6~0). Architecture-general. Subject encoding != harmful reliance, on a decodable task.",
+  "determinism": {
+    "cbramod_deterministic": true,
+    "codebrain_repeat_exact": true,
+    "codebrain_batch_numerical_path_max_abs": {
+      "F0": 0.0018,
+      "F1": 0.0042
+    },
+    "f0_audit_claim_invariant": true,
+    "f0_L1_delta": 0.0007,
+    "f1_audit_comparison": "running_expected_pass (embedding rel diff 2e-4)"
+  },
+  "codebrain_batch_invariance_pass": "F0_confirmed_true;F1_pending",
+  "proceed_to_8c_recommended": true,
+  "r8c_conditions_met": {
+    "f1_task_gate_pass_ge1_encoder": true,
+    "both_encoders_gate_pass": true,
+    "codebrain_claim_invariant_or_cbramod_deterministic": true,
+    "firewall_clean": true
+  }
 }
