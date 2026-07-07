@@ -1,0 +1,205 @@
+{
+  "counterfactual_repair_pass": false,
+  "repair_claim_level": "none",
+  "primary_branch": "spatial_z",
+  "primary_alpha": 1.0,
+  "alpha_is_preregistered_constant": true,
+  "alpha_selection_used_target": false,
+  "harm_established_alpha1": false,
+  "injection_harm_denominator_alpha1": 0.0179,
+  "injection_harm_denominator_alpha1_ci": [
+    -0.0248,
+    0.0599
+  ],
+  "recovery_fraction_alpha1": 0.3593,
+  "recovery_fraction_alpha1_ci": [
+    -2.4863,
+    3.5953
+  ],
+  "recovery_fraction_alpha2": 0.6889,
+  "d1_repaired_bacc_alpha1": 0.4841,
+  "d3a_repaired_bacc_alpha1": 0.4849,
+  "injected_bacc_alpha1": 0.4777,
+  "d1_minus_random_bacc_alpha1": -0.0008,
+  "d1_minus_random_bacc_alpha1_ci": [
+    -0.0252,
+    0.0236
+  ],
+  "d1_minus_random_bacc_alpha2": 0.0265,
+  "d1_minus_random_bacc_alpha2_ci": [
+    0.0005,
+    0.0566
+  ],
+  "d1_beats_d3a_folds_alpha1": 7,
+  "d1_beats_d3a_folds_alpha2": 12,
+  "diagnostics_target_harm_conditioned": {
+    "1.0": {
+      "n": 9,
+      "d1_recovery_ratio_of_pooled_means": 0.6333,
+      "d3a_recovery_ratio_of_pooled_means": 0.3126,
+      "d1_minus_d3a_bacc": 0.0302,
+      "d1_minus_d3a_bacc_ci": [
+        -0.0002,
+        0.0677
+      ],
+      "d1_minus_d3a_ci_excludes_zero": false,
+      "d1_beats_d3a_folds": 5,
+      "n_folds": 9
+    },
+    "2.0": {
+      "n": 13,
+      "d1_recovery_ratio_of_pooled_means": 0.6375,
+      "d3a_recovery_ratio_of_pooled_means": 0.244,
+      "d1_minus_d3a_bacc": 0.0405,
+      "d1_minus_d3a_bacc_ci": [
+        0.0035,
+        0.0846
+      ],
+      "d1_minus_d3a_ci_excludes_zero": true,
+      "d1_beats_d3a_folds": 8,
+      "n_folds": 13
+    }
+  },
+  "diagnostics_note": "harm-conditioned subsets select folds by target harm >= HARM_FLOOR -- exploratory, target-derived selection, NOT a pre-registered headline (STOP rule 4).",
+  "random_control_beaten_point": false,
+  "random_control_beaten_strong": false,
+  "delta_bacc_margin": 0.02,
+  "target_improved_over_injected": true,
+  "source_val_task_safe": true,
+  "source_val_clean_task_drop_mean_alpha1": 0.0063,
+  "source_val_clean_task_drop_max_alpha1": 0.0481,
+  "source_val_clean_task_drop_ci_alpha1": [
+    -0.0007,
+    0.0136
+  ],
+  "u_generalization_val_inj_bacc_alpha1": 0.6778,
+  "u_generalization_val_inj_bacc_ci_alpha1": [
+    0.6441,
+    0.71
+  ],
+  "task_orth_erasure_recovery_alpha1": 0.1994,
+  "randk_erasure_recovery_alpha1": 0.3423,
+  "task_orth_erasure_minus_random_alpha1": -0.0026,
+  "exact_subtraction_recovery_alpha1": 1.0,
+  "erasure_arms_excluded_from_headline": true,
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "target_labels_used_for_final_eval_only": true,
+  "per_alpha": {
+    "1.0": {
+      "D0": {
+        "orig": 0.4956,
+        "injected": 0.4777,
+        "repaired": 0.4956,
+        "pooled_recovery": 1.0,
+        "n": 21,
+        "ci": [
+          1.0,
+          1.0
+        ]
+      },
+      "D1": {
+        "orig": 0.4956,
+        "injected": 0.4777,
+        "repaired": 0.4841,
+        "pooled_recovery": 0.3593,
+        "n": 21,
+        "ci": [
+          -2.4863,
+          3.5953
+        ]
+      },
+      "D2": {
+        "orig": 0.4956,
+        "injected": 0.4777,
+        "repaired": 0.4812,
+        "pooled_recovery": 0.1994,
+        "n": 21,
+        "ci": [
+          -1.4683,
+          1.5231
+        ]
+      },
+      "D3a": {
+        "orig": 0.4956,
+        "injected": 0.4777,
+        "repaired": 0.4849,
+        "pooled_recovery": 0.4041,
+        "n": 21,
+        "ci": [
+          -2.033,
+          2.7552
+        ]
+      },
+      "D3b": {
+        "orig": 0.4956,
+        "injected": 0.4777,
+        "repaired": 0.4838,
+        "pooled_recovery": 0.3423,
+        "n": 21,
+        "ci": [
+          -2.0452,
+          2.4709
+        ]
+      }
+    },
+    "2.0": {
+      "D0": {
+        "orig": 0.4956,
+        "injected": 0.434,
+        "repaired": 0.4956,
+        "pooled_recovery": 1.0,
+        "n": 21,
+        "ci": [
+          1.0,
+          1.0
+        ]
+      },
+      "D1": {
+        "orig": 0.4956,
+        "injected": 0.434,
+        "repaired": 0.4764,
+        "pooled_recovery": 0.6889,
+        "n": 21,
+        "ci": [
+          0.2565,
+          1.1365
+        ]
+      },
+      "D2": {
+        "orig": 0.4956,
+        "injected": 0.434,
+        "repaired": 0.434,
+        "pooled_recovery": -0.0002,
+        "n": 21,
+        "ci": [
+          -0.0185,
+          0.0242
+        ]
+      },
+      "D3a": {
+        "orig": 0.4956,
+        "injected": 0.434,
+        "repaired": 0.4499,
+        "pooled_recovery": 0.2581,
+        "n": 21,
+        "ci": [
+          0.0267,
+          0.5914
+        ]
+      },
+      "D3b": {
+        "orig": 0.4956,
+        "injected": 0.434,
+        "repaired": 0.4346,
+        "pooled_recovery": 0.0101,
+        "n": 21,
+        "ci": [
+          -0.0518,
+          0.0647
+        ]
+      }
+    }
+  },
+  "claim_language": "Phase 4D repairs an INJECTED positive-control shortcut, not a natural one. repair_claim_level=none. D2 (task-orth) and D3b (random-k) are ERASURE contrast baselines ONLY -- regardless of their measured recovery, no output may frame erasure as improving target. A pass licenses 'a counterfactual/task-protected repair recovers a known harmful branch-local shortcut where erasure fails' -- NOT a DG method, NOT SOTA, NOT 'spatial leakage is naturally harmful'. Headline verdict is alpha=1.0 only."
+}
