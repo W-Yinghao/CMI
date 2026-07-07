@@ -1,0 +1,855 @@
+{
+  "n": 84,
+  "dev_seed": 0,
+  "confirm_seeds": [
+    20260707,
+    20260708,
+    20260709
+  ],
+  "rows": [
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 0,
+      "target_scorer_reads": 52,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260707,
+      "target_scorer_reads": 104,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260708,
+      "target_scorer_reads": 156,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260709,
+      "target_scorer_reads": 208,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "alpha_selection_used_target": false,
+      "target_labels_used_for_final_eval_only": true
+    }
+  ],
+  "note": "target labels read only via TargetScorer.score(); reads cumulative per fold across seeds/alphas.",
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "target_labels_used_for_final_eval_only": true
+}

@@ -1,0 +1,62 @@
+{
+  "fresh_token_seeds": [
+    20260707,
+    20260708,
+    20260709
+  ],
+  "dev_seed": 0,
+  "n_confirm_seedfolds": 63,
+  "alpha_selected_by_source_only": true,
+  "stress_unmet_frac": 0.0159,
+  "harm_established_confirm": true,
+  "injection_harm_denominator": 0.0426,
+  "injection_harm_denominator_ci": [
+    0.0259,
+    0.0617
+  ],
+  "anti_harm_folds": 19,
+  "mechanism_captured_fraction_median": 0.6811,
+  "e1_mechanistically_in_scope": true,
+  "primary_repair": "E4_full_mean_alignment",
+  "e4_netted_recovery": 0.6548,
+  "e4_netted_recovery_ci": [
+    0.2458,
+    0.9067
+  ],
+  "e4_raw_recovery": null,
+  "e1_netted_recovery": 0.5161,
+  "e1_netted_recovery_ci": [
+    0.0812,
+    0.794
+  ],
+  "e1_minus_e4_netted_gain": -0.0059,
+  "e1_minus_e4_netted_gain_ci": [
+    -0.0108,
+    -0.0011
+  ],
+  "e1_adds_value_over_e4": false,
+  "e4_minus_e3_netted_gain": 0.0235,
+  "e4_minus_e3_netted_gain_ci": [
+    0.0052,
+    0.041
+  ],
+  "e4_minus_erase_netted_gain": -0.0094,
+  "e4_minus_erase_netted_gain_ci": [
+    -0.0246,
+    0.0031
+  ],
+  "e3_random_netted_recovery": 0.1018,
+  "erase_netted_recovery": 0.8746,
+  "e2_netted_recovery": 0.9053,
+  "exact_subtraction_recovery": 1.0,
+  "clean_target_tta_gain": 0.0209,
+  "source_heldout_transfers": true,
+  "source_val_task_safe": true,
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "target_labels_used_for_final_eval_only": true,
+  "repair_claim_level": "none",
+  "counterfactual_repair_pass": false,
+  "pc2_gpu_gate": "paused",
+  "claim_language": "Phase 4E repairs an INJECTED constant-offset shortcut. Primary=E4 deployable full first-moment mean alignment, NETTED against clean-target TTA. E0 oracle + E3/ERASE controls excluded from headline. E1 subspace claim only if e1_adds_value_over_e4. NOT a DG method / SOTA / natural-harm claim; E0/E3/E4 not byte-comparable to PC1."
+}
