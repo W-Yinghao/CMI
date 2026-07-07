@@ -1,0 +1,413 @@
+{
+  "boundary_classes": [
+    1,
+    3
+  ],
+  "config_hash": "664007686afb520f",
+  "decomposition": {
+    "cross_regime:S4_missing_cells": {
+      "mode": "cross_regime",
+      "n": 1268,
+      "per_target_auc": {
+        "1": 0.6763392857142857,
+        "2": 0.7141812865497076,
+        "3": 0.6888392857142858,
+        "4": 0.7042671614100185,
+        "5": 0.5748311411304657,
+        "6": 0.549161230195713,
+        "7": 0.6456140350877193,
+        "8": 0.5726537613330066,
+        "9": 0.646485260770975
+      },
+      "pooled_auc": 0.49987774451097805,
+      "pooled_minus_within": -0.14149697192304161,
+      "regime": "S4_missing_cells",
+      "within_target_max": 0.7141812865497076,
+      "within_target_mean_auc": 0.6413747164340197,
+      "within_target_min": 0.549161230195713
+    },
+    "cross_regime:S5_block_class_by_domain": {
+      "mode": "cross_regime",
+      "n": 1268,
+      "per_target_auc": {
+        "1": 0.6375,
+        "2": 0.6850877192982456,
+        "3": 0.7073660714285714,
+        "4": 0.7510204081632653,
+        "5": 0.5684322787060079,
+        "6": 0.5573159366262814,
+        "7": 0.5973684210526315,
+        "8": 0.5797598627787307,
+        "9": 0.6238095238095238
+      },
+      "pooled_auc": 0.5114446107784432,
+      "pooled_minus_within": -0.12273985831747436,
+      "regime": "S5_block_class_by_domain",
+      "within_target_max": 0.7510204081632653,
+      "within_target_mean_auc": 0.6341844690959175,
+      "within_target_min": 0.5573159366262814
+    },
+    "cross_regime:S6_boundary_aligned_mask": {
+      "mode": "cross_regime",
+      "n": 1268,
+      "per_target_auc": {
+        "1": 0.5707589285714286,
+        "2": 0.7048245614035088,
+        "3": 0.7207589285714285,
+        "4": 0.7532467532467533,
+        "5": 0.5897618201208674,
+        "6": 0.5992544268406338,
+        "7": 0.6087719298245614,
+        "8": 0.5998529772114678,
+        "9": 0.7183673469387755
+      },
+      "pooled_auc": 0.5318413173652694,
+      "pooled_minus_within": -0.11989175738244451,
+      "regime": "S6_boundary_aligned_mask",
+      "within_target_max": 0.7532467532467533,
+      "within_target_mean_auc": 0.6517330747477139,
+      "within_target_min": 0.5707589285714286
+    },
+    "cross_regime:S7_random_matched_mask": {
+      "mode": "cross_regime",
+      "n": 1268,
+      "per_target_auc": {
+        "1": 0.6488839285714286,
+        "2": 0.6883040935672514,
+        "3": 0.6229910714285715,
+        "4": 0.5552875695732838,
+        "5": 0.6910771418414504,
+        "6": 0.5657036346691519,
+        "7": 0.606140350877193,
+        "8": 0.5653026219063955,
+        "9": 0.7428571428571429
+      },
+      "pooled_auc": 0.5359505988023953,
+      "pooled_minus_within": -0.09588801845225692,
+      "regime": "S7_random_matched_mask",
+      "within_target_max": 0.7428571428571429,
+      "within_target_mean_auc": 0.6318386172546522,
+      "within_target_min": 0.5552875695732838
+    },
+    "in_regime:S0_full_support": {
+      "mode": "in_regime",
+      "n": 1268,
+      "per_target_auc": {
+        "1": 0.7033482142857143,
+        "2": 0.7264619883040936,
+        "3": 0.6676339285714286,
+        "4": 0.7009276437847867,
+        "5": 0.6150017774617845,
+        "6": 0.6386300093196645,
+        "7": 0.6168859649122806,
+        "8": 0.5704484195050232,
+        "9": 0.7317460317460317
+      },
+      "pooled_auc": 0.5607135728542915,
+      "pooled_minus_within": -0.1027402024669094,
+      "regime": "S0_full_support",
+      "within_target_max": 0.7317460317460317,
+      "within_target_mean_auc": 0.6634537753212009,
+      "within_target_min": 0.5704484195050232
+    },
+    "in_regime:S2_rare_cells": {
+      "mode": "in_regime",
+      "n": 1268,
+      "per_target_auc": {
+        "1": 0.7604910714285714,
+        "2": 0.6947368421052632,
+        "3": 0.7162946428571428,
+        "4": 0.6883116883116883,
+        "5": 0.6238890863846427,
+        "6": 0.6029822926374651,
+        "7": 0.574780701754386,
+        "8": 0.6451850036755697,
+        "9": 0.7360544217687075
+      },
+      "pooled_auc": 0.5366566866267465,
+      "pooled_minus_within": -0.13475728569807988,
+      "regime": "S2_rare_cells",
+      "within_target_max": 0.7604910714285714,
+      "within_target_mean_auc": 0.6714139723248264,
+      "within_target_min": 0.574780701754386
+    },
+    "in_regime:S3_nonestimable_cells": {
+      "mode": "in_regime",
+      "n": 1268,
+      "per_target_auc": {
+        "1": 0.7529017857142857,
+        "2": 0.6992690058479533,
+        "3": 0.6787946428571429,
+        "4": 0.6933209647495362,
+        "5": 0.6317099182367579,
+        "6": 0.625116495806151,
+        "7": 0.5289473684210526,
+        "8": 0.5866209262435678,
+        "9": 0.6764172335600908
+      },
+      "pooled_auc": 0.5331162674650699,
+      "pooled_minus_within": -0.11945021491676766,
+      "regime": "S3_nonestimable_cells",
+      "within_target_max": 0.7529017857142857,
+      "within_target_mean_auc": 0.6525664823818376,
+      "within_target_min": 0.5289473684210526
+    }
+  },
+  "decomposition_summary": {
+    "mean_pooled_auc": 0.5299429712004563,
+    "mean_pooled_minus_within": -0.11956632987956776,
+    "mean_within_target_auc": 0.649509301080024,
+    "within_exceeds_pooled_everywhere": true
+  },
+  "diagnostic_only_non_deployable": true,
+  "epoch_confound": {
+    "baseline_within_target_strength": {
+      "R_src": 0.6690819429027496,
+      "epoch": 0.5545847694569417,
+      "order": 0.5545127963791404,
+      "train_surrogate": 0.6002453552973308
+    },
+    "best_training_log_baseline_strength": 0.6690819429027496,
+    "best_trajectory_baseline_strength": 0.5545847694569417,
+    "epoch_confounded": false,
+    "n_targets_partial": 9,
+    "note": "T2 (trajectory confound) fires ONLY if the probe fails to beat the epoch/order baselines OR the residual controlling epoch vanishes. Training-log baselines (R_src/train_surrogate) are a SEPARATE source-observable overlap: source_risk_overlap means a single source-risk scalar matches the probe (a low-dimensional / risk-family finding, echoing C17), NOT a trajectory proxy. Reported BEFORE any normalization-rescue interpretation.",
+    "partial_spearman_score_label_given_R_src": 0.16252838954579057,
+    "partial_spearman_score_label_given_epoch": 0.22519165309004988,
+    "probe_adds_over_source_risk": true,
+    "probe_beats_trajectory": true,
+    "probe_within_target_auc": 0.658600107451297,
+    "probe_within_target_strength": 0.658600107451297,
+    "residual_signal_present": true,
+    "source_risk_overlap": true,
+    "training_log_baseline_strength": {
+      "R_src": 0.6690819429027496,
+      "train_surrogate": 0.6002453552973308
+    },
+    "trajectory_baseline_strength": {
+      "epoch": 0.5545847694569417,
+      "order": 0.5545127963791404
+    }
+  },
+  "feature_shift": {
+    "n_features": 16,
+    "n_offset_dominated": 12,
+    "n_usable_ranking": 16,
+    "note": "interpretive decomposition of the FROZEN robust-core set; NOT feature selection.",
+    "offset_dominated_fraction": 0.75,
+    "per_feature": {
+      "audit_leakage_point": {
+        "offset_dominated": false,
+        "regime_between_fraction": 0.9336749733287361,
+        "target_between_fraction": 0.03196073557593537,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.11260754470310344
+      },
+      "selection_leakage_point": {
+        "offset_dominated": false,
+        "regime_between_fraction": 0.0005885248086409478,
+        "target_between_fraction": 0.2940965670690385,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.17451058968021618
+      },
+      "source_audit_conf_on_wrong": {
+        "offset_dominated": true,
+        "regime_between_fraction": 0.0006387948664773513,
+        "target_between_fraction": 0.6475942187212546,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.2155378596460261
+      },
+      "source_audit_confidence": {
+        "offset_dominated": true,
+        "regime_between_fraction": 5.953073575375523e-05,
+        "target_between_fraction": 0.557045187063104,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.20861811092742216
+      },
+      "source_audit_ece": {
+        "offset_dominated": true,
+        "regime_between_fraction": 0.01976357088855215,
+        "target_between_fraction": 0.7949550609796903,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.1483947024310252
+      },
+      "source_audit_entropy": {
+        "offset_dominated": true,
+        "regime_between_fraction": 1.2431178339499676e-06,
+        "target_between_fraction": 0.6091084408041548,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.2097639195157267
+      },
+      "source_audit_logit_norm": {
+        "offset_dominated": true,
+        "regime_between_fraction": 0.00029834456095340534,
+        "target_between_fraction": 0.6950742817181549,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.18214455612285854
+      },
+      "source_audit_margin": {
+        "offset_dominated": false,
+        "regime_between_fraction": 0.00018372911685559043,
+        "target_between_fraction": 0.49848331224914855,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.19926904233935028
+      },
+      "source_audit_nll": {
+        "offset_dominated": true,
+        "regime_between_fraction": 0.013298692174915106,
+        "target_between_fraction": 0.8496964735748623,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.1614565478404794
+      },
+      "source_guard_conf_on_wrong": {
+        "offset_dominated": true,
+        "regime_between_fraction": 5.530013531381353e-05,
+        "target_between_fraction": 0.5917170159187698,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.2731284308214915
+      },
+      "source_guard_confidence": {
+        "offset_dominated": true,
+        "regime_between_fraction": 0.0005218201568925345,
+        "target_between_fraction": 0.6605523663731844,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.24482706810898425
+      },
+      "source_guard_ece": {
+        "offset_dominated": false,
+        "regime_between_fraction": 0.00984265875733515,
+        "target_between_fraction": 0.04831058300098602,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.1707802261705601
+      },
+      "source_guard_entropy": {
+        "offset_dominated": true,
+        "regime_between_fraction": 0.0003645406217102647,
+        "target_between_fraction": 0.6692101213602418,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.23729290137520298
+      },
+      "source_guard_logit_norm": {
+        "offset_dominated": true,
+        "regime_between_fraction": 5.7537591770879696e-05,
+        "target_between_fraction": 0.665052421755878,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.2249954731337857
+      },
+      "source_guard_margin": {
+        "offset_dominated": true,
+        "regime_between_fraction": 0.0005263542175676771,
+        "target_between_fraction": 0.6430303215699742,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.24783984185732416
+      },
+      "source_guard_nll": {
+        "offset_dominated": true,
+        "regime_between_fraction": 0.004282366719235043,
+        "target_between_fraction": 0.5412369649979051,
+        "usable_ranking": true,
+        "within_target_label_spearman": 0.23300964982691955
+      }
+    }
+  },
+  "n_score_rows": 8876,
+  "normalization": {
+    "is_diagnostic": true,
+    "note": "post-hoc MECHANISM diagnostics only; target/regime-wise normalization needs the target/regime identity at score time and is NON-deployable. Recovery => the failure is score offset/calibration (rank-like signal); no recovery => regime-specific relationship shift.",
+    "per_mode": {
+      "cross_regime": {
+        "best_target_normalized_pooled": 0.6275958239770459,
+        "pooled_auc_by_normalization": {
+          "none": 0.5184367203093813,
+          "quantile": 0.6275958239770459,
+          "regime_center": 0.5185363647704591,
+          "target_center": 0.6125711077844311,
+          "target_rank": 0.6275958239770459,
+          "target_regime_center": 0.6157417976546906,
+          "target_zscore": 0.6198089757984032
+        },
+        "pooled_none": 0.5184367203093813,
+        "target_normalization_recovers": true
+      },
+      "in_regime": {
+        "best_target_normalized_pooled": 0.648321551341761,
+        "pooled_auc_by_normalization": {
+          "none": 0.5431489798181415,
+          "quantile": 0.648321551341761,
+          "regime_center": 0.5433882235528942,
+          "target_center": 0.6337666333998669,
+          "target_rank": 0.648321551341761,
+          "target_regime_center": 0.6369857507207807,
+          "target_zscore": 0.6431548015080949
+        },
+        "pooled_none": 0.5431489798181415,
+        "target_normalization_recovers": true
+      }
+    }
+  },
+  "offset_scale": {
+    "cross_regime": {
+      "regime_between_fraction": 0.0026364640240587613,
+      "regime_offsets": {
+        "S4_missing_cells": 0.43624342101489416,
+        "S5_block_class_by_domain": 0.42182933248463644,
+        "S6_boundary_aligned_mask": 0.42229108615600747,
+        "S7_random_matched_mask": 0.44626899299116074
+      },
+      "target_between": 0.02061606976673243,
+      "target_between_fraction": 0.5190751664208629,
+      "target_offset_vs_baserate_corr": -0.605968385644532,
+      "target_scales": {
+        "1": 0.08757715572055438,
+        "2": 0.13978199406891328,
+        "3": 0.23583496570537146,
+        "4": 0.12748662849766246,
+        "5": 0.11344428160614832,
+        "6": 0.12509975137148996,
+        "7": 0.12571553472945626,
+        "8": 0.10989287361931394,
+        "9": 0.10733271365679518
+      },
+      "target_within": 0.019100855835555097
+    },
+    "in_regime": {
+      "regime_between_fraction": 0.0015356714618775466,
+      "regime_offsets": {
+        "S0_full_support": 0.46892498076347466,
+        "S2_rare_cells": 0.4562103687726835,
+        "S3_nonestimable_cells": 0.4486944239666858
+      },
+      "target_between": 0.02465255406756281,
+      "target_between_fraction": 0.5430503329199244,
+      "target_offset_vs_baserate_corr": -0.43253904889665246,
+      "target_scales": {
+        "1": 0.12391070600185146,
+        "2": 0.18505092714747418,
+        "3": 0.21679752108022832,
+        "4": 0.11471084575471051,
+        "5": 0.11608300479804119,
+        "6": 0.12553013217286113,
+        "7": 0.13379783212112442,
+        "8": 0.11283411043165165,
+        "9": 0.10512922967769696
+      },
+      "target_within": 0.020743890006062228
+    }
+  },
+  "score_table_sidecar": "/projects/EEG-foundation-model/yinghao/oaci-c22-scores.json",
+  "taxonomy": {
+    "diagnostic_only_non_deployable": true,
+    "epoch_confounded": false,
+    "feature_offset_dominated": true,
+    "interpretation": "within-target ranking signal survives; the pooled estimand fails because score offsets/scales differ by target/regime (rank-like signal, score NOT calibrated). Post-hoc target normalization recovers pooled AUC (diagnostic only).  Source-observable overlap (disclosed, NOT a trajectory downgrade): a single source-risk scalar (R_src) matches the 16-feature probe within-target -> the weak signal is low-dimensional / risk-family (echoes C17), not a novel multivariate competence dimension.",
+    "next_science": "future work (diagnostic-only): a target-free score-calibration ESTIMAND. NOT a selector; needs the offset removed WITHOUT target identity, which is unsolved.",
+    "primary_case": "T1_rank_signal_score_not_calibrated",
+    "probe_adds_over_source_risk": true,
+    "secondary": [
+      "T4_feature_offset_dominated"
+    ],
+    "source_risk_overlap": true,
+    "target_normalization_recovers_pooled": true,
+    "within_target_present": true
+  }
+}

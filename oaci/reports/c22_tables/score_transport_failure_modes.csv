@@ -1,0 +1,7 @@
+factor,value
+epoch_confounded_trajectory,False
+within_target_present,True
+target_normalization_recovers_pooled,True
+feature_offset_dominated,True
+source_risk_overlap,True
+probe_adds_over_source_risk,True

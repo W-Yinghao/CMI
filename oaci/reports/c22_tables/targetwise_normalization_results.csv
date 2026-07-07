@@ -1,0 +1,15 @@
+mode,normalization,pooled_auc
+in_regime,none,0.5431489798181415
+in_regime,target_center,0.6337666333998669
+in_regime,target_zscore,0.6431548015080949
+in_regime,target_rank,0.648321551341761
+in_regime,regime_center,0.5433882235528942
+in_regime,target_regime_center,0.6369857507207807
+in_regime,quantile,0.648321551341761
+cross_regime,none,0.5184367203093813
+cross_regime,target_center,0.6125711077844311
+cross_regime,target_zscore,0.6198089757984032
+cross_regime,target_rank,0.6275958239770459
+cross_regime,regime_center,0.5185363647704591
+cross_regime,target_regime_center,0.6157417976546906
+cross_regime,quantile,0.6275958239770459

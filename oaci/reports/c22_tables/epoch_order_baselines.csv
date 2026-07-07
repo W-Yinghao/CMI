@@ -1,0 +1,6 @@
+baseline,within_target_strength
+epoch,0.5545847694569417
+order,0.5545127963791404
+R_src,0.6690819429027496
+train_surrogate,0.6002453552973308
+robust_core_probe,0.658600107451297

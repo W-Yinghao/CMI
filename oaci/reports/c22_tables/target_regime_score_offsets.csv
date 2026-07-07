@@ -1,0 +1,8 @@
+mode,group_type,group,score_offset
+cross_regime,regime,S4_missing_cells,0.43624342101489416
+cross_regime,regime,S5_block_class_by_domain,0.42182933248463644
+cross_regime,regime,S6_boundary_aligned_mask,0.42229108615600747
+cross_regime,regime,S7_random_matched_mask,0.44626899299116074
+in_regime,regime,S0_full_support,0.46892498076347466
+in_regime,regime,S2_rare_cells,0.4562103687726835
+in_regime,regime,S3_nonestimable_cells,0.4486944239666858
