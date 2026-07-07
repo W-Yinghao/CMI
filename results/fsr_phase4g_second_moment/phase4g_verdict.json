@@ -1,0 +1,179 @@
+{
+  "primary_branch": "spatial_z",
+  "injection_type": "second_moment_controlled",
+  "primary_injection": "varmod",
+  "fresh_confirm_seeds": [
+    20260721,
+    20260722,
+    20260723,
+    20260724,
+    20260725,
+    20260726,
+    20260727,
+    20260728
+  ],
+  "primary_repair": "E4b_second_moment_alignment",
+  "n": 168,
+  "n_folds": 21,
+  "harm": 0.0308,
+  "harm_ci": [
+    0.007,
+    0.0582
+  ],
+  "harm_established": true,
+  "mean_disp": 0.0,
+  "mean_null_pass": true,
+  "e4_first_moment_sufficient": false,
+  "e4_netted_recovery": -0.7819,
+  "e4b_task_safe": true,
+  "e4b_clean_drop": 0.0026,
+  "e4b_raw_recovery": 0.0952,
+  "e4b_netted_recovery": 0.1806,
+  "e4b_netted_recovery_ci_clustered": [
+    -0.4173,
+    0.451
+  ],
+  "e4b_netted_recovery_nonidentity": 0.1803,
+  "mechanical_identity_frac": 0.0119,
+  "e4b_minus_e3_netted_gain": 0.0053,
+  "e4b_minus_e3_ci_clustered": [
+    -0.0045,
+    0.0142
+  ],
+  "e4b_beats_e3": false,
+  "e4b_minus_e4_netted_gain": 0.0296,
+  "e4b_beats_veto_set": true,
+  "oracle_e4b_netted_recovery": 0.1358,
+  "oracle_e4b_minus_e3_netted_gain": 0.004,
+  "oracle_e4b_minus_e3_ci": [
+    -0.0051,
+    0.0116
+  ],
+  "oracle_beats_e3": false,
+  "injection_dominance_index": 1.1216,
+  "est_dir_vc_overlap": 0.707,
+  "arm_dir_overlap": 0.4597,
+  "fail_attribution": "genuinely_weak_second_moment_repair",
+  "erase_valid_repair": false,
+  "erase_raw": -0.6834,
+  "erase_clean_drop": 0.0291,
+  "leave_one_dataset_out": [
+    {
+      "dataset": "BNCI2014_001",
+      "n": 72,
+      "harm": 0.0162,
+      "harm_established": false,
+      "e4b_minus_e3": 0.0051,
+      "e4b_e3_ci": [
+        0.0006,
+        0.0101
+      ],
+      "specificity_pass": false,
+      "passes": false
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "n": 96,
+      "harm": 0.0417,
+      "harm_established": false,
+      "e4b_minus_e3": 0.0055,
+      "e4b_e3_ci": [
+        -0.0114,
+        0.0209
+      ],
+      "specificity_pass": false,
+      "passes": false
+    }
+  ],
+  "leave_one_dataset_out_pass": false,
+  "per_dataset_sign_consistent": true,
+  "repair_claim_level": "none",
+  "secondary_injection_verdicts": {
+    "covtoken": {
+      "injtype": "covtoken",
+      "n": 168,
+      "n_folds": 21,
+      "harm": 0.0282,
+      "harm_ci": [
+        0.0047,
+        0.0542
+      ],
+      "harm_established": true,
+      "mean_disp": 0.0,
+      "mean_null_pass": true,
+      "e4_first_moment_sufficient": false,
+      "e4_netted_recovery": -0.968,
+      "e4b_task_safe": true,
+      "e4b_clean_drop": 0.0026,
+      "e4b_raw_recovery": 0.079,
+      "e4b_netted_recovery": 0.1697,
+      "e4b_netted_recovery_ci_clustered": [
+        -0.2343,
+        0.4324
+      ],
+      "e4b_netted_recovery_nonidentity": 0.1784,
+      "mechanical_identity_frac": 0.0536,
+      "e4b_minus_e3_netted_gain": 0.0045,
+      "e4b_minus_e3_ci_clustered": [
+        -0.0032,
+        0.0132
+      ],
+      "e4b_beats_e3": false,
+      "e4b_minus_e4_netted_gain": 0.0321,
+      "e4b_beats_veto_set": true,
+      "oracle_e4b_netted_recovery": 0.1377,
+      "oracle_e4b_minus_e3_netted_gain": 0.0036,
+      "oracle_e4b_minus_e3_ci": [
+        -0.0032,
+        0.0106
+      ],
+      "oracle_beats_e3": false,
+      "injection_dominance_index": 0.5877,
+      "est_dir_vc_overlap": 0.5677,
+      "arm_dir_overlap": 0.3942,
+      "fail_attribution": "genuinely_weak_second_moment_repair",
+      "erase_valid_repair": false,
+      "erase_raw": -0.6971,
+      "erase_clean_drop": 0.0315,
+      "leave_one_dataset_out": [
+        {
+          "dataset": "BNCI2014_001",
+          "n": 72,
+          "harm": 0.0111,
+          "harm_established": false,
+          "e4b_minus_e3": 0.0017,
+          "e4b_e3_ci": [
+            -0.0025,
+            0.0061
+          ],
+          "specificity_pass": false,
+          "passes": false
+        },
+        {
+          "dataset": "BNCI2015_001",
+          "n": 96,
+          "harm": 0.0411,
+          "harm_established": false,
+          "e4b_minus_e3": 0.0065,
+          "e4b_e3_ci": [
+            -0.0063,
+            0.0207
+          ],
+          "specificity_pass": false,
+          "passes": false
+        }
+      ],
+      "leave_one_dataset_out_pass": false,
+      "per_dataset_sign_consistent": true,
+      "repair_claim_level": "none"
+    }
+  },
+  "repair_claim_scope": "controlled_second_moment_only",
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "comparator_veto_set_used_target": false,
+  "target_labels_used_for_final_eval_only": true,
+  "pc2_gpu_gate": "paused",
+  "pc2_gpu_run_authorized": false,
+  "claim_language": "Phase 4G: controlled MEAN-NULL second-moment injected shortcut on spatial_z. Primary repair=E4b covariance alignment (target-X-only); E4 first-moment is the mean-null sanity (should be insufficient). Structural veto {E4,E3} vs ERASE negative-control; clustered CIs; leave-one-DATASET-out BINDING. Scope=controlled_second_moment_only; NOT learned/natural/general/DG/SOTA. pc2_gpu_run_authorized=false (GPU paused). Does not re-score 4E/4F."
+}

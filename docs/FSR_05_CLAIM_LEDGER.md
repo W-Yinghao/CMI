@@ -19,7 +19,7 @@ Status vocabulary: `READY` (state as a finding) · `READY_WITH_CAVEAT` (state wi
 | C11 | READY | FSR detects, localizes, and attributes controlled injected harmful shortcuts. |
 | C12 | READY_WITH_CAVEAT | E4 repairs controlled first-moment constant-offset shortcuts. |
 | C13 | FORBIDDEN | E4 repairs general or natural shortcuts. |
-| C14 | NOT_READY (PENDING_PHASE4G) | E4b repairs controlled second-moment shortcuts. |
+| C14 | NOT_ESTABLISHED (Phase 4G none) | E4b repairs controlled second-moment shortcuts. |
 | C15 | NOT_READY (GPU_PAUSED) | PC2 learned-reliance repair works. |
 
 > C11–C15 are the **repair-line** claims (Phases 4C–4G + PC2), derived from `pc1_verdict.json`,
@@ -100,9 +100,10 @@ Status vocabulary: `READY` (state as a finding) · `READY_WITH_CAVEAT` (state wi
 - **Why:** E4's scope is a construction-matched first-moment positive control that fails leave-one-dataset-out; 4B/4D natural = `none`. No evidence licenses general/natural repair.
 - **Forbidden:** any statement that E4 (or FSR) repairs natural, learned, or general shortcuts / harmful subject leakage; any DG/SOTA framing.
 
-### C14 — E4b repairs controlled second-moment shortcuts. — **NOT_READY (PENDING_PHASE4G)**
-- **Status:** the Phase-4G controlled second-moment positive control (CPU) has not run. Do not claim; the entry exists so a 4G pass is scoped to `controlled_second_moment_only` and a 4G fail is reportable as "repair is first-moment-specific."
-- **Forbidden (until 4G):** any claim about second-moment / covariance / learned repair.
+### C14 — E4b repairs controlled second-moment shortcuts. — **NOT_ESTABLISHED (Phase 4G = none)**
+- **Evidence:** Phase 4G (`phase4g_verdict.json`, FSR_29/30). On a strictly mean-null second-moment injection, covariance-shrinkage (E4b) does **not** beat random-direction shrinkage at the source-selected operating point (`E4b − E3 = +0.005 bAcc`, clustered CI [−0.005, 0.014], < 0.02); **even oracle** shrinkage of the true `v_c` is sub-DELTA (`fail_attribution = genuinely_weak_second_moment_repair`). Repair is **first-moment-specific**.
+- **Allowed (negative, scoped):** "A controlled mean-null second-moment stochastic shortcut is not repaired by covariance-shrinkage at the source-selected operating point, even with oracle knowledge of the injected direction; a DELTA-clearing direction-specific advantage appears only in the injection-dominant (α=3) near-tautological regime. The deployable repair family (4F+4G) is confined to first-moment deterministic offsets."
+- **Forbidden:** "E4b repairs second-moment/covariance shortcuts"; "second-moment shortcuts are unconditionally unrepairable" (α=3 injection-dominant does cross the bar); any learned/natural repair claim.
 
 ### C15 — PC2 learned-reliance repair works. — **NOT_READY (GPU_PAUSED)**
 - **Status:** PC2 GPU is **paused** (`pc2_gpu_run_authorized = false`); the PC2-E4 readiness preflight (FSR_28/31) is design-only. Learned reliance ≠ clean first/second-moment offset; guarded/possibly-negative expectation.
