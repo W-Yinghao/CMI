@@ -35,11 +35,11 @@ harmful subject reliance** — established on frozen EEG foundation representati
 - **Open issue 2 (CodeBrain determinism, STOP-1) — DOCUMENTED + CLAIM-INVARIANT.** CodeBrain `F0/F1` differ across
   batch sizes by only a tiny SGConv FFT numerical path: **F0 max-abs 1.8e-3** (median-trial-L2 6.7e-4, relative
   3.7e-5), **F1 max-abs 4.2e-3** (relative 2.0e-4); repeat-determinism exact (0.0); CBraMod fully deterministic
-  (≤3e-7). The bs=64 vs bs=32 **claim-level invariance** is confirmed on the **F0 audit** (L1 bacc 0.5907 vs 0.5914,
-  **Δ=0.0007 ≪ 0.005**; L6 base 0.5302 vs 0.5304 unchanged) — every claim-level decision holds. The **F1-audit**
-  bs=32 comparison (`codebrain_batch_invariance.csv`) is the additional confirmation and, given the 2e-4 relative
-  embedding diff, is expected to match; it is appended when the run completes. CBraMod additionally provides a
-  fully-deterministic control, so no 8B conclusion rests on the CodeBrain numerical path.
+  (≤3e-7). The bs=64 vs bs=32 **claim-level invariance** is confirmed on **both** the F0 audit (L1 0.5907 vs 0.5914,
+  Δ=0.0007; L6 base 0.5302 vs 0.5304) and the **F1 audit** (`codebrain_batch_invariance.csv`, `invariance_pass=True`):
+  task Δ=0.0018, **L1 Δ=0.0025**, L4 Δ=0.0009, L5 Δ=0.0001, L6 Δ=0.0009 — all ≤ tolerance, and the **task-gate +
+  L5-beats-variance-sign decisions are unchanged**. CBraMod additionally provides a fully-deterministic control, so
+  no 8B conclusion rests on the CodeBrain numerical path. **STOP-1 disposition: documented + claim-invariant (PASS).**
 
 ## Firewall / discipline (clean)
 `target_label_firewall.json`: L6 is the only target-label read (final scoring). PCA (95%/cap-128) fit on
