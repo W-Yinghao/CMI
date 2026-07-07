@@ -1,0 +1,21 @@
+{
+  "scope": "B9.2 predeclared quality / analyzability criteria. Fixed BEFORE acquisition; applied BLIND to scientific endpoints (never chosen after seeing p-values/effect sizes). Development-only, NO tag.",
+  "artifact_rejection": {
+    "pipeline": "predeclared automated rejection (e.g. amplitude/variance/flatline thresholds + standard EOG/EMG handling), fixed in this file before recording",
+    "applied": "per trial, before any contract/statistical analysis; the specific thresholds are frozen here, not tuned on outcomes"
+  },
+  "analyzable_subject_definition": {
+    "min_valid_trials_per_cell": 2,
+    "cell": "subject x microblock x C x Y_design",
+    "rule": "a subject is ANALYZABLE iff, after artifact rejection, it retains both conditions with >= min_epochs_per_condition (=8, the B9.0/B3 default) AND its retained trials preserve within-(subject,microblock,Y_design) C-balance within bal_tol=0 (whole-microblock loss allowed; partial-cell imbalance is NOT rebalanced)",
+    "attrition_semantics": "dropped trials/subjects are a SUBSET of the pinned table (joined on trial_id). Balance-preserving loss -> REDUCED SUPPORT (INSUFFICIENT_LABELS_OR_SUPPORT if below threshold). Loss that induces C x Y_design imbalance or a prior shift P(Y_design|C) > prior_tol=0.05 -> CONTRACT_INVALID_OR_OUT_OF_ESTIMAND. Rejection is NEVER used to post-hoc rebalance."
+  },
+  "support_threshold": {
+    "min_support_strata": 8,
+    "min_analyzable_subjects_for_alert_analysis": 20,
+    "note": "n_eligible >= min_confirm_pairs = 20 is REQUIRED for any alert-level analysis; UNCHANGED. Target 24 reserves for attrition."
+  },
+  "sampler_feasibility": "the exact randomization null must be runnable (eligible complete pairs >= n_folds*2, fold prep non-degenerate); checked at the checkpoint WITHOUT computing any p-value",
+  "blinding": "quality/analyzability decisions use ONLY logistics + support (adherence, attrition, artifact rate, per-cell counts, sampler feasibility, contract-invalid reasons) -- NEVER B9_ALERT / p-values / observed_T / T_z / injected-positive results",
+  "not_authorized": ["relaxing min_confirm_pairs", "changing thresholds after seeing outcomes", "post-hoc rebalancing on observed Y"]
+}

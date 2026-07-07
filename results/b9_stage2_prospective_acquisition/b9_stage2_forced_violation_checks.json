@@ -1,0 +1,56 @@
+{
+ "V_missing_table": {
+  "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+  "reasons": [
+   "missing_or_invalid_assignment_table"
+  ],
+  "refused": true
+ },
+ "V_flipped_C": {
+  "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+  "reasons": [
+   "executed_deviates_from_registered_table"
+  ],
+  "refused": true
+ },
+ "V_shuffled_Ydesign": {
+  "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+  "reasons": [
+   "executed_deviates_from_registered_table"
+  ],
+  "refused": true
+ },
+ "V_tuple_mismatch": {
+  "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+  "reasons": [
+   "cxy_design_imbalance",
+   "executed_deviates_from_registered_table"
+  ],
+  "refused": true
+ },
+ "V_microblock_imbalance": {
+  "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+  "reasons": [
+   "attrition_or_noncompliance_prior_shift",
+   "cxy_design_imbalance"
+  ],
+  "refused": true
+ },
+ "V_condition_lock": {
+  "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+  "reasons": [
+   "condition_not_randomized_or_locked",
+   "executed_deviates_from_registered_table"
+  ],
+  "refused": true
+ },
+ "V_attrition_prior_shift": {
+  "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+  "reasons": [
+   "attrition_or_noncompliance_prior_shift",
+   "cxy_design_imbalance"
+  ],
+  "refused": true
+ },
+ "all_refused_before_pvalue": true
+}

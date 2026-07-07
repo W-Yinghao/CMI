@@ -1,0 +1,31 @@
+{
+  "scope": "B9.2 prospective-acquisition PACKAGE (pre-acquisition) design red-team (wriifipum, 2 lenses). Development-only, NO scientific/biological claim, NOT validation, NO tag.",
+  "verdict": "Lens A (honesty/scope) PASS; Lens B (integrity/correctness) MINOR_ISSUE -- all axes verified + byte-reproducible, 2 LOW findings folded in. No blockers.",
+  "lens_honesty_scope": {
+    "verdict": "PASS",
+    "confirmed": [
+      "NO real data / NO biological claim: every A-synth/C/checkpoint row diagnostic_only + labeled synthetic-NOT-biological; injected concept is an explicit synthetic boundary; table is a pre-registration artifact",
+      "A (real null audit) = PENDING_ACQUISITION, kept SEPARATE from the synthetic A-synth machinery test (not substituted)",
+      "governance honest: status not_started, 'MUST NOT begin until approved', no data collected, disclaims legal/IRB advice, no PII",
+      "GATE UNCHANGED: min_confirm_pairs=20 (B9.0 default) identical everywhere; every 'relax' mention is negative; '12-18 analyzable -> INSUFFICIENT -> redesign budget, do NOT relax' pre-committed in 4 places; the >=24 cohort MEETS the gate",
+      "stop rule + analyzability fixed by predeclared quality/support, NEVER p-values/effect sizes; checkpoint pauses for logistics only",
+      "Y_design = pre-assignment cue throughout; Lee2019-as-validation + existing-dataset-as-primary in Not-Authorized; single-cohort A NOT reported as a 300-cohort CP estimate; CSV sha256 matches pin"
+    ],
+    "low_folded_in": "reworded the emitted 'REAL null test' strings to 'genuine (non-size-gate-trivial) null test' so they cannot be misquoted out of context as real-data (they were always co-qualified 'synthetic Z, NOT biological' and separated from A=PENDING, so no overclaim existed)"
+  },
+  "lens_integrity_correctness": {
+    "verdict": "MINOR_ISSUE (all 5 axes CONFIRMED + byte-reproducible; 2 LOW folded in)",
+    "confirmed": [
+      "CHECKPOINT BLINDING: checkpoint_report has ZERO exact-null/T_cv/studentize calls; Z is not a parameter; every returned key in ALLOWED + BLIND_NOTE; the FORBIDDEN-field assert fires on injection; sampler_feasible is a plain p-free bool; checkpoint_blind_ok genuine",
+      "TRIAL_ID JOIN + ATTRITION: adherence = trial_id JOIN of the full (C,Y_design,subject,microblock) tuple (row-shuffle still adheres 1.0, unknown trial_ids refuse, single corrupted C caught); balance-preserving whole-subject n30->n24 dropout = valid reduced support (adherence 1.0, attrition 0.20, imbalance 0, prior_shift 0), NOT a masked violation",
+      "FORCED VIOLATIONS: all 7 -> CONTRACT_INVALID before any p (no test run); contract-first re-verified adversarially (flipped-C carrying an injected separable Z still returns ran_test=False, p=1.0 -- test never runs despite real signal)",
+      "NULL GENUINE AT n>=20: null n30 ran_test True, n_eligible 30, p_meanT=p_stud=0.995, ninv 0 -> NO_ACTIONABLE (well-behaved non-significant, NOT size-gated); null n24 p 0.687/0.572; synthetic positives n24 & n30 ALERT p=0.005 (power). Distinct from B9.1A size-gate blocker",
+      "FROZEN B9.0 UNTOUCHED: randomization_table/exact_randomization_null/state_machine empty git diff vs committed 7e9076e; acquisition_adherence reuses RT primitives + EN exact null unmodified; Z/T-blind; no fitted null; states disjoint + declared; table pre-recording+hash-pinned+exactly-balanced; min_confirm_pairs=20 & ALPHA=0.025 unchanged"
+    ],
+    "low_folded_in": [
+      "checkpoint_report previously used the frozen POSITIONAL RT.check_contract vs the FULL 3600-row table -> on a partial 6-10 cohort adherence stayed NaN and contract_state always read INVALID (valid_8subj and flippedC_8subj indistinguishable). FIXED: checkpoint_report now uses the trial_id-JOIN AA.check_contract_acquisition (Z/T-blind, p-free) so adherence/contract logistics are informative on partial cohorts -- a genuinely-adhering 8-subject cohort now reads VALID, a flipped-C one INVALID; blinding remains intact (no scientific endpoint). NOTE: this was a logistics-reporting gap only; it never leaked a scientific endpoint and the analysis-time validator already used the trial_id join.",
+      "reworded 'REAL null test' (see honesty lens)"
+    ]
+  },
+  "net": "B9.2 pre-acquisition = a frozen pre-registration for a >=24-analyzable prospective cohort (30 slots) + a byte-reproducible synthetic-Z verification that, at alert-capable n>=20, the contract-valid null audit is a genuine non-size-gate-trivial null test (no false alert), the injected positive has power, forced violations refuse (trial_id join), attrition is reduced-support-not-violation, and the 6-10 operations checkpoint is structurally blinded. min_confirm_pairs=20 UNCHANGED (the >=24 cohort MEETS the gate). NO real data, NO biological claim, NOT validation. Analysis A (real null audit) deferred to governance-approved acquisition. NO tag."
+}

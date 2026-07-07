@@ -1,0 +1,130 @@
+{
+ "scope": "B9.2 subject-slot enrollment plan",
+ "n_enrollment_slots": 30,
+ "target_analyzable": 24,
+ "hard_min_analyzable": 20,
+ "reason": "alert-level analysis needs n_eligible>=min_confirm_pairs=20 (UNCHANGED); target 24 reserves for attrition",
+ "stop_rule": "stop acquisition after >=24 analyzable subjects OR all 30 slots exhausted; 'analyzable' fixed by predeclared quality/support criteria (b9_stage2_quality_criteria.json), NEVER by p-values/effect sizes",
+ "slots": [
+  {
+   "slot": 0,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 1,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 2,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 3,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 4,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 5,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 6,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 7,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 8,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 9,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 10,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 11,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 12,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 13,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 14,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 15,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 16,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 17,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 18,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 19,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 20,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 21,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 22,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 23,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 24,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 25,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 26,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 27,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 28,
+   "status": "not_enrolled"
+  },
+  {
+   "slot": 29,
+   "status": "not_enrolled"
+  }
+ ]
+}

@@ -1,0 +1,70 @@
+{
+ "scope": "B9.2 prospective-acquisition PACKAGE (pre-acquisition): protocol freeze + hash-pinned 30-slot table + pipeline verification on SYNTHETIC Z at ALERT-CAPABLE n. NO real data, NO biological claim, NOT validation, NO tag.",
+ "cohort": {
+  "enrollment_slots": 30,
+  "target_analyzable": 24,
+  "hard_min_analyzable": 20,
+  "min_confirm_pairs": 20,
+  "note": "min_confirm_pairs UNCHANGED; >=24 target reserves for attrition"
+ },
+ "pilot_table": {
+  "sha256": "cc9b5780eaaf31ded3b4e18015dd330df269d11f5c82b910b1568faed150dfb8",
+  "n_trials": 3600
+ },
+ "analysis_B_forced_violation": {
+  "all_refused": true,
+  "cases": {
+   "V_missing_table": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_flipped_C": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_shuffled_Ydesign": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_tuple_mismatch": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_microblock_imbalance": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_condition_lock": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_attrition_prior_shift": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND"
+  }
+ },
+ "analysis_A_synth_null_audit": {
+  "full_n30": {
+   "state": "NO_ACTIONABLE_CONCEPT_EVIDENCE",
+   "n_eligible": 30,
+   "ran_test": true
+  },
+  "attrition_n24": {
+   "state": "NO_ACTIONABLE_CONCEPT_EVIDENCE",
+   "n_eligible": 24,
+   "attrition": 0.2
+  }
+ },
+ "analysis_C_synth_positive": {
+  "n30": {
+   "state": "B9_CONCEPT_ALERT",
+   "n_eligible": 30
+  },
+  "n24": {
+   "state": "B9_CONCEPT_ALERT",
+   "n_eligible": 24
+  }
+ },
+ "analysis_A_real_null_audit": "PENDING_ACQUISITION (governance-gated; not run)",
+ "operations_checkpoint": {
+  "blind_ok": true,
+  "exposed_fields": [
+   "BLIND_NOTE",
+   "assignment_adherence",
+   "attrition_fraction",
+   "contract_invalid_reasons",
+   "contract_state",
+   "n_analyzable_subjects",
+   "n_eligible_subjects",
+   "n_enrolled_subjects",
+   "n_support_strata",
+   "per_cell_valid_median",
+   "per_cell_valid_min",
+   "sampler_feasible"
+  ],
+  "note": "6-10 subject checkpoint sees ONLY logistics (adherence/attrition/support/sampler-feasibility/contract-invalid-reasons); alert/p-values/observed_T/T_z NEVER computed"
+ },
+ "RESOLVES_B9_1A_SIZE_GATE": "At the >=24-analyzable cohort the contract-valid null audit is a GENUINE non-size-gate-trivial null test (n_eligible>=20) and the injected positive CAN alert -- unlike the size-gate-trivial 6-10 pilot. min_confirm_pairs UNCHANGED (no gate tuning).",
+ "governance": "Human-EEG collection gated on institutional governance; NO data collected here. Not legal/IRB advice.",
+ "next": "After governance approval, acquire >=24 analyzable subjects under the pinned table, then run analysis A. Early 6-10 checkpoint is operations-only. If only 12-18 analyzable: INSUFFICIENT_LABELS_OR_SUPPORT -> acquisition-budget redesign, do NOT relax the gate."
+}

@@ -1,0 +1,43 @@
+{
+  "scope": "B9.2 prospective-acquisition PRE-ANALYSIS protocol (pre-registered, frozen BEFORE acquisition/analysis). Development-only, NO scientific/biological claim, NOT validation, NO tag.",
+  "estimand": "under the pre-randomized, class-balanced, within-microblock audit contract, detect a condition-specific C x Z interaction in decoding the PRE-ASSIGNED cue Y_design, beyond known randomization variation. Natural prior shift / non-randomized condition / covariate confound / attrition-induced imbalance -> REFUSE (CONTRACT_INVALID_OR_OUT_OF_ESTIMAND).",
+  "decision_engine": "B9.0 state machine + B9.2 trial_id-join acquisition adherence (csc/b9/acquisition_adherence.py). Contract-first, Z/T-blind validator; exact null resamples C* only within (subject, microblock, Y_design); byte-reused B3 contrast; alert = contract-valid AND estimable AND p_meanT<=0.025 AND p_stud<=0.025 AND n_eligible>=20. min_confirm_pairs=20 UNCHANGED.",
+  "cohort": {"enrollment_slots": 30, "target_analyzable": 24, "hard_min_analyzable": 20, "stop_rule": ">=24 analyzable OR all 30 slots exhausted; analyzable fixed by b9_stage2_quality_criteria.json, NEVER by p-values/effect sizes"},
+  "adherence": "executed rows join the pinned table on trial_id; every recorded trial must match its pinned (C,Y_design,subject,microblock). Attrition = missing trial_ids: balance-preserving -> reduced support; balance-breaking / prior-shifting -> CONTRACT_INVALID_OR_OUT_OF_ESTIMAND.",
+  "operations_checkpoint_6_10": {
+    "purpose": "logistics feasibility ONLY at an early 6-10 subject checkpoint",
+    "allowed": ["assignment_adherence", "trial_attrition", "artifact_rejection_rate", "per_cell_valid_counts", "support / sampler feasibility", "contract_invalid_reasons", "recording_runtime", "participant_burden"],
+    "forbidden": ["B9_ALERT", "exact-null p-values", "observed_T", "T_z", "injected-positive results", "condition-specific scientific trends"],
+    "enforcement": "operations_checkpoint.checkpoint_report structurally never computes a p-value or alert (verified: checkpoint_blind_ok)",
+    "action": "may pause acquisition for logistics/support failure ONLY; may NEVER change the protocol based on signal (weak or strong)"
+  },
+  "analyses": {
+    "A_contract_valid_null_audit": {
+      "status": "PENDING_ACQUISITION (governance-gated; NOT run in B9.0/B9.1A/B9.2 pre-acquisition)",
+      "input": "the real acquired >=24-analyzable cohort under the pinned assignment table",
+      "endpoints": ["B9 state", "exact-null p-values", "support diagnostics", "assignment adherence", "artifact/attrition accounting"],
+      "reporting": "single-cohort pilot -- NOT reported as a 300-cohort CP estimate",
+      "main_question": "given a genuine pre-recording randomized C x Y_design contract, does the exact null run fail-closed and avoid a false alert at alert-capable n>=20?"
+    },
+    "B_forced_violation": {
+      "status": "RUN (synthetic Z on corrupted copies of the pilot's manifest/table; machinery check, NOT biology)",
+      "cases": ["missing_table", "flipped_C", "shuffled_Ydesign", "tuple_mismatch", "microblock_imbalance", "condition_lock", "attrition_prior_shift"],
+      "expectation": "every case -> CONTRACT_INVALID_OR_OUT_OF_ESTIMAND before any p-value"
+    },
+    "C_semisynthetic_positive": {
+      "status": "RUN as DIAGNOSTIC / power only (synthetic Z following the locked table; NOT a biological concept claim; on real Z once acquired)",
+      "expectation": "at alert-capable n>=20 the pipeline can detect an injected boundary signal (power); the contract-valid null does NOT alert"
+    }
+  },
+  "success_screen_development": {
+    "contract_execution": ">=90% recorded trials match the assignment table before exclusions",
+    "analyzability": ">=20 analyzable subjects (>=24 preferred)",
+    "support": ">=80% analyzable subjects satisfy per-cell support",
+    "validator": "0 forced-violation cases produce B9_ALERT",
+    "contract_valid_null_audit": "no B9_CONCEPT_ALERT preferred; if an alert occurs -> STOP + diagnose exact-null / acquisition contract (NOT the gate)",
+    "optional_synthetic_positive": ">0 alert preferred (diagnostic)",
+    "if_12_to_18_analyzable": "INSUFFICIENT_LABELS_OR_SUPPORT -> acquisition-budget redesign; do NOT relax min_confirm_pairs"
+  },
+  "governance": "human-EEG collection gated on institutional ethics/governance approval + consent + data-handling + lab-safety BEFORE any recording; NO data collected in B9.0/B9.1A/B9.2; not legal/IRB advice. See b9_stage2_governance_status.md.",
+  "not_authorized": ["6-10-only scientific pilot", "min_confirm_pairs relaxation / gate tuning", "p-value / mean-T recalibration", "feature/montage/statistic changes", "post-hoc balancing on observed Y", "case-control selection using Z", "Lee2019 as validation", "existing-dataset route as primary", "paper writing"]
+}

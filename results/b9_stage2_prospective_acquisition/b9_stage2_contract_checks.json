@@ -1,0 +1,12 @@
+{
+ "scope": "B9.2 pipeline-verification invariants (synthetic Z; machinery only, NO biological claim)",
+ "B_forced_violations_all_refuse": true,
+ "A_synth_null_full_n30_no_alert": true,
+ "A_synth_null_attrition_n24_no_alert": true,
+ "C_synth_positive_n24_alert": true,
+ "C_synth_positive_n30_alert": true,
+ "checkpoint_blinded_no_scientific_endpoint": true,
+ "attrition_reduced_support_not_violation": true,
+ "min_confirm_pairs_unchanged": 20,
+ "A_real_null_audit": "PENDING_ACQUISITION"
+}
