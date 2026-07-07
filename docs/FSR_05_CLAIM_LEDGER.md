@@ -12,7 +12,7 @@ Status vocabulary: `READY` (state as a finding) · `READY_WITH_CAVEAT` (state wi
 | C4 | READY | Erasure strength does not certify target benefit. |
 | C5 | READY_WITH_CAVEAT | Random-k falsifies non-specific NLL movement. |
 | C6 | READY | Spatial branch is load-bearing. |
-| C7 | READY | Branch-local leakage/reliance is missing. |
+| C7 | SUPERSEDED (Phase 4B) | Branch-local leakage/reliance was missing in frozen artifacts (now measured by the 4B refit). |
 | C8 | READY | CMI-control remains closed. |
 | C9 | SUPPORT_ONLY | TTA-Control is positive but non-CMI. |
 | C10 | READY | FSR is an audit framework, not a new DG method. |
@@ -21,6 +21,8 @@ Status vocabulary: `READY` (state as a finding) · `READY_WITH_CAVEAT` (state wi
 | C13 | FORBIDDEN | E4 repairs general or natural shortcuts. |
 | C14 | NOT_ESTABLISHED (Phase 4G none) | E4b repairs controlled second-moment shortcuts. |
 | C15 | NOT_READY (GPU_PAUSED) | PC2 learned-reliance repair works. |
+| C16 | READY | Natural branch-local subject leakage is not automatically harmful. |
+| C17 | READY_WITH_CAVEAT | Repair scope is first-moment-specific (1st-moment repairable, 2nd-moment not). |
 
 > C11–C15 are the **repair-line** claims (Phases 4C–4G + PC2), derived from `pc1_verdict.json`,
 > `phase4d/4e/4f_verdict.json` (hand-set from the frozen verdicts, each adversarially verified). C1–C10 above are
@@ -63,10 +65,9 @@ Status vocabulary: `READY` (state as a finding) · `READY_WITH_CAVEAT` (state wi
 - **Allowed:** "The spatial branch is load-bearing (zero_spatial ablation drop +0.074 on 2a / +0.088 on 2015; gate weight 0.489 / 0.572, highest of the three branches)."
 - **Forbidden:** "spatial leakage is harmful" (no per-branch leakage probe).
 
-### C7 — Branch-local leakage/reliance is missing. — **READY**
-- **Ladder:** L1/L5 per branch (absent). **Evidence:** RQ4 (blocked).
-- **Allowed:** "RQ4 is blocked, not failed: per-branch leakage probe (L1) and per-branch functional reliance (L5) do not exist on disk (0 frozen embeddings, 0 per-branch probe); status BLOCKED_MISSING_METRIC for every branch."
-- **Forbidden:** "per-branch CMI predicts reliance."
+### C7 — Branch-local leakage/reliance was missing in frozen artifacts. — **SUPERSEDED (Phase 4B)**
+- **Status:** was the correct description at the frozen-artifact stage (no per-branch dump, no checkpoint). **Superseded by the Phase-4B ERM refit** (FSR_16/17), which produced a direct real-EEG branch-local L1–L6 audit (per-branch subject decode L1, ablation load L4, subject-subspace-erase replay L5, target metrics L6). The current status of the natural branch-local question is **C16**.
+- **Historical allowed (frozen stage only):** "at the frozen-artifact stage the per-branch instrument did not exist." **Do not** present RQ4 as still blocked in the current manuscript.
 
 ### C8 — CMI-control remains closed. — **READY**
 - **Ladder:** frozen premise. **Evidence:** CIGL_70, CMI_SYNTHESIS_01, CITA_03.
@@ -106,8 +107,19 @@ Status vocabulary: `READY` (state as a finding) · `READY_WITH_CAVEAT` (state wi
 - **Forbidden:** "E4b repairs second-moment/covariance shortcuts"; "second-moment shortcuts are unconditionally unrepairable" (α=3 injection-dominant does cross the bar); any learned/natural repair claim.
 
 ### C15 — PC2 learned-reliance repair works. — **NOT_READY (GPU_PAUSED)**
-- **Status:** PC2 GPU is **paused** (`pc2_gpu_run_authorized = false`); the PC2-E4 readiness preflight (FSR_28/31) is design-only. Learned reliance ≠ clean first/second-moment offset; guarded/possibly-negative expectation.
+- **Status:** PC2 GPU is **paused** (`pc2_gpu_run_authorized = false`); the PC2-E4 readiness preflight (FSR_28/31) is design-only. Learned reliance ≠ clean first/second-moment offset; guarded/possibly-negative expectation. Two blockers (FSR_31): only 2 preset-ready datasets (< the ≥3 the binding leave-one-dataset-out gate needs) and Phase 4G = none.
 - **Forbidden:** any statement that PC2 / learned-reliance repair works or is being run; presenting PC2 in results (future-work/preflight only).
+
+### C16 — Natural branch-local subject leakage is not automatically harmful. — **READY**
+- **Ladder:** L1→L6 direct real-EEG branch-local audit. **Evidence:** Phase 4B ERM refit (FSR_16/17; `NO_VERIFIED_HARMFUL_BRANCH_SHORTCUT`).
+- **Allowed:** "In the Phase-4B branch-local audit the spatial branch is the strongest subject-leakage and load-bearing candidate, but subject-subspace removal *hurts* target performance (task_drop positive, +0.050* on BNCI2015); FSR therefore refuses to call it a harmful shortcut — it is a task-entangled / task-useful reliance."
+- **Forbidden:** "spatial leakage is harmful"; "erase spatial subject directions to improve EEG DG"; "graph leakage is benign in general"; "there is no subject leakage" (it is high, ~0.92 decodable — the point is measurable ≠ harmful).
+
+### C17 — Repair scope is first-moment-specific. — **READY_WITH_CAVEAT**
+- **Ladder:** L6 repair on injected positive controls. **Evidence:** Phase 4F (`strong_within_controlled_first_moment_scope`) + Phase 4G (`none`).
+- **Allowed:** "E4 (first-moment mean alignment) repairs a controlled first-moment constant-offset injection, while E4b (covariance-shrinkage) does not repair a controlled mean-null second-moment injection at the source-selected operating point (even oracle-directed); the deployable repair family is confined to first-moment deterministic offsets."
+- **Caveat (mandatory):** the 4F first-moment pass is construction-matched (73% mechanical identity, BNCI2015-carried, fails leave-one-dataset-out); the 4G second-moment negative is at the source-selected operating point (a direction-specific advantage appears only in the injection-dominant α=3 near-tautology).
+- **Forbidden:** "E4/E4b repairs general shortcuts"; "second-moment shortcuts are unconditionally unrepairable"; "FSR solves shortcut repair."
 
 ---
 
