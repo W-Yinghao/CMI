@@ -48,36 +48,40 @@ across subjects.
 
 ## Stress levels
 `γ ∈ {0, 0.2, 0.4}` (pre-registered; **+0.6 optional, pre-declared**). **Primary `γ = 0.4`.** `γ` is never chosen
-after seeing target harm (STOP).
+after seeing target harm (STOP). The construction can **saturate below γ** (partner-class / per-subject-budget
+caps), so the run records the **achieved** conflict fraction `2·n_swaps/N_train` and the gate **requires the
+achieved rate to track γ monotonically** (γ=0 → 0 < γ=0.2 < γ=0.4); a saturated, non-tracking dose fails-closed.
 
-## Two gates (both required before any weaponization claim)
-### Gate Q7C-a — held-in learnability (the head DID learn the engineered shortcut)
-On **source held-in** data: `Hconflict` fits the corrupted labels (corrupted-label accuracy rises with γ), and its
-subject→c_d shortcut score exceeds the `Hrandom`/`Hshuffle` null band, monotone in γ. **If Q7C-a fails → STOP:**
-"the controlled label-conflict did not create a learned shortcut in the head class; no weaponization inference."
-(7B's positive control already proved the metrics have power.)
+## Two gates (both required before any weaponization claim) — memorize (a) vs transfer (b)
+### Gate Q7C-a — HELD-IN learnability (the head CAN memorize the engineered shortcut)
+Measured on the **TRAINING** subjects (the data the head saw): on the **relabeled (task-conflicting) subset**,
+`Hconflict`'s fit (accuracy against the corrupted labels) **exceeds a task-only floor** (`H0`'s fit on the same
+rows, ≈0 by construction) and **rises with γ**, under an achieved rate that tracks γ and an exactly-P(y)-preserving
+histogram. This is a **linear-learnability capability check** — *can* a linear head on frozen 4B latents key on
+subject to satisfy the conflict at all. **If Q7C-a fails → STOP:** "a linear head cannot memorize the subject
+shortcut under this task-conflict; no weaponization inference." (Subject-reliance-on-train columns are reported as
+**diagnostics only**, not gate conditions — the subspace-erasure L5 is a weak instrument once true-task is degraded.)
 
-### Gate Q7C-b — source-pseudo-target transferability (NEW; the shortcut TRANSFERS, not memorizes)
-A source-ID shortcut may merely memorize training subject identities and not transfer to an unseen subject. So:
-```
-Within source subjects: hold out one/more source subjects as PSEUDO-TARGETS;
-train Hconflict on the remaining source with the task-conflict labels;
-evaluate the pseudo-target on TRUE labels + reliance (L4/L5) + true-task bAcc.
-```
-Q7C-b passes iff the pseudo-target shows **increased subject reliance and reduced true-task bAcc** vs H0, beyond
-the `Hshuffle` null. **If Q7C-a passes but Q7C-b fails →** "the head can **memorize** source subject-correlated
-corruption, but it does **not** create transferable cross-subject harmful reliance under this protocol" (a real,
-reportable result — not a target-weaponization claim).
+### Gate Q7C-b — TRANSFER to unseen subjects (the shortcut TRANSFERS, not just memorizes)
+Measured on **held-OUT source subjects** (pseudo-targets the head never trained on): the **STRUCTURED** conflict
+head's **held-out true-task harm** must beat **BOTH** controls — the **subject-shuffle band** (`Hshuffle`, `c_d`
+scrambled across subjects, `N_SHUFFLE=5` seeds → null band) **and** the matched **random-noise** control
+(`Hrandom`) — monotone in γ, i.e. the harm is due to the subject **structure**, not generic corruption. L4/L5
+reliance deltas vs the shuffle band are reported as **mechanism diagnostics**, not hard gate conditions.
+**If Q7C-a passes but Q7C-b fails →** "the head can **memorize** subject-correlated corruption, but the harm does
+**not** require the subject structure (a scrambled control does equal/more damage) — no transferable cross-subject
+weaponization under this protocol" (a real, reportable result, not a target-weaponization claim).
 
 ## Primary result (weaponization)
-**Confirmed** iff **all**: Q7C-a passes AND Q7C-b passes AND `Hconflict` L4/L5 subject-reliance rises over
-`Hrandom`/`Hshuffle` AND **target true-label bAcc decreases vs H0** (clustered CI < 0) AND the effect grows with
-γ AND firewall clean. **Allowed:** "controlled task-conflicting source labels can weaponize naturally present
-subject information into learned head-level reliance." **Forbidden:** "natural EEG training contains such label
-corruption"; any natural-harm/clinical claim.
-**Not confirmed** (Q7C-a passes, Q7C-b or target harm fails): "the head fits subject-correlated corrupted labels
-but the shortcut does not transfer to unseen subjects/target under this protocol." **Underpowered** (Q7C-a fails):
-"the label-conflict stress did not create a learned shortcut; no weaponization inference."
+**Confirmed** iff **all**: Q7C-a passes (memorizable) AND Q7C-b passes (held-out true-task harm beats BOTH the
+shuffle band and random-noise, monotone in γ) AND **target true-label bAcc decreases vs H0** (clustered CI < 0)
+AND firewall clean. **Allowed:** "controlled task-conflicting source labels can weaponize naturally present subject
+information into a transferable, target-harmful head-level reliance." **Forbidden:** "natural EEG training contains
+such label corruption"; any natural-harm/clinical claim.
+**Not confirmed** (Q7C-a passes, Q7C-b or target harm fails, or harm does not beat the shuffle band): "the head
+**memorizes** subject-correlated corrupted labels but the harm is **not subject-structure-specific / does not
+transfer** to unseen subjects under this protocol." **Underpowered** (Q7C-a fails): "a linear head cannot memorize
+the shortcut; no weaponization inference."
 
 ## Repair (SECONDARY only)
 Only the existing arms on `Hconflict` at `γ=0.4`: **E4, E4b, ERASE** (target-$X$; theory predicts R3 → fail) and
@@ -91,26 +95,26 @@ Target labels only final scoring (`TargetScorer`). `c_d`, the swap construction,
 fits are source-only. Recorded in `target_label_firewall.json`.
 
 ## Outputs (`results/fsr_head_only_label_conflict/`)
+Two aggregators, staged: `aggregate_head_conflict_gate.py` (Q7C-a) then, only if it passes,
+`aggregate_head_conflict_transfer.py` (Q7C-b + weaponization + repair).
 ```
-label_conflict_manifest.csv            # per fold/seed/gamma: c_d, n_swaps, achieved global-Py delta
+label_conflict_manifest.csv            # per fold/seed/gamma: c_d, n_swaps, achieved_conflict_frac, Py-delta, shuffle_nsw
 global_label_histogram_check.csv       # max_abs_delta_global_Py (must be 0) per fold/seed/gamma
-heldin_learnability_gate.csv           # Q7C-a: corrupted-label acc + shortcut score vs Hrandom/Hshuffle
-pseudo_target_transferability_gate.csv # Q7C-b: pseudo-target reliance + true-task bAcc drop
-dose_response_reliance.csv             # L4/L5 vs gamma for the heads
-target_harm.csv                        # H0 - Hconflict target true-label bAcc vs gamma
+heldin_learnability_gate.csv           # Q7C-a: conflict-subset fit vs task-only floor (TRAIN) + reliance diagnostics
+pseudo_target_transferability_gate.csv # Q7C-b: held-out true-task drop vs H0 / shuffle band / random + L5/L4 diag
+dose_response_reliance.csv             # L4(target,label-free) + L5(source held-out) vs gamma
+target_harm.csv                        # H0 - Hconflict (and Hshuffle) target true-label bAcc vs gamma (via TargetScorer)
 repair_secondary_results.csv           # E4/E4b/ERASE/Hreg on Hconflict (gamma=0.4)
-random_label_noise_controls.csv        # Hrandom detail
-subject_mapping_shuffle_controls.csv   # Hshuffle null band
-target_label_firewall.json
-label_conflict_verdict.json
+target_label_firewall.json             # TargetScorer read count; l4 is label-free; reliance dose on SOURCE held-out
+label_conflict_verdict.json            # Q7C-a verdict, then updated in place with Q7C-b + weaponization + repair
 ```
 `label_conflict_verdict.json` (key fields):
 ```json
 {"heldin_learnability_pass": null, "pseudo_target_transferability_pass": null,
  "weaponization_confirmed": null, "primary_gamma": 0.4, "global_Py_preserved": null,
- "hconflict_vs_hshuffle_reliance": null, "target_harm": null, "target_harm_ci": [null,null],
+ "target_harm": null, "target_harm_ci": [null,null], "repair_claim_level": null,
  "target_labels_used_for_fit": false, "target_labels_used_for_selection": false,
- "repair_claim_level": "none|secondary|training_time_partial", "pc2_gpu_gate": "paused"}
+ "pc2_gpu_gate": "paused", "gate_verdict": {"...": "Q7C-a"}, "transfer_verdict": {"...": "Q7C-b + weaponization + repair"}}
 ```
 
 ## STOP rules
