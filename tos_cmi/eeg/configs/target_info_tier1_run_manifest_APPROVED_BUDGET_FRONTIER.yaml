@@ -3,9 +3,10 @@
 # a distinct dir/prefix. Raw enable token gitignored (tos_cmi/results/.tier1_bf_token); only its sha256 here.
 # Marked consumed after the run.
 
-run_status: approved
-runs_allowed: true
-experiments_allowed: true
+# CONSUMED after job 888470 (2026-07-07). Re-running requires a fresh PM-approved manifest + new token.
+run_status: consumed
+runs_allowed: false
+experiments_allowed: false
 
 scope: tier1_budget_frontier
 datasets: [Lee2019_MI, Cho2017]
