@@ -16,7 +16,8 @@ import sys
 from pathlib import Path
 from typing import Dict, List, Optional, Tuple
 
-from .result_index import KNOWN_ESTIMANDS, _load_json, build_summary, write_summary_md
+from .result_index import (KNOWN_ESTIMANDS, _load_json, build_summary, write_json_lf,
+                           write_summary_md)
 
 _TARGET_METRIC_ESTIMANDS = {"balanced_accuracy", "target_gain", "target_risk"}
 _RUN_DIR_RE = re.compile(r"dataset=(?P<dataset>.+)_target=(?P<target>-?\d+)_seed=(?P<seed>-?\d+)")
@@ -155,7 +156,7 @@ def main(argv=None):
 
     if args.out_json:
         Path(args.out_json).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.out_json).write_bytes((json.dumps(summary, indent=2) + "\n").encode("utf-8"))
+        write_json_lf(args.out_json, summary)               # pretty (indent=2), LF-only
     if args.out_md:
         Path(args.out_md).parent.mkdir(parents=True, exist_ok=True)
         write_summary_md(summary, args.out_md)

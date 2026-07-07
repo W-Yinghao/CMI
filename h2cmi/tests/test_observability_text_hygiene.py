@@ -32,6 +32,42 @@ def _paths():
     return sorted(set(out))
 
 
+# Named, high-value review artifacts get a HARD gate (exact files, min-LF, max-line) so the
+# GitHub-raw view can never collapse into giant lines. Thresholds are well below the real LF counts.
+_CHECK_FILES = {
+    "h2cmi/observability/result_index.py": 80,
+    "h2cmi/observability/combine_summaries.py": 60,
+    "h2cmi/observability/validate_results.py": 80,
+    "h2cmi/run_real_audited.py": 120,
+    "h2cmi/run_real_audited_grid.py": 80,
+    "h2cmi/tests/test_project_A_paper_package.py": 30,
+    "notes/project_A_observability/results_summaries/step10_moabb_multidataset_summary.json": 40,
+    "notes/project_A_observability/results_summaries/step10_bnci2015_001_summary.json": 80,
+    "notes/project_A_observability/paper/06_results_digest.md": 25,
+    "notes/project_A_observability/paper/07_limitations_and_claim_boundary.md": 25,
+}
+_MAX_LINE_BYTES = 500
+
+
+def test_project_a_files_have_no_cr_bytes():
+    # HARD: not a single CR byte (CRLF *or* CR-only) — GitHub raw splits on LF, so any CR risks a
+    # collapsed / giant-line view. LF-only is the only reviewable state.
+    for rel in _CHECK_FILES:
+        raw = (_REPO / rel).read_bytes()
+        assert b"\r" not in raw, f"{rel} contains CR bytes; GitHub raw view will collapse lines"
+
+
+def test_project_a_core_files_are_lf_reviewable():
+    for rel, min_lf in _CHECK_FILES.items():
+        raw = (_REPO / rel).read_bytes()
+        assert raw.count(b"\n") >= min_lf, (
+            f"{rel} has {raw.count(chr(10).encode())} LF newlines (< {min_lf}); "
+            "raw view would be too collapsed to review")
+        max_line = max(len(line) for line in raw.split(b"\n"))
+        assert max_line < _MAX_LINE_BYTES, (
+            f"{rel} has a {max_line}-byte line (>= {_MAX_LINE_BYTES}) — unreviewable in raw view")
+
+
 def test_project_a_files_use_lf_not_cr_only():
     for p in _paths():
         b = p.read_bytes()
@@ -57,7 +93,9 @@ def test_project_a_review_files_are_not_single_giant_lines():
 
 
 ALL_TESTS = [test_project_a_files_use_lf_not_cr_only,
-             test_project_a_review_files_are_not_single_giant_lines]
+             test_project_a_review_files_are_not_single_giant_lines,
+             test_project_a_files_have_no_cr_bytes,
+             test_project_a_core_files_are_lf_reviewable]
 
 
 def run():

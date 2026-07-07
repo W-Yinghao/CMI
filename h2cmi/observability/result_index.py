@@ -23,6 +23,20 @@ KNOWN_ESTIMANDS = {e.value for e in Estimand}
 _COMPLIANT_PRIOR_STATUS = {"identified_TU1", "rejected_conclusion_false", "not_emitted"}
 
 
+def write_text_lf(path, text: str) -> None:
+    """Write UTF-8 text with LF-only newlines. py3.9-safe: `Path.write_text` gained the `newline`
+    kwarg only in 3.10, so we encode explicitly; and we refuse to emit ANY CR byte (a stray CR
+    collapses the GitHub raw view into giant lines). Callers build `text` with '\\n' separators."""
+    if "\r" in text:
+        raise ValueError(f"{path}: refusing to write CR bytes (LF-only review policy)")
+    Path(path).write_bytes(text.encode("utf-8"))
+
+
+def write_json_lf(path, obj) -> None:
+    """Pretty (indent=2) UTF-8 JSON with a trailing LF and LF-only newlines — never compact."""
+    write_text_lf(path, json.dumps(obj, indent=2, ensure_ascii=False) + "\n")
+
+
 def _load_json(p: Path) -> Optional[dict]:
     try:
         return json.loads(Path(p).read_text())
@@ -304,7 +318,7 @@ def write_summary_md(summary: Dict[str, Any], path) -> str:
     lines.append("")
     lines.append("> " + summary["claim_boundary"])
     text = "\n".join(lines) + "\n"
-    Path(path).write_bytes(text.encode("utf-8"))            # force LF (hygiene; py3.9-safe)
+    write_text_lf(path, text)                                # LF-only (py3.9-safe, CR-refusing)
     return text
 
 

@@ -17,6 +17,8 @@ import statistics
 from pathlib import Path
 from typing import Any, Dict, List, Optional
 
+from .result_index import write_json_lf, write_text_lf
+
 
 def _load(p) -> dict:
     return json.loads(Path(p).read_text())
@@ -156,7 +158,7 @@ def write_md(combined: Dict[str, Any], path) -> str:
             f"{len(pd['missing_cells'])} |")
     lines += ["", "> " + combined["claim_boundary"]]
     text = "\n".join(lines) + "\n"
-    Path(path).write_bytes(text.encode("utf-8"))               # force LF (hygiene; py3.9-safe)
+    write_text_lf(path, text)                                  # LF-only (py3.9-safe, CR-refusing)
     return text
 
 
@@ -180,7 +182,7 @@ def main(argv=None):
     combined = combine(summaries)
     if args.out_json:
         Path(args.out_json).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.out_json).write_bytes((json.dumps(combined, indent=2) + "\n").encode("utf-8"))
+        write_json_lf(args.out_json, combined)                 # pretty (indent=2), LF-only
     if args.out_md:
         Path(args.out_md).parent.mkdir(parents=True, exist_ok=True)
         write_md(combined, args.out_md)
