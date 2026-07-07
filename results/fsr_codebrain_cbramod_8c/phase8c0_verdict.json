@@ -1,0 +1,63 @@
+{
+  "physionetmi_analyzable_subjects": 105,
+  "excluded_subjects": [
+    88,
+    89,
+    92,
+    100
+  ],
+  "runs_pinned": [
+    4,
+    8,
+    12
+  ],
+  "classes": [
+    "imagined_left_fist",
+    "imagined_right_fist"
+  ],
+  "K": 2,
+  "n_target_panel": 15,
+  "target_panel": [
+    1,
+    5,
+    31,
+    33,
+    35,
+    46,
+    48,
+    58,
+    72,
+    82,
+    83,
+    87,
+    93,
+    97,
+    105
+  ],
+  "n_source_pool": 90,
+  "min_trials_per_subject": 43,
+  "median_trials_per_subject": 45,
+  "channel_mapping_reproducible": true,
+  "channel_hash": "e4c20d57af41adec",
+  "resampling_reproducible": true,
+  "global_label_check_pass": true,
+  "fixed_trials_condition_feasible": false,
+  "fixed_trials_max_feasible_N": "8",
+  "growing_trials_condition_feasible": true,
+  "runheldout_l1_feasible": true,
+  "codebrain_64ch_forward_pass": null,
+  "cbramod_64ch_forward_pass": null,
+  "target_labels_used_for_selection": false,
+  "gates": {
+    "G1_ge100_subjects": true,
+    "G2_runs_labels_pinned": true,
+    "G3_channel_hash": true,
+    "G4_resample_det": true,
+    "G7_fixed_feasible": false,
+    "G8_growing_feasible": true,
+    "G9_runheldout_feasible": true,
+    "G10_firewall": true
+  },
+  "proceed_to_8c1": null,
+  "note": "8C-0 manifest/feasibility done; encoder 64ch sanity (G5/G6) pending GPU step."
+}

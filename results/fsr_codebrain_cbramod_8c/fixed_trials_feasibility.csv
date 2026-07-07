@@ -1,0 +1,6 @@
+N_source,n,growing_per_subject,growing_feasible,fixed_total,fixed_per_subject,fixed_feasible
+2,2,43,True,86,43.0,True
+4,4,43,True,86,21.5,True
+8,8,43,True,86,10.8,True
+16,16,43,True,86,5.4,False
+all,90,43,True,86,1.0,False

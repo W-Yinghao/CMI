@@ -1,0 +1,6 @@
+{
+  "stage": "8C-0",
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "note": "8C-0 uses only subject ids + trial COUNTS + channel/resample metadata. No task labels read; no encoder run here."
+}

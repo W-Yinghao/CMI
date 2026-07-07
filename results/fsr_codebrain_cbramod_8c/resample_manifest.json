@@ -1,0 +1,7 @@
+{
+  "native_hz": 160,
+  "target_hz": 200,
+  "method": "scipy.signal.resample (FFT)",
+  "ratio": "5/4",
+  "deterministic": true
+}
