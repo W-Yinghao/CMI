@@ -58,7 +58,16 @@ CUDA determinism pinned (`use_deterministic_algorithms`, cuDNN deterministic, se
 - **L4/L5/L6** (gated): as 8C-1; **erase/null rank FIXED across N** for the scaling contrast (MN-3); L5 null =
   variance-matched; if L5 is gate-failed at N=2 **or** N=8, gate 1 is **not evaluable** (MA-4).
 
-## 8D gates (pre-registered; CI-based, MA/BL fixes)
+## Staging (PM): 8D-0 metric-power gate FIRST, then 8D-1 scaling
+**8D-0 (run first; CBraMod only, N_source=8 only, subset_seeds=3, train_seeds=5; arms A0 + A1-SE):** run **only** the
+subject-erase positive control to prove the bottleneck-code L1 metric can move. **8D-0 PASS iff A1-SE:**
+held-out-source pairwise separability on `h` **drops vs A0 by ≥0.10 absolute OR ≥20% relative**, **CI lower > 0**,
+**source-val task does NOT collapse**, firewall clean. **8D-0 FAIL → STOP Phase 8** (do NOT try another adapter
+architecture — that starts a method search): *"the light-adapter design cannot test representation-level
+subject-scaling because even a subject-erasure positive control does not move bottleneck subject separability
+(metric saturated)."* **8D-1 runs only if 8D-0 passes.** Records `trained_rep_metric_power_gate.csv`.
+
+## 8D-1 gates (pre-registered; CI-based, MA/BL fixes)
 - **8D-PASS (any → expand full grid {2,4,8,16,all}, seeds 10, train_seeds 5; PM review first):**
   1. **within-A1, fixed-trials, matched-capacity:** N=8 − N=2 target bAcc **clustered CI (by the 15-target panel)
      excludes 0 and ≥ +0.02**, **with L5 evaluable and not increasing** (min L5 movement pre-declared); or
