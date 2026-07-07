@@ -114,6 +114,23 @@ def calibrate_router_feature_config_from_source(
     )
 
 
+def make_support_calibrated_feature_config(
+    *, base: "RouterFeatureConfig | None" = None,
+    max_density_nll_target_prior: "float | None",
+    min_target_n: int, min_ess: float = 8.0,
+) -> RouterFeatureConfig:
+    """Build a RouterFeatureConfig carrying an externally-computed support threshold.
+
+    v1 keeps max_ood_score / max_support_gap_abs OFF (target-prior density NLL is the only support
+    blocker) so benign label-prior shift is not misread as OOD."""
+    b = base if base is not None else RouterFeatureConfig()
+    return dataclasses.replace(
+        b, min_target_n=int(min_target_n), min_ess=float(min_ess),
+        max_density_nll_target_prior=(None if max_density_nll_target_prior is None
+                                      else float(max_density_nll_target_prior)),
+        max_ood_score=None, max_support_gap_abs=None)
+
+
 def collect_source_pseudo_tta_gains(
     model, X_src, y_src, source_pseudo_levels, cfg, source_prior, *, device: str = "cpu",
 ) -> dict:
@@ -179,18 +196,23 @@ def evaluate_router_offline_tta(
     *, router: "RefusalFirstRouter | None" = None, X_src=None, y_src=None,
     source_pseudo_levels=None, device: str = "cpu",
     calibrate_source_support: bool = True, support_quantile: float = 0.95,
+    support_calibration_mode: "str | None" = None,
 ) -> dict:
     y = np.asarray(y)
     domain = np.asarray(domain)
     n_classes = cfg.n_classes
 
-    # --- source-only calibration (support threshold + pseudo harm gains) ---
-    feature_cfg = None
-    if calibrate_source_support and X_src is not None and y_src is not None and source_pseudo_levels is not None:
+    # --- support threshold: a provided router's feature_config wins (caller-supplied threshold,
+    #     e.g. Step-2F nested calibration); else optionally source-calibrate here; else default. ---
+    if router is not None:
+        feature_cfg = router.config.feature_config
+    elif calibrate_source_support and X_src is not None and y_src is not None and source_pseudo_levels is not None:
         feature_cfg = calibrate_router_feature_config_from_source(
             model, X_src, y_src, source_pseudo_levels, cfg, source_prior,
             device=device, support_quantile=support_quantile)
-    support_cal_available = feature_cfg is not None
+    else:
+        feature_cfg = None
+    support_cal_available = feature_cfg is not None and feature_cfg.max_density_nll_target_prior is not None
     if feature_cfg is None:
         feature_cfg = RouterFeatureConfig(min_target_n=max(20, int(cfg.tta.min_target)))
 
@@ -300,6 +322,7 @@ def evaluate_router_offline_tta(
         avoided_harm=(_mean([max(0.0, -dv["raw_gain"]) for dv in not_adapted]) if not_adapted else 0.0),
         missed_benefit=(_mean([max(0.0, dv["raw_gain"]) for dv in not_adapted]) if not_adapted else 0.0),
         source_support_calibration_available=bool(support_cal_available),
+        source_support_calibration_mode=support_calibration_mode,
         source_support_threshold_nll_target_prior=(
             None if feature_cfg.max_density_nll_target_prior is None
             else float(feature_cfg.max_density_nll_target_prior)),

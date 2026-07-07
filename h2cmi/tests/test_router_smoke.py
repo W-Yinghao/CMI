@@ -11,7 +11,10 @@ import numpy as np
 from h2cmi.config import H2Config
 from h2cmi.data.eeg_simulator import EEGSimulator, ShiftSpec, train_target_split
 from h2cmi.train.trainer import train_h2, reference_prior
-from h2cmi.eval.router_harness import evaluate_router_offline_tta
+from h2cmi.eval.router_harness import (
+    evaluate_router_offline_tta, make_support_calibrated_feature_config,
+)
+from h2cmi.router.router import RefusalFirstRouter, RouterConfig
 
 
 def run():
@@ -61,9 +64,33 @@ def run():
     if s["source_acar_harm_calibration_state"] in ("degenerate", "unavailable"):
         assert s["action_counts"].get("offline_tta", 0) == 0, s["action_counts"]
 
+    # no NaN/inf in the per-domain support diagnostics (feature vectors are finite by construction)
+    for dv in rep["per_domain"].values():
+        for k, v in dv["support"].items():
+            assert np.isfinite(v), (k, v)
+
+    # a caller-supplied support threshold flows through router -> harness -> report (Step-2F path)
+    thr = 99.0                                            # deliberately loose: identity support-admissible
+    fcfg = make_support_calibrated_feature_config(
+        max_density_nll_target_prior=thr, min_target_n=max(20, cfg.tta.min_target))
+    router = RefusalFirstRouter(RouterConfig(feature_config=fcfg))
+    rep2 = evaluate_router_offline_tta(
+        model, Xt, yt, tgt_unit, cfg, pi_star, router=router,
+        X_src=Xs, y_src=ys, source_pseudo_levels=src_unit, device=cfg.train.device,
+        calibrate_source_support=False, support_calibration_mode="custom_test")
+    s2 = rep2["router_summary"]
+    assert abs(s2["source_support_threshold_nll_target_prior"] - thr) < 1e-9, s2
+    assert s2["source_support_calibration_mode"] == "custom_test"
+    assert sum(s2["action_counts"].values()) == s2["n_domains"]
+    if s2["source_acar_harm_calibration_state"] in ("degenerate", "unavailable"):
+        assert s2["action_counts"].get("offline_tta", 0) == 0, s2["action_counts"]
+
     print("router  actions=%s  coverage=%.2f  acar_harm=%s  missed_benefit=%.3f"
           % (dict(s["action_counts"]), s["coverage"],
              s["source_acar_harm_calibration_state"], s["missed_benefit"]))
+    print("custom-threshold pass-through: thr=%.1f mode=%s actions=%s"
+          % (s2["source_support_threshold_nll_target_prior"],
+             s2["source_support_calibration_mode"], dict(s2["action_counts"])))
     print("\nROUTER SMOKE TEST PASSED")
     return rep
 
