@@ -161,3 +161,32 @@ vs the failing null, but CP95 overlaps prior_only at the margin — not a clean 
 **NEXT (reviewer, NOT authorized):** contract redesign / narrow the estimand + diagnose contract construction (Case C+D) —
 **NOT** mean-T gate recalibration (explicitly rejected; would be post-hoc null repair), NOT p-tuning, NOT a budget frontier
 (power isn't the blocker; null control is). Builds on [[csc-b8-information-contract]].
+
+---
+
+## B8.3 RESULT (label-balanced case-control audit contract, 2026-07-07) — INSUFFICIENT: halves but does NOT control the prior-collider residual. NO tag.
+
+Reviewer authorized B8.3 = contract redesign (NOT gate-tune) after B8.2's Case C+D: remove label-prior via the AUDIT
+SAMPLING CONTRACT (a predeclared, Z-blind, deterministic case-control selector `A(C,Y,G,Block,seed)` that balances P(Y|C) by
+construction; the exact null RE-APPLIES A under every randomized C*). mean-T-alone made a PRIMARY screen. Reuses B8.1 engine
+byte-frozen; new code = selector + certifier. Narrowed estimand = label-balanced audit population. Protocol pre-registered +
+committed `d99ab79` (module sha `fa59a341`) BEFORE run; design red-team `wrznv3lin` (no blockers). Phase B = 6 fresh disjoint
+blocks (620-720e6) × 12 × 50 = 3600. Package `csc/results/b8_stage3_label_balanced_contract/`; note + results commits
+separate; NO tag. Result red-team `w1urtx7hm`: accounting/isolation **PASS** (engine byte-identical, seeds disjoint, exact
+C×Y balance verified, 13-field bit-for-bit re-run, no fabrication); science **MINOR_ISSUE** (INSUFFICIENT genuine + decisive).
+
+**INSUFFICIENT (pre-registered):** the mean-T PRIMARY screen (≤7/300) FAILS —
+- `CONTRACT_NULL_prior_only` mean-T-alone **28/300** (CP95 [6.3,13.2]%), both-gate 2/300.
+- `CONTRACT_NULL_cov_plus_prior` mean-T-alone **22/300** (CP95 [4.7,10.9]%), both-gate 10/300.
+- The sampling contract HALVED the residual (B8.2 46→28 Fisher p=0.034; 49→22 p=9e-4) — a GENUINE first-order-prior removal,
+  worked as designed — but does NOT control it to nominal. **Do NOT read the studentized-masked both-gate 2/300 as success**
+  (mean-T is primary precisely because the both-gate would falsely pass here).
+- **Mechanism confirmed:** channel (a) selection-intensity asymmetry −390/−388 (prior/mixed) vs +2 (balanced), co-located with
+  the breaches → the surviving second-order collider residual, not a code fault; channel (b) within-Y C-Z design-asserted.
+- POS survives but `POS_boundary` **19/300 < 20** strong bar = POWER (smaller balanced sample; mean-T 93 shows signal intact,
+  NOT absorption); POS+prior 30/300 ≥15. Violations refuse 300/300 (by construction, H3).
+
+**NET:** the information-contract line (B8.0→B8.3) is pushed to its emulator limit: case-control-on-a-collider inherently
+leaves a second-order residual count-balancing cannot remove. **NEXT (reviewer, NOT authorized):** B9 genuinely randomized
+audit acquisition OR estimand-narrowing (declare prior-bearing worlds out of target) — NOT gate/mean-T recalibration, NOT
+p-tuning, NOT selector/statistic changes to match intensities. Builds on [[csc-b8-information-contract]].
