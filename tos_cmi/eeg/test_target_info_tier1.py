@@ -14,11 +14,13 @@ import numpy as np
 from tos_cmi.eeg.target_info_splits import (make_calibration_audit_splits, select_k_per_class,
                                             target_leak_structural_check, budget_action, b1_triage_action,
                                             DecisionContext, AuditView, SourceContext, CalibrationContext,
-                                            UnlabeledTargetContext, B1_ACTIONS, is_deployable_budget,
-                                            TARGET_LEAK_TOKEN)
+                                            UnlabeledTargetContext, LabelAccessGuard, hash_array,
+                                            B1_ACTIONS, is_deployable_budget, TARGET_LEAK_TOKEN)
 from tos_cmi.eeg.run_target_info_tier1_smoke import (load_cfg, build_plan, expand_tasks, run_cli,
                                                      calibration_delta_bacc, audit_scalar, unlabeled_mismatch,
-                                                     compute_decision_row, b3_sequential_decision)
+                                                     compute_decision_row, finalize_decision_row,
+                                                     b3_sequential_decision, scope_hash, authorize_execution,
+                                                     _preflight_from_labels, CFG)
 
 
 def test_config_parses_target_info_driver():
@@ -188,9 +190,20 @@ def test_dry_run_execute_conflict():
 # ---------------- executable-wiring tests (from the PM patch spec) ----------------
 def _dummy_world(seed=0, n=60):
     rng = np.random.default_rng(seed)
-    Zs = rng.standard_normal((n, 4)); ys = np.array([0, 1] * (n // 2))
-    Zt = rng.standard_normal((n, 4)); yt = np.array(([0, 1] * (n // 2)))
+    # class-separated features so a classifier (and thus bAcc) actually responds to labels
+    ys = np.array([0, 1] * (n // 2))
+    Zs = rng.standard_normal((n, 4)) + ys[:, None] * np.array([1.5, 0, 0, 0])
+    yt = np.array([0, 1] * (n // 2))
+    Zt = rng.standard_normal((n, 4)) + yt[:, None] * np.array([1.5, 0, 0, 0])
     return Zs, ys, Zt, yt
+
+
+def _lin_eraser(seed=0, d=4):
+    """A fixed linear eraser that ZEROS the discriminative dim (dim 0, where _dummy_world put the class signal),
+    so ΔbAcc(erased) - ΔbAcc(full) is genuinely nonzero and responds to labels. (An identity or a generic
+    invertible map would leave separability unchanged, making the label-dependence tests vacuous.)"""
+    mask = np.ones(d); mask[0] = 0.0
+    return (lambda X: np.asarray(X) * mask)
 
 
 def _decision_and_audit(src, Zt, yt, splits, E, Erand, budget="B2_k_labels_per_class"):
@@ -290,6 +303,180 @@ def test_execute_still_halts_when_runs_disabled():
         assert code == 1 and msg.startswith("EXPERIMENTS_DISABLED"), (argv, code, msg)
 
 
+# ---------------- P0-1: tamper-proof run authorization ----------------
+import hashlib as _hashlib
+
+
+def _approved_manifest(cfg, token="s3cret"):
+    driver_hash = _hashlib.sha256(open(CFG, "rb").read()).hexdigest()[:16]
+    return {"run_status": "approved", "runs_allowed": True, "experiments_allowed": True,
+            "enable_token_required": True,
+            "approved_enable_token_sha256": _hashlib.sha256(token.encode()).hexdigest(),
+            "approved_scope_hash": scope_hash(cfg), "approved_driver_hash": driver_hash,
+            "approved_git_commit": "ANY"}
+
+
+def test_fully_approved_manifest_authorizes():
+    """Positive control: the gate is a REAL gate (can authorize), not a permanent brick."""
+    cfg = load_cfg()
+    ok, reasons = authorize_execution(cfg, _approved_manifest(cfg), "s3cret")
+    assert ok and reasons == [], reasons
+
+
+def test_plain_yaml_flip_does_not_enable_execution():
+    """P0-1: flipping the DRIVER config booleans does NOT authorize a run (manifest stays preflight_only on disk)."""
+    cfg = dict(load_cfg()); cfg["runs_allowed"] = True; cfg["experiments_allowed"] = True
+    for argv in ([], ["--execute"]):
+        code, msg = run_cli(argv, cfg)
+        assert code == 1 and msg.startswith("EXPERIMENTS_DISABLED"), (argv, code, msg)
+
+
+def test_missing_enable_token_halts():
+    cfg = load_cfg()
+    ok, reasons = authorize_execution(cfg, _approved_manifest(cfg), None)
+    assert not ok and any("token" in r for r in reasons)
+
+
+def test_wrong_enable_token_halts():
+    cfg = load_cfg()
+    ok, reasons = authorize_execution(cfg, _approved_manifest(cfg), "not-the-token")
+    assert not ok and any("token" in r for r in reasons)
+
+
+def test_scope_hash_mismatch_halts():
+    cfg = load_cfg()
+    m = dict(_approved_manifest(cfg)); m["approved_scope_hash"] = "deadbeefdeadbeef"
+    ok, reasons = authorize_execution(cfg, m, "s3cret")
+    assert not ok and any("scope_hash" in r for r in reasons)
+
+
+def test_driver_config_hash_mismatch_halts():
+    cfg = load_cfg()
+    m = dict(_approved_manifest(cfg)); m["approved_driver_hash"] = "deadbeefdeadbeef"
+    ok, reasons = authorize_execution(cfg, m, "s3cret")
+    assert not ok and any("driver_config_hash" in r for r in reasons)
+
+
+# ---------------- P0-2: calibration-delta taint / provenance ----------------
+def test_cal_deltas_depend_only_on_calibration_labels():
+    Zs, ys, Zt, yt = _dummy_world()
+    src = SourceContext(Zs, ys, ys.copy(), 2)
+    E = _lin_eraser()
+    splits = make_calibration_audit_splits(yt, R=1, seed=0)
+    cal_idx, aud_idx = splits[0]
+    cal = CalibrationContext(Zt[cal_idx], yt[cal_idx], {})
+    d1 = calibration_delta_bacc(E, src, cal)
+    # mutate audit labels wildly; the calibration delta cannot see them -> identical on the same calibration
+    cal_same = CalibrationContext(Zt[cal_idx], yt[cal_idx], {})
+    d2 = calibration_delta_bacc(E, src, cal_same)
+    assert d1 == d2
+
+
+def test_audit_label_permutation_changes_only_audit_metrics_not_decision():
+    # R=1 so the single split's calibration is disjoint from its audit -- flipping audit labels cannot touch any
+    # calibration label. (Across R>1 splits the audit UNION covers calibration trials of OTHER splits, so a global
+    # audit flip would corrupt calibration; the invariance guarantee is PER-SPLIT. This is the cross-split reuse
+    # the wired-path red-team flagged.)
+    Zs, ys, Zt, yt = _dummy_world()
+    src = SourceContext(Zs, ys, ys.copy(), 2)
+    E = _lin_eraser(); Erand = _lin_eraser(seed=9)               # discriminative erasers so audit metric responds
+    splits = make_calibration_audit_splits(yt, R=1, seed=1)
+    row_a, audit_a = _decision_and_audit(src, Zt, yt, splits, E, Erand)
+    yt2 = yt.copy()
+    _, aud_idx = splits[0]
+    yt2[aud_idx] = 1 - yt[aud_idx]                               # relabel audit only -> audit metric must move
+    row_b, audit_b = _decision_and_audit(src, Zt, yt2, splits, E, Erand)
+    assert row_a == row_b                                        # decision invariant to audit relabeling
+    assert audit_a != audit_b                                    # but audit metric genuinely moves (non-vacuous)
+
+
+def test_calibration_label_permutation_can_change_decision():
+    Zs, ys, Zt, yt = _dummy_world(seed=1, n=80)
+    src = SourceContext(Zs, ys, ys.copy(), 2)
+    E = _lin_eraser()
+    splits = make_calibration_audit_splits(yt, R=6, seed=0)
+    # a well-aligned calibration signal vs a corrupted (flipped-label) one CAN produce different cal deltas
+    good = [calibration_delta_bacc(E, src, CalibrationContext(Zt[c], yt[c], {})) for c, _ in splits]
+    corrupt = [calibration_delta_bacc(E, src, CalibrationContext(Zt[c], 1 - yt[c], {})) for c, _ in splits]
+    assert good != corrupt                                       # calibration content DOES drive the delta
+
+
+def test_audit_view_cannot_be_passed_to_calibration_delta():
+    Zs, ys, Zt, yt = _dummy_world()
+    src = SourceContext(Zs, ys, ys.copy(), 2)
+    av = AuditView(np.arange(10), yt[:10])
+    try:
+        calibration_delta_bacc((lambda X: X), src, av); raise SystemExit("AuditView reached calibration delta")
+    except TypeError:
+        pass
+
+
+def test_decision_rows_store_calibration_and_audit_hashes():
+    row = compute_decision_row("B2_k_labels_per_class", True, None, [0.5] * 3, [0.0] * 3, [0, 1, 2], None,
+                               calibration_idx_hash="calidx", calibration_label_hash="callbl")
+    final = finalize_decision_row(row, audit_idx_hash="audidx", audit_label_hash="audlbl", audit_delta_bacc=0.02)
+    for fld in ["calibration_idx_hash", "audit_idx_hash", "calibration_label_hash", "audit_label_hash",
+                "delta_source", "decision_input_hash"]:
+        assert fld in final, fld
+    assert final["delta_source"] == "calibration_only"
+    assert "audit_idx_hash" not in row                           # audit hashes appear ONLY after finalize
+
+
+def test_label_access_guard_phase_separation():
+    cal = CalibrationContext(np.zeros((4, 2)), np.array([0, 1, 0, 1]), {})
+    av = AuditView(np.arange(4), np.array([0, 1, 0, 1]))
+    assert LabelAccessGuard("decision").calibration_labels(cal) is not None
+    try:
+        LabelAccessGuard("decision").audit_labels(av); raise SystemExit("audit labels read in decision phase")
+    except PermissionError:
+        pass
+    assert LabelAccessGuard("audit").audit_labels(av) is not None   # allowed only after decision frozen
+
+
+# ---------------- P0-3: real-split preflight (split/schema only; NO metrics) ----------------
+_METRIC_WORDS = ("bacc", "delta", "accept", "reject", "abstain", "action", "nll", "performance", "metric", "gain")
+
+
+def _has_metric_key(obj):
+    if isinstance(obj, dict):
+        return any(any(w in str(k).lower() for w in _METRIC_WORDS) for k in obj) or any(_has_metric_key(v) for v in obj.values())
+    if isinstance(obj, list):
+        return any(_has_metric_key(v) for v in obj)
+    return False
+
+
+def test_preflight_real_splits_outputs_no_metrics():
+    out = _preflight_from_labels(np.array([0] * 20 + [1] * 20), k_grid=[1, 2, 4, 8, 16], R=10, seed=0)
+    assert set(out.keys()) == {"n_splits", "k_grid", "rows", "unavailable_k"}
+    assert not _has_metric_key(out), "preflight leaked a metric-like field"
+
+
+def test_unavailable_k_marked_not_shrunk():
+    y = np.array([0, 0, 1, 1, 1, 1, 1, 1])                       # class 0 tiny
+    out = _preflight_from_labels(y, k_grid=[1, 2, 4, 8, 16], R=4, seed=0)
+    big = [u for u in out["unavailable_k"] if u["k"] == 16]
+    assert big, "large k should be UNAVAILABLE for a tiny class"
+    # a status of UNAVAILABLE is recorded verbatim -- k is NOT silently reduced
+    assert any(r["k"] == 16 and r["status"] == "UNAVAILABLE" for r in out["rows"])
+
+
+def test_no_audit_label_reuse_for_calibration():
+    y = np.array([0] * 12 + [1] * 12)
+    splits = make_calibration_audit_splits(y, R=5, seed=0)
+    for cal, aud in splits:
+        sel, status, _ = select_k_per_class(cal, y, k=2, seed=0)
+        if status == "OK":
+            assert set(sel.tolist()).issubset(cal.tolist())
+            assert set(sel.tolist()).isdisjoint(aud.tolist())
+
+
+def test_preflight_gated_by_manifest():
+    """--preflight-real-splits halts while manifest.preflight_allowed=false (running it = separate PM go)."""
+    cfg = load_cfg()
+    code, msg = run_cli(["--preflight-real-splits"], cfg)
+    assert code == 1 and msg.startswith("PREFLIGHT_DISABLED"), (code, msg)
+
+
 ALL = [test_config_parses_target_info_driver, test_calibration_audit_disjoint, test_b1_accept_forbidden,
        test_b4_oracle_diagnostic_only, test_audit_labels_unavailable_to_decision,
        test_unavailable_k_never_reuses_audit_labels, test_dry_run_has_expected_task_count,
@@ -301,7 +488,19 @@ ALL = [test_config_parses_target_info_driver, test_calibration_audit_disjoint, t
        test_decision_changes_or_can_change_under_calibration_label_permutation,
        test_b1_never_accepts_even_with_large_unlabeled_shift,
        test_b3_sequential_stops_without_reading_future_labels, test_b4_excluded_from_deployable_accept_counts,
-       test_same_k_random_specificity_flag, test_execute_still_halts_when_runs_disabled]
+       test_same_k_random_specificity_flag, test_execute_still_halts_when_runs_disabled,
+       # P0-1 run authorization
+       test_fully_approved_manifest_authorizes, test_plain_yaml_flip_does_not_enable_execution,
+       test_missing_enable_token_halts, test_wrong_enable_token_halts, test_scope_hash_mismatch_halts,
+       test_driver_config_hash_mismatch_halts,
+       # P0-2 calibration-delta taint / provenance
+       test_cal_deltas_depend_only_on_calibration_labels,
+       test_audit_label_permutation_changes_only_audit_metrics_not_decision,
+       test_calibration_label_permutation_can_change_decision, test_audit_view_cannot_be_passed_to_calibration_delta,
+       test_decision_rows_store_calibration_and_audit_hashes, test_label_access_guard_phase_separation,
+       # P0-3 real-split preflight
+       test_preflight_real_splits_outputs_no_metrics, test_unavailable_k_marked_not_shrunk,
+       test_no_audit_label_reuse_for_calibration, test_preflight_gated_by_manifest]
 
 
 def main():

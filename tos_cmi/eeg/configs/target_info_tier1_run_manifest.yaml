@@ -1,0 +1,27 @@
+# Tier-1 RUN MANIFEST --- the tamper-resistant authorization object (P0-1). Execution is authorized ONLY when
+# run_status=approved AND a valid enable token AND matching scope/driver hashes are all present here. A plain
+# YAML flip of runs_allowed/experiments_allowed in the DRIVER config does NOT authorize a run (the executor keys
+# on THIS manifest, not the driver booleans). Current state = preflight_only: --execute and --preflight-real-splits
+# both HALT. Do NOT edit to enable a run without the separate PM go (and, at that time, a real enable token + the
+# approved hashes filled in).
+
+run_status: preflight_only
+preflight_allowed: false
+
+# identity pins the executor checks against (null = not approved -> authorization fails)
+approved_scope_hash: null
+approved_driver_hash: null
+approved_git_commit: null
+
+# enable-token gate (sha256 of the out-of-band token; null = no token approved -> authorization fails)
+enable_token_required: true
+approved_enable_token_sha256: null
+
+# these booleans live in the MANIFEST (not just the driver config) and are only half the gate
+runs_allowed: false
+experiments_allowed: false
+
+provenance:
+  branch: science-target-info-v1
+  stage: run_readiness_hardening
+  note: "preflight_only; running preflight or execute both require a separate PM go"

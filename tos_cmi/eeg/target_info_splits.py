@@ -13,6 +13,8 @@ Nothing here reads real EEG. The heavy eraser/benefit computation lives behind t
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Optional
+import hashlib
+import json
 import numpy as np
 
 # Leak gates below enforce their invariants with unconditional `raise` (NOT `assert`), and this module refuses
@@ -133,6 +135,44 @@ class AuditView:
     """The ONLY carrier of audit labels; passed exclusively to the final evaluation, never to a gate."""
     audit_idx: np.ndarray
     audit_y: np.ndarray
+
+
+# ------------------------------- provenance hashing + label-access guard (P0-2) -------------------------------
+def hash_array(a):
+    """Deterministic sha256[:16] of an integer/label array (order-sensitive)."""
+    a = np.asarray(a)
+    return hashlib.sha256(a.astype(np.int64).tobytes()).hexdigest()[:16]
+
+
+def hash_obj(obj):
+    """Deterministic sha256[:16] of a JSON-serializable object (sorted keys)."""
+    return hashlib.sha256(json.dumps(obj, sort_keys=True, default=str).encode()).hexdigest()[:16]
+
+
+@dataclass(frozen=True)
+class LabelAccessGuard:
+    """Runtime phase guard on label access. In the DECISION phase, calibration labels are readable (B2/B3/B4 as
+    specified) but audit labels are FORBIDDEN; audit labels become readable only in the AUDIT phase, after the
+    decision is frozen. Backs `delta_source = calibration_only` with an actual runtime check, not just a label."""
+    phase: str                                                  # "decision" | "audit"
+
+    def __post_init__(self):
+        if self.phase not in ("decision", "audit"):
+            raise ValueError("LabelAccessGuard.phase must be 'decision' or 'audit', got %r" % (self.phase,))
+
+    def calibration_labels(self, cal: "CalibrationContext"):
+        if isinstance(cal, AuditView):
+            raise PermissionError("audit view routed through calibration_labels()")
+        if not isinstance(cal, CalibrationContext):
+            raise TypeError("calibration_labels requires a CalibrationContext, got %s" % type(cal).__name__)
+        return cal.yt_cal
+
+    def audit_labels(self, view: AuditView):
+        if self.phase != "audit":
+            raise PermissionError("audit labels are forbidden in the decision phase")
+        if not isinstance(view, AuditView):
+            raise TypeError("audit_labels requires an AuditView, got %s" % type(view).__name__)
+        return view.audit_y
 
 
 def b1_triage_action(mismatch_score, request_hi=0.5, reject_lo=0.02):

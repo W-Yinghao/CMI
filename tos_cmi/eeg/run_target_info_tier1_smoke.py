@@ -26,11 +26,16 @@ if not __debug__:
 from tos_cmi.eeg.target_info_splits import (make_calibration_audit_splits, select_k_per_class,
                                             target_leak_structural_check, budget_action, b1_triage_action,
                                             DecisionContext, SourceContext, CalibrationContext,
-                                            UnlabeledTargetContext, AuditView, _family, TARGET_LEAK_TOKEN)
+                                            UnlabeledTargetContext, AuditView, LabelAccessGuard,
+                                            hash_array, hash_obj, _family, TARGET_LEAK_TOKEN)
 
 CFG = "tos_cmi/eeg/configs/target_info_tier1_smoke_driver_fixed.yaml"
+MANIFEST = "tos_cmi/eeg/configs/target_info_tier1_run_manifest.yaml"
 OUT = "tos_cmi/results/target_info/tier1_driver_dryrun"
+PREFLIGHT_OUT = "tos_cmi/results/target_info/tier1_preflight"
 HALT_MSG = "EXPERIMENTS_DISABLED: implementation-only stage; requires separate PM go."
+MANIFEST_HALT_MSG = "EXPERIMENTS_DISABLED: run manifest is preflight_only; requires separate PM go."
+PREFLIGHT_HALT_MSG = "PREFLIGHT_DISABLED: run manifest preflight_allowed=false; requires separate PM go."
 DESIGN_LOCK_HASH = "3ad4ef312e325fa6"
 
 
@@ -120,7 +125,11 @@ def _lazy_estimators():
 
 def calibration_delta_bacc(eraser, src: SourceContext, cal: CalibrationContext):
     """ΔbAcc_cal = bAcc_cal(erased) - bAcc_cal(identity). Head fit on SOURCE, evaluated on target CALIBRATION
-    labels ONLY. One scalar per (subject, split). Reads NO audit labels."""
+    labels ONLY. One scalar per (subject, split). Reads NO audit labels -- refuses an AuditView (P0-2 taint)."""
+    if isinstance(cal, AuditView):
+        raise TypeError("calibration_delta_bacc received an AuditView; cal deltas must come from CalibrationContext")
+    if not isinstance(cal, CalibrationContext):
+        raise TypeError("calibration_delta_bacc requires a CalibrationContext, got %s" % type(cal).__name__)
     _bacc, _ = _lazy_estimators()
     return (_bacc(eraser(src.Zs), src.ys, eraser(cal.Zt_cal), cal.yt_cal)
             - _bacc(src.Zs, src.ys, cal.Zt_cal, cal.yt_cal))
@@ -144,9 +153,11 @@ def audit_scalar(eraser, src: SourceContext, audit: AuditView, Zt_audit):
 
 def compute_decision_row(budget, source_safety_pass, source_benefit_lcb,
                          cal_deltas, cal_random_deltas, cal_clusters, unlabeled_mismatch_score,
-                         thr=0.01, boot_seed=0):
+                         thr=0.01, boot_seed=0, calibration_idx_hash=None, calibration_label_hash=None):
     """Build the DecisionContext (source + calibration ONLY) and return a decision row. Structurally has NO
-    audit input, so a decision is invariant to any audit-label permutation (see the leak test)."""
+    audit input, so a decision is invariant to any audit-label permutation. Records calibration provenance +
+    delta_source=calibration_only + decision_input_hash; audit hashes are joined LATER via finalize_decision_row
+    (audit phase), so they never influence the decision."""
     fam = _family(budget)
     kw = dict(budget=budget, source_safety_pass=source_safety_pass, benefit_thr=thr)
     if fam == "B0":
@@ -165,10 +176,28 @@ def compute_decision_row(budget, source_safety_pass, source_benefit_lcb,
     specific = None
     if action == "accept":
         specific = "accepted_specific" if kw.get("beats_random", True) else "accepted_non_specific"
-    return {"budget": budget, "action": action, "source_safety_pass": bool(source_safety_pass),
-            "cal_benefit_lcb": kw.get("cal_benefit_lcb"), "beats_random": kw.get("beats_random"),
-            "source_benefit_lcb": kw.get("source_benefit_lcb"), "unlabeled_triage": kw.get("unlabeled_triage"),
-            "specificity": specific}                            # NOTE: no audit field anywhere
+    decision = {"budget": budget, "action": action, "source_safety_pass": bool(source_safety_pass),
+                "cal_benefit_lcb": kw.get("cal_benefit_lcb"), "beats_random": kw.get("beats_random"),
+                "source_benefit_lcb": kw.get("source_benefit_lcb"),
+                "unlabeled_triage": kw.get("unlabeled_triage"), "specificity": specific}
+    decision["decision_input_hash"] = hash_obj(decision)       # depends only on source+calibration-derived fields
+    decision["calibration_idx_hash"] = calibration_idx_hash
+    decision["calibration_label_hash"] = calibration_label_hash
+    decision["delta_source"] = "calibration_only"
+    # audit_idx_hash / audit_label_hash are added ONLY in finalize_decision_row (audit phase); absent here.
+    return decision
+
+
+def finalize_decision_row(decision_row, audit_idx_hash, audit_label_hash, audit_delta_bacc=None,
+                          audit_delta_nll=None):
+    """AUDIT phase: attach audit provenance (and the honest held-out metrics) AFTER the decision is frozen. The
+    decision-determining fields are untouched; audit hashes/metrics live in a separate sub-record so permuting
+    audit labels changes only these, never the decision (see the audit-permutation test)."""
+    row = dict(decision_row)
+    row["audit_idx_hash"] = audit_idx_hash
+    row["audit_label_hash"] = audit_label_hash
+    row["audit_metric"] = {"audit_delta_bacc": audit_delta_bacc, "audit_delta_nll": audit_delta_nll}
+    return row
 
 
 def b3_sequential_decision(k_grid, deltas_by_k, random_by_k, cal_clusters, thr=0.01, boot_seed=0):
@@ -197,16 +226,102 @@ def b3_sequential_decision(k_grid, deltas_by_k, random_by_k, cal_clusters, thr=0
             "ks_read": list(ks_read), "specificity": None}     # budget exhausted without certification
 
 
+# ============================ run authorization (P0-1: tamper-proof, not a YAML boolean) ============================
+def _git_commit():
+    """Best-effort current git HEAD (provenance only; never a hard blocker so tests stay deterministic)."""
+    try:
+        import subprocess
+        return subprocess.check_output(["git", "rev-parse", "HEAD"],
+                                       cwd=os.path.dirname(os.path.abspath(CFG)) or ".", text=True).strip()
+    except Exception:
+        return None
+
+
+def scope_hash(cfg):
+    """Hash of the immutable experiment SCOPE (datasets/backbones/worlds/budgets/interventions/thresholds/alpha)."""
+    scope = {"tier1_scope": cfg["tier1_scope"], "worlds": cfg["worlds"], "interventions": cfg["interventions"],
+             "budgets": cfg["budgets"], "thresholds": cfg.get("thresholds"),
+             "world_alpha_grid": cfg.get("world_alpha_grid")}
+    return hash_obj(scope)
+
+
+def load_manifest(path=MANIFEST):
+    with open(path) as fh:
+        return yaml.safe_load(fh)
+
+
+def authorize_execution(cfg, manifest, enable_token, driver_cfg_path=CFG):
+    """Return (authorized, reasons). Execution requires an APPROVED run manifest + a valid enable token + matching
+    scope/driver hashes -- NOT the driver-config booleans. A plain YAML flip of runs_allowed/experiments_allowed in
+    the DRIVER config cannot authorize a run, because this keys on the MANIFEST (P0-1)."""
+    reasons = []
+    if manifest.get("run_status") != "approved":
+        reasons.append("manifest.run_status=%r != 'approved'" % manifest.get("run_status"))
+    if not manifest.get("runs_allowed", False):
+        reasons.append("manifest.runs_allowed is false")
+    if not manifest.get("experiments_allowed", False):
+        reasons.append("manifest.experiments_allowed is false")
+    if manifest.get("enable_token_required", True):
+        appr = manifest.get("approved_enable_token_sha256")
+        got = hashlib.sha256(enable_token.encode()).hexdigest() if enable_token else None
+        if not appr or got != appr:
+            reasons.append("enable token missing/invalid")
+    if manifest.get("approved_scope_hash") != scope_hash(cfg):
+        reasons.append("scope_hash mismatch")
+    try:
+        cur_driver = hashlib.sha256(open(driver_cfg_path, "rb").read()).hexdigest()[:16]
+    except Exception:
+        cur_driver = None
+    if manifest.get("approved_driver_hash") != cur_driver:
+        reasons.append("driver_config_hash mismatch")
+    appr_git = manifest.get("approved_git_commit")
+    if appr_git not in (None, "ANY") and appr_git != _git_commit():   # git pin is optional (soft)
+        reasons.append("git_commit mismatch")
+    return (len(reasons) == 0, reasons)
+
+
+# ============================ real-split PREFLIGHT (P0-3: split/schema only, NEVER metrics) ============================
+def _preflight_from_labels(y, k_grid, R, seed):
+    """Pure preflight over a target subject's labels: stratified cal/audit splits, per-class counts, k-availability,
+    index/label hashes, disjointness. Produces NO gate action, NO ΔbAcc, NO performance metric. Testable on dummy
+    arrays."""
+    y = np.asarray(y).astype(int)
+    splits = make_calibration_audit_splits(y, R=R, seed=seed)
+    target_leak_structural_check(splits, {})                   # disjointness gate (empty budget_specs = idx-only)
+    rows, unavailable = [], []
+    for sid, (cal, aud) in enumerate(splits, 1):
+        cal_h, aud_h = hash_array(cal), hash_array(aud)
+        for k in k_grid:
+            sel, status, eff = select_k_per_class(cal, y, k, seed)
+            if status == "UNAVAILABLE":
+                unavailable.append({"split_id": sid, "k": k, "eff_n_per_class": eff})
+            else:                                              # selected k come ONLY from calibration (disjoint aud)
+                if not set(sel.tolist()).isdisjoint(aud.tolist()):
+                    raise AssertionError("preflight split %d k %d: selected k overlaps audit" % (sid, k))
+            rows.append({"split_id": sid, "k": int(k), "status": status, "eff_n_per_class": eff,
+                         "calibration_idx_hash": cal_h, "audit_idx_hash": aud_h,
+                         "calibration_label_hash": hash_array(y[cal]), "audit_label_hash": hash_array(y[aud])})
+    return {"n_splits": len(splits), "k_grid": list(k_grid), "rows": rows, "unavailable_k": unavailable}
+
+
+def preflight_real_splits(cfg, manifest):
+    """CLI preflight: load real frozen-dump target labels ONLY, build splits/hashes/unavailable-k, write manifest +
+    tables. Gated behind manifest.preflight_allowed. Fits NO eraser, computes NO ΔbAcc/gate action/metric. The
+    real-dump loading branch is UNEXERCISED until the PM enables preflight (mirrors execute_real)."""
+    raise RuntimeError("preflight_real_splits real-dump loading is deferred to the separate PM go "
+                       "(enable via manifest.preflight_allowed=true); pure logic is in _preflight_from_labels")
+
+
 # ============================ locked real-EEG executor (never reached at this stage) ============================
-def execute_real(cfg):
+def execute_real(cfg, manifest=None):
     """Would load real EEG dumps, inject the worlds, fit erasers on SOURCE, split target into calibration/audit,
-    compute decisions via the pure functions above, and score audit separately. UNREACHABLE while
-    runs_allowed=false (run_cli halts first); guarded here too (defense in depth). Delegates all leak-sensitive
-    logic to the tested pure functions -- no bespoke label handling."""
-    if not cfg.get("runs_allowed", False) or not cfg.get("experiments_allowed", False):
-        return 1, HALT_MSG                                     # belt-and-suspenders: never run while locked
+    compute decisions via the pure functions above, and score audit separately. Reached only after
+    authorize_execution passes (never at this stage); guarded here too (defense in depth). Delegates all
+    leak-sensitive logic to the tested pure functions -- no bespoke label handling."""
+    if not (manifest or {}).get("runs_allowed", False) or not (manifest or {}).get("experiments_allowed", False):
+        return 1, MANIFEST_HALT_MSG                            # belt-and-suspenders: never run while locked
     # (intentionally not wired to real dumps at this stage; requires the separate PM go to enable + fill in)
-    raise RuntimeError("execute_real reached with runs_allowed=true but real-dump wiring is deferred to PM go")
+    raise RuntimeError("execute_real reached with an approved manifest but real-dump wiring is deferred to PM go")
 
 
 def build_schema(cfg, plan=None, expanded=None):
@@ -292,17 +407,26 @@ def run_cli(argv, cfg):
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--execute", action="store_true")
+    ap.add_argument("--preflight-real-splits", action="store_true")
+    ap.add_argument("--run-manifest", default=MANIFEST)
+    ap.add_argument("--enable-token", default=None)
     a = ap.parse_args(argv)
-    if a.dry_run and a.execute:                               # reject contradictory intent (R6)
-        return 2, "CONFLICTING_FLAGS: --dry-run and --execute are mutually exclusive."
+    if sum([a.dry_run, a.execute, a.preflight_real_splits]) > 1:   # exactly one mode
+        return 2, "CONFLICTING_FLAGS: choose one of --dry-run / --execute / --preflight-real-splits."
     if a.dry_run:
         n_plan, n_exp = dry_run(cfg)
         return 0, "TARGET_INFO_TIER1_DRYRUN_DONE (%d plan rows, %d expanded tasks)" % (n_plan, n_exp)
-    # bare invocation OR --execute: experiments are HARD-LOCKED at this stage.
-    if not cfg.get("runs_allowed", False):
-        return 1, HALT_MSG
-    # (unreachable while runs_allowed=false) the wired executor is gated again inside execute_real.
-    return execute_real(cfg)
+    if a.preflight_real_splits:
+        manifest = load_manifest(a.run_manifest)
+        if not manifest.get("preflight_allowed", False):          # gated: running preflight = separate PM go
+            return 1, PREFLIGHT_HALT_MSG
+        return preflight_real_splits(cfg, manifest)
+    # bare invocation OR --execute: experiments require an APPROVED, token-backed manifest (P0-1/P0-4).
+    manifest = load_manifest(a.run_manifest)
+    ok, reasons = authorize_execution(cfg, manifest, a.enable_token)
+    if not ok:
+        return 1, MANIFEST_HALT_MSG                               # [blocked by: %s] omitted from the fixed message
+    return execute_real(cfg, manifest)                            # only if fully authorized (never at this stage)
 
 
 def main():
