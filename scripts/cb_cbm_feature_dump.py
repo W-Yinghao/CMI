@@ -21,7 +21,30 @@ CKPT_CBM = "/home/infres/yinwang/eeg2025/NIPS/Cbramod_pretrained_weights.pth"
 SHU = "/projects/EEG-foundation-model/SHU-MI-cbramod/mat"
 SHU_CH = ["FP1","FP2","FZ","F3","F4","F7","F8","FC1","FC2","FC5","FC6","CZ","C3","C4","T3","T4","A1","A2",
           "CP1","CP2","CP5","CP6","PZ","P3","P4","T5","T6","PO3","PO4","OZ","O1","O2"]
+BNCI = "/projects/EEG-foundation-model/datalake/raw/MNE-bnci-data/database/data-sets/001-2014"
+BNCI_CH = ["Fz","FC3","FC1","FCz","FC2","FC4","C5","C3","C1","Cz","C2","C4","C6","CP3","CP1","CPz","CP2","CP4",
+           "P1","Pz","P2","POz"]   # 22 EEG channels of BCI-IV-2a (3 EOG dropped)
 OUT = Path("results/fsr_codebrain_cbramod_8b")
+
+
+def load_bnci():
+    """yield (X (n,22,1000)@250Hz [MI window cue+2s..cue+6s], y, subject, session, base) per BNCI2014_001 file."""
+    import glob as _g
+    for f in sorted(_g.glob(f"{BNCI}/A0[1-9][TE].mat")):
+        base = os.path.basename(f); sub = int(base[1:3]); ses = 0 if base[3] == "T" else 1
+        m = sio.loadmat(f, struct_as_record=False, squeeze_me=True)
+        Xs, ys = [], []
+        for r in m["data"]:
+            tr = np.atleast_1d(getattr(r, "trial", np.array([]))); yy = np.atleast_1d(getattr(r, "y", np.array([])))
+            if tr.size == 0 or yy.size == 0:
+                continue
+            Xr = getattr(r, "X")[:, :22]               # 22 EEG (drop 3 EOG)
+            for t, lab in zip(tr.astype(int), yy.astype(int)):
+                a, b = t + 2 * 250, t + 6 * 250        # 4 s MI window (cue+2..cue+6)
+                if b <= Xr.shape[0]:
+                    Xs.append(Xr[a:b].T); ys.append(lab)   # (22, 1000)
+        if Xs:
+            yield np.stack(Xs).astype(np.float32), np.array(ys, int), sub, ses, base
 
 
 def unwrap(sd):
@@ -109,7 +132,7 @@ def build_cbramod(torch, device):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", choices=["codebrain", "cbramod"], required=True)
-    ap.add_argument("--dataset", choices=["shu"], default="shu")
+    ap.add_argument("--dataset", choices=["shu", "bnci2014_001"], default="shu")
     ap.add_argument("--device", default="cuda")
     ap.add_argument("--bs", type=int, default=64)
     args = ap.parse_args()
@@ -118,6 +141,8 @@ def main():
     torch.set_num_threads(4); set_determinism(torch)
     dev = torch.device(args.device if (args.device == "cpu" or torch.cuda.is_available()) else "cpu")
     fwd, freqfn, loadinfo = (build_codebrain if args.model == "codebrain" else build_cbramod)(torch, dev)
+    DATASETS = {"shu": (load_shu, SHU_CH, 250), "bnci2014_001": (load_bnci, BNCI_CH, 250)}
+    loader, CHANS, NHZ = DATASETS[args.dataset]
 
     def pool(feats):                 # feats (B,C,np,200) -> F0 pooled (B,200), F1 per-channel (B,C*200)
         B, C, npp, D = feats.shape
@@ -128,9 +153,11 @@ def main():
     F0, F1, Y, D, SES, FREQH = [], [], [], [], [], []
     qc_rows = []
     t_start = time.time()
-    files = sorted(glob.glob(f"{SHU}/*.mat"))
-    for x_raw, y, sub, ses, base in load_shu():
-        x, npatch = preprocess(x_raw, 250)
+    first_base = None
+    for x_raw, y, sub, ses, base in loader():
+        if first_base is None:
+            first_base = base
+        x, npatch = preprocess(x_raw, NHZ)
         xt = torch.tensor(x, dtype=torch.float32, device=dev)
         f0l, f1l = [], []
         with torch.no_grad():
@@ -144,7 +171,7 @@ def main():
                 tf = freqfn(xt[:min(len(xt), 64)]).cpu().numpy()
             FREQH.append(dict(subject=sub, session=ses, n=int(min(len(xt), 64)),
                               n_unique=int(np.unique(tf).size), entropy=float(_entropy(tf, 4096))))
-        if base == os.path.basename(files[0]):     # determinism QC: repeat + batch-grouping, on F0 and F1
+        if base == first_base and len(xt) >= 32:   # determinism QC: repeat + batch-grouping, on F0 and F1
             with torch.no_grad():
                 a0, a1 = pool(fwd(xt[:32]).cpu().numpy())
                 b0, b1 = pool(fwd(xt[:32]).cpu().numpy())
@@ -162,10 +189,10 @@ def main():
     suffix = f"_bs{args.bs}" if args.bs != 64 else ""
     np.savez(OUT / "embeddings" / f"{args.model}_{args.dataset}_F0{suffix}.npz", X=F0, y=Y, d=D, ses=SES)
     np.savez(OUT / "embeddings" / f"{args.model}_{args.dataset}_F1{suffix}.npz", X=F1, y=Y, d=D, ses=SES,
-             n_channels=len(SHU_CH), chan_dim=200)
+             n_channels=len(CHANS), chan_dim=200)
     man = dict(model=args.model, dataset=args.dataset, bs=args.bs, n_trials=int(len(Y)),
                n_subjects=int(np.unique(D).size), n_sessions_per_subj=int(np.unique(SES).size),
-               channels=SHU_CH, n_channels=len(SHU_CH), native_hz=250, target_hz=200, patch=200, n_patch=int(npatch),
+               channels=CHANS, n_channels=len(CHANS), native_hz=NHZ, target_hz=200, patch=200, n_patch=int(npatch),
                classes=sorted(int(c) for c in np.unique(Y)), F0_dim=int(F0.shape[1]), F1_dim=int(F1.shape[1]),
                F1_desc="per-channel: mean over patches, keep channels, flatten C*200 (preserves MI spatial lateralization)",
                load=loadinfo, freq_token_hist=FREQH, qc=qc_rows, sec=round(time.time() - t_start, 1))
