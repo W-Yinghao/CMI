@@ -3,8 +3,9 @@
 # run_status=="approved" (this is "preflight_approved") + runs/experiments_allowed true (both false here) + a valid
 # enable token (none). The DEFAULT run manifest (target_info_tier1_run_manifest.yaml) stays preflight_only/locked.
 
-run_status: preflight_approved
-preflight_allowed: true
+# CONSUMED after the subject-seeded real-split preflight. Locked at Fork-1 closeout (no allowed state in the tree).
+run_status: consumed
+preflight_allowed: false
 runs_allowed: false
 experiments_allowed: false
 
