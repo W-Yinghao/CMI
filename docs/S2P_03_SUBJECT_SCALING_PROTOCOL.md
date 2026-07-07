@@ -5,15 +5,19 @@ FSR-hardened metric/statistics lessons (dimension-invariant pairwise-L1; cluster
 held-out subjects; capacity/hours isolation). CBraMod primary, CodeBrain-Stage2 secondary. Downstream audit reuses
 the FSR L1/L4/L5/L6 ladder. To be design-red-teamed before any P1/P2 run.
 
-## Design — subject count × hours condition (the crux)
-Corpus = TUEG (4704743c). For each cell: pretrain a model **from scratch** (or Stage-2-from-frozen-tokenizer) on a
-**subject subset**, then audit downstream.
-- `N_subjects ∈ {32, 128, 512, all_or_max}` (all feasible, S2P_01).
-- **fixed-hours** (H0 total held constant; per-subject cap = H0/N shrinks) → isolates **subject diversity** from
-  total data. **growing-hours** (per-subject cap fixed; total grows) → the CodeBrain-style data-volume axis.
-- `H0 ∈ {250, 500}` h (pilot 250). `seed ∈ {0,1,2}` (subset + init).
+## Design — subject count × hours condition (the crux) — REVISED after 9B-0 inventory
+The **19-common canonical corpus is subject-RICH (6,535 subj) but hours-POOR (3,483 h, median 0.35 h/subj)**, so the
+original `{32,128,512}@H0{250,500}` was both **too conservative at the top** (corpus supports N≫512) **and
+infeasible at the low end** (H0=250 h × N=32 ⇒ 7.8 h/subj, only 5 subjects qualify). The binding constraint is
+**per-subject hours**, not subject count. Revised **P1 grid** (PM):
+- **fixed-hours `H0 = 100 h`** with an explicit **`min_per_subject = 0.05 h` (3 min)** exposure floor →
+  `N_subjects ∈ {32, 128, 512, 1024, 2000}` (per-subject 3.1 / 0.78 / 0.20 / 0.098 / 0.05 h) — a real high-subject
+  range with minimal protected exposure. `seed ∈ {0,1,2}`.
+- **growing-hours** (per-subject cap fixed, total grows) → the CodeBrain-style data-volume axis (sample-size).
+- **Optional exploratory endpoint** (NOT primary): `N = all-eligible` at H0=100 h ⇒ ultra-sparse (<3 min/subj) —
+  label **"ultra-sparse subject-diversity condition"**; not comparable to the exposure-protected cells.
 - **Diversity claim requires the FIXED-hours arm** (fixed total, more subjects). growing-only ⇒ *sample-size*, not
-  diversity (the explicit FSR-8C lesson).
+  diversity (FSR-8C lesson).
 
 ## Firewall (pretraining + downstream)
 Checkpoint selected by **pretrain-val loss on held-out pretraining subjects** only (S2P_02). Downstream: PCA/head/
