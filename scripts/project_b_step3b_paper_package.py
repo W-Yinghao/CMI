@@ -271,6 +271,12 @@ def build_method_tex():
 
 def build_merged_claim_boundary(cb, real, real_status):
     merged = dict(cb)
+    # 5th claimable: the real-EEG bridge itself is a positive, label-safe end-to-end result.
+    real_claim = "The real-EEG bridge runs end-to-end on BNCI2014_004 under label-safe LOSO."
+    claimable = list(cb.get("claimable", []))
+    if real and real["folds"] and real_claim not in claimable:
+        claimable.append(real_claim)
+    merged["claimable"] = claimable
     merged["real_bridge"] = dict(
         dataset=(real["summary"].get("dataset") if real else None),
         status=real_status,
