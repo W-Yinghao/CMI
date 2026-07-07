@@ -1,0 +1,191 @@
+{
+  "project": "Project A",
+  "step": "Step 20",
+  "scope": "final observability-contract closeout and claim ledger; no new data / retraining / rescue; not SOTA",
+  "final_verdict": "Observability contracts expose why unlabeled offline-TTA cannot be safely controlled under honest prior uncertainty.",
+  "evidence_ledger": [
+    {
+      "step": "Step 12",
+      "question": "Can source-only (R0) diagnostics predict TTA harm?",
+      "verdict": "REFUTES",
+      "finding": "source-only harm-predictor at/below the majority baseline (TOS-1 ceiling).",
+      "headline_metric": "R0 harm-predictor bAcc",
+      "headline_value": 0.3342,
+      "source_digest": "step14_harm_predictor_summary.json"
+    },
+    {
+      "step": "Step 13-14",
+      "question": "Do richer R1 target-unlabeled diagnostics predict harm?",
+      "verdict": "REFUTES",
+      "finding": "R1 predictor within its permutation null at n_perm=1000 -> overfitting artifact, not signal.",
+      "headline_metric": "harm-predictor verdict",
+      "headline_value": "above_baseline_but_within_permutation_null_overfitting_artifact",
+      "source_digest": "step14_harm_predictor_summary.json"
+    },
+    {
+      "step": "Step 14",
+      "question": "Are the real minimal-label curves accurate or merely low-coverage?",
+      "verdict": "CHARACTERIZES",
+      "finding": "high precision when decisive but coverage-limited; k=0 non-identifiable.",
+      "headline_metric": "k=0 status",
+      "headline_value": "not_identified_R1",
+      "source_digest": "step14_real_minimal_label_curves.json"
+    },
+    {
+      "step": "Step 15",
+      "question": "Can R2 minimal labels safely control harm (static policies)?",
+      "verdict": "REFUTES",
+      "finding": "no deployable minimal-label policy adapts while keeping harm<=0.05.",
+      "headline_metric": "best deployable policy",
+      "headline_value": null,
+      "source_digest": "step15_harm_control_summary.json"
+    },
+    {
+      "step": "Step 16",
+      "question": "Does sequential acquisition rescue it, and is benefit real?",
+      "verdict": "REFUTES",
+      "finding": "best sequential policy = none; benefit is rare, small, seed-unstable.",
+      "headline_metric": "oracle benefit-rate (bAcc)",
+      "headline_value": 0.0926,
+      "source_digest": "step16_benefit_anatomy.json"
+    },
+    {
+      "step": "Step 17",
+      "question": "Is the failure an accuracy-vs-bAcc estimand mismatch?",
+      "verdict": "REFUTES",
+      "finding": "class-balanced grid -> accuracy==bAcc per run (Step-16 gap was a threshold artifact); estimand-invariant.",
+      "headline_metric": "max |acc-bAcc gain|",
+      "headline_value": 0.0,
+      "source_digest": "step17_estimand_consistency.json"
+    },
+    {
+      "step": "Step 18",
+      "question": "Is TTA harm global or class/prior-dependent?",
+      "verdict": "CHARACTERIZES",
+      "finding": "class-specific and prior-dependent; only a small minority harmful under all priors.",
+      "headline_metric": "prior-dependent-sign fraction",
+      "headline_value": 0.963,
+      "source_digest": "step18_prior_stress.json"
+    },
+    {
+      "step": "Step 19",
+      "question": "Is any run robustly beneficial under bounded prior uncertainty?",
+      "verdict": "REFUTES",
+      "finding": "with a harm margin tau>=0.05 no run is robustly beneficial at any rho; best prior-robust policy = none.",
+      "headline_metric": "robust safe adaptation exists (margin)",
+      "headline_value": false,
+      "source_digest": "step19_prior_robust_policy.json"
+    }
+  ],
+  "deployment_decision_ladder": [
+    {
+      "level": "R0 (source-only)",
+      "observes": "source law only",
+      "contracts": [],
+      "licensed_decision": "identity",
+      "licenses_deployable_adaptation": false,
+      "rationale": "TOS-1: target gain non-identifiable source-only; source-only harm-predictor is NULL (Step 12/14)."
+    },
+    {
+      "level": "R1 (target-unlabeled)",
+      "observes": "target X (no labels)",
+      "contracts": [],
+      "licensed_decision": "identity/abstain",
+      "licenses_deployable_adaptation": false,
+      "rationale": "target gain needs labels (TU-2); R1 diagnostics do not predict harm above their permutation null (Step 13/14)."
+    },
+    {
+      "level": "R1 + C14 (declared point prior)",
+      "observes": "target X + declared operating prior",
+      "contracts": [
+        "C14"
+      ],
+      "licensed_decision": "abstain",
+      "licenses_deployable_adaptation": false,
+      "rationale": "prior-weighted gain is a counterfactual under a DECLARED prior and ORACLE class deltas; the sign is prior-dependent (Step 18); not deployable."
+    },
+    {
+      "level": "R1 + C15 (declared prior-uncertainty set)",
+      "observes": "target X + declared prior set",
+      "contracts": [
+        "C15"
+      ],
+      "licensed_decision": "block/abstain",
+      "licenses_deployable_adaptation": false,
+      "rationale": "robust benefit is unattainable under any honest uncertainty (tau>=0.05) (Step 19); identity/block is robustly justified for the persistent-harm minority."
+    },
+    {
+      "level": "R2 (minimal paired labels)",
+      "observes": "target X + a few labels",
+      "contracts": [
+        "C13"
+      ],
+      "licensed_decision": "abstain",
+      "licenses_deployable_adaptation": false,
+      "rationale": "minimal-label static and sequential policies fail to safely select adaptation (Step 15/16); safe selection needs (near-)full labels."
+    },
+    {
+      "level": "R2 (full / oracle labels)",
+      "observes": "full target labels",
+      "contracts": [],
+      "licensed_decision": "adapt (evaluation-only)",
+      "licenses_deployable_adaptation": false,
+      "rationale": "the oracle full-target gain licenses safe adaptation but is an evaluation-only upper bound, never deployable."
+    }
+  ],
+  "no_ladder_rung_licenses_deployable_adaptation": true,
+  "forbidden_claims": [
+    {
+      "claim": "unlabeled offline-TTA is safe to deploy",
+      "why": "Step 15/16 (minimal-label policies fail) and Step 19 (no robust benefit under prior uncertainty) refute it.",
+      "status": "FORBIDDEN",
+      "made": false
+    },
+    {
+      "claim": "the target prior is identified from R0/R1",
+      "why": "TU-1 boundary: identification needs C1 AND C2 AND C3; C14/C15 only DECLARE a prior / prior set.",
+      "status": "FORBIDDEN",
+      "made": false
+    },
+    {
+      "claim": "prior-robust adaptation benefit exists under honest prior uncertainty",
+      "why": "Step 19: with a harm margin tau>=0.05 no run is robustly beneficial at any rho.",
+      "status": "FORBIDDEN",
+      "made": false
+    }
+  ],
+  "forbidden_headline_claims_all_not_made": true,
+  "registry_forbidden_claims": [
+    "target concept shift detected from unlabeled target",
+    "source-only target safety certified",
+    "CMI/leakage guarantees accuracy",
+    "GLS gives the target prior source-only",
+    "R0 source metric reported as a target risk/gain/concept guarantee",
+    "R1 unlabeled-target balanced accuracy reported as identifiable target metric",
+    "declared deployment prior identifies the actual target prior",
+    "prior-weighted gain reported as holding under all target priors",
+    "gain reported as prior-robust without a declared prior-uncertainty set",
+    "declared prior-uncertainty set identifies the actual target prior",
+    "unlabeled offline-TTA is safe to deploy",
+    "the target prior is identified from R0/R1",
+    "prior-robust adaptation benefit exists under honest prior uncertainty"
+  ],
+  "tta_safe_to_deploy_claim": false,
+  "target_prior_identified_from_r0_r1_claim": false,
+  "prior_robust_benefit_exists_claim": false,
+  "oracle_gain_ever_deployable": false,
+  "prior_robust_safe_adaptation_certifiable_with_harm_margin": false,
+  "prior_robust_positive_is_zero_margin_sign_level_only": true,
+  "manuscript_ready_summary": [
+    "Under R0/R1 the sign of the offline-TTA target gain is not deployably identifiable; the source-only harm predictor is null (TOS-1 ceiling) and richer R1 diagnostics are an overfitting artifact once permutation-controlled.",
+    "R2 minimal-label control fails: neither static nor sequential label-acquisition policies safely select adaptation; safe selection requires (near-)full target labels (oracle, non-deployable). The failure is estimand-invariant (accuracy == balanced accuracy on this class-balanced grid; the Step-16 gap was a benefit-threshold artifact).",
+    "Mechanistically the harm is class-specific and prior-dependent, not global; the gain sign is fragile (median L1 flip-radius ~0.165 from uniform).",
+    "Under any honest declared prior uncertainty (contract C15), robust adaptation benefit is UNATTAINABLE with a usable harm margin (tau>=0.05); the only positive is a zero-margin sign-level artifact on a vanishing minority. The robustly justified actions are abstain or block, never a deployable adapt.",
+    "C14 (declared point prior) and C15 (declared uncertainty set) support counterfactual prior analysis only; neither identifies the actual target prior (Prior-Decoupled boundary)."
+  ],
+  "no_new_data": true,
+  "no_retraining": true,
+  "no_new_rescue_policy": true,
+  "claim_boundary_ok": true,
+  "claim_boundary": "Terminal closeout: no target functional is claimed identifiable under R0/R1; no deployable adaptation is licensed at any honest observability level; C14/C15 are declared/counterfactual, never identified target priors; the oracle gain is evaluation-only. No SOTA."
+}

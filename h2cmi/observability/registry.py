@@ -130,6 +130,10 @@ FORBIDDEN_CLAIMS = (
     "prior-weighted gain reported as holding under all target priors",  # sign is prior-dependent
     "gain reported as prior-robust without a declared prior-uncertainty set",  # C15 must be declared
     "declared prior-uncertainty set identifies the actual target prior",  # C15 must not become TU-1
+    # Step-20 closeout: the three terminal headline overclaims the project must never make
+    "unlabeled offline-TTA is safe to deploy",                        # Step 15/16/19 refute this
+    "the target prior is identified from R0/R1",                      # TU-1 boundary
+    "prior-robust adaptation benefit exists under honest prior uncertainty",  # Step 19: none at margin
 )
 
 

@@ -385,6 +385,21 @@ Step-18 class deltas). Outputs: `results_summaries/step19_prior_uncertainty_fron
 `test_prior_uncertainty.py` (validated vs binary closed form + brute-force grid), `test_prior_robust_policy.py`,
 `test_observability_audit.py` (C15), `test_observability_science_dashboard.py`.
 
+## 20. Final observability-contract closeout and claim ledger
+
+Step 20 is a **terminal synthesis**: no new data, no retraining, no new rescue policy. `closeout.py` reads
+the tracked step-13..19 digests and freezes (1) an evidence ledger (each step's question + verdict +
+headline metric pulled LIVE from its digest), (2) a deployment decision ladder over
+R0 / R1 / R1+C14 / R1+C15 / R2 in which **no rung licenses a deployable `adapt`**, (3) the three forbidden
+headline claims (TTA safe / target prior identified / prior-robust benefit exists), all flagged `made:
+false`, and (4) the final verdict. The τ=0 sign-level prior-robust positive is de-emphasised; the
+manuscript-usable statement is the τ≥0.05 result (no robust safe adaptation). Outputs:
+`results_summaries/step20_closeout.{json,md}`. Tests: `test_closeout.py`,
+`test_observability_audit.py` (FORBIDDEN_CLAIMS).
+
+**Final verdict:** *observability contracts expose why unlabeled offline-TTA cannot be safely controlled
+under honest prior uncertainty.*
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
@@ -395,5 +410,6 @@ statistical digest (§9), the multi-dataset audited expansion + chance-normalize
 minimal-label curves (§13), the Step-14 metric-semantics + power repair (§14), the Step-15
 coverage-aware harm-control policies (§15), the Step-16 benefit anatomy + sequential
 label-acquisition frontier (§16), the Step-17 estimand-consistent harm control (§17), the Step-18
-harm channels + target-prior stress (§18), and the Step-19 prior-uncertainty robustness frontier (§19)
-are live. A full multi-dataset SOTA table and manuscript writing are out of scope.
+harm channels + target-prior stress (§18), the Step-19 prior-uncertainty robustness frontier (§19), and
+the Step-20 final closeout + claim ledger (§20) are live. A full multi-dataset SOTA table and manuscript
+writing are out of scope.

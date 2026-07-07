@@ -125,6 +125,12 @@ _CHECK_FILES = {
     "notes/project_A_observability/results_summaries/step19_prior_uncertainty_frontier.md": 12,
     "notes/project_A_observability/results_summaries/step19_prior_robust_policy.md": 14,
     "notes/project_A_observability/results_summaries/step19_science_dashboard.md": 15,
+    # Step-20 final closeout and claim ledger
+    "h2cmi/observability/closeout.py": 120,
+    "h2cmi/tests/test_closeout.py": 60,
+    "notes/project_A_observability/science/20_closeout_and_claim_ledger.md": 45,
+    "notes/project_A_observability/results_summaries/step20_closeout.json": 60,
+    "notes/project_A_observability/results_summaries/step20_closeout.md": 30,
 }
 _MAX_LINE_BYTES = 500
 
