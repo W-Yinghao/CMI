@@ -7,6 +7,16 @@ seed-folds** (+ dev seed 0 for mechanism). No GPU/retrain/CMI/fbdualpc/target-fi
 (verification `w7lf8vcwi`; GO-WITH-EDITS, all applied). **The three sections below are SEPARATE and must not be
 fused.**
 
+> **FROZEN CONCLUSION (PM, not to be changed) — E4E-1/2/3.**
+> - **E4E-1 (binding):** `repair_claim_level = none`. Not partial. E4 is not a certified repair.
+> - **E4E-2 (descriptive allowed):** "E4 produced the first within-scope deployable-repair **signal** for a
+>   controlled first-moment shortcut, but did not clear the frozen confirmatory bar." **Forbidden:** "E4 repairs
+>   the shortcut / Phase 4E shows deployable repair / E4 passed."
+> - **E4E-3 (methodological, for the NEXT protocol only):** a task-destructive comparator must not veto a
+>   task-safe repair via netted recovery; future protocols must gate comparators by raw recovery + clean-task
+>   safety first. This does **not** modify the Phase 4E verdict.
+> The corrected confirmatory test is **Phase 4F** (FSR_26/27) on **fresh** seeds — Phase 4E is not re-scored.
+
 ---
 
 ## 1. Confirmatory ledger entry (BINDING) — `repair_claim_level = none`
@@ -18,8 +28,9 @@ the injected shortcut costs pooled **+0.0426 bAcc [+0.026, +0.061]** (63 seed-fo
 handled by pooled ratio-of-means). E0 exact subtraction = 1.0 (sanity). **We do not overturn this verdict.**
 
 ## 2. Descriptive (does NOT meet the pre-registered bar) — E4 is a real within-scope positive
-The **deployable primary E4** (full-space first-moment mean alignment `z − λ(mean(z_T) − μ_src)`) removes the
-injected **first-moment** shortcut token-specifically and safely:
+The **deployable primary E4** (full-space first-moment mean alignment `z − λ(mean(z_T) − μ_src)`) **descriptively
+reverses** the injected **first-moment** offset token-specifically and task-safely (**a signal, not a certified
+repair** — binding level `none`):
 
 | arm | raw recovery (injected) | clean-target drop | netted recovery | verdict role |
 |---|---|---|---|---|
