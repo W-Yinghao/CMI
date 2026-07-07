@@ -1,0 +1,13 @@
+{"check": "player_readonly", "value": true, "diagnostic_only": true}
+{"check": "marker_integrity", "value": true, "diagnostic_only": true}
+{"check": "trial_id_recoverable", "value": true, "diagnostic_only": true}
+{"check": "executed_adherence_valid", "value": true, "diagnostic_only": true}
+{"check": "checkpoint_blinded", "value": true, "diagnostic_only": true}
+{"check": "forced_corruptions_all_refuse", "value": true, "diagnostic_only": true}
+{"check": "forced_corruption", "case": "missing_table", "refused": true, "detail": {"state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "reasons": ["missing_or_invalid_assignment_table"]}, "diagnostic_only": true}
+{"check": "forced_corruption", "case": "flipped_C", "refused": true, "detail": {"state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "reasons": ["executed_deviates_from_registered_table"]}, "diagnostic_only": true}
+{"check": "forced_corruption", "case": "shuffled_Ydesign", "refused": true, "detail": {"state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "reasons": ["cxy_design_imbalance", "executed_deviates_from_registered_table"]}, "diagnostic_only": true}
+{"check": "forced_corruption", "case": "trial_id_mismatch", "refused": true, "detail": {"state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "reasons": ["executed_deviates_from_registered_table"]}, "diagnostic_only": true}
+{"check": "forced_corruption", "case": "microblock_imbalance", "refused": true, "detail": {"state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "reasons": ["attrition_or_noncompliance_prior_shift", "cxy_design_imbalance"]}, "diagnostic_only": true}
+{"check": "forced_corruption", "case": "condition_lock", "refused": true, "detail": {"state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "reasons": ["condition_not_randomized_or_locked", "executed_deviates_from_registered_table"]}, "diagnostic_only": true}
+{"check": "forced_corruption", "case": "marker_code_mismatch", "refused": true, "detail": {"via": "marker_integrity"}, "diagnostic_only": true}

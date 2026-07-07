@@ -1,0 +1,39 @@
+{
+ "scope": "B9.3 acquisition-app / DAQ readiness checks (SIMULATED non-human; NO real EEG, NO Z, NO statistical null, NO alert)",
+ "pinned_table": "the B9.2 30-slot hash-pinned assignment table (regenerated deterministically from seed 920000001)",
+ "table_hash": "e3675b16891e9b24",
+ "checks": {
+  "assignment_player_reads_table_read_only_no_regen": true,
+  "event_markers_frozen_and_unambiguous": true,
+  "trial_id_recoverable_from_log": true,
+  "executed_log_trial_id_join_adherence": true,
+  "operations_checkpoint_blinded_no_scientific_endpoint": true,
+  "forced_corruptions_refuse_before_pvalue": true,
+  "forced_cases": {
+   "missing_table": true,
+   "flipped_C": true,
+   "shuffled_Ydesign": true,
+   "trial_id_mismatch": true,
+   "microblock_imbalance": true,
+   "condition_lock": true,
+   "marker_code_mismatch": true
+  }
+ },
+ "checkpoint_exposed_fields": [
+  "BLIND_NOTE",
+  "assignment_adherence",
+  "attrition_fraction",
+  "contract_invalid_reasons",
+  "contract_state",
+  "n_analyzable_subjects",
+  "n_eligible_subjects",
+  "n_enrolled_subjects",
+  "n_support_strata",
+  "per_cell_valid_median",
+  "per_cell_valid_min",
+  "sampler_feasible"
+ ],
+ "daq_ready": true,
+ "not_science": "acquisition PLUMBING only; NO real EEG collected; NOT Analysis A; NOT validation; NOT a power/biological claim",
+ "governance": "real human recording gated on institutional approval (status not_started); this dry-run does not authorize collection"
+}

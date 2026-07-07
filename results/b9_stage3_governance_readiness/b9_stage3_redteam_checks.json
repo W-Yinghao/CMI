@@ -1,0 +1,33 @@
+{
+  "scope": "B9.3 governance + acquisition-readiness package design red-team (whlwgi1xo, 2 lenses). Development-only, NO real data, NO scientific claim, NOT validation, NO tag.",
+  "verdict": "BOTH lenses MINOR_ISSUE (no blockers): the package respects the human-subjects boundary + is honestly scoped, and the SIMULATED non-human DAQ dry-run is correct + non-scientific + reproducible. 4 LOW findings folded in.",
+  "lens_governance_honesty": {
+    "verdict": "MINOR_ISSUE",
+    "confirmed": [
+      "NO real data: daq_dryrun builds a MOCK companion log deterministically from the pinned table (np.random used ONLY for logged timing jitter, never structural); every dry-run row diagnostic_only; labeled SIMULATED non-human, NO real EEG, NO Z, NO statistical null, NOT Analysis A, NOT validation",
+      "GOVERNANCE gate honest: status not_started; real collection gated BEFORE any recording (submission packet, lab-safety, app_checks); packet says it is NOT approval and does NOT authorize collection",
+      "docs are DRAFTS: all 5 carry a DRAFT header + 'Not approval, not legal/IRB advice' + defer to the institution's own template; none reads as approval or a legal/ethics ruling",
+      "NO PII: grep across all stage2/3 artifacts found none; assignment CSV integer-only; slot manifest keys only {slot,status}; DMP keeps identity linkage OUT of the repo",
+      "SCOPE: Y_design = pre-assignment cue throughout (never overwritten by an observed response); min_confirm_pairs=20 unchanged; operations checkpoint structurally blinded; no gate/statistic tuning; Lee2019-as-validation + existing-dataset-as-primary excluded; Analysis A PENDING; only affirmative claim = plumbing readiness (explicitly not-science)"
+    ],
+    "low_folded_in": [
+      "submission packet cited a b9_stage3_governance_status artifact that did not exist -> ADDED b9_stage3_governance_status.md (mirrors B9.2, status not_started) + fixed the packet reference",
+      "the not_started/no-recording-before-approval gate was prominent in packet/lab-safety/app_checks but not in consent/recruitment/DMP -> ADDED a one-line gate banner to the consent, recruitment, and DMP headers"
+    ]
+  },
+  "lens_daq_correctness": {
+    "verdict": "MINOR_ISSUE",
+    "confirmed": [
+      "READ-ONLY PLAYER: assignment_player reads the pinned table in row order and copies C/Y_design/trial_id verbatim; jitter only writes t_cue_ms; played composition-hash == pinned manifest table_hash (e3675b16891e9b24)",
+      "MARKERS + trial_id: frozen unambiguous 4-way CUE_CODE 11/12/21/22; every trigger == CUE_CODE[(C,Y_design)] of its row; trial_id unique/recoverable (3600/3600); marker_code_mismatch caught via marker_integrity",
+      "TRIAL_ID-JOIN ADHERENCE: check_contract_acquisition builds a trial_id-keyed dict + matches the full tuple (a real join not positional); VALID on the faithful recording; microblock_imbalance proves independence (adherence faithful yet balance/prior break)",
+      "FORCED CORRUPTIONS: all 7 refuse with genuine disjoint reasons (missing_table / deviates / imbalance+deviates / deviates / prior+imbalance / locked+deviates / marker_integrity); NO exact-null p-value is EVER computed in the DAQ path (grep: no exact_randomization_null/exact_null_test/b9_2_certify/p_meanT/p_stud/observed_T/state_machine)",
+      "CHECKPOINT BLINDED + MACHINERY UNCHANGED: checkpoint exposes only ALLOWED logistics; git diff EMPTY on all 5 frozen modules (randomization_table, acquisition_adherence, operations_checkpoint, exact_randomization_null, state_machine); only daq_dryrun.py + b9_stage3_build.py new; ALPHA=0.025 & min_confirm_pairs=20 unchanged; Z/T-blind; no fitted null; Analysis A PENDING; B9.3-regenerated table matches B9.2 (identical hash)"
+    ],
+    "low_folded_in": [
+      "player_readonly used only the ORDER-INVARIANT composition hash (a reordering/trial_id-reassigning player would pass) -> STRENGTHENED: player_readonly now also requires a STRICT row-for-row / trial_id-sequence attestation (np.array_equal on trial_id,C,Y_design,subject,microblock); recorded as player_composition_hash_ok + player_row_exact",
+      "HASH-REFERENCE CLARIFICATION: there are TWO distinct legitimate hashes -- (a) the CSV FILE sha256 = cc9b5780... (in b9_stage2_assignment_table.csv.sha256, cited in B9.2 docs/commit), and (b) the manifest TABLE_HASH = e3675b16891e9b24 (the order-invariant per-(subject,microblock,Y_design) C-composition hash used by the validator + DAQ check). They are NOT the same object; both are correct. The B9.3<->B9.2 cross-stage match holds on BOTH (regeneration is deterministic)."
+    ]
+  },
+  "net": "B9.3 = governance-readiness LOCK: 5 governance DRAFT templates (submission packet + consent + recruitment + data-management + lab-safety, all deferring to the institution's process, not approval, not IRB/legal advice, no PII) + a SIMULATED non-human DAQ dry-run (DAQ_READY: read-only assignment player [now strict row-exact], frozen unambiguous markers, trial_id-join adherence, blinded checkpoint, all 7 forced corruptions refuse, NO p-value ever computed). Frozen B9.0/B9.2 machinery reused UNCHANGED; min_confirm_pairs=20 unchanged. NO real EEG collected; Analysis A stays PENDING_ACQUISITION; real recording gated on institutional approval (status not_started). NO tag."
+}

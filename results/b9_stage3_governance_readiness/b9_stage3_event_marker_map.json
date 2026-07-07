@@ -1,0 +1,29 @@
+{
+  "scope": "B9.3 FROZEN event-marker map for the prospective randomized-audit acquisition. Fixed BEFORE any recording; the acquisition app must emit exactly these codes. Development-only, NO real data, NO tag.",
+  "principle": "the acquisition app writes BOTH (a) integer trigger codes on the EEG trigger channel (redundant integrity) AND (b) a machine-readable companion trial log carrying the explicit trial_id (the canonical join key). Adherence is checked by trial_id join; the trigger cue code is an unambiguous cross-check of (C, Y_design).",
+  "cue_codes_C_x_Ydesign": {
+    "cue_C0_Y0": 11,
+    "cue_C0_Y1": 12,
+    "cue_C1_Y0": 21,
+    "cue_C1_Y1": 22,
+    "note": "tens digit = C+1, ones digit = Y_design+1; unambiguous 4-way encoding of the 2x2 cell. C=condition, Y_design=PRE-ASSIGNMENT cue class."
+  },
+  "structural_markers": {
+    "session_start": 1,
+    "session_end": 2,
+    "microblock_onset": 200,
+    "microblock_end": 201,
+    "trial_onset": 100,
+    "trial_end": 150,
+    "response_or_null": 149
+  },
+  "companion_trial_log_columns": ["subject_slot", "microblock_id", "trial_id", "C", "Y_design", "t_cue_ms", "cue_code", "artifact_flag"],
+  "trial_id": "0..N-1 monotonic per the pinned assignment table; NOT encoded on the trigger channel (out of the 0-255 code range); carried explicitly in the companion trial log. Recoverable by joining the recording's per-trial sequence to the pinned table on (subject_slot, microblock, within-block order) as a redundant check.",
+  "integrity_rules": [
+    "the emitted cue_code for a trial MUST equal cue_codes_C_x_Ydesign[(C,Y_design)] of that trial's pinned-table row",
+    "the companion trial log's (subject_slot, microblock, trial_id, C, Y_design) MUST equal the pinned table row for that trial_id (adherence)",
+    "timing jitter (t_cue_ms vs scheduled) is LOGGED as a logistics field; it does NOT change C/Y_design/trial_id",
+    "Y_design is the PRE-ASSIGNMENT cue -- it is NEVER overwritten by an observed response/outcome"
+  ],
+  "not_authorized": ["encoding an observed/post-hoc label on the Y_design markers", "regenerating the assignment at recording time", "changing the code scheme after recording begins"]
+}
