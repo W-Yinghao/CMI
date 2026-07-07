@@ -186,21 +186,29 @@ def write_smoke_report(summary, fig, out):
          "## Per-budget action counts (deployable B0/B1/B2/B3 ; diagnostic B4)"]
     for b in sorted(summary["per_budget"]):
         L.append("- %-26s %s" % (b, summary["per_budget"][b]))
-    L += ["", "## B2 k-curve (per world): accept rate, true/false accept, held-out audit ΔbAcc, specificity",
-          "| world | k | n | accept_rate | true_acc | false_acc | mean_audit_ΔbAcc | specific | non_specific |",
-          "|---|---|---|---|---|---|---|---|---|"]
+    L += ["", "## Deployable (B2+B3) safety summary",
+          "- deployable accepts: %d ; false accepts (audit<=0): %d ; harmful (audit<-0.01): %d ; false-accept rate %.3f"
+          % (summary["n_deployable_accepts"], summary["n_deployable_false_accepts"],
+             summary["n_deployable_harmful_accepts"], summary["deployable_false_accept_rate"]),
+          "", "## B2 k-curve (per world): accept rate, true/false/harmful accept, audit ΔbAcc, specificity (cal+audit)",
+          "| world | k | n | acc_rate | true | false | harmful | audit_ΔbAcc | spec_cal | spec_audit | non_spec |",
+          "|---|---|---|---|---|---|---|---|---|---|---|"]
     for s in summary["b2_k_curve"]:
-        L.append("| %s | %s | %d | %.2f | %d | %d | %s | %d | %d |"
-                 % (s["world"][:26], s["k"], s["n"], s["accept_rate"], s["true_accept"], s["false_accept"],
+        L.append("| %s | %s | %d | %.2f | %d | %d | %d | %s | %d | %d | %d |"
+                 % (s["world"][:24], s["k"], s["n"], s["accept_rate"], s["true_accept"], s["false_accept"],
+                    s["harmful_accept"],
                     ("%.3f" % s["mean_audit_dbacc_accepted"]) if s["mean_audit_dbacc_accepted"] is not None else "n/a",
-                    s["specific"], s["non_specific"]))
-    L += ["", "## B3 sequential calibration",
+                    s["specific_calibration"], s["specific_audit"], s["non_specific"]))
+    L += ["", "## B3 sequential calibration (hardened bounded LCB)",
           "- actions: %s" % summary["b3_actions"],
-          "- mean label budget used before decision (k_used): %s" % summary["b3_label_budget_mean"],
-          "", "## B4 oracle diagnostic (upper bound; excluded from deployable accept counts)",
-          "- oracle audit ΔbAcc mean over %d cells: %s"
-          % (summary["b4_oracle_audit_n"], summary["b4_oracle_audit_mean"]),
-          "", "Budget curve: `%s`" % fig,
+          "- accepts: %d ; false accepts: %d ; k=1 accepts (must be 0): %d ; mean label budget (accepted): %s"
+          % (summary["b3_accepts"], summary["b3_false_accepts"], summary["b3_k1_accepts"],
+             summary["b3_label_budget_mean"]),
+          "", "## B4 oracle diagnostic (upper bound; excluded from deployable accept counts)"]
+    for w, o in sorted(summary.get("b4_oracle_by_world", {}).items()):
+        L.append("- %s: oracle audit ΔbAcc mean %.3f / max %.3f over %d cells"
+                 % (w[:30], o["mean_audit_dbacc"], o["max_audit_dbacc"], o["n"]))
+    L += ["", "Budget curve: `%s`" % fig,
           "", "## Reading guide",
           "- B0 source-only expected to abstain/reject on source-invisible benefit; B1 must NEVER accept (stop-cond).",
           "- B2/B3 accept is the target-information signal: SAFE only if held-out audit ΔbAcc > +0.01 AND same-k "

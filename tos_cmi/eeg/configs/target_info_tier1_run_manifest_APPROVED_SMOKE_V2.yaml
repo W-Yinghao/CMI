@@ -1,0 +1,30 @@
+# APPROVED Tier-1 smoke RERUN manifest (V2, PM continuous authorization after estimator hardening). Same scope as
+# v0; the only change is the hardened bounded calibration LCB + B4 oracle fix + audit specificity. Raw enable token
+# is NOT committed (gitignored tos_cmi/results/.tier1_smoke_v2_token); only its sha256 is here. Marked consumed after
+# the rerun.
+
+run_status: approved
+runs_allowed: true
+experiments_allowed: true
+
+scope: tier1_smoke_v2_hardened
+datasets: [Lee2019_MI, Cho2017]
+backbones: [EEGNet]
+seeds: [0]
+folds: first5
+budgets: [B0, B1, B2, B3, B4]
+k_grid: [1, 2, 4, 8, 16]
+R: 10
+split_rng_scheme: subject_seeded_v1
+calibration_lcb: stratified_bounded_bonferroni
+
+approved_scope_hash: deb83ac317de3931
+approved_driver_hash: a4e90c5d3a7e534e
+approved_git_commit: ANY
+enable_token_required: true
+approved_enable_token_sha256: ac686c9a9348e46dc53874ffb3484370ef13c7e1bc10dde0bc8640713a81bcd5
+
+provenance:
+  stage: tier1_smoke_rerun_hardened
+  purpose: target_information_budget_curves_with_bounded_lcb
+  not_a_final_paper_claim: true

@@ -24,7 +24,8 @@ from tos_cmi.eeg.run_target_info_tier1_smoke import (load_cfg, build_plan, expan
                                                      b3_sequential_decision, scope_hash, authorize_execution,
                                                      _preflight_from_labels, execute_task, _assemble_run,
                                                      write_two_phase_outputs, source_task_drop_ucb,
-                                                     _redact_validation_output, RUN_OUT, CFG)
+                                                     _redact_validation_output, stratified_bounded_lcb,
+                                                     b3_sequential_decision_bounded, aggregate_smoke, RUN_OUT, CFG)
 
 
 def test_config_parses_target_info_driver():
@@ -869,6 +870,85 @@ def test_execute_real_still_halts_after_provider_mode_added():
         assert code == 1 and msg.startswith("EXPERIMENTS_DISABLED"), (argv, code, msg)
 
 
+# ---------------- estimator hardening (bounded LCB / B3 / B4 oracle) ----------------
+import math as _math
+
+
+class _MockHead:
+    def __init__(self, preds):
+        self.p = np.asarray(preds)
+
+    def predict(self, X):
+        return self.p[:len(X)]
+
+
+def _cal(y):
+    y = np.asarray(y)
+    return CalibrationContext(np.zeros((len(y), 2)), y, {})
+
+
+def test_small_k_bounded_lcb_is_conservative():
+    # erased perfect / full wrong -> point mean +1, but the bounded LCB is far below +0.01 (conservative).
+    hf, he = _MockHead([1, 1, 0, 0]), _MockHead([0, 0, 1, 1])
+    lcb = stratified_bounded_lcb(hf, he, (lambda X: X), _cal([0, 0, 1, 1]), confidence=0.95, n_candidate=7)
+    assert lcb == lcb and lcb < 0.01                              # does NOT clear the +0.01 gate despite mean +1
+
+
+def test_underpowered_calibration_bound_abstains():
+    hf, he = _MockHead([1, 0]), _MockHead([0, 1])                 # 1 trial/class -> underpowered
+    lcb = stratified_bounded_lcb(hf, he, (lambda X: X), _cal([0, 1]), 0.95, 7)
+    assert _math.isnan(lcb)                                       # NaN -> abstain
+
+
+def test_k1_positive_point_estimate_does_not_accept():
+    hf, he = _MockHead([1, 0]), _MockHead([0, 1])
+    lcb = stratified_bounded_lcb(hf, he, (lambda X: X), _cal([0, 1]), 0.95, 7)
+    row = compute_decision_row("B2_k_labels_per_class", True, None, None, None, None, None,
+                               cal_benefit_lcb=lcb, beats_random=True)
+    assert row["action"] == "abstain"                            # NaN LCB never accepts
+
+
+def test_b2_accept_requires_hardened_lcb_not_bootstrap_point():
+    neg = compute_decision_row("B2_k_labels_per_class", True, None, None, None, None, None,
+                               cal_benefit_lcb=-0.5, beats_random=True)
+    pos = compute_decision_row("B2_k_labels_per_class", True, None, None, None, None, None,
+                               cal_benefit_lcb=0.5, beats_random=True)
+    assert neg["action"] == "abstain" and pos["action"] == "accept"   # keys on the bounded LCB, not a point
+
+
+def test_familywise_correction_reduces_false_accept_on_multiple_candidates():
+    hf, he = _MockHead([1, 1, 1, 1, 0, 0, 0, 0]), _MockHead([0, 0, 0, 0, 1, 1, 1, 1])
+    cal = _cal([0, 0, 0, 0, 1, 1, 1, 1])
+    lcb1 = stratified_bounded_lcb(hf, he, (lambda X: X), cal, 0.95, n_candidate=1)
+    lcb7 = stratified_bounded_lcb(hf, he, (lambda X: X), cal, 0.95, n_candidate=7)
+    assert lcb7 < lcb1                                            # more candidates -> stricter delta -> lower LCB
+
+
+def test_b3_k1_overfit_case_requests_more_labels():
+    # k=1 underpowered (NaN) must NOT accept; if a later k clears, accept there (k=1 never in an accept)
+    grid = [1, 2, 4, 8, 16]; rlcb = {k: float("nan") for k in grid}
+    out0 = b3_sequential_decision_bounded(grid, {1: float("nan"), 2: -0.5, 4: -0.3, 8: -0.1, 16: -0.05}, rlcb, 0.01)
+    assert out0["action"] == "abstain" and 1 in out0["ks_read"]
+    out1 = b3_sequential_decision_bounded(grid, {1: float("nan"), 2: -0.5, 4: -0.1, 8: 0.05, 16: 0.1}, rlcb, 0.01)
+    assert out1["action"] == "accept" and out1["k_used"] == 8 and out1["ks_read"] == [1, 2, 4, 8]
+
+
+def test_b3_uses_hardened_lcb_at_each_step():
+    grid = [1, 2, 4, 8, 16]; nanmap = {k: float("nan") for k in grid}
+    out = b3_sequential_decision_bounded(grid, nanmap, nanmap, 0.01)
+    assert out["action"] == "abstain"                            # all underpowered -> never accepts
+
+
+def test_b4_oracle_audit_computed_but_excluded_from_deployable_counts():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    dec, aud = execute_task(_exec_task(budget="B4_oracle_selector"), Zs, ys, z_src, Zt, yt, _seed_key(),
+                            _lin_eraser(), (lambda X: X), _fast_cfg(), n_boot=15)
+    assert dec and all(r["decision_action"] == "DIAGNOSTIC" for r in dec)
+    assert any(a.get("audit_delta_bacc") is not None for a in aud)   # oracle audit now COMPUTED (v0 bug fixed)
+    s = aggregate_smoke(dec, aud, _fast_cfg())
+    assert s["stop_conditions"]["b4_deployable_accepts"] == 0        # but excluded from deployable accounting
+
+
 ALL = [test_config_parses_target_info_driver, test_calibration_audit_disjoint, test_b1_accept_forbidden,
        test_b4_oracle_diagnostic_only, test_audit_labels_unavailable_to_decision,
        test_unavailable_k_never_reuses_audit_labels, test_dry_run_has_expected_task_count,
@@ -914,7 +994,13 @@ ALL = [test_config_parses_target_info_driver, test_calibration_audit_disjoint, t
        test_provider_validation_requires_manifest, test_provider_validation_default_halts,
        test_provider_validation_scope_is_one_dump_only, test_provider_validation_output_schema_has_no_metrics,
        test_real_provider_loader_can_be_mocked_without_target_leak, test_provider_validation_redacts_metric_values,
-       test_execute_real_still_halts_after_provider_mode_added]
+       test_execute_real_still_halts_after_provider_mode_added,
+       # estimator hardening
+       test_small_k_bounded_lcb_is_conservative, test_underpowered_calibration_bound_abstains,
+       test_k1_positive_point_estimate_does_not_accept, test_b2_accept_requires_hardened_lcb_not_bootstrap_point,
+       test_familywise_correction_reduces_false_accept_on_multiple_candidates,
+       test_b3_k1_overfit_case_requests_more_labels, test_b3_uses_hardened_lcb_at_each_step,
+       test_b4_oracle_audit_computed_but_excluded_from_deployable_counts]
 
 
 def main():

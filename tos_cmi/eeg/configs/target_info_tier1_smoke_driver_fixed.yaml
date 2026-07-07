@@ -35,6 +35,16 @@ thresholds:
   safety_eps: 0.02
   benefit_lcb: 0.01
 
+# target-calibration lower bound: a conservative FINITE-SAMPLE bounded LCB (empirical-Bernstein, Bonferroni over
+# classes x candidate interventions) on the paired per-trial balanced-accuracy difference. Replaces the
+# small-k-overconfident bootstrap. Underpowered -> abstain (NEVER a point estimate).
+target_calibration_lcb:
+  method: stratified_bounded_bonferroni
+  confidence: 0.95
+  paired_difference_range: [-1, 1]
+  multiple_comparison_unit: target_subject_fold_split_budget_world
+  underpowered_action: abstain
+
 # split RNG scheme (subject-seeded, stable-hash; NOT split_id-only). Splits depend on
 # dataset/backbone/model_seed/fold/target_subject/split_id/global_split_seed only -- never on
 # intervention/budget/k/world/label-values -- so every method/budget shares a split and subjects get distinct splits.

@@ -158,7 +158,8 @@ def audit_scalar(eraser, src: SourceContext, audit: AuditView, Zt_audit):
 
 def compute_decision_row(budget, source_safety_pass, source_benefit_lcb,
                          cal_deltas, cal_random_deltas, cal_clusters, unlabeled_mismatch_score,
-                         thr=0.01, boot_seed=0, calibration_idx_hash=None, calibration_label_hash=None):
+                         thr=0.01, boot_seed=0, calibration_idx_hash=None, calibration_label_hash=None,
+                         cal_benefit_lcb=None, beats_random=None):
     """Build the DecisionContext (source + calibration ONLY) and return a decision row. Structurally has NO
     audit input, so a decision is invariant to any audit-label permutation. Records calibration provenance +
     delta_source=calibration_only + decision_input_hash; audit hashes are joined LATER via finalize_decision_row
@@ -170,12 +171,16 @@ def compute_decision_row(budget, source_safety_pass, source_benefit_lcb,
     elif fam == "B1":
         kw["unlabeled_triage"] = b1_triage_action(unlabeled_mismatch_score)
     elif fam in ("B2", "B3"):
-        _, _boot = _lazy_estimators()
-        lcb = _boot(cal_deltas, cal_clusters, "lower", rng=np.random.default_rng(boot_seed))
-        rlcb = (_boot(cal_random_deltas, cal_clusters, "lower", rng=np.random.default_rng(boot_seed + 1))
-                if cal_random_deltas is not None else float("-inf"))
-        kw["cal_benefit_lcb"] = lcb
-        kw["beats_random"] = bool(lcb == lcb and lcb > rlcb)   # gain not reproduced by same-k random
+        if cal_benefit_lcb is not None or beats_random is not None:   # hardened bounded-LCB path (direct)
+            kw["cal_benefit_lcb"] = cal_benefit_lcb
+            kw["beats_random"] = bool(beats_random)
+        else:                                                  # legacy bootstrap path (unit tests)
+            _, _boot = _lazy_estimators()
+            lcb = _boot(cal_deltas, cal_clusters, "lower", rng=np.random.default_rng(boot_seed))
+            rlcb = (_boot(cal_random_deltas, cal_clusters, "lower", rng=np.random.default_rng(boot_seed + 1))
+                    if cal_random_deltas is not None else float("-inf"))
+            kw["cal_benefit_lcb"] = lcb
+            kw["beats_random"] = bool(lcb == lcb and lcb > rlcb)   # gain not reproduced by same-k random
     ctx = DecisionContext(**kw)
     action = budget_action(ctx)
     specific = None
@@ -231,6 +236,26 @@ def b3_sequential_decision(k_grid, deltas_by_k, random_by_k, cal_clusters, thr=0
             "ks_read": list(ks_read), "specificity": None}     # budget exhausted without certification
 
 
+def b3_sequential_decision_bounded(k_grid, lcb_by_k, rlcb_by_k, thr):
+    """Hardened B3: reveal k ascending; accept ONLY when the conservative bounded calibration LCB > thr AND the
+    same-k random control does not also clear it. NaN LCB (underpowered, e.g. k=1) -> request more labels (advance).
+    There is no bounded UCB to 'certify not-beneficial', so B3 either accepts or abstains -- it never accepts at an
+    underpowered k. Returns action / k_used / ks_read / specificity / lcb_used."""
+    ks_read = []
+    for k in sorted(k_grid):
+        ks_read.append(k)
+        lcb = lcb_by_k.get(k)
+        if lcb is None or lcb != lcb:                          # underpowered -> request more labels
+            continue
+        rlcb = rlcb_by_k.get(k)
+        specific = (rlcb is None or rlcb != rlcb or lcb > rlcb)
+        if lcb > thr and specific:
+            return {"action": "accept", "k_used": k, "ks_read": list(ks_read),
+                    "specificity": "accepted_specific" if specific else "accepted_non_specific", "lcb_used": lcb}
+    return {"action": "abstain", "k_used": sorted(k_grid)[-1] if k_grid else None, "ks_read": list(ks_read),
+            "specificity": None, "lcb_used": None}
+
+
 # ============================ run authorization (P0-1: tamper-proof, not a YAML boolean) ============================
 def _git_commit():
     """Best-effort current git HEAD (provenance only; never a hard blocker so tests stay deterministic)."""
@@ -247,7 +272,8 @@ def scope_hash(cfg):
     split_rng)."""
     scope = {"tier1_scope": cfg["tier1_scope"], "worlds": cfg["worlds"], "interventions": cfg["interventions"],
              "budgets": cfg["budgets"], "thresholds": cfg.get("thresholds"),
-             "world_alpha_grid": cfg.get("world_alpha_grid"), "split_rng": cfg.get("split_rng")}
+             "world_alpha_grid": cfg.get("world_alpha_grid"), "split_rng": cfg.get("split_rng"),
+             "target_calibration_lcb": cfg.get("target_calibration_lcb")}
     return hash_obj(scope)
 
 
@@ -445,6 +471,34 @@ def _boot_delta_samples(eraser, src: SourceContext, cal: CalibrationContext, n_b
     return out
 
 
+def stratified_bounded_lcb(h_full, h_eras, eraser, cal: CalibrationContext, confidence=0.95, n_candidate=1,
+                           drange=2.0):
+    """Conservative FINITE-SAMPLE lower bound on the balanced ΔbAcc_cal (NOT a bootstrap, NOT a point estimate).
+    Per class, the paired per-trial difference d_i = 1{erased correct} - 1{full correct} in {-1,0,1}; a
+    Maurer-Pontil empirical-Bernstein lower bound on E[d] (range `drange`=2 for [-1,1]) with Bonferroni delta over
+    (classes x candidate deployable interventions); the balanced LCB is the mean of the per-class LCBs. An
+    underpowered class (n<2) -> NaN (=> the gate abstains). Reads calibration labels ONLY."""
+    import math
+    if isinstance(cal, AuditView):
+        raise TypeError("stratified_bounded_lcb received an AuditView; calibration LCB must come from calibration")
+    yc = np.asarray(cal.yt_cal).astype(int)
+    pf = h_full.predict(cal.Zt_cal)
+    pe = h_eras.predict(eraser(cal.Zt_cal))
+    classes = sorted(set(yc.tolist()))
+    delta = (1.0 - confidence) / max(1, len(classes) * max(1, n_candidate))   # Bonferroni
+    per = []
+    for c in classes:
+        m = (yc == c)
+        n = int(m.sum())
+        if n < 2:                                              # underpowered -> abstain (never point estimate)
+            return float("nan")
+        d = (pe[m] == yc[m]).astype(float) - (pf[m] == yc[m]).astype(float)
+        mean = float(d.mean()); v = float(d.var(ddof=1))
+        eb = math.sqrt(2 * v * math.log(2 / delta) / n) + 7 * drange * math.log(2 / delta) / (3 * (n - 1))
+        per.append(mean - eb)
+    return float(np.mean(per))
+
+
 def _delta_boot_fitfree(h_full, h_eras, eraser, cal: CalibrationContext, n_boot, seed):
     """ΔbAcc_cal bootstrap samples using PRE-FIT source heads (the source head is identical across cal resamples,
     so fit once then bootstrap the calibration eval only). Numerically identical to fitting per bootstrap, but
@@ -533,6 +587,9 @@ def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, c
     thr = cfg["thresholds"]["benefit_lcb"]; safety_eps = cfg["thresholds"]["safety_eps"]
     R = cfg["tier1_scope"]["repeats_R"]; k_grid = cfg["budgets"]["B2_k_labels_per_class"]["k_grid"]
     cfrac = cfg["split_rng"]["calib_fraction"]
+    lcb_cfg = cfg.get("target_calibration_lcb", {})
+    conf = lcb_cfg.get("confidence", 0.95)
+    n_candidate = max(1, len(cfg.get("interventions", [1])))   # familywise correction over candidate interventions
     src = SourceContext(np.asarray(Zs), np.asarray(ys).astype(int), np.asarray(z_src),
                         int(len(set(ys.tolist()))), subj=source_subj)
     yt = np.asarray(yt).astype(int); Zt = np.asarray(Zt)
@@ -553,22 +610,27 @@ def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, c
                  "eras": LogisticRegression(max_iter=200, C=1.0).fit(eraser(src.Zs), src.ys),
                  "rand": LogisticRegression(max_iter=200, C=1.0).fit(eraser_random(src.Zs), src.ys)}
 
+    def _nn(x):
+        return None if (x is None or x != x) else x           # NaN/None -> None (clean rows; deterministic equality)
+
     def _emit(row, sid, cal_idx, aud_idx, k):
         """Attach split meta to the (audit-free) decision row and, in a SEPARATE audit-phase record, the held-out
         audit provenance + metric. decision_rows never carry an audit metric."""
         dec = {**meta, "split_id": sid, "k": k, "source_safety_status": safety_status,
                "domain_gain": None, "same_k_random_calibration": row.get("beats_random"),
-               "calibration_benefit_lcb": row.get("cal_benefit_lcb"), "decision_action": row["action"],
+               "calibration_benefit_lcb": _nn(row.get("cal_benefit_lcb")), "decision_action": row["action"],
                "decision_input_hash": row["decision_input_hash"], "calibration_idx_hash": row["calibration_idx_hash"],
                "calibration_label_hash": row["calibration_label_hash"],
                "audit_idx_hash_hash_only": hash_obj(hash_array(aud_idx)), "specificity": row.get("specificity")}
         dec_rows.append(dec)
         gate_a = LabelAccessGuard("audit")                     # audit labels readable ONLY now (post-decision)
         av = AuditView(np.asarray(aud_idx), gate_a.audit_labels(AuditView(np.asarray(aud_idx), yt[aud_idx])))
-        adb = audit_scalar(eraser, src, av, Zt[aud_idx]) if row["action"] == "accept" else None
+        # B4 oracle: compute the diagnostic audit ΔbAcc even though it is not a deployable accept (fixes the v0 bug)
+        adb = (audit_scalar(eraser, src, av, Zt[aud_idx]) if (row["action"] == "accept" or fam == "B4") else None)
+        adr = (audit_scalar(eraser_random, src, av, Zt[aud_idx]) if row["action"] == "accept" else None)
         aud_rows.append({**meta, "split_id": sid, "k": k, "decision_input_hash": row["decision_input_hash"],
                          "audit_idx_hash": hash_array(aud_idx), "audit_label_hash": hash_array(yt[aud_idx]),
-                         "audit_delta_bacc": adb, "audit_delta_nll": None,
+                         "audit_delta_bacc": adb, "audit_delta_bacc_random": adr, "audit_delta_nll": None,
                          "specificity_flag": row.get("specificity")})
 
     for sid, (cal, aud) in enumerate(splits, 1):
@@ -607,48 +669,41 @@ def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, c
                                      "audit_idx_hash_hash_only": hash_obj(hash_array(aud)), "specificity": None})
                     continue
                 cal_ctx = CalibrationContext(Zt[sel], yt[sel], effective_n_per_class(sel, yt))
-                d_real = _delta_boot_fitfree(heads["full"], heads["eras"], eraser, cal_ctx, n_boot, seed=sid * 131 + k)
-                d_rand = _delta_boot_fitfree(heads["full"], heads["rand"], eraser_random, cal_ctx, n_boot, seed=sid * 131 + k + 7)
-                m = min(len(d_real), len(d_rand))
-                row = compute_decision_row(task["budget"], src_pass, None, d_real[:m], d_rand[:m],
-                                           list(range(m)), None, thr=thr, calibration_idx_hash=hash_array(sel),
-                                           calibration_label_hash=hash_array(yt[sel]))
+                lcb = stratified_bounded_lcb(heads["full"], heads["eras"], eraser, cal_ctx, conf, n_candidate)
+                rlcb = stratified_bounded_lcb(heads["full"], heads["rand"], eraser_random, cal_ctx, conf, n_candidate)
+                beats = bool(lcb == lcb and (rlcb != rlcb or lcb > rlcb))   # random doesn't also clear a bounded LCB
+                row = compute_decision_row(task["budget"], src_pass, None, None, None, None, None, thr=thr,
+                                           calibration_idx_hash=hash_array(sel), calibration_label_hash=hash_array(yt[sel]),
+                                           cal_benefit_lcb=lcb, beats_random=beats)
                 _emit(row, sid, cal, aud, int(k))
-        else:                                                  # B3 sequential over the nested k-grid
-            deltas_by_k, rand_by_k, clusters = {}, {}, None
+        else:                                                  # B3 sequential over the nested k-grid (bounded LCB)
+            lcb_by_k, rlcb_by_k = {}, {}
             for k in k_grid:
                 sel = ksub[k]
                 if sel is None:
-                    deltas_by_k[k] = None; rand_by_k[k] = None; continue
+                    lcb_by_k[k] = float("nan"); rlcb_by_k[k] = float("nan"); continue
                 cal_ctx = CalibrationContext(Zt[sel], yt[sel], effective_n_per_class(sel, yt))
-                dr = _delta_boot_fitfree(heads["full"], heads["eras"], eraser, cal_ctx, n_boot, seed=sid * 131 + k)
-                rr = _delta_boot_fitfree(heads["full"], heads["rand"], eraser_random, cal_ctx, n_boot, seed=sid * 131 + k + 7)
-                m = min(len(dr), len(rr)); clusters = list(range(m))
-                deltas_by_k[k] = dr[:m]; rand_by_k[k] = rr[:m]
-            seq = b3_sequential_decision(k_grid, deltas_by_k, rand_by_k, clusters or [0], thr=thr)
-            row = {"budget": task["budget"], "action": seq["action"], "source_safety_pass": src_pass,
-                   "cal_benefit_lcb": None, "beats_random": seq["specificity"] == "accepted_specific",
-                   "source_benefit_lcb": None, "unlabeled_triage": None, "specificity": seq["specificity"],
-                   "decision_input_hash": hash_obj(seq), "calibration_idx_hash": hash_array(cal),
-                   "calibration_label_hash": hash_array(yt[cal]), "delta_source": "calibration_only"}
-            if not src_pass:
-                row["action"] = "reject"
+                lcb_by_k[k] = stratified_bounded_lcb(heads["full"], heads["eras"], eraser, cal_ctx, conf, n_candidate)
+                rlcb_by_k[k] = stratified_bounded_lcb(heads["full"], heads["rand"], eraser_random, cal_ctx, conf, n_candidate)
+            seq = b3_sequential_decision_bounded(k_grid, lcb_by_k, rlcb_by_k, thr)
+            action = seq["action"] if src_pass else "reject"
+            dih = hash_obj({**seq, "src": src_pass})
             dsel = {**meta, "split_id": sid, "k": seq["k_used"], "source_safety_status": safety_status,
-                    "domain_gain": None,
-                    "same_k_random_calibration": row["beats_random"], "calibration_benefit_lcb": None,
-                    "decision_action": row["action"], "decision_input_hash": row["decision_input_hash"],
-                    "calibration_idx_hash": row["calibration_idx_hash"],
-                    "calibration_label_hash": row["calibration_label_hash"],
-                    "audit_idx_hash_hash_only": hash_obj(hash_array(aud)), "specificity": row["specificity"],
+                    "domain_gain": None, "same_k_random_calibration": seq["specificity"] == "accepted_specific",
+                    "calibration_benefit_lcb": seq.get("lcb_used"), "decision_action": action,
+                    "decision_input_hash": dih, "calibration_idx_hash": hash_array(cal),
+                    "calibration_label_hash": hash_array(yt[cal]),
+                    "audit_idx_hash_hash_only": hash_obj(hash_array(aud)), "specificity": seq["specificity"],
                     "b3_ks_read": seq["ks_read"]}
             dec_rows.append(dsel)
             gate_a = LabelAccessGuard("audit")
             av = AuditView(np.asarray(aud), gate_a.audit_labels(AuditView(np.asarray(aud), yt[aud])))
-            adb = audit_scalar(eraser, src, av, Zt[aud]) if row["action"] == "accept" else None
-            aud_rows.append({**meta, "split_id": sid, "k": seq["k_used"],
-                             "decision_input_hash": row["decision_input_hash"], "audit_idx_hash": hash_array(aud),
-                             "audit_label_hash": hash_array(yt[aud]), "audit_delta_bacc": adb,
-                             "audit_delta_nll": None, "specificity_flag": row["specificity"]})
+            adb = audit_scalar(eraser, src, av, Zt[aud]) if action == "accept" else None
+            adr = audit_scalar(eraser_random, src, av, Zt[aud]) if action == "accept" else None
+            aud_rows.append({**meta, "split_id": sid, "k": seq["k_used"], "decision_input_hash": dih,
+                             "audit_idx_hash": hash_array(aud), "audit_label_hash": hash_array(yt[aud]),
+                             "audit_delta_bacc": adb, "audit_delta_bacc_random": adr, "audit_delta_nll": None,
+                             "specificity_flag": seq["specificity"]})
     return dec_rows, aud_rows
 
 
@@ -801,6 +856,10 @@ def aggregate_smoke(dec_all, aud_all, cfg):
     def audit_of(r):
         a = aud_by.get(r.get("decision_input_hash"))
         return a.get("audit_delta_bacc") if a else None
+
+    def audit_rand_of(r):
+        a = aud_by.get(r.get("decision_input_hash"))
+        return a.get("audit_delta_bacc_random") if a else None
     per_budget = {}
     for r in dec_all:
         per_budget.setdefault(r["budget"], Counter())[r["decision_action"]] += 1
@@ -812,35 +871,53 @@ def aggregate_smoke(dec_all, aud_all, cfg):
             continue
         s = k_curve.setdefault("%s|k%s" % (r["world"], r["k"]),
                                {"world": r["world"], "k": r["k"], "n": 0, "accept": 0, "true_accept": 0,
-                                "false_accept": 0, "abstain": 0, "specific": 0, "non_specific": 0, "audit_sum": 0.0,
-                                "audit_n": 0})
+                                "false_accept": 0, "harmful_accept": 0, "abstain": 0, "specific_calibration": 0,
+                                "specific_audit": 0, "non_specific": 0, "audit_sum": 0.0, "audit_n": 0})
         s["n"] += 1
         act = r["decision_action"]
         if act == "abstain":
             s["abstain"] += 1
         if act == "accept":
             s["accept"] += 1
-            adb = audit_of(r)
+            adb, adr = audit_of(r), audit_rand_of(r)
             if adb is not None and adb == adb:
                 s["audit_sum"] += adb; s["audit_n"] += 1
                 if adb > thr:
                     s["true_accept"] += 1
                 if adb <= 0:
                     s["false_accept"] += 1
+                if adb < -0.01:
+                    s["harmful_accept"] += 1
+                if adr is not None and adr == adr and adb > adr:
+                    s["specific_audit"] += 1
             if r.get("specificity") == "accepted_specific":
-                s["specific"] += 1
+                s["specific_calibration"] += 1
             elif r.get("specificity") == "accepted_non_specific":
                 s["non_specific"] += 1
     for s in k_curve.values():
         s["accept_rate"] = s["accept"] / s["n"] if s["n"] else 0.0
         s["mean_audit_dbacc_accepted"] = (s["audit_sum"] / s["audit_n"]) if s["audit_n"] else None
-    # B3 label budget
+    # B3 label budget + accepts/false
     b3 = [r for r in dec_all if _family(r["budget"]) == "B3"]
-    b3_budget = [r.get("k") for r in b3 if r.get("k") is not None]
+    b3_acc = [r for r in b3 if r["decision_action"] == "accept"]
+    b3_budget = [r.get("k") for r in b3_acc if r.get("k") is not None]
+    b3_false = len([r for r in b3_acc if (audit_of(r) is not None and audit_of(r) == audit_of(r) and audit_of(r) <= 0)])
+    b3_k1 = len([r for r in b3_acc if r.get("k") == 1])
     b3_actions = dict(Counter(r["decision_action"] for r in b3))
-    # B4 oracle audit distribution (diagnostic gap)
-    b4_audit = [audit_of(r) for r in dec_all if _family(r["budget"]) == "B4"]
-    b4_audit = [v for v in b4_audit if v is not None and v == v]
+    # B4 oracle audit (diagnostic gap) per world -- now COMPUTED (v0 bug fixed)
+    b4_by_world = {}
+    for r in dec_all:
+        if _family(r["budget"]) != "B4":
+            continue
+        v = audit_of(r)
+        if v is not None and v == v:
+            b4_by_world.setdefault(r["world"], []).append(v)
+    b4_oracle = {w: {"mean_audit_dbacc": float(np.mean(vs)), "max_audit_dbacc": float(np.max(vs)), "n": len(vs)}
+                 for w, vs in b4_by_world.items()}
+    # deployable false-accept rate (B2+B3 only; B4 excluded)
+    dep_accepts = [r for r in dec_all if _family(r["budget"]) in ("B2", "B3") and r["decision_action"] == "accept"]
+    dep_false = [r for r in dep_accepts if (audit_of(r) is not None and audit_of(r) == audit_of(r) and audit_of(r) <= 0)]
+    dep_harmful = [r for r in dep_accepts if (audit_of(r) is not None and audit_of(r) == audit_of(r) and audit_of(r) < -0.01)]
     # STOP-condition checks
     stop = {
         "b1_accepts": len([r for r in dec_all if _family(r["budget"]) == "B1" and r["decision_action"] == "accept"]),
@@ -850,12 +927,15 @@ def aggregate_smoke(dec_all, aud_all, cfg):
                                        and r.get("same_k_random_calibration") is False
                                        and r.get("specificity") not in ("accepted_non_specific",)]),
         "point_estimate_safety": len([r for r in dec_all if str(r.get("source_safety_status", "")).startswith("point")]),
+        "b3_k1_accepts": b3_k1,
     }
     return {"per_budget": per_budget, "b2_k_curve": sorted(k_curve.values(), key=lambda s: (s["world"], s["k"])),
             "b3_label_budget_mean": (float(np.mean(b3_budget)) if b3_budget else None), "b3_actions": b3_actions,
-            "b4_oracle_audit_mean": (float(np.mean(b4_audit)) if b4_audit else None),
-            "b4_oracle_audit_n": len(b4_audit), "stop_conditions": stop, "n_decision_rows": len(dec_all),
-            "n_audit_rows": len(aud_all)}
+            "b3_accepts": len(b3_acc), "b3_false_accepts": b3_false, "b3_k1_accepts": b3_k1,
+            "b4_oracle_by_world": b4_oracle, "n_deployable_accepts": len(dep_accepts),
+            "n_deployable_false_accepts": len(dep_false), "n_deployable_harmful_accepts": len(dep_harmful),
+            "deployable_false_accept_rate": (len(dep_false) / len(dep_accepts)) if dep_accepts else 0.0,
+            "stop_conditions": stop, "n_decision_rows": len(dec_all), "n_audit_rows": len(aud_all)}
 
 
 def _smoke_plot(summary, out):
