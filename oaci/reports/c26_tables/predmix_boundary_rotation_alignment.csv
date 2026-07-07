@@ -2,4 +2,4 @@ metric,value
 global_rotation_invariant,True
 class_index_alignment_matters,True
 signed_specific,False
-label_status,REQUIRES_REPERSISTENCE_REINFERENCE
+label_status,computed

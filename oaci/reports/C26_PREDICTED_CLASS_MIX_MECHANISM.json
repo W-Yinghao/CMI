@@ -57,9 +57,13 @@
     "shapley_main_predmix": 0.527499724666234
   },
   "label_diagnostics": {
-    "alignment": null,
-    "reason": "per-sample target labels not persisted; label diagnostics need the scoped re-persistence re-inference (label diagnostics QUARANTINED, never features).",
-    "status": "REQUIRES_REPERSISTENCE_REINFERENCE"
+    "mix_distance_from_true_prior": 0.37272669916914036,
+    "note": "predmix deviates from the true (balanced) class prior and tracks per-class recall -> reflects the frozen model's target decision-boundary occupancy / error geometry, not the true label prior itself",
+    "predmix_vs_per_class_recall_corr": 0.8805521397356455,
+    "predmix_vs_true_prior_corr": null,
+    "status": "computed",
+    "tracks_target_error_geometry": true,
+    "true_prior_constant_balanced": true
   },
   "mode": "in_regime",
   "n_candidates": 3804,
@@ -91,33 +95,51 @@
     "symmetric_carries": false
   },
   "split_stability": {
-    "reason": "per-sample target logits not persisted; the C24 sidecar stores per-candidate AGGREGATES only. Split-stability needs a scoped re-PERSISTENCE re-inference (P0-validated forward, persist per-split mix summaries). NOT proxied from method-final.",
-    "splits": null,
-    "status": "REQUIRES_REPERSISTENCE_REINFERENCE"
+    "note": "predicted-class mix is split-stable (target decision-occupancy signal, not finite-sample noise)",
+    "split_stable": true,
+    "splits": [
+      {
+        "predprop_reliability": 0.9917679510070625,
+        "split": "half",
+        "split_half_gap": 0.006320439555060259,
+        "survives_permutation": false
+      },
+      {
+        "predprop_reliability": 0.9935328080396985,
+        "split": "odd_even",
+        "split_half_gap": -0.001034031253441403,
+        "survives_permutation": false
+      },
+      {
+        "predprop_reliability": 0.9974401748360493,
+        "split": "bootstrap",
+        "split_half_gap": 0.009199207038754452,
+        "survives_permutation": false
+      }
+    ],
+    "status": "computed"
   },
   "target_centered_oracle": 0.6337666333998669,
   "taxonomy": {
     "diagnostic_only_non_deployable": true,
     "established": [
       "P4_identity_fingerprint_dominant",
-      "P5_confidence_mix_interaction"
+      "P5_confidence_mix_interaction",
+      "P1_decision_occupancy_signal",
+      "P7_label_diagnostic_boundary"
     ],
-    "final": false,
+    "final": true,
     "identity_entanglement_disclosed": true,
     "identity_fingerprint_dominant": true,
-    "interpretation": "predicted-class mix IN ISOLATION is a target-identity fingerprint (NN same-target rate high; its +0.003 standalone recovery FAILS the permutation control). It carries no standalone target-marginal offset signal -- C25's Shapley credit was SYNERGY allocation, not a main effect. (The FULL R3 interaction is still permutation-robust per C24; it is the isolated family that is a fingerprint.)",
-    "label_status": "REQUIRES_REPERSISTENCE_REINFERENCE",
+    "interpretation": "predicted-class mix is a split-STABLE (reliability ~0.99), target-specific DECISION-OCCUPANCY pattern that reflects the frozen model's per-class error geometry on the target (deviates from the balanced true prior; tracks per-class recall). That same distinctive pattern IS the target's identity fingerprint (P4, NN 1.0), so in isolation it carries NO standalone permutation-robust OFFSET signal (+0.003); the score-offset recovery emerges ONLY via a confidence-mix INTERACTION (P5), not as a marginal signal. Stable + error-aligned, but identity-entangled and non-standalone -- NOT claimed identity-free or deployable.",
+    "label_status": "computed",
     "predmix_needs_scaffold": true,
-    "primary_case": "P4_identity_fingerprint_dominant",
+    "primary_case": "P1_decision_occupancy_signal",
     "scramble_supports_signed": true,
     "signed_specific": false,
-    "split_status": "REQUIRES_REPERSISTENCE_REINFERENCE",
+    "split_status": "computed",
     "symmetric_carries": false,
-    "unresolved_pending_reinference": [
-      "P1_decision_occupancy_signal",
-      "P6_sample_noise_artifact",
-      "P7_label_diagnostic_boundary"
-    ]
+    "unresolved_pending_reinference": []
   },
   "within_target_ceiling": 0.658600107451297
 }

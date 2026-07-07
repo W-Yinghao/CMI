@@ -1,4 +1,4 @@
 metric,value
-status,REQUIRES_REPERSISTENCE_REINFERENCE
-split_stable,
-reason,"per-sample target logits not persisted; the C24 sidecar stores per-candidate AGGREGATES only. Split-stability needs a scoped re-PERSISTENCE re-inference (P0-validated forward, persist per-split mix summaries). NOT proxied from method-final."
+status,computed
+split_stable,True
+reason,

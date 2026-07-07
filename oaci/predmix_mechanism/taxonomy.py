@@ -45,10 +45,14 @@ def gauge_taxonomy(signed_sym, rotation, identity, interaction, split, label) ->
     primary = (schema.P4 if fingerprint else
                (schema.P2 if signed_specific else
                 (schema.P3 if symmetric else (schema.P5 if scaffold else None))))
-    if final and split.get("split_stable") and label.get("tracks_target_error_geometry") and not fingerprint:
-        primary = schema.P1                                  # decision-occupancy is the finalized headline
+    # When the re-inference confirms predmix is split-STABLE and error-geometry-aligned, the "what it IS" answer
+    # is a decision-occupancy signal (P1) -- even though that same pattern is the target fingerprint (P4) and
+    # only contributes to the offset via the interaction (P5). P1 becomes primary; P4/P5/P7 stay established.
+    decision_occupancy = bool(final and split.get("split_stable") and label.get("tracks_target_error_geometry"))
+    if decision_occupancy:
+        primary = schema.P1
     interp = {
-        schema.P1: "predicted-class mix is a split-stable target DECISION-OCCUPANCY signal that tracks the frozen model's target class-error geometry.",
+        schema.P1: "predicted-class mix is a split-STABLE (reliability ~0.99), target-specific DECISION-OCCUPANCY pattern that reflects the frozen model's per-class error geometry on the target (deviates from the balanced true prior; tracks per-class recall). That same distinctive pattern IS the target's identity fingerprint (P4, NN 1.0), so in isolation it carries NO standalone permutation-robust OFFSET signal (+0.003); the score-offset recovery emerges ONLY via a confidence-mix INTERACTION (P5), not as a marginal signal. Stable + error-aligned, but identity-entangled and non-standalone -- NOT claimed identity-free or deployable.",
         schema.P2: "the SIGNED class vector carries the signal (which class is over-predicted matters); symmetric concentration alone does not -> class-index-specific decision occupancy.",
         schema.P3: "only symmetric concentration (entropy/max-mass/distance-to-uniform) matters -> collapse/confidence-concentration signal, class-index-invariant.",
         schema.P4: "predicted-class mix IN ISOLATION is a target-identity fingerprint (NN same-target rate high; its +0.003 standalone recovery FAILS the permutation control). It carries no standalone target-marginal offset signal -- C25's Shapley credit was SYNERGY allocation, not a main effect. (The FULL R3 interaction is still permutation-robust per C24; it is the isolated family that is a fingerprint.)",

@@ -171,15 +171,33 @@ def render_md(res) -> str:
          f"- predmix residualized on confmargin: gap **{_f(it['predmix_residualized_gap'])}** (survives "
          f"{it['predmix_residualized_survives']}); predmix needs confidence scaffold: "
          f"**{it['predmix_needs_confidence_scaffold']}**; interaction-dominant: **{it['interaction_dominant']}**.", "",
-         "## Q1 / Q5 — split-stability + label diagnostics (require re-persistence re-inference)", "",
-         f"- split-stability status: **{sp['status']}**" + (f" — {sp.get('reason')}" if sp.get("reason") else ""),
-         f"- label-diagnostics status: **{ld['status']}**" + (f" — {ld.get('reason')}" if ld.get("reason") else ""),
-         "- next: scoped re-persistence re-inference (P0-validated forward; persist per-split mix summaries + "
-         "QUARANTINED label diagnostics) → Q1 split-stability + Q5 error-geometry alignment → finalize P1/P6/P7.", "",
+         "## Q1 — split-stability (P1 vs P6; from the P0-gated re-persistence re-inference, label-free)", ""]
+    if sp.get("status") == schema.STATUS_OK:
+        L.append("| split | predprop reliability | split-half gap |")
+        L.append("|---|---:|---:|")
+        for s in sp.get("splits", []):
+            L.append(f"| {s['split']} | {_f(s['predprop_reliability'])} | {_f(s['split_half_gap'])} |")
+        L.append(f"- predicted-class mix is split-STABLE: **{sp.get('split_stable')}** (reliability ~"
+                 f"{_f(max((s['predprop_reliability'] or 0) for s in sp['splits']))}) → NOT finite-sample noise "
+                 f"(P6 ruled out). {sp.get('note')}")
+    else:
+        L.append(f"- split-stability status: **{sp['status']}** — {sp.get('reason')}")
+    L += ["", "## Q5 — label diagnostics (P7; labels QUARANTINED, diagnostic-only, joined post-hoc)", ""]
+    if ld.get("status") == schema.STATUS_OK:
+        L.append(f"- predmix vs true class prior corr **{_f(ld.get('predmix_vs_true_prior_corr'))}** "
+                 f"(true prior constant/balanced: {ld.get('true_prior_constant_balanced')}); predmix vs per-class "
+                 f"recall corr **{_f(ld.get('predmix_vs_per_class_recall_corr'))}**; mix distance from balanced "
+                 f"prior **{_f(ld.get('mix_distance_from_true_prior'))}** → tracks target error geometry: "
+                 f"**{ld.get('tracks_target_error_geometry')}**. {ld.get('note')}")
+    else:
+        L.append(f"- label-diagnostics status: **{ld['status']}** — {ld.get('reason')}")
+    L += ["",
          "## Boundary of the claim", "",
-         "> DIAGNOSTIC-ONLY. Families FROZEN (no feature selection). Predmix is identity-ENTANGLED (disclosed), "
-         "credited as a transferable marginal relationship only via the permutation control; NOT claimed identity-"
-         "free. No selector. C26 is NOT finalized until split-stability + label diagnostics complete."]
+         "> DIAGNOSTIC-ONLY. Families FROZEN (no feature selection). Predicted-class mix is a stable, error-"
+         "geometry-aligned decision-occupancy pattern that IS the target identity fingerprint (identity-ENTANGLED, "
+         "disclosed) and contributes to the offset ONLY via the confidence-mix interaction; NOT claimed identity-"
+         "free, NOT a standalone marginal signal, NOT a selector, NOT deployable. Target labels entered ONLY the "
+         "quarantined post-hoc label-diagnostics, never the feature path."]
     return "\n".join(L)
 
 

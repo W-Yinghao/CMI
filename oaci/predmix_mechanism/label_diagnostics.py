@@ -35,12 +35,19 @@ def label_diagnostics(rows, mode, split_sidecar=None) -> dict:
     predmix = np.array([[c["predmix"][k] for k in schema.PRED_PROP] for c in percand])
     true_prior = np.array([c["true_prior"] for c in percand])
     recall = np.array([c["per_class_recall"] for c in percand])
-    # class-wise correlation of predicted mix vs (true prior, recall) across candidates
-    prior_corr = float(np.mean([np.corrcoef(predmix[:, k], true_prior[:, k])[0, 1] for k in range(schema.N_CLASSES)]))
-    recall_corr = float(np.mean([np.corrcoef(predmix[:, k], recall[:, k])[0, 1] for k in range(schema.N_CLASSES)]))
+
+    def _classwise_corr(A, B):
+        cs = []
+        for k in range(schema.N_CLASSES):
+            if A[:, k].std() > 1e-9 and B[:, k].std() > 1e-9:
+                cs.append(float(np.corrcoef(A[:, k], B[:, k])[0, 1]))
+        return (float(np.mean(cs)) if cs else None)          # None when a column is constant (e.g. balanced prior)
+    prior_constant = bool(true_prior.std(0).max() < 1e-9)     # balanced dataset -> true prior has no variance
+    prior_corr = _classwise_corr(predmix, true_prior)         # None for a balanced prior (undefined, not a bug)
+    recall_corr = _classwise_corr(predmix, recall)
     mix_dist_from_prior = float(np.mean(np.linalg.norm(predmix - true_prior, axis=1)))
-    tracks_error = bool(abs(recall_corr) >= 0.30 or mix_dist_from_prior >= 0.10)
-    return {"status": schema.STATUS_OK, "predmix_vs_true_prior_corr": prior_corr,
+    tracks_error = bool((recall_corr is not None and abs(recall_corr) >= 0.30) or mix_dist_from_prior >= 0.10)
+    return {"status": schema.STATUS_OK, "predmix_vs_true_prior_corr": prior_corr, "true_prior_constant_balanced": prior_constant,
             "predmix_vs_per_class_recall_corr": recall_corr, "mix_distance_from_true_prior": mix_dist_from_prior,
             "tracks_target_error_geometry": tracks_error,
             "note": ("predmix deviates from the true (balanced) class prior and tracks per-class recall -> reflects "
