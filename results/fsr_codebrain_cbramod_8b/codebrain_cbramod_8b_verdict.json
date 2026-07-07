@@ -65,7 +65,7 @@
   "frequency_token_status": "usable (4009/4096 unique on 1000 trials)",
   "target_labels_used_for_fit": false,
   "target_labels_used_for_selection": false,
-  "proceed_to_8c": null,
+  "proceed_to_8c": true,
   "recommendation": "Before 8C: re-dump a SPATIALLY-PRESERVING feature (per-channel: mean over patches only, keep channels) so MI task decodes strongly, then re-run L4/L5/L6 -> makes the not-task-coupled conclusion solid. L1 finding already solid on pooled.",
   "f1_spatial_codebrain": {
     "feature": "F1_spatial_pca95cap128",
@@ -119,5 +119,33 @@
     "both_encoders_gate_pass": true,
     "codebrain_claim_invariant_or_cbramod_deterministic": true,
     "firewall_clean": true
-  }
+  },
+  "bnci2014_001_sanity": {
+    "dataset": "BNCI2014_001 (9 subj, 4-class, sanity-only)",
+    "task_gate_pass": {
+      "codebrain": false,
+      "cbramod": false
+    },
+    "target_bacc": {
+      "codebrain": 0.2666,
+      "cbramod": 0.32,
+      "chance": 0.25
+    },
+    "L1_marginal": {
+      "codebrain": 0.5855,
+      "cbramod": 0.697,
+      "chance": 0.1111
+    },
+    "L5_beats_variance": {
+      "codebrain": false,
+      "cbramod": false
+    },
+    "verdict": "L1 subject-encoding REPLICATES cross-dataset (strong, both encoders); but frozen 4-class 2a task is WEAK (0.27/0.32 vs 0.25 chance) so the task GATE FAILS -> L4/L5/L6 not concludable on BNCI. Recorded as small-subject/weak-frozen-4-class sanity limitation; does NOT rewrite the SHU-MI conclusion. F1 pipeline + channel mapping reproducible on BNCI. No stop rule (SHU-MI is the primary task-coupling result)."
+  },
+  "closure_complete": {
+    "f1_batch_invariance": "PASS",
+    "temporal_token_status": "collapsed_confirmed",
+    "bnci_sanity": "done (L1 replicates; task-gate-fails-as-expected, sanity-only)"
+  },
+  "proceed_to_8c_note": "8B closure complete, no stop rule; PM authorized 8C execution after clean closure. Next=8C-0 PhysioNetMI manifest."
 }
