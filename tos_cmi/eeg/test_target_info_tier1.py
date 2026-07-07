@@ -237,9 +237,11 @@ def _decision_and_audit(src, Zt, yt, splits, E, Erand, budget="B2_k_labels_per_c
 def test_expanded_task_count_matches_schema():
     cfg = load_cfg()
     exp = expand_tasks(cfg)
-    # per (ds,bb,world,alpha,fold,interv) = 2*1*2*3*5*7 = 420 combos; budgets B0+B1+B4=1 each, B2=5k*10R=50, B3=10
-    per_combo = 1 + 1 + 50 + 10 + 1                             # =63
-    assert len(exp) == 420 * per_combo == 26460, len(exp)
+    kg = len(cfg["budgets"]["B2_k_labels_per_class"]["k_grid"]); R = cfg["tier1_scope"]["repeats_R"]
+    per_combo = 1 + 1 + kg * R + R + 1                          # B0 + B1 + B2(k*R) + B3(R) + B4
+    combos = (len(cfg["tier1_scope"]["datasets"]) * len(cfg["tier1_scope"]["backbones"]) * len(cfg["worlds"])
+              * len(cfg["world_alpha_grid"]) * 5 * len(cfg["interventions"]))
+    assert len(exp) == combos * per_combo, (len(exp), combos, per_combo)
     for t in exp:                                               # every expanded task carries the required fields
         for fld in ["dataset", "backbone", "world", "alpha", "fold", "target_subject", "intervention",
                     "budget", "calibration_idx_hash", "audit_idx_hash", "random_seed"]:
@@ -683,10 +685,11 @@ def test_subject_seeded_splits_replayed_in_execute_real():
 
 def test_k_nested_subsets_replayed_in_execute_real():
     Zs, ys, z_src, Zt, yt = _exec_arrays()
+    cfg = _fast_cfg()
     dec, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), (lambda X: X), (lambda X: X),
-                          _fast_cfg(), n_boot=15)
+                          cfg, n_boot=15)
     ks = sorted({r["k"] for r in dec if r.get("k") is not None})
-    assert ks == [1, 2, 4, 8, 16]                                    # all k evaluated for B2
+    assert ks == sorted(cfg["budgets"]["B2_k_labels_per_class"]["k_grid"])   # all configured k evaluated for B2
 
 
 def test_b2_unavailable_k_halts_or_marks_unavailable_without_audit_reuse():

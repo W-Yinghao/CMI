@@ -170,6 +170,19 @@ target_information_tier1_smoke_driver:   # Tier-1 smoke DRIVER DESIGN (branch sc
     - runs
     - manuscript claim
   design: notes/TARGET_INFO_TIER1_SMOKE_DRIVER_DESIGN.md
+target_information_tier1_smoke_v1:   # Tier-1 smoke ran (v0 888028 + hardened v1 888437; semi-synthetic)
+  status: supported_negative_for_k_le_16
+  finding:
+    - hardened finite-sample bounded LCB gate has 0 false accepts (v0 bootstrap had ~23%, 100% at k=1)
+    - k<=16 labels/class yields 0 deployable true accepts
+    - B4 oracle (all target labels) shows the target benefit EXISTS (audit dbacc mean +0.018/+0.021, max +0.080)
+  implication:
+    - safe certification requires larger k or a sharper valid estimator (instantiates CEILING_THEORY Prop 3)
+  outputs: notes/TARGET_INFO_TIER1_SMOKE_V1_VERDICT.md ; results/target_info/tier1_smoke/*
+  forbidden:
+    - few-shot target labels safely solve the ceiling
+    - target-informed gate is validated
+    - this is a real-EEG target-gain result
 architecture_x_dimension_factorial:               # Track C (DONE, 3-seed; SLURM 877939)
   status: supported_refined  # 3-seed verdict = LARGELY capacity-mediated + RESIDUAL architecture effect at high d_z
   scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_multiseed_analysis.py (file-parallel joblib; fold-cluster + paired + OLS CIs)

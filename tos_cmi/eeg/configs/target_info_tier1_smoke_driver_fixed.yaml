@@ -65,11 +65,11 @@ budgets:
   B2_k_labels_per_class:
     allowed_actions: [reject, abstain, accept]
     decision_inputs: [source_safety, target_calibration_benefit_lcb, same_k_random]
-    k_grid: [1, 2, 4, 8, 16]
+    k_grid: [1, 2, 4, 8, 16, 24, 32, 40, 50]
   B3_sequential_calibration:
     allowed_actions: [reject, abstain, accept, request_labels]
     decision_inputs: [source_safety, target_calibration_benefit_lcb, same_k_random]
-    k_grid: [1, 2, 4, 8, 16]
+    k_grid: [1, 2, 4, 8, 16, 24, 32, 40, 50]
     active_query_policy: deferred
   B4_oracle_selector:
     allowed_actions: [DIAGNOSTIC]

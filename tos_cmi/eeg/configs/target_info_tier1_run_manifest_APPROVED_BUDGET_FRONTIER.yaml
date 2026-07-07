@@ -1,0 +1,33 @@
+# APPROVED Tier-1B label-budget frontier manifest (PM continuous authorization). Same scope as the Tier-1 smoke
+# EXCEPT the extended k-grid {1,2,4,8,16,24,32,40,50}; estimator unchanged (hardened bounded LCB). Routes output to
+# a distinct dir/prefix. Raw enable token gitignored (tos_cmi/results/.tier1_bf_token); only its sha256 here.
+# Marked consumed after the run.
+
+run_status: approved
+runs_allowed: true
+experiments_allowed: true
+
+scope: tier1_budget_frontier
+datasets: [Lee2019_MI, Cho2017]
+backbones: [EEGNet]
+seeds: [0]
+folds: first5
+budgets: [B0, B1, B2, B3, B4]
+k_grid: [1, 2, 4, 8, 16, 24, 32, 40, 50]
+R: 10
+split_rng_scheme: subject_seeded_v1
+calibration_lcb: stratified_bounded_bonferroni
+
+output_dir: tos_cmi/results/target_info/tier1_budget_frontier
+output_prefix: tier1_budget_frontier
+
+approved_scope_hash: 44c481bcc826c455
+approved_driver_hash: 2aaf608b8bc4f471
+approved_git_commit: ANY
+enable_token_required: true
+approved_enable_token_sha256: 6a8c55783d4e3091451608b3f4f542dfbc561f7fa1f127b9f16b654e036c6927
+
+provenance:
+  stage: tier1_label_budget_frontier
+  purpose: minimal_target_label_budget_for_safe_certification
+  not_a_final_paper_claim: true

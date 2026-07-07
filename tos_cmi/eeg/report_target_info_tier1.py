@@ -171,9 +171,10 @@ def write_provider_validation_report(summary, out):
     return p
 
 
-def write_smoke_report(summary, fig, out):
-    """Tier-1 smoke report: deployable budgets (B0/B1/B2/B3) vs diagnostic (B4), B2 k-curve (accept / true / false /
-    audit ΔbAcc / specificity), B3 label budget, oracle gap, and the stop-condition audit."""
+def write_smoke_report(summary, fig, out, prefix="target_info_tier1_smoke"):
+    """Tier-1 smoke / budget-frontier report: deployable budgets (B0/B1/B2/B3) vs diagnostic (B4), B2 k-curve
+    (accept / true / false / audit ΔbAcc / bounded-LCB / specificity), B3 label budget, oracle gap, sample-complexity
+    thresholds, and the stop-condition audit."""
     sc = summary["scope"]
     L = ["# Fork 1 Tier-1 smoke --- target-information budget curves (semi-synthetic; NOT a final paper claim)\n",
          "Scope: %s x %s x folds %s x worlds %s x budgets %s ; k=%s ; R=%s ; alpha=%s ; split=%s ; n_boot=%s."
@@ -190,15 +191,25 @@ def write_smoke_report(summary, fig, out):
           "- deployable accepts: %d ; false accepts (audit<=0): %d ; harmful (audit<-0.01): %d ; false-accept rate %.3f"
           % (summary["n_deployable_accepts"], summary["n_deployable_false_accepts"],
              summary["n_deployable_harmful_accepts"], summary["deployable_false_accept_rate"]),
-          "", "## B2 k-curve (per world): accept rate, true/false/harmful accept, audit ΔbAcc, specificity (cal+audit)",
-          "| world | k | n | acc_rate | true | false | harmful | audit_ΔbAcc | spec_cal | spec_audit | non_spec |",
+          "", "## Sample-complexity thresholds (per world)",
+          "```"]
+    for w, scx in sorted(summary.get("sample_complexity", {}).items()):
+        L.append("%-40s min_k_true_accept=%s  min_k_false<=5%%=%s  any_accept_at_max_k=%s  best_cal_LCB=%s (thr %s)"
+                 % (w[:40], scx["min_k_any_true_accept"], scx["min_k_false_rate_le_5pct"],
+                    scx["any_accept_at_max_k"],
+                    ("%.3f" % scx["best_cal_lcb_over_all_k"]) if scx["best_cal_lcb_over_all_k"] is not None else "n/a",
+                    scx["benefit_lcb_threshold"]))
+    L += ["```", "",
+          "## B2 k-curve (per world): accept rate, true/false/harmful, audit ΔbAcc, bounded cal-LCB, specificity",
+          "| world | k | n | acc_rate | true | false | harm | audit_ΔbAcc | cal_LCB_max | spec_cal | spec_aud |",
           "|---|---|---|---|---|---|---|---|---|---|---|"]
     for s in summary["b2_k_curve"]:
-        L.append("| %s | %s | %d | %.2f | %d | %d | %d | %s | %d | %d | %d |"
-                 % (s["world"][:24], s["k"], s["n"], s["accept_rate"], s["true_accept"], s["false_accept"],
+        L.append("| %s | %s | %d | %.2f | %d | %d | %d | %s | %s | %d | %d |"
+                 % (s["world"][:22], s["k"], s["n"], s["accept_rate"], s["true_accept"], s["false_accept"],
                     s["harmful_accept"],
                     ("%.3f" % s["mean_audit_dbacc_accepted"]) if s["mean_audit_dbacc_accepted"] is not None else "n/a",
-                    s["specific_calibration"], s["specific_audit"], s["non_specific"]))
+                    ("%.3f" % s["cal_lcb_max"]) if s.get("cal_lcb_max") is not None else "n/a",
+                    s["specific_calibration"], s["specific_audit"]))
     L += ["", "## B3 sequential calibration (hardened bounded LCB)",
           "- actions: %s" % summary["b3_actions"],
           "- accepts: %d ; false accepts: %d ; k=1 accepts (must be 0): %d ; mean label budget (accepted): %s"
@@ -214,7 +225,7 @@ def write_smoke_report(summary, fig, out):
           "- B2/B3 accept is the target-information signal: SAFE only if held-out audit ΔbAcc > +0.01 AND same-k "
           "random does not reproduce it (accepted_specific). accepted_non_specific / false_accept are disclosed.",
           "- Many abstains at small k are EXPECTED (weak calibration LCB), not a failure.\n"]
-    p = "%s/target_info_tier1_smoke_report.md" % out
+    p = "%s/%s_report.md" % (out, prefix)
     open(p, "w").write("\n".join(L) + "\n")
     return p
 

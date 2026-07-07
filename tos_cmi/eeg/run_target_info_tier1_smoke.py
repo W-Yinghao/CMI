@@ -872,8 +872,12 @@ def aggregate_smoke(dec_all, aud_all, cfg):
         s = k_curve.setdefault("%s|k%s" % (r["world"], r["k"]),
                                {"world": r["world"], "k": r["k"], "n": 0, "accept": 0, "true_accept": 0,
                                 "false_accept": 0, "harmful_accept": 0, "abstain": 0, "specific_calibration": 0,
-                                "specific_audit": 0, "non_specific": 0, "audit_sum": 0.0, "audit_n": 0})
+                                "specific_audit": 0, "non_specific": 0, "audit_sum": 0.0, "audit_n": 0,
+                                "cal_lcb_vals": []})
         s["n"] += 1
+        clb = r.get("calibration_benefit_lcb")
+        if clb is not None and clb == clb:
+            s["cal_lcb_vals"].append(float(clb))
         act = r["decision_action"]
         if act == "abstain":
             s["abstain"] += 1
@@ -897,6 +901,23 @@ def aggregate_smoke(dec_all, aud_all, cfg):
     for s in k_curve.values():
         s["accept_rate"] = s["accept"] / s["n"] if s["n"] else 0.0
         s["mean_audit_dbacc_accepted"] = (s["audit_sum"] / s["audit_n"]) if s["audit_n"] else None
+        cv = s.pop("cal_lcb_vals")
+        s["cal_lcb_max"] = float(np.max(cv)) if cv else None       # how close the best bounded LCB gets to +0.01
+        s["cal_lcb_median"] = float(np.median(cv)) if cv else None
+        s["cal_lcb_n"] = len(cv)
+    # sample-complexity thresholds per world (minimal k for a safe true accept; does the biggest k still give 0?)
+    sample_complexity = {}
+    kg = sorted(cfg["budgets"]["B2_k_labels_per_class"]["k_grid"])
+    for w in sorted(set(s["world"] for s in k_curve.values())):
+        rows_w = {s["k"]: s for s in k_curve.values() if s["world"] == w}
+        min_true = next((k for k in kg if rows_w.get(k, {}).get("true_accept", 0) > 0), None)
+        min_safe = next((k for k in kg if rows_w.get(k, {}).get("accept", 0) > 0
+                         and (rows_w[k]["false_accept"] / max(1, rows_w[k]["accept"])) <= 0.05), None)
+        max_lcb = max((rows_w.get(k, {}).get("cal_lcb_max") or -9 for k in kg), default=-9)
+        sample_complexity[w] = {"min_k_any_true_accept": min_true, "min_k_false_rate_le_5pct": min_safe,
+                                "any_accept_at_max_k": rows_w.get(kg[-1], {}).get("accept", 0) > 0,
+                                "best_cal_lcb_over_all_k": (None if max_lcb == -9 else max_lcb),
+                                "benefit_lcb_threshold": thr}
     # B3 label budget + accepts/false
     b3 = [r for r in dec_all if _family(r["budget"]) == "B3"]
     b3_acc = [r for r in b3 if r["decision_action"] == "accept"]
@@ -935,10 +956,11 @@ def aggregate_smoke(dec_all, aud_all, cfg):
             "b4_oracle_by_world": b4_oracle, "n_deployable_accepts": len(dep_accepts),
             "n_deployable_false_accepts": len(dep_false), "n_deployable_harmful_accepts": len(dep_harmful),
             "deployable_false_accept_rate": (len(dep_false) / len(dep_accepts)) if dep_accepts else 0.0,
+            "sample_complexity": sample_complexity,
             "stop_conditions": stop, "n_decision_rows": len(dec_all), "n_audit_rows": len(aud_all)}
 
 
-def _smoke_plot(summary, out):
+def _smoke_plot(summary, out, prefix="target_info_tier1_smoke"):
     try:
         import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
     except Exception as e:
@@ -955,11 +977,12 @@ def _smoke_plot(summary, out):
     ax[1].axhline(0.01, ls="--", c="k", lw=0.6); ax[1].set_xscale("log", base=2)
     ax[1].set_xlabel("k labels/class"); ax[1].set_ylabel("mean AUDIT ΔbAcc (accepted)")
     ax[1].set_title("B2: accepted held-out ΔbAcc vs k"); ax[1].legend(fontsize=7); ax[1].grid(alpha=0.3)
-    p = "%s/target_info_tier1_budget_curve.png" % out; fig.tight_layout(); fig.savefig(p, dpi=130); plt.close(fig)
+    p = "%s/%s_curve.png" % (out, prefix); fig.tight_layout(); fig.savefig(p, dpi=130); plt.close(fig)
     return p
 
 
-def run_smoke(cfg, results_root=FROZEN_ROOT, out=SMOKE_OUT, n_jobs=None, n_boot=100):
+def run_smoke(cfg, results_root=FROZEN_ROOT, out=SMOKE_OUT, n_jobs=None, n_boot=100,
+              prefix="target_info_tier1_smoke"):
     """Parallel Tier-1 smoke over (ds,world,fold,alpha,interv) workers; each runs all budgets. Writes the smoke
     CSVs + summary + report + budget curve. Structural leak failures surface as worker errors (-> reported)."""
     import glob
@@ -989,14 +1012,14 @@ def run_smoke(cfg, results_root=FROZEN_ROOT, out=SMOKE_OUT, n_jobs=None, n_boot=
         if err:
             fails.append(err)
     os.makedirs(out, exist_ok=True)
-    _write_csv("%s/target_info_tier1_smoke_decision_rows.csv" % out,
+    _write_csv("%s/%s_decision_rows.csv" % (out, prefix),
                [{k: v for k, v in r.items() if not ("audit_delta" in k or "audit_label" in k or "audit_metric" in k)}
                 for r in dec_all])
-    _write_csv("%s/target_info_tier1_smoke_audit_rows.csv" % out, aud_all)
+    _write_csv("%s/%s_audit_rows.csv" % (out, prefix), aud_all)
     aud_by = {a["decision_input_hash"]: a for a in aud_all if a.get("decision_input_hash")}
     joined = [{**r, **{k: v for k, v in aud_by.get(r.get("decision_input_hash"), {}).items() if k not in r}}
               for r in dec_all]
-    _write_csv("%s/target_info_tier1_smoke_joined_rows.csv" % out, joined)
+    _write_csv("%s/%s_joined_rows.csv" % (out, prefix), joined)
     summary = aggregate_smoke(dec_all, aud_all, cfg)
     summary["n_workers"] = len(tasks); summary["n_failures"] = len(fails); summary["failures"] = fails[:20]
     summary["scope"] = {"datasets": sc["datasets"], "backbones": sc["backbones"], "folds": folds,
@@ -1004,12 +1027,10 @@ def run_smoke(cfg, results_root=FROZEN_ROOT, out=SMOKE_OUT, n_jobs=None, n_boot=
                         "k_grid": cfg["budgets"]["B2_k_labels_per_class"]["k_grid"], "R": sc["repeats_R"],
                         "world_alpha_grid": cfg.get("world_alpha_grid"), "n_boot": n_boot,
                         "split_rng_scheme": cfg["split_rng"]["scheme"]}
-    _json.dump(summary, open("%s/target_info_tier1_smoke_summary.json" % out, "w"), indent=1)
-    _json.dump({"scope": summary["scope"], "n_decision_rows": summary["n_decision_rows"],
-                "n_failures": summary["n_failures"]}, open("%s/target_info_tier1_manifest.json" % out, "w"), indent=1)
-    fig = _smoke_plot(summary, out)
+    _json.dump(summary, open("%s/%s_summary.json" % (out, prefix), "w"), indent=1)
+    fig = _smoke_plot(summary, out, prefix)
     from tos_cmi.eeg.report_target_info_tier1 import write_smoke_report
-    write_smoke_report(summary, fig, out)
+    write_smoke_report(summary, fig, out, prefix)
     return len(dec_all), len(aud_all), fails, summary
 
 
@@ -1020,7 +1041,9 @@ def execute_real(cfg, manifest=None, results_root=FROZEN_ROOT, out=SMOKE_OUT):
         return 1, MANIFEST_HALT_MSG                            # never run while locked
     if (manifest or {}).get("run_status") != "approved":
         return 1, MANIFEST_HALT_MSG
-    nd, na, fails, summary = run_smoke(cfg, results_root, out)
+    out = (manifest or {}).get("output_dir", out)              # manifest can route output (e.g. budget-frontier)
+    prefix = (manifest or {}).get("output_prefix", "target_info_tier1_smoke")
+    nd, na, fails, summary = run_smoke(cfg, results_root, out, prefix=prefix)
     sc = summary["stop_conditions"]
     tripped = [k for k, v in sc.items() if v]
     return 0, "TARGET_INFO_TIER1_RUN_DONE (%d decision rows, %d audit rows, %d worker-fails, stop_tripped=%s)" % (
