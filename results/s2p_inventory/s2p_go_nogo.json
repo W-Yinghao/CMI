@@ -1,0 +1,20 @@
+{
+  "subject_ids_reliable": true,
+  "eligible_subjects": 13446,
+  "eligible_subjects_19common_approx": 2800,
+  "eligible_hours": 23186.6,
+  "eligible_hours_19common_approx": 4900,
+  "fixed_hours_design_feasible": true,
+  "fixed_hours_feasible_cells": "H0{250,500} x N{32,128,512} all feasible (S2P_01)",
+  "channel_pipeline_caveat": "19-common coverage 21% -> default restrict to covered recordings (~2800 subj/~4900h), hashed; or channel-flexible (pinned)",
+  "cbramod_smoke_ready": true,
+  "cbramod_smoke_note": "pretrain_main.py lab-tested on HBN; TUEG-subject-subset loader is the 9B-0 build task (no blocker)",
+  "codebrain_stage2_smoke_ready": true,
+  "codebrain_note": "pretrain_EEGSSM.py + FROZEN released tokenizer; TUEG loader to build",
+  "parallel_slurm_ready": "designed (S2P_02 model_matrix + array plan); s2p/slurm array to build in 9B-0",
+  "n_pretrain_runs_full_matrix": 96,
+  "n_pilot_runs": 6,
+  "approve_phase9b_smoke": null,
+  "corpus_go_nogo": "GREEN",
+  "overall": "9A corpus+code READY; awaiting PM review to approve 9B-0 smoke"
+}
