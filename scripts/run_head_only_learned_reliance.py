@@ -78,6 +78,23 @@ def skew_weights(sy, sd, cd, rho, ncls):
     return w * (len(sy) / w.sum())
 
 
+def corrupt_labels(sy, sd, cd, rho, rng):
+    """POSITIVE CONTROL: relabel fraction rho of each subject's NON-c_d samples AS c_d -> a task-CONFLICTING
+    spurious subject->c_d shortcut (unlike reweighting, which keeps true labels). Proves the gate has power."""
+    yc = sy.copy()
+    for d in np.unique(sd):
+        m = np.where(sd == d)[0]; c = cd[int(d)]; non = m[sy[m] != c]
+        k = int(round(rho * len(non)))
+        if k > 0:
+            yc[rng.choice(non, k, replace=False)] = c
+    return yc
+
+
+def kish_eff_n_frac(w):
+    w = np.asarray(w, float)
+    return float((w.sum() ** 2) / (len(w) * (w ** 2).sum() + 1e-12))
+
+
 def train_head(X, y, w, ncls, seed):
     torch.manual_seed(seed)
     Xt = torch.as_tensor(X, dtype=torch.float32); yt = torch.as_tensor(y, dtype=torch.long)
@@ -165,6 +182,8 @@ def main():
             H0 = train_head(Xs[tr_m], sy[tr_m], skew_weights(sy[tr_m], sd[tr_m], cd, 0.0, ncls), ncls, seed)
             l5_0 = l5_reliance(H0, Xs[hi_m], sy[hi_m], S_subj)
             cdrate_0 = cd_pred_rate(H0, Xs[hi_m], sd[hi_m], cd)
+            task_0 = bacc(sy[hi_m], head_logits(H0, Xs[hi_m]))     # held-in TRUE-task bAcc baseline
+            rng_c = np.random.default_rng(p4e.seed_int(seed, "corrupt", tsub))
             for rho in RHOS:
                 w = skew_weights(sy[tr_m], sd[tr_m], cd, rho, ncls)
                 py0 = np.bincount(sy[tr_m], minlength=ncls) / tr_m.sum()
@@ -174,17 +193,26 @@ def main():
                 l5_hi = l5_reliance(H, Xs[hi_m], sy[hi_m], S_subj)
                 cdrate = cd_pred_rate(H, Xs[hi_m], sd[hi_m], cd)
                 l4 = l4_align(H, S_subj)
+                task_re = bacc(sy[hi_m], head_logits(H, Xs[hi_m]))  # reweighting: held-in task bAcc (preserved?)
+                # POSITIVE CONTROL: label-corruption head (task-conflicting) -> should collapse held-in task bAcc
+                yc = corrupt_labels(sy[tr_m], sd[tr_m], cd, rho, rng_c)
+                Hc = train_head(Xs[tr_m], yc, np.ones(tr_m.sum()), ncls, seed)
+                task_c = bacc(sy[hi_m], head_logits(Hc, Xs[hi_m]))
+                cdrate_c = cd_pred_rate(Hc, Xs[hi_m], sd[hi_m], cd)
                 if args.stage == "gate":
                     gate_rows.append(dict(dataset=ds, target_subject=tsub, token_seed=seed, rho=rho,
                                           subj_decode_bacc=round(subj_bacc, 4), chance=round(chance, 4),
                                           subj_decodable=bool(subj_bacc - chance > DECODE_MARGIN),
-                                          py_match_max=round(py_match, 5), eff_n_frac=1.0,
+                                          py_match_max=round(py_match, 5),
+                                          n_rows_kept_frac=1.0, kish_eff_n_frac=round(kish_eff_n_frac(w), 4),
                                           n_subj_diversity=len(np.unique(sd[tr_m])),
                                           l4_head_subj_align=round(l4, 4),
-                                          l5_heldin_reliance=round(l5_hi, 4),
-                                          l5_minus_H0=round(l5_hi - l5_0, 4),
-                                          cd_pred_rate=round(cdrate, 4),
-                                          cd_pred_rate_minus_H0=round(cdrate - cdrate_0, 4)))
+                                          l5_heldin_reliance=round(l5_hi, 4), l5_minus_H0=round(l5_hi - l5_0, 4),
+                                          cd_pred_rate=round(cdrate, 4), cd_pred_rate_minus_H0=round(cdrate - cdrate_0, 4),
+                                          reweight_task_bacc=round(task_re, 4), reweight_task_drop=round(task_0 - task_re, 4),
+                                          poscontrol_corrupt_task_bacc=round(task_c, 4),
+                                          poscontrol_corrupt_task_drop=round(task_0 - task_c, 4),
+                                          poscontrol_corrupt_cd_minus_H0=round(cdrate_c - cdrate_0, 4)))
             if args.stage == "gate":
                 continue
 
@@ -233,8 +261,8 @@ def main():
         pc1._w(OUT / "head_learnability_gate.csv", gate_rows)
         pc1._w(OUT / "head_skew_manifest.csv", [dict(
             dataset=r["dataset"], target_subject=r["target_subject"], token_seed=r["token_seed"], rho=r["rho"],
-            py_match_max=r["py_match_max"], eff_n_frac=r["eff_n_frac"], n_subj_diversity=r["n_subj_diversity"])
-            for r in gate_rows])
+            py_match_max=r["py_match_max"], n_rows_kept_frac=r["n_rows_kept_frac"],
+            kish_eff_n_frac=r["kish_eff_n_frac"], n_subj_diversity=r["n_subj_diversity"]) for r in gate_rows])
         print(f"wrote gate CSVs over {len(gate_rows)} fold-seed-rho")
     else:
         pc1._w(OUT / "head_reliance_dose_response.csv", dose_rows)

@@ -1,0 +1,66 @@
+{
+  "stage": "7B-0_learnability_gate",
+  "subject_decodable": true,
+  "subject_decode_bacc_mean": 0.8659,
+  "chance_mean": 0.1055,
+  "py_held_exactly": true,
+  "kish_eff_n_frac_at_rho0p8": 0.7346,
+  "dose_response": {
+    "0.0": {
+      "cd_bias_mean": 0.0,
+      "cd_bias_ci": [
+        0.0,
+        0.0
+      ],
+      "l5_reliance_mean": 0.0,
+      "l5_reliance_ci": [
+        0.0,
+        0.0
+      ],
+      "reweight_task_drop_mean": 0.0,
+      "poscontrol_corrupt_task_drop_mean": 0.0,
+      "poscontrol_corrupt_cd_bias_mean": 0.0,
+      "n": 168
+    },
+    "0.5": {
+      "cd_bias_mean": -0.0082,
+      "cd_bias_ci": [
+        -0.0155,
+        -0.0024
+      ],
+      "l5_reliance_mean": -0.0002,
+      "l5_reliance_ci": [
+        -0.0026,
+        0.0018
+      ],
+      "reweight_task_drop_mean": 0.0068,
+      "poscontrol_corrupt_task_drop_mean": 0.0788,
+      "poscontrol_corrupt_cd_bias_mean": -0.0631,
+      "n": 168
+    },
+    "0.8": {
+      "cd_bias_mean": -0.0169,
+      "cd_bias_ci": [
+        -0.0388,
+        0.0045
+      ],
+      "l5_reliance_mean": -0.0044,
+      "l5_reliance_ci": [
+        -0.0119,
+        0.0027
+      ],
+      "reweight_task_drop_mean": 0.0361,
+      "poscontrol_corrupt_task_drop_mean": 0.179,
+      "poscontrol_corrupt_cd_bias_mean": -0.103,
+      "n": 168
+    }
+  },
+  "learned_via_prediction_bias": false,
+  "learned_via_subspace_reliance": false,
+  "positive_control_gate_has_power": true,
+  "weaponization_demonstrated_under_reweighting": false,
+  "gate_pass": false,
+  "gate_reason": "no_head_weaponization_demonstrated_under_prevalence_reweighting (mechanism inert; task signal sufficient)",
+  "proceed_to_7B1": false,
+  "note": "FAIL-CLOSED. Prevalence-REWEIGHTING (true labels) induces the subject-class correlation exactly (weighted frac(c_d|subject) 0.25/0.50/0.80, P(y) held) but the head shows NO learned subject->c_d reliance (cd-bias flat/negative, l5 flat, CIs incl 0) and PRESERVES held-in task bAcc -- the task signal is a sufficient statistic for the reweighted labels, so there is no gradient pressure toward the non-generalizing subject signal. This is NOT 'the head resists weaponization': the Q5a-ii positive-control leg (head demonstrably LEARNED the source shortcut) was never achieved -- only subject decodability (0.87) passed. The gate HAS power (label-corruption positive control collapses held-in task bAcc). Verdict = no head-level weaponization DEMONSTRATED under prevalence-reweighting; a task-CONFLICTING label-corruption design is untested (+ would need a transfer-aware detector). 7B-1 does NOT run. PC2 implication: same prevalence mechanism is inert -> do not spend GPU on it; a full refit has MORE capacity to fit the true task, so it is even less likely to weaponize."
+}
