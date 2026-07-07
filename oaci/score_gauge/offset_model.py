@@ -11,9 +11,9 @@ from . import gauge_feature_registry as gfr
 from . import schema
 
 
-def _design(gauge_table):
+def _design(gauge_table, names=None):
     targets = sorted(gauge_table)
-    names = gfr.gauge_feature_names()
+    names = names if names is not None else gfr.gauge_feature_names()
     X = np.array([[gauge_table[t]["gauge"][n] for n in names] for t in targets], dtype=np.float64)
     y = np.array([gauge_table[t]["offset"] for t in targets], dtype=np.float64)
     return targets, X, y, names
@@ -28,9 +28,11 @@ def _ridge_fit_predict(Xtr, ytr, Xte, l2):
     return Xte @ w + ym
 
 
-def fit_offsets(gauge_table) -> dict:
-    """LOTO offset prediction (target-free) + in-sample (identity-available). Returns offset_hat per target."""
-    targets, X, y, names = _design(gauge_table)
+def fit_offsets(gauge_table, names=None) -> dict:
+    """LOTO offset prediction (target-free) + in-sample (identity-available). Returns offset_hat per target.
+    `names` selects the gauge feature columns; defaults to the C23 source gauge names (pass the target-unlabeled
+    names for C24 R3/R4)."""
+    targets, X, y, names = _design(gauge_table, names)
     n = len(targets)
     loto = {}
     for i, t in enumerate(targets):

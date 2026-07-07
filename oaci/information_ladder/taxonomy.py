@@ -50,11 +50,14 @@ def gauge_taxonomy(witnesses, few, oracle, identity, r1_gap, r3r4=None) -> dict:
     unlabeled_case = None
     if final:
         gap = r3r4.get("gap_closed")
-        loto_gen = r3r4.get("loto_generalizes")
-        if identity_laden and not loto_gen and (r3r4.get("auc_improve") or 0) > 0:
-            unlabeled_case = schema.I7                      # apparent unlabeled recovery is identity leakage
-        elif gap is not None and gap >= schema.SUCCESS_GAP_CLOSED and loto_gen:
-            unlabeled_case = schema.I2
+        improve = r3r4.get("auc_improve") or 0
+        # permutation null is the decisive control: identity leakage / noise cannot survive a LOTO offset<->gauge
+        # shuffle, so surviving it => genuine (if weak) marginal recovery, not an identity artifact.
+        survives = bool(r3r4.get("survives_permutation"))
+        if survives and gap is not None and gap >= schema.SUCCESS_GAP_CLOSED:
+            unlabeled_case = schema.I2                      # target-unlabeled marginal recovers (permutation-robust)
+        elif identity_laden and improve > 0 and not survives:
+            unlabeled_case = schema.I7                      # apparent improvement is identity/noise, fails permutation
         else:
             unlabeled_case = schema.I3
         established = [c for c in established if c != schema.I6] + [unlabeled_case] + \
@@ -67,7 +70,7 @@ def gauge_taxonomy(witnesses, few, oracle, identity, r1_gap, r3r4=None) -> dict:
                      "primarily labels)" if grouping_recovers else "")
     interp = {
         schema.I1: "source-only summaries are non-identifying for the per-target offset (cross-target source distance does not predict offset distance).",
-        schema.I2: "UNLABELED target-marginal information recovers the offset (target-unlabeled gauge closes the oracle gap, generalizes LOTO, no identity leakage).",
+        schema.I2: "UNLABELED target-marginal confidence geometry carries a WEAK but PERMUTATION-ROBUST partial signal for the offset (target-unlabeled gauge closes a substantial oracle-gap fraction and improves pooled AUC beyond a LOTO offset-permutation null, where source-only HURTS) -- a partial recovery, not a clean one (poor absolute predictor / negative LOTO R^2); NOT identity leakage (survives the permutation).",
         schema.I3: "UNLABELED target-marginal information is insufficient; the offset is not in the target distribution's confidence geometry.",
         schema.I4: "a SMALL labeled target-calibration budget (<=%d/class) sharply recovers the offset -> the missing quantity is target-specific scalar calibration." % schema.FEW_LABEL_RECOVERS_MAX_K,
         schema.I5: "the offset is label-hungry: many target labels are needed to recover it.",

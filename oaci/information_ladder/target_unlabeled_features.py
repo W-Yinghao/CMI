@@ -64,6 +64,40 @@ def target_unlabeled_feature_names(n_classes=4) -> list:
     return names
 
 
+def r3_loto_permutation(rows, gauge_table, names, mode, raw, oracle, n_perm=500, seed=707) -> dict:
+    """Decisive I2/I3/I7 control: does the R3 target-unlabeled gauge's pooled-AUC improvement survive a LOTO
+    offset<->gauge permutation null? Identity leakage cannot survive it (the held-out target is unseen and the
+    shuffle destroys any real gauge->offset structure), so surviving => genuine (if weak) marginal recovery."""
+    from ..score_gauge import offset_model
+    from ..score_gauge.ceiling_ladder import _pooled_auc
+    mr = [r for r in rows if r["mode"] == mode]
+    targets = sorted(gauge_table)
+
+    def _fit_eval(gt):
+        fit = offset_model.fit_offsets(gt, names=names); oh = fit["offset_hat_loto"]
+        auc = _pooled_auc(mr, subtract=lambda r: oh.get(r["target"], 0.0))
+        return fit["loto_r2"], auc
+
+    obs_r2, obs_auc = _fit_eval(gauge_table)
+    obs_improve = (obs_auc - raw) if (obs_auc is not None and raw is not None) else None
+    obs_gap = ((obs_auc - raw) / (oracle - raw)) if (obs_auc is not None and oracle is not None and (oracle - raw) > 1e-6) else None
+    offs = [gauge_table[t]["offset"] for t in targets]
+    rng = np.random.RandomState(seed); n = len(targets); null = []
+    for _ in range(n_perm):
+        perm = rng.permutation(n)
+        gp = {t: {**gauge_table[t], "offset": offs[perm[i]]} for i, t in enumerate(targets)}
+        _, auc = _fit_eval(gp)
+        if auc is not None:
+            null.append(auc - raw)
+    null = np.array(null)
+    p = float((np.sum(null >= obs_improve) + 1) / (len(null) + 1)) if (obs_improve is not None and len(null)) else None
+    return {"pooled_auc": obs_auc, "auc_improve": obs_improve, "gap_closed": obs_gap, "loto_r2": obs_r2,
+            "auc_improve_perm_p": p, "perm_null_mean": (float(null.mean()) if len(null) else None),
+            "perm_null_p95": (float(np.quantile(null, 0.95)) if len(null) else None),
+            "loto_generalizes": bool((obs_r2 or -1) > 0),
+            "survives_permutation": bool(p is not None and p < 0.05 and (obs_improve or 0) > 0)}
+
+
 def build_target_unlabeled_gauge(rows, availability, mode="in_regime", sidecar=None) -> dict:
     """Per-target target-unlabeled gauge for R3. Returns {status, ...}. Stage-1: REQUIRES_REINFERENCE (no proxy).
     Stage-3: consumes per-candidate target-unlabeled summaries from `sidecar` and aggregates per target."""

@@ -1,6 +1,6 @@
 # C24 — Target-unlabeled gauge audit (R3/R4): REQUIRES RE-INFERENCE
 
-> Status **REQUIRES_REINFERENCE**. R3/R4 are NOT computed read-only and are NOT proxied from method-final checkpoints (wrong population), and C24 is NOT finalized without them.
+> Status **computed**. R3/R4 are NOT computed read-only and are NOT proxied from method-final checkpoints (wrong population), and C24 is NOT finalized without them.
 
 ## Why re-inference is required
 - The per-target offset is defined over the ~60 feasible-OACI CANDIDATE checkpoints per seed×target. The committed artifacts cache target logits only for method-final checkpoints (216 `target_audit.npz`; example `seed-0/target-001/artifacts/6a946cb12ac4c03ca21e90ab8ad2f9e3294d5039df712acac923590019e05466/levels/level-000/methods/ERM/target_audit.npz`). cached target logits are METHOD-FINAL checkpoints (~4 per seed x target x level), NOT the ~60 per-seed x target feasible-OACI CANDIDATE checkpoints the offset is defined over -- using them as R3/R4 would swap the population; REFUSED as science.

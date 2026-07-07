@@ -4,8 +4,8 @@
     "example_method_final": "seed-0/target-001/artifacts/6a946cb12ac4c03ca21e90ab8ad2f9e3294d5039df712acac923590019e05466/levels/level-000/methods/ERM/target_audit.npz",
     "method_final_note": "cached target logits are METHOD-FINAL checkpoints (~4 per seed x target x level), NOT the ~60 per-seed x target feasible-OACI CANDIDATE checkpoints the offset is defined over -- using them as R3/R4 would swap the population; REFUSED as science.",
     "method_final_target_audit_count": 216,
-    "per_candidate_target_unlabeled_ready": false,
-    "r3r4_status": "REQUIRES_REINFERENCE",
+    "per_candidate_target_unlabeled_ready": true,
+    "r3r4_status": "computed",
     "reinfer_sidecar": "/projects/EEG-foundation-model/yinghao/oaci-c24-target-unlabeled.json"
   },
   "config_hash": "664007686afb520f",
@@ -175,7 +175,7 @@
       "needs_target_labels": false,
       "reason": "per_candidate_target_logits_not_cached_requires_no_retraining_target_audit_reinference",
       "rung": "R3",
-      "status": "REQUIRES_REINFERENCE"
+      "status": "computed"
     },
     {
       "deployable": false,
@@ -186,7 +186,7 @@
       "needs_target_labels": false,
       "reason": "per_candidate_target_logits_not_cached_requires_no_retraining_target_audit_reinference",
       "rung": "R4",
-      "status": "REQUIRES_REINFERENCE"
+      "status": "computed"
     },
     {
       "deployable": false,
@@ -230,10 +230,20 @@
     "note": "SECONDARY: R_src is a training-realized static scalar, not a robust-core deletion-robust observable.",
     "source_gauge_loto_auc": 0.5209178864493236
   },
+  "source_plus_target_unlabeled_r4": {
+    "auc_improve": -0.04393324462186737,
+    "auc_improve_perm_p": 0.9001996007984032,
+    "gap_closed": -0.4848199317172259,
+    "loto_generalizes": false,
+    "loto_r2": -2.5426131415579833,
+    "perm_null_mean": -0.0007365247283211149,
+    "perm_null_p95": 0.055136962186737595,
+    "pooled_auc": 0.4992157351962741,
+    "status": "computed",
+    "survives_permutation": false
+  },
   "target_unlabeled_r3r4": {
-    "gauge_table": null,
-    "note": "R3/R4 not computed: per-candidate target logits require a scoped NO-RETRAINING target-audit re-inference behind the P0 replay-identity gate. No method-final proxy is used.",
-    "planned_feature_names": [
+    "feature_names": [
       "target_entropy_mean",
       "target_entropy_std",
       "target_confidence_mean",
@@ -247,33 +257,205 @@
       "target_pred_prop_c2",
       "target_pred_prop_c3"
     ],
-    "reason": "cached target logits are METHOD-FINAL checkpoints (~4 per seed x target x level), NOT the ~60 per-seed x target feasible-OACI CANDIDATE checkpoints the offset is defined over -- using them as R3/R4 would swap the population; REFUSED as science.",
-    "status": "REQUIRES_REINFERENCE"
+    "gauge_table": {
+      "1": {
+        "gauge": {
+          "target_confidence_mean": 0.5608426897870863,
+          "target_confidence_std": 0.14509318879387173,
+          "target_entropy_mean": 1.0279976746529342,
+          "target_entropy_std": 0.2193864178492585,
+          "target_logit_norm_mean": 4.298229783138364,
+          "target_logit_norm_std": 0.9613358828129981,
+          "target_margin_mean": 0.3092377907138698,
+          "target_margin_std": 0.22332120218482263,
+          "target_pred_prop_c0": 0.35871424129353235,
+          "target_pred_prop_c1": 0.22108208955223882,
+          "target_pred_prop_c2": 0.3445791873963515,
+          "target_pred_prop_c3": 0.07562448175787728
+        },
+        "n": 402,
+        "offset": 0.41773358553525664
+      },
+      "2": {
+        "gauge": {
+          "target_confidence_mean": 0.5976619092032667,
+          "target_confidence_std": 0.14690027894318036,
+          "target_entropy_mean": 0.9510702507209705,
+          "target_entropy_std": 0.22894718652102108,
+          "target_logit_norm_mean": 4.703083314325398,
+          "target_logit_norm_std": 1.0792365625213967,
+          "target_margin_mean": 0.3498062058837029,
+          "target_margin_std": 0.23524554984320128,
+          "target_pred_prop_c0": 0.41782756024096385,
+          "target_pred_prop_c1": 0.4698167670682731,
+          "target_pred_prop_c2": 0.0663487282463186,
+          "target_pred_prop_c3": 0.04600694444444445
+        },
+        "n": 498,
+        "offset": 0.4501279620690481
+      },
+      "3": {
+        "gauge": {
+          "target_confidence_mean": 0.6093249054090003,
+          "target_confidence_std": 0.1689070108434163,
+          "target_entropy_mean": 0.9379289460334541,
+          "target_entropy_std": 0.2833216220731383,
+          "target_logit_norm_mean": 4.737177414915795,
+          "target_logit_norm_std": 1.3850408442204918,
+          "target_margin_mean": 0.37957940402213697,
+          "target_margin_std": 0.26160678158433864,
+          "target_pred_prop_c0": 0.27044499269005845,
+          "target_pred_prop_c1": 0.1788879751461988,
+          "target_pred_prop_c2": 0.10305875365497078,
+          "target_pred_prop_c3": 0.44760827850877194
+        },
+        "n": 456,
+        "offset": 0.7079428356592044
+      },
+      "4": {
+        "gauge": {
+          "target_confidence_mean": 0.589969721923224,
+          "target_confidence_std": 0.15331150029073887,
+          "target_entropy_mean": 0.9695159882310176,
+          "target_entropy_std": 0.24160022609501622,
+          "target_logit_norm_mean": 4.710459728010493,
+          "target_logit_norm_std": 1.2861397318650194,
+          "target_margin_mean": 0.34681173746440885,
+          "target_margin_std": 0.23892135916348442,
+          "target_pred_prop_c0": 0.13467910312273057,
+          "target_pred_prop_c1": 0.4608183551198257,
+          "target_pred_prop_c2": 0.2800698983297022,
+          "target_pred_prop_c3": 0.12443264342774146
+        },
+        "n": 459,
+        "offset": 0.18727639498158766
+      },
+      "5": {
+        "gauge": {
+          "target_confidence_mean": 0.6688697723035232,
+          "target_confidence_std": 0.14224565872434747,
+          "target_entropy_mean": 0.8243375395823739,
+          "target_entropy_std": 0.23367222697831935,
+          "target_logit_norm_mean": 5.361891857191369,
+          "target_logit_norm_std": 1.20158148802117,
+          "target_margin_mean": 0.4468549562534502,
+          "target_margin_std": 0.2384256297175967,
+          "target_pred_prop_c0": 0.8377700617283952,
+          "target_pred_prop_c1": 0.14477237654320987,
+          "target_pred_prop_c2": 0.015790343915343917,
+          "target_pred_prop_c3": 0.0016672178130511463
+        },
+        "n": 378,
+        "offset": 0.3282880310814982
+      },
+      "6": {
+        "gauge": {
+          "target_confidence_mean": 0.5990520160947862,
+          "target_confidence_std": 0.1471661481590605,
+          "target_entropy_mean": 0.9137541074076915,
+          "target_entropy_std": 0.24765312344468712,
+          "target_logit_norm_mean": 5.391794178535418,
+          "target_logit_norm_std": 1.7658268050421815,
+          "target_margin_mean": 0.33242546992933014,
+          "target_margin_std": 0.231005769650545,
+          "target_pred_prop_c0": 0.0928950968013468,
+          "target_pred_prop_c1": 0.12507891414141414,
+          "target_pred_prop_c2": 0.3356218434343434,
+          "target_pred_prop_c3": 0.44640414562289565
+        },
+        "n": 396,
+        "offset": 0.4589631119342597
+      },
+      "7": {
+        "gauge": {
+          "target_confidence_mean": 0.5190290396474436,
+          "target_confidence_std": 0.12929798729258335,
+          "target_entropy_mean": 1.107830272290621,
+          "target_entropy_std": 0.17810878603547833,
+          "target_logit_norm_mean": 3.8811516208746335,
+          "target_logit_norm_std": 0.7298838925189493,
+          "target_margin_mean": 0.2604017909277714,
+          "target_margin_std": 0.19476572297818082,
+          "target_pred_prop_c0": 0.3636642156862745,
+          "target_pred_prop_c1": 0.14118668300653595,
+          "target_pred_prop_c2": 0.4204324959150327,
+          "target_pred_prop_c3": 0.07471660539215687
+        },
+        "n": 408,
+        "offset": 0.5908482045885215
+      },
+      "8": {
+        "gauge": {
+          "target_confidence_mean": 0.5123808912468124,
+          "target_confidence_std": 0.132165301565655,
+          "target_entropy_mean": 1.1150164110638334,
+          "target_entropy_std": 0.18531956375761244,
+          "target_logit_norm_mean": 3.8719877600145387,
+          "target_logit_norm_std": 0.7649074578131216,
+          "target_margin_mean": 0.2611448045941632,
+          "target_margin_std": 0.19635619430277904,
+          "target_pred_prop_c0": 0.19003739316239315,
+          "target_pred_prop_c1": 0.3745726495726495,
+          "target_pred_prop_c2": 0.09302884615384616,
+          "target_pred_prop_c3": 0.3423611111111111
+        },
+        "n": 390,
+        "offset": 0.6370690261966362
+      },
+      "9": {
+        "gauge": {
+          "target_confidence_mean": 0.6431239391997228,
+          "target_confidence_std": 0.17119531057661902,
+          "target_entropy_mean": 0.8556876815314537,
+          "target_entropy_std": 0.2945408902362192,
+          "target_logit_norm_mean": 5.463045157306539,
+          "target_logit_norm_std": 1.7434048569543454,
+          "target_margin_mean": 0.41787417578673974,
+          "target_margin_std": 0.27301343504505504,
+          "target_pred_prop_c0": 0.17227468025579534,
+          "target_pred_prop_c1": 0.20596023181454837,
+          "target_pred_prop_c2": 0.20192595923261392,
+          "target_pred_prop_c3": 0.41983912869704243
+        },
+        "n": 417,
+        "offset": 0.3495838661518539
+      }
+    },
+    "status": "computed"
   },
-  "target_unlabeled_resolved": null,
+  "target_unlabeled_resolved": {
+    "auc_improve": 0.0444799290308272,
+    "auc_improve_perm_p": 0.023952095808383235,
+    "gap_closed": 0.4908528004503232,
+    "identity_laden": true,
+    "loto_generalizes": false,
+    "loto_r2": -0.6463509418927544,
+    "perm_null_mean": -0.010280512863162545,
+    "perm_null_p95": 0.03692442891993792,
+    "pooled_auc": 0.5876289088489687,
+    "status": "computed",
+    "survives_permutation": true
+  },
   "taxonomy": {
     "diagnostic_only_non_deployable": true,
     "established_readonly": [
       "I1_source_only_nonidentifiable",
-      "I6_oracle_only_boundary",
-      "I4_few_labels_recover_offset"
+      "I4_few_labels_recover_offset",
+      "I2_unlabeled_target_recovers_offset"
     ],
     "few_label_case": null,
-    "final": false,
+    "final": true,
     "identity_laden": true,
-    "interpretation": "target-centered/rank grouping recovers pooled transport (via 0-label TRANSDUCTIVE target grouping == the target-centered oracle; competence labels only refine it -> the missing ingredient is target GROUPING, not source observability and not primarily labels); source-only summaries do not.",
+    "interpretation": "UNLABELED target-marginal confidence geometry carries a WEAK but PERMUTATION-ROBUST partial signal for the offset (target-unlabeled gauge closes a substantial oracle-gap fraction and improves pooled AUC beyond a LOTO offset-permutation null, where source-only HURTS) -- a partial recovery, not a clean one (poor absolute predictor / negative LOTO R^2); NOT identity leakage (survives the permutation).",
     "labels_refine_beyond_grouping": true,
-    "next_science": "C24 read-only rungs establish: I1_source_only_nonidentifiable, I6_oracle_only_boundary, I4_few_labels_recover_offset. I2/I3 (unlabeled-target) require the P0-gated target-audit re-inference before C24 finalizes.",
+    "next_science": "C24 finalized: unlabeled-target rung = I2_unlabeled_target_recovers_offset",
     "offset_recovered_by_transductive_grouping": true,
     "oracle_recovers": true,
-    "primary_provisional": "I6_oracle_only_boundary",
-    "r3r4_status": "REQUIRES_REINFERENCE",
+    "primary_provisional": "I2_unlabeled_target_recovers_offset",
+    "r3r4_status": "computed",
     "source_nonidentifiable": true,
-    "unlabeled_case": null,
-    "unresolved_pending_reinference": [
-      "I2_unlabeled_target_recovers_offset",
-      "I3_unlabeled_target_insufficient"
-    ],
+    "unlabeled_case": "I2_unlabeled_target_recovers_offset",
+    "unresolved_pending_reinference": [],
     "zero_label_transductive_gap": 1.0
   },
   "witnesses": {

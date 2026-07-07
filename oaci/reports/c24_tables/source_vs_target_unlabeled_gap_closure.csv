@@ -1,4 +1,4 @@
 gauge,gap_closed,status
 R1_source_only,-0.8246766357884945,computed
 R2_risk_family,-0.24532850377513157,computed
-R3_target_unlabeled,,REQUIRES_REINFERENCE
+R3_target_unlabeled,0.4908528004503232,computed

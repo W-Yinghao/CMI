@@ -3,5 +3,5 @@ source_nonidentifiable,True
 few_label_case,
 oracle_recovers,True
 identity_laden,True
-r3r4_status,REQUIRES_REINFERENCE
-final,False
+r3r4_status,computed
+final,True

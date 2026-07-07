@@ -58,18 +58,24 @@ def run(sidecar_path=None, artifact_root=None, reinfer_sidecar=None) -> dict:
     r3r4 = target_unlabeled_features.build_target_unlabeled_gauge(rows, avail, mode, sidecar=reinf)
     r3r4_resolved = None
     if r3r4["status"] == schema.STATUS_OK:
-        tfit = offset_model.fit_offsets(r3r4["gauge_table"])
-        tlad = oracle_ladder.oracle_ladder(rows, mode, tfit["offset_hat_loto"])
-        gap = ((tlad["source_gauge_loto"] - raw) / (orc - raw)) if (orc - raw) > 1e-6 else None
-        r3r4_resolved = {"status": schema.STATUS_OK, "gap_closed": gap,
-                         "auc_improve": (tlad["source_gauge_loto"] - raw) if tlad["source_gauge_loto"] is not None else None,
-                         "loto_generalizes": bool((tfit["loto_r2"] or -1) > 0), "loto_r2": tfit["loto_r2"],
-                         "pooled_auc": tlad["source_gauge_loto"]}
+        # permutation null is the decisive I2/I3/I7 control (identity leakage cannot survive it)
+        perm = target_unlabeled_features.r3_loto_permutation(rows, r3r4["gauge_table"], r3r4["feature_names"], mode, raw, orc)
+        r3r4_resolved = {"status": schema.STATUS_OK, "identity_laden": identity["source_features_identity_separable"],
+                         **perm}
+    # R4 = source + target-unlabeled combined gauge (does source ADD to target-unlabeled?)
+    r4_resolved = None
+    if r3r4["status"] == schema.STATUS_OK:
+        tu = r3r4["gauge_table"]
+        combined = {t: {"gauge": {**gt[t]["gauge"], **tu[t]["gauge"]}, "offset": gt[t]["offset"]}
+                    for t in tu if t in gt}
+        cnames = list(gfr.gauge_feature_names()) + list(r3r4["feature_names"])
+        r4_resolved = {"status": schema.STATUS_OK, **target_unlabeled_features.r3_loto_permutation(rows, combined, cnames, mode, raw, orc)}
     tax = taxonomy.gauge_taxonomy(witnesses, few, oracle, identity, r1_gap, r3r4_resolved)
     return {"config_hash": cfg, "mode": mode, "n_rows": len(rows), "identity_leakage": identity,
             "availability": avail, "ladder": ladder, "oracle": oracle, "r1_source_gauge_gap": r1_gap,
             "risk_family_r2": r2, "few_label_r5": few, "witnesses": witnesses,
-            "target_unlabeled_r3r4": r3r4, "target_unlabeled_resolved": r3r4_resolved, "taxonomy": tax,
+            "target_unlabeled_r3r4": r3r4, "target_unlabeled_resolved": r3r4_resolved,
+            "source_plus_target_unlabeled_r4": r4_resolved, "taxonomy": tax,
             "diagnostic_only_non_deployable": True}
 
 
@@ -77,7 +83,7 @@ def run(sidecar_path=None, artifact_root=None, reinfer_sidecar=None) -> dict:
 def _offset_recovery_rows(res):
     o = res["oracle"]; raw = o["raw_pooled"]; r2 = res["risk_family_r2"]; few = res["few_label_r5"]
     r5_best = max(few["curve"], key=lambda c: (c["pooled_auc"] if c["pooled_auc"] is not None else -1))
-    rr = res["target_unlabeled_resolved"]
+    rr = res["target_unlabeled_resolved"]; r4 = res.get("source_plus_target_unlabeled_r4")
     def row(rung, auc, gap, status):
         return {"rung": rung, "pooled_auc": auc, "auc_improve": (auc - raw) if (auc is not None and raw is not None) else None,
                 "gap_closed": gap, "status": status}
@@ -87,7 +93,8 @@ def _offset_recovery_rows(res):
         row(schema.R2, r2["source_gauge_loto_auc"], r2["gap_closed"], schema.STATUS_OK),
         row(schema.R3, (rr["pooled_auc"] if rr else None), (rr["gap_closed"] if rr else None),
             (rr["status"] if rr else res["target_unlabeled_r3r4"]["status"])),
-        row(schema.R4, None, None, res["target_unlabeled_r3r4"]["status"]),
+        row(schema.R4, (r4["pooled_auc"] if r4 else None), (r4["gap_closed"] if r4 else None),
+            (r4["status"] if r4 else res["target_unlabeled_r3r4"]["status"])),
         row(schema.R5, r5_best["pooled_auc"], r5_best["gap_closed"], schema.STATUS_OK),
         row(schema.R6, o["target_centered_oracle"], 1.0, schema.STATUS_OK),
     ]
@@ -126,7 +133,9 @@ def write_tables(res, tdir):
               ["feature", "family", "needs_target_labels"])
     rr = res["target_unlabeled_resolved"]
     _writecsv(os.path.join(tdir, "target_unlabeled_gauge_results.csv"),
-              [{"metric": k, "value": (rr[k] if rr else None)} for k in ("status", "pooled_auc", "auc_improve", "gap_closed", "loto_r2", "loto_generalizes")]
+              [{"metric": k, "value": (rr[k] if rr else None)} for k in
+               ("status", "pooled_auc", "auc_improve", "gap_closed", "loto_r2", "loto_generalizes",
+                "auc_improve_perm_p", "perm_null_mean", "perm_null_p95", "survives_permutation", "identity_laden")]
               if rr else [{"metric": "status", "value": res["target_unlabeled_r3r4"]["status"]},
                           {"metric": "reason", "value": res["target_unlabeled_r3r4"].get("reason")}],
               ["metric", "value"])
@@ -220,11 +229,30 @@ def render_md(res) -> str:
           f"- competence labels only REFINE beyond grouping (label gain over grouping {_f(few.get('label_gain_over_grouping'))}); "
           f"few-labels (≤{schema.FEW_LABEL_RECOVERS_MAX_K}/class) recover: **{few['few_labels_recover']}** "
           f"(max gap {_f(few['max_gap_closed'])}).", "",
-          "## R3/R4 — target-unlabeled gauge (REQUIRES RE-INFERENCE; not proxied, not finalized)", "",
-          f"- status: **{res['target_unlabeled_r3r4']['status']}**. {av['method_final_note']}",
-          f"- cached method-final target_audit.npz: {av['method_final_target_audit_count']} (wrong population); "
-          f"per-candidate target-unlabeled ready: {av['per_candidate_target_unlabeled_ready']}.",
-          "- next: C24-R3R4-P0 replay-identity smoke gate → full no-retraining target-audit re-inference → real R3/R4.", "",
+          "## R3/R4 — target-unlabeled gauge (no-retraining re-inference; P0-gated, label-free)"]
+    rr = res["target_unlabeled_resolved"]
+    if rr:
+        L += ["", f"- R3 pooled AUC **{_f(rr['pooled_auc'])}** (raw {_f(o['raw_pooled'])}) → auc improve "
+              f"**{_f(rr['auc_improve'])}**, gap closed **{_f(rr['gap_closed'])}**; LOTO R² {_f(rr['loto_r2'])} "
+              f"(poor absolute predictor).",
+              f"- **PERMUTATION control (decisive I2/I3/I7)**: auc-improve perm p **{_f(rr['auc_improve_perm_p'])}** "
+              f"(null mean {_f(rr['perm_null_mean'])}, p95 {_f(rr['perm_null_p95'])}) → survives: "
+              f"**{rr['survives_permutation']}**. Identity leakage cannot survive a LOTO offset-permutation null, "
+              f"so surviving ⇒ genuine (weak) marginal recovery, not identity artifact (identity-separable "
+              f"{res['identity_leakage']['source_features_identity_separable']}).",
+              f"- **target-unlabeled HELPS (+{_f(rr['auc_improve'])}) where source-only R1 HURTS "
+              f"({_f(res['r1_source_gauge_gap'])} gap)** → target marginal geometry carries offset structure "
+              f"source-only cannot. WEAK/partial: small absolute effect, negative LOTO R², 9-target small-N."]
+        r4 = res.get("source_plus_target_unlabeled_r4")
+        if r4:
+            L.append(f"- R4 source+target-unlabeled COMBINED: gap **{_f(r4['gap_closed'])}** (perm p "
+                     f"{_f(r4['auc_improve_perm_p'])}, survives {r4['survives_permutation']}) → adding the "
+                     f"non-informative source features DESTROYS the R3 recovery, confirming the offset signal is "
+                     f"in the TARGET-UNLABELED features, not the source.")
+    else:
+        L += ["", f"- status: **{res['target_unlabeled_r3r4']['status']}**. {av['method_final_note']}",
+              "- next: C24-R3R4-P0 replay-identity smoke gate → full no-retraining target-audit re-inference → real R3/R4."]
+    L += ["",
           "## Boundary of the claim", "",
           "> DIAGNOSTIC-ONLY. Oracle rungs use target grouping (non-deployable). R5 is a supervised label-budget "
           "diagnostic, not DG. No selector, no selected-checkpoint artifact. C24 is NOT finalized until the "

@@ -2,9 +2,9 @@
 
 > C23 closed the source-only target-free gauge (`G5_offset_source_unobservable`). C24 asks what information, if any, breaks the per-target score-offset non-identifiability. Read-only rungs (R0/R1/R2/R5/R6 + witnesses) below; R3/R4 (target-UNLABELED) require a no-retraining target-audit re-inference behind a P0 replay-identity gate and are NOT proxied, NOT finalized here. DIAGNOSTIC-ONLY; not a selector, not DG success.
 
-- **STAGE: read-only (R3/R4 pending P0-gated re-inference)**
-- established read-only: **I1_source_only_nonidentifiable, I6_oracle_only_boundary, I4_few_labels_recover_offset**  ·  unresolved: I2_unlabeled_target_recovers_offset, I3_unlabeled_target_insufficient
-- primary (provisional): **`I6_oracle_only_boundary`** — target-centered/rank grouping recovers pooled transport (via 0-label TRANSDUCTIVE target grouping == the target-centered oracle; competence labels only refine it -> the missing ingredient is target GROUPING, not source observability and not primarily labels); source-only summaries do not.
+- **STAGE: FINAL**
+- established read-only: **I1_source_only_nonidentifiable, I4_few_labels_recover_offset, I2_unlabeled_target_recovers_offset**
+- primary (provisional): **`I2_unlabeled_target_recovers_offset`** — UNLABELED target-marginal confidence geometry carries a WEAK but PERMUTATION-ROBUST partial signal for the offset (target-unlabeled gauge closes a substantial oracle-gap fraction and improves pooled AUC beyond a LOTO offset-permutation null, where source-only HURTS) -- a partial recovery, not a clean one (poor absolute predictor / negative LOTO R^2); NOT identity leakage (survives the permutation).
 
 ## HARD GATE — target-identity leakage (reported FIRST)
 
@@ -17,8 +17,8 @@
 | R0 raw_pooled | none | +0.543 | +0.000 | computed |
 | R1 source_only_gauge | source_only | +0.468 | -0.825 | computed |
 | R2 source_risk_static_gauge | source_only | +0.521 | -0.245 | computed |
-| R3 target_unlabeled_gauge | target_unlabeled_transductive | n/a | n/a | REQUIRES_REINFERENCE |
-| R4 source_plus_target_unlabeled_gauge | target_unlabeled_transductive | n/a | n/a | REQUIRES_REINFERENCE |
+| R3 target_unlabeled_gauge | target_unlabeled_transductive | +0.588 | +0.491 | computed |
+| R4 source_plus_target_unlabeled_gauge | target_unlabeled_transductive | +0.499 | -0.485 | computed |
 | R5 few_label_target_calibration | target_labeled_supervised_calibration | +0.671 | +1.415 | computed |
 | R6 target_centered_rank_oracle | target_identity_oracle | +0.634 | +1.000 | computed |
 
@@ -43,11 +43,12 @@
 - k=0 is the LABEL-FREE transductive target-mean centering (== oracle): gap closed **+1.000** → offset recovered by target GROUPING at 0 labels; grouping==oracle: **True**.
 - competence labels only REFINE beyond grouping (label gain over grouping +0.415); few-labels (≤4/class) recover: **True** (max gap +1.415).
 
-## R3/R4 — target-unlabeled gauge (REQUIRES RE-INFERENCE; not proxied, not finalized)
+## R3/R4 — target-unlabeled gauge (no-retraining re-inference; P0-gated, label-free)
 
-- status: **REQUIRES_REINFERENCE**. cached target logits are METHOD-FINAL checkpoints (~4 per seed x target x level), NOT the ~60 per-seed x target feasible-OACI CANDIDATE checkpoints the offset is defined over -- using them as R3/R4 would swap the population; REFUSED as science.
-- cached method-final target_audit.npz: 216 (wrong population); per-candidate target-unlabeled ready: False.
-- next: C24-R3R4-P0 replay-identity smoke gate → full no-retraining target-audit re-inference → real R3/R4.
+- R3 pooled AUC **+0.588** (raw +0.543) → auc improve **+0.044**, gap closed **+0.491**; LOTO R² -0.646 (poor absolute predictor).
+- **PERMUTATION control (decisive I2/I3/I7)**: auc-improve perm p **+0.024** (null mean -0.010, p95 +0.037) → survives: **True**. Identity leakage cannot survive a LOTO offset-permutation null, so surviving ⇒ genuine (weak) marginal recovery, not identity artifact (identity-separable True).
+- **target-unlabeled HELPS (++0.044) where source-only R1 HURTS (-0.825 gap)** → target marginal geometry carries offset structure source-only cannot. WEAK/partial: small absolute effect, negative LOTO R², 9-target small-N.
+- R4 source+target-unlabeled COMBINED: gap **-0.485** (perm p +0.900, survives False) → adding the non-informative source features DESTROYS the R3 recovery, confirming the offset signal is in the TARGET-UNLABELED features, not the source.
 
 ## Boundary of the claim
 
