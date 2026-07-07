@@ -1,0 +1,34 @@
+{
+  "scope": "B9.0 dry-run contract checks (plumbing only, NO scientific claim). Maps each dry-run world -> b9_state + primary reason; records the enforcement invariants verified. Synthetic toy substrate (NOT Lee2019, NOT validation).",
+  "dry_run_result": "B9_0_DRYRUN_OK",
+  "n_boot": 200,
+  "worlds": {
+    "VALID_balanced_assignment":            {"kind": "valid",  "state": "NO_ACTIONABLE_CONCEPT_EVIDENCE", "ran_test": true},
+    "VALID_no_concept":                     {"kind": "valid",  "state": "NO_ACTIONABLE_CONCEPT_EVIDENCE", "ran_test": true},
+    "VALID_boundary_signal":                {"kind": "valid",  "state": "B9_CONCEPT_ALERT", "ran_test": true, "note": "genuine C x Z concept detected by the exact (block,Y_design) randomization null"},
+    "VALID_underpowered_size_gate":         {"kind": "valid",  "state": "NO_ACTIONABLE_CONCEPT_EVIDENCE", "ran_test": true, "note": "crossfit RAN but n_eligible<20 -> size_ok BLOCKS the alert (exercises the alert-conjunction size gate)"},
+    "OUT_OF_ESTIMAND_natural_prevalence":   {"kind": "refuse", "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "ran_test": false, "primary_reason": "natural_prevalence_out_of_estimand"},
+    "INVALID_missing_assignment_table":     {"kind": "refuse", "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "ran_test": false, "primary_reason": "missing_or_invalid_assignment_table"},
+    "INVALID_pinned_hash_corrupt":          {"kind": "refuse", "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "ran_test": false, "primary_reason": "missing_or_invalid_assignment_table", "note": "present table, adherent C, but corrupted pin -> hash integrity fails"},
+    "INVALID_post_hoc_ydesign_manifest":    {"kind": "refuse", "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "ran_test": false, "primary_reason": "table_not_pre_recording_or_ydesign_post_hoc"},
+    "INVALID_executed_deviates_from_table": {"kind": "refuse", "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "ran_test": false, "primary_reason": "executed_deviates_from_registered_table", "note": "C re-randomized (balanced) -> C-adherence fails"},
+    "INVALID_executed_ydesign_relabel":     {"kind": "refuse", "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "ran_test": false, "primary_reason": "executed_deviates_from_registered_table", "note": "C adherent but Y_design relabeled (balance preserved) -> full-tuple adherence fails (round-2 fix)"},
+    "INVALID_cxy_design_imbalance":         {"kind": "refuse", "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "ran_test": false, "primary_reason": "cxy_design_imbalance"},
+    "INVALID_condition_lock":               {"kind": "refuse", "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "ran_test": false, "primary_reason": "condition_not_randomized_or_locked"},
+    "INVALID_session_confounding":          {"kind": "refuse", "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "ran_test": false, "primary_reason": "session_confounding"},
+    "INVALID_attrition_prior_shift":        {"kind": "refuse", "state": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "ran_test": false, "primary_reason": "attrition_or_noncompliance_prior_shift"},
+    "INVALID_insufficient_support":         {"kind": "refuse", "state": "INSUFFICIENT_LABELS_OR_SUPPORT", "ran_test": false}
+  },
+  "enforcement_invariants_verified": {
+    "contract_first": "every refuse world has ran_test=false -- the p-value is NEVER reached on an invalid/insufficient contract",
+    "states_disjoint_and_declared": "every state is exactly one of the 5 declared; no NO_CONCEPT, no None",
+    "adherence_full_tuple": "executed (C, Y_design, subject, microblock) must match the pinned table row-for-row (both C-deviation AND Y_design-relabel refuse)",
+    "provenance_attestation": "manifest.generated_before_recording AND manifest.Y_design_pre_assignment must be True",
+    "z_t_blind_validator": "check_contract reads only (C, Y_design, subject, microblock, table) -- no Z, no T, no p-values",
+    "no_fitted_null": "exact null = uniform permutation of C within (subject, microblock, Y_design); no fitted Y|Z or C|Z propensity, no selection on Z",
+    "reasons_disjoint_primary": "each refuse world's PRIMARY reason present; single-condition strata no longer spuriously fire cxy_design_imbalance",
+    "size_gate_binding": "VALID_underpowered_size_gate: crossfit ran, n_eligible<20, NO alert"
+  },
+  "disclosed_coverage_gaps": "SAMPLER_INVALID + the contract-level nsup<min_support branch are reachable DEFENSIVE fail-closed states a valid balanced contract cannot synthetically trigger (the null holds Y_design fixed -> ninv~0; support scales with the subjects needed for eligibility). Verified reachable by code inspection; they guard real-data pathologies in B9.1.",
+  "not_science": "This is IMPLEMENTATION / contract-feasibility only. It demonstrates the state machine + validator behave as specified on a synthetic toy. It is NOT scientific evidence, NOT a power claim, NOT validation. B9.1 (real prospective acquisition or an existing genuinely-pre-randomized dataset) is a separate authorization."
+}

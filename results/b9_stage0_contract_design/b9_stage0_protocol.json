@@ -1,0 +1,37 @@
+{
+  "scope": "B9.0 prospective randomized-audit contract DESIGN -- protocol snapshot. Development-only, NO scientific claim, NO power claim, NOT validation, NO tag. B9.0 = protocol + schema + exact-null + state-machine + dry-run ONLY.",
+  "authorized": "reviewer-authorized 2026-07-07 after B8.3 (INSUFFICIENT): the B8 emulator line proved post-hoc label balancing on an observed/generated Y cannot remove the collider. B9 moves label/class balance + condition randomization INTO the acquisition contract.",
+  "estimand": {
+    "inside": "under a pre-randomized, class-balanced, within-block audit contract, detect condition-specific boundary/interaction evidence (a C x Z interaction in decoding the PRE-ASSIGNED class Y_design) beyond known randomization variation",
+    "outside_refuse": "natural-prevalence certification; any dataset with a genuine prior shift P(Y_design|C); covariate confounding violating balance; condition not randomized/counterbalanced -> CONTRACT_INVALID_OR_OUT_OF_ESTIMAND (a REFUSAL, not an analysis-time repair)"
+  },
+  "contract": {
+    "unit": "subject x microblock x design_class",
+    "Y_design": "a PRE-ASSIGNMENT cue/task/stimulus class fixed BEFORE recording -- NOT an observed/generated post-hoc label (the single difference from B8.3)",
+    "C": "condition, randomized/counterbalanced within subject x microblock (NOT a session/subject label)",
+    "balance": "within each subject x microblock, C x Y_design cell counts equal (recommended microblock = randomized-order quadruplet {(0,0),(0,1),(1,0),(1,1)} x R)",
+    "timing": "assignment table generated + hashed BEFORE recording"
+  },
+  "enforcement_vs_attestation": {
+    "enforced_by_code": ["valid hash-pinned table exists + hash integrity", "PROVENANCE ATTESTATION manifest.generated_before_recording AND manifest.Y_design_pre_assignment both True", "ADHERENCE: executed FULL tuple (C, Y_design, subject, microblock) == registered table row-for-row (anti-p-hacking on BOTH randomized factors)", "executed C x Y_design balance + no prior shift + randomization support (Z/T-blind)"],
+    "attested_by_B9_1_protocol": "data-level provenance (was the table truly generated before recording; is Y_design truly the pre-assigned cue) is INHERENTLY UNVERIFIABLE from (C,Y_design,Z); the boolean manifest attestation is the enforceable floor, the real guarantee is the B9.1 acquisition protocol",
+    "note": "B9 without adherence + provenance binding would be DECORATIVE -- it is the single property distinguishing B9 from the B8 line (hardened over 2 design red-team rounds; see b9_stage0_redteam_checks.json)"
+  },
+  "exact_null": "resample C* ONLY within the predeclared randomization set = uniform permutation of C within each (subject, microblock, Y_design) stratum (preserves C x Y_design balance; Y_design pre-assignment => collider-free CONDITIONAL on genuine within-stratum randomization of executed trials -- Z-dependent balance-preserving attrition is out of reach of the Z-blind validator, excluded by the B9.1 protocol); recompute the SAME B3 contrast T(Y_design, Z, C*). NO fitted Y|Z, NO fitted C|Z propensity, NO selection on Z.",
+  "alert_conjunction": "B9_CONCEPT_ALERT iff contract valid AND estimable (n_exact_invalid <= 0.20*n_boot) AND p_meanT <= 0.025 AND p_stud <= 0.025 AND n_eligible >= 20. (B9.0 drops the B3 subject-consistency LCB>0 gate -- harmless since B9.0 makes no positive claim; reconsider before any B9.1 confirmatory use.)",
+  "states": ["B9_CONCEPT_ALERT", "NO_ACTIONABLE_CONCEPT_EVIDENCE", "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "INSUFFICIENT_LABELS_OR_SUPPORT", "SAMPLER_INVALID"],
+  "invalid_reasons_non_exclusive": ["missing_or_invalid_assignment_table", "table_not_pre_recording_or_ydesign_post_hoc", "executed_deviates_from_registered_table", "cxy_design_imbalance", "condition_not_randomized_or_locked", "session_confounding", "attrition_or_noncompliance_prior_shift", "insufficient_randomization_support", "natural_prevalence_out_of_estimand"],
+  "validator_inputs": {"allowed": ["C", "Y_design", "subject", "microblock", "assignment_table_and_manifest"], "forbidden": ["Z", "test_statistic_T", "p_values", "oracle", "future/validation_outcomes"]},
+  "dry_run": {
+    "substrate": "SMALL SYNTHETIC toy (NOT Lee2019, NOT validation); plumbing / contract-feasibility ONLY; NO scientific evidence, NO power claim",
+    "n_boot": 200,
+    "worlds_valid": ["VALID_balanced_assignment", "VALID_no_concept", "VALID_boundary_signal", "VALID_underpowered_size_gate"],
+    "worlds_refuse": ["OUT_OF_ESTIMAND_natural_prevalence", "INVALID_missing_assignment_table", "INVALID_pinned_hash_corrupt", "INVALID_post_hoc_ydesign_manifest", "INVALID_executed_deviates_from_table", "INVALID_executed_ydesign_relabel", "INVALID_cxy_design_imbalance", "INVALID_condition_lock", "INVALID_session_confounding", "INVALID_attrition_prior_shift", "INVALID_insufficient_support"],
+    "expectation": "VALID_* run the exact null + well-formed states (boundary->ALERT, underpowered->NO_ACTIONABLE via size gate); every refuse world REFUSED before any p-value (ran_test False) with its PRIMARY reason present; states disjoint + in the declared set",
+    "result": "B9_0_DRYRUN_OK (15 worlds; plumbing only, NO scientific claim)",
+    "disclosed_coverage": "SAMPLER_INVALID + the contract-level nsup<min_support branch are reachable DEFENSIVE fail-closed states a valid balanced contract cannot synthetically trigger; verified reachable by code inspection; guard real-data pathologies in B9.1"
+  },
+  "hard_stops": ["assignment table generated AFTER data/labels", "Y_design is an observed/generated post-hoc Y", "C is a session label not a randomized condition", "validator uses Z or T", "prior imbalance repaired instead of invalidating the contract", "an invalid world reaches p-value testing", "state counts not disjoint", "randomization support too small but the certifier still alerts"],
+  "code": {"dir": "csc/b9/", "files": ["CONTRACT.md", "contract_schema.json", "randomization_table.py", "exact_randomization_null.py", "state_machine.py", "dry_run_checks.py"]},
+  "not_authorized": ["B8.4", "mean-T/p recalibration", "selector/statistic/feature changes", "power frontier", "Lee2019-as-validation", "confirmatory tag", "paper writing", "B9.1 (real prospective acquisition OR an existing genuinely-pre-randomized dataset -- a SEPARATE future authorization)"]
+}

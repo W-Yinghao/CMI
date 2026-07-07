@@ -1,0 +1,12 @@
+8d275cd06b31b9a0cc6c3a0a46c2de0a51072d341b4ae7bb0ef7e1ee3b0b4a82  README.md
+f5972c1071bd1e73fada928aabedef1938dd3585a05bb59f03dccbd790263dd2  b9_stage0_contract_checks.json
+d2f05f63c36bb79f499b2f9251a19abddd1ec59cd36f2335542e00611cf50ccd  b9_stage0_dryrun_rows.jsonl
+df76ef99b3614ffb3fec60a1c0b759b02038d9d1440d1c99bd709246a708ad81  b9_stage0_protocol.json
+8e53db28ac3418c7e9c44a30d84ba5bced7cc417bc6e3944654f67c0d4fd5a23  b9_stage0_redteam_checks.json
+79d4cbafa577660cbc44a20a09c259ca1782d3250db71a823b8e8d6427d16736  ../../csc/b9/CONTRACT.md
+7ee577f7baae65a3d5dd68e30645d53b4e42b877113c2ae645c77862f0dedc92  ../../csc/b9/__init__.py
+b0f6d5e0d16122831ab5dc4f04b3e6fedaf9d16ee6a5757ae3e50ca5540d5b1f  ../../csc/b9/contract_schema.json
+253590e16d543c91580b5ad0023434352ca851743ad4fc27e3fee3bc444fa2a1  ../../csc/b9/dry_run_checks.py
+0df2bcb38f08b9dfbc79d5d39214938315809467d5dd198b66cbf4a7a2f7f1f5  ../../csc/b9/exact_randomization_null.py
+06d0cb2cb256fda2f1412205a10633770eef5a26b3f1669fb27b1a7c3f39ddfd  ../../csc/b9/randomization_table.py
+7ccb1c6e0939fd0d6d896d690b41d413a0622e5214123a33b6716f1cdc773b5d  ../../csc/b9/state_machine.py
