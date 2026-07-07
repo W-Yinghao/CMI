@@ -33,6 +33,7 @@ class Regime(str, Enum):
 class ContractID(str, Enum):
     C1 = "C1"; C2 = "C2"; C3 = "C3"; C4 = "C4"; C5 = "C5"; C6 = "C6"
     C7 = "C7"; C8 = "C8"; C9 = "C9"; C10 = "C10"; C11 = "C11"; C12 = "C12"
+    C14 = "C14"   # declared deployment prior / utility weighting (Step 18; C13 is a doc-only design contract)
 
 
 class Estimand(str, Enum):
@@ -48,6 +49,9 @@ class Estimand(str, Enum):
     TARGET_PRIOR = "target_prior"
     TARGET_CONCEPT = "target_concept"
     TARGET_TRANSPORT = "target_transport"
+    # prior-weighted target gain (Step 18): needs a DECLARED deployment prior (C14) or an identified
+    # target prior (TU-1); never identifies the actual target prior by itself.
+    PRIOR_WEIGHTED_GAIN = "prior_weighted_gain"
     # special reporting rule
     BALANCED_ACCURACY = "balanced_accuracy"
 

@@ -1,0 +1,1856 @@
+{
+  "project": "Project A",
+  "step": "Step 18",
+  "scope": "counterfactual deployment-prior stress on TTA gain (contract C14); not SOTA",
+  "n_runs": 54,
+  "dominant_prior_mass": 0.9,
+  "fraction_prior_dependent_sign": 0.963,
+  "fraction_harmful_under_all_priors": 0.037,
+  "fraction_beneficial_under_all_priors": 0.0,
+  "fraction_uniform_harm_but_some_prior_benefit": 0.8148,
+  "fraction_uniform_benefit_but_some_prior_harm": 0.1481,
+  "mean_prior_sign_width": 0.442315,
+  "prior_contract_required": "C14",
+  "deployment_prior_identified_under_R1": false,
+  "deployment_prior_identified": false,
+  "runs": [
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 0,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.1875,
+        0.305556,
+        -0.298611,
+        -0.013889
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.048611,
+      "min_prior_gain": -0.298611,
+      "max_prior_gain": 0.305556,
+      "prior_sign_width": 0.604167,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 2,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.048611,
+        "one_class_0_mass_0_9": -0.168981,
+        "one_class_1_mass_0_9": 0.258334,
+        "one_class_2_mass_0_9": -0.265278,
+        "one_class_3_mass_0_9": -0.018519
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 1,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.361111,
+        -0.493056,
+        0.048611,
+        -0.013889
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.204861,
+      "min_prior_gain": -0.493056,
+      "max_prior_gain": 0.048611,
+      "prior_sign_width": 0.541667,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.204861,
+        "one_class_0_mass_0_9": -0.340278,
+        "one_class_1_mass_0_9": -0.45463,
+        "one_class_2_mass_0_9": 0.014815,
+        "one_class_3_mass_0_9": -0.039352
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 2,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.354167,
+        -0.215278,
+        0.027778,
+        0.138889
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.100694,
+      "min_prior_gain": -0.354167,
+      "max_prior_gain": 0.138889,
+      "prior_sign_width": 0.493056,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 3,
+      "declared_prior_scenarios": {
+        "uniform": -0.100694,
+        "one_class_0_mass_0_9": -0.320371,
+        "one_class_1_mass_0_9": -0.2,
+        "one_class_2_mass_0_9": 0.010648,
+        "one_class_3_mass_0_9": 0.106945
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 0,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.180556,
+        0.638889,
+        -0.611111,
+        -0.006944
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.03993,
+      "min_prior_gain": -0.611111,
+      "max_prior_gain": 0.638889,
+      "prior_sign_width": 1.25,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 2,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.03993,
+        "one_class_0_mass_0_9": -0.161806,
+        "one_class_1_mass_0_9": 0.54838,
+        "one_class_2_mass_0_9": -0.534954,
+        "one_class_3_mass_0_9": -0.011342
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 1,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.055556,
+        -0.361111,
+        0.263889,
+        -0.006944
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.039931,
+      "min_prior_gain": -0.361111,
+      "max_prior_gain": 0.263889,
+      "prior_sign_width": 0.625,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.039931,
+        "one_class_0_mass_0_9": -0.053473,
+        "one_class_1_mass_0_9": -0.318287,
+        "one_class_2_mass_0_9": 0.22338,
+        "one_class_3_mass_0_9": -0.011342
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 2,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.006944,
+        -0.333333,
+        0.236111,
+        -0.041667
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.036458,
+      "min_prior_gain": -0.333333,
+      "max_prior_gain": 0.236111,
+      "prior_sign_width": 0.569444,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.036458,
+        "one_class_0_mass_0_9": -0.010879,
+        "one_class_1_mass_0_9": -0.29375,
+        "one_class_2_mass_0_9": 0.199768,
+        "one_class_3_mass_0_9": -0.040972
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 0,
+      "n_classes": 4,
+      "class_delta_vector": [
+        0.270833,
+        -0.076389,
+        -0.076389,
+        -0.569444
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.112847,
+      "min_prior_gain": -0.569444,
+      "max_prior_gain": 0.270833,
+      "prior_sign_width": 0.840277,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 3,
+      "best_class": 0,
+      "declared_prior_scenarios": {
+        "uniform": -0.112847,
+        "one_class_0_mass_0_9": 0.219676,
+        "one_class_1_mass_0_9": -0.08125,
+        "one_class_2_mass_0_9": -0.08125,
+        "one_class_3_mass_0_9": -0.508564
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 1,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.298611,
+        0.145833,
+        0.666667,
+        -0.541667
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.006944,
+      "min_prior_gain": -0.541667,
+      "max_prior_gain": 0.666667,
+      "prior_sign_width": 1.208334,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 3,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.006944,
+        "one_class_0_mass_0_9": -0.259722,
+        "one_class_1_mass_0_9": 0.125463,
+        "one_class_2_mass_0_9": 0.576852,
+        "one_class_3_mass_0_9": -0.470371
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 2,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.222222,
+        -0.145833,
+        -0.111111,
+        0.048611
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.107639,
+      "min_prior_gain": -0.222222,
+      "max_prior_gain": 0.048611,
+      "prior_sign_width": 0.270833,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 3,
+      "declared_prior_scenarios": {
+        "uniform": -0.107639,
+        "one_class_0_mass_0_9": -0.206944,
+        "one_class_1_mass_0_9": -0.14074,
+        "one_class_2_mass_0_9": -0.110648,
+        "one_class_3_mass_0_9": 0.027778
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 0,
+      "n_classes": 4,
+      "class_delta_vector": [
+        0.277778,
+        0.097222,
+        -0.236111,
+        -0.361111
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.055556,
+      "min_prior_gain": -0.361111,
+      "max_prior_gain": 0.277778,
+      "prior_sign_width": 0.638889,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 3,
+      "best_class": 0,
+      "declared_prior_scenarios": {
+        "uniform": -0.055556,
+        "one_class_0_mass_0_9": 0.233334,
+        "one_class_1_mass_0_9": 0.076852,
+        "one_class_2_mass_0_9": -0.212037,
+        "one_class_3_mass_0_9": -0.32037
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 1,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.131944,
+        -0.034722,
+        0.340278,
+        -0.409722
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.059027,
+      "min_prior_gain": -0.409722,
+      "max_prior_gain": 0.340278,
+      "prior_sign_width": 0.75,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 3,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.059027,
+        "one_class_0_mass_0_9": -0.122222,
+        "one_class_1_mass_0_9": -0.037963,
+        "one_class_2_mass_0_9": 0.287037,
+        "one_class_3_mass_0_9": -0.362963
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 2,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.0625,
+        -0.027778,
+        0.284722,
+        -0.340278
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.036459,
+      "min_prior_gain": -0.340278,
+      "max_prior_gain": 0.284722,
+      "prior_sign_width": 0.625,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 3,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.036459,
+        "one_class_0_mass_0_9": -0.059028,
+        "one_class_1_mass_0_9": -0.028935,
+        "one_class_2_mass_0_9": 0.241898,
+        "one_class_3_mass_0_9": -0.299769
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 0,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.027778,
+        0.083333,
+        -0.076389,
+        0.0
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.005208,
+      "min_prior_gain": -0.076389,
+      "max_prior_gain": 0.083333,
+      "prior_sign_width": 0.159722,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 2,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.005208,
+        "one_class_0_mass_0_9": -0.024769,
+        "one_class_1_mass_0_9": 0.071527,
+        "one_class_2_mass_0_9": -0.066898,
+        "one_class_3_mass_0_9": -0.000694
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 1,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.020833,
+        -0.159722,
+        0.208333,
+        0.0
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": 0.006944,
+      "min_prior_gain": -0.159722,
+      "max_prior_gain": 0.208333,
+      "prior_sign_width": 0.368055,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": false,
+      "uniform_benefit_but_some_prior_harm": true,
+      "worst_class": 1,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": 0.006944,
+        "one_class_0_mass_0_9": -0.017129,
+        "one_class_1_mass_0_9": -0.1375,
+        "one_class_2_mass_0_9": 0.181481,
+        "one_class_3_mass_0_9": 0.000926
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 2,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.006944,
+        -0.645833,
+        0.652778,
+        -0.006944
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.001736,
+      "min_prior_gain": -0.645833,
+      "max_prior_gain": 0.652778,
+      "prior_sign_width": 1.298611,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.001736,
+        "one_class_0_mass_0_9": -0.00625,
+        "one_class_1_mass_0_9": -0.559953,
+        "one_class_2_mass_0_9": 0.56551,
+        "one_class_3_mass_0_9": -0.00625
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 0,
+      "n_classes": 4,
+      "class_delta_vector": [
+        0.208333,
+        0.104167,
+        0.013889,
+        -0.256944
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": 0.017361,
+      "min_prior_gain": -0.256944,
+      "max_prior_gain": 0.208333,
+      "prior_sign_width": 0.465277,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": false,
+      "uniform_benefit_but_some_prior_harm": true,
+      "worst_class": 3,
+      "best_class": 0,
+      "declared_prior_scenarios": {
+        "uniform": 0.017361,
+        "one_class_0_mass_0_9": 0.18287,
+        "one_class_1_mass_0_9": 0.092593,
+        "one_class_2_mass_0_9": 0.014352,
+        "one_class_3_mass_0_9": -0.22037
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 1,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.298611,
+        0.020833,
+        0.465278,
+        -0.145833
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": 0.010417,
+      "min_prior_gain": -0.298611,
+      "max_prior_gain": 0.465278,
+      "prior_sign_width": 0.763889,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": false,
+      "uniform_benefit_but_some_prior_harm": true,
+      "worst_class": 0,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": 0.010417,
+        "one_class_0_mass_0_9": -0.257407,
+        "one_class_1_mass_0_9": 0.019444,
+        "one_class_2_mass_0_9": 0.40463,
+        "one_class_3_mass_0_9": -0.125
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 2,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.166667,
+        -0.048611,
+        0.041667,
+        0.083333
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.02257,
+      "min_prior_gain": -0.166667,
+      "max_prior_gain": 0.083333,
+      "prior_sign_width": 0.25,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 3,
+      "declared_prior_scenarios": {
+        "uniform": -0.02257,
+        "one_class_0_mass_0_9": -0.147454,
+        "one_class_1_mass_0_9": -0.045139,
+        "one_class_2_mass_0_9": 0.033102,
+        "one_class_3_mass_0_9": 0.069213
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 0,
+      "n_classes": 4,
+      "class_delta_vector": [
+        0.222222,
+        -0.208333,
+        -0.104167,
+        -0.006944
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.024305,
+      "min_prior_gain": -0.208333,
+      "max_prior_gain": 0.222222,
+      "prior_sign_width": 0.430555,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 0,
+      "declared_prior_scenarios": {
+        "uniform": -0.024305,
+        "one_class_0_mass_0_9": 0.189352,
+        "one_class_1_mass_0_9": -0.183796,
+        "one_class_2_mass_0_9": -0.093519,
+        "one_class_3_mass_0_9": -0.009259
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 1,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.291667,
+        -0.326389,
+        0.604167,
+        -0.006944
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.005208,
+      "min_prior_gain": -0.326389,
+      "max_prior_gain": 0.604167,
+      "prior_sign_width": 0.930556,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.005208,
+        "one_class_0_mass_0_9": -0.253472,
+        "one_class_1_mass_0_9": -0.283565,
+        "one_class_2_mass_0_9": 0.522917,
+        "one_class_3_mass_0_9": -0.006713
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 2,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.298611,
+        -0.284722,
+        0.486111,
+        -0.041667
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.034722,
+      "min_prior_gain": -0.298611,
+      "max_prior_gain": 0.486111,
+      "prior_sign_width": 0.784722,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.034722,
+        "one_class_0_mass_0_9": -0.263426,
+        "one_class_1_mass_0_9": -0.251389,
+        "one_class_2_mass_0_9": 0.416667,
+        "one_class_3_mass_0_9": -0.040741
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 0,
+      "n_classes": 4,
+      "class_delta_vector": [
+        0.131944,
+        -0.013889,
+        -0.020833,
+        -0.284722
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.046875,
+      "min_prior_gain": -0.284722,
+      "max_prior_gain": 0.131944,
+      "prior_sign_width": 0.416666,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 3,
+      "best_class": 0,
+      "declared_prior_scenarios": {
+        "uniform": -0.046875,
+        "one_class_0_mass_0_9": 0.108101,
+        "one_class_1_mass_0_9": -0.018287,
+        "one_class_2_mass_0_9": -0.024305,
+        "one_class_3_mass_0_9": -0.253009
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 1,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.298611,
+        -0.409722,
+        0.166667,
+        -0.291667
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.208333,
+      "min_prior_gain": -0.409722,
+      "max_prior_gain": 0.166667,
+      "prior_sign_width": 0.576389,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.208333,
+        "one_class_0_mass_0_9": -0.286574,
+        "one_class_1_mass_0_9": -0.38287,
+        "one_class_2_mass_0_9": 0.116667,
+        "one_class_3_mass_0_9": -0.280556
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 2,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.25,
+        -0.263889,
+        0.263889,
+        -0.430556
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.170139,
+      "min_prior_gain": -0.430556,
+      "max_prior_gain": 0.263889,
+      "prior_sign_width": 0.694445,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 3,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.170139,
+        "one_class_0_mass_0_9": -0.239352,
+        "one_class_1_mass_0_9": -0.251389,
+        "one_class_2_mass_0_9": 0.206019,
+        "one_class_3_mass_0_9": -0.395834
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 0,
+      "n_classes": 4,
+      "class_delta_vector": [
+        0.152778,
+        -0.125,
+        0.243056,
+        -0.444444
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.043402,
+      "min_prior_gain": -0.444444,
+      "max_prior_gain": 0.243056,
+      "prior_sign_width": 0.6875,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 3,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.043402,
+        "one_class_0_mass_0_9": 0.126621,
+        "one_class_1_mass_0_9": -0.11412,
+        "one_class_2_mass_0_9": 0.204862,
+        "one_class_3_mass_0_9": -0.390972
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 1,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.131944,
+        -0.298611,
+        0.368056,
+        -0.159722
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": -0.055555,
+      "min_prior_gain": -0.298611,
+      "max_prior_gain": 0.368056,
+      "prior_sign_width": 0.666667,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": -0.055555,
+        "one_class_0_mass_0_9": -0.121759,
+        "one_class_1_mass_0_9": -0.266204,
+        "one_class_2_mass_0_9": 0.311574,
+        "one_class_3_mass_0_9": -0.145833
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 2,
+      "n_classes": 4,
+      "class_delta_vector": [
+        -0.159722,
+        -0.020833,
+        0.194444,
+        0.0
+      ],
+      "class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "uniform_gain": 0.003472,
+      "min_prior_gain": -0.159722,
+      "max_prior_gain": 0.194444,
+      "prior_sign_width": 0.354166,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": false,
+      "uniform_benefit_but_some_prior_harm": true,
+      "worst_class": 0,
+      "best_class": 2,
+      "declared_prior_scenarios": {
+        "uniform": 0.003472,
+        "one_class_0_mass_0_9": -0.137963,
+        "one_class_1_mass_0_9": -0.017592,
+        "one_class_2_mass_0_9": 0.168981,
+        "one_class_3_mass_0_9": 0.000463
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 0,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.05,
+        -0.036111
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.043055,
+      "min_prior_gain": -0.05,
+      "max_prior_gain": -0.036111,
+      "prior_sign_width": 0.013889,
+      "prior_dependent_sign": false,
+      "harmful_under_all_priors": true,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": false,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.043055,
+        "one_class_0_mass_0_9": -0.048611,
+        "one_class_1_mass_0_9": -0.0375
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 1,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.144444,
+        0.033333
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.055555,
+      "min_prior_gain": -0.144444,
+      "max_prior_gain": 0.033333,
+      "prior_sign_width": 0.177777,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.055555,
+        "one_class_0_mass_0_9": -0.126666,
+        "one_class_1_mass_0_9": 0.015555
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 2,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.291667,
+        0.105556
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.093056,
+      "min_prior_gain": -0.291667,
+      "max_prior_gain": 0.105556,
+      "prior_sign_width": 0.397223,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.093056,
+        "one_class_0_mass_0_9": -0.251945,
+        "one_class_1_mass_0_9": 0.065834
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 0,
+      "n_classes": 2,
+      "class_delta_vector": [
+        0.085294,
+        -0.091176
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.002941,
+      "min_prior_gain": -0.091176,
+      "max_prior_gain": 0.085294,
+      "prior_sign_width": 0.17647,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 0,
+      "declared_prior_scenarios": {
+        "uniform": -0.002941,
+        "one_class_0_mass_0_9": 0.067647,
+        "one_class_1_mass_0_9": -0.073529
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 1,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.091176,
+        0.064706
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.013235,
+      "min_prior_gain": -0.091176,
+      "max_prior_gain": 0.064706,
+      "prior_sign_width": 0.155882,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.013235,
+        "one_class_0_mass_0_9": -0.075588,
+        "one_class_1_mass_0_9": 0.049118
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 2,
+      "n_classes": 2,
+      "class_delta_vector": [
+        0.126471,
+        -0.114706
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": 0.005882,
+      "min_prior_gain": -0.114706,
+      "max_prior_gain": 0.126471,
+      "prior_sign_width": 0.241177,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": false,
+      "uniform_benefit_but_some_prior_harm": true,
+      "worst_class": 1,
+      "best_class": 0,
+      "declared_prior_scenarios": {
+        "uniform": 0.005882,
+        "one_class_0_mass_0_9": 0.102353,
+        "one_class_1_mass_0_9": -0.090588
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 0,
+      "n_classes": 2,
+      "class_delta_vector": [
+        0.025,
+        -0.022222
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": 0.001389,
+      "min_prior_gain": -0.022222,
+      "max_prior_gain": 0.025,
+      "prior_sign_width": 0.047222,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": false,
+      "uniform_benefit_but_some_prior_harm": true,
+      "worst_class": 1,
+      "best_class": 0,
+      "declared_prior_scenarios": {
+        "uniform": 0.001389,
+        "one_class_0_mass_0_9": 0.020278,
+        "one_class_1_mass_0_9": -0.0175
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 1,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.241667,
+        0.197222
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.022222,
+      "min_prior_gain": -0.241667,
+      "max_prior_gain": 0.197222,
+      "prior_sign_width": 0.438889,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.022222,
+        "one_class_0_mass_0_9": -0.197778,
+        "one_class_1_mass_0_9": 0.153333
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 2,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.230556,
+        0.183333
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.023612,
+      "min_prior_gain": -0.230556,
+      "max_prior_gain": 0.183333,
+      "prior_sign_width": 0.413889,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.023612,
+        "one_class_0_mass_0_9": -0.189167,
+        "one_class_1_mass_0_9": 0.141944
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 0,
+      "n_classes": 2,
+      "class_delta_vector": [
+        0.091892,
+        -0.105405
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.006756,
+      "min_prior_gain": -0.105405,
+      "max_prior_gain": 0.091892,
+      "prior_sign_width": 0.197297,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 0,
+      "declared_prior_scenarios": {
+        "uniform": -0.006756,
+        "one_class_0_mass_0_9": 0.072162,
+        "one_class_1_mass_0_9": -0.085675
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 1,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.032432,
+        0.040541
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": 0.004054,
+      "min_prior_gain": -0.032432,
+      "max_prior_gain": 0.040541,
+      "prior_sign_width": 0.072973,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": false,
+      "uniform_benefit_but_some_prior_harm": true,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": 0.004054,
+        "one_class_0_mass_0_9": -0.025135,
+        "one_class_1_mass_0_9": 0.033244
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 2,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.051351,
+        0.075676
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": 0.012162,
+      "min_prior_gain": -0.051351,
+      "max_prior_gain": 0.075676,
+      "prior_sign_width": 0.127027,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": false,
+      "uniform_benefit_but_some_prior_harm": true,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": 0.012162,
+        "one_class_0_mass_0_9": -0.038648,
+        "one_class_1_mass_0_9": 0.062973
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 0,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.113514,
+        0.064865
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.024324,
+      "min_prior_gain": -0.113514,
+      "max_prior_gain": 0.064865,
+      "prior_sign_width": 0.178379,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.024324,
+        "one_class_0_mass_0_9": -0.095676,
+        "one_class_1_mass_0_9": 0.047027
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 1,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.072973,
+        -0.027027
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.05,
+      "min_prior_gain": -0.072973,
+      "max_prior_gain": -0.027027,
+      "prior_sign_width": 0.045946,
+      "prior_dependent_sign": false,
+      "harmful_under_all_priors": true,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": false,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.05,
+        "one_class_0_mass_0_9": -0.068378,
+        "one_class_1_mass_0_9": -0.031622
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 2,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.354054,
+        0.237838
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.058108,
+      "min_prior_gain": -0.354054,
+      "max_prior_gain": 0.237838,
+      "prior_sign_width": 0.591892,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.058108,
+        "one_class_0_mass_0_9": -0.294865,
+        "one_class_1_mass_0_9": 0.178649
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 0,
+      "n_classes": 2,
+      "class_delta_vector": [
+        0.238889,
+        -0.247222
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.004167,
+      "min_prior_gain": -0.247222,
+      "max_prior_gain": 0.238889,
+      "prior_sign_width": 0.486111,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 1,
+      "best_class": 0,
+      "declared_prior_scenarios": {
+        "uniform": -0.004167,
+        "one_class_0_mass_0_9": 0.190278,
+        "one_class_1_mass_0_9": -0.198611
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 1,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.161111,
+        0.022222
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.069445,
+      "min_prior_gain": -0.161111,
+      "max_prior_gain": 0.022222,
+      "prior_sign_width": 0.183333,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.069445,
+        "one_class_0_mass_0_9": -0.142778,
+        "one_class_1_mass_0_9": 0.003889
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 2,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.180556,
+        0.072222
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.054167,
+      "min_prior_gain": -0.180556,
+      "max_prior_gain": 0.072222,
+      "prior_sign_width": 0.252778,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.054167,
+        "one_class_0_mass_0_9": -0.155278,
+        "one_class_1_mass_0_9": 0.046944
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 0,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.094444,
+        0.05
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.022222,
+      "min_prior_gain": -0.094444,
+      "max_prior_gain": 0.05,
+      "prior_sign_width": 0.144444,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.022222,
+        "one_class_0_mass_0_9": -0.08,
+        "one_class_1_mass_0_9": 0.035556
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 1,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.2,
+        0.119444
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.040278,
+      "min_prior_gain": -0.2,
+      "max_prior_gain": 0.119444,
+      "prior_sign_width": 0.319444,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.040278,
+        "one_class_0_mass_0_9": -0.168056,
+        "one_class_1_mass_0_9": 0.0875
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 2,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.144444,
+        0.102778
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.020833,
+      "min_prior_gain": -0.144444,
+      "max_prior_gain": 0.102778,
+      "prior_sign_width": 0.247222,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.020833,
+        "one_class_0_mass_0_9": -0.119722,
+        "one_class_1_mass_0_9": 0.078056
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 0,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.110526,
+        0.052632
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.028947,
+      "min_prior_gain": -0.110526,
+      "max_prior_gain": 0.052632,
+      "prior_sign_width": 0.163158,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.028947,
+        "one_class_0_mass_0_9": -0.09421,
+        "one_class_1_mass_0_9": 0.036316
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 1,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.318421,
+        0.123684
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.097368,
+      "min_prior_gain": -0.318421,
+      "max_prior_gain": 0.123684,
+      "prior_sign_width": 0.442105,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.097368,
+        "one_class_0_mass_0_9": -0.274211,
+        "one_class_1_mass_0_9": 0.079474
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 2,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.173684,
+        0.057895
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.057895,
+      "min_prior_gain": -0.173684,
+      "max_prior_gain": 0.057895,
+      "prior_sign_width": 0.231579,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.057895,
+        "one_class_0_mass_0_9": -0.150526,
+        "one_class_1_mass_0_9": 0.034737
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 0,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.119444,
+        0.063889
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.027777,
+      "min_prior_gain": -0.119444,
+      "max_prior_gain": 0.063889,
+      "prior_sign_width": 0.183333,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.027777,
+        "one_class_0_mass_0_9": -0.101111,
+        "one_class_1_mass_0_9": 0.045556
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 1,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.230556,
+        0.155556
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.0375,
+      "min_prior_gain": -0.230556,
+      "max_prior_gain": 0.155556,
+      "prior_sign_width": 0.386112,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.0375,
+        "one_class_0_mass_0_9": -0.191945,
+        "one_class_1_mass_0_9": 0.116945
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 2,
+      "n_classes": 2,
+      "class_delta_vector": [
+        -0.177778,
+        0.127778
+      ],
+      "class_order": [
+        0,
+        1
+      ],
+      "uniform_gain": -0.025,
+      "min_prior_gain": -0.177778,
+      "max_prior_gain": 0.127778,
+      "prior_sign_width": 0.305556,
+      "prior_dependent_sign": true,
+      "harmful_under_all_priors": false,
+      "beneficial_under_all_priors": false,
+      "uniform_harm_but_some_prior_benefit": true,
+      "uniform_benefit_but_some_prior_harm": false,
+      "worst_class": 0,
+      "best_class": 1,
+      "declared_prior_scenarios": {
+        "uniform": -0.025,
+        "one_class_0_mass_0_9": -0.147222,
+        "one_class_1_mass_0_9": 0.097222
+      },
+      "claim_boundary": "counterfactual deployment-prior stress (declared priors); C14 required for deployment-weighted claims; does NOT identify the actual target prior"
+    }
+  ],
+  "claim_boundary_ok": true,
+  "claim_boundary": "prior-weighted gains are counterfactual evaluations under DECLARED priors (contract C14); the actual target prior is NOT identified (that needs TU-1); class deltas are oracle/evaluation-only. No SOTA."
+}

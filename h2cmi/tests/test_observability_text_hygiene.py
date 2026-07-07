@@ -96,6 +96,20 @@ _CHECK_FILES = {
     "notes/project_A_observability/results_summaries/step17_estimand_consistency.md": 12,
     "notes/project_A_observability/results_summaries/step17_estimand_frontier.md": 12,
     "notes/project_A_observability/results_summaries/step17_science_dashboard.md": 15,
+    # Step-18 harm mechanisms + deployment-prior stress
+    "h2cmi/observability/harm_mechanisms.py": 120,
+    "h2cmi/observability/prior_stress.py": 120,
+    "h2cmi/tests/test_harm_mechanisms.py": 60,
+    "h2cmi/tests/test_prior_stress.py": 60,
+    "notes/project_A_observability/science/13_prior_stress_and_harm_channels.md": 30,
+    "notes/project_A_observability/science/14_harm_mechanism_results.md": 30,
+    "notes/project_A_observability/science/15_prior_stress_results.md": 30,
+    "notes/project_A_observability/results_summaries/step18_harm_mechanisms.json": 40,
+    "notes/project_A_observability/results_summaries/step18_prior_stress.json": 40,
+    "notes/project_A_observability/results_summaries/step18_science_dashboard.json": 25,
+    "notes/project_A_observability/results_summaries/step18_harm_mechanisms.md": 12,
+    "notes/project_A_observability/results_summaries/step18_prior_stress.md": 8,
+    "notes/project_A_observability/results_summaries/step18_science_dashboard.md": 15,
 }
 _MAX_LINE_BYTES = 500
 

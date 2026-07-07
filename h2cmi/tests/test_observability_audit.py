@@ -188,8 +188,45 @@ def test_r2_concept_bounded_residual_allowed():
     assert no_anchor.rejected
 
 
+def test_c14_registered_as_deployment_prior_contract():
+    from h2cmi.observability.registry import CONTRACTS
+    assert C.C14 in CONTRACTS
+    spec = CONTRACTS[C.C14]
+    assert "deployment prior" in spec.name.lower() or "utility" in spec.name.lower()
+    # declared/external: not source-supported (R0=no), partial at R1, validatable at R2 (monotone)
+    assert spec.checkable[Regime.R0] == "no"
+    assert check_monotone_checkability()               # C14 must not break MONO-1
+
+
+def test_c14_does_not_make_target_prior_identifiable_under_r1():
+    # a target_prior claim carrying ONLY C14 (no C1∧C2∧C3) is still rejected under R1 — C14 is a
+    # declared operating prior, NOT an identification of the actual target prior (must not become TU-1).
+    v = check_claim_allowed(Claim("r1-prior-c14", Regime.R1, Estimand.TARGET_PRIOR,
+                                  contracts={C.C14}))
+    assert v.rejected and not v.identifiable
+    assert C.C1 in v.missing_contracts                 # still needs TU-1, C14 does not substitute
+
+
+def test_prior_weighted_gain_claim_requires_declared_prior_or_tu1():
+    # no declared prior and no TU-1 -> rejected
+    bare = check_claim_allowed(Claim("pwg-bare", Regime.R2, Estimand.PRIOR_WEIGHTED_GAIN,
+                                     oracle=True))
+    assert bare.rejected and C.C14 in bare.missing_contracts
+    # declared deployment prior (C14) -> allowed as a counterfactual scenario, NOT identifiable
+    declared = check_claim_allowed(Claim("pwg-c14", Regime.R2, Estimand.PRIOR_WEIGHTED_GAIN,
+                                         contracts={C.C14}, oracle=True))
+    assert declared.allowed and not declared.identifiable and "counterfactual" in declared.reason
+    # identified target prior (TU-1) -> allowed under TU-1
+    tu1 = check_claim_allowed(Claim("pwg-tu1", Regime.R2, Estimand.PRIOR_WEIGHTED_GAIN,
+                                    contracts={C.C1, C.C2, C.C3}, has_target_labels=True))
+    assert tu1.allowed and tu1.theorem == "TU-1"
+
+
 ALL_TESTS = [
     test_registry_monotone_checkability,
+    test_c14_registered_as_deployment_prior_contract,
+    test_c14_does_not_make_target_prior_identifiable_under_r1,
+    test_prior_weighted_gain_claim_requires_declared_prior_or_tu1,
     test_r0_source_loso_allowed,
     test_r0_target_gain_rejected_with_ce_r0_2,
     test_r1_target_prior_requires_c1_c2_c3,

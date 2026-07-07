@@ -76,7 +76,14 @@ CONTRACTS: Dict[C, ContractSpec] = {
     C.C12: ContractSpec(C.C12, "domain-factor separability",
                         "each D_j validly typed acquisition vs label-mechanism; determines_label correct",
                         _ck(_YES, _YES, _YES), "P0-4"),
+    C.C14: ContractSpec(C.C14, "declared deployment prior / utility weighting",
+                        "deployer DECLARES the class prior π* / utility weights under which target "
+                        "risk/gain is evaluated (external operating condition, not source-only estimated)",
+                        _ck(_NO, _PARTIAL, _YES), "CE-R1-2"),
 }
+# NOTE: C13 (class-balanced calibration DESIGN, Step 17) is intentionally documentation-only and is NOT
+# registered here — it is a data-acquisition design contract, not a machine claim-gating contract. C14
+# IS registered because prior-weighted gain claims are gated on it (see audit.PRIOR_WEIGHTED_GAIN).
 
 
 class TheoremSpec:
@@ -114,6 +121,8 @@ FORBIDDEN_CLAIMS = (
     "GLS gives the target prior source-only",
     "R0 source metric reported as a target risk/gain/concept guarantee",
     "R1 unlabeled-target balanced accuracy reported as identifiable target metric",
+    "declared deployment prior identifies the actual target prior",   # C14 must not become TU-1
+    "prior-weighted gain reported as holding under all target priors",  # sign is prior-dependent
 )
 
 

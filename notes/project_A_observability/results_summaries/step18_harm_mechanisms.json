@@ -1,0 +1,5308 @@
+{
+  "project": "Project A",
+  "step": "Step 18",
+  "scope": "TTA harm-mechanism decomposition (oracle/evaluation-only); not SOTA",
+  "n_runs": 54,
+  "mean_lost_correct_rate": 0.121148,
+  "mean_gained_correct_rate": 0.078856,
+  "mean_net_gain": -0.042293,
+  "mean_accuracy_gain": -0.042293,
+  "runs_with_mixed_class_effects": 52,
+  "fraction_runs_with_mixed_class_effects": 0.963,
+  "fraction_prior_dependent_possible": 0.963,
+  "worst_classes_by_dataset": {
+    "BNCI2014_001": {
+      "most_common_worst_class": 1,
+      "worst_class_histogram": {
+        "2": 3,
+        "1": 9,
+        "0": 6,
+        "3": 9
+      }
+    },
+    "BNCI2014_004": {
+      "most_common_worst_class": 0,
+      "worst_class_histogram": {
+        "0": 22,
+        "1": 5
+      }
+    }
+  },
+  "dominant_transition_patterns": [
+    {
+      "transition": "0->1",
+      "count": 35
+    },
+    {
+      "transition": "1->0",
+      "count": 33
+    },
+    {
+      "transition": "1->2",
+      "count": 18
+    },
+    {
+      "transition": "3->2",
+      "count": 17
+    },
+    {
+      "transition": "0->2",
+      "count": 15
+    },
+    {
+      "transition": "2->0",
+      "count": 8
+    },
+    {
+      "transition": "2->1",
+      "count": 7
+    },
+    {
+      "transition": "3->0",
+      "count": 7
+    }
+  ],
+  "runs": [
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 0,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.529514,
+      "adapt_accuracy": 0.480903,
+      "accuracy_gain": -0.048611,
+      "identity_bacc": 0.529514,
+      "adapt_bacc": 0.480903,
+      "bacc_gain": -0.048611,
+      "lost_correct_rate": 0.128472,
+      "gained_correct_rate": 0.079861,
+      "unchanged_correct_rate": 0.401042,
+      "unchanged_wrong_rate": 0.390625,
+      "net_gain_from_gain_loss": -0.048611,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.784722,
+          "adapt_recall": 0.597222,
+          "recall_delta": -0.1875,
+          "lost_correct_rate": 0.194444,
+          "gained_correct_rate": 0.006944,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.638889,
+          "adapt_recall": 0.944444,
+          "recall_delta": 0.305556,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.305556,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.652778,
+          "adapt_recall": 0.354167,
+          "recall_delta": -0.298611,
+          "lost_correct_rate": 0.305556,
+          "gained_correct_rate": 0.006944,
+          "dominant_wrong_transition": "2->1"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.041667,
+          "adapt_recall": 0.027778,
+          "recall_delta": -0.013889,
+          "lost_correct_rate": 0.013889,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          176,
+          94,
+          2,
+          0
+        ],
+        [
+          0,
+          146,
+          0,
+          0
+        ],
+        [
+          0,
+          78,
+          70,
+          0
+        ],
+        [
+          3,
+          2,
+          0,
+          5
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 36,
+          "moved_to_correct": 1,
+          "moved_to_wrong": 35
+        },
+        "1": {
+          "n_moved": 45,
+          "moved_to_correct": 44,
+          "moved_to_wrong": 1
+        },
+        "2": {
+          "n_moved": 60,
+          "moved_to_correct": 1,
+          "moved_to_wrong": 59
+        },
+        "3": {
+          "n_moved": 38,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 38
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 2,
+        "worst_class_recall_delta": -0.298611,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.305556,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 1,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.524306,
+      "adapt_accuracy": 0.319444,
+      "accuracy_gain": -0.204861,
+      "identity_bacc": 0.524306,
+      "adapt_bacc": 0.319445,
+      "bacc_gain": -0.204861,
+      "lost_correct_rate": 0.217014,
+      "gained_correct_rate": 0.012153,
+      "unchanged_correct_rate": 0.307292,
+      "unchanged_wrong_rate": 0.463542,
+      "net_gain_from_gain_loss": -0.204861,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.486111,
+          "adapt_recall": 0.125,
+          "recall_delta": -0.361111,
+          "lost_correct_rate": 0.361111,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.618056,
+          "adapt_recall": 0.125,
+          "recall_delta": -0.493056,
+          "lost_correct_rate": 0.493056,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.951389,
+          "adapt_recall": 1.0,
+          "recall_delta": 0.048611,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.048611,
+          "dominant_wrong_transition": null
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.041667,
+          "adapt_recall": 0.027778,
+          "recall_delta": -0.013889,
+          "lost_correct_rate": 0.013889,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          46,
+          0,
+          110,
+          4
+        ],
+        [
+          1,
+          35,
+          115,
+          0
+        ],
+        [
+          0,
+          0,
+          253,
+          0
+        ],
+        [
+          0,
+          0,
+          5,
+          7
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 78,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 78
+        },
+        "1": {
+          "n_moved": 75,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 75
+        },
+        "2": {
+          "n_moved": 7,
+          "moved_to_correct": 7,
+          "moved_to_wrong": 0
+        },
+        "3": {
+          "n_moved": 75,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 75
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.493056,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.048611,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 2,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.532986,
+      "adapt_accuracy": 0.432292,
+      "accuracy_gain": -0.100694,
+      "identity_bacc": 0.532986,
+      "adapt_bacc": 0.432291,
+      "bacc_gain": -0.100694,
+      "lost_correct_rate": 0.15625,
+      "gained_correct_rate": 0.055556,
+      "unchanged_correct_rate": 0.376736,
+      "unchanged_wrong_rate": 0.411458,
+      "net_gain_from_gain_loss": -0.100694,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.361111,
+          "adapt_recall": 0.006944,
+          "recall_delta": -0.354167,
+          "lost_correct_rate": 0.354167,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.4375,
+          "adapt_recall": 0.222222,
+          "recall_delta": -0.215278,
+          "lost_correct_rate": 0.215278,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.972222,
+          "adapt_recall": 1.0,
+          "recall_delta": 0.027778,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.027778,
+          "dominant_wrong_transition": null
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.361111,
+          "adapt_recall": 0.5,
+          "recall_delta": 0.138889,
+          "lost_correct_rate": 0.055556,
+          "gained_correct_rate": 0.194444,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          5,
+          1,
+          60,
+          41
+        ],
+        [
+          0,
+          35,
+          44,
+          14
+        ],
+        [
+          0,
+          0,
+          286,
+          0
+        ],
+        [
+          0,
+          0,
+          11,
+          79
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 64,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 64
+        },
+        "1": {
+          "n_moved": 36,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 36
+        },
+        "2": {
+          "n_moved": 4,
+          "moved_to_correct": 4,
+          "moved_to_wrong": 0
+        },
+        "3": {
+          "n_moved": 67,
+          "moved_to_correct": 28,
+          "moved_to_wrong": 39
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.354167,
+        "best_class_by_recall_delta": 3,
+        "best_class_recall_delta": 0.138889,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 0,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.289931,
+      "adapt_accuracy": 0.25,
+      "accuracy_gain": -0.039931,
+      "identity_bacc": 0.289931,
+      "adapt_bacc": 0.25,
+      "bacc_gain": -0.039931,
+      "lost_correct_rate": 0.199653,
+      "gained_correct_rate": 0.159722,
+      "unchanged_correct_rate": 0.090278,
+      "unchanged_wrong_rate": 0.550347,
+      "net_gain_from_gain_loss": -0.039931,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.1875,
+          "adapt_recall": 0.006944,
+          "recall_delta": -0.180556,
+          "lost_correct_rate": 0.180556,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.326389,
+          "adapt_recall": 0.965278,
+          "recall_delta": 0.638889,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.638889,
+          "dominant_wrong_transition": "1->0"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.631944,
+          "adapt_recall": 0.020833,
+          "recall_delta": -0.611111,
+          "lost_correct_rate": 0.611111,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "2->1"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.013889,
+          "adapt_recall": 0.006944,
+          "recall_delta": -0.006944,
+          "lost_correct_rate": 0.006944,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->1"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          9,
+          92,
+          0,
+          0
+        ],
+        [
+          0,
+          180,
+          0,
+          0
+        ],
+        [
+          0,
+          282,
+          8,
+          0
+        ],
+        [
+          0,
+          3,
+          0,
+          2
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 94,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 94
+        },
+        "1": {
+          "n_moved": 92,
+          "moved_to_correct": 92,
+          "moved_to_wrong": 0
+        },
+        "2": {
+          "n_moved": 107,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 107
+        },
+        "3": {
+          "n_moved": 84,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 84
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 2,
+        "worst_class_recall_delta": -0.611111,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.638889,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 1,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.289931,
+      "adapt_accuracy": 0.25,
+      "accuracy_gain": -0.039931,
+      "identity_bacc": 0.289931,
+      "adapt_bacc": 0.25,
+      "bacc_gain": -0.039931,
+      "lost_correct_rate": 0.105903,
+      "gained_correct_rate": 0.065972,
+      "unchanged_correct_rate": 0.184028,
+      "unchanged_wrong_rate": 0.644097,
+      "net_gain_from_gain_loss": -0.039931,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.055556,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.055556,
+          "lost_correct_rate": 0.055556,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.361111,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.361111,
+          "lost_correct_rate": 0.361111,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.736111,
+          "adapt_recall": 1.0,
+          "recall_delta": 0.263889,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.263889,
+          "dominant_wrong_transition": null
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.006944,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.006944,
+          "lost_correct_rate": 0.006944,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          0,
+          0,
+          32,
+          0
+        ],
+        [
+          0,
+          0,
+          194,
+          0
+        ],
+        [
+          0,
+          0,
+          342,
+          0
+        ],
+        [
+          0,
+          0,
+          8,
+          0
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 61,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 61
+        },
+        "1": {
+          "n_moved": 63,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 63
+        },
+        "2": {
+          "n_moved": 38,
+          "moved_to_correct": 38,
+          "moved_to_wrong": 0
+        },
+        "3": {
+          "n_moved": 72,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 72
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.361111,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.263889,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 2,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.286458,
+      "adapt_accuracy": 0.25,
+      "accuracy_gain": -0.036458,
+      "identity_bacc": 0.286458,
+      "adapt_bacc": 0.25,
+      "bacc_gain": -0.036458,
+      "lost_correct_rate": 0.095486,
+      "gained_correct_rate": 0.059028,
+      "unchanged_correct_rate": 0.190972,
+      "unchanged_wrong_rate": 0.654514,
+      "net_gain_from_gain_loss": -0.036458,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.006944,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.006944,
+          "lost_correct_rate": 0.006944,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.333333,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.333333,
+          "lost_correct_rate": 0.333333,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.763889,
+          "adapt_recall": 1.0,
+          "recall_delta": 0.236111,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.236111,
+          "dominant_wrong_transition": null
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.041667,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.041667,
+          "lost_correct_rate": 0.041667,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          0,
+          0,
+          6,
+          0
+        ],
+        [
+          0,
+          0,
+          175,
+          0
+        ],
+        [
+          0,
+          0,
+          357,
+          0
+        ],
+        [
+          0,
+          0,
+          38,
+          0
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 61,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 61
+        },
+        "1": {
+          "n_moved": 64,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 64
+        },
+        "2": {
+          "n_moved": 34,
+          "moved_to_correct": 34,
+          "moved_to_wrong": 0
+        },
+        "3": {
+          "n_moved": 60,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 60
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.333333,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.236111,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 0,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.519097,
+      "adapt_accuracy": 0.40625,
+      "accuracy_gain": -0.112847,
+      "identity_bacc": 0.519097,
+      "adapt_bacc": 0.40625,
+      "bacc_gain": -0.112847,
+      "lost_correct_rate": 0.206597,
+      "gained_correct_rate": 0.09375,
+      "unchanged_correct_rate": 0.3125,
+      "unchanged_wrong_rate": 0.387153,
+      "net_gain_from_gain_loss": -0.112847,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.583333,
+          "adapt_recall": 0.854167,
+          "recall_delta": 0.270833,
+          "lost_correct_rate": 0.013889,
+          "gained_correct_rate": 0.284722,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.555556,
+          "adapt_recall": 0.479167,
+          "recall_delta": -0.076389,
+          "lost_correct_rate": 0.152778,
+          "gained_correct_rate": 0.076389,
+          "dominant_wrong_transition": "1->0"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.236111,
+          "adapt_recall": 0.159722,
+          "recall_delta": -0.076389,
+          "lost_correct_rate": 0.090278,
+          "gained_correct_rate": 0.013889,
+          "dominant_wrong_transition": "2->0"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.701389,
+          "adapt_recall": 0.131944,
+          "recall_delta": -0.569444,
+          "lost_correct_rate": 0.569444,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          208,
+          4,
+          2,
+          0
+        ],
+        [
+          43,
+          93,
+          1,
+          0
+        ],
+        [
+          18,
+          4,
+          22,
+          0
+        ],
+        [
+          143,
+          17,
+          1,
+          20
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 45,
+          "moved_to_correct": 41,
+          "moved_to_wrong": 4
+        },
+        "1": {
+          "n_moved": 56,
+          "moved_to_correct": 11,
+          "moved_to_wrong": 45
+        },
+        "2": {
+          "n_moved": 43,
+          "moved_to_correct": 2,
+          "moved_to_wrong": 41
+        },
+        "3": {
+          "n_moved": 89,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 89
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 3,
+        "worst_class_recall_delta": -0.569444,
+        "best_class_by_recall_delta": 0,
+        "best_class_recall_delta": 0.270833,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 1,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.498264,
+      "adapt_accuracy": 0.491319,
+      "accuracy_gain": -0.006944,
+      "identity_bacc": 0.498264,
+      "adapt_bacc": 0.491319,
+      "bacc_gain": -0.006944,
+      "lost_correct_rate": 0.265625,
+      "gained_correct_rate": 0.258681,
+      "unchanged_correct_rate": 0.232639,
+      "unchanged_wrong_rate": 0.243056,
+      "net_gain_from_gain_loss": -0.006944,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.416667,
+          "adapt_recall": 0.118056,
+          "recall_delta": -0.298611,
+          "lost_correct_rate": 0.388889,
+          "gained_correct_rate": 0.090278,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.479167,
+          "adapt_recall": 0.625,
+          "recall_delta": 0.145833,
+          "lost_correct_rate": 0.131944,
+          "gained_correct_rate": 0.277778,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.256944,
+          "adapt_recall": 0.923611,
+          "recall_delta": 0.666667,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.666667,
+          "dominant_wrong_transition": "2->1"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.840278,
+          "adapt_recall": 0.298611,
+          "recall_delta": -0.541667,
+          "lost_correct_rate": 0.541667,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          9,
+          17,
+          101,
+          0
+        ],
+        [
+          0,
+          69,
+          55,
+          0
+        ],
+        [
+          0,
+          0,
+          48,
+          0
+        ],
+        [
+          20,
+          61,
+          141,
+          55
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 117,
+          "moved_to_correct": 13,
+          "moved_to_wrong": 104
+        },
+        "1": {
+          "n_moved": 85,
+          "moved_to_correct": 40,
+          "moved_to_wrong": 45
+        },
+        "2": {
+          "n_moved": 99,
+          "moved_to_correct": 96,
+          "moved_to_wrong": 3
+        },
+        "3": {
+          "n_moved": 94,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 94
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 3,
+        "worst_class_recall_delta": -0.541667,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.666667,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 2,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.447917,
+      "adapt_accuracy": 0.340278,
+      "accuracy_gain": -0.107639,
+      "identity_bacc": 0.447917,
+      "adapt_bacc": 0.340278,
+      "bacc_gain": -0.107639,
+      "lost_correct_rate": 0.121528,
+      "gained_correct_rate": 0.013889,
+      "unchanged_correct_rate": 0.326389,
+      "unchanged_wrong_rate": 0.538194,
+      "net_gain_from_gain_loss": -0.107639,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.222222,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.222222,
+          "lost_correct_rate": 0.222222,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->3"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.152778,
+          "adapt_recall": 0.006944,
+          "recall_delta": -0.145833,
+          "lost_correct_rate": 0.145833,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->3"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.486111,
+          "adapt_recall": 0.375,
+          "recall_delta": -0.111111,
+          "lost_correct_rate": 0.118056,
+          "gained_correct_rate": 0.006944,
+          "dominant_wrong_transition": "2->3"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.930556,
+          "adapt_recall": 0.979167,
+          "recall_delta": 0.048611,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.048611,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          0,
+          0,
+          2,
+          66
+        ],
+        [
+          0,
+          1,
+          2,
+          30
+        ],
+        [
+          0,
+          0,
+          67,
+          23
+        ],
+        [
+          0,
+          0,
+          0,
+          385
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 44,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 44
+        },
+        "1": {
+          "n_moved": 35,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 35
+        },
+        "2": {
+          "n_moved": 37,
+          "moved_to_correct": 1,
+          "moved_to_wrong": 36
+        },
+        "3": {
+          "n_moved": 7,
+          "moved_to_correct": 7,
+          "moved_to_wrong": 0
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.222222,
+        "best_class_by_recall_delta": 3,
+        "best_class_recall_delta": 0.048611,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 0,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.347222,
+      "adapt_accuracy": 0.291667,
+      "accuracy_gain": -0.055556,
+      "identity_bacc": 0.347222,
+      "adapt_bacc": 0.291666,
+      "bacc_gain": -0.055556,
+      "lost_correct_rate": 0.15625,
+      "gained_correct_rate": 0.100694,
+      "unchanged_correct_rate": 0.190972,
+      "unchanged_wrong_rate": 0.552083,
+      "net_gain_from_gain_loss": -0.055556,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.25,
+          "adapt_recall": 0.527778,
+          "recall_delta": 0.277778,
+          "lost_correct_rate": 0.013889,
+          "gained_correct_rate": 0.291667,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.111111,
+          "adapt_recall": 0.208333,
+          "recall_delta": 0.097222,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.097222,
+          "dominant_wrong_transition": "1->0"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.583333,
+          "adapt_recall": 0.347222,
+          "recall_delta": -0.236111,
+          "lost_correct_rate": 0.25,
+          "gained_correct_rate": 0.013889,
+          "dominant_wrong_transition": "2->0"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.444444,
+          "adapt_recall": 0.083333,
+          "recall_delta": -0.361111,
+          "lost_correct_rate": 0.361111,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          133,
+          7,
+          2,
+          0
+        ],
+        [
+          1,
+          39,
+          0,
+          0
+        ],
+        [
+          71,
+          37,
+          119,
+          0
+        ],
+        [
+          109,
+          22,
+          4,
+          32
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 64,
+          "moved_to_correct": 42,
+          "moved_to_wrong": 22
+        },
+        "1": {
+          "n_moved": 49,
+          "moved_to_correct": 14,
+          "moved_to_wrong": 35
+        },
+        "2": {
+          "n_moved": 62,
+          "moved_to_correct": 2,
+          "moved_to_wrong": 60
+        },
+        "3": {
+          "n_moved": 78,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 78
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 3,
+        "worst_class_recall_delta": -0.361111,
+        "best_class_by_recall_delta": 0,
+        "best_class_recall_delta": 0.277778,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 1,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.375,
+      "adapt_accuracy": 0.315972,
+      "accuracy_gain": -0.059028,
+      "identity_bacc": 0.375,
+      "adapt_bacc": 0.315972,
+      "bacc_gain": -0.059028,
+      "lost_correct_rate": 0.151042,
+      "gained_correct_rate": 0.092014,
+      "unchanged_correct_rate": 0.223958,
+      "unchanged_wrong_rate": 0.532986,
+      "net_gain_from_gain_loss": -0.059028,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.159722,
+          "adapt_recall": 0.027778,
+          "recall_delta": -0.131944,
+          "lost_correct_rate": 0.138889,
+          "gained_correct_rate": 0.006944,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.125,
+          "adapt_recall": 0.090278,
+          "recall_delta": -0.034722,
+          "lost_correct_rate": 0.055556,
+          "gained_correct_rate": 0.020833,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.597222,
+          "adapt_recall": 0.9375,
+          "recall_delta": 0.340278,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.340278,
+          "dominant_wrong_transition": "2->1"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.618056,
+          "adapt_recall": 0.208333,
+          "recall_delta": -0.409722,
+          "lost_correct_rate": 0.409722,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          8,
+          4,
+          60,
+          0
+        ],
+        [
+          0,
+          20,
+          22,
+          0
+        ],
+        [
+          0,
+          0,
+          230,
+          0
+        ],
+        [
+          2,
+          15,
+          152,
+          63
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 76,
+          "moved_to_correct": 1,
+          "moved_to_wrong": 75
+        },
+        "1": {
+          "n_moved": 58,
+          "moved_to_correct": 3,
+          "moved_to_wrong": 55
+        },
+        "2": {
+          "n_moved": 52,
+          "moved_to_correct": 49,
+          "moved_to_wrong": 3
+        },
+        "3": {
+          "n_moved": 69,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 69
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 3,
+        "worst_class_recall_delta": -0.409722,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.340278,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 2,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.354167,
+      "adapt_accuracy": 0.317708,
+      "accuracy_gain": -0.036458,
+      "identity_bacc": 0.354167,
+      "adapt_bacc": 0.317708,
+      "bacc_gain": -0.036458,
+      "lost_correct_rate": 0.109375,
+      "gained_correct_rate": 0.072917,
+      "unchanged_correct_rate": 0.244792,
+      "unchanged_wrong_rate": 0.572917,
+      "net_gain_from_gain_loss": -0.036458,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.0625,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.0625,
+          "lost_correct_rate": 0.0625,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.034722,
+          "adapt_recall": 0.006944,
+          "recall_delta": -0.027778,
+          "lost_correct_rate": 0.034722,
+          "gained_correct_rate": 0.006944,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.680556,
+          "adapt_recall": 0.965278,
+          "recall_delta": 0.284722,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.284722,
+          "dominant_wrong_transition": "2->3"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.638889,
+          "adapt_recall": 0.298611,
+          "recall_delta": -0.340278,
+          "lost_correct_rate": 0.340278,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          0,
+          0,
+          19,
+          0
+        ],
+        [
+          0,
+          0,
+          17,
+          0
+        ],
+        [
+          0,
+          0,
+          279,
+          0
+        ],
+        [
+          0,
+          1,
+          173,
+          87
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 75,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 75
+        },
+        "1": {
+          "n_moved": 44,
+          "moved_to_correct": 1,
+          "moved_to_wrong": 43
+        },
+        "2": {
+          "n_moved": 41,
+          "moved_to_correct": 41,
+          "moved_to_wrong": 0
+        },
+        "3": {
+          "n_moved": 50,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 50
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 3,
+        "worst_class_recall_delta": -0.340278,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.284722,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 0,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.255208,
+      "adapt_accuracy": 0.25,
+      "accuracy_gain": -0.005208,
+      "identity_bacc": 0.255209,
+      "adapt_bacc": 0.25,
+      "bacc_gain": -0.005208,
+      "lost_correct_rate": 0.026042,
+      "gained_correct_rate": 0.020833,
+      "unchanged_correct_rate": 0.229167,
+      "unchanged_wrong_rate": 0.723958,
+      "net_gain_from_gain_loss": -0.005208,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.027778,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.027778,
+          "lost_correct_rate": 0.027778,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.916667,
+          "adapt_recall": 1.0,
+          "recall_delta": 0.083333,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.083333,
+          "dominant_wrong_transition": null
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.076389,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.076389,
+          "lost_correct_rate": 0.076389,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "2->1"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.0,
+          "adapt_recall": 0.0,
+          "recall_delta": 0.0,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->1"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          0,
+          10,
+          0,
+          0
+        ],
+        [
+          0,
+          518,
+          0,
+          0
+        ],
+        [
+          0,
+          48,
+          0,
+          0
+        ],
+        [
+          0,
+          0,
+          0,
+          0
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 12,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 12
+        },
+        "1": {
+          "n_moved": 12,
+          "moved_to_correct": 12,
+          "moved_to_wrong": 0
+        },
+        "2": {
+          "n_moved": 14,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 14
+        },
+        "3": {
+          "n_moved": 20,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 20
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 2,
+        "worst_class_recall_delta": -0.076389,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.083333,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 1,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.267361,
+      "adapt_accuracy": 0.274306,
+      "accuracy_gain": 0.006944,
+      "identity_bacc": 0.267361,
+      "adapt_bacc": 0.274305,
+      "bacc_gain": 0.006944,
+      "lost_correct_rate": 0.050347,
+      "gained_correct_rate": 0.057292,
+      "unchanged_correct_rate": 0.217014,
+      "unchanged_wrong_rate": 0.675347,
+      "net_gain_from_gain_loss": 0.006944,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.020833,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.020833,
+          "lost_correct_rate": 0.020833,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.770833,
+          "adapt_recall": 0.611111,
+          "recall_delta": -0.159722,
+          "lost_correct_rate": 0.180556,
+          "gained_correct_rate": 0.020833,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.277778,
+          "adapt_recall": 0.486111,
+          "recall_delta": 0.208333,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.208333,
+          "dominant_wrong_transition": "2->1"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.0,
+          "adapt_recall": 0.0,
+          "recall_delta": 0.0,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->1"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          0,
+          7,
+          4,
+          0
+        ],
+        [
+          0,
+          319,
+          103,
+          0
+        ],
+        [
+          0,
+          0,
+          142,
+          0
+        ],
+        [
+          0,
+          1,
+          0,
+          0
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 30,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 30
+        },
+        "1": {
+          "n_moved": 30,
+          "moved_to_correct": 3,
+          "moved_to_wrong": 27
+        },
+        "2": {
+          "n_moved": 31,
+          "moved_to_correct": 30,
+          "moved_to_wrong": 1
+        },
+        "3": {
+          "n_moved": 24,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 24
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.159722,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.208333,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 2,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.251736,
+      "adapt_accuracy": 0.25,
+      "accuracy_gain": -0.001736,
+      "identity_bacc": 0.251736,
+      "adapt_bacc": 0.25,
+      "bacc_gain": -0.001736,
+      "lost_correct_rate": 0.164931,
+      "gained_correct_rate": 0.163194,
+      "unchanged_correct_rate": 0.086806,
+      "unchanged_wrong_rate": 0.585069,
+      "net_gain_from_gain_loss": -0.001736,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.013889,
+          "adapt_recall": 0.006944,
+          "recall_delta": -0.006944,
+          "lost_correct_rate": 0.006944,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.645833,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.645833,
+          "lost_correct_rate": 0.645833,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.340278,
+          "adapt_recall": 0.993056,
+          "recall_delta": 0.652778,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.652778,
+          "dominant_wrong_transition": "2->0"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.006944,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.006944,
+          "lost_correct_rate": 0.006944,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          2,
+          0,
+          5,
+          0
+        ],
+        [
+          0,
+          0,
+          361,
+          0
+        ],
+        [
+          0,
+          0,
+          202,
+          0
+        ],
+        [
+          0,
+          0,
+          6,
+          0
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 85,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 85
+        },
+        "1": {
+          "n_moved": 96,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 96
+        },
+        "2": {
+          "n_moved": 94,
+          "moved_to_correct": 94,
+          "moved_to_wrong": 0
+        },
+        "3": {
+          "n_moved": 97,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 97
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.645833,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.652778,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 0,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.347222,
+      "adapt_accuracy": 0.364583,
+      "accuracy_gain": 0.017361,
+      "identity_bacc": 0.347222,
+      "adapt_bacc": 0.364583,
+      "bacc_gain": 0.017361,
+      "lost_correct_rate": 0.074653,
+      "gained_correct_rate": 0.092014,
+      "unchanged_correct_rate": 0.272569,
+      "unchanged_wrong_rate": 0.560764,
+      "net_gain_from_gain_loss": 0.017361,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.618056,
+          "adapt_recall": 0.826389,
+          "recall_delta": 0.208333,
+          "lost_correct_rate": 0.013889,
+          "gained_correct_rate": 0.222222,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.166667,
+          "adapt_recall": 0.270833,
+          "recall_delta": 0.104167,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.104167,
+          "dominant_wrong_transition": "1->0"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.236111,
+          "adapt_recall": 0.25,
+          "recall_delta": 0.013889,
+          "lost_correct_rate": 0.027778,
+          "gained_correct_rate": 0.041667,
+          "dominant_wrong_transition": "2->0"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.368056,
+          "adapt_recall": 0.111111,
+          "recall_delta": -0.256944,
+          "lost_correct_rate": 0.256944,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          284,
+          17,
+          9,
+          0
+        ],
+        [
+          0,
+          56,
+          0,
+          0
+        ],
+        [
+          2,
+          7,
+          57,
+          0
+        ],
+        [
+          95,
+          10,
+          1,
+          38
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 37,
+          "moved_to_correct": 32,
+          "moved_to_wrong": 5
+        },
+        "1": {
+          "n_moved": 26,
+          "moved_to_correct": 15,
+          "moved_to_wrong": 11
+        },
+        "2": {
+          "n_moved": 35,
+          "moved_to_correct": 6,
+          "moved_to_wrong": 29
+        },
+        "3": {
+          "n_moved": 43,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 43
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 3,
+        "worst_class_recall_delta": -0.256944,
+        "best_class_by_recall_delta": 0,
+        "best_class_recall_delta": 0.208333,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 1,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.371528,
+      "adapt_accuracy": 0.381944,
+      "accuracy_gain": 0.010417,
+      "identity_bacc": 0.371528,
+      "adapt_bacc": 0.381945,
+      "bacc_gain": 0.010417,
+      "lost_correct_rate": 0.138889,
+      "gained_correct_rate": 0.149306,
+      "unchanged_correct_rate": 0.232639,
+      "unchanged_wrong_rate": 0.479167,
+      "net_gain_from_gain_loss": 0.010417,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.541667,
+          "adapt_recall": 0.243056,
+          "recall_delta": -0.298611,
+          "lost_correct_rate": 0.3125,
+          "gained_correct_rate": 0.013889,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.277778,
+          "adapt_recall": 0.298611,
+          "recall_delta": 0.020833,
+          "lost_correct_rate": 0.090278,
+          "gained_correct_rate": 0.111111,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.270833,
+          "adapt_recall": 0.736111,
+          "recall_delta": 0.465278,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.465278,
+          "dominant_wrong_transition": "2->1"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.395833,
+          "adapt_recall": 0.25,
+          "recall_delta": -0.145833,
+          "lost_correct_rate": 0.152778,
+          "gained_correct_rate": 0.006944,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          82,
+          22,
+          103,
+          2
+        ],
+        [
+          0,
+          68,
+          48,
+          0
+        ],
+        [
+          0,
+          0,
+          84,
+          0
+        ],
+        [
+          6,
+          10,
+          70,
+          81
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 66,
+          "moved_to_correct": 2,
+          "moved_to_wrong": 64
+        },
+        "1": {
+          "n_moved": 67,
+          "moved_to_correct": 16,
+          "moved_to_wrong": 51
+        },
+        "2": {
+          "n_moved": 71,
+          "moved_to_correct": 67,
+          "moved_to_wrong": 4
+        },
+        "3": {
+          "n_moved": 57,
+          "moved_to_correct": 1,
+          "moved_to_wrong": 56
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.298611,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.465278,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 2,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.328125,
+      "adapt_accuracy": 0.305556,
+      "accuracy_gain": -0.022569,
+      "identity_bacc": 0.328125,
+      "adapt_bacc": 0.305555,
+      "bacc_gain": -0.022569,
+      "lost_correct_rate": 0.064236,
+      "gained_correct_rate": 0.041667,
+      "unchanged_correct_rate": 0.263889,
+      "unchanged_wrong_rate": 0.630208,
+      "net_gain_from_gain_loss": -0.022569,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.166667,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.166667,
+          "lost_correct_rate": 0.166667,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->3"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.097222,
+          "adapt_recall": 0.048611,
+          "recall_delta": -0.048611,
+          "lost_correct_rate": 0.048611,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->3"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.277778,
+          "adapt_recall": 0.319444,
+          "recall_delta": 0.041667,
+          "lost_correct_rate": 0.034722,
+          "gained_correct_rate": 0.076389,
+          "dominant_wrong_transition": "2->3"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.770833,
+          "adapt_recall": 0.854167,
+          "recall_delta": 0.083333,
+          "lost_correct_rate": 0.006944,
+          "gained_correct_rate": 0.090278,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          1,
+          0,
+          10,
+          63
+        ],
+        [
+          0,
+          11,
+          17,
+          3
+        ],
+        [
+          0,
+          1,
+          77,
+          6
+        ],
+        [
+          0,
+          2,
+          3,
+          382
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 26,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 26
+        },
+        "1": {
+          "n_moved": 31,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 31
+        },
+        "2": {
+          "n_moved": 28,
+          "moved_to_correct": 11,
+          "moved_to_wrong": 17
+        },
+        "3": {
+          "n_moved": 20,
+          "moved_to_correct": 13,
+          "moved_to_wrong": 7
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.166667,
+        "best_class_by_recall_delta": 3,
+        "best_class_recall_delta": 0.083333,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 0,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.291667,
+      "adapt_accuracy": 0.267361,
+      "accuracy_gain": -0.024306,
+      "identity_bacc": 0.291667,
+      "adapt_bacc": 0.267361,
+      "bacc_gain": -0.024306,
+      "lost_correct_rate": 0.081597,
+      "gained_correct_rate": 0.057292,
+      "unchanged_correct_rate": 0.210069,
+      "unchanged_wrong_rate": 0.651042,
+      "net_gain_from_gain_loss": -0.024306,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.506944,
+          "adapt_recall": 0.729167,
+          "recall_delta": 0.222222,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.222222,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.479167,
+          "adapt_recall": 0.270833,
+          "recall_delta": -0.208333,
+          "lost_correct_rate": 0.208333,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->0"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.166667,
+          "adapt_recall": 0.0625,
+          "recall_delta": -0.104167,
+          "lost_correct_rate": 0.111111,
+          "gained_correct_rate": 0.006944,
+          "dominant_wrong_transition": "2->0"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.013889,
+          "adapt_recall": 0.006944,
+          "recall_delta": -0.006944,
+          "lost_correct_rate": 0.006944,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          297,
+          0,
+          0,
+          0
+        ],
+        [
+          97,
+          110,
+          4,
+          0
+        ],
+        [
+          35,
+          2,
+          23,
+          0
+        ],
+        [
+          7,
+          0,
+          0,
+          1
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 34,
+          "moved_to_correct": 32,
+          "moved_to_wrong": 2
+        },
+        "1": {
+          "n_moved": 38,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 38
+        },
+        "2": {
+          "n_moved": 49,
+          "moved_to_correct": 1,
+          "moved_to_wrong": 48
+        },
+        "3": {
+          "n_moved": 24,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 24
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.208333,
+        "best_class_by_recall_delta": 0,
+        "best_class_recall_delta": 0.222222,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 1,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.286458,
+      "adapt_accuracy": 0.28125,
+      "accuracy_gain": -0.005208,
+      "identity_bacc": 0.286458,
+      "adapt_bacc": 0.28125,
+      "bacc_gain": -0.005208,
+      "lost_correct_rate": 0.157986,
+      "gained_correct_rate": 0.152778,
+      "unchanged_correct_rate": 0.128472,
+      "unchanged_wrong_rate": 0.560764,
+      "net_gain_from_gain_loss": -0.005208,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.423611,
+          "adapt_recall": 0.131944,
+          "recall_delta": -0.291667,
+          "lost_correct_rate": 0.291667,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.409722,
+          "adapt_recall": 0.083333,
+          "recall_delta": -0.326389,
+          "lost_correct_rate": 0.326389,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.298611,
+          "adapt_recall": 0.902778,
+          "recall_delta": 0.604167,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.604167,
+          "dominant_wrong_transition": "2->0"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.013889,
+          "adapt_recall": 0.006944,
+          "recall_delta": -0.006944,
+          "lost_correct_rate": 0.013889,
+          "gained_correct_rate": 0.006944,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          77,
+          3,
+          157,
+          2
+        ],
+        [
+          0,
+          35,
+          188,
+          0
+        ],
+        [
+          0,
+          0,
+          110,
+          0
+        ],
+        [
+          0,
+          1,
+          2,
+          1
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 91,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 91
+        },
+        "1": {
+          "n_moved": 86,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 86
+        },
+        "2": {
+          "n_moved": 89,
+          "moved_to_correct": 87,
+          "moved_to_wrong": 2
+        },
+        "3": {
+          "n_moved": 87,
+          "moved_to_correct": 1,
+          "moved_to_wrong": 86
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.326389,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.604167,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 2,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.289931,
+      "adapt_accuracy": 0.255208,
+      "accuracy_gain": -0.034722,
+      "identity_bacc": 0.289931,
+      "adapt_bacc": 0.255208,
+      "bacc_gain": -0.034722,
+      "lost_correct_rate": 0.159722,
+      "gained_correct_rate": 0.125,
+      "unchanged_correct_rate": 0.130208,
+      "unchanged_wrong_rate": 0.585069,
+      "net_gain_from_gain_loss": -0.034722,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.298611,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.298611,
+          "lost_correct_rate": 0.298611,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.284722,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.284722,
+          "lost_correct_rate": 0.284722,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.5,
+          "adapt_recall": 0.986111,
+          "recall_delta": 0.486111,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.486111,
+          "dominant_wrong_transition": "2->3"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.076389,
+          "adapt_recall": 0.034722,
+          "recall_delta": -0.041667,
+          "lost_correct_rate": 0.055556,
+          "gained_correct_rate": 0.013889,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          7,
+          0,
+          196,
+          7
+        ],
+        [
+          0,
+          0,
+          154,
+          0
+        ],
+        [
+          0,
+          0,
+          176,
+          0
+        ],
+        [
+          0,
+          0,
+          29,
+          7
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 110,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 110
+        },
+        "1": {
+          "n_moved": 93,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 93
+        },
+        "2": {
+          "n_moved": 71,
+          "moved_to_correct": 70,
+          "moved_to_wrong": 1
+        },
+        "3": {
+          "n_moved": 112,
+          "moved_to_correct": 2,
+          "moved_to_wrong": 110
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.298611,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.486111,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 0,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.560764,
+      "adapt_accuracy": 0.513889,
+      "accuracy_gain": -0.046875,
+      "identity_bacc": 0.560764,
+      "adapt_bacc": 0.513889,
+      "bacc_gain": -0.046875,
+      "lost_correct_rate": 0.092014,
+      "gained_correct_rate": 0.045139,
+      "unchanged_correct_rate": 0.46875,
+      "unchanged_wrong_rate": 0.394097,
+      "net_gain_from_gain_loss": -0.046875,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.451389,
+          "adapt_recall": 0.583333,
+          "recall_delta": 0.131944,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.131944,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.618056,
+          "adapt_recall": 0.604167,
+          "recall_delta": -0.013889,
+          "lost_correct_rate": 0.041667,
+          "gained_correct_rate": 0.027778,
+          "dominant_wrong_transition": "1->0"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.6875,
+          "adapt_recall": 0.666667,
+          "recall_delta": -0.020833,
+          "lost_correct_rate": 0.041667,
+          "gained_correct_rate": 0.020833,
+          "dominant_wrong_transition": "2->0"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.486111,
+          "adapt_recall": 0.201389,
+          "recall_delta": -0.284722,
+          "lost_correct_rate": 0.284722,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          139,
+          1,
+          1,
+          0
+        ],
+        [
+          8,
+          126,
+          3,
+          0
+        ],
+        [
+          9,
+          10,
+          162,
+          0
+        ],
+        [
+          70,
+          10,
+          4,
+          33
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 24,
+          "moved_to_correct": 19,
+          "moved_to_wrong": 5
+        },
+        "1": {
+          "n_moved": 19,
+          "moved_to_correct": 4,
+          "moved_to_wrong": 15
+        },
+        "2": {
+          "n_moved": 24,
+          "moved_to_correct": 3,
+          "moved_to_wrong": 21
+        },
+        "3": {
+          "n_moved": 49,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 49
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 3,
+        "worst_class_recall_delta": -0.284722,
+        "best_class_by_recall_delta": 0,
+        "best_class_recall_delta": 0.131944,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 1,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.498264,
+      "adapt_accuracy": 0.289931,
+      "accuracy_gain": -0.208333,
+      "identity_bacc": 0.498264,
+      "adapt_bacc": 0.28993,
+      "bacc_gain": -0.208333,
+      "lost_correct_rate": 0.253472,
+      "gained_correct_rate": 0.045139,
+      "unchanged_correct_rate": 0.244792,
+      "unchanged_wrong_rate": 0.456597,
+      "net_gain_from_gain_loss": -0.208333,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.319444,
+          "adapt_recall": 0.020833,
+          "recall_delta": -0.298611,
+          "lost_correct_rate": 0.298611,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.5,
+          "adapt_recall": 0.090278,
+          "recall_delta": -0.409722,
+          "lost_correct_rate": 0.423611,
+          "gained_correct_rate": 0.013889,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.833333,
+          "adapt_recall": 1.0,
+          "recall_delta": 0.166667,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.166667,
+          "dominant_wrong_transition": null
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.340278,
+          "adapt_recall": 0.048611,
+          "recall_delta": -0.291667,
+          "lost_correct_rate": 0.291667,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          5,
+          1,
+          93,
+          0
+        ],
+        [
+          0,
+          11,
+          87,
+          0
+        ],
+        [
+          0,
+          0,
+          295,
+          0
+        ],
+        [
+          0,
+          1,
+          76,
+          7
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 64,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 64
+        },
+        "1": {
+          "n_moved": 97,
+          "moved_to_correct": 2,
+          "moved_to_wrong": 95
+        },
+        "2": {
+          "n_moved": 24,
+          "moved_to_correct": 24,
+          "moved_to_wrong": 0
+        },
+        "3": {
+          "n_moved": 73,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 73
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.409722,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.166667,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 2,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.480903,
+      "adapt_accuracy": 0.310764,
+      "accuracy_gain": -0.170139,
+      "identity_bacc": 0.480903,
+      "adapt_bacc": 0.310764,
+      "bacc_gain": -0.170139,
+      "lost_correct_rate": 0.236111,
+      "gained_correct_rate": 0.065972,
+      "unchanged_correct_rate": 0.244792,
+      "unchanged_wrong_rate": 0.453125,
+      "net_gain_from_gain_loss": -0.170139,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.277778,
+          "adapt_recall": 0.027778,
+          "recall_delta": -0.25,
+          "lost_correct_rate": 0.25,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.277778,
+          "adapt_recall": 0.013889,
+          "recall_delta": -0.263889,
+          "lost_correct_rate": 0.263889,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.736111,
+          "adapt_recall": 1.0,
+          "recall_delta": 0.263889,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.263889,
+          "dominant_wrong_transition": null
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.631944,
+          "adapt_recall": 0.201389,
+          "recall_delta": -0.430556,
+          "lost_correct_rate": 0.430556,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          4,
+          0,
+          61,
+          0
+        ],
+        [
+          0,
+          2,
+          52,
+          0
+        ],
+        [
+          0,
+          0,
+          240,
+          0
+        ],
+        [
+          0,
+          0,
+          173,
+          44
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 80,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 80
+        },
+        "1": {
+          "n_moved": 96,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 96
+        },
+        "2": {
+          "n_moved": 38,
+          "moved_to_correct": 38,
+          "moved_to_wrong": 0
+        },
+        "3": {
+          "n_moved": 72,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 72
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 3,
+        "worst_class_recall_delta": -0.430556,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.263889,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 0,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.489583,
+      "adapt_accuracy": 0.446181,
+      "accuracy_gain": -0.043403,
+      "identity_bacc": 0.489583,
+      "adapt_bacc": 0.446181,
+      "bacc_gain": -0.043403,
+      "lost_correct_rate": 0.1875,
+      "gained_correct_rate": 0.144097,
+      "unchanged_correct_rate": 0.302083,
+      "unchanged_wrong_rate": 0.366319,
+      "net_gain_from_gain_loss": -0.043403,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.465278,
+          "adapt_recall": 0.618056,
+          "recall_delta": 0.152778,
+          "lost_correct_rate": 0.111111,
+          "gained_correct_rate": 0.263889,
+          "dominant_wrong_transition": "0->2"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.416667,
+          "adapt_recall": 0.291667,
+          "recall_delta": -0.125,
+          "lost_correct_rate": 0.1875,
+          "gained_correct_rate": 0.0625,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.284722,
+          "adapt_recall": 0.527778,
+          "recall_delta": 0.243056,
+          "lost_correct_rate": 0.006944,
+          "gained_correct_rate": 0.25,
+          "dominant_wrong_transition": "2->0"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.791667,
+          "adapt_recall": 0.347222,
+          "recall_delta": -0.444444,
+          "lost_correct_rate": 0.444444,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          105,
+          0,
+          42,
+          0
+        ],
+        [
+          1,
+          48,
+          32,
+          0
+        ],
+        [
+          0,
+          2,
+          91,
+          0
+        ],
+        [
+          113,
+          23,
+          45,
+          74
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 67,
+          "moved_to_correct": 38,
+          "moved_to_wrong": 29
+        },
+        "1": {
+          "n_moved": 59,
+          "moved_to_correct": 9,
+          "moved_to_wrong": 50
+        },
+        "2": {
+          "n_moved": 62,
+          "moved_to_correct": 36,
+          "moved_to_wrong": 26
+        },
+        "3": {
+          "n_moved": 70,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 70
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 3,
+        "worst_class_recall_delta": -0.444444,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.243056,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 1,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.428819,
+      "adapt_accuracy": 0.373264,
+      "accuracy_gain": -0.055556,
+      "identity_bacc": 0.42882,
+      "adapt_bacc": 0.373264,
+      "bacc_gain": -0.055556,
+      "lost_correct_rate": 0.152778,
+      "gained_correct_rate": 0.097222,
+      "unchanged_correct_rate": 0.276042,
+      "unchanged_wrong_rate": 0.473958,
+      "net_gain_from_gain_loss": -0.055556,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.166667,
+          "adapt_recall": 0.034722,
+          "recall_delta": -0.131944,
+          "lost_correct_rate": 0.138889,
+          "gained_correct_rate": 0.006944,
+          "dominant_wrong_transition": "0->3"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.326389,
+          "adapt_recall": 0.027778,
+          "recall_delta": -0.298611,
+          "lost_correct_rate": 0.3125,
+          "gained_correct_rate": 0.013889,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.284722,
+          "adapt_recall": 0.652778,
+          "recall_delta": 0.368056,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.368056,
+          "dominant_wrong_transition": "2->3"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.9375,
+          "adapt_recall": 0.777778,
+          "recall_delta": -0.159722,
+          "lost_correct_rate": 0.159722,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          7,
+          0,
+          43,
+          4
+        ],
+        [
+          0,
+          2,
+          52,
+          0
+        ],
+        [
+          0,
+          0,
+          104,
+          0
+        ],
+        [
+          1,
+          3,
+          108,
+          252
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 44,
+          "moved_to_correct": 1,
+          "moved_to_wrong": 43
+        },
+        "1": {
+          "n_moved": 85,
+          "moved_to_correct": 2,
+          "moved_to_wrong": 83
+        },
+        "2": {
+          "n_moved": 54,
+          "moved_to_correct": 53,
+          "moved_to_wrong": 1
+        },
+        "3": {
+          "n_moved": 28,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 28
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.298611,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.368056,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 2,
+      "n_classes": 4,
+      "n_trials": 576,
+      "identity_accuracy": 0.40625,
+      "adapt_accuracy": 0.409722,
+      "accuracy_gain": 0.003472,
+      "identity_bacc": 0.40625,
+      "adapt_bacc": 0.409722,
+      "bacc_gain": 0.003472,
+      "lost_correct_rate": 0.0625,
+      "gained_correct_rate": 0.065972,
+      "unchanged_correct_rate": 0.34375,
+      "unchanged_wrong_rate": 0.527778,
+      "net_gain_from_gain_loss": 0.003472,
+      "per_class": {
+        "0": {
+          "n": 144,
+          "identity_recall": 0.159722,
+          "adapt_recall": 0.0,
+          "recall_delta": -0.159722,
+          "lost_correct_rate": 0.159722,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->3"
+        },
+        "1": {
+          "n": 144,
+          "identity_recall": 0.215278,
+          "adapt_recall": 0.194444,
+          "recall_delta": -0.020833,
+          "lost_correct_rate": 0.041667,
+          "gained_correct_rate": 0.020833,
+          "dominant_wrong_transition": "1->2"
+        },
+        "2": {
+          "n": 144,
+          "identity_recall": 0.319444,
+          "adapt_recall": 0.513889,
+          "recall_delta": 0.194444,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.194444,
+          "dominant_wrong_transition": "2->3"
+        },
+        "3": {
+          "n": 144,
+          "identity_recall": 0.930556,
+          "adapt_recall": 0.930556,
+          "recall_delta": 0.0,
+          "lost_correct_rate": 0.048611,
+          "gained_correct_rate": 0.048611,
+          "dominant_wrong_transition": "3->2"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          0,
+          0,
+          27,
+          30
+        ],
+        [
+          0,
+          26,
+          11,
+          0
+        ],
+        [
+          0,
+          0,
+          117,
+          0
+        ],
+        [
+          0,
+          5,
+          42,
+          318
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1,
+        2,
+        3
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 33,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 33
+        },
+        "1": {
+          "n_moved": 31,
+          "moved_to_correct": 3,
+          "moved_to_wrong": 28
+        },
+        "2": {
+          "n_moved": 36,
+          "moved_to_correct": 28,
+          "moved_to_wrong": 8
+        },
+        "3": {
+          "n_moved": 15,
+          "moved_to_correct": 7,
+          "moved_to_wrong": 8
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.159722,
+        "best_class_by_recall_delta": 2,
+        "best_class_recall_delta": 0.194444,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 0,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.655556,
+      "adapt_accuracy": 0.6125,
+      "accuracy_gain": -0.043056,
+      "identity_bacc": 0.655556,
+      "adapt_bacc": 0.6125,
+      "bacc_gain": -0.043056,
+      "lost_correct_rate": 0.088889,
+      "gained_correct_rate": 0.045833,
+      "unchanged_correct_rate": 0.566667,
+      "unchanged_wrong_rate": 0.298611,
+      "net_gain_from_gain_loss": -0.043056,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.505556,
+          "adapt_recall": 0.455556,
+          "recall_delta": -0.05,
+          "lost_correct_rate": 0.102778,
+          "gained_correct_rate": 0.052778,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.805556,
+          "adapt_recall": 0.769444,
+          "recall_delta": -0.036111,
+          "lost_correct_rate": 0.075,
+          "gained_correct_rate": 0.038889,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          201,
+          51
+        ],
+        [
+          46,
+          422
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 56,
+          "moved_to_correct": 19,
+          "moved_to_wrong": 37
+        },
+        "1": {
+          "n_moved": 41,
+          "moved_to_correct": 14,
+          "moved_to_wrong": 27
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.05,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": -0.036111,
+        "mixed_class_effects": false,
+        "prior_dependent_possible": false
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 1,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.656944,
+      "adapt_accuracy": 0.601389,
+      "accuracy_gain": -0.055556,
+      "identity_bacc": 0.656945,
+      "adapt_bacc": 0.601389,
+      "bacc_gain": -0.055556,
+      "lost_correct_rate": 0.147222,
+      "gained_correct_rate": 0.091667,
+      "unchanged_correct_rate": 0.509722,
+      "unchanged_wrong_rate": 0.251389,
+      "net_gain_from_gain_loss": -0.055556,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.622222,
+          "adapt_recall": 0.477778,
+          "recall_delta": -0.144444,
+          "lost_correct_rate": 0.216667,
+          "gained_correct_rate": 0.072222,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.691667,
+          "adapt_recall": 0.725,
+          "recall_delta": 0.033333,
+          "lost_correct_rate": 0.077778,
+          "gained_correct_rate": 0.111111,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          217,
+          118
+        ],
+        [
+          54,
+          331
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 104,
+          "moved_to_correct": 26,
+          "moved_to_wrong": 78
+        },
+        "1": {
+          "n_moved": 68,
+          "moved_to_correct": 40,
+          "moved_to_wrong": 28
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.144444,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.033333,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 2,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.668056,
+      "adapt_accuracy": 0.575,
+      "accuracy_gain": -0.093056,
+      "identity_bacc": 0.668056,
+      "adapt_bacc": 0.575,
+      "bacc_gain": -0.093056,
+      "lost_correct_rate": 0.15,
+      "gained_correct_rate": 0.056944,
+      "unchanged_correct_rate": 0.518056,
+      "unchanged_wrong_rate": 0.275,
+      "net_gain_from_gain_loss": -0.093056,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.55,
+          "adapt_recall": 0.258333,
+          "recall_delta": -0.291667,
+          "lost_correct_rate": 0.297222,
+          "gained_correct_rate": 0.005556,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.786111,
+          "adapt_recall": 0.891667,
+          "recall_delta": 0.105556,
+          "lost_correct_rate": 0.002778,
+          "gained_correct_rate": 0.108333,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          129,
+          146
+        ],
+        [
+          3,
+          442
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 109,
+          "moved_to_correct": 2,
+          "moved_to_wrong": 107
+        },
+        "1": {
+          "n_moved": 40,
+          "moved_to_correct": 39,
+          "moved_to_wrong": 1
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.291667,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.105556,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 0,
+      "n_classes": 2,
+      "n_trials": 680,
+      "identity_accuracy": 0.519118,
+      "adapt_accuracy": 0.516176,
+      "accuracy_gain": -0.002941,
+      "identity_bacc": 0.519118,
+      "adapt_bacc": 0.516177,
+      "bacc_gain": -0.002941,
+      "lost_correct_rate": 0.045588,
+      "gained_correct_rate": 0.042647,
+      "unchanged_correct_rate": 0.473529,
+      "unchanged_wrong_rate": 0.438235,
+      "net_gain_from_gain_loss": -0.002941,
+      "per_class": {
+        "0": {
+          "n": 340,
+          "identity_recall": 0.485294,
+          "adapt_recall": 0.570588,
+          "recall_delta": 0.085294,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.085294,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 340,
+          "identity_recall": 0.552941,
+          "adapt_recall": 0.461765,
+          "recall_delta": -0.091176,
+          "lost_correct_rate": 0.091176,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          317,
+          0
+        ],
+        [
+          60,
+          303
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 29,
+          "moved_to_correct": 29,
+          "moved_to_wrong": 0
+        },
+        "1": {
+          "n_moved": 31,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 31
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.091176,
+        "best_class_by_recall_delta": 0,
+        "best_class_recall_delta": 0.085294,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 1,
+      "n_classes": 2,
+      "n_trials": 680,
+      "identity_accuracy": 0.541176,
+      "adapt_accuracy": 0.527941,
+      "accuracy_gain": -0.013235,
+      "identity_bacc": 0.541176,
+      "adapt_bacc": 0.527942,
+      "bacc_gain": -0.013235,
+      "lost_correct_rate": 0.108824,
+      "gained_correct_rate": 0.095588,
+      "unchanged_correct_rate": 0.432353,
+      "unchanged_wrong_rate": 0.363235,
+      "net_gain_from_gain_loss": -0.013235,
+      "per_class": {
+        "0": {
+          "n": 340,
+          "identity_recall": 0.535294,
+          "adapt_recall": 0.444118,
+          "recall_delta": -0.091176,
+          "lost_correct_rate": 0.152941,
+          "gained_correct_rate": 0.061765,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 340,
+          "identity_recall": 0.547059,
+          "adapt_recall": 0.611765,
+          "recall_delta": 0.064706,
+          "lost_correct_rate": 0.064706,
+          "gained_correct_rate": 0.129412,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          240,
+          96
+        ],
+        [
+          43,
+          301
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 73,
+          "moved_to_correct": 21,
+          "moved_to_wrong": 52
+        },
+        "1": {
+          "n_moved": 66,
+          "moved_to_correct": 44,
+          "moved_to_wrong": 22
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.091176,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.064706,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 2,
+      "n_classes": 2,
+      "n_trials": 680,
+      "identity_accuracy": 0.522059,
+      "adapt_accuracy": 0.527941,
+      "accuracy_gain": 0.005882,
+      "identity_bacc": 0.522058,
+      "adapt_bacc": 0.527941,
+      "bacc_gain": 0.005882,
+      "lost_correct_rate": 0.057353,
+      "gained_correct_rate": 0.063235,
+      "unchanged_correct_rate": 0.464706,
+      "unchanged_wrong_rate": 0.414706,
+      "net_gain_from_gain_loss": 0.005882,
+      "per_class": {
+        "0": {
+          "n": 340,
+          "identity_recall": 0.570588,
+          "adapt_recall": 0.697059,
+          "recall_delta": 0.126471,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.126471,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 340,
+          "identity_recall": 0.473529,
+          "adapt_recall": 0.358824,
+          "recall_delta": -0.114706,
+          "lost_correct_rate": 0.114706,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          373,
+          0
+        ],
+        [
+          82,
+          225
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 43,
+          "moved_to_correct": 43,
+          "moved_to_wrong": 0
+        },
+        "1": {
+          "n_moved": 39,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 39
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.114706,
+        "best_class_by_recall_delta": 0,
+        "best_class_recall_delta": 0.126471,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 0,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.543056,
+      "adapt_accuracy": 0.544444,
+      "accuracy_gain": 0.001389,
+      "identity_bacc": 0.543056,
+      "adapt_bacc": 0.544444,
+      "bacc_gain": 0.001389,
+      "lost_correct_rate": 0.097222,
+      "gained_correct_rate": 0.098611,
+      "unchanged_correct_rate": 0.445833,
+      "unchanged_wrong_rate": 0.358333,
+      "net_gain_from_gain_loss": 0.001389,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.425,
+          "adapt_recall": 0.45,
+          "recall_delta": 0.025,
+          "lost_correct_rate": 0.097222,
+          "gained_correct_rate": 0.122222,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.661111,
+          "adapt_recall": 0.638889,
+          "recall_delta": -0.022222,
+          "lost_correct_rate": 0.097222,
+          "gained_correct_rate": 0.075,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          213,
+          62
+        ],
+        [
+          79,
+          366
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 79,
+          "moved_to_correct": 44,
+          "moved_to_wrong": 35
+        },
+        "1": {
+          "n_moved": 62,
+          "moved_to_correct": 27,
+          "moved_to_wrong": 35
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.022222,
+        "best_class_by_recall_delta": 0,
+        "best_class_recall_delta": 0.025,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 1,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.556944,
+      "adapt_accuracy": 0.534722,
+      "accuracy_gain": -0.022222,
+      "identity_bacc": 0.556944,
+      "adapt_bacc": 0.534722,
+      "bacc_gain": -0.022222,
+      "lost_correct_rate": 0.120833,
+      "gained_correct_rate": 0.098611,
+      "unchanged_correct_rate": 0.436111,
+      "unchanged_wrong_rate": 0.344444,
+      "net_gain_from_gain_loss": -0.022222,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.519444,
+          "adapt_recall": 0.277778,
+          "recall_delta": -0.241667,
+          "lost_correct_rate": 0.241667,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.594444,
+          "adapt_recall": 0.791667,
+          "recall_delta": 0.197222,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.197222,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          175,
+          158
+        ],
+        [
+          0,
+          387
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 87,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 87
+        },
+        "1": {
+          "n_moved": 71,
+          "moved_to_correct": 71,
+          "moved_to_wrong": 0
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.241667,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.197222,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 2,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.552778,
+      "adapt_accuracy": 0.529167,
+      "accuracy_gain": -0.023611,
+      "identity_bacc": 0.552778,
+      "adapt_bacc": 0.529166,
+      "bacc_gain": -0.023611,
+      "lost_correct_rate": 0.127778,
+      "gained_correct_rate": 0.104167,
+      "unchanged_correct_rate": 0.425,
+      "unchanged_wrong_rate": 0.343056,
+      "net_gain_from_gain_loss": -0.023611,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.441667,
+          "adapt_recall": 0.211111,
+          "recall_delta": -0.230556,
+          "lost_correct_rate": 0.247222,
+          "gained_correct_rate": 0.016667,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.663889,
+          "adapt_recall": 0.847222,
+          "recall_delta": 0.183333,
+          "lost_correct_rate": 0.008333,
+          "gained_correct_rate": 0.191667,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          122,
+          158
+        ],
+        [
+          9,
+          431
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 95,
+          "moved_to_correct": 6,
+          "moved_to_wrong": 89
+        },
+        "1": {
+          "n_moved": 72,
+          "moved_to_correct": 69,
+          "moved_to_wrong": 3
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.230556,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.183333,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 0,
+      "n_classes": 2,
+      "n_trials": 740,
+      "identity_accuracy": 0.735135,
+      "adapt_accuracy": 0.728378,
+      "accuracy_gain": -0.006757,
+      "identity_bacc": 0.735135,
+      "adapt_bacc": 0.728378,
+      "bacc_gain": -0.006757,
+      "lost_correct_rate": 0.052703,
+      "gained_correct_rate": 0.045946,
+      "unchanged_correct_rate": 0.682432,
+      "unchanged_wrong_rate": 0.218919,
+      "net_gain_from_gain_loss": -0.006757,
+      "per_class": {
+        "0": {
+          "n": 370,
+          "identity_recall": 0.778378,
+          "adapt_recall": 0.87027,
+          "recall_delta": 0.091892,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.091892,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 370,
+          "identity_recall": 0.691892,
+          "adapt_recall": 0.586486,
+          "recall_delta": -0.105405,
+          "lost_correct_rate": 0.105405,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          402,
+          0
+        ],
+        [
+          73,
+          265
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 34,
+          "moved_to_correct": 34,
+          "moved_to_wrong": 0
+        },
+        "1": {
+          "n_moved": 39,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 39
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.105405,
+        "best_class_by_recall_delta": 0,
+        "best_class_recall_delta": 0.091892,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 1,
+      "n_classes": 2,
+      "n_trials": 740,
+      "identity_accuracy": 0.764865,
+      "adapt_accuracy": 0.768919,
+      "accuracy_gain": 0.004054,
+      "identity_bacc": 0.764865,
+      "adapt_bacc": 0.768919,
+      "bacc_gain": 0.004054,
+      "lost_correct_rate": 0.02027,
+      "gained_correct_rate": 0.024324,
+      "unchanged_correct_rate": 0.744595,
+      "unchanged_wrong_rate": 0.210811,
+      "net_gain_from_gain_loss": 0.004054,
+      "per_class": {
+        "0": {
+          "n": 370,
+          "identity_recall": 0.924324,
+          "adapt_recall": 0.891892,
+          "recall_delta": -0.032432,
+          "lost_correct_rate": 0.032432,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 370,
+          "identity_recall": 0.605405,
+          "adapt_recall": 0.645946,
+          "recall_delta": 0.040541,
+          "lost_correct_rate": 0.008108,
+          "gained_correct_rate": 0.048649,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          458,
+          30
+        ],
+        [
+          3,
+          249
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 12,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 12
+        },
+        "1": {
+          "n_moved": 21,
+          "moved_to_correct": 18,
+          "moved_to_wrong": 3
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.032432,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.040541,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 2,
+      "n_classes": 2,
+      "n_trials": 740,
+      "identity_accuracy": 0.774324,
+      "adapt_accuracy": 0.786486,
+      "accuracy_gain": 0.012162,
+      "identity_bacc": 0.774325,
+      "adapt_bacc": 0.786486,
+      "bacc_gain": 0.012162,
+      "lost_correct_rate": 0.025676,
+      "gained_correct_rate": 0.037838,
+      "unchanged_correct_rate": 0.748649,
+      "unchanged_wrong_rate": 0.187838,
+      "net_gain_from_gain_loss": 0.012162,
+      "per_class": {
+        "0": {
+          "n": 370,
+          "identity_recall": 0.918919,
+          "adapt_recall": 0.867568,
+          "recall_delta": -0.051351,
+          "lost_correct_rate": 0.051351,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 370,
+          "identity_recall": 0.62973,
+          "adapt_recall": 0.705405,
+          "recall_delta": 0.075676,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.075676,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          430,
+          47
+        ],
+        [
+          0,
+          263
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 19,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 19
+        },
+        "1": {
+          "n_moved": 28,
+          "moved_to_correct": 28,
+          "moved_to_wrong": 0
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.051351,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.075676,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 0,
+      "n_classes": 2,
+      "n_trials": 740,
+      "identity_accuracy": 0.571622,
+      "adapt_accuracy": 0.547297,
+      "accuracy_gain": -0.024324,
+      "identity_bacc": 0.571622,
+      "adapt_bacc": 0.547297,
+      "bacc_gain": -0.024324,
+      "lost_correct_rate": 0.086486,
+      "gained_correct_rate": 0.062162,
+      "unchanged_correct_rate": 0.485135,
+      "unchanged_wrong_rate": 0.366216,
+      "net_gain_from_gain_loss": -0.024324,
+      "per_class": {
+        "0": {
+          "n": 370,
+          "identity_recall": 0.386486,
+          "adapt_recall": 0.272973,
+          "recall_delta": -0.113514,
+          "lost_correct_rate": 0.151351,
+          "gained_correct_rate": 0.037838,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 370,
+          "identity_recall": 0.756757,
+          "adapt_recall": 0.821622,
+          "recall_delta": 0.064865,
+          "lost_correct_rate": 0.021622,
+          "gained_correct_rate": 0.086486,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          145,
+          88
+        ],
+        [
+          22,
+          485
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 70,
+          "moved_to_correct": 14,
+          "moved_to_wrong": 56
+        },
+        "1": {
+          "n_moved": 40,
+          "moved_to_correct": 32,
+          "moved_to_wrong": 8
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.113514,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.064865,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 1,
+      "n_classes": 2,
+      "n_trials": 740,
+      "identity_accuracy": 0.608108,
+      "adapt_accuracy": 0.558108,
+      "accuracy_gain": -0.05,
+      "identity_bacc": 0.608108,
+      "adapt_bacc": 0.558108,
+      "bacc_gain": -0.05,
+      "lost_correct_rate": 0.171622,
+      "gained_correct_rate": 0.121622,
+      "unchanged_correct_rate": 0.436486,
+      "unchanged_wrong_rate": 0.27027,
+      "net_gain_from_gain_loss": -0.05,
+      "per_class": {
+        "0": {
+          "n": 370,
+          "identity_recall": 0.610811,
+          "adapt_recall": 0.537838,
+          "recall_delta": -0.072973,
+          "lost_correct_rate": 0.189189,
+          "gained_correct_rate": 0.116216,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 370,
+          "identity_recall": 0.605405,
+          "adapt_recall": 0.578378,
+          "recall_delta": -0.027027,
+          "lost_correct_rate": 0.154054,
+          "gained_correct_rate": 0.127027,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          255,
+          117
+        ],
+        [
+          100,
+          268
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 113,
+          "moved_to_correct": 43,
+          "moved_to_wrong": 70
+        },
+        "1": {
+          "n_moved": 104,
+          "moved_to_correct": 47,
+          "moved_to_wrong": 57
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.072973,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": -0.027027,
+        "mixed_class_effects": false,
+        "prior_dependent_possible": false
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 2,
+      "n_classes": 2,
+      "n_trials": 740,
+      "identity_accuracy": 0.562162,
+      "adapt_accuracy": 0.504054,
+      "accuracy_gain": -0.058108,
+      "identity_bacc": 0.562162,
+      "adapt_bacc": 0.504054,
+      "bacc_gain": -0.058108,
+      "lost_correct_rate": 0.177027,
+      "gained_correct_rate": 0.118919,
+      "unchanged_correct_rate": 0.385135,
+      "unchanged_wrong_rate": 0.318919,
+      "net_gain_from_gain_loss": -0.058108,
+      "per_class": {
+        "0": {
+          "n": 370,
+          "identity_recall": 0.386486,
+          "adapt_recall": 0.032432,
+          "recall_delta": -0.354054,
+          "lost_correct_rate": 0.354054,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 370,
+          "identity_recall": 0.737838,
+          "adapt_recall": 0.975676,
+          "recall_delta": 0.237838,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.237838,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          21,
+          219
+        ],
+        [
+          0,
+          500
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 131,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 131
+        },
+        "1": {
+          "n_moved": 88,
+          "moved_to_correct": 88,
+          "moved_to_wrong": 0
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.354054,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.237838,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 0,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.613889,
+      "adapt_accuracy": 0.609722,
+      "accuracy_gain": -0.004167,
+      "identity_bacc": 0.613889,
+      "adapt_bacc": 0.609722,
+      "bacc_gain": -0.004167,
+      "lost_correct_rate": 0.123611,
+      "gained_correct_rate": 0.119444,
+      "unchanged_correct_rate": 0.490278,
+      "unchanged_wrong_rate": 0.266667,
+      "net_gain_from_gain_loss": -0.004167,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.45,
+          "adapt_recall": 0.688889,
+          "recall_delta": 0.238889,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.238889,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.777778,
+          "adapt_recall": 0.530556,
+          "recall_delta": -0.247222,
+          "lost_correct_rate": 0.247222,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          242,
+          0
+        ],
+        [
+          175,
+          303
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 86,
+          "moved_to_correct": 86,
+          "moved_to_wrong": 0
+        },
+        "1": {
+          "n_moved": 89,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 89
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 1,
+        "worst_class_recall_delta": -0.247222,
+        "best_class_by_recall_delta": 0,
+        "best_class_recall_delta": 0.238889,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 1,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.663889,
+      "adapt_accuracy": 0.594444,
+      "accuracy_gain": -0.069444,
+      "identity_bacc": 0.663888,
+      "adapt_bacc": 0.594445,
+      "bacc_gain": -0.069444,
+      "lost_correct_rate": 0.145833,
+      "gained_correct_rate": 0.076389,
+      "unchanged_correct_rate": 0.518056,
+      "unchanged_wrong_rate": 0.259722,
+      "net_gain_from_gain_loss": -0.069444,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.658333,
+          "adapt_recall": 0.497222,
+          "recall_delta": -0.161111,
+          "lost_correct_rate": 0.211111,
+          "gained_correct_rate": 0.05,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.669444,
+          "adapt_recall": 0.691667,
+          "recall_delta": 0.022222,
+          "lost_correct_rate": 0.080556,
+          "gained_correct_rate": 0.102778,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          243,
+          113
+        ],
+        [
+          47,
+          317
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 94,
+          "moved_to_correct": 18,
+          "moved_to_wrong": 76
+        },
+        "1": {
+          "n_moved": 66,
+          "moved_to_correct": 37,
+          "moved_to_wrong": 29
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.161111,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.022222,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 2,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.627778,
+      "adapt_accuracy": 0.573611,
+      "accuracy_gain": -0.054167,
+      "identity_bacc": 0.627777,
+      "adapt_bacc": 0.573611,
+      "bacc_gain": -0.054167,
+      "lost_correct_rate": 0.156944,
+      "gained_correct_rate": 0.102778,
+      "unchanged_correct_rate": 0.470833,
+      "unchanged_wrong_rate": 0.269444,
+      "net_gain_from_gain_loss": -0.054167,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.561111,
+          "adapt_recall": 0.380556,
+          "recall_delta": -0.180556,
+          "lost_correct_rate": 0.238889,
+          "gained_correct_rate": 0.058333,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.694444,
+          "adapt_recall": 0.766667,
+          "recall_delta": 0.072222,
+          "lost_correct_rate": 0.075,
+          "gained_correct_rate": 0.147222,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          173,
+          139
+        ],
+        [
+          48,
+          360
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 107,
+          "moved_to_correct": 21,
+          "moved_to_wrong": 86
+        },
+        "1": {
+          "n_moved": 80,
+          "moved_to_correct": 53,
+          "moved_to_wrong": 27
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.180556,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.072222,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 0,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.552778,
+      "adapt_accuracy": 0.530556,
+      "accuracy_gain": -0.022222,
+      "identity_bacc": 0.552778,
+      "adapt_bacc": 0.530556,
+      "bacc_gain": -0.022222,
+      "lost_correct_rate": 0.075,
+      "gained_correct_rate": 0.052778,
+      "unchanged_correct_rate": 0.477778,
+      "unchanged_wrong_rate": 0.394444,
+      "net_gain_from_gain_loss": -0.022222,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.325,
+          "adapt_recall": 0.230556,
+          "recall_delta": -0.094444,
+          "lost_correct_rate": 0.116667,
+          "gained_correct_rate": 0.022222,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.780556,
+          "adapt_recall": 0.830556,
+          "recall_delta": 0.05,
+          "lost_correct_rate": 0.033333,
+          "gained_correct_rate": 0.083333,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          124,
+          72
+        ],
+        [
+          20,
+          504
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 50,
+          "moved_to_correct": 8,
+          "moved_to_wrong": 42
+        },
+        "1": {
+          "n_moved": 42,
+          "moved_to_correct": 30,
+          "moved_to_wrong": 12
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.094444,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.05,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 1,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.618056,
+      "adapt_accuracy": 0.577778,
+      "accuracy_gain": -0.040278,
+      "identity_bacc": 0.618055,
+      "adapt_bacc": 0.577778,
+      "bacc_gain": -0.040278,
+      "lost_correct_rate": 0.102778,
+      "gained_correct_rate": 0.0625,
+      "unchanged_correct_rate": 0.515278,
+      "unchanged_wrong_rate": 0.319444,
+      "net_gain_from_gain_loss": -0.040278,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.627778,
+          "adapt_recall": 0.427778,
+          "recall_delta": -0.2,
+          "lost_correct_rate": 0.202778,
+          "gained_correct_rate": 0.002778,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.608333,
+          "adapt_recall": 0.727778,
+          "recall_delta": 0.119444,
+          "lost_correct_rate": 0.002778,
+          "gained_correct_rate": 0.122222,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          250,
+          117
+        ],
+        [
+          2,
+          351
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 74,
+          "moved_to_correct": 1,
+          "moved_to_wrong": 73
+        },
+        "1": {
+          "n_moved": 45,
+          "moved_to_correct": 44,
+          "moved_to_wrong": 1
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.2,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.119444,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 2,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.608333,
+      "adapt_accuracy": 0.5875,
+      "accuracy_gain": -0.020833,
+      "identity_bacc": 0.608333,
+      "adapt_bacc": 0.5875,
+      "bacc_gain": -0.020833,
+      "lost_correct_rate": 0.072222,
+      "gained_correct_rate": 0.051389,
+      "unchanged_correct_rate": 0.536111,
+      "unchanged_wrong_rate": 0.340278,
+      "net_gain_from_gain_loss": -0.020833,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.572222,
+          "adapt_recall": 0.427778,
+          "recall_delta": -0.144444,
+          "lost_correct_rate": 0.144444,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.644444,
+          "adapt_recall": 0.747222,
+          "recall_delta": 0.102778,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.102778,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          245,
+          89
+        ],
+        [
+          0,
+          386
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 52,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 52
+        },
+        "1": {
+          "n_moved": 37,
+          "moved_to_correct": 37,
+          "moved_to_wrong": 0
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.144444,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.102778,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 0,
+      "n_classes": 2,
+      "n_trials": 760,
+      "identity_accuracy": 0.694737,
+      "adapt_accuracy": 0.665789,
+      "accuracy_gain": -0.028947,
+      "identity_bacc": 0.694737,
+      "adapt_bacc": 0.66579,
+      "bacc_gain": -0.028947,
+      "lost_correct_rate": 0.055263,
+      "gained_correct_rate": 0.026316,
+      "unchanged_correct_rate": 0.639474,
+      "unchanged_wrong_rate": 0.278947,
+      "net_gain_from_gain_loss": -0.028947,
+      "per_class": {
+        "0": {
+          "n": 380,
+          "identity_recall": 0.505263,
+          "adapt_recall": 0.394737,
+          "recall_delta": -0.110526,
+          "lost_correct_rate": 0.110526,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 380,
+          "identity_recall": 0.884211,
+          "adapt_recall": 0.936842,
+          "recall_delta": 0.052632,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.052632,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          174,
+          62
+        ],
+        [
+          0,
+          524
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 42,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 42
+        },
+        "1": {
+          "n_moved": 20,
+          "moved_to_correct": 20,
+          "moved_to_wrong": 0
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.110526,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.052632,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 1,
+      "n_classes": 2,
+      "n_trials": 760,
+      "identity_accuracy": 0.727632,
+      "adapt_accuracy": 0.630263,
+      "accuracy_gain": -0.097368,
+      "identity_bacc": 0.727631,
+      "adapt_bacc": 0.630263,
+      "bacc_gain": -0.097368,
+      "lost_correct_rate": 0.159211,
+      "gained_correct_rate": 0.061842,
+      "unchanged_correct_rate": 0.568421,
+      "unchanged_wrong_rate": 0.210526,
+      "net_gain_from_gain_loss": -0.097368,
+      "per_class": {
+        "0": {
+          "n": 380,
+          "identity_recall": 0.589474,
+          "adapt_recall": 0.271053,
+          "recall_delta": -0.318421,
+          "lost_correct_rate": 0.318421,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 380,
+          "identity_recall": 0.865789,
+          "adapt_recall": 0.989474,
+          "recall_delta": 0.123684,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.123684,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          107,
+          168
+        ],
+        [
+          0,
+          485
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 121,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 121
+        },
+        "1": {
+          "n_moved": 47,
+          "moved_to_correct": 47,
+          "moved_to_wrong": 0
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.318421,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.123684,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 2,
+      "n_classes": 2,
+      "n_trials": 760,
+      "identity_accuracy": 0.682895,
+      "adapt_accuracy": 0.625,
+      "accuracy_gain": -0.057895,
+      "identity_bacc": 0.682895,
+      "adapt_bacc": 0.625,
+      "bacc_gain": -0.057895,
+      "lost_correct_rate": 0.086842,
+      "gained_correct_rate": 0.028947,
+      "unchanged_correct_rate": 0.596053,
+      "unchanged_wrong_rate": 0.288158,
+      "net_gain_from_gain_loss": -0.057895,
+      "per_class": {
+        "0": {
+          "n": 380,
+          "identity_recall": 0.431579,
+          "adapt_recall": 0.257895,
+          "recall_delta": -0.173684,
+          "lost_correct_rate": 0.173684,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 380,
+          "identity_recall": 0.934211,
+          "adapt_recall": 0.992105,
+          "recall_delta": 0.057895,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.057895,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          101,
+          88
+        ],
+        [
+          0,
+          571
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 66,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 66
+        },
+        "1": {
+          "n_moved": 22,
+          "moved_to_correct": 22,
+          "moved_to_wrong": 0
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.173684,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.057895,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 0,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.631944,
+      "adapt_accuracy": 0.604167,
+      "accuracy_gain": -0.027778,
+      "identity_bacc": 0.631945,
+      "adapt_bacc": 0.604167,
+      "bacc_gain": -0.027778,
+      "lost_correct_rate": 0.059722,
+      "gained_correct_rate": 0.031944,
+      "unchanged_correct_rate": 0.572222,
+      "unchanged_wrong_rate": 0.336111,
+      "net_gain_from_gain_loss": -0.027778,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.461111,
+          "adapt_recall": 0.341667,
+          "recall_delta": -0.119444,
+          "lost_correct_rate": 0.119444,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.802778,
+          "adapt_recall": 0.866667,
+          "recall_delta": 0.063889,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.063889,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          171,
+          66
+        ],
+        [
+          0,
+          483
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 43,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 43
+        },
+        "1": {
+          "n_moved": 23,
+          "moved_to_correct": 23,
+          "moved_to_wrong": 0
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.119444,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.063889,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 1,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.623611,
+      "adapt_accuracy": 0.586111,
+      "accuracy_gain": -0.0375,
+      "identity_bacc": 0.623611,
+      "adapt_bacc": 0.586111,
+      "bacc_gain": -0.0375,
+      "lost_correct_rate": 0.115278,
+      "gained_correct_rate": 0.077778,
+      "unchanged_correct_rate": 0.508333,
+      "unchanged_wrong_rate": 0.298611,
+      "net_gain_from_gain_loss": -0.0375,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.538889,
+          "adapt_recall": 0.308333,
+          "recall_delta": -0.230556,
+          "lost_correct_rate": 0.230556,
+          "gained_correct_rate": 0.0,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.708333,
+          "adapt_recall": 0.863889,
+          "recall_delta": 0.155556,
+          "lost_correct_rate": 0.0,
+          "gained_correct_rate": 0.155556,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          160,
+          139
+        ],
+        [
+          0,
+          421
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 83,
+          "moved_to_correct": 0,
+          "moved_to_wrong": 83
+        },
+        "1": {
+          "n_moved": 56,
+          "moved_to_correct": 56,
+          "moved_to_wrong": 0
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.230556,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.155556,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 2,
+      "n_classes": 2,
+      "n_trials": 720,
+      "identity_accuracy": 0.625,
+      "adapt_accuracy": 0.6,
+      "accuracy_gain": -0.025,
+      "identity_bacc": 0.625,
+      "adapt_bacc": 0.6,
+      "bacc_gain": -0.025,
+      "lost_correct_rate": 0.095833,
+      "gained_correct_rate": 0.070833,
+      "unchanged_correct_rate": 0.529167,
+      "unchanged_wrong_rate": 0.304167,
+      "net_gain_from_gain_loss": -0.025,
+      "per_class": {
+        "0": {
+          "n": 360,
+          "identity_recall": 0.525,
+          "adapt_recall": 0.347222,
+          "recall_delta": -0.177778,
+          "lost_correct_rate": 0.186111,
+          "gained_correct_rate": 0.008333,
+          "dominant_wrong_transition": "0->1"
+        },
+        "1": {
+          "n": 360,
+          "identity_recall": 0.725,
+          "adapt_recall": 0.852778,
+          "recall_delta": 0.127778,
+          "lost_correct_rate": 0.005556,
+          "gained_correct_rate": 0.133333,
+          "dominant_wrong_transition": "1->0"
+        }
+      },
+      "prediction_transition_matrix_identity_to_adapt": [
+        [
+          173,
+          115
+        ],
+        [
+          5,
+          427
+        ]
+      ],
+      "transition_matrix_class_order": [
+        0,
+        1
+      ],
+      "true_class_prediction_transition": {
+        "0": {
+          "n_moved": 70,
+          "moved_to_correct": 3,
+          "moved_to_wrong": 67
+        },
+        "1": {
+          "n_moved": 50,
+          "moved_to_correct": 48,
+          "moved_to_wrong": 2
+        }
+      },
+      "harm_channel_summary": {
+        "worst_class_by_recall_delta": 0,
+        "worst_class_recall_delta": -0.177778,
+        "best_class_by_recall_delta": 1,
+        "best_class_recall_delta": 0.127778,
+        "mixed_class_effects": true,
+        "prior_dependent_possible": true
+      },
+      "oracle_evaluation_only": true,
+      "claim_boundary": "oracle target labels used for mechanism decomposition only; not R0/R1 identifiable"
+    }
+  ],
+  "oracle_labels_used_only_for_mechanism_and_evaluation": true,
+  "claim_boundary_ok": true,
+  "claim_boundary": "harm-mechanism decomposition is oracle/evaluation-only; it identifies no target functional under R0/R1 and makes no adaptation or SOTA claim."
+}

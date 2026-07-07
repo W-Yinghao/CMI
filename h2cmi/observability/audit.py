@@ -206,6 +206,26 @@ def check_claim_allowed(claim: Claim) -> Verdict:
         return _verdict(True, "transport identifiable (or bounded) under MP-1 (C8∧C11)", reg, cs,
                         theorem="MP-1", cert="CE-MP-1", identifiable=True)
 
+    # --- prior-weighted gain: needs a DECLARED deployment prior (C14) or an identified target ----
+    # prior (TU-1). C14 alone is a COUNTERFACTUAL evaluation scenario (declared, not identified); it
+    # never turns into "the actual target prior identified". The gain magnitude rests on oracle
+    # per-class recall deltas, so it stays reportable/eval-only, not R0/R1 identifiable.
+    if est == Estimand.PRIOR_WEIGHTED_GAIN:
+        has_c14 = ContractID.C14 in cs
+        has_tu1 = not (THEOREMS["TU-1"].required - cs)         # C1∧C2∧C3
+        if not (has_c14 or has_tu1):
+            return _verdict(False, "prior-weighted gain needs a DECLARED deployment prior (C14) or an "
+                                   "identified target prior (TU-1: C1∧C2∧C3)", reg, cs, cert="CE-R1-2",
+                            missing=frozenset({ContractID.C14}))
+        if has_tu1 and not has_c14:
+            return _verdict(True, "prior-weighted gain under a TU-1-identified target prior "
+                                  "(C1∧C2∧C3); gain magnitude still rests on labeled recall deltas",
+                            reg, cs, theorem="TU-1", cert="CE-R1-2",
+                            identifiable=bool(claim.has_target_labels), reportable=True)
+        return _verdict(True, "prior-weighted gain under a DECLARED deployment prior (C14); a "
+                              "counterfactual evaluation scenario, NOT the identified target prior",
+                        reg, cs, identifiable=False, reportable=True)
+
     # --- balanced accuracy: oracle eval-only; R0 source metric; R1 non-id; R2 labeled ---------
     if est == Estimand.BALANCED_ACCURACY:
         # an oracle target bAcc (strict-DG / TTA eval) is REPORTABLE but not identified from R0/R1

@@ -20,6 +20,7 @@ when it is violated.
 | **C11** | anchor validity (no fake pairing / label leakage) | **MP-1** | ✗ | ✗ | ~ | **CE-C11-1** | fake pairing read as true transport |
 | **C12** | domain-factor separability (`determines_label` correct) | OACI/CSC invariance legitimacy | src `D_j⇒Y` test | +tgt metadata | anchored | **P0-4** | `D=subject⇒Y=g(D)` invariance illusion |
 | **C13** | class-balanced calibration design (N trials/class) | bAcc-gain estimation from small R2 slices (Step 17) | ✗ | ✗ | ✓ (labels/protocol) | iid small-`k` missing-class | iid `k` labels read as a reliable bAcc-gain estimate |
+| **C14** | declared deployment prior / utility weighting | prior-weighted risk/gain (Step 18); benchmark-uniform vs deployment-weighted | ✗ (unless axiom) | ~ (utility declared; target prior only via TU-1) | ✓ (labels validate op. prior) | **CE-R1-2** | gain under one prior read as holding under all priors; C14 read as the identified target prior |
 
 ## The three "concept" preconditions (do not conflate)
 

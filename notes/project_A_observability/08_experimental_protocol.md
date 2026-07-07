@@ -353,6 +353,22 @@ contract, not full-target identification; the oracle policy is never deployable;
 policy declares C13. No SOTA, no manuscript, no new datasets (reuses Step-13 raw). Tests:
 `test_estimand_consistency.py`, `test_estimand_frontier.py`, `test_observability_science_dashboard.py`.
 
+## 18. Harm channels and target-prior stress
+
+Step 18 decomposes measured TTA harm into class-wise recall deltas and identity→adapt prediction
+transitions (`harm_mechanisms.py`), and evaluates counterfactual deployment-prior stress
+(`prior_stress.py`): a prior-weighted gain `gain(π)=Σ_c π_c·recall_delta_c` whose sign is prior-dependent
+iff `min_c recall_delta_c < 0 < max_c recall_delta_c`.
+
+All target-label mechanism decompositions are **oracle/evaluation-only**. Counterfactual priors are
+**declared** evaluation scenarios under contract **C14**, not R0/R1-identified target priors — C14 must
+never be read as "the target prior identified source-only" (Prior-Decoupled boundary). The audit engine
+gates the `prior_weighted_gain` estimand on C14 (declared) or TU-1 (identified). No SOTA, no manuscript,
+no new datasets, no retraining (reuses Step-13 raw per-trial predictions). Outputs:
+`results_summaries/step18_harm_mechanisms.{json,md}`, `step18_prior_stress.{json,md}`,
+`step18_science_dashboard.{json,md}`. Tests: `test_harm_mechanisms.py`, `test_prior_stress.py`,
+`test_observability_audit.py` (C14), `test_observability_science_dashboard.py`.
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
@@ -362,5 +378,6 @@ statistical digest (§9), the multi-dataset audited expansion + chance-normalize
 (§10), the Step-12 scientific exploration (§12), the Step-13 rich-R1 diagnostics + real
 minimal-label curves (§13), the Step-14 metric-semantics + power repair (§14), the Step-15
 coverage-aware harm-control policies (§15), the Step-16 benefit anatomy + sequential
-label-acquisition frontier (§16), and the Step-17 estimand-consistent harm control (§17) are live. A
-full multi-dataset SOTA table and manuscript writing are out of scope.
+label-acquisition frontier (§16), the Step-17 estimand-consistent harm control (§17), and the Step-18
+harm channels + target-prior stress (§18) are live. A full multi-dataset SOTA table and manuscript
+writing are out of scope.

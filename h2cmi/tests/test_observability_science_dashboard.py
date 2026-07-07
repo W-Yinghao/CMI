@@ -6,7 +6,7 @@ from __future__ import annotations
 
 from h2cmi.observability.science_dashboard import (build_dashboard, build_step13_dashboard,
                                                    build_step15_dashboard, build_step16_dashboard,
-                                                   build_step17_dashboard)
+                                                   build_step17_dashboard, build_step18_dashboard)
 
 _BEN = {"n_runs": 54, "benefit_rate": 0.1481, "target_sign_consistency_rate": 0.83,
         "per_dataset": {"BNCI2014_001": {"n_beneficial": 4}, "BNCI2014_004": {"n_beneficial": 4}},
@@ -240,6 +240,53 @@ def test_step17_dashboard_claim_boundary_fails_if_accuracy_controls_bacc():
     assert build_step17_dashboard(_CON17_IDENT, bad_fr)["metrics"]["claim_boundary_ok"] is False
 
 
+_HM18 = {"n_runs": 54, "mean_lost_correct_rate": 0.1211, "mean_gained_correct_rate": 0.0789,
+         "mean_net_gain": -0.0423, "fraction_runs_with_mixed_class_effects": 0.963,
+         "worst_classes_by_dataset": {"BNCI2014_001": {"most_common_worst_class": 1},
+                                      "BNCI2014_004": {"most_common_worst_class": 0}},
+         "oracle_labels_used_only_for_mechanism_and_evaluation": True, "claim_boundary_ok": True}
+_PS18 = {"fraction_prior_dependent_sign": 0.963, "fraction_harmful_under_all_priors": 0.037,
+         "fraction_beneficial_under_all_priors": 0.0, "fraction_uniform_harm_but_some_prior_benefit": 0.8148,
+         "fraction_uniform_benefit_but_some_prior_harm": 0.1481, "mean_prior_sign_width": 0.4423,
+         "prior_contract_required": "C14", "deployment_prior_identified_under_R1": False,
+         "deployment_prior_identified": False, "claim_boundary_ok": True}
+
+
+def test_step18_dashboard_reports_harm_channels_and_prior_stress():
+    d = build_step18_dashboard(_HM18, _PS18)
+    m = d["metrics"]
+    assert d["step"] == "Step 18"
+    assert m["mean_lost_correct_rate"] == 0.1211 and m["mean_gained_correct_rate"] == 0.0789
+    assert m["fraction_prior_dependent_sign"] == 0.963 and m["fraction_harmful_under_all_priors"] == 0.037
+    assert m["prior_contract_required"] == "C14" and m["deployment_prior_identified_under_R1"] is False
+    assert m["claim_boundary_ok"] is True
+
+
+def test_step18_dashboard_flags_class_prior_dependence_when_not_global():
+    blob = " ".join(build_step18_dashboard(_HM18, _PS18)["what_we_learned"]).lower()
+    assert "class/prior-dependent" in blob and "c14" in blob
+    assert "masks" in blob or "mask" in blob                   # bAcc hides niche-class benefit/harm
+
+
+def test_step18_dashboard_flags_global_harm_when_mostly_harmful_all_priors():
+    ps = dict(_PS18, fraction_harmful_under_all_priors=0.8, fraction_prior_dependent_sign=0.1)
+    blob = " ".join(build_step18_dashboard(_HM18, ps)["what_we_learned"]).lower()
+    assert "global" in blob
+
+
+def test_step18_dashboard_claim_boundary_fails_if_prior_identified():
+    bad = dict(_PS18, deployment_prior_identified=True)
+    assert build_step18_dashboard(_HM18, bad)["metrics"]["claim_boundary_ok"] is False
+    bad_r1 = dict(_PS18, deployment_prior_identified_under_R1=True)
+    assert build_step18_dashboard(_HM18, bad_r1)["metrics"]["claim_boundary_ok"] is False
+
+
+def test_step18_dashboard_no_sota_and_prior_decoupled_boundary():
+    d = build_step18_dashboard(_HM18, _PS18)
+    assert "no sota" in d["claim_boundary"].lower()
+    assert "prior-decoupled" in d["claim_boundary"].lower() or "not identified" in d["claim_boundary"].lower()
+
+
 ALL_TESTS = [
     test_dashboard_reports_real_harm_and_predictor,
     test_dashboard_claim_boundary_ok_requires_oracle_not_feature,
@@ -261,6 +308,11 @@ ALL_TESTS = [
     test_step17_dashboard_reports_per_estimand_best_policies,
     test_step17_dashboard_estimand_dependent_when_only_accuracy_controls,
     test_step17_dashboard_claim_boundary_fails_if_accuracy_controls_bacc,
+    test_step18_dashboard_reports_harm_channels_and_prior_stress,
+    test_step18_dashboard_flags_class_prior_dependence_when_not_global,
+    test_step18_dashboard_flags_global_harm_when_mostly_harmful_all_priors,
+    test_step18_dashboard_claim_boundary_fails_if_prior_identified,
+    test_step18_dashboard_no_sota_and_prior_decoupled_boundary,
 ]
 
 

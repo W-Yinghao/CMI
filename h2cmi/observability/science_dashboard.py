@@ -422,6 +422,95 @@ def build_step17_dashboard(consistency, frontier, step_label="Step 17") -> Dict[
                                "sampling contract, NOT R1 identifiability. No SOTA.")}
 
 
+def build_step18_dashboard(harm_mechanisms, prior_stress, step_label="Step 18") -> Dict[str, Any]:
+    hm = harm_mechanisms or {}
+    ps = prior_stress or {}
+    claim_ok = (hm.get("oracle_labels_used_only_for_mechanism_and_evaluation") is True
+                and ps.get("deployment_prior_identified") is False
+                and ps.get("deployment_prior_identified_under_R1") is False
+                and ps.get("prior_contract_required") == "C14"
+                and hm.get("claim_boundary_ok") is True and ps.get("claim_boundary_ok") is True)
+    metrics = {
+        "n_real_runs": hm.get("n_runs"),
+        "mean_lost_correct_rate": hm.get("mean_lost_correct_rate"),
+        "mean_gained_correct_rate": hm.get("mean_gained_correct_rate"),
+        "mean_net_gain": hm.get("mean_net_gain"),
+        "fraction_runs_with_mixed_class_effects": hm.get("fraction_runs_with_mixed_class_effects"),
+        "fraction_prior_dependent_sign": ps.get("fraction_prior_dependent_sign"),
+        "fraction_harmful_under_all_priors": ps.get("fraction_harmful_under_all_priors"),
+        "fraction_beneficial_under_all_priors": ps.get("fraction_beneficial_under_all_priors"),
+        "fraction_uniform_harm_but_some_prior_benefit": ps.get("fraction_uniform_harm_but_some_prior_benefit"),
+        "fraction_uniform_benefit_but_some_prior_harm": ps.get("fraction_uniform_benefit_but_some_prior_harm"),
+        "mean_prior_sign_width": ps.get("mean_prior_sign_width"),
+        "worst_classes_by_dataset": {k: v.get("most_common_worst_class")
+                                     for k, v in (hm.get("worst_classes_by_dataset") or {}).items()},
+        "prior_contract_required": ps.get("prior_contract_required"),
+        "deployment_prior_identified_under_R1": bool(ps.get("deployment_prior_identified_under_R1")),
+        "claim_boundary_ok": claim_ok,
+    }
+    lost, gained = metrics["mean_lost_correct_rate"], metrics["mean_gained_correct_rate"]
+    harmful_all = metrics["fraction_harmful_under_all_priors"] or 0.0
+    prior_dep = metrics["fraction_prior_dependent_sign"] or 0.0
+    uni_harm_benefit = metrics["fraction_uniform_harm_but_some_prior_benefit"] or 0.0
+    uni_benefit_harm = metrics["fraction_uniform_benefit_but_some_prior_harm"] or 0.0
+    channel = (f"TTA harm is driven by lost-correct > gained-correct trials (mean {lost} vs {gained}); "
+               f"per-class it is MIXED in {metrics['fraction_runs_with_mixed_class_effects']} of runs.")
+    if harmful_all >= 0.5:
+        prior_line = (f"Harm is GLOBAL: {harmful_all} of runs are harmful under ALL priors, so declaring a "
+                      f"deployment prior cannot rescue them.")
+    elif prior_dep >= 0.5:
+        prior_line = (f"Harm is CLASS/PRIOR-DEPENDENT: only {harmful_all} of runs are harmful under all "
+                      f"priors while {prior_dep} are prior-dependent (a declared deployment prior flips the "
+                      f"gain sign). The benchmark-uniform bAcc hides this; deployment utility/prior matters "
+                      f"(contract C14). This is the Prior-Decoupled boundary: without a declared prior the "
+                      f"gain sign is under-determined — NOT that adaptation is safe (class deltas are oracle, "
+                      f"the true prior is unidentified under R0/R1).")
+    else:
+        prior_line = (f"Mixed: {harmful_all} harmful-under-all-priors, {prior_dep} prior-dependent.")
+    mask_line = (f"Uniform-bAcc evaluation can MASK niche-class benefit ({uni_harm_benefit} of runs are "
+                 f"uniform-harm-but-some-prior-benefit) AND can MASK deployment harm ({uni_benefit_harm} "
+                 f"uniform-benefit-but-some-prior-harm) — a bAcc-positive adaptation is not prior-robust.")
+    learned = [channel, prior_line, mask_line,
+               ("Harm-channel decomposition and prior stress are oracle/evaluation-only; the deployment "
+                "prior is DECLARED (C14), never identified from R0/R1; no adaptation or SOTA claim.")]
+    return {"project": "Project A", "step": step_label,
+            "scope": "TTA harm mechanisms + deployment-prior stress; not SOTA",
+            "metrics": metrics, "what_we_learned": learned,
+            "what_remains_unknown": [
+                "Whether the true deployment prior can be bounded cheaply (would need TU-1-grade contracts).",
+                "Whether class-specific harm persists on clinical / non-motor-imagery EEG.",
+                "Whether a utility-aware (C14-declared) selector could avoid the worst-class harm channel."],
+            "claim_boundary": ("Harm-channel and prior-stress analyses are oracle/evaluation-only; priors "
+                               "are DECLARED (C14), not identified; this does NOT revive a source-only "
+                               "target-prior claim (Prior-Decoupled boundary). No SOTA.")}
+
+
+def write_step18_md(d: Dict[str, Any], path) -> str:
+    m = d["metrics"]
+    lines = [f"# {d['step']} — Science Dashboard (harm mechanisms + prior stress)", "",
+             f"Scope: {d['scope']}.", "", "## Key metrics", "",
+             f"- real runs: **{m['n_real_runs']}** · mean lost-correct **{m['mean_lost_correct_rate']}** · "
+             f"mean gained-correct **{m['mean_gained_correct_rate']}** · mean net gain **{m['mean_net_gain']}**",
+             f"- mixed class effects **{m['fraction_runs_with_mixed_class_effects']}** · prior-dependent-sign "
+             f"**{m['fraction_prior_dependent_sign']}** · harmful-under-all-priors "
+             f"**{m['fraction_harmful_under_all_priors']}** · beneficial-under-all-priors "
+             f"**{m['fraction_beneficial_under_all_priors']}**",
+             f"- uniform-harm-but-some-prior-benefit **{m['fraction_uniform_harm_but_some_prior_benefit']}** · "
+             f"uniform-benefit-but-some-prior-harm **{m['fraction_uniform_benefit_but_some_prior_harm']}** · "
+             f"mean prior-sign-width **{m['mean_prior_sign_width']}**",
+             f"- worst classes by dataset **{m['worst_classes_by_dataset']}**",
+             f"- prior contract required **{m['prior_contract_required']}** · deployment prior identified "
+             f"under R1 **{m['deployment_prior_identified_under_R1']}** · claim boundary ok "
+             f"**{m['claim_boundary_ok']}**", "", "## What we learned", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_we_learned"], 1)]
+    lines += ["", "## What remains unknown", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_remains_unknown"], 1)]
+    lines += ["", "> " + d["claim_boundary"]]
+    text = "\n".join(lines) + "\n"
+    write_text_lf(path, text)
+    return text
+
+
 def write_step17_md(d: Dict[str, Any], path) -> str:
     m = d["metrics"]
     lines = [f"# {d['step']} — Science Dashboard (estimand-consistent harm control)", "",
@@ -563,12 +652,20 @@ def main(argv=None):
     ap.add_argument("--policy-frontier", default=None, help="Step-16: policy-frontier JSON")
     ap.add_argument("--estimand-consistency", default=None, help="Step-17: estimand-consistency JSON")
     ap.add_argument("--estimand-frontier", default=None, help="Step-17: per-estimand frontier JSON")
+    ap.add_argument("--harm-mechanisms", default=None, help="Step-18: harm-mechanism JSON")
+    ap.add_argument("--prior-stress", default=None, help="Step-18: deployment-prior stress JSON")
     ap.add_argument("--step-label", default="Step 13", help="dashboard provenance label")
     ap.add_argument("--out-json", default=None)
     ap.add_argument("--out-md", default=None)
     args = ap.parse_args(argv)
 
-    if args.estimand_consistency:                             # Step 17
+    if args.harm_mechanisms:                                  # Step 18
+        label = "Step 18" if args.step_label == "Step 13" else args.step_label
+        d = build_step18_dashboard(
+            _load_json(Path(args.harm_mechanisms)),
+            _load_json(Path(args.prior_stress)) if args.prior_stress else None, step_label=label)
+        md_writer = write_step18_md
+    elif args.estimand_consistency:                           # Step 17
         label = "Step 17" if args.step_label == "Step 13" else args.step_label
         d = build_step17_dashboard(
             _load_json(Path(args.estimand_consistency)),
