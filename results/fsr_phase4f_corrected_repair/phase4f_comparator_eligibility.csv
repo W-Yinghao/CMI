@@ -1,0 +1,4 @@
+arm,raw_recovery,clean_drop,regression_to_floor,valid_repair,reason
+E1,1.3074,-0.0207,False,True,
+E3,0.0805,-0.0028,False,True,
+ERASE,-0.5152,0.0483,True,False,raw_recovery<=0

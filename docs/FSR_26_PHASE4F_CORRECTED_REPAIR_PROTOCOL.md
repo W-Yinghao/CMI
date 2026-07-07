@@ -73,7 +73,7 @@ structural); `negative_control_diagnostic_uses_target=true` (the one-sided pause
 the same category as scoring E4 itself); `eligibility_rule_preregistered=true`.
 
 ## Pass / fail (pre-registered)
-All quantities pooled over the 5 CONFIRM seeds × 21 folds, at `alpha_star`, NETTED. Constants `SAFE_DROP=0.01`,
+All quantities pooled over the 8 CONFIRM seeds × 21 folds, at `alpha_star`, NETTED. Constants `SAFE_DROP=0.01`,
 `DELTA=0.02`, `HARM_FLOOR=0.02`.
 
 1. **Harm gate.** Pooled harm ≥ `HARM_FLOOR` AND **clustered** CI lower > 0. Else `none` (`harm_not_established`).
