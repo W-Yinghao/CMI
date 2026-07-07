@@ -163,6 +163,26 @@ def main():
     gAk, dAk = gains(keep, "E4"); drop_anti = pooled_ratio(gAk, dAk)
     drop_anti_ok = bool(drop_anti is not None and drop_anti > 0.30)
 
+    # --- verification-mandated honesty diagnostics (wrmjni6ky) ---
+    # (i) mechanical-identity share: a first-moment aligner cancels a first-moment offset EXACTLY -> netted=1.0
+    #     by algebra. Report the NON-identity subset as the real empirical evidence.
+    e4i = col(conf, "E4_inj_bacc"); e4c = col(conf, "E4_cln_bacc"); ident = np.abs(e4i - e4c) < 1e-9
+    mech_id_frac = round(float(ident.mean()), 4)
+    gni, dni = gE4[~ident], d[~ident]
+    e4_net_nonident = pooled_ratio(gni, dni)
+    # (ii) LEAVE-ONE-DATASET-OUT (the generalization-binding axis; LOSO-seed is near-inert): each single dataset
+    #      must independently pass harm + specificity.
+    lodo, lodo_pass = [], True
+    for dsn in sorted(set(r["dataset"] for r in conf)):
+        rs = [r for r in conf if r["dataset"] == dsn]; cl = clu_of(rs)
+        h = col(rs, "induced_harm"); hci = boot_mean_ci(h, cl)
+        ga, _ = gains(rs, "E4"); gb, _ = gains(rs, "E3"); m = float(ga.mean() - gb.mean()); mci = boot_diff_ci(ga, gb, cl)
+        he = bool(h.mean() >= HARM_FLOOR and hci[0] > 0); sp = bool(m >= DELTA and mci[0] > 0)
+        lodo.append(dict(dataset=dsn, n=len(rs), harm=round(float(h.mean()), 4), harm_ci=hci, harm_established=he,
+                         e4_minus_e3=round(m, 4), e4_e3_ci=mci, specificity_pass=sp, passes=bool(he and sp)))
+        if not (he and sp):
+            lodo_pass = False
+
     # ---- grade: strong is a strict superset of partial; netted/specificity gate on CLUSTERED CI ----
     partial_ok = bool(harm_established and e4_task_safe and e4_beats_e3 and beats_eligible
                       and not neg_control_falsified and e4_net is not None and e4_net > 0.30
@@ -204,17 +224,31 @@ def main():
         comparator_veto_set_used_target=False,
         negative_control_diagnostic_uses_target=True, eligibility_rule_preregistered=True,
         target_labels_used_for_final_eval_only=True,
-        repair_claim_level=level, pc2_gpu_gate=gate,
-        claim_language=("Phase 4F corrected confirmatory test on FRESH seeds. E4 first-moment mean alignment; "
-                        "veto set is STRUCTURAL (E1/E3 in, ERASE a pre-declared task-destructive negative control "
-                        "excluded by construction; clean-safe => not regression-to-floor => valid repairs never "
-                        "excluded). All gate CIs CLUSTERED over folds. Scope = controlled constant-offset "
-                        "first-moment shortcut ONLY (not general repair / DG / SOTA / natural). Phase 4E stays "
-                        "none (not re-scored)."),
+        repair_claim_level=level,
+        repair_claim_qualified="strong_within_controlled_first_moment_scope" if level == "strong" else level,
+        repair_claim_scope="controlled_first_moment_constant_offset_only",
+        primary_estimand_abs_netted_gain_bacc=e4_e3, primary_estimand_ci_clustered=e4_e3_ci,
+        mechanical_identity_frac=mech_id_frac, e4_netted_recovery_nonidentity=round(e4_net_nonident, 4) if e4_net_nonident is not None else None,
+        leave_one_dataset_out=lodo, leave_one_dataset_out_pass=lodo_pass,
+        loso_axis_is_seed_not_dataset=True,
+        pc2_gpu_gate=gate, pc2_gpu_run_authorized=False,
+        claim_language=("Phase 4F: on a CONTROLLED injected constant-offset (first-moment) spatial shortcut, a "
+                        "deployable target-X-only first-moment mean-aligner (E4) -- netted of its generic TTA "
+                        "benefit and beating a random-direction control E3 -- gives a shortcut-specific repair of "
+                        "ABSOLUTE +0.033 bAcc [0.009,0.058] (PRIMARY; the 0.93 ratio is SECONDARY/marginal-denom). "
+                        "repair_claim_level=strong is STRONG_WITHIN_CONTROLLED_FIRST_MOMENT_SCOPE only: 73% of "
+                        "rows net to 1.0 by ALGEBRA (first-moment aligner inverts first-moment offset -> pipeline "
+                        "sanity, non-identity netted 0.68); it FAILS leave-one-DATASET-out (2014 harm/spec not "
+                        "established; 2015-carried); E4 OVERSHOOTS orig = generic domain-mean TTA, NOT surgical "
+                        "removal. Does NOT certify natural/general/DG/SOTA repair (cf 4B/4D natural=NONE). "
+                        "pc2_gpu_gate=eligible_for_protocol_update is for the LEDGER ONLY; PC2 GPU stays PAUSED "
+                        "(a construction-matched first-moment positive control does not clear natural-shortcut "
+                        "repair). Phase 4E stays none (not re-scored)."),
     )
     (R / "phase4f_verdict.json").write_text(json.dumps(verdict, indent=2) + "\n")
     _w(R / "phase4f_comparator_eligibility.csv", [dict(arm=p, **elig[p]) for p in elig])
     _w(R / "phase4f_leave_one_seed_out.csv", loso)
+    _w(R / "phase4f_leave_one_dataset_out.csv", lodo)
     _w(R / "phase4f_per_dataset_summary.csv", perds)
     _w(R / "phase4f_clean_target_netting.csv", [dict(
         dataset=r["dataset"], target_subject=r["target_subject"], token_seed=r["token_seed"],

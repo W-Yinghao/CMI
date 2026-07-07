@@ -1,0 +1,201 @@
+{
+  "fresh_confirm_seeds": [
+    20260721,
+    20260722,
+    20260723,
+    20260724,
+    20260725,
+    20260726,
+    20260727,
+    20260728
+  ],
+  "uses_phase4e_seeds_for_claim": false,
+  "n_confirm_seedfolds": 168,
+  "n_folds_clusters": 21,
+  "harm_established": true,
+  "injection_harm_denominator": 0.035,
+  "injection_harm_denominator_ci_clustered": [
+    0.0049,
+    0.0682
+  ],
+  "anti_harm_folds": 57,
+  "primary_repair": "E4_full_mean_alignment",
+  "e4_task_safe": true,
+  "e4_clean_target_drop": -0.0214,
+  "e4_raw_recovery": 1.5439,
+  "e4_regression_to_floor": false,
+  "e4_netted_recovery": 0.9318,
+  "e4_netted_recovery_ci_clustered": [
+    0.7419,
+    1.1932
+  ],
+  "e4_netted_ratio_dropped_frac": 0.0003,
+  "e4_minus_e3_netted_gain": 0.0326,
+  "e4_minus_e3_ci_clustered": [
+    0.009,
+    0.0583
+  ],
+  "e4_beats_e3": true,
+  "e1_minus_e4_netted_gain": -0.0075,
+  "veto_set_structural": [
+    "E1",
+    "E3"
+  ],
+  "negative_controls": [
+    "ERASE"
+  ],
+  "negative_control_falsified": false,
+  "comparator_eligibility_DIAGNOSTIC": {
+    "E1": {
+      "raw_recovery": 1.3074,
+      "clean_drop": -0.0207,
+      "regression_to_floor": false,
+      "valid_repair": true,
+      "reason": null
+    },
+    "E3": {
+      "raw_recovery": 0.0805,
+      "clean_drop": -0.0028,
+      "regression_to_floor": false,
+      "valid_repair": true,
+      "reason": null
+    },
+    "ERASE": {
+      "raw_recovery": -0.5152,
+      "clean_drop": 0.0483,
+      "regression_to_floor": true,
+      "valid_repair": false,
+      "reason": "raw_recovery<=0"
+    }
+  },
+  "e4_beats_eligible_comparators": true,
+  "leave_one_seed_out": [
+    {
+      "dropped_seed": 20260721,
+      "e4_minus_e3": 0.0302,
+      "ci_lo": 0.0065,
+      "ci_hi": 0.0556
+    },
+    {
+      "dropped_seed": 20260722,
+      "e4_minus_e3": 0.0327,
+      "ci_lo": 0.0116,
+      "ci_hi": 0.056
+    },
+    {
+      "dropped_seed": 20260723,
+      "e4_minus_e3": 0.0353,
+      "ci_lo": 0.0117,
+      "ci_hi": 0.062
+    },
+    {
+      "dropped_seed": 20260724,
+      "e4_minus_e3": 0.0323,
+      "ci_lo": 0.0084,
+      "ci_hi": 0.0568
+    },
+    {
+      "dropped_seed": 20260725,
+      "e4_minus_e3": 0.0328,
+      "ci_lo": 0.0108,
+      "ci_hi": 0.0581
+    },
+    {
+      "dropped_seed": 20260726,
+      "e4_minus_e3": 0.0315,
+      "ci_lo": 0.0067,
+      "ci_hi": 0.0576
+    },
+    {
+      "dropped_seed": 20260727,
+      "e4_minus_e3": 0.0354,
+      "ci_lo": 0.0119,
+      "ci_hi": 0.0623
+    },
+    {
+      "dropped_seed": 20260728,
+      "e4_minus_e3": 0.0307,
+      "ci_lo": 0.0066,
+      "ci_hi": 0.0549
+    }
+  ],
+  "leave_one_seed_out_pass": true,
+  "loso_min_margin": 0.0302,
+  "per_dataset": [
+    {
+      "dataset": "BNCI2014_001",
+      "n": 72,
+      "e4_raw": 1.3613,
+      "e4_netted": 0.8707,
+      "e4_minus_e3": 0.0119
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "n": 96,
+      "e4_raw": 1.5863,
+      "e4_netted": 0.946,
+      "e4_minus_e3": 0.0482
+    }
+  ],
+  "per_dataset_sign_consistent": true,
+  "per_dataset_note": "N=2 datasets: sign-consistency is descriptive, not a powered consistency test.",
+  "drop_anti_harm_e4_netted": 0.915,
+  "drop_anti_harm_ok": true,
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "comparator_veto_set_used_target": false,
+  "negative_control_diagnostic_uses_target": true,
+  "eligibility_rule_preregistered": true,
+  "target_labels_used_for_final_eval_only": true,
+  "repair_claim_level": "strong",
+  "repair_claim_qualified": "strong_within_controlled_first_moment_scope",
+  "repair_claim_scope": "controlled_first_moment_constant_offset_only",
+  "primary_estimand_abs_netted_gain_bacc": 0.0326,
+  "primary_estimand_ci_clustered": [
+    0.009,
+    0.0583
+  ],
+  "mechanical_identity_frac": 0.7321,
+  "e4_netted_recovery_nonidentity": 0.6783,
+  "leave_one_dataset_out": [
+    {
+      "dataset": "BNCI2014_001",
+      "n": 72,
+      "harm": 0.0154,
+      "harm_ci": [
+        0.0028,
+        0.0317
+      ],
+      "harm_established": false,
+      "e4_minus_e3": 0.0119,
+      "e4_e3_ci": [
+        0.0005,
+        0.0252
+      ],
+      "specificity_pass": false,
+      "passes": false
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "n": 96,
+      "harm": 0.0497,
+      "harm_ci": [
+        0.0004,
+        0.1022
+      ],
+      "harm_established": true,
+      "e4_minus_e3": 0.0482,
+      "e4_e3_ci": [
+        0.01,
+        0.0869
+      ],
+      "specificity_pass": true,
+      "passes": true
+    }
+  ],
+  "leave_one_dataset_out_pass": false,
+  "loso_axis_is_seed_not_dataset": true,
+  "pc2_gpu_gate": "eligible_for_protocol_update",
+  "pc2_gpu_run_authorized": false,
+  "claim_language": "Phase 4F: on a CONTROLLED injected constant-offset (first-moment) spatial shortcut, a deployable target-X-only first-moment mean-aligner (E4) -- netted of its generic TTA benefit and beating a random-direction control E3 -- gives a shortcut-specific repair of ABSOLUTE +0.033 bAcc [0.009,0.058] (PRIMARY; the 0.93 ratio is SECONDARY/marginal-denom). repair_claim_level=strong is STRONG_WITHIN_CONTROLLED_FIRST_MOMENT_SCOPE only: 73% of rows net to 1.0 by ALGEBRA (first-moment aligner inverts first-moment offset -> pipeline sanity, non-identity netted 0.68); it FAILS leave-one-DATASET-out (2014 harm/spec not established; 2015-carried); E4 OVERSHOOTS orig = generic domain-mean TTA, NOT surgical removal. Does NOT certify natural/general/DG/SOTA repair (cf 4B/4D natural=NONE). pc2_gpu_gate=eligible_for_protocol_update is for the LEDGER ONLY; PC2 GPU stays PAUSED (a construction-matched first-moment positive control does not clear natural-shortcut repair). Phase 4E stays none (not re-scored)."
+}

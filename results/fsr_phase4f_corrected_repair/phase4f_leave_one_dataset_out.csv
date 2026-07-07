@@ -1,0 +1,3 @@
+dataset,n,harm,harm_ci,harm_established,e4_minus_e3,e4_e3_ci,specificity_pass,passes
+BNCI2014_001,72,0.0154,"[0.0028, 0.0317]",False,0.0119,"[0.0005, 0.0252]",False,False
+BNCI2015_001,96,0.0497,"[0.0004, 0.1022]",True,0.0482,"[0.01, 0.0869]",True,True
