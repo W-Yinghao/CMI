@@ -86,6 +86,27 @@ def train_safety_gate(model, X, y, site, cfg: H2Config, pseudo_unit_levels: np.n
     return gate, info
 
 
+def _prediction_diagnostics(proba_id, proba_ad, n_classes) -> dict:
+    """LABEL-FREE R1 diagnostics from the identity/adapted PREDICTIONS only (never from y):
+    prediction entropy/confidence, identity-vs-adapt disagreement, adapted pseudo-label histogram."""
+    id_arg, ad_arg = proba_id.argmax(1), proba_ad.argmax(1)
+    hist = np.bincount(ad_arg, minlength=n_classes).astype(float)
+    hist = hist / max(1.0, hist.sum())
+
+    def _ent(P):
+        return float(np.mean(-(P * np.log(P + 1e-12)).sum(1)))
+
+    return {
+        "target_prediction_entropy_identity": round(_ent(proba_id), 6),
+        "target_prediction_entropy_adapt": round(_ent(proba_ad), 6),
+        "target_confidence_mean_identity": round(float(proba_id.max(1).mean()), 6),
+        "target_confidence_mean_adapt": round(float(proba_ad.max(1).mean()), 6),
+        "identity_adapt_prediction_disagreement": round(float(np.mean(id_arg != ad_arg)), 6),
+        "adapted_pseudolabel_entropy": round(float(-(hist * np.log(hist + 1e-12)).sum()), 6),
+        "adapted_pseudolabel_max_class_mass": round(float(hist.max()), 6),
+    }
+
+
 # ----------------------------------------------------------------- offline transductive TTA
 def evaluate_offline_tta(model, X, y, domain, cfg: H2Config, source_prior: np.ndarray,
                          gate: SafetyGate | None = None, device="cpu") -> dict:
@@ -130,6 +151,11 @@ def evaluate_offline_tta(model, X, y, domain, cfg: H2Config, source_prior: np.nd
     avoided_harm = float(np.mean([max(0.0, -per_dom_gain[d]) for d in skipped])) if skipped else 0.0
     missed_benefit = float(np.mean([max(0.0, per_dom_gain[d]) for d in skipped])) if skipped else 0.0
     selective_gain = float(np.mean([per_dom_gain[d] for d in adapted_doms])) if adapted_doms else 0.0
+    # per-trial ORACLE predictions (uses y -> evaluation-only; for R2 minimal-label curves only)
+    per_trial = {"target_trial_index": list(range(len(y))), "y_true": _json_safe(y),
+                 "identity_pred": _json_safe(proba_id.argmax(1)), "adapt_pred": _json_safe(proba_ad.argmax(1)),
+                 "identity_confidence": _json_safe(proba_id.max(1)),
+                 "adapt_confidence": _json_safe(proba_ad.max(1)), "domain": _json_safe(domain)}
     return dict(identity=panel_id, adapt=panel_ad, selective=panel_sel,
                 delta_adapt=panel_delta(panel_ad, panel_id),
                 delta_selective=panel_delta(panel_sel, panel_id),
@@ -137,6 +163,8 @@ def evaluate_offline_tta(model, X, y, domain, cfg: H2Config, source_prior: np.nd
                 gate_decisions=per_dom_decision,
                 per_domain_pi_T=per_dom_pi_T,                       # exported evidence (audit bridge)
                 per_domain_tta_diagnostics=per_dom_diag,
+                r1_prediction_diagnostics=_prediction_diagnostics(proba_id, proba_ad, cfg.n_classes),
+                per_trial_oracle_predictions=per_trial,             # oracle/evaluation-only (R2)
                 selective_risk=dict(coverage=len(adapted_doms) / max(1, len(per_dom_decision)),
                                     avoided_harm=avoided_harm, missed_benefit=missed_benefit,
                                     selective_gain=selective_gain))

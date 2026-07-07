@@ -4,7 +4,7 @@ Run:  python -m h2cmi.tests.test_observability_science_dashboard
 """
 from __future__ import annotations
 
-from h2cmi.observability.science_dashboard import build_dashboard
+from h2cmi.observability.science_dashboard import build_dashboard, build_step13_dashboard
 
 _HARM_TABLE = {"n_runs": 54, "harm_rate": 0.8333, "oracle_denylist": ["offline_tta_gain_bacc"]}
 _HARM_PRED = {"feature_sets": {"R0_source_only": {"balanced_acc_harm_prediction": 0.55},
@@ -47,11 +47,39 @@ def test_dashboard_no_sota_claim():
     assert "not sota" in d["scope"].lower() or "no sota" in d["claim_boundary"].lower()
 
 
+_HT13 = {"n_runs": 54, "harm_rate": 0.8333, "oracle_denylist": ["offline_tta_gain_bacc"],
+         "runs": [{"r1_source": "instrumented_r1_diagnostics"}] * 54}
+_HP13_NULL = {"feature_sets": {"R0_source_only": {"balanced_acc_harm_prediction": 0.30},
+                               "R1_target_unlabeled": {"balanced_acc_harm_prediction": 0.45}},
+              "any_predictor_beats_majority_baseline": False, "oracle_never_a_feature": True}
+_REAL = {"k0_status": "not_identified_R1", "best_k_for_0_8_accuracy": 32, "best_k_for_0_9_accuracy": 128,
+         "oracle_labels_used_only_for_r2_slice_and_evaluation": True}
+
+
+def test_step13_dashboard_reports_r1_availability_and_minimal_label_k():
+    m = build_step13_dashboard(_HT13, _HP13_NULL, _REAL, _MULTI)["metrics"]
+    assert m["r1_diagnostics_available_rate"] == 1.0
+    assert m["real_minimal_label_best_k_0_9"] == 128 and m["real_minimal_label_best_k_0_8"] == 32
+    assert m["target_labels_used_in_r1_diagnostics"] is False
+    assert m["claim_boundary_ok"] is True
+
+
+def test_step13_dashboard_stronger_null_when_r1_below_baseline():
+    d = build_step13_dashboard(_HT13, _HP13_NULL, _REAL, _MULTI)
+    assert d["metrics"]["R1_beats_baseline"] is False
+    assert "stronger null" in d["what_changed_from_step12"][0].lower()
+    # claim boundary fails if oracle leaks or curves aren't R1-non-identified at k=0
+    bad_real = dict(_REAL, k0_status="oops")
+    assert build_step13_dashboard(_HT13, _HP13_NULL, bad_real, _MULTI)["metrics"]["claim_boundary_ok"] is False
+
+
 ALL_TESTS = [
     test_dashboard_reports_real_harm_and_predictor,
     test_dashboard_claim_boundary_ok_requires_oracle_not_feature,
     test_dashboard_lists_learned_and_unknown,
     test_dashboard_no_sota_claim,
+    test_step13_dashboard_reports_r1_availability_and_minimal_label_k,
+    test_step13_dashboard_stronger_null_when_r1_below_baseline,
 ]
 
 

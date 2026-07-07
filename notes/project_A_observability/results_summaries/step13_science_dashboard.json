@@ -1,0 +1,29 @@
+{
+  "project": "Project A",
+  "step": "Step 13",
+  "scope": "rich R1 diagnostics + real minimal-label curves; not SOTA",
+  "metrics": {
+    "n_real_runs": 54,
+    "real_harm_rate": 0.8519,
+    "r1_diagnostics_available_rate": 1.0,
+    "R0_harm_predictor_bacc": 0.3342,
+    "R1_harm_predictor_bacc": 0.6522,
+    "R1_beats_baseline": true,
+    "R1_survives_permutation_null": true,
+    "R1_robust_signal_over_permutation_null": false,
+    "harm_predictor_verdict": "marginal_at_permutation_boundary_not_robust",
+    "R1_perm_null_p95": 0.6413,
+    "R1_improves_over_step12": true,
+    "real_minimal_label_best_k_0_8": null,
+    "real_minimal_label_best_k_0_9": null,
+    "claim_boundary_ok": true,
+    "oracle_gain_used_only_as_evaluation_label": true,
+    "target_labels_used_in_r1_diagnostics": false
+  },
+  "what_changed_from_step12": [
+    "Richer R1 diagnostics only MARGINALLY clear a high permutation null (bAcc vs perm-p95 0.6413; margin < 0.03) -> within Monte-Carlo/overfitting noise, NOT a robust predictor; R0 source-only stays below its own null (TOS-1 ceiling).",
+    "Real minimal-label curves: harm-sign reaches 0.8 at k=None, 0.9 at k=None (labeled slice under an iid sampling contract).",
+    "R1 diagnostics remain label-free; oracle per-trial labels used only for R2 curves / evaluation."
+  ],
+  "claim_boundary": "R1 diagnostics are label-free; R0/R1 harm prediction is retrospective, not identifiability; real k>0 curves are labeled slices under an iid sampling contract. No SOTA claim."
+}

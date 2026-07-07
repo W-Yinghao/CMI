@@ -93,7 +93,29 @@ def _evaluate(rows, names) -> Dict[str, Any]:
             "auc": auc, "claim": _RETRO_CLAIM}
 
 
-def build_summary(table: Dict[str, Any]) -> Dict[str, Any]:
+def _permutation_null(rows, names, n_perm=100, seed=0):
+    """Shuffle the harm labels and re-run the SAME LOTO evaluation: the null bAcc distribution. If the
+    real bAcc does not exceed the 95th percentile of this null, the apparent signal is an overfitting
+    artifact (15 features / 54 rows / tiny minority is exactly that regime)."""
+    import numpy as np
+    if not names:
+        return {"perm_null_mean": None, "perm_null_p95": None, "n_perm": 0}
+    rng = np.random.default_rng(seed)
+    y0 = [1 if r["offline_tta_harmed"] else 0 for r in rows]
+    baccs = []
+    for _ in range(n_perm):
+        perm = rng.permutation(len(y0))
+        shuffled = [dict(r, offline_tta_harmed=bool(y0[perm[i]])) for i, r in enumerate(rows)]
+        b = _evaluate(shuffled, names)["balanced_acc_harm_prediction"]
+        if b is not None:
+            baccs.append(b)
+    if not baccs:
+        return {"perm_null_mean": None, "perm_null_p95": None, "n_perm": 0}
+    return {"perm_null_mean": round(float(np.mean(baccs)), 4),
+            "perm_null_p95": round(float(np.percentile(baccs, 95)), 4), "n_perm": len(baccs)}
+
+
+def build_summary(table: Dict[str, Any], n_perm: int = 100) -> Dict[str, Any]:
     rows = [r for r in table.get("runs", []) if r.get("offline_tta_harmed") is not None]
     n = len(rows)
     harmed = sum(1 for r in rows if r["offline_tta_harmed"])
@@ -102,18 +124,39 @@ def build_summary(table: Dict[str, Any]) -> Dict[str, Any]:
     r0 = _evaluate(rows, f0_names)
     r1 = _evaluate(rows, f1_names)
 
-    def _beats(b):                                            # > 0.5 majority baseline?
+    def _annotate(b, names):                                 # baseline + permutation-null controls
         v = b.get("balanced_acc_harm_prediction")
         b["beats_majority_baseline"] = (v is not None and v > 0.5)
-        return b["beats_majority_baseline"]
+        b.update(_permutation_null(rows, names, n_perm=n_perm, seed=0))
+        b["beats_permutation_null"] = (v is not None and b.get("perm_null_p95") is not None
+                                       and v > b["perm_null_p95"])
+        return b
 
-    r0_beats, r1_beats = _beats(r0), _beats(r1)
+    _annotate(r0, f0_names); _annotate(r1, f1_names)
+    r0_beats, r1_beats = r0["beats_majority_baseline"], r1["beats_majority_baseline"]
+
+    _MARGIN = 0.03                                            # must clear the perm-null p95 by > MC noise
+    def _robust(b):
+        v, p = b.get("balanced_acc_harm_prediction"), b.get("perm_null_p95")
+        b["margin_over_perm_null_p95"] = round(v - p, 4) if (v is not None and p is not None) else None
+        b["robust_signal"] = (v is not None and p is not None and v > p + _MARGIN)
+        return b["robust_signal"]
+
+    r0_robust, r1_robust = _robust(r0), _robust(r1)
+    survives = bool(r0.get("beats_permutation_null") or r1.get("beats_permutation_null"))
+    robust = bool(r0_robust or r1_robust)
     delta = (None if r0["balanced_acc_harm_prediction"] is None or r1["balanced_acc_harm_prediction"] is None
              else round(r1["balanced_acc_harm_prediction"] - r0["balanced_acc_harm_prediction"], 4))
-    # honest verdict: below/at 0.5 = NO retrospective harm signal (not "a predictor")
-    verdict = ("no_retrospective_harm_signal_above_baseline" if not (r0_beats or r1_beats)
-               else ("r1_target_unlabeled_adds_retrospective_signal" if r1_beats and not r0_beats
-                     else "retrospective_signal_present"))
+    # honest verdict. The permutation nulls are HIGH (~0.64) because 19 features / 54 rows / 8-minority
+    # LOTO overfits; a bAcc that barely clears its own perm-null p95 (< MARGIN) is NOT robust signal.
+    if not (r0_beats or r1_beats):
+        verdict = "no_retrospective_harm_signal_above_baseline"
+    elif not survives:
+        verdict = "above_baseline_but_within_permutation_null_overfitting_artifact"
+    elif not robust:
+        verdict = "marginal_at_permutation_boundary_not_robust"
+    else:
+        verdict = "robust_retrospective_signal_survives_permutation_null_by_margin"
     return {
         "project": "Project A", "step": "Step 12", "scope": "retrospective harm prediction; not SOTA",
         "n_runs": n, "n_harmed": harmed, "harm_rate": round(harmed / n, 4) if n else None,
@@ -122,6 +165,8 @@ def build_summary(table: Dict[str, Any]) -> Dict[str, Any]:
         "feature_sets": {"R0_source_only": r0, "R1_target_unlabeled": r1},
         "r1_minus_r0_balanced_acc_delta": delta,
         "any_predictor_beats_majority_baseline": bool(r0_beats or r1_beats),
+        "any_predictor_survives_permutation_null": survives,
+        "any_predictor_robust_signal": robust,               # clears perm-null p95 by > 0.03 margin
         "verdict": verdict,
         "n_minority_class": min(harmed, n - harmed),         # power caveat (tiny minority = noisy LOTO)
         "oracle_never_a_feature": all(n not in ORACLE_KEYS for n in f1_names),
@@ -136,7 +181,8 @@ def write_md(s: Dict[str, Any], path) -> str:
         b = s["feature_sets"][key]
         return (f"- **{key}**: {b['n_features']} features · harm-pred balanced-acc "
                 f"**{b['balanced_acc_harm_prediction']}** · AUC **{b['auc']}** · beats-baseline "
-                f"**{b.get('beats_majority_baseline')}**")
+                f"**{b.get('beats_majority_baseline')}** · perm-null p95 **{b.get('perm_null_p95')}** "
+                f"· beats-perm-null **{b.get('beats_permutation_null')}**")
     lines = ["# Step 12 — retrospective offline-TTA harm predictor", "",
              f"Scope: {s['scope']}. {s['claim_boundary']}", "",
              f"- runs: **{s['n_runs']}** · harm-rate **{s['harm_rate']}** · majority-baseline "

@@ -71,6 +71,71 @@ def _load_moabb(name, subjects, seed):
     return X, y, dag, domains, subj_col, sess_col, len(classes), info
 
 
+# -------------------------------------------------- label-free R1 representation/prior diagnostics
+def _pairwise_sq(A, B):
+    aa = (A * A).sum(1)[:, None]
+    bb = (B * B).sum(1)[None, :]
+    return np.maximum(aa + bb - 2.0 * (A @ B.T), 0.0)
+
+
+def _nn_dist(A, B, exclude_self=False):
+    D = _pairwise_sq(A, B)
+    if exclude_self:
+        np.fill_diagonal(D, np.inf)
+    return np.sqrt(D.min(1))
+
+
+def _mmd_rbf(X, Y):
+    both = np.vstack([X, Y])
+    g = 1.0 / (float(np.median(_pairwise_sq(both, both))) + 1e-12)      # median-heuristic bandwidth
+    kxx = np.exp(-g * _pairwise_sq(X, X)).mean()
+    kyy = np.exp(-g * _pairwise_sq(Y, Y)).mean()
+    kxy = np.exp(-g * _pairwise_sq(X, Y)).mean()
+    return float(kxx + kyy - 2.0 * kxy)
+
+
+def _representation_diagnostics(Zs, Zt, seed=0, max_n=400):
+    """LABEL-FREE source/target representation-shift proxies (MMD-RBF, centroid distance, target->
+    source kNN distance, off-source mass). Uses embeddings only — NO labels. Reason-codes on failure."""
+    keys = ["source_target_mmd_rbf", "source_target_centroid_distance",
+            "target_knn_distance_mean", "target_off_source_mass_proxy"]
+    try:
+        rng = np.random.default_rng(int(seed))
+        Zs = np.asarray(Zs, dtype=np.float64)
+        Zt = np.asarray(Zt, dtype=np.float64)
+
+        def _sub(Z):
+            return Z[rng.choice(len(Z), max_n, replace=False)] if len(Z) > max_n else Z
+
+        Zs_, Zt_ = _sub(Zs), _sub(Zt)
+        d_ts = _nn_dist(Zt_, Zs_)
+        thr = float(np.percentile(_nn_dist(Zs_, Zs_, exclude_self=True), 95))
+        return ({"source_target_mmd_rbf": round(_mmd_rbf(Zs_, Zt_), 6),
+                 "source_target_centroid_distance": round(float(np.linalg.norm(Zs.mean(0) - Zt.mean(0))), 6),
+                 "target_knn_distance_mean": round(float(d_ts.mean()), 6),
+                 "target_off_source_mass_proxy": round(float(np.mean(d_ts > thr)), 6)}, {})
+    except Exception as exc:                                  # reason-coded, never a silent 0
+        return ({k: None for k in keys},
+                {k: f"repr diagnostics failed: {type(exc).__name__}: {exc}" for k in keys})
+
+
+def _prior_diagnostics(pi_dict, source_prior):
+    """LABEL-FREE target-prior-estimate diagnostics from the exported per-domain pi_T (no labels)."""
+    keys = ["target_prior_entropy_hat", "target_prior_shift_l1_hat",
+            "target_prior_shift_l1_from_source", "prior_estimate_max_mass"]
+    pis = [np.asarray(v, dtype=np.float64) for v in (pi_dict or {}).values() if v is not None]
+    if not pis:
+        return {k: None for k in keys}
+    mean_pi = np.mean(pis, axis=0)
+    u = np.full(len(mean_pi), 1.0 / len(mean_pi))
+    l1_src = (float(np.abs(mean_pi - np.asarray(source_prior, dtype=np.float64)).sum())
+              if source_prior is not None else None)
+    return {"target_prior_entropy_hat": round(float(-(mean_pi * np.log(mean_pi + 1e-12)).sum()), 6),
+            "target_prior_shift_l1_hat": round(float(np.abs(mean_pi - u).sum()), 6),
+            "target_prior_shift_l1_from_source": round(l1_src, 6) if l1_src is not None else None,
+            "prior_estimate_max_mass": round(float(mean_pi.max()), 6)}
+
+
 # ------------------------------------------------------------------ pilot
 def _build_cfg(n_classes, n_chans, n_times, epochs, device, seed, fast):
     from h2cmi.config import H2Config
@@ -111,13 +176,29 @@ def _run_pilot(X, y, dag, domains, subj_col, target_subject_idx, cfg, n_classes,
     res = run_three_settings(model, Xt, yt, tgt_unit, cfg, pi_star, X_src=Xs, y_src=ys,
                              gate_pseudo_levels=src_unit, device=cfg.train.device)
     Zs = model.embed(Xs, device=cfg.train.device)            # match model's device (train_h2 left it on cuda)
+    Zt = model.embed(Xt, device=cfg.train.device)            # target embeddings (label-free)
     leak = crossfit_conditional_leakage(Zs, ys, src_domains, dag, n_classes,
                                         n_perm=n_perm, seed=cfg.train.seed)
+
+    # split the offline-TTA output: label-free prediction diagnostics + oracle per-trial block
+    off = res["offline_tta"]
+    r1_pred = off.pop("r1_prediction_diagnostics", {})       # label-free (from predictions only)
+    per_trial = off.pop("per_trial_oracle_predictions", {})  # oracle/evaluation-only (R2 curves)
+    r1_rep, r1_rep_missing = _representation_diagnostics(Zs, Zt, seed=cfg.train.seed)
+    r1_prior = _prior_diagnostics(off.get("per_domain_pi_T"), pi_star)
+    r1_diagnostics = {**r1_pred, **r1_rep, **r1_prior}
+    r1_missing = {k: "null (not computable from available outputs)"
+                  for k, v in r1_diagnostics.items() if v is None}
+    r1_missing.update(r1_rep_missing)
+
     raw = {"strict_dg": _json_safe(res["strict_dg"]),
-           "offline_tta": _json_safe(res["offline_tta"]),
+           "offline_tta": _json_safe(off),
            "online_tta": _json_safe(res["online_tta"]),
            "gate_info": _json_safe(res.get("gate_info", {})),
            "leakage": _json_safe(leak),
+           "r1_diagnostics": _json_safe(r1_diagnostics),          # LABEL-FREE target-unlabeled diagnostics
+           "r1_diagnostics_missing": r1_missing,
+           "per_trial_oracle_predictions": _json_safe(per_trial),  # oracle/evaluation-only (R2 only)
            "train_history": _json_safe(hist),
            "n_source_trials": int(len(src_idx)), "n_target_trials": int(len(tgt_idx))}
     return res, leak, raw

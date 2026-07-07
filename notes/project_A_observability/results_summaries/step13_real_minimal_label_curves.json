@@ -1,0 +1,117 @@
+{
+  "project": "Project A",
+  "step": "Step 13",
+  "scope": "real minimal-label curves (R2 labeled slice); not SOTA",
+  "n_runs": 54,
+  "ks": [
+    0,
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256
+  ],
+  "repeats": 200,
+  "per_k": {
+    "0": {
+      "k": 0,
+      "harm_sign_accuracy": 0.5,
+      "decisive_rate": 0.0,
+      "abstention_rate": 1.0,
+      "mean_ci_width": null,
+      "identified_status": "not_identified_R1",
+      "claim_boundary": "k=0 gain sign non-identifiable under R1"
+    },
+    "1": {
+      "k": 1,
+      "harm_sign_accuracy": 0.1237,
+      "decisive_rate": 0.1992,
+      "abstention_rate": 0.8008,
+      "mean_ci_width": 0.0,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "2": {
+      "k": 2,
+      "harm_sign_accuracy": 0.0184,
+      "decisive_rate": 0.0262,
+      "abstention_rate": 0.9738,
+      "mean_ci_width": 0.676,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "4": {
+      "k": 4,
+      "harm_sign_accuracy": 0.0091,
+      "decisive_rate": 0.0127,
+      "abstention_rate": 0.9873,
+      "mean_ci_width": 0.6322,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "8": {
+      "k": 8,
+      "harm_sign_accuracy": 0.0473,
+      "decisive_rate": 0.0582,
+      "abstention_rate": 0.9418,
+      "mean_ci_width": 0.5186,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "16": {
+      "k": 16,
+      "harm_sign_accuracy": 0.056,
+      "decisive_rate": 0.0622,
+      "abstention_rate": 0.9378,
+      "mean_ci_width": 0.399,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "32": {
+      "k": 32,
+      "harm_sign_accuracy": 0.1204,
+      "decisive_rate": 0.1285,
+      "abstention_rate": 0.8715,
+      "mean_ci_width": 0.2915,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "64": {
+      "k": 64,
+      "harm_sign_accuracy": 0.1572,
+      "decisive_rate": 0.1631,
+      "abstention_rate": 0.8369,
+      "mean_ci_width": 0.2094,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "128": {
+      "k": 128,
+      "harm_sign_accuracy": 0.2308,
+      "decisive_rate": 0.2341,
+      "abstention_rate": 0.7659,
+      "mean_ci_width": 0.149,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "256": {
+      "k": 256,
+      "harm_sign_accuracy": 0.3175,
+      "decisive_rate": 0.318,
+      "abstention_rate": 0.682,
+      "mean_ci_width": 0.1055,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    }
+  },
+  "best_k_for_0_8_accuracy": null,
+  "best_k_for_0_9_accuracy": null,
+  "k0_status": "not_identified_R1",
+  "claim_boundary_ok": true,
+  "oracle_labels_used_only_for_r2_slice_and_evaluation": true,
+  "claim_boundary": "k=0 = R1 non-identifiable; k>0 = R2 labeled slice under an iid sampling contract compared to the oracle full-target sign; not full-target identification. Oracle labels are used only here (R2/evaluation)."
+}

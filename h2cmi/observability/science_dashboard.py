@@ -89,6 +89,87 @@ def build_dashboard(harm_table, harm_pred, phase, multi) -> Dict[str, Any]:
     }
 
 
+def build_step13_dashboard(harm_table, harm_pred, real_curves, multi, step12_harm_pred=None) -> Dict[str, Any]:
+    fs = (harm_pred or {}).get("feature_sets", {})
+    r0, r1 = fs.get("R0_source_only", {}), fs.get("R1_target_unlabeled", {})
+    oracle_never = (harm_pred or {}).get("oracle_never_a_feature")
+    runs = (harm_table or {}).get("runs", [])
+    n = (harm_table or {}).get("n_runs") or len(runs)
+    avail = sum(1 for r in runs if r.get("r1_source") == "instrumented_r1_diagnostics")
+    r1_bacc = r1.get("balanced_acc_harm_prediction")
+    s12_r1 = ((step12_harm_pred or {}).get("feature_sets", {}).get("R1_target_unlabeled", {})
+              .get("balanced_acc_harm_prediction"))
+    r1_beats = bool((harm_pred or {}).get("any_predictor_beats_majority_baseline"))
+    survives = bool((harm_pred or {}).get("any_predictor_survives_permutation_null"))
+    robust = bool((harm_pred or {}).get("any_predictor_robust_signal"))
+    claim_ok = (oracle_never is True and "oracle_denylist" in (harm_table or {})
+                and (real_curves or {}).get("k0_status") == "not_identified_R1"
+                and (real_curves or {}).get("oracle_labels_used_only_for_r2_slice_and_evaluation") is True
+                and (multi or {}).get("all_target_metrics_identifiable_null") is not False)
+    metrics = {
+        "n_real_runs": n, "real_harm_rate": (harm_table or {}).get("harm_rate"),
+        "r1_diagnostics_available_rate": round(avail / n, 4) if n else None,
+        "R0_harm_predictor_bacc": r0.get("balanced_acc_harm_prediction"),
+        "R1_harm_predictor_bacc": r1_bacc,
+        "R1_beats_baseline": r1_beats,
+        "R1_survives_permutation_null": survives,
+        "R1_robust_signal_over_permutation_null": robust,
+        "harm_predictor_verdict": (harm_pred or {}).get("verdict"),
+        "R1_perm_null_p95": (fs.get("R1_target_unlabeled", {}) or {}).get("perm_null_p95"),
+        "R1_improves_over_step12": bool(r1_bacc is not None and s12_r1 is not None and r1_bacc > s12_r1),
+        "real_minimal_label_best_k_0_8": (real_curves or {}).get("best_k_for_0_8_accuracy"),
+        "real_minimal_label_best_k_0_9": (real_curves or {}).get("best_k_for_0_9_accuracy"),
+        "claim_boundary_ok": claim_ok,
+        "oracle_gain_used_only_as_evaluation_label": oracle_never is True,
+        "target_labels_used_in_r1_diagnostics": False,     # structural: R1 diagnostics are label-free
+    }
+    r1p95 = metrics["R1_perm_null_p95"]
+    if not r1_beats:
+        pred_change = ("Richer R1 diagnostics STILL do not beat the 0.5 baseline -> STRONGER NULL: "
+                       "current target-unlabeled diagnostics do not retrospectively predict TTA harm.")
+    elif not survives:
+        pred_change = (f"Richer R1 diagnostics beat 0.5 but do NOT clear their permutation null (p95 "
+                       f"{r1p95}) -> OVERFITTING ARTIFACT (19 features / 54 rows / 8 minority), not signal.")
+    elif not robust:
+        pred_change = (f"Richer R1 diagnostics only MARGINALLY clear a high permutation null (bAcc vs "
+                       f"perm-p95 {r1p95}; margin < 0.03) -> within Monte-Carlo/overfitting noise, NOT a "
+                       f"robust predictor; R0 source-only stays below its own null (TOS-1 ceiling).")
+    else:
+        pred_change = ("Richer R1 diagnostics beat the baseline AND robustly clear the permutation null "
+                       "-> a real empirical RETROSPECTIVE predictor (still not identifiability).")
+    changed = [
+        pred_change,
+        (f"Real minimal-label curves: harm-sign reaches 0.8 at k={metrics['real_minimal_label_best_k_0_8']}, "
+         f"0.9 at k={metrics['real_minimal_label_best_k_0_9']} (labeled slice under an iid sampling contract)."),
+        "R1 diagnostics remain label-free; oracle per-trial labels used only for R2 curves / evaluation.",
+    ]
+    return {"project": "Project A", "step": "Step 13",
+            "scope": "rich R1 diagnostics + real minimal-label curves; not SOTA",
+            "metrics": metrics, "what_changed_from_step12": changed,
+            "claim_boundary": ("R1 diagnostics are label-free; R0/R1 harm prediction is retrospective, not "
+                               "identifiability; real k>0 curves are labeled slices under an iid sampling "
+                               "contract. No SOTA claim.")}
+
+
+def write_step13_md(d: Dict[str, Any], path) -> str:
+    m = d["metrics"]
+    lines = ["# Step 13 — Science Dashboard (rich R1 diagnostics + real minimal-label curves)", "",
+             f"Scope: {d['scope']}.", "", "## Key metrics", "",
+             f"- real runs: **{m['n_real_runs']}** · harm-rate **{m['real_harm_rate']}** · "
+             f"R1 diagnostics available **{m['r1_diagnostics_available_rate']}**",
+             f"- harm-predictor bAcc — R0 **{m['R0_harm_predictor_bacc']}** · R1 **{m['R1_harm_predictor_bacc']}** · "
+             f"R1 beats baseline **{m['R1_beats_baseline']}** · improves over Step 12 **{m['R1_improves_over_step12']}**",
+             f"- real minimal-label best k — ≥0.8 **{m['real_minimal_label_best_k_0_8']}** · ≥0.9 "
+             f"**{m['real_minimal_label_best_k_0_9']}**",
+             f"- claim boundary ok **{m['claim_boundary_ok']}** · target labels used in R1 diagnostics "
+             f"**{m['target_labels_used_in_r1_diagnostics']}**", "", "## What changed from Step 12", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_changed_from_step12"], 1)]
+    lines += ["", "> " + d["claim_boundary"]]
+    text = "\n".join(lines) + "\n"
+    write_text_lf(path, text)
+    return text
+
+
 def write_md(d: Dict[str, Any], path) -> str:
     m = d["metrics"]
     lines = ["# Step 12 — Science Dashboard", "",
@@ -116,26 +197,40 @@ def main(argv=None):
     ap = argparse.ArgumentParser(description="Project A Step 12 science dashboard")
     ap.add_argument("--harm-table", required=True)
     ap.add_argument("--harm-predictor", required=True)
-    ap.add_argument("--phase-transition", required=True)
+    ap.add_argument("--phase-transition", default=None, help="Step-12 mode")
     ap.add_argument("--multidataset", required=True)
+    ap.add_argument("--real-minimal-labels", default=None,
+                    help="Step-13 mode: real minimal-label curves JSON")
+    ap.add_argument("--step12-harm-predictor", default=None,
+                    help="Step-13 mode: prior Step-12 harm predictor for improvement comparison")
     ap.add_argument("--out-json", default=None)
     ap.add_argument("--out-md", default=None)
     args = ap.parse_args(argv)
 
-    d = build_dashboard(_load_json(Path(args.harm_table)), _load_json(Path(args.harm_predictor)),
-                        _load_json(Path(args.phase_transition)), _load_json(Path(args.multidataset)))
+    if args.real_minimal_labels:                              # Step 13
+        d = build_step13_dashboard(
+            _load_json(Path(args.harm_table)), _load_json(Path(args.harm_predictor)),
+            _load_json(Path(args.real_minimal_labels)), _load_json(Path(args.multidataset)),
+            _load_json(Path(args.step12_harm_predictor)) if args.step12_harm_predictor else None)
+        md_writer = write_step13_md
+    else:                                                     # Step 12
+        d = build_dashboard(_load_json(Path(args.harm_table)), _load_json(Path(args.harm_predictor)),
+                            _load_json(Path(args.phase_transition)), _load_json(Path(args.multidataset)))
+        md_writer = write_md
     if args.out_json:
         Path(args.out_json).parent.mkdir(parents=True, exist_ok=True)
         write_json_lf(args.out_json, d)
     if args.out_md:
         Path(args.out_md).parent.mkdir(parents=True, exist_ok=True)
-        write_md(d, args.out_md)
+        md_writer(d, args.out_md)
     m = d["metrics"]
-    print(f"science_dashboard n_real_runs={m['n_real_runs']} real_harm_rate={m['real_harm_rate']} "
-          f"R0_bAcc={m['R0_harm_predictor_bacc']} R1_bAcc={m['R1_harm_predictor_bacc']} "
-          f"delta={m['R0_to_R1_delta']} phase_transition={m['minimal_paired_phase_transition_observed']} "
-          f"best_k={m['minimal_paired_best_k']} claim_boundary_ok={m['claim_boundary_ok']}")
-    return 0 if d["metrics"]["claim_boundary_ok"] else 1
+    print(f"science_dashboard[{d['step']}] n_real_runs={m['n_real_runs']} "
+          f"real_harm_rate={m['real_harm_rate']} R0_bAcc={m.get('R0_harm_predictor_bacc')} "
+          f"R1_bAcc={m.get('R1_harm_predictor_bacc')} "
+          f"phase_transition={m.get('minimal_paired_phase_transition_observed')} "
+          f"real_best_k_0.9={m.get('real_minimal_label_best_k_0_9')} "
+          f"claim_boundary_ok={m['claim_boundary_ok']}")
+    return 0 if m["claim_boundary_ok"] else 1
 
 
 if __name__ == "__main__":

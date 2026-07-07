@@ -260,11 +260,40 @@ Pipeline: `scripts/project_A_step12_science_cpu.slurm` writes tracked `step12_*`
 `test_observability_harm_attribution.py`, `test_observability_harm_predictor.py`,
 `test_minimal_paired_phase_transition.py`, `test_observability_science_dashboard.py`.
 
+## 13. Rich R1 diagnostics and real minimal-label curves
+
+Step 13 tests whether Step 12's null harm-prediction result was caused by missing R1 diagnostics. It
+adds richer **label-free** target-unlabeled diagnostics to the real runner and a per-trial oracle
+prediction payload for R2 minimal-label analysis.
+
+- **Rich R1 diagnostics** (`harness.py` prediction diagnostics + `run_real_audited.py`
+  representation/prior diagnostics) land in a `r1_diagnostics` block of `raw_results.json`; missing
+  ones are reason-coded in `r1_diagnostics_missing`. `harm_attribution.py` prefers this block and falls
+  back to the legacy per-domain computation for older runs.
+- **Per-trial oracle predictions** (`per_trial_oracle_predictions`) are stored evaluation-only and read
+  ONLY by `real_minimal_labels.py`.
+
+Hard rules (tests enforce):
+- R1 diagnostics use target X / predictions only, never target labels (label-free; a permutation of
+  labels cannot change them).
+- Oracle per-trial labels are evaluation-only; a per-trial key is never an R0/R1 feature.
+- Real minimal-label curves: k=0 = R1 non-identifiable; k>0 = R2 labeled slice under an iid sampling
+  contract, never full-target identification.
+- Any R1 harm predictor remains retrospective empirical prediction, not identifiability. No SOTA.
+
+Reruns the two ok datasets only (no new datasets): `BNCI2014_001` + `BNCI2014_004`, all subjects/all
+targets × seeds 0-2 × 50 epochs → `results/step13_<DATASET>_diagnostics`. Pipeline:
+`scripts/project_A_step13_diagnostics_gpu_array.slurm` then
+`scripts/project_A_step13_science_cpu.slurm` (harm attribution → harm predictor → real minimal-label
+curves → Step-13 dashboard). Tests: `test_observability_harm_attribution.py` (rich R1 + label-free),
+`test_real_minimal_label_curves.py`, `test_observability_science_dashboard.py` (Step-13 mode).
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
 (`run_counterexamples.py`); the audited evaluation bridge (§6), the real-EEG audited pilot
 (§7, `run_real_audited.py`), the audited mini-grid + validator (§8), the expanded grid +
 statistical digest (§9), the multi-dataset audited expansion + chance-normalized digest
-(§10), and the Step-12 scientific exploration (§12, harm attribution + minimal-information phase
-transition) are live. A full multi-dataset SOTA table and manuscript writing are out of scope.
+(§10), the Step-12 scientific exploration (§12), and the Step-13 rich-R1 diagnostics + real
+minimal-label curves (§13) are live. A full multi-dataset SOTA table and manuscript writing are out
+of scope.

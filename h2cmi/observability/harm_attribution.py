@@ -35,6 +35,9 @@ if str(_REPO_ROOT) not in sys.path:
 # oracle-only keys (need target labels) — a hard denylist for any predictor feature matrix
 ORACLE_KEYS = {"strict_dg_bacc", "offline_tta_bacc_identity", "offline_tta_bacc_adapt",
                "offline_tta_gain_bacc", "target_gain_bacc", "target_harmed", "offline_tta_harmed"}
+# per-trial oracle-prediction payload keys — evaluation-only (R2 curves), NEVER an R0/R1 feature
+_PER_TRIAL_KEYS = {"target_trial_index", "y_true", "identity_pred", "adapt_pred",
+                   "identity_confidence", "adapt_confidence", "domain"}
 # reviewer-requested R1 diagnostics the current raw outputs do NOT provide (recorded, not faked)
 _UNAVAILABLE_R1 = ["tta_confidence_mean", "tta_entropy_mean", "target_support_proxy",
                    "target_marginal_shift_proxy"]
@@ -112,15 +115,28 @@ def extract_run(run_dir: Path) -> Optional[Dict[str, Any]]:
         "source_cond_dom_acc_subject": _num(_dig(raw, "leakage", "subject", "cond_dom_acc")),
         "source_mean_pseudo_gain": _num(_dig(raw, "gate_info", "mean_pseudo_gain")),
     }
-    r1 = _r1_from_domains(raw)
-    missing = [k for k in _UNAVAILABLE_R1] + [k for k, v in {**r0, **r1}.items() if v is None]
+    # prefer the Step-13 instrumented label-free r1_diagnostics block; fall back to the legacy
+    # per-domain computation for older (Step 9/10) runs that predate the instrumentation.
+    r1_block = raw.get("r1_diagnostics")
+    if isinstance(r1_block, dict) and r1_block:
+        r1 = {k: _num(v) for k, v in r1_block.items()}
+        r1_source = "instrumented_r1_diagnostics"
+        missing = set((raw.get("r1_diagnostics_missing") or {}).keys())
+    else:
+        r1 = _r1_from_domains(raw)
+        r1_source = "legacy_per_domain"
+        missing = set(_UNAVAILABLE_R1)
+    # a per-trial oracle key must NEVER be an R0/R1 feature (hard invariant)
+    assert set(r0).isdisjoint(_PER_TRIAL_KEYS) and set(r1).isdisjoint(_PER_TRIAL_KEYS)
+    assert set(r0).isdisjoint(ORACLE_KEYS) and set(r1).isdisjoint(ORACLE_KEYS)
+    missing |= {k for k, v in {**r0, **r1}.items() if v is None}
 
     return {
         "dataset": manifest.get("dataset"), "target_subject": manifest.get("target_subject"),
         "seed": manifest.get("seed"), "n_classes": manifest.get("n_classes"),
-        "offline_tta_harmed": oracle["target_harmed"],
+        "offline_tta_harmed": oracle["target_harmed"], "r1_source": r1_source,
         "r0_features": r0, "r1_features": r1, "oracle_fields": oracle,
-        "missing_diagnostics": sorted(set(missing)),
+        "missing_diagnostics": sorted(missing),
         "claim_boundary": {
             "oracle_target_gain_identifiable": False,
             "used_for_retrospective_evaluation_only": True,
@@ -149,16 +165,23 @@ def write_md(rows, path) -> str:
              f"**{round(harmed / n, 4) if n else None}**",
              f"- feature regimes: R0 source-only · R1 target-unlabeled · oracle evaluation-only", "",
              "| dataset | tgt | seed | K | harmed | gain | src_leak_subj | src_pseudo_gain | "
-             "tgt_prior_ent | tgt_prior_l1 | tta_transform | tta_disagree |",
+             "tgt_prior_ent | tgt_prior_l1 | mmd_or_transform | disagreement |",
              "|---|---:|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|"]
+    def _g(d, *keys):                                        # first present key (instrumented|legacy)
+        for k in keys:
+            if k in d:
+                return d[k]
+        return None
+
     for r in rows:
         o, a, b = r["oracle_fields"], r["r0_features"], r["r1_features"]
         lines.append(
             f"| {r['dataset']} | {r['target_subject']} | {r['seed']} | {r['n_classes']} | "
-            f"{'Y' if r['offline_tta_harmed'] else 'n'} | {_f(o['offline_tta_gain_bacc'])} | "
-            f"{_f(a['source_leakage_subject_I_hat'])} | {_f(a['source_mean_pseudo_gain'])} | "
-            f"{_f(b['target_prior_entropy_hat'])} | {_f(b['target_prior_shift_l1_hat'])} | "
-            f"{_f(b['tta_transform_norm_mean'])} | {_f(b['tta_pred_disagreement_mean'])} |")
+            f"{'Y' if r['offline_tta_harmed'] else 'n'} | {_f(o.get('offline_tta_gain_bacc'))} | "
+            f"{_f(a.get('source_leakage_subject_I_hat'))} | {_f(a.get('source_mean_pseudo_gain'))} | "
+            f"{_f(b.get('target_prior_entropy_hat'))} | {_f(b.get('target_prior_shift_l1_hat'))} | "
+            f"{_f(_g(b, 'source_target_mmd_rbf', 'tta_transform_norm_mean'))} | "
+            f"{_f(_g(b, 'identity_adapt_prediction_disagreement', 'tta_pred_disagreement_mean'))} |")
     miss = sorted({m for r in rows for m in r["missing_diagnostics"]})
     lines += ["", f"Missing/unavailable diagnostics (reason-coded, not faked): **{miss or 'none'}**",
               "", "> Oracle target gain is used ONLY as the retrospective outcome to explain; it is "

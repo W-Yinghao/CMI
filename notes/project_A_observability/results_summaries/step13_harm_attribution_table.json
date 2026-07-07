@@ -1,0 +1,2504 @@
+{
+  "project": "Project A",
+  "step": "Step 12",
+  "scope": "TTA harm attribution; not SOTA",
+  "n_runs": 54,
+  "n_harmed": 46,
+  "harm_rate": 0.8519,
+  "oracle_denylist": [
+    "offline_tta_bacc_adapt",
+    "offline_tta_bacc_identity",
+    "offline_tta_gain_bacc",
+    "offline_tta_harmed",
+    "strict_dg_bacc",
+    "target_gain_bacc",
+    "target_harmed"
+  ],
+  "claim_boundary": "Oracle offline-TTA gain/harm are evaluation-only (TOS-1/TU-2 non-identifiable under R0/R1) and must never appear as a predictor feature. R0/R1 features are the only admissible predictors.",
+  "runs": [
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 0,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.013411438207137971,
+        "source_leakage_session_I_hat": 0.8142650354838943,
+        "source_cond_dom_acc_subject": 0.15516493055555558,
+        "source_mean_pseudo_gain": -0.1430121527777778
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.172164,
+        "target_prediction_entropy_adapt": 0.693249,
+        "target_confidence_mean_identity": 0.493435,
+        "target_confidence_mean_adapt": 0.725563,
+        "identity_adapt_prediction_disagreement": 0.310764,
+        "adapted_pseudolabel_entropy": 0.990879,
+        "adapted_pseudolabel_max_class_mass": 0.555556,
+        "source_target_mmd_rbf": 0.071822,
+        "source_target_centroid_distance": 0.146931,
+        "target_knn_distance_mean": 0.079151,
+        "target_off_source_mass_proxy": 0.1775,
+        "target_prior_entropy_hat": 1.138579,
+        "target_prior_shift_l1_hat": 0.571321,
+        "target_prior_shift_l1_from_source": 0.571321,
+        "prior_estimate_max_mass": 0.472207
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.548611111111111,
+        "offline_tta_bacc_identity": 0.5295138888888888,
+        "offline_tta_bacc_adapt": 0.48090277777777773,
+        "offline_tta_gain_bacc": -0.048611111111111105,
+        "target_gain_bacc": -0.048611111111111105,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 1,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.02484158871938269,
+        "source_leakage_session_I_hat": 0.8255185436337271,
+        "source_cond_dom_acc_subject": 0.1506076388888889,
+        "source_mean_pseudo_gain": -0.2745225694444444
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.125027,
+        "target_prediction_entropy_adapt": 0.480603,
+        "target_confidence_mean_identity": 0.513089,
+        "target_confidence_mean_adapt": 0.815266,
+        "identity_adapt_prediction_disagreement": 0.407986,
+        "adapted_pseudolabel_entropy": 0.597915,
+        "adapted_pseudolabel_max_class_mass": 0.838542,
+        "source_target_mmd_rbf": 0.080821,
+        "source_target_centroid_distance": 0.164636,
+        "target_knn_distance_mean": 0.071671,
+        "target_off_source_mass_proxy": 0.1275,
+        "target_prior_entropy_hat": 0.785465,
+        "target_prior_shift_l1_hat": 1.020144,
+        "target_prior_shift_l1_from_source": 1.020144,
+        "prior_estimate_max_mass": 0.760072
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5451388888888888,
+        "offline_tta_bacc_identity": 0.5243055555555555,
+        "offline_tta_bacc_adapt": 0.3194444444444444,
+        "offline_tta_gain_bacc": -0.20486111111111105,
+        "target_gain_bacc": -0.20486111111111105,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 2,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.021568236061445756,
+        "source_leakage_session_I_hat": 0.8212456951770534,
+        "source_cond_dom_acc_subject": 0.15364583333333331,
+        "source_mean_pseudo_gain": -0.25347222222222227
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.088837,
+        "target_prediction_entropy_adapt": 0.449253,
+        "target_confidence_mean_identity": 0.543419,
+        "target_confidence_mean_adapt": 0.83161,
+        "identity_adapt_prediction_disagreement": 0.296875,
+        "adapted_pseudolabel_entropy": 0.80586,
+        "adapted_pseudolabel_max_class_mass": 0.696181,
+        "source_target_mmd_rbf": 0.053993,
+        "source_target_centroid_distance": 0.117254,
+        "target_knn_distance_mean": 0.085054,
+        "target_off_source_mass_proxy": 0.1775,
+        "target_prior_entropy_hat": 0.835696,
+        "target_prior_shift_l1_hat": 0.914607,
+        "target_prior_shift_l1_from_source": 0.914607,
+        "prior_estimate_max_mass": 0.707303
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5659722222222223,
+        "offline_tta_bacc_identity": 0.5329861111111112,
+        "offline_tta_bacc_adapt": 0.4322916666666667,
+        "offline_tta_gain_bacc": -0.10069444444444448,
+        "target_gain_bacc": -0.10069444444444448,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 0,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.02842120832802908,
+        "source_leakage_session_I_hat": 0.8159680809427943,
+        "source_cond_dom_acc_subject": 0.169921875,
+        "source_mean_pseudo_gain": -0.08311631944444442
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.163313,
+        "target_prediction_entropy_adapt": 0.254968,
+        "target_confidence_mean_identity": 0.487737,
+        "target_confidence_mean_adapt": 0.915838,
+        "identity_adapt_prediction_disagreement": 0.654514,
+        "adapted_pseudolabel_entropy": 0.17648,
+        "adapted_pseudolabel_max_class_mass": 0.967014,
+        "source_target_mmd_rbf": 0.120616,
+        "source_target_centroid_distance": 0.187161,
+        "target_knn_distance_mean": 0.064376,
+        "target_off_source_mass_proxy": 0.0075,
+        "target_prior_entropy_hat": 0.560643,
+        "target_prior_shift_l1_hat": 1.19729,
+        "target_prior_shift_l1_from_source": 1.19729,
+        "prior_estimate_max_mass": 0.848645
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.28645833333333337,
+        "offline_tta_bacc_identity": 0.2899305555555555,
+        "offline_tta_bacc_adapt": 0.25,
+        "offline_tta_gain_bacc": -0.039930555555555525,
+        "target_gain_bacc": -0.039930555555555525,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 1,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.023238966916717452,
+        "source_leakage_session_I_hat": 0.8240637079927238,
+        "source_cond_dom_acc_subject": 0.15907118055555555,
+        "source_mean_pseudo_gain": -0.1805555555555556
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.129771,
+        "target_prediction_entropy_adapt": 0.031831,
+        "target_confidence_mean_identity": 0.506521,
+        "target_confidence_mean_adapt": 0.993397,
+        "identity_adapt_prediction_disagreement": 0.40625,
+        "adapted_pseudolabel_entropy": -0.0,
+        "adapted_pseudolabel_max_class_mass": 1.0,
+        "source_target_mmd_rbf": 0.148413,
+        "source_target_centroid_distance": 0.187868,
+        "target_knn_distance_mean": 0.057506,
+        "target_off_source_mass_proxy": 0.0075,
+        "target_prior_entropy_hat": 0.13705,
+        "target_prior_shift_l1_hat": 1.452454,
+        "target_prior_shift_l1_from_source": 1.452454,
+        "prior_estimate_max_mass": 0.976227
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.28472222222222227,
+        "offline_tta_bacc_identity": 0.2899305555555555,
+        "offline_tta_bacc_adapt": 0.25,
+        "offline_tta_gain_bacc": -0.039930555555555525,
+        "target_gain_bacc": -0.039930555555555525,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 2,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.02011856957241065,
+        "source_leakage_session_I_hat": 0.8204645512415913,
+        "source_cond_dom_acc_subject": 0.1521267361111111,
+        "source_mean_pseudo_gain": -0.2170138888888889
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.125738,
+        "target_prediction_entropy_adapt": 0.04104,
+        "target_confidence_mean_identity": 0.517189,
+        "target_confidence_mean_adapt": 0.991322,
+        "identity_adapt_prediction_disagreement": 0.380208,
+        "adapted_pseudolabel_entropy": -0.0,
+        "adapted_pseudolabel_max_class_mass": 1.0,
+        "source_target_mmd_rbf": 0.184158,
+        "source_target_centroid_distance": 0.196947,
+        "target_knn_distance_mean": 0.061077,
+        "target_off_source_mass_proxy": 0.025,
+        "target_prior_entropy_hat": 0.108836,
+        "target_prior_shift_l1_hat": 1.46439,
+        "target_prior_shift_l1_from_source": 1.46439,
+        "prior_estimate_max_mass": 0.982195
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.2795138888888889,
+        "offline_tta_bacc_identity": 0.2864583333333333,
+        "offline_tta_bacc_adapt": 0.25,
+        "offline_tta_gain_bacc": -0.036458333333333315,
+        "target_gain_bacc": -0.036458333333333315,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 0,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.013072893089076443,
+        "source_leakage_session_I_hat": 0.8155899192740168,
+        "source_cond_dom_acc_subject": 0.1486545138888889,
+        "source_mean_pseudo_gain": -0.09309895833333334
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.257389,
+        "target_prediction_entropy_adapt": 0.733311,
+        "target_confidence_mean_identity": 0.42148,
+        "target_confidence_mean_adapt": 0.717181,
+        "identity_adapt_prediction_disagreement": 0.404514,
+        "adapted_pseudolabel_entropy": 0.82099,
+        "adapted_pseudolabel_max_class_mass": 0.715278,
+        "source_target_mmd_rbf": 0.105106,
+        "source_target_centroid_distance": 0.132393,
+        "target_knn_distance_mean": 0.06415,
+        "target_off_source_mass_proxy": 0.0475,
+        "target_prior_entropy_hat": 1.058887,
+        "target_prior_shift_l1_hat": 0.689112,
+        "target_prior_shift_l1_from_source": 0.689112,
+        "prior_estimate_max_mass": 0.594556
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5086805555555556,
+        "offline_tta_bacc_identity": 0.5190972222222222,
+        "offline_tta_bacc_adapt": 0.40624999999999994,
+        "offline_tta_gain_bacc": -0.11284722222222227,
+        "target_gain_bacc": -0.11284722222222227,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 1,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.023256729100860518,
+        "source_leakage_session_I_hat": 0.8245997623655112,
+        "source_cond_dom_acc_subject": 0.15690104166666669,
+        "source_mean_pseudo_gain": -0.2367621527777778
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.236176,
+        "target_prediction_entropy_adapt": 0.86459,
+        "target_confidence_mean_identity": 0.436005,
+        "target_confidence_mean_adapt": 0.65131,
+        "identity_adapt_prediction_disagreement": 0.685764,
+        "adapted_pseudolabel_entropy": 1.030289,
+        "adapted_pseudolabel_max_class_mass": 0.598958,
+        "source_target_mmd_rbf": 0.116308,
+        "source_target_centroid_distance": 0.157246,
+        "target_knn_distance_mean": 0.055352,
+        "target_off_source_mass_proxy": 0.035,
+        "target_prior_entropy_hat": 1.248863,
+        "target_prior_shift_l1_hat": 0.479796,
+        "target_prior_shift_l1_from_source": 0.479796,
+        "prior_estimate_max_mass": 0.445692
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.4878472222222222,
+        "offline_tta_bacc_identity": 0.49826388888888884,
+        "offline_tta_bacc_adapt": 0.4913194444444445,
+        "offline_tta_gain_bacc": -0.006944444444444364,
+        "target_gain_bacc": -0.006944444444444364,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 2,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.023658012588463118,
+        "source_leakage_session_I_hat": 0.8204104302241353,
+        "source_cond_dom_acc_subject": 0.1547309027777778,
+        "source_mean_pseudo_gain": -0.259765625
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.15958,
+        "target_prediction_entropy_adapt": 0.29587,
+        "target_confidence_mean_identity": 0.496599,
+        "target_confidence_mean_adapt": 0.890557,
+        "identity_adapt_prediction_disagreement": 0.213542,
+        "adapted_pseudolabel_entropy": 0.385919,
+        "adapted_pseudolabel_max_class_mass": 0.875,
+        "source_target_mmd_rbf": 0.076355,
+        "source_target_centroid_distance": 0.136715,
+        "target_knn_distance_mean": 0.059756,
+        "target_off_source_mass_proxy": 0.02,
+        "target_prior_entropy_hat": 0.558649,
+        "target_prior_shift_l1_hat": 1.147845,
+        "target_prior_shift_l1_from_source": 1.147845,
+        "prior_estimate_max_mass": 0.823922
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.4618055555555556,
+        "offline_tta_bacc_identity": 0.4479166666666667,
+        "offline_tta_bacc_adapt": 0.3402777777777778,
+        "offline_tta_gain_bacc": -0.1076388888888889,
+        "target_gain_bacc": -0.1076388888888889,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 0,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.026366874643788396,
+        "source_leakage_session_I_hat": 0.8153704788014966,
+        "source_cond_dom_acc_subject": 0.154296875,
+        "source_mean_pseudo_gain": -0.07226562500000003
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.198534,
+        "target_prediction_entropy_adapt": 0.751854,
+        "target_confidence_mean_identity": 0.457543,
+        "target_confidence_mean_adapt": 0.705218,
+        "identity_adapt_prediction_disagreement": 0.439236,
+        "adapted_pseudolabel_entropy": 1.13316,
+        "adapted_pseudolabel_max_class_mass": 0.545139,
+        "source_target_mmd_rbf": 0.146061,
+        "source_target_centroid_distance": 0.202667,
+        "target_knn_distance_mean": 0.081108,
+        "target_off_source_mass_proxy": 0.1325,
+        "target_prior_entropy_hat": 1.200245,
+        "target_prior_shift_l1_hat": 0.503942,
+        "target_prior_shift_l1_from_source": 0.503942,
+        "prior_estimate_max_mass": 0.489547
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.3489583333333333,
+        "offline_tta_bacc_identity": 0.3472222222222222,
+        "offline_tta_bacc_adapt": 0.2916666666666667,
+        "offline_tta_gain_bacc": -0.055555555555555525,
+        "target_gain_bacc": -0.055555555555555525,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 1,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.02468862641155778,
+        "source_leakage_session_I_hat": 0.8230706567405341,
+        "source_cond_dom_acc_subject": 0.15907118055555555,
+        "source_mean_pseudo_gain": -0.16601562499999994
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.169689,
+        "target_prediction_entropy_adapt": 0.570873,
+        "target_confidence_mean_identity": 0.494103,
+        "target_confidence_mean_adapt": 0.791513,
+        "identity_adapt_prediction_disagreement": 0.442708,
+        "adapted_pseudolabel_entropy": 0.668905,
+        "adapted_pseudolabel_max_class_mass": 0.805556,
+        "source_target_mmd_rbf": 0.137366,
+        "source_target_centroid_distance": 0.19396,
+        "target_knn_distance_mean": 0.074794,
+        "target_off_source_mass_proxy": 0.1075,
+        "target_prior_entropy_hat": 0.960604,
+        "target_prior_shift_l1_hat": 0.867984,
+        "target_prior_shift_l1_from_source": 0.867984,
+        "prior_estimate_max_mass": 0.683992
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.3663194444444444,
+        "offline_tta_bacc_identity": 0.375,
+        "offline_tta_bacc_adapt": 0.3159722222222222,
+        "offline_tta_gain_bacc": -0.05902777777777779,
+        "target_gain_bacc": -0.05902777777777779,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 2,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.029834414280035526,
+        "source_leakage_session_I_hat": 0.8178209238009289,
+        "source_cond_dom_acc_subject": 0.16319444444444442,
+        "source_mean_pseudo_gain": -0.24197048611111105
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.098349,
+        "target_prediction_entropy_adapt": 0.268529,
+        "target_confidence_mean_identity": 0.541657,
+        "target_confidence_mean_adapt": 0.902942,
+        "identity_adapt_prediction_disagreement": 0.364583,
+        "adapted_pseudolabel_entropy": 0.436997,
+        "adapted_pseudolabel_max_class_mass": 0.847222,
+        "source_target_mmd_rbf": 0.103056,
+        "source_target_centroid_distance": 0.152636,
+        "target_knn_distance_mean": 0.068715,
+        "target_off_source_mass_proxy": 0.085,
+        "target_prior_entropy_hat": 0.586196,
+        "target_prior_shift_l1_hat": 1.096068,
+        "target_prior_shift_l1_from_source": 1.096068,
+        "prior_estimate_max_mass": 0.798034
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.36458333333333337,
+        "offline_tta_bacc_identity": 0.35416666666666663,
+        "offline_tta_bacc_adapt": 0.3177083333333333,
+        "offline_tta_gain_bacc": -0.036458333333333315,
+        "target_gain_bacc": -0.036458333333333315,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 0,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.02327585487751005,
+        "source_leakage_session_I_hat": 0.8152647081951454,
+        "source_cond_dom_acc_subject": 0.15516493055555558,
+        "source_mean_pseudo_gain": -0.061631944444444454
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.966993,
+        "target_prediction_entropy_adapt": 0.017521,
+        "target_confidence_mean_identity": 0.620526,
+        "target_confidence_mean_adapt": 0.996842,
+        "identity_adapt_prediction_disagreement": 0.100694,
+        "adapted_pseudolabel_entropy": -0.0,
+        "adapted_pseudolabel_max_class_mass": 1.0,
+        "source_target_mmd_rbf": 0.311927,
+        "source_target_centroid_distance": 0.322028,
+        "target_knn_distance_mean": 0.070792,
+        "target_off_source_mass_proxy": 0.045,
+        "target_prior_entropy_hat": 0.098943,
+        "target_prior_shift_l1_hat": 1.468248,
+        "target_prior_shift_l1_from_source": 1.468248,
+        "prior_estimate_max_mass": 0.984124
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.2673611111111111,
+        "offline_tta_bacc_identity": 0.2552083333333333,
+        "offline_tta_bacc_adapt": 0.25,
+        "offline_tta_gain_bacc": -0.005208333333333315,
+        "target_gain_bacc": -0.005208333333333315,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 1,
+      "n_classes": 4,
+      "offline_tta_harmed": false,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.028111725520342246,
+        "source_leakage_session_I_hat": 0.824653750949274,
+        "source_cond_dom_acc_subject": 0.1677517361111111,
+        "source_mean_pseudo_gain": -0.17317708333333337
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.074654,
+        "target_prediction_entropy_adapt": 0.535372,
+        "target_confidence_mean_identity": 0.543335,
+        "target_confidence_mean_adapt": 0.758473,
+        "identity_adapt_prediction_disagreement": 0.199653,
+        "adapted_pseudolabel_entropy": 0.68395,
+        "adapted_pseudolabel_max_class_mass": 0.567708,
+        "source_target_mmd_rbf": 0.26067,
+        "source_target_centroid_distance": 0.257314,
+        "target_knn_distance_mean": 0.064607,
+        "target_off_source_mass_proxy": 0.0575,
+        "target_prior_entropy_hat": 0.789307,
+        "target_prior_shift_l1_hat": 0.957354,
+        "target_prior_shift_l1_from_source": 0.957354,
+        "prior_estimate_max_mass": 0.546191
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.2638888888888889,
+        "offline_tta_bacc_identity": 0.26736111111111116,
+        "offline_tta_bacc_adapt": 0.2743055555555556,
+        "offline_tta_gain_bacc": 0.00694444444444442,
+        "target_gain_bacc": 0.00694444444444442,
+        "target_harmed": false
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 2,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.007955557326595697,
+        "source_leakage_session_I_hat": 0.8173612691737108,
+        "source_cond_dom_acc_subject": 0.140625,
+        "source_mean_pseudo_gain": -0.203125
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.043396,
+        "target_prediction_entropy_adapt": 0.067736,
+        "target_confidence_mean_identity": 0.558294,
+        "target_confidence_mean_adapt": 0.98256,
+        "identity_adapt_prediction_disagreement": 0.645833,
+        "adapted_pseudolabel_entropy": 0.023129,
+        "adapted_pseudolabel_max_class_mass": 0.996528,
+        "source_target_mmd_rbf": 0.317868,
+        "source_target_centroid_distance": 0.307835,
+        "target_knn_distance_mean": 0.076736,
+        "target_off_source_mass_proxy": 0.1,
+        "target_prior_entropy_hat": 0.136373,
+        "target_prior_shift_l1_hat": 1.453293,
+        "target_prior_shift_l1_from_source": 1.453293,
+        "prior_estimate_max_mass": 0.976647
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.2517361111111111,
+        "offline_tta_bacc_identity": 0.2517361111111111,
+        "offline_tta_bacc_adapt": 0.25,
+        "offline_tta_gain_bacc": -0.001736111111111105,
+        "target_gain_bacc": -0.001736111111111105,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 0,
+      "n_classes": 4,
+      "offline_tta_harmed": false,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.02117244413971542,
+        "source_leakage_session_I_hat": 0.8153546710007039,
+        "source_cond_dom_acc_subject": 0.15342881944444442,
+        "source_mean_pseudo_gain": -0.08029513888888884
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.128268,
+        "target_prediction_entropy_adapt": 0.648996,
+        "target_confidence_mean_identity": 0.508974,
+        "target_confidence_mean_adapt": 0.753844,
+        "identity_adapt_prediction_disagreement": 0.244792,
+        "adapted_pseudolabel_entropy": 0.993031,
+        "adapted_pseudolabel_max_class_mass": 0.661458,
+        "source_target_mmd_rbf": 0.076203,
+        "source_target_centroid_distance": 0.179207,
+        "target_knn_distance_mean": 0.077078,
+        "target_off_source_mass_proxy": 0.0875,
+        "target_prior_entropy_hat": 1.078813,
+        "target_prior_shift_l1_hat": 0.735421,
+        "target_prior_shift_l1_from_source": 0.735421,
+        "prior_estimate_max_mass": 0.61771
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.35416666666666663,
+        "offline_tta_bacc_identity": 0.3472222222222222,
+        "offline_tta_bacc_adapt": 0.3645833333333333,
+        "offline_tta_gain_bacc": 0.017361111111111105,
+        "target_gain_bacc": 0.017361111111111105,
+        "target_harmed": false
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 1,
+      "n_classes": 4,
+      "offline_tta_harmed": false,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.026422611168175347,
+        "source_leakage_session_I_hat": 0.8250324106636977,
+        "source_cond_dom_acc_subject": 0.1616753472222222,
+        "source_mean_pseudo_gain": -0.16384548611111113
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.173312,
+        "target_prediction_entropy_adapt": 0.781321,
+        "target_confidence_mean_identity": 0.48169,
+        "target_confidence_mean_adapt": 0.698115,
+        "identity_adapt_prediction_disagreement": 0.453125,
+        "adapted_pseudolabel_entropy": 1.206834,
+        "adapted_pseudolabel_max_class_mass": 0.529514,
+        "source_target_mmd_rbf": 0.051526,
+        "source_target_centroid_distance": 0.125165,
+        "target_knn_distance_mean": 0.071068,
+        "target_off_source_mass_proxy": 0.1,
+        "target_prior_entropy_hat": 1.288648,
+        "target_prior_shift_l1_hat": 0.393525,
+        "target_prior_shift_l1_from_source": 0.393525,
+        "prior_estimate_max_mass": 0.446763
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.3680555555555556,
+        "offline_tta_bacc_identity": 0.37152777777777773,
+        "offline_tta_bacc_adapt": 0.3819444444444444,
+        "offline_tta_gain_bacc": 0.010416666666666685,
+        "target_gain_bacc": 0.010416666666666685,
+        "target_harmed": false
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 2,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.031171304889124007,
+        "source_leakage_session_I_hat": 0.8192841600577512,
+        "source_cond_dom_acc_subject": 0.16297743055555555,
+        "source_mean_pseudo_gain": -0.2261284722222222
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.026972,
+        "target_prediction_entropy_adapt": 0.335529,
+        "target_confidence_mean_identity": 0.575657,
+        "target_confidence_mean_adapt": 0.877357,
+        "identity_adapt_prediction_disagreement": 0.182292,
+        "adapted_pseudolabel_entropy": 0.601671,
+        "adapted_pseudolabel_max_class_mass": 0.788194,
+        "source_target_mmd_rbf": 0.094798,
+        "source_target_centroid_distance": 0.182885,
+        "target_knn_distance_mean": 0.081215,
+        "target_off_source_mass_proxy": 0.105,
+        "target_prior_entropy_hat": 0.677232,
+        "target_prior_shift_l1_hat": 1.058913,
+        "target_prior_shift_l1_from_source": 1.058913,
+        "prior_estimate_max_mass": 0.779456
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.3350694444444444,
+        "offline_tta_bacc_identity": 0.328125,
+        "offline_tta_bacc_adapt": 0.3055555555555555,
+        "offline_tta_gain_bacc": -0.022569444444444475,
+        "target_gain_bacc": -0.022569444444444475,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 0,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.02889076324648454,
+        "source_leakage_session_I_hat": 0.8200772301465601,
+        "source_cond_dom_acc_subject": 0.1447482638888889,
+        "source_mean_pseudo_gain": -0.06727430555555558
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.151091,
+        "target_prediction_entropy_adapt": 0.564681,
+        "target_confidence_mean_identity": 0.51099,
+        "target_confidence_mean_adapt": 0.780171,
+        "identity_adapt_prediction_disagreement": 0.251736,
+        "adapted_pseudolabel_entropy": 0.683692,
+        "adapted_pseudolabel_max_class_mass": 0.756944,
+        "source_target_mmd_rbf": 0.139101,
+        "source_target_centroid_distance": 0.204416,
+        "target_knn_distance_mean": 0.07768,
+        "target_off_source_mass_proxy": 0.1025,
+        "target_prior_entropy_hat": 0.908038,
+        "target_prior_shift_l1_hat": 0.820378,
+        "target_prior_shift_l1_from_source": 0.820378,
+        "prior_estimate_max_mass": 0.660189
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.3055555555555555,
+        "offline_tta_bacc_identity": 0.2916666666666667,
+        "offline_tta_bacc_adapt": 0.2673611111111111,
+        "offline_tta_gain_bacc": -0.02430555555555558,
+        "target_gain_bacc": -0.02430555555555558,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 1,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.03577490855863075,
+        "source_leakage_session_I_hat": 0.8247916194065752,
+        "source_cond_dom_acc_subject": 0.1642795138888889,
+        "source_mean_pseudo_gain": -0.216796875
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.171887,
+        "target_prediction_entropy_adapt": 0.579212,
+        "target_confidence_mean_identity": 0.483945,
+        "target_confidence_mean_adapt": 0.779497,
+        "identity_adapt_prediction_disagreement": 0.612847,
+        "adapted_pseudolabel_entropy": 0.662309,
+        "adapted_pseudolabel_max_class_mass": 0.793403,
+        "source_target_mmd_rbf": 0.179575,
+        "source_target_centroid_distance": 0.207337,
+        "target_knn_distance_mean": 0.081137,
+        "target_off_source_mass_proxy": 0.1425,
+        "target_prior_entropy_hat": 0.960049,
+        "target_prior_shift_l1_hat": 0.789464,
+        "target_prior_shift_l1_from_source": 0.789464,
+        "prior_estimate_max_mass": 0.644732
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.27777777777777773,
+        "offline_tta_bacc_identity": 0.2864583333333333,
+        "offline_tta_bacc_adapt": 0.28125,
+        "offline_tta_gain_bacc": -0.005208333333333315,
+        "target_gain_bacc": -0.005208333333333315,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 2,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.010801158153964652,
+        "source_leakage_session_I_hat": 0.8188869270047838,
+        "source_cond_dom_acc_subject": 0.1310763888888889,
+        "source_mean_pseudo_gain": -0.25260416666666663
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.190061,
+        "target_prediction_entropy_adapt": 0.191757,
+        "target_confidence_mean_identity": 0.467905,
+        "target_confidence_mean_adapt": 0.939354,
+        "identity_adapt_prediction_disagreement": 0.670139,
+        "adapted_pseudolabel_entropy": 0.179727,
+        "adapted_pseudolabel_max_class_mass": 0.963542,
+        "source_target_mmd_rbf": 0.140116,
+        "source_target_centroid_distance": 0.205308,
+        "target_knn_distance_mean": 0.080759,
+        "target_off_source_mass_proxy": 0.18,
+        "target_prior_entropy_hat": 0.355868,
+        "target_prior_shift_l1_hat": 1.342586,
+        "target_prior_shift_l1_from_source": 1.342586,
+        "prior_estimate_max_mass": 0.921293
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.2690972222222222,
+        "offline_tta_bacc_identity": 0.2899305555555555,
+        "offline_tta_bacc_adapt": 0.25520833333333337,
+        "offline_tta_gain_bacc": -0.034722222222222154,
+        "target_gain_bacc": -0.034722222222222154,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 0,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.03120485397524453,
+        "source_leakage_session_I_hat": 0.820677806547317,
+        "source_cond_dom_acc_subject": 0.1603732638888889,
+        "source_mean_pseudo_gain": -0.0549045138888889
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.235131,
+        "target_prediction_entropy_adapt": 0.859856,
+        "target_confidence_mean_identity": 0.445633,
+        "target_confidence_mean_adapt": 0.651618,
+        "identity_adapt_prediction_disagreement": 0.201389,
+        "adapted_pseudolabel_entropy": 1.239606,
+        "adapted_pseudolabel_max_class_mass": 0.392361,
+        "source_target_mmd_rbf": 0.031561,
+        "source_target_centroid_distance": 0.061943,
+        "target_knn_distance_mean": 0.063962,
+        "target_off_source_mass_proxy": 0.035,
+        "target_prior_entropy_hat": 1.276466,
+        "target_prior_shift_l1_hat": 0.343054,
+        "target_prior_shift_l1_from_source": 0.343054,
+        "prior_estimate_max_mass": 0.374908
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5746527777777778,
+        "offline_tta_bacc_identity": 0.5607638888888888,
+        "offline_tta_bacc_adapt": 0.5138888888888888,
+        "offline_tta_gain_bacc": -0.046875,
+        "target_gain_bacc": -0.046875,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 1,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.032263360516333606,
+        "source_leakage_session_I_hat": 0.8244091960056964,
+        "source_cond_dom_acc_subject": 0.15733506944444445,
+        "source_mean_pseudo_gain": -0.2554253472222222
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.225956,
+        "target_prediction_entropy_adapt": 0.335404,
+        "target_confidence_mean_identity": 0.453541,
+        "target_confidence_mean_adapt": 0.886346,
+        "identity_adapt_prediction_disagreement": 0.447917,
+        "adapted_pseudolabel_entropy": 0.222811,
+        "adapted_pseudolabel_max_class_mass": 0.956597,
+        "source_target_mmd_rbf": 0.026827,
+        "source_target_centroid_distance": 0.072343,
+        "target_knn_distance_mean": 0.058561,
+        "target_off_source_mass_proxy": 0.0475,
+        "target_prior_entropy_hat": 0.565941,
+        "target_prior_shift_l1_hat": 1.193935,
+        "target_prior_shift_l1_from_source": 1.193935,
+        "prior_estimate_max_mass": 0.846968
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5138888888888888,
+        "offline_tta_bacc_identity": 0.49826388888888884,
+        "offline_tta_bacc_adapt": 0.2899305555555556,
+        "offline_tta_gain_bacc": -0.20833333333333326,
+        "target_gain_bacc": -0.20833333333333326,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 2,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.017747364246799124,
+        "source_leakage_session_I_hat": 0.8176990064344103,
+        "source_cond_dom_acc_subject": 0.1430121527777778,
+        "source_mean_pseudo_gain": -0.2615017361111111
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.176709,
+        "target_prediction_entropy_adapt": 0.326171,
+        "target_confidence_mean_identity": 0.490232,
+        "target_confidence_mean_adapt": 0.88672,
+        "identity_adapt_prediction_disagreement": 0.496528,
+        "adapted_pseudolabel_entropy": 0.333566,
+        "adapted_pseudolabel_max_class_mass": 0.913194,
+        "source_target_mmd_rbf": 0.025888,
+        "source_target_centroid_distance": 0.06199,
+        "target_knn_distance_mean": 0.058701,
+        "target_off_source_mass_proxy": 0.0225,
+        "target_prior_entropy_hat": 0.630464,
+        "target_prior_shift_l1_hat": 1.127191,
+        "target_prior_shift_l1_from_source": 1.127191,
+        "prior_estimate_max_mass": 0.813595
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.529513888888889,
+        "offline_tta_bacc_identity": 0.4809027777777778,
+        "offline_tta_bacc_adapt": 0.3107638888888889,
+        "offline_tta_gain_bacc": -0.1701388888888889,
+        "target_gain_bacc": -0.1701388888888889,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 0,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.03140370399048842,
+        "source_leakage_session_I_hat": 0.8209743996194072,
+        "source_cond_dom_acc_subject": 0.15711805555555558,
+        "source_mean_pseudo_gain": -0.1024305555555555
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 1.089983,
+        "target_prediction_entropy_adapt": 0.691816,
+        "target_confidence_mean_identity": 0.527893,
+        "target_confidence_mean_adapt": 0.732801,
+        "identity_adapt_prediction_disagreement": 0.447917,
+        "adapted_pseudolabel_entropy": 1.260962,
+        "adapted_pseudolabel_max_class_mass": 0.380208,
+        "source_target_mmd_rbf": 0.123987,
+        "source_target_centroid_distance": 0.242324,
+        "target_knn_distance_mean": 0.104931,
+        "target_off_source_mass_proxy": 0.265,
+        "target_prior_entropy_hat": 1.292881,
+        "target_prior_shift_l1_hat": 0.415137,
+        "target_prior_shift_l1_from_source": 0.415137,
+        "prior_estimate_max_mass": 0.393959
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.4722222222222222,
+        "offline_tta_bacc_identity": 0.48958333333333326,
+        "offline_tta_bacc_adapt": 0.4461805555555556,
+        "offline_tta_gain_bacc": -0.04340277777777768,
+        "target_gain_bacc": -0.04340277777777768,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 1,
+      "n_classes": 4,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.051409213604209025,
+        "source_leakage_session_I_hat": 0.8289302908382312,
+        "source_cond_dom_acc_subject": 0.173828125,
+        "source_mean_pseudo_gain": -0.314453125
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.99091,
+        "target_prediction_entropy_adapt": 0.464743,
+        "target_confidence_mean_identity": 0.588406,
+        "target_confidence_mean_adapt": 0.832837,
+        "identity_adapt_prediction_disagreement": 0.366319,
+        "adapted_pseudolabel_entropy": 0.796402,
+        "adapted_pseudolabel_max_class_mass": 0.532986,
+        "source_target_mmd_rbf": 0.253696,
+        "source_target_centroid_distance": 0.326953,
+        "target_knn_distance_mean": 0.1122,
+        "target_off_source_mass_proxy": 0.3875,
+        "target_prior_entropy_hat": 1.054102,
+        "target_prior_shift_l1_hat": 0.760307,
+        "target_prior_shift_l1_from_source": 0.760307,
+        "prior_estimate_max_mass": 0.480482
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.4201388888888889,
+        "offline_tta_bacc_identity": 0.4288194444444444,
+        "offline_tta_bacc_adapt": 0.3732638888888889,
+        "offline_tta_gain_bacc": -0.055555555555555525,
+        "target_gain_bacc": -0.055555555555555525,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 2,
+      "n_classes": 4,
+      "offline_tta_harmed": false,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.015287423608085327,
+        "source_leakage_session_I_hat": 0.8196000624325794,
+        "source_cond_dom_acc_subject": 0.1328125,
+        "source_mean_pseudo_gain": -0.27126736111111105
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.890993,
+        "target_prediction_entropy_adapt": 0.360089,
+        "target_confidence_mean_identity": 0.64654,
+        "target_confidence_mean_adapt": 0.871799,
+        "identity_adapt_prediction_disagreement": 0.199653,
+        "adapted_pseudolabel_entropy": 0.828658,
+        "adapted_pseudolabel_max_class_mass": 0.604167,
+        "source_target_mmd_rbf": 0.186412,
+        "source_target_centroid_distance": 0.245996,
+        "target_knn_distance_mean": 0.129484,
+        "target_off_source_mass_proxy": 0.4075,
+        "target_prior_entropy_hat": 0.917743,
+        "target_prior_shift_l1_hat": 0.84023,
+        "target_prior_shift_l1_from_source": 0.84023,
+        "prior_estimate_max_mass": 0.590875
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.421875,
+        "offline_tta_bacc_identity": 0.40625,
+        "offline_tta_bacc_adapt": 0.4097222222222222,
+        "offline_tta_gain_bacc": 0.00347222222222221,
+        "target_gain_bacc": 0.00347222222222221,
+        "target_harmed": false
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 0,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.004122404597227458,
+        "source_leakage_session_I_hat": 0.819549485866452,
+        "source_cond_dom_acc_subject": 0.14258620689655171,
+        "source_mean_pseudo_gain": -0.008071151647003047
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.67958,
+        "target_prediction_entropy_adapt": 0.623714,
+        "target_confidence_mean_identity": 0.565708,
+        "target_confidence_mean_adapt": 0.651135,
+        "identity_adapt_prediction_disagreement": 0.134722,
+        "adapted_pseudolabel_entropy": 0.643041,
+        "adapted_pseudolabel_max_class_mass": 0.656944,
+        "source_target_mmd_rbf": 0.010248,
+        "source_target_centroid_distance": 0.012073,
+        "target_knn_distance_mean": 0.010079,
+        "target_off_source_mass_proxy": 0.035,
+        "target_prior_entropy_hat": 0.684525,
+        "target_prior_shift_l1_hat": 0.13113,
+        "target_prior_shift_l1_from_source": 0.13113,
+        "prior_estimate_max_mass": 0.565565
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6555555555555556,
+        "offline_tta_bacc_identity": 0.6555555555555556,
+        "offline_tta_bacc_adapt": 0.6125,
+        "offline_tta_gain_bacc": -0.043055555555555514,
+        "target_gain_bacc": -0.043055555555555514,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 1,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.004445768435700437,
+        "source_leakage_session_I_hat": 0.810361684700384,
+        "source_cond_dom_acc_subject": 0.13379310344827589,
+        "source_mean_pseudo_gain": -0.050705862596342466
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.677327,
+        "target_prediction_entropy_adapt": 0.59618,
+        "target_confidence_mean_identity": 0.571402,
+        "target_confidence_mean_adapt": 0.679358,
+        "identity_adapt_prediction_disagreement": 0.238889,
+        "adapted_pseudolabel_entropy": 0.662269,
+        "adapted_pseudolabel_max_class_mass": 0.623611,
+        "source_target_mmd_rbf": 0.011965,
+        "source_target_centroid_distance": 0.010674,
+        "target_knn_distance_mean": 0.011659,
+        "target_off_source_mass_proxy": 0.0975,
+        "target_prior_entropy_hat": 0.683759,
+        "target_prior_shift_l1_hat": 0.136814,
+        "target_prior_shift_l1_from_source": 0.136814,
+        "prior_estimate_max_mass": 0.568407
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6513888888888888,
+        "offline_tta_bacc_identity": 0.6569444444444444,
+        "offline_tta_bacc_adapt": 0.6013888888888889,
+        "offline_tta_gain_bacc": -0.05555555555555558,
+        "target_gain_bacc": -0.05555555555555558,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 2,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.0018086184919563486,
+        "source_leakage_session_I_hat": 0.8167872788567707,
+        "source_cond_dom_acc_subject": 0.12724137931034482,
+        "source_mean_pseudo_gain": -0.09913235119794717
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.685602,
+        "target_prediction_entropy_adapt": 0.622993,
+        "target_confidence_mean_identity": 0.549921,
+        "target_confidence_mean_adapt": 0.657284,
+        "identity_adapt_prediction_disagreement": 0.206944,
+        "adapted_pseudolabel_entropy": 0.476411,
+        "adapted_pseudolabel_max_class_mass": 0.816667,
+        "source_target_mmd_rbf": 0.012884,
+        "source_target_centroid_distance": 0.007044,
+        "target_knn_distance_mean": 0.007291,
+        "target_off_source_mass_proxy": 0.055,
+        "target_prior_entropy_hat": 0.667588,
+        "target_prior_shift_l1_hat": 0.225123,
+        "target_prior_shift_l1_from_source": 0.225123,
+        "prior_estimate_max_mass": 0.612562
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6680555555555555,
+        "offline_tta_bacc_identity": 0.6680555555555556,
+        "offline_tta_bacc_adapt": 0.5750000000000001,
+        "offline_tta_gain_bacc": -0.09305555555555556,
+        "target_gain_bacc": -0.09305555555555556,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 0,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.0059813892213873565,
+        "source_leakage_session_I_hat": 0.806924527630124,
+        "source_cond_dom_acc_subject": 0.13681506849315067,
+        "source_mean_pseudo_gain": -0.0021060534218429183
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.681602,
+        "target_prediction_entropy_adapt": 0.64143,
+        "target_confidence_mean_identity": 0.561657,
+        "target_confidence_mean_adapt": 0.631427,
+        "identity_adapt_prediction_disagreement": 0.088235,
+        "adapted_pseudolabel_entropy": 0.687214,
+        "adapted_pseudolabel_max_class_mass": 0.554412,
+        "source_target_mmd_rbf": 0.025288,
+        "source_target_centroid_distance": 0.010873,
+        "target_knn_distance_mean": 0.008232,
+        "target_off_source_mass_proxy": 0.0125,
+        "target_prior_entropy_hat": 0.687989,
+        "target_prior_shift_l1_hat": 0.101483,
+        "target_prior_shift_l1_from_source": 0.101483,
+        "prior_estimate_max_mass": 0.550742
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5102941176470588,
+        "offline_tta_bacc_identity": 0.5191176470588236,
+        "offline_tta_bacc_adapt": 0.5161764705882352,
+        "offline_tta_gain_bacc": -0.002941176470588336,
+        "target_gain_bacc": -0.002941176470588336,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 1,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.012432744719692135,
+        "source_leakage_session_I_hat": 0.8054879624016171,
+        "source_cond_dom_acc_subject": 0.14726027397260272,
+        "source_mean_pseudo_gain": -0.048073978583847
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.676864,
+        "target_prediction_entropy_adapt": 0.603018,
+        "target_confidence_mean_identity": 0.571767,
+        "target_confidence_mean_adapt": 0.673098,
+        "identity_adapt_prediction_disagreement": 0.204412,
+        "adapted_pseudolabel_entropy": 0.679028,
+        "adapted_pseudolabel_max_class_mass": 0.583824,
+        "source_target_mmd_rbf": 0.034801,
+        "source_target_centroid_distance": 0.003381,
+        "target_knn_distance_mean": 0.010632,
+        "target_off_source_mass_proxy": 0.005,
+        "target_prior_entropy_hat": 0.692014,
+        "target_prior_shift_l1_hat": 0.047594,
+        "target_prior_shift_l1_from_source": 0.047594,
+        "prior_estimate_max_mass": 0.523797
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5411764705882354,
+        "offline_tta_bacc_identity": 0.5411764705882354,
+        "offline_tta_bacc_adapt": 0.5279411764705882,
+        "offline_tta_gain_bacc": -0.013235294117647123,
+        "target_gain_bacc": -0.013235294117647123,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 2,
+      "n_classes": 2,
+      "offline_tta_harmed": false,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.0027479876230156464,
+        "source_leakage_session_I_hat": 0.810029259680543,
+        "source_cond_dom_acc_subject": 0.13955479452054795,
+        "source_mean_pseudo_gain": -0.027617008455824224
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.684344,
+        "target_prediction_entropy_adapt": 0.646811,
+        "target_confidence_mean_identity": 0.552744,
+        "target_confidence_mean_adapt": 0.623762,
+        "identity_adapt_prediction_disagreement": 0.120588,
+        "adapted_pseudolabel_entropy": 0.634802,
+        "adapted_pseudolabel_max_class_mass": 0.669118,
+        "source_target_mmd_rbf": 0.056501,
+        "source_target_centroid_distance": 0.008655,
+        "target_knn_distance_mean": 0.00698,
+        "target_off_source_mass_proxy": 0.0025,
+        "target_prior_entropy_hat": 0.683528,
+        "target_prior_shift_l1_hat": 0.138477,
+        "target_prior_shift_l1_from_source": 0.138477,
+        "prior_estimate_max_mass": 0.569238
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5235294117647058,
+        "offline_tta_bacc_identity": 0.5220588235294117,
+        "offline_tta_bacc_adapt": 0.5279411764705882,
+        "offline_tta_gain_bacc": 0.005882352941176561,
+        "target_gain_bacc": 0.005882352941176561,
+        "target_harmed": false
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 0,
+      "n_classes": 2,
+      "offline_tta_harmed": false,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.002836771967860141,
+        "source_leakage_session_I_hat": 0.8179434849664637,
+        "source_cond_dom_acc_subject": 0.14,
+        "source_mean_pseudo_gain": -0.011331077594622485
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.672094,
+        "target_prediction_entropy_adapt": 0.580113,
+        "target_confidence_mean_identity": 0.581896,
+        "target_confidence_mean_adapt": 0.69514,
+        "identity_adapt_prediction_disagreement": 0.195833,
+        "adapted_pseudolabel_entropy": 0.6752,
+        "adapted_pseudolabel_max_class_mass": 0.594444,
+        "source_target_mmd_rbf": 0.003579,
+        "source_target_centroid_distance": 0.008903,
+        "target_knn_distance_mean": 0.010033,
+        "target_off_source_mass_proxy": 0.03,
+        "target_prior_entropy_hat": 0.685913,
+        "target_prior_shift_l1_hat": 0.120139,
+        "target_prior_shift_l1_from_source": 0.120139,
+        "prior_estimate_max_mass": 0.56007
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5583333333333333,
+        "offline_tta_bacc_identity": 0.5430555555555555,
+        "offline_tta_bacc_adapt": 0.5444444444444444,
+        "offline_tta_gain_bacc": 0.001388888888888884,
+        "target_gain_bacc": 0.001388888888888884,
+        "target_harmed": false
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 1,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.004801999177480365,
+        "source_leakage_session_I_hat": 0.8083335577858943,
+        "source_cond_dom_acc_subject": 0.14051724137931035,
+        "source_mean_pseudo_gain": -0.0386150856739092
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.66186,
+        "target_prediction_entropy_adapt": 0.523735,
+        "target_confidence_mean_identity": 0.600679,
+        "target_confidence_mean_adapt": 0.738655,
+        "identity_adapt_prediction_disagreement": 0.219444,
+        "adapted_pseudolabel_entropy": 0.554576,
+        "adapted_pseudolabel_max_class_mass": 0.756944,
+        "source_target_mmd_rbf": 0.012215,
+        "source_target_centroid_distance": 0.018219,
+        "target_knn_distance_mean": 0.013461,
+        "target_off_source_mass_proxy": 0.0875,
+        "target_prior_entropy_hat": 0.640921,
+        "target_prior_shift_l1_hat": 0.320346,
+        "target_prior_shift_l1_from_source": 0.320346,
+        "prior_estimate_max_mass": 0.660173
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5541666666666667,
+        "offline_tta_bacc_identity": 0.5569444444444445,
+        "offline_tta_bacc_adapt": 0.5347222222222222,
+        "offline_tta_gain_bacc": -0.022222222222222254,
+        "target_gain_bacc": -0.022222222222222254,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 2,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.003911421863697528,
+        "source_leakage_session_I_hat": 0.8185126695926506,
+        "source_cond_dom_acc_subject": 0.14672413793103448,
+        "source_mean_pseudo_gain": -0.06764447303340487
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.680362,
+        "target_prediction_entropy_adapt": 0.588599,
+        "target_confidence_mean_identity": 0.563973,
+        "target_confidence_mean_adapt": 0.686997,
+        "identity_adapt_prediction_disagreement": 0.231944,
+        "adapted_pseudolabel_entropy": 0.474329,
+        "adapted_pseudolabel_max_class_mass": 0.818056,
+        "source_target_mmd_rbf": 0.012926,
+        "source_target_centroid_distance": 0.010494,
+        "target_knn_distance_mean": 0.009428,
+        "target_off_source_mass_proxy": 0.1025,
+        "target_prior_entropy_hat": 0.646739,
+        "target_prior_shift_l1_hat": 0.302277,
+        "target_prior_shift_l1_from_source": 0.302277,
+        "prior_estimate_max_mass": 0.651138
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5583333333333333,
+        "offline_tta_bacc_identity": 0.5527777777777778,
+        "offline_tta_bacc_adapt": 0.5291666666666667,
+        "offline_tta_gain_bacc": -0.023611111111111138,
+        "target_gain_bacc": -0.023611111111111138,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 0,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": -0.00041767193132891123,
+        "source_leakage_session_I_hat": 0.8201941447379626,
+        "source_cond_dom_acc_subject": 0.12629757785467127,
+        "source_mean_pseudo_gain": -0.008009833556466686
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.680576,
+        "target_prediction_entropy_adapt": 0.636806,
+        "target_confidence_mean_identity": 0.565304,
+        "target_confidence_mean_adapt": 0.64027,
+        "identity_adapt_prediction_disagreement": 0.098649,
+        "adapted_pseudolabel_entropy": 0.652322,
+        "adapted_pseudolabel_max_class_mass": 0.641892,
+        "source_target_mmd_rbf": 0.035859,
+        "source_target_centroid_distance": 0.015365,
+        "target_knn_distance_mean": 0.008802,
+        "target_off_source_mass_proxy": 0.1025,
+        "target_prior_entropy_hat": 0.68608,
+        "target_prior_shift_l1_hat": 0.118748,
+        "target_prior_shift_l1_from_source": 0.118748,
+        "prior_estimate_max_mass": 0.559374
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.7405405405405405,
+        "offline_tta_bacc_identity": 0.7351351351351352,
+        "offline_tta_bacc_adapt": 0.7283783783783784,
+        "offline_tta_gain_bacc": -0.006756756756756799,
+        "target_gain_bacc": -0.006756756756756799,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 1,
+      "n_classes": 2,
+      "offline_tta_harmed": false,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": -0.005108533510113755,
+        "source_leakage_session_I_hat": 0.8088741067433187,
+        "source_cond_dom_acc_subject": 0.12110726643598616,
+        "source_mean_pseudo_gain": -0.027533798310694566
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.67459,
+        "target_prediction_entropy_adapt": 0.630297,
+        "target_confidence_mean_identity": 0.580083,
+        "target_confidence_mean_adapt": 0.648656,
+        "identity_adapt_prediction_disagreement": 0.044595,
+        "adapted_pseudolabel_entropy": 0.66259,
+        "adapted_pseudolabel_max_class_mass": 0.622973,
+        "source_target_mmd_rbf": 0.03162,
+        "source_target_centroid_distance": 0.035403,
+        "target_knn_distance_mean": 0.011532,
+        "target_off_source_mass_proxy": 0.07,
+        "target_prior_entropy_hat": 0.686605,
+        "target_prior_shift_l1_hat": 0.114263,
+        "target_prior_shift_l1_from_source": 0.114263,
+        "prior_estimate_max_mass": 0.557132
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.7702702702702703,
+        "offline_tta_bacc_identity": 0.7648648648648648,
+        "offline_tta_bacc_adapt": 0.768918918918919,
+        "offline_tta_gain_bacc": 0.004054054054054124,
+        "target_gain_bacc": 0.004054054054054124,
+        "target_harmed": false
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 2,
+      "n_classes": 2,
+      "offline_tta_harmed": false,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.002894783742330098,
+        "source_leakage_session_I_hat": 0.8215584765294139,
+        "source_cond_dom_acc_subject": 0.12923875432525953,
+        "source_mean_pseudo_gain": -0.008537828656830213
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.68121,
+        "target_prediction_entropy_adapt": 0.64823,
+        "target_confidence_mean_identity": 0.563612,
+        "target_confidence_mean_adapt": 0.624629,
+        "identity_adapt_prediction_disagreement": 0.063514,
+        "adapted_pseudolabel_entropy": 0.679941,
+        "adapted_pseudolabel_max_class_mass": 0.581081,
+        "source_target_mmd_rbf": 0.052058,
+        "source_target_centroid_distance": 0.030056,
+        "target_knn_distance_mean": 0.008311,
+        "target_off_source_mass_proxy": 0.0825,
+        "target_prior_entropy_hat": 0.688885,
+        "target_prior_shift_l1_hat": 0.092267,
+        "target_prior_shift_l1_from_source": 0.092267,
+        "prior_estimate_max_mass": 0.546133
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.768918918918919,
+        "offline_tta_bacc_identity": 0.7743243243243243,
+        "offline_tta_bacc_adapt": 0.7864864864864864,
+        "offline_tta_gain_bacc": 0.012162162162162149,
+        "target_gain_bacc": 0.012162162162162149,
+        "target_harmed": false
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 0,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.005310465026367783,
+        "source_leakage_session_I_hat": 0.8199891009543872,
+        "source_cond_dom_acc_subject": 0.13183391003460207,
+        "source_mean_pseudo_gain": -0.00851949569538582
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.678393,
+        "target_prediction_entropy_adapt": 0.592448,
+        "target_confidence_mean_identity": 0.567788,
+        "target_confidence_mean_adapt": 0.684077,
+        "identity_adapt_prediction_disagreement": 0.148649,
+        "adapted_pseudolabel_entropy": 0.533998,
+        "adapted_pseudolabel_max_class_mass": 0.774324,
+        "source_target_mmd_rbf": 0.03259,
+        "source_target_centroid_distance": 0.016469,
+        "target_knn_distance_mean": 0.00906,
+        "target_off_source_mass_proxy": 0.025,
+        "target_prior_entropy_hat": 0.667119,
+        "target_prior_shift_l1_hat": 0.227162,
+        "target_prior_shift_l1_from_source": 0.227162,
+        "prior_estimate_max_mass": 0.613581
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5797297297297297,
+        "offline_tta_bacc_identity": 0.5716216216216217,
+        "offline_tta_bacc_adapt": 0.5472972972972974,
+        "offline_tta_gain_bacc": -0.024324324324324298,
+        "target_gain_bacc": -0.024324324324324298,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 1,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.0027739691479693462,
+        "source_leakage_session_I_hat": 0.8105651797735962,
+        "source_cond_dom_acc_subject": 0.13131487889273358,
+        "source_mean_pseudo_gain": -0.05853166924664603
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.679121,
+        "target_prediction_entropy_adapt": 0.581252,
+        "target_confidence_mean_identity": 0.565856,
+        "target_confidence_mean_adapt": 0.695183,
+        "identity_adapt_prediction_disagreement": 0.293243,
+        "adapted_pseudolabel_entropy": 0.692325,
+        "adapted_pseudolabel_max_class_mass": 0.52027,
+        "source_target_mmd_rbf": 0.012387,
+        "source_target_centroid_distance": 0.003738,
+        "target_knn_distance_mean": 0.012045,
+        "target_off_source_mass_proxy": 0.0225,
+        "target_prior_entropy_hat": 0.692086,
+        "target_prior_shift_l1_hat": 0.046062,
+        "target_prior_shift_l1_from_source": 0.046062,
+        "prior_estimate_max_mass": 0.523031
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6108108108108108,
+        "offline_tta_bacc_identity": 0.6081081081081081,
+        "offline_tta_bacc_adapt": 0.5581081081081081,
+        "offline_tta_gain_bacc": -0.050000000000000044,
+        "target_gain_bacc": -0.050000000000000044,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 2,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.0065932364065588445,
+        "source_leakage_session_I_hat": 0.8211455585046454,
+        "source_cond_dom_acc_subject": 0.13598615916955017,
+        "source_mean_pseudo_gain": -0.07729119890013851
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.68235,
+        "target_prediction_entropy_adapt": 0.55326,
+        "target_confidence_mean_identity": 0.557842,
+        "target_confidence_mean_adapt": 0.732292,
+        "identity_adapt_prediction_disagreement": 0.295946,
+        "adapted_pseudolabel_entropy": 0.129059,
+        "adapted_pseudolabel_max_class_mass": 0.971622,
+        "source_target_mmd_rbf": 0.032495,
+        "source_target_centroid_distance": 0.017699,
+        "target_knn_distance_mean": 0.008727,
+        "target_off_source_mass_proxy": 0.03,
+        "target_prior_entropy_hat": 0.6069,
+        "target_prior_shift_l1_hat": 0.409236,
+        "target_prior_shift_l1_from_source": 0.409236,
+        "prior_estimate_max_mass": 0.704618
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5594594594594595,
+        "offline_tta_bacc_identity": 0.5621621621621622,
+        "offline_tta_bacc_adapt": 0.5040540540540541,
+        "offline_tta_gain_bacc": -0.05810810810810807,
+        "target_gain_bacc": -0.05810810810810807,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 0,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.004541027830537558,
+        "source_leakage_session_I_hat": 0.8185917656562376,
+        "source_cond_dom_acc_subject": 0.13689655172413795,
+        "source_mean_pseudo_gain": -0.01799297362377862
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.684407,
+        "target_prediction_entropy_adapt": 0.650143,
+        "target_confidence_mean_identity": 0.552699,
+        "target_confidence_mean_adapt": 0.618395,
+        "identity_adapt_prediction_disagreement": 0.243056,
+        "adapted_pseudolabel_entropy": 0.68056,
+        "adapted_pseudolabel_max_class_mass": 0.579167,
+        "source_target_mmd_rbf": 0.022329,
+        "source_target_centroid_distance": 0.004051,
+        "target_knn_distance_mean": 0.008528,
+        "target_off_source_mass_proxy": 0.0175,
+        "target_prior_entropy_hat": 0.69237,
+        "target_prior_shift_l1_hat": 0.039411,
+        "target_prior_shift_l1_from_source": 0.039411,
+        "prior_estimate_max_mass": 0.519706
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6152777777777778,
+        "offline_tta_bacc_identity": 0.6138888888888889,
+        "offline_tta_bacc_adapt": 0.6097222222222223,
+        "offline_tta_gain_bacc": -0.004166666666666652,
+        "target_gain_bacc": -0.004166666666666652,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 1,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.009146344956694863,
+        "source_leakage_session_I_hat": 0.8078015691142031,
+        "source_cond_dom_acc_subject": 0.13327586206896552,
+        "source_mean_pseudo_gain": -0.04753038158127164
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.679457,
+        "target_prediction_entropy_adapt": 0.584617,
+        "target_confidence_mean_identity": 0.567457,
+        "target_confidence_mean_adapt": 0.6912,
+        "identity_adapt_prediction_disagreement": 0.222222,
+        "adapted_pseudolabel_entropy": 0.674122,
+        "adapted_pseudolabel_max_class_mass": 0.597222,
+        "source_target_mmd_rbf": 0.041259,
+        "source_target_centroid_distance": 0.003725,
+        "target_knn_distance_mean": 0.010247,
+        "target_off_source_mass_proxy": 0.005,
+        "target_prior_entropy_hat": 0.688045,
+        "target_prior_shift_l1_hat": 0.10093,
+        "target_prior_shift_l1_from_source": 0.10093,
+        "prior_estimate_max_mass": 0.550465
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6569444444444444,
+        "offline_tta_bacc_identity": 0.6638888888888889,
+        "offline_tta_bacc_adapt": 0.5944444444444444,
+        "offline_tta_gain_bacc": -0.06944444444444442,
+        "target_gain_bacc": -0.06944444444444442,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 2,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.0028103366498672955,
+        "source_leakage_session_I_hat": 0.8195057140822091,
+        "source_cond_dom_acc_subject": 0.13620689655172413,
+        "source_mean_pseudo_gain": -0.03680432076813653
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.686394,
+        "target_prediction_entropy_adapt": 0.635179,
+        "target_confidence_mean_identity": 0.546088,
+        "target_confidence_mean_adapt": 0.639835,
+        "identity_adapt_prediction_disagreement": 0.259722,
+        "adapted_pseudolabel_entropy": 0.616634,
+        "adapted_pseudolabel_max_class_mass": 0.693056,
+        "source_target_mmd_rbf": 0.044974,
+        "source_target_centroid_distance": 0.003673,
+        "target_knn_distance_mean": 0.006246,
+        "target_off_source_mass_proxy": 0.005,
+        "target_prior_entropy_hat": 0.683609,
+        "target_prior_shift_l1_hat": 0.137895,
+        "target_prior_shift_l1_from_source": 0.137895,
+        "prior_estimate_max_mass": 0.568947
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6277777777777778,
+        "offline_tta_bacc_identity": 0.6277777777777778,
+        "offline_tta_bacc_adapt": 0.5736111111111111,
+        "offline_tta_gain_bacc": -0.054166666666666696,
+        "target_gain_bacc": -0.054166666666666696,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 0,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.001236977890967772,
+        "source_leakage_session_I_hat": 0.8186460586911568,
+        "source_cond_dom_acc_subject": 0.12637931034482758,
+        "source_mean_pseudo_gain": -0.0005763697133666229
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.678348,
+        "target_prediction_entropy_adapt": 0.605204,
+        "target_confidence_mean_identity": 0.568786,
+        "target_confidence_mean_adapt": 0.671323,
+        "identity_adapt_prediction_disagreement": 0.127778,
+        "adapted_pseudolabel_entropy": 0.500402,
+        "adapted_pseudolabel_max_class_mass": 0.8,
+        "source_target_mmd_rbf": 0.025198,
+        "source_target_centroid_distance": 0.017815,
+        "target_knn_distance_mean": 0.011391,
+        "target_off_source_mass_proxy": 0.2675,
+        "target_prior_entropy_hat": 0.670823,
+        "target_prior_shift_l1_hat": 0.21051,
+        "target_prior_shift_l1_from_source": 0.21051,
+        "prior_estimate_max_mass": 0.605255
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.5763888888888888,
+        "offline_tta_bacc_identity": 0.5527777777777778,
+        "offline_tta_bacc_adapt": 0.5305555555555556,
+        "offline_tta_gain_bacc": -0.022222222222222254,
+        "target_gain_bacc": -0.022222222222222254,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 1,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.007523813589042083,
+        "source_leakage_session_I_hat": 0.8061395656846944,
+        "source_cond_dom_acc_subject": 0.13120689655172413,
+        "source_mean_pseudo_gain": -0.05458427177177176
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.670898,
+        "target_prediction_entropy_adapt": 0.589876,
+        "target_confidence_mean_identity": 0.585006,
+        "target_confidence_mean_adapt": 0.682098,
+        "identity_adapt_prediction_disagreement": 0.165278,
+        "adapted_pseudolabel_entropy": 0.647447,
+        "adapted_pseudolabel_max_class_mass": 0.65,
+        "source_target_mmd_rbf": 0.006339,
+        "source_target_centroid_distance": 0.007314,
+        "target_knn_distance_mean": 0.012579,
+        "target_off_source_mass_proxy": 0.11,
+        "target_prior_entropy_hat": 0.682913,
+        "target_prior_shift_l1_hat": 0.142822,
+        "target_prior_shift_l1_from_source": 0.142822,
+        "prior_estimate_max_mass": 0.571411
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6125,
+        "offline_tta_bacc_identity": 0.6180555555555556,
+        "offline_tta_bacc_adapt": 0.5777777777777777,
+        "offline_tta_gain_bacc": -0.04027777777777786,
+        "target_gain_bacc": -0.04027777777777786,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 2,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.00269799416554406,
+        "source_leakage_session_I_hat": 0.8191466691232736,
+        "source_cond_dom_acc_subject": 0.13793103448275862,
+        "source_mean_pseudo_gain": -0.0674556377197631
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.683062,
+        "target_prediction_entropy_adapt": 0.635022,
+        "target_confidence_mean_identity": 0.556519,
+        "target_confidence_mean_adapt": 0.637885,
+        "identity_adapt_prediction_disagreement": 0.123611,
+        "adapted_pseudolabel_entropy": 0.64122,
+        "adapted_pseudolabel_max_class_mass": 0.659722,
+        "source_target_mmd_rbf": 0.009001,
+        "source_target_centroid_distance": 0.005489,
+        "target_knn_distance_mean": 0.009972,
+        "target_off_source_mass_proxy": 0.1175,
+        "target_prior_entropy_hat": 0.689884,
+        "target_prior_shift_l1_hat": 0.080738,
+        "target_prior_shift_l1_from_source": 0.080738,
+        "prior_estimate_max_mass": 0.540369
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6027777777777777,
+        "offline_tta_bacc_identity": 0.6083333333333334,
+        "offline_tta_bacc_adapt": 0.5875,
+        "offline_tta_gain_bacc": -0.02083333333333337,
+        "target_gain_bacc": -0.02083333333333337,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 0,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.0072286719494878415,
+        "source_leakage_session_I_hat": 0.8201566949630237,
+        "source_cond_dom_acc_subject": 0.1362847222222222,
+        "source_mean_pseudo_gain": -0.043329634781840626
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.66647,
+        "target_prediction_entropy_adapt": 0.582096,
+        "target_confidence_mean_identity": 0.59274,
+        "target_confidence_mean_adapt": 0.690195,
+        "identity_adapt_prediction_disagreement": 0.081579,
+        "adapted_pseudolabel_entropy": 0.538001,
+        "adapted_pseudolabel_max_class_mass": 0.771053,
+        "source_target_mmd_rbf": 0.038262,
+        "source_target_centroid_distance": 0.031797,
+        "target_knn_distance_mean": 0.012972,
+        "target_off_source_mass_proxy": 0.145,
+        "target_prior_entropy_hat": 0.662477,
+        "target_prior_shift_l1_hat": 0.246394,
+        "target_prior_shift_l1_from_source": 0.246394,
+        "prior_estimate_max_mass": 0.623197
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.706578947368421,
+        "offline_tta_bacc_identity": 0.6947368421052631,
+        "offline_tta_bacc_adapt": 0.6657894736842105,
+        "offline_tta_gain_bacc": -0.02894736842105261,
+        "target_gain_bacc": -0.02894736842105261,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 1,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.00035330779913866905,
+        "source_leakage_session_I_hat": 0.8145128555034324,
+        "source_cond_dom_acc_subject": 0.12899305555555557,
+        "source_mean_pseudo_gain": -0.028418676028970163
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.656354,
+        "target_prediction_entropy_adapt": 0.504262,
+        "target_confidence_mean_identity": 0.609353,
+        "target_confidence_mean_adapt": 0.755572,
+        "identity_adapt_prediction_disagreement": 0.221053,
+        "adapted_pseudolabel_entropy": 0.406394,
+        "adapted_pseudolabel_max_class_mass": 0.859211,
+        "source_target_mmd_rbf": 0.097579,
+        "source_target_centroid_distance": 0.055212,
+        "target_knn_distance_mean": 0.01688,
+        "target_off_source_mass_proxy": 0.22,
+        "target_prior_entropy_hat": 0.603979,
+        "target_prior_shift_l1_hat": 0.415896,
+        "target_prior_shift_l1_from_source": 0.415896,
+        "prior_estimate_max_mass": 0.707948
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.7263157894736842,
+        "offline_tta_bacc_identity": 0.7276315789473684,
+        "offline_tta_bacc_adapt": 0.6302631578947369,
+        "offline_tta_gain_bacc": -0.09736842105263155,
+        "target_gain_bacc": -0.09736842105263155,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 2,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": -0.0017558791288583286,
+        "source_leakage_session_I_hat": 0.8256122650662805,
+        "source_cond_dom_acc_subject": 0.12604166666666666,
+        "source_mean_pseudo_gain": -0.06129576267443915
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.670766,
+        "target_prediction_entropy_adapt": 0.567159,
+        "target_confidence_mean_identity": 0.585951,
+        "target_confidence_mean_adapt": 0.711908,
+        "identity_adapt_prediction_disagreement": 0.115789,
+        "adapted_pseudolabel_entropy": 0.391853,
+        "adapted_pseudolabel_max_class_mass": 0.867105,
+        "source_target_mmd_rbf": 0.093752,
+        "source_target_centroid_distance": 0.049032,
+        "target_knn_distance_mean": 0.011798,
+        "target_off_source_mass_proxy": 0.1975,
+        "target_prior_entropy_hat": 0.626761,
+        "target_prior_shift_l1_hat": 0.360288,
+        "target_prior_shift_l1_from_source": 0.360288,
+        "prior_estimate_max_mass": 0.680144
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6907894736842105,
+        "offline_tta_bacc_identity": 0.6828947368421052,
+        "offline_tta_bacc_adapt": 0.625,
+        "offline_tta_gain_bacc": -0.05789473684210522,
+        "target_gain_bacc": -0.05789473684210522,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 0,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.006387289848752031,
+        "source_leakage_session_I_hat": 0.8195757046377707,
+        "source_cond_dom_acc_subject": 0.15000000000000002,
+        "source_mean_pseudo_gain": -0.004755587630974653
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.67552,
+        "target_prediction_entropy_adapt": 0.594886,
+        "target_confidence_mean_identity": 0.576129,
+        "target_confidence_mean_adapt": 0.682084,
+        "identity_adapt_prediction_disagreement": 0.091667,
+        "adapted_pseudolabel_entropy": 0.548181,
+        "adapted_pseudolabel_max_class_mass": 0.7625,
+        "source_target_mmd_rbf": 0.024213,
+        "source_target_centroid_distance": 0.018975,
+        "target_knn_distance_mean": 0.010151,
+        "target_off_source_mass_proxy": 0.055,
+        "target_prior_entropy_hat": 0.669168,
+        "target_prior_shift_l1_hat": 0.218113,
+        "target_prior_shift_l1_from_source": 0.218113,
+        "prior_estimate_max_mass": 0.609056
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6402777777777777,
+        "offline_tta_bacc_identity": 0.6319444444444444,
+        "offline_tta_bacc_adapt": 0.6041666666666667,
+        "offline_tta_gain_bacc": -0.02777777777777768,
+        "target_gain_bacc": -0.02777777777777768,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 1,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.01288539012125578,
+        "source_leakage_session_I_hat": 0.8116558709239554,
+        "source_cond_dom_acc_subject": 0.14155172413793105,
+        "source_mean_pseudo_gain": -0.04332579967738637
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.672248,
+        "target_prediction_entropy_adapt": 0.545783,
+        "target_confidence_mean_identity": 0.583157,
+        "target_confidence_mean_adapt": 0.725466,
+        "identity_adapt_prediction_disagreement": 0.193056,
+        "adapted_pseudolabel_entropy": 0.529706,
+        "adapted_pseudolabel_max_class_mass": 0.777778,
+        "source_target_mmd_rbf": 0.023926,
+        "source_target_centroid_distance": 0.017584,
+        "target_knn_distance_mean": 0.010865,
+        "target_off_source_mass_proxy": 0.0425,
+        "target_prior_entropy_hat": 0.654844,
+        "target_prior_shift_l1_hat": 0.274996,
+        "target_prior_shift_l1_from_source": 0.274996,
+        "prior_estimate_max_mass": 0.637498
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6236111111111111,
+        "offline_tta_bacc_identity": 0.6236111111111111,
+        "offline_tta_bacc_adapt": 0.5861111111111111,
+        "offline_tta_gain_bacc": -0.03749999999999998,
+        "target_gain_bacc": -0.03749999999999998,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 2,
+      "n_classes": 2,
+      "offline_tta_harmed": true,
+      "r1_source": "instrumented_r1_diagnostics",
+      "r0_features": {
+        "source_leakage_site_I_hat": 0.0,
+        "source_leakage_subject_I_hat": 0.006308649936219046,
+        "source_leakage_session_I_hat": 0.8170427485260308,
+        "source_cond_dom_acc_subject": 0.1396551724137931,
+        "source_mean_pseudo_gain": -0.09682017543859651
+      },
+      "r1_features": {
+        "target_prediction_entropy_identity": 0.682406,
+        "target_prediction_entropy_adapt": 0.613775,
+        "target_confidence_mean_identity": 0.560087,
+        "target_confidence_mean_adapt": 0.664221,
+        "identity_adapt_prediction_disagreement": 0.166667,
+        "adapted_pseudolabel_entropy": 0.559263,
+        "adapted_pseudolabel_max_class_mass": 0.752778,
+        "source_target_mmd_rbf": 0.013664,
+        "source_target_centroid_distance": 0.005406,
+        "target_knn_distance_mean": 0.008603,
+        "target_off_source_mass_proxy": 0.0875,
+        "target_prior_entropy_hat": 0.676904,
+        "target_prior_shift_l1_hat": 0.179747,
+        "target_prior_shift_l1_from_source": 0.179747,
+        "prior_estimate_max_mass": 0.589874
+      },
+      "oracle_fields": {
+        "strict_dg_bacc": 0.6263888888888889,
+        "offline_tta_bacc_identity": 0.625,
+        "offline_tta_bacc_adapt": 0.6,
+        "offline_tta_gain_bacc": -0.025000000000000022,
+        "target_gain_bacc": -0.025000000000000022,
+        "target_harmed": true
+      },
+      "missing_diagnostics": [],
+      "claim_boundary": {
+        "oracle_target_gain_identifiable": false,
+        "used_for_retrospective_evaluation_only": true,
+        "note": "offline-TTA gain is oracle/evaluation-only (TOS-1/TU-2); not R0/R1 identifiable."
+      }
+    }
+  ]
+}
