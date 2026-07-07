@@ -124,6 +124,43 @@ def test_taxonomy_p4_when_fingerprint_dominant():
     assert t["primary_case"] == schema.P4
 
 
+def test_repersist_split_membership_is_deterministic_and_label_free():
+    from oaci.predmix_mechanism import target_repersist
+    sids = [f"BNCI2014_001|subject-004|session-0train|run-{i%2}|trial-{i:03d}" for i in range(40)]
+    a = target_repersist._split_membership(sids); b = target_repersist._split_membership(list(sids))
+    for k in ("half", "odd_even", "bootstrap"):
+        assert set(np.unique(a[k])) <= {0, 1} and np.array_equal(a[k], b[k])   # deterministic, binary
+    assert np.array_equal(a["odd_even"], np.array([i % 2 for i in range(40)], dtype=np.int8))  # trial parity
+
+
+def test_repersist_structural_gates_and_summarize(tmp_path):
+    from oaci.predmix_mechanism import target_repersist
+    st = target_repersist._structural_gates()
+    assert st["G5_no_labels_in_unlabeled_feature_path"] and st["G6_quarantined_labels_separate_file"]
+    # synthetic per-fold npz -> summarize -> split sidecar
+    N, C = 80, 4; rng = np.random.RandomState(0)
+    sids = np.array([f"s|trial-{i:03d}" for i in range(N)], dtype=object)
+    spl = target_repersist._split_membership([str(s) for s in sids])
+    logits = rng.randn(3, N, C).astype(np.float32)          # 3 candidates
+    d = tmp_path / "rp"; d.mkdir()
+    np.savez(d / "seed-0-target-004.unlabeled.npz", sample_id=sids, domain=np.zeros(N),
+             split_half=spl["half"], split_odd_even=spl["odd_even"], split_bootstrap=spl["bootstrap"],
+             model_hash=np.array(["a", "b", "c"], dtype=object), level=np.array([0, 0, 1]), logits=logits)
+    np.savez(d / "seed-0-target-004.labels.npz", sample_id=sids, y=rng.randint(0, C, N))
+    out = str(tmp_path / "split.json")
+    n = target_repersist.summarize(str(d), out)
+    import json as _j
+    sc = _j.load(open(out))
+    assert n == 3 and sc["config_hash"] == schema.LOCKED_C19_CONFIG_HASH
+    c0 = sc["per_candidate"][0]
+    assert set(c0["splits"]) == {"half_a", "half_b", "odd_even_a", "odd_even_b", "bootstrap_a", "bootstrap_b"}
+    assert abs(sum(c0["splits"]["half_a"].values()) - 1.0) < 1e-6     # pred_prop sums to 1
+    ld = sc["label_diagnostics"]["per_candidate"][0]
+    assert len(ld["true_prior"]) == C and len(ld["per_class_recall"]) == C
+    # split sidecar unlabeled path carries NO labels
+    assert '"y"' not in _j.dumps(sc["per_candidate"])
+
+
 def test_report_forbids_identity_free_and_deployable_language():
     for bad in ("this is an identity-free recovery", "pred-class-mix is deployable now"):
         try:
