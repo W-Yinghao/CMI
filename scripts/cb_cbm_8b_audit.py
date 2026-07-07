@@ -146,17 +146,18 @@ def loso_audit(X, y, d):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--model", required=True); ap.add_argument("--dataset", default="shu")
+    ap.add_argument("--suffix", default="")
     args = ap.parse_args()
-    z = np.load(OUT / "embeddings" / f"{args.model}_{args.dataset}_F0.npz")
+    z = np.load(OUT / "embeddings" / f"{args.model}_{args.dataset}_F0{args.suffix}.npz")
     X, y, d, ses = z["X"].astype(np.float64), z["y"].astype(int), z["d"].astype(int), z["ses"].astype(int)
-    tag = f"{args.model}_{args.dataset}"
+    tag = f"{args.model}_{args.dataset}{args.suffix}"
 
     l1m = l1_subject_probe(X, y, d, ses, cond_on_y=False)
     l1c = l1_subject_probe(X, y, d, ses, cond_on_y=True)
     l4, l5, l6 = loso_audit(X, y, d)
 
     def w(fn, rows):
-        if rows:
+        if rows and not args.suffix:
             with open(OUT / fn, "a", newline="") as f:
                 wr = csv.DictWriter(f, fieldnames=["model", "dataset"] + list(rows[0].keys()))
                 if (OUT / fn).stat().st_size == 0:

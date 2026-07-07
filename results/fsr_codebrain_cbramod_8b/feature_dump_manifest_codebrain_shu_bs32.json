@@ -1,7 +1,7 @@
 {
   "model": "codebrain",
   "dataset": "shu",
-  "bs": 64,
+  "bs": 32,
   "n_trials": 11988,
   "n_subjects": 25,
   "n_sessions_per_subj": 5,
@@ -937,7 +937,7 @@
     {
       "model": "codebrain",
       "dataset": "shu",
-      "bs": 64,
+      "bs": 32,
       "F0_repeat_max": 0.0,
       "F0_batchgroup_max": 0.0017475485801696777,
       "F1_repeat_max": 0.0,
@@ -946,5 +946,5 @@
       "finite": true
     }
   ],
-  "sec": 34.2
+  "sec": 49.9
 }

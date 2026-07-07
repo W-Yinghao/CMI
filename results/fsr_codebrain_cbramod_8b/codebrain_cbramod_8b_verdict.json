@@ -66,5 +66,39 @@
   "target_labels_used_for_fit": false,
   "target_labels_used_for_selection": false,
   "proceed_to_8c": null,
-  "recommendation": "Before 8C: re-dump a SPATIALLY-PRESERVING feature (per-channel: mean over patches only, keep channels) so MI task decodes strongly, then re-run L4/L5/L6 -> makes the not-task-coupled conclusion solid. L1 finding already solid on pooled."
+  "recommendation": "Before 8C: re-dump a SPATIALLY-PRESERVING feature (per-channel: mean over patches only, keep channels) so MI task decodes strongly, then re-run L4/L5/L6 -> makes the not-task-coupled conclusion solid. L1 finding already solid on pooled.",
+  "f1_spatial_codebrain": {
+    "feature": "F1_spatial_pca95cap128",
+    "task_source_val_bacc": 0.6086,
+    "task_target_bacc": 0.6046,
+    "task_gate_pass": true,
+    "beats_f0_by_0p04": true,
+    "L1_marginal_bacc": 0.6279,
+    "L1_effect": 0.588,
+    "L1_class_conditional_bacc": 0.6273,
+    "L4_alignment_k2": 0.0361,
+    "L5_drop_subject_k2": -0.0002,
+    "L5_drop_variance_k2": 0.0012,
+    "L5_beats_variance": false,
+    "L6_delta_subject_k2": 0.0012
+  },
+  "f1_spatial_cbramod": {
+    "feature": "F1_spatial_pca95cap128",
+    "task_source_val_bacc": 0.5973,
+    "task_target_bacc": 0.5979,
+    "task_gate_pass": true,
+    "beats_f0_by_0p04": true,
+    "L1_marginal_bacc": 0.5625,
+    "L1_effect": 0.5225,
+    "L1_class_conditional_bacc": 0.565,
+    "L4_alignment_k2": 0.0364,
+    "L5_drop_subject_k2": 0.0001,
+    "L5_drop_variance_k2": -0.0001,
+    "L5_beats_variance": false,
+    "L6_delta_subject_k2": 0.0014
+  },
+  "f0_pooled_l4_l5_l6_status": "superseded_by_F1 (weak-task confound resolved: F1 recovers MI 0.53->0.60)",
+  "f1_spatial_task_gate_codebrain": true,
+  "f1_spatial_task_gate_cbramod": true,
+  "headline_final": "On a spatially-preserving feature that RECOVERS the MI task (0.60/0.60, gate PASS both), both frozen FM encoders STRONGLY encode subject identity (L1 0.628/0.562 vs 0.04 chance, class-conditional) but do NOT functionally rely on it: subject-subspace erase does not beat a variance-matched erase (L5), and does not change the target (L6~0). Architecture-general. Subject encoding != harmful reliance, on a decodable task."
 }

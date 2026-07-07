@@ -81,8 +81,9 @@ def build_codebrain(torch, device):
     tok.load_state_dict(unwrap(torch.load(CKPT_CB_TOK, map_location="cpu", weights_only=False)), strict=False)
     tok.eval().to(device)
 
-    def fwd(xt):                     # (B,C,n_patch,200) -> pooled (B,200)
-        feats = enc(xt); return feats.mean(dim=(1, 2))
+    def fwd(xt):                     # (B,C,n_patch,200) -> full feats (B,C,n_patch,200)
+        f = enc(xt)                  # SSSM does x.squeeze() -> drops batch dim when B==1; restore shape
+        return f if f.dim() == 4 else f.reshape(xt.shape[0], xt.shape[1], xt.shape[2], -1)
 
     def freq_tokens(xt):
         C = xt.shape[1]
@@ -101,7 +102,7 @@ def build_cbramod(torch, device):
     bb.proj_out = torch.nn.Identity(); bb.eval().to(device)
 
     def fwd(xt):
-        feats = bb(xt); return feats.mean(dim=(1, 2))
+        return bb(xt)                # full feats (B,C,n_patch,200)
     return fwd, None, dict(missing=len(m), unexpected=len(u), params=sum(p.numel() for p in bb.parameters()))
 
 
@@ -118,48 +119,58 @@ def main():
     dev = torch.device(args.device if (args.device == "cpu" or torch.cuda.is_available()) else "cpu")
     fwd, freqfn, loadinfo = (build_codebrain if args.model == "codebrain" else build_cbramod)(torch, dev)
 
-    F0, Y, D, SES, FREQH = [], [], [], [], []
+    def pool(feats):                 # feats (B,C,np,200) -> F0 pooled (B,200), F1 per-channel (B,C*200)
+        B, C, npp, D = feats.shape
+        f0 = feats.mean(axis=(1, 2))
+        f1 = feats.mean(axis=2).reshape(B, C * D)
+        return f0, f1
+
+    F0, F1, Y, D, SES, FREQH = [], [], [], [], [], []
     qc_rows = []
     t_start = time.time()
+    files = sorted(glob.glob(f"{SHU}/*.mat"))
     for x_raw, y, sub, ses, base in load_shu():
         x, npatch = preprocess(x_raw, 250)
         xt = torch.tensor(x, dtype=torch.float32, device=dev)
-        pooled = []
+        f0l, f1l = [], []
         with torch.no_grad():
             for i in range(0, len(xt), args.bs):
-                pooled.append(fwd(xt[i:i + args.bs]).cpu().numpy())
-        pooled = np.concatenate(pooled, 0)
-        F0.append(pooled); Y.append(y); D.append(np.full(len(y), sub)); SES.append(np.full(len(y), ses))
-        # frequency-token histogram per trial (CodeBrain only) — coarse 4096->64 bins for compactness
+                f0b, f1b = pool(fwd(xt[i:i + args.bs]).cpu().numpy())
+                f0l.append(f0b); f1l.append(f1b)
+        f0 = np.concatenate(f0l, 0); f1 = np.concatenate(f1l, 0)
+        F0.append(f0); F1.append(f1); Y.append(y); D.append(np.full(len(y), sub)); SES.append(np.full(len(y), ses))
         if freqfn is not None:
             with torch.no_grad():
                 tf = freqfn(xt[:min(len(xt), 64)]).cpu().numpy()
             FREQH.append(dict(subject=sub, session=ses, n=int(min(len(xt), 64)),
                               n_unique=int(np.unique(tf).size), entropy=float(_entropy(tf, 4096))))
-        # determinism QC on the first session only: repeat + batch-grouping
-        if base == os.path.basename(sorted(glob.glob(f"{SHU}/*.mat"))[0]):
+        if base == os.path.basename(files[0]):     # determinism QC: repeat + batch-grouping, on F0 and F1
             with torch.no_grad():
-                a = fwd(xt[:32]).cpu().numpy()
-                b = fwd(xt[:32]).cpu().numpy()                          # repeat identical
-                c1 = fwd(xt[:16]).cpu().numpy(); c2 = fwd(xt[16:32]).cpu().numpy()
-                c = np.concatenate([c1, c2], 0)                         # different batch grouping
-            qc_rows.append(dict(model=args.model, dataset=args.dataset,
-                                repeat_max_abs_diff=float(np.max(np.abs(a - b))),
-                                batchgroup_max_abs_diff=float(np.max(np.abs(a - c))),
-                                deterministic=bool(np.max(np.abs(a - b)) < 1e-5 and np.max(np.abs(a - c)) < 1e-4),
-                                finite=bool(np.isfinite(pooled).all())))
+                a0, a1 = pool(fwd(xt[:32]).cpu().numpy())
+                b0, b1 = pool(fwd(xt[:32]).cpu().numpy())
+                c0a, c1a = pool(fwd(xt[:16]).cpu().numpy()); c0b, c1b = pool(fwd(xt[16:32]).cpu().numpy())
+                c0 = np.concatenate([c0a, c0b], 0); c1 = np.concatenate([c1a, c1b], 0)
+            qc_rows.append(dict(model=args.model, dataset=args.dataset, bs=args.bs,
+                                F0_repeat_max=float(np.max(np.abs(a0 - b0))), F0_batchgroup_max=float(np.max(np.abs(a0 - c0))),
+                                F1_repeat_max=float(np.max(np.abs(a1 - b1))), F1_batchgroup_max=float(np.max(np.abs(a1 - c1))),
+                                deterministic_repeat=bool(np.max(np.abs(a0 - b0)) < 1e-5 and np.max(np.abs(a1 - b1)) < 1e-5),
+                                finite=bool(np.isfinite(f0).all() and np.isfinite(f1).all())))
         print(f"[{args.model}:{args.dataset}] {base} n={len(y)} done", flush=True)
 
-    F0 = np.concatenate(F0, 0); Y = np.concatenate(Y); D = np.concatenate(D); SES = np.concatenate(SES)
-    np.savez(OUT / "embeddings" / f"{args.model}_{args.dataset}_F0.npz", X=F0, y=Y, d=D, ses=SES)
-    man = dict(model=args.model, dataset=args.dataset, n_trials=int(len(Y)),
+    F0 = np.concatenate(F0, 0); F1 = np.concatenate(F1, 0)
+    Y = np.concatenate(Y); D = np.concatenate(D); SES = np.concatenate(SES)
+    suffix = f"_bs{args.bs}" if args.bs != 64 else ""
+    np.savez(OUT / "embeddings" / f"{args.model}_{args.dataset}_F0{suffix}.npz", X=F0, y=Y, d=D, ses=SES)
+    np.savez(OUT / "embeddings" / f"{args.model}_{args.dataset}_F1{suffix}.npz", X=F1, y=Y, d=D, ses=SES,
+             n_channels=len(SHU_CH), chan_dim=200)
+    man = dict(model=args.model, dataset=args.dataset, bs=args.bs, n_trials=int(len(Y)),
                n_subjects=int(np.unique(D).size), n_sessions_per_subj=int(np.unique(SES).size),
                channels=SHU_CH, n_channels=len(SHU_CH), native_hz=250, target_hz=200, patch=200, n_patch=int(npatch),
-               classes=sorted(int(c) for c in np.unique(Y)), embed_dim=int(F0.shape[1]),
+               classes=sorted(int(c) for c in np.unique(Y)), F0_dim=int(F0.shape[1]), F1_dim=int(F1.shape[1]),
+               F1_desc="per-channel: mean over patches, keep channels, flatten C*200 (preserves MI spatial lateralization)",
                load=loadinfo, freq_token_hist=FREQH, qc=qc_rows, sec=round(time.time() - t_start, 1))
-    (OUT / f"feature_dump_manifest_{args.model}_{args.dataset}.json").write_text(json.dumps(man, indent=2) + "\n")
-    print(f"WROTE {args.model}_{args.dataset}_F0.npz  X={F0.shape} subjects={np.unique(D).size} "
-          f"classes={sorted(int(c) for c in np.unique(Y))}  QC={qc_rows}")
+    (OUT / f"feature_dump_manifest_{args.model}_{args.dataset}{suffix}.json").write_text(json.dumps(man, indent=2) + "\n")
+    print(f"WROTE {args.model}_{args.dataset} F0={F0.shape} F1={F1.shape} subjects={np.unique(D).size} QC={qc_rows}")
 
 
 def _entropy(ids, K):

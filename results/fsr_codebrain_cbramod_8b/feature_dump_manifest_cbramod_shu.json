@@ -1,6 +1,7 @@
 {
   "model": "cbramod",
   "dataset": "shu",
+  "bs": 64,
   "n_trials": 11988,
   "n_subjects": 25,
   "n_sessions_per_subj": 5,
@@ -47,7 +48,9 @@
     1,
     2
   ],
-  "embed_dim": 200,
+  "F0_dim": 200,
+  "F1_dim": 6400,
+  "F1_desc": "per-channel: mean over patches, keep channels, flatten C*200 (preserves MI spatial lateralization)",
   "load": {
     "missing": 0,
     "unexpected": 0,
@@ -58,11 +61,14 @@
     {
       "model": "cbramod",
       "dataset": "shu",
-      "repeat_max_abs_diff": 0.0,
-      "batchgroup_max_abs_diff": 2.980232238769531e-07,
-      "deterministic": true,
+      "bs": 64,
+      "F0_repeat_max": 0.0,
+      "F0_batchgroup_max": 2.980232238769531e-07,
+      "F1_repeat_max": 0.0,
+      "F1_batchgroup_max": 1.8775463104248047e-06,
+      "deterministic_repeat": true,
       "finite": true
     }
   ],
-  "sec": 15.6
+  "sec": 18.5
 }
