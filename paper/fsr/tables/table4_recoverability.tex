@@ -1,0 +1,11 @@
+\begin{tabular}{llll}
+\toprule
+Class & Obstruction & Invertible by target-$X$ batch-affine op? & Licensed action \\
+\midrule
+R0 & none (affine-in-$z$, task-sep., identified) & yes (E4; narrow, construction-matched) & \textsc{repair} \\
+R1 & per-sample noise indep.\ of $z$ (2nd-moment) & no (even oracle direction) & \textsc{refuse / need per-sample info} \\
+R2 & task-coupled subspace ($S\not\!\perp T$) & no (erasure destroys task) & \textsc{refuse / task-preserving inverse} \\
+R3 & under-identified from target-$X$ (learned/concept) & not even identifiable & \textsc{require stronger contract} \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize Non-exclusive; the binding (most-restrictive) obstruction sets the action. R0 is the unique cell where none hold.}
+\end{tabular}

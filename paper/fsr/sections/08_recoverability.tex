@@ -1,0 +1,47 @@
+\section{Recoverability: what determines whether a shortcut can be repaired}
+\label{sec:recoverability}
+
+Results~\ref{sec:rq4}--\ref{sec:repair} are not three isolated outcomes; together they characterize \emph{when} a
+verified harmful shortcut is repairable by a \emph{deployable, target-unlabeled} operator. We make the boundary
+explicit. The deployable repairs we use are \textbf{target-$X$-only batch-statistic affine operators} $R(z)=Az+b$
+that apply the \emph{same} map to every sample, with $A,b$ measurable from the target batch's moments
+$\{\hat\mu_T,\hat\Sigma_T\}$ and source references (E4 is the translation case, E4b the linear case). Within this
+class, a clean boundary holds.
+
+\begin{quote}
+\emph{Characterization (within the batch-affine operator and affine-in-$z$ corruption classes).} A corruption
+$C:z_i\mapsto z_i+p_i$ is invertible by a target-$X$-only batch-affine operator iff $C$ is an affine function of
+$z$ --- a batch-constant offset (undone by a translation) or a fixed \emph{full-rank} linear map (undone by a
+matrix). An additive per-sample perturbation \emph{independent} of $z$ is not invertible, because the per-sample
+realization is not present in the batch statistics.
+\end{quote}
+
+This places the empirical results into non-exclusive \emph{obstruction classes} (Table~\ref{tab:recover}). A
+\textbf{first-moment deterministic} offset is affine-in-$z$ and, when task-separable and identifiable, is
+recoverable (\textbf{R0}; E4, Result~\ref{sec:repair}); the recovery is narrow precisely because the offset is
+conflated with the genuine domain-mean shift. A \textbf{per-sample stochastic} perturbation independent of $z$ is
+\emph{not} invertible by any batch-affine operator, even with the true direction (\textbf{R1}; E4b fails even
+oracle-directed, Result~\ref{sec:repair}) --- and this is a genuine non-invertibility, not mis-estimation, since
+the estimator recovers the direction yet the operator cannot undo the per-sample noise. A \textbf{task-coupled}
+nuisance subspace makes erasure destroy task signal (\textbf{R2}; the natural spatial branch,
+Result~\ref{sec:rq4}, and the injected oracle-subspace erasure both fail). A shortcut that is
+\textbf{under-identified from target-$X$} --- a learned reliance or a concept shift --- cannot be identified,
+let alone repaired, from the marginal alone (\textbf{R3}).
+
+\begin{table}[t]
+\centering\small
+\input{tables/table4_recoverability}
+\caption{Recoverability obstruction classes (non-exclusive; the binding obstruction sets the licensed action).
+Deployable target-$X$-only batch-affine repair reaches only R0; R1/R2/R3 are detected, localized, and refused,
+and require stronger information (per-sample side information, a task-preserving inverse, or labels/paired/
+randomized data). ``Not repairable'' is scoped to batch-affine operators, not proven for all operators.}
+\label{tab:recover}
+\end{table}
+
+Two consequences frame the paper's contribution. First, repairability is a property of the \emph{corruption
+structure $\times$ operator class $\times$ available information}, not of the shortcut's mere detectability: the
+same subject signal is task-useful naturally (R2, refuse), repairable as a deterministic injected offset (R0), and
+un-repairable as a stochastic injected perturbation (R1). Second, the open cases (R1/R2/R3) are exactly where FSR
+\emph{refuses} or requires a stronger information contract --- the same discipline (available information $\to$
+what is identifiable $\to$ what action is licensed) that recurs across leakage measurement, erasure, and
+adaptation. Repair is not a switch to flip; it is an action licensed only inside a recoverability class.

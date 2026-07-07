@@ -35,6 +35,8 @@ positive controls we detect, localize, and exactly attribute a known harmful sho
 sharp \emph{repair scope boundary}: a controlled first-moment deterministic offset is repairable by a
 deployable target-unlabeled mean alignment (narrowly, construction-matched), whereas a controlled
 second-moment stochastic perturbation is not repaired even by an oracle-directed covariance-shrinkage.
+We characterize this as a \emph{recoverability boundary}: a deployable target-unlabeled operator inverts
+only corruptions that are batch-deterministic, task-separable, and identifiable, and refuses otherwise.
 FSR is a shortcut \emph{verification} framework, not a domain-generalization method: it makes explicit
 what measurement licenses what control conclusion, and it bounds where repair is --- and is not ---
 possible.
@@ -47,9 +49,10 @@ possible.
 \input{sections/05_erasable_not_beneficial}
 \input{sections/06_branch_natural_verification}
 \input{sections/07_controlled_repair_scope}
-\input{sections/08_related_work}
-\input{sections/09_limitations}
-\input{sections/10_conclusion}
+\input{sections/08_recoverability}
+\input{sections/09_related_work}
+\input{sections/10_limitations}
+\input{sections/11_conclusion}
 
 \appendix
 \input{appendix/provenance_appendix}
