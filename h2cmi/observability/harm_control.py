@@ -153,9 +153,14 @@ def build_summary(roots, ks, taus, repeats, seed=0, z=_Z, ci_method="normal", bo
                              "prevented_harm_rate_vs_always_adapt": oref.get("prevented_harm_rate_vs_always_adapt"),
                              "missed_benefit_rate": oref.get("missed_benefit_rate"),
                              "note": "full-label upper bound; NOT deployable"},
-        "best_deployable_ci_attempt": None if ci_attempt is None else {
+        # best a LABEL-BASED (non-trivial) policy can do; plugin_sign is NOT a CI policy, so this is
+        # named "label_based", not "ci". A deprecated alias is kept for one step.
+        "best_label_based_attempt": None if ci_attempt is None else {
             "policy": ci_attempt["policy"], "k": ci_attempt["k"], "tau": ci_attempt["tau"],
             "adaptation_coverage": ci_attempt["adaptation_coverage"],
+            "harm_rate_among_adapt_decisions": ci_attempt["harm_rate_among_adapt_decisions"]},
+        "best_deployable_ci_attempt_deprecated": None if ci_attempt is None else {
+            "policy": ci_attempt["policy"], "adaptation_coverage": ci_attempt["adaptation_coverage"],
             "harm_rate_among_adapt_decisions": ci_attempt["harm_rate_among_adapt_decisions"]},
         "cells": cells,
         "claim_boundary_ok": True,

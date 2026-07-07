@@ -21,7 +21,7 @@
       "missed_benefit_rate": 0.0,
       "note": "full-label upper bound; NOT deployable"
     },
-    "best_deployable_ci_attempt": {
+    "best_label_based_attempt": {
       "policy": "plugin_sign",
       "k": 16,
       "tau": 0.0,

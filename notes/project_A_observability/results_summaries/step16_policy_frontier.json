@@ -1,0 +1,140 @@
+{
+  "project": "Project A",
+  "step": "Step 16",
+  "scope": "harm-control policy frontier (R2); not SOTA",
+  "frontier_axes": [
+    "harm_rate_among_adapt_decisions",
+    "adaptation_coverage",
+    "labels_used",
+    "missed_benefit_rate"
+  ],
+  "harm_thresholds": [
+    0.05,
+    0.1,
+    0.2,
+    0.5
+  ],
+  "min_coverages": [
+    0.01,
+    0.05,
+    0.1
+  ],
+  "n_static_cells": 160,
+  "n_sequential_cells": 96,
+  "oracle_excluded": true,
+  "best_under_harm_0_05": null,
+  "best_under_harm_0_1": null,
+  "best_under_harm_0_2": null,
+  "best_under_harm_0_5": {
+    "source": "static",
+    "policy": "plugin_sign",
+    "tau": 0.0,
+    "labels": 256,
+    "adaptation_coverage": 0.1692,
+    "harm": 0.4468,
+    "missed_benefit": 0.3683,
+    "k": 256
+  },
+  "any_policy_meets_harm_0_05": false,
+  "any_policy_meets_harm_0_1": false,
+  "any_policy_meets_harm_0_2": false,
+  "frontier_table": [
+    {
+      "harm_threshold": 0.05,
+      "min_coverage": 0.01,
+      "best_policy": null,
+      "best_source": null,
+      "best_adaptation_coverage": null,
+      "best_labels": null
+    },
+    {
+      "harm_threshold": 0.05,
+      "min_coverage": 0.05,
+      "best_policy": null,
+      "best_source": null,
+      "best_adaptation_coverage": null,
+      "best_labels": null
+    },
+    {
+      "harm_threshold": 0.05,
+      "min_coverage": 0.1,
+      "best_policy": null,
+      "best_source": null,
+      "best_adaptation_coverage": null,
+      "best_labels": null
+    },
+    {
+      "harm_threshold": 0.1,
+      "min_coverage": 0.01,
+      "best_policy": null,
+      "best_source": null,
+      "best_adaptation_coverage": null,
+      "best_labels": null
+    },
+    {
+      "harm_threshold": 0.1,
+      "min_coverage": 0.05,
+      "best_policy": null,
+      "best_source": null,
+      "best_adaptation_coverage": null,
+      "best_labels": null
+    },
+    {
+      "harm_threshold": 0.1,
+      "min_coverage": 0.1,
+      "best_policy": null,
+      "best_source": null,
+      "best_adaptation_coverage": null,
+      "best_labels": null
+    },
+    {
+      "harm_threshold": 0.2,
+      "min_coverage": 0.01,
+      "best_policy": null,
+      "best_source": null,
+      "best_adaptation_coverage": null,
+      "best_labels": null
+    },
+    {
+      "harm_threshold": 0.2,
+      "min_coverage": 0.05,
+      "best_policy": null,
+      "best_source": null,
+      "best_adaptation_coverage": null,
+      "best_labels": null
+    },
+    {
+      "harm_threshold": 0.2,
+      "min_coverage": 0.1,
+      "best_policy": null,
+      "best_source": null,
+      "best_adaptation_coverage": null,
+      "best_labels": null
+    },
+    {
+      "harm_threshold": 0.5,
+      "min_coverage": 0.01,
+      "best_policy": "plugin_sign",
+      "best_source": "static",
+      "best_adaptation_coverage": 0.1692,
+      "best_labels": 256
+    },
+    {
+      "harm_threshold": 0.5,
+      "min_coverage": 0.05,
+      "best_policy": "plugin_sign",
+      "best_source": "static",
+      "best_adaptation_coverage": 0.1692,
+      "best_labels": 256
+    },
+    {
+      "harm_threshold": 0.5,
+      "min_coverage": 0.1,
+      "best_policy": "plugin_sign",
+      "best_source": "static",
+      "best_adaptation_coverage": 0.1692,
+      "best_labels": 256
+    }
+  ],
+  "claim_boundary": "policy frontier under R2 label budgets / iid sampling contract; NOT R1 target-gain identifiability; oracle excluded from the deployable frontier."
+}

@@ -187,13 +187,13 @@ def build_step15_dashboard(harm_control, harm_pred=None, real_curves=None, multi
         "best_policy_missed_benefit_rate": best.get("missed_benefit_rate"),
         "coverage_control_tradeoff_observed": best.get("policy") is not None,
         "oracle_reference": hc.get("oracle_reference"),
-        "best_deployable_ci_attempt": hc.get("best_deployable_ci_attempt"),
+        "best_label_based_attempt": hc.get("best_label_based_attempt"),
         "claim_boundary_ok": claim_ok,
         "r2_iid_sampling_contract_required": hc.get("r2_iid_sampling_contract_required") is True,
         "oracle_policy_selected_as_deployable": bool(hc.get("oracle_policy_selected_as_deployable")),
     }
     oref = hc.get("oracle_reference") or {}
-    att = hc.get("best_deployable_ci_attempt") or {}
+    att = hc.get("best_label_based_attempt") or {}
     if best.get("policy") is not None:
         learned = [
             (f"A coverage-aware policy ({best.get('policy')}, k={best.get('k')}, tau={best.get('tau')}) "
@@ -228,6 +228,102 @@ def build_step15_dashboard(harm_control, harm_pred=None, real_curves=None, multi
                 "Whether a label-free coverage proxy could pre-screen which targets to label."],
             "claim_boundary": ("R2 minimal-label policy evaluation under an iid sampling contract; NOT "
                                "R1 target-gain identifiability; oracle policy is not deployable. No SOTA.")}
+
+
+def build_step16_dashboard(benefit, sequential, frontier, harm_control_static=None,
+                           real_curves=None, multi=None, step_label="Step 16") -> Dict[str, Any]:
+    ben = benefit or {}
+    seq = sequential or {}
+    fr = frontier or {}
+    bseq = seq.get("best_sequential_policy", {}) or {}
+    bstat = (harm_control_static or {}).get("best_deployable_policy", {}) or {}
+    seq_full_or_none = (bseq.get("policy") is None) or (str(bseq.get("budget")) == "full")
+    claim_ok = (ben.get("claim_boundary", "").lower().find("oracle-only") >= 0
+                and seq.get("oracle_policy_selected_as_deployable") is False
+                and seq.get("r2_iid_sampling_contract_required") is True
+                and fr.get("oracle_excluded") is True
+                and (real_curves or {}).get("k0_status", "not_identified_R1") == "not_identified_R1"
+                and (multi or {}).get("all_target_metrics_identifiable_null") is not False)
+    metrics = {
+        "n_real_runs": ben.get("n_runs"),
+        "benefit_rate": ben.get("benefit_rate"),
+        "beneficial_cells_by_dataset": {k: v.get("n_beneficial") for k, v in (ben.get("per_dataset") or {}).items()},
+        "benefit_sign_stability_by_target": ben.get("target_sign_consistency_rate"),
+        "beneficial_gain_q90_bacc": (ben.get("beneficial_gain_distribution_bacc") or {}).get("q90"),
+        "best_static_policy": bstat.get("policy"),
+        "best_sequential_policy": bseq.get("policy"),
+        "best_sequential_budget": bseq.get("budget"),
+        "best_sequential_tau": bseq.get("tau"),
+        "best_sequential_mean_labels_used": bseq.get("mean_labels_used"),
+        "best_sequential_adaptation_coverage": bseq.get("adaptation_coverage"),
+        "best_sequential_harm_rate": bseq.get("harm_rate_among_adapt_decisions"),
+        "best_sequential_missed_benefit_rate": bseq.get("missed_benefit_rate"),
+        "safe_adaptation_requires_full_or_near_full_labels": bool(seq_full_or_none),
+        "policy_frontier_harm_0_05_exists": bool(fr.get("any_policy_meets_harm_0_05")),
+        "policy_frontier_harm_0_10_exists": bool(fr.get("any_policy_meets_harm_0_1")),
+        "policy_frontier_harm_0_20_exists": bool(fr.get("any_policy_meets_harm_0_2")),
+        "claim_boundary_ok": claim_ok,
+        "oracle_policy_selected_as_deployable": bool(seq.get("oracle_policy_selected_as_deployable")),
+    }
+    if bseq.get("policy") is None:
+        seq_line = ("Sequential label acquisition does NOT rescue Step 15: no sequential policy meets "
+                    "harm<=0.05 with coverage>=0.05 at any budget -> minimal labels do not enable safe "
+                    "adaptation selection; identity/default remains safest.")
+    elif str(bseq.get("budget")) == "full":
+        seq_line = (f"A sequential policy meets harm<=0.05 only near FULL budget "
+                    f"({bseq.get('policy')}, mean-labels {bseq.get('mean_labels_used')}, adapt-cov "
+                    f"{bseq.get('adaptation_coverage')}) -> safe adaptation requires a large calibration burden.")
+    else:
+        seq_line = (f"A sequential policy meets harm<=0.05 with a moderate budget ({bseq.get('policy')}, "
+                    f"budget {bseq.get('budget')}, mean-labels {bseq.get('mean_labels_used')}, adapt-cov "
+                    f"{bseq.get('adaptation_coverage')}) -> R2 minimal labels can control harm under an iid "
+                    f"sampling contract, but NOT R1.")
+    learned = [
+        (f"Beneficial cells are rare (benefit-rate {ben.get('benefit_rate')}) and their sign is "
+         f"{ben.get('target_sign_consistency_rate')} consistent across seeds per target; beneficial gains "
+         f"are small (q90 bAcc {(ben.get('beneficial_gain_distribution_bacc') or {}).get('q90')}) -> the "
+         f"Step-15 false positives are explained by rare, small, unstable benefit."),
+        seq_line,
+        (f"Frontier: any deployable policy meets harm<=0.05 {metrics['policy_frontier_harm_0_05_exists']}, "
+         f"<=0.10 {metrics['policy_frontier_harm_0_10_exists']}, <=0.20 {metrics['policy_frontier_harm_0_20_exists']} "
+         f"-- shows whether the 0.05 constraint was simply too strict."),
+        "Benefit anatomy is oracle-only; sequential policies are R2 labeled slices under an iid sampling "
+        "contract; the oracle policy is an evaluation-only upper bound, never deployable.",
+    ]
+    return {"project": "Project A", "step": step_label,
+            "scope": "benefit anatomy + sequential label-acquisition frontier; not SOTA",
+            "metrics": metrics, "what_we_learned": learned,
+            "what_remains_unknown": [
+                "Whether benefit rarity/instability holds on clinical / non-motor-imagery EEG.",
+                "Whether a label-free coverage proxy could pre-screen which targets to label.",
+                "Whether active (non-iid) acquisition beats iid sampling at fixed harm."],
+            "claim_boundary": ("Benefit anatomy is oracle/evaluation-only; sequential policies are R2 "
+                               "labeled slices under an iid sampling contract, NOT R1 identifiability; "
+                               "oracle policy not deployable. No SOTA.")}
+
+
+def write_step16_md(d: Dict[str, Any], path) -> str:
+    m = d["metrics"]
+    lines = [f"# {d['step']} — Science Dashboard (benefit anatomy + sequential frontier)", "",
+             f"Scope: {d['scope']}.", "", "## Key metrics", "",
+             f"- real runs: **{m['n_real_runs']}** · benefit-rate **{m['benefit_rate']}** · target "
+             f"sign-stability **{m['benefit_sign_stability_by_target']}**",
+             f"- best static policy **{m['best_static_policy']}** · best sequential policy "
+             f"**{m['best_sequential_policy']}** (budget **{m['best_sequential_budget']}**, mean-labels "
+             f"**{m['best_sequential_mean_labels_used']}**, adapt-cov **{m['best_sequential_adaptation_coverage']}**, "
+             f"harm **{m['best_sequential_harm_rate']}**)",
+             f"- safe adaptation requires full/near-full labels **{m['safe_adaptation_requires_full_or_near_full_labels']}**",
+             f"- frontier meets harm<=0.05 **{m['policy_frontier_harm_0_05_exists']}** · <=0.10 "
+             f"**{m['policy_frontier_harm_0_10_exists']}** · <=0.20 **{m['policy_frontier_harm_0_20_exists']}**",
+             f"- claim boundary ok **{m['claim_boundary_ok']}** · oracle selected deployable "
+             f"**{m['oracle_policy_selected_as_deployable']}**", "", "## What we learned", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_we_learned"], 1)]
+    lines += ["", "## What remains unknown", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_remains_unknown"], 1)]
+    lines += ["", "> " + d["claim_boundary"]]
+    text = "\n".join(lines) + "\n"
+    write_text_lf(path, text)
+    return text
 
 
 def write_step15_md(d: Dict[str, Any], path) -> str:
@@ -313,12 +409,25 @@ def main(argv=None):
                     help="Step-13+ mode: prior Step-12 harm predictor for improvement comparison")
     ap.add_argument("--harm-power", default=None, help="Step-14 mode: harm-power summary JSON")
     ap.add_argument("--harm-control", default=None, help="Step-15 mode: harm-control summary JSON")
+    ap.add_argument("--benefit-anatomy", default=None, help="Step-16 mode: benefit-anatomy JSON")
+    ap.add_argument("--sequential-harm-control", default=None, help="Step-16: sequential harm-control JSON")
+    ap.add_argument("--policy-frontier", default=None, help="Step-16: policy-frontier JSON")
     ap.add_argument("--step-label", default="Step 13", help="dashboard provenance label")
     ap.add_argument("--out-json", default=None)
     ap.add_argument("--out-md", default=None)
     args = ap.parse_args(argv)
 
-    if args.harm_control:                                     # Step 15
+    if args.benefit_anatomy:                                  # Step 16
+        label = "Step 16" if args.step_label == "Step 13" else args.step_label
+        d = build_step16_dashboard(
+            _load_json(Path(args.benefit_anatomy)),
+            _load_json(Path(args.sequential_harm_control)) if args.sequential_harm_control else None,
+            _load_json(Path(args.policy_frontier)) if args.policy_frontier else None,
+            _load_json(Path(args.harm_control)) if args.harm_control else None,
+            _load_json(Path(args.real_minimal_labels)) if args.real_minimal_labels else None,
+            _load_json(Path(args.multidataset)), step_label=label)
+        md_writer = write_step16_md
+    elif args.harm_control:                                   # Step 15
         label = "Step 15" if args.step_label == "Step 13" else args.step_label
         d = build_step15_dashboard(
             _load_json(Path(args.harm_control)), _load_json(Path(args.harm_predictor)),

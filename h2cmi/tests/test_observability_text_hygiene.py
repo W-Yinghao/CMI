@@ -68,6 +68,21 @@ _CHECK_FILES = {
     "notes/project_A_observability/results_summaries/step15_science_dashboard.json": 25,
     "notes/project_A_observability/results_summaries/step15_harm_control_summary.md": 15,
     "notes/project_A_observability/results_summaries/step15_science_dashboard.md": 15,
+    # Step-16 benefit anatomy + sequential frontier
+    "h2cmi/observability/benefit_anatomy.py": 100,
+    "h2cmi/observability/sequential_harm_control.py": 150,
+    "h2cmi/observability/policy_frontier.py": 90,
+    "h2cmi/tests/test_benefit_anatomy.py": 45,
+    "h2cmi/tests/test_sequential_harm_control.py": 70,
+    "h2cmi/tests/test_policy_frontier.py": 45,
+    "notes/project_A_observability/results_summaries/step16_benefit_anatomy.json": 40,
+    "notes/project_A_observability/results_summaries/step16_sequential_harm_control.json": 40,
+    "notes/project_A_observability/results_summaries/step16_policy_frontier.json": 30,
+    "notes/project_A_observability/results_summaries/step16_science_dashboard.json": 25,
+    "notes/project_A_observability/results_summaries/step16_benefit_anatomy.md": 12,
+    "notes/project_A_observability/results_summaries/step16_sequential_harm_control.md": 15,
+    "notes/project_A_observability/results_summaries/step16_policy_frontier.md": 12,
+    "notes/project_A_observability/results_summaries/step16_science_dashboard.md": 15,
 }
 _MAX_LINE_BYTES = 500
 

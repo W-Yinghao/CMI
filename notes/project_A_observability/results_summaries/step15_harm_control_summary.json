@@ -53,10 +53,15 @@
     "missed_benefit_rate": 0.0,
     "note": "full-label upper bound; NOT deployable"
   },
-  "best_deployable_ci_attempt": {
+  "best_label_based_attempt": {
     "policy": "plugin_sign",
     "k": 16,
     "tau": 0.0,
+    "adaptation_coverage": 0.2554,
+    "harm_rate_among_adapt_decisions": 0.7807
+  },
+  "best_deployable_ci_attempt_deprecated": {
+    "policy": "plugin_sign",
     "adaptation_coverage": 0.2554,
     "harm_rate_among_adapt_decisions": 0.7807
   },

@@ -323,6 +323,22 @@ adaptation coverage, tie-break minimize missed benefit), not post-hoc. No SOTA, 
 datasets — reuses the Step-13 raw diagnostics grids (CPU). Tests:
 `test_harm_control_policies.py`, `test_observability_science_dashboard.py` (Step-15 mode).
 
+## 16. Benefit anatomy and sequential label acquisition
+
+Step 16 analyzes oracle benefit rarity/stability and evaluates budgeted R2 sequential policies (Step-13
+raw per-trial predictions only). `benefit_anatomy.py` reports where beneficial cells are (rarity,
+per-(dataset,target) sign consistency, gain distribution) — **oracle/evaluation-only**, not R0/R1
+observable. `sequential_harm_control.py` evaluates seq_ci_three_way / seq_ci_adapt_only /
+seq_plugin_confirm that acquire labels batch by batch and stop when the paired-gain CI is decisive; the
+predeclared best rule adds a minimum-labels objective. `policy_frontier.py` reports whether any
+deployable policy meets harm thresholds 0.05 / 0.10 / 0.20 / 0.50. Rules (tests enforce): full-target
+labels are evaluation-only; k>0 is an R2 labeled slice under an iid sampling contract, not full-target
+identification; the oracle policy is never deployable; `budget=full` is a full-label calibration policy,
+not the oracle. The Step-15 `best_deployable_ci_attempt` field is renamed `best_label_based_attempt`
+(plugin_sign is not a CI policy). No SOTA, no manuscript, no new datasets. Tests:
+`test_benefit_anatomy.py`, `test_sequential_harm_control.py`, `test_policy_frontier.py`,
+`test_observability_science_dashboard.py` (Step-16 mode).
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
@@ -330,6 +346,7 @@ datasets — reuses the Step-13 raw diagnostics grids (CPU). Tests:
 (§7, `run_real_audited.py`), the audited mini-grid + validator (§8), the expanded grid +
 statistical digest (§9), the multi-dataset audited expansion + chance-normalized digest
 (§10), the Step-12 scientific exploration (§12), the Step-13 rich-R1 diagnostics + real
-minimal-label curves (§13), the Step-14 metric-semantics + power repair (§14), and the Step-15
-coverage-aware harm-control policies (§15) are live. A full multi-dataset SOTA table and manuscript
+minimal-label curves (§13), the Step-14 metric-semantics + power repair (§14), the Step-15
+coverage-aware harm-control policies (§15), and the Step-16 benefit anatomy + sequential
+label-acquisition frontier (§16) are live. A full multi-dataset SOTA table and manuscript
 writing are out of scope.

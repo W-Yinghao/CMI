@@ -1,0 +1,41 @@
+{
+  "project": "Project A",
+  "step": "Step 16",
+  "scope": "benefit anatomy + sequential label-acquisition frontier; not SOTA",
+  "metrics": {
+    "n_real_runs": 54,
+    "benefit_rate": 0.0926,
+    "beneficial_cells_by_dataset": {
+      "BNCI2014_001": 3,
+      "BNCI2014_004": 2
+    },
+    "benefit_sign_stability_by_target": 0.6111,
+    "beneficial_gain_q90_bacc": 0.015281,
+    "best_static_policy": null,
+    "best_sequential_policy": null,
+    "best_sequential_budget": null,
+    "best_sequential_tau": null,
+    "best_sequential_mean_labels_used": null,
+    "best_sequential_adaptation_coverage": null,
+    "best_sequential_harm_rate": null,
+    "best_sequential_missed_benefit_rate": null,
+    "safe_adaptation_requires_full_or_near_full_labels": true,
+    "policy_frontier_harm_0_05_exists": false,
+    "policy_frontier_harm_0_10_exists": false,
+    "policy_frontier_harm_0_20_exists": false,
+    "claim_boundary_ok": true,
+    "oracle_policy_selected_as_deployable": false
+  },
+  "what_we_learned": [
+    "Beneficial cells are rare (benefit-rate 0.0926) and their sign is 0.6111 consistent across seeds per target; beneficial gains are small (q90 bAcc 0.015281) -> the Step-15 false positives are explained by rare, small, unstable benefit.",
+    "Sequential label acquisition does NOT rescue Step 15: no sequential policy meets harm<=0.05 with coverage>=0.05 at any budget -> minimal labels do not enable safe adaptation selection; identity/default remains safest.",
+    "Frontier: any deployable policy meets harm<=0.05 False, <=0.10 False, <=0.20 False -- shows whether the 0.05 constraint was simply too strict.",
+    "Benefit anatomy is oracle-only; sequential policies are R2 labeled slices under an iid sampling contract; the oracle policy is an evaluation-only upper bound, never deployable."
+  ],
+  "what_remains_unknown": [
+    "Whether benefit rarity/instability holds on clinical / non-motor-imagery EEG.",
+    "Whether a label-free coverage proxy could pre-screen which targets to label.",
+    "Whether active (non-iid) acquisition beats iid sampling at fixed harm."
+  ],
+  "claim_boundary": "Benefit anatomy is oracle/evaluation-only; sequential policies are R2 labeled slices under an iid sampling contract, NOT R1 identifiability; oracle policy not deployable. No SOTA."
+}

@@ -106,8 +106,19 @@ def test_oracle_labels_used_only_in_r2_slice_or_evaluation():
         assert c["harm_rate_among_adapt_decisions"] in (0.0, None) and c["adaptation_coverage"] > 0.0
 
 
+def test_best_label_based_attempt_name_does_not_call_plugin_ci():
+    with tempfile.TemporaryDirectory() as root:
+        s = _summary(root)
+        assert "best_label_based_attempt" in s                 # canonical key
+        att = s["best_label_based_attempt"]
+        # plugin_sign / ci_* are label-based; the field is named label_based, not "ci"
+        assert att is None or att["policy"] in (
+            "plugin_sign", "ci_adapt_only_abstain", "ci_adapt_only_identity", "ci_three_way")
+
+
 ALL_TESTS = [
     test_k0_policy_reports_r1_nonidentifiable,
+    test_best_label_based_attempt_name_does_not_call_plugin_ci,
     test_oracle_full_target_policy_marked_evaluation_only,
     test_ci_policy_abstains_when_ci_crosses_zero,
     test_ci_policy_adapts_only_when_lower_bound_exceeds_tau,
