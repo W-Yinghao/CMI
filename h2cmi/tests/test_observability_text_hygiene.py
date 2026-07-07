@@ -45,6 +45,22 @@ _CHECK_FILES = {
     "notes/project_A_observability/results_summaries/step10_bnci2015_001_summary.json": 80,
     "notes/project_A_observability/paper/06_results_digest.md": 25,
     "notes/project_A_observability/paper/07_limitations_and_claim_boundary.md": 25,
+    # Step-12/13/14 science modules + tracked digests (were NOT gated before — CI gap closed)
+    "h2cmi/observability/harm_attribution.py": 120,
+    "h2cmi/observability/harm_predictor.py": 150,
+    "h2cmi/observability/harm_power.py": 60,
+    "h2cmi/observability/real_minimal_labels.py": 120,
+    "h2cmi/observability/minimal_paired.py": 90,
+    "h2cmi/observability/science_dashboard.py": 150,
+    "h2cmi/tests/test_real_minimal_label_curves.py": 60,
+    "h2cmi/tests/test_observability_harm_power.py": 30,
+    "notes/project_A_observability/results_summaries/step14_science_dashboard.json": 30,
+    "notes/project_A_observability/results_summaries/step14_real_minimal_label_curves.json": 120,
+    "notes/project_A_observability/results_summaries/step14_harm_predictor_summary.json": 40,
+    "notes/project_A_observability/results_summaries/step14_harm_power_summary.json": 15,
+    "notes/project_A_observability/results_summaries/step14_science_dashboard.md": 15,
+    "notes/project_A_observability/results_summaries/step14_real_minimal_label_curves.md": 18,
+    "notes/project_A_observability/results_summaries/step14_harm_predictor_summary.md": 12,
 }
 _MAX_LINE_BYTES = 500
 
