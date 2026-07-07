@@ -42,16 +42,23 @@ def build_subset(n_subjects, hours_budget, condition, seed, val_frac=0.15):
     nval = max(1, int(round(n_subjects * val_frac)))
     sub_val, sub_train = sorted(subjects[:nval].tolist()), sorted(subjects[nval:].tolist())
 
+    cap_windows = max(1, int(round(cap * 3600 / (N_PATCH * PATCH / SFREQ))))   # WINDOW-level budget (fixes fixed-hours bug)
+
     def pick(subs):
         rows = []
         for s in subs:
-            r = m[m["subject"] == s].sort_values("recording_id"); acc = 0.0
+            r = m[m["subject"] == s].sort_values("recording_id"); acc_w = 0
             for _, row in r.iterrows():
-                if acc >= cap:
+                if acc_w >= cap_windows:
                     break
-                rows.append(dict(subject=int(s), recording_id=int(row["recording_id"]),
-                                 filepath=row["filepath"], channels=row["channels"], hours=float(row["hours"])))
-                acc += row["hours"]
+                avail_w = int(row["n_timepoints"]) // (N_PATCH * PATCH)         # non-overlapping 30 s windows
+                take_w = min(avail_w, cap_windows - acc_w)
+                if take_w <= 0:
+                    continue
+                rows.append(dict(subject=int(s), recording_id=int(row["recording_id"]), filepath=row["filepath"],
+                                 channels=row["channels"], take_windows=int(take_w),
+                                 hours=round(take_w * (N_PATCH * PATCH / SFREQ) / 3600, 4)))
+                acc_w += take_w
         return rows
     tr, va = pick(sub_train), pick(sub_val)
     man = dict(n_subjects=n_subjects, hours_budget=hours_budget, condition=condition, seed=seed, per_subject_cap_h=round(cap, 4),
@@ -69,6 +76,8 @@ def windows_for(rows, max_windows_per_rec=None):
         a = np.load(f"{TUEG}/{r['filepath']}", mmap_mode="r")          # (T, 33) T_C
         T = a.shape[0]; wlen = N_PATCH * PATCH                          # 6000
         nwin = T // wlen
+        if r.get("take_windows"):                                      # window-level budget (fixed-hours enforcement)
+            nwin = min(nwin, int(r["take_windows"]))
         if max_windows_per_rec:
             nwin = min(nwin, max_windows_per_rec)
         if nwin == 0:

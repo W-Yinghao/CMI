@@ -1,0 +1,71 @@
+# S2P_07 — P1 Design Red-Team Record (Phase P1; pre-launch)
+
+**Project S2P — P1.** Design red-team of S2P_06 (agent a7ea257d) + the pre-launch feasibility check. **Verdict:
+BLOCKERS_PRESENT — do not launch.** The single fixed-H0 line is **not identifiable** for the diversity claim. This
+record + the required revision; launch stays held (`p1_launch_go_nogo.json launch_p1=false`) pending PM choice of
+the BL-1 fix.
+
+## BLOCKERS
+- **BL-1 — NOT IDENTIFIABLE (the core defect).** At fixed H0=100h, exposure `e = 100/N` is **deterministic** ⇒
+  `corr(log N, log e) = −1` (perfect collinearity). The design matrix `[log N, log e]` is rank-deficient, so the
+  mixed model **cannot** estimate `β_N` and `β_e` separately — the "exposure covariate" (S2P_06) is **void**. There is
+  exactly **one** estimable slope `d(outcome)/d(log N) = ∂diversity − ∂exposure` (**fused**). The primary
+  "subject-diversity scaling" claim is **not estimable** from a single fixed-H0 line. (FSR-8C needed fixed-vs-growing
+  for the same reason; S2P_06 dropped the second axis.)
+  **FIX (PM chooses one):**
+  - **(a) Two fixed-H0 lines** (H0 ∈ {100, 200}h): matched-**exposure**-different-N cells (e.g. N=32@100h ≡ 3.125h ≡
+    N=64@200h) identify **diversity**; matched-N-different-H0 cells identify **exposure**. Minimal grid that breaks
+    collinearity. ~**2× compute**.
+  - **(b) Constant-per-subject-cap growing-hours arm** (exposure FIXED, N grows, total grows) = direct
+    diversity-at-constant-exposure. Adds a second axis; total-hours grows (disclose).
+  - **(c) Reframe/rename** to "**fixed-budget subject-vs-depth tradeoff frontier**" (a legitimate engineering
+    question), **delete** the covariate-separation claim, and **strike every "diversity" attribution** from the
+    primary claim. No new compute; no diversity claim.
+- **BL-2 — under-power + selection bias.** 100h from scratch (~12k windows) for a 12-layer transformer is small; if
+  encoders are weak, most downstream cells fail the 0.58 gate (FSR had PhysioNet/BNCI ~0.4–0.5 even on *released*
+  encoders), and if gate-pass is N-dependent the slope is **survivorship-biased**.
+  **FIX:** (i) **positive-control floor** — the from-scratch encoder must beat a **random-init frozen** CBraMod at the
+  max-data cell; else declare **under-powered → STOP** (no "null" claim); (ii) **per-cell convergence gate** (pretrain-
+  val loss plateau / common relative-improvement criterion, not fixed epochs); (iii) treat **gate-pass as an analyzed
+  outcome** and report every slope **with and without** gated cells (no hard censoring).
+- **BL-3 — thresholds not pre-registered** (researcher DoF): STOP-Gini, MDE, seed-SD tolerance all have **no numbers**.
+  **FIX:** freeze numeric **MDE** (bAcc-slope units from cluster variance), **Gini ceiling**, **seed-SD tolerance**
+  before launch.
+
+## MAJORS
+- **MJ-1 — feasibility on the WRONG corpus + POPULATION confound.** `fixed_hours_subset_feasibility.csv` (go/no-go
+  "all feasible") is on the **full 33-ch** corpus (13,446). P1 uses **19-common** (6,535). On 19-common, N=32 needs
+  ≥3.125h ⇒ **~80 eligible subjects = extreme long-recording clinical (epilepsy-monitoring) patients**, while N=2000
+  draws from ~6,500 general subjects ⇒ the N axis confounds diversity, exposure **and clinical population**. Cannot
+  nest all N in a common ≥3.125h pool (only ~80 qualify ⇒ can't reach N=128) — that impossibility itself proves the
+  single line fuses count/exposure/population. **FIX:** feasibility on 19-common (done in `p1_feasibility_by_cell`);
+  report per-cell population drift; restrict to a common eligibility pool (caps max N) **or** disclose population as
+  a named confound.
+- **MJ-2 — pretrain-val not a fixed common set** ⇒ per-cell val difficulty varies with N ⇒ best-val-loss checkpoints
+  on non-comparable scales. **FIX:** one **fixed external pretrain-val set** (constant subjects+exposure, disjoint
+  from every training pool); report its loss per cell as a target-free outcome.
+- **MJ-3 — no primary outcome / multiplicity control** (3 datasets × 6 metrics). **FIX:** one primary (SHU-MI
+  target-bAcc slope on log N), rest secondary/exploratory, **Holm** across the pre-registered family.
+- **MJ-4 — sparse-exposure redundancy undisclosed.** N=2000 ⇒ ~6 likely-**contiguous** 30 s windows/subject
+  (near-duplicates) ⇒ effective within-subject diversity ≪ 6. **FIX:** pin windowing/overlap policy (constant across
+  cells); report contiguity + an **effective (decorrelated) windows-per-subject**.
+- **MJ-5 — 3 seeds conflate subset-draw × init** (N=32 subset draws overlap ~40%). **FIX:** factor **subset-seed ×
+  init-seed**; ≥5 seeds at N∈{32,2000}.
+
+## MINORS
+- **MN-1** L1: pin a **dynamic-range check** (reference-cell L1 off both 0.5 floor and ~0.95 ceiling), **fixed probe +
+  PCA rank** across cells, and a **3-way subject-disjoint split** within each downstream dataset. **MN-2** state
+  nested vs independent N draws (prefer **nested**). **MN-3** 5 endpoint-dominated points ⇒ require **leave-one-N-out**
+  slope-robustness.
+
+## Feasibility bug (pre-launch check, independent of the agent)
+The loader enforced the per-subject budget at **whole-recording** granularity ⇒ at high N (cap < one recording) each
+subject contributes ≥1 full recording ⇒ **actual total hours balloons** (N=32:116h … N=2000:597h ≠ 100h) ⇒ the
+"fixed-hours" axis was silently confounded with total hours. **FIX: window-level budget truncation** (cap_windows =
+round(cap·120); truncate within recording). Must land before any run.
+
+## Disposition
+**Launch held.** BL-1 requires a PM decision (add a 2nd identifying axis ≈ 2× compute, or reframe away from
+"diversity"). BL-2/BL-3/MJ-1..5 + the loader window-budget fix must be resolved and the numeric thresholds frozen
+before `p1_launch_go_nogo.launch_p1 = true`. This is the same identifiability lesson as FSR-8C, now caught **before**
+any GPU spend.
