@@ -1,0 +1,41 @@
+{
+  "scope": "B9.GOV governance-status TRACKER (development-only; sanitized metadata ONLY; NO PII). Tracks the institutional-governance state of the B9 prospective randomized-audit acquisition + pins the frozen protocol artifacts. Does NOT grant approval, is NOT the submission, is NOT legal/IRB advice.",
+  "current_status": "not_started",
+  "state_machine": {
+    "states": ["not_started", "drafting_external_submission", "submitted", "revisions_requested", "approved", "not_approved", "withdrawn", "expired"],
+    "allowed_transitions": {
+      "not_started": ["drafting_external_submission", "withdrawn"],
+      "drafting_external_submission": ["submitted", "withdrawn"],
+      "submitted": ["revisions_requested", "approved", "not_approved", "withdrawn"],
+      "revisions_requested": ["submitted", "withdrawn"],
+      "approved": ["expired", "withdrawn"],
+      "not_approved": ["drafting_external_submission", "withdrawn"],
+      "withdrawn": ["drafting_external_submission"],
+      "expired": ["drafting_external_submission"]
+    },
+    "gate": "real human-EEG recording MUST NOT begin unless current_status == 'approved'"
+  },
+  "status_log": [
+    {"status": "not_started", "note": "B9.3 acquisition-readiness lock complete; external governance submission not yet started"}
+  ],
+  "frozen_protocol_artifacts_sha256_16": {
+    "b9_stage2_assignment_table.csv": "cc9b5780eaaf31de",
+    "b9_stage2_assignment_table.manifest_table_hash": "e3675b16891e9b24",
+    "b9_stage2_manifest.json": "aca325f7746a2cf7",
+    "b9_stage2_preanalysis_protocol.json": "d67f68a45884d78b",
+    "b9_stage2_quality_criteria.json": "21910b4d5044bfa0",
+    "b9_stage3_event_marker_map.json": "a59e1a736917a176",
+    "b9_stage3_governance_submission_packet.md": "ac09c6e2da5ceac2",
+    "note": "the CSV file sha256 (cc9b5780) and the composition table_hash (e3675b16) are DISTINCT legitimate hashes of the same table"
+  },
+  "protocol_change_trigger": "if the governance review requests modifications affecting assignment, trial/microblock structure, exclusions, or recorded data fields, those changes MUST trigger (1) a protocol DIFF vs these pinned hashes and (2) a design red-team, BEFORE any acquisition begins. A protocol change re-pins these hashes and appends a status_log entry.",
+  "repo_hygiene_rules": [
+    "the repository MUST NOT contain: private participant information / PII; signed consent forms; reviewer identities; institution-private correspondence; raw human EEG",
+    "the repository holds ONLY: sanitized status metadata, version/artifact hashes, the pre-registration + code + synthetic/dry-run artifacts",
+    "any identity<->slot linkage is held separately under institutional access control, NEVER committed"
+  ],
+  "authorized_now": ["external governance submission process (adapt the draft packet to the institution's template + submit through the governance channel)", "governance-status tracking (this file)", "no-science logistics preparation"],
+  "authorized_only_after_approved": ["B9.4 6-10 subject operations-only checkpoint (logistics only; scientific endpoints structurally blinded)"],
+  "not_authorized": ["real recording before approved", "Analysis A", "scientific endpoint inspection during checkpoint", "more emulator experiments", "Lee2019 as validation", "existing-dataset route as primary", "min_confirm_pairs relaxation", "gate/statistic/feature changes", "paper writing"],
+  "gated_sequence": ["1 acquisition-readiness lock (DONE, B9.3)", "2 governance approval (external)", "3 B9.4 6-10 operations-only checkpoint", "4 logistics red-team", "5 explicit go/no-go for full acquisition", "6 Analysis A on real >=24-analyzable data (PENDING_ACQUISITION)"]
+}
