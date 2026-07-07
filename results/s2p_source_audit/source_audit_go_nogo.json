@@ -1,0 +1,23 @@
+{
+  "cbramod_native_pretrain_path_identified": true,
+  "cbramod_objective_verified": true,
+  "cbramod_sampler_subject_budget_verified": "handled_by_per_subject_hours_cap; VERIFY equal sequences/subject per cell in P1 (native sampler is uniform-over-sequences)",
+  "cbramod_checkpoint_selection_verified": true,
+  "codebrain_native_stage2_path_identified": true,
+  "codebrain_masking_reimplementation_removed": true,
+  "codebrain_mask_fix": "pass native 3-D (B,19,30) mask (generate_mask); (B,570) flatten is trainer-internal AFTER forward -> resolves [4,570] IndexError",
+  "codebrain_tokenizer_target_shape_verified": true,
+  "codebrain_stage2_smoke_ready_with_native_path": "needs-adapter (SubjectSubsetDataset + muV-scale input + tokenizer weight[ON DISK] + parallel=False/CUDA_VISIBLE_DEVICES + bs>=2)",
+  "preprocessing_mismatches_documented": true,
+  "preprocessing_mismatches": [
+    "CodeBrain scaling: native /100 muV vs my z-score -> feed muV-scale (CRITICAL, tokenizer OOD else)",
+    "bandpass: processed TUEG 0.5-45Hz vs CodeBrain paper 0.3-75Hz+notch -> spectral mismatch (esp token_f), documented not reproduced",
+    "temporal-code collapse (FSR finding) was on non-TUEG downstream; TUEG pretraining should keep token_t diverse; log per-stream CE + unique counts"
+  ],
+  "both_verdict": "NEEDS-ADAPTER (thin), NO fundamental blocker; native pretraining semantics fully identified for both",
+  "approve_p1_after_audit_recommended": {
+    "cbramod": true,
+    "codebrain": "P2_after_native_adapter_bounded_smoke"
+  },
+  "note": "Audit PASS. CBraMod P1 = native Trainer_valid (NOT my reimpl) + thin adapter (neutralize 129ch normalizer, subject-disjoint loaders, mask 0.5, z-score). CodeBrain deferred to P2 with native adapter (generate_mask (B,19,30), muV-scale, on-disk tokenizer, device remap) + a bounded native-path smoke to confirm the [4,570] fix before scaling."
+}

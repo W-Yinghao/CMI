@@ -1,0 +1,3 @@
+model,mask_ratio,unit,shape,token,fix
+CBraMod,0.5,per-(B C patch),applied-in-signal-zeros-token,n/a,use-native-generate_mask
+CodeBrain,0.5,per-(channel patch),(B 19 30) long,flatten-(B570)-AFTER-forward-in-trainer,pass-3D-not-(B570)=[4570]-FIX

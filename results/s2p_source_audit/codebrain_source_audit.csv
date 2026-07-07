@@ -1,0 +1,12 @@
+axis,native_value,file_line,s2p_match_or_action
+native_pretrain_path,pretrain_EEGSSM.py -> EEGSSM_Trainer.train -> SSSM(if_codebook=True) + FROZEN tfdual tokenizer,pretrain_EEGSSM.py:85-113 / Trainer.py:236-303,USE native (not my 9B-0 reimpl)
+objective,masked-TOKEN prediction CE on BOTH token_t + token_f summed 1:1 equal weight,Trainer.py:284 loss=vqloss(y_t,codes_t)+vqloss(y_f,codes_f),USE native
+mask_shape_THE_FIX,native generate_mask returns (B ch_num patch_num)=(B 19 30) dtype long; flatten to (B570) happens INSIDE trainer AFTER forward,util.py:30-33 / Trainer.py:276-282 / SSSM.py:231,275,FIX: pass 3-D (B19,30) NOT (B570) [my [4,570] error]
+mask_ratio_unit,0.5 per-(channel,patch) Bernoulli,pretrain_EEGSSM.py:62 / util.py:32,USE
+token_target,get_codebook_indices(x,channel_list) no_grad -> (B570) each; reduced by [mask==1] -> 1D labels; logits (n_masked4096),Trainer.py:280-283 / modeling_tokenizer.py:176,179,USE native (channel-major aligned verified)
+input,(B19,30,200) input_chans=range(20)=C+1 idx0=cls,SSSM.py:222 / Trainer.py:243,MATCHES; batch_size>=2 (squeeze drops B=1)
+normalization_CRITICAL,x/100 muV-scale assumed NO zscore,Trainer.py:273,MISMATCH: my loader z-scores -> MUST feed muV-scale (undo zscore or bypass /100) else tokenizer OOD
+tokenizer_frozen,YES .eval()+no_grad; weight CodeBrain_Tokenizer.pth required (ON DISK ~/eeg2025/NIPS/CodeBrain/Checkpoints),pretrain_EEGSSM.py:31 / Trainer.py:280,pass --tokenizer_weight (satisfied)
+checkpoint,best-by-TRAINING-loss NO val split weights-only no-optimizer/resume,Trainer.py:299-303,S2P ADD subject-disjoint pretrain-val (deviation better); select by pretrain-val-loss
+device,hardcoded device_ids[3,4,5] + SSSM.py:129 .cuda(),Trainer.py:248 / SSSM.py:129,ADAPTER: parallel=False + CUDA_VISIBLE_DEVICES remap (no file edit)
+determinism,seed42 cudnn.deterministic,pretrain_EEGSSM.py:14-19,USE

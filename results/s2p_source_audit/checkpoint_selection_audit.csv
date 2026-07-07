@@ -1,0 +1,3 @@
+model,native,s2p_action
+CBraMod,best-by-pretrain-VAL-loss(leaky-task-val)+optimizer+resume,use-with-MY-subject-disjoint-val; pretrain-val-loss-ONLY-never-target
+CodeBrain,best-by-TRAINING-loss NO-val weights-only,ADD-subject-disjoint-pretrain-val; select-by-val-loss

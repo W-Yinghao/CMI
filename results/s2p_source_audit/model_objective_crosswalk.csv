@@ -1,0 +1,3 @@
+model,objective,streams,loss
+CBraMod,masked-patch RECONSTRUCTION,signal-domain,MSE on x[mask==1]
+CodeBrain-Stage2,masked-TOKEN prediction,temporal+frequency (1:1),CE(y_t,codes_t)+CE(y_f,codes_f)

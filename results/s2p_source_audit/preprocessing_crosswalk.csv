@@ -1,0 +1,4 @@
+axis,cbramod_native,codebrain_native,processed_TUEG,action
+scaling,corpus-zscore(or /100),/100 muV,per-window-zscore(mine),CBraMod=zscore OK; CodeBrain=feed muV-scale (undo zscore)
+bandpass,TUEG-masked-recon,0.3-75Hz+notch(paper),0.5-45Hz,DOCUMENT mismatch (esp token_f); S2P uses processed 0.5-45
+sfreq/patch/segment,200/1s/30,200/1s/30,200Hz,MATCHES

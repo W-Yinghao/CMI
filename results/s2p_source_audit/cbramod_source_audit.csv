@@ -1,0 +1,11 @@
+axis,native_value,file_line,s2p_match_or_action
+native_pretrain_path,pretrain_main.py -> Trainer_valid -> CBraMod -> generate_mask + MSELoss on x[mask==1],pretrain_main.py:106 / pretrain_trainer.py:149-297,USE native (not my 9B-0 reimpl)
+objective,masked-patch RECONSTRUCTION MSE on masked positions target=normalized-input-signal head proj_out Linear(200->200),pretrain_trainer.py:157,244-247 / cbramod.py:18-24,ZERO change
+mask,ratio 0.5 per-(B,C,patch) Bernoulli zeros-mask-token in signal domain,pretrain_main.py:46 / util.py:11-14 / cbramod.py:44,84,ZERO change (my smoke used 0.3 -> use native 0.5)
+input_patching,(B,C,n_patch,200) patch=1s@200Hz n_patch=30 channel-agnostic,cbramod.py:9,80,MATCHES my (n,19,30,200)
+normalization,LIVE=corpus-level per-channel zscore via EEGNormalizer HARDCODED 129ch (/100 commented),pretrain_trainer.py:170-172,232-234,ADAPTER: neutralize 129ch normalizer (I pre-zscore per-window; do NOT /100)
+sampler,plain DataLoader shuffle NO per-subject weighting samples one SEQUENCE per idx -> high-hours subjects DOMINATE,pretrain_main.py:76-81,CRITICAL: rely on my per-subject HOURS CAP for balance; VERIFY equal sequences/subject per cell
+train_val_split,NATIVE LEAKY (task-based val subset of train subjects),pretrain_main.py:65-67,83-84,MY subject-disjoint split is BETTER (intentional deviation documented)
+checkpoint,best-by-pretrain-VAL-loss + last.pth optimizer+scheduler saved resume supported,pretrain_trainer.py:274-296,USE (on my clean subject-disjoint val); pretrain-val loss ONLY never target
+features,backbone.proj_out=Identity -> feats (B,C,n_patch,200),model_for_hbn_mt.py:19,23,USE
+determinism,setup_seed(42) cudnn.deterministic fp32-only clip_grad 1.0,pretrain_main.py:15-20,USE

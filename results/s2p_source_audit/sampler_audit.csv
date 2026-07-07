@@ -1,0 +1,3 @@
+model,native_sampler,subject_balance,action
+CBraMod,DataLoader-shuffle-uniform-over-sequences,high-hours-subjects-DOMINATE,rely-on-per-subject-HOURS-CAP; VERIFY-equal-sequences/subject/cell
+CodeBrain,DataLoader-shuffle-uniform,same,same-hours-cap-balance
