@@ -23,11 +23,39 @@ if str(_REPO_ROOT) not in sys.path:
     sys.path.insert(0, str(_REPO_ROOT))
 
 
+def _resolve_subjects_arg(vals):
+    """None | ['all'] | list of int-strings -> None | 'all' | list[int]."""
+    if not vals:
+        return None
+    if len(vals) == 1 and str(vals[0]).strip().lower() == "all":
+        return "all"
+    return [int(v) for v in vals]
+
+
+def _moabb_subject_list(name):
+    """The dataset's full subject-id list WITHOUT loading trial data (cache-independent), so an
+    'all' grid can still enumerate expected cells even when the data cache is unavailable."""
+    import moabb.datasets as D
+    return sorted(int(s) for s in getattr(D, name)().subject_list)
+
+
+def _atomic_write_json(path, obj, tmp_token=""):
+    """Write JSON via a unique temp file + atomic rename (safe when parallel shards each write the
+    same identical grid_manifest.json)."""
+    import os
+    path = Path(path)
+    tmp = Path(f"{path}.tmp{tmp_token}")
+    tmp.write_bytes((json.dumps(obj, indent=2) + "\n").encode("utf-8"))
+    os.replace(str(tmp), str(path))
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Project A audited real-EEG mini-grid")
     ap.add_argument("--dataset", default="BNCI2014_001")
-    ap.add_argument("--subjects", type=int, nargs="*", default=None)
-    ap.add_argument("--target-subjects", type=int, nargs="+", required=True)
+    ap.add_argument("--subjects", nargs="*", default=None,
+                    help="subject ids to LOAD, or 'all' (MOABB subject_list); default = all")
+    ap.add_argument("--target-subjects", nargs="+", required=True,
+                    help="target subject ids to iterate, or 'all' (resolved after load)")
     ap.add_argument("--seeds", type=int, nargs="+", default=[0])
     ap.add_argument("--epochs", type=int, default=20)
     ap.add_argument("--n-classes", type=int, default=4)
@@ -52,6 +80,10 @@ def main(argv=None):
     from h2cmi import run_real_audited as R
     R._maybe_set_threads(args.threads)                         # CPU multi-core (SLURM passes --threads)
 
+    subjects_spec = _resolve_subjects_arg(args.subjects)       # None | 'all' | list[int]
+    targets_spec = _resolve_subjects_arg(args.target_subjects)  # 'all' | list[int]
+    load_subjects = None if subjects_spec in (None, "all") else subjects_spec
+
     root = Path(args.root_outdir)
     root.mkdir(parents=True, exist_ok=True)
     environment = {"python": sys.version.split()[0], "device": args.device}
@@ -60,15 +92,28 @@ def main(argv=None):
     # ---- load ONCE (reused across all target/seed configs) ------------------------------
     load_err = None
     subject_map = None
+    n_classes = None
     try:
         if args.dataset == "synthetic":
             X, y, dag, domains, subj_col, _s, n_classes, info = R._load_synthetic(args.n_classes, 0)
         else:
             X, y, dag, domains, subj_col, _s, n_classes, info = R._load_moabb(
-                args.dataset, args.subjects, 0)
+                args.dataset, load_subjects, 0)
             subject_map = info["subject_map"]
     except Exception as exc:                                   # reason-coded; every run skips
         load_err = f"{type(exc).__name__}: {exc}"
+
+    # resolve 'all' target subjects AFTER load, so grid_manifest records CONCRETE ids. Falls back to
+    # the cache-independent subject_list if the data cache is unavailable (so skips still enumerate).
+    if targets_spec == "all":
+        if args.dataset == "synthetic":
+            target_subjects = sorted({int(x) for x in subj_col}) if load_err is None else []
+        elif subject_map is not None:
+            target_subjects = sorted(int(k) for k in subject_map)
+        else:
+            target_subjects = _moabb_subject_list(args.dataset)
+    else:
+        target_subjects = [int(t) for t in targets_spec]
 
     # domain-factor structure is invariant across (target, seed) — compute once
     factor_levels = align_degenerate = None
@@ -76,9 +121,23 @@ def main(argv=None):
         factor_levels = {f.name: int(f.n_levels) for f in dag.factors}
         align_degenerate = factor_levels.get(align_factor, 0) <= 1
 
-    cells = [(t, s) for t in args.target_subjects for s in args.seeds]
+    # grid_manifest.json records the RESOLVED expected grid so the validator distinguishes a MISSING
+    # cell (no dir at all) from a legal skip. Written atomically by every shard (identical content).
+    expected_cells = [{"target_subject": int(t), "seed": int(s)}
+                      for t in target_subjects for s in args.seeds]
+    _atomic_write_json(root / "grid_manifest.json", {
+        "dataset": args.dataset,
+        "subjects": ("all" if subjects_spec == "all" else load_subjects),
+        "target_subjects": [int(t) for t in target_subjects],
+        "seeds": [int(s) for s in args.seeds],
+        "epochs": int(args.epochs), "fast": bool(args.fast), "align_factor": align_factor,
+        "n_classes": int(n_classes) if (load_err is None and n_classes is not None) else None,
+        "expected_cells": expected_cells,
+    }, tmp_token=str(args.shard_index))
+
+    cells = [(t, s) for t in target_subjects for s in args.seeds]
     n_ok = n_skip = n_resume = 0
-    for tsub in args.target_subjects:
+    for tsub in target_subjects:
         for seed in args.seeds:
             if cells.index((tsub, seed)) % args.num_shards != args.shard_index:
                 continue                                    # deterministic sharding (SLURM array)
@@ -96,7 +155,7 @@ def main(argv=None):
                 shutil.rmtree(run_dir)
             run_dir.mkdir(parents=True, exist_ok=True)
             run_args = argparse.Namespace(dataset=args.dataset, subjects=args.subjects,
-                                          target_subject=tsub)
+                                          target_subject=tsub, seed=seed)
             if load_err is not None:
                 R._write_skip(run_dir, f"load failed: {load_err}", run_args, environment)
                 n_skip += 1

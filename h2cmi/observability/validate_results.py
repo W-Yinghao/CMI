@@ -40,6 +40,12 @@ def validate_run(run_dir) -> Tuple[bool, List[str]]:
     if status != "ok":
         return False, [f"invalid manifest status {status!r} (expected 'ok' or 'skipped')"]
 
+    # (0c) an ok run MUST record n_classes — chance-normalized metrics depend on it, and a missing
+    #      value silently defaults chance to null (blocks cross-dataset comparison). Fail loud.
+    nc = manifest.get("n_classes")
+    if not isinstance(nc, int) or nc < 2:
+        issues.append(f"ok run missing/invalid n_classes ({nc!r})")
+
     # (1) report is legal JSON
     if report is None:
         return False, ["observability_report.json missing/invalid"]
@@ -117,13 +123,28 @@ def main(argv=None):
     ap.add_argument("--dataset", default="BNCI2014_001")
     ap.add_argument("--expected-targets", type=int, nargs="*", default=None)
     ap.add_argument("--expected-seeds", type=int, nargs="*", default=None)
+    ap.add_argument("--grid-manifest", default=None,
+                    help="grid_manifest.json listing expected_cells (default: <root>/grid_manifest.json)")
     ap.add_argument("--allow-missing", action="store_true",
                     help="do not fail validation when expected grid cells are missing")
     args = ap.parse_args(argv)
 
+    # expected cells come from the grid manifest if present (records the RESOLVED target subjects,
+    # e.g. from --target-subjects all), else fall back to the --expected-targets × --expected-seeds
+    gm_path = args.grid_manifest
+    if gm_path is None:
+        default_gm = Path(args.root) / "grid_manifest.json"
+        gm_path = str(default_gm) if default_gm.exists() else None
+    expected_cells = None
+    if gm_path:
+        gm = _load_json(Path(gm_path))
+        if gm and isinstance(gm.get("expected_cells"), list):
+            expected_cells = gm["expected_cells"]
+
     validations = validate_all(args.root)
     summary = build_summary(args.root, project=args.project, step=args.step, dataset=args.dataset,
-                            expected_targets=args.expected_targets, expected_seeds=args.expected_seeds)
+                            expected_targets=args.expected_targets, expected_seeds=args.expected_seeds,
+                            expected_cells=expected_cells)
     a = summary["aggregate"]
     missing = a.get("missing_cells", [])
     runs_valid = all(v["valid"] for v in validations.values()) if validations else False

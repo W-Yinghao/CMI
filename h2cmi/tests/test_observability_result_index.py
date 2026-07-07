@@ -31,7 +31,7 @@ def _write_run(root, target, seed, report_data, *, status="ok", extra_manifest=N
          "n_source_trials": 1152, "n_target_trials": 576}))
     manifest = {"status": status, "dataset": "BNCI2014_001", "target_subject": target,
                 "seed": seed, "align_factor": "subject", "n_source_trials": 1152,
-                "n_target_trials": 576, "alignment_factor_degenerate": False}
+                "n_target_trials": 576, "alignment_factor_degenerate": False, "n_classes": 4}
     manifest.update(extra_manifest or {})
     (d / "run_manifest.json").write_text(json.dumps(manifest))
     return d
@@ -224,6 +224,42 @@ def test_digest_write_paths_produce_lf_files():
         assert mb.count(b"\n") >= 5                           # MD is multi-line (not a giant line)
 
 
+def test_chance_normalized_metrics_for_four_class():
+    with tempfile.TemporaryDirectory() as root:
+        d = _write_run(root, 1, 0, _clean_report())          # n_classes=4 default
+        r = load_run(d)
+        assert r["n_classes"] == 4 and r["chance_bacc"] == 0.25
+        assert r["strict_dg_bacc_excess"] == round(0.30 - 0.25, 4)          # _STRICT bAcc 0.30
+        assert r["strict_dg_bacc_excess_norm"] == round((0.30 - 0.25) / 0.75, 4)
+        assert r["offline_tta_gain_bacc_norm"] == round(-0.01 / 0.75, 4)    # _OFFLINE gain -0.01
+        agg = build_summary(root)["aggregate"]
+        assert agg["n_classes"] == 4 and agg["chance_bacc"] == 0.25
+        assert agg["mean_strict_dg_bacc_excess_norm"] == round((0.30 - 0.25) / 0.75, 4)
+
+
+def test_chance_normalized_metrics_for_binary():
+    # SAME raw bAcc 0.30 means BELOW chance for a binary task -> excess/excess_norm go negative
+    with tempfile.TemporaryDirectory() as root:
+        d = _write_run(root, 1, 0, _clean_report(), extra_manifest={"n_classes": 2})
+        r = load_run(d)
+        assert r["n_classes"] == 2 and r["chance_bacc"] == 0.5
+        assert r["strict_dg_bacc_excess"] == round(0.30 - 0.5, 4)
+        assert r["strict_dg_bacc_excess_norm"] == round((0.30 - 0.5) / 0.5, 4)
+        assert r["offline_tta_gain_bacc_norm"] == round(-0.01 / 0.5, 4)
+        agg = build_summary(root)["aggregate"]
+        assert agg["n_classes"] == 2 and agg["chance_bacc"] == 0.5
+
+
+def test_missing_n_classes_fails_validation_for_ok_run():
+    with tempfile.TemporaryDirectory() as root:
+        d = _write_run(root, 1, 0, _clean_report())
+        mf = d / "run_manifest.json"                          # strip n_classes from an ok manifest
+        m = json.loads(mf.read_text()); m.pop("n_classes", None)
+        mf.write_text(json.dumps(m))
+        ok, issues = validate_run(d)
+        assert not ok and any("n_classes" in i for i in issues)
+
+
 ALL_TESTS = [
     test_result_validator_accepts_clean_oracle_metrics,
     test_result_validator_rejects_identifiable_r0_target_metric,
@@ -238,6 +274,9 @@ ALL_TESTS = [
     test_digest_statistical_layer,
     test_digest_missing_cells_gate,
     test_digest_write_paths_produce_lf_files,
+    test_chance_normalized_metrics_for_four_class,
+    test_chance_normalized_metrics_for_binary,
+    test_missing_n_classes_fails_validation_for_ok_run,
 ]
 
 

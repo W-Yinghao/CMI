@@ -8,6 +8,7 @@ Scope: interface + audited-report validation — **not a SOTA claim**; target me
 - all target metrics identifiable=null: **True**
 - all prior claims compliant: **True**  ·  no unknown estimands: **True**
 - mean strict-DG bAcc: **0.3946**  ·  mean offline-TTA gain: **-0.0502**  ·  offline-TTA harm-rate: **0.8148**
+- n_classes: **4**  ·  chance bAcc: **0.25**  ·  mean strict-DG excess-norm: **0.1928**  ·  mean offline-TTA gain-norm: **-0.067**
 - expected runs: **27**  ·  missing cells: **0**
 
 | target | seed | status | strict bAcc | offline gain | online bAcc | claims | violations | prior claim | metrics id=null |

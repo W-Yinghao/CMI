@@ -1,0 +1,556 @@
+{
+  "project": "Project A",
+  "step": "Step 10",
+  "dataset": "BNCI2015_001",
+  "root": "notes/project_A_observability/results/step10_BNCI2015_001",
+  "n_runs": 36,
+  "runs": [
+    {
+      "run_dir": "dataset=BNCI2015_001_target=10_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 10,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=10_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 10,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=10_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 10,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=11_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 11,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=11_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 11,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=11_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 11,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=12_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 12,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=12_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 12,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=12_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 12,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=1_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 1,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=1_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 1,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=1_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 1,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=2_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 2,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=2_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 2,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=2_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 2,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=3_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 3,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=3_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 3,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=3_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 3,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=4_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 4,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=4_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 4,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=4_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 4,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=5_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 5,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=5_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 5,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=5_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 5,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=6_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 6,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=6_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 6,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=6_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 6,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=7_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 7,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=7_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 7,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=7_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 7,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=8_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 8,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=8_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 8,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=8_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 8,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=9_seed=0",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 9,
+      "seed": 0,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=9_seed=1",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 9,
+      "seed": 1,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    },
+    {
+      "run_dir": "dataset=BNCI2015_001_target=9_seed=2",
+      "status": "skipped",
+      "dataset": "BNCI2015_001",
+      "target_subject": 9,
+      "seed": 2,
+      "align_factor": null,
+      "skip_reason": "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    }
+  ],
+  "aggregate": {
+    "n_runs": 36,
+    "n_ok": 0,
+    "n_skipped": 36,
+    "n_classes": null,
+    "chance_bacc": null,
+    "mean_strict_dg_bacc": null,
+    "mean_offline_tta_gain_bacc": null,
+    "mean_online_tta_bacc": null,
+    "mean_strict_dg_bacc_excess_norm": null,
+    "mean_online_tta_bacc_excess_norm": null,
+    "mean_offline_tta_gain_bacc_norm": null,
+    "all_forbidden_violations_empty": false,
+    "all_target_metrics_oracle_only": false,
+    "all_target_metrics_identifiable_null": false,
+    "all_prior_claims_compliant": false,
+    "no_unknown_estimands": false,
+    "overall": {
+      "strict_dg_bacc": {
+        "n": 0,
+        "mean": null,
+        "std": null,
+        "min": null,
+        "max": null
+      },
+      "strict_dg_bacc_excess_norm": {
+        "n": 0,
+        "mean": null,
+        "std": null,
+        "min": null,
+        "max": null
+      },
+      "offline_tta_gain_bacc": {
+        "n": 0,
+        "mean": null,
+        "std": null,
+        "min": null,
+        "max": null
+      },
+      "offline_tta_gain_bacc_norm": {
+        "n": 0,
+        "mean": null,
+        "std": null,
+        "min": null,
+        "max": null
+      },
+      "online_tta_bacc": {
+        "n": 0,
+        "mean": null,
+        "std": null,
+        "min": null,
+        "max": null
+      },
+      "online_tta_bacc_excess_norm": {
+        "n": 0,
+        "mean": null,
+        "std": null,
+        "min": null,
+        "max": null
+      },
+      "offline_tta_harm_rate": null,
+      "n_offline_tta_gain_negative": 0,
+      "n_offline_tta_gain_positive": 0,
+      "n_offline_tta_gain_zero": 0
+    },
+    "per_target": {},
+    "per_seed": {},
+    "expected_runs": 36,
+    "missing_cells": []
+  },
+  "claim_boundary": "These are evaluation-only target metrics, not R0/R1 identifiable target risk or gain.",
+  "validation": {
+    "all_valid": true,
+    "runs_valid": true,
+    "grid_complete": true,
+    "missing_cells": [],
+    "per_run": {
+      "dataset=BNCI2015_001_target=10_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=10_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=10_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=11_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=11_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=11_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=12_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=12_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=12_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=1_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=1_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=1_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=2_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=2_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=2_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=3_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=3_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=3_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=4_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=4_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=4_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=5_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=5_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=5_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=6_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=6_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=6_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=7_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=7_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=7_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=8_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=8_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=8_seed=2": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=9_seed=0": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=9_seed=1": {
+        "valid": true,
+        "issues": []
+      },
+      "dataset=BNCI2015_001_target=9_seed=2": {
+        "valid": true,
+        "issues": []
+      }
+    }
+  }
+}

@@ -188,10 +188,53 @@ race to write the summary). Required tracked digest:
 `no_unknown_estimands=true`. Tests: `test_real_audited_grid_plumbing.py`,
 `test_observability_text_hygiene.py`.
 
+## 10. Multi-dataset audited expansion
+
+Step 10 adds additional MOABB motor-imagery datasets under the same audit discipline. It does **not**
+chase a higher score on `BNCI2014_001`; its purpose is externality / dataset-transfer sanity, a
+chance-normalized descriptive comparison, and claim-boundary compliance across **binary and 4-class**
+settings simultaneously.
+
+**Why normalize.** Raw balanced accuracy is not comparable across datasets with different class
+counts (`BNCI2014_001` is 4-class; `BNCI2014_004` / `BNCI2015_001` are binary): a raw 0.40 is above
+chance for 4-class and below chance for binary. Every ok run therefore records `n_classes` and the
+**chance-normalized** metrics
+`bAcc_excess = bAcc − 1/K`, `bAcc_excess_norm = (bAcc − 1/K)/(1 − 1/K)`,
+`gain_norm = gain/(1 − 1/K)` (0 at chance, 1 at perfect, for any `K`).
+
+**Reporting rules (hard).**
+- Within-dataset tables MAY report raw bAcc.
+- Cross-dataset aggregates MUST use normalized excess / normalized gain.
+- It is forbidden to pool raw bAcc into one overall mean across datasets with different `n_classes`
+  — the combiner refuses (`raw_bacc_overall_suppressed=true`).
+- All R0/R1 target metrics remain oracle/evaluation-only with `identifiable_estimand=null`; a target
+  prior without C1∧C2∧C3 stays `rejected_conclusion_false` (never a forbidden violation).
+- No SOTA comparison.
+
+**Mechanics.** `run_real_audited_grid.py` gains `--subjects all` / `--target-subjects all` (resolved
+**after** load, so concrete ids are recorded) and writes a `grid_manifest.json` at the grid root
+listing the resolved `expected_cells`. `validate_results.py` reads that manifest (or `--grid-manifest`)
+to flag a **missing** cell (no directory at all) versus a legal skip (`status=skipped` + `skip_reason`),
+and requires `n_classes` on every ok run. `combine_summaries.py` merges the per-dataset digests into one
+chance-normalized `overall_normalized` block.
+
+**Batch.** `scripts/project_A_step10_moabb_multidataset_gpu_array.slurm` (18-task array = 2 datasets ×
+9 shards) then `scripts/project_A_step10_moabb_multidataset_validate.slurm` (a **separate**
+`--dependency=afterok` job that validates each grid, regenerates the Step-9 reference digest under the
+normalized schema, and combines). Required tracked digests: per-dataset
+`results_summaries/step10_<slug>_summary.{json,md}` and the combined
+`results_summaries/step10_moabb_multidataset_summary.{json,md}`.
+
+**Acceptance.** ≥1 additional dataset with `n_ok>0` (priority `BNCI2014_004`); every dataset digest
+valid; `missing_cells=[]` unless `--allow-missing`; overall cross-dataset numbers normalized (raw
+suppressed); all claim-boundary flags true. Tests: `test_observability_result_index.py` (normalized +
+missing-`n_classes`), `test_real_audited_grid_plumbing.py` (grid_manifest + all-resolution),
+`test_observability_multidataset_summary.py` (combiner refusal + normalized pooling).
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
 (`run_counterexamples.py`); the audited evaluation bridge (§6), the real-EEG audited pilot
-(§7, `run_real_audited.py`), the audited mini-grid + validator (§8), and the expanded grid +
-statistical digest (§9) are live; a full multi-dataset table remains future work under this same
-audited discipline.
+(§7, `run_real_audited.py`), the audited mini-grid + validator (§8), the expanded grid +
+statistical digest (§9), and the multi-dataset audited expansion + chance-normalized digest
+(§10) are live. A full multi-dataset SOTA table is explicitly out of scope.

@@ -133,6 +133,7 @@ def _maybe_set_threads(n):
 def _write_skip(out_dir, reason, args, environment):
     skip = {"status": "skipped", "skip_reason": reason, "dataset": args.dataset,
             "requested_subjects": args.subjects, "target_subject": args.target_subject,
+            "seed": getattr(args, "seed", None),           # record seed so the cell matches its grid slot
             "environment": environment}
     (out_dir / "run_manifest.json").write_text(json.dumps(skip, indent=2))
     # stub report for a uniform file set (consumers still branch on manifest['status'])
