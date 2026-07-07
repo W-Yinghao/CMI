@@ -35,6 +35,15 @@ thresholds:
   safety_eps: 0.02
   benefit_lcb: 0.01
 
+# split RNG scheme (subject-seeded, stable-hash; NOT split_id-only). Splits depend on
+# dataset/backbone/model_seed/fold/target_subject/split_id/global_split_seed only -- never on
+# intervention/budget/k/world/label-values -- so every method/budget shares a split and subjects get distinct splits.
+split_rng:
+  scheme: subject_seeded_v1
+  global_split_seed: 20240707
+  calib_fraction: 0.5
+  k_nested: true
+
 # per-budget capability contract (consumed by target_leak_structural_check)
 budgets:
   B0_source_only:

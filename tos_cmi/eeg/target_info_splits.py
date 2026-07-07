@@ -74,6 +74,77 @@ def effective_n_per_class(idx, y):
     return {int(c): int((y[idx] == c).sum()) for c in np.unique(y)}
 
 
+# ------------------------------- subject-seeded splits (stable hash; NOT python hash) -------------------------------
+SEED_KEY_FIELDS = ("dataset", "backbone", "model_seed", "fold", "target_subject", "global_split_seed")
+# fields that MUST NOT enter the split seed (else splits would depend on method/outcome/labels)
+SEED_KEY_FORBIDDEN = ("intervention", "method", "budget", "k", "world", "labels", "audit", "performance")
+SPLIT_RNG_SCHEME = "subject_seeded_v1"
+
+
+def stable_seed(*parts):
+    """Deterministic 63-bit seed from a canonical key via blake2b (NOT python hash(); process-independent, stable
+    across PYTHONHASHSEED). target_subject is canonicalized to str by the caller."""
+    key = "|".join(str(p) for p in parts)
+    return int(hashlib.blake2b(key.encode(), digest_size=8).hexdigest(), 16) % (2 ** 63)
+
+
+def _split_seed(seed_key, split_id, salt=""):
+    return stable_seed(seed_key["dataset"], seed_key["backbone"], seed_key["model_seed"], seed_key["fold"],
+                       str(seed_key["target_subject"]), split_id, seed_key["global_split_seed"], salt)
+
+
+def subject_seeded_splits(y, seed_key, R, calib_fraction=0.5):
+    """R stratified (cal_idx, aud_idx) pairs; per-split RNG seeded by a STABLE hash of (seed_key, split_id). The
+    seed depends on dataset/backbone/model_seed/fold/target_subject/split_id/global_split_seed -- NOT on
+    intervention/budget/k/world/label-values -- so every intervention & budget shares the SAME split for a given
+    (subject, split_id), and subjects with identical label layouts still get DISTINCT splits."""
+    bad = [f for f in SEED_KEY_FORBIDDEN if f in seed_key]
+    if bad:
+        raise ValueError("split seed_key must not contain method/outcome fields: %s" % bad)
+    missing = [f for f in SEED_KEY_FIELDS if f not in seed_key]
+    if missing:
+        raise ValueError("split seed_key missing required fields: %s" % missing)
+    y = np.asarray(y).astype(int)
+    classes = np.unique(y)
+    splits = []
+    for r in range(R):
+        rng = np.random.default_rng(_split_seed(seed_key, r))
+        cal, aud = [], []
+        for c in classes:
+            idx = np.where(y == c)[0]
+            rng.shuffle(idx)
+            n_cal = int(round(calib_fraction * len(idx)))
+            n_cal = min(max(n_cal, 1), len(idx) - 1) if len(idx) >= 2 else len(idx)
+            cal.extend(idx[:n_cal].tolist())
+            aud.extend(idx[n_cal:].tolist())
+        splits.append((np.array(sorted(cal), int), np.array(sorted(aud), int)))
+    return splits
+
+
+def nested_k_subsets(cal_idx, y, k_grid, seed_key, split_id):
+    """Deterministic NESTED k-per-class subsets within the calibration pool: k=1 ⊂ k=2 ⊂ ... ⊂ k=max. A single
+    fixed per-class order (seeded by the split seed + 'ksel', independent of k) is prefix-sliced, so subsets nest
+    by construction. Returns ({k: selected_idx or None}, {class: order}). None = k UNAVAILABLE (never audit)."""
+    y = np.asarray(y).astype(int)
+    cal_idx = np.asarray(cal_idx, int)
+    rng = np.random.default_rng(_split_seed(seed_key, split_id, salt="ksel"))
+    order = {}
+    for c in np.unique(y):
+        pool = cal_idx[y[cal_idx] == c]
+        rng.shuffle(pool)
+        order[int(c)] = pool
+    out = {}
+    for k in sorted(k_grid):
+        if all(len(order[c]) >= k for c in order):
+            sel = []
+            for c in order:
+                sel.extend(order[c][:k].tolist())
+            out[int(k)] = np.array(sorted(sel), int)
+        else:
+            out[int(k)] = None                                  # UNAVAILABLE; never backfilled from audit
+    return out, order
+
+
 def select_k_per_class(calibration_idx, y, k, seed):
     """Pick k labeled trials PER CLASS from the CALIBRATION pool only. If any class has < k calibration trials,
     return (None, 'UNAVAILABLE', eff_n) WITHOUT ever drawing from audit. Returns (selected_idx, status, eff_n)."""

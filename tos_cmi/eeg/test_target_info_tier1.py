@@ -12,6 +12,8 @@ import dataclasses
 import numpy as np
 
 from tos_cmi.eeg.target_info_splits import (make_calibration_audit_splits, select_k_per_class,
+                                            subject_seeded_splits, nested_k_subsets, stable_seed,
+                                            SEED_KEY_FIELDS, SPLIT_RNG_SCHEME,
                                             target_leak_structural_check, budget_action, b1_triage_action,
                                             DecisionContext, AuditView, SourceContext, CalibrationContext,
                                             UnlabeledTargetContext, LabelAccessGuard, hash_array,
@@ -434,7 +436,10 @@ def test_label_access_guard_phase_separation():
 
 
 # ---------------- P0-3: real-split preflight (split/schema only; NO metrics) ----------------
-_METRIC_WORDS = ("bacc", "delta", "accept", "reject", "abstain", "action", "nll", "performance", "metric", "gain")
+# exactly the PM's forbidden token list (not broader -- e.g. bare "metric" would false-positive on the
+# "no_metrics_emitted" declarator field, and "action" on nothing here; the contract token is "gate_action").
+_METRIC_WORDS = ("bacc", "balanced_accuracy", "dbacc", "delta", "nll", "accept", "reject", "abstain",
+                 "gate_action", "score", "accuracy", "performance", "gain")
 
 
 def _has_metric_key(obj):
@@ -477,6 +482,89 @@ def test_preflight_gated_by_manifest():
     assert code == 1 and msg.startswith("PREFLIGHT_DISABLED"), (code, msg)
 
 
+# ---------------- subject-seeded split hardening ----------------
+def _seed_key(dataset="Lee2019_MI", sub=1, fold=1):
+    return {"dataset": dataset, "backbone": "EEGNet", "model_seed": 0, "fold": fold,
+            "target_subject": sub, "global_split_seed": 20240707}
+
+
+def test_subject_seeded_splits_differ_across_subjects():
+    y = np.array([0] * 50 + [1] * 50)
+    s1 = subject_seeded_splits(y, _seed_key(sub=1), R=10)
+    s2 = subject_seeded_splits(y, _seed_key(sub=2), R=10)
+    # identical label layout, different subject -> at least some splits must differ (no shared pattern)
+    same = sum(np.array_equal(a[0], b[0]) for a, b in zip(s1, s2))
+    assert same < 10, "subjects with same labels reused >=all split patterns (subject not in seed)"
+
+
+def test_subject_seeded_splits_reproducible_for_same_subject():
+    y = np.array([0] * 40 + [1] * 40)
+    a = subject_seeded_splits(y, _seed_key(sub=7), R=10)
+    b = subject_seeded_splits(y, _seed_key(sub=7), R=10)
+    for (ca, aa), (cb, ab) in zip(a, b):
+        assert np.array_equal(ca, cb) and np.array_equal(aa, ab)   # deterministic
+
+
+def test_same_split_shared_across_interventions_and_budgets():
+    # the split seed_key carries NO intervention/budget/k/world -> the split is shared by all of them.
+    for forbidden in ("intervention", "budget", "k", "world", "method"):
+        assert forbidden not in SEED_KEY_FIELDS
+    y = np.array([0] * 30 + [1] * 30)
+    base = subject_seeded_splits(y, _seed_key(sub=3), R=5)
+    # "computing splits for intervention A vs B / budget B2 vs B3" is the SAME call -> identical splits
+    again = subject_seeded_splits(y, _seed_key(sub=3), R=5)
+    assert all(np.array_equal(a[0], b[0]) and np.array_equal(a[1], b[1]) for a, b in zip(base, again))
+    # injecting a method field into the seed_key must be REFUSED (can't accidentally couple split to method)
+    try:
+        subject_seeded_splits(y, dict(_seed_key(sub=3), intervention="leace"), R=5)
+        raise SystemExit("seed_key accepted a forbidden method field")
+    except ValueError:
+        pass
+
+
+def test_k_subsets_are_nested_within_calibration_pool():
+    y = np.array([0] * 50 + [1] * 50)
+    sk = _seed_key(sub=5)
+    splits = subject_seeded_splits(y, sk, R=3)
+    for sid, (cal, aud) in enumerate(splits, 1):
+        ksub, _order = nested_k_subsets(cal, y, [1, 2, 4, 8, 16], sk, sid)
+        prev = None
+        for k in [1, 2, 4, 8, 16]:
+            sel = ksub[k]
+            assert sel is not None                                 # 25/class calibration >= 16
+            assert set(sel.tolist()).issubset(cal.tolist())        # within calibration pool
+            assert set(sel.tolist()).isdisjoint(aud.tolist())      # never audit
+            if prev is not None:
+                assert set(prev.tolist()).issubset(sel.tolist())   # nested: k_prev subset of k
+            prev = sel
+
+
+def test_subject_seed_key_uses_stable_hash_not_python_hash():
+    """stable_seed must be identical across PYTHONHASHSEED (proves it does NOT use python hash())."""
+    import subprocess, sys, os
+    code = ("import sys; sys.path.insert(0,'/home/infres/yinwang/CMI_AAAI_tos');"
+            "from tos_cmi.eeg.target_info_splits import stable_seed;"
+            "print(stable_seed('Lee2019_MI','EEGNet',0,1,'1',3,20240707,''))")
+    outs = []
+    for hs in ("0", "1", "12345"):
+        env = dict(os.environ); env["PYTHONHASHSEED"] = hs; env["PYTHONPATH"] = "/home/infres/yinwang/CMI_AAAI_tos"
+        outs.append(subprocess.run([sys.executable, "-c", code], capture_output=True, text=True, env=env).stdout.strip())
+    assert len(set(outs)) == 1 and outs[0], outs                   # identical across hash seeds
+
+
+def test_preflight_subject_seeded_has_no_metrics():
+    # the split-only schema the subject-seeded preflight emits must contain NO metric/action field name
+    sample_row = {"dataset": "X", "backbone": "EEGNet", "seed": 0, "fold": 1, "target_subject": 1, "split_id": 1,
+                  "k": 1, "class": 0, "n_target_total": 100, "n_calibration": 50, "n_audit": 50,
+                  "k_available": True, "unavailable_reason": "", "calibration_idx_hash": "h", "audit_idx_hash": "h",
+                  "calibration_label_hash": "h", "audit_label_hash": "h", "k_subset_hash": "h",
+                  "calibration_pool_hash": "h"}
+    summary = {"purpose": "split_hash_unavailable_k_only", "no_metrics_emitted": True,
+               "split_rng_scheme": SPLIT_RNG_SCHEME, "nested_k_checks_passed": "500/500",
+               "calibration_audit_overlap_total": 0, "per_subject_split_diversity": []}
+    assert not _has_metric_key(sample_row) and not _has_metric_key(summary)
+
+
 ALL = [test_config_parses_target_info_driver, test_calibration_audit_disjoint, test_b1_accept_forbidden,
        test_b4_oracle_diagnostic_only, test_audit_labels_unavailable_to_decision,
        test_unavailable_k_never_reuses_audit_labels, test_dry_run_has_expected_task_count,
@@ -500,7 +588,11 @@ ALL = [test_config_parses_target_info_driver, test_calibration_audit_disjoint, t
        test_decision_rows_store_calibration_and_audit_hashes, test_label_access_guard_phase_separation,
        # P0-3 real-split preflight
        test_preflight_real_splits_outputs_no_metrics, test_unavailable_k_marked_not_shrunk,
-       test_no_audit_label_reuse_for_calibration, test_preflight_gated_by_manifest]
+       test_no_audit_label_reuse_for_calibration, test_preflight_gated_by_manifest,
+       # subject-seeded split hardening
+       test_subject_seeded_splits_differ_across_subjects, test_subject_seeded_splits_reproducible_for_same_subject,
+       test_same_split_shared_across_interventions_and_budgets, test_k_subsets_are_nested_within_calibration_pool,
+       test_subject_seed_key_uses_stable_hash_not_python_hash, test_preflight_subject_seeded_has_no_metrics]
 
 
 def main():

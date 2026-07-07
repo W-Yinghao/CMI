@@ -24,6 +24,7 @@ if not __debug__:
                        "to run under -O / PYTHONOPTIMIZE.")
 
 from tos_cmi.eeg.target_info_splits import (make_calibration_audit_splits, select_k_per_class,
+                                            subject_seeded_splits, nested_k_subsets, SPLIT_RNG_SCHEME,
                                             target_leak_structural_check, budget_action, b1_triage_action,
                                             DecisionContext, SourceContext, CalibrationContext,
                                             UnlabeledTargetContext, AuditView, LabelAccessGuard,
@@ -32,7 +33,7 @@ from tos_cmi.eeg.target_info_splits import (make_calibration_audit_splits, selec
 CFG = "tos_cmi/eeg/configs/target_info_tier1_smoke_driver_fixed.yaml"
 MANIFEST = "tos_cmi/eeg/configs/target_info_tier1_run_manifest.yaml"
 OUT = "tos_cmi/results/target_info/tier1_driver_dryrun"
-PREFLIGHT_OUT = "tos_cmi/results/target_info/tier1_preflight"
+PREFLIGHT_OUT = "tos_cmi/results/target_info/tier1_preflight_subject_seeded"
 HALT_MSG = "EXPERIMENTS_DISABLED: implementation-only stage; requires separate PM go."
 MANIFEST_HALT_MSG = "EXPERIMENTS_DISABLED: run manifest is preflight_only; requires separate PM go."
 PREFLIGHT_HALT_MSG = "PREFLIGHT_DISABLED: run manifest preflight_allowed=false; requires separate PM go."
@@ -238,10 +239,11 @@ def _git_commit():
 
 
 def scope_hash(cfg):
-    """Hash of the immutable experiment SCOPE (datasets/backbones/worlds/budgets/interventions/thresholds/alpha)."""
+    """Hash of the immutable experiment SCOPE (datasets/backbones/worlds/budgets/interventions/thresholds/alpha/
+    split_rng)."""
     scope = {"tier1_scope": cfg["tier1_scope"], "worlds": cfg["worlds"], "interventions": cfg["interventions"],
              "budgets": cfg["budgets"], "thresholds": cfg.get("thresholds"),
-             "world_alpha_grid": cfg.get("world_alpha_grid")}
+             "world_alpha_grid": cfg.get("world_alpha_grid"), "split_rng": cfg.get("split_rng")}
     return hash_obj(scope)
 
 
@@ -330,8 +332,13 @@ def preflight_real_splits(cfg, manifest, results_root=FROZEN_ROOT):
     sc = cfg["tier1_scope"]
     folds, R, seed = _folds(sc["folds"]), sc["repeats_R"], sc["seeds"][0]
     k_grid = cfg["budgets"]["B2_k_labels_per_class"]["k_grid"]
+    srng = cfg.get("split_rng", {})
+    if srng.get("scheme") != SPLIT_RNG_SCHEME:
+        return 1, "PREFLIGHT_REFUSED: split_rng.scheme != %s" % SPLIT_RNG_SCHEME
+    gseed = srng["global_split_seed"]; cfrac = srng.get("calib_fraction", 0.5)
     rows, split_hash_rows, unavail_rows = [], [], []
-    overlap_total, n_dumps = 0, 0
+    overlap_total, n_dumps, nested_ok_total, nested_checked = 0, 0, 0, 0
+    diversity = []
     for ds in sc["datasets"]:
         for bb in sc["backbones"]:
             dd = "%s/%s_%s_LOSO" % (results_root, ds, bb)
@@ -341,33 +348,55 @@ def preflight_real_splits(cfg, manifest, results_root=FROZEN_ROOT):
                 sub = int(re.search(r"sub(\d+)_", p.split("/")[-1]).group(1))
                 yt = np.load(p, allow_pickle=True)["y_target"].astype(int)   # TARGET LABELS ONLY (no features)
                 n_dumps += 1
-                splits = make_calibration_audit_splits(yt, R=R, seed=seed)
+                seed_key = {"dataset": ds, "backbone": bb, "model_seed": seed, "fold": fold,
+                            "target_subject": sub, "global_split_seed": gseed}
+                splits = subject_seeded_splits(yt, seed_key, R=R, calib_fraction=cfrac)
                 target_leak_structural_check(splits, {})                    # disjointness gate (raises on overlap)
                 classes = sorted(set(yt.tolist()))
+                cal_hashes = set()
                 for sid, (cal, aud) in enumerate(splits, 1):
                     overlap = len(set(cal.tolist()) & set(aud.tolist())); overlap_total += overlap
-                    cal_ih, aud_ih = hash_array(cal), hash_array(aud)
+                    cal_ih, aud_ih = hash_array(cal), hash_array(aud); cal_hashes.add(cal_ih)
                     cal_lh, aud_lh = hash_array(yt[cal]), hash_array(yt[aud])
+                    pool_h = hash_obj({"cal_idx_hash": cal_ih, "n": int(len(cal))})
+                    ksub, _order = nested_k_subsets(cal, yt, k_grid, seed_key, sid)
+                    # nested check: k=1 ⊂ k=2 ⊂ ... (prefix subsets of a fixed order) and all ⊂ calibration pool
+                    prev = None
+                    for k in sorted(k_grid):
+                        sel = ksub[k]
+                        if sel is not None:
+                            nested_checked += 1
+                            in_pool = set(sel.tolist()).issubset(cal.tolist())
+                            nests = (prev is None) or set(prev.tolist()).issubset(sel.tolist())
+                            if in_pool and nests:
+                                nested_ok_total += 1
+                            prev = sel
                     split_hash_rows.append({"dataset": ds, "backbone": bb, "seed": seed, "fold": fold,
                                             "target_subject": sub, "split_id": sid, "n_calibration": int(len(cal)),
                                             "n_audit": int(len(aud)), "calibration_idx_hash": cal_ih,
                                             "audit_idx_hash": aud_ih, "calibration_label_hash": cal_lh,
-                                            "audit_label_hash": aud_lh, "disjoint": overlap == 0})
+                                            "audit_label_hash": aud_lh, "calibration_pool_hash": pool_h,
+                                            "disjoint": overlap == 0})
                     for k in k_grid:
+                        sel = ksub[k]
+                        ksub_h = hash_array(sel) if sel is not None else "UNAVAILABLE"
                         for c in classes:
                             n_tot = int((yt == c).sum()); n_cal = int((yt[cal] == c).sum())
-                            n_aud = int((yt[aud] == c).sum()); avail = n_cal >= k
+                            n_aud = int((yt[aud] == c).sum()); avail = sel is not None and n_cal >= k
                             rows.append({"dataset": ds, "backbone": bb, "seed": seed, "fold": fold,
                                          "target_subject": sub, "split_id": sid, "k": int(k), "class": int(c),
                                          "n_target_total": n_tot, "n_calibration": n_cal, "n_audit": n_aud,
                                          "k_available": bool(avail),
                                          "unavailable_reason": "" if avail else "insufficient_calibration_class_%d" % c,
                                          "calibration_idx_hash": cal_ih, "audit_idx_hash": aud_ih,
-                                         "calibration_label_hash": cal_lh, "audit_label_hash": aud_lh})
+                                         "calibration_label_hash": cal_lh, "audit_label_hash": aud_lh,
+                                         "k_subset_hash": ksub_h, "calibration_pool_hash": pool_h})
                         mincal = int(min((yt[cal] == c).sum() for c in classes))
-                        if mincal < k:
+                        if ksub[k] is None or mincal < k:
                             unavail_rows.append({"dataset": ds, "fold": fold, "split_id": sid, "k": int(k),
                                                  "min_calibration_per_class": mincal})
+                diversity.append({"dataset": ds, "fold": fold, "target_subject": sub,
+                                  "distinct_calibration_splits": len(cal_hashes), "R": R})
     os.makedirs(PREFLIGHT_OUT, exist_ok=True)
     with open("%s/split_hashes.csv" % PREFLIGHT_OUT, "w", newline="") as fh:
         w = csv.DictWriter(fh, fieldnames=list(split_hash_rows[0].keys())); w.writeheader(); w.writerows(split_hash_rows)
@@ -375,10 +404,13 @@ def preflight_real_splits(cfg, manifest, results_root=FROZEN_ROOT):
         w = csv.DictWriter(fh, fieldnames=["dataset", "fold", "split_id", "k", "min_calibration_per_class"])
         w.writeheader(); w.writerows(unavail_rows)
     manifest_out = {"purpose": "split_hash_unavailable_k_only", "no_metrics_emitted": True,
+                    "split_rng_scheme": SPLIT_RNG_SCHEME, "global_split_seed": gseed, "calib_fraction": cfrac,
                     "datasets": sc["datasets"], "backbones": sc["backbones"], "seed": seed, "folds": folds,
                     "n_dumps": n_dumps, "R": R, "k_grid": k_grid, "n_split_rows": len(split_hash_rows),
                     "n_schema_rows": len(rows), "n_unavailable_k": len(unavail_rows),
-                    "calibration_audit_overlap_total": overlap_total, "rows": rows}
+                    "calibration_audit_overlap_total": overlap_total,
+                    "nested_k_checks_passed": "%d/%d" % (nested_ok_total, nested_checked),
+                    "per_subject_split_diversity": diversity, "rows": rows}
     json.dump(manifest_out, open("%s/real_split_preflight_manifest.json" % PREFLIGHT_OUT, "w"), indent=1)
     from tos_cmi.eeg.report_target_info_tier1 import write_preflight_report
     rpt = write_preflight_report(manifest_out, split_hash_rows, unavail_rows, PREFLIGHT_OUT)

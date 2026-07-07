@@ -85,7 +85,10 @@ def write_preflight_report(manifest_out, split_hash_rows, unavail_rows, out):
         per_fold.setdefault((r["dataset"], r["fold"], r["target_subject"]),
                             (r["n_calibration"], r["n_audit"]))
     L = ["# Fork 1 Tier-1 --- REAL split preflight (split/hash/unavailable-k ONLY; NO metrics)\n",
-         "Purpose: %s. No metrics emitted: %s.\n" % (manifest_out["purpose"], manifest_out["no_metrics_emitted"]),
+         "Purpose: %s. No metrics emitted: %s." % (manifest_out["purpose"], manifest_out["no_metrics_emitted"]),
+         "split_rng_scheme: **%s** (global_split_seed %s, calib_fraction %s).\n"
+         % (manifest_out.get("split_rng_scheme"), manifest_out.get("global_split_seed"),
+            manifest_out.get("calib_fraction")),
          "## Datasets / folds checked",
          "- datasets: %s ; backbones: %s ; seed: %s ; folds: %s"
          % (", ".join(manifest_out["datasets"]), ", ".join(manifest_out["backbones"]),
@@ -100,10 +103,21 @@ def write_preflight_report(manifest_out, split_hash_rows, unavail_rows, out):
           "- calibration+audit index disjoint on ALL %d splits: %s" % (len(split_hash_rows), all_disjoint),
           "- total calibration∩audit overlap across all splits: %d" % manifest_out["calibration_audit_overlap_total"],
           "- n(calibration,audit) per (dataset,fold): %s"
-          % {("%s/f%d/s%d" % (k[0], k[1], k[2])): v for k, v in sorted(per_fold.items())},
-          "", "## k availability",
+          % {("%s/f%d/s%d" % (k[0], k[1], k[2])): v for k, v in sorted(per_fold.items())}]
+    div = manifest_out.get("per_subject_split_diversity", [])
+    if div:
+        divset = sorted(set(d["distinct_calibration_splits"] for d in div))
+        L += ["", "## Per-subject split diversity",
+              "- distinct calibration splits per target subject (want = R = %d): values seen = %s over %d subjects"
+              % (manifest_out["R"], divset, len(div)),
+              "- min %d / max %d distinct splits per subject"
+              % (min(d["distinct_calibration_splits"] for d in div),
+                 max(d["distinct_calibration_splits"] for d in div))]
+    L += ["", "## k availability + nested-k check",
           "- schema rows (dataset x fold x split x k x class): %d" % manifest_out["n_schema_rows"],
-          "- UNAVAILABLE (dataset,fold,split,k) entries: %d" % manifest_out["n_unavailable_k"]]
+          "- UNAVAILABLE (dataset,fold,split,k) entries: %d" % manifest_out["n_unavailable_k"],
+          "- nested-k subset checks passed (k=1 subset of k=2 ... subset of k=max, all within calibration pool): %s"
+          % manifest_out.get("nested_k_checks_passed")]
     if unavail_rows:
         byk = Counter((u["dataset"], u["k"]) for u in unavail_rows)
         L.append("- unavailable-by (dataset,k): %s" % {("%s,k%d" % kk): n for kk, n in sorted(byk.items())})

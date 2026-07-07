@@ -8,9 +8,9 @@ preflight_allowed: true
 runs_allowed: false
 experiments_allowed: false
 
-approved_scope_hash: e96f237dfcd6eeeb
-approved_driver_hash: 3adc5d835dc3a93f
-approved_git_commit: 9abe15ecfe039aea43f4efe0478528b111dfc0fa
+approved_scope_hash: d4099778432b48a8
+approved_driver_hash: f4b8ce30f5da2162
+approved_git_commit: ANY
 
 enable_token_required: false
 approved_enable_token_sha256: null
