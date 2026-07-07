@@ -121,6 +121,18 @@ Status vocabulary: `READY` (state as a finding) · `READY_WITH_CAVEAT` (state wi
 - **Caveat (mandatory):** the 4F first-moment pass is construction-matched (73% mechanical identity, BNCI2015-carried, fails leave-one-dataset-out); the 4G second-moment negative is at the source-selected operating point (a direction-specific advantage appears only in the injection-dominant α=3 near-tautology).
 - **Forbidden:** "E4/E4b repairs general shortcuts"; "second-moment shortcuts are unconditionally unrepairable"; "FSR solves shortcut repair."
 
+### C18 — Source prevalence-reweighting does not weaponize the natural subject signal (head-only). — **READY_WITH_CAVEAT**
+- **Ladder:** L5 learned-reliance inducibility on a cheap linear head. **Evidence:** Phase 7B (`head_verdict.json`, FSR_39; `gate_pass=false`, fail-closed).
+- **Allowed:** "Source subject-class prevalence-reweighting (on true labels) induces the subject↔class correlation *exactly* but does **not** induce a learned head-level reliance on the frozen 4B representation — the task signal is a sufficient statistic, so the head keeps the generalizing signal and preserves task accuracy; the learnability gate fails-closed. A label-corruption positive control collapses task bAcc ~5× (drop +0.179 at ρ=0.8), so the gate has power."
+- **Caveat (mandatory):** this is **"no weaponization *demonstrated* under prevalence-reweighting,"** NOT "the head resists weaponization" (the learn-then-decline leg was never achieved); Kish eff-n falls to 0.735 at ρ=0.8.
+- **Forbidden:** "the head resists weaponization"; "natural subject signal is safe / can never be harmful"; reporting the null as a robustness finding.
+
+### C19 — A learnable subject-conditional task-conflict corruption does not weaponize into transferable structure-specific harm (head-only). — **READY_WITH_CAVEAT**
+- **Ladder:** L5→L6 weaponization test on a cheap linear head, staged (Q7C-a learnability → Q7C-b transfer). **Evidence:** Phase 7C (`label_conflict_verdict.json`, FSR_40/41; `heldin_learnability_pass=true`, `pseudo_target_transferability_pass=false`, `weaponization_confirmed=false`); design-red-teamed + adversarially verified.
+- **Allowed:** "A subject-keyed, task-conflicting label corruption (global P(y) held exact) is **learnable in-sample** by a linear head on frozen 4B latents (conflict-subset fit 0.70 vs a 0.20 clean-head floor, dose-monotone), but it does **not weaponize**: on held-out subjects and on the target its true-task harm does **not exceed** a subject-scrambled control (`beats_shuffle=false` on both datasets) and is not localized to the subject subspace (erasure ≤ 0); it beats only matched random noise (+0.078), so the transferable damage is **generic subject-blocked corruption harm, not a subject-structure-specific reliance**."
+- **Caveat (mandatory):** Q7C-a is **in-sample fittability, NOT** "a subject *shortcut* was learned" (l5/ERASE diagnostics ≤ 0); the mildly-negative pooled vs-shuffle is significant only pooled / only on the binary dataset (BNCI2014_001 vs-shuffle CI crosses 0 — a null), and a negative structured-minus-shuffle is a **construction asymmetry**, not "scrambling is more harmful"; achieved corruption rate saturates at ~0.34 at nominal γ=0.4 (disclosed).
+- **Forbidden:** "a subject shortcut was learned / weaponized"; "task-conflict corruption weaponizes subject leakage"; "scrambling is more harmful than the true structure"; "E4 repairs the weaponization" (none demonstrated — E4's +0.028 recovers *generic first-moment* harm only, 4F-consistent, `repair_claim_level=null`); any natural-harm/clinical/DG/SOTA framing.
+
 ---
 
 ## Wording discipline (applies to every write-up)
