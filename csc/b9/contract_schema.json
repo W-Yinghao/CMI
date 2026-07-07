@@ -1,0 +1,42 @@
+{
+  "schema": "b9_assignment_contract/v0",
+  "description": "Prospective randomized-audit assignment-contract manifest. Generated + hashed BEFORE recording. B9 refuses any executed dataset that does not adhere to a valid contract (development-only, NO scientific claim).",
+  "required": ["schema", "generated_before_recording", "seed", "unit", "randomized_factors", "balance", "timing", "microblock", "table_hash"],
+  "fields": {
+    "generated_before_recording": {"type": "bool", "must_be": true, "note": "HARD STOP if false -- the table must predate the data/labels"},
+    "seed": {"type": "int", "note": "RNG seed that produced the assignment table (pins reproducibility)"},
+    "unit": {"const": "subject x microblock x design_class", "note": "the balancing/randomization unit"},
+    "randomized_factors": {
+      "condition_C": {"levels": [0, 1], "assignment": "randomized/counterbalanced within subject x microblock", "must_not_be": "a session or subject label"},
+      "design_class_Y": {"levels": [0, 1], "provenance": "PRE-ASSIGNMENT cue/task/stimulus class", "must_not_be": "an observed or generated post-hoc label Y"}
+    },
+    "balance": {
+      "rule": "within each subject x microblock, the C x Y_design cell counts are EQUAL (or a predeclared count)",
+      "tolerance": {"max_cell_count_deviation": 0, "note": "exact by construction for the recommended quadruplet microblock"}
+    },
+    "timing": {
+      "assignment_before_recording": {"type": "bool", "must_be": true},
+      "Y_design_pre_assignment": {"type": "bool", "must_be": true},
+      "C_randomized_within_session_or_matched_block": {"type": "bool", "must_be": true}
+    },
+    "microblock": {
+      "recommended": "randomized-order repeats of the quadruplet {(C=0,Y=0),(C=0,Y=1),(C=1,Y=0),(C=1,Y=1)} x R",
+      "R": {"type": "int", "min": 1, "note": "repeats per microblock; R>=2 gives within-(subject,microblock,Y_design) condition support"},
+      "min_support_strata": {"type": "int", "default": 8, "note": ">= this many (subject,microblock,Y_design) strata with BOTH conditions"}
+    },
+    "table_hash": {"type": "sha1_16", "note": "hash of the per-(subject,microblock,Y_design) C composition; ENFORCED: the executed C must adhere to the table (adherence==1.0), else executed_deviates_from_registered_table"}
+  },
+  "enforcement": {
+    "hash_integrity": "recomputed table hash must match the pin",
+    "provenance_attestation": "manifest.generated_before_recording AND manifest.Y_design_pre_assignment must be True (ENFORCED boolean FLOOR; data-level provenance is inherently unverifiable from (C,Y_design,Z) and is guaranteed by the B9.1 acquisition protocol)",
+    "adherence": "executed FULL tuple (C, Y_design, subject, microblock) == registered table row-for-row (adherence==1.0, equal length) -- binds BOTH randomized factors, anti-p-hacking on C AND Y_design (the null holds Y_design fixed). Row-order: positional alignment (B9.1 joins on a per-trial id)",
+    "executed_properties": "C x Y_design balance (both-condition strata) + no prior shift P(Y_design|C) + randomization support",
+    "note": "B9 without adherence + provenance-attestation binding would be DECORATIVE -- it is the single property distinguishing B9 from the B8 line"
+  },
+  "validator_inputs_allowed": ["condition_C", "design_class_Y", "subject_id", "microblock_id", "assignment_table_and_manifest"],
+  "validator_inputs_forbidden": ["Z_features", "test_statistic_T", "p_values", "oracle_fields", "future_or_validation_outcomes"],
+  "exact_null": "resample C* only within the predeclared randomization set = uniform permutation of C within each (subject, microblock, Y_design) stratum (preserves C x Y_design balance; Y_design pre-assignment => collider-free CONDITIONAL on genuine within-stratum randomization of executed trials -- Z-dependent balance-preserving attrition is out of reach of the Z-blind validator, excluded by the B9.1 protocol); recompute the same contrast T(Y_design, Z, C*).",
+  "alert_conjunction": "estimable (n_exact_invalid <= 0.20*n_boot) AND p_meanT <= 0.025 AND p_stud <= 0.025 AND n_eligible >= 20 (B9.0 drops the B3 subject-consistency LCB>0 gate; reconsider before B9.1 confirmatory use)",
+  "states": ["B9_CONCEPT_ALERT", "NO_ACTIONABLE_CONCEPT_EVIDENCE", "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND", "INSUFFICIENT_LABELS_OR_SUPPORT", "SAMPLER_INVALID"],
+  "invalid_reasons_non_exclusive": ["missing_or_invalid_assignment_table", "table_not_pre_recording_or_ydesign_post_hoc", "executed_deviates_from_registered_table", "cxy_design_imbalance", "condition_not_randomized_or_locked", "session_confounding", "attrition_or_noncompliance_prior_shift", "insufficient_randomization_support", "natural_prevalence_out_of_estimand"]
+}
