@@ -1,0 +1,46 @@
+{
+ "scope": {
+  "datasets": [
+   "Lee2019_MI",
+   "Cho2017"
+  ],
+  "backbones": [
+   "EEGNet"
+  ],
+  "folds": [
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "worlds": [
+   "v2_source_invisible_world_a",
+   "source_rich_source_visible_world_a"
+  ],
+  "budgets": [
+   "B0_source_only",
+   "B1_unlabeled_target",
+   "B2_k_labels_per_class",
+   "B3_sequential_calibration",
+   "B4_oracle_selector"
+  ],
+  "k_grid": [
+   1,
+   2,
+   4,
+   8,
+   16
+  ],
+  "R": 10,
+  "world_alpha_grid": [
+   0.5,
+   1.0,
+   2.0
+  ],
+  "n_boot": 100,
+  "split_rng_scheme": "subject_seeded_v1"
+ },
+ "n_decision_rows": 26460,
+ "n_failures": 0
+}

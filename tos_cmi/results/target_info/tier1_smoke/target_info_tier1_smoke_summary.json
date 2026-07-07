@@ -1,0 +1,238 @@
+{
+ "per_budget": {
+  "B0_source_only": {
+   "abstain": 318,
+   "reject": 102
+  },
+  "B1_unlabeled_target": {
+   "abstain": 318,
+   "reject": 102
+  },
+  "B2_k_labels_per_class": {
+   "abstain": 15580,
+   "reject": 5100,
+   "accept": 320
+  },
+  "B3_sequential_calibration": {
+   "abstain": 3164,
+   "reject": 1020,
+   "accept": 16
+  },
+  "B4_oracle_selector": {
+   "DIAGNOSTIC": 420
+  }
+ },
+ "b2_k_curve": [
+  {
+   "world": "source_rich_source_visible_world_a",
+   "k": 1,
+   "n": 2100,
+   "accept": 3,
+   "true_accept": 0,
+   "false_accept": 3,
+   "abstain": 1547,
+   "specific": 3,
+   "non_specific": 0,
+   "audit_sum": -0.030000000000000027,
+   "audit_n": 3,
+   "accept_rate": 0.0014285714285714286,
+   "mean_audit_dbacc_accepted": -0.010000000000000009
+  },
+  {
+   "world": "source_rich_source_visible_world_a",
+   "k": 2,
+   "n": 2100,
+   "accept": 12,
+   "true_accept": 7,
+   "false_accept": 5,
+   "abstain": 1538,
+   "specific": 12,
+   "non_specific": 0,
+   "audit_sum": 0.10000000000000003,
+   "audit_n": 12,
+   "accept_rate": 0.005714285714285714,
+   "mean_audit_dbacc_accepted": 0.008333333333333337
+  },
+  {
+   "world": "source_rich_source_visible_world_a",
+   "k": 4,
+   "n": 2100,
+   "accept": 18,
+   "true_accept": 9,
+   "false_accept": 8,
+   "abstain": 1532,
+   "specific": 18,
+   "non_specific": 0,
+   "audit_sum": 0.14999999999999997,
+   "audit_n": 18,
+   "accept_rate": 0.008571428571428572,
+   "mean_audit_dbacc_accepted": 0.008333333333333331
+  },
+  {
+   "world": "source_rich_source_visible_world_a",
+   "k": 8,
+   "n": 2100,
+   "accept": 28,
+   "true_accept": 20,
+   "false_accept": 7,
+   "abstain": 1522,
+   "specific": 28,
+   "non_specific": 0,
+   "audit_sum": 0.51,
+   "audit_n": 28,
+   "accept_rate": 0.013333333333333334,
+   "mean_audit_dbacc_accepted": 0.018214285714285714
+  },
+  {
+   "world": "source_rich_source_visible_world_a",
+   "k": 16,
+   "n": 2100,
+   "accept": 37,
+   "true_accept": 24,
+   "false_accept": 12,
+   "abstain": 1513,
+   "specific": 37,
+   "non_specific": 0,
+   "audit_sum": 0.63,
+   "audit_n": 37,
+   "accept_rate": 0.017619047619047618,
+   "mean_audit_dbacc_accepted": 0.017027027027027027
+  },
+  {
+   "world": "v2_source_invisible_world_a",
+   "k": 1,
+   "n": 2100,
+   "accept": 13,
+   "true_accept": 0,
+   "false_accept": 13,
+   "abstain": 1617,
+   "specific": 13,
+   "non_specific": 0,
+   "audit_sum": -0.13000000000000012,
+   "audit_n": 13,
+   "accept_rate": 0.006190476190476191,
+   "mean_audit_dbacc_accepted": -0.010000000000000009
+  },
+  {
+   "world": "v2_source_invisible_world_a",
+   "k": 2,
+   "n": 2100,
+   "accept": 24,
+   "true_accept": 22,
+   "false_accept": 2,
+   "abstain": 1606,
+   "specific": 24,
+   "non_specific": 0,
+   "audit_sum": 0.8300000000000002,
+   "audit_n": 24,
+   "accept_rate": 0.011428571428571429,
+   "mean_audit_dbacc_accepted": 0.03458333333333334
+  },
+  {
+   "world": "v2_source_invisible_world_a",
+   "k": 4,
+   "n": 2100,
+   "accept": 35,
+   "true_accept": 28,
+   "false_accept": 7,
+   "abstain": 1595,
+   "specific": 35,
+   "non_specific": 0,
+   "audit_sum": 1.2,
+   "audit_n": 35,
+   "accept_rate": 0.016666666666666666,
+   "mean_audit_dbacc_accepted": 0.03428571428571429
+  },
+  {
+   "world": "v2_source_invisible_world_a",
+   "k": 8,
+   "n": 2100,
+   "accept": 62,
+   "true_accept": 57,
+   "false_accept": 5,
+   "abstain": 1568,
+   "specific": 62,
+   "non_specific": 0,
+   "audit_sum": 2.53,
+   "audit_n": 62,
+   "accept_rate": 0.029523809523809525,
+   "mean_audit_dbacc_accepted": 0.04080645161290322
+  },
+  {
+   "world": "v2_source_invisible_world_a",
+   "k": 16,
+   "n": 2100,
+   "accept": 88,
+   "true_accept": 77,
+   "false_accept": 11,
+   "abstain": 1542,
+   "specific": 88,
+   "non_specific": 0,
+   "audit_sum": 3.259999999999999,
+   "audit_n": 88,
+   "accept_rate": 0.0419047619047619,
+   "mean_audit_dbacc_accepted": 0.037045454545454534
+  }
+ ],
+ "b3_label_budget_mean": 1.0,
+ "b3_actions": {
+  "abstain": 3164,
+  "reject": 1020,
+  "accept": 16
+ },
+ "b4_oracle_audit_mean": null,
+ "b4_oracle_audit_n": 0,
+ "stop_conditions": {
+  "b1_accepts": 0,
+  "b4_deployable_accepts": 0,
+  "unflagged_non_specific": 0,
+  "point_estimate_safety": 0
+ },
+ "n_decision_rows": 26460,
+ "n_audit_rows": 26460,
+ "n_workers": 420,
+ "n_failures": 0,
+ "failures": [],
+ "scope": {
+  "datasets": [
+   "Lee2019_MI",
+   "Cho2017"
+  ],
+  "backbones": [
+   "EEGNet"
+  ],
+  "folds": [
+   1,
+   2,
+   3,
+   4,
+   5
+  ],
+  "worlds": [
+   "v2_source_invisible_world_a",
+   "source_rich_source_visible_world_a"
+  ],
+  "budgets": [
+   "B0_source_only",
+   "B1_unlabeled_target",
+   "B2_k_labels_per_class",
+   "B3_sequential_calibration",
+   "B4_oracle_selector"
+  ],
+  "k_grid": [
+   1,
+   2,
+   4,
+   8,
+   16
+  ],
+  "R": 10,
+  "world_alpha_grid": [
+   0.5,
+   1.0,
+   2.0
+  ],
+  "n_boot": 100,
+  "split_rng_scheme": "subject_seeded_v1"
+ }
+}
