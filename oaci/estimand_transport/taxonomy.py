@@ -40,7 +40,14 @@ def transport_taxonomy(epoch, decomp_summary, normalization, offset, feature) ->
         schema.T3: "characterize the regime-specific relationship shift; external validation remains not established.",
         schema.T5: "package the boundary as final; no transportable estimand.",
     }.get(primary, "")
-    return {"primary_case": primary, "secondary": secondary, "interpretation": interp, "next_science": nxt,
+    source_risk_overlap = bool(epoch.get("source_risk_overlap"))
+    srn = ("  Source-observable overlap (disclosed, NOT a trajectory downgrade): a single source-risk scalar "
+           "(R_src) matches the 16-feature probe within-target -> the weak signal is low-dimensional / risk-"
+           "family (echoes C17), not a novel multivariate competence dimension."
+           if source_risk_overlap else "")
+    return {"primary_case": primary, "secondary": secondary, "interpretation": interp + srn, "next_science": nxt,
             "epoch_confounded": bool(epoch.get("epoch_confounded")), "within_target_present": within_present,
             "target_normalization_recovers_pooled": norm_recovers, "feature_offset_dominated": offset_dominated,
+            "source_risk_overlap": source_risk_overlap,
+            "probe_adds_over_source_risk": bool(epoch.get("probe_adds_over_source_risk")),
             "diagnostic_only_non_deployable": True}

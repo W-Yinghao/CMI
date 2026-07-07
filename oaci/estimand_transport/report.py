@@ -42,21 +42,28 @@ def run(extract_dir, c10_dir, *, folds=None, n_workers=8, c16_path="oaci/reports
     leak = ssr.precompute_all_leakage(extract_dir, boundary_classes=bnd, folds=fold_dirs, n_workers=n_workers,
                                       regimes=list(schema.ALL_REGIMES))
     rows = score_loader.score_table(extract_dir, c10_dir, boundary_classes=bnd, leakage_cache=leak, folds=fold_dirs)
+    res = {"config_hash": cfg_hash, "score_table": rows, "boundary_classes": list(bnd),
+           "diagnostic_only_non_deployable": True}
+    return _analyze(res)
+
+
+def _analyze(res):
+    """Recompute ALL analyses from res['score_table'] (deterministic). Shared by run() and reinterpret so a
+    taxonomy/analysis fix can be applied without recomputing the frozen-probe scores."""
+    rows = res["score_table"]
     dec = estimand_decomposition.decompose(rows); dsum = estimand_decomposition.summary(dec)
     off = offset_scale.offset_scale(rows)
     ep = epoch_confound.epoch_confound(rows)                 # Q2 -- computed/reported before rescue
     norm = normalization_diagnostics.normalization_diagnostics(rows)
     fsh = feature_shift.feature_shift(rows)
-    tax = taxonomy.transport_taxonomy(ep, dsum, norm, off, fsh)
-    return {"config_hash": cfg_hash, "n_score_rows": len(rows), "decomposition": dec, "decomposition_summary": dsum,
-            "offset_scale": off, "epoch_confound": ep, "normalization": norm, "feature_shift": fsh,
-            "taxonomy": tax, "boundary_classes": list(bnd), "diagnostic_only_non_deployable": True}
+    res.update({"n_score_rows": len(rows), "decomposition": dec, "decomposition_summary": dsum,
+                "offset_scale": off, "epoch_confound": ep, "normalization": norm, "feature_shift": fsh,
+                "taxonomy": taxonomy.transport_taxonomy(ep, dsum, norm, off, fsh)})
+    return res
 
 
 def _interpret(res):
-    res["taxonomy"] = taxonomy.transport_taxonomy(res["epoch_confound"], res["decomposition_summary"],
-                                                  res["normalization"], res["offset_scale"], res["feature_shift"])
-    return res
+    return _analyze(res)
 
 
 # ---------- tables ----------
@@ -87,8 +94,12 @@ def write_tables(res, tdir) -> None:
     _writecsv(os.path.join(tdir, "residual_signal_after_epoch_control.csv"),
               [{"metric": "partial_spearman_score_label_given_epoch", "value": ep["partial_spearman_score_label_given_epoch"]},
                {"metric": "residual_signal_present", "value": ep["residual_signal_present"]},
-               {"metric": "probe_beats_epoch_family", "value": ep["probe_beats_epoch_family"]},
-               {"metric": "epoch_confounded", "value": ep["epoch_confounded"]}], ["metric", "value"])
+               {"metric": "probe_beats_trajectory", "value": ep["probe_beats_trajectory"]},
+               {"metric": "epoch_confounded", "value": ep["epoch_confounded"]},
+               {"metric": "partial_spearman_score_label_given_R_src", "value": ep["partial_spearman_score_label_given_R_src"]},
+               {"metric": "source_risk_overlap", "value": ep["source_risk_overlap"]},
+               {"metric": "probe_adds_over_source_risk", "value": ep["probe_adds_over_source_risk"]}],
+              ["metric", "value"])
     nm = res["normalization"]["per_mode"]
     _writecsv(os.path.join(tdir, "targetwise_normalization_results.csv"),
               [{"mode": m, "normalization": k, "pooled_auc": v}
@@ -112,10 +123,13 @@ def write_tables(res, tdir) -> None:
                for f, v in fs.items()], ["feature", "usable_ranking", "regime_between_fraction"])
     t = res["taxonomy"]
     _writecsv(os.path.join(tdir, "score_transport_failure_modes.csv"),
-              [{"factor": "epoch_confounded", "value": t["epoch_confounded"]},
+              [{"factor": "epoch_confounded_trajectory", "value": t["epoch_confounded"]},
                {"factor": "within_target_present", "value": t["within_target_present"]},
                {"factor": "target_normalization_recovers_pooled", "value": t["target_normalization_recovers_pooled"]},
-               {"factor": "feature_offset_dominated", "value": t["feature_offset_dominated"]}], ["factor", "value"])
+               {"factor": "feature_offset_dominated", "value": t["feature_offset_dominated"]},
+               {"factor": "source_risk_overlap", "value": t.get("source_risk_overlap")},
+               {"factor": "probe_adds_over_source_risk", "value": t.get("probe_adds_over_source_risk")}],
+              ["factor", "value"])
     _writecsv(os.path.join(tdir, "c22_case_taxonomy.csv"),
               [{"primary_case": t["primary_case"], "secondary": ";".join(t["secondary"]),
                 "interpretation": t["interpretation"], "next_science": t["next_science"]}],
@@ -135,14 +149,20 @@ def render_md(res) -> str:
          f"- **CASE: `{t['primary_case']}`**" + (f"  ·  secondary: {t['secondary']}" if t['secondary'] else ""),
          f"- {t['interpretation']}", f"- next: {t['next_science']}", "",
          "## Q2 — epoch / trajectory-position confound (reported FIRST, gates everything)", "",
-         f"- probe within-target strength **{_f(ep['probe_within_target_strength'])}** vs best epoch-family "
-         f"baseline **{_f(ep['best_epoch_family_baseline_strength'])}** → probe beats epoch family: "
-         f"**{ep['probe_beats_epoch_family']}**",
+         f"- probe within-target strength **{_f(ep['probe_within_target_strength'])}** vs best TRAJECTORY "
+         f"(epoch/order) baseline **{_f(ep['best_trajectory_baseline_strength'])}** → probe beats trajectory: "
+         f"**{ep['probe_beats_trajectory']}**  (trajectory strengths: "
+         f"{ {k: round(v,3) for k,v in ep['trajectory_baseline_strength'].items()} })",
          f"- residual (partial Spearman score~label | epoch) = **{_f(ep['partial_spearman_score_label_given_epoch'])}** "
          f"→ residual signal present: **{ep['residual_signal_present']}**",
-         f"- **epoch_confounded: {ep['epoch_confounded']}**  "
+         f"- **epoch_confounded (trajectory only): {ep['epoch_confounded']}**  "
          + ("(→ T2: the in-regime positive is a trajectory-position diagnostic, NOT competence)"
-            if ep['epoch_confounded'] else "(→ within-target signal survives epoch control)"), "",
+            if ep['epoch_confounded'] else "(→ within-target signal SURVIVES epoch/trajectory control)"),
+         f"- SEPARATE source-observable overlap: best TRAINING-LOG baseline "
+         f"**{_f(ep['best_training_log_baseline_strength'])}** ({ {k: round(v,3) for k,v in ep['training_log_baseline_strength'].items()} }); "
+         f"source_risk_overlap: **{ep['source_risk_overlap']}**, probe adds over R_src (partial|R_src="
+         f"{_f(ep['partial_spearman_score_label_given_R_src'])}): **{ep['probe_adds_over_source_risk']}**  "
+         "→ a single source-risk scalar matches the probe (low-dimensional/risk-family; NOT a trajectory proxy).", "",
          "## Q1 — pooled vs within-target decomposition", "",
          f"- mean pooled AUC **{_f(ds['mean_pooled_auc'])}** vs mean within-target AUC **{_f(ds['mean_within_target_auc'])}** "
          f"(gap {_f(ds['mean_pooled_minus_within'])}); within exceeds pooled everywhere: "
@@ -175,13 +195,18 @@ def render_md(res) -> str:
 def render_epoch_md(res) -> str:
     ep = res["epoch_confound"]
     return (f"# C22 — Epoch / trajectory-position confound audit\n\n> Reported BEFORE any normalization-rescue "
-            f"interpretation (hard gate).\n\n{ep['note']}\n\n"
+            f"interpretation (hard gate). T2 fires on TRAJECTORY (epoch/order) ONLY; training-log baselines are a "
+            f"separate source-observable overlap.\n\n{ep['note']}\n\n"
             f"- probe within-target strength: {_f(ep['probe_within_target_strength'])}\n"
-            f"- epoch-family baseline strengths: {ep['baseline_within_target_strength']}\n"
-            f"- probe beats epoch family: {ep['probe_beats_epoch_family']}\n"
+            f"- TRAJECTORY baseline strengths (epoch/order): {ep['trajectory_baseline_strength']}\n"
+            f"- probe beats trajectory: {ep['probe_beats_trajectory']}\n"
             f"- partial Spearman(score, label | epoch): {_f(ep['partial_spearman_score_label_given_epoch'])} "
-            f"(n_targets {ep['n_targets_partial']})\n- residual signal present: {ep['residual_signal_present']}\n"
-            f"- **epoch_confounded: {ep['epoch_confounded']}**\n")
+            f"(n_targets {ep['n_targets_partial']}); residual present: {ep['residual_signal_present']}\n"
+            f"- **epoch_confounded (trajectory): {ep['epoch_confounded']}**\n\n"
+            f"## Separate source-observable overlap (NOT a trajectory downgrade)\n"
+            f"- TRAINING-LOG baseline strengths (R_src/train_surrogate): {ep['training_log_baseline_strength']}\n"
+            f"- source_risk_overlap: {ep['source_risk_overlap']}; partial Spearman(score, label | R_src): "
+            f"{_f(ep['partial_spearman_score_label_given_R_src'])}; probe adds over R_src: {ep['probe_adds_over_source_risk']}\n")
 
 
 def render_normalization_md(res) -> str:
@@ -201,13 +226,22 @@ def _guard_forbidden(md) -> None:
             raise ValueError(f"forbidden claim in C22 report: {s!r}")
 
 
-def _write_artifacts(res, out_dir):
+def _write_artifacts(res, out_dir, scores_path=None):
     md = render_md(res); _guard_forbidden(md)
     ep = render_epoch_md(res); _guard_forbidden(ep)
     nm = render_normalization_md(res); _guard_forbidden(nm)
     os.makedirs(out_dir, exist_ok=True)
+    # route the (large) raw score table to a sidecar (outside the repo) so reinterpret stays cheap; keep the
+    # committed JSON compact (analyses only).
+    committed = {k: v for k, v in res.items() if k != "score_table"}
+    if scores_path and "score_table" in res:
+        os.makedirs(os.path.dirname(scores_path), exist_ok=True)
+        json.dump({"score_table": res["score_table"], "config_hash": res["config_hash"]},
+                  open(scores_path, "w"), default=str)
+        committed["score_table_sidecar"] = scores_path
     open(os.path.join(out_dir, "C22_ESTIMAND_TRANSPORT_AUDIT.md"), "w").write(md)
-    json.dump(res, open(os.path.join(out_dir, "C22_ESTIMAND_TRANSPORT_AUDIT.json"), "w"), indent=2, sort_keys=True, default=str)
+    json.dump(committed, open(os.path.join(out_dir, "C22_ESTIMAND_TRANSPORT_AUDIT.json"), "w"),
+              indent=2, sort_keys=True, default=str)
     open(os.path.join(out_dir, "C22_EPOCH_CONFOUND_AUDIT.md"), "w").write(ep)
     open(os.path.join(out_dir, "C22_SCORE_NORMALIZATION_DIAGNOSTICS.md"), "w").write(nm)
     write_tables(res, os.path.join(out_dir, "c22_tables"))
@@ -219,17 +253,18 @@ def main(argv=None) -> int:
     ap.add_argument("--c10-dir")
     ap.add_argument("--out-dir", default="oaci/reports")
     ap.add_argument("--n-workers", type=int, default=8)
-    ap.add_argument("--reinterpret", default=None)
+    ap.add_argument("--scores-path", default="/projects/EEG-foundation-model/yinghao/oaci-c22-scores.json")
+    ap.add_argument("--reinterpret", default=None, help="path to a score-table sidecar; recompute analyses without re-scoring")
     args = ap.parse_args(argv)
     if args.reinterpret:
-        res = _interpret(json.load(open(args.reinterpret)))
-        _write_artifacts(res, args.out_dir)
-        print(f"[C22 reinterpret] case={res['taxonomy']['primary_case']}")
+        res = _analyze({"config_hash": _lock_config(), **json.load(open(args.reinterpret))})
+        _write_artifacts(res, args.out_dir, scores_path=args.scores_path)
+        print(f"[C22 reinterpret] case={res['taxonomy']['primary_case']} epoch_confounded={res['taxonomy']['epoch_confounded']}")
         return 0
     if not (args.extract_dir and args.c10_dir):
         ap.error("full run requires --extract-dir and --c10-dir (or --reinterpret)")
     res = run(args.extract_dir, args.c10_dir, n_workers=args.n_workers)
-    _write_artifacts(res, args.out_dir)
+    _write_artifacts(res, args.out_dir, scores_path=args.scores_path)
     t = res["taxonomy"]
     print(f"[C22] case={t['primary_case']} epoch_confounded={t['epoch_confounded']} "
           f"within_present={t['within_target_present']} norm_recovers={t['target_normalization_recovers_pooled']}")

@@ -24,8 +24,13 @@ ALL_REGIMES = tuple(IN_REGIME) + tuple(CROSS_REGIME)
 ROBUST_CORE = c19.ROBUST_CORE_FEATURES                     # frozen 16; read-only
 DIAGNOSTIC_LABEL = c19.DIAGNOSTIC_LABEL
 
-# ---- Q2 epoch/order baselines (reported BEFORE any transport-rescue claim) --------------------------
-EPOCH_BASELINES = ("epoch", "candidate_order", "train_surrogate", "R_src")   # trajectory-position / training-log proxies
+# ---- Q2 baselines (reported BEFORE any transport-rescue claim) -------------------------------------
+# TRAJECTORY-position baselines gate the epoch-confound verdict (T2). TRAINING-LOG baselines (source risk /
+# training objective) are a SEPARATE, source-observable overlap check -- they are NOT trajectory-position, so
+# they must NOT trigger a trajectory-confound downgrade (they echo C17's weak risk-family scalar signal).
+TRAJECTORY_BASELINES = ("epoch", "order")                 # pure trajectory position
+TRAINING_LOG_BASELINES = ("R_src", "train_surrogate")     # source-observable training-log scalars (separate check)
+EPOCH_BASELINES = TRAJECTORY_BASELINES + TRAINING_LOG_BASELINES   # reported together (labelled by family)
 EPOCH_CONTROL_BINS = 4                                     # epoch-bin stratification for residual-signal control
 
 # ---- Q3 score normalization diagnostics (post-hoc MECHANISM tests, NOT deployment) -----------------
