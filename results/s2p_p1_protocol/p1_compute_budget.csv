@@ -1,0 +1,2 @@
+n_runs,corpus_hours_per_run,windows_per_run_approx,note
+15,100,12000,15 pretraining runs (5N x 3seed) from scratch @100h corpus + downstream audits; GPU A40; est few GPU-h/run for a pilot (epochs TBD by convergence check)

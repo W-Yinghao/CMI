@@ -1,0 +1,29 @@
+{
+  "model": "CBraMod",
+  "H0_hours": 100,
+  "n_subjects_grid": [
+    32,
+    128,
+    512,
+    1024,
+    2000
+  ],
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "min_exposure_hours_per_subject": 0.05,
+  "all_cells_feasible": true,
+  "BLOCKER_fixed_hours_not_enforced": "loader enforces per-subject cap at WHOLE-RECORDING granularity -> at high N the tiny cap (0.05h) < one recording -> actual total hours BALLOONS (N=32:116h, N=1024:305h, N=2000:597h != 100h) -> 'fixed-hours' axis silently confounded with TOTAL hours. MUST FIX: window-level budget truncation (cap_windows=cap*120, truncate within recording).",
+  "MAJOR_sparse_exposure": "N=2000 -> ~6 windows/subject (3 min); N=1024 -> ~12; likely too little for from-scratch encoder to learn per-subject structure -> high-N cells may be under-trained artifacts not diversity effects. Needs pretraining-convergence check per cell + possibly cap the high-N end.",
+  "subject_contribution_balanced_by_manifest": "pending window-level fix + run-time Gini check",
+  "pretrain_val_subject_disjoint": true,
+  "native_objective_preserved": true,
+  "checkpoint_selection_pretrain_val_only": true,
+  "downstream_target_not_used_for_selection": true,
+  "compute_budget_ok": "15 runs from-scratch @100h corpus (pilot-scale); epochs TBD by convergence check",
+  "design_red_team": "running (identifiability: fixed-H0 line collinear N vs exposure)",
+  "launch_p1": false,
+  "launch_note": "HOLD: (1) loader fixed-hours bug (window-level budget) MUST fix; (2) sparse-exposure/convergence concern; (3) design-red-team identifiability finding pending. Return to PM before launch."
+}

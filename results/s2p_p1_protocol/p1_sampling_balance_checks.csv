@@ -1,0 +1,6 @@
+N_subjects,per_subject_cap_h,balance_mechanism,expected_gini,note
+32,3.125,loader per-subject hours cap,~0 (equal cap),VERIFY actual segments/subject Gini at run time (native sampler uniform)
+128,0.7812,loader per-subject hours cap,~0 (equal cap),VERIFY actual segments/subject Gini at run time (native sampler uniform)
+512,0.1953,loader per-subject hours cap,~0 (equal cap),VERIFY actual segments/subject Gini at run time (native sampler uniform)
+1024,0.0977,loader per-subject hours cap,~0 (equal cap),VERIFY actual segments/subject Gini at run time (native sampler uniform)
+2000,0.05,loader per-subject hours cap,~0 (equal cap),VERIFY actual segments/subject Gini at run time (native sampler uniform)

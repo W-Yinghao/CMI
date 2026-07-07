@@ -1,0 +1,6 @@
+N_subjects,per_subject_cap_h,expected_windows_per_subject,total_hours,total_windows_approx
+32,3.125,375.0,100,12000
+128,0.7812,93.8,100,12000
+512,0.1953,23.4,100,12000
+1024,0.0977,11.7,100,12000
+2000,0.05,6.0,100,12000

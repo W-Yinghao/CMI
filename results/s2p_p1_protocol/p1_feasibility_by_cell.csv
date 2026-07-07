@@ -1,0 +1,16 @@
+N_subjects,seed,per_subject_cap_h,subjects_available,min_exposure_ok,feasible
+32,0,3.125,67,True,True
+32,1,3.125,67,True,True
+32,2,3.125,67,True,True
+128,0,0.7812,727,True,True
+128,1,0.7812,727,True,True
+128,2,0.7812,727,True,True
+512,0,0.1953,6487,True,True
+512,1,0.1953,6487,True,True
+512,2,0.1953,6487,True,True
+1024,0,0.0977,6516,True,True
+1024,1,0.0977,6516,True,True
+1024,2,0.0977,6516,True,True
+2000,0,0.05,6523,True,True
+2000,1,0.05,6523,True,True
+2000,2,0.05,6523,True,True
