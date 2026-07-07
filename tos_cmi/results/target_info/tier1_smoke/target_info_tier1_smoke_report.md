@@ -9,35 +9,40 @@ b1_accepts                 0
 b4_deployable_accepts      0
 unflagged_non_specific     0
 point_estimate_safety      0
+b3_k1_accepts              0
 ```
 
 ## Per-budget action counts (deployable B0/B1/B2/B3 ; diagnostic B4)
 - B0_source_only             {'abstain': 318, 'reject': 102}
 - B1_unlabeled_target        {'abstain': 318, 'reject': 102}
-- B2_k_labels_per_class      {'abstain': 15580, 'reject': 5100, 'accept': 320}
-- B3_sequential_calibration  {'abstain': 3164, 'reject': 1020, 'accept': 16}
+- B2_k_labels_per_class      {'abstain': 15900, 'reject': 5100}
+- B3_sequential_calibration  {'abstain': 3180, 'reject': 1020}
 - B4_oracle_selector         {'DIAGNOSTIC': 420}
 
-## B2 k-curve (per world): accept rate, true/false accept, held-out audit ΔbAcc, specificity
-| world | k | n | accept_rate | true_acc | false_acc | mean_audit_ΔbAcc | specific | non_specific |
-|---|---|---|---|---|---|---|---|---|
-| source_rich_source_visible | 1 | 2100 | 0.00 | 0 | 3 | -0.010 | 3 | 0 |
-| source_rich_source_visible | 2 | 2100 | 0.01 | 7 | 5 | 0.008 | 12 | 0 |
-| source_rich_source_visible | 4 | 2100 | 0.01 | 9 | 8 | 0.008 | 18 | 0 |
-| source_rich_source_visible | 8 | 2100 | 0.01 | 20 | 7 | 0.018 | 28 | 0 |
-| source_rich_source_visible | 16 | 2100 | 0.02 | 24 | 12 | 0.017 | 37 | 0 |
-| v2_source_invisible_world_ | 1 | 2100 | 0.01 | 0 | 13 | -0.010 | 13 | 0 |
-| v2_source_invisible_world_ | 2 | 2100 | 0.01 | 22 | 2 | 0.035 | 24 | 0 |
-| v2_source_invisible_world_ | 4 | 2100 | 0.02 | 28 | 7 | 0.034 | 35 | 0 |
-| v2_source_invisible_world_ | 8 | 2100 | 0.03 | 57 | 5 | 0.041 | 62 | 0 |
-| v2_source_invisible_world_ | 16 | 2100 | 0.04 | 77 | 11 | 0.037 | 88 | 0 |
+## Deployable (B2+B3) safety summary
+- deployable accepts: 0 ; false accepts (audit<=0): 0 ; harmful (audit<-0.01): 0 ; false-accept rate 0.000
 
-## B3 sequential calibration
-- actions: {'abstain': 3164, 'reject': 1020, 'accept': 16}
-- mean label budget used before decision (k_used): 1.0
+## B2 k-curve (per world): accept rate, true/false/harmful accept, audit ΔbAcc, specificity (cal+audit)
+| world | k | n | acc_rate | true | false | harmful | audit_ΔbAcc | spec_cal | spec_audit | non_spec |
+|---|---|---|---|---|---|---|---|---|---|---|
+| source_rich_source_visib | 1 | 2100 | 0.00 | 0 | 0 | 0 | n/a | 0 | 0 | 0 |
+| source_rich_source_visib | 2 | 2100 | 0.00 | 0 | 0 | 0 | n/a | 0 | 0 | 0 |
+| source_rich_source_visib | 4 | 2100 | 0.00 | 0 | 0 | 0 | n/a | 0 | 0 | 0 |
+| source_rich_source_visib | 8 | 2100 | 0.00 | 0 | 0 | 0 | n/a | 0 | 0 | 0 |
+| source_rich_source_visib | 16 | 2100 | 0.00 | 0 | 0 | 0 | n/a | 0 | 0 | 0 |
+| v2_source_invisible_worl | 1 | 2100 | 0.00 | 0 | 0 | 0 | n/a | 0 | 0 | 0 |
+| v2_source_invisible_worl | 2 | 2100 | 0.00 | 0 | 0 | 0 | n/a | 0 | 0 | 0 |
+| v2_source_invisible_worl | 4 | 2100 | 0.00 | 0 | 0 | 0 | n/a | 0 | 0 | 0 |
+| v2_source_invisible_worl | 8 | 2100 | 0.00 | 0 | 0 | 0 | n/a | 0 | 0 | 0 |
+| v2_source_invisible_worl | 16 | 2100 | 0.00 | 0 | 0 | 0 | n/a | 0 | 0 | 0 |
+
+## B3 sequential calibration (hardened bounded LCB)
+- actions: {'abstain': 3180, 'reject': 1020}
+- accepts: 0 ; false accepts: 0 ; k=1 accepts (must be 0): 0 ; mean label budget (accepted): None
 
 ## B4 oracle diagnostic (upper bound; excluded from deployable accept counts)
-- oracle audit ΔbAcc mean over 0 cells: None
+- source_rich_source_visible_wor: oracle audit ΔbAcc mean 0.021 / max 0.080 over 210 cells
+- v2_source_invisible_world_a: oracle audit ΔbAcc mean 0.018 / max 0.080 over 210 cells
 
 Budget curve: `tos_cmi/results/target_info/tier1_smoke/target_info_tier1_budget_curve.png`
 

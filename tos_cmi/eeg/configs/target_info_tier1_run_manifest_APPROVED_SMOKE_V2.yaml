@@ -3,9 +3,10 @@
 # is NOT committed (gitignored tos_cmi/results/.tier1_smoke_v2_token); only its sha256 is here. Marked consumed after
 # the rerun.
 
-run_status: approved
-runs_allowed: true
-experiments_allowed: true
+# CONSUMED after job 888437 (2026-07-07). Re-running requires a fresh PM-approved manifest + new token.
+run_status: consumed
+runs_allowed: false
+experiments_allowed: false
 
 scope: tier1_smoke_v2_hardened
 datasets: [Lee2019_MI, Cho2017]
