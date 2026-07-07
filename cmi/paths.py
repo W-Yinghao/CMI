@@ -1,22 +1,22 @@
-"""Central path / environment configuration for the Tri-CMI project.
+"""Central path / environment configuration.
 
 Importing this module sets the MNE / MOABB environment variables so that all
-MOABB datasets resolve to the read-only datalake cache *offline* (no download).
-Verified 2026-06-06: BNCI2014_001 loads with these settings and no network.
+MOABB datasets resolve to a local datalake cache *offline* (no download).
+Paths are overridable by environment variable so the code is site-independent.
 """
 import os
 from pathlib import Path
-
-# Read-only shared datalake (MOABB/MNE cache layout lives directly under here).
-DATALAKE_RAW = Path("/projects/EEG-foundation-model/datalake/raw")
-
-# Our own writable scratch/download area (check DATALAKE_RAW before downloading).
-SCRATCH = Path("/projects/EEG-foundation-model/yinghao")
 
 # Project root.
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 RESULTS_DIR = PROJECT_ROOT / "results"
 LOGS_DIR = PROJECT_ROOT / "logs"
+
+# Read-only datalake (MOABB/MNE cache). Override with EEG_DATALAKE_RAW.
+DATALAKE_RAW = Path(os.environ.get("EEG_DATALAKE_RAW", str(PROJECT_ROOT / "data" / "datalake" / "raw")))
+
+# Writable scratch/download area (checked before any download). Override with EEG_SCRATCH.
+SCRATCH = Path(os.environ.get("EEG_SCRATCH", str(PROJECT_ROOT / "scratch")))
 
 
 def configure_offline_moabb() -> None:

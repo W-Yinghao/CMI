@@ -47,14 +47,15 @@ class DensityConfig:
 @dataclass
 class CMIConfig:
     """Hierarchical neural conditional-entropy CMI (review 5.4 / P0-2)."""
+    # When False the trainer skips the critics, dual variables and CMI penalty ENTIRELY
+    # (not merely lambda=0) -- the clean CMI-off arm for the M0/M2 vs M1/M3 factorial.
+    enabled: bool = True
     critic_hidden: int = 128
     critic_inner: int = 1               # Step-A critic updates per Step-B encoder update
     critic_lr: float = 2e-3
     # The penalty form +lambda*(H_ref - CE), minimised, already MAXIMISES the critic CE
-    # (reduces leakage) with the critic frozen in Step B -- this IS the envelope-theorem
-    # profile gradient. GRL is the equivalent alternative (penalty = lambda*CE(GRL(z)));
-    # enabling it here would double-flip the sign, so it is OFF by default.
-    grl: bool = False
+    # (reduces leakage) with the critic FROZEN in Step B -- this IS the envelope-theorem
+    # profile gradient. A GRL would double-flip the sign here, so there is no grl option.
     cross_fit: bool = True              # report cross-fitted held-out critic estimate
     # primal-dual leakage budget (review 5.5): lambda_j <- [lambda_j + eta(I_j - eps_j)]_+
     dual_lr: float = 0.5
@@ -101,13 +102,21 @@ class TTAConfig:
     trust_region: float = 1.0           # tau: ||A - I||_F^2 penalty
     trust_region_b: float = 1.0         # tau_b: ||b||^2 penalty
     logdet_weight: float = 1.0          # n*log|det A| anti-collapse term
-    prior_kl: float = 1.0               # kappa: KL(pi_T || pi_S)
-    dirichlet: float = 5.0              # Dirichlet concentration on pi_T (anti prior-collapse)
+    # Dirichlet pseudo-count anchor on pi_T: the M-step prior uses pseudo-counts
+    # (dirichlet + prior_anchor_strength) * pi_S. This penalises the cross-entropy
+    # H(pi_S, pi_T) = KL(pi_S || pi_T) + const (the REVERSE direction), NOT a forward
+    # KL(pi_T || pi_S). `prior_anchor_strength` is the pull toward the source prior and
+    # `dirichlet` the anti-collapse floor.
+    prior_anchor_strength: float = 1.0
+    dirichlet: float = 5.0
     em_iters: int = 20
     em_lr: float = 5e-2
-    online_ema: float = 0.9             # for the streaming variant
+    online_ema: float = 0.9             # for the streaming prior-only variant
     min_target: int = 16                # below this -> identity fallback
     min_effective_classes: int = 2      # single-class target -> identity fallback
+    # cross-fitted held-out change-of-variable NLL improvement required to adapt; otherwise
+    # identity rollback (review P0-4: same data must not both fit and judge the transform).
+    min_heldout_evidence: float = 0.0
 
 
 @dataclass
@@ -153,3 +162,36 @@ class H2Config:
         self.cmi.critic_inner = 1
         self.tta.em_iters = 8
         return self
+
+
+def core_config(cfg: H2Config) -> H2Config:
+    """The MINIMAL trustworthy core (review section 4): encoder + p_phi(z|y) +
+    hierarchical CMI + offline diagonal TTA. Everything whose optimisation direction or
+    evaluation protocol still needs work is OFF until validated piece by piece:
+
+      disentanglement   (min-min adversary surrogate needs alternating Step A/B)
+      SSL reconstruction(z_c reconstructing raw EEG fights the CMI objective)
+      source canonicalizer (absorbable by the fusion layer; not yet identifiable)
+      safety gate       (not yet a truly nested inner-LOSO; pseudo-targets saw training)
+      online transform  (deferred; only prior-only streaming is causal today)
+      reference alignment(needs domain-class balanced batches / LOO reference)
+
+    Mutates and returns ``cfg``.
+    """
+    cfg.encoder.z_c_dim = 16
+    cfg.encoder.z_n_dim = 8
+    cfg.encoder.use_temporal = True
+    cfg.encoder.use_spd = True
+    cfg.encoder.use_graph = False
+    cfg.encoder.canonicalizer = False
+    cfg.density.n_components = 1
+    cfg.density.cov_rank = 2
+    cfg.density.df = 8.0
+    cfg.align.enabled = False
+    cfg.disentangle.enabled = False
+    cfg.ssl.enabled = False
+    cfg.gate.enabled = False
+    cfg.tta.transform = "diag_affine"
+    cfg.tta.em_iters = 20
+    cfg.cmi.critic_inner = 5
+    return cfg

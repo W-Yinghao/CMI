@@ -1,3 +1,5 @@
+> ⛔ **LINE CLOSED — FAILED (2026-06-21). Start at [`CLOSEOUT.md`](CLOSEOUT.md)** (full autopsy), authoritative status in [`notes/EVIDENCE_LEDGER.md`](notes/EVIDENCE_LEDGER.md). The failed line's experiments / records / scripts are archived under `archive/lpc-cmi-failed/`; only the audit evidence is kept at top. Everything below about a CMI/density **safety gate**, **protective abstention**, **"CMI-screened" CITA**, the **+3.0** accuracy headline, or **TUAB as a lockbox** is RETRACTED or revised (LPC dropped, gate closed to `DIAGNOSTIC_ONLY`, CITA-no-LPC ≡ plain matched-CORAL, TUAB exposed). The separate `h2cmi/` project is unrelated and untouched.
+
 # Tri-CMI — Label-Prior-Corrected Conditional Mutual Information for Calibration-Free EEG Domain Generalization
 
 **Target:** AAAI-27 Main Technical Track (abstract 2026-07-21, full paper 2026-07-28, supplement/code 2026-07-31, all AoE).

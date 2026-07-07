@@ -18,7 +18,8 @@ import json
 
 import numpy as np
 
-from h2cmi.config import H2Config
+from h2cmi.config import H2Config, core_config
+from h2cmi.domains import compact_domain_labels
 from h2cmi.data.eeg_simulator import EEGSimulator, ShiftSpec, train_target_split
 from h2cmi.train.trainer import train_h2, reference_prior
 from h2cmi.eval.harness import run_three_settings
@@ -30,6 +31,8 @@ def build_config(args) -> H2Config:
     cfg.encoder.n_chans = args.chans
     cfg.encoder.n_times = args.times
     cfg.encoder.fs = args.fs
+    if not args.full:
+        cfg = core_config(cfg)              # minimal trustworthy core by default
     cfg.train.epochs = args.epochs
     cfg.train.device = args.device
     cfg.train.seed = args.seed
@@ -61,6 +64,12 @@ def main():
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--eval_unit", default="subject", choices=["subject", "session", "site"])
+    ap.add_argument("--target_site", type=int, default=-1,
+                    help="held-out target site id (>=0 deterministic; -1 = random)")
+    ap.add_argument("--full", action="store_true",
+                    help="EXPERIMENTAL/not-fully-validated: enable ALL modules "
+                         "(disentangle/SSL/gate/align/canonicalizer). Default is the "
+                         "validated minimal trustworthy core_config.")
     ap.add_argument("--fast", action="store_true")
     ap.add_argument("--out", default="")
     ap.add_argument("--quiet", action="store_true")
@@ -72,13 +81,17 @@ def main():
     sim = EEGSimulator(args.classes, args.chans, args.times, args.fs, shift=shift,
                        seed=args.seed).sample(args.sites, args.subjects, args.sessions, args.trials)
 
-    src_idx, tgt_idx = train_target_split(sim, n_target_sites=1, seed=args.seed)
+    if args.target_site >= 0:                     # deterministic leave-one-site-out
+        tgt_mask = sim.site == args.target_site
+        src_idx, tgt_idx = np.where(~tgt_mask)[0], np.where(tgt_mask)[0]
+    else:
+        src_idx, tgt_idx = train_target_split(sim, n_target_sites=1, seed=args.seed)
     cfg = build_config(args)
 
-    # train on source sites
+    # train on source sites -- compact the DAG to SOURCE-ONLY contiguous levels (P0-1)
     Xs, ys = sim.X[src_idx], sim.y[src_idx]
-    src_domains = sim.domains.subset(src_idx)
-    model, hcmi, dual, hist = train_h2(Xs, ys, src_domains, sim.dag, cfg,
+    src_dag, src_domains, _ = compact_domain_labels(sim.domains.subset(src_idx))
+    model, hcmi, dual, hist = train_h2(Xs, ys, src_domains, src_dag, cfg,
                                        align_factor="site", verbose=not args.quiet)
 
     pi_star = reference_prior(ys, args.classes, cfg.align.reference_prior)
@@ -92,9 +105,9 @@ def main():
                                  X_src=Xs, y_src=ys, gate_pseudo_levels=src_unit,
                                  device=cfg.train.device)
 
-    # cross-fitted leakage on a source split (frozen encoder)
+    # cross-fitted leakage on a source split (frozen encoder, source-only compact DAG)
     Zs = model.embed(Xs, device=cfg.train.device)
-    leak = crossfit_conditional_leakage(Zs, ys, src_domains, sim.dag, args.classes,
+    leak = crossfit_conditional_leakage(Zs, ys, src_domains, src_dag, args.classes,
                                         device=cfg.train.device, n_perm=20, seed=args.seed)
 
     report = dict(

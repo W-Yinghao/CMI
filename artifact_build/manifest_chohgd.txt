@@ -1,0 +1,9 @@
+Cho2017 EEGNet 0
+Cho2017 EEGNet 1
+Cho2017 EEGNet 2
+Schirrmeister2017 TSMNet 0
+Schirrmeister2017 TSMNet 1
+Schirrmeister2017 TSMNet 2
+Schirrmeister2017 EEGNet 0
+Schirrmeister2017 EEGNet 1
+Schirrmeister2017 EEGNet 2

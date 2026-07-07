@@ -1,0 +1,14 @@
+# §7 Conclusion (draft)
+
+Conditional domain leakage in EEG representations can be localized with conditional score-Fisher geometry,
+and on some representations it can even be partially removed at no task cost — but neither measuring it nor
+removing it is, on its own, evidence of a cross-subject generalization benefit. On BCI-IV-2a we find a
+consistent measurement-to-control gap: in a high-dimensional SPD latent the leakage is redundant and not
+low-rank removable, and a global penalty removes it only by collapsing the representation; in a compact
+convolutional latent the same deletion removes much of the leakage, yet target accuracy does not improve.
+
+We therefore recommend treating selective conditional invariance as a **certified intervention with
+refusal** rather than an always-on regularizer: localize the leakage, certify whether deleting it is both
+safe for the task and useful, and abstain — return the identity map — when it cannot be certified. Framing
+the decision to *not* intervene as a first-class outcome is, we argue, the honest and practical stance for
+conditional-invariance methods in EEG.

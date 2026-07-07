@@ -1,0 +1,147 @@
+# CLAIMS_LEDGER — TOS-CMI (provenance for every paper claim)
+
+Machine-checkable provenance for each claim in the paper. Authoritative *wording* contract is
+`paper/claim_evidence_table.md` (C1–C10, allowed/forbidden); this file adds **script / dataset / seeds /
+outputs / status**. Branch `tos`; worktree `/home/infres/yinwang/CMI_AAAI_tos`. Env: synthetic = `icml`;
+EEG dumps = `icml` (GPU). `repos/TSMNet` is currently a SYMLINK (untracked) — **must be pinned (submodule/
+vendored at a fixed commit) before camera-ready** (see INTEGRATION.md). Seeds {0,1,2} unless noted.
+
+```yaml
+# ---------- SYNTHETIC certification (Fig 2; §3) ----------
+score_fisher_localizes_covariance_synergy:        # C1
+  status: supported
+  scope: synthetic (Gaussian-mixture, known Bayes oracle)
+  script: tos_cmi/score_fisher.py (+ tests)
+  outputs: tos_cmi/results/{cert_cells, frontier.json, frontier_cells}
+  figure: Fig 2A
+geometry_alone_insufficient_conditional_safety:   # C2
+  status: supported
+  scope: synthetic synergy ("explaining-away") generator
+  outputs: tos_cmi/results/cert_cells ; notes: PHASE13_DIAGNOSIS.md
+  figure: Fig 2B
+weak_gate_unsafe_accepts_plugin_improves:         # C3
+  status: supported
+  script: tos_cmi/score_fisher.py (nested vs plug-in log-ratio)
+  outputs: tos_cmi/results/{estimator_diag.json, frontier.json}
+  figure: Fig 2B,C
+certified_default_on_deletion:
+  status: NOT_supported (honest negative)
+  reason: power floor -> conservative abstention; independent-seed cert borderline; stacking no stable gain
+  outputs: tos_cmi/results/phase_diagram_powerfloor.json ; notes: PHASE131_CERTIFICATION.md
+  figure: Fig 2D
+
+# ---------- EEG frozen-feature study (BCI-IV-2a / BNCI2014_001, LOSO, domain=subject) ----------
+tsmnet_low_rank_deletion_insufficient:            # C4
+  status: supported
+  backbone: TSMNet (LogEig/SPD, z_dim=210)
+  scripts: tos_cmi/run_eeg_frozen_pilot.py -> tos_cmi/eeg/{ablation,adversarial}.py
+  seeds: [0,1,2]; folds: 9 (LOSO)
+  outputs: results/tos_cmi_eeg_frozen/BNCI2014_001_TSMNet_LOSO/ablation_report_seed{0,1,2}.json
+  numbers: subj 0.997 -> RZ 0.96 (MLP) ~ random 0.997; task 0.75->0.75; nDcand ~3/210; full-7-dim 0.92-0.98
+  figure: Fig 4
+tsmnet_global_lpc_collapse_objective_scaling:     # C5
+  status: supported (adversarially verified, wf_c2880caf)
+  scripts: tos_cmi/run_lpc_curves.py -> tos_cmi/eeg/collapse_analysis.py
+  seeds: [0,1,2]; folds: {1,5,9}; lambda: {0,0.3,1,3}; epochs: 300
+  outputs: results/tos_cmi_eeg_frozen/lpc_collapse_curves/TSMNet/{summary.json, collapse_curves.png}
+  numbers: feat_norm 1.09->0.00, top-1 SV->0.001, penalty->0, CE->ln4; NOT grad explosion; eff_rank scale-invariant
+  figure: Fig 3A-C
+tsmnet_collapse_fixable_collapsefree_removes_nothing:  # C6
+  status: supported
+  variants: raw_lpc / lpc_warm_ramp / lpc_scale_invariant (flag-gated, default-off in cmi/train/trainer.py)
+  outputs: results/tos_cmi_eeg_frozen/lpc_collapse_curves/TSMNet/variant_compare.json
+  numbers: warm_ramp avoids collapse lambda=1&3 (0/9); collapse-free subj_dec ~0.997 = ERM
+  figure: Fig 3D
+eegnet_low_rank_removability_representation_dependent:  # C7
+  status: supported_with_caveat (adversarially verified, wf_cb3b4958)
+  caveat: dim<->type confound provisionally addressed by Track C factorial (seed-0 capacity-mediated TREND; multi-seed + EEGNet-210 hardening in progress; do NOT write 'resolved' yet)
+  backbone: EEGNet (conv, z_dim=16)
+  scripts: tos_cmi/run_eeg_frozen_pilot.py -> tos_cmi/eeg/ablation.py
+  seeds: [0,1,2]; folds: 9
+  outputs: results/tos_cmi_eeg_frozen/BNCI2014_001_EEGNet_LOSO/ablation_report_seed{0,1,2}.json
+  numbers: subj linear 0.82->0.35 / MLP 0.88->0.54 (>> random 0.73/0.81); task 0.64->0.64; selectivity 0.35-0.55 vs TSMNet 0.04-0.08
+  figure: Fig 5A-C
+eegnet_removal_partial_nonlinear_residual:        # C8
+  status: supported
+  numbers: RZ MLP 0.54 >> chance 0.125 (linear ~removed, nonlinear residual persists)
+  outputs: same EEGNet ablation_report jsons
+  figure: Fig 5A
+eegnet_removable_but_no_dg_gain:                  # C9  (THE GAP -> motivates Track B benefit gate)
+  status: supported
+  scripts: tos_cmi/run_lpc_curves.py (EEGNet raw LPC sweep)
+  seeds: [0,1,2]; folds: 9; lambda: {0,0.3,1,3} (n=27 per lambda)
+  outputs: results/tos_cmi_eeg_frozen/lpc_collapse_curves/EEGNet/raw_lpc_sub*_lam*_seed*.json
+  numbers: subj 0.89->0.17 (no collapse); mean LOSO target 0.43->0.39 paired-t p<=0.001 at lambda>=1; corr(leak,target) -0.14
+  figure: Fig 5D
+measurement_to_control_gap:                       # C10 (thesis)
+  status: supported (synthesis of C4-C9)
+  figure: Table 1
+
+# ---------- NOT YET ATTEMPTED (future tracks; must not be claimed) ----------
+source_ood_benefit_gate:        {status: not_attempted, plan: Track B (inner source-LODO pseudo-target benefit)}
+architecture_x_dimension_factorial:               # Track C (DONE, 3-seed; SLURM 877939)
+  status: supported_refined  # 3-seed verdict = LARGELY capacity-mediated + RESIDUAL architecture effect at high d_z
+  scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_multiseed_analysis.py (file-parallel joblib; fold-cluster + paired + OLS CIs)
+  cells: TSMNet tangent d_z{21,36,55,105,210} (SPD m{6,8,10,14,20}) + EEGNet F2{16,32,64,128,210}; 9 LOSO folds; seeds{0,1,2}
+  outputs: results/tos_cmi_eeg_frozen/factorial/factorial_multiseed.json ; paper/figures/fig6_capacity_factorial.pdf
+  finding: LEACE nonlinear residual rises monotonically with d_z in BOTH archs (OLS log(d_z)=+0.089 [0.086,0.092]).
+    per-cell residual [95% fold-cluster CI]: TSMNet 21/36/55/105/210 = .397/.498/.559/.648/.740 ;
+    EEGNet 16/32/64/128/210 = .393/.507/.574/.609/.628. matched-dim (TSMNet-EEGNet):
+    21v16 +.004[-.008,.014] OVERLAP0 ; 36v32 -.008[-.022,.004] OVERLAP0 ; 55v64 -.015[-.024,-.004] ;
+    105v128 +.039[.028,.051] ; 210v210 +.111[.094,.125] EXCLUDES0. Matching dim removes ~68% of the raw
+    0.74-vs-0.39 gap => capacity is the DOMINANT axis; BUT interaction +.058[.051,.063] => TSMNet residual grows
+    faster with d_z, and at matched d_z=210 SPD retains +0.11 MORE recoverable subject id than conv.
+    VERDICT: LARGELY capacity-mediated WITH a residual architecture x dimension interaction at high capacity --
+    NOT pure capacity. 'capacity-mediated, not architecture-type' is REFUTED at high d_z. Caveat: single dataset (2a), LDA cap 8 subj.
+concept_erasure_baselines_vs_tos:                 # Track G (DONE; cross-seed stable)
+  status: supported
+  scripts: tos_cmi/eeg/erasure_baselines.py (self-contained LEACE + INLP; LEACE validated: linear subj->chance)
+  seeds: [0,1,2]; folds: 9; backbones: TSMNet-210, EEGNet-16 (2a frozen Z)
+  outputs: results/tos_cmi_eeg_frozen/BNCI2014_001_{TSMNet,EEGNet}_LOSO/erasure_report.json
+  findings:
+    - LEACE removes LINEAR subject decode to chance (0.115) on BOTH backbones, task preserved.
+    - LEACE DOMINATES TOS V_D deletion on subject removal at equal task cost (TSMNet MLP 0.74 vs TOS 0.96;
+      EEGNet MLP 0.39 vs TOS 0.55) -> the score-Fisher PROJECTION is NOT the contribution.
+    - nonlinear (MLP) residual after optimal linear erasure is the discriminator: TSMNet 0.74 (subject is
+      not eliminated by the tested linear erasure controls; even optimal linear erasure for linear decodability leaves a nonlinear MLP residual) vs EEGNet 0.39.
+    - INLP drives subject->chance but DESTROYS task (TSMNet 0.75->0.55, EEGNet 0.64->0.25): over-erasure.
+  implication: reframe contribution to measurement + certification/refusal + measurement-to-control gap
+    (NOT the eraser); paper needs a concept-erasure baseline table + Related Work SS5.3 update. RLACE/SPLINCE
+    still optional (RLACE adversarial; SPLINCE = holstege2025 oblique).
+erasure_target_deployment:                        # Step 3 (DONE; SLURM 878002)
+  status: supported
+  scripts: tos_cmi/eeg/erasure_target_deploy.py (source-only eraser+head fit -> held-out target; file-parallel)
+  seeds: [0,1,2]; folds: 9 LOSO; backbones: TSMNet-210, EEGNet-16; methods: full/TOS_VD/LEACE/RLACE/INLP/random_k
+  outputs: results/tos_cmi_eeg_frozen/erasure_target_deploy/{*_seed*.csv,*_paired.csv,*_summary.json} ; paper Table 3
+  guard: target (Z_t,y_t) used ONLY for final scoring; NO eraser/head/hyperparam/calibration selected on target
+  finding: deployed on held-out target, NO eraser improves target bAcc. dbAcc[95% fold-cluster CI] vs full:
+    TSMNet LEACE +.001[-.004,.005], RLACE -.004[-.006,-.002], TOS -.000, INLP -.062 (src task .749->.533);
+    EEGNet LEACE -.011[-.021,-.002], RLACE -.012, TOS -.000, INLP -.160 (=chance, task destroyed).
+    Only movement = small NLL drop, but same-k RANDOM matches it (TSMNet LEACE dNLL -.031 vs random -.034;
+    random subj_dec .998 = NOT erased) => NON-SPECIFIC regularization, NOT a domain-removal benefit.
+    Closes the measurement-to-control loop: optimal erasure deployed on target != DG gain.
+real_eeg_multidataset_erasure_deployment_no_gain:  # C12-real (branch tos; DONE, Case 1 integrated)
+  status: supported
+  scope: 9 valid dataset-backbone cells (2a both, 2b-EEGNet, Lee/Cho/HGD both); 2b-TSMNet excluded (degenerate 3ch)
+  datasets: [BNCI2014_001, BNCI2014_004, Lee2019_MI, Cho2017, Schirrmeister2017]   # 129 subjects beyond 2a
+  scripts: [tos_cmi/eeg/erasure_target_deploy.py, tos_cmi/eeg/bigN_report.py, tos_cmi/eeg/dataset_manifest.py]
+  acceptance_rule: upper 95% subject-cluster CI < +0.01 for ALL principled erasers (LEACE/TOS_VD/RLACE)
+  finding: no principled source-fitted eraser yields a practically meaningful target-bAcc gain in any valid cell
+    (e.g. Cho2017-TSMNet LEACE -0.001[-0.003,+0.000]; Lee2019-TSMNet -0.002[-0.003,+0.000]; HGD-TSMNet -0.001[-0.005,+0.003])
+  caveat: task-safety heterogeneous -- Lee/Cho EEGNet LEACE/RLACE drive task to chance -> deployment HARMS target -0.15..-0.19
+  outputs: notes/REAL_EEG_VALIDATION.md ; results/tos_cmi_eeg_frozen/{validation_manifest.json, erasure_target_deploy/*}
+  figure: paper SS4.7 Table (tab:bigN_compact) + App (tab:bigN_full)
+end_to_end_tos_training:        {status: not_attempted, plan: Track E (conditional-on-kept critic + PCGrad + anti-collapse)}
+```
+
+**Real-EEG multi-dataset validation (branch `tos`, DONE; C12-real supported):** see `notes/REAL_EEG_VALIDATION.md`
+for the run manifest + pre-registered acceptance criteria. Key provenance: fold-cap bug fix `ede201a`
+(`--target-subjects all`/factorial FOLDS were hardcoded to 9 -> non-9-subject datasets dumped only 9 LOSO
+folds; now read from the real MOABB subject_list; existing 9-fold dumps verified full-source-pool),
+degenerate-metric guard `10c22e9`, group/array `%4` submission `99b767d`. Datasets = 2b, Lee2019 (54),
+Cho2017 (52), High-Gamma (14); Stieger2021 excluded (variable channels). Multi-dataset numbers do NOT
+enter the paper claim contract until the CONFIRM/MIXED/OVERTURN readout is in.
+
+**Verification rule for any new claim:** add a block here with `status`, runnable `script`, `dataset`,
+`seeds`, `outputs` (committed or regenerable), and `figure`; only then may it enter the paper. Mirrors the
+project's hard-won provenance discipline (see top-level `notes/EVIDENCE_LEDGER.md`, `CLOSEOUT.md`).

@@ -17,10 +17,11 @@ _CONV = {"EEGNet": EEGNetv4, "ShallowConvNet": ShallowFBCSPNet, "Deep4Net": Deep
 
 
 class HookedBackbone(nn.Module):
-    def __init__(self, name, n_chans, n_times, n_classes):
+    def __init__(self, name, n_chans, n_times, n_classes, **model_kw):
         super().__init__()
         self.name = name
         self._feat = None
+        self._model_kw = model_kw   # e.g. F1/D/F2 for EEGNet width sweeps (Track C)
         if name != "EEGConformer" and name not in _CONV:
             raise ValueError(f"unknown backbone {name}")
         # Build + probe z_dim. Some backbones only accept certain n_times (verified:
@@ -37,6 +38,7 @@ class HookedBackbone(nn.Module):
                 kw = dict(n_chans=n_chans, n_outputs=n_classes, n_times=n_times)
                 if name in ("ShallowConvNet", "Deep4Net"):
                     kw["final_conv_length"] = "auto"  # pool time -> (B, n_classes) for any n_times
+                kw.update(self._model_kw)             # F1/D/F2 width overrides (Track C)
                 self.model = _CONV[name](**kw)
                 self.model.final_layer.register_forward_pre_hook(self._capture)
                 self._mode = "conv"
@@ -74,7 +76,7 @@ class TSMNetBackbone(nn.Module):
     (NOT the SPDDSMBN/UDA variant, which would use target data). Z = LogEig tangent latent.
     NOTE: its BiMap weights live on the Stiefel manifold -> needs a Riemannian optimizer
     (the trainer switches to geoopt RiemannianAdam when manifold params are present)."""
-    def __init__(self, n_chans, n_times, n_classes, device="cpu", temporal_filters=4):
+    def __init__(self, n_chans, n_times, n_classes, device="cpu", temporal_filters=4, subspacedims=None):
         super().__init__()
         import sys
         repo = Path(__file__).resolve().parents[2] / "repos" / "TSMNet"
@@ -82,8 +84,9 @@ class TSMNetBackbone(nn.Module):
             sys.path.insert(0, str(repo))
         from spdnets.models import TSMNet
         dev = torch.device(device)
+        _sd = {} if subspacedims is None else {"subspacedims": int(subspacedims)}  # SPD dim m -> tangent m(m+1)/2
         self.model = TSMNet(temporal_filters=temporal_filters, nclasses=n_classes,
-                            nchannels=n_chans, nsamples=n_times, bnorm="spdbn", device=dev)
+                            nchannels=n_chans, nsamples=n_times, bnorm="spdbn", device=dev, **_sd)
         # The repo hardcodes the SPD layers to CPU (line 23). Override so they run on `device`;
         # all SPD modules use self.spd_device_ for both creation and the per-forward cast, and
         # .to(dev) moves the already-created CPU SPD params to the GPU. (torch 2.8 supports CUDA
@@ -117,13 +120,16 @@ class MLPBackbone(nn.Module):
         return self.task_head(z), z
 
 
-def build_backbone(name, n_chans, n_times, n_classes, device="cpu", **_):
+def build_backbone(name, n_chans, n_times, n_classes, device="cpu", **bb_kw):
+    # bb_kw: optional capacity overrides -- subspacedims (TSMNet SPD dim) / F1,D,F2 (EEGNet width). Track C.
     if name == "LogCov":
         return MLPBackbone(n_chans, n_times, n_classes).to(device)
     if name == "TSMNet":
-        return TSMNetBackbone(n_chans, n_times, n_classes, device=device).to(device)
+        return TSMNetBackbone(n_chans, n_times, n_classes, device=device,
+                              subspacedims=bb_kw.get("subspacedims")).to(device)
     if name in ("GraphCMI", "DGCNN", "RGNN"):
         from cmi.models import gnn
         cls = {"GraphCMI": gnn.GraphCMINet, "DGCNN": gnn.DGCNNBackbone, "RGNN": gnn.RGNNBackbone}[name]
         return cls(n_chans, n_times, n_classes).to(device)
-    return HookedBackbone(name, n_chans, n_times, n_classes).to(device)
+    model_kw = {k: v for k, v in bb_kw.items() if k in ("F1", "D", "F2")}
+    return HookedBackbone(name, n_chans, n_times, n_classes, **model_kw).to(device)

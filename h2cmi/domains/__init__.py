@@ -12,6 +12,8 @@ is computed against this DAG (see ``h2cmi.cmi.hierarchical``).
 """
 from __future__ import annotations
 
-from h2cmi.domains.dag import DomainFactor, DomainDAG, DomainLabels, HANDLING
+from h2cmi.domains.dag import (
+    DomainFactor, DomainDAG, DomainLabels, HANDLING, compact_domain_labels,
+)
 
-__all__ = ["DomainFactor", "DomainDAG", "DomainLabels", "HANDLING"]
+__all__ = ["DomainFactor", "DomainDAG", "DomainLabels", "HANDLING", "compact_domain_labels"]

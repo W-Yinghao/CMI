@@ -108,6 +108,56 @@ def _xs_save(out_path, args, cohorts, results):
     return out, summary
 
 
+def _canon_hash(z, rnd=None):
+    """Hash of CANONICALIZED array CONTENT (fixed dtype=float64, C-contiguous, little-endian, fixed shape/order) —
+    NOT the .npz compressed bytes (compression metadata would cause false mismatches). Per directive."""
+    import hashlib
+    a = np.asarray(z, dtype="<f8")                       # little-endian float64
+    if rnd is not None:
+        a = np.round(a, rnd)
+    return hashlib.sha256(np.ascontiguousarray(a).tobytes()).hexdigest()
+
+
+def _dump_audit_fold(out_dir, cond, hold, lbl, bb, X, y, subj, coh, te_mask, pi, ei, prob, device,
+                     provenance):
+    """ADD-ONLY P1.5 redump instrumentation: emit per-branch embeddings + predictions + GLOBALLY-NAMESPACED
+    metadata + canonical hashes for one (cohort, config) fold. New directory; atomic; never overwrites. Runs
+    AFTER the prediction path (does not touch prob/RNG/model/batch order — verified by the A/B no-op test)."""
+    from cmi.train.trainer import embed as _emb
+    subj, coh = np.asarray(subj), np.asarray(coh)
+    tr_g = np.where(~te_mask)[0]; te_g = np.where(te_mask)[0]
+    se_g, ev_g = tr_g[pi], tr_g[ei]
+    embs = {"se": (_emb(bb, X[~te_mask][pi], device), se_g), "ev": (_emb(bb, X[~te_mask][ei], device), ev_g),
+            "te": (_emb(bb, X[te_mask], device), te_g)}
+    payload = dict(prob_te=np.asarray(prob, "<f8"),
+                   y_se=y[~te_mask][pi], y_ev=y[~te_mask][ei], y_te=y[te_mask],
+                   pred_hash_te=_canon_hash(prob, rnd=6),
+                   branch=("CITA-no-LPC" if lbl.startswith("erm") else "CITA+LPC"),
+                   selected_config_id=lbl, **provenance)
+    for split, (z, gidx) in embs.items():
+        role = "target" if split == "te" else "source"
+        payload[f"z_{split}"] = np.asarray(z, "<f8")
+        payload[f"feat_hash_{split}"] = _canon_hash(z)
+        payload[f"window_index_{split}"] = gidx.astype(np.int64)
+        payload[f"subject_id_{split}"] = np.array([str(subj[g]) for g in gidx])
+        payload[f"cohort_id_{split}"] = np.array([str(coh[g]) for g in gidx])
+        payload[f"recording_id_{split}"] = np.array([str(subj[g]) for g in gidx])
+        payload[f"group_id_{split}"] = np.array([f"{coh[g]}::{subj[g]}" for g in gidx])    # cohort::subject
+        payload[f"sample_id_{split}"] = np.array([f"{coh[g]}::{subj[g]}::{subj[g]}::{int(g)}" for g in gidx])
+        payload[f"domain_role_{split}"] = np.array([role] * len(gidx))
+    os.makedirs(out_dir, exist_ok=True)
+    fn = f"{out_dir}/audit_{cond}_{hold}_{lbl.replace(':', '_')}.npz"
+    if os.path.exists(fn):
+        raise FileExistsError(f"refusing to overwrite {fn}")
+    tmp = fn + ".tmp.npz"
+    try:
+        np.savez(tmp, **payload); os.replace(tmp, fn)    # atomic publish
+    except BaseException:
+        if os.path.exists(tmp):
+            os.remove(tmp)                               # atomic cleanup; no partial artifact
+        raise
+
+
 def _seed_all(seed):
     """P2.2: seed py/np/torch/cuda BEFORE build_backbone so every method/fold builds from the SAME init
     (paired comparison; independent of config run order)."""
@@ -136,6 +186,11 @@ def _train_on(args, X, y, dom_all, mask, cfg, n_cls, device):
 
 
 def run(args):
+    if getattr(args, "deterministic", False):              # reproducible LPC training (set BEFORE CUDA init)
+        os.environ["CUBLAS_WORKSPACE_CONFIG"] = ":4096:8"
+        torch.use_deterministic_algorithms(True, warn_only=True)
+        torch.backends.cudnn.deterministic = True
+        torch.backends.cudnn.benchmark = False
     if args.device == "cuda" and not torch.cuda.is_available():
         raise RuntimeError("--device cuda requested, but CUDA is not available")
     device = ("cuda" if torch.cuda.is_available() else "cpu") if args.device == "auto" else args.device
@@ -145,6 +200,21 @@ def run(args):
     print(f"[{args.condition}] X={X.shape} classes={classes} cohorts={cohorts} "
           f"y={np.bincount(y)} domain={args.domain}", flush=True)
     configs = [parse_cfg(c) for c in args.configs]
+    _audit_provenance = None
+    if args.dump_audit:                                   # RUNTIME provenance self-recorded at process start, so the
+        import subprocess as _sp, hashlib as _hh        # binder can verify code IMMUTABILITY per shard (a switched
+        def _g(*a): return _sp.run(["git", *a], capture_output=True, text=True).stdout.strip()  # working tree is detectable)
+        _instr = _g("rev-parse", "--short", "HEAD") or "nogit"
+        _runner = os.path.join(os.path.dirname(__file__), "run_scps_crossdataset.py")
+        _runner_sha = _hh.sha256(open(_runner, "rb").read()).hexdigest()    # ACTUAL runner-file content hash
+        _env_sha = _hh.sha256((__import__("sys").version + torch.__version__ + np.__version__).encode()).hexdigest()[:16]
+        _fz = json.load(open("results/freeze_a1/manifest.json")) if os.path.exists("results/freeze_a1/manifest.json") else {}
+        _audit_provenance = dict(scientific_code_commit=_fz.get("code_commit", "unknown"),
+                                 instrumentation_commit=_instr, freeze_a1_hash=_fz.get("hash", "unknown"),
+                                 deterministic=bool(getattr(args, "deterministic", False)),
+                                 head_commit=_g("rev-parse", "HEAD") or "nogit",
+                                 tree_dirty=bool(_g("status", "--porcelain", "-uno")),   # uncommitted TRACKED changes (untracked outputs don't count)
+                                 runner_file_sha=_runner_sha, env_sha=_env_sha)
     results = {lbl: [] for lbl, *_ in configs}
     if args.select == "nested":
         results["CITA_nested"] = []                       # fixed selector picks lambda* per fold (no oracle)
@@ -193,8 +263,16 @@ def run(args):
                     fit = (coh != hold) & (coh != dv); ev = (coh == dv)
                     for cfg in configs:
                         bbv = _train_on(args, X, y, dom_all, fit, cfg, n_cls, device)
-                        acc[cfg[0]].append(float(balanced_accuracy_score(y[ev],
-                                                                         predict(bbv, X[ev], device).argmax(1))))
+                        if args.select_pipeline == "full":  # validate the DEPLOYED pipeline: align dv as a pseudo-target
+                            from cmi.train.trainer import embed as _emb
+                            from cmi.eval.label_shift import transduct_predict as _tp
+                            pis = np.bincount(y[fit], minlength=n_cls).astype(float); pis /= pis.sum()
+                            ap = _tp(_emb(bbv, X[fit], device), y[fit], _emb(bbv, X[ev], device), pis, n_cls,
+                                     mode="matched_coral")["prob"]
+                            acc[cfg[0]].append(float(balanced_accuracy_score(y[ev], ap.argmax(1))))
+                        else:                               # encoder-only (native) inner validation
+                            acc[cfg[0]].append(float(balanced_accuracy_score(y[ev],
+                                                                             predict(bbv, X[ev], device).argmax(1))))
                 inner_val = {lbl: float(np.mean(v)) for lbl, v in acc.items()}
                 print(f"  [nested hold={hold}] inner LOSDO val bAcc: " +
                       " ".join(f"{l}={inner_val[l]*100:.1f}" for l in inner_val), flush=True)
@@ -216,6 +294,10 @@ def run(args):
                                       n_inner=args.n_inner, sampler=args.sampler, prior_mode=args.prior,
                                       device=device, seed=args.seed)
             prob = predict(bb, Xte, device)
+            # run-path equivalence (per directive §3): hash the per-config probabilities in CANONICAL sample order
+            # (Xte order is fixed per fold). Two runs with the same config must match this hash, not just bAcc.
+            import hashlib as _hl
+            pred_hash = _hl.sha256(np.ascontiguousarray(np.round(prob, 6), dtype=np.float64).tobytes()).hexdigest()[:16]
             ba = balanced_accuracy_score(yte, prob.argmax(1))
             sv_bacc = float(balanced_accuracy_score(ytr[ei], predict(bb, Xtr[ei], device).argmax(1)))  # source-only val (for selector)
             if args.dump_features:                        # dump REAL features for the semi-synthetic concept-shift study (a)
@@ -225,6 +307,9 @@ def run(args):
                          z_se=_emb(bb, Xtr[pi], device), y_se=ytr[pi],
                          z_ev=_emb(bb, Xtr[ei], device), y_ev=ytr[ei],
                          z_te=_emb(bb, Xte, device), y_te=yte)
+            if args.dump_audit:                           # ADD-ONLY P1.5 instrumentation (separate commit; new dir)
+                _dump_audit_fold(args.dump_audit, args.condition, hold, lbl, bb, X, y, subj, coh, te, pi, ei,
+                                 prob, device, _audit_provenance)
             ts = {}
             if args.transduct != "off":               # CIPC cohort-level transductive correction (target=held-out cohort)
                 from cmi.train.trainer import embed
@@ -304,7 +389,7 @@ def run(args):
                        inloop_dec_loss=diag.get("inloop_dec_loss", 0.0),
                        train_dec_margin=diag.get("dec_margin", resolve_dec_margin(method, args.dec_margin)),
                        train_sampler=diag.get("sampler", args.sampler), n_test=int(te.sum()),
-                       source_val_bacc=sv_bacc, nested_val_bacc=inner_val.get(lbl), **mc, **ts)
+                       source_val_bacc=sv_bacc, nested_val_bacc=inner_val.get(lbl), pred_hash=pred_hash, **mc, **ts)
             for src, prefix, key in ((dlk, "decoder_cmi_res", "decoder_cmi_res"),
                                      (dlk_rw, "decoder_cmi_res_rw", "decoder_cmi_res"),
                                      (dlk, "decoder_js_res", "decoder_js_res"),
@@ -373,8 +458,15 @@ def main():
                     help="probe train/eval split: random (window) | grouped (by subject/recording; honest leakage)")
     ap.add_argument("--leakage_multicap", action="store_true",
                     help="P2.5: also fit linear/mlp/strong probes -> max detectable leakage (anti-underfit)")
+    ap.add_argument("--select_pipeline", default="encoder", choices=["encoder", "full"],
+                    help="nested inner validation on encoder-only bAcc, or the FULL deployed pipeline (align pseudo-target)")
+    ap.add_argument("--deterministic", action="store_true",
+                    help="reproducible training (use_deterministic_algorithms + cudnn.deterministic) — fixes LPC nondeterminism")
     ap.add_argument("--dump_features", default=None,
                     help="dir to dump per-fold {z_se,y_se,z_ev,y_ev,z_te,y_te}.npz (for the concept-shift study)")
+    ap.add_argument("--dump_audit", default=None,
+                    help="ADD-ONLY P1.5 instrumentation: dir for enriched per-branch dumps (embeddings + predictions"
+                         " + namespaced metadata + canonical hashes + provenance). New dir; atomic; never overwrites.")
     ap.add_argument("--target_prior", type=float, default=-1.0,
                     help="stress test: subsample held-out cohort (binary) to this majority-class fraction")
     ap.add_argument("--dec_margin", type=float, default=None,

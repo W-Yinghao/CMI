@@ -132,20 +132,17 @@ class HierarchicalCMI(nn.Module):
         return loss
 
     # -- Step B: signed per-factor CMI estimate (grad to z) ----------------------
-    def estimate(self, z, y, lev, pk, grl: bool | None = None):
-        """Return (total_penalty_input, dict name->I_hat_j tensor).
+    def estimate(self, z, y, lev, pk):
+        """Return dict name -> I_hat_j tensor, with I_hat_j = H_ref_j - CE_j(z).
 
-        I_hat_j = H_ref_j - CE_j(z).  Critic params are frozen here (Step B steps only
-        the encoder optimiser); optionally route z through a GRL so a single backward on
-        +CE_j gives the encoder the adversarial (leakage-reducing) gradient.
+        Critics must be FROZEN by the caller (requires_grad False) so this backprops only
+        to the encoder; minimising +lambda_j*I_hat_j then maximises CE_j (reduces leakage)
+        -- the envelope-theorem profile gradient. No GRL (it would double-flip the sign).
         """
         terms = {}
         for f in self.factors:
-            zf = grad_reverse(z, 1.0) if (grl if grl is not None else self.cfg.grl) else z
-            ce = F.cross_entropy(self.critics[f](zf, y, pk[f].to(z.device)),
+            ce = F.cross_entropy(self.critics[f](z, y, pk[f].to(z.device)),
                                  lev[f].to(z.device))
-            # with GRL the forward value is still H_ref - CE; the reversed grad makes the
-            # encoder MAXIMISE CE when this term is MINIMISED in the loss.
             terms[f] = self.href(f) - ce
         return terms
 

@@ -1,0 +1,39 @@
+{
+  "status": "P1.5_CLOSED",
+  "question": "Is CITA+LPC leakage reduction genuine suppression or representation collapse?",
+  "answer": "Leakage suppression is GENUINE (robust across probe families, saturated, feat_var not zeroed) but ENTANGLED with representation collapse beyond pre-registered tolerance at EVERY frozen LPC strength.",
+  "verdicts": {
+    "fixed_lambda03": {
+      "decision": "DROP_LPC_COLLAPSE",
+      "task_loss_pp": 4.5,
+      "eff_rank_drop": 0.189,
+      "scatter_drop": 0.132,
+      "artifact": "results/p15_audit/4c7f495d8e48b930",
+      "scope": "covers SCZ deployment only"
+    },
+    "deployment_mixture": {
+      "decision": "DROP_LPC_COLLAPSE",
+      "selection": {
+        "PD": "lpc_prior:0.1",
+        "SCZ": "lpc_prior:0.3"
+      },
+      "task_loss_pp": 3.813,
+      "eff_rank_drop": 0.1731,
+      "scatter_drop": 0.1518,
+      "leak_erm": 0.708,
+      "leak_lpc": 0.548,
+      "artifact": "results/p15_audit_deployment/4c7f495d8e48b930",
+      "scope": "THE actual deployed branch (authoritative)"
+    },
+    "fixed_lambda01_doseresponse": {
+      "decision": "DROP_LPC_COLLAPSE",
+      "eff_rank_drop": 0.1794,
+      "role": "informational, not deployment verdict"
+    }
+  },
+  "decision": "Deployment system adopts CITA-no-LPC (erm:0 encoder + matched-CORAL + CMI domain-density gate). LPC is retained ONLY as a genuine-but-costly information-compression / diagnostic-leakage result, NOT a deployment mechanism.",
+  "freeze_a2_needed": false,
+  "freeze_a2_note": "fixed-0.1 does NOT pass either, so there is no 0.1-only branch to promote; LPC is not the core contribution.",
+  "next_phase": "gate falsification (CMI domain-density gate as deployable harm-controller) \u2014 was gated behind P1.5, now eligible.",
+  "closure_hash": "f00efbaddf38beb4"
+}

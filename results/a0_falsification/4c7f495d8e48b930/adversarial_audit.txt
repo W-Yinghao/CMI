@@ -1,0 +1,17 @@
+=== ADVERSARIAL AUDIT of A0 DIAGNOSTIC_ONLY ===
+
+--- highmargin_cbw: harm-flip AUROC on base-correct subset (n=15665, harm-rate=0.453) ---
+  [pre ] g_unc=0.66(sr0.42/0.45)  s_support=0.34(sr0.54/0.45)  s_sep=0.63(sr0.45/0.45)  cmi=0.33(sr0.54/0.45)
+  [post] g_unc=0.69(sr0.43/0.45)  s_support=0.27(sr0.55/0.45)  s_sep=0.73(sr0.41/0.45)  cmi=0.32(sr0.51/0.45)
+  [combo] 4-feature LOCO logistic harm-flip AUROC = 0.64
+
+--- all-contest: harm-flip AUROC on base-correct subset (n=24230, harm-rate=0.382) ---
+  [pre ] g_unc=0.64(sr0.35/0.38)  s_support=0.42(sr0.42/0.38)  s_sep=0.59(sr0.37/0.38)  cmi=0.39(sr0.43/0.38)
+  [post] g_unc=0.72(sr0.34/0.38)  s_support=0.27(sr0.45/0.38)  s_sep=0.75(sr0.33/0.38)  cmi=0.31(sr0.42/0.38)
+  [combo] 4-feature LOCO logistic harm-flip AUROC = 0.61
+
+--- within-disease pooled Spearman(score, dloss) on highmargin_cbw (power check) ---
+  PD (n=12464): g_unc=+0.30  s_support=-0.34  s_sep=+0.29  cmi=-0.28
+  SCZ (n=16384): g_unc=+0.24  s_support=-0.25  s_sep=+0.25  cmi=-0.24
+
+VERDICT: A0 DIAGNOSTIC_ONLY is ROBUST iff every AUROC ~0.5 and selective-risk does not beat overall.

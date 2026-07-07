@@ -1,0 +1,68 @@
+\section{Synthetic certification --- why the safeguards are necessary}
+
+\subsection{Opening}
+Before applying TOS-CMI to EEG, we construct synthetic controls in which the true leakage and task
+information are known (Gaussian-mixture generators with a computable Bayes oracle). These controls are not
+designed to maximize benchmark accuracy; they are designed to test whether each safety layer prevents a
+specific failure mode --- first-moment blindness, geometry-only deletion, weak conditional task gates, and
+underpowered certification. The main outcome of this line is not default deletion, but \textbf{calibrated refusal
+when deletion cannot be certified}.
+
+\subsection{Why geometry alone is not enough}
+A selective-invariance method that only deletes ``domain-rich'' directions implicitly assumes (i) that those
+directions can be \emph{found}, and (ii) that removing them is \emph{safe} for the task. Neither is automatic: a
+direction can be domain-rich yet still carry conditional task information, and a deletion that is exactly
+task-preserving \emph{in the geometry} ($R T = T$) can still raise conditional task risk. We therefore treat
+localization and deletion as steps that must be \textbf{measured and certified}, and use the synthetic suite to
+show that each unguarded step has a concrete failure mode.
+
+\subsection{Score-Fisher detects leakage missed by first-moment scatter}
+The candidate subspace is read from the conditional score-Fisher operator (\S2.2), which is second-order in
+the log-likelihood scores. By construction it responds to covariance- and synergy-structured leakage, where
+a first-moment (mean-scatter) statistic is identically blind: on a covariance-only generator the
+mean-scatter direction is a no-op while the score-Fisher direction recovers the leakage subspace \claimtag{C1}. This
+is why localization uses the score-Fisher operator rather than class-mean differences.
+
+\subsection{Direct-sum deletion can still be conditionally unsafe}
+On a synergy (``explaining-away'') generator, the domain-rich subspace is task-light by first- and
+second-moment geometry, so a direct-sum projector deletes it without any \emph{apparent} task cost --- yet the
+Bayes oracle shows the deletion removes real conditional task information ($\Delta_Y > 0$). Geometry alone would
+accept this deletion. This is the concrete sense in which \textbf{direct-sum geometry is necessary but not
+sufficient for conditional task safety} \claimtag{C2}, and it motivates an explicit conditional task-risk gate.
+
+\subsection{Weak task gates unsafe-accept; log-ratio gates reduce the failure}
+A naive task gate --- a small nested critic estimating the conditional task risk --- \emph{unsafe-accepts} such
+deletions: its probe task-risk upper bound sits far below the true Bayes gap, so the deletion passes (Fig.~\ref{fig:synth}B). Replacing it with a cross-fitted one-step plug-in log-ratio estimator shrinks the gap between the
+estimated bound and the oracle, and the gap continues to close with calibration sample size (Fig.~\ref{fig:synth}C); the
+unsafe-accept occurs only in the small-sample, weak-critic regime \claimtag{C3}. The estimator is the bottleneck ---
+not the geometry --- so the gate must use a calibrated estimator, not a convenience critic.
+
+\subsection{Power certification turns unsafe deletion into refusal}
+Even a calibrated estimator can be \emph{underpowered}: at a given sample size it may be unable to distinguish a
+safe deletion from an unsafe one. We therefore attach a power certificate (a minimum-detectable-effect
+floor) and require both task safety (an upper bound on $\Delta_Y$) and a domain-gain lower bound before deleting.
+With this in place the certified gate produces \textbf{zero unsafe-accepts} across the synthetic phase diagram,
+but is deliberately conservative --- it abstains or rejects in most cells (Fig.~\ref{fig:synth}D). Abstention is the intended
+behavior when deletion cannot be certified, and is reported as such (not as a missing result).
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig2_synthetic_cert.pdf}
+\caption{\textbf{Synthetic certification: geometry alone is not safety.} Gaussian-mixture controls with a
+known Bayes oracle. (A) Certification frontier: the gate fires on real leakage (oracle detection
+$\approx$1 at the boundary) while the plug-in estimator is conservative, and neither fires under the
+no-leakage null. (B) A weak nested critic \emph{unsafe-accepts} a conditionally-unsafe deletion --- its probe
+task-risk upper bound sits far below the true Bayes gap (the accepted point, in red). (C) The estimator gap
+(Bayes $-$ probe UCB) shrinks with calibration sample size; the unsafe-accept occurs only at the smallest
+$n$. (D) With the cross-fitted plug-in estimator and a power floor, the certified gate produces \emph{zero}
+unsafe-accepts but is conservative (it abstains or rejects), i.e.\ it defaults to refusal rather than weak
+invariance.}
+\label{fig:synth}
+\end{figure}
+
+\subsection{Takeaway}
+\emph{The synthetic suite does not show that selective deletion should be enabled by default; it shows why a
+selective-invariance method needs explicit measurement, conditional task-risk testing, and abstention.}
+
+This is the discipline we carry into the EEG study (\S4): localize, test conditional task risk, and refuse
+when a safe, useful deletion cannot be certified.

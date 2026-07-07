@@ -1,0 +1,296 @@
+"""Controllable feature-space generators with a known (Z_Y, Z_N) structure.
+
+These are the minimal worlds in which the idealized proposition is exactly testable.
+
+`make(overlap)` plants a label signal in a subspace L and a class-conditional domain
+signal whose carrier is rotated by `overlap` from a task-orthogonal subspace N toward
+the *class-discriminant* subspace M = span(centered class means) inside L:
+
+  overlap = 0 : domain carriers live in N, orthogonal to the label signal.
+                => a task-orthogonal nuisance subspace exists; removing it preserves the
+                   Bayes risk (Prop. 1) and the leakage is concentrated there.
+  overlap -> 1: domain carriers move into the class-discriminant directions, so deleting
+                them would cost label information; the deletable subspace shrinks.
+
+`make_collinear()` is the deterministic worst case: the domain shift is exactly along the
+single class-discriminant axis, so the ONLY domain-rich direction is also the most
+label-rich one. No risk-feasible nuisance subspace exists and the selector must return
+identity. This is the clean falsification of "always delete" (global LPC).
+
+A random global rotation makes the planted structure non-axis-aligned, so recovering it
+is a subspace problem. Ground-truth `nuisance_basis` / `label_basis` are returned for
+principal-angle scoring.
+"""
+from __future__ import annotations
+import math
+from dataclasses import dataclass
+from types import SimpleNamespace
+
+import numpy as np
+
+
+@dataclass
+class SynthSpec:
+    n: int = 4000
+    d: int = 24              # ambient feature dim
+    n_cls: int = 4
+    n_dom: int = 6
+    d_label: int = 4         # dims spanning the label signal
+    d_nuis: int = 4          # dims spanning the task-orthogonal domain signal
+    sep_label: float = 2.0   # class-mean magnitude
+    sep_dom: float = 2.5     # domain-mean magnitude (within class)
+    noise: float = 1.0
+    overlap: float = 0.0     # 0 => task-orthogonal nuisance; 1 => domain along discriminant
+    rotate: bool = True      # random global rotation (non-axis-aligned)
+
+
+def _random_orthonormal(d, k, rng):
+    A = rng.standard_normal((d, k))
+    Q, _ = np.linalg.qr(A)
+    return Q[:, :k]
+
+
+def _centered_unit(M):
+    """Center rows and scale to unit average row RMS, so cos/sin interpolation between two
+    carrier sets is a fair (magnitude-preserving) rotation."""
+    Mc = M - M.mean(0, keepdims=True)
+    rms = math.sqrt((Mc ** 2).sum(1).mean()) + 1e-8
+    return Mc / rms
+
+
+def _basis_of(M, tol=1e-8):
+    U, sv, _ = np.linalg.svd(M.T, full_matrices=False)
+    return U[:, : int((sv > tol).sum())]
+
+
+def make(spec: SynthSpec, seed: int = 0, struct_seed: int | None = None):
+    """`struct_seed` fixes the planted geometry (axes, class/domain means, rotation); `seed`
+    draws the finite sample (labels, domains, noise). Fix `struct_seed` and vary `seed` to
+    measure *estimator* stability across draws of the SAME distribution (the termination
+    gate); leave it None and the two coincide (each seed is a fresh world)."""
+    s = spec
+    gen = np.random.default_rng(struct_seed if struct_seed is not None else seed)  # geometry
+    smp = np.random.default_rng(seed)                                              # samples
+
+    base = _random_orthonormal(s.d, s.d_label + s.d_nuis, gen)
+    L = base[:, : s.d_label]                       # label axes      [d, d_label]
+    N = base[:, s.d_label : s.d_label + s.d_nuis]  # nuisance axes    [d, d_nuis]
+
+    # class means in label span; M = their centered span (the discriminant subspace)
+    cls_coords = gen.standard_normal((s.n_cls, s.d_label))
+    class_means = s.sep_label * (cls_coords @ L.T)            # [n_cls, d]
+    CM = class_means - class_means.mean(0, keepdims=True)     # centered, spans M
+
+    # domain carriers: orthogonal part in N, entangled part along the discriminant M
+    theta = s.overlap * (math.pi / 2.0)
+    dom_n = _centered_unit(gen.standard_normal((s.n_dom, s.d_nuis)) @ N.T)        # in N
+    dom_m = _centered_unit(gen.standard_normal((s.n_dom, s.n_cls)) @ CM)          # in M
+    carriers = s.sep_dom * (math.cos(theta) * dom_n + math.sin(theta) * dom_m)    # [n_dom, d]
+    domain_means = carriers
+    Q = _random_orthonormal(s.d, s.d, gen) if s.rotate else None
+
+    y = smp.integers(0, s.n_cls, size=s.n)
+    d = smp.integers(0, s.n_dom, size=s.n)
+    Z = class_means[y] + domain_means[d] + s.noise * smp.standard_normal((s.n, s.d))
+
+    nuis_basis = _basis_of(carriers - carriers.mean(0, keepdims=True))
+    label_basis = _basis_of(CM)
+
+    if s.rotate:
+        Z = Z @ Q.T
+        nuis_basis = Q @ nuis_basis
+        label_basis = Q @ label_basis
+
+    return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": d.astype(np.int64),
+            "nuisance_basis": nuis_basis.astype(np.float32),
+            "label_basis": label_basis.astype(np.float32), "spec": s}
+
+
+def make_collinear(n=4000, n_dom=6, d=24, sep_label=2.0, sep_dom=2.5, noise=1.0,
+                   rotate=True, seed=0):
+    """Deterministic worst case: 2 classes separated along axis u, and the domain shift is
+    ALSO along u. The only domain-rich direction is the most label-rich one => no
+    risk-feasible nuisance subspace => the selector must return identity."""
+    rng = np.random.default_rng(seed)
+    u = _random_orthonormal(d, 1, rng)[:, 0]                  # unit class-discriminant axis
+    y = rng.integers(0, 2, size=n)
+    d_lab = rng.integers(0, n_dom, size=n)
+    sign = (2 * y - 1).astype(float)                          # +-1 class offset along u
+    t = np.linspace(-1.0, 1.0, n_dom)                         # per-domain offset along u
+    Z = (sep_label * sign[:, None] * u[None, :]
+         + sep_dom * t[d_lab][:, None] * u[None, :]
+         + noise * rng.standard_normal((n, d)))
+    nuis_basis = u[:, None].copy()
+    if rotate:
+        Q = _random_orthonormal(d, d, rng)
+        Z = Z @ Q.T
+        nuis_basis = Q @ nuis_basis
+
+    spec = SimpleNamespace(n_cls=2, n_dom=n_dom, d=d)
+    return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": d_lab.astype(np.int64),
+            "nuisance_basis": nuis_basis.astype(np.float32),
+            "label_basis": nuis_basis.astype(np.float32), "spec": spec}
+
+
+def make_covariance_only(n=6000, n_dom=6, d=24, sep_label=2.0, dom_var=2.0, noise=1.0,
+                         rotate=True, seed=0):
+    """Honest limitation case: the label is a MEAN shift (along u) but the domain leakage is
+    a *covariance* shift -- each domain scales the variance along a fixed axis w (orthogonal
+    to u), with ZERO domain mean. The between-domain MEAN scatter F_{D|Y} ~ 0, so the
+    first-moment selector is BLIND to it and (correctly, given what it measures) returns
+    identity -- even though D is decodable from Z|Y by a quadratic/covariance probe. This is
+    why the current method is `label-mean-scatter-light`, NOT `task/domain-orthogonal`."""
+    rng = np.random.default_rng(seed)
+    basis = _random_orthonormal(d, 2, rng)
+    u, w = basis[:, 0], basis[:, 1]                           # label-mean axis / domain-var axis
+    y = rng.integers(0, 2, size=n)
+    d_lab = rng.integers(0, n_dom, size=n)
+    sign = (2 * y - 1).astype(float)
+    std_w = np.linspace(0.4, dom_var, n_dom)                  # per-domain std along w (mean 0)
+    base = noise * rng.standard_normal((n, d))
+    base = base - (base @ w)[:, None] * w[None, :]            # strip the isotropic w-component
+    w_comp = (std_w[d_lab] * rng.standard_normal(n))[:, None] * w[None, :]   # domain-specific variance
+    Z = sep_label * sign[:, None] * u[None, :] + base + w_comp
+    nuis_basis = w[:, None].copy()                           # TRUE covariance carrier (invisible to means)
+    label_basis = u[:, None].copy()
+    if rotate:
+        Q = _random_orthonormal(d, d, rng)
+        Z = Z @ Q.T
+        nuis_basis = Q @ nuis_basis
+        label_basis = Q @ label_basis
+    spec = SimpleNamespace(n_cls=2, n_dom=n_dom, d=d)
+    return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": d_lab.astype(np.int64),
+            "nuisance_basis": nuis_basis.astype(np.float32),
+            "label_basis": label_basis.astype(np.float32), "spec": spec}
+
+
+def make_xor_leakage(n=6000, d=24, sep_label=2.0, scale=1.5, noise=1.0, rotate=True, seed=0):
+    """Nonlinear (XOR) domain leakage: domain = sign(a·b) for two latent coords a,b along
+    w1,w2; the label is a mean shift along u. Mean scatter sees no domain-mean shift (a,b are
+    symmetric) -> blind; an MLP critic decodes the XOR -> score-Fisher can find the (w1,w2)
+    plane. 2 classes, 2 domains."""
+    rng = np.random.default_rng(seed)
+    B = _random_orthonormal(d, 3, rng)
+    u, w1, w2 = B[:, 0], B[:, 1], B[:, 2]
+    y = rng.integers(0, 2, size=n)
+    a = rng.standard_normal(n); b = rng.standard_normal(n)
+    dom = (a * b < 0).astype(np.int64)                       # XOR of the two sign bits
+    Z = (sep_label * (2 * y - 1)[:, None] * u[None, :]
+         + scale * (a[:, None] * w1[None, :] + b[:, None] * w2[None, :])
+         + noise * rng.standard_normal((n, d)))
+    nuis_basis = np.stack([w1, w2], 1)
+    label_basis = u[:, None].copy()
+    if rotate:
+        Q = _random_orthonormal(d, d, rng)
+        Z = Z @ Q.T; nuis_basis = Q @ nuis_basis; label_basis = Q @ label_basis
+    spec = SimpleNamespace(n_cls=2, n_dom=2, d=d)
+    return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": dom,
+            "nuisance_basis": nuis_basis.astype(np.float32),
+            "label_basis": label_basis.astype(np.float32), "spec": spec}
+
+
+def make_partial_synergy(n=6000, d=24, n_dom=6, sep_label=2.0, sep_safe=2.6, sep_over=1.2,
+                         noise=1.0, rotate=True, seed=0):
+    """SYNERGY partial case (3 classes): a 4-D domain carrier = 2 safe-axis dirs (w1,w2 ⟂ label)
+    + 2 overlap dirs (t1,t2, the discriminant axes), BOTH driven by the SAME domain index dd.
+    So w1,w2 are geometrically task-orthogonal AND marginally I(Y;W)=0, but given the
+    domain-contaminated Z_T, knowing W reveals D -> reveals the t-contamination -> helps separate
+    Y: I(Y; W | Z_T) > 0 (explaining-away). The IDEAL k is NOT necessarily 2 -- it is set by the
+    Bayes Delta_Y* (eval.bayes_oracle) vs delta_Y; this case shows direct-sum geometry alone does
+    NOT guarantee safety, so the source-risk gate is necessary. Returns the generative params
+    (cell means + sigma) so the Bayes oracle can compute Delta_Y* exactly."""
+    return _make_partial(n, d, n_dom, sep_label, sep_safe, sep_over, noise, rotate, seed,
+                         factorized=False)
+
+
+def make_partial_factorized(n=6000, d=24, n_safe_dom=3, n_over_dom=2, sep_label=2.0,
+                            sep_safe=2.6, sep_over=1.2, noise=1.0, rotate=True, seed=0):
+    """FACTORIZED partial case: independent domain factors D=(D_s, D_o), encoded as one index.
+    Z = mu_Y + W a_{D_s} + T b_{D_o} + eps -- the safe carrier W reveals only D_s, which is
+    INDEPENDENT of the D_o that contaminates the task axes T. So W carries NO incremental label
+    info given the kept component: I(Y; W | Z_T) = 0 (Bayes Delta_Y* ~ 0) -> a correct gate
+    stably ACCEPTS the safe span (k=2). This is the genuinely-safe counterpart of the synergy
+    case; the two together calibrate the gate against ground truth."""
+    return _make_partial(n, d, n_safe_dom * n_over_dom, sep_label, sep_safe, sep_over, noise,
+                         rotate, seed, factorized=True, n_safe_dom=n_safe_dom, n_over_dom=n_over_dom)
+
+
+def _make_partial(n, d, n_dom, sep_label, sep_safe, sep_over, noise, rotate, seed,
+                  factorized, n_safe_dom=None, n_over_dom=None):
+    rng = np.random.default_rng(seed)
+    B = _random_orthonormal(d, 4, rng)
+    t1, t2, w1, w2 = B[:, 0], B[:, 1], B[:, 2], B[:, 3]
+    L = np.stack([t1, t2], 1); Wsafe = np.stack([w1, w2], 1)
+    class_means = sep_label * (rng.standard_normal((3, 2)) @ L.T)        # [3, d]
+    if factorized:
+        safe_coef = rng.standard_normal((n_safe_dom, 2))                  # depends on D_s
+        over_coef = rng.standard_normal((n_over_dom, 2))                  # depends on D_o (indep)
+        off = np.zeros((n_dom, d))
+        for ds in range(n_safe_dom):
+            for do in range(n_over_dom):
+                off[ds * n_over_dom + do] = (sep_safe * (safe_coef[ds] @ Wsafe.T)
+                                             + sep_over * (over_coef[do] @ L.T))
+    else:
+        dom_safe = rng.standard_normal((n_dom, 2)); dom_over = rng.standard_normal((n_dom, 2))
+        off = sep_safe * (dom_safe @ Wsafe.T) + sep_over * (dom_over @ L.T)   # SAME dd both terms
+    y = rng.integers(0, 3, size=n); dd = rng.integers(0, n_dom, size=n)
+    Z = class_means[y] + off[dd] + noise * rng.standard_normal((n, d))
+    nuis_basis, task_overlap = Wsafe.copy(), L.copy()
+    cell_means = class_means[:, None, :] + off[None, :, :]    # [n_cls,n_dom,d] TRUE means
+    if rotate:
+        Q = _random_orthonormal(d, d, rng)
+        Z = Z @ Q.T; nuis_basis = Q @ nuis_basis; task_overlap = Q @ task_overlap
+        cell_means = cell_means @ Q.T
+    spec = SimpleNamespace(n_cls=3, n_dom=n_dom, d=d)
+    # TRUE generative params so the Bayes oracle can draw an INDEPENDENT MC set (not a same-sample
+    # empirical plug-in): z|y,d ~ N(cell_means[y,d], noise^2 I), y~Unif, d~Unif (indep of y).
+    truth = {"mu_yd": cell_means.astype(np.float64), "sigma": float(noise),
+             "py": np.full(3, 1 / 3), "pdy": np.full((3, n_dom), 1 / n_dom)}
+    return {"Z": Z.astype(np.float32), "y": y.astype(np.int64), "d": dd.astype(np.int64),
+            "nuisance_basis": nuis_basis.astype(np.float32),
+            "task_overlap_basis": task_overlap.astype(np.float32),
+            "label_basis": task_overlap.astype(np.float32), "truth": truth, "spec": spec}
+
+
+make_partial_overlap = make_partial_synergy        # back-compat alias (current tests)
+
+
+def make_saturated_danger(n=6000, d=24, n_dom=6, sep_high=8.0, sep_low=1.2, sep_dom=2.5,
+                          noise=1.0, rotate=True, seed=0):
+    """The case that PROVES the source-risk gate is necessary (task-margin saturation). 4
+    classes = 2 binary factors: factor `a` is separated along t1 with a HUGE margin (sep_high)
+    -> the task posterior on `a` is saturated -> the model-EXPECTED label Fisher along t1 is
+    SMALL, so t1 looks 'label-light' to the score heuristic; and the DOMAIN shift is ALSO
+    along t1 -> t1 is domain-rich. So `candidate_order` wrongly PROPOSES t1. But deleting t1
+    destroys the `a` factor -> the source-risk UCB must reject it (TASK_RISK_UCB) -> identity.
+    Factor `b` along t2 has a small margin (high label Fisher) so t1 is *relatively* label-light."""
+    rng = np.random.default_rng(seed)
+    B = _random_orthonormal(d, 2, rng)
+    t1, t2 = B[:, 0], B[:, 1]
+    a = rng.integers(0, 2, n); b = rng.integers(0, 2, n)
+    y = (2 * a + b).astype(np.int64)
+    dd = rng.integers(0, n_dom, n)
+    dom_off = np.linspace(-1.0, 1.0, n_dom)
+    Z = (sep_high * a[:, None] * t1[None, :] + sep_low * b[:, None] * t2[None, :]
+         + sep_dom * dom_off[dd][:, None] * t1[None, :] + noise * rng.standard_normal((n, d)))
+    danger_basis = t1[:, None].copy()                 # what the heuristic proposes; UCB must reject
+    if rotate:
+        Q = _random_orthonormal(d, d, rng)
+        Z = Z @ Q.T; danger_basis = Q @ danger_basis
+    spec = SimpleNamespace(n_cls=4, n_dom=n_dom, d=d)
+    return {"Z": Z.astype(np.float32), "y": y, "d": dd.astype(np.int64),
+            "danger_basis": danger_basis.astype(np.float32),
+            "nuisance_basis": danger_basis.astype(np.float32), "spec": spec}
+
+
+def apply_linear_transform(data, A):
+    """Return a copy with Z' = Z @ A^T (i.e. z' = A z) and the ground-truth bases mapped
+    covariantly (basis' = A @ basis). Used to test coordinate-rescaling invariance of the
+    selection: a metric-aware selector should pick A^{-1}-mapped-back the same subspace."""
+    A = np.asarray(A, dtype=np.float32)
+    out = dict(data)
+    out["Z"] = (np.asarray(data["Z"], dtype=np.float32) @ A.T).astype(np.float32)
+    for k in ("nuisance_basis", "label_basis"):
+        if k in data:
+            out[k] = (A @ np.asarray(data[k], dtype=np.float32)).astype(np.float32)
+    return out
