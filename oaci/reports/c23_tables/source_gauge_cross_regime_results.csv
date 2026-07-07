@@ -1,0 +1,11 @@
+mode,rung,pooled_auc
+in_regime,raw_pooled,0.5431489798181415
+in_regime,regime_centered,0.5433882235528942
+in_regime,source_gauge_loto,0.4684187181193169
+in_regime,target_centered_oracle,0.6337666333998669
+in_regime,within_target_ceiling,0.658600107451297
+cross_regime,raw_pooled,0.5184367203093813
+cross_regime,regime_centered,0.5185363647704591
+cross_regime,source_gauge_loto,0.4471369760479042
+cross_regime,target_centered_oracle,0.6125711077844311
+cross_regime,within_target_ceiling,0.6357535977604301

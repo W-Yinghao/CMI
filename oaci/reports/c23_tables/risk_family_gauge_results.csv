@@ -1,0 +1,6 @@
+metric,value
+is_secondary,True
+feature,R_src_mean_only
+loto_r2,-0.42700392912444673
+source_gauge_loto_auc,0.5209178864493236
+gap_closed,-0.24532850377513157

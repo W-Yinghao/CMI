@@ -1,0 +1,9 @@
+metric,value
+true_offset_std,0.154824921271365
+residual_offset_std,0.2828041043328002
+residual_over_true_std,1.826605821491215
+loto_r2,-2.3535685496126746
+insample_r2,0.9555411669927999
+loto_r2_perm_p,0.6417910447761194
+loto_r2_perm_mean,-1.8159896563729554
+loto_beats_permutation,False

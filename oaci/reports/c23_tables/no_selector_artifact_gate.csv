@@ -1,0 +1,8 @@
+check,passed
+config_hash_unchanged,True
+gauge_features_target_anonymous,True
+no_target_id_in_primary_gauge,True
+identity_leakage_audit_ran_before_taxonomy,True
+no_per_candidate_selected_checkpoint_emitted,True
+offset_model_fixed_reg_no_grid,True
+diagnostic_only_non_deployable,True
