@@ -29,13 +29,18 @@ whether it is architecture-general. 8C (scaling on PhysioNetMI) runs **only if 8
 - BNCI2015_001 optional (12 subj, 512→200 Hz); must not block 8B; if its resample path differs, disclose, do not
   compare across it.
 
-## Channel montage (BLK-2 fix — load-bearing)
-CodeBrain/CBraMod consume a **channel-embedding index per electrode**, so electrode identity+order matter. We use
-the **canonical 19-channel 10-20 set by NAME** (Fp1,Fp2,F3,F4,C3,C4,P3,P4,O1,O2,F7,F8,T7,T8,P7,P8,Fz,Cz,Pz),
-the **identical physical electrodes in every dataset**, each mapped to its **fixed pretraining channel-embedding
-index**. Recorded in `feature_dump_manifest.csv` and **asserted identical across datasets**. **Positional
-"first-N" channel selection is forbidden.** SHU-MI channel names taken from its BIDS `channels.tsv`; BNCI from MOABB
-montage; datasets missing a canonical electrode → documented drop with the map pinned (never silently reindexed).
+## Channel montage (BLK-2 fix — load-bearing; native-per-dataset)
+BLK-2 forbids arbitrary **first-N** channel selection. A *shared* canonical-19 10-20 set is **rejected** because
+BNCI2014_001 (2a) is an FC/C/CP-centric **motor** montage that overlaps the 10-20 canonical in only ~5 electrodes —
+forcing canonical-19 would drop 2a's most informative motor channels. Since we report **per-dataset only** (MAJ-7,
+no cross-dataset magnitude comparison) and the encoders are **conv-over-channel** (CBraMod's own `model_for_bciciv2a`
+uses all 22 of 2a; CodeBrain SSSM PatchEmbedding is a channel conv), the pinned choice is: **use ALL native
+channels of each dataset, in the dataset's documented native order** (SHU-MI 32, 2a 22), resampled to 200 Hz —
+**no subsetting, no first-N**. The exact ordered channel-name list per dataset is recorded in
+`feature_dump_manifest.csv` (from SHU-MI BIDS `channels.tsv` / MOABB montage) and pinned; `input_chans=range(C+1)`
+for the CodeBrain tokenizer indexes embedding slots `0..C` over that fixed order. No channel is silently
+reindexed or dropped. (Cross-dataset comparisons remain forbidden, so identical electrodes across datasets is not
+required — each dataset is audited against its own chance lines.)
 
 ## Determinism / QC (MAJ-6, STOP-1)
 Frozen inference must be **deterministic**: `eval()` + `torch.no_grad()` + **masking disabled** (`mask_ratio=0` /
