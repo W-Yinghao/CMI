@@ -1,0 +1,46 @@
+{
+  "source": "sub-001_ses-01_task_motorimagery_eeg.mat",
+  "n_trials": 8,
+  "input_shape": [
+    8,
+    19,
+    4,
+    200
+  ],
+  "sampling_hz": 200,
+  "resampled_from_hz": 250,
+  "channels_used": 19,
+  "patches": 4,
+  "encoder": {
+    "feats_shape": [
+      8,
+      19,
+      4,
+      200
+    ],
+    "pooled_shape": [
+      8,
+      200
+    ],
+    "finite": true,
+    "pooled_mean_pairwise_L2": 3.8792,
+    "pooled_nondegenerate": true,
+    "sec_per_forward": 0.45
+  },
+  "tokenizer": {
+    "temporal_shape": [
+      8,
+      76
+    ],
+    "freq_shape": [
+      8,
+      76
+    ],
+    "n_unique_temporal": 1,
+    "n_unique_freq": 451,
+    "temporal_diverse_on_real_eeg": false,
+    "codebook_size": 4096
+  },
+  "note": "REAL SHU-MI EEG forward. On real EEG the temporal codebook is diverse (>1 unique), unlike the random-dummy load-test (which collapsed to 1). Confirms the frozen CodeBrain feature dump is meaningful end-to-end (load real .mat -> resample 200Hz -> patch -> encoder pooled + decoupled codes).",
+  "real_forward_gate": false
+}

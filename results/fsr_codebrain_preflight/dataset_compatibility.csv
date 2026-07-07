@@ -1,0 +1,9 @@
+dataset,task,n_subjects,n_channels,native_hz,needs_resample_to_200,mi_task,in_datalake,scaling_suitable_ge30_mi,role_phase8,notes
+PhysioNetMI,motor_imagery,109,64,160,yes,yes,yes (/projects/EEG-foundation-model/PhysioNetMI S001-S109),YES,PRIMARY subject-scaling (MI),64ch->CodeBrain montage map needed; 160->200Hz resample; classic MI (fists/feet); best N-subject axis
+SHU-MI,motor_imagery,25,32,250,yes,yes,yes (/projects/.../SHU-MI-cbramod 25 sub),marginal (25),MI audit anchor + CodeBrain-native MI,CodeBrain has shu_dataset.py+model_for_shu.py; 2-class L/R hand; <30 so scaling only as low-N anchor
+FACED,emotion,123,32,250,yes,no,yes (/projects/.../FACED_data 123 sub),YES (non-MI),many-subject NON-MI scaling (2nd modality),CodeBrain has faced_dataset.py+model_for_faced.py; large subject axis but emotion not MI; use to test scaling generality
+BNCI2014_001,motor_imagery,9,22,250,yes,yes,yes (MOABB/MNE-bnci),no (9),FSR-alignment sanity (ties to 7A-7C),our frozen-FSR dataset; too few subj for scaling; low-N anchor + cross-check vs FBCSP-LGG
+BNCI2015_001,motor_imagery,12,13,512,yes,yes,yes (MOABB/MNE-bnci),no (12),FSR-alignment sanity,our frozen-FSR dataset; 512->200Hz; low-N anchor only
+M3CV,biometric_cognitive,~106,64,1000,yes,no,partial (/projects/.../M3CV),no (not clean MI),excluded (task mismatch),large subject axis but biometric/cognitive not motor imagery
+ISRUC_S3,sleep_staging,10,~6,200,no,no,not_in_datalake,no,optional (needs download),CodeBrain has isruc3_dataset.py; sleep; would need acquisition
+ISRUC_S1,sleep_staging,~100,~6,200,no,no,not_in_datalake,YES-if-downloaded,optional many-subject non-MI,CodeBrain has isruc_dataset.py; sleep; not on disk

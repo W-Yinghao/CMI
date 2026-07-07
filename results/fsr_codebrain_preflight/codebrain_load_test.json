@@ -1,0 +1,72 @@
+{
+  "device": "cuda",
+  "torch": "2.6.0+cu124",
+  "weights": {
+    "encoder": {
+      "path": "/home/infres/yinwang/eeg2025/NIPS/CodeBrain/Checkpoints/CodeBrain.pth",
+      "mb": 60.9
+    },
+    "tokenizer": {
+      "path": "/home/infres/yinwang/eeg2025/NIPS/CodeBrain/Checkpoints/CodeBrain_Tokenizer.pth",
+      "mb": 112.3
+    }
+  },
+  "encoder_load": {
+    "n_ckpt_tensors": 269,
+    "missing_keys": 0,
+    "unexpected_keys": 0,
+    "missing_sample": [],
+    "unexpected_sample": [],
+    "n_params": 15167600
+  },
+  "encoder_forward": {
+    "input_shape": [
+      2,
+      19,
+      30,
+      200
+    ],
+    "feats_shape": [
+      2,
+      19,
+      30,
+      200
+    ],
+    "pooled_dim": 114000,
+    "finite": true,
+    "sec_per_forward": 0.581,
+    "ok": true
+  },
+  "tokenizer_load": {
+    "n_ckpt_tensors": 325,
+    "missing_keys": 0,
+    "unexpected_keys": 0,
+    "missing_sample": [],
+    "unexpected_sample": []
+  },
+  "tokenizer_forward": {
+    "temporal_token_shape": [
+      2,
+      570
+    ],
+    "freq_token_shape": [
+      2,
+      570
+    ],
+    "n_unique_temporal": 1,
+    "n_unique_freq": 525,
+    "temporal_codebook": 4096,
+    "freq_codebook": 4096,
+    "sec_per_forward": 0.09,
+    "ok": true
+  },
+  "preflight_gate": {
+    "encoder_loads_clean": true,
+    "encoder_forward_ok": true,
+    "tokenizer_ok": true,
+    "frozen_feature_dump_available": true,
+    "no_download_needed": true,
+    "no_mamba_dep": true,
+    "verdict": "GO: frozen CodeBrain encoder + TFDual tokenizer both load from LOCAL weights and produce FSR feature-dump entry points (temporal codes, frequency codes, EEGSSM hidden/pooled)."
+  }
+}
