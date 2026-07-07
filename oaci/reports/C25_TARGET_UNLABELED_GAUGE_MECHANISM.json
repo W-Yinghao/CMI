@@ -1,0 +1,242 @@
+{
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "family_only": [
+    {
+      "auc_improve": -0.05256514748281216,
+      "family": "confidence_entropy",
+      "gap_closed": -0.5800762368604607,
+      "loto_r2": -0.46046324825246554,
+      "n_features": 4,
+      "perm_p": 0.908183632734531,
+      "survives_permutation": false
+    },
+    {
+      "auc_improve": -0.024041361721002463,
+      "family": "margin_logitnorm",
+      "gap_closed": -0.265305498109375,
+      "loto_r2": -0.5319614052926374,
+      "n_features": 4,
+      "perm_p": 0.7964071856287425,
+      "survives_permutation": false
+    },
+    {
+      "auc_improve": 0.0002819361277445198,
+      "family": "pred_class_prop",
+      "gap_closed": 0.0031112715525154237,
+      "loto_r2": -2.793907345009118,
+      "n_features": 4,
+      "perm_p": 0.42714570858283435,
+      "survives_permutation": false
+    }
+  ],
+  "grouping_boundary": {
+    "boundary": "The pooled cross-target estimand is recoverable by 0-LABEL transductive within-target centering (target grouping + the target's OWN candidate scores) \u2014 a distinct problem class from source-only DG (C19/C23: offset source-unobservable) and from target-label calibration (R5). Target-unlabeled MARGINAL geometry (R3) recovers only a weak part; target GROUPING adds the rest (value over marginal = R6 - R3). Target grouping is NOT source-only, and the target-centered oracle is NOT a deployable selector.",
+    "grouping_is_separate_problem_class": true,
+    "grouping_value_over_marginal": 0.5091471995496768,
+    "ladder": [
+      {
+        "deployable_transductively": false,
+        "recovers": "no (C23: offset source-unobservable)",
+        "recovers_gap_closed": -0.8246766357884945,
+        "rung": "source_only_DG",
+        "target_grouping": false,
+        "target_inputs": false,
+        "target_labels": false,
+        "uses_held_out_target_scores": false
+      },
+      {
+        "deployable_transductively": true,
+        "recovers": "partial/weak (C24 R3 +0.491, predictive gauge; no held-out target scores used)",
+        "recovers_gap_closed": 0.4908528004503232,
+        "rung": "target_unlabeled_transductive",
+        "target_grouping": true,
+        "target_inputs": true,
+        "target_labels": false,
+        "uses_held_out_target_scores": false
+      },
+      {
+        "deployable_transductively": true,
+        "recovers": "full (C24 R6 target-centered; uses held-out target's OWN candidate scores' mean)",
+        "recovers_gap_closed": 1.0,
+        "rung": "target_grouped_transductive_zero_label",
+        "target_grouping": true,
+        "target_inputs": true,
+        "target_labels": false,
+        "uses_held_out_target_scores": true
+      },
+      {
+        "deployable_transductively": false,
+        "recovers": "refines beyond grouping (C24 R5)",
+        "recovers_gap_closed": 1.4151880223693383,
+        "rung": "few_label_target_calibration",
+        "target_grouping": true,
+        "target_inputs": true,
+        "target_labels": true,
+        "uses_held_out_target_scores": true
+      },
+      {
+        "deployable_transductively": false,
+        "recovers": "upper bound",
+        "recovers_gap_closed": 1.4151880223693383,
+        "rung": "target_label_oracle",
+        "target_grouping": true,
+        "target_inputs": true,
+        "target_labels": true,
+        "uses_held_out_target_scores": true
+      }
+    ],
+    "note": "R3 (target-unlabeled transductive) uses a CROSS-TARGET model on the held-out target's unlabeled geometry (no held-out scores); R6 (target-grouped zero-label) uses the held-out target's OWN candidate scores' mean. Both are 0-label; they differ in whether the held-out target's own score aggregate is used.",
+    "within_target_ceiling": 0.658600107451297
+  },
+  "identity_signature": {
+    "chance": 0.1111111111111111,
+    "identity_signature_dominates": false,
+    "most_identity_family": "pred_class_prop",
+    "note": "R3 features are target-id separable (expected for per-target moments), BUT the recovery SURVIVES the LOTO offset-permutation null -> it is target-marginal geometry, not a pure identity fingerprint (which cannot help a held-out unseen target).",
+    "per_family": [
+      {
+        "family": "confidence_entropy",
+        "gap_closed": -0.5800762368604607,
+        "survives_permutation": false,
+        "target_id_accuracy": 0.3746056782334385
+      },
+      {
+        "family": "margin_logitnorm",
+        "gap_closed": -0.265305498109375,
+        "survives_permutation": false,
+        "target_id_accuracy": 0.42902208201892744
+      },
+      {
+        "family": "pred_class_prop",
+        "gap_closed": 0.0031112715525154237,
+        "survives_permutation": false,
+        "target_id_accuracy": 0.7058359621451105
+      }
+    ],
+    "r3_features_identity_separable": true,
+    "r3_target_id_accuracy": 0.6708727655099895,
+    "recovering_family": "pred_class_prop",
+    "recovery_identity_dissociated": false,
+    "recovery_survives_loto_permutation": true,
+    "source_target_id_accuracy": 0.5412723449001051
+  },
+  "leave_one_family_out": [
+    {
+      "dropped_family": "confidence_entropy",
+      "gap_closed": 0.5018630918146334,
+      "perm_p": 0.015968063872255488,
+      "remaining_features": 8,
+      "survives_permutation": true
+    },
+    {
+      "dropped_family": "margin_logitnorm",
+      "gap_closed": 0.45145559784138356,
+      "perm_p": 0.029940119760479042,
+      "remaining_features": 8,
+      "survives_permutation": true
+    },
+    {
+      "dropped_family": "pred_class_prop",
+      "gap_closed": -0.5610353773296293,
+      "perm_p": 0.8922155688622755,
+      "remaining_features": 8,
+      "survives_permutation": false
+    }
+  ],
+  "mode": "in_regime",
+  "n_candidates": 3804,
+  "not_computed_families": [
+    "target_feature_moments",
+    "source_target_distance",
+    "finite_feature_availability"
+  ],
+  "per_regime_stability": [
+    {
+      "gap_closed": 0.45952741691112464,
+      "gauge_pooled": 0.5962799401197605,
+      "oracle": 0.6381112774451098,
+      "raw_pooled": 0.5607135728542915,
+      "regime": "S0_full_support"
+    },
+    {
+      "gap_closed": 0.46461295785102874,
+      "gauge_pooled": 0.586629241516966,
+      "oracle": 0.6442140718562874,
+      "raw_pooled": 0.5366566866267465,
+      "regime": "S2_rare_cells"
+    },
+    {
+      "gap_closed": 0.4913589843243937,
+      "gauge_pooled": 0.5804316367265469,
+      "oracle": 0.6294111776447106,
+      "raw_pooled": 0.5331162674650699,
+      "regime": "S3_nonestimable_cells"
+    }
+  ],
+  "r1_source_gap": -0.8246766357884945,
+  "r3_full": {
+    "auc_improve": 0.0444799290308272,
+    "auc_improve_perm_p": 0.023952095808383235,
+    "gap_closed": 0.4908528004503232,
+    "loto_generalizes": false,
+    "loto_r2": -0.6463509418927544,
+    "perm_null_mean": -0.010280512863162545,
+    "perm_null_p95": 0.03692442891993792,
+    "pooled_auc": 0.5876289088489687,
+    "survives_permutation": true
+  },
+  "r4_interference": {
+    "condition_number_r3": 64.50572750293775,
+    "condition_number_r4": 152.8733579371781,
+    "mechanism": "small_N_high_dim_noise",
+    "n_source_features": 34,
+    "n_target_features": 12,
+    "note": "R4 collapse reproduced by RANDOM noise dims of the same count -> the mechanism is small-N / high-dimensional nuisance: at 9 targets, adding ~34 non-informative dims overfits LOTO and drowns the 12-dim target-unlabeled signal; source features are generic nuisance for the offset (not a specific anti-aligned direction).",
+    "r3_gap": 0.4908528004503232,
+    "r4_gap": -0.4848199317172259,
+    "random_dim_control_mean_gap": -0.03896645822880828,
+    "random_dims_also_collapse": true,
+    "source_coef_norm": 0.09090505518505414,
+    "source_coef_norm_share": 0.4958276166119418,
+    "source_hijacks_ridge": false,
+    "source_target_offset_alignment": -0.2128802326727935,
+    "target_coef_norm": 0.09243498506063656
+  },
+  "raw_pooled": 0.5431489798181415,
+  "shapley": {
+    "dominant_family": "pred_class_prop",
+    "dominant_share": 0.9834008863738877,
+    "full_gap": 0.4908528004503232,
+    "positive_share": {
+      "confidence_entropy": 0.0,
+      "margin_logitnorm": 0.016599113626112414,
+      "pred_class_prop": 0.9834008863738877
+    },
+    "shapley": {
+      "confidence_entropy": -0.171593101563488,
+      "margin_logitnorm": 0.010996014798679782,
+      "pred_class_prop": 0.6514498872151314
+    },
+    "single_family_dominates": true
+  },
+  "target_centered_oracle": 0.6337666333998669,
+  "taxonomy": {
+    "diagnostic_only_non_deployable": true,
+    "dominant_family": "pred_class_prop",
+    "dominant_share": 0.9834008863738877,
+    "established": [
+      "U2_predicted_class_mix_carries_gauge",
+      "U6_source_interference_confirmed",
+      "U7_grouping_is_separate_problem_class"
+    ],
+    "grouping_separate_problem_class": true,
+    "identity_signature_dominates": false,
+    "interpretation": "predicted-class proportions carry most of the weak R3 offset recovery (Shapley-dominant + necessary: leave-one-family-out on it destroys recovery), though NOT sufficient alone (needs a confidence/margin-geometry scaffold) and ENTANGLED with target identity (same family is most identity-predictive) -- credited as a transferable marginal relationship only because it survives the LOTO permutation control.",
+    "primary_case": "U2_predicted_class_mix_carries_gauge",
+    "r4_mechanism": "small_N_high_dim_noise",
+    "single_family_dominates": true,
+    "source_interference_confirmed": true
+  },
+  "within_target_ceiling": 0.658600107451297
+}

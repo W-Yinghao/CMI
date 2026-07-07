@@ -1,0 +1,12 @@
+metric,value
+r3_gap,0.4908528004503232
+r4_gap,-0.4848199317172259
+n_source_features,34
+n_target_features,12
+source_coef_norm_share,0.4958276166119418
+source_hijacks_ridge,False
+condition_number_r3,64.50572750293775
+condition_number_r4,152.8733579371781
+random_dim_control_mean_gap,-0.03896645822880828
+random_dims_also_collapse,True
+mechanism,small_N_high_dim_noise

@@ -1,0 +1,4 @@
+family,shapley_gap_closure,positive_share
+confidence_entropy,-0.171593101563488,0.0
+margin_logitnorm,0.010996014798679782,0.016599113626112414
+pred_class_prop,0.6514498872151314,0.9834008863738877
