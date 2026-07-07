@@ -46,16 +46,30 @@ harmful subject reliance** — established on frozen EEG foundation representati
 source-train, task head selected on source-val, subject subspaces fit on source; z-score per-trial within-window;
 no target label in feature extraction / PCA / head / probe / subspace / selection. Per-dataset (2-class only here);
 L5 nulls = variance-matched + oracle-task with removed-variance reporting; L1 perm nulls (1000×, marginal +
-class-conditional). Temporal-token side-check still pending (`collapsed` from preflight; not on the main line);
-frequency-token diagnostic pending.
+class-conditional).
+
+## 8B closure addendum (PM-required before 8C execution) — all clear
+- **F1 batch-invariance (STOP-1) — PASS** (§ above): every claim-level metric batch-size-invariant.
+- **Temporal-token side-check (one-time, no tuning; STOP-6) — CONFIRMED COLLAPSED.** The pretrained temporal
+  codebook emits **1 unique code across 1000 real SHU trials (~305k tokens)** AND on the canonical 30-patch BNCI
+  window, while the **frequency** codebook uses **4009/4096** codes. `temporal_token_status=collapsed` → temporal
+  tokens **excluded from the main analysis**; CodeBrain's temporal-token interpretability claims are **not**
+  transported (C23). Frequency-token diagnostic usable (secondary).
+- **BNCI2014_001 alignment sanity — done, recorded as a limitation.** **L1 subject-encoding replicates
+  cross-dataset** (strong: CodeBrain 0.586 / CBraMod 0.697 vs 0.111 chance). But the **frozen 4-class 2a task is
+  weak** (target 0.267 / 0.320 vs 0.25) so the **task gate FAILS** → L4/L5/L6 are *not* concludable on BNCI (frozen
+  4-class MI needs fine-tuning; the CodeBrain/CBraMod papers full-fine-tune for 2a). Per PM, this is a small-subject
+  / weak-frozen-task **sanity limitation**; the F1 pipeline + channel mapping are reproducible on BNCI, and it does
+  **not** rewrite the SHU-MI conclusion. **No stop rule hit.**
 
 ## Gate status + 8C readiness
 `measurability = PASS`; **F1 task gate PASSES on BOTH encoders**; firewall clean; determinism invariant (CodeBrain)
-+ CBraMod deterministic. Per FSR_46 / PM, the 8C conditions (task gate passes for ≥1 encoder; CodeBrain claim-
-invariant or CBraMod deterministic primary; clean firewalled tables) are **met**. **`proceed_to_8c` recommended =
-True, held for explicit PM go.** 8C = `N_source ∈ {2,4,8,16,all}` subject-scaling on PhysioNetMI (109), frozen
-encoder + F1 spatial + source-val head, fixed-vs-growing-trials, per FSR_48. BNCI2014_001 alignment-sanity +
-temporal side-check still to run. PC2 paused; Paper 1 unaffected; Paper 2 frozen (Phase 8 is a separate axis).
++ CBraMod deterministic. **8B closure complete (invariance PASS + temporal collapsed + BNCI sanity; no stop rule).**
+Per FSR_46 / PM, all 8C conditions are **met** and PM authorized 8C execution after clean closure →
+**`proceed_to_8c = True`.** 8C = `N_source ∈ {2,4,8,16,all}` subject-scaling on PhysioNetMI (109), frozen
+encoder + F1 spatial + source-val head, fixed-vs-growing-trials, per FSR_48 (design-red-teamed). Next = 8C-0
+(PhysioNetMI manifest + source-subset plan); specialist baselines deferred to 8C-2 (return for PM review first).
+PC2 paused; Paper 1 unaffected; Paper 2 frozen (Phase 8 is a separate axis).
 
 ## Deliverables (`results/fsr_codebrain_cbramod_8b/`)
 F0/F1 `.npz` (both encoders, +bs32 invariance), `feature_dump_manifest_*.json`, `f0`/`f1` audit summaries,
