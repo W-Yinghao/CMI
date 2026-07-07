@@ -16,5 +16,48 @@
   "n_pilot_runs": 6,
   "approve_phase9b_smoke": null,
   "corpus_go_nogo": "GREEN",
-  "overall": "9A corpus+code READY; awaiting PM review to approve 9B-0 smoke"
+  "overall": "9A corpus+code READY; awaiting PM review to approve 9B-0 smoke",
+  "canonical_corpus_19common": {
+    "n_subjects": 6535,
+    "total_hours": 3483,
+    "covered_recordings": 12177,
+    "per_subject_hours": {
+      "median": 0.35,
+      "mean": 0.53,
+      "max": 20.8
+    },
+    "subjects_by_covered_hours": {
+      "ge0.1h": 6516,
+      "ge0.25h": 6470,
+      "ge0.5h": 1490,
+      "ge1h": 570,
+      "ge2h": 132
+    }
+  },
+  "grid_judgment": "The 19-common corpus is subject-RICH (6535) but hours-POOR (3483h, median 0.35h/subj). Original grid {32,128,512}@H0{250,500} was TOO CONSERVATIVE at top (corpus supports N up to ~2048-6500) AND INFEASIBLE at bottom (H0=250 N=32 needs 7.8h/subj, only 5 subjects have it). Binding constraint = PER-SUBJECT HOURS not subject count. RECOMMEND P1 grid: H0~100h, N{32,128,512,2048,max~6500} (64x range, better-powered diversity slope) + growing-hours to N~6470@0.25h. To bring back for P1 approval.",
+  "recommended_p1_grid": {
+    "condition": "fixed_hours",
+    "H0_hours": 100,
+    "N_subjects": [
+      32,
+      128,
+      512,
+      2048,
+      "max~6500"
+    ],
+    "growing_hours_cap_h": 0.25,
+    "growing_max_N": 6470,
+    "seeds": [
+      0,
+      1,
+      2
+    ]
+  },
+  "smoke_feasible_H0_50h": {
+    "N32_cap_h": 1.56,
+    "N32_avail": "~250",
+    "N128_cap_h": 0.39,
+    "N128_avail": "~1900",
+    "feasible": true
+  }
 }

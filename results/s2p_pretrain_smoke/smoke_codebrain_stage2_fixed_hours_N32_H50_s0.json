@@ -1,0 +1,34 @@
+{
+  "run_id": "codebrain_stage2_fixed_hours_N32_H50_s0",
+  "model": "codebrain_stage2",
+  "n_subjects": 32,
+  "hours": 50.0,
+  "condition": "fixed_hours",
+  "seed": 0,
+  "subset_manifest": {
+    "n_subjects": 32,
+    "hours_budget": 50.0,
+    "condition": "fixed_hours",
+    "seed": 0,
+    "per_subject_cap_h": 1.5625,
+    "n_subjects_train": 27,
+    "n_subjects_val": 5,
+    "n_recordings_train": 226,
+    "n_recordings_val": 33,
+    "train_hours": 55.91,
+    "val_hours": 9.96,
+    "subjects_disjoint": true
+  },
+  "G1_sample_by_subject": true,
+  "G2_hours_budget_enforced": true,
+  "G3_G4_pretrainval_subject_disjoint": true,
+  "n_windows_train": 256,
+  "n_windows_val": 102,
+  "codebrain_blocker": "IndexError: The shape of the mask [4, 570] at index 1 does not match the shape of the indexed tensor [4, 19, 30, 200] at index 1",
+  "model_smoke_pass": false,
+  "traceback_tail": [
+    "    mask_x[mask == 1] = self.mask_encoding",
+    "    ~~~~~~^^^^^^^^^^^",
+    "IndexError: The shape of the mask [4, 570] at index 1 does not match the shape of the indexed tensor [4, 19, 30, 200] at index 1"
+  ]
+}

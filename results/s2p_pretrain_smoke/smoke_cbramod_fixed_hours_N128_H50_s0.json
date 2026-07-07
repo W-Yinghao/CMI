@@ -1,0 +1,42 @@
+{
+  "run_id": "cbramod_fixed_hours_N128_H50_s0",
+  "model": "cbramod",
+  "n_subjects": 128,
+  "hours": 50.0,
+  "condition": "fixed_hours",
+  "seed": 0,
+  "subset_manifest": {
+    "n_subjects": 128,
+    "hours_budget": 50.0,
+    "condition": "fixed_hours",
+    "seed": 0,
+    "per_subject_cap_h": 0.3906,
+    "n_subjects_train": 109,
+    "n_subjects_val": 19,
+    "n_recordings_train": 199,
+    "n_recordings_val": 43,
+    "train_hours": 69.13,
+    "val_hours": 12.57,
+    "subjects_disjoint": true
+  },
+  "G1_sample_by_subject": true,
+  "G2_hours_budget_enforced": false,
+  "G3_G4_pretrainval_subject_disjoint": true,
+  "n_windows_train": 256,
+  "n_windows_val": 128,
+  "G6_finite_loss": true,
+  "pretrain_loss_first_last": [
+    16.53352,
+    2.34646
+  ],
+  "G5_checkpoint_save_reload": true,
+  "G7_feature_dump": {
+    "shape": [
+      128,
+      200
+    ],
+    "finite": true
+  },
+  "G8_downstream_audit_harness": true,
+  "model_smoke_pass": true
+}
