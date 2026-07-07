@@ -154,10 +154,15 @@ def main():
         target_labels_used_for_final_eval_only=True,
         repair_claim_level=level, counterfactual_repair_pass=cf_pass,
         pc2_gpu_gate=("eligible" if cf_pass else "paused"),
-        claim_language=("Phase 4E repairs an INJECTED constant-offset shortcut. Primary=E4 deployable full "
-                        "first-moment mean alignment, NETTED against clean-target TTA. E0 oracle + E3/ERASE "
-                        "controls excluded from headline. E1 subspace claim only if e1_adds_value_over_e4. "
-                        "NOT a DG method / SOTA / natural-harm claim; E0/E3/E4 not byte-comparable to PC1."),
+        claim_language=("Phase 4E shows a DESCRIPTIVE within-scope signal for repairing an injected "
+                        "constant-offset shortcut, but the BINDING repair_claim_level is NONE (E4 fails the "
+                        "frozen beat-ERASE-on-netted clause = tie). Primary=E4 deployable full first-moment "
+                        "mean alignment, NETTED against clean-target TTA. E0 oracle + E3/ERASE controls "
+                        "excluded from headline; ERASE netted is a regression-to-floor artifact (task-"
+                        "destructive). Allowed: 'E4 produced a within-scope repair SIGNAL / descriptively "
+                        "reversed the injected first-moment offset / did not clear the confirmatory bar'. "
+                        "NOT allowed: 'E4 repairs shortcuts / E4 passed / deployable repair'. NOT a DG "
+                        "method / SOTA / natural-harm claim; E0/E3/E4 not byte-comparable to PC1."),
     )
     (R / "phase4e_verdict.json").write_text(json.dumps(verdict, indent=2) + "\n")
     # confirmatory CSV (verdict driver, per confirm seed)
