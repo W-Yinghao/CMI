@@ -1,0 +1,69 @@
+\section{Repair has a scoped boundary (controlled positive controls)}
+\label{sec:repair}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig5_repair_scope.pdf}
+\caption{Controlled-repair scope. A known harmful shortcut is injected into the spatial branch and repair is
+attempted with target-unlabeled, source-fit primitives (target labels score only). \textbf{Left:} a
+\emph{first-moment} constant-offset injection is repaired by mean alignment (E4), netting a shortcut-specific
+$+0.033$~bAcc over a random control --- but $73\%$ of the ``recovery'' is a mechanical identity (a first-moment
+aligner inverts a first-moment offset by construction), and it fails leave-one-dataset-out. \textbf{Right:} a
+\emph{mean-null second-moment} (stochastic) injection is \emph{not} repaired by covariance-shrinkage (E4b) at the
+source-selected operating point --- E4b does not beat a random-direction control, and even an oracle that shrinks
+the true injected direction is sub-threshold.}
+\label{fig:repair}
+\end{figure}
+
+The natural result is a refusal; to test the \emph{machinery} of detection, attribution, and repair we turn to
+controlled positive controls --- known harmful shortcuts injected into the frozen spatial branch. Everything here
+is target-unlabeled and source-fit: target labels enter only the final score, and injection tokens, strengths,
+and repair hyperparameters are chosen from source data alone.
+
+\paragraph{Detect, localize, attribute.} An injected subject-token shortcut (a per-subject additive direction with
+a class-directed component) is detected as induced target harm ($+0.041/+0.066$~bAcc at strengths $\alpha{=}1/2$),
+correctly \emph{localized} to the injected spatial branch (harm $0.041$ vs.\ $0.021$ graph, $0.020$ temporal),
+and \emph{exactly attributed} (subtracting the known per-sample token recovers the harm fully, recovery $1.0$).
+The verification--localization--attribution chain works on real EEG representations (\claim{C11}).
+
+\paragraph{Erasure is not the repair; first-moment alignment is, within a narrow scope.} Erasing the injected
+subspace --- even an oracle that knows it --- makes the target \emph{worse}, because the harmful direction is
+task-coupled (the same task-entanglement seen naturally). A counterfactual-consistency adapter ties a random
+control. The mechanistically-matched primitive is different: because the injected token is a \emph{constant
+per-batch offset}, a deployable \emph{first-moment mean alignment} (E4, align the target feature mean to the
+source, target-$X$-only) reverses it. Under a corrected, pre-registered, clustered-bootstrap protocol on eight
+fresh injection seeds, E4 yields a shortcut-specific netted gain of $+0.033$~bAcc (clustered CI $[0.009,0.058]$),
+beating a random-direction control (\claim{C12}). The claim is deliberately narrow: $73\%$ of the pooled recovery
+is a \emph{mechanical identity} (a first-moment aligner inverts a first-moment offset by algebra; the
+non-identity recovery is $0.68$), the effect is carried by one of the two datasets and \emph{fails
+leave-one-dataset-out}, and E4 overshoots the clean target --- it is a generic domain-mean alignment, not a
+surgical shortcut remover. We report it as \textsc{strong within a controlled first-moment scope}, never as
+general repair.
+
+\paragraph{Second-moment shortcuts are not repaired at the operating point.} We then inject a strictly
+\emph{mean-null second-moment} shortcut (per-sample zero-mean variance along a class-directed direction; harm
+$+0.031$~bAcc, mean displacement exactly $0$). Here first-moment alignment is powerless by construction, and the
+matched primitive is covariance-shrinkage (E4b, shrink the target's excess-variance direction toward the source
+level). E4b does \emph{not} beat a random-direction shrinkage control ($\text{E4b}-\text{E3}={+}0.005$~bAcc,
+clustered CI $[-0.005,0.014]$, below the $0.02$ bar), and --- decisively --- an \emph{oracle} that shrinks the
+\emph{true} injected direction is also sub-threshold ($+0.004$, CI $[-0.005,0.012]$), while the estimator does
+recover the true direction (overlap $0.71$). The failure is therefore a genuine weakness of covariance-shrinkage,
+not mis-estimation: a stochastic per-sample perturbation that has already scattered samples across the decision
+boundary is not recoverable from batch-level second-moment statistics. A direction-specific advantage clearing
+the bar appears \emph{only} in an injection-dominant regime that the source-only strength rule excludes; at the
+honest operating point the verdict is \textsc{none} (\claim{C17}, \claim{C14}: not established).
+
+\begin{table}[t]
+\centering\small
+\input{tables/table3_repair_scope}
+\caption{Repair scope matrix. Deployable target-$X$-only repair is confined to first-moment deterministic
+offsets; second-moment stochastic perturbations and natural/learned reliance are not repaired.}
+\label{tab:repairscope}
+\end{table}
+
+\paragraph{The scope boundary.} Table~\ref{tab:repairscope} summarizes the boundary. A controlled
+\emph{first-moment deterministic} offset is repairable (narrowly, construction-matched); a controlled
+\emph{second-moment stochastic} perturbation is not (even oracle-directed); and the \emph{natural} branch-local
+subject signal is refused as task-entangled (\S\ref{sec:rq4}). The deployable repair family is first-moment
+specific; repair of anything beyond a deterministic offset --- and of natural or learned reliance --- remains
+open (\S\ref{sec:limitations}).

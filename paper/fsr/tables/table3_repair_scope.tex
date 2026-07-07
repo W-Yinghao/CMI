@@ -1,0 +1,11 @@
+\begin{tabular}{lllc}
+\toprule
+Shortcut regime & Repair primitive & Outcome & Verdict \\
+\midrule
+Natural branch-local (spatial) & (verification) & subspace removal \emph{hurts} target & \textsc{refuse} (task-entangled) \\
+Injected 1st-moment (offset) & mean alignment (E4) & netted $+0.033$ bAcc, beats random & \textsc{scoped-strong}$^{\dagger}$ \\
+Injected 2nd-moment (variance) & covariance-shrink (E4b) & $\le$ random; oracle sub-DELTA & \textsc{none} \\
+Learned reliance (PC2) & --- & GPU paused; not eligible & \textsc{future work} \\
+\bottomrule
+\multicolumn{4}{l}{\footnotesize $^{\dagger}$ construction-matched: $73\%$ mechanical identity; fails leave-one-dataset-out; deployable, target-$X$-only.}
+\end{tabular}

@@ -1,16 +1,23 @@
-\begin{tabular}{llp{7.6cm}}
+\begin{tabular}{llp{6.9cm}}
 \toprule
 ID & Status & Claim \\
 \midrule
-C1 & READY\_WITH\_CAVEAT & Measured leakage magnitude does not certify reliance. \\
-C2 & READY\_WITH\_CAVEAT & Task-head alignment is closer to reliance than raw leakage in frozen CIGL R3. \\
+C1 & READY\_W/CAVEAT & Measured leakage magnitude does not certify reliance. \\
+C2 & READY\_W/CAVEAT & Task-head alignment is closer to reliance than raw leakage. \\
 C3 & READY & Subject signal is erasable. \\
-C4 & READY & Erasure strength does not certify target benefit. \\
-C5 & READY\_WITH\_CAVEAT & Random-k falsifies nonspecific NLL movement. \\
+C4 & READY & Erasure strength does not certify target benefit ($0/40$). \\
+C5 & READY\_W/CAVEAT & Random-$k$ falsifies non-specific NLL movement. \\
 C6 & READY & Spatial branch is load-bearing. \\
-C7 & READY & Branch-local leakage/reliance is missing. \\
-C8 & READY & CMI-control remains closed. \\
-C9 & SUPPORT\_ONLY & TTA-Control is positive but non-CMI. \\
-C10 & READY & FSR is an audit framework, not a new DG method. \\
+C7 & SUPERSEDED & Branch-local ladder was unmeasured in frozen artifacts (now measured, 4B). \\
+C8 & READY & CMI-control remains a closed negative. \\
+C9 & SUPPORT & TTA-Control is positive but non-CMI. \\
+C10 & READY & FSR is a verification framework, not a new DG method. \\
+C11 & READY & FSR detects, localizes, and attributes controlled injected shortcuts. \\
+C12 & READY\_W/CAVEAT & E4 repairs a controlled first-moment constant-offset shortcut (narrow scope). \\
+C13 & FORBIDDEN & E4 as a general / natural shortcut repair. \\
+C14 & NOT\_ESTAB. & E4b as a controlled second-moment shortcut repair (4G = none). \\
+C15 & NOT\_READY & PC2 learned-reliance repair (GPU paused; future work). \\
+C16 & READY & Natural branch-local subject leakage is not automatically harmful. \\
+C17 & READY\_W/CAVEAT & Repair scope is first-moment-specific. \\
 \bottomrule
 \end{tabular}

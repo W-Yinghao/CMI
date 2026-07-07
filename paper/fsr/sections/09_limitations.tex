@@ -1,0 +1,43 @@
+\section{Limitations}
+\label{sec:limitations}
+
+We state the limitations plainly; for an audit paper they are part of the contribution.
+\begin{itemize}
+\item \textbf{Provenance limit.} The pooled leakage$\to$reliance correlation is not recomputable
+(per-fold leakage for two of three seeds was pruned); it is reproduced only at seed0 (sign) and carried
+as \claim{FROZEN\_NOT\_RECOMPUTABLE} at pooled. Only alignment$\to$reliance is fully recomputed.
+\item \textbf{Heterogeneity / small $n$.} The alignment$\to$reliance association is significant on 2a
+but not on 2015; the alignment-vs-leakage contrast is at seed0, $n{=}42$, with non-significant
+within-group partial betas.
+\item \textbf{$\mathrm{align}_k$ is not a validated estimator}, only closer to reliance than raw
+leakage.
+\item \textbf{The RQ2 negative correlation is not a finding} --- it is a non-robust confound of
+over-erasure and the random-$k$ anchor (Figure~\ref{fig:erasure}B); the RQ2 result is the absence of a
+certified benefit (0/40).
+\item \textbf{The natural-verification refit is minimal ERM}, reproducing the frozen deployment metrics
+($|\Delta|{=}0.009$); it is an instrument to measure the branch-local ladder, not a tuned model, and its
+conclusion (\claim{C16}) is a refusal, not a repair.
+\item \textbf{The first-moment repair is construction-matched and narrow} (\claim{C12}): $73\%$ of the
+pooled recovery is a mechanical identity (a first-moment aligner inverts a first-moment offset), the
+effect is carried by one dataset and fails leave-one-dataset-out, and E4 overshoots the clean target ---
+we report it as \textsc{strong within a controlled first-moment scope} and lead with the absolute
+$+0.033$~bAcc gain, not the ratio.
+\item \textbf{Second-moment repair is unresolved} (\claim{C14}, \claim{C17}): at the source-selected
+operating point covariance-shrinkage does not beat a random-direction control, even oracle-directed; a
+direction-specific advantage appears only in an injection-dominant regime we exclude. We do not claim
+second-moment shortcuts are unconditionally unrepairable.
+\item \textbf{Injected, not natural, controls.} The repair results use \emph{injected} positive controls
+to test the machinery; they do not speak to natural or learned reliance, and must not be conflated with
+the natural refusal (\S\ref{sec:rq4}).
+\item \textbf{Two datasets.} The binding robustness axis is leave-one-dataset-out; with two preset-ready
+datasets it is under-powered (and 4F fails it). A learned-reliance stress test and $\geq 3$-dataset
+extension are future work, not current results.
+\item \textbf{Proxies, not CMI.} L1/L2 use a label-conditional linear-probe posterior-KL surrogate and
+a linear-probe advantage, not an unbiased mutual information; we say ``extractable conditional domain
+information,'' not ``CMI.''
+\item \textbf{Erasability $\neq$ full removal} (LEACE leaves a nonlinear residual); the one
+target-unlabeled positive we cite (a non-CMI adaptation control) is seed0-only support, not an FSR
+result.
+\item \textbf{Scope.} Results are on specific backbones and two datasets; generality beyond them is not
+claimed.
+\end{itemize}

@@ -11,7 +11,7 @@
 \graphicspath{{figures/}}
 \newcommand{\claim}[1]{\textsf{#1}}
 
-\title{Measurable Is Not Reliance:\\ Functional Shortcut Auditing in EEG Representations}
+\title{When Subject Leakage Becomes a Shortcut:\\ Verification, Refusal, and Scoped Repair in EEG Representations}
 \author{Anonymous (FSR project draft)}
 \date{Draft --- \today}
 
@@ -24,15 +24,20 @@ that decodable leakage means the model relies on a harmful shortcut. We argue th
 unlicensed: probing shows what is \emph{encoded}, not what is \emph{used}. We define a six-level
 functional-shortcut-reliance (FSR) ladder --- detectability, reducibility, erasability, task coupling,
 functional reliance, and target consequence --- and require any shortcut claim to relate levels rather
-than leap from a low one to a high one. We instantiate the ladder by re-analysing frozen artifacts
-across graph-CMI, concept-erasure, and branch-fusion pipelines, training nothing. First, measured
-leakage magnitude does not certify functional reliance: task-head alignment is positively associated
-with reliance while recomputable leakage carries the wrong sign. Second, subject signal is erasable,
-yet no eraser achieves a proven target benefit across 40 held-out-target cells, and aggressive erasure
-can harm the target. Third, a fusion backbone's spatial branch is load-bearing, but branch-local
-leakage and reliance are unmeasured and cannot be measured without a new run. FSR is an
-\emph{audit framework}, not a domain-generalization method: it makes explicit what measurement is
-required to support what control conclusion.
+than leap from a low one to a high one. We instantiate the ladder on real EEG. First, measured leakage
+magnitude does not certify functional reliance: task-head alignment is positively associated with
+reliance while recomputable leakage carries the wrong sign. Second, subject signal is erasable, yet no
+eraser achieves a proven target benefit across 40 held-out-target cells, and aggressive erasure can harm
+the target. Third, a direct branch-local audit of a fusion backbone shows its spatial branch is the
+strongest subject-leakage and load-bearing candidate, but removing the subject subspace \emph{hurts} the
+target --- so FSR \emph{refuses} to call it a harmful shortcut; it is task-entangled. Fourth, on injected
+positive controls we detect, localize, and exactly attribute a known harmful shortcut, and we find a
+sharp \emph{repair scope boundary}: a controlled first-moment deterministic offset is repairable by a
+deployable target-unlabeled mean alignment (narrowly, construction-matched), whereas a controlled
+second-moment stochastic perturbation is not repaired even by an oracle-directed covariance-shrinkage.
+FSR is a shortcut \emph{verification} framework, not a domain-generalization method: it makes explicit
+what measurement licenses what control conclusion, and it bounds where repair is --- and is not ---
+possible.
 \end{abstract}
 
 \input{sections/01_intro}
@@ -40,10 +45,11 @@ required to support what control conclusion.
 \input{sections/03_setup_provenance}
 \input{sections/04_measurable_not_reliance}
 \input{sections/05_erasable_not_beneficial}
-\input{sections/06_branch_blocked}
-\input{sections/07_related_work}
-\input{sections/08_limitations}
-\input{sections/09_conclusion}
+\input{sections/06_branch_natural_verification}
+\input{sections/07_controlled_repair_scope}
+\input{sections/08_related_work}
+\input{sections/09_limitations}
+\input{sections/10_conclusion}
 
 \appendix
 \input{appendix/provenance_appendix}

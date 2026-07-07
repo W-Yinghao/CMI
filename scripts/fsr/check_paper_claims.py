@@ -22,9 +22,14 @@ HARD = [r"\bSOTA\b", r"unbiased CMI", r"state[- ]of[- ]the[- ]art"]
 ASSERTED = [
     r"validated (reliance )?estimator", r"estimator of reliance",
     r"spatial leakage is harmful", r"graph leakage is benign",
-    r"eras\w+ improves target", r"erasing subject signal improves",
+    r"subject leakage is harmful",
+    r"eras\w+ improves target", r"erasing subject signal improves", r"erasure is a repair",
     r"CMI improves [\w\- ]*generalization", r"per-branch CMI predicts reliance",
     r"new domain[- ]generalization method", r"\bnew DG method\b",
+    # Phase-6A repair-line locks (FSR_33/35)
+    r"repairs (EEG |natural |general )?shortcuts", r"repairs natural subject leakage",
+    r"repairs (a )?(controlled )?second[- ]moment", r"surgically removes",
+    r"solves shortcut repair", r"second[- ]moment shortcuts are unconditionally unrepairable",
 ]
 # negation within the same sentence and <=70 chars before the phrase (markup-tolerant: any char
 # except a sentence terminator may sit between the negation token and the forbidden phrase).

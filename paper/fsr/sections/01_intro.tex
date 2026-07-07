@@ -24,13 +24,20 @@ relied upon, and harmful in target consequence; a claim about a shortcut must th
 relationship \emph{between} levels, never a leap from L1 to L5/L6.
 
 \paragraph{Contributions.} Re-analysing frozen artifacts (no new training) across a graph-CMI
-diagnostic, a frozen-feature concept-erasure study, and a branch-fusion backbone, we show:
+diagnostic, a frozen-feature concept-erasure study, a branch-fusion backbone re-fit, and injected
+positive controls, we show:
 (1) \textbf{measurable $\neq$ relied-upon} --- measured leakage magnitude does not certify functional
-reliance; in a frozen diagnostic, task-head alignment is positively associated with reliance while
-recomputable leakage carries the wrong sign;
+reliance; task-head alignment is positively associated with reliance while recomputable leakage carries
+the wrong sign;
 (2) \textbf{erasable $\neq$ beneficial} --- subject signal is erasable, but erasure strength does not
 certify a target benefit (no eraser achieves a proven gain in 40 held-out-target cells);
-(3) \textbf{branch load matters but is unmeasured} --- the spatial branch of a fusion backbone is
-load-bearing, yet branch-local leakage/reliance is not measured and cannot be without a new run.
-FSR is an audit framework, not a domain-generalization method; a companion premise is that
+(3) \textbf{natural verification refuses blind repair} --- a direct branch-local audit finds the spatial
+branch is the strongest subject-leakage and load-bearing candidate, yet removing its subject subspace
+\emph{hurts} the target, so FSR refuses the harmful-shortcut label (it is task-entangled);
+(4) \textbf{repair has a scoped boundary} --- on injected controls we detect, localize, and exactly
+attribute a known harmful shortcut, and find that a controlled first-moment deterministic offset is
+repairable by a deployable target-unlabeled mean alignment (narrowly, construction-matched) while a
+controlled second-moment stochastic perturbation is not repaired even by an oracle-directed
+covariance-shrinkage.
+FSR is a verification framework, not a domain-generalization method; a companion premise is that
 conditional-invariance/CMI \emph{control} on these representations is already a closed negative.

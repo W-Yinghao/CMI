@@ -1,0 +1,40 @@
+\section{Natural branch-local verification refuses blind repair (RQ4)}
+\label{sec:rq4}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{fig4_branch_natural.pdf}
+\caption{Direct branch-local audit of the FBCSP-LGG fusion backbone (Phase 4B refit, 21 leave-one-subject-out
+folds on BNCI2014\_001/2015\_001). The spatial branch is simultaneously the most subject-leaky (L1 subject
+decodability $0.92$/$0.82$), the most load-bearing (L4 ablation drop $+0.086$; highest fusion-gate weight), and
+functionally coupled (L5 head-replay specificity). Yet \emph{removing} its subject subspace \emph{hurts} the
+target (L6 task drop positive, $+0.050^{*}$ on 2015): the erasing-helps criterion fails. Verdict:
+\textsc{no verified harmful branch shortcut}.}
+\label{fig:branch}
+\end{figure}
+
+A multi-branch backbone lets us ask whether leakage \emph{means} something different in a load-bearing branch
+than elsewhere --- and, decisively, whether the strongest natural leakage candidate is actually a harmful
+shortcut. Unlike the frozen-artifact stage, we now measure the full branch-local ladder directly: a minimal
+ERM re-fit of the same FBCSP-LGG recipe (no CMI, no architecture or hyperparameter search, no target-label fit)
+reproduces the frozen deployment metrics (target bAcc $0.358$/$0.599$ vs.\ $0.349$/$0.608$, $|\Delta|{=}0.009$)
+and, additionally, dumps per-branch latents and best-epoch checkpoints, so L1--L6 are computed per branch on real
+EEG. The target-label firewall is clean on all $21$ folds (labels enter only final scoring; branch selection,
+probes, and subspace fits are source-only).
+
+\paragraph{The spatial branch is the strongest candidate on every low level, yet not harmful.} The spatial branch
+is the most subject-decodable (L1 $0.92$/$0.82$), the most load-bearing (zeroing it drops task-bAcc by
+$+0.086$ pooled; highest fusion-gate weight), and functionally coupled (L5: erasing its source-estimated subject
+subspace changes the head's output specifically, beyond a random-subspace control). By L1--L5 alone it looks like
+the canonical harmful shortcut. But the target consequence inverts the inference: removing the subject subspace
+\emph{raises} the erased-model's task drop rather than lowering it (L6 $\text{task\_drop}{=}+0.015$ on 2a,
+$+0.050^{*}$ on 2015), i.e.\ \emph{erasing the subject signal hurts the target}. The subject subspace is
+task-entangled --- a task-useful reliance, not a harmful one.
+
+\paragraph{Verification, not a leap.} FSR therefore \textbf{refuses} to call the strongest natural subject-leakage
+branch a harmful shortcut: the verdict is \textsc{no verified harmful branch shortcut}
+(\claim{C16}). This is the ladder working as designed --- a claim that stops at L1/L5 (``subject signal is
+strongly decodable and functionally coupled, so remove it'') would be wrong here, because the L6 test shows the
+removal is harmful. We can state that the spatial branch is load-bearing (\claim{C6}) and that its subject signal
+is measurable and coupled, but we \emph{cannot} say ``spatial leakage is harmful'' or ``erase spatial subject
+directions to improve DG.'' On natural EEG, the honest conclusion is a refusal.
