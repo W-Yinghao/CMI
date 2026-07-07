@@ -1,0 +1,60 @@
+{
+  "gates": {
+    "G1_replay_identity_matches_cached_logits": true,
+    "G2_sample_order_matches_cached_npz": true,
+    "G3_checkpoint_prediction_identity": true,
+    "G4_deterministic_repeat_forward": true,
+    "G5_features_label_free": true,
+    "G6_no_target_endpoint_metric_in_features": true,
+    "G7_no_selected_checkpoint_artifact": true,
+    "G8_labels_only_for_validation_not_features": true,
+    "all_pass": true,
+    "argmax_flips": 0,
+    "max_logit_diff": 0.0,
+    "n_target_identity_checks": 2
+  },
+  "identity": [
+    {
+      "argmax_flips": 0,
+      "hash_match": true,
+      "level": 0,
+      "match": true,
+      "max_logit_diff": 0.0,
+      "method": "ERM",
+      "role": "source_audit"
+    },
+    {
+      "argmax_flips": 0,
+      "hash_match": true,
+      "level": 0,
+      "match": true,
+      "max_logit_diff": 0.0,
+      "method": "ERM",
+      "role": "target_audit"
+    },
+    {
+      "argmax_flips": 0,
+      "hash_match": true,
+      "level": 0,
+      "match": true,
+      "max_logit_diff": 0.0,
+      "method": "OACI",
+      "role": "source_audit"
+    },
+    {
+      "argmax_flips": 0,
+      "hash_match": true,
+      "level": 0,
+      "match": true,
+      "max_logit_diff": 0.0,
+      "method": "OACI",
+      "role": "target_audit"
+    }
+  ],
+  "levels": [
+    0
+  ],
+  "n_candidates": 25,
+  "seed": 0,
+  "target": 4
+}
