@@ -133,6 +133,31 @@ Status vocabulary: `READY` (state as a finding) · `READY_WITH_CAVEAT` (state wi
 - **Caveat (mandatory):** Q7C-a is **in-sample fittability, NOT** "a subject *shortcut* was learned" (l5/ERASE diagnostics ≤ 0); the mildly-negative pooled vs-shuffle is significant only pooled / only on the binary dataset (BNCI2014_001 vs-shuffle CI crosses 0 — a null), and a negative structured-minus-shuffle is a **construction asymmetry**, not "scrambling is more harmful"; achieved corruption rate saturates at ~0.34 at nominal γ=0.4 (disclosed).
 - **Forbidden:** "a subject shortcut was learned / weaponized"; "task-conflict corruption weaponizes subject leakage"; "scrambling is more harmful than the true structure"; "E4 repairs the weaponization" (none demonstrated — E4's +0.028 recovers *generic first-moment* harm only, 4F-consistent, `repair_claim_level=null`); any natural-harm/clinical/DG/SOTA framing.
 
+### C20 — Frozen EEG foundation encoders strongly encode subject identity on SHU-MI. — **READY** (Phase 8B)
+- **Ladder:** L1 subject decodability on frozen encoder features. **Evidence:** Phase 8B (`f1_audit_summary_*`, FSR_46/47): within-subject session-held-out subject probe, permutation p=0. CodeBrain L1 bAcc 0.628, CBraMod 0.562 (chance 0.04), class-conditional ≈ marginal (0.627 / 0.562).
+- **Allowed:** "On SHU-MI, two frozen EEG foundation encoders (CodeBrain, CBraMod) encode subject identity strongly and **class-conditionally** (subject-decodability far above chance, beyond the task label)."
+- **Forbidden:** "foundation models remove/suppress subject identity"; "subject-invariant"; any scaling claim (that is C22/8C).
+
+### C21 — On a decodable frozen MI task, the subject subspace is not functionally implicated. — **READY_WITH_CAVEAT** (Phase 8B)
+- **Ladder:** L4/L5/L6 on the F1 spatial feature (task-gate-passing). **Evidence:** Phase 8B: task gate PASS (CodeBrain 0.605 / CBraMod 0.598 target); L5 subject-subspace erase does **not** beat a variance-matched null (both), L6 target Δ ≈ +0.001 (CI∋0 both).
+- **Allowed:** "On a decodable frozen MI representation, subject-subspace intervention does **not** exceed a variance-matched null and does **not** change target bAcc under the FSR intervention test — subject encoding does not by itself imply harmful subject reliance."
+- **Caveat (mandatory):** SHU-MI only; frozen **F1 spatial** features (F0 pooled was task-weak, a pooling artifact); **not yet subject-scaling**; L6 is conservative (source-estimated subspace on a novel target → a null L6 is not evidence of task-irrelevance).
+- **Forbidden:** "foundation encoders never rely on subject information"; "proves subject scaling changes reliance"; SOTA/leaderboard.
+
+### C22 — Source-subject scaling changes the functional role of subject information. — **PENDING_8C**
+- **Status:** requires the Phase-8C PhysioNetMI subject-count scaling with the fixed-vs-growing-trials decomposition and normalized subject-excess (FSR_48). Not claimable from 8B.
+- **Forbidden:** any current statement that scaling reduces leakage or changes reliance.
+
+### C23 — CodeBrain temporal-token interpretability transfers to SHU-MI. — **NOT_READY (collapsed)**
+- **Status:** the released temporal codebook **collapses** on real SHU-MI EEG (1 unique code) under our preprocessing (preflight FSR_44; side-check pending). Frequency codes are diverse; temporal excluded from the main analysis.
+- **Allowed (scoped, negative):** "The released temporal discrete-code diagnostic collapses under our real-EEG preprocessing; token-level analyses are restricted to frequency codes."
+- **Forbidden:** transporting CodeBrain's temporal-token (spindle/K-complex/slow-wave) interpretability claims into our audit; tuning/retraining to rescue the codebook.
+
+### C24 — Encoder-level subject encoding is architecture-general (not a CodeBrain-tokenizer confound). — **READY_WITH_CAVEAT** (Phase 8B)
+- **Ladder:** replication on a second, single-stage encoder. **Evidence:** Phase 8B: CBraMod (criss-cross transformer, no tokenizer, fully deterministic) reproduces the L1-high / L5-not-beating-variance / L6≈0 pattern.
+- **Allowed:** "The frozen-encoder subject-encoding-without-reliance pattern holds on a second architecture (CBraMod) with no tokenizer and no VQ-collapse confound → architecture-general on SHU-MI."
+- **Caveat:** SHU-MI only; two encoders; not yet scaling.
+
 ---
 
 ## Wording discipline (applies to every write-up)
