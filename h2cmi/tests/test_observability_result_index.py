@@ -13,7 +13,7 @@ import tempfile
 from pathlib import Path
 
 from h2cmi.observability import ContractID as C, build_audited_eval_report, report_to_dict
-from h2cmi.observability.result_index import build_summary, load_run
+from h2cmi.observability.result_index import build_summary, load_run, write_summary_md
 from h2cmi.observability.validate_results import validate_all, validate_run
 
 _STRICT = {"balanced_acc": 0.30, "worst_domain_bacc": 0.21}
@@ -260,6 +260,42 @@ def test_missing_n_classes_fails_validation_for_ok_run():
         assert not ok and any("n_classes" in i for i in issues)
 
 
+def _write_skip_run(root, dataset, target, seed, reason):
+    d = Path(root) / f"dataset={dataset}_target={target}_seed={seed}"
+    d.mkdir(parents=True, exist_ok=True)
+    (d / "run_manifest.json").write_text(json.dumps(
+        {"status": "skipped", "skip_reason": reason, "dataset": dataset,
+         "target_subject": target, "seed": seed}))
+    return d
+
+
+def test_all_skip_dataset_flags_are_not_false():
+    # a grid where every cell is a legal skip asserts NO target metrics: boundary flags must be
+    # null (not_applicable), NOT vacuously False (which reads as a violation)
+    with tempfile.TemporaryDirectory() as root:
+        _write_skip_run(root, "BNCI2015_001", 1, 0, "load failed: not valid for paradigm")
+        _write_skip_run(root, "BNCI2015_001", 2, 0, "load failed: not valid for paradigm")
+        agg = build_summary(root)["aggregate"]
+        assert agg["n_ok"] == 0 and agg["n_skipped"] == 2
+        assert agg["claim_boundary_status"] == "not_applicable_all_skipped"
+        for k in ("all_forbidden_violations_empty", "all_target_metrics_oracle_only",
+                  "all_target_metrics_identifiable_null", "all_prior_claims_compliant",
+                  "no_unknown_estimands"):
+            assert agg[k] is None, f"{k} must be null (not False) for an all-skip grid"
+
+
+def test_skip_reason_prose_does_not_claim_cache_absent_without_evidence():
+    # the tracked digest must report the REAL skip reason verbatim, never relabel it "cache absent"
+    reason = "load failed: AssertionError: Dataset BNCI2015-001 is not valid for paradigm"
+    with tempfile.TemporaryDirectory() as root:
+        _write_skip_run(root, "BNCI2015_001", 1, 0, reason)
+        summary = build_summary(root)
+        text = write_summary_md(summary, Path(root) / "s.md")
+        assert "not valid for paradigm" in text
+        assert "cache absent" not in text.lower() and "cache-absent" not in text.lower()
+        assert summary["aggregate"]["claim_boundary_status"] == "not_applicable_all_skipped"
+
+
 ALL_TESTS = [
     test_result_validator_accepts_clean_oracle_metrics,
     test_result_validator_rejects_identifiable_r0_target_metric,
@@ -277,6 +313,8 @@ ALL_TESTS = [
     test_chance_normalized_metrics_for_four_class,
     test_chance_normalized_metrics_for_binary,
     test_missing_n_classes_fails_validation_for_ok_run,
+    test_all_skip_dataset_flags_are_not_false,
+    test_skip_reason_prose_does_not_claim_cache_absent_without_evidence,
 ]
 
 

@@ -3,6 +3,7 @@
 Scope: interface + audited-report validation — **not a SOTA claim**; target metrics are oracle/evaluation-only.
 
 - runs: **27**  ·  ok: **27**  ·  skipped: **0**
+- claim boundary status: **checked** (flags below are n/a when all cells are legal skips)
 - all forbidden-violations empty: **True**
 - all target metrics oracle-only: **True**
 - all target metrics identifiable=null: **True**

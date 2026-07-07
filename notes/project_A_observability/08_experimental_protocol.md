@@ -132,7 +132,9 @@ Rules for the pilot:
   rejected-but-flagged (`conclusion=false`), keeping the report clean *and* honest.
 - The first pilot is **one dataset, one target subject, one seed** — an interface and
   claim-boundary validation, **not a performance claim**. It gracefully **skips** (legal skip
-  artifact, exit 0) if the local MOABB cache is unavailable.
+  artifact, exit 0) if the dataset load fails — cache unavailable **or** the dataset is invalid for
+  the loader/paradigm (e.g. `BNCI2015_001` is not a left/right-hand task, so `LeftRightImagery`
+  rejects it — a legal skip with that exact reason, not a missing cache).
 
 Runner: `h2cmi/run_real_audited.py` (`--dataset synthetic` validates the whole path
 self-contained; `--dataset <MOABB name>` loads offline). Wrapper:

@@ -48,6 +48,7 @@ def combine(summaries: List[dict]) -> Dict[str, Any]:
             "n_classes": nc,
             "chance_bacc": agg.get("chance_bacc"),
             "n_runs": agg.get("n_runs"), "n_ok": agg.get("n_ok"), "n_skipped": agg.get("n_skipped"),
+            "claim_boundary_status": agg.get("claim_boundary_status"),
             "all_valid": val.get("all_valid"),
             "all_forbidden_violations_empty": agg.get("all_forbidden_violations_empty"),
             "all_target_metrics_oracle_only": agg.get("all_target_metrics_oracle_only"),
@@ -78,11 +79,13 @@ def combine(summaries: List[dict]) -> Dict[str, Any]:
         "offline_tta_harm_rate": _harm_rate([r.get("offline_tta_gain_bacc") for r in all_ok_runs]),
     }
 
-    # A dataset with NO ok runs (e.g. cache-absent -> all legal skips) asserts no target metrics, so
-    # its (fail-closed) boundary flags are neutral, NOT a violation — exclude it from the boolean
-    # roll-up. It must still be VALID (a legal all-skip grid is valid), so all_datasets_valid uses
-    # every dataset.
+    # A dataset with NO ok runs (every cell a legal skip — e.g. invalid for the loader/paradigm, or
+    # data unavailable) asserts no target metrics: its boundary flags are not_applicable (null), NOT
+    # a violation — exclude it from the boolean roll-up. It must still be VALID (a legal all-skip grid
+    # is valid), so all_datasets_valid uses every dataset.
     active = [pd for pd in per_dataset.values() if (pd.get("n_ok") or 0) > 0]
+    all_skip_ds = sorted(ds for ds, pd in per_dataset.items()
+                         if (pd.get("n_ok") or 0) == 0 and (pd.get("n_skipped") or 0) > 0)
 
     def _flag_active(key):
         vals = [pd.get(key) for pd in active]
@@ -100,6 +103,8 @@ def combine(summaries: List[dict]) -> Dict[str, Any]:
         # class counts differ). Cross-dataset comparison uses normalized excess only.
         "raw_bacc_overall_suppressed": True,
         "mixed_n_classes": mixed_n_classes,
+        "n_datasets_all_skipped": len(all_skip_ds),
+        "datasets_all_skipped": all_skip_ds,
         "any_dataset_missing_cells": any(bool(pd["missing_cells"]) for pd in per_dataset.values()),
         "any_forbidden_violations":
             any(pd["all_forbidden_violations_empty"] is False for pd in active),
@@ -124,6 +129,8 @@ def write_md(combined: Dict[str, Any], path) -> str:
              f"**{combined['n_datasets']}**",
              f"- mixed n_classes: **{combined['mixed_n_classes']}**  ·  raw-bAcc overall suppressed: "
              f"**{combined['raw_bacc_overall_suppressed']}**",
+             f"- datasets all-skipped (no ok runs, not applicable): "
+             f"**{combined['datasets_all_skipped'] or 'none'}**",
              f"- all datasets valid: **{combined['all_datasets_valid']}**  ·  any missing cells: "
              f"**{combined['any_dataset_missing_cells']}**  ·  any forbidden violations: "
              f"**{combined['any_forbidden_violations']}**",
@@ -135,14 +142,15 @@ def write_md(combined: Dict[str, Any], path) -> str:
              f"- offline-TTA harm-rate: **{combined['overall_normalized']['offline_tta_harm_rate']}**  "
              f"(over **{combined['overall_normalized']['n_ok']}** ok runs)", "",
              "## Per dataset", "",
-             "| dataset | K | n_ok | n_skip | valid | id=null | raw bAcc (within) | strict "
+             "| dataset | K | n_ok | n_skip | valid | status | id=null | raw bAcc (within) | strict "
              "excess-norm | offline gain-norm | harm-rate | missing |",
-             "|---|---:|---:|---:|---|---|---:|---:|---:|---:|---:|"]
+             "|---|---:|---:|---:|---|---|---|---:|---:|---:|---:|---:|"]
     for ds in combined["datasets"]:
         pd = combined["per_dataset"][ds]
         lines.append(
             f"| {ds} | {pd['n_classes']} | {pd['n_ok']} | {pd['n_skipped']} | {pd['all_valid']} | "
-            f"{pd['all_target_metrics_identifiable_null']} | {_fmt(pd['mean_strict_dg_bacc'])} | "
+            f"{pd['claim_boundary_status']} | {_fs(pd['all_target_metrics_identifiable_null'])} | "
+            f"{_fmt(pd['mean_strict_dg_bacc'])} | "
             f"{_fmt(pd['mean_strict_dg_bacc_excess_norm'])} | "
             f"{_fmt(pd['mean_offline_tta_gain_bacc_norm'])} | {_fmt(pd['offline_tta_harm_rate'])} | "
             f"{len(pd['missing_cells'])} |")
@@ -154,6 +162,11 @@ def write_md(combined: Dict[str, Any], path) -> str:
 
 def _fmt(x):
     return f"{x:.3f}" if isinstance(x, (int, float)) else "—"
+
+
+def _fs(x):
+    """Render a boundary flag: 'n/a' for a not-applicable (null) all-skip dataset, else the value."""
+    return "n/a" if x is None else x
 
 
 def main(argv=None):

@@ -3,10 +3,11 @@
 Scope: interface + audited-report validation — **not a SOTA claim**; target metrics are oracle/evaluation-only.
 
 - runs: **36**  ·  ok: **0**  ·  skipped: **36**
-- all forbidden-violations empty: **False**
-- all target metrics oracle-only: **False**
-- all target metrics identifiable=null: **False**
-- all prior claims compliant: **False**  ·  no unknown estimands: **False**
+- claim boundary status: **not_applicable_all_skipped** (flags below are n/a when all cells are legal skips)
+- all forbidden-violations empty: **n/a**
+- all target metrics oracle-only: **n/a**
+- all target metrics identifiable=null: **n/a**
+- all prior claims compliant: **n/a**  ·  no unknown estimands: **n/a**
 - mean strict-DG bAcc: **None**  ·  mean offline-TTA gain: **None**  ·  offline-TTA harm-rate: **None**
 - n_classes: **None**  ·  chance bAcc: **None**  ·  mean strict-DG excess-norm: **None**  ·  mean offline-TTA gain-norm: **None**
 - expected runs: **36**  ·  missing cells: **0**

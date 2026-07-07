@@ -181,14 +181,24 @@ def aggregate(runs: List[Dict[str, Any]], expected_targets=None,
              if isinstance(r.get("offline_tta_gain_bacc"), (int, float))]
     n_classes = _uniform_n_classes(ok)
     chance = round(1.0 / n_classes, 4) if isinstance(n_classes, int) and n_classes > 0 else None
+    # a grid with runs but NO ok runs (every cell a legal skip) asserts no target metrics — its
+    # boundary flags are NOT applicable (null), NOT vacuously-false violations.
+    all_skipped = (len(ok) == 0 and len(skipped) > 0)
 
     def _mean(key):
         vals = [r[key] for r in ok if isinstance(r.get(key), (int, float))]
         return round(sum(vals) / len(vals), 4) if vals else None
 
+    def _bound(pred):
+        if ok:
+            return all(pred(r) for r in ok)
+        return None if all_skipped else False       # all-skip -> not_applicable; no runs at all -> False
+
     agg = {
         "n_runs": len(runs), "n_ok": len(ok), "n_skipped": len(skipped),
         "n_classes": n_classes, "chance_bacc": chance,
+        "claim_boundary_status": ("not_applicable_all_skipped" if all_skipped
+                                  else ("checked" if ok else "no_runs")),
         "mean_strict_dg_bacc": _mean("strict_dg_bacc"),
         "mean_offline_tta_gain_bacc": _mean("offline_tta_gain_bacc"),
         "mean_online_tta_bacc": _mean("online_tta_bacc"),
@@ -196,15 +206,12 @@ def aggregate(runs: List[Dict[str, Any]], expected_targets=None,
         "mean_strict_dg_bacc_excess_norm": _mean("strict_dg_bacc_excess_norm"),
         "mean_online_tta_bacc_excess_norm": _mean("online_tta_bacc_excess_norm"),
         "mean_offline_tta_gain_bacc_norm": _mean("offline_tta_gain_bacc_norm"),
-        "all_forbidden_violations_empty": all(not r.get("forbidden_claims_violated")
-                                              for r in ok) if ok else False,
-        "all_target_metrics_oracle_only": all(r.get("all_r0_r1_target_metrics_oracle_only")
-                                              for r in ok) if ok else False,
-        "all_target_metrics_identifiable_null": all(r.get("all_target_metrics_identifiable_null")
-                                                    for r in ok) if ok else False,
-        "all_prior_claims_compliant": all(r.get("target_prior_claim_status") in
-                                          _COMPLIANT_PRIOR_STATUS for r in ok) if ok else False,
-        "no_unknown_estimands": all(not r.get("unknown_estimands") for r in ok) if ok else False,
+        "all_forbidden_violations_empty": _bound(lambda r: not r.get("forbidden_claims_violated")),
+        "all_target_metrics_oracle_only": _bound(lambda r: r.get("all_r0_r1_target_metrics_oracle_only")),
+        "all_target_metrics_identifiable_null": _bound(lambda r: r.get("all_target_metrics_identifiable_null")),
+        "all_prior_claims_compliant": _bound(lambda r: r.get("target_prior_claim_status")
+                                             in _COMPLIANT_PRIOR_STATUS),
+        "no_unknown_estimands": _bound(lambda r: not r.get("unknown_estimands")),
         # descriptive statistical layer (mean/std/min/max + harm-rate; no inferential stats)
         "overall": {
             "strict_dg_bacc": _stats([r.get("strict_dg_bacc") for r in ok]),
@@ -254,11 +261,13 @@ def write_summary_md(summary: Dict[str, Any], path) -> str:
              "Scope: interface + audited-report validation — **not a SOTA claim**; target "
              "metrics are oracle/evaluation-only.", "",
              f"- runs: **{a['n_runs']}**  ·  ok: **{a['n_ok']}**  ·  skipped: **{a['n_skipped']}**",
-             f"- all forbidden-violations empty: **{a['all_forbidden_violations_empty']}**",
-             f"- all target metrics oracle-only: **{a['all_target_metrics_oracle_only']}**",
-             f"- all target metrics identifiable=null: **{a['all_target_metrics_identifiable_null']}**",
-             f"- all prior claims compliant: **{a['all_prior_claims_compliant']}**  ·  "
-             f"no unknown estimands: **{a['no_unknown_estimands']}**",
+             f"- claim boundary status: **{a.get('claim_boundary_status')}** "
+             "(flags below are n/a when all cells are legal skips)",
+             f"- all forbidden-violations empty: **{_fs(a['all_forbidden_violations_empty'])}**",
+             f"- all target metrics oracle-only: **{_fs(a['all_target_metrics_oracle_only'])}**",
+             f"- all target metrics identifiable=null: **{_fs(a['all_target_metrics_identifiable_null'])}**",
+             f"- all prior claims compliant: **{_fs(a['all_prior_claims_compliant'])}**  ·  "
+             f"no unknown estimands: **{_fs(a['no_unknown_estimands'])}**",
              f"- mean strict-DG bAcc: **{a['mean_strict_dg_bacc']}**  ·  mean offline-TTA gain: "
              f"**{a['mean_offline_tta_gain_bacc']}**  ·  offline-TTA harm-rate: "
              f"**{a['overall']['offline_tta_harm_rate']}**",
@@ -301,3 +310,8 @@ def write_summary_md(summary: Dict[str, Any], path) -> str:
 
 def _fmt(x):
     return f"{x:.3f}" if isinstance(x, (int, float)) else "—"
+
+
+def _fs(x):
+    """Render a boundary flag: 'n/a' for a not-applicable (null) all-skip grid, else the value."""
+    return "n/a" if x is None else x

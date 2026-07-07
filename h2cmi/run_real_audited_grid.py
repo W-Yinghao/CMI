@@ -33,8 +33,9 @@ def _resolve_subjects_arg(vals):
 
 
 def _moabb_subject_list(name):
-    """The dataset's full subject-id list WITHOUT loading trial data (cache-independent), so an
-    'all' grid can still enumerate expected cells even when the data cache is unavailable."""
+    """The dataset's full subject-id list WITHOUT loading trial data, so an 'all' grid can still
+    enumerate expected cells even when the data load fails (dataset invalid for the loader/paradigm,
+    or the cache is unavailable)."""
     import moabb.datasets as D
     return sorted(int(s) for s in getattr(D, name)().subject_list)
 
@@ -104,7 +105,7 @@ def main(argv=None):
         load_err = f"{type(exc).__name__}: {exc}"
 
     # resolve 'all' target subjects AFTER load, so grid_manifest records CONCRETE ids. Falls back to
-    # the cache-independent subject_list if the data cache is unavailable (so skips still enumerate).
+    # the dataset's subject_list if the data load fails (so skips still enumerate every cell).
     if targets_spec == "all":
         if args.dataset == "synthetic":
             target_subjects = sorted({int(x) for x in subj_col}) if load_err is None else []

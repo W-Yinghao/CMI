@@ -822,6 +822,7 @@
     "n_skipped": 0,
     "n_classes": 2,
     "chance_bacc": 0.5,
+    "claim_boundary_status": "checked",
     "mean_strict_dg_bacc": 0.6282,
     "mean_offline_tta_gain_bacc": -0.032,
     "mean_online_tta_bacc": 0.6214,
