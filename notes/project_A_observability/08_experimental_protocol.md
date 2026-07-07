@@ -288,12 +288,31 @@ targets × seeds 0-2 × 50 epochs → `results/step13_<DATASET>_diagnostics`. Pi
 curves → Step-13 dashboard). Tests: `test_observability_harm_attribution.py` (rich R1 + label-free),
 `test_real_minimal_label_curves.py`, `test_observability_science_dashboard.py` (Step-13 mode).
 
+## 14. Metric semantics and power
+
+Step 14 repairs two Step-13 over-readable metrics (no rerun, no new data):
+- **Real minimal-label curves** decompose the ambiguous "harm_sign_accuracy" into **coverage**
+  (`decisive_rate`), **unconditional_correct_rate**, and **conditional_accuracy_given_decisive**.
+  **k=0 accuracy is NULL** (no estimator licensed under R1), not 0.5. On real data the burden is
+  coverage, not accuracy.
+- **Harm predictor** gains a configurable `--step-label` (fixes a Step-12 provenance label), a larger
+  `--n-perm` permutation null reported at **p90/p95/p99**, and a `--robust-margin` rule
+  (`bAcc > perm_null_p95 + margin`). `harm_power.py` reports the minority-class limitation and the
+  **minimum detectable bAcc** below which a result is indistinguishable from the overfitting null.
+
+Rules (unchanged boundary): permutation-null significance is empirical retrospective evidence, NOT
+target-gain identifiability; k>0 curves are R2 labeled slices under an iid sampling/coverage contract;
+oracle labels never enter R0/R1 features; no SOTA; no manuscript. Pipeline reuses the Step-13 raw
+diagnostics grids (CPU only). Tests: `test_observability_harm_predictor.py` (step-label, perm
+percentiles, robust margin, power warning), `test_observability_harm_power.py`,
+`test_real_minimal_label_curves.py` (decomposition, k=0 null), `test_observability_science_dashboard.py`.
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
 (`run_counterexamples.py`); the audited evaluation bridge (§6), the real-EEG audited pilot
 (§7, `run_real_audited.py`), the audited mini-grid + validator (§8), the expanded grid +
 statistical digest (§9), the multi-dataset audited expansion + chance-normalized digest
-(§10), the Step-12 scientific exploration (§12), and the Step-13 rich-R1 diagnostics + real
-minimal-label curves (§13) are live. A full multi-dataset SOTA table and manuscript writing are out
-of scope.
+(§10), the Step-12 scientific exploration (§12), the Step-13 rich-R1 diagnostics + real
+minimal-label curves (§13), and the Step-14 metric-semantics + power repair (§14) are live. A full
+multi-dataset SOTA table and manuscript writing are out of scope.

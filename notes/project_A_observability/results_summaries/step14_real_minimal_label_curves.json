@@ -1,0 +1,173 @@
+{
+  "project": "Project A",
+  "step": "Step 14",
+  "scope": "real minimal-label curves (R2 labeled slice, coverage-decomposed); not SOTA",
+  "n_runs": 54,
+  "ks": [
+    0,
+    1,
+    2,
+    4,
+    8,
+    16,
+    32,
+    64,
+    128,
+    256
+  ],
+  "repeats": 200,
+  "per_k": {
+    "0": {
+      "k": 0,
+      "decisive_rate": 0.0,
+      "unconditional_correct_rate": null,
+      "conditional_accuracy_given_decisive": null,
+      "abstention_rate": 1.0,
+      "coverage": 0.0,
+      "precision_when_decisive": null,
+      "mean_ci_width": null,
+      "identified_status": "not_identified_R1",
+      "claim_boundary": "k=0: no estimator licensed under R1 (non-identifiable)."
+    },
+    "1": {
+      "k": 1,
+      "decisive_rate": 0.1992,
+      "unconditional_correct_rate": 0.1237,
+      "conditional_accuracy_given_decisive": 0.6211,
+      "abstention_rate": 0.8008,
+      "coverage": 0.1992,
+      "precision_when_decisive": 0.6211,
+      "mean_ci_width": 0.0,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "2": {
+      "k": 2,
+      "decisive_rate": 0.0262,
+      "unconditional_correct_rate": 0.0184,
+      "conditional_accuracy_given_decisive": 0.7032,
+      "abstention_rate": 0.9738,
+      "coverage": 0.0262,
+      "precision_when_decisive": 0.7032,
+      "mean_ci_width": 0.676,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "4": {
+      "k": 4,
+      "decisive_rate": 0.0127,
+      "unconditional_correct_rate": 0.0091,
+      "conditional_accuracy_given_decisive": 0.7153,
+      "abstention_rate": 0.9873,
+      "coverage": 0.0127,
+      "precision_when_decisive": 0.7153,
+      "mean_ci_width": 0.6322,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "8": {
+      "k": 8,
+      "decisive_rate": 0.0582,
+      "unconditional_correct_rate": 0.0473,
+      "conditional_accuracy_given_decisive": 0.8124,
+      "abstention_rate": 0.9418,
+      "coverage": 0.0582,
+      "precision_when_decisive": 0.8124,
+      "mean_ci_width": 0.5186,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "16": {
+      "k": 16,
+      "decisive_rate": 0.0622,
+      "unconditional_correct_rate": 0.056,
+      "conditional_accuracy_given_decisive": 0.9003,
+      "abstention_rate": 0.9378,
+      "coverage": 0.0622,
+      "precision_when_decisive": 0.9003,
+      "mean_ci_width": 0.399,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "32": {
+      "k": 32,
+      "decisive_rate": 0.1285,
+      "unconditional_correct_rate": 0.1204,
+      "conditional_accuracy_given_decisive": 0.9366,
+      "abstention_rate": 0.8715,
+      "coverage": 0.1285,
+      "precision_when_decisive": 0.9366,
+      "mean_ci_width": 0.2915,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "64": {
+      "k": 64,
+      "decisive_rate": 0.1631,
+      "unconditional_correct_rate": 0.1572,
+      "conditional_accuracy_given_decisive": 0.9637,
+      "abstention_rate": 0.8369,
+      "coverage": 0.1631,
+      "precision_when_decisive": 0.9637,
+      "mean_ci_width": 0.2094,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "128": {
+      "k": 128,
+      "decisive_rate": 0.2341,
+      "unconditional_correct_rate": 0.2308,
+      "conditional_accuracy_given_decisive": 0.9862,
+      "abstention_rate": 0.7659,
+      "coverage": 0.2341,
+      "precision_when_decisive": 0.9862,
+      "mean_ci_width": 0.149,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    },
+    "256": {
+      "k": 256,
+      "decisive_rate": 0.318,
+      "unconditional_correct_rate": 0.3175,
+      "conditional_accuracy_given_decisive": 0.9985,
+      "abstention_rate": 0.682,
+      "coverage": 0.318,
+      "precision_when_decisive": 0.9985,
+      "mean_ci_width": 0.1055,
+      "identified_status": "r2_labeled_slice_under_iid_sampling_contract",
+      "claim_boundary": "k>0 estimates a labeled-slice gain under an iid sampling contract and compares it to the oracle full-target sign; NOT full-target identification without that contract."
+    }
+  },
+  "best_k_for_0_8_unconditional": null,
+  "best_k_for_0_9_unconditional": null,
+  "best_k_for_0_8_conditional": 8,
+  "best_k_for_0_9_conditional": 16,
+  "harm_sign_accuracy_deprecated_per_k": {
+    "0": null,
+    "1": 0.1237,
+    "2": 0.0184,
+    "4": 0.0091,
+    "8": 0.0473,
+    "16": 0.056,
+    "32": 0.1204,
+    "64": 0.1572,
+    "128": 0.2308,
+    "256": 0.3175
+  },
+  "baselines": {
+    "always_predict_harm_baseline": 0.8519,
+    "always_abstain_baseline": {
+      "decisive_rate": 0.0,
+      "unconditional_correct_rate": 0.0
+    },
+    "oracle_full_target_sign_distribution": {
+      "harm": 46,
+      "benefit_or_no_harm": 8
+    },
+    "note": "always_predict_harm is an ORACLE class-balance baseline for evaluating retrospective sign predictors; it is NOT licensed under R1."
+  },
+  "k0_status": "not_identified_R1",
+  "claim_boundary_ok": true,
+  "oracle_labels_used_only_for_r2_slice_and_evaluation": true,
+  "claim_boundary": "k=0 = R1 non-identifiable (no estimator, accuracy NULL); k>0 = R2 labeled slice under an iid sampling contract vs the oracle full-target sign; not full-target identification. Oracle labels used only here (R2/evaluation)."
+}

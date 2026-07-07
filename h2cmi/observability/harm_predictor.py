@@ -110,12 +110,16 @@ def _permutation_null(rows, names, n_perm=100, seed=0):
         if b is not None:
             baccs.append(b)
     if not baccs:
-        return {"perm_null_mean": None, "perm_null_p95": None, "n_perm": 0}
+        return {"perm_null_mean": None, "perm_null_p90": None, "perm_null_p95": None,
+                "perm_null_p99": None, "n_perm": 0}
     return {"perm_null_mean": round(float(np.mean(baccs)), 4),
-            "perm_null_p95": round(float(np.percentile(baccs, 95)), 4), "n_perm": len(baccs)}
+            "perm_null_p90": round(float(np.percentile(baccs, 90)), 4),
+            "perm_null_p95": round(float(np.percentile(baccs, 95)), 4),
+            "perm_null_p99": round(float(np.percentile(baccs, 99)), 4), "n_perm": len(baccs)}
 
 
-def build_summary(table: Dict[str, Any], n_perm: int = 100) -> Dict[str, Any]:
+def build_summary(table: Dict[str, Any], n_perm: int = 100, step_label: str = "Step 12",
+                  robust_margin: float = 0.03, perm_seed: int = 0) -> Dict[str, Any]:
     rows = [r for r in table.get("runs", []) if r.get("offline_tta_harmed") is not None]
     n = len(rows)
     harmed = sum(1 for r in rows if r["offline_tta_harmed"])
@@ -127,7 +131,7 @@ def build_summary(table: Dict[str, Any], n_perm: int = 100) -> Dict[str, Any]:
     def _annotate(b, names):                                 # baseline + permutation-null controls
         v = b.get("balanced_acc_harm_prediction")
         b["beats_majority_baseline"] = (v is not None and v > 0.5)
-        b.update(_permutation_null(rows, names, n_perm=n_perm, seed=0))
+        b.update(_permutation_null(rows, names, n_perm=n_perm, seed=perm_seed))
         b["beats_permutation_null"] = (v is not None and b.get("perm_null_p95") is not None
                                        and v > b["perm_null_p95"])
         return b
@@ -135,11 +139,10 @@ def build_summary(table: Dict[str, Any], n_perm: int = 100) -> Dict[str, Any]:
     _annotate(r0, f0_names); _annotate(r1, f1_names)
     r0_beats, r1_beats = r0["beats_majority_baseline"], r1["beats_majority_baseline"]
 
-    _MARGIN = 0.03                                            # must clear the perm-null p95 by > MC noise
-    def _robust(b):
+    def _robust(b):                                          # must clear perm-null p95 by > MC-noise margin
         v, p = b.get("balanced_acc_harm_prediction"), b.get("perm_null_p95")
         b["margin_over_perm_null_p95"] = round(v - p, 4) if (v is not None and p is not None) else None
-        b["robust_signal"] = (v is not None and p is not None and v > p + _MARGIN)
+        b["robust_signal"] = (v is not None and p is not None and v > p + robust_margin)
         return b["robust_signal"]
 
     r0_robust, r1_robust = _robust(r0), _robust(r1)
@@ -157,18 +160,24 @@ def build_summary(table: Dict[str, Any], n_perm: int = 100) -> Dict[str, Any]:
         verdict = "marginal_at_permutation_boundary_not_robust"
     else:
         verdict = "robust_retrospective_signal_survives_permutation_null_by_margin"
+    n_groups = len({f"{r['dataset']}::{r['target_subject']}" for r in rows})
+    minority = min(harmed, n - harmed)
     return {
-        "project": "Project A", "step": "Step 12", "scope": "retrospective harm prediction; not SOTA",
+        "project": "Project A", "step": step_label, "scope": "retrospective harm prediction; not SOTA",
         "n_runs": n, "n_harmed": harmed, "harm_rate": round(harmed / n, 4) if n else None,
         "majority_baseline_balanced_acc": 0.5,               # always-predict-harm -> bAcc 0.5
         "cv": "leave-one-(dataset,target_subject)-out logistic regression (class_weight=balanced)",
+        "n_groups": n_groups, "n_perm": n_perm, "robust_margin": robust_margin,
+        "robust_signal_rule": f"balanced_acc > perm_null_p95 + {robust_margin}",
         "feature_sets": {"R0_source_only": r0, "R1_target_unlabeled": r1},
         "r1_minus_r0_balanced_acc_delta": delta,
         "any_predictor_beats_majority_baseline": bool(r0_beats or r1_beats),
         "any_predictor_survives_permutation_null": survives,
-        "any_predictor_robust_signal": robust,               # clears perm-null p95 by > 0.03 margin
+        "any_predictor_robust_signal": robust,               # clears perm-null p95 by > margin
         "verdict": verdict,
-        "n_minority_class": min(harmed, n - harmed),         # power caveat (tiny minority = noisy LOTO)
+        "n_minority_class": minority,                        # power caveat (tiny minority = noisy LOTO)
+        "minority_fraction": round(minority / n, 4) if n else None,
+        "class_imbalance_warning": bool(n and minority / n < 0.2),
         "oracle_never_a_feature": all(n not in ORACLE_KEYS for n in f1_names),
         "note_F2_k": ("F2(k) = F1 + a k-label target slice is studied on the controlled simulator in "
                       "minimal_paired.py, not here (real runs store no per-trial target labels)."),
@@ -183,11 +192,12 @@ def write_md(s: Dict[str, Any], path) -> str:
                 f"**{b['balanced_acc_harm_prediction']}** · AUC **{b['auc']}** · beats-baseline "
                 f"**{b.get('beats_majority_baseline')}** · perm-null p95 **{b.get('perm_null_p95')}** "
                 f"· beats-perm-null **{b.get('beats_permutation_null')}**")
-    lines = ["# Step 12 — retrospective offline-TTA harm predictor", "",
+    lines = [f"# {s['step']} — retrospective offline-TTA harm predictor", "",
              f"Scope: {s['scope']}. {s['claim_boundary']}", "",
              f"- runs: **{s['n_runs']}** · harm-rate **{s['harm_rate']}** · majority-baseline "
              f"balanced-acc **{s['majority_baseline_balanced_acc']}** · minority-class n "
-             f"**{s['n_minority_class']}** (LOTO is noisy at this power)",
+             f"**{s['n_minority_class']}** (frac {s.get('minority_fraction')}, imbalance-warning "
+             f"{s.get('class_imbalance_warning')}) · n_perm {s.get('n_perm')}",
              f"- CV: {s['cv']}", "", blk("R0_source_only"), blk("R1_target_unlabeled"),
              f"- **R1 − R0 balanced-acc delta: {s['r1_minus_r0_balanced_acc_delta']}**",
              f"- **verdict: {s['verdict']}** · any predictor beats baseline: "
@@ -202,8 +212,12 @@ def write_md(s: Dict[str, Any], path) -> str:
 
 
 def main(argv=None):
-    ap = argparse.ArgumentParser(description="Project A Step 12 retrospective harm predictor")
-    ap.add_argument("--input", required=True, help="step12_harm_attribution_table.json")
+    ap = argparse.ArgumentParser(description="Project A retrospective harm predictor")
+    ap.add_argument("--input", required=True, help="harm_attribution_table.json")
+    ap.add_argument("--step-label", default="Step 12", help="provenance label written into the summary")
+    ap.add_argument("--n-perm", type=int, default=100)
+    ap.add_argument("--perm-seed", type=int, default=0)
+    ap.add_argument("--robust-margin", type=float, default=0.03)
     ap.add_argument("--out-json", default=None)
     ap.add_argument("--out-md", default=None)
     args = ap.parse_args(argv)
@@ -211,7 +225,8 @@ def main(argv=None):
     table = _load_json(Path(args.input))
     if table is None:
         raise SystemExit(f"could not read {args.input}")
-    summary = build_summary(table)
+    summary = build_summary(table, n_perm=args.n_perm, step_label=args.step_label,
+                            robust_margin=args.robust_margin, perm_seed=args.perm_seed)
     if args.out_json:
         Path(args.out_json).parent.mkdir(parents=True, exist_ok=True)
         write_json_lf(args.out_json, summary)

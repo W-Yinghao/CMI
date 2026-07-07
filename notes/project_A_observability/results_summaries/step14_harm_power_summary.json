@@ -1,0 +1,19 @@
+{
+  "project": "Project A",
+  "step": "Step 14",
+  "scope": "harm-prediction power/sensitivity; not SOTA",
+  "n_runs": 54,
+  "n_harmed": 46,
+  "n_non_harmed": 8,
+  "minority_fraction": 0.1481,
+  "n_minority_class": 8,
+  "n_groups": 18,
+  "observed_R1_bacc": 0.6522,
+  "perm_null_p95": 0.6821,
+  "required_margin_rule": 0.03,
+  "minimum_detectable_bacc_approx": 0.7121,
+  "robust_signal": false,
+  "underpowered": true,
+  "power_caveat": "Underpowered for stable harm-prediction claims: minority n=8 (fraction 0.1481), high permutation-null p95=0.6821. A balanced-acc below ~0.7121 cannot be distinguished from the overfitting-inflated null; the observed R1 signal is NOT robust (marginal).",
+  "claim_boundary": "Permutation-null significance is empirical retrospective evidence; it does NOT make target gain identifiable under R1. Duplicating targets is NOT evidence and is not performed."
+}

@@ -1,8 +1,10 @@
-"""Project A Step 13 — tests for the real minimal-label curves.
+"""Project A Step 13/14 — tests for the real minimal-label curves (coverage-decomposed).
 
-Builds fake run dirs with per_trial_oracle_predictions and checks k=0 is the R1 non-identifiability
-boundary, k>0 is an R2 labeled slice under an iid sampling contract, the module never claims
-full-target identification, and oracle labels are used only for the R2 slice / evaluation. Run:
+Builds fake run dirs with per_trial_oracle_predictions and checks: k=0 is R1 non-identifiable with
+NULL accuracy (not 0.5); k>0 is an R2 labeled slice under an iid sampling contract; the metric is
+decomposed into coverage (decisive_rate) vs accuracy (conditional/unconditional); conditional accuracy
+is defined only when decisive; the module never claims full-target identification; oracle labels are
+used only for the R2 slice. Run:
 
     python -m h2cmi.tests.test_real_minimal_label_curves
 """
@@ -32,14 +34,41 @@ def _write_run(root, dataset, target, seed):
     return d
 
 
-def test_real_minimal_labels_k0_is_r1_nonidentified():
+def test_k0_has_null_accuracy_not_random_guess():
     with tempfile.TemporaryDirectory() as root:
         _write_run(root, "BNCI2014_001", 1, 0)
         s = _curve([root], [0, 8, 32], repeats=50, seed=0)
         k0 = s["per_k"]["0"]
         assert k0["identified_status"] == "not_identified_R1"
-        assert k0["harm_sign_accuracy"] == 0.5 and k0["abstention_rate"] == 1.0
+        assert k0["unconditional_correct_rate"] is None        # NULL, not 0.5
+        assert k0["conditional_accuracy_given_decisive"] is None
+        assert k0["decisive_rate"] == 0.0 and k0["abstention_rate"] == 1.0
         assert s["k0_status"] == "not_identified_R1"
+
+
+def test_minimal_label_curve_decomposes_accuracy_and_coverage():
+    with tempfile.TemporaryDirectory() as root:
+        _write_run(root, "BNCI2014_001", 1, 0)
+        s = _curve([root], [0, 8, 64], repeats=80, seed=0)
+        r = s["per_k"]["64"]
+        for key in ("decisive_rate", "unconditional_correct_rate",
+                    "conditional_accuracy_given_decisive", "abstention_rate", "coverage"):
+            assert key in r
+        # coverage + abstention == 1
+        assert abs(r["decisive_rate"] + r["abstention_rate"] - 1.0) < 1e-6
+        assert "harm_sign_accuracy_deprecated_per_k" in s      # deprecated alias present, not primary
+        assert "oracle_full_target_sign_distribution" in s["baselines"]
+
+
+def test_conditional_accuracy_defined_only_when_decisive():
+    with tempfile.TemporaryDirectory() as root:
+        _write_run(root, "BNCI2014_001", 1, 0)
+        s = _curve([root], [0, 64], repeats=80, seed=0)
+        assert s["per_k"]["0"]["conditional_accuracy_given_decisive"] is None      # 0 decisive -> null
+        r = s["per_k"]["64"]
+        if r["decisive_rate"] > 0:
+            assert r["conditional_accuracy_given_decisive"] is not None
+            assert 0.0 <= r["conditional_accuracy_given_decisive"] <= 1.0
 
 
 def test_real_minimal_labels_k_positive_is_r2_labeled_slice():
@@ -49,8 +78,7 @@ def test_real_minimal_labels_k_positive_is_r2_labeled_slice():
         r = s["per_k"]["64"]
         assert r["identified_status"] == "r2_labeled_slice_under_iid_sampling_contract"
         assert "sampling contract" in r["claim_boundary"].lower()
-        # harm-sign accuracy rises with k (more labels -> more decisive-correct)
-        assert s["per_k"]["64"]["harm_sign_accuracy"] >= s["per_k"]["8"]["harm_sign_accuracy"]
+        assert s["per_k"]["64"]["decisive_rate"] >= s["per_k"]["8"]["decisive_rate"]  # coverage rises with k
 
 
 def test_real_minimal_labels_does_not_claim_full_target_identification():
@@ -73,7 +101,9 @@ def test_real_minimal_labels_uses_oracle_labels_only_for_r2_slice_and_evaluation
 
 
 ALL_TESTS = [
-    test_real_minimal_labels_k0_is_r1_nonidentified,
+    test_k0_has_null_accuracy_not_random_guess,
+    test_minimal_label_curve_decomposes_accuracy_and_coverage,
+    test_conditional_accuracy_defined_only_when_decisive,
     test_real_minimal_labels_k_positive_is_r2_labeled_slice,
     test_real_minimal_labels_does_not_claim_full_target_identification,
     test_real_minimal_labels_uses_oracle_labels_only_for_r2_slice_and_evaluation,

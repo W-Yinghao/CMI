@@ -50,27 +50,45 @@ def test_dashboard_no_sota_claim():
 _HT13 = {"n_runs": 54, "harm_rate": 0.8333, "oracle_denylist": ["offline_tta_gain_bacc"],
          "runs": [{"r1_source": "instrumented_r1_diagnostics"}] * 54}
 _HP13_NULL = {"feature_sets": {"R0_source_only": {"balanced_acc_harm_prediction": 0.30},
-                               "R1_target_unlabeled": {"balanced_acc_harm_prediction": 0.45}},
+                               "R1_target_unlabeled": {"balanced_acc_harm_prediction": 0.45,
+                                                       "perm_null_p95": 0.62, "perm_null_p99": 0.68,
+                                                       "margin_over_perm_null_p95": -0.17}},
               "any_predictor_beats_majority_baseline": False, "oracle_never_a_feature": True}
-_REAL = {"k0_status": "not_identified_R1", "best_k_for_0_8_accuracy": 32, "best_k_for_0_9_accuracy": 128,
-         "oracle_labels_used_only_for_r2_slice_and_evaluation": True}
+_REAL = {"k0_status": "not_identified_R1", "best_k_for_0_8_unconditional": None,
+         "best_k_for_0_8_conditional": 4, "oracle_labels_used_only_for_r2_slice_and_evaluation": True,
+         "per_k": {"256": {"decisive_rate": 0.32, "conditional_accuracy_given_decisive": 0.99}}}
 
 
 def test_step13_dashboard_reports_r1_availability_and_minimal_label_k():
     m = build_step13_dashboard(_HT13, _HP13_NULL, _REAL, _MULTI)["metrics"]
     assert m["r1_diagnostics_available_rate"] == 1.0
-    assert m["real_minimal_label_best_k_0_9"] == 128 and m["real_minimal_label_best_k_0_8"] == 32
-    assert m["target_labels_used_in_r1_diagnostics"] is False
-    assert m["claim_boundary_ok"] is True
+    assert m["real_minimal_label_k256_coverage"] == 0.32
+    assert m["real_minimal_label_k256_conditional_accuracy"] == 0.99
+    assert m["real_minimal_label_best_k_0_8_conditional"] == 4
+    assert m["real_minimal_label_best_k_0_8_unconditional"] is None
+    assert m["target_labels_used_in_r1_diagnostics"] is False and m["claim_boundary_ok"] is True
 
 
 def test_step13_dashboard_stronger_null_when_r1_below_baseline():
     d = build_step13_dashboard(_HT13, _HP13_NULL, _REAL, _MULTI)
     assert d["metrics"]["R1_beats_baseline"] is False
     assert "stronger null" in d["what_changed_from_step12"][0].lower()
-    # claim boundary fails if oracle leaks or curves aren't R1-non-identified at k=0
     bad_real = dict(_REAL, k0_status="oops")
     assert build_step13_dashboard(_HT13, _HP13_NULL, bad_real, _MULTI)["metrics"]["claim_boundary_ok"] is False
+
+
+def test_step14_dashboard_uses_harm_power_and_coverage_decomposition():
+    power = {"underpowered": True, "minimum_detectable_bacc_approx": 0.67}
+    d = build_step13_dashboard(_HT13, _HP13_NULL, _REAL, _MULTI, harm_power=power, step_label="Step 14")
+    assert d["step"] == "Step 14"
+    m = d["metrics"]
+    assert m["harm_power_underpowered"] is True and m["minimum_detectable_bacc_approx"] == 0.67
+    assert m["R1_perm_null_p99"] == 0.68
+
+
+def test_dashboard_does_not_use_deprecated_harm_sign_accuracy():
+    m = build_step13_dashboard(_HT13, _HP13_NULL, _REAL, _MULTI)["metrics"]
+    assert not any("harm_sign_accuracy" in k for k in m)
 
 
 ALL_TESTS = [
@@ -80,6 +98,8 @@ ALL_TESTS = [
     test_dashboard_no_sota_claim,
     test_step13_dashboard_reports_r1_availability_and_minimal_label_k,
     test_step13_dashboard_stronger_null_when_r1_below_baseline,
+    test_step14_dashboard_uses_harm_power_and_coverage_decomposition,
+    test_dashboard_does_not_use_deprecated_harm_sign_accuracy,
 ]
 
 

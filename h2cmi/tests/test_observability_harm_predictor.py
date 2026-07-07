@@ -59,11 +59,44 @@ def test_predictor_summary_labels_results_retrospective_not_identifiable():
     assert s["majority_baseline_balanced_acc"] == 0.5
 
 
+def test_harm_predictor_step_label_is_configurable():
+    assert build_summary(_table(), n_perm=10, step_label="Step 14")["step"] == "Step 14"
+    assert build_summary(_table(), n_perm=10)["step"] == "Step 12"          # default unchanged
+
+
+def test_permutation_null_reports_p90_p95_p99():
+    s = build_summary(_table(), n_perm=30)
+    b = s["feature_sets"]["R1_target_unlabeled"]
+    for k in ("perm_null_mean", "perm_null_p90", "perm_null_p95", "perm_null_p99"):
+        assert k in b and b[k] is not None
+    assert b["perm_null_p90"] <= b["perm_null_p95"] <= b["perm_null_p99"]
+
+
+def test_robust_signal_requires_margin_over_p95():
+    s = build_summary(_table(), n_perm=30, robust_margin=0.03)
+    assert s["robust_signal_rule"] == "balanced_acc > perm_null_p95 + 0.03"
+    for b in s["feature_sets"].values():
+        v, p = b["balanced_acc_harm_prediction"], b["perm_null_p95"]
+        assert b["robust_signal"] == (v is not None and p is not None and v > p + 0.03)
+
+
+def test_small_minority_class_sets_power_warning():
+    # 10 rows, 9 harmed / 1 not -> minority fraction 0.1 < 0.2 -> imbalance warning
+    rows = [_row("D1", t, 0, harmed=(t != 9), leak=0.05 * t, ent=1.0 + 0.05 * t) for t in range(1, 11)]
+    s = build_summary({"runs": rows}, n_perm=10)
+    assert s["n_minority_class"] == 1 and s["minority_fraction"] == 0.1
+    assert s["class_imbalance_warning"] is True
+
+
 ALL_TESTS = [
     test_oracle_harm_label_not_in_predictor_features,
     test_r0_predictor_uses_only_r0_features,
     test_r1_predictor_uses_no_target_labels,
     test_predictor_summary_labels_results_retrospective_not_identifiable,
+    test_harm_predictor_step_label_is_configurable,
+    test_permutation_null_reports_p90_p95_p99,
+    test_robust_signal_requires_margin_over_p95,
+    test_small_minority_class_sets_power_warning,
 ]
 
 

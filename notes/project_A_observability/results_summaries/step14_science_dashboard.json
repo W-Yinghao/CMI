@@ -1,0 +1,36 @@
+{
+  "project": "Project A",
+  "step": "Step 14",
+  "scope": "rich R1 diagnostics + real minimal-label curves (coverage-decomposed) + power; not SOTA",
+  "metrics": {
+    "n_real_runs": 54,
+    "real_harm_rate": 0.8519,
+    "r1_diagnostics_available_rate": 1.0,
+    "R0_harm_predictor_bacc": 0.3342,
+    "R1_harm_predictor_bacc": 0.6522,
+    "R1_beats_baseline": true,
+    "R1_survives_permutation_null": false,
+    "R1_robust_signal": false,
+    "R1_perm_null_p95": 0.6821,
+    "R1_perm_null_p99": 0.7663,
+    "R1_margin_over_p95": -0.0299,
+    "harm_predictor_verdict": "above_baseline_but_within_permutation_null_overfitting_artifact",
+    "harm_power_underpowered": true,
+    "minimum_detectable_bacc_approx": 0.7121,
+    "R1_improves_over_step12": true,
+    "real_minimal_label_best_k_0_8_unconditional": null,
+    "real_minimal_label_best_k_0_8_conditional": 8,
+    "real_minimal_label_k256_coverage": 0.318,
+    "real_minimal_label_k256_conditional_accuracy": 0.9985,
+    "claim_boundary_ok": true,
+    "oracle_gain_used_only_as_evaluation_label": true,
+    "target_labels_used_in_r1_diagnostics": false
+  },
+  "what_changed_from_step12": [
+    "Richer R1 diagnostics beat 0.5 but do NOT clear their permutation null (p95 0.6821) -> OVERFITTING ARTIFACT (19 features / 54 rows / 8 minority), not signal.",
+    "Real minimal-label curves are COVERAGE-limited, not inaccurate: at k=256 coverage (decisive rate) is 0.318 while accuracy WHEN decisive is 0.9985; best k for unconditional≥0.8 = None, conditional≥0.8 = 8. The burden is coverage, not accuracy (labeled slice under an iid sampling contract).",
+    "Power: minority n small, underpowered=True; a bAcc below ~0.7121 is indistinguishable from the overfitting null.",
+    "R1 diagnostics remain label-free; oracle per-trial labels used only for R2 curves / evaluation."
+  ],
+  "claim_boundary": "R1 diagnostics are label-free; R0/R1 harm prediction is retrospective, not identifiability; real k>0 curves are labeled slices under an iid sampling contract (coverage-limited). No SOTA claim."
+}
