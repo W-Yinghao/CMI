@@ -1,0 +1,63 @@
+# Tier-1 smoke DRIVER config (implementation stage). The frozen DESIGN-LOCK is
+# target_info_frontier_fixed.yaml (unchanged); this file only records the implementation stage and does NOT
+# grant permission to run experiments. runs_allowed=false HARD-locks execution.
+
+driver_status: implementation_only
+experiments_allowed: false
+runs_allowed: false
+design_lock_hash: 3ad4ef312e325fa6
+
+tier1_scope:
+  datasets: [Lee2019_MI, Cho2017]
+  backbones: [EEGNet]
+  seeds: [0]
+  folds: first5
+  repeats_R: 10
+
+worlds:
+  - v2_source_invisible_world_a
+  - source_rich_source_visible_world_a
+
+# world injection magnitude grid (inner loop; inherited from V2/Fork2 world-gen convention)
+world_alpha_grid: [0.5, 1.0, 2.0]
+
+interventions:
+  - identity
+  - leace
+  - rlace
+  - tos_vd
+  - tp_leace
+  - alpha_leace
+  - random_k
+
+# frozen gate thresholds (from the design-lock)
+thresholds:
+  safety_eps: 0.02
+  benefit_lcb: 0.01
+
+# per-budget capability contract (consumed by target_leak_structural_check)
+budgets:
+  B0_source_only:
+    allowed_actions: [reject, abstain, accept]
+    decision_inputs: [source_safety, source_benefit_lcb]
+  B1_unlabeled_target:
+    allowed_actions: [reject, abstain, request_labels]
+    decision_inputs: [source_safety, unlabeled_target_mismatch]
+  B2_k_labels_per_class:
+    allowed_actions: [reject, abstain, accept]
+    decision_inputs: [source_safety, target_calibration_benefit_lcb, same_k_random]
+    k_grid: [1, 2, 4, 8, 16]
+  B3_sequential_calibration:
+    allowed_actions: [reject, abstain, accept, request_labels]
+    decision_inputs: [source_safety, target_calibration_benefit_lcb, same_k_random]
+    k_grid: [1, 2, 4, 8, 16]
+    active_query_policy: deferred
+  B4_oracle_selector:
+    allowed_actions: [DIAGNOSTIC]
+    decision_inputs: [oracle_target_labels]
+    diagnostic_only: true
+
+provenance:
+  branch: science-target-info-v1
+  stage: driver_implementation_only
+  do_not_run_yet: true
