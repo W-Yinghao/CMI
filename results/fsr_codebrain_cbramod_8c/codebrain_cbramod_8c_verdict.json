@@ -1,0 +1,44 @@
+{
+  "primary_model": "CBraMod",
+  "exploratory_model": "CodeBrain",
+  "dataset": "PhysioNetMI",
+  "analyzable_subjects": 105,
+  "target_panel_subjects": 15,
+  "n_source_grid_growing": [
+    2,
+    4,
+    8,
+    16,
+    "all"
+  ],
+  "n_source_grid_fixed": [
+    2,
+    4,
+    8
+  ],
+  "subset_seeds": 10,
+  "primary_l1_metric": "mean_pairwise_subject_separability",
+  "cbramod_task_gate_pass_rate": 0.521,
+  "codebrain_task_gate_pass_rate": 0.394,
+  "cbramod_perf_trend_growing": "increases",
+  "cbramod_perf_trend_fixed": "flat",
+  "cbramod_pairwise_l1_trend": "flat",
+  "cbramod_l5_reliance_trend": "flat",
+  "codebrain_perf_trend_growing": "increases",
+  "codebrain_pairwise_l1_trend": "flat",
+  "target_labels_used_for_selection": false,
+  "proceed_to_specialist_baselines": false,
+  "note": "8C-1 CBraMod primary / CodeBrain exploratory. See slope summary + trends; interpretation per FSR_48 v2 grid.",
+  "cbramod_scaling_signal": "sample_size",
+  "codebrain_scaling_signal": "sample_size_weak_task",
+  "l1_trend_primary": "persists_high_flat (~0.95 near-ceiling; diversity does NOT reduce subject separability; ceiling-bounded caveat)",
+  "l5_reliance_trend_primary": "flat (~0; no reliance scaling; on gated ~half of cells)",
+  "headline": "Over the feasible range, cross-subject transfer improves with more source DATA (growing-trials, perf slope +0.036 CI[0.028,0.045]) but NOT with subject DIVERSITY at fixed data (fixed-trials FLAT over {2,4,8}). Mean pairwise subject separability stays near-ceiling ~0.95 and FLAT across N_source (subject strongly encoded throughout; diversity does not reduce it). Subject-subspace reliance FLAT (~0). => the gain is a SAMPLE-SIZE effect; subject information PERSISTS; reliance does NOT scale. Extends 8B (subject encoded != harmful lever) to a scaling setting. Architecture-consistent (CodeBrain exploratory same direction, weaker/weaker-task).",
+  "caveats": [
+    "task WEAK on PhysioNetMI frozen (target 0.52-0.60, gate pass cbramod 0.52 / codebrain 0.39) -> L4/L5/L6 on gated ~half of cells; similar to BNCI not SHU-MI",
+    "pairwise-L1 ~0.95 near-ceiling -> L1-flat partly ceiling-bounded",
+    "fixed-trials only {2,4,8} (3 points); growing includes leveraged N=all",
+    "CodeBrain exploratory (gate 0.39): same direction, weaker task"
+  ],
+  "proceed_note": "Interesting FSR claims (subject-DIVERSITY effect, reliance scaling) are NULL; only signal is sample-size (mundane) + persistent L1 + flat L5. Per PM: null-for-diversity -> do NOT add specialist baselines."
+}

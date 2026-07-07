@@ -1,0 +1,117 @@
+{
+  "slopes": [
+    {
+      "model": "cbramod",
+      "condition": "growing",
+      "target_bacc_slope": {
+        "slope": 0.0362,
+        "ci": [
+          0.0282,
+          0.0445
+        ],
+        "n": 41
+      },
+      "pairwise_l1_slope": {
+        "slope": -0.0016,
+        "ci": [
+          -0.0142,
+          0.0134
+        ],
+        "n": 41
+      },
+      "l5_drop_subject_slope": {
+        "slope": -0.0086,
+        "ci": [
+          -0.0274,
+          0.0061
+        ],
+        "n": 22
+      }
+    },
+    {
+      "model": "cbramod",
+      "condition": "fixed",
+      "target_bacc_slope": {
+        "slope": 0.0021,
+        "ci": [
+          -0.0107,
+          0.0153
+        ],
+        "n": 30
+      },
+      "pairwise_l1_slope": {
+        "slope": 0.006,
+        "ci": [
+          -0.0215,
+          0.0353
+        ],
+        "n": 30
+      },
+      "l5_drop_subject_slope": {
+        "slope": -0.0096,
+        "ci": [
+          -0.0562,
+          0.0373
+        ],
+        "n": 15
+      }
+    },
+    {
+      "model": "codebrain",
+      "condition": "growing",
+      "target_bacc_slope": {
+        "slope": 0.0209,
+        "ci": [
+          0.0134,
+          0.0272
+        ],
+        "n": 41
+      },
+      "pairwise_l1_slope": {
+        "slope": -0.0033,
+        "ci": [
+          -0.0145,
+          0.0078
+        ],
+        "n": 41
+      },
+      "l5_drop_subject_slope": {
+        "slope": -0.0032,
+        "ci": [
+          -0.0191,
+          0.0092
+        ],
+        "n": 14
+      }
+    },
+    {
+      "model": "codebrain",
+      "condition": "fixed",
+      "target_bacc_slope": {
+        "slope": -0.0008,
+        "ci": [
+          -0.0127,
+          0.0109
+        ],
+        "n": 30
+      },
+      "pairwise_l1_slope": {
+        "slope": -0.0051,
+        "ci": [
+          -0.0275,
+          0.0206
+        ],
+        "n": 30
+      },
+      "l5_drop_subject_slope": {
+        "slope": 0.0374,
+        "ci": [
+          -0.0171,
+          0.0973
+        ],
+        "n": 14
+      }
+    }
+  ],
+  "note": "slope vs log(N_source), bootstrap over cells; growing=full grid, fixed={2,4,8}; N=all single composition."
+}

@@ -1,0 +1,20 @@
+{
+  "model": "cbramod",
+  "n_trials": 4722,
+  "n_subjects": 105,
+  "F1_dim": 12800,
+  "classes": [
+    0,
+    1
+  ],
+  "runs": [
+    4,
+    8,
+    12
+  ],
+  "load": {
+    "missing": 0,
+    "unexpected": 0,
+    "params": 4883800
+  }
+}
