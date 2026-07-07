@@ -5,7 +5,8 @@ Run:  python -m h2cmi.tests.test_observability_science_dashboard
 from __future__ import annotations
 
 from h2cmi.observability.science_dashboard import (build_dashboard, build_step13_dashboard,
-                                                   build_step15_dashboard, build_step16_dashboard)
+                                                   build_step15_dashboard, build_step16_dashboard,
+                                                   build_step17_dashboard)
 
 _BEN = {"n_runs": 54, "benefit_rate": 0.1481, "target_sign_consistency_rate": 0.83,
         "per_dataset": {"BNCI2014_001": {"n_beneficial": 4}, "BNCI2014_004": {"n_beneficial": 4}},
@@ -149,6 +150,96 @@ def test_step16_dashboard_claim_boundary_fails_if_oracle_deployable():
     assert m["claim_boundary_ok"] is False
 
 
+# Scenario A — estimands IDENTICAL on grid (class-balanced targets); control only at k=full (oracle-eq).
+_CON17_IDENT = {"n_runs": 54, "accuracy_benefit_rate": 0.1481, "bacc_benefit_rate": 0.1481,
+                "cross_estimand_sign_agreement": 1.0, "runs_accuracy_benefit_bacc_harm": 0,
+                "runs_bacc_benefit_accuracy_harm": 0, "accuracy_policy_controls_bacc": False,
+                "estimand_relationship": "identical_on_grid", "estimands_identical_on_grid": True,
+                "all_targets_class_balanced": True, "max_abs_gain_difference": 0.0,
+                "estimand_gap_is_sign_disagreement": False, "estimand_gap_is_magnitude_only": False,
+                "benefit_eps": 0.005, "accuracy_material_benefit_rate_eps": 0.0926,
+                "bacc_material_benefit_rate_eps": 0.0926, "mean_accuracy_gain": -0.0423,
+                "mean_bacc_gain": -0.0423, "step16_gap_explanation":
+                    "On this grid all 54 target sets are class-balanced; accuracy-gain == balanced-"
+                    "accuracy-gain per run (max |diff| = 0.0). The Step-16 gap was a THRESHOLD artifact.",
+                "claim_boundary_ok": True}
+_FR17_IDENT = {"no_overall_best_across_estimands": True, "accuracy_policy_controls_bacc": False,
+               "groups": {
+                   "accuracy_gain:iid": {"requires_contract": None, "any_policy_meets_harm_0_1": True,
+                                         "best_under_harm_0_1": {"policy": "plugin_sign", "k": "full"}},
+                   "balanced_accuracy_gain:class_balanced": {
+                       "requires_contract": "C13", "any_policy_meets_harm_0_1": True,
+                       "best_under_harm_0_1": {"policy": "plugin_sign", "k": "full"}}}}
+
+# Scenario B — genuine SIGN disagreement; a minimal-label accuracy policy controls, bAcc has none.
+_CON17_DISAGREE = dict(_CON17_IDENT, bacc_benefit_rate=0.0926, cross_estimand_sign_agreement=0.87,
+                       runs_accuracy_benefit_bacc_harm=4, runs_bacc_benefit_accuracy_harm=1,
+                       estimand_relationship="sign_disagreement", estimands_identical_on_grid=False,
+                       all_targets_class_balanced=False, max_abs_gain_difference=0.12,
+                       estimand_gap_is_sign_disagreement=True, step16_gap_explanation="")
+_FR17_DISAGREE = {"no_overall_best_across_estimands": True, "accuracy_policy_controls_bacc": False,
+                  "groups": {
+                      "accuracy_gain:iid": {"requires_contract": None, "any_policy_meets_harm_0_1": True,
+                                            "best_under_harm_0_1": {"policy": "ci_three_way", "k": 32}},
+                      "balanced_accuracy_gain:class_balanced": {
+                          "requires_contract": "C13", "any_policy_meets_harm_0_1": False,
+                          "best_under_harm_0_1": None}}}
+
+
+def test_step17_dashboard_separates_estimands_and_flags_relationship():
+    d = build_step17_dashboard(_CON17_IDENT, _FR17_IDENT)
+    m = d["metrics"]
+    assert d["step"] == "Step 17"
+    assert m["accuracy_benefit_rate"] == 0.1481 and m["bacc_benefit_rate"] == 0.1481
+    assert m["accuracy_policy_controls_bacc"] is False
+    assert m["no_overall_best_across_estimands"] is True and m["bacc_policy_requires_c13"] is True
+    assert m["estimand_relationship"] == "identical_on_grid"
+    assert "balanced-accuracy-gain control" in m["estimand_consistency_warning"].lower()
+    assert m["claim_boundary_ok"] is True
+
+
+def test_step17_dashboard_reports_threshold_artifact_when_identical():
+    d = build_step17_dashboard(_CON17_IDENT, _FR17_IDENT)
+    m = d["metrics"]
+    assert m["estimands_identical_on_grid"] is True and m["max_abs_gain_difference"] == 0.0
+    blob = " ".join(d["what_we_learned"]).lower()
+    assert "threshold artifact" in blob                         # not a real accuracy-vs-bAcc divergence
+
+
+def test_step17_dashboard_full_budget_control_is_not_minimal_label_success():
+    m = build_step17_dashboard(_CON17_IDENT, _FR17_IDENT)["metrics"]
+    # both groups "meet" harm<=0.10 only at k=full -> NOT counted as minimal-label control
+    assert m["best_accuracy_gain_meets_harm_0_10"] is True
+    assert m["best_accuracy_gain_control_at_minimal_labels"] is False
+    assert m["best_bacc_gain_control_at_minimal_labels"] is False
+
+
+def test_step17_dashboard_states_negative_persists_under_bacc_consistent_control():
+    blob = " ".join(build_step17_dashboard(_CON17_IDENT, _FR17_IDENT)["what_we_learned"]).lower()
+    assert "persists under bacc-consistent control" in blob     # only k=full/oracle-equivalent budgets control
+
+
+def test_step17_dashboard_reports_per_estimand_best_policies():
+    m = build_step17_dashboard(_CON17_DISAGREE, _FR17_DISAGREE)["metrics"]
+    assert m["best_accuracy_gain_policy"] == "ci_three_way" and m["best_accuracy_gain_k"] == 32
+    assert m["best_accuracy_gain_control_at_minimal_labels"] is True   # k=32 is a real minimal budget
+    assert m["best_bacc_gain_policy"] is None                          # no C13 policy meets harm<=0.10
+    assert m["best_bacc_gain_meets_harm_0_10"] is False
+
+
+def test_step17_dashboard_estimand_dependent_when_only_accuracy_controls():
+    d = build_step17_dashboard(_CON17_DISAGREE, _FR17_DISAGREE)
+    blob = " ".join(d["what_we_learned"]).lower()
+    assert "estimand-dependent" in blob and "no sota" in d["claim_boundary"].lower()
+
+
+def test_step17_dashboard_claim_boundary_fails_if_accuracy_controls_bacc():
+    bad_con = dict(_CON17_IDENT, accuracy_policy_controls_bacc=True)
+    assert build_step17_dashboard(bad_con, _FR17_IDENT)["metrics"]["claim_boundary_ok"] is False
+    bad_fr = dict(_FR17_IDENT, no_overall_best_across_estimands=False)
+    assert build_step17_dashboard(_CON17_IDENT, bad_fr)["metrics"]["claim_boundary_ok"] is False
+
+
 ALL_TESTS = [
     test_dashboard_reports_real_harm_and_predictor,
     test_dashboard_claim_boundary_ok_requires_oracle_not_feature,
@@ -163,6 +254,13 @@ ALL_TESTS = [
     test_step15_dashboard_never_selects_oracle_policy,
     test_step16_dashboard_reports_benefit_and_sequential,
     test_step16_dashboard_claim_boundary_fails_if_oracle_deployable,
+    test_step17_dashboard_separates_estimands_and_flags_relationship,
+    test_step17_dashboard_reports_threshold_artifact_when_identical,
+    test_step17_dashboard_full_budget_control_is_not_minimal_label_success,
+    test_step17_dashboard_states_negative_persists_under_bacc_consistent_control,
+    test_step17_dashboard_reports_per_estimand_best_policies,
+    test_step17_dashboard_estimand_dependent_when_only_accuracy_controls,
+    test_step17_dashboard_claim_boundary_fails_if_accuracy_controls_bacc,
 ]
 
 

@@ -1,0 +1,546 @@
+{
+  "project": "Project A",
+  "step": "Step 17",
+  "scope": "per-estimand harm-control frontier (accuracy vs balanced-accuracy); not SOTA",
+  "estimands": [
+    "accuracy_gain",
+    "balanced_accuracy_gain"
+  ],
+  "samplings": [
+    "iid",
+    "class_balanced"
+  ],
+  "group_keys": [
+    "accuracy_gain:iid",
+    "accuracy_gain:class_balanced",
+    "balanced_accuracy_gain:iid",
+    "balanced_accuracy_gain:class_balanced"
+  ],
+  "harm_thresholds": [
+    0.05,
+    0.1,
+    0.2,
+    0.5
+  ],
+  "min_coverages": [
+    0.01,
+    0.05,
+    0.1
+  ],
+  "accuracy_policy_controls_bacc": false,
+  "no_overall_best_across_estimands": true,
+  "overall_best_policy": null,
+  "class_balanced_bacc_requires_contract": "C13",
+  "groups": {
+    "accuracy_gain:iid": {
+      "estimand": "accuracy_gain",
+      "sampling": "iid",
+      "requires_contract": null,
+      "n_cells": 132,
+      "best_under_harm_0_05": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_1": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_2": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_5": {
+        "policy": "plugin_sign",
+        "k": "256",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1709,
+        "harm": 0.447,
+        "missed_benefit": 0.362
+      },
+      "any_policy_meets_harm_0_05": true,
+      "any_policy_meets_harm_0_1": true,
+      "any_policy_meets_harm_0_2": true,
+      "frontier_table": [
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1709
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1709
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1709
+        }
+      ]
+    },
+    "accuracy_gain:class_balanced": {
+      "estimand": "accuracy_gain",
+      "sampling": "class_balanced",
+      "requires_contract": null,
+      "n_cells": 132,
+      "best_under_harm_0_05": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_1": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_2": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_5": {
+        "policy": "plugin_sign",
+        "k": "256",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1614,
+        "harm": 0.4078,
+        "missed_benefit": 0.3548
+      },
+      "any_policy_meets_harm_0_05": true,
+      "any_policy_meets_harm_0_1": true,
+      "any_policy_meets_harm_0_2": true,
+      "frontier_table": [
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1614
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1614
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1614
+        }
+      ]
+    },
+    "balanced_accuracy_gain:iid": {
+      "estimand": "balanced_accuracy_gain",
+      "sampling": "iid",
+      "requires_contract": null,
+      "n_cells": 132,
+      "best_under_harm_0_05": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_1": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_2": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_5": {
+        "policy": "plugin_sign",
+        "k": "256",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1801,
+        "harm": 0.4278,
+        "missed_benefit": 0.3043
+      },
+      "any_policy_meets_harm_0_05": true,
+      "any_policy_meets_harm_0_1": true,
+      "any_policy_meets_harm_0_2": true,
+      "frontier_table": [
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1801
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1801
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1801
+        }
+      ]
+    },
+    "balanced_accuracy_gain:class_balanced": {
+      "estimand": "balanced_accuracy_gain",
+      "sampling": "class_balanced",
+      "requires_contract": "C13",
+      "n_cells": 132,
+      "best_under_harm_0_05": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_1": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_2": {
+        "policy": "plugin_sign",
+        "k": "full",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1481,
+        "harm": 0.0,
+        "missed_benefit": 0.0
+      },
+      "best_under_harm_0_5": {
+        "policy": "plugin_sign",
+        "k": "256",
+        "tau": 0.0,
+        "adaptation_coverage": 0.1614,
+        "harm": 0.4078,
+        "missed_benefit": 0.3548
+      },
+      "any_policy_meets_harm_0_05": true,
+      "any_policy_meets_harm_0_1": true,
+      "any_policy_meets_harm_0_2": true,
+      "frontier_table": [
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.05,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.1,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.2,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "full",
+          "best_adaptation_coverage": 0.1481
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.01,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1614
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.05,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1614
+        },
+        {
+          "harm_threshold": 0.5,
+          "min_coverage": 0.1,
+          "best_policy": "plugin_sign",
+          "best_k": "256",
+          "best_adaptation_coverage": 0.1614
+        }
+      ]
+    }
+  },
+  "claim_boundary": "Accuracy-gain and balanced-accuracy-gain frontiers are kept SEPARATE; there is no overall best policy across estimands (different target functionals). The balanced_accuracy_gain:class_balanced frontier requires contract C13. Frontiers are R2 label-budget views, not R1 target-gain identifiability.",
+  "claim_boundary_ok": true
+}

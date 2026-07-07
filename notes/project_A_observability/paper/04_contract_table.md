@@ -19,6 +19,7 @@ when it is violated.
 | **C10** | zero-Bayes / `D⊥Y\|Z` escape (H(Y\|Z)=0 sufficient **not** necessary) | legacy escape | src diag | src diag | anchored | **P0-3** | "joint CMI=0 ⇔ zero Bayes error" |
 | **C11** | anchor validity (no fake pairing / label leakage) | **MP-1** | ✗ | ✗ | ~ | **CE-C11-1** | fake pairing read as true transport |
 | **C12** | domain-factor separability (`determines_label` correct) | OACI/CSC invariance legitimacy | src `D_j⇒Y` test | +tgt metadata | anchored | **P0-4** | `D=subject⇒Y=g(D)` invariance illusion |
+| **C13** | class-balanced calibration design (N trials/class) | bAcc-gain estimation from small R2 slices (Step 17) | ✗ | ✗ | ✓ (labels/protocol) | iid small-`k` missing-class | iid `k` labels read as a reliable bAcc-gain estimate |
 
 ## The three "concept" preconditions (do not conflate)
 

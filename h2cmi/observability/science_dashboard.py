@@ -302,6 +302,155 @@ def build_step16_dashboard(benefit, sequential, frontier, harm_control_static=No
                                "oracle policy not deployable. No SOTA.")}
 
 
+def build_step17_dashboard(consistency, frontier, step_label="Step 17") -> Dict[str, Any]:
+    con = consistency or {}
+    fr = frontier or {}
+    groups = fr.get("groups", {}) or {}
+    acc_grp = groups.get("accuracy_gain:iid", {}) or {}          # accuracy's natural sampling
+    bacc_grp = groups.get("balanced_accuracy_gain:class_balanced", {}) or {}   # bAcc's C13 sampling
+
+    def _best_policy(g):
+        b = (g or {}).get("best_under_harm_0_1")
+        return (b or {}).get("policy")
+
+    def _best_k(g):
+        b = (g or {}).get("best_under_harm_0_1")
+        return (b or {}).get("k")
+
+    def _minimal_label(g):                                       # control at a genuinely small budget?
+        b = (g or {}).get("best_under_harm_0_1")
+        return bool(b and b.get("k") not in (None, "full"))
+
+    disagree = (con.get("runs_accuracy_benefit_bacc_harm", 0) or 0) + \
+        (con.get("runs_bacc_benefit_accuracy_harm", 0) or 0)
+    sign_agree = con.get("cross_estimand_sign_agreement")
+    rel = con.get("estimand_relationship")
+    eps = con.get("benefit_eps")
+    acc_eps = con.get("accuracy_material_benefit_rate_eps")
+    bacc_eps = con.get("bacc_material_benefit_rate_eps")
+    gap_expl = con.get("step16_gap_explanation", "")
+    identical = bool(con.get("estimands_identical_on_grid"))
+    tail = " An accuracy-gain policy is still never reported as a balanced-accuracy-gain control."
+    if rel == "sign_disagreement":
+        warn = (f"accuracy-gain and balanced-accuracy-gain disagree on SIGN for {disagree} run(s) "
+                f"(sign-agreement {sign_agree}); they are genuinely different functionals here." + tail)
+    elif rel == "identical_on_grid":
+        warn = ("On this grid the two estimands COINCIDE (all targets class-balanced -> accuracy-gain == "
+                "balanced-accuracy-gain per run); the Step-16 gap was a THRESHOLD artifact, not an estimand "
+                "divergence." + tail)
+    else:
+        warn = (f"accuracy-gain and balanced-accuracy-gain agree on sign but differ in magnitude "
+                f"(eps={eps}: {acc_eps} vs {bacc_eps})." + tail)
+
+    bacc_requires_c13 = (bacc_grp.get("requires_contract") == "C13")
+    claim_ok = (con.get("accuracy_policy_controls_bacc") is False
+                and con.get("claim_boundary_ok") is True
+                and fr.get("no_overall_best_across_estimands") is True
+                and fr.get("accuracy_policy_controls_bacc") is False
+                and bacc_requires_c13)
+    metrics = {
+        "n_real_runs": con.get("n_runs"),
+        "accuracy_benefit_rate": con.get("accuracy_benefit_rate"),
+        "bacc_benefit_rate": con.get("bacc_benefit_rate"),
+        "cross_estimand_sign_agreement": sign_agree,
+        "runs_accuracy_benefit_bacc_harm": con.get("runs_accuracy_benefit_bacc_harm"),
+        "runs_bacc_benefit_accuracy_harm": con.get("runs_bacc_benefit_accuracy_harm"),
+        "estimand_relationship": rel,
+        "estimands_identical_on_grid": identical,
+        "all_targets_class_balanced": bool(con.get("all_targets_class_balanced")),
+        "max_abs_gain_difference": con.get("max_abs_gain_difference"),
+        "estimand_gap_is_sign_disagreement": bool(con.get("estimand_gap_is_sign_disagreement")),
+        "estimand_gap_is_magnitude_only": bool(con.get("estimand_gap_is_magnitude_only")),
+        "accuracy_material_benefit_rate_eps": acc_eps,
+        "bacc_material_benefit_rate_eps": bacc_eps,
+        "mean_accuracy_gain": con.get("mean_accuracy_gain"),
+        "mean_bacc_gain": con.get("mean_bacc_gain"),
+        "step16_gap_explanation": gap_expl,
+        "accuracy_policy_controls_bacc": False,
+        "best_accuracy_gain_policy": _best_policy(acc_grp),
+        "best_accuracy_gain_k": _best_k(acc_grp),
+        "best_accuracy_gain_meets_harm_0_10": bool(acc_grp.get("any_policy_meets_harm_0_1")),
+        "best_accuracy_gain_control_at_minimal_labels": _minimal_label(acc_grp),
+        "best_bacc_gain_policy": _best_policy(bacc_grp),
+        "best_bacc_gain_k": _best_k(bacc_grp),
+        "best_bacc_gain_meets_harm_0_10": bool(bacc_grp.get("any_policy_meets_harm_0_1")),
+        "best_bacc_gain_control_at_minimal_labels": _minimal_label(bacc_grp),
+        "bacc_policy_requires_c13": bacc_requires_c13,
+        "no_overall_best_across_estimands": bool(fr.get("no_overall_best_across_estimands")),
+        "estimand_consistency_warning": warn,
+        "claim_boundary_ok": claim_ok,
+    }
+    # Does the Step 15/16 negative depend on the estimand mismatch, or persist under a bAcc-consistent
+    # policy? "Control" only counts if it holds at a GENUINELY MINIMAL label budget — a policy that only
+    # meets harm<=0.10 at k=full uses (near-)full target labels and is oracle-equivalent, not a win.
+    acc_min = metrics["best_accuracy_gain_control_at_minimal_labels"]
+    bacc_min = metrics["best_bacc_gain_control_at_minimal_labels"]
+    if not acc_min and not bacc_min:
+        why = ("both estimands COINCIDE here (class-balanced targets), so this is estimand-invariant"
+               if identical else "the failure is NOT merely an accuracy-vs-bAcc estimand mismatch")
+        persist = (f"The Step 15/16 negative PERSISTS under bAcc-consistent control: no minimal-label "
+                   f"policy meets harm<=0.10 at coverage>=0.05 for EITHER estimand (only k=full / oracle-"
+                   f"equivalent budgets do; best-k accuracy {metrics['best_accuracy_gain_k']}, bAcc "
+                   f"{metrics['best_bacc_gain_k']}) — {why}.")
+    elif acc_min and not bacc_min:
+        persist = ("A minimal-label policy controls ACCURACY-gain harm but no class-balanced (C13) policy "
+                   "controls balanced-accuracy-gain harm at a minimal budget: the apparent control is "
+                   "estimand-dependent, not a balanced-accuracy guarantee.")
+    else:
+        persist = (f"A minimal-label bAcc-consistent (C13) policy ({metrics['best_bacc_gain_policy']}, "
+                   f"k={metrics['best_bacc_gain_k']}) meets harm<=0.10 at coverage>=0.05; reported ONLY "
+                   f"for the balanced-accuracy-gain estimand it was evaluated under.")
+    learned = [
+        gap_expl if gap_expl else
+        (f"Accuracy-gain vs balanced-accuracy-gain: sign-agreement {sign_agree}, {disagree} sign-"
+         f"disagreement run(s); at eps={eps} material-benefit rates {acc_eps} vs {bacc_eps}."),
+        warn,
+        persist,
+        ("Frontiers are kept strictly separate by estimand and sampling; there is no overall best policy "
+         "across estimands; the class-balanced balanced-accuracy frontier requires contract C13."),
+    ]
+    return {"project": "Project A", "step": step_label,
+            "scope": "estimand-consistent harm control (accuracy vs balanced-accuracy); not SOTA",
+            "metrics": metrics, "what_we_learned": learned,
+            "what_remains_unknown": [
+                "Whether the accuracy/bAcc gap widens on more class-imbalanced clinical EEG.",
+                "Whether a class-balanced (C13) acquisition protocol is feasible in real BCI calibration.",
+                "Whether a bAcc-consistent policy could control harm at higher coverage with active sampling."],
+            "claim_boundary": ("Accuracy-gain and balanced-accuracy-gain are distinct target functionals; a "
+                               "policy licensed for one is never reported as controlling the other; class-"
+                               "balanced bAcc-gain estimation requires contract C13; k>0 slices are R2 under a "
+                               "sampling contract, NOT R1 identifiability. No SOTA.")}
+
+
+def write_step17_md(d: Dict[str, Any], path) -> str:
+    m = d["metrics"]
+    lines = [f"# {d['step']} — Science Dashboard (estimand-consistent harm control)", "",
+             f"Scope: {d['scope']}.", "", "## Key metrics", "",
+             f"- real runs: **{m['n_real_runs']}** · accuracy benefit-rate **{m['accuracy_benefit_rate']}** · "
+             f"bAcc benefit-rate **{m['bacc_benefit_rate']}** · sign-agreement "
+             f"**{m['cross_estimand_sign_agreement']}**",
+             f"- runs accuracy-benefit∧bAcc-harm **{m['runs_accuracy_benefit_bacc_harm']}** · "
+             f"bAcc-benefit∧accuracy-harm **{m['runs_bacc_benefit_accuracy_harm']}**",
+             f"- estimand relationship: **{m['estimand_relationship']}** · identical on grid "
+             f"**{m['estimands_identical_on_grid']}** · all targets class-balanced "
+             f"**{m['all_targets_class_balanced']}** · max |acc−bAcc gain| **{m['max_abs_gain_difference']}**",
+             f"- accuracy policy controls bAcc: **{m['accuracy_policy_controls_bacc']}** · "
+             f"no overall best across estimands: **{m['no_overall_best_across_estimands']}**",
+             f"- best accuracy-gain policy **{m['best_accuracy_gain_policy']}** (k **{m['best_accuracy_gain_k']}**, "
+             f"minimal-label control **{m['best_accuracy_gain_control_at_minimal_labels']}**) · best bAcc-gain "
+             f"policy **{m['best_bacc_gain_policy']}** (k **{m['best_bacc_gain_k']}**, minimal-label control "
+             f"**{m['best_bacc_gain_control_at_minimal_labels']}**, requires C13 **{m['bacc_policy_requires_c13']}**)",
+             f"- estimand-consistency warning: {m['estimand_consistency_warning']}",
+             f"- claim boundary ok **{m['claim_boundary_ok']}**", "", "## What we learned", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_we_learned"], 1)]
+    lines += ["", "## What remains unknown", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_remains_unknown"], 1)]
+    lines += ["", "> " + d["claim_boundary"]]
+    text = "\n".join(lines) + "\n"
+    write_text_lf(path, text)
+    return text
+
+
 def write_step16_md(d: Dict[str, Any], path) -> str:
     m = d["metrics"]
     lines = [f"# {d['step']} — Science Dashboard (benefit anatomy + sequential frontier)", "",
@@ -399,10 +548,10 @@ def write_md(d: Dict[str, Any], path) -> str:
 
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Project A Step 12 science dashboard")
-    ap.add_argument("--harm-table", required=True)
-    ap.add_argument("--harm-predictor", required=True)
+    ap.add_argument("--harm-table", default=None)
+    ap.add_argument("--harm-predictor", default=None)
     ap.add_argument("--phase-transition", default=None, help="Step-12 mode")
-    ap.add_argument("--multidataset", required=True)
+    ap.add_argument("--multidataset", default=None)
     ap.add_argument("--real-minimal-labels", default=None,
                     help="Step-13 mode: real minimal-label curves JSON")
     ap.add_argument("--step12-harm-predictor", default=None,
@@ -412,12 +561,21 @@ def main(argv=None):
     ap.add_argument("--benefit-anatomy", default=None, help="Step-16 mode: benefit-anatomy JSON")
     ap.add_argument("--sequential-harm-control", default=None, help="Step-16: sequential harm-control JSON")
     ap.add_argument("--policy-frontier", default=None, help="Step-16: policy-frontier JSON")
+    ap.add_argument("--estimand-consistency", default=None, help="Step-17: estimand-consistency JSON")
+    ap.add_argument("--estimand-frontier", default=None, help="Step-17: per-estimand frontier JSON")
     ap.add_argument("--step-label", default="Step 13", help="dashboard provenance label")
     ap.add_argument("--out-json", default=None)
     ap.add_argument("--out-md", default=None)
     args = ap.parse_args(argv)
 
-    if args.benefit_anatomy:                                  # Step 16
+    if args.estimand_consistency:                             # Step 17
+        label = "Step 17" if args.step_label == "Step 13" else args.step_label
+        d = build_step17_dashboard(
+            _load_json(Path(args.estimand_consistency)),
+            _load_json(Path(args.estimand_frontier)) if args.estimand_frontier else None,
+            step_label=label)
+        md_writer = write_step17_md
+    elif args.benefit_anatomy:                                # Step 16
         label = "Step 16" if args.step_label == "Step 13" else args.step_label
         d = build_step16_dashboard(
             _load_json(Path(args.benefit_anatomy)),

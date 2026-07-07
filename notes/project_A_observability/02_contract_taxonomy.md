@@ -53,6 +53,13 @@ contract can be checkable and false, or true and uncheckable.
 | **C10** | zero-Bayes / `D⊥Y\|Z` escape | `H(Y\|Z)=0` **sufficient not necessary**; correct: `I(Z;D\|Y)=0 ⇒` both CMIs 0 **iff** `I(Z;D)=I(Y;D)` ⇔ `D⊥Y\|Z` | legacy escape only | source diagnostic (`I(Z;D)` vs `I(Y;D)`, `D⊥Y\|Z` test) | source diagnostic persists; target-side ✗ | anchored | **P0-3** counterexample |
 | **C11** | anchor validity | anchors pair samples from the **same** latent event / subject / device mechanism (no fake pairing, no label leakage) | **MP-1** | ✗ | ✗ | partial (anchor consistency checks) | **CE-C11-1** (same observed pair, different true transport) |
 | **C12** | domain-factor separability | each `D_j` validly assigned acquisition (invariance-eligible) vs label-mechanism role; `determines_label` correct | OACI / CSC, legitimacy of invariance | metadata + test `D_j⇒Y` | source `D_j⇒Y` test (as R0) + target metadata | better with anchors | **P0-4** (subject=label `Y=g(D)`) |
+| **C13** | class-balanced calibration design | the R2 labeled slice is collected with controlled/stratified class balance (a fixed number of trials **per class**) | balanced-accuracy gain estimation from small slices; class-balanced harm-control policies (Step 17) | ✗ | ✗ | ✓ from labels / calibration protocol | **iid small-`k` may omit a class ⇒ bAcc-gain undefined / high-variance** — treating iid `k` labels as a reliable bAcc-gain estimate is the overclaim C13 blocks |
+
+**C13 note (Step 17).** C13 is a *design* contract for the R2 labeled slice, not a distributional
+assumption on the world. It is plausible in cued BCI protocols (you can elicit N trials per class) but
+never automatic. Under iid sampling a small slice may miss a class, making the balanced-accuracy gain
+undefined; C13 is what licenses a small-slice bAcc-gain estimate. C13 is a documented Step-17 contract;
+it is not added to the machine registry's required C1–C12 set.
 
 ## 3. Contracts that need the most care
 

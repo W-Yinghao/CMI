@@ -83,6 +83,19 @@ _CHECK_FILES = {
     "notes/project_A_observability/results_summaries/step16_sequential_harm_control.md": 15,
     "notes/project_A_observability/results_summaries/step16_policy_frontier.md": 12,
     "notes/project_A_observability/results_summaries/step16_science_dashboard.md": 15,
+    # Step-17 estimand consistency + per-estimand frontier
+    "h2cmi/observability/estimand_consistency.py": 150,
+    "h2cmi/observability/estimand_frontier.py": 100,
+    "h2cmi/tests/test_estimand_consistency.py": 60,
+    "h2cmi/tests/test_estimand_frontier.py": 40,
+    "notes/project_A_observability/science/11_estimand_consistency.md": 25,
+    "notes/project_A_observability/science/12_estimand_consistency_results.md": 40,
+    "notes/project_A_observability/results_summaries/step17_estimand_consistency.json": 40,
+    "notes/project_A_observability/results_summaries/step17_estimand_frontier.json": 30,
+    "notes/project_A_observability/results_summaries/step17_science_dashboard.json": 25,
+    "notes/project_A_observability/results_summaries/step17_estimand_consistency.md": 12,
+    "notes/project_A_observability/results_summaries/step17_estimand_frontier.md": 12,
+    "notes/project_A_observability/results_summaries/step17_science_dashboard.md": 15,
 }
 _MAX_LINE_BYTES = 500
 

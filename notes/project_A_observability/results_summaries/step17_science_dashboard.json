@@ -1,0 +1,49 @@
+{
+  "project": "Project A",
+  "step": "Step 17",
+  "scope": "estimand-consistent harm control (accuracy vs balanced-accuracy); not SOTA",
+  "metrics": {
+    "n_real_runs": 54,
+    "accuracy_benefit_rate": 0.1481,
+    "bacc_benefit_rate": 0.1481,
+    "cross_estimand_sign_agreement": 1.0,
+    "runs_accuracy_benefit_bacc_harm": 0,
+    "runs_bacc_benefit_accuracy_harm": 0,
+    "estimand_relationship": "identical_on_grid",
+    "estimands_identical_on_grid": true,
+    "all_targets_class_balanced": true,
+    "max_abs_gain_difference": 0.0,
+    "estimand_gap_is_sign_disagreement": false,
+    "estimand_gap_is_magnitude_only": false,
+    "accuracy_material_benefit_rate_eps": 0.0926,
+    "bacc_material_benefit_rate_eps": 0.0926,
+    "mean_accuracy_gain": -0.042293,
+    "mean_bacc_gain": -0.042293,
+    "step16_gap_explanation": "On this grid all 54 target sets are class-balanced (True); accuracy-gain == balanced-accuracy-gain per run (max |diff| = 0.0). The Step-16 0.1481-vs-0.0926 gap was a THRESHOLD artifact — accuracy benefit thresholded at eps=0 vs bAcc at eps=0.005. At a shared threshold the rates coincide: eps=0 -> 0.1481 (acc) / 0.1481 (bAcc); eps=0.005 -> 0.0926 / 0.0926.",
+    "accuracy_policy_controls_bacc": false,
+    "best_accuracy_gain_policy": "plugin_sign",
+    "best_accuracy_gain_k": "full",
+    "best_accuracy_gain_meets_harm_0_10": true,
+    "best_accuracy_gain_control_at_minimal_labels": false,
+    "best_bacc_gain_policy": "plugin_sign",
+    "best_bacc_gain_k": "full",
+    "best_bacc_gain_meets_harm_0_10": true,
+    "best_bacc_gain_control_at_minimal_labels": false,
+    "bacc_policy_requires_c13": true,
+    "no_overall_best_across_estimands": true,
+    "estimand_consistency_warning": "On this grid the two estimands COINCIDE (all targets class-balanced -> accuracy-gain == balanced-accuracy-gain per run); the Step-16 gap was a THRESHOLD artifact, not an estimand divergence. An accuracy-gain policy is still never reported as a balanced-accuracy-gain control.",
+    "claim_boundary_ok": true
+  },
+  "what_we_learned": [
+    "On this grid all 54 target sets are class-balanced (True); accuracy-gain == balanced-accuracy-gain per run (max |diff| = 0.0). The Step-16 0.1481-vs-0.0926 gap was a THRESHOLD artifact — accuracy benefit thresholded at eps=0 vs bAcc at eps=0.005. At a shared threshold the rates coincide: eps=0 -> 0.1481 (acc) / 0.1481 (bAcc); eps=0.005 -> 0.0926 / 0.0926.",
+    "On this grid the two estimands COINCIDE (all targets class-balanced -> accuracy-gain == balanced-accuracy-gain per run); the Step-16 gap was a THRESHOLD artifact, not an estimand divergence. An accuracy-gain policy is still never reported as a balanced-accuracy-gain control.",
+    "The Step 15/16 negative PERSISTS under bAcc-consistent control: no minimal-label policy meets harm<=0.10 at coverage>=0.05 for EITHER estimand (only k=full / oracle-equivalent budgets do; best-k accuracy full, bAcc full) — both estimands COINCIDE here (class-balanced targets), so this is estimand-invariant.",
+    "Frontiers are kept strictly separate by estimand and sampling; there is no overall best policy across estimands; the class-balanced balanced-accuracy frontier requires contract C13."
+  ],
+  "what_remains_unknown": [
+    "Whether the accuracy/bAcc gap widens on more class-imbalanced clinical EEG.",
+    "Whether a class-balanced (C13) acquisition protocol is feasible in real BCI calibration.",
+    "Whether a bAcc-consistent policy could control harm at higher coverage with active sampling."
+  ],
+  "claim_boundary": "Accuracy-gain and balanced-accuracy-gain are distinct target functionals; a policy licensed for one is never reported as controlling the other; class-balanced bAcc-gain estimation requires contract C13; k>0 slices are R2 under a sampling contract, NOT R1 identifiability. No SOTA."
+}

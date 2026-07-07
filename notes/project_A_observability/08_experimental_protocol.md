@@ -339,6 +339,20 @@ not the oracle. The Step-15 `best_deployable_ci_attempt` field is renamed `best_
 `test_benefit_anatomy.py`, `test_sequential_harm_control.py`, `test_policy_frontier.py`,
 `test_observability_science_dashboard.py` (Step-16 mode).
 
+## 17. Estimand-consistent harm control
+
+Step 17 evaluates policy frontiers **separately** for ordinary accuracy gain and balanced-accuracy
+gain (the mismatch surfaced in Step 16: bAcc-benefit 0.0926 vs accuracy-benefit 0.1481). A policy must
+declare which gain estimand it controls; **cross-estimand conclusions are forbidden** (an accuracy-gain
+policy is never reported as controlling bAcc gain). `estimand_consistency.py` estimates both gains from
+a labeled slice under two sampling contracts — iid (bAcc abstains / marks `missing_class` when a class
+is absent) and class-balanced calibration (contract **C13**, abstains when `k < n_classes`).
+`estimand_frontier.py` reports harm/coverage frontiers per (estimand, sampling), never mixed. Rules
+(tests enforce): k=0 abstains (R1 non-identifiable); k>0 is an R2 labeled slice under a sampling
+contract, not full-target identification; the oracle policy is never deployable; a bAcc/class-balanced
+policy declares C13. No SOTA, no manuscript, no new datasets (reuses Step-13 raw). Tests:
+`test_estimand_consistency.py`, `test_estimand_frontier.py`, `test_observability_science_dashboard.py`.
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
@@ -347,6 +361,6 @@ not the oracle. The Step-15 `best_deployable_ci_attempt` field is renamed `best_
 statistical digest (§9), the multi-dataset audited expansion + chance-normalized digest
 (§10), the Step-12 scientific exploration (§12), the Step-13 rich-R1 diagnostics + real
 minimal-label curves (§13), the Step-14 metric-semantics + power repair (§14), the Step-15
-coverage-aware harm-control policies (§15), and the Step-16 benefit anatomy + sequential
-label-acquisition frontier (§16) are live. A full multi-dataset SOTA table and manuscript
-writing are out of scope.
+coverage-aware harm-control policies (§15), the Step-16 benefit anatomy + sequential
+label-acquisition frontier (§16), and the Step-17 estimand-consistent harm control (§17) are live. A
+full multi-dataset SOTA table and manuscript writing are out of scope.
