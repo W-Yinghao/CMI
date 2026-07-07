@@ -1,0 +1,41 @@
+{
+  "project": "Project A",
+  "step": "Step 12",
+  "scope": "scientific exploration (harm attribution + minimal-information phase transition); not SOTA",
+  "metrics": {
+    "n_real_runs": 54,
+    "real_harm_rate": 0.8333,
+    "R0_harm_predictor_bacc": 0.2556,
+    "R1_harm_predictor_bacc": 0.4222,
+    "R0_to_R1_delta": 0.1666,
+    "majority_baseline_bacc": 0.5,
+    "harm_predictor_verdict": "no_retrospective_harm_signal_above_baseline",
+    "harm_predictor_beats_baseline": false,
+    "harm_predictor_minority_n": 9,
+    "minimal_paired_k0_status": "not_identified_R1",
+    "minimal_paired_best_k": 256,
+    "minimal_paired_phase_transition_observed": true,
+    "minimal_paired_k_per_shift": {
+      "prior_shift_only": null,
+      "concept_shift": null,
+      "support_failure": 256,
+      "montage_transport_shift": null
+    },
+    "claim_boundary_ok": true,
+    "oracle_gain_used_only_as_evaluation_label": true
+  },
+  "what_we_learned": [
+    "Offline TTA harms most audited cells (real harm-rate 0.8333).",
+    "R0/R1 diagnostics do NOT retrospectively predict TTA harm above the 0.5 majority baseline (R0 bAcc 0.2556, R1 bAcc 0.4222; underpowered, minority n=9) — consistent with the TOS-1 source-only ceiling; NULL result, not identifiability.",
+    "R1 target-unlabeled diagnostics do NOT make target gain identifiable (TOS-1/TU-2 stand).",
+    "Minimal paired information: harm-sign estimability is a phase transition in k (observed=True, per-shift k {'prior_shift_only': None, 'concept_shift': None, 'support_failure': 256, 'montage_transport_shift': None}); small true gains need more labels, tiny gains stay unresolved — a labeled slice under an iid sampling contract.",
+    "Exact counterexamples remain the proof layer; the real-EEG grids illustrate, they do not prove."
+  ],
+  "what_remains_unknown": [
+    "Whether these patterns hold on clinical / non-motor-imagery EEG.",
+    "Whether stronger TTA baselines reduce the harm rate.",
+    "Whether label-free target support/marginal diagnostics can be made reliable.",
+    "Whether minimal-paired anchors can be collected cheaply in realistic BCI workflows."
+  ],
+  "claim_boundary": "Oracle target gain is an evaluation label throughout; R0/R1 harm prediction is retrospective, not target-gain identifiability; k>0 slices are labeled slices under an iid sampling contract. No SOTA claim."
+}

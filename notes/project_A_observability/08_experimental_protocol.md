@@ -233,10 +233,38 @@ suppressed); all claim-boundary flags true. Tests: `test_observability_result_in
 missing-`n_classes`), `test_real_audited_grid_plumbing.py` (grid_manifest + all-resolution),
 `test_observability_multidataset_summary.py` (combiner refusal + normalized pooling).
 
+## 12. Scientific exploration before manuscript writing
+
+Step 12 does **not** write the paper. It studies the audited behavior scientifically:
+- **offline-TTA harm attribution** (`harm_attribution.py`): per-run diagnostics split strictly into
+  R0 source-only, R1 target-unlabeled, and oracle evaluation-only groups; missing diagnostics are
+  reason-coded, never faked;
+- **retrospective harm prediction** (`harm_predictor.py`): can R0 diagnostics predict which cells
+  offline-TTA harmed, and does R1 add value? Leave-one-(dataset,target)-out logistic regression,
+  scored against the 0.5 majority baseline;
+- **minimal-paired phase transition** (`minimal_paired.py`): on a controlled simulator, how k
+  labeled target trials move harm/gain from non-identifiable (k=0, R1) to a labeled-slice estimate
+  (k>0, R2) under an iid sampling contract.
+
+Hard rules (enforced by tests):
+- the oracle offline-TTA gain/harm is an **evaluation label only** — it is the prediction target,
+  never a predictor feature (denylist in `harm_attribution.ORACLE_KEYS`);
+- an R0/R1 harm predictor is an **empirical retrospective** predictor, not target-gain/harm
+  identifiability (TOS-1 / TU-2 stand);
+- k=0 is the R1 non-identifiability boundary; k>0 is an R2 **labeled slice under an iid sampling
+  contract**, never "full target risk identified";
+- no SOTA claim; no manuscript in this step.
+
+Pipeline: `scripts/project_A_step12_science_cpu.slurm` writes tracked `step12_*` digests; the
+`science_dashboard.py` combines them into "what we learned / what remains unknown". Tests:
+`test_observability_harm_attribution.py`, `test_observability_harm_predictor.py`,
+`test_minimal_paired_phase_transition.py`, `test_observability_science_dashboard.py`.
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
 (`run_counterexamples.py`); the audited evaluation bridge (§6), the real-EEG audited pilot
 (§7, `run_real_audited.py`), the audited mini-grid + validator (§8), the expanded grid +
-statistical digest (§9), and the multi-dataset audited expansion + chance-normalized digest
-(§10) are live. A full multi-dataset SOTA table is explicitly out of scope.
+statistical digest (§9), the multi-dataset audited expansion + chance-normalized digest
+(§10), and the Step-12 scientific exploration (§12, harm attribution + minimal-information phase
+transition) are live. A full multi-dataset SOTA table and manuscript writing are out of scope.
