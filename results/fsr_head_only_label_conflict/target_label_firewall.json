@@ -1,0 +1,1521 @@
+{
+  "n": 168,
+  "rows": [
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260721,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260722,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260723,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260724,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260725,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260726,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260727,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "1",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "2",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "3",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "4",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "5",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "6",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "7",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "8",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": "9",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "10",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "11",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "12",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "1",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "2",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "3",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "4",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "5",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "6",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "7",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "8",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    },
+    {
+      "dataset": "BNCI2015_001",
+      "target_subject": "9",
+      "token_seed": 20260728,
+      "target_scorer_reads": 13,
+      "target_labels_used_for_fit": false,
+      "target_labels_used_for_selection": false,
+      "target_labels_used_for_final_eval_only": true
+    }
+  ],
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "target_labels_used_for_final_eval_only": true,
+  "note": "all target reads via p4e.TargetScorer; l4 label-free; reliance dose on SOURCE held-out"
+}

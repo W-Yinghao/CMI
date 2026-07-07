@@ -74,6 +74,15 @@ def main():
     beats_random = bool(tdropr_ci[0] is not None and tdropr_ci[0] > 0)              # beyond matched label-noise
     monotone = bool(tdrops is not None and tdrops2 is not None and tdrops > tdrops2)
     transfer_pass = bool(learn_pass and hurts_transfer and beats_shuffle and beats_random and monotone)
+    # per-DATASET breakdown (leave-one-dataset-out consistency; discloses the pooled sign's fragility)
+    perds = {}
+    for ds in sorted(set(r["dataset"] for r in tr4)):
+        dd = [r for r in tr4 if r["dataset"] == ds]
+        perds[ds] = dict(vs_H0=ci(dd, "pt_task_drop_vs_H0"), vs_shuffle=ci(dd, "pt_task_drop_vs_shuffle"),
+                         vs_random=ci(dd, "pt_task_drop_vs_random"), n_folds=len(set(r["target_subject"] for r in dd)))
+    # a strictly-negative vs_shuffle is NOT read as "shuffle more harmful" (construction asymmetry); the robust,
+    # both-dataset-consistent statement is beats_shuffle=False (structured does NOT exceed shuffle) => not specific.
+    beats_shuffle_any_dataset = any(v["vs_shuffle"][1][0] is not None and v["vs_shuffle"][1][0] > 0 for v in perds.values())
     target_harmed = bool(harm_ci[0] is not None and harm_ci[0] > 0)
     weaponization = bool(transfer_pass and target_harmed)
 
@@ -109,15 +118,21 @@ def main():
         diag_l4_conflict_minus_shuffle=[l4cs, l4cs_ci],
         transfer_monotone_gamma=monotone, beats_shuffle_control=beats_shuffle, beats_random_control=beats_random,
         hurts_transfer_true_task=hurts_transfer, pseudo_target_transferability_pass=transfer_pass,
+        per_dataset=perds, beats_shuffle_in_any_single_dataset=beats_shuffle_any_dataset,
         target_harm=[harm, harm_ci], target_true_label_bacc_dropped=target_harmed,
         weaponization_confirmed=weaponization, repair=reps, repair_claim_level=repair_level,
         interpretation=(
             "WEAPONIZATION CONFIRMED: controlled task-conflicting source labels weaponize the naturally present "
             "subject signal into a cross-subject transferable, target-harmful head-level reliance." if weaponization
-            else ("Q7C-a passed (head can MEMORIZE the shortcut) but Q7C-b/target-harm did NOT: the head does not "
-                  "create transferable cross-subject harmful reliance under this protocol -- a reportable "
-                  "not-confirmed result, not a target-weaponization claim." if learn_pass else
-                  "Q7C-a failed upstream; transfer not evaluated.")),
+            else ("Q7C-a passed (the head can MEMORIZE the subject-conditional conflict labels in-sample) but Q7C-b "
+                  "did NOT: the structured conflict head's held-out/target true-task harm does NOT EXCEED the "
+                  "subject-shuffle band on either dataset (beats_shuffle=False; the pooled vs-shuffle point is "
+                  "mildly negative but reaches significance only pooled and only from the binary dataset -- the "
+                  "4-class dataset is a null). It BEATS matched random noise (+0.078), so the harm is generic "
+                  "SUBJECT-BLOCKED corruption harm that transfers, NOT a subject-STRUCTURE-specific / natural-"
+                  "signal-aligned transferable reliance. A negative vs-shuffle is read as construction asymmetry, "
+                  "NOT as 'scrambling is more harmful'. Reportable not-confirmed, not a weaponization claim."
+                  if learn_pass else "Q7C-a failed upstream; transfer not evaluated.")),
     )
     full = json.load(open(R / "label_conflict_verdict.json"))
     full.update(dict(pseudo_target_transferability_pass=transfer_pass, weaponization_confirmed=weaponization,

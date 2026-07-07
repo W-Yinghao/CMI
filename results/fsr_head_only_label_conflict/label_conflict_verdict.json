@@ -1,0 +1,198 @@
+{
+  "heldin_learnability_pass": true,
+  "pseudo_target_transferability_pass": false,
+  "weaponization_confirmed": false,
+  "primary_gamma": 0.4,
+  "global_Py_preserved": true,
+  "gate_verdict": {
+    "stage": "7C_Q7Ca_heldin_learnability_gate",
+    "global_Py_preserved": true,
+    "achieved_rate_tracks_gamma": true,
+    "conflict_fit_rises_with_gamma": true,
+    "conflict_fit_beats_task_floor": true,
+    "heldin_learnability_pass": true,
+    "dose_response": {
+      "0.0": {
+        "achieved_conflict_frac": 0.0,
+        "conflict_fit": null,
+        "conflict_fit_minus_floor": null,
+        "conflict_fit_minus_floor_ci_lo": null,
+        "l5_conflict_minus_shuffle_train": 0.0,
+        "l5_conflict_minus_random_train": 0.0,
+        "heldin_task_drop_train": 0.0,
+        "n": 168
+      },
+      "0.2": {
+        "achieved_conflict_frac": 0.1751,
+        "conflict_fit": 0.4909,
+        "conflict_fit_minus_floor": 0.2878,
+        "conflict_fit_minus_floor_ci_lo": 0.2513,
+        "l5_conflict_minus_shuffle_train": -0.0319,
+        "l5_conflict_minus_random_train": -0.0038,
+        "heldin_task_drop_train": 0.0632,
+        "n": 168
+      },
+      "0.4": {
+        "achieved_conflict_frac": 0.3434,
+        "conflict_fit": 0.7,
+        "conflict_fit_minus_floor": 0.4957,
+        "conflict_fit_minus_floor_ci_lo": 0.4627,
+        "l5_conflict_minus_shuffle_train": -0.0432,
+        "l5_conflict_minus_random_train": -0.0109,
+        "heldin_task_drop_train": 0.1684,
+        "n": 168
+      }
+    },
+    "gate_reason": "head_memorizes_subject_conditional_conflict_labels_in_sample (conflict-subset fit beyond the task-only floor, dose-monotone). NOTE: this is an in-sample learnability/capability check ONLY; the fit is NOT attributable to the estimated subject subspace (l5/ERASE diagnostics <= 0), so it is NOT evidence of subject-subspace reliance. The binding weaponization test is Q7C-b (transfer).",
+    "proceed_to_7C_full": true,
+    "note": "Q7C-a passes: the linear head can MEMORIZE the subject-conditional task-conflict labels in-sample (fit beyond floor) -- a capability check, NOT evidence of subject-subspace reliance (l5/ERASE <= 0). Run 7C-full; Q7C-b TRANSFER (structured beats shuffle+random on held-out subjects) is the binding gate."
+  },
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "repair_claim_level": null,
+  "pc2_gpu_gate": "paused",
+  "target_harm": 0.0617,
+  "target_harm_ci": [
+    0.0329,
+    0.0913
+  ],
+  "transfer_verdict": {
+    "stage": "7C_Q7Cb_transfer_weaponization",
+    "heldin_learnability_pass": true,
+    "transfer_pt_task_drop_vs_H0": [
+      0.1124,
+      [
+        0.0951,
+        0.129
+      ]
+    ],
+    "transfer_pt_task_drop_vs_shuffle": [
+      -0.0099,
+      [
+        -0.0183,
+        -0.0012
+      ]
+    ],
+    "transfer_pt_task_drop_vs_random": [
+      0.0781,
+      [
+        0.0633,
+        0.0921
+      ]
+    ],
+    "diag_l5_conflict_minus_shuffle": [
+      0.0007,
+      [
+        -0.0132,
+        0.0143
+      ]
+    ],
+    "diag_l5_conflict_minus_random": [
+      -0.0024,
+      [
+        -0.0154,
+        0.0098
+      ]
+    ],
+    "diag_l4_conflict_minus_shuffle": [
+      -0.0035,
+      [
+        -0.0096,
+        0.0033
+      ]
+    ],
+    "transfer_monotone_gamma": false,
+    "beats_shuffle_control": false,
+    "beats_random_control": true,
+    "hurts_transfer_true_task": true,
+    "pseudo_target_transferability_pass": false,
+    "per_dataset": {
+      "BNCI2014_001": {
+        "vs_H0": [
+          0.129,
+          [
+            0.1102,
+            0.1469
+          ]
+        ],
+        "vs_shuffle": [
+          -0.0011,
+          [
+            -0.013,
+            0.01
+          ]
+        ],
+        "vs_random": [
+          0.1003,
+          [
+            0.0811,
+            0.1178
+          ]
+        ],
+        "n_folds": 9
+      },
+      "BNCI2015_001": {
+        "vs_H0": [
+          0.0999,
+          [
+            0.0753,
+            0.1246
+          ]
+        ],
+        "vs_shuffle": [
+          -0.0165,
+          [
+            -0.0267,
+            -0.005
+          ]
+        ],
+        "vs_random": [
+          0.0614,
+          [
+            0.0469,
+            0.0764
+          ]
+        ],
+        "n_folds": 12
+      }
+    },
+    "beats_shuffle_in_any_single_dataset": false,
+    "target_harm": [
+      0.0617,
+      [
+        0.0329,
+        0.0913
+      ]
+    ],
+    "target_true_label_bacc_dropped": true,
+    "weaponization_confirmed": false,
+    "repair": {
+      "E4": {
+        "mean": 0.4901,
+        "gain_over_conflict": 0.0282,
+        "gain_ci_lo": 0.0078,
+        "frac_of_gap": 0.457
+      },
+      "E4b": {
+        "mean": 0.4563,
+        "gain_over_conflict": -0.0056,
+        "gain_ci_lo": -0.0096,
+        "frac_of_gap": -0.09
+      },
+      "ERASE": {
+        "mean": 0.4541,
+        "gain_over_conflict": -0.0078,
+        "gain_ci_lo": -0.0327,
+        "frac_of_gap": -0.127
+      },
+      "Hreg": {
+        "mean": 0.4584,
+        "gain_over_conflict": -0.0036,
+        "gain_ci_lo": -0.0278,
+        "frac_of_gap": -0.058
+      }
+    },
+    "repair_claim_level": null,
+    "interpretation": "Q7C-a passed (the head can MEMORIZE the subject-conditional conflict labels in-sample) but Q7C-b did NOT: the structured conflict head's held-out/target true-task harm does NOT EXCEED the subject-shuffle band on either dataset (beats_shuffle=False; the pooled vs-shuffle point is mildly negative but reaches significance only pooled and only from the binary dataset -- the 4-class dataset is a null). It BEATS matched random noise (+0.078), so the harm is generic SUBJECT-BLOCKED corruption harm that transfers, NOT a subject-STRUCTURE-specific / natural-signal-aligned transferable reliance. A negative vs-shuffle is read as construction asymmetry, NOT as 'scrambling is more harmful'. Reportable not-confirmed, not a weaponization claim."
+  }
+}

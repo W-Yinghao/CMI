@@ -81,11 +81,14 @@ def main():
     elif not achieved_monotone:
         reason = "achieved_corruption_rate_does_not_track_gamma (construction saturated / mis-dosed)"
     elif not (conflict_rises and beats_floor):
-        reason = ("shortcut_not_linearly_learnable: the linear head does NOT satisfy the task-conflicting labels "
-                  "beyond a task-only floor / not rising with gamma -> a linear head on frozen 4B latents cannot "
-                  "memorize the subject shortcut; no weaponization inference (7C-full does not run)")
+        reason = ("conflict_labels_not_linearly_fittable: the linear head does NOT satisfy the task-conflicting "
+                  "labels beyond a task-only floor / not rising with gamma -> a linear head on frozen 4B latents "
+                  "cannot memorize the subject-conditional relabeling; no weaponization inference (7C-full does not run)")
     else:
-        reason = "head_learns_subject_shortcut_under_task_conflict (memorizes conflict labels beyond task floor)"
+        reason = ("head_memorizes_subject_conditional_conflict_labels_in_sample (conflict-subset fit beyond the "
+                  "task-only floor, dose-monotone). NOTE: this is an in-sample learnability/capability check ONLY; "
+                  "the fit is NOT attributable to the estimated subject subspace (l5/ERASE diagnostics <= 0), so it "
+                  "is NOT evidence of subject-subspace reliance. The binding weaponization test is Q7C-b (transfer).")
 
     verdict = dict(
         stage="7C_Q7Ca_heldin_learnability_gate", global_Py_preserved=py_exact, achieved_rate_tracks_gamma=achieved_monotone,
@@ -93,11 +96,12 @@ def main():
         heldin_learnability_pass=learnability_pass, dose_response=dose, gate_reason=reason,
         proceed_to_7C_full=learnability_pass,
         note=("FAIL-CLOSED Q7C-a. Learnability = the head satisfies the P(y)-exact, gamma-tracking task-conflict "
-              "labels on TRAINING subjects beyond a task-only floor (memorization capability). The structured-"
+              "labels on TRAINING subjects beyond a task-only floor (in-sample fittability). The structured-"
               "beats-shuffle/random TRANSFER test binds at Q7C-b, which only runs if this passes. Subject-reliance-"
               "on-train columns here are diagnostics, not gate conditions." if not learnability_pass else
-              "Q7C-a passes: the linear head can memorize the subject shortcut under task-conflict. Run 7C-full; "
-              "Q7C-b TRANSFER (structured beats shuffle+random on held-out subjects) is the binding weaponization gate."),
+              "Q7C-a passes: the linear head can MEMORIZE the subject-conditional task-conflict labels in-sample "
+              "(fit beyond floor) -- a capability check, NOT evidence of subject-subspace reliance (l5/ERASE <= 0). "
+              "Run 7C-full; Q7C-b TRANSFER (structured beats shuffle+random on held-out subjects) is the binding gate."),
     )
     (R / "label_conflict_verdict.json").write_text(json.dumps(dict(
         heldin_learnability_pass=learnability_pass, pseudo_target_transferability_pass=None,
