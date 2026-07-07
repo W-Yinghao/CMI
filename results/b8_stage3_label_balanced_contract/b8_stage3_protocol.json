@@ -1,0 +1,53 @@
+{
+  "scope": "B8.3 label-balanced / case-control randomized-audit contract -- PRE-REGISTERED PROTOCOL (committed + hash-pinned BEFORE the Phase-B run).",
+  "status": "development-only | NOT confirmatory | NOT deployable | NOT validation (Lee2019 SM16 emulator) | NO tag",
+  "authorized": "reviewer-authorized 2026-07-07 after B8.2 FALSIFIED B8.1's decision-level stability (prior_only 18/300 + cov_plus_prior 13/300 both fail <=7/300; the prior-bearing nulls retain a collider/mean-T residual that B8.1's studentized both-gate only masked, unstably). B8.3 is a CONTRACT redesign, NOT gate/p/statistic tuning; mean-T recalibration was explicitly rejected.",
+  "core_redesign": {
+    "principle": "address label-prior with the AUDIT SAMPLING CONTRACT, not statistical masking. A predeclared, deterministic, Z-blind CASE-CONTROL selector balances the audited sample so P(Y|C) is equal by construction; the EXACT null RE-APPLIES the same selector under every randomized assignment C*.",
+    "vs_b8_1": "B8.1: class/prior balance attempted via design_class Dc + the studentized both-gate; the observed-Y/prior residual survived (B8.2 falsified stability). B8.3: the audit sample itself is label-balanced by predeclared case-control sampling; the FIRST-ORDER prior main effect is removed by sampling, and the null includes the selection process.",
+    "honest_scope_design_redteam_wrznv3lin": "count-balancing removes the FIRST-ORDER P(Y|C) main effect EXACTLY (C x Y imbalance==0, verified). It does NOT by construction remove two residual prior channels -- (a) SELECTION-INTENSITY asymmetry: observed-C carries the prior so the selector discards more trials than under randomized C* (observed selected_n < null mean; real SM16 3872 vs 4191, non-overlapping); (b) within-Y C-Z dependence: stratifying on the COLLIDER Y opens a C-Z path count-balancing does not close (within-Y E[Zproj|HI]-E[Zproj|LO] ~ -0.15/-0.22 despite exact count balance). Both are the SAME family that failed B8.2. Whether they re-inflate prior_only/cov_plus_prior is EMPIRICAL -- exactly what the mean-T-alone<=7/300 PRIMARY screen measures. This is a genuine test, NOT a guaranteed fix. NOT overclaimed as 'prior removed at the statistic level'."
+  },
+  "narrowed_estimand": "label-balanced AUDIT-POPULATION boundary evidence -- condition-specific boundary/interaction evidence in a predeclared label-balanced audit sample. NOT a natural-prevalence deployment concept certificate. Prior shift is OUT of the estimand (removed by the sampling contract), not a nuisance the statistic must absorb.",
+  "audit_selector": {
+    "function": "audit_select(C, Y, G, Block, seed) -> mask",
+    "rule": "within each (subject, block, audited-label Y) stratum, select k=min(#C==HI, #C==LO) trials from EACH condition (per-stratum seeded choice) -> selected audit sample has EQUAL per-condition label composition (P(Y|C) balanced) by construction",
+    "may_use": ["subject_id", "block_id", "condition C", "audited label Y", "predeclared per-stratum seed"],
+    "must_not_use": ["Z (features)", "observed_T", "p-values", "oracle fields", "B7/router states", "future/validation outcomes"],
+    "properties": "predeclared, DETERMINISTIC (per-(subject,block,label) seeded so tie-breaking is independent of C and re-applicable identically under any C*), hash-pinned via the module. Infeasible stratum (k=0) contributes nothing; empty selection -> INSUFFICIENT_LABELS; observed C x Y imbalance != 0 -> SAMPLER_INVALID (must be EXACTLY 0)."
+  },
+  "exact_null": "for observed C: apply A(C,Y) -> observed T on the balanced audit subset. For each within-(block,Dc) randomized C* (reuse B8.1 resample_C_exact_b8_1): RE-APPLY A(C*,Y) -> recompute T* on the NEWLY-selected balanced subset. The null distribution = randomized assignment + deterministic label-balanced selection + same B3 contrast T. If A(C*,Y) is infeasible under a draw -> fail-closed (count invalid), NO silent drop. NO fitted Y|Z, NO fitted C|Z propensity.",
+  "reused_byte_frozen_from_b8_1": ["build_b8_1_cohort (12 worlds)", "check_contract_b8_1 (hard provenance gate H3)", "resample_C_exact_b8_1 (within-(block,Dc) randomization null)", "PC._prep_folds/_T_cv/_studentize (B3 contrast T)"],
+  "decision": {
+    "B8_ALERT": "contract_valid AND estimable (n_exact_invalid<=0.20*n_boot) AND p_exact_meanT<=0.025 AND p_exact_stud<=0.025 AND n_eligible>=20 (B8.1 both-gate, on the audit subset)",
+    "meanT_alone": "estimable AND p_exact_meanT<=0.025 AND n_eligible>=20 -- NOW A PRIMARY SCREEN (not just diagnostic): B8.3 must control the mean-T gate itself on prior-bearing nulls, not merely mask it with the studentized gate",
+    "states": ["B8_CONCEPT_ALERT", "NO_ACTIONABLE_CONCEPT_EVIDENCE", "CONTRACT_INVALID_OR_UNIDENTIFIABLE", "INSUFFICIENT_LABELS", "SAMPLER_INVALID"],
+    "no_retuning": "do NOT change any gate/threshold based on prior_only or POS results"
+  },
+  "conditions": ["CONTRACT_NULL_balanced", "CONTRACT_NULL_prior_only", "CONTRACT_NULL_cov_plus_prior", "CONTRACT_random_label", "CONTRACT_POS_boundary", "CONTRACT_POS_boundary_plus_prior", "VIOLATION_cov_session", "VIOLATION_prior_shift", "VIOLATION_cov_plus_prior", "VIOLATION_condition_lock", "VIOLATION_quiet_cov_no_concept", "VIOLATION_quiet_cov_plus_concept"],
+  "two_phase": {
+    "phase_A": "protocol + design red-team + SMALL feasibility smoke (n=8/condition, base 774e6). Feasibility ONLY, NO science verdict. Gate: selector balanced (imbalance==0 exact) + feasible (enough post-audit eligible subjects) + CONTRACT reach computed-T + VIOLATION refuse + low null-infeasible-draw rate.",
+    "phase_B": "IF Phase A passes hard feasibility: locked n=300/condition diagnostic replay (6 fresh disjoint seed blocks x 50), same 12-condition panel."
+  },
+  "phase_B_seeds": {"blocks": 6, "per_block": 50, "aggregate": 300, "bases": [620000000, 640000000, 660000000, 680000000, 700000000, 720000000], "formula": "base + world_index*1e6 + cohort", "disjointness": "must be 0-intersection with all prior CSC seeds (<=611e6); verified before run"},
+  "screens_preregistered": {
+    "no_pooling": "each NULL kind separately; no pooled safety claim",
+    "prior_only": "B8_ALERT <= 7/300 AND meanT_alone_alert <= 7/300 (PRIMARY -- both gates)",
+    "cov_plus_prior": "B8_ALERT <= 7/300 AND meanT_alone_alert <= 7/300 (PRIMARY -- both gates; must retain mixed control)",
+    "balanced": "B8_ALERT <= 7/300",
+    "random_label": "B8_ALERT <= 3/300 preferred, <= 7/300 maximum",
+    "pos_boundary": "B8_ALERT > 0 min, >= 20/300 strong",
+    "pos_plus_prior": "B8_ALERT > 0 min, >= 15/300 strong",
+    "violations": "B8_ALERT <= 7/300 each AND CONTRACT_INVALID_OR_UNIDENTIFIABLE dominates; quiet_cov_plus_concept success = REFUSE (invalid contract), NOT alert-because-concept-exists"
+  },
+  "required_tables": {
+    "main": ["condition", "n", "B8_ALERT", "meanT_alone_alert", "studentized_gate_pass", "NO_ACTIONABLE", "CONTRACT_INVALID_OR_UNIDENTIFIABLE", "INSUFFICIENT_LABELS", "SAMPLER_INVALID", "CP95u_ALERT"],
+    "audit_selector": ["selected_n_median", "selected_n_min", "selected_n_max", "per_condition_selected", "per_label_selected", "max_CxY_audit_imbalance", "selector_infeasible_count", "null_infeasible_draws"],
+    "null": ["median_observed_T", "median_null_mean_T", "median_null_sd_T", "median_T_z", "p_floor_fraction", "effective_randomization", "assignment_support"],
+    "violation": ["invalid_reason_breakdown", "provenance_gate", "balance_gate", "support_gate"]
+  },
+  "if_b8_3_fails": "PRE-REGISTERED (design red-team wrznv3lin): if prior_only OR cov_plus_prior meanT_alone_alert (or B8_ALERT) breaches <=7/300 -> do NOT gate-tune, do NOT alter the selector/statistic/null to match intensities. The PREDICTED mechanism is the residual prior channel (selection-intensity asymmetry + within-Y C-Z via the collider Y) surviving count-balancing -- the SAME family that failed B8.2. Read a breach as 'label-balanced audit sampling is insufficient under this statistic (the collider residual survives)'. NEXT (reviewer) = B9 genuinely randomized audit data/acquisition, OR estimand narrowing (declare prior-bearing worlds outside the target). NOT now. The merge reports the selection-intensity asymmetry so a breach is diagnosed as this residual, not a coding fault.",
+  "hard_stops": ["selector uses Z", "selector chosen after seeing results", "null FIXES the observed selected subset instead of re-applying A under C*", "mean-T residual remains high but hidden behind the both-gate", "state counts do not sum to n", "any seed-block overlap", "fitted Y|Z or C|Z null", "oracle/router/B7 fields"],
+  "not_authorized": ["mean-T recalibration", "p-value tuning", "budget frontier", "feature/statistic change", "real-data validation claim", "paper writing"],
+  "code": {"module": "realeeg_feas/realeeg_b8_3.py", "worker": "realeeg_feas/realeeg_b8_3_canary.py", "merge": "realeeg_feas/b8_3_merge.py", "smoke": "realeeg_feas/b8_3_smoke.py"},
+  "commit_discipline": ["1 commit+hash protocol BEFORE Phase-B run", "2 Phase-A smoke (feasibility)", "3 Phase-B n=300 replay", "4 merge fail-closed", "5 result red-team", "6 commit diagnostic-only", "7 NO tag"]
+}
