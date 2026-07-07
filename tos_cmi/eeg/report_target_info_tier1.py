@@ -117,9 +117,10 @@ def write_preflight_report(manifest_out, split_hash_rows, unavail_rows, out):
           % (len({r["calibration_label_hash"] for r in split_hash_rows}),
              len({r["audit_label_hash"] for r in split_hash_rows})),
           "", "## Confirmation",
-          "- NO balanced-accuracy, NO calibration/audit benefit, NO likelihood, NO gate action, NO "
-          "accept/reject/abstain, NO source/target performance was computed. Split, count, availability, and hash "
-          "provenance only.\n"]
+          "- NO estimator and NO intervention was run: this preflight produced only calibration/audit splits, "
+          "per-class trial counts, k-availability, and index/label hashes. No predictive quality, no benefit, no "
+          "likelihood, and no decision of any kind was computed. Split, count, availability, and hash provenance "
+          "only.\n"]
     p = "%s/preflight_report.md" % out
     open(p, "w").write("\n".join(L) + "\n")
     return p
