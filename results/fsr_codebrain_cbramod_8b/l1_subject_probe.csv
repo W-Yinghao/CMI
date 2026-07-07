@@ -1,0 +1,5 @@
+model,dataset,estimand,bacc,chance,null_mean,null_p95,p,effect,n_folds
+cbramod,shu,marginal,0.5554,0.04,0.04,0.0431,0.0,0.5154,5
+cbramod,shu,class_conditional,0.5561,0.04,0.04,0.043,0.0,0.5161,5
+codebrain,shu,marginal,0.5907,0.04,0.0399,0.0432,0.0,0.5508,5
+codebrain,shu,class_conditional,0.5912,0.04,0.04,0.0429,0.0,0.5512,5

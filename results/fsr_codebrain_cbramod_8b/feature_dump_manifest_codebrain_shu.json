@@ -1,0 +1,944 @@
+{
+  "model": "codebrain",
+  "dataset": "shu",
+  "n_trials": 11988,
+  "n_subjects": 25,
+  "n_sessions_per_subj": 5,
+  "channels": [
+    "FP1",
+    "FP2",
+    "FZ",
+    "F3",
+    "F4",
+    "F7",
+    "F8",
+    "FC1",
+    "FC2",
+    "FC5",
+    "FC6",
+    "CZ",
+    "C3",
+    "C4",
+    "T3",
+    "T4",
+    "A1",
+    "A2",
+    "CP1",
+    "CP2",
+    "CP5",
+    "CP6",
+    "PZ",
+    "P3",
+    "P4",
+    "T5",
+    "T6",
+    "PO3",
+    "PO4",
+    "OZ",
+    "O1",
+    "O2"
+  ],
+  "n_channels": 32,
+  "native_hz": 250,
+  "target_hz": 200,
+  "patch": 200,
+  "n_patch": 4,
+  "classes": [
+    1,
+    2
+  ],
+  "embed_dim": 200,
+  "load": {
+    "missing": 0,
+    "unexpected": 0,
+    "params": 15167600
+  },
+  "freq_token_hist": [
+    {
+      "subject": 1,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2649,
+      "entropy": 7.538915767130909
+    },
+    {
+      "subject": 1,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2577,
+      "entropy": 7.480810880774838
+    },
+    {
+      "subject": 1,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2581,
+      "entropy": 7.43052940673767
+    },
+    {
+      "subject": 1,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2629,
+      "entropy": 7.4821981329037515
+    },
+    {
+      "subject": 1,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2617,
+      "entropy": 7.448383488411283
+    },
+    {
+      "subject": 2,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2557,
+      "entropy": 7.463376189243578
+    },
+    {
+      "subject": 2,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2359,
+      "entropy": 7.324916031647176
+    },
+    {
+      "subject": 2,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2599,
+      "entropy": 7.488691890061548
+    },
+    {
+      "subject": 2,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2507,
+      "entropy": 7.419210093031186
+    },
+    {
+      "subject": 2,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2492,
+      "entropy": 7.399592571574926
+    },
+    {
+      "subject": 3,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2660,
+      "entropy": 7.5454554929218185
+    },
+    {
+      "subject": 3,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2704,
+      "entropy": 7.556245632309592
+    },
+    {
+      "subject": 3,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2627,
+      "entropy": 7.499626093359554
+    },
+    {
+      "subject": 3,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2703,
+      "entropy": 7.573117689672777
+    },
+    {
+      "subject": 3,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2649,
+      "entropy": 7.4914995278494105
+    },
+    {
+      "subject": 4,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2583,
+      "entropy": 7.523226944035328
+    },
+    {
+      "subject": 4,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2593,
+      "entropy": 7.51957384359126
+    },
+    {
+      "subject": 4,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2635,
+      "entropy": 7.5455467225831585
+    },
+    {
+      "subject": 4,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2369,
+      "entropy": 7.318825901551742
+    },
+    {
+      "subject": 4,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2696,
+      "entropy": 7.570043093983903
+    },
+    {
+      "subject": 5,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2398,
+      "entropy": 7.380633707736
+    },
+    {
+      "subject": 5,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2572,
+      "entropy": 7.4277628780789895
+    },
+    {
+      "subject": 5,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2448,
+      "entropy": 7.40938060178974
+    },
+    {
+      "subject": 5,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2409,
+      "entropy": 7.328917312943274
+    },
+    {
+      "subject": 5,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2562,
+      "entropy": 7.482019671068112
+    },
+    {
+      "subject": 6,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2659,
+      "entropy": 7.502516547496163
+    },
+    {
+      "subject": 6,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2561,
+      "entropy": 7.414882558350173
+    },
+    {
+      "subject": 6,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2650,
+      "entropy": 7.493447757395905
+    },
+    {
+      "subject": 6,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2504,
+      "entropy": 7.379084530755298
+    },
+    {
+      "subject": 6,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2697,
+      "entropy": 7.526743465982093
+    },
+    {
+      "subject": 7,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2617,
+      "entropy": 7.489971341892986
+    },
+    {
+      "subject": 7,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2735,
+      "entropy": 7.575317998177367
+    },
+    {
+      "subject": 7,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2528,
+      "entropy": 7.4196841056238085
+    },
+    {
+      "subject": 7,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2596,
+      "entropy": 7.484349274957908
+    },
+    {
+      "subject": 7,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2618,
+      "entropy": 7.476504370456417
+    },
+    {
+      "subject": 8,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2609,
+      "entropy": 7.490717264698345
+    },
+    {
+      "subject": 8,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2493,
+      "entropy": 7.369218088176702
+    },
+    {
+      "subject": 8,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2150,
+      "entropy": 7.064242904625505
+    },
+    {
+      "subject": 8,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2730,
+      "entropy": 7.552410779241999
+    },
+    {
+      "subject": 8,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2530,
+      "entropy": 7.485856981444108
+    },
+    {
+      "subject": 9,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2673,
+      "entropy": 7.552541219516536
+    },
+    {
+      "subject": 9,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2529,
+      "entropy": 7.48462477205807
+    },
+    {
+      "subject": 9,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2440,
+      "entropy": 7.292234948402357
+    },
+    {
+      "subject": 9,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2577,
+      "entropy": 7.494509032467528
+    },
+    {
+      "subject": 9,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2608,
+      "entropy": 7.526916545071814
+    },
+    {
+      "subject": 10,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2574,
+      "entropy": 7.513429404758796
+    },
+    {
+      "subject": 10,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2624,
+      "entropy": 7.559093359212191
+    },
+    {
+      "subject": 10,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2612,
+      "entropy": 7.542569115512622
+    },
+    {
+      "subject": 10,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2483,
+      "entropy": 7.484532088114965
+    },
+    {
+      "subject": 10,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2539,
+      "entropy": 7.497962701129253
+    },
+    {
+      "subject": 11,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2629,
+      "entropy": 7.566994474156537
+    },
+    {
+      "subject": 11,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2697,
+      "entropy": 7.600611224525954
+    },
+    {
+      "subject": 11,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2655,
+      "entropy": 7.609894479725633
+    },
+    {
+      "subject": 11,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2614,
+      "entropy": 7.570725409719907
+    },
+    {
+      "subject": 11,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2723,
+      "entropy": 7.622385146568547
+    },
+    {
+      "subject": 12,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2569,
+      "entropy": 7.413710176594068
+    },
+    {
+      "subject": 12,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2143,
+      "entropy": 6.899084324602134
+    },
+    {
+      "subject": 12,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2526,
+      "entropy": 7.380301945078166
+    },
+    {
+      "subject": 12,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2311,
+      "entropy": 7.15732172183055
+    },
+    {
+      "subject": 12,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2406,
+      "entropy": 7.279781442315204
+    },
+    {
+      "subject": 13,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2770,
+      "entropy": 7.603395253866648
+    },
+    {
+      "subject": 13,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2729,
+      "entropy": 7.549209584203565
+    },
+    {
+      "subject": 13,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2731,
+      "entropy": 7.554672205771318
+    },
+    {
+      "subject": 13,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2644,
+      "entropy": 7.52148457211136
+    },
+    {
+      "subject": 13,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2752,
+      "entropy": 7.573837667471028
+    },
+    {
+      "subject": 14,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2437,
+      "entropy": 7.3841896642445795
+    },
+    {
+      "subject": 14,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2694,
+      "entropy": 7.5748135416220626
+    },
+    {
+      "subject": 14,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2563,
+      "entropy": 7.470065867958471
+    },
+    {
+      "subject": 14,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2589,
+      "entropy": 7.4791732038652565
+    },
+    {
+      "subject": 14,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2485,
+      "entropy": 7.397819411723374
+    },
+    {
+      "subject": 15,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2734,
+      "entropy": 7.596001779323485
+    },
+    {
+      "subject": 15,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2756,
+      "entropy": 7.619280645627088
+    },
+    {
+      "subject": 15,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2648,
+      "entropy": 7.5302260803337
+    },
+    {
+      "subject": 15,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2756,
+      "entropy": 7.619280645627088
+    },
+    {
+      "subject": 15,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2780,
+      "entropy": 7.62131095334594
+    },
+    {
+      "subject": 16,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2747,
+      "entropy": 7.5279141534416105
+    },
+    {
+      "subject": 16,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2672,
+      "entropy": 7.545115041807261
+    },
+    {
+      "subject": 16,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2573,
+      "entropy": 7.469987595995764
+    },
+    {
+      "subject": 16,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2695,
+      "entropy": 7.532593873249578
+    },
+    {
+      "subject": 16,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2648,
+      "entropy": 7.486319621227242
+    },
+    {
+      "subject": 17,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2786,
+      "entropy": 7.582169809102497
+    },
+    {
+      "subject": 17,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2648,
+      "entropy": 7.55514062240063
+    },
+    {
+      "subject": 17,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2779,
+      "entropy": 7.6206898365884985
+    },
+    {
+      "subject": 17,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2747,
+      "entropy": 7.5279141534416105
+    },
+    {
+      "subject": 17,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2643,
+      "entropy": 7.52608019600936
+    },
+    {
+      "subject": 18,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2763,
+      "entropy": 7.61915735806808
+    },
+    {
+      "subject": 18,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2658,
+      "entropy": 7.5239617151420175
+    },
+    {
+      "subject": 18,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2655,
+      "entropy": 7.4874017695878585
+    },
+    {
+      "subject": 18,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2672,
+      "entropy": 7.545115041807261
+    },
+    {
+      "subject": 18,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2573,
+      "entropy": 7.469987595995764
+    },
+    {
+      "subject": 19,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2653,
+      "entropy": 7.519665037247528
+    },
+    {
+      "subject": 19,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2695,
+      "entropy": 7.532593873249578
+    },
+    {
+      "subject": 19,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2524,
+      "entropy": 7.444350587550147
+    },
+    {
+      "subject": 19,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2564,
+      "entropy": 7.5297685697295105
+    },
+    {
+      "subject": 19,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2640,
+      "entropy": 7.495154625153772
+    },
+    {
+      "subject": 20,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2507,
+      "entropy": 7.414263973159651
+    },
+    {
+      "subject": 20,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2332,
+      "entropy": 7.224080686507836
+    },
+    {
+      "subject": 20,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2332,
+      "entropy": 7.224080686507836
+    },
+    {
+      "subject": 20,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2400,
+      "entropy": 7.312307307569487
+    },
+    {
+      "subject": 20,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2471,
+      "entropy": 7.29332092132915
+    },
+    {
+      "subject": 21,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2642,
+      "entropy": 7.514176349310187
+    },
+    {
+      "subject": 21,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2657,
+      "entropy": 7.5594129558530465
+    },
+    {
+      "subject": 21,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2490,
+      "entropy": 7.314228082144584
+    },
+    {
+      "subject": 21,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2569,
+      "entropy": 7.418264353590073
+    },
+    {
+      "subject": 21,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2391,
+      "entropy": 7.209204399219247
+    },
+    {
+      "subject": 22,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2636,
+      "entropy": 7.5437340040561
+    },
+    {
+      "subject": 22,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2684,
+      "entropy": 7.5371292924720805
+    },
+    {
+      "subject": 22,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2680,
+      "entropy": 7.522121025801311
+    },
+    {
+      "subject": 22,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2625,
+      "entropy": 7.410229196452072
+    },
+    {
+      "subject": 22,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2604,
+      "entropy": 7.518938968581123
+    },
+    {
+      "subject": 23,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2641,
+      "entropy": 7.4858023416687836
+    },
+    {
+      "subject": 23,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2644,
+      "entropy": 7.478700476772612
+    },
+    {
+      "subject": 23,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2575,
+      "entropy": 7.46292071048245
+    },
+    {
+      "subject": 23,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2510,
+      "entropy": 7.385524759383284
+    },
+    {
+      "subject": 23,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2635,
+      "entropy": 7.492243292105741
+    },
+    {
+      "subject": 24,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2606,
+      "entropy": 7.552513971776437
+    },
+    {
+      "subject": 24,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2599,
+      "entropy": 7.49535891750619
+    },
+    {
+      "subject": 24,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2681,
+      "entropy": 7.540306586205429
+    },
+    {
+      "subject": 24,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2694,
+      "entropy": 7.586467095864606
+    },
+    {
+      "subject": 24,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2665,
+      "entropy": 7.577447519008221
+    },
+    {
+      "subject": 25,
+      "session": 1,
+      "n": 64,
+      "n_unique": 2611,
+      "entropy": 7.507135420325165
+    },
+    {
+      "subject": 25,
+      "session": 2,
+      "n": 64,
+      "n_unique": 2449,
+      "entropy": 7.352526103048842
+    },
+    {
+      "subject": 25,
+      "session": 3,
+      "n": 64,
+      "n_unique": 2565,
+      "entropy": 7.4219530407500525
+    },
+    {
+      "subject": 25,
+      "session": 4,
+      "n": 64,
+      "n_unique": 2650,
+      "entropy": 7.5639279068714345
+    },
+    {
+      "subject": 25,
+      "session": 5,
+      "n": 64,
+      "n_unique": 2537,
+      "entropy": 7.425042157983933
+    }
+  ],
+  "qc": [
+    {
+      "model": "codebrain",
+      "dataset": "shu",
+      "repeat_max_abs_diff": 0.0,
+      "batchgroup_max_abs_diff": 0.0017474889755249023,
+      "deterministic": false,
+      "finite": true
+    }
+  ],
+  "sec": 32.3
+}

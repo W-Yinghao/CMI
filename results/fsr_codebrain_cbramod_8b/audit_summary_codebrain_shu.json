@@ -1,0 +1,48 @@
+{
+  "model": "codebrain",
+  "dataset": "shu",
+  "n_subjects": 25,
+  "classes": [
+    1,
+    2
+  ],
+  "task_chance": 0.5,
+  "L1_marginal": {
+    "bacc": 0.5907,
+    "chance": 0.04,
+    "null_mean": 0.0399,
+    "null_p95": 0.0432,
+    "p": 0.0,
+    "effect": 0.5508,
+    "n_folds": 5
+  },
+  "L1_class_conditional": {
+    "bacc": 0.5912,
+    "chance": 0.04,
+    "null_mean": 0.04,
+    "null_p95": 0.0429,
+    "p": 0.0,
+    "effect": 0.5512,
+    "n_folds": 5
+  },
+  "L4_task_subject_alignment_k2": 0.0,
+  "L5_drop_subject_k2": [
+    0.0008,
+    [
+      -0.0008,
+      0.0025
+    ]
+  ],
+  "L5_drop_variance_k2": -0.0003,
+  "L5_subject_beats_variance": false,
+  "L6_target_base_bacc": 0.5302,
+  "L6_delta_subject_k2": [
+    -0.0017,
+    [
+      -0.0043,
+      0.0005
+    ]
+  ],
+  "task_decodable_above_chance": true,
+  "note": "L1=subject decodability (session-held-out); L4=task-head/subject-subspace alignment; L5=held-out-source reliance vs variance-matched null; L6=target consequence (conservative: source-estimated subspace on novel target -> null L6 is NOT evidence subject info is task-irrelevant)."
+}

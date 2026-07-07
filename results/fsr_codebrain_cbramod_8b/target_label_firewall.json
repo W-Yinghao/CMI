@@ -1,0 +1,6 @@
+{
+  "note": "L1/L4/L5/L6 target labels used for FINAL SCORING ONLY (L6 target bAcc). Subject probe, task head, and all subspaces fit on SOURCE (or within-source session split); z-score per-trial within-window; no target label in feature extraction / head / probe / subspace / selection.",
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "target_labels_used_for_final_scoring_only": true
+}

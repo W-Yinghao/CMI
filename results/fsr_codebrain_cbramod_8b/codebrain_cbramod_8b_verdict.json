@@ -1,0 +1,70 @@
+{
+  "dataset": "shu",
+  "n_subjects": 25,
+  "classes": [
+    1,
+    2
+  ],
+  "task_chance": 0.5,
+  "subject_chance": 0.04,
+  "codebrain": {
+    "L1_marginal_bacc": 0.5907,
+    "L1_chance": 0.04,
+    "L1_effect": 0.5508,
+    "L1_class_conditional_bacc": 0.5912,
+    "L4_alignment_k2": 0.0,
+    "L5_drop_subject_k2": [
+      0.0008,
+      [
+        -0.0008,
+        0.0025
+      ]
+    ],
+    "L5_beats_variance": false,
+    "L6_target_base_bacc": 0.5302,
+    "L6_delta_subject_k2": [
+      -0.0017,
+      [
+        -0.0043,
+        0.0005
+      ]
+    ],
+    "task_base_bacc": 0.5302
+  },
+  "cbramod": {
+    "L1_marginal_bacc": 0.5554,
+    "L1_chance": 0.04,
+    "L1_effect": 0.5154,
+    "L1_class_conditional_bacc": 0.5561,
+    "L4_alignment_k2": 0.0013,
+    "L5_drop_subject_k2": [
+      -0.0002,
+      [
+        -0.0013,
+        0.0008
+      ]
+    ],
+    "L5_beats_variance": false,
+    "L6_target_base_bacc": 0.5481,
+    "L6_delta_subject_k2": [
+      -0.0006,
+      [
+        -0.0036,
+        0.0023
+      ]
+    ],
+    "task_base_bacc": 0.5481
+  },
+  "headline": "BOTH frozen FM encoders STRONGLY encode subject identity (L1 bacc 0.55-0.59 vs 0.04 chance, class-conditional ~= marginal) but it is NOT task-coupled (L4~=0), NOT relied-upon (L5 does not beat variance null), and removing it does not change the target (L6~=0). Architecture-general.",
+  "codebrain_encoder_audit_pass": true,
+  "cbramod_encoder_audit_pass": true,
+  "measurability": "PASS (L1/L4/L5/L6 all produced with permutation/variance nulls; per-dataset)",
+  "open_issue_1_weak_task": "task decodable only 0.53-0.55 on 2-class MI (near STOP-5). Likely F0 mean-pool over channels washes out MI C3/C4 lateralization -> L4/L5/L6 (task-coupling) PRELIMINARY; L1 robust.",
+  "open_issue_2_determinism": "CodeBrain repeat-exact (0.0) but <=2e-3 batch-size numerical path (SGConv FFT-conv); immaterial to 0.55 L1 effect; CBraMod fully deterministic (3e-7).",
+  "temporal_token_status": "collapsed",
+  "frequency_token_status": "usable",
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "proceed_to_8c": null,
+  "recommendation": "Before 8C: re-dump a SPATIALLY-PRESERVING feature (per-channel: mean over patches only, keep channels) so MI task decodes strongly, then re-run L4/L5/L6 -> makes the not-task-coupled conclusion solid. L1 finding already solid on pooled."
+}
