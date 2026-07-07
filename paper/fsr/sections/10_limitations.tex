@@ -29,9 +29,16 @@ second-moment shortcuts are unconditionally unrepairable.
 \item \textbf{Injected, not natural, controls.} The repair results use \emph{injected} positive controls
 to test the machinery; they do not speak to natural or learned reliance, and must not be conflated with
 the natural refusal (\S\ref{sec:rq4}).
+\item \textbf{Head-only probes are mechanism tests, not natural-label-noise claims.} The two head-only
+learned-reliance probes (\S\ref{sec:recoverability}) use controlled source-label manipulations on frozen
+latents; they do \emph{not} prove that learned subject shortcuts cannot occur, and must not be read as a
+natural-label-noise or ``resists weaponization'' claim. They show only that two cheap controlled
+mechanisms (prevalence skew, subject-keyed task-conflict) do not license the paused PC2 refit or a
+natural weaponization claim.
 \item \textbf{Two datasets.} The binding robustness axis is leave-one-dataset-out; with two preset-ready
-datasets it is under-powered (and 4F fails it). A learned-reliance stress test and $\geq 3$-dataset
-extension are future work, not current results.
+datasets it is under-powered (and 4F fails it). A \emph{full-backbone} learned-reliance refit (PC2) and a
+$\geq 3$-dataset extension are future work, not current results; the head-only probes above are the cheap
+mechanism substitute, and current evidence does not authorize the GPU refit.
 \item \textbf{Proxies, not CMI.} L1/L2 use a label-conditional linear-probe posterior-KL surrogate and
 a linear-probe advantage, not an unbiased mutual information; we say ``extractable conditional domain
 information,'' not ``CMI.''

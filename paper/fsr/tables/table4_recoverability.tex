@@ -1,4 +1,4 @@
-\begin{tabular}{llll}
+\begin{tabularx}{\textwidth}{l >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X >{\raggedright\arraybackslash}X}
 \toprule
 Class & Obstruction & Invertible by target-$X$ batch-affine op? & Licensed action \\
 \midrule
@@ -6,6 +6,10 @@ R0 & none (affine-in-$z$, task-sep., identified) & yes (E4; narrow, construction
 R1 & per-sample noise indep.\ of $z$ (2nd-moment) & no (even oracle direction) & \textsc{refuse / need per-sample info} \\
 R2 & task-coupled subspace ($S\not\!\perp T$) & no (erasure destroys task) & \textsc{refuse / task-preserving inverse} \\
 R3 & under-identified from target-$X$ (learned/concept) & not even identifiable & \textsc{require stronger contract} \\
+\midrule
+\multicolumn{4}{@{}l}{\footnotesize\emph{Head-only learned-reliance probes (R3 region; frozen 4B latents, linear head):}} \\
+7B prevalence & subject--class correlation, reliance not induced & n/a (task is a sufficient statistic) & \textsc{no repair; PC2 unlicensed} \\
+7C task-conflict & learnable in-sample, harm not subject-structured & n/a (ties the subject-scramble control) & \textsc{controlled negative} \\
 \bottomrule
-\multicolumn{4}{l}{\footnotesize Non-exclusive; the binding (most-restrictive) obstruction sets the action. R0 is the unique cell where none hold.}
-\end{tabular}
+\multicolumn{4}{@{}l}{\footnotesize Non-exclusive; the binding (most-restrictive) obstruction sets the action. R0 is the unique cell where none hold.}
+\end{tabularx}

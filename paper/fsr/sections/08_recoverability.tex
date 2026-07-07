@@ -38,6 +38,23 @@ randomized data). ``Not repairable'' is scoped to batch-affine operators, not pr
 \label{tab:recover}
 \end{table}
 
+\paragraph{Head-only learned-reliance bridge.}
+To bridge the controlled injected shortcuts above and a full learned-reliance stress test, we ran two
+CPU-only head-level probes on the frozen Phase-4B EEG latents (retraining \emph{only} a linear head;
+target labels used for final scoring only). Source subject-class \emph{prevalence reweighting} on true
+labels induced the subject--class correlation exactly, but did \emph{not} induce a learned subject
+reliance: the task signal remained a sufficient statistic and the learnability gate failed closed. A
+stronger subject-keyed, \emph{task-conflicting} relabeling (global label histogram held exact) was
+\emph{learnable in-sample} --- the head fit the relabeled subset far beyond a task-only floor ($0.70$ vs
+$0.20$) --- yet its held-out and target true-task harm did \emph{not} exceed a subject-scrambled control
+and was \emph{not} localized to the subject subspace (it beat only a matched random-noise control, on
+both datasets). Thus, in this head-only setting, neither prevalence skew nor subject-keyed task-conflict
+turned naturally present subject leakage into transferable, subject-structure-specific harmful reliance;
+both sit in the under-identified region (\textbf{R3}), and neither licenses the paused learned-reliance
+refit. These probes do \emph{not} prove that learned subject shortcuts cannot occur; they show that under
+the cheapest controlled head-level manipulations, the available natural subject signal is not readily
+weaponized without stronger information or a different mechanism.
+
 Two consequences frame the paper's contribution. First, repairability is a property of the \emph{corruption
 structure $\times$ operator class $\times$ available information}, not of the shortcut's mere detectability: the
 same subject signal is task-useful naturally (R2, refuse), repairable as a deterministic injected offset (R0), and
