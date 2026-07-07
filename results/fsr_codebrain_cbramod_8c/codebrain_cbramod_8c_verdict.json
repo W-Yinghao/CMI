@@ -29,16 +29,19 @@
   "target_labels_used_for_selection": false,
   "proceed_to_specialist_baselines": false,
   "note": "8C-1 CBraMod primary / CodeBrain exploratory. See slope summary + trends; interpretation per FSR_48 v2 grid.",
-  "cbramod_scaling_signal": "sample_size",
+  "cbramod_scaling_signal": "sample_size (growing +0.036 N>=16-driven; fixed no-DETECTABLE-effect over {2,4,8} underpowered)",
   "codebrain_scaling_signal": "sample_size_weak_task",
-  "l1_trend_primary": "persists_high_flat (~0.95 near-ceiling; diversity does NOT reduce subject separability; ceiling-bounded caveat)",
-  "l5_reliance_trend_primary": "flat (~0; no reliance scaling; on gated ~half of cells)",
-  "headline": "Over the feasible range, cross-subject transfer improves with more source DATA (growing-trials, perf slope +0.036 CI[0.028,0.045]) but NOT with subject DIVERSITY at fixed data (fixed-trials FLAT over {2,4,8}). Mean pairwise subject separability stays near-ceiling ~0.95 and FLAT across N_source (subject strongly encoded throughout; diversity does not reduce it). Subject-subspace reliance FLAT (~0). => the gain is a SAMPLE-SIZE effect; subject information PERSISTS; reliance does NOT scale. Extends 8B (subject encoded != harmful lever) to a scaling setting. Architecture-consistent (CodeBrain exploratory same direction, weaker/weaker-task).",
+  "l1_trend_primary": "~0.95 FIXED property of the frozen encoder (training/condition/N-INDEPENDENT by design; ceiling-saturated) -> NOT a diversity finding; design cannot test whether diversity erases subjects",
+  "l5_reliance_trend_primary": "subject-subspace erasure NEVER materially helps the task at any N (abs L5~0; beats variance null only 4/22 gated cells) -> subject encoded != task lever, extends 8B to scaling",
+  "headline": "Frozen PhysioNetMI (WEAK task, chance 0.5->peak 0.64): transfer improves modestly with more source TRIALS (sample-size, N>=16-driven); fixed-trials shows NO DETECTABLE diversity benefit over {2,4,8} (underpowered null). Subject-subspace erasure NEVER helps the task at any N (extends 8B 'subject encoded != task lever'). Pairwise-L1 ~0.95 is a FIXED frozen-encoder property (N-independent by design) -> this frozen design CANNOT test diversity-erasure. Only real effect = sample-size; diversity + reliance-scaling NULL/untestable.",
   "caveats": [
     "task WEAK on PhysioNetMI frozen (target 0.52-0.60, gate pass cbramod 0.52 / codebrain 0.39) -> L4/L5/L6 on gated ~half of cells; similar to BNCI not SHU-MI",
     "pairwise-L1 ~0.95 near-ceiling -> L1-flat partly ceiling-bounded",
     "fixed-trials only {2,4,8} (3 points); growing includes leveraged N=all",
     "CodeBrain exploratory (gate 0.39): same direction, weaker task"
   ],
-  "proceed_note": "Interesting FSR claims (subject-DIVERSITY effect, reliance scaling) are NULL; only signal is sample-size (mundane) + persistent L1 + flat L5. Per PM: null-for-diversity -> do NOT add specialist baselines."
+  "proceed_note": "Interesting FSR claims (subject-DIVERSITY effect, reliance scaling) are NULL; only signal is sample-size (mundane) + persistent L1 + flat L5. Per PM: null-for-diversity -> do NOT add specialist baselines.",
+  "ci_caveat": "slope CIs are CELL-LEVEL not clustered by the shared 15-target panel -> over-precise; signs robust, magnitudes lower-bounds",
+  "design_limit": "pairwise-L1 in fixed source-pool PCA + frozen encoder is N-independent by construction; a real diversity test needs a TRAINED representation (out of scope: frozen audit, no fine-tuning)",
+  "verifier": "agent a354e783: all numbers reproduce, firewall CLEAN (all 41 subsets zero panel subjects); MAJOR-1 (L1 design-guaranteed) + MAJOR-2 (CI un-clustered) + MAJOR-3 (fixed underpowered) + MAJOR-4 (N-range confound) applied"
 }

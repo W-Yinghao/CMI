@@ -71,7 +71,7 @@ def cell(Z, y, d, run, model, condition, N, seed, subset, panel):
     idx_by_subj = {s: np.where(d == s)[0] for s in subset}
     bidx = budget_idx(idx_by_subj, N, condition, seed)
     yb, db = y[bidx], d[bidx]
-    # trial-level 80/20 stratified split for head + source-val task gate
+    # trial-level 80/20 split (unstratified permutation) for head + source-val task gate
     rng = np.random.default_rng(9000 + seed)
     perm = rng.permutation(len(bidx)); nval = max(len(bidx) // 5, 2)
     val, trn = bidx[perm[:nval]], bidx[perm[nval:]]
@@ -170,7 +170,11 @@ def main():
         "model,condition,target_bacc_slope,pairwise_l1_slope,l5_drop_subject_slope\n" +
         "".join(f"{s['model']},{s['condition']},{s['target_bacc_slope']},{s['pairwise_l1_slope']},{s['l5_drop_subject_slope']}\n" for s in slopes))
     (OUT / "subject_scaling_mixed_effects.json").write_text(json.dumps(dict(slopes=slopes,
-        note="slope vs log(N_source), bootstrap over cells; growing=full grid, fixed={2,4,8}; N=all single composition."), indent=2, default=str) + "\n")
+        note=("slope vs log(N_source), CELL-LEVEL bootstrap (NOT clustered by the shared 15-target panel -> CIs are "
+              "OVER-PRECISE; sign is robust but treat intervals as lower bounds on uncertainty); growing=full grid, "
+              "fixed={2,4,8} (N=2 fixed==growing by construction); N=all single composition. NOTE: pairwise-L1 is "
+              "computed in the FIXED source-pool PCA space and is training/condition/N-INDEPENDENT by design -> its "
+              "flat-vs-N is structural, NOT a diversity finding.")), indent=2, default=str) + "\n")
 
     def trend(model, cond, key, l1=False):
         rr = ([r for r in l1_rows if r["model"] == model and (cond == "growing" or r["N_source"] in ("2", "4", "8"))] if l1
