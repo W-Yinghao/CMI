@@ -180,11 +180,13 @@ class DecisionContext:
 
 @dataclass(frozen=True)
 class SourceContext:
-    """Source-only data (labels allowed). Feeds eraser/head fit, source safety, source benefit."""
+    """Source-only data (labels allowed). Feeds eraser/head fit, source safety, source benefit. `subj` = source
+    subject ids (the cluster unit for the source-safety UCB); None -> a documented trial-block fallback."""
     Zs: np.ndarray
     ys: np.ndarray
     z_src: np.ndarray                                           # injected nuisance D_nuis (source-side)
     n_cls: int
+    subj: Optional[np.ndarray] = None
 
 
 @dataclass(frozen=True)

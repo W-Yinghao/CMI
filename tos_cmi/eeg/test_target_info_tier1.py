@@ -23,7 +23,8 @@ from tos_cmi.eeg.run_target_info_tier1_smoke import (load_cfg, build_plan, expan
                                                      compute_decision_row, finalize_decision_row,
                                                      b3_sequential_decision, scope_hash, authorize_execution,
                                                      _preflight_from_labels, execute_task, _assemble_run,
-                                                     write_two_phase_outputs, RUN_OUT, CFG)
+                                                     write_two_phase_outputs, source_task_drop_ucb,
+                                                     _redact_validation_output, RUN_OUT, CFG)
 
 
 def test_config_parses_target_info_driver():
@@ -749,6 +750,124 @@ def test_execute_still_halts_with_default_manifest():
     assert code == 1 and msg.startswith("EXPERIMENTS_DISABLED")
 
 
+# ---------------- run-readiness v2: source-safety UCB + provider-validation (dummy arrays; no runs) ----------------
+_PROVIDER_VAL_MANIFEST = "tos_cmi/eeg/configs/target_info_tier1_provider_validation_manifest_TEMPLATE.yaml"
+
+
+def _src_with_subj(n_subj=6, per=16):
+    rng = np.random.default_rng(0)
+    n = n_subj * per
+    ys = np.array([0, 1] * (n // 2))
+    Zs = rng.standard_normal((n, 6)) + ys[:, None] * np.array([1.5, 0, 0, 0, 0, 0])
+    subj = np.repeat(np.arange(n_subj), per)[:n]
+    return SourceContext(Zs, ys, ys.copy(), 2, subj=subj)
+
+
+def test_source_safety_ucb_not_point_estimate():
+    r = source_task_drop_ucb(_lin_eraser(), _src_with_subj(6), 0.02)
+    assert set(r) >= {"task_drop_mean", "task_drop_ucb", "cluster_unit", "n_clusters", "ci_method",
+                      "safety_status", "reason", "pass"}
+    assert r["cluster_unit"] == "source_subject" and r["n_clusters"] == 6
+    assert "bootstrap" in r["ci_method"]
+    assert r["task_drop_ucb"] >= r["task_drop_mean"]                  # UCB is an upper bound, not the mean
+
+
+def test_point_safe_but_ucb_unsafe_does_not_accept():
+    src = _src_with_subj(6)
+    r0 = source_task_drop_ucb(_lin_eraser(), src, 1.0)               # generous eps -> read mean/ucb
+    mean, ucb = r0["task_drop_mean"], r0["task_drop_ucb"]
+    assert ucb >= mean
+    if ucb > mean + 1e-9:                                            # spread exists -> the mean-vs-ucb gap matters
+        eps = (mean + ucb) / 2.0                                     # mean < eps < ucb
+        r = source_task_drop_ucb(_lin_eraser(), src, eps)
+        assert r["pass"] is False                                    # keys on UCB (>eps), NOT the mean (<eps)
+
+
+def test_underpowered_source_safety_abstains_or_rejects():
+    r = source_task_drop_ucb(_lin_eraser(), _src_with_subj(2), 0.02)  # 2 subjects < min_clusters
+    assert r["safety_status"] == "ABSTAIN" and r["reason"] == "underpowered_safety_ucb" and r["pass"] is False
+
+
+def test_nan_or_underpowered_safety_does_not_accept():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    subj2 = np.zeros(len(ys), int); subj2[len(ys) // 2:] = 1          # 2 source subjects -> underpowered safety
+    dec, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), _lin_eraser(), (lambda X: X),
+                          _fast_cfg(), n_boot=15, source_subj=subj2)
+    assert dec and all(r.get("decision_action") != "accept" for r in dec)
+
+
+def test_provider_validation_requires_manifest():
+    code, msg = run_cli(["--provider-validate-one-dump"], load_cfg())
+    assert code == 1 and msg.startswith("PROVIDER_VALIDATION_DISABLED"), (code, msg)
+
+
+def test_provider_validation_default_halts():
+    code, msg = run_cli(["--provider-validate-one-dump", "--provider-manifest", _PROVIDER_VAL_MANIFEST], load_cfg())
+    assert code == 1 and msg.startswith("PROVIDER_VALIDATION_DISABLED"), (code, msg)
+
+
+def test_provider_validation_scope_is_one_dump_only():
+    import yaml
+    m = yaml.safe_load(open(_PROVIDER_VAL_MANIFEST))
+    sc = m["scope"]
+    assert sc["dataset"] == "Lee2019_MI" and sc["backbone"] == "EEGNet" and sc["split_id"] == 0 and sc["k"] == 4
+    assert sc["fold"] == "first_available" and len(sc["budgets"]) == 3
+    assert m["provider_validation_allowed"] is False and m["runs_allowed"] is False
+
+
+def test_provider_validation_output_schema_has_no_metrics():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    dec, aud = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), _lin_eraser(), (lambda X: X),
+                            _fast_cfg(), n_boot=15)
+    summ = _redact_validation_output(dec, aud, {"scope": {}})
+    metric_tokens = ("bacc", "delta", "nll", "benefit_lcb", "specific", "domain_gain", "random", "accept", "reject")
+    assert not any(any(t in f.lower() for t in metric_tokens) for f in summ["decision_row_safe_fields"])
+    assert not any(any(t in f.lower() for t in metric_tokens) for f in summ["audit_row_safe_fields"])
+    assert not _has_metric_key(summ)
+
+
+def test_real_provider_loader_can_be_mocked_without_target_leak(tmp=RUN_OUT + "_mocktest"):
+    cfg = _fast_cfg()
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+
+    def mock_provider():
+        for budget in ["B0_source_only", "B2_k_labels_per_class"]:
+            yield {"meta": _exec_task(budget=budget), "Zs": Zs, "ys": ys, "z_src": z_src, "Zt": Zt, "yt": yt,
+                   "seed_key": _seed_key(), "eraser": (lambda X: X), "eraser_random": (lambda X: X),
+                   "source_subj": None}
+    _assemble_run(cfg, mock_provider(), out=tmp, n_boot=15)
+    import csv as _csv
+    with open("%s/decision_rows.csv" % tmp) as fh:
+        cols = _csv.DictReader(fh).fieldnames
+    assert not any(("audit_delta" in c or "audit_label" in c or "audit_metric" in c) for c in cols), cols
+
+
+def test_provider_validation_redacts_metric_values():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    dec, aud = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), _lin_eraser(), _lin_eraser(),
+                            _fast_cfg(), n_boot=15)
+    summ = _redact_validation_output(dec, aud, {})
+    assert summ["metrics_redacted"] is True and summ["metrics_computed_internally"] is True
+    assert summ["decision_row_redacted_metric_fields"] > 0            # metric fields exist but are redacted (counted)
+
+    def _floats(o):
+        if isinstance(o, float):
+            return [o]
+        if isinstance(o, dict):
+            return sum((_floats(v) for v in o.values()), [])
+        if isinstance(o, list):
+            return sum((_floats(v) for v in o), [])
+        return []
+    assert _floats(summ) == []                                       # NO metric VALUE (float) leaked into the summary
+
+
+def test_execute_real_still_halts_after_provider_mode_added():
+    cfg = load_cfg()
+    for argv in ([], ["--execute"]):
+        code, msg = run_cli(argv, cfg)
+        assert code == 1 and msg.startswith("EXPERIMENTS_DISABLED"), (argv, code, msg)
+
+
 ALL = [test_config_parses_target_info_driver, test_calibration_audit_disjoint, test_b1_accept_forbidden,
        test_b4_oracle_diagnostic_only, test_audit_labels_unavailable_to_decision,
        test_unavailable_k_never_reuses_audit_labels, test_dry_run_has_expected_task_count,
@@ -787,7 +906,14 @@ ALL = [test_config_parses_target_info_driver, test_calibration_audit_disjoint, t
        test_b3_sequential_early_stop_uses_no_future_labels_execute, test_b1_accept_impossible_in_execute_real,
        test_b4_oracle_excluded_from_deployable_accept_counts_execute,
        test_same_k_random_specificity_flag_in_execute_real, test_assemble_run_two_phase_outputs_on_synthetic_provider,
-       test_execute_still_halts_with_default_manifest]
+       test_execute_still_halts_with_default_manifest,
+       # run-readiness v2: source-safety UCB + provider-validation
+       test_source_safety_ucb_not_point_estimate, test_point_safe_but_ucb_unsafe_does_not_accept,
+       test_underpowered_source_safety_abstains_or_rejects, test_nan_or_underpowered_safety_does_not_accept,
+       test_provider_validation_requires_manifest, test_provider_validation_default_halts,
+       test_provider_validation_scope_is_one_dump_only, test_provider_validation_output_schema_has_no_metrics,
+       test_real_provider_loader_can_be_mocked_without_target_leak, test_provider_validation_redacts_metric_values,
+       test_execute_real_still_halts_after_provider_mode_added]
 
 
 def main():

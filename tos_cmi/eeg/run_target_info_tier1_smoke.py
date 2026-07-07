@@ -33,11 +33,14 @@ from tos_cmi.eeg.target_info_splits import (make_calibration_audit_splits, selec
 
 CFG = "tos_cmi/eeg/configs/target_info_tier1_smoke_driver_fixed.yaml"
 MANIFEST = "tos_cmi/eeg/configs/target_info_tier1_run_manifest.yaml"
+PROVIDER_VAL_MANIFEST = "tos_cmi/eeg/configs/target_info_tier1_provider_validation_manifest_TEMPLATE.yaml"
 OUT = "tos_cmi/results/target_info/tier1_driver_dryrun"
 PREFLIGHT_OUT = "tos_cmi/results/target_info/tier1_preflight_subject_seeded"
+PROVIDER_VAL_OUT = "tos_cmi/results/target_info/tier1_provider_validation"
 HALT_MSG = "EXPERIMENTS_DISABLED: implementation-only stage; requires separate PM go."
 MANIFEST_HALT_MSG = "EXPERIMENTS_DISABLED: run manifest is preflight_only; requires separate PM go."
 PREFLIGHT_HALT_MSG = "PREFLIGHT_DISABLED: run manifest preflight_allowed=false; requires separate PM go."
+PROVIDER_VAL_HALT_MSG = "PROVIDER_VALIDATION_DISABLED: manifest provider_validation_allowed=false; requires separate PM go."
 DESIGN_LOCK_HASH = "3ad4ef312e325fa6"
 
 
@@ -442,15 +445,40 @@ def _boot_delta_samples(eraser, src: SourceContext, cal: CalibrationContext, n_b
     return out
 
 
-def _source_safety(eraser, src: SourceContext, safety_eps, seed=0):
-    """Source-only task-safety: does the eraser preserve the SOURCE task? (point estimate for the smoke; a
-    subject-clustered UCB is a documented run-ready TODO). Returns (pass, task_drop)."""
+def source_task_drop_ucb(eraser, src: SourceContext, safety_eps, n_boot=300, seed=0, min_clusters=3, q=0.95):
+    """Source-only task-safety as a CLUSTER-BOOTSTRAP UPPER CONFIDENCE BOUND (NOT a point estimate). Cluster unit =
+    source subject (`src.subj`); if subjects are unavailable, a documented trial-block fallback is used. With too
+    few clusters the safety is UNDERPOWERED -> ABSTAIN (never a point-estimate accept). Returns a dict with
+    task_drop_mean, task_drop_ucb, cluster_unit, n_clusters, ci_method, safety_status, reason, pass."""
     _bacc, _ = _lazy_estimators()
     from tos_cmi.eeg.run_v2_certificate import _stratified_split
-    A, B = _stratified_split(len(src.ys), seed)
-    drop = (_bacc(src.Zs[A], src.ys[A], src.Zs[B], src.ys[B])
-            - _bacc(eraser(src.Zs[A]), src.ys[A], eraser(src.Zs[B]), src.ys[B]))
-    return bool(drop <= safety_eps), float(drop)
+    if src.subj is not None:
+        cluster_unit, groups = "source_subject", np.asarray(src.subj)
+    else:                                                       # documented fallback (NOT subject-level)
+        cluster_unit, groups = "trial_block", (np.arange(len(src.ys)) % max(min_clusters, 4))
+    clusters = sorted(set(groups.tolist()))
+    n_clusters = len(clusters)
+    base = {"cluster_unit": cluster_unit, "n_clusters": n_clusters,
+            "ci_method": "cluster_bootstrap_q%.2f" % q}
+    if n_clusters < min_clusters:                               # underpowered -> refuse, never fall back to point est
+        return {**base, "task_drop_mean": float("nan"), "task_drop_ucb": float("nan"),
+                "safety_status": "ABSTAIN", "reason": "underpowered_safety_ucb", "pass": False}
+    rng = np.random.default_rng(seed)
+    drops = []
+    for _ in range(n_boot):
+        pick = rng.choice(clusters, size=n_clusters, replace=True)
+        idx = np.concatenate([np.where(groups == c)[0] for c in pick])
+        Zb, yb = src.Zs[idx], src.ys[idx]
+        if len(set(yb.tolist())) < 2:
+            continue
+        A, B = _stratified_split(len(yb), seed)
+        drops.append(float(_bacc(Zb[A], yb[A], Zb[B], yb[B]) - _bacc(eraser(Zb[A]), yb[A], eraser(Zb[B]), yb[B])))
+    if not drops:
+        return {**base, "task_drop_mean": float("nan"), "task_drop_ucb": float("nan"),
+                "safety_status": "ABSTAIN", "reason": "underpowered_safety_ucb", "pass": False}
+    mean, ucb = float(np.mean(drops)), float(np.quantile(drops, q))
+    return {**base, "task_drop_mean": mean, "task_drop_ucb": ucb, "safety_status": "OK", "reason": "",
+            "pass": bool(ucb == ucb and ucb <= safety_eps)}     # ACCEPT-gate keys on the UCB, never the mean
 
 
 def _source_benefit_samples(eraser, src: SourceContext, n_boot, seed):
@@ -473,21 +501,26 @@ def _source_benefit_samples(eraser, src: SourceContext, n_boot, seed):
     return out
 
 
-def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, cfg, n_boot=200):
+def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, cfg, n_boot=200, source_subj=None):
     """One (dataset,world,fold,alpha,intervention,budget) task -> (decision_rows, audit_rows). Decision phase reads
     SOURCE + CALIBRATION only via guarded contexts (audit labels are structurally absent from compute_decision_row);
     audit phase runs AFTER the decision is frozen. Subject-seeded splits + nested k-subsets are replayed here.
-    Array-only + world-agnostic (worlds are injected by execute_real), so this is unit-tested on dummy arrays."""
+    Source safety is a cluster-bootstrap UCB (never a point estimate). Array-only + world-agnostic (worlds are
+    injected by execute_real), so this is unit-tested on dummy arrays."""
     fam = _family(task["budget"])
     thr = cfg["thresholds"]["benefit_lcb"]; safety_eps = cfg["thresholds"]["safety_eps"]
     R = cfg["tier1_scope"]["repeats_R"]; k_grid = cfg["budgets"]["B2_k_labels_per_class"]["k_grid"]
     cfrac = cfg["split_rng"]["calib_fraction"]
-    src = SourceContext(np.asarray(Zs), np.asarray(ys).astype(int), np.asarray(z_src), int(len(set(ys.tolist()))))
+    src = SourceContext(np.asarray(Zs), np.asarray(ys).astype(int), np.asarray(z_src),
+                        int(len(set(ys.tolist()))), subj=source_subj)
     yt = np.asarray(yt).astype(int); Zt = np.asarray(Zt)
     splits = subject_seeded_splits(yt, seed_key, R=R, calib_fraction=cfrac)
     target_leak_structural_check(splits, {})                   # per-split disjointness (raises -> caller HALTs run)
     _ = LabelAccessGuard("decision")                           # decision-phase guard (audit labels forbidden here)
-    src_pass, task_drop = _source_safety(eraser, src, safety_eps)
+    saf = source_task_drop_ucb(eraser, src, safety_eps)        # UCB, not point estimate
+    src_pass = saf["pass"]
+    safety_status = "pass" if src_pass else ("abstain_underpowered" if saf["safety_status"] == "ABSTAIN"
+                                             else "reject")
     meta = {kk: task.get(kk) for kk in ("dataset", "backbone", "world", "alpha", "fold", "target_subject",
                                         "intervention", "budget")}
     dec_rows, aud_rows = [], []
@@ -495,7 +528,7 @@ def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, c
     def _emit(row, sid, cal_idx, aud_idx, k):
         """Attach split meta to the (audit-free) decision row and, in a SEPARATE audit-phase record, the held-out
         audit provenance + metric. decision_rows never carry an audit metric."""
-        dec = {**meta, "split_id": sid, "k": k, "source_safety_status": "pass" if src_pass else "reject",
+        dec = {**meta, "split_id": sid, "k": k, "source_safety_status": safety_status,
                "domain_gain": None, "same_k_random_calibration": row.get("beats_random"),
                "calibration_benefit_lcb": row.get("cal_benefit_lcb"), "decision_action": row["action"],
                "decision_input_hash": row["decision_input_hash"], "calibration_idx_hash": row["calibration_idx_hash"],
@@ -539,8 +572,7 @@ def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, c
             for k in k_grid:
                 sel = ksub[k]
                 if sel is None:                                # UNAVAILABLE: mark, never reuse audit
-                    dec_rows.append({**meta, "split_id": sid, "k": int(k), "source_safety_status":
-                                     "pass" if src_pass else "reject", "decision_action": "unavailable_k",
+                    dec_rows.append({**meta, "split_id": sid, "k": int(k), "source_safety_status": safety_status, "decision_action": "unavailable_k",
                                      "calibration_benefit_lcb": None, "same_k_random_calibration": None,
                                      "domain_gain": None, "decision_input_hash": None,
                                      "calibration_idx_hash": hash_array(cal), "calibration_label_hash": None,
@@ -573,8 +605,8 @@ def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, c
                    "calibration_label_hash": hash_array(yt[cal]), "delta_source": "calibration_only"}
             if not src_pass:
                 row["action"] = "reject"
-            dsel = {**meta, "split_id": sid, "k": seq["k_used"], "source_safety_status":
-                    "pass" if src_pass else "reject", "domain_gain": None,
+            dsel = {**meta, "split_id": sid, "k": seq["k_used"], "source_safety_status": safety_status,
+                    "domain_gain": None,
                     "same_k_random_calibration": row["beats_random"], "calibration_benefit_lcb": None,
                     "decision_action": row["action"], "decision_input_hash": row["decision_input_hash"],
                     "calibration_idx_hash": row["calibration_idx_hash"],
@@ -632,7 +664,8 @@ def _assemble_run(cfg, provider, out=RUN_OUT, n_boot=200):
     dec_all, aud_all = [], []
     for it in provider:
         dec, aud = execute_task(it["meta"], it["Zs"], it["ys"], it["z_src"], it["Zt"], it["yt"],
-                                it["seed_key"], it["eraser"], it["eraser_random"], cfg, n_boot=n_boot)
+                                it["seed_key"], it["eraser"], it["eraser_random"], cfg, n_boot=n_boot,
+                                source_subj=it.get("source_subj"))
         dec_all += dec; aud_all += aud
     write_two_phase_outputs(dec_all, aud_all, out)
     return len(dec_all), len(aud_all)
@@ -685,7 +718,8 @@ def _real_provider(cfg, results_root, seed):
                                                 "fold": fold, "target_subject": sub, "intervention": interv,
                                                 "budget": budget},
                                        "Zs": Zs2, "ys": ys, "z_src": z_src, "Zt": Zt2, "yt": yt,
-                                       "seed_key": seed_key, "eraser": E, "eraser_random": Erand}
+                                       "seed_key": seed_key, "eraser": E, "eraser_random": Erand,
+                                       "source_subj": subj}
 
 
 def execute_real(cfg, manifest=None, results_root=FROZEN_ROOT, out=RUN_OUT):
@@ -700,6 +734,94 @@ def execute_real(cfg, manifest=None, results_root=FROZEN_ROOT, out=RUN_OUT):
     seed = cfg["tier1_scope"]["seeds"][0]
     nd, na = _assemble_run(cfg, _real_provider(cfg, results_root, seed), out)
     return 0, "TARGET_INFO_TIER1_RUN_DONE (%d decision rows, %d audit rows)" % (nd, na)
+
+
+# ============================ provider-validation mode (gated; exercises _real_provider; metrics REDACTED) =========
+_METRIC_FIELD_TOKENS = ("bacc", "delta", "nll", "benefit_lcb", "specific", "domain_gain", "action",
+                        "accept", "reject", "abstain", "random", "audit_delta")
+
+
+def _redact_validation_output(dec_rows, aud_rows, meta):
+    """Schema-safe validation summary: row counts, SAFE (non-metric) field NAMES, redacted-metric-field COUNTS,
+    contexts, hashes -- NEVER a metric VALUE (bAcc/ΔbAcc/NLL/accept-rate/...). Metric code may run internally; its
+    numeric outputs are redacted from the committed summary."""
+    def split_fields(rows):
+        names = sorted({k for r in rows for k in r})
+        safe = [n for n in names if not any(t in n.lower() for t in _METRIC_FIELD_TOKENS)]
+        return safe, len([n for n in names if any(t in n.lower() for t in _METRIC_FIELD_TOKENS)])
+    dsafe, dred = split_fields(dec_rows); asafe, ared = split_fields(aud_rows)
+    idxh = sorted({r.get("calibration_idx_hash") for r in dec_rows if isinstance(r.get("calibration_idx_hash"), str)})
+    return {**meta, "rows_completed": len(dec_rows), "audit_rows_completed": len(aud_rows),
+            "decision_row_schema_present": bool(dec_rows), "audit_row_schema_present": bool(aud_rows),
+            "decision_row_safe_fields": dsafe, "decision_row_redacted_metric_fields": dred,
+            "audit_row_safe_fields": asafe, "audit_row_redacted_metric_fields": ared,
+            "distinct_calibration_idx_hashes": len(idxh),
+            "contexts_constructed": ["SourceContext", "CalibrationContext", "AuditView"],
+            "metrics_computed_internally": True, "metrics_redacted": True}
+
+
+def provider_validate_one_dump(cfg, manifest, results_root=FROZEN_ROOT, out=PROVIDER_VAL_OUT):
+    """Exercise `_real_provider` on ONE real dump (Lee EEGNet, first fold, source-rich World A, split_id 0,
+    B0/B2(k=4)/B4, identity/leace_baseline/random_k). Runs the FULL decision+audit path internally but REDACTS every
+    metric VALUE from the committed output (this is a plumbing check, NOT a science result). Gated behind
+    manifest.provider_validation_allowed; the real-dump load itself is UNEXERCISED until the PM enables it."""
+    if manifest.get("runs_allowed") or manifest.get("experiments_allowed"):
+        return 1, "PROVIDER_VALIDATION_REFUSED: manifest runs_allowed/experiments_allowed must be false"
+    sc = manifest.get("scope", {})
+    ds, bb = sc.get("dataset", "Lee2019_MI"), sc.get("backbone", "EEGNet")
+    world = sc.get("world", "source_rich_world_a_source_visible")
+    budgets = sc.get("budgets", ["B0_source_only", "B2_k_labels_per_class", "B4_oracle_selector"])
+    intervs = sc.get("interventions", ["identity", "leace_baseline", "random_k"])
+    kval = sc.get("k", 4)
+    import glob
+    import re
+    from tos_cmi.eeg.source_rich_worlds import inject_source_rich
+    from tos_cmi.eeg.v2_worlds import FACTORIES
+    from tos_cmi.eeg.run_v2_certificate import _nuisance_m
+    from tos_cmi.eeg.erasure_baselines import _ids
+    dd = "%s/%s_%s_LOSO" % (results_root, ds, bb)
+    ps = sorted(glob.glob("%s/sub*_erm_lam0_seed0.npz" % dd),
+                key=lambda p: int(re.search(r"sub(\d+)_", p.split("/")[-1]).group(1)))
+    if not ps:
+        return 1, "PROVIDER_VALIDATION_REFUSED: no dump found for %s/%s" % (ds, bb)
+    p = ps[0]; sub = int(re.search(r"sub(\d+)_", p.split("/")[-1]).group(1))
+    d = np.load(p, allow_pickle=True)
+    Zs = d["Z_source"].astype(float); ys = d["y_source"].astype(int)
+    Zt = d["Z_target"].astype(float); yt = d["y_target"].astype(int)
+    subj = _ids(d["subject_source"])[0]; n_cls = int(d["n_cls"])
+    m = _nuisance_m(Zs.shape[1], "fraction_of_z_dim", 0.20, 4)
+    inj = inject_source_rich(Zs, ys, subj, Zt, yt, alpha=1.0, m=m, seed=0)
+    Zs2, Zt2, z_src = inj["Zs2"], inj["Zt2"], inj["z_src"]
+    seed_key = {"dataset": ds, "backbone": bb, "model_seed": 0, "fold": 1, "target_subject": sub,
+                "global_split_seed": cfg["split_rng"]["global_split_seed"]}
+    vcfg = dict(cfg)
+    vcfg["tier1_scope"] = dict(cfg["tier1_scope"], repeats_R=1)      # split_id 0 only
+    vcfg["budgets"] = dict(cfg["budgets"])
+    vcfg["budgets"]["B2_k_labels_per_class"] = dict(cfg["budgets"]["B2_k_labels_per_class"], k_grid=[kval])
+    dec_all, aud_all = [], []
+    for interv in intervs:
+        E = FACTORIES[interv](Zs2, ys, z_src, n_cls, 0); Erand = FACTORIES["random_k"](Zs2, ys, z_src, n_cls, 0)
+        for budget in budgets:
+            meta = {"dataset": ds, "backbone": bb, "world": world, "alpha": 1.0, "fold": 1,
+                    "target_subject": sub, "intervention": interv, "budget": budget}
+            dec, aud = execute_task(meta, Zs2, ys, z_src, Zt2, yt, seed_key, E, Erand, vcfg, n_boot=100,
+                                    source_subj=subj)
+            dec_all += dec; aud_all += aud
+    summary = _redact_validation_output(dec_all, aud_all, {
+        "scope": {"dataset": ds, "backbone": bb, "world": world, "fold": 1, "split_id": 0, "k": kval,
+                  "budgets": budgets, "interventions": intervs, "n_dumps": 1},
+        "source_shape": list(np.asarray(Zs2).shape), "target_shape": list(np.asarray(Zt2).shape)})
+    os.makedirs(out, exist_ok=True)
+    json.dump(summary, open("%s/provider_validation_manifest.json" % out, "w"), indent=1)
+    json.dump({"decision_row_schema_present": summary["decision_row_schema_present"],
+               "audit_row_schema_present": summary["audit_row_schema_present"], "metrics_redacted": True},
+              open("%s/provider_validation_schema.json" % out, "w"), indent=1)
+    from tos_cmi.eeg.report_target_info_tier1 import write_provider_validation_report
+    rpt = write_provider_validation_report(summary, out)
+    print("provider-validation: %d decision rows, %d audit rows (metrics REDACTED) ; report %s"
+          % (summary["rows_completed"], summary["audit_rows_completed"], rpt))
+    print("TARGET_INFO_TIER1_PROVIDER_VALIDATION_DONE")
+    return 0, "TARGET_INFO_TIER1_PROVIDER_VALIDATION_DONE (%d rows, metrics redacted)" % summary["rows_completed"]
 
 
 def build_schema(cfg, plan=None, expanded=None):
@@ -786,11 +908,13 @@ def run_cli(argv, cfg):
     ap.add_argument("--dry-run", action="store_true")
     ap.add_argument("--execute", action="store_true")
     ap.add_argument("--preflight-real-splits", action="store_true")
+    ap.add_argument("--provider-validate-one-dump", action="store_true")
     ap.add_argument("--run-manifest", default=MANIFEST)
+    ap.add_argument("--provider-manifest", default=PROVIDER_VAL_MANIFEST)
     ap.add_argument("--enable-token", default=None)
     a = ap.parse_args(argv)
-    if sum([a.dry_run, a.execute, a.preflight_real_splits]) > 1:   # exactly one mode
-        return 2, "CONFLICTING_FLAGS: choose one of --dry-run / --execute / --preflight-real-splits."
+    if sum([a.dry_run, a.execute, a.preflight_real_splits, a.provider_validate_one_dump]) > 1:  # exactly one mode
+        return 2, "CONFLICTING_FLAGS: choose one of --dry-run / --execute / --preflight-real-splits / --provider-validate-one-dump."
     if a.dry_run:
         n_plan, n_exp = dry_run(cfg)
         return 0, "TARGET_INFO_TIER1_DRYRUN_DONE (%d plan rows, %d expanded tasks)" % (n_plan, n_exp)
@@ -799,6 +923,11 @@ def run_cli(argv, cfg):
         if not manifest.get("preflight_allowed", False):          # gated: running preflight = separate PM go
             return 1, PREFLIGHT_HALT_MSG
         return preflight_real_splits(cfg, manifest)
+    if a.provider_validate_one_dump:
+        pman = load_manifest(a.provider_manifest)
+        if not pman.get("provider_validation_allowed", False):    # gated: running provider-validation = separate PM go
+            return 1, PROVIDER_VAL_HALT_MSG
+        return provider_validate_one_dump(cfg, pman)
     # bare invocation OR --execute: experiments require an APPROVED, token-backed manifest (P0-1/P0-4).
     manifest = load_manifest(a.run_manifest)
     ok, reasons = authorize_execution(cfg, manifest, a.enable_token)

@@ -140,6 +140,37 @@ def write_preflight_report(manifest_out, split_hash_rows, unavail_rows, out):
     return p
 
 
+def write_provider_validation_report(summary, out):
+    """Render the provider-validation report: pipeline exercised, shapes, contexts, schema presence, hash counts.
+    NO metric VALUES (bAcc/ΔbAcc/NLL/accept-rate/...) and no metric field names -- only counts of redacted fields."""
+    L = ["# Fork 1 Tier-1 --- provider-validation (plumbing check; metrics REDACTED; NOT a science result)\n",
+         "Exercises `_real_provider` on ONE real dump. Metric code ran internally; every metric VALUE is redacted "
+         "from this output. metrics_computed_internally=%s, metrics_redacted=%s.\n"
+         % (summary["metrics_computed_internally"], summary["metrics_redacted"]),
+         "## Scope (one dump only)",
+         "- %s" % summary["scope"],
+         "- source_shape %s ; target_shape %s\n" % (summary["source_shape"], summary["target_shape"]),
+         "## Pipeline exercised",
+         "- decision rows completed: %d ; audit rows completed: %d" % (summary["rows_completed"],
+                                                                       summary["audit_rows_completed"]),
+         "- contexts constructed: %s" % ", ".join(summary["contexts_constructed"]),
+         "- decision_row_schema_present: %s ; audit_row_schema_present: %s"
+         % (summary["decision_row_schema_present"], summary["audit_row_schema_present"]),
+         "- distinct calibration_idx_hashes: %d\n" % summary["distinct_calibration_idx_hashes"],
+         "## Schema (safe field names + redacted metric-field counts)",
+         "- decision safe fields: %s" % summary["decision_row_safe_fields"],
+         "- decision redacted metric fields (count only): %d" % summary["decision_row_redacted_metric_fields"],
+         "- audit safe fields: %s" % summary["audit_row_safe_fields"],
+         "- audit redacted metric fields (count only): %d\n" % summary["audit_row_redacted_metric_fields"],
+         "## Confirmation",
+         "- This is a plumbing/provider check. NO balanced-metric, NO benefit, NO likelihood, NO decision-rate, and "
+         "NO source/target quality VALUE was written. The real-dump load path was exercised; its outputs are "
+         "redacted. This is NOT a Tier-1 science result.\n"]
+    p = "%s/provider_validation_report.md" % out
+    open(p, "w").write("\n".join(L) + "\n")
+    return p
+
+
 def main():
     plan = json.load(open("%s/target_info_tier1_plan.json" % OUT))["plan"]
     schema = json.load(open("%s/target_info_tier1_schema.json" % OUT))

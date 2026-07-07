@@ -1,0 +1,29 @@
+# PROVIDER-VALIDATION manifest TEMPLATE -- NOT an approval. --provider-validate-one-dump HALTs while
+# provider_validation_allowed is false. This exercises _real_provider on ONE real dump as a PLUMBING check; every
+# metric VALUE is redacted from committed output (it is NOT a science result). It can NEVER authorize --execute
+# (authorize_execution keys on run_status==approved + token + hashes, none present here). To later enable the
+# validation run the PM sets provider_validation_allowed: true in an approved copy; runs_allowed/experiments_allowed
+# stay false.
+
+validation_status: awaiting_pm_go
+provider_validation_allowed: false
+runs_allowed: false
+experiments_allowed: false
+
+scope:
+  dataset: Lee2019_MI
+  backbone: EEGNet
+  seed: 0
+  fold: first_available
+  world: source_rich_world_a_source_visible
+  budgets: [B0_source_only, B2_k_labels_per_class, B4_oracle_selector]
+  k: 4
+  split_id: 0
+  interventions: [identity, leace_baseline, random_k]
+
+outputs:
+  metrics_redacted: true
+
+provenance:
+  stage: run_readiness_v2_provider_validation_TEMPLATE
+  note: "template only; not an approval; provider-validation stays halted"

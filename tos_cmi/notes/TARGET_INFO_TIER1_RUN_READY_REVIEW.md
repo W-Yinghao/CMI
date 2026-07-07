@@ -51,6 +51,27 @@ refuse an `AuditView`.
   (`scope_hash(cfg)`), `approved_driver_hash` (sha256(driver)[:16]), `approved_git_commit`, and
   `approved_enable_token_sha256 = sha256(<out-of-band token>)`, then passes `--enable-token <token>`.
 
+## 5b. Run-readiness v2 status
+```
+Implemented:
+  source-safety UCB path (source_task_drop_ucb): cluster-bootstrap upper bound over source SUBJECTS; underpowered
+    (< min_clusters) -> ABSTAIN (reason=underpowered_safety_ucb); the accept-gate keys on the UCB, NEVER the mean.
+    The old point-estimate _source_safety is REMOVED; execute_task now uses the UCB.
+  provider-validation mode scaffold (--provider-validate-one-dump): exercises _real_provider on ONE real dump
+    (Lee EEGNet, first fold, source-rich World A, split_id 0, B0/B2(k=4)/B4, identity/leace_baseline/random_k);
+    runs the full decision+audit path internally but REDACTS every metric VALUE in the committed output.
+  provider-validation manifest template (target_info_tier1_provider_validation_manifest_TEMPLATE.yaml).
+  metric-redaction output contract (_redact_validation_output): safe field NAMES + redacted-metric-field COUNTS +
+    shapes/hashes/contexts; NO metric VALUE, no metric field name.
+Still not allowed (all HALT):
+  actual Tier-1 smoke ; provider-validation run (provider_validation_allowed=false) ; manifest approval ;
+  enable token ; runs_allowed/experiments_allowed flip.
+Original three risks, now:
+  (a) _real_provider unexercised -> provider-validation mode PREPARED (gated), not run.
+  (b) point-estimate safety -> REPLACED by a subject-cluster UCB; no point-estimate accept path remains.
+  (c) small-k weak LCB -> expected abstention at small k, not a blocker (documented).
+```
+
 ## 6. Known risks (for review before enabling a run)
 1. **`_real_provider` unexercised**: real-dump load + `inject`/`inject_source_rich` + `FACTORIES` mapping have not
    run; the world-injection dim/`m` and the `leace`→`leace_baseline` mapping should be validated on one real dump
