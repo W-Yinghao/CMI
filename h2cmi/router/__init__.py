@@ -35,6 +35,14 @@ from h2cmi.router.router import (
     RouterDecision,
     RefusalFirstRouter,
 )
+from h2cmi.router.error_risk import (
+    ErrorRiskConfig,
+    ErrorRiskFeatureAudit,
+    ErrorRiskFit,
+    fit_error_risk_crossfit,
+    predict_error_risk,
+    make_identity_error_acar_state,
+)
 
 __all__ = [
     "RouterAction",
@@ -59,4 +67,11 @@ __all__ = [
     "ActionRiskPrediction",
     "RouterDecision",
     "RefusalFirstRouter",
+    # Identity error-risk layer (S2B)
+    "ErrorRiskConfig",
+    "ErrorRiskFeatureAudit",
+    "ErrorRiskFit",
+    "fit_error_risk_crossfit",
+    "predict_error_risk",
+    "make_identity_error_acar_state",
 ]
