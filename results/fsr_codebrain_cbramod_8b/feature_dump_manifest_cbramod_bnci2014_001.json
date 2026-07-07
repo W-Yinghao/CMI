@@ -1,0 +1,66 @@
+{
+  "model": "cbramod",
+  "dataset": "bnci2014_001",
+  "bs": 64,
+  "n_trials": 5184,
+  "n_subjects": 9,
+  "n_sessions_per_subj": 2,
+  "channels": [
+    "Fz",
+    "FC3",
+    "FC1",
+    "FCz",
+    "FC2",
+    "FC4",
+    "C5",
+    "C3",
+    "C1",
+    "Cz",
+    "C2",
+    "C4",
+    "C6",
+    "CP3",
+    "CP1",
+    "CPz",
+    "CP2",
+    "CP4",
+    "P1",
+    "Pz",
+    "P2",
+    "POz"
+  ],
+  "n_channels": 22,
+  "native_hz": 250,
+  "target_hz": 200,
+  "patch": 200,
+  "n_patch": 4,
+  "classes": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "F0_dim": 200,
+  "F1_dim": 4400,
+  "F1_desc": "per-channel: mean over patches, keep channels, flatten C*200 (preserves MI spatial lateralization)",
+  "load": {
+    "missing": 0,
+    "unexpected": 0,
+    "params": 4883800
+  },
+  "freq_token_hist": [],
+  "qc": [
+    {
+      "model": "cbramod",
+      "dataset": "bnci2014_001",
+      "bs": 64,
+      "F0_repeat_max": 0.0,
+      "F0_batchgroup_max": 4.76837158203125e-07,
+      "F1_repeat_max": 0.0,
+      "F1_batchgroup_max": 2.823770046234131e-06,
+      "deterministic_repeat": true,
+      "finite": true
+    }
+  ],
+  "sec": 20.4
+}

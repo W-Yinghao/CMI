@@ -1,0 +1,25 @@
+{
+  "temporal_token_status": "collapsed",
+  "frequency_token_status": "usable",
+  "note": "One-time side-check (no retrain/tuning). Temporal codebook globally collapsed on real EEG (SHU 1000 trials + BNCI canonical 30-patch window) => excluded from main analysis; frequency codes diverse. CodeBrain's temporal-token interpretability claims are NOT transported to our audit (C23).",
+  "probes": [
+    {
+      "probe": "shu_1000trials_32ch_4patch_zscore",
+      "n_trials": 1000,
+      "n_tokens": 128000,
+      "temporal_n_unique": 1,
+      "temporal_entropy": -0.0,
+      "freq_n_unique": 4009,
+      "freq_entropy": 7.7885
+    },
+    {
+      "probe": "bnci_1window_22ch_30patch_zscore",
+      "n_trials": 1,
+      "n_tokens": 660,
+      "temporal_n_unique": 1,
+      "temporal_entropy": -0.0,
+      "freq_n_unique": 283,
+      "freq_entropy": 5.2837
+    }
+  ]
+}

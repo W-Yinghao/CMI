@@ -1,0 +1,193 @@
+{
+  "model": "codebrain",
+  "dataset": "bnci2014_001",
+  "bs": 64,
+  "n_trials": 5184,
+  "n_subjects": 9,
+  "n_sessions_per_subj": 2,
+  "channels": [
+    "Fz",
+    "FC3",
+    "FC1",
+    "FCz",
+    "FC2",
+    "FC4",
+    "C5",
+    "C3",
+    "C1",
+    "Cz",
+    "C2",
+    "C4",
+    "C6",
+    "CP3",
+    "CP1",
+    "CPz",
+    "CP2",
+    "CP4",
+    "P1",
+    "Pz",
+    "P2",
+    "POz"
+  ],
+  "n_channels": 22,
+  "native_hz": 250,
+  "target_hz": 200,
+  "patch": 200,
+  "n_patch": 4,
+  "classes": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "F0_dim": 200,
+  "F1_dim": 4400,
+  "F1_desc": "per-channel: mean over patches, keep channels, flatten C*200 (preserves MI spatial lateralization)",
+  "load": {
+    "missing": 0,
+    "unexpected": 0,
+    "params": 15167600
+  },
+  "freq_token_hist": [
+    {
+      "subject": 1,
+      "session": 1,
+      "n": 64,
+      "n_unique": 1478,
+      "entropy": 6.864333989738544
+    },
+    {
+      "subject": 1,
+      "session": 0,
+      "n": 64,
+      "n_unique": 1597,
+      "entropy": 6.934327876857267
+    },
+    {
+      "subject": 2,
+      "session": 1,
+      "n": 64,
+      "n_unique": 1315,
+      "entropy": 6.595897064611527
+    },
+    {
+      "subject": 2,
+      "session": 0,
+      "n": 64,
+      "n_unique": 1446,
+      "entropy": 6.777161414287659
+    },
+    {
+      "subject": 3,
+      "session": 1,
+      "n": 64,
+      "n_unique": 1432,
+      "entropy": 6.737796257064285
+    },
+    {
+      "subject": 3,
+      "session": 0,
+      "n": 64,
+      "n_unique": 1508,
+      "entropy": 6.743866227639608
+    },
+    {
+      "subject": 4,
+      "session": 1,
+      "n": 64,
+      "n_unique": 1650,
+      "entropy": 6.977743001830077
+    },
+    {
+      "subject": 4,
+      "session": 0,
+      "n": 64,
+      "n_unique": 1640,
+      "entropy": 6.964381029130788
+    },
+    {
+      "subject": 5,
+      "session": 1,
+      "n": 64,
+      "n_unique": 1353,
+      "entropy": 6.578990852424765
+    },
+    {
+      "subject": 5,
+      "session": 0,
+      "n": 64,
+      "n_unique": 1602,
+      "entropy": 6.962161238403967
+    },
+    {
+      "subject": 6,
+      "session": 1,
+      "n": 64,
+      "n_unique": 1593,
+      "entropy": 6.9408445182951475
+    },
+    {
+      "subject": 6,
+      "session": 0,
+      "n": 64,
+      "n_unique": 1596,
+      "entropy": 6.9446255381772835
+    },
+    {
+      "subject": 7,
+      "session": 1,
+      "n": 64,
+      "n_unique": 1642,
+      "entropy": 7.014123159677709
+    },
+    {
+      "subject": 7,
+      "session": 0,
+      "n": 64,
+      "n_unique": 1610,
+      "entropy": 6.943309105817123
+    },
+    {
+      "subject": 8,
+      "session": 1,
+      "n": 64,
+      "n_unique": 1412,
+      "entropy": 6.647895496503297
+    },
+    {
+      "subject": 8,
+      "session": 0,
+      "n": 64,
+      "n_unique": 1404,
+      "entropy": 6.663979935249241
+    },
+    {
+      "subject": 9,
+      "session": 1,
+      "n": 64,
+      "n_unique": 1416,
+      "entropy": 6.662664464091719
+    },
+    {
+      "subject": 9,
+      "session": 0,
+      "n": 64,
+      "n_unique": 1538,
+      "entropy": 6.7891903182671225
+    }
+  ],
+  "qc": [
+    {
+      "model": "codebrain",
+      "dataset": "bnci2014_001",
+      "bs": 64,
+      "F0_repeat_max": 0.0,
+      "F0_batchgroup_max": 2.676248550415039e-05,
+      "F1_repeat_max": 0.0,
+      "F1_batchgroup_max": 0.00018709152936935425,
+      "deterministic_repeat": true,
+      "finite": true
+    }
+  ],
+  "sec": 22.0
+}
