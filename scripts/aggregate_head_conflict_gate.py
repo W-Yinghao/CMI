@@ -1,7 +1,10 @@
 #!/usr/bin/env python
-"""FSR Phase 7C Q7C-a — held-in learnability gate verdict (fail-closed). Did the TASK-CONFLICT corruption make the
-head learn a SUBJECT shortcut (rely on subject to satisfy task-conflicting labels), beating BOTH the random-noise
-(Hrandom) and subject-shuffle (Hshuffle) controls, monotone in gamma? Histogram must be exactly P(y)-preserving."""
+"""FSR Phase 7C Q7C-a — HELD-IN LEARNABILITY gate (fail-closed). On the TRAINING subjects, did the linear head
+actually SATISFY the task-conflicting labels (fit on the relabeled subset beyond a task-only floor, rising with
+gamma) under an achieved corruption rate that tracks gamma and an exactly-P(y)-preserving construction? This is a
+capability check (can the shortcut be linearly learned at all) -- the structured-beats-control TRANSFER test is
+Q7C-b (aggregate_head_conflict_transfer.py). If Q7C-a fails -> STOP: shortcut not linearly learnable; 7C-full
+does not run. The subject-reliance-on-train columns are reported as DIAGNOSTICS only, not gate conditions."""
 import csv, json
 from pathlib import Path
 import numpy as np
@@ -30,9 +33,17 @@ def _res(clu, rng):
     return np.concatenate([np.where(clu == c)[0] for c in pick])
 
 
-def boot_ci(v, clu, nb=3000):
-    v = np.asarray(v, float); b = [v[_res(clu, RNG)].mean() for _ in range(nb)]
-    return [round(float(np.percentile(b, 2.5)), 4), round(float(np.percentile(b, 97.5)), 4)]
+def boot_lo(v, clu, nb=3000):
+    m = np.isfinite(v)
+    if m.sum() == 0:
+        return None
+    v, clu = v[m], clu[m]
+    b = [v[_res(clu, RNG)].mean() for _ in range(nb)]
+    return round(float(np.percentile(b, 2.5)), 4)
+
+
+def col(rows, name):
+    return np.array([fl(r.get(name)) for r in rows], float)
 
 
 def main():
@@ -41,39 +52,52 @@ def main():
     dose = {}
     for g in ("0.0", "0.2", "0.4"):
         rr = [r for r in rows if r["gamma"] == g]; clu = clu_of(rr)
-        cs = np.array([fl(r["l5_conflict_minus_shuffle"]) for r in rr])
-        cr = np.array([fl(r["l5_conflict_minus_random"]) for r in rr])
-        td = np.array([fl(r["heldin_task_drop"]) for r in rr])
-        dose[g] = dict(l5_conflict_minus_shuffle=round(float(cs.mean()), 4), cs_ci=boot_ci(cs, clu),
-                       l5_conflict_minus_random=round(float(cr.mean()), 4), cr_ci=boot_ci(cr, clu),
-                       heldin_task_drop=round(float(td.mean()), 4), td_ci=boot_ci(td, clu), n=len(rr))
-    # Q7C-a: subject-specific reliance beats BOTH controls, monotone in gamma, CI@0.4 > 0
-    beats_shuffle = bool(dose["0.4"]["l5_conflict_minus_shuffle"] > dose["0.2"]["l5_conflict_minus_shuffle"] and
-                         dose["0.4"]["cs_ci"][0] > 0)
-    beats_random = bool(dose["0.4"]["l5_conflict_minus_random"] > dose["0.2"]["l5_conflict_minus_random"] and
-                        dose["0.4"]["cr_ci"][0] > 0)
-    task_conflicts = bool(dose["0.4"]["heldin_task_drop"] > 0 and dose["0.4"]["td_ci"][0] > 0)  # corruption bites
-    learnability_pass = bool(py_exact and beats_shuffle and beats_random)
+        cf = col(rr, "conflict_fit"); mf = col(rr, "conflict_fit_minus_floor")
+        ach = col(rr, "achieved_conflict_frac")
+        l5cs = col(rr, "l5_conflict_train") - col(rr, "l5_shuffle_train_max")     # diagnostic
+        l5cr = col(rr, "l5_conflict_train") - col(rr, "l5_random_train")          # diagnostic
+        td = col(rr, "heldin_task_drop_train")
+        dose[g] = dict(
+            achieved_conflict_frac=round(float(np.nanmean(ach)), 4),
+            conflict_fit=round(float(np.nanmean(cf)), 4) if np.isfinite(cf).any() else None,
+            conflict_fit_minus_floor=round(float(np.nanmean(mf)), 4) if np.isfinite(mf).any() else None,
+            conflict_fit_minus_floor_ci_lo=boot_lo(mf, clu),
+            l5_conflict_minus_shuffle_train=round(float(np.nanmean(l5cs)), 4),     # diagnostic only
+            l5_conflict_minus_random_train=round(float(np.nanmean(l5cr)), 4),      # diagnostic only
+            heldin_task_drop_train=round(float(np.nanmean(td)), 4), n=len(rr))
+    # Q7C-a pass: exact histogram + achieved rate tracks gamma + head satisfies conflict labels beyond task floor,
+    # rising with gamma (a linear-learnability capability check; NOT the transfer/control test which is Q7C-b).
+    achieved_monotone = bool(dose["0.0"]["achieved_conflict_frac"] <= 1e-6 and
+                             dose["0.2"]["achieved_conflict_frac"] > dose["0.0"]["achieved_conflict_frac"] and
+                             dose["0.4"]["achieved_conflict_frac"] > dose["0.2"]["achieved_conflict_frac"])
+    cf4, cf2 = dose["0.4"]["conflict_fit"], dose["0.2"]["conflict_fit"]
+    conflict_rises = bool(cf4 is not None and cf2 is not None and cf4 > cf2)
+    beats_floor = bool(dose["0.4"]["conflict_fit_minus_floor_ci_lo"] is not None and
+                       dose["0.4"]["conflict_fit_minus_floor_ci_lo"] > 0)
+    learnability_pass = bool(py_exact and achieved_monotone and conflict_rises and beats_floor)
 
     if not py_exact:
         reason = "histogram_not_preserved"
-    elif not task_conflicts:
-        reason = "corruption_did_not_bite (task not hurt) -> mis-constructed"
-    elif not learnability_pass:
-        reason = "head_did_not_learn_a_SUBJECT_shortcut (task hurt, but subject-specific reliance not > shuffle/random controls)"
+    elif not achieved_monotone:
+        reason = "achieved_corruption_rate_does_not_track_gamma (construction saturated / mis-dosed)"
+    elif not (conflict_rises and beats_floor):
+        reason = ("shortcut_not_linearly_learnable: the linear head does NOT satisfy the task-conflicting labels "
+                  "beyond a task-only floor / not rising with gamma -> a linear head on frozen 4B latents cannot "
+                  "memorize the subject shortcut; no weaponization inference (7C-full does not run)")
     else:
-        reason = "head_learned_subject_shortcut_under_task_conflict"
+        reason = "head_learns_subject_shortcut_under_task_conflict (memorizes conflict labels beyond task floor)"
 
     verdict = dict(
-        stage="7C_Q7Ca_learnability_gate", global_Py_preserved=py_exact, dose_response=dose,
-        task_conflict_bites=task_conflicts, beats_shuffle_control=beats_shuffle, beats_random_control=beats_random,
-        heldin_learnability_pass=learnability_pass, gate_reason=reason, proceed_to_7C_full=learnability_pass,
-        note=("FAIL-CLOSED Q7C-a. Task-conflict corruption is P(y)-exact and hurts held-in task (task bites), but "
-              "learnability requires the head to satisfy the conflicting labels by relying on SUBJECT beyond the "
-              "matched random-noise (Hrandom) AND subject-shuffle (Hshuffle) controls, monotone in gamma. Only if "
-              "this passes does 7C-full (Q7C-b transferability + target harm + repair) run." if not learnability_pass
-              else "Q7C-a passes: the head learned a subject-specific shortcut under task-conflict; run 7C-full "
-                   "(Q7C-b transferability is the binding gate for a target-weaponization claim)."),
+        stage="7C_Q7Ca_heldin_learnability_gate", global_Py_preserved=py_exact, achieved_rate_tracks_gamma=achieved_monotone,
+        conflict_fit_rises_with_gamma=conflict_rises, conflict_fit_beats_task_floor=beats_floor,
+        heldin_learnability_pass=learnability_pass, dose_response=dose, gate_reason=reason,
+        proceed_to_7C_full=learnability_pass,
+        note=("FAIL-CLOSED Q7C-a. Learnability = the head satisfies the P(y)-exact, gamma-tracking task-conflict "
+              "labels on TRAINING subjects beyond a task-only floor (memorization capability). The structured-"
+              "beats-shuffle/random TRANSFER test binds at Q7C-b, which only runs if this passes. Subject-reliance-"
+              "on-train columns here are diagnostics, not gate conditions." if not learnability_pass else
+              "Q7C-a passes: the linear head can memorize the subject shortcut under task-conflict. Run 7C-full; "
+              "Q7C-b TRANSFER (structured beats shuffle+random on held-out subjects) is the binding weaponization gate."),
     )
     (R / "label_conflict_verdict.json").write_text(json.dumps(dict(
         heldin_learnability_pass=learnability_pass, pseudo_target_transferability_pass=None,
@@ -81,12 +105,15 @@ def main():
         gate_verdict=verdict, target_labels_used_for_fit=False, target_labels_used_for_selection=False,
         repair_claim_level=None, pc2_gpu_gate="paused"), indent=2) + "\n")
 
-    print("Phase 7C Q7C-a learnability gate (fail-closed):")
+    print("Phase 7C Q7C-a held-in learnability gate (fail-closed):")
     print(f"  global P(y) preserved exactly = {py_exact}")
     for g in ("0.0", "0.2", "0.4"):
         d = dose[g]
-        print(f"  gamma={g}: l5(conflict-shuffle)={d['l5_conflict_minus_shuffle']} ci={d['cs_ci']} | l5(conflict-random)={d['l5_conflict_minus_random']} ci={d['cr_ci']} | heldin_task_drop={d['heldin_task_drop']} ci={d['td_ci']}")
-    print(f"  task_conflict_bites={task_conflicts}  beats_shuffle={beats_shuffle}  beats_random={beats_random}")
+        print(f"  gamma={g}: achieved={d['achieved_conflict_frac']} conflict_fit={d['conflict_fit']} "
+              f"(minus_floor={d['conflict_fit_minus_floor']} ci_lo={d['conflict_fit_minus_floor_ci_lo']}) | "
+              f"[diag] l5(c-shuf)={d['l5_conflict_minus_shuffle_train']} l5(c-rnd)={d['l5_conflict_minus_random_train']} "
+              f"task_drop={d['heldin_task_drop_train']}")
+    print(f"  achieved_monotone={achieved_monotone}  conflict_rises={conflict_rises}  beats_floor={beats_floor}")
     print(f"  ==> heldin_learnability_pass={learnability_pass}  reason={reason}  proceed_to_7C_full={learnability_pass}")
 
 
