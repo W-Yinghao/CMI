@@ -1,0 +1,25 @@
+{
+  "pc2_gpu_run_authorized": false,
+  "pc2_gpu_eligible": false,
+  "gate": "PC2_GPU_ELIGIBLE only if (Phase4G_E4b >= partial) AND (>=3 preset-ready datasets) AND (stress_feasibility_pass) AND (PM_budget_approval)",
+  "conditions": {
+    "phase4g_e4b_ge_partial": "PENDING",
+    "ge_3_preset_ready_datasets": false,
+    "stress_feasibility_pass": true,
+    "pm_budget_approval": "PENDING"
+  },
+  "blockers": [
+    "Only 2 datasets have FBCSP-LGG channel + central_strip_v1 presets (BNCI2014_001, BNCI2015_001); >=3 required for a meaningful leave-one-dataset-out gate (4F/4G lesson). Add a preset+loader for one CANDIDATE (Cho2017 / Lee2019_MI / PhysionetMI) BEFORE PC2.",
+    "Phase 4G E4b repair scope not yet established (>= partial required)."
+  ],
+  "if_phase4g_fails": "PC2 stays PAUSED (does NOT auto-run); return for explicit PM review.",
+  "answers": {
+    "q1_ge3_compatible_datasets": "NO today (2 preset-ready); candidates exist (Cho2017/Lee2019/PhysionetMI/Weibo2014/Schirrmeister2017) but need preset+loader",
+    "q2_same_fbcsp_lgg_refit_checkpoint": "yes for the 2 preset-ready; a 3rd needs ch-preset + central_strip_v1 + loader added",
+    "q3_induce_subject_class_hold_Py": "yes (skew P(y|subject) at rho, complementary c_d holds global P(y))",
+    "q4_shuffled_stress_control": "yes",
+    "q5_rho_0_0.5_0.8_feasible": "yes on both preset-ready datasets",
+    "q6_gpu_budget": "~25-60 GPU-h for 2 datasets (FSR_23); ~35-90 GPU-h for >=3; scales with dataset count",
+    "q7_if_4g_fails_pc2_auto_pause": "yes - PC2 paused, not auto-run"
+  }
+}

@@ -1,0 +1,18 @@
+# PC2-E4 rho dose-response plan (design only; NO GPU committed)
+purpose: confirm a LEARNED subject<->class reliance is induced (not class imbalance) before any repair test
+stress_levels_rho: [0.0, 0.5, 0.8]     # fraction of each subject's trials forced to its spurious class c_d
+controls:
+  - name: balanced_control
+    rho: 0.0
+    note: no subject<->class coupling; reference
+  - name: shuffled_stress
+    rho: 0.8
+    note: same marginal, subject->c_d mapping shuffled; rules out class-imbalance confound
+invariant:
+  global_Py: fixed across all rho and controls   # complementary c_d assignment so the mixture reproduces P(y)
+confirm_learned_reliance:
+  primary: subject_decodability(rep) monotone increasing in rho AND > balanced_control AND > shuffled_stress
+  functional: target harm attributable to subject-predictive component increases with rho
+  stop_if: flat dose-response -> stress did not induce a LEARNED reliance -> re-design, NO GPU
+preflight_first:
+  cpu_or_small_scale: run a synthetic / small-scale dose-response check BEFORE any full GPU refit

@@ -1,0 +1,8 @@
+question,dataset,feasible,detail
+induce_subject_class_reliance_hold_Py,BNCI2014_001,yes,4 classes x ~144 trials/subj -> subsample to rho-skew while complementary c_d assignment reproduces global P(y)
+induce_subject_class_reliance_hold_Py,BNCI2015_001,yes,2 classes -> binary skew; complementary assignment holds P(y)
+shuffled_stress_control,ALL,yes,destroy the subject->c_d mapping (shuffle) with identical marginal -> isolates coupling from imbalance
+rho_grid_0_0.5_0.8,BNCI2014_001,yes,enough per-class trials to reach rho=0.8 by class-stratified subsampling
+rho_grid_0_0.5_0.8,BNCI2015_001,yes,binary -> rho=0.8 feasible
+per_fold_checkpoint_dump,BNCI2014_001,yes,same runner path as Phase 4B (--save_ckpt_dir/--dump_latent_dir)
+per_fold_checkpoint_dump,BNCI2015_001,yes,same runner path as Phase 4B

@@ -1,0 +1,4 @@
+scenario,datasets,folds,conditions,seeds,refits,est_gpu_hours,note
+FSR_23_original_2ds,2,21,4,3,252,25-60,rho{0,.5,.8}+shuffled x 3 seeds; V100/A40; per-fold checkpoint
+target_3ds_min,3,~30,4,3,~360,35-90,adds one CANDIDATE dataset (Cho2017/Lee2019/PhysionetMI) with new preset
+note,,,,,,,"budget SCALES with dataset count; >=3 needed for meaningful leave-one-dataset-out (4F/4G lesson)"

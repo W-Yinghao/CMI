@@ -1,0 +1,10 @@
+dataset,paradigm,n_subjects,n_classes,n_channels,fbcsp_lgg_preset,has_frozen_dumps,central_strip_ok,status,note
+BNCI2014_001,MI,9,4,22,yes,yes,yes,READY,2a; primary; presets + dumps exist
+BNCI2015_001,MI,12,2,13,yes,yes,yes,READY,binary MI; presets + dumps exist
+Cho2017,MI,52,2,64,no,no,likely,CANDIDATE,standard 10-20 MI; needs ch-preset + central_strip_v1 + loader
+Lee2019_MI,MI,54,2,62,no,no,likely,CANDIDATE,already used elsewhere (Lee2019 SM16); needs preset+loader
+PhysionetMI,MI,109,4,64,no,datalake,likely,CANDIDATE,in PROCESSED datalake; needs central_strip_v1 preset
+Weibo2014,MI,10,7,60,no,no,likely,CANDIDATE,multi-class MI; needs preset+loader
+Schirrmeister2017,MI,14,4,128,no,no,likely,CANDIDATE,HGD; dense montage; needs preset+loader
+BNCI2014_004,MI,9,2,3,no,no,no,MARGINAL,only C3/Cz/C4 -> central-strip graph degenerate (too few channels)
+Zhou2016,MI,4,3,14,no,no,marginal,MARGINAL,only 4 subjects -> weak leave-one-subject-out
