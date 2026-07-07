@@ -1,0 +1,28 @@
+# APPROVED provider-validation manifest (PM go for a ONE-DUMP plumbing check ONLY). Authorizes
+# --provider-validate-one-dump on a single Lee2019_MI/EEGNet dump; every metric VALUE is redacted from output.
+# It CANNOT authorize --execute (authorize_execution needs run_status==approved + token + hashes; none here, and
+# run_status is absent). runs_allowed/experiments_allowed stay FALSE. Not a science result.
+
+validation_status: approved
+provider_validation_allowed: true
+runs_allowed: false
+experiments_allowed: false
+
+scope:
+  dataset: Lee2019_MI
+  backbone: EEGNet
+  seed: 0
+  fold: first_available
+  world: source_rich_world_a_source_visible
+  budgets: [B0_source_only, B2_k_labels_per_class, B4_oracle_selector]
+  k: 4
+  split_id: 0
+  interventions: [identity, leace_baseline, random_k]
+
+outputs:
+  metrics_redacted: true
+
+provenance:
+  stage: provider_validation_only
+  purpose: exercise_real_provider_plumbing
+  not_a_science_result: true

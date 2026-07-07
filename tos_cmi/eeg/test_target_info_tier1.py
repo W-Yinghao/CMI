@@ -802,7 +802,8 @@ def test_provider_validation_requires_manifest():
 
 
 def test_provider_validation_default_halts():
-    code, msg = run_cli(["--provider-validate-one-dump", "--provider-manifest", _PROVIDER_VAL_MANIFEST], load_cfg())
+    # the provider-validation manifest is passed via --run-manifest; the TEMPLATE (allowed=false) must HALT
+    code, msg = run_cli(["--provider-validate-one-dump", "--run-manifest", _PROVIDER_VAL_MANIFEST], load_cfg())
     assert code == 1 and msg.startswith("PROVIDER_VALIDATION_DISABLED"), (code, msg)
 
 

@@ -1,0 +1,75 @@
+{
+ "scope": {
+  "dataset": "Lee2019_MI",
+  "backbone": "EEGNet",
+  "world": "source_rich_world_a_source_visible",
+  "fold": 1,
+  "split_id": 0,
+  "k": 4,
+  "budgets": [
+   "B0_source_only",
+   "B2_k_labels_per_class",
+   "B4_oracle_selector"
+  ],
+  "interventions": [
+   "identity",
+   "leace_baseline",
+   "random_k"
+  ],
+  "n_dumps": 1
+ },
+ "source_shape": [
+  10600,
+  20
+ ],
+ "target_shape": [
+  200,
+  20
+ ],
+ "rows_completed": 9,
+ "audit_rows_completed": 9,
+ "decision_row_schema_present": true,
+ "audit_row_schema_present": true,
+ "decision_row_safe_fields": [
+  "alpha",
+  "audit_idx_hash_hash_only",
+  "backbone",
+  "budget",
+  "calibration_idx_hash",
+  "calibration_label_hash",
+  "dataset",
+  "decision_input_hash",
+  "fold",
+  "intervention",
+  "k",
+  "source_safety_status",
+  "split_id",
+  "target_subject",
+  "world"
+ ],
+ "decision_row_redacted_metric_fields": 5,
+ "audit_row_safe_fields": [
+  "alpha",
+  "audit_idx_hash",
+  "audit_label_hash",
+  "backbone",
+  "budget",
+  "dataset",
+  "decision_input_hash",
+  "fold",
+  "intervention",
+  "k",
+  "split_id",
+  "target_subject",
+  "world"
+ ],
+ "audit_row_redacted_metric_fields": 3,
+ "distinct_calibration_idx_hashes": 3,
+ "contexts_constructed": [
+  "SourceContext",
+  "CalibrationContext",
+  "AuditView"
+ ],
+ "metrics_computed_internally": true,
+ "metrics_redacted": true
+}

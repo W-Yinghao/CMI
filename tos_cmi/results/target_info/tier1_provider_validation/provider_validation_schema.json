@@ -1,0 +1,5 @@
+{
+ "decision_row_schema_present": true,
+ "audit_row_schema_present": true,
+ "metrics_redacted": true
+}

@@ -910,7 +910,6 @@ def run_cli(argv, cfg):
     ap.add_argument("--preflight-real-splits", action="store_true")
     ap.add_argument("--provider-validate-one-dump", action="store_true")
     ap.add_argument("--run-manifest", default=MANIFEST)
-    ap.add_argument("--provider-manifest", default=PROVIDER_VAL_MANIFEST)
     ap.add_argument("--enable-token", default=None)
     a = ap.parse_args(argv)
     if sum([a.dry_run, a.execute, a.preflight_real_splits, a.provider_validate_one_dump]) > 1:  # exactly one mode
@@ -924,7 +923,7 @@ def run_cli(argv, cfg):
             return 1, PREFLIGHT_HALT_MSG
         return preflight_real_splits(cfg, manifest)
     if a.provider_validate_one_dump:
-        pman = load_manifest(a.provider_manifest)
+        pman = load_manifest(a.run_manifest)                      # provider-validation manifest via --run-manifest
         if not pman.get("provider_validation_allowed", False):    # gated: running provider-validation = separate PM go
             return 1, PROVIDER_VAL_HALT_MSG
         return provider_validate_one_dump(cfg, pman)
