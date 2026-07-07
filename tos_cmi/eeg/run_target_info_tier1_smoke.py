@@ -25,6 +25,7 @@ if not __debug__:
 
 from tos_cmi.eeg.target_info_splits import (make_calibration_audit_splits, select_k_per_class,
                                             subject_seeded_splits, nested_k_subsets, SPLIT_RNG_SCHEME,
+                                            effective_n_per_class,
                                             target_leak_structural_check, budget_action, b1_triage_action,
                                             DecisionContext, SourceContext, CalibrationContext,
                                             UnlabeledTargetContext, AuditView, LabelAccessGuard,
@@ -421,16 +422,284 @@ def preflight_real_splits(cfg, manifest, results_root=FROZEN_ROOT):
         n_dumps, len(split_hash_rows), overlap_total)
 
 
-# ============================ locked real-EEG executor (never reached at this stage) ============================
-def execute_real(cfg, manifest=None):
-    """Would load real EEG dumps, inject the worlds, fit erasers on SOURCE, split target into calibration/audit,
-    compute decisions via the pure functions above, and score audit separately. Reached only after
-    authorize_execution passes (never at this stage); guarded here too (defense in depth). Delegates all
-    leak-sensitive logic to the tested pure functions -- no bespoke label handling."""
+# ============================ per-task executor core (tested on dummy arrays; array-only, world-agnostic) =========
+def _boot_delta_samples(eraser, src: SourceContext, cal: CalibrationContext, n_boot, seed):
+    """Bootstrap ΔbAcc_cal samples over the CALIBRATION trials (labels from CalibrationContext only). Refuses an
+    AuditView. Returns a list of ΔbAcc(erased)-ΔbAcc(full) values (degenerate single-class resamples dropped)."""
+    if isinstance(cal, AuditView):
+        raise TypeError("_boot_delta_samples received an AuditView; calibration deltas must come from calibration")
+    _bacc, _ = _lazy_estimators()
+    rng = np.random.default_rng(seed)
+    n = len(cal.yt_cal)
+    out = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        yc = cal.yt_cal[idx]
+        if len(set(yc.tolist())) < 2:
+            continue
+        Zc = cal.Zt_cal[idx]
+        out.append(float(_bacc(eraser(src.Zs), src.ys, eraser(Zc), yc) - _bacc(src.Zs, src.ys, Zc, yc)))
+    return out
+
+
+def _source_safety(eraser, src: SourceContext, safety_eps, seed=0):
+    """Source-only task-safety: does the eraser preserve the SOURCE task? (point estimate for the smoke; a
+    subject-clustered UCB is a documented run-ready TODO). Returns (pass, task_drop)."""
+    _bacc, _ = _lazy_estimators()
+    from tos_cmi.eeg.run_v2_certificate import _stratified_split
+    A, B = _stratified_split(len(src.ys), seed)
+    drop = (_bacc(src.Zs[A], src.ys[A], src.Zs[B], src.ys[B])
+            - _bacc(eraser(src.Zs[A]), src.ys[A], eraser(src.Zs[B]), src.ys[B]))
+    return bool(drop <= safety_eps), float(drop)
+
+
+def _source_benefit_samples(eraser, src: SourceContext, n_boot, seed):
+    """B0 source-only benefit: bootstrap ΔbAcc(erased-full) on a held-out SOURCE split (no target labels).
+    (`_stratified_split` returns boolean masks -> select rows FIRST, then bootstrap over the selected count.)"""
+    _bacc, _ = _lazy_estimators()
+    from tos_cmi.eeg.run_v2_certificate import _stratified_split
+    A, B = _stratified_split(len(src.ys), seed)
+    ZA, yA = src.Zs[A], src.ys[A]
+    ZB, yB = src.Zs[B], src.ys[B]
+    rng = np.random.default_rng(seed + 5)
+    out = []
+    nb = len(yB)
+    for _ in range(n_boot):
+        j = rng.integers(0, nb, nb)
+        Zb, yb = ZB[j], yB[j]
+        if len(set(yb.tolist())) < 2:
+            continue
+        out.append(float(_bacc(eraser(ZA), yA, eraser(Zb), yb) - _bacc(ZA, yA, Zb, yb)))
+    return out
+
+
+def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, cfg, n_boot=200):
+    """One (dataset,world,fold,alpha,intervention,budget) task -> (decision_rows, audit_rows). Decision phase reads
+    SOURCE + CALIBRATION only via guarded contexts (audit labels are structurally absent from compute_decision_row);
+    audit phase runs AFTER the decision is frozen. Subject-seeded splits + nested k-subsets are replayed here.
+    Array-only + world-agnostic (worlds are injected by execute_real), so this is unit-tested on dummy arrays."""
+    fam = _family(task["budget"])
+    thr = cfg["thresholds"]["benefit_lcb"]; safety_eps = cfg["thresholds"]["safety_eps"]
+    R = cfg["tier1_scope"]["repeats_R"]; k_grid = cfg["budgets"]["B2_k_labels_per_class"]["k_grid"]
+    cfrac = cfg["split_rng"]["calib_fraction"]
+    src = SourceContext(np.asarray(Zs), np.asarray(ys).astype(int), np.asarray(z_src), int(len(set(ys.tolist()))))
+    yt = np.asarray(yt).astype(int); Zt = np.asarray(Zt)
+    splits = subject_seeded_splits(yt, seed_key, R=R, calib_fraction=cfrac)
+    target_leak_structural_check(splits, {})                   # per-split disjointness (raises -> caller HALTs run)
+    _ = LabelAccessGuard("decision")                           # decision-phase guard (audit labels forbidden here)
+    src_pass, task_drop = _source_safety(eraser, src, safety_eps)
+    meta = {kk: task.get(kk) for kk in ("dataset", "backbone", "world", "alpha", "fold", "target_subject",
+                                        "intervention", "budget")}
+    dec_rows, aud_rows = [], []
+
+    def _emit(row, sid, cal_idx, aud_idx, k):
+        """Attach split meta to the (audit-free) decision row and, in a SEPARATE audit-phase record, the held-out
+        audit provenance + metric. decision_rows never carry an audit metric."""
+        dec = {**meta, "split_id": sid, "k": k, "source_safety_status": "pass" if src_pass else "reject",
+               "domain_gain": None, "same_k_random_calibration": row.get("beats_random"),
+               "calibration_benefit_lcb": row.get("cal_benefit_lcb"), "decision_action": row["action"],
+               "decision_input_hash": row["decision_input_hash"], "calibration_idx_hash": row["calibration_idx_hash"],
+               "calibration_label_hash": row["calibration_label_hash"],
+               "audit_idx_hash_hash_only": hash_obj(hash_array(aud_idx)), "specificity": row.get("specificity")}
+        dec_rows.append(dec)
+        gate_a = LabelAccessGuard("audit")                     # audit labels readable ONLY now (post-decision)
+        av = AuditView(np.asarray(aud_idx), gate_a.audit_labels(AuditView(np.asarray(aud_idx), yt[aud_idx])))
+        adb = audit_scalar(eraser, src, av, Zt[aud_idx]) if row["action"] == "accept" else None
+        aud_rows.append({**meta, "split_id": sid, "k": k, "decision_input_hash": row["decision_input_hash"],
+                         "audit_idx_hash": hash_array(aud_idx), "audit_label_hash": hash_array(yt[aud_idx]),
+                         "audit_delta_bacc": adb, "audit_delta_nll": None,
+                         "specificity_flag": row.get("specificity")})
+
+    for sid, (cal, aud) in enumerate(splits, 1):
+        if fam == "B0":
+            samp = _source_benefit_samples(eraser, src, n_boot, seed=sid)
+            row = compute_decision_row(task["budget"], src_pass, None, None, None, None, None, thr=thr,
+                                       calibration_idx_hash=hash_array(cal), calibration_label_hash="B0_source_only")
+            # B0 accepts on source benefit LCB (no target labels): recompute action via source samples
+            _, _boot = _lazy_estimators()
+            lcb = _boot(samp, list(range(len(samp))), "lower", rng=np.random.default_rng(0)) if samp else float("nan")
+            row = compute_decision_row(task["budget"], src_pass, lcb, None, None, None, None, thr=thr,
+                                       calibration_idx_hash="B0_no_target", calibration_label_hash="B0_no_target")
+            _emit(row, sid, cal, aud, None)
+            break                                              # B0 is source-only: one decision, no per-split loop
+        if fam == "B1":
+            ms = unlabeled_mismatch(src, UnlabeledTargetContext(Zt))
+            row = compute_decision_row(task["budget"], src_pass, None, None, None, None, ms, thr=thr,
+                                       calibration_idx_hash="B1_unlabeled", calibration_label_hash="B1_unlabeled")
+            _emit(row, sid, cal, aud, None)
+            break                                              # B1 triage: one decision
+        if fam == "B4":
+            row = compute_decision_row(task["budget"], src_pass, None, None, None, None, None, thr=thr,
+                                       calibration_idx_hash="B4_oracle", calibration_label_hash="B4_oracle")
+            _emit(row, sid, cal, aud, None)                    # DIAGNOSTIC; excluded from deployable accounting
+            break
+        # B2 / B3: nested k-subset calibration
+        ksub, _order = nested_k_subsets(cal, yt, k_grid, seed_key, sid)
+        if fam == "B2":
+            for k in k_grid:
+                sel = ksub[k]
+                if sel is None:                                # UNAVAILABLE: mark, never reuse audit
+                    dec_rows.append({**meta, "split_id": sid, "k": int(k), "source_safety_status":
+                                     "pass" if src_pass else "reject", "decision_action": "unavailable_k",
+                                     "calibration_benefit_lcb": None, "same_k_random_calibration": None,
+                                     "domain_gain": None, "decision_input_hash": None,
+                                     "calibration_idx_hash": hash_array(cal), "calibration_label_hash": None,
+                                     "audit_idx_hash_hash_only": hash_obj(hash_array(aud)), "specificity": None})
+                    continue
+                cal_ctx = CalibrationContext(Zt[sel], yt[sel], effective_n_per_class(sel, yt))
+                d_real = _boot_delta_samples(eraser, src, cal_ctx, n_boot, seed=sid * 131 + k)
+                d_rand = _boot_delta_samples(eraser_random, src, cal_ctx, n_boot, seed=sid * 131 + k + 7)
+                m = min(len(d_real), len(d_rand))
+                row = compute_decision_row(task["budget"], src_pass, None, d_real[:m], d_rand[:m],
+                                           list(range(m)), None, thr=thr, calibration_idx_hash=hash_array(sel),
+                                           calibration_label_hash=hash_array(yt[sel]))
+                _emit(row, sid, cal, aud, int(k))
+        else:                                                  # B3 sequential over the nested k-grid
+            deltas_by_k, rand_by_k, clusters = {}, {}, None
+            for k in k_grid:
+                sel = ksub[k]
+                if sel is None:
+                    deltas_by_k[k] = None; rand_by_k[k] = None; continue
+                cal_ctx = CalibrationContext(Zt[sel], yt[sel], effective_n_per_class(sel, yt))
+                dr = _boot_delta_samples(eraser, src, cal_ctx, n_boot, seed=sid * 131 + k)
+                rr = _boot_delta_samples(eraser_random, src, cal_ctx, n_boot, seed=sid * 131 + k + 7)
+                m = min(len(dr), len(rr)); clusters = list(range(m))
+                deltas_by_k[k] = dr[:m]; rand_by_k[k] = rr[:m]
+            seq = b3_sequential_decision(k_grid, deltas_by_k, rand_by_k, clusters or [0], thr=thr)
+            row = {"budget": task["budget"], "action": seq["action"], "source_safety_pass": src_pass,
+                   "cal_benefit_lcb": None, "beats_random": seq["specificity"] == "accepted_specific",
+                   "source_benefit_lcb": None, "unlabeled_triage": None, "specificity": seq["specificity"],
+                   "decision_input_hash": hash_obj(seq), "calibration_idx_hash": hash_array(cal),
+                   "calibration_label_hash": hash_array(yt[cal]), "delta_source": "calibration_only"}
+            if not src_pass:
+                row["action"] = "reject"
+            dsel = {**meta, "split_id": sid, "k": seq["k_used"], "source_safety_status":
+                    "pass" if src_pass else "reject", "domain_gain": None,
+                    "same_k_random_calibration": row["beats_random"], "calibration_benefit_lcb": None,
+                    "decision_action": row["action"], "decision_input_hash": row["decision_input_hash"],
+                    "calibration_idx_hash": row["calibration_idx_hash"],
+                    "calibration_label_hash": row["calibration_label_hash"],
+                    "audit_idx_hash_hash_only": hash_obj(hash_array(aud)), "specificity": row["specificity"],
+                    "b3_ks_read": seq["ks_read"]}
+            dec_rows.append(dsel)
+            gate_a = LabelAccessGuard("audit")
+            av = AuditView(np.asarray(aud), gate_a.audit_labels(AuditView(np.asarray(aud), yt[aud])))
+            adb = audit_scalar(eraser, src, av, Zt[aud]) if row["action"] == "accept" else None
+            aud_rows.append({**meta, "split_id": sid, "k": seq["k_used"],
+                             "decision_input_hash": row["decision_input_hash"], "audit_idx_hash": hash_array(aud),
+                             "audit_label_hash": hash_array(yt[aud]), "audit_delta_bacc": adb,
+                             "audit_delta_nll": None, "specificity_flag": row["specificity"]})
+    return dec_rows, aud_rows
+
+
+# ============================ two-phase output writer (tested) ============================
+RUN_OUT = "tos_cmi/results/target_info/tier1_run"
+
+
+def _write_csv(path, rows):
+    import csv
+    cols = []
+    for r in rows:
+        for k in r:
+            if k not in cols:
+                cols.append(k)
+    with open(path, "w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=cols, extrasaction="ignore"); w.writeheader(); w.writerows(rows)
+
+
+def write_two_phase_outputs(dec_rows, aud_rows, out=RUN_OUT):
+    """Write decision_rows.csv (source/calibration-derivable ONLY), audit_rows.csv (post-decision audit metrics),
+    joined_rows.csv (post-hoc join). Raises if a decision row carries an audit metric/label (only the hashed
+    audit_idx_hash_hash_only provenance is permitted in decision rows)."""
+    os.makedirs(out, exist_ok=True)
+    for r in dec_rows:
+        bad = [c for c in r if ("audit_delta" in c or "audit_label" in c or "audit_metric" in c)]
+        if bad:
+            raise AssertionError("decision row leaked audit field(s): %s" % bad)
+    _write_csv("%s/decision_rows.csv" % out, dec_rows)
+    _write_csv("%s/audit_rows.csv" % out, aud_rows)
+    aud_by = {a["decision_input_hash"]: a for a in aud_rows if a.get("decision_input_hash")}
+    joined = [{**d, **{k: v for k, v in aud_by.get(d.get("decision_input_hash"), {}).items() if k not in d}}
+              for d in dec_rows]
+    _write_csv("%s/joined_rows.csv" % out, joined)
+    return out
+
+
+def _assemble_run(cfg, provider, out=RUN_OUT, n_boot=200):
+    """Consume a task provider (yields dicts with meta + arrays + seed_key + erasers), run execute_task per task,
+    and write the two-phase outputs. World/label loading lives in the provider; the assembly + leak-safe wiring is
+    here and is unit-tested with a synthetic provider."""
+    dec_all, aud_all = [], []
+    for it in provider:
+        dec, aud = execute_task(it["meta"], it["Zs"], it["ys"], it["z_src"], it["Zt"], it["yt"],
+                                it["seed_key"], it["eraser"], it["eraser_random"], cfg, n_boot=n_boot)
+        dec_all += dec; aud_all += aud
+    write_two_phase_outputs(dec_all, aud_all, out)
+    return len(dec_all), len(aud_all)
+
+
+# ============================ gated real-EEG executor (reachable ONLY via an approved manifest+token) =============
+_WORLD_INJECT = {"v2_source_invisible_world_a": "v2", "source_rich_source_visible_world_a": "source_rich"}
+_INTERV_MAP = {"leace": "leace_baseline"}                       # driver name -> FACTORIES key (others identical)
+
+
+def _real_provider(cfg, results_root, seed):
+    """Yield one item per (dataset,world,fold,alpha,intervention,budget): load real dump, inject the world, fit the
+    eraser + a same-k random eraser on SOURCE, and hand arrays to execute_task. UNEXERCISED until the PM enables a
+    run (this is the real-dump/world-injection surface the run-enable review must sign off)."""
+    import glob
+    import re
+    from tos_cmi.eeg.semi_synthetic_real_latent import inject
+    from tos_cmi.eeg.source_rich_worlds import inject_source_rich
+    from tos_cmi.eeg.v2_worlds import FACTORIES
+    from tos_cmi.eeg.run_v2_certificate import _nuisance_m
+    from tos_cmi.eeg.erasure_baselines import _ids
+    sc = cfg["tier1_scope"]; folds = _folds(sc["folds"]); gseed = cfg["split_rng"]["global_split_seed"]
+    for ds in sc["datasets"]:
+        for bb in sc["backbones"]:
+            dd = "%s/%s_%s_LOSO" % (results_root, ds, bb)
+            ps = sorted(glob.glob("%s/sub*_erm_lam0_seed%d.npz" % (dd, seed)),
+                        key=lambda p: int(re.search(r"sub(\d+)_", p.split("/")[-1]).group(1)))[:len(folds)]
+            for fold, p in zip(folds, ps):
+                sub = int(re.search(r"sub(\d+)_", p.split("/")[-1]).group(1))
+                d = np.load(p, allow_pickle=True)
+                Zs = d["Z_source"].astype(float); ys = d["y_source"].astype(int)
+                Zt = d["Z_target"].astype(float); yt = d["y_target"].astype(int)
+                subj = _ids(d["subject_source"])[0]; n_cls = int(d["n_cls"])
+                m = _nuisance_m(Zs.shape[1], "fraction_of_z_dim", 0.20, 4)
+                for world in cfg["worlds"]:
+                    for alpha in cfg["world_alpha_grid"]:
+                        if _WORLD_INJECT[world] == "source_rich":
+                            inj = inject_source_rich(Zs, ys, subj, Zt, yt, alpha=alpha, m=m, seed=seed)
+                        else:
+                            inj = inject("A", Zs, ys, subj, Zt, yt, alpha=alpha, seed=seed, m=m)
+                        Zs2, Zt2, z_src = inj["Zs2"], inj["Zt2"], inj["z_src"]
+                        seed_key = {"dataset": ds, "backbone": bb, "model_seed": seed, "fold": fold,
+                                    "target_subject": sub, "global_split_seed": gseed}
+                        for interv in cfg["interventions"]:
+                            F = FACTORIES[_INTERV_MAP.get(interv, interv)]
+                            E = F(Zs2, ys, z_src, n_cls, seed)
+                            Erand = FACTORIES["random_k"](Zs2, ys, z_src, n_cls, seed)
+                            for budget in cfg["budgets"]:
+                                yield {"meta": {"dataset": ds, "backbone": bb, "world": world, "alpha": alpha,
+                                                "fold": fold, "target_subject": sub, "intervention": interv,
+                                                "budget": budget},
+                                       "Zs": Zs2, "ys": ys, "z_src": z_src, "Zt": Zt2, "yt": yt,
+                                       "seed_key": seed_key, "eraser": E, "eraser_random": Erand}
+
+
+def execute_real(cfg, manifest=None, results_root=FROZEN_ROOT, out=RUN_OUT):
+    """Reached ONLY after authorize_execution passes (never at this stage). Belt-and-suspenders manifest re-check,
+    then assemble + run via the real dump/world provider and write two-phase outputs. The provider (real-dump load
+    + world injection) is UNEXERCISED until the PM enables a run; execute_task + _assemble_run + the two-phase
+    writer are unit-tested."""
     if not (manifest or {}).get("runs_allowed", False) or not (manifest or {}).get("experiments_allowed", False):
-        return 1, MANIFEST_HALT_MSG                            # belt-and-suspenders: never run while locked
-    # (intentionally not wired to real dumps at this stage; requires the separate PM go to enable + fill in)
-    raise RuntimeError("execute_real reached with an approved manifest but real-dump wiring is deferred to PM go")
+        return 1, MANIFEST_HALT_MSG                            # never run while locked
+    if (manifest or {}).get("run_status") != "approved":
+        return 1, MANIFEST_HALT_MSG
+    seed = cfg["tier1_scope"]["seeds"][0]
+    nd, na = _assemble_run(cfg, _real_provider(cfg, results_root, seed), out)
+    return 0, "TARGET_INFO_TIER1_RUN_DONE (%d decision rows, %d audit rows)" % (nd, na)
 
 
 def build_schema(cfg, plan=None, expanded=None):

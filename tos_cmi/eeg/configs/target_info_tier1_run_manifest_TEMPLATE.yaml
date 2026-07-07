@@ -1,0 +1,21 @@
+# TEMPLATE run manifest -- NOT an authorization. Shows the shape a PM-approved run manifest would take. In this
+# state (awaiting_pm_run_go, all flags false, no token) it CANNOT authorize --execute (authorize_execution needs
+# run_status==approved + runs/experiments_allowed true + a valid enable token + matching scope/driver hashes).
+# To enable a real run the PM would: set run_status=approved, both allowed flags true, fill approved_scope_hash /
+# approved_driver_hash / approved_git_commit with the current values, set approved_enable_token_sha256 to
+# sha256(<out-of-band token>), and pass --enable-token <token>. Do NOT do any of that here.
+
+run_status: awaiting_pm_run_go
+runs_allowed: false
+experiments_allowed: false
+
+enable_token_required: true
+approved_enable_token_sha256: null
+
+approved_scope_hash: null
+approved_driver_hash: null
+approved_git_commit: null
+
+provenance:
+  stage: run_ready_review_TEMPLATE
+  note: "template only; not an approval; execute stays halted"

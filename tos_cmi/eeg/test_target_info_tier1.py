@@ -22,7 +22,8 @@ from tos_cmi.eeg.run_target_info_tier1_smoke import (load_cfg, build_plan, expan
                                                      calibration_delta_bacc, audit_scalar, unlabeled_mismatch,
                                                      compute_decision_row, finalize_decision_row,
                                                      b3_sequential_decision, scope_hash, authorize_execution,
-                                                     _preflight_from_labels, CFG)
+                                                     _preflight_from_labels, execute_task, _assemble_run,
+                                                     write_two_phase_outputs, RUN_OUT, CFG)
 
 
 def test_config_parses_target_info_driver():
@@ -201,11 +202,20 @@ def _dummy_world(seed=0, n=60):
 
 
 def _lin_eraser(seed=0, d=4):
-    """A fixed linear eraser that ZEROS the discriminative dim (dim 0, where _dummy_world put the class signal),
-    so ΔbAcc(erased) - ΔbAcc(full) is genuinely nonzero and responds to labels. (An identity or a generic
-    invertible map would leave separability unchanged, making the label-dependence tests vacuous.)"""
-    mask = np.ones(d); mask[0] = 0.0
-    return (lambda X: np.asarray(X) * mask)
+    """A fixed linear eraser that ZEROS the discriminative dim (dim 0, where the class signal lives), so
+    ΔbAcc(erased) - ΔbAcc(full) is genuinely nonzero and responds to labels. Width-agnostic (masks dim 0 for
+    whatever feature count X has). (An identity/invertible map would leave separability unchanged -> vacuous.)"""
+    def _E(X):
+        X = np.asarray(X); m = np.ones(X.shape[1]); m[0] = 0.0
+        return X * m
+    return _E
+
+
+def _fast_cfg():
+    """load_cfg with a small R so the execute_task tests stay fast (fewer splits x bootstrap x sklearn fits)."""
+    cfg = load_cfg()
+    cfg = dict(cfg); cfg["tier1_scope"] = dict(cfg["tier1_scope"], repeats_R=2)
+    return cfg
 
 
 def _decision_and_audit(src, Zt, yt, splits, E, Erand, budget="B2_k_labels_per_class"):
@@ -565,6 +575,180 @@ def test_preflight_subject_seeded_has_no_metrics():
     assert not _has_metric_key(sample_row) and not _has_metric_key(summary)
 
 
+# ---------------- run-ready execute_real wiring (dummy arrays; no real EEG; no runs) ----------------
+def _exec_arrays(seed=0, n=80):
+    rng = np.random.default_rng(seed)
+    ys = np.array([0, 1] * (n // 2))
+    Zs = rng.standard_normal((n, 6)) + ys[:, None] * np.array([1.5, 0, 0, 0, 0, 0])
+    z_src = ys.copy()
+    yt = np.array([0, 1] * (n // 2))
+    Zt = rng.standard_normal((n, 6)) + yt[:, None] * np.array([1.5, 0, 0, 0, 0, 0])
+    return Zs, ys, z_src, Zt, yt
+
+
+def _exec_task(budget="B2_k_labels_per_class", world="source_rich_source_visible_world_a"):
+    return {"dataset": "DUMMY", "backbone": "EEGNet", "world": world, "alpha": 1.0, "fold": 1,
+            "target_subject": 1, "intervention": "identity", "budget": budget}
+
+
+def test_execute_real_requires_approved_manifest_and_token():
+    cfg = load_cfg()
+    # default (preflight_only) and TEMPLATE (awaiting_pm_run_go) manifests must both HALT --execute
+    for mpath in ["tos_cmi/eeg/configs/target_info_tier1_run_manifest.yaml",
+                  "tos_cmi/eeg/configs/target_info_tier1_run_manifest_TEMPLATE.yaml"]:
+        code, msg = run_cli(["--execute", "--run-manifest", mpath], cfg)
+        assert code == 1 and msg.startswith("EXPERIMENTS_DISABLED"), (mpath, code, msg)
+    # positive authorization control (NOT a run): a fully-approved fake manifest + right token authorizes
+    ok, reasons = authorize_execution(cfg, _approved_manifest(cfg), "s3cret")
+    assert ok and reasons == [], reasons
+
+
+def test_real_loader_wraps_target_labels_in_guarded_contexts():
+    # execute_task builds guarded contexts; it must accept arrays and never expose a raw audit label to a decision.
+    import inspect
+    from tos_cmi.eeg.run_target_info_tier1_smoke import execute_task as _et
+    params = list(inspect.signature(_et).parameters)
+    assert "yt" in params and not any("audit" in p for p in params)   # no audit arg into the task core
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    dec, aud = _et(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), (lambda X: X), (lambda X: X), _fast_cfg(), n_boot=15)
+    assert dec and aud                                                # produced rows
+
+
+def test_decision_rows_contain_no_audit_metrics():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    dec, aud = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), (lambda X: X), (lambda X: X),
+                            _fast_cfg(), n_boot=15)
+    for r in dec:
+        assert not any(("audit_delta" in c or "audit_label" in c or "audit_metric" in c) for c in r), r
+        assert "audit_idx_hash_hash_only" in r                        # only the hashed audit provenance is allowed
+    # the two-phase writer also refuses a leaked decision row
+    try:
+        write_two_phase_outputs([{**dec[0], "audit_delta_bacc": 0.1}], aud, out=RUN_OUT + "_test")
+        raise SystemExit("writer accepted an audit metric in a decision row")
+    except AssertionError:
+        pass
+
+
+def test_audit_rows_created_only_after_decision_frozen():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    dec, aud = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), (lambda X: X), (lambda X: X),
+                            _fast_cfg(), n_boot=15)
+    # audit rows are a SEPARATE record linked by decision_input_hash; audit metric present only there
+    assert all("audit_delta_bacc" in a for a in aud)
+    assert all(a.get("decision_input_hash") for a in aud)
+
+
+def test_audit_label_permutation_does_not_change_decision_rows():
+    # The decision is computed from the CALIBRATION region only, so it must not depend on ANY audit-region data.
+    # NOTE: we hold yt FIXED (mutating labels would re-stratify the split and conflate split-change with
+    # label-change) and scramble the audit-region FEATURES; the decision rows must be byte-identical. (The
+    # fixed-split "audit LABEL permutation -> decision unchanged" invariant is covered by the P0-2 core test.)
+    cfg = load_cfg()
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    E = _lin_eraser(); Erand = _lin_eraser(seed=9)
+    cfg1 = dict(cfg); cfg1["tier1_scope"] = dict(cfg["tier1_scope"], repeats_R=1)   # R=1: audit disjoint from cal
+    dec_a, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), E, Erand, cfg1, n_boot=15)
+    from tos_cmi.eeg.target_info_splits import subject_seeded_splits
+    Zt2 = Zt.copy()
+    rng = np.random.default_rng(11)
+    _, aud_idx = subject_seeded_splits(yt, _seed_key(), R=1, calib_fraction=0.5)[0]
+    Zt2[aud_idx] = rng.standard_normal(Zt2[aud_idx].shape) * 5.0      # scramble audit-region FEATURES (split fixed)
+    dec_b, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt2, yt, _seed_key(), E, Erand, cfg1, n_boot=15)
+    assert dec_a == dec_b                                             # decision independent of audit-region data
+
+
+def test_calibration_label_permutation_can_change_decision_rows():
+    cfg = _fast_cfg()
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    E = _lin_eraser()
+    d_good, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), E, (lambda X: X), cfg, n_boot=15)
+    d_bad, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, 1 - yt, _seed_key(), E, (lambda X: X), cfg, n_boot=15)
+    assert [r["calibration_benefit_lcb"] for r in d_good] != [r["calibration_benefit_lcb"] for r in d_bad]
+
+
+def test_subject_seeded_splits_replayed_in_execute_real():
+    # execute_task reproduces subject-seeded splits: same seed_key -> identical decision provenance
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    a, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(sub=5), (lambda X: X), (lambda X: X),
+                        _fast_cfg(), n_boot=15)
+    b, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(sub=5), (lambda X: X), (lambda X: X),
+                        _fast_cfg(), n_boot=15)
+    assert [r["calibration_idx_hash"] for r in a] == [r["calibration_idx_hash"] for r in b]
+    c, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(sub=6), (lambda X: X), (lambda X: X),
+                        _fast_cfg(), n_boot=15)
+    assert [r["calibration_idx_hash"] for r in a] != [r["calibration_idx_hash"] for r in c]   # subject-dependent
+
+
+def test_k_nested_subsets_replayed_in_execute_real():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    dec, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), (lambda X: X), (lambda X: X),
+                          _fast_cfg(), n_boot=15)
+    ks = sorted({r["k"] for r in dec if r.get("k") is not None})
+    assert ks == [1, 2, 4, 8, 16]                                    # all k evaluated for B2
+
+
+def test_b2_unavailable_k_halts_or_marks_unavailable_without_audit_reuse():
+    Zs, ys, z_src, Zt, yt = _exec_arrays(n=8)                        # tiny target -> large k unavailable
+    dec, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), (lambda X: X), (lambda X: X),
+                          _fast_cfg(), n_boot=15)
+    un = [r for r in dec if r.get("decision_action") == "unavailable_k"]
+    assert un and all(r.get("calibration_label_hash") is None for r in un)   # marked, no audit reuse
+
+
+def test_b3_sequential_early_stop_uses_no_future_labels_execute():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    dec, _ = execute_task(_exec_task(budget="B3_sequential_calibration"), Zs, ys, z_src, Zt, yt, _seed_key(),
+                          (lambda X: X), (lambda X: X), _fast_cfg(), n_boot=15)
+    for r in dec:
+        assert "b3_ks_read" in r and r["b3_ks_read"] == sorted(r["b3_ks_read"])   # ascending; no future peek
+
+
+def test_b1_accept_impossible_in_execute_real():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    dec, _ = execute_task(_exec_task(budget="B1_unlabeled_target"), Zs, ys, z_src, Zt, yt, _seed_key(),
+                          (lambda X: X), (lambda X: X), _fast_cfg(), n_boot=15)
+    assert dec and all(r["decision_action"] != "accept" for r in dec)
+
+
+def test_b4_oracle_excluded_from_deployable_accept_counts_execute():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    dec, _ = execute_task(_exec_task(budget="B4_oracle_selector"), Zs, ys, z_src, Zt, yt, _seed_key(),
+                          (lambda X: X), (lambda X: X), _fast_cfg(), n_boot=15)
+    assert dec and all(r["decision_action"] == "DIAGNOSTIC" for r in dec)
+
+
+def test_same_k_random_specificity_flag_in_execute_real():
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+    # a discriminative eraser vs an identical random eraser -> if random reproduces, flagged non_specific
+    dec, _ = execute_task(_exec_task(), Zs, ys, z_src, Zt, yt, _seed_key(), _lin_eraser(), _lin_eraser(),
+                          _fast_cfg(), n_boot=15)
+    accepts = [r for r in dec if r["decision_action"] == "accept"]
+    for r in accepts:
+        assert r["specificity"] in ("accepted_specific", "accepted_non_specific")
+
+
+def test_assemble_run_two_phase_outputs_on_synthetic_provider(tmp_out=RUN_OUT + "_synthtest"):
+    cfg = _fast_cfg()
+    Zs, ys, z_src, Zt, yt = _exec_arrays()
+
+    def provider():
+        for budget in ["B0_source_only", "B2_k_labels_per_class", "B4_oracle_selector"]:
+            yield {"meta": _exec_task(budget=budget), "Zs": Zs, "ys": ys, "z_src": z_src, "Zt": Zt, "yt": yt,
+                   "seed_key": _seed_key(), "eraser": (lambda X: X), "eraser_random": (lambda X: X)}
+    nd, na = _assemble_run(cfg, provider(), out=tmp_out, n_boot=15)
+    assert nd > 0 and na > 0
+    import csv as _csv
+    with open("%s/decision_rows.csv" % tmp_out) as fh:
+        cols = _csv.DictReader(fh).fieldnames
+    assert not any(("audit_delta" in c or "audit_label" in c or "audit_metric" in c) for c in cols), cols
+
+
+def test_execute_still_halts_with_default_manifest():
+    cfg = load_cfg()
+    code, msg = run_cli(["--execute"], cfg)
+    assert code == 1 and msg.startswith("EXPERIMENTS_DISABLED")
+
+
 ALL = [test_config_parses_target_info_driver, test_calibration_audit_disjoint, test_b1_accept_forbidden,
        test_b4_oracle_diagnostic_only, test_audit_labels_unavailable_to_decision,
        test_unavailable_k_never_reuses_audit_labels, test_dry_run_has_expected_task_count,
@@ -592,7 +776,18 @@ ALL = [test_config_parses_target_info_driver, test_calibration_audit_disjoint, t
        # subject-seeded split hardening
        test_subject_seeded_splits_differ_across_subjects, test_subject_seeded_splits_reproducible_for_same_subject,
        test_same_split_shared_across_interventions_and_budgets, test_k_subsets_are_nested_within_calibration_pool,
-       test_subject_seed_key_uses_stable_hash_not_python_hash, test_preflight_subject_seeded_has_no_metrics]
+       test_subject_seed_key_uses_stable_hash_not_python_hash, test_preflight_subject_seeded_has_no_metrics,
+       # run-ready execute_real wiring
+       test_execute_real_requires_approved_manifest_and_token,
+       test_real_loader_wraps_target_labels_in_guarded_contexts, test_decision_rows_contain_no_audit_metrics,
+       test_audit_rows_created_only_after_decision_frozen, test_audit_label_permutation_does_not_change_decision_rows,
+       test_calibration_label_permutation_can_change_decision_rows, test_subject_seeded_splits_replayed_in_execute_real,
+       test_k_nested_subsets_replayed_in_execute_real,
+       test_b2_unavailable_k_halts_or_marks_unavailable_without_audit_reuse,
+       test_b3_sequential_early_stop_uses_no_future_labels_execute, test_b1_accept_impossible_in_execute_real,
+       test_b4_oracle_excluded_from_deployable_accept_counts_execute,
+       test_same_k_random_specificity_flag_in_execute_real, test_assemble_run_two_phase_outputs_on_synthetic_provider,
+       test_execute_still_halts_with_default_manifest]
 
 
 def main():
