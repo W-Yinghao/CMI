@@ -1,0 +1,65 @@
+{
+  "model": "codebrain",
+  "dataset": "shu",
+  "feature": "F1_spatial_pca95cap128",
+  "n_subjects": 25,
+  "task_chance": 0.5,
+  "source_val_bacc": [
+    0.6084,
+    [
+      0.5889,
+      0.6276
+    ]
+  ],
+  "target_bacc": [
+    0.6064,
+    [
+      0.5652,
+      0.6542
+    ]
+  ],
+  "f0_target_bacc": 0.53,
+  "target_beats_f0_by_0p04": true,
+  "task_gate_pass": true,
+  "L1_marginal": {
+    "bacc": 0.6254,
+    "chance": 0.04,
+    "null_mean": 0.04,
+    "p": 0.0,
+    "effect": 0.5854,
+    "n_folds": 5
+  },
+  "L1_class_conditional": {
+    "bacc": 0.6273,
+    "chance": 0.04,
+    "null_mean": 0.04,
+    "p": 0.0,
+    "effect": 0.5873,
+    "n_folds": 5
+  },
+  "L4_alignment_k2": 0.037,
+  "L5_drop_subject_k2": [
+    -0.0001,
+    [
+      -0.0013,
+      0.0011
+    ]
+  ],
+  "L5_drop_variance_k2": -0.0001,
+  "L5_subject_beats_variance": false,
+  "L6_target_base_bacc": [
+    0.6064,
+    [
+      0.5652,
+      0.6542
+    ]
+  ],
+  "L6_delta_subject_k2": [
+    0.0021,
+    [
+      0.0008,
+      0.0036
+    ]
+  ],
+  "note": "F1 spatial audit. L4/L5/L6 are MAIN conclusions only if task_gate_pass=True; else task still too weak and only L1 (subject decodability) is reportable. PCA 95%/cap128 on source-train; head source-val; no target-label in PCA/head/selection."
+}

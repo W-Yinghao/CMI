@@ -110,9 +110,9 @@
     },
     "f0_audit_claim_invariant": true,
     "f0_L1_delta": 0.0007,
-    "f1_audit_comparison": "running_expected_pass (embedding rel diff 2e-4)"
+    "f1_audit_comparison": "PASS (task d=0.0018, L1 d=0.0025, L4/L5/L6<=0.001, gate+sign unchanged)"
   },
-  "codebrain_batch_invariance_pass": "F0_confirmed_true;F1_pending",
+  "codebrain_batch_invariance_pass": true,
   "proceed_to_8c_recommended": true,
   "r8c_conditions_met": {
     "f1_task_gate_pass_ge1_encoder": true,

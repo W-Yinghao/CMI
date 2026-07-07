@@ -1,0 +1,19 @@
+{
+  "feature_emb_diff": {
+    "F0": {
+      "max_abs": 0.001787,
+      "median_trial_l2": 0.000674,
+      "rel_median": 3.7e-05
+    },
+    "F1": {
+      "max_abs": 0.004186,
+      "median_trial_l2": 0.022342,
+      "rel_median": 0.000202
+    }
+  },
+  "gate_decision_same": true,
+  "L5_beats_variance_sign_same": true,
+  "all_metrics_within_tol": true,
+  "invariance_pass": true,
+  "note": "CodeBrain bs64 vs bs32: raw embeddings differ by a tiny SGConv FFT batch-size numerical path; PASS means every claim-level metric (task, L1, L4, L5, L6) and the gate + L5-sign decisions are unchanged -> the audit conclusions are batch-size-invariant."
+}

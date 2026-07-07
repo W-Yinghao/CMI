@@ -1,0 +1,7 @@
+metric,bs64,bs32,abs_delta,tol,within_tol
+F1_source_val_bacc,0.6086,0.6084,0.0002,0.005,True
+F1_target_bacc,0.6046,0.6064,0.0018,0.005,True
+F1_L1_marginal_bacc,0.6279,0.6254,0.0025,0.005,True
+F1_L4_alignment_k2,0.0361,0.037,0.0009,0.02,True
+F1_L5_drop_subject_k2,-0.0002,-0.0001,0.0001,0.01,True
+F1_L6_delta_subject_k2,0.0012,0.0021,0.0009,0.01,True

@@ -37,8 +37,10 @@ def main():
                          within_tol=bool(dv is not None and dv <= tol)))
         return dv
 
-    d_sv = cmp("F1_source_val_bacc", g(a, "source_val_bacc", 0) if isinstance(a["source_val_bacc"], list) else a["source_val_bacc"],
-               b["source_val_bacc"][0] if isinstance(b["source_val_bacc"], list) else b["source_val_bacc"], 0.005)
+    def sv(s):
+        x = s["source_val_bacc"]
+        return x[0] if isinstance(x, list) else x
+    d_sv = cmp("F1_source_val_bacc", sv(a), sv(b), 0.005)
     d_tb = cmp("F1_target_bacc", a["target_bacc"][0], b["target_bacc"][0], 0.005)
     d_l1 = cmp("F1_L1_marginal_bacc", g(a, "L1_marginal", "bacc"), g(b, "L1_marginal", "bacc"), 0.005)
     d_l4 = cmp("F1_L4_alignment_k2", a.get("L4_alignment_k2"), b.get("L4_alignment_k2"), 0.02)
