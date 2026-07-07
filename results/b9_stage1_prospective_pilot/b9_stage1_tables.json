@@ -1,0 +1,43 @@
+{
+ "scope": "B9.1A prospective-pilot PRE-ACQUISITION: protocol freeze + hash-pinned pilot table + pipeline verification on SYNTHETIC Z. NO real data, NO biological claim, NOT validation, NO tag.",
+ "pilot_table": {
+  "sha256": "12df092d15e1d07ee302f68763b6e867681aaa76f245b7fa4bbcfa8cf51e82d5",
+  "n_trials": 960,
+  "dims": {
+   "subjects": 8,
+   "microblocks": 10,
+   "R": 3
+  }
+ },
+ "analysis_B_forced_violation": {
+  "all_refused_before_pvalue": true,
+  "cases": {
+   "V_flipped_C": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_shuffled_Ydesign": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_missing_table": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_condition_lock": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_microblock_imbalance": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_corrupt_pinned_hash": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND",
+   "V_posthoc_manifest": "CONTRACT_INVALID_OR_OUT_OF_ESTIMAND"
+  }
+ },
+ "analysis_C_semisynth": {
+  "pilot_n8": {
+   "state": "NO_ACTIONABLE_CONCEPT_EVIDENCE",
+   "n_eligible": 8,
+   "ran_test": true
+  },
+  "powersizing_sim_n24_concept": {
+   "state": "B9_CONCEPT_ALERT",
+   "n_eligible": 24
+  },
+  "powersizing_sim_n24_null": {
+   "state": "NO_ACTIONABLE_CONCEPT_EVIDENCE",
+   "n_eligible": 24
+  }
+ },
+ "analysis_A_real_null_audit": "PENDING_ACQUISITION (governance-gated; not run)",
+ "SIZE_GATE_FINDING": "The B9.0 alert conjunction requires n_eligible >= min_confirm_pairs=20 SUBJECTS. The authorized pilot size (6-10 subjects) is BELOW that, so the pilot CANNOT emit B9_CONCEPT_ALERT regardless of signal -- it is a contract-feasibility + exact-null-runs + violations-refuse pilot, and its 'no false alert' is size-gate-trivial, NOT a strong null test. Alert-level power AND alert-level null-control require a cohort of >=20 eligible subjects (shown here only by a SYNTHETIC power-sizing simulation). This is a DESIGN FINDING for the reviewer, NOT a gate change (min_confirm_pairs is UNCHANGED).",
+ "governance": "Actual human-EEG collection is gated on the institution's governance process; NO data collected here. This is not legal/IRB advice.",
+ "next": "B9.1A real pilot: after governance approval, acquire the pilot cohort under the pinned table, then run analysis A. For alert-level claims a >=20-subject cohort is required (reviewer decision)."
+}

@@ -1,0 +1,44 @@
+{
+  "scope": "B9.1A prospective-pilot PRE-ANALYSIS protocol (pre-registered). Development-only, NO scientific/biological claim, NOT validation, NO tag. Frozen BEFORE any acquisition/analysis.",
+  "estimand": "under the pre-randomized, class-balanced, within-microblock audit contract, detect a condition-specific C x Z interaction in decoding the PRE-ASSIGNED cue Y_design, beyond known randomization variation. Natural prior shift / non-randomized condition / covariate confound -> REFUSE (CONTRACT_INVALID_OR_OUT_OF_ESTIMAND).",
+  "decision_engine": "B9.0 state machine (csc/b9/), UNCHANGED. Contract-first, Z/T-blind validator; exact null resamples C* only within (subject, microblock, Y_design); byte-reused B3 contrast; alert = contract-valid AND estimable AND p_meanT<=0.025 AND p_stud<=0.025 AND n_eligible>=20.",
+  "pilot_table": "b9_stage1_assignment_table.csv (hash-pinned in .sha256; manifest attests generated_before_recording + Y_design_pre_assignment). Executed acquisition adheres row-for-row on trial_id; full-tuple (C,Y_design,subject,microblock) mismatch -> CONTRACT_INVALID_OR_OUT_OF_ESTIMAND.",
+  "exclusions_predeclared": {
+    "artifact_rejection": "predeclared automated pipeline (e.g. amplitude/variance thresholds), applied BEFORE unblinding to C outcomes; the specific rule is fixed in the acquisition protocol, not chosen after seeing results",
+    "min_valid_trials_per_cell": ">= (a predeclared minimum) valid trials per subject x microblock x C x Y_design after rejection",
+    "rejected_trials_semantics": "if rejection/attrition induces C x Y_design imbalance or a prior shift P(Y_design|C) beyond tolerance -> the CONTRACT is BROKEN (CONTRACT_INVALID_OR_OUT_OF_ESTIMAND); if it merely lowers counts while balance holds -> INSUFFICIENT_LABELS_OR_SUPPORT. Rejection is NEVER used to post-hoc rebalance after seeing outcomes."
+  },
+  "analyses": {
+    "A_contract_valid_null_audit": {
+      "status": "PENDING_ACQUISITION (governance-gated; NOT run in B9.0/B9.1A pre-acquisition)",
+      "input": "the real acquired pilot data under the pinned assignment table",
+      "endpoints": ["B9_ALERT count", "NO_ACTIONABLE count", "invalid/support state counts", "exact-null p distribution", "effective randomization support"],
+      "purpose": "main pilot safety check -- under a real contract-valid randomization, is there no obvious false alert?"
+    },
+    "B_forced_violation": {
+      "status": "RUN (on the pilot's actual table + SYNTHETIC Z; machinery check, NOT biology)",
+      "input": "deliberately corrupted COPIES of the manifest/table (never the real raw data): flipped C, shuffled Y_design, missing table, condition-lock, microblock imbalance, corrupt pinned hash, post-hoc manifest",
+      "expectation": "every case -> CONTRACT_INVALID_OR_OUT_OF_ESTIMAND BEFORE any p-value (ran_test False) -- verifies the B9.0 hardened validator stays hardened in the pilot pipeline"
+    },
+    "C_semisynthetic_positive": {
+      "status": "RUN as DIAGNOSTIC / power-sizing only (synthetic Z following the locked table; NOT a biological concept claim)",
+      "input": "boundary signal injected on synthetic Z using the locked assignment table",
+      "expectation": "the pipeline runs the exact null and, at an alert-capable cohort size, can detect the injected concept; at the pilot size it CANNOT alert (size gate)"
+    }
+  },
+  "size_gate_finding": "min_confirm_pairs=20 subjects. Pilot 6-10 subjects < 20 -> the pilot CANNOT emit B9_CONCEPT_ALERT regardless of signal. The 6-10 pilot is contract-feasibility + null-behavior only; alert-level power AND alert-level null-control require >=20 eligible subjects. min_confirm_pairs is UNCHANGED (no gate tuning). Reviewer decision: run the feasibility pilot as-is (alert-level deferred) or scope a >=20-subject cohort.",
+  "success_screen_development": {
+    "contract_execution": ">=90% executed trials match the assignment table; no systematic C x Y_design imbalance after predefined exclusions",
+    "support": ">=80% subjects have sufficient support; exact-null sampler valid on >=80% analyzable subjects/cohorts",
+    "safety": "contract-valid null B9_ALERT near zero (NOTE: size-gate-trivial at pilot n<20); no forced violation produces an alert",
+    "diagnostic_power": "optional injected positive > 0 alerts (only assessable at an alert-capable cohort size >=20)",
+    "interpretation": {
+      "mostly_INSUFFICIENT_SUPPORT": "NOT a method failure -> acquisition-budget redesign",
+      "forced_violation_alerts": "validator FAILED -> fix before any claim",
+      "contract_valid_null_alerts_at_n>=20": "exact null or acquisition contract still wrong",
+      "only_power_weak": "later do an acquisition-budget frontier"
+    }
+  },
+  "governance": "actual human-EEG collection is gated on the institution's local governance/ethics process BEFORE any recording; NO data collected in B9.0/B9.1A; this is not legal/IRB advice.",
+  "not_authorized": ["existing-dataset validation as primary", "Lee2019 as validation", "post-hoc balancing on observed Y", "case-control selector using Z", "mean-T/p recalibration", "new statistic/feature/montage", "B8.4", "B7 variants", "paper writing"]
+}

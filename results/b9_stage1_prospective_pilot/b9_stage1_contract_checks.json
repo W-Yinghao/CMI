@@ -1,0 +1,9 @@
+{
+ "scope": "B9.1A pipeline-verification invariants (synthetic Z; machinery only, NO biological claim)",
+ "B_forced_violations_all_refuse_before_pvalue": true,
+ "C_pilot_n_size_gate_blocks_alert": true,
+ "C_powersizing_sim_detects_concept": true,
+ "C_powersizing_sim_null_no_alert": true,
+ "A_real_null_audit": "PENDING_ACQUISITION",
+ "validator_hardened_from_b9_0": "full-tuple adherence + provenance attestation carried unchanged into the pilot pipeline"
+}

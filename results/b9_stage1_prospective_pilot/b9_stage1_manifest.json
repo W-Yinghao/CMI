@@ -1,0 +1,20 @@
+{
+ "schema": "b9_assignment_contract/v0",
+ "generated_before_recording": true,
+ "Y_design_pre_assignment": true,
+ "C_randomized_within_block": true,
+ "seed": 910000001,
+ "unit": "subject x microblock x design_class",
+ "R": 3,
+ "n_microblocks": 10,
+ "n_subjects": 8,
+ "table_hash": "fa917b1959a891eb",
+ "n_trials": 960,
+ "pilot_dims": {
+  "subjects": 8,
+  "microblocks": 10,
+  "R": 3,
+  "trials_per_subject": 120
+ },
+ "note": "generated BEFORE recording; executed acquisition MUST adhere row-for-row (join on trial_id); NO data collected yet (governance-gated)"
+}

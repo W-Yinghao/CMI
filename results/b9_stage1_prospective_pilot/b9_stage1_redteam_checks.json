@@ -1,0 +1,32 @@
+{
+  "scope": "B9.1A prospective-pilot PRE-ACQUISITION design red-team (w91e6s0py, 2 lenses). Development-only, NO scientific/biological claim, NOT validation, NO tag.",
+  "verdict": "BOTH lenses PASS. No overclaim, no fabrication, honest scope; artifacts + synthetic-Z pipeline verification correct + byte-reproducible.",
+  "lens_honesty_scope": {
+    "verdict": "PASS",
+    "confirmed": [
+      "NO fabricated real data: every C-analysis row is diagnostic_only + labeled SYNTHETIC/simulation/NOT-biology; the injected concept is an explicit rotated boundary in synthetic Z; the pilot table is a pre-registration artifact ('NO data collected yet, governance-gated'), not data",
+      "A = PENDING_ACQUISITION marked in rows/tables/contract_checks/preanalysis/protocol; never silently substituted by the synthetic B/C runs",
+      "governance honest: institutional approval required BEFORE recording; no data collected; disclaims legal/IRB advice",
+      "SIZE-GATE is a DISCLOSED design finding NOT a gate-tune: min_confirm_pairs=20 UNCHANGED (same as B9.0); pilot 'no false alert' flagged size-gate-trivial; >=20-subject requirement for alert-level power AND null-control stated; n=24 is unambiguously a SIMULATION",
+      "Y_design consistently a PRE-ASSIGNMENT cue (never observed/generated post-hoc Y); 'existing-dataset validation as primary' + 'Lee2019 as validation' both in Not-Authorized",
+      "build re-run reproduces all six artifacts byte-identically -> every number machine-generated + deterministic"
+    ],
+    "low_notes_folded_in": [
+      "removed the stale pre-fix SLURM log (b9s1_887670.out showing B_all_refuse=False) so no casual reader diffs a stale False",
+      "added a package README.md carrying the same PENDING/synthetic-only/governance disclaimers",
+      "manifest attestation flags (generated_before_recording / Y_design_pre_assignment) are inherently-unverifiable-from-data attestation floors (disclosed in CONTRACT.md + protocol); treat as protocol-guaranteed, not evidence"
+    ]
+  },
+  "lens_pipeline_correctness": {
+    "verdict": "PASS",
+    "confirmed": [
+      "TABLE PROVENANCE: make_assignment_table + csv/.sha256/manifest written BEFORE any Z (_make_Z only inside certify_synth); recomputed csv sha256 == .sha256 == tables.json; recomputed table_hash == manifest.table_hash (fa917b1959a891eb); manifest attests both provenance flags True; columns [subject_id, microblock_id, trial_id, C, Y_design]; 960 trials, trial_id 0..959; C x Y_design EXACTLY balanced within every subject x microblock (all 80 blocks (3,3,3,3), max spread 0); byte-exact from seed 910000001",
+      "FORCED VIOLATIONS: all 7 -> CONTRACT_INVALID_OR_OUT_OF_ESTIMAND, ran_test False (validator returns before the exact null), disjoint sensible reasons; missing-table sentinel fix is LOAD-BEARING (table=None refuses; old path leaked to NO_ACTIONABLE); shuffled_Ydesign refuses via the real full-tuple H2 adherence (balance-preserving relabel, max_cxy_imbalance=0, prior_shift=0, fires executed_deviates alone)",
+      "SIZE GATE: pilot n=8 crossfit RAN (ran_test True, estimable True, ninv 0/200), p_meanT=0.005 & p_stud=0.015 both <=0.025 -- size_ok (8<20) is the SOLE unmet alert condition (not a broken null); power-sizing n=24 concept ALERT (0.005/0.005), n=24 null NO_ACTIONABLE (0.249/0.254)",
+      "MACHINERY PURITY: B9.0 validator/null reused UNCHANGED (Z/T-blind, contract-first fail-closed, exact null within (subject,microblock,Y_design), no fitted Y|Z or C|Z, states disjoint + declared); synthetic-Z labeled machinery-only; PENDING_ACQUISITION is a bookkeeping marker never emitted by b9_certify",
+      "no accounting error / fake refusal / mislabeled analysis / table-manifest inconsistency"
+    ],
+    "low_note_deferred": "the exact-null docstring already discloses the Z-blind count-balance/prior/adherence checks are necessary-but-not-sufficient (a Z-dependent, balance-and-prior-preserving differential attrition re-opens a C-Z path the Z-blind validator cannot see); the synthetic-Z verification cannot attest against it -> correctly deferred to the B9.1 REAL acquisition protocol"
+  },
+  "net": "B9.1A pre-acquisition = a frozen pre-registration (acquisition protocol + hash-pinned pilot assignment table generated before recording + pre-analysis protocol) + a correct, byte-reproducible synthetic-Z verification of the B9.0 hardened pipeline (forced violations refuse before p; size gate is the sole reason the pilot cannot alert). NO real data, NO biological claim, NOT validation. The real contract-valid null audit (A) is deferred to a governance-approved acquisition of a >=20-subject cohort. NO tag."
+}
