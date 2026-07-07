@@ -282,8 +282,10 @@ def main():
                                      E1_inj_bacc=round(arms["E1_inj"], 4), E1_cln_bacc=round(arms["E1_cln"], 4),
                                      E1_raw_rec=rawrec("E1"), E1_netted_rec=netrec("E1"),
                                      E2_netted_rec=netrec("E2"),
-                                     E3_inj_bacc=round(arms["E3_inj"], 4), E3_netted_rec=netrec("E3"),
-                                     ERASE_inj_bacc=round(arms["ERASE_inj"], 4), ERASE_netted_rec=netrec("ERASE")))
+                                     E3_inj_bacc=round(arms["E3_inj"], 4), E3_cln_bacc=round(arms["E3_cln"], 4),
+                                     E3_netted_rec=netrec("E3"),
+                                     ERASE_inj_bacc=round(arms["ERASE_inj"], 4),
+                                     ERASE_cln_bacc=round(arms["ERASE_cln"], 4), ERASE_netted_rec=netrec("ERASE")))
             fw.append(dict(dataset=ds, target_subject=tsub, token_seed=seed, target_scorer_reads=scorer.n,
                            target_labels_used_for_fit=False, target_labels_used_for_selection=False,
                            alpha_selection_used_target=False, target_labels_used_for_final_eval_only=True))
