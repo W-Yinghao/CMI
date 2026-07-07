@@ -445,7 +445,28 @@ def _boot_delta_samples(eraser, src: SourceContext, cal: CalibrationContext, n_b
     return out
 
 
-def source_task_drop_ucb(eraser, src: SourceContext, safety_eps, n_boot=300, seed=0, min_clusters=3, q=0.95):
+def _delta_boot_fitfree(h_full, h_eras, eraser, cal: CalibrationContext, n_boot, seed):
+    """ΔbAcc_cal bootstrap samples using PRE-FIT source heads (the source head is identical across cal resamples,
+    so fit once then bootstrap the calibration eval only). Numerically identical to fitting per bootstrap, but
+    ~n_boot x faster. Reads calibration labels ONLY; refuses an AuditView."""
+    if isinstance(cal, AuditView):
+        raise TypeError("_delta_boot_fitfree received an AuditView; calibration deltas must come from calibration")
+    from sklearn.metrics import balanced_accuracy_score
+    yc = np.asarray(cal.yt_cal).astype(int)
+    pf = h_full.predict(cal.Zt_cal)                            # predictions fixed given the fixed source head
+    pe = h_eras.predict(eraser(cal.Zt_cal))
+    rng = np.random.default_rng(seed)
+    n = len(yc)
+    out = []
+    for _ in range(n_boot):
+        idx = rng.integers(0, n, n)
+        if len(set(yc[idx].tolist())) < 2:
+            continue
+        out.append(float(balanced_accuracy_score(yc[idx], pe[idx]) - balanced_accuracy_score(yc[idx], pf[idx])))
+    return out
+
+
+def source_task_drop_ucb(eraser, src: SourceContext, safety_eps, n_boot=100, seed=0, min_clusters=3, q=0.95):
     """Source-only task-safety as a CLUSTER-BOOTSTRAP UPPER CONFIDENCE BOUND (NOT a point estimate). Cluster unit =
     source subject (`src.subj`); if subjects are unavailable, a documented trial-block fallback is used. With too
     few clusters the safety is UNDERPOWERED -> ABSTAIN (never a point-estimate accept). Returns a dict with
@@ -501,7 +522,8 @@ def _source_benefit_samples(eraser, src: SourceContext, n_boot, seed):
     return out
 
 
-def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, cfg, n_boot=200, source_subj=None):
+def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, cfg, n_boot=200, source_subj=None,
+                 precomputed_safety=None):
     """One (dataset,world,fold,alpha,intervention,budget) task -> (decision_rows, audit_rows). Decision phase reads
     SOURCE + CALIBRATION only via guarded contexts (audit labels are structurally absent from compute_decision_row);
     audit phase runs AFTER the decision is frozen. Subject-seeded splits + nested k-subsets are replayed here.
@@ -517,13 +539,19 @@ def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, c
     splits = subject_seeded_splits(yt, seed_key, R=R, calib_fraction=cfrac)
     target_leak_structural_check(splits, {})                   # per-split disjointness (raises -> caller HALTs run)
     _ = LabelAccessGuard("decision")                           # decision-phase guard (audit labels forbidden here)
-    saf = source_task_drop_ucb(eraser, src, safety_eps)        # UCB, not point estimate
+    saf = precomputed_safety if precomputed_safety is not None else source_task_drop_ucb(eraser, src, safety_eps)
     src_pass = saf["pass"]
     safety_status = "pass" if src_pass else ("abstain_underpowered" if saf["safety_status"] == "ABSTAIN"
                                              else "reject")
     meta = {kk: task.get(kk) for kk in ("dataset", "backbone", "world", "alpha", "fold", "target_subject",
                                         "intervention", "budget")}
     dec_rows, aud_rows = [], []
+    heads = None                                               # fit source heads ONCE per task (B2/B3); reuse across splits/k
+    if fam in ("B2", "B3"):
+        from sklearn.linear_model import LogisticRegression
+        heads = {"full": LogisticRegression(max_iter=200, C=1.0).fit(src.Zs, src.ys),
+                 "eras": LogisticRegression(max_iter=200, C=1.0).fit(eraser(src.Zs), src.ys),
+                 "rand": LogisticRegression(max_iter=200, C=1.0).fit(eraser_random(src.Zs), src.ys)}
 
     def _emit(row, sid, cal_idx, aud_idx, k):
         """Attach split meta to the (audit-free) decision row and, in a SEPARATE audit-phase record, the held-out
@@ -579,8 +607,8 @@ def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, c
                                      "audit_idx_hash_hash_only": hash_obj(hash_array(aud)), "specificity": None})
                     continue
                 cal_ctx = CalibrationContext(Zt[sel], yt[sel], effective_n_per_class(sel, yt))
-                d_real = _boot_delta_samples(eraser, src, cal_ctx, n_boot, seed=sid * 131 + k)
-                d_rand = _boot_delta_samples(eraser_random, src, cal_ctx, n_boot, seed=sid * 131 + k + 7)
+                d_real = _delta_boot_fitfree(heads["full"], heads["eras"], eraser, cal_ctx, n_boot, seed=sid * 131 + k)
+                d_rand = _delta_boot_fitfree(heads["full"], heads["rand"], eraser_random, cal_ctx, n_boot, seed=sid * 131 + k + 7)
                 m = min(len(d_real), len(d_rand))
                 row = compute_decision_row(task["budget"], src_pass, None, d_real[:m], d_rand[:m],
                                            list(range(m)), None, thr=thr, calibration_idx_hash=hash_array(sel),
@@ -593,8 +621,8 @@ def execute_task(task, Zs, ys, z_src, Zt, yt, seed_key, eraser, eraser_random, c
                 if sel is None:
                     deltas_by_k[k] = None; rand_by_k[k] = None; continue
                 cal_ctx = CalibrationContext(Zt[sel], yt[sel], effective_n_per_class(sel, yt))
-                dr = _boot_delta_samples(eraser, src, cal_ctx, n_boot, seed=sid * 131 + k)
-                rr = _boot_delta_samples(eraser_random, src, cal_ctx, n_boot, seed=sid * 131 + k + 7)
+                dr = _delta_boot_fitfree(heads["full"], heads["eras"], eraser, cal_ctx, n_boot, seed=sid * 131 + k)
+                rr = _delta_boot_fitfree(heads["full"], heads["rand"], eraser_random, cal_ctx, n_boot, seed=sid * 131 + k + 7)
                 m = min(len(dr), len(rr)); clusters = list(range(m))
                 deltas_by_k[k] = dr[:m]; rand_by_k[k] = rr[:m]
             seq = b3_sequential_decision(k_grid, deltas_by_k, rand_by_k, clusters or [0], thr=thr)
@@ -722,18 +750,201 @@ def _real_provider(cfg, results_root, seed):
                                        "source_subj": subj}
 
 
-def execute_real(cfg, manifest=None, results_root=FROZEN_ROOT, out=RUN_OUT):
-    """Reached ONLY after authorize_execution passes (never at this stage). Belt-and-suspenders manifest re-check,
-    then assemble + run via the real dump/world provider and write two-phase outputs. The provider (real-dump load
-    + world injection) is UNEXERCISED until the PM enables a run; execute_task + _assemble_run + the two-phase
-    writer are unit-tested."""
+# ============================ parallel Tier-1 smoke runner + aggregation ============================
+SMOKE_OUT = "tos_cmi/results/target_info/tier1_smoke"
+
+
+def _smoke_worker(ds, bb, world, fold, alpha, interv, path, cfg, n_boot):
+    """One (ds,world,fold,alpha,interv) worker: load dump, inject world, fit erasers, compute source-safety UCB
+    ONCE, then run all budgets. Returns (decision_rows, audit_rows, error_or_None)."""
+    import re
+    try:
+        from tos_cmi.eeg.semi_synthetic_real_latent import inject
+        from tos_cmi.eeg.source_rich_worlds import inject_source_rich
+        from tos_cmi.eeg.v2_worlds import FACTORIES
+        from tos_cmi.eeg.run_v2_certificate import _nuisance_m
+        from tos_cmi.eeg.erasure_baselines import _ids
+        sub = int(re.search(r"sub(\d+)_", path.split("/")[-1]).group(1))
+        d = np.load(path, allow_pickle=True)
+        Zs = d["Z_source"].astype(float); ys = d["y_source"].astype(int)
+        Zt = d["Z_target"].astype(float); yt = d["y_target"].astype(int)
+        subj = _ids(d["subject_source"])[0]; n_cls = int(d["n_cls"])
+        m = _nuisance_m(Zs.shape[1], "fraction_of_z_dim", 0.20, 4)
+        if _WORLD_INJECT[world] == "source_rich":
+            inj = inject_source_rich(Zs, ys, subj, Zt, yt, alpha=alpha, m=m, seed=0)
+        else:
+            inj = inject("A", Zs, ys, subj, Zt, yt, alpha=alpha, seed=0, m=m)
+        Zs2, Zt2, z_src = inj["Zs2"], inj["Zt2"], inj["z_src"]
+        E = FACTORIES[_INTERV_MAP.get(interv, interv)](Zs2, ys, z_src, n_cls, 0)
+        Erand = FACTORIES["random_k"](Zs2, ys, z_src, n_cls, 0)
+        src = SourceContext(Zs2, ys, z_src, n_cls, subj=subj)
+        saf = source_task_drop_ucb(E, src, cfg["thresholds"]["safety_eps"], n_boot=n_boot)   # once per interv
+        seed_key = {"dataset": ds, "backbone": bb, "model_seed": 0, "fold": fold, "target_subject": sub,
+                    "global_split_seed": cfg["split_rng"]["global_split_seed"]}
+        dec, aud = [], []
+        for budget in cfg["budgets"]:
+            meta = {"dataset": ds, "backbone": bb, "world": world, "alpha": alpha, "fold": fold,
+                    "target_subject": sub, "intervention": interv, "budget": budget}
+            dcs, acs = execute_task(meta, Zs2, ys, z_src, Zt2, yt, seed_key, E, Erand, cfg, n_boot=n_boot,
+                                    source_subj=subj, precomputed_safety=saf)
+            dec += dcs; aud += acs
+        return dec, aud, None
+    except Exception as e:
+        return [], [], "%s/%s/%s/f%s/a%s/%s: %s" % (ds, bb, world, fold, alpha, interv, repr(e)[:200])
+
+
+def aggregate_smoke(dec_all, aud_all, cfg):
+    from collections import Counter
+    thr = cfg["thresholds"]["benefit_lcb"]
+    aud_by = {a["decision_input_hash"]: a for a in aud_all if a.get("decision_input_hash")}
+
+    def audit_of(r):
+        a = aud_by.get(r.get("decision_input_hash"))
+        return a.get("audit_delta_bacc") if a else None
+    per_budget = {}
+    for r in dec_all:
+        per_budget.setdefault(r["budget"], Counter())[r["decision_action"]] += 1
+    per_budget = {b: dict(c) for b, c in per_budget.items()}
+    # B2 k-curve per world
+    k_curve = {}
+    for r in dec_all:
+        if _family(r["budget"]) != "B2" or r.get("decision_action") == "unavailable_k":
+            continue
+        s = k_curve.setdefault("%s|k%s" % (r["world"], r["k"]),
+                               {"world": r["world"], "k": r["k"], "n": 0, "accept": 0, "true_accept": 0,
+                                "false_accept": 0, "abstain": 0, "specific": 0, "non_specific": 0, "audit_sum": 0.0,
+                                "audit_n": 0})
+        s["n"] += 1
+        act = r["decision_action"]
+        if act == "abstain":
+            s["abstain"] += 1
+        if act == "accept":
+            s["accept"] += 1
+            adb = audit_of(r)
+            if adb is not None and adb == adb:
+                s["audit_sum"] += adb; s["audit_n"] += 1
+                if adb > thr:
+                    s["true_accept"] += 1
+                if adb <= 0:
+                    s["false_accept"] += 1
+            if r.get("specificity") == "accepted_specific":
+                s["specific"] += 1
+            elif r.get("specificity") == "accepted_non_specific":
+                s["non_specific"] += 1
+    for s in k_curve.values():
+        s["accept_rate"] = s["accept"] / s["n"] if s["n"] else 0.0
+        s["mean_audit_dbacc_accepted"] = (s["audit_sum"] / s["audit_n"]) if s["audit_n"] else None
+    # B3 label budget
+    b3 = [r for r in dec_all if _family(r["budget"]) == "B3"]
+    b3_budget = [r.get("k") for r in b3 if r.get("k") is not None]
+    b3_actions = dict(Counter(r["decision_action"] for r in b3))
+    # B4 oracle audit distribution (diagnostic gap)
+    b4_audit = [audit_of(r) for r in dec_all if _family(r["budget"]) == "B4"]
+    b4_audit = [v for v in b4_audit if v is not None and v == v]
+    # STOP-condition checks
+    stop = {
+        "b1_accepts": len([r for r in dec_all if _family(r["budget"]) == "B1" and r["decision_action"] == "accept"]),
+        "b4_deployable_accepts": len([r for r in dec_all if _family(r["budget"]) == "B4"
+                                      and r["decision_action"] in ("accept", "deployable_accept")]),
+        "unflagged_non_specific": len([r for r in dec_all if r.get("decision_action") == "accept"
+                                       and r.get("same_k_random_calibration") is False
+                                       and r.get("specificity") not in ("accepted_non_specific",)]),
+        "point_estimate_safety": len([r for r in dec_all if str(r.get("source_safety_status", "")).startswith("point")]),
+    }
+    return {"per_budget": per_budget, "b2_k_curve": sorted(k_curve.values(), key=lambda s: (s["world"], s["k"])),
+            "b3_label_budget_mean": (float(np.mean(b3_budget)) if b3_budget else None), "b3_actions": b3_actions,
+            "b4_oracle_audit_mean": (float(np.mean(b4_audit)) if b4_audit else None),
+            "b4_oracle_audit_n": len(b4_audit), "stop_conditions": stop, "n_decision_rows": len(dec_all),
+            "n_audit_rows": len(aud_all)}
+
+
+def _smoke_plot(summary, out):
+    try:
+        import matplotlib; matplotlib.use("Agg"); import matplotlib.pyplot as plt
+    except Exception as e:
+        return "(matplotlib unavailable: %r)" % e
+    fig, ax = plt.subplots(1, 2, figsize=(11, 4))
+    worlds = sorted(set(s["world"] for s in summary["b2_k_curve"]))
+    for w in worlds:
+        pts = sorted([s for s in summary["b2_k_curve"] if s["world"] == w], key=lambda s: s["k"])
+        ks = [s["k"] for s in pts]
+        ax[0].plot(ks, [s["accept_rate"] for s in pts], marker="o", label=w[:22])
+        ax[1].plot(ks, [s["mean_audit_dbacc_accepted"] or 0 for s in pts], marker="s", label=w[:22])
+    ax[0].set_xscale("log", base=2); ax[0].set_xlabel("k labels/class"); ax[0].set_ylabel("B2 accept rate")
+    ax[0].set_title("B2: accept rate vs k"); ax[0].legend(fontsize=7); ax[0].grid(alpha=0.3)
+    ax[1].axhline(0.01, ls="--", c="k", lw=0.6); ax[1].set_xscale("log", base=2)
+    ax[1].set_xlabel("k labels/class"); ax[1].set_ylabel("mean AUDIT ΔbAcc (accepted)")
+    ax[1].set_title("B2: accepted held-out ΔbAcc vs k"); ax[1].legend(fontsize=7); ax[1].grid(alpha=0.3)
+    p = "%s/target_info_tier1_budget_curve.png" % out; fig.tight_layout(); fig.savefig(p, dpi=130); plt.close(fig)
+    return p
+
+
+def run_smoke(cfg, results_root=FROZEN_ROOT, out=SMOKE_OUT, n_jobs=None, n_boot=100):
+    """Parallel Tier-1 smoke over (ds,world,fold,alpha,interv) workers; each runs all budgets. Writes the smoke
+    CSVs + summary + report + budget curve. Structural leak failures surface as worker errors (-> reported)."""
+    import glob
+    import re
+    import json as _json
+    from joblib import Parallel, delayed
+    n_jobs = n_jobs or int(os.environ.get("SLURM_CPUS_PER_TASK", os.cpu_count() or 4))
+    sc = cfg["tier1_scope"]; folds = _folds(sc["folds"]); seed = sc["seeds"][0]
+    tasks = []
+    for ds in sc["datasets"]:
+        for bb in sc["backbones"]:
+            dd = "%s/%s_%s_LOSO" % (results_root, ds, bb)
+            ps = sorted(glob.glob("%s/sub*_erm_lam0_seed%d.npz" % (dd, seed)),
+                        key=lambda p: int(re.search(r"sub(\d+)_", p.split("/")[-1]).group(1)))[:len(folds)]
+            for fold, p in zip(folds, ps):
+                for world in cfg["worlds"]:
+                    for alpha in cfg["world_alpha_grid"]:
+                        for interv in cfg["interventions"]:
+                            tasks.append((ds, bb, world, fold, alpha, interv, p))
+    print("tier1 smoke: %d workers (n_jobs=%d, n_boot=%d)" % (len(tasks), n_jobs, n_boot), flush=True)
+    res = Parallel(n_jobs=n_jobs, backend="loky")(
+        delayed(_smoke_worker)(ds, bb, world, fold, alpha, interv, p, cfg, n_boot)
+        for (ds, bb, world, fold, alpha, interv, p) in tasks)
+    dec_all, aud_all, fails = [], [], []
+    for dec, aud, err in res:
+        dec_all += dec; aud_all += aud
+        if err:
+            fails.append(err)
+    os.makedirs(out, exist_ok=True)
+    _write_csv("%s/target_info_tier1_smoke_decision_rows.csv" % out,
+               [{k: v for k, v in r.items() if not ("audit_delta" in k or "audit_label" in k or "audit_metric" in k)}
+                for r in dec_all])
+    _write_csv("%s/target_info_tier1_smoke_audit_rows.csv" % out, aud_all)
+    aud_by = {a["decision_input_hash"]: a for a in aud_all if a.get("decision_input_hash")}
+    joined = [{**r, **{k: v for k, v in aud_by.get(r.get("decision_input_hash"), {}).items() if k not in r}}
+              for r in dec_all]
+    _write_csv("%s/target_info_tier1_smoke_joined_rows.csv" % out, joined)
+    summary = aggregate_smoke(dec_all, aud_all, cfg)
+    summary["n_workers"] = len(tasks); summary["n_failures"] = len(fails); summary["failures"] = fails[:20]
+    summary["scope"] = {"datasets": sc["datasets"], "backbones": sc["backbones"], "folds": folds,
+                        "worlds": cfg["worlds"], "budgets": list(cfg["budgets"]),
+                        "k_grid": cfg["budgets"]["B2_k_labels_per_class"]["k_grid"], "R": sc["repeats_R"],
+                        "world_alpha_grid": cfg.get("world_alpha_grid"), "n_boot": n_boot,
+                        "split_rng_scheme": cfg["split_rng"]["scheme"]}
+    _json.dump(summary, open("%s/target_info_tier1_smoke_summary.json" % out, "w"), indent=1)
+    _json.dump({"scope": summary["scope"], "n_decision_rows": summary["n_decision_rows"],
+                "n_failures": summary["n_failures"]}, open("%s/target_info_tier1_manifest.json" % out, "w"), indent=1)
+    fig = _smoke_plot(summary, out)
+    from tos_cmi.eeg.report_target_info_tier1 import write_smoke_report
+    write_smoke_report(summary, fig, out)
+    return len(dec_all), len(aud_all), fails, summary
+
+
+def execute_real(cfg, manifest=None, results_root=FROZEN_ROOT, out=SMOKE_OUT):
+    """Reached ONLY after authorize_execution passes (never while locked). Belt-and-suspenders manifest re-check,
+    then run the parallel Tier-1 smoke and write outputs."""
     if not (manifest or {}).get("runs_allowed", False) or not (manifest or {}).get("experiments_allowed", False):
         return 1, MANIFEST_HALT_MSG                            # never run while locked
     if (manifest or {}).get("run_status") != "approved":
         return 1, MANIFEST_HALT_MSG
-    seed = cfg["tier1_scope"]["seeds"][0]
-    nd, na = _assemble_run(cfg, _real_provider(cfg, results_root, seed), out)
-    return 0, "TARGET_INFO_TIER1_RUN_DONE (%d decision rows, %d audit rows)" % (nd, na)
+    nd, na, fails, summary = run_smoke(cfg, results_root, out)
+    sc = summary["stop_conditions"]
+    tripped = [k for k, v in sc.items() if v]
+    return 0, "TARGET_INFO_TIER1_RUN_DONE (%d decision rows, %d audit rows, %d worker-fails, stop_tripped=%s)" % (
+        nd, na, len(fails), tripped)
 
 
 # ============================ provider-validation mode (gated; exercises _real_provider; metrics REDACTED) =========

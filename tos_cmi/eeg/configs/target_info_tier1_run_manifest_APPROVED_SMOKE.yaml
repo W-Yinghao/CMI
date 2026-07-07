@@ -1,0 +1,28 @@
+# APPROVED Tier-1 smoke run manifest (PM go). Authorizes ONE --execute of the frozen smoke scope. The raw enable
+# token is NOT committed (kept at gitignored tos_cmi/results/.tier1_smoke_token); only its sha256 is here. After the
+# run this manifest is marked run_status: consumed (a follow-up lock commit) so it cannot re-authorize.
+
+run_status: approved
+runs_allowed: true
+experiments_allowed: true
+
+scope: tier1_smoke_only
+datasets: [Lee2019_MI, Cho2017]
+backbones: [EEGNet]
+seeds: [0]
+folds: first5
+budgets: [B0, B1, B2, B3, B4]
+k_grid: [1, 2, 4, 8, 16]
+R: 10
+split_rng_scheme: subject_seeded_v1
+
+approved_scope_hash: d4099778432b48a8
+approved_driver_hash: f4b8ce30f5da2162
+approved_git_commit: ANY
+enable_token_required: true
+approved_enable_token_sha256: 433414ad1528a5164f8e841265f60cc3b5af970e06fbf472f0cb3780ff8f4714
+
+provenance:
+  stage: tier1_smoke_run
+  purpose: target_information_budget_curves_semi_synthetic
+  not_a_final_paper_claim: true

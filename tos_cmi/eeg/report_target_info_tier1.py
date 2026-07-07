@@ -171,6 +171,46 @@ def write_provider_validation_report(summary, out):
     return p
 
 
+def write_smoke_report(summary, fig, out):
+    """Tier-1 smoke report: deployable budgets (B0/B1/B2/B3) vs diagnostic (B4), B2 k-curve (accept / true / false /
+    audit ΔbAcc / specificity), B3 label budget, oracle gap, and the stop-condition audit."""
+    sc = summary["scope"]
+    L = ["# Fork 1 Tier-1 smoke --- target-information budget curves (semi-synthetic; NOT a final paper claim)\n",
+         "Scope: %s x %s x folds %s x worlds %s x budgets %s ; k=%s ; R=%s ; alpha=%s ; split=%s ; n_boot=%s."
+         % (sc["datasets"], sc["backbones"], sc["folds"], sc["worlds"], sc["budgets"], sc["k_grid"], sc["R"],
+            sc["world_alpha_grid"], sc["split_rng_scheme"], sc["n_boot"]),
+         "Decision rows %d ; audit rows %d ; workers %d ; failures %d.\n"
+         % (summary["n_decision_rows"], summary["n_audit_rows"], summary.get("n_workers"), summary["n_failures"]),
+         "## Stop-condition audit (all must be 0)",
+         "```", "\n".join("%-26s %d" % (k, v) for k, v in summary["stop_conditions"].items()), "```", "",
+         "## Per-budget action counts (deployable B0/B1/B2/B3 ; diagnostic B4)"]
+    for b in sorted(summary["per_budget"]):
+        L.append("- %-26s %s" % (b, summary["per_budget"][b]))
+    L += ["", "## B2 k-curve (per world): accept rate, true/false accept, held-out audit ΔbAcc, specificity",
+          "| world | k | n | accept_rate | true_acc | false_acc | mean_audit_ΔbAcc | specific | non_specific |",
+          "|---|---|---|---|---|---|---|---|---|"]
+    for s in summary["b2_k_curve"]:
+        L.append("| %s | %s | %d | %.2f | %d | %d | %s | %d | %d |"
+                 % (s["world"][:26], s["k"], s["n"], s["accept_rate"], s["true_accept"], s["false_accept"],
+                    ("%.3f" % s["mean_audit_dbacc_accepted"]) if s["mean_audit_dbacc_accepted"] is not None else "n/a",
+                    s["specific"], s["non_specific"]))
+    L += ["", "## B3 sequential calibration",
+          "- actions: %s" % summary["b3_actions"],
+          "- mean label budget used before decision (k_used): %s" % summary["b3_label_budget_mean"],
+          "", "## B4 oracle diagnostic (upper bound; excluded from deployable accept counts)",
+          "- oracle audit ΔbAcc mean over %d cells: %s"
+          % (summary["b4_oracle_audit_n"], summary["b4_oracle_audit_mean"]),
+          "", "Budget curve: `%s`" % fig,
+          "", "## Reading guide",
+          "- B0 source-only expected to abstain/reject on source-invisible benefit; B1 must NEVER accept (stop-cond).",
+          "- B2/B3 accept is the target-information signal: SAFE only if held-out audit ΔbAcc > +0.01 AND same-k "
+          "random does not reproduce it (accepted_specific). accepted_non_specific / false_accept are disclosed.",
+          "- Many abstains at small k are EXPECTED (weak calibration LCB), not a failure.\n"]
+    p = "%s/target_info_tier1_smoke_report.md" % out
+    open(p, "w").write("\n".join(L) + "\n")
+    return p
+
+
 def main():
     plan = json.load(open("%s/target_info_tier1_plan.json" % OUT))["plan"]
     schema = json.load(open("%s/target_info_tier1_schema.json" % OUT))
