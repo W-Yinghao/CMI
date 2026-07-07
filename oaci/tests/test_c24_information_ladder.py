@@ -153,3 +153,40 @@ def test_availability_probe_is_readonly_and_reports_method_final_only(tmp_path=N
     av = artifact_loader.target_unlabeled_availability()
     assert av["r3r4_status"] in (schema.STATUS_REQUIRES_REINFERENCE, schema.STATUS_OK)
     assert "method-final" in av["method_final_note"].lower()
+
+
+def test_reinfer_structural_gates_pass():
+    from oaci.information_ladder import target_reinfer
+    st = target_reinfer.structural_gates()
+    assert st["G5_features_label_free"] and st["G6_no_target_endpoint_metric_in_features"]
+    assert st["G7_no_selected_checkpoint_artifact"] and st["G8_labels_only_for_validation_not_features"]
+
+
+def test_reinfer_sidecar_is_label_free(tmp_path):
+    import json
+    from oaci.information_ladder import target_reinfer
+    geom = target_unlabeled_features.label_free_confidence_geometry(np.random.RandomState(0).randn(50, 4))
+    res = [{"per_candidate": [{"seed": 0, "target": 4, "level": 0, "model_hash": "abc",
+                              "epoch": 10, "target_unlabeled": geom}]}]
+    out = str(tmp_path / "sidecar.json")
+    n = target_reinfer.write_sidecar(res, out)
+    d = json.load(open(out))
+    assert n == 1 and d["config_hash"] == schema.LOCKED_C19_CONFIG_HASH
+    # structurally impossible for R3/R4 to touch labels: no y / label / logits / endpoint keys anywhere
+    blob = json.dumps(d).lower()
+    for forbidden in ('"y"', '"label"', 'logits', 'bacc', 'worst', 'target_nll'):
+        assert forbidden not in blob
+
+
+def test_reinfer_merge_fold_partials(tmp_path):
+    import json
+    from oaci.information_ladder import target_reinfer
+    fold_dir = tmp_path / "folds"; fold_dir.mkdir()
+    geom = target_unlabeled_features.label_free_confidence_geometry(np.random.RandomState(1).randn(40, 4))
+    for s, t in [(0, 4), (1, 7)]:
+        json.dump({"per_candidate": [{"seed": s, "target": t, "level": 0, "model_hash": f"h{s}{t}",
+                                     "target_unlabeled": geom}]},
+                  open(fold_dir / f"seed-{s}-target-{t:03d}.json", "w"))
+    out = str(tmp_path / "merged.json")
+    n = target_reinfer.merge_fold_partials(str(fold_dir), out)
+    assert n == 2 and len(json.load(open(out))["per_candidate"]) == 2
