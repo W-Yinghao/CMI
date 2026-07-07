@@ -1,0 +1,47 @@
+{
+ "scope": "B8.3 label-balanced case-control audit contract -- manifest",
+ "status": "development-only | NOT confirmatory | NOT validation (Lee2019 emulator) | NO tag",
+ "engine": {
+  "reused_b8_1": "build_b8_1_cohort / check_contract_b8_1 / resample_C_exact_b8_1 (byte-identical to committed B8.1)",
+  "new_code": "audit_select + b8_3_certify",
+  "module": "realeeg_b8_3.py",
+  "module_sha256_16": "fa59a34134d4e645",
+  "protocol_commit": "d99ab79 (pre-run)"
+ },
+ "replication": {
+  "seed_blocks": 6,
+  "bases": [
+   620000000,
+   640000000,
+   660000000,
+   680000000,
+   700000000,
+   720000000
+  ],
+  "per_block": 50,
+  "aggregate": 300,
+  "conditions": 12,
+  "total": 3600,
+  "range": [
+   620000000,
+   731000049
+  ],
+  "disjointness": "0 intersection with all prior CSC seeds"
+ },
+ "decision": "B8.1 both-gate (contract-first; mean-T-alone reported + PRIMARY screen but NOT the decision gate)",
+ "verdict": "INSUFFICIENT (pre-registered): label-balanced sampling HALVES the prior-collider mean-T residual (46->28, 49->22) but does NOT control it to <=7/300 (28/300, 22/300); mechanism = selection-intensity asymmetry (-390 confirmed) + within-Y C-Z (design-asserted); POS_boundary 19<20 (power); violations refuse. -> B9 randomized-acquisition / estimand-narrowing, NOT gate-tuning",
+ "files": [
+  "b8_stage3_protocol.json (pre-registered)",
+  "b8_stage3_manifest.json",
+  "b8_stage3_rows.jsonl (3600)",
+  "b8_stage3_tables.json (main+screen+verdict+result_redteam)",
+  "b8_stage3_selector_tables.json (incl intensity-asymmetry)",
+  "b8_stage3_null_tables.json",
+  "b8_stage3_violation_tables.json",
+  "b8_stage3_redteam_checks.json (design wrznv3lin + result w1urtx7hm)",
+  "shards/ (72 raw)",
+  "scripts/",
+  "SHA256SUMS",
+  "README.md"
+ ]
+}

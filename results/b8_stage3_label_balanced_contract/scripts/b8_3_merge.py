@@ -141,10 +141,22 @@ def main():
                    f"balanced audit population), NOT natural-prevalence certification. Emulator/dev-only, single 6-block replication.")
     elif (not prior_both) or (not mixed_both):
         who = []
-        if not prior_both: who.append(f"prior_only meanT_alone {prA['meanT_alone_alert']}/300 / B8_ALERT {prA['B8_ALERT']}/300")
-        if not mixed_both: who.append(f"cov_plus_prior meanT_alone {cpA['meanT_alone_alert']}/300 / B8_ALERT {cpA['B8_ALERT']}/300")
-        verdict = ("B8.3 INSUFFICIENT: label-balanced audit sampling did NOT control the prior at the mean-T level -> " + "; ".join(who) +
-                   ". Do NOT gate-tune. NEXT (reviewer) = B9 genuinely randomized audit data OR estimand narrowing (declare prior-bearing worlds out of target). Emulator/dev-only.")
+        if not prior_both: who.append(f"prior_only meanT_alone {prA['meanT_alone_alert']}/300")
+        if not mixed_both: who.append(f"cov_plus_prior meanT_alone {cpA['meanT_alone_alert']}/300")
+        posnote = "" if posb >= 20 else f" POS_boundary also missed the >=20 strong bar ({posb}/300, met >0 min) -- POWER (smaller balanced sample, sel-intensity ~-800) not absorption (mean-T {main_t['CONTRACT_POS_boundary']['meanT_alone_alert']}/300 shows the boundary signal intact; studentized gate is the bottleneck);"
+        verdict = ("B8.3 INSUFFICIENT (result-red-team w1urtx7hm PASS/MINOR): label-balanced case-control sampling HALVES the "
+                   f"prior-collider mean-T residual (B8.2->B8.3: prior_only 46->{prA['meanT_alone_alert']}/300 Fisher p=0.034; "
+                   f"cov_plus_prior 49->{cpA['meanT_alone_alert']}/300 p=9e-4 -- a GENUINE ~40-55% first-order-prior removal, "
+                   "worked as designed) but does NOT control it to the pre-registered <=7/300 mean-T PRIMARY screen (" + " + ".join(who) +
+                   ", both CP95 lower bounds ~4.7-6.3% >> nominal 2.5%). Decisive failure is the MEAN-T primary screen, NOT the "
+                   f"masked both-gate (prior_only both-gate 2/300 would FALSELY pass -- exactly why mean-T is primary; do NOT read "
+                   f"2/300 as success)." + posnote + " MECHANISM: channel (a) selection-intensity asymmetry CONFIRMED in-run "
+                   f"(prior/mixed asym {sel_t['CONTRACT_NULL_prior_only']['median_selection_intensity_asymmetry']:.0f}/"
+                   f"{sel_t['CONTRACT_NULL_cov_plus_prior']['median_selection_intensity_asymmetry']:.0f} vs balanced "
+                   f"{sel_t['CONTRACT_NULL_balanced']['median_selection_intensity_asymmetry']:.0f}); channel (b) within-Y C-Z "
+                   "design-asserted (marginal AUC zeroed by balancing, not freshly re-measured). Do NOT gate-tune / p-tune / rescue. "
+                   "NEXT (reviewer) = B9 genuinely randomized audit acquisition OR estimand-narrowing (declare prior-bearing worlds "
+                   "out of the target). Violations refuse 300/300 (by construction, H3). Emulator/dev-only, single 6-block replicate.")
     else:
         verdict = "B8.3 MIXED -- inspect (violations under-refuse or POS weak despite prior control)"
     if hard_stop: print(f"\n  !!! HARD-STOP: {viol_leaks} !!!")
@@ -156,8 +168,16 @@ def main():
     out = dict(scope="B8.3 label-balanced case-control audit contract; development-only; NOT confirmatory; NOT validation (Lee2019 emulator); NO tag; reuses B8.1 engine byte-frozen + new audit selector",
                seed_bases=BASES, n_per_block=NPB, n_aggregate=NAGG, main_table=main_t, audit_selector_table=sel_t,
                null_table=null_t, violation_table=viol_t, per_seed=perseed, screen=screen, verdict=verdict,
-               vs_b8_2="B8.2 (both-gate/mean-T-alone per 300): prior_only 18/46, cov_plus_prior 13/49, POS_boundary 37; B8.2 FAILED because the mean-T residual (~15%) survived the class-balanced contract",
-               scope_limits="label-balanced AUDIT-POPULATION estimand (prior OUT of scope by the sampling contract); audit selector is Z-blind case-control; exact null RE-APPLIES the selector under each C*; violations refuse BY CONSTRUCTION (H3); emulator (Lee2019 SM16), semi-synthetic; mean-T-alone is now a PRIMARY screen (not masked)")
+               vs_b8_2="B8.2 (both-gate / mean-T-alone per 300, mean-T recomputed from B8.2 raw shards): prior_only 18/46, cov_plus_prior 13/49, POS_boundary 37. B8.3 halves the mean-T residual (46->28 Fisher p=0.034; 49->22 p=9e-4) but does NOT control it to <=7/300",
+               result_redteam=dict(workflow="w1urtx7hm",
+                                   accounting="PASS (3600 reproduced from raw, engine byte-identical to committed B8.1, module sha fa59a341 pinned pre-run, seeds 0-overlap w/ B8.2 [<=611e6], exact C x Y balance on all 1800 selection-bearing records, 13-field bit-for-bit re-run match, no fabrication)",
+                                   science="MINOR_ISSUE -- INSUFFICIENT genuine + decisive + honestly framed; refinements folded in",
+                                   honest_label="INSUFFICIENT -- the label-balanced audit contract HALVES but does NOT control the prior-collider residual (mean-T 28/300 CP95 [6.29,13.21]% & 22/300 CP95 [4.65,10.89]%, both LOWER bounds >> 2.33% primary bar; binom p=3.8e-9 & 9.1e-6). Genuine ~40-55% first-order-prior removal (Fisher p=0.034 & 9e-4) -- worked as designed, NOT inert -- but the second-order collider residual survives (channel a intensity-asymmetry -390/-388 vs +2 CONFIRMED; channel b within-Y C-Z design-asserted). Do NOT read the masked both-gate 2/300 as success (mean-T is primary for exactly this reason). POS_boundary 19/300 also missed the >=20 strong bar (power: smaller balanced sample, mean-T 93 shows signal intact, not absorption); POS+prior 30/300 met >=15. Violations refuse 300/300 (by construction). -> B9 randomized-acquisition / estimand-narrowing, NOT gate-tuning. Emulator/dev-only, single 6-block replicate.",
+                                   refinements=["lead INSUFFICIENT on the mean-T primary screen (28/22), not the marginal cov_plus_prior both-gate 10 (CP95 covers nominal)",
+                                                "credit the genuine ~40-55% mean-T reduction (partial, not inert)",
+                                                "disclose POS_boundary 19<20 miss = power (smaller balanced sample) not absorption",
+                                                "channel (a) confirmed in-run; channel (b) design-asserted, not freshly re-measured"]),
+               scope_limits="label-balanced AUDIT-POPULATION estimand (prior MAIN effect OUT of scope by the sampling contract; residual prior channels tested not assumed gone); audit selector is Z-blind case-control; exact null RE-APPLIES the selector under each C*; violations refuse BY CONSTRUCTION (H3); emulator (Lee2019 SM16), semi-synthetic, single 6-block; mean-T-alone is now a PRIMARY screen (not masked)")
     json.dump(out, open(f"{CDIR}/b8_3_tables.json", "w"), indent=1, default=str)
     print(f"\n  saved {CDIR}/b8_3_tables.json")
 

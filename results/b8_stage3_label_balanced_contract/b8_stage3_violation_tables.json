@@ -1,0 +1,58 @@
+{
+ "scope": "B8.3 label-balanced case-control audit contract; development-only; NOT confirmatory; NOT validation (Lee2019 emulator); NO tag; reuses B8.1 engine byte-frozen + new audit selector",
+ "violation_table": {
+  "VIOLATION_cov_session": {
+   "condition": "VIOLATION_cov_session",
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 300,
+    "block_confounding_auc": 300
+   },
+   "CONTRACT_INVALID": 300,
+   "B8_ALERT": 0
+  },
+  "VIOLATION_prior_shift": {
+   "condition": "VIOLATION_prior_shift",
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 300,
+    "block_confounding_auc": 300
+   },
+   "CONTRACT_INVALID": 300,
+   "B8_ALERT": 0
+  },
+  "VIOLATION_cov_plus_prior": {
+   "condition": "VIOLATION_cov_plus_prior",
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 300,
+    "block_confounding_auc": 300
+   },
+   "CONTRACT_INVALID": 300,
+   "B8_ALERT": 0
+  },
+  "VIOLATION_condition_lock": {
+   "condition": "VIOLATION_condition_lock",
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 300,
+    "condition_lock_no_within_stratum": 300,
+    "insufficient_support": 300
+   },
+   "CONTRACT_INVALID": 300,
+   "B8_ALERT": 0
+  },
+  "VIOLATION_quiet_cov_no_concept": {
+   "condition": "VIOLATION_quiet_cov_no_concept",
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 300
+   },
+   "CONTRACT_INVALID": 300,
+   "B8_ALERT": 0
+  },
+  "VIOLATION_quiet_cov_plus_concept": {
+   "condition": "VIOLATION_quiet_cov_plus_concept",
+   "invalid_reason_breakdown": {
+    "assignment_not_following_schedule": 300
+   },
+   "CONTRACT_INVALID": 300,
+   "B8_ALERT": 0
+  }
+ }
+}

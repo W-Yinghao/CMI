@@ -1,0 +1,343 @@
+{
+ "scope": "B8.3 label-balanced case-control audit contract; development-only; NOT confirmatory; NOT validation (Lee2019 emulator); NO tag; reuses B8.1 engine byte-frozen + new audit selector",
+ "null_table": {
+  "CONTRACT_NULL_balanced": {
+   "condition": "CONTRACT_NULL_balanced",
+   "median_observed_T": 0.002449434600686423,
+   "median_observed_Tz": 2.3553854109350656,
+   "median_null_mean_T": 0.0024719094388122764,
+   "median_null_sd_T": 0.0006104189287785245,
+   "median_p_meanT": 0.48258706467661694,
+   "median_C_auc": 0.49908427535195865,
+   "median_support": 1451.0
+  },
+  "CONTRACT_NULL_prior_only": {
+   "condition": "CONTRACT_NULL_prior_only",
+   "median_observed_T": 0.0024511878784734043,
+   "median_observed_Tz": 2.319772375213925,
+   "median_null_mean_T": 0.002215248422786067,
+   "median_null_sd_T": 0.0005863637962304272,
+   "median_p_meanT": 0.2810945273631841,
+   "median_C_auc": 0.4985083858930234,
+   "median_support": 1452.0
+  },
+  "CONTRACT_NULL_cov_plus_prior": {
+   "condition": "CONTRACT_NULL_cov_plus_prior",
+   "median_observed_T": 0.002541073841187852,
+   "median_observed_Tz": 2.326353768232667,
+   "median_null_mean_T": 0.0022311234104726435,
+   "median_null_sd_T": 0.0005957258406427883,
+   "median_p_meanT": 0.2835820895522388,
+   "median_C_auc": 0.4971559575327428,
+   "median_support": 1451.0
+  },
+  "CONTRACT_random_label": {
+   "condition": "CONTRACT_random_label",
+   "median_observed_T": -9.192982898405717e-05,
+   "median_observed_Tz": -1.0011878464317467,
+   "median_null_mean_T": -0.00010015467833822351,
+   "median_null_sd_T": 0.00014214504416658487,
+   "median_p_meanT": 0.4975124378109453,
+   "median_C_auc": 0.4985254956004648,
+   "median_support": 1452.0
+  },
+  "CONTRACT_POS_boundary": {
+   "condition": "CONTRACT_POS_boundary",
+   "median_observed_T": 0.0019436509428292041,
+   "median_observed_Tz": 1.168604588952041,
+   "median_null_mean_T": 0.0012579492945376525,
+   "median_null_sd_T": 0.000571488262454752,
+   "median_p_meanT": 0.527363184079602,
+   "median_C_auc": 0.49887449814175466,
+   "median_support": 1451.0
+  },
+  "CONTRACT_POS_boundary_plus_prior": {
+   "condition": "CONTRACT_POS_boundary_plus_prior",
+   "median_observed_T": 0.0019364991122963913,
+   "median_observed_Tz": 1.2069075994500893,
+   "median_null_mean_T": 0.0010993596494692217,
+   "median_null_sd_T": 0.0005620588861418928,
+   "median_p_meanT": 0.19402985074626866,
+   "median_C_auc": 0.4983888123077547,
+   "median_support": 1452.0
+  },
+  "VIOLATION_cov_session": {
+   "condition": "VIOLATION_cov_session",
+   "median_observed_T": NaN,
+   "median_observed_Tz": NaN,
+   "median_null_mean_T": NaN,
+   "median_null_sd_T": NaN,
+   "median_p_meanT": 1.0,
+   "median_C_auc": 0.7860344569793579,
+   "median_support": 569.0
+  },
+  "VIOLATION_prior_shift": {
+   "condition": "VIOLATION_prior_shift",
+   "median_observed_T": NaN,
+   "median_observed_Tz": NaN,
+   "median_null_mean_T": NaN,
+   "median_null_sd_T": NaN,
+   "median_p_meanT": 1.0,
+   "median_C_auc": 0.9118132222222222,
+   "median_support": 1009.0
+  },
+  "VIOLATION_cov_plus_prior": {
+   "condition": "VIOLATION_cov_plus_prior",
+   "median_observed_T": NaN,
+   "median_observed_Tz": NaN,
+   "median_null_mean_T": NaN,
+   "median_null_sd_T": NaN,
+   "median_p_meanT": 1.0,
+   "median_C_auc": 0.7884942170773972,
+   "median_support": 571.0
+  },
+  "VIOLATION_condition_lock": {
+   "condition": "VIOLATION_condition_lock",
+   "median_observed_T": NaN,
+   "median_observed_Tz": NaN,
+   "median_null_mean_T": NaN,
+   "median_null_sd_T": NaN,
+   "median_p_meanT": 1.0,
+   "median_C_auc": 0.458285769979341,
+   "median_support": 0.0
+  },
+  "VIOLATION_quiet_cov_no_concept": {
+   "condition": "VIOLATION_quiet_cov_no_concept",
+   "median_observed_T": NaN,
+   "median_observed_Tz": NaN,
+   "median_null_mean_T": NaN,
+   "median_null_sd_T": NaN,
+   "median_p_meanT": 1.0,
+   "median_C_auc": 0.5343711690815406,
+   "median_support": 1362.0
+  },
+  "VIOLATION_quiet_cov_plus_concept": {
+   "condition": "VIOLATION_quiet_cov_plus_concept",
+   "median_observed_T": NaN,
+   "median_observed_Tz": NaN,
+   "median_null_mean_T": NaN,
+   "median_null_sd_T": NaN,
+   "median_p_meanT": 1.0,
+   "median_C_auc": 0.5369024857038025,
+   "median_support": 1363.0
+  }
+ },
+ "per_seed": {
+  "CONTRACT_NULL_balanced": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    2
+   ],
+   "meanT_per_block": [
+    0,
+    0,
+    0,
+    2,
+    2,
+    2
+   ]
+  },
+  "CONTRACT_NULL_prior_only": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    1,
+    0,
+    1
+   ],
+   "meanT_per_block": [
+    6,
+    5,
+    3,
+    3,
+    6,
+    5
+   ]
+  },
+  "CONTRACT_NULL_cov_plus_prior": {
+   "alerts_per_block": [
+    2,
+    1,
+    1,
+    1,
+    2,
+    3
+   ],
+   "meanT_per_block": [
+    4,
+    5,
+    2,
+    4,
+    4,
+    3
+   ]
+  },
+  "CONTRACT_random_label": {
+   "alerts_per_block": [
+    0,
+    1,
+    2,
+    0,
+    1,
+    0
+   ],
+   "meanT_per_block": [
+    0,
+    2,
+    2,
+    0,
+    1,
+    0
+   ]
+  },
+  "CONTRACT_POS_boundary": {
+   "alerts_per_block": [
+    5,
+    1,
+    2,
+    3,
+    3,
+    5
+   ],
+   "meanT_per_block": [
+    20,
+    12,
+    15,
+    14,
+    15,
+    17
+   ]
+  },
+  "CONTRACT_POS_boundary_plus_prior": {
+   "alerts_per_block": [
+    2,
+    2,
+    8,
+    2,
+    7,
+    9
+   ],
+   "meanT_per_block": [
+    14,
+    21,
+    15,
+    17,
+    17,
+    21
+   ]
+  },
+  "VIOLATION_cov_session": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "meanT_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "VIOLATION_prior_shift": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "meanT_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "VIOLATION_cov_plus_prior": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "meanT_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "VIOLATION_condition_lock": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "meanT_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "VIOLATION_quiet_cov_no_concept": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "meanT_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  },
+  "VIOLATION_quiet_cov_plus_concept": {
+   "alerts_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ],
+   "meanT_per_block": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+   ]
+  }
+ }
+}

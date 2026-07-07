@@ -1,0 +1,12 @@
+{
+ "base": 680000000,
+ "world": "CONTRACT_NULL_cov_plus_prior",
+ "start": 0,
+ "n": 50,
+ "n_records": 50,
+ "n_worker_errors": 0,
+ "host": "nodecpu01",
+ "slurm": "887417",
+ "module_sha256": "fa59a34134d4e645",
+ "diagnostic_only": true
+}
