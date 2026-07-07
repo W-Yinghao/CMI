@@ -1,0 +1,31 @@
+# PREFLIGHT-ONLY manifest (PM-approved, short-lived provenance). Authorizes ONLY --preflight-real-splits
+# (split/hash/unavailable-k). It does NOT and CANNOT authorize --execute: authorize_execution requires
+# run_status=="approved" (this is "preflight_approved") + runs/experiments_allowed true (both false here) + a valid
+# enable token (none). The DEFAULT run manifest (target_info_tier1_run_manifest.yaml) stays preflight_only/locked.
+
+run_status: preflight_approved
+preflight_allowed: true
+runs_allowed: false
+experiments_allowed: false
+
+approved_scope_hash: e96f237dfcd6eeeb
+approved_driver_hash: 3adc5d835dc3a93f
+approved_git_commit: 9abe15ecfe039aea43f4efe0478528b111dfc0fa
+
+enable_token_required: false
+approved_enable_token_sha256: null
+
+allowed_command: preflight_real_splits_only
+
+provenance:
+  approved_by: PM
+  purpose: split_hash_unavailable_k_only
+  forbidden_outputs:
+    - bacc
+    - delta
+    - nll
+    - accept
+    - reject
+    - abstain
+    - gate_action
+    - performance

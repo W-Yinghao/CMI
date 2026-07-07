@@ -75,6 +75,56 @@ def write_report(cfg, plan, schema, token, out=OUT, expanded=None):
     return p
 
 
+def write_preflight_report(manifest_out, split_hash_rows, unavail_rows, out):
+    """Render the real-split preflight report. Split-only: trial/class counts, k-availability, disjointness, hash
+    summaries. Emits NO ΔbAcc / NLL / accept-reject / gate action / performance metric."""
+    from collections import Counter
+    all_disjoint = all(r["disjoint"] for r in split_hash_rows)
+    per_fold = {}
+    for r in split_hash_rows:
+        per_fold.setdefault((r["dataset"], r["fold"], r["target_subject"]),
+                            (r["n_calibration"], r["n_audit"]))
+    L = ["# Fork 1 Tier-1 --- REAL split preflight (split/hash/unavailable-k ONLY; NO metrics)\n",
+         "Purpose: %s. No metrics emitted: %s.\n" % (manifest_out["purpose"], manifest_out["no_metrics_emitted"]),
+         "## Datasets / folds checked",
+         "- datasets: %s ; backbones: %s ; seed: %s ; folds: %s"
+         % (", ".join(manifest_out["datasets"]), ", ".join(manifest_out["backbones"]),
+            manifest_out["seed"], manifest_out["folds"]),
+         "- dumps checked: %d ; R = %d ; k-grid = %s\n" % (manifest_out["n_dumps"], manifest_out["R"],
+                                                           manifest_out["k_grid"]),
+         "## Target trial counts per class (per held-out target subject)"]
+    for r in [x for x in manifest_out["rows"] if x["split_id"] == 1 and x["k"] == manifest_out["k_grid"][0]]:
+        L.append("- %s fold %d (subj %d) class %d: n_target_total = %d"
+                 % (r["dataset"], r["fold"], r["target_subject"], r["class"], r["n_target_total"]))
+    L += ["", "## Calibration / audit split summary",
+          "- calibration+audit index disjoint on ALL %d splits: %s" % (len(split_hash_rows), all_disjoint),
+          "- total calibration∩audit overlap across all splits: %d" % manifest_out["calibration_audit_overlap_total"],
+          "- n(calibration,audit) per (dataset,fold): %s"
+          % {("%s/f%d/s%d" % (k[0], k[1], k[2])): v for k, v in sorted(per_fold.items())},
+          "", "## k availability",
+          "- schema rows (dataset x fold x split x k x class): %d" % manifest_out["n_schema_rows"],
+          "- UNAVAILABLE (dataset,fold,split,k) entries: %d" % manifest_out["n_unavailable_k"]]
+    if unavail_rows:
+        byk = Counter((u["dataset"], u["k"]) for u in unavail_rows)
+        L.append("- unavailable-by (dataset,k): %s" % {("%s,k%d" % kk): n for kk, n in sorted(byk.items())})
+    else:
+        L.append("- all requested k available on every split (no UNAVAILABLE entries)")
+    L += ["", "## Hash summaries",
+          "- distinct calibration_idx_hash: %d ; distinct audit_idx_hash: %d"
+          % (len({r["calibration_idx_hash"] for r in split_hash_rows}),
+             len({r["audit_idx_hash"] for r in split_hash_rows})),
+          "- distinct calibration_label_hash: %d ; distinct audit_label_hash: %d"
+          % (len({r["calibration_label_hash"] for r in split_hash_rows}),
+             len({r["audit_label_hash"] for r in split_hash_rows})),
+          "", "## Confirmation",
+          "- NO balanced-accuracy, NO calibration/audit benefit, NO likelihood, NO gate action, NO "
+          "accept/reject/abstain, NO source/target performance was computed. Split, count, availability, and hash "
+          "provenance only.\n"]
+    p = "%s/preflight_report.md" % out
+    open(p, "w").write("\n".join(L) + "\n")
+    return p
+
+
 def main():
     plan = json.load(open("%s/target_info_tier1_plan.json" % OUT))["plan"]
     schema = json.load(open("%s/target_info_tier1_schema.json" % OUT))

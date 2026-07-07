@@ -304,12 +304,89 @@ def _preflight_from_labels(y, k_grid, R, seed):
     return {"n_splits": len(splits), "k_grid": list(k_grid), "rows": rows, "unavailable_k": unavailable}
 
 
-def preflight_real_splits(cfg, manifest):
-    """CLI preflight: load real frozen-dump target labels ONLY, build splits/hashes/unavailable-k, write manifest +
-    tables. Gated behind manifest.preflight_allowed. Fits NO eraser, computes NO ΔbAcc/gate action/metric. The
-    real-dump loading branch is UNEXERCISED until the PM enables preflight (mirrors execute_real)."""
-    raise RuntimeError("preflight_real_splits real-dump loading is deferred to the separate PM go "
-                       "(enable via manifest.preflight_allowed=true); pure logic is in _preflight_from_labels")
+FROZEN_ROOT = "tos_cmi/results/tos_cmi_eeg_frozen"
+
+
+def preflight_real_splits(cfg, manifest, results_root=FROZEN_ROOT):
+    """CLI preflight: load real frozen-dump TARGET LABELS ONLY, build stratified calibration/audit splits,
+    per-class counts, k-availability, index/label hashes, disjointness. Writes split-only tables + report. Fits NO
+    eraser, computes NO ΔbAcc / NLL / gate action / accept-reject / any performance metric. Splits are computed on
+    the real target task labels and are WORLD-INDEPENDENT (both worlds share the same target labels; worlds differ
+    only in injected FEATURES, which preflight never reads), so they are reported once per (dataset, fold)."""
+    import glob
+    import re
+    import csv
+    # hard guards -- preflight may NEVER run an experiment, even by manifest tampering
+    if manifest.get("runs_allowed") or manifest.get("experiments_allowed"):
+        return 1, "PREFLIGHT_REFUSED: manifest runs_allowed/experiments_allowed must be false"
+    if manifest.get("allowed_command") != "preflight_real_splits_only":
+        return 1, "PREFLIGHT_REFUSED: manifest.allowed_command != preflight_real_splits_only"
+    if manifest.get("approved_scope_hash") not in (None, "ANY") and manifest["approved_scope_hash"] != scope_hash(cfg):
+        return 1, "PREFLIGHT_REFUSED: scope_hash mismatch"
+    drv = hashlib.sha256(open(CFG, "rb").read()).hexdigest()[:16]
+    if manifest.get("approved_driver_hash") not in (None, "ANY") and manifest["approved_driver_hash"] != drv:
+        return 1, "PREFLIGHT_REFUSED: driver_hash mismatch"
+
+    sc = cfg["tier1_scope"]
+    folds, R, seed = _folds(sc["folds"]), sc["repeats_R"], sc["seeds"][0]
+    k_grid = cfg["budgets"]["B2_k_labels_per_class"]["k_grid"]
+    rows, split_hash_rows, unavail_rows = [], [], []
+    overlap_total, n_dumps = 0, 0
+    for ds in sc["datasets"]:
+        for bb in sc["backbones"]:
+            dd = "%s/%s_%s_LOSO" % (results_root, ds, bb)
+            ps = sorted(glob.glob("%s/sub*_erm_lam0_seed%d.npz" % (dd, seed)),
+                        key=lambda p: int(re.search(r"sub(\d+)_", p.split("/")[-1]).group(1)))[:len(folds)]
+            for fold, p in zip(folds, ps):
+                sub = int(re.search(r"sub(\d+)_", p.split("/")[-1]).group(1))
+                yt = np.load(p, allow_pickle=True)["y_target"].astype(int)   # TARGET LABELS ONLY (no features)
+                n_dumps += 1
+                splits = make_calibration_audit_splits(yt, R=R, seed=seed)
+                target_leak_structural_check(splits, {})                    # disjointness gate (raises on overlap)
+                classes = sorted(set(yt.tolist()))
+                for sid, (cal, aud) in enumerate(splits, 1):
+                    overlap = len(set(cal.tolist()) & set(aud.tolist())); overlap_total += overlap
+                    cal_ih, aud_ih = hash_array(cal), hash_array(aud)
+                    cal_lh, aud_lh = hash_array(yt[cal]), hash_array(yt[aud])
+                    split_hash_rows.append({"dataset": ds, "backbone": bb, "seed": seed, "fold": fold,
+                                            "target_subject": sub, "split_id": sid, "n_calibration": int(len(cal)),
+                                            "n_audit": int(len(aud)), "calibration_idx_hash": cal_ih,
+                                            "audit_idx_hash": aud_ih, "calibration_label_hash": cal_lh,
+                                            "audit_label_hash": aud_lh, "disjoint": overlap == 0})
+                    for k in k_grid:
+                        for c in classes:
+                            n_tot = int((yt == c).sum()); n_cal = int((yt[cal] == c).sum())
+                            n_aud = int((yt[aud] == c).sum()); avail = n_cal >= k
+                            rows.append({"dataset": ds, "backbone": bb, "seed": seed, "fold": fold,
+                                         "target_subject": sub, "split_id": sid, "k": int(k), "class": int(c),
+                                         "n_target_total": n_tot, "n_calibration": n_cal, "n_audit": n_aud,
+                                         "k_available": bool(avail),
+                                         "unavailable_reason": "" if avail else "insufficient_calibration_class_%d" % c,
+                                         "calibration_idx_hash": cal_ih, "audit_idx_hash": aud_ih,
+                                         "calibration_label_hash": cal_lh, "audit_label_hash": aud_lh})
+                        mincal = int(min((yt[cal] == c).sum() for c in classes))
+                        if mincal < k:
+                            unavail_rows.append({"dataset": ds, "fold": fold, "split_id": sid, "k": int(k),
+                                                 "min_calibration_per_class": mincal})
+    os.makedirs(PREFLIGHT_OUT, exist_ok=True)
+    with open("%s/split_hashes.csv" % PREFLIGHT_OUT, "w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=list(split_hash_rows[0].keys())); w.writeheader(); w.writerows(split_hash_rows)
+    with open("%s/unavailable_k_table.csv" % PREFLIGHT_OUT, "w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=["dataset", "fold", "split_id", "k", "min_calibration_per_class"])
+        w.writeheader(); w.writerows(unavail_rows)
+    manifest_out = {"purpose": "split_hash_unavailable_k_only", "no_metrics_emitted": True,
+                    "datasets": sc["datasets"], "backbones": sc["backbones"], "seed": seed, "folds": folds,
+                    "n_dumps": n_dumps, "R": R, "k_grid": k_grid, "n_split_rows": len(split_hash_rows),
+                    "n_schema_rows": len(rows), "n_unavailable_k": len(unavail_rows),
+                    "calibration_audit_overlap_total": overlap_total, "rows": rows}
+    json.dump(manifest_out, open("%s/real_split_preflight_manifest.json" % PREFLIGHT_OUT, "w"), indent=1)
+    from tos_cmi.eeg.report_target_info_tier1 import write_preflight_report
+    rpt = write_preflight_report(manifest_out, split_hash_rows, unavail_rows, PREFLIGHT_OUT)
+    print("preflight: %d dumps, %d splits, overlap=%d, unavailable-k=%d ; report %s"
+          % (n_dumps, len(split_hash_rows), overlap_total, len(unavail_rows), rpt))
+    print("TARGET_INFO_TIER1_PREFLIGHT_DONE")
+    return 0, "TARGET_INFO_TIER1_PREFLIGHT_DONE (%d dumps, %d splits, overlap=%d)" % (
+        n_dumps, len(split_hash_rows), overlap_total)
 
 
 # ============================ locked real-EEG executor (never reached at this stage) ============================
