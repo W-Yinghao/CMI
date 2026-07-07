@@ -115,27 +115,40 @@ def main(argv=None):
     ap.add_argument("--project", default="Project A")
     ap.add_argument("--step", default="Step 8")
     ap.add_argument("--dataset", default="BNCI2014_001")
+    ap.add_argument("--expected-targets", type=int, nargs="*", default=None)
+    ap.add_argument("--expected-seeds", type=int, nargs="*", default=None)
+    ap.add_argument("--allow-missing", action="store_true",
+                    help="do not fail validation when expected grid cells are missing")
     args = ap.parse_args(argv)
 
     validations = validate_all(args.root)
-    summary = build_summary(args.root, project=args.project, step=args.step, dataset=args.dataset)
-    summary["validation"] = {"all_valid": all(v["valid"] for v in validations.values()) if
-                             validations else False, "per_run": validations}
+    summary = build_summary(args.root, project=args.project, step=args.step, dataset=args.dataset,
+                            expected_targets=args.expected_targets, expected_seeds=args.expected_seeds)
+    a = summary["aggregate"]
+    missing = a.get("missing_cells", [])
+    runs_valid = all(v["valid"] for v in validations.values()) if validations else False
+    grid_complete = bool(args.allow_missing or not missing)
+    summary["validation"] = {"all_valid": runs_valid and grid_complete,
+                             "runs_valid": runs_valid, "grid_complete": grid_complete,
+                             "missing_cells": missing, "per_run": validations}
 
     if args.out_json:
         Path(args.out_json).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.out_json).write_text(json.dumps(summary, indent=2))
+        Path(args.out_json).write_bytes((json.dumps(summary, indent=2) + "\n").encode("utf-8"))
     if args.out_md:
         Path(args.out_md).parent.mkdir(parents=True, exist_ok=True)
         write_summary_md(summary, args.out_md)
 
-    a, v = summary["aggregate"], summary["validation"]
-    print(f"runs={a['n_runs']} ok={a['n_ok']} skipped={a['n_skipped']} "
-          f"all_valid={v['all_valid']} violations_empty={a['all_forbidden_violations_empty']} "
+    v = summary["validation"]
+    print(f"runs={a['n_runs']} ok={a['n_ok']} skipped={a['n_skipped']} all_valid={v['all_valid']} "
+          f"runs_valid={runs_valid} grid_complete={grid_complete} missing_cells={len(missing)} "
+          f"violations_empty={a['all_forbidden_violations_empty']} "
           f"target_metrics_oracle_only={a['all_target_metrics_oracle_only']}")
     for name, res in validations.items():
         if not res["valid"]:
             print(f"  INVALID {name}: {res['issues']}")
+    if missing and not args.allow_missing:
+        print(f"  MISSING CELLS: {missing}")
     return 0 if v["all_valid"] else 1
 
 

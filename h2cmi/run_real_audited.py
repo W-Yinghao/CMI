@@ -110,7 +110,7 @@ def _run_pilot(X, y, dag, domains, subj_col, target_subject_idx, cfg, n_classes,
     pi_star = reference_prior(ys, n_classes, cfg.align.reference_prior)
     res = run_three_settings(model, Xt, yt, tgt_unit, cfg, pi_star, X_src=Xs, y_src=ys,
                              gate_pseudo_levels=src_unit, device=cfg.train.device)
-    Zs = model.embed(Xs)
+    Zs = model.embed(Xs, device=cfg.train.device)            # match model's device (train_h2 left it on cuda)
     leak = crossfit_conditional_leakage(Zs, ys, src_domains, dag, n_classes,
                                         n_perm=n_perm, seed=cfg.train.seed)
     raw = {"strict_dg": _json_safe(res["strict_dg"]),
@@ -121,6 +121,13 @@ def _run_pilot(X, y, dag, domains, subj_col, target_subject_idx, cfg, n_classes,
            "train_history": _json_safe(hist),
            "n_source_trials": int(len(src_idx)), "n_target_trials": int(len(tgt_idx))}
     return res, leak, raw
+
+
+def _maybe_set_threads(n):
+    """Set torch intra-op threads for CPU multi-core runs (SLURM CPU jobs pass --threads)."""
+    if n and n > 0:
+        import torch
+        torch.set_num_threads(int(n))
 
 
 def _write_skip(out_dir, reason, args, environment):
@@ -184,8 +191,11 @@ def main(argv=None):
     ap.add_argument("--fast", action="store_true")
     ap.add_argument("--device", default="cpu")
     ap.add_argument("--seed", type=int, default=0)
+    ap.add_argument("--threads", type=int, default=0,
+                    help="torch intra-op threads for CPU multi-core (0 = leave torch default)")
     ap.add_argument("--outdir", default="notes/project_A_observability/results/audited_pilot")
     args = ap.parse_args(argv)
+    _maybe_set_threads(args.threads)
 
     out_dir = Path(args.outdir)
     out_dir.mkdir(parents=True, exist_ok=True)

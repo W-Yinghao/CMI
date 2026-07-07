@@ -13,6 +13,8 @@ tracked summary digest. Not a SOTA run — an audited claim-boundary validation.
 from __future__ import annotations
 
 import argparse
+import json
+import shutil
 import sys
 from pathlib import Path
 
@@ -33,10 +35,22 @@ def main(argv=None):
     ap.add_argument("--fast", action="store_true")
     ap.add_argument("--align-factor", default=None)
     ap.add_argument("--device", default="cpu")
+    ap.add_argument("--threads", type=int, default=0,
+                    help="torch intra-op threads for CPU multi-core (0 = leave torch default)")
     ap.add_argument("--root-outdir", required=True)
+    ap.add_argument("--resume", action="store_true",
+                    help="skip cells whose run dir already has an ok/skipped manifest")
+    ap.add_argument("--overwrite", action="store_true", help="delete an existing run dir first")
+    ap.add_argument("--shard-index", type=int, default=0)
+    ap.add_argument("--num-shards", type=int, default=1)
     args = ap.parse_args(argv)
+    if args.resume and args.overwrite:
+        ap.error("--resume and --overwrite are mutually exclusive")
+    if args.num_shards < 1 or not (0 <= args.shard_index < args.num_shards):
+        ap.error("require num_shards >= 1 and 0 <= shard_index < num_shards")
 
     from h2cmi import run_real_audited as R
+    R._maybe_set_threads(args.threads)                         # CPU multi-core (SLURM passes --threads)
 
     root = Path(args.root_outdir)
     root.mkdir(parents=True, exist_ok=True)
@@ -62,10 +76,24 @@ def main(argv=None):
         factor_levels = {f.name: int(f.n_levels) for f in dag.factors}
         align_degenerate = factor_levels.get(align_factor, 0) <= 1
 
-    n_ok = n_skip = 0
+    cells = [(t, s) for t in args.target_subjects for s in args.seeds]
+    n_ok = n_skip = n_resume = 0
     for tsub in args.target_subjects:
         for seed in args.seeds:
+            if cells.index((tsub, seed)) % args.num_shards != args.shard_index:
+                continue                                    # deterministic sharding (SLURM array)
             run_dir = root / f"dataset={args.dataset}_target={tsub}_seed={seed}"
+            if args.resume and (run_dir / "run_manifest.json").exists():   # skip completed cells
+                try:
+                    prev = json.loads((run_dir / "run_manifest.json").read_text())
+                except Exception:
+                    prev = {}
+                if prev.get("status") in ("ok", "skipped"):
+                    print(f"  resume-skip target={tsub} seed={seed}")
+                    n_resume += 1
+                    continue
+            if args.overwrite and run_dir.exists():
+                shutil.rmtree(run_dir)
             run_dir.mkdir(parents=True, exist_ok=True)
             run_args = argparse.Namespace(dataset=args.dataset, subjects=args.subjects,
                                           target_subject=tsub)
@@ -107,7 +135,7 @@ def main(argv=None):
                   f"allowed={s['n_allowed']} rejected={s['n_rejected']} "
                   f"violations={len(data['forbidden_claims_violated'])}")
 
-    print(f"grid done -> {root}  (ok={n_ok} skipped={n_skip})")
+    print(f"grid done -> {root}  (ok={n_ok} skipped={n_skip} resume-skipped={n_resume})")
     return 0
 
 

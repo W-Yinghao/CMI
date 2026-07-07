@@ -174,6 +174,56 @@ def test_aggregate_reflects_prior_and_unknown_estimand():
         assert agg["all_prior_claims_compliant"] is False
 
 
+def test_digest_statistical_layer():
+    with tempfile.TemporaryDirectory() as root:
+        _write_run(root, 1, 0, _clean_report())
+        _write_run(root, 1, 1, _clean_report())
+        _write_run(root, 2, 0, _clean_report())
+        agg = build_summary(root)["aggregate"]
+        # per-target / per-seed descriptive blocks
+        assert agg["per_target"]["1"]["n_ok"] == 2 and "2" in agg["per_target"]
+        for k in ("n", "mean", "std", "min", "max"):
+            assert k in agg["per_target"]["1"]["strict_dg_bacc"]
+        assert "0" in agg["per_seed"]
+        # overall harm-rate + gain sign counts (offline gain = -0.01 in every clean run)
+        o = agg["overall"]
+        assert o["offline_tta_harm_rate"] == 1.0
+        assert (o["n_offline_tta_gain_negative"] + o["n_offline_tta_gain_positive"]
+                + o["n_offline_tta_gain_zero"]) == 3
+
+
+def test_digest_missing_cells_gate():
+    from h2cmi.observability.validate_results import main as vmain
+    with tempfile.TemporaryDirectory() as root:
+        _write_run(root, 1, 0, _clean_report())     # only 1 of an expected 2x2 grid
+        agg = build_summary(root, expected_targets=[1, 2], expected_seeds=[0, 1])["aggregate"]
+        assert agg["expected_runs"] == 4
+        missing = {(m["target"], m["seed"]) for m in agg["missing_cells"]}
+        assert ("1", "0") not in missing and ("2", "1") in missing and len(missing) == 3
+        # an incomplete grid fails validation (rc=1) unless --allow-missing
+        assert vmain(["--root", root, "--expected-targets", "1", "2",
+                      "--expected-seeds", "0", "1"]) == 1
+        assert vmain(["--root", root, "--expected-targets", "1", "2",
+                      "--expected-seeds", "0", "1", "--allow-missing"]) == 0
+
+
+def test_digest_write_paths_produce_lf_files():
+    # exercises write_summary_md + validate_results file writes (py3.9-safe LF, valid JSON)
+    from h2cmi.observability.validate_results import main as vmain
+    with tempfile.TemporaryDirectory() as root:
+        _write_run(root, 1, 0, _clean_report())
+        _write_run(root, 1, 1, _clean_report())
+        oj, om = Path(root) / "summary.json", Path(root) / "summary.md"
+        rc = vmain(["--root", root, "--expected-targets", "1", "--expected-seeds", "0", "1",
+                    "--out-json", str(oj), "--out-md", str(om)])
+        assert rc == 0
+        jb, mb = oj.read_bytes(), om.read_bytes()
+        assert b"\r" not in jb and b"\r" not in mb          # LF only
+        data = json.loads(jb)                                # valid JSON
+        assert data["validation"]["all_valid"] is True and "per_target" in data["aggregate"]
+        assert mb.count(b"\n") >= 5                           # MD is multi-line (not a giant line)
+
+
 ALL_TESTS = [
     test_result_validator_accepts_clean_oracle_metrics,
     test_result_validator_rejects_identifiable_r0_target_metric,
@@ -185,6 +235,9 @@ ALL_TESTS = [
     test_validator_rejects_rejected_but_identifiable,
     test_validator_rejects_rejected_prior_conclusion_true,
     test_aggregate_reflects_prior_and_unknown_estimand,
+    test_digest_statistical_layer,
+    test_digest_missing_cells_gate,
+    test_digest_write_paths_produce_lf_files,
 ]
 
 

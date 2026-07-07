@@ -165,9 +165,33 @@ Mechanics: `h2cmi/run_real_audited_grid.py` (loads once, runs each `target×seed
 `scripts/project_A_bnci2014_001_minigrid.slurm`. Tests:
 `h2cmi/tests/test_observability_result_index.py`.
 
+## 9. Expanded audited BNCI grid
+
+Step 9 expands Step 8 to a **full single-dataset grid** (still **not** a SOTA comparison — the
+purpose is stability + claim-boundary compliance at scale):
+- **BNCI2014_001** subjects **1–9**; target subjects **1–9**; seeds **0–2**; epochs **50**;
+  align factor **subject** → **27 cells**.
+
+Mechanics: `h2cmi/run_real_audited_grid.py` gains `--resume` / `--overwrite` /
+`--shard-index` / `--num-shards` (deterministic sharding for a SLURM array, idempotent re-runs);
+`validate_results.py` gains `--expected-targets` / `--expected-seeds` (grid-completeness:
+`missing_cells` — a cell with no directory at all is **not** a legal skip). The digest gains a
+descriptive **statistical layer** (per-target / per-seed / overall mean·std·min·max +
+`offline_tta_harm_rate = P(gain<0)`) — no inferential statistics.
+
+Batch: `scripts/project_A_bnci2014_001_expanded_array.slurm` (9-task array, one shard each) then
+`scripts/project_A_bnci2014_001_expanded_validate.slurm` (a **separate** job — array tasks never
+race to write the summary). Required tracked digest:
+`results_summaries/step9_bnci2014_001_expanded_summary.{json,md}` with
+`missing_cells=[]`, `all_forbidden_violations_empty=true`, `all_target_metrics_oracle_only=true`,
+`all_target_metrics_identifiable_null=true`, `all_prior_claims_compliant=true`,
+`no_unknown_estimands=true`. Tests: `test_real_audited_grid_plumbing.py`,
+`test_observability_text_hygiene.py`.
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
 (`run_counterexamples.py`); the audited evaluation bridge (§6), the real-EEG audited pilot
-(§7, `run_real_audited.py`), and the audited mini-grid + validator (§8) are live; a full
-multi-dataset / multi-seed table remains future work under this same audited discipline.
+(§7, `run_real_audited.py`), the audited mini-grid + validator (§8), and the expanded grid +
+statistical digest (§9) are live; a full multi-dataset table remains future work under this same
+audited discipline.
