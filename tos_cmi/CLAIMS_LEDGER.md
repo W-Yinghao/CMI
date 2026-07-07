@@ -183,6 +183,31 @@ target_information_tier1_smoke_v1:   # Tier-1 smoke ran (v0 888028 + hardened v1
     - few-shot target labels safely solve the ceiling
     - target-informed gate is validated
     - this is a real-EEG target-gain result
+target_information_frontier_label_budget:   # Fork 1 FINAL (jobs 888028/888437/888470; PARKED with finding)
+  status: supported_negative_for_k_le_50_with_sound_bound
+  scope:
+    datasets: [Lee2019_MI, Cho2017]
+    backbone: EEGNet
+    worlds: [v2_source_invisible, source_rich_source_visible]
+    budget:
+      k_labels_per_class: [1, 2, 4, 8, 16, 24, 32, 40, 50]
+  finding:
+    - weak/bootstrap estimator false-accepts (~23%, 100% at k=1)
+    - hardened finite-sample bounded LCB (empirical-Bernstein + Bonferroni) has ZERO false accepts
+    - hardened LCB yields ZERO deployable accepts up to the full 50 labels/class calibration budget
+    - B4 oracle confirms target-beneficial cells exist (audit dbacc mean +0.018/+0.021, max +0.080)
+  implication:
+    - safe certification of small target benefits requires more labels or stronger assumptions (Prop 3)
+  outputs: notes/TARGET_INFORMATION_FRONTIER_FINAL_VERDICT.md ; results/target_info/tier1_budget_frontier/*
+  tag: tos-cmi-target-info-frontier-v1-final
+  allowed:
+    - "Target labels reveal that source-invisible beneficial interventions can exist, but under a valid finite-sample certificate k<=50 labels/class is insufficient to safely license deployment."
+  forbidden:
+    - "Few-shot target labels solve the source-only ceiling."
+    - "The target-informed gate is validated as a deployable method."
+    - "Target labels are useless."
+    - "No target-informed method can work."
+    - "The oracle selector is deployable."
 architecture_x_dimension_factorial:               # Track C (DONE, 3-seed; SLURM 877939)
   status: supported_refined  # 3-seed verdict = LARGELY capacity-mediated + RESIDUAL architecture effect at high d_z
   scripts: tos_cmi/run_capacity_factorial.py -> tos_cmi/eeg/factorial_multiseed_analysis.py (file-parallel joblib; fold-cluster + paired + OLS CIs)

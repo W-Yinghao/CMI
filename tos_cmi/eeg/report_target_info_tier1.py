@@ -192,23 +192,27 @@ def write_smoke_report(summary, fig, out, prefix="target_info_tier1_smoke"):
           % (summary["n_deployable_accepts"], summary["n_deployable_false_accepts"],
              summary["n_deployable_harmful_accepts"], summary["deployable_false_accept_rate"]),
           "", "## Sample-complexity thresholds (per world)",
-          "```"]
+          "_cal-LCB shown CLIPPED to the [-1,1] balanced-accuracy-difference range; the raw (unclipped) bound is "
+          "valid even below -1 and is kept in the summary JSON for diagnostics._", "```"]
     for w, scx in sorted(summary.get("sample_complexity", {}).items()):
-        L.append("%-40s min_k_true_accept=%s  min_k_false<=5%%=%s  any_accept_at_max_k=%s  best_cal_LCB=%s (thr %s)"
+        bc = scx.get("best_cal_lcb_over_all_k_clipped", scx.get("best_cal_lcb_over_all_k"))
+        L.append("%-40s min_k_true_accept=%s  min_k_false<=5%%=%s  any_accept_at_max_k=%s  best_cal_LCB(clip)=%s (thr %s)"
                  % (w[:40], scx["min_k_any_true_accept"], scx["min_k_false_rate_le_5pct"],
-                    scx["any_accept_at_max_k"],
-                    ("%.3f" % scx["best_cal_lcb_over_all_k"]) if scx["best_cal_lcb_over_all_k"] is not None else "n/a",
+                    scx["any_accept_at_max_k"], ("%.3f" % bc) if bc is not None else "n/a",
                     scx["benefit_lcb_threshold"]))
     L += ["```", "",
-          "## B2 k-curve (per world): accept rate, true/false/harmful, audit ΔbAcc, bounded cal-LCB, specificity",
-          "| world | k | n | acc_rate | true | false | harm | audit_ΔbAcc | cal_LCB_max | spec_cal | spec_aud |",
+          "## B2 k-curve (per world): accept rate, true/false/harmful, audit ΔbAcc, bounded cal-LCB (clipped), specificity",
+          "| world | k | n | acc_rate | true | false | harm | audit_ΔbAcc | cal_LCB_max(clip) | spec_cal | spec_aud |",
           "|---|---|---|---|---|---|---|---|---|---|---|"]
     for s in summary["b2_k_curve"]:
+        clb = s.get("cal_lcb_max_clipped")
+        if clb is None and s.get("cal_lcb_max_raw_unclipped") is not None:
+            clb = max(-1.0, min(1.0, s["cal_lcb_max_raw_unclipped"]))
         L.append("| %s | %s | %d | %.2f | %d | %d | %d | %s | %s | %d | %d |"
                  % (s["world"][:22], s["k"], s["n"], s["accept_rate"], s["true_accept"], s["false_accept"],
                     s["harmful_accept"],
                     ("%.3f" % s["mean_audit_dbacc_accepted"]) if s["mean_audit_dbacc_accepted"] is not None else "n/a",
-                    ("%.3f" % s["cal_lcb_max"]) if s.get("cal_lcb_max") is not None else "n/a",
+                    ("%.3f" % clb) if clb is not None else "n/a",
                     s["specific_calibration"], s["specific_audit"]))
     L += ["", "## B3 sequential calibration (hardened bounded LCB)",
           "- actions: %s" % summary["b3_actions"],

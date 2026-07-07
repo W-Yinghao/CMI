@@ -23,29 +23,30 @@ b3_k1_accepts              0
 - deployable accepts: 0 ; false accepts (audit<=0): 0 ; harmful (audit<-0.01): 0 ; false-accept rate 0.000
 
 ## Sample-complexity thresholds (per world)
+_cal-LCB shown CLIPPED to the [-1,1] balanced-accuracy-difference range; the raw (unclipped) bound is valid even below -1 and is kept in the summary JSON for diagnostics._
 ```
-source_rich_source_visible_world_a       min_k_true_accept=None  min_k_false<=5%=None  any_accept_at_max_k=False  best_cal_LCB=-0.531 (thr 0.01)
-v2_source_invisible_world_a              min_k_true_accept=None  min_k_false<=5%=None  any_accept_at_max_k=False  best_cal_LCB=-0.586 (thr 0.01)
+source_rich_source_visible_world_a       min_k_true_accept=None  min_k_false<=5%=None  any_accept_at_max_k=False  best_cal_LCB(clip)=-0.531 (thr 0.01)
+v2_source_invisible_world_a              min_k_true_accept=None  min_k_false<=5%=None  any_accept_at_max_k=False  best_cal_LCB(clip)=-0.586 (thr 0.01)
 ```
 
-## B2 k-curve (per world): accept rate, true/false/harmful, audit ΔbAcc, bounded cal-LCB, specificity
-| world | k | n | acc_rate | true | false | harm | audit_ΔbAcc | cal_LCB_max | spec_cal | spec_aud |
+## B2 k-curve (per world): accept rate, true/false/harmful, audit ΔbAcc, bounded cal-LCB (clipped), specificity
+| world | k | n | acc_rate | true | false | harm | audit_ΔbAcc | cal_LCB_max(clip) | spec_cal | spec_aud |
 |---|---|---|---|---|---|---|---|---|---|---|
 | source_rich_source_vis | 1 | 2100 | 0.00 | 0 | 0 | 0 | n/a | n/a | 0 | 0 |
-| source_rich_source_vis | 2 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -29.030 | 0 | 0 |
-| source_rich_source_vis | 4 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -9.843 | 0 | 0 |
-| source_rich_source_vis | 8 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -4.219 | 0 | 0 |
-| source_rich_source_vis | 16 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.969 | 0 | 0 |
-| source_rich_source_vis | 24 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.281 | 0 | 0 |
+| source_rich_source_vis | 2 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.000 | 0 | 0 |
+| source_rich_source_vis | 4 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.000 | 0 | 0 |
+| source_rich_source_vis | 8 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.000 | 0 | 0 |
+| source_rich_source_vis | 16 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.000 | 0 | 0 |
+| source_rich_source_vis | 24 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.000 | 0 | 0 |
 | source_rich_source_vis | 32 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -0.884 | 0 | 0 |
 | source_rich_source_vis | 40 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -0.695 | 0 | 0 |
 | source_rich_source_vis | 50 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -0.531 | 0 | 0 |
 | v2_source_invisible_wo | 1 | 2100 | 0.00 | 0 | 0 | 0 | n/a | n/a | 0 | 0 |
-| v2_source_invisible_wo | 2 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -29.030 | 0 | 0 |
-| v2_source_invisible_wo | 4 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -9.843 | 0 | 0 |
-| v2_source_invisible_wo | 8 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -4.219 | 0 | 0 |
-| v2_source_invisible_wo | 16 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.969 | 0 | 0 |
-| v2_source_invisible_wo | 24 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.284 | 0 | 0 |
+| v2_source_invisible_wo | 2 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.000 | 0 | 0 |
+| v2_source_invisible_wo | 4 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.000 | 0 | 0 |
+| v2_source_invisible_wo | 8 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.000 | 0 | 0 |
+| v2_source_invisible_wo | 16 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.000 | 0 | 0 |
+| v2_source_invisible_wo | 24 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -1.000 | 0 | 0 |
 | v2_source_invisible_wo | 32 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -0.947 | 0 | 0 |
 | v2_source_invisible_wo | 40 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -0.757 | 0 | 0 |
 | v2_source_invisible_wo | 50 | 2100 | 0.00 | 0 | 0 | 0 | n/a | -0.586 | 0 | 0 |

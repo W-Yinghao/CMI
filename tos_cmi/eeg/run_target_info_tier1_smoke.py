@@ -902,8 +902,11 @@ def aggregate_smoke(dec_all, aud_all, cfg):
         s["accept_rate"] = s["accept"] / s["n"] if s["n"] else 0.0
         s["mean_audit_dbacc_accepted"] = (s["audit_sum"] / s["audit_n"]) if s["audit_n"] else None
         cv = s.pop("cal_lcb_vals")
-        s["cal_lcb_max"] = float(np.max(cv)) if cv else None       # how close the best bounded LCB gets to +0.01
-        s["cal_lcb_median"] = float(np.median(cv)) if cv else None
+        # RAW (unclipped) bounded LCB can fall below -1 at tiny k (valid but outside the [-1,1] ΔbAcc range);
+        # report a metric-range-CLIPPED value for human-facing tables, keep RAW for diagnostics.
+        s["cal_lcb_max_raw_unclipped"] = float(np.max(cv)) if cv else None
+        s["cal_lcb_max_clipped"] = float(np.clip(np.max(cv), -1.0, 1.0)) if cv else None
+        s["cal_lcb_median_clipped"] = float(np.clip(np.median(cv), -1.0, 1.0)) if cv else None
         s["cal_lcb_n"] = len(cv)
     # sample-complexity thresholds per world (minimal k for a safe true accept; does the biggest k still give 0?)
     sample_complexity = {}
@@ -913,10 +916,12 @@ def aggregate_smoke(dec_all, aud_all, cfg):
         min_true = next((k for k in kg if rows_w.get(k, {}).get("true_accept", 0) > 0), None)
         min_safe = next((k for k in kg if rows_w.get(k, {}).get("accept", 0) > 0
                          and (rows_w[k]["false_accept"] / max(1, rows_w[k]["accept"])) <= 0.05), None)
-        max_lcb = max((rows_w.get(k, {}).get("cal_lcb_max") or -9 for k in kg), default=-9)
+        max_lcb = max((rows_w.get(k, {}).get("cal_lcb_max_raw_unclipped") or -9 for k in kg), default=-9)
         sample_complexity[w] = {"min_k_any_true_accept": min_true, "min_k_false_rate_le_5pct": min_safe,
                                 "any_accept_at_max_k": rows_w.get(kg[-1], {}).get("accept", 0) > 0,
-                                "best_cal_lcb_over_all_k": (None if max_lcb == -9 else max_lcb),
+                                "best_cal_lcb_over_all_k_raw": (None if max_lcb == -9 else max_lcb),
+                                "best_cal_lcb_over_all_k_clipped": (None if max_lcb == -9
+                                                                    else float(np.clip(max_lcb, -1.0, 1.0))),
                                 "benefit_lcb_threshold": thr}
     # B3 label budget + accepts/false
     b3 = [r for r in dec_all if _family(r["budget"]) == "B3"]
