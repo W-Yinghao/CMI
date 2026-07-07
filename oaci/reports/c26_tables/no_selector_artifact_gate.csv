@@ -1,0 +1,9 @@
+check,passed
+config_hash_unchanged,True
+predmix_features_label_free,True
+identity_control_ran_before_marginal_claim,True
+split_stability_gated_not_proxied,True
+labels_only_in_label_diagnostics,True
+c26_not_finalized_while_q1q5_pending,True
+no_selected_checkpoint_artifact,True
+diagnostic_only_non_deployable,True

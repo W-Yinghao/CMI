@@ -1,0 +1,123 @@
+{
+  "class_rotation": {
+    "class_index_alignment_matters": true,
+    "global_rotation_invariant": true,
+    "global_rotations": [
+      {
+        "gap_closed": 0.0031112715525154237,
+        "rotation": 1
+      },
+      {
+        "gap_closed": 0.0031112715525154237,
+        "rotation": 2
+      },
+      {
+        "gap_closed": 0.0031112715525154237,
+        "rotation": 3
+      }
+    ],
+    "note": "per-target class-index SCRAMBLE destroys the recovery (global rotation inert) -> the cross-target class-index alignment carries the signal (class-index-specific occupancy)",
+    "per_target_scramble_gap": -0.6274917705796692,
+    "signed_gap": 0.0031112715525154237
+  },
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "identity_controls": {
+    "chance": 0.1111111111111111,
+    "id_acc_confidence": 0.4242902208201893,
+    "id_acc_full": 0.6708727655099895,
+    "id_acc_predmix": 0.7058359621451105,
+    "identity_fingerprint_dominant": true,
+    "nn_fingerprint": {
+      "nn_null_mean": 0.11052839116719242,
+      "nn_perm_p": 0.004975124378109453,
+      "nn_same_target_rate": 1.0
+    },
+    "note": "predmix recovery does NOT survive the permutation control and is identity-separable -> fingerprint dominates.",
+    "predmix_gap": 0.0031112715525154237,
+    "predmix_identity_separable": true,
+    "predmix_recovery_survives_permutation": false
+  },
+  "interaction": {
+    "both_gap": 0.4908528004503232,
+    "both_survives": true,
+    "confmargin_only_gap": -0.5610353773296293,
+    "confmargin_residualized_gap": 0.36227805039219724,
+    "confmargin_residualized_survives": false,
+    "confmargin_survives": false,
+    "interaction_dominant": true,
+    "note": "predmix alone gap 0.003, both 0.491 -> predmix needs a confidence/margin scaffold; Shapley interaction 1.049 vs mains (pm 0.527, cm -0.037).",
+    "predmix_needs_confidence_scaffold": true,
+    "predmix_only_gap": 0.0031112715525154237,
+    "predmix_residualized_gap": -0.09044714203551192,
+    "predmix_residualized_survives": false,
+    "predmix_survives": false,
+    "shapley_interaction": 1.048776906227437,
+    "shapley_main_confmargin": -0.03664692421591076,
+    "shapley_main_predmix": 0.527499724666234
+  },
+  "label_diagnostics": {
+    "alignment": null,
+    "reason": "per-sample target labels not persisted; label diagnostics need the scoped re-persistence re-inference (label diagnostics QUARANTINED, never features).",
+    "status": "REQUIRES_REPERSISTENCE_REINFERENCE"
+  },
+  "mode": "in_regime",
+  "n_candidates": 3804,
+  "raw_pooled": 0.5431489798181415,
+  "signed_vs_symmetric": {
+    "signed": {
+      "auc_improve": 0.0002819361277445198,
+      "gap_closed": 0.0031112715525154237,
+      "loto_r2": -2.793907345009117,
+      "perm_p": 0.42714570858283435,
+      "survives_permutation": false
+    },
+    "signed_carries": false,
+    "signed_plus_symmetric": {
+      "auc_improve": 0.014380405854956813,
+      "gap_closed": 0.1586932047626629,
+      "loto_r2": -2.1629451957452486,
+      "perm_p": 0.22954091816367264,
+      "survives_permutation": false
+    },
+    "signed_specific": false,
+    "symmetric": {
+      "auc_improve": -0.042796074517631344,
+      "gap_closed": -0.47227083052900715,
+      "loto_r2": -0.17749780547666671,
+      "perm_p": 0.7345309381237525,
+      "survives_permutation": false
+    },
+    "symmetric_carries": false
+  },
+  "split_stability": {
+    "reason": "per-sample target logits not persisted; the C24 sidecar stores per-candidate AGGREGATES only. Split-stability needs a scoped re-PERSISTENCE re-inference (P0-validated forward, persist per-split mix summaries). NOT proxied from method-final.",
+    "splits": null,
+    "status": "REQUIRES_REPERSISTENCE_REINFERENCE"
+  },
+  "target_centered_oracle": 0.6337666333998669,
+  "taxonomy": {
+    "diagnostic_only_non_deployable": true,
+    "established": [
+      "P4_identity_fingerprint_dominant",
+      "P5_confidence_mix_interaction"
+    ],
+    "final": false,
+    "identity_entanglement_disclosed": true,
+    "identity_fingerprint_dominant": true,
+    "interpretation": "predicted-class mix IN ISOLATION is a target-identity fingerprint (NN same-target rate high; its +0.003 standalone recovery FAILS the permutation control). It carries no standalone target-marginal offset signal -- C25's Shapley credit was SYNERGY allocation, not a main effect. (The FULL R3 interaction is still permutation-robust per C24; it is the isolated family that is a fingerprint.)",
+    "label_status": "REQUIRES_REPERSISTENCE_REINFERENCE",
+    "predmix_needs_scaffold": true,
+    "primary_case": "P4_identity_fingerprint_dominant",
+    "scramble_supports_signed": true,
+    "signed_specific": false,
+    "split_status": "REQUIRES_REPERSISTENCE_REINFERENCE",
+    "symmetric_carries": false,
+    "unresolved_pending_reinference": [
+      "P1_decision_occupancy_signal",
+      "P6_sample_noise_artifact",
+      "P7_label_diagnostic_boundary"
+    ]
+  },
+  "within_target_ceiling": 0.658600107451297
+}

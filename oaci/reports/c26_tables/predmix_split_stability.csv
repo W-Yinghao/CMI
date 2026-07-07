@@ -1,0 +1,2 @@
+split,predprop_reliability,split_half_gap,survives_permutation,status,reason
+ALL,,,,REQUIRES_REPERSISTENCE_REINFERENCE,"per-sample target logits not persisted; the C24 sidecar stores per-candidate AGGREGATES only. Split-stability needs a scoped re-PERSISTENCE re-inference (P0-validated forward, persist per-split mix summaries). NOT proxied from method-final."

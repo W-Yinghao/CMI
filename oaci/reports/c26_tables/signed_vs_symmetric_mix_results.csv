@@ -1,0 +1,6 @@
+variant,gap_closed,perm_p,survives_permutation
+signed,0.0031112715525154237,0.42714570858283435,False
+symmetric,-0.47227083052900715,0.7345309381237525,False
+signed_plus_symmetric,0.1586932047626629,0.22954091816367264,False
+signed_specific,False,,
+symmetric_carries,False,,
