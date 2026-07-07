@@ -1,0 +1,46 @@
+{
+  "project": "Project A",
+  "step": "Step 15",
+  "scope": "coverage-aware harm-control policies under minimal labels; not SOTA",
+  "metrics": {
+    "n_real_runs": 54,
+    "real_harm_rate_always_adapt": 0.8519,
+    "best_policy_by_harm_control": null,
+    "best_policy_k": null,
+    "best_policy_tau": null,
+    "best_policy_adaptation_coverage": null,
+    "best_policy_decision_coverage": null,
+    "best_policy_harm_rate_among_adapt": null,
+    "best_policy_prevented_harm_vs_always_adapt": null,
+    "best_policy_missed_benefit_rate": null,
+    "coverage_control_tradeoff_observed": false,
+    "oracle_reference": {
+      "adaptation_coverage": 0.1481,
+      "harm_rate_among_adapt_decisions": 0.0,
+      "prevented_harm_rate_vs_always_adapt": 1.0,
+      "missed_benefit_rate": 0.0,
+      "note": "full-label upper bound; NOT deployable"
+    },
+    "best_deployable_ci_attempt": {
+      "policy": "plugin_sign",
+      "k": 16,
+      "tau": 0.0,
+      "adaptation_coverage": 0.2554,
+      "harm_rate_among_adapt_decisions": 0.7807
+    },
+    "claim_boundary_ok": true,
+    "r2_iid_sampling_contract_required": true,
+    "oracle_policy_selected_as_deployable": false
+  },
+  "what_we_learned": [
+    "NO deployable minimal-label policy adapts while keeping harm<=0.05: the best a label-based policy achieves is adapt-coverage 0.2554 at harm-among-adapt 0.7807 (plugin_sign, k=16). Confident/positive slices do NOT select beneficial cells -- with a high harm base-rate, adapt-positive events are dominated by false positives on harmful cells.",
+    "The oracle full-label upper bound adapts 0.1481 of cells at harm 0.0 (prevented 1.0, missed 0.0): safe adaptation IS possible, but only with (near-)full target labels -- the measurement->control gap is NOT closed by R2 minimal-label CI policies on this grid.",
+    "Decisions use k>0 target labels (R2 labeled slice under an iid sampling contract); k=0 stays R1 non-identifiable; the oracle policy is an evaluation-only upper bound."
+  ],
+  "what_remains_unknown": [
+    "Whether the same policy transfers to clinical / non-motor-imagery EEG.",
+    "Whether cheaper-than-iid label acquisition raises coverage at fixed harm.",
+    "Whether a label-free coverage proxy could pre-screen which targets to label."
+  ],
+  "claim_boundary": "R2 minimal-label policy evaluation under an iid sampling contract; NOT R1 target-gain identifiability; oracle policy is not deployable. No SOTA."
+}

@@ -307,6 +307,22 @@ diagnostics grids (CPU only). Tests: `test_observability_harm_predictor.py` (ste
 percentiles, robust margin, power warning), `test_observability_harm_power.py`,
 `test_real_minimal_label_curves.py` (decomposition, k=0 null), `test_observability_science_dashboard.py`.
 
+## 15. Coverage-aware harm-control policies
+
+Step 15 evaluates R2 minimal-label policies that choose per target among **adapt / identity / abstain**
+(`harm_control.py`), exploiting the Step-14 finding that a small labeled slice gives high-precision but
+low-coverage harm-sign calls. Policies: always_identity / always_adapt / plugin_sign /
+ci_adapt_only_{abstain,identity} / ci_three_way, plus an evaluation-only `oracle_full_target` upper
+bound that is **never deployable**.
+
+Rules (tests enforce): k=0 is R1 non-identifiable → label-based policies abstain; k>0 is an R2 labeled
+slice under an iid sampling/coverage contract, not full-target identification; the oracle policy is
+never selected as best-deployable; oracle labels are used only inside the R2 slice / for evaluation.
+The best deployable policy is chosen by a **predeclared** rule (harm-among-adapt ≤ 0.05, maximize
+adaptation coverage, tie-break minimize missed benefit), not post-hoc. No SOTA, no manuscript, no new
+datasets — reuses the Step-13 raw diagnostics grids (CPU). Tests:
+`test_harm_control_policies.py`, `test_observability_science_dashboard.py` (Step-15 mode).
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
@@ -314,5 +330,6 @@ percentiles, robust margin, power warning), `test_observability_harm_power.py`,
 (§7, `run_real_audited.py`), the audited mini-grid + validator (§8), the expanded grid +
 statistical digest (§9), the multi-dataset audited expansion + chance-normalized digest
 (§10), the Step-12 scientific exploration (§12), the Step-13 rich-R1 diagnostics + real
-minimal-label curves (§13), and the Step-14 metric-semantics + power repair (§14) are live. A full
-multi-dataset SOTA table and manuscript writing are out of scope.
+minimal-label curves (§13), the Step-14 metric-semantics + power repair (§14), and the Step-15
+coverage-aware harm-control policies (§15) are live. A full multi-dataset SOTA table and manuscript
+writing are out of scope.

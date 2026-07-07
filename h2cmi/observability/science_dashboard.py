@@ -166,6 +166,94 @@ def build_step13_dashboard(harm_table, harm_pred, real_curves, multi, step12_har
                                "contract (coverage-limited). No SOTA claim.")}
 
 
+def build_step15_dashboard(harm_control, harm_pred=None, real_curves=None, multi=None,
+                           step_label="Step 15") -> Dict[str, Any]:
+    hc = harm_control or {}
+    best = hc.get("best_deployable_policy", {}) or {}
+    claim_ok = (hc.get("claim_boundary_ok") is True
+                and hc.get("oracle_policy_selected_as_deployable") is False
+                and hc.get("r2_iid_sampling_contract_required") is True
+                and (real_curves or {}).get("k0_status", "not_identified_R1") == "not_identified_R1"
+                and (multi or {}).get("all_target_metrics_identifiable_null") is not False)
+    metrics = {
+        "n_real_runs": hc.get("n_runs"),
+        "real_harm_rate_always_adapt": hc.get("always_adapt_harm_rate"),
+        "best_policy_by_harm_control": best.get("policy"),
+        "best_policy_k": best.get("k"), "best_policy_tau": best.get("tau"),
+        "best_policy_adaptation_coverage": best.get("adaptation_coverage"),
+        "best_policy_decision_coverage": best.get("decision_coverage"),
+        "best_policy_harm_rate_among_adapt": best.get("harm_rate_among_adapt_decisions"),
+        "best_policy_prevented_harm_vs_always_adapt": best.get("prevented_harm_rate_vs_always_adapt"),
+        "best_policy_missed_benefit_rate": best.get("missed_benefit_rate"),
+        "coverage_control_tradeoff_observed": best.get("policy") is not None,
+        "oracle_reference": hc.get("oracle_reference"),
+        "best_deployable_ci_attempt": hc.get("best_deployable_ci_attempt"),
+        "claim_boundary_ok": claim_ok,
+        "r2_iid_sampling_contract_required": hc.get("r2_iid_sampling_contract_required") is True,
+        "oracle_policy_selected_as_deployable": bool(hc.get("oracle_policy_selected_as_deployable")),
+    }
+    oref = hc.get("oracle_reference") or {}
+    att = hc.get("best_deployable_ci_attempt") or {}
+    if best.get("policy") is not None:
+        learned = [
+            (f"A coverage-aware policy ({best.get('policy')}, k={best.get('k')}, tau={best.get('tau')}) "
+             f"adapts {best.get('adaptation_coverage')} of cells with harm-among-adapt "
+             f"{best.get('harm_rate_among_adapt_decisions')} (<= {hc.get('harm_constraint')}) vs the "
+             f"always-adapt harm-rate {hc.get('always_adapt_harm_rate')} -> harm is CONTROLLABLE with "
+             f"minimal labels, but only at LOW coverage (most cells abstain / stay identity)."),
+            (f"It prevents {best.get('prevented_harm_rate_vs_always_adapt')} of always-adapt harm at "
+             f"the cost of missing {best.get('missed_benefit_rate')} of benefit -> a coverage/control "
+             f"tradeoff, not free improvement."),
+        ]
+    else:
+        learned = [
+            (f"NO deployable minimal-label policy adapts while keeping harm<=0.05: the best a "
+             f"label-based policy achieves is adapt-coverage {att.get('adaptation_coverage')} at "
+             f"harm-among-adapt {att.get('harm_rate_among_adapt_decisions')} ({att.get('policy')}, "
+             f"k={att.get('k')}). Confident/positive slices do NOT select beneficial cells -- with a "
+             f"high harm base-rate, adapt-positive events are dominated by false positives on harmful cells."),
+            (f"The oracle full-label upper bound adapts {oref.get('adaptation_coverage')} of cells at "
+             f"harm {oref.get('harm_rate_among_adapt_decisions')} (prevented {oref.get('prevented_harm_rate_vs_always_adapt')}, "
+             f"missed {oref.get('missed_benefit_rate')}): safe adaptation IS possible, but only with "
+             f"(near-)full target labels -- the measurement->control gap is NOT closed by R2 minimal-label "
+             f"CI policies on this grid.")]
+    learned.append("Decisions use k>0 target labels (R2 labeled slice under an iid sampling contract); "
+                   "k=0 stays R1 non-identifiable; the oracle policy is an evaluation-only upper bound.")
+    return {"project": "Project A", "step": step_label,
+            "scope": "coverage-aware harm-control policies under minimal labels; not SOTA",
+            "metrics": metrics, "what_we_learned": learned,
+            "what_remains_unknown": [
+                "Whether the same policy transfers to clinical / non-motor-imagery EEG.",
+                "Whether cheaper-than-iid label acquisition raises coverage at fixed harm.",
+                "Whether a label-free coverage proxy could pre-screen which targets to label."],
+            "claim_boundary": ("R2 minimal-label policy evaluation under an iid sampling contract; NOT "
+                               "R1 target-gain identifiability; oracle policy is not deployable. No SOTA.")}
+
+
+def write_step15_md(d: Dict[str, Any], path) -> str:
+    m = d["metrics"]
+    lines = [f"# {d['step']} — Science Dashboard (coverage-aware harm-control policies)", "",
+             f"Scope: {d['scope']}.", "", "## Key metrics", "",
+             f"- real runs: **{m['n_real_runs']}** · always-adapt harm-rate **{m['real_harm_rate_always_adapt']}**",
+             f"- best deployable policy: **{m['best_policy_by_harm_control']}** (k **{m['best_policy_k']}**, "
+             f"tau **{m['best_policy_tau']}**)",
+             f"- adaptation coverage **{m['best_policy_adaptation_coverage']}** · decision coverage "
+             f"**{m['best_policy_decision_coverage']}** · harm-among-adapt "
+             f"**{m['best_policy_harm_rate_among_adapt']}**",
+             f"- prevented harm vs always-adapt **{m['best_policy_prevented_harm_vs_always_adapt']}** · "
+             f"missed benefit **{m['best_policy_missed_benefit_rate']}**",
+             f"- coverage/control tradeoff observed **{m['coverage_control_tradeoff_observed']}** · "
+             f"oracle selected deployable **{m['oracle_policy_selected_as_deployable']}** · claim "
+             f"boundary ok **{m['claim_boundary_ok']}**", "", "## What we learned", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_we_learned"], 1)]
+    lines += ["", "## What remains unknown", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_remains_unknown"], 1)]
+    lines += ["", "> " + d["claim_boundary"]]
+    text = "\n".join(lines) + "\n"
+    write_text_lf(path, text)
+    return text
+
+
 def write_step13_md(d: Dict[str, Any], path) -> str:
     m = d["metrics"]
     lines = [f"# {d['step']} — Science Dashboard (rich R1 diagnostics + real minimal-label curves)", "",
@@ -224,12 +312,20 @@ def main(argv=None):
     ap.add_argument("--step12-harm-predictor", default=None,
                     help="Step-13+ mode: prior Step-12 harm predictor for improvement comparison")
     ap.add_argument("--harm-power", default=None, help="Step-14 mode: harm-power summary JSON")
+    ap.add_argument("--harm-control", default=None, help="Step-15 mode: harm-control summary JSON")
     ap.add_argument("--step-label", default="Step 13", help="dashboard provenance label")
     ap.add_argument("--out-json", default=None)
     ap.add_argument("--out-md", default=None)
     args = ap.parse_args(argv)
 
-    if args.real_minimal_labels:                              # Step 13 / 14
+    if args.harm_control:                                     # Step 15
+        label = "Step 15" if args.step_label == "Step 13" else args.step_label
+        d = build_step15_dashboard(
+            _load_json(Path(args.harm_control)), _load_json(Path(args.harm_predictor)),
+            _load_json(Path(args.real_minimal_labels)) if args.real_minimal_labels else None,
+            _load_json(Path(args.multidataset)), step_label=label)
+        md_writer = write_step15_md
+    elif args.real_minimal_labels:                            # Step 13 / 14
         d = build_step13_dashboard(
             _load_json(Path(args.harm_table)), _load_json(Path(args.harm_predictor)),
             _load_json(Path(args.real_minimal_labels)), _load_json(Path(args.multidataset)),
@@ -247,11 +343,10 @@ def main(argv=None):
         Path(args.out_md).parent.mkdir(parents=True, exist_ok=True)
         md_writer(d, args.out_md)
     m = d["metrics"]
-    print(f"science_dashboard[{d['step']}] n_real_runs={m['n_real_runs']} "
-          f"real_harm_rate={m['real_harm_rate']} R0_bAcc={m.get('R0_harm_predictor_bacc')} "
+    print(f"science_dashboard[{d['step']}] n_real_runs={m.get('n_real_runs')} "
           f"R1_bAcc={m.get('R1_harm_predictor_bacc')} "
-          f"phase_transition={m.get('minimal_paired_phase_transition_observed')} "
-          f"real_best_k_0.9={m.get('real_minimal_label_best_k_0_9')} "
+          f"best_policy={m.get('best_policy_by_harm_control')} "
+          f"best_policy_adapt_cov={m.get('best_policy_adaptation_coverage')} "
           f"claim_boundary_ok={m['claim_boundary_ok']}")
     return 0 if m["claim_boundary_ok"] else 1
 

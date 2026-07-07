@@ -4,7 +4,16 @@ Run:  python -m h2cmi.tests.test_observability_science_dashboard
 """
 from __future__ import annotations
 
-from h2cmi.observability.science_dashboard import build_dashboard, build_step13_dashboard
+from h2cmi.observability.science_dashboard import (build_dashboard, build_step13_dashboard,
+                                                   build_step15_dashboard)
+
+_HC = {"n_runs": 54, "always_adapt_harm_rate": 0.85, "harm_constraint": 0.05,
+       "claim_boundary_ok": True, "r2_iid_sampling_contract_required": True,
+       "oracle_policy_selected_as_deployable": False,
+       "best_deployable_policy": {"policy": "ci_three_way", "k": 32, "tau": 0.02,
+                                  "adaptation_coverage": 0.12, "decision_coverage": 0.35,
+                                  "harm_rate_among_adapt_decisions": 0.03,
+                                  "prevented_harm_rate_vs_always_adapt": 0.72, "missed_benefit_rate": 0.4}}
 
 _HARM_TABLE = {"n_runs": 54, "harm_rate": 0.8333, "oracle_denylist": ["offline_tta_gain_bacc"]}
 _HARM_PRED = {"feature_sets": {"R0_source_only": {"balanced_acc_harm_prediction": 0.55},
@@ -91,6 +100,24 @@ def test_dashboard_does_not_use_deprecated_harm_sign_accuracy():
     assert not any("harm_sign_accuracy" in k for k in m)
 
 
+def test_step15_dashboard_reports_best_policy_and_coverage_tradeoff():
+    d = build_step15_dashboard(_HC, real_curves=_REAL, multi=_MULTI)
+    m = d["metrics"]
+    assert d["step"] == "Step 15"
+    assert m["best_policy_by_harm_control"] == "ci_three_way" and m["best_policy_k"] == 32
+    assert m["best_policy_adaptation_coverage"] == 0.12 and m["best_policy_harm_rate_among_adapt"] == 0.03
+    assert m["coverage_control_tradeoff_observed"] is True and m["claim_boundary_ok"] is True
+
+
+def test_step15_dashboard_never_selects_oracle_policy():
+    m = build_step15_dashboard(_HC, real_curves=_REAL, multi=_MULTI)["metrics"]
+    assert m["oracle_policy_selected_as_deployable"] is False
+    assert m["best_policy_by_harm_control"] != "oracle_full_target"
+    # a summary that (wrongly) marks oracle deployable fails the claim boundary
+    bad = dict(_HC, oracle_policy_selected_as_deployable=True)
+    assert build_step15_dashboard(bad, real_curves=_REAL, multi=_MULTI)["metrics"]["claim_boundary_ok"] is False
+
+
 ALL_TESTS = [
     test_dashboard_reports_real_harm_and_predictor,
     test_dashboard_claim_boundary_ok_requires_oracle_not_feature,
@@ -100,6 +127,8 @@ ALL_TESTS = [
     test_step13_dashboard_stronger_null_when_r1_below_baseline,
     test_step14_dashboard_uses_harm_power_and_coverage_decomposition,
     test_dashboard_does_not_use_deprecated_harm_sign_accuracy,
+    test_step15_dashboard_reports_best_policy_and_coverage_tradeoff,
+    test_step15_dashboard_never_selects_oracle_policy,
 ]
 
 

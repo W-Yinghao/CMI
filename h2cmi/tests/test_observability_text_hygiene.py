@@ -61,6 +61,13 @@ _CHECK_FILES = {
     "notes/project_A_observability/results_summaries/step14_science_dashboard.md": 15,
     "notes/project_A_observability/results_summaries/step14_real_minimal_label_curves.md": 18,
     "notes/project_A_observability/results_summaries/step14_harm_predictor_summary.md": 12,
+    # Step-15 coverage-aware harm-control policies
+    "h2cmi/observability/harm_control.py": 150,
+    "h2cmi/tests/test_harm_control_policies.py": 60,
+    "notes/project_A_observability/results_summaries/step15_harm_control_summary.json": 40,
+    "notes/project_A_observability/results_summaries/step15_science_dashboard.json": 25,
+    "notes/project_A_observability/results_summaries/step15_harm_control_summary.md": 15,
+    "notes/project_A_observability/results_summaries/step15_science_dashboard.md": 15,
 }
 _MAX_LINE_BYTES = 500
 
