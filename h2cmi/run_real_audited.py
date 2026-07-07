@@ -89,7 +89,8 @@ def _build_cfg(n_classes, n_chans, n_times, epochs, device, seed, fast):
     return cfg
 
 
-def _run_pilot(X, y, dag, domains, subj_col, target_subject_idx, cfg, n_classes, n_perm):
+def _run_pilot(X, y, dag, domains, subj_col, target_subject_idx, cfg, n_classes, n_perm,
+               align_factor="site"):
     from h2cmi.eval.harness import _json_safe, run_three_settings
     from h2cmi.eval.leakage import crossfit_conditional_leakage
     from h2cmi.train.trainer import reference_prior, train_h2
@@ -105,7 +106,7 @@ def _run_pilot(X, y, dag, domains, subj_col, target_subject_idx, cfg, n_classes,
     tgt_unit = domains.subset(tgt_idx).factor("session")     # target sessions as TTA domains
     src_unit = src_domains.factor("subject")                 # source subjects for gate pseudo-targets
 
-    model, _hcmi, _dual, hist = train_h2(Xs, ys, src_domains, dag, cfg, align_factor="site")
+    model, _hcmi, _dual, hist = train_h2(Xs, ys, src_domains, dag, cfg, align_factor=align_factor)
     pi_star = reference_prior(ys, n_classes, cfg.align.reference_prior)
     res = run_three_settings(model, Xt, yt, tgt_unit, cfg, pi_star, X_src=Xs, y_src=ys,
                              gate_pseudo_levels=src_unit, device=cfg.train.device)
@@ -139,6 +140,36 @@ def _write_skip(out_dir, reason, args, environment):
     print(f"REAL EEG AUDIT PILOT SKIPPED: {reason}")
 
 
+def _finalize(out_dir, raw, *, dataset, subjects, target_subject, target_index, seed, epochs,
+              fast, device, align_factor, factor_levels, align_degenerate, n_classes, n_chans,
+              n_times, dataset_info, environment):
+    """Build the audited report + write the 4 artifacts + manifest for ONE run. Shared by the
+    single-run `main` and the grid runner so their reports/manifests never drift."""
+    from h2cmi.observability import (assert_forbidden_claims_not_made, build_audited_eval_report,
+                                     write_observability_report_json, write_observability_report_md)
+    report = build_audited_eval_report(
+        f"Audited Tier-2 pilot — {dataset} target-subject {target_subject} seed {seed}",
+        strict_dg=raw["strict_dg"], offline_tta=raw["offline_tta"], online_tta=raw["online_tta"],
+        leakage=raw["leakage"], prior_contracts=None, prior_conclusion=False,  # honest: not identified
+        has_oracle_target_labels=True)
+    assert_forbidden_claims_not_made(report)                  # clean: no rejected CONCLUSION
+    (out_dir / "raw_results.json").write_text(json.dumps(raw, indent=2))
+    data = write_observability_report_json(report, str(out_dir / "observability_report.json"))
+    write_observability_report_md(report, str(out_dir / "observability_report.md"))
+    manifest = {"status": "ok", "dataset": dataset, "subjects": subjects,
+                "target_subject": target_subject, "target_index": int(target_index), "seed": seed,
+                "epochs": epochs, "fast": fast, "device": device, "align_factor": align_factor,
+                "domain_factor_levels": factor_levels,
+                "alignment_factor_degenerate": bool(align_degenerate),
+                "n_source_trials": raw["n_source_trials"], "n_target_trials": raw["n_target_trials"],
+                "n_classes": n_classes, "n_chans": int(n_chans), "n_times": int(n_times),
+                "dataset_info": dataset_info, "environment": environment,
+                "audit_summary": data["summary"],
+                "forbidden_claims_violated": data["forbidden_claims_violated"]}
+    (out_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2))
+    return data
+
+
 def main(argv=None):
     ap = argparse.ArgumentParser(description="Project A audited real-EEG/synthetic Tier-2 pilot")
     ap.add_argument("--dataset", default="synthetic")
@@ -146,6 +177,8 @@ def main(argv=None):
     ap.add_argument("--target-subject", type=int, default=0,
                     help="MOABB subject id (or synthetic subject index)")
     ap.add_argument("--epochs", type=int, default=2)
+    ap.add_argument("--align-factor", default=None,
+                    help="domain factor to align on (default: 'subject' for MOABB, 'site' for synthetic)")
     ap.add_argument("--n-classes", type=int, default=4)
     ap.add_argument("--n-perm", type=int, default=0)
     ap.add_argument("--fast", action="store_true")
@@ -179,40 +212,30 @@ def main(argv=None):
         _write_skip(out_dir, f"{type(exc).__name__}: {exc}", args, environment)
         return 0
 
+    # ---- resolve alignment factor + record domain-factor structure ---------------------
+    align_factor = args.align_factor or ("site" if args.dataset == "synthetic" else "subject")
+    factor_levels = {f.name: int(f.n_levels) for f in dag.factors}
+    align_degenerate = factor_levels.get(align_factor, 0) <= 1   # e.g. single-site MOABB
+
     # ---- train + evaluate (skip on any pilot failure — pilot must not hard-fail) --------
     try:
         cfg = _build_cfg(n_classes, X.shape[1], X.shape[2], args.epochs, args.device,
                          args.seed, args.fast)
         _res, _leak, raw = _run_pilot(X, y, dag, domains, subj_col, target_idx, cfg,
-                                      n_classes, args.n_perm)
+                                      n_classes, args.n_perm, align_factor=align_factor)
     except Exception as exc:
         _write_skip(out_dir, f"pilot run failed: {type(exc).__name__}: {exc}", args, environment)
         return 0
 
     # ---- audited observability report (prior reported but NOT claimed identified) -------
-    from h2cmi.observability import (assert_forbidden_claims_not_made, build_audited_eval_report,
-                                     report_to_dict, write_observability_report_json,
-                                     write_observability_report_md)
-    report = build_audited_eval_report(
-        f"Audited Tier-2 pilot — {args.dataset} target-subject {args.target_subject}",
-        strict_dg=raw["strict_dg"], offline_tta=raw["offline_tta"], online_tta=raw["online_tta"],
-        leakage=raw["leakage"], prior_contracts=None, prior_conclusion=False,  # honest: not identified
-        has_oracle_target_labels=True)
-    assert_forbidden_claims_not_made(report)                  # clean: no rejected CONCLUSION
-
-    (out_dir / "raw_results.json").write_text(json.dumps(raw, indent=2))
-    data = write_observability_report_json(report, str(out_dir / "observability_report.json"))
-    write_observability_report_md(report, str(out_dir / "observability_report.md"))
-    manifest = {"status": "ok", "dataset": args.dataset, "subjects": args.subjects,
-                "target_subject": args.target_subject, "target_index": int(target_idx),
-                "epochs": args.epochs, "fast": args.fast, "device": args.device, "seed": args.seed,
-                "n_source_trials": raw["n_source_trials"], "n_target_trials": raw["n_target_trials"],
-                "n_classes": n_classes, "n_chans": int(X.shape[1]), "n_times": int(X.shape[2]),
-                "dataset_info": {k: v for k, v in info.items() if k != "subject_map"},
-                "environment": environment,
-                "audit_summary": data["summary"],
-                "forbidden_claims_violated": data["forbidden_claims_violated"]}
-    (out_dir / "run_manifest.json").write_text(json.dumps(manifest, indent=2))
+    data = _finalize(out_dir, raw, dataset=args.dataset, subjects=args.subjects,
+                     target_subject=args.target_subject, target_index=target_idx, seed=args.seed,
+                     epochs=args.epochs, fast=args.fast, device=args.device,
+                     align_factor=align_factor, factor_levels=factor_levels,
+                     align_degenerate=align_degenerate, n_classes=n_classes, n_chans=X.shape[1],
+                     n_times=X.shape[2],
+                     dataset_info={k: v for k, v in info.items() if k != "subject_map"},
+                     environment=environment)
 
     s = data["summary"]
     print(f"AUDITED PILOT OK  dataset={args.dataset}  target={args.target_subject}  "

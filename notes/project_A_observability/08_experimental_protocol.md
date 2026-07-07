@@ -141,9 +141,33 @@ self-contained; `--dataset <MOABB name>` loads offline). Wrapper:
 (real GPU runs belong on SLURM, not the login node). Contract test:
 `h2cmi/tests/test_eval_bridge_harness_contract.py`.
 
+## 8. Audited real-EEG mini-grid
+
+Step 8 expands the single pilot to a small **audited grid** — still **not a SOTA claim**:
+- one dataset: **BNCI2014_001**;
+- target subjects **1, 2, 3**; seeds **0, 1, 2**; fast training, modest epochs;
+- **align factor: subject** (single-site MOABB → aligning on `site` is a no-op; the manifest
+  flags `alignment_factor_degenerate`).
+
+It validates:
+1. repeated real runs each produce a **clean** `ObservabilityReport` (0 forbidden violations);
+2. target metrics remain **oracle/evaluation-only** (`identifiable_estimand=null`);
+3. prior estimates are **reported but not claimed identified** unless TU-1 contracts are declared
+   (rejected, `conclusion=false`);
+4. a **tracked summary digest** lets a reviewer check every run's claim boundary **without**
+   committing raw training outputs.
+
+Mechanics: `h2cmi/run_real_audited_grid.py` (loads once, runs each `target×seed`) →
+`h2cmi/observability/validate_results.py` (validates each run's claim boundary +
+`result_index.py` aggregation) → **tracked** digest at
+`notes/project_A_observability/results_summaries/*.json/.md`. Raw run directories stay in
+**gitignored** `notes/project_A_observability/results/`. Batch:
+`scripts/project_A_bnci2014_001_minigrid.slurm`. Tests:
+`h2cmi/tests/test_observability_result_index.py`.
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
-(`run_counterexamples.py`); the audited evaluation bridge (§6) and the real-EEG audited pilot
-(§7, `run_real_audited.py`) are live; a full multi-dataset / multi-seed table remains future
-work under this same audited discipline.
+(`run_counterexamples.py`); the audited evaluation bridge (§6), the real-EEG audited pilot
+(§7, `run_real_audited.py`), and the audited mini-grid + validator (§8) are live; a full
+multi-dataset / multi-seed table remains future work under this same audited discipline.
