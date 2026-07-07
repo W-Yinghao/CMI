@@ -106,6 +106,29 @@ class DecisionContext:
 
 
 @dataclass(frozen=True)
+class SourceContext:
+    """Source-only data (labels allowed). Feeds eraser/head fit, source safety, source benefit."""
+    Zs: np.ndarray
+    ys: np.ndarray
+    z_src: np.ndarray                                           # injected nuisance D_nuis (source-side)
+    n_cls: int
+
+
+@dataclass(frozen=True)
+class CalibrationContext:
+    """Target CALIBRATION data --- labels allowed for B2/B3 ONLY. Never contains audit indices/labels."""
+    Zt_cal: np.ndarray
+    yt_cal: np.ndarray
+    n_per_class: dict
+
+
+@dataclass(frozen=True)
+class UnlabeledTargetContext:
+    """Target features WITHOUT labels --- the only target signal B1 may read (triage)."""
+    Zt: np.ndarray
+
+
+@dataclass(frozen=True)
 class AuditView:
     """The ONLY carrier of audit labels; passed exclusively to the final evaluation, never to a gate."""
     audit_idx: np.ndarray
@@ -139,7 +162,9 @@ def budget_action(ctx: DecisionContext):
             raise ValueError("B1 illegal action %r (accept is forbidden)" % (act,))
         return act
     if fam in ("B2", "B3"):
-        if (ctx.cal_benefit_lcb is not None and ctx.cal_benefit_lcb > ctx.benefit_thr and ctx.beats_random):
+        # accept on the calibration benefit LCB; same-k specificity is a FLAG (accepted_specific vs
+        # accepted_non_specific), computed by the caller -- it does not block the accept.
+        if ctx.cal_benefit_lcb is not None and ctx.cal_benefit_lcb > ctx.benefit_thr:
             return DEPLOYABLE_ACCEPT
         return "abstain"
     raise ValueError("unhandled budget %r" % (ctx.budget,))

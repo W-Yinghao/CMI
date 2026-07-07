@@ -11,10 +11,12 @@ from collections import Counter
 OUT = "tos_cmi/results/target_info/tier1_driver_dryrun"
 
 
-def write_report(cfg, plan, schema, token, out=OUT):
+def write_report(cfg, plan, schema, token, out=OUT, expanded=None):
     sc = cfg["tier1_scope"]
     by_budget = Counter(r["budget"] for r in plan)
     la = schema["label_access"]
+    cp = schema.get("code_path_access", {})
+    exp = schema.get("expansion", {})
     n_folds = 5 if sc["folds"] == "first5" else int(sc["folds"])
     L = ["# Fork 1 Tier-1 smoke --- DRY-RUN plan (NO experiments; NO metrics)\n",
          "Implementation stage: `experiments_allowed=%s`, `runs_allowed=%s`, design_lock_hash=`%s`."
@@ -30,12 +32,15 @@ def write_report(cfg, plan, schema, token, out=OUT):
          "- world_alpha_grid (inner loop): %s" % cfg.get("world_alpha_grid"),
          "- interventions: %s\n" % ", ".join(cfg["interventions"]),
          "## Task plan",
-         "- **expected task count (plan rows) = %d**" % len(plan),
+         "- **plan rows = %d**" % len(plan),
          "  (= datasets %d x backbones %d x worlds %d x folds %d x budgets %d x interventions %d)"
          % (len(sc["datasets"]), len(sc["backbones"]), len(cfg["worlds"]),
             n_folds, len(cfg["budgets"]), len(cfg["interventions"])),
-         "- per budget: %s" % dict(by_budget),
-         "- inner-loop multipliers (NOT plan rows): world_alpha_grid %s, k_grid %s, R %s\n"
+         "- per budget (plan rows): %s" % dict(by_budget),
+         "- **expanded executable tasks = %s**" % exp.get("expanded_tasks"),
+         "  expansion rule: %s" % exp.get("rule"),
+         "  expanded per budget family: %s" % exp.get("expanded_by_budget_family"),
+         "- inner-loop multipliers: world_alpha_grid %s, k_grid %s, R %s\n"
          % (schema["inner_loops"]["world_alpha_grid"], schema["inner_loops"]["k_grid"],
             schema["inner_loops"]["repeats_R"]),
          "## Calibration / audit split policy",
@@ -49,6 +54,16 @@ def write_report(cfg, plan, schema, token, out=OUT):
          "- target CALIBRATION labels -> %s" % ", ".join(la["target_calibration_labels"]),
          "- target AUDIT labels -> %s" % ", ".join(la["target_audit_labels"]),
          "- B4 oracle labels -> %s\n" % ", ".join(la["B4_oracle_labels"]),
+         "## Code-path label access (which function may read which labels)",
+         "- `compute_decision_row` may read: %s" % ", ".join(cp.get("compute_decision_row", [])),
+         "- `compute_decision_row` MUST NOT read: %s" % ", ".join(cp.get("compute_decision_row_forbidden", [])),
+         "- `calibration_delta_bacc` may read: %s" % ", ".join(cp.get("calibration_delta_bacc", [])),
+         "- `audit_scalar` may read: %s\n" % ", ".join(cp.get("audit_scalar", [])),
+         "## Expected real-run output schema (for reference; NOT produced now)",
+         "- decision rows: %s" % ", ".join(schema["expected_run_output_schema"]["decision_rows"]),
+         "- audit reported separately: %s" % ", ".join(schema["expected_run_output_schema"]["audit_reported_separately"]),
+         "- accounting: %s" % ", ".join(schema["expected_run_output_schema"]["accounting"]),
+         "- B4 excluded from: %s\n" % ", ".join(schema["expected_run_output_schema"]["b4_excluded_from"]),
          "## Hard gates",
          "- B1 accept forbidden: %s ; B4 diagnostic-only: %s" % (schema["b1_accept_forbidden"],
                                                                  schema["b4_diagnostic_only"]),
