@@ -45,8 +45,8 @@
   "fixed_trials_max_feasible_N": "8",
   "growing_trials_condition_feasible": true,
   "runheldout_l1_feasible": true,
-  "codebrain_64ch_forward_pass": null,
-  "cbramod_64ch_forward_pass": null,
+  "codebrain_64ch_forward_pass": true,
+  "cbramod_64ch_forward_pass": true,
   "target_labels_used_for_selection": false,
   "gates": {
     "G1_ge100_subjects": true,
@@ -56,8 +56,20 @@
     "G7_fixed_feasible": false,
     "G8_growing_feasible": true,
     "G9_runheldout_feasible": true,
-    "G10_firewall": true
+    "G10_firewall": true,
+    "G5_codebrain_64ch": true,
+    "G6_cbramod_64ch": true
   },
   "proceed_to_8c1": null,
-  "note": "8C-0 manifest/feasibility done; encoder 64ch sanity (G5/G6) pending GPU step."
+  "note": "8C-0 COMPLETE. Two items for PM: (1) fixed-trials capped at N=8; (2) CodeBrain task marginal on PhysioNetMI -> CBraMod primary, CodeBrain exploratory.",
+  "encoder_task_bacc_8subj_sanity": {
+    "codebrain": 0.5259,
+    "cbramod": 0.6155
+  },
+  "codebrain_task_marginal": true,
+  "fixed_trials_note": "feasibility-truncated to N<=8 (v2 MAJOR-A anticipated; ~45 trials/subj); growing spans full grid; Panel-D fixed-vs-growing over {2,4,8}",
+  "G7_fixed_full_grid": false,
+  "G7_disposition": "not a hard gate; v2 pre-registered fixed-trials truncation; report per PM STOP-3",
+  "proceed_to_8c1_recommended": true,
+  "primary_substrate_recommendation": "CBraMod primary (deterministic, task 0.616) + CodeBrain EXPLORATORY (task 0.526 near-chance on 8-subj sanity; frozen F1 weak on PhysioNetMI imagined-fist; may improve with 90 source subjects but flagged) -- per PM rule 'G5 marginal/fails, G6 passes -> CBraMod deterministic primary'"
 }

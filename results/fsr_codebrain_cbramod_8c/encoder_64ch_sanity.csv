@@ -1,0 +1,3 @@
+model,n_subjects,n_trials,repeat_max,batchgroup_max,finite,median_pairwise_L2,loso_task_bacc,task_chance,sanity_pass
+codebrain,8,360,0.0,0.001867,True,64.6941,0.5259,0.5,True
+cbramod,8,360,0.0,3e-06,True,6.8236,0.6155,0.5,True
