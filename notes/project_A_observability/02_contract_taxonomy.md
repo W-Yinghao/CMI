@@ -55,6 +55,7 @@ contract can be checkable and false, or true and uncheckable.
 | **C12** | domain-factor separability | each `D_j` validly assigned acquisition (invariance-eligible) vs label-mechanism role; `determines_label` correct | OACI / CSC, legitimacy of invariance | metadata + test `D_j⇒Y` | source `D_j⇒Y` test (as R0) + target metadata | better with anchors | **P0-4** (subject=label `Y=g(D)`) |
 | **C13** | class-balanced calibration design | the R2 labeled slice is collected with controlled/stratified class balance (a fixed number of trials **per class**) | balanced-accuracy gain estimation from small slices; class-balanced harm-control policies (Step 17) | ✗ | ✗ | ✓ from labels / calibration protocol | **iid small-`k` may omit a class ⇒ bAcc-gain undefined / high-variance** — treating iid `k` labels as a reliable bAcc-gain estimate is the overclaim C13 blocks |
 | **C14** | declared deployment prior / utility weighting | the deployer **declares** the class prior `π*` / utility weights under which target risk/gain is evaluated (an external operating condition, not source-only estimated) | prior-stressed risk/gain (Step 18); distinguishing benchmark-uniform bAcc from deployment-weighted risk; prior-weighted harm-channel analysis | ✗ (unless an external deployment axiom) | ~ (utility declarable externally; the **target prior** itself only under TU-1) | ✓ labels can validate/bound the empirical operating prior | **the same class-wise recall deltas can be beneficial under one prior and harmful under another** — reporting a gain under one prior as if it holds under all target priors is the overclaim C14 blocks |
+| **C15** | declared prior-uncertainty set / robustness criterion | the deployer **declares** a set of admissible operating priors (e.g. an L1 ball around a reference prior) and asks for worst-/best-case gain over that set | robust prior-weighted gain intervals (Step 19); sign robustness under declared prior uncertainty; prior-uncertainty frontiers | ✗ (unless an external operating axiom) | ~ (uncertainty set declarable; the **target prior** only under TU-1) | ✓ labels can validate/bound the empirical prior | **a gain positive under one declared prior may be negative under a nearby admissible prior** — reporting a gain as prior-robust without declaring the uncertainty set is the overclaim C15 blocks |
 
 **C13 note (Step 17).** C13 is a *design* contract for the R2 labeled slice, not a distributional
 assumption on the world. It is plausible in cued BCI protocols (you can elicit N trials per class) but
@@ -69,6 +70,13 @@ estimand only under a **declared** deployment prior (C14) *or* an identified tar
 evaluation scenario*, **not** an identification of the actual target prior. C14 must never be read as
 "the target prior is identified source-only"; that remains a forbidden overclaim (it is the
 Prior-Decoupled boundary, [[04_prior_decoupled_theory]]).
+
+**C15 note (Step 19).** C15 is also registered (`registry.py`, `no/partial/yes`). The audit gates a
+`robust_prior_weighted_gain` estimand on C15 (a declared prior-uncertainty *set*); a **point** prior
+(C14) does not certify robustness over a set, so C14 alone is insufficient for a robustness claim. Like
+C14, C15 is a *declared* operating assumption and never identifies the actual target prior (that needs
+TU-1). Reporting a gain as prior-robust without declaring the uncertainty set — or reading C15 as the
+identified target prior — is a forbidden overclaim.
 
 ## 3. Contracts that need the most care
 

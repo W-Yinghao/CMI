@@ -369,6 +369,22 @@ no new datasets, no retraining (reuses Step-13 raw per-trial predictions). Outpu
 `step18_science_dashboard.{json,md}`. Tests: `test_harm_mechanisms.py`, `test_prior_stress.py`,
 `test_observability_audit.py` (C14), `test_observability_science_dashboard.py`.
 
+## 19. Prior-uncertainty robustness frontier
+
+Step 19 evaluates counterfactual prior-uncertainty sets around the benchmark prior. It reports robust
+gain intervals over L1 balls `U_ρ = {π : ||π − u||_1 ≤ ρ}` (exact greedy mass-transfer optimizer,
+`prior_uncertainty.py`), the minimal L1 radius to flip the gain sign, and a worst-case adaptation policy
+`adapt/block/abstain` (`prior_robust_policy.py`).
+
+These are **declared-prior / declared-uncertainty** analyses (contract **C15**). They do not identify the
+actual target prior under R0/R1. The audit gates the `robust_prior_weighted_gain` estimand on C15 (a
+declared *set*); a point prior (C14) does not certify robustness. Class deltas are oracle/evaluation-only;
+this is not a deployable selector. No SOTA, no manuscript, no new datasets, no retraining (reuses the
+Step-18 class deltas). Outputs: `results_summaries/step19_prior_uncertainty_frontier.{json,md}`,
+`step19_prior_robust_policy.{json,md}`, `step19_science_dashboard.{json,md}`. Tests:
+`test_prior_uncertainty.py` (validated vs binary closed form + brute-force grid), `test_prior_robust_policy.py`,
+`test_observability_audit.py` (C15), `test_observability_science_dashboard.py`.
+
 ---
 
 **Scope.** This protocol governs how results are *reported and bounded*. Tier 0 is live
@@ -378,6 +394,6 @@ statistical digest (§9), the multi-dataset audited expansion + chance-normalize
 (§10), the Step-12 scientific exploration (§12), the Step-13 rich-R1 diagnostics + real
 minimal-label curves (§13), the Step-14 metric-semantics + power repair (§14), the Step-15
 coverage-aware harm-control policies (§15), the Step-16 benefit anatomy + sequential
-label-acquisition frontier (§16), the Step-17 estimand-consistent harm control (§17), and the Step-18
-harm channels + target-prior stress (§18) are live. A full multi-dataset SOTA table and manuscript
-writing are out of scope.
+label-acquisition frontier (§16), the Step-17 estimand-consistent harm control (§17), the Step-18
+harm channels + target-prior stress (§18), and the Step-19 prior-uncertainty robustness frontier (§19)
+are live. A full multi-dataset SOTA table and manuscript writing are out of scope.

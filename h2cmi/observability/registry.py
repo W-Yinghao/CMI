@@ -80,10 +80,15 @@ CONTRACTS: Dict[C, ContractSpec] = {
                         "deployer DECLARES the class prior π* / utility weights under which target "
                         "risk/gain is evaluated (external operating condition, not source-only estimated)",
                         _ck(_NO, _PARTIAL, _YES), "CE-R1-2"),
+    C.C15: ContractSpec(C.C15, "declared prior-uncertainty set / robustness criterion",
+                        "deployer DECLARES a set of admissible operating priors (e.g. an L1 ball around a "
+                        "reference prior) and asks for worst-/best-case gain over that set",
+                        _ck(_NO, _PARTIAL, _YES), "CE-R1-2"),
 }
 # NOTE: C13 (class-balanced calibration DESIGN, Step 17) is intentionally documentation-only and is NOT
 # registered here — it is a data-acquisition design contract, not a machine claim-gating contract. C14
-# IS registered because prior-weighted gain claims are gated on it (see audit.PRIOR_WEIGHTED_GAIN).
+# (Step 18) and C15 (Step 19) ARE registered because prior-weighted / robust-prior-weighted gain claims
+# are gated on them (see audit.PRIOR_WEIGHTED_GAIN / ROBUST_PRIOR_WEIGHTED_GAIN).
 
 
 class TheoremSpec:
@@ -123,6 +128,8 @@ FORBIDDEN_CLAIMS = (
     "R1 unlabeled-target balanced accuracy reported as identifiable target metric",
     "declared deployment prior identifies the actual target prior",   # C14 must not become TU-1
     "prior-weighted gain reported as holding under all target priors",  # sign is prior-dependent
+    "gain reported as prior-robust without a declared prior-uncertainty set",  # C15 must be declared
+    "declared prior-uncertainty set identifies the actual target prior",  # C15 must not become TU-1
 )
 
 

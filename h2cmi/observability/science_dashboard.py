@@ -485,6 +485,99 @@ def build_step18_dashboard(harm_mechanisms, prior_stress, step_label="Step 18") 
                                "target-prior claim (Prior-Decoupled boundary). No SOTA.")}
 
 
+def build_step19_dashboard(prior_uncertainty, prior_robust_policy, step_label="Step 19") -> Dict[str, Any]:
+    pu = prior_uncertainty or {}
+    pp = prior_robust_policy or {}
+    best = pp.get("best_prior_robust_policy")
+    rb10 = (pu.get("fraction_robust_benefit_by_rho") or {}).get("0.1")
+    claim_ok = (pu.get("actual_target_prior_identified") is False
+                and pu.get("deployment_prior_identified_under_R1") is False
+                and pu.get("prior_uncertainty_contract_required") == "C15"
+                and pp.get("actual_target_prior_identified") is False
+                and pp.get("robust_adapt_never_uniform_harmful") is True
+                and pu.get("claim_boundary_ok") is True and pp.get("claim_boundary_ok") is True)
+    metrics = {
+        "n_real_runs": pu.get("n_runs"),
+        "median_l1_flip_radius_from_uniform": pu.get("median_flip_radius_from_uniform"),
+        "q25_flip_radius": pu.get("q25_flip_radius"), "q75_flip_radius": pu.get("q75_flip_radius"),
+        "n_unflippable_over_simplex": pu.get("n_unflippable_over_simplex"),
+        "fraction_flip_within_l1_0_10": pu.get("fraction_flip_within_l1_0_10"),
+        "fraction_flip_within_l1_0_20": pu.get("fraction_flip_within_l1_0_20"),
+        "fraction_flip_within_l1_0_50": pu.get("fraction_flip_within_l1_0_50"),
+        "fraction_ambiguous_at_rho_0_10": (pu.get("fraction_ambiguous_by_rho") or {}).get("0.1"),
+        "fraction_robust_harm_at_rho_0_10": (pu.get("fraction_robust_harm_by_rho") or {}).get("0.1"),
+        "fraction_robust_benefit_at_rho_0_10": rb10,
+        "prior_robust_safe_adaptation_exists_at_rho_0_10": bool(rb10 and rb10 > 0),
+        "robust_prior_safe_adaptation_exists_with_harm_margin": bool(
+            pp.get("robust_prior_safe_adaptation_exists_any")),
+        "best_prior_robust_policy_rho": None if best is None else best.get("rho"),
+        "best_prior_robust_policy_tau": None if best is None else best.get("tau"),
+        "prior_uncertainty_contract_required": pu.get("prior_uncertainty_contract_required"),
+        "deployment_prior_identified_under_R1": bool(pu.get("deployment_prior_identified_under_R1")),
+        "claim_boundary_ok": claim_ok,
+    }
+    med = metrics["median_l1_flip_radius_from_uniform"]
+    w10, w20 = metrics["fraction_flip_within_l1_0_10"], metrics["fraction_flip_within_l1_0_20"]
+    frag = (f"The gain sign is FRAGILE: median L1 flip-radius from uniform is {med} (q25 "
+            f"{metrics['q25_flip_radius']} / q75 {metrics['q75_flip_radius']}); {w10} of runs flip within "
+            f"L1≤0.10 and {w20} within ≤0.20. Only {metrics['n_unflippable_over_simplex']} runs cannot "
+            f"flip over the whole simplex.")
+    rb = metrics["fraction_robust_benefit_at_rho_0_10"]
+    if not metrics["robust_prior_safe_adaptation_exists_with_harm_margin"]:
+        safe = (f"Safe adaptation CANNOT be certified under bounded prior uncertainty: no (rho, tau) with "
+                f"a harm margin tau>=0.05 yields any robustly-beneficial run (best policy = none). Even at "
+                f"the zero-margin sign level only {rb} of runs are robustly beneficial at rho=0.10, "
+                f"collapsing to 0 by rho=0.20. Robust-benefit is not attainable under declared uncertainty.")
+    else:
+        safe = (f"A prior-robust safe adaptation exists (best rho={metrics['best_prior_robust_policy_rho']}, "
+                f"tau={metrics['best_prior_robust_policy_tau']}); reported only over the DECLARED prior set, "
+                f"never as an identified deployment guarantee.")
+    harm = (f"Identity/block is robustly justified for a meaningful fraction: robust-harm "
+            f"{metrics['fraction_robust_harm_at_rho_0_10']} at rho=0.10, ambiguity "
+            f"{metrics['fraction_ambiguous_at_rho_0_10']} — under bounded prior uncertainty most decisions "
+            f"become abstain, and robust adaptation is never certifiable here.")
+    learned = [frag, safe, harm,
+               ("Robust bounds are over DECLARED L1 prior-uncertainty sets (C15); class deltas are oracle/"
+                "evaluation-only; this is not a deployable selector and does not identify the actual target "
+                "prior. No SOTA.")]
+    return {"project": "Project A", "step": step_label,
+            "scope": "prior-uncertainty robustness frontier + prior-robust policy (C15); not SOTA",
+            "metrics": metrics, "what_we_learned": learned,
+            "what_remains_unknown": [
+                "Whether the true operating prior lies within a small L1 ball of uniform (needs TU-1-grade evidence).",
+                "Whether class-specific harm channels can be avoided by a utility-aware acquisition.",
+                "Whether the sign fragility persists on clinical / non-motor-imagery EEG."],
+            "claim_boundary": ("Robust gain bounds are over DECLARED prior-uncertainty sets (C15); class "
+                               "deltas are oracle/evaluation-only; the actual target prior is NOT identified "
+                               "(Prior-Decoupled boundary). No SOTA.")}
+
+
+def write_step19_md(d: Dict[str, Any], path) -> str:
+    m = d["metrics"]
+    lines = [f"# {d['step']} — Science Dashboard (prior-uncertainty robustness frontier)", "",
+             f"Scope: {d['scope']}.", "", "## Key metrics", "",
+             f"- real runs: **{m['n_real_runs']}** · median L1 flip-radius from uniform "
+             f"**{m['median_l1_flip_radius_from_uniform']}** (q25 **{m['q25_flip_radius']}** / q75 "
+             f"**{m['q75_flip_radius']}**) · unflippable **{m['n_unflippable_over_simplex']}**",
+             f"- flip within L1 ≤0.10 **{m['fraction_flip_within_l1_0_10']}** · ≤0.20 "
+             f"**{m['fraction_flip_within_l1_0_20']}** · ≤0.50 **{m['fraction_flip_within_l1_0_50']}**",
+             f"- at ρ=0.10: robust-harm **{m['fraction_robust_harm_at_rho_0_10']}** · ambiguous "
+             f"**{m['fraction_ambiguous_at_rho_0_10']}** · robust-benefit **{m['fraction_robust_benefit_at_rho_0_10']}**",
+             f"- prior-robust safe adaptation exists @ρ0.10 (sign) **{m['prior_robust_safe_adaptation_exists_at_rho_0_10']}** · "
+             f"with harm margin **{m['robust_prior_safe_adaptation_exists_with_harm_margin']}** · best policy "
+             f"ρ **{m['best_prior_robust_policy_rho']}** τ **{m['best_prior_robust_policy_tau']}**",
+             f"- prior-uncertainty contract required **{m['prior_uncertainty_contract_required']}** · "
+             f"deployment prior identified under R1 **{m['deployment_prior_identified_under_R1']}** · claim "
+             f"boundary ok **{m['claim_boundary_ok']}**", "", "## What we learned", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_we_learned"], 1)]
+    lines += ["", "## What remains unknown", ""]
+    lines += [f"{i}. {x}" for i, x in enumerate(d["what_remains_unknown"], 1)]
+    lines += ["", "> " + d["claim_boundary"]]
+    text = "\n".join(lines) + "\n"
+    write_text_lf(path, text)
+    return text
+
+
 def write_step18_md(d: Dict[str, Any], path) -> str:
     m = d["metrics"]
     lines = [f"# {d['step']} — Science Dashboard (harm mechanisms + prior stress)", "",
@@ -654,12 +747,21 @@ def main(argv=None):
     ap.add_argument("--estimand-frontier", default=None, help="Step-17: per-estimand frontier JSON")
     ap.add_argument("--harm-mechanisms", default=None, help="Step-18: harm-mechanism JSON")
     ap.add_argument("--prior-stress", default=None, help="Step-18: deployment-prior stress JSON")
+    ap.add_argument("--prior-uncertainty", default=None, help="Step-19: prior-uncertainty frontier JSON")
+    ap.add_argument("--prior-robust-policy", default=None, help="Step-19: prior-robust policy JSON")
     ap.add_argument("--step-label", default="Step 13", help="dashboard provenance label")
     ap.add_argument("--out-json", default=None)
     ap.add_argument("--out-md", default=None)
     args = ap.parse_args(argv)
 
-    if args.harm_mechanisms:                                  # Step 18
+    if args.prior_uncertainty:                                # Step 19
+        label = "Step 19" if args.step_label == "Step 13" else args.step_label
+        d = build_step19_dashboard(
+            _load_json(Path(args.prior_uncertainty)),
+            _load_json(Path(args.prior_robust_policy)) if args.prior_robust_policy else None,
+            step_label=label)
+        md_writer = write_step19_md
+    elif args.harm_mechanisms:                                # Step 18
         label = "Step 18" if args.step_label == "Step 13" else args.step_label
         d = build_step18_dashboard(
             _load_json(Path(args.harm_mechanisms)),

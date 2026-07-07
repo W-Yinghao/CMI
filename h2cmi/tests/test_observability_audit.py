@@ -222,11 +222,47 @@ def test_prior_weighted_gain_claim_requires_declared_prior_or_tu1():
     assert tu1.allowed and tu1.theorem == "TU-1"
 
 
+def test_c15_registered_as_prior_uncertainty_contract():
+    from h2cmi.observability.registry import CONTRACTS
+    assert C.C15 in CONTRACTS
+    name = CONTRACTS[C.C15].name.lower()
+    assert "prior-uncertainty" in name or "robustness" in name
+    assert CONTRACTS[C.C15].checkable[Regime.R0] == "no"
+    assert check_monotone_checkability()               # C15 must not break MONO-1
+
+
+def test_c15_does_not_identify_actual_target_prior_under_r1():
+    # a target_prior claim carrying only C15 is still rejected under R1 — C15 declares an uncertainty
+    # SET, it does not identify the actual target prior (must not become TU-1).
+    v = check_claim_allowed(Claim("r1-prior-c15", Regime.R1, Estimand.TARGET_PRIOR, contracts={C.C15}))
+    assert v.rejected and not v.identifiable and C.C1 in v.missing_contracts
+
+
+def test_robust_prior_weighted_gain_requires_c15():
+    bare = check_claim_allowed(Claim("rpwg-bare", Regime.R2, Estimand.ROBUST_PRIOR_WEIGHTED_GAIN,
+                                     oracle=True))
+    assert bare.rejected and C.C15 in bare.missing_contracts
+    ok = check_claim_allowed(Claim("rpwg-c15", Regime.R2, Estimand.ROBUST_PRIOR_WEIGHTED_GAIN,
+                                   contracts={C.C15}, oracle=True))
+    assert ok.allowed and not ok.identifiable and "counterfactual" in ok.reason
+
+
+def test_c14_point_prior_does_not_imply_c15_robustness():
+    # a declared POINT prior (C14) does not certify robustness over a SET — robust gain still needs C15.
+    v = check_claim_allowed(Claim("rpwg-c14only", Regime.R2, Estimand.ROBUST_PRIOR_WEIGHTED_GAIN,
+                                  contracts={C.C14}, oracle=True))
+    assert v.rejected and C.C15 in v.missing_contracts
+
+
 ALL_TESTS = [
     test_registry_monotone_checkability,
     test_c14_registered_as_deployment_prior_contract,
     test_c14_does_not_make_target_prior_identifiable_under_r1,
     test_prior_weighted_gain_claim_requires_declared_prior_or_tu1,
+    test_c15_registered_as_prior_uncertainty_contract,
+    test_c15_does_not_identify_actual_target_prior_under_r1,
+    test_robust_prior_weighted_gain_requires_c15,
+    test_c14_point_prior_does_not_imply_c15_robustness,
     test_r0_source_loso_allowed,
     test_r0_target_gain_rejected_with_ce_r0_2,
     test_r1_target_prior_requires_c1_c2_c3,

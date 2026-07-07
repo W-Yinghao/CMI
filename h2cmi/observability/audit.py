@@ -226,6 +226,19 @@ def check_claim_allowed(claim: Claim) -> Verdict:
                               "counterfactual evaluation scenario, NOT the identified target prior",
                         reg, cs, identifiable=False, reportable=True)
 
+    # --- robust prior-weighted gain: needs a DECLARED prior-uncertainty SET (C15). A point prior ------
+    # (C14) is NOT enough — robustness is a claim about a SET of priors. If the set is anchored on an
+    # estimated target prior it also needs TU-1. C15 declares an uncertainty set; it never identifies the
+    # actual target prior. Bounds rest on oracle class deltas, so reportable/eval-only, not R0/R1 id.
+    if est == Estimand.ROBUST_PRIOR_WEIGHTED_GAIN:
+        if ContractID.C15 not in cs:
+            return _verdict(False, "robust prior-weighted gain needs a DECLARED prior-uncertainty set "
+                                   "(C15); a point prior (C14) does not certify robustness over a set",
+                            reg, cs, cert="CE-R1-2", missing=frozenset({ContractID.C15}))
+        return _verdict(True, "robust prior-weighted gain over a DECLARED prior-uncertainty set (C15); a "
+                              "counterfactual robustness scenario, NOT the identified target prior",
+                        reg, cs, identifiable=False, reportable=True)
+
     # --- balanced accuracy: oracle eval-only; R0 source metric; R1 non-id; R2 labeled ---------
     if est == Estimand.BALANCED_ACCURACY:
         # an oracle target bAcc (strict-DG / TTA eval) is REPORTABLE but not identified from R0/R1

@@ -1,0 +1,37 @@
+{
+  "project": "Project A",
+  "step": "Step 19",
+  "scope": "prior-uncertainty robustness frontier + prior-robust policy (C15); not SOTA",
+  "metrics": {
+    "n_real_runs": 54,
+    "median_l1_flip_radius_from_uniform": 0.165151,
+    "q25_flip_radius": 0.073094,
+    "q75_flip_radius": 0.304194,
+    "n_unflippable_over_simplex": 2,
+    "fraction_flip_within_l1_0_10": 0.2778,
+    "fraction_flip_within_l1_0_20": 0.6296,
+    "fraction_flip_within_l1_0_50": 0.8704,
+    "fraction_ambiguous_at_rho_0_10": 0.2778,
+    "fraction_robust_harm_at_rho_0_10": 0.6852,
+    "fraction_robust_benefit_at_rho_0_10": 0.037,
+    "prior_robust_safe_adaptation_exists_at_rho_0_10": true,
+    "robust_prior_safe_adaptation_exists_with_harm_margin": false,
+    "best_prior_robust_policy_rho": null,
+    "best_prior_robust_policy_tau": null,
+    "prior_uncertainty_contract_required": "C15",
+    "deployment_prior_identified_under_R1": false,
+    "claim_boundary_ok": true
+  },
+  "what_we_learned": [
+    "The gain sign is FRAGILE: median L1 flip-radius from uniform is 0.165151 (q25 0.073094 / q75 0.304194); 0.2778 of runs flip within L1≤0.10 and 0.6296 within ≤0.20. Only 2 runs cannot flip over the whole simplex.",
+    "Safe adaptation CANNOT be certified under bounded prior uncertainty: no (rho, tau) with a harm margin tau>=0.05 yields any robustly-beneficial run (best policy = none). Even at the zero-margin sign level only 0.037 of runs are robustly beneficial at rho=0.10, collapsing to 0 by rho=0.20. Robust-benefit is not attainable under declared uncertainty.",
+    "Identity/block is robustly justified for a meaningful fraction: robust-harm 0.6852 at rho=0.10, ambiguity 0.2778 — under bounded prior uncertainty most decisions become abstain, and robust adaptation is never certifiable here.",
+    "Robust bounds are over DECLARED L1 prior-uncertainty sets (C15); class deltas are oracle/evaluation-only; this is not a deployable selector and does not identify the actual target prior. No SOTA."
+  ],
+  "what_remains_unknown": [
+    "Whether the true operating prior lies within a small L1 ball of uniform (needs TU-1-grade evidence).",
+    "Whether class-specific harm channels can be avoided by a utility-aware acquisition.",
+    "Whether the sign fragility persists on clinical / non-motor-imagery EEG."
+  ],
+  "claim_boundary": "Robust gain bounds are over DECLARED prior-uncertainty sets (C15); class deltas are oracle/evaluation-only; the actual target prior is NOT identified (Prior-Decoupled boundary). No SOTA."
+}

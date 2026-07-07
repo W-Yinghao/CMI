@@ -1,0 +1,3092 @@
+{
+  "project": "Project A",
+  "step": "Step 19",
+  "scope": "prior-uncertainty robustness frontier (declared set, contract C15); not SOTA",
+  "n_runs": 54,
+  "rhos": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.3,
+    0.5,
+    1.0,
+    2.0
+  ],
+  "taus": [
+    0.0,
+    0.01,
+    0.02,
+    0.05
+  ],
+  "reference_prior": "uniform",
+  "n_unflippable_over_simplex": 2,
+  "median_flip_radius_from_uniform": 0.165151,
+  "q25_flip_radius": 0.073094,
+  "q75_flip_radius": 0.304194,
+  "fraction_flip_within_l1_0_10": 0.2778,
+  "fraction_flip_within_l1_0_20": 0.6296,
+  "fraction_flip_within_l1_0_50": 0.8704,
+  "fraction_ambiguous_by_rho": {
+    "0.0": 0.0,
+    "0.05": 0.1667,
+    "0.1": 0.2778,
+    "0.2": 0.6296,
+    "0.3": 0.7037,
+    "0.5": 0.8704,
+    "1.0": 0.963,
+    "2.0": 0.963
+  },
+  "fraction_robust_harm_by_rho": {
+    "0.0": 0.8519,
+    "0.05": 0.7593,
+    "0.1": 0.6852,
+    "0.2": 0.3704,
+    "0.3": 0.2963,
+    "0.5": 0.1296,
+    "1.0": 0.037,
+    "2.0": 0.037
+  },
+  "fraction_robust_benefit_by_rho": {
+    "0.0": 0.1481,
+    "0.05": 0.0741,
+    "0.1": 0.037,
+    "0.2": 0.0,
+    "0.3": 0.0,
+    "0.5": 0.0,
+    "1.0": 0.0,
+    "2.0": 0.0
+  },
+  "sign_status_tau": 0.0,
+  "prior_uncertainty_contract_required": "C15",
+  "actual_target_prior_identified": false,
+  "deployment_prior_identified_under_R1": false,
+  "runs": [
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 0,
+      "n_classes": 4,
+      "uniform_gain": -0.048611,
+      "class_delta_vector": [
+        -0.1875,
+        0.305556,
+        -0.298611,
+        -0.013889
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.160919,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.048611,
+          "upper": -0.048611,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.063715,
+          "upper": -0.033507,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.078819,
+          "upper": -0.018403,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.109028,
+          "upper": 0.011806,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.139236,
+          "upper": 0.042014,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.199653,
+          "upper": 0.102431,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.270833,
+          "upper": 0.225695,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.298611,
+          "upper": 0.305556,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 1,
+      "n_classes": 4,
+      "uniform_gain": -0.204861,
+      "class_delta_vector": [
+        -0.361111,
+        -0.493056,
+        0.048611,
+        -0.013889
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.838984,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.204861,
+          "upper": -0.204861,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.218403,
+          "upper": -0.19132,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.231945,
+          "upper": -0.177778,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.259028,
+          "upper": -0.150695,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.286111,
+          "upper": -0.123611,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.340278,
+          "upper": -0.069445,
+          "sign_status": "robust_harm"
+        },
+        "1.0": {
+          "lower": -0.46007,
+          "upper": 0.032986,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.493056,
+          "upper": 0.048611,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 1,
+      "seed": 2,
+      "n_classes": 4,
+      "uniform_gain": -0.100694,
+      "class_delta_vector": [
+        -0.354167,
+        -0.215278,
+        0.027778,
+        0.138889
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.408451,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.100694,
+          "upper": -0.100694,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.113021,
+          "upper": -0.088368,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.125347,
+          "upper": -0.076042,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.15,
+          "upper": -0.051389,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.174653,
+          "upper": -0.026736,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.223959,
+          "upper": 0.02257,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.319445,
+          "upper": 0.111111,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.354167,
+          "upper": 0.138889,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 0,
+      "n_classes": 4,
+      "uniform_gain": -0.03993,
+      "class_delta_vector": [
+        -0.180556,
+        0.638889,
+        -0.611111,
+        -0.006944
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.063889,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.03993,
+          "upper": -0.03993,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.07118,
+          "upper": -0.00868,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.10243,
+          "upper": 0.02257,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.16493,
+          "upper": 0.08507,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.22743,
+          "upper": 0.14757,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.35243,
+          "upper": 0.27257,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.503472,
+          "upper": 0.477431,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.611111,
+          "upper": 0.638889,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 1,
+      "n_classes": 4,
+      "uniform_gain": -0.039931,
+      "class_delta_vector": [
+        -0.055556,
+        -0.361111,
+        0.263889,
+        -0.006944
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.127778,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.039931,
+          "upper": -0.039931,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.055556,
+          "upper": -0.024306,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.071181,
+          "upper": -0.008681,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.102431,
+          "upper": 0.022569,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.133681,
+          "upper": 0.053819,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.196181,
+          "upper": 0.116319,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.284722,
+          "upper": 0.196181,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.361111,
+          "upper": 0.263889,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 2,
+      "seed": 2,
+      "n_classes": 4,
+      "uniform_gain": -0.036458,
+      "class_delta_vector": [
+        -0.006944,
+        -0.333333,
+        0.236111,
+        -0.041667
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.128049,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.036458,
+          "upper": -0.036458,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.050694,
+          "upper": -0.022222,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.06493,
+          "upper": -0.007986,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.093403,
+          "upper": 0.020486,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.121875,
+          "upper": 0.048958,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.178819,
+          "upper": 0.105903,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.260416,
+          "upper": 0.175347,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.333333,
+          "upper": 0.236111,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 0,
+      "n_classes": 4,
+      "uniform_gain": -0.112847,
+      "class_delta_vector": [
+        0.270833,
+        -0.076389,
+        -0.076389,
+        -0.569444
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.268595,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.112847,
+          "upper": -0.112847,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.133854,
+          "upper": -0.09184,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.154861,
+          "upper": -0.070833,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.196875,
+          "upper": -0.02882,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.238889,
+          "upper": 0.013194,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.322916,
+          "upper": 0.097222,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.44618,
+          "upper": 0.184027,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.569444,
+          "upper": 0.270833,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 1,
+      "n_classes": 4,
+      "uniform_gain": -0.006944,
+      "class_delta_vector": [
+        -0.298611,
+        0.145833,
+        0.666667,
+        -0.541667
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.011494,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.006944,
+          "upper": -0.006944,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.037153,
+          "upper": 0.023264,
+          "sign_status": "ambiguous"
+        },
+        "0.1": {
+          "lower": -0.067361,
+          "upper": 0.053472,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.127778,
+          "upper": 0.113889,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.188195,
+          "upper": 0.174306,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.309028,
+          "upper": 0.295139,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.480903,
+          "upper": 0.536459,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.541667,
+          "upper": 0.666667,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 3,
+      "seed": 2,
+      "n_classes": 4,
+      "uniform_gain": -0.107639,
+      "class_delta_vector": [
+        -0.222222,
+        -0.145833,
+        -0.111111,
+        0.048611
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.910715,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.107639,
+          "upper": -0.107639,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.11441,
+          "upper": -0.100868,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.12118,
+          "upper": -0.094097,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.134722,
+          "upper": -0.080555,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.148264,
+          "upper": -0.067014,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.175347,
+          "upper": -0.039931,
+          "sign_status": "robust_harm"
+        },
+        "1.0": {
+          "lower": -0.203125,
+          "upper": 0.00868,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.222222,
+          "upper": 0.048611,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 0,
+      "n_classes": 4,
+      "uniform_gain": -0.055556,
+      "class_delta_vector": [
+        0.277778,
+        0.097222,
+        -0.236111,
+        -0.361111
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.173913,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.055556,
+          "upper": -0.055556,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.071528,
+          "upper": -0.039583,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.0875,
+          "upper": -0.023611,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.119444,
+          "upper": 0.008333,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.151389,
+          "upper": 0.040278,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.215278,
+          "upper": 0.104167,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.329861,
+          "upper": 0.232639,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.361111,
+          "upper": 0.277778,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 1,
+      "n_classes": 4,
+      "uniform_gain": -0.059027,
+      "class_delta_vector": [
+        -0.131944,
+        -0.034722,
+        0.340278,
+        -0.409722
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.157407,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.059027,
+          "upper": -0.059027,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.077777,
+          "upper": -0.040277,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.096527,
+          "upper": -0.021527,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.134027,
+          "upper": 0.015973,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.171527,
+          "upper": 0.053472,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.246527,
+          "upper": 0.128473,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.340278,
+          "upper": 0.246528,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.409722,
+          "upper": 0.340278,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 4,
+      "seed": 2,
+      "n_classes": 4,
+      "uniform_gain": -0.036459,
+      "class_delta_vector": [
+        -0.0625,
+        -0.027778,
+        0.284722,
+        -0.340278
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.116667,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.036459,
+          "upper": -0.036459,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.052084,
+          "upper": -0.020834,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.067709,
+          "upper": -0.005209,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.098959,
+          "upper": 0.026041,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.130209,
+          "upper": 0.057291,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.192709,
+          "upper": 0.119791,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.270834,
+          "upper": 0.206597,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.340278,
+          "upper": 0.284722,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 0,
+      "n_classes": 4,
+      "uniform_gain": -0.005208,
+      "class_delta_vector": [
+        -0.027778,
+        0.083333,
+        -0.076389,
+        0.0
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.06522,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.005208,
+          "upper": -0.005208,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.009202,
+          "upper": -0.001215,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.013195,
+          "upper": 0.002778,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.021181,
+          "upper": 0.010764,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.029167,
+          "upper": 0.01875,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.045139,
+          "upper": 0.034722,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.064236,
+          "upper": 0.0625,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.076389,
+          "upper": 0.083333,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 1,
+      "n_classes": 4,
+      "uniform_gain": 0.006944,
+      "class_delta_vector": [
+        -0.020833,
+        -0.159722,
+        0.208333,
+        0.0
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.037736,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": 0.006944,
+          "upper": 0.006944,
+          "sign_status": "robust_benefit"
+        },
+        "0.05": {
+          "lower": -0.002257,
+          "upper": 0.016146,
+          "sign_status": "ambiguous"
+        },
+        "0.1": {
+          "lower": -0.011458,
+          "upper": 0.025347,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.029861,
+          "upper": 0.04375,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.048264,
+          "upper": 0.062153,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.085069,
+          "upper": 0.098958,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.125,
+          "upper": 0.15625,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.159722,
+          "upper": 0.208333,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 5,
+      "seed": 2,
+      "n_classes": 4,
+      "uniform_gain": -0.001736,
+      "class_delta_vector": [
+        -0.006944,
+        -0.645833,
+        0.652778,
+        -0.006944
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.002673,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.001736,
+          "upper": -0.001736,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.034201,
+          "upper": 0.03073,
+          "sign_status": "ambiguous"
+        },
+        "0.1": {
+          "lower": -0.066666,
+          "upper": 0.063195,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.131597,
+          "upper": 0.128125,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.196527,
+          "upper": 0.193056,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.326388,
+          "upper": 0.322917,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.486111,
+          "upper": 0.487847,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.645833,
+          "upper": 0.652778,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 0,
+      "n_classes": 4,
+      "uniform_gain": 0.017361,
+      "class_delta_vector": [
+        0.208333,
+        0.104167,
+        0.013889,
+        -0.256944
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.074628,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": 0.017361,
+          "upper": 0.017361,
+          "sign_status": "robust_benefit"
+        },
+        "0.05": {
+          "lower": 0.005729,
+          "upper": 0.028993,
+          "sign_status": "robust_benefit"
+        },
+        "0.1": {
+          "lower": -0.005903,
+          "upper": 0.040625,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.029166,
+          "upper": 0.063889,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.05243,
+          "upper": 0.087153,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.098958,
+          "upper": 0.13368,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.189236,
+          "upper": 0.182291,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.256944,
+          "upper": 0.208333,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 1,
+      "n_classes": 4,
+      "uniform_gain": 0.010417,
+      "class_delta_vector": [
+        -0.298611,
+        0.020833,
+        0.465278,
+        -0.145833
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.027273,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": 0.010417,
+          "upper": 0.010417,
+          "sign_status": "robust_benefit"
+        },
+        "0.05": {
+          "lower": -0.00868,
+          "upper": 0.029514,
+          "sign_status": "ambiguous"
+        },
+        "0.1": {
+          "lower": -0.027778,
+          "upper": 0.048611,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.065972,
+          "upper": 0.086806,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.104167,
+          "upper": 0.125,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.180556,
+          "upper": 0.201389,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.260417,
+          "upper": 0.354167,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.298611,
+          "upper": 0.465278,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 6,
+      "seed": 2,
+      "n_classes": 4,
+      "uniform_gain": -0.02257,
+      "class_delta_vector": [
+        -0.166667,
+        -0.048611,
+        0.041667,
+        0.083333
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.180556,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.02257,
+          "upper": -0.02257,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.02882,
+          "upper": -0.01632,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.03507,
+          "upper": -0.01007,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.04757,
+          "upper": 0.00243,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.060069,
+          "upper": 0.01493,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.08507,
+          "upper": 0.03993,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.137153,
+          "upper": 0.072916,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.166667,
+          "upper": 0.083333,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 0,
+      "n_classes": 4,
+      "uniform_gain": -0.024305,
+      "class_delta_vector": [
+        0.222222,
+        -0.208333,
+        -0.104167,
+        -0.006944
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.112903,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.024305,
+          "upper": -0.024305,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.035069,
+          "upper": -0.013542,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.045833,
+          "upper": -0.002778,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.067361,
+          "upper": 0.01875,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.088889,
+          "upper": 0.040278,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.131944,
+          "upper": 0.083333,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.182292,
+          "upper": 0.164931,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.208333,
+          "upper": 0.222222,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 1,
+      "n_classes": 4,
+      "uniform_gain": -0.005208,
+      "class_delta_vector": [
+        -0.291667,
+        -0.326389,
+        0.604167,
+        -0.006944
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.011194,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.005208,
+          "upper": -0.005208,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.028472,
+          "upper": 0.018056,
+          "sign_status": "ambiguous"
+        },
+        "0.1": {
+          "lower": -0.051736,
+          "upper": 0.04132,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.098264,
+          "upper": 0.087847,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.144792,
+          "upper": 0.134375,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.237847,
+          "upper": 0.227431,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.317708,
+          "upper": 0.451389,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.326389,
+          "upper": 0.604167,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 7,
+      "seed": 2,
+      "n_classes": 4,
+      "uniform_gain": -0.034722,
+      "class_delta_vector": [
+        -0.298611,
+        -0.284722,
+        0.486111,
+        -0.041667
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.088496,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.034722,
+          "upper": -0.034722,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.05434,
+          "upper": -0.015104,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.073958,
+          "upper": 0.004514,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.113194,
+          "upper": 0.04375,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.152431,
+          "upper": 0.082986,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.230903,
+          "upper": 0.161458,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.295139,
+          "upper": 0.354166,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.298611,
+          "upper": 0.486111,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 0,
+      "n_classes": 4,
+      "uniform_gain": -0.046875,
+      "class_delta_vector": [
+        0.131944,
+        -0.013889,
+        -0.020833,
+        -0.284722
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.225,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.046875,
+          "upper": -0.046875,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.057292,
+          "upper": -0.036458,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.067708,
+          "upper": -0.026042,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.088542,
+          "upper": -0.005208,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.109375,
+          "upper": 0.015625,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.151041,
+          "upper": 0.057292,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.21875,
+          "upper": 0.095486,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.284722,
+          "upper": 0.131944,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 1,
+      "n_classes": 4,
+      "uniform_gain": -0.208333,
+      "class_delta_vector": [
+        -0.298611,
+        -0.409722,
+        0.166667,
+        -0.291667
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.776119,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.208333,
+          "upper": -0.208333,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.222743,
+          "upper": -0.193924,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.237153,
+          "upper": -0.179514,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.265972,
+          "upper": -0.150694,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.294792,
+          "upper": -0.121875,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.35243,
+          "upper": -0.064236,
+          "sign_status": "robust_harm"
+        },
+        "1.0": {
+          "lower": -0.381944,
+          "upper": 0.052084,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.409722,
+          "upper": 0.166667,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 8,
+      "seed": 2,
+      "n_classes": 4,
+      "uniform_gain": -0.170139,
+      "class_delta_vector": [
+        -0.25,
+        -0.263889,
+        0.263889,
+        -0.430556
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.49,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.170139,
+          "upper": -0.170139,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.1875,
+          "upper": -0.152778,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.204861,
+          "upper": -0.135417,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.239584,
+          "upper": -0.100695,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.274306,
+          "upper": -0.065972,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.34375,
+          "upper": 0.003472,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.388889,
+          "upper": 0.135417,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.430556,
+          "upper": 0.263889,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 0,
+      "n_classes": 4,
+      "uniform_gain": -0.043402,
+      "class_delta_vector": [
+        0.152778,
+        -0.125,
+        0.243056,
+        -0.444444
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.126262,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.043402,
+          "upper": -0.043402,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.06059,
+          "upper": -0.026215,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.077777,
+          "upper": -0.009027,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.112153,
+          "upper": 0.025348,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.146527,
+          "upper": 0.059722,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.215278,
+          "upper": 0.128472,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.364583,
+          "upper": 0.220486,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.444444,
+          "upper": 0.243056,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 1,
+      "n_classes": 4,
+      "uniform_gain": -0.055555,
+      "class_delta_vector": [
+        -0.131944,
+        -0.298611,
+        0.368056,
+        -0.159722
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.166666,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.055555,
+          "upper": -0.055555,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.072222,
+          "upper": -0.038889,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.088889,
+          "upper": -0.022222,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.122222,
+          "upper": 0.011111,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.155555,
+          "upper": 0.044445,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.222222,
+          "upper": 0.111112,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.263889,
+          "upper": 0.243056,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.298611,
+          "upper": 0.368056,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_001",
+      "target_subject": 9,
+      "seed": 2,
+      "n_classes": 4,
+      "uniform_gain": 0.003472,
+      "class_delta_vector": [
+        -0.159722,
+        -0.020833,
+        0.194444,
+        0.0
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.019608,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": 0.003472,
+          "upper": 0.003472,
+          "sign_status": "robust_benefit"
+        },
+        "0.05": {
+          "lower": -0.005382,
+          "upper": 0.012326,
+          "sign_status": "ambiguous"
+        },
+        "0.1": {
+          "lower": -0.014236,
+          "upper": 0.021181,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.031944,
+          "upper": 0.038889,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.049653,
+          "upper": 0.056597,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.085069,
+          "upper": 0.092014,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.125,
+          "upper": 0.145833,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.159722,
+          "upper": 0.194444,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 0,
+      "n_classes": 2,
+      "uniform_gain": -0.043055,
+      "class_delta_vector": [
+        -0.05,
+        -0.036111
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": null,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.043055,
+          "upper": -0.043055,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.043403,
+          "upper": -0.042708,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.04375,
+          "upper": -0.042361,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.044444,
+          "upper": -0.041667,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.045139,
+          "upper": -0.040972,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.046528,
+          "upper": -0.039583,
+          "sign_status": "robust_harm"
+        },
+        "1.0": {
+          "lower": -0.05,
+          "upper": -0.036111,
+          "sign_status": "robust_harm"
+        },
+        "2.0": {
+          "lower": -0.05,
+          "upper": -0.036111,
+          "sign_status": "robust_harm"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 1,
+      "n_classes": 2,
+      "uniform_gain": -0.055555,
+      "class_delta_vector": [
+        -0.144444,
+        0.033333
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.625002,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.055555,
+          "upper": -0.055555,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.06,
+          "upper": -0.051111,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.064444,
+          "upper": -0.046667,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.073333,
+          "upper": -0.037778,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.082222,
+          "upper": -0.028889,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.1,
+          "upper": -0.011111,
+          "sign_status": "robust_harm"
+        },
+        "1.0": {
+          "lower": -0.144444,
+          "upper": 0.033333,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.144444,
+          "upper": 0.033333,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 1,
+      "seed": 2,
+      "n_classes": 2,
+      "uniform_gain": -0.093056,
+      "class_delta_vector": [
+        -0.291667,
+        0.105556
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.46853,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.093056,
+          "upper": -0.093056,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.102986,
+          "upper": -0.083125,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.112917,
+          "upper": -0.073194,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.132778,
+          "upper": -0.053333,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.152639,
+          "upper": -0.033472,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.192361,
+          "upper": 0.00625,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.291667,
+          "upper": 0.105556,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.291667,
+          "upper": 0.105556,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 0,
+      "n_classes": 2,
+      "uniform_gain": -0.002941,
+      "class_delta_vector": [
+        0.085294,
+        -0.091176
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.033331,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.002941,
+          "upper": -0.002941,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.007353,
+          "upper": 0.001471,
+          "sign_status": "ambiguous"
+        },
+        "0.1": {
+          "lower": -0.011764,
+          "upper": 0.005883,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.020588,
+          "upper": 0.014706,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.029411,
+          "upper": 0.023529,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.047058,
+          "upper": 0.041176,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.091176,
+          "upper": 0.085294,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.091176,
+          "upper": 0.085294,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 1,
+      "n_classes": 2,
+      "uniform_gain": -0.013235,
+      "class_delta_vector": [
+        -0.091176,
+        0.064706
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.169808,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.013235,
+          "upper": -0.013235,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.017132,
+          "upper": -0.009338,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.021029,
+          "upper": -0.005441,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.028823,
+          "upper": 0.002353,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.036617,
+          "upper": 0.010147,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.052205,
+          "upper": 0.025736,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.091176,
+          "upper": 0.064706,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.091176,
+          "upper": 0.064706,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 2,
+      "seed": 2,
+      "n_classes": 2,
+      "uniform_gain": 0.005882,
+      "class_delta_vector": [
+        0.126471,
+        -0.114706
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.048782,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": 0.005882,
+          "upper": 0.005882,
+          "sign_status": "robust_benefit"
+        },
+        "0.05": {
+          "lower": -0.000147,
+          "upper": 0.011912,
+          "sign_status": "ambiguous"
+        },
+        "0.1": {
+          "lower": -0.006176,
+          "upper": 0.017941,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.018235,
+          "upper": 0.03,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.030294,
+          "upper": 0.042059,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.054412,
+          "upper": 0.066177,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.114706,
+          "upper": 0.126471,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.114706,
+          "upper": 0.126471,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 0,
+      "n_classes": 2,
+      "uniform_gain": 0.001389,
+      "class_delta_vector": [
+        0.025,
+        -0.022222
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.058829,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": 0.001389,
+          "upper": 0.001389,
+          "sign_status": "robust_benefit"
+        },
+        "0.05": {
+          "lower": 0.000208,
+          "upper": 0.00257,
+          "sign_status": "robust_benefit"
+        },
+        "0.1": {
+          "lower": -0.000972,
+          "upper": 0.00375,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.003333,
+          "upper": 0.006111,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.005694,
+          "upper": 0.008472,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.010416,
+          "upper": 0.013195,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.022222,
+          "upper": 0.025,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.022222,
+          "upper": 0.025,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 1,
+      "n_classes": 2,
+      "uniform_gain": -0.022222,
+      "class_delta_vector": [
+        -0.241667,
+        0.197222
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.101267,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.022222,
+          "upper": -0.022222,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.033195,
+          "upper": -0.01125,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.044167,
+          "upper": -0.000278,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.066111,
+          "upper": 0.021666,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.088056,
+          "upper": 0.043611,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.131945,
+          "upper": 0.0875,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.241667,
+          "upper": 0.197222,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.241667,
+          "upper": 0.197222,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 3,
+      "seed": 2,
+      "n_classes": 2,
+      "uniform_gain": -0.023612,
+      "class_delta_vector": [
+        -0.230556,
+        0.183333
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.114096,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.023612,
+          "upper": -0.023612,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.033959,
+          "upper": -0.013264,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.044306,
+          "upper": -0.002917,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.065,
+          "upper": 0.017777,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.085695,
+          "upper": 0.038472,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.127084,
+          "upper": 0.079861,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.230556,
+          "upper": 0.183333,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.230556,
+          "upper": 0.183333,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 0,
+      "n_classes": 2,
+      "uniform_gain": -0.006756,
+      "class_delta_vector": [
+        0.091892,
+        -0.105405
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.068491,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.006756,
+          "upper": -0.006756,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.011689,
+          "upper": -0.001824,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.016621,
+          "upper": 0.003108,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.026486,
+          "upper": 0.012973,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.036351,
+          "upper": 0.022838,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.056081,
+          "upper": 0.042568,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.105405,
+          "upper": 0.091892,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.105405,
+          "upper": 0.091892,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 1,
+      "n_classes": 2,
+      "uniform_gain": 0.004054,
+      "class_delta_vector": [
+        -0.032432,
+        0.040541
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.111123,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": 0.004054,
+          "upper": 0.004054,
+          "sign_status": "robust_benefit"
+        },
+        "0.05": {
+          "lower": 0.00223,
+          "upper": 0.005879,
+          "sign_status": "robust_benefit"
+        },
+        "0.1": {
+          "lower": 0.000406,
+          "upper": 0.007703,
+          "sign_status": "robust_benefit"
+        },
+        "0.2": {
+          "lower": -0.003243,
+          "upper": 0.011352,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.006891,
+          "upper": 0.015,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.014189,
+          "upper": 0.022298,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.032432,
+          "upper": 0.040541,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.032432,
+          "upper": 0.040541,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 4,
+      "seed": 2,
+      "n_classes": 2,
+      "uniform_gain": 0.012162,
+      "class_delta_vector": [
+        -0.051351,
+        0.075676
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.191495,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": 0.012162,
+          "upper": 0.012162,
+          "sign_status": "robust_benefit"
+        },
+        "0.05": {
+          "lower": 0.008987,
+          "upper": 0.015338,
+          "sign_status": "robust_benefit"
+        },
+        "0.1": {
+          "lower": 0.005811,
+          "upper": 0.018514,
+          "sign_status": "robust_benefit"
+        },
+        "0.2": {
+          "lower": -0.00054,
+          "upper": 0.024865,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.006892,
+          "upper": 0.031217,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.019594,
+          "upper": 0.043919,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.051351,
+          "upper": 0.075676,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.051351,
+          "upper": 0.075676,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 0,
+      "n_classes": 2,
+      "uniform_gain": -0.024324,
+      "class_delta_vector": [
+        -0.113514,
+        0.064865
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.272728,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.024324,
+          "upper": -0.024324,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.028784,
+          "upper": -0.019865,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.033243,
+          "upper": -0.015406,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.042162,
+          "upper": -0.006487,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.051081,
+          "upper": 0.002432,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.068919,
+          "upper": 0.02027,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.113514,
+          "upper": 0.064865,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.113514,
+          "upper": 0.064865,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 1,
+      "n_classes": 2,
+      "uniform_gain": -0.05,
+      "class_delta_vector": [
+        -0.072973,
+        -0.027027
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": null,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.05,
+          "upper": -0.05,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.051149,
+          "upper": -0.048851,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.052297,
+          "upper": -0.047703,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.054595,
+          "upper": -0.045405,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.056892,
+          "upper": -0.043108,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.061486,
+          "upper": -0.038513,
+          "sign_status": "robust_harm"
+        },
+        "1.0": {
+          "lower": -0.072973,
+          "upper": -0.027027,
+          "sign_status": "robust_harm"
+        },
+        "2.0": {
+          "lower": -0.072973,
+          "upper": -0.027027,
+          "sign_status": "robust_harm"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 5,
+      "seed": 2,
+      "n_classes": 2,
+      "uniform_gain": -0.058108,
+      "class_delta_vector": [
+        -0.354054,
+        0.237838
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.196347,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.058108,
+          "upper": -0.058108,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.072905,
+          "upper": -0.043311,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.087703,
+          "upper": -0.028513,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.117297,
+          "upper": 0.001081,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.146892,
+          "upper": 0.030676,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.206081,
+          "upper": 0.089865,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.354054,
+          "upper": 0.237838,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.354054,
+          "upper": 0.237838,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 0,
+      "n_classes": 2,
+      "uniform_gain": -0.004167,
+      "class_delta_vector": [
+        0.238889,
+        -0.247222
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.017142,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.004167,
+          "upper": -0.004167,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.016319,
+          "upper": 0.007986,
+          "sign_status": "ambiguous"
+        },
+        "0.1": {
+          "lower": -0.028472,
+          "upper": 0.020139,
+          "sign_status": "ambiguous"
+        },
+        "0.2": {
+          "lower": -0.052778,
+          "upper": 0.044445,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.077083,
+          "upper": 0.06875,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.125694,
+          "upper": 0.117361,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.247222,
+          "upper": 0.238889,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.247222,
+          "upper": 0.238889,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 1,
+      "n_classes": 2,
+      "uniform_gain": -0.069445,
+      "class_delta_vector": [
+        -0.161111,
+        0.022222
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.757578,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.069445,
+          "upper": -0.069445,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.074028,
+          "upper": -0.064861,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.078611,
+          "upper": -0.060278,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.087778,
+          "upper": -0.051111,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.096944,
+          "upper": -0.041945,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.115278,
+          "upper": -0.023611,
+          "sign_status": "robust_harm"
+        },
+        "1.0": {
+          "lower": -0.161111,
+          "upper": 0.022222,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.161111,
+          "upper": 0.022222,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 6,
+      "seed": 2,
+      "n_classes": 2,
+      "uniform_gain": -0.054167,
+      "class_delta_vector": [
+        -0.180556,
+        0.072222
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.428574,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.054167,
+          "upper": -0.054167,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.060486,
+          "upper": -0.047848,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.066806,
+          "upper": -0.041528,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.079445,
+          "upper": -0.028889,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.092084,
+          "upper": -0.01625,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.117362,
+          "upper": 0.009028,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.180556,
+          "upper": 0.072222,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.180556,
+          "upper": 0.072222,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 0,
+      "n_classes": 2,
+      "uniform_gain": -0.022222,
+      "class_delta_vector": [
+        -0.094444,
+        0.05
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.30769,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.022222,
+          "upper": -0.022222,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.025833,
+          "upper": -0.018611,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.029444,
+          "upper": -0.015,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.036666,
+          "upper": -0.007778,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.043889,
+          "upper": -0.000555,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.058333,
+          "upper": 0.013889,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.094444,
+          "upper": 0.05,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.094444,
+          "upper": 0.05,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 1,
+      "n_classes": 2,
+      "uniform_gain": -0.040278,
+      "class_delta_vector": [
+        -0.2,
+        0.119444
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.252176,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.040278,
+          "upper": -0.040278,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.048264,
+          "upper": -0.032292,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.05625,
+          "upper": -0.024306,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.072222,
+          "upper": -0.008334,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.088195,
+          "upper": 0.007639,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.120139,
+          "upper": 0.039583,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.2,
+          "upper": 0.119444,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.2,
+          "upper": 0.119444,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 7,
+      "seed": 2,
+      "n_classes": 2,
+      "uniform_gain": -0.020833,
+      "class_delta_vector": [
+        -0.144444,
+        0.102778
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.168537,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.020833,
+          "upper": -0.020833,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.027014,
+          "upper": -0.014652,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.033194,
+          "upper": -0.008472,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.045555,
+          "upper": 0.003889,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.057916,
+          "upper": 0.01625,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.082639,
+          "upper": 0.040973,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.144444,
+          "upper": 0.102778,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.144444,
+          "upper": 0.102778,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 0,
+      "n_classes": 2,
+      "uniform_gain": -0.028947,
+      "class_delta_vector": [
+        -0.110526,
+        0.052632
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.354834,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.028947,
+          "upper": -0.028947,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.033026,
+          "upper": -0.024868,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.037105,
+          "upper": -0.020789,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.045263,
+          "upper": -0.012631,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.053421,
+          "upper": -0.004473,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.069737,
+          "upper": 0.011842,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.110526,
+          "upper": 0.052632,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.110526,
+          "upper": 0.052632,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 1,
+      "n_classes": 2,
+      "uniform_gain": -0.097368,
+      "class_delta_vector": [
+        -0.318421,
+        0.123684
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.440477,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.097368,
+          "upper": -0.097368,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.108421,
+          "upper": -0.086316,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.119474,
+          "upper": -0.075263,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.141579,
+          "upper": -0.053158,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.163684,
+          "upper": -0.031053,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.207895,
+          "upper": 0.013158,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.318421,
+          "upper": 0.123684,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.318421,
+          "upper": 0.123684,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 8,
+      "seed": 2,
+      "n_classes": 2,
+      "uniform_gain": -0.057895,
+      "class_delta_vector": [
+        -0.173684,
+        0.057895
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.499998,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.057895,
+          "upper": -0.057895,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.063684,
+          "upper": -0.052105,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.069473,
+          "upper": -0.046316,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.081052,
+          "upper": -0.034737,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.092631,
+          "upper": -0.023158,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.115789,
+          "upper": 0.0,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.173684,
+          "upper": 0.057895,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.173684,
+          "upper": 0.057895,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 0,
+      "n_classes": 2,
+      "uniform_gain": -0.027777,
+      "class_delta_vector": [
+        -0.119444,
+        0.063889
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.303028,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.027777,
+          "upper": -0.027777,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.032361,
+          "upper": -0.023194,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.036944,
+          "upper": -0.018611,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.046111,
+          "upper": -0.009444,
+          "sign_status": "robust_harm"
+        },
+        "0.3": {
+          "lower": -0.055277,
+          "upper": -0.000278,
+          "sign_status": "robust_harm"
+        },
+        "0.5": {
+          "lower": -0.073611,
+          "upper": 0.018056,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.119444,
+          "upper": 0.063889,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.119444,
+          "upper": 0.063889,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 1,
+      "n_classes": 2,
+      "uniform_gain": -0.0375,
+      "class_delta_vector": [
+        -0.230556,
+        0.155556
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.194244,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.0375,
+          "upper": -0.0375,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.047153,
+          "upper": -0.027847,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.056806,
+          "upper": -0.018194,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.076111,
+          "upper": 0.001111,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.095417,
+          "upper": 0.020417,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.134028,
+          "upper": 0.059028,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.230556,
+          "upper": 0.155556,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.230556,
+          "upper": 0.155556,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    },
+    {
+      "dataset": "BNCI2014_004",
+      "target_subject": 9,
+      "seed": 2,
+      "n_classes": 2,
+      "uniform_gain": -0.025,
+      "class_delta_vector": [
+        -0.177778,
+        0.127778
+      ],
+      "minimal_l1_radius_to_flip_from_uniform": 0.163636,
+      "robust_bounds_by_rho": {
+        "0.0": {
+          "lower": -0.025,
+          "upper": -0.025,
+          "sign_status": "robust_harm"
+        },
+        "0.05": {
+          "lower": -0.032639,
+          "upper": -0.017361,
+          "sign_status": "robust_harm"
+        },
+        "0.1": {
+          "lower": -0.040278,
+          "upper": -0.009722,
+          "sign_status": "robust_harm"
+        },
+        "0.2": {
+          "lower": -0.055556,
+          "upper": 0.005556,
+          "sign_status": "ambiguous"
+        },
+        "0.3": {
+          "lower": -0.070833,
+          "upper": 0.020833,
+          "sign_status": "ambiguous"
+        },
+        "0.5": {
+          "lower": -0.101389,
+          "upper": 0.051389,
+          "sign_status": "ambiguous"
+        },
+        "1.0": {
+          "lower": -0.177778,
+          "upper": 0.127778,
+          "sign_status": "ambiguous"
+        },
+        "2.0": {
+          "lower": -0.177778,
+          "upper": 0.127778,
+          "sign_status": "ambiguous"
+        }
+      },
+      "claim_boundary": "counterfactual declared prior-uncertainty set; C15 required; not target-prior id"
+    }
+  ],
+  "claim_boundary_ok": true,
+  "claim_boundary": "robust gain bounds are over a DECLARED prior-uncertainty set (contract C15); class deltas are oracle/evaluation-only; the actual target prior is NOT identified (that needs TU-1). No SOTA."
+}

@@ -110,6 +110,21 @@ _CHECK_FILES = {
     "notes/project_A_observability/results_summaries/step18_harm_mechanisms.md": 12,
     "notes/project_A_observability/results_summaries/step18_prior_stress.md": 8,
     "notes/project_A_observability/results_summaries/step18_science_dashboard.md": 15,
+    # Step-19 prior-uncertainty robustness frontier
+    "h2cmi/observability/prior_uncertainty.py": 150,
+    "h2cmi/observability/prior_robust_policy.py": 100,
+    "h2cmi/tests/test_prior_uncertainty.py": 60,
+    "h2cmi/tests/test_prior_robust_policy.py": 45,
+    "notes/project_A_observability/science/16_prior_uncertainty_frontier.md": 30,
+    "notes/project_A_observability/science/17_prior_robustness_results.md": 25,
+    "notes/project_A_observability/science/18_prior_uncertainty_results.md": 35,
+    "notes/project_A_observability/science/19_prior_robust_policy_results.md": 35,
+    "notes/project_A_observability/results_summaries/step19_prior_uncertainty_frontier.json": 40,
+    "notes/project_A_observability/results_summaries/step19_prior_robust_policy.json": 40,
+    "notes/project_A_observability/results_summaries/step19_science_dashboard.json": 25,
+    "notes/project_A_observability/results_summaries/step19_prior_uncertainty_frontier.md": 12,
+    "notes/project_A_observability/results_summaries/step19_prior_robust_policy.md": 14,
+    "notes/project_A_observability/results_summaries/step19_science_dashboard.md": 15,
 }
 _MAX_LINE_BYTES = 500
 

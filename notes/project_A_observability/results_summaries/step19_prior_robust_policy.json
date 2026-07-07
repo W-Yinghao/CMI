@@ -1,0 +1,148 @@
+{
+  "project": "Project A",
+  "step": "Step 19",
+  "scope": "prior-robust adaptation policy over declared L1 prior sets (C15); not SOTA",
+  "n_runs": 54,
+  "rhos": [
+    0.05,
+    0.1,
+    0.2,
+    0.5
+  ],
+  "harm_thresholds": [
+    0.05,
+    0.1,
+    0.2
+  ],
+  "robust_prior_safe_adaptation_exists_any": false,
+  "best_prior_robust_policy": null,
+  "robust_adapt_never_uniform_harmful": true,
+  "prior_uncertainty_contract_required": "C15",
+  "point_prior_contract": "C14",
+  "actual_target_prior_identified": false,
+  "not_deployable_without_r2_class_evidence": true,
+  "cells": [
+    {
+      "rho": 0.05,
+      "tau": 0.05,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.2037,
+      "abstention_rate": 0.7963,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.05,
+      "tau": 0.1,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.0741,
+      "abstention_rate": 0.9259,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.05,
+      "tau": 0.2,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.0,
+      "abstention_rate": 1.0,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.1,
+      "tau": 0.05,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.1667,
+      "abstention_rate": 0.8333,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.1,
+      "tau": 0.1,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.0556,
+      "abstention_rate": 0.9444,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.1,
+      "tau": 0.2,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.0,
+      "abstention_rate": 1.0,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.2,
+      "tau": 0.05,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.1481,
+      "abstention_rate": 0.8519,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.2,
+      "tau": 0.1,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.0556,
+      "abstention_rate": 0.9444,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.2,
+      "tau": 0.2,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.0,
+      "abstention_rate": 1.0,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.5,
+      "tau": 0.05,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.037,
+      "abstention_rate": 0.963,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.5,
+      "tau": 0.1,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.0,
+      "abstention_rate": 1.0,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    },
+    {
+      "rho": 0.5,
+      "tau": 0.2,
+      "adaptation_coverage": 0.0,
+      "robust_harm_block_rate": 0.0,
+      "abstention_rate": 1.0,
+      "harm_rate_among_adapt_decisions_under_uniform": null,
+      "robust_prior_safe_adaptation_exists": false,
+      "claim_boundary": "oracle class deltas + declared prior uncertainty (C15); not deployable without R2 class-wise evidence"
+    }
+  ],
+  "claim_boundary_ok": true,
+  "claim_boundary": "worst-case decision rule over DECLARED L1 prior-uncertainty sets (C15); class deltas are oracle/evaluation-only; not a deployable selector; does NOT identify the actual target prior. No SOTA."
+}

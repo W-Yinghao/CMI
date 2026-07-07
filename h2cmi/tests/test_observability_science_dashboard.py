@@ -6,7 +6,8 @@ from __future__ import annotations
 
 from h2cmi.observability.science_dashboard import (build_dashboard, build_step13_dashboard,
                                                    build_step15_dashboard, build_step16_dashboard,
-                                                   build_step17_dashboard, build_step18_dashboard)
+                                                   build_step17_dashboard, build_step18_dashboard,
+                                                   build_step19_dashboard)
 
 _BEN = {"n_runs": 54, "benefit_rate": 0.1481, "target_sign_consistency_rate": 0.83,
         "per_dataset": {"BNCI2014_001": {"n_beneficial": 4}, "BNCI2014_004": {"n_beneficial": 4}},
@@ -287,6 +288,63 @@ def test_step18_dashboard_no_sota_and_prior_decoupled_boundary():
     assert "prior-decoupled" in d["claim_boundary"].lower() or "not identified" in d["claim_boundary"].lower()
 
 
+_PU19 = {"n_runs": 54, "median_flip_radius_from_uniform": 0.1652, "q25_flip_radius": 0.0731,
+         "q75_flip_radius": 0.3042, "n_unflippable_over_simplex": 2,
+         "fraction_flip_within_l1_0_10": 0.2778, "fraction_flip_within_l1_0_20": 0.6296,
+         "fraction_flip_within_l1_0_50": 0.8704,
+         "fraction_ambiguous_by_rho": {"0.1": 0.2778}, "fraction_robust_harm_by_rho": {"0.1": 0.6852},
+         "fraction_robust_benefit_by_rho": {"0.1": 0.037},
+         "prior_uncertainty_contract_required": "C15", "actual_target_prior_identified": False,
+         "deployment_prior_identified_under_R1": False, "claim_boundary_ok": True}
+_PP19_NONE = {"best_prior_robust_policy": None, "robust_prior_safe_adaptation_exists_any": False,
+              "robust_adapt_never_uniform_harmful": True, "actual_target_prior_identified": False,
+              "claim_boundary_ok": True}
+_PP19_SAFE = {"best_prior_robust_policy": {"rho": 0.05, "tau": 0.05, "adaptation_coverage": 0.1},
+              "robust_prior_safe_adaptation_exists_any": True,
+              "robust_adapt_never_uniform_harmful": True, "actual_target_prior_identified": False,
+              "claim_boundary_ok": True}
+
+
+def test_step19_dashboard_reports_flip_radius_and_frontier():
+    d = build_step19_dashboard(_PU19, _PP19_NONE)
+    m = d["metrics"]
+    assert d["step"] == "Step 19"
+    assert m["median_l1_flip_radius_from_uniform"] == 0.1652
+    assert m["fraction_flip_within_l1_0_20"] == 0.6296
+    assert m["fraction_robust_harm_at_rho_0_10"] == 0.6852
+    assert m["fraction_robust_benefit_at_rho_0_10"] == 0.037
+    assert m["prior_uncertainty_contract_required"] == "C15"
+    assert m["deployment_prior_identified_under_R1"] is False and m["claim_boundary_ok"] is True
+
+
+def test_step19_dashboard_flags_no_harm_margin_safe_adaptation():
+    d = build_step19_dashboard(_PU19, _PP19_NONE)
+    m = d["metrics"]
+    assert m["robust_prior_safe_adaptation_exists_with_harm_margin"] is False
+    assert m["best_prior_robust_policy_rho"] is None and m["best_prior_robust_policy_tau"] is None
+    blob = " ".join(d["what_we_learned"]).lower()
+    assert "fragile" in blob and "cannot be certified" in blob
+
+
+def test_step19_dashboard_reports_best_policy_when_safe_exists():
+    m = build_step19_dashboard(_PU19, _PP19_SAFE)["metrics"]
+    assert m["robust_prior_safe_adaptation_exists_with_harm_margin"] is True
+    assert m["best_prior_robust_policy_rho"] == 0.05 and m["best_prior_robust_policy_tau"] == 0.05
+
+
+def test_step19_dashboard_claim_boundary_fails_if_prior_identified():
+    bad = dict(_PU19, actual_target_prior_identified=True)
+    assert build_step19_dashboard(bad, _PP19_NONE)["metrics"]["claim_boundary_ok"] is False
+    bad2 = dict(_PP19_NONE, robust_adapt_never_uniform_harmful=False)
+    assert build_step19_dashboard(_PU19, bad2)["metrics"]["claim_boundary_ok"] is False
+
+
+def test_step19_dashboard_no_sota_and_prior_decoupled_boundary():
+    d = build_step19_dashboard(_PU19, _PP19_NONE)
+    assert "no sota" in d["claim_boundary"].lower()
+    assert "not identified" in d["claim_boundary"].lower() or "prior-decoupled" in d["claim_boundary"].lower()
+
+
 ALL_TESTS = [
     test_dashboard_reports_real_harm_and_predictor,
     test_dashboard_claim_boundary_ok_requires_oracle_not_feature,
@@ -313,6 +371,11 @@ ALL_TESTS = [
     test_step18_dashboard_flags_global_harm_when_mostly_harmful_all_priors,
     test_step18_dashboard_claim_boundary_fails_if_prior_identified,
     test_step18_dashboard_no_sota_and_prior_decoupled_boundary,
+    test_step19_dashboard_reports_flip_radius_and_frontier,
+    test_step19_dashboard_flags_no_harm_margin_safe_adaptation,
+    test_step19_dashboard_reports_best_policy_when_safe_exists,
+    test_step19_dashboard_claim_boundary_fails_if_prior_identified,
+    test_step19_dashboard_no_sota_and_prior_decoupled_boundary,
 ]
 
 
