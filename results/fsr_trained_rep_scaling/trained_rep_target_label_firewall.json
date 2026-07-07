@@ -1,0 +1,6 @@
+{
+  "stage": "8D-0",
+  "target_labels_used_for_fit": false,
+  "target_labels_used_for_selection": false,
+  "note": "8D-0 trains adapter on SOURCE task+subject labels; L1 on held-out SOURCE subjects; PhysioNetMI 15-target panel excluded entirely. No target labels."
+}

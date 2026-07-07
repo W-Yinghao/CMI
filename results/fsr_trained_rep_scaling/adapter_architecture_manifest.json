@@ -1,0 +1,10 @@
+{
+  "adapter": "z'=LayerNorm(z + W2 relu(W1 z))",
+  "bottleneck": 16,
+  "pca_d": 128,
+  "task_head": "linear on z'",
+  "subject_adversary": "linear on h + gradient-reversal (DANN)",
+  "epochs": 120,
+  "lr": 0.001,
+  "lambda_adv": 1.0
+}

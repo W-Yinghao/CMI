@@ -1,0 +1,32 @@
+{
+  "stage": "8D-0_metric_power_gate",
+  "model": "CBraMod",
+  "n_source": 8,
+  "bottleneck": 16,
+  "l1_locus": "bottleneck_code_h",
+  "A0_L1_heldout": 0.9481,
+  "drop_heldout": [
+    0.0755,
+    [
+      0.0544,
+      0.0974
+    ]
+  ],
+  "rel_drop_heldout": 0.08,
+  "drop_insample": [
+    -0.0404,
+    [
+      -0.0533,
+      -0.0282
+    ]
+  ],
+  "source_val_bacc": 0.6004,
+  "task_not_collapsed": true,
+  "metric_power_gate_pass": false,
+  "interpretation": "A1-SE subject-erase moves held-out bottleneck-code L1 a SMALL, SIGNIFICANT amount (0.948->0.872, drop +0.076 CI[0.054,0.097]; ~8% rel) but BELOW the pre-registered gate (>=0.10 abs OR >=20% rel). The ~0.95 subject fingerprint is so dominant that even an EXPLICIT adversarial subject-erasure only chips ~8% off held-out separability (and in-sample L1 rises 0.94->0.98 = adapter memorizes training subjects). => INSUFFICIENT METRIC POWER: the light-adapter-on-frozen-PCA design cannot resolve a representation-level subject-diversity effect against this ceiling. STOP Phase 8 (method-limit, NOT a foundation-model null; NOT a trigger to try another adapter architecture per STOP-1).",
+  "target_labels_used": false,
+  "adapter_signal": "l1_untestable_metric_saturated",
+  "metric_moves_but_below_threshold": true,
+  "proceed_to_8d1": false,
+  "stop_phase8": true
+}
