@@ -1,179 +1,149 @@
-# S2P_06 — P1 Two-Budget Subject-Count × Per-Subject-Exposure Decomposition Pilot (pre-registration v2)
+# S2P_06 — P1 Matched-Exposure Subject-Scaling Pilot (pre-registration v3)
 
-**Project S2P — P1.** Pre-registration of the CBraMod controlled pretraining pilot. **Supersedes v1** (single
-fixed-H0 line), which the design red-team (S2P_07) proved **not identifiable** for the subject-diversity claim
-(at one budget, per-subject exposure `e = H0/N` is deterministic ⇒ `corr(log N, log e) = −1` ⇒ diversity and
-exposure fuse into one slope). **PM decision (2026-07-08): break the collinearity with two fixed-H0 lines
-(100 h + 200 h) on a lean crossed grid; keep the subject-diversity question; do NOT reframe to a frontier unless
-the two-H0 design is infeasible.** Runs CBraMod **native** pretraining (`pretrain_main → Trainer_valid → CBraMod →
-generate_mask + MSE`, 9A.5 audit) via a thin TUEG subject-subset loader adapter — no objective/mask/architecture
-rewrite. CodeBrain is NOT in P1 (P2 + infra smoke only). PC2 paused; Paper 1 unaffected; Paper 2 frozen.
-**Launch only after the revised design red-team + all launch conditions in `p1_launch_go_nogo.json` pass; report
-the checklist and WAIT for explicit PM go — do not auto-launch.**
+**Project S2P — P1.** Pre-registration of the CBraMod controlled pretraining pilot. **v3 supersedes v2.** v1 (single
+fixed-H0 line) was not identifiable; v2 (two-H0 crossed decomposition) restored algebraic identifiability but the v2
+red-team (S2P_07) showed the crossed **exposure** axis is (a) internally inconsistent for a frozen encoder
+(a cell cannot be in a diversity pool and an exposure common-pool at once), (b) near-singular/low-power (VIF 6.36),
+and (c) population-confounded when pooled. **PM decision (2026-07-08): DROP the exposure coefficient and the crossed
+regression; keep the three within-pool matched-exposure NESTED pairs; descriptive slopes + leave-one-pair
+sign-stability (no extra off-diagonal cells).** P1 is now a **narrow, clean matched-exposure subject-scaling pilot**,
+not a full subject-diversity/exposure decomposition. Runs CBraMod **native** pretraining (`pretrain_main →
+Trainer_valid → CBraMod → generate_mask + MSE`, 9A.5 audit) via the rewritten TUEG loader — no objective/mask/
+architecture rewrite. CodeBrain is NOT in P1 (P2 + non-blocking infra smoke only). PC2 paused; Paper 1 unaffected;
+Paper 2 frozen. **Launch only after all conditions in `p1_launch_go_nogo.json` pass; report the checklist and WAIT
+for explicit PM go — do not auto-launch.**
 
-## What P1 is (and is NOT)
-> **Two-budget decomposition.** At two fixed pretraining budgets (H0 ∈ {100, 200} h) we vary subject count N so
-> that some cell pairs hold **per-subject exposure** constant while N changes (a **diversity** contrast) and others
-> hold **N** constant while exposure changes (an **exposure/depth** contrast). This makes both slopes estimable.
+## Primary question (narrowed)
+> **Matched-exposure subject-scaling.** Within a **single eligibility pool** and at a **fixed per-subject exposure**,
+> does adding more pretraining subjects (few-deep → many-deep, *same depth per subject*) change the learned
+> representation and downstream transfer?
 
-- **Primary question:** *At controlled pretraining budgets, can we separate the effect of increasing subject count
-  from the effect of reducing per-subject exposure?*
-- **NOT** "more subjects alone helps" (budgets are fixed; exposure is an explicit, reported axis).
-- **NOT** sample-size scaling, full-TUEG-scale pretraining, or a reproduction of published CBraMod (0.5–45 Hz
-  processed band, 19-common subset, from scratch, small budget).
+- **NOT** a pure subject-diversity *causal* effect at fixed total budget (BL-6): the three pairs sit on different
+  populations, so they are reported **separately**, never pooled into one causal diversity slope.
+- **NOT** a per-subject-exposure effect (BL-5): the exposure coefficient / crossed regression is **dropped** — the
+  exposure axis is triple-confounded (population × window-redundancy × depth) and uninterpretable in this corpus.
+- **NOT** sample-size scaling within-subject (each subject contributes the *same* exact window budget in both cells
+  of a pair), full-TUEG pretraining, or a reproduction of published CBraMod.
 
-## Grid (PM-approved two-H0 crossed; N=32 removed from primary — MJ-1 population confound)
-- **Model:** CBraMod (native), from scratch. **Corpus:** 19-common canonical TUEG subset (6,535 subj / 3,440 usable-h).
-- **Primary cells (7):** `H0=100h: N∈{128,512,1024}` · `H0=200h: N∈{256,512,1024,2048}`. **Seeds {0,1,2}** ⇒ 21 runs.
-- **Seed-stability extension (extremes):** `100h/N128` and `200h/N2048` × seeds {3,4} ⇒ +4 runs (subset-seed ×
-  init-seed factorial at the extremes, MJ-5). **Total primary compute = 25 CBraMod pretraining runs (≈2× v1, PM-accepted).**
-- **Optional high-N diagonal (NOT a launch blocker):** `100h/N2000`, `200h/N4000` (both e=0.05 h) × {0,1,2} ⇒ +6,
-  **only if** feasibility + subject-balance + no whole-recording overshoot all pass at those N.
-- **`min_exposure = 0.05 h/subj`.** **N=32:** removed from primary (draws ~80 extreme long-recording clinical
-  subjects, MJ-1); available only as an exploratory deep-exposure tail, never in the primary slope.
+## Grid — three within-pool matched-exposure NESTED pairs (PM-approved; 18 runs)
+Each pair fixes per-subject exposure e and a common eligibility pool; the low-N training subjects are a **nested
+subset** of the high-N training subjects (small ⊂ large), so the contrast is *"same per-subject depth, more subjects
+added."* From scratch, seeds {0,1,2}. **N=32 and the exposure-contrast cell (200h/N512) are NOT in P1.**
 
-### Exposure crosswalk (verified feasible on real 19-common corpus — `p1_feasibility_by_cell_v2.csv`)
-| H0 | N | exposure e=H0/N (h) | eligible subjects (≥e usable-h) |
-|---|---|---|---|
-| 100 | 128 | 0.781 | 713 | 100 | 512 | 0.195 | 6485 | 100 | 1024 | 0.098 | 6516 |
-| 200 | 256 | 0.781 | 713 | 200 | 512 | 0.391 | 2231 | 200 | 1024 | 0.195 | 6485 | 200 | 2048 | 0.098 | 6516 |
+| pair | low cell | high cell | nominal e (h/subj) | quantized e (cap_windows) | pool (floored-win, MJ-8) |
+|---|---|---|---|---|---|
+| **A** | 100h / N=128 | 200h / N=256 | 0.781 | 0.783 (94 win) | 713 |
+| **B** | 100h / N=512 | 200h / N=1024 | 0.195 | 0.192 (23 win) | 6486 |
+| **C** | 100h / N=1024 | 200h / N=2048 | 0.098 | 0.100 (12 win) | 6516 |
 
-- **Matched-exposure DIVERSITY contrasts (primary; each drawn from ONE shared pool ⇒ population-matched):**
-  `e=0.781`: 100h/N128 vs 200h/N256 (pool 713) · `e=0.195`: 100h/N512 vs 200h/N1024 (pool 6485) ·
-  `e=0.098`: 100h/N1024 vs 200h/N2048 (pool 6516).
-- **Matched-N EXPOSURE contrasts (secondary; both cells drawn from the HIGHER-exposure common pool):**
-  `N=512`: 100h(e=0.195) vs 200h(e=0.391), common pool ≥0.391 h = 2231 · `N=1024`: 100h(e=0.098) vs 200h(e=0.195),
-  common pool ≥0.195 h = 6485.
+- **Window quantization (documented):** the per-subject budget is `cap_windows·30 s`; nominal vs quantized e differs
+  by −0.27% / +1.87% / −2.40% for A/B/C — a **constant shared by both cells of a pair** (same `cap_windows`) that
+  **cancels exactly in the within-pair contrast**. The quantized value is the real matched budget; the "h" label is
+  nominal (`p1_primary_matched_exposure_pairs.csv`).
+- **Compute:** 6 cells × seeds{0,1,2} = **18 CBraMod pretraining runs.** Optional high-N diagonal
+  (`100h/N2000`, `200h/N4000` @ e=0.05) is **deferred, NOT launched** — only considered if the 18-run pilot shows
+  signal (`stage=P1_highN_deferred` in the manifest).
 
-### Identifiability (verified — `p1_identifiability_matrix.csv`)
-Design matrix `[1, log N, log e]` over the 7 primary cells is **rank 3/3**; `corr(log N, log e) = −0.918`
-(single-line was exactly −1). Both slopes estimable: `outcome ~ log N + log e` is full rank. **Condition #6 PASS.**
+## Primary statistic (frozen — `p1_primary_statistic_spec.json`)
+```
+Δ_pair = target_bAcc(high-N, high-H0, same exposure) − target_bAcc(low-N, low-H0, same exposure)
+PRIMARY = Δ_subject_scale = unweighted_mean(Δ_A, Δ_B, Δ_C)        # equal weight per exposure regime (pilot)
+```
+- **Metric:** SHU-MI target-bAcc (single primary target). **Aggregation:** unweighted mean (no pair dominates).
+- **Stability (required):** leave-one-pair-out sign-stability; ≥2/3 seeds agree in sign per pair; seed-SD ≤ 0.03;
+  no single seed > 70% of the pooled effect (MJ-6).
+- **Secondary:** `Δ_L1` (pairwise subject separability), `Δ_L4` (alignment), `Δ_L5` (reliance vs variance-null),
+  `Δ_L6` (target consequence) — each per pair, reported with the same stability checks.
+- **Descriptive slope only:** a `logN` slope may be shown descriptively; **no** inferential `β_N`/`β_e`, **no**
+  crossed regression, **no** pooled causal claim.
 
-## STRUCTURAL confound to disclose (MJ-1, quantified — `p1_population_balance_diagnostics.csv`)
-In TUEG's 19-common subset, **only clinical (epilepsy-monitoring) patients have long recordings**, so exposure
-**range** and clinical **population** are structurally entangled:
+## Loader (BL-4/BL-8/MJ-8 fix — `s2p/scripts/tueg_subject_loader.py`, VERIFIED)
+`build_matched_exposure_pair(exposure_h, n_low, n_high, subset_seed, n_val=64)` implements the design in code:
+- **Common eligibility pool** = subjects with **floored available windows ≥ cap_windows** (MJ-8, not summed hours).
+- **Fixed per-contrast pretrain-val pool** (n_val=64), drawn with a per-exposure RNG **invariant to subset_seed**,
+  **disjoint from every training subject** → comparable best-val-loss checkpoint selection within a pair (MJ-2).
+- **Nested** low ⊂ high training subsets (MN-2). **Exact per-subject cap** (each subject = cap_windows windows).
+- **subset_seed ≠ init_seed** (MJ-5): the loader seed controls the subject draw only; the training/init seed is
+  separate (trainer-side).
 
-| exposure pool | n subj | median usable-h | median n_rec | % single-recording |
-|---|---|---|---|---|
-| ≥0.781 h | 713 | 1.10 | 4 | 11.9% |
-| ≥0.391 h | 2231 | 0.67 | 2 | 32.4% |
-| ≥0.195 h | 6485 | 0.34 | 1 | 66.7% |
-| ≥0.098 h | 6516 | 0.34 | 1 | 66.8% |
-
-**Consequence:** the three **diversity** contrasts are each internally population-matched (same pool) and are the
-**primary, most-defensible estimate**. The **exposure** axis (and the `log e` coefficient of the crossed model)
-inherently drags population and **cannot be cleanly separated from clinical population in this corpus** — reported
-**with population as a named, quantified confound**, not as a clean causal exposure effect. The deep-exposure
-diversity contrast (e=0.781, pool 713) is valid **within** its clinical population but is **not pooled naively**
-with the general-population contrasts into a single diversity slope; per-pool diversity effects are reported, and
-the pooled slope is reported **only** alongside the population diagnostics.
-
-## Common eligibility pools + nested sampling (MJ-1 fix — `p1_common_eligibility_pools.csv`)
-Every cell draws from the eligibility pool of **its own exposure** (`usable-h ≥ e`). For each matched contrast the
-paired cells share ONE pool and are drawn **nested** (smaller-N subset ⊂ larger-N subset, same pool) so the
-contrast is not polluted by a subject-population difference (MN-2 nested). Matched-N exposure contrasts draw both
-cells from the **higher-exposure** common pool. Because a cell can appear in two contrasts under different pools,
-each trained cell is drawn once from **its own exposure pool**; contrast-specific common-pool restriction is applied
-in the *analysis* (restrict-and-report), not by retraining.
+**Verified on the real corpus (`p1_loader_balance_verification.csv`, all 18 cells + val × 3 seeds):**
+per-subject window max−min = **0**, Gini = **0.0**, total hours within **0.0002%** of the quantized budget, nested
+low⊂high **True**, train/val disjoint **True**, all pools feasible (713 / 6486 / 6516 ≥ n_val + n_high).
 
 ## Native training (no rewrite)
-`Trainer_valid` + `CBraMod`; masked-patch **reconstruction** MSE on `x[mask==1]`, mask ratio **0.5** per-(B,C,patch),
-zeros mask-token, fp32, seed. **Thin adapter only:** emit bare fp32 `(B,19,30,200)`; **neutralize the hardcoded
-129-ch `EEGNormalizer`** (we pre-z-score per window; do NOT also `/100`); hand our loaders to `Trainer_valid`.
+`Trainer_valid` + `CBraMod`; masked-patch **reconstruction** MSE, mask ratio **0.5** per-(B,C,patch), zeros
+mask-token, fp32. **Thin adapter only:** emit fp32 `(B,19,30,200)`; **neutralize the hardcoded 129-ch
+`EEGNormalizer`** (loader already per-window z-scores; do NOT also `/100`); hand our loaders to `Trainer_valid`.
 
-## FROZEN thresholds (BL-3 — pre-registered, no post-hoc changes)
-**Sampling balance (per cell; hard launch gate — loader window-budget fix required first):**
-```
-actual_total_hours within ±1% of H0
-actual_hours_per_subject within ±1 window (30 s) of planned cap
-max−min per-subject window count ≤ 1
-subject-contribution Gini ≤ 0.02
-```
-**Convergence / positive-control (BL-2; per cell):**
-```
-pretrain-val-loss relative decrease ≥ 20%   (else cell = under-converged)
-downstream source-val bAcc ≥ (random-init frozen source-val) + 0.02   (positive-control floor)
-no NaN/Inf; checkpoint reload byte/param exact
-```
-**Minimum detectable / meaningful effects (for a P2-expansion decision):**
-```
-target-bAcc effect        ≥ +0.02
-pairwise-L1 effect         ≤ −0.03 (absolute)
-L5 effect                  |Δ| ≥ 0.01 bAcc vs variance-matched null
-```
-**Seed stability (primary contrast):**
-```
-seed-SD of target-bAcc ≤ 0.03
-≥ 2/3 seeds agree in sign on the primary contrast
-no single seed contributes > 70% of the pooled effect
-```
-
-## BL-2 selection-bias handling (no silent censoring)
-Treat **gate-pass as an analyzed outcome**: report every slope **with and without** under-converged/floor-failing
-cells. If gate-pass is **N-dependent**, do **not** claim a subject-diversity slope — report a
-**convergence-mediated** result. If the max-data cell fails the positive-control floor (does not beat random-init
-frozen), declare **under-powered → STOP** (no "null" / "diversity doesn't matter" claim).
+## FROZEN gates (BL-2/BL-3 — pre-registered)
+**Sampling balance (hard launch gate; VERIFIED above):** per-subject window max−min ≤ 1; Gini ≤ 0.02; total hours
+within ±1% of the quantized budget.
+**Convergence / positive-control (per cell):** pretrain-val-loss relative decrease ≥ 20%; downstream source-val
+bAcc ≥ random-init-frozen + 0.02; no NaN/Inf; checkpoint reload exact. **If gate-pass is N-dependent within a pair →
+report as a convergence-mediated effect, NOT a subject-scaling effect** (no silent censoring: report Δ with and
+without gated cells).
+**MDE:** target-bAcc +0.02; pairwise-L1 −0.03 (abs); L5 |Δ|≥0.01 vs variance-null.
+**Seed stability:** seed-SD ≤ 0.03; ≥2/3 sign agreement; ≤70% single-seed share; leave-one-pair-out sign-stable.
 
 ## Validation + checkpoint (firewall)
-Pretrain-**val** is **subject-disjoint** from pretrain-train. **One FIXED common external pretrain-val set**
-(constant subjects + exposure, disjoint from every training pool; MJ-2) — its loss is comparable across cells and
-is reported as a target-free outcome. **Primary checkpoint = best fixed-common-pretrain-val loss; secondary = last.**
-**Downstream/target performance NEVER selects the checkpoint.** No target label in subset choice, checkpoint
-selection, PCA, head, rank, or probe.
+Pretrain-**val** = the fixed per-contrast pool, subject-disjoint from both training cells. **Primary checkpoint =
+best pretrain-val loss; secondary = last.** Downstream/target performance **never** selects the checkpoint. No target
+label in subset / checkpoint / PCA / head / rank / probe. Target labels **final scoring only**.
 
-## Downstream evaluation (representation scaling)
-Per checkpoint × dataset (SHU-MI primary decodable; PhysioNetMI large/weak; BNCI sanity), frozen encoder → F1
-spatial → source-only PCA/head. Metrics (FSR-hardened): **primary = SHU-MI target-bAcc**; secondary macro-F1;
-**L1 = mean PAIRWISE subject separability** (dimension-invariant, 2-way, run/session-held-out, HELD-OUT subjects,
-fixed probe + fixed PCA rank across cells, 3-way subject-disjoint split, dynamic-range check off the 0.5 floor and
-~0.95 ceiling); L4 alignment; **L5 subject-subspace vs variance-MATCHED null**; L6 target consequence. Per-cell task
-gate (source-val ≥0.58) → L4/L5/L6 interpretable. **Analysis model:** `outcome ~ log N + log e` (crossed, full rank)
-with CIs **clustered by eval subject**; **primary diversity estimate = the three matched-exposure within-pool
-contrasts**; exposure axis reported with population diagnostics. **Multiplicity: one primary (SHU-MI target-bAcc
-diversity contrast), Holm across the pre-registered family** (MJ-3). Target labels **final scoring only**.
+## Downstream evaluation
+Per checkpoint × dataset (SHU-MI primary; PhysioNetMI large/weak; BNCI sanity), frozen encoder → F1 spatial →
+source-only PCA/head. **L1 = mean PAIRWISE subject separability** (dimension-invariant, 2-way, run/session-held-out,
+HELD-OUT subjects, fixed probe + fixed PCA rank across cells, 3-way subject-disjoint split, dynamic-range check off
+the 0.5 floor and ~0.95 ceiling — and confirm per-window z-score has not floored L1). Per-cell task gate
+(source-val ≥0.58) → L4/L5/L6 interpretable. CIs clustered by eval subject. **Multiplicity:** one primary
+(Δ_subject_scale on SHU-MI target-bAcc), Holm across the pre-registered secondary family.
+
+## Population disclosure (MJ-1/MJ-7 — `p1_population_balance_diagnostics.csv`, `p1_common_eligibility_pools.csv`)
+Each pair reports pool size, median available windows/subject, and **window-redundancy** (contiguous windows/subject
+= cap_windows: 94 / 23 / 12 for A/B/C). Redundancy and population differ **across** pairs but are **matched within**
+each pair (both cells identical), so the within-pair contrast is clean; the three pairs are reported **separately**
+with their pool/population/redundancy labels. Safe wording: *"adding subjects within a fixed eligibility pool at
+matched per-subject exposure"* — never *"a pure subject-diversity causal effect."*
 
 ## Interpretation grid (pre-registered)
 ```
-diversity contrast: transfer ↑ AND L1 ↓ (within-pool, matched exposure)   -> subject-diverse pretraining reduces separability + improves transfer
-diversity contrast: transfer ↑, L1 high, L5 null/decreases                 -> diversity changes the ROLE of subject info (FSR-positive, strongest)
-no diversity effect at fixed exposure                                      -> "under this two-budget pilot, no subject-diversity signal" (NOT "diversity doesn't matter")
-effect only via exposure axis                                              -> depth/exposure (population-confounded) effect, NOT a diversity claim
-gate-pass N-dependent / seed-unstable                                      -> convergence-mediated / unstable; P2 not justified
+Δ_pair transfer ↑ AND Δ_L1 ↓, consistent across pairs + seeds   -> more subjects at matched depth reduce separability + improve transfer
+Δ_pair transfer ↑, L1 high, Δ_L5 null/decreases                 -> more subjects change the ROLE of subject info (FSR-positive, strongest)
+Δ_pair ≈ 0 across pairs                                          -> "under this matched-exposure pilot, no subject-scaling signal" (NOT "diversity doesn't matter")
+sign flips across pairs / seeds / leave-one-pair-out            -> unstable; P2 not justified
+gate-pass N-dependent                                           -> convergence-mediated, not subject-scaling
 ```
-**Forbidden:** "subject diversity does not matter"; "foundation encoders become subject-invariant"; "more subjects
-alone helps"; growing-hours read as diversity; reproduction of published CBraMod; SOTA/full-FT. **Every claim
-carries the two-budget / sparse-exposure / population-confound qualifier.**
+**Forbidden:** "subject diversity does not matter"; "foundation encoders become subject-invariant"; a per-subject-
+exposure causal claim; a pooled fixed-budget diversity causal claim; growing-hours read as diversity; reproduction of
+published CBraMod; SOTA/full-FT. **Every claim carries the matched-exposure / within-pool / single-target qualifier.**
 
 ## Outputs (`results/s2p_p1_cbramod/`)
-`p1_run_manifest.csv`, `p1_subject_subset_manifest.csv` (with pool + nested lineage),
-`p1_recording_subset_manifest.csv`, `p1_actual_exposure_by_subject.csv`, `p1_sampling_balance_checks.csv`
-(the 4 frozen gates per cell), `p1_pretrain_logs.csv`, `p1_positive_control.csv` (random-init frozen floor),
-`p1_checkpoint_manifest.csv`, `p1_downstream_task_performance.csv`, `p1_pairwise_subject_separability.csv`,
-`p1_l4_task_alignment.csv`, `p1_l5_replay.csv`, `p1_l6_target_consequence.csv`,
-`p1_decomposition_summary.csv` (diversity vs exposure slopes ± population diagnostics),
-`p1_target_label_firewall.json`, `p1_verdict.json` (`diversity_signal`, `exposure_signal`,
-`population_confound_disclosed`, `representation_level_effect_seen`, `recommend_p2`,
-`target_labels_used_for_selection:false`).
+`p1_run_manifest.csv`, `p1_pair_subset_manifest.csv` (pool + nested lineage + subset/init seeds),
+`p1_actual_exposure_by_subject.csv`, `p1_sampling_balance_checks.csv`, `p1_pretrain_logs.csv`,
+`p1_positive_control.csv`, `p1_checkpoint_manifest.csv`, `p1_downstream_task_performance.csv`,
+`p1_pairwise_subject_separability.csv`, `p1_l4_task_alignment.csv`, `p1_l5_replay.csv`, `p1_l6_target_consequence.csv`,
+`p1_matched_exposure_summary.csv` (Δ_pair + Δ_subject_scale + leave-one-pair-out + stability),
+`p1_target_label_firewall.json`, `p1_verdict.json` (`subject_scaling_signal`, `representation_level_effect_seen`,
+`stable_across_pairs_and_seeds`, `recommend_p2`, `target_labels_used_for_selection:false`).
 
 ## STOP rules
 ```text
 1  any objective/mask/architecture reimplementation (must be native Trainer_valid).
 2  target labels in subset / checkpoint / PCA / head / rank / probe selection.
-3  sampling-balance gate fail (total-hours ±1% / per-subject-window / Gini ≤0.02) -> that cell not launched.
-4  pretrain-val not subject-disjoint; or not the fixed common external val set.
-5  design matrix not full rank (must stay rank 3) -> not identifiable, do not launch.
-6  a matched-exposure diversity contrast pool population-imbalanced vs its pair -> not interpretable.
+3  sampling-balance gate fail (window max−min ≤1 / Gini ≤0.02 / ±1% quantized budget) -> that cell not launched.
+4  pretrain-val not the fixed per-contrast subject-disjoint pool.
+5  nested low ⊄ high, or train∩val ≠ ∅ -> pair not interpretable.
+6  any pooled causal diversity claim or a per-subject-exposure coefficient (both dropped by design).
 7  max-data cell fails positive-control floor -> under-powered -> STOP (no null claim).
-8  seed-unstable (SD > 0.03 / < 2/3 sign agreement / one seed > 70%) -> unstable, do not interpret.
+8  seed/pair-unstable (SD>0.03 / <2/3 sign / one seed>70% / leave-one-pair flips) -> do not interpret.
 9  CodeBrain enters the P1 science grid (P2 only).
 ```
 
 ## Fallback
-If the two-H0 crossed grid becomes infeasible (it is currently **feasible** — all 7 cells + both contrasts verified),
-fall back to the single-line **fixed-budget subject-vs-depth frontier** framing (S2P_07 option c): no diversity
-claim, fused slope only.
+The matched-exposure pilot is the narrowed fallback of S2P_07 option (c). If even the within-pool pairs prove
+uninterpretable, report a descriptive "few-deep vs many-deep at matched exposure" observation only.
 
 ## P2 conditionality
-P2 (larger grid / constant-exposure growing-hours diagnostic / CodeBrain native) **only if** P1 shows a clear
-diversity target-transfer gain, an L1 reduction, an L5 functional-reliance change, or a strong mixed signal.
-Null/unstable → no P2, no CodeBrain full grid, no 33-channel corpus. Return for PM review before P2.
+P2 (larger grid / constant-exposure growing-hours diagnostic / CodeBrain native) **only if** P1 shows a clear,
+stable Δ_subject_scale transfer gain, an L1 reduction, or an L5 reliance change. Null/unstable → no P2, no CodeBrain
+full grid, no 33-channel corpus. Return for PM review before P2.

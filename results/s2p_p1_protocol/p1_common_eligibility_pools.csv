@@ -1,5 +1,4 @@
-exposure_h,pool_size,used_for,pool_usable_h_median,pool_nrec_median,pool_maxrec_h_median
-0.0977,6516,diversity,0.342,1.0,0.333
-0.1953,6485,diversity+exposure,0.342,1.0,0.333
-0.3906,2231,diversity+exposure,0.667,2.0,0.4
-0.7812,713,diversity,1.1,4.0,0.508
+pair,exposure_h,cap_windows,pool_size,basis,pool_avail_windows_median,pool_avail_windows_p90,redundancy_windows_per_subject
+A,0.78125,94,713,floored_windows>=cap_windows (MJ-8),132.0,358.8000000000004,94
+B,0.1953125,23,6486,floored_windows>=cap_windows (MJ-8),41.0,102.0,23
+C,0.09765625,12,6516,floored_windows>=cap_windows (MJ-8),41.0,101.0,12

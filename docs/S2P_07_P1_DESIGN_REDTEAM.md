@@ -141,3 +141,35 @@ as written, and my go/no-go **over-claimed** launch conditions (corrected below)
 **Disposition v2:** launch HELD. **PM decisions required: BL-5 (exposure axis: retrain-common-pool vs drop-exposure-
 claim) and MJ-6 (power: add cells vs descriptive slopes).** BL-4/BL-6/MJ-7/MJ-8/MN I will fix in the loader rewrite +
 analysis spec once the PM sets scope (the loader shape depends on the two decisions, so implement once, correctly).
+
+---
+
+## PM RESOLUTION v2 (2026-07-08) → P1 = matched-exposure subject-scaling pilot (S2P_06 v3)
+**BL-5 = (ii) DROP the exposure coefficient + crossed regression; keep the 3 within-pool matched-exposure NESTED
+pairs. MJ-6 = (ii) descriptive slopes + leave-one-pair sign-stability; NO extra off-diagonal cells.** PM rationale:
+don't pay compute for a confounded exposure coefficient (population × window-redundancy × depth); narrow P1 to a
+clean, interpretable matched-exposure subject-scaling question. Resolution of every open item, **all verified on the
+real 19-common corpus**:
+- **BL-5 RESOLVED** — no exposure coefficient, no crossed regression (`p1_primary_statistic_spec.json`
+  `exposure_coefficient_estimated=false`, `crossed_regression=false`).
+- **BL-6 RESOLVED** — primary = 3 within-pool Δ_pair reported **separately** (each population-matched within pair),
+  aggregated by **unweighted mean**; no pooled causal diversity slope (`fixed_budget_diversity_claim_allowed=false`).
+- **MJ-6 RESOLVED** — descriptive slope only; leave-one-pair-out sign-stability + seed-SD≤0.03 + ≥2/3 sign + ≤70%
+  single-seed are the pre-registered stability gate.
+- **BL-4 RESOLVED (loader rewritten + VERIFIED)** — `build_matched_exposure_pair`: floored-window common eligibility
+  pools, fixed per-contrast subset-seed-invariant pretrain-val (n_val=64, disjoint), nested low⊂high, exact
+  per-subject window cap, subset_seed≠init_seed. Balance verified across all 18 cells + val × 3 seeds
+  (`p1_loader_balance_verification.csv`): per-subject window max−min=**0**, Gini=**0.0**, total within **0.0002%** of
+  quantized budget, nested **True**, disjoint **True**.
+- **MJ-8 RESOLVED** — eligibility on floored available windows (`Σ n_timepoints//6000 ≥ cap_windows`), not summed hours.
+- **MJ-7 RESOLVED** — exposure axis dropped; window-redundancy (94/23/12 windows/subj) reported per pair, matched
+  within pair; population diagnostics per pair.
+- **MN RESOLVED** — go/no-go de-staled; single primary statistic named; L1 dynamic-range + z-score-floor check
+  pre-registered.
+**Window-quantization note:** per-subject budget = cap_windows·30 s; nominal-vs-quantized e gap (−0.27/+1.87/−2.40%
+for A/B/C) is a per-pair constant shared by both cells ⇒ cancels in the within-pair contrast.
+
+**Grid (18 runs):** A(100h/N128 vs 200h/N256, e≈0.78) · B(100h/N512 vs 200h/N1024, e≈0.20) ·
+C(100h/N1024 vs 200h/N2048, e≈0.10), seeds{0,1,2}. Exposure-contrast cell (200h/N512) and N=32 NOT in P1; high-N
+diagonal deferred (not launched). **Status: launch HELD** pending (i) a re-red-team of this narrowed protocol showing
+no BLOCKER and (ii) explicit PM go on the launch checklist.

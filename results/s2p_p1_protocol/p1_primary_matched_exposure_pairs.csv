@@ -1,0 +1,4 @@
+pair,nominal_exposure_h,quantized_exposure_h,cap_windows,nominal_vs_quantized_gap_pct,pool_size,n_low,n_high,H0_low_quant_h,H0_high_quant_h
+A,0.78125,0.783333,94,-0.267,713,128,256,100.267,200.533
+B,0.1953125,0.191667,23,1.867,6486,512,1024,98.133,196.267
+C,0.09765625,0.1,12,-2.4,6516,1024,2048,102.4,204.8

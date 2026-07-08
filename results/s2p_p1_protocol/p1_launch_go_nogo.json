@@ -10,111 +10,78 @@
   "compute_budget_ok": "15 runs from-scratch @100h corpus (pilot-scale); epochs TBD by convergence check",
   "design_red_team": "DONE (agent a7ea257d): BLOCKERS_PRESENT",
   "launch_p1": false,
-  "launch_note": "BLOCKERS_PRESENT (v2 red-team). Two-budget ALGEBRA sound + identifiable + feasible, BUT (a) loader does not implement the pool/nesting/common-val design (I over-claimed cond 2&8), (b) the crossed exposure axis is internally inconsistent for a frozen encoder [BL-5 PM decision], (c) pooled slope population-confounded, (d) near-singular/low-power [MJ-6 PM decision]. Salvageable primary claim is NARROWER: 3 within-pool matched-exposure diversity differences, descriptive, single SHU-MI target. RETURN TO PM for BL-5 + MJ-6; then I rewrite loader + re-verify + re-red-team.",
+  "launch_note": "P1 narrowed to matched-exposure subject-scaling pilot (PM v2 decision). Loader REWRITTEN + verified vs real manifests (all balance gates pass exactly). 9/10 launch conditions MET; #6 (re-red-team) running, #10 held for explicit PM go. NOT auto-launched. 18 primary runs; high-N deferred.",
   "loader_fixed_hours_bug": "FIXED (window-level budget; verified total ~100h all N; was 116-597h)",
   "pm_decision_2026_07_08": "BL-1 fix = TWO fixed-H0 lines (100h+200h) lean crossed grid; keep diversity question; NOT reframe; N=32 out of primary; constant-exposure arm = P2 diagnostic only",
-  "design_v2": "two-budget subject-count x per-subject-exposure decomposition",
-  "grid_primary": {
-    "H0_100h": [
-      128,
-      512,
-      1024
-    ],
-    "H0_200h": [
-      256,
-      512,
-      1024,
-      2048
-    ],
+  "pending_before_launch": [
+    "fresh design red-team of revised two-H0 protocol",
+    "explicit PM go after checklist (report-then-go)"
+  ],
+  "pm_decision_v2_2026_07_08": "BL-5=(ii) DROP exposure coeff+crossed regression, keep 3 within-pool matched-exposure NESTED pairs; MJ-6=(ii) descriptive slopes + leave-one-pair sign-stability, no off-diagonal cells",
+  "design_v3": "matched-exposure subject-scaling pilot (narrowed; NOT full decomposition)",
+  "grid_pairs": {
+    "A": {
+      "low": "100h/N128",
+      "high": "200h/N256",
+      "e_nom": 0.78125,
+      "cap_windows": 94,
+      "pool": 713
+    },
+    "B": {
+      "low": "100h/N512",
+      "high": "200h/N1024",
+      "e_nom": 0.1953125,
+      "cap_windows": 23,
+      "pool": 6486
+    },
+    "C": {
+      "low": "100h/N1024",
+      "high": "200h/N2048",
+      "e_nom": 0.09765625,
+      "cap_windows": 12,
+      "pool": 6516
+    }
+  },
+  "runs": {
+    "primary": 18,
     "seeds": [
       0,
       1,
       2
     ],
-    "runs": 21
+    "highN_deferred_not_launched": 6
   },
-  "grid_seed_ext": {
-    "cells": [
-      "100h/N128",
-      "200h/N2048"
-    ],
-    "seeds": [
-      3,
-      4
-    ],
-    "runs": 4
+  "primary_statistic": "Delta_subject_scale = unweighted_mean(Delta_A,Delta_B,Delta_C); Delta_pair = target_bAcc(high) - target_bAcc(low) at matched exposure; descriptive slope only; leave-one-pair sign-stable",
+  "loader_verified": {
+    "per_subject_window_maxmin": 0,
+    "gini": 0.0,
+    "pct_off_quant_budget_max": 0.0002,
+    "nested_low_in_high": true,
+    "train_val_disjoint": true,
+    "fixed_per_contrast_val_n": 64,
+    "eligibility_basis": "floored windows (MJ-8)",
+    "subset_seed_neq_init_seed": true,
+    "all_pools_feasible": true
   },
-  "grid_optional_highN": {
-    "cells": [
-      "100h/N2000",
-      "200h/N4000"
-    ],
-    "exposure_h": 0.05,
-    "runs": 6,
-    "conditional": "feasibility+balance clean"
-  },
-  "verification_real_19common_corpus": {
-    "identifiable_full_rank": true,
-    "design_matrix_rank": "3/3",
-    "corr_logN_log_e": -0.918,
-    "all_7_primary_cells_feasible": true,
-    "all_optional_cells_feasible": true,
-    "diversity_contrasts": {
-      "e0.781_pool": 713,
-      "e0.195_pool": 6485,
-      "e0.098_pool": 6516
-    },
-    "exposure_contrasts_common_pool": {
-      "N512_pool_ge0.391": 2231,
-      "N1024_pool_ge0.195": 6485
-    },
-    "population_confound_quantified": "deep-exposure pool 713 clinical(median 4 rec) vs sparse ~6500 general(median 1 rec) -> exposure axis structurally entangled with clinical population; diversity contrasts within-pool clean"
-  },
-  "resolutions": {
-    "BL1": "RESOLVED two-H0 full-rank",
-    "BL2": "RESOLVED positive-control floor+convergence gate+gate-as-outcome",
-    "BL3": "RESOLVED thresholds frozen in S2P_06",
-    "MJ1": "RESOLVED+disclosed structural confound; N=32 out; nested common pools",
-    "MJ2": "fixed common external pretrain-val",
-    "MJ3": "1 primary+Holm",
-    "MJ4": "nested effective-windows+policy pinned",
-    "MJ5": "subset-seed x init-seed factorial extremes",
-    "loader_fixed_hours": "FIXED window-level + hard gate \u00b11%"
-  },
-  "launch_conditions": {
-    "1_BL1_two_H0_full_rank": "MET (rank 3/3, corr -0.918)",
-    "2_common_eligibility_pools_defined": "NOT MET - loader does independent choice per cell, no common pool/nesting (BL-4)",
-    "3_whole_window_truncation_verified": "PARTIAL - window budget fixed, but eligibility on summed-hours not floored-windows (MJ-8) can fail Gini gate",
-    "4_sampling_balance_thresholds_frozen": "thresholds frozen; NOT verified against real loader yet (BL-4/MJ-8)",
-    "5_convergence_task_gate_frozen": "MET (spec); positive-control floor may be too weak (MJ-6b)",
-    "6_design_matrix_full_rank": "MET but VIF=6.36 (SE x2.52), near-singular, low power (MJ-6)",
-    "7_CBraMod_native_objective_preserved": "MET (9A.5 audit)",
-    "8_pretrain_val_subject_disjoint_fixed_common": "NOT MET - loader uses per-cell 15% split, no fixed common external val (BL-4)",
-    "9_checkpoint_pretrain_val_only": "MET (spec)",
-    "10_target_labels_final_scoring_only": "MET (spec)"
-  },
-  "pending_before_launch": [
-    "fresh design red-team of revised two-H0 protocol",
-    "explicit PM go after checklist (report-then-go)"
-  ],
-  "v2_red_team": "agent a744a1d5: BLOCKERS_PRESENT (algebra sound; loader != design; crossed slope unsound). go/no-go had OVER-CLAIMED conditions 2&8.",
-  "open_blockers": {
-    "BL4_loader_gap": "rewrite loader (pool_min_h, nested parent_subjects, fixed common val, subset_seed!=init_seed, floored-window eligibility); re-verify balance. I FIX after scope set.",
-    "BL5_dual_pool_PM_DECISION": "a cell can't be in two pools; frozen encoder can't be restricted post-hoc. PM: (i) retrain exposure arms from common pool ~+4 runs KEEP exposure axis, or (ii) DROP exposure coeff+crossed regression, keep 3 within-pool diversity pairs only.",
-    "BL6_pooled_slope_confounded": "primary = 3 within-pool diversity diffs reported SEPARATELY w/ population labels; pooled slope NOT primary. I FIX (analysis spec).",
-    "MJ6_power_PM_DECISION": "VIF 6.36, MDE<seed-SD. PM: (i) add off-diagonal cells/3rd budget cut VIF (more compute), or (ii) declare slopes DESCRIPTIVE + leave-one-N-out sign-stability as go/no-go.",
-    "MJ7_log_e_confounded": "relabel budget-depth; report effective decorrelated windows/subj. I FIX.",
-    "MJ8_eligibility_floored_windows": "eligibility on sum(n_timepoints//6000)>=cap_windows. I FIX in loader."
-  },
-  "pm_decisions_required": [
-    "BL-5 exposure axis (retrain-common-pool vs drop-exposure-claim)",
-    "MJ-6 power (add cells vs descriptive slopes)"
-  ],
-  "i_fix_after_scope": [
-    "BL-4 loader rewrite",
-    "BL-6 analysis: within-pool diversity primary",
-    "MJ-7 relabel+eff-windows",
+  "blockers_resolved": [
+    "BL-4 loader rewritten+verified",
+    "BL-5 exposure coeff dropped",
+    "BL-6 pairs reported separately",
+    "MJ-6 descriptive+leave-one-pair",
+    "MJ-7 exposure axis dropped/redundancy disclosed",
     "MJ-8 floored-window eligibility",
-    "MN de-stale/L1-dynamic-range/name-primary-statistic"
-  ]
+    "MN de-stale+name-primary+L1-dynamic-range"
+  ],
+  "launch_conditions": {
+    "1_loader_rewritten_verified_vs_real_manifests": "MET (p1_loader_balance_verification.csv)",
+    "2_nested_common_pool_sampling": "MET (nested low\u2282high, floored-window pools)",
+    "3_fixed_pretrain_val_pool": "MET (n_val=64 per contrast, subset-seed invariant, disjoint)",
+    "4_exact_window_level_budget": "MET (maxmin=0, gini=0, \u00b10.0002% quantized)",
+    "5_primary_statistic_frozen": "MET (p1_primary_statistic_spec.json)",
+    "6_re_red_team_no_blocker": "PENDING (running)",
+    "7_CBraMod_native_objective_preserved": "MET (9A.5 audit; native Trainer_valid)",
+    "8_checkpoint_pretrain_val_only": "MET (spec)",
+    "9_target_labels_final_scoring_only": "MET (spec)",
+    "10_launch_p1_true": "NO (held for re-red-team + explicit PM go)"
+  }
 }

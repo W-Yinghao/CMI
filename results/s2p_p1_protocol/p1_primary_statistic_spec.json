@@ -1,0 +1,105 @@
+{
+  "primary_estimand": "mean_matched_exposure_subject_scaling_contrast",
+  "framing": "matched-exposure subject-scaling pilot (NOT full subject-diversity/exposure decomposition)",
+  "primary_pairs": [
+    {
+      "pair": "A",
+      "low": {
+        "H0": 100,
+        "N": 128
+      },
+      "high": {
+        "H0": 200,
+        "N": 256
+      },
+      "nominal_exposure_h_per_subject": 0.78125,
+      "quantized_exposure_h_per_subject": 0.783333,
+      "cap_windows": 94,
+      "pool_size": 713
+    },
+    {
+      "pair": "B",
+      "low": {
+        "H0": 100,
+        "N": 512
+      },
+      "high": {
+        "H0": 200,
+        "N": 1024
+      },
+      "nominal_exposure_h_per_subject": 0.1953125,
+      "quantized_exposure_h_per_subject": 0.191667,
+      "cap_windows": 23,
+      "pool_size": 6486
+    },
+    {
+      "pair": "C",
+      "low": {
+        "H0": 100,
+        "N": 1024
+      },
+      "high": {
+        "H0": 200,
+        "N": 2048
+      },
+      "nominal_exposure_h_per_subject": 0.09765625,
+      "quantized_exposure_h_per_subject": 0.1,
+      "cap_windows": 12,
+      "pool_size": 6516
+    }
+  ],
+  "pair_contrast": "Delta_pair = target_bAcc(high-N,high-H0,same exposure) - target_bAcc(low-N,low-H0,same exposure)",
+  "primary_metric": "target_bAcc (SHU-MI)",
+  "aggregation": "unweighted_mean_over_pairs",
+  "seeds": [
+    0,
+    1,
+    2
+  ],
+  "n_val_per_contrast": 64,
+  "nested_low_subset_of_high": true,
+  "within_pool_matched_exposure": true,
+  "population_matched_within_pair": true,
+  "exposure_coefficient_estimated": false,
+  "crossed_regression": false,
+  "fixed_budget_diversity_claim_allowed": false,
+  "descriptive_slope_only": true,
+  "leave_one_pair_out_required": true,
+  "sign_consistency_across_pairs_required": true,
+  "secondary_statistics": [
+    "Delta_L1_pairwise_subject_separability",
+    "Delta_L4_alignment",
+    "Delta_L5_reliance_vs_variance_null",
+    "Delta_L6_target_consequence"
+  ],
+  "stability_gates": {
+    "seed_sd_target_bAcc_max": 0.03,
+    "min_seed_sign_agreement": "2/3",
+    "max_single_seed_share": 0.7,
+    "leave_one_pair_out_sign_stable": true
+  },
+  "convergence_gates": {
+    "pretrain_val_loss_rel_decrease_min": 0.2,
+    "positive_control_source_val_margin_over_random_init": 0.02,
+    "checkpoint_reload_exact": true,
+    "no_nan_inf": true
+  },
+  "mde": {
+    "target_bAcc": 0.02,
+    "pairwise_L1_abs": -0.03,
+    "L5_abs_vs_variance_null": 0.01
+  },
+  "firewall": {
+    "target_labels": "final scoring only",
+    "checkpoint_selection": "pretrain-val loss only",
+    "no_target_in": [
+      "subset",
+      "checkpoint",
+      "PCA",
+      "head",
+      "rank",
+      "probe"
+    ]
+  },
+  "if_convergence_gate_correlates_with_N": "report as convergence-mediated effect, NOT subject-scaling effect"
+}
