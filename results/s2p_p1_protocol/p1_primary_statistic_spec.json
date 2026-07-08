@@ -1,5 +1,5 @@
 {
-  "primary_estimand": "fixed_budget_subject_depth_frontier",
+  "primary_estimand": "net_fixed_budget_allocation_slope",
   "total_pretraining_hours": 200,
   "n_subjects_grid": [
     128,
@@ -17,7 +17,7 @@
   "pure_subject_diversity_claim_allowed": false,
   "per_subject_exposure_controlled": false,
   "frontier_claim_allowed": true,
-  "estimand_wording": "allocation/coverage-vs-depth slope at fixed 200h budget (NOT a diversity causal effect)",
+  "estimand_wording": "BUNDLED net fixed-budget allocation slope of SHU-MI target_bAcc vs log N at T=200h; bundles coverage + depth + clinical->general POPULATION + within-subject REDUNDANCY; NOT population-adjusted at ANY N",
   "seeds": [
     0,
     1,
@@ -40,7 +40,9 @@
   ],
   "analyses": [
     "full_frontier_slope",
-    "robust_slope_excl_N128",
+    "robust_slope_excl_N128(weakest-powered, NOT clean primary)",
+    "quadratic_curvature_and_peak_location",
+    "per_N_means",
     "seed_specific_slopes",
     "leave_one_N_out_sign_stability",
     "pretrain_val_loss_frontier"
@@ -74,6 +76,37 @@
     "more subjects independently improve transfer",
     "subject diversity causes better generalization",
     "per-subject exposure is controlled",
-    "pure diversity effect estimated"
-  ]
+    "pure diversity effect estimated",
+    "population-adjusted allocation effect",
+    "robust-excl-N128 as a population control",
+    "coverage-vs-depth causal attribution",
+    "allocation slope isolated from population/redundancy"
+  ],
+  "bundled_confounds": [
+    "subject_coverage",
+    "per_subject_depth(exposure)",
+    "clinical_to_general_population",
+    "within_subject_window_redundancy"
+  ],
+  "population_drift_spans_whole_frontier": true,
+  "robust_slope_excl_N128_meaning": "drops the MOST EXTREME population endpoint ONLY; population drift PERSISTS 256->2048 collinear with log N; NOT a population control",
+  "population_covariate_reported_next_to_slope": [
+    "pct_single_recording",
+    "redundancy_ratio",
+    "median_available_windows"
+  ],
+  "allocation_vs_population_attribution": "DECLINED (structurally confounded: deep exposure == clinical population in TUEG-19common; ~201 subjects at deepest threshold cannot reach high N)",
+  "budget_units": "RAW windows/hours (24000 win = 200h), NOT effective-independent windows (redundancy_ratio 0.649->0.286 => high-N cells carry more effective-independent info at equal raw budget; part of the bundled effect)",
+  "honest_narrative": "fixing T killed the BL-9 total-data confound but exposed the 3rd face of the T=N*e triangle: depth<->clinical-population. P1 is a DESCRIPTIVE frontier + identifiability lesson, NOT a coverage-vs-depth causal claim.",
+  "shape_analysis": {
+    "curvature_test": "quadratic in log N (test coef != 0)",
+    "peak_location_with_CI": true,
+    "monotonicity_test": true,
+    "report_per_N_means_regardless_of_slope": true,
+    "note": "deployment answer = peak location (how many subjects), not slope sign; single log-linear slope can hide an interior optimum (misread as flat)"
+  },
+  "val_population_caveat": "fixed global val = SHALLOW/general subjects; best-val-loss checkpoint selection rewards general reconstruction; train<->val population alignment IMPROVES with N (worst N=128 clinical-train/general-val, best N=2048); report per-cell train/val alignment + LAST-ckpt robustness alongside best-val; val comparable in DATA not POPULATION",
+  "power_disclosure": "full-5pt slope resolvable at MDE 0.02 IF points independent; robust-4pt is WEAKEST-powered AND still population-drifting; leave-one-N-out near a small slope may flip; positive-control certifies learned-vs-random NOT slope resolvability. Pre-declared: a straddling CI = 'no detectable allocation effect at 200h' (a valid pre-registered null).",
+  "N128_seed_caveat": "N=128 draws 128 of only 201 -> ~64% expected pairwise subset overlap across seeds -> N=128 seed-SD measures init noise + correlated subsets, NOT subset stability (disclose)",
+  "normalization_granularity": "per-PATCH (200-sample) per-channel z-score (pretraining); SHU-MI frozen-probe loader MUST use IDENTICAL per-patch granularity (not per-30s-window) + same EEGNormalizer neutralization (else OOD)"
 }

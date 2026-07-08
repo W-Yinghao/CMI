@@ -88,11 +88,22 @@ FRONTIER_N = [128, 256, 512, 1024, 2048]   # subject-count axis
 _FRONT_VAL = None
 
 
-def _frontier_val(n_val=128, val_cap_windows=24, deep_need_windows=188):
+def _deepest_need_windows(total_hours=FRONTIER_T_H, n_grid=FRONTIER_N):
+    """window budget per subject at the DEEPEST (smallest-N) frontier endpoint = the eligibility floor a val subject
+    must stay BELOW to be guaranteed absent from every training pool. Derived (not hardcoded) so a T/grid change can
+    never silently split val from its intended shallowness (MN-12)."""
+    Nmin = min(n_grid); WT = int(round(total_hours * 120))
+    return WT // Nmin + (1 if WT % Nmin else 0)
+
+
+def _frontier_val(n_val=128, val_cap_windows=24, deep_need_windows=None):
     """FIXED GLOBAL pretrain-val subjects (seed-independent): eligible at val_cap_windows but SHALLOWER than the
     deepest training endpoint (windows < deep_need_windows) so they can NEVER be drawn into any frontier training
-    cell (incl. N=128). Each val subject contributes exactly val_cap_windows windows -> val identical across all N."""
+    cell (incl. the smallest N). Each val subject contributes exactly val_cap_windows windows -> val identical
+    across all N. (Disjointness is ALSO enforced by setdiff in build_frontier_cell; this keeps val genuinely shallow.)"""
     global _FRONT_VAL
+    if deep_need_windows is None:
+        deep_need_windows = _deepest_need_windows()
     if _FRONT_VAL is None:
         sw = _subject_windows()
         cand = np.sort(sw[(sw >= val_cap_windows) & (sw < deep_need_windows)].index.to_numpy())
@@ -178,12 +189,16 @@ def windows_for(rows, max_windows_per_rec=None):
         a = np.load(f"{TUEG}/{r['filepath']}", mmap_mode="r")          # (T, 33) T_C
         T = a.shape[0]; nwin = T // WLEN
         if r.get("take_windows"):                                      # window-level budget (exact per-subject cap)
-            nwin = min(nwin, int(r["take_windows"]))
+            want = int(r["take_windows"])
+            if nwin < want:                                            # MJ-13: on-disk array shorter than metadata
+                raise RuntimeError(f"load-time budget shortfall: rec {r['recording_id']} has {nwin} windows on disk "
+                                   f"< take_windows {want} (metadata n_timepoints mismatch) — exact-budget contract broken")
+            nwin = want
         if max_windows_per_rec:
             nwin = min(nwin, max_windows_per_rec)
         if nwin == 0:
             continue
         x = np.asarray(a[:nwin * WLEN, idx], dtype=np.float32)         # (nwin*6000, 19)
         x = x.reshape(nwin, N_PATCH, PATCH, 19).transpose(0, 3, 1, 2)  # (nwin,19,30,200)
-        x = (x - x.mean(-1, keepdims=True)) / (x.std(-1, keepdims=True) + 1e-6)   # per-window per-channel z-score
+        x = (x - x.mean(-1, keepdims=True)) / (x.std(-1, keepdims=True) + 1e-6)   # per-PATCH (200-sample) per-channel z-score
         yield x.astype(np.float32), np.full(nwin, r["subject"], dtype=int)

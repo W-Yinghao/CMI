@@ -239,3 +239,37 @@ Resolution, **all verified on the real corpus**:
 target-bAcc vs log N; forbidden: any pure-diversity or controlled-exposure claim. **Status: launch HELD** pending
 (i) a final red-team of the frontier design showing no BLOCKER and (ii) explicit PM go on the launch checklist.
 CodeBrain native smoke running in parallel (non-blocking infra).
+
+---
+
+## v4 FINAL RED-TEAM (agent a5208c26, 2026-07-08) — BL-10 (framing) + fixes; NO 5th pivot, NO GPU, NO redesign
+BL-9 confirmed **GENUINELY DEAD** (T exactly constant 24000 win = 200.0 h all cells; loader mechanics — remainder
+budget, val disjoint via setdiff, seed/N-independent val, collision-free draw RNG, floored-window eligibility — all
+**verified correct**). The pilot is **launch-worthy once relabeled**. All items FIXED by me (doc/analysis/cheap-code,
+no PM decision — they make the claim more honest, not different in scope):
+- **BL-10 (framing blocker, FIXED)** — population/redundancy gradient spans the WHOLE frontier (%single-recording
+  256→2048 = 12.5→32→66→69; redundancy_ratio 0.649→0.286), collinear with log N — NOT an N=128 outlier. "robust
+  excl-N128 = population control" was a **mislabel**. **Fix:** estimand relabeled **"BUNDLED net fixed-budget
+  allocation slope (coverage⊕depth⊕population⊕redundancy, NOT population-adjusted at any N)"**; robust-cut demoted to
+  "drops the extreme endpoint only, weakest-powered, not a control"; population %single-rec + redundancy carried as
+  per-cell covariates; allocation-vs-population attribution DECLINED; honest narrative = fixing T exposed the **3rd
+  face of the T=N·e triangle (depth↔clinical-population)**; budget fixed in RAW not effective-independent windows.
+- **MJ-13 (code, FIXED + LOAD-VERIFIED)** — added `windows_for` load-time assertion `on-disk nwin ≥ take_windows`
+  (fail loud); sample-loaded real arrays (N=128 → 188 win/subj, N=2048 → 12, load==plan, assertion silent). Condition
+  #11 upgraded from "verify in run" to verified.
+- **MJ-12 (analysis, FIXED)** — pre-registered **quadratic curvature + peak-location CI + monotonicity + per-N means**
+  (deployment answer = peak, not slope sign; interior optimum not misread as flat).
+- **MJ-14 (disclose, FIXED)** — val = shallow/general; checkpoint selection rewards general reconstruction; train↔val
+  population alignment improves with N; report per-cell alignment + last-ckpt robustness; val comparable in data not
+  population.
+- **MJ-15 (disclose, FIXED)** — robust-4pt = weakest-powered + still drifting; straddling CI = pre-registered null;
+  positive-control certifies learned-vs-random NOT slope resolvability.
+- **MN-8** pool CSVs relabeled raw-eligible vs actual-draw(after val setdiff); **MN-9** N=128 128/201 ⇒ ~64% seed
+  overlap → seed-SD = init not subset (disclosed); **MN-10** normalization pinned per-PATCH (200-sample) in code +
+  parity spec; **MN-11** manifest split `subset_seed` + `init_seed`; **MN-12** `deepest_need_windows` derived (=188),
+  no longer a magic constant.
+
+**Disposition v4:** design + loader **sound and verified**; claim **honestly relabeled** to a bundled descriptive
+frontier + identifiability lesson. All red-team items resolved without a pivot. **Launch checklist ready; HELD only
+for explicit PM go** (report-then-go). The claim is narrower than "coverage-vs-depth": PM should confirm the bundled
+descriptive framing before launch.

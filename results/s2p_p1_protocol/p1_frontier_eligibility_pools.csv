@@ -1,6 +1,6 @@
-N,exposure_h,need_windows,eligible_pool
-128,1.5625,188,201
-256,0.7812,94,713
-512,0.3906,47,2231
-1024,0.1953,24,6485
-2048,0.0977,12,6516
+N,exposure_h,need_windows,raw_eligible_pool,actual_draw_pool
+128,1.5625,188,201,see p1_population_diagnostics.eligible_pool (raw - val-in-band: 0/9/36/128/128 for N=128..2048)
+256,0.7812,94,713,see p1_population_diagnostics.eligible_pool (raw - val-in-band: 0/9/36/128/128 for N=128..2048)
+512,0.3906,47,2231,see p1_population_diagnostics.eligible_pool (raw - val-in-band: 0/9/36/128/128 for N=128..2048)
+1024,0.1953,24,6485,see p1_population_diagnostics.eligible_pool (raw - val-in-band: 0/9/36/128/128 for N=128..2048)
+2048,0.0977,12,6516,see p1_population_diagnostics.eligible_pool (raw - val-in-band: 0/9/36/128/128 for N=128..2048)
