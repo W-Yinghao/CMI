@@ -1,0 +1,2 @@
+primary_case,established,source_predicts_offset,interpretation
+H7_logit_factor_confirms_source_unobservability,H7_logit_factor_confirms_source_unobservability;H2_source_factor_misaligned;H4_source_factor_tracks_source_error_only;H5_target_residual_carries_offset,False,"a source analog of the carrier exists but CANNOT identify the target offset -> source-unobservability is confirmed at the logit-factor level (C23 explained, not overturned)."
