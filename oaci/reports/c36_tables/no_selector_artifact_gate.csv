@@ -1,0 +1,15 @@
+check,passed
+config_hash_unchanged,True
+c35_preference_robust_pairs_imported,True
+utility_grid_unchanged,True
+selector_trace_availability_audited,True
+robust_pair_trace_resolves,True
+no_proxy_selector_score,True
+per_candidate_ucl_gap_disclosed,True
+target_endpoint_labels_diagnostic_only,True
+no_training_no_reinference,True
+no_selected_checkpoint_method_artifact,True
+tie_plateau_eps_frozen,True
+source_pareto_objective_set_frozen,True
+finite_filtering_applied,True
+diagnostic_only_non_deployable,True

@@ -1,0 +1,10 @@
+case,established,evidence
+S1_risk_gate_excludes_target_better,0,risk_gate_regret_fraction=0.0
+S2_leakage_objective_prefers_selected,1,selection leakage point component prefers selected in 1.0 of robust pairs; actual UCL deltas unavailable
+S3_source_endpoint_prefers_selected,0,source_endpoint_regret_fraction=0.47368421052631576
+S4_selection_audit_inversion,1,selection_to_audit_inversion_rate=0.4473684210526316
+S5_source_pareto_conflict,1,source_pareto_conflict_fraction=1.0
+S6_selector_plateau_tiebreak,0,actual selector UCL plateau unavailable; point plateau is component-only
+S7_selector_active_misdirection,0,blocked: better candidate per-candidate selector UCL unavailable
+S8_better_candidate_source_dominates_selected,0,better_source_dominates_fraction=0.0
+S9_trace_insufficient,1,trace_unavailable_fraction=1.0
