@@ -6,17 +6,19 @@
 #SBATCH --mem=96G
 #SBATCH --array=0-7
 #SBATCH --time=96:00:00
-#SBATCH --output=/home/infres/yinwang/CMI_AAAI_s2p_launch/results/s2p_route_b_33ch_b1/logs/train-%A_%a.out
-#SBATCH --error=/home/infres/yinwang/CMI_AAAI_s2p_launch/results/s2p_route_b_33ch_b1/logs/train-%A_%a.err
+#SBATCH --output=results/s2p_route_b_33ch_b1/logs/train-%A_%a.out
+#SBATCH --error=results/s2p_route_b_33ch_b1/logs/train-%A_%a.err
 
 set -euo pipefail
-cd /home/infres/yinwang/CMI_AAAI_s2p_launch
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+REPO_ROOT=$(cd "$SCRIPT_DIR/../.." && pwd)
+cd "$REPO_ROOT"
 source /home/infres/yinwang/anaconda3/etc/profile.d/conda.sh
 conda activate eeg2025
 export PYTHONUNBUFFERED=1
 PY=/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python
-CONTRACT=/home/infres/yinwang/CMI_AAAI_s2p_launch/results/s2p_route_b_33ch_contract
-ROOT=/home/infres/yinwang/CMI_AAAI_s2p_launch/results/s2p_route_b_33ch_b1
+CONTRACT="$REPO_ROOT/results/s2p_route_b_33ch_contract"
+ROOT="$REPO_ROOT/results/s2p_route_b_33ch_b1"
 TASKS="$CONTRACT/route_b_b1_training_tasks.csv"
 mkdir -p "$ROOT/logs"
 
