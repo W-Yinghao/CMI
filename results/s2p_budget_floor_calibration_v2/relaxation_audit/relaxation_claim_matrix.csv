@@ -1,0 +1,4 @@
+route,constraint_relaxed,budgets_feasible,model_scope,claim_allowed,claim_forbidden,recommended
+A,exact per-subject equal-window allocation,gini<=0.05:500;1000;2000 | gini<=0.10:500;1000;2000,CBraMod on TUEG 19-common,high-budget calibration under bounded-imbalance 19-common high-coverage allocation,exact high-coverage calibration; pure subject-diversity/depth decomposition,False
+B,19-common canonical channel constraint,500;1000;2000,CBraMod-only fixed 33-channel processed substrate,CBraMod 33-channel full-corpus budget calibration,direct CodeBrain 19-common scaling comparison; patching the 19-common primary curve,True
+C,subject high-coverage allocation control,500;1000;2000;3000,CBraMod on TUEG 19-common,19-common total data-volume scaling test of whether 200h was too short,subject-coverage causal claim; exact high-coverage allocation claim,False

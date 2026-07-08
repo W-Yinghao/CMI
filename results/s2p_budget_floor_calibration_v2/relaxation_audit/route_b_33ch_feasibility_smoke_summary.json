@@ -1,0 +1,51 @@
+{
+  "claim_allowed": "CBraMod 33-channel full-corpus high-budget calibration if PM approves training.",
+  "claim_forbidden": "direct CodeBrain 19-common comparison or channel-invariance claim.",
+  "corpus": "TUEG_processed_exact_33ch",
+  "data_volume_feasible_budgets_h": [
+    500,
+    1000,
+    2000,
+    4000
+  ],
+  "exact_highcoverage_feasible_budgets_h": [
+    500
+  ],
+  "metadata_feasible_budgets_h": [
+    500,
+    1000,
+    2000
+  ],
+  "phase": "9D_route_B_33ch_feasibility_smoke",
+  "population_summary": {
+    "channel_order_consistent": false,
+    "corpus": "TUEG_processed_exact_33ch",
+    "eligible_subjects_min_exposure_after_val": 2470,
+    "n_recordings": 8279,
+    "n_subjects": 2641,
+    "n_train_subjects_after_val": 2513,
+    "n_val_subjects": 128,
+    "reference_scheme_counts": {
+      "LE": 3745,
+      "REF": 4534
+    },
+    "requires_channel_order_grouping_or_canonicalization": true,
+    "subject_window_gini": 0.759359,
+    "subject_window_max": 26643,
+    "subject_window_median": 43.0,
+    "subject_window_p90": 122.80000000000018,
+    "subject_window_p99": 4167.600000000027,
+    "top_1pct_subject_window_share": 0.467646,
+    "top_5pct_subject_window_share": 0.717238,
+    "total_usable_hours": 4168.35,
+    "total_usable_windows": 500202,
+    "train_hours_after_val": 4021.525,
+    "train_windows_after_val": 482583,
+    "unique_channel_orders": 6
+  },
+  "route": "B",
+  "smoke_passed": true,
+  "target_labels_used": false,
+  "training_launched": false,
+  "training_requires_pm_approval": true
+}

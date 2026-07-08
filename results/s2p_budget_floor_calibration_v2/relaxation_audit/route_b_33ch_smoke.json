@@ -1,0 +1,38 @@
+{
+  "checkpoint_retained": false,
+  "checkpoint_save_reload": true,
+  "device": "cpu",
+  "feature_dump_sha16": "68a55f497dd03be5",
+  "feature_dump_shape": [
+    1,
+    200
+  ],
+  "gradients_finite": true,
+  "input_shape": [
+    1,
+    33,
+    30,
+    200
+  ],
+  "loss": 52.67517852783203,
+  "loss_finite": true,
+  "mask_shape": [
+    1,
+    33,
+    30
+  ],
+  "native_cbramod_used": true,
+  "native_generate_mask_used": true,
+  "output_finite": true,
+  "output_shape": [
+    1,
+    33,
+    30,
+    200
+  ],
+  "smoke_passed": true,
+  "summary_ptflops_19ch_reporting_hardcode_detected": true,
+  "summary_ptflops_bypassed_for_smoke": true,
+  "target_labels_used": false,
+  "training_launched": false
+}

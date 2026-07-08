@@ -1,0 +1,21 @@
+route,budget_h,corpus,window_feasible,n_subjects,train_windows,total_available_train_windows,covered_window_fraction,contribution_gini,contribution_min_windows,contribution_median_windows,contribution_p90_windows,contribution_max_windows,availability_gini,notes
+A_gini_0p05,500,TUEG_19_common,True,2000,60000,,,0.0,30.0,30.0,30.0,30.0,,Route A bounded-imbalance allocation diagnostic.
+A_gini_0p05,1000,TUEG_19_common,True,4000,120000,,,0.0,30.0,30.0,30.0,30.0,,Route A bounded-imbalance allocation diagnostic.
+A_gini_0p05,2000,TUEG_19_common,True,6343,240000,,,0.003766,30.0,38.0,38.0,38.0,,Route A bounded-imbalance allocation diagnostic.
+A_gini_0p05,3000,TUEG_19_common,False,,360000,,,,,,,,,Route A bounded-imbalance allocation diagnostic.
+A_gini_0p05,4000,TUEG_19_common,False,,480000,,,,,,,,,Route A bounded-imbalance allocation diagnostic.
+A_gini_0p10,500,TUEG_19_common,True,2000,60000,,,0.0,30.0,30.0,30.0,30.0,,Route A bounded-imbalance allocation diagnostic.
+A_gini_0p10,1000,TUEG_19_common,True,4000,120000,,,0.0,30.0,30.0,30.0,30.0,,Route A bounded-imbalance allocation diagnostic.
+A_gini_0p10,2000,TUEG_19_common,True,6343,240000,,,0.003766,30.0,38.0,38.0,38.0,,Route A bounded-imbalance allocation diagnostic.
+A_gini_0p10,3000,TUEG_19_common,False,,360000,,,,,,,,,Route A bounded-imbalance allocation diagnostic.
+A_gini_0p10,4000,TUEG_19_common,False,,480000,,,,,,,,,Route A bounded-imbalance allocation diagnostic.
+B,500,TUEG_processed_exact_33ch,True,2513,60000,482583,0.124331,0.759359,,,,,0.759359,Route B uses fixed 33-channel CBraMod-only substrate; it is not a 19-common canonical curve.
+B,1000,TUEG_processed_exact_33ch,True,2513,120000,482583,0.248662,0.759359,,,,,0.759359,Route B uses fixed 33-channel CBraMod-only substrate; it is not a 19-common canonical curve.
+B,2000,TUEG_processed_exact_33ch,True,2513,240000,482583,0.497324,0.759359,,,,,0.759359,Route B uses fixed 33-channel CBraMod-only substrate; it is not a 19-common canonical curve.
+B,3000,TUEG_processed_exact_33ch,True,2513,360000,482583,0.745986,0.759359,,,,,0.759359,Route B uses fixed 33-channel CBraMod-only substrate; it is not a 19-common canonical curve.
+B,4000,TUEG_processed_exact_33ch,True,2513,480000,482583,0.994648,0.759359,,,,,0.759359,Route B uses fixed 33-channel CBraMod-only substrate; it is not a 19-common canonical curve.
+C,500,TUEG_19_common,True,6402,60000,403165,0.148822,0.318235,,,,,0.318235,Route C feasibility only; an actual sampler must be specified before training.
+C,1000,TUEG_19_common,True,6402,120000,403165,0.297645,0.318235,,,,,0.318235,Route C feasibility only; an actual sampler must be specified before training.
+C,2000,TUEG_19_common,True,6402,240000,403165,0.59529,0.318235,,,,,0.318235,Route C feasibility only; an actual sampler must be specified before training.
+C,3000,TUEG_19_common,True,6402,360000,403165,0.892935,0.318235,,,,,0.318235,Route C feasibility only; an actual sampler must be specified before training.
+C,4000,TUEG_19_common,False,,480000,403165,,,,,,,0.318235,Route C feasibility only; an actual sampler must be specified before training.

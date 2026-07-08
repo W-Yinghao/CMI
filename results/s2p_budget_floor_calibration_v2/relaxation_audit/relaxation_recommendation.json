@@ -1,0 +1,13 @@
+{
+  "phase": "9D_high_budget_feasibility_relaxation_audit",
+  "recommendation_basis": "PM_updated_preference_B_then_C_then_A; Route_B_training_requires_33ch_smoke_and_PM_approval",
+  "recommended_next_training_design": "B",
+  "route_A_bounded_imbalance_feasible": true,
+  "route_B_33ch_full_corpus_feasible": true,
+  "route_B_33ch_smoke_passed": true,
+  "route_C_19common_data_volume_feasible": true,
+  "strict_19common_exact_highcoverage_feasible_ge2000": false,
+  "target_labels_used": false,
+  "training_launched": false,
+  "training_requires_pm_approval": true
+}

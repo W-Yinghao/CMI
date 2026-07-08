@@ -1,0 +1,21 @@
+route,constraint_relaxed,corpus,allocation_contract,budget_h,window_feasible,compute_budget_acceptable,overall_metadata_feasible,n_subjects,train_windows,estimated_wall_h,planned_time_h,reason
+A_gini_0p05,exact_equal_windows_to_bounded_imbalance_gini<=0.05_maxmin<=2,TUEG_19_common,high_coverage_min0p25h_bounded_imbalance_no_reuse,500,True,True,True,2000,60000,12.94,96.0,ok
+A_gini_0p05,exact_equal_windows_to_bounded_imbalance_gini<=0.05_maxmin<=2,TUEG_19_common,high_coverage_min0p25h_bounded_imbalance_no_reuse,1000,True,True,True,4000,120000,25.87,96.0,ok
+A_gini_0p05,exact_equal_windows_to_bounded_imbalance_gini<=0.05_maxmin<=2,TUEG_19_common,high_coverage_min0p25h_bounded_imbalance_no_reuse,2000,True,True,True,6343,240000,51.75,96.0,ok
+A_gini_0p05,exact_equal_windows_to_bounded_imbalance_gini<=0.05_maxmin<=2,TUEG_19_common,high_coverage_min0p25h_bounded_imbalance_no_reuse,3000,False,True,False,,360000,77.62,96.0,"max-coverage N=6343 cannot satisfy bounded imbalance with min_w=30, gini<=0.05, max/min<=2.0"
+A_gini_0p05,exact_equal_windows_to_bounded_imbalance_gini<=0.05_maxmin<=2,TUEG_19_common,high_coverage_min0p25h_bounded_imbalance_no_reuse,4000,False,False,False,,480000,103.5,96.0,"max-coverage N=6343 cannot satisfy bounded imbalance with min_w=30, gini<=0.05, max/min<=2.0"
+A_gini_0p10,exact_equal_windows_to_bounded_imbalance_gini<=0.1_maxmin<=2,TUEG_19_common,high_coverage_min0p25h_bounded_imbalance_no_reuse,500,True,True,True,2000,60000,12.94,96.0,ok
+A_gini_0p10,exact_equal_windows_to_bounded_imbalance_gini<=0.1_maxmin<=2,TUEG_19_common,high_coverage_min0p25h_bounded_imbalance_no_reuse,1000,True,True,True,4000,120000,25.87,96.0,ok
+A_gini_0p10,exact_equal_windows_to_bounded_imbalance_gini<=0.1_maxmin<=2,TUEG_19_common,high_coverage_min0p25h_bounded_imbalance_no_reuse,2000,True,True,True,6343,240000,51.75,96.0,ok
+A_gini_0p10,exact_equal_windows_to_bounded_imbalance_gini<=0.1_maxmin<=2,TUEG_19_common,high_coverage_min0p25h_bounded_imbalance_no_reuse,3000,False,True,False,,360000,77.62,96.0,"max-coverage N=6343 cannot satisfy bounded imbalance with min_w=30, gini<=0.1, max/min<=2.0"
+A_gini_0p10,exact_equal_windows_to_bounded_imbalance_gini<=0.1_maxmin<=2,TUEG_19_common,high_coverage_min0p25h_bounded_imbalance_no_reuse,4000,False,False,False,,480000,103.5,96.0,"max-coverage N=6343 cannot satisfy bounded imbalance with min_w=30, gini<=0.1, max/min<=2.0"
+B,19common_canonical_subset_to_fixed_33ch_cbramod_only_substrate,TUEG_processed_exact_33ch,data_volume_no_reuse_subject_coverage_not_controlled,500,True,True,True,2513,60000,22.47,96.0,ok
+B,19common_canonical_subset_to_fixed_33ch_cbramod_only_substrate,TUEG_processed_exact_33ch,data_volume_no_reuse_subject_coverage_not_controlled,1000,True,True,True,2513,120000,44.94,96.0,ok
+B,19common_canonical_subset_to_fixed_33ch_cbramod_only_substrate,TUEG_processed_exact_33ch,data_volume_no_reuse_subject_coverage_not_controlled,2000,True,True,True,2513,240000,89.88,96.0,ok
+B,19common_canonical_subset_to_fixed_33ch_cbramod_only_substrate,TUEG_processed_exact_33ch,data_volume_no_reuse_subject_coverage_not_controlled,3000,True,False,False,2513,360000,134.82,96.0,ok
+B,19common_canonical_subset_to_fixed_33ch_cbramod_only_substrate,TUEG_processed_exact_33ch,data_volume_no_reuse_subject_coverage_not_controlled,4000,True,False,False,2513,480000,179.76,96.0,ok
+C,high_coverage_subject_allocation_to_total_data_volume_sampling,TUEG_19_common,data_volume_no_reuse_subject_coverage_not_controlled,500,True,True,True,6402,60000,12.94,96.0,ok
+C,high_coverage_subject_allocation_to_total_data_volume_sampling,TUEG_19_common,data_volume_no_reuse_subject_coverage_not_controlled,1000,True,True,True,6402,120000,25.87,96.0,ok
+C,high_coverage_subject_allocation_to_total_data_volume_sampling,TUEG_19_common,data_volume_no_reuse_subject_coverage_not_controlled,2000,True,True,True,6402,240000,51.75,96.0,ok
+C,high_coverage_subject_allocation_to_total_data_volume_sampling,TUEG_19_common,data_volume_no_reuse_subject_coverage_not_controlled,3000,True,True,True,6402,360000,77.62,96.0,ok
+C,high_coverage_subject_allocation_to_total_data_volume_sampling,TUEG_19_common,data_volume_no_reuse_subject_coverage_not_controlled,4000,False,False,False,,480000,103.5,96.0,not enough 19-common windows after fixed val exclusion

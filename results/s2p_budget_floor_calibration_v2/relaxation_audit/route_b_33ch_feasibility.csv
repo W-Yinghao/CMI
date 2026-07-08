@@ -1,0 +1,5 @@
+budget_h,target_windows,target_hours,data_volume_exact_window_feasible,exact_highcoverage_feasible,exact_highcoverage_n_subjects,exact_highcoverage_need_windows,exact_highcoverage_pool_size,subject_disjoint_pretrain_val_feasible,train_windows_after_val,eligible_subjects_min_exposure_after_val,estimated_wall_h_33ch,planned_time_h,compute_budget_acceptable,overall_route_b_metadata_feasible
+500,60000,500,True,True,2000,30,2470,True,482583,2470,22.47,96.0,True,True
+1000,120000,1000,True,False,,,,True,482583,2470,44.94,96.0,True,True
+2000,240000,2000,True,False,,,,True,482583,2470,89.88,96.0,True,True
+4000,480000,4000,True,False,,,,True,482583,2470,179.76,96.0,False,False
