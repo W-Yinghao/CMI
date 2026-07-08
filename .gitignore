@@ -1,1 +1,2 @@
 results/s2p_pretrain_smoke/*.pt
+results/s2p_codebrain_smoke/*.pth

@@ -1,0 +1,24 @@
+[02:56:20] device_config: {"parallel": false, "cuda_index_in_job": 0, "CUDA_VISIBLE_DEVICES": "0", "device": "cuda:0", "gpu_name": "Tesla V100S-PCIE-32GB"}
+[02:56:22] build_subset manifest: {"n_subjects": 32, "hours_budget": 50.0, "condition": "fixed_hours", "seed": 0, "per_subject_cap_h": 1.5625, "cap_windows": 188, "n_subjects_train": 27, "n_subjects_val": 5, "n_recordings_train": 145, "n_recordings_val": 62, "train_hours": 42.3, "val_hours": 7.83, "subjects_disjoint": true}
+[02:56:31] loaded uV windows: X.shape=[2048, 19, 30, 200] from 103 recordings; uV std=156.3112 absmax=10717.9385 (post /100 -> std=1.56311)
+[02:56:31] dataloader: n_windows=2048 batch_size=8 n_batches/epoch=256
+[02:56:37] tokenizer loaded (frozen): n_params=9679168
+[02:56:37] SSSM built: n_params=15167600
+[02:56:39] native EEGSSM_Trainer constructed (profiling no-op'd; model/vqnsp/optimizer/scheduler/vqloss native)
+[02:56:41] step 0: dual_token_CE=17.7617 (n_masked_t=2270)
+[02:56:41] step 1: dual_token_CE=16.2889 (n_masked_t=2266)
+[02:56:41] step 2: dual_token_CE=15.2356 (n_masked_t=2323)
+[02:56:47] step 20: dual_token_CE=10.1473 (n_masked_t=2297)
+[02:56:52] step 40: dual_token_CE=8.7979 (n_masked_t=2245)
+[02:56:58] step 60: dual_token_CE=8.3278 (n_masked_t=2261)
+[02:57:04] step 80: dual_token_CE=8.1737 (n_masked_t=2276)
+[02:57:10] step 100: dual_token_CE=8.0656 (n_masked_t=2292)
+[02:57:16] step 120: dual_token_CE=8.0220 (n_masked_t=2321)
+[02:57:21] step 140: dual_token_CE=7.8948 (n_masked_t=2278)
+[02:57:27] step 160: dual_token_CE=7.9632 (n_masked_t=2297)
+[02:57:33] step 180: dual_token_CE=8.0202 (n_masked_t=2340)
+[02:57:38] loop done: steps=200 CE first20=12.5459 last20=7.9352 decreasing=True
+[02:57:39] checkpoint saved: /home/infres/yinwang/CMI_AAAI_s2p/results/s2p_codebrain_smoke/codebrain_smoke_ckpt.pth (60894965 bytes)
+[02:57:39] checkpoint reload: strict-load OK, 269 tensors compared, param-exact=True
+[02:57:39] go/no-go written: /home/infres/yinwang/CMI_AAAI_s2p/results/s2p_codebrain_smoke/codebrain_native_smoke_go_nogo.json
+[02:57:39] VERDICT: PASS

@@ -1,0 +1,43 @@
+{
+  "ran_end_to_end": true,
+  "steps_completed": 200,
+  "dual_token_ce_decreasing": true,
+  "checkpoint_saved": true,
+  "checkpoint_reload_exact": true,
+  "blocker": null,
+  "device_config": {
+    "parallel": false,
+    "cuda_index_in_job": 0,
+    "CUDA_VISIBLE_DEVICES": "0",
+    "device": "cuda:0",
+    "gpu_name": "Tesla V100S-PCIE-32GB"
+  },
+  "mask_shape_used": [
+    8,
+    19,
+    30
+  ],
+  "ce_first20_mean": 12.545920610427856,
+  "ce_last20_mean": 7.9352210521697994,
+  "ce_step0": 17.761693954467773,
+  "ce_final": 7.955051898956299,
+  "native_trainer_constructed": true,
+  "notes": "infra smoke only; NO science claim; NO P1 inclusion",
+  "provenance": {
+    "job_id": 888806,
+    "partition": "V100-32GB",
+    "node": "node08",
+    "note": "resubmitted from A40 job 888803 (stuck PENDING/Priority) -> V100-32GB per PM; scheduled in ~3s",
+    "checkpoint": "codebrain_smoke_ckpt.pth (60.9MB, gitignored)",
+    "elapsed_s": "~79 (02:56:20->02:57:39)"
+  },
+  "native_path_confirmed": {
+    "input_norm": "uV-scale /100 (NOT z-score) - post std 1.56",
+    "mask": "native (B,19,30) NOT (B,570) flatten (resolves 9B-0 blocker)",
+    "tokenizer": "frozen released 9.68M params",
+    "SSSM": "15.17M params",
+    "trainer": "native EEGSSM_Trainer",
+    "dual_token_CE": "17.76->7.94 decreasing"
+  },
+  "codebrain_status": "P2-READY (native path runs end-to-end; NOT in P1 science grid)"
+}
