@@ -1,0 +1,4 @@
+unit_id,seed,target,level,regime,selected_order,p0_recomputed,persisted_selected_point,recomputed_selected_point,point_abs_diff,persisted_selected_ucl,recomputed_selected_ucl,ucl_abs_diff,fold_plan_hash_matches,bootstrap_plan_hash_matches,n_bootstrap_matches,runtime_seconds,target_labels_loaded_for_replay,p0_identity_pass
+s0_t001_l000,0,1,0,S0_full_support,15,1,0.974831609010045,0.974831609010045,0.0,1.2986926248128179,1.2986926248128179,0.0,1,1,1,35.210479974746704,0,1
+s1_t003_l001,1,3,1,S3_nonestimable_cells,11,1,1.0090545935937127,1.0090545935937127,0.0,1.2708841584801343,1.2708841584801343,0.0,1,1,1,69.55940413475037,0,1
+s2_t009_l001,2,9,1,S3_nonestimable_cells,29,1,1.157179484810549,1.157179484810549,0.0,1.3731175329176013,1.3731175329176013,0.0,1,1,1,72.08808636665344,0,1
