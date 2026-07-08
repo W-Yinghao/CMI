@@ -1,0 +1,20 @@
+{
+  "event": "done",
+  "n_subjects": 256,
+  "subset_seed": 0,
+  "init_seed": 0,
+  "epochs": 2,
+  "first_val_loss": 2.44967257976532,
+  "best_val_loss": 1.424645483493805,
+  "best_epoch": 2,
+  "val_rel_decrease": 0.41843432658649965,
+  "converged_20pct": true,
+  "checkpoint_strict_reload": true,
+  "checkpoint_param_exact_if_last": true,
+  "n_params": 4924000,
+  "git": "1441096d27e5",
+  "smoke": true,
+  "target_labels_used": false,
+  "hbn_normalizer_neutralized": true,
+  "div_by_100": false
+}

@@ -9,8 +9,8 @@
   "downstream_target_not_used_for_selection": true,
   "compute_budget_ok": "15 runs from-scratch @100h corpus (pilot-scale); epochs TBD by convergence check",
   "design_red_team": "DONE (agent a7ea257d): BLOCKERS_PRESENT",
-  "launch_p1": false,
-  "launch_note": "Frontier design SOUND + VERIFIED; BL-9 dead; final red-team's BL-10 (framing) + all majors/minors FIXED without a pivot or GPU. Claim honestly relabeled to a BUNDLED descriptive fixed-budget allocation frontier + identifiability lesson (NOT coverage-vs-depth causal, NOT population-adjusted). 11/12 launch conditions MET+verified; ONLY #12 (explicit PM go on the bundled framing) remains. Report-then-go. 15 runs ready.",
+  "launch_p1": true,
+  "launch_note": "LAUNCHED per PM explicit go. 15-run array (5N x 3seed), native CBraMod frontier runner smoke-validated. Multi-partition A40/A100/H100/V100. Bundled descriptive framing.",
   "loader_fixed_hours_bug": "FIXED (window-level budget; verified total ~100h all N; was 116-597h)",
   "pm_decision_2026_07_08": "BL-1 fix = TWO fixed-H0 lines (100h+200h) lean crossed grid; keep diversity question; NOT reframe; N=32 out of primary; constant-exposure arm = P2 diagnostic only",
   "pending_before_launch": [
@@ -64,7 +64,7 @@
     "9_checkpoint_pretrain_val_only": "MET (spec)",
     "10_target_labels_final_scoring_only": "MET (spec)",
     "11_downstream_norm_parity_and_loadtime_assertion": "load-time assertion ADDED + sample-load VERIFIED (N=128->188/subj, N=2048->12); downstream per-patch parity pinned in spec",
-    "12_launch_p1_true": "NO - held for explicit PM go on the BUNDLED descriptive framing (report-then-go)"
+    "12_launch_p1_true": "YES - PM explicit go 2026-07-08 (bundled descriptive framing accepted)"
   },
   "v4_final_red_team": "agent a5208c26: BL-9 GENUINELY DEAD + loader verified correct. BL-10 (framing) + MJ-12/13/14/15 + MN-8..12 ALL FIXED by me (doc/analysis/cheap-code, no pivot, no GPU). Claim relabeled to BUNDLED descriptive frontier + identifiability lesson.",
   "redteam_fixes_applied": {
@@ -79,5 +79,10 @@
     "MN11": "subset_seed+init_seed columns",
     "MN12": "deepest_need_windows derived"
   },
-  "all_12_conditions": "11 MET + verified; #12 = explicit PM go only"
+  "all_12_conditions": "11 MET + verified; #12 = explicit PM go only",
+  "runner": "s2p/scripts/run_frontier_cbramod.py (native CBraMod objective, HBN-normalizer neutralized, per-patch z-score, best-by-val); SMOKE PASS (4.92M params, GPU peak 4.23GB@bs32, val 2.45->1.42, ckpt param-exact, firewall clean)",
+  "gpu_partitions": "A40,A100,H100,V100 (CBraMod 4.9M params ~4-8GB fits V100-16GB; SLURM schedules whichever free)",
+  "epochs": 50,
+  "batch_size": 64,
+  "matched_optimization": "all cells 24000 windows x 50 epochs = identical step count"
 }
