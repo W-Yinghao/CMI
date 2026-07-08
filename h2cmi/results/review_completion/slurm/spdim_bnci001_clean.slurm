@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=spdim-bnci001
+#SBATCH --job-name=spdim-bnci001-clean
 #SBATCH --partition=V100
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=48G
 #SBATCH --time=08:00:00
-#SBATCH --output=/home/infres/yinwang/CMI_AAAI_qxu/h2cmi/results/review_completion/slurm/logs/%x-%j.out
-#SBATCH --error=/home/infres/yinwang/CMI_AAAI_qxu/h2cmi/results/review_completion/slurm/logs/%x-%j.err
+#SBATCH --output=h2cmi/results/review_completion/slurm/logs/%x-%j.out
+#SBATCH --error=h2cmi/results/review_completion/slurm/logs/%x-%j.err
 
 set -euo pipefail
 
-cd /home/infres/yinwang/CMI_AAAI_qxu
+cd "${SLURM_SUBMIT_DIR:-$(pwd)}"
 
 PY=/home/infres/yinwang/anaconda3/envs/icml/bin/python
 EXT=/home/infres/yinwang/.cache/h2cmi_external/SPDIM_1b0de0ccd4c48a4ff28f087b866a0b671b029c39
@@ -25,10 +25,9 @@ echo "job_id=${SLURM_JOB_ID:-manual}"
 echo "host=$(hostname)"
 echo "pwd=$PWD"
 echo "repo_head=$(git rev-parse HEAD)"
-echo "repo_status_begin"
-git status --short
-echo "repo_status_end"
-echo "runner_diff_sha256=$(git diff -- h2cmi/run_spdim_probe.py | sha256sum | awk '{print $1}')"
+echo "repo_status_porcelain_begin"
+git status --porcelain=v1 --untracked-files=all
+echo "repo_status_porcelain_end"
 echo "external_sha=$(git -C "$EXT" rev-parse HEAD)"
 nvidia-smi || true
 
@@ -42,6 +41,6 @@ nvidia-smi || true
   --device cuda \
   --result-schema bnci001 \
   --overwrite \
-  --out h2cmi/results/review_completion/spdim_bnci001_results.csv \
-  --audit h2cmi/results/review_completion/spdim_bnci001_audit.md \
-  --failure-trace h2cmi/results/review_completion/spdim_bnci001_failure_trace.txt
+  --out h2cmi/results/review_completion/spdim_bnci001_clean_results.csv \
+  --audit h2cmi/results/review_completion/spdim_bnci001_clean_audit.md \
+  --failure-trace h2cmi/results/review_completion/spdim_bnci001_clean_failure_trace.txt

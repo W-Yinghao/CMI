@@ -9,6 +9,7 @@ import argparse
 import csv
 import hashlib
 import json
+import os
 import random
 import subprocess
 import sys
@@ -24,7 +25,7 @@ from torch.utils.data import DataLoader, Dataset
 
 from h2cmi.data.real_eeg import contiguous_split, load_dataset
 from h2cmi.data.real_metadata import MOABB_CLASS
-from h2cmi.grid_io import hash_state, require_clean_git
+from h2cmi.grid_io import hash_state
 
 OFFICIAL_REPO = "https://github.com/fightlesliefigt/SPDIM"
 OFFICIAL_SHA = "1b0de0ccd4c48a4ff28f087b866a0b671b029c39"
@@ -59,8 +60,61 @@ def _hash_ndarray(x: np.ndarray) -> str:
     return h.hexdigest()
 
 
+def _sha_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as f:
+        for block in iter(lambda: f.read(1 << 20), b""):
+            h.update(block)
+    return h.hexdigest()
+
+
 def _git_sha(path: str) -> str:
     return subprocess.check_output(["git", "-C", path, "rev-parse", "HEAD"], text=True).strip()
+
+
+def _repo_root() -> Path:
+    return Path(subprocess.check_output(["git", "rev-parse", "--show-toplevel"], text=True).strip())
+
+
+def _git_status_porcelain(root: Path) -> str:
+    return subprocess.check_output(
+        ["git", "status", "--porcelain=v1", "--untracked-files=all"],
+        cwd=root,
+        text=True,
+    )
+
+
+def _env_name() -> str:
+    return os.environ.get("CONDA_DEFAULT_ENV") or Path(sys.prefix).name
+
+
+def _build_launch_provenance(*, args, command: str, external_sha: str) -> dict:
+    root = _repo_root()
+    runner_path = Path(__file__).resolve()
+    config_path = root / "h2cmi" / "config.py"
+    status = _git_status_porcelain(root)
+    launch_commit = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=root, text=True).strip()
+    return {
+        "launch_commit": launch_commit,
+        "git_status_porcelain": status,
+        "clean_worktree": status == "",
+        "runner_dirty_allowed": bool(args.allow_dirty),
+        "runner_file": str(runner_path.relative_to(root)),
+        "runner_file_sha256": _sha_file(runner_path),
+        "config_file": str(config_path.relative_to(root)),
+        "config_sha256": _sha_file(config_path),
+        "external_spdim_commit": external_sha,
+        "environment_name": _env_name(),
+        "command_line": command,
+        "slurm_job_id": os.environ.get("SLURM_JOB_ID", ""),
+    }
+
+
+def _require_clean_launch(provenance: dict) -> None:
+    if provenance["runner_dirty_allowed"]:
+        raise RuntimeError("refusing SPDIM official run: --allow-dirty is exploratory-only and blocked")
+    if not provenance["clean_worktree"]:
+        raise RuntimeError("refusing SPDIM official run: git status --porcelain is nonempty")
 
 
 def _has_license(path: str) -> bool:
@@ -168,7 +222,8 @@ def _append_rows(path: str, rows: list[dict], schema: str) -> None:
 
 
 def _write_audit(path: str, *, args, rows: list[dict], command: str, started: float, finished: float,
-                 external_sha: str, runner_commit: str, dry_run: bool = False) -> None:
+                 external_sha: str, runner_commit: str, launch_provenance: dict | None = None,
+                 dry_run: bool = False) -> None:
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     ok_rows = [r for r in rows if r.get("status") == "ok"]
     failed_rows = [r for r in rows if r.get("status") != "ok"]
@@ -196,13 +251,40 @@ def _write_audit(path: str, *, args, rows: list[dict], command: str, started: fl
         command,
         "```",
         "",
+        "## Launch Provenance",
+        "",
+    ]
+    if launch_provenance:
+        git_status = launch_provenance["git_status_porcelain"] or "(empty)"
+        lines.extend([
+            f"- launch_commit: `{launch_provenance['launch_commit']}`",
+            f"- clean_worktree: `{launch_provenance['clean_worktree']}`",
+            f"- runner_dirty_allowed: `{launch_provenance['runner_dirty_allowed']}`",
+            f"- runner_file: `{launch_provenance['runner_file']}`",
+            f"- runner_file_sha256: `{launch_provenance['runner_file_sha256']}`",
+            f"- config_file: `{launch_provenance['config_file']}`",
+            f"- config_sha256: `{launch_provenance['config_sha256']}`",
+            f"- external_spdim_commit: `{launch_provenance['external_spdim_commit']}`",
+            f"- environment_name: `{launch_provenance['environment_name']}`",
+            f"- slurm_job_id: `{launch_provenance['slurm_job_id']}`",
+            "",
+            "### Git Status Porcelain",
+            "",
+            "```text",
+            git_status,
+            "```",
+            "",
+        ])
+    else:
+        lines.extend(["Launch provenance unavailable.", ""])
+    lines.extend([
         "## Target Label Policy",
         "",
         "Target subject IDs are selected from sorted subject metadata only. Target adaptation datasets use dummy labels; target labels are read only by the evaluation metric code after adaptation/refit has completed.",
         "",
         "## Results",
         "",
-    ]
+    ])
     if not rows:
         lines.append("No result rows were produced.")
     else:
@@ -452,6 +534,7 @@ def main() -> int:
     rows: list[dict] = []
     runner_commit = "unknown"
     external_sha = "unknown"
+    launch_provenance: dict | None = None
     try:
         if args.overwrite and not args.dry_run:
             for path in (args.out, args.audit, args.failure_trace):
@@ -459,11 +542,10 @@ def main() -> int:
                     Path(path).unlink()
                 except FileNotFoundError:
                     pass
-        runner_commit = require_clean_git(
-            allow_dirty=args.allow_dirty,
-            ignore_prefixes=["results/h2cmi", "h2cmi/results/review_completion"],
-        )
         external_sha = _git_sha(args.external_spdim_path)
+        launch_provenance = _build_launch_provenance(args=args, command=command, external_sha=external_sha)
+        _require_clean_launch(launch_provenance)
+        runner_commit = launch_provenance["launch_commit"]
         if external_sha != OFFICIAL_SHA:
             raise RuntimeError(f"external SPDIM SHA mismatch: {external_sha} != {OFFICIAL_SHA}")
         bn, TSMNet, Trainer = _import_official(args.external_spdim_path)
@@ -480,6 +562,7 @@ def main() -> int:
                 finished=time.time(),
                 external_sha=external_sha,
                 runner_commit=runner_commit,
+                launch_provenance=launch_provenance,
                 dry_run=True,
             )
             return 0
@@ -533,6 +616,7 @@ def main() -> int:
             finished=time.time(),
             external_sha=external_sha,
             runner_commit=runner_commit,
+            launch_provenance=launch_provenance,
         )
         return 0 if rows and all(r.get("status") == "ok" for r in rows) and len(rows) == len(targets) * 4 else 2
     except Exception:
@@ -547,6 +631,7 @@ def main() -> int:
             finished=time.time(),
             external_sha=external_sha,
             runner_commit=runner_commit,
+            launch_provenance=launch_provenance,
         )
         raise
 

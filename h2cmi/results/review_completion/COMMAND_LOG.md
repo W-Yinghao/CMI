@@ -71,3 +71,10 @@
   Applied the stop rule: BNCI001 SPDIM is marked `exploratory_only`; no result
   digest, full W1 protocol draft, GPU job, Cho2017, Lee2019-MI, extra seed,
   geometry stress, orthogonal-score, or TeX work was performed.
+- Per PM P5.2A, added a strict clean-worktree guard for future official SPDIM
+  probe/expansion launches and policy file
+  `h2cmi/results/review_completion/SPDIM_CLEAN_RUN_POLICY.md`. The runner now
+  records launch commit, `git status --porcelain`, clean-worktree status,
+  runner/config checksums, external SPDIM commit, environment name, command
+  line, and Slurm job id. CPU guard smoke in the current dirty worktree refused
+  before dataset load/training with `git status --porcelain is nonempty`.
