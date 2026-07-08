@@ -1,0 +1,7 @@
+group_scope,definition
+global,all candidates in one diagnostic group
+within_target,same target identity
+within_trajectory,same seed|target|level|regime trajectory
+within_target_seed,same target identity and seed
+within_target_level,same target identity and level
+within_regime,same regime; target identities mixed

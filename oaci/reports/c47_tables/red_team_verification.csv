@@ -1,0 +1,6 @@
+check,passed,finding
+group_conditioned_baseline_audit,1,Each grouped top-k row uses the same group's exact random baseline.
+conditioning_problem_class_boundary,1,"Target/trajectory grouping is treated as diagnostic conditioning, not target-free action."
+source_smoothing_not_tuned,1,Smoothing uses inherited C45 q10 source-neighborhood radius only.
+hindsight_and_oracle_disclosure,1,C43 best scalarization and target utility ceiling are explicitly diagnostic rows.
+reliability_gate_audit,1,Best conditioned strict-source top1 remains below the reliability gate.

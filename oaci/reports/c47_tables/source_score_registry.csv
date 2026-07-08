@@ -1,0 +1,7 @@
+score,family,field,orientation,source_only,hindsight_diagnostic_only,target_label_used,diagnostic_ceiling,n_candidate_rows,n_available,availability_fraction,note
+selection_leakage,leakage,selection_leakage_point,lower,1,0,0,0,3804,3804,1.0,C41 selection leakage point
+R_src,source_risk,R_src,lower,1,0,0,0,3804,3804,1.0,source risk
+C30_source_rank,source_rank,source_rank_score,higher,1,0,0,0,3804,3804,1.0,C30 source-rank score
+C19_robust_core,source_rank,c19_robust_core_score,higher,1,0,0,0,3804,3804,1.0,frozen C19 robust-core score
+C43_best_hindsight_scalarization,fixed_hindsight_scalarization,leakage_rank_risk__leakage_0.5__rank_0.1__risk_0.4,higher,1,1,0,0,3804,3804,1.0,"C43 fixed best hindsight scalarization weights, diagnostic-only"
+target_utility_oracle_ceiling,target_grouped_ceiling,target_utility_score,higher,0,1,1,1,3804,3804,1.0,target-label diagnostic oracle ceiling
