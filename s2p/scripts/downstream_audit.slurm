@@ -15,4 +15,5 @@ export PYTHONUNBUFFERED=1
 echo "host=$(hostname) MODE=${MODE} CELLS=${CELLS}"; nvidia-smi --query-gpu=name --format=csv,noheader || true
 PY=/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python
 srun "$PY" /home/infres/yinwang/CMI_AAAI_s2p/s2p/scripts/shumi_downstream_audit.py \
-    --mode "${MODE}" --cells ${CELLS} --out-dir /home/infres/yinwang/CMI_AAAI_s2p/results/s2p_p1_downstream
+    --mode "${MODE}" --cells ${CELLS} --embedding "${EMB:-spatial}" --norm "${NORM:-patch}" \
+    --out-dir "${OUT:-/home/infres/yinwang/CMI_AAAI_s2p/results/s2p_p1_downstream}"

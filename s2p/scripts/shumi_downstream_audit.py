@@ -25,9 +25,10 @@ SPLIT = {"source_train": list(range(1, 16)), "source_val": list(range(16, 21)), 
 SEED = 0
 
 
-def load_shumi(subjects):
-    """returns X (n,19,4,200) per-patch z-scored, y (n,), subj (n,), sess (n,). LMDB folds ignored (subject-disjoint
-    split used instead). Target labels are returned but callers must gate their use to final scoring only."""
+def load_shumi(subjects, norm="patch"):
+    """returns X (n,19,4,200) z-scored, y (n,), subj (n,), sess (n,). LMDB folds ignored (subject-disjoint split
+    used instead). norm='patch' (P1 pretraining parity: per 1-s patch) | 'window' (Phase-8B: per 4-s trial/channel).
+    Target labels returned but callers must gate use to final scoring only."""
     import lmdb, pickle
     env = lmdb.open(SHUMI, readonly=True, lock=False, readahead=False, meminit=False)
     X, y, sj, ss = [], [], [], []
@@ -43,8 +44,23 @@ def load_shumi(subjects):
                     X.append(np.asarray(d["sample"], np.float32)[CH_IDX]); y.append(int(d["label"]))
                     sj.append(s); ss.append(ses); t += 1
     X = np.stack(X).reshape(-1, 19, 4, 200)                         # (n,19,4,200) native 4-patch
-    X = (X - X.mean(-1, keepdims=True)) / (X.std(-1, keepdims=True) + 1e-6)   # per-patch z-score (pretraining parity)
+    if norm == "window":                                            # per-4s-trial per-channel z-score (Phase-8B)
+        w = X.reshape(-1, 19, 800); w = (w - w.mean(-1, keepdims=True)) / (w.std(-1, keepdims=True) + 1e-6)
+        X = w.reshape(-1, 19, 4, 200)
+    else:                                                           # per-1s-patch per-channel z-score (P1 parity)
+        X = (X - X.mean(-1, keepdims=True)) / (X.std(-1, keepdims=True) + 1e-6)
     return X.astype(np.float32), np.array(y), np.array(sj), np.array(ss)
+
+
+RELEASED_CKPT = os.path.expanduser("~/eeg2025/NIPS/Cbramod_pretrained_weights.pth")
+
+
+def resolve_ckpt(tag):
+    if tag == "random":
+        return "random"
+    if tag == "released":
+        return RELEASED_CKPT
+    return f"results/s2p_p1_cbramod/{tag}/best.pth"
 
 
 def build_encoder(ckpt, device):
@@ -52,8 +68,11 @@ def build_encoder(ckpt, device):
     m = CBraMod(in_dim=200, out_dim=200, d_model=200, dim_feedforward=800, seq_len=4, n_layer=12, nhead=8).to(device)
     loaded = "random_init"
     if ckpt not in (None, "random"):
-        sd = torch.load(ckpt, map_location=device)["model_state"]
-        m.load_state_dict(sd); loaded = ckpt
+        sd = torch.load(ckpt, map_location=device)
+        sd = sd["model_state"] if isinstance(sd, dict) and "model_state" in sd else sd   # P1 wrapped vs released flat
+        miss, unexp = m.load_state_dict(sd, strict=False)
+        assert len(miss) == 0 and len(unexp) == 0, f"state_dict mismatch: missing={miss[:3]} unexpected={unexp[:3]}"
+        loaded = ckpt
     m.eval()
     return m, loaded
 
@@ -188,6 +207,7 @@ def main():
     ap.add_argument("--cells", nargs="+", required=True)          # e.g. "N512_s0 random", or "all"
     ap.add_argument("--mode", default="D1", choices=["D0", "D1"])
     ap.add_argument("--embedding", default="spatial", choices=["spatial", "mean"])
+    ap.add_argument("--norm", default="patch", choices=["patch", "window"])
     ap.add_argument("--out-dir", default="results/s2p_p1_downstream")
     ap.add_argument("--device", default="cuda:0")
     a = ap.parse_args()
@@ -201,7 +221,7 @@ def main():
 
     t0 = time.time()
     allsub = sorted(SPLIT["source_train"] + SPLIT["source_val"] + SPLIT["target_test"])
-    X, y, subj, sess = load_shumi(allsub)
+    X, y, subj, sess = load_shumi(allsub, norm=a.norm)
     load_info = dict(n_trials=int(len(X)), n_subjects=int(len(np.unique(subj))),
                      label_balance=[int((y == 0).sum()), int((y == 1).sum())],
                      trials_per_split={k: int(np.isin(subj, v).sum()) for k, v in SPLIT.items()},
@@ -210,15 +230,15 @@ def main():
 
     recs, det_max = [], None
     for tag in cells:
-        ckpt = "random" if tag == "random" else f"results/s2p_p1_cbramod/{tag}/best.pth"
-        if tag != "random" and not Path(ckpt).exists():
-            print(f"SKIP {tag}: no checkpoint"); continue
+        ckpt = resolve_ckpt(tag)
+        if ckpt != "random" and not Path(ckpt).exists():
+            print(f"SKIP {tag}: no checkpoint at {ckpt}"); continue
         model, loaded = build_encoder(ckpt, device)
         feat = extract(model, X, device, mode=a.embedding)
         if det_max is None:                                        # determinism gate (re-extract, must be identical)
             det_max = float(np.abs(feat - extract(model, X, device, mode=a.embedding)).max())
         rec = audit_checkpoint(tag, ckpt, feat, y, subj, sess, out)
-        if tag != "random":
+        if tag.startswith("N") and "_s" in tag:                     # P1 frontier cell (not 'random'/'released')
             rec["N"] = int(tag.split("_")[0][1:]); rec["seed"] = int(tag.split("_s")[1])
         recs.append(rec); print(f"  {tag}: tgt_bAcc={rec['target_bacc']:.3f} src_val={rec['source_val_bacc']:.3f} "
                                 f"L1={rec['l1_l1_pairwise_bacc_mean']:.3f} L4={rec['l4_alignment']:.3f} "
