@@ -37,10 +37,13 @@ Note: raw Wave0/W1 artifacts are gitignored under `results/h2cmi/`; this audit p
 
 - `analysis_base_commit=283832710c93d56cca45b27682286e64e37a4034`
 - `artifact_commit=29a219596a976c1300443dfcd4e890d6010db7e9`
+- `hygiene_digest_commit=483ff8c01c95d3083864f0f0c8b8243d271bdb75`
+- `current_remote_head=483ff8c01c95d3083864f0f0c8b8243d271bdb75`
 - `artifact_branch=exp/h2cmi-wave0-mechanism`
 - `remote_tracking_branch=origin/exp/h2cmi-wave0-mechanism`
+- `responsibility_branch_head=09e92499ecec9d245e12d92f2c3b355e8e1b93d1`
 
-Interpretation: the analysis began from HEAD `2838327`; the generated review-completion package and off-diagonal stress artifacts were committed afterward as `29a2195`.
+Interpretation: the analysis began from HEAD `2838327`; the generated review-completion package and off-diagonal stress artifacts were committed afterward as `29a2195`; the hygiene and writer-facing digest pass was committed afterward as `483ff8c`.
 
 ## Raw Artifact Inputs
 

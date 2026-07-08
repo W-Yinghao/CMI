@@ -26,7 +26,7 @@ Use `MANUSCRIPT_NUMBERS_READY.md` as the single writer-facing number digest. Key
 - Sleep/W2 primary: `G=-0.0201 [-0.0407,+0.0010]`, `P=-0.1439 [-0.1593,-0.1285]`, `I_int=+0.0588 [+0.0425,+0.0758]`, n=75.
 - MI heterogeneity: Cho2017 drives the MI geometry aggregate (`G=+0.1227 [+0.0866,+0.1602]`), while BNCI2014-001 and Lee2019-MI are near zero.
 - V2P q-grid is `{0.1,...,0.9}`; displacement should not be described as utility.
-- Offdiag geometry contrasts are near zero with CIs spanning zero for rotation/block_mixing and non-positive for mixing/strong_reref; use bounded stress wording.
+- Offdiag geometry contrasts are near zero with CIs spanning zero for rotation/block_mixing and non-positive for mixing/strong_reref. Bounded operator-family stress did not show a practically positive advantage for the tested full-covariance/sensor families under these perturbations; montage-layout remapping remains untested.
 
 ## Blockers
 

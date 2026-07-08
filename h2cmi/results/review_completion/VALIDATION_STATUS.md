@@ -10,8 +10,9 @@ All checks in this file are CPU/artifact checks. No GPU jobs were launched for t
 | Sleep replay terminal values match accepted report | PASS | `sleep_replay_hash_audit.md`: W0.1 deterministic replay accepted; `G -0.020007 -> -0.020125`, `P -0.143848 -> -0.143875`, residual `1.85e-17`. |
 | Offdiag raw JSONL row counts match audit | PASS | `offdiag_completion_audit.md`: 1,080 raw rows, 0 bad JSON rows, 360 unit x perturbation cells, CSV 128 data rows. |
 | SPDIM status is consistent across docs | PASS | `BLOCKERS.md`, `baseline_inventory_and_blockers.md`, `spdim_external_repo_assessment.md`, `spdim_official_baseline_blocker.md`, and `spdim_protocol_mapping.md` now agree: official code exists and imports, but no same-split H2CMI official SPDIM result exists. |
-| Branch reconciliation complete | PASS | `BRANCH_RECONCILIATION.md`: current artifact branch is `exp/h2cmi-wave0-mechanism`; `29a2195` is not on `origin/exp/h2cmi-responsibility-qxu`; exact cherry-pick/merge commands recorded but not run. |
+| Branch reconciliation complete | PASS | `BRANCH_RECONCILIATION.md`: current artifact branch is `exp/h2cmi-wave0-mechanism`; `29a2195` and `483ff8c` are not on `origin/exp/h2cmi-responsibility-qxu`; exact cherry-pick/merge commands recorded but not run. |
 | Geometry status is consistent | PASS | `geometry_capacity_blockers.md`, `geometry_capacity_stress_methods.md`, `REVIEW_COMPLETION_SUMMARY.md`, and `MANUSCRIPT_NUMBERS_READY.md` agree: frozen stress covers null/reref/gain/dropout; offdiag stress covers rotation/mixing/strong_reref/block_mixing; montage remapping remains untested. |
+| P0.5 provenance head recorded | PASS | `RUN_PROVENANCE.md` records `analysis_base_commit=2838327`, `artifact_commit=29a2195`, `hygiene_digest_commit=483ff8c`, current remote head `483ff8c`, artifact branch, and responsibility branch head `09e9249`. |
 
 Remaining blockers after this hygiene step:
 
