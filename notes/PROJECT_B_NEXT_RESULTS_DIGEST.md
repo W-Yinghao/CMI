@@ -1,0 +1,37 @@
+# Project B-Next Results Digest
+
+- R2_strict: 0.8547
+- R2_raw_tta: 0.0713
+- R2_nested_cov: 0.8333
+- R2_nested_acc: 0.8799
+- HF3_strict: 0.5676
+- HF3_raw_tta: -0.0712
+- HF3_nested_cov: 0.6000
+- HF3_nested_acc: 0.5687
+- H_OOD_strict: 0.5787
+- H_OOD_raw_tta: -0.2307
+- H_OOD_nested_cov: 0.5000
+- H_OOD_nested_acc: 0.5217
+- real3c_raw_tta: -0.1397
+- real3c_off_tta_rate: 0.0000
+- real3c_subject_cov: 0.5000
+- s0_hf3_verdict: HF3 (source-representative concept, concept_frac=0.50): 12 source-representative catch, 0 observable-diagnostic catch, 4 boundary-confirmed evasion (of 16 concept-degraded HF3 targets; 12 caught total). H_OOD (target-only concept, concept_frac=0.17): corr(pred,true)=-0.22, toy violation=0.29 -> target-only boundary confirmed. Net: source-only ACAR-error is partially estimable where the error mechanism is source-representative/observable, but reproduces the non-identifiability boundary for target-only concept shift; it does NOT solve concept shift.
+- s0_source: 152
+- s0_target: 120
+- s2_hf3_catch: 1.0000
+- s2_r2_add_refusal: 0.0000
+- s2_hood_transfer: -0.6970
+- s2b_catch_fold_local_crossfit: 1.0000
+- s2b_catch_pooled_world_crossfit: 0.7143
+- s3_r2_po_gain: -0.0452
+- s3_r2_tta_gain: 0.1425
+- s3_po_harm: 0.5367
+- s3_tta_harm: 0.7067
+- s3_verdict: DEFER PRIOR_ONLY integration: PRIOR_ONLY IS lower-harm than OFFLINE_TTA, but GO 
+- s1_verdict: no_real_benefit_phase_observed
+- s1_max_gain: 0.0200
+- s1_bnci004_transfer: 0.8996
+- s4_delta_004: -0.0962
+- s4_delta_001: -0.0399
+- s4_delta_lee: -0.0838
+- s4_verdict: cbramod_weaker_representation_benefit_is_artifact
