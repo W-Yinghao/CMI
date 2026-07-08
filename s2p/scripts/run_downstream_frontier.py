@@ -476,12 +476,25 @@ def aggregate():
 
 
 # ----------------------------------------------------------------------------- D0 probe gate (8 QC items)
+REQUIRED_OUTPUTS = ("p1_task_performance.csv", "p1_pairwise_subject_separability.csv", "p1_l4_task_alignment.csv",
+                    "p1_l5_subject_subspace_replay.csv", "p1_l6_target_consequence.csv", "p1_feature_dump_manifest.csv",
+                    "p1_channel_mapping_manifest.csv", "p1_windowing_manifest.csv")
+
+
 def probe_gate(device="cuda"):
     OUT.mkdir(parents=True, exist_ok=True)
     res = {}
     for cell in ("N512_s0", "random_init"):
-        res[cell] = run_cell(cell, device=device, write_features=True)
+        cj = CELLS / f"{cell}.json"
+        res[cell] = json.loads(cj.read_text()) if cj.exists() else run_cell(cell, device=device, write_features=True)
+    try:                                                       # build the shared CSVs/manifests from the cells present
+        aggregate(); agg_ok = True
+    except Exception as e:
+        agg_ok = False; print(f"aggregate failed: {e}")
     r = res["N512_s0"]; qc = r["meta"]["qc"]; g = r["gate"]
+    schemas_ok = bool(agg_ok and (CELLS / "N512_s0.json").exists() and (CELLS / "random_init.json").exists()
+                      and all((OUT / fn).exists() for fn in REQUIRED_OUTPUTS)
+                      and (OUT / "p1_target_label_firewall.json").exists())
     checks = {
         "1_channel_mapping_exact": bool(len(r["channel_table"]) == 19 and r["channel_map_hash"]),
         "2_native_4patch_forward": bool(qc.get("npatch") == 4 and r["meta"]["F1_dim"] == 19 * 200),
@@ -493,20 +506,20 @@ def probe_gate(device="cuda"):
         "6_variance_null_consistent": bool(r["l5"]["var_removed_variance"] is not None and r["l5"]["drop_variance"] is not None
                                            and r["l5"]["var_removed_variance"] >= r["l5"]["var_removed_subject"] - 1e-9),
         "7_target_label_firewall_clean": bool(r["firewall"]["target_labels_used_only_for_final_scoring"] and r["meta"]["target_labels_used"] is False),
-        "8_output_schemas_correct": all((OUT / fn).exists() for fn in
-            ("p1_task_performance.csv", "p1_pairwise_subject_separability.csv", "p1_l4_task_alignment.csv",
-             "p1_l5_subject_subspace_replay.csv", "p1_l6_target_consequence.csv", "p1_feature_dump_manifest.csv")),
+        "8_output_schemas_correct": schemas_ok,
     }
     gate = dict(probe_gate="D0", checkpoint="N512_s0", random_init_floor=res["random_init"]["gate"]["target_bacc"],
                 pretrained_target_bacc=g["target_bacc"], source_val_bacc=g["source_val_bacc"], task_gate_pass=g["task_gate_pass"],
                 l1_source_effect=r["l1_source"].get("effect"), l1_source_p=r["l1_source"].get("p"),
                 l5_drop_subject=r["l5"]["drop_subject"], l5_drop_variance=r["l5"]["drop_variance"],
-                qc=qc, checks=checks, all_pass=bool(all(checks.values())))
+                qc=qc, checks=checks, all_pass=bool(all(checks.values())),
+                note=("D0 QC only. Science first-look (ONE cell): pretrained N512_s0 target bAcc %.4f vs random-init "
+                      "floor %.4f (both ~chance 0.5); source-val %.4f; task_gate=%s. Frozen-linear-probe transfer is "
+                      "near chance for this 200h checkpoint (released CBraMod scores ~0.60 through the same probe). "
+                      "L1 subject-decodability effect %.3f (p %s). Not conclusive from one cell." % (
+                          g["target_bacc"], res["random_init"]["gate"]["target_bacc"], g["source_val_bacc"],
+                          g["task_gate_pass"], r["l1_source"].get("effect"), r["l1_source"].get("p"))))
     _atomic_write_json(OUT / "p1_probe_gate_D0.json", gate)
-    _write_csv("p1_channel_mapping_manifest.csv", r["channel_table"])
-    _write_csv("p1_windowing_manifest.csv", [dict(dataset="SHU-MI", native_hz=NATIVE_HZ, target_hz=TARGET_HZ,
-        patch=PATCH, npatch=qc.get("npatch"), window_sec=4, pad_to_30="NO", per_patch_zscore=True)])
-    (OUT / "p1_target_label_firewall.json").write_text(json.dumps(r["firewall"], indent=2) + "\n")
     print(json.dumps(gate, indent=2, default=str))
     return gate
 
