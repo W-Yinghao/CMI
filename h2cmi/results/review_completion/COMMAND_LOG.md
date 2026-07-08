@@ -61,3 +61,13 @@
   `b0ccaaa05c00ca9209224a728d39bbdc71b17c7989c28673257fb89886e43a7e`.
   Machine-readable summary:
   `h2cmi/results/review_completion/spdim_bnci001_summary.json`.
+- Per PM P5.1, performed CPU-only provenance reconciliation for the dirty
+  launch runner diff. The reconstructed
+  `git diff a749ba953b7f625cf713ab6673a569264c38af6a..6ebcb91 -- h2cmi/run_spdim_probe.py`
+  hash was
+  `251bd1c67b38adb777c7e9851e6f7a70c1007f0603fa3bd0b5dcdb8b0a2609da`,
+  which does not match the launch-recorded
+  `870ca4e40c417a0fbd80ee63e9833e3cc22bb727388fa350f7eb21d748e9ca82`.
+  Applied the stop rule: BNCI001 SPDIM is marked `exploratory_only`; no result
+  digest, full W1 protocol draft, GPU job, Cho2017, Lee2019-MI, extra seed,
+  geometry stress, orthogonal-score, or TeX work was performed.

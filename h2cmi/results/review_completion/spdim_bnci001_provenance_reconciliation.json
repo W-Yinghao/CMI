@@ -1,0 +1,19 @@
+{
+  "launch_head": "a749ba953b7f625cf713ab6673a569264c38af6a",
+  "result_commit": "6ebcb91feab99cfc057e69a166b64c506fea1d05",
+  "recorded_runner_diff_sha256_at_launch": "870ca4e40c417a0fbd80ee63e9833e3cc22bb727388fa350f7eb21d748e9ca82",
+  "reconstructed_runner_diff_sha256": "251bd1c67b38adb777c7e9851e6f7a70c1007f0603fa3bd0b5dcdb8b0a2609da",
+  "runner_diff_matches_launch": false,
+  "dirty_worktree_explained": true,
+  "result_reproducibility_status": "exploratory_only",
+  "approve_full_w1_spdim_protocol_draft": false,
+  "provenance_gate_passed": false,
+  "mismatch_reason": "The final result commit's h2cmi/run_spdim_probe.py diff is not byte-identical to the dirty runner diff recorded at Slurm launch; the final commit additionally includes the post-launch CSV lineterminator change used to normalize the committed result CSV.",
+  "post_launch_runner_change_detected": true,
+  "result_digest_created": false,
+  "full_w1_protocol_draft_created": false,
+  "new_gpu_job_launched": false,
+  "results_csv_sha256": "b0ccaaa05c00ca9209224a728d39bbdc71b17c7989c28673257fb89886e43a7e",
+  "results_observed_rows": 36,
+  "results_expected_rows": 36
+}
