@@ -1,0 +1,14 @@
+{
+  "g1_channel_map_exact": true,
+  "g2_native_4patch_forward": true,
+  "g3_embeddings_deterministic": true,
+  "g4_source_only_pipeline": true,
+  "g5_metrics_all_compute": true,
+  "g6_variance_null_works": true,
+  "g7_firewall_clean": true,
+  "g8_output_schemas": true,
+  "probe_target_bacc": 0.49172162587267865,
+  "random_init_target_bacc": 0.5025517725160884,
+  "task_above_chance": false,
+  "D0_PASS": true
+}

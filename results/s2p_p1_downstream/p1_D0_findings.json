@@ -1,0 +1,34 @@
+{
+  "probe": "D0 one-checkpoint gate (N512_s0 + random-init)",
+  "pipeline_gate": "PASS (8/8: channel-map exact, native 4-patch forward, determinism, source-only, metrics compute, variance-null, firewall, schemas)",
+  "embeddings_tested": [
+    "mean (spatially collapsed)",
+    "spatial (per-channel F1, preserves C3/C4)"
+  ],
+  "target_transfer_mean": {
+    "N512_s0": 0.502,
+    "random_init": 0.488
+  },
+  "target_transfer_spatial": {
+    "N512_s0": 0.492,
+    "random_init": 0.503
+  },
+  "source_val_spatial": {
+    "N512_s0": 0.551,
+    "random_init": 0.576
+  },
+  "L1_subject_separability_spatial": {
+    "N512_s0": 0.888,
+    "random_init": 0.747
+  },
+  "L4_alignment_spatial": {
+    "N512_s0": 0.009,
+    "random_init": 0.013
+  },
+  "L5_reliance_z_spatial": {
+    "N512_s0": -7.48,
+    "random_init": -6.4
+  },
+  "verdict": "PIPELINE VALID but PRIMARY (target MI transfer) AT CHANCE for both embeddings AND pretrained~=random-init (FAILS positive-control floor). Representation encodes SUBJECT strongly (L1 0.888>0.747 random) but NOT MI-transferable structure. stop-rule 8 (task near chance) + stop-rule 6 (pretrained not beating random on transfer) -> RETURN FOR REVIEW.",
+  "measurable_endpoints": "L1 subject-separability frontier (pretrained>random, differs by allocation) + L4/L5 subject-structure ARE measurable; target-transfer slope is a pre-registered NULL / not estimable at floor."
+}

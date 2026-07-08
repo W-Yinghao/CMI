@@ -1,0 +1,44 @@
+{
+  "target_labels_in_pca_fit": false,
+  "target_labels_in_head_fit": false,
+  "target_labels_in_selection": false,
+  "target_labels_in_subject_subspace": false,
+  "target_labels_in_rank_choice": false,
+  "checkpoint_selection": "pretrain_val_loss_only",
+  "target_labels_final_scoring_only": true,
+  "channel_map_sha": "4ad3c03826ba0fad",
+  "split": {
+    "source_train": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15
+    ],
+    "source_val": [
+      16,
+      17,
+      18,
+      19,
+      20
+    ],
+    "target_test": [
+      21,
+      22,
+      23,
+      24,
+      25
+    ]
+  },
+  "embedding": "mean_pool_encoder_tokens_dmodel200_detached"
+}
