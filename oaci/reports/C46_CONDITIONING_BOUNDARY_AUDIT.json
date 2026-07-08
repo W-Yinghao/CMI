@@ -1,0 +1,671 @@
+{
+  "conditional_target_variance_summary": {
+    "global": {
+      "endpoint_trace_variance_over_global": 1.0,
+      "global_endpoint_vector_trace_variance": 3.0,
+      "global_joint_good_entropy": 0.9833972412548246,
+      "global_target_gauge_variance": 0.0034457779063144112,
+      "global_target_utility_variance": 0.868960934265508,
+      "grouping": "global",
+      "joint_entropy_over_global": 1.0,
+      "mean_group_size": 3804.0,
+      "n_groups": 1,
+      "target_gauge_variance_over_global": 1.0,
+      "target_labels_diagnostic_only": 1,
+      "target_utility_variance_over_global": 1.0,
+      "weighted_endpoint_vector_trace_variance": 3.0,
+      "weighted_joint_good_entropy": 0.9833972412548246,
+      "weighted_pareto_good_entropy": 0.574826587279707,
+      "weighted_preference_robust_entropy": 0.19423363282901537,
+      "weighted_target_gauge_variance": 0.0034457779063144112,
+      "weighted_target_utility_variance": 0.868960934265508
+    },
+    "level": {
+      "endpoint_trace_variance_over_global": 0.9776362183532981,
+      "global_endpoint_vector_trace_variance": 3.0,
+      "global_joint_good_entropy": 0.9833972412548246,
+      "global_target_gauge_variance": 0.0034457779063144112,
+      "global_target_utility_variance": 0.868960934265508,
+      "grouping": "level",
+      "joint_entropy_over_global": 0.9877002371764831,
+      "mean_group_size": 1902.0,
+      "n_groups": 2,
+      "target_gauge_variance_over_global": 0.9765053804720676,
+      "target_labels_diagnostic_only": 1,
+      "target_utility_variance_over_global": 0.9777954918316467,
+      "weighted_endpoint_vector_trace_variance": 2.932908655059894,
+      "weighted_joint_good_entropy": 0.9713016884260895,
+      "weighted_pareto_good_entropy": 0.5691395412472322,
+      "weighted_preference_robust_entropy": 0.19407309876363946,
+      "weighted_target_gauge_variance": 0.0033648206654277985,
+      "weighted_target_utility_variance": 0.8496660841026297
+    },
+    "regime": {
+      "endpoint_trace_variance_over_global": 1.0,
+      "global_endpoint_vector_trace_variance": 3.0,
+      "global_joint_good_entropy": 0.9833972412548246,
+      "global_target_gauge_variance": 0.0034457779063144112,
+      "global_target_utility_variance": 0.868960934265508,
+      "grouping": "regime",
+      "joint_entropy_over_global": 1.0000000000000002,
+      "mean_group_size": 1268.0,
+      "n_groups": 3,
+      "target_gauge_variance_over_global": 1.0,
+      "target_labels_diagnostic_only": 1,
+      "target_utility_variance_over_global": 1.0,
+      "weighted_endpoint_vector_trace_variance": 3.0,
+      "weighted_joint_good_entropy": 0.9833972412548247,
+      "weighted_pareto_good_entropy": 0.574826587279707,
+      "weighted_preference_robust_entropy": 0.19423363282901537,
+      "weighted_target_gauge_variance": 0.0034457779063144112,
+      "weighted_target_utility_variance": 0.868960934265508
+    },
+    "seed": {
+      "endpoint_trace_variance_over_global": 0.9902623384673189,
+      "global_endpoint_vector_trace_variance": 3.0,
+      "global_joint_good_entropy": 0.9833972412548246,
+      "global_target_gauge_variance": 0.0034457779063144112,
+      "global_target_utility_variance": 0.868960934265508,
+      "grouping": "seed",
+      "joint_entropy_over_global": 0.9835388230674028,
+      "mean_group_size": 1268.0,
+      "n_groups": 3,
+      "target_gauge_variance_over_global": 0.9875128154515256,
+      "target_labels_diagnostic_only": 1,
+      "target_utility_variance_over_global": 0.9912246689563659,
+      "weighted_endpoint_vector_trace_variance": 2.9707870154019567,
+      "weighted_joint_good_entropy": 0.967209365271501,
+      "weighted_pareto_good_entropy": 0.5745611067606817,
+      "weighted_preference_robust_entropy": 0.1941163146766969,
+      "weighted_target_gauge_variance": 0.0034027498416852073,
+      "weighted_target_utility_variance": 0.8613355144033426
+    },
+    "target": {
+      "endpoint_trace_variance_over_global": 0.7492637366390099,
+      "global_endpoint_vector_trace_variance": 3.0,
+      "global_joint_good_entropy": 0.9833972412548246,
+      "global_target_gauge_variance": 0.0034457779063144112,
+      "global_target_utility_variance": 0.868960934265508,
+      "grouping": "target",
+      "joint_entropy_over_global": 0.9198267757448488,
+      "mean_group_size": 422.6666666666667,
+      "n_groups": 9,
+      "target_gauge_variance_over_global": 0.8138806505072804,
+      "target_labels_diagnostic_only": 1,
+      "target_utility_variance_over_global": 0.7529306744087769,
+      "weighted_endpoint_vector_trace_variance": 2.24779120991703,
+      "weighted_joint_good_entropy": 0.9045551136998046,
+      "weighted_pareto_good_entropy": 0.5655603832247358,
+      "weighted_preference_robust_entropy": 0.19338489518896737,
+      "weighted_target_gauge_variance": 0.0028044519638947877,
+      "weighted_target_utility_variance": 0.6542673422714098
+    },
+    "target_regime": {
+      "endpoint_trace_variance_over_global": 0.7492637366390101,
+      "global_endpoint_vector_trace_variance": 3.0,
+      "global_joint_good_entropy": 0.9833972412548246,
+      "global_target_gauge_variance": 0.0034457779063144112,
+      "global_target_utility_variance": 0.868960934265508,
+      "grouping": "target_regime",
+      "joint_entropy_over_global": 0.9198267757448488,
+      "mean_group_size": 140.88888888888889,
+      "n_groups": 27,
+      "target_gauge_variance_over_global": 0.8138806505072801,
+      "target_labels_diagnostic_only": 1,
+      "target_utility_variance_over_global": 0.7529306744087773,
+      "weighted_endpoint_vector_trace_variance": 2.2477912099170303,
+      "weighted_joint_good_entropy": 0.9045551136998046,
+      "weighted_pareto_good_entropy": 0.5655603832247356,
+      "weighted_preference_robust_entropy": 0.19338489518896737,
+      "weighted_target_gauge_variance": 0.002804451963894787,
+      "weighted_target_utility_variance": 0.6542673422714101
+    },
+    "trajectory": {
+      "endpoint_trace_variance_over_global": 0.3146243652111023,
+      "global_endpoint_vector_trace_variance": 3.0,
+      "global_joint_good_entropy": 0.9833972412548246,
+      "global_target_gauge_variance": 0.0034457779063144112,
+      "global_target_utility_variance": 0.868960934265508,
+      "grouping": "trajectory",
+      "joint_entropy_over_global": 0.6156102970616552,
+      "mean_group_size": 23.48148148148148,
+      "n_groups": 162,
+      "target_gauge_variance_over_global": 0.40123547038769314,
+      "target_labels_diagnostic_only": 1,
+      "target_utility_variance_over_global": 0.3850502874437927,
+      "weighted_endpoint_vector_trace_variance": 0.943873095633307,
+      "weighted_joint_good_entropy": 0.6053894678184948,
+      "weighted_pareto_good_entropy": 0.5329187274268518,
+      "weighted_preference_robust_entropy": 0.1790591533911571,
+      "weighted_target_gauge_variance": 0.0013825683190915833,
+      "weighted_target_utility_variance": 0.33459365751636055
+    }
+  },
+  "conditioning_neighbor_summary": {
+    "cross_regime": {
+      "baseline_joint_good_disagreement_rate": 0.48738170347003157,
+      "baseline_target_divergent_rate": 0.9466351209253417,
+      "joint_good_disagreement_rate": 0.004468980021030494,
+      "mean_source_distance": 0.3004299931250235,
+      "mean_target_utility_gap": 0.0073782081248184635,
+      "n_rows": 3804,
+      "nearest_over_baseline_divergence": 0.010830324909747294,
+      "pareto_good_disagreement_rate": 0.003680336487907466,
+      "scope": "cross_regime",
+      "source_equivalent_q10_fraction": 0.9776550998948476,
+      "source_equivalent_q10_joint_disagreement_rate": 0.00026888948642108095,
+      "source_equivalent_q10_target_divergent_rate": 0.004033342296316214,
+      "target_divergent_rate": 0.01025236593059937,
+      "target_gauge_gap_mean": 0.0005292994770343691
+    },
+    "cross_target": {
+      "baseline_joint_good_disagreement_rate": 0.48264984227129337,
+      "baseline_target_divergent_rate": 0.9763406940063092,
+      "joint_good_disagreement_rate": 0.4597791798107255,
+      "mean_source_distance": 1.7961488080420518,
+      "mean_target_utility_gap": 1.0007333786766426,
+      "n_rows": 3804,
+      "nearest_over_baseline_divergence": 0.962843295638126,
+      "pareto_good_disagreement_rate": 0.21950578338590956,
+      "scope": "cross_target",
+      "source_equivalent_q10_fraction": 0.1750788643533123,
+      "source_equivalent_q10_joint_disagreement_rate": 0.35435435435435436,
+      "source_equivalent_q10_target_divergent_rate": 0.9369369369369369,
+      "target_divergent_rate": 0.9400630914826499,
+      "target_gauge_gap_mean": 0.05969728262241993
+    },
+    "within_level": {
+      "baseline_joint_good_disagreement_rate": 0.4558359621451104,
+      "baseline_target_divergent_rate": 0.935068349106204,
+      "joint_good_disagreement_rate": 0.0034174553101997897,
+      "mean_source_distance": 0.29025223324620447,
+      "mean_target_utility_gap": 0.004288087520118486,
+      "n_rows": 3804,
+      "nearest_over_baseline_divergence": 0.010683159966263706,
+      "pareto_good_disagreement_rate": 0.00473186119873817,
+      "scope": "within_level",
+      "source_equivalent_q10_fraction": 0.9773922187171399,
+      "source_equivalent_q10_joint_disagreement_rate": 0.00026896180742334586,
+      "source_equivalent_q10_target_divergent_rate": 0.005110274341043572,
+      "target_divergent_rate": 0.009989484752891693,
+      "target_gauge_gap_mean": 0.00031085741995807016
+    },
+    "within_regime": {
+      "baseline_joint_good_disagreement_rate": 0.48264984227129337,
+      "baseline_target_divergent_rate": 0.9400630914826499,
+      "joint_good_disagreement_rate": 0.3588328075709779,
+      "mean_source_distance": 1.62425502040259,
+      "mean_target_utility_gap": 0.7513853378051658,
+      "n_rows": 3804,
+      "nearest_over_baseline_divergence": 0.8140380313199105,
+      "pareto_good_disagreement_rate": 0.20951629863301788,
+      "scope": "within_regime",
+      "source_equivalent_q10_fraction": 0.2400105152471083,
+      "source_equivalent_q10_joint_disagreement_rate": 0.12814895947426067,
+      "source_equivalent_q10_target_divergent_rate": 0.29901423877327493,
+      "target_divergent_rate": 0.7652471083070452,
+      "target_gauge_gap_mean": 0.04585296938221207
+    },
+    "within_seed": {
+      "baseline_joint_good_disagreement_rate": 0.5099894847528917,
+      "baseline_target_divergent_rate": 0.9355941114616193,
+      "joint_good_disagreement_rate": 0.002103049421661409,
+      "mean_source_distance": 0.29027216655974786,
+      "mean_target_utility_gap": 0.003071406360722532,
+      "n_rows": 3804,
+      "nearest_over_baseline_divergence": 0.009834223096375386,
+      "pareto_good_disagreement_rate": 0.004206098843322818,
+      "scope": "within_seed",
+      "source_equivalent_q10_fraction": 0.9776550998948476,
+      "source_equivalent_q10_joint_disagreement_rate": 0.00026888948642108095,
+      "source_equivalent_q10_target_divergent_rate": 0.005377789728421619,
+      "target_divergent_rate": 0.009200841219768665,
+      "target_gauge_gap_mean": 0.000268602109118307
+    },
+    "within_target": {
+      "baseline_joint_good_disagreement_rate": 0.46267087276551,
+      "baseline_target_divergent_rate": 0.919558359621451,
+      "joint_good_disagreement_rate": 0.002365930599369085,
+      "mean_source_distance": 0.29080240192157125,
+      "mean_target_utility_gap": 0.0030003322633358107,
+      "n_rows": 3804,
+      "nearest_over_baseline_divergence": 0.008004574042309892,
+      "pareto_good_disagreement_rate": 0.004468980021030494,
+      "scope": "within_target",
+      "source_equivalent_q10_fraction": 0.9771293375394322,
+      "source_equivalent_q10_joint_disagreement_rate": 0.0002690341673392521,
+      "source_equivalent_q10_target_divergent_rate": 0.004842615012106538,
+      "target_divergent_rate": 0.007360672975814932,
+      "target_gauge_gap_mean": 0.00020163639412026409
+    },
+    "within_trajectory": {
+      "baseline_joint_good_disagreement_rate": 0.3107255520504732,
+      "baseline_target_divergent_rate": 0.8162460567823344,
+      "joint_good_disagreement_rate": 0.19137749737118823,
+      "mean_source_distance": 2.410715599895769,
+      "mean_target_utility_gap": 0.42340851807694063,
+      "n_rows": 3804,
+      "nearest_over_baseline_divergence": 0.7555555555555555,
+      "pareto_good_disagreement_rate": 0.19216614090431125,
+      "scope": "within_trajectory",
+      "source_equivalent_q10_fraction": 0.19190325972660358,
+      "source_equivalent_q10_joint_disagreement_rate": 0.028767123287671233,
+      "source_equivalent_q10_target_divergent_rate": 0.13287671232876713,
+      "target_divergent_rate": 0.6167192429022083,
+      "target_gauge_gap_mean": 0.025534135857597215
+    }
+  },
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "n_candidate_rows": 3804,
+  "n_source_objectives": 17,
+  "n_trajectories": 162,
+  "no_selector_artifact_gate": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "read_only_committed_artifacts",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "source_objectives_inherited_from_c45",
+      "passed": true
+    },
+    {
+      "check": "distance_metrics_unchanged_from_c45",
+      "passed": true
+    },
+    {
+      "check": "conditioning_scopes_frozen",
+      "passed": true
+    },
+    {
+      "check": "no_feature_selection",
+      "passed": true
+    },
+    {
+      "check": "no_target_labels_in_source_space_construction",
+      "passed": true
+    },
+    {
+      "check": "target_outcomes_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "no_selected_checkpoint_artifact",
+      "passed": true
+    },
+    {
+      "check": "compact_json_no_monolithic_payload",
+      "passed": true
+    },
+    {
+      "check": "finite_filtering_applied",
+      "passed": true
+    },
+    {
+      "check": "diagnostic_only_non_deployable",
+      "passed": true
+    }
+  ],
+  "q10_radius": 1.269009511962666,
+  "red_team": {
+    "conditioning_boundary_check": "C46 separates within-trajectory/target from cross-target/regime scopes.",
+    "method_boundary_check": "Conditioning is diagnostic grouping, not a selector.",
+    "metric_shopping_check": "Source distance is inherited unchanged from C45."
+  },
+  "source_distance_usefulness_summary": {
+    "cross_regime": {
+      "distance_usefulness_diagnostic_only": 1,
+      "n_pairs": 100000,
+      "nearest_joint_good_disagreement_rate": 0.004468980021030494,
+      "nearest_q10_target_divergent_rate": 0.004033342296316214,
+      "nearest_target_divergent_rate": 0.01025236593059937,
+      "pair_sample_max": 100000,
+      "sample_pair_mean_source_distance": 5.489125026343364,
+      "sample_pair_mean_target_utility_gap": 1.0138626986223236,
+      "sample_pair_target_divergent_rate": 0.94333,
+      "scope": "cross_regime",
+      "source_distance_target_utility_gap_spearman": 0.022849960766657622
+    },
+    "cross_target": {
+      "distance_usefulness_diagnostic_only": 1,
+      "n_pairs": 100000,
+      "nearest_joint_good_disagreement_rate": 0.4597791798107255,
+      "nearest_q10_target_divergent_rate": 0.9369369369369369,
+      "nearest_target_divergent_rate": 0.9400630914826499,
+      "pair_sample_max": 100000,
+      "sample_pair_mean_source_distance": 5.488033621112066,
+      "sample_pair_mean_target_utility_gap": 1.0337840058418275,
+      "sample_pair_target_divergent_rate": 0.95071,
+      "scope": "cross_target",
+      "source_distance_target_utility_gap_spearman": 0.016024950337713784
+    },
+    "within_level": {
+      "distance_usefulness_diagnostic_only": 1,
+      "n_pairs": 100000,
+      "nearest_joint_good_disagreement_rate": 0.0034174553101997897,
+      "nearest_q10_target_divergent_rate": 0.005110274341043572,
+      "nearest_target_divergent_rate": 0.009989484752891693,
+      "pair_sample_max": 100000,
+      "sample_pair_mean_source_distance": 5.485435586220286,
+      "sample_pair_mean_target_utility_gap": 1.00836759171451,
+      "sample_pair_target_divergent_rate": 0.93937,
+      "scope": "within_level",
+      "source_distance_target_utility_gap_spearman": 0.03313795493760637
+    },
+    "within_regime": {
+      "distance_usefulness_diagnostic_only": 1,
+      "n_pairs": 100000,
+      "nearest_joint_good_disagreement_rate": 0.3588328075709779,
+      "nearest_q10_target_divergent_rate": 0.29901423877327493,
+      "nearest_target_divergent_rate": 0.7652471083070452,
+      "pair_sample_max": 100000,
+      "sample_pair_mean_source_distance": 5.466901504913904,
+      "sample_pair_mean_target_utility_gap": 1.0174969421238464,
+      "sample_pair_target_divergent_rate": 0.94407,
+      "scope": "within_regime",
+      "source_distance_target_utility_gap_spearman": 0.020484969391135484
+    },
+    "within_seed": {
+      "distance_usefulness_diagnostic_only": 1,
+      "n_pairs": 100000,
+      "nearest_joint_good_disagreement_rate": 0.002103049421661409,
+      "nearest_q10_target_divergent_rate": 0.005377789728421619,
+      "nearest_target_divergent_rate": 0.009200841219768665,
+      "pair_sample_max": 100000,
+      "sample_pair_mean_source_distance": 5.475509010424558,
+      "sample_pair_mean_target_utility_gap": 1.004274809630786,
+      "sample_pair_target_divergent_rate": 0.93384,
+      "scope": "within_seed",
+      "source_distance_target_utility_gap_spearman": 0.04572852535307037
+    },
+    "within_target": {
+      "distance_usefulness_diagnostic_only": 1,
+      "n_pairs": 100000,
+      "nearest_joint_good_disagreement_rate": 0.002365930599369085,
+      "nearest_q10_target_divergent_rate": 0.004842615012106538,
+      "nearest_target_divergent_rate": 0.007360672975814932,
+      "pair_sample_max": 100000,
+      "sample_pair_mean_source_distance": 5.436782338668816,
+      "sample_pair_mean_target_utility_gap": 0.875677899550618,
+      "sample_pair_target_divergent_rate": 0.89379,
+      "scope": "within_target",
+      "source_distance_target_utility_gap_spearman": 0.07920068556376955
+    },
+    "within_trajectory": {
+      "distance_usefulness_diagnostic_only": 1,
+      "n_pairs": 44115,
+      "nearest_joint_good_disagreement_rate": 0.19137749737118823,
+      "nearest_q10_target_divergent_rate": 0.13287671232876713,
+      "nearest_target_divergent_rate": 0.6167192429022083,
+      "pair_sample_max": 100000,
+      "sample_pair_mean_source_distance": 5.35776780313327,
+      "sample_pair_mean_target_utility_gap": 0.59709743124205,
+      "sample_pair_target_divergent_rate": 0.7493369602176131,
+      "scope": "within_trajectory",
+      "source_distance_target_utility_gap_spearman": 0.39119886096262285
+    }
+  },
+  "taxonomy": {
+    "case_rows": [
+      {
+        "case": "CB1_source_space_informative_after_target_or_trajectory_conditioning",
+        "established": 1,
+        "evidence": "within_target_q10=0.004842615012106538, within_traj_q10=0.13287671232876713, cross_target_q10=0.9369369369369369"
+      },
+      {
+        "case": "CB2_cross_target_grouping_breaks_source_equivalence",
+        "established": 1,
+        "evidence": "cross_target_q10=0.9369369369369369, within_target_q10=0.004842615012106538, target_conditional_variance_ratio=0.7529306744087769"
+      },
+      {
+        "case": "CB3_within_trajectory_neighborhoods_relatively_homogeneous",
+        "established": 1,
+        "evidence": "within_traj_q10=0.13287671232876713, trajectory_conditional_variance_ratio=0.3850502874437927"
+      },
+      {
+        "case": "CB4_source_only_global_comparability_nonidentifiable",
+        "established": 1,
+        "evidence": "cross_target_q10=0.9369369369369369, cross_regime_q10=0.004033342296316214, cross_target_distance_gap_spearman=0.016024950337713784"
+      },
+      {
+        "case": "CB5_target_identity_component_explains_divergence",
+        "established": 0,
+        "evidence": "target_eta2=0.24706932559122305, residual_within_trajectory_fraction=0.3850502874437927"
+      },
+      {
+        "case": "CB6_regime_conditioning_partial_not_sufficient",
+        "established": 1,
+        "evidence": "within_regime_q10=0.29901423877327493, cross_target_q10=0.9369369369369369"
+      },
+      {
+        "case": "CB7_inconclusive_due_to_artifact_availability",
+        "established": 0,
+        "evidence": "required inherited artifacts available"
+      }
+    ],
+    "cases": [
+      "CB1_source_space_informative_after_target_or_trajectory_conditioning",
+      "CB2_cross_target_grouping_breaks_source_equivalence",
+      "CB3_within_trajectory_neighborhoods_relatively_homogeneous",
+      "CB4_source_only_global_comparability_nonidentifiable",
+      "CB6_regime_conditioning_partial_not_sufficient"
+    ],
+    "established": {
+      "CB1_source_space_informative_after_target_or_trajectory_conditioning": true,
+      "CB2_cross_target_grouping_breaks_source_equivalence": true,
+      "CB3_within_trajectory_neighborhoods_relatively_homogeneous": true,
+      "CB4_source_only_global_comparability_nonidentifiable": true,
+      "CB5_target_identity_component_explains_divergence": false,
+      "CB6_regime_conditioning_partial_not_sufficient": true,
+      "CB7_inconclusive_due_to_artifact_availability": false
+    },
+    "evidence": {
+      "CB1_source_space_informative_after_target_or_trajectory_conditioning": "within_target_q10=0.004842615012106538, within_traj_q10=0.13287671232876713, cross_target_q10=0.9369369369369369",
+      "CB2_cross_target_grouping_breaks_source_equivalence": "cross_target_q10=0.9369369369369369, within_target_q10=0.004842615012106538, target_conditional_variance_ratio=0.7529306744087769",
+      "CB3_within_trajectory_neighborhoods_relatively_homogeneous": "within_traj_q10=0.13287671232876713, trajectory_conditional_variance_ratio=0.3850502874437927",
+      "CB4_source_only_global_comparability_nonidentifiable": "cross_target_q10=0.9369369369369369, cross_regime_q10=0.004033342296316214, cross_target_distance_gap_spearman=0.016024950337713784",
+      "CB5_target_identity_component_explains_divergence": "target_eta2=0.24706932559122305, residual_within_trajectory_fraction=0.3850502874437927",
+      "CB6_regime_conditioning_partial_not_sufficient": "within_regime_q10=0.29901423877327493, cross_target_q10=0.9369369369369369",
+      "CB7_inconclusive_due_to_artifact_availability": "required inherited artifacts available"
+    }
+  },
+  "variance_decomposition_summary": {
+    "endpoint_z_norm|level": {
+      "component": "level",
+      "diagnostic_only": 1,
+      "eta_squared": 0.00021264404570795633,
+      "n_groups": 2,
+      "outcome": "endpoint_z_norm",
+      "total_variance": 1.0122016507082499,
+      "within_fraction": 0.999787355954292
+    },
+    "endpoint_z_norm|regime": {
+      "component": "regime",
+      "diagnostic_only": 1,
+      "eta_squared": 4.8709470629508227e-32,
+      "n_groups": 3,
+      "outcome": "endpoint_z_norm",
+      "total_variance": 1.0122016507082499,
+      "within_fraction": 1.0
+    },
+    "endpoint_z_norm|residual_within_trajectory": {
+      "component": "residual_within_trajectory",
+      "diagnostic_only": 1,
+      "eta_squared": 0.40060776901047357,
+      "n_groups": 162,
+      "outcome": "endpoint_z_norm",
+      "total_variance": 1.0122016507082499,
+      "within_fraction": 0.40060776901047357
+    },
+    "endpoint_z_norm|seed": {
+      "component": "seed",
+      "diagnostic_only": 1,
+      "eta_squared": 0.039280951251011574,
+      "n_groups": 3,
+      "outcome": "endpoint_z_norm",
+      "total_variance": 1.0122016507082499,
+      "within_fraction": 0.9607190487489886
+    },
+    "endpoint_z_norm|target": {
+      "component": "target",
+      "diagnostic_only": 1,
+      "eta_squared": 0.1095551553771948,
+      "n_groups": 9,
+      "outcome": "endpoint_z_norm",
+      "total_variance": 1.0122016507082499,
+      "within_fraction": 0.8904448446228053
+    },
+    "endpoint_z_norm|target_regime": {
+      "component": "target_regime",
+      "diagnostic_only": 1,
+      "eta_squared": 0.10955515537719472,
+      "n_groups": 27,
+      "outcome": "endpoint_z_norm",
+      "total_variance": 1.0122016507082499,
+      "within_fraction": 0.8904448446228052
+    },
+    "endpoint_z_norm|trajectory": {
+      "component": "trajectory",
+      "diagnostic_only": 1,
+      "eta_squared": 0.5993922309895259,
+      "n_groups": 162,
+      "outcome": "endpoint_z_norm",
+      "total_variance": 1.0122016507082499,
+      "within_fraction": 0.40060776901047357
+    },
+    "target_joint_margin_raw|level": {
+      "component": "level",
+      "diagnostic_only": 1,
+      "eta_squared": 0.023494619527932418,
+      "n_groups": 2,
+      "outcome": "target_joint_margin_raw",
+      "total_variance": 0.0034457779063144112,
+      "within_fraction": 0.9765053804720676
+    },
+    "target_joint_margin_raw|regime": {
+      "component": "regime",
+      "diagnostic_only": 1,
+      "eta_squared": 8.733196450620212e-34,
+      "n_groups": 3,
+      "outcome": "target_joint_margin_raw",
+      "total_variance": 0.0034457779063144112,
+      "within_fraction": 1.0
+    },
+    "target_joint_margin_raw|residual_within_trajectory": {
+      "component": "residual_within_trajectory",
+      "diagnostic_only": 1,
+      "eta_squared": 0.40123547038769314,
+      "n_groups": 162,
+      "outcome": "target_joint_margin_raw",
+      "total_variance": 0.0034457779063144112,
+      "within_fraction": 0.40123547038769314
+    },
+    "target_joint_margin_raw|seed": {
+      "component": "seed",
+      "diagnostic_only": 1,
+      "eta_squared": 0.012487184548474384,
+      "n_groups": 3,
+      "outcome": "target_joint_margin_raw",
+      "total_variance": 0.0034457779063144112,
+      "within_fraction": 0.9875128154515255
+    },
+    "target_joint_margin_raw|target": {
+      "component": "target",
+      "diagnostic_only": 1,
+      "eta_squared": 0.18611934949271952,
+      "n_groups": 9,
+      "outcome": "target_joint_margin_raw",
+      "total_variance": 0.0034457779063144112,
+      "within_fraction": 0.8138806505072804
+    },
+    "target_joint_margin_raw|target_regime": {
+      "component": "target_regime",
+      "diagnostic_only": 1,
+      "eta_squared": 0.18611934949271944,
+      "n_groups": 27,
+      "outcome": "target_joint_margin_raw",
+      "total_variance": 0.0034457779063144112,
+      "within_fraction": 0.8138806505072802
+    },
+    "target_joint_margin_raw|trajectory": {
+      "component": "trajectory",
+      "diagnostic_only": 1,
+      "eta_squared": 0.598764529612307,
+      "n_groups": 162,
+      "outcome": "target_joint_margin_raw",
+      "total_variance": 0.0034457779063144112,
+      "within_fraction": 0.40123547038769314
+    },
+    "target_utility_score|level": {
+      "component": "level",
+      "diagnostic_only": 1,
+      "eta_squared": 0.022204508168353197,
+      "n_groups": 2,
+      "outcome": "target_utility_score",
+      "total_variance": 0.868960934265508,
+      "within_fraction": 0.9777954918316468
+    },
+    "target_utility_score|regime": {
+      "component": "regime",
+      "diagnostic_only": 1,
+      "eta_squared": 0.0,
+      "n_groups": 3,
+      "outcome": "target_utility_score",
+      "total_variance": 0.868960934265508,
+      "within_fraction": 1.0
+    },
+    "target_utility_score|residual_within_trajectory": {
+      "component": "residual_within_trajectory",
+      "diagnostic_only": 1,
+      "eta_squared": 0.3850502874437927,
+      "n_groups": 162,
+      "outcome": "target_utility_score",
+      "total_variance": 0.868960934265508,
+      "within_fraction": 0.3850502874437927
+    },
+    "target_utility_score|seed": {
+      "component": "seed",
+      "diagnostic_only": 1,
+      "eta_squared": 0.008775331043634229,
+      "n_groups": 3,
+      "outcome": "target_utility_score",
+      "total_variance": 0.868960934265508,
+      "within_fraction": 0.9912246689563659
+    },
+    "target_utility_score|target": {
+      "component": "target",
+      "diagnostic_only": 1,
+      "eta_squared": 0.24706932559122305,
+      "n_groups": 9,
+      "outcome": "target_utility_score",
+      "total_variance": 0.868960934265508,
+      "within_fraction": 0.7529306744087769
+    },
+    "target_utility_score|target_regime": {
+      "component": "target_regime",
+      "diagnostic_only": 1,
+      "eta_squared": 0.24706932559122305,
+      "n_groups": 27,
+      "outcome": "target_utility_score",
+      "total_variance": 0.868960934265508,
+      "within_fraction": 0.7529306744087773
+    },
+    "target_utility_score|trajectory": {
+      "component": "trajectory",
+      "diagnostic_only": 1,
+      "eta_squared": 0.6149497125562071,
+      "n_groups": 162,
+      "outcome": "target_utility_score",
+      "total_variance": 0.868960934265508,
+      "within_fraction": 0.3850502874437927
+    }
+  }
+}
