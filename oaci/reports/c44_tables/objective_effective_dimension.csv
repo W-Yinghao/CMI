@@ -1,0 +1,2 @@
+scope,n_objectives,effective_rank,pca_var1,pca_var2,pca_var3,pca_cum3,mean_abs_correlation,negative_pair_fraction,redundancy_not_issue
+all_source_pareto_objectives,10,5.695876335809214,0.41356684026343554,0.18346348984991562,0.11644609031129642,0.7134764204246475,0.3182955887408665,0.4444444444444444,1
