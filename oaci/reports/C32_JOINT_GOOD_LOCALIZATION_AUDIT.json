@@ -9379,12 +9379,12 @@
     },
     "taxonomy": {
       "cases": [
+        "J8_joint_good_landscape_diffuse_or_base_rate_dominated",
         "J1_joint_good_common_not_scarce",
-        "J2_trajectory_random_baseline_nontrivial",
+        "J2_source_scores_weak_trajectory_enrichment",
         "J3_source_topk_localization_weak",
-        "J4_selection_regret_is_localization_not_scarcity",
-        "J5_selected_oaci_near_joint_good",
-        "J6_target_unlabeled_pooling_help_no_topk_rescue",
+        "J5_selected_oaci_near_joint_good_margin_sensitive",
+        "J6_target_unlabeled_improves_pooled_gauge_not_topk_localization",
         "J7_target_grouped_rank_recovers_pooled_localization_non_deployable"
       ],
       "evidence": {
@@ -9393,40 +9393,50 @@
           "trajectory_any_joint_fraction": 0.9444444444444444
         },
         "J2": {
+          "interpretation": "weak enrichment, not reliable localization",
           "random_top1_hit_rate": 0.429723378036041,
-          "random_top5_hit_rate": 0.7504321455540054
+          "source_top1_enrichment": 1.1779038920794298,
+          "source_top1_hit_rate": 0.5061728395061729,
+          "source_top3_enrichment": 1.0227643544050207,
+          "source_top5_enrichment": 1.0857941249482044
         },
         "J3": {
+          "random_top5_hit_rate": 0.7504321455540054,
           "source_top1_enrichment": 1.1779038920794298,
           "source_top1_hit_rate": 0.5061728395061729,
           "source_top5_enrichment": 1.0857941249482044,
           "source_top5_hit_rate": 0.8148148148148148
         },
         "J4": {
-          "category_fractions": {
-            "adjacent_near_miss": 0.12962962962962962,
-            "scarcity_no_joint_good": 0.05555555555555555,
-            "selected_joint_good": 0.4444444444444444,
-            "source_rank_not_enriched_enough": 0.12345679012345678,
-            "source_top5_available_selection_missed": 0.24691358024691357
-          },
+          "median_nearest_order_distance": 1.0,
+          "not_primary_reason": "far-from-joint-good-region is not established globally; median nearest order distance is small",
           "random_top1_hit_rate": 0.429723378036041,
           "scarcity_fraction": 0.05555555555555555,
           "selected_joint_hit_rate": 0.4444444444444444,
           "selected_minus_random_top1": 0.014721066408403427
         },
         "J5": {
+          "margin_sensitive": true,
           "mean_nearest_order_distance": 2.588235294117647,
           "median_nearest_epoch_distance": 5.0,
           "median_nearest_order_distance": 1.0
         },
         "J6": {
+          "interpretation": "pooled/gauge separability help, no trajectory-conditioned top-k rescue",
           "target_unlabeled_pooled_auc_gain_over_source": 0.0422784652554985,
           "target_unlabeled_top1_gain_over_source": -0.154320987654321
         },
         "J7": {
           "non_deployable": true,
           "target_grouped_pooled_auc_gain_over_source": 0.10476340015729946
+        },
+        "J8": {
+          "interpretation": "dense/high-base-rate joint-good landscape; closeness is not selector skill",
+          "joint_good_rate": 0.4242902208201893,
+          "median_nearest_order_distance": 1.0,
+          "random_top1_hit_rate": 0.429723378036041,
+          "selected_joint_hit_rate": 0.4444444444444444,
+          "selected_minus_random_top1": 0.014721066408403427
         }
       }
     }
@@ -18618,9 +18628,9 @@
     },
     "taxonomy": {
       "cases": [
-        "J2_trajectory_random_baseline_nontrivial",
+        "J2_source_scores_weak_trajectory_enrichment",
         "J3_source_topk_localization_weak",
-        "J6_target_unlabeled_pooling_help_no_topk_rescue",
+        "J6_target_unlabeled_improves_pooled_gauge_not_topk_localization",
         "J7_target_grouped_rank_recovers_pooled_localization_non_deployable"
       ],
       "evidence": {
@@ -18629,40 +18639,50 @@
           "trajectory_any_joint_fraction": 0.7777777777777778
         },
         "J2": {
+          "interpretation": "weak enrichment, not reliable localization",
           "random_top1_hit_rate": 0.2827445902250697,
-          "random_top5_hit_rate": 0.5266675019764384
+          "source_top1_enrichment": 1.2007521437253785,
+          "source_top1_hit_rate": 0.3395061728395062,
+          "source_top3_enrichment": 1.092893660779943,
+          "source_top5_enrichment": 1.0900123359040226
         },
         "J3": {
+          "random_top5_hit_rate": 0.5266675019764384,
           "source_top1_enrichment": 1.2007521437253785,
           "source_top1_hit_rate": 0.3395061728395062,
           "source_top5_enrichment": 1.0900123359040226,
           "source_top5_hit_rate": 0.5740740740740741
         },
         "J4": {
-          "category_fractions": {
-            "adjacent_near_miss": 0.07407407407407407,
-            "scarcity_no_joint_good": 0.2222222222222222,
-            "selected_joint_good": 0.2962962962962963,
-            "source_rank_not_enriched_enough": 0.17901234567901234,
-            "source_top5_available_selection_missed": 0.22839506172839505
-          },
+          "median_nearest_order_distance": 2.0,
+          "not_primary_reason": "far-from-joint-good-region is not established globally; median nearest order distance is small",
           "random_top1_hit_rate": 0.2827445902250697,
           "scarcity_fraction": 0.2222222222222222,
           "selected_joint_hit_rate": 0.2962962962962963,
           "selected_minus_random_top1": 0.013551706071226577
         },
         "J5": {
+          "margin_sensitive": true,
           "mean_nearest_order_distance": 4.0476190476190474,
           "median_nearest_epoch_distance": 15.0,
           "median_nearest_order_distance": 2.0
         },
         "J6": {
+          "interpretation": "pooled/gauge separability help, no trajectory-conditioned top-k rescue",
           "target_unlabeled_pooled_auc_gain_over_source": 0.03567409884225936,
           "target_unlabeled_top1_gain_over_source": -0.17283950617283952
         },
         "J7": {
           "non_deployable": true,
           "target_grouped_pooled_auc_gain_over_source": 0.11617930102117158
+        },
+        "J8": {
+          "interpretation": "dense/high-base-rate joint-good landscape; closeness is not selector skill",
+          "joint_good_rate": 0.278391167192429,
+          "median_nearest_order_distance": 2.0,
+          "random_top1_hit_rate": 0.2827445902250697,
+          "selected_joint_hit_rate": 0.2962962962962963,
+          "selected_minus_random_top1": 0.013551706071226577
         }
       }
     }

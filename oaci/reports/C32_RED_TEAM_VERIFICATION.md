@@ -20,12 +20,12 @@ this run; the check below is a concrete refutation pass over the generated C32 a
 3. **Target-unlabeled result was bounded.**
    - Target-unlabeled LOTO improves pooled AUC by +0.042 over source score, but top-1 trajectory localization is -0.154
      relative to source.
-   - Verdict constrained to `J6_target_unlabeled_pooling_help_no_topk_rescue`.
+   - Verdict constrained to `J6_target_unlabeled_improves_pooled_gauge_not_topk_localization`.
    - No target-unlabeled selector claim is made.
 
 4. **Robust-margin sensitivity weakens the primary scarcity/near-miss claims.**
    - At the primary C31 margin, joint-good rate is 42.4% and 94.4% of trajectory-regime units have joint-good.
-   - At margin 0.02, joint-good rate drops to 27.8% and trajectory-regime coverage to 77.8%; primary J1/J4/J5 do not
+   - At margin 0.02, joint-good rate drops to 27.8% and trajectory-regime coverage to 77.8%; primary J1/J5 do not
      fire there.
    - Report discloses this sensitivity; robust cases are only J2+J3+J6+J7.
 
@@ -35,12 +35,13 @@ this run; the check below is a concrete refutation pass over the generated C32 a
 
 ## Surviving C32 Verdict
 
-Primary-margin cases: `J1 + J2 + J3 + J4 + J5 + J6 + J7`.
+Primary-margin cases after C32R: `J8 + J1 + J2_weak + J3 + J5_margin_sensitive + J6_pooled_only + J7`.
 
-Interpretation: joint-good checkpoints are common at the frozen primary margin, and selected OACI is often close to
-one, but source-side localization is weak and gauge-broken. Target-unlabeled confidence geometry helps pooled
-localization weakly but does not rescue top-k localization. Target-grouped centering repairs pooled localization
-more strongly, but this is an oracle diagnostic, not deployable.
+Interpretation: joint-good checkpoints are common and locally dense at the frozen primary margin, and selected OACI
+is often close to one, but selected OACI hits joint-good at essentially the trajectory-conditioned random rate.
+Source-side scores have weak enrichment, not reliable localization. Target-unlabeled confidence geometry helps
+pooled/gauge separability weakly but does not rescue top-k localization. Target-grouped centering repairs pooled
+localization more strongly, but this is an oracle diagnostic, not deployable.
 
 Boundaries: diagnostic-only; no selector; no selected-checkpoint artifact; no EEG training; no BNCI2014_004; no
 seeds `[3,4]`; target labels never enter target-unlabeled feature construction.

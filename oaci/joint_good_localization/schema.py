@@ -35,15 +35,16 @@ TARGET_UNLABELED_POOLED_AUC_GAIN = 0.03
 GROUPED_POOLED_AUC_GAIN = 0.08
 
 # Pre-registered C32 taxonomy.
+J8 = "J8_joint_good_landscape_diffuse_or_base_rate_dominated"
 J1 = "J1_joint_good_common_not_scarce"
-J2 = "J2_trajectory_random_baseline_nontrivial"
+J2 = "J2_source_scores_weak_trajectory_enrichment"
 J3 = "J3_source_topk_localization_weak"
-J4 = "J4_selection_regret_is_localization_not_scarcity"
-J5 = "J5_selected_oaci_near_joint_good"
-J6 = "J6_target_unlabeled_pooling_help_no_topk_rescue"
+J4 = "J4_tail_or_margin_specific_far_region_only"
+J5 = "J5_selected_oaci_near_joint_good_margin_sensitive"
+J6 = "J6_target_unlabeled_improves_pooled_gauge_not_topk_localization"
 J7 = "J7_target_grouped_rank_recovers_pooled_localization_non_deployable"
-J8 = "J8_localization_story_inconclusive"
-ALL_CASES = (J1, J2, J3, J4, J5, J6, J7, J8)
+J9 = "J9_localization_story_inconclusive"
+ALL_CASES = (J8, J1, J2, J3, J4, J5, J6, J7, J9)
 
 FORBIDDEN_CLAIM_SUBSTRINGS = c31.FORBIDDEN_CLAIM_SUBSTRINGS + (
     "joint-good selector",

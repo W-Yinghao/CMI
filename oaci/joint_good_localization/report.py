@@ -193,7 +193,8 @@ def render_md(res) -> str:
         f"{_f(k1_source['hit_enrichment'])}), but top-3/top-5 are only weakly above the trajectory-conditioned "
         f"random baseline: **{_pct(k3_source['hit_rate'])} / {_pct(k5_source['hit_rate'])}** vs "
         f"**{_pct(next(r for r in rand['topk'] if r['k'] == 3)['hit_rate'])} / {_pct(k5_rand['hit_rate'])}** "
-        f"(enrichment {_f(k3_source['hit_enrichment'])} / {_f(k5_source['hit_enrichment'])}).",
+        f"(enrichment {_f(k3_source['hit_enrichment'])} / {_f(k5_source['hit_enrichment'])}). "
+        "This is weak enrichment, not reliable localization.",
         "",
         "## Gate 3 - selected OACI regret anatomy",
         "",
@@ -227,7 +228,7 @@ def render_md(res) -> str:
                  f"{_pct(m['top1_hit_rate'])} | {_pct(m['top5_hit_rate'])} |")
     L += [
         "",
-        f"- target-unlabeled confidence geometry improves **pooled** localization by "
+        f"- target-unlabeled confidence geometry improves **pooled/gauge separability** by "
         f"**{_f(meta['target_unlabeled_pooled_auc_gain_over_source'])}** AUC over source score, but its top-1 "
         f"trajectory localization is **{_f(meta['target_unlabeled_top1_gain_over_source'])}** relative to source. "
         "This is a weak pooling/gauge aid, not a top-k rescue.",
@@ -237,19 +238,24 @@ def render_md(res) -> str:
         "",
         "## Margin sensitivity (robust margin 0.02)",
         "",
-        f"- robust joint-good rate **{_pct(robust['landscape']['joint_good_rate'])}**; trajectories with joint-good "
+        f"- robust joint-good rate **{_pct(robust['landscape']['joint_good_rate'])}**; trajectory-regime units with joint-good "
         f"**{_pct(robust['landscape']['trajectory_any_joint_fraction'])}**; selected hit "
         f"**{_pct(robust['selected_oaci_regret']['summary']['selected_joint_hit_rate'])}**; cases "
         f"**{', '.join(robust['taxonomy']['cases'])}**.",
+        "- C32R interpretation: the primary localization-failure taxonomy is **frozen-primary-margin-specific**. "
+        "Under the stricter 0.02 margin, the common/dense and near-joint-good claims weaken enough that J1/J5 do "
+        "not fire; the surviving claims are weak source enrichment, target-unlabeled pooled/gauge help only, and "
+        "the non-deployable target-grouped ceiling.",
         "",
         "## Bottom line",
         "",
-        "> Joint-good checkpoints are common, and selected OACI is usually close to one, but the source-side "
-        "localization signal is too weak and gauge-broken to choose them reliably. Random top-1 is already high "
-        "because the set is common; source score gives only mild top-1 enrichment and only weak top-k enrichment; "
-        "selected OACI lands near random and most regret is non-scarcity localization regret. Target-unlabeled "
-        "features help the pooled gauge weakly but do not rescue top-k localization. Target grouping largely repairs "
-        "the pooled rank/gauge mismatch, confirming the C31 reading, but that is an oracle diagnostic, not deployable.",
+        "> Joint-good checkpoints are common and locally dense, so source-side failure is not an existence failure. "
+        "Selected OACI lands near joint-good candidates in trajectory order but hits them at essentially the "
+        "trajectory-conditioned random rate. Source-side scores provide only weak enrichment, insufficient for "
+        "reliable top-1 or top-k localization. Target-unlabeled confidence geometry improves pooled/gauge "
+        "separability but does not rescue trajectory-conditioned localization, while target-grouped centering "
+        "recovers pooled localization only as a non-deployable diagnostic ceiling. Thus, C32 localizes the remaining "
+        "failure to dense-boundary / gauge-broken localization rather than endpoint scarcity or Pareto conflict.",
     ]
     return "\n".join(L)
 

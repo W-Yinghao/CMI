@@ -2,7 +2,7 @@
 
 > C31 showed that joint accuracy+calibration-good checkpoints are common and that the C16 barrier is a source-observability / gauge / localization failure, not a checkpoint-space trade-off. C32 asks why source-side selection and diagnostic scores still do not localize the common joint-good set. Read-only over C10 + C22 + C24; diagnostic-only; no selector, no training, no selected-checkpoint artifact.
 
-- **cases: `J1_joint_good_common_not_scarce, J2_trajectory_random_baseline_nontrivial, J3_source_topk_localization_weak, J4_selection_regret_is_localization_not_scarcity, J5_selected_oaci_near_joint_good, J6_target_unlabeled_pooling_help_no_topk_rescue, J7_target_grouped_rank_recovers_pooled_localization_non_deployable`**
+- **cases: `J8_joint_good_landscape_diffuse_or_base_rate_dominated, J1_joint_good_common_not_scarce, J2_source_scores_weak_trajectory_enrichment, J3_source_topk_localization_weak, J5_selected_oaci_near_joint_good_margin_sensitive, J6_target_unlabeled_improves_pooled_gauge_not_topk_localization, J7_target_grouped_rank_recovers_pooled_localization_non_deployable`**
 
 ## Gate 1 - joint-good landscape (scarcity check)
 
@@ -20,7 +20,7 @@
 | 10 | 85.2% | 88.9% | +1.043 |
 
 - random top-1 is already **43.0%** because joint-good is common.
-- source-score top-1 improves to **50.6%** (enrichment +1.178), but top-3/top-5 are only weakly above the trajectory-conditioned random baseline: **67.3% / 81.5%** vs **65.8% / 75.0%** (enrichment +1.023 / +1.086).
+- source-score top-1 improves to **50.6%** (enrichment +1.178), but top-3/top-5 are only weakly above the trajectory-conditioned random baseline: **67.3% / 81.5%** vs **65.8% / 75.0%** (enrichment +1.023 / +1.086). This is weak enrichment, not reliable localization.
 
 ## Gate 3 - selected OACI regret anatomy
 
@@ -45,13 +45,14 @@
 | source_plus_target_unlabeled_loto | +0.569 | +0.585 | 40.1% | 79.0% |
 | target_grouped_centered_score | +0.645 | +0.672 | 50.6% | 81.5% |
 
-- target-unlabeled confidence geometry improves **pooled** localization by **+0.042** AUC over source score, but its top-1 trajectory localization is **-0.154** relative to source. This is a weak pooling/gauge aid, not a top-k rescue.
+- target-unlabeled confidence geometry improves **pooled/gauge separability** by **+0.042** AUC over source score, but its top-1 trajectory localization is **-0.154** relative to source. This is a weak pooling/gauge aid, not a top-k rescue.
 - target-grouped centering improves pooled AUC by **+0.105** and recovers the within-target rank signal, but it uses target grouping and is non-deployable.
 
 ## Margin sensitivity (robust margin 0.02)
 
-- robust joint-good rate **27.8%**; trajectories with joint-good **77.8%**; selected hit **29.6%**; cases **J2_trajectory_random_baseline_nontrivial, J3_source_topk_localization_weak, J6_target_unlabeled_pooling_help_no_topk_rescue, J7_target_grouped_rank_recovers_pooled_localization_non_deployable**.
+- robust joint-good rate **27.8%**; trajectory-regime units with joint-good **77.8%**; selected hit **29.6%**; cases **J2_source_scores_weak_trajectory_enrichment, J3_source_topk_localization_weak, J6_target_unlabeled_improves_pooled_gauge_not_topk_localization, J7_target_grouped_rank_recovers_pooled_localization_non_deployable**.
+- C32R interpretation: the primary localization-failure taxonomy is **frozen-primary-margin-specific**. Under the stricter 0.02 margin, the common/dense and near-joint-good claims weaken enough that J1/J5 do not fire; the surviving claims are weak source enrichment, target-unlabeled pooled/gauge help only, and the non-deployable target-grouped ceiling.
 
 ## Bottom line
 
-> Joint-good checkpoints are common, and selected OACI is usually close to one, but the source-side localization signal is too weak and gauge-broken to choose them reliably. Random top-1 is already high because the set is common; source score gives only mild top-1 enrichment and only weak top-k enrichment; selected OACI lands near random and most regret is non-scarcity localization regret. Target-unlabeled features help the pooled gauge weakly but do not rescue top-k localization. Target grouping largely repairs the pooled rank/gauge mismatch, confirming the C31 reading, but that is an oracle diagnostic, not deployable.
+> Joint-good checkpoints are common and locally dense, so source-side failure is not an existence failure. Selected OACI lands near joint-good candidates in trajectory order but hits them at essentially the trajectory-conditioned random rate. Source-side scores provide only weak enrichment, insufficient for reliable top-1 or top-k localization. Target-unlabeled confidence geometry improves pooled/gauge separability but does not rescue trajectory-conditioned localization, while target-grouped centering recovers pooled localization only as a non-deployable diagnostic ceiling. Thus, C32 localizes the remaining failure to dense-boundary / gauge-broken localization rather than endpoint scarcity or Pareto conflict.
