@@ -1,0 +1,15 @@
+check,passed
+config_hash_unchanged,1
+read_only_committed_artifacts,1
+no_training_no_gpu_no_reinference,1
+no_feature_selection,1
+source_objective_registry_frozen_before_analysis,1
+scalarization_grid_frozen_before_analysis,1
+best_grid_hindsight_diagnostic_only,1
+trajectory_conditioned_random_baseline_for_topk,1
+multiplicity_correction_required,1
+per_target_sign_consistency_required,1
+no_selected_checkpoint_artifact,1
+no_monolithic_large_json,1
+finite_filtering_applied,1
+diagnostic_only_non_deployable,1

@@ -1,0 +1,19 @@
+objective,family,orientation,n_candidate_rows,n_available,availability_fraction,used_for_source_pareto,used_for_scalarization_grid,target_field,proxy_used,note
+selection_leakage_point,leakage,lower,3804,3804,1.0,1,1,0,0,C41 selection leakage point
+audit_leakage_point,leakage,lower,3804,3804,1.0,1,0,0,0,source-audit leakage point
+R_src,source_risk,lower,3804,3804,1.0,1,1,0,0,source risk
+train_surrogate,source_risk,lower,3804,3804,1.0,1,0,0,0,training surrogate
+balanced_err,source_risk,lower,3804,3804,1.0,1,0,0,0,source balanced error
+source_guard_worst_bacc,source_endpoint,higher,3804,1863,0.48974763406940064,0,0,0,0,source guard bAcc
+source_guard_worst_nll,source_endpoint,lower,3804,3804,1.0,1,0,0,0,source guard NLL
+source_guard_worst_ece,source_endpoint,lower,3804,3804,1.0,1,0,0,0,source guard ECE
+source_audit_worst_bacc,source_endpoint,higher,3804,3804,1.0,0,0,0,0,source audit bAcc
+source_audit_worst_nll,source_endpoint,lower,3804,3804,1.0,1,0,0,0,source audit NLL
+source_audit_worst_ece,source_endpoint,lower,3804,3804,1.0,1,0,0,0,source audit ECE
+c19_robust_core_score,source_rank,higher,3804,3804,1.0,0,0,0,0,frozen C19 robust-core score
+source_rank_score,source_rank,higher,3804,3804,1.0,1,1,0,0,C30 source-rank interpretation of frozen score
+feat__source_guard_entropy,source_calibration_softness,lower,3804,3804,1.0,0,0,0,0,guard entropy
+feat__source_guard_confidence,source_calibration_softness,higher,3804,3804,1.0,0,0,0,0,guard confidence
+feat__source_guard_margin,source_calibration_softness,higher,3804,3804,1.0,0,0,0,0,guard margin
+feat__source_guard_logit_norm,source_calibration_softness,lower,3804,3804,1.0,0,0,0,0,guard logit norm
+feat__source_guard_conf_on_wrong,source_calibration_softness,lower,3804,3804,1.0,0,0,0,0,guard wrong-confidence
