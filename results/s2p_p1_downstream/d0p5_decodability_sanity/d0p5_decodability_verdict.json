@@ -1,0 +1,41 @@
+{
+  "raw_csp_within_subject_pass": false,
+  "released_checkpoint_sanity_pass": true,
+  "label_split_channel_audit_pass": true,
+  "shumi_decodable": true,
+  "new_audit_pipeline_valid": true,
+  "d1_allowed": true,
+  "numbers": {
+    "csp_within_mean": 0.583,
+    "csp_within_median": 0.54,
+    "csp_within_gate_0p60": false,
+    "csp_cross_subject": 0.562,
+    "csp_shuffle": 0.487,
+    "released_target_window": 0.59,
+    "released_target_patch": 0.553,
+    "released_source_val_window": 0.671,
+    "released_random_floor_window": 0.532,
+    "released_random_floor_patch": 0.503,
+    "phase8b_ref": 0.598,
+    "phase8b_ci": [
+      0.561,
+      0.638
+    ],
+    "p1_N512_target_patch": 0.492,
+    "p1_random_patch": 0.503,
+    "p1_L1": 0.888,
+    "released_L1": 0.899,
+    "random_L1": 0.747
+  },
+  "adversarial_verification": "workflow wf_afb546fb (4 skeptics + synth): pipeline-reproduces NOT-refuted(0.68), shumi-decodable NOT-refuted(0.60 weak), no-leakage NOT-refuted(0.87), p1-negative-real NOT-refuted",
+  "reasoning": "Strict CSP within-subject 0.60 gate MISSED, but that is NOT the probe estimand (probe scores CROSS-subject). Estimand-matched CSP cross-subject 0.562 clears shuffle 0.487 (~5 SD) and brackets released transfer 0.553-0.590; two independent encoder-free + released paths converge on 0.55-0.59. Case A (data/preprocessing broken) RULED OUT (label/channel/split clean, released decodes). Released reproduction ADEQUATELY substitutes for the missed strict gate -> Case C + Case D -> d1_allowed=True.",
+  "p1_interpretation": "P1 200h-from-scratch = GENUINE VALID NEGATIVE. N512_s0 target 0.492 ~= random floor 0.503 (matched patch-norm; both embeddings), released same-norm 0.553 (released-minus-P1 +0.061, z=4.16). Checkpoint genuinely loaded (0 missing/unexpected of 211 keys). Encodes strong SUBJECT structure (L1 0.888 >> random 0.747, near released 0.899) but NO MI-transferable structure. 200h from-scratch insufficient for cross-subject MI transfer.",
+  "required_caveats": [
+    "Strict CSP within-subject 0.60 gate FAILS (median 0.54); 'decodable' = WEAK/low-ceiling; substitution rests on cross-subject CSP + released reproduction, not the strict gate.",
+    "Released reproduction = SINGLE seed, no own CI, lands in WIDE band CI[0.561,0.638] (half-width 0.038 ~ 2/3 of the effect); '0.590 vs 0.598' is partly an n_pca=64 artifact. Word as 'genuine above-floor transfer consistent with the Phase-8B band', margin over random only ~0.05-0.058.",
+    "Report window (0.590) AND patch (0.553) norm together; window-norm lifts even a RANDOM encoder to 0.532 (~+0.032 normalization-induced).",
+    "Target cohort (21-25) near-chance within-subject (mean 0.528); pooled 0.56/0.59 = ~6-9% margin, 'near-chance-but-significant'; single fit, no permutation null, effective N < 2347 (trials correlated).",
+    "Released weights' PRETRAINING provenance unverified: cannot rule out upstream overlap with SHU-MI target subjects here (probe-level firewall IS clean); mitigated by weak released transfer.",
+    "D1 primary endpoint MUST be the SUBJECT-STRUCTURE frontier (L1 by allocation), NOT the target-MI-transfer slope (pre-registered NULL at floor, not estimable)."
+  ]
+}
