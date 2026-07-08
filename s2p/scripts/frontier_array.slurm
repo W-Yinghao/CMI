@@ -5,10 +5,13 @@
 #SBATCH --cpus-per-task=6
 #SBATCH --mem=48G
 #SBATCH --array=0-14
+#SBATCH --time=20:00:00
 #SBATCH --output=/home/infres/yinwang/CMI_AAAI_s2p/results/s2p_p1_cbramod/logs/slurm-%A_%a.out
 #SBATCH --error=/home/infres/yinwang/CMI_AAAI_s2p/results/s2p_p1_cbramod/logs/slurm-%A_%a.err
-# NO --time (project discipline). Multi-partition: SLURM schedules each of the 15 cells on whichever GPU is free
-# (A40 48GB / A100 40-80GB / H100 80GB / V100 16-32GB). CBraMod is 4.9M params, ~4-8GB -> fits V100-16GB.
+# --time=20h REQUIRED for multi-partition eligibility: A100/H100 cap MaxTime=1d, V100=2d, A40=4d; a no-time job
+# defaults to A40's 4d and is REJECTED (PartitionTimeLimit) by A100/H100/V100. 20h << 1d cap AND >> ~5h run
+# (50 epochs, load ~150s). Multi-partition: SLURM schedules each cell on whichever GPU is free.
+# CBraMod 4.9M params, ~4-8GB -> fits V100-16GB. Runner saves last.pth every epoch (crash-safe).
 set -euo pipefail
 source /home/infres/yinwang/anaconda3/etc/profile.d/conda.sh
 conda activate eeg2025
