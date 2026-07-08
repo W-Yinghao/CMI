@@ -103,3 +103,41 @@ rewritten to v2. Resolution of each item, **verified on the real 19-common corpu
 optional high-N diagonal (+6) only if clean. **Status: launch still HELD** pending (i) a fresh design red-team of
 this revised two-H0 protocol and (ii) explicit PM go after the launch-condition checklist. This record + S2P_06 v2
 + the four new CSVs constitute the revised pre-registration.
+
+---
+
+## v2 RED-TEAM (agent a744a1d5, 2026-07-08) — BLOCKERS_PRESENT (algebra sound, but code≠design + crossed slope unsound)
+The two-budget algebra restores identifiability (rank 3/3), and the three matched-exposure diversity **pairs** are
+each within-pool clean under the loader. But three blockers make the **primary decomposition claim** uninterpretable
+as written, and my go/no-go **over-claimed** launch conditions (corrected below).
+- **BL-4 — LOADER ⇄ PROTOCOL GAP (I over-claimed).** `tueg_subject_loader.build_subset` has **no** `pool_min_h`,
+  **no** nested `parent_subjects`, **no** fixed common external val, **no** `subset_seed`≠`init_seed`: it does
+  `eligible=subj_hours>=cap` + independent `rng.choice` per cell + a per-cell 15% val split. So the claimed nested /
+  common-pool / fixed-common-val / factorial-seed machinery **does not exist in code**. Launch conditions 2 & 8 were
+  wrongly PASS. FIX = rewrite the loader; re-run the balance/feasibility check against the *real* loader before any
+  condition flips to met.
+- **BL-5 — DUAL-POOL INCONSISTENCY (crossed regression internally inconsistent).** `100h/N512` must be within-pool
+  6485 (diversity, nested in `200h/N1024`) AND from the ≥0.391h common pool 2231 (exposure, vs `200h/N512`) — one
+  trained frozen encoder cannot satisfy both. "Restrict in analysis, not retraining" is **impossible** (pretraining
+  population is baked in; no TUEG subjects exist at analysis time, only SHU-MI eval). FIX = **PM decision** (retrain
+  exposure arms from a common pool ≈ +4 runs, OR delete the exposure coefficient + crossed regression, keep only the
+  3 within-pool diversity pairs).
+- **BL-6 — POOLED SLOPE POPULATION-CONFOUNDED.** The 3 diversity pairs sit on **different** populations
+  (713 clinical / 6485 / 6516 general); pooling them into one `logN` slope reintroduces MJ-1. FIX = primary estimand
+  = the 3 within-pool pairwise diversity **differences reported SEPARATELY** with population labels; the pooled
+  `outcome~logN+log e` is **NOT** primary (descriptive only, with a population covariate if reported).
+- **MJ-6 — identifiable ≠ powered.** VIF=1/(1−0.918²)=**6.36** ⇒ slope SE ×2.52; two budgets only log2 apart;
+  MDE +0.02 < seed-SD 0.03 ⇒ leave-one-N-out likely flips a slope. FIX = **PM decision** (add off-diagonal cells /
+  3rd budget to cut VIF, OR pre-declare slopes descriptive + leave-one-N-out sign-stability as the go/no-go).
+- **MJ-7 — `log e` triple-confounded** (population + within-subject window redundancy [94 contiguous windows/subj at
+  e=0.781 vs 12 at e=0.098] + depth). FIX = compute effective decorrelated windows/subj; relabel as
+  "budget-depth (population+redundancy confounded)", not per-subject-exposure.
+- **MJ-8 — eligibility on summed hours, not floored windows.** `subj_hours>=cap` (sum) but windows floored per
+  recording ⇒ a multi-recording clinical subject can fall short of `cap_windows` ⇒ `max−min>1` / Gini>0.02 fails the
+  **hard balance gate**, exactly in the e=0.781 clinical cells. FIX = eligibility on `Σ(n_timepoints//6000) ≥ cap_windows`.
+- **MN (v2):** stale v1 keys in go/no-go json (fix); per-window z-score may floor L1 (verify dynamic-range check);
+  single transfer target (SHU-MI); name the ONE primary statistic (no post-hoc selection under Holm).
+
+**Disposition v2:** launch HELD. **PM decisions required: BL-5 (exposure axis: retrain-common-pool vs drop-exposure-
+claim) and MJ-6 (power: add cells vs descriptive slopes).** BL-4/BL-6/MJ-7/MJ-8/MN I will fix in the loader rewrite +
+analysis spec once the PM sets scope (the loader shape depends on the two decisions, so implement once, correctly).

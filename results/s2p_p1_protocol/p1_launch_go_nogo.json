@@ -1,23 +1,8 @@
 {
   "model": "CBraMod",
-  "H0_hours": 100,
-  "n_subjects_grid": [
-    32,
-    128,
-    512,
-    1024,
-    2000
-  ],
-  "seeds": [
-    0,
-    1,
-    2
-  ],
   "min_exposure_hours_per_subject": 0.05,
-  "all_cells_feasible": "feasible numerically on 19-common but N=32 pool ~80 extreme-clinical (MJ-1 population confound)",
   "BLOCKER_fixed_hours_not_enforced": "loader enforces per-subject cap at WHOLE-RECORDING granularity -> at high N the tiny cap (0.05h) < one recording -> actual total hours BALLOONS (N=32:116h, N=1024:305h, N=2000:597h != 100h) -> 'fixed-hours' axis silently confounded with TOTAL hours. MUST FIX: window-level budget truncation (cap_windows=cap*120, truncate within recording).",
   "MAJOR_sparse_exposure": "N=2000 -> ~6 windows/subject (3 min); N=1024 -> ~12; likely too little for from-scratch encoder to learn per-subject structure -> high-N cells may be under-trained artifacts not diversity effects. Needs pretraining-convergence check per cell + possibly cap the high-N end.",
-  "subject_contribution_balanced_by_manifest": "window-level cap = equal windows/subject per cell (Gini~0 by construction; verify at run)",
   "pretrain_val_subject_disjoint": true,
   "native_objective_preserved": true,
   "checkpoint_selection_pretrain_val_only": true,
@@ -25,19 +10,7 @@
   "compute_budget_ok": "15 runs from-scratch @100h corpus (pilot-scale); epochs TBD by convergence check",
   "design_red_team": "DONE (agent a7ea257d): BLOCKERS_PRESENT",
   "launch_p1": false,
-  "launch_note": "Two-H0 crossed design RESOLVES BL-1 (verified full-rank+feasible on real 19-common corpus). All 10 launch conditions currently PASS. Launch still HELD pending fresh red-team of the revised protocol + explicit PM go (report-then-go discipline). NOT auto-launched.",
-  "blockers": {
-    "BL1_not_identifiable": "fixed-H0 single line: exposure=100/N PERFECTLY collinear with N (corr=-1) -> exposure covariate VOID -> one fused slope (diversity-exposure), diversity NOT estimable. FIX: PM choose (a) 2 fixed-H0 lines {100,200}h ~2x compute, or (b) constant-exposure growing-hours arm, or (c) reframe to 'subject-vs-depth tradeoff frontier' (no diversity claim)",
-    "BL2_underpower_selection_bias": "100h from-scratch may be weak -> most cells fail 0.58 gate -> N-dependent gating = survivorship bias. FIX: positive-control floor (beat random-init frozen), per-cell convergence gate, gate-as-outcome (slopes with+without gated cells)",
-    "BL3_thresholds_not_prereg": "Gini/MDE/seed-SD have NO NUMBERS. FIX: freeze numeric MDE/Gini/seed-SD before launch"
-  },
-  "majors": {
-    "MJ1_population_confound": "feasibility was on full 33ch corpus; on 19-common N=32 draws ~80 EXTREME long-recording clinical (epilepsy) patients vs N=2000 general -> N confounds diversity/exposure/POPULATION. FIX: 19-common feasibility (done) + report population drift or restrict to common eligibility pool (caps max N)",
-    "MJ2_pretrain_val_not_fixed": "pin ONE fixed common pretrain-val set (constant subj+exposure)",
-    "MJ3_no_primary_multiplicity": "pin 1 primary (SHU-MI target-bAcc slope) + Holm",
-    "MJ4_sparse_redundancy": "N=2000 ~6 contiguous windows/subj = near-duplicates -> effective diversity <<6; report effective-windows + pin overlap policy",
-    "MJ5_seeds_conflated": "factor subset-seed x init-seed; >=5 seeds at N{32,2000}"
-  },
+  "launch_note": "BLOCKERS_PRESENT (v2 red-team). Two-budget ALGEBRA sound + identifiable + feasible, BUT (a) loader does not implement the pool/nesting/common-val design (I over-claimed cond 2&8), (b) the crossed exposure axis is internally inconsistent for a frozen encoder [BL-5 PM decision], (c) pooled slope population-confounded, (d) near-singular/low-power [MJ-6 PM decision]. Salvageable primary claim is NARROWER: 3 within-pool matched-exposure diversity differences, descriptive, single SHU-MI target. RETURN TO PM for BL-5 + MJ-6; then I rewrite loader + re-verify + re-red-team.",
   "loader_fixed_hours_bug": "FIXED (window-level budget; verified total ~100h all N; was 116-597h)",
   "pm_decision_2026_07_08": "BL-1 fix = TWO fixed-H0 lines (100h+200h) lean crossed grid; keep diversity question; NOT reframe; N=32 out of primary; constant-exposure arm = P2 diagnostic only",
   "design_v2": "two-budget subject-count x per-subject-exposure decomposition",
@@ -109,19 +82,39 @@
     "loader_fixed_hours": "FIXED window-level + hard gate \u00b11%"
   },
   "launch_conditions": {
-    "1_BL1_two_H0_full_rank": "PASS (rank 3/3)",
-    "2_common_eligibility_pools_defined": "PASS",
-    "3_whole_window_truncation_verified": "PASS (loader fix, ~100h all N)",
-    "4_sampling_balance_thresholds_frozen": "PASS",
-    "5_convergence_task_gate_frozen": "PASS",
-    "6_design_matrix_full_rank": "PASS",
-    "7_CBraMod_native_objective_preserved": "PASS (9A.5)",
-    "8_pretrain_val_subject_disjoint": "PASS (+fixed common val)",
-    "9_checkpoint_pretrain_val_only": "PASS",
-    "10_target_labels_final_scoring_only": "PASS"
+    "1_BL1_two_H0_full_rank": "MET (rank 3/3, corr -0.918)",
+    "2_common_eligibility_pools_defined": "NOT MET - loader does independent choice per cell, no common pool/nesting (BL-4)",
+    "3_whole_window_truncation_verified": "PARTIAL - window budget fixed, but eligibility on summed-hours not floored-windows (MJ-8) can fail Gini gate",
+    "4_sampling_balance_thresholds_frozen": "thresholds frozen; NOT verified against real loader yet (BL-4/MJ-8)",
+    "5_convergence_task_gate_frozen": "MET (spec); positive-control floor may be too weak (MJ-6b)",
+    "6_design_matrix_full_rank": "MET but VIF=6.36 (SE x2.52), near-singular, low power (MJ-6)",
+    "7_CBraMod_native_objective_preserved": "MET (9A.5 audit)",
+    "8_pretrain_val_subject_disjoint_fixed_common": "NOT MET - loader uses per-cell 15% split, no fixed common external val (BL-4)",
+    "9_checkpoint_pretrain_val_only": "MET (spec)",
+    "10_target_labels_final_scoring_only": "MET (spec)"
   },
   "pending_before_launch": [
     "fresh design red-team of revised two-H0 protocol",
     "explicit PM go after checklist (report-then-go)"
+  ],
+  "v2_red_team": "agent a744a1d5: BLOCKERS_PRESENT (algebra sound; loader != design; crossed slope unsound). go/no-go had OVER-CLAIMED conditions 2&8.",
+  "open_blockers": {
+    "BL4_loader_gap": "rewrite loader (pool_min_h, nested parent_subjects, fixed common val, subset_seed!=init_seed, floored-window eligibility); re-verify balance. I FIX after scope set.",
+    "BL5_dual_pool_PM_DECISION": "a cell can't be in two pools; frozen encoder can't be restricted post-hoc. PM: (i) retrain exposure arms from common pool ~+4 runs KEEP exposure axis, or (ii) DROP exposure coeff+crossed regression, keep 3 within-pool diversity pairs only.",
+    "BL6_pooled_slope_confounded": "primary = 3 within-pool diversity diffs reported SEPARATELY w/ population labels; pooled slope NOT primary. I FIX (analysis spec).",
+    "MJ6_power_PM_DECISION": "VIF 6.36, MDE<seed-SD. PM: (i) add off-diagonal cells/3rd budget cut VIF (more compute), or (ii) declare slopes DESCRIPTIVE + leave-one-N-out sign-stability as go/no-go.",
+    "MJ7_log_e_confounded": "relabel budget-depth; report effective decorrelated windows/subj. I FIX.",
+    "MJ8_eligibility_floored_windows": "eligibility on sum(n_timepoints//6000)>=cap_windows. I FIX in loader."
+  },
+  "pm_decisions_required": [
+    "BL-5 exposure axis (retrain-common-pool vs drop-exposure-claim)",
+    "MJ-6 power (add cells vs descriptive slopes)"
+  ],
+  "i_fix_after_scope": [
+    "BL-4 loader rewrite",
+    "BL-6 analysis: within-pool diversity primary",
+    "MJ-7 relabel+eff-windows",
+    "MJ-8 floored-window eligibility",
+    "MN de-stale/L1-dynamic-range/name-primary-statistic"
   ]
 }
