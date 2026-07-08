@@ -16,7 +16,7 @@ This package is an additive review-completion artifact audit. It should be accep
 - Raw rows are under `results/h2cmi/review_completion_offdiag/`.
 - Aggregate table is `geometry_capacity_offdiagonal_results.csv`.
 - Completion validation is in `offdiag_completion_audit.md`: 1,080 raw rows, 0 bad JSON rows, 360 unit x perturbation cells after seed averaging, and 128 CSV data rows.
-- Because `sacct` was unavailable, validation uses queue exit, log/output existence, parse checks, row counts, and checksums rather than Slurm accounting DB.
+- Slurm validation follows `SLURM_MONITORING_POLICY.md`: `sacct` is not used on this server; completion requires job absence from `squeue` plus artifact parse/count/checksum validation.
 
 ## Manuscript-Ready Numbers
 

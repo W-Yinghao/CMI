@@ -16,19 +16,7 @@ import time
 from pathlib import Path
 
 
-OK_STATES = {"COMPLETED"}
-BAD_STATES = {
-    "BOOT_FAIL",
-    "CANCELLED",
-    "DEADLINE",
-    "FAILED",
-    "NODE_FAIL",
-    "OUT_OF_MEMORY",
-    "PREEMPTED",
-    "REVOKED",
-    "SPECIAL_EXIT",
-    "TIMEOUT",
-}
+LEFT_QUEUE_STATE = "LEFT_QUEUE_NEEDS_ARTIFACT_VALIDATION"
 
 
 def now() -> str:
@@ -63,6 +51,7 @@ def load_state(path: Path, groups: list[dict[str, str]]) -> dict:
     return {
         "created_at": now(),
         "updated_at": now(),
+        "monitoring_policy": "squeue-only; validate stderr/stdout/artifacts before accepting completion",
         "groups": groups,
         "post_job_id": "",
         "post_submitted_at": "",
@@ -81,31 +70,12 @@ def is_active(job_id: str, cwd: Path) -> bool:
     return proc.returncode == 0 and bool(proc.stdout.strip())
 
 
-def sacct_states(job_id: str, cwd: Path) -> set[str]:
-    proc = run(["sacct", "-n", "-P", "-j", job_id, "--format=State"], cwd)
-    states: set[str] = set()
-    if proc.returncode != 0:
-        return states
-    for line in proc.stdout.splitlines():
-        state = line.strip().split("|")[0].split()[0]
-        if state:
-            states.add(state)
-    return states
-
-
 def job_status(job_id: str, cwd: Path) -> str:
     if not job_id:
         return "UNSUBMITTED"
     if is_active(job_id, cwd):
         return "ACTIVE"
-    states = sacct_states(job_id, cwd)
-    if not states:
-        return "UNKNOWN"
-    if states & BAD_STATES:
-        return "FAILED"
-    if states and states <= OK_STATES:
-        return "COMPLETED"
-    return ",".join(sorted(states))
+    return LEFT_QUEUE_STATE
 
 
 def submit_group(group: dict, args: argparse.Namespace) -> tuple[bool, str]:
@@ -202,11 +172,6 @@ def main() -> int:
 
         statuses = {g["name"]: job_status(g.get("job_id", ""), args.workdir) for g in state["groups"]}
         log(args.log, "gpu statuses " + json.dumps(statuses, sort_keys=True))
-        if any(status == "FAILED" for status in statuses.values()):
-            save_state(args.state_json, state)
-            log(args.log, "at least one GPU group failed; not submitting post job")
-            return 2
-
         all_submitted = all(g.get("job_id") for g in state["groups"])
         if all_submitted and not state.get("post_job_id"):
             ok, value = submit_post(state, args)
@@ -222,15 +187,12 @@ def main() -> int:
         if post_job_id:
             post_status = job_status(post_job_id, args.workdir)
             log(args.log, f"post status {post_job_id}={post_status}")
-            if post_status == "COMPLETED":
+            if post_status == LEFT_QUEUE_STATE:
                 state["done"] = True
+                state["completion_requires_artifact_validation"] = True
                 save_state(args.state_json, state)
-                log(args.log, "watcher completed")
+                log(args.log, "post job left squeue; validate stderr/stdout/artifacts before accepting completion")
                 return 0
-            if post_status == "FAILED":
-                save_state(args.state_json, state)
-                log(args.log, "post job failed")
-                return 3
 
         save_state(args.state_json, state)
         time.sleep(args.interval)

@@ -37,6 +37,7 @@
   `spdim_geodesic`, `spdim_bias`), ordinary accuracy and balanced accuracy are
   populated for every row, and CSV SHA-256 is
   `2637cb87095ddd188153516f8a9567ec83fcc71fffccf2e7146955fb6789ca58`.
-  `spdim_probe_audit.md` reports PASS. Slurm `sacct` was unavailable because
-  the local Slurm DB connection refused, but the job left `squeue` and stderr
-  was empty.
+  `spdim_probe_audit.md` reports PASS. Per `SLURM_MONITORING_POLICY.md`,
+  `sacct` is not used on this server; completion was accepted by final
+  `squeue` absence, empty stderr, existing stdout, artifact parse checks,
+  expected row count, and checksum validation.

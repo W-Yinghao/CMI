@@ -15,6 +15,20 @@
 - device: `cuda`
 - elapsed_seconds: `133.396`
 
+## Slurm Monitoring
+
+- policy: `SLURM_MONITORING_POLICY.md`
+- job_id: `888850`
+- submit_command: `sbatch h2cmi/results/review_completion/slurm/spdim_probe.slurm`
+- sacct_policy: `not used on this server`
+- completion_rule: `job absent from squeue + artifact parse/count/checksum validation passed`
+- final_squeue_absent: `true`
+- stderr_status: `empty` (`h2cmi/results/review_completion/slurm/logs/spdim-probe-888850.err`)
+- stdout_status: `exists` (`h2cmi/results/review_completion/slurm/logs/spdim-probe-888850.out`)
+- artifact_paths: `h2cmi/results/review_completion/spdim_probe_results.csv`, `h2cmi/results/review_completion/spdim_probe_audit.md`
+- row_count: `8`
+- csv_sha256: `2637cb87095ddd188153516f8a9567ec83fcc71fffccf2e7146955fb6789ca58`
+
 ## Command
 
 ```bash

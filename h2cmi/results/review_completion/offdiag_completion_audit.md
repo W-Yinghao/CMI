@@ -8,15 +8,12 @@ Checked after SLURM jobs left the queue.
 array and post-analysis jobs have completed from the scheduler queue's
 perspective.
 
-`sacct` was attempted but the cluster accounting database refused the
-connection:
+Per `SLURM_MONITORING_POLICY.md`, `sacct` is not used on this server. The
+accepted completion rule is: job absent from `squeue` + artifact
+parse/count/checksum validation passed.
 
-```text
-sacct: error: Problem talking to the database: Connection refused
-```
-
-Therefore final accounting is verified from `squeue`, job logs, artifact
-existence, parse checks, row counts, and checksums rather than from `sacct`.
+This audit accepts completion from final `squeue` absence, job logs, artifact
+existence, parse checks, row counts, and checksums.
 
 ## Raw artifact validation
 

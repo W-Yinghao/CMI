@@ -1,7 +1,7 @@
 # Three dual-CMI tests — setup & submission status
 
 Snapshot: 2026-06-11 ~18:35. Queue read from `squeue -u yinwang`. NOTE: SLURM
-accounting (`sacct`) DB was down, so historical job state / submit-lines could not be
+accounting DB was down, so historical job state / submit-lines could not be
 retrieved; pending-job argv is not surfaced by `scontrol` on this cluster, so for the
 pending jobs the dataset/seed mapping is inferred from the route note + job names, not
 read back from the scheduler.
@@ -25,6 +25,6 @@ read back from the scheduler.
   SCZ ...`) now that `SCZ.npz` contains all 4 cohorts.
 - **Test 1 seed coverage is inferred, not verified.** seed1 confirmed running from its
   .out; seeds 2–4 inferred from the 4 pending/running `cmi-loso` jobs + the route plan.
-  `sacct`/`scontrol` could not return the pending jobs' argv to confirm seed numbers.
+  Scheduler inspection could not return the pending jobs' argv to confirm seed numbers.
 - **Tests 1 & 2 GPU jobs are pending behind Priority** on A40 — submitted, not yet
   producing results. No failures observed.

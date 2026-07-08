@@ -41,8 +41,14 @@ done
 
 {
   echo
-  echo "## Final Accounting"
-  sacct -j "$WATCH_JOBS" --format=JobID,JobName%28,State,ExitCode,Elapsed,MaxRSS,NodeList -P || true
+  echo "## Final Queue Check"
+  echo "- completion_rule: job absent from squeue + artifact parse/count/checksum validation passed"
+  if squeue -h -j "$WATCH_JOBS" | grep -q .; then
+    echo "- final_squeue_absent: false"
+    squeue -j "$WATCH_JOBS" -o '%18i %24j %10T %12M %10l %12P %R' || true
+  else
+    echo "- final_squeue_absent: true"
+  fi
   echo
   echo "## Final Artifacts"
   ls -lh results/h2cmi/review_completion_offdiag/ h2cmi/results/review_completion/geometry_capacity_offdiagonal_results.csv 2>/dev/null || true
