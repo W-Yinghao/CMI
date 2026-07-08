@@ -1,0 +1,6 @@
+check,passed,finding
+self_label_leakage_check,1,Local purity excludes the candidate's own label.
+baseline_scope_check,1,Every local ceiling row is compared with its same-group random top1 baseline.
+fixed_space_check,1,Source spaces are fixed before analysis.
+c47_gap_boundary_check,1,C48 local ceiling is judged against C47 and a fixed permutation-null baseline.
+artifact_boundary_check,1,C48 emits diagnostic summaries and no selected-checkpoint artifact.
