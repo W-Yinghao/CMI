@@ -1,0 +1,101 @@
+{
+  "status": "pass",
+  "dataset": "BNCI2014_001",
+  "result_scope": "BNCI2014-001 seed-0 clean-provenance bounded rerun only",
+  "source_seed": 0,
+  "target_subjects": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "methods": [
+    "source_only_tsmnet",
+    "rct",
+    "spdim_geodesic",
+    "spdim_bias"
+  ],
+  "expected_rows": 36,
+  "row_count": 36,
+  "ok_rows": 36,
+  "failed_rows": 0,
+  "result_csv": "h2cmi/results/review_completion/spdim_bnci001_clean_results.csv",
+  "result_csv_sha256": "4b8e17542220511baddb41bdfc412dde68b38a214e813affdd7348c99d4d6338",
+  "protocol": "h2cmi/results/review_completion/spdim_bnci001_clean_protocol.md",
+  "audit": "h2cmi/results/review_completion/spdim_bnci001_clean_audit.md",
+  "compare_to_exploratory": "h2cmi/results/review_completion/spdim_bnci001_clean_compare_to_exploratory.csv",
+  "slurm": {
+    "job_id": "889192",
+    "submit_command": "sbatch h2cmi/results/review_completion/slurm/spdim_bnci001_clean.slurm",
+    "monitoring_policy": "squeue_only",
+    "final_squeue_absent": true,
+    "final_squeue_output": "JOBID STATE TIME NODES NODELIST(REASON)",
+    "stdout_path": "h2cmi/results/review_completion/slurm/logs/spdim-bnci001-clean-889192.out",
+    "stdout_exists": true,
+    "stdout_sha256": "2ee209d80aadb7c02800ed3b203d98ffd4f925309a13a3b28e281584b087c03c",
+    "stderr_path": "h2cmi/results/review_completion/slurm/logs/spdim-bnci001-clean-889192.err",
+    "stderr_empty": true,
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "launch_provenance": {
+    "launch_commit": "a8b93682c152a428f9689f9941efaff486606336",
+    "pushed_guard_commit": "a8b93682c152a428f9689f9941efaff486606336",
+    "launch_commit_equals_pushed_commit": true,
+    "git_status_porcelain_at_launch": "",
+    "clean_worktree": true,
+    "runner_dirty_allowed": false,
+    "runner_file": "h2cmi/run_spdim_probe.py",
+    "runner_file_sha256": "5ccdccdcdcfacd6cc27a335ee44afa06842b469691ac53cb4e4ef0930e760490",
+    "config_file": "h2cmi/config.py",
+    "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+    "external_spdim_commit": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+    "environment_name": "base",
+    "command_line": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/run_spdim_probe.py --external-spdim-path /home/infres/yinwang/.cache/h2cmi_external/SPDIM_1b0de0ccd4c48a4ff28f087b866a0b671b029c39 --dataset BNCI2014_001 --subjects all --seed 0 --epochs 20 --adapt-epochs 30 --device cuda --result-schema bnci001 --overwrite --out h2cmi/results/review_completion/spdim_bnci001_clean_results.csv --audit h2cmi/results/review_completion/spdim_bnci001_clean_audit.md --failure-trace h2cmi/results/review_completion/spdim_bnci001_clean_failure_trace.txt",
+    "slurm_job_id": "889192",
+    "runner_config_post_launch_diff_empty": true,
+    "result_commit_contains_launched_runner_config_state": true
+  },
+  "validation": {
+    "csv_parse": true,
+    "json_parse": true,
+    "expected_row_count": true,
+    "checksum_verified": true,
+    "no_sacct_script_calls": true,
+    "target_label_leakage_detected": false,
+    "target_label_based_filtering_detected": false,
+    "official_pretrained_weight_detected": false,
+    "third_party_vendoring_detected": false
+  },
+  "mean_metrics": {
+    "source_only_tsmnet": {
+      "mean_acc": 0.6265432098765431,
+      "mean_bacc": 0.6265432098765431
+    },
+    "rct": {
+      "mean_acc": 0.7299382716049383,
+      "mean_bacc": 0.7299382716049383
+    },
+    "spdim_geodesic": {
+      "mean_acc": 0.7237654320987654,
+      "mean_bacc": 0.7237654320987654
+    },
+    "spdim_bias": {
+      "mean_acc": 0.7222222222222223,
+      "mean_bacc": 0.7222222222222223
+    }
+  },
+  "comparison_to_exploratory_p5": {
+    "exploratory_results_csv": "h2cmi/results/review_completion/spdim_bnci001_results.csv",
+    "acc_mismatches": 0,
+    "bacc_mismatches": 0,
+    "prediction_hash_mismatches": 0,
+    "logits_hash_mismatches": 36,
+    "mismatch_explanation": "Clean rerun metrics and discrete predictions match exploratory P5 for all 36 rows. Logits byte hashes differ for all 36 rows, so continuous logits are not byte-identical across the dirty exploratory run and the clean rerun."
+  },
+  "class_counts_eval_by_subject": {
+    "1": "[36,36]",
+    "2": "[36,36]",
+    "3": "[36,36]",
+    "4": "[36,36]",
+    "5": "[36,36]",
+    "6": "[36,36]",
+    "7": "[36,36]",
+    "8": "[36,36]",
+    "9": "[36,36]"
+  }
+}

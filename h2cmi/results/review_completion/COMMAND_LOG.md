@@ -78,3 +78,17 @@
   runner/config checksums, external SPDIM commit, environment name, command
   line, and Slurm job id. CPU guard smoke in the current dirty worktree refused
   before dataset load/training with `git status --porcelain is nonempty`.
+- Per PM P5.2B, launched the clean BNCI2014_001 seed-0 bounded rerun only after
+  the P5.2A guard commit `a8b93682c152a428f9689f9941efaff486606336` had been
+  pushed. The clean launch used detached worktree
+  `/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368`, with empty
+  `git status --porcelain=v1 --untracked-files=all`, and submitted Slurm job
+  `889192` via
+  `sbatch h2cmi/results/review_completion/slurm/spdim_bnci001_clean.slurm`.
+  Completion validation used `squeue` only: final `squeue -j 889192` returned
+  no job row, stderr was empty, stdout existed, `spdim_bnci001_clean_results.csv`
+  parsed with 36/36 `ok` rows, and the result CSV SHA-256 is
+  `4b8e17542220511baddb41bdfc412dde68b38a214e813affdd7348c99d4d6338`.
+  The clean rerun matches exploratory P5 on acc, bAcc, and prediction hashes for
+  all 36 rows; logits byte hashes differ for all 36 rows and are disclosed in
+  `spdim_bnci001_clean_compare_to_exploratory.csv`.
