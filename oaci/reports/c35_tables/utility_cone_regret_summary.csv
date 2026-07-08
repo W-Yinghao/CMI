@@ -1,0 +1,2 @@
+comparison,n_pairs,preference_robust_fraction,preference_dependent_fraction,narrow_scalarization_fraction,no_regret_fraction,mean_weight_fraction_alt_wins,median_weight_fraction_alt_wins,category_counts
+nearest_continuous_better,153,0.7450980392156863,0.17647058823529413,0.0784313725490196,0.0,0.8141923436041083,0.9913419913419913,"{'preference_robust_regret': 114, 'narrow_scalarization_regret': 12, 'preference_dependent_regret': 27}"

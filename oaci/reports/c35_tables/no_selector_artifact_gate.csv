@@ -1,0 +1,12 @@
+check,passed
+G0_manifest_resolves,True
+G1_table_hashes_match,True
+G2_key_numbers_reconstruct,True
+G3_no_legacy_monolithic_dependency,True
+config_hash_unchanged,True
+endpoint_orientations_frozen,True
+utility_simplex_grid_frozen,True
+no_training_no_reinference,True
+target_unlabeled_non_source_only,True
+no_selected_checkpoint_artifact,True
+diagnostic_only_non_deployable,True
