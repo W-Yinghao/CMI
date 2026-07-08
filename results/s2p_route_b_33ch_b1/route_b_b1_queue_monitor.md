@@ -137,3 +137,34 @@ pending_tasks=7
 pending_reason=QOSMaxGRESPerUser
 downstream_launched=false
 ```
+
+## Relaunch Startup Check - 2026-07-08T22:39:15+02:00
+relaunch_job=890125_[0-7]
+
+### squeue expanded
+```text
+             JOBID PARTITION    STATE       TIME     NODELIST(REASON)
+          890125_1       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_2       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_3       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_4       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_5       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_6       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_7       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_0       A40  RUNNING       2:15               node34
+```
+
+### startup evidence
+```text
+running_task=890125_0
+cell=H200_s0
+host=node34
+training_git_head=c3a6265079de1645a35af482f8e2b11d7564dc7a
+stderr_empty=true
+trainer_entered=true
+data_event_seen=true
+model_event_seen=true
+target_labels_used=false
+checkpoint_seen=false
+downstream_launched=false
+```
