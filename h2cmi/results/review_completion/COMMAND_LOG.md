@@ -130,3 +130,18 @@
   weight use, or third-party vendoring was detected; no seeds 1/2, full
   three-seed baseline, TeX edit, geometry stress, or orthogonal-score work was
   performed.
+- Per PM P6.1, performed the CPU-only W1 split/metric impact audit. No GPU jobs
+  were launched and no `sacct` calls were used. Added
+  `w1_balanced_accuracy_scorer_audit.py` and generated
+  `w1_split_metric_audit.{md,json}`,
+  `w1_balanced_accuracy_scorer_audit.{md,json}`, and
+  `w1_split_metric_impact_verdict.{md,json}`. The split audit recomputed the
+  exact `contiguous_split` composition under the `icml` environment and checked
+  it against the SPDIM P6 dry-run hashes/counts. Verdict: Cho2017 has
+  single-class evaluation for 52/52 W1 targets; sklearn
+  `balanced_accuracy_score` ignores absent classes and degenerates to ordinary
+  accuracy on those rows. Affected rows are 1560 corrected REVIEW_P0 W1 raw
+  rows (1404 metric rows excluding `__decomposition__`), 312 legacy W1-A rows,
+  and 208 SPDIM P6 seed-0 rows. Seeds 1/2 and full three-seed SPDIM remain
+  unapproved; alternative split and metric recompute are required before
+  escalation.

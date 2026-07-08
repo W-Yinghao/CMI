@@ -1,0 +1,132 @@
+{
+  "absent_class_handling": "ignored_present_labels_only; when y_true has one class, the score is the recall of that present class and equals ordinary accuracy for that one-class evaluation set",
+  "cases": {
+    "balanced_two_class_mixed": {
+      "acc_equals_bacc": true,
+      "accuracy": 0.75,
+      "balanced_accuracy": 0.75,
+      "class_counts_true": [
+        2,
+        2
+      ],
+      "warnings": [],
+      "y_pred": [
+        0,
+        1,
+        1,
+        1
+      ],
+      "y_true": [
+        0,
+        0,
+        1,
+        1
+      ]
+    },
+    "imbalanced_two_class_mixed": {
+      "acc_equals_bacc": false,
+      "accuracy": 0.75,
+      "balanced_accuracy": 0.8333333333333333,
+      "class_counts_true": [
+        1,
+        3
+      ],
+      "warnings": [],
+      "y_pred": [
+        0,
+        0,
+        1,
+        1
+      ],
+      "y_true": [
+        0,
+        1,
+        1,
+        1
+      ]
+    },
+    "single_class_all_correct": {
+      "acc_equals_bacc": true,
+      "accuracy": 1.0,
+      "balanced_accuracy": 1.0,
+      "class_counts_true": [
+        0,
+        4
+      ],
+      "warnings": [
+        "A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels."
+      ],
+      "y_pred": [
+        1,
+        1,
+        1,
+        1
+      ],
+      "y_true": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "single_class_all_wrong": {
+      "acc_equals_bacc": true,
+      "accuracy": 0.0,
+      "balanced_accuracy": 0.0,
+      "class_counts_true": [
+        0,
+        4
+      ],
+      "warnings": [
+        "y_pred contains classes not in y_true"
+      ],
+      "y_pred": [
+        0,
+        0,
+        0,
+        0
+      ],
+      "y_true": [
+        1,
+        1,
+        1,
+        1
+      ]
+    },
+    "single_class_half_correct": {
+      "acc_equals_bacc": true,
+      "accuracy": 0.5,
+      "balanced_accuracy": 0.5,
+      "class_counts_true": [
+        0,
+        4
+      ],
+      "warnings": [
+        "y_pred contains classes not in y_true"
+      ],
+      "y_pred": [
+        1,
+        0,
+        1,
+        0
+      ],
+      "y_true": [
+        1,
+        1,
+        1,
+        1
+      ]
+    }
+  },
+  "project_scorer_code_references": [
+    "h2cmi/run_w1_mi.py: balanced_accuracy_score(ye, pred)",
+    "h2cmi/eval/p0_eval.py: _record(... balanced_accuracy_score(y, pred) ...)",
+    "h2cmi/run_spdim_probe.py: _metrics(... balanced_accuracy_score(y_true, y_pred) ...)"
+  ],
+  "scorer": "sklearn.metrics.balanced_accuracy_score",
+  "sklearn_version": "1.5.2",
+  "warnings_seen": [
+    "A single label was found in 'y_true' and 'y_pred'. For the confusion matrix to have the correct shape, use the 'labels' parameter to pass all known labels.",
+    "y_pred contains classes not in y_true"
+  ]
+}
