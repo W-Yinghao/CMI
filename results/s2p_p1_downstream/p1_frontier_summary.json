@@ -67,5 +67,15 @@
     "Released-checkpoint pretraining provenance is not certified here; upstream overlap with SHU-MI target subjects cannot be ruled out (probe firewall IS clean).",
     "D1 PRIMARY endpoint is the L1 subject-structure frontier; target-MI-transfer slope is a pre-registered floor/null, not estimable."
   ],
-  "p2_recommended": null
+  "p2_recommended": false,
+  "p2_reason": "Allocation axis already answered null at 200h; a 2nd budget multiplies underpowered nulls (per-cell pair SEM ~0.017 ~= entire across-N spread ~0.022) and the N<->population confound recurs. Only positive (pretrained>random L1) is architecture not allocation. Close/park P1; if continued -> MORE SEEDS + population de-confound at 200h, not a new budget.",
+  "verified_conclusion": "MOSTLY-NULL, well-characterized. Coverage-vs-depth allocation (N=128..2048, fixed 200h) has NO detectable effect on any endpoint: L1 FLAT (perm-ANOVA F=0.809 p=0.569; slope perm p=0.713), target transfer near-chance floor. The N=512 'peak' is a single-seed-0 artifact (DROP curvature/peak language). Only practically-meaningful signal = pretrained numerically > single-seed random-init on L1 at every N (15/15, min gap ~0.077) but random-init already captures ~72.5% of above-chance separability (learned increment ~27.5%, floor is 1 seed no CI). L4/L5/L6 WEAK_TASK_DIAGNOSTIC_ONLY (4/15 gate). NOT deployable, NOT a positive method.",
+  "verification_corrections": [
+    "DROP peak-at-N512/curvature-0.004/optimal-allocation language: single-seed-0 artifact (N512_s0=0.888 global max); report ANOVA null p=0.57 + slope null p=0.71.",
+    "L5z is NOT 'erratic near-chance noise' (my error): systematically positive (12/15 z>0, 10/15 beat null, mean +3.33), sign-flipped from random-init (-6.40), but practically trivial (subject_removal_drop ~0.005 bAcc). Keep WEAK_TASK_DIAGNOSTIC_ONLY.",
+    "Three co-directional pretrained-vs-random contrasts (L1 +0.094, L5z +3.33vs-6.40, transfer +0.017); frame L1 as the only PRACTICALLY MEANINGFUL, not the only directional.",
+    "Target transfer = near-chance-BUT-significant (mean 0.520 vs 0.503, 13/15 above floor, t=4.28 p=0.0008) BUT 15 cells share same 5 target subjects (non-independent) -> pooled practically chance.",
+    "'Flat' = signal buried in measurement + 3-seed noise, NOT proven-zero; N<->population confound (clinical 201@N128 -> general 6388@N2048) entangles allocation with population."
+  ],
+  "adversarial_verification": "workflow wf_17621f8d (4 skeptics): l1_flat CONFIRMED (strengthened, perm-ANOVA p=0.57); pretrained>random CONFIRMED numerically but wording-refuted (minority 27.5% increment); no-overclaim REFUTED (L5z mischaracterized + only-L1 over-claim) -> corrections applied above."
 }
