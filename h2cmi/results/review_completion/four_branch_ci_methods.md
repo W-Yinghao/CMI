@@ -1,0 +1,3 @@
+# Four-Branch CI Methods
+
+Inputs are existing raw JSONL rows under `results/h2cmi/p0_w1_all.jsonl` and `results/h2cmi/wave0_w2det/*.jsonl`. Source seeds are averaged within biological unit before bootstrap. MI cluster/unit is target subject, with stratified subject bootstrap for subject-weighted summaries and dataset-equal macro bootstrap for macro summaries. Sleep cluster/unit is subject/night-pair protocol unit. CI method is 10,000-sample percentile bootstrap. The additive identity is checked per unit as `full = G + P + I_int`; max residual is stored in `four_branch_complete_ci.json`. Confirmatory status: corrected reanalysis from frozen raw artifacts.

@@ -1,0 +1,158 @@
+{
+  "created_by": "review_completion generator",
+  "worktree": "/home/infres/yinwang/CMI_AAAI_qxu",
+  "artifacts": {
+    "review_p0_report": {
+      "path": "h2cmi/results/review_p0.report.json",
+      "exists": true,
+      "size_bytes": 19103,
+      "sha256": "af19bcd588ac46b53551a63017ea9d3e75441eafedaa8685a78515c1709408b6"
+    },
+    "review_p0_confusion": {
+      "path": "h2cmi/results/review_p0_confusion.json",
+      "exists": true,
+      "size_bytes": 1088,
+      "sha256": "72e57d65274650fe3f5a4cae6f68aafc97c331d71b9b21632703e798996917fa"
+    },
+    "wave0_w2_report": {
+      "path": "h2cmi/results/wave0_w2.report.json",
+      "exists": true,
+      "size_bytes": 18965,
+      "sha256": "bd7b3f93f1d0e27be74721818b0abe5fb27d0f190fea6e2cbf3d0bcfaca41b9b"
+    },
+    "wave0_priordecomp_report": {
+      "path": "h2cmi/results/wave0_priordecomp.report.json",
+      "exists": true,
+      "size_bytes": 8983,
+      "sha256": "a256cc4347e0f8785c93bc6980e654c1b9929643af03db8cd1c1c55ba511bd5c"
+    },
+    "wave0_batchsweep_report": {
+      "path": "h2cmi/results/wave0_batchsweep.report.json",
+      "exists": true,
+      "size_bytes": 8401,
+      "sha256": "0f2b6284457aac5942c8c1b329587cff8043844ac5e34ea8af127ea63c8fc599"
+    },
+    "wave0_v2p_report": {
+      "path": "h2cmi/results/wave0_v2p.report.json",
+      "exists": true,
+      "size_bytes": 116151,
+      "sha256": "180b21bf92cabe7164c84bdf54a5e5614779b64379b019f69b45b3eaef544475"
+    },
+    "wave0_metricswitch_report": {
+      "path": "h2cmi/results/wave0_metricswitch.report.json",
+      "exists": true,
+      "size_bytes": 3274,
+      "sha256": "e9205c0bb81fd953b1f317958bcdf93ed6945e4acea681f42204d391a4199431"
+    },
+    "wave1_geom_report": {
+      "path": "h2cmi/results/wave1_geom.report.json",
+      "exists": true,
+      "size_bytes": 9096,
+      "sha256": "0e202274e7219da2832dcee0d1805be670df37e33d76fa281b8a58a370c1ed15"
+    },
+    "p0_w1_raw": {
+      "path": "results/h2cmi/p0_w1_all.jsonl",
+      "exists": true,
+      "size_bytes": 3203324,
+      "sha256": "c1ef4a6f4bb52a0561e14b5c26d1b40290f5ac44c4a7a86876f97639f2112633"
+    },
+    "p0_w2_primary_raw": {
+      "path": "results/h2cmi/p0_w2_primary_all.jsonl",
+      "exists": true,
+      "size_bytes": 3635252,
+      "sha256": "bc605da740631e1155c7ea9551cf707e551666149a339d3962b74630b4c15e77"
+    },
+    "p0_w2_secondary_raw": {
+      "path": "results/h2cmi/p0_w2_secondary_all.jsonl",
+      "exists": true,
+      "size_bytes": 3612003,
+      "sha256": "a4d200c8f4fc71d21a1c86dbf71f15f705def0730b005804cfb369061d9dc83d"
+    },
+    "wave0_w2det_primary_raw_dir": {
+      "path": "results/h2cmi/wave0_w2det",
+      "exists": true,
+      "size_bytes": 153,
+      "sha256": null
+    },
+    "wave0_v2p_raw_dir": {
+      "path": "results/h2cmi/wave0_v2p",
+      "exists": true,
+      "size_bytes": 7,
+      "sha256": null
+    },
+    "wave1_geom_raw_dir": {
+      "path": "results/h2cmi/wave1_geom",
+      "exists": true,
+      "size_bytes": 8,
+      "sha256": null
+    },
+    "sleep_cache": {
+      "path": "results/h2cmi/p0_sleep_cache",
+      "exists": true,
+      "size_bytes": 78,
+      "sha256": null
+    },
+    "w1_bundles": {
+      "path": "results/h2cmi/p0_w1_bundles",
+      "exists": true,
+      "size_bytes": 692,
+      "sha256": null
+    },
+    "w2_bundles": {
+      "path": "results/h2cmi/p0_w2_bundles",
+      "exists": true,
+      "size_bytes": 677,
+      "sha256": null
+    },
+    "v2p_bundles": {
+      "path": "results/h2cmi/p0_v2pw_bundles",
+      "exists": true,
+      "size_bytes": 731,
+      "sha256": null
+    },
+    "official_spdim": {
+      "path": null,
+      "exists": false
+    },
+    "orthogonal_score_estimator": {
+      "path": null,
+      "exists": false
+    }
+  },
+  "generated_outputs": [
+    "ARTIFACT_INDEX.json",
+    "BLOCKERS.md",
+    "COMMAND_LOG.md",
+    "README.md",
+    "REVIEW_COMPLETION_SUMMARY.md",
+    "RUN_PROVENANCE.md",
+    "artifact_inventory.md",
+    "baseline_inventory_and_blockers.md",
+    "encoder_backbone_details.json",
+    "encoder_backbone_details.md",
+    "four_branch_ci_methods.md",
+    "four_branch_complete_ci.csv",
+    "four_branch_complete_ci.json",
+    "geometry_capacity_blockers.md",
+    "geometry_capacity_existing_ci.csv",
+    "geometry_capacity_offdiagonal_results.csv",
+    "geometry_capacity_stress_methods.md",
+    "mi_dataset_heterogeneity_complete_ci.csv",
+    "orthogonal_score_blockers.md",
+    "orthogonal_score_controlled_results.csv",
+    "orthogonal_score_diagnostic_methods.md",
+    "orthogonal_score_natural_results.csv",
+    "orthogonal_score_v2p_results.csv",
+    "sleep_branch_confusion_matrices.json",
+    "sleep_per_stage_recall.csv",
+    "sleep_replay_hash_audit.md",
+    "spdim_official_baseline_blocker.md",
+    "spdim_official_baseline_results.csv",
+    "spdim_protocol_mapping.md",
+    "v2p_corrected_cluster_bootstrap.json",
+    "v2p_corrected_grid_summary.csv",
+    "v2p_corrected_method_summary.csv",
+    "v2p_corrected_paired_contrasts.csv",
+    "v2p_corrected_unit_key_audit.md"
+  ]
+}

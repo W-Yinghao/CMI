@@ -1,0 +1,3 @@
+# Review Completion Artifact README
+
+Most CSV/JSON files in this directory are generated from existing frozen Wave0/W1 artifacts; `geometry_capacity_offdiagonal_results.csv` is generated from the newly executed off-diagonal SLURM GPU run. Units are balanced accuracy or recall unless otherwise stated. CIs are 95% percentile bootstrap intervals. Bootstrap clusters: MI/W1 target subject with dataset stratification where reported; Sleep/W2 subject/night-pair unit; existing W1 geometry `(dataset, subject)`; off-diagonal geometry `(dataset, pair, subject)`. Confirmatory/corrected/exploratory status is documented in each methods, blocker, or completion-audit file.
