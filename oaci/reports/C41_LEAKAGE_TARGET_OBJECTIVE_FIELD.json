@@ -1,0 +1,448 @@
+{
+  "actual_selector_score_name": "selection_bootstrap_ucl",
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "leakage_target_alignment_summary_rows": [
+    {
+      "alignment_fraction": 0.5,
+      "anti_alignment_fraction": 0.2777777777777778,
+      "decoupled_fraction": 0.2222222222222222,
+      "field": "R_src",
+      "mean_pairwise_auc": 0.5429152019943845,
+      "mean_spearman": 0.1059442422009947,
+      "median_pairwise_auc": 0.5410911384421319,
+      "median_spearman": 0.1366933376221302,
+      "n_trajectories": 162
+    },
+    {
+      "alignment_fraction": 0.37037037037037035,
+      "anti_alignment_fraction": 0.3888888888888889,
+      "decoupled_fraction": 0.24074074074074073,
+      "field": "audit_leakage_point",
+      "mean_pairwise_auc": 0.4981768980759732,
+      "mean_spearman": -0.0038575673893881473,
+      "median_pairwise_auc": 0.5128511081852096,
+      "median_spearman": 0.046975868446517376,
+      "n_trajectories": 162
+    },
+    {
+      "alignment_fraction": 0.48148148148148145,
+      "anti_alignment_fraction": 0.2037037037037037,
+      "decoupled_fraction": 0.3148148148148148,
+      "field": "balanced_err",
+      "mean_pairwise_auc": 0.5608300926397386,
+      "mean_spearman": 0.14430795172881183,
+      "median_pairwise_auc": 0.5453647416413374,
+      "median_spearman": 0.09619034216557436,
+      "n_trajectories": 162
+    },
+    {
+      "alignment_fraction": 0.3148148148148148,
+      "anti_alignment_fraction": 0.2777777777777778,
+      "decoupled_fraction": 0.4074074074074074,
+      "field": "selection_leakage_point",
+      "mean_pairwise_auc": 0.49373160501299335,
+      "mean_spearman": -0.009728097632575306,
+      "median_pairwise_auc": 0.5066137566137566,
+      "median_spearman": 0.007757604975052729,
+      "n_trajectories": 162
+    },
+    {
+      "alignment_fraction": 0.42592592592592593,
+      "anti_alignment_fraction": 0.2037037037037037,
+      "decoupled_fraction": 0.37037037037037035,
+      "field": "source_audit_worst_bacc",
+      "mean_pairwise_auc": 0.5340445313218334,
+      "mean_spearman": 0.08410529550537349,
+      "median_pairwise_auc": 0.5292207792207793,
+      "median_spearman": 0.07216583343562596,
+      "n_trajectories": 162
+    },
+    {
+      "alignment_fraction": 0.46296296296296297,
+      "anti_alignment_fraction": 0.16666666666666666,
+      "decoupled_fraction": 0.37037037037037035,
+      "field": "source_audit_worst_ece",
+      "mean_pairwise_auc": 0.5327743696036895,
+      "mean_spearman": 0.09031156321866528,
+      "median_pairwise_auc": 0.5422741669502396,
+      "median_spearman": 0.11607000819882768,
+      "n_trajectories": 162
+    },
+    {
+      "alignment_fraction": 0.5555555555555556,
+      "anti_alignment_fraction": 0.16666666666666666,
+      "decoupled_fraction": 0.2777777777777778,
+      "field": "source_audit_worst_nll",
+      "mean_pairwise_auc": 0.556370428101521,
+      "mean_spearman": 0.15524632885740797,
+      "median_pairwise_auc": 0.5612203818725559,
+      "median_spearman": 0.19478260869565217,
+      "n_trajectories": 162
+    },
+    {
+      "alignment_fraction": 0.2962962962962963,
+      "anti_alignment_fraction": 0.4074074074074074,
+      "decoupled_fraction": 0.2962962962962963,
+      "field": "source_guard_worst_bacc",
+      "mean_pairwise_auc": 0.49475739165607796,
+      "mean_spearman": -0.03723167100292079,
+      "median_pairwise_auc": 0.4842105263157895,
+      "median_spearman": -0.12312906449765597,
+      "n_trajectories": 81
+    },
+    {
+      "alignment_fraction": 0.14814814814814814,
+      "anti_alignment_fraction": 0.6296296296296297,
+      "decoupled_fraction": 0.2222222222222222,
+      "field": "source_guard_worst_ece",
+      "mean_pairwise_auc": 0.43233092686541114,
+      "mean_spearman": -0.18484363752024421,
+      "median_pairwise_auc": 0.42468379446640314,
+      "median_spearman": -0.1888355172134125,
+      "n_trajectories": 162
+    },
+    {
+      "alignment_fraction": 0.4074074074074074,
+      "anti_alignment_fraction": 0.2037037037037037,
+      "decoupled_fraction": 0.3888888888888889,
+      "field": "source_guard_worst_nll",
+      "mean_pairwise_auc": 0.5396858954905933,
+      "mean_spearman": 0.0933794676778894,
+      "median_pairwise_auc": 0.5297503820682629,
+      "median_spearman": 0.08078272604588393,
+      "n_trajectories": 162
+    }
+  ],
+  "local_global_conflict_summary": {
+    "local_conflict_count": 102,
+    "mean_selected_low_leakage_rank_percentile": 0.013883332963474332,
+    "mean_selected_target_utility_rank_percentile": 0.5753438048417187,
+    "n_pairs": 114,
+    "representative_count": 90,
+    "representative_fraction": 0.7894736842105263,
+    "tail_only_count": 0,
+    "tail_only_fraction": 0.0
+  },
+  "low_leakage_enrichment_summary_rows": [
+    {
+      "label": "primary_joint_good",
+      "mean_enrichment_ratio": 0.7599767821298743,
+      "mean_hit_rate": 0.4074074074074074,
+      "mean_random_baseline": 0.4297233780360411,
+      "median_enrichment_ratio": 0.0,
+      "n_trajectories": 162,
+      "selection_rule": "top1",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "pareto_good",
+      "mean_enrichment_ratio": 0.7765432098765432,
+      "mean_hit_rate": 0.1111111111111111,
+      "mean_random_baseline": 0.1377191744332418,
+      "median_enrichment_ratio": 0.0,
+      "n_trajectories": 162,
+      "selection_rule": "top1",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "preference_robust_better_candidate",
+      "mean_enrichment_ratio": 0.0,
+      "mean_hit_rate": 0.0,
+      "mean_random_baseline": 0.03019713146878921,
+      "median_enrichment_ratio": 0.0,
+      "n_trajectories": 162,
+      "selection_rule": "top1",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "primary_joint_good",
+      "mean_enrichment_ratio": 0.9182126539374492,
+      "mean_hit_rate": 0.38271604938271603,
+      "mean_random_baseline": 0.4297233780360411,
+      "median_enrichment_ratio": 0.7777777777777778,
+      "n_trajectories": 162,
+      "selection_rule": "top3",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "pareto_good",
+      "mean_enrichment_ratio": 1.1982154162709717,
+      "mean_hit_rate": 0.12962962962962962,
+      "mean_random_baseline": 0.1377191744332418,
+      "median_enrichment_ratio": 0.0,
+      "n_trajectories": 162,
+      "selection_rule": "top3",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "preference_robust_better_candidate",
+      "mean_enrichment_ratio": 2.412280701754386,
+      "mean_hit_rate": 0.06790123456790123,
+      "mean_random_baseline": 0.03019713146878921,
+      "median_enrichment_ratio": 0.0,
+      "n_trajectories": 162,
+      "selection_rule": "top3",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "primary_joint_good",
+      "mean_enrichment_ratio": 0.9092169080040706,
+      "mean_hit_rate": 0.3814814814814815,
+      "mean_random_baseline": 0.4297233780360411,
+      "median_enrichment_ratio": 0.8296296296296297,
+      "n_trajectories": 162,
+      "selection_rule": "top5",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "pareto_good",
+      "mean_enrichment_ratio": 1.0315835707502377,
+      "mean_hit_rate": 0.1222222222222222,
+      "mean_random_baseline": 0.1377191744332418,
+      "median_enrichment_ratio": 0.0,
+      "n_trajectories": 162,
+      "selection_rule": "top5",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "preference_robust_better_candidate",
+      "mean_enrichment_ratio": 1.8842105263157896,
+      "mean_hit_rate": 0.05555555555555555,
+      "mean_random_baseline": 0.03019713146878921,
+      "median_enrichment_ratio": 0.0,
+      "n_trajectories": 162,
+      "selection_rule": "top5",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "primary_joint_good",
+      "mean_enrichment_ratio": 0.8547640110770416,
+      "mean_hit_rate": 0.38271604938271603,
+      "mean_random_baseline": 0.4297233780360411,
+      "median_enrichment_ratio": 0.7142857142857143,
+      "n_trajectories": 162,
+      "selection_rule": "top_decile",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "pareto_good",
+      "mean_enrichment_ratio": 1.2691476733143399,
+      "mean_hit_rate": 0.14351851851851852,
+      "mean_random_baseline": 0.1377191744332418,
+      "median_enrichment_ratio": 0.0,
+      "n_trajectories": 162,
+      "selection_rule": "top_decile",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "preference_robust_better_candidate",
+      "mean_enrichment_ratio": 2.182017543859649,
+      "mean_hit_rate": 0.06172839506172839,
+      "mean_random_baseline": 0.03019713146878921,
+      "median_enrichment_ratio": 0.0,
+      "n_trajectories": 162,
+      "selection_rule": "top_decile",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "primary_joint_good",
+      "mean_enrichment_ratio": 0.8180931732051369,
+      "mean_hit_rate": 0.37263374485596706,
+      "mean_random_baseline": 0.4297233780360411,
+      "median_enrichment_ratio": 0.9000000000000001,
+      "n_trajectories": 162,
+      "selection_rule": "bottom_leakage_quartile",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "pareto_good",
+      "mean_enrichment_ratio": 0.9266520824854159,
+      "mean_hit_rate": 0.12397119341563785,
+      "mean_random_baseline": 0.1377191744332418,
+      "median_enrichment_ratio": 0.3333333333333333,
+      "n_trajectories": 162,
+      "selection_rule": "bottom_leakage_quartile",
+      "significant_enriched_trajectories_bonferroni": 0
+    },
+    {
+      "label": "preference_robust_better_candidate",
+      "mean_enrichment_ratio": 1.9837510442773603,
+      "mean_hit_rate": 0.058686067019400344,
+      "mean_random_baseline": 0.03019713146878921,
+      "median_enrichment_ratio": 3.5,
+      "n_trajectories": 162,
+      "selection_rule": "bottom_leakage_quartile",
+      "significant_enriched_trajectories_bonferroni": 0
+    }
+  ],
+  "n_candidate_rows": 3804,
+  "n_trajectories": 162,
+  "no_selector_artifact_gate": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "candidate_registry_complete",
+      "passed": true
+    },
+    {
+      "check": "field_availability_audited_first",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_atom_level_claims",
+      "passed": true
+    },
+    {
+      "check": "no_proxy_selector_ucl",
+      "passed": true
+    },
+    {
+      "check": "target_fields_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "target_unlabeled_marked_non_source_only",
+      "passed": true
+    },
+    {
+      "check": "trajectory_conditioned_random_baseline",
+      "passed": true
+    },
+    {
+      "check": "no_selected_checkpoint_method_artifact",
+      "passed": true
+    },
+    {
+      "check": "no_monolithic_large_json",
+      "passed": true
+    },
+    {
+      "check": "finite_filtering_applied",
+      "passed": true
+    },
+    {
+      "check": "diagnostic_only_non_deployable",
+      "passed": true
+    }
+  ],
+  "objective_field_availability_summary": {
+    "c30_rank_candidate_level_available": false,
+    "candidate_registry_complete": true,
+    "n_candidate_rows": 3804,
+    "n_trajectories": 162,
+    "selection_ucl_global_available": false,
+    "target_gauge_candidate_level_available": false
+  },
+  "objective_field_comparison_summary": {
+    "audit_leakage_auc": 0.4981768980759732,
+    "best_field": "C30_source_rank_score",
+    "c30_rank_better_than_selection_leakage": true,
+    "c30_source_rank_auc": 0.658600107451297,
+    "selection_leakage_auc": 0.49373160501299335
+  },
+  "red_team": {
+    "pooling_check": "All primary alignment metrics are within-trajectory before summary aggregation.",
+    "proxy_check": "Selector UCL, target gauge, and C30 rank are not proxied as candidate-level fields.",
+    "quantile_baseline_check": "Low-leakage enrichment uses trajectory-conditioned random baselines."
+  },
+  "source_audit_vs_selection_summary": {
+    "audit_mean_auc_minus_selection": 0.00444529306297986,
+    "source_audit_no_better": true
+  },
+  "target_gauge_vs_leakage_summary": {
+    "candidate_level_target_gauge_available": false,
+    "leakage_target_gauge_conflict_count": 105,
+    "leakage_target_gauge_conflict_fraction": 0.9210526315789473,
+    "n_pairs": 114
+  },
+  "taxonomy": {
+    "case_rows": [
+      {
+        "case": "O1_global_leakage_target_alignment",
+        "established": 0,
+        "evidence": "selection_leakage_mean_auc=0.49373160501299335"
+      },
+      {
+        "case": "O2_global_leakage_target_decoupling",
+        "established": 1,
+        "evidence": "selection_leakage_mean_auc=0.49373160501299335"
+      },
+      {
+        "case": "O3_global_leakage_target_anti_alignment",
+        "established": 0,
+        "evidence": "selection_leakage_mean_auc=0.49373160501299335"
+      },
+      {
+        "case": "O4_low_leakage_not_good_enriched",
+        "established": 0,
+        "evidence": "max_enrichment joint/pareto/robust=0.9182126539374492/1.2691476733143399/2.412280701754386"
+      },
+      {
+        "case": "O5_source_audit_leakage_no_better",
+        "established": 1,
+        "evidence": "audit_mean_auc_minus_selection=0.00444529306297986"
+      },
+      {
+        "case": "O6_source_rank_better_than_leakage",
+        "established": 1,
+        "evidence": "C30 source rank AUC=0.658600107451297, selection leakage AUC=0.49373160501299335"
+      },
+      {
+        "case": "O7_target_unlabeled_pooled_field_better",
+        "established": 0,
+        "evidence": "target-unlabeled field is local-pair/non-source-only, not candidate-level global field"
+      },
+      {
+        "case": "O8_local_misdirection_reflects_global_field_conflict",
+        "established": 0,
+        "evidence": "local representative fraction=0.7894736842105263"
+      },
+      {
+        "case": "O9_local_misdirection_tail_only",
+        "established": 0,
+        "evidence": "tail-only fraction=0.0"
+      },
+      {
+        "case": "O10_inconclusive_due_to_field_availability",
+        "established": 0,
+        "evidence": "candidate_registry_complete=True"
+      }
+    ],
+    "cases": [
+      "O2_global_leakage_target_decoupling",
+      "O5_source_audit_leakage_no_better",
+      "O6_source_rank_better_than_leakage"
+    ],
+    "established": {
+      "O10_inconclusive_due_to_field_availability": false,
+      "O1_global_leakage_target_alignment": false,
+      "O2_global_leakage_target_decoupling": true,
+      "O3_global_leakage_target_anti_alignment": false,
+      "O4_low_leakage_not_good_enriched": false,
+      "O5_source_audit_leakage_no_better": true,
+      "O6_source_rank_better_than_leakage": true,
+      "O7_target_unlabeled_pooled_field_better": false,
+      "O8_local_misdirection_reflects_global_field_conflict": false,
+      "O9_local_misdirection_tail_only": false
+    },
+    "evidence": {
+      "O10_inconclusive_due_to_field_availability": "candidate_registry_complete=True",
+      "O1_global_leakage_target_alignment": "selection_leakage_mean_auc=0.49373160501299335",
+      "O2_global_leakage_target_decoupling": "selection_leakage_mean_auc=0.49373160501299335",
+      "O3_global_leakage_target_anti_alignment": "selection_leakage_mean_auc=0.49373160501299335",
+      "O4_low_leakage_not_good_enriched": "max_enrichment joint/pareto/robust=0.9182126539374492/1.2691476733143399/2.412280701754386",
+      "O5_source_audit_leakage_no_better": "audit_mean_auc_minus_selection=0.00444529306297986",
+      "O6_source_rank_better_than_leakage": "C30 source rank AUC=0.658600107451297, selection leakage AUC=0.49373160501299335",
+      "O7_target_unlabeled_pooled_field_better": "target-unlabeled field is local-pair/non-source-only, not candidate-level global field",
+      "O8_local_misdirection_reflects_global_field_conflict": "local representative fraction=0.7894736842105263",
+      "O9_local_misdirection_tail_only": "tail-only fraction=0.0"
+    }
+  }
+}

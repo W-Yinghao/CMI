@@ -1,0 +1,11 @@
+case,established,evidence
+O1_global_leakage_target_alignment,0,selection_leakage_mean_auc=0.49373160501299335
+O2_global_leakage_target_decoupling,1,selection_leakage_mean_auc=0.49373160501299335
+O3_global_leakage_target_anti_alignment,0,selection_leakage_mean_auc=0.49373160501299335
+O4_low_leakage_not_good_enriched,0,max_enrichment joint/pareto/robust=0.9182126539374492/1.2691476733143399/2.412280701754386
+O5_source_audit_leakage_no_better,1,audit_mean_auc_minus_selection=0.00444529306297986
+O6_source_rank_better_than_leakage,1,"C30 source rank AUC=0.658600107451297, selection leakage AUC=0.49373160501299335"
+O7_target_unlabeled_pooled_field_better,0,"target-unlabeled field is local-pair/non-source-only, not candidate-level global field"
+O8_local_misdirection_reflects_global_field_conflict,0,local representative fraction=0.7894736842105263
+O9_local_misdirection_tail_only,0,tail-only fraction=0.0
+O10_inconclusive_due_to_field_availability,0,candidate_registry_complete=True
