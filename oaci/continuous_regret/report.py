@@ -8,7 +8,7 @@ import os
 
 import numpy as np
 
-from . import (artifact_loader, endpoint_utility, gauge_locality, local_direction, margin_free_taxonomy,
+from . import (artifact_hygiene, artifact_loader, endpoint_utility, gauge_locality, local_direction, margin_free_taxonomy,
                schema, selected_pair_regret, source_objective_components)
 
 
@@ -289,9 +289,11 @@ def _write_artifacts(res, out_dir):
     open(os.path.join(out_dir, "C34_CONTINUOUS_LOCAL_REGRET_AUDIT.md"), "w").write(md + "\n")
     open(os.path.join(out_dir, "C34_SOURCE_OBJECTIVE_DIRECTION.md"), "w").write(src + "\n")
     open(os.path.join(out_dir, "C34_MARGIN_FREE_BOUNDARY_CHECK.md"), "w").write(margin + "\n")
-    json.dump(res, open(os.path.join(out_dir, "C34_CONTINUOUS_LOCAL_REGRET_AUDIT.json"), "w"),
+    table_dir = os.path.join(out_dir, "c34_tables")
+    write_tables(res, table_dir)
+    compact = artifact_hygiene.compact_payload(res, table_dir)
+    json.dump(compact, open(os.path.join(out_dir, "C34_CONTINUOUS_LOCAL_REGRET_AUDIT.json"), "w"),
               indent=2, sort_keys=True, default=str)
-    write_tables(res, os.path.join(out_dir, "c34_tables"))
 
 
 def main(argv=None):
