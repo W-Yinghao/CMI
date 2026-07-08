@@ -1,0 +1,10 @@
+score,field,orientation,scope,candidate_level_available,topk_eligible,selected_only,non_source_only,diagnostic_ceiling,n_candidate_rows,n_available,proxy_used,note
+actual_oaci_selector,,selected_only,actual_selected_top1_only,0,0,1,0,0,3804,0,0,actual selected candidate only; not converted into a candidate ranking
+selection_leakage_point,selection_leakage_point,lower,candidate_level_source,1,1,0,0,0,3804,3804,0,C41 global leakage field
+source_audit_leakage,audit_leakage_point,lower,candidate_level_source,1,1,0,0,0,3804,3804,0,source-audit leakage point
+R_src,R_src,lower,candidate_level_source,1,1,0,0,0,3804,3804,0,source risk; lower is better for actionability audit
+C19_robust_core_score,c19_robust_core_score,higher,candidate_level_source,1,1,0,0,0,3804,3804,0,frozen C19 robust-core probe score
+C30_source_rank_score,source_rank_score,higher,candidate_level_source,1,1,0,0,0,3804,3804,0,"same frozen score, interpreted as C30 within-target source-rank axis"
+target_unlabeled_R3,,higher,aggregate_or_local_non_source_only,0,0,0,1,0,3804,0,0,not an available candidate-level ranking field for C42; no proxy used
+target_grouped_diagnostic_ceiling,target_utility_oracle_score,higher,candidate_level_target_labeled_ceiling,1,1,0,1,1,3804,3804,0,target-utility oracle ceiling for regret scale only; not a method
+random_trajectory_conditioned,,random,trajectory_conditioned_baseline,0,0,0,0,0,3804,0,0,within-trajectory random baseline
