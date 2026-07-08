@@ -1,0 +1,9 @@
+check,passed,finding
+locked_witness_replayed,1,C51 replays the C50 q20/min_n=1 witness and does not search for a new ceiling.
+self_neighbor_excluded,1,Within-target distance matrices keep query rows excluded from their own neighborhoods.
+target_labels_quarantined,1,"Label shuffles and score transforms are diagnostic controls, not deployable rules."
+null_calibration_complete,1,N0-N4 null summaries are emitted for all required statistics.
+support_grid_complete,1,Support ablation covers q10/q20/q30/q40 and min_n 1/2/3/5.
+source_score_attribution_complete,1,"Available source score families are audited with sign, monotone, and grouped diagnostic controls."
+no_selection_artifact,1,Tables omit selection identifiers and recommendation fields.
+no_deployable_claim,1,C51 is reported as failure attribution and source-describability diagnostics only.
