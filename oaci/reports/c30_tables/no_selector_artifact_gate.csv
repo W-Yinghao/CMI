@@ -1,0 +1,9 @@
+check,passed
+config_hash_unchanged,True
+no_probe_tuning_no_training,True
+factor_families_frozen_no_selection,True
+target_labels_diagnostic_only,True
+rank_plus_gauge_labeled_diagnostic_upper_bound,True
+c19_not_called_target_free_detector,True
+no_selected_checkpoint_artifact,True
+diagnostic_only_non_deployable,True

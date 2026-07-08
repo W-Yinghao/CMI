@@ -1,0 +1,4 @@
+component,supported
+within_target_ranking,True
+cross_target_gauge,False
+deployment_selector,False

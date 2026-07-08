@@ -1,0 +1,5 @@
+family,best_rank_strength,mean_rank_strength,carries_rank
+source_risk,0.1244260681171579,0.1088518939377123,True
+source_calibration,0.08944309148099994,0.0535040352725073,False
+source_leakage,0.03947103964392462,0.03069253976023595,False
+source_logit_geometry,0.12274499404781092,0.04575813089931076,True

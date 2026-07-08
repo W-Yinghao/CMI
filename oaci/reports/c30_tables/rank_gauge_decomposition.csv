@@ -1,0 +1,6 @@
+axis,auc
+within_target_rank(score),0.658600107451297
+pooled_gauge(score),0.5431489798181415
+gauge_centered_pooled,0.6337666333998669
+rank_gauge_orthogonality,-2.0649695110622427e-17
+gauge_variance_fraction,0.5360828778708246

@@ -1,0 +1,222 @@
+{
+  "c19_attribution": {
+    "attribution": "C19's in-regime positive is the WITHIN-TARGET RANK axis (AUC 0.659); the cross-target GAUGE axis is NOT supported (pooled 0.543 fails; the gauge is source-unobservable per C23-C29). C19 is a weak within-target competence ranking signal, NOT a target-free detector and NOT a deployment selector.",
+    "cross_target_gauge_supported": false,
+    "deployment_selector_established": false,
+    "gauge_centered_pooled_auc": 0.6337666333998669,
+    "pooled_auc": 0.5431489798181415,
+    "within_target_auc": 0.658600107451297,
+    "within_target_ranking_supported": true
+  },
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "mode": "in_regime",
+  "rank_gauge": {
+    "gauge_centered_pooled_auc": 0.6337666333998669,
+    "gauge_variance_fraction": 0.5360828778708246,
+    "note": "within-target RANK axis AUC 0.659 (real) is orthogonal (corr -0.000) to the per-target GAUGE; pooled fails (0.543) but target-centering recovers (0.634) -> two-axis separation is real",
+    "rank_gauge_orthogonality": -2.0649695110622427e-17,
+    "score_pooled_auc": 0.5431489798181415,
+    "score_within_target_auc": 0.658600107451297,
+    "two_axis_separation": true
+  },
+  "residualization": {
+    "R_src_within_target_auc_ctrl_score": 0.46831372477203126,
+    "gauge_contaminates_rank": false,
+    "note": "the within-target rank SURVIVES controlling for R_src (rank strength 0.159 -> 0.113) -> the rank axis is separable, not a gauge/source-risk artifact",
+    "rank_strength": 0.15860010745129705,
+    "rank_strength_ctrl_R_src": 0.11284107270934429,
+    "rank_survives_R_src_control": true,
+    "score_within_target_auc": 0.658600107451297,
+    "score_within_target_auc_ctrl_R_src": 0.6128410727093443
+  },
+  "source_error_alignment": {
+    "R_src_ctrl_source_nll_strength": 0.016354212447165506,
+    "R_src_n_above_half": 2,
+    "R_src_n_targets": 9,
+    "R_src_per_target_auc": {
+      "1": 0.6363839285714286,
+      "2": 0.3549707602339181,
+      "3": 0.4142857142857143,
+      "4": 0.37235621521335804,
+      "5": 0.35015997156061146,
+      "6": 0.1831314072693383,
+      "7": 0.28662280701754383,
+      "8": 0.5645675079637343,
+      "9": 0.21768707482993196
+    },
+    "R_src_rank_transfers": false,
+    "R_src_sign_consistency": 0.7777777777777778,
+    "R_src_target_competence_rank_strength": 0.1244260681171579,
+    "R_src_vs_source_nll_corr": 0.9845000966151064,
+    "R_src_vs_target_label_corr": -0.1748271956529539,
+    "note": "[RED-TEAM] 'tracks source error' is a TAUTOLOGY: R_src IS the source NLL/CE risk (corr 0.985); residualizing R_src on the source NLL leaves strength 0.016 (~chance) -> R_src has no target-competence content beyond source risk. And the R_src within-target rank does NOT transfer: per-target AUC SIGN-FLIPS (7/9 targets on the majority side; sign_consistency 0.78), so the 0.124 mean strength MASKS a target-LOCAL, non-transferable signal. What survives: R_src is NOT a calibrated/deployable target-competence score.",
+    "rank_tracks_source_error_only": true,
+    "score_rank_strength": 0.15860010745129705,
+    "tautological_source_error_identity": true,
+    "tracks_source_error": true
+  },
+  "source_rank_family": {
+    "best_single_family_strength": 0.1244260681171579,
+    "distributed_residual": true,
+    "families": {
+      "source_calibration": {
+        "best_rank_strength": 0.08944309148099994,
+        "carries_rank": false,
+        "mean_rank_strength": 0.0535040352725073,
+        "per_feature": [
+          {
+            "feature": "feat__source_guard_ece",
+            "rank_strength": 0.08944309148099994,
+            "within_target_auc": 0.5894430914809999
+          },
+          {
+            "feature": "feat__source_audit_ece",
+            "rank_strength": 0.03105724417004474,
+            "within_target_auc": 0.5310572441700447
+          },
+          {
+            "feature": "feat__source_guard_entropy",
+            "rank_strength": 0.008796899704830219,
+            "within_target_auc": 0.4912031002951698
+          },
+          {
+            "feature": "feat__source_audit_entropy",
+            "rank_strength": 0.06699501832245058,
+            "within_target_auc": 0.4330049816775494
+          },
+          {
+            "feature": "feat__source_guard_conf_on_wrong",
+            "rank_strength": 0.0523028401235035,
+            "within_target_auc": 0.4476971598764965
+          },
+          {
+            "feature": "feat__source_audit_conf_on_wrong",
+            "rank_strength": 0.07242911783321482,
+            "within_target_auc": 0.5724291178332148
+          }
+        ]
+      },
+      "source_leakage": {
+        "best_rank_strength": 0.03947103964392462,
+        "carries_rank": false,
+        "mean_rank_strength": 0.03069253976023595,
+        "per_feature": [
+          {
+            "feature": "feat__selection_leakage_point",
+            "rank_strength": 0.03947103964392462,
+            "within_target_auc": 0.5394710396439246
+          },
+          {
+            "feature": "feat__audit_leakage_point",
+            "rank_strength": 0.021914039876547275,
+            "within_target_auc": 0.5219140398765473
+          }
+        ]
+      },
+      "source_logit_geometry": {
+        "best_rank_strength": 0.12274499404781092,
+        "carries_rank": true,
+        "mean_rank_strength": 0.04575813089931076,
+        "per_feature": [
+          {
+            "feature": "feat__source_guard_confidence",
+            "rank_strength": 0.005453085218176779,
+            "within_target_auc": 0.5054530852181768
+          },
+          {
+            "feature": "feat__source_guard_margin",
+            "rank_strength": 0.012867663195520351,
+            "within_target_auc": 0.5128676631955204
+          },
+          {
+            "feature": "feat__source_guard_logit_norm",
+            "rank_strength": 0.010080980581353094,
+            "within_target_auc": 0.5100809805813531
+          },
+          {
+            "feature": "feat__source_guard_nll",
+            "rank_strength": 0.12274499404781092,
+            "within_target_auc": 0.3772550059521891
+          },
+          {
+            "feature": "feat__source_audit_confidence",
+            "rank_strength": 0.06659769959637485,
+            "within_target_auc": 0.5665976995963748
+          },
+          {
+            "feature": "feat__source_audit_margin",
+            "rank_strength": 0.07032886499117852,
+            "within_target_auc": 0.5703288649911785
+          },
+          {
+            "feature": "feat__source_audit_logit_norm",
+            "rank_strength": 0.06697627077018775,
+            "within_target_auc": 0.5669762707701878
+          },
+          {
+            "feature": "feat__source_audit_nll",
+            "rank_strength": 0.01101548879388381,
+            "within_target_auc": 0.4889845112061162
+          }
+        ]
+      },
+      "source_risk": {
+        "best_rank_strength": 0.1244260681171579,
+        "carries_rank": true,
+        "mean_rank_strength": 0.1088518939377123,
+        "per_feature": [
+          {
+            "feature": "R_src",
+            "rank_strength": 0.1244260681171579,
+            "within_target_auc": 0.3755739318828421
+          },
+          {
+            "feature": "train_surrogate",
+            "rank_strength": 0.09327771975826671,
+            "within_target_auc": 0.5932777197582667
+          }
+        ]
+      }
+    },
+    "families_ranked_by_strength": [
+      "source_risk",
+      "source_logit_geometry",
+      "source_calibration",
+      "source_leakage"
+    ],
+    "gap_within_bootstrap_noise": true,
+    "note": "[RED-TEAM] the within-target rank's largest single carrier is the source_risk family (strength 0.124), but the score-vs-best-family gap (0.034) is WITHIN 9-target bootstrap noise -> NOT 'beats any family'. Distributedness holds in the RESIDUAL sense (score retains strength 0.113 after removing R_src). The MULTIVARIATE score is direction-CONSISTENT across targets (sign_consistency 1.00, transfers) while the top single family is target-LOCAL (sign-flips) -> the transferable within-target rank is DISTRIBUTED, not a single source family.",
+    "score_ctrl_R_src_strength": 0.11284107270934429,
+    "score_minus_best_family_gap": 0.03417403933413915,
+    "score_rank_strength": 0.15860010745129705,
+    "score_rank_transfers": true,
+    "score_sign_consistency": 1.0,
+    "top_family": "source_risk",
+    "top_family_rank_transfers": false,
+    "top_family_sign_consistency": 0.7777777777777778
+  },
+  "taxonomy": {
+    "R_src_rank_transfers": false,
+    "diagnostic_only_non_deployable": true,
+    "distributed_residual": true,
+    "established": [
+      "G1_two_axis_rank_gauge_separation",
+      "G2_source_risk_carries_rank",
+      "G4_leakage_not_rank_carrier",
+      "G5_rank_signal_tracks_source_error_only",
+      "G7_unexplained_rank_residual"
+    ],
+    "gauge_contaminates_rank": false,
+    "interpretation": "the within-target RANK axis and the target-specific GAUGE axis are SEPARABLE (orthogonal; rank survives gauge control) -> the competence signal is two-axis.",
+    "leakage_carries": false,
+    "primary_case": "G1_two_axis_rank_gauge_separation",
+    "rank_tracks_source_error_only_TAUTOLOGICAL": true,
+    "red_team_verified": true,
+    "score_rank_transfers": true,
+    "source_calibration_carries": false,
+    "source_risk_carries": true,
+    "top_family": "source_risk",
+    "two_axis_separation": true
+  }
+}
