@@ -1,0 +1,16 @@
+check,passed
+config_hash_unchanged,True
+c37_exact_ucl_pairs_imported,True
+actual_selector_score_name_frozen,True
+selection_ucl_not_proxied,True
+source_audit_not_used_as_ucl_proxy,True
+point_not_used_as_ucl_proxy,True
+p0_identity_gate_passed_before_component_claims,True
+atom_unavailability_disclosed,True
+target_endpoint_labels_diagnostic_only,True
+target_gauge_non_source_only,True
+no_training_no_reinference,True
+no_selected_checkpoint_method_artifact,True
+no_monolithic_large_json,True
+finite_filtering_applied,True
+diagnostic_only_non_deployable,True

@@ -1,0 +1,42 @@
+scope,key,n_pairs,ucl_prefers_selected_count,mean_ucl_delta_better_minus_selected,mean_point_delta_better_minus_selected,support_edge_driver,note
+regime,S0_full_support,38,38,0.1103589053369144,0.1424865218550187,0,regime-level exact UCL preference is selected for every row
+regime,S2_rare_cells,38,38,0.1103589053369144,0.1424865218550187,0,regime-level exact UCL preference is selected for every row
+regime,S3_nonestimable_cells,38,38,0.1103589053369144,0.1424865218550187,0,regime-level exact UCL preference is selected for every row
+pair_key_across_regimes,0|1|0|15|16,3,3,0.18161744302517868,0.16375864111347316,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|1|1|14|13,3,3,0.07194884043731697,0.08401434822859866,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|2|0|2|1,3,3,0.1020128418707702,0.1665319143031132,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|2|1|0|1,3,3,0.037730449232161956,0.06267554697388711,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|3|0|0|1,3,3,0.06282225040515188,0.04941994700014396,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|3|1|4|10,3,3,0.13528854197183038,0.21159165581549577,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|4|1|2|1,3,3,0.04810739005239473,0.08921276927072941,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|5|0|19|18,3,3,0.15142964480228116,0.21738581713839145,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|6|1|20|19,3,3,0.09338254039849825,0.10749488914274385,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|7|1|5|0,3,3,0.19423986020575046,0.27387454446702897,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|8|0|17|15,3,3,0.09004379201368362,0.1347767932987236,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|9|0|19|18,3,3,0.1411641398861585,0.1937234544072225,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,0|9|1|12|13,3,3,0.02832701085729261,0.13383752346838917,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|1|0|6|5,3,3,0.15448749866754974,0.18555515391787925,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|1|1|16|15,3,3,0.10563229155547882,0.07262082652058766,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|2|0|18|17,3,3,0.25124017799897413,0.3699335238194703,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|2|1|2|1,3,3,0.11783304230562663,0.14826715867758367,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|3|0|8|11,3,3,0.18356414599146964,0.20083372492846485,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|3|1|11|3,3,3,0.13134369036894777,0.21573926378584574,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|5|1|17|16,3,3,0.016462711005816866,0.005247057996410565,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|6|0|18|17,3,3,0.09616374966092245,0.060212535596923855,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|6|1|6|5,3,3,0.019622880876281945,0.012957627084799528,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|7|1|15|14,3,3,0.06523262630225846,0.0778519865278483,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|8|0|15|14,3,3,0.07970275381564296,0.09666820869348447,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|8|1|21|20,3,3,0.16555315865748654,0.23117207801827455,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,1|9|1|14|16,3,3,0.21921888089990937,0.39623921701250076,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|1|1|1|0,3,3,0.20382073005577217,0.2618609464463939,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|2|1|0|1,3,3,0.018843645303830314,0.02855699918017507,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|3|0|15|16,3,3,0.1280876365521597,0.09110461319152496,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|3|1|5|4,3,3,0.03479671195522238,0.06377832164168429,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|4|0|23|21,3,3,0.0009915945275955629,0.0019176236934286273,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|4|1|14|12,3,3,0.0640612418865214,0.1594415910441751,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|5|0|17|15,3,3,0.20122206238144802,0.2900655638438261,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|6|0|21|20,3,3,0.09967622002186194,0.09585078372032196,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|7|0|20|18,3,3,0.20595224608748897,0.2045184360719018,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|7|1|19|18,3,3,0.19511589343301794,0.18122716198881927,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|8|0|10|11,3,3,0.0942209849334601,0.07222574350995925,0,same selected/better pair repeated across S0/S2/S3 regimes
+pair_key_across_regimes,2|9|1|29|23,3,3,0.0026770823995341253,0.0023438389504861767,0,same selected/better pair repeated across S0/S2/S3 regimes

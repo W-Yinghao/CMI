@@ -1,0 +1,19 @@
+component,family,n_available,n_total,availability_fraction,status,source_artifact,trace_use,target_labels_loaded_for_replay,note
+selection_leakage_point,selection_leakage,114,114,1.0,available,c37_tables/selected_vs_better_exact_ucl.csv,classification,0,Exact point estimates for selected and better candidates.
+selection_leakage_ucl,selection_leakage,114,114,1.0,available,c37_tables/selected_vs_better_exact_ucl.csv,classification,0,Exact bootstrap UCLs recovered by C37.
+selection_bootstrap_width,selection_leakage,114,114,1.0,derived,C37 exact UCL minus point,classification,0,Width is defined as UCL - point with frozen orientation.
+source_audit_leakage_point,source_audit,114,114,1.0,available,c36_tables/selected_vs_better_selector_trace.csv,classification,0,"Source-audit leakage point counterpart is available, not used as UCL proxy."
+source_audit_leakage_ucl,source_audit,0,114,0.0,unavailable,not persisted,boundary,0,No source-audit UCL is cached; C38 uses source-audit point only as an audit split.
+source_guard_endpoints,source_endpoint,114,114,1.0,available,c36_tables/selected_vs_better_selector_trace.csv,diagnostic,0,Guard bAcc/NLL/ECE endpoint deltas are available.
+source_audit_endpoints,source_endpoint,114,114,1.0,available,c36_tables/selected_vs_better_selector_trace.csv,diagnostic,0,Audit bAcc/NLL/ECE endpoint deltas are available.
+source_pareto_status,source_geometry,114,114,1.0,available,c37_tables/source_pareto_after_ucl_recovery.csv,diagnostic,0,C37 recomputed source-Pareto conflict after exact UCL recovery.
+target_utility_cone_label,target_endpoint,114,114,1.0,available_diagnostic_only,c35_tables/preference_robust_case_audit.csv,diagnostic,0,Target endpoint labels are imported only as diagnostic C35 labels.
+target_gauge_delta,target_gauge,114,114,1.0,available_diagnostic_only,c34_tables/selected_vs_continuous_better_pairs.csv,diagnostic,0,C34 local target gauge delta is pair-local but non-source-only.
+target_class_conditioned_confidence_factor,target_gauge,28,28,1.0,global_available_not_pair_local,c27_tables/logit_factor_registry.csv,boundary,0,"C27 identifies the class-conditioned confidence factor globally, not per C38 leakage atom."
+target_representation_projection_bias,target_gauge,4,4,1.0,global_available_not_pair_local,c29_tables/rep_head_artifact_availability.csv,boundary,0,"C29 identifies representation-projection origin globally, not per local leakage atom."
+fold_probe_leakage_atoms,leakage_atom,0,114,0.0,unavailable,not persisted,boundary,0,No fold/probe atom contribution table is cached.
+class_conditioned_leakage_atoms,leakage_atom,0,114,0.0,unavailable,not persisted,boundary,0,No class-conditioned leakage atom contribution table is cached.
+domain_group_leakage_atoms,leakage_atom,0,114,0.0,unavailable,not persisted,boundary,0,No domain/group leakage atom contribution table is cached.
+support_cell_leakage_atoms,leakage_atom,0,114,0.0,unavailable,not persisted,boundary,0,No support-cell leakage atom contribution table is cached.
+c37_p0_selected_identity_hash_gate,integrity,3,3,1.0,passed,c37_tables/selected_ucl_identity_gate.csv,gate,0,Fold/bootstrap plan hashes matched and selected point/UCL reproduced exactly for P0.
+c37_replay_store_and_plan_resolution,integrity,38,38,1.0,available,c37_tables/selector_trace_recovery_manifest.csv,gate,0,"Replay store, fold plan, bootstrap plan, and support graph resolve for 38/38 unique pairs."
