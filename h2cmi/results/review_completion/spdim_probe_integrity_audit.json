@@ -1,0 +1,23 @@
+{
+  "probe_pass": true,
+  "target_label_leakage_detected": false,
+  "fallback_prediction_detected": false,
+  "split_mismatch_detected": false,
+  "pretrained_weight_detected": false,
+  "identical_result_explained": true,
+  "approve_bnci001_expansion": true,
+  "dataset": "BNCI2014_001",
+  "source_seed": 0,
+  "runner_commit": "54e855b18f765e6e6f043df146a261266383733e",
+  "external_spdim_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+  "probe_results_sha256": "2637cb87095ddd188153516f8a9567ec83fcc71fffccf2e7146955fb6789ca58",
+  "target_subjects": [1, 9],
+  "rows_checked": 8,
+  "eval_trials_per_subject": {
+    "1": {"n_eval": 72, "class_counts_eval": [36, 36]},
+    "9": {"n_eval": 72, "class_counts_eval": [36, 36]}
+  },
+  "prediction_hash_available": false,
+  "logits_hash_available": false,
+  "notes": "P4 did not persist prediction/logit hashes; P5 must persist prediction_hash and logits_hash per row."
+}

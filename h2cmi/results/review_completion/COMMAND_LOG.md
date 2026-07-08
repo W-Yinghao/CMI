@@ -41,3 +41,23 @@
   `sacct` is not used on this server; completion was accepted by final
   `squeue` absence, empty stderr, existing stdout, artifact parse checks,
   expected row count, and checksum validation.
+- Per PM P4.1, performed a CPU/artifact integrity audit of the existing SPDIM
+  feasibility probe and wrote
+  `h2cmi/results/review_completion/spdim_probe_integrity_audit.md` plus
+  `h2cmi/results/review_completion/spdim_probe_integrity_audit.json`. The gate
+  passed: no target-label leakage, fallback prediction, split mismatch,
+  pretrained-weight use, or third-party vendoring was detected; the repeated
+  `0.8055555555555556` values were explained as real 58/72 evaluation outcomes.
+- Per PM P5, ran only the bounded BNCI2014_001 expansion: seed `0`, all 9
+  BNCI2014_001 target subjects, and methods `source_only_tsmnet`, `rct`,
+  `spdim_geodesic`, `spdim_bias`. Submitted Slurm job `888854` with
+  `sbatch h2cmi/results/review_completion/slurm/spdim_bnci001.slurm`. No full
+  W1 SPDIM sweep, Cho2017, Lee2019-MI, extra seeds, geometry stress,
+  orthogonal-score implementation, or TeX edit was performed.
+- P5 completion validation used `squeue` only. Final `squeue -j 888854`
+  returned no job row. Stderr was empty, stdout existed, the result CSV parsed,
+  all 36 expected rows were present and `status=ok`, every row carried
+  `prediction_hash` and `logits_hash`, and the result CSV SHA-256 is
+  `b0ccaaa05c00ca9209224a728d39bbdc71b17c7989c28673257fb89886e43a7e`.
+  Machine-readable summary:
+  `h2cmi/results/review_completion/spdim_bnci001_summary.json`.

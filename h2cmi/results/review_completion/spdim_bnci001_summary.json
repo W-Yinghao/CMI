@@ -1,0 +1,76 @@
+{
+  "status": "pass",
+  "dataset": "BNCI2014_001",
+  "source_seed": 0,
+  "target_subjects": [1, 2, 3, 4, 5, 6, 7, 8, 9],
+  "methods": ["source_only_tsmnet", "rct", "spdim_geodesic", "spdim_bias"],
+  "expected_rows": 36,
+  "observed_rows": 36,
+  "all_rows_ok": true,
+  "csv_parse": true,
+  "row_count_valid": true,
+  "target_method_coverage_valid": true,
+  "prediction_hashes_present": true,
+  "logits_hashes_present": true,
+  "target_label_leakage_detected": false,
+  "fallback_prediction_detected": false,
+  "split_mismatch_detected": false,
+  "pretrained_weight_detected": false,
+  "third_party_vendored": false,
+  "official_pretrained_weights_used": false,
+  "full_w1_spdim_sweep": false,
+  "cho2017_run": false,
+  "lee2019_mi_run": false,
+  "additional_seeds_run": false,
+  "slurm": {
+    "job_id": "888854",
+    "submit_command": "sbatch h2cmi/results/review_completion/slurm/spdim_bnci001.slurm",
+    "monitor_policy": "squeue_only",
+    "sacct_used": false,
+    "final_squeue_absent": true,
+    "stderr_status": "empty",
+    "stdout_status": "exists"
+  },
+  "artifact_paths": {
+    "protocol": "h2cmi/results/review_completion/spdim_bnci001_protocol.md",
+    "results_csv": "h2cmi/results/review_completion/spdim_bnci001_results.csv",
+    "audit": "h2cmi/results/review_completion/spdim_bnci001_audit.md",
+    "summary_json": "h2cmi/results/review_completion/spdim_bnci001_summary.json",
+    "stdout": "h2cmi/results/review_completion/slurm/logs/spdim-bnci001-888854.out",
+    "stderr": "h2cmi/results/review_completion/slurm/logs/spdim-bnci001-888854.err"
+  },
+  "checksums": {
+    "results_csv_sha256": "b0ccaaa05c00ca9209224a728d39bbdc71b17c7989c28673257fb89886e43a7e",
+    "stdout_sha256": "e94d972082eae5095c27e7a6014287bd1b6b67705b4a42972abbdde6ae7a5068",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "mean_bacc_by_method": {
+    "source_only_tsmnet": 0.6265432098765432,
+    "rct": 0.7299382716049383,
+    "spdim_geodesic": 0.7237654320987654,
+    "spdim_bias": 0.7222222222222222
+  },
+  "mean_acc_by_method": {
+    "source_only_tsmnet": 0.6265432098765432,
+    "rct": 0.7299382716049383,
+    "spdim_geodesic": 0.7237654320987654,
+    "spdim_bias": 0.7222222222222222
+  },
+  "unique_prediction_hashes_by_method": {
+    "source_only_tsmnet": 8,
+    "rct": 9,
+    "spdim_geodesic": 9,
+    "spdim_bias": 9
+  },
+  "unique_logits_hashes_by_method": {
+    "source_only_tsmnet": 9,
+    "rct": 9,
+    "spdim_geodesic": 9,
+    "spdim_bias": 9
+  },
+  "runner_commit_at_launch": "a749ba953b7f625cf713ab6673a569264c38af6a",
+  "runner_dirty_allowed": true,
+  "runner_diff_sha256_at_launch": "870ca4e40c417a0fbd80ee63e9833e3cc22bb727388fa350f7eb21d748e9ca82",
+  "external_spdim_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+  "p4_1_integrity_approved": true
+}
