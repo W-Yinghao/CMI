@@ -71,11 +71,33 @@ def score_candidate(candidate: SurgeryCandidate, eps: float = 1e-8) -> float:
     return float(candidate.leakage_drop * candidate.stability / (eps + risk))
 
 
+def target_eval_warnings(candidate: SurgeryCandidate, thresholds: P0Thresholds) -> list[str]:
+    """Diagnostic-only target-label warnings.
+
+    These warnings must not affect candidate selection. They exist to support
+    post-hoc scientific continuation decisions when held-out target labels are
+    available for evaluation.
+    """
+
+    if candidate.target_bacc_drop is None:
+        return []
+    if candidate.target_bacc_drop > thresholds.max_target_bacc_drop:
+        return [
+            f"target_bacc_drop {candidate.target_bacc_drop:.3f} > "
+            f"{thresholds.max_target_bacc_drop:.3f} (evaluation-only)"
+        ]
+    return []
+
+
 def decide_p0(
     candidate: SurgeryCandidate,
     thresholds: P0Thresholds,
 ) -> tuple[SurgeryDecision, list[str]]:
-    """Apply the frozen P0 gate."""
+    """Apply the frozen P0 source-side gate.
+
+    Target labels, when present in the JSON, are diagnostic-only and are not
+    permitted to change ACCEPT/ABSTAIN/REPORT_ONLY.
+    """
 
     reasons: list[str] = []
     if candidate.leakage_drop_frac < thresholds.min_leakage_drop_frac:
@@ -87,11 +109,6 @@ def decide_p0(
         reasons.append(
             f"source_bacc_drop {candidate.source_bacc_drop:.3f} > "
             f"{thresholds.max_source_bacc_drop:.3f}"
-        )
-    if candidate.target_bacc_drop is not None and candidate.target_bacc_drop > thresholds.max_target_bacc_drop:
-        reasons.append(
-            f"target_bacc_drop {candidate.target_bacc_drop:.3f} > "
-            f"{thresholds.max_target_bacc_drop:.3f}"
         )
     if candidate.r3_delta > thresholds.max_r3_delta:
         reasons.append(f"r3_delta {candidate.r3_delta:.3f} > {thresholds.max_r3_delta:.3f}")

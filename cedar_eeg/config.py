@@ -27,6 +27,8 @@ class P0Thresholds:
 
     min_leakage_drop_frac: float = 0.30
     max_source_bacc_drop: float = 0.01
+    # Diagnostic-only when target labels are present. This must not affect mask
+    # selection.
     max_target_bacc_drop: float = 0.01
     max_r3_delta: float = 0.0
     max_random_control_drop_frac: float = 0.05

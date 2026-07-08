@@ -24,7 +24,7 @@ from cedar_eeg.surgery.latent_mask import (
     mask_from_drop_dims,
     rank_latent_dimensions,
 )
-from cedar_eeg.surgery.selection import SurgeryCandidate, decide_p0, score_candidate
+from cedar_eeg.surgery.selection import SurgeryCandidate, decide_p0, score_candidate, target_eval_warnings
 
 
 def _get_first(data: np.lib.npyio.NpzFile, keys: tuple[str, ...], required: bool = True):
@@ -234,6 +234,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
                 "candidate": cand.to_dict(),
                 "decision": decision.value,
                 "reasons": reasons,
+                "target_eval_warnings": target_eval_warnings(cand, thresholds),
                 "utility": score_candidate(cand),
                 "leakage_report": leak_report,
             }
@@ -249,6 +250,7 @@ def run(args: argparse.Namespace) -> dict[str, object]:
         "feature_npz": str(args.feature_npz),
         "probe": args.probe,
         "n_splits": args.n_splits,
+        "groups_present": groups is not None,
         "thresholds": thresholds.__dict__,
         "baseline": {
             "leakage": base_leak_report,

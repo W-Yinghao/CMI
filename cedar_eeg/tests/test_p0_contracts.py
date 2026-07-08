@@ -5,8 +5,9 @@ import numpy as np
 from cedar_eeg.config import P0Thresholds
 from cedar_eeg.eval.noninferiority import crossfit_task_bacc
 from cedar_eeg.probes.crossfit_grouped import crossfit_conditional_domain_probe, make_folds
+from cedar_eeg.red_team import RedTeamFailure, validate_p0_result
 from cedar_eeg.surgery.latent_mask import apply_diagonal_mask, mask_from_drop_dims, rank_latent_dimensions
-from cedar_eeg.surgery.selection import SurgeryCandidate, SurgeryDecision, decide_p0
+from cedar_eeg.surgery.selection import SurgeryCandidate, SurgeryDecision, decide_p0, target_eval_warnings
 
 
 def _synthetic(seed: int = 0):
@@ -81,3 +82,73 @@ def test_p0_accepts_clean_leakage_surgery_candidate():
     decision, reasons = decide_p0(cand, P0Thresholds())
     assert decision == SurgeryDecision.ACCEPT
     assert reasons == []
+
+
+def test_target_metrics_are_diagnostic_only_for_source_decision():
+    cand = SurgeryCandidate(
+        name="drop_domain_dim",
+        dropped_units=(0,),
+        leakage_before=0.40,
+        leakage_after=0.20,
+        source_bacc_before=0.90,
+        source_bacc_after=0.895,
+        target_bacc_before=0.90,
+        target_bacc_after=0.50,
+        stability=0.95,
+        random_control_drop_frac=0.01,
+    )
+    decision, reasons = decide_p0(cand, P0Thresholds())
+    assert decision == SurgeryDecision.ACCEPT
+    assert not reasons
+    assert target_eval_warnings(cand, P0Thresholds())
+
+
+def test_red_team_rejects_target_metric_in_decision_reasons():
+    payload = {
+        "project": "CEDAR-EEG",
+        "phase": "P0_frozen_latent",
+        "groups_present": True,
+        "claim_boundary": "target metrics are evaluation-only; leakage reduction is not a target-generalization guarantee.",
+        "baseline": {"permutation_null": {"advantage_mean": 0.0}},
+        "candidates": [
+            {
+                "decision": "ABSTAIN",
+                "reasons": ["target_bacc_drop 0.2 > 0.01"],
+                "utility": 1.0,
+                "candidate": {"name": "x", "random_control_drop_frac": 0.0, "target_bacc_drop": 0.2},
+            }
+        ],
+        "selected": None,
+    }
+    try:
+        validate_p0_result(payload)
+    except RedTeamFailure:
+        return
+    raise AssertionError("red team must reject target-dependent decision reasons")
+
+
+def test_red_team_accepts_clean_p0_payload():
+    payload = {
+        "project": "CEDAR-EEG",
+        "phase": "P0_frozen_latent",
+        "groups_present": True,
+        "claim_boundary": "target metrics are evaluation-only; leakage reduction is not a target-generalization guarantee.",
+        "baseline": {"permutation_null": {"advantage_mean": 0.0}},
+        "candidates": [
+            {
+                "decision": "ACCEPT",
+                "reasons": [],
+                "utility": 2.0,
+                "candidate": {"name": "x", "random_control_drop_frac": 0.0, "target_bacc_drop": None},
+            }
+        ],
+        "selected": {
+            "decision": "ACCEPT",
+            "reasons": [],
+            "utility": 2.0,
+            "candidate": {"name": "x", "random_control_drop_frac": 0.0, "target_bacc_drop": None},
+        },
+    }
+    res = validate_p0_result(payload)
+    assert res.passed
+    assert "target_labels_quarantined_from_decisions" in res.checks

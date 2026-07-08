@@ -8,7 +8,7 @@ from .latent_mask import (
     mask_from_drop_dims,
     rank_latent_dimensions,
 )
-from .selection import SurgeryCandidate, SurgeryDecision, decide_p0, score_candidate
+from .selection import SurgeryCandidate, SurgeryDecision, decide_p0, score_candidate, target_eval_warnings
 
 __all__ = [
     "SurgeryCandidate",
@@ -21,4 +21,5 @@ __all__ = [
     "mask_from_drop_dims",
     "rank_latent_dimensions",
     "score_candidate",
+    "target_eval_warnings",
 ]

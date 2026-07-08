@@ -37,7 +37,8 @@ Continue only if all hold:
 
 - conditional leakage drops by at least 30 percent
 - source balanced accuracy drops by at most 1 point
-- target balanced accuracy, if evaluated, drops by at most 1 point
+- target balanced accuracy, if evaluated, is reported only as a continuation
+  diagnostic and never used to select the mask
 - R3 task reliance does not increase
 - matched random-subspace control is approximately zero
 - stability across folds/probes is acceptable
@@ -57,3 +58,11 @@ python -m cedar_eeg.runners.run_p0_frozen_latent \
 
 For real feature dumps, submit via Slurm instead of running the full audit on the
 login node.
+
+Run red-team validation before reporting a P0 result:
+
+```bash
+python -m cedar_eeg.runners.run_red_team \
+  --p0-json results/cedar_p0/p0.json \
+  --out results/cedar_p0/red_team.json
+```
