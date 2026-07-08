@@ -1,0 +1,3 @@
+metric,value
+source_explained_projection_survives,False
+target_residual_survives,False

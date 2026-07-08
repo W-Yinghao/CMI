@@ -1,0 +1,8 @@
+check,passed
+config_hash_unchanged,True
+no_training_no_reinference,True
+head_params_cpu_read_only,True
+no_target_labels_in_construction,True
+no_feature_selection,True
+no_selected_checkpoint_artifact,True
+diagnostic_only_non_deployable,True
