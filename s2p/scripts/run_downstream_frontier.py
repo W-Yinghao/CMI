@@ -74,8 +74,9 @@ def preprocess(x_raw, ch_idx):
 
 # ----------------------------------------------------------------------------- CBraMod cell (checkpoint or random-init)
 def unwrap(sd):
+    # S2P P1 checkpoints save {"epoch","model_state","optimizer_state",...} (run_frontier_cbramod.py:135)
     if isinstance(sd, dict):
-        for k in ("model", "state_dict", "model_state_dict"):
+        for k in ("model_state", "model", "state_dict", "model_state_dict"):
             if k in sd and isinstance(sd[k], dict):
                 sd = sd[k]; break
     return {(k[7:] if k.startswith("module.") else k): v for k, v in sd.items()}
