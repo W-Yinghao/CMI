@@ -7,7 +7,14 @@ from cedar_eeg.eval.noninferiority import crossfit_task_bacc
 from cedar_eeg.probes.crossfit_grouped import crossfit_conditional_domain_probe, make_folds
 from cedar_eeg.red_team import RedTeamFailure, validate_p0_result
 from cedar_eeg.surgery.latent_mask import apply_diagonal_mask, mask_from_drop_dims, rank_latent_dimensions
-from cedar_eeg.surgery.selection import SurgeryCandidate, SurgeryDecision, decide_p0, target_eval_warnings
+from cedar_eeg.surgery.selection import (
+    SurgeryCandidate,
+    SurgeryDecision,
+    decide_p0,
+    score_candidate,
+    source_side_rank_components,
+    target_eval_warnings,
+)
 
 
 def _synthetic(seed: int = 0):
@@ -103,23 +110,82 @@ def test_target_metrics_are_diagnostic_only_for_source_decision():
     assert target_eval_warnings(cand, P0Thresholds())
 
 
-def test_red_team_rejects_target_metric_in_decision_reasons():
-    payload = {
+def _candidate_record(
+    *,
+    name: str = "x",
+    dropped_units: tuple[int, ...] = (0,),
+    decision: str = "ACCEPT",
+    source_bacc_after: float = 0.895,
+    leakage_after: float = 0.20,
+    target_bacc_after: float | None = None,
+):
+    cand = SurgeryCandidate(
+        name=name,
+        dropped_units=dropped_units,
+        leakage_before=0.40,
+        leakage_after=leakage_after,
+        source_bacc_before=0.90,
+        source_bacc_after=source_bacc_after,
+        target_bacc_before=0.90 if target_bacc_after is not None else None,
+        target_bacc_after=target_bacc_after,
+        r3_before=0.0,
+        r3_after=0.0,
+        stability=0.95,
+        random_control_drop_frac=0.01,
+    )
+    rec = {
+        "decision": decision,
+        "reasons": [],
+        "target_eval_warnings": target_eval_warnings(cand, P0Thresholds()),
+        "utility": score_candidate(cand),
+        "candidate": cand.to_dict(),
+        "leakage_report": {"advantage_mean": 0.20, "advantage_std": 0.02, "n_folds": 3},
+        "permutation_null": {"advantage_mean": 0.0, "advantage_std": 0.01, "n_folds": 3},
+        "random_control": {"matched_k": len(dropped_units), "drop_frac": 0.01, "repeats": 5},
+        "source_utility_delta": {
+            "source_bacc_drop": cand.source_bacc_drop,
+            "r3_delta": cand.r3_delta,
+        },
+        "grouped_split": {
+            "required": True,
+            "groups_present": True,
+            "n_groups": 18,
+            "n_splits": 3,
+            "split_policy": "group_disjoint_crossfit",
+        },
+    }
+    rec["rank_key"] = source_side_rank_components(rec)
+    return rec
+
+
+def _clean_payload(candidates=None, selected=None):
+    if candidates is None:
+        candidates = [_candidate_record()]
+    if selected is None:
+        selected = candidates[0]
+    return {
         "project": "CEDAR-EEG",
         "phase": "P0_frozen_latent",
         "groups_present": True,
+        "grouped_split": {
+            "required": True,
+            "groups_present": True,
+            "n_groups": 18,
+            "n_splits": 3,
+            "split_policy": "group_disjoint_crossfit",
+        },
         "claim_boundary": "target metrics are evaluation-only; leakage reduction is not a target-generalization guarantee.",
         "baseline": {"permutation_null": {"advantage_mean": 0.0}},
-        "candidates": [
-            {
-                "decision": "ABSTAIN",
-                "reasons": ["target_bacc_drop 0.2 > 0.01"],
-                "utility": 1.0,
-                "candidate": {"name": "x", "random_control_drop_frac": 0.0, "target_bacc_drop": 0.2},
-            }
-        ],
-        "selected": None,
+        "candidates": candidates,
+        "selected": selected,
     }
+
+
+def test_red_team_rejects_target_metric_in_decision_reasons():
+    rec = _candidate_record(decision="ABSTAIN", target_bacc_after=0.50)
+    rec["reasons"] = ["target_bacc_drop 0.2 > 0.01"]
+    rec["rank_key"] = source_side_rank_components(rec)
+    payload = _clean_payload(candidates=[rec], selected=None)
     try:
         validate_p0_result(payload)
     except RedTeamFailure:
@@ -128,27 +194,43 @@ def test_red_team_rejects_target_metric_in_decision_reasons():
 
 
 def test_red_team_accepts_clean_p0_payload():
-    payload = {
-        "project": "CEDAR-EEG",
-        "phase": "P0_frozen_latent",
-        "groups_present": True,
-        "claim_boundary": "target metrics are evaluation-only; leakage reduction is not a target-generalization guarantee.",
-        "baseline": {"permutation_null": {"advantage_mean": 0.0}},
-        "candidates": [
-            {
-                "decision": "ACCEPT",
-                "reasons": [],
-                "utility": 2.0,
-                "candidate": {"name": "x", "random_control_drop_frac": 0.0, "target_bacc_drop": None},
-            }
-        ],
-        "selected": {
-            "decision": "ACCEPT",
-            "reasons": [],
-            "utility": 2.0,
-            "candidate": {"name": "x", "random_control_drop_frac": 0.0, "target_bacc_drop": None},
-        },
-    }
+    payload = _clean_payload()
     res = validate_p0_result(payload)
     assert res.passed
     assert "target_labels_quarantined_from_decisions" in res.checks
+    assert "candidate_completeness" in res.checks
+    assert "target_perturbation_invariance" in res.checks
+    assert "tie_break_determinism" in res.checks
+
+
+def test_red_team_rejects_incomplete_candidate_metadata():
+    rec = _candidate_record()
+    rec.pop("permutation_null")
+    payload = _clean_payload(candidates=[rec], selected=rec)
+    try:
+        validate_p0_result(payload)
+    except RedTeamFailure:
+        return
+    raise AssertionError("red team must reject candidates without permutation null")
+
+
+def test_red_team_rejects_target_dependent_reported_selection():
+    better = _candidate_record(name="source_best", source_bacc_after=0.895, target_bacc_after=0.40)
+    worse = _candidate_record(name="target_best", source_bacc_after=0.80, target_bacc_after=0.99)
+    payload = _clean_payload(candidates=[worse, better], selected=worse)
+    try:
+        validate_p0_result(payload)
+    except RedTeamFailure:
+        return
+    raise AssertionError("red team must reject target-driven selected candidate")
+
+
+def test_red_team_rejects_nondeterministic_tie_break():
+    a = _candidate_record(name="a")
+    b = _candidate_record(name="b")
+    payload = _clean_payload(candidates=[b, a], selected=b)
+    try:
+        validate_p0_result(payload)
+    except RedTeamFailure:
+        return
+    raise AssertionError("red team must reject selected candidate that violates lexical tie-break")

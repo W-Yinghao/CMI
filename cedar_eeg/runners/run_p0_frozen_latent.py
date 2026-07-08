@@ -13,18 +13,34 @@ from pathlib import Path
 
 import numpy as np
 
-from cedar_eeg.config import DEFAULT_P0_THRESHOLDS, DEFAULT_PROBE, P0Thresholds, parse_drop_fractions
+from cedar_eeg.config import (
+    CEDAR_01_DROP_KS,
+    DEFAULT_P0_THRESHOLDS,
+    DEFAULT_PROBE,
+    P0Thresholds,
+    parse_drop_fractions,
+    parse_drop_ks,
+)
 from cedar_eeg.eval.leakage_atlas import latent_scores_to_atlas
 from cedar_eeg.eval.noninferiority import crossfit_task_bacc, fit_source_eval_target_bacc
 from cedar_eeg.probes.crossfit_grouped import crossfit_conditional_domain_probe
 from cedar_eeg.surgery.latent_mask import (
     apply_diagonal_mask,
     candidate_drop_sets,
+    candidate_drop_sets_by_k,
     latent_dimension_scores,
     mask_from_drop_dims,
     rank_latent_dimensions,
 )
-from cedar_eeg.surgery.selection import SurgeryCandidate, decide_p0, score_candidate, target_eval_warnings
+from cedar_eeg.surgery.selection import (
+    SurgeryCandidate,
+    decide_p0,
+    score_candidate,
+    select_best_accept,
+    sort_candidate_records,
+    source_side_rank_components,
+    target_eval_warnings,
+)
 
 
 def _get_first(data: np.lib.npyio.NpzFile, keys: tuple[str, ...], required: bool = True):
@@ -107,9 +123,17 @@ def run(args: argparse.Namespace) -> dict[str, object]:
     groups = arrays["groups"]
     if groups is not None:
         groups = np.asarray(groups)
+    if groups is None and not args.allow_ungrouped_smoke:
+        raise ValueError(
+            "CEDAR_01 requires grouped split labels; pass --allow-ungrouped-smoke only for local smoke tests"
+        )
+    n_groups = int(len(np.unique(groups))) if groups is not None else 0
+    if groups is not None and n_groups < 2:
+        raise ValueError("CEDAR_01 grouped split requires at least two groups")
     n_classes = args.n_classes or int(y.max()) + 1
     n_domains = args.n_domains or int(d.max()) + 1
-    fractions = parse_drop_fractions(args.drop_fractions)
+    drop_ks = parse_drop_ks(args.drop_ks) if args.drop_ks else ()
+    fractions = parse_drop_fractions(args.drop_fractions) if not drop_ks else ()
     thresholds = P0Thresholds(
         min_leakage_drop_frac=args.min_leakage_drop_frac,
         max_source_bacc_drop=args.max_source_bacc_drop,
@@ -166,8 +190,20 @@ def run(args: argparse.Namespace) -> dict[str, object]:
 
     scores = latent_dimension_scores(z, y, d)
     ranked = rank_latent_dimensions(z, y, d)
+    if drop_ks:
+        drop_sets, skipped_drop_ks = candidate_drop_sets_by_k(ranked, drop_ks)
+    else:
+        drop_sets = candidate_drop_sets(ranked, fractions)
+        skipped_drop_ks = []
     candidates = []
-    for cand_id, (name, drop_dims) in enumerate(candidate_drop_sets(ranked, fractions)):
+    grouped_split = {
+        "required": not args.allow_ungrouped_smoke,
+        "groups_present": groups is not None,
+        "n_groups": n_groups,
+        "n_splits": int(args.n_splits),
+        "split_policy": "group_disjoint_crossfit" if groups is not None else "ungrouped_smoke_only",
+    }
+    for cand_id, (name, drop_dims) in enumerate(drop_sets):
         keep = mask_from_drop_dims(z.shape[1], drop_dims)
         z_masked = apply_diagonal_mask(z, keep)
         leak_report = crossfit_conditional_domain_probe(
@@ -188,6 +224,18 @@ def run(args: argparse.Namespace) -> dict[str, object]:
             n_classes=n_classes,
             n_splits=args.n_splits,
             seed=args.seed + 100 + cand_id,
+        )
+        perm_candidate_report = crossfit_conditional_domain_probe(
+            z_masked,
+            y,
+            d,
+            n_classes=n_classes,
+            n_domains=n_domains,
+            groups=groups,
+            n_splits=args.n_splits,
+            probe=args.probe,
+            seed=args.seed + 500 + cand_id,
+            permutation=True,
         )
         target_bacc = None
         if z_target is not None and y_target is not None and base_target_bacc is not None:
@@ -229,28 +277,55 @@ def run(args: argparse.Namespace) -> dict[str, object]:
             random_control_drop_frac=random_drop,
         )
         decision, reasons = decide_p0(cand, thresholds)
-        candidates.append(
-            {
-                "candidate": cand.to_dict(),
-                "decision": decision.value,
-                "reasons": reasons,
-                "target_eval_warnings": target_eval_warnings(cand, thresholds),
-                "utility": score_candidate(cand),
-                "leakage_report": leak_report,
-            }
-        )
+        cand_payload = cand.to_dict()
+        record = {
+            "candidate": cand_payload,
+            "decision": decision.value,
+            "reasons": reasons,
+            "target_eval_warnings": target_eval_warnings(cand, thresholds),
+            "utility": score_candidate(cand),
+            "leakage_report": leak_report,
+            "permutation_null": perm_candidate_report,
+            "random_control": {
+                "matched_k": int(len(drop_dims)),
+                "drop_frac": random_drop,
+                "repeats": int(args.random_control_repeats),
+                "exclude_selected_dims": tuple(int(x) for x in drop_dims),
+            },
+            "source_utility_delta": {
+                "source_bacc_drop": cand_payload["source_bacc_drop"],
+                "r3_delta": cand_payload["r3_delta"],
+                "source_bacc_before": cand_payload["source_bacc_before"],
+                "source_bacc_after": cand_payload["source_bacc_after"],
+            },
+            "grouped_split": grouped_split,
+        }
+        record["rank_key"] = source_side_rank_components(record)
+        candidates.append(record)
 
-    candidates = sorted(candidates, key=lambda r: float(r["utility"]), reverse=True)
-    best_accept = next((c for c in candidates if c["decision"] == "ACCEPT"), None)
+    candidates = sort_candidate_records(candidates)
+    best_accept = select_best_accept(candidates)
     dropped = set(best_accept["candidate"]["dropped_units"]) if best_accept else set()
     atlas = [r.to_dict() for r in latent_scores_to_atlas(scores, dropped=dropped)]
     result = {
         "project": "CEDAR-EEG",
         "phase": "P0_frozen_latent",
+        "audit_stage": "CEDAR_01_real_frozen_latent_shadow",
         "feature_npz": str(args.feature_npz),
         "probe": args.probe,
         "n_splits": args.n_splits,
         "groups_present": groups is not None,
+        "grouped_split": grouped_split,
+        "candidate_universe": {
+            "drop_ks_requested": tuple(int(k) for k in drop_ks),
+            "drop_fractions_requested": tuple(float(x) for x in fractions),
+            "skipped_drop_ks": skipped_drop_ks,
+            "selection_policy": "fixed_drop_ks" if drop_ks else "legacy_drop_fractions",
+            "bottom_leakage_negative_control": False,
+        },
+        "target_label_role": "quarantined_diagnostic_only",
+        "mask_selection_regime": "source_only_shadow",
+        "deployable": False,
         "thresholds": thresholds.__dict__,
         "baseline": {
             "leakage": base_leak_report,
@@ -282,6 +357,7 @@ def main() -> None:
     ap.add_argument("--seed", type=int, default=DEFAULT_PROBE.seed)
     ap.add_argument("--n-classes", type=int, default=0)
     ap.add_argument("--n-domains", type=int, default=0)
+    ap.add_argument("--drop-ks", default=",".join(str(k) for k in CEDAR_01_DROP_KS))
     ap.add_argument("--drop-fractions", default="0.05,0.10,0.20,0.30")
     ap.add_argument("--min-leakage-drop-frac", type=float, default=DEFAULT_P0_THRESHOLDS.min_leakage_drop_frac)
     ap.add_argument("--max-source-bacc-drop", type=float, default=DEFAULT_P0_THRESHOLDS.max_source_bacc_drop)
@@ -294,6 +370,11 @@ def main() -> None:
     )
     ap.add_argument("--random-control-repeats", type=int, default=5)
     ap.add_argument("--min-stability", type=float, default=DEFAULT_P0_THRESHOLDS.min_stability)
+    ap.add_argument(
+        "--allow-ungrouped-smoke",
+        action="store_true",
+        help="Allow missing groups only for local smoke tests; real CEDAR_01 must not use this.",
+    )
     run(ap.parse_args())
 
 

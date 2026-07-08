@@ -127,3 +127,40 @@ def candidate_drop_sets(
         seen.add(k)
         out.append((f"drop_top_{k}_of_{n_dims}", list(ranked_dims[:k])))
     return out
+
+
+def candidate_drop_sets_by_k(
+    ranked_dims: list[int],
+    ks: tuple[int, ...],
+) -> tuple[list[tuple[str, list[int]]], list[dict[str, int | str]]]:
+    """Build pre-registered drop sets from explicit k values.
+
+    Requested k values that would remove every latent dimension are skipped by a
+    deterministic dimensionality rule and returned for reporting.
+    """
+
+    if not ranked_dims:
+        raise ValueError("ranked_dims is empty")
+    n_dims = len(ranked_dims)
+    out: list[tuple[str, list[int]]] = []
+    skipped: list[dict[str, int | str]] = []
+    seen: set[int] = set()
+    for k in ks:
+        if k <= 0:
+            raise ValueError("drop k must be positive")
+        if k >= n_dims:
+            skipped.append(
+                {
+                    "k": int(k),
+                    "n_dims": int(n_dims),
+                    "reason": "would_drop_all_or_more_latent_dimensions",
+                }
+            )
+            continue
+        if k in seen:
+            continue
+        seen.add(k)
+        out.append((f"drop_top_{k}_of_{n_dims}", list(ranked_dims[:k])))
+    if not out:
+        raise ValueError("no valid drop candidates after dimensionality filtering")
+    return out, skipped

@@ -18,18 +18,40 @@ atlas instead of forcing a deletion.
 Do not use `oaci`, `h2cmi`, or FSR as CEDAR dependencies. Historical CMI losses
 may be used only as comparators or archived context.
 
-## P0 Scope
+## Current Gate State
+
+CEDAR_00 is accepted only as a P0 scaffold / red-team contract. It is not a
+scientific result, not a deployment result, and not approval for P1 channel
+pruning.
+
+The approved next step is CEDAR_01:
+
+- real EEG frozen-latent shadow audit
+- existing feature dumps only
+- source-only selection
+- grouped cross-fit hard-fail
+- fixed candidates `drop_top_1`, `drop_top_2`, `drop_top_4`
+- no deployable mask, checkpoint, selector, or safety/generalization claim
+
+See:
+
+- `cedar_eeg/reports/CEDAR_01_REAL_FROZEN_LATENT_PROTOCOL.md`
+- `cedar_eeg/reports/CEDAR_01_ACCEPTANCE_CRITERIA.md`
+
+## P0 / CEDAR_01 Scope
 
 P0 operates on frozen feature arrays:
 
 - `z`: source latent features, shape `[n, d]`
 - `y`: task labels
 - `domain` or `d`: subject/session/site labels
-- optional `groups`: recording/session groups for grouped cross-fit
+- required `groups`: recording/session groups for grouped cross-fit
 - optional `z_target`, `y_target`: evaluation-only held-out target features
 
 The runner never trains an EEG backbone. Real feature extraction and any
-nontrivial audit must be submitted through Slurm from this login node.
+nontrivial audit must be submitted through Slurm from this login node. Missing
+groups hard-fail unless `--allow-ungrouped-smoke` is explicitly used for a local
+smoke test.
 
 ## P0 Gates
 
@@ -53,7 +75,7 @@ Use a saved feature dump:
 ```bash
 python -m cedar_eeg.runners.run_p0_frozen_latent \
   --feature-npz path/to/features.npz \
-  --out results/cedar_p0/p0.json
+  --out results/cedar/p0_real_shadow/<run_id>/report.json
 ```
 
 For real feature dumps, submit via Slurm instead of running the full audit on the

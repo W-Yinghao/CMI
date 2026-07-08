@@ -52,6 +52,7 @@ MVP_CELLS: tuple[DatasetBackboneCell, ...] = (
 )
 
 DEFAULT_DROP_FRACTIONS: tuple[float, ...] = (0.05, 0.10, 0.20, 0.30)
+CEDAR_01_DROP_KS: tuple[int, ...] = (1, 2, 4)
 
 
 def parse_drop_fractions(text: str | Sequence[float]) -> tuple[float, ...]:
@@ -64,4 +65,17 @@ def parse_drop_fractions(text: str | Sequence[float]) -> tuple[float, ...]:
     for val in vals:
         if val <= 0.0 or val >= 1.0:
             raise ValueError(f"drop fractions must be in (0, 1), got {val}")
+    return vals
+
+
+def parse_drop_ks(text: str | Sequence[int]) -> tuple[int, ...]:
+    if isinstance(text, str):
+        vals = tuple(int(x.strip()) for x in text.split(",") if x.strip())
+    else:
+        vals = tuple(int(x) for x in text)
+    if not vals:
+        raise ValueError("at least one drop k is required")
+    for val in vals:
+        if val <= 0:
+            raise ValueError(f"drop ks must be positive, got {val}")
     return vals
