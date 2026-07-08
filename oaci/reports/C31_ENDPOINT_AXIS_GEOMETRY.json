@@ -1,0 +1,1733 @@
+{
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "improve_margin": 1e-09,
+  "mode": "in_regime",
+  "n_merged": 3804,
+  "primary": {
+    "base_rates": {
+      "accuracy_good": {
+        "count": 1800,
+        "rate": 0.47318611987381703
+      },
+      "accuracy_good_calibration_bad": {
+        "count": 186,
+        "rate": 0.04889589905362776
+      },
+      "calibration_good": {
+        "count": 2601,
+        "rate": 0.6837539432176656
+      },
+      "calibration_good_accuracy_flat": {
+        "count": 987,
+        "rate": 0.25946372239747634
+      },
+      "dominated": {
+        "count": 3285,
+        "rate": 0.863564668769716
+      },
+      "ece_good": {
+        "count": 2346,
+        "rate": 0.6167192429022083
+      },
+      "frac_accuracy_good_also_calibration_good": 0.8966666666666666,
+      "joint_good": {
+        "count": 1614,
+        "rate": 0.4242902208201893
+      },
+      "joint_strict_good": {
+        "count": 1317,
+        "rate": 0.3462145110410095
+      },
+      "n_candidates": 3804,
+      "nll_good": {
+        "count": 2193,
+        "rate": 0.5764984227129337
+      },
+      "pareto_good": {
+        "count": 519,
+        "rate": 0.13643533123028392
+      }
+    },
+    "gauge_endpoint": {
+      "accuracy_gauge_gap": 0.11545112763315557,
+      "calibration_gauge_gap": 0.08503962150641381,
+      "gauge_accuracy_specific": false,
+      "gauge_general_endpoint_offset": true,
+      "metric_gauge_variance_fraction": {
+        "bacc": 0.8819948419465858,
+        "ece": 0.8340340495320835,
+        "nll": 0.8415573178149667
+      },
+      "note": "the gauge is a GENERAL per-target offset: between-target variance fraction is near-equal across endpoints (bAcc 0.88 / NLL 0.84 / ECE 0.83); accuracy pooled-vs-within gap 0.115 is only mildly above calibration 0.085 (tilt inherited from the accuracy-aligned rank, not a distinct calibration gauge)",
+      "per_label": {
+        "accuracy_good": {
+          "gauge_gap": 0.11545112763315557,
+          "pooled_auc": 0.5431489798181415,
+          "within_target_auc": 0.658600107451297
+        },
+        "calibration_good": {
+          "gauge_gap": 0.1052070090946925,
+          "pooled_auc": 0.5146463586004871,
+          "within_target_auc": 0.6198533676951796
+        },
+        "ece_good": {
+          "gauge_gap": 0.009574328830821321,
+          "pooled_auc": 0.4440956617632441,
+          "within_target_auc": 0.5654786670675772
+        },
+        "joint_good": {
+          "gauge_gap": 0.1311432808885059,
+          "pooled_auc": 0.5406644486315515,
+          "within_target_auc": 0.6718077295200574
+        },
+        "nll_good": {
+          "gauge_gap": 0.08503962150641381,
+          "pooled_auc": 0.47241986309919576,
+          "within_target_auc": 0.612619758407218
+        }
+      }
+    },
+    "overlap_conflict": {
+      "conditional": {
+        "P(accuracy_good|calibration_good)": 0.6205305651672434,
+        "P(calibration_good|accuracy_good)": 0.8966666666666666
+      },
+      "conflict": {
+        "accuracy_good_calibration_bad_rate": 0.04889589905362776,
+        "calibration_good_accuracy_flat_rate": 0.25946372239747634
+      },
+      "coupling_survives_epoch_control": true,
+      "delta_correlations": {
+        "bacc_delta_vs_ece_improve": 0.6045200165542912,
+        "bacc_delta_vs_nll_improve": 0.5895276860885528,
+        "nll_improve_vs_ece_improve": 0.8914578452696952
+      },
+      "e1_robustness": {
+        "coupling_target_robust": true,
+        "erm_constant_within_trajectory": true,
+        "erm_max_within_traj_spread": 0.0,
+        "n_targets": 9,
+        "n_targets_positive": 9,
+        "per_target_epoch_resid_corr": {
+          "1": 0.7053292516696624,
+          "2": 0.3464545413610791,
+          "3": 0.8975069475163396,
+          "4": 0.6305184975479586,
+          "5": 0.14249810732765159,
+          "6": 0.4459846692228848,
+          "7": 0.6297588893107068,
+          "8": 0.8121173626252904,
+          "9": 0.849973279458823
+        },
+        "target_bootstrap_ci_hi": 0.7545575626295054,
+        "target_bootstrap_ci_lo": 0.4480572974515934,
+        "target_bootstrap_mean": 0.6066823940044883
+      },
+      "epoch_residualized_correlations": {
+        "bacc_delta_vs_ece_improve": 0.5536805145246209,
+        "bacc_delta_vs_nll_improve": 0.5044485566983048
+      },
+      "jaccard": {
+        "accuracy_x_calibration": 0.5791173304628633,
+        "accuracy_x_ece": 0.5598194130925508,
+        "accuracy_x_nll": 0.5658823529411765,
+        "nll_x_ece": 0.7450980392156863
+      },
+      "mean_bacc_vs_calib_improve_corr": 0.597023851321422,
+      "note": "accuracy improvement is NOT negatively correlated with calibration improvement (mean corr 0.597); accuracy-good checkpoints largely overlap calibration-good -> trade-off NOT confirmed at the population level",
+      "tradeoff_confirmed": false
+    },
+    "pareto_geometry": {
+      "accuracy_oracle_calibration_bad_fraction": 0.037037037037037035,
+      "accuracy_oracle_strict_calibration_bad_fraction": 0.2222222222222222,
+      "ece_oracle_accuracy_bad_fraction": 0.2962962962962963,
+      "joint_good_pareto_exists_fraction": 0.9444444444444444,
+      "mean_dominated_fraction": 0.8622808255667583,
+      "mean_pareto_front_size": 9.61111111111111,
+      "n_trajectories": 54,
+      "nll_oracle_accuracy_bad_fraction": 0.16666666666666666,
+      "note": "mean Pareto front 9.6/traj, dominated fraction 0.86; accuracy-oracle is calibration-BAD in 4% of trajectories; joint-good Pareto points exist in 94% of trajectories; source score ranks pareto/joint within-target AUC 0.574/0.672",
+      "per_trajectory": [
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 60,
+          "pareto_front_size": 12,
+          "seed": 0,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 60,
+          "pareto_front_size": 6,
+          "seed": 0,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8888888888888888,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 81,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9642857142857143,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 84,
+          "pareto_front_size": 3,
+          "seed": 0,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.6521739130434783,
+          "joint_good_pareto_points": 21,
+          "level": 0,
+          "n": 69,
+          "pareto_front_size": 24,
+          "seed": 0,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8,
+          "joint_good_pareto_points": 0,
+          "level": 1,
+          "n": 75,
+          "pareto_front_size": 15,
+          "seed": 0,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.875,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 72,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9722222222222222,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 108,
+          "pareto_front_size": 3,
+          "seed": 0,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.85,
+          "joint_good_pareto_points": 6,
+          "level": 0,
+          "n": 60,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7272727272727273,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 66,
+          "pareto_front_size": 18,
+          "seed": 0,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9090909090909091,
+          "joint_good_pareto_points": 6,
+          "level": 0,
+          "n": 66,
+          "pareto_front_size": 6,
+          "seed": 0,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9523809523809523,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 63,
+          "pareto_front_size": 3,
+          "seed": 0,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8571428571428571,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 63,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.875,
+          "joint_good_pareto_points": 9,
+          "level": 1,
+          "n": 72,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.85,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 60,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8333333333333334,
+          "joint_good_pareto_points": 12,
+          "level": 1,
+          "n": 72,
+          "pareto_front_size": 12,
+          "seed": 0,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8333333333333334,
+          "joint_good_pareto_points": 12,
+          "level": 0,
+          "n": 72,
+          "pareto_front_size": 12,
+          "seed": 0,
+          "target": 9
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9473684210526315,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 57,
+          "pareto_front_size": 3,
+          "seed": 0,
+          "target": 9
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8214285714285714,
+          "joint_good_pareto_points": 15,
+          "level": 0,
+          "n": 84,
+          "pareto_front_size": 15,
+          "seed": 1,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8888888888888888,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 54,
+          "pareto_front_size": 6,
+          "seed": 1,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8695652173913043,
+          "joint_good_pareto_points": 6,
+          "level": 0,
+          "n": 69,
+          "pareto_front_size": 9,
+          "seed": 1,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8275862068965517,
+          "joint_good_pareto_points": 12,
+          "level": 1,
+          "n": 87,
+          "pareto_front_size": 15,
+          "seed": 1,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7857142857142857,
+          "joint_good_pareto_points": 15,
+          "level": 0,
+          "n": 84,
+          "pareto_front_size": 18,
+          "seed": 1,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.85,
+          "joint_good_pareto_points": 6,
+          "level": 1,
+          "n": 60,
+          "pareto_front_size": 9,
+          "seed": 1,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9444444444444444,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 54,
+          "pareto_front_size": 3,
+          "seed": 1,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9583333333333334,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 72,
+          "pareto_front_size": 3,
+          "seed": 1,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8888888888888888,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 54,
+          "pareto_front_size": 6,
+          "seed": 1,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8947368421052632,
+          "joint_good_pareto_points": 6,
+          "level": 1,
+          "n": 57,
+          "pareto_front_size": 6,
+          "seed": 1,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9523809523809523,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 63,
+          "pareto_front_size": 3,
+          "seed": 1,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.96,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 75,
+          "pareto_front_size": 3,
+          "seed": 1,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9230769230769231,
+          "joint_good_pareto_points": 6,
+          "level": 0,
+          "n": 78,
+          "pareto_front_size": 6,
+          "seed": 1,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9523809523809523,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 63,
+          "pareto_front_size": 3,
+          "seed": 1,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8260869565217391,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 69,
+          "pareto_front_size": 12,
+          "seed": 1,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 0,
+          "dominated_fraction": 0.8181818181818182,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 66,
+          "pareto_front_size": 12,
+          "seed": 1,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7727272727272727,
+          "joint_good_pareto_points": 15,
+          "level": 0,
+          "n": 66,
+          "pareto_front_size": 15,
+          "seed": 1,
+          "target": 9
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8,
+          "joint_good_pareto_points": 12,
+          "level": 1,
+          "n": 60,
+          "pareto_front_size": 12,
+          "seed": 1,
+          "target": 9
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7619047619047619,
+          "joint_good_pareto_points": 15,
+          "level": 0,
+          "n": 63,
+          "pareto_front_size": 15,
+          "seed": 2,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8888888888888888,
+          "joint_good_pareto_points": 6,
+          "level": 1,
+          "n": 81,
+          "pareto_front_size": 9,
+          "seed": 2,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9230769230769231,
+          "joint_good_pareto_points": 6,
+          "level": 0,
+          "n": 78,
+          "pareto_front_size": 6,
+          "seed": 2,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9696969696969697,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 99,
+          "pareto_front_size": 3,
+          "seed": 2,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7727272727272727,
+          "joint_good_pareto_points": 15,
+          "level": 0,
+          "n": 66,
+          "pareto_front_size": 15,
+          "seed": 2,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8823529411764706,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 102,
+          "pareto_front_size": 12,
+          "seed": 2,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.5806451612903226,
+          "joint_good_pareto_points": 39,
+          "level": 0,
+          "n": 93,
+          "pareto_front_size": 39,
+          "seed": 2,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.95,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 60,
+          "pareto_front_size": 3,
+          "seed": 2,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 0,
+          "dominated_fraction": 0.8181818181818182,
+          "joint_good_pareto_points": 0,
+          "level": 0,
+          "n": 66,
+          "pareto_front_size": 12,
+          "seed": 2,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.92,
+          "joint_good_pareto_points": 0,
+          "level": 1,
+          "n": 75,
+          "pareto_front_size": 6,
+          "seed": 2,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8695652173913043,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 69,
+          "pareto_front_size": 9,
+          "seed": 2,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.85,
+          "joint_good_pareto_points": 9,
+          "level": 1,
+          "n": 60,
+          "pareto_front_size": 9,
+          "seed": 2,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8095238095238095,
+          "joint_good_pareto_points": 12,
+          "level": 0,
+          "n": 63,
+          "pareto_front_size": 12,
+          "seed": 2,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9130434782608695,
+          "joint_good_pareto_points": 6,
+          "level": 1,
+          "n": 69,
+          "pareto_front_size": 6,
+          "seed": 2,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8260869565217391,
+          "joint_good_pareto_points": 6,
+          "level": 0,
+          "n": 69,
+          "pareto_front_size": 12,
+          "seed": 2,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7222222222222222,
+          "joint_good_pareto_points": 12,
+          "level": 1,
+          "n": 54,
+          "pareto_front_size": 15,
+          "seed": 2,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9166666666666666,
+          "joint_good_pareto_points": 6,
+          "level": 0,
+          "n": 72,
+          "pareto_front_size": 6,
+          "seed": 2,
+          "target": 9
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9666666666666667,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 90,
+          "pareto_front_size": 3,
+          "seed": 2,
+          "target": 9
+        }
+      ],
+      "source_score_ranks_joint_auc": 0.6718077295200574,
+      "source_score_ranks_pareto_auc": 0.574389302269432
+    },
+    "source_rank_endpoint": {
+      "accuracy_aligned_by_construction": true,
+      "accuracy_vs_calibration_gap_ci": {
+        "ci_hi": 0.09990192171714307,
+        "ci_lo": -0.028122514088435083,
+        "excludes_zero": false,
+        "frac_positive": 0.889,
+        "gap": 0.03874673975611742
+      },
+      "accuracy_vs_ece_distinguishable": true,
+      "accuracy_vs_ece_gap_ci": {
+        "ci_hi": 0.1599353502853904,
+        "ci_lo": 0.012821642358593751,
+        "excludes_zero": true,
+        "frac_positive": 0.989,
+        "gap": 0.09312144038371983
+      },
+      "label_accuracy_good_mismatches": 0,
+      "note": "the source rank is accuracy-ALIGNED BY CONSTRUCTION (probe trained on label==accuracy_good, 0/3804 mismatches) and NOT distinguishably accuracy-specific vs calibration: acc strength 0.159 vs calibration_good 0.120, gap 0.039 95% CI [-0.028, 0.100] INCLUDES 0; the only distinguishable contrast is accuracy vs ECE (gap 0.093, CI [0.013, 0.160], excludes 0: True)",
+      "per_factor": {
+        "R_src": {
+          "accuracy_good": {
+            "pooled_auc": 0.45378243512974054,
+            "rank_strength": 0.1244260681171579,
+            "sign_consistency": 0.7777777777777778,
+            "transfers": false,
+            "within_target_auc": 0.3755739318828421
+          },
+          "calibration_good": {
+            "pooled_auc": 0.5473714790302214,
+            "rank_strength": 0.05592760897933713,
+            "sign_consistency": 0.5555555555555556,
+            "transfers": false,
+            "within_target_auc": 0.5559276089793371
+          },
+          "ece_good": {
+            "pooled_auc": 0.5921137107553703,
+            "rank_strength": 0.09536536596009626,
+            "sign_consistency": 0.7777777777777778,
+            "transfers": false,
+            "within_target_auc": 0.5953653659600963
+          },
+          "joint_good": {
+            "pooled_auc": 0.4641849569689871,
+            "rank_strength": 0.10422778041166991,
+            "sign_consistency": 0.7777777777777778,
+            "transfers": false,
+            "within_target_auc": 0.3957722195883301
+          },
+          "nll_good": {
+            "pooled_auc": 0.5302269537150965,
+            "rank_strength": 0.04268960405914435,
+            "sign_consistency": 0.5555555555555556,
+            "transfers": false,
+            "within_target_auc": 0.5426896040591443
+          },
+          "pareto_good": {
+            "pooled_auc": 0.4996542349618603,
+            "rank_strength": 0.00280955471812816,
+            "sign_consistency": 0.5555555555555556,
+            "transfers": false,
+            "within_target_auc": 0.49719044528187184
+          }
+        },
+        "score": {
+          "accuracy_good": {
+            "pooled_auc": 0.5431489798181415,
+            "rank_strength": 0.15860010745129705,
+            "sign_consistency": 1.0,
+            "transfers": true,
+            "within_target_auc": 0.658600107451297
+          },
+          "calibration_good": {
+            "pooled_auc": 0.5146463586004871,
+            "rank_strength": 0.11985336769517962,
+            "sign_consistency": 1.0,
+            "transfers": true,
+            "within_target_auc": 0.6198533676951796
+          },
+          "ece_good": {
+            "pooled_auc": 0.4440956617632441,
+            "rank_strength": 0.06547866706757721,
+            "sign_consistency": 0.6666666666666666,
+            "transfers": false,
+            "within_target_auc": 0.5654786670675772
+          },
+          "joint_good": {
+            "pooled_auc": 0.5406644486315515,
+            "rank_strength": 0.1718077295200574,
+            "sign_consistency": 1.0,
+            "transfers": true,
+            "within_target_auc": 0.6718077295200574
+          },
+          "nll_good": {
+            "pooled_auc": 0.47241986309919576,
+            "rank_strength": 0.11261975840721805,
+            "sign_consistency": 0.8888888888888888,
+            "transfers": true,
+            "within_target_auc": 0.612619758407218
+          },
+          "pareto_good": {
+            "pooled_auc": 0.591369071185367,
+            "rank_strength": 0.07438930226943197,
+            "sign_consistency": 0.6666666666666666,
+            "transfers": false,
+            "within_target_auc": 0.574389302269432
+          }
+        }
+      },
+      "score_accuracy_strength": 0.15860010745129705,
+      "score_calibration_strength": 0.11985336769517962,
+      "score_ece_strength": 0.06547866706757721,
+      "score_joint_strength": 0.1718077295200574,
+      "source_rank_accuracy_specific": false,
+      "source_rank_calibration_biased": false,
+      "source_rank_predicts_joint": true
+    },
+    "taxonomy": {
+      "cases": [
+        "E3_joint_good_exists_but_source_unobservable",
+        "E7_gauge_general_endpoint_offset"
+      ],
+      "evidence": {
+        "E1": {
+          "accuracy_good_calibration_bad_rate": 0.04889589905362776,
+          "coupling_survives_epoch_control": true,
+          "mean_bacc_vs_calib_corr": 0.597023851321422,
+          "tradeoff_confirmed": false
+        },
+        "E2_E3": {
+          "joint_good_rate": 0.4242902208201893,
+          "joint_pareto_exists_fraction": 0.9444444444444444,
+          "joint_pooled_auc": 0.5406644486315515,
+          "joint_pooled_deployable": false,
+          "joint_within_target_auc": 0.6718077295200574
+        },
+        "E4_E5": {
+          "accuracy_aligned_by_construction": true,
+          "accuracy_vs_calibration_gap_ci": {
+            "ci_hi": 0.09990192171714307,
+            "ci_lo": -0.028122514088435083,
+            "excludes_zero": false,
+            "frac_positive": 0.889,
+            "gap": 0.03874673975611742
+          },
+          "accuracy_vs_ece_distinguishable": true,
+          "ece_strength": 0.06547866706757721,
+          "score_accuracy_strength": 0.15860010745129705,
+          "score_calibration_strength": 0.11985336769517962,
+          "score_joint_strength": 0.1718077295200574,
+          "verdict": "endpoint_nonspecific_accuracy_aligned_by_construction"
+        },
+        "E6_E7": {
+          "accuracy_gauge_gap": 0.11545112763315557,
+          "calibration_gauge_gap": 0.08503962150641381,
+          "metric_gauge_variance_fraction": {
+            "bacc": 0.8819948419465858,
+            "ece": 0.8340340495320835,
+            "nll": 0.8415573178149667
+          }
+        },
+        "E8": {
+          "accuracy_oracle_calibration_bad_fraction": 0.037037037037037035,
+          "accuracy_oracle_strict_calibration_bad_fraction": 0.2222222222222222,
+          "ece_oracle_accuracy_bad_fraction": 0.2962962962962963,
+          "joint_good_pareto_exists_fraction": 0.9444444444444444,
+          "mean_dominated_fraction": 0.8622808255667583,
+          "nll_oracle_accuracy_bad_fraction": 0.16666666666666666
+        }
+      },
+      "imbalance_flags": []
+    }
+  },
+  "robust_margin": 0.02,
+  "robust_sensitivity": {
+    "base_rates": {
+      "accuracy_good": {
+        "count": 1131,
+        "rate": 0.2973186119873817
+      },
+      "accuracy_good_calibration_bad": {
+        "count": 72,
+        "rate": 0.01892744479495268
+      },
+      "calibration_good": {
+        "count": 2220,
+        "rate": 0.583596214511041
+      },
+      "calibration_good_accuracy_flat": {
+        "count": 1161,
+        "rate": 0.305205047318612
+      },
+      "dominated": {
+        "count": 3285,
+        "rate": 0.863564668769716
+      },
+      "ece_good": {
+        "count": 1815,
+        "rate": 0.47712933753943215
+      },
+      "frac_accuracy_good_also_calibration_good": 0.9363395225464191,
+      "joint_good": {
+        "count": 1059,
+        "rate": 0.278391167192429
+      },
+      "joint_strict_good": {
+        "count": 942,
+        "rate": 0.2476340694006309
+      },
+      "n_candidates": 3804,
+      "nll_good": {
+        "count": 1980,
+        "rate": 0.5205047318611987
+      },
+      "pareto_good": {
+        "count": 519,
+        "rate": 0.13643533123028392
+      }
+    },
+    "gauge_endpoint": {
+      "accuracy_gauge_gap": 0.15312113809592043,
+      "calibration_gauge_gap": 0.047349353701795605,
+      "gauge_accuracy_specific": false,
+      "gauge_general_endpoint_offset": true,
+      "metric_gauge_variance_fraction": {
+        "bacc": 0.8819948419465858,
+        "ece": 0.8340340495320835,
+        "nll": 0.8415573178149667
+      },
+      "note": "the gauge is a GENERAL per-target offset: between-target variance fraction is near-equal across endpoints (bAcc 0.88 / NLL 0.84 / ECE 0.83); accuracy pooled-vs-within gap 0.153 is only mildly above calibration 0.047 (tilt inherited from the accuracy-aligned rank, not a distinct calibration gauge)",
+      "per_label": {
+        "accuracy_good": {
+          "gauge_gap": 0.15312113809592043,
+          "pooled_auc": 0.5089606481688218,
+          "within_target_auc": 0.6620817862647422
+        },
+        "calibration_good": {
+          "gauge_gap": 0.04180515770810633,
+          "pooled_auc": 0.4484367890617891,
+          "within_target_auc": 0.5933683686463173
+        },
+        "ece_good": {
+          "gauge_gap": 0.014925600406569706,
+          "pooled_auc": 0.43052546581958345,
+          "within_target_auc": 0.5844001345869863
+        },
+        "joint_good": {
+          "gauge_gap": 0.1405084342338968,
+          "pooled_auc": 0.4888108003047863,
+          "within_target_auc": 0.6516976339291105
+        },
+        "nll_good": {
+          "gauge_gap": 0.047349353701795605,
+          "pooled_auc": 0.434859283625731,
+          "within_target_auc": 0.6124900700760646
+        }
+      }
+    },
+    "overlap_conflict": {
+      "conditional": {
+        "P(accuracy_good|calibration_good)": 0.47702702702702704,
+        "P(calibration_good|accuracy_good)": 0.9363395225464191
+      },
+      "conflict": {
+        "accuracy_good_calibration_bad_rate": 0.01892744479495268,
+        "calibration_good_accuracy_flat_rate": 0.305205047318612
+      },
+      "coupling_survives_epoch_control": true,
+      "delta_correlations": {
+        "bacc_delta_vs_ece_improve": 0.6045200165542912,
+        "bacc_delta_vs_nll_improve": 0.5895276860885528,
+        "nll_improve_vs_ece_improve": 0.8914578452696952
+      },
+      "e1_robustness": {
+        "coupling_target_robust": true,
+        "erm_constant_within_trajectory": true,
+        "erm_max_within_traj_spread": 0.0,
+        "n_targets": 9,
+        "n_targets_positive": 9,
+        "per_target_epoch_resid_corr": {
+          "1": 0.7053292516696624,
+          "2": 0.3464545413610791,
+          "3": 0.8975069475163396,
+          "4": 0.6305184975479586,
+          "5": 0.14249810732765159,
+          "6": 0.4459846692228848,
+          "7": 0.6297588893107068,
+          "8": 0.8121173626252904,
+          "9": 0.849973279458823
+        },
+        "target_bootstrap_ci_hi": 0.7545575626295054,
+        "target_bootstrap_ci_lo": 0.4480572974515934,
+        "target_bootstrap_mean": 0.6066823940044883
+      },
+      "epoch_residualized_correlations": {
+        "bacc_delta_vs_ece_improve": 0.5536805145246209,
+        "bacc_delta_vs_nll_improve": 0.5044485566983048
+      },
+      "jaccard": {
+        "accuracy_x_calibration": 0.4620418848167539,
+        "accuracy_x_ece": 0.4946727549467275,
+        "accuracy_x_nll": 0.4920863309352518,
+        "nll_x_ece": 0.7094594594594594
+      },
+      "mean_bacc_vs_calib_improve_corr": 0.597023851321422,
+      "note": "accuracy improvement is NOT negatively correlated with calibration improvement (mean corr 0.597); accuracy-good checkpoints largely overlap calibration-good -> trade-off NOT confirmed at the population level",
+      "tradeoff_confirmed": false
+    },
+    "pareto_geometry": {
+      "accuracy_oracle_calibration_bad_fraction": 0.1111111111111111,
+      "accuracy_oracle_strict_calibration_bad_fraction": 0.35185185185185186,
+      "ece_oracle_accuracy_bad_fraction": 0.46296296296296297,
+      "joint_good_pareto_exists_fraction": 0.7777777777777778,
+      "mean_dominated_fraction": 0.8622808255667583,
+      "mean_pareto_front_size": 9.61111111111111,
+      "n_trajectories": 54,
+      "nll_oracle_accuracy_bad_fraction": 0.37037037037037035,
+      "note": "mean Pareto front 9.6/traj, dominated fraction 0.86; accuracy-oracle is calibration-BAD in 11% of trajectories; joint-good Pareto points exist in 78% of trajectories; source score ranks pareto/joint within-target AUC 0.574/0.652",
+      "per_trajectory": [
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8,
+          "joint_good_pareto_points": 0,
+          "level": 0,
+          "n": 60,
+          "pareto_front_size": 12,
+          "seed": 0,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 60,
+          "pareto_front_size": 6,
+          "seed": 0,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8888888888888888,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 81,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9642857142857143,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 84,
+          "pareto_front_size": 3,
+          "seed": 0,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.6521739130434783,
+          "joint_good_pareto_points": 18,
+          "level": 0,
+          "n": 69,
+          "pareto_front_size": 24,
+          "seed": 0,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8,
+          "joint_good_pareto_points": 0,
+          "level": 1,
+          "n": 75,
+          "pareto_front_size": 15,
+          "seed": 0,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.875,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 72,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9722222222222222,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 108,
+          "pareto_front_size": 3,
+          "seed": 0,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.85,
+          "joint_good_pareto_points": 0,
+          "level": 0,
+          "n": 60,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7272727272727273,
+          "joint_good_pareto_points": 0,
+          "level": 1,
+          "n": 66,
+          "pareto_front_size": 18,
+          "seed": 0,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9090909090909091,
+          "joint_good_pareto_points": 0,
+          "level": 0,
+          "n": 66,
+          "pareto_front_size": 6,
+          "seed": 0,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9523809523809523,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 63,
+          "pareto_front_size": 3,
+          "seed": 0,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8571428571428571,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 63,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.875,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 72,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.85,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 60,
+          "pareto_front_size": 9,
+          "seed": 0,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8333333333333334,
+          "joint_good_pareto_points": 12,
+          "level": 1,
+          "n": 72,
+          "pareto_front_size": 12,
+          "seed": 0,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8333333333333334,
+          "joint_good_pareto_points": 12,
+          "level": 0,
+          "n": 72,
+          "pareto_front_size": 12,
+          "seed": 0,
+          "target": 9
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9473684210526315,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 57,
+          "pareto_front_size": 3,
+          "seed": 0,
+          "target": 9
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8214285714285714,
+          "joint_good_pareto_points": 15,
+          "level": 0,
+          "n": 84,
+          "pareto_front_size": 15,
+          "seed": 1,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8888888888888888,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 54,
+          "pareto_front_size": 6,
+          "seed": 1,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 0,
+          "dominated_fraction": 0.8695652173913043,
+          "joint_good_pareto_points": 0,
+          "level": 0,
+          "n": 69,
+          "pareto_front_size": 9,
+          "seed": 1,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 0,
+          "dominated_fraction": 0.8275862068965517,
+          "joint_good_pareto_points": 0,
+          "level": 1,
+          "n": 87,
+          "pareto_front_size": 15,
+          "seed": 1,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7857142857142857,
+          "joint_good_pareto_points": 6,
+          "level": 0,
+          "n": 84,
+          "pareto_front_size": 18,
+          "seed": 1,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.85,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 60,
+          "pareto_front_size": 9,
+          "seed": 1,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9444444444444444,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 54,
+          "pareto_front_size": 3,
+          "seed": 1,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9583333333333334,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 72,
+          "pareto_front_size": 3,
+          "seed": 1,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8888888888888888,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 54,
+          "pareto_front_size": 6,
+          "seed": 1,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8947368421052632,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 57,
+          "pareto_front_size": 6,
+          "seed": 1,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9523809523809523,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 63,
+          "pareto_front_size": 3,
+          "seed": 1,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.96,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 75,
+          "pareto_front_size": 3,
+          "seed": 1,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9230769230769231,
+          "joint_good_pareto_points": 6,
+          "level": 0,
+          "n": 78,
+          "pareto_front_size": 6,
+          "seed": 1,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9523809523809523,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 63,
+          "pareto_front_size": 3,
+          "seed": 1,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8260869565217391,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 69,
+          "pareto_front_size": 12,
+          "seed": 1,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 0,
+          "dominated_fraction": 0.8181818181818182,
+          "joint_good_pareto_points": 0,
+          "level": 1,
+          "n": 66,
+          "pareto_front_size": 12,
+          "seed": 1,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7727272727272727,
+          "joint_good_pareto_points": 15,
+          "level": 0,
+          "n": 66,
+          "pareto_front_size": 15,
+          "seed": 1,
+          "target": 9
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8,
+          "joint_good_pareto_points": 9,
+          "level": 1,
+          "n": 60,
+          "pareto_front_size": 12,
+          "seed": 1,
+          "target": 9
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7619047619047619,
+          "joint_good_pareto_points": 12,
+          "level": 0,
+          "n": 63,
+          "pareto_front_size": 15,
+          "seed": 2,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8888888888888888,
+          "joint_good_pareto_points": 6,
+          "level": 1,
+          "n": 81,
+          "pareto_front_size": 9,
+          "seed": 2,
+          "target": 1
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9230769230769231,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 78,
+          "pareto_front_size": 6,
+          "seed": 2,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9696969696969697,
+          "joint_good_pareto_points": 0,
+          "level": 1,
+          "n": 99,
+          "pareto_front_size": 3,
+          "seed": 2,
+          "target": 2
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.7727272727272727,
+          "joint_good_pareto_points": 15,
+          "level": 0,
+          "n": 66,
+          "pareto_front_size": 15,
+          "seed": 2,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 0,
+          "dominated_fraction": 0.8823529411764706,
+          "joint_good_pareto_points": 0,
+          "level": 1,
+          "n": 102,
+          "pareto_front_size": 12,
+          "seed": 2,
+          "target": 3
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.5806451612903226,
+          "joint_good_pareto_points": 39,
+          "level": 0,
+          "n": 93,
+          "pareto_front_size": 39,
+          "seed": 2,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.95,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 60,
+          "pareto_front_size": 3,
+          "seed": 2,
+          "target": 4
+        },
+        {
+          "accuracy_oracle_calibration_good": 0,
+          "dominated_fraction": 0.8181818181818182,
+          "joint_good_pareto_points": 0,
+          "level": 0,
+          "n": 66,
+          "pareto_front_size": 12,
+          "seed": 2,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.92,
+          "joint_good_pareto_points": 0,
+          "level": 1,
+          "n": 75,
+          "pareto_front_size": 6,
+          "seed": 2,
+          "target": 5
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8695652173913043,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 69,
+          "pareto_front_size": 9,
+          "seed": 2,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.85,
+          "joint_good_pareto_points": 9,
+          "level": 1,
+          "n": 60,
+          "pareto_front_size": 9,
+          "seed": 2,
+          "target": 6
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8095238095238095,
+          "joint_good_pareto_points": 9,
+          "level": 0,
+          "n": 63,
+          "pareto_front_size": 12,
+          "seed": 2,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9130434782608695,
+          "joint_good_pareto_points": 6,
+          "level": 1,
+          "n": 69,
+          "pareto_front_size": 6,
+          "seed": 2,
+          "target": 7
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.8260869565217391,
+          "joint_good_pareto_points": 3,
+          "level": 0,
+          "n": 69,
+          "pareto_front_size": 12,
+          "seed": 2,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 0,
+          "dominated_fraction": 0.7222222222222222,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 54,
+          "pareto_front_size": 15,
+          "seed": 2,
+          "target": 8
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9166666666666666,
+          "joint_good_pareto_points": 6,
+          "level": 0,
+          "n": 72,
+          "pareto_front_size": 6,
+          "seed": 2,
+          "target": 9
+        },
+        {
+          "accuracy_oracle_calibration_good": 1,
+          "dominated_fraction": 0.9666666666666667,
+          "joint_good_pareto_points": 3,
+          "level": 1,
+          "n": 90,
+          "pareto_front_size": 3,
+          "seed": 2,
+          "target": 9
+        }
+      ],
+      "source_score_ranks_joint_auc": 0.6516976339291105,
+      "source_score_ranks_pareto_auc": 0.574389302269432
+    },
+    "source_rank_endpoint": {
+      "accuracy_aligned_by_construction": false,
+      "accuracy_vs_calibration_gap_ci": {
+        "ci_hi": 0.11815523121074555,
+        "ci_lo": 0.014017686383252178,
+        "excludes_zero": true,
+        "frac_positive": 0.992,
+        "gap": 0.06871341761842498
+      },
+      "accuracy_vs_ece_distinguishable": false,
+      "accuracy_vs_ece_gap_ci": {
+        "ci_hi": 0.16423447903251842,
+        "ci_lo": -0.023898890498048907,
+        "excludes_zero": false,
+        "frac_positive": 0.9395,
+        "gap": 0.07768165167775598
+      },
+      "label_accuracy_good_mismatches": 669,
+      "note": "the source rank is ACCURACY-SPECIFIC (acc-vs-calibration strength gap 0.069, 95% CI [0.014, 0.118] excludes 0)",
+      "per_factor": {
+        "R_src": {
+          "accuracy_good": {
+            "pooled_auc": 0.4770755000640058,
+            "rank_strength": 0.1355978806676968,
+            "sign_consistency": 0.7777777777777778,
+            "transfers": false,
+            "within_target_auc": 0.3644021193323032
+          },
+          "calibration_good": {
+            "pooled_auc": 0.5582923832923833,
+            "rank_strength": 0.07796359894478055,
+            "sign_consistency": 0.6666666666666666,
+            "transfers": false,
+            "within_target_auc": 0.5779635989447806
+          },
+          "ece_good": {
+            "pooled_auc": 0.5777968911658751,
+            "rank_strength": 0.06100434123546861,
+            "sign_consistency": 0.5555555555555556,
+            "transfers": false,
+            "within_target_auc": 0.5610043412354686
+          },
+          "joint_good": {
+            "pooled_auc": 0.4770414402699732,
+            "rank_strength": 0.1215588097317945,
+            "sign_consistency": 0.7777777777777778,
+            "transfers": false,
+            "within_target_auc": 0.3784411902682055
+          },
+          "nll_good": {
+            "pooled_auc": 0.5045728668261563,
+            "rank_strength": 0.029485729830149743,
+            "sign_consistency": 0.5555555555555556,
+            "transfers": false,
+            "within_target_auc": 0.5294857298301497
+          },
+          "pareto_good": {
+            "pooled_auc": 0.4996542349618603,
+            "rank_strength": 0.00280955471812816,
+            "sign_consistency": 0.5555555555555556,
+            "transfers": false,
+            "within_target_auc": 0.49719044528187184
+          }
+        },
+        "score": {
+          "accuracy_good": {
+            "pooled_auc": 0.5089606481688218,
+            "rank_strength": 0.16208178626474223,
+            "sign_consistency": 1.0,
+            "transfers": true,
+            "within_target_auc": 0.6620817862647422
+          },
+          "calibration_good": {
+            "pooled_auc": 0.4484367890617891,
+            "rank_strength": 0.09336836864631726,
+            "sign_consistency": 1.0,
+            "transfers": true,
+            "within_target_auc": 0.5933683686463173
+          },
+          "ece_good": {
+            "pooled_auc": 0.43052546581958345,
+            "rank_strength": 0.08440013458698625,
+            "sign_consistency": 0.7777777777777778,
+            "transfers": false,
+            "within_target_auc": 0.5844001345869863
+          },
+          "joint_good": {
+            "pooled_auc": 0.4888108003047863,
+            "rank_strength": 0.1516976339291105,
+            "sign_consistency": 0.8888888888888888,
+            "transfers": true,
+            "within_target_auc": 0.6516976339291105
+          },
+          "nll_good": {
+            "pooled_auc": 0.434859283625731,
+            "rank_strength": 0.1124900700760646,
+            "sign_consistency": 0.8888888888888888,
+            "transfers": true,
+            "within_target_auc": 0.6124900700760646
+          },
+          "pareto_good": {
+            "pooled_auc": 0.591369071185367,
+            "rank_strength": 0.07438930226943197,
+            "sign_consistency": 0.6666666666666666,
+            "transfers": false,
+            "within_target_auc": 0.574389302269432
+          }
+        }
+      },
+      "score_accuracy_strength": 0.16208178626474223,
+      "score_calibration_strength": 0.09336836864631726,
+      "score_ece_strength": 0.08440013458698625,
+      "score_joint_strength": 0.1516976339291105,
+      "source_rank_accuracy_specific": true,
+      "source_rank_calibration_biased": false,
+      "source_rank_predicts_joint": true
+    },
+    "taxonomy": {
+      "cases": [
+        "E3_joint_good_exists_but_source_unobservable",
+        "E4_source_rank_accuracy_specific",
+        "E7_gauge_general_endpoint_offset"
+      ],
+      "evidence": {
+        "E1": {
+          "accuracy_good_calibration_bad_rate": 0.01892744479495268,
+          "coupling_survives_epoch_control": true,
+          "mean_bacc_vs_calib_corr": 0.597023851321422,
+          "tradeoff_confirmed": false
+        },
+        "E2_E3": {
+          "joint_good_rate": 0.278391167192429,
+          "joint_pareto_exists_fraction": 0.7777777777777778,
+          "joint_pooled_auc": 0.4888108003047863,
+          "joint_pooled_deployable": false,
+          "joint_within_target_auc": 0.6516976339291105
+        },
+        "E4_E5": {
+          "accuracy_aligned_by_construction": false,
+          "accuracy_vs_calibration_gap_ci": {
+            "ci_hi": 0.11815523121074555,
+            "ci_lo": 0.014017686383252178,
+            "excludes_zero": true,
+            "frac_positive": 0.992,
+            "gap": 0.06871341761842498
+          },
+          "accuracy_vs_ece_distinguishable": false,
+          "ece_strength": 0.08440013458698625,
+          "score_accuracy_strength": 0.16208178626474223,
+          "score_calibration_strength": 0.09336836864631726,
+          "score_joint_strength": 0.1516976339291105,
+          "verdict": "E4_accuracy_specific"
+        },
+        "E6_E7": {
+          "accuracy_gauge_gap": 0.15312113809592043,
+          "calibration_gauge_gap": 0.047349353701795605,
+          "metric_gauge_variance_fraction": {
+            "bacc": 0.8819948419465858,
+            "ece": 0.8340340495320835,
+            "nll": 0.8415573178149667
+          }
+        },
+        "E8": {
+          "accuracy_oracle_calibration_bad_fraction": 0.1111111111111111,
+          "accuracy_oracle_strict_calibration_bad_fraction": 0.35185185185185186,
+          "ece_oracle_accuracy_bad_fraction": 0.46296296296296297,
+          "joint_good_pareto_exists_fraction": 0.7777777777777778,
+          "mean_dominated_fraction": 0.8622808255667583,
+          "nll_oracle_accuracy_bad_fraction": 0.37037037037037035
+        }
+      },
+      "imbalance_flags": []
+    }
+  }
+}

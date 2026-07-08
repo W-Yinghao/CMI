@@ -1,0 +1,7 @@
+metric,value
+score_accuracy_strength,0.15860010745129705
+score_calibration_strength,0.11985336769517962
+score_joint_strength,0.1718077295200574
+source_rank_accuracy_specific,False
+source_rank_calibration_biased,False
+source_rank_predicts_joint_within_target,True

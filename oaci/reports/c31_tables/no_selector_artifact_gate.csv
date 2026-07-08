@@ -1,0 +1,9 @@
+check,passed
+config_hash_unchanged,True
+no_probe_tuning_no_training,True
+endpoint_labels_frozen_before_analysis,True
+base_rates_reported_before_taxonomy,True
+target_endpoint_metrics_diagnostic_only,True
+no_endpoint_or_pareto_selector,True
+oracle_endpoints_non_deployable,True
+diagnostic_only_non_deployable,True

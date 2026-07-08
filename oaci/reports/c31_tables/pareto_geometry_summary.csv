@@ -1,0 +1,8 @@
+metric,value
+n_trajectories,54
+mean_pareto_front_size,9.61111111111111
+mean_dominated_fraction,0.8622808255667583
+accuracy_oracle_calibration_bad_fraction,0.037037037037037035
+joint_good_pareto_exists_fraction,0.9444444444444444
+source_score_ranks_pareto_auc,0.574389302269432
+source_score_ranks_joint_auc,0.6718077295200574
