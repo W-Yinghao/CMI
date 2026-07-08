@@ -1,0 +1,15 @@
+{
+  "h4000_compute_budget_acceptable": false,
+  "h4000_exact_window_feasible": false,
+  "h4000_feasible_19common": false,
+  "h_high_selected_h": null,
+  "h_high_selection_rule": "4000_if_feasible_else_largest_19common_endpoint_rounded_down",
+  "notes": "Feasible means exact 19-common window budget, subject-disjoint pretrain-val, and planned A40 walltime estimate <= 96h.",
+  "scan_h": [
+    4000,
+    3500,
+    3000,
+    2500,
+    2000
+  ]
+}

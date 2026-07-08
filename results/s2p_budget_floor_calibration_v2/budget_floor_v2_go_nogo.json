@@ -1,0 +1,29 @@
+{
+  "GO": false,
+  "auto_launch_training_if_pass": false,
+  "candidate_budgets_h": [
+    200,
+    500,
+    1000,
+    2000,
+    4000
+  ],
+  "compute_budget_acceptable": false,
+  "exact_window_budget_feasible": false,
+  "exposure_by_budget": null,
+  "h4000_feasible_19common": false,
+  "h_high_selected_h": null,
+  "h_high_selection_rule": "4000_if_feasible_else_largest_19common_endpoint_rounded_down",
+  "min_exposure_per_subject_h": 0.25,
+  "n_subjects_by_budget": null,
+  "phase": "9C_v2_high_budget_floor_calibration",
+  "primary_corpus": "TUEG_19_common",
+  "primary_model": "CBraMod",
+  "reuse_200h_baseline": true,
+  "stop_reasons": [
+    "stop_rule_1_no_h_high_ge_2000_feasible"
+  ],
+  "subject_disjoint_pretrain_val_feasible": false,
+  "target_labels_used": false,
+  "training_budgets_h": null
+}

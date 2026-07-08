@@ -1,0 +1,15 @@
+=== S2P SLURM canary ===
+time=2026-07-08T18:54:00+02:00
+git_head=bb78f6259536dc31fb43b13237058985d5c8fcd6
+sbatch_rc=0
+canary_jobid=889733
+--- squeue after submit ---
+             JOBID PARTITION    STATE       TIME     NODELIST(REASON)
+            889733      P100  RUNNING       0:09               node47
+squeue_submit_rc=0
+--- scancel ---
+scancel_rc=0
+--- squeue after cancel ---
+             JOBID PARTITION    STATE       TIME     NODELIST(REASON)
+squeue_cancel_query_rc=0
+done=2026-07-08T18:54:20+02:00
