@@ -1,0 +1,221 @@
+=== time ===
+Wed Jul  8 18:15:11 CEST 2026
+=== host ===
+nodecpu04
+=== git ===
+3fd1804f22681987f1a4fb22ff8df0b5d35c23b7
+## HEAD (no branch)
+?? results/s2p_budget_floor_calibration_v2/slurm_launch_blocker_report.txt
+=== remote ===
+3fd1804f22681987f1a4fb22ff8df0b5d35c23b7	refs/heads/project/s2p-subject-scaling
+=== slurm binaries ===
+/usr/bin/squeue
+/usr/bin/sinfo
+/usr/bin/scontrol
+/usr/bin/sbatch
+=== slurm versions ===
+slurm 23.02.8
+slurm 23.02.8
+slurm 23.02.8
+=== env ===
+SLURM_CONF=unset
+SLURM_CLUSTER_NAME=unset
+=== scontrol ping ===
+Slurmctld(primary) at gpu-gw is UP
+=== sinfo compact ===
+A100 up 10 mix gpu:3(S:0-1)
+A100 up 1 mix gpu:8(S:1,3,5,7)
+V100 up 3 mix gpu:2(S:0-1)
+V100 up 1 mix gpu:3(S:0-1)
+V100 up 5 idle gpu:2(S:0-1)
+V100 up 1 idle gpu:3(S:0-1)
+V100-32GB up 2 mix gpu:2(S:0-1)
+V100-32GB up 2 idle gpu:2(S:0-1)
+V100-32GB up 1 idle gpu:3(S:0-1)
+V100-16GB up 1 mix gpu:2(S:0-1)
+V100-16GB up 1 mix gpu:3(S:0-1)
+V100-16GB up 3 idle gpu:2(S:0-1)
+P100* up 2 mix gpu:3(S:0-1)
+P100* up 3 mix gpu:2(S:0-1)
+P100* up 4 idle gpu:3(S:0-1)
+A30 up 1 alloc gpu:2(S:0-1)
+A40 up 14 mix gpu:2(S:0-1)
+A40 up 1 mix gpu:1(S:0)
+A40 up 1 alloc gpu:2(S:0-1)
+CPU up 6 mix (null)
+CPU up 1 alloc (null)
+CPU up 3 idle (null)
+cpu-high up 1 mix (null)
+cpu-high up 1 idle (null)
+L40S up 1 mix gpu:4(S:2-3,6-7,10-11,14-15)
+L40S up 1 mix gpu:8(S:1,3,5,7)
+L40S up 1 mix gpu:4(S:1,3,5,7)
+L40S up 1 alloc gpu:4(S:1,3,5,7)
+L40S up 1 alloc gpu:4(S:0-1)
+audible up 1 alloc gpu:4(S:0-3)
+3090 up 2 mix gpu:3(S:0)
+3090 up 1 mix gpu:4(S:0)
+H100 up 1 mix- gpu:4(S:1,3,5,7)
+H100 up 1 mix- gpu:2(S:1)
+=== squeue compact ===
+            889115      3090  RUNNING    6:49:45             nodemm05
+            889166      3090  RUNNING    6:19:14             nodemm01
+            889228      3090  RUNNING    5:10:58             nodemm01
+            889418      3090  RUNNING      53:39             nodemm01
+            889411      3090  RUNNING    3:09:41               node40
+            889381      3090  RUNNING    3:26:35               node40
+            889377      3090  RUNNING    3:29:12               node40
+            889346      3090  RUNNING    3:47:00             nodemm05
+    885355_[10-14]      A100  PENDING       0:00  (QOSMaxGRESPerUser)
+            888916      A100  PENDING       0:00  (QOSMaxGRESPerUser)
+            888915      A100  PENDING       0:00  (QOSMaxGRESPerUser)
+            888913      A100  PENDING       0:00  (QOSMaxGRESPerUser)
+            888922      A100  PENDING       0:00  (QOSMaxGRESPerUser)
+            889644      A100  PENDING       0:00  (QOSMaxGRESPerUser)
+            889652      A100  PENDING       0:00  (QOSMaxGRESPerUser)
+            889660      A100  PENDING       0:00  (QOSMaxGRESPerUser)
+            889659      A100  PENDING       0:00  (QOSMaxGRESPerUser)
+            889658      A100  PENDING       0:00  (QOSMaxGRESPerUser)
+          885355_9      A100  RUNNING    2:29:42               node01
+          885355_8      A100  RUNNING    3:16:52               node05
+            888772      A100  RUNNING    1:51:06          node[02,54]
+            889702      A100  RUNNING       1:36        nodeaudible01
+            889676      A100  RUNNING      23:10               node02
+            889190      A100  RUNNING    5:01:49               node06
+            888986      A100  RUNNING    8:06:32               node03
+            888465      A100  RUNNING   13:14:47               node06
+            889616      A100  RUNNING      54:56        nodeaudible01
+            889581      A100  RUNNING    1:15:38        nodeaudible01
+            888464      A100  RUNNING   14:20:09               node07
+            889535      A100  RUNNING    1:46:15        nodeaudible01
+            889700      A100  RUNNING       2:09               node03
+            888463      A100  RUNNING   16:31:14        nodeaudible01
+            888461      A100  RUNNING   16:47:18               node55
+            888462      A100  RUNNING   16:47:18               node55
+            889685      A100  RUNNING      14:25               node56
+            888912      A100  RUNNING    3:36:55               node56
+            889176      A100  RUNNING    6:03:58               node04
+            889610      A100  RUNNING      58:22        nodeaudible01
+            888872      A100  RUNNING   10:01:04        nodeaudible01
+            889431      A100  RUNNING    2:58:54               node56
+            889501      A100  RUNNING    2:08:33               node03
+            888910      A100  RUNNING    6:42:59               node07
+            888458      A100  RUNNING   22:05:40        nodeaudible01
+          889310_0       A30  RUNNING    4:02:35               node23
+          889310_1       A30  RUNNING    4:02:35               node23
+            889603       A40  RUNNING    1:04:56               node27
+            889028       A40  RUNNING    7:36:23               node37
+            889027       A40  RUNNING    7:37:07               node31
+            889117       A40  RUNNING    6:48:55               node30
+            889116       A40  RUNNING    6:49:31               node30
+            889671       A40  RUNNING      31:35               node36
+            889488       A40  RUNNING    2:11:52               node38
+            889068       A40  RUNNING    7:11:29               node27
+            885109       A40  RUNNING 2-08:13:55               node25
+            889634       A40  RUNNING      50:09               node33
+            889533       A40  RUNNING    1:47:03               node32
+            889506       A40  RUNNING    2:06:35               node25
+            889478       A40  RUNNING    2:22:30               node22
+            889467       A40  RUNNING    2:28:30               node22
+            887551       A40  RUNNING 1-07:43:15               node24
+            889416       A40  RUNNING    3:08:46               node36
+            889026       A40  RUNNING    7:38:39               node34
+            889649       A40  RUNNING       0:52               node37
+          887274_2       A40  RUNNING 1-05:04:04               node26
+          887274_3       A40  RUNNING 1-05:04:04               node35
+          887274_4       A40  RUNNING 1-05:04:04               node35
+          887274_0       A40  RUNNING 1-05:04:05               node24
+          887275_1       A40  RUNNING 1-07:06:05               node38
+            889452       A40  RUNNING    2:37:03               node31
+            889453       A40  RUNNING    2:37:03               node28
+            889454       A40  RUNNING    2:37:03               node29
+            889451       A40  RUNNING    2:37:07               node26
+            887602       A40  RUNNING 1-07:03:39               node29
+          889310_4       A40  RUNNING    4:02:27               node33
+          889310_3       A40  RUNNING    4:02:30               node32
+          889310_2       A40  RUNNING    4:02:33               node28
+            889311       CPU  PENDING       0:00         (Dependency)
+            889208       CPU  PENDING       0:00 (DependencyNeverSati
+            889665       CPU  RUNNING      37:23            nodecpu04
+            889099       CPU  RUNNING    6:55:09            nodecpu03
+            889675       CPU  RUNNING      23:35            nodecpu12
+            889653       CPU  RUNNING      46:02            nodecpu03
+            888261       CPU  RUNNING 1-01:58:23            nodecpu04
+            889515       CPU  RUNNING    2:04:17            nodecpu03
+            889075       CPU  RUNNING    7:05:41            nodecpu04
+            888267       CPU  RUNNING 1-01:55:16            nodecpu11
+            887447       CPU  RUNNING 1-10:57:22            nodecpu03
+            889188       CPU  RUNNING    5:45:25            nodecpu11
+            889669       CPU  RUNNING      36:33            nodecpu03
+            889655       CPU  RUNNING      43:35            nodecpu04
+            888908       CPU  RUNNING    8:59:38            nodecpu11
+            888989       CPU  RUNNING    8:02:37            nodecpu06
+            888271       CPU  RUNNING 1-01:53:49            nodecpu09
+            887671       CPU  RUNNING 1-06:18:31            nodecpu11
+            889108       CPU  RUNNING    6:53:18            nodecpu04
+            889097       CPU  RUNNING    6:56:14            nodecpu10
+            889034       CPU  RUNNING    7:31:17            nodecpu11
+            885148       CPU  RUNNING 2-08:06:51            nodecpu03
+            889656       CPU  RUNNING      43:11            nodecpu04
+            889164       CPU  RUNNING    6:22:10            nodecpu04
+            889628       CPU  RUNNING      51:09            nodecpu12
+            889664       CPU  RUNNING      29:54            nodecpu03
+            889613      H100  PENDING       0:00          (Resources)
+            888918      H100  PENDING       0:00  (QOSMaxGRESPerUser)
+            888919      H100  PENDING       0:00  (QOSMaxGRESPerUser)
+            889607      H100  PENDING       0:00           (Priority)
+            889561      H100  PENDING       0:00           (Priority)
+            889604      H100  PENDING       0:00           (Priority)
+            889553      H100  PENDING       0:00           (Priority)
+            889460      H100  RUNNING    2:34:54               node53
+            889180      H100  RUNNING    6:00:38           nodesumo01
+            888895      H100  RUNNING    9:24:38               node53
+            887020      H100  RUNNING    8:47:44           nodesumo01
+            887019      H100  RUNNING   12:21:06               node53
+            887018      H100  RUNNING   12:40:06               node53
+            889691 H100,L40S  PENDING       0:00          (Resources)
+            889215      L40S  RUNNING    5:24:10               node57
+          889061_3      L40S  RUNNING    3:37:42               node51
+            889280      L40S  RUNNING    4:32:16               node57
+          889061_2      L40S  RUNNING    6:41:50               node50
+          889061_1      L40S  RUNNING    7:13:47               node51
+          889061_0      L40S  RUNNING    7:13:51               node50
+            889370      L40S  RUNNING    2:56:53               node39
+            889555      L40S  RUNNING    1:08:53               node52
+            889554      L40S  RUNNING      54:00               node52
+            889549      L40S  RUNNING      59:39               node52
+            889552      L40S  RUNNING      58:42               node57
+            889568      L40S  RUNNING      50:16               node57
+            889341      L40S  RUNNING    3:49:55               node52
+            889547      L40S  RUNNING    1:37:36               node52
+            889546      L40S  RUNNING    1:38:15               node39
+            889575      L40S  RUNNING      50:02               node52
+            889500      L40S  RUNNING    2:08:56               node52
+            889498      L40S  RUNNING    2:09:13               node52
+            883251      L40S  RUNNING   22:05:40               node39
+            883239      L40S  RUNNING   22:29:00               node39
+            889458      P100  RUNNING    1:17:19               node45
+            889398      P100  RUNNING      59:45               node46
+            889216      P100  RUNNING    5:24:20               node45
+            889687      P100  RUNNING      13:57               node17
+            889566      P100  RUNNING    1:24:52               node16
+            889588      P100  RUNNING    1:14:12               node47
+            889589      P100  RUNNING    1:12:52               node47
+            889654      P100  RUNNING      43:53               node46
+            889417      V100  RUNNING    3:08:38               node09
+            888896      V100  RUNNING    9:24:16               node42
+            889522      V100  RUNNING    1:57:59               node42
+            888969 V100-32GB  RUNNING    8:14:50          node[08,10]
+            880549   audible  RUNNING    1:04:02        nodeaudible02
+            889459  cpu-high  PENDING       0:00         (Dependency)
+            889402  cpu-high  PENDING       0:00         (Dependency)
+            888911  cpu-high  RUNNING    8:54:39            nodecpu01
+            889523  cpu-high  RUNNING    1:57:54            nodecpu01
+            887512  cpu-high  RUNNING 1-08:10:49            nodecpu01
+=== pre-submit health failure ===
+Immediately before this capture, the launch-gate health check failed:
+scontrol ping -> getaddrinfo failed for gpu-gw; Slurmctld(primary) at gpu-gw is DOWN.
+sinfo compact -> unable to resolve gpu-gw; slurm_load_partitions: Resource temporarily unavailable.
+That transient failure is enough to block launch because feasibility/training must be monitorable and cancellable.
+=== launch decision ===
+STOP: feasibility sbatch not submitted because SLURM controller/DNS health is intermittent.
