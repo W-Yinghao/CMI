@@ -85,3 +85,28 @@ completed_tasks=0
 failed_tasks=0
 pending_tasks=8
 note=sacct accounting query unavailable; squeue remains the authoritative live monitor for this snapshot
+
+## Disappearance Diagnosis - 2026-07-08T22:23:19+02:00
+
+### live SLURM query
+```text
+squeue -j 889864: slurm_load_jobs error: Invalid job id specified
+scontrol show job 889864: slurm_load_jobs error: Invalid job id specified
+sacct -j 889864: accounting DB connection refused
+```
+
+### local task logs
+```text
+logs_created=results/s2p_route_b_33ch_b1/logs/train-889864_{0..7}.{out,err}
+stderr_all_tasks=mkdir: cannot create directory '/var/spool/results': Permission denied
+stdout_all_tasks=empty
+```
+
+### interpretation
+```text
+The array disappeared from squeue because the tasks left the live queue after immediate batch-wrapper failure.
+No CBraMod training step started; the failure happened before trainer stdout, conda/python output, checkpointing, or model logs.
+Root cause: the sbatch wrapper derives REPO_ROOT from BASH_SOURCE[0]. SLURM executes a copied script from its spool area, so BASH_SOURCE[0] resolved under /var/spool, making ROOT=/var/spool/results/s2p_route_b_33ch_b1. mkdir then failed with Permission denied.
+Stop-rule status: wrong runtime path / wrapper startup failure; training is not complete and downstream remains held.
+Actions taken: inspected only; no job submitted, no requeue, no partition/QoS change, no downstream launch.
+```
