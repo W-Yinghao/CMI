@@ -1,26 +1,16 @@
-# S2P_10 - Budget-Floor Calibration Protocol (FROZEN; pending PM compute go)
+# S2P_10 - Phase 9C v2 High-Budget Floor Calibration Protocol
 
-**Status:** protocol-only. No feasibility job, CPU analysis job, GPU training job, or downstream job has been launched
-for this phase. After this file is reviewed, every experimental action in this phase, including CPU-only feasibility
-and summary generation, must run through SLURM (`sbatch`). Local shell use is limited to file inspection, Git, and
-documentation edits.
+**Status:** S2P_10 v1 is superseded. This v2 protocol replaces the fixed-N `{200,500,1000}` plan with a
+high-coverage budget ladder that reaches the CodeBrain/CBraMod data-scaling regime. Feasibility, training,
+downstream audit, and post-processing are SLURM-only.
 
 ## PM decision incorporated
 
-D1 is accepted as a low-budget floor baseline, not as evidence that the target-transfer allocation slope is truly flat.
-The 200 h P1 checkpoints learned the masked-reconstruction objective enough to encode subject-identifiable EEG
-structure, but they did not learn SHU-MI cross-subject MI structure that transfers under a frozen source-only probe.
+D1 remains accepted as a low-budget floor baseline, not as evidence that subject allocation has no effect on transfer.
+The 200 h P1 checkpoints learned subject-identifiable EEG structure, but they did not learn frozen-probe SHU-MI
+cross-subject MI structure.
 
-Allowed framing:
-
-```text
-pretraining objective learned: yes
-subject-identifiable structure learned: yes
-cross-subject MI-transferable structure learned: no, under this frozen-probe endpoint
-allocation frontier target-transfer slope: not meaningful because the endpoint sits at floor
-```
-
-Forbidden claims:
+Forbidden claims remain:
 
 ```text
 subject allocation has no effect on transfer
@@ -30,200 +20,289 @@ CBraMod cannot learn MI-transferable representation
 pretraining subject diversity has no benefit
 ```
 
+Allowed framing:
+
+```text
+200h is a low-budget floor result under this frozen-probe endpoint.
+Subject-identifiable structure appears at 200h.
+The next question is the budget threshold for MI-transferable structure.
+```
+
 ## Primary question
 
-> At what from-scratch CBraMod pretraining budget does frozen, source-only SHU-MI cross-subject MI transfer first rise
-> above the random-init floor?
+> How much from-scratch CBraMod pretraining budget is needed before frozen, source-only SHU-MI transfer exits the
+> random-init floor?
 
-This is a **budget-floor calibration**, not a new subject-diversity or allocation-frontier claim. Its purpose is to
-decide whether S2P should ever resume allocation-frontier testing at a larger budget.
+This is a **budget-floor calibration**, not a subject-diversity/depth decomposition and not a released-CBraMod
+reproduction claim.
 
-## Design
+## Budget ladder
 
-Primary candidate:
+Candidate ladder:
 
 ```text
-N = 1024
-H0 in {200h, 500h, 1000h}
+H = {200, 500, 1000, 2000, 4000}
+```
+
+Training cells:
+
+```text
+H = {500, 1000, 2000, H_high}
 seeds = {0, 1}
+```
+
+Baseline:
+
+```text
+H=200 is reused from existing P1 artifacts.
+Do not retrain 200h for symmetry.
+```
+
+`H_high` selection:
+
+```text
+4000h if feasible on the canonical TUEG 19-common corpus;
+else the largest feasible 19-common endpoint rounded down to the nearest 500h.
+```
+
+The feasibility resolver scans:
+
+```text
+4000, 3500, 3000, 2500, 2000
+```
+
+If 4000h is infeasible but 3000h or 3500h is feasible, continue automatically with that endpoint. If no feasible
+`H_high >= 2000h` exists, stop.
+
+## Allocation rule
+
+Use **high-coverage subject allocation**:
+
+```text
+For each budget H:
+  choose as many train subjects as possible
+  subject to min_exposure_per_subject = 0.25h
+  and exact no-reuse window budgeting after fixed pretrain-val exclusion.
+```
+
+The PM formula
+
+```text
+N_target(H) = min(number of eligible subjects with >=0.25h usable data, floor(H / 0.25))
+```
+
+is treated as an upper bound. The implementation resolves the largest exact-window feasible `N` after removing the
+fixed subject-disjoint pretrain-val pool. Each selected train subject receives `base` or `base+1` 30 s windows, so:
+
+```text
+train_total_windows == round(H * 120)
+train_win_max - train_win_min <= 1
+no oversampling
+no window reuse
+```
+
+If the eligible-subject count truncates `N`, actual exposure per subject is recorded as `H/N`.
+
+## Corpus and model
+
+Primary:
+
+```text
 model = CBraMod from scratch
-endpoint = frozen encoder + source-only SHU-MI probe, patch norm primary
+corpus = TUEG 19-common only
+normalization = per-patch z-score
+objective = native CBraMod masked-patch reconstruction
+checkpoint selection = pretrain-val loss only
+target labels used = false
 ```
 
-Rationale: N=1024 is a middle/high-subject point that avoids the N=128 long-recording clinical endpoint and the
-N=2048 ultra-shallow endpoint.
+Do not use 33-channel full corpus in this primary curve. A 33-channel feasibility note may be recorded later, but it
+cannot patch an infeasible 19-common 4000h point.
 
-Fallback candidate:
+Do not include CodeBrain training in 9C v2. CodeBrain remains infrastructure/background only.
+
+## 9C-0 feasibility
+
+Submit:
 
 ```text
-N = 512
-H0 in {200h, 500h, 1000h}
-seeds = {0, 1}
+sbatch s2p/scripts/budget_floor_v2_feasibility.slurm
 ```
 
-Fallback is used only if a SLURM-submitted feasibility manifest shows N=1024 is infeasible for the required H0 ladder.
-Do not silently switch N.
-
-The 200 h baseline should reuse existing P1 N1024_s0/s1 (or N512_s0/s1 if fallback is activated) artifacts unless a
-feasibility or metadata audit finds a mismatch. Do not retrain the 200 h baseline just for symmetry.
-
-## Feasibility gate
-
-Before any pretraining launch, submit a CPU SLURM feasibility job that materializes only manifests from
-`tueg_subject_loader.build_frontier_cell(N, subset_seed, total_hours=H0)`. The job must write:
+The feasibility job writes:
 
 ```text
-results/s2p_budget_floor/feasibility_manifest.csv
-results/s2p_budget_floor/feasibility_verdict.json
+results/s2p_budget_floor_calibration_v2/budget_grid_feasibility.csv
+results/s2p_budget_floor_calibration_v2/high_coverage_subject_plan.csv
+results/s2p_budget_floor_calibration_v2/hmax_19common_decision.json
+results/s2p_budget_floor_calibration_v2/budget_exposure_table.csv
+results/s2p_budget_floor_calibration_v2/pretrain_val_pool_plan.csv
+results/s2p_budget_floor_calibration_v2/window_budget_check.csv
+results/s2p_budget_floor_calibration_v2/compute_budget_estimate.csv
+results/s2p_budget_floor_calibration_v2/slurm_feasibility_report.md
+results/s2p_budget_floor_calibration_v2/budget_floor_v2_go_nogo.json
 ```
 
-Required fields:
+`budget_floor_v2_go_nogo.json` includes the PM-required fields:
+
+```json
+{
+  "phase": "9C_v2_high_budget_floor_calibration",
+  "primary_model": "CBraMod",
+  "primary_corpus": "TUEG_19_common",
+  "candidate_budgets_h": [200, 500, 1000, 2000, 4000],
+  "reuse_200h_baseline": true,
+  "min_exposure_per_subject_h": 0.25,
+  "h4000_feasible_19common": null,
+  "h_high_selected_h": null,
+  "h_high_selection_rule": "4000_if_feasible_else_largest_19common_endpoint_rounded_down",
+  "training_budgets_h": null,
+  "n_subjects_by_budget": null,
+  "exposure_by_budget": null,
+  "subject_disjoint_pretrain_val_feasible": null,
+  "exact_window_budget_feasible": null,
+  "compute_budget_acceptable": null,
+  "target_labels_used": false,
+  "auto_launch_training_if_pass": true
+}
+```
+
+## Auto-launch authorization
+
+PM pre-authorized:
 
 ```text
-N, H0, seed, WT, exposure_h, base_windows, plus1_subjects, need_w,
-pool_size_after_val_exclusion, train_total_windows, train_total_hours,
-pct_off_budget, train_win_min, train_win_max, train_win_maxmin,
-train_val_disjoint, verdict
+If 9C-0 feasibility passes, automatically launch 9C-1 training.
+Do not return for another PM go unless a stop rule triggers.
 ```
 
-PASS criteria:
+The feasibility SLURM wrapper therefore submits:
 
 ```text
-pool_size_after_val_exclusion >= N
-pct_off_budget == 0
-train_win_maxmin <= 1
-train_val_disjoint == true
+9C-1 train array:         s2p/scripts/budget_floor_v2_train_array.slurm
+patch downstream audit:   s2p/scripts/budget_floor_v2_downstream.slurm
+window reference audit:   s2p/scripts/budget_floor_v2_downstream.slurm
+post aggregation:         s2p/scripts/budget_floor_v2_post.slurm
 ```
 
-If N=1024 fails for any required H0, run the same feasibility gate for N=512 and return the manifest before training.
+The downstream and post jobs are submitted with `afterok` dependencies on the training array.
 
-## Pretraining stage
+## 9C-1 training
 
-Use the existing native CBraMod runner path, with `--total-hours` set by H0:
+Each training cell runs:
 
 ```text
 s2p/scripts/run_frontier_cbramod.py
+  --allocation-policy high_coverage
+  --min-exposure-hours 0.25
+  --loader-mode streaming
+  --total-hours H
+  --n-subjects N_resolved_by_feasibility
+  --subset-seed seed
+  --init-seed seed
 ```
 
-Output root:
+The `streaming` loader is required because the old P1 materialized loader would allocate hundreds of GB at 2000-4000h.
+It keeps the native CBraMod model, objective, mask, optimizer, scheduler, loss, and pretrain-val checkpoint rule, while
+streaming TUEG rows instead of building one giant in-memory tensor.
+
+Outputs:
 
 ```text
-results/s2p_budget_floor/N{N}_H{H0}_s{seed}/
+results/s2p_budget_floor_calibration_v2/H{H}_s{seed}/best.pth
+results/s2p_budget_floor_calibration_v2/H{H}_s{seed}/last.pth
+results/s2p_budget_floor_calibration_v2/H{H}_s{seed}/train_log.jsonl
+results/s2p_budget_floor_calibration_v2/H{H}_s{seed}/run_summary.json
 ```
 
-Training contract:
+## Downstream audit
+
+After training completes, run the same authoritative SHU-MI frozen audit path used for the final D1 report:
 
 ```text
-native CBraMod architecture/objective/mask
-per-patch z-score
-HBN normalizer neutralized
-no /100 scale change
-checkpoint selected by pretrain-val loss only
-target labels never used
+s2p/scripts/shumi_downstream_audit.py
 ```
 
-Runtime contract:
+Contract:
 
 ```text
-all training via sbatch
-set --time explicitly under the smallest eligible partition cap
-if 500h/1000h cannot fit a single SLURM wall-time cap, do not use no-time jobs;
-instead add a checkpoint-resume/chunking implementation and return it for PM review before launch
+SHU-MI
+19-common channel mapping
+native 4s / 4-patch windows
+frozen encoder
+source-only PCA/head/subspace
+target labels final scoring only
+patch norm primary
+released reference also reported under window norm
 ```
 
-## Probe gate and fleet
-
-After the first new-budget checkpoint is available, run one downstream probe through SLURM before launching the full
-calibration fleet. The probe should include:
+Required post outputs:
 
 ```text
-one new-budget cell, preferably N1024_H500_s0
-fixed random-init floor
-fixed released-CBraMod reference
+results/s2p_budget_floor_calibration_v2/budget_pretrain_run_manifest.csv
+results/s2p_budget_floor_calibration_v2/budget_checkpoint_manifest.csv
+results/s2p_budget_floor_calibration_v2/budget_pretrain_logs.csv
+results/s2p_budget_floor_calibration_v2/budget_downstream_task_performance.csv
+results/s2p_budget_floor_calibration_v2/budget_pairwise_subject_separability.csv
+results/s2p_budget_floor_calibration_v2/budget_l4_task_alignment.csv
+results/s2p_budget_floor_calibration_v2/budget_l5_replay.csv
+results/s2p_budget_floor_calibration_v2/budget_l6_target_consequence.csv
+results/s2p_budget_floor_calibration_v2/budget_random_released_references.csv
+results/s2p_budget_floor_calibration_v2/budget_floor_summary.json
+results/s2p_budget_floor_calibration_v2/budget_target_label_firewall.json
 ```
 
-Gate checks:
+## Success criteria
+
+Criterion A:
 
 ```text
-channel map exact
-native 4-patch downstream forward
-embedding deterministic
-source-only PCA/head/rank
-target-label firewall clean
-metrics and variance null complete
-released reference remains above random
+target bAcc >= random_init + 0.02
 ```
 
-If the probe gate fails, stop and report. If it passes, run the remaining calibration downstream cells by SLURM.
-
-## Primary criterion
-
-A budget is considered to have cleared the frozen-transfer floor only if:
+Criterion B:
 
 ```text
-mean target bAcc at that H0 >= random-init target bAcc + 0.02
-source-val gate passes
-released-reference remains above random under the same audit
+target bAcc >= 0.55
 ```
 
-Random-init and released-reference controls are fixed references. If any audit code changes affect their values, rerun
-them through SLURM and report the delta.
-
-## Secondary endpoints
-
-Report, but do not use as floor-crossing criteria:
+Criterion C:
 
 ```text
-L1 pairwise subject separability
-L4 task alignment
-L5 subject-subspace removal vs variance-matched null, only if task gate passes
-pretrain-val loss and convergence
-population/redundancy manifest
+source-val task gate passes
 ```
 
-## Decision rules
-
-If 500 h or 1000 h clears the floor:
+Interpretation:
 
 ```text
-budget threshold is bracketed;
-return to PM before any allocation frontier at that budget
+If A and C pass:
+  from-scratch representation exits random floor.
+
+If A+B+C pass:
+  representation reaches weak but usable transfer regime.
+
+If none pass even at H_high:
+  current CBraMod/TUEG/SHU-MI frozen-probe path needs released-scale or fine-tuning;
+  stop allocation studies.
 ```
 
-If neither 500 h nor 1000 h clears the floor:
+Always report L1 subject separability. If L1 is high before transfer improves, the core science statement is:
 
 ```text
-from-scratch CBraMod under this frozen-probe protocol likely needs released-scale pretraining;
-do not run S2P allocation P2
+subject-identifiable structure emerges earlier than MI-transferable structure.
 ```
-
-Fine-tuning sanity is not part of this main phase. If approved later, it must be named `fine_tune_sanity`, reported
-separately, and framed as initialization quality under source-supervised fine-tuning, not frozen representation quality.
-
-## Outputs
-
-Protocol-gated outputs:
-
-```text
-docs/S2P_10_BUDGET_FLOOR_CALIBRATION_PROTOCOL.md
-results/s2p_budget_floor/feasibility_manifest.csv
-results/s2p_budget_floor/feasibility_verdict.json
-results/s2p_budget_floor/pretrain_manifest.csv
-results/s2p_budget_floor/downstream_raw.csv
-results/s2p_budget_floor/budget_floor_summary.json
-docs/S2P_12_BUDGET_FLOOR_CALIBRATION_RESULTS.md
-```
-
-The results doc must be written and committed before interpretation. After the results doc, return to PM and wait.
 
 ## Stop rules
 
 ```text
-1. Any CPU/GPU experimental job is run outside SLURM.
-2. Feasibility manifest is missing or fails.
-3. Target labels are used for anything except final scoring.
-4. 500h/1000h training is launched with no explicit --time.
-5. Runtime does not fit partition caps and no reviewed resume/chunking plan exists.
-6. The phase is reframed as a subject-diversity/allocation test.
-7. P2 allocation frontier, CodeBrain, new datasets, or fine-tuning are added without explicit PM approval.
+1. 4000h infeasible and no H_high >= 2000h feasible.
+2. exact window budget fails.
+3. subject-disjoint pretrain-val pool fails.
+4. compute budget exceeds planned cluster limits.
+5. target labels appear in any selection.
+6. training run hits NaN/Inf unrecoverably.
+7. downstream audit pipeline no longer reproduces the released reference sanity.
+8. H_high requires 33-channel corpus to be included in the primary curve.
 ```
+
+If a stop rule triggers, report the artifact and do not continue to the next stage.

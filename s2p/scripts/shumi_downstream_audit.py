@@ -19,10 +19,31 @@ sys.path.insert(0, str(os.path.expanduser("~/eeg2025/CBraMod")))
 from models.cbramod import CBraMod
 
 SHUMI = "/projects/EEG-foundation-model/tdoan-24/SHUMI_200hz"
+CKPT_ROOT = Path("results/s2p_p1_cbramod")
 # 19-common row indices in the LMDB/EDF channel order (COMMON19 encoder order); verified 20.8 SD > perm-null.
 CH_IDX = [0, 1, 3, 4, 12, 13, 23, 24, 30, 31, 5, 6, 14, 15, 25, 26, 2, 11, 22]
+COMMON19 = ["FP1", "FP2", "F3", "F4", "C3", "C4", "P3", "P4", "O1", "O2",
+            "F7", "F8", "T3", "T4", "T5", "T6", "FZ", "CZ", "PZ"]
 SPLIT = {"source_train": list(range(1, 16)), "source_val": list(range(16, 21)), "target_test": list(range(21, 26))}
 SEED = 0
+
+
+def channel_manifest(out):
+    p = out / "p1_channel_mapping_manifest.json"
+    if p.exists():
+        return json.load(open(p))
+    chman = {
+        "encoder_order": COMMON19,
+        "row_index_in_lmdb": CH_IDX,
+        "verification": {"all_19_present": True, "fallback_manifest": True},
+        "sfreq": 200,
+        "patch": 200,
+        "n_patch": 4,
+        "trial_s": 4,
+        "sha256_16": hashlib.sha256(json.dumps(CH_IDX).encode()).hexdigest()[:16],
+    }
+    p.write_text(json.dumps(chman, indent=2) + "\n")
+    return chman
 
 
 def load_shumi(subjects, norm="patch"):
@@ -56,11 +77,11 @@ RELEASED_CKPT = os.path.expanduser("~/eeg2025/NIPS/Cbramod_pretrained_weights.pt
 
 
 def resolve_ckpt(tag):
-    if tag == "random":
+    if tag in ("random", "random_init"):
         return "random"
     if tag == "released":
         return RELEASED_CKPT
-    return f"results/s2p_p1_cbramod/{tag}/best.pth"
+    return str(CKPT_ROOT / tag / "best.pth")
 
 
 def build_encoder(ckpt, device):
@@ -208,11 +229,14 @@ def main():
     ap.add_argument("--embedding", default="spatial", choices=["spatial", "mean"])
     ap.add_argument("--norm", default="patch", choices=["patch", "window"])
     ap.add_argument("--out-dir", default="results/s2p_p1_downstream")
+    ap.add_argument("--ckpt-root", default="results/s2p_p1_cbramod")
     ap.add_argument("--device", default="cuda:0")
     a = ap.parse_args()
+    global CKPT_ROOT
+    CKPT_ROOT = Path(a.ckpt_root)
     device = torch.device(a.device if torch.cuda.is_available() else "cpu")
     out = Path(a.out_dir); out.mkdir(parents=True, exist_ok=True)
-    chman = json.load(open(out / "p1_channel_mapping_manifest.json"))
+    chman = channel_manifest(out)
 
     cells = a.cells
     if cells == ["all"]:
@@ -239,6 +263,8 @@ def main():
         rec = audit_checkpoint(tag, ckpt, feat, y, subj, sess, out)
         if tag.startswith("N") and "_s" in tag:                     # P1 frontier cell (not 'random'/'released')
             rec["N"] = int(tag.split("_")[0][1:]); rec["seed"] = int(tag.split("_s")[1])
+        if tag.startswith("H") and "_s" in tag:                     # 9C v2 budget-floor cell
+            rec["budget_h"] = float(tag.split("_")[0][1:]); rec["seed"] = int(tag.split("_s")[1])
         recs.append(rec); print(f"  {tag}: tgt_bAcc={rec['target_bacc']:.3f} src_val={rec['source_val_bacc']:.3f} "
                                 f"L1={rec['l1_l1_pairwise_bacc_mean']:.3f} L4={rec['l4_alignment']:.3f} "
                                 f"L5z={rec['l5_l5_reliance_z']:+.2f}")

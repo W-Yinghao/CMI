@@ -22,6 +22,11 @@ Code / provenance commits:
 - D1 downstream raw results: `abc9fbc`
 - D1 verified frontier summary: `745337c`
 - Current handoff: `ee07985`
+- Budget-floor v1 protocol: `106f3c5` (superseded)
+
+Phase-9C continuation note: `docs/S2P_10_BUDGET_FLOOR_CALIBRATION_PROTOCOL.md` now defines v2 high-budget floor
+calibration. The 200 h P1 result below is reused as the low-budget floor anchor; it is not retrained for symmetry and
+is not treated as an allocation-slope result.
 
 ## Gate status
 
@@ -78,9 +83,9 @@ checkpoint, not part of the P1 frontier.
    is underpowered for small effects, and the frontier remains confounded with population: N=128 draws from a deep,
    more clinical pool while N=2048 draws from a much broader general pool.
 
-6. **P2 is not recommended by the verified D1 summary.** A second budget would multiply an underpowered near-null and
-   repeat the N-to-population confound. If the line continues, the verified recommendation is more seeds plus
-   population de-confounding at the existing 200 h budget, not a new allocation axis without PM approval.
+6. **P2 allocation is not recommended from D1.** The approved continuation is not another small fixed-N allocation
+   frontier. It is Phase 9C v2 high-budget floor calibration: reuse 200 h as the floor anchor, then test whether
+   from-scratch CBraMod exits the frozen-transfer floor at 500/1000/2000/H_high under a high-coverage budget rule.
 
 ## Required caveats
 
@@ -104,3 +109,9 @@ Allowed neutral headline:
 Do not claim from these results that subject diversity does not matter in general, that TUEG pretraining solves
 cross-subject transfer, that 200 h proves a zero allocation effect, or that CBraMod cannot learn MI-transferable
 representations at larger pretraining scale.
+
+Approved next question:
+
+> How much pretraining budget is needed before from-scratch CBraMod exits the frozen SHU-MI transfer floor?
+
+This is the Phase 9C v2 budget-floor question, not a diversity-decomposition claim.

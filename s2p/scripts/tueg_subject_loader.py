@@ -16,6 +16,7 @@ across all N. Eligibility + budget at WINDOW granularity (MJ-8: floored availabl
 pretrain-val loss only; target labels never touch subset/checkpoint/PCA/head/rank/probe.
 """
 import json
+import hashlib
 from pathlib import Path
 import numpy as np
 import pandas as pd
@@ -86,6 +87,7 @@ def _pick(subs, cap):
 FRONTIER_T_H = 200.0                       # fixed total pretraining budget (hours)
 FRONTIER_N = [128, 256, 512, 1024, 2048]   # subject-count axis
 _FRONT_VAL = None
+_BUDGET_FLOOR_VAL = None
 
 
 def _deepest_need_windows(total_hours=FRONTIER_T_H, n_grid=FRONTIER_N):
@@ -157,6 +159,122 @@ def build_frontier_cell(n_subjects, subset_seed, total_hours=FRONTIER_T_H, n_val
     return dict(n_subjects=n_subjects, exposure_h=total_hours / n_subjects, WT=WT, pool_size=int(len(pool)),
                 subjects_train=subs_sorted, subjects_val=val_subj.tolist(),
                 train=rows_tr, val=rows_val, manifest=man)
+
+
+def _budget_floor_val(n_val=128, val_cap_windows=24):
+    """Fixed subject-disjoint pretrain-val pool for S2P 9C v2.
+
+    The pool is independent of H and seed. Training builders always remove these
+    subjects before choosing the high-coverage training set.
+    """
+    global _BUDGET_FLOOR_VAL
+    key = (int(n_val), int(val_cap_windows))
+    if _BUDGET_FLOOR_VAL is None or _BUDGET_FLOOR_VAL[0] != key:
+        sw = _subject_windows()
+        cand = np.sort(sw[sw >= val_cap_windows].index.to_numpy())
+        if len(cand) < n_val:
+            raise RuntimeError(f"infeasible 9C v2 val: {len(cand)} subjects >= {val_cap_windows}w < n_val {n_val}")
+        rng = np.random.default_rng(920000)
+        val = np.sort(rng.choice(cand, n_val, replace=False))
+        _BUDGET_FLOOR_VAL = (key, val, int(val_cap_windows))
+    _, val, cap = _BUDGET_FLOOR_VAL
+    return val, cap
+
+
+def high_coverage_plan(total_hours, min_exposure_h=0.25, n_val=128, val_cap_windows=24):
+    """Resolve the S2P 9C v2 high-coverage allocation at exact window granularity.
+
+    The PM rule N_target = min(eligible subjects, floor(H/min_exposure)) is an
+    upper bound. This resolver tightens it to the largest N for which the exact
+    base/+1 per-subject window budget can be supplied by N train subjects after
+    fixed pretrain-val exclusion. It never oversamples or reuses windows.
+    """
+    WT = int(round(float(total_hours) * 120))
+    min_w = cap_windows_for(min_exposure_h)
+    val_subj, val_capw = _budget_floor_val(n_val=n_val, val_cap_windows=val_cap_windows)
+    sw = _subject_windows()
+    train_sw = sw.drop(labels=[s for s in val_subj if s in sw.index], errors="ignore")
+    eligible_min = train_sw[train_sw >= min_w]
+    upper_n = min(int(len(eligible_min)), int(WT // min_w))
+    if upper_n <= 0:
+        raise RuntimeError(f"infeasible H={total_hours}: no eligible train subject at min_exposure_h={min_exposure_h}")
+
+    selected = None
+    for n_subjects in range(upper_n, 0, -1):
+        base, rem = WT // n_subjects, WT - (WT // n_subjects) * n_subjects
+        need_w = base + (1 if rem > 0 else 0)
+        pool = np.sort(train_sw[train_sw >= need_w].index.to_numpy())
+        if len(pool) >= n_subjects:
+            selected = (n_subjects, base, rem, need_w, pool)
+            break
+    if selected is None:
+        raise RuntimeError(f"infeasible H={total_hours}: no N satisfies exact high-coverage window allocation")
+
+    n_subjects, base, rem, need_w, pool = selected
+    man = dict(
+        total_hours=float(total_hours),
+        WT=WT,
+        min_exposure_h=float(min_exposure_h),
+        min_exposure_windows=int(min_w),
+        n_subjects=int(n_subjects),
+        exposure_h=round(float(total_hours) / n_subjects, 6),
+        base_windows=int(base),
+        plus1_subjects=int(rem),
+        need_w=int(need_w),
+        eligible_subjects_min_exposure=int(len(eligible_min)),
+        n_target_upper_bound=int(upper_n),
+        pool_size_after_val_exclusion=int(len(pool)),
+        n_val=int(n_val),
+        val_cap_windows=int(val_capw),
+        val_total_hours=round(n_val * val_capw * WIN_H, 4),
+        subject_disjoint_pretrain_val_feasible=True,
+        exact_window_budget_feasible=True,
+        pct_off_budget=0.0,
+    )
+    return dict(manifest=man, pool=pool.tolist(), subjects_val=val_subj.tolist(), val_cap_windows=int(val_capw))
+
+
+def build_high_coverage_cell(total_hours, subset_seed, min_exposure_h=0.25, n_val=128, val_cap_windows=24,
+                             expected_n_subjects=None):
+    """Build one S2P 9C v2 high-coverage budget-scaling cell."""
+    plan = high_coverage_plan(total_hours, min_exposure_h=min_exposure_h, n_val=n_val,
+                              val_cap_windows=val_cap_windows)
+    man = dict(plan["manifest"])
+    n_subjects = int(man["n_subjects"])
+    if expected_n_subjects is not None and int(expected_n_subjects) != n_subjects:
+        raise RuntimeError(f"expected_n_subjects={expected_n_subjects} but high-coverage plan resolved {n_subjects}")
+    pool = np.asarray(plan["pool"], dtype=int)
+    rng = np.random.default_rng(930000 + int(round(float(total_hours) * 10)) + subset_seed * 17)
+    subs = np.sort(rng.choice(pool, n_subjects, replace=False))
+    rng.shuffle(subs)
+    subs_sorted = sorted(subs.tolist())
+    base, rem = int(man["base_windows"]), int(man["plus1_subjects"])
+    alloc = {s: (base + 1 if i < rem else base) for i, s in enumerate(subs_sorted)}
+    rows_tr = _pick(subs_sorted, alloc)
+    rows_val = _pick(plan["subjects_val"], int(plan["val_cap_windows"]))
+
+    def _wsub(rows):
+        d = {}
+        for r in rows:
+            d[r["subject"]] = d.get(r["subject"], 0) + r["take_windows"]
+        return d
+
+    wt, wv = _wsub(rows_tr), _wsub(rows_val)
+    tot_w = sum(wt.values())
+    man.update(dict(
+        subset_seed=int(subset_seed),
+        train_total_windows=int(tot_w),
+        train_total_hours=round(tot_w * WIN_H, 4),
+        pct_off_budget=round(100 * (tot_w - int(man["WT"])) / int(man["WT"]), 5),
+        train_win_min=int(min(wt.values())),
+        train_win_max=int(max(wt.values())),
+        train_win_maxmin=int(max(wt.values()) - min(wt.values())),
+        train_val_disjoint=bool(set(wt).isdisjoint(set(wv))),
+        selected_subjects_sha=hashlib.sha256(json.dumps(subs_sorted).encode()).hexdigest()[:16],
+    ))
+    return dict(n_subjects=n_subjects, exposure_h=float(total_hours) / n_subjects, WT=int(man["WT"]),
+                pool_size=int(man["pool_size_after_val_exclusion"]), subjects_train=subs_sorted,
+                subjects_val=plan["subjects_val"], train=rows_tr, val=rows_val, manifest=man)
 
 
 def build_subset(n_subjects, hours_budget, condition, seed, val_frac=0.15):

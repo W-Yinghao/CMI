@@ -4,3 +4,8 @@ results/s2p_p1_cbramod/**/*.pth
 results/s2p_p1_cbramod/**/*.npy
 results/s2p_p1_downstream/embeddings/*.npz
 results/s2p_p1_downstream/logs/
+results/s2p_budget_floor_calibration_v2/**/*.pth
+results/s2p_budget_floor_calibration_v2/**/*.npy
+results/s2p_budget_floor_calibration_v2/**/*.npz
+results/s2p_budget_floor_calibration_v2/logs/*.out
+results/s2p_budget_floor_calibration_v2/logs/*.err
