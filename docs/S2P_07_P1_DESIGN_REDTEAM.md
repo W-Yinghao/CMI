@@ -173,3 +173,42 @@ for A/B/C) is a per-pair constant shared by both cells ⇒ cancels in the within
 C(100h/N1024 vs 200h/N2048, e≈0.10), seeds{0,1,2}. Exposure-contrast cell (200h/N512) and N=32 NOT in P1; high-N
 diagonal deferred (not launched). **Status: launch HELD** pending (i) a re-red-team of this narrowed protocol showing
 no BLOCKER and (ii) explicit PM go on the launch checklist.
+
+---
+
+## v3 RE-RED-TEAM (agent aafd6b5b, 2026-07-08) — BLOCKER BL-9 (total-data confound) → the IDENTIFIABILITY TRIANGLE
+Loader rewrite **VERIFIED CORRECT** (nesting, fixed disjoint val, exact cap, floored-window eligibility all hold;
+BL-4/5/6/MJ-8 genuinely resolved). But a **new structural blocker**, missed by all prior rounds:
+- **BL-9 — TOTAL-DATA / TOKEN CONFOUND.** Within a pair, per-subject depth `cap_windows` is fixed and N doubles ⇒
+  **total windows double** (A: 128×94=12,032 @100h vs 256×94=24,064 @200h). `log N` ⟂̸ `log T` (corr=1) within every
+  pair. `Δ_pair` cannot separate "more subjects" from "more total data / 2× gradient signal / better convergence."
+  The estimand name, the interpretation grid ("more subjects → transfer"), and the L1/L5 subject-mechanism
+  secondaries assert an attribution the design does not identify. **Same unidentifiability as v1 (BL-1), moved from
+  (N, exposure) to (N, total-data)** — and it violates the protocol's own forbidden line ("growing-hours read as
+  diversity").
+- **ROOT CAUSE — the identifiability triangle `T = N · e`.** Varying N, you can hold at most ONE of {exposure e,
+  total T} fixed: fix T → e shrinks (v1: subjects-vs-depth tradeoff, NOT pure diversity); fix e → T grows (v3:
+  pool-doubling, subjects+data confounded). **"Pure subject diversity" (N↑, both e and T fixed) is mathematically
+  impossible** since T≡N·e. Every pretraining-scale design that varies N confounds it with e or T. This is why all
+  three rounds hit a wall on the SAME thing — it is structural, not a protocol bug.
+- **MJ-9** — the unweighted mean over 3 pairs is itself a pooled estimand across a clinical pool (A) and a general
+  pool (B,C where 6486⊂6516 = SAME population); leave-one-pair-out over {A,B,C} is really 1-vs-2 (A-clinical vs
+  BC-general), not n=3. FIX: 3 Δ_pair are separately-reported co-primary; headline needs all-three-same-sign +
+  each-clears-MDE.
+- **MJ-10** — underpowered: seed-SD ceiling 0.03 > MDE 0.02; per-pair SD(Δ)≈0.0245 > MDE; binary 20%-convergence
+  guard lets a total-data→lower-val-loss path pass as "not convergence-mediated." FIX: per-pair clustered-bootstrap
+  CIs (expect to include 0); matched-final-val-loss as covariate not binary gate.
+- **MJ-11** — balance verified on METADATA only; `windows_for` re-derives nwin from the on-disk array and silently
+  yields <cap if any file is shorter than its metadata ⇒ exact-cap/Gini=0 unproven at load time. FIX: load-time
+  assertion `yielded == take_windows`; sample-load before flipping the gate.
+- **MN-4** init_seed conflated with subset_seed in the manifest (MJ-5 factorial silently dropped); **MN-6** pin one
+  canonical exposure_h float (econtrast seeds all draws); **MN-7** confirm SHU-MI downstream uses identical per-patch
+  z-score + normalizer neutralization (else frozen probe is OOD).
+
+**Disposition v3:** launch-condition #6 (re-red-team no-blocker) = **FAILED**. **BL-9 is a PM decision — the S2P
+question hits a fundamental identifiability limit.** Options: (A) reframe v3 in place to "pool-doubling at matched
+depth (subjects+data jointly)", strip diversity attribution, no compute, 18 runs; (B) add a depth-control arm
+(200h/fixed-N_low/2·capw) per pair, +9 runs → recovers the (logN, log e) 2D → subjects-vs-depth partials; (C) pivot
+to the fixed-budget **subject-vs-depth FRONTIER** (single T=200h, N∈{128..2048}, e=T/N), ~15 runs, identifiable +
+deployment-relevant, abandons "pure diversity" as unidentifiable (S2P_07 option c, now the honest endpoint).
+BL-4/5/6 stay resolved; MJ-11/MN-6 I fix once the design is set. Launch HELD.

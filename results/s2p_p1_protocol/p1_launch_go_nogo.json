@@ -10,7 +10,7 @@
   "compute_budget_ok": "15 runs from-scratch @100h corpus (pilot-scale); epochs TBD by convergence check",
   "design_red_team": "DONE (agent a7ea257d): BLOCKERS_PRESENT",
   "launch_p1": false,
-  "launch_note": "P1 narrowed to matched-exposure subject-scaling pilot (PM v2 decision). Loader REWRITTEN + verified vs real manifests (all balance gates pass exactly). 9/10 launch conditions MET; #6 (re-red-team) running, #10 held for explicit PM go. NOT auto-launched. 18 primary runs; high-N deferred.",
+  "launch_note": "v3 re-red-team FAILED condition #6: BL-9 total-data confound = the identifiability triangle T=N*e. Loader is correct + BL-4/5/6 resolved, but NO pretraining-scale design isolates pure subject diversity. RETURN TO PM for BL-9 (options A reframe / B depth-arm / C frontier). Launch HELD. Not auto-launched.",
   "loader_fixed_hours_bug": "FIXED (window-level budget; verified total ~100h all N; was 116-597h)",
   "pm_decision_2026_07_08": "BL-1 fix = TWO fixed-H0 lines (100h+200h) lean crossed grid; keep diversity question; NOT reframe; N=32 out of primary; constant-exposure arm = P2 diagnostic only",
   "pending_before_launch": [
@@ -78,10 +78,29 @@
     "3_fixed_pretrain_val_pool": "MET (n_val=64 per contrast, subset-seed invariant, disjoint)",
     "4_exact_window_level_budget": "MET (maxmin=0, gini=0, \u00b10.0002% quantized)",
     "5_primary_statistic_frozen": "MET (p1_primary_statistic_spec.json)",
-    "6_re_red_team_no_blocker": "PENDING (running)",
+    "6_re_red_team_no_blocker": "FAILED - BL-9 total-data confound (log N \u27c2\u0338 log T within pair, corr=1)",
     "7_CBraMod_native_objective_preserved": "MET (9A.5 audit; native Trainer_valid)",
     "8_checkpoint_pretrain_val_only": "MET (spec)",
     "9_target_labels_final_scoring_only": "MET (spec)",
     "10_launch_p1_true": "NO (held for re-red-team + explicit PM go)"
-  }
+  },
+  "v3_re_red_team": "agent aafd6b5b: BLOCKER BL-9 (total-data confound) + identifiability triangle T=N*e. Loader verified correct; BL-4/5/6/MJ-8 resolved.",
+  "BL9_total_data_confound": {
+    "issue": "within each matched-exposure pair, cap_windows fixed + N doubles -> total windows double (A: 12032@100h vs 24064@200h); log N perfectly collinear with log total-data; Delta_pair cannot separate more-subjects from more-total-data",
+    "root_cause": "identifiability triangle T = N * e; varying N can hold at most one of {exposure, total} fixed; pure subject diversity (N up, e AND T fixed) is impossible since T=N*e",
+    "same_as": "v1 BL-1 unidentifiability, moved from (N,exposure) to (N,total-data)",
+    "PM_options": {
+      "A_reframe_no_compute": "rename to 'pool-doubling at matched depth (subjects+data jointly)'; strip diversity attribution; demote L1/L5 to co-varying; 18 runs as-is; NO diversity claim",
+      "B_depth_control_arm": "per pair add 200h/fixed-N_low/2*cap_windows cell; +9 runs (27 total); recovers (logN,log e) 2D -> subjects-vs-depth partials (but each partial still T-varying, not pure diversity)",
+      "C_fixed_budget_frontier": "pivot to single T=200h, N in {128,256,512,1024,2048}, e=T/N; ~15 runs; identifiable subject-vs-depth ALLOCATION frontier; deployment-relevant; abandons 'pure diversity' as fundamentally unidentifiable (S2P_07 option c)"
+    }
+  },
+  "other_open": {
+    "MJ9_unweighted_mean_pools_heterogeneous": "3 Delta_pair separately-reported co-primary; B&C same population",
+    "MJ10_underpower": "seed-SD ceiling 0.03 > MDE 0.02; per-pair CIs likely include 0; matched-final-val-loss covariate",
+    "MJ11_metadata_only_verification": "add load-time exact-cap assertion (I fix once design set)",
+    "MN6_pin_exposure_float": "pin canonical exposure_h (I fix)",
+    "MN7_downstream_norm_parity": "confirm SHU-MI identical z-score"
+  },
+  "recommendation": "C (fixed-budget subject-vs-depth frontier): after 3 rounds hitting the SAME triangle, 'pure subject diversity' is fundamentally unidentifiable at pretraining scale; the frontier is the clean, honest, deployment-relevant question. B if PM wants the subjects-vs-depth decomposition (2 partials). A = minimal salvage."
 }
