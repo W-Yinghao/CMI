@@ -1,0 +1,11 @@
+case,established,evidence
+SC1_sparse_high_precision_ceiling,0,"best_hit=1.0, best_coverage=0.022697831804226423, coverage50_reliable=True"
+SC2_broad_conditioned_ceiling,1,"coverage50_best_scope=within_target, coverage50_hit=1.0, coverage50_enrichment=2.3597078708023864, coverage50=1.0, coverage75_reliable=True"
+SC3_existing_scores_underuse_available_islands,1,"score=C19_robust_core, underuse_gap=1.0, score_top_hit=0.0, local_hit=1.0"
+SC4_existing_scores_match_local_ceiling,0,"max_underuse_gap=1.0, match_gate=0.05"
+SC5_ceiling_unstable_across_targets,1,"target_min_hit=1.0, target_min_coverage=0.0, trajectory_min_hit=0.0, trajectory_min_coverage=0.0"
+SC6_ceiling_stable_but_non_actionable,0,"target_stable=False, trajectory_stable=False, underuse_gap=1.0, diagnostic_oracle_only=True"
+SC7_base_rate_or_singleton_artifact,0,"reliable_min_neighbor_ge_2_count=270, best_min_neighbor=5"
+SC8_conditioned_source_space_future_hypothesis,1,"any_reliable=True, underuse_active=True, singleton_artifact=False, c48_cases=LC1_conditioned_source_space_ceiling_high,LC3_existing_scores_underuse_source_space"
+SC9_conditioned_actionability_escape_hatch_closed,0,"best_hit=1.0, best_enrichment=2.656126482213439"
+SC10_inconclusive_due_to_artifact_availability,0,required C48/C47/C45 artifacts available
