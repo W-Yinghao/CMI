@@ -13,3 +13,6 @@
 - Added CPU watcher `888784` with script
   `h2cmi/results/review_completion/slurm/w1offdiag_watch.slurm`; it writes
   `h2cmi/results/review_completion/offdiag_watch_status.md`.
+- Per PM gate, performed P0-P3 artifact hygiene only: branch reconciliation,
+  provenance final-commit clarification, status/blocker consistency fixes,
+  manuscript-number digest, and validation gate report. No GPU was launched.
