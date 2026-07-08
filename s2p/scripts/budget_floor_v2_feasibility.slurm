@@ -8,6 +8,11 @@
 #SBATCH --error=/home/infres/yinwang/CMI_AAAI_s2p/results/s2p_budget_floor_calibration_v2/logs/feas-%j.err
 
 set -euo pipefail
+if [ "${S2P9C_ALLOW_AUTO_LAUNCH:-0}" != "1" ]; then
+  echo "DISABLED: 9C v2 auto-launch is not authorized. Use s2p/slurm/budget_floor_v2_feasibility.sbatch for feasibility only."
+  exit 2
+fi
+
 cd /home/infres/yinwang/CMI_AAAI_s2p
 mkdir -p results/s2p_budget_floor_calibration_v2/logs
 source /home/infres/yinwang/anaconda3/etc/profile.d/conda.sh

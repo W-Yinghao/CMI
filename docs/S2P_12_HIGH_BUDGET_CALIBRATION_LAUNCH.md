@@ -2,6 +2,9 @@
 
 **Phase:** S2P 9C v2 high-budget floor calibration.
 
+**2026-07-08 update:** this launch plan is now feasibility-only. Auto-launch training is suspended until PM reviews
+the feasibility package.
+
 **Branch:** `project/s2p-subject-scaling`.
 
 **Result root:**
@@ -12,27 +15,19 @@ results/s2p_budget_floor_calibration_v2/
 
 ## Launch command
 
-The only manual launch command for 9C-0 is:
+The only approved launch command for 9C-0 is:
 
 ```text
-sbatch s2p/scripts/budget_floor_v2_feasibility.slurm
+sbatch --parsable s2p/slurm/budget_floor_v2_feasibility.sbatch
 ```
 
-The feasibility job is CPU-only and writes the go/no-go artifacts. If and only if
-`budget_floor_v2_go_nogo.json` has `GO=true` and `auto_launch_training_if_pass=true`, the SLURM wrapper submits the
-training and downstream dependency chain automatically.
+The feasibility job is CPU-only and writes the go/no-go artifacts. It does not submit training or downstream jobs.
 
 ## Automatic dependency chain
 
-```text
-9C-0 feasibility
-  -> 9C-1 training array: H={500,1000,2000,H_high}, seeds={0,1}
-  -> downstream patch audit: all trained H cells + random + released
-  -> downstream window reference audit: random + released
-  -> post aggregation: budget_* CSV/JSON artifacts
-```
-
-The downstream and post jobs use `afterok` dependencies. If any training array task fails, downstream does not run.
+No dependency chain is currently authorized. The previous auto-launch wrapper at
+`s2p/scripts/budget_floor_v2_feasibility.slurm` is fail-closed by default and must not be used for the current
+feasibility launch.
 
 ## Training implementation
 

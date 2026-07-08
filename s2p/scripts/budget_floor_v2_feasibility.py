@@ -86,6 +86,8 @@ def main():
     ap.add_argument("--min-exposure-hours", type=float, default=0.25)
     ap.add_argument("--n-val", type=int, default=128)
     ap.add_argument("--val-cap-windows", type=int, default=24)
+    ap.add_argument("--auto-launch-training-if-pass", action="store_true",
+                    help="Future-use only. Current 9C v2 policy keeps training held after feasibility.")
     args = ap.parse_args()
 
     out = Path(args.out_dir)
@@ -257,7 +259,7 @@ def main():
         "exact_window_budget_feasible": exact_ok,
         "compute_budget_acceptable": compute_ok,
         "target_labels_used": False,
-        "auto_launch_training_if_pass": True,
+        "auto_launch_training_if_pass": bool(args.auto_launch_training_if_pass),
         "GO": go,
         "stop_reasons": stop_reasons,
     }

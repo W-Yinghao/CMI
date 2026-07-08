@@ -4,6 +4,10 @@
 high-coverage budget ladder that reaches the CodeBrain/CBraMod data-scaling regime. Feasibility, training,
 downstream audit, and post-processing are SLURM-only.
 
+**2026-07-08 launch-policy update:** auto-launch training is withdrawn until PM reviews the feasibility package.
+Only 9C-0 feasibility is currently approved. The old auto-launch wrapper is fail-closed; use
+`s2p/slurm/budget_floor_v2_feasibility.sbatch` for feasibility only.
+
 ## PM decision incorporated
 
 D1 remains accepted as a low-budget floor baseline, not as evidence that subject allocation has no effect on transfer.
@@ -163,29 +167,35 @@ results/s2p_budget_floor_calibration_v2/budget_floor_v2_go_nogo.json
   "exact_window_budget_feasible": null,
   "compute_budget_acceptable": null,
   "target_labels_used": false,
-  "auto_launch_training_if_pass": true
+  "auto_launch_training_if_pass": false
 }
 ```
 
-## Auto-launch authorization
+## Auto-launch authorization - suspended
 
-PM pre-authorized:
-
-```text
-If 9C-0 feasibility passes, automatically launch 9C-1 training.
-Do not return for another PM go unless a stop rule triggers.
-```
-
-The feasibility SLURM wrapper therefore submits:
+Earlier auto-launch authorization is suspended. Current policy:
 
 ```text
-9C-1 train array:         s2p/scripts/budget_floor_v2_train_array.slurm
-patch downstream audit:   s2p/scripts/budget_floor_v2_downstream.slurm
-window reference audit:   s2p/scripts/budget_floor_v2_downstream.slurm
-post aggregation:         s2p/scripts/budget_floor_v2_post.slurm
+9C-0 feasibility:
+  approved.
+
+9C-1 training:
+  not approved until PM reviews the feasibility package.
 ```
 
-The downstream and post jobs are submitted with `afterok` dependencies on the training array.
+Use this feasibility-only entry:
+
+```text
+s2p/slurm/budget_floor_v2_feasibility.sbatch
+```
+
+The old auto-launch wrapper is fail-closed by default:
+
+```text
+s2p/scripts/budget_floor_v2_feasibility.slurm
+```
+
+Do not use it for the current feasibility launch.
 
 ## 9C-1 training
 
