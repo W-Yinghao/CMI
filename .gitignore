@@ -2,3 +2,5 @@ results/s2p_pretrain_smoke/*.pt
 results/s2p_codebrain_smoke/*.pth
 results/s2p_p1_cbramod/**/*.pth
 results/s2p_p1_cbramod/**/*.npy
+results/s2p_p1_downstream/embeddings/*.npz
+results/s2p_p1_downstream/logs/
