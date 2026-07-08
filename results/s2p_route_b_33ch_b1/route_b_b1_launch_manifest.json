@@ -1,0 +1,15 @@
+{
+  "route": "B_33ch_cbramod_only",
+  "phase": "B1_training_launch",
+  "git_head": "69cdf6c28dea4566c2599e4f32bc1fb7cd35703a",
+  "training_array_job_id": "889864",
+  "array_tasks": "0-7",
+  "budgets_h": [200, 500, 1000, 2000],
+  "seeds": [0, 1],
+  "h4000_included": false,
+  "slurm_entry": "s2p/slurm/route_b_b1_train_array.sbatch",
+  "task_manifest": "results/s2p_route_b_33ch_contract/route_b_b1_training_tasks.csv",
+  "result_root": "results/s2p_route_b_33ch_b1",
+  "training_launched": true,
+  "target_labels_used_for_selection": false
+}

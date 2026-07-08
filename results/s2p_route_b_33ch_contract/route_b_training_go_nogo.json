@@ -23,5 +23,6 @@
   "selected_sampling_contract": "fixed_group_mix",
   "single_global_33_name_order_feasible": false,
   "target_labels_used_for_selection": false,
-  "training_launched": false
+  "training_array_job_id": "889864",
+  "training_launched": true
 }
