@@ -1,0 +1,3 @@
+reference_scheme,n_groups,n_recordings_train_after_val,n_subjects_train_after_val,available_train_windows,available_train_hours,proportion_by_windows
+LE,3,3571,2222,125590,1046.583333,0.2602453878400192
+REF,3,4336,302,356993,2974.941667,0.7397546121599807

@@ -1,0 +1,5 @@
+source_val_bacc,selected_C,target_bacc,target_macro_f1,target_nll,channel_mode,checkpoint,input_channels,input_shape,feature_dim,feature_sha16,device,trials_per_class_per_session,n_trials,target_labels_used_for_selection,random_floor_bacc,released_minus_random_bacc,sanity_pass,sanity_rule
+0.52,0.01,0.52,0.5109546165884193,0.73743438362438,native32,random,32,1250x32x4x200,6400,3c39057f40efd730,cpu,5,1250,False,0.52,0.020000000000000018,True,released_target_bacc >= random_target_bacc + 0.02
+0.544,0.1,0.54,0.5394030663740208,0.6970542091898206,native32,released,32,1250x32x4x200,6400,b5c64d8b0b8227e6,cpu,5,1250,False,0.52,0.020000000000000018,True,released_target_bacc >= random_target_bacc + 0.02
+0.524,0.01,0.492,0.4860047595149828,0.761545435260749,19common,random,19,1250x19x4x200,3800,4982ab1ff1ca600f,cpu,5,1250,False,0.492,0.040000000000000036,True,released_target_bacc >= random_target_bacc + 0.02
+0.6,0.1,0.532,0.5310921944885298,0.689805895837206,19common,released,19,1250x19x4x200,3800,983b84459e309a32,cpu,5,1250,False,0.492,0.040000000000000036,True,released_target_bacc >= random_target_bacc + 0.02

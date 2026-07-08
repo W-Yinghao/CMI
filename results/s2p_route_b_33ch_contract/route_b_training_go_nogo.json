@@ -1,0 +1,27 @@
+{
+  "budgets_h": [
+    200,
+    500,
+    1000,
+    2000
+  ],
+  "canonical_channel_order_pinned": true,
+  "canonical_channel_order_scope": "group_specific_pinned_orders",
+  "downstream_primary": "SHU_MI_native32",
+  "fixed_group_mix_feasible": true,
+  "h4000_included": false,
+  "largest_single_group_feasible_ge2000h": false,
+  "launch_route_b_b1": true,
+  "notes": "Route B uses fixed group-mixture sampling across channel_order_hash x reference_scheme groups. Training remains a separate action and is not launched by this script.",
+  "reference_scheme_groups_pinned": true,
+  "released_checkpoint_downstream_sanity_pass": true,
+  "route": "B_33ch_cbramod_only",
+  "seeds": [
+    0,
+    1
+  ],
+  "selected_sampling_contract": "fixed_group_mix",
+  "single_global_33_name_order_feasible": false,
+  "target_labels_used_for_selection": false,
+  "training_launched": false
+}

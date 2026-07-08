@@ -1,0 +1,5 @@
+budget_h,target_windows,allocated_windows,exact_window_budget_feasible,all_group_allocations_within_capacity,max_abs_group_proportion_error,fixed_group_mix_feasible
+200,24000,24000,True,True,2.3277601987642393e-05,True
+500,60000,60000,True,True,6.497017093432629e-06,True
+1000,120000,120000,True,True,6.066365785817318e-06,True
+2000,240000,240000,True,True,1.941453594528353e-06,True
