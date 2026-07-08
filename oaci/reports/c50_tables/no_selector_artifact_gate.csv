@@ -1,0 +1,10 @@
+check,passed
+config_hash_unchanged,1
+c49_witness_locked_not_grid_search,1
+read_only_committed_artifacts,1
+no_training_no_gpu_no_reinference,1
+no_bnci2014_004_no_seeds_3_4,1
+no_selector_checkpoint_artifact,1
+target_labels_diagnostic_only,1
+coverage_actionability_definitions_frozen_from_c49,1
+compact_json_no_row_level_payload,1
