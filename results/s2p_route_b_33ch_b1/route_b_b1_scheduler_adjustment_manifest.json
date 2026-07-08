@@ -1,0 +1,43 @@
+{
+  "reason": "non_h2000_tasks_do_not_require_a40_only",
+  "grid_unchanged": true,
+  "sampling_contract_unchanged": true,
+  "downstream_launched": false,
+  "original_relaunch_job": "890125_[0-7]",
+  "kept_running_tasks": {
+    "890125_0": "H200_s0"
+  },
+  "cancelled_pending_tasks": {
+    "890125_1": "H200_s1",
+    "890125_2": "H500_s0",
+    "890125_3": "H500_s1",
+    "890125_4": "H1000_s0",
+    "890125_5": "H1000_s1",
+    "890125_6": "H2000_s0",
+    "890125_7": "H2000_s1"
+  },
+  "replacement_jobs": {
+    "non_h2000_flexible": {
+      "job": "890147_[1-5]",
+      "tasks": [1, 2, 3, 4, 5],
+      "cells": ["H200_s1", "H500_s0", "H500_s1", "H1000_s0", "H1000_s1"],
+      "partitions": ["A100", "V100", "H100", "L40S", "A40"],
+      "time_limit": "1-00:00:00"
+    },
+    "h2000_a40_only": {
+      "job": "890151_[6-7]",
+      "tasks": [6, 7],
+      "cells": ["H2000_s0", "H2000_s1"],
+      "partitions": ["A40"],
+      "time_limit": "96:00:00"
+    }
+  },
+  "failed_submission_attempts": [
+    {
+      "scope": "non_h2000_flexible",
+      "reason": "requested_96h_time_limit_invalid_for_24h_partitions",
+      "job_created": false
+    }
+  ],
+  "target_labels_used_for_selection": false
+}

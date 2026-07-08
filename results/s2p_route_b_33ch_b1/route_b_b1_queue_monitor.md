@@ -168,3 +168,62 @@ target_labels_used=false
 checkpoint_seen=false
 downstream_launched=false
 ```
+
+## Scheduler Adjustment - 2026-07-08T23:12:15+02:00
+reason=non-H2000 tasks allowed on A100,V100,H100,L40S,A40; H2000 remains A40-only
+
+### actions
+```text
+kept_running=890125_0 H200_s0 A40
+cancelled_pending=890125_1..890125_7
+failed_submission_attempt=non-H2000 flexible with 96h rejected by partition time limit; no job created
+submitted_non_h2000_flexible=890147_[1-5] partitions=A100,V100,H100,L40S,A40 time=1-00:00:00
+submitted_h2000_a40=890151_[6-7] partition=A40 time=96:00:00
+```
+
+### squeue
+```text
+             JOBID         NAME PARTITION    STATE       TIME     NODELIST(REASON)
+          890147_4    s2pB1flex      A100  RUNNING       1:07        nodeaudible01
+          890147_2    s2pB1flex      A100  RUNNING       2:11               node04
+          890147_3    s2pB1flex      A100  RUNNING       2:11               node04
+          890147_1    s2pB1flex      A100  RUNNING       2:12               node03
+          890147_5    s2pB1flex A100,V100  PENDING       0:00               (None)
+          890151_6     s2pB1h2k       A40  PENDING       0:00               (None)
+          890151_7     s2pB1h2k       A40  PENDING       0:00               (None)
+          890125_0        s2pB1       A40  RUNNING      35:15               node34
+```
+
+### startup evidence
+```text
+890147_1 H200_s1 entered_trainer=true gpu=A100 stderr_empty=true target_labels_used=false
+890147_2 H500_s0 entered_trainer=true gpu=A100 stderr_empty=true target_labels_used=false
+890147_3 H500_s1 entered_trainer=true gpu=A100 stderr_empty=true target_labels_used=false
+890147_4 H1000_s0 pending=true
+890147_5 H1000_s1 pending=true
+890151_6 H2000_s0 pending_a40=true
+890151_7 H2000_s1 pending_a40=true
+```
+
+## Scheduler Adjustment Startup Update - 2026-07-08T23:12:59+02:00
+
+### squeue
+```text
+             JOBID         NAME PARTITION    STATE       TIME     NODELIST(REASON)
+          890147_4    s2pB1flex      A100  RUNNING       1:51        nodeaudible01
+          890147_2    s2pB1flex      A100  RUNNING       2:55               node04
+          890147_3    s2pB1flex      A100  RUNNING       2:55               node04
+          890147_1    s2pB1flex      A100  RUNNING       2:56               node03
+          890147_5    s2pB1flex A100,V100  PENDING       0:00  (QOSMaxGRESPerUser)
+          890151_6     s2pB1h2k       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890151_7     s2pB1h2k       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_0        s2pB1       A40  RUNNING      35:59               node34
+```
+
+### updated startup evidence
+```text
+890147_4 H1000_s0 entered_trainer=true gpu=A100 stderr_empty=true target_labels_used=false
+890147_5 H1000_s1 pending=true reason=QOSMaxGRESPerUser
+890151_6 H2000_s0 pending_a40=true
+890151_7 H2000_s1 pending_a40=true
+```
