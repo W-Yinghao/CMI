@@ -1,0 +1,8 @@
+intervention,gap_closed,perm_p,survives_permutation,destroys_recovery
+raw,0.4908528004503232,0.023952095808383235,True,False
+temperature,0.5122125821412399,0.013972055888223553,True,False
+class_bias_center,-0.5848333924791047,0.8023952095808383,False,True
+logit_norm_normalize,0.38399576597853574,0.0658682634730539,False,False
+class_uniformize,0.07310723332395147,0.4231536926147705,False,True
+confidence_shuffle,-0.39560261383521605,0.8243512974051896,False,True
+class_shuffle,-0.9354984764864958,0.9441117764471058,False,True
