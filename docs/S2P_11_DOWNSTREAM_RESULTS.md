@@ -61,8 +61,9 @@ checkpoint, not part of the P1 frontier.
 
 2. **Target MI transfer is at a near-chance floor for P1.** Mean P1 target bAcc is approximately 0.520 against the
    random-init floor 0.503. The margin is directionally positive, but all P1 cells score the same five SHU-MI target
-   subjects, so the pooled result is treated as practically near chance rather than as an estimable allocation slope.
-   The released reference clears the floor under both patch (0.553) and window (0.590) normalization.
+   subjects, so the pooled result is treated as practically near chance. The target-transfer slope is not interpreted:
+   the endpoint has not cleared the random floor enough to support an allocation-effect test. The released reference
+   clears the floor under both patch (0.553) and window (0.590) normalization.
 
 3. **Pretrained P1 checkpoints are numerically above random-init on L1 at every N.** This is the only practically
    meaningful positive signal in D1. It is a pretraining / architecture contrast, not an allocation effect. The
@@ -97,8 +98,8 @@ checkpoint, not part of the P1 frontier.
 Allowed neutral headline:
 
 > At a fixed 200 h pretraining budget, from-scratch CBraMod learns subject-identifiable structure (L1 >> random-init)
-> but not MI-transferable structure (transfer at the floor), and the coverage-vs-depth allocation axis produces no
-> detectable change in any endpoint.
+> but not frozen-probe MI-transferable structure (target transfer remains at the floor). The L1 allocation frontier is
+> flat, while the target-transfer allocation slope is not meaningful because the endpoint has not risen above floor.
 
 Do not claim from these results that subject diversity does not matter in general, that TUEG pretraining solves
 cross-subject transfer, that 200 h proves a zero allocation effect, or that CBraMod cannot learn MI-transferable
