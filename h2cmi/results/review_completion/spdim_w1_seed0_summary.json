@@ -1,0 +1,725 @@
+{
+  "audit": "h2cmi/results/review_completion/spdim_w1_seed0_audit.md",
+  "cho2017_split_caveat": "Cho2017 contiguous evaluation blocks are single-class under the exact W1 split; this was disclosed in P6A and preserved here.",
+  "dataset_macro": {
+    "rct": {
+      "mean_acc": 0.6973144191199747,
+      "mean_bacc": 0.6981976054463885
+    },
+    "source_only_tsmnet": {
+      "mean_acc": 0.7035600664767331,
+      "mean_bacc": 0.689921182655857
+    },
+    "spdim_bias": {
+      "mean_acc": 0.6905733618233619,
+      "mean_bacc": 0.6893840574633744
+    },
+    "spdim_geodesic": {
+      "mean_acc": 0.6902908357075024,
+      "mean_bacc": 0.6907799723486786
+    }
+  },
+  "datasets": [
+    "BNCI2014_001",
+    "Cho2017",
+    "Lee2019_MI"
+  ],
+  "deltas": {
+    "rct_minus_source_only_tsmnet": {
+      "mean_acc_delta": -0.046222222222222255,
+      "mean_bacc_delta": -0.02576504514517033,
+      "n": 115
+    },
+    "spdim_bias_minus_rct": {
+      "mean_acc_delta": -0.006227053140096614,
+      "mean_bacc_delta": -0.0091465617592011,
+      "n": 115
+    },
+    "spdim_bias_minus_source_only_tsmnet": {
+      "mean_acc_delta": -0.05244927536231883,
+      "mean_bacc_delta": -0.03491160690437138,
+      "n": 115
+    },
+    "spdim_geodesic_minus_rct": {
+      "mean_acc_delta": -0.006603864734299515,
+      "mean_bacc_delta": -0.007158960812633976,
+      "n": 115
+    },
+    "spdim_geodesic_minus_source_only_tsmnet": {
+      "mean_acc_delta": -0.05282608695652178,
+      "mean_bacc_delta": -0.03292400595780433,
+      "n": 115
+    }
+  },
+  "duplicate_key_count": 0,
+  "execution_jobs": {
+    "cancelled_bad_wrapper_shards": [
+      {
+        "job_id": "889841",
+        "reason": "cancelled due to wrapper stderr provenance bug before CSV creation",
+        "rows_written": 0,
+        "shard": "cho19_29"
+      },
+      {
+        "job_id": "889842",
+        "reason": "cancelled due to wrapper stderr provenance bug before CSV creation",
+        "rows_written": 0,
+        "shard": "cho30_40"
+      },
+      {
+        "job_id": "889843",
+        "reason": "cancelled due to wrapper stderr provenance bug before CSV creation",
+        "rows_written": 0,
+        "shard": "cho41_52"
+      },
+      {
+        "job_id": "889844",
+        "reason": "cancelled due to wrapper stderr provenance bug before CSV creation",
+        "rows_written": 0,
+        "shard": "lee01_11"
+      },
+      {
+        "job_id": "889845",
+        "reason": "cancelled due to wrapper stderr provenance bug before CSV creation",
+        "rows_written": 0,
+        "shard": "lee12_22"
+      },
+      {
+        "job_id": "889846",
+        "reason": "cancelled due to wrapper stderr provenance bug before CSV creation",
+        "rows_written": 0,
+        "shard": "lee23_33"
+      },
+      {
+        "job_id": "889847",
+        "reason": "cancelled due to wrapper stderr provenance bug before CSV creation",
+        "rows_written": 0,
+        "shard": "lee34_44"
+      },
+      {
+        "job_id": "889848",
+        "reason": "cancelled due to wrapper stderr provenance bug before CSV creation",
+        "rows_written": 0,
+        "shard": "lee45_54"
+      }
+    ],
+    "corrected_shards": {
+      "cho19_29": {
+        "csv_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho19_29_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_cho19_29_results.csv",
+        "csv_sha256": "7ce4c42c2dc049070140963f2e0e030ddaadb65b00e363e83fbbd0d02dff587d",
+        "dataset": "Cho2017",
+        "expected_rows": 44,
+        "final_squeue_absent": true,
+        "job_id": "889849",
+        "launch_header": {
+          "dataset": "Cho2017",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "git_status_porcelain": "",
+          "host": "node09",
+          "job_id": "889849",
+          "pwd": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho19_29_6a6e5b7",
+          "repo_head": "6a6e5b7758fe3d5130f87ea274be32ba6598dcd7",
+          "shard": "cho19_29",
+          "subjects": "19,20,21,22,23,24,25,26,27,28,29"
+        },
+        "ok_rows": 44,
+        "rows": 44,
+        "stderr_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho19_29_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-cho19-29-889849.err",
+        "stderr_status": {
+          "bytes": 4940,
+          "empty": false,
+          "exists": true,
+          "known_harmless_only": true,
+          "patterns": [
+            "moabb_zero_buffer_warning"
+          ],
+          "sha256": "73ab8fa6eeacd7956bc5025e0c7f8b56257e61a2f62e3c24c73ad99d3cd8b28e"
+        },
+        "stdout_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho19_29_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-cho19-29-889849.out",
+        "stdout_sha256": "1d79e8d314127609c1f6d3664b1e77850fd6bc28f88c4dda524f94f166d960f4",
+        "subjects": [
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29
+        ]
+      },
+      "cho30_40": {
+        "csv_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho30_40_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_cho30_40_results.csv",
+        "csv_sha256": "6d01d631f4a076693e8b4cdfea23a05176bd6c83252db2069edff2e33f0ee831",
+        "dataset": "Cho2017",
+        "expected_rows": 44,
+        "final_squeue_absent": true,
+        "job_id": "889850",
+        "launch_header": {
+          "dataset": "Cho2017",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "git_status_porcelain": "",
+          "host": "node42",
+          "job_id": "889850",
+          "pwd": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho30_40_6a6e5b7",
+          "repo_head": "6a6e5b7758fe3d5130f87ea274be32ba6598dcd7",
+          "shard": "cho30_40",
+          "subjects": "30,31,32,33,34,35,36,37,38,39,40"
+        },
+        "ok_rows": 44,
+        "rows": 44,
+        "stderr_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho30_40_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-cho30-40-889850.err",
+        "stderr_status": {
+          "bytes": 4940,
+          "empty": false,
+          "exists": true,
+          "known_harmless_only": true,
+          "patterns": [
+            "moabb_zero_buffer_warning"
+          ],
+          "sha256": "73ab8fa6eeacd7956bc5025e0c7f8b56257e61a2f62e3c24c73ad99d3cd8b28e"
+        },
+        "stdout_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho30_40_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-cho30-40-889850.out",
+        "stdout_sha256": "bb227a98a5c1b1df34d7fed2cb9c871ed63cbfd7b5e8a240dc5e4fa185a104d0",
+        "subjects": [
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40
+        ]
+      },
+      "cho41_52": {
+        "csv_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho41_52_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_cho41_52_results.csv",
+        "csv_sha256": "a5540ce64b11aa4604559505f507c1916aff8be685b4d125e91ccdc43353f3b2",
+        "dataset": "Cho2017",
+        "expected_rows": 48,
+        "final_squeue_absent": true,
+        "job_id": "889851",
+        "launch_header": {
+          "dataset": "Cho2017",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "git_status_porcelain": "",
+          "host": "node43",
+          "job_id": "889851",
+          "pwd": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho41_52_6a6e5b7",
+          "repo_head": "6a6e5b7758fe3d5130f87ea274be32ba6598dcd7",
+          "shard": "cho41_52",
+          "subjects": "41,42,43,44,45,46,47,48,49,50,51,52"
+        },
+        "ok_rows": 48,
+        "rows": 48,
+        "stderr_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho41_52_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-cho41-52-889851.err",
+        "stderr_status": {
+          "bytes": 4940,
+          "empty": false,
+          "exists": true,
+          "known_harmless_only": true,
+          "patterns": [
+            "moabb_zero_buffer_warning"
+          ],
+          "sha256": "73ab8fa6eeacd7956bc5025e0c7f8b56257e61a2f62e3c24c73ad99d3cd8b28e"
+        },
+        "stdout_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho41_52_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-cho41-52-889851.out",
+        "stdout_sha256": "f6f66d72fbc1d48ee1039adcee33a65222440ac92d55a8050e751bb34aa72e54",
+        "subjects": [
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52
+        ]
+      },
+      "lee01_11": {
+        "csv_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee01_11_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_lee01_11_results.csv",
+        "csv_sha256": "5ac5cc6adfef728452501430b18699bfacbc65f3bbabc329a5b08127b4734b32",
+        "dataset": "Lee2019_MI",
+        "expected_rows": 44,
+        "final_squeue_absent": true,
+        "job_id": "889852",
+        "launch_header": {
+          "dataset": "Lee2019_MI",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "git_status_porcelain": "",
+          "host": "node43",
+          "job_id": "889852",
+          "pwd": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee01_11_6a6e5b7",
+          "repo_head": "6a6e5b7758fe3d5130f87ea274be32ba6598dcd7",
+          "shard": "lee01_11",
+          "subjects": "1,2,3,4,5,6,7,8,9,10,11"
+        },
+        "ok_rows": 44,
+        "rows": 44,
+        "stderr_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee01_11_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-lee01-11-889852.err",
+        "stderr_status": {
+          "bytes": 0,
+          "empty": true,
+          "exists": true,
+          "known_harmless_only": true,
+          "patterns": [],
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee01_11_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-lee01-11-889852.out",
+        "stdout_sha256": "f493f04ed94068a665e45bbf6834f053ce14ffd2c2253b2904e3dbe6b8692784",
+        "subjects": [
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11
+        ]
+      },
+      "lee12_22": {
+        "csv_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee12_22_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_lee12_22_results.csv",
+        "csv_sha256": "0fe9ef2c8f2f68c7f1013a794d437f788ca6d79709e21f0b601735e9de55a52d",
+        "dataset": "Lee2019_MI",
+        "expected_rows": 44,
+        "final_squeue_absent": true,
+        "job_id": "889853",
+        "launch_header": {
+          "dataset": "Lee2019_MI",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "git_status_porcelain": "",
+          "host": "node43",
+          "job_id": "889853",
+          "pwd": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee12_22_6a6e5b7",
+          "repo_head": "6a6e5b7758fe3d5130f87ea274be32ba6598dcd7",
+          "shard": "lee12_22",
+          "subjects": "12,13,14,15,16,17,18,19,20,21,22"
+        },
+        "ok_rows": 44,
+        "rows": 44,
+        "stderr_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee12_22_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-lee12-22-889853.err",
+        "stderr_status": {
+          "bytes": 0,
+          "empty": true,
+          "exists": true,
+          "known_harmless_only": true,
+          "patterns": [],
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee12_22_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-lee12-22-889853.out",
+        "stdout_sha256": "2b950b26c11348dbb31fbc96eefffaddfb8e6b26bc8882759876668ea8bdb03f",
+        "subjects": [
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22
+        ]
+      },
+      "lee23_33": {
+        "csv_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee23_33_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_lee23_33_results.csv",
+        "csv_sha256": "f947c42c9d7dd949e8c02ada242888eaf5974fd2053391468d99e4060f248267",
+        "dataset": "Lee2019_MI",
+        "expected_rows": 44,
+        "final_squeue_absent": true,
+        "job_id": "889854",
+        "launch_header": {
+          "dataset": "Lee2019_MI",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "git_status_porcelain": "",
+          "host": "node11",
+          "job_id": "889854",
+          "pwd": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee23_33_6a6e5b7",
+          "repo_head": "6a6e5b7758fe3d5130f87ea274be32ba6598dcd7",
+          "shard": "lee23_33",
+          "subjects": "23,24,25,26,27,28,29,30,31,32,33"
+        },
+        "ok_rows": 44,
+        "rows": 44,
+        "stderr_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee23_33_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-lee23-33-889854.err",
+        "stderr_status": {
+          "bytes": 0,
+          "empty": true,
+          "exists": true,
+          "known_harmless_only": true,
+          "patterns": [],
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee23_33_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-lee23-33-889854.out",
+        "stdout_sha256": "d7d33d4728029373fe6ea18056705134258d77cf50c1d72566dd4749e139d281",
+        "subjects": [
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33
+        ]
+      },
+      "lee34_44": {
+        "csv_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee34_44_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_lee34_44_results.csv",
+        "csv_sha256": "e68011e7fd7a3c997c5b93bf46618c6ed0402dfd430c9eb16594e2e42e8e65f1",
+        "dataset": "Lee2019_MI",
+        "expected_rows": 44,
+        "final_squeue_absent": true,
+        "job_id": "889855",
+        "launch_header": {
+          "dataset": "Lee2019_MI",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "git_status_porcelain": "",
+          "host": "node12",
+          "job_id": "889855",
+          "pwd": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee34_44_6a6e5b7",
+          "repo_head": "6a6e5b7758fe3d5130f87ea274be32ba6598dcd7",
+          "shard": "lee34_44",
+          "subjects": "34,35,36,37,38,39,40,41,42,43,44"
+        },
+        "ok_rows": 44,
+        "rows": 44,
+        "stderr_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee34_44_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-lee34-44-889855.err",
+        "stderr_status": {
+          "bytes": 0,
+          "empty": true,
+          "exists": true,
+          "known_harmless_only": true,
+          "patterns": [],
+          "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+        },
+        "stdout_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee34_44_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-lee34-44-889855.out",
+        "stdout_sha256": "3fb94008eefd93d09eed0789a3c371eab9753149ef020b0bde8d1aca5288bc57",
+        "subjects": [
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44
+        ]
+      },
+      "lee45_54": {
+        "csv_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee45_54_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_lee45_54_results.csv",
+        "csv_sha256": "2bebaf3470b1612a542f1e6330efb94fd44b4adfb6bb1eb527a5b44b02be32b3",
+        "dataset": "Lee2019_MI",
+        "expected_rows": 40,
+        "final_squeue_absent": true,
+        "job_id": "889856",
+        "launch_header": {
+          "dataset": "Lee2019_MI",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "git_status_porcelain": "",
+          "host": "node13",
+          "job_id": "889856",
+          "pwd": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee45_54_6a6e5b7",
+          "repo_head": "6a6e5b7758fe3d5130f87ea274be32ba6598dcd7",
+          "shard": "lee45_54",
+          "subjects": "45,46,47,48,49,50,51,52,53,54"
+        },
+        "ok_rows": 40,
+        "rows": 40,
+        "stderr_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee45_54_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-lee45-54-889856.err",
+        "stderr_status": {
+          "bytes": 63,
+          "empty": false,
+          "exists": true,
+          "known_harmless_only": true,
+          "patterns": [
+            "matplotlib_font_cache"
+          ],
+          "sha256": "cace1071573ef725e762e8856427937617c8c67e5d0784c45c0e854e56a803a8"
+        },
+        "stdout_path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee45_54_6a6e5b7/h2cmi/results/review_completion/slurm/logs/spdim-p6-lee45-54-889856.out",
+        "stdout_sha256": "7c7ef4da7a45e02c0c476b371128bb1ab72cc5df135359998f233b9694d0708e",
+        "subjects": [
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54
+        ]
+      }
+    },
+    "monolithic_partial": {
+      "datasets": {
+        "BNCI2014_001": 36,
+        "Cho2017": 72
+      },
+      "final_squeue_absent": true,
+      "job_id": "889522",
+      "launch_header": {
+        "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+        "git_status_porcelain": "",
+        "host": "node42",
+        "job_id": "889522",
+        "pwd": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368",
+        "repo_head": "6a6e5b7758fe3d5130f87ea274be32ba6598dcd7"
+      },
+      "role": "partial_source",
+      "rows_used": 108,
+      "stderr_path": "h2cmi/results/review_completion/slurm/logs/spdim-w1-seed0-889522.err",
+      "stderr_status": {
+        "bytes": 5021,
+        "empty": false,
+        "exists": true,
+        "known_harmless_only": false,
+        "patterns": [
+          "moabb_zero_buffer_warning"
+        ],
+        "sha256": "1b0c2ebcabd8baecf7935f330e7a8599aeb02e4af5adbf575f029182a9e0df06"
+      },
+      "stdout_path": "h2cmi/results/review_completion/slurm/logs/spdim-w1-seed0-889522.out",
+      "stdout_sha256": "e12d417f928c98bd0fe337d703525863b1fce801578f66eb952d91e9f1ed1b55",
+      "termination": "cancelled after 108 ok rows to replace slow monolithic tail with clean non-overlapping shards"
+    }
+  },
+  "execution_strategy": "monolithic_partial_plus_8_clean_nonoverlapping_shards",
+  "expected_rows_by_dataset": {
+    "BNCI2014_001": 36,
+    "Cho2017": 208,
+    "Lee2019_MI": 216
+  },
+  "expected_rows_total": 460,
+  "failed_rows": 0,
+  "generated_at_local": "2026-07-09",
+  "harm": {
+    "rct_vs_source_only_tsmnet": {
+      "harm_count": 53,
+      "harm_rate": 0.4608695652173913,
+      "n": 115
+    },
+    "spdim_bias_vs_rct": {
+      "harm_count": 57,
+      "harm_rate": 0.4956521739130435,
+      "n": 115
+    },
+    "spdim_bias_vs_source_only_tsmnet": {
+      "harm_count": 53,
+      "harm_rate": 0.4608695652173913,
+      "n": 115
+    },
+    "spdim_geodesic_vs_rct": {
+      "harm_count": 40,
+      "harm_rate": 0.34782608695652173,
+      "n": 115
+    },
+    "spdim_geodesic_vs_source_only_tsmnet": {
+      "harm_count": 53,
+      "harm_rate": 0.4608695652173913,
+      "n": 115
+    }
+  },
+  "label": "W1 seed-0 same-split official SPDIM expansion, not full three-seed baseline.",
+  "logits_hash_complete": true,
+  "methods": [
+    "source_only_tsmnet",
+    "rct",
+    "spdim_geodesic",
+    "spdim_bias"
+  ],
+  "monitoring_policy": "squeue_only",
+  "no_sacct_used": true,
+  "official_pretrained_weight_detected": false,
+  "ok_rows": 460,
+  "overall_subject_weighted": {
+    "rct": {
+      "mean_acc": 0.6847632850241546,
+      "mean_bacc": 0.6860074257622334,
+      "n": 115
+    },
+    "source_only_tsmnet": {
+      "mean_acc": 0.7309855072463767,
+      "mean_bacc": 0.7117724709074035,
+      "n": 115
+    },
+    "spdim_bias": {
+      "mean_acc": 0.6785362318840581,
+      "mean_bacc": 0.676860864003032,
+      "n": 115
+    },
+    "spdim_geodesic": {
+      "mean_acc": 0.6781594202898549,
+      "mean_bacc": 0.6788484649495993,
+      "n": 115
+    }
+  },
+  "per_dataset": {
+    "BNCI2014_001": {
+      "rct": {
+        "mean_acc": 0.7299382716049383,
+        "mean_bacc": 0.7299382716049383,
+        "mean_macro_f1": 0.7286665215191233,
+        "n": 9
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.625,
+        "mean_bacc": 0.625,
+        "mean_macro_f1": 0.5468491906162818,
+        "n": 9
+      },
+      "spdim_bias": {
+        "mean_acc": 0.7222222222222223,
+        "mean_bacc": 0.7222222222222223,
+        "mean_macro_f1": 0.7194195806109652,
+        "n": 9
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.7222222222222222,
+        "mean_bacc": 0.7222222222222222,
+        "mean_macro_f1": 0.720379120912097,
+        "n": 9
+      }
+    },
+    "Cho2017": {
+      "rct": {
+        "mean_acc": 0.6849679487179487,
+        "mean_bacc": 0.6849679487179487,
+        "mean_macro_f1": 0.4136209680767356,
+        "n": 52
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.8941987179487181,
+        "mean_bacc": 0.8941987179487181,
+        "mean_macro_f1": 0.7273541997039045,
+        "n": 52
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6706089743589743,
+        "mean_bacc": 0.6706089743589743,
+        "mean_macro_f1": 0.4077377739201108,
+        "n": 52
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.6693910256410256,
+        "mean_bacc": 0.6693910256410256,
+        "mean_macro_f1": 0.40716911164047587,
+        "n": 52
+      }
+    },
+    "Lee2019_MI": {
+      "rct": {
+        "mean_acc": 0.6770370370370371,
+        "mean_bacc": 0.6796865960162785,
+        "mean_macro_f1": 0.6697503198406936,
+        "n": 54
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.5914814814814812,
+        "mean_bacc": 0.550564830018853,
+        "mean_macro_f1": 0.44682642542873435,
+        "n": 54
+      },
+      "spdim_bias": {
+        "mean_acc": 0.678888888888889,
+        "mean_bacc": 0.6753209758089265,
+        "mean_macro_f1": 0.6645262098891668,
+        "n": 54
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.6792592592592593,
+        "mean_bacc": 0.6807266691827885,
+        "mean_macro_f1": 0.6713200940482342,
+        "n": 54
+      }
+    }
+  },
+  "prediction_hash_complete": true,
+  "result_csv": "h2cmi/results/review_completion/spdim_w1_seed0_results.csv",
+  "result_csv_sha256": "87ba93cac505e8d1d073bef67f29a4ccdd055e73185d637244ce2a3687c51698",
+  "result_digest": "h2cmi/results/review_completion/spdim_w1_seed0_result_digest.md",
+  "row_count": 460,
+  "source_manifests": [
+    {
+      "job_id": "889522",
+      "path": "h2cmi/results/review_completion/spdim_w1_seed0_results.csv",
+      "rows": 108,
+      "source": "monolithic_partial"
+    },
+    {
+      "job_id": "889849",
+      "path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho19_29_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_cho19_29_results.csv",
+      "rows": 44,
+      "source": "cho19_29"
+    },
+    {
+      "job_id": "889850",
+      "path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho30_40_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_cho30_40_results.csv",
+      "rows": 44,
+      "source": "cho30_40"
+    },
+    {
+      "job_id": "889851",
+      "path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_cho41_52_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_cho41_52_results.csv",
+      "rows": 48,
+      "source": "cho41_52"
+    },
+    {
+      "job_id": "889852",
+      "path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee01_11_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_lee01_11_results.csv",
+      "rows": 44,
+      "source": "lee01_11"
+    },
+    {
+      "job_id": "889853",
+      "path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee12_22_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_lee12_22_results.csv",
+      "rows": 44,
+      "source": "lee12_22"
+    },
+    {
+      "job_id": "889854",
+      "path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee23_33_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_lee23_33_results.csv",
+      "rows": 44,
+      "source": "lee23_33"
+    },
+    {
+      "job_id": "889855",
+      "path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee34_44_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_lee34_44_results.csv",
+      "rows": 44,
+      "source": "lee34_44"
+    },
+    {
+      "job_id": "889856",
+      "path": "/home/infres/yinwang/CMI_AAAI_spdim_p6_lee45_54_6a6e5b7/h2cmi/results/review_completion/spdim_w1_seed0_shard_lee45_54_results.csv",
+      "rows": 40,
+      "source": "lee45_54"
+    }
+  ],
+  "source_seed": 0,
+  "status": "pass",
+  "target_label_leakage_detected": false,
+  "third_party_vendoring_detected": false,
+  "unique_key_count": 460
+}

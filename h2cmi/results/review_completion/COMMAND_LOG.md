@@ -106,3 +106,27 @@
   `approve_gpu_run=true`. Cho2017's exact contiguous split yields single-class
   evaluation blocks under this W1 split; this is disclosed in
   `spdim_w1_seed0_protocol.md` and the dry-run audit rather than hidden.
+- Per PM P6B, launched the approved W1 seed-0 SPDIM expansion after P6A commit
+  `6a6e5b7758fe3d5130f87ea274be32ba6598dcd7` had been pushed. Initial
+  monolithic Slurm job `889522` clean-launched and produced 108 `ok` rows
+  (BNCI2014_001 all targets plus Cho2017 targets 1-18), then was cancelled to
+  avoid a slow single-job tail and replaced by clean non-overlapping shards.
+  First shard attempts `889841`-`889848` were cancelled before writing any CSV
+  rows because their wrapper emitted a bad external-SHA echo into stderr.
+  Corrected shard jobs `889849`-`889856` clean-launched from detached worktrees
+  at the same pushed commit, with empty `git status --porcelain` blocks and
+  external SPDIM SHA `1b0de0ccd4c48a4ff28f087b866a0b671b029c39`; they completed
+  Cho2017 targets 19-52 and Lee2019_MI targets 1-54.
+- P6B completion validation used `squeue` only. Final `squeue` checks for
+  result-carrying jobs `889522` and `889849`-`889856` returned no job row
+  (`Invalid job id specified`, accepted as absent). The merged result CSV parsed
+  with 460/460 `ok` rows, no duplicate keys, dataset counts
+  `BNCI2014_001=36`, `Cho2017=208`, `Lee2019_MI=216`, complete prediction and
+  logits hashes, and SHA-256
+  `87ba93cac505e8d1d073bef67f29a4ccdd055e73185d637244ce2a3687c51698`.
+  Summary/digest/audit artifacts are
+  `spdim_w1_seed0_summary.json`, `spdim_w1_seed0_result_digest.md`, and
+  `spdim_w1_seed0_audit.md`. No target-label leakage, official pretrained
+  weight use, or third-party vendoring was detected; no seeds 1/2, full
+  three-seed baseline, TeX edit, geometry stress, or orthogonal-score work was
+  performed.
