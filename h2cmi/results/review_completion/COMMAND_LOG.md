@@ -92,3 +92,17 @@
   The clean rerun matches exploratory P5 on acc, bAcc, and prediction hashes for
   all 36 rows; logits byte hashes differ for all 36 rows and are disclosed in
   `spdim_bnci001_clean_compare_to_exploratory.csv`.
+- Per PM P6A, prepared the official SPDIM W1 seed-0 same-split protocol and
+  CPU-only dry-run gate. Added `h2cmi/run_spdim_w1_seed0.py` as a clean-guarded
+  single-process W1 controller plus Slurm launcher
+  `h2cmi/results/review_completion/slurm/spdim_w1_seed0.slurm`; no GPU was
+  launched before the P6A commit. The dry-run used the `icml` environment and
+  external SPDIM checkout
+  `1b0de0ccd4c48a4ff28f087b866a0b671b029c39`, loaded all target subjects for
+  `BNCI2014_001`, `Cho2017`, and `Lee2019_MI`, instantiated official TSMNet for
+  each dataset shape, and ran one CPU forward pass per dataset without target
+  labels in the adaptation loader. The gate passed with expected rows
+  `BNCI2014_001=36`, `Cho2017=208`, `Lee2019_MI=216`, total `460`, and
+  `approve_gpu_run=true`. Cho2017's exact contiguous split yields single-class
+  evaluation blocks under this W1 split; this is disclosed in
+  `spdim_w1_seed0_protocol.md` and the dry-run audit rather than hidden.
