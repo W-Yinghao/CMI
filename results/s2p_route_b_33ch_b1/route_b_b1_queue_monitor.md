@@ -110,3 +110,30 @@ Root cause: the sbatch wrapper derives REPO_ROOT from BASH_SOURCE[0]. SLURM exec
 Stop-rule status: wrong runtime path / wrapper startup failure; training is not complete and downstream remains held.
 Actions taken: inspected only; no job submitted, no requeue, no partition/QoS change, no downstream launch.
 ```
+
+## Relaunch Monitor Snapshot - 2026-07-08T22:37:37+02:00
+git_head=c3a6265079de1645a35af482f8e2b11d7564dc7a
+previous_job=889864_[0-7] FAILED_AT_WRAPPER_STARTUP
+path_canary_job=890114_[0-7] PASS
+relaunch_job=890125_[0-7]
+
+### squeue expanded
+```text
+             JOBID PARTITION    STATE       TIME     NODELIST(REASON)
+          890125_1       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_2       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_3       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_4       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_5       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_6       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_7       A40  PENDING       0:00  (QOSMaxGRESPerUser)
+          890125_0       A40  RUNNING       0:37               node34
+```
+
+### summary
+```text
+running_tasks=1
+pending_tasks=7
+pending_reason=QOSMaxGRESPerUser
+downstream_launched=false
+```

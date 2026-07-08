@@ -1,0 +1,17 @@
+{
+  "previous_job": "889864_[0-7]",
+  "previous_status": "FAILED_AT_WRAPPER_STARTUP",
+  "training_started_in_previous_job": false,
+  "new_job": "890125_[0-7]",
+  "grid_unchanged": true,
+  "budgets_h": [200, 500, 1000, 2000],
+  "seeds": [0, 1],
+  "h4000_included": false,
+  "wrapper_patch": "repo_root_no_longer_uses_BASH_SOURCE",
+  "repo_root_resolution": "S2P_REPO_ROOT_or_SLURM_SUBMIT_DIR_with_spool_guard",
+  "path_canary_job": "890114_[0-7]",
+  "path_canary_pass": true,
+  "dry_run_trainer_called": false,
+  "target_labels_used_for_selection": false,
+  "downstream_launched": false
+}
