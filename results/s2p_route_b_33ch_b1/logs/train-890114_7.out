@@ -1,0 +1,21 @@
+Route B B1 cell=H2000_s1 H=2000 seed=1 host=node34 git=bb6525b5d045e9efb945d58d8653e1357fadd70c
+?? results/s2p_route_b_33ch_b1/logs/train-890114_0.err
+?? results/s2p_route_b_33ch_b1/logs/train-890114_0.out
+?? results/s2p_route_b_33ch_b1/logs/train-890114_1.err
+?? results/s2p_route_b_33ch_b1/logs/train-890114_1.out
+?? results/s2p_route_b_33ch_b1/logs/train-890114_2.err
+?? results/s2p_route_b_33ch_b1/logs/train-890114_2.out
+?? results/s2p_route_b_33ch_b1/logs/train-890114_3.err
+?? results/s2p_route_b_33ch_b1/logs/train-890114_3.out
+?? results/s2p_route_b_33ch_b1/logs/train-890114_4.err
+?? results/s2p_route_b_33ch_b1/logs/train-890114_4.out
+?? results/s2p_route_b_33ch_b1/logs/train-890114_5.err
+?? results/s2p_route_b_33ch_b1/logs/train-890114_5.out
+?? results/s2p_route_b_33ch_b1/logs/train-890114_6.err
+?? results/s2p_route_b_33ch_b1/logs/train-890114_6.out
+?? results/s2p_route_b_33ch_b1/logs/train-890114_7.err
+?? results/s2p_route_b_33ch_b1/logs/train-890114_7.out
+?? results/s2p_route_b_33ch_b1/route_b_b1_path_canary_job_id.txt
+?? results/s2p_route_b_33ch_b1/route_b_b1_path_canary_report.csv
+?? results/s2p_route_b_33ch_b1/route_b_b1_path_canary_report.csv.lock
+S2P_DRY_RUN=1 path canary passed for H2000_s1; trainer_called=false
