@@ -1,0 +1,5 @@
+exposure_h,pool_size,used_for,pool_usable_h_median,pool_nrec_median,pool_maxrec_h_median
+0.0977,6516,diversity,0.342,1.0,0.333
+0.1953,6485,diversity+exposure,0.342,1.0,0.333
+0.3906,2231,diversity+exposure,0.667,2.0,0.4
+0.7812,713,diversity,1.1,4.0,0.508

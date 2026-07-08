@@ -1,0 +1,6 @@
+contrast_type,key,cells,shared_pool_exposure_h
+diversity (matched exposure),e=0.0977h,100h/N1024;200h/N2048,0.0977
+diversity (matched exposure),e=0.1953h,100h/N512;200h/N1024,0.1953
+diversity (matched exposure),e=0.7812h,100h/N128;200h/N256,0.7812
+exposure (matched N),N=512,100h(e=0.1953);200h(e=0.3906),0.3906
+exposure (matched N),N=1024,100h(e=0.0977);200h(e=0.1953),0.1953

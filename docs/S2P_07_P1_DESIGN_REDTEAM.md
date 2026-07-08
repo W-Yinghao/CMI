@@ -69,3 +69,37 @@ round(cap·120); truncate within recording). Must land before any run.
 "diversity"). BL-2/BL-3/MJ-1..5 + the loader window-budget fix must be resolved and the numeric thresholds frozen
 before `p1_launch_go_nogo.launch_p1 = true`. This is the same identifiability lesson as FSR-8C, now caught **before**
 any GPU spend.
+
+---
+
+## PM RESOLUTION (2026-07-08) + verification
+
+**PM chose BL-1 fix = TWO fixed-H0 lines (100 h + 200 h), a lean crossed grid** (not the reframe, not a
+constant-exposure arm as primary). Rationale (PM): a single fused slope cannot be read as a mechanism — subject
+count and per-subject exposure must be separated, isomorphic to the Prior-Decoupled TTA four-branch split. S2P_06 was
+rewritten to v2. Resolution of each item, **verified on the real 19-common corpus** (not the 33-ch feasibility table):
+
+- **BL-1 RESOLVED (identifiable).** Grid `100h:{128,512,1024}` + `200h:{256,512,1024,2048}`. Design matrix
+  `[1, log N, log e]` is **rank 3/3**, `corr(log N, log e) = −0.918` (was −1). Matched-**exposure** pairs
+  (e=0.781/0.195/0.098) identify **diversity**; matched-**N** pairs (N=512/1024) identify **exposure**.
+  (`p1_identifiability_matrix.csv`, `p1_exposure_crosswalk.csv`, `p1_feasibility_by_cell_v2.csv`.)
+- **MJ-1 RESOLVED + escalated to a disclosed STRUCTURAL confound.** N=32 removed from primary. Real-corpus
+  feasibility done on 19-common. Population drift **quantified** (`p1_population_balance_diagnostics.csv`): deep-exposure
+  pool (e=0.781) = **713** long-recording clinical subjects (median 4 rec, 11.9% single-rec) vs sparse pools ≈**6,500**
+  general (median 1 rec, ~67% single-rec). In this corpus exposure **range** is structurally entangled with clinical
+  **population** ⇒ **diversity contrasts (within-pool) are primary/clean; the exposure axis is reported with population
+  as a named confound**, never as a clean causal exposure effect. Common eligibility pools + **nested** sampling pin
+  each contrast to one pool (`p1_common_eligibility_pools.csv`).
+- **BL-2 RESOLVED (pre-registered).** Positive-control floor (must beat random-init frozen source-val +0.02),
+  per-cell convergence gate (pretrain-val loss ↓ ≥20%), gate-pass reported as an outcome (slopes with & without
+  gated cells), under-powered→STOP (no null claim).
+- **BL-3 RESOLVED (frozen thresholds in S2P_06):** total-hours ±1%, per-subject-window ±1, Gini ≤0.02; MDE
+  target-bAcc +0.02 / L1 −0.03 / L5 ±0.01; seed-SD ≤0.03, ≥2/3 sign, ≤70% single-seed; conv ≥20%.
+- **MJ-2..5 RESOLVED:** fixed common external pretrain-val; one primary + Holm; effective (nested) windows-per-subject
+  + windowing policy pinned; subset-seed × init-seed factorial at the two extreme cells (+ seeds {3,4}).
+- **Loader window-budget bug FIXED + promoted to a hard launch gate** (total-hours ±1% per cell).
+
+**Compute:** 25 CBraMod pretraining runs (21 primary × seeds{0,1,2} + 4 extreme seed-ext) ≈ 2× v1 (PM-accepted);
+optional high-N diagonal (+6) only if clean. **Status: launch still HELD** pending (i) a fresh design red-team of
+this revised two-H0 protocol and (ii) explicit PM go after the launch-condition checklist. This record + S2P_06 v2
++ the four new CSVs constitute the revised pre-registration.

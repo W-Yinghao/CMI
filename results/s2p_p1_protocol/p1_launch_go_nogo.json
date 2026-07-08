@@ -25,7 +25,7 @@
   "compute_budget_ok": "15 runs from-scratch @100h corpus (pilot-scale); epochs TBD by convergence check",
   "design_red_team": "DONE (agent a7ea257d): BLOCKERS_PRESENT",
   "launch_p1": false,
-  "launch_note": "HOLD - BLOCKERS_PRESENT. BL-1 (identifiability) requires PM decision on the fix axis. BL-2/BL-3 + MJ-1..5 + numeric thresholds must be resolved before launch. Loader fixed-hours bug FIXED. This is the FSR-8C identifiability lesson caught BEFORE any GPU spend.",
+  "launch_note": "Two-H0 crossed design RESOLVES BL-1 (verified full-rank+feasible on real 19-common corpus). All 10 launch conditions currently PASS. Launch still HELD pending fresh red-team of the revised protocol + explicit PM go (report-then-go discipline). NOT auto-launched.",
   "blockers": {
     "BL1_not_identifiable": "fixed-H0 single line: exposure=100/N PERFECTLY collinear with N (corr=-1) -> exposure covariate VOID -> one fused slope (diversity-exposure), diversity NOT estimable. FIX: PM choose (a) 2 fixed-H0 lines {100,200}h ~2x compute, or (b) constant-exposure growing-hours arm, or (c) reframe to 'subject-vs-depth tradeoff frontier' (no diversity claim)",
     "BL2_underpower_selection_bias": "100h from-scratch may be weak -> most cells fail 0.58 gate -> N-dependent gating = survivorship bias. FIX: positive-control floor (beat random-init frozen), per-cell convergence gate, gate-as-outcome (slopes with+without gated cells)",
@@ -38,5 +38,90 @@
     "MJ4_sparse_redundancy": "N=2000 ~6 contiguous windows/subj = near-duplicates -> effective diversity <<6; report effective-windows + pin overlap policy",
     "MJ5_seeds_conflated": "factor subset-seed x init-seed; >=5 seeds at N{32,2000}"
   },
-  "loader_fixed_hours_bug": "FIXED (window-level budget; verified total ~100h all N; was 116-597h)"
+  "loader_fixed_hours_bug": "FIXED (window-level budget; verified total ~100h all N; was 116-597h)",
+  "pm_decision_2026_07_08": "BL-1 fix = TWO fixed-H0 lines (100h+200h) lean crossed grid; keep diversity question; NOT reframe; N=32 out of primary; constant-exposure arm = P2 diagnostic only",
+  "design_v2": "two-budget subject-count x per-subject-exposure decomposition",
+  "grid_primary": {
+    "H0_100h": [
+      128,
+      512,
+      1024
+    ],
+    "H0_200h": [
+      256,
+      512,
+      1024,
+      2048
+    ],
+    "seeds": [
+      0,
+      1,
+      2
+    ],
+    "runs": 21
+  },
+  "grid_seed_ext": {
+    "cells": [
+      "100h/N128",
+      "200h/N2048"
+    ],
+    "seeds": [
+      3,
+      4
+    ],
+    "runs": 4
+  },
+  "grid_optional_highN": {
+    "cells": [
+      "100h/N2000",
+      "200h/N4000"
+    ],
+    "exposure_h": 0.05,
+    "runs": 6,
+    "conditional": "feasibility+balance clean"
+  },
+  "verification_real_19common_corpus": {
+    "identifiable_full_rank": true,
+    "design_matrix_rank": "3/3",
+    "corr_logN_log_e": -0.918,
+    "all_7_primary_cells_feasible": true,
+    "all_optional_cells_feasible": true,
+    "diversity_contrasts": {
+      "e0.781_pool": 713,
+      "e0.195_pool": 6485,
+      "e0.098_pool": 6516
+    },
+    "exposure_contrasts_common_pool": {
+      "N512_pool_ge0.391": 2231,
+      "N1024_pool_ge0.195": 6485
+    },
+    "population_confound_quantified": "deep-exposure pool 713 clinical(median 4 rec) vs sparse ~6500 general(median 1 rec) -> exposure axis structurally entangled with clinical population; diversity contrasts within-pool clean"
+  },
+  "resolutions": {
+    "BL1": "RESOLVED two-H0 full-rank",
+    "BL2": "RESOLVED positive-control floor+convergence gate+gate-as-outcome",
+    "BL3": "RESOLVED thresholds frozen in S2P_06",
+    "MJ1": "RESOLVED+disclosed structural confound; N=32 out; nested common pools",
+    "MJ2": "fixed common external pretrain-val",
+    "MJ3": "1 primary+Holm",
+    "MJ4": "nested effective-windows+policy pinned",
+    "MJ5": "subset-seed x init-seed factorial extremes",
+    "loader_fixed_hours": "FIXED window-level + hard gate \u00b11%"
+  },
+  "launch_conditions": {
+    "1_BL1_two_H0_full_rank": "PASS (rank 3/3)",
+    "2_common_eligibility_pools_defined": "PASS",
+    "3_whole_window_truncation_verified": "PASS (loader fix, ~100h all N)",
+    "4_sampling_balance_thresholds_frozen": "PASS",
+    "5_convergence_task_gate_frozen": "PASS",
+    "6_design_matrix_full_rank": "PASS",
+    "7_CBraMod_native_objective_preserved": "PASS (9A.5)",
+    "8_pretrain_val_subject_disjoint": "PASS (+fixed common val)",
+    "9_checkpoint_pretrain_val_only": "PASS",
+    "10_target_labels_final_scoring_only": "PASS"
+  },
+  "pending_before_launch": [
+    "fresh design red-team of revised two-H0 protocol",
+    "explicit PM go after checklist (report-then-go)"
+  ]
 }
