@@ -1,0 +1,6 @@
+N,exposure_h,eligible_pool,sampled_usable_windows_median,sampled_usable_windows_p90,budget_windows_per_subj,redundancy_ratio,pct_subjects_single_recording
+128,1.5625,201,289.0,568.3,187.5,0.649,0.8
+256,0.7812,704,134.0,369.0,93.75,0.7,12.5
+512,0.3906,2195,81.0,181.7000000000001,46.88,0.579,32.2
+1024,0.1953,6357,41.0,102.0,23.44,0.572,66.0
+2048,0.0977,6388,41.0,101.0,11.72,0.286,69.4

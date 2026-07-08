@@ -1,82 +1,55 @@
 {
-  "primary_estimand": "mean_matched_exposure_subject_scaling_contrast",
-  "framing": "matched-exposure subject-scaling pilot (NOT full subject-diversity/exposure decomposition)",
-  "primary_pairs": [
-    {
-      "pair": "A",
-      "low": {
-        "H0": 100,
-        "N": 128
-      },
-      "high": {
-        "H0": 200,
-        "N": 256
-      },
-      "nominal_exposure_h_per_subject": 0.78125,
-      "quantized_exposure_h_per_subject": 0.783333,
-      "cap_windows": 94,
-      "pool_size": 713
-    },
-    {
-      "pair": "B",
-      "low": {
-        "H0": 100,
-        "N": 512
-      },
-      "high": {
-        "H0": 200,
-        "N": 1024
-      },
-      "nominal_exposure_h_per_subject": 0.1953125,
-      "quantized_exposure_h_per_subject": 0.191667,
-      "cap_windows": 23,
-      "pool_size": 6486
-    },
-    {
-      "pair": "C",
-      "low": {
-        "H0": 100,
-        "N": 1024
-      },
-      "high": {
-        "H0": 200,
-        "N": 2048
-      },
-      "nominal_exposure_h_per_subject": 0.09765625,
-      "quantized_exposure_h_per_subject": 0.1,
-      "cap_windows": 12,
-      "pool_size": 6516
-    }
+  "primary_estimand": "fixed_budget_subject_depth_frontier",
+  "total_pretraining_hours": 200,
+  "n_subjects_grid": [
+    128,
+    256,
+    512,
+    1024,
+    2048
   ],
-  "pair_contrast": "Delta_pair = target_bAcc(high-N,high-H0,same exposure) - target_bAcc(low-N,low-H0,same exposure)",
-  "primary_metric": "target_bAcc (SHU-MI)",
-  "aggregation": "unweighted_mean_over_pairs",
+  "primary_metric": "target_bAcc",
+  "primary_model": "CBraMod",
+  "analysis": "slope_vs_log_n_subjects",
+  "robust_analysis_excludes": [
+    128
+  ],
+  "pure_subject_diversity_claim_allowed": false,
+  "per_subject_exposure_controlled": false,
+  "frontier_claim_allowed": true,
+  "estimand_wording": "allocation/coverage-vs-depth slope at fixed 200h budget (NOT a diversity causal effect)",
   "seeds": [
     0,
     1,
     2
   ],
-  "n_val_per_contrast": 64,
-  "nested_low_subset_of_high": true,
-  "within_pool_matched_exposure": true,
-  "population_matched_within_pair": true,
-  "exposure_coefficient_estimated": false,
-  "crossed_regression": false,
-  "fixed_budget_diversity_claim_allowed": false,
-  "descriptive_slope_only": true,
-  "leave_one_pair_out_required": true,
-  "sign_consistency_across_pairs_required": true,
-  "secondary_statistics": [
-    "Delta_L1_pairwise_subject_separability",
-    "Delta_L4_alignment",
-    "Delta_L5_reliance_vs_variance_null",
-    "Delta_L6_target_consequence"
+  "total_windows_exact": 24000,
+  "budget_distribution": "remainder (base or base+1 windows/subj, max-min<=1)",
+  "val_pool": {
+    "fixed_global_seed_and_N_independent": true,
+    "n_val": 128,
+    "val_cap_windows": 24,
+    "disjoint_from_all_training": true
+  },
+  "secondary_frontier_slopes": [
+    "pairwise_subject_separability_vs_logN",
+    "L4_alignment_vs_logN",
+    "L5_reliance_vs_logN",
+    "L6_target_consequence_vs_logN",
+    "pretrain_val_loss_vs_logN"
+  ],
+  "analyses": [
+    "full_frontier_slope",
+    "robust_slope_excl_N128",
+    "seed_specific_slopes",
+    "leave_one_N_out_sign_stability",
+    "pretrain_val_loss_frontier"
   ],
   "stability_gates": {
     "seed_sd_target_bAcc_max": 0.03,
-    "min_seed_sign_agreement": "2/3",
+    "min_N_points_for_slope": 3,
     "max_single_seed_share": 0.7,
-    "leave_one_pair_out_sign_stable": true
+    "leave_one_N_out_sign_stable": true
   },
   "convergence_gates": {
     "pretrain_val_loss_rel_decrease_min": 0.2,
@@ -84,11 +57,7 @@
     "checkpoint_reload_exact": true,
     "no_nan_inf": true
   },
-  "mde": {
-    "target_bAcc": 0.02,
-    "pairwise_L1_abs": -0.03,
-    "L5_abs_vs_variance_null": 0.01
-  },
+  "population_confound": "N=128 deep endpoint = long-recording clinical (pool 201); disclosed; robust slope excludes N=128",
   "firewall": {
     "target_labels": "final scoring only",
     "checkpoint_selection": "pretrain-val loss only",
@@ -101,5 +70,10 @@
       "probe"
     ]
   },
-  "if_convergence_gate_correlates_with_N": "report as convergence-mediated effect, NOT subject-scaling effect"
+  "forbidden": [
+    "more subjects independently improve transfer",
+    "subject diversity causes better generalization",
+    "per-subject exposure is controlled",
+    "pure diversity effect estimated"
+  ]
 }

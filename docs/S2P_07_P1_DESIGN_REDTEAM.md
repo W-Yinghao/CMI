@@ -212,3 +212,30 @@ depth (subjects+data jointly)", strip diversity attribution, no compute, 18 runs
 to the fixed-budget **subject-vs-depth FRONTIER** (single T=200h, N∈{128..2048}, e=T/N), ~15 runs, identifiable +
 deployment-relevant, abandons "pure diversity" as unidentifiable (S2P_07 option c, now the honest endpoint).
 BL-4/5/6 stay resolved; MJ-11/MN-6 I fix once the design is set. Launch HELD.
+
+---
+
+## PM RESOLUTION v3 (2026-07-08) → P1 = fixed-budget subject-vs-depth FRONTIER (S2P_06 v4)
+**PM accepted BL-9 as structural and chose option (C): pivot to the fixed-budget subject-vs-depth frontier.** The
+S2P question is redefined from "does subject diversity independently help?" (unidentifiable — `T=N·e`) to *"given a
+fixed budget, allocate to more shallow subjects or fewer deep subjects?"* — identifiable, deployment-relevant, honest.
+Resolution, **all verified on the real corpus**:
+- **BL-9 RESOLVED** by fixing TOTAL budget T=200 h and varying N (e=T/N floats). No total-data confound: T is constant
+  across cells; the only thing varying with N besides subject count is depth (the intended tradeoff). Estimand renamed
+  to the **allocation slope** (`p1_primary_statistic_spec.json` `pure_subject_diversity_claim_allowed=false`,
+  `frontier_claim_allowed=true`).
+- **Loader rewritten** (`build_frontier_cell`) + VERIFIED (`p1_frontier_loader_balance_verification.csv`): 15 cells ×
+  3 seeds all hit **exactly 200.0 h** (0.0% off) via remainder distribution (max−min window/subj = 1, Gini ≤ 0.017),
+  **fixed GLOBAL val identical across all cells** (seed/N-independent, disjoint), floored-window eligibility (MJ-8).
+- **MJ-9 RESOLVED** — no unweighted-mean-over-heterogeneous-pairs; a single frontier slope over N, reported full +
+  robust(excl N=128) + leave-one-N-out; population diagnostics per cell (`p1_population_diagnostics.csv`).
+- **MJ-11** — load-time exact-cap assertion to be added to the training entry (metadata verified; load-time TBD in run).
+- **MN-6** — canonical exposure pinned (e=T/N derived from int budget); **MN-7** downstream z-score/normalizer parity
+  pre-registered in the protocol.
+- **N=128 population endpoint** — pool only 201 (deep clinical); kept as the deep endpoint, flagged, robust slope
+  excludes it.
+
+**Grid (15 runs):** T=200 h, N∈{128,256,512,1024,2048}, seeds{0,1,2}. Primary = allocation slope of SHU-MI
+target-bAcc vs log N; forbidden: any pure-diversity or controlled-exposure claim. **Status: launch HELD** pending
+(i) a final red-team of the frontier design showing no BLOCKER and (ii) explicit PM go on the launch checklist.
+CodeBrain native smoke running in parallel (non-blocking infra).

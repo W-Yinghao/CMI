@@ -4,14 +4,16 @@
 MATCHED-EXPOSURE SUBJECT-SCALING pilot. Yields 30 s windows (C=19, S=30 patches, 200/patch) with subject ids.
 Deterministic (seeded). No target labels.
 
-P1 design (S2P_06 v3, PM 2026-07-08): three within-pool matched-exposure NESTED pairs. For a fixed per-subject
-exposure e (hours/subject) and a common eligibility pool (subjects with >= e usable data), draw a large-N subset and
-a nested small-N subset (small ⊂ large) so each pair asks: *same per-subject depth, more subjects added*. A FIXED
-per-contrast pretrain-val subject pool (disjoint from every training subject, invariant to the subset seed) enables
-comparable best-val-loss checkpoint selection WITHIN a pair. Eligibility + budget are enforced at WINDOW granularity
-(MJ-8: floored available windows, not summed hours); each selected subject contributes EXACTLY cap_windows windows
-(subject-contribution Gini ~0 by construction). Checkpoint selection by pretrain-val loss only; target labels never
-touch subset/checkpoint/PCA/head/rank/probe.
+P1 design (S2P_06 v4, PM 2026-07-08): FIXED-BUDGET SUBJECT-vs-DEPTH FRONTIER. The v3 matched-exposure design was
+killed by the identifiability triangle T = N·e (BL-9: at fixed per-subject exposure, doubling N doubles TOTAL data,
+so subject count is collinear with total-data). "Pure subject diversity" is unidentifiable at pretraining scale. So
+P1 fixes the TOTAL budget T (=200 h) and varies N ∈ {128,256,512,1024,2048}; per-subject exposure e = T/N compensates.
+The estimand is the ALLOCATION effect — *given a fixed data budget, spend it on more subjects (shallower) or fewer
+(deeper)?* — NOT a diversity effect. Total windows are held EXACTLY constant (24000 = 200 h) via a remainder
+distribution (each subject gets base or base+1 windows, max−min ≤ 1). A FIXED GLOBAL pretrain-val subject pool
+(seed-independent, disjoint from EVERY frontier training draw) enables comparable best-val-loss checkpoint selection
+across all N. Eligibility + budget at WINDOW granularity (MJ-8: floored available windows). Checkpoint selection by
+pretrain-val loss only; target labels never touch subset/checkpoint/PCA/head/rank/probe.
 """
 import json
 from pathlib import Path
@@ -61,15 +63,17 @@ def eligible_pool(exposure_h):
     return np.sort(sw[sw >= capw].index.to_numpy())
 
 
-def _pick(subs, cap_windows):
-    """recording rows for `subs`, truncating each subject to EXACTLY cap_windows (in recording_id order)."""
+def _pick(subs, cap):
+    """recording rows for `subs`, truncating each subject to EXACTLY its budget (in recording_id order).
+    `cap` is either an int (same budget for all subjects) or a dict {subject: budget}."""
     m = _meta(); rows = []
     for s in subs:
+        capw = cap[s] if isinstance(cap, dict) else cap
         r = m[m["subject"] == s].sort_values("recording_id"); acc = 0
         for _, row in r.iterrows():
-            if acc >= cap_windows:
+            if acc >= capw:
                 break
-            take = min(int(row["avail_w"]), cap_windows - acc)
+            take = min(int(row["avail_w"]), capw - acc)
             if take <= 0:
                 continue
             rows.append(dict(subject=int(s), recording_id=int(row["recording_id"]), filepath=row["filepath"],
@@ -79,58 +83,69 @@ def _pick(subs, cap_windows):
     return rows
 
 
-def build_matched_exposure_pair(exposure_h, n_low, n_high, subset_seed, n_val=64):
-    """Build a within-pool NESTED matched-exposure pair (BL-5/BL-6 fix).
+FRONTIER_T_H = 200.0                       # fixed total pretraining budget (hours)
+FRONTIER_N = [128, 256, 512, 1024, 2048]   # subject-count axis
+_FRONT_VAL = None
 
-    exposure_h : per-subject exposure (hours), shared by BOTH cells of the pair.
-    n_low,n_high : nested subject counts (n_low <= n_high); the n_low training subjects are a SUBSET of n_high.
-    subset_seed : controls the subject draw ONLY (init/training seed is separate, applied by the trainer; MJ-5).
-    n_val : size of the FIXED per-contrast pretrain-val subject pool (invariant to subset_seed; disjoint from train).
 
-    returns dict(exposure_h, cap_windows, pool_size, high/low/val recording-rows + subject lists, manifest).
-    Each subject (train and val) contributes EXACTLY cap_windows windows.
+def _frontier_val(n_val=128, val_cap_windows=24, deep_need_windows=188):
+    """FIXED GLOBAL pretrain-val subjects (seed-independent): eligible at val_cap_windows but SHALLOWER than the
+    deepest training endpoint (windows < deep_need_windows) so they can NEVER be drawn into any frontier training
+    cell (incl. N=128). Each val subject contributes exactly val_cap_windows windows -> val identical across all N."""
+    global _FRONT_VAL
+    if _FRONT_VAL is None:
+        sw = _subject_windows()
+        cand = np.sort(sw[(sw >= val_cap_windows) & (sw < deep_need_windows)].index.to_numpy())
+        if len(cand) < n_val:
+            raise RuntimeError(f"infeasible val: {len(cand)} shallow-eligible subjects < n_val {n_val}")
+        rng = np.random.default_rng(500000)          # fixed, seed- AND N-independent
+        _FRONT_VAL = (np.sort(rng.choice(cand, n_val, replace=False)), int(val_cap_windows))
+    return _FRONT_VAL
+
+
+def build_frontier_cell(n_subjects, subset_seed, total_hours=FRONTIER_T_H, n_val=128):
+    """Build one fixed-budget frontier cell (BL-9 fix): fixed TOTAL budget, variable N.
+
+    n_subjects  : subjects to cover; per-subject exposure e = total_hours/n_subjects (window-quantized).
+    subset_seed : controls the subject draw ONLY (trainer init seed is separate; MJ-5).
+    Total windows are held EXACTLY at WT = round(total_hours*120) via a remainder distribution (each subject gets
+    `base` or `base+1` windows, max−min = 1). Training subjects are disjoint from the FIXED GLOBAL val pool.
+    returns dict(n_subjects, exposure_h, WT, pool_size, subjects/rows for train+val, manifest).
     """
-    assert n_low <= n_high
-    capw = cap_windows_for(exposure_h)
-    pool = eligible_pool(exposure_h)
-    econtrast = int(round(exposure_h * 1e6))                    # stable per-exposure integer key
+    WT = int(round(total_hours * 120))
+    base, rem = WT // n_subjects, WT - (WT // n_subjects) * n_subjects
+    need_w = base + (1 if rem > 0 else 0)
+    val_subj, val_capw = _frontier_val(n_val=n_val)
+    sw = _subject_windows()
+    pool = np.setdiff1d(np.sort(sw[sw >= need_w].index.to_numpy()), val_subj)   # disjoint from global val
+    if len(pool) < n_subjects:
+        raise RuntimeError(f"infeasible N={n_subjects}: pool {len(pool)} (>= {need_w}w, minus val) < {n_subjects}")
+    rng = np.random.default_rng(400000 + subset_seed * 13 + n_subjects)
+    subs = np.sort(rng.choice(pool, n_subjects, replace=False)); rng.shuffle(subs)
+    # exact-budget allocation: first `rem` subjects (by sorted id, deterministic) get base+1, the rest base
+    subs_sorted = sorted(subs.tolist())
+    alloc = {s: (base + 1 if i < rem else base) for i, s in enumerate(subs_sorted)}
+    rows_tr = _pick(subs_sorted, alloc)
+    rows_val = _pick(val_subj.tolist(), val_capw)
 
-    # FIXED per-contrast pretrain-val subjects (invariant to subset_seed) -> comparable checkpoint selection in-pair
-    rng_val = np.random.default_rng(700000 + econtrast)
-    if len(pool) < n_val + n_high:
-        raise RuntimeError(f"infeasible pair e={exposure_h:.4f}h: pool {len(pool)} < n_val {n_val} + n_high {n_high}")
-    val_subj = np.sort(rng_val.choice(pool, n_val, replace=False))
-    remaining = np.setdiff1d(pool, val_subj, assume_unique=False)   # train pool disjoint from val
-
-    # nested train draw: pick n_high, then n_low is a PREFIX (subset) of the n_high draw
-    rng_sub = np.random.default_rng(900000 + econtrast * 17 + subset_seed)
-    high = rng_sub.choice(remaining, n_high, replace=False)
-    rng_sub.shuffle(high)
-    sub_high = sorted(high.tolist())
-    sub_low = sorted(high[:n_low].tolist())                        # low ⊂ high (nested)
-
-    rows_high, rows_low, rows_val = _pick(sub_high, capw), _pick(sub_low, capw), _pick(val_subj.tolist(), capw)
-
-    def _hours(rows): return round(sum(r["hours"] for r in rows), 4)
     def _wsub(rows):
         d = {}
         for r in rows:
             d[r["subject"]] = d.get(r["subject"], 0) + r["take_windows"]
         return d
-    wl, wh, wv = _wsub(rows_low), _wsub(rows_high), _wsub(rows_val)
+    wt, wv = _wsub(rows_tr), _wsub(rows_val)
+    tot_w = sum(wt.values())
     man = dict(
-        exposure_h=round(exposure_h, 6), cap_windows=capw, pool_size=int(len(pool)),
-        n_low=n_low, n_high=n_high, n_val=n_val, subset_seed=subset_seed,
-        low_H0_h=round(n_low * exposure_h, 3), high_H0_h=round(n_high * exposure_h, 3),
-        low_total_hours=_hours(rows_low), high_total_hours=_hours(rows_high), val_total_hours=_hours(rows_val),
-        nested_low_subset_of_high=bool(set(sub_low) <= set(sub_high)),
-        train_val_disjoint=bool(set(sub_high).isdisjoint(val_subj.tolist())),
-        low_win_min=min(wl.values()), low_win_max=max(wl.values()),
-        high_win_min=min(wh.values()), high_win_max=max(wh.values()),
-        val_win_min=min(wv.values()), val_win_max=max(wv.values()))
-    return dict(exposure_h=exposure_h, cap_windows=capw, pool_size=int(len(pool)),
-                subjects_high=sub_high, subjects_low=sub_low, subjects_val=val_subj.tolist(),
-                train_high=rows_high, train_low=rows_low, val=rows_val, manifest=man)
+        n_subjects=n_subjects, total_hours=total_hours, exposure_h=round(total_hours / n_subjects, 6),
+        WT=WT, base_windows=base, plus1_subjects=rem, subset_seed=subset_seed, pool_size=int(len(pool)),
+        train_total_windows=int(tot_w), train_total_hours=round(tot_w * WIN_H, 4),
+        pct_off_budget=round(100 * (tot_w - WT) / WT, 5),
+        train_win_min=min(wt.values()), train_win_max=max(wt.values()), train_win_maxmin=max(wt.values()) - min(wt.values()),
+        n_val=n_val, val_cap_windows=val_capw, val_total_hours=round(sum(wv.values()) * WIN_H, 4),
+        train_val_disjoint=bool(set(wt).isdisjoint(set(wv))))
+    return dict(n_subjects=n_subjects, exposure_h=total_hours / n_subjects, WT=WT, pool_size=int(len(pool)),
+                subjects_train=subs_sorted, subjects_val=val_subj.tolist(),
+                train=rows_tr, val=rows_val, manifest=man)
 
 
 def build_subset(n_subjects, hours_budget, condition, seed, val_frac=0.15):

@@ -1,4 +1,4 @@
 model_id,substrate,objective,tokenizer,role,pretrain_code,status
-M1_CBraMod,CBraMod,masked_reconstruction,none,PRIMARY,~/eeg2025/CBraMod/pretrain_main.py,lab_tested_HBN; P1_two_H0_crossed_grid
+M1_CBraMod,CBraMod,masked_reconstruction,none,PRIMARY,~/eeg2025/CBraMod/pretrain_main.py,lab_tested_HBN; P1_fixed_budget_subject_depth_frontier
 M2_CodeBrain_Stage2,EEGSSM,masked_token_prediction,FROZEN_released_TFDual,SECONDARY_control,~/CodeBrain/Pretrain/pretrain_EEGSSM.py,code_present
 M3_CodeBrain_full,TFDual+EEGSSM,both,trained,DEFERRED_on_signal,"~/CodeBrain/Pretrain/{pretrain_TFDual,pretrain_EEGSSM}.py",deferred

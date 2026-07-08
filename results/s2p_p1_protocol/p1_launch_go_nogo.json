@@ -10,97 +10,60 @@
   "compute_budget_ok": "15 runs from-scratch @100h corpus (pilot-scale); epochs TBD by convergence check",
   "design_red_team": "DONE (agent a7ea257d): BLOCKERS_PRESENT",
   "launch_p1": false,
-  "launch_note": "v3 re-red-team FAILED condition #6: BL-9 total-data confound = the identifiability triangle T=N*e. Loader is correct + BL-4/5/6 resolved, but NO pretraining-scale design isolates pure subject diversity. RETURN TO PM for BL-9 (options A reframe / B depth-arm / C frontier). Launch HELD. Not auto-launched.",
+  "launch_note": "P1 = fixed-budget subject-vs-depth FRONTIER (PM option C). Loader rewritten + verified (15 cells exact 200h, val identical/disjoint). 10/12 conditions MET; #7 final red-team running, #11 verify-in-run, #12 held for explicit PM go. NOT auto-launched. 15 runs. CodeBrain smoke parallel non-blocking.",
   "loader_fixed_hours_bug": "FIXED (window-level budget; verified total ~100h all N; was 116-597h)",
   "pm_decision_2026_07_08": "BL-1 fix = TWO fixed-H0 lines (100h+200h) lean crossed grid; keep diversity question; NOT reframe; N=32 out of primary; constant-exposure arm = P2 diagnostic only",
   "pending_before_launch": [
     "fresh design red-team of revised two-H0 protocol",
     "explicit PM go after checklist (report-then-go)"
   ],
-  "pm_decision_v2_2026_07_08": "BL-5=(ii) DROP exposure coeff+crossed regression, keep 3 within-pool matched-exposure NESTED pairs; MJ-6=(ii) descriptive slopes + leave-one-pair sign-stability, no off-diagonal cells",
-  "design_v3": "matched-exposure subject-scaling pilot (narrowed; NOT full decomposition)",
-  "grid_pairs": {
-    "A": {
-      "low": "100h/N128",
-      "high": "200h/N256",
-      "e_nom": 0.78125,
-      "cap_windows": 94,
-      "pool": 713
-    },
-    "B": {
-      "low": "100h/N512",
-      "high": "200h/N1024",
-      "e_nom": 0.1953125,
-      "cap_windows": 23,
-      "pool": 6486
-    },
-    "C": {
-      "low": "100h/N1024",
-      "high": "200h/N2048",
-      "e_nom": 0.09765625,
-      "cap_windows": 12,
-      "pool": 6516
-    }
-  },
-  "runs": {
-    "primary": 18,
+  "pm_decision_v3_2026_07_08": "Accept BL-9 as structural (identifiability triangle T=N*e); choose option C = fixed-budget subject-vs-depth FRONTIER; no pure-diversity claim; N=128 kept+flagged; CodeBrain native smoke non-blocking parallel",
+  "design_v4": "fixed_budget_subject_depth_frontier",
+  "grid": {
+    "total_hours": 200,
+    "n_subjects": [
+      128,
+      256,
+      512,
+      1024,
+      2048
+    ],
     "seeds": [
       0,
       1,
       2
     ],
-    "highN_deferred_not_launched": 6
+    "runs": 15
   },
-  "primary_statistic": "Delta_subject_scale = unweighted_mean(Delta_A,Delta_B,Delta_C); Delta_pair = target_bAcc(high) - target_bAcc(low) at matched exposure; descriptive slope only; leave-one-pair sign-stable",
-  "loader_verified": {
-    "per_subject_window_maxmin": 0,
-    "gini": 0.0,
-    "pct_off_quant_budget_max": 0.0002,
-    "nested_low_in_high": true,
+  "estimand": "allocation/coverage-vs-depth slope of SHU-MI target_bAcc vs log N at fixed T=200h (NOT diversity)",
+  "loader_verified_15cells": {
+    "total_hours_exact": 200.0,
+    "pct_off_budget": 0.0,
+    "window_maxmin": 1,
+    "gini_max": 0.017,
     "train_val_disjoint": true,
-    "fixed_per_contrast_val_n": 64,
+    "val_identical_across_all_cells": true,
     "eligibility_basis": "floored windows (MJ-8)",
-    "subset_seed_neq_init_seed": true,
-    "all_pools_feasible": true
+    "budget_distribution": "remainder base/base+1"
   },
-  "blockers_resolved": [
-    "BL-4 loader rewritten+verified",
-    "BL-5 exposure coeff dropped",
-    "BL-6 pairs reported separately",
-    "MJ-6 descriptive+leave-one-pair",
-    "MJ-7 exposure axis dropped/redundancy disclosed",
-    "MJ-8 floored-window eligibility",
-    "MN de-stale+name-primary+L1-dynamic-range"
-  ],
+  "population_endpoints": {
+    "N128_pool": 201,
+    "note": "deep clinical endpoint FLAGGED; robust slope excludes N=128",
+    "N2048_pool": 6388,
+    "structural": "only clinical patients have deep recordings in TUEG 19-common; disclosed"
+  },
   "launch_conditions": {
-    "1_loader_rewritten_verified_vs_real_manifests": "MET (p1_loader_balance_verification.csv)",
-    "2_nested_common_pool_sampling": "MET (nested low\u2282high, floored-window pools)",
-    "3_fixed_pretrain_val_pool": "MET (n_val=64 per contrast, subset-seed invariant, disjoint)",
-    "4_exact_window_level_budget": "MET (maxmin=0, gini=0, \u00b10.0002% quantized)",
-    "5_primary_statistic_frozen": "MET (p1_primary_statistic_spec.json)",
-    "6_re_red_team_no_blocker": "FAILED - BL-9 total-data confound (log N \u27c2\u0338 log T within pair, corr=1)",
-    "7_CBraMod_native_objective_preserved": "MET (9A.5 audit; native Trainer_valid)",
-    "8_checkpoint_pretrain_val_only": "MET (spec)",
-    "9_target_labels_final_scoring_only": "MET (spec)",
-    "10_launch_p1_true": "NO (held for re-red-team + explicit PM go)"
-  },
-  "v3_re_red_team": "agent aafd6b5b: BLOCKER BL-9 (total-data confound) + identifiability triangle T=N*e. Loader verified correct; BL-4/5/6/MJ-8 resolved.",
-  "BL9_total_data_confound": {
-    "issue": "within each matched-exposure pair, cap_windows fixed + N doubles -> total windows double (A: 12032@100h vs 24064@200h); log N perfectly collinear with log total-data; Delta_pair cannot separate more-subjects from more-total-data",
-    "root_cause": "identifiability triangle T = N * e; varying N can hold at most one of {exposure, total} fixed; pure subject diversity (N up, e AND T fixed) is impossible since T=N*e",
-    "same_as": "v1 BL-1 unidentifiability, moved from (N,exposure) to (N,total-data)",
-    "PM_options": {
-      "A_reframe_no_compute": "rename to 'pool-doubling at matched depth (subjects+data jointly)'; strip diversity attribution; demote L1/L5 to co-varying; 18 runs as-is; NO diversity claim",
-      "B_depth_control_arm": "per pair add 200h/fixed-N_low/2*cap_windows cell; +9 runs (27 total); recovers (logN,log e) 2D -> subjects-vs-depth partials (but each partial still T-varying, not pure diversity)",
-      "C_fixed_budget_frontier": "pivot to single T=200h, N in {128,256,512,1024,2048}, e=T/N; ~15 runs; identifiable subject-vs-depth ALLOCATION frontier; deployment-relevant; abandons 'pure diversity' as fundamentally unidentifiable (S2P_07 option c)"
-    }
-  },
-  "other_open": {
-    "MJ9_unweighted_mean_pools_heterogeneous": "3 Delta_pair separately-reported co-primary; B&C same population",
-    "MJ10_underpower": "seed-SD ceiling 0.03 > MDE 0.02; per-pair CIs likely include 0; matched-final-val-loss covariate",
-    "MJ11_metadata_only_verification": "add load-time exact-cap assertion (I fix once design set)",
-    "MN6_pin_exposure_float": "pin canonical exposure_h (I fix)",
-    "MN7_downstream_norm_parity": "confirm SHU-MI identical z-score"
-  },
-  "recommendation": "C (fixed-budget subject-vs-depth frontier): after 3 rounds hitting the SAME triangle, 'pure subject diversity' is fundamentally unidentifiable at pretraining scale; the frontier is the clean, honest, deployment-relevant question. B if PM wants the subjects-vs-depth decomposition (2 partials). A = minimal salvage."
+    "1_loader_frontier_verified_real_manifests": "MET (exact 200h, maxmin=1, gini<=0.017, val identical+disjoint)",
+    "2_fixed_total_budget_no_total_data_confound": "MET (T=200h constant across N; BL-9 resolved)",
+    "3_exact_window_budget_and_balance_gates": "MET",
+    "4_fixed_global_pretrain_val_disjoint": "MET (identical across all 15 cells)",
+    "5_primary_statistic_frozen_allocation_slope": "MET (p1_primary_statistic_spec.json; full+robust+leave-one-N-out)",
+    "6_population_diagnostics_generated": "MET (p1_population_diagnostics.csv; N=128 flagged)",
+    "7_final_red_team_no_blocker": "PENDING (running)",
+    "8_CBraMod_native_objective_preserved": "MET (9A.5)",
+    "9_checkpoint_pretrain_val_only": "MET (spec)",
+    "10_target_labels_final_scoring_only": "MET (spec)",
+    "11_downstream_norm_parity_and_loadtime_assertion": "PENDING (pre-registered; verify in run)",
+    "12_launch_p1_true": "NO (held for final red-team + explicit PM go)"
+  }
 }
