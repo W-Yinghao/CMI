@@ -1,0 +1,17 @@
+tag,checkpoint
+N128_s0,results/s2p_p1_cbramod/N128_s0/best.pth
+N128_s1,results/s2p_p1_cbramod/N128_s1/best.pth
+N128_s2,results/s2p_p1_cbramod/N128_s2/best.pth
+N256_s0,results/s2p_p1_cbramod/N256_s0/best.pth
+N256_s1,results/s2p_p1_cbramod/N256_s1/best.pth
+N256_s2,results/s2p_p1_cbramod/N256_s2/best.pth
+N512_s0,results/s2p_p1_cbramod/N512_s0/best.pth
+N512_s1,results/s2p_p1_cbramod/N512_s1/best.pth
+N512_s2,results/s2p_p1_cbramod/N512_s2/best.pth
+N1024_s0,results/s2p_p1_cbramod/N1024_s0/best.pth
+N1024_s1,results/s2p_p1_cbramod/N1024_s1/best.pth
+N1024_s2,results/s2p_p1_cbramod/N1024_s2/best.pth
+N2048_s0,results/s2p_p1_cbramod/N2048_s0/best.pth
+N2048_s1,results/s2p_p1_cbramod/N2048_s1/best.pth
+N2048_s2,results/s2p_p1_cbramod/N2048_s2/best.pth
+random,random

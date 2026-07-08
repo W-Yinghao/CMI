@@ -169,16 +169,15 @@ def l5_l6_intervention(feat, y, subj, V, head_pack, n_null=50, rng=None):
     mu, Vpca, clf, _ = head_pack
     te = np.isin(subj, SPLIT["target_test"]); Fte = feat[te]; yte = y[te]
     def score(F): return balanced_accuracy_score(yte, clf.predict(_pca(F, mu, Vpca)))
+    def remove(F, B): return F - (F @ B.T) @ B                    # low-rank subspace removal (B rows orthonormal)
     base = score(Fte)
-    P = np.eye(V.shape[1]) - V.T @ V                              # remove subject subspace (k dirs)
-    subj_removed = score(Fte @ P.T)
+    subj_removed = score(remove(Fte, V))                          # remove subject subspace (k dirs)
     rem_var = float(((Fte @ V.T) ** 2).sum() / (Fte ** 2).sum())  # variance removed by subject subspace
-    # variance-matched null: remove k random orthonormal dirs whose removed-variance ~ matches rem_var
+    # variance-matched null: remove k random orthonormal dirs
     d, k = V.shape[1], V.shape[0]; nulls = []
     for _ in range(n_null):
-        R, _ = np.linalg.qr(rng.standard_normal((d, k)))
-        Pn = np.eye(d) - R @ R.T
-        nulls.append(score(Fte @ Pn.T))
+        R, _ = np.linalg.qr(rng.standard_normal((d, k)))          # (d,k) orthonormal cols
+        nulls.append(score(remove(Fte, R.T)))                     # R.T rows orthonormal
     nulls = np.array(nulls)
     return dict(target_bacc_base=float(base), target_bacc_subject_removed=float(subj_removed),
                 subject_removal_drop=float(base - subj_removed), removed_variance_frac=rem_var,

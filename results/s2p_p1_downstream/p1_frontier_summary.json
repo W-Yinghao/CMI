@@ -1,0 +1,71 @@
+{
+  "d1_allowed": true,
+  "gate_substitution_accepted": true,
+  "primary_endpoint": "l1_subject_structure_frontier",
+  "target_transfer_endpoint": "pre_registered_floor_null",
+  "primary_norm": "p1_matched_patch_norm",
+  "released_reference_reported_with_window_and_patch_norm": true,
+  "task_gate_for_l4_l5_l6": 0.58,
+  "target_labels_used_for_selection": false,
+  "l1_frontier": {
+    "slope_per_log2N": 0.0012386136845554132,
+    "curvature": -0.004036785905847902,
+    "leave_one_N_out_sign_consistent": false,
+    "per_N": [
+      0.8317879458792191,
+      0.8393202833678507,
+      0.8541290168912791,
+      0.8438974446308718,
+      0.8356924336704857
+    ]
+  },
+  "l1_random_floor": 0.7470524161256116,
+  "l1_pretrained_above_random": true,
+  "target_transfer_frontier": {
+    "slope_per_log2N": 0.0010792264609757066,
+    "curvature": -0.0007304351139721876,
+    "leave_one_N_out_sign_consistent": true,
+    "per_N": [
+      0.5180037693228629,
+      0.5166783822604608,
+      0.5189201998622207,
+      0.5275965168861888,
+      0.5179408343148774
+    ]
+  },
+  "target_random_floor": 0.5025517725160884,
+  "target_transfer_verdict": "pre-registered FLOOR/NULL: P1 target bAcc ~= random floor, not estimable as a slope",
+  "task_gate_pass_fraction": 0.26666666666666666,
+  "n_cells_gate_pass": 4,
+  "n_cells": 15,
+  "l4_l5_l6_interpretable": false,
+  "l4_l5_l6_status": "WEAK_TASK_DIAGNOSTIC_ONLY (most cells fail source-val>=0.58 gate)",
+  "released_reference": [
+    {
+      "norm": "patch",
+      "target_bacc": 0.5525291885305305,
+      "source_val_bacc": 0.6206221216871481,
+      "l1": 0.8926483437577258,
+      "l4": 0.0019067534997989,
+      "l5_z": -4.269818998781281
+    },
+    {
+      "norm": "window",
+      "target_bacc": 0.5901485895538537,
+      "source_val_bacc": 0.6711562255487238,
+      "l1": 0.8985942360036656,
+      "l4": 0.0014316843177342,
+      "l5_z": 0.3963296506052064
+    }
+  ],
+  "population_confound": "deep endpoint N=128 clinical (pool 201) -> N=2048 general (6388); disclosed, carried as covariate",
+  "required_caveats": [
+    "SHU-MI is weak / low-ceiling (raw CSP within-subject 0.54 misses the strict 0.60 gate); decodability is genuine but small.",
+    "Released-checkpoint sanity is above the random floor but with limited margin (~0.05); single seed, no own CI, wide Phase-8B band.",
+    "Released reference reported under BOTH window (0.590) and patch (0.553) norm; window-norm lifts even a random encoder (+0.032).",
+    "Target subjects 21-25 are near chance individually (CSP within mean 0.528); pooled transfer is a near-chance-but-significant margin.",
+    "Released-checkpoint pretraining provenance is not certified here; upstream overlap with SHU-MI target subjects cannot be ruled out (probe firewall IS clean).",
+    "D1 PRIMARY endpoint is the L1 subject-structure frontier; target-MI-transfer slope is a pre-registered floor/null, not estimable."
+  ],
+  "p2_recommended": null
+}
