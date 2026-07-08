@@ -1,0 +1,213 @@
+{
+  "actual_selector_score_name": "selection_bootstrap_ucl",
+  "aggregate_vs_atom_path_diff_summary": {
+    "n_rows": 76,
+    "path_difference_count": 28
+  },
+  "atom_pattern_stability_under_drift_summary": {
+    "atom_gauge_conflict_diagnostic_count": 105,
+    "broad_diagnostic_count": 108,
+    "n_pairs": 114,
+    "pattern_claims_elevated": false,
+    "point_sign_stable_fraction": 1.0,
+    "stable_at_1e_3_fraction": 0.9736842105263158,
+    "stable_at_1e_4_fraction": 1.0,
+    "stable_at_1e_9_fraction": 1.0,
+    "support_artifact_diagnostic_count": 0
+  },
+  "config_hash": "664007686afb520f",
+  "diagnostic_only_non_deployable": true,
+  "future_trace_field_requirements_summary": {
+    "future_instrumentation_required": true,
+    "n_currently_missing": 5,
+    "n_required_fields": 11
+  },
+  "identity_tolerance_for_elevated_atom_claims": 1e-09,
+  "leakage_drift_manifest_summary": {
+    "all_additive_pass": true,
+    "max_abs_drift": 0.00021521578246364026,
+    "mean_abs_drift": 6.370080065775341e-06,
+    "n_additive_pass": 152,
+    "n_rows": 152,
+    "n_selection_candidates": 76,
+    "n_selection_pass_1e_9": 48,
+    "n_selection_persisted_available": 76,
+    "selection_identity_pass": false
+  },
+  "n_preference_robust_pairs": 114,
+  "no_selector_artifact_gate": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "c39_artifacts_read_only",
+      "passed": true
+    },
+    {
+      "check": "c37_c38_artifacts_read_only",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu",
+      "passed": true
+    },
+    {
+      "check": "no_selector_repair",
+      "passed": true
+    },
+    {
+      "check": "frozen_1e_9_identity_gate_retained",
+      "passed": true
+    },
+    {
+      "check": "exact_identity_not_restored",
+      "passed": true
+    },
+    {
+      "check": "tolerance_ladder_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "tolerance_ladder_does_not_elevate_atom_claims",
+      "passed": true
+    },
+    {
+      "check": "atom_claims_remain_blocked",
+      "passed": true
+    },
+    {
+      "check": "no_proxy_atom_decomposition",
+      "passed": true
+    },
+    {
+      "check": "no_monolithic_large_json",
+      "passed": true
+    },
+    {
+      "check": "finite_filtering_applied",
+      "passed": true
+    },
+    {
+      "check": "diagnostic_only_non_deployable",
+      "passed": true
+    }
+  ],
+  "numeric_drift_diagnostics_summary": {
+    "bounded_at_1e_3": true,
+    "max_abs_drift": 0.00021521578246364026,
+    "mean_abs_drift": 6.370080065775341e-06,
+    "n_selection_candidates": 76,
+    "negative_signed_drift_count": 36,
+    "numeric_only_not_proven_due_to_missing_per_fold_trace": true,
+    "observed_semantic_mismatch_count": 0,
+    "positive_signed_drift_count": 40,
+    "zero_signed_drift_count": 0
+  },
+  "red_team": {
+    "identity_gate_check": "Frozen 1e-9 identity gate remains binding for elevated atom claims.",
+    "small_drift_check": "Passing at loose tolerances is diagnostic only and does not unblock C39 atom claims.",
+    "trace_boundary_check": "Missing per-fold/per-cell trace fields keep A9 active unless exact identity is restored."
+  },
+  "selection_vs_audit_identity_contrast_summary": {
+    "n_candidates": 76,
+    "selection_fail_1e_9": 28,
+    "selection_only_persisted_trace_boundary": true,
+    "selection_pass_1e_9": 48,
+    "source_audit_additive_pass": 76,
+    "source_audit_persisted_point_available": 0
+  },
+  "stagewise_drift_localization_summary": {
+    "aggregate_vs_atom_path_divergence_count": 28,
+    "n_rows": 152,
+    "n_selection_rows": 76,
+    "observed_semantic_mismatch_count": 0,
+    "selection_first_divergent_stage_counts": {
+      "none": 48,
+      "persisted_aggregate_point_identity": 28
+    }
+  },
+  "taxonomy": {
+    "case_rows": [
+      {
+        "case": "D1_exact_atom_identity_recovered",
+        "established": 0,
+        "evidence": "selection_identity_pass=False"
+      },
+      {
+        "case": "D2_numeric_only_drift_bounded",
+        "established": 1,
+        "evidence": "max_abs_drift=0.00021521578246364026, bounded_at_1e_3=True, observed_semantic_mismatch_count=0"
+      },
+      {
+        "case": "D3_selection_split_semantic_mismatch",
+        "established": 0,
+        "evidence": "observed_semantic_mismatch_count=0"
+      },
+      {
+        "case": "D4_aggregate_vs_atom_path_divergence",
+        "established": 1,
+        "evidence": "first divergent stage counts={'persisted_aggregate_point_identity': 28, 'none': 48}"
+      },
+      {
+        "case": "D5_diagnostic_atom_pattern_stable_but_blocked",
+        "established": 1,
+        "evidence": "point_sign_stable_fraction=1.0; diagnostic atom patterns remain blocked by identity failure"
+      },
+      {
+        "case": "D6_atom_trace_irrecoverable_final",
+        "established": 1,
+        "evidence": "per-fold probe/cell outputs and persisted atom traces are absent, so exact identity is not restored"
+      },
+      {
+        "case": "D7_future_instrumentation_required",
+        "established": 1,
+        "evidence": "missing_future_fields=5"
+      },
+      {
+        "case": "D8_c39_atom_claims_reopenable",
+        "established": 0,
+        "evidence": "requires D1 exact identity recovery without semantic changes"
+      }
+    ],
+    "cases": [
+      "D2_numeric_only_drift_bounded",
+      "D4_aggregate_vs_atom_path_divergence",
+      "D5_diagnostic_atom_pattern_stable_but_blocked",
+      "D6_atom_trace_irrecoverable_final",
+      "D7_future_instrumentation_required"
+    ],
+    "established": {
+      "D1_exact_atom_identity_recovered": false,
+      "D2_numeric_only_drift_bounded": true,
+      "D3_selection_split_semantic_mismatch": false,
+      "D4_aggregate_vs_atom_path_divergence": true,
+      "D5_diagnostic_atom_pattern_stable_but_blocked": true,
+      "D6_atom_trace_irrecoverable_final": true,
+      "D7_future_instrumentation_required": true,
+      "D8_c39_atom_claims_reopenable": false
+    },
+    "evidence": {
+      "D1_exact_atom_identity_recovered": "selection_identity_pass=False",
+      "D2_numeric_only_drift_bounded": "max_abs_drift=0.00021521578246364026, bounded_at_1e_3=True, observed_semantic_mismatch_count=0",
+      "D3_selection_split_semantic_mismatch": "observed_semantic_mismatch_count=0",
+      "D4_aggregate_vs_atom_path_divergence": "first divergent stage counts={'persisted_aggregate_point_identity': 28, 'none': 48}",
+      "D5_diagnostic_atom_pattern_stable_but_blocked": "point_sign_stable_fraction=1.0; diagnostic atom patterns remain blocked by identity failure",
+      "D6_atom_trace_irrecoverable_final": "per-fold probe/cell outputs and persisted atom traces are absent, so exact identity is not restored",
+      "D7_future_instrumentation_required": "missing_future_fields=5",
+      "D8_c39_atom_claims_reopenable": "requires D1 exact identity recovery without semantic changes"
+    }
+  },
+  "tolerance_ladder_diagnostic_only": true,
+  "tolerance_ladder_identity_summary": {
+    "all_pass_at_1e_3": true,
+    "all_pass_at_frozen_1e_9": false,
+    "pass_counts": {
+      "0.0001": 75,
+      "0.001": 76,
+      "1e-06": 68,
+      "1e-08": 57,
+      "1e-09": 48
+    }
+  }
+}

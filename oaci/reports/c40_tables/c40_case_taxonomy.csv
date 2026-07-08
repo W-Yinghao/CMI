@@ -1,0 +1,9 @@
+case,established,evidence
+D1_exact_atom_identity_recovered,0,selection_identity_pass=False
+D2_numeric_only_drift_bounded,1,"max_abs_drift=0.00021521578246364026, bounded_at_1e_3=True, observed_semantic_mismatch_count=0"
+D3_selection_split_semantic_mismatch,0,observed_semantic_mismatch_count=0
+D4_aggregate_vs_atom_path_divergence,1,"first divergent stage counts={'persisted_aggregate_point_identity': 28, 'none': 48}"
+D5_diagnostic_atom_pattern_stable_but_blocked,1,point_sign_stable_fraction=1.0; diagnostic atom patterns remain blocked by identity failure
+D6_atom_trace_irrecoverable_final,1,"per-fold probe/cell outputs and persisted atom traces are absent, so exact identity is not restored"
+D7_future_instrumentation_required,1,missing_future_fields=5
+D8_c39_atom_claims_reopenable,0,requires D1 exact identity recovery without semantic changes

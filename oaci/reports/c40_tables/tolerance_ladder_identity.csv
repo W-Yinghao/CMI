@@ -1,0 +1,6 @@
+tolerance,n_selection_candidates,n_pass,pass_fraction,selected_role_pass,selected_role_total,better_role_pass,better_role_total,diagnostic_only,elevates_atom_claims
+1e-09,76,48,0.631578947368421,23,38,25,38,1,0
+1e-08,76,57,0.75,25,38,32,38,1,0
+1e-06,76,68,0.8947368421052632,32,38,36,38,1,0
+0.0001,76,75,0.9868421052631579,37,38,38,38,1,0
+0.001,76,76,1.0,38,38,38,38,1,0
