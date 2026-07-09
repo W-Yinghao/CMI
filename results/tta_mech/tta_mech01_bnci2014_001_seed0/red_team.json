@@ -1,0 +1,89 @@
+{
+  "artifact_hash_validation": {
+    "checks": [
+      "handoff_manifest_validated",
+      "all_18_artifact_hashes_pass"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "artifact_inventory_hash": {
+    "artifact_inventory_hash": "6323097829f2d3277275f392ea33329a4197e7032969bb3ebf87d1ad2e090cb2",
+    "checks": [
+      "artifact_inventory_hash_matches_tta_mech00a"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "baseline_universe_freeze": {
+    "baseline_registry_hash": "0d8a00cdb2d0bf810a20c58056323c21c1fde8807fb12e65ebc9ff8334748da7",
+    "checks": [
+      "allowed_baselines_exact",
+      "entry_names_exact",
+      "forbidden_baselines_absent",
+      "entries_existing_label_free_allowed",
+      "runtime_addition_disabled",
+      "baseline_registry_hash_recomputable"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "baseline_universe_hash": {
+    "baseline_registry_hash": "0d8a00cdb2d0bf810a20c58056323c21c1fde8807fb12e65ebc9ff8334748da7",
+    "checks": [
+      "baseline_registry_hash_matches_tta_mech00a"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "no_new_method_guard": {
+    "checks": [
+      "no_forbidden_active_method_terms",
+      "new_method_claim_false"
+    ],
+    "forbidden_terms": [
+      "adapter",
+      "learned_operator",
+      "mask",
+      "prune",
+      "surgery",
+      "cmi_control",
+      "safety_gate",
+      "router",
+      "privacy_head",
+      "privacy head",
+      "structured_pruning",
+      "structured pruning",
+      "sparsity_grid",
+      "sparsity grid",
+      "mi-aware",
+      "mi_aware",
+      "admissible_sparsity",
+      "target_accuracy_selection",
+      "cutclean",
+      "cut_clean",
+      "cut-clean"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "replay_determinism": {
+    "checks": [
+      "premetric_replay_hashes_identical"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "target_label_noninterference": {
+    "checks": [
+      "premetric_outputs_identical",
+      "baseline_outputs_identical_before_final_metric",
+      "audit_premetric_artifacts_identical",
+      "removed_target_y_has_no_final_metrics",
+      "permuted_target_y_differs_only_after_final_metric"
+    ],
+    "final_metric_hash_differences_vs_permuted_y": 90,
+    "passed": true,
+    "warnings": []
+  }
+}

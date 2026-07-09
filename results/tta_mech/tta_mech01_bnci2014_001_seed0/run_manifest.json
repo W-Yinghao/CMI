@@ -1,0 +1,15 @@
+{
+  "artifact_inventory_hash": "6323097829f2d3277275f392ea33329a4197e7032969bb3ebf87d1ad2e090cb2",
+  "baseline_registry_hash": "0d8a00cdb2d0bf810a20c58056323c21c1fde8807fb12e65ebc9ff8334748da7",
+  "baseline_selected_for_deployment": false,
+  "cmi_pruning_mask_surgery_safety_router_active": false,
+  "new_method_introduced": false,
+  "p1_p2_training": false,
+  "phase": "TTA_MECH_01_existing_baseline_real_replay_mechanism_audit",
+  "preflight_baseline_commit": "3c4d0fe",
+  "project": "TTA-MECH-EEG",
+  "real_eeg_replay_run": true,
+  "status": "MECHANISM_INFORMATIVE_PASS",
+  "target_metrics_final_only": true,
+  "tta_mech01_payload_hash": "f8e99c99b9b61f66f0011da60620220021f861b4b409b8e46d6a781cc131a816"
+}

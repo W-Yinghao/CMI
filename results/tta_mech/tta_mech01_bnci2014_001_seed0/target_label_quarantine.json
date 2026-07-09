@@ -1,0 +1,12 @@
+{
+  "checks": [
+    "premetric_outputs_identical",
+    "baseline_outputs_identical_before_final_metric",
+    "audit_premetric_artifacts_identical",
+    "removed_target_y_has_no_final_metrics",
+    "permuted_target_y_differs_only_after_final_metric"
+  ],
+  "final_metric_hash_differences_vs_permuted_y": 90,
+  "passed": true,
+  "warnings": []
+}

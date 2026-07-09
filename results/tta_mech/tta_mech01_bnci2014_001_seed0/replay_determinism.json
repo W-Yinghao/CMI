@@ -1,0 +1,7 @@
+{
+  "checks": [
+    "premetric_replay_hashes_identical"
+  ],
+  "passed": true,
+  "warnings": []
+}

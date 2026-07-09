@@ -29,3 +29,17 @@ def test_no_new_method_guard_rejects_active_forbidden_term():
     except NoNewMethodFailure:
         return
     raise AssertionError("active forbidden method term must fail")
+
+
+def test_no_new_method_guard_rejects_cutclean_active_path():
+    payload = {
+        "project": "TTA-MECH-EEG",
+        "phase": "TTA_MECH_01",
+        "new_method_claim": False,
+        "active_branch": "CutClean privacy head structured pruning sparsity grid",
+    }
+    try:
+        validate_no_new_method(payload)
+    except NoNewMethodFailure:
+        return
+    raise AssertionError("CutClean-style active path must fail")

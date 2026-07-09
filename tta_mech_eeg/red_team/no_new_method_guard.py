@@ -19,6 +19,19 @@ FORBIDDEN_ACTIVE_TERMS: tuple[str, ...] = (
     "cmi_control",
     "safety_gate",
     "router",
+    "privacy_head",
+    "privacy head",
+    "structured_pruning",
+    "structured pruning",
+    "sparsity_grid",
+    "sparsity grid",
+    "mi-aware",
+    "mi_aware",
+    "admissible_sparsity",
+    "target_accuracy_selection",
+    "cutclean",
+    "cut_clean",
+    "cut-clean",
 )
 
 
