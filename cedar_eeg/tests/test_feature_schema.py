@@ -9,6 +9,7 @@ from cedar_eeg.data.load_frozen_features import (
     verify_manifest_immutability,
 )
 from cedar_eeg.probes.crossfit_grouped import make_folds
+from cedar_eeg.runners.run_01f_source_erm_feature_dump import build_plan
 
 
 def _write_npz(path, *, groups=None, y=None, z=None, role=None, sample_id=None):
@@ -137,3 +138,22 @@ def test_inventory_marks_legacy_split_as_adapter_possible(tmp_path):
     assert records[0].status == "ADAPTER_POSSIBLE"
     assert records[0].has_groups
     assert records[0].has_subject
+
+
+def test_route_c_plan_freezes_feature_supply_without_selection(tmp_path):
+    class Args:
+        dataset = "BNCI2014_001"
+        backbones = ["EEGNetMini", "EEGConformerMini"]
+        seed = 0
+        target_subjects = ["1", "2"]
+        out_dir = str(tmp_path)
+        source_audit_fraction = 0.2
+
+    plan = build_plan(Args())
+    assert plan["phase"] == "CEDAR_01F_feature_supply_route_c"
+    assert plan["selection_run"] is False
+    assert plan["scientific_readout_run"] is False
+    assert plan["deployable"] is False
+    assert len(plan["items"]) == 4
+    assert {x["backbone"] for x in plan["items"]} == {"EEGNetMini", "EEGConformerMini"}
+    assert plan["plan_hash"]
