@@ -1,0 +1,8 @@
+artifact,exists,status,notes
+oaci/reports/C66_REINFERENCE_ONLY_TRIAL_CACHE_MICROCAMPAIGN.json,1,pass,C66 compact JSON loaded
+oaci/reports/c66_tables/authorized_cache_manifest.csv,1,pass,authorized cache manifest present
+oaci/reports/c66_tables/combined_authorization_comparison.csv,1,pass,noauth/auth comparison present
+oaci/reports/c66_tables/label_view_policy.csv,1,pass,C66 masking policy present
+/projects/EEG-foundation-model/yinghao/oaci-c66-trial-cache-micropilot/authorized_c66_microcampaign_v1/cache_sha256_aaef9df53eed0c4a/trial_logits_probs_cache.csv,1,pass,external cache path from committed manifest
+/projects/EEG-foundation-model/yinghao/oaci-c66-trial-cache-micropilot/authorized_c66_microcampaign_v1/cache_sha256_aaef9df53eed0c4a/cache_manifest.json,1,pass,external manifest path from committed manifest
+phase0_gate,1,C66_DUAL_MODE_PROVENANCE_RECONCILED,C66-B is historical baseline; C66-A is authoritative in current artifacts

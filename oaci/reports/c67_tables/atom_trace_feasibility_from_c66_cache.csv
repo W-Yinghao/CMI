@@ -1,0 +1,7 @@
+trace,present_in_c66_cache,requires_new_forward_in_c67,diagnostic_available,notes
+logits,1,0,1,minimal cache
+probabilities,1,0,1,minimal cache
+predictions,1,0,1,minimal cache
+true_labels_quarantined,1,0,1,must use label-view masking
+representation_z,0,1,0,not emitted in C66 microcache
+Wz,0,1,0,not emitted in C66 microcache

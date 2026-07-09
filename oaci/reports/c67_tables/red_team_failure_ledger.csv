@@ -1,0 +1,13 @@
+gate,failed,finding
+c66_dual_mode_resolved,0,C66 no-auth guard and authorized cache are explicitly separated.
+cache_hashes_match,0,External cache and manifest hashes match committed C66 manifest.
+cache_integrity_passed,0,Trial cache schema/numeric integrity gates pass.
+masking_contract_passed,0,C66 label-view projections mask labels/predictions as required.
+no_new_forward_training_gpu,0,C67 consumed cache only.
+reserved_holdouts_preserved,0,No BNCI2014_004 or seeds 3/4.
+split_label_not_sufficiency,0,Split-label smoke is underpowered and not a sufficiency claim.
+cs_not_full_claim,0,Conditional-CS result is a proxy smoke and underpowered.
+endpoint_oracle_boundary_preserved,0,Same-label oracle remains diagnostic-only.
+diagnostic_full_views_policy_only,0,Diagnostic/oracle full views are explicitly policy-only and unavailable for selection.
+large_artifact_scan_passed,0,All C67 git artifacts are below 50MB.
+forbidden_scan_passed,0,Forbidden affirmative claim scan passed.

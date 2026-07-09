@@ -1,0 +1,7 @@
+check,value,passed,notes
+paired_sample_rows_present,1768,1,eval split rows
+x1_key_only_available,1,1,target/seed/level key metadata only
+x2_construction_target_summary_available,1,1,uses construction target labels; diagnostic-only
+uses_eval_labels_in_x2,0,1,eval labels reserved for y only
+full_conditional_cs_claim,0,1,not claimed; proxy smoke only
+independent_units_sufficient,6,0,six checkpoint units underpowered

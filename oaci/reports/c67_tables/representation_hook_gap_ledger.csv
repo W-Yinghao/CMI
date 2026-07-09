@@ -1,0 +1,4 @@
+gap,blocks_c67_smoke,blocks_atom_trace_closure,requires_new_forward,notes
+representation_z_absent,0,1,1,C67 does not authorize forward
+classifier_head_weights_not_in_cache,0,1,0,"checkpoint store has weights, cache does not include them"
+hook_metadata_absent,0,1,1,C66 emitted logits/probs only
