@@ -1,0 +1,7 @@
+cell,budget_h,seed,best_checkpoint,last_checkpoint,best_checkpoint_exists,last_checkpoint_exists,checkpoint_strict_reload,checkpoint_selection,best_epoch,best_val_loss
+H200_s0,200.0,0,results/s2p_route_b_33ch_b1/H200_s0/best.pth,results/s2p_route_b_33ch_b1/H200_s0/last.pth,True,True,True,pretrain_val_loss_only,49,0.3162865489721298
+H200_s1,200.0,1,results/s2p_route_b_33ch_b1/H200_s1/best.pth,results/s2p_route_b_33ch_b1/H200_s1/last.pth,True,True,True,pretrain_val_loss_only,50,0.32015835121273994
+H500_s0,500.0,0,results/s2p_route_b_33ch_b1/H500_s0/best.pth,results/s2p_route_b_33ch_b1/H500_s0/last.pth,True,True,True,pretrain_val_loss_only,49,0.25837720558047295
+H500_s1,500.0,1,results/s2p_route_b_33ch_b1/H500_s1/best.pth,results/s2p_route_b_33ch_b1/H500_s1/last.pth,True,True,True,pretrain_val_loss_only,46,0.25497831621517736
+H1000_s0,1000.0,0,results/s2p_route_b_33ch_b1/H1000_s0/best.pth,results/s2p_route_b_33ch_b1/H1000_s0/last.pth,True,True,True,pretrain_val_loss_only,50,0.22908601506302753
+H1000_s1,1000.0,1,results/s2p_route_b_33ch_b1/H1000_s1/best.pth,results/s2p_route_b_33ch_b1/H1000_s1/last.pth,True,True,True,pretrain_val_loss_only,50,0.22952595570435128

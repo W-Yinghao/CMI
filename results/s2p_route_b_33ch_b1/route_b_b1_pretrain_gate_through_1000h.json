@@ -1,0 +1,22 @@
+{
+  "scope": "through_1000h",
+  "max_budget_h": 1000.0,
+  "cells": [
+    "H200_s0",
+    "H200_s1",
+    "H500_s0",
+    "H500_s1",
+    "H1000_s0",
+    "H1000_s1"
+  ],
+  "all_runs_completed": true,
+  "nan_or_inf_seen": false,
+  "checkpoint_reload_pass": true,
+  "native_objective_preserved": true,
+  "fixed_group_mix_preserved": true,
+  "pretrain_val_loss_selection_only": true,
+  "target_labels_used_for_selection": false,
+  "approve_downstream_probe_gate_recommended": true,
+  "full_downstream_fleet_held_until_policy_decision": true,
+  "h2000_still_running_allowed": true
+}

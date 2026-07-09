@@ -1,0 +1,7 @@
+cell,budget_h,seed,train_total_hours,train_total_windows,val_total_hours,val_total_windows,n_train_subjects,n_val_subjects,train_val_disjoint,exact_budget_h,fixed_group_mix_present,selected_subjects_sha
+H200_s0,200.0,0,200.0,24000,25.6,3072,275,128,True,True,True,90083bd2ba85a75f
+H200_s1,200.0,1,200.0,24000,25.6,3072,294,128,True,True,True,e852876baebc32f9
+H500_s0,500.0,0,500.0,60000,25.6,3072,572,128,True,True,True,65f92fa76c1a4277
+H500_s1,500.0,1,500.0,60000,25.6,3072,584,128,True,True,True,4d4cf22ea576069a
+H1000_s0,1000.0,0,1000.0,120000,25.6,3072,930,128,True,True,True,659074a1c1fb1767
+H1000_s1,1000.0,1,1000.0,120000,25.6,3072,936,128,True,True,True,3068df412b98399c
