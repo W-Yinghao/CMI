@@ -173,3 +173,20 @@
   all `ok`, with no single-class eval rows and complete prediction hashes.
   Manifest hash `231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e` matched every row. No SPDIM, TeX edits,
   geometry stress, or orthogonal-score work was performed.
+
+- Per PM P8A, performed CPU-only cache hygiene and prepared the official SPDIM
+  W1 repaired-split seed-0 dry-run gate. The untracked P7 training cache
+  `results/h2cmi/p7_w1_repaired_bundles/` was preserved outside the repository
+  at `/home/infres/yinwang/.cache/h2cmi_training_caches/p7_w1_repaired_bundles_bc61ee1`
+  after recording a sha256 manifest; it was not committed and no broad
+  `git clean -fd` command was used. Added clean-guarded runner
+  `h2cmi/run_spdim_w1_repaired_seed0.py`, Slurm launcher
+  `h2cmi/results/review_completion/slurm/spdim_w1_repaired_seed0.slurm`, P8
+  protocol, and dry-run audit artifacts. The dry-run used the frozen P7
+  `class_stratified_half` manifest hash
+  `231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e`, passed
+  all split/loader/model-instantiation gates, and approved only the seed-0 GPU
+  run with expected rows `BNCI2014_001=36`, `Cho2017=208`, `Lee2019_MI=216`,
+  total `460`. No GPU job, seeds 1/2, full SPDIM, TeX edit, geometry stress,
+  orthogonal-score work, official pretrained weights, or vendored third-party
+  code were used.

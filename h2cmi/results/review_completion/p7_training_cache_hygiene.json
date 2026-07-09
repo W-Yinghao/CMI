@@ -1,0 +1,14 @@
+{
+  "cache_inside_git_root": true,
+  "cache_path": "results/h2cmi/p7_w1_repaired_bundles/",
+  "committed_to_git": false,
+  "file_count": 549,
+  "git_clean_broad_paths_used": false,
+  "moved_or_preserved": "moved_outside_git_root_preserved",
+  "new_cache_path_if_moved": "/home/infres/yinwang/.cache/h2cmi_training_caches/p7_w1_repaired_bundles_bc61ee1",
+  "pre_move_manifest_path": "/home/infres/yinwang/.cache/h2cmi_training_caches/p7_w1_repaired_bundles_bc61ee1_manifest.sha256",
+  "pre_move_manifest_sha256": "e91a60f333bf4fd5242fdd9511e3db8dd27ca8b480c126c6386a71faf6670fd9",
+  "total_bytes": 57224235,
+  "worktree_clean_after_hygiene": true,
+  "worktree_status_after_hygiene_before_p8a_files": ""
+}
