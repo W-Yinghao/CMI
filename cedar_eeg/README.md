@@ -20,21 +20,33 @@ may be used only as comparators or archived context.
 
 ## Current Gate State
 
-CEDAR_00 is accepted only as a P0 scaffold / red-team contract. It is not a
-scientific result, not a deployment result, and not approval for P1 channel
-pruning.
+CEDAR source-only frozen-latent route is closed negative as of commit
+`107192f`. CEDAR_01 completed the approved real EEG shadow audit on
+BNCI2014_001 with EEGNetMini and EEGConformerMini feature dumps, and found
+`0/54` accepted candidates under the frozen source-only contract.
 
-The approved next step is CEDAR_01:
+Do not start P1/P2 from this branch. CEDAR artifacts are diagnostic-only.
+Target diagnostics were quarantined and never used for selection.
 
-- real EEG frozen-latent shadow audit
-- existing feature dumps only
-- source-only selection
-- grouped cross-fit hard-fail
-- fixed candidates `drop_top_1`, `drop_top_2`, `drop_top_4`
-- no deployable mask, checkpoint, selector, or safety/generalization claim
+Frozen state:
+
+```text
+CEDAR_01F_FEATURE_SUPPLY: PASS
+CEDAR_01_REAL_SHADOW_AUDIT: COMPLETE_NEGATIVE
+CEDAR_SOURCE_ONLY_LATENT_SURGERY_TO_P1: CLOSED_NEGATIVE
+P1_CHANNEL_PRUNING: DENIED
+P2_TTA_PRECONDITIONER: DENIED
+DEPLOYABLE_MASK_ARTIFACT: FORBIDDEN
+GENERALIZATION_OR_SAFETY_CLAIM: FORBIDDEN
+CEDAR_RETAINED_ROLE: DIAGNOSTIC_ONLY / MEASUREMENT_TO_CONTROL_NEGATIVE_EVIDENCE
+```
 
 See:
 
+- `cedar_eeg/reports/CEDAR_01N_NEGATIVE_CLOSEOUT.md`
+- `cedar_eeg/reports/CEDAR_01N_FAILURE_TAXONOMY.md`
+- `cedar_eeg/reports/CEDAR_01N_PM_DECISION.md`
+- `cedar_eeg/reports/CEDAR_01_REAL_FROZEN_LATENT_READOUT.md`
 - `cedar_eeg/reports/CEDAR_01_REAL_FROZEN_LATENT_PROTOCOL.md`
 - `cedar_eeg/reports/CEDAR_01_ACCEPTANCE_CRITERIA.md`
 
@@ -66,7 +78,9 @@ Continue only if all hold:
 - stability across folds/probes is acceptable
 
 If leakage drops but task metrics do not improve, the valid direction is
-privacy/compression/diagnostic evidence, not a generalization claim.
+privacy/compression/diagnostic evidence, not a generalization claim. In the
+completed CEDAR_01 real EEG audit, no candidate crossed the actionability gate,
+so the method pipeline stops here.
 
 ## Runner
 
