@@ -1,0 +1,19 @@
+{
+  "allowed_variants": [
+    "ERM",
+    "TTA_CONTROL_REPLAY",
+    "TALOS_L",
+    "TALOS_D",
+    "TALOS_LD"
+  ],
+  "checks": [
+    "allowed_variants_exact",
+    "runtime_addition_disabled",
+    "forbidden_variants_recorded",
+    "target_labels_final_metrics_only",
+    "variant_universe_hash_recomputable"
+  ],
+  "passed": true,
+  "variant_universe_hash": "328482d68fb458c23c71a900e8f16aae1d8fdd7553052dc29a856d33c45b50d4",
+  "warnings": []
+}

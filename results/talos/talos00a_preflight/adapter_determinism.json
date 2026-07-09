@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "scenario_match",
+    "variant_ranking_identical",
+    "reported_variant_identical",
+    "adapter_prediction_probability_hashes_identical"
+  ],
+  "passed": true,
+  "warnings": []
+}

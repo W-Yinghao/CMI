@@ -1,0 +1,2160 @@
+{
+  "design_baseline_commit": "96894a7",
+  "handoff_boundary": {
+    "allowed_for_talos00a": true,
+    "approved_real_handoff_input": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/CEDAR_01F_HANDOFF_MANIFEST.json",
+    "phase": "TALOS_00A_adapter_implementation_red_team_preflight",
+    "real_eeg_readout_run": false,
+    "source_free_deployment_claim": false,
+    "source_state_mode": "constructed_from_frozen_source_features_for_P0_replay"
+  },
+  "implementation_scope": "synthetic_smoke_only_no_real_eeg_readout",
+  "phase": "TALOS_00A_adapter_implementation_red_team_preflight",
+  "preflight_payload_hash": "14a76cff7367fced4fa46c8915ccdb2240ae81857629a1265c1d5aa06fb34727",
+  "project": "TALOS-EEG",
+  "real_eeg_readout_run": false,
+  "red_team": {
+    "adapter_determinism": {
+      "checks": [
+        "scenario_match",
+        "variant_ranking_identical",
+        "reported_variant_identical",
+        "adapter_prediction_probability_hashes_identical"
+      ],
+      "passed": true,
+      "warnings": []
+    },
+    "source_state_schema": {
+      "checks": [
+        "source_state_mode_p0_replay",
+        "source_free_deployment_claim_false",
+        "finite_vector_fields",
+        "array_shapes",
+        "source_prior_simplex",
+        "positive_scale_fields"
+      ],
+      "passed": true,
+      "source_free_deployment_claim": false,
+      "source_state_hash": "c371507e86c8b2afe08b51f8650ffbdcbddd4d31d8d49186edb1cbdf79335a65",
+      "source_state_mode": "constructed_from_frozen_source_features_for_P0_replay",
+      "warnings": []
+    },
+    "target_label_quarantine": {
+      "checks": [
+        "adapter_parameters_identical",
+        "adapter_predictions_identical",
+        "adapter_probability_hashes_identical",
+        "variant_ranking_identical",
+        "reported_variant_identical",
+        "pre_final_metric_hashes_identical",
+        "removed_y_has_no_final_metrics",
+        "only_final_metrics_change_under_permutation"
+      ],
+      "passed": true,
+      "scenarios": [
+        "true_y_final_only",
+        "target_y_removed",
+        "target_y_permuted"
+      ],
+      "warnings": []
+    },
+    "variant_freeze": {
+      "allowed_variants": [
+        "ERM",
+        "TTA_CONTROL_REPLAY",
+        "TALOS_L",
+        "TALOS_D",
+        "TALOS_LD"
+      ],
+      "checks": [
+        "allowed_variants_exact",
+        "runtime_addition_disabled",
+        "forbidden_variants_recorded",
+        "target_labels_final_metrics_only",
+        "variant_universe_hash_recomputable"
+      ],
+      "passed": true,
+      "variant_universe_hash": "328482d68fb458c23c71a900e8f16aae1d8fdd7553052dc29a856d33c45b50d4",
+      "warnings": []
+    }
+  },
+  "repeat_true_y_final_only": {
+    "collapse_by_variant": {
+      "ERM": {
+        "checks": [
+          "entropy_non_degenerate",
+          "not_single_class"
+        ],
+        "entropy_mean": 0.13039834211357126,
+        "max_label_fraction": 0.5,
+        "normalized_entropy_mean": 0.18812504150739173,
+        "passed": true,
+        "predicted_label_counts": [
+          45,
+          45
+        ],
+        "warnings": []
+      },
+      "TALOS_D": {
+        "checks": [
+          "entropy_non_degenerate",
+          "not_single_class"
+        ],
+        "entropy_mean": 0.14615388251718012,
+        "max_label_fraction": 0.5,
+        "normalized_entropy_mean": 0.21085548151420394,
+        "passed": true,
+        "predicted_label_counts": [
+          45,
+          45
+        ],
+        "warnings": []
+      },
+      "TALOS_L": {
+        "checks": [
+          "entropy_non_degenerate",
+          "not_single_class"
+        ],
+        "entropy_mean": 0.14417921759943175,
+        "max_label_fraction": 0.5,
+        "normalized_entropy_mean": 0.20800664222995094,
+        "passed": true,
+        "predicted_label_counts": [
+          45,
+          45
+        ],
+        "warnings": []
+      },
+      "TALOS_LD": {
+        "checks": [
+          "entropy_non_degenerate",
+          "not_single_class"
+        ],
+        "entropy_mean": 0.16188471447628341,
+        "max_label_fraction": 0.5,
+        "normalized_entropy_mean": 0.23355027477065987,
+        "passed": true,
+        "predicted_label_counts": [
+          45,
+          45
+        ],
+        "warnings": []
+      },
+      "TTA_CONTROL_REPLAY": {
+        "checks": [
+          "entropy_non_degenerate",
+          "not_single_class"
+        ],
+        "entropy_mean": 0.13039834211357126,
+        "max_label_fraction": 0.5,
+        "normalized_entropy_mean": 0.18812504150739173,
+        "passed": true,
+        "predicted_label_counts": [
+          45,
+          45
+        ],
+        "warnings": []
+      }
+    },
+    "reported_variant": "REPORT_ALL_FROZEN_ORDER",
+    "scenario": "true_y_final_only",
+    "seed": 0,
+    "source_state_hash": "c371507e86c8b2afe08b51f8650ffbdcbddd4d31d8d49186edb1cbdf79335a65",
+    "target_labels_used_for": "final_metrics_only",
+    "variant_ranking": [
+      "ERM",
+      "TTA_CONTROL_REPLAY",
+      "TALOS_L",
+      "TALOS_D",
+      "TALOS_LD"
+    ],
+    "variants": [
+      {
+        "adapter_state": {
+          "beta": [
+            0.0,
+            0.0
+          ],
+          "boundary_hits": [],
+          "diag": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "log_t": 0.0,
+          "shift": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "variant": "ERM"
+        },
+        "adapter_state_hash": "420d995d9fe70d9f1ae12e5af94debfef4d0824f9b2a3aaea973cbc515543e84",
+        "collapse": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.13039834211357126,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.18812504150739173,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "final_metrics_FINAL_ONLY": {
+          "bacc": 0.9777777777777777,
+          "ece": 0.045405061017871444,
+          "n_eval": 90,
+          "nll": 0.07575345052702709
+        },
+        "final_metrics_hash": "4aa371c37a0cee9a9f812d0e6e5d50b5fdb10c7532b8b5c8e35ac3af0b2c4e5d",
+        "metrics_before_final_y": {
+          "confidence_mean": 0.9479764892623427,
+          "entropy_mean": 0.13039834211357126,
+          "entropy_min": 0.0008278296017921704,
+          "mean_prediction": [
+            0.4868581077051385,
+            0.5131418922948616
+          ],
+          "n_classes": 2,
+          "n_samples": 90,
+          "predicted_label_counts": [
+            45,
+            45
+          ]
+        },
+        "metrics_before_final_y_hash": "b61d375ccdc2ee71336554236caba1dedd909cd338620269b0bbeae656ccd9c7",
+        "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+        "proba_hash": "50086fbc7e41b3cc3cc04c860a31b6875c81e0abdccc47770a6b70756fa40bc6",
+        "trust_region": {
+          "beta_norm": 0.0,
+          "boundary_hits": [],
+          "bounds": {
+            "tau_a": 0.35,
+            "tau_beta": 1.5,
+            "tau_c": 1.5,
+            "tau_log_t": 0.25
+          },
+          "diag_max_abs_delta": 0.0,
+          "log_t_abs": 0.0,
+          "shift_norm": 0.0,
+          "variant": "ERM",
+          "within_bounds": true
+        },
+        "variant": "ERM"
+      },
+      {
+        "adapter_state": {
+          "beta": [
+            0.0,
+            0.0
+          ],
+          "boundary_hits": [],
+          "diag": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "log_t": 0.0,
+          "shift": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "variant": "TTA_CONTROL_REPLAY"
+        },
+        "adapter_state_hash": "52045b1d1c922405189eb35467e9eeeb4b07ece8287e1ab3b51d3a7b90bb2003",
+        "collapse": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.13039834211357126,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.18812504150739173,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "final_metrics_FINAL_ONLY": {
+          "bacc": 0.9777777777777777,
+          "ece": 0.045405061017871444,
+          "n_eval": 90,
+          "nll": 0.07575345052702709
+        },
+        "final_metrics_hash": "4aa371c37a0cee9a9f812d0e6e5d50b5fdb10c7532b8b5c8e35ac3af0b2c4e5d",
+        "metrics_before_final_y": {
+          "confidence_mean": 0.9479764892623427,
+          "entropy_mean": 0.13039834211357126,
+          "entropy_min": 0.0008278296017921704,
+          "mean_prediction": [
+            0.4868581077051385,
+            0.5131418922948616
+          ],
+          "n_classes": 2,
+          "n_samples": 90,
+          "predicted_label_counts": [
+            45,
+            45
+          ]
+        },
+        "metrics_before_final_y_hash": "e7d9d0c865a936072e406b605dfbfb9d4b79ab391436239b3feb2f82d4ad4760",
+        "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+        "proba_hash": "50086fbc7e41b3cc3cc04c860a31b6875c81e0abdccc47770a6b70756fa40bc6",
+        "trust_region": {
+          "beta_norm": 0.0,
+          "boundary_hits": [],
+          "bounds": {
+            "tau_a": 0.35,
+            "tau_beta": 1.5,
+            "tau_c": 1.5,
+            "tau_log_t": 0.25
+          },
+          "diag_max_abs_delta": 0.0,
+          "log_t_abs": 0.0,
+          "shift_norm": 0.0,
+          "variant": "TTA_CONTROL_REPLAY",
+          "within_bounds": true
+        },
+        "variant": "TTA_CONTROL_REPLAY"
+      },
+      {
+        "adapter_state": {
+          "beta": [
+            0.013144919853162573,
+            -0.013144919853162573
+          ],
+          "boundary_hits": [],
+          "diag": [
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0,
+            1.0
+          ],
+          "log_t": 0.07078279370172937,
+          "shift": [
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.0
+          ],
+          "variant": "TALOS_L"
+        },
+        "adapter_state_hash": "0b7e0ee1d4255fdccb1b93ea403a50d94c374e9836c7d5d72ee37409701ac0e0",
+        "collapse": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.14417921759943175,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.20800664222995094,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "final_metrics_FINAL_ONLY": {
+          "bacc": 0.9777777777777777,
+          "ece": 0.0341781873959983,
+          "n_eval": 90,
+          "nll": 0.07964245740394535
+        },
+        "final_metrics_hash": "d690b499fecddd525b64b51ec2b7670034a2ba25587b15e36b3474edda7a95af",
+        "metrics_before_final_y": {
+          "confidence_mean": 0.9435995903817797,
+          "entropy_mean": 0.14417921759943175,
+          "entropy_min": 0.0014484140021593709,
+          "mean_prediction": [
+            0.4875959144597728,
+            0.5124040855402272
+          ],
+          "n_classes": 2,
+          "n_samples": 90,
+          "predicted_label_counts": [
+            45,
+            45
+          ]
+        },
+        "metrics_before_final_y_hash": "05acadf53a5c16eec87c6c2639094e613d823416a02e98710c5b1bc211739869",
+        "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+        "proba_hash": "ee961eae9c5982d5f18d8b49b8eb498e859e24a67c8288a6135d787e560eb172",
+        "trust_region": {
+          "beta_norm": 0.018589723932649866,
+          "boundary_hits": [],
+          "bounds": {
+            "tau_a": 0.35,
+            "tau_beta": 1.5,
+            "tau_c": 1.5,
+            "tau_log_t": 0.25
+          },
+          "diag_max_abs_delta": 0.0,
+          "log_t_abs": 0.07078279370172937,
+          "shift_norm": 0.0,
+          "variant": "TALOS_L",
+          "within_bounds": true
+        },
+        "variant": "TALOS_L"
+      },
+      {
+        "adapter_state": {
+          "beta": [
+            0.0,
+            0.0
+          ],
+          "boundary_hits": [],
+          "diag": [
+            0.9457495274344828,
+            0.874884954213221,
+            0.9943793442619786,
+            0.9767732653830392,
+            0.781510418488969,
+            0.7816396184548267
+          ],
+          "log_t": 0.0,
+          "shift": [
+            -0.2498834127833583,
+            0.2633113441400636,
+            -0.23126888808826346,
+            -0.4321231568460398,
+            0.035809117157325,
+            -0.02261289150720968
+          ],
+          "variant": "TALOS_D"
+        },
+        "adapter_state_hash": "7983a0be890db1a910c0933bf48e2eda17fdfd366bbd763a47e3a0d0e0bd76f0",
+        "collapse": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.14615388251718012,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.21085548151420394,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "final_metrics_FINAL_ONLY": {
+          "bacc": 0.9777777777777777,
+          "ece": 0.04280584665790936,
+          "n_eval": 90,
+          "nll": 0.07723418202079535
+        },
+        "final_metrics_hash": "6697840f8333323ff2a545f51a1e81cbacc2cc8c271455b59164392914829edd",
+        "metrics_before_final_y": {
+          "confidence_mean": 0.9454730593752746,
+          "entropy_mean": 0.14615388251718012,
+          "entropy_min": 0.0016939432583044512,
+          "mean_prediction": [
+            0.494723872985115,
+            0.5052761270148849
+          ],
+          "n_classes": 2,
+          "n_samples": 90,
+          "predicted_label_counts": [
+            45,
+            45
+          ]
+        },
+        "metrics_before_final_y_hash": "6ae143011dd7d18990f601cd8f3e686eb01305d851c3bb05fad7f06031a03794",
+        "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+        "proba_hash": "7e501ffdd15b9a20800d03c75fe9b71e2e14bcf1d9a20f86b9bb1aafd48a2c3c",
+        "trust_region": {
+          "beta_norm": 0.0,
+          "boundary_hits": [],
+          "bounds": {
+            "tau_a": 0.35,
+            "tau_beta": 1.5,
+            "tau_c": 1.5,
+            "tau_log_t": 0.25
+          },
+          "diag_max_abs_delta": 0.21848958151103104,
+          "log_t_abs": 0.0,
+          "shift_norm": 0.6113787213758571,
+          "variant": "TALOS_D",
+          "within_bounds": true
+        },
+        "variant": "TALOS_D"
+      },
+      {
+        "adapter_state": {
+          "beta": [
+            0.005276322860331778,
+            -0.005276322860331778
+          ],
+          "boundary_hits": [],
+          "diag": [
+            0.9457495274344828,
+            0.874884954213221,
+            0.9943793442619786,
+            0.9767732653830392,
+            0.781510418488969,
+            0.7816396184548267
+          ],
+          "log_t": 0.06800906372363452,
+          "shift": [
+            -0.2498834127833583,
+            0.2633113441400636,
+            -0.23126888808826346,
+            -0.4321231568460398,
+            0.035809117157325,
+            -0.02261289150720968
+          ],
+          "variant": "TALOS_LD"
+        },
+        "adapter_state_hash": "6d8bad4790737a38571fc1b4ded1e7ed8f00445b8add202a56d50cef63316559",
+        "collapse": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.16188471447628341,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.23355027477065987,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "final_metrics_FINAL_ONLY": {
+          "bacc": 0.9777777777777777,
+          "ece": 0.04756913873103794,
+          "n_eval": 90,
+          "nll": 0.08223095342415072
+        },
+        "final_metrics_hash": "c936ebf10e7673e84985f96377a6b1c31eae90831c8551e42e42b82de9c04d56",
+        "metrics_before_final_y": {
+          "confidence_mean": 0.9402072696717084,
+          "entropy_mean": 0.16188471447628341,
+          "entropy_min": 0.0027897645396883935,
+          "mean_prediction": [
+            0.49521876838663714,
+            0.5047812316133629
+          ],
+          "n_classes": 2,
+          "n_samples": 90,
+          "predicted_label_counts": [
+            45,
+            45
+          ]
+        },
+        "metrics_before_final_y_hash": "8f2429e744217b5a6521b5c2cc57e9a5bf9276efcfb77389d454e38d61a822b9",
+        "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+        "proba_hash": "5ebb0136b8daccc5bc7e7028457506b1e5ba9267c210c0ecb9b838ffe8c09c58",
+        "trust_region": {
+          "beta_norm": 0.007461847348540402,
+          "boundary_hits": [],
+          "bounds": {
+            "tau_a": 0.35,
+            "tau_beta": 1.5,
+            "tau_c": 1.5,
+            "tau_log_t": 0.25
+          },
+          "diag_max_abs_delta": 0.21848958151103104,
+          "log_t_abs": 0.06800906372363452,
+          "shift_norm": 0.6113787213758571,
+          "variant": "TALOS_LD",
+          "within_bounds": true
+        },
+        "variant": "TALOS_LD"
+      }
+    ]
+  },
+  "scenarios": {
+    "target_y_permuted": {
+      "collapse_by_variant": {
+        "ERM": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.13039834211357126,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.18812504150739173,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TALOS_D": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.14615388251718012,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.21085548151420394,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TALOS_L": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.14417921759943175,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.20800664222995094,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TALOS_LD": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.16188471447628341,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.23355027477065987,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TTA_CONTROL_REPLAY": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.13039834211357126,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.18812504150739173,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        }
+      },
+      "reported_variant": "REPORT_ALL_FROZEN_ORDER",
+      "scenario": "target_y_permuted",
+      "seed": 0,
+      "source_state_hash": "c371507e86c8b2afe08b51f8650ffbdcbddd4d31d8d49186edb1cbdf79335a65",
+      "target_labels_used_for": "final_metrics_only",
+      "variant_ranking": [
+        "ERM",
+        "TTA_CONTROL_REPLAY",
+        "TALOS_L",
+        "TALOS_D",
+        "TALOS_LD"
+      ],
+      "variants": [
+        {
+          "adapter_state": {
+            "beta": [
+              0.0,
+              0.0
+            ],
+            "boundary_hits": [],
+            "diag": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "log_t": 0.0,
+            "shift": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "variant": "ERM"
+          },
+          "adapter_state_hash": "420d995d9fe70d9f1ae12e5af94debfef4d0824f9b2a3aaea973cbc515543e84",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.13039834211357126,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.18812504150739173,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": {
+            "bacc": 0.4,
+            "ece": 0.5545949389821286,
+            "n_eval": 90,
+            "nll": 2.806183089595021
+          },
+          "final_metrics_hash": "0434d2fb588e6c7381cbb57f3c724581b348bebe2bf51c81a3aea3937af65118",
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9479764892623427,
+            "entropy_mean": 0.13039834211357126,
+            "entropy_min": 0.0008278296017921704,
+            "mean_prediction": [
+              0.4868581077051385,
+              0.5131418922948616
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "b61d375ccdc2ee71336554236caba1dedd909cd338620269b0bbeae656ccd9c7",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "50086fbc7e41b3cc3cc04c860a31b6875c81e0abdccc47770a6b70756fa40bc6",
+          "trust_region": {
+            "beta_norm": 0.0,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.0,
+            "log_t_abs": 0.0,
+            "shift_norm": 0.0,
+            "variant": "ERM",
+            "within_bounds": true
+          },
+          "variant": "ERM"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.0,
+              0.0
+            ],
+            "boundary_hits": [],
+            "diag": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "log_t": 0.0,
+            "shift": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "variant": "TTA_CONTROL_REPLAY"
+          },
+          "adapter_state_hash": "52045b1d1c922405189eb35467e9eeeb4b07ece8287e1ab3b51d3a7b90bb2003",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.13039834211357126,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.18812504150739173,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": {
+            "bacc": 0.4,
+            "ece": 0.5545949389821286,
+            "n_eval": 90,
+            "nll": 2.806183089595021
+          },
+          "final_metrics_hash": "0434d2fb588e6c7381cbb57f3c724581b348bebe2bf51c81a3aea3937af65118",
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9479764892623427,
+            "entropy_mean": 0.13039834211357126,
+            "entropy_min": 0.0008278296017921704,
+            "mean_prediction": [
+              0.4868581077051385,
+              0.5131418922948616
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "e7d9d0c865a936072e406b605dfbfb9d4b79ab391436239b3feb2f82d4ad4760",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "50086fbc7e41b3cc3cc04c860a31b6875c81e0abdccc47770a6b70756fa40bc6",
+          "trust_region": {
+            "beta_norm": 0.0,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.0,
+            "log_t_abs": 0.0,
+            "shift_norm": 0.0,
+            "variant": "TTA_CONTROL_REPLAY",
+            "within_bounds": true
+          },
+          "variant": "TTA_CONTROL_REPLAY"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.013144919853162573,
+              -0.013144919853162573
+            ],
+            "boundary_hits": [],
+            "diag": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "log_t": 0.07078279370172937,
+            "shift": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "variant": "TALOS_L"
+          },
+          "adapter_state_hash": "0b7e0ee1d4255fdccb1b93ea403a50d94c374e9836c7d5d72ee37409701ac0e0",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.14417921759943175,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.20800664222995094,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": {
+            "bacc": 0.4,
+            "ece": 0.5435995903817794,
+            "n_eval": 90,
+            "nll": 2.6234860941880878
+          },
+          "final_metrics_hash": "14b216a333f0f35c4067273100f7b814b8f22ad40ded516556876ac2b6764c5b",
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9435995903817797,
+            "entropy_mean": 0.14417921759943175,
+            "entropy_min": 0.0014484140021593709,
+            "mean_prediction": [
+              0.4875959144597728,
+              0.5124040855402272
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "05acadf53a5c16eec87c6c2639094e613d823416a02e98710c5b1bc211739869",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "ee961eae9c5982d5f18d8b49b8eb498e859e24a67c8288a6135d787e560eb172",
+          "trust_region": {
+            "beta_norm": 0.018589723932649866,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.0,
+            "log_t_abs": 0.07078279370172937,
+            "shift_norm": 0.0,
+            "variant": "TALOS_L",
+            "within_bounds": true
+          },
+          "variant": "TALOS_L"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.0,
+              0.0
+            ],
+            "boundary_hits": [],
+            "diag": [
+              0.9457495274344828,
+              0.874884954213221,
+              0.9943793442619786,
+              0.9767732653830392,
+              0.781510418488969,
+              0.7816396184548267
+            ],
+            "log_t": 0.0,
+            "shift": [
+              -0.2498834127833583,
+              0.2633113441400636,
+              -0.23126888808826346,
+              -0.4321231568460398,
+              0.035809117157325,
+              -0.02261289150720968
+            ],
+            "variant": "TALOS_D"
+          },
+          "adapter_state_hash": "7983a0be890db1a910c0933bf48e2eda17fdfd366bbd763a47e3a0d0e0bd76f0",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.14615388251718012,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.21085548151420394,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": {
+            "bacc": 0.4,
+            "ece": 0.5571941533420907,
+            "n_eval": 90,
+            "nll": 2.5423294853819125
+          },
+          "final_metrics_hash": "90bdcfc63017f349b7cd93b38fef1bf6ee7e24539036d4c59f3f7af05d01a8c6",
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9454730593752746,
+            "entropy_mean": 0.14615388251718012,
+            "entropy_min": 0.0016939432583044512,
+            "mean_prediction": [
+              0.494723872985115,
+              0.5052761270148849
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "6ae143011dd7d18990f601cd8f3e686eb01305d851c3bb05fad7f06031a03794",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "7e501ffdd15b9a20800d03c75fe9b71e2e14bcf1d9a20f86b9bb1aafd48a2c3c",
+          "trust_region": {
+            "beta_norm": 0.0,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.21848958151103104,
+            "log_t_abs": 0.0,
+            "shift_norm": 0.6113787213758571,
+            "variant": "TALOS_D",
+            "within_bounds": true
+          },
+          "variant": "TALOS_D"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.005276322860331778,
+              -0.005276322860331778
+            ],
+            "boundary_hits": [],
+            "diag": [
+              0.9457495274344828,
+              0.874884954213221,
+              0.9943793442619786,
+              0.9767732653830392,
+              0.781510418488969,
+              0.7816396184548267
+            ],
+            "log_t": 0.06800906372363452,
+            "shift": [
+              -0.2498834127833583,
+              0.2633113441400636,
+              -0.23126888808826346,
+              -0.4321231568460398,
+              0.035809117157325,
+              -0.02261289150720968
+            ],
+            "variant": "TALOS_LD"
+          },
+          "adapter_state_hash": "6d8bad4790737a38571fc1b4ded1e7ed8f00445b8add202a56d50cef63316559",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.16188471447628341,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.23355027477065987,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": {
+            "bacc": 0.4,
+            "ece": 0.552430861268962,
+            "n_eval": 90,
+            "nll": 2.385251184921772
+          },
+          "final_metrics_hash": "b4a3358a1d79d791489fd2323601e3b2012fa9e42b1f21bbde38242134b3f85c",
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9402072696717084,
+            "entropy_mean": 0.16188471447628341,
+            "entropy_min": 0.0027897645396883935,
+            "mean_prediction": [
+              0.49521876838663714,
+              0.5047812316133629
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "8f2429e744217b5a6521b5c2cc57e9a5bf9276efcfb77389d454e38d61a822b9",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "5ebb0136b8daccc5bc7e7028457506b1e5ba9267c210c0ecb9b838ffe8c09c58",
+          "trust_region": {
+            "beta_norm": 0.007461847348540402,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.21848958151103104,
+            "log_t_abs": 0.06800906372363452,
+            "shift_norm": 0.6113787213758571,
+            "variant": "TALOS_LD",
+            "within_bounds": true
+          },
+          "variant": "TALOS_LD"
+        }
+      ]
+    },
+    "target_y_removed": {
+      "collapse_by_variant": {
+        "ERM": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.13039834211357126,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.18812504150739173,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TALOS_D": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.14615388251718012,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.21085548151420394,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TALOS_L": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.14417921759943175,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.20800664222995094,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TALOS_LD": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.16188471447628341,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.23355027477065987,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TTA_CONTROL_REPLAY": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.13039834211357126,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.18812504150739173,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        }
+      },
+      "reported_variant": "REPORT_ALL_FROZEN_ORDER",
+      "scenario": "target_y_removed",
+      "seed": 0,
+      "source_state_hash": "c371507e86c8b2afe08b51f8650ffbdcbddd4d31d8d49186edb1cbdf79335a65",
+      "target_labels_used_for": "not_available",
+      "variant_ranking": [
+        "ERM",
+        "TTA_CONTROL_REPLAY",
+        "TALOS_L",
+        "TALOS_D",
+        "TALOS_LD"
+      ],
+      "variants": [
+        {
+          "adapter_state": {
+            "beta": [
+              0.0,
+              0.0
+            ],
+            "boundary_hits": [],
+            "diag": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "log_t": 0.0,
+            "shift": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "variant": "ERM"
+          },
+          "adapter_state_hash": "420d995d9fe70d9f1ae12e5af94debfef4d0824f9b2a3aaea973cbc515543e84",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.13039834211357126,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.18812504150739173,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": null,
+          "final_metrics_hash": null,
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9479764892623427,
+            "entropy_mean": 0.13039834211357126,
+            "entropy_min": 0.0008278296017921704,
+            "mean_prediction": [
+              0.4868581077051385,
+              0.5131418922948616
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "b61d375ccdc2ee71336554236caba1dedd909cd338620269b0bbeae656ccd9c7",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "50086fbc7e41b3cc3cc04c860a31b6875c81e0abdccc47770a6b70756fa40bc6",
+          "trust_region": {
+            "beta_norm": 0.0,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.0,
+            "log_t_abs": 0.0,
+            "shift_norm": 0.0,
+            "variant": "ERM",
+            "within_bounds": true
+          },
+          "variant": "ERM"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.0,
+              0.0
+            ],
+            "boundary_hits": [],
+            "diag": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "log_t": 0.0,
+            "shift": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "variant": "TTA_CONTROL_REPLAY"
+          },
+          "adapter_state_hash": "52045b1d1c922405189eb35467e9eeeb4b07ece8287e1ab3b51d3a7b90bb2003",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.13039834211357126,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.18812504150739173,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": null,
+          "final_metrics_hash": null,
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9479764892623427,
+            "entropy_mean": 0.13039834211357126,
+            "entropy_min": 0.0008278296017921704,
+            "mean_prediction": [
+              0.4868581077051385,
+              0.5131418922948616
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "e7d9d0c865a936072e406b605dfbfb9d4b79ab391436239b3feb2f82d4ad4760",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "50086fbc7e41b3cc3cc04c860a31b6875c81e0abdccc47770a6b70756fa40bc6",
+          "trust_region": {
+            "beta_norm": 0.0,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.0,
+            "log_t_abs": 0.0,
+            "shift_norm": 0.0,
+            "variant": "TTA_CONTROL_REPLAY",
+            "within_bounds": true
+          },
+          "variant": "TTA_CONTROL_REPLAY"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.013144919853162573,
+              -0.013144919853162573
+            ],
+            "boundary_hits": [],
+            "diag": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "log_t": 0.07078279370172937,
+            "shift": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "variant": "TALOS_L"
+          },
+          "adapter_state_hash": "0b7e0ee1d4255fdccb1b93ea403a50d94c374e9836c7d5d72ee37409701ac0e0",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.14417921759943175,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.20800664222995094,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": null,
+          "final_metrics_hash": null,
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9435995903817797,
+            "entropy_mean": 0.14417921759943175,
+            "entropy_min": 0.0014484140021593709,
+            "mean_prediction": [
+              0.4875959144597728,
+              0.5124040855402272
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "05acadf53a5c16eec87c6c2639094e613d823416a02e98710c5b1bc211739869",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "ee961eae9c5982d5f18d8b49b8eb498e859e24a67c8288a6135d787e560eb172",
+          "trust_region": {
+            "beta_norm": 0.018589723932649866,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.0,
+            "log_t_abs": 0.07078279370172937,
+            "shift_norm": 0.0,
+            "variant": "TALOS_L",
+            "within_bounds": true
+          },
+          "variant": "TALOS_L"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.0,
+              0.0
+            ],
+            "boundary_hits": [],
+            "diag": [
+              0.9457495274344828,
+              0.874884954213221,
+              0.9943793442619786,
+              0.9767732653830392,
+              0.781510418488969,
+              0.7816396184548267
+            ],
+            "log_t": 0.0,
+            "shift": [
+              -0.2498834127833583,
+              0.2633113441400636,
+              -0.23126888808826346,
+              -0.4321231568460398,
+              0.035809117157325,
+              -0.02261289150720968
+            ],
+            "variant": "TALOS_D"
+          },
+          "adapter_state_hash": "7983a0be890db1a910c0933bf48e2eda17fdfd366bbd763a47e3a0d0e0bd76f0",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.14615388251718012,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.21085548151420394,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": null,
+          "final_metrics_hash": null,
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9454730593752746,
+            "entropy_mean": 0.14615388251718012,
+            "entropy_min": 0.0016939432583044512,
+            "mean_prediction": [
+              0.494723872985115,
+              0.5052761270148849
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "6ae143011dd7d18990f601cd8f3e686eb01305d851c3bb05fad7f06031a03794",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "7e501ffdd15b9a20800d03c75fe9b71e2e14bcf1d9a20f86b9bb1aafd48a2c3c",
+          "trust_region": {
+            "beta_norm": 0.0,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.21848958151103104,
+            "log_t_abs": 0.0,
+            "shift_norm": 0.6113787213758571,
+            "variant": "TALOS_D",
+            "within_bounds": true
+          },
+          "variant": "TALOS_D"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.005276322860331778,
+              -0.005276322860331778
+            ],
+            "boundary_hits": [],
+            "diag": [
+              0.9457495274344828,
+              0.874884954213221,
+              0.9943793442619786,
+              0.9767732653830392,
+              0.781510418488969,
+              0.7816396184548267
+            ],
+            "log_t": 0.06800906372363452,
+            "shift": [
+              -0.2498834127833583,
+              0.2633113441400636,
+              -0.23126888808826346,
+              -0.4321231568460398,
+              0.035809117157325,
+              -0.02261289150720968
+            ],
+            "variant": "TALOS_LD"
+          },
+          "adapter_state_hash": "6d8bad4790737a38571fc1b4ded1e7ed8f00445b8add202a56d50cef63316559",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.16188471447628341,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.23355027477065987,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": null,
+          "final_metrics_hash": null,
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9402072696717084,
+            "entropy_mean": 0.16188471447628341,
+            "entropy_min": 0.0027897645396883935,
+            "mean_prediction": [
+              0.49521876838663714,
+              0.5047812316133629
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "8f2429e744217b5a6521b5c2cc57e9a5bf9276efcfb77389d454e38d61a822b9",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "5ebb0136b8daccc5bc7e7028457506b1e5ba9267c210c0ecb9b838ffe8c09c58",
+          "trust_region": {
+            "beta_norm": 0.007461847348540402,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.21848958151103104,
+            "log_t_abs": 0.06800906372363452,
+            "shift_norm": 0.6113787213758571,
+            "variant": "TALOS_LD",
+            "within_bounds": true
+          },
+          "variant": "TALOS_LD"
+        }
+      ]
+    },
+    "true_y_final_only": {
+      "collapse_by_variant": {
+        "ERM": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.13039834211357126,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.18812504150739173,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TALOS_D": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.14615388251718012,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.21085548151420394,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TALOS_L": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.14417921759943175,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.20800664222995094,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TALOS_LD": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.16188471447628341,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.23355027477065987,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        },
+        "TTA_CONTROL_REPLAY": {
+          "checks": [
+            "entropy_non_degenerate",
+            "not_single_class"
+          ],
+          "entropy_mean": 0.13039834211357126,
+          "max_label_fraction": 0.5,
+          "normalized_entropy_mean": 0.18812504150739173,
+          "passed": true,
+          "predicted_label_counts": [
+            45,
+            45
+          ],
+          "warnings": []
+        }
+      },
+      "reported_variant": "REPORT_ALL_FROZEN_ORDER",
+      "scenario": "true_y_final_only",
+      "seed": 0,
+      "source_state_hash": "c371507e86c8b2afe08b51f8650ffbdcbddd4d31d8d49186edb1cbdf79335a65",
+      "target_labels_used_for": "final_metrics_only",
+      "variant_ranking": [
+        "ERM",
+        "TTA_CONTROL_REPLAY",
+        "TALOS_L",
+        "TALOS_D",
+        "TALOS_LD"
+      ],
+      "variants": [
+        {
+          "adapter_state": {
+            "beta": [
+              0.0,
+              0.0
+            ],
+            "boundary_hits": [],
+            "diag": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "log_t": 0.0,
+            "shift": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "variant": "ERM"
+          },
+          "adapter_state_hash": "420d995d9fe70d9f1ae12e5af94debfef4d0824f9b2a3aaea973cbc515543e84",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.13039834211357126,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.18812504150739173,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": {
+            "bacc": 0.9777777777777777,
+            "ece": 0.045405061017871444,
+            "n_eval": 90,
+            "nll": 0.07575345052702709
+          },
+          "final_metrics_hash": "4aa371c37a0cee9a9f812d0e6e5d50b5fdb10c7532b8b5c8e35ac3af0b2c4e5d",
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9479764892623427,
+            "entropy_mean": 0.13039834211357126,
+            "entropy_min": 0.0008278296017921704,
+            "mean_prediction": [
+              0.4868581077051385,
+              0.5131418922948616
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "b61d375ccdc2ee71336554236caba1dedd909cd338620269b0bbeae656ccd9c7",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "50086fbc7e41b3cc3cc04c860a31b6875c81e0abdccc47770a6b70756fa40bc6",
+          "trust_region": {
+            "beta_norm": 0.0,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.0,
+            "log_t_abs": 0.0,
+            "shift_norm": 0.0,
+            "variant": "ERM",
+            "within_bounds": true
+          },
+          "variant": "ERM"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.0,
+              0.0
+            ],
+            "boundary_hits": [],
+            "diag": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "log_t": 0.0,
+            "shift": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "variant": "TTA_CONTROL_REPLAY"
+          },
+          "adapter_state_hash": "52045b1d1c922405189eb35467e9eeeb4b07ece8287e1ab3b51d3a7b90bb2003",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.13039834211357126,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.18812504150739173,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": {
+            "bacc": 0.9777777777777777,
+            "ece": 0.045405061017871444,
+            "n_eval": 90,
+            "nll": 0.07575345052702709
+          },
+          "final_metrics_hash": "4aa371c37a0cee9a9f812d0e6e5d50b5fdb10c7532b8b5c8e35ac3af0b2c4e5d",
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9479764892623427,
+            "entropy_mean": 0.13039834211357126,
+            "entropy_min": 0.0008278296017921704,
+            "mean_prediction": [
+              0.4868581077051385,
+              0.5131418922948616
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "e7d9d0c865a936072e406b605dfbfb9d4b79ab391436239b3feb2f82d4ad4760",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "50086fbc7e41b3cc3cc04c860a31b6875c81e0abdccc47770a6b70756fa40bc6",
+          "trust_region": {
+            "beta_norm": 0.0,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.0,
+            "log_t_abs": 0.0,
+            "shift_norm": 0.0,
+            "variant": "TTA_CONTROL_REPLAY",
+            "within_bounds": true
+          },
+          "variant": "TTA_CONTROL_REPLAY"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.013144919853162573,
+              -0.013144919853162573
+            ],
+            "boundary_hits": [],
+            "diag": [
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0,
+              1.0
+            ],
+            "log_t": 0.07078279370172937,
+            "shift": [
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0,
+              0.0
+            ],
+            "variant": "TALOS_L"
+          },
+          "adapter_state_hash": "0b7e0ee1d4255fdccb1b93ea403a50d94c374e9836c7d5d72ee37409701ac0e0",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.14417921759943175,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.20800664222995094,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": {
+            "bacc": 0.9777777777777777,
+            "ece": 0.0341781873959983,
+            "n_eval": 90,
+            "nll": 0.07964245740394535
+          },
+          "final_metrics_hash": "d690b499fecddd525b64b51ec2b7670034a2ba25587b15e36b3474edda7a95af",
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9435995903817797,
+            "entropy_mean": 0.14417921759943175,
+            "entropy_min": 0.0014484140021593709,
+            "mean_prediction": [
+              0.4875959144597728,
+              0.5124040855402272
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "05acadf53a5c16eec87c6c2639094e613d823416a02e98710c5b1bc211739869",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "ee961eae9c5982d5f18d8b49b8eb498e859e24a67c8288a6135d787e560eb172",
+          "trust_region": {
+            "beta_norm": 0.018589723932649866,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.0,
+            "log_t_abs": 0.07078279370172937,
+            "shift_norm": 0.0,
+            "variant": "TALOS_L",
+            "within_bounds": true
+          },
+          "variant": "TALOS_L"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.0,
+              0.0
+            ],
+            "boundary_hits": [],
+            "diag": [
+              0.9457495274344828,
+              0.874884954213221,
+              0.9943793442619786,
+              0.9767732653830392,
+              0.781510418488969,
+              0.7816396184548267
+            ],
+            "log_t": 0.0,
+            "shift": [
+              -0.2498834127833583,
+              0.2633113441400636,
+              -0.23126888808826346,
+              -0.4321231568460398,
+              0.035809117157325,
+              -0.02261289150720968
+            ],
+            "variant": "TALOS_D"
+          },
+          "adapter_state_hash": "7983a0be890db1a910c0933bf48e2eda17fdfd366bbd763a47e3a0d0e0bd76f0",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.14615388251718012,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.21085548151420394,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": {
+            "bacc": 0.9777777777777777,
+            "ece": 0.04280584665790936,
+            "n_eval": 90,
+            "nll": 0.07723418202079535
+          },
+          "final_metrics_hash": "6697840f8333323ff2a545f51a1e81cbacc2cc8c271455b59164392914829edd",
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9454730593752746,
+            "entropy_mean": 0.14615388251718012,
+            "entropy_min": 0.0016939432583044512,
+            "mean_prediction": [
+              0.494723872985115,
+              0.5052761270148849
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "6ae143011dd7d18990f601cd8f3e686eb01305d851c3bb05fad7f06031a03794",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "7e501ffdd15b9a20800d03c75fe9b71e2e14bcf1d9a20f86b9bb1aafd48a2c3c",
+          "trust_region": {
+            "beta_norm": 0.0,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.21848958151103104,
+            "log_t_abs": 0.0,
+            "shift_norm": 0.6113787213758571,
+            "variant": "TALOS_D",
+            "within_bounds": true
+          },
+          "variant": "TALOS_D"
+        },
+        {
+          "adapter_state": {
+            "beta": [
+              0.005276322860331778,
+              -0.005276322860331778
+            ],
+            "boundary_hits": [],
+            "diag": [
+              0.9457495274344828,
+              0.874884954213221,
+              0.9943793442619786,
+              0.9767732653830392,
+              0.781510418488969,
+              0.7816396184548267
+            ],
+            "log_t": 0.06800906372363452,
+            "shift": [
+              -0.2498834127833583,
+              0.2633113441400636,
+              -0.23126888808826346,
+              -0.4321231568460398,
+              0.035809117157325,
+              -0.02261289150720968
+            ],
+            "variant": "TALOS_LD"
+          },
+          "adapter_state_hash": "6d8bad4790737a38571fc1b4ded1e7ed8f00445b8add202a56d50cef63316559",
+          "collapse": {
+            "checks": [
+              "entropy_non_degenerate",
+              "not_single_class"
+            ],
+            "entropy_mean": 0.16188471447628341,
+            "max_label_fraction": 0.5,
+            "normalized_entropy_mean": 0.23355027477065987,
+            "passed": true,
+            "predicted_label_counts": [
+              45,
+              45
+            ],
+            "warnings": []
+          },
+          "final_metrics_FINAL_ONLY": {
+            "bacc": 0.9777777777777777,
+            "ece": 0.04756913873103794,
+            "n_eval": 90,
+            "nll": 0.08223095342415072
+          },
+          "final_metrics_hash": "c936ebf10e7673e84985f96377a6b1c31eae90831c8551e42e42b82de9c04d56",
+          "metrics_before_final_y": {
+            "confidence_mean": 0.9402072696717084,
+            "entropy_mean": 0.16188471447628341,
+            "entropy_min": 0.0027897645396883935,
+            "mean_prediction": [
+              0.49521876838663714,
+              0.5047812316133629
+            ],
+            "n_classes": 2,
+            "n_samples": 90,
+            "predicted_label_counts": [
+              45,
+              45
+            ]
+          },
+          "metrics_before_final_y_hash": "8f2429e744217b5a6521b5c2cc57e9a5bf9276efcfb77389d454e38d61a822b9",
+          "predictions_hash": "949947c6328bc164fb2571ab91409ac930c7e4bc7e225321f30ed499e7157ea6",
+          "proba_hash": "5ebb0136b8daccc5bc7e7028457506b1e5ba9267c210c0ecb9b838ffe8c09c58",
+          "trust_region": {
+            "beta_norm": 0.007461847348540402,
+            "boundary_hits": [],
+            "bounds": {
+              "tau_a": 0.35,
+              "tau_beta": 1.5,
+              "tau_c": 1.5,
+              "tau_log_t": 0.25
+            },
+            "diag_max_abs_delta": 0.21848958151103104,
+            "log_t_abs": 0.06800906372363452,
+            "shift_norm": 0.6113787213758571,
+            "variant": "TALOS_LD",
+            "within_bounds": true
+          },
+          "variant": "TALOS_LD"
+        }
+      ]
+    }
+  },
+  "scientific_readout": false,
+  "source_free_deployment_claim": false,
+  "source_state_schema": {
+    "checks": [
+      "source_state_mode_p0_replay",
+      "source_free_deployment_claim_false",
+      "finite_vector_fields",
+      "array_shapes",
+      "source_prior_simplex",
+      "positive_scale_fields"
+    ],
+    "passed": true,
+    "source_free_deployment_claim": false,
+    "source_state_hash": "c371507e86c8b2afe08b51f8650ffbdcbddd4d31d8d49186edb1cbdf79335a65",
+    "source_state_mode": "constructed_from_frozen_source_features_for_P0_replay",
+    "warnings": []
+  },
+  "status": "PASS",
+  "synthetic_data_hash": "dfb707883def65605b93f6c498b3393f781c5e7ceed08941f9b5cc440b710f84",
+  "talos00b_real_replay_approved": false,
+  "variant_config": {
+    "allowed_variants": [
+      "ERM",
+      "TTA_CONTROL_REPLAY",
+      "TALOS_L",
+      "TALOS_D",
+      "TALOS_LD"
+    ],
+    "forbidden_variants": [
+      "TALOS_LR",
+      "TALOS_full",
+      "CMI",
+      "CEDAR_mask",
+      "safety_gate"
+    ],
+    "optimization_steps": 1,
+    "phase": "TALOS_00A_adapter_implementation_red_team_preflight",
+    "runtime_variant_addition_allowed": false,
+    "seed": 0,
+    "target_labels_allowed_for": [
+      "final_metrics_only"
+    ],
+    "trust_region_bounds": {
+      "tau_a": 0.35,
+      "tau_beta": 1.5,
+      "tau_c": 1.5,
+      "tau_log_t": 0.25
+    },
+    "variant_universe_hash": "328482d68fb458c23c71a900e8f16aae1d8fdd7553052dc29a856d33c45b50d4"
+  }
+}

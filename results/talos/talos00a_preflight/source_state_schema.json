@@ -1,0 +1,15 @@
+{
+  "checks": [
+    "source_state_mode_p0_replay",
+    "source_free_deployment_claim_false",
+    "finite_vector_fields",
+    "array_shapes",
+    "source_prior_simplex",
+    "positive_scale_fields"
+  ],
+  "passed": true,
+  "source_free_deployment_claim": false,
+  "source_state_hash": "c371507e86c8b2afe08b51f8650ffbdcbddd4d31d8d49186edb1cbdf79335a65",
+  "source_state_mode": "constructed_from_frozen_source_features_for_P0_replay",
+  "warnings": []
+}

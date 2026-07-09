@@ -1,0 +1,77 @@
+{
+  "ERM": {
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "entropy_mean": 0.13039834211357126,
+    "max_label_fraction": 0.5,
+    "normalized_entropy_mean": 0.18812504150739173,
+    "passed": true,
+    "predicted_label_counts": [
+      45,
+      45
+    ],
+    "warnings": []
+  },
+  "TALOS_D": {
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "entropy_mean": 0.14615388251718012,
+    "max_label_fraction": 0.5,
+    "normalized_entropy_mean": 0.21085548151420394,
+    "passed": true,
+    "predicted_label_counts": [
+      45,
+      45
+    ],
+    "warnings": []
+  },
+  "TALOS_L": {
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "entropy_mean": 0.14417921759943175,
+    "max_label_fraction": 0.5,
+    "normalized_entropy_mean": 0.20800664222995094,
+    "passed": true,
+    "predicted_label_counts": [
+      45,
+      45
+    ],
+    "warnings": []
+  },
+  "TALOS_LD": {
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "entropy_mean": 0.16188471447628341,
+    "max_label_fraction": 0.5,
+    "normalized_entropy_mean": 0.23355027477065987,
+    "passed": true,
+    "predicted_label_counts": [
+      45,
+      45
+    ],
+    "warnings": []
+  },
+  "TTA_CONTROL_REPLAY": {
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "entropy_mean": 0.13039834211357126,
+    "max_label_fraction": 0.5,
+    "normalized_entropy_mean": 0.18812504150739173,
+    "passed": true,
+    "predicted_label_counts": [
+      45,
+      45
+    ],
+    "warnings": []
+  }
+}

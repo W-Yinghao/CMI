@@ -1,0 +1,77 @@
+{
+  "ERM": {
+    "beta_norm": 0.0,
+    "boundary_hits": [],
+    "bounds": {
+      "tau_a": 0.35,
+      "tau_beta": 1.5,
+      "tau_c": 1.5,
+      "tau_log_t": 0.25
+    },
+    "diag_max_abs_delta": 0.0,
+    "log_t_abs": 0.0,
+    "shift_norm": 0.0,
+    "variant": "ERM",
+    "within_bounds": true
+  },
+  "TALOS_D": {
+    "beta_norm": 0.0,
+    "boundary_hits": [],
+    "bounds": {
+      "tau_a": 0.35,
+      "tau_beta": 1.5,
+      "tau_c": 1.5,
+      "tau_log_t": 0.25
+    },
+    "diag_max_abs_delta": 0.21848958151103104,
+    "log_t_abs": 0.0,
+    "shift_norm": 0.6113787213758571,
+    "variant": "TALOS_D",
+    "within_bounds": true
+  },
+  "TALOS_L": {
+    "beta_norm": 0.018589723932649866,
+    "boundary_hits": [],
+    "bounds": {
+      "tau_a": 0.35,
+      "tau_beta": 1.5,
+      "tau_c": 1.5,
+      "tau_log_t": 0.25
+    },
+    "diag_max_abs_delta": 0.0,
+    "log_t_abs": 0.07078279370172937,
+    "shift_norm": 0.0,
+    "variant": "TALOS_L",
+    "within_bounds": true
+  },
+  "TALOS_LD": {
+    "beta_norm": 0.007461847348540402,
+    "boundary_hits": [],
+    "bounds": {
+      "tau_a": 0.35,
+      "tau_beta": 1.5,
+      "tau_c": 1.5,
+      "tau_log_t": 0.25
+    },
+    "diag_max_abs_delta": 0.21848958151103104,
+    "log_t_abs": 0.06800906372363452,
+    "shift_norm": 0.6113787213758571,
+    "variant": "TALOS_LD",
+    "within_bounds": true
+  },
+  "TTA_CONTROL_REPLAY": {
+    "beta_norm": 0.0,
+    "boundary_hits": [],
+    "bounds": {
+      "tau_a": 0.35,
+      "tau_beta": 1.5,
+      "tau_c": 1.5,
+      "tau_log_t": 0.25
+    },
+    "diag_max_abs_delta": 0.0,
+    "log_t_abs": 0.0,
+    "shift_norm": 0.0,
+    "variant": "TTA_CONTROL_REPLAY",
+    "within_bounds": true
+  }
+}
