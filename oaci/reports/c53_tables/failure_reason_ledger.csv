@@ -1,0 +1,11 @@
+reason_code,n_cells,fraction_cells,mean_random_tie_hit,mean_scalar_endpoint_hit,mean_full_diag_hit,target_labels_diagnostic_only,no_selection_artifact
+key_only_sufficient,12,0.07407407407407407,0.9910714285714285,1.0,1.0,1,1
+cell_prior_sufficient,39,0.24074074074074073,0.8959412926173093,1.0,1.0,1,1
+scalar_endpoint_sufficient,114,0.7037037037037037,0.30415330552424197,1.0,0.8070175438596491,1,1
+pairwise_rank_required,0,0.0,,,,1,1
+full_diagnostic_required,0,0.0,,,,1,1
+split_label_sufficient,0,0.0,,,,1,1
+split_label_insufficient,0,0.0,,,,1,1
+nontransferable_cell_local_content,12,0.07407407407407407,0.13614404918752743,1.0,0.6666666666666666,1,1
+null_like_or_unstable,9,0.05555555555555555,0.0,0.0,0.0,1,1
+insufficient_artifact_for_split_label,162,1.0,0.4297233780360411,0.9444444444444444,0.808641975308642,1,1

@@ -1,0 +1,2 @@
+cell_id,budget,available,construction_eval_disjoint,best_split_label_hit,reason,target_labels_diagnostic_only,no_selection_artifact
+unavailable,unavailable,0,0,,required per-trial target prediction/label cache unavailable,1,1

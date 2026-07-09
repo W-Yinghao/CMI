@@ -1,0 +1,2 @@
+budget,available,hit_mean,hit_std,enrichment_mean,coverage_mean,closed_fraction_mean,cell_close_count_mean,cell_close_count_std,low_budget_unstable_cell_count,reason,target_labels_diagnostic_only,no_selection_artifact
+unavailable,0,,,,,,,,,required per-trial target prediction/label cache unavailable,1,1
