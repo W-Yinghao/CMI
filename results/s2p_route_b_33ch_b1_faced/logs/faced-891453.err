@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_faced_downstream_audit.py", line 783, in <module>
+    main()
+    ~~~~^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_faced_downstream_audit.py", line 603, in main
+    X, y, subj, split, segment_id, item_index, dataset_rows = load_faced_lmdb(args.faced_lmdb)
+                                                              ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_faced_downstream_audit.py", line 138, in load_faced_lmdb
+    raise RuntimeError(f"FACED key/object label mismatch for {parsed['key']}: {label}")
+RuntimeError: FACED key/object label mismatch for sub000.pkl-1-0: 0
+srun: error: node42: task 0: Exited with exit code 1

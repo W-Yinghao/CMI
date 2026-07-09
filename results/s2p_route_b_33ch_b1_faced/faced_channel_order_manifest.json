@@ -1,0 +1,53 @@
+{
+  "channel_count": 32,
+  "channel_mode": "native32",
+  "channel_names_available_in_local_lmdb": false,
+  "channel_order_sha256_16": "4e41dbc188f67d55",
+  "channel_order_tokens": [
+    "FACED_NATIVE32_ARRAY_INDEX_00",
+    "FACED_NATIVE32_ARRAY_INDEX_01",
+    "FACED_NATIVE32_ARRAY_INDEX_02",
+    "FACED_NATIVE32_ARRAY_INDEX_03",
+    "FACED_NATIVE32_ARRAY_INDEX_04",
+    "FACED_NATIVE32_ARRAY_INDEX_05",
+    "FACED_NATIVE32_ARRAY_INDEX_06",
+    "FACED_NATIVE32_ARRAY_INDEX_07",
+    "FACED_NATIVE32_ARRAY_INDEX_08",
+    "FACED_NATIVE32_ARRAY_INDEX_09",
+    "FACED_NATIVE32_ARRAY_INDEX_10",
+    "FACED_NATIVE32_ARRAY_INDEX_11",
+    "FACED_NATIVE32_ARRAY_INDEX_12",
+    "FACED_NATIVE32_ARRAY_INDEX_13",
+    "FACED_NATIVE32_ARRAY_INDEX_14",
+    "FACED_NATIVE32_ARRAY_INDEX_15",
+    "FACED_NATIVE32_ARRAY_INDEX_16",
+    "FACED_NATIVE32_ARRAY_INDEX_17",
+    "FACED_NATIVE32_ARRAY_INDEX_18",
+    "FACED_NATIVE32_ARRAY_INDEX_19",
+    "FACED_NATIVE32_ARRAY_INDEX_20",
+    "FACED_NATIVE32_ARRAY_INDEX_21",
+    "FACED_NATIVE32_ARRAY_INDEX_22",
+    "FACED_NATIVE32_ARRAY_INDEX_23",
+    "FACED_NATIVE32_ARRAY_INDEX_24",
+    "FACED_NATIVE32_ARRAY_INDEX_25",
+    "FACED_NATIVE32_ARRAY_INDEX_26",
+    "FACED_NATIVE32_ARRAY_INDEX_27",
+    "FACED_NATIVE32_ARRAY_INDEX_28",
+    "FACED_NATIVE32_ARRAY_INDEX_29",
+    "FACED_NATIVE32_ARRAY_INDEX_30",
+    "FACED_NATIVE32_ARRAY_INDEX_31"
+  ],
+  "channel_order_tokens_are_array_indices": true,
+  "dataset": "FACED",
+  "evidence": [
+    "All selected FACED LMDB samples have shape (32,10,200).",
+    "Local FACED_data tree exposes processed LMDB and per-subject pkl files but no channel-name metadata.",
+    "No interpolation, zero-padding, or unrecorded channel reorder is applied."
+  ],
+  "metadata_search_paths": [
+    "/projects/EEG-foundation-model/FACED_data",
+    "/projects/EEG-foundation-model/FACED_data/processed",
+    "/projects/EEG-foundation-model/FACED_data/Processed_data"
+  ],
+  "multiple_channel_orders_observed": false
+}

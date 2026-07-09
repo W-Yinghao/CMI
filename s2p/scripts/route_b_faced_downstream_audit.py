@@ -89,7 +89,7 @@ def parse_faced_key(key):
     return {
         "key": key,
         "subject": int(m.group("sub")) + 1,
-        "key_label": int(m.group("label")),
+        "condition_id": int(m.group("label")),
         "segment_id": int(m.group("seg")),
     }
 
@@ -108,7 +108,6 @@ def load_faced_lmdb(path):
     env = lmdb.open(path, readonly=True, lock=False, readahead=False, meminit=False)
     X, y, subj, split, segment_id, item_index = [], [], [], [], [], []
     dataset_rows = []
-    split_subject_counts = {}
     with env.begin() as txn:
         keys_by_split = pickle.loads(txn.get(b"__keys__"))
         if set(keys_by_split) != {"train", "val", "test"}:
@@ -119,6 +118,7 @@ def load_faced_lmdb(path):
             keys = keys_by_split[lmdb_split]
             per_subject_ordinal = {}
             label_counts = {str(k): 0 for k in LABELS}
+            condition_counts = {}
             subjects_seen = []
             shapes_seen = set()
             dtypes_seen = set()
@@ -134,8 +134,6 @@ def load_faced_lmdb(path):
                 label = int(obj["label"])
                 if sample.shape != (32, 10, 200):
                     raise RuntimeError(f"FACED sample {parsed['key']} shape {sample.shape} != (32,10,200)")
-                if label != parsed["key_label"]:
-                    raise RuntimeError(f"FACED key/object label mismatch for {parsed['key']}: {label}")
                 if label not in LABELS:
                     raise RuntimeError(f"FACED label outside 0..8: {label}")
                 ordinal = per_subject_ordinal.get(parsed["subject"], 0)
@@ -147,14 +145,11 @@ def load_faced_lmdb(path):
                 segment_id.append(parsed["segment_id"])
                 item_index.append(ordinal)
                 label_counts[str(label)] += 1
+                condition_counts[str(parsed["condition_id"])] = condition_counts.get(str(parsed["condition_id"]), 0) + 1
                 subjects_seen.append(parsed["subject"])
                 shapes_seen.add("x".join(map(str, sample.shape)))
                 dtypes_seen.add(str(sample.dtype))
             subjects_seen = sorted(set(subjects_seen))
-            split_subject_counts[protocol_split] = {
-                s: int(sum(1 for v in subj if v == s and split[len(split) - 1] == protocol_split))
-                for s in subjects_seen
-            }
             dataset_rows.append({
                 "dataset": "FACED",
                 "lmdb_path": path,
@@ -171,6 +166,7 @@ def load_faced_lmdb(path):
                 "window_s": 10,
                 "n_classes": N_CLASSES,
                 "label_counts_json": json.dumps(label_counts, sort_keys=True),
+                "condition_counts_json": json.dumps(condition_counts, sort_keys=True),
             })
     X = np.stack(X).astype(np.float32)
     X = (X - X.mean(-1, keepdims=True)) / (X.std(-1, keepdims=True) + 1e-6)

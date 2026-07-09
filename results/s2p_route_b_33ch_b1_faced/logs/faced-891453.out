@@ -1,0 +1,4 @@
+Route B FACED downstream phase=probe host=node42 git=26822816c943047b1aa5f50ab99f70eaa6f9b3b5
+?? results/s2p_route_b_33ch_b1_faced/
+Tesla V100-PCIE-32GB, 32768 MiB
+loading FACED from /projects/EEG-foundation-model/FACED_data/processed

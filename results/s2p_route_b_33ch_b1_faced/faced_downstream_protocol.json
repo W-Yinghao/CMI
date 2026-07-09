@@ -1,0 +1,45 @@
+{
+  "cells": [
+    "random",
+    "released",
+    "H1000_s0",
+    "H1000_s1"
+  ],
+  "downstream_dataset": "FACED",
+  "forbidden": {
+    "codebrain": false,
+    "fine_tuning": false,
+    "h2000_downstream": false,
+    "pretraining": false,
+    "target_labels_for_selection": false
+  },
+  "input": {
+    "channels": 32,
+    "patch_size": 200,
+    "patches": 10,
+    "sfreq_hz": 200,
+    "window_s": 10
+  },
+  "model": "CBraMod",
+  "normalization": "per_channel_per_1s_patch_zscore",
+  "not_full_finetuning_reproduction": true,
+  "pca_dims": [
+    32,
+    64,
+    128
+  ],
+  "pca_head_selection": "source_train_fit_source_val_select",
+  "phase": "D2_probe",
+  "primary_metric": "cohen_kappa",
+  "protocol": "frozen_encoder_source_only_probe",
+  "route": "B_33ch_cbramod_only",
+  "secondary_metrics": [
+    "weighted_f1",
+    "balanced_accuracy",
+    "macro_f1"
+  ],
+  "target_labels_final_scoring_only": true,
+  "test_subjects": "101-123",
+  "train_subjects": "1-80",
+  "val_subjects": "81-100"
+}
