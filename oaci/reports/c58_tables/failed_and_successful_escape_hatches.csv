@@ -1,0 +1,9 @@
+hatch_id,outcome,evidence,closed
+H1_source_rank,failed,C42/C56,1
+H2_source_scalarization,failed,C43/C56,1
+H3_source_pareto,failed,C44/C56,1
+H4_conditioning_as_selector,failed,C47-C51,1
+H5_key_only_recovery,failed,C52,1
+H6_template_transfer,partial_but_not_escape,C55,1
+H7_endpoint_oracle,diagnostic_only,C54-C55,1
+H8_split_label,future_unresolved,C53-C55,0

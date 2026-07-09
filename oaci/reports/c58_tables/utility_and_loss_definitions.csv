@@ -1,0 +1,7 @@
+object_id,definition,orientation,availability_class,used_by_c58
+Y_joint_good,candidate satisfies target bAcc/NLL/ECE joint-good condition used in C31-C55,higher is better,diagnostic endpoint label,finite-population hit/miss risk
+H_star_G,mean over evaluation cells of best attainable joint-good hit inside a registered information partition,higher is better,finite-population analysis,empirical Bayes hit ceiling
+M_G,1 - H_star_G for the registered partition or rule family,lower is better,finite-population analysis,miss lower-bound candidate for that rule family
+R_G_to_EO,H_star_endpoint_oracle - H_star_G,lower is better,diagnostic comparison,hit-rate regret to same-label endpoint oracle
+LeCam_proxy,"empirical source-near/target-divergent two-point witness score, not a TV distance",larger means more lower-bound-like ambiguity,empirical witness,formal candidate only
+Fano_MI_proxy,registered discrete-MI or entropy proxy from source/endpoint scalar audits,smaller source MI and larger ambiguity support non-identifiability candidates,empirical witness,packing attempt gate

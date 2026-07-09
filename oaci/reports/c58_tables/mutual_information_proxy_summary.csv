@@ -1,0 +1,5 @@
+proxy_id,value,artifact,stable_for_theorem,note
+MI1_source_rank_vs_joint_good,0.00871699528126672,oaci/reports/c54_tables/endpoint_tautology_distance.csv,0,small source MI proxy
+MI2_endpoint_joint_margin_vs_joint_good,0.903,oaci/reports/c54_tables/endpoint_tautology_distance.csv,0,large because endpoint scalar is same-label diagnostic content
+MI3_pareto_tie_count,3.2037037037037037,oaci/reports/C53_DIAGNOSTIC_LABEL_CONTENT_MINIMALITY.json,0,"ambiguity proxy, not MI estimator"
+MI4_split_label_cache,,C53,0,unavailable

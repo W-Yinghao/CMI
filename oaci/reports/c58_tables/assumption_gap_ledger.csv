@@ -1,0 +1,7 @@
+gap_id,template,needed_for_theorem,current_artifact_status,blocking,repair_requires_training
+AG1_distributional_worlds,Le Cam,two distributions with small TV/KL and separated target utility,empirical source-near target-divergent pairs only,1,0
+AG2_independent_samples,Fano/Assouad,independent samples or controlled replicate fields,fixed finite audit population,1,1
+AG3_mutual_information_estimator,Fano,stable MI estimate between observations and target-good index,source-rank MI proxy small; endpoint MI tautological,1,0
+AG4_split_label_disjointness,information boundary,construction/evaluation labels are disjoint,split-label cache unavailable,1,1
+AG5_atom_trace,mechanism-to-theorem bridge,candidate-level leakage atom traces and bootstrap order,C39/C40 atom decomposition irrecoverable from current artifacts,1,1
+AG6_finite_population_scope,finite-population partition bound,"registered finite population, registered partitions, exact row provenance",sufficient for C58-A within frozen C50-C55 population,0,0

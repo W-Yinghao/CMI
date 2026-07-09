@@ -1,0 +1,4 @@
+packing_id,packing_size_proxy,separation_proxy,mi_proxy,bound_status,failure_reason
+F1_source_rank_partition,2,0.43827160493827155,0.00871699528126672,candidate_only,packing too small and MI proxy not theorem-grade
+F2_key_only_cells,162,0.4567901234567901,,not_established,"cell labels are keys, not independent target-good hypotheses"
+F3_endpoint_oracle,2,0.0,0.903,tautological_oracle,endpoint scalar directly reads evaluated endpoint content

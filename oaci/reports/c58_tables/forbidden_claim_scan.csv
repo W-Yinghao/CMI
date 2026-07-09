@@ -1,0 +1,14 @@
+pattern,total_hits,affirmative_hits,files,passed
+source-only rescue,0,0,,1
+OACI rescue,0,0,,1
+deployable selector,3,0,oaci/reports/c58_tables/finite_population_bound_summary.csv;oaci/reports/c58_tables/partition_bayes_error_by_information_class.csv;oaci/reports/c58_tables/regret_to_endpoint_oracle.csv,1
+checkpoint recommendation artifact,0,0,,1
+few-label sufficiency,1,0,oaci/reports/c58_tables/artifact_sufficiency_for_lower_bounds.csv,1
+formal theorem,1,0,oaci/reports/C58_FORMAL_LOWER_BOUND_ATTEMPT.md,1
+same-label endpoint oracle available at selection time,0,0,,1
+training protocol used for method tuning,0,0,,1
+new training silently run,0,0,,1
+C57 automatically starts M1,0,0,,1
+M1 manuscript drafting,1,0,oaci/reports/C58_FORMAL_LOWER_BOUND_ATTEMPT.md,1
+all DG methods fail,0,0,,1
+EEG transfer impossible,0,0,,1

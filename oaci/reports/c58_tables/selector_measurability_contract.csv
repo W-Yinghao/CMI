@@ -1,0 +1,9 @@
+rule_family,measurable_wrt,allowed_for_original_source_only_DG,uses_target_labels,outputs_action_rule,c58_bound_scope,forbidden_interpretation
+random_tie_rule,G0_random_or_tie,1,0,0,finite-population baseline,not evidence that good checkpoints are absent
+strict_source_score_rule,G1_strict_source_observables,1,0,0,observed source-score lower-bound surrogate,not source-only rescue
+source_scalarization_hindsight_rule,G1_strict_source_observables,0,0,0,diagnostic upper envelope over registered source scalarizations,not tuned selector
+target_or_trajectory_key_only_rule,G2_source_plus_key,0,0,0,key-only residual test,not trajectory key sufficiency
+conditioned_local_bayes_ceiling,G4/G6 diagnostic expansion,0,1,0,diagnostic ceiling only,not deployable selector
+cross_cell_endpoint_template_rule,G6_target_label_diagnostic_content,0,1,0,partial target-label template transfer,not split-label closure
+same_label_endpoint_scalar_rule,G7_same_label_endpoint_oracle,0,1,0,endpoint-oracle reference,not available at selection time
+future_instrumented_training_rule,future split-label cache only after explicit authorization,0,1,0,protocol specification only,not run by C58

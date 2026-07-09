@@ -1,0 +1,7 @@
+parameter,empirical_value,source,synthetic_role
+source_rank_hit,0.5061728395061729,K_C42_source_rank_top1_joint,weak rank axis R(c)
+random_tie_hit,0.4297233780360411,K_C42_random_base/C52,base ambiguity
+key_only_hit,0.4876543209876543,K_C52_best_key_only_hit,key naming without interaction
+label_diagnostic_hit,0.8127572016460904,K_C52_best_label_derived_hit,diagnostic gauge key plus target content
+endpoint_oracle_hit,0.9444444444444444,K_C55_endpoint_scalar_transfer,candidate-specific target endpoint
+cross_target_divergence_q10,0.9369369369369369,K_C46_cross_target_q10,target-specific gauge breaks global comparability

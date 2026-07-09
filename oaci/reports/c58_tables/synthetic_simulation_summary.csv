@@ -1,0 +1,6 @@
+scenario_id,rank_signal,gauge_sigma,source_hit_proxy,endpoint_oracle_proxy,matches_empirical,note
+RG0_no_gauge,0.5,0.0,0.94,0.94,0,control case where source rank would suffice
+RG1_weak_rank_strong_gauge,0.51,0.44,0.506,0.944,1,matches C42/C55 gap qualitatively
+RG2_key_without_interaction,0.49,0.46,0.488,0.944,1,matches C52 key-only insufficiency
+RG3_label_diagnostic,0.81,0.13,0.813,0.944,1,diagnostic label content closes most residual
+RG4_endpoint_oracle,0.944,0.0,0.944,0.944,1,same-label endpoint oracle boundary

@@ -1,0 +1,6 @@
+candidate,screens_off_target_good,minimality_status,reason
+S,0,insufficient,strict source hit 0.506
+S+K,0,insufficient,best key-only hit 0.488
+S+K+U,0,unavailable,target-unlabeled geometry cache unavailable
+D,0,diagnostic partial closure,label-derived hit 0.813
+E,1,same-label endpoint oracle,endpoint scalar hit 0.944 and threshold overlap 1.000

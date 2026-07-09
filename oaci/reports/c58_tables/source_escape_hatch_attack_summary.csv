@@ -1,0 +1,7 @@
+attack_id,candidate_escape_hatch,observed_hit,passes_reliability_gate,forces_C58_E,reason
+EH1_source_rank,C42 source-rank,0.5061728395061729,0,0,"weak signal, not reliable actionability"
+EH2_source_scalarization,C43 best source scalarization,0.5740740740740741,0,0,hindsight diagnostic grid below endpoint/null boundary
+EH3_source_pareto,C44 source Pareto membership,0.43105701988584916,0,0,front covers 0.972 of candidates and carries baseline good probability
+EH4_conditioning,C47 conditioned source top1,0.5555555555555556,0,0,conditioning is separate diagnostic problem class
+EH5_key_only,C52 key/source geometry,0.4876543209876543,0,0,key-only residual remains
+EH6_template_only,C55 endpoint template-only,0.7037037037037037,0,0,partial transfer does not beat max null p95
