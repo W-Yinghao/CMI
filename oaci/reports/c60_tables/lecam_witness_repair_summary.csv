@@ -1,0 +1,5 @@
+attempt_id,source_near_proxy,target_divergence_proxy,repair_status,theorem_grade,blocker
+LC60-1_within_target,0.004842615012106538,available,empirical_witness_only,0,source proxy is not total variation
+LC60-2_within_trajectory,0.13287671232876713,available,empirical_witness_only,0,no two observation laws P0/P1
+LC60-3_cross_target,0.9369369369369369,available,not_source_near,0,cross-target source equivalence breaks comparability
+LC60-4_synthetic_rank_gauge,,analytic gauge tail,model_bound_only,1,not EEG distribution law

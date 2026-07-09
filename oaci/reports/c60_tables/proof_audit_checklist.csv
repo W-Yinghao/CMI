@@ -1,0 +1,13 @@
+gate,status,finding,repair_required
+variables_defined,pass,"candidate, source rank R, target gauge W, utility gap, selector sigma-field, hit, and error are explicit in C60 repair",0
+selector_measurability,repaired,C59 wording is narrowed to selectors measurable with respect to source-visible rank/sign and registered source information,1
+randomness_separated,repaired,fixed margin r and conditional gauge law F_{G|r} are separated from empirical finite-field randomness,1
+error_hit_regret_separated,repaired,rank-gauge theorem lower-bounds two-candidate error; hit and regret are derived diagnostics only,1
+two_candidate_scope,repaired,the theorem is two-candidate unless an explicit multi-candidate joint-tail assumption is added,1
+symmetry_assumption,pass_with_limit,symmetry is not needed for the CDF formula but is needed for the normal-tail simplification and rank selector optimality shorthand,0
+independence_assumption,pass_with_limit,two-candidate fixed-margin result does not need independence from rank; multi-candidate proxy does,0
+continuity_and_ties,repaired,continuous gauge gives no ties; atom/tie cases need a half-tie convention or weak inequality statement,1
+rank_correlated_gauge,limit,"rank-correlated gauge can change tail constants, so C60 reports it as an assumption stress failure mode",0
+binary_threshold_mapping,limit,continuous utility lower bound transfers to binary joint-good only after the threshold and margin convention are registered,0
+eeg_distribution_scope,pass,C60 keeps the rank-gauge result synthetic/model-bound and does not upgrade it to an EEG distribution theorem,0
+training_gate_scope,pass,C60 refines a future instrumentation blueprint and does not run training or re-inference,0

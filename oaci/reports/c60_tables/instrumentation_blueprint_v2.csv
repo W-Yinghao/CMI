@@ -1,0 +1,8 @@
+protocol_id,protocol,scientific_question,new_data_required,training_or_inference_needed,approval_required,slurm_requirement,claim_supported,risk
+P0,no_training_continuation,Can proof hardening continue synthetically?,none,none,0,none,synthetic proof only,saturates bridge
+P1,split_label_few_label_cache,Does disjoint target-label content close the residual?,per-trial labels/predictions with split ids,inference cache or instrumented replay,1,cpu-high/GPU only if explicitly released,split-label boundary if disjointness holds,few-label overclaim
+P2,per_trial_logits_probabilities,Can target-unlabeled/probability geometry bridge gauge?,per-trial logits probabilities sample hashes,instrumented inference,1,cpu-high or approved GPU,target-unlabeled bridge diagnostics,method tuning
+P3,atom_level_leakage_trace,Which leakage atoms map to gauge residual?,candidate atom table bootstrap order,instrumented replay or new run,1,cpu-high plus approved compute,mechanism trace,large payload
+P4,independent_checkpoint_field_replication,Does the finite-field boundary replicate?,pre-registered independent field,training likely,1,Slurm only,replicated empirical boundary,uncontrolled exploration
+P5,rank_gauge_intervention_controlled_family,Can controlled perturbations validate rank-gauge assumptions?,controlled model family with gauge trace,training likely,1,Slurm only,model-to-EEG bridge evidence,turning diagnostic into method
+P6,reserved_holdout_final_stress,Final locked stress only after protocol approval,"BNCI2014_004/seeds [3,4] only if released",blocked,1,blocked until release,future stress test,reserved holdout contamination

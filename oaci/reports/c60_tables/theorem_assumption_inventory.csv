@@ -1,0 +1,11 @@
+assumption_id,statement,needed_for_core_proof,proof_status,empirical_status,caveat
+RG60-A1,Two candidates have fixed source-visible rank margin r,1,explicit,partially_supported,source rank signal is weak in C42/C58
+RG60-A2,Source selector cannot observe target-specific gauge gap W,1,explicit,partially_supported,"closed for registered source artifacts, not for all future raw traces"
+RG60-A3,Target utility gap is alpha*r + beta*W plus optional residual,1,explicit,partially_supported,"linear decomposition is a model bridge, not measured directly for all candidates"
+RG60-A4,Conditional gauge CDF F_{W|r} has nonzero lower tail,1,explicit,partially_supported,"tail scale is inferred from hit gaps, not from direct gauge samples"
+RG60-A5,Normal symmetric gauge is used only for calibration curves,0,optional,not_testable_with_existing_artifact,no direct gauge distribution cache
+RG60-A6,Multi-candidate top-1 proxy requires independent challenger gauge events,0,optional_corollary_only,not_testable_with_existing_artifact,C60 does not claim this as theorem-grade for EEG
+RG60-A7,Rank-correlated or heteroskedastic gauge laws require conditional tail constants,0,stress_variant,not_testable_with_existing_artifact,requires new instrumented data
+RG60-A8,Endpoint oracle exposes same-label target endpoint content,0,empirical_bridge,supported_by_existing_artifact,diagnostic only and unavailable at selection time
+RG60-A9,Source-observable counterexamples are absent in registered artifact family,0,empirical_stress,supported_by_existing_artifact,not a universal no-free-lunch theorem
+RG60-A10,EEG distribution/minimax lower bound is outside the proved theorem,1,scope_guardrail,supported_by_existing_artifact,instrumentation needed for bridge

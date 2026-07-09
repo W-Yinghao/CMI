@@ -1,0 +1,8 @@
+failure_id,branch,reason,support_blocker,definition_blocker
+LB1,LeCam,no probability laws over source transcripts,1,1
+LB2,LeCam,source distance proxy is not TV/KL,1,1
+LB3,Fano,stable MI/KL matrix unavailable,1,0
+LB4,Fano,binary packing too small or tautological,1,0
+LB5,Assouad,independent hypercube edges not constructed,1,0
+LB6,RankGauge,synthetic proof valid but not EEG law,1,0
+LB7,TrainingGate,instrumentation needed but not authorized in C60,1,0

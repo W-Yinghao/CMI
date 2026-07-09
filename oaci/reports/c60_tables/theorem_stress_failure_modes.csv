@@ -1,0 +1,10 @@
+failure_id,stress_case,breaks_core_theorem,breaks_extension,mitigation
+TSF1,multi_candidate_dependence,0,1,label as proxy unless joint tail is measured
+TSF2,rank_correlated_gauge,0,1,condition tail on rank margin
+TSF3,gauge_observable_from_source,1,1,source adversary search; none found in registered artifacts
+TSF4,endpoint_scalar_available,1,1,classify as target-label oracle outside source-only setting
+TSF5,heavy_atom_ties,0,0,use weak inequality/half-tie convention
+TSF6,heteroskedastic_target_cells,0,1,cell-specific gamma needed
+TSF7,binary_threshold_without_margin,0,1,keep utility theorem separate from joint-good label
+TSF8,distributional_eeg_upgrade,0,1,requires new instrumented observation law and replication
+TSF9,target_local_offset_only,1,1,"require candidate-specific gauge gap, not only a common target offset"

@@ -1,0 +1,9 @@
+gap_id,data_item,needed_for,present_now,minimal_protocol
+MD1,source transcript observation law,EEG distribution-level bridge,0,P4/P5
+MD2,direct gauge residual by candidate/cell,tail-law calibration,0,P2/P5
+MD3,rank-margin/gauge joint trace,rank-correlated gauge stress,0,P5
+MD4,per-trial logits/probabilities,target-unlabeled bridge,0,P2
+MD5,split-label cache,few-label boundary,0,P1
+MD6,atom leakage trace,mechanism trace,0,P3
+MD7,stable KL/MI matrix,Fano/Assouad,0,P4/P5
+MD8,reserved holdout release,final stress,0,P6 only after approval

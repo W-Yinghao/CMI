@@ -1,0 +1,9 @@
+candidate_id,candidate,allowed_source_only,uses_target_labels,hit,beats_max_null_p95,reliable_escape_hatch,reason
+SA60-1,source_rank_score,1,0,0.5061728395061729,0,0,weak rank signal
+SA60-2,best_source_scalarization,1,0,0.5740740740740741,0,0,hindsight source scalarization still below null boundary
+SA60-3,source_pareto_front_depth,1,0,0.43105701988584916,0,0,front membership near base rate
+SA60-4,conditioned_source_neighborhood,0,0,0.5555555555555556,0,0,"conditioned problem class, not source-only global selector"
+SA60-5,key_source_geometry,0,0,0.4876543209876543,0,0,key-only escape closed
+SA60-6,template_without_same_cell_endpoint,0,1,0.7037037037037037,0,0,"target-label template, not source-only, and below max null p95"
+SA60-7,kernel_source_neighborhood_probe,1,0,,0,0,not executable from frozen summary artifacts without new nested probe design
+SA60-8,rank_aggregation_variant,1,0,,0,0,no registered artifact beats existing source scalarization

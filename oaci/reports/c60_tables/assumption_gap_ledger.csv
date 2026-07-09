@@ -1,0 +1,8 @@
+gap_id,missing_item,blocks,requires_new_instrumentation,priority
+BG1,direct gauge residual samples by target/cell,tail-law calibration,1,high
+BG2,rank-margin and gauge-residual joint distribution,rank-correlated gauge theorem,1,high
+BG3,source transcript observation law,EEG distribution-level lower bound,1,high
+BG4,stable pairwise KL/MI matrix,Fano/Assouad repair,1,medium
+BG5,split-label target cache,few-label/split-label boundary,1,medium
+BG6,atom-level leakage trace,mechanism-to-theorem bridge,1,medium
+BG7,independent checkpoint-field replication,finite-field replication beyond current artifacts,1,medium

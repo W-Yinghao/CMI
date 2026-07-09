@@ -1,0 +1,5 @@
+coverage_case,registered_before_labels,hit_bound_available,actionability_claim,note
+full_coverage,1,1,0,C58/C59 finite-population bound
+source_registered_abstention,1,1,0,safe theorem extension only
+target_label_abstention,0,0,0,diagnostic leakage if used for selection
+coverage_actionability_ceiling,0,1,0,C49/C50 style diagnostic ceiling

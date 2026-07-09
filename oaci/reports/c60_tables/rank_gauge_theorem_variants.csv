@@ -1,0 +1,10 @@
+variant_id,claim_status,formula_or_bound,extra_assumptions,failure_mode
+RGV1_general_two_candidate_cdf,proved_repaired,"high-rank-rule error = F_W|S,r(-alpha*r/beta); source-sigma-field Bayes error = min(p,1-p)","fixed r, source cannot observe W",none for stated model
+RGV2_normal_symmetric_calibration,proved_special_case,high-rank-rule error = Phi(-alpha*r/(beta*sigma)),standard normal centered gauge with scale sigma,distributional shape not verified in EEG artifacts
+RGV3_randomized_source_rule,proved_repaired,randomization cannot beat Bayes action under known conditional CDF,same source sigma-field,different source information can change bound
+RGV4_multi_candidate_top1,proxy_not_theorem,1-(1-tail)^(n-1) is a challenger proxy,independent challenger gauge events,correlation can loosen or tighten
+RGV5_topk_regret,not_theorem_grade,requires joint tail over omitted better candidates,registered top-k success and utility margin,no joint-tail artifact
+RGV6_skewed_gauge,conditional_bound_only,replace Phi by empirical/analytic F_{G|r},known skewed conditional CDF,tail may be smaller than normal proxy
+RGV7_rank_correlated_gauge,stress_limit,bound becomes E[F_{G|R}(-alpha*R/beta)],conditional gauge law measured,existing artifacts do not identify F_{G|R}
+RGV8_binary_joint_good_threshold,diagnostic_bridge_only,utility error implies label error only under registered threshold/margin,threshold and margin pre-registered,joint-good is endpoint-label-derived
+RGV9_target_local_offset,does_not_support_pairwise_flip,a common target offset cancels in within-target pairwise utility differences,candidate-specific gauge gap is required,pure target-local offset cannot explain rank reversals

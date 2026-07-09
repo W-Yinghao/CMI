@@ -1,0 +1,7 @@
+quantity,value,interpretation,theorem_grade
+random_tie_miss,0.5702766219639589,base finite-cell ambiguity,0
+strict_source_miss,0.49382716049382713,observed registered source-rank error scale,0
+source_scalarization_miss,0.42592592592592593,best source utility-cone error scale,0
+label_diagnostic_miss,0.18724279835390956,target-label diagnostic residual,0
+endpoint_oracle_miss,0.05555555555555558,same-label endpoint residual,0
+source_to_oracle_error_gap,0.43827160493827155,gauge-scale witness gap,0

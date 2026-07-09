@@ -1,0 +1,8 @@
+comparison,observed_error,nearest_curve_gamma,curve_error,difference,conclusion
+strict_source_vs_gamma0,0.49382716049382713,0.0,0.5,-0.006172839506172867,near complete gauge overwrite
+source_scalarization_vs_gamma025,0.42592592592592593,0.25,0.4012936743170763,0.02463225160884963,weak positive margin
+template_vs_gamma05,0.2962962962962963,0.5,0.3085375387259869,-0.012241242429690602,target-label template improves but remains below oracle
+endpoint_oracle_vs_gamma15,0.05555555555555558,1.5,0.06680720126885809,-0.011251645713302505,same-label endpoint acts like high-margin gauge readout
+key_only_vs_gamma0,0.5123456790123457,0.0,0.5,0.012345679012345734,key alone is not a positive rank margin
+max_null_p95_vs_template,0.2962962962962963,,0.22870370370370385,-0.06759259259259243,template-only does not beat max null p95
+endpoint_vs_max_null_p95,0.05555555555555558,,0.22870370370370385,0.17314814814814827,endpoint oracle exceeds null but is target-label-derived

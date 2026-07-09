@@ -1,0 +1,5 @@
+attempt_id,packing_size,mi_or_kl_status,bound_status,theorem_grade,blocker
+F60-1_binary_source_rank,2,small_proxy_only,trivial_or_unstable,0,log2 term and no observation law
+F60-2_key_cells,162,missing_stable_matrix,blocked,0,cell hypotheses lack KL/MI matrix
+F60-3_endpoint_bits,2,tautological,invalid_for_ambiguity,0,same-label endpoint oracle
+F60-4_controlled_future_field,,future_required,blueprint_only,0,requires instrumented replication

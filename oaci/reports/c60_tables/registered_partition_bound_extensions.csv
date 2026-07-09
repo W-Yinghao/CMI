@@ -1,0 +1,8 @@
+extension_id,status,theorem_form,covered_rule_class,blocked_overclaim
+RPX1_binary_top1,proved,"H*(Pi)=|Omega|^{-1} sum_B max_y n(B,y)",registered Pi-cell measurable top1,arbitrary source nonlinear functions
+RPX2_multiclass_top1,proved,replace max_y over binary y by max over label classes,registered Pi-cell measurable multiclass top1,unregistered label-dependent rules
+RPX3_weighted_cells,proved,sum_B w_B max_y p_B(y) with fixed ex ante weights,weighted registered cells,post-hoc target-weight tuning
+RPX4_coverage_abstention,proved_with_registered_coverage,"for covered blocks A, hit <= sum_{B in A} max_y n(B,y)/sum_{B in A} n(B)",coverage rule registered without labels,target-label chosen abstention
+RPX5_topk_binary,safe_if_label_and_success_defined,block optimum is the best k decisions under the pre-registered success functional,registered top-k success,C60 does not infer a selected top-k list
+RPX6_bounded_regret,proved_for_bounded_utilities,regret lower bound follows from cellwise utility range and cellwise best measurable action,registered utility table,continuous EEG population regret
+RPX7_target_trajectory_ledger,proved_as_disaggregation,same bound computed per registered target-trajectory cell then aggregated,registered target-trajectory ledgers,deployable target-conditioned selector

@@ -1,0 +1,7 @@
+variable,empirical_boundary_role,uses_target_labels,available_at_selection_time,diagnostic_only,hit
+source_only,not_sufficient,0,1,0,0.5061728395061729
+source_plus_key,not_sufficient,0,0,1,0.4876543209876543
+label_diagnostic,partial_empirical_boundary_like,1,0,1,0.8127572016460904
+template_only,partial_transfer_not_boundary,1,0,1,0.7037037037037037
+same_label_endpoint,empirical_oracle_boundary,1,0,1,0.9444444444444444
+split_label_cache,future_unresolved,1,0,1,
