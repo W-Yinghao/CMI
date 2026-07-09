@@ -110,6 +110,56 @@ def _dataset_list(text: str) -> list[str]:
     return out
 
 
+def _parse_target_spec(text: str) -> dict[str, set[int]] | None:
+    if not text.strip():
+        return None
+    out: dict[str, set[int]] = {ds: set() for ds in W1_DATASETS}
+    for part in text.split(";"):
+        part = part.strip()
+        if not part:
+            continue
+        if "=" in part:
+            dataset, spec = part.split("=", 1)
+        elif ":" in part:
+            dataset, spec = part.split(":", 1)
+        else:
+            raise ValueError(f"target spec item lacks dataset separator: {part}")
+        dataset = dataset.strip()
+        if dataset == "Lee2019-MI":
+            dataset = "Lee2019_MI"
+        if dataset not in out:
+            raise ValueError(f"unsupported target-spec dataset: {dataset}")
+        for token in spec.split(","):
+            token = token.strip()
+            if not token:
+                continue
+            if "-" in token:
+                lo, hi = token.split("-", 1)
+                out[dataset].update(range(int(lo), int(hi) + 1))
+            else:
+                out[dataset].add(int(token))
+    return out
+
+
+def _selected_targets(dataset: str, available: list[int], target_spec: dict[str, set[int]] | None) -> list[int]:
+    if target_spec is None:
+        return list(available)
+    requested = target_spec.get(dataset, set())
+    available_set = set(int(v) for v in available)
+    missing = sorted(requested - available_set)
+    if missing:
+        raise ValueError(f"{dataset}: target spec requested unavailable subjects {missing}")
+    return [int(v) for v in available if int(v) in requested]
+
+
+def _expected_rows_from_targets(targets_by_dataset: dict[str, list[int]]) -> dict[str, int]:
+    return {ds: len(targets_by_dataset.get(ds, [])) * len(METHODS) for ds in W1_DATASETS}
+
+
+def _active_datasets(expected_rows_by_dataset: dict[str, int]) -> list[str]:
+    return [ds for ds in W1_DATASETS if int(expected_rows_by_dataset.get(ds, 0)) > 0]
+
+
 def _class_counts_array(y: np.ndarray) -> list[int]:
     return np.bincount(np.asarray(y, dtype=np.int64), minlength=2).astype(int).tolist()
 
@@ -137,6 +187,8 @@ def _load_manifest(path: str, datasets: list[str], seed: int) -> tuple[list[dict
 def _run_config(args, external_sha: str) -> dict[str, Any]:
     return {
         "datasets": args.datasets,
+        "target_spec": args.target_spec,
+        "shard_id": args.shard_id,
         "seed": int(args.seed),
         "manifest": args.manifest,
         "manifest_hash": args.manifest_hash,
@@ -773,11 +825,11 @@ def _summaries(rows: list[dict[str, str]], datasets: list[str]) -> tuple[dict, d
             "mean_acc": _mean(by_method[method], "acc"),
             "mean_bacc": _mean(by_method[method], "bacc"),
         }
-        ds_acc = [per_dataset[ds][method]["mean_acc"] for ds in datasets]
-        ds_bacc = [per_dataset[ds][method]["mean_bacc"] for ds in datasets]
+        ds_acc = [per_dataset[ds][method]["mean_acc"] for ds in datasets if per_dataset[ds][method]["mean_acc"] is not None]
+        ds_bacc = [per_dataset[ds][method]["mean_bacc"] for ds in datasets if per_dataset[ds][method]["mean_bacc"] is not None]
         dataset_macro[method] = {
-            "mean_acc": float(sum(v for v in ds_acc if v is not None) / len(ds_acc)),
-            "mean_bacc": float(sum(v for v in ds_bacc if v is not None) / len(ds_bacc)),
+            "mean_acc": float(sum(ds_acc) / len(ds_acc)) if ds_acc else None,
+            "mean_bacc": float(sum(ds_bacc) / len(ds_bacc)) if ds_bacc else None,
         }
     delta_pairs = {
         "rct_minus_source_only_tsmnet": ("rct", "source_only_tsmnet"),
@@ -803,7 +855,8 @@ def _summaries(rows: list[dict[str, str]], datasets: list[str]) -> tuple[dict, d
     return per_dataset, subject_weighted, dataset_macro, deltas, harms
 
 
-def _validation(rows: list[dict[str, str]], datasets: list[str], frozen_hash: str) -> dict[str, Any]:
+def _validation(rows: list[dict[str, str]], datasets: list[str], frozen_hash: str,
+                expected_rows_by_dataset: dict[str, int] | None = None) -> dict[str, Any]:
     dataset_counts = defaultdict(int)
     method_counts = defaultdict(int)
     failed = 0
@@ -833,7 +886,13 @@ def _validation(rows: list[dict[str, str]], datasets: list[str], frozen_hash: st
         method_selection = method_selection or row.get("method_selection_uses_target_performance") == "True"
         pretrained = pretrained or row.get("official_pretrained_weight_used") == "True"
         vendored = vendored or row.get("third_party_vendored") == "True"
-    expected = {ds: EXPECTED_ROWS_BY_DATASET[ds] for ds in datasets}
+    expected = (
+        {ds: int(expected_rows_by_dataset.get(ds, 0)) for ds in datasets}
+        if expected_rows_by_dataset is not None
+        else {ds: EXPECTED_ROWS_BY_DATASET[ds] for ds in datasets}
+    )
+    expected_nonzero = {ds: n for ds, n in expected.items() if n}
+    dataset_counts_ok = all(int(dataset_counts.get(ds, 0)) == n for ds, n in expected.items())
     return {
         "row_count": len(rows),
         "expected_rows_total": sum(expected.values()),
@@ -856,7 +915,8 @@ def _validation(rows: list[dict[str, str]], datasets: list[str], frozen_hash: st
         "vendoring_detected": vendored,
         "validation_pass": (
             len(rows) == sum(expected.values())
-            and dict(dataset_counts) == expected
+            and dataset_counts_ok
+            and set(dataset_counts.keys()) == set(expected_nonzero.keys())
             and failed == 0
             and single_class_eval == 0
             and single_class_adapt == 0
@@ -1042,13 +1102,23 @@ def _write_audit(path: str, summary: dict[str, Any]) -> None:
 
 def _write_summary_and_digest(rows: list[dict[str, str]], *, args, launch_provenance: dict[str, Any],
                               started: float, finished: float, frozen_hash: str) -> None:
-    validation = _validation(rows, args.datasets, frozen_hash)
-    per_dataset, subject_weighted, dataset_macro, deltas, harms = _summaries(rows, args.datasets)
-    legacy = _write_legacy_compare(rows, args.legacy_compare, args.datasets)
+    expected_rows_by_dataset = getattr(
+        args,
+        "expected_rows_by_dataset",
+        {ds: EXPECTED_ROWS_BY_DATASET[ds] for ds in args.datasets},
+    )
+    active_datasets = _active_datasets(expected_rows_by_dataset)
+    validation = _validation(rows, active_datasets, frozen_hash, expected_rows_by_dataset)
+    per_dataset, subject_weighted, dataset_macro, deltas, harms = _summaries(rows, active_datasets)
+    legacy = _write_legacy_compare(rows, args.legacy_compare, active_datasets)
     summary = {
         "status": "pass" if validation["validation_pass"] else "blocked",
         "label": "W1 repaired-split seed-0 official SPDIM expansion, not full three-seed baseline.",
-        "datasets": args.datasets,
+        "datasets": active_datasets,
+        "all_requested_datasets": args.datasets,
+        "target_spec": args.target_spec,
+        "shard_id": args.shard_id,
+        "expected_rows_by_dataset": expected_rows_by_dataset,
         "source_seed": int(args.seed),
         "methods": METHODS,
         "split_family": SPLIT_FAMILY,
@@ -1078,6 +1148,18 @@ def _run_gpu(args) -> int:
     started = time.time()
     command = " ".join(sys.argv)
     rows_manifest, row_map, frozen_hash = _load_manifest(args.manifest, args.datasets, args.seed)
+    targets_by_dataset = {
+        ds: _selected_targets(
+            ds,
+            [int(s) for s in MOABB_CLASS[ds]().subject_list],
+            args.target_spec_map,
+        )
+        for ds in args.datasets
+    }
+    args.expected_rows_by_dataset = _expected_rows_from_targets(targets_by_dataset)
+    expected_total = sum(args.expected_rows_by_dataset.values())
+    if expected_total <= 0:
+        raise RuntimeError("target spec selected zero P8 rows")
     external_sha = _git_sha(args.external_spdim_path)
     launch_provenance = _launch_provenance(args, command, external_sha, frozen_hash)
     _require_clean_launch(launch_provenance)
@@ -1092,10 +1174,13 @@ def _run_gpu(args) -> int:
     result_rows: list[dict[str, Any]] = []
     runner_commit = launch_provenance["launch_commit"]
     for ds in args.datasets:
+        selected_targets = targets_by_dataset[ds]
+        if not selected_targets:
+            continue
         ds_args = SimpleNamespace(**vars(args))
         ds_args.dataset = ds
         ep = load_dataset(ds, MOABB_CLASS[ds]().subject_list)
-        targets = sorted(int(s) for s in np.unique(ep.subject))
+        targets = _selected_targets(ds, sorted(int(s) for s in np.unique(ep.subject)), args.target_spec_map)
         for target in targets:
             split_row = row_map.get((ds, target))
             try:
@@ -1127,7 +1212,7 @@ def _run_gpu(args) -> int:
     rows = _read_csv_rows(args.out)
     _write_summary_and_digest(rows, args=args, launch_provenance=launch_provenance,
                               started=started, finished=finished, frozen_hash=frozen_hash)
-    return 0 if len(rows) == EXPECTED_TOTAL_ROWS and all(row.get("status") == "ok" for row in rows) else 2
+    return 0 if len(rows) == expected_total and all(row.get("status") == "ok" for row in rows) else 2
 
 
 def main() -> int:
@@ -1137,6 +1222,8 @@ def main() -> int:
     ap.add_argument("--datasets", default="w1_repaired")
     ap.add_argument("--manifest", default="h2cmi/results/review_completion/w1_repaired_split_manifest.csv")
     ap.add_argument("--manifest-hash", default=P7_MANIFEST_HASH)
+    ap.add_argument("--target-spec", default="")
+    ap.add_argument("--shard-id", default="")
     ap.add_argument("--seed", type=int, default=0)
     ap.add_argument("--epochs", type=int, default=20)
     ap.add_argument("--adapt-epochs", type=int, default=30)
@@ -1162,6 +1249,7 @@ def main() -> int:
     ap.add_argument("--failure-trace", default="h2cmi/results/review_completion/spdim_w1_repaired_seed0_failure_trace.txt")
     args = ap.parse_args()
     args.datasets = _dataset_list(args.datasets)
+    args.target_spec_map = _parse_target_spec(args.target_spec)
     if args.datasets != W1_DATASETS:
         bad = [d for d in args.datasets if d not in W1_DATASETS]
         if bad:

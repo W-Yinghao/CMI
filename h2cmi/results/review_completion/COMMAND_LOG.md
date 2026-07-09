@@ -190,3 +190,16 @@
   total `460`. No GPU job, seeds 1/2, full SPDIM, TeX edit, geometry stress,
   orthogonal-score work, official pretrained weights, or vendored third-party
   code were used.
+
+- Per user instruction to split P8 into four GPUs, canceled monolithic P8 job
+  `891435` after it had produced 56 partial rows. Those partial rows and Slurm
+  logs were moved to
+  `/home/infres/yinwang/.cache/h2cmi_training_caches/p8_monolithic_891435_partial_excluded`
+  and are excluded from the confirmatory merge. Added shard-aware target
+  selection to `h2cmi/run_spdim_w1_repaired_seed0.py` and a four-task Slurm
+  array launcher `spdim_w1_repaired_seed0_4shard.slurm`. The replacement shards
+  cover BNCI2014_001 subjects 1-9, Cho2017 subjects 1-52, and Lee2019_MI
+  subjects 1-54 exactly once, with expected rows `116`, `116`, `116`, and
+  `112` for total `460`. Shard outputs are repository-external to preserve
+  clean launch provenance. No seeds 1/2, full SPDIM, TeX edit, geometry stress,
+  orthogonal-score work, or Slurm accounting calls were used.

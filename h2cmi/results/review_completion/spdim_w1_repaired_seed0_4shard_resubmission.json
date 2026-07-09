@@ -1,0 +1,58 @@
+{
+  "action": "cancel_monolithic_and_resubmit_four_shards",
+  "approved_by_user": true,
+  "canceled_job_id": "891435",
+  "canceled_job_final_squeue_absent": true,
+  "canceled_partial_rows": 56,
+  "canceled_partial_rows_by_dataset": {
+    "BNCI2014_001": 36,
+    "Cho2017": 20
+  },
+  "canceled_partial_status": "excluded_from_confirmatory_merge",
+  "partial_cache_path": "/home/infres/yinwang/.cache/h2cmi_training_caches/p8_monolithic_891435_partial_excluded",
+  "partial_results_sha256": "ed434d8927b2ee73d6839ca1ba0c724de31118e2ed1e5a8230dc362adae341dc",
+  "partial_stderr_sha256": "9bd18f8c36546e2dee706d29f35f48a2c7c78acb0f7cb9205337bf8149ab63d4",
+  "partial_stdout_sha256": "756d94834ad74e71d99f463cf483e0739d0168fc29745c69e1219693d0195a4f",
+  "shard_count": 4,
+  "shard_output_root_template": "/home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_${launch_commit}",
+  "shards": [
+    {
+      "array_task_id": 0,
+      "shard_id": "shard0",
+      "target_spec": "BNCI2014_001=1-9;Cho2017=1-20",
+      "expected_rows": 116
+    },
+    {
+      "array_task_id": 1,
+      "shard_id": "shard1",
+      "target_spec": "Cho2017=21-49",
+      "expected_rows": 116
+    },
+    {
+      "array_task_id": 2,
+      "shard_id": "shard2",
+      "target_spec": "Cho2017=50-52;Lee2019_MI=1-26",
+      "expected_rows": 116
+    },
+    {
+      "array_task_id": 3,
+      "shard_id": "shard3",
+      "target_spec": "Lee2019_MI=27-54",
+      "expected_rows": 112
+    }
+  ],
+  "expected_rows_total": 460,
+  "source_seed": 0,
+  "methods": [
+    "source_only_tsmnet",
+    "rct",
+    "spdim_geodesic",
+    "spdim_bias"
+  ],
+  "split_family": "class_stratified_half",
+  "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+  "no_extra_seeds": true,
+  "no_full_spdim": true,
+  "no_tex": true,
+  "monitoring_policy": "squeue_only_plus_artifact_validation"
+}
