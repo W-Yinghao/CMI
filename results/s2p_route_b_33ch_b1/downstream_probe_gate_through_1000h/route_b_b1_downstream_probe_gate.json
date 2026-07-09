@@ -1,0 +1,100 @@
+{
+  "phase": "route_b_b1_downstream_probe_gate_through_1000h",
+  "checkpoint_cell": "H1000_s0",
+  "downstream_primary": "SHU_MI_native32",
+  "controls": [
+    "random",
+    "released"
+  ],
+  "load_info": {
+    "dataset": "SHU-MI",
+    "channel_mode": "native32",
+    "input_shape": [
+      1250,
+      32,
+      4,
+      200
+    ],
+    "n_trials": 1250,
+    "subjects": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "trials_per_class_per_session": 5,
+    "split": {
+      "source_train": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "source_val": [
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "target_test": [
+        21,
+        22,
+        23,
+        24,
+        25
+      ]
+    }
+  },
+  "device": "cuda:0",
+  "g1_native32_forward": true,
+  "g2_frozen_feature_dump_deterministic": true,
+  "g3_source_only_pca_head_subspace": true,
+  "g4_target_labels_final_scoring_only": true,
+  "g5_l1_l4_l5_l6_compute": true,
+  "g6_released_reference_above_random_plus_0p02": true,
+  "random_target_bacc": 0.512,
+  "released_target_bacc": 0.548,
+  "probe_target_bacc": 0.496,
+  "probe_source_val_bacc": 0.516,
+  "probe_l1_subject_separability": 0.8642857142857143,
+  "probe_l4_alignment": 0.002108025837863506,
+  "probe_l5_reliance_z": 2.8245164435851455,
+  "target_labels_used_for_selection": false,
+  "full_downstream_fleet_launched": false,
+  "full_downstream_fleet_recommended_if_pass": true,
+  "elapsed_s": 379.5,
+  "probe_gate_pass": true
+}

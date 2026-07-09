@@ -1,0 +1,4 @@
+tag,checkpoint,loaded,feature_shape,feature_dim,feature_sha16,determinism_max_abs_diff
+H1000_s0,results/s2p_route_b_33ch_b1/H1000_s0/best.pth,results/s2p_route_b_33ch_b1/H1000_s0/best.pth,1250x6400,6400,b39edd871917c508,0.0
+random,random,random_init,1250x6400,6400,f7bcef6c779a646b,0.0
+released,/home/infres/yinwang/eeg2025/NIPS/Cbramod_pretrained_weights.pth,/home/infres/yinwang/eeg2025/NIPS/Cbramod_pretrained_weights.pth,1250x6400,6400,c66e436af42585cd,0.0

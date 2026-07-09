@@ -1,0 +1,143 @@
+Route B downstream probe gate host=node13 git=53c212b69327a4541927946c5acb489402998cf5
+?? results/s2p_route_b_33ch_b1/H1000_s0/
+?? results/s2p_route_b_33ch_b1/H1000_s1/
+?? results/s2p_route_b_33ch_b1/H2000_s0/
+?? results/s2p_route_b_33ch_b1/H2000_s1/
+?? results/s2p_route_b_33ch_b1/H200_s0/
+?? results/s2p_route_b_33ch_b1/H200_s1/
+?? results/s2p_route_b_33ch_b1/H500_s0/
+?? results/s2p_route_b_33ch_b1/H500_s1/
+?? results/s2p_route_b_33ch_b1/logs/downstream-probe-891413.err
+?? results/s2p_route_b_33ch_b1/logs/downstream-probe-891413.out
+?? results/s2p_route_b_33ch_b1/logs/train-890125_0.err
+?? results/s2p_route_b_33ch_b1/logs/train-890125_0.out
+?? results/s2p_route_b_33ch_b1/logs/train-890147_1.err
+?? results/s2p_route_b_33ch_b1/logs/train-890147_1.out
+?? results/s2p_route_b_33ch_b1/logs/train-890147_2.err
+?? results/s2p_route_b_33ch_b1/logs/train-890147_2.out
+?? results/s2p_route_b_33ch_b1/logs/train-890147_3.err
+?? results/s2p_route_b_33ch_b1/logs/train-890147_3.out
+?? results/s2p_route_b_33ch_b1/logs/train-890147_4.err
+?? results/s2p_route_b_33ch_b1/logs/train-890147_4.out
+?? results/s2p_route_b_33ch_b1/logs/train-890147_5.err
+?? results/s2p_route_b_33ch_b1/logs/train-890147_5.out
+?? results/s2p_route_b_33ch_b1/logs/train-890151_6.err
+?? results/s2p_route_b_33ch_b1/logs/train-890151_6.out
+?? results/s2p_route_b_33ch_b1/logs/train-890151_7.err
+?? results/s2p_route_b_33ch_b1/logs/train-890151_7.out
+?? results/s2p_route_b_33ch_b1/route_b_b1_downstream_probe_gate_job_id.txt
+?? s2p/scripts/__pycache__/
+Tesla V100-PCIE-16GB, 16384 MiB
+SHU-MI native32 loaded: {"dataset": "SHU-MI", "channel_mode": "native32", "input_shape": [1250, 32, 4, 200], "n_trials": 1250, "subjects": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25], "trials_per_class_per_session": 5, "split": {"source_train": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15], "source_val": [16, 17, 18, 19, 20], "target_test": [21, 22, 23, 24, 25]}}
+probe tag=H1000_s0 ckpt=results/s2p_route_b_33ch_b1/H1000_s0/best.pth
+extract start=0 / 1250
+extract start=960 / 1250
+H1000_s0: target_bacc=0.496 source_val=0.516 L1=0.864 L4=0.002 L5z=+2.82
+probe tag=random ckpt=random
+extract start=0 / 1250
+extract start=960 / 1250
+random: target_bacc=0.512 source_val=0.544 L1=0.691 L4=0.028 L5z=-1.17
+probe tag=released ckpt=/home/infres/yinwang/eeg2025/NIPS/Cbramod_pretrained_weights.pth
+extract start=0 / 1250
+extract start=960 / 1250
+released: target_bacc=0.548 source_val=0.528 L1=0.889 L4=0.021 L5z=+10.60
+{
+  "phase": "route_b_b1_downstream_probe_gate_through_1000h",
+  "checkpoint_cell": "H1000_s0",
+  "downstream_primary": "SHU_MI_native32",
+  "controls": [
+    "random",
+    "released"
+  ],
+  "load_info": {
+    "dataset": "SHU-MI",
+    "channel_mode": "native32",
+    "input_shape": [
+      1250,
+      32,
+      4,
+      200
+    ],
+    "n_trials": 1250,
+    "subjects": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9,
+      10,
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      20,
+      21,
+      22,
+      23,
+      24,
+      25
+    ],
+    "trials_per_class_per_session": 5,
+    "split": {
+      "source_train": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11,
+        12,
+        13,
+        14,
+        15
+      ],
+      "source_val": [
+        16,
+        17,
+        18,
+        19,
+        20
+      ],
+      "target_test": [
+        21,
+        22,
+        23,
+        24,
+        25
+      ]
+    }
+  },
+  "device": "cuda:0",
+  "g1_native32_forward": true,
+  "g2_frozen_feature_dump_deterministic": true,
+  "g3_source_only_pca_head_subspace": true,
+  "g4_target_labels_final_scoring_only": true,
+  "g5_l1_l4_l5_l6_compute": true,
+  "g6_released_reference_above_random_plus_0p02": true,
+  "random_target_bacc": 0.512,
+  "released_target_bacc": 0.548,
+  "probe_target_bacc": 0.496,
+  "probe_source_val_bacc": 0.516,
+  "probe_l1_subject_separability": 0.8642857142857143,
+  "probe_l4_alignment": 0.002108025837863506,
+  "probe_l5_reliance_z": 2.8245164435851455,
+  "target_labels_used_for_selection": false,
+  "full_downstream_fleet_launched": false,
+  "full_downstream_fleet_recommended_if_pass": true,
+  "elapsed_s": 379.5,
+  "probe_gate_pass": true
+}

@@ -291,3 +291,29 @@ full_downstream_fleet_launched=false
           890151_7     s2pB1h2k       A40  RUNNING   21:58:04               node33
             891413   s2pB1probe      V100  RUNNING       0:48               node13
 ```
+
+## Through-1000h Downstream Probe Complete - 2026-07-09T23:24:09+02:00
+
+### probe job
+```text
+job=891413
+status=completed_inferred_from_squeue_absent_outputs_present_stderr_empty
+sacct_unavailable=true
+probe_gate_pass=true
+full_downstream_fleet_launched=false
+```
+
+### probe metrics
+```text
+H1000_s0 target_bacc=0.496 source_val_bacc=0.516 L1=0.864 L4=0.002 L5z=+2.82
+random target_bacc=0.512 source_val_bacc=0.544 L1=0.691
+released target_bacc=0.548 source_val_bacc=0.528 L1=0.889
+released_minus_random=+0.036
+```
+
+### remaining training
+```text
+             JOBID         NAME PARTITION    STATE       TIME     NODELIST(REASON)
+          890151_7     s2pB1h2k       A40  RUNNING   22:07:46               node33
+          890151_6     s2pB1h2k       A40  RUNNING   22:07:46               node32
+```

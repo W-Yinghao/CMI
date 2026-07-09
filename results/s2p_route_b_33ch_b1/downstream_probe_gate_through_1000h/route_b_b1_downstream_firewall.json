@@ -1,0 +1,9 @@
+{
+  "target_labels_in_pca_fit": false,
+  "target_labels_in_head_fit": false,
+  "target_labels_in_checkpoint_selection": false,
+  "target_labels_in_subject_subspace": false,
+  "target_labels_final_scoring_only": true,
+  "checkpoint_selection": "pretrain_val_loss_only",
+  "channel_mode": "SHU_MI_native32"
+}
