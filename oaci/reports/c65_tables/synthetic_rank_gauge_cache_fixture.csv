@@ -1,0 +1,4 @@
+row_id,checkpoint_id,source_rank_margin,target_gauge_offset,target_good,split_label_role
+RG_FIXTURE_1,mock_ckpt_a,0.1,-0.2,0,construct
+RG_FIXTURE_2,mock_ckpt_b,0.2,0.3,1,eval
+RG_FIXTURE_3,mock_ckpt_c,-0.1,0.4,1,eval

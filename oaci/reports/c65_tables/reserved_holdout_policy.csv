@@ -1,0 +1,5 @@
+resource,used_in_c65,released,allowed_future_use,purpose_if_released
+BNCI2014_004,0,0,explicit_remote_approval_only,final stress test
+seed_3,0,0,explicit_remote_approval_only,replication stress
+seed_4,0,0,explicit_remote_approval_only,replication stress
+current_C19_universe,1,1,read_only_artifact_recovery,existing committed artifacts only

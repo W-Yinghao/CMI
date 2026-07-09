@@ -1,0 +1,8 @@
+contract,value,source,present,blocks_campaign
+dataset,BNCI2014_001,oaci/protocol/bnci001_loso_seed0_v1.yaml,1,0
+subjects,1-9,oaci/protocol/bnci001_loso_seed0_v1.yaml,1,0
+historical_model_seeds,"0,1,2",C8-C64 artifacts,1,0
+reserved_seeds,"3,4",project guardrail,1,0
+reserved_dataset,BNCI2014_004,project guardrail,1,0
+three_role_split,source_train/source_audit/target_audit,oaci/data/eeg/splits.py,1,0
+target_label_quarantine,future split roles required,C64 split-label protocol,1,0

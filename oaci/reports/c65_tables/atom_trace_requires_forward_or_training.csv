@@ -1,0 +1,5 @@
+trace,forward_hook_required,new_training_required,recovered_by_reinference_if_weights,current_supported
+per_trial_logits_probabilities,1,0,1,0
+representation_z_and_Wz,1,0,1,0
+optimizer_step_atom_contribution,1,1,0,0
+domain_class_leakage_atom_identity,1,1,0,0

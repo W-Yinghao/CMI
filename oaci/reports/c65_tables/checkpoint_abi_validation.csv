@@ -1,0 +1,6 @@
+check,status,present,cpu_load_attempted,blocks_campaign,evidence
+checkpoint_store_abi_code_present,pass,1,0,0,oaci/artifacts/checkpoint.py
+train_checkpoint_record_abi_present,pass,1,0,0,CheckpointRecord and state_hash present
+recovered_weight_cpu_metadata_load,sidecar_metadata_present_not_torch_loaded,1,0,0,checkpoint json sidecars inspected; C65 does not torch.load or forward
+model_class_and_head_dim_match,sidecar_model_spec_matches_shallowconvnet_22x385_4class,1,0,0,context/model_spec.json and checkpoint tensor shapes
+normalization_state_buffers_match,batchnorm_buffers_listed_in_sidecar,1,0,0,bn.running_mean/running_var/num_batches_tracked listed in checkpoint sidecar

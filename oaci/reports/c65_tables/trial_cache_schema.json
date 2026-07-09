@@ -1,0 +1,239 @@
+{
+  "fields": [
+    {
+      "category": "identity",
+      "field": "dataset_id",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "identity",
+      "field": "subject_id",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "trial",
+      "field": "trial_id",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "trial",
+      "field": "domain_id",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "label",
+      "field": "class_label",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required_for_eval_split_only",
+      "target_label_dependent": 1
+    },
+    {
+      "category": "split",
+      "field": "source_or_target_role",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "checkpoint",
+      "field": "checkpoint_id",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "checkpoint",
+      "field": "model_hash",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required_if_available",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "checkpoint",
+      "field": "checkpoint_file_sha256",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required_if_weights_recovered",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "checkpoint",
+      "field": "seed",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "checkpoint",
+      "field": "regime",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "checkpoint",
+      "field": "level",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "checkpoint",
+      "field": "epoch_or_order",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "prediction",
+      "field": "logits",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 1,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "prediction",
+      "field": "probabilities",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 1,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "prediction",
+      "field": "predicted_class",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 1,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "endpoint_component",
+      "field": "nll",
+      "large_payload_ref_only": 0,
+      "minimal": 0,
+      "requires_forward_output": 0,
+      "status": "recommended_eval_only",
+      "target_label_dependent": 1
+    },
+    {
+      "category": "endpoint_component",
+      "field": "balanced_accuracy_contribution",
+      "large_payload_ref_only": 0,
+      "minimal": 0,
+      "requires_forward_output": 0,
+      "status": "recommended_eval_only",
+      "target_label_dependent": 1
+    },
+    {
+      "category": "endpoint_component",
+      "field": "ece_bin_components",
+      "large_payload_ref_only": 0,
+      "minimal": 0,
+      "requires_forward_output": 0,
+      "status": "recommended_eval_only",
+      "target_label_dependent": 1
+    },
+    {
+      "category": "large_payload_ref",
+      "field": "representation_z_path",
+      "large_payload_ref_only": 1,
+      "minimal": 0,
+      "requires_forward_output": 0,
+      "status": "optional_external_path",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "representation",
+      "field": "projection_Wz",
+      "large_payload_ref_only": 1,
+      "minimal": 0,
+      "requires_forward_output": 0,
+      "status": "optional",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "split",
+      "field": "split_label_role",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "metadata",
+      "field": "availability_flags",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "metadata",
+      "field": "preprocess_hash",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "metadata",
+      "field": "raw_data_fingerprint",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    },
+    {
+      "category": "metadata",
+      "field": "cache_writer_version",
+      "large_payload_ref_only": 0,
+      "minimal": 1,
+      "requires_forward_output": 0,
+      "status": "required",
+      "target_label_dependent": 0
+    }
+  ],
+  "large_payload_policy": "external_path_plus_hash"
+}

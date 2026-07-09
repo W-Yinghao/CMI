@@ -1,0 +1,6 @@
+unmapped_group,row_count,reason,blocks_mapping_complete
+C50_singleton_candidate_rows,0,all C50 singleton rows reconcile via C17 prefix and /projects artifact_index,0
+C51_C55_cell_summary_rows,810,set-mappable to trajectories but not singleton checkpoint rows,0
+C58_C63_analytic_candidate_ids,38,probe/theory candidate ids are not checkpoint candidates,0
+C36_ERM_rows,162,ERM rows outside C50-C64 non-ERM candidate universe,0
+repo_only_checkpoint_files,0,checkout still has no physical weight payload,0

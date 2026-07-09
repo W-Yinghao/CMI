@@ -1,0 +1,8 @@
+metric,value,passed,interpretation
+c17_model_hash_rows,1268,1,candidate identity ledger exists
+c50_singleton_candidate_rows,3804,1,C50 singleton universe
+verified_c50_singleton_paths,3804,1,pt/json paths verified via artifact_index
+unique_checkpoint_ids_in_c50,1268,1,C50 expands 1268 checkpoints across three regimes
+recovered_oaci_weight_files,5454,1,primary mounted store recovered
+summary_to_weight_file_mapping_complete,1,1,C50 singleton rows map to physical files
+repo_only_checkpoint_files,0,0,repo-only inventory remains incomplete

@@ -1,0 +1,4 @@
+test_id,x1,x2,y,uses_real_eeg,passed,assertion
+MOCK_CS_1,source_state,split_label_bit,heldout_correct,0,1,paired sample dimensions match
+MOCK_CS_2,past_k_source,past_k_target_unlabeled,future_margin,0,1,Hankel window interface has explicit order
+MOCK_CS_3,rank_margin,Wz_proxy,target_delta,0,1,representation increment can be optional

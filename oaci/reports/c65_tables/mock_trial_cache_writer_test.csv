@@ -1,0 +1,4 @@
+test_id,fixture,uses_real_eeg,uses_real_checkpoint,passed,assertion
+MOCK_CACHE_1,two_checkpoints_four_trials,0,0,1,schema fields serialize deterministically
+MOCK_CACHE_2,split_roles_construct_eval,0,0,1,construction and evaluation roles are disjoint
+MOCK_CACHE_3,large_payload_external_ref,0,0,1,representation payload stored as path reference
