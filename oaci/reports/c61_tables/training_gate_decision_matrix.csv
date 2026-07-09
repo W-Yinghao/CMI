@@ -1,0 +1,8 @@
+gate,decision,requires_user_release,default
+C61_training,not_executed,1,NO_TRAINING_C61_FROZEN_ARTIFACT_DIAGNOSTIC_ONLY
+re_inference,not_authorized,1,blocked
+GPU,not_authorized,1,blocked
+BNCI2014_004,reserved,1,blocked
+seeds_3_4,reserved,1,blocked
+selector_search,forbidden,0,blocked
+manuscript_drafting,not_authorized,1,blocked

@@ -1,0 +1,7 @@
+need_id,future_data,cod_gap_addressed,needed_for_c61_claim,training_or_inference_required,authorized_in_c61
+FT1,split-label cache,distinguish same-label oracle from disjoint target-label signal,0,proposal_only,0
+FT2,per-trial logits/probabilities,conditional CS KDE estimator and target-unlabeled geometry,0,proposal_only,0
+FT3,atom leakage trace,mechanism-to-COD trace,0,proposal_only,0
+FT4,independent checkpoint-field replication,replicate COD ladder beyond frozen field,0,proposal_only,0
+FT5,rank-gauge intervention,direct gauge parameter validation,0,proposal_only,0
+FT6,"BNCI2014_004/seeds [3,4]",reserved final stress only,0,blocked,0

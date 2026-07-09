@@ -1,0 +1,6 @@
+check,observed,reference,passed,interpretation
+endpoint_hit_beats_max_null_p95,0.9444444444444444,0.7712962962962961,1,same-label endpoint oracle is strong diagnostic boundary
+template_hit_not_above_max_null_p95,0.7037037037037037,0.7712962962962961,1,template-only partial signal is not reliability claim
+endpoint_unavailable_at_selection_time,0,0,1,endpoint scalar is not a deployable input
+endpoint_after_template_adds,0.2407407407407407,0.0,1,template does not screen off endpoint
+same_cell_oracle_diagnostic_only,1,1,1,same-cell labels make the endpoint row diagnostic only

@@ -1,0 +1,74 @@
+{
+  "c60_commit": "2e6ae07",
+  "c60_decision": "C60-B_rank_gauge_proof_repaired_or_strengthened",
+  "cod_status": {
+    "binary_y_baselines": "stable",
+    "conditional_cs_kde": "not_primary_summary_artifacts_missing_raw_samples",
+    "finite_partition_plugin": "established",
+    "source_adversary": "no_registered_escape_hatch",
+    "synthetic_rank_gauge": "validated_model_bound"
+  },
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "active": [
+      "C61-A_conditional_observability_divergence_ladder_established",
+      "C61-B_conditional_observability_matches_hit_and_partition_bound_ladder",
+      "C61-C_endpoint_scalar_dominates_incremental_observability",
+      "C61-D_template_partial_observability_but_not_sufficient",
+      "C61-E_source_key_conditional_sufficiency_fails",
+      "C61-F_conditional_cs_estimator_unstable_but_partition_metrics_stable",
+      "C61-H_synthetic_rank_gauge_cod_validation_successful",
+      "C61-I_hard_theorem_to_eeg_bridge_not_required_for_framework"
+    ],
+    "inactive": [
+      "C61-G_source_observable_cod_escape_hatch_found",
+      "C61-J_future_instrumentation_needed_for_split_label_or_atom_trace",
+      "C61-K_claim_or_availability_inconsistency_found"
+    ],
+    "primary": "C61-A_conditional_observability_divergence_ladder_established",
+    "recommended_next_direction": "wait for remote review; C62 may review split-label or instrumentation authorization but C61 does not authorize execution",
+    "red_team_failure_count": 0,
+    "training_gate": "NO_TRAINING_C61_FROZEN_ARTIFACT_DIAGNOSTIC_ONLY"
+  },
+  "diagnostic_only_non_deployable": true,
+  "key_numbers": {
+    "endpoint_after_template_hit_gain": 0.2407407407407407,
+    "endpoint_oracle": 0.9444444444444444,
+    "key_only": 0.4876543209876543,
+    "label_diagnostic": 0.8127572016460904,
+    "max_null_p95": 0.7712962962962961,
+    "source_scalarization": 0.5740740740740741,
+    "strict_source": 0.5061728395061729,
+    "template_only": 0.7037037037037037
+  },
+  "milestone": "C61",
+  "recommended_next_step": "wait for remote review; C62 may review split-label or instrumentation authorization but C61 does not authorize execution",
+  "table_row_counts": {
+    "artifact_manifest": 29,
+    "cod_availability_ledger": 6,
+    "cod_bandwidth_support_sensitivity": 5,
+    "cod_estimator_summary": 6,
+    "cod_null_calibration": 5,
+    "conditional_cs_to_oaci_mapping": 7,
+    "conditional_observability_spec": 8,
+    "conditional_screening_summary": 4,
+    "eeg_cod_cell_ledger": 4,
+    "eeg_cod_ladder_summary": 6,
+    "eeg_cod_vs_hit_ladder": 5,
+    "endpoint_after_template_screening": 3,
+    "forbidden_claim_scan": 20,
+    "future_training_need_matrix": 6,
+    "information_class_variable_ledger": 7,
+    "large_artifact_scan": 29,
+    "red_team_failure_ledger": 16,
+    "same_label_oracle_boundary_checks": 5,
+    "schema_validation_summary": 23,
+    "source_observable_cod_adversary": 4,
+    "subagent_audit_manifest": 10,
+    "synthetic_rank_gauge_cod_summary": 7,
+    "synthetic_rank_gauge_parameter_grid": 7,
+    "test_command_manifest": 4,
+    "training_gate_decision_matrix": 7
+  },
+  "training_gate": "NO_TRAINING_C61_FROZEN_ARTIFACT_DIAGNOSTIC_ONLY"
+}

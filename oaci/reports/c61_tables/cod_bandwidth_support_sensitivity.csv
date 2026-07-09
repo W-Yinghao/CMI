@@ -1,0 +1,6 @@
+sensitivity_id,estimator,setting,stable,finding
+S1_partition_min_support_1,finite_partition_plugin,min_n=1,1,C50-C60 summary supports deterministic hit/COD ladder
+S2_partition_min_support_grid,finite_partition_plugin,"min_n in {1,2,3,5}",1,"reported as support sensitivity, not selector threshold tuning"
+S3_binary_tv_js_hellinger,binary_Y_baselines,TV/JS/Hellinger/CS on Bernoulli proxy,1,all monotone with endpoint > label diagnostic > template > key
+S4_conditional_cs_bandwidth_grid,conditional_cs_kde,bandwidth grid unavailable from summary artifacts,0,KDE-style estimator not primary without raw conditional samples
+S5_bootstrap_ci,finite_population_interval,deterministic finite-population rows,1,C61 reports deterministic audit intervals/nulls instead of stochastic CI claims

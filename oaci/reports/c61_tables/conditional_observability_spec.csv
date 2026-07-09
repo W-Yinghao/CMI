@@ -1,0 +1,9 @@
+spec_id,object,definition,availability,diagnostic_only
+COD1,outcome_Y,"registered binary target endpoint, primarily primary_joint_good",evaluation_only,1
+COD2,X1_source,strict source observables or registered source partition,source_only,0
+COD3,X2_key,"target id, trajectory id, or target x trajectory key",key_only_not_source_only,1
+COD4,X2_template,cross-cell or matched source-geometry endpoint template,target_label_template,1
+COD5,X2_label_diagnostic,target-label diagnostic content from C52/C58,target_label_diagnostic,1
+COD6,X2_endpoint_scalar,same-label endpoint scalar or target_joint_margin_raw,same_label_endpoint_oracle,1
+COD7,partition_plugin,binary finite-partition COD proxy using hit/endpoint distribution summaries,committed_artifacts,1
+COD8,conditional_cs_kde,kernel conditional CS estimator family,not_supported_by_summary_artifacts,1
