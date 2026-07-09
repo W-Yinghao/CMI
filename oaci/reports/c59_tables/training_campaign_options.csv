@@ -1,0 +1,7 @@
+option_id,campaign,scientific_question,minimal_runs,datasets,seeds,touches_BNCI2014_004,touches_seeds_3_4,slurm_resources,claim_possible,still_forbidden
+P0,no-training continuation,Can proof stress continue synthetically?,0,none,none,0,0,none,proof stress only,EEG theorem upgrade
+P1,split-label cache only,Can disjoint target-label content close residual?,fixed candidate-field forward cache,BNCI2014_001 only unless released,"0,1,2",0,0,"cpu-high preflight, GPU only if explicitly released",split-label information boundary,source-only selector
+P2,atom-trace instrumentation,Can leakage atoms be traced candidate-wise?,fixed trace replay or new instrumented run,BNCI2014_001 only unless released,"0,1,2",0,0,cpu-high schema plus approved compute,atom trace audit,method tuning
+P3,independent checkpoint-field replication,Does finite-field boundary replicate?,pre-registered full candidate field,BNCI2014_001 only unless released,"0,1,2",0,0,Slurm required,replicated empirical boundary,checkpoint recommendation
+P4,rank-gauge intervention,Can controlled gauge perturbations validate model assumptions?,controlled model family only after approval,BNCI2014_001 only unless released,"0,1,2",0,0,Slurm required,model-bound evidence,OACI-control recovery
+P5,reserved holdout final stress test,Reserved external stress only after protocol lock,not authorized,BNCI2014_004 reserved,"[3,4] reserved",1,1,blocked,future stress test,silent expansion

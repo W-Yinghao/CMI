@@ -1,0 +1,6 @@
+stage,hit,miss_or_ambiguity,entropy_proxy,interpretation
+I0_random,0.4297233780360411,0.5702766219639589,0.985710406562673,high cell ambiguity
+I1_source,0.5061728395061729,0.49382716049382713,0.9998900526838305,weak source improvement over random
+I2_key,0.4876543209876543,0.5123456790123457,0.9995601624082293,keys do not reduce ambiguity
+I6_label_diagnostic,0.8127572016460904,0.18724279835390956,0.696170555889351,label diagnostic reduces ambiguity
+I7_endpoint_oracle,0.9444444444444444,0.05555555555555558,0.3095434291503252,endpoint oracle nearly screens off Y

@@ -1,0 +1,7 @@
+candidate_id,hit,beats_random,beats_max_null_p95,reliable_escape_hatch,reason
+SADV1,0.5061728395061729,1,0,0,weak rank signal
+SADV2,0.5740740740740741,1,0,0,hindsight source scalarization below reliability
+SADV3,0.43105701988584916,0,0,0,front membership near base rate
+SADV4,0.5555555555555556,1,0,0,"conditioned problem class, not source-only"
+SADV5,0.4876543209876543,1,0,0,key/source geometry insufficient
+SADV6,0.7037037037037037,1,0,0,uses other-cell target labels and does not beat max null p95

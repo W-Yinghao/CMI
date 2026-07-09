@@ -1,0 +1,6 @@
+limit_id,covered,function_class,not_covered,consequence
+L1_registered_partition_only,1,selectors constant on registered Pi cells,arbitrary nonlinear source functions not represented by Pi,C59-A is theorem-level only for declared partitions
+L2_tie_averaged_hits,1,finite tie-averaged cell hit,integer selected checkpoint identity,no selected checkpoint artifact emitted
+L3_source_surrogate_rows,0,observed source-score families,all measurable functions of raw training traces,source rows remain empirical surrogates
+L4_endpoint_oracle,1,same-label endpoint partition reference,selection-time rule,oracle is diagnostic only
+L5_distributional_generalization,0,frozen finite population,"new datasets, future seeds, minimax populations",no distribution-free minimax claim

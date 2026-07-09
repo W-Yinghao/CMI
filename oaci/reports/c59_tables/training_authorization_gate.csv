@@ -1,0 +1,6 @@
+gate,decision,requires_user_release,default
+C59_training,not_authorized,1,TRAINING_BLUEPRINT_READY_BUT_NOT_AUTHORIZED
+BNCI2014_004,reserved,1,blocked
+seeds_3_4,reserved,1,blocked
+GPU,not_authorized,1,blocked
+selector_search,forbidden,0,blocked

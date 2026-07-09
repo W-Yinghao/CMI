@@ -1,0 +1,6 @@
+field,present,blocks,future_training_required
+per_trial_target_labels,0,split-label construction/evaluation,1
+per_trial_target_predictions,0,split-label calibration,1
+per_trial_probabilities_logits,0,few-label and unlabeled geometry tests,1
+split_id_and_role,0,disjointness proof,1
+sample_order_hash,0,cache integrity,1

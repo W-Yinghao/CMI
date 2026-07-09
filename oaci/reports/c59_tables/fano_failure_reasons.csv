@@ -1,0 +1,5 @@
+failure_id,reason,blocks_nontrivial_bound
+FANO-F1,binary packings lose to log 2 term,1
+FANO-F2,no stable MI/KL matrix for cell hypotheses,1
+FANO-F3,endpoint scalar is same-label diagnostic content,1
+FANO-F4,artifact support insufficient for theorem-grade packing,1

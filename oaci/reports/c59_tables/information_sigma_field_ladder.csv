@@ -1,0 +1,9 @@
+information_class,generators,hit_reference,uses_target_labels,available_for_source_only_DG,c59_status
+I0_random_or_tie,cell candidate set only,0.4297233780360411,0,1,baseline
+I1_strict_source_observables,X_s source metrics,0.5061728395061729,0,1,"weak signal, not sufficient"
+I2_source_plus_keys,X_s plus K,0.4876543209876543,0,0,key-only escape closed
+I3_target_unlabeled_geometry,"X_s, K, U0",,0,0,not available for closure in committed cache
+I4_target_grouped_zero_label_structure,target/trajectory grouping,1.0,0,0,diagnostic ceiling/actionability split
+I5_split_label_or_few_label,disjoint target-label cache,,1,0,future unresolved
+I6_target_label_diagnostic_content,D and cross-cell templates,0.8127572016460904,1,0,diagnostic partial closure
+I7_same_label_endpoint_oracle,E same-candidate endpoint scalar,0.9444444444444444,1,0,oracle reference only

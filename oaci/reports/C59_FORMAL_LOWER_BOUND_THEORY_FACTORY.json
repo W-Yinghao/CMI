@@ -1,0 +1,79 @@
+{
+  "c58_commit": "5132193",
+  "c58_decision": "C58-A_finite_population_lower_bound_established",
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "active": [
+      "C59-A_registered_partition_bound_formalized_as_theorem",
+      "C59-B_rank_gauge_synthetic_lower_bound_proved",
+      "C59-D_fano_assouad_bound_still_trivial_or_unstable",
+      "C59-E_conditional_sufficiency_boundary_formalized",
+      "C59-G_training_blueprint_ready_but_not_authorized",
+      "C59-H_theory_blocked_requires_new_instrumented_data"
+    ],
+    "inactive": [
+      "C59-C_empirical_lecam_witness_bound_nontrivial",
+      "C59-F_source_observable_counterexample_found",
+      "C59-I_theory_blocked_by_definition_or_claim_inconsistency"
+    ],
+    "primary": "C59-B_rank_gauge_synthetic_lower_bound_proved",
+    "recommended_next_direction": "wait for remote review; do not train or start manuscript drafting",
+    "red_team_failure_count": 0,
+    "training_gate": "TRAINING_BLUEPRINT_READY_BUT_NOT_AUTHORIZED"
+  },
+  "diagnostic_only_non_deployable": true,
+  "key_numbers": {
+    "endpoint_oracle": 0.9444444444444444,
+    "key_only": 0.4876543209876543,
+    "label_diagnostic": 0.8127572016460904,
+    "max_null_p95": 0.7712962962962961,
+    "random_tie": 0.4297233780360411,
+    "source_scalarization": 0.5740740740740741,
+    "strict_source": 0.5061728395061729,
+    "template_only": 0.7037037037037037
+  },
+  "milestone": "C59",
+  "recommended_next_step": "wait for remote review; do not train or start manuscript drafting",
+  "table_row_counts": {
+    "artifact_manifest": 42,
+    "assouad_cube_attempts": 3,
+    "conditional_entropy_ladder": 5,
+    "conditional_mi_diagnostics": 5,
+    "fano_failure_reasons": 4,
+    "fano_packing_summary": 3,
+    "forbidden_claim_scan": 14,
+    "formal_object_spec": 12,
+    "information_sigma_field_ladder": 8,
+    "large_artifact_scan": 42,
+    "lecam_bound_candidates": 3,
+    "lecam_failure_reasons": 4,
+    "lecam_witness_candidates": 3,
+    "markov_boundary_candidate_summary": 5,
+    "missing_data_for_atom_trace": 5,
+    "missing_data_for_split_label": 5,
+    "missing_data_for_theory": 5,
+    "partition_function_class_limits": 5,
+    "rank_gauge_bound_grid": 7,
+    "rank_gauge_empirical_constant_map": 8,
+    "rank_gauge_theorem_assumptions": 6,
+    "red_team_failure_ledger": 11,
+    "registered_partition_bound_constants": 10,
+    "schema_validation_summary": 30,
+    "source_adversary_candidates": 6,
+    "source_adversary_red_team": 4,
+    "source_adversary_results": 6,
+    "subagent_audit_manifest": 10,
+    "test_command_manifest": 4,
+    "training_authorization_gate": 5,
+    "training_campaign_options": 6,
+    "training_instrumentation_schema": 9
+  },
+  "theorem_status": {
+    "conditional_sufficiency": "formalized_diagnostic_boundary",
+    "fano_assouad": "trivial_or_unstable",
+    "lecam": "empirical_witness_only",
+    "rank_gauge_synthetic_theorem": "proved_model_bound",
+    "registered_partition_bound": "established_for_registered_partitions"
+  },
+  "training_gate": "TRAINING_BLUEPRINT_READY_BUT_NOT_AUTHORIZED"
+}

@@ -1,0 +1,6 @@
+field,present,blocks,future_training_required
+per_candidate_atom_table,0,leakage atom theorem bridge,1
+per_fold_probe_nll_by_cell,0,atom uncertainty attribution,1
+bootstrap_replicate_order,0,aggregate leakage trace,1
+training_trajectory_trace,0,rank-gauge intervention history,1
+independent_checkpoint_field_replication,0,external finite-field replication,1
