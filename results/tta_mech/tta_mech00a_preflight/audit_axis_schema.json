@@ -1,0 +1,68 @@
+{
+  "audit_axis_schema_hash": "13e42adf42ac197727dba3344e037ed2b6fbba4aab8c0107dd0dc94e156d616b",
+  "axes": [
+    {
+      "category": "entropy / confidence",
+      "name": "entropy_confidence",
+      "required_fields": [
+        "entropy_before_after",
+        "mean_max_probability",
+        "margin_shift"
+      ],
+      "target_labels_required": false
+    },
+    {
+      "category": "balance / prior",
+      "name": "balance_prior",
+      "required_fields": [
+        "predicted_class_marginal",
+        "source_label_prior",
+        "class_collapse_guard"
+      ],
+      "target_labels_required": false
+    },
+    {
+      "category": "feature geometry / recentering",
+      "name": "geometry",
+      "required_fields": [
+        "feature_mean_shift",
+        "covariance_distance",
+        "recenter_magnitude"
+      ],
+      "target_labels_required": false
+    },
+    {
+      "category": "source replay contribution",
+      "name": "source_replay",
+      "required_fields": [
+        "source_CE_retention",
+        "source_prediction_drift"
+      ],
+      "target_labels_required": false
+    },
+    {
+      "category": "normalization / BatchNorm",
+      "name": "normalization_batchnorm",
+      "required_fields": [
+        "normalization_stat_shift",
+        "BN_or_norm_update_magnitude"
+      ],
+      "target_labels_required": false
+    },
+    {
+      "category": "accuracy vs calibration",
+      "name": "calibration",
+      "required_fields": [
+        "NLL",
+        "ECE",
+        "temperature_equivalent_effect",
+        "bAcc_NLL_divergence"
+      ],
+      "target_labels_required": true
+    }
+  ],
+  "new_method_claim": false,
+  "phase": "TTA_MECH_00A_artifact_inventory_replay_harness_preflight",
+  "project": "TTA-MECH-EEG",
+  "target_labels_rule": "final metrics and mechanism stratification only after replay"
+}

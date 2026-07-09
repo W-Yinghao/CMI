@@ -1,0 +1,9 @@
+{
+  "callable_name": "adapt_or_replay",
+  "checks": [
+    "required_parameters_present",
+    "target_label_parameters_absent"
+  ],
+  "passed": true,
+  "warnings": []
+}

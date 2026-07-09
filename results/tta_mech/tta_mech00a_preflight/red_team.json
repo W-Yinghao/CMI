@@ -1,0 +1,51 @@
+{
+  "baseline_universe_freeze": {
+    "baseline_registry_hash": "0d8a00cdb2d0bf810a20c58056323c21c1fde8807fb12e65ebc9ff8334748da7",
+    "checks": [
+      "allowed_baselines_exact",
+      "entry_names_exact",
+      "forbidden_baselines_absent",
+      "entries_existing_label_free_allowed",
+      "runtime_addition_disabled",
+      "baseline_registry_hash_recomputable"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "no_new_method_guard": {
+    "checks": [
+      "no_forbidden_active_method_terms",
+      "new_method_claim_false"
+    ],
+    "forbidden_terms": [
+      "adapter",
+      "learned_operator",
+      "mask",
+      "prune",
+      "surgery",
+      "cmi_control",
+      "safety_gate",
+      "router"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "replay_determinism": {
+    "checks": [
+      "toy_output_hash_identical",
+      "baseline_identical"
+    ],
+    "output_hash": "202d7d85324ad01605a54e46f111610dfdf8c42f5e2e9d6c08bcd71226659f01",
+    "passed": true,
+    "warnings": []
+  },
+  "target_label_quarantine_contract": {
+    "callable_name": "adapt_or_replay",
+    "checks": [
+      "required_parameters_present",
+      "target_label_parameters_absent"
+    ],
+    "passed": true,
+    "warnings": []
+  }
+}

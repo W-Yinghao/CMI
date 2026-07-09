@@ -1,0 +1,68 @@
+{
+  "allowed_baselines": [
+    "ERM_NO_ADAPT",
+    "TTA_CONTROL_REPLAY",
+    "MATCHED_CORAL",
+    "SPDIM",
+    "T3A"
+  ],
+  "baseline_registry_hash": "0d8a00cdb2d0bf810a20c58056323c21c1fde8807fb12e65ebc9ff8334748da7",
+  "entries": [
+    {
+      "allowed_in_tta_mech": true,
+      "name": "ERM_NO_ADAPT",
+      "notes": "Frozen source readout evaluated without target-time update.",
+      "requires_source_examples": false,
+      "requires_source_state": true,
+      "requires_target_x": true,
+      "requires_target_y": false,
+      "type": "existing_baseline"
+    },
+    {
+      "allowed_in_tta_mech": true,
+      "name": "TTA_CONTROL_REPLAY",
+      "notes": "Historical target-unlabeled control replay family.",
+      "requires_source_examples": false,
+      "requires_source_state": true,
+      "requires_target_x": true,
+      "requires_target_y": false,
+      "type": "existing_baseline"
+    },
+    {
+      "allowed_in_tta_mech": true,
+      "name": "MATCHED_CORAL",
+      "notes": "Existing covariance-alignment replay baseline.",
+      "requires_source_examples": true,
+      "requires_source_state": true,
+      "requires_target_x": true,
+      "requires_target_y": false,
+      "type": "existing_baseline"
+    },
+    {
+      "allowed_in_tta_mech": true,
+      "name": "SPDIM",
+      "notes": "Existing feature-space recentering replay baseline.",
+      "requires_source_examples": true,
+      "requires_source_state": true,
+      "requires_target_x": true,
+      "requires_target_y": false,
+      "type": "existing_baseline"
+    },
+    {
+      "allowed_in_tta_mech": true,
+      "name": "T3A",
+      "notes": "Existing classifier-template adjustment baseline.",
+      "requires_source_examples": false,
+      "requires_source_state": true,
+      "requires_target_x": true,
+      "requires_target_y": false,
+      "type": "existing_baseline"
+    }
+  ],
+  "phase": "TTA_MECH_00A_artifact_inventory_replay_harness_preflight",
+  "project": "TTA-MECH-EEG",
+  "runtime_addition_allowed": false,
+  "target_labels_allowed_for": [
+    "final_metrics_after_replay_only"
+  ]
+}

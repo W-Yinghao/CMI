@@ -1,0 +1,675 @@
+{
+  "artifact_inventory": {
+    "artifact_inventory_hash": "6323097829f2d3277275f392ea33329a4197e7032969bb3ebf87d1ad2e090cb2",
+    "phase": "TTA_MECH_00A_artifact_inventory_replay_harness_preflight",
+    "project": "TTA-MECH-EEG",
+    "real_eeg_replay_run": false,
+    "records": [
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGConformerMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "1",
+        "hash": "8277da2aecd76f636e20cb136aab2c529d37766c190d86efa6768c49690f2133",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_1.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGConformerMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "2",
+        "hash": "23230deba0ea0fc6ebf1c34a9f2ae86e3d5a822ca4f0a3e36bfc59f897f22c30",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_2.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGConformerMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "3",
+        "hash": "9293e9f6db29322f48d374cf122eec566dc29543fc90ae05c7ed191b4d88c63a",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_3.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGConformerMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "4",
+        "hash": "a69a1d55f76a48bc95abf3a385a845238879a8fe3aeffe5fd4e5110aac791299",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_4.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGConformerMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "5",
+        "hash": "962870436f3943a9e3d4382ac711b8c6c3d7bada5ad2969e1f5e65339962b5fd",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_5.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGConformerMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "6",
+        "hash": "b0d3f596774888cf9cc84b2101584518bea5b81638921a33b32c52a2884650bb",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_6.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGConformerMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "7",
+        "hash": "6bf8e1b77697afba6588550497ed6cfb6a631a1ef1f6f87c5e7d97f04048613f",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_7.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGConformerMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "8",
+        "hash": "0c2dcaaf996df468b4a8a2f3a21896570ee4756f800f85ae5f546474be80fa4d",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_8.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGConformerMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "9",
+        "hash": "59c626d1ba3c4c692fb72cc9b433a44e1301e58b212e14e07edaa2d3d4cebebd",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_9.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGNetMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "1",
+        "hash": "93fe6b326cc721570287883d3bc883e80a825f33c075f9aacf768b0df0cb9510",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_1.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGNetMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "2",
+        "hash": "57956ea0a7d79fc6e2a12897e000cca5460fa30b60b8ed8b6610a8c6cfd794cc",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_2.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGNetMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "3",
+        "hash": "e024ae389be1db0814a44ddd777f04e4da9e1d69c43202b8e11fe8dce9b803c3",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_3.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGNetMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "4",
+        "hash": "f54494786c231aa74bbd0c02a0867eef83fdef0ff3544654376a19dd88ee4786",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_4.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGNetMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "5",
+        "hash": "f51a817595bfbbefa21dcde61069427ebb93f56be11b583ab6d9ec64b1dcfa78",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_5.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGNetMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "6",
+        "hash": "97d836586a6d8c344d393be67b10a1e1cf417ad2f9b4ccd6e54dec3ed7c40022",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_6.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGNetMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "7",
+        "hash": "7a3a054fd6764a970c95f68b7aae7e24609e7a37fd09d1ab1eb435cb3b62b1e7",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_7.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGNetMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "8",
+        "hash": "3bfe435ab0602251df737bc1e2a005d50ee208f4a049a97c89d69d58cd96897b",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_8.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      },
+      {
+        "artifact_type": "CEDAR_01F_frozen_feature_npz",
+        "backbone": "EEGNetMini",
+        "contains_domain": true,
+        "contains_groups": true,
+        "contains_logits": false,
+        "contains_predictions": false,
+        "contains_probs": false,
+        "contains_y": true,
+        "contains_z": true,
+        "dataset": "BNCI2014_001",
+        "fold": "9",
+        "hash": "4ad75211e9557609d720bb90ac7ea2d31530f291384e5268da09284429b0e5e0",
+        "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_9.npz",
+        "seed": "0",
+        "status": "AVAILABLE",
+        "usable_for_replay_axis": [
+          "final_metric_after_replay",
+          "geometry",
+          "normalization_feature_state",
+          "source_prior_or_final_label_audit",
+          "split_and_group_audit"
+        ]
+      }
+    ],
+    "summary": {
+      "available_records": 18,
+      "cedar01f_feature_records": 18,
+      "missing_records": 0,
+      "rejected_records": 0,
+      "total_records": 18
+    },
+    "target_metrics_computed": false
+  },
+  "audit_axis_schema": {
+    "audit_axis_schema_hash": "13e42adf42ac197727dba3344e037ed2b6fbba4aab8c0107dd0dc94e156d616b",
+    "axes": [
+      {
+        "category": "entropy / confidence",
+        "name": "entropy_confidence",
+        "required_fields": [
+          "entropy_before_after",
+          "mean_max_probability",
+          "margin_shift"
+        ],
+        "target_labels_required": false
+      },
+      {
+        "category": "balance / prior",
+        "name": "balance_prior",
+        "required_fields": [
+          "predicted_class_marginal",
+          "source_label_prior",
+          "class_collapse_guard"
+        ],
+        "target_labels_required": false
+      },
+      {
+        "category": "feature geometry / recentering",
+        "name": "geometry",
+        "required_fields": [
+          "feature_mean_shift",
+          "covariance_distance",
+          "recenter_magnitude"
+        ],
+        "target_labels_required": false
+      },
+      {
+        "category": "source replay contribution",
+        "name": "source_replay",
+        "required_fields": [
+          "source_CE_retention",
+          "source_prediction_drift"
+        ],
+        "target_labels_required": false
+      },
+      {
+        "category": "normalization / BatchNorm",
+        "name": "normalization_batchnorm",
+        "required_fields": [
+          "normalization_stat_shift",
+          "BN_or_norm_update_magnitude"
+        ],
+        "target_labels_required": false
+      },
+      {
+        "category": "accuracy vs calibration",
+        "name": "calibration",
+        "required_fields": [
+          "NLL",
+          "ECE",
+          "temperature_equivalent_effect",
+          "bAcc_NLL_divergence"
+        ],
+        "target_labels_required": true
+      }
+    ],
+    "new_method_claim": false,
+    "phase": "TTA_MECH_00A_artifact_inventory_replay_harness_preflight",
+    "project": "TTA-MECH-EEG",
+    "target_labels_rule": "final metrics and mechanism stratification only after replay"
+  },
+  "baseline_registry": {
+    "allowed_baselines": [
+      "ERM_NO_ADAPT",
+      "TTA_CONTROL_REPLAY",
+      "MATCHED_CORAL",
+      "SPDIM",
+      "T3A"
+    ],
+    "baseline_registry_hash": "0d8a00cdb2d0bf810a20c58056323c21c1fde8807fb12e65ebc9ff8334748da7",
+    "entries": [
+      {
+        "allowed_in_tta_mech": true,
+        "name": "ERM_NO_ADAPT",
+        "notes": "Frozen source readout evaluated without target-time update.",
+        "requires_source_examples": false,
+        "requires_source_state": true,
+        "requires_target_x": true,
+        "requires_target_y": false,
+        "type": "existing_baseline"
+      },
+      {
+        "allowed_in_tta_mech": true,
+        "name": "TTA_CONTROL_REPLAY",
+        "notes": "Historical target-unlabeled control replay family.",
+        "requires_source_examples": false,
+        "requires_source_state": true,
+        "requires_target_x": true,
+        "requires_target_y": false,
+        "type": "existing_baseline"
+      },
+      {
+        "allowed_in_tta_mech": true,
+        "name": "MATCHED_CORAL",
+        "notes": "Existing covariance-alignment replay baseline.",
+        "requires_source_examples": true,
+        "requires_source_state": true,
+        "requires_target_x": true,
+        "requires_target_y": false,
+        "type": "existing_baseline"
+      },
+      {
+        "allowed_in_tta_mech": true,
+        "name": "SPDIM",
+        "notes": "Existing feature-space recentering replay baseline.",
+        "requires_source_examples": true,
+        "requires_source_state": true,
+        "requires_target_x": true,
+        "requires_target_y": false,
+        "type": "existing_baseline"
+      },
+      {
+        "allowed_in_tta_mech": true,
+        "name": "T3A",
+        "notes": "Existing classifier-template adjustment baseline.",
+        "requires_source_examples": false,
+        "requires_source_state": true,
+        "requires_target_x": true,
+        "requires_target_y": false,
+        "type": "existing_baseline"
+      }
+    ],
+    "phase": "TTA_MECH_00A_artifact_inventory_replay_harness_preflight",
+    "project": "TTA-MECH-EEG",
+    "runtime_addition_allowed": false,
+    "target_labels_allowed_for": [
+      "final_metrics_after_replay_only"
+    ]
+  },
+  "baseline_selected": false,
+  "design_baseline_commit": "cccd8c1",
+  "handoff_schema": {
+    "cedar01f_handoff": {
+      "exists": true,
+      "expected_artifacts": 18,
+      "file_hash": "03d97199352892bf39afeed3ce826aa185735a766351b82aa2083587621d289c",
+      "listed_artifacts": 18,
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/CEDAR_01F_HANDOFF_MANIFEST.json",
+      "real_replay_run": false,
+      "status": "AVAILABLE"
+    },
+    "handoff_schema_hash": "de7ab1689bb92b5aef1cf2c4cf615423a45ff0c96ee60c080fa0ef987f6e966c",
+    "phase": "TTA_MECH_00A_artifact_inventory_replay_harness_preflight",
+    "project": "TTA-MECH-EEG",
+    "real_replay_run": false
+  },
+  "new_method_introduced": false,
+  "phase": "TTA_MECH_00A_artifact_inventory_replay_harness_preflight",
+  "preflight_payload_hash": "e93238a182b02f953da9123e7219610fb82e50e361645b263c6adf7079472b32",
+  "project": "TTA-MECH-EEG",
+  "real_eeg_replay_run": false,
+  "red_team": {
+    "baseline_universe_freeze": {
+      "baseline_registry_hash": "0d8a00cdb2d0bf810a20c58056323c21c1fde8807fb12e65ebc9ff8334748da7",
+      "checks": [
+        "allowed_baselines_exact",
+        "entry_names_exact",
+        "forbidden_baselines_absent",
+        "entries_existing_label_free_allowed",
+        "runtime_addition_disabled",
+        "baseline_registry_hash_recomputable"
+      ],
+      "passed": true,
+      "warnings": []
+    },
+    "no_new_method_guard": {
+      "checks": [
+        "no_forbidden_active_method_terms",
+        "new_method_claim_false"
+      ],
+      "forbidden_terms": [
+        "adapter",
+        "learned_operator",
+        "mask",
+        "prune",
+        "surgery",
+        "cmi_control",
+        "safety_gate",
+        "router"
+      ],
+      "passed": true,
+      "warnings": []
+    },
+    "replay_determinism": {
+      "checks": [
+        "toy_output_hash_identical",
+        "baseline_identical"
+      ],
+      "output_hash": "202d7d85324ad01605a54e46f111610dfdf8c42f5e2e9d6c08bcd71226659f01",
+      "passed": true,
+      "warnings": []
+    },
+    "target_label_quarantine_contract": {
+      "callable_name": "adapt_or_replay",
+      "checks": [
+        "required_parameters_present",
+        "target_label_parameters_absent"
+      ],
+      "passed": true,
+      "warnings": []
+    }
+  },
+  "status": "PASS",
+  "target_metrics_computed": false,
+  "toy_replay": {
+    "baseline": "ERM_NO_ADAPT",
+    "real_eeg_replay_run": false,
+    "source_state_hash": "1d187fc793fd552782df7931f0f9c0b60b8c69fa70dd6215b299114148c92ab2",
+    "target_metrics_computed": false,
+    "target_x_mean": 0.06943926896283924,
+    "target_x_shape": [
+      12,
+      4
+    ],
+    "target_x_std": 0.8795501143852618,
+    "target_x_sum": 3.333084910216283,
+    "toy_output_hash": "202d7d85324ad01605a54e46f111610dfdf8c42f5e2e9d6c08bcd71226659f01"
+  }
+}

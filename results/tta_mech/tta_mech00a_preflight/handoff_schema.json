@@ -1,0 +1,15 @@
+{
+  "cedar01f_handoff": {
+    "exists": true,
+    "expected_artifacts": 18,
+    "file_hash": "03d97199352892bf39afeed3ce826aa185735a766351b82aa2083587621d289c",
+    "listed_artifacts": 18,
+    "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/CEDAR_01F_HANDOFF_MANIFEST.json",
+    "real_replay_run": false,
+    "status": "AVAILABLE"
+  },
+  "handoff_schema_hash": "de7ab1689bb92b5aef1cf2c4cf615423a45ff0c96ee60c080fa0ef987f6e966c",
+  "phase": "TTA_MECH_00A_artifact_inventory_replay_harness_preflight",
+  "project": "TTA-MECH-EEG",
+  "real_replay_run": false
+}

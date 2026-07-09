@@ -1,0 +1,18 @@
+{
+  "checks": [
+    "no_forbidden_active_method_terms",
+    "new_method_claim_false"
+  ],
+  "forbidden_terms": [
+    "adapter",
+    "learned_operator",
+    "mask",
+    "prune",
+    "surgery",
+    "cmi_control",
+    "safety_gate",
+    "router"
+  ],
+  "passed": true,
+  "warnings": []
+}

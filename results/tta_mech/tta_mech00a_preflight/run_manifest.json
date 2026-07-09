@@ -1,0 +1,13 @@
+{
+  "artifact_inventory_hash": "6323097829f2d3277275f392ea33329a4197e7032969bb3ebf87d1ad2e090cb2",
+  "baseline_registry_hash": "0d8a00cdb2d0bf810a20c58056323c21c1fde8807fb12e65ebc9ff8334748da7",
+  "baseline_selected": false,
+  "design_baseline_commit": "cccd8c1",
+  "new_method_introduced": false,
+  "phase": "TTA_MECH_00A_artifact_inventory_replay_harness_preflight",
+  "preflight_payload_hash": "e93238a182b02f953da9123e7219610fb82e50e361645b263c6adf7079472b32",
+  "project": "TTA-MECH-EEG",
+  "real_eeg_replay_run": false,
+  "status": "PASS",
+  "target_metrics_computed": false
+}
