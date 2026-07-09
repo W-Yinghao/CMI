@@ -18,6 +18,8 @@ TTA_MECH_00A artifact-inventory / replay-harness preflight: PASS
 TTA_MECH_01 real existing-baseline replay / mechanism audit: MECHANISM_INFORMATIVE_PASS
 TTA_MECH_01S mechanism synthesis / portfolio decision: PASS
 TTA_MECH_02B0 normalization / BN audit preflight: PASS, NOT_FEASIBLE_FROM_CURRENT_ARTIFACTS
+TTA_MECH_02B real audit: DENIED
+TTA_MECH final status: CLOSED_AS_FROZEN_FEATURE_MECHANISM_BENCHMARK
 new method: none
 P1 / P2 training claim: none
 source-free deployment claim: none
@@ -64,4 +66,8 @@ tta_mech_eeg/reports/TTA_MECH_02B0_ARTIFACT_INVENTORY_READOUT.md
 tta_mech_eeg/reports/TTA_MECH_02B0_ACCEPTANCE_CRITERIA.md
 tta_mech_eeg/reports/TTA_MECH_02B0_PM_BOUNDARIES.md
 tta_mech_eeg/reports/TTA_MECH_02B0_PREFLIGHT_READOUT.md
+tta_mech_eeg/reports/TTA_MECH_02B0_NOT_FEASIBLE_CLOSEOUT.md
+tta_mech_eeg/reports/TTA_MECH_02B0_ARTIFACT_GAP_MATRIX.md
+tta_mech_eeg/reports/TTA_MECH_02B0_PM_DECISION.md
+tta_mech_eeg/reports/TTA_MECH_FINAL_BENCHMARK_STATUS.md
 ```
