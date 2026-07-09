@@ -1,0 +1,5 @@
+contribution_id,contribution,claim_ids,main_figures,claim_boundary
+C1,support-aware falsification framework,"CL01,CL02","F1,F2","measurement, not OACI rescue"
+C2,rank-gauge empirical mechanism,"CL04,CL05","F3,F4","empirical mechanism, not theorem"
+C3,selector/localization failure anatomy,"CL03,CL06,CL07,CL08,CL09,CL10","F3,F5,F6","failure is localization, not absence of good checkpoints"
+C4,information-boundary and endpoint-oracle closure,"CL11,CL12,CL13,CL14,CL15","F1,F7,F8","diagnostic label content, not source-only DG"

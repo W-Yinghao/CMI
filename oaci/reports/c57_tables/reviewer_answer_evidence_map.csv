@@ -1,0 +1,13 @@
+question_id,supporting_milestones,answer_type,forbidden_overclaim_guard
+RQ01,C31-C56,evidence_bounded,Do not frame as universal DG failure.
+RQ02,K_C31_joint_good_rate,evidence_bounded,Do not imply endpoint scarcity.
+RQ03,C48-C56,evidence_bounded,Do not describe diagnostics as deployment.
+RQ04,C48-C51,evidence_bounded,Ceiling is diagnostic-only.
+RQ05,K_C50_trajectory_fail_fraction;K_C50_max_mean_underuse_gap,evidence_bounded,Do not call grouped diagnostics source-only.
+RQ06,K_C55_template_only_best;K_C55_max_null_p95;K_C55_endpoint_scalar_transfer,evidence_bounded,Preserve the C55 null clarification.
+RQ07,C52-C55,evidence_bounded,Do not call endpoint scalar an available method.
+RQ08,K_C53_split_label_budget_available,evidence_bounded,Do not claim few-label sufficiency.
+RQ09,C57 literature,evidence_bounded,No universal lower-bound claim.
+RQ10,CL01-CL16,evidence_bounded,No SOTA or method claim.
+RQ11,C31-C56,evidence_bounded,Do not claim EEG transfer impossible.
+RQ12,C57 decision,evidence_bounded,Do not open another exploratory C-number without a named gap.

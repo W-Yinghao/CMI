@@ -1,0 +1,10 @@
+subagent_id,role,scope,integration_status
+SA1,Manuscript Architect,title/abstract/outline/section claims,launched_integrated
+SA2,Claim-Contract Auditor,claim contract and strength ladder,launched_integrated
+SA3,Evidence-to-Figure Planner,main and supplementary figure plan,launched_integrated
+SA4,Information-Boundary Formalizer,I0-I7 and ceiling/action distinction,launched_integrated
+SA5,Literature Alignment Agent,related-work matrix and overclaim blocks,launched_integrated
+SA6,Reviewer Q&A Simulator,reviewer questions and bounded answers,launched_integrated
+SA7,Terminology/Taxonomy Consolidator,term contract and crosswalk,launched_integrated
+SA8,Artifact/Provenance Auditor,key number and artifact traceability,launched_integrated
+SA9,Final Red-Team Integrator,hard gates and decision audit,launched_integrated

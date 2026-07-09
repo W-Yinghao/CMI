@@ -1,0 +1,12 @@
+gate,failed,finding
+c56_ready_for_scaffold,0,C56 primary decision supports manuscript scaffold.
+c57_primary_is_A,0,C57 selects manuscript scaffold ready.
+claim_contract_complete,0,Claim contract covers the four manuscript contributions and late boundary claims.
+all_key_numbers_traceable,0,Every manuscript-facing key number is traceable.
+c55_null_clarification_preserved,0,Endpoint scalar 0.944 beats max null p95 0.771; template-only 0.704 does not.
+split_label_future_work_only,0,Split-label calibration remains future work only.
+same_label_oracle_unavailable,0,Same-label endpoint scalar is unavailable at selection time.
+literature_overclaims_blocked,0,"Literature rows block universal, SOTA, endpoint-calibration, and theorem overclaims."
+forbidden_claim_scan_passed,0,Forbidden affirmative claim scan has zero affirmative hits.
+no_selector_or_checkpoint_artifact,0,C57 emits no selected-candidate or checkpoint-hash artifact.
+compact_artifacts,0,C57 JSON is compact and row-level evidence lives in c57_tables.

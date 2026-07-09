@@ -1,0 +1,10 @@
+forbidden_class,why_forbidden,allowed_replacement,red_team_gate
+source_only_solution,C42-C55 do not establish reliable source-only actionability.,source-side measurements are weak but not reliable controls,fail_if_affirmed
+deployable_selector,No selected-candidate or deployment rule is emitted.,diagnostic ceiling or empirical mechanism,fail_if_affirmed
+OACI_rescue,OACI remains falsified as a control objective.,support-aware measurement/falsification instrumentation,fail_if_affirmed
+few_label_sufficiency,Split-label cache is unavailable.,future split-label extension,fail_if_affirmed
+universal_DG_impossibility,C57 is empirical and setting-bound.,observed information boundary,fail_if_affirmed
+formal_theorem_without_proof,No proof is supplied in C57.,future theorem candidate,fail_if_affirmed
+same_label_oracle_as_available_method,Endpoint scalar reads candidate target endpoint content.,same-label diagnostic oracle,fail_if_affirmed
+target_unlabeled_as_source_only,Target-unlabeled information is outside source-only DG.,target-unlabeled diagnostic rung,fail_if_affirmed
+target_grouped_as_source_only,Target grouping is a separate problem class.,target-grouped diagnostic rung,fail_if_affirmed

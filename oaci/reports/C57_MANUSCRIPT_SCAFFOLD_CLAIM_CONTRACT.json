@@ -1,0 +1,59 @@
+{
+  "c55_null_disambiguation": {
+    "endpoint_scalar_transfer_beats_max_null_p95": true,
+    "endpoint_scalar_transfer_hit": 0.9444444444444444,
+    "max_null_p95": 0.7712962962962961,
+    "template_only_beats_max_null_p95": false,
+    "template_only_hit": 0.7037037037037037
+  },
+  "c56_decision": "C56-A_mechanism_closed_ready_for_manuscript_scaffold",
+  "claim_contract_count": 16,
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "primary": "C57-A_manuscript_scaffold_ready",
+    "recommended_next_direction": "M1 manuscript drafting",
+    "red_team_failure_count": 0,
+    "secondary": [
+      "C57-S1_claim_contract_locked",
+      "C57-S2_figure_plan_provenance_backed",
+      "C57-S3_information_boundary_formalism_empirical",
+      "C57-S4_literature_alignment_claim_limited",
+      "C57-S5_ready_for_M1_drafting"
+    ],
+    "untraceable_key_number_count": 0
+  },
+  "diagnostic_only_non_deployable": true,
+  "key_number_count": 43,
+  "main_figure_count": 8,
+  "milestone": "C57",
+  "recommended_next_step": "M1 manuscript drafting",
+  "supplement_figure_count": 6,
+  "table_row_counts": {
+    "artifact_manifest": 36,
+    "bayes_ceiling_vs_action_rule": 5,
+    "claim_contract": 16,
+    "claim_strength_ladder": 7,
+    "claim_to_literature_map": 6,
+    "contribution_map": 4,
+    "figure_evidence_map": 14,
+    "forbidden_claim_boundary": 9,
+    "forbidden_claim_scan": 12,
+    "forbidden_literature_overclaims": 5,
+    "information_class_ladder": 8,
+    "key_number_provenance": 43,
+    "key_number_to_figure_map": 29,
+    "large_artifact_scan": 36,
+    "literature_alignment_matrix": 6,
+    "manuscript_section_map": 10,
+    "missing_or_ambiguous_provenance": 0,
+    "red_team_failure_ledger": 11,
+    "remaining_caveats": 4,
+    "reviewer_answer_evidence_map": 12,
+    "reviewer_question_bank": 12,
+    "schema_validation_summary": 24,
+    "subagent_audit_manifest": 9,
+    "taxonomy_crosswalk": 7,
+    "term_usage_guardrails": 5,
+    "test_command_manifest": 4
+  }
+}

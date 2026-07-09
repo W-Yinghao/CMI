@@ -1,0 +1,7 @@
+claim_id,literature_id,alignment_type
+CL02,DomainBed_2007_01434,model_selection_caution
+CL05,IRM_1907_02893,invariance_claim_boundary
+CL05,ZhaoInvariantDA_1901_09453,conditional_shift_boundary
+CL13,PostSelection_1401_3889,data_reuse_guardrail
+CL16,InteractiveLowerBounds_2410_05117,future_theory_language
+CL01,EEG_DG_project_bibliography_pending,M1_bibliography_expansion

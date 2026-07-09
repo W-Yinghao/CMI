@@ -1,0 +1,17 @@
+claim_id,claim_text,allowed_strength,required_evidence_milestones,allowed_information_class,forbidden_rewordings,needs_caveat,manuscript_section
+CL01,Support-aware leakage and estimability gates are retained as falsification instrumentation.,negative_control_result,C14-C24,I1/I3,Do not reword as a recovered OACI control objective.,yes,Support-aware OACI and falsification battery
+CL02,OACI is not rescued as a deployable control objective in the observed EEG-DG setting.,negative_control_result,"C23-C30,C56",I1,Do not reword as a successful OACI method.,yes,Empirical failure of source-side control
+CL03,Good checkpoints are common enough that the failure is localization rather than endpoint scarcity.,observed_in_this_setting,"C31,C32",I0-I1,Do not reword as an absence of target-good checkpoints.,yes,Selector/localization audit
+CL04,Source-side measurements contain weak within-target rank information.,empirical_mechanism,"C31,C42,C43",I1,Do not reword as reliable target checkpoint selection.,yes,Rank-gauge mechanism
+CL05,Target competence decomposes empirically into a source-visible rank axis plus a target-specific gauge/offset axis.,empirical_mechanism,"C31,C45,C46",I1-I4,Do not reword as a universal theorem.,yes,Rank-gauge mechanism
+CL06,Source scalarization and source Pareto geometry do not provide reliable actionability.,negative_control_result,C42-C44,I1,Do not reword as zero source signal.,yes,Empirical failure of source-side control
+CL07,Selected OACI misses often incur real continuous and preference-robust local regret.,observed_in_this_setting,"C34,C35",I1/I6,Do not reword as threshold-only failure.,yes,Selector/localization audit
+CL08,Exact selector mechanics favor the selected source-side candidate over target-better alternatives.,empirical_mechanism,C36-C38,I1,Do not reword as a candidate recommendation rule.,yes,Selector/localization audit
+CL09,Conditioning exposes diagnostic local islands and ceilings.,diagnostic_ceiling,C46-C50,I4/I7,Do not reword as an action rule.,yes,Conditioning and local diagnostic ceilings
+CL10,Trajectory fragmentation and score underuse prevent those islands from becoming reliable actionability.,empirical_mechanism,"C50,C51",I4/I7,Do not reword as broad local purity or deployment.,yes,Conditioning and local diagnostic ceilings
+CL11,Target/trajectory keys alone do not close the residual gauge gap.,information_boundary,C52,I2,Do not reword as target-key sufficiency.,yes,Information-boundary closure
+CL12,Target-label-derived diagnostic content closes the residual diagnostically.,diagnostic_ceiling,"C52,C53",I6,Do not reword as source-only DG.,yes,Information-boundary closure
+CL13,The strongest endpoint scalar is a same-label endpoint oracle unavailable at selection time.,information_boundary,"C54,C55",I7,Do not reword as an available calibration method.,yes,Endpoint-oracle boundary
+CL14,C55 template-only transfer is partial and does not beat the max null p95.,information_boundary,"C55,C56",I6/I7,Do not reword as full template transfer.,yes,Endpoint-oracle boundary
+CL15,Split-label or few-label sufficiency remains future work because the required cache is unavailable.,future_work_only,C53-C55,I5,Do not reword as established few-label calibration.,yes,Discussion / limitations
+CL16,C14-C56 are ready to be compressed into a manuscript scaffold rather than extended by another exploratory C-number.,observed_in_this_setting,"C56,C57",I0-I7,Do not reword as a final formal theory.,yes,Discussion / limitations

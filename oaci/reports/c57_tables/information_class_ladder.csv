@@ -1,0 +1,9 @@
+information_class,definition,empirical_status,supporting_milestones,sufficiency_boundary,manuscript_phrase
+I0_random_or_tie,no row-specific candidate information beyond base rates,baseline only,"C42,C52,C55",not sufficient,random/tie comparator
+I1_strict_source_observables,"source risk, rank, leakage, and objective fields",weak signal,"C42,C43,C44",not reliable,available but insufficient
+I2_source_plus_target_or_trajectory_keys,source fields plus target/trajectory identifiers or keys,key-only insufficient,C52,not sufficient,not original source-only DG
+I3_target_unlabeled_transductive_geometry,unlabeled target geometry or confidence fields,diagnostic but not rescue,"C25,C35,C52",not sufficient,non-source-only
+I4_target_grouped_zero_label_structure,target/trajectory grouped diagnostic structure,descriptive and diagnostic,C46-C50,not an available action rule,separate problem class
+I5_split_label_or_few_label_calibration,target-label budget disjoint from evaluation labels,not evaluated,C53-C55,open future,requires unavailable split-label cache
+I6_target_label_diagnostic_content,target-label-derived diagnostic fields,closes residual diagnostically,"C52,C53",diagnostic only,not source-only
+I7_same_label_endpoint_oracle,same-label endpoint scalar or joint margin,tautological closure,"C54,C55",diagnostic endpoint oracle,unavailable at selection time

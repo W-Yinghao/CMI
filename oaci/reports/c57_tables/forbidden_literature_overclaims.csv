@@ -1,0 +1,6 @@
+overclaim,status,reason
+universal_DG_failure,blocked,C57 is empirical and setting-bound.
+all_invariance_methods_fail,blocked,"IRM/invariance are alignment axes, not targets of universal refutation."
+SOTA_method_claim,blocked,C57 emits no method and no benchmark-improvement claim.
+formal_minimax_lower_bound,blocked,Only future theorem candidates are provided.
+endpoint_oracle_calibration_method,blocked,Same-label endpoint scalar is unavailable at selection time.
