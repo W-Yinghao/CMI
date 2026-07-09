@@ -1,5 +1,5 @@
 artifact,git_tracked,external_root,emitted_in_c66,hash_manifest_required,large_payload_policy
-trial_logits_probs_cache,0,/projects/EEG-foundation-model/yinghao/oaci-c66-trial-cache-micropilot,0,1,external_only
+trial_logits_probs_cache,0,/projects/EEG-foundation-model/yinghao/oaci-c66-trial-cache-micropilot,1,1,external_only
 representation_z_cache,0,/projects/EEG-foundation-model/yinghao/oaci-c66-trial-cache-micropilot,0,1,external_only
 cache_manifest_summary,1,oaci/reports/c66_tables,1,1,compact_only
 checkpoint_payloads,0,/projects/EEG-foundation-model/yinghao/oaci-loso-seeds012,0,1,reuse_existing_no_copy

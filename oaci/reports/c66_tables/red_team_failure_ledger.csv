@@ -1,17 +1,23 @@
 gate,failed,finding
-authorization_phrase_absent_default_mode,0,No explicit micro-pilot authorization phrase was present.
-no_forward_or_reinference_executed,0,CPU torchload metadata only; no EEG forward.
+authorization_boundary_consistent,0,Authorization status matches C66 mode.
+forward_matches_authorization,0,Forward execution is either absent by default or present only after authorization.
 no_training_or_gpu,0,No training or GPU authorization.
 frozen_store_replayed,0,C65 frozen store recovery replayed.
 mapping_replay_complete,0,All grouped mapping rows verified.
 cpu_torchload_sample_passed,0,Six stratified checkpoints CPU-loaded successfully.
 state_hashes_match,0,Loaded state hashes match checkpoint ids.
-model_abi_no_forward,0,Model ABI validated without constructor/forward execution.
+model_abi_consistent,0,Model ABI validated; authorized branch records strict CPU load/forward if executed.
 preprocess_contract_validated,0,BNCI2014_001 preprocessing contract recovered.
 reserved_holdouts_preserved,0,BNCI2014_004 and seeds 3/4 remain reserved.
-no_cache_emitted,0,No real trial cache was emitted.
-split_label_claim_blocked,0,Few-label/split-label claims blocked without cache.
-full_cs_claim_blocked,0,Full conditional-CS claim blocked without paired samples.
+reserved_seed_sample_guard,0,Authorized/fallback ABI sample excludes reserved seeds 3/4.
+cache_emission_matches_authorization,0,Real cache is absent without authorization or external-only with authorization.
+content_addressed_cache_path,0,Authorized cache path is content-addressed by trial cache SHA prefix.
+cpu_runtime_guard,0,Authorized microcampaign records CPU-only/no-training execution.
+label_view_masking_contract,0,C66 label-view masking policy is emitted and bars selection-rule use.
+split_label_claim_blocked,0,Few-label/split-label claims remain blocked despite the cache foundation.
+full_cs_claim_blocked,0,Full conditional-CS claim remains blocked until a registered estimator is run.
 payload_policy_external_only,0,Large payloads remain external.
+external_manifest_hashes_present_if_cache_created,0,Authorized external cache artifacts are hash-manifested.
+authorized_cache_not_git_tracked,0,Authorized cache payload rows are external only.
 forbidden_scan_passed,0,Forbidden affirmative claim scan passed.
 large_artifact_scan_passed,0,All C66 artifacts are under 50MB.

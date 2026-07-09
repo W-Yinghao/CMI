@@ -1,0 +1,7 @@
+pilot_cell,checkpoint_id,seed,target,level,regime,trial_rows,construct_rows,eval_rows,forward_attempted,training_attempted,gpu_used,status,error
+pilot_01,4b4247ebfcfbf9dd8781809751032d77847c84fc4e2355212f61309031fd019f,0,1,0,S0_full_support,576,280,296,1,0,0,pass,
+pilot_02,9c9b13db9b9466499a179188ae38ae05af22e0eaf2de93d9a371471c0d8f64ca,0,1,1,S0_full_support,576,280,296,1,0,0,pass,
+pilot_03,259ae996289249866c40b38c9a7f730d0fac1d4820513ec5c220fcdb6c0f839a,1,5,0,S0_full_support,576,280,296,1,0,0,pass,
+pilot_04,4da93d55ee5ab30e7f11b3094e92a865dce86766340eacabe8cf97970b68152e,1,5,1,S0_full_support,576,280,296,1,0,0,pass,
+pilot_05,8211e4c83c640ef1089fffba71c78bbfac22b4f68a55e97784cae3a5445cf5ff,2,9,0,S0_full_support,576,284,292,1,0,0,pass,
+pilot_06,b0bd784291510ff73a633b5234b064066d23d7b9cceb0a8b20a308ed13e2b64f,2,9,1,S0_full_support,576,284,292,1,0,0,pass,

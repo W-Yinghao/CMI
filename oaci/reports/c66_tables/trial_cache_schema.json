@@ -2,7 +2,7 @@
   "fields": [
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "identity",
       "field": "trial_cache_id",
       "large_payload_ref_only": 0,
@@ -12,7 +12,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "checkpoint",
       "field": "checkpoint_id",
       "large_payload_ref_only": 0,
@@ -22,7 +22,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "checkpoint",
       "field": "checkpoint_path_hash",
       "large_payload_ref_only": 0,
@@ -32,7 +32,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "checkpoint",
       "field": "checkpoint_sidecar_hash",
       "large_payload_ref_only": 0,
@@ -42,7 +42,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "trial_identity",
       "field": "dataset_id",
       "large_payload_ref_only": 0,
@@ -52,7 +52,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "trial_identity",
       "field": "subject_id",
       "large_payload_ref_only": 0,
@@ -62,7 +62,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "split",
       "field": "target_id",
       "large_payload_ref_only": 0,
@@ -72,7 +72,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "split",
       "field": "source_or_target_role",
       "large_payload_ref_only": 0,
@@ -82,7 +82,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "checkpoint",
       "field": "trajectory_id",
       "large_payload_ref_only": 0,
@@ -92,7 +92,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "checkpoint",
       "field": "seed",
       "large_payload_ref_only": 0,
@@ -102,7 +102,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "checkpoint",
       "field": "fold",
       "large_payload_ref_only": 0,
@@ -112,7 +112,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "checkpoint",
       "field": "regime",
       "large_payload_ref_only": 0,
@@ -122,7 +122,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "checkpoint",
       "field": "epoch_or_step",
       "large_payload_ref_only": 0,
@@ -132,7 +132,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "trial_identity",
       "field": "trial_id",
       "large_payload_ref_only": 0,
@@ -142,7 +142,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "label",
       "field": "class_label_quarantined",
       "large_payload_ref_only": 0,
@@ -152,7 +152,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "label",
       "field": "y_true_quarantined",
       "large_payload_ref_only": 0,
@@ -162,7 +162,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "prediction",
       "field": "y_pred",
       "large_payload_ref_only": 0,
@@ -172,7 +172,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "prediction",
       "field": "logits",
       "large_payload_ref_only": 0,
@@ -182,7 +182,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "prediction",
       "field": "probabilities",
       "large_payload_ref_only": 0,
@@ -192,7 +192,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "prediction",
       "field": "confidence",
       "large_payload_ref_only": 0,
@@ -202,7 +202,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "prediction",
       "field": "margin",
       "large_payload_ref_only": 0,
@@ -212,7 +212,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "prediction",
       "field": "entropy",
       "large_payload_ref_only": 0,
@@ -222,7 +222,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "split",
       "field": "split_role_for_future_split_label",
       "large_payload_ref_only": 0,
@@ -232,7 +232,7 @@
     },
     {
       "available_after_authorized_reinfer": 1,
-      "available_now": 0,
+      "available_now": 1,
       "category": "metadata",
       "field": "availability_tags",
       "large_payload_ref_only": 0,

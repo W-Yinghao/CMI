@@ -1,14 +1,11 @@
 pattern,total_hits,affirmative_hits,files,passed
-forward pass was run,0,0,,1
-re-inference was executed,0,0,,1
-trial cache was emitted,0,0,,1
 training was authorized,0,0,,1
 gradient update executed,0,0,,1
 checkpoint selector,0,0,,1
-checkpoint recommendation,0,0,,1
-few-label sufficiency,1,0,oaci/reports/C66_REINFERENCE_ONLY_TRIAL_CACHE_MICROCAMPAIGN.md,1
+checkpoint recommendation,1,0,oaci/reports/C66_REINFERENCE_ONLY_TRIAL_CACHE_MICROCAMPAIGN.md,1
+few-label sufficiency,2,0,oaci/reports/C66_REINFERENCE_ONLY_TRIAL_CACHE_MICROCAMPAIGN.md,1
 source-only rescue,0,0,,1
-OACI rescue,0,0,,1
+OACI rescue,1,0,oaci/reports/C66_REINFERENCE_ONLY_TRIAL_CACHE_MICROCAMPAIGN.md,1
 deployable claim,0,0,,1
 BNCI2014_004 used,0,0,,1
 "seeds [3,4] used",0,0,,1

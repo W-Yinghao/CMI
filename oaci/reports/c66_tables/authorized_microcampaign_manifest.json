@@ -1,0 +1,15 @@
+{
+  "checkpoint_count": 6,
+  "dataset_evidence_hash": "b6a03c121dc9ab15e2b06bb71610d2b17bf13374e11f3181d604384ffd7404d8",
+  "diagnostic_only_non_deployable": true,
+  "manifest_path_hash": "81d5ab2052bdddf2ac3e983f2583388886c5ba00851830ea4d2bce33f8225bac",
+  "manifest_sha256": "7d92e1d0b171c48ba0c6e2d28deb1736f619b62a5560055fca92ce5e10130fa9",
+  "raw_data_fingerprint": "41d417e26b2de477a7494b9c446197df63f51bc98c6bfee58decb50622aec770",
+  "resolved_preprocess_hash": "e24bd3f8663074618c9a55d3843eb944d67dd0ea9ab0a5d72b95c281f8fecbeb",
+  "status": "executed",
+  "success": 1,
+  "target_count": 3,
+  "trial_cache_path_hash": "e00762354e5c4155e771764b24825ed81708b6bb49ea7f1db132f3f9a65748c6",
+  "trial_cache_sha256": "aaef9df53eed0c4ac2a38aa701f35f345958722ae9180ae3838084986a4c5e0d",
+  "trial_row_count": 3456
+}

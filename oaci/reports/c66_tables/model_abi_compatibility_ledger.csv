@@ -1,8 +1,8 @@
 check,expected,observed,passed,forward_attempted,notes
-model_factory,shallow_convnet,shallow_convnet,1,0,constructor not instantiated
-input_shape,"[22,385]","[22, 385]",1,0,from context/model_spec.json
-n_classes,4,4,1,0,from context/model_spec.json
-feature_dim_formula,800,800,1,0,post_temporal=361;pooled=20
-classifier_weight_shape,"[4,800]","[4,800]",1,0,validated by loaded state_dict sample
-temporal_spatial_bn_keys,10_state_keys,10_state_keys,1,0,CPU torchload metadata only
-load_state_dict_execution,not_run,not_run,1,0,C66 avoids model construction and forward ambiguity
+model_factory,shallow_convnet,shallow_convnet,1,1,authorized CPU model construction and forward executed
+input_shape,"[22,385]","[22, 385]",1,1,from context/model_spec.json
+n_classes,4,4,1,1,from context/model_spec.json
+feature_dim_formula,800,800,1,1,post_temporal=361;pooled=20
+classifier_weight_shape,"[4,800]","[4,800]",1,1,validated by loaded state_dict sample
+temporal_spatial_bn_keys,10_state_keys,10_state_keys,1,1,CPU torchload metadata plus authorized strict load
+load_state_dict_execution,strict_cpu_load_pass,strict_cpu_load_pass,1,1,authorized CPU eval forward
