@@ -1,0 +1,3 @@
+reason_code,cell_count,cell_fraction,interpretation,diagnostic_only,no_selection_artifact
+template_matches_same_cell,135,0.8333333333333334,candidate-order template matches same-cell endpoint ordering,1,1
+test_endpoint_scalar_required,27,0.16666666666666666,held-out endpoint scalar closes cells where template-only does not,1,1

@@ -1,0 +1,14 @@
+score_name,field_family,protocol,mode,uses_source_only_inputs,uses_key_only_inputs,uses_target_unlabeled_inputs,uses_target_endpoint_scalar_on_test_candidate,uses_same_cell_target_labels_for_template,uses_other_cell_target_labels_for_template,uses_trial_level_split_labels,available_under_original_source_only_DG,diagnostic_only,reported_hit,availability_class
+random_tie_baseline,none,within_cell,random_tie_expected,0,0,0,0,0,0,0,0,0,0.429723378036041,uninformative_baseline
+best_strict_source,source,trajectory_cell,c53_replay,1,0,0,0,0,0,0,1,0,0.5061728395061729,strict_source
+best_key_only,key_only,trajectory_cell,c53_replay,0,1,0,0,0,0,0,0,0,0.4876543209876543,key_only
+same_cell_endpoint_scalar,joint_margin,same_cell_oracle,continuous_raw,0,0,0,1,1,0,0,0,1,0.9444444444444444,same_cell_endpoint_oracle
+leave_cell_out_template_only,joint_margin,leave_cell_out,candidate_order_template,0,0,0,0,0,1,0,0,1,0.5740740740740741,cross_cell_label_template
+leave_target_out_template_only,joint_margin,leave_target_out,candidate_order_template,0,0,0,0,0,1,0,0,1,0.5740740740740741,cross_cell_label_template
+leave_trajectory_out_template_only,joint_margin,leave_trajectory_out,candidate_order_template,0,0,0,0,0,1,0,0,1,0.5740740740740741,cross_cell_label_template
+same_target_cross_trajectory_template_only,joint_margin,same_target_cross_trajectory,candidate_order_template,0,0,0,0,0,1,0,0,1,0.6481481481481481,cross_cell_label_template
+matched_source_geometry_template_only,joint_margin,matched_source_geometry,candidate_order_template,0,0,0,0,0,1,0,0,1,0.7037037037037037,cross_cell_label_template
+leave_cell_out_endpoint_scalar_threshold,joint_margin,leave_cell_out,binary_sign,0,0,0,1,0,1,0,0,1,0.9444444444444444,endpoint_scalar_on_test_candidate
+leave_target_out_endpoint_scalar_threshold,joint_margin,leave_target_out,binary_sign,0,0,0,1,0,1,0,0,1,0.9444444444444444,endpoint_scalar_on_test_candidate
+leave_trajectory_out_endpoint_scalar_threshold,joint_margin,leave_trajectory_out,binary_sign,0,0,0,1,0,1,0,0,1,0.9444444444444444,endpoint_scalar_on_test_candidate
+split_label_constructed_endpoint_template,split_label_unavailable,not_constructed,not_constructed,0,0,0,0,0,0,0,0,1,,split_label_budget_unavailable
