@@ -1,0 +1,6 @@
+failure_code,n_trajectories,dynamic_update,explained_by_source_dynamics,notes
+PASS,92,unchanged,0,passing trajectories do not prove a source-dynamic rule
+LOW_TRAJECTORY_HIT,31,not_explained,0,source dynamics do not recover zero-hit cells
+LOW_TRAJECTORY_ENRICHMENT,39,not_explained,0,dynamic source proxy remains below endpoint boundary
+TRAJECTORY_FRAGMENTED,31,not_explained,0,fragmentation remains target/gauge residual
+SOURCE_SCORE_UNDERUSE,3,partial_underuse_only,0,source dynamics do not become reliable actionability

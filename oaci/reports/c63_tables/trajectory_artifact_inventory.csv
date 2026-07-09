@@ -1,0 +1,6 @@
+artifact,path,row_count,trajectory_fields_present,source_dynamic_fields_present,target_labels_present,supports_hankel_proxy,diagnostic_only,notes
+C50_island_morphology,oaci/reports/c50_tables/island_morphology.csv,3804,1,0,1,1,1,candidate-level trajectory keys and labels; no source score vector history
+C50_group_fragmentation,oaci/reports/c50_tables/group_fragmentation.csv,188,1,0,1,1,1,trajectory-level fragmentation summaries
+C51_trajectory_failure_ledger,oaci/reports/c51_tables/trajectory_failure_ledger.csv,162,1,0,1,1,1,trajectory actionability fail/underuse ledger
+C51_support_ablation_grid,oaci/reports/c51_tables/support_ablation_grid.csv,16,1,0,1,1,1,support and fragmentation sensitivity
+C62_estimator_stress,oaci/reports/c62_tables/partition_cod_sensitivity.csv,45,0,0,1,0,1,static estimator boundary carried forward

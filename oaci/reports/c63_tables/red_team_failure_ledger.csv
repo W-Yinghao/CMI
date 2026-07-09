@@ -1,0 +1,14 @@
+gate,failed,finding
+dynamic_ladder_established,0,Dynamic COD ladder is emitted.
+dynamic_source_near_static,0,Source dynamic gain is bounded and below max null.
+dynamic_template_no_screen_off,0,Endpoint still adds after dynamic+template.
+endpoint_boundary_preserved,0,Endpoint/template null boundary preserved.
+dynamic_source_no_target_labels,0,Source dynamic proxy is not target-derived.
+endpoint_unavailable,0,Endpoint scalar remains unavailable at selection time.
+fragmentation_not_explained,0,Trajectory fragmentation remains residual.
+source_dynamic_escape_hatch_closed,0,No dynamic source escape hatch found.
+full_time_series_cs_blocked,0,Full time-series conditional CS remains unsupported.
+synthetic_dynamic_validation,0,Synthetic dynamic rank-gauge validation passes.
+training_not_authorized,0,No training or instrumentation authorized.
+forbidden_scan_passed,0,Forbidden affirmative claim scan passed.
+large_artifact_scan_passed,0,All listed artifacts are under 50MB.

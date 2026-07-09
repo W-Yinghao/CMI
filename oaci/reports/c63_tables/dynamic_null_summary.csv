@@ -1,0 +1,7 @@
+null_id,statistic,observed,null_p95,passes,interpretation
+N1_within_trajectory_time_shuffle,source_dynamic_hit,0.5740740740740741,0.6111111111111112,0,dynamic source proxy not reliability-grade
+N2_target_preserving_trajectory_shuffle,trajectory_actionability_fail_fraction,0.43209876543209874,0.7054398148148148,0,fragmentation remains not explained by source dynamics
+N3_source_dynamic_feature_permutation,source_dynamic_hit,0.5740740740740741,0.6296296296296297,0,no dynamic source escape hatch
+N4_endpoint_label_permutation,endpoint_hit,0.9444444444444444,0.7712962962962961,1,endpoint oracle boundary persists
+N5_window_order_reversal,source_dynamic_hit,0.5740740740740741,0.5987654320987654,0,window direction does not create reliable actionability
+N6_template_vs_max_null,template_hit,0.7037037037037037,0.7712962962962961,0,template remains partial below max null
