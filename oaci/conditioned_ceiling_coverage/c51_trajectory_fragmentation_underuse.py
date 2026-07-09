@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import math
 import os
@@ -14,7 +13,11 @@ from ..conditioned_actionability import score_registry as c47_scores
 from ..conditioned_local_ceiling import local_ceiling as c48_local
 from ..source_nonidentifiability import source_space as c45_source_space
 from . import artifact_loader as al
+from . import audit_utils as au
 from . import c50_conditioned_island_morphology as c50
+from . import island_metrics
+from . import locked_witness
+from . import score_diagnostics as sd
 from . import schema as c49_schema
 from . import source_space_registry
 
@@ -23,11 +26,11 @@ REPORT_JSON = "oaci/reports/C51_TRAJECTORY_FRAGMENTATION_UNDERUSE.json"
 TABLE_DIR = "oaci/reports/c51_tables"
 
 MILESTONE = "C51"
-LOCKED_SCOPE = c50.WITNESS_SCOPE
-LOCKED_SOURCE_SPACE = c50.WITNESS_SOURCE_SPACE
-LOCKED_NEIGHBORHOOD = c50.WITNESS_NEIGHBORHOOD
-LOCKED_MIN_N = c50.WITNESS_MIN_NEIGHBOR_COUNT
-LOCKED_LABEL = c50.WITNESS_LABEL
+LOCKED_SCOPE = locked_witness.WITNESS_SCOPE
+LOCKED_SOURCE_SPACE = locked_witness.WITNESS_SOURCE_SPACE
+LOCKED_NEIGHBORHOOD = locked_witness.WITNESS_NEIGHBORHOOD
+LOCKED_MIN_N = locked_witness.WITNESS_MIN_NEIGHBOR_COUNT
+LOCKED_LABEL = locked_witness.WITNESS_LABEL
 
 EPS_QUANTILES = (0.10, 0.20, 0.30, 0.40)
 MIN_N_GRID = (1, 2, 3, 5)
@@ -68,74 +71,47 @@ FORBIDDEN_CLAIM_SUBSTRINGS = c50.FORBIDDEN_CLAIM_SUBSTRINGS + (
 
 
 def _lock_config():
-    got = c49_schema.frozen_config_hash()
-    if got != c49_schema.LOCKED_C19_CONFIG_HASH:
-        raise ValueError(f"C51 requires frozen C19 config {c49_schema.LOCKED_C19_CONFIG_HASH}; got {got}")
-    return got
+    return au.lock_config("C51")
 
 
 def _readcsv(path):
-    with open(path, newline="") as f:
-        return list(csv.DictReader(f))
+    return au.read_csv(path)
 
 
 def _writecsv(path, rows, cols):
-    def clean(v):
-        if isinstance(v, bool):
-            return int(v)
-        if isinstance(v, float) and not math.isfinite(v):
-            return ""
-        return v
-    with open(path, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
-        w.writeheader()
-        for r in rows:
-            w.writerow({c: clean(r.get(c)) for c in cols})
+    return au.write_csv(path, rows, cols)
 
 
 def _f(x, default=math.nan):
-    return al.as_float(x, default)
+    return au.as_float(x, default)
 
 
 def _finite(vals):
-    return [float(v) for v in vals if al.finite(v)]
+    return au.finite_values(vals)
 
 
 def _mean(vals):
-    vals = _finite(vals)
-    return float(np.mean(vals)) if vals else math.nan
+    return au.finite_mean(vals)
 
 
 def _median(vals):
-    vals = _finite(vals)
-    return float(np.median(vals)) if vals else math.nan
+    return au.finite_median(vals)
 
 
 def _quantile(vals, q):
-    vals = _finite(vals)
-    return float(np.quantile(vals, q)) if vals else math.nan
+    return au.finite_quantile(vals, q)
 
 
 def _enrichment(hit, base):
-    return hit / base if al.finite(hit) and al.finite(base) and float(base) > 0 else math.nan
+    return au.enrichment(hit, base)
 
 
 def _query_id(row):
-    return f"c50q_{int(row['source_idx']):04d}"
+    return au.query_id(row)
 
 
 def _row_group_key(row, group_type):
-    if group_type == "target":
-        return str(row["target"])
-    if group_type == "trajectory":
-        return row.get("trajectory_id", row.get("trajectory"))
-    if group_type == "seed":
-        return str(row["seed"])
-    if group_type == "level":
-        return str(row["level"])
-    if group_type == "regime":
-        return row["regime"]
-    raise ValueError(group_type)
+    return au.row_group_key(row, group_type)
 
 
 def _score_specs(ctx):
@@ -151,7 +127,7 @@ def _prepare():
     ctx = al.context()
     spaces = source_space_registry.registry(ctx)
     space = spaces["spaces"][LOCKED_SOURCE_SPACE]
-    witness = c50._c49_locked_witness()
+    witness = locked_witness.c49_locked_witness()
     if witness["condition_scope"] != LOCKED_SCOPE or witness["source_space"] != LOCKED_SOURCE_SPACE:
         raise ValueError("C51 locked witness does not match C50")
     pair_dist = c45_source_space.within_trajectory_pair_distances(ctx, space)
@@ -214,7 +190,8 @@ def rows_for_radius(caches, labels_by_idx, radius, min_n):
 
 
 def _target_trajectory_metrics(island_rows):
-    frag = c50.group_fragmentation(island_rows)
+    frag = island_metrics.group_fragmentation(
+        island_rows, c50.GROUP_TYPES, c50.COVERAGE_GATE, c50.HIT_GATE, c50.ENRICHMENT_GATE)
     target_rows = [r for r in frag if r["group_type"] == "target"]
     traj_rows = [r for r in frag if r["group_type"] == "trajectory"]
     hit = _mean([r["hit_rate_if_covered"] for r in target_rows])
@@ -441,119 +418,6 @@ def null_calibration(ctx, caches, labels_by_idx, radius, observed_stats):
     return summary, traj_hits
 
 
-def _rankdata(vals):
-    order = sorted(range(len(vals)), key=lambda i: vals[i])
-    ranks = [0.0] * len(vals)
-    i = 0
-    while i < len(vals):
-        j = i
-        while j + 1 < len(vals) and vals[order[j + 1]] == vals[order[i]]:
-            j += 1
-        rank = (i + j) / 2.0
-        for k in range(i, j + 1):
-            ranks[order[k]] = rank
-        i = j + 1
-    denom = max(len(vals) - 1, 1)
-    return np.asarray([r / denom for r in ranks], dtype=float)
-
-
-def _spearman(x, y):
-    x = np.asarray(x, dtype=float)
-    y = np.asarray(y, dtype=float)
-    if len(x) < 2 or len(set(y.tolist())) < 2:
-        return math.nan
-    rx = _rankdata(x.tolist())
-    ry = _rankdata(y.tolist())
-    sx, sy = float(np.std(rx)), float(np.std(ry))
-    if sx <= 1e-12 or sy <= 1e-12:
-        return math.nan
-    return float(np.corrcoef(rx, ry)[0, 1])
-
-
-def _auc(scores, labels):
-    scores = np.asarray(scores, dtype=float)
-    labels = np.asarray(labels, dtype=int)
-    pos = scores[labels == 1]
-    neg = scores[labels == 0]
-    if len(pos) == 0 or len(neg) == 0:
-        return math.nan
-    wins = 0.0
-    for p in pos:
-        wins += float(np.sum(p > neg)) + 0.5 * float(np.sum(np.abs(p - neg) <= 1e-12))
-    return wins / (len(pos) * len(neg))
-
-
-def _auprc(scores, labels):
-    scores = np.asarray(scores, dtype=float)
-    labels = np.asarray(labels, dtype=int)
-    if int(np.sum(labels)) == 0:
-        return math.nan
-    order = np.argsort(-scores)
-    y = labels[order]
-    tp = np.cumsum(y)
-    fp = np.cumsum(1 - y)
-    precision = tp / np.maximum(tp + fp, 1)
-    recall = tp / max(int(np.sum(labels)), 1)
-    prev = 0.0
-    area = 0.0
-    for p, r in zip(precision, recall):
-        area += float(p) * max(float(r) - prev, 0.0)
-        prev = float(r)
-    return area
-
-
-def _deciles(values, group_keys=None):
-    values = np.asarray(values, dtype=float)
-    out = np.zeros(len(values), dtype=int)
-    if group_keys is None:
-        groups = {"all": np.arange(len(values))}
-    else:
-        groups = defaultdict(list)
-        for i, g in enumerate(group_keys):
-            groups[g].append(i)
-        groups = {k: np.asarray(v, dtype=int) for k, v in groups.items()}
-    for idx in groups.values():
-        vals = values[idx]
-        ranks = _rankdata(vals.tolist())
-        out[idx] = np.minimum((ranks * 10).astype(int), 9)
-    return out
-
-
-def _diagnostic_decile_scores(values, labels, group_keys=None):
-    dec = _deciles(values, group_keys)
-    out = np.zeros(len(values), dtype=float)
-    if group_keys is None:
-        keys = ["all"] * len(values)
-    else:
-        keys = list(group_keys)
-    buckets = defaultdict(list)
-    for i, (g, d) in enumerate(zip(keys, dec)):
-        buckets[(g, int(d))].append(i)
-    fallback = float(np.mean(labels)) if len(labels) else 0.0
-    for i, (g, d) in enumerate(zip(keys, dec)):
-        idx = buckets[(g, int(d))]
-        out[i] = float(np.mean(labels[idx])) if idx else fallback
-    return out
-
-
-def _top_hit_by_trajectory(rows, scores):
-    buckets = defaultdict(list)
-    for i, r in enumerate(rows):
-        buckets[r["trajectory"]].append(i)
-    hits = []
-    bases = []
-    for idx in buckets.values():
-        labels = np.asarray([int(rows[i]["query_positive_label"]) for i in idx], dtype=int)
-        vals = np.asarray([float(scores[i]) for i in idx], dtype=float)
-        top = float(np.max(vals))
-        tied = np.where(np.abs(vals - top) <= 1e-12)[0]
-        hits.append(float(np.mean(labels[tied])) if len(tied) else math.nan)
-        bases.append(float(np.mean(labels)) if len(labels) else math.nan)
-    hit = _mean(hits)
-    base = _mean(bases)
-    return hit, _enrichment(hit, base)
-
-
 def score_underuse_attribution(ctx, island_rows, trajectory_fragmentation_rows):
     by_query = {_query_id(r): r for r in ctx["registry"]}
     rows = []
@@ -579,14 +443,14 @@ def score_underuse_attribution(ctx, island_rows, trajectory_fragmentation_rows):
     for spec in specs:
         score_map = c47_scores.score_values(registry_rows, spec, best_scalarization)
         raw = np.asarray([float(score_map[id(r)]) for r in registry_rows], dtype=float)
-        raw_hit, raw_enrich = _top_hit_by_trajectory(rows, raw)
-        flip_hit, flip_enrich = _top_hit_by_trajectory(rows, -raw)
-        mono = _diagnostic_decile_scores(raw, labels)
-        mono_hit, mono_enrich = _top_hit_by_trajectory(rows, mono)
-        target_diag = _diagnostic_decile_scores(raw, labels, target_keys)
-        target_hit, target_enrich = _top_hit_by_trajectory(rows, target_diag)
-        traj_diag = _diagnostic_decile_scores(raw, labels, trajectory_keys)
-        traj_hit, traj_enrich = _top_hit_by_trajectory(rows, traj_diag)
+        raw_hit, raw_enrich = sd.top_hit_by_trajectory(rows, raw)
+        flip_hit, flip_enrich = sd.top_hit_by_trajectory(rows, -raw)
+        mono = sd.diagnostic_decile_scores(raw, labels)
+        mono_hit, mono_enrich = sd.top_hit_by_trajectory(rows, mono)
+        target_diag = sd.diagnostic_decile_scores(raw, labels, target_keys)
+        target_hit, target_enrich = sd.top_hit_by_trajectory(rows, target_diag)
+        traj_diag = sd.diagnostic_decile_scores(raw, labels, trajectory_keys)
+        traj_hit, traj_enrich = sd.top_hit_by_trajectory(rows, traj_diag)
         raw_gap = oracle_hit - raw_hit if al.finite(oracle_hit) and al.finite(raw_hit) else math.nan
         sign_gap = oracle_hit - flip_hit if al.finite(oracle_hit) and al.finite(flip_hit) else math.nan
         mono_gap = oracle_hit - mono_hit if al.finite(oracle_hit) and al.finite(mono_hit) else math.nan
@@ -618,9 +482,9 @@ def score_underuse_attribution(ctx, island_rows, trajectory_fragmentation_rows):
             "best_target_centered_diagnostic_enrichment": target_enrich,
             "best_trajectory_centered_diagnostic_hit": traj_hit,
             "best_trajectory_centered_diagnostic_enrichment": traj_enrich,
-            "rank_correlation_with_local_island_success": _spearman(raw, island_success),
-            "auc_for_island_success": _auc(raw, island_success),
-            "auprc_for_island_success": _auprc(raw, island_success),
+            "rank_correlation_with_local_island_success": sd.spearman(raw, island_success),
+            "auc_for_island_success": sd.auc(raw, island_success),
+            "auprc_for_island_success": sd.auprc(raw, island_success),
             "oracle_local_bayes_hit": oracle_hit,
             "oracle_local_bayes_enrichment": _enrichment(oracle_hit, oracle_base),
             "mean_underuse_gap_against_c50_local_bayes": raw_gap,
@@ -910,7 +774,7 @@ def run(*, recompute_artifacts=False):
 
 
 def _fmt(x):
-    return "n/a" if not al.finite(x) else f"{float(x):.3f}"
+    return au.fmt3(x)
 
 
 def render_main_md(res):
@@ -981,13 +845,9 @@ _NEG_CUES = ("not ", "no ", "never ", "n't ", "cannot", "without ", "diagnostic"
 
 
 def _guard_forbidden(text):
-    low = text.lower()
-    for s in FORBIDDEN_CLAIM_SUBSTRINGS:
-        i = 0
-        while (i := low.find(s, i)) != -1:
-            if not any(cue in low[max(0, i - 180):i] for cue in _NEG_CUES):
-                raise ValueError(f"forbidden affirmative C51 claim near: {s}")
-            i += len(s)
+    au.guard_forbidden(
+        text, FORBIDDEN_CLAIM_SUBSTRINGS,
+        negation_cues=_NEG_CUES, window=180, label="C51")
 
 
 def _compact_json(res):

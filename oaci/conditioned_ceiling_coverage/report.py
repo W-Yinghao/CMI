@@ -2,39 +2,24 @@
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import math
 import os
 
-from . import (artifact_loader, coverage_curve, schema, source_space_registry,
+from . import (artifact_loader, audit_utils as au, coverage_curve, schema, source_space_registry,
                stability, taxonomy)
 
 
 def _lock_config():
-    got = schema.frozen_config_hash()
-    if got != schema.LOCKED_C19_CONFIG_HASH:
-        raise ValueError(f"C49 requires frozen C19 config {schema.LOCKED_C19_CONFIG_HASH}; got {got}")
-    return got
+    return au.lock_config("C49")
 
 
 def _writecsv(path, rows, cols):
-    def clean(v):
-        if isinstance(v, bool):
-            return int(v)
-        if isinstance(v, float) and not math.isfinite(v):
-            return ""
-        return v
-    with open(path, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
-        w.writeheader()
-        for r in rows:
-            w.writerow({c: clean(r.get(c)) for c in cols})
+    return au.write_csv(path, rows, cols)
 
 
 def _readcsv(path):
-    with open(path, newline="") as f:
-        return list(csv.DictReader(f))
+    return au.read_csv(path)
 
 
 def _f(x):
@@ -335,13 +320,9 @@ _NEG_CUES = ("not ", "no ", "never ", "n't ", "cannot", "without ", "diagnostic"
 
 
 def _guard_forbidden(text):
-    low = text.lower()
-    for s in schema.FORBIDDEN_CLAIM_SUBSTRINGS:
-        i = 0
-        while (i := low.find(s, i)) != -1:
-            if not any(cue in low[max(0, i - 160):i] for cue in _NEG_CUES):
-                raise ValueError(f"forbidden affirmative C49 claim near: {s}")
-            i += len(s)
+    au.guard_forbidden(
+        text, schema.FORBIDDEN_CLAIM_SUBSTRINGS,
+        negation_cues=_NEG_CUES, window=160, label="C49")
 
 
 def _compact_json(res):

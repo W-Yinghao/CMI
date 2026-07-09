@@ -2,7 +2,6 @@
 from __future__ import annotations
 
 import argparse
-import csv
 import json
 import math
 import os
@@ -13,6 +12,9 @@ import numpy as np
 from ..conditioned_actionability import score_registry as c47_scores
 from ..conditioned_local_ceiling import local_ceiling as c48_local
 from . import artifact_loader as al
+from . import audit_utils as au
+from . import island_metrics
+from . import locked_witness
 from . import schema as c49_schema
 from . import source_space_registry
 
@@ -20,11 +22,11 @@ from . import source_space_registry
 REPORT_JSON = "oaci/reports/C50_CONDITIONED_ISLAND_MORPHOLOGY.json"
 TABLE_DIR = "oaci/reports/c50_tables"
 
-WITNESS_SCOPE = "within_target"
-WITNESS_SOURCE_SPACE = "all_source_objectives"
-WITNESS_NEIGHBORHOOD = "eps_q20"
-WITNESS_MIN_NEIGHBOR_COUNT = 1
-WITNESS_LABEL = "primary_joint_good"
+WITNESS_SCOPE = locked_witness.WITNESS_SCOPE
+WITNESS_SOURCE_SPACE = locked_witness.WITNESS_SOURCE_SPACE
+WITNESS_NEIGHBORHOOD = locked_witness.WITNESS_NEIGHBORHOOD
+WITNESS_MIN_NEIGHBOR_COUNT = locked_witness.WITNESS_MIN_NEIGHBOR_COUNT
+WITNESS_LABEL = locked_witness.WITNESS_LABEL
 
 COVERAGE_GATE = 0.50
 HIT_GATE = c49_schema.RELIABLE_TOP1_HIT_GATE
@@ -46,109 +48,47 @@ FORBIDDEN_CLAIM_SUBSTRINGS = c49_schema.FORBIDDEN_CLAIM_SUBSTRINGS + (
 
 
 def _lock_config():
-    got = c49_schema.frozen_config_hash()
-    if got != c49_schema.LOCKED_C19_CONFIG_HASH:
-        raise ValueError(f"C50 requires frozen C19 config {c49_schema.LOCKED_C19_CONFIG_HASH}; got {got}")
-    return got
+    return au.lock_config("C50")
 
 
 def _readcsv(path):
-    with open(path, newline="") as f:
-        return list(csv.DictReader(f))
+    return au.read_csv(path)
 
 
 def _writecsv(path, rows, cols):
-    def clean(v):
-        if isinstance(v, bool):
-            return int(v)
-        if isinstance(v, float) and not math.isfinite(v):
-            return ""
-        return v
-    with open(path, "w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=cols, extrasaction="ignore", lineterminator="\n")
-        w.writeheader()
-        for r in rows:
-            w.writerow({c: clean(r.get(c)) for c in cols})
+    return au.write_csv(path, rows, cols)
 
 
 def _f(x, default=math.nan):
-    return al.as_float(x, default)
+    return au.as_float(x, default)
 
 
 def _finite_mean(vals):
-    return al.finite_mean(vals)
+    return au.finite_mean(vals)
 
 
 def _finite_median(vals):
-    return al.finite_median(vals)
+    return au.finite_median(vals)
 
 
 def _finite_quantile(vals, q):
-    return al.finite_quantile(vals, q)
+    return au.finite_quantile(vals, q)
 
 
 def _enrichment(hit, base):
-    return hit / base if al.finite(hit) and al.finite(base) and float(base) > 0 else math.nan
+    return au.enrichment(hit, base)
 
 
 def _row_group_key(row, group_type):
-    if group_type == "target":
-        return str(row["target"])
-    if group_type == "trajectory":
-        return row.get("trajectory_id", row.get("trajectory"))
-    if group_type == "seed":
-        return str(row["seed"])
-    if group_type == "level":
-        return str(row["level"])
-    if group_type == "regime":
-        return row["regime"]
-    if group_type == "conditioned_key":
-        return str(row["target"])
-    raise ValueError(group_type)
+    return au.row_group_key(row, group_type)
 
 
 def _query_id(row):
-    return f"c50q_{int(row['source_idx']):04d}"
+    return au.query_id(row)
 
 
 def _c49_locked_witness():
-    c49 = json.load(open("oaci/reports/C49_SPARSE_LOCAL_BAYES_COVERAGE_AUDIT.json"))
-    metrics = c49["taxonomy"]["primary_metrics"]
-    required = {
-        "coverage50_best_scope": WITNESS_SCOPE,
-        "coverage50_best_source_space": WITNESS_SOURCE_SPACE,
-        "coverage50_best_neighborhood": WITNESS_NEIGHBORHOOD,
-        "coverage50_best_min_neighbor_count": WITNESS_MIN_NEIGHBOR_COUNT,
-    }
-    for key, expected in required.items():
-        if metrics.get(key) != expected:
-            raise ValueError(f"C50 locked witness mismatch for {key}: {metrics.get(key)} != {expected}")
-    rows = [
-        r for r in _readcsv(os.path.join(c49_schema.C49_TABLE_DIR, "coverage_accuracy_curve.csv"))
-        if r["group_scope"] == WITNESS_SCOPE and
-        r["source_space"] == WITNESS_SOURCE_SPACE and
-        r["neighborhood"] == WITNESS_NEIGHBORHOOD and
-        int(float(r["min_neighbor_count"])) == WITNESS_MIN_NEIGHBOR_COUNT and
-        r["label"] == WITNESS_LABEL
-    ]
-    if len(rows) != 1:
-        raise ValueError(f"C50 expected exactly one C49 locked witness row, got {len(rows)}")
-    row = rows[0]
-    return {
-        "condition_scope": WITNESS_SCOPE,
-        "source_space": WITNESS_SOURCE_SPACE,
-        "neighborhood": WITNESS_NEIGHBORHOOD,
-        "neighborhood_kind": row["neighborhood_kind"],
-        "epsilon_radius": _f(row["neighborhood_value"]),
-        "min_neighbor_count": WITNESS_MIN_NEIGHBOR_COUNT,
-        "label": WITNESS_LABEL,
-        "c49_hit": _f(row["mean_local_bayes_top1_hit"]),
-        "c49_coverage": _f(row["mean_coverage"]),
-        "c49_enrichment": _f(row["mean_local_bayes_enrichment"]),
-        "c49_mean_neighbor_count": _f(row["mean_neighbor_count"]),
-        "c49_covered_base_rate": _f(row["mean_covered_base_rate"]),
-        "inherited_from_c49_commit": "b0d7831",
-    }
+    return locked_witness.c49_locked_witness()
 
 
 def _group_fields(row, conditioned_key):
@@ -227,56 +167,12 @@ def locked_islands(ctx, space, witness):
 
 
 def _local_bayes_hit(rows):
-    covered = [r for r in rows if int(r["covered"])]
-    if not covered:
-        return math.nan, math.nan, 0
-    max_p = max(float(r["neighbor_positive_rate"]) for r in covered if al.finite(r["neighbor_positive_rate"]))
-    tied = [r for r in covered if abs(float(r["neighbor_positive_rate"]) - max_p) <= 1e-12]
-    return float(np.mean([int(r["query_positive_label"]) for r in tied])), max_p, len(tied)
+    return island_metrics.local_bayes_hit(rows)
 
 
 def group_fragmentation(island_rows):
-    out = []
-    for group_type in GROUP_TYPES:
-        buckets = defaultdict(list)
-        for r in island_rows:
-            buckets[_row_group_key(r, group_type)].append(r)
-        for group_key, rows in sorted(buckets.items()):
-            n = len(rows)
-            n_covered = sum(int(r["covered"]) for r in rows)
-            coverage = n_covered / n if n else math.nan
-            labels = [int(r["query_positive_label"]) for r in rows]
-            base = float(np.mean(labels)) if labels else math.nan
-            hit, max_p, tie_count = _local_bayes_hit(rows)
-            lift = hit - base if al.finite(hit) and al.finite(base) else math.nan
-            enrich = _enrichment(hit, base)
-            neighbor_counts = [int(r["neighbors_n"]) for r in rows]
-            row = {
-                "group_type": group_type,
-                "group_key": group_key,
-                "n_queries": n,
-                "n_covered": n_covered,
-                "coverage": coverage,
-                "hit_rate_if_covered": hit,
-                "base_rate": base,
-                "absolute_lift": lift,
-                "enrichment": enrich,
-                "max_neighbor_positive_rate": max_p,
-                "local_bayes_tie_count": tie_count,
-                "mean_neighbor_count": _finite_mean(neighbor_counts),
-                "median_neighbor_count": _finite_median(neighbor_counts),
-                "empty_fraction": float(np.mean([int(r["neighbors_n"]) == 0 for r in rows])) if rows else math.nan,
-                "min_neighbor_count": min(neighbor_counts) if neighbor_counts else math.nan,
-                "max_neighbor_count": max(neighbor_counts) if neighbor_counts else math.nan,
-                "actionability_pass": int(
-                    al.finite(coverage) and coverage >= COVERAGE_GATE and
-                    al.finite(hit) and hit >= HIT_GATE and
-                    al.finite(enrich) and enrich >= ENRICHMENT_GATE
-                ),
-                "target_labels_diagnostic_only": 1,
-            }
-            out.append(row)
-    return out
+    return island_metrics.group_fragmentation(
+        island_rows, GROUP_TYPES, COVERAGE_GATE, HIT_GATE, ENRICHMENT_GATE)
 
 
 def _rank_percentile(scores, covered_idx, idx):
@@ -707,7 +603,7 @@ def run(*, recompute_artifacts=False):
 
 
 def _f3(x):
-    return "n/a" if not al.finite(x) else f"{float(x):.3f}"
+    return au.fmt3(x)
 
 
 def render_main_md(res):
@@ -787,13 +683,9 @@ _NEG_CUES = ("not ", "no ", "never ", "n't ", "cannot", "without ", "diagnostic"
 
 
 def _guard_forbidden(text):
-    low = text.lower()
-    for s in FORBIDDEN_CLAIM_SUBSTRINGS:
-        i = 0
-        while (i := low.find(s, i)) != -1:
-            if not any(cue in low[max(0, i - 180):i] for cue in _NEG_CUES):
-                raise ValueError(f"forbidden affirmative C50 claim near: {s}")
-            i += len(s)
+    au.guard_forbidden(
+        text, FORBIDDEN_CLAIM_SUBSTRINGS,
+        negation_cues=_NEG_CUES, window=180, label="C50")
 
 
 def _compact_json(res):
