@@ -1,0 +1,9 @@
+information_class,definition,empirical_status,supporting_milestones,sufficiency_boundary
+I0_random_or_tie,random/tie and cell base-rate baselines,baseline only,"C42,C52,C55",not sufficient
+I1_strict_source_observables,source-only risk/rank/leakage/objective fields,weak signal,"C42,C43,C44",not reliable
+I2_source_plus_target_or_trajectory_keys,source fields plus target/trajectory keys,key-only insufficient,C52,not sufficient
+I3_target_unlabeled_transductive_geometry,unlabeled target geometry and confidence fields,diagnostic but not rescue,"C25,C35,C52",not sufficient
+I4_target_grouped_zero_label_structure,target/trajectory grouped diagnostic structure,descriptive and diagnostic,C46-C50,not an available action rule
+I5_few_label_or_split_label_calibration,split-label/few-label calibration,not evaluated,C53-C55,open future
+I6_target_label_diagnostic_content,target-label-derived diagnostic content,closes residual diagnostically,"C52,C53",diagnostic only
+I7_same_label_endpoint_oracle,same-label endpoint scalar or margin,tautological closure,"C54,C55",diagnostic endpoint oracle

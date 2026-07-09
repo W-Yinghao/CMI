@@ -1,0 +1,7 @@
+claim_id,claim,supporting_milestones,support_status,claim_boundary
+good_checkpoints_exist,Good checkpoints are present but source-side localization is unreliable.,"C31,C42",supported,Not a claim that good checkpoints are absent.
+source_measurements_real_not_control,Source observables contain weak signal but do not form reliable target-good controls.,"C42,C43,C44",supported,Not a source-only rescue.
+conditioning_descriptive_not_action_rule,Conditioning reveals local diagnostic islands but not broad actionability.,C46-C50,supported,Target/trajectory conditioning changes the problem class.
+key_only_escape_hatch_closed,Target/trajectory keys alone do not recover the residual.,C52,supported,Label-derived diagnostics are separate.
+endpoint_oracle_boundary,Strong endpoint closure is same-label target endpoint information.,"C54,C55",supported,Unavailable under original source-only DG.
+split_label_unresolved,Few-label/split-label sufficiency is not established.,C53-C55,supported_boundary,Requires future split-label cache.

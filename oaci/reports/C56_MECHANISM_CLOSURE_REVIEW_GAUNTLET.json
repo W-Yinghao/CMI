@@ -1,0 +1,121 @@
+{
+  "c55_null_disambiguation": {
+    "endpoint_scalar_transfer_beats_max_null_p95": true,
+    "endpoint_scalar_transfer_hit": 0.9444444444444444,
+    "max_null_p95": 0.7712962962962961,
+    "template_only_beats_max_null_p95": false,
+    "template_only_hit": 0.7037037037037037
+  },
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "c55_null_ambiguity_resolved": true,
+    "mechanism_closed": true,
+    "primary": "C56-A_mechanism_closed_ready_for_manuscript_scaffold",
+    "recommended_next_direction": "manuscript/theory scaffold",
+    "red_team_failure_count": 0,
+    "secondary": [
+      "C56-S1_provenance_backed_synthesis",
+      "C56-S2_information_ladder_empirical_not_theorem",
+      "C56-S3_c55_null_ambiguity_resolved",
+      "C56-S4_split_label_future_work_only",
+      "C56-S5_no_new_experiment_needed"
+    ],
+    "untraceable_key_number_count": 0
+  },
+  "diagnostic_only_non_deployable": true,
+  "inherits_from": [
+    "C14-C55"
+  ],
+  "key_number_provenance_count": 35,
+  "mechanism_thesis": {
+    "conditioning_reveals_diagnostic_islands": true,
+    "endpoint_scalar_availability_gap": true,
+    "good_checkpoints_exist": true,
+    "key_only_insufficient": true,
+    "same_label_endpoint_oracle_boundary": true,
+    "source_measurements_real_not_controls": true,
+    "target_label_diagnostic_closure": true
+  },
+  "milestone": "C56",
+  "red_team": [
+    {
+      "check": "all_key_numbers_traceable",
+      "finding": "Every empirical number in the C56 main report is represented in key_number_provenance.csv.",
+      "passed": 1
+    },
+    {
+      "check": "c55_null_ambiguity_resolved",
+      "finding": "Template-only 0.704 is explicitly not compared as a pass against max null p95 0.771.",
+      "passed": 1
+    },
+    {
+      "check": "endpoint_scalar_not_source_available",
+      "finding": "Endpoint-scalar transfer is marked unavailable under original source-only DG.",
+      "passed": 1
+    },
+    {
+      "check": "split_label_not_claimed",
+      "finding": "Split-label/few-label remains future work only.",
+      "passed": 1
+    },
+    {
+      "check": "same_label_oracle_diagnostic_only",
+      "finding": "Same-label endpoint oracle rows are diagnostic-only.",
+      "passed": 1
+    },
+    {
+      "check": "literature_overclaims_blocked",
+      "finding": "Literature rows block universal DG, universal invariance, SOTA, and theorem overclaims.",
+      "passed": 1
+    },
+    {
+      "check": "forbidden_claim_scan_passed",
+      "finding": "Forbidden affirmative claim scan has zero affirmative hits in C56 reports.",
+      "passed": 1
+    },
+    {
+      "check": "no_training_gpu_reinfer",
+      "finding": "C56 reads committed report artifacts only.",
+      "passed": 1
+    },
+    {
+      "check": "no_bnci2014_004_or_seeds_3_4",
+      "finding": "C56 does not add datasets or seeds.",
+      "passed": 1
+    },
+    {
+      "check": "compact_artifacts",
+      "finding": "C56 JSON is compact and row-level evidence lives in c56_tables.",
+      "passed": 1
+    }
+  ],
+  "table_row_counts": {
+    "artifact_manifest": 32,
+    "availability_ledger": 10,
+    "c55_null_provenance": 8,
+    "claim_support_matrix": 6,
+    "claim_to_literature_map": 5,
+    "closed_escape_hatches": 8,
+    "forbidden_claim_scan": 9,
+    "forbidden_literature_overclaims": 4,
+    "information_class_ladder": 8,
+    "key_number_provenance": 35,
+    "large_artifact_scan": 32,
+    "literature_alignment_matrix": 5,
+    "mechanism_edges": 7,
+    "mechanism_nodes": 10,
+    "milestone_evidence_ledger": 42,
+    "non_theorem_guardrails": 4,
+    "open_caveats": 4,
+    "red_team_failure_ledger": 10,
+    "reviewer_answer_evidence_map": 12,
+    "reviewer_question_bank": 12,
+    "schema_validation_summary": 25,
+    "sufficiency_boundary_matrix": 8,
+    "target_label_use_ledger": 10,
+    "taxonomy_timeline": 144,
+    "test_command_manifest": 4,
+    "theory_candidate_statements": 3,
+    "validation_timeline": 42
+  }
+}

@@ -1,0 +1,5 @@
+overclaim,status,reason
+all_DG_fails,blocked,"C56 is an OACI/EEG-DG diagnostic package, not a universal DG statement"
+all_invariance_fails,blocked,IRM and invariant representation work remain positive or conditional reference points
+new_state_of_the_art_method,blocked,C56 creates no method and no benchmark claim
+formal_lower_bound_proved,blocked,lower-bound language is future theorem framing only

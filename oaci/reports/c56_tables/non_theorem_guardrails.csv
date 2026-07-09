@@ -1,0 +1,5 @@
+guardrail_id,guardrail,passed
+no_theorem_claim,C56 uses empirical proposition language only,1
+no_source_only_sufficiency,results using target endpoint labels are diagnostic-only,1
+no_few_label_claim,split_label_budget_available is false,1
+no_oracle_action_rule,same-label endpoint oracle is unavailable at selection time,1

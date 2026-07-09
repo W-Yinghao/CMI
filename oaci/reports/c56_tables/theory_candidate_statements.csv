@@ -1,0 +1,4 @@
+statement_id,status,needed_to_prove,guardrail
+two_mechanism_source_indistinguishability,future theorem candidate,construct same source sigma-field with divergent target endpoints,not proved in C56
+target_endpoint_divergence_under_same_source_field,future theorem candidate,formalize C45-C46 witness style at endpoint level,not proved in C56
+selection_risk_lower_bound,future theorem candidate,bound loss of any source-available action rule under target gauge ambiguity,not proved in C56
