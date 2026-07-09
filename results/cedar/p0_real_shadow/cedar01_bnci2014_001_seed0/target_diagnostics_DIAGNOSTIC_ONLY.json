@@ -1,0 +1,1612 @@
+{
+  "computed_after_source_selection": true,
+  "deployable": false,
+  "phase": "CEDAR_01_real_frozen_latent_shadow",
+  "project": "CEDAR-EEG",
+  "records": [
+    {
+      "backbone": "EEGConformerMini",
+      "baseline": {
+        "bacc": 0.5277777777777778,
+        "ce": 1.3372609765618424,
+        "n_eval": 576,
+        "nll": 1.3372609765618424
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_32",
+          "dropped_units": [
+            9
+          ],
+          "target_bacc_drop": -0.005208333333333259,
+          "target_ce_delta": -0.002907679436272348,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.532986111111111,
+            "ce": 1.33435329712557,
+            "n_eval": 576,
+            "nll": 1.33435329712557
+          },
+          "target_metrics_before": {
+            "bacc": 0.5277777777777778,
+            "ce": 1.3372609765618424,
+            "n_eval": 576,
+            "nll": 1.3372609765618424
+          },
+          "target_nll_delta": -0.002907679436272348
+        },
+        {
+          "candidate_name": "drop_top_2_of_32",
+          "dropped_units": [
+            9,
+            15
+          ],
+          "target_bacc_drop": 0.0017361111111111605,
+          "target_ce_delta": -4.6458756924883104e-05,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5260416666666666,
+            "ce": 1.3372145178049175,
+            "n_eval": 576,
+            "nll": 1.3372145178049175
+          },
+          "target_metrics_before": {
+            "bacc": 0.5277777777777778,
+            "ce": 1.3372609765618424,
+            "n_eval": 576,
+            "nll": 1.3372609765618424
+          },
+          "target_nll_delta": -4.6458756924883104e-05
+        },
+        {
+          "candidate_name": "drop_top_4_of_32",
+          "dropped_units": [
+            9,
+            15,
+            31,
+            30
+          ],
+          "target_bacc_drop": -0.00520833333333337,
+          "target_ce_delta": -0.01351175570432206,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5329861111111112,
+            "ce": 1.3237492208575203,
+            "n_eval": 576,
+            "nll": 1.3237492208575203
+          },
+          "target_metrics_before": {
+            "bacc": 0.5277777777777778,
+            "ce": 1.3372609765618424,
+            "n_eval": 576,
+            "nll": 1.3372609765618424
+          },
+          "target_nll_delta": -0.01351175570432206
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "8277da2aecd76f636e20cb136aab2c529d37766c190d86efa6768c49690f2133",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_1.npz",
+      "fold_id": "1",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "baseline": {
+        "bacc": 0.2951388888888889,
+        "ce": 2.3643790388968973,
+        "n_eval": 576,
+        "nll": 2.3643790388968973
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_32",
+          "dropped_units": [
+            4
+          ],
+          "target_bacc_drop": -0.001736111111111105,
+          "target_ce_delta": 0.0020334597361686413,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.296875,
+            "ce": 2.366412498633066,
+            "n_eval": 576,
+            "nll": 2.366412498633066
+          },
+          "target_metrics_before": {
+            "bacc": 0.2951388888888889,
+            "ce": 2.3643790388968973,
+            "n_eval": 576,
+            "nll": 2.3643790388968973
+          },
+          "target_nll_delta": 0.0020334597361686413
+        },
+        {
+          "candidate_name": "drop_top_2_of_32",
+          "dropped_units": [
+            4,
+            19
+          ],
+          "target_bacc_drop": -0.00347222222222221,
+          "target_ce_delta": -0.007820702321207573,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2986111111111111,
+            "ce": 2.3565583365756897,
+            "n_eval": 576,
+            "nll": 2.3565583365756897
+          },
+          "target_metrics_before": {
+            "bacc": 0.2951388888888889,
+            "ce": 2.3643790388968973,
+            "n_eval": 576,
+            "nll": 2.3643790388968973
+          },
+          "target_nll_delta": -0.007820702321207573
+        },
+        {
+          "candidate_name": "drop_top_4_of_32",
+          "dropped_units": [
+            4,
+            19,
+            31,
+            11
+          ],
+          "target_bacc_drop": 0.001736111111111105,
+          "target_ce_delta": -0.03745601007769128,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2934027777777778,
+            "ce": 2.326923028819206,
+            "n_eval": 576,
+            "nll": 2.326923028819206
+          },
+          "target_metrics_before": {
+            "bacc": 0.2951388888888889,
+            "ce": 2.3643790388968973,
+            "n_eval": 576,
+            "nll": 2.3643790388968973
+          },
+          "target_nll_delta": -0.03745601007769128
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "23230deba0ea0fc6ebf1c34a9f2ae86e3d5a822ca4f0a3e36bfc59f897f22c30",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_2.npz",
+      "fold_id": "2",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "baseline": {
+        "bacc": 0.5260416666666667,
+        "ce": 1.2047206942054924,
+        "n_eval": 576,
+        "nll": 1.2047206942054924
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_32",
+          "dropped_units": [
+            23
+          ],
+          "target_bacc_drop": 0.0,
+          "target_ce_delta": -0.0009747269874884612,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5260416666666667,
+            "ce": 1.203745967218004,
+            "n_eval": 576,
+            "nll": 1.203745967218004
+          },
+          "target_metrics_before": {
+            "bacc": 0.5260416666666667,
+            "ce": 1.2047206942054924,
+            "n_eval": 576,
+            "nll": 1.2047206942054924
+          },
+          "target_nll_delta": -0.0009747269874884612
+        },
+        {
+          "candidate_name": "drop_top_2_of_32",
+          "dropped_units": [
+            23,
+            7
+          ],
+          "target_bacc_drop": -0.0017361111111110494,
+          "target_ce_delta": 0.0028315931793865268,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5277777777777778,
+            "ce": 1.207552287384879,
+            "n_eval": 576,
+            "nll": 1.207552287384879
+          },
+          "target_metrics_before": {
+            "bacc": 0.5260416666666667,
+            "ce": 1.2047206942054924,
+            "n_eval": 576,
+            "nll": 1.2047206942054924
+          },
+          "target_nll_delta": 0.0028315931793865268
+        },
+        {
+          "candidate_name": "drop_top_4_of_32",
+          "dropped_units": [
+            23,
+            7,
+            9,
+            19
+          ],
+          "target_bacc_drop": -0.003472222222222099,
+          "target_ce_delta": 0.0002438026417457273,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5295138888888888,
+            "ce": 1.2049644968472382,
+            "n_eval": 576,
+            "nll": 1.2049644968472382
+          },
+          "target_metrics_before": {
+            "bacc": 0.5260416666666667,
+            "ce": 1.2047206942054924,
+            "n_eval": 576,
+            "nll": 1.2047206942054924
+          },
+          "target_nll_delta": 0.0002438026417457273
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "9293e9f6db29322f48d374cf122eec566dc29543fc90ae05c7ed191b4d88c63a",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_3.npz",
+      "fold_id": "3",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "baseline": {
+        "bacc": 0.3784722222222222,
+        "ce": 2.2877166256883887,
+        "n_eval": 576,
+        "nll": 2.2877166256883887
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_32",
+          "dropped_units": [
+            6
+          ],
+          "target_bacc_drop": 0.00347222222222221,
+          "target_ce_delta": 0.001946265019404425,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.375,
+            "ce": 2.289662890707793,
+            "n_eval": 576,
+            "nll": 2.289662890707793
+          },
+          "target_metrics_before": {
+            "bacc": 0.3784722222222222,
+            "ce": 2.2877166256883887,
+            "n_eval": 576,
+            "nll": 2.2877166256883887
+          },
+          "target_nll_delta": 0.001946265019404425
+        },
+        {
+          "candidate_name": "drop_top_2_of_32",
+          "dropped_units": [
+            6,
+            15
+          ],
+          "target_bacc_drop": -0.001736111111111105,
+          "target_ce_delta": 0.02026549127766719,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3802083333333333,
+            "ce": 2.307982116966056,
+            "n_eval": 576,
+            "nll": 2.307982116966056
+          },
+          "target_metrics_before": {
+            "bacc": 0.3784722222222222,
+            "ce": 2.2877166256883887,
+            "n_eval": 576,
+            "nll": 2.2877166256883887
+          },
+          "target_nll_delta": 0.02026549127766719
+        },
+        {
+          "candidate_name": "drop_top_4_of_32",
+          "dropped_units": [
+            6,
+            15,
+            10,
+            30
+          ],
+          "target_bacc_drop": 0.001736111111111105,
+          "target_ce_delta": 0.025098119354698856,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3767361111111111,
+            "ce": 2.3128147450430876,
+            "n_eval": 576,
+            "nll": 2.3128147450430876
+          },
+          "target_metrics_before": {
+            "bacc": 0.3784722222222222,
+            "ce": 2.2877166256883887,
+            "n_eval": 576,
+            "nll": 2.2877166256883887
+          },
+          "target_nll_delta": 0.025098119354698856
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "a69a1d55f76a48bc95abf3a385a845238879a8fe3aeffe5fd4e5110aac791299",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_4.npz",
+      "fold_id": "4",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "baseline": {
+        "bacc": 0.2847222222222222,
+        "ce": 3.514763859338558,
+        "n_eval": 576,
+        "nll": 3.514763859338558
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_32",
+          "dropped_units": [
+            14
+          ],
+          "target_bacc_drop": 0.0,
+          "target_ce_delta": 0.0008793605572701146,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2847222222222222,
+            "ce": 3.515643219895828,
+            "n_eval": 576,
+            "nll": 3.515643219895828
+          },
+          "target_metrics_before": {
+            "bacc": 0.2847222222222222,
+            "ce": 3.514763859338558,
+            "n_eval": 576,
+            "nll": 3.514763859338558
+          },
+          "target_nll_delta": 0.0008793605572701146
+        },
+        {
+          "candidate_name": "drop_top_2_of_32",
+          "dropped_units": [
+            14,
+            11
+          ],
+          "target_bacc_drop": 0.005208333333333315,
+          "target_ce_delta": -0.04438053303034417,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2795138888888889,
+            "ce": 3.470383326308214,
+            "n_eval": 576,
+            "nll": 3.470383326308214
+          },
+          "target_metrics_before": {
+            "bacc": 0.2847222222222222,
+            "ce": 3.514763859338558,
+            "n_eval": 576,
+            "nll": 3.514763859338558
+          },
+          "target_nll_delta": -0.04438053303034417
+        },
+        {
+          "candidate_name": "drop_top_4_of_32",
+          "dropped_units": [
+            14,
+            11,
+            31,
+            4
+          ],
+          "target_bacc_drop": 0.0017361111111111605,
+          "target_ce_delta": -0.04961628102452531,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.28298611111111105,
+            "ce": 3.4651475783140326,
+            "n_eval": 576,
+            "nll": 3.4651475783140326
+          },
+          "target_metrics_before": {
+            "bacc": 0.2847222222222222,
+            "ce": 3.514763859338558,
+            "n_eval": 576,
+            "nll": 3.514763859338558
+          },
+          "target_nll_delta": -0.04961628102452531
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "962870436f3943a9e3d4382ac711b8c6c3d7bada5ad2969e1f5e65339962b5fd",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_5.npz",
+      "fold_id": "5",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "baseline": {
+        "bacc": 0.2864583333333333,
+        "ce": 3.001599960607644,
+        "n_eval": 576,
+        "nll": 3.001599960607644
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_32",
+          "dropped_units": [
+            3
+          ],
+          "target_bacc_drop": 0.005208333333333315,
+          "target_ce_delta": 0.00046558573599098096,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.28125,
+            "ce": 3.0020655463436348,
+            "n_eval": 576,
+            "nll": 3.0020655463436348
+          },
+          "target_metrics_before": {
+            "bacc": 0.2864583333333333,
+            "ce": 3.001599960607644,
+            "n_eval": 576,
+            "nll": 3.001599960607644
+          },
+          "target_nll_delta": 0.00046558573599098096
+        },
+        {
+          "candidate_name": "drop_top_2_of_32",
+          "dropped_units": [
+            3,
+            1
+          ],
+          "target_bacc_drop": 0.0,
+          "target_ce_delta": 4.069754671487402e-06,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2864583333333333,
+            "ce": 3.0016040303623153,
+            "n_eval": 576,
+            "nll": 3.0016040303623153
+          },
+          "target_metrics_before": {
+            "bacc": 0.2864583333333333,
+            "ce": 3.001599960607644,
+            "n_eval": 576,
+            "nll": 3.001599960607644
+          },
+          "target_nll_delta": 4.069754671487402e-06
+        },
+        {
+          "candidate_name": "drop_top_4_of_32",
+          "dropped_units": [
+            3,
+            1,
+            15,
+            2
+          ],
+          "target_bacc_drop": 0.001736111111111105,
+          "target_ce_delta": -0.005001433575363201,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2847222222222222,
+            "ce": 2.9965985270322806,
+            "n_eval": 576,
+            "nll": 2.9965985270322806
+          },
+          "target_metrics_before": {
+            "bacc": 0.2864583333333333,
+            "ce": 3.001599960607644,
+            "n_eval": 576,
+            "nll": 3.001599960607644
+          },
+          "target_nll_delta": -0.005001433575363201
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "b0d3f596774888cf9cc84b2101584518bea5b81638921a33b32c52a2884650bb",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_6.npz",
+      "fold_id": "6",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "baseline": {
+        "bacc": 0.34201388888888884,
+        "ce": 1.9611497716756325,
+        "n_eval": 576,
+        "nll": 1.9611497716756325
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_32",
+          "dropped_units": [
+            4
+          ],
+          "target_bacc_drop": 0.0017361111111110494,
+          "target_ce_delta": 0.006261362404649473,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3402777777777778,
+            "ce": 1.967411134080282,
+            "n_eval": 576,
+            "nll": 1.967411134080282
+          },
+          "target_metrics_before": {
+            "bacc": 0.34201388888888884,
+            "ce": 1.9611497716756325,
+            "n_eval": 576,
+            "nll": 1.9611497716756325
+          },
+          "target_nll_delta": 0.006261362404649473
+        },
+        {
+          "candidate_name": "drop_top_2_of_32",
+          "dropped_units": [
+            4,
+            17
+          ],
+          "target_bacc_drop": -5.551115123125783e-17,
+          "target_ce_delta": 0.0030767108351927863,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3420138888888889,
+            "ce": 1.9642264825108253,
+            "n_eval": 576,
+            "nll": 1.9642264825108253
+          },
+          "target_metrics_before": {
+            "bacc": 0.34201388888888884,
+            "ce": 1.9611497716756325,
+            "n_eval": 576,
+            "nll": 1.9611497716756325
+          },
+          "target_nll_delta": 0.0030767108351927863
+        },
+        {
+          "candidate_name": "drop_top_4_of_32",
+          "dropped_units": [
+            4,
+            17,
+            10,
+            27
+          ],
+          "target_bacc_drop": -5.551115123125783e-17,
+          "target_ce_delta": 0.0022671134766723,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3420138888888889,
+            "ce": 1.9634168851523048,
+            "n_eval": 576,
+            "nll": 1.9634168851523048
+          },
+          "target_metrics_before": {
+            "bacc": 0.34201388888888884,
+            "ce": 1.9611497716756325,
+            "n_eval": 576,
+            "nll": 1.9611497716756325
+          },
+          "target_nll_delta": 0.0022671134766723
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "6bf8e1b77697afba6588550497ed6cfb6a631a1ef1f6f87c5e7d97f04048613f",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_7.npz",
+      "fold_id": "7",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "baseline": {
+        "bacc": 0.654513888888889,
+        "ce": 1.1603069139474669,
+        "n_eval": 576,
+        "nll": 1.1603069139474669
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_32",
+          "dropped_units": [
+            9
+          ],
+          "target_bacc_drop": -0.0017361111111110494,
+          "target_ce_delta": 0.0008267144919720248,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.65625,
+            "ce": 1.161133628439439,
+            "n_eval": 576,
+            "nll": 1.161133628439439
+          },
+          "target_metrics_before": {
+            "bacc": 0.654513888888889,
+            "ce": 1.1603069139474669,
+            "n_eval": 576,
+            "nll": 1.1603069139474669
+          },
+          "target_nll_delta": 0.0008267144919720248
+        },
+        {
+          "candidate_name": "drop_top_2_of_32",
+          "dropped_units": [
+            9,
+            15
+          ],
+          "target_bacc_drop": 1.1102230246251565e-16,
+          "target_ce_delta": -0.0007375981547754762,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.6545138888888888,
+            "ce": 1.1595693157926914,
+            "n_eval": 576,
+            "nll": 1.1595693157926914
+          },
+          "target_metrics_before": {
+            "bacc": 0.654513888888889,
+            "ce": 1.1603069139474669,
+            "n_eval": 576,
+            "nll": 1.1603069139474669
+          },
+          "target_nll_delta": -0.0007375981547754762
+        },
+        {
+          "candidate_name": "drop_top_4_of_32",
+          "dropped_units": [
+            9,
+            15,
+            27,
+            13
+          ],
+          "target_bacc_drop": 1.1102230246251565e-16,
+          "target_ce_delta": -0.0031650227539929965,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.6545138888888888,
+            "ce": 1.1571418911934739,
+            "n_eval": 576,
+            "nll": 1.1571418911934739
+          },
+          "target_metrics_before": {
+            "bacc": 0.654513888888889,
+            "ce": 1.1603069139474669,
+            "n_eval": 576,
+            "nll": 1.1603069139474669
+          },
+          "target_nll_delta": -0.0031650227539929965
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "0c2dcaaf996df468b4a8a2f3a21896570ee4756f800f85ae5f546474be80fa4d",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_8.npz",
+      "fold_id": "8",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "baseline": {
+        "bacc": 0.49479166666666663,
+        "ce": 1.7506918743070548,
+        "n_eval": 576,
+        "nll": 1.7506918743070548
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_32",
+          "dropped_units": [
+            4
+          ],
+          "target_bacc_drop": -0.0017361111111111605,
+          "target_ce_delta": -0.017693132485496532,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.4965277777777778,
+            "ce": 1.7329987418215582,
+            "n_eval": 576,
+            "nll": 1.7329987418215582
+          },
+          "target_metrics_before": {
+            "bacc": 0.49479166666666663,
+            "ce": 1.7506918743070548,
+            "n_eval": 576,
+            "nll": 1.7506918743070548
+          },
+          "target_nll_delta": -0.017693132485496532
+        },
+        {
+          "candidate_name": "drop_top_2_of_32",
+          "dropped_units": [
+            4,
+            28
+          ],
+          "target_bacc_drop": -0.003472222222222321,
+          "target_ce_delta": -0.019892794505961486,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.49826388888888895,
+            "ce": 1.7307990798010933,
+            "n_eval": 576,
+            "nll": 1.7307990798010933
+          },
+          "target_metrics_before": {
+            "bacc": 0.49479166666666663,
+            "ce": 1.7506918743070548,
+            "n_eval": 576,
+            "nll": 1.7506918743070548
+          },
+          "target_nll_delta": -0.019892794505961486
+        },
+        {
+          "candidate_name": "drop_top_4_of_32",
+          "dropped_units": [
+            4,
+            28,
+            31,
+            25
+          ],
+          "target_bacc_drop": -0.00520833333333337,
+          "target_ce_delta": -0.030606303543785796,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5,
+            "ce": 1.720085570763269,
+            "n_eval": 576,
+            "nll": 1.720085570763269
+          },
+          "target_metrics_before": {
+            "bacc": 0.49479166666666663,
+            "ce": 1.7506918743070548,
+            "n_eval": 576,
+            "nll": 1.7506918743070548
+          },
+          "target_nll_delta": -0.030606303543785796
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "59c626d1ba3c4c692fb72cc9b433a44e1301e58b212e14e07edaa2d3d4cebebd",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_9.npz",
+      "fold_id": "9",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGNetMini",
+      "baseline": {
+        "bacc": 0.4652777777777778,
+        "ce": 1.3868851123894201,
+        "n_eval": 576,
+        "nll": 1.3868851123894201
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_16",
+          "dropped_units": [
+            15
+          ],
+          "target_bacc_drop": -0.00520833333333337,
+          "target_ce_delta": -3.1770168086531214e-05,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.47048611111111116,
+            "ce": 1.3868533422213336,
+            "n_eval": 576,
+            "nll": 1.3868533422213336
+          },
+          "target_metrics_before": {
+            "bacc": 0.4652777777777778,
+            "ce": 1.3868851123894201,
+            "n_eval": 576,
+            "nll": 1.3868851123894201
+          },
+          "target_nll_delta": -3.1770168086531214e-05
+        },
+        {
+          "candidate_name": "drop_top_2_of_16",
+          "dropped_units": [
+            15,
+            13
+          ],
+          "target_bacc_drop": 0.0,
+          "target_ce_delta": -0.00018033425921548663,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.4652777777777778,
+            "ce": 1.3867047781302047,
+            "n_eval": 576,
+            "nll": 1.3867047781302047
+          },
+          "target_metrics_before": {
+            "bacc": 0.4652777777777778,
+            "ce": 1.3868851123894201,
+            "n_eval": 576,
+            "nll": 1.3868851123894201
+          },
+          "target_nll_delta": -0.00018033425921548663
+        },
+        {
+          "candidate_name": "drop_top_4_of_16",
+          "dropped_units": [
+            15,
+            13,
+            11,
+            5
+          ],
+          "target_bacc_drop": 0.008680555555555525,
+          "target_ce_delta": 0.038221385218570436,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.45659722222222227,
+            "ce": 1.4251064976079906,
+            "n_eval": 576,
+            "nll": 1.4251064976079906
+          },
+          "target_metrics_before": {
+            "bacc": 0.4652777777777778,
+            "ce": 1.3868851123894201,
+            "n_eval": 576,
+            "nll": 1.3868851123894201
+          },
+          "target_nll_delta": 0.038221385218570436
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "93fe6b326cc721570287883d3bc883e80a825f33c075f9aacf768b0df0cb9510",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_1.npz",
+      "fold_id": "1",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGNetMini",
+      "baseline": {
+        "bacc": 0.3055555555555556,
+        "ce": 1.7531517797268232,
+        "n_eval": 576,
+        "nll": 1.7531517797268232
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_16",
+          "dropped_units": [
+            11
+          ],
+          "target_bacc_drop": 0.0,
+          "target_ce_delta": -0.003702243377583736,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3055555555555556,
+            "ce": 1.7494495363492395,
+            "n_eval": 576,
+            "nll": 1.7494495363492395
+          },
+          "target_metrics_before": {
+            "bacc": 0.3055555555555556,
+            "ce": 1.7531517797268232,
+            "n_eval": 576,
+            "nll": 1.7531517797268232
+          },
+          "target_nll_delta": -0.003702243377583736
+        },
+        {
+          "candidate_name": "drop_top_2_of_16",
+          "dropped_units": [
+            11,
+            14
+          ],
+          "target_bacc_drop": 5.551115123125783e-17,
+          "target_ce_delta": -0.00400122493445787,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3055555555555555,
+            "ce": 1.7491505547923654,
+            "n_eval": 576,
+            "nll": 1.7491505547923654
+          },
+          "target_metrics_before": {
+            "bacc": 0.3055555555555556,
+            "ce": 1.7531517797268232,
+            "n_eval": 576,
+            "nll": 1.7531517797268232
+          },
+          "target_nll_delta": -0.00400122493445787
+        },
+        {
+          "candidate_name": "drop_top_4_of_16",
+          "dropped_units": [
+            11,
+            14,
+            6,
+            2
+          ],
+          "target_bacc_drop": 0.010416666666666685,
+          "target_ce_delta": -0.014293870476356219,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2951388888888889,
+            "ce": 1.738857909250467,
+            "n_eval": 576,
+            "nll": 1.738857909250467
+          },
+          "target_metrics_before": {
+            "bacc": 0.3055555555555556,
+            "ce": 1.7531517797268232,
+            "n_eval": 576,
+            "nll": 1.7531517797268232
+          },
+          "target_nll_delta": -0.014293870476356219
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "57956ea0a7d79fc6e2a12897e000cca5460fa30b60b8ed8b6610a8c6cfd794cc",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_2.npz",
+      "fold_id": "2",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGNetMini",
+      "baseline": {
+        "bacc": 0.4375,
+        "ce": 1.1839085363335708,
+        "n_eval": 576,
+        "nll": 1.1839085363335708
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_16",
+          "dropped_units": [
+            15
+          ],
+          "target_bacc_drop": -0.005208333333333315,
+          "target_ce_delta": -0.01418732709668169,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.4427083333333333,
+            "ce": 1.1697212092368892,
+            "n_eval": 576,
+            "nll": 1.1697212092368892
+          },
+          "target_metrics_before": {
+            "bacc": 0.4375,
+            "ce": 1.1839085363335708,
+            "n_eval": 576,
+            "nll": 1.1839085363335708
+          },
+          "target_nll_delta": -0.01418732709668169
+        },
+        {
+          "candidate_name": "drop_top_2_of_16",
+          "dropped_units": [
+            15,
+            14
+          ],
+          "target_bacc_drop": 0.00520833333333337,
+          "target_ce_delta": -0.004729863842672488,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.43229166666666663,
+            "ce": 1.1791786724908984,
+            "n_eval": 576,
+            "nll": 1.1791786724908984
+          },
+          "target_metrics_before": {
+            "bacc": 0.4375,
+            "ce": 1.1839085363335708,
+            "n_eval": 576,
+            "nll": 1.1839085363335708
+          },
+          "target_nll_delta": -0.004729863842672488
+        },
+        {
+          "candidate_name": "drop_top_4_of_16",
+          "dropped_units": [
+            15,
+            14,
+            6,
+            11
+          ],
+          "target_bacc_drop": 0.00347222222222221,
+          "target_ce_delta": -0.003508486244539588,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.4340277777777778,
+            "ce": 1.1804000500890313,
+            "n_eval": 576,
+            "nll": 1.1804000500890313
+          },
+          "target_metrics_before": {
+            "bacc": 0.4375,
+            "ce": 1.1839085363335708,
+            "n_eval": 576,
+            "nll": 1.1839085363335708
+          },
+          "target_nll_delta": -0.003508486244539588
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "e024ae389be1db0814a44ddd777f04e4da9e1d69c43202b8e11fe8dce9b803c3",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_3.npz",
+      "fold_id": "3",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGNetMini",
+      "baseline": {
+        "bacc": 0.3072916666666667,
+        "ce": 1.5084548210295476,
+        "n_eval": 576,
+        "nll": 1.5084548210295476
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_16",
+          "dropped_units": [
+            6
+          ],
+          "target_bacc_drop": -0.00347222222222221,
+          "target_ce_delta": -0.001637737428379582,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3107638888888889,
+            "ce": 1.506817083601168,
+            "n_eval": 576,
+            "nll": 1.506817083601168
+          },
+          "target_metrics_before": {
+            "bacc": 0.3072916666666667,
+            "ce": 1.5084548210295476,
+            "n_eval": 576,
+            "nll": 1.5084548210295476
+          },
+          "target_nll_delta": -0.001637737428379582
+        },
+        {
+          "candidate_name": "drop_top_2_of_16",
+          "dropped_units": [
+            6,
+            14
+          ],
+          "target_bacc_drop": -0.01215277777777779,
+          "target_ce_delta": 0.02680815615352472,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3194444444444445,
+            "ce": 1.5352629771830724,
+            "n_eval": 576,
+            "nll": 1.5352629771830724
+          },
+          "target_metrics_before": {
+            "bacc": 0.3072916666666667,
+            "ce": 1.5084548210295476,
+            "n_eval": 576,
+            "nll": 1.5084548210295476
+          },
+          "target_nll_delta": 0.02680815615352472
+        },
+        {
+          "candidate_name": "drop_top_4_of_16",
+          "dropped_units": [
+            6,
+            14,
+            15,
+            12
+          ],
+          "target_bacc_drop": -0.012152777777777735,
+          "target_ce_delta": 0.004325205219849693,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3194444444444444,
+            "ce": 1.5127800262493973,
+            "n_eval": 576,
+            "nll": 1.5127800262493973
+          },
+          "target_metrics_before": {
+            "bacc": 0.3072916666666667,
+            "ce": 1.5084548210295476,
+            "n_eval": 576,
+            "nll": 1.5084548210295476
+          },
+          "target_nll_delta": 0.004325205219849693
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "f54494786c231aa74bbd0c02a0867eef83fdef0ff3544654376a19dd88ee4786",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_4.npz",
+      "fold_id": "4",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGNetMini",
+      "baseline": {
+        "bacc": 0.2725694444444444,
+        "ce": 2.270410496324945,
+        "n_eval": 576,
+        "nll": 2.270410496324945
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_16",
+          "dropped_units": [
+            6
+          ],
+          "target_bacc_drop": -0.0034722222222222654,
+          "target_ce_delta": -0.005275948386890494,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2760416666666667,
+            "ce": 2.2651345479380547,
+            "n_eval": 576,
+            "nll": 2.2651345479380547
+          },
+          "target_metrics_before": {
+            "bacc": 0.2725694444444444,
+            "ce": 2.270410496324945,
+            "n_eval": 576,
+            "nll": 2.270410496324945
+          },
+          "target_nll_delta": -0.005275948386890494
+        },
+        {
+          "candidate_name": "drop_top_2_of_16",
+          "dropped_units": [
+            6,
+            12
+          ],
+          "target_bacc_drop": 0.001736111111111105,
+          "target_ce_delta": -0.004244450783238207,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2708333333333333,
+            "ce": 2.266166045541707,
+            "n_eval": 576,
+            "nll": 2.266166045541707
+          },
+          "target_metrics_before": {
+            "bacc": 0.2725694444444444,
+            "ce": 2.270410496324945,
+            "n_eval": 576,
+            "nll": 2.270410496324945
+          },
+          "target_nll_delta": -0.004244450783238207
+        },
+        {
+          "candidate_name": "drop_top_4_of_16",
+          "dropped_units": [
+            6,
+            12,
+            11,
+            15
+          ],
+          "target_bacc_drop": 0.0,
+          "target_ce_delta": 0.002951047297005349,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2725694444444444,
+            "ce": 2.2733615436219505,
+            "n_eval": 576,
+            "nll": 2.2733615436219505
+          },
+          "target_metrics_before": {
+            "bacc": 0.2725694444444444,
+            "ce": 2.270410496324945,
+            "n_eval": 576,
+            "nll": 2.270410496324945
+          },
+          "target_nll_delta": 0.002951047297005349
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "f51a817595bfbbefa21dcde61069427ebb93f56be11b583ab6d9ec64b1dcfa78",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_5.npz",
+      "fold_id": "5",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGNetMini",
+      "baseline": {
+        "bacc": 0.2725694444444444,
+        "ce": 2.9733305749774974,
+        "n_eval": 576,
+        "nll": 2.9733305749774974
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_16",
+          "dropped_units": [
+            6
+          ],
+          "target_bacc_drop": 0.005208333333333315,
+          "target_ce_delta": 0.04822418444462828,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2673611111111111,
+            "ce": 3.0215547594221257,
+            "n_eval": 576,
+            "nll": 3.0215547594221257
+          },
+          "target_metrics_before": {
+            "bacc": 0.2725694444444444,
+            "ce": 2.9733305749774974,
+            "n_eval": 576,
+            "nll": 2.9733305749774974
+          },
+          "target_nll_delta": 0.04822418444462828
+        },
+        {
+          "candidate_name": "drop_top_2_of_16",
+          "dropped_units": [
+            6,
+            14
+          ],
+          "target_bacc_drop": 0.005208333333333315,
+          "target_ce_delta": 0.055730773864158145,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2673611111111111,
+            "ce": 3.0290613488416556,
+            "n_eval": 576,
+            "nll": 3.0290613488416556
+          },
+          "target_metrics_before": {
+            "bacc": 0.2725694444444444,
+            "ce": 2.9733305749774974,
+            "n_eval": 576,
+            "nll": 2.9733305749774974
+          },
+          "target_nll_delta": 0.055730773864158145
+        },
+        {
+          "candidate_name": "drop_top_4_of_16",
+          "dropped_units": [
+            6,
+            14,
+            11,
+            3
+          ],
+          "target_bacc_drop": -0.0017361111111111605,
+          "target_ce_delta": 0.00857904962529199,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.2743055555555556,
+            "ce": 2.9819096246027894,
+            "n_eval": 576,
+            "nll": 2.9819096246027894
+          },
+          "target_metrics_before": {
+            "bacc": 0.2725694444444444,
+            "ce": 2.9733305749774974,
+            "n_eval": 576,
+            "nll": 2.9733305749774974
+          },
+          "target_nll_delta": 0.00857904962529199
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "97d836586a6d8c344d393be67b10a1e1cf417ad2f9b4ccd6e54dec3ed7c40022",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_6.npz",
+      "fold_id": "6",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGNetMini",
+      "baseline": {
+        "bacc": 0.34548611111111116,
+        "ce": 1.7264234024955452,
+        "n_eval": 576,
+        "nll": 1.7264234024955452
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_16",
+          "dropped_units": [
+            12
+          ],
+          "target_bacc_drop": -0.01041666666666663,
+          "target_ce_delta": -0.012006844873143185,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3559027777777778,
+            "ce": 1.714416557622402,
+            "n_eval": 576,
+            "nll": 1.714416557622402
+          },
+          "target_metrics_before": {
+            "bacc": 0.34548611111111116,
+            "ce": 1.7264234024955452,
+            "n_eval": 576,
+            "nll": 1.7264234024955452
+          },
+          "target_nll_delta": -0.012006844873143185
+        },
+        {
+          "candidate_name": "drop_top_2_of_16",
+          "dropped_units": [
+            12,
+            11
+          ],
+          "target_bacc_drop": -0.006944444444444364,
+          "target_ce_delta": -0.015327876401764806,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3524305555555555,
+            "ce": 1.7110955260937804,
+            "n_eval": 576,
+            "nll": 1.7110955260937804
+          },
+          "target_metrics_before": {
+            "bacc": 0.34548611111111116,
+            "ce": 1.7264234024955452,
+            "n_eval": 576,
+            "nll": 1.7264234024955452
+          },
+          "target_nll_delta": -0.015327876401764806
+        },
+        {
+          "candidate_name": "drop_top_4_of_16",
+          "dropped_units": [
+            12,
+            11,
+            9,
+            6
+          ],
+          "target_bacc_drop": -0.0017361111111110494,
+          "target_ce_delta": 0.009439454777630196,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.3472222222222222,
+            "ce": 1.7358628572731754,
+            "n_eval": 576,
+            "nll": 1.7358628572731754
+          },
+          "target_metrics_before": {
+            "bacc": 0.34548611111111116,
+            "ce": 1.7264234024955452,
+            "n_eval": 576,
+            "nll": 1.7264234024955452
+          },
+          "target_nll_delta": 0.009439454777630196
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "7a3a054fd6764a970c95f68b7aae7e24609e7a37fd09d1ab1eb435cb3b62b1e7",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_7.npz",
+      "fold_id": "7",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGNetMini",
+      "baseline": {
+        "bacc": 0.6024305555555556,
+        "ce": 1.0021080159674594,
+        "n_eval": 576,
+        "nll": 1.0021080159674594
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_16",
+          "dropped_units": [
+            11
+          ],
+          "target_bacc_drop": 0.00347222222222221,
+          "target_ce_delta": -0.0003983711192756534,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5989583333333334,
+            "ce": 1.0017096448481837,
+            "n_eval": 576,
+            "nll": 1.0017096448481837
+          },
+          "target_metrics_before": {
+            "bacc": 0.6024305555555556,
+            "ce": 1.0021080159674594,
+            "n_eval": 576,
+            "nll": 1.0021080159674594
+          },
+          "target_nll_delta": -0.0003983711192756534
+        },
+        {
+          "candidate_name": "drop_top_2_of_16",
+          "dropped_units": [
+            11,
+            6
+          ],
+          "target_bacc_drop": 0.00347222222222221,
+          "target_ce_delta": 0.0011409752040347776,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5989583333333334,
+            "ce": 1.0032489911714941,
+            "n_eval": 576,
+            "nll": 1.0032489911714941
+          },
+          "target_metrics_before": {
+            "bacc": 0.6024305555555556,
+            "ce": 1.0021080159674594,
+            "n_eval": 576,
+            "nll": 1.0021080159674594
+          },
+          "target_nll_delta": 0.0011409752040347776
+        },
+        {
+          "candidate_name": "drop_top_4_of_16",
+          "dropped_units": [
+            11,
+            6,
+            15,
+            5
+          ],
+          "target_bacc_drop": 0.03645833333333337,
+          "target_ce_delta": 0.021688030785611545,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5659722222222222,
+            "ce": 1.023796046753071,
+            "n_eval": 576,
+            "nll": 1.023796046753071
+          },
+          "target_metrics_before": {
+            "bacc": 0.6024305555555556,
+            "ce": 1.0021080159674594,
+            "n_eval": 576,
+            "nll": 1.0021080159674594
+          },
+          "target_nll_delta": 0.021688030785611545
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "3bfe435ab0602251df737bc1e2a005d50ee208f4a049a97c89d69d58cd96897b",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_8.npz",
+      "fold_id": "8",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    },
+    {
+      "backbone": "EEGNetMini",
+      "baseline": {
+        "bacc": 0.5763888888888888,
+        "ce": 1.1396945908056775,
+        "n_eval": 576,
+        "nll": 1.1396945908056775
+      },
+      "candidates": [
+        {
+          "candidate_name": "drop_top_1_of_16",
+          "dropped_units": [
+            5
+          ],
+          "target_bacc_drop": 0.00347222222222221,
+          "target_ce_delta": 0.009889971907348194,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5729166666666666,
+            "ce": 1.1495845627130257,
+            "n_eval": 576,
+            "nll": 1.1495845627130257
+          },
+          "target_metrics_before": {
+            "bacc": 0.5763888888888888,
+            "ce": 1.1396945908056775,
+            "n_eval": 576,
+            "nll": 1.1396945908056775
+          },
+          "target_nll_delta": 0.009889971907348194
+        },
+        {
+          "candidate_name": "drop_top_2_of_16",
+          "dropped_units": [
+            5,
+            11
+          ],
+          "target_bacc_drop": 0.0,
+          "target_ce_delta": 0.01131131285522513,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5763888888888888,
+            "ce": 1.1510059036609026,
+            "n_eval": 576,
+            "nll": 1.1510059036609026
+          },
+          "target_metrics_before": {
+            "bacc": 0.5763888888888888,
+            "ce": 1.1396945908056775,
+            "n_eval": 576,
+            "nll": 1.1396945908056775
+          },
+          "target_nll_delta": 0.01131131285522513
+        },
+        {
+          "candidate_name": "drop_top_4_of_16",
+          "dropped_units": [
+            5,
+            11,
+            6,
+            12
+          ],
+          "target_bacc_drop": 0.012152777777777679,
+          "target_ce_delta": 0.025798049240346455,
+          "target_label_role": "diagnostic_only",
+          "target_metrics_after": {
+            "bacc": 0.5642361111111112,
+            "ce": 1.165492640046024,
+            "n_eval": 576,
+            "nll": 1.165492640046024
+          },
+          "target_metrics_before": {
+            "bacc": 0.5763888888888888,
+            "ce": 1.1396945908056775,
+            "n_eval": 576,
+            "nll": 1.1396945908056775
+          },
+          "target_nll_delta": 0.025798049240346455
+        }
+      ],
+      "computed_after_source_selection": true,
+      "dataset": "BNCI2014_001",
+      "feature_file_sha256": "4ad75211e9557609d720bb90ac7ea2d31530f291384e5268da09284429b0e5e0",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_9.npz",
+      "fold_id": "9",
+      "selection_uses_target_metrics": false,
+      "shadow_selected_candidate_name": null,
+      "target_label_role": "diagnostic_only"
+    }
+  ],
+  "selection_uses_target_metrics": false,
+  "target_label_role": "diagnostic_only"
+}

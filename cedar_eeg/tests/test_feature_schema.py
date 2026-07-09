@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import numpy as np
 
+from cedar_eeg.data.feature_handoff import validate_handoff_manifest
 from cedar_eeg.data.feature_inventory import inventory_paths
 from cedar_eeg.data.load_frozen_features import (
     FrozenFeatureSchemaError,
@@ -10,6 +11,7 @@ from cedar_eeg.data.load_frozen_features import (
     write_feature_manifest,
 )
 from cedar_eeg.data.validate_feature_supply import validate_feature_file, validate_feature_root
+from cedar_eeg.eval.noninferiority import crossfit_task_metrics
 from cedar_eeg.probes.crossfit_grouped import make_folds
 from cedar_eeg.runners.run_01f_source_erm_feature_dump import build_plan
 
@@ -197,3 +199,57 @@ def test_feature_supply_validator_rejects_missing_manifest(tmp_path):
     record = validate_feature_file(path)
     assert record["status"] == "FAIL"
     assert "missing_manifest_json" in record["errors"]
+
+
+def test_handoff_manifest_hard_fails_changed_npz(tmp_path):
+    artifacts = []
+    for idx in range(18):
+        path = tmp_path / f"features_{idx}.npz"
+        _write_npz(path)
+        bundle = load_frozen_feature_npz(path)
+        manifest = write_feature_manifest(bundle, path.with_suffix(".manifest.json"))
+        artifacts.append(
+            {
+                "path": str(path),
+                "manifest": str(path.with_suffix(".manifest.json")),
+                "file_sha256": manifest["file_sha256"],
+                "manifest_hash": manifest["manifest_hash"],
+            }
+        )
+    handoff = tmp_path / "CEDAR_01F_HANDOFF_MANIFEST.json"
+    handoff.write_text(
+        __import__("json").dumps(
+            {
+                "handoff_manifest_is_canonical": True,
+                "deployable": False,
+                "planned_items": 18,
+                "completed_items": 18,
+                "per_artifact_hashes": artifacts,
+            }
+        )
+    )
+    validate_handoff_manifest(handoff)
+
+    _write_npz(tmp_path / "features_0.npz", z=np.ones((12, 3), dtype=np.float32))
+    try:
+        validate_handoff_manifest(handoff)
+    except ValueError:
+        return
+    raise AssertionError("handoff validation must hard-fail on changed npz")
+
+
+def test_crossfit_task_metrics_reports_ce_nll(tmp_path):
+    path = tmp_path / "features.npz"
+    _write_npz(path)
+    bundle = load_frozen_feature_npz(path)
+    metrics = crossfit_task_metrics(
+        bundle.z,
+        bundle.y,
+        groups=bundle.groups,
+        n_classes=2,
+        n_splits=2,
+        seed=0,
+    )
+    assert 0.0 <= metrics["bacc"] <= 1.0
+    assert np.isfinite(metrics["ce"])
+    assert metrics["ce"] == metrics["nll"]

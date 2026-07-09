@@ -1,0 +1,425 @@
+{
+  "n_failures": 0,
+  "n_records": 18,
+  "n_warnings": 18,
+  "passed": true,
+  "phase": "CEDAR_01_real_frozen_latent_shadow",
+  "project": "CEDAR-EEG",
+  "records": [
+    {
+      "backbone": "EEGConformerMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_1.npz",
+      "fold_id": "1",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_2.npz",
+      "fold_id": "2",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_3.npz",
+      "fold_id": "3",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_4.npz",
+      "fold_id": "4",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_5.npz",
+      "fold_id": "5",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_6.npz",
+      "fold_id": "6",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_7.npz",
+      "fold_id": "7",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_8.npz",
+      "fold_id": "8",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_9.npz",
+      "fold_id": "9",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGNetMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_1.npz",
+      "fold_id": "1",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGNetMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_2.npz",
+      "fold_id": "2",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGNetMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_3.npz",
+      "fold_id": "3",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGNetMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_4.npz",
+      "fold_id": "4",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGNetMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_5.npz",
+      "fold_id": "5",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGNetMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_6.npz",
+      "fold_id": "6",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGNetMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_7.npz",
+      "fold_id": "7",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGNetMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_8.npz",
+      "fold_id": "8",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    },
+    {
+      "backbone": "EEGNetMini",
+      "checks": [
+        "schema_project_phase",
+        "claim_boundary_no_generalization",
+        "permutation_null_low",
+        "target_labels_quarantined_from_decisions",
+        "random_control_present",
+        "candidate_completeness",
+        "source_only_selected_candidate",
+        "tie_break_determinism",
+        "target_perturbation_invariance",
+        "no_deployable_artifact_emitted",
+        "groups_present_for_grouped_crossfit"
+      ],
+      "dataset": "BNCI2014_001",
+      "feature_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_9.npz",
+      "fold_id": "9",
+      "passed": true,
+      "warnings": [
+        "no accepted candidate; report-only or abstention outcome"
+      ]
+    }
+  ],
+  "red_team_zero_warnings": false
+}
