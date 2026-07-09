@@ -1,0 +1,11 @@
+stage,view,sampled_rows,label_visible_rows,prediction_visible_rows,construct_label_visible_rows,eval_label_visible_rows,uses_target_labels,uses_eval_labels,uses_same_label_endpoint_scalar,available_at_selection_time,diagnostic_only,selection_path_enforced,policy_boundary_only,status
+t1,source_only_view,36864,0,0,0,0,0,0,0,0,1,1,0,pass
+t1,target_construction_view,36864,17726,36864,17726,0,1,0,0,0,1,1,0,pass
+t1,target_evaluation_view,36864,19138,36864,0,19138,1,1,0,0,1,1,0,pass
+t1,same_label_oracle_view,36864,36864,36864,17726,19138,1,1,1,0,1,0,1,pass
+t1,conditional_cs_diagnostic_view,36864,36864,36864,17726,19138,1,1,0,0,1,0,1,pass
+t2,source_only_view,124416,0,0,0,0,0,0,0,0,1,1,0,pass
+t2,target_construction_view,124416,59904,124416,59904,0,1,0,0,0,1,1,0,pass
+t2,target_evaluation_view,124416,64512,124416,0,64512,1,1,0,0,1,1,0,pass
+t2,same_label_oracle_view,124416,124416,124416,59904,64512,1,1,1,0,1,0,1,pass
+t2,conditional_cs_diagnostic_view,124416,124416,124416,59904,64512,1,1,0,0,1,0,1,pass

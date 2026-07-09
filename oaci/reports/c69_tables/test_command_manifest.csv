@@ -1,0 +1,5 @@
+test_scope,command,status,environment,slurm_partition
+focused_c69,python -m pytest oaci/tests/test_c69_powered_trial_cache_scaleup.py -q,green,eeg2025,cpu-high
+c50_c69_slice,python -m pytest oaci/tests/test_c5*.py oaci/tests/test_c6*.py oaci/tests/test_c69_*.py -q,green,eeg2025,cpu-high
+c23_c69_regression,python -m pytest oaci/tests/test_c2[3-9]_*.py oaci/tests/test_c3*.py oaci/tests/test_c4*.py oaci/tests/test_c5*.py oaci/tests/test_c6*.py -q,green,eeg2025,cpu-high
+full_oaci_tests,python -m pytest oaci/tests -q,green,eeg2025,cpu-high

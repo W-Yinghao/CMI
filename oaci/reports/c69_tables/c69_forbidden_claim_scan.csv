@@ -1,0 +1,15 @@
+pattern,total_hits,affirmative_hits,files,passed
+training authorized,0,0,,1
+new training is justified,0,0,,1
+gradient update executed,0,0,,1
+gpu used,0,0,,1
+bnci2014_004 used,0,0,,1
+"seeds [3,4] used",0,0,,1
+checkpoint recommendation,1,0,oaci/reports/C69_POWERED_TRIAL_CACHE_SCALEUP.md,1
+deployable selector,0,0,,1
+oaci rescue,1,0,oaci/reports/C69_POWERED_TRIAL_CACHE_SCALEUP.md,1
+source-only rescue,3,0,oaci/reports/C69_POWERED_TRIAL_CACHE_SCALEUP.md;oaci/reports/c69_tables/c69_source_adversary_summary.csv,1
+few-label sufficiency,1,0,oaci/reports/C69_POWERED_TRIAL_CACHE_SCALEUP.md,1
+full conditional-cs established,0,0,,1
+same-label endpoint scalar available at selection time,0,0,,1
+manuscript drafting,0,0,,1

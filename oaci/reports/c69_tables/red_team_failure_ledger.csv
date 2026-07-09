@@ -1,0 +1,17 @@
+gate,failed,finding
+exact_cli_authorization_only,0,Execution is authorized only by exact CLI token.
+t1_executed_and_valid,0,T1 cache executed and manifested.
+t2_executed_after_t1,0,T2 ran only after T1 gates passed.
+t3_not_authorized,0,T3 remains future explicit authorization.
+cache_hashes_match,0,External cache and manifest hashes match.
+raw_cache_external_only,0,Raw trial caches are not committed to git.
+schema_passed,0,Committed table schemas and cache schemas are present.
+masking_passed,0,Source-only and split-label masks pass.
+same_label_oracle_unavailable,0,Oracle/diagnostic views are unavailable at selection time.
+split_label_not_sufficiency,0,Split-label result is not few-label sufficiency.
+conditional_cs_not_full_claim,0,"Conditional-CS row is a proxy/smoke diagnostic, not a full CS claim."
+source_escape_not_claimed_unless_found,0,No source-only rescue claim is made.
+endpoint_boundary_preserved,0,Endpoint scalar remains a same-label diagnostic oracle.
+no_training_gpu_reserved_holdouts,0,No training/GPU use is recorded.
+large_artifact_scan_passed,0,All committed C69 artifacts are under 50MB.
+forbidden_claim_scan_passed,0,Forbidden affirmative claim scan passed.

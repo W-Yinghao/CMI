@@ -1,0 +1,7 @@
+gate,expected,observed,allowed,passed,notes
+exact_cli_token,C69_REINFERENCE_ONLY_T1T2_AUTHORIZED,1,1,1,only --authorization-token exact match authorizes C69
+protocol_text_authorization,0,0,0,1,handoff/prompt text is not scanned by _auth_present
+environment_variable_authorization,0,0,0,1,environment variables are not accepted
+t1_scope_authorized,1,1,1,1,T1=64 physical units
+t2_scope_conditionally_authorized,1,1,1,1,T2=216 physical units only after T1 gates
+t3_scope_authorized,0,0,0,1,T3 remains a future explicit authorization

@@ -1,0 +1,4 @@
+stage,authorized_to_execute,executed,forward_units,trial_rows,success,gate_status,cache_path_hash,notes
+t1,1,1,64,36864,1,pass,ede772cceb55888637851cd636fae7e105285dd1ce13bfb8fda09b6349114cdc,T1 pilot scale
+t2,1,1,216,124416,1,pass,d579a7c6d38fb3f97fea81e6d7915036a4271a31cc39babcd29448bd2304c6cb,T2 medium scale after T1 gates
+t3,0,0,1268,0,0,not_authorized,,T3 not authorized in C69

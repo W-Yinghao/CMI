@@ -1,0 +1,67 @@
+{
+  "authorization_present": true,
+  "authorization_token_name": "--authorization-token",
+  "config_hash": "664007686afb520f",
+  "current_head_at_generation": "3212608",
+  "decision": {
+    "active": [
+      "C69-A_authorized_t1_reinference_cache_executed_and_manifested",
+      "C69-B_authorized_t2_reinference_cache_executed_and_manifested",
+      "C69-C_split_label_diagnostic_stable_but_not_sufficiency",
+      "C69-F_sample_level_conditional_cs_feasible_but_diagnostic_only",
+      "C69-G_endpoint_oracle_boundary_preserved",
+      "C69-I_no_trial_level_source_observable_escape_hatch_found",
+      "C69-J_larger_t3_campaign_ready_but_not_authorized",
+      "C69-M_new_training_still_not_justified"
+    ],
+    "final_gate": "SAMPLE_LEVEL_CONDITIONAL_CS_FEASIBLE_DIAGNOSTIC_ONLY",
+    "inactive": [
+      "C69-D_cache_valid_but_split_label_still_underpowered",
+      "C69-E_sample_level_conditional_cs_still_underpowered_or_unstable",
+      "C69-H_trial_level_source_observable_escape_hatch_found",
+      "C69-K_reinference_blocked_by_abi_preprocess_or_data_contract",
+      "C69-L_label_masking_or_availability_violation_found",
+      "C69-N_new_training_required_but_not_authorized",
+      "C69-O_no_forward_readiness_only_due_missing_authorization"
+    ],
+    "primary": "C69-F_sample_level_conditional_cs_feasible_but_diagnostic_only",
+    "recommended_next_direction": "remote review; C70 should decide whether T3 or source-observable forensics is warranted",
+    "red_team_failure_count": 0
+  },
+  "diagnostic_only_non_deployable": true,
+  "external_cache_root": "/projects/EEG-foundation-model/yinghao/oaci-c69-trial-cache-scaleup",
+  "final_gate": "SAMPLE_LEVEL_CONDITIONAL_CS_FEASIBLE_DIAGNOSTIC_ONLY",
+  "key_numbers": {
+    "c65_logical_singleton_rows": 3804,
+    "c65_physical_forward_units": 1268,
+    "red_team_failure_count": 0,
+    "t1_cache_rows": 36864,
+    "t1_units": 64,
+    "t2_cache_rows": 124416,
+    "t2_units": 216,
+    "t3_units_not_authorized": 1268
+  },
+  "milestone": "C69",
+  "recommended_next_step": "remote review; C70 should decide whether T3 or source-observable forensics is warranted",
+  "table_row_counts": {
+    "c69_artifact_manifest": 20,
+    "c69_authorization_audit": 6,
+    "c69_cache_manifest_t1": 2,
+    "c69_cache_manifest_t2": 2,
+    "c69_conditional_cs_sensitivity": 4,
+    "c69_conditional_cs_summary": 2,
+    "c69_endpoint_boundary_replay": 2,
+    "c69_forbidden_claim_scan": 14,
+    "c69_large_artifact_scan": 20,
+    "c69_masked_view_contract": 10,
+    "c69_resource_runtime_summary": 2,
+    "c69_schema_signature": 2,
+    "c69_source_adversary_summary": 4,
+    "c69_split_label_cell_ledger": 108,
+    "c69_split_label_summary": 2,
+    "c69_stage_manifest": 3,
+    "red_team_failure_ledger": 16,
+    "schema_validation_summary": 17,
+    "test_command_manifest": 4
+  }
+}
