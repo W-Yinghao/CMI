@@ -1,0 +1,21 @@
+scalar_name,semantic_class,hit,cell_hit_ge_0_7_count,target_label_derived,same_label_derived,requires_target_endpoint,available_at_selection_time,directly_contains_joint_good_threshold,component_fields_used,cell_localized,source_observable,notes,diagnostic_only,no_selection_artifact
+source_rank_score:high,S0_strict_source_observable,0.5061728395061729,82,0,0,0,1,0,source_rank,1,1,S0_strict_source_observable,0,1
+R_src:high,S0_strict_source_observable,0.3888888888888889,63,0,0,0,1,0,source_risk,1,1,S0_strict_source_observable,0,1
+c19_robust_core_score:high,S0_strict_source_observable,0.5061728395061729,82,0,0,0,1,0,c19_robust_core,1,1,S0_strict_source_observable,0,1
+selection_leakage_point:high,S0_strict_source_observable,0.42592592592592593,69,0,0,0,1,0,selection_leakage,1,1,S0_strict_source_observable,0,1
+cell_prior:high,S1_key_or_cell_prior_only,0.4297233780360411,39,0,0,0,1,0,cell_prior,1,0,S1_key_or_cell_prior_only,0,1
+target_bacc_delta:high,S3_target_endpoint_component_label,0.9259259259259259,150,1,0,1,0,0,bAcc,1,0,S3_target_endpoint_component_label,1,1
+target_bacc_z:high,S3_target_endpoint_component_label,0.9259259259259259,150,1,0,1,0,0,bAcc_z,1,0,S3_target_endpoint_component_label,1,1
+target_nll_delta:high,S3_target_endpoint_component_label,0.8333333333333334,135,1,0,1,0,0,NLL,1,0,S3_target_endpoint_component_label,1,1
+target_nll_z:high,S3_target_endpoint_component_label,0.8333333333333334,135,1,0,1,0,0,NLL_z,1,0,S3_target_endpoint_component_label,1,1
+target_ece_delta:high,S3_target_endpoint_component_label,0.7037037037037037,114,1,0,1,0,0,ECE,1,0,S3_target_endpoint_component_label,1,1
+target_ece_z:high,S3_target_endpoint_component_label,0.7037037037037037,114,1,0,1,0,0,ECE_z,1,0,S3_target_endpoint_component_label,1,1
+target_utility_score:high,S4_target_joint_endpoint_label,0.8518518518518519,138,1,0,1,0,0,utility,1,0,S4_target_joint_endpoint_label,1,1
+continuous_joint_min_margin:high,S4_target_joint_endpoint_label,0.8518518518518519,138,1,0,1,0,0,min_margin,1,0,S4_target_joint_endpoint_label,1,1
+endpoint_vector_norm_regret:low,S4_target_joint_endpoint_label,0.8888888888888888,144,1,0,1,0,0,regret_norm,1,0,S4_target_joint_endpoint_label,1,1
+dominated_hypervolume_regret:low,S4_target_joint_endpoint_label,0.8703703703703703,141,1,0,1,0,0,regret_hv,1,0,S4_target_joint_endpoint_label,1,1
+pareto_distance:low,S4_target_joint_endpoint_label,0.8081790123456791,117,1,0,1,0,0,pareto_distance,1,0,S4_target_joint_endpoint_label,1,1
+pareto_good:high,S4_target_joint_endpoint_label,0.8081790123456791,117,1,0,1,0,0,pareto_flag,1,0,S4_target_joint_endpoint_label,1,1
+target_joint_margin_raw:high,S5_same_label_oracle_margin,0.9444444444444444,153,1,1,1,0,1,joint_margin,1,0,same-label diagnostic endpoint scalar,1,1
+primary_joint_good:high,S5_same_label_oracle_margin,0.9444444444444444,153,1,1,1,0,1,joint_good_label,1,0,same-label diagnostic endpoint scalar,1,1
+split_label_constructed_scalar,S6_split_label_constructed_scalar,,,1,0,1,0,0,unavailable,1,0,required per-trial target prediction/label cache unavailable,1,1

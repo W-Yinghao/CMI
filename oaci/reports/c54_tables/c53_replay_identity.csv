@@ -1,0 +1,9 @@
+metric,c53_reported_value,c54_replayed_value,abs_diff,pass
+random_tie_hit,0.429723378036041,0.429723378036041,0.0,1
+best_strict_source_hit,0.5061728395061729,0.5061728395061729,0.0,1
+best_key_only_hit,0.4876543209876543,0.4876543209876543,0.0,1
+c52_trajectory_diagnostic_hit,0.8127572016460904,0.8127572016460904,0.0,1
+c53_best_scalar_endpoint_hit,0.9444444444444444,0.9444444444444444,0.0,1
+best_scalar_field,target_joint_margin_raw:high,target_joint_margin_raw:high,0.0,1
+cell_count,162,162,0.0,1
+split_label_budget_available,0,0,0.0,1
