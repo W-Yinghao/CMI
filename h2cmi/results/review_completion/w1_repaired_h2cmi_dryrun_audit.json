@@ -1,0 +1,106 @@
+{
+  "all_adapt_both_classes": true,
+  "all_adapt_eval_disjoint": true,
+  "all_eval_both_classes": true,
+  "all_expected_methods_branches_enumerable": true,
+  "all_expected_target_units_addressable": true,
+  "approve_gpu_run": true,
+  "blockers": [],
+  "datasets_blocked": [],
+  "datasets_passed": [
+    "BNCI2014_001",
+    "Cho2017",
+    "Lee2019_MI"
+  ],
+  "decomposition_branch": "__decomposition__",
+  "dryrun_pass": true,
+  "expected_rows": 3450,
+  "expected_rows_gate_target": 3450,
+  "label": "P7A H2CMI W1 repaired split dry-run audit",
+  "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+  "method_selection_uses_target_performance": false,
+  "metric_branches": [
+    "identity_uniform",
+    "identity_joint_prior",
+    "joint_geometry_uniform",
+    "joint_geometry_joint_prior",
+    "fixed_iterative_geometry_uniform",
+    "fixed_reference_oneshot_uniform",
+    "pooled_uniform",
+    "latent_im_diag_uniform",
+    "source_recolored_ea"
+  ],
+  "operator_config_error": "",
+  "operator_configs_load": true,
+  "output_branches": [
+    "identity_uniform",
+    "identity_joint_prior",
+    "joint_geometry_uniform",
+    "joint_geometry_joint_prior",
+    "fixed_iterative_geometry_uniform",
+    "fixed_reference_oneshot_uniform",
+    "pooled_uniform",
+    "latent_im_diag_uniform",
+    "source_recolored_ea",
+    "__decomposition__"
+  ],
+  "per_dataset": {
+    "BNCI2014_001": {
+      "all_adapt_both_classes": true,
+      "all_adapt_eval_disjoint": true,
+      "all_eval_both_classes": true,
+      "all_split_hash_present": true,
+      "expected_rows": 270,
+      "manifest_units": 27,
+      "target_subjects": 9
+    },
+    "Cho2017": {
+      "all_adapt_both_classes": true,
+      "all_adapt_eval_disjoint": true,
+      "all_eval_both_classes": true,
+      "all_split_hash_present": true,
+      "expected_rows": 1560,
+      "manifest_units": 156,
+      "target_subjects": 52
+    },
+    "Lee2019_MI": {
+      "all_adapt_both_classes": true,
+      "all_adapt_eval_disjoint": true,
+      "all_eval_both_classes": true,
+      "all_split_hash_present": true,
+      "expected_rows": 1620,
+      "manifest_units": 162,
+      "target_subjects": 54
+    }
+  },
+  "red_team_review": [
+    "No fitting, source-bundle load, model inference, Slurm submission, or GPU work occurred in P7A.",
+    "Target labels are stored only as split-construction evidence through class counts, not as adaptation inputs.",
+    "Dry-run approval only covers H2CMI repaired-split W1; it does not approve SPDIM or extra methods.",
+    "Expected rows are bound to the P6.2 feasibility gate value 3450."
+  ],
+  "runner_checksums": {
+    "eval_core": "4f0803a9847fbffb73873f072f8945f3dced169e3a17d79eeeb62a7b4563a0aa",
+    "runner": "a21a8f31e579183e3588c8079b433594ef9d80167cb31cb349ae2b486dbc659a",
+    "source_loader": "0737fc4b0da4038b5fe44851cf210ce80bb560c489b27357ca30c8511f0860c9"
+  },
+  "runner_config_error": "",
+  "runner_configs_load": true,
+  "runner_paths": {
+    "eval_core": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/eval/p0_eval.py",
+    "runner": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/run_w1_repaired_p0.py",
+    "source_loader": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/p0_source.py"
+  },
+  "runner_dryrun_crosscheck": {
+    "approve_gpu_run": true,
+    "dryrun_pass": true,
+    "expected_rows": 3450,
+    "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+    "manifest_units_checked": 345,
+    "path": "h2cmi/results/review_completion/w1_repaired_h2cmi_runner_dryrun_crosscheck.json",
+    "sha256": "8629e2f05969e9d128677b1d740256183a57e56d1426a5b73fed8c2de610f270"
+  },
+  "source_adapt_eval_arrays_addressable": true,
+  "source_adapt_eval_files_exist": true,
+  "target_label_leakage_detected": false
+}

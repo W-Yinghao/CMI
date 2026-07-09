@@ -1,0 +1,49 @@
+{
+  "all_adapt_both_classes": true,
+  "all_adapt_eval_disjoint": true,
+  "all_eval_both_classes": true,
+  "approve_gpu_run": true,
+  "blockers": [],
+  "branches": [
+    "identity_uniform",
+    "identity_joint_prior",
+    "joint_geometry_uniform",
+    "joint_geometry_joint_prior",
+    "fixed_iterative_geometry_uniform",
+    "fixed_reference_oneshot_uniform",
+    "pooled_uniform",
+    "latent_im_diag_uniform",
+    "source_recolored_ea",
+    "__decomposition__"
+  ],
+  "datasets_blocked": [],
+  "datasets_passed": [
+    "BNCI2014_001",
+    "Cho2017",
+    "Lee2019_MI"
+  ],
+  "dryrun_pass": true,
+  "expected_rows": 3450,
+  "expected_rows_gate_target": 3450,
+  "expected_rows_match_gate": true,
+  "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+  "manifest_units_checked": 345,
+  "method_selection_uses_target_performance": false,
+  "operator_configs_load": true,
+  "per_dataset": {
+    "BNCI2014_001": {
+      "expected_rows": 270,
+      "manifest_units": 27
+    },
+    "Cho2017": {
+      "expected_rows": 1560,
+      "manifest_units": 156
+    },
+    "Lee2019_MI": {
+      "expected_rows": 1620,
+      "manifest_units": 162
+    }
+  },
+  "source_adapt_eval_arrays_addressable": true,
+  "target_label_leakage_detected": false
+}

@@ -155,3 +155,12 @@
   only; `class_stratified_half` is the recommended replacement split candidate
   because it passes all BNCI2014_001, Cho2017, and Lee2019_MI targets, but any
   H2CMI or SPDIM rerun remains blocked pending PM approval.
+
+- Per PM P7A, froze the CPU-only repaired W1 split manifest and H2CMI dry-run
+  gate. Split family `class_stratified_half` now has manifest hash
+  `231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e` and expected H2CMI rows `3450`.
+  No GPU jobs, SPDIM work, TeX edits, geometry stress, orthogonal-score work, or
+  Slurm accounting calls were used. Dry-run verdict:
+  `dryrun_pass=True`, `approve_gpu_run=True`. Independent repaired-runner
+  `--dry-run` crosscheck also passed with 345 manifest units, 3450 expected rows,
+  and SHA-256 `8629e2f05969e9d128677b1d740256183a57e56d1426a5b73fed8c2de610f270`.
