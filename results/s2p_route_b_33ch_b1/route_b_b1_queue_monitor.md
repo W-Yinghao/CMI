@@ -261,3 +261,33 @@ downstream_launched=false
 pretraining_gate_deferred_until_8_of_8_runs_complete=true
 sacct_unavailable=true
 ```
+
+## Through-1000h Downstream Probe Launch - 2026-07-09T23:14:27+02:00
+
+### pretrain gate
+```text
+scope=through_1000h
+cells=H200_s0,H200_s1,H500_s0,H500_s1,H1000_s0,H1000_s1
+all_runs_completed=true
+checkpoint_reload_pass=true
+nan_or_inf_seen=false
+approve_downstream_probe_gate_recommended=true
+h2000_still_running_allowed=true
+```
+
+### downstream probe
+```text
+job=891413
+checkpoint_cell=H1000_s0
+controls=random,released
+downstream_primary=SHU_MI_native32
+full_downstream_fleet_launched=false
+```
+
+### squeue
+```text
+             JOBID         NAME PARTITION    STATE       TIME     NODELIST(REASON)
+          890151_6     s2pB1h2k       A40  RUNNING   21:58:04               node32
+          890151_7     s2pB1h2k       A40  RUNNING   21:58:04               node33
+            891413   s2pB1probe      V100  RUNNING       0:48               node13
+```
