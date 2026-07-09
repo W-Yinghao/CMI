@@ -1,0 +1,20 @@
+{
+  "alternative_split_all_datasets_pass": true,
+  "alternative_split_found": true,
+  "approve_full_spdim": false,
+  "approve_h2cmi_alternative_split_rerun": false,
+  "approve_spdim_alternative_split_seed0_rerun": false,
+  "approve_spdim_seeds_1_2": false,
+  "legacy_w1_quarantined": true,
+  "next_gpu_step_requires_pm_approval": true,
+  "recommended_split_family": "class_stratified_half",
+  "red_team_review": [
+    "Legacy W1/SPDIM are quarantined for confirmatory use.",
+    "Valid-subset recompute is diagnostic-only and excludes Cho2017.",
+    "A replacement split is designed but no rerun is approved.",
+    "No seeds 1/2 or full SPDIM expansion are approved."
+  ],
+  "requires_h2cmi_gpu_rerun": true,
+  "requires_spdim_gpu_rerun": true,
+  "valid_subset_recomputed": true
+}

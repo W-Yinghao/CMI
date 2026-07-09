@@ -1,0 +1,51 @@
+{
+  "affected_dataset": "Cho2017",
+  "affected_fraction": 1.0,
+  "affected_target_subjects": 52,
+  "allowed_future_use": "diagnostic_legacy_only",
+  "artifacts": {
+    "BNCI2014_001_old_split_rows": "metric_valid_under_class_composition",
+    "Cho2017_old_split_rows": "single_class_eval_affected",
+    "Lee2019_MI_old_split_rows": "metric_valid_under_class_composition",
+    "SPDIM_P6_seed0_W1_results": "legacy_split_not_confirmatory",
+    "original_REVIEW_P0_W1_MI_results": "legacy_split_not_confirmatory"
+  },
+  "label": "P6.2 legacy W1 split quarantine",
+  "old_spdim_seed0_baseline_status": false,
+  "old_w1_confirmatory_status": false,
+  "p61_aggregate": {
+    "all_w1": {
+      "single_class_eval_fraction": 0.45217391304347826,
+      "single_class_eval_subjects": 52,
+      "subjects": 115
+    },
+    "per_dataset": {
+      "BNCI2014_001": {
+        "single_class_eval_fraction": 0.0,
+        "single_class_eval_subjects": 0,
+        "subjects": 9
+      },
+      "Cho2017": {
+        "single_class_eval_fraction": 1.0,
+        "single_class_eval_subjects": 52,
+        "subjects": 52
+      },
+      "Lee2019_MI": {
+        "single_class_eval_fraction": 0.0,
+        "single_class_eval_subjects": 0,
+        "subjects": 54
+      }
+    }
+  },
+  "p61_verdict_fields": {
+    "approve_spdim_seeds_1_2": false,
+    "current_spdim_p6_can_be_used_as_seed0_baseline": false,
+    "current_w1_results_can_be_used_as_confirmatory": false,
+    "require_alternative_w1_split": true,
+    "require_metric_recompute": true
+  },
+  "prohibited_future_use": "confirmatory_mi_aggregate_or_spdim_baseline",
+  "source_p61_split_audit": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_split_metric_audit.json",
+  "source_p61_verdict": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_split_metric_impact_verdict.json",
+  "status": "pass"
+}

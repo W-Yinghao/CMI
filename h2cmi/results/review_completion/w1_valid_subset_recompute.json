@@ -1,0 +1,443 @@
+{
+  "h2cmi_w1": {
+    "cho2017_dependency": {
+      "cho2017_only_G_subject_weighted": 0.1227457264957265,
+      "explanation": "The old all-dataset W1 geometry G is dominated by Cho2017; after excluding Cho2017, the subject-weighted G magnitude falls to the BNCI2014_001+Lee2019_MI diagnostic subset.",
+      "full_all_dataset_G_subject_weighted": 0.060419002240841305,
+      "full_all_dataset_primary_subject_weighted": 0.002185549730777119,
+      "previous_mi_geometry_aggregate_magnitude_depends_on_cho2017": true,
+      "valid_subset_G_subject_weighted": 0.008974721903475775,
+      "valid_subset_primary_subject_weighted": 0.0045715061223180215
+    },
+    "contrasts": {
+      "fixed_iterative_minus_joint_geometry": {
+        "dataset_macro": {
+          "mean": 0.007382075416345311,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": 0.011316872427983515,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": 0.0034472784047071053,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": 0.0045715061223180215,
+          "n": 63
+        }
+      },
+      "joint_geometry_minus_pooled": {
+        "dataset_macro": {
+          "mean": -0.010510796241426285,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": -0.017489711934156344,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": -0.003531880548696226,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": -0.005525856460904814,
+          "n": 63
+        }
+      }
+    },
+    "decomposition": {
+      "G": {
+        "dataset_macro": {
+          "mean": 0.010593622070580339,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": 0.012860082304526727,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": 0.008327161836633951,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": 0.008974721903475775,
+          "n": 63
+        }
+      },
+      "P": {
+        "dataset_macro": {
+          "mean": -0.009681883275931173,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": -0.008744855967078208,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": -0.010618910584784135,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": -0.01035118849654043,
+          "n": 63
+        }
+      },
+      "full_joint_delta": {
+        "dataset_macro": {
+          "mean": 0.007612859960470864,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": 0.010802469135802444,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": 0.004423250785139283,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": 0.005334567692376878,
+          "n": 63
+        }
+      },
+      "interaction": {
+        "dataset_macro": {
+          "mean": 0.006701121165821694,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": 0.006687242798353925,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": 0.006714999533289462,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": 0.0067110342854415275,
+          "n": 63
+        }
+      },
+      "prior_m_step_geometry": {
+        "dataset_macro": {
+          "mean": 0.007382075416345325,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": 0.011316872427983554,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": 0.0034472784047070966,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": 0.004571506122318017,
+          "n": 63
+        }
+      }
+    },
+    "excluded_datasets": [
+      "Cho2017"
+    ],
+    "four_branch_means": {
+      "identity_joint_prior": {
+        "dataset_macro": {
+          "mean": 0.6914745048318888,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": 0.6805555555555556,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": 0.702393454108222,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": 0.699273754314984,
+          "n": 63
+        }
+      },
+      "identity_uniform": {
+        "dataset_macro": {
+          "mean": 0.7011563881078199,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": 0.6893004115226338,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": 0.713012364693006,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": 0.7096249428115244,
+          "n": 63
+        }
+      },
+      "joint_geometry_joint_prior": {
+        "dataset_macro": {
+          "mean": 0.7087692480682908,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": 0.7001028806584363,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": 0.7174356154781454,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": 0.7149595105039012,
+          "n": 63
+        }
+      },
+      "joint_geometry_uniform": {
+        "dataset_macro": {
+          "mean": 0.7117500101784002,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean": 0.7021604938271605,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean": 0.72133952652964,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean": 0.7185996647149998,
+          "n": 63
+        }
+      }
+    },
+    "included_datasets": [
+      "BNCI2014_001",
+      "Lee2019_MI"
+    ],
+    "label": "legacy_valid_subset_diagnostic_only",
+    "n_units": 63,
+    "not_confirmatory_full_W1": true,
+    "source_raw": "/home/infres/yinwang/CMI_AAAI_qxu/results/h2cmi/p0_w1_all.jsonl",
+    "source_raw_sha256": "c1ef4a6f4bb52a0561e14b5c26d1b40290f5ac44c4a7a86876f97639f2112633"
+  },
+  "label": "legacy_valid_subset_diagnostic_only",
+  "not_confirmatory_full_W1": true,
+  "spdim_seed0": {
+    "dataset_macro": {
+      "rct": {
+        "mean_bacc": 0.7048124338106083,
+        "n_datasets": 2
+      },
+      "source_only_tsmnet": {
+        "mean_bacc": 0.5877824150094265,
+        "n_datasets": 2
+      },
+      "spdim_bias": {
+        "mean_bacc": 0.6987715990155744,
+        "n_datasets": 2
+      },
+      "spdim_geodesic": {
+        "mean_bacc": 0.7014744457025053,
+        "n_datasets": 2
+      }
+    },
+    "deltas": {
+      "rct_minus_source_only_tsmnet": {
+        "dataset_macro": {
+          "mean_bacc_delta": 0.11703001880118183,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean_bacc_delta": 0.10493827160493828,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean_bacc_delta": 0.1291217659974254,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean_bacc_delta": 0.12566698108421295,
+          "n": 63
+        }
+      },
+      "spdim_bias_minus_rct": {
+        "dataset_macro": {
+          "mean_bacc_delta": -0.006040834795034093,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean_bacc_delta": -0.007716049382716059,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean_bacc_delta": -0.004365620207352127,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean_bacc_delta": -0.004844252946689832,
+          "n": 63
+        }
+      },
+      "spdim_bias_minus_source_only_tsmnet": {
+        "dataset_macro": {
+          "mean_bacc_delta": 0.11098918400614774,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean_bacc_delta": 0.09722222222222222,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean_bacc_delta": 0.12475614579007324,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean_bacc_delta": 0.1208227281375231,
+          "n": 63
+        }
+      },
+      "spdim_geodesic_minus_rct": {
+        "dataset_macro": {
+          "mean_bacc_delta": -0.0033379881081030604,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean_bacc_delta": -0.0077160493827160715,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean_bacc_delta": 0.0010400731665099502,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean_bacc_delta": -0.00021080148337948137,
+          "n": 63
+        }
+      },
+      "spdim_geodesic_minus_source_only_tsmnet": {
+        "dataset_macro": {
+          "mean_bacc_delta": 0.1136920306930788,
+          "n_datasets": 2
+        },
+        "per_dataset": {
+          "BNCI2014_001": {
+            "mean_bacc_delta": 0.09722222222222221,
+            "n": 9
+          },
+          "Lee2019_MI": {
+            "mean_bacc_delta": 0.1301618391639354,
+            "n": 54
+          }
+        },
+        "subject_weighted": {
+          "mean_bacc_delta": 0.12545617960083347,
+          "n": 63
+        }
+      }
+    },
+    "excluded_datasets": [
+      "Cho2017"
+    ],
+    "included_datasets": [
+      "BNCI2014_001",
+      "Lee2019_MI"
+    ],
+    "label": "legacy_valid_subset_diagnostic_only",
+    "not_confirmatory_full_W1": true,
+    "per_dataset": {
+      "BNCI2014_001": {
+        "rct": {
+          "mean_bacc": 0.7299382716049383,
+          "n": 9
+        },
+        "source_only_tsmnet": {
+          "mean_bacc": 0.625,
+          "n": 9
+        },
+        "spdim_bias": {
+          "mean_bacc": 0.7222222222222223,
+          "n": 9
+        },
+        "spdim_geodesic": {
+          "mean_bacc": 0.7222222222222222,
+          "n": 9
+        }
+      },
+      "Lee2019_MI": {
+        "rct": {
+          "mean_bacc": 0.6796865960162785,
+          "n": 54
+        },
+        "source_only_tsmnet": {
+          "mean_bacc": 0.550564830018853,
+          "n": 54
+        },
+        "spdim_bias": {
+          "mean_bacc": 0.6753209758089265,
+          "n": 54
+        },
+        "spdim_geodesic": {
+          "mean_bacc": 0.6807266691827885,
+          "n": 54
+        }
+      }
+    },
+    "rows": 252,
+    "source_csv": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/spdim_w1_seed0_results.csv",
+    "source_csv_sha256": "87ba93cac505e8d1d073bef67f29a4ccdd055e73185d637244ce2a3687c51698",
+    "subject_weighted": {
+      "rct": {
+        "mean_bacc": 0.6868654068146587,
+        "n": 63
+      },
+      "source_only_tsmnet": {
+        "mean_bacc": 0.5611984257304455,
+        "n": 63
+      },
+      "spdim_bias": {
+        "mean_bacc": 0.6820211538679689,
+        "n": 63
+      },
+      "spdim_geodesic": {
+        "mean_bacc": 0.6866546053312788,
+        "n": 63
+      }
+    }
+  }
+}

@@ -145,3 +145,13 @@
   and 208 SPDIM P6 seed-0 rows. Seeds 1/2 and full three-seed SPDIM remain
   unapproved; alternative split and metric recompute are required before
   escalation.
+
+- Per PM P6.2, completed the CPU-only W1 split repair plan and legacy-result
+  quarantine. No GPU jobs, dataset reruns, seeds 1/2, full SPDIM, TeX edits,
+  geometry stress, orthogonal-score work, or Slurm accounting calls were used. Added
+  quarantine artifacts, valid-subset diagnostic recomputes excluding Cho2017,
+  alternative split protocol/dry-run artifacts, rerun feasibility artifacts, and
+  the split repair decision gate. Verdict: old W1/SPDIM remain diagnostic legacy
+  only; `class_stratified_half` is the recommended replacement split candidate
+  because it passes all BNCI2014_001, Cho2017, and Lee2019_MI targets, but any
+  H2CMI or SPDIM rerun remains blocked pending PM approval.

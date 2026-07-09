@@ -1,0 +1,26 @@
+{
+  "blockers": [
+    "H2CMI raw rows retain scalar metrics and prediction hashes, not trial-level predictions/logits.",
+    "SPDIM P6 rows retain prediction/logits hashes, not trial-level prediction/logit arrays.",
+    "Alternative split changes evaluation trial membership, so aggregate metrics cannot be recomputed from hashes."
+  ],
+  "can_recompute_h2cmi_without_gpu": false,
+  "can_recompute_spdim_without_gpu": false,
+  "estimated_gpu_hours_h2cmi": 24.0,
+  "estimated_gpu_hours_note": "SPDIM estimate is inherited from the P6 seed-0 protocol. H2CMI estimate is a conservative planning placeholder because retained W1 artifacts do not include per-target timing provenance; PM approval is still required before any rerun.",
+  "estimated_gpu_hours_spdim_seed0": 18.0,
+  "expected_rows_h2cmi_if_rerun": 3450,
+  "expected_rows_h2cmi_metric_rows_if_rerun": 3105,
+  "expected_rows_spdim_seed0_if_rerun": 460,
+  "h2cmi_trial_level_artifacts_available": false,
+  "requires_h2cmi_gpu_rerun": true,
+  "requires_spdim_gpu_rerun": true,
+  "source_artifacts": {
+    "h2cmi_p0_w1_raw": "/home/infres/yinwang/CMI_AAAI_qxu/results/h2cmi/p0_w1_all.jsonl",
+    "h2cmi_p0_w1_raw_sha256": "c1ef4a6f4bb52a0561e14b5c26d1b40290f5ac44c4a7a86876f97639f2112633",
+    "spdim_p6_csv": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/spdim_w1_seed0_results.csv",
+    "spdim_p6_csv_sha256": "87ba93cac505e8d1d073bef67f29a4ccdd055e73185d637244ce2a3687c51698",
+    "spdim_p6_elapsed_seconds": null
+  },
+  "spdim_trial_level_artifacts_available": false
+}

@@ -1,0 +1,461 @@
+dataset,target_subject,split_family,n_adapt,class_counts_adapt,n_eval,class_counts_eval,disjoint_trial_ids,both_classes_eval,both_classes_adapt,compatible_with_existing_runner,requires_model_rerun,blocker_reason
+BNCI2014_001,1,class_stratified_half,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,1,interleaved_odd_even_trial,72,"[31,41]",72,"[41,31]",True,True,True,False,True,
+BNCI2014_001,1,session_block_aware_stratified,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,1,leave_one_run_out,120,"[60,60]",24,"[12,12]",True,True,True,False,True,
+BNCI2014_001,2,class_stratified_half,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,2,interleaved_odd_even_trial,72,"[32,40]",72,"[40,32]",True,True,True,False,True,
+BNCI2014_001,2,session_block_aware_stratified,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,2,leave_one_run_out,120,"[60,60]",24,"[12,12]",True,True,True,False,True,
+BNCI2014_001,3,class_stratified_half,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,3,interleaved_odd_even_trial,72,"[32,40]",72,"[40,32]",True,True,True,False,True,
+BNCI2014_001,3,session_block_aware_stratified,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,3,leave_one_run_out,120,"[60,60]",24,"[12,12]",True,True,True,False,True,
+BNCI2014_001,4,class_stratified_half,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,4,interleaved_odd_even_trial,72,"[35,37]",72,"[37,35]",True,True,True,False,True,
+BNCI2014_001,4,session_block_aware_stratified,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,4,leave_one_run_out,120,"[60,60]",24,"[12,12]",True,True,True,False,True,
+BNCI2014_001,5,class_stratified_half,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,5,interleaved_odd_even_trial,72,"[32,40]",72,"[40,32]",True,True,True,False,True,
+BNCI2014_001,5,session_block_aware_stratified,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,5,leave_one_run_out,120,"[60,60]",24,"[12,12]",True,True,True,False,True,
+BNCI2014_001,6,class_stratified_half,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,6,interleaved_odd_even_trial,72,"[37,35]",72,"[35,37]",True,True,True,False,True,
+BNCI2014_001,6,session_block_aware_stratified,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,6,leave_one_run_out,120,"[60,60]",24,"[12,12]",True,True,True,False,True,
+BNCI2014_001,7,class_stratified_half,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,7,interleaved_odd_even_trial,72,"[32,40]",72,"[40,32]",True,True,True,False,True,
+BNCI2014_001,7,session_block_aware_stratified,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,7,leave_one_run_out,120,"[60,60]",24,"[12,12]",True,True,True,False,True,
+BNCI2014_001,8,class_stratified_half,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,8,interleaved_odd_even_trial,72,"[32,40]",72,"[40,32]",True,True,True,False,True,
+BNCI2014_001,8,session_block_aware_stratified,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,8,leave_one_run_out,120,"[60,60]",24,"[12,12]",True,True,True,False,True,
+BNCI2014_001,9,class_stratified_half,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,9,interleaved_odd_even_trial,72,"[37,35]",72,"[35,37]",True,True,True,False,True,
+BNCI2014_001,9,session_block_aware_stratified,72,"[36,36]",72,"[36,36]",True,True,True,False,True,
+BNCI2014_001,9,leave_one_run_out,120,"[60,60]",24,"[12,12]",True,True,True,False,True,
+Cho2017,1,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,1,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,1,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,1,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,2,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,2,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,2,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,2,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,3,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,3,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,3,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,3,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,4,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,4,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,4,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,4,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,5,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,5,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,5,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,5,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,6,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,6,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,6,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,6,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,7,class_stratified_half,120,"[60,60]",120,"[60,60]",True,True,True,False,True,
+Cho2017,7,interleaved_odd_even_trial,120,"[60,60]",120,"[60,60]",True,True,True,False,True,
+Cho2017,7,session_block_aware_stratified,120,"[60,60]",120,"[60,60]",True,True,True,False,True,
+Cho2017,7,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,8,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,8,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,8,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,8,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,9,class_stratified_half,120,"[60,60]",120,"[60,60]",True,True,True,False,True,
+Cho2017,9,interleaved_odd_even_trial,120,"[60,60]",120,"[60,60]",True,True,True,False,True,
+Cho2017,9,session_block_aware_stratified,120,"[60,60]",120,"[60,60]",True,True,True,False,True,
+Cho2017,9,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,10,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,10,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,10,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,10,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,11,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,11,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,11,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,11,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,12,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,12,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,12,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,12,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,13,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,13,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,13,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,13,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,14,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,14,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,14,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,14,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,15,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,15,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,15,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,15,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,16,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,16,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,16,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,16,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,17,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,17,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,17,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,17,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,18,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,18,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,18,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,18,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,19,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,19,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,19,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,19,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,20,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,20,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,20,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,20,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,21,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,21,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,21,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,21,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,22,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,22,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,22,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,22,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,23,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,23,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,23,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,23,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,24,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,24,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,24,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,24,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,25,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,25,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,25,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,25,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,26,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,26,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,26,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,26,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,27,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,27,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,27,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,27,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,28,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,28,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,28,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,28,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,29,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,29,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,29,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,29,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,30,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,30,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,30,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,30,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,31,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,31,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,31,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,31,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,32,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,32,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,32,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,32,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,33,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,33,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,33,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,33,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,34,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,34,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,34,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,34,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,35,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,35,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,35,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,35,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,36,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,36,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,36,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,36,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,37,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,37,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,37,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,37,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,38,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,38,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,38,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,38,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,39,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,39,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,39,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,39,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,40,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,40,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,40,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,40,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,41,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,41,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,41,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,41,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,42,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,42,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,42,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,42,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,43,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,43,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,43,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,43,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,44,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,44,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,44,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,44,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,45,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,45,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,45,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,45,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,46,class_stratified_half,120,"[60,60]",120,"[60,60]",True,True,True,False,True,
+Cho2017,46,interleaved_odd_even_trial,120,"[60,60]",120,"[60,60]",True,True,True,False,True,
+Cho2017,46,session_block_aware_stratified,120,"[60,60]",120,"[60,60]",True,True,True,False,True,
+Cho2017,46,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,47,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,47,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,47,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,47,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,48,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,48,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,48,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,48,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,49,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,49,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,49,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,49,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,50,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,50,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,50,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,50,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,51,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,51,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,51,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,51,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Cho2017,52,class_stratified_half,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,52,interleaved_odd_even_trial,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,52,session_block_aware_stratified,100,"[50,50]",100,"[50,50]",True,True,True,False,True,
+Cho2017,52,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,1,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,1,interleaved_odd_even_trial,50,"[23,27]",50,"[27,23]",True,True,True,False,True,
+Lee2019_MI,1,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,1,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,2,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,2,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,2,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,2,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,3,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,3,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,3,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,3,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,4,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,4,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,4,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,4,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,5,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,5,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,5,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,5,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,6,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,6,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,6,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,6,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,7,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,7,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,7,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,7,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,8,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,8,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,8,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,8,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,9,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,9,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,9,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,9,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,10,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,10,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,10,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,10,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,11,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,11,interleaved_odd_even_trial,50,"[26,24]",50,"[24,26]",True,True,True,False,True,
+Lee2019_MI,11,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,11,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,12,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,12,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,12,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,12,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,13,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,13,interleaved_odd_even_trial,50,"[23,27]",50,"[27,23]",True,True,True,False,True,
+Lee2019_MI,13,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,13,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,14,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,14,interleaved_odd_even_trial,50,"[28,22]",50,"[22,28]",True,True,True,False,True,
+Lee2019_MI,14,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,14,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,15,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,15,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,15,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,15,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,16,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,16,interleaved_odd_even_trial,50,"[24,26]",50,"[26,24]",True,True,True,False,True,
+Lee2019_MI,16,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,16,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,17,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,17,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,17,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,17,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,18,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,18,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,18,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,18,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,19,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,19,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,19,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,19,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,20,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,20,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,20,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,20,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,21,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,21,interleaved_odd_even_trial,50,"[28,22]",50,"[22,28]",True,True,True,False,True,
+Lee2019_MI,21,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,21,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,22,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,22,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,22,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,22,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,23,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,23,interleaved_odd_even_trial,50,"[24,26]",50,"[26,24]",True,True,True,False,True,
+Lee2019_MI,23,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,23,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,24,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,24,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,24,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,24,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,25,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,25,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,25,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,25,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,26,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,26,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,26,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,26,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,27,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,27,interleaved_odd_even_trial,50,"[26,24]",50,"[24,26]",True,True,True,False,True,
+Lee2019_MI,27,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,27,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,28,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,28,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,28,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,28,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,29,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,29,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,29,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,29,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,30,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,30,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,30,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,30,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,31,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,31,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,31,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,31,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,32,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,32,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,32,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,32,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,33,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,33,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,33,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,33,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,34,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,34,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,34,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,34,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,35,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,35,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,35,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,35,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,36,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,36,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,36,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,36,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,37,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,37,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,37,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,37,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,38,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,38,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,38,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,38,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,39,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,39,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,39,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,39,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,40,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,40,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,40,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,40,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,41,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,41,interleaved_odd_even_trial,50,"[31,19]",50,"[19,31]",True,True,True,False,True,
+Lee2019_MI,41,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,41,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,42,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,42,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,42,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,42,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,43,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,43,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,43,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,43,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,44,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,44,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,44,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,44,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,45,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,45,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,45,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,45,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,46,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,46,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,46,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,46,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,47,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,47,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,47,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,47,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,48,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,48,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,48,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,48,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,49,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,49,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,49,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,49,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,50,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,50,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,50,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,50,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,51,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,51,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,51,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,51,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,52,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,52,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,52,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,52,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,53,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,53,interleaved_odd_even_trial,50,"[22,28]",50,"[28,22]",True,True,True,False,True,
+Lee2019_MI,53,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,53,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
+Lee2019_MI,54,class_stratified_half,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,54,interleaved_odd_even_trial,50,"[27,23]",50,"[23,27]",True,True,True,False,True,
+Lee2019_MI,54,session_block_aware_stratified,50,"[25,25]",50,"[25,25]",True,True,True,False,True,
+Lee2019_MI,54,leave_one_run_out,0,"[0,0]",0,"[0,0]",True,False,False,False,True,fewer than 2 runs
