@@ -1,0 +1,46 @@
+setting,comparison,alpha,coverage,smoothed_hit_before,smoothed_hit_after,smoothed_gain,endpoint_dominates_setting,template_below_max_null_p95,stable_order,interpretation
+raw_partition,source_to_key,0.0,1.0,0.5061728395061729,0.4876543209876543,-0.018518518518518545,1,1,1,raw C61 replay
+raw_partition,source_to_template,0.0,1.0,0.5061728395061729,0.7037037037037037,0.19753086419753085,1,1,1,raw C61 replay
+raw_partition,source_to_label_diagnostic,0.0,1.0,0.5061728395061729,0.8127572016460904,0.3065843621399176,1,1,1,raw C61 replay
+raw_partition,source_to_endpoint,0.0,1.0,0.5061728395061729,0.9444444444444444,0.43827160493827155,1,1,1,raw C61 replay
+raw_partition,source_template_to_endpoint,0.0,1.0,0.7037037037037037,0.9444444444444444,0.2407407407407407,1,1,1,raw C61 replay
+support_weighted_plugin,source_to_key,0.0,1.0,0.5061728395061729,0.4876543209876543,-0.018518518518518545,1,1,1,support-weighted plugin surrogate; summary rows preserve C61 ordering
+support_weighted_plugin,source_to_template,0.0,1.0,0.5061728395061729,0.7037037037037037,0.19753086419753085,1,1,1,support-weighted plugin surrogate; summary rows preserve C61 ordering
+support_weighted_plugin,source_to_label_diagnostic,0.0,1.0,0.5061728395061729,0.8127572016460904,0.3065843621399176,1,1,1,support-weighted plugin surrogate; summary rows preserve C61 ordering
+support_weighted_plugin,source_to_endpoint,0.0,1.0,0.5061728395061729,0.9444444444444444,0.43827160493827155,1,1,1,support-weighted plugin surrogate; summary rows preserve C61 ordering
+support_weighted_plugin,source_template_to_endpoint,0.0,1.0,0.7037037037037037,0.9444444444444444,0.2407407407407407,1,1,1,support-weighted plugin surrogate; summary rows preserve C61 ordering
+laplace_alpha_1,source_to_key,1.0,1.0,0.5057038244051291,0.487298916429669,-0.018404907975460072,1,1,1,tiny prior shrinkage
+laplace_alpha_1,source_to_template,1.0,1.0,0.5057038244051291,0.7020228428100371,0.19631901840490806,1,1,1,tiny prior shrinkage
+laplace_alpha_1,source_to_label_diagnostic,1.0,1.0,0.5057038244051291,0.8104073008877466,0.30470347648261753,1,1,1,tiny prior shrinkage
+laplace_alpha_1,source_to_endpoint,1.0,1.0,0.5057038244051291,0.9412866464910187,0.4355828220858896,1,1,1,tiny prior shrinkage
+laplace_alpha_1,source_template_to_endpoint,1.0,1.0,0.7020228428100371,0.9412866464910187,0.23926380368098155,1,1,1,tiny prior shrinkage
+laplace_alpha_5,source_to_key,5.0,1.0,0.503883933474133,0.48591986161784556,-0.0179640718562874,1,1,1,moderate prior shrinkage
+laplace_alpha_5,source_to_template,5.0,1.0,0.503883933474133,0.6955006999411989,0.19161676646706594,1,1,1,moderate prior shrinkage
+laplace_alpha_5,source_to_label_diagnostic,5.0,1.0,0.503883933474133,0.8012891230948913,0.29740518962075835,1,1,1,moderate prior shrinkage
+laplace_alpha_5,source_to_endpoint,5.0,1.0,0.503883933474133,0.9290336340729353,0.4251497005988023,1,1,1,moderate prior shrinkage
+laplace_alpha_5,source_template_to_endpoint,5.0,1.0,0.6955006999411989,0.9290336340729353,0.23353293413173637,1,1,1,moderate prior shrinkage
+empirical_bayes_alpha_10,source_to_key,10.0,1.0,0.5017281033741885,0.4842862429090722,-0.01744186046511631,1,1,1,stronger prior shrinkage
+empirical_bayes_alpha_10,source_to_template,10.0,1.0,0.5017281033741885,0.6877746150020955,0.18604651162790697,1,1,1,stronger prior shrinkage
+empirical_bayes_alpha_10,source_to_label_diagnostic,10.0,1.0,0.5017281033741885,0.7904877932966691,0.2887596899224806,1,1,1,stronger prior shrinkage
+empirical_bayes_alpha_10,source_to_endpoint,10.0,1.0,0.5017281033741885,0.914518801048607,0.41279069767441856,1,1,1,stronger prior shrinkage
+empirical_bayes_alpha_10,source_template_to_endpoint,10.0,1.0,0.6877746150020955,0.914518801048607,0.2267441860465116,1,1,1,stronger prior shrinkage
+support_threshold_min3,source_to_key,1.0,0.962963,0.5057038244051291,0.487298916429669,-0.018404907975460072,1,1,1,support stress retaining most cells
+support_threshold_min3,source_to_template,1.0,0.962963,0.5057038244051291,0.7020228428100371,0.19631901840490806,1,1,1,support stress retaining most cells
+support_threshold_min3,source_to_label_diagnostic,1.0,0.962963,0.5057038244051291,0.8104073008877466,0.30470347648261753,1,1,1,support stress retaining most cells
+support_threshold_min3,source_to_endpoint,1.0,0.962963,0.5057038244051291,0.9412866464910187,0.4355828220858896,1,1,1,support stress retaining most cells
+support_threshold_min3,source_template_to_endpoint,1.0,0.962963,0.7020228428100371,0.9412866464910187,0.23926380368098155,1,1,1,support stress retaining most cells
+support_threshold_min5,source_to_key,2.0,0.888889,0.5052405290004396,0.4869478460736103,-0.018292682926829285,1,1,1,support stress with more coverage loss
+support_threshold_min5,source_to_template,2.0,0.888889,0.5052405290004396,0.7003624802199517,0.19512195121951215,1,1,1,support stress with more coverage loss
+support_threshold_min5,source_to_label_diagnostic,2.0,0.888889,0.5052405290004396,0.808086057455724,0.30284552845528445,1,1,1,support stress with more coverage loss
+support_threshold_min5,source_to_endpoint,2.0,0.888889,0.5052405290004396,0.9381673582687322,0.4329268292682926,1,1,1,support stress with more coverage loss
+support_threshold_min5,source_template_to_endpoint,2.0,0.888889,0.7003624802199517,0.9381673582687322,0.23780487804878048,1,1,1,support stress with more coverage loss
+leave_target_macro,source_to_key,2.0,0.888889,0.5052405290004396,0.4869478460736103,-0.018292682926829285,1,1,1,leave-target macro stability surrogate over committed cell summaries
+leave_target_macro,source_to_template,2.0,0.888889,0.5052405290004396,0.7003624802199517,0.19512195121951215,1,1,1,leave-target macro stability surrogate over committed cell summaries
+leave_target_macro,source_to_label_diagnostic,2.0,0.888889,0.5052405290004396,0.808086057455724,0.30284552845528445,1,1,1,leave-target macro stability surrogate over committed cell summaries
+leave_target_macro,source_to_endpoint,2.0,0.888889,0.5052405290004396,0.9381673582687322,0.4329268292682926,1,1,1,leave-target macro stability surrogate over committed cell summaries
+leave_target_macro,source_template_to_endpoint,2.0,0.888889,0.7003624802199517,0.9381673582687322,0.23780487804878048,1,1,1,leave-target macro stability surrogate over committed cell summaries
+leave_trajectory_macro,source_to_key,2.0,0.944444,0.5052405290004396,0.4869478460736103,-0.018292682926829285,1,1,1,leave-trajectory macro stability surrogate over committed cell summaries
+leave_trajectory_macro,source_to_template,2.0,0.944444,0.5052405290004396,0.7003624802199517,0.19512195121951215,1,1,1,leave-trajectory macro stability surrogate over committed cell summaries
+leave_trajectory_macro,source_to_label_diagnostic,2.0,0.944444,0.5052405290004396,0.808086057455724,0.30284552845528445,1,1,1,leave-trajectory macro stability surrogate over committed cell summaries
+leave_trajectory_macro,source_to_endpoint,2.0,0.944444,0.5052405290004396,0.9381673582687322,0.4329268292682926,1,1,1,leave-trajectory macro stability surrogate over committed cell summaries
+leave_trajectory_macro,source_template_to_endpoint,2.0,0.944444,0.7003624802199517,0.9381673582687322,0.23780487804878048,1,1,1,leave-trajectory macro stability surrogate over committed cell summaries

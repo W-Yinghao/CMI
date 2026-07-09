@@ -1,0 +1,14 @@
+gate,failed,finding
+c61_identity_replayed,0,C61 ladder is reproduced exactly from committed artifacts.
+full_conditional_cs_not_silently_claimed,0,Full sample-level conditional CS is marked unsupported.
+partition_smoothing_stable,0,Partition ladder ordering survives smoothing/support stress.
+endpoint_dominates_partition_and_proxy,0,Endpoint dominates template across binary and summary-kernel proxies.
+template_partial_below_null,0,Template partial signal remains below max null p95.
+endpoint_beats_null,0,Endpoint scalar remains above max null p95.
+template_does_not_screen_endpoint,0,Template does not screen off endpoint.
+source_escape_hatch_closed,0,No source-observable estimator escape hatch found.
+synthetic_candidate_gauge_positive,0,Synthetic candidate-specific gauge rows can flip ranking.
+synthetic_common_offset_negative_control,0,Common-offset negative control cannot flip pair ranking.
+instrumentation_not_authorized,0,Future instrumentation/training remains unauthorized in C62.
+forbidden_scan_passed,0,Forbidden affirmative claim scan passed.
+large_artifact_scan_passed,0,All listed artifacts are under 50MB.

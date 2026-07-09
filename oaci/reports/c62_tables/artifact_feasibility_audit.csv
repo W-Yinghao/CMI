@@ -1,0 +1,11 @@
+artifact_requirement,present,sufficient_for_full_conditional_cs,decision,evidence
+candidate_level_source_scores,1,0,summary_scores_available,C61 information/source ledgers
+candidate_level_target_endpoint_labels,1,0,diagnostic_endpoint_available,C53-C61 frozen endpoint summaries
+candidate_level_target_endpoint_scalar,1,0,same_label_oracle_available_frozen_only,C54-C61 endpoint scalar boundary
+per_cell_or_per_trajectory_rows,1,0,supports_partition_cod,C50-C61 c*_tables
+per_trial_predictions_probabilities_logits,0,1,missing_trial_level_cache,C61 estimator boundary
+per_trial_labels,0,1,missing_split_label_cache,C53-C55 split label unavailable
+representation_tensors,0,1,missing_raw_sample_pairs,C61 conditional CS KDE not primary
+atom_leakage_traces,0,0,missing_atom_trace_for_mechanism_not_for_c62_ladder,C39-C41 atom branch closed for current artifacts
+independent_checkpoint_field_replication,0,0,future_replication_only,C60/C61 training gates
+overall_feasibility_decision,1,0,SUMMARY_LEVEL_KERNEL_PROXY_ONLY_AND_TRIAL_LEVEL_CACHE_REQUIRED,partition supported; full sample estimator unsupported

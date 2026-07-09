@@ -1,0 +1,8 @@
+need_id,future_artifact,needed_for_full_cs,needed_for_c62_partition_claim,authorized_in_c62,gate_decision,reason
+IG1,sample_level_conditional_cs_cache,1,0,0,TRIAL_LEVEL_CACHE_NEEDED_BUT_NOT_AUTHORIZED,full Gram/KDE estimator needs paired sample variables
+IG2,split_label_or_few_label_cache,1,0,0,TRIAL_LEVEL_CACHE_NEEDED_BUT_NOT_AUTHORIZED,same-label endpoint oracle cannot be reinterpreted as split-label evidence
+IG3,per_trial_logits_probabilities,1,0,0,TRIAL_LEVEL_CACHE_NEEDED_BUT_NOT_AUTHORIZED,needed for sample-level conditional distributions
+IG4,atom_level_leakage_trace,0,0,0,ATOM_TRACE_NEEDED_BUT_NOT_AUTHORIZED,"mechanism trace only, not needed for C62 ladder"
+IG5,independent_checkpoint_field_replication,0,0,0,REPLICATION_FIELD_NEEDED_BUT_NOT_AUTHORIZED,replication useful but not C62 execution
+IG6,real_eeg_training_or_reinfer,0,0,0,TRAINING_NOT_AUTHORIZED_IN_C62,"no training, re-inference, GPU, BNCI2014_004, or seeds [3,4] in C62"
+IG7,distribution_theorem_bridge,0,0,0,NOT_REQUIRED_FOR_C62,C62 is estimator stress over frozen artifacts

@@ -1,0 +1,9 @@
+estimator_id,estimator_family,supported_by_existing_artifacts,full_conditional_cs,requires_sample_level_pairs,uses_target_labels,uses_same_label_endpoint_scalar,source_only_dg_available,diagnostic_only,status
+E0,random_tie_baseline,1,0,0,0,0,1,0,baseline_replay
+E1,finite_partition_plugin_cod,1,0,0,1,0,0,1,primary_supported
+E2,binary_y_divergence_proxy,1,0,0,1,0,0,1,primary_supported
+E3,smoothed_partition_cod,1,0,0,1,0,0,1,stress_supported
+E4,summary_level_kernel_cs_proxy,1,0,0,1,1,0,1,proxy_only_unstable
+E5,conditional_entropy_or_cmi_proxy,1,0,0,1,0,0,1,binary_summary_proxy
+E6,sample_level_kde_gram_conditional_cs,0,1,1,1,0,0,1,trial_level_cache_required
+E7,calibration_brier_js_proxy,1,0,0,1,1,0,1,endpoint_summary_proxy_only

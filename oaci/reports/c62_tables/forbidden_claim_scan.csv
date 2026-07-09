@@ -1,0 +1,22 @@
+pattern,total_hits,affirmative_hits,files,passed
+source-only rescue,0,0,,1
+OACI rescue,0,0,,1
+deployable selector,0,0,,1
+checkpoint recommendation,0,0,,1
+selected_candidate_id,0,0,,1
+chosen checkpoint,0,0,,1
+few-label sufficiency,0,0,,1
+same-label endpoint scalar available at selection time,0,0,,1
+template-only beats max null p95,0,0,,1
+full conditional-CS estimator supported,0,0,,1
+EEG distribution theorem,0,0,,1
+minimax theorem,0,0,,1
+theorem-grade Le Cam,0,0,,1
+theorem-grade Fano,0,0,,1
+theorem-grade Assouad,0,0,,1
+manuscript drafting started,0,0,,1
+new real EEG training,0,0,,1
+silent re-inference,0,0,,1
+BNCI2014_004 used,0,0,,1
+"seeds [3,4] used",0,0,,1
+GPU required,0,0,,1
