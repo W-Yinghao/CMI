@@ -1,0 +1,4 @@
+adversary,allowed_variables,target_labels_used,status,escape_hatch_found
+source_logits_probability_summary,source logits/probs only,0,planned_not_run_not_authorized,0
+source_trial_correctness_summary,source labels only if source-domain labels are available,0,planned_not_run_not_authorized,0
+checkpoint_metadata_template,seed;target-key diagnostic;level;regime;candidate_order,0,planned_not_run_not_authorized,0

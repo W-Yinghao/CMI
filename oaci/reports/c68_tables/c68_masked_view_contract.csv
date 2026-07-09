@@ -1,0 +1,6 @@
+view,inherits_c67_projection,scaleup_status,label_visible_rows_c67,prediction_visible_rows_c67,available_at_selection_time,diagnostic_only,selection_path_enforced,policy_boundary_only,status
+source_only_view,source_only_selection,dry_run_not_authorized,0,0,0,1,1,0,pass
+target_construction_view,split_label_construct,dry_run_not_authorized,1688,3456,0,1,1,0,pass
+target_evaluation_view,heldout_eval,dry_run_not_authorized,1768,3456,0,1,1,0,pass
+same_label_oracle_view,diagnostic_full,dry_run_not_authorized,3456,3456,0,1,0,1,pass
+conditional_cs_diagnostic_view,diagnostic_full,dry_run_not_authorized,3456,3456,0,1,0,1,pass

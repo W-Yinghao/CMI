@@ -1,0 +1,3 @@
+test,rows_written,schema_field_count,sha256,raw_eeg_cache,passed
+synthetic_cache_schema_writer,2,17,8b268e36c7080ec196354f10ba91854544a758e805cc568e2d9538cc158bcd41,0,1
+synthetic_source_only_masking,2,17,9efdb5b80e8d9c5aa21b2b083efca19ce5cae68e8c955a38989cb0bd0926acd3,0,1

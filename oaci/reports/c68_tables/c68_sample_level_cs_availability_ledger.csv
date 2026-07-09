@@ -1,0 +1,5 @@
+variable,uses_target_labels,uses_eval_labels,available_at_selection_time,diagnostic_only
+X1_source_only,0,0,1,0
+X2_construction_target_summary,1,0,0,1
+X2_same_label_endpoint_scalar,1,1,0,1
+Y_heldout_eval_response,1,1,0,1

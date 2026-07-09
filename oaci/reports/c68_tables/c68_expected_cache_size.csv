@@ -1,0 +1,5 @@
+rung,bytes_per_row_from_c66,estimated_trial_rows,estimated_cache_bytes,estimated_cache_mib,external_only,raw_cache_committable_to_git
+T0_micro_replay,591.702,3456,2044923,1.95,1,0
+T1_pilot_scale,591.702,36864,21812512,20.802,1,0
+T2_medium_scale,591.702,124416,73617228,70.207,1,0
+T3_full_physical_dedup,591.702,730368,432160394,412.14,1,0

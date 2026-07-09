@@ -1,0 +1,4 @@
+bandwidth_family,status,support_gate,null_required
+median_heuristic_x0.5,planned_not_run,>=64 independent units,1
+median_heuristic_x1.0,planned_not_run,>=64 independent units,1
+median_heuristic_x2.0,planned_not_run,>=64 independent units,1

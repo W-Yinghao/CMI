@@ -1,0 +1,3 @@
+estimator,status,x1,x2,y,full_cs_claim_allowed_now,notes
+gram_kernel_conditional_cs,not_run_not_authorized,source_only_or_checkpoint_metadata,construction_split_target_summary,heldout_trial_response,0,requires scaled sample cache
+summary_kernel_proxy,not_run_not_authorized,source_summary,trajectory_diagnostic_summary,eval_endpoint,0,proxy must remain labeled proxy

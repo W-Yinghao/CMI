@@ -1,0 +1,16 @@
+pattern,total_hits,affirmative_hits,files,passed
+re-inference-only scale-up authorized,0,0,,1
+training authorized,0,0,,1
+new training,0,0,,1
+gradient update,0,0,,1
+GPU required,0,0,,1
+BNCI2014_004 used,0,0,,1
+"seeds [3,4] used",0,0,,1
+few-label sufficiency established,0,0,,1
+full conditional-CS established,0,0,,1
+source-only rescue,1,0,oaci/reports/C68_POWERED_TRIAL_CACHE_SCALEUP.md,1
+OACI rescue,1,0,oaci/reports/C68_POWERED_TRIAL_CACHE_SCALEUP.md,1
+deployable selector,1,0,oaci/reports/C68_POWERED_TRIAL_CACHE_SCALEUP.md,1
+checkpoint recommendation,5,0,oaci/reports/C68_POWERED_TRIAL_CACHE_SCALEUP.md;oaci/reports/c68_tables/c68_scaleup_sampling_plan.csv,1
+manuscript drafting,0,0,,1
+same-label oracle available at selection time,0,0,,1

@@ -1,0 +1,4 @@
+null,status,preserves,requires_authorized_cache
+x2_permutation_within_target,planned_not_run,target base rate,1
+label_preserving_trial_shuffle,planned_not_run,label marginals,1
+leave_checkpoint_out_stress,planned_not_run,checkpoint independence,1

@@ -1,0 +1,14 @@
+gate,failed,finding
+authorization_absent_no_forward,0,C68 is readiness-only because the authorization phrase is absent.
+c67_replay_passed,0,C67 dual-mode cache contract replayed.
+c65_universe_passed,0,C65/C50 frozen universe replayed.
+scaleup_plan_manifested,0,T0/T1/T2/T3 scale-up plan exists.
+no_raw_cache_committed,0,Scaled raw cache remains external-only if later authorized.
+reserved_holdouts_preserved,0,No BNCI2014_004 or seeds 3/4 in plan.
+masking_contract_passed,0,View/masking dry-run passes.
+split_label_not_claimed,0,Split-label powered diagnostic not run and not claimed.
+cs_not_claimed,0,Conditional-CS not run and not claimed.
+source_escape_not_claimed,0,No source-only escape hatch claim without scaled cache.
+new_training_still_not_justified,0,"Frozen re-inference-only route remains the next authorized step, not training."
+large_artifact_scan_passed,0,All C68 git artifacts are below 50MB.
+forbidden_scan_passed,0,Forbidden affirmative claim scan passed.
