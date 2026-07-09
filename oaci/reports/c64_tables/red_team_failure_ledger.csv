@@ -1,0 +1,13 @@
+gate,failed,finding
+frozen_paths_saturated,0,Frozen summary paths are explicitly saturated.
+trial_cache_schema_ready,0,Trial-level cache schema has required identity/prediction/label fields.
+split_label_protocol_ready,0,Split-label forbidden-claim boundary is explicit.
+full_cs_not_supported_now,0,Full conditional-CS sample estimator is not marked supported.
+missing_data_ledger_blocks_cs,0,Missing data ledger blocks split-label/full-CS.
+reinference_not_authorized,0,Re-inference remains unauthorized and conditional.
+training_not_authorized,0,Training remains unauthorized.
+checkpoint_inventory_honest,0,Checkpoint inventory matches gate decision.
+atom_protocol_ready_not_claimed_current,0,Atom trace claims remain future protocol only.
+reserved_holdout_preserved,0,Reserved holdout remains unreleased.
+forbidden_scan_passed,0,Forbidden affirmative claim scan passed.
+large_artifact_scan_passed,0,All listed artifacts are under 50MB.

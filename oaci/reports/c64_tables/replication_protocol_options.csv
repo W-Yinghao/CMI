@@ -1,0 +1,5 @@
+option,uses_reserved_holdout,new_training,value,authorized,notes
+reuse_current_frozen_universe,0,0,low,0,summary paths saturated
+re_infer_current_checkpoints,0,0,high,0,best next low-confound path if checkpoints are recoverable
+new_nonreserved_checkpoint_field,0,1,medium_high,0,"replication without releasing BNCI2014_004/seeds [3,4]"
+reserved_holdout_final_stress,1,1,high_but_should_preserve,0,"BNCI2014_004 and seeds [3,4] remain reserved"

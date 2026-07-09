@@ -1,0 +1,5 @@
+path,expected_information_gain,risk,recommendation
+more_frozen_summary_audit,low,low,stop_as_primary_path
+re_inference_trial_cache,high,low_medium,best_next_authorization_candidate_if_checkpoints_recoverable
+new_atom_trace_training,medium_high,medium_high,only after explicit training authorization
+independent_replication,high,medium,protocol_ready_not_authorized

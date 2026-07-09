@@ -1,0 +1,5 @@
+claim,requires_trace,identity_gate_required,current_supported,future_status
+atom sums reproduce aggregate leakage,1,1,0,protocol_ready_not_authorized
+domain_x_class_x_checkpoint atoms explain offset,1,1,0,protocol_ready_not_authorized
+atom branch closed under current artifacts,0,0,1,current_boundary
+atom trace selector/action-rule claim,1,1,0,forbidden_action_claim

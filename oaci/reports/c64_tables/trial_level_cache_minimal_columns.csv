@@ -1,0 +1,27 @@
+column,category,minimality,label_dependency,needed_for_split_label,available_at_selection_time_if_source_only
+candidate_id,identity,yes,none,1,1
+checkpoint_id,identity,yes,none,1,1
+dataset_id,identity,yes,none,1,1
+target_subject,identity,yes,target metadata,1,1
+source_subjects,identity,yes,source metadata,1,1
+seed,identity,yes,training metadata,1,1
+trajectory_id,identity,yes,trajectory metadata,1,1
+epoch_or_step,identity,yes,trajectory metadata,1,1
+regime_objective,identity,yes,training metadata,1,1
+trial_id,trial,yes,none,1,1
+split_id,split,yes,none,1,1
+split_role,split,yes,none,1,1
+domain_id,trial,yes,none,1,1
+class_label,label,yes,target/source label,1,0
+prediction,prediction,yes,model output,1,0
+correct_flag,endpoint,yes,label-derived,1,0
+logits,prediction,yes,model output,1,0
+probabilities,prediction,yes,model output,1,0
+confidence,prediction,recommended,model output,0,0
+per_class_margins,prediction,recommended,model output,0,0
+nll,endpoint_component,recommended,label-derived,0,0
+ece_bin_components,calibration,recommended,label-derived,0,0
+representation_z,representation,optional,model internal,0,0
+projection_Wz,representation,optional,model internal,0,0
+source_target_flag,split,yes,none,1,1
+audit_role,split,yes,none,1,1

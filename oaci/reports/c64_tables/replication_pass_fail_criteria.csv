@@ -1,0 +1,6 @@
+criterion,pass_rule,requires_new_field
+rank_gauge_source_weak_signal,source signal nonzero but below endpoint oracle,1
+endpoint_oracle_boundary,same-label endpoint scalar dominates but is unavailable at selection time,1
+cod_ladder_order,endpoint > label diagnostic > template > source/key,1
+split_label_disjointness,construction/evaluation target labels disjoint,0
+no_tuning,all thresholds/splits pre-registered before running,0

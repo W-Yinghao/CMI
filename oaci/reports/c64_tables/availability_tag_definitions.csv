@@ -1,0 +1,8 @@
+tag,definition,allowed_for_source_rule,diagnostic_only
+source_only,"constructible from source-side metadata, labels, or predictions only",1,0
+target_unlabeled,target inputs/predictions without target labels,0,1
+target_label_construct,target labels used only on construction split,0,1
+target_label_eval,held-out target labels reserved for evaluation only,0,1
+same_label_oracle,same candidate endpoint labels/scalars used for construction and evaluation,0,1
+split_label_allowed,target-label diagnostic constructed/evaluated on disjoint splits,0,1
+available_at_selection_time,available before target endpoint evaluation under original DG setting,1,0

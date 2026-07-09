@@ -1,0 +1,5 @@
+test_scope,command,status,environment,slurm_partition
+focused_c64,python -m pytest oaci/tests/test_c64_trial_level_instrumentation_readiness.py -q,green,eeg2025,cpu-high
+c50_c64_slice,python -m pytest oaci/tests/test_c5*.py oaci/tests/test_c60_rank_gauge_proof_stress_empirical_bridge.py oaci/tests/test_c61_conditional_observability_divergence.py oaci/tests/test_c62_conditional_divergence_estimator_stress.py oaci/tests/test_c63_trajectory_dynamic_observability.py oaci/tests/test_c64_trial_level_instrumentation_readiness.py -q,green,eeg2025,cpu-high
+c23_c64_regression,python -m pytest oaci/tests/test_c2[3-9]_*.py oaci/tests/test_c3*.py oaci/tests/test_c4*.py oaci/tests/test_c5*.py oaci/tests/test_c60_rank_gauge_proof_stress_empirical_bridge.py oaci/tests/test_c61_conditional_observability_divergence.py oaci/tests/test_c62_conditional_divergence_estimator_stress.py oaci/tests/test_c63_trajectory_dynamic_observability.py oaci/tests/test_c64_trial_level_instrumentation_readiness.py -q,green,eeg2025,cpu-high
+full_oaci_tests,python -m pytest oaci/tests -q,green,eeg2025,cpu-high

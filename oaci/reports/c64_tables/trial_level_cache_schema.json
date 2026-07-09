@@ -1,0 +1,256 @@
+{
+  "availability_tags": [
+    {
+      "allowed_for_source_rule": 1,
+      "definition": "constructible from source-side metadata, labels, or predictions only",
+      "diagnostic_only": 0,
+      "tag": "source_only"
+    },
+    {
+      "allowed_for_source_rule": 0,
+      "definition": "target inputs/predictions without target labels",
+      "diagnostic_only": 1,
+      "tag": "target_unlabeled"
+    },
+    {
+      "allowed_for_source_rule": 0,
+      "definition": "target labels used only on construction split",
+      "diagnostic_only": 1,
+      "tag": "target_label_construct"
+    },
+    {
+      "allowed_for_source_rule": 0,
+      "definition": "held-out target labels reserved for evaluation only",
+      "diagnostic_only": 1,
+      "tag": "target_label_eval"
+    },
+    {
+      "allowed_for_source_rule": 0,
+      "definition": "same candidate endpoint labels/scalars used for construction and evaluation",
+      "diagnostic_only": 1,
+      "tag": "same_label_oracle"
+    },
+    {
+      "allowed_for_source_rule": 0,
+      "definition": "target-label diagnostic constructed/evaluated on disjoint splits",
+      "diagnostic_only": 1,
+      "tag": "split_label_allowed"
+    },
+    {
+      "allowed_for_source_rule": 1,
+      "definition": "available before target endpoint evaluation under original DG setting",
+      "diagnostic_only": 0,
+      "tag": "available_at_selection_time"
+    }
+  ],
+  "columns": [
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "identity",
+      "column": "candidate_id",
+      "label_dependency": "none",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "identity",
+      "column": "checkpoint_id",
+      "label_dependency": "none",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "identity",
+      "column": "dataset_id",
+      "label_dependency": "none",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "identity",
+      "column": "target_subject",
+      "label_dependency": "target metadata",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "identity",
+      "column": "source_subjects",
+      "label_dependency": "source metadata",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "identity",
+      "column": "seed",
+      "label_dependency": "training metadata",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "identity",
+      "column": "trajectory_id",
+      "label_dependency": "trajectory metadata",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "identity",
+      "column": "epoch_or_step",
+      "label_dependency": "trajectory metadata",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "identity",
+      "column": "regime_objective",
+      "label_dependency": "training metadata",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "trial",
+      "column": "trial_id",
+      "label_dependency": "none",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "split",
+      "column": "split_id",
+      "label_dependency": "none",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "split",
+      "column": "split_role",
+      "label_dependency": "none",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "trial",
+      "column": "domain_id",
+      "label_dependency": "none",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "label",
+      "column": "class_label",
+      "label_dependency": "target/source label",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "prediction",
+      "column": "prediction",
+      "label_dependency": "model output",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "endpoint",
+      "column": "correct_flag",
+      "label_dependency": "label-derived",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "prediction",
+      "column": "logits",
+      "label_dependency": "model output",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "prediction",
+      "column": "probabilities",
+      "label_dependency": "model output",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "prediction",
+      "column": "confidence",
+      "label_dependency": "model output",
+      "minimality": "recommended",
+      "needed_for_split_label": 0
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "prediction",
+      "column": "per_class_margins",
+      "label_dependency": "model output",
+      "minimality": "recommended",
+      "needed_for_split_label": 0
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "endpoint_component",
+      "column": "nll",
+      "label_dependency": "label-derived",
+      "minimality": "recommended",
+      "needed_for_split_label": 0
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "calibration",
+      "column": "ece_bin_components",
+      "label_dependency": "label-derived",
+      "minimality": "recommended",
+      "needed_for_split_label": 0
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "representation",
+      "column": "representation_z",
+      "label_dependency": "model internal",
+      "minimality": "optional",
+      "needed_for_split_label": 0
+    },
+    {
+      "available_at_selection_time_if_source_only": 0,
+      "category": "representation",
+      "column": "projection_Wz",
+      "label_dependency": "model internal",
+      "minimality": "optional",
+      "needed_for_split_label": 0
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "split",
+      "column": "source_target_flag",
+      "label_dependency": "none",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    },
+    {
+      "available_at_selection_time_if_source_only": 1,
+      "category": "split",
+      "column": "audit_role",
+      "label_dependency": "none",
+      "minimality": "yes",
+      "needed_for_split_label": 1
+    }
+  ]
+}

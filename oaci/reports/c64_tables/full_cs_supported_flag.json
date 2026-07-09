@@ -1,0 +1,4 @@
+{
+  "full_conditional_cs_supported_now": false,
+  "reason": "sample-level paired variables are missing"
+}

@@ -1,0 +1,7 @@
+need,reinference_only_possible,new_training_required,decision
+split_label_trial_cache,1,0,prefer_reinference_if_frozen_checkpoints_recoverable
+full_time_series_conditional_cs,1,0,prefer_reinference_if_logits_probabilities_windows_recoverable
+representations_Wz,1,0,forward-hook re-inference if checkpoint/model available
+atom_trace,0,1,training-time instrumentation likely required
+independent_checkpoint_field_replication,0,1,new field required but not authorized
+overall_training_gate,0,0,TRAINING_NOT_AUTHORIZED_IN_C64

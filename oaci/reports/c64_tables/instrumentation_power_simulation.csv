@@ -1,0 +1,6 @@
+simulation,n_construct,n_eval,expected_power_class,value
+split_label_detection,20,20,low_medium,pilot
+split_label_detection,40,40,medium,recommended_minimum
+split_label_detection,80,80,high,stable
+conditional_cs_gram_stability,100,100,medium,bandwidth_grid_needed
+atom_trace_identity,0,0,deterministic_identity_gate,requires instrumentation not sample power

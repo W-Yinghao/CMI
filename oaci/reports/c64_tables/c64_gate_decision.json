@@ -1,0 +1,18 @@
+{
+  "authorized_in_c64": false,
+  "checkpoint_weights_found_in_checkout": 0,
+  "decision": "protocols ready; execution requires explicit user authorization",
+  "final_gate": "TRIAL_LEVEL_CACHE_CAMPAIGN_READY_BUT_NOT_AUTHORIZED",
+  "frozen_summary_paths_saturated": true,
+  "gpu_authorized": false,
+  "new_training_authorized": false,
+  "new_training_scientifically_needed_for": [
+    "atom_trace",
+    "independent_checkpoint_replication"
+  ],
+  "reinference_authorized": false,
+  "reinference_only_sufficient_from_current_checkout": false,
+  "reinference_subgate": "CONDITIONALLY_SUFFICIENT_IF_FROZEN_CHECKPOINTS_AND_PREPROCESSING_ARE_RECOVERABLE",
+  "training_authorized": false,
+  "training_gate": "TRAINING_NOT_AUTHORIZED_IN_C64"
+}

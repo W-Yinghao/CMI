@@ -1,0 +1,6 @@
+estimator_component,project_mapping,current_supported,required_cache,protocol_ready
+"p(y|x1) vs p(y|x1,x2)",target trial correctness/logit margin conditioned on source trajectory state plus split-label diagnostic,0,"trial_id, split_role, logits, probabilities, labels, source/target flag",1
+Gram/KDE sample matrix,"paired trial-level x1,x2,y samples",0,sample-level paired variables,1
+Hankel past-window response,past K checkpoint source state to response endpoint/logit,0,raw trajectory windows and per-step predictions,1
+summary kernel proxy,C62/C63 hit-delta RBF proxy,1,summary tables only,1
+split-label conditional diagnostic,"construct target-label feature on split A, evaluate on split B",0,disjoint target splits,1
