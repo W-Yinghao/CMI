@@ -1,0 +1,1982 @@
+[
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.14744356740464687,
+    "fold_id": "1",
+    "max_label_fraction": 0.3246527777777778,
+    "normalized_entropy_mean": 0.10635805175283082,
+    "passed": true,
+    "predicted_label_counts": [
+      187,
+      145,
+      139,
+      105
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.16402472573388482,
+    "fold_id": "1",
+    "max_label_fraction": 0.3246527777777778,
+    "normalized_entropy_mean": 0.11831882919972399,
+    "passed": true,
+    "predicted_label_counts": [
+      187,
+      145,
+      139,
+      105
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.16014061240353497,
+    "fold_id": "1",
+    "max_label_fraction": 0.3211805555555556,
+    "normalized_entropy_mean": 0.11551703367975076,
+    "passed": true,
+    "predicted_label_counts": [
+      185,
+      144,
+      139,
+      108
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.11595663102656885,
+    "fold_id": "1",
+    "max_label_fraction": 0.3072916666666667,
+    "normalized_entropy_mean": 0.0836450282701111,
+    "passed": true,
+    "predicted_label_counts": [
+      177,
+      141,
+      143,
+      115
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.12670990861815873,
+    "fold_id": "1",
+    "max_label_fraction": 0.3038194444444444,
+    "normalized_entropy_mean": 0.09140187839745567,
+    "passed": true,
+    "predicted_label_counts": [
+      175,
+      140,
+      144,
+      117
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.28226951072596607,
+    "fold_id": "2",
+    "max_label_fraction": 0.6302083333333334,
+    "normalized_entropy_mean": 0.20361441165925265,
+    "passed": true,
+    "predicted_label_counts": [
+      363,
+      72,
+      94,
+      47
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.31174883760610184,
+    "fold_id": "2",
+    "max_label_fraction": 0.6302083333333334,
+    "normalized_entropy_mean": 0.22487925100861095,
+    "passed": true,
+    "predicted_label_counts": [
+      363,
+      72,
+      94,
+      47
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.3617600958448127,
+    "fold_id": "2",
+    "max_label_fraction": 0.5868055555555556,
+    "normalized_entropy_mean": 0.26095474813341374,
+    "passed": true,
+    "predicted_label_counts": [
+      338,
+      79,
+      99,
+      60
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.26584751906961335,
+    "fold_id": "2",
+    "max_label_fraction": 0.546875,
+    "normalized_entropy_mean": 0.19176844869718265,
+    "passed": true,
+    "predicted_label_counts": [
+      315,
+      86,
+      110,
+      65
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.32281965335720214,
+    "fold_id": "2",
+    "max_label_fraction": 0.5190972222222222,
+    "normalized_entropy_mean": 0.23286515649996486,
+    "passed": true,
+    "predicted_label_counts": [
+      299,
+      92,
+      110,
+      75
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.2106472708138805,
+    "fold_id": "3",
+    "max_label_fraction": 0.3159722222222222,
+    "normalized_entropy_mean": 0.15194988648998994,
+    "passed": true,
+    "predicted_label_counts": [
+      182,
+      109,
+      106,
+      179
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.22936707821823765,
+    "fold_id": "3",
+    "max_label_fraction": 0.3159722222222222,
+    "normalized_entropy_mean": 0.16545337314432124,
+    "passed": true,
+    "predicted_label_counts": [
+      182,
+      109,
+      106,
+      179
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.22326489455283227,
+    "fold_id": "3",
+    "max_label_fraction": 0.3125,
+    "normalized_entropy_mean": 0.16105157808798423,
+    "passed": true,
+    "predicted_label_counts": [
+      180,
+      111,
+      107,
+      178
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.14968880716506117,
+    "fold_id": "3",
+    "max_label_fraction": 0.3194444444444444,
+    "normalized_entropy_mean": 0.10797764988680904,
+    "passed": true,
+    "predicted_label_counts": [
+      147,
+      123,
+      122,
+      184
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.16195438474532833,
+    "fold_id": "3",
+    "max_label_fraction": 0.3177083333333333,
+    "normalized_entropy_mean": 0.11682539386115419,
+    "passed": true,
+    "predicted_label_counts": [
+      147,
+      123,
+      123,
+      183
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.2125611851393792,
+    "fold_id": "4",
+    "max_label_fraction": 0.4166666666666667,
+    "normalized_entropy_mean": 0.1533304838430316,
+    "passed": true,
+    "predicted_label_counts": [
+      233,
+      42,
+      240,
+      61
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.23311164051041405,
+    "fold_id": "4",
+    "max_label_fraction": 0.4166666666666667,
+    "normalized_entropy_mean": 0.16815450386893258,
+    "passed": true,
+    "predicted_label_counts": [
+      233,
+      42,
+      240,
+      61
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.23676515241643697,
+    "fold_id": "4",
+    "max_label_fraction": 0.4131944444444444,
+    "normalized_entropy_mean": 0.1707899556232566,
+    "passed": true,
+    "predicted_label_counts": [
+      224,
+      48,
+      238,
+      66
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.16664298152205104,
+    "fold_id": "4",
+    "max_label_fraction": 0.4392361111111111,
+    "normalized_entropy_mean": 0.1202075015204071,
+    "passed": true,
+    "predicted_label_counts": [
+      207,
+      46,
+      253,
+      70
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.18833046109485366,
+    "fold_id": "4",
+    "max_label_fraction": 0.4288194444444444,
+    "normalized_entropy_mean": 0.13585171113493863,
+    "passed": true,
+    "predicted_label_counts": [
+      204,
+      50,
+      247,
+      75
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.1693530596783242,
+    "fold_id": "5",
+    "max_label_fraction": 0.765625,
+    "normalized_entropy_mean": 0.1221624096786455,
+    "passed": true,
+    "predicted_label_counts": [
+      45,
+      441,
+      46,
+      44
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.1877355766779696,
+    "fold_id": "5",
+    "max_label_fraction": 0.765625,
+    "normalized_entropy_mean": 0.13542259273586826,
+    "passed": true,
+    "predicted_label_counts": [
+      45,
+      441,
+      46,
+      44
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.20198485703303815,
+    "fold_id": "5",
+    "max_label_fraction": 0.7309027777777778,
+    "normalized_entropy_mean": 0.1457012757881152,
+    "passed": true,
+    "predicted_label_counts": [
+      53,
+      421,
+      54,
+      48
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.12000371369132418,
+    "fold_id": "5",
+    "max_label_fraction": 0.7777777777777778,
+    "normalized_entropy_mean": 0.0865643813153662,
+    "passed": true,
+    "predicted_label_counts": [
+      29,
+      448,
+      57,
+      42
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.13738978064641244,
+    "fold_id": "5",
+    "max_label_fraction": 0.7482638888888888,
+    "normalized_entropy_mean": 0.09910577760370086,
+    "passed": true,
+    "predicted_label_counts": [
+      39,
+      431,
+      59,
+      47
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.14297783665397368,
+    "fold_id": "6",
+    "max_label_fraction": 0.5711805555555556,
+    "normalized_entropy_mean": 0.10313670794886004,
+    "passed": true,
+    "predicted_label_counts": [
+      329,
+      18,
+      57,
+      172
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.1592378434110269,
+    "fold_id": "6",
+    "max_label_fraction": 0.5711805555555556,
+    "normalized_entropy_mean": 0.11486582350547091,
+    "passed": true,
+    "predicted_label_counts": [
+      329,
+      18,
+      57,
+      172
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.16812315176998494,
+    "fold_id": "6",
+    "max_label_fraction": 0.5434027777777778,
+    "normalized_entropy_mean": 0.12127521865858991,
+    "passed": true,
+    "predicted_label_counts": [
+      313,
+      19,
+      65,
+      179
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.13023830962021904,
+    "fold_id": "6",
+    "max_label_fraction": 0.5277777777777778,
+    "normalized_entropy_mean": 0.0939470817114257,
+    "passed": true,
+    "predicted_label_counts": [
+      304,
+      22,
+      69,
+      181
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.15036722119052498,
+    "fold_id": "6",
+    "max_label_fraction": 0.5104166666666666,
+    "normalized_entropy_mean": 0.10846702216191212,
+    "passed": true,
+    "predicted_label_counts": [
+      294,
+      28,
+      74,
+      180
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.3307679447716625,
+    "fold_id": "7",
+    "max_label_fraction": 0.390625,
+    "normalized_entropy_mean": 0.238598636803556,
+    "passed": true,
+    "predicted_label_counts": [
+      225,
+      191,
+      93,
+      67
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.3534861321723126,
+    "fold_id": "7",
+    "max_label_fraction": 0.390625,
+    "normalized_entropy_mean": 0.25498634495400807,
+    "passed": true,
+    "predicted_label_counts": [
+      225,
+      191,
+      93,
+      67
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.3538342945481342,
+    "fold_id": "7",
+    "max_label_fraction": 0.3680555555555556,
+    "normalized_entropy_mean": 0.255237491020519,
+    "passed": true,
+    "predicted_label_counts": [
+      212,
+      190,
+      96,
+      78
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.24207745381735352,
+    "fold_id": "7",
+    "max_label_fraction": 0.3454861111111111,
+    "normalized_entropy_mean": 0.1746219710666615,
+    "passed": true,
+    "predicted_label_counts": [
+      173,
+      199,
+      122,
+      82
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.2591839352271316,
+    "fold_id": "7",
+    "max_label_fraction": 0.34375,
+    "normalized_entropy_mean": 0.18696168901513455,
+    "passed": true,
+    "predicted_label_counts": [
+      166,
+      198,
+      122,
+      90
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.1133664325218107,
+    "fold_id": "8",
+    "max_label_fraction": 0.2916666666666667,
+    "normalized_entropy_mean": 0.0817765950012448,
+    "passed": true,
+    "predicted_label_counts": [
+      127,
+      120,
+      168,
+      161
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.12686577197208238,
+    "fold_id": "8",
+    "max_label_fraction": 0.2916666666666667,
+    "normalized_entropy_mean": 0.09151431004133664,
+    "passed": true,
+    "predicted_label_counts": [
+      127,
+      120,
+      168,
+      161
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.12340199423031434,
+    "fold_id": "8",
+    "max_label_fraction": 0.2916666666666667,
+    "normalized_entropy_mean": 0.08901572255594149,
+    "passed": true,
+    "predicted_label_counts": [
+      128,
+      120,
+      168,
+      160
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.10681198732966853,
+    "fold_id": "8",
+    "max_label_fraction": 0.2795138888888889,
+    "normalized_entropy_mean": 0.07704856221400379,
+    "passed": true,
+    "predicted_label_counts": [
+      136,
+      123,
+      161,
+      156
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.11739608766140137,
+    "fold_id": "8",
+    "max_label_fraction": 0.2795138888888889,
+    "normalized_entropy_mean": 0.0846833767444349,
+    "passed": true,
+    "predicted_label_counts": [
+      136,
+      124,
+      161,
+      155
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.15348585199331044,
+    "fold_id": "9",
+    "max_label_fraction": 0.34375,
+    "normalized_entropy_mean": 0.1107166387586832,
+    "passed": true,
+    "predicted_label_counts": [
+      198,
+      88,
+      109,
+      181
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.17018214260514875,
+    "fold_id": "9",
+    "max_label_fraction": 0.34375,
+    "normalized_entropy_mean": 0.12276046659215324,
+    "passed": true,
+    "predicted_label_counts": [
+      198,
+      88,
+      109,
+      181
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.16581868229354893,
+    "fold_id": "9",
+    "max_label_fraction": 0.3385416666666667,
+    "normalized_entropy_mean": 0.11961289531582281,
+    "passed": true,
+    "predicted_label_counts": [
+      195,
+      90,
+      110,
+      181
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.12812755130288173,
+    "fold_id": "9",
+    "max_label_fraction": 0.328125,
+    "normalized_entropy_mean": 0.09242449143295686,
+    "passed": true,
+    "predicted_label_counts": [
+      189,
+      100,
+      107,
+      180
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.14089091059899805,
+    "fold_id": "9",
+    "max_label_fraction": 0.3263888888888889,
+    "normalized_entropy_mean": 0.10163130901375239,
+    "passed": true,
+    "predicted_label_counts": [
+      188,
+      102,
+      107,
+      179
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.4529096508480803,
+    "fold_id": "1",
+    "max_label_fraction": 0.6684027777777778,
+    "normalized_entropy_mean": 0.3267052536246387,
+    "passed": true,
+    "predicted_label_counts": [
+      82,
+      102,
+      385,
+      7
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.473699472470486,
+    "fold_id": "1",
+    "max_label_fraction": 0.6684027777777778,
+    "normalized_entropy_mean": 0.34170193990244413,
+    "passed": true,
+    "predicted_label_counts": [
+      82,
+      102,
+      385,
+      7
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.5347479852161897,
+    "fold_id": "1",
+    "max_label_fraction": 0.5989583333333334,
+    "normalized_entropy_mean": 0.3857391331983808,
+    "passed": true,
+    "predicted_label_counts": [
+      102,
+      111,
+      345,
+      18
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.6177350809292208,
+    "fold_id": "1",
+    "max_label_fraction": 0.2760416666666667,
+    "normalized_entropy_mean": 0.4456016689198647,
+    "passed": true,
+    "predicted_label_counts": [
+      112,
+      154,
+      159,
+      151
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.6226753637251158,
+    "fold_id": "1",
+    "max_label_fraction": 0.2743055555555556,
+    "normalized_entropy_mean": 0.4491653296649781,
+    "passed": true,
+    "predicted_label_counts": [
+      116,
+      153,
+      158,
+      149
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.6092519289931216,
+    "fold_id": "2",
+    "max_label_fraction": 0.5538194444444444,
+    "normalized_entropy_mean": 0.43948236830520576,
+    "passed": true,
+    "predicted_label_counts": [
+      59,
+      198,
+      319,
+      0
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.6190217184934217,
+    "fold_id": "2",
+    "max_label_fraction": 0.5538194444444444,
+    "normalized_entropy_mean": 0.4465297817365117,
+    "passed": true,
+    "predicted_label_counts": [
+      59,
+      198,
+      319,
+      0
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.701679206237714,
+    "fold_id": "2",
+    "max_label_fraction": 0.5069444444444444,
+    "normalized_entropy_mean": 0.506154555567027,
+    "passed": true,
+    "predicted_label_counts": [
+      85,
+      185,
+      292,
+      14
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.7523167970866811,
+    "fold_id": "2",
+    "max_label_fraction": 0.3125,
+    "normalized_entropy_mean": 0.5426818561672117,
+    "passed": true,
+    "predicted_label_counts": [
+      126,
+      94,
+      180,
+      176
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.7511671094272035,
+    "fold_id": "2",
+    "max_label_fraction": 0.3055555555555556,
+    "normalized_entropy_mean": 0.541852531824762,
+    "passed": true,
+    "predicted_label_counts": [
+      126,
+      110,
+      176,
+      164
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.8558274549632316,
+    "fold_id": "3",
+    "max_label_fraction": 0.484375,
+    "normalized_entropy_mean": 0.6173490125660385,
+    "passed": true,
+    "predicted_label_counts": [
+      75,
+      143,
+      79,
+      279
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.8418917529147656,
+    "fold_id": "3",
+    "max_label_fraction": 0.484375,
+    "normalized_entropy_mean": 0.6072965284477244,
+    "passed": true,
+    "predicted_label_counts": [
+      75,
+      143,
+      79,
+      279
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.8552397545192295,
+    "fold_id": "3",
+    "max_label_fraction": 0.3819444444444444,
+    "normalized_entropy_mean": 0.6169250763079934,
+    "passed": true,
+    "predicted_label_counts": [
+      106,
+      148,
+      102,
+      220
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.7055379987471354,
+    "fold_id": "3",
+    "max_label_fraction": 0.3072916666666667,
+    "normalized_entropy_mean": 0.508938085975608,
+    "passed": true,
+    "predicted_label_counts": [
+      122,
+      170,
+      177,
+      107
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.7057468675541652,
+    "fold_id": "3",
+    "max_label_fraction": 0.2899305555555556,
+    "normalized_entropy_mean": 0.5090887529716571,
+    "passed": true,
+    "predicted_label_counts": [
+      133,
+      164,
+      167,
+      112
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.8895897459855119,
+    "fold_id": "4",
+    "max_label_fraction": 0.3767361111111111,
+    "normalized_entropy_mean": 0.6417033574794854,
+    "passed": true,
+    "predicted_label_counts": [
+      217,
+      119,
+      163,
+      77
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.8727424553979097,
+    "fold_id": "4",
+    "max_label_fraction": 0.3767361111111111,
+    "normalized_entropy_mean": 0.6295506061879109,
+    "passed": true,
+    "predicted_label_counts": [
+      217,
+      119,
+      163,
+      77
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.8807370240414644,
+    "fold_id": "4",
+    "max_label_fraction": 0.3055555555555556,
+    "normalized_entropy_mean": 0.6353174684559623,
+    "passed": true,
+    "predicted_label_counts": [
+      176,
+      128,
+      173,
+      99
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.7524985556834886,
+    "fold_id": "4",
+    "max_label_fraction": 0.3159722222222222,
+    "normalized_entropy_mean": 0.5428129672803382,
+    "passed": true,
+    "predicted_label_counts": [
+      96,
+      158,
+      182,
+      140
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.7489919899836379,
+    "fold_id": "4",
+    "max_label_fraction": 0.2986111111111111,
+    "normalized_entropy_mean": 0.5402835148074753,
+    "passed": true,
+    "predicted_label_counts": [
+      109,
+      157,
+      172,
+      138
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.5473020092307189,
+    "fold_id": "5",
+    "max_label_fraction": 0.6388888888888888,
+    "normalized_entropy_mean": 0.39479494729286196,
+    "passed": true,
+    "predicted_label_counts": [
+      3,
+      368,
+      205,
+      0
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.5562156711688707,
+    "fold_id": "5",
+    "max_label_fraction": 0.6388888888888888,
+    "normalized_entropy_mean": 0.4012247952300281,
+    "passed": true,
+    "predicted_label_counts": [
+      3,
+      368,
+      205,
+      0
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.6194881114903491,
+    "fold_id": "5",
+    "max_label_fraction": 0.6024305555555556,
+    "normalized_entropy_mean": 0.446866213168398,
+    "passed": true,
+    "predicted_label_counts": [
+      7,
+      347,
+      222,
+      0
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.982038467938891,
+    "fold_id": "5",
+    "max_label_fraction": 0.3159722222222222,
+    "normalized_entropy_mean": 0.7083910138288168,
+    "passed": true,
+    "predicted_label_counts": [
+      182,
+      113,
+      176,
+      105
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.9615978841232403,
+    "fold_id": "5",
+    "max_label_fraction": 0.296875,
+    "normalized_entropy_mean": 0.6936462493769595,
+    "passed": true,
+    "predicted_label_counts": [
+      163,
+      124,
+      171,
+      118
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.4651363417740263,
+    "fold_id": "6",
+    "max_label_fraction": 0.71875,
+    "normalized_entropy_mean": 0.3355249468073109,
+    "passed": true,
+    "predicted_label_counts": [
+      84,
+      15,
+      63,
+      414
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.48024504817206487,
+    "fold_id": "6",
+    "max_label_fraction": 0.71875,
+    "normalized_entropy_mean": 0.3464235747046597,
+    "passed": true,
+    "predicted_label_counts": [
+      84,
+      15,
+      63,
+      414
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.5288731382670213,
+    "fold_id": "6",
+    "max_label_fraction": 0.6336805555555556,
+    "normalized_entropy_mean": 0.3815013269186074,
+    "passed": true,
+    "predicted_label_counts": [
+      116,
+      30,
+      65,
+      365
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.5471318549147551,
+    "fold_id": "6",
+    "max_label_fraction": 0.3194444444444444,
+    "normalized_entropy_mean": 0.39467220689894855,
+    "passed": true,
+    "predicted_label_counts": [
+      93,
+      119,
+      184,
+      180
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.560853436212143,
+    "fold_id": "6",
+    "max_label_fraction": 0.3072916666666667,
+    "normalized_entropy_mean": 0.40457023554439664,
+    "passed": true,
+    "predicted_label_counts": [
+      104,
+      127,
+      177,
+      168
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.6807791612973154,
+    "fold_id": "7",
+    "max_label_fraction": 0.5677083333333334,
+    "normalized_entropy_mean": 0.49107835997209237,
+    "passed": true,
+    "predicted_label_counts": [
+      327,
+      178,
+      71,
+      0
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.6837819577033175,
+    "fold_id": "7",
+    "max_label_fraction": 0.5677083333333334,
+    "normalized_entropy_mean": 0.49324441971396155,
+    "passed": true,
+    "predicted_label_counts": [
+      327,
+      178,
+      71,
+      0
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.8071560587702511,
+    "fold_id": "7",
+    "max_label_fraction": 0.4895833333333333,
+    "normalized_entropy_mean": 0.582240021605661,
+    "passed": true,
+    "predicted_label_counts": [
+      282,
+      189,
+      97,
+      8
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.8089967260662821,
+    "fold_id": "7",
+    "max_label_fraction": 0.2986111111111111,
+    "normalized_entropy_mean": 0.5835677823956162,
+    "passed": true,
+    "predicted_label_counts": [
+      172,
+      144,
+      163,
+      97
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.8024110847961737,
+    "fold_id": "7",
+    "max_label_fraction": 0.2795138888888889,
+    "normalized_entropy_mean": 0.5788172463948867,
+    "passed": true,
+    "predicted_label_counts": [
+      161,
+      143,
+      161,
+      111
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.5591813559971025,
+    "fold_id": "8",
+    "max_label_fraction": 0.4861111111111111,
+    "normalized_entropy_mean": 0.4033640846272929,
+    "passed": true,
+    "predicted_label_counts": [
+      61,
+      159,
+      280,
+      76
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.5731991689203245,
+    "fold_id": "8",
+    "max_label_fraction": 0.4861111111111111,
+    "normalized_entropy_mean": 0.41347579922151373,
+    "passed": true,
+    "predicted_label_counts": [
+      61,
+      159,
+      280,
+      76
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.596061082239349,
+    "fold_id": "8",
+    "max_label_fraction": 0.4305555555555556,
+    "normalized_entropy_mean": 0.4299671837068087,
+    "passed": true,
+    "predicted_label_counts": [
+      81,
+      158,
+      248,
+      89
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.5846009342019928,
+    "fold_id": "8",
+    "max_label_fraction": 0.2916666666666667,
+    "normalized_entropy_mean": 0.4217004343361351,
+    "passed": true,
+    "predicted_label_counts": [
+      129,
+      165,
+      168,
+      114
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.5926369931003068,
+    "fold_id": "8",
+    "max_label_fraction": 0.2881944444444444,
+    "normalized_entropy_mean": 0.42749722549657976,
+    "passed": true,
+    "predicted_label_counts": [
+      129,
+      165,
+      166,
+      116
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.4294923803807194,
+    "fold_id": "9",
+    "max_label_fraction": 0.6302083333333334,
+    "normalized_entropy_mean": 0.3098132636374301,
+    "passed": true,
+    "predicted_label_counts": [
+      26,
+      97,
+      90,
+      363
+    ],
+    "seed": "0",
+    "variant": "ERM_NO_ADAPT",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.44983460190935465,
+    "fold_id": "9",
+    "max_label_fraction": 0.6302083333333334,
+    "normalized_entropy_mean": 0.3244870746974435,
+    "passed": true,
+    "predicted_label_counts": [
+      26,
+      97,
+      90,
+      363
+    ],
+    "seed": "0",
+    "variant": "TTA_CONTROL_REPLAY",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.504977733489454,
+    "fold_id": "9",
+    "max_label_fraction": 0.5364583333333334,
+    "normalized_entropy_mean": 0.36426443593229196,
+    "passed": true,
+    "predicted_label_counts": [
+      65,
+      101,
+      101,
+      309
+    ],
+    "seed": "0",
+    "variant": "TALOS_L",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.5830476938673631,
+    "fold_id": "9",
+    "max_label_fraction": 0.3020833333333333,
+    "normalized_entropy_mean": 0.42058000827209563,
+    "passed": true,
+    "predicted_label_counts": [
+      149,
+      174,
+      129,
+      124
+    ],
+    "seed": "0",
+    "variant": "TALOS_D",
+    "warnings": []
+  },
+  {
+    "backbone": "EEGNetMini",
+    "checks": [
+      "entropy_non_degenerate",
+      "not_single_class"
+    ],
+    "dataset": "BNCI2014_001",
+    "entropy_mean": 0.588209028805668,
+    "fold_id": "9",
+    "max_label_fraction": 0.296875,
+    "normalized_entropy_mean": 0.4243031244320254,
+    "passed": true,
+    "predicted_label_counts": [
+      147,
+      171,
+      132,
+      126
+    ],
+    "seed": "0",
+    "variant": "TALOS_LD",
+    "warnings": []
+  }
+]

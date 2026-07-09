@@ -1,0 +1,59 @@
+{
+  "adapter_determinism": {
+    "checks": [
+      "scenario_match",
+      "variant_ranking_identical",
+      "reported_variant_identical",
+      "adapter_prediction_probability_hashes_identical"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "handoff_immutability": {
+    "cedar01f_handoff_hash": "03d97199352892bf39afeed3ce826aa185735a766351b82aa2083587621d289c",
+    "checks": [
+      "cedar01f_handoff_manifest_validated",
+      "feature_artifacts_loaded_18",
+      "per_artifact_hash_check_pass"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "target_label_quarantine": {
+    "checks": [
+      "adapter_parameters_identical",
+      "adapter_predictions_identical",
+      "adapter_probability_hashes_identical",
+      "variant_ranking_identical",
+      "reported_variant_identical",
+      "pre_final_metric_hashes_identical",
+      "removed_y_has_no_final_metrics",
+      "only_final_metrics_change_under_permutation"
+    ],
+    "passed": true,
+    "scenarios": [
+      "true_y_final_only",
+      "target_y_removed",
+      "target_y_permuted"
+    ],
+    "warnings": []
+  },
+  "variant_freeze": {
+    "allowed_variants": [
+      "ERM_NO_ADAPT",
+      "TTA_CONTROL_REPLAY",
+      "TALOS_L",
+      "TALOS_D",
+      "TALOS_LD"
+    ],
+    "checks": [
+      "allowed_variants_exact",
+      "runtime_addition_disabled",
+      "target_labels_final_metrics_only",
+      "variant_universe_hash_recomputable"
+    ],
+    "passed": true,
+    "variant_universe_hash": "4f7cb30000e3874c8be611110387f7dc046ddc5fd737aaf83aeacdd9f9499842",
+    "warnings": []
+  }
+}

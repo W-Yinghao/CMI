@@ -1,0 +1,12 @@
+{
+  "cmi_pruning_mask_surgery_safety_active": false,
+  "p1_training": false,
+  "phase": "TALOS_00B_real_frozen_feature_adapter_replay",
+  "preflight_baseline_commit": "b8dbb70",
+  "project": "TALOS-EEG",
+  "real_frozen_feature_replay": true,
+  "source_free_deployment_claim": false,
+  "status": "FAIL",
+  "talos00b_payload_hash": "68ae5140dd5131df69bcb8d17d6af4b973d3b56129480eeb1e2e31f81d3da199",
+  "target_labels_final_metric_only": true
+}

@@ -31,8 +31,8 @@ TALOS_00_ACCEPTANCE_CRITERIA: designed
 TALOS_00_PM_BOUNDARIES: designed
 TALOS_00_DESIGN_PACKAGE: PASS at 96894a7
 TALOS_00A_IMPLEMENTATION_PREFLIGHT: PASS
-TALOS_00 execution: not run
-TALOS_00B real frozen-feature replay: not approved / not run
+TALOS_00 scientific gate: FAIL at TALOS_00B
+TALOS_00B real frozen-feature replay: FAIL / diagnostic-only
 P1 source-free serialized-state training: not approved
 P2 streaming / clinical transfer: not approved
 ```
@@ -60,4 +60,5 @@ talos_eeg/reports/TALOS_00_FROZEN_FEATURE_PROTOCOL.md
 talos_eeg/reports/TALOS_00_ACCEPTANCE_CRITERIA.md
 talos_eeg/reports/TALOS_00_PM_BOUNDARIES.md
 talos_eeg/reports/TALOS_00A_PREFLIGHT_READOUT.md
+talos_eeg/reports/TALOS_00B_REAL_FROZEN_FEATURE_READOUT.md
 ```

@@ -52,3 +52,30 @@ def fit_logit_bias_temperature(
         log_t=log_t,
         boundary_hits=tuple(hits),
     )
+
+
+def fit_temperature_only(
+    state: SourceState,
+    z_target: np.ndarray,
+    *,
+    bounds: TrustRegionBounds,
+    variant: str = "TTA_CONTROL_REPLAY",
+) -> AdapterState:
+    """Fit a deterministic temperature-only target-unlabeled replay baseline."""
+
+    base = identity_adapter(variant, state.n_features, state.n_classes)
+    proba = predict_proba(state, z_target, base)
+    target_entropy = -np.sum(proba * np.log(np.maximum(proba, 1e-8)), axis=1)
+    mean_conf = float(np.max(proba, axis=1).mean())
+    max_entropy = np.log(float(state.n_classes))
+    entropy_ratio = float(target_entropy.mean() / max(max_entropy, 1e-8))
+    raw_log_t = 0.25 * (mean_conf - 0.70) - 0.10 * (entropy_ratio - 0.50)
+    log_t, log_t_hit = clip_scalar(raw_log_t, bounds.tau_log_t)
+    return AdapterState(
+        variant=variant,
+        diag=base.diag,
+        shift=base.shift,
+        beta=base.beta,
+        log_t=log_t,
+        boundary_hits=("log_t",) if log_t_hit else (),
+    )

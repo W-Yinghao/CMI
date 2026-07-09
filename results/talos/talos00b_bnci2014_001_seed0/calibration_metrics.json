@@ -1,0 +1,812 @@
+[
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "1",
+    "seed": "0",
+    "target_ece": 0.4074827220120484,
+    "target_nll": 4.048349972959693,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "1",
+    "seed": "0",
+    "target_ece": 0.4006617715438979,
+    "target_nll": 3.782660264022268,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "1",
+    "seed": "0",
+    "target_ece": 0.4007435322582649,
+    "target_nll": 3.827208368366456,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "1",
+    "seed": "0",
+    "target_ece": 0.42717630601537016,
+    "target_nll": 4.589240402741705,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "1",
+    "seed": "0",
+    "target_ece": 0.4247347604330747,
+    "target_nll": 4.365655131235774,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "2",
+    "seed": "0",
+    "target_ece": 0.6422742672875992,
+    "target_nll": 5.53554102430527,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "2",
+    "seed": "0",
+    "target_ece": 0.6309470663368151,
+    "target_nll": 5.194508342386134,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "2",
+    "seed": "0",
+    "target_ece": 0.6077591873544919,
+    "target_nll": 5.034508666338265,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "2",
+    "seed": "0",
+    "target_ece": 0.6419252105495257,
+    "target_nll": 6.402516254289179,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "2",
+    "seed": "0",
+    "target_ece": 0.6250101299891995,
+    "target_nll": 5.98064728332883,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "3",
+    "seed": "0",
+    "target_ece": 0.36013282016100606,
+    "target_nll": 2.994691534301647,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "3",
+    "seed": "0",
+    "target_ece": 0.35254281281306143,
+    "target_nll": 2.7682781259482274,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "3",
+    "seed": "0",
+    "target_ece": 0.3516328900624094,
+    "target_nll": 2.788423507199072,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "3",
+    "seed": "0",
+    "target_ece": 0.3834695183182026,
+    "target_nll": 3.5606787488746354,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "3",
+    "seed": "0",
+    "target_ece": 0.3741608695601887,
+    "target_nll": 3.331904632921323,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "4",
+    "seed": "0",
+    "target_ece": 0.5369701277041949,
+    "target_nll": 5.5514725852340785,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "4",
+    "seed": "0",
+    "target_ece": 0.5289438269380531,
+    "target_nll": 5.185815818369591,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "4",
+    "seed": "0",
+    "target_ece": 0.5282633189887096,
+    "target_nll": 5.0657718523502915,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "4",
+    "seed": "0",
+    "target_ece": 0.5631698206173213,
+    "target_nll": 6.348639694183436,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "4",
+    "seed": "0",
+    "target_ece": 0.547299761682023,
+    "target_nll": 5.8803877212957865,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "5",
+    "seed": "0",
+    "target_ece": 0.6735367830024974,
+    "target_nll": 8.25372683493965,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "5",
+    "seed": "0",
+    "target_ece": 0.6673982156146023,
+    "target_nll": 7.766059963543087,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "5",
+    "seed": "0",
+    "target_ece": 0.6617354836133889,
+    "target_nll": 7.491747486573505,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "5",
+    "seed": "0",
+    "target_ece": 0.6776683556564607,
+    "target_nll": 9.654433521936955,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "5",
+    "seed": "0",
+    "target_ece": 0.6784210694374055,
+    "target_nll": 9.019566145397205,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "6",
+    "seed": "0",
+    "target_ece": 0.6539064074437728,
+    "target_nll": 7.753686434492585,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "6",
+    "seed": "0",
+    "target_ece": 0.6474159332937071,
+    "target_nll": 7.234720604962841,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "6",
+    "seed": "0",
+    "target_ece": 0.6338525297363897,
+    "target_nll": 7.0388142825515105,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "6",
+    "seed": "0",
+    "target_ece": 0.6561715578987828,
+    "target_nll": 8.212609027260495,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "6",
+    "seed": "0",
+    "target_ece": 0.6428779272876675,
+    "target_nll": 7.601989839092997,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "7",
+    "seed": "0",
+    "target_ece": 0.5495882225681065,
+    "target_nll": 4.422925561439354,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "7",
+    "seed": "0",
+    "target_ece": 0.5405509007590803,
+    "target_nll": 4.172870816053524,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "7",
+    "seed": "0",
+    "target_ece": 0.5361168439101134,
+    "target_nll": 4.146757832519785,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "7",
+    "seed": "0",
+    "target_ece": 0.5690705150004995,
+    "target_nll": 5.497575062109011,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "7",
+    "seed": "0",
+    "target_ece": 0.5596746513927796,
+    "target_nll": 5.1786430431764465,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "8",
+    "seed": "0",
+    "target_ece": 0.2944551558687499,
+    "target_nll": 3.178266354696526,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "8",
+    "seed": "0",
+    "target_ece": 0.2891917385175406,
+    "target_nll": 2.9701449909126003,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "8",
+    "seed": "0",
+    "target_ece": 0.2906871203507866,
+    "target_nll": 3.005920146270292,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "8",
+    "seed": "0",
+    "target_ece": 0.29015283972306416,
+    "target_nll": 3.2090090280273893,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "8",
+    "seed": "0",
+    "target_ece": 0.28428027644291676,
+    "target_nll": 3.0405201613220907,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "9",
+    "seed": "0",
+    "target_ece": 0.4627799823456399,
+    "target_nll": 4.9211562069963755,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "9",
+    "seed": "0",
+    "target_ece": 0.4560074239986554,
+    "target_nll": 4.61074729733356,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "9",
+    "seed": "0",
+    "target_ece": 0.45776959832708153,
+    "target_nll": 4.637606832208153,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "9",
+    "seed": "0",
+    "target_ece": 0.4718764707283313,
+    "target_nll": 5.172456742879806,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGConformerMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "9",
+    "seed": "0",
+    "target_ece": 0.46312212015165466,
+    "target_nll": 4.884815471735223,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "1",
+    "seed": "0",
+    "target_ece": 0.3940817151113869,
+    "target_nll": 2.0676285632888596,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "1",
+    "seed": "0",
+    "target_ece": 0.38592877043605445,
+    "target_nll": 1.9925020959448883,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "1",
+    "seed": "0",
+    "target_ece": 0.31120752208840474,
+    "target_nll": 1.616721097208959,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "1",
+    "seed": "0",
+    "target_ece": 0.14374324103416203,
+    "target_nll": 0.9241322511721923,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "1",
+    "seed": "0",
+    "target_ece": 0.12788647761106484,
+    "target_nll": 0.9177192679750235,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "2",
+    "seed": "0",
+    "target_ece": 0.4662271964750877,
+    "target_nll": 3.016007998397731,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "2",
+    "seed": "0",
+    "target_ece": 0.46213305541029037,
+    "target_nll": 2.96823328586876,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "2",
+    "seed": "0",
+    "target_ece": 0.4259990424487703,
+    "target_nll": 2.6214623986264933,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "2",
+    "seed": "0",
+    "target_ece": 0.33281809410311775,
+    "target_nll": 2.5222096248740464,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "2",
+    "seed": "0",
+    "target_ece": 0.34206580290710453,
+    "target_nll": 2.5385184004853403,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "3",
+    "seed": "0",
+    "target_ece": 0.04803061876031702,
+    "target_nll": 1.0015874672962224,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "3",
+    "seed": "0",
+    "target_ece": 0.0544632224362438,
+    "target_nll": 1.006206978414185,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "3",
+    "seed": "0",
+    "target_ece": 0.045616141532679455,
+    "target_nll": 0.9461956754297604,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "3",
+    "seed": "0",
+    "target_ece": 0.08576349839364811,
+    "target_nll": 0.9291579976300466,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "3",
+    "seed": "0",
+    "target_ece": 0.0846564707899719,
+    "target_nll": 0.9252391251569906,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "4",
+    "seed": "0",
+    "target_ece": 0.2588116253576394,
+    "target_nll": 1.722507792158473,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "4",
+    "seed": "0",
+    "target_ece": 0.26698508239327956,
+    "target_nll": 1.7529024221108314,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "4",
+    "seed": "0",
+    "target_ece": 0.2456089259216369,
+    "target_nll": 1.7207423788376495,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "4",
+    "seed": "0",
+    "target_ece": 0.3065772787930612,
+    "target_nll": 1.9518482299305429,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "4",
+    "seed": "0",
+    "target_ece": 0.3097889034230939,
+    "target_nll": 1.9687434059911577,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "5",
+    "seed": "0",
+    "target_ece": 0.4892886079253953,
+    "target_nll": 3.759595288163082,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "5",
+    "seed": "0",
+    "target_ece": 0.48515563036658,
+    "target_nll": 3.6871333869371514,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "5",
+    "seed": "0",
+    "target_ece": 0.4530116390923276,
+    "target_nll": 3.0750385479806357,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "5",
+    "seed": "0",
+    "target_ece": 0.2625883855041845,
+    "target_nll": 1.8568006110227822,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "5",
+    "seed": "0",
+    "target_ece": 0.2716117764448376,
+    "target_nll": 1.896637898455397,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "6",
+    "seed": "0",
+    "target_ece": 0.5202645025031637,
+    "target_nll": 4.97166876695546,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "6",
+    "seed": "0",
+    "target_ece": 0.5121123186569587,
+    "target_nll": 4.7988388146523375,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "6",
+    "seed": "0",
+    "target_ece": 0.47554796181419345,
+    "target_nll": 4.43323137567188,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "6",
+    "seed": "0",
+    "target_ece": 0.441900272679443,
+    "target_nll": 3.2793388101790133,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "6",
+    "seed": "0",
+    "target_ece": 0.4314295010510346,
+    "target_nll": 3.2251739602517535,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "7",
+    "seed": "0",
+    "target_ece": 0.3733623082608261,
+    "target_nll": 2.325019616475837,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "7",
+    "seed": "0",
+    "target_ece": 0.37207285233075593,
+    "target_nll": 2.3158390200298355,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "7",
+    "seed": "0",
+    "target_ece": 0.3292851339294622,
+    "target_nll": 1.928341559537509,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "7",
+    "seed": "0",
+    "target_ece": 0.29498640664888376,
+    "target_nll": 1.8722012419631382,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "7",
+    "seed": "0",
+    "target_ece": 0.2857130347729394,
+    "target_nll": 1.8905162263544772,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "8",
+    "seed": "0",
+    "target_ece": 0.2069687887413838,
+    "target_nll": 1.3800062137159341,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "8",
+    "seed": "0",
+    "target_ece": 0.2041981043787507,
+    "target_nll": 1.3566443952231724,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "8",
+    "seed": "0",
+    "target_ece": 0.17835719567584152,
+    "target_nll": 1.2446178914543156,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "8",
+    "seed": "0",
+    "target_ece": 0.15840749862749498,
+    "target_nll": 1.1216337610695222,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "8",
+    "seed": "0",
+    "target_ece": 0.15320654708417625,
+    "target_nll": 1.1091921470594683,
+    "variant": "TALOS_LD"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "9",
+    "seed": "0",
+    "target_ece": 0.3400035161687853,
+    "target_nll": 1.9605292033184791,
+    "variant": "ERM_NO_ADAPT"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "9",
+    "seed": "0",
+    "target_ece": 0.3314816780642101,
+    "target_nll": 1.8855658488415215,
+    "variant": "TTA_CONTROL_REPLAY"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "9",
+    "seed": "0",
+    "target_ece": 0.2593525673332069,
+    "target_nll": 1.716313035730046,
+    "variant": "TALOS_L"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "9",
+    "seed": "0",
+    "target_ece": 0.2002443306415789,
+    "target_nll": 1.2914700239044885,
+    "variant": "TALOS_D"
+  },
+  {
+    "backbone": "EEGNetMini",
+    "dataset": "BNCI2014_001",
+    "fold_id": "9",
+    "seed": "0",
+    "target_ece": 0.2060626364268277,
+    "target_nll": 1.2805463488586293,
+    "variant": "TALOS_LD"
+  }
+]

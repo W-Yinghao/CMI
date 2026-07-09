@@ -1,0 +1,19 @@
+{
+  "checks": [
+    "adapter_parameters_identical",
+    "adapter_predictions_identical",
+    "adapter_probability_hashes_identical",
+    "variant_ranking_identical",
+    "reported_variant_identical",
+    "pre_final_metric_hashes_identical",
+    "removed_y_has_no_final_metrics",
+    "only_final_metrics_change_under_permutation"
+  ],
+  "passed": true,
+  "scenarios": [
+    "true_y_final_only",
+    "target_y_removed",
+    "target_y_permuted"
+  ],
+  "warnings": []
+}
