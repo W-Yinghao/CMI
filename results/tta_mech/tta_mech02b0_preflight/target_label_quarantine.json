@@ -1,0 +1,9 @@
+{
+  "callable_name": "run_condition",
+  "checks": [
+    "required_bn_condition_parameters_present",
+    "target_label_and_selection_parameters_absent"
+  ],
+  "passed": true,
+  "warnings": []
+}

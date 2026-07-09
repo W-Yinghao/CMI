@@ -1,0 +1,31 @@
+{
+  "checks": [
+    "no_forbidden_active_method_terms",
+    "new_method_claim_false"
+  ],
+  "forbidden_terms": [
+    "adapter",
+    "learned_operator",
+    "mask",
+    "prune",
+    "surgery",
+    "cmi_control",
+    "safety_gate",
+    "router",
+    "privacy_head",
+    "privacy head",
+    "structured_pruning",
+    "structured pruning",
+    "sparsity_grid",
+    "sparsity grid",
+    "mi-aware",
+    "mi_aware",
+    "admissible_sparsity",
+    "target_accuracy_selection",
+    "cutclean",
+    "cut_clean",
+    "cut-clean"
+  ],
+  "passed": true,
+  "warnings": []
+}

@@ -1,0 +1,20 @@
+{
+  "checks": [
+    "no_forbidden_update_terms",
+    "entries_forbid_original_model_and_weight_mutation",
+    "train_mode_requires_copy_only_bn_buffers_dropout_disabled_and_frozen_params",
+    "mutation_rules_forbid_optimizer_backward_weight_update_checkpoint_overwrite"
+  ],
+  "forbidden_update_tokens": [
+    "optimizer.step",
+    "loss.backward",
+    "backward",
+    "encoder weight update",
+    "classifier weight update",
+    "checkpoint overwrite",
+    "requires_grad=true",
+    "mutate original model"
+  ],
+  "passed": true,
+  "warnings": []
+}

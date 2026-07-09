@@ -1,0 +1,13 @@
+{
+  "checks": [
+    "allowed_conditions_exact",
+    "entry_names_exact",
+    "forbidden_conditions_absent",
+    "entries_label_free_no_deployment_no_weight_mutation",
+    "runtime_addition_disabled",
+    "condition_registry_hash_recomputable"
+  ],
+  "condition_registry_hash": "3909b80268adbd88e666f1cc4cd2810ae3d91ba82eb65b97596ec3312e902d6e",
+  "passed": true,
+  "warnings": []
+}

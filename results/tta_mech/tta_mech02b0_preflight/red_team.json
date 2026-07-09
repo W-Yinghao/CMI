@@ -1,0 +1,92 @@
+{
+  "artifact_immutability": {
+    "checks": [
+      "cedar01f_handoff_hashes_rechecked"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "condition_universe_freeze": {
+    "checks": [
+      "allowed_conditions_exact",
+      "entry_names_exact",
+      "forbidden_conditions_absent",
+      "entries_label_free_no_deployment_no_weight_mutation",
+      "runtime_addition_disabled",
+      "condition_registry_hash_recomputable"
+    ],
+    "condition_registry_hash": "3909b80268adbd88e666f1cc4cd2810ae3d91ba82eb65b97596ec3312e902d6e",
+    "passed": true,
+    "warnings": []
+  },
+  "dropout_train_mode_guard": {
+    "checks": [
+      "train_mode_only_allowed_for_copy_only_bn_buffer_condition",
+      "dropout_disabled_required",
+      "parameters_require_grad_false_required",
+      "original_model_mutation_forbidden"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "no_new_method_guard": {
+    "checks": [
+      "no_forbidden_active_method_terms",
+      "new_method_claim_false"
+    ],
+    "forbidden_terms": [
+      "adapter",
+      "learned_operator",
+      "mask",
+      "prune",
+      "surgery",
+      "cmi_control",
+      "safety_gate",
+      "router",
+      "privacy_head",
+      "privacy head",
+      "structured_pruning",
+      "structured pruning",
+      "sparsity_grid",
+      "sparsity grid",
+      "mi-aware",
+      "mi_aware",
+      "admissible_sparsity",
+      "target_accuracy_selection",
+      "cutclean",
+      "cut_clean",
+      "cut-clean"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "no_weight_update_guard": {
+    "checks": [
+      "no_forbidden_update_terms",
+      "entries_forbid_original_model_and_weight_mutation",
+      "train_mode_requires_copy_only_bn_buffers_dropout_disabled_and_frozen_params",
+      "mutation_rules_forbid_optimizer_backward_weight_update_checkpoint_overwrite"
+    ],
+    "forbidden_update_tokens": [
+      "optimizer.step",
+      "loss.backward",
+      "backward",
+      "encoder weight update",
+      "classifier weight update",
+      "checkpoint overwrite",
+      "requires_grad=true",
+      "mutate original model"
+    ],
+    "passed": true,
+    "warnings": []
+  },
+  "target_label_quarantine": {
+    "callable_name": "run_condition",
+    "checks": [
+      "required_bn_condition_parameters_present",
+      "target_label_and_selection_parameters_absent"
+    ],
+    "passed": true,
+    "warnings": []
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "checks": [
+    "train_mode_only_allowed_for_copy_only_bn_buffer_condition",
+    "dropout_disabled_required",
+    "parameters_require_grad_false_required",
+    "original_model_mutation_forbidden"
+  ],
+  "passed": true,
+  "warnings": []
+}

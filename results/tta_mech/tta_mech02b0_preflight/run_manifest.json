@@ -1,0 +1,19 @@
+{
+  "baseline_selected_for_deployment": false,
+  "bn_artifact_inventory_hash": "54c9f7cbcc345991f7b4044deefb1b66a7e4da5ddfbf82628020ea0cfdb52656",
+  "bn_refresh_run": false,
+  "condition_registry_hash": "3909b80268adbd88e666f1cc4cd2810ae3d91ba82eb65b97596ec3312e902d6e",
+  "feasibility": "TTA_MECH_02B_NOT_FEASIBLE_FROM_CURRENT_ARTIFACTS",
+  "new_baseline_added": false,
+  "new_method_introduced": false,
+  "p1_p2_training": false,
+  "phase": "TTA_MECH_02B0_normalization_bn_audit_preflight",
+  "preflight_payload_hash": "203ca6ee1df1b56004c06729c59bc4b051fa0008bab0461bce7bad4ac8abac27",
+  "project": "TTA-MECH-EEG",
+  "ready_backbones": [],
+  "ready_for_02b": false,
+  "real_forward_run": false,
+  "source_mechanism_synthesis_commit": "7e0ddc4",
+  "status": "PASS",
+  "target_metrics_computed": false
+}

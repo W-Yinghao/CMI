@@ -1,0 +1,54 @@
+{
+  "artifact_requirements_for_ready_02b": {
+    "can_copy_model_without_mutation": true,
+    "can_disable_dropout": true,
+    "can_emit_logits_without_target_y": true,
+    "can_eval_frozen_bn": true,
+    "can_forward_model": true,
+    "can_recompute_bn_buffers_on_copy": true,
+    "has_bn_buffers": true,
+    "has_classifier_head": true,
+    "has_model_checkpoint": true,
+    "has_raw_or_preprocessed_input": true,
+    "has_source_X": true,
+    "has_source_split": true,
+    "has_target_X": true
+  },
+  "bn_audit_schema_hash": "2d19b945e35aae8ff9e6cc359b82ab5abd80a8fd4502deefe1eb1f2626e651e7",
+  "condition_api": {
+    "callable": "run_condition",
+    "forbidden_parameters": [
+      "target_y",
+      "y_target",
+      "target_metric",
+      "target_selected_condition"
+    ],
+    "required_parameters": [
+      "model_or_state",
+      "source_state",
+      "target_x",
+      "condition_config"
+    ],
+    "target_labels_allowed": false,
+    "target_metrics_allowed": false
+  },
+  "mutation_rules": {
+    "bn_refresh_run": false,
+    "checkpoint_overwrite_allowed": false,
+    "classifier_weight_update_allowed": false,
+    "encoder_weight_update_allowed": false,
+    "loss_backward_allowed": false,
+    "optimizer_step_allowed": false,
+    "real_forward_run": false,
+    "target_bn_refresh_copy_only": {
+      "copy_required": true,
+      "diagnostic_only": true,
+      "dropout_disabled_required": true,
+      "only_bn_buffers_mutable": true,
+      "parameters_require_grad_false_required": true
+    },
+    "target_metrics_computed": false
+  },
+  "phase": "TTA_MECH_02B0_normalization_bn_audit_preflight",
+  "project": "TTA-MECH-EEG"
+}
