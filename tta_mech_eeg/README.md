@@ -16,6 +16,7 @@ ACAR, TOS, OACI, h2cmi, FSR, or any other method rescue line.
 TTA_MECH_00 design package: drafted
 TTA_MECH_00A artifact-inventory / replay-harness preflight: PASS
 TTA_MECH_01 real existing-baseline replay / mechanism audit: MECHANISM_INFORMATIVE_PASS
+TTA_MECH_01S mechanism synthesis / portfolio decision: SUBMITTED_FOR_PM_REVIEW
 new method: none
 P1 / P2 training claim: none
 source-free deployment claim: none
@@ -54,4 +55,7 @@ tta_mech_eeg/reports/TTA_MECH_00_PM_BOUNDARIES.md
 tta_mech_eeg/reports/TTA_MECH_00_FAILURE_PRIORS.md
 tta_mech_eeg/reports/TTA_MECH_00A_PREFLIGHT_READOUT.md
 tta_mech_eeg/reports/TTA_MECH_01_REAL_REPLAY_READOUT.md
+tta_mech_eeg/reports/TTA_MECH_01S_MECHANISM_SYNTHESIS.md
+tta_mech_eeg/reports/TTA_MECH_01S_BASELINE_MECHANISM_MATRIX.md
+tta_mech_eeg/reports/TTA_MECH_01S_PM_DECISION.md
 ```
