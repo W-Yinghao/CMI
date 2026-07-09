@@ -1,0 +1,148 @@
+{
+  "artifact_hygiene": [
+    {
+      "check": "config_hash_unchanged",
+      "passed": true
+    },
+    {
+      "check": "read_only_c50_c51_artifacts",
+      "passed": true
+    },
+    {
+      "check": "locked_witness_unchanged",
+      "passed": true
+    },
+    {
+      "check": "no_training_no_gpu_no_reinference",
+      "passed": true
+    },
+    {
+      "check": "no_bnci2014_004_no_seeds_3_4",
+      "passed": true
+    },
+    {
+      "check": "key_only_label_derived_separated",
+      "passed": true
+    },
+    {
+      "check": "source_only_ladder_excludes_target_fields",
+      "passed": true
+    },
+    {
+      "check": "target_labels_diagnostic_only",
+      "passed": true
+    },
+    {
+      "check": "no_selection_artifact",
+      "passed": true
+    },
+    {
+      "check": "compact_json_no_row_level_payload",
+      "passed": true
+    }
+  ],
+  "c51_oracle_trajectory_local_bayes_hit": 0.808641975308642,
+  "c51_residual_replay": {
+    "best_trajectory_centered_gap": -0.00411522633744843,
+    "decision": "C51-E_target_trajectory_gauge_residual",
+    "max_raw_underuse_gap": 0.40123456790123463,
+    "n2_fail_fraction_percentile": 0.0,
+    "n3_fail_fraction_percentile": 0.0,
+    "n4_enrichment_null_mean": 0.8342243865476644,
+    "observed_enrichment": 2.3597078708023864
+  },
+  "config_hash": "664007686afb520f",
+  "decision": {
+    "additive_target_plus_trajectory_key_closes_gap": false,
+    "best_key_only_gap_to_c51_oracle": 0.3209876543209877,
+    "best_key_only_hit": 0.4876543209876543,
+    "best_label_derived_hit": 0.8127572016460904,
+    "best_strict_source_hit": 0.5061728395061729,
+    "decision": "C52-G_diagnostic_label_content_required",
+    "gap_close_gate": 0.05,
+    "label_derived_diagnostic_closes_gap": true,
+    "source_observable_closes_gap": false,
+    "target_key_only_closes_gap": false,
+    "target_unlabeled_geometry_closes_gap": false,
+    "target_x_trajectory_key_only_closes_gap": false,
+    "trajectory_centered_diagnostic_hit": 0.8127572016460904,
+    "trajectory_key_only_closes_gap": false
+  },
+  "diagnostic_only_non_deployable": true,
+  "evaluation_scope": "within_trajectory_top_hit",
+  "inherits_from": [
+    "C49",
+    "C50",
+    "C51"
+  ],
+  "locked_witness": {
+    "condition": "within_target",
+    "eps_quantile": "q20",
+    "epsilon": 3.2532662364835945,
+    "min_n": 1,
+    "source_objectives": "all_source_objectives"
+  },
+  "milestone": "C52",
+  "n_candidate_rows": 3804,
+  "n_trajectories": 162,
+  "red_team": [
+    {
+      "check": "c51_residual_replayed",
+      "finding": "C52 reuses C51 source-score and trajectory diagnostic gaps without rerunning earlier audits.",
+      "passed": 1
+    },
+    {
+      "check": "key_only_vs_label_derived_not_conflated",
+      "finding": "Trajectory key-only remains at the trajectory random-tie baseline while label-derived diagnostics close.",
+      "passed": 1
+    },
+    {
+      "check": "source_observable_not_sufficient",
+      "finding": "Existing source scores and observable source geometry do not reach the closure gate.",
+      "passed": 1
+    },
+    {
+      "check": "target_key_not_sufficient",
+      "finding": "Target id alone has no within-trajectory rank under the frozen evaluation scope.",
+      "passed": 1
+    },
+    {
+      "check": "trajectory_key_not_sufficient",
+      "finding": "Trajectory id alone ties the candidate set and does not explain the residual.",
+      "passed": 1
+    },
+    {
+      "check": "target_unlabeled_geometry_not_claimed",
+      "finding": "No target-unlabeled geometry sufficiency claim is made from unavailable committed artifacts.",
+      "passed": 1
+    },
+    {
+      "check": "n5_n7_nulls_or_quarantine_emitted",
+      "finding": "N5/N6 key nulls and N7 diagnostic quarantine rows are emitted.",
+      "passed": 1
+    },
+    {
+      "check": "no_selection_artifact",
+      "finding": "C52 writes audit ledgers only and does not emit selected-candidate fields.",
+      "passed": 1
+    }
+  ],
+  "source_geometry_best_field": {
+    "best_field": "source_distance_q25",
+    "best_hit": 0.4876543209876543,
+    "best_orientation": "high",
+    "neighbor_count_q25": 14.0,
+    "neighbor_count_q50": 41.0,
+    "neighbor_count_q75": 82.0
+  },
+  "table_row_counts": {
+    "conditioning_ladder_summary": 13,
+    "gauge_key_decomposition": 10,
+    "key_null_calibration_summary": 6,
+    "no_selector_artifact_gate": 10,
+    "red_team_verification": 8,
+    "residual_failure_reason_ledger": 4,
+    "target_trajectory_cell_ledger": 162
+  },
+  "trajectory_conditioned_random_tie_hit": 0.429723378036041
+}
