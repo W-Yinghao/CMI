@@ -227,3 +227,37 @@ submitted_h2000_a40=890151_[6-7] partition=A40 time=96:00:00
 890151_6 H2000_s0 pending_a40=true
 890151_7 H2000_s1 pending_a40=true
 ```
+
+## Partial Pretraining Completion Check - 2026-07-09T09:24:30+02:00
+
+### squeue
+```text
+             JOBID         NAME PARTITION    STATE       TIME     NODELIST(REASON)
+          890147_4    s2pB1flex      A100  RUNNING   10:13:22        nodeaudible01
+          890151_6     s2pB1h2k       A40  RUNNING    8:08:07               node32
+          890151_7     s2pB1h2k       A40  RUNNING    8:08:07               node33
+          890147_5    s2pB1flex      V100  RUNNING    9:56:07               node13
+```
+
+### completed runs
+```text
+H200_s0 job=890125_0 epochs=50 done=true best_epoch=49 best_val=0.3162865489721298 checkpoint_reload=true nan_inf=false stderr_empty=true
+H200_s1 job=890147_1 epochs=50 done=true best_epoch=50 best_val=0.32015835121273994 checkpoint_reload=true nan_inf=false stderr_empty=true
+H500_s0 job=890147_2 epochs=50 done=true best_epoch=49 best_val=0.25837720558047295 checkpoint_reload=true nan_inf=false stderr_empty=true
+H500_s1 job=890147_3 epochs=50 done=true best_epoch=46 best_val=0.25497831621517736 checkpoint_reload=true nan_inf=false stderr_empty=true
+```
+
+### running runs
+```text
+H1000_s0 job=890147_4 epochs_seen=33 best_val=0.23592040625711283 nan_inf=false
+H1000_s1 job=890147_5 epochs_seen=20 best_val=0.25056258713205654 nan_inf=false
+H2000_s0 job=890151_6 epochs_seen=9 best_val=0.26146836796154577 nan_inf=false
+H2000_s1 job=890151_7 epochs_seen=9 best_val=0.2608661533643802 nan_inf=false
+```
+
+### policy
+```text
+downstream_launched=false
+pretraining_gate_deferred_until_8_of_8_runs_complete=true
+sacct_unavailable=true
+```
