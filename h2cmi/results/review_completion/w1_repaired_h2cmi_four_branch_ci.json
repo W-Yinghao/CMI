@@ -1,0 +1,330 @@
+{
+  "BA(I, Unif)": {
+    "bootstrap": {
+      "cluster_unit": "target_subject_within_dataset",
+      "interval_label": "repaired_split_confirmatory",
+      "n_boot": 5000,
+      "seed": 20260709,
+      "source_seed_policy": "source-training seeds averaged within biological target unit before bootstrap"
+    },
+    "dataset_macro": {
+      "ci_high": 0.7080979542576765,
+      "ci_low": 0.6466770899282474,
+      "mean": 0.6774848316977947,
+      "n_datasets": 3
+    },
+    "per_dataset": {
+      "BNCI2014_001": {
+        "ci_high": 0.7762345679012346,
+        "ci_low": 0.6049382716049383,
+        "mean": 0.6893004115226338,
+        "n": 9
+      },
+      "Cho2017": {
+        "ci_high": 0.6576084401709399,
+        "ci_low": 0.6122849893162396,
+        "mean": 0.6337713675213676,
+        "n": 52
+      },
+      "Lee2019_MI": {
+        "ci_high": 0.7371604938271603,
+        "ci_low": 0.681604938271605,
+        "mean": 0.7093827160493826,
+        "n": 54
+      }
+    },
+    "subject_weighted": {
+      "ci_high": 0.6912903381642514,
+      "ci_low": 0.6565223027375204,
+      "mean": 0.6736215780998391,
+      "n": 115
+    }
+  },
+  "BA(I, pi_J)": {
+    "bootstrap": {
+      "cluster_unit": "target_subject_within_dataset",
+      "interval_label": "repaired_split_confirmatory",
+      "n_boot": 5000,
+      "seed": 20260709,
+      "source_seed_policy": "source-training seeds averaged within biological target unit before bootstrap"
+    },
+    "dataset_macro": {
+      "ci_high": 0.70040904294608,
+      "ci_low": 0.6358925061992192,
+      "mean": 0.6680638651471984,
+      "n_datasets": 3
+    },
+    "per_dataset": {
+      "BNCI2014_001": {
+        "ci_high": 0.7731481481481481,
+        "ci_low": 0.5915509259259258,
+        "mean": 0.6805555555555556,
+        "n": 9
+      },
+      "Cho2017": {
+        "ci_high": 0.647607371794872,
+        "ci_low": 0.6005325854700857,
+        "mean": 0.6228952991452993,
+        "n": 52
+      },
+      "Lee2019_MI": {
+        "ci_high": 0.7287685185185185,
+        "ci_low": 0.6723456790123457,
+        "mean": 0.7007407407407407,
+        "n": 54
+      }
+    },
+    "subject_weighted": {
+      "ci_high": 0.6822751207729466,
+      "ci_low": 0.6460369967793882,
+      "mean": 0.6639613526570046,
+      "n": 115
+    }
+  },
+  "BA(T_J, Unif)": {
+    "bootstrap": {
+      "cluster_unit": "target_subject_within_dataset",
+      "interval_label": "repaired_split_confirmatory",
+      "n_boot": 5000,
+      "seed": 20260709,
+      "source_seed_policy": "source-training seeds averaged within biological target unit before bootstrap"
+    },
+    "dataset_macro": {
+      "ci_high": 0.7164054586103196,
+      "ci_low": 0.6558033033924237,
+      "mean": 0.6866971351693575,
+      "n_datasets": 3
+    },
+    "per_dataset": {
+      "BNCI2014_001": {
+        "ci_high": 0.7896090534979423,
+        "ci_low": 0.6188143004115225,
+        "mean": 0.7021604938271605,
+        "n": 9
+      },
+      "Cho2017": {
+        "ci_high": 0.6652032585470087,
+        "ci_low": 0.6180341880341882,
+        "mean": 0.6405235042735042,
+        "n": 52
+      },
+      "Lee2019_MI": {
+        "ci_high": 0.74704012345679,
+        "ci_low": 0.6877746913580247,
+        "mean": 0.7174074074074075,
+        "n": 54
+      }
+    },
+    "subject_weighted": {
+      "ci_high": 0.699527576489533,
+      "ci_low": 0.663406763285024,
+      "mean": 0.6814492753623189,
+      "n": 115
+    }
+  },
+  "BA(T_J, pi_J)": {
+    "bootstrap": {
+      "cluster_unit": "target_subject_within_dataset",
+      "interval_label": "repaired_split_confirmatory",
+      "n_boot": 5000,
+      "seed": 20260709,
+      "source_seed_policy": "source-training seeds averaged within biological target unit before bootstrap"
+    },
+    "dataset_macro": {
+      "ci_high": 0.7133843680753402,
+      "ci_low": 0.6516600783475782,
+      "mean": 0.6829430463226759,
+      "n_datasets": 3
+    },
+    "per_dataset": {
+      "BNCI2014_001": {
+        "ci_high": 0.7880658436213991,
+        "ci_low": 0.6152263374485597,
+        "mean": 0.7001028806584363,
+        "n": 9
+      },
+      "Cho2017": {
+        "ci_high": 0.6614326923076921,
+        "ci_low": 0.6152449252136751,
+        "mean": 0.6369978632478632,
+        "n": 52
+      },
+      "Lee2019_MI": {
+        "ci_high": 0.7408641975308641,
+        "ci_low": 0.6827098765432097,
+        "mean": 0.7117283950617284,
+        "n": 54
+      }
+    },
+    "subject_weighted": {
+      "ci_high": 0.6950934782608695,
+      "ci_low": 0.6588373590982287,
+      "mean": 0.6770273752012883,
+      "n": 115
+    }
+  },
+  "G": {
+    "bootstrap": {
+      "cluster_unit": "target_subject_within_dataset",
+      "interval_label": "repaired_split_confirmatory",
+      "n_boot": 5000,
+      "seed": 20260709,
+      "source_seed_policy": "source-training seeds averaged within biological target unit before bootstrap"
+    },
+    "dataset_macro": {
+      "ci_high": 0.01721298934261896,
+      "ci_low": 0.002434004695578758,
+      "mean": 0.009212303471562723,
+      "n_datasets": 3
+    },
+    "per_dataset": {
+      "BNCI2014_001": {
+        "ci_high": 0.03395061728395058,
+        "ci_low": -0.004115226337448582,
+        "mean": 0.012860082304526727,
+        "n": 9
+      },
+      "Cho2017": {
+        "ci_high": 0.013910523504273497,
+        "ci_low": -0.0004594017094017088,
+        "mean": 0.006752136752136755,
+        "n": 52
+      },
+      "Lee2019_MI": {
+        "ci_high": 0.016790123456790124,
+        "ci_low": -0.0001234567901234628,
+        "mean": 0.008024691358024687,
+        "n": 54
+      }
+    },
+    "subject_weighted": {
+      "ci_high": 0.013270531400966182,
+      "ci_low": 0.0026504428341384842,
+      "mean": 0.007827697262479871,
+      "n": 115
+    }
+  },
+  "G + P + I_int": {
+    "bootstrap": {
+      "cluster_unit": "target_subject_within_dataset",
+      "interval_label": "repaired_split_confirmatory",
+      "n_boot": 5000,
+      "seed": 20260709,
+      "source_seed_policy": "source-training seeds averaged within biological target unit before bootstrap"
+    },
+    "dataset_macro": {
+      "ci_high": 0.014279228658858268,
+      "ci_low": -0.001739556953677333,
+      "mean": 0.005458214624881285,
+      "n_datasets": 3
+    },
+    "per_dataset": {
+      "BNCI2014_001": {
+        "ci_high": 0.033950617283950595,
+        "ci_low": -0.007201646090534999,
+        "mean": 0.010802469135802444,
+        "n": 9
+      },
+      "Cho2017": {
+        "ci_high": 0.009605235042735041,
+        "ci_low": -0.003034989316239317,
+        "mean": 0.0032264957264957323,
+        "n": 52
+      },
+      "Lee2019_MI": {
+        "ci_high": 0.01222222222222222,
+        "ci_low": -0.007283950617283953,
+        "mean": 0.0023456790123456777,
+        "n": 54
+      }
+    },
+    "subject_weighted": {
+      "ci_high": 0.00917741545893719,
+      "ci_low": -0.0021351851851851844,
+      "mean": 0.003405797101449273,
+      "n": 115
+    }
+  },
+  "I_int": {
+    "bootstrap": {
+      "cluster_unit": "target_subject_within_dataset",
+      "interval_label": "repaired_split_confirmatory",
+      "n_boot": 5000,
+      "seed": 20260709,
+      "source_seed_policy": "source-training seeds averaged within biological target unit before bootstrap"
+    },
+    "dataset_macro": {
+      "ci_high": 0.011024529782631645,
+      "ci_low": 0.0007107470718581855,
+      "mean": 0.005666877703914747,
+      "n_datasets": 3
+    },
+    "per_dataset": {
+      "BNCI2014_001": {
+        "ci_high": 0.020061728395061748,
+        "ci_low": -0.0056584362139917655,
+        "mean": 0.006687242798353925,
+        "n": 9
+      },
+      "Cho2017": {
+        "ci_high": 0.012521901709401708,
+        "ci_low": 0.0022115384615384584,
+        "mean": 0.007350427350427351,
+        "n": 52
+      },
+      "Lee2019_MI": {
+        "ci_high": 0.009629629629629623,
+        "ci_low": -0.0038271604938271623,
+        "mean": 0.0029629629629629624,
+        "n": 54
+      }
+    },
+    "subject_weighted": {
+      "ci_high": 0.009325322061191622,
+      "ci_low": 0.0012028985507246354,
+      "mean": 0.005238325281803545,
+      "n": 115
+    }
+  },
+  "P": {
+    "bootstrap": {
+      "cluster_unit": "target_subject_within_dataset",
+      "interval_label": "repaired_split_confirmatory",
+      "n_boot": 5000,
+      "seed": 20260709,
+      "source_seed_policy": "source-training seeds averaged within biological target unit before bootstrap"
+    },
+    "dataset_macro": {
+      "ci_high": -0.0049498687612113575,
+      "ci_low": -0.014088206974781057,
+      "mean": -0.009420966550596184,
+      "n_datasets": 3
+    },
+    "per_dataset": {
+      "BNCI2014_001": {
+        "ci_high": 0.0015432098765431955,
+        "ci_low": -0.020061728395061748,
+        "mean": -0.008744855967078208,
+        "n": 9
+      },
+      "Cho2017": {
+        "ci_high": -0.006452457264957274,
+        "ci_low": -0.015267361111111107,
+        "mean": -0.010876068376068372,
+        "n": 52
+      },
+      "Lee2019_MI": {
+        "ci_high": -0.0014814814814814818,
+        "ci_low": -0.016172839506172838,
+        "mean": -0.008641975308641976,
+        "n": 54
+      }
+    },
+    "subject_weighted": {
+      "ci_high": -0.005732648953301126,
+      "ci_low": -0.013687761674718196,
+      "mean": -0.009660225442834139,
+      "n": 115
+    }
+  }
+}

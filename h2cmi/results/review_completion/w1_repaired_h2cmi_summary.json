@@ -1,0 +1,474 @@
+{
+  "accepted_job_ids": [
+    "890592",
+    "890593",
+    "890594",
+    "890595",
+    "890629",
+    "890630",
+    "890631"
+  ],
+  "artifacts": {
+    "audit_md": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_audit.md",
+    "dataset_heterogeneity_ci_csv": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_dataset_heterogeneity_ci.csv",
+    "four_branch_ci_csv": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_four_branch_ci.csv",
+    "four_branch_ci_json": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_four_branch_ci.json",
+    "legacy_compare_md": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_legacy_compare.md",
+    "method_contrasts_csv": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_method_contrasts.csv",
+    "method_contrasts_json": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_method_contrasts.json",
+    "results_csv": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_results.csv",
+    "results_csv_sha256": "6d5106a78dad9ce852c8e01ca292ef5b4a37bbeaaaac810a177dccb8b6b9089c"
+  },
+  "canceled_excluded_jobs": {
+    "890596": "dirty raw launch status after earlier shards wrote artifacts; excluded and rerun as clean job 890629",
+    "890597": "pending Lee shard canceled before result use; replaced by clean job 890630",
+    "890598": "pending Lee shard canceled before result use; replaced by clean job 890631"
+  },
+  "final_squeue_output": "",
+  "four_branch_subject_weighted": {
+    "BA(I, Unif)": {
+      "ci_high": 0.6912903381642514,
+      "ci_low": 0.6565223027375204,
+      "mean": 0.6736215780998391,
+      "n": 115
+    },
+    "BA(I, pi_J)": {
+      "ci_high": 0.6822751207729466,
+      "ci_low": 0.6460369967793882,
+      "mean": 0.6639613526570046,
+      "n": 115
+    },
+    "BA(T_J, Unif)": {
+      "ci_high": 0.699527576489533,
+      "ci_low": 0.663406763285024,
+      "mean": 0.6814492753623189,
+      "n": 115
+    },
+    "BA(T_J, pi_J)": {
+      "ci_high": 0.6950934782608695,
+      "ci_low": 0.6588373590982287,
+      "mean": 0.6770273752012883,
+      "n": 115
+    },
+    "G": {
+      "ci_high": 0.013270531400966182,
+      "ci_low": 0.0026504428341384842,
+      "mean": 0.007827697262479871,
+      "n": 115
+    },
+    "G + P + I_int": {
+      "ci_high": 0.00917741545893719,
+      "ci_low": -0.0021351851851851844,
+      "mean": 0.003405797101449273,
+      "n": 115
+    },
+    "I_int": {
+      "ci_high": 0.009325322061191622,
+      "ci_low": 0.0012028985507246354,
+      "mean": 0.005238325281803545,
+      "n": 115
+    },
+    "P": {
+      "ci_high": -0.005732648953301126,
+      "ci_low": -0.013687761674718196,
+      "mean": -0.009660225442834139,
+      "n": 115
+    }
+  },
+  "label": "P7B H2CMI W1 repaired split rerun",
+  "launch_commit": "ab93820db4bcf08e0a44827272d82328e86376a2",
+  "legacy_compare": {
+    "G": {
+      "legacy": {
+        "dataset_macro": 0.04797765687896239,
+        "per_dataset": {
+          "BNCI2014_001": 0.012860082304526727,
+          "Cho2017": 0.1227457264957265,
+          "Lee2019_MI": 0.008327161836633951
+        },
+        "subject_weighted": 0.060419002240841305
+      },
+      "repaired": {
+        "dataset_macro": 0.009212303471562723,
+        "per_dataset": {
+          "BNCI2014_001": 0.012860082304526727,
+          "Cho2017": 0.006752136752136755,
+          "Lee2019_MI": 0.008024691358024687
+        },
+        "subject_weighted": 0.007827697262479871
+      }
+    },
+    "I_int": {
+      "legacy": {
+        "dataset_macro": 0.0049517445948782796,
+        "per_dataset": {
+          "BNCI2014_001": 0.006687242798353925,
+          "Cho2017": 0.0014529914529914517,
+          "Lee2019_MI": 0.006714999533289462
+        },
+        "subject_weighted": 0.004333484482942363
+      },
+      "repaired": {
+        "dataset_macro": 0.005666877703914747,
+        "per_dataset": {
+          "BNCI2014_001": 0.006687242798353925,
+          "Cho2017": 0.007350427350427351,
+          "Lee2019_MI": 0.0029629629629629624
+        },
+        "subject_weighted": 0.005238325281803545
+      }
+    },
+    "P": {
+      "legacy": {
+        "dataset_macro": -0.007081369477401407,
+        "per_dataset": {
+          "BNCI2014_001": -0.008744855967078208,
+          "Cho2017": -0.0018803418803418808,
+          "Lee2019_MI": -0.010618910584784135
+        },
+        "subject_weighted": -0.0065208926353028255
+      },
+      "repaired": {
+        "dataset_macro": -0.009420966550596184,
+        "per_dataset": {
+          "BNCI2014_001": -0.008744855967078208,
+          "Cho2017": -0.010876068376068372,
+          "Lee2019_MI": -0.008641975308641976
+        },
+        "subject_weighted": -0.009660225442834139
+      }
+    },
+    "full_joint_delta": {
+      "legacy": {
+        "dataset_macro": 0.045848031996439255,
+        "per_dataset": {
+          "BNCI2014_001": 0.010802469135802444,
+          "Cho2017": 0.12231837606837606,
+          "Lee2019_MI": 0.004423250785139283
+        },
+        "subject_weighted": 0.05823159408848087
+      },
+      "repaired": {
+        "dataset_macro": 0.005458214624881285,
+        "per_dataset": {
+          "BNCI2014_001": 0.010802469135802444,
+          "Cho2017": 0.0032264957264957323,
+          "Lee2019_MI": 0.0023456790123456777
+        },
+        "subject_weighted": 0.003405797101449273
+      }
+    },
+    "identity_uniform": {
+      "legacy": {
+        "dataset_macro": 0.6756355977698857,
+        "per_dataset": {
+          "BNCI2014_001": 0.6893004115226338,
+          "Cho2017": 0.6245940170940171,
+          "Lee2019_MI": 0.713012364693006
+        },
+        "subject_weighted": 0.6711761764001297
+      },
+      "repaired": {
+        "dataset_macro": 0.6774848316977947,
+        "per_dataset": {
+          "BNCI2014_001": 0.6893004115226338,
+          "Cho2017": 0.6337713675213676,
+          "Lee2019_MI": 0.7093827160493826
+        },
+        "subject_weighted": 0.6736215780998391
+      }
+    },
+    "joint_geometry_uniform": {
+      "legacy": {
+        "dataset_macro": 0.723613254648848,
+        "per_dataset": {
+          "BNCI2014_001": 0.7021604938271605,
+          "Cho2017": 0.7473397435897434,
+          "Lee2019_MI": 0.72133952652964
+        },
+        "subject_weighted": 0.7315951786409711
+      },
+      "repaired": {
+        "dataset_macro": 0.6866971351693575,
+        "per_dataset": {
+          "BNCI2014_001": 0.7021604938271605,
+          "Cho2017": 0.6405235042735042,
+          "Lee2019_MI": 0.7174074074074075
+        },
+        "subject_weighted": 0.6814492753623189
+      }
+    }
+  },
+  "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+  "method_contrasts_subject_weighted": {
+    "FRSC_minus_identity": {
+      "ci_high": 0.013791344605475035,
+      "ci_low": 0.004692270531400979,
+      "mean": 0.00919806763285025,
+      "n": 115
+    },
+    "Latent-IM-Diag_minus_identity": {
+      "ci_high": 0.01510648148148148,
+      "ci_low": 0.004267028985507252,
+      "mean": 0.009563607085346214,
+      "n": 115
+    },
+    "fixed_prior_iterative_minus_joint_fit_geometry": {
+      "ci_high": 0.005404227053140089,
+      "ci_low": 0.0006681561996779292,
+      "mean": 0.0029919484702093423,
+      "n": 115
+    },
+    "joint_fit_geometry_minus_pooled": {
+      "ci_high": -0.0006892109500805204,
+      "ci_low": -0.006281843800322073,
+      "mean": -0.0034798711755233505,
+      "n": 115
+    },
+    "pooled_minus_identity": {
+      "ci_high": 0.016858534621578096,
+      "ci_low": 0.005944645732689201,
+      "mean": 0.011307568438003228,
+      "n": 115
+    }
+  },
+  "shards": [
+    {
+      "config_checksum": "3b2992edf80713ede236a2fe867e374e2bcb5be74db9600691a44848bc5668c7",
+      "dataset": "BNCI2014_001",
+      "expected_rows": 270,
+      "job_id": "890592",
+      "jsonl": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-bnci-all.jsonl",
+      "name": "h2p7-bnci-all",
+      "row_count": 270,
+      "sha256": "6a832ac5e899fca980b895d4b83ed45333c6920d0e5590843e6289cc628da4b8",
+      "stderr": {
+        "lines": 0,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-bnci-all-890592.err",
+        "status": "empty",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "exists": true,
+        "has_clean_porcelain_block": true,
+        "has_completion_line": true,
+        "has_launch_commit": true,
+        "lines": 151,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-bnci-all-890592.out"
+      }
+    },
+    {
+      "config_checksum": "9ebc66fc8930740051dfdf1d712631ed5b6ef850805ccb5361a4d68efaeca55a",
+      "dataset": "Cho2017",
+      "expected_rows": 540,
+      "job_id": "890593",
+      "jsonl": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-cho-00-17.jsonl",
+      "name": "h2p7-cho-00-17",
+      "row_count": 540,
+      "sha256": "9728fc108a3914a2a3a3bbe6caaae02609b3415b58baf0df923d40592149b300",
+      "stderr": {
+        "lines": 52,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-cho-00-17-890593.err",
+        "status": "known_harmless_moabb_warning_only",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "exists": true,
+        "has_clean_porcelain_block": true,
+        "has_completion_line": true,
+        "has_launch_commit": true,
+        "lines": 104,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-cho-00-17-890593.out"
+      }
+    },
+    {
+      "config_checksum": "c60eafbdd9d593c503fcc748a657f79ef2578cb3b61e52df28c3f10c463b7db0",
+      "dataset": "Cho2017",
+      "expected_rows": 540,
+      "job_id": "890594",
+      "jsonl": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-cho-18-35.jsonl",
+      "name": "h2p7-cho-18-35",
+      "row_count": 540,
+      "sha256": "d6166bdf82a31f0a4cf4ce4c29a5a2149b06c231e26328c4d09e192f2a6dac61",
+      "stderr": {
+        "lines": 52,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-cho-18-35-890594.err",
+        "status": "known_harmless_moabb_warning_only",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "exists": true,
+        "has_clean_porcelain_block": true,
+        "has_completion_line": true,
+        "has_launch_commit": true,
+        "lines": 104,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-cho-18-35-890594.out"
+      }
+    },
+    {
+      "config_checksum": "2df8c9fca3db0d2f1eb79974a4899dcf504b521d106e08b08568c7e719212604",
+      "dataset": "Cho2017",
+      "expected_rows": 480,
+      "job_id": "890595",
+      "jsonl": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-cho-36-51.jsonl",
+      "name": "h2p7-cho-36-51",
+      "row_count": 480,
+      "sha256": "14b446862159940b10c300cd8f35da4fb4e67deeb50bf630f7cae7334fe21e75",
+      "stderr": {
+        "lines": 52,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-cho-36-51-890595.err",
+        "status": "known_harmless_moabb_warning_only",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "exists": true,
+        "has_clean_porcelain_block": true,
+        "has_completion_line": true,
+        "has_launch_commit": true,
+        "lines": 102,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-cho-36-51-890595.out"
+      }
+    },
+    {
+      "config_checksum": "f44bc051f17f06deaa5e8856203d659ed77417626286b0aecf9160b7d9fd607e",
+      "dataset": "Lee2019_MI",
+      "expected_rows": 540,
+      "job_id": "890629",
+      "jsonl": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-lee-clean-00-17.jsonl",
+      "name": "h2p7-lee-clean-00-17",
+      "row_count": 540,
+      "sha256": "87c879869f2df27511374fe55775c0b1701b09a07d73efb27d6b81b9c86077cb",
+      "stderr": {
+        "lines": 0,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-lee-clean-00-17-890629.err",
+        "status": "empty",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "exists": true,
+        "has_clean_porcelain_block": true,
+        "has_completion_line": true,
+        "has_launch_commit": true,
+        "lines": 160,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-lee-clean-00-17-890629.out"
+      }
+    },
+    {
+      "config_checksum": "4632e53f907f19a78811c11e67da1bd1811d3d227e85752f370cc5e46a6da7a9",
+      "dataset": "Lee2019_MI",
+      "expected_rows": 540,
+      "job_id": "890630",
+      "jsonl": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-lee-clean-18-35.jsonl",
+      "name": "h2p7-lee-clean-18-35",
+      "row_count": 540,
+      "sha256": "7527674d1510908e6deb2fbac1a7c75c5c0d47842cba4ca8e05a2ba9fdb5a7f3",
+      "stderr": {
+        "lines": 0,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-lee-clean-18-35-890630.err",
+        "status": "empty",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "exists": true,
+        "has_clean_porcelain_block": true,
+        "has_completion_line": true,
+        "has_launch_commit": true,
+        "lines": 160,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-lee-clean-18-35-890630.out"
+      }
+    },
+    {
+      "config_checksum": "7b2627341649899662dd26677f70fa009218c81fa19323fc62e64e2162714197",
+      "dataset": "Lee2019_MI",
+      "expected_rows": 540,
+      "job_id": "890631",
+      "jsonl": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-lee-clean-36-53.jsonl",
+      "name": "h2p7-lee-clean-36-53",
+      "row_count": 540,
+      "sha256": "b9192d553cd21f9be40e46ee2acda90a1911e2d242b35dcd814f09b3d0f6f863",
+      "stderr": {
+        "lines": 0,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-lee-clean-36-53-890631.err",
+        "status": "empty",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "exists": true,
+        "has_clean_porcelain_block": true,
+        "has_completion_line": true,
+        "has_launch_commit": true,
+        "lines": 160,
+        "path": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/results/review_completion/w1_repaired_h2cmi_shards/h2p7-lee-clean-36-53-890631.out"
+      }
+    }
+  ],
+  "source_seeds": [
+    0,
+    1,
+    2
+  ],
+  "split_family": "class_stratified_half",
+  "status": "pass",
+  "validation": {
+    "all_eval_both_classes": true,
+    "branch_rows": {
+      "__decomposition__": 345,
+      "fixed_iterative_geometry_uniform": 345,
+      "fixed_reference_oneshot_uniform": 345,
+      "identity_joint_prior": 345,
+      "identity_uniform": 345,
+      "joint_geometry_joint_prior": 345,
+      "joint_geometry_uniform": 345,
+      "latent_im_diag_uniform": 345,
+      "pooled_uniform": 345,
+      "source_recolored_ea": 345
+    },
+    "config_checksum_present": true,
+    "dataset_rows": {
+      "BNCI2014_001": 270,
+      "Cho2017": 1560,
+      "Lee2019_MI": 1620
+    },
+    "duplicate_keys": [],
+    "expected_branch_rows": {
+      "__decomposition__": 345,
+      "fixed_iterative_geometry_uniform": 345,
+      "fixed_reference_oneshot_uniform": 345,
+      "identity_joint_prior": 345,
+      "identity_uniform": 345,
+      "joint_geometry_joint_prior": 345,
+      "joint_geometry_uniform": 345,
+      "latent_im_diag_uniform": 345,
+      "pooled_uniform": 345,
+      "source_recolored_ea": 345
+    },
+    "expected_dataset_rows": {
+      "BNCI2014_001": 270,
+      "Cho2017": 1560,
+      "Lee2019_MI": 1620
+    },
+    "expected_rows": 3450,
+    "final_squeue_absent": true,
+    "logits_hash_available": false,
+    "logits_hash_present_rows": 0,
+    "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+    "manifest_hash_all_rows_match": true,
+    "missing_config_checksum_shards": [],
+    "prediction_hash_complete": true,
+    "prediction_hash_missing_metric_rows": 0,
+    "row_count": 3450,
+    "shard_row_count_mismatches": [],
+    "shard_row_count_pass": true,
+    "shard_validation_pass": true,
+    "single_class_eval_rows": 0,
+    "status_rows": {
+      "ok": 3450
+    },
+    "stderr_status_pass": true,
+    "stderr_unexpected_shards": [],
+    "stdout_failure_shards": [],
+    "stdout_status_pass": true,
+    "target_label_leakage_detected": false,
+    "validation_pass": true
+  }
+}

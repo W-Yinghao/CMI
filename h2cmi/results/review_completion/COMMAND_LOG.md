@@ -164,3 +164,12 @@
   `dryrun_pass=True`, `approve_gpu_run=True`. Independent repaired-runner
   `--dry-run` crosscheck also passed with 345 manifest units, 3450 expected rows,
   and SHA-256 `8629e2f05969e9d128677b1d740256183a57e56d1426a5b73fed8c2de610f270`.
+
+- Per PM P7B, completed the H2CMI W1 repaired-split clean rerun. Accepted
+  job IDs were `890592`, `890593`, `890594`, `890595`, `890629`, `890630`,
+  and `890631`; canceled dirty/pending Lee replacements `890596`-`890598`
+  are excluded. Final monitoring used `squeue` only and all accepted jobs were
+  absent from the queue. The merged result CSV has `3450` rows,
+  all `ok`, with no single-class eval rows and complete prediction hashes.
+  Manifest hash `231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e` matched every row. No SPDIM, TeX edits,
+  geometry stress, or orthogonal-score work was performed.
