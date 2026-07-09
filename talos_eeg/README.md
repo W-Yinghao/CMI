@@ -32,9 +32,11 @@ TALOS_00_PM_BOUNDARIES: designed
 TALOS_00_DESIGN_PACKAGE: PASS at 96894a7
 TALOS_00A_IMPLEMENTATION_PREFLIGHT: PASS
 TALOS_00 scientific gate: FAIL at TALOS_00B
-TALOS_00B real frozen-feature replay: FAIL / diagnostic-only
-P1 source-free serialized-state training: not approved
-P2 streaming / clinical transfer: not approved
+TALOS_00B real frozen-feature replay: COMPLETE_NEGATIVE / diagnostic-only
+TALOS_00N negative closeout: complete
+TALOS low-degree-of-freedom frozen-feature route: CLOSED_NEGATIVE
+P1 source-free serialized-state training: denied from TALOS_00B
+P2 streaming / clinical transfer: denied
 ```
 
 ## Hard Boundaries
@@ -48,7 +50,9 @@ No CMI control retry.
 No CutClean-for-EEG pruning pipeline.
 No target labels except final metrics.
 No target-informed variant selection.
-No source-free deployment claim until source-state guard passes.
+No TALOS-LR or TALOS-full rescue from TALOS_00B.
+No trust-region relaxation rescue from TALOS_00B.
+No source-free deployment claim from TALOS_00.
 No safety-gate claim.
 ```
 
@@ -61,4 +65,7 @@ talos_eeg/reports/TALOS_00_ACCEPTANCE_CRITERIA.md
 talos_eeg/reports/TALOS_00_PM_BOUNDARIES.md
 talos_eeg/reports/TALOS_00A_PREFLIGHT_READOUT.md
 talos_eeg/reports/TALOS_00B_REAL_FROZEN_FEATURE_READOUT.md
+talos_eeg/reports/TALOS_00N_NEGATIVE_CLOSEOUT.md
+talos_eeg/reports/TALOS_00N_FAILURE_TAXONOMY.md
+talos_eeg/reports/TALOS_00N_PM_DECISION.md
 ```
