@@ -1,0 +1,5 @@
+hook,target_module,payload,large_payload_ref_only,requires_training,requires_forward_authorization
+model_output_logits,model.forward output,logits,0,0,1
+model_output_z,ShallowConvNet._features,representation_z,1,0,1
+classifier_projection_Wz,classifier.weight @ z,Wz,1,0,1
+atom_training_step,training loop,optimizer_step_atom,1,1,1

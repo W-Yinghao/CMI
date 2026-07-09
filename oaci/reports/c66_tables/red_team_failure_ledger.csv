@@ -1,0 +1,17 @@
+gate,failed,finding
+authorization_phrase_absent_default_mode,0,No explicit micro-pilot authorization phrase was present.
+no_forward_or_reinference_executed,0,CPU torchload metadata only; no EEG forward.
+no_training_or_gpu,0,No training or GPU authorization.
+frozen_store_replayed,0,C65 frozen store recovery replayed.
+mapping_replay_complete,0,All grouped mapping rows verified.
+cpu_torchload_sample_passed,0,Six stratified checkpoints CPU-loaded successfully.
+state_hashes_match,0,Loaded state hashes match checkpoint ids.
+model_abi_no_forward,0,Model ABI validated without constructor/forward execution.
+preprocess_contract_validated,0,BNCI2014_001 preprocessing contract recovered.
+reserved_holdouts_preserved,0,BNCI2014_004 and seeds 3/4 remain reserved.
+no_cache_emitted,0,No real trial cache was emitted.
+split_label_claim_blocked,0,Few-label/split-label claims blocked without cache.
+full_cs_claim_blocked,0,Full conditional-CS claim blocked without paired samples.
+payload_policy_external_only,0,Large payloads remain external.
+forbidden_scan_passed,0,Forbidden affirmative claim scan passed.
+large_artifact_scan_passed,0,All C66 artifacts are under 50MB.

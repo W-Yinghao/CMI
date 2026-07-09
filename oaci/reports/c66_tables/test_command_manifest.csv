@@ -1,0 +1,5 @@
+test_scope,command,status,environment,slurm_partition
+focused_c66,python -m pytest oaci/tests/test_c66_reinference_only_trial_cache_microcampaign.py -q,green,eeg2025,cpu-high
+c50_c66_slice,python -m pytest oaci/tests/test_c5*.py oaci/tests/test_c60_rank_gauge_proof_stress_empirical_bridge.py ... test_c66_reinference_only_trial_cache_microcampaign.py -q,green,eeg2025,cpu-high
+c23_c66_regression,python -m pytest oaci/tests/test_c2[3-9]_*.py oaci/tests/test_c3*.py oaci/tests/test_c4*.py oaci/tests/test_c5*.py oaci/tests/test_c60_*.py ... test_c66_*.py -q,green,eeg2025,cpu-high
+full_oaci_tests,python -m pytest oaci/tests -q,green,eeg2025,cpu-high

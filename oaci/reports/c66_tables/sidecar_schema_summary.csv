@@ -1,0 +1,2 @@
+signature_id,sidecar_count,tensor_count,tensor_keys,dtype_set,shape_signature,writer_versions,all_model_hash_match
+sidecar_sig_01,1268,10,bn.bias;bn.num_batches_tracked;bn.running_mean;bn.running_var;bn.weight;classifier.bias;classifier.weight;spatial.weight;temporal.bias;temporal.weight,torch.float32;torch.int64,"bn.bias[40];bn.num_batches_tracked[];bn.running_mean[40];bn.running_var[40];bn.weight[40];classifier.bias[4];classifier.weight[4, 800];spatial.weight[40, 40, 22, 1];temporal.bias[40];temporal.weight[40, 1, 1, 25]",oaci-ckpt-v1:1268,1

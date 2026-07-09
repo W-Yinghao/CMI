@@ -1,0 +1,8 @@
+gate,value,allowed,observed,enforced_status
+authorization_phrase_required,AUTHORIZE_C66_REINFERENCE_ONLY_MICROPILOT,1,0,absent
+forward_reinference_authorized,EEG forward / re-inference,0,0,blocked_in_c66_default
+cpu_torchload_metadata_authorized,torch.load map_location=cpu weights_only=True,1,1,metadata_only_no_forward
+training_authorized,new training or gradient updates,0,0,forbidden
+gpu_authorized,GPU execution,0,0,forbidden
+cache_emission_authorized,write real trial-level cache,0,0,not_emitted
+reserved_holdout_release,"BNCI2014_004 and seeds 3,4",0,0,preserved

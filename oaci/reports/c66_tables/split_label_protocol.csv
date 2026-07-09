@@ -1,0 +1,5 @@
+protocol_step,input_required,cache_required,current_status,same_label_reuse_allowed,claim_allowed_now
+partition_target_trials,trial_id;class_label_quarantined,1,protocol_ready_cache_missing,0,0
+construct_split_label_feature,target_construct_labels;logits;probabilities,1,protocol_ready_cache_missing,0,0
+evaluate_heldout_target_trials,target_eval_labels;y_pred;probabilities,1,protocol_ready_cache_missing,0,0
+forbid_same_candidate_endpoint_oracle,endpoint_scalar,0,guard_active,0,0
