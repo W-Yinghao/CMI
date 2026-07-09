@@ -1,8 +1,10 @@
 CEDAR_01F — Frozen Feature Supply / Provenance Gate Readout
 
-Status: CEDAR_01F inventory complete. CEDAR_01 real EEG shadow audit remains
-blocked because no compliant BNCI2014_001 / BNCI2015_001 frozen feature dump was
-found.
+Status: CEDAR_01F inventory complete, with Route C completion addendum. The
+initial inventory found no pre-existing compliant BNCI2014_001 / BNCI2015_001
+frozen feature dump. Route C subsequently produced 18 compliant BNCI2014_001
+feature-supply artifacts under
+`results/cedar/feature_supply/cedar01f_bnci2014_001_seed0`.
 
 Scope
 
@@ -10,7 +12,7 @@ This readout is an inventory/provenance gate only. It does not run CEDAR
 selection, does not produce a scientific CEDAR_01 result, and does not authorize
 P1/P2/generalization claims.
 
-Inventory command
+Initial inventory command
 
 ```bash
 PYTHONPATH=. python -m cedar_eeg.data.feature_inventory \
@@ -21,7 +23,7 @@ PYTHONPATH=. python -m cedar_eeg.data.feature_inventory \
   --json-out /tmp/cedar01f_feature_inventory.json
 ```
 
-Inventory summary
+Initial inventory summary
 
 ```text
 total .npz files inventoried: 236
@@ -30,8 +32,8 @@ ADAPTER_POSSIBLE:           41
 REJECT:                     195
 ```
 
-All inventoried `.npz` files came from legacy archive paths. No active
-non-archive compliant CEDAR feature dump was found.
+All initially inventoried `.npz` files came from legacy archive paths. No active
+non-archive compliant CEDAR feature dump was found before Route C.
 
 BNCI2014_001 / BNCI2015_001 status
 
@@ -106,28 +108,78 @@ Validation
 
 ```text
 PYTHONPATH=. pytest -q cedar_eeg/tests/test_p0_contracts.py cedar_eeg/tests/test_feature_schema.py
-19 passed
+23 passed
 
 python -m compileall -q cedar_eeg
 passed
+```
+
+Route C completion addendum
+
+Route C source-ERM feature supply was run after the initial inventory:
+
+```text
+job id: 890263
+script: scripts/cedar_source_erm_feature_dump.slurm
+dataset: BNCI2014_001
+seed: 0
+backbones: EEGNetMini, EEGConformerMini
+output root: results/cedar/feature_supply/cedar01f_bnci2014_001_seed0
+```
+
+Post-completion inventory command:
+
+```bash
+PYTHONPATH=. python -m cedar_eeg.data.feature_inventory \
+  --root results/cedar/feature_supply/cedar01f_bnci2014_001_seed0 \
+  --json-out results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/feature_inventory.json
+```
+
+Post-completion inventory summary:
+
+```text
+total:            18
+COMPLIANT:        18
+ADAPTER_POSSIBLE: 0
+REJECT:           0
+```
+
+Artifact coverage:
+
+```text
+EEGNetMini:        9/9 LOSO target folds
+EEGConformerMini:  9/9 LOSO target folds
+```
+
+Strict validation artifacts:
+
+```text
+results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/feature_inventory.json
+results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/schema_validation.json
+results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/manifest_freeze.json
+results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/source_selection_view_quarantine.json
+```
+
+Detailed completion provenance is recorded in:
+
+```text
+cedar_eeg/reports/CEDAR_01F_ROUTE_C_COMPLETION_READOUT.md
 ```
 
 Gate outcome
 
 CEDAR_01F inventory: PASS as supply/provenance inventory.
 
-CEDAR_01 real EEG shadow audit: still BLOCKED.
+CEDAR_01F Route C feature supply: PASS as feature-supply completion.
 
-Reason:
+CEDAR_01 real EEG shadow audit: still not run. It is now ready to request the
+PM gate for real CEDAR_01 execution, but this readout does not itself authorize
+selector execution.
 
-```text
-No compliant BNCI2014_001 x EEGNetMini / EEGConformerMini frozen feature dump
-with z/y/domain/groups/role was found.
-```
+Boundary remains unchanged: no selector, mask deployment, P1/P2, target
+comparison, or target-generalization claim has been run.
 
 Next permitted action
 
-Use Route C from the protocol: run a fresh source-ERM feature-dump-only Slurm
-job for BNCI2014_001 with EEGNetMini and EEGConformerMini, seed0 full LOSO,
-freeze hashes/manifests, and only then request the CEDAR_01 real shadow audit
-gate.
+Commit the Route C completion package and request the CEDAR_01 real shadow audit
+gate from PM.

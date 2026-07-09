@@ -1,0 +1,14 @@
+{
+  "backbone": "EEGNetMini",
+  "cedar_role": "feature_supply_candidate_only",
+  "dataset": "BNCI2014_001",
+  "deployable": false,
+  "file_sha256": "f51a817595bfbbefa21dcde61069427ebb93f56be11b583ab6d9ec64b1dcfa78",
+  "fold_id": "5",
+  "manifest_hash": "7006641ec76945e2a3daaaca3e9a7c46cb7e3a875bae2756d81996dc5714dd2b",
+  "n_samples": 5184,
+  "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_5.npz",
+  "schema_version": "CEDAR_01F_v1",
+  "seed": "0",
+  "z_dim": 16
+}

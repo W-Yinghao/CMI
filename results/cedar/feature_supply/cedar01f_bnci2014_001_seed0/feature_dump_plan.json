@@ -1,0 +1,178 @@
+{
+  "backbones": [
+    "EEGConformerMini"
+  ],
+  "dataset": "BNCI2014_001",
+  "deployable": false,
+  "items": [
+    {
+      "backbone": "EEGConformerMini",
+      "cmi_backbone": "EEGConformer",
+      "dataset": "BNCI2014_001",
+      "fold_id": "1",
+      "output_manifest": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_1.manifest.json",
+      "output_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_1.npz",
+      "resample": 250,
+      "roles": [
+        "source_train",
+        "source_audit",
+        "target_audit"
+      ],
+      "seed": 0,
+      "target_subject": "1",
+      "tmax": 4.0,
+      "tmin": 0.0
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "cmi_backbone": "EEGConformer",
+      "dataset": "BNCI2014_001",
+      "fold_id": "2",
+      "output_manifest": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_2.manifest.json",
+      "output_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_2.npz",
+      "resample": 250,
+      "roles": [
+        "source_train",
+        "source_audit",
+        "target_audit"
+      ],
+      "seed": 0,
+      "target_subject": "2",
+      "tmax": 4.0,
+      "tmin": 0.0
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "cmi_backbone": "EEGConformer",
+      "dataset": "BNCI2014_001",
+      "fold_id": "3",
+      "output_manifest": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_3.manifest.json",
+      "output_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_3.npz",
+      "resample": 250,
+      "roles": [
+        "source_train",
+        "source_audit",
+        "target_audit"
+      ],
+      "seed": 0,
+      "target_subject": "3",
+      "tmax": 4.0,
+      "tmin": 0.0
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "cmi_backbone": "EEGConformer",
+      "dataset": "BNCI2014_001",
+      "fold_id": "4",
+      "output_manifest": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_4.manifest.json",
+      "output_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_4.npz",
+      "resample": 250,
+      "roles": [
+        "source_train",
+        "source_audit",
+        "target_audit"
+      ],
+      "seed": 0,
+      "target_subject": "4",
+      "tmax": 4.0,
+      "tmin": 0.0
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "cmi_backbone": "EEGConformer",
+      "dataset": "BNCI2014_001",
+      "fold_id": "5",
+      "output_manifest": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_5.manifest.json",
+      "output_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_5.npz",
+      "resample": 250,
+      "roles": [
+        "source_train",
+        "source_audit",
+        "target_audit"
+      ],
+      "seed": 0,
+      "target_subject": "5",
+      "tmax": 4.0,
+      "tmin": 0.0
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "cmi_backbone": "EEGConformer",
+      "dataset": "BNCI2014_001",
+      "fold_id": "6",
+      "output_manifest": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_6.manifest.json",
+      "output_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_6.npz",
+      "resample": 250,
+      "roles": [
+        "source_train",
+        "source_audit",
+        "target_audit"
+      ],
+      "seed": 0,
+      "target_subject": "6",
+      "tmax": 4.0,
+      "tmin": 0.0
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "cmi_backbone": "EEGConformer",
+      "dataset": "BNCI2014_001",
+      "fold_id": "7",
+      "output_manifest": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_7.manifest.json",
+      "output_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_7.npz",
+      "resample": 250,
+      "roles": [
+        "source_train",
+        "source_audit",
+        "target_audit"
+      ],
+      "seed": 0,
+      "target_subject": "7",
+      "tmax": 4.0,
+      "tmin": 0.0
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "cmi_backbone": "EEGConformer",
+      "dataset": "BNCI2014_001",
+      "fold_id": "8",
+      "output_manifest": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_8.manifest.json",
+      "output_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_8.npz",
+      "resample": 250,
+      "roles": [
+        "source_train",
+        "source_audit",
+        "target_audit"
+      ],
+      "seed": 0,
+      "target_subject": "8",
+      "tmax": 4.0,
+      "tmin": 0.0
+    },
+    {
+      "backbone": "EEGConformerMini",
+      "cmi_backbone": "EEGConformer",
+      "dataset": "BNCI2014_001",
+      "fold_id": "9",
+      "output_manifest": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_9.manifest.json",
+      "output_npz": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_9.npz",
+      "resample": 250,
+      "roles": [
+        "source_train",
+        "source_audit",
+        "target_audit"
+      ],
+      "seed": 0,
+      "target_subject": "9",
+      "tmax": 4.0,
+      "tmin": 0.0
+    }
+  ],
+  "phase": "CEDAR_01F_feature_supply_route_c",
+  "plan_hash": "55a20d92d8173d2b302e5ef82554eb70d7d59ddc6d08b84b0e9cb17db2bbb8be",
+  "project": "CEDAR-EEG",
+  "scientific_readout_run": false,
+  "seed": 0,
+  "selection_run": false,
+  "source_audit_fraction": 0.2
+}

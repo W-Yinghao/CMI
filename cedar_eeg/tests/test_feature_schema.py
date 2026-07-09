@@ -7,12 +7,14 @@ from cedar_eeg.data.load_frozen_features import (
     FrozenFeatureSchemaError,
     load_frozen_feature_npz,
     verify_manifest_immutability,
+    write_feature_manifest,
 )
+from cedar_eeg.data.validate_feature_supply import validate_feature_file, validate_feature_root
 from cedar_eeg.probes.crossfit_grouped import make_folds
 from cedar_eeg.runners.run_01f_source_erm_feature_dump import build_plan
 
 
-def _write_npz(path, *, groups=None, y=None, z=None, role=None, sample_id=None):
+def _write_npz(path, *, groups=None, y=None, z=None, role=None, sample_id=None, extra=None):
     n = 12
     if z is None:
         z = np.arange(n * 3, dtype=np.float32).reshape(n, 3)
@@ -32,9 +34,13 @@ def _write_npz(path, *, groups=None, y=None, z=None, role=None, sample_id=None):
         "dataset": np.array("BNCI2014_001"),
         "backbone": np.array("EEGNetMini"),
         "seed": np.array(0),
+        "deployable": np.array(False),
+        "cedar_role": np.array("feature_supply_candidate_only"),
     }
     if sample_id is not None:
         payload["sample_id"] = np.asarray(sample_id)
+    if extra:
+        payload.update(extra)
     np.savez(path, **payload)
 
 
@@ -157,3 +163,37 @@ def test_route_c_plan_freezes_feature_supply_without_selection(tmp_path):
     assert len(plan["items"]) == 4
     assert {x["backbone"] for x in plan["items"]} == {"EEGNetMini", "EEGConformerMini"}
     assert plan["plan_hash"]
+
+
+def test_feature_supply_validator_accepts_manifested_candidate(tmp_path):
+    path = tmp_path / "features.npz"
+    _write_npz(path)
+    bundle = load_frozen_feature_npz(path)
+    write_feature_manifest(bundle, path.with_suffix(".manifest.json"))
+
+    payload = validate_feature_root(tmp_path, expected_count=1, expected_backbones=["EEGNetMini"])
+    assert payload["complete"] is True
+    assert payload["records"][0]["status"] == "PASS"
+    assert payload["records"][0]["source_selection_view"]["target_rows_quarantined"] == 4
+    assert payload["records"][0]["grouped_split"]["feasible"] is True
+    assert payload["records"][0]["no_selector_proof"]["forbidden_selector_keys_present"] == []
+
+
+def test_feature_supply_validator_rejects_selector_keys(tmp_path):
+    path = tmp_path / "features.npz"
+    _write_npz(path, extra={"selected_mask": np.ones(12, dtype=bool)})
+    bundle = load_frozen_feature_npz(path)
+    write_feature_manifest(bundle, path.with_suffix(".manifest.json"))
+
+    record = validate_feature_file(path)
+    assert record["status"] == "FAIL"
+    assert any("selector_keys_present" in err for err in record["errors"])
+
+
+def test_feature_supply_validator_rejects_missing_manifest(tmp_path):
+    path = tmp_path / "features.npz"
+    _write_npz(path)
+
+    record = validate_feature_file(path)
+    assert record["status"] == "FAIL"
+    assert "missing_manifest_json" in record["errors"]

@@ -1,0 +1,14 @@
+{
+  "backbone": "EEGConformerMini",
+  "cedar_role": "feature_supply_candidate_only",
+  "dataset": "BNCI2014_001",
+  "deployable": false,
+  "file_sha256": "23230deba0ea0fc6ebf1c34a9f2ae86e3d5a822ca4f0a3e36bfc59f897f22c30",
+  "fold_id": "2",
+  "manifest_hash": "c731e5b5ca42f81b8efd21436893796251f7216d14c13ce58b89e94132d29c23",
+  "n_samples": 5184,
+  "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_2.npz",
+  "schema_version": "CEDAR_01F_v1",
+  "seed": "0",
+  "z_dim": 32
+}

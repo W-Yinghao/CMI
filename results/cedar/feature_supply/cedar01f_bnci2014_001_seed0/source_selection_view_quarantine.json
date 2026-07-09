@@ -1,0 +1,548 @@
+{
+  "complete": true,
+  "phase": "CEDAR_01F_feature_supply_route_c",
+  "project": "CEDAR-EEG",
+  "records": [
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_1.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_2.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_3.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_4.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_5.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_6.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_7.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_8.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGConformerMini_seed0_9.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_1.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_2.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_3.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_4.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_5.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_6.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_7.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_8.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    },
+    {
+      "errors": [],
+      "grouped_split": {
+        "feasible": true,
+        "n_folds": 3,
+        "n_source_groups": 96,
+        "required": true,
+        "split_policy": "group_disjoint_crossfit"
+      },
+      "no_selector_proof": {
+        "cedar_role": "feature_supply_candidate_only",
+        "deployable": false,
+        "forbidden_selector_keys_present": [],
+        "scientific_readout_run": false,
+        "selection_run": false
+      },
+      "path": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0/BNCI2014_001_EEGNetMini_seed0_9.npz",
+      "source_selection_view": {
+        "keys": [
+          "domain",
+          "groups",
+          "y",
+          "z"
+        ],
+        "source_rows": 4608,
+        "target_role_exposed": false,
+        "target_rows_quarantined": 576
+      },
+      "status": "PASS"
+    }
+  ],
+  "root": "results/cedar/feature_supply/cedar01f_bnci2014_001_seed0"
+}
