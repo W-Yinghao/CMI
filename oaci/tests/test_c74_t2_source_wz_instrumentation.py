@@ -143,3 +143,25 @@ def test_c74_cross_node_replay_tolerances_are_locked_and_strict():
     assert preprocessing_replay.Z_MAX_ABS_TOLERANCE == 1e-4
     assert preprocessing_replay.LOGIT_MAX_ABS_TOLERANCE == 1e-4
     assert preprocessing_replay.PROBABILITY_MAX_ABS_TOLERANCE == 1e-5
+
+
+def test_c74_incremental_null_permutes_only_the_new_block():
+    rng = np.random.default_rng(74)
+    records = []
+    for target in range(1, 10):
+        for value in (-1.0, -0.3, 0.3, 1.0):
+            records.append({
+                "manifest": {"target_id": target},
+                "source_features": rng.normal(size=4),
+                "construction_features": np.asarray([value, value * value]),
+                "shared_features": rng.normal(size=3),
+                "source_representation_features": rng.normal(size=10),
+                "target_representation_features": rng.normal(size=10),
+                "evaluation_bAcc": 0.5 + 0.1 * value,
+            })
+    rows = analysis._incremental_prediction(records)
+    construction = rows[1]
+    assert construction["incremental_R2"] > 0.5
+    assert construction["incremental_exceeds_null_p95"] == 1
+    assert construction["null_scheme"] == "permute_new_block_within_target_keep_prior_blocks_and_outcome_fixed"
+    assert "target_blocked_null_R2_p95" not in construction

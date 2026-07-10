@@ -337,25 +337,32 @@ def _incremental_prediction(records: list[dict]) -> list[dict]:
             perm[indices] = rng.permutation(indices)
         permutation_indices.append(perm)
     for order, (name, availability, key) in enumerate(feature_blocks, 1):
-        cumulative.append(np.stack([record[key] for record in records]))
+        new_block = np.stack([record[key] for record in records])
+        previous_blocks = list(cumulative)
+        cumulative.append(new_block)
         X = np.concatenate(cumulative, axis=1)
         prediction = _ridge_loto_predictions(X, y, groups)
         metrics = _prediction_metrics(y, prediction)
-        null_r2 = []
+        observed_increment = metrics["loto_R2"] - previous_r2 if math.isfinite(previous_r2) else metrics["loto_R2"]
+        null_increment = []
         for perm in permutation_indices:
-            null_prediction = _ridge_loto_predictions(X, y[perm], groups)
-            null_r2.append(_prediction_metrics(y[perm], null_prediction)["loto_R2"])
+            null_X = np.concatenate(previous_blocks + [new_block[perm]], axis=1)
+            null_prediction = _ridge_loto_predictions(null_X, y, groups)
+            null_r2 = _prediction_metrics(y, null_prediction)["loto_R2"]
+            null_increment.append(null_r2 - previous_r2 if math.isfinite(previous_r2) else null_r2)
+        null_p95 = float(np.quantile(null_increment, 0.95))
         rows.append({
             "order": order,
             "model": name,
             "new_block_availability": availability,
             "feature_count": X.shape[1],
             **metrics,
-            "incremental_R2": metrics["loto_R2"] - previous_r2 if math.isfinite(previous_r2) else float("nan"),
+            "incremental_R2": observed_increment,
             "target_blocked_null_replicates": NULL_REPLICATES,
-            "target_blocked_null_R2_mean": float(np.mean(null_r2)),
-            "target_blocked_null_R2_p95": float(np.quantile(null_r2, 0.95)),
-            "exceeds_null_p95": int(metrics["loto_R2"] > float(np.quantile(null_r2, 0.95))),
+            "target_blocked_null_incremental_R2_mean": float(np.mean(null_increment)),
+            "target_blocked_null_incremental_R2_p95": null_p95,
+            "incremental_exceeds_null_p95": int(observed_increment > null_p95),
+            "null_scheme": "permute_new_block_within_target_keep_prior_blocks_and_outcome_fixed",
             "ridge_alpha_locked": RIDGE_ALPHA,
             "crossfit": "leave_one_target_out",
             "diagnostic_only": 1,
@@ -774,7 +781,7 @@ def run_analysis() -> dict:
         "projection_split_median_spearman": median_stability,
         "projection_split_positive_fraction": positive_fraction,
         "target_unlabeled_zWz_incremental_R2": target_rep_row["incremental_R2"],
-        "target_unlabeled_zWz_exceeds_null_p95": target_rep_row["exceeds_null_p95"],
+        "target_unlabeled_zWz_incremental_exceeds_null_p95": target_rep_row["incremental_exceeds_null_p95"],
         "planning_method": "measured_T2_linear_scale_not_runtime_guarantee",
     }, {
         "campaign": "C76_T3_HO_projected", "units": 1052,
@@ -786,7 +793,7 @@ def run_analysis() -> dict:
         "projection_split_median_spearman": median_stability,
         "projection_split_positive_fraction": positive_fraction,
         "target_unlabeled_zWz_incremental_R2": target_rep_row["incremental_R2"],
-        "target_unlabeled_zWz_exceeds_null_p95": target_rep_row["exceeds_null_p95"],
+        "target_unlabeled_zWz_incremental_exceeds_null_p95": target_rep_row["incremental_exceeds_null_p95"],
         "planning_method": f"T2_linear_scale;rough_correlation_power_units={correlation_power_units};estimated_parallel_9x48cpu_seconds={projected_t3_seconds_48cpu:.1f}",
     }]
 
