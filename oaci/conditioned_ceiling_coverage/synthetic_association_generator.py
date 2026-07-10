@@ -66,7 +66,11 @@ def _case_data(case: str, rng: np.random.Generator, targets: np.ndarray) -> tupl
         outcome = 0.8 * invariant + noise
         for target in range(9):
             indices = np.where(targets == target)[0]
-            outcome[int(rng.choice(indices))] += 4.0
+            # Preserve the nonlinear bulk relation while assigning the best arm
+            # to a uniformly random candidate. This makes association real but
+            # top-1 control unavailable from the architecture block.
+            winner = int(rng.choice(indices))
+            outcome[winner] = float(np.max(outcome[indices])) + 1.0
     elif case == "S6_predictive_actionable":
         architecture, outcome = x, invariant + 0.15 * noise
     else:  # pragma: no cover
