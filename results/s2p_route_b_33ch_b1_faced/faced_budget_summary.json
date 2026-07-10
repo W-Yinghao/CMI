@@ -1,8 +1,10 @@
 {
   "codebrain_used": false,
   "downstream_dataset": "FACED",
-  "elapsed_s": 1037.6,
+  "elapsed_s": 1471.8,
   "evaluated_budgets_h": [
+    200,
+    500,
     1000
   ],
   "evaluated_seeds": [
@@ -19,9 +21,9 @@
   },
   "h2000_included": false,
   "not_full_finetuning_reproduction": true,
-  "phase": "probe",
+  "phase": "fleet",
   "primary_metric": "cohen_kappa",
-  "probe_gate_pass": true,
+  "probe_gate_pass": null,
   "protocol": "frozen_encoder_source_only_probe",
   "random_reference": {
     "source_val_bacc": 0.14459876543209876,
@@ -30,9 +32,9 @@
     "target_kappa": 0.0285368348537669
   },
   "released_gap": {
-    "best_tag": "H1000_s1",
-    "released_minus_best_target_bacc": 0.0025496511003757494,
-    "released_minus_best_target_kappa": 0.005358841655773716
+    "best_tag": "H500_s0",
+    "released_minus_best_target_bacc": -0.0025496511003757216,
+    "released_minus_best_target_kappa": -0.0019014187509143188
   },
   "released_reference": {
     "source_val_bacc": 0.18564814814814812,

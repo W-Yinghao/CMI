@@ -1,5 +1,9 @@
 tag,checkpoint,loaded,feature_shape,feature_dim,feature_sha16,determinism_max_abs_diff
 random,random,random_init,10332x6400,6400,f411ce1c2f6d93b2,0.0
 released,/home/infres/yinwang/eeg2025/NIPS/Cbramod_pretrained_weights.pth,/home/infres/yinwang/eeg2025/NIPS/Cbramod_pretrained_weights.pth,10332x6400,6400,dcef0543a5a201d4,0.0
+H200_s0,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H200_s0/best.pth,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H200_s0/best.pth,10332x6400,6400,ea27c651494baae8,0.0
+H200_s1,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H200_s1/best.pth,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H200_s1/best.pth,10332x6400,6400,9873ced80f8d98e1,0.0
+H500_s0,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H500_s0/best.pth,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H500_s0/best.pth,10332x6400,6400,3df2140144b16c8c,0.0
+H500_s1,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H500_s1/best.pth,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H500_s1/best.pth,10332x6400,6400,f5a9f8c3043cfee8,0.0
 H1000_s0,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H1000_s0/best.pth,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H1000_s0/best.pth,10332x6400,6400,ad69b32260b4981f,0.0
 H1000_s1,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H1000_s1/best.pth,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H1000_s1/best.pth,10332x6400,6400,4e24f4cb55616903,0.0
