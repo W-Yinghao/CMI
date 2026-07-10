@@ -5,7 +5,12 @@ import hashlib
 import json
 from pathlib import Path
 
+import numpy as np
+
+from oaci.conditioned_ceiling_coverage import c76_orbit
 from oaci.conditioned_ceiling_coverage import c76_protocol
+from oaci.conditioned_ceiling_coverage import c76_statistics
+from oaci.conditioned_ceiling_coverage import synthetic_association_generator
 
 
 def _sha256(path: str | Path) -> str:
@@ -63,3 +68,79 @@ def test_c76_candidate_gate_requires_prediction_actionability_and_orbit_robustne
         gates = {row["gate"] for row in rows if row["candidate"] == candidate}
         assert {"orbit_robustness", "incremental_R2", "global_max_stat_p", "material_actionability", "target_label_leakage"} <= gates
         assert all(row["all_required"] == 1 for row in rows if row["candidate"] == candidate)
+
+
+def test_c76_all_registered_orbits_preserve_Wz_on_dummy_data():
+    rng = np.random.default_rng(76)
+    z = rng.normal(size=(16, c76_orbit.DIMENSION))
+    W = rng.normal(size=(4, c76_orbit.DIMENSION))
+    reference = z @ W.T
+    for orbit, replicate in c76_orbit.orbit_variants():
+        transform = c76_orbit.make_transform(orbit, replicate, "unit-a")
+        observed = c76_orbit.apply_z(z, transform) @ c76_orbit.apply_W(W, transform).T
+        assert np.max(np.abs(observed - reference)) < 1e-10
+        assert transform.condition_number <= 3.0 + 1e-12
+
+
+def test_c76_global_and_checkpoint_transform_scope_hashes_are_distinct():
+    global_left = c76_orbit.make_transform("O5", 0, "unit-a")
+    global_right = c76_orbit.make_transform("O5", 0, "unit-b")
+    checkpoint_left = c76_orbit.make_transform("O6", 0, "unit-a")
+    checkpoint_right = c76_orbit.make_transform("O6", 0, "unit-b")
+    assert global_left.transform_hash == global_right.transform_hash
+    assert checkpoint_left.transform_hash != checkpoint_right.transform_hash
+
+
+def test_c76_blocked_permutations_preserve_registered_strata():
+    targets = np.repeat(np.arange(3), 8)
+    trajectory = np.tile(np.repeat(np.asarray(["a", "b"]), 4), 3)
+    seed = np.tile(np.repeat(np.arange(2), 4), 3)
+    level = np.tile(np.repeat(np.arange(2), 2), 6)
+    order = np.tile(np.arange(8), 3)
+    for scheme in ("N3_trajectory_preserving", "N4_candidate_within_target"):
+        permutation = c76_statistics.blocked_permutation(
+            scheme, targets, trajectory, seed, level, order,
+            np.random.default_rng(761),
+        )
+        assert np.array_equal(targets, targets[permutation])
+        if scheme == "N3_trajectory_preserving":
+            assert np.array_equal(trajectory, trajectory[permutation])
+
+
+def test_c76_registered_association_detects_nonlinear_within_target_signal():
+    rng = np.random.default_rng(762)
+    targets = np.repeat(np.arange(6), 24)
+    x = rng.normal(size=(len(targets), 3))
+    y = x[:, 0] ** 2 - 1.0 + 0.15 * rng.normal(size=len(targets))
+    observed, _ = c76_statistics.crossfit_association(
+        x, y, targets, kernel_family="rbf", bandwidth_factor=1.0,
+        statistic="centered_hsic",
+    )
+    permuted = y.copy()
+    for target in range(6):
+        mask = targets == target
+        permuted[mask] = rng.permutation(permuted[mask])
+    null, _ = c76_statistics.crossfit_association(
+        x, permuted, targets, kernel_family="rbf", bandwidth_factor=1.0,
+        statistic="centered_hsic",
+    )
+    assert observed > null
+
+
+def test_c76_kernel_ridge_crossfit_recovers_shared_nonlinear_relation():
+    rng = np.random.default_rng(763)
+    targets = np.repeat(np.arange(5), 16)
+    x = rng.normal(size=(len(targets), 2))
+    y = np.sin(x[:, 0]) + 0.05 * rng.normal(size=len(targets))
+    result = c76_statistics.crossfit_krr(x, y, targets)
+    centered = c76_statistics.center_within_groups(y[:, None], targets)[:, 0]
+    assert 1.0 - np.sum((centered - result.prediction) ** 2) / np.sum(centered ** 2) > 0.5
+
+
+def test_c76_synthetic_benchmark_separates_null_and_actionable_cases():
+    rows, summary = synthetic_association_generator.run_benchmark(replicates=8, seed=764)
+    by_case = {row["case"]: row for row in summary}
+    assert len(rows) == 8 * 7
+    assert by_case["S6_predictive_actionable"]["median_within_target_association"] > by_case["S0_no_association"]["median_within_target_association"]
+    assert by_case["S6_predictive_actionable"]["median_incremental_R2"] > by_case["S0_no_association"]["median_incremental_R2"]
+    assert by_case["S4_factorization_invariant_endpoint"]["median_orbit_effect_retention"] == 1.0
