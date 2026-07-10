@@ -231,8 +231,9 @@ def run_red_team() -> dict:
         text = stderr.read_text() if stderr.is_file() else ""
         ok = stdout.is_file() and stderr.is_file() and "finished" in text and "Traceback" not in text and "Error" not in text
         log_ok &= ok; log_detail.append(f"{index}:{int(ok)}")
-    analyze_out = LOG_ROOT / "c77-analyze_892736.out"
-    analyze_err = LOG_ROOT / "c77-analyze_892736.err"
+    analyze_outputs = sorted(LOG_ROOT.glob("c77-analyze_*.out"), key=lambda path: int(path.stem.rsplit("_", 1)[1]))
+    analyze_out = analyze_outputs[-1] if analyze_outputs else Path("missing")
+    analyze_err = analyze_out.with_suffix(".err")
     log_ok &= analyze_out.is_file() and analyze_err.is_file() and not analyze_err.read_text() and "READY_BUT_NOT_AUTHORIZED" in analyze_out.read_text()
     _check(checks, "slurm_jobs_complete_cleanly", log_ok, ";".join(log_detail), "8 synthetic complete;analysis stderr empty")
 
