@@ -215,3 +215,13 @@
   and its 56 partial rows remain excluded. This is an official repaired-split
   seed-0 expansion, not a full three-seed baseline; no seeds 1/2, TeX edits,
   H2CMI reruns, geometry stress, or orthogonal-score work was performed.
+
+- Per PM P9A, froze the official SPDIM repaired-split seeds 1/2 execution gate. The P8 runner (`946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8`), config
+  (`6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b`), repaired manifest (`231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e`), and external
+  SPDIM commit (`1b0de0ccd4c48a4ff28f087b866a0b671b029c39`) matched exactly. CPU dry-run instantiated all
+  three dataset shapes for seeds `1` and `2`, verified 230 target-seed manifest
+  units and `920` expected new rows, and passed the
+  dummy-label, both-class, disjoint-split, no-selection, no-pretrained, and
+  no-vendoring gates. Runtime provenance records the actual `icml` executable;
+  the inherited conda label is not treated as environment proof. No GPU job was
+  launched during P9A.
