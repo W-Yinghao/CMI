@@ -251,6 +251,7 @@ def run_red_team() -> dict:
         {"item": "R5_training_runtime", "status": "claim_narrowed", "finding": "no measured C78 GPU runtime exists", "resolution": "compute table reports a budget range, with mandatory P1 recalibration before P2"},
         {"item": "R6_locked_failure_ledger", "status": "repaired_after_blocking_red_team", "finding": "analysis overwrote a protocol-hash-locked failure ledger", "resolution": "restored locked bytes; post-compute outcomes moved to analysis_failure_reason_ledger.csv"},
         {"item": "R7_living_scaffold_manifest", "status": "regression_contract_repaired", "finding": "C75 replay treated the later-updated handoff and its own maintained regression contract as immutable evidence payload", "resolution": "preserve both historical rows but replay current bytes for the other 62 immutable artifacts; C77 excludes living scaffolds from its artifact manifest"},
+        {"item": "R8_artifact_index_cycle", "status": "finalizer_repaired_before_final_report", "finding": "a repeat finalization could index then rewrite large_artifact_scan.csv", "resolution": "artifact_manifest.csv and large_artifact_scan.csv are index files excluded from the indexed payload set"},
     ]
     _write_csv(REPAIR_PATH, repairs)
     _write_csv(CHECKS_PATH, checks)

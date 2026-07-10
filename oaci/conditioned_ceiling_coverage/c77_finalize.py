@@ -220,7 +220,7 @@ def _artifact_manifest() -> list[dict]:
     ]
     rows, seen = [], set()
     for path in paths:
-        if path in seen or not path.is_file() or path.name == "artifact_manifest.csv":
+        if path in seen or not path.is_file() or path.name in {"artifact_manifest.csv", "large_artifact_scan.csv"}:
             continue
         seen.add(path)
         row_count = 0

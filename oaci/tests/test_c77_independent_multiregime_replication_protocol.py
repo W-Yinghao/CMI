@@ -226,3 +226,14 @@ def test_c77_final_artifacts_if_present_require_red_team_pass():
         assert state["execution_boundary"]["training"] == 0
         assert state["execution_boundary"]["seed3_access"] == 0
         assert state["execution_boundary"]["seed4_access"] == 0
+        manifest = _rows("artifact_manifest.csv")
+        assert manifest
+        assert not {row["path"] for row in manifest} & {
+            "oaci/reports/c77_tables/artifact_manifest.csv",
+            "oaci/reports/c77_tables/large_artifact_scan.csv",
+        }
+        for row in manifest:
+            path = Path(row["path"])
+            assert path.stat().st_size == int(row["size_bytes"])
+            assert _sha(path) == row["sha256"]
+        assert all(row["passed"] == "1" for row in _rows("large_artifact_scan.csv"))
