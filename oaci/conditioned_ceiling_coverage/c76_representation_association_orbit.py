@@ -934,31 +934,42 @@ def analyze() -> dict:
     ])
     association_prediction = []
     for path in ("strict_source", "target_unlabeled"):
-        c75_primary = max(
+        candidate_rbf = max(
             [row for row in association_null["summary"] if row["path"] == path and row["kernel"] == "rbf" and row["statistic"] == "normalized_alignment"],
             key=lambda row: row["association"],
         )
         path_associations = [row for row in association_null["summary"] if row["path"] == path]
         survivors = [row for row in path_associations if row["required_nulls_passing_0.05"] == row["required_null_count"]]
-        strict_best = max(survivors or path_associations, key=lambda row: row["association"])
+        registered_best = max(survivors or path_associations, key=lambda row: row["association"])
+        strict_controls_passed = (
+            registered_best["required_nulls_passing_0.05"] == registered_best["required_null_count"]
+        )
         pred = next(row for row in prediction["summary"] if row["path"] == path)
         action = next(row for row in prediction["action_summary"] if row["path"] == path)
+        c75_exact = next(row for row in replay["rbf"] if row["path"] == path)
         association_prediction.append({
-            "path": path, "C75_rbf_association": c75_primary["association"],
-            "C75_rbf_worst_required_p": c75_primary["worst_required_global_p"],
-            "strict_best_kernel": strict_best["kernel"],
-            "strict_best_bandwidth_factor": strict_best["bandwidth_factor"],
-            "strict_best_statistic": strict_best["statistic"],
-            "association": strict_best["association"],
-            "association_worst_required_p": strict_best["worst_required_global_p"],
+            "path": path,
+            "C75_exact_full_block_rbf_association": c75_exact["C75_expected"],
+            "candidate_rbf_association": candidate_rbf["association"],
+            "candidate_rbf_worst_required_p": candidate_rbf["worst_required_global_p"],
+            "registered_best_kernel": registered_best["kernel"],
+            "registered_best_bandwidth_factor": registered_best["bandwidth_factor"],
+            "registered_best_statistic": registered_best["statistic"],
+            "association": registered_best["association"],
+            "association_worst_required_p": registered_best["worst_required_global_p"],
+            "registered_best_passes_all_six_nulls": int(strict_controls_passed),
             "orbit_robustness": orbit["registered_robustness"][(
-                path, strict_best["kernel"], float(strict_best["bandwidth_factor"]), strict_best["statistic"],
+                path, registered_best["kernel"], float(registered_best["bandwidth_factor"]), registered_best["statistic"],
             )],
             "incremental_R2": pred["incremental_R2"], "prediction_global_p": pred["global_max_stat_p"],
             "leave_target_median_increment": pred["leave_target_median_increment"],
             "positive_targets": pred["positive_targets"],
             "material_actionability": action["material_actionability"],
-            "association_prediction_separated": int(primary["association"] >= 0.02 and pred["incremental_R2"] < 0.02),
+            "association_prediction_separated": int(
+                strict_controls_passed and registered_best["association"] >= 0.02
+                and pred["incremental_R2"] < 0.02 and pred["global_max_stat_p"] >= 0.05
+                and not action["material_actionability"]
+            ),
         })
 
     tables = {
