@@ -1,0 +1,7 @@
+feature_family,available,strict_source_trial_feature,uses_target_labels,available_at_selection_time,diagnostic_only,status
+frozen_source_checkpoint_score,1,0,0,1,0,joined_from_C22_by_checkpoint_hash
+strict_source_domain_trial_logits_probabilities,0,1,0,1,0,strict_source_trial_path_unavailable
+target_construction_logits_labels,1,0,1,0,1,split_label_construction_only
+target_evaluation_logits_labels,1,0,1,0,1,heldout_evaluation_only
+same_label_oracle,1,0,1,0,1,opened_after_primary_freeze
+representation_or_Wdotz,0,0,0,0,1,representation_intervention_supported=false

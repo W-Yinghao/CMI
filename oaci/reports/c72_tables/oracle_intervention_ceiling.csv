@@ -1,0 +1,10 @@
+target_id,candidate_count,oracle_type,mean_selected_alpha,top1,regret,direct_endpoint_scalar_top1,primary_freeze_sha256,primary_freeze_timestamp_utc,available_at_selection_time,diagnostic_only
+1,110,same_label_candidate_class_vector,0.3999999999999999,1.0,0.0,1.0,c60c047c3c9cf1fcb91a9d79f6603a27ee61f24e3dae78fc5cda8e34b64266ae,2026-07-10T03:47:11Z,0,1
+2,142,same_label_candidate_class_vector,0.39999999999999986,1.0,0.0,1.0,c60c047c3c9cf1fcb91a9d79f6603a27ee61f24e3dae78fc5cda8e34b64266ae,2026-07-10T03:47:11Z,0,1
+3,128,same_label_candidate_class_vector,0.4000000000000001,0.5,0.0012171372930867008,1.0,c60c047c3c9cf1fcb91a9d79f6603a27ee61f24e3dae78fc5cda8e34b64266ae,2026-07-10T03:47:11Z,0,1
+4,129,same_label_candidate_class_vector,0.39999999999999997,1.0,0.0,1.0,c60c047c3c9cf1fcb91a9d79f6603a27ee61f24e3dae78fc5cda8e34b64266ae,2026-07-10T03:47:11Z,0,1
+5,102,same_label_candidate_class_vector,0.3999999999999999,1.0,0.0,1.0,c60c047c3c9cf1fcb91a9d79f6603a27ee61f24e3dae78fc5cda8e34b64266ae,2026-07-10T03:47:11Z,0,1
+6,108,same_label_candidate_class_vector,0.39999999999999997,0.0,0.013010721291914384,1.0,c60c047c3c9cf1fcb91a9d79f6603a27ee61f24e3dae78fc5cda8e34b64266ae,2026-07-10T03:47:11Z,0,1
+7,112,same_label_candidate_class_vector,0.4,0.0,0.007253845847657703,1.0,c60c047c3c9cf1fcb91a9d79f6603a27ee61f24e3dae78fc5cda8e34b64266ae,2026-07-10T03:47:11Z,0,1
+8,106,same_label_candidate_class_vector,0.39999999999999997,1.0,0.0,1.0,c60c047c3c9cf1fcb91a9d79f6603a27ee61f24e3dae78fc5cda8e34b64266ae,2026-07-10T03:47:11Z,0,1
+9,115,same_label_candidate_class_vector,0.4,1.0,0.0,1.0,c60c047c3c9cf1fcb91a9d79f6603a27ee61f24e3dae78fc5cda8e34b64266ae,2026-07-10T03:47:11Z,0,1

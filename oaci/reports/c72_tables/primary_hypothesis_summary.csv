@@ -1,0 +1,7 @@
+hypothesis,effect,raw_p,holm_p,holm_reject,identity_pass,permutations,exceedances,status
+H1_common_utility_offset_identity,0.0,0.0,0.0,1,1,0,0,pass
+H2_common_logit_scalar_identity,0.0,0.0,0.0,1,1,0,0,pass
+H3_shared_calibration_insufficient,-0.006119343653260963,0.7852,1.0,0,0,4999,3925,not_confirmed
+H4_candidate_perturbation_margin_ratio,0.7826237921249263,0.0018,0.0072,1,0,4999,8,pass
+H5_construction_gauge_partial,0.0,1.0,1.0,0,0,4999,4999,not_confirmed
+H6_extreme_order_candidate_count,-0.8222222222222223,0.0034,0.010199999999999999,1,0,4999,16,pass
