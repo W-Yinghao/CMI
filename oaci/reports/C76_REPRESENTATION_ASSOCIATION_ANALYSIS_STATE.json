@@ -1,0 +1,71 @@
+{
+  "C77_protocol_created": false,
+  "T3_HO_z_Wz_accessed": false,
+  "association_prediction": [
+    {
+      "C75_exact_full_block_rbf_association": 0.026768950189218054,
+      "association": 0.23414362161678998,
+      "association_prediction_separated": 0,
+      "association_worst_required_p": 0.054,
+      "candidate_rbf_association": 0.026768950189218054,
+      "candidate_rbf_worst_required_p": 1.0,
+      "incremental_R2": -0.042482786177298726,
+      "leave_target_median_increment": 0.1782608695652174,
+      "material_actionability": 0,
+      "orbit_robustness": 1,
+      "path": "strict_source",
+      "positive_targets": 6,
+      "prediction_global_p": 0.998,
+      "registered_best_bandwidth_factor": 1.0,
+      "registered_best_kernel": "laplacian",
+      "registered_best_passes_all_six_nulls": 0,
+      "registered_best_statistic": "centered_hsic"
+    },
+    {
+      "C75_exact_full_block_rbf_association": 0.05775235137883344,
+      "association": 0.23772458460697768,
+      "association_prediction_separated": 1,
+      "association_worst_required_p": 0.03,
+      "candidate_rbf_association": 0.04371843745043181,
+      "candidate_rbf_worst_required_p": 1.0,
+      "incremental_R2": -0.011040783959737399,
+      "leave_target_median_increment": -0.08782608695652173,
+      "material_actionability": 0,
+      "orbit_robustness": 1,
+      "path": "target_unlabeled",
+      "positive_targets": 4,
+      "prediction_global_p": 0.82,
+      "registered_best_bandwidth_factor": 1.0,
+      "registered_best_kernel": "laplacian",
+      "registered_best_passes_all_six_nulls": 1,
+      "registered_best_statistic": "centered_hsic"
+    }
+  ],
+  "diagnostic_only_non_deployable": true,
+  "final_gate_candidate": "LOCAL_NONLINEAR_MEASUREMENT_NONTRANSPORTABLE",
+  "functional_identity_max_abs": 1.5987211554602254e-14,
+  "orbit_cache_manifest_sha256": "de623b15d9c7466edaf48f12114a8f8051f34d8ea71e0b67c01637397303b953",
+  "orbit_robustness": {
+    "strict_source": 1,
+    "target_unlabeled": 1,
+    "target_unlabeled_full_C75": 1
+  },
+  "orbit_variant_count": 29,
+  "primary_candidate": "C76-D_local_nonlinear_measurement_nontransportable_nonactionable",
+  "protocol_sha256": "1a1b4255601d6178ffbe8a8245625845fdb4057c445ca8db25e84b4ddcd8528f",
+  "qualified_candidates": [],
+  "representation_mechanism_claimed": false,
+  "same_label_oracle_accessed": false,
+  "schema_version": "c76_representation_association_analysis_state_v1",
+  "selected_association_orbit_robustness": {
+    "strict_source": 1,
+    "target_unlabeled": 1
+  },
+  "selector_or_checkpoint_artifact": false,
+  "target_F4_partition": {
+    "full_F4_used_for_C75_replay_only": true,
+    "function_invariant_Wz_tail_dimension": 15,
+    "geometry_candidate_dimension": 20
+  },
+  "target_gauge_claimed": false
+}

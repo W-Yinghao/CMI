@@ -1,0 +1,3 @@
+path,mean_regret_reduction,regret_bootstrap_ci_low,regret_bootstrap_ci_high,positive_regret_targets,mean_top3_increment,mean_coverage_increment,topk_exact_sign_p,regret_route_pass,topk_route_pass,material_actionability
+strict_source,-0.008051529790660225,-0.16747181964573268,0.14492753623188404,3,0.1111111111111111,0.0,0.5009746588693957,0,0,0
+target_unlabeled,0.0,0.0,0.0,0,0.0,0.0,1.0,0,0,0

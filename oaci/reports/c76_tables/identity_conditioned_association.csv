@@ -1,0 +1,6 @@
+control,pooled_association,within_target_association,status
+target_identity_only,-0.00706593583176448,-0.044515126360591,
+seed_level_order_only,-0.0013058541401250916,-0.030210468620107775,
+source_performance_only,0.0020845138221631788,-0.01282708426277853,
+construction_competence_only,0.03867397488389819,0.09952585806841104,
+checkpoint_identity_delta_kernel,0.0,0.0,off_diagonal_delta_kernel_has_zero_pair_association;diagnostic_identity_control

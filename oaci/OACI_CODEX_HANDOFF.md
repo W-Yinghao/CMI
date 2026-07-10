@@ -14,84 +14,61 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-10)
 
-The detailed C23-C31 history below remains useful background, but it is no longer the branch tip. The authoritative
-latest sequence is C74 -> C75:
+The detailed C23-C31 history below remains useful background, but the authoritative tip is now C76:
 
 ```text
-C74 protocol: 1f3ab88
-C74 result:   fe467b9
-C74 gate:     T2_SOURCE_WZ_CAMPAIGN_EXECUTED_AND_MANIFESTED
-C74 primary:  C74-A_T2_source_Wz_instrumentation_executed_and_validated
-
-C75 protocol: a42f06909ca05ba96edd28d611783a1ba5ab6ecd8ff91a0e53ee4396dfc97c7b
-C75 protocol commit: fe60552
-C75 gate:     T3_HO_REPRESENTATION_CAMPAIGN_NOT_JUSTIFIED
-C75 primary:  C75-A + C75-D + C75-E (association-only scope)
+C75 result commit: fb8a412
+C76 protocol SHA:  1a1b4255601d6178ffbe8a8245625845fdb4057c445ca8db25e84b4ddcd8528f
+C76 final gate:    LOCAL_NONLINEAR_MEASUREMENT_NONTRANSPORTABLE
+C76 primary:       C76-D_local_nonlinear_measurement_nontransportable_nonactionable
 ```
 
-C75 is the no-forward/no-training construct-validity audit over C74's 216-unit T2 cache. It rehashed all 1,080
-restricted C74 descriptors and materialized one 543,712-byte registered feature cache externally. The complete
-1,052-unit T3-HO z/Wz new-variable holdout remains untouched. No forward, re-inference, training, GPU,
-BNCI2014_004, seeds [3,4], selector/checkpoint artifact, or same-label-oracle payload access occurred.
+C76 is a no-forward/no-training T2 robustness audit of C75's nonlinear association. It preserves the untouched
+1,052-unit T3-HO z/Wz new-variable holdout. It ran 29 function-preserving orbit variants over all 216 T2 units,
+24 registered kernel/statistic paths, six 499-replicate blocked null families, nested leave-target-out prediction,
+actionability gates, and seven 500-replicate synthetic known cases.
 
-C75's gate-first result is:
+Gate-first result:
 
 ```text
-established:
-  Wz is exactly redundant with canonical logits-b
-  z'=Az, W'=WA^{-1} makes W-versus-z origin generally non-identifiable
-  projection summaries remain split-stable (median/min rho 0.981739/0.936522; 36/36 positive)
-  registered F2/F4 architecture blocks do not qualify for T3-HO predictive holdout
-  preregistered nonlinear residual-alignment proxies are associated with the endpoint
-    strict source global max-stat p=0.004
-    target-unlabeled global max-stat p=0.002
+strict-source architecture:
+  best registered effect 0.234144
+  worst six-null max-stat p 0.054
+  strict control pass false
+  incremental R2 -0.042483; prediction max-stat p 0.998; actionability false
 
-not established:
-  predictive/actionable representation signal
-  target-unlabeled projection candidate or strict-source escape-hatch candidate
-  representation causality or W-versus-z mechanism origin
-  target gauge, selector/control, deployability, or target-population generalization
+target-unlabeled architecture geometry (F4[0:20], Wz tail excluded):
+  Laplacian-HSIC effect 0.237725; target-bootstrap CI [0.195773, 0.277323]
+  worst six-null max-stat p 0.030; all six nulls pass
+  incremental R2 -0.011041; prediction max-stat p 0.820
+  positive prediction targets 4/9; actionability false
 ```
 
-Locked primary qualification numbers:
+The surviving target association is local and diagnostic. It is robust over the registered orbit but does not
+transport as held-out prediction or improve checkpoint actionability. It does not identify W-versus-z origin,
+representation causality, target gauge, source-only rescue, or a deployable method. No C77 protocol was created;
+the T3-HO representation campaign is not justified and the representation branch is saturated under the current
+architecture/frozen universe.
+
+Independent red-team job `892694` passed 26/26 blocking checks after rehashing 1,080/1,080 C74 descriptors. It
+forced three repairs before reporting: isolate C75 F4's 20-d geometry from its 15-d Wz/logit-redundant tail; require
+all six nulls before calling association-prediction separation; and repair synthetic S5 so a random extreme winner
+preserves association without top1 control. Final verification is 18 focused C76,
+115 C65-C76 (job 892715), 522 C23-C76 (job 892716),
+and 1450 full-suite tests (job 892717), all with empty stderr.
+
+Authoritative artifacts:
 
 ```text
-F2 strict-source architecture:
-  incremental R2 0.016191; null p95 0.044009; max-stat p 1.000; positive 5/9
-
-F4 target-unlabeled architecture:
-  incremental R2 -0.208343; null p95 -0.126056; max-stat p 1.000; positive 5/9
-
-F5 construction-label positive control:
-  incremental R2 0.452753; max-stat p 0.002; positive 9/9
+oaci/reports/C76_REPRESENTATION_ASSOCIATION_ORBIT.md
+oaci/reports/C76_REPRESENTATION_ASSOCIATION_ORBIT.json
+oaci/reports/C76_RED_TEAM_VERIFICATION.md
+oaci/reports/c76_tables/artifact_manifest.csv
+oaci/reports/c76_tables/execution_attempt_ledger.csv
 ```
 
-The nonlinear F2/F4 proxy is a real pre-registered counter-result, so do not write "endpoint-irrelevant everywhere."
-It is still only an association proxy: it fails the locked predictive qualification, is not exact conditional-CS,
-does not demonstrate actionability, and does not identify representation origin. C75-E is active only in that narrow
-sense. C75-D is likewise an identifiability statement, not a claim that architecture-tied association is impossible.
-
-Authoritative C75 artifacts:
-
-```text
-oaci/reports/C75_REPRESENTATION_CONSTRUCT_VALIDITY.md
-oaci/reports/C75_REPRESENTATION_CONSTRUCT_VALIDITY.json
-oaci/reports/C75_FACTORIZATION_NONIDENTIFIABILITY_NOTE.md
-oaci/reports/C75_RED_TEAM_VERIFICATION.md
-oaci/reports/c75_tables/artifact_manifest.csv
-oaci/reports/c75_tables/execution_attempt_ledger.csv
-```
-
-Red-team invalidated and superseded two completed analyses before the report: a float32/float64 reduction mismatch
-created pseudo-rank in the exact Wz duplicate block; then the conditional proxy lacked fold-local scaling and global
-2-path x 3-bandwidth correction. The final canonical B1/B2 ranks are 38/38 strict-source and 55/55 target-unlabeled,
-with prediction deltas below 3e-11. Independent red-team job 892453 rehashed 1,080/1,080 descriptors and passed 31/31
-blocking checks (32/32 total) before report generation. Final verification is 17 focused C75, 97 C65-C75,
-504 C23-C75, and 1,432 full-suite tests green.
-
-No C76 protocol was created. The T3-HO campaign is not justified under the locked C75 gates. Do not automatically
-continue to T3-HO or training; wait for a new PM decision. GPU work, BNCI2014_004, seeds [3,4], selector artifacts,
-checkpoint recommendations, and manuscript drafting remain unauthorized.
+Do not launch C77, T3-HO representation re-inference, new training, GPU work, BNCI2014_004, seeds [3,4], a selector,
+checkpoint recommendations, or manuscript drafting without a new explicit PM instruction.
 
 ---
 

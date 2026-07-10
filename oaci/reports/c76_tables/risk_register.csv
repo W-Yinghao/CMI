@@ -1,0 +1,22 @@
+risk,status,blocking,evidence
+T2_exploratory_not_confirmation,controlled,0,explicit in protocol/report
+T3_HO_new_variable_contamination,closed,0,T3 IDs excluded; no T3 path
+factorization_orbit_ignored,closed,0,seven registered nonidentity orbit families
+checkpoint_specific_coordinate_alignment,controlled,0,global versus checkpoint-specific effects separated
+Wz_logit_redundancy,closed,0,C75 exact replay and G2 tagging
+mixed_F4_functional_architecture_conflation,closed,0,formal target candidate uses F4[0:20]; Wz/logit-redundant F4[20:35] is isolated
+pooled_identity_confounding,controlled,0,pooled/within/group-conditioned topology
+association_pvalue_without_effect_size,closed,0,target-bootstrap intervals and 0.02 materiality
+cache_rows_not_independent,closed,0,unit-level rows; target/trajectory blocks
+kernel_bandwidth_selection,closed,0,fold-local and repeated inside null
+multiple_kernel_paths,closed,0,24-test max-stat within six required nulls
+high_dimensional_feature_search,closed,0,fixed C75 blocks plus eight locked probes
+nested_CV_leakage,controlled,0,outer LOTO and inner training-target selection
+target_label_in_unlabeled_features,closed,0,F5 positive control separated
+stable_association_called_prediction,closed,0,separate association and nested prediction gates
+prediction_called_actionability,closed,0,separate regret/top-k materiality gate
+conditional_CS_iid_overclaim,closed,0,proxy only; no iid guarantee
+small_target_count,controlled,0,9 targets disclosed; target bootstrap/sign test
+target_population_overclaim,closed,0,forbidden
+raw_cache_in_git,closed,0,orbit cache external; aggregate CSV only
+unauthorized_forward_or_training,closed,0,no model/data forward path
