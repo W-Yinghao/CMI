@@ -1,0 +1,7 @@
+view,process,uses_source_rows,uses_source_labels,uses_target_rows,uses_target_labels,uses_evaluation_labels,oracle_descriptor_visible,available_to_training,physically_separate,status
+strict_source_trial_view,source_instrumentation,1,1,0,0,0,0,0,1,schema_locked_not_materialized
+target_unlabeled_trial_view,post_freeze_target_unlabeled_instrumentation,0,0,1,0,0,0,0,1,schema_locked_not_materialized
+target_construction_view,post_freeze_label_partition,0,0,1,1,0,0,0,1,schema_locked_not_materialized
+target_evaluation_view,post_freeze_label_partition,0,0,1,1,1,0,0,1,schema_locked_not_materialized
+same_label_oracle_view,post_primary_oracle_diagnostic,0,0,1,1,1,1,0,1,schema_locked_inaccessible_to_primary
+trajectory_trace_view,training_observer,1,1,0,0,0,0,0,1,schema_locked_not_materialized

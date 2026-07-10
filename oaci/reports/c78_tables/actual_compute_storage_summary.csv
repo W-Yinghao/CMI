@@ -1,0 +1,2 @@
+actual_GPU_hours,actual_CPU_hours,actual_external_bytes,actual_checkpoint_bytes,actual_cache_rows,measured_not_estimated,status
+0,0,0,0,0,1,zero_execution

@@ -1,0 +1,2 @@
+job_id,GPU_model,wall_seconds_measured,GPU_hours_measured,CPU_hours_measured,peak_RAM_bytes,peak_GPU_memory_bytes,scratch_bytes,external_storage_bytes,retry_count,status
+none,not_allocated,0,0,0,0,0,0,0,0,not_executed_without_authorization

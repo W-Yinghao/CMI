@@ -14,33 +14,32 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-10)
 
-The detailed C23-C31 history below remains useful background, but the authoritative tip is now C77:
+The detailed C23-C31 history below remains background; the authoritative tip is C78 P0:
 
 ```text
-C77 protocol commit: 23f549d
-C77 protocol SHA:    cf3ee46645a91d7dbfb25a4ebf6fdca2641932f9e5853fdd573d4e1d7b33ea5a
-C77 final gate:      SEED3_MULTIREGIME_INSTRUMENTED_PILOT_READY_BUT_NOT_AUTHORIZED
-C77 primary:         C77-A_multiregime_seed3_seed4_replication_protocol_ready
+C78 protocol anchor: 23f549d
+C78 protocol SHA:    ad6f4e034318b879755ca46a719d39cfd3d3c36d7ee8478771d08778a8b71afc
+C78 final gate:      PILOT_READY_BUT_NOT_AUTHORIZED
+C78 P1 execution:    not authorized / not attempted
 ```
 
-C77 is protocol/power/readiness only. It recovered exact historical ERM/OACI/SRC identities, with OACI/SRC as the two comparable 40-checkpoint trajectories per level and ERM as a shared one-point stage-1 anchor. SRC remains the C12-falsified negative control, not a method-rescue candidate. Levels 0/1 yield 1,458 planned units per seed.
+C78 locked an explicit 82-unit target-4, seed-3, levels-0/1 OACI+ERM canary: two ERM anchors and 80 fixed-cadence OACI trajectory checkpoints. The exact CLI authorization token was not passed. Prompt/generic authorization text and environment values were rejected, so training, real forward, real-data load, GPU request, checkpoint creation, and raw cache emission all remained zero.
 
-The 486-cell, 400-replicate synthetic benchmark passed its locked FPR/power/direction gates, but the effective-multiplicity actionability contrast is only 0.0075 and is not material. Independent red team passed 60/60 blocking checks after repairing a locked-ledger mutation. No training, real EEG forward, GPU work, seed-3/4 access, BNCI2014_004 access, checkpoint creation, selector, or manuscript drafting occurred.
+P0 replayed seven historical code/config identities, the locked environment, storage capacity, physical-view schemas, and a CPU synthetic Wz/logit ABI. Independent red team passed before the report was emitted. No C78 execution taxonomy case is active. Seed 4 and BNCI2014_004 remain untouched; SRC remains unexercised and blocks automatic full-field expansion.
 
-C78 seed-3 is ready but not authorized. Only the future exact CLI token in the locked C78 protocol can authorize its 82-unit target-4/OACI pilot; prompt text and environment variables cannot. Seed 4 remains inaccessible until a final C79 protocol is committed, hashed, and separately authorized.
+Regression: `focused_C78=12, C65_C78=150, C23_C78=557, full_OACI=1485`.
 
 Authoritative artifacts:
 
 ```text
-oaci/reports/C77_INDEPENDENT_MULTIREGIME_REPLICATION_PROTOCOL.md
-oaci/reports/C77_INDEPENDENT_MULTIREGIME_REPLICATION_PROTOCOL.json
-oaci/reports/C77_REPLICATION_PROTOCOL_RESULT.json
-oaci/reports/C77_RED_TEAM_VERIFICATION.md
-oaci/reports/C78_SEED3_INSTRUMENTED_PILOT_PROTOCOL.json
-oaci/reports/c77_tables/artifact_manifest.csv
+oaci/reports/C78_SEED3_INSTRUMENTED_PILOT.md
+oaci/reports/C78_SEED3_INSTRUMENTED_PILOT.json
+oaci/reports/C78_RED_TEAM_VERIFICATION.md
+oaci/reports/C78_PROTOCOL_TIMING_AUDIT.md
+oaci/reports/c78_tables/artifact_manifest.csv
 ```
 
-Do not start C78 training, use seed 3 or 4, access BNCI2014_004, create checkpoints, or draft manuscript text without a new explicit PM instruction and the exact future authorization interface.
+Next action requires PM review. A real C78 P1 must be a new command carrying the exact committed CLI token. It may execute only the 82-unit OACI+ERM field. It may not run SRC, seed 4, BNCI2014_004, or the full seed-3 field.
 
 ---
 

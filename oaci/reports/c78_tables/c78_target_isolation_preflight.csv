@@ -1,0 +1,10 @@
+check,passed,blocking,observed,required_runtime_replay,real_data_accessed
+exact_CLI_guard_defined_before_compute,1,1,authorization_matches precedes all P0 compute and no EEG/CUDA/training module is imported at module scope,0,0
+dataset_allowlist,1,1,BNCI2014_001 only,0,0
+dataset_denylist,1,1,BNCI2014_004 denied,0,0
+seed_allowlist,1,1,seed 3 only,0,0
+seed4_denylist,1,1,seed 4 denied,0,0
+target_fit_ids_contract,1,1,target_fit_ids_empty required at runtime,1,0
+retention_outcome_blind,1,1,fixed ERM final + OACI five-epoch cadence,0,0
+target_load_deferred,1,1,authorized P1 contract: source-only training first; target views only after checkpoint manifest freeze,1,0
+oracle_descriptor_isolated,1,1,primary pilot validation receives neither oracle path nor descriptor,1,0

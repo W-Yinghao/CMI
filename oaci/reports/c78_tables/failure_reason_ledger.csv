@@ -1,0 +1,7 @@
+item,status,blocking,reason
+protocol_identity,pass,0,full SHA and anchor replay
+authorization,not_authorized,0,no exact CLI token; expected no-auth branch
+historical_code_config,pass,0,7/7 code/config identities replay
+dummy_ABI,pass,0,"Wz+b/logits, probabilities, z/logit repeat identity"
+real_training,not_attempted,0,authorization absent
+SRC_coverage,deferred,0,"blocks future P2, not current no-auth P0"

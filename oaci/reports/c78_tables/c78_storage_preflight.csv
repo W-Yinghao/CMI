@@ -1,0 +1,2 @@
+external_root,parent_exists,parent_writable_mode,free_GiB_snapshot,projected_trial_cache_GiB,projected_weights_GiB,projected_optimizer_upper_GiB,required_temporary_reserve_GiB,capacity_passed,write_probe_performed,note
+/projects/EEG-foundation-model/yinghao/oaci-c78-seed3-pilot,1,1,2791.3701171875,1.45821937546134,0.01209859549999237,0.03629578649997711,3.013227514922619,1,0,metadata-only P0; actual content-addressed write/atomic-rename gate repeats after authorization before data load

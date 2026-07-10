@@ -1,0 +1,2 @@
+scope,rows_checked,units_checked,max_abs_error,max_relative_error,failed_rows,failed_units,passed,status
+real_82_unit_field,0,0,not_observed,not_observed,0,0,0,not_executed_without_authorization
