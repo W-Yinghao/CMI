@@ -63,7 +63,7 @@ def _case_data(case: str, rng: np.random.Generator, targets: np.ndarray) -> tupl
         outcome = invariant + noise
     elif case == "S5_association_no_extreme_action":
         architecture = x
-        outcome = 0.45 * invariant + noise
+        outcome = 0.8 * invariant + noise
         for target in range(9):
             indices = np.where(targets == target)[0]
             outcome[int(rng.choice(indices))] += 4.0
@@ -99,7 +99,7 @@ def _one_replicate(replicate: int, seed: int) -> list[dict]:
         residual = centered_outcome - functional_prediction
         association, _ = c76_statistics.crossfit_association(
             architecture, residual, targets, kernel_family="rbf",
-            bandwidth_factor=1.0, statistic="normalized_alignment",
+            bandwidth_factor=1.0, statistic="centered_hsic",
         )
         pooled, _ = c76_statistics.topology_association(
             architecture, outcome, np.zeros(len(targets), dtype=int),
@@ -113,8 +113,10 @@ def _one_replicate(replicate: int, seed: int) -> list[dict]:
         )
         orbit_association, _ = c76_statistics.crossfit_association(
             orbit_features, residual, targets, kernel_family="rbf",
-            bandwidth_factor=1.0, statistic="normalized_alignment",
+            bandwidth_factor=1.0, statistic="centered_hsic",
         )
+        prior_top1 = _top1(functional_prediction, outcome, targets)
+        full_top1 = _top1(full_prediction, outcome, targets)
         rows.append({
             "replicate": replicate, "case": case,
             "within_target_association": association,
@@ -122,7 +124,8 @@ def _one_replicate(replicate: int, seed: int) -> list[dict]:
             "orbit_association": orbit_association,
             "orbit_effect_retention": abs(orbit_association) / max(abs(association), 1e-12),
             "incremental_R2": full_r2 - prior_r2,
-            "top1": _top1(full_prediction, outcome, targets),
+            "prior_top1": prior_top1, "top1": full_top1,
+            "top1_increment": full_top1 - prior_top1,
             "random_top1": 1.0 / 24.0,
         })
     return rows
@@ -153,6 +156,8 @@ def run_benchmark(
             "median_orbit_effect_retention": float(np.median([row["orbit_effect_retention"] for row in selected])),
             "median_incremental_R2": float(np.median([row["incremental_R2"] for row in selected])),
             "mean_top1": float(np.mean([row["top1"] for row in selected])),
+            "mean_prior_top1": float(np.mean([row["prior_top1"] for row in selected])),
+            "mean_top1_increment": float(np.mean([row["top1_increment"] for row in selected])),
             "null_association_p95": null_threshold,
         })
     return rows, summary

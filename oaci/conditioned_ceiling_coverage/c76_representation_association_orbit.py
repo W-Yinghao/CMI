@@ -239,13 +239,25 @@ def _orbit_variant_task(
     residual: np.ndarray, arrays: dict[str, np.ndarray], reference_order: np.ndarray,
 ) -> dict:
     targets = arrays["target_id"].astype(int)
-    values = []
-    for factor in c76_protocol.BANDWIDTH_FACTORS:
-        value, _ = statistics.crossfit_association(
-            features, residual, targets, kernel_family="rbf",
-            bandwidth_factor=factor, statistic="normalized_alignment",
-        )
-        values.append(value)
+    registered_rows = []
+    for kernel in c76_protocol.KERNEL_FAMILIES:
+        for factor in c76_protocol.BANDWIDTH_FACTORS:
+            for statistic_name in c76_protocol.ASSOCIATION_STATISTICS:
+                value, _ = statistics.crossfit_association(
+                    features, residual, targets, kernel_family=kernel,
+                    bandwidth_factor=factor, statistic=statistic_name,
+                )
+                registered_rows.append({
+                    "kernel": kernel, "bandwidth_factor": factor,
+                    "statistic": statistic_name, "association": value,
+                })
+    values = [
+        next(
+            row["association"] for row in registered_rows
+            if row["kernel"] == "rbf" and row["statistic"] == "normalized_alignment"
+            and float(row["bandwidth_factor"]) == float(factor)
+        ) for factor in c76_protocol.BANDWIDTH_FACTORS
+    ]
     observed = max(values)
     rngs = [
         np.random.default_rng(c76_protocol.RNG_SEED + 300_000 + replicate_index)
@@ -272,6 +284,7 @@ def _orbit_variant_task(
         "trajectory_null_p95": float(np.quantile(max_null, 0.95)),
         "candidate_density_order_spearman": statistics.orbit_order_spearman(reference_order, density, targets),
         "_null_values": max_null,
+        "_registered_rows": registered_rows,
     }
 
 
@@ -324,11 +337,28 @@ def _orbit_audit(
         ) for orbit, replicate, path, features, residual, reference_order in tasks
     )
     orbit_global_max_null = np.max(np.asarray([row["_null_values"] for row in association_rows]), axis=0)
+    registered_rows = []
     for row in association_rows:
         row["orbit_global_max_p"] = (
             1 + int(np.sum(orbit_global_max_null >= row["max_rbf_association"]))
         ) / (1 + len(orbit_global_max_null))
+        for registered in row["_registered_rows"]:
+            registered_rows.append({
+                "orbit": row["orbit"], "replicate": row["replicate"],
+                "path": row["path"],
+                "candidate_density_order_spearman": row["candidate_density_order_spearman"],
+                **registered,
+            })
         del row["_null_values"]
+        del row["_registered_rows"]
+    baseline_registered = {
+        (row["path"], row["kernel"], float(row["bandwidth_factor"]), row["statistic"]): row["association"]
+        for row in registered_rows if row["orbit"] == "O0" and row["replicate"] == 0
+    }
+    for row in registered_rows:
+        reference = baseline_registered[(row["path"], row["kernel"], float(row["bandwidth_factor"]), row["statistic"])]
+        row["absolute_effect_retention"] = abs(row["association"]) / max(abs(reference), 1e-15)
+        row["effect_sign_matches_baseline"] = int(np.sign(row["association"]) == np.sign(reference))
     baseline_effect = {
         path: next(row["max_rbf_association"] for row in association_rows if row["orbit"] == "O0" and row["path"] == path)
         for path in ("strict_source", "target_unlabeled")
@@ -358,10 +388,40 @@ def _orbit_audit(
                 "all_signs_match": int(sign_pass), "orbit_family_pass": int(family_pass),
             })
         robustness[path] = int(path_pass)
+    registered_family_rows = []
+    registered_robustness = {}
+    for path in ("strict_source", "target_unlabeled"):
+        for kernel in c76_protocol.KERNEL_FAMILIES:
+            for factor in c76_protocol.BANDWIDTH_FACTORS:
+                for statistic_name in c76_protocol.ASSOCIATION_STATISTICS:
+                    test_pass = True
+                    for orbit_row in c76_protocol.orbit_registry()[1:]:
+                        selected = [
+                            row for row in registered_rows
+                            if row["path"] == path and row["kernel"] == kernel
+                            and float(row["bandwidth_factor"]) == float(factor)
+                            and row["statistic"] == statistic_name and row["orbit"] == orbit_row["orbit"]
+                        ]
+                        retention = float(np.median([row["absolute_effect_retention"] for row in selected]))
+                        sign_pass = all(row["effect_sign_matches_baseline"] for row in selected)
+                        order = float(np.median([row["candidate_density_order_spearman"] for row in selected]))
+                        family_pass = sign_pass and 0.80 <= retention <= 1.25 and order >= 0.95
+                        test_pass &= family_pass
+                        registered_family_rows.append({
+                            "path": path, "kernel": kernel, "bandwidth_factor": factor,
+                            "statistic": statistic_name, "orbit": orbit_row["orbit"],
+                            "family": orbit_row["family"], "scope": orbit_row["scope"],
+                            "median_effect_retention": retention,
+                            "median_candidate_order_spearman": order,
+                            "all_signs_match": int(sign_pass), "orbit_family_pass": int(family_pass),
+                        })
+                    registered_robustness[(path, kernel, float(factor), statistic_name)] = int(test_pass)
     return {
         "identity": identity_rows, "feature": feature_rows,
         "association": association_rows, "order": order_rows,
         "family": family_rows, "robustness": robustness,
+        "registered": registered_rows, "registered_family": registered_family_rows,
+        "registered_robustness": registered_robustness,
     }
 
 
@@ -399,68 +459,86 @@ def _topology_and_controls(
             "within_regime": regime,
             "trajectory_template": trajectory_template,
         }
-        level_values = {}
-        for level, groups in group_specs.items():
-            value, group_values = statistics.topology_association(features, outcome, groups)
-            topology_rows.append({
-                "feature_set": name, "path": path, "level": level,
-                "association": value, "group_count": len(group_values),
-                "positive_group_fraction": float(np.mean(np.asarray(group_values) > 0)) if group_values else math.nan,
-            })
-            level_values[level] = value
-        unique_regimes = sorted(set(regime.tolist()))
-        topology_rows.append({
-            "feature_set": name, "path": path, "level": "cross_regime_transfer",
-            "association": math.nan, "group_count": len(unique_regimes),
-            "positive_group_fraction": math.nan,
-            "status": "unavailable_single_regime" if len(unique_regimes) < 2 else "requires_registered_leave_regime_model",
-        })
-        heterogeneity_rows.append({
-            "feature_set": name, "path": path,
-            "pooled": level_values["pooled"], "within_target": level_values["within_target"],
-            "within_trajectory": level_values["within_target_x_trajectory"],
-            "within_regime": level_values["within_regime"],
-            "pooled_minus_within_target": level_values["pooled"] - level_values["within_target"],
-        })
-        _, target_folds = statistics.crossfit_association(
-            features, outcome, targets, kernel_family="rbf", bandwidth_factor=1.0,
-            statistic="normalized_alignment",
-        )
-        for row in target_folds:
-            leave_target_rows.append({"feature_set": name, "path": path, **row})
-            if "G3_architecture" in name:
-                within_rows.append({"feature_set": name, "path": path, **row})
-        for template in sorted(set(trajectory_template.tolist())):
-            train = trajectory_template != template
-            test = trajectory_template == template
-            if np.sum(test) < 4:
-                continue
-            train_center = statistics.center_within_groups(features, targets)
-            train_scaled, test_scaled = statistics.scale_train_test(train_center[train], train_center[test])
-            bandwidth = statistics.median_positive_distance(train_scaled)
-            kernel = statistics.kernel_from_distances(statistics.pairwise_distances(test_scaled), bandwidth, "rbf")
-            leave_trajectory_rows.append({
-                "feature_set": name, "path": path, "trajectory_template": template,
-                "row_count": int(np.sum(test)),
-                "association": statistics.association_statistic(kernel, outcome[test], "normalized_alignment"),
-            })
         controls = {
             "metadata_seed_level_order": arrays["F0"][:, :6],
             "source_performance": arrays["F0"][:, 6:9],
             "construction_competence": arrays["F5"],
             "functional_logits_probabilities": _concat(arrays, ("F0", "F1")) if path == "strict_source" else _concat(arrays, ("F0", "F1", "F3")),
         }
-        for control_name, control in controls.items():
-            feature_residual = _residualize(features, control, targets)
-            outcome_residual = _residualize(outcome[:, None], control, targets)[:, 0]
-            association, _ = statistics.crossfit_association(
-                feature_residual, outcome_residual, targets, kernel_family="rbf",
-                bandwidth_factor=1.0, statistic="normalized_alignment",
-            )
-            conditional_rows.append({
-                "feature_set": name, "path": path, "conditioning": control_name,
-                "association": association,
-            })
+        for kernel in c76_protocol.KERNEL_FAMILIES:
+            for factor in c76_protocol.BANDWIDTH_FACTORS:
+                for statistic_name in c76_protocol.ASSOCIATION_STATISTICS:
+                    level_values = {}
+                    for level, groups in group_specs.items():
+                        value, group_values = statistics.topology_association(
+                            features, outcome, groups, kernel_family=kernel,
+                            bandwidth_factor=factor, statistic=statistic_name,
+                        )
+                        topology_rows.append({
+                            "feature_set": name, "path": path, "kernel": kernel,
+                            "bandwidth_factor": factor, "statistic": statistic_name,
+                            "level": level, "association": value,
+                            "group_count": len(group_values),
+                            "positive_group_fraction": float(np.mean(np.asarray(group_values) > 0)) if group_values else math.nan,
+                        })
+                        level_values[level] = value
+                    unique_regimes = sorted(set(regime.tolist()))
+                    topology_rows.append({
+                        "feature_set": name, "path": path, "kernel": kernel,
+                        "bandwidth_factor": factor, "statistic": statistic_name,
+                        "level": "cross_regime_transfer", "association": math.nan,
+                        "group_count": len(unique_regimes), "positive_group_fraction": math.nan,
+                        "status": "unavailable_single_regime" if len(unique_regimes) < 2 else "requires_registered_leave_regime_model",
+                    })
+                    heterogeneity_rows.append({
+                        "feature_set": name, "path": path, "kernel": kernel,
+                        "bandwidth_factor": factor, "statistic": statistic_name,
+                        "pooled": level_values["pooled"], "within_target": level_values["within_target"],
+                        "within_trajectory": level_values["within_target_x_trajectory"],
+                        "within_regime": level_values["within_regime"],
+                        "pooled_minus_within_target": level_values["pooled"] - level_values["within_target"],
+                    })
+                    _, target_folds = statistics.crossfit_association(
+                        features, outcome, targets, kernel_family=kernel,
+                        bandwidth_factor=factor, statistic=statistic_name,
+                    )
+                    for row in target_folds:
+                        payload = {
+                            "feature_set": name, "path": path, "kernel": kernel,
+                            "bandwidth_factor": factor, "statistic": statistic_name, **row,
+                        }
+                        leave_target_rows.append(payload)
+                        if "G3_architecture" in name:
+                            within_rows.append(payload)
+                    for template in sorted(set(trajectory_template.tolist())):
+                        train = trajectory_template != template
+                        test = trajectory_template == template
+                        if np.sum(test) < 4:
+                            continue
+                        train_center = statistics.center_within_groups(features, targets)
+                        train_scaled, test_scaled = statistics.scale_train_test(train_center[train], train_center[test])
+                        bandwidth = factor * statistics.median_positive_distance(train_scaled)
+                        kernel_matrix = statistics.kernel_from_distances(
+                            statistics.pairwise_distances(test_scaled), bandwidth, kernel,
+                        )
+                        leave_trajectory_rows.append({
+                            "feature_set": name, "path": path, "kernel": kernel,
+                            "bandwidth_factor": factor, "statistic": statistic_name,
+                            "trajectory_template": template, "row_count": int(np.sum(test)),
+                            "association": statistics.association_statistic(kernel_matrix, outcome[test], statistic_name),
+                        })
+                    for control_name, control in controls.items():
+                        feature_residual = _residualize(features, control, targets)
+                        outcome_residual = _residualize(outcome[:, None], control, targets)[:, 0]
+                        association, _ = statistics.crossfit_association(
+                            feature_residual, outcome_residual, targets, kernel_family=kernel,
+                            bandwidth_factor=factor, statistic=statistic_name,
+                        )
+                        conditional_rows.append({
+                            "feature_set": name, "path": path, "conditioning": control_name,
+                            "kernel": kernel, "bandwidth_factor": factor,
+                            "statistic": statistic_name, "association": association,
+                        })
     target_onehot = np.eye(9)[targets - 1]
     metadata_controls = {
         "target_identity_only": target_onehot,
@@ -695,10 +773,12 @@ def analyze() -> dict:
     }
     qualification = []
     for candidate, path in (("G3S_strict_source", "strict_source"), ("G3T_target_unlabeled", "target_unlabeled")):
-        primary = max(
-            [row for row in association_null["summary"] if row["path"] == path and row["kernel"] == "rbf" and row["statistic"] == "normalized_alignment"],
-            key=lambda row: row["association"],
-        )
+        path_associations = [row for row in association_null["summary"] if row["path"] == path]
+        strict_survivors = [
+            row for row in path_associations
+            if row["required_nulls_passing_0.05"] == row["required_null_count"]
+        ]
+        primary = max(strict_survivors or path_associations, key=lambda row: row["association"])
         interval = next(row for row in effect_intervals if row["path"] == path and row["kernel"] == "rbf" and row["statistic"] == "normalized_alignment" and float(row["bandwidth_factor"]) == float(primary["bandwidth_factor"]))
         pred = next(row for row in prediction["summary"] if row["path"] == path)
         action = next(row for row in prediction["action_summary"] if row["path"] == path)
@@ -710,7 +790,9 @@ def analyze() -> dict:
         )
         gates = {
             "functional_identity": identity_ok,
-            "orbit_robustness": bool(orbit["robustness"][path]),
+            "orbit_robustness": bool(orbit["registered_robustness"][(
+                path, primary["kernel"], float(primary["bandwidth_factor"]), primary["statistic"],
+            )]),
             "association_effect": primary["association"] >= 0.02,
             "association_bootstrap_lower": interval["bootstrap_ci_low"] > 0,
             "incremental_R2": pred["incremental_R2"] >= 0.02,
@@ -725,13 +807,17 @@ def analyze() -> dict:
         for gate, passed in gates.items():
             qualification.append({
                 "candidate": candidate, "path": path, "gate": gate, "passed": int(passed),
-                "association": primary["association"], "association_worst_required_p": primary["worst_required_global_p"],
+                "association_kernel": primary["kernel"], "association_bandwidth_factor": primary["bandwidth_factor"],
+                "association_statistic": primary["statistic"], "association": primary["association"],
+                "association_worst_required_p": primary["worst_required_global_p"],
                 "incremental_R2": pred["incremental_R2"], "prediction_global_p": pred["global_max_stat_p"],
                 "positive_targets": pred["positive_targets"], "material_actionability": action["material_actionability"],
             })
         qualification.append({
             "candidate": candidate, "path": path, "gate": "ALL_REQUIRED", "passed": int(all(gates.values())),
-            "association": primary["association"], "association_worst_required_p": primary["worst_required_global_p"],
+            "association_kernel": primary["kernel"], "association_bandwidth_factor": primary["bandwidth_factor"],
+            "association_statistic": primary["statistic"], "association": primary["association"],
+            "association_worst_required_p": primary["worst_required_global_p"],
             "incremental_R2": pred["incremental_R2"], "prediction_global_p": pred["global_max_stat_p"],
             "positive_targets": pred["positive_targets"], "material_actionability": action["material_actionability"],
         })
@@ -744,16 +830,26 @@ def analyze() -> dict:
     } for row in feature_registry]
     association_prediction = []
     for path in ("strict_source", "target_unlabeled"):
-        primary = max(
+        c75_primary = max(
             [row for row in association_null["summary"] if row["path"] == path and row["kernel"] == "rbf" and row["statistic"] == "normalized_alignment"],
             key=lambda row: row["association"],
         )
+        path_associations = [row for row in association_null["summary"] if row["path"] == path]
+        survivors = [row for row in path_associations if row["required_nulls_passing_0.05"] == row["required_null_count"]]
+        strict_best = max(survivors or path_associations, key=lambda row: row["association"])
         pred = next(row for row in prediction["summary"] if row["path"] == path)
         action = next(row for row in prediction["action_summary"] if row["path"] == path)
         association_prediction.append({
-            "path": path, "association": primary["association"],
-            "association_worst_required_p": primary["worst_required_global_p"],
-            "orbit_robustness": orbit["robustness"][path],
+            "path": path, "C75_rbf_association": c75_primary["association"],
+            "C75_rbf_worst_required_p": c75_primary["worst_required_global_p"],
+            "strict_best_kernel": strict_best["kernel"],
+            "strict_best_bandwidth_factor": strict_best["bandwidth_factor"],
+            "strict_best_statistic": strict_best["statistic"],
+            "association": strict_best["association"],
+            "association_worst_required_p": strict_best["worst_required_global_p"],
+            "orbit_robustness": orbit["registered_robustness"][(
+                path, strict_best["kernel"], float(strict_best["bandwidth_factor"]), strict_best["statistic"],
+            )],
             "incremental_R2": pred["incremental_R2"], "prediction_global_p": pred["global_max_stat_p"],
             "leave_target_median_increment": pred["leave_target_median_increment"],
             "positive_targets": pred["positive_targets"],
@@ -770,8 +866,10 @@ def analyze() -> dict:
         "orbit_functional_identity.csv": orbit["identity"],
         "orbit_feature_stability.csv": orbit["feature"],
         "orbit_rbf_association_stability.csv": orbit["association"],
+        "orbit_registered_association_stability.csv": orbit["registered"],
         "orbit_candidate_order_stability.csv": orbit["order"],
         "orbit_family_robustness.csv": orbit["family"],
+        "orbit_registered_family_robustness.csv": orbit["registered_family"],
         "invariance_availability_ledger.csv": invariance_ledger,
         "conditional_on_logits_association.csv": topology["conditional"],
         "association_topology.csv": topology["topology"],
@@ -836,6 +934,9 @@ def analyze() -> dict:
         "same_label_oracle_accessed": orbit_manifest["same_label_oracle_accessed"],
         "qualified_candidates": qualified, "C77_protocol_created": False,
         "orbit_robustness": orbit["robustness"],
+        "selected_association_orbit_robustness": {
+            row["path"]: row["orbit_robustness"] for row in association_prediction
+        },
         "association_prediction": association_prediction,
         "primary_candidate": primary_candidate,
         "final_gate_candidate": final_gate_candidate,

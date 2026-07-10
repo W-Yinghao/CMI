@@ -159,4 +159,5 @@ def test_c76_synthetic_benchmark_separates_null_and_actionable_cases():
     assert len(rows) == 8 * 7
     assert by_case["S6_predictive_actionable"]["median_within_target_association"] > by_case["S0_no_association"]["median_within_target_association"]
     assert by_case["S6_predictive_actionable"]["median_incremental_R2"] > by_case["S0_no_association"]["median_incremental_R2"]
+    assert by_case["S6_predictive_actionable"]["mean_top1_increment"] > by_case["S0_no_association"]["mean_top1_increment"]
     assert by_case["S4_factorization_invariant_endpoint"]["median_orbit_effect_retention"] == 1.0

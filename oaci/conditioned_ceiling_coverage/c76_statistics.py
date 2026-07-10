@@ -171,6 +171,7 @@ def matched_gaussian_features(
 def topology_association(
     features: np.ndarray, outcome: np.ndarray, groups: np.ndarray,
     *, kernel_family: str = "rbf", bandwidth_factor: float = 1.0,
+    statistic: str = "normalized_alignment",
 ) -> tuple[float, list[float]]:
     X = np.asarray(features, dtype=float)
     y = np.asarray(outcome, dtype=float)
@@ -184,7 +185,7 @@ def topology_association(
         X_scaled, _ = scale_train_test(X_group, X_group)
         bandwidth = bandwidth_factor * median_positive_distance(X_scaled)
         kernel = kernel_from_distances(pairwise_distances(X_scaled), bandwidth, kernel_family)
-        values.append(association_statistic(kernel, y_group, "normalized_alignment"))
+        values.append(association_statistic(kernel, y_group, statistic))
     return (float(np.mean(values)) if values else math.nan), values
 
 
