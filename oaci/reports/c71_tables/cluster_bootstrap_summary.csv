@@ -1,0 +1,5 @@
+bootstrap,status,replicates,ci_lower,ci_upper,row_iid_used
+checkpoint_cluster,not_run_not_authorized,,,,0
+trial_id_cluster,not_run_not_authorized,,,,0
+crossed_pigeonhole,not_run_not_authorized,,,,0
+target_cluster,not_run_not_authorized,,,,0

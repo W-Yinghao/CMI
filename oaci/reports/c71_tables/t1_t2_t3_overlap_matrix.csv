@@ -1,0 +1,6 @@
+left,right,left_units,right_units,overlap_units,independent_confirmation
+T1,T1,64,64,64,0
+T1,T2,64,216,64,0
+T1,T3-HO,64,1052,0,0
+T2,T3-HO,216,1052,0,1
+T3-full,T3-HO,1268,1052,1052,0

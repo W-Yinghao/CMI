@@ -1,0 +1,85 @@
+{
+  "actionability_thresholds": {
+    "coverage": 0.75,
+    "enrichment": 1.5,
+    "gauge_recovery": 0.5,
+    "hit": 0.7
+  },
+  "authorization_token_status": "absent",
+  "bandwidth_rule": "no bandwidth selection for primary split-label tests; any kernel secondary uses fixed grid with nested max-stat/null correction",
+  "construction_evaluation_contract": {
+    "class_stratified_where_support_allows": true,
+    "construction_eval_disjoint": true,
+    "label_budget_counts_unique_target_trial_ids": true,
+    "shared_trial_ids_across_candidates": true
+  },
+  "diagnostic_only_non_deployable": true,
+  "failure_gates": [
+    "forbidden T3-HO outcome accessed before protocol lock",
+    "T3-HO overlaps T1/T2",
+    "target-outcome-adaptive inclusion",
+    "candidate-specific construction labels under fixed budget",
+    "construction/evaluation overlap",
+    "forbidden row-level iid inference",
+    "same-label endpoint scalar enters construction path",
+    "raw cache committed to git",
+    "unauthorized forward/training/GPU"
+  ],
+  "first_t3_ho_manifest_path_read_timestamp_utc": "",
+  "first_t3_ho_outcome_read_timestamp_utc": "",
+  "hierarchical_inference_plan": [
+    "within-target centering",
+    "target-level descriptive estimates",
+    "checkpoint-cluster bootstrap",
+    "trial-id cluster bootstrap",
+    "leave-one-target-out",
+    "leave-trajectory-out",
+    "blocked permutation preserving target/class/checkpoint/trial structure"
+  ],
+  "milestone": "C71",
+  "multiplicity_correction": "max-stat or closed testing over H1-H5 and primary budgets/actionability metrics",
+  "parent_c70_protocol_sha256": "9075e13d86192c48677b167457b765854db4f7d77781474753212b62d480e611",
+  "parent_c70_protocol_sha256_replayed": "9075e13d86192c48677b167457b765854db4f7d77781474753212b62d480e611",
+  "permutation_plan": {
+    "conditional_cs_min_permutations": 999,
+    "max_stat_over_primary_family": true,
+    "plus_one_correction": true,
+    "primary_min_permutations": 4999
+  },
+  "primary_budgets": [
+    "8",
+    "64",
+    "full-construction"
+  ],
+  "primary_hypotheses": {
+    "H1": "within-target split-label reliability replicates on T3-HO",
+    "H2": "8 labels/class practical actionability remains weak unless all gates pass",
+    "H3": "64/full dense recovery remains partial relative to endpoint oracle",
+    "H4": "measurement-control separation persists inside I5",
+    "H5": "same-label endpoint scalar remains oracle-only"
+  },
+  "protocol_lock_source_commit": "4822f1c",
+  "protocol_lock_timestamp_utc": "2026-07-10T01:09:13Z",
+  "schema_version": "c71_t3_ho_confirmatory_protocol_v1",
+  "secondary_budgets": [
+    "0",
+    "1",
+    "2",
+    "4",
+    "12",
+    "16",
+    "24",
+    "32",
+    "48"
+  ],
+  "split_seed_registry": {
+    "base_seed": 71071,
+    "repeat_count": 256
+  },
+  "t2_consumed_units_from_parent": 216,
+  "t3_full_physical_units_from_parent": 1268,
+  "t3_ho_cache_generation_authorized": 0,
+  "t3_ho_cache_generation_executed": 0,
+  "t3_ho_checkpoint_id_set_sha256_from_parent": "88281ccbb0f3afd6a5e2d6545e2f0333ee9bcda48a4bb4bc82418547fadb5944",
+  "t3_ho_units_from_parent": 1052
+}

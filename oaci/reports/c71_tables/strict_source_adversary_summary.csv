@@ -1,0 +1,2 @@
+adversary,status,target_labels_used,escape_hatch_found,notes
+strict_source_trial_logits,not_run_feature_path_unavailable,0,0,Metadata is not treated as strict source-domain trial evidence.

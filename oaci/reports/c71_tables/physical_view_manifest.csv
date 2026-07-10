@@ -1,0 +1,6 @@
+view_name,path,sha256,allowed_columns,forbidden_columns,uses_target_labels,uses_evaluation_labels,available_at_selection_time,diagnostic_only,consumer_command
+source_only_view,,,checkpoint/source metadata only,target labels;target correctness;endpoint scalar,0,0,1,0,not_materialized_not_authorized
+key_template_view,,,registered keys/templates,target labels;endpoint scalar,0,0,0,1,not_materialized_not_authorized
+construction_label_view,,,construction labels only,evaluation labels;same-label endpoint scalar,1,0,0,1,not_materialized_not_authorized
+evaluation_label_view,,,evaluation labels only,construction-tuned thresholds;same-label endpoint scalar,1,1,0,1,not_materialized_not_authorized
+same_label_oracle_view,,,endpoint oracle after primary freeze,primary construction path,1,1,0,1,locked_inaccessible_until_primary_freeze

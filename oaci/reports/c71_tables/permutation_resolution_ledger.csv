@@ -1,0 +1,3 @@
+test,planned_permutations,minimum_attainable_p,plus_one_correction,random_seed_base,status
+primary_H1_H2_H3_max_stat,4999,0.0002,1,71071,locked_not_executed
+conditional_cs_secondary,999,0.001,1,71171,locked_not_executed

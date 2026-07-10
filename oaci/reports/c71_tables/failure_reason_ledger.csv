@@ -1,0 +1,5 @@
+reason,status,evidence,blocks_science_claim
+missing_exact_cli_authorization,blocking_execution_not_readiness,C71 exact authorization token absent,1
+protocol_locked_before_t3_access,pass,protocol_sha=3e80cd1af9b8985123c6d8c0e7bd1c716919c18da780cb697bf23b1432b42dde; no T3-HO manifest/outcome timestamp,0
+t3_ho_not_consumed,pass,T3-HO cache generation/execution observed=0,0
+target_population_generalization,unresolved,Future C71 remains conditional on nine frozen targets,1
