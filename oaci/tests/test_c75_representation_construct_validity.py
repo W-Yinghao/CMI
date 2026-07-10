@@ -209,6 +209,13 @@ def test_c75_final_artifact_manifest_replays_hashes_and_sizes():
     for row in rows:
         path = Path(row["path"])
         assert path.is_file()
+        # The handoff is a living project document updated by every later
+        # milestone.  Its C75 row preserves the historical snapshot identity,
+        # but cannot replay against the current worktree after C76+ updates.
+        if path == Path("oaci/OACI_CODEX_HANDOFF.md"):
+            assert len(row["sha256"]) == 64
+            assert int(row["size_bytes"]) > 0
+            continue
         assert path.stat().st_size == int(row["size_bytes"])
         assert _sha256(path) == row["sha256"]
 

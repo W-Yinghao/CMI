@@ -250,6 +250,7 @@ def run_red_team() -> dict:
         {"item": "R4_synthetic_multiplicity_effect", "status": "claim_narrowed", "finding": f"registered directional contrast is only {synthetic_metrics['effective_multiplicity_reduces_actionability']:.6f}", "resolution": "passes locked direction only; no material-effect claim; C78 must recalibrate"},
         {"item": "R5_training_runtime", "status": "claim_narrowed", "finding": "no measured C78 GPU runtime exists", "resolution": "compute table reports a budget range, with mandatory P1 recalibration before P2"},
         {"item": "R6_locked_failure_ledger", "status": "repaired_after_blocking_red_team", "finding": "analysis overwrote a protocol-hash-locked failure ledger", "resolution": "restored locked bytes; post-compute outcomes moved to analysis_failure_reason_ledger.csv"},
+        {"item": "R7_living_handoff_manifest", "status": "regression_contract_repaired", "finding": "C75 replay treated the later-updated handoff as immutable payload", "resolution": "preserve C75 historical row but replay current bytes only for immutable artifacts; C77 excludes handoff from its artifact manifest"},
     ]
     _write_csv(REPAIR_PATH, repairs)
     _write_csv(CHECKS_PATH, checks)
