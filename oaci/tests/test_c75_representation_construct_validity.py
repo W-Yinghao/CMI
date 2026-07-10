@@ -12,6 +12,7 @@ from oaci.conditioned_ceiling_coverage import c75_data
 from oaci.conditioned_ceiling_coverage import c75_modeling
 from oaci.conditioned_ceiling_coverage import c75_projection
 from oaci.conditioned_ceiling_coverage import synthetic_factorization_generator
+from oaci.conditioned_ceiling_coverage import c75_red_team
 
 
 def _sha256(path: str | Path) -> str:
@@ -181,3 +182,21 @@ def test_c75_reparameterization_audit_preserves_function_not_coordinates():
     nonorthogonal = next(row for row in rows if row["transform"] == "nonorthogonal_condition_le_4")
     assert nonorthogonal["coordinate_geometry_invariant"] == 0
     assert nonorthogonal["Wz_max_abs_error"] < 1e-10
+
+
+def test_c75_red_team_independently_reconstructs_locked_qualification():
+    table_dir = c75_protocol.TABLE_DIR
+    relevance = list(csv.DictReader(open(table_dir / "cross_fitted_incremental_relevance.csv")))
+    leave_target = list(csv.DictReader(open(table_dir / "leave_target_out_relevance.csv")))
+    scaling = list(csv.DictReader(open(table_dir / "feature_scaling_audit.csv")))
+    qualification = list(csv.DictReader(open(table_dir / "t3_qualification_decision.csv")))
+    for candidate in ("F2_strict_source", "F4_target_unlabeled"):
+        expected = c75_red_team._qualification_expected(
+            candidate, relevance, leave_target, scaling,
+        )
+        observed = {
+            row["gate"]: int(row["passed"])
+            for row in qualification if row["candidate"] == candidate
+        }
+        assert observed == expected
+        assert observed["ALL_REQUIRED"] == 0
