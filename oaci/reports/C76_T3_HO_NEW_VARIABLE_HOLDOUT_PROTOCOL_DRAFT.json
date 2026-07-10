@@ -1,0 +1,25 @@
+{
+  "C74_authorization_does_not_authorize_C76": true,
+  "execution": "frozen_checkpoint_CPU_reinference_only_after_separate_authorization",
+  "forbidden": [
+    "training",
+    "GPU",
+    "BNCI2014_004",
+    "seeds_3_4",
+    "outcome_adaptive_hypotheses",
+    "selector",
+    "checkpoint_recommendation",
+    "target_population_claim",
+    "manuscript_drafting"
+  ],
+  "holdout_role": "prospective_new_variable_holdout_not_independent_target_dataset_confirmation",
+  "holdout_unit_manifest_sha256": "d7c7114fbe125a712ec560bce2a8bb94e895859068a62210bd513b96c8078980",
+  "holdout_units": 1052,
+  "parent_C74_protocol_sha256": "76d0f4d9d96d012856d72934a720c52e067e7f0ae27081ad5c97d6b4eea1acb6",
+  "projected_external_size_GiB": 18.70788759738207,
+  "projected_external_size_bytes": 20087441352,
+  "required_parent": "completed_C75_hypothesis_lock_commit",
+  "schema_version": "c76_t3_ho_new_variable_holdout_protocol_draft_v1",
+  "separate_future_exact_CLI_authorization_required": true,
+  "status": "DRAFT_READY_BUT_NOT_AUTHORIZED"
+}

@@ -1,0 +1,12 @@
+attempt,slurm_job,phase,status,real_EEG_loaded,model_forward_attempted,valid_unit_manifests,P1_started,superseded,reason
+1,892076,P0_pilot_initial,aborted_cancelled,partial,at_least_3_tasks,0,0,1,shared_MNE_home_stale_lock_and_extra_numpy_torch_softmax_cross_implementation_gate
+2,892090,P0_pilot_repaired,passed,1,1,54,0,0,per_job_MNE_home_and_protocol_aligned_softmax_identity
+3,892103,P0_payload_validation,passed,0,0,54,0,0,all_payloads_rehashed
+4,892105,P1_expansion,passed,1,1,162,1,0,self_hashed_P0_gate_verified_by_every_task
+5,892114,P1_payload_validation,passed,0,0,162,1,0,all_payloads_rehashed
+6,892115,analysis_prepare,blocked_before_smoke,0,0,216,1,1,two_dataset_evidence_hashes_required_cross_node_drift_audit
+7,892119;892121,preprocess_replay_initial,failed_before_data_load,0,0,216,1,1,tensor_content_hash_import_path_repaired
+8,892128;892129;892131,cross_node_preprocess_replay,passed,1,one_frozen_T2_checkpoint_pair,216,1,0,cross_node_input_and_downstream_drift_below_locked_tolerances
+9,892135,restricted_view_prepare,blocked_before_smoke,0,0,216,1,1,oracle_row_count_metadata_removed_from_restricted_manifest
+10,892140,smoke_analysis_initial,completed_then_superseded_by_red_team,0,0,216,1,1,cumulative_null_did_not_test_incremental_feature_block
+11,892144,smoke_analysis_nested_null,passed,0,0,216,1,0,within_target_new_block_permutation_with_prior_blocks_fixed

@@ -1,0 +1,11 @@
+field,payload_class,target_label_derived,available_under_strict_source_DG,stored_external,required
+Wz,strict_source_trial_observable,0,1,1,1
+Wz_plus_b,strict_source_trial_observable,0,1,1,1
+logits,strict_source_trial_observable,0,1,1,1
+predicted_class,strict_source_trial_observable,0,1,1,1
+probabilities,strict_source_trial_observable,0,1,1,1
+source_class_label,source_label,0,1,1,1
+source_domain_id,strict_source_trial_observable,0,1,1,1
+source_role,strict_source_trial_observable,0,1,1,1
+source_trial_id,strict_source_trial_observable,0,1,1,1
+z,strict_source_trial_observable,0,1,1,1

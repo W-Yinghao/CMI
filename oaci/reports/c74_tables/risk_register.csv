@@ -1,0 +1,21 @@
+risk,status,blocking,evidence
+C73_metric_semantics_ambiguity,closed,0,mean of target-normalized shares reconciled before protocol lock
+protocol_timing,closed,0,protocol commit 1f3ab88 predates all real forward
+authorization_token_scope,closed,0,exact CLI token only; P0 and gated P1 predeclared
+pilot_to_full_silent_escalation,closed,0,P1 requires aggregate 54-unit P0 gate
+T2_T3_HO_variable_contamination,closed,0,locked disjoint manifests and runtime T2 membership guard
+target_outcome_based_unit_sampling,closed,0,metadata-only deterministic pilot
+source_target_view_leakage,closed,0,separate immutable shard schemas
+target_label_in_unlabeled_view,closed,0,schema and payload validation
+evaluation_label_in_construction_view,closed,0,disjoint trial-ID split and separate shards
+hook_layer_mismatch,closed,0,classifier pre-hook equals ModelOutput.z
+Wz_logit_identity_failure,closed,0,all rows/units under locked tolerances
+precision_or_compression_drift,closed,0,float32 deterministic uncompressed NPZ
+checkpoint_ABI_mismatch,closed,0,strict state/sidecar/model ABI gates
+preprocessing_mismatch,closed,0,identical offline loader evidence across jobs
+cache_rows_not_independent,controlled,0,unit/target clustering retained; no iid-row inference
+pilot_overinterpretation,controlled,0,pilot used only as instrumentation gate
+representation_claim_without_holdout,controlled,0,C74 makes feasibility claims only
+strict_source_escape_hatch_overclaim,controlled,0,path availability is not escape-hatch evidence
+raw_cache_in_git,closed,0,all raw shards external; Git contains compact manifests only
+unauthorized_training_or_GPU,closed,0,CPU eval/no-grad state identity; no training path

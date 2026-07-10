@@ -1,0 +1,39 @@
+{
+  "C74_smoke_is_not_C75_confirmation": true,
+  "forbidden": [
+    "new_forward",
+    "re_inference",
+    "training",
+    "GPU",
+    "T3_HO_access",
+    "same_label_oracle_primary_analysis",
+    "selector",
+    "checkpoint_recommendation",
+    "representation_mechanism_claim",
+    "target_population_claim",
+    "manuscript_drafting"
+  ],
+  "input_role": "fully_instrumented_T2_discovery_and_calibration_only",
+  "input_units": 216,
+  "locked_view_manifest_sha256s": {
+    "same_label_oracle_view": "06f826ae3b07f64b8c6d4a22acc9ab1066f4e78f75d12506cd52c8680d5c0cca",
+    "strict_source_trial_view": "947b95a28f9531bfbc98762086f57a75e42637693373481ea62dd6274321f6d8",
+    "target_construction_view": "407e03fba117ed639fac4ed8115f2eda0fef4f6c79b909f515dc060421781d74",
+    "target_evaluation_view": "289c25234004948c378762f6991d8ccd0aef6c8317562ac1ba06d9ce6205d1c6",
+    "target_unlabeled_representation_view": "afca5e9dcd3e9dcf28f0b8b0c88b557f35474de1f30d757ad0f08fab45e1cd4a"
+  },
+  "parent_C74_protocol_sha256": "76d0f4d9d96d012856d72934a720c52e067e7f0ae27081ad5c97d6b4eea1acb6",
+  "primary_hypotheses_to_lock_before_open": [
+    "candidate_specific_class_projection_summaries_are_split_stable",
+    "candidate_specific_Wz_residual_changes_heldout_rank_under_registered_counterfactuals",
+    "source_and_target_unlabeled_zWz_summaries_do_not_gain_incrementally_under_the_C74_fixed_family"
+  ],
+  "required_inference": [
+    "target_cluster_bootstrap",
+    "trajectory_blocked_nulls",
+    "cross_fit_only",
+    "separate_source_target_unlabeled_and_label_derived_information_classes"
+  ],
+  "schema_version": "c75_t2_representation_construct_analysis_protocol_draft_v1",
+  "status": "DRAFT_NOT_OPEN_NOT_AUTHORIZED"
+}

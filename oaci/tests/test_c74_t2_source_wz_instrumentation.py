@@ -10,6 +10,7 @@ from oaci.conditioned_ceiling_coverage import c74_cache as cache
 from oaci.conditioned_ceiling_coverage import c74_analysis as analysis
 from oaci.conditioned_ceiling_coverage import c74_preprocessing_replay as preprocessing_replay
 from oaci.conditioned_ceiling_coverage import c74_red_team as red_team
+from oaci.conditioned_ceiling_coverage import c74_finalize as finalize
 from oaci.conditioned_ceiling_coverage import c74_t2_source_wz_instrumentation as c74
 
 
@@ -181,3 +182,9 @@ def test_c74_red_team_counterfactual_uses_registered_float_tolerance():
     source = Path(red_team.__file__).read_text()
     assert 'protocol["identity_tolerances"]["Wz_plus_b_logits_max_abs"]' in source
     assert 'original_Wz_plus_b_vs_stored_logits_max_abs"]) <= reconstruction_tolerance' in source
+
+
+def test_c74_finalizer_is_red_team_gated():
+    gate = finalize._red_team_gate()
+    assert gate["status"] == "PASS"
+    assert gate["checks"] == 33

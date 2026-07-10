@@ -12,6 +12,81 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ---
 
+## 0. Current continuation state (2026-07-10)
+
+The detailed C23-C31 history below remains useful background, but it is no longer the branch tip. The authoritative
+latest sequence is C73 -> C74:
+
+```text
+C73 protocol: 26d3d34
+C73 result:   2aa551e
+C73 primary:  C73-E_C72_decomposition_order_sensitive_or_unstable
+C73 gate:     C72_DECOMPOSITION_UNSTABLE_REQUIRES_REPAIR
+
+C74 protocol: 1f3ab88
+C74 gate:     T2_SOURCE_WZ_CAMPAIGN_EXECUTED_AND_MANIFESTED
+C74 primary:  C74-A_T2_source_Wz_instrumentation_executed_and_validated
+```
+
+C74 used the PM-authorized exact CLI token to run a CPU-only frozen-checkpoint T2 instrumentation campaign. The
+54-unit target-balanced pilot passed before the remaining 162 units ran. Final external evidence comprises 216/216
+T2 units, 995,328 strict-source rows, 124,416 target-unlabeled rows, and 4,124,417,616 bytes of content-addressed
+external cache. `W*z+b == logits`, hook-z, repeat-forward, and stored-softmax identity gates all have maximum error
+0.0. Physical source, target-unlabeled, construction, evaluation, and oracle views are separate; the primary smoke
+consumer received no same-label-oracle descriptor or path.
+
+The complete 1,052-unit T3-HO z/Wz new-variable holdout remains untouched. It is a prospective new-variable holdout,
+not an independent target/dataset confirmation, and C74 does not authorize its future use.
+
+C74's narrow scientific status is:
+
+```text
+established:
+  strict source trial logits/probabilities/z/Wz are recoverable from frozen checkpoints
+  target-unlabeled logits/probabilities/z/Wz are recoverable
+  candidate-specific class-projection summaries are split-stable on T2
+  registered Wz residual counterfactuals are technically meaningful
+
+not established:
+  representation-projection origin of the C72 residual
+  target-gauge construct validity
+  a strict-source escape hatch (or its universal absence)
+  selector/control/deployability/few-label sufficiency
+  target-population or independent-dataset generalization
+```
+
+The red-team-corrected nested feature-block audit found that the registered strict-source z/Wz and target-unlabeled
+z/Wz summaries add no held-out incremental signal beyond prior blocks; only the split-label construction diagnostic
+block passes. This is a fixed-family negative smoke result, not a universal non-observability claim.
+
+Authoritative C74 artifacts:
+
+```text
+oaci/reports/C74_T2_SOURCE_WZ_INSTRUMENTATION.md
+oaci/reports/C74_T2_SOURCE_WZ_INSTRUMENTATION.json
+oaci/reports/C74_RED_TEAM_VERIFICATION.md
+oaci/reports/c74_tables/artifact_manifest.csv
+oaci/reports/c74_tables/execution_attempt_ledger.csv
+```
+
+The full execution-attempt ledger is intentionally retained. It records the cancelled initial pilot, MNE lock
+isolation, cross-node float32 replay, oracle-metadata hard stop, and nested-null repair. Independent red-team rehashed
+all external payloads and passed 33/33 checks before the main report was generated. Verification is 15 focused C74,
+80 C65-C74, 491 C23-C74, and 1,415 full-suite tests green.
+
+Next-state drafts exist but are not open milestones:
+
+```text
+C75_T2_REPRESENTATION_CONSTRUCT_ANALYSIS_PROTOCOL_DRAFT.json
+C76_T3_HO_NEW_VARIABLE_HOLDOUT_PROTOCOL_DRAFT.json
+```
+
+C75 is no-forward T2 analysis only. C76 requires a separately locked C75 hypothesis contract and separate explicit
+authorization. New training, GPU work, BNCI2014_004, seeds [3,4], selector artifacts, checkpoint recommendations, and
+manuscript drafting remain unauthorized.
+
+---
+
 ## 1. What C23–C31 established (the mechanism chain)
 
 **Setup.** Earlier rungs found: target-good checkpoints EXIST, a pre-registered source-only competence probe (**C19**,
