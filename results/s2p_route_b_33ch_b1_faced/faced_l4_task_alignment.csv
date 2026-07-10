@@ -1,0 +1,5 @@
+tag,budget_h,seed,task_gate_pass,l4_l5_l6_status,subject_subspace_rank,subject_subspace_var_frac,l4_task_head_subject_subspace_energy
+random,,,,REFERENCE,5,0.8336647152900696,0.05129611788329996
+released,,,True,REFERENCE,5,0.735474705696106,0.0021280857284628214
+H1000_s0,1000.0,0,True,PASS,5,0.598189115524292,0.0006715881741580337
+H1000_s1,1000.0,1,True,PASS,5,0.5930509567260742,0.0006534784842403331

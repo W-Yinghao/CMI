@@ -1,0 +1,47 @@
+{
+  "codebrain_used": false,
+  "downstream_dataset": "FACED",
+  "elapsed_s": 1037.6,
+  "evaluated_budgets_h": [
+    1000
+  ],
+  "evaluated_seeds": [
+    0,
+    1
+  ],
+  "fine_tuning_used": false,
+  "floor_crossed_bacc": true,
+  "floor_crossed_kappa": true,
+  "h1000_mean": {
+    "target_bacc": 0.17028985507246375,
+    "target_kappa": 0.06732629505148868,
+    "target_weighted_f1": 0.16754581373204339
+  },
+  "h2000_included": false,
+  "not_full_finetuning_reproduction": true,
+  "phase": "probe",
+  "primary_metric": "cohen_kappa",
+  "probe_gate_pass": true,
+  "protocol": "frozen_encoder_source_only_probe",
+  "random_reference": {
+    "source_val_bacc": 0.14459876543209876,
+    "source_val_kappa": 0.03636232545843443,
+    "target_bacc": 0.13714439076757917,
+    "target_kappa": 0.0285368348537669
+  },
+  "released_gap": {
+    "best_tag": "H1000_s1",
+    "released_minus_best_target_bacc": 0.0025496511003757494,
+    "released_minus_best_target_kappa": 0.005358841655773716
+  },
+  "released_reference": {
+    "source_val_bacc": 0.18564814814814812,
+    "source_val_kappa": 0.0853544215561377,
+    "target_bacc": 0.17632850241545894,
+    "target_kappa": 0.07547169811320742
+  },
+  "target_labels_used_for_selection": false,
+  "test_subjects": "101-123",
+  "train_subjects": "1-80",
+  "val_subjects": "81-100"
+}

@@ -1,0 +1,14 @@
+{
+  "checkpoint_selection": "pretrain_val_loss_only",
+  "normalization": "per_channel_per_1s_patch_zscore",
+  "source_train_subjects": "1-80",
+  "source_val_subjects": "81-100",
+  "target_labels_final_scoring_only": true,
+  "target_labels_in_checkpoint_selection": false,
+  "target_labels_in_head_fit": false,
+  "target_labels_in_l5_rank_or_null_selection": false,
+  "target_labels_in_normalization_selection": false,
+  "target_labels_in_pca_fit": false,
+  "target_labels_in_subject_subspace": false,
+  "target_test_subjects": "101-123"
+}
