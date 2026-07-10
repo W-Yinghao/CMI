@@ -8,6 +8,10 @@ from pathlib import Path
 import numpy as np
 
 from oaci.conditioned_ceiling_coverage import c75_protocol
+from oaci.conditioned_ceiling_coverage import c75_data
+from oaci.conditioned_ceiling_coverage import c75_modeling
+from oaci.conditioned_ceiling_coverage import c75_projection
+from oaci.conditioned_ceiling_coverage import synthetic_factorization_generator
 
 
 def _sha256(path: str | Path) -> str:
@@ -65,3 +69,100 @@ def test_c75_qualification_requires_every_locked_gate():
     assert {row["candidate"] for row in rows} == {"F2_strict_source", "F4_target_unlabeled"}
     assert all(row["all_required"] == "1" for row in rows)
     assert sum(row["gate"] == "target_label_leakage" for row in rows) == 2
+
+
+def test_c75_endpoint_metrics_are_oriented_and_exact_for_perfect_predictions():
+    labels = np.tile(np.arange(4), 8)
+    logits = np.full((len(labels), 4), -8.0)
+    logits[np.arange(len(labels)), labels] = 8.0
+    metrics = c75_data.endpoint_metrics(logits, labels)
+    assert metrics["bAcc"] == 1.0
+    assert metrics["NLL"] < 1e-5
+    assert metrics["ECE"] < 1e-5
+    assert np.allclose(metrics["recall"], 1.0)
+
+
+def test_c75_registered_z_and_W_feature_dimensions_are_fixed():
+    rng = np.random.default_rng(751)
+    z = rng.normal(size=(300, 16))
+    moments, spectrum = c75_data.z_features(z, np.arange(256))
+    W = rng.normal(size=(4, 16))
+    bias = rng.normal(size=4)
+    assert moments.shape == (4,)
+    assert spectrum.shape == (6,)
+    assert c75_data.W_features(W, bias).shape == (10,)
+    assert c75_data.alignment_features(z, W).shape == (5,)
+
+
+def test_c75_column_space_ridge_is_invariant_to_exact_duplicate_columns():
+    rng = np.random.default_rng(752)
+    train = rng.normal(size=(80, 7))
+    test = rng.normal(size=(20, 7))
+    response = rng.normal(size=80)
+    duplicated_train = np.column_stack((train, train[:, 2:5]))
+    duplicated_test = np.column_stack((test, test[:, 2:5]))
+    reference, audit_reference = c75_modeling.ridge_fold_predict(
+        train, response, test, alpha=1.0, column_space=True,
+    )
+    duplicated, audit_duplicated = c75_modeling.ridge_fold_predict(
+        duplicated_train, response, duplicated_test, alpha=1.0, column_space=True,
+    )
+    assert audit_reference["rank"] == audit_duplicated["rank"]
+    assert np.max(np.abs(reference - duplicated)) < 1e-10
+
+
+def test_c75_blocked_permutations_never_cross_registered_groups():
+    targets = np.repeat(np.arange(2), 12)
+    trajectories = np.tile(np.repeat(np.asarray(["a", "b", "c"]), 4), 2)
+    permutation = c75_modeling.blocked_permutation_indices(
+        targets, trajectories, np.random.default_rng(753), within_trajectory=True,
+    )
+    assert np.array_equal(targets, targets[permutation])
+    assert np.array_equal(trajectories, trajectories[permutation])
+    target_only = c75_modeling.blocked_permutation_indices(
+        targets, trajectories, np.random.default_rng(754), within_trajectory=False,
+    )
+    assert np.array_equal(targets, targets[target_only])
+
+
+def test_c75_kernel_bandwidth_is_estimated_from_outer_training_targets():
+    rng = np.random.default_rng(758)
+    targets = np.repeat(np.arange(4), 8)
+    features = rng.normal(size=(32, 3))
+    residual = rng.normal(size=32)
+    statistic, bandwidths = c75_modeling.crossfit_kernel_alignment_statistic(
+        features, residual, targets, 1.0,
+    )
+    assert np.isfinite(statistic)
+    assert len(bandwidths) == 4
+    assert all(value > 0 for value in bandwidths)
+
+
+def test_c75_projection_variance_estimand_accounts_to_one():
+    rng = np.random.default_rng(755)
+    payloads = {
+        target: [{"Wz": rng.normal(size=(32, 4))} for _ in range(5)]
+        for target in (1, 2, 3)
+    }
+    result = c75_projection.variance_audit(payloads, bootstrap_repeats=20)
+    assert len(result["by_target_class"]) == 12
+    assert all(abs(row["accounting_sum"] - 1.0) < 1e-12 for row in result["by_target_class"])
+    assert all(row["causal_interpretation"] == 0 for row in result["by_target_class"])
+
+
+def test_c75_synthetic_benchmark_separates_incremental_from_null_cases():
+    rows, summary = synthetic_factorization_generator.construct_validity_benchmark(
+        replicates=30, seed=756,
+    )
+    rates = {row["case"]: row["detection_rate"] for row in summary}
+    assert len(rows) == 90
+    assert rates["incremental_representation"] > rates["stable_endpoint_irrelevant"]
+    assert rates["incremental_representation"] > rates["functionally_redundant"]
+
+
+def test_c75_reparameterization_audit_preserves_function_not_coordinates():
+    rows = synthetic_factorization_generator.factorization_reparameterization_audit(seed=757)
+    assert all(row["function_invariant"] == 1 for row in rows)
+    nonorthogonal = next(row for row in rows if row["transform"] == "nonorthogonal_condition_le_4")
+    assert nonorthogonal["coordinate_geometry_invariant"] == 0
+    assert nonorthogonal["Wz_max_abs_error"] < 1e-10
