@@ -1,0 +1,5 @@
+margin_bin,pair_count,median_required_labels_per_class_normal_proxy,p75_required_labels_per_class_normal_proxy,median_disagreement_rate,median_abs_bacc_contrast,bound_scope
+"[0.00,0.02)",1040,2012.116,6944.652,0.21875,0.008681,paired_finite_population_normal_proxy_not_eeg_minimax
+"[0.02,0.05)",868,230.648,353.427,0.25,0.03125,paired_finite_population_normal_proxy_not_eeg_minimax
+"[0.05,0.10)",429,56.237,75.018,0.279514,0.067708,paired_finite_population_normal_proxy_not_eeg_minimax
+"[0.10,1.00)",111,19.807,23.749,0.303819,0.119792,paired_finite_population_normal_proxy_not_eeg_minimax

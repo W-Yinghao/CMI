@@ -1,0 +1,9 @@
+reason,status,evidence,blocks_claim
+shared_split_contract,pass,trial_split_shared_across_candidates=1 for every target,0
+monte_carlo_resolution_c69,reported,C69 p-values are minimum +1 floors: 1/201 and 1/65,0
+target_population_generalization,unresolved,C70 is conditional on the fixed BNCI2014_001 targets in T2,1
+small_budget_strength,limited,best small budget 8 gauge recovery=0.176672,0
+full_construction_reliability,weak,full construction mean Spearman=0.547343,0
+strict_source_trial_features,absent,C69 cache has no strict source-domain trial logits/probs,1
+conditional_cs_scope,proxy_only,binary-Y COD proxy retained; no full conditional-CS claim,1
+t3_confirmation,protocol_locked_not_executed,C71 protocol JSON/SHA emitted; T3-HO not consumed,0

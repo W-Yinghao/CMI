@@ -1,0 +1,5 @@
+test_scope,command,status,environment,slurm_partition
+focused_c70,python -m pytest oaci/tests/test_c70_split_label_information_budget.py -q,green,eeg2025,cpu-high
+c50_c70_slice,python -m pytest oaci/tests/test_c5*.py oaci/tests/test_c6*.py oaci/tests/test_c70_*.py -q,green,eeg2025,cpu-high
+c23_c70_regression,python -m pytest oaci/tests/test_c2[3-9]_*.py oaci/tests/test_c3*.py oaci/tests/test_c4*.py oaci/tests/test_c5*.py oaci/tests/test_c6*.py oaci/tests/test_c70_*.py -q,green,eeg2025,cpu-high
+full_oaci_tests,python -m pytest oaci/tests -q,green,eeg2025,cpu-high

@@ -1,0 +1,3 @@
+comparison,left_units,right_units,overlap_units,left_subset_of_right,independent_confirmation_claimed,notes
+t1_vs_t2,64,216,64,1,0,"T2 is a scale-up containing T1, not an independent confirmation."
+t2_vs_t3_ho,216,1052,0,0,0,T3-HO is protocol-locked but not consumed.

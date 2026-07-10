@@ -1,0 +1,55 @@
+{
+  "blocked_permutation_scheme": "shuffle held-out utility within target; preserve target and checkpoint structure",
+  "budget_grid_labels_per_class": [
+    0,
+    1,
+    2,
+    4,
+    8,
+    12,
+    16,
+    24,
+    32,
+    48,
+    64,
+    "full-construction"
+  ],
+  "decision_thresholds": {
+    "dense_budget": ">=48 labels/class",
+    "gauge_recovery_candidate": "mean gauge recovery >=0.5 and actionability coverage >=0.5",
+    "medium_budget": "12-32 labels/class",
+    "small_budget": "<=8 labels/class"
+  },
+  "diagnostic_only_non_deployable": true,
+  "forbidden": [
+    "new forward",
+    "training",
+    "GPU",
+    "selector artifact",
+    "checkpoint recommendation",
+    "target-population generalization claim"
+  ],
+  "hierarchical_inference": [
+    "target_cluster_bootstrap",
+    "checkpoint_unit_blocking",
+    "trial_id_cluster_awareness"
+  ],
+  "locked_by": "C70",
+  "permutation_count": 4999,
+  "primary_outcomes": [
+    "within_target_spearman",
+    "pairwise_order_accuracy",
+    "top1_hit",
+    "continuous_regret",
+    "gauge_residual_recovery"
+  ],
+  "schema_version": "c71_t3_confirmatory_protocol_v1",
+  "split_seed_registry": {
+    "base_seed": 70070,
+    "repeat_count": 256
+  },
+  "t2_consumed_units": 216,
+  "t3_full_physical_units": 1268,
+  "t3_ho_checkpoint_id_set_sha256": "88281ccbb0f3afd6a5e2d6545e2f0333ee9bcda48a4bb4bc82418547fadb5944",
+  "t3_ho_units": 1052
+}

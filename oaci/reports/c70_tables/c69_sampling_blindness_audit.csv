@@ -1,0 +1,4 @@
+audit,passed,observed,forbidden_dependency,notes
+schedule_reconstructed_from_c65,1,T1=64;T2=216,target outcome adaptive sampling,Deterministic seed/target/level/candidate-order schedule replayed from C65 mapping.
+t2_cache_hash_verified,1,8a1424fc740e980e238d45a5bf61224d6e4756a15ba1bc047926a0c217466a1d,manifest/hash mismatch,C69 T2 external cache consumed read-only.
+no_t3_cache_consumed,1,0,T3 cache/checkpoint consumption,C70 reads C65 mapping only to define a future holdout protocol.

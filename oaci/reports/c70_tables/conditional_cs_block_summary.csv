@@ -1,0 +1,2 @@
+estimator,stage,paired_eval_rows,independent_checkpoint_units,incremental_cod,reported_p,inferred_permutations,block_valid_status,full_conditional_cs_claimed,bandwidth_nested_null,notes
+c69_binary_y_cod_proxy,t2,64512,216,0.00291205,0.015385,64,proxy_only_directionally_stable,0,not_applicable_binary_y_cod_proxy,C69 proxy is directionally stable but crossed checkpoint/trial dependence blocks a full conditional-CS claim.

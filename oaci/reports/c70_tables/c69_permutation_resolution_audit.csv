@@ -1,0 +1,3 @@
+test,reported_p,inferred_permutations,inferred_exceedances,monte_carlo_floor,resolution_note,c70_permutations
+c69_split_label_spearman,0.004975,200,0,0.004975,reported p equals +1 minimum floor,4999
+c69_binary_y_cod_proxy,0.015385,64,0,0.015385,reported p equals +1 minimum floor,999

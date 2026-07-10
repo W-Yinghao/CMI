@@ -1,0 +1,15 @@
+gate,failed,finding
+manifest_hashes_match,0,C69 T1/T2 hashes replayed before C70 analysis.
+shared_construction_trial_ids,0,Construction/evaluation split is shared across candidates within target.
+construction_eval_disjoint,0,Construction and evaluation target trial IDs are disjoint.
+unique_trial_budget_counted,0,"Budgets count unique target trial IDs, not checkpoint rows."
+t1_t2_not_independent_claim,0,T1 subset of T2 is not described as independent confirmation.
+t3_not_consumed,0,T3-HO protocol is locked without consuming T3 cache/checkpoints.
+strict_source_not_relabelled,0,Metadata proxy is not relabelled as strict source-domain trial signal.
+row_iid_not_used,0,Blocked inference is reported; row-level iid interpretation is not used.
+few_label_sufficiency_not_claimed,0,"Budget curves remain diagnostic candidates, not sufficiency claims."
+conditional_cs_proxy_only,0,Conditional-CS remains proxy-only under crossed dependence.
+target_population_unresolved,0,No target-population generalization claim.
+no_forward_training_gpu,0,C70 is read-only over C69 external caches.
+large_artifact_scan_passed,0,All committed C70 artifacts are under 50MB.
+forbidden_scan_passed,0,Forbidden affirmative claim scan passed.
