@@ -1,0 +1,7 @@
+block,information_class,available_strict_DG,target_unlabeled,target_label_derived,diagnostic_only
+F0,strict_source+registered_metadata,1,0,0,0
+F1,strict_source_trial,1,0,0,0
+F2,strict_source_architecture,1,0,0,0
+F3,target_unlabeled_functional,0,1,0,1
+F4,target_unlabeled_architecture,0,1,0,1
+F5,target_construction_label,0,0,1,1

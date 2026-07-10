@@ -1,0 +1,284 @@
+{
+  "C74_view_manifest_hashes": {
+    "same_label_oracle_view": {
+      "manifest_sha256": "06f826ae3b07f64b8c6d4a22acc9ab1066f4e78f75d12506cd52c8680d5c0cca",
+      "primary_access": 0
+    },
+    "strict_source_trial_view": {
+      "manifest_sha256": "947b95a28f9531bfbc98762086f57a75e42637693373481ea62dd6274321f6d8",
+      "primary_access": 1
+    },
+    "target_construction_view": {
+      "manifest_sha256": "407e03fba117ed639fac4ed8115f2eda0fef4f6c79b909f515dc060421781d74",
+      "primary_access": 1
+    },
+    "target_evaluation_view": {
+      "manifest_sha256": "289c25234004948c378762f6991d8ccd0aef6c8317562ac1ba06d9ce6205d1c6",
+      "primary_access": 1
+    },
+    "target_unlabeled_representation_view": {
+      "manifest_sha256": "afca5e9dcd3e9dcf28f0b8b0c88b557f35474de1f30d757ad0f08fab45e1cd4a",
+      "primary_access": 1
+    }
+  },
+  "actionability_contract": {
+    "checkpoint_ids_emitted": false,
+    "field": "24-candidate target universe",
+    "metrics": [
+      "target_centered_spearman",
+      "pairwise_ordering",
+      "top1",
+      "top3",
+      "regret",
+      "joint_good_coverage"
+    ]
+  },
+  "conditional_observability_contract": {
+    "RBF_bandwidths": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "bandwidth_scale": "training-fold median pairwise distance",
+    "iid_guarantee_claim_allowed": false,
+    "null_calibration": "same blocked new-block permutations with bandwidth max-stat",
+    "primary_estimator": "nested cross-fitted prediction contrast; proxy not exact conditional-CS divergence"
+  },
+  "counterfactual_contract": {
+    "mechanism_origin_claim_allowed": false,
+    "primary_effect": "pairwise rank flip fraction",
+    "registered": [
+      "residual_shrink_0.5",
+      "target_common_replacement",
+      "candidate_permutation",
+      "trajectory_preserving_shuffle",
+      "magnitude_matched_random",
+      "random_target_common_replacement"
+    ]
+  },
+  "data_role": {
+    "T2_units": 216,
+    "T3_HO_access_in_C75": false,
+    "T3_HO_units": 1052,
+    "independent_target_dataset_confirmation": false,
+    "role": "untouched new-variable holdout",
+    "same_label_oracle_primary_access": false
+  },
+  "diagnostic_only_non_deployable": true,
+  "endpoint_contract": {
+    "ECE_bins": 15,
+    "construction_labels": "F5 positive control only",
+    "continuous_joint_utility": "within-target mean midrank percentile of eval bAcc,-NLL,-ECE",
+    "evaluation_labels": "target_evaluation_view only",
+    "primary_joint_good": "all eval oriented percentiles >=0.75",
+    "unexplained_residual": "outer-LOTO target-centered utility residual after F0+F1+F3+F5; never gauge"
+  },
+  "execution_boundary": {
+    "BNCI2014_004": false,
+    "GPU": false,
+    "T3_HO_z_Wz_access": false,
+    "forward_passes": false,
+    "high_dimensional_feature_search": false,
+    "manuscript_drafting": false,
+    "raw_cache_in_git": false,
+    "re_inference": false,
+    "seeds_3_4": false,
+    "selector_or_checkpoint_artifacts": false,
+    "training": false
+  },
+  "factorization_contract": {
+    "directly_identifiable": [
+      "logits",
+      "probabilities",
+      "margins",
+      "Wz_given_b"
+    ],
+    "equivalence": "z_prime=A z; W_prime=W A^{-1}; W_prime z_prime=Wz for invertible A",
+    "not_uniquely_identifiable": [
+      "z_coordinates",
+      "W_vs_z_origin",
+      "general_GL_coordinate_geometry"
+    ],
+    "synthetic_transforms": [
+      "orthogonal_QR",
+      "diagonal_scale_0.5_to_2",
+      "nonorthogonal_condition_le_4"
+    ]
+  },
+  "feature_contract": {
+    "covariance": "center selected z rows; eigenvalues=singular_values^2/(n-1)",
+    "effective_rank": "exp(-sum(p*log(p))) with p=eigenvalue/trace",
+    "no_feature_selection": true,
+    "source_spectral_support": "8 SHA256-smallest trial IDs per source_domain x source_class = 256 rows",
+    "stable_rank": "trace/max_eigenvalue",
+    "target_common": "mean over all 24 T2 candidates within target on aligned trial IDs",
+    "target_spectral_support": "256 SHA256-smallest target trial IDs"
+  },
+  "final_gates": [
+    "REPRESENTATION_CONSTRUCT_STABLE_BUT_ENDPOINT_IRRELEVANT",
+    "TARGET_UNLABELED_REPRESENTATION_CANDIDATE_READY_FOR_T3_HO",
+    "STRICT_SOURCE_REPRESENTATION_ESCAPE_HATCH_READY_FOR_T3_HO",
+    "FUNCTIONAL_LOGIT_LEVEL_MECHANISM_ONLY",
+    "T3_HO_REPRESENTATION_CAMPAIGN_NOT_JUSTIFIED",
+    "T3_HO_REPRESENTATION_CAMPAIGN_READY_BUT_NOT_AUTHORIZED",
+    "CACHE_OR_PROTOCOL_REPAIR_REQUIRED"
+  ],
+  "forbidden_claims": [
+    "stable construct is predictive",
+    "unexplained residual is target gauge",
+    "all source functions fail",
+    "representation mechanism validated",
+    "selector",
+    "checkpoint recommendation",
+    "deployable",
+    "few-label sufficiency",
+    "target-population generalization",
+    "manuscript drafting"
+  ],
+  "inference_contract": {
+    "bootstrap": "resample targets then checkpoint units within sampled target",
+    "bootstrap_replicates": 2000,
+    "feature_scaling": "training-fold mean/std only",
+    "inner_alpha_grid": [
+      0.01,
+      0.1,
+      1.0,
+      10.0,
+      100.0
+    ],
+    "inner_selection": "leave-one-training-target-out mean squared error; deterministic smallest-alpha tie break",
+    "max_stat_family": "F1,F2,F3,F4,F5 increments x six outcomes",
+    "model": "ridge on registered low-dimensional blocks",
+    "null_replicates": 499,
+    "outer": "leave-one-target-out",
+    "primary_null": "permute new block within each target x trajectory cell; keep prior blocks and outcome fixed",
+    "rng_seed": 7501,
+    "secondary": "leave-one-target-x-trajectory-cell-out and leave-one-trajectory-template-out",
+    "secondary_null": "permute new block within target",
+    "within_target_centering": true
+  },
+  "locked_registry_tables": {
+    "c74_identity_replay.csv": {
+      "path": "oaci/reports/c75_tables/c74_identity_replay.csv",
+      "rows": 7,
+      "sha256": "4ebac0ba9b62e287f34b7524922bef91bb37d09dfa48a614f763e936ed4e5cc6",
+      "size_bytes": 1567
+    },
+    "factorization_status_ledger.csv": {
+      "path": "oaci/reports/c75_tables/factorization_status_ledger.csv",
+      "rows": 8,
+      "sha256": "85e2fd83b3e544f7f7875545bf1ea1ed8d46bfcefc84a1f3522dd7badf6f5242",
+      "size_bytes": 469
+    },
+    "feature_availability_ledger.csv": {
+      "path": "oaci/reports/c75_tables/feature_availability_ledger.csv",
+      "rows": 6,
+      "sha256": "c2aecf6bb03e3452fe9f927696a3e98bd0c09b043e84ea4d7a27adca9eb71fde",
+      "size_bytes": 329
+    },
+    "feature_block_registry.csv": {
+      "path": "oaci/reports/c75_tables/feature_block_registry.csv",
+      "rows": 6,
+      "sha256": "ff9d5e27cc2aa00d29ed2bb4af920ebcedbe3b8d86418b93890e2cd72426a0d2",
+      "size_bytes": 2232
+    },
+    "outcome_registry.csv": {
+      "path": "oaci/reports/c75_tables/outcome_registry.csv",
+      "rows": 6,
+      "sha256": "112f32d307f8f59eee19bb2ee2e22470b060f2fa22ca849292fc1d0c15cb7021",
+      "size_bytes": 625
+    },
+    "t3_qualification_gates.csv": {
+      "path": "oaci/reports/c75_tables/t3_qualification_gates.csv",
+      "rows": 14,
+      "sha256": "01bfeab075e050af9e63ad372af6bd4861b3d948b453f204f7af3414a0c10981",
+      "size_bytes": 1285
+    }
+  },
+  "milestone": "C75",
+  "parent_C74_artifact_manifest_sha256": "7c67cb29ae8795dbcb66dd6427358dbdaf55a34083f58da30ea57ccd31b29740",
+  "parent_C74_cache_manifest_sha256": "b41c0bcaa6d0e46c2e6d44b5393e278265fb9590dbd4d929bb7fd82023d10c2c",
+  "parent_C74_protocol_sha256": "76d0f4d9d96d012856d72934a720c52e067e7f0ae27081ad5c97d6b4eea1acb6",
+  "parent_C74_result_commit": "fe467b9826c458f0626b775704a60c55ec31b6f8",
+  "parent_C74_result_sha256": "d75cc0ac618009c87a7cb1c751b6cd212c265880adb43107688e9851efa265f7",
+  "parent_C74_view_manifest_sha256": "b037c9dfe1696ef450a15db81fbaed97cbdb7468255fee9241cc786edf866eeb",
+  "protocol_lock_timestamp_utc": "2026-07-10T15:20:19Z",
+  "qualification_contract": {
+    "all_gates_required": true,
+    "candidate_blocks": {
+      "strict_source": "F2|F0+F1",
+      "target_unlabeled": "F4|F0+F1+F3"
+    },
+    "gates_table": "oaci/reports/c75_tables/t3_qualification_gates.csv",
+    "if_none_pass": "do not create C76 protocol; T3-HO campaign not justified",
+    "if_pass": "lock exact feature formula/outcomes/nulls/actionability/failure rules in C76 protocol without touching T3-HO",
+    "primary_outcome": "continuous_joint_utility"
+  },
+  "redundancy_contract": {
+    "Wz_nonredundant_only_if_column_rank_increases_beyond_matched_logits_minus_b": false,
+    "column_space": "training-fold standardized SVD basis",
+    "naive_duplicate_ridge_audit": true,
+    "paths": {
+      "strict_source": [
+        "B0=F0",
+        "B1=B0+F1+matched(logits-b)",
+        "B2=B1+Wz_duplicate",
+        "B3=B2+source_z",
+        "B4=B3+W_geometry"
+      ],
+      "target_unlabeled": [
+        "B0=F0+F1",
+        "B1=B0+F3+matched(logits-b)",
+        "B2=B1+Wz_duplicate",
+        "B3=B2+target_z",
+        "B4=B3+W_geometry"
+      ]
+    },
+    "rank_tolerance": 1e-10
+  },
+  "schema_version": "c75_representation_construct_protocol_v1",
+  "synthetic_contract": {
+    "cases": [
+      "factorization_equivalent",
+      "stable_endpoint_irrelevant",
+      "incremental_representation",
+      "Wz_logit_redundant"
+    ],
+    "classes": 4,
+    "false_positive_target": 0.05,
+    "n": 512,
+    "replicates": 500,
+    "seed": 7601,
+    "z_dim": 16
+  },
+  "taxonomy": {
+    "primary": [
+      "C75-A_stable_projection_construct_functionally_redundant_nonpredictive",
+      "C75-B_target_unlabeled_projection_candidate",
+      "C75-C_strict_source_representation_escape_hatch_candidate",
+      "C75-D_factorization_nonidentifiable_functional_logit_level_only",
+      "C75-E_mixed_architecture_tied_representation_signal",
+      "C75-F_cache_protocol_blocker"
+    ],
+    "secondary": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5",
+      "S6",
+      "S7",
+      "S8",
+      "S9",
+      "S10",
+      "S11",
+      "S12"
+    ]
+  },
+  "variance_contract": {
+    "bootstrap": "target-cluster mean-share intervals",
+    "causal_interpretation": false,
+    "estimand": "per-target-class two-way descriptive ANOVA of Wz[candidate,trial,class] into candidate main + target-common trial main + interaction residual",
+    "normalization": "sum of squares divided by total within target-class sum of squares"
+  }
+}
