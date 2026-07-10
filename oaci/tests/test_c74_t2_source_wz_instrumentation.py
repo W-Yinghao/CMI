@@ -120,6 +120,21 @@ def test_c74_analysis_never_loads_same_label_oracle_in_primary_feature_path():
     assert '_descriptor(manifest, "same_label_oracle")' not in counterfactual_body
     assert '_load(_descriptor(manifest, "same_label_oracle")' not in counterfactual_body
 
+    allowed = {
+        "checkpoint_Wb", "strict_source_trial", "target_unlabeled_representation",
+        "target_construction_labels", "target_evaluation_labels",
+    }
+    fake = {
+        "unit_id": "u1", "same_label_oracle_rows": 576,
+        "view_isolation": {"oracle_available_to_primary_smoke": False, "passed": True},
+        "shards": [{"kind": kind, "path": f"/{kind}"} for kind in sorted(allowed | {"same_label_oracle"})],
+    }
+    restricted = analysis._restricted_unit_manifest(fake, allowed)
+    body = json.dumps(restricted, sort_keys=True)
+    assert "same_label_oracle" not in body
+    assert "oracle_available" not in body
+    assert {item["kind"] for item in restricted["shards"]} == allowed
+
 
 def test_c74_cross_node_replay_tolerances_are_locked_and_strict():
     assert preprocessing_replay.REPLICATES == ("nodecpu01", "nodecpu02")

@@ -81,6 +81,23 @@ def _all_manifests() -> list[dict]:
     return sorted(manifests, key=lambda item: (item["target_id"], item["seed"], item["level"], item["candidate_order"]))
 
 
+def _restricted_unit_manifest(manifest: dict, allowed_kinds: set[str]) -> dict:
+    """Strip the oracle shard and even oracle-derived bookkeeping metadata."""
+    entry = {
+        key: value for key, value in manifest.items()
+        if key not in {"shards", "same_label_oracle_rows"}
+    }
+    if "view_isolation" in entry:
+        entry["view_isolation"] = {
+            key: value for key, value in entry["view_isolation"].items()
+            if "oracle" not in key.lower()
+        }
+    entry["shards"] = [
+        descriptor for descriptor in manifest["shards"] if descriptor["kind"] in allowed_kinds
+    ]
+    return entry
+
+
 def _write_primary_smoke_input(manifests: list[dict], protocol: dict) -> dict:
     """Create a restricted consumer manifest with no oracle descriptor/path."""
     allowed_kinds = {
@@ -89,10 +106,7 @@ def _write_primary_smoke_input(manifests: list[dict], protocol: dict) -> dict:
     }
     restricted = []
     for manifest in manifests:
-        entry = {key: value for key, value in manifest.items() if key != "shards"}
-        entry["shards"] = [
-            descriptor for descriptor in manifest["shards"] if descriptor["kind"] in allowed_kinds
-        ]
+        entry = _restricted_unit_manifest(manifest, allowed_kinds)
         if {descriptor["kind"] for descriptor in entry["shards"]} != allowed_kinds:
             raise RuntimeError(f"C74 restricted-view assembly failed for {manifest['unit_id']}")
         restricted.append(entry)
