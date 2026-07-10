@@ -11,7 +11,7 @@ export PYTHONPYCACHEPREFIX="/tmp/c78-pycache-${SLURM_JOB_ID}"
 suite="${1:?suite required}"
 case "$suite" in
   focused)
-    tests=(oaci/tests/test_c78_seed3_instrumented_pilot.py)
+    tests=(oaci/tests/test_c78_seed3_instrumented_pilot.py oaci/tests/test_c78_authorized_pilot.py oaci/tests/test_c78_authorized_collect.py)
     ;;
   c65)
     tests=(oaci/tests/test_c6[5-9]_*.py oaci/tests/test_c7[0-8]_*.py)

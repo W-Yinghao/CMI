@@ -114,12 +114,23 @@ def test_c78_generated_tables_if_present_are_explicit_not_blank():
     if not path.exists():
         pytest.skip("C78 P0 tables not generated yet")
     attempts = _rows("execution_attempt_ledger.csv")
-    assert len(attempts) == 1
-    assert attempts[0]["training_attempted"] == "0"
-    assert attempts[0]["real_data_load_attempted"] == "0"
-    assert attempts[0]["GPU_requested"] == "0"
-    assert attempts[0]["target_label_read"] == "0"
-    assert attempts[0]["seed4_access"] == "0"
+    if "mode" in attempts[0] and any(row["mode"] == "authorized_training" for row in attempts):
+        no_auth = next(row for row in attempts if row["mode"] == "no_auth_P0")
+        authorized = next(row for row in attempts if row["mode"] == "authorized_training")
+        assert no_auth["training"] == "0"
+        assert no_auth["real_forward"] == "0"
+        assert no_auth["checkpoint_count"] == "0"
+        assert authorized["authorization_exact"] == "1"
+        assert authorized["training"] == "1"
+        assert authorized["checkpoint_count"] == "82"
+        assert authorized["status"] == "completed"
+    else:
+        assert len(attempts) == 1
+        assert attempts[0]["training_attempted"] == "0"
+        assert attempts[0]["real_data_load_attempted"] == "0"
+        assert attempts[0]["GPU_requested"] == "0"
+        assert attempts[0]["target_label_read"] == "0"
+        assert attempts[0]["seed4_access"] == "0"
     units = _rows("c78_unit_manifest.csv")
     assert len(units) == 82
     assert all(row["executed"] == "0" for row in units)
@@ -142,10 +153,17 @@ def test_c78_report_artifacts_if_present_require_red_team_pass():
     red_team = (c78.REPORT_DIR / "C78_RED_TEAM_VERIFICATION.md").read_text()
     assert "Final status: `PASS`" in red_team
     result = json.loads((c78.REPORT_DIR / "C78_SEED3_INSTRUMENTED_PILOT.json").read_text())
-    assert result["execution_boundary"]["training_attempted"] == 0
-    assert result["final_gate"] == "PILOT_READY_BUT_NOT_AUTHORIZED"
+    if result.get("schema_version") == "c78_seed3_instrumented_pilot_authorized_result_v1":
+        assert result["execution_boundary"]["training_attempted"] == 1
+        assert result["final_gate"] == "PILOT_VALID_SRC_CANARY_REQUIRED_BEFORE_FULL_FIELD"
+        assert result["dual_mode_provenance"]["no_auth_gate"] == "PILOT_READY_BUT_NOT_AUTHORIZED"
+        assert result["scope"]["actual_units"] == 82
+    else:
+        assert result["execution_boundary"]["training_attempted"] == 0
+        assert result["final_gate"] == "PILOT_READY_BUT_NOT_AUTHORIZED"
     assert result["claims"]["multiregime_replication"] is False
     assert result["claims"]["SRC_exercised"] is False
+    assert result["claims"]["full_seed3_ready"] is False
 
 
 def test_c78_protocol_sha_is_full_256_bit_value():
