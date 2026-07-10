@@ -49,3 +49,7 @@ Slurm job `892829`: `10 passed, 3 expected skips in 8.02s`, stderr empty. The sk
 ## Remaining runtime gates
 
 GPU ABI/determinism, real source-only loader identity, exact 82-checkpoint cadence/genealogy, optimizer snapshot round trips, post-freeze view hashes, all-row `W·z+b=logits`, repeat inference, measured runtime/storage, and zero target-label visibility remain blocking runtime gates. Any failure stops the campaign before a positive report.
+
+## First runtime-gate failure and repair
+
+GPU job `892830` stopped inside the synthetic one-step canary before any real EEG load. PyTorch deterministic mode correctly rejected a CuBLAS backward operation because `CUBLAS_WORKSPACE_CONFIG` was absent. The authorized training script now exports the documented deterministic workspace setting `:4096:8` before Python starts. The failed attempt remains in the external append-only ledger and no checkpoint/cache payload was produced.

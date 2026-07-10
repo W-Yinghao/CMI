@@ -17,6 +17,7 @@ export XDG_CACHE_HOME="${scratch}/cache"
 export MPLCONFIGDIR="${scratch}/mpl"
 export MNE_CACHE_DIR="${scratch}/mne"
 export PYTHONPYCACHEPREFIX="${scratch}/pycache"
+export CUBLAS_WORKSPACE_CONFIG=:4096:8
 export OMP_NUM_THREADS=8 MKL_NUM_THREADS=8 OPENBLAS_NUM_THREADS=8 NUMEXPR_NUM_THREADS=8
 /home/infres/yinwang/anaconda3/envs/icml/bin/python \
   -m oaci.conditioned_ceiling_coverage.c78_authorized_train \
