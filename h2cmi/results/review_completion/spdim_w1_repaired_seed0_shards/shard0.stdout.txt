@@ -1,0 +1,288 @@
+job_id=891457
+array_task_id=0
+host=node42
+pwd=/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368
+launch_commit=763e11c4412938017f0a7b1be3cfbe9e40ec3d41
+manifest_hash=231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e
+target_spec=BNCI2014_001=1-9;Cho2017=1-20
+expected_rows=116
+out_root=/home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41
+runner_sha256=946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8
+config_sha256=6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b
+manifest_csv_sha256=e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712
+external_sha=1b0de0ccd4c48a4ff28f087b866a0b671b029c39
+repo_status_porcelain_begin
+repo_status_porcelain_end
+Fri Jul 10 01:26:06 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 580.126.18             Driver Version: 580.126.18     CUDA Version: 13.0     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  Tesla V100-PCIE-16GB           Off |   00000000:3B:00.0 Off |                    0 |
+| N/A   25C    P0             23W /  250W |       0MiB /  16384MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+2592 matching events found
+No baseline correction applied
+epoch=  0 gd-step=   29 trn_loss= 0.6075 trn_score=0.6946 val_loss= 0.6298 val_score=0.6401
+epoch= 10 gd-step=  319 trn_loss= 0.4390 trn_score=0.7978 val_loss= 0.5607 val_score=0.7198
+epoch= 19 gd-step=  580 trn_loss= 0.6617 trn_score=0.6902 val_loss= 0.9167 val_score=0.6379
+epoch=  0 gd-step=   29 trn_loss= 0.5873 trn_score=0.7565 val_loss= 0.6148 val_score=0.6789
+epoch= 10 gd-step=  319 trn_loss= 0.3729 trn_score=0.8293 val_loss= 0.5470 val_score=0.7220
+epoch= 19 gd-step=  580 trn_loss= 1.4392 trn_score=0.5717 val_loss= 1.6828 val_score=0.5388
+epoch=  0 gd-step=   29 trn_loss= 0.6426 trn_score=0.5701 val_loss= 0.6677 val_score=0.5539
+epoch= 10 gd-step=  319 trn_loss= 1.6121 trn_score=0.5413 val_loss= 1.8457 val_score=0.5129
+epoch= 19 gd-step=  580 trn_loss= 0.8430 trn_score=0.6457 val_loss= 1.1222 val_score=0.5625
+epoch=  0 gd-step=   29 trn_loss= 0.6053 trn_score=0.6777 val_loss= 0.6315 val_score=0.6228
+epoch= 10 gd-step=  319 trn_loss= 0.4192 trn_score=0.8082 val_loss= 0.5907 val_score=0.7155
+epoch= 19 gd-step=  580 trn_loss= 1.7680 trn_score=0.5337 val_loss= 2.1900 val_score=0.5216
+epoch=  0 gd-step=   29 trn_loss= 0.5891 trn_score=0.7342 val_loss= 0.6163 val_score=0.7026
+epoch= 10 gd-step=  319 trn_loss= 0.6487 trn_score=0.6984 val_loss= 0.7834 val_score=0.6616
+epoch= 19 gd-step=  580 trn_loss= 0.8834 trn_score=0.6342 val_loss= 1.1941 val_score=0.5841
+epoch=  0 gd-step=   29 trn_loss= 0.5914 trn_score=0.7451 val_loss= 0.6166 val_score=0.7004
+epoch= 10 gd-step=  319 trn_loss= 0.8746 trn_score=0.6402 val_loss= 1.0411 val_score=0.5841
+epoch= 19 gd-step=  580 trn_loss= 1.1975 trn_score=0.5935 val_loss= 1.5812 val_score=0.5668
+epoch=  0 gd-step=   29 trn_loss= 0.5888 trn_score=0.7429 val_loss= 0.6117 val_score=0.6767
+epoch= 10 gd-step=  319 trn_loss= 2.5812 trn_score=0.5125 val_loss= 2.7381 val_score=0.5065
+epoch= 19 gd-step=  580 trn_loss= 0.3722 trn_score=0.8293 val_loss= 0.5660 val_score=0.7586
+epoch=  0 gd-step=   29 trn_loss= 0.6202 trn_score=0.6745 val_loss= 0.6518 val_score=0.6056
+epoch= 10 gd-step=  319 trn_loss= 0.4231 trn_score=0.8054 val_loss= 0.6109 val_score=0.7026
+epoch= 19 gd-step=  580 trn_loss= 0.5342 trn_score=0.7359 val_loss= 0.6947 val_score=0.6832
+epoch=  0 gd-step=   29 trn_loss= 0.6058 trn_score=0.7201 val_loss= 0.6233 val_score=0.6595
+epoch= 10 gd-step=  319 trn_loss= 0.5208 trn_score=0.7386 val_loss= 0.6458 val_score=0.6918
+epoch= 19 gd-step=  580 trn_loss= 0.4701 trn_score=0.7755 val_loss= 0.6345 val_score=0.7134
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+10520 matching events found
+No baseline correction applied
+epoch=  0 gd-step=  129 trn_loss= 0.6593 trn_score=0.5996 val_loss= 0.6648 val_score=0.5906
+epoch= 10 gd-step= 1419 trn_loss= 0.6558 trn_score=0.6298 val_loss= 0.7604 val_score=0.5751
+epoch= 19 gd-step= 2580 trn_loss= 0.6355 trn_score=0.6324 val_loss= 0.7932 val_score=0.5625
+epoch=  0 gd-step=  129 trn_loss= 0.7201 trn_score=0.5287 val_loss= 0.7198 val_score=0.5325
+epoch= 10 gd-step= 1419 trn_loss= 0.5688 trn_score=0.7031 val_loss= 0.6689 val_score=0.6211
+epoch= 19 gd-step= 2580 trn_loss= 0.5360 trn_score=0.7373 val_loss= 0.7053 val_score=0.5984
+epoch=  0 gd-step=  129 trn_loss= 0.6676 trn_score=0.5901 val_loss= 0.6680 val_score=0.5654
+epoch= 10 gd-step= 1419 trn_loss= 0.5733 trn_score=0.7034 val_loss= 0.6758 val_score=0.6066
+epoch= 19 gd-step= 2580 trn_loss= 0.8797 trn_score=0.5761 val_loss= 1.0810 val_score=0.5296
+epoch=  0 gd-step=  129 trn_loss= 0.6657 trn_score=0.5872 val_loss= 0.6711 val_score=0.5732
+epoch= 10 gd-step= 1419 trn_loss= 0.5765 trn_score=0.6915 val_loss= 0.6665 val_score=0.6240
+epoch= 19 gd-step= 2580 trn_loss= 0.5276 trn_score=0.7436 val_loss= 0.6894 val_score=0.6042
+epoch=  0 gd-step=  129 trn_loss= 0.6655 trn_score=0.5963 val_loss= 0.6706 val_score=0.5814
+epoch= 10 gd-step= 1419 trn_loss= 0.5716 trn_score=0.7042 val_loss= 0.6800 val_score=0.6027
+epoch= 19 gd-step= 2580 trn_loss= 0.5763 trn_score=0.6961 val_loss= 0.7498 val_score=0.5862
+epoch=  0 gd-step=  129 trn_loss= 0.6748 trn_score=0.5729 val_loss= 0.6793 val_score=0.5698
+epoch= 10 gd-step= 1419 trn_loss= 0.5696 trn_score=0.6971 val_loss= 0.6771 val_score=0.6047
+epoch= 19 gd-step= 2580 trn_loss= 0.5296 trn_score=0.7373 val_loss= 0.7057 val_score=0.5988
+epoch=  0 gd-step=  129 trn_loss= 0.6818 trn_score=0.5744 val_loss= 0.6834 val_score=0.5676
+epoch= 10 gd-step= 1419 trn_loss= 0.5621 trn_score=0.7128 val_loss= 0.6668 val_score=0.6172
+epoch= 19 gd-step= 2580 trn_loss= 0.5182 trn_score=0.7589 val_loss= 0.6840 val_score=0.6026
+epoch=  0 gd-step=  129 trn_loss= 0.7398 trn_score=0.5114 val_loss= 0.7487 val_score=0.5107
+epoch= 10 gd-step= 1419 trn_loss= 0.8104 trn_score=0.5656 val_loss= 0.9218 val_score=0.5417
+epoch= 19 gd-step= 2580 trn_loss= 0.5617 trn_score=0.7040 val_loss= 0.7367 val_score=0.5925
+epoch=  0 gd-step=  129 trn_loss= 0.6736 trn_score=0.5818 val_loss= 0.6766 val_score=0.5807
+epoch= 10 gd-step= 1419 trn_loss= 0.5669 trn_score=0.7050 val_loss= 0.6717 val_score=0.6138
+epoch= 19 gd-step= 2580 trn_loss= 0.5327 trn_score=0.7383 val_loss= 0.6839 val_score=0.6031
+epoch=  0 gd-step=  129 trn_loss= 0.6599 trn_score=0.6019 val_loss= 0.6624 val_score=0.6003
+epoch= 10 gd-step= 1419 trn_loss= 0.6036 trn_score=0.6710 val_loss= 0.6990 val_score=0.5891
+epoch= 19 gd-step= 2580 trn_loss= 0.5574 trn_score=0.7048 val_loss= 0.7172 val_score=0.5930
+epoch=  0 gd-step=  129 trn_loss= 0.6626 trn_score=0.6004 val_loss= 0.6630 val_score=0.6056
+epoch= 10 gd-step= 1419 trn_loss= 0.9147 trn_score=0.5389 val_loss= 1.0266 val_score=0.5262
+epoch= 19 gd-step= 2580 trn_loss= 0.5370 trn_score=0.7321 val_loss= 0.7085 val_score=0.5974
+epoch=  0 gd-step=  129 trn_loss= 0.6676 trn_score=0.5904 val_loss= 0.6774 val_score=0.5698
+epoch= 10 gd-step= 1419 trn_loss= 0.7596 trn_score=0.5770 val_loss= 0.8982 val_score=0.5392
+epoch= 19 gd-step= 2580 trn_loss= 0.5405 trn_score=0.7284 val_loss= 0.7018 val_score=0.5940
+epoch=  0 gd-step=  129 trn_loss= 0.7738 trn_score=0.5250 val_loss= 0.7746 val_score=0.5218
+epoch= 10 gd-step= 1419 trn_loss= 0.6015 trn_score=0.6813 val_loss= 0.7258 val_score=0.5795
+epoch= 19 gd-step= 2580 trn_loss= 0.5889 trn_score=0.6824 val_loss= 0.7715 val_score=0.5809
+epoch=  0 gd-step=  129 trn_loss= 0.6616 trn_score=0.6014 val_loss= 0.6605 val_score=0.6037
+epoch= 10 gd-step= 1419 trn_loss= 0.5857 trn_score=0.6837 val_loss= 0.6881 val_score=0.6003
+epoch= 19 gd-step= 2580 trn_loss= 0.6802 trn_score=0.6186 val_loss= 0.8573 val_score=0.5518
+epoch=  0 gd-step=  129 trn_loss= 0.7792 trn_score=0.5011 val_loss= 0.7832 val_score=0.5019
+epoch= 10 gd-step= 1419 trn_loss= 0.5651 trn_score=0.7072 val_loss= 0.6640 val_score=0.6303
+epoch= 19 gd-step= 2580 trn_loss= 0.5294 trn_score=0.7379 val_loss= 0.6825 val_score=0.6047
+epoch=  0 gd-step=  129 trn_loss= 0.6627 trn_score=0.5973 val_loss= 0.6679 val_score=0.5833
+epoch= 10 gd-step= 1419 trn_loss= 0.5763 trn_score=0.6997 val_loss= 0.6866 val_score=0.6085
+epoch= 19 gd-step= 2580 trn_loss= 0.5187 trn_score=0.7490 val_loss= 0.6983 val_score=0.6047
+epoch=  0 gd-step=  129 trn_loss= 0.7419 trn_score=0.5151 val_loss= 0.7508 val_score=0.5087
+epoch= 10 gd-step= 1419 trn_loss= 0.6346 trn_score=0.6456 val_loss= 0.7248 val_score=0.5993
+epoch= 19 gd-step= 2580 trn_loss= 0.5409 trn_score=0.7264 val_loss= 0.7024 val_score=0.5896
+epoch=  0 gd-step=  129 trn_loss= 0.7524 trn_score=0.5219 val_loss= 0.7563 val_score=0.5174
+epoch= 10 gd-step= 1419 trn_loss= 0.6088 trn_score=0.6745 val_loss= 0.7338 val_score=0.5828
+epoch= 19 gd-step= 2580 trn_loss= 0.5161 trn_score=0.7499 val_loss= 0.6750 val_score=0.6163
+epoch=  0 gd-step=  129 trn_loss= 0.8465 trn_score=0.5008 val_loss= 0.8494 val_score=0.5029
+epoch= 10 gd-step= 1419 trn_loss= 0.5651 trn_score=0.7138 val_loss= 0.6700 val_score=0.6056
+epoch= 19 gd-step= 2580 trn_loss= 0.5112 trn_score=0.7587 val_loss= 0.6927 val_score=0.6085
+epoch=  0 gd-step=  129 trn_loss= 0.6656 trn_score=0.5867 val_loss= 0.6730 val_score=0.5736
+epoch= 10 gd-step= 1419 trn_loss= 0.6548 trn_score=0.6360 val_loss= 0.7925 val_score=0.5601
+epoch= 19 gd-step= 2580 trn_loss= 0.6496 trn_score=0.6456 val_loss= 0.8364 val_score=0.5577

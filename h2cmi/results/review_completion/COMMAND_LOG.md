@@ -203,3 +203,15 @@
   `112` for total `460`. Shard outputs are repository-external to preserve
   clean launch provenance. No seeds 1/2, full SPDIM, TeX edit, geometry stress,
   orthogonal-score work, or Slurm accounting calls were used.
+
+- Per PM P8B, completed the official SPDIM W1 repaired-split seed-0 expansion from four clean, non-overlapping GPU shards (`891456` array;
+  result-carrying job IDs `891456`-`891459`). Final monitoring used `squeue`
+  only and all accepted jobs were absent. The merged CSV contains
+  `460`/`460`
+  `ok` rows with dataset counts BNCI2014_001=`36`, Cho2017=`208`, and
+  Lee2019_MI=`216`; prediction/logits hashes are complete, no evaluation split
+  is single-class, and all adaptation/evaluation IDs are disjoint. The result
+  SHA-256 is `118ec37f3a195d50c24abf24b4c61048cdbc0ffff7d9c0f0bf51c83f7f69229c`. Canceled monolithic job `891435`
+  and its 56 partial rows remain excluded. This is an official repaired-split
+  seed-0 expansion, not a full three-seed baseline; no seeds 1/2, TeX edits,
+  H2CMI reruns, geometry stress, or orthogonal-score work was performed.

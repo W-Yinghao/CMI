@@ -1,0 +1,1023 @@
+{
+  "accepted_job_ids": [
+    "891457",
+    "891458",
+    "891459",
+    "891456"
+  ],
+  "array_job_id": "891456",
+  "artifacts": {
+    "audit_md": {
+      "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_audit.md",
+      "sha256": "161e4f4c073200f3a374604f9c423c57d5448c68b76d841685b231d6e5ad16d3"
+    },
+    "legacy_compare_md": {
+      "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_legacy_compare.md",
+      "sha256": "59b5174de15a7840f6f0e263c1bb1b3a3848a2ba8add0c9dfc6c00d160f1851c"
+    },
+    "result_digest_md": {
+      "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_result_digest.md",
+      "sha256": "471510d40d07cc7016ccc5d21aaec537de08e4d8f5e72aa1127df540336d9d9f"
+    },
+    "results_csv": {
+      "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_results.csv",
+      "sha256": "118ec37f3a195d50c24abf24b4c61048cdbc0ffff7d9c0f0bf51c83f7f69229c"
+    },
+    "shard_readme_md": {
+      "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/README.md",
+      "sha256": "8ce8b6fc2bfe6b8e8551256c582b44d5a3a7dfad594ec2548a1ded8fd0933b5f"
+    }
+  },
+  "dataset_macro": {
+    "rct": {
+      "mean_acc": 0.6706453782842671,
+      "mean_bacc": 0.6706453782842673
+    },
+    "source_only_tsmnet": {
+      "mean_acc": 0.568366967394745,
+      "mean_bacc": 0.568366967394745
+    },
+    "spdim_bias": {
+      "mean_acc": 0.6640443969610638,
+      "mean_bacc": 0.6640443969610638
+    },
+    "spdim_geodesic": {
+      "mean_acc": 0.6679222063944286,
+      "mean_bacc": 0.6679222063944286
+    }
+  },
+  "deltas": {
+    "rct_minus_source_only_tsmnet": {
+      "mean_acc_delta": 0.10238164251207726,
+      "mean_bacc_delta": 0.10238164251207729,
+      "n": 115
+    },
+    "spdim_bias_minus_rct": {
+      "mean_acc_delta": -0.006256038647342992,
+      "mean_bacc_delta": -0.0062560386473430015,
+      "n": 115
+    },
+    "spdim_bias_minus_source_only_tsmnet": {
+      "mean_acc_delta": 0.09612560386473425,
+      "mean_bacc_delta": 0.09612560386473427,
+      "n": 115
+    },
+    "spdim_geodesic_minus_rct": {
+      "mean_acc_delta": -0.0020144927536231865,
+      "mean_bacc_delta": -0.0020144927536231974,
+      "n": 115
+    },
+    "spdim_geodesic_minus_source_only_tsmnet": {
+      "mean_acc_delta": 0.10036714975845405,
+      "mean_bacc_delta": 0.10036714975845407,
+      "n": 115
+    }
+  },
+  "environment_provenance": {
+    "launcher_matches_launch_commit": true,
+    "launcher_path": "h2cmi/results/review_completion/slurm/spdim_w1_repaired_seed0_4shard.slurm",
+    "launcher_python": "/home/infres/yinwang/anaconda3/envs/icml/bin/python",
+    "launcher_sha256": "2238458510a413d5ed76ce6728a6276547f1bcbf2cb4e4fcc8b13e6cd4fb38df",
+    "recorded_environment_names": [
+      "base"
+    ],
+    "recorded_name_interpretation": "Inherited CONDA_DEFAULT_ENV shell label, not the selected interpreter path."
+  },
+  "excluded_jobs": {
+    "891435": {
+      "reason": "Canceled after user-approved four-way sharding; all partial rows are excluded.",
+      "result_sha256": "ed434d8927b2ee73d6839ca1ba0c724de31118e2ed1e5a8230dc362adae341dc",
+      "role": "canceled_monolithic_partial",
+      "rows": 56
+    }
+  },
+  "external_spdim_commit": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+  "harm": {
+    "rct_vs_source_only_tsmnet": {
+      "harm_count": 10,
+      "harm_rate": 0.08695652173913043,
+      "metric": "bacc",
+      "n": 115
+    },
+    "spdim_bias_vs_rct": {
+      "harm_count": 48,
+      "harm_rate": 0.41739130434782606,
+      "metric": "bacc",
+      "n": 115
+    },
+    "spdim_bias_vs_source_only_tsmnet": {
+      "harm_count": 13,
+      "harm_rate": 0.11304347826086956,
+      "metric": "bacc",
+      "n": 115
+    },
+    "spdim_geodesic_vs_rct": {
+      "harm_count": 36,
+      "harm_rate": 0.3130434782608696,
+      "metric": "bacc",
+      "n": 115
+    },
+    "spdim_geodesic_vs_source_only_tsmnet": {
+      "harm_count": 11,
+      "harm_rate": 0.09565217391304348,
+      "metric": "bacc",
+      "n": 115
+    }
+  },
+  "label": "W1 repaired-split seed-0 official SPDIM expansion, not full three-seed baseline.",
+  "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+  "legacy_compare": {
+    "legacy_rows": 460,
+    "legacy_source": "h2cmi/results/review_completion/spdim_w1_seed0_results.csv",
+    "legacy_status": "diagnostic_only_old_contiguous_split",
+    "old_dataset_macro": {
+      "rct": {
+        "mean_acc": 0.6973144191199747,
+        "mean_bacc": 0.6981976054463885
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.7035600664767331,
+        "mean_bacc": 0.689921182655857
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6905733618233619,
+        "mean_bacc": 0.6893840574633744
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.6902908357075024,
+        "mean_bacc": 0.6907799723486786
+      }
+    },
+    "old_per_dataset": {
+      "BNCI2014_001": {
+        "rct": {
+          "mean_acc": 0.7299382716049383,
+          "mean_bacc": 0.7299382716049383,
+          "mean_macro_f1": 0.7286665215191233,
+          "n": 9
+        },
+        "source_only_tsmnet": {
+          "mean_acc": 0.625,
+          "mean_bacc": 0.625,
+          "mean_macro_f1": 0.5468491906162818,
+          "n": 9
+        },
+        "spdim_bias": {
+          "mean_acc": 0.7222222222222223,
+          "mean_bacc": 0.7222222222222223,
+          "mean_macro_f1": 0.7194195806109652,
+          "n": 9
+        },
+        "spdim_geodesic": {
+          "mean_acc": 0.7222222222222222,
+          "mean_bacc": 0.7222222222222222,
+          "mean_macro_f1": 0.720379120912097,
+          "n": 9
+        }
+      },
+      "Cho2017": {
+        "rct": {
+          "mean_acc": 0.6849679487179487,
+          "mean_bacc": 0.6849679487179487,
+          "mean_macro_f1": 0.4136209680767356,
+          "n": 52
+        },
+        "source_only_tsmnet": {
+          "mean_acc": 0.8941987179487181,
+          "mean_bacc": 0.8941987179487181,
+          "mean_macro_f1": 0.7273541997039045,
+          "n": 52
+        },
+        "spdim_bias": {
+          "mean_acc": 0.6706089743589743,
+          "mean_bacc": 0.6706089743589743,
+          "mean_macro_f1": 0.4077377739201108,
+          "n": 52
+        },
+        "spdim_geodesic": {
+          "mean_acc": 0.6693910256410256,
+          "mean_bacc": 0.6693910256410256,
+          "mean_macro_f1": 0.40716911164047587,
+          "n": 52
+        }
+      },
+      "Lee2019_MI": {
+        "rct": {
+          "mean_acc": 0.6770370370370371,
+          "mean_bacc": 0.6796865960162785,
+          "mean_macro_f1": 0.6697503198406936,
+          "n": 54
+        },
+        "source_only_tsmnet": {
+          "mean_acc": 0.5914814814814812,
+          "mean_bacc": 0.550564830018853,
+          "mean_macro_f1": 0.44682642542873435,
+          "n": 54
+        },
+        "spdim_bias": {
+          "mean_acc": 0.678888888888889,
+          "mean_bacc": 0.6753209758089265,
+          "mean_macro_f1": 0.6645262098891668,
+          "n": 54
+        },
+        "spdim_geodesic": {
+          "mean_acc": 0.6792592592592593,
+          "mean_bacc": 0.6807266691827885,
+          "mean_macro_f1": 0.6713200940482342,
+          "n": 54
+        }
+      }
+    },
+    "old_subject_weighted": {
+      "rct": {
+        "mean_acc": 0.6847632850241546,
+        "mean_bacc": 0.6860074257622334,
+        "n": 115
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.7309855072463767,
+        "mean_bacc": 0.7117724709074035,
+        "n": 115
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6785362318840581,
+        "mean_bacc": 0.676860864003032,
+        "n": 115
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.6781594202898549,
+        "mean_bacc": 0.6788484649495993,
+        "n": 115
+      }
+    },
+    "repaired_dataset_macro": {
+      "rct": {
+        "mean_acc": 0.6706453782842671,
+        "mean_bacc": 0.6706453782842673
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.568366967394745,
+        "mean_bacc": 0.568366967394745
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6640443969610638,
+        "mean_bacc": 0.6640443969610638
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.6679222063944286,
+        "mean_bacc": 0.6679222063944286
+      }
+    },
+    "repaired_per_dataset": {
+      "BNCI2014_001": {
+        "rct": {
+          "mean_acc": 0.7299382716049383,
+          "mean_bacc": 0.7299382716049383,
+          "mean_macro_f1": 0.7286665215191233,
+          "n": 9
+        },
+        "source_only_tsmnet": {
+          "mean_acc": 0.6265432098765431,
+          "mean_bacc": 0.6265432098765431,
+          "mean_macro_f1": 0.5483465896717424,
+          "n": 9
+        },
+        "spdim_bias": {
+          "mean_acc": 0.7222222222222223,
+          "mean_bacc": 0.7222222222222223,
+          "mean_macro_f1": 0.7194195806109652,
+          "n": 9
+        },
+        "spdim_geodesic": {
+          "mean_acc": 0.7253086419753088,
+          "mean_bacc": 0.7253086419753088,
+          "mean_macro_f1": 0.7234172384039889,
+          "n": 9
+        }
+      },
+      "Cho2017": {
+        "rct": {
+          "mean_acc": 0.5997756410256408,
+          "mean_bacc": 0.599775641025641,
+          "mean_macro_f1": 0.5952596874423602,
+          "n": 52
+        },
+        "source_only_tsmnet": {
+          "mean_acc": 0.5285576923076923,
+          "mean_bacc": 0.5285576923076923,
+          "mean_macro_f1": 0.40244215835159525,
+          "n": 52
+        },
+        "spdim_bias": {
+          "mean_acc": 0.5984294871794872,
+          "mean_bacc": 0.5984294871794872,
+          "mean_macro_f1": 0.5935059358196159,
+          "n": 52
+        },
+        "spdim_geodesic": {
+          "mean_acc": 0.5991987179487179,
+          "mean_bacc": 0.5991987179487179,
+          "mean_macro_f1": 0.5940821767958203,
+          "n": 52
+        }
+      },
+      "Lee2019_MI": {
+        "rct": {
+          "mean_acc": 0.6822222222222223,
+          "mean_bacc": 0.6822222222222224,
+          "mean_macro_f1": 0.6764289420137829,
+          "n": 54
+        },
+        "source_only_tsmnet": {
+          "mean_acc": 0.5499999999999999,
+          "mean_bacc": 0.5499999999999999,
+          "mean_macro_f1": 0.4302433446369322,
+          "n": 54
+        },
+        "spdim_bias": {
+          "mean_acc": 0.6714814814814816,
+          "mean_bacc": 0.6714814814814816,
+          "mean_macro_f1": 0.6614602205473518,
+          "n": 54
+        },
+        "spdim_geodesic": {
+          "mean_acc": 0.6792592592592591,
+          "mean_bacc": 0.6792592592592592,
+          "mean_macro_f1": 0.6728423716835726,
+          "n": 54
+        }
+      }
+    },
+    "repaired_rows": 460,
+    "repaired_status": "official_seed0_expansion_not_full_baseline",
+    "repaired_subject_weighted": {
+      "rct": {
+        "mean_acc": 0.6486763285024151,
+        "mean_bacc": 0.6486763285024151,
+        "n": 115
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.5462946859903385,
+        "mean_bacc": 0.5462946859903385,
+        "n": 115
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6424202898550727,
+        "mean_bacc": 0.6424202898550727,
+        "n": 115
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.6466618357487925,
+        "mean_bacc": 0.6466618357487924,
+        "n": 115
+      }
+    }
+  },
+  "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+  "monitoring": {
+    "accepted_job_ids": [
+      "891456",
+      "891457",
+      "891458",
+      "891459"
+    ],
+    "array_job_id": "891456",
+    "command": "squeue -h -u yinwang -o %i|%A|%a|%t|%j",
+    "final_squeue_absent": true,
+    "matching_queue_rows": [],
+    "stderr": "",
+    "user": "yinwang"
+  },
+  "overall_subject_weighted": {
+    "rct": {
+      "mean_acc": 0.6486763285024151,
+      "mean_bacc": 0.6486763285024151,
+      "n": 115
+    },
+    "source_only_tsmnet": {
+      "mean_acc": 0.5462946859903385,
+      "mean_bacc": 0.5462946859903385,
+      "n": 115
+    },
+    "spdim_bias": {
+      "mean_acc": 0.6424202898550727,
+      "mean_bacc": 0.6424202898550727,
+      "n": 115
+    },
+    "spdim_geodesic": {
+      "mean_acc": 0.6466618357487925,
+      "mean_bacc": 0.6466618357487924,
+      "n": 115
+    }
+  },
+  "per_dataset": {
+    "BNCI2014_001": {
+      "rct": {
+        "mean_acc": 0.7299382716049383,
+        "mean_bacc": 0.7299382716049383,
+        "mean_macro_f1": 0.7286665215191233,
+        "n": 9
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.6265432098765431,
+        "mean_bacc": 0.6265432098765431,
+        "mean_macro_f1": 0.5483465896717424,
+        "n": 9
+      },
+      "spdim_bias": {
+        "mean_acc": 0.7222222222222223,
+        "mean_bacc": 0.7222222222222223,
+        "mean_macro_f1": 0.7194195806109652,
+        "n": 9
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.7253086419753088,
+        "mean_bacc": 0.7253086419753088,
+        "mean_macro_f1": 0.7234172384039889,
+        "n": 9
+      }
+    },
+    "Cho2017": {
+      "rct": {
+        "mean_acc": 0.5997756410256408,
+        "mean_bacc": 0.599775641025641,
+        "mean_macro_f1": 0.5952596874423602,
+        "n": 52
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.5285576923076923,
+        "mean_bacc": 0.5285576923076923,
+        "mean_macro_f1": 0.40244215835159525,
+        "n": 52
+      },
+      "spdim_bias": {
+        "mean_acc": 0.5984294871794872,
+        "mean_bacc": 0.5984294871794872,
+        "mean_macro_f1": 0.5935059358196159,
+        "n": 52
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.5991987179487179,
+        "mean_bacc": 0.5991987179487179,
+        "mean_macro_f1": 0.5940821767958203,
+        "n": 52
+      }
+    },
+    "Lee2019_MI": {
+      "rct": {
+        "mean_acc": 0.6822222222222223,
+        "mean_bacc": 0.6822222222222224,
+        "mean_macro_f1": 0.6764289420137829,
+        "n": 54
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.5499999999999999,
+        "mean_bacc": 0.5499999999999999,
+        "mean_macro_f1": 0.4302433446369322,
+        "n": 54
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6714814814814816,
+        "mean_bacc": 0.6714814814814816,
+        "mean_macro_f1": 0.6614602205473518,
+        "n": 54
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.6792592592592591,
+        "mean_bacc": 0.6792592592592592,
+        "mean_macro_f1": 0.6728423716835726,
+        "n": 54
+      }
+    }
+  },
+  "result_csv": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_results.csv",
+  "result_csv_sha256": "118ec37f3a195d50c24abf24b4c61048cdbc0ffff7d9c0f0bf51c83f7f69229c",
+  "scope": {
+    "datasets": [
+      "BNCI2014_001",
+      "Cho2017",
+      "Lee2019_MI"
+    ],
+    "full_three_seed_baseline": false,
+    "methods": [
+      "source_only_tsmnet",
+      "rct",
+      "spdim_geodesic",
+      "spdim_bias"
+    ],
+    "source_seeds": [
+      0
+    ],
+    "split_family": "class_stratified_half"
+  },
+  "shards": [
+    {
+      "array_task_id": 0,
+      "checks": {
+        "clean_worktree": true,
+        "config_checksum": true,
+        "dataset_rows": true,
+        "empty_launch_status": true,
+        "external_commit": true,
+        "launch_commit": true,
+        "manifest_file_checksum": true,
+        "manifest_hash": true,
+        "manifest_hash_matches_p7": true,
+        "result_checksum": true,
+        "row_count": true,
+        "runner_checksum": true,
+        "runner_dirty_disallowed": true,
+        "shard_id": true,
+        "slurm_job_id": true,
+        "stderr": true,
+        "stdout": true,
+        "summary_expected_rows": true,
+        "summary_row_count": true,
+        "summary_status": true,
+        "summary_validation_pass": true,
+        "target_spec": true
+      },
+      "dataset_rows": {
+        "BNCI2014_001": 36,
+        "Cho2017": 80
+      },
+      "expected_rows": 116,
+      "job_id": "891457",
+      "launch_provenance": {
+        "clean_worktree": true,
+        "command_line": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/run_spdim_w1_repaired_seed0.py --mode run --external-spdim-path /home/infres/yinwang/.cache/h2cmi_external/SPDIM_1b0de0ccd4c48a4ff28f087b866a0b671b029c39 --datasets BNCI2014_001,Cho2017,Lee2019_MI --manifest h2cmi/results/review_completion/w1_repaired_split_manifest.csv --manifest-hash 231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e --target-spec BNCI2014_001=1-9;Cho2017=1-20 --shard-id shard0 --seed 0 --epochs 20 --adapt-epochs 30 --device cuda --out /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard0_results.csv --audit /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard0_audit.md --summary /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard0_summary.json --digest /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard0_result_digest.md --legacy-compare /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard0_legacy_compare.md --failure-trace /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard0_failure_trace.txt",
+        "config_file": "h2cmi/config.py",
+        "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+        "environment_name": "base",
+        "external_spdim_commit": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+        "git_status_porcelain": "",
+        "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+        "manifest": "h2cmi/results/review_completion/w1_repaired_split_manifest.csv",
+        "manifest_file_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+        "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+        "manifest_hash_matches_p7": true,
+        "run_config_sha256": "8db52b3258c22a8200c248774d72217407ca7c47ba180f85f657170f56146a8c",
+        "runner_dirty_allowed": false,
+        "runner_file": "h2cmi/run_spdim_w1_repaired_seed0.py",
+        "runner_file_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+        "slurm_job_id": "891457"
+      },
+      "result_csv": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard0_results.csv",
+      "result_csv_sha256": "6837ac032d66623daf0fdafccc58530db3ac5798c5111a1d9b90e4bd7774b87c",
+      "row_count": 116,
+      "shard_id": "shard0",
+      "shard_pass": true,
+      "stderr": {
+        "bytes": 4940,
+        "exists": true,
+        "lines": 52,
+        "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard0.stderr.txt",
+        "patterns": [
+          "moabb_zero_buffer_edge_warning"
+        ],
+        "sha256": "73ab8fa6eeacd7956bc5025e0c7f8b56257e61a2f62e3c24c73ad99d3cd8b28e",
+        "status": "known_harmless_warnings_only",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "bytes": 15591,
+        "clean_porcelain_block": true,
+        "exists": true,
+        "header_mismatches": {},
+        "lines": 288,
+        "observed_header_values": {
+          "array_task_id": "0",
+          "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+          "expected_rows": "116",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "job_id": "891457",
+          "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+          "manifest_csv_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+          "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+          "runner_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+          "target_spec": "BNCI2014_001=1-9;Cho2017=1-20"
+        },
+        "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard0.stdout.txt",
+        "required_header_values": {
+          "array_task_id": "0",
+          "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+          "expected_rows": "116",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "job_id": "891457",
+          "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+          "manifest_csv_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+          "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+          "runner_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+          "target_spec": "BNCI2014_001=1-9;Cho2017=1-20"
+        },
+        "sha256": "61468c01ee2e02e13eb23b35931955d533c0d49973d0b03111acddd96d3a028f",
+        "status": "exists_nonempty_clean_launch_header"
+      },
+      "summary_json": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard0_summary.json",
+      "summary_json_sha256": "b1dfb1918dece3d67be2faa7245bd82a7a51dfd3d8eaa33f716d3e68819e8213",
+      "target_spec": "BNCI2014_001=1-9;Cho2017=1-20"
+    },
+    {
+      "array_task_id": 1,
+      "checks": {
+        "clean_worktree": true,
+        "config_checksum": true,
+        "dataset_rows": true,
+        "empty_launch_status": true,
+        "external_commit": true,
+        "launch_commit": true,
+        "manifest_file_checksum": true,
+        "manifest_hash": true,
+        "manifest_hash_matches_p7": true,
+        "result_checksum": true,
+        "row_count": true,
+        "runner_checksum": true,
+        "runner_dirty_disallowed": true,
+        "shard_id": true,
+        "slurm_job_id": true,
+        "stderr": true,
+        "stdout": true,
+        "summary_expected_rows": true,
+        "summary_row_count": true,
+        "summary_status": true,
+        "summary_validation_pass": true,
+        "target_spec": true
+      },
+      "dataset_rows": {
+        "Cho2017": 116
+      },
+      "expected_rows": 116,
+      "job_id": "891458",
+      "launch_provenance": {
+        "clean_worktree": true,
+        "command_line": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/run_spdim_w1_repaired_seed0.py --mode run --external-spdim-path /home/infres/yinwang/.cache/h2cmi_external/SPDIM_1b0de0ccd4c48a4ff28f087b866a0b671b029c39 --datasets BNCI2014_001,Cho2017,Lee2019_MI --manifest h2cmi/results/review_completion/w1_repaired_split_manifest.csv --manifest-hash 231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e --target-spec Cho2017=21-49 --shard-id shard1 --seed 0 --epochs 20 --adapt-epochs 30 --device cuda --out /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard1_results.csv --audit /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard1_audit.md --summary /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard1_summary.json --digest /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard1_result_digest.md --legacy-compare /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard1_legacy_compare.md --failure-trace /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard1_failure_trace.txt",
+        "config_file": "h2cmi/config.py",
+        "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+        "environment_name": "base",
+        "external_spdim_commit": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+        "git_status_porcelain": "",
+        "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+        "manifest": "h2cmi/results/review_completion/w1_repaired_split_manifest.csv",
+        "manifest_file_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+        "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+        "manifest_hash_matches_p7": true,
+        "run_config_sha256": "8a8840ff9bbda4b649e13ecf51a69b4720b6f924b0055cff8aeb29306947210f",
+        "runner_dirty_allowed": false,
+        "runner_file": "h2cmi/run_spdim_w1_repaired_seed0.py",
+        "runner_file_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+        "slurm_job_id": "891458"
+      },
+      "result_csv": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard1_results.csv",
+      "result_csv_sha256": "2e3c81ed3e98c5fd4d8949eb9d325635c75b48e66a12ea7f7aff7813a303e1da",
+      "row_count": 116,
+      "shard_id": "shard1",
+      "shard_pass": true,
+      "stderr": {
+        "bytes": 5003,
+        "exists": true,
+        "lines": 53,
+        "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard1.stderr.txt",
+        "patterns": [
+          "matplotlib_font_cache_notice",
+          "moabb_zero_buffer_edge_warning"
+        ],
+        "sha256": "376ac19e817966624e151b038f2439ed5971820e01e5430b00a09bc8f942be27",
+        "status": "known_harmless_warnings_only",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "bytes": 12138,
+        "clean_porcelain_block": true,
+        "exists": true,
+        "header_mismatches": {},
+        "lines": 177,
+        "observed_header_values": {
+          "array_task_id": "1",
+          "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+          "expected_rows": "116",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "job_id": "891458",
+          "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+          "manifest_csv_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+          "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+          "runner_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+          "target_spec": "Cho2017=21-49"
+        },
+        "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard1.stdout.txt",
+        "required_header_values": {
+          "array_task_id": "1",
+          "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+          "expected_rows": "116",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "job_id": "891458",
+          "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+          "manifest_csv_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+          "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+          "runner_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+          "target_spec": "Cho2017=21-49"
+        },
+        "sha256": "8963c3396c7f3e7346d9e4b25ccd660feb37a736b544d292f2b1eb481d1761f1",
+        "status": "exists_nonempty_clean_launch_header"
+      },
+      "summary_json": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard1_summary.json",
+      "summary_json_sha256": "45c294963425a3d92180012db162c4d4e101dbd2b2b60b6a9f607b75e62139df",
+      "target_spec": "Cho2017=21-49"
+    },
+    {
+      "array_task_id": 2,
+      "checks": {
+        "clean_worktree": true,
+        "config_checksum": true,
+        "dataset_rows": true,
+        "empty_launch_status": true,
+        "external_commit": true,
+        "launch_commit": true,
+        "manifest_file_checksum": true,
+        "manifest_hash": true,
+        "manifest_hash_matches_p7": true,
+        "result_checksum": true,
+        "row_count": true,
+        "runner_checksum": true,
+        "runner_dirty_disallowed": true,
+        "shard_id": true,
+        "slurm_job_id": true,
+        "stderr": true,
+        "stdout": true,
+        "summary_expected_rows": true,
+        "summary_row_count": true,
+        "summary_status": true,
+        "summary_validation_pass": true,
+        "target_spec": true
+      },
+      "dataset_rows": {
+        "Cho2017": 12,
+        "Lee2019_MI": 104
+      },
+      "expected_rows": 116,
+      "job_id": "891459",
+      "launch_provenance": {
+        "clean_worktree": true,
+        "command_line": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/run_spdim_w1_repaired_seed0.py --mode run --external-spdim-path /home/infres/yinwang/.cache/h2cmi_external/SPDIM_1b0de0ccd4c48a4ff28f087b866a0b671b029c39 --datasets BNCI2014_001,Cho2017,Lee2019_MI --manifest h2cmi/results/review_completion/w1_repaired_split_manifest.csv --manifest-hash 231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e --target-spec Cho2017=50-52;Lee2019_MI=1-26 --shard-id shard2 --seed 0 --epochs 20 --adapt-epochs 30 --device cuda --out /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard2_results.csv --audit /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard2_audit.md --summary /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard2_summary.json --digest /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard2_result_digest.md --legacy-compare /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard2_legacy_compare.md --failure-trace /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard2_failure_trace.txt",
+        "config_file": "h2cmi/config.py",
+        "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+        "environment_name": "base",
+        "external_spdim_commit": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+        "git_status_porcelain": "",
+        "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+        "manifest": "h2cmi/results/review_completion/w1_repaired_split_manifest.csv",
+        "manifest_file_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+        "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+        "manifest_hash_matches_p7": true,
+        "run_config_sha256": "c3ea75c8e80e54168f278cbf1124977ca13568a26fb09eee79c3acdfacac729e",
+        "runner_dirty_allowed": false,
+        "runner_file": "h2cmi/run_spdim_w1_repaired_seed0.py",
+        "runner_file_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+        "slurm_job_id": "891459"
+      },
+      "result_csv": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard2_results.csv",
+      "result_csv_sha256": "6249945538afae247be4b00f0df0e86e867272852d108dd8625f4741f37d21ea",
+      "row_count": 116,
+      "shard_id": "shard2",
+      "shard_pass": true,
+      "stderr": {
+        "bytes": 4940,
+        "exists": true,
+        "lines": 52,
+        "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard2.stderr.txt",
+        "patterns": [
+          "moabb_zero_buffer_edge_warning"
+        ],
+        "sha256": "73ab8fa6eeacd7956bc5025e0c7f8b56257e61a2f62e3c24c73ad99d3cd8b28e",
+        "status": "known_harmless_warnings_only",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "bytes": 15592,
+        "clean_porcelain_block": true,
+        "exists": true,
+        "header_mismatches": {},
+        "lines": 288,
+        "observed_header_values": {
+          "array_task_id": "2",
+          "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+          "expected_rows": "116",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "job_id": "891459",
+          "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+          "manifest_csv_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+          "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+          "runner_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+          "target_spec": "Cho2017=50-52;Lee2019_MI=1-26"
+        },
+        "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard2.stdout.txt",
+        "required_header_values": {
+          "array_task_id": "2",
+          "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+          "expected_rows": "116",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "job_id": "891459",
+          "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+          "manifest_csv_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+          "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+          "runner_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+          "target_spec": "Cho2017=50-52;Lee2019_MI=1-26"
+        },
+        "sha256": "74b9f05289ef68edb472a15a40cd58acb3afc30e0471c16788a226ffb13a9cbb",
+        "status": "exists_nonempty_clean_launch_header"
+      },
+      "summary_json": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard2_summary.json",
+      "summary_json_sha256": "5a08525e879400483c8aa54763a67e63f47b6e73facb96bd5c376328dd67245c",
+      "target_spec": "Cho2017=50-52;Lee2019_MI=1-26"
+    },
+    {
+      "array_task_id": 3,
+      "checks": {
+        "clean_worktree": true,
+        "config_checksum": true,
+        "dataset_rows": true,
+        "empty_launch_status": true,
+        "external_commit": true,
+        "launch_commit": true,
+        "manifest_file_checksum": true,
+        "manifest_hash": true,
+        "manifest_hash_matches_p7": true,
+        "result_checksum": true,
+        "row_count": true,
+        "runner_checksum": true,
+        "runner_dirty_disallowed": true,
+        "shard_id": true,
+        "slurm_job_id": true,
+        "stderr": true,
+        "stdout": true,
+        "summary_expected_rows": true,
+        "summary_row_count": true,
+        "summary_status": true,
+        "summary_validation_pass": true,
+        "target_spec": true
+      },
+      "dataset_rows": {
+        "Lee2019_MI": 112
+      },
+      "expected_rows": 112,
+      "job_id": "891456",
+      "launch_provenance": {
+        "clean_worktree": true,
+        "command_line": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/run_spdim_w1_repaired_seed0.py --mode run --external-spdim-path /home/infres/yinwang/.cache/h2cmi_external/SPDIM_1b0de0ccd4c48a4ff28f087b866a0b671b029c39 --datasets BNCI2014_001,Cho2017,Lee2019_MI --manifest h2cmi/results/review_completion/w1_repaired_split_manifest.csv --manifest-hash 231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e --target-spec Lee2019_MI=27-54 --shard-id shard3 --seed 0 --epochs 20 --adapt-epochs 30 --device cuda --out /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard3_results.csv --audit /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard3_audit.md --summary /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard3_summary.json --digest /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard3_result_digest.md --legacy-compare /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard3_legacy_compare.md --failure-trace /home/infres/yinwang/.cache/h2cmi_training_caches/p8_repaired_seed0_4shard_763e11c4412938017f0a7b1be3cfbe9e40ec3d41/shard3_failure_trace.txt",
+        "config_file": "h2cmi/config.py",
+        "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+        "environment_name": "base",
+        "external_spdim_commit": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+        "git_status_porcelain": "",
+        "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+        "manifest": "h2cmi/results/review_completion/w1_repaired_split_manifest.csv",
+        "manifest_file_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+        "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+        "manifest_hash_matches_p7": true,
+        "run_config_sha256": "dcf1fd2964f5d1d52f9e6629d379608a45f71748ebd0f60d0470e4ab35a58ed4",
+        "runner_dirty_allowed": false,
+        "runner_file": "h2cmi/run_spdim_w1_repaired_seed0.py",
+        "runner_file_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+        "slurm_job_id": "891456"
+      },
+      "result_csv": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard3_results.csv",
+      "result_csv_sha256": "297fc0619187edf96396685906becdd5a4323db5ad6a31b845bd828dbf9cdbd1",
+      "row_count": 112,
+      "shard_id": "shard3",
+      "shard_pass": true,
+      "stderr": {
+        "bytes": 0,
+        "exists": true,
+        "lines": 0,
+        "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard3.stderr.txt",
+        "patterns": [],
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "status": "empty",
+        "unexpected_lines": []
+      },
+      "stdout": {
+        "bytes": 13601,
+        "clean_porcelain_block": true,
+        "exists": true,
+        "header_mismatches": {},
+        "lines": 230,
+        "observed_header_values": {
+          "array_task_id": "3",
+          "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+          "expected_rows": "112",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "job_id": "891456",
+          "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+          "manifest_csv_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+          "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+          "runner_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+          "target_spec": "Lee2019_MI=27-54"
+        },
+        "path": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard3.stdout.txt",
+        "required_header_values": {
+          "array_task_id": "3",
+          "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+          "expected_rows": "112",
+          "external_sha": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+          "job_id": "891456",
+          "launch_commit": "763e11c4412938017f0a7b1be3cfbe9e40ec3d41",
+          "manifest_csv_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+          "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+          "runner_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+          "target_spec": "Lee2019_MI=27-54"
+        },
+        "sha256": "a8d820ad4d0574d4fa6117e34cc061bf2b23e2020a5db2f3950f1c95d0f9df9d",
+        "status": "exists_nonempty_clean_launch_header"
+      },
+      "summary_json": "h2cmi/results/review_completion/spdim_w1_repaired_seed0_shards/shard3_summary.json",
+      "summary_json_sha256": "f52695cdc118a6f3ad13a5d08f2dac818673521bb125e4af17b8e34156081fdf",
+      "target_spec": "Lee2019_MI=27-54"
+    }
+  ],
+  "status": "pass",
+  "validation": {
+    "acc_bacc_unequal_rows": 0,
+    "adapt_eval_disjoint_failures": 0,
+    "checks": {
+      "acc_equals_bacc": true,
+      "all_adapt_both_classes": true,
+      "all_adapt_eval_disjoint": true,
+      "all_eval_both_classes": true,
+      "all_eval_class_balanced": true,
+      "dataset_rows": true,
+      "environment_name_recorded": true,
+      "failure_reasons_empty": true,
+      "final_squeue_absent": true,
+      "launched_config_matches_result_commit": true,
+      "launched_runner_matches_result_commit": true,
+      "launcher_matches_launch_commit": true,
+      "launcher_pins_icml_python": true,
+      "logits_hash_complete": true,
+      "manifest_file_matches_launch": true,
+      "manifest_hash_matches_p7": true,
+      "method_rows": true,
+      "no_official_pretrained_weights": true,
+      "no_target_label_leakage": true,
+      "no_target_performance_selection": true,
+      "no_third_party_vendoring": true,
+      "official_commit_consistent": true,
+      "prediction_hash_complete": true,
+      "row_count": true,
+      "runner_commit_consistent": true,
+      "shard_validation_pass": true,
+      "source_model_hash_complete": true,
+      "source_seed_zero_only": true,
+      "split_family": true,
+      "split_hash_complete": true,
+      "status_rows": true,
+      "subject_coverage": true,
+      "trial_index_hashes_complete": true,
+      "unique_keys": true
+    },
+    "current_file_checksums": {
+      "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+      "launcher_at_launch_sha256": "2238458510a413d5ed76ce6728a6276547f1bcbf2cb4e4fcc8b13e6cd4fb38df",
+      "launcher_sha256": "2238458510a413d5ed76ce6728a6276547f1bcbf2cb4e4fcc8b13e6cd4fb38df",
+      "manifest_file_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+      "runner_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8"
+    },
+    "dataset_rows": {
+      "BNCI2014_001": 36,
+      "Cho2017": 208,
+      "Lee2019_MI": 216
+    },
+    "duplicate_key_count": 0,
+    "expected_rows_by_dataset": {
+      "BNCI2014_001": 36,
+      "Cho2017": 208,
+      "Lee2019_MI": 216
+    },
+    "expected_rows_total": 460,
+    "logits_hash_missing_rows": 0,
+    "method_rows": {
+      "rct": 115,
+      "source_only_tsmnet": 115,
+      "spdim_bias": 115,
+      "spdim_geodesic": 115
+    },
+    "prediction_hash_missing_rows": 0,
+    "pretrained_weight_detected": false,
+    "recorded_environment_names": [
+      "base"
+    ],
+    "row_count": 460,
+    "single_class_adapt_rows": 0,
+    "single_class_eval_rows": 0,
+    "status_rows": {
+      "ok": 460
+    },
+    "subjects_by_dataset": {
+      "BNCI2014_001": 9,
+      "Cho2017": 52,
+      "Lee2019_MI": 54
+    },
+    "target_label_leakage_detected": false,
+    "target_performance_method_selection_detected": false,
+    "validation_pass": true,
+    "vendoring_detected": false
+  }
+}
