@@ -24,7 +24,6 @@ REPORT_PATH = c77_protocol.REPORT_DIR / "C77_RED_TEAM_VERIFICATION.md"
 CHECKS_PATH = c77_protocol.TABLE_DIR / "red_team_checks.csv"
 REPAIR_PATH = c77_protocol.TABLE_DIR / "red_team_repair_ledger.csv"
 MAIN_REPORT = c77_protocol.REPORT_DIR / "C77_INDEPENDENT_MULTIREGIME_REPLICATION_PROTOCOL.md"
-MAIN_JSON = c77_protocol.REPORT_DIR / "C77_INDEPENDENT_MULTIREGIME_REPLICATION_PROTOCOL.json"
 LOG_ROOT = Path("/projects/EEG-foundation-model/yinghao/oaci-c77-multiregime/logs")
 
 
@@ -129,7 +128,10 @@ def _synthetic_reconstruction(checks: list[dict]) -> dict:
 
 
 def run_red_team() -> dict:
-    main_existed = MAIN_REPORT.exists() or MAIN_JSON.exists()
+    # C77 is itself a protocol milestone: its required JSON is the prospectively
+    # committed protocol and must exist before compute.  Only the narrative result
+    # report is forbidden before red-team, and the protocol JSON is never overwritten.
+    main_existed = MAIN_REPORT.exists()
     if main_existed:
         raise RuntimeError("C77 main report existed before independent red-team")
     checks: list[dict] = []
