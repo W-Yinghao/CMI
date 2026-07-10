@@ -40,8 +40,8 @@ def _capture(replicate: str, token: str, datalake_root: str, num_threads: int) -
         raise RuntimeError(f"C74 preprocessing replay expected host {replicate}, got {hostname}")
 
     import torch
-    from oaci.data.eeg.audit import tensor_content_hash
     from oaci.data.eeg.bnci import load_moabb_confirmatory
+    from oaci.data.eeg.schema import tensor_content_hash
 
     torch.set_num_threads(max(1, int(num_threads)))
     torch.set_num_interop_threads(1)
