@@ -1,2 +1,2 @@
 unit_family,total_rows,unique_checkpoints,unique_checkpoint_target_cells,unique_targets,unique_trajectories,unique_trial_ids,unique_construction_trial_ids,unique_evaluation_trial_ids,status
-T3-HO,0,1052,,9,,,,,not_run_not_authorized
+T3-HO,605952,1052,1052,9,54,5184,2496,2688,executed

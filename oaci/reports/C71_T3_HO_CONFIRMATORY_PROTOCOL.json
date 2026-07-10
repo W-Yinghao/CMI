@@ -5,7 +5,7 @@
     "gauge_recovery": 0.5,
     "hit": 0.7
   },
-  "authorization_token_status": "absent",
+  "authorization_token_status": "present",
   "bandwidth_rule": "no bandwidth selection for primary split-label tests; any kernel secondary uses fixed grid with nested max-stat/null correction",
   "construction_evaluation_contract": {
     "class_stratified_where_support_allows": true,
@@ -58,8 +58,8 @@
     "H4": "measurement-control separation persists inside I5",
     "H5": "same-label endpoint scalar remains oracle-only"
   },
-  "protocol_lock_source_commit": "4822f1c",
-  "protocol_lock_timestamp_utc": "2026-07-10T01:09:13Z",
+  "protocol_lock_source_commit": "6c2bfbc",
+  "protocol_lock_timestamp_utc": "2026-07-10T02:03:58Z",
   "schema_version": "c71_t3_ho_confirmatory_protocol_v1",
   "secondary_budgets": [
     "0",
@@ -78,7 +78,7 @@
   },
   "t2_consumed_units_from_parent": 216,
   "t3_full_physical_units_from_parent": 1268,
-  "t3_ho_cache_generation_authorized": 0,
+  "t3_ho_cache_generation_authorized": 1,
   "t3_ho_cache_generation_executed": 0,
   "t3_ho_checkpoint_id_set_sha256_from_parent": "88281ccbb0f3afd6a5e2d6545e2f0333ee9bcda48a4bb4bc82418547fadb5944",
   "t3_ho_units_from_parent": 1052

@@ -1,5 +1,13 @@
 bootstrap,status,replicates,ci_lower,ci_upper,row_iid_used
-checkpoint_cluster,not_run_not_authorized,,,,0
-trial_id_cluster,not_run_not_authorized,,,,0
-crossed_pigeonhole,not_run_not_authorized,,,,0
-target_cluster,not_run_not_authorized,,,,0
+8_spearman_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.178117,0.431895,0
+8_top1_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.017216,0.093776,0
+8_regret_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.048624,0.064906,0
+8_gauge_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.091433,0.263952,0
+64_spearman_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.368308,0.716621,0
+64_top1_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.0,0.546039,0
+64_regret_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.017718,0.05607,0
+64_gauge_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.265289,0.594314,0
+full-construction_spearman_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.370231,0.719458,0
+full-construction_top1_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.0,0.555556,0
+full-construction_regret_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.0179,0.058245,0
+full-construction_gauge_target,actual_t3_ho_conditional_on_frozen_targets,1000,0.266403,0.599929,0

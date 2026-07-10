@@ -1,2 +1,2 @@
 estimator,status,block_valid_status,full_conditional_cs_claimed
-finite_partition_binary_y_cod,not_run_not_authorized,planned,0
+binary_y_cod_proxy,feasible_proxy_diagnostic_only,proxy_only_directionally_stable,0

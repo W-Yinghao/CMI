@@ -1,8 +1,8 @@
 pattern,total_hits,affirmative_hits,files,passed
 few-label sufficiency,0,0,,1
 deployable selector,0,0,,1
-checkpoint recommendation,0,0,,1
-source-only rescue,0,0,,1
+checkpoint recommendation,1,0,oaci/reports/C71_T3_HO_HIERARCHICAL_CONFIRMATION.md,1
+source-only rescue,2,0,oaci/reports/C71_T3_HO_HIERARCHICAL_CONFIRMATION.md;oaci/reports/c71_tables/strict_source_adversary_summary.csv,1
 oaci rescue,0,0,,1
 target-population generalization established,0,0,,1
 full conditional-cs established,0,0,,1

@@ -2,12 +2,15 @@
 
 All C71 readiness red-team gates pass.
 
-- exact_cli_auth_absent_blocks_forward: PASS - No exact C71 CLI token; no forward/re-inference.
+- exact_cli_authorization_semantics: PASS - Exact CLI token controls whether C71 re-inference runs.
 - protocol_locked_before_t3_access: PASS - Protocol exists before any T3-HO access.
 - parent_protocol_sha_replayed: PASS - C70 protocol SHA replayed.
-- t3_ho_not_consumed: PASS - No T3-HO cache/path/outcome consumed.
+- t3_ho_consumption_matches_authorization: PASS - T3-HO cache consumption matches authorization state.
+- cache_hashes_match: PASS - External T3-HO cache and manifest hashes match.
+- cache_schema_passed: PASS - T3-HO cache schema and numeric checks pass.
 - risk_register_no_blocking_for_readiness: PASS - Risk register has no blocking risk for readiness verdict.
-- physical_views_not_materialized_without_cache: PASS - No physical views are materialized without authorized T3-HO cache.
+- physical_views_follow_authorization: PASS - Physical views are materialized only for authorized cache.
+- source_view_masks_labels: PASS - Source view exposes no target labels.
 - same_label_oracle_unavailable: PASS - Same-label oracle remains unavailable at selection time.
 - row_iid_not_used: PASS - No row-level iid inference is used.
 - conditional_cs_proxy_only: PASS - No full conditional-CS claim.

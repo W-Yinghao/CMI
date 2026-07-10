@@ -1,5 +1,5 @@
 feature_family,available_now,uses_target_labels,available_at_selection_time,diagnostic_only,status
 strict_source_domain_trial_logits,0,0,1,0,path_not_available_without_new_instrumentation
 key_metadata,1,0,1,1,not_strict_source_trial_signal
-construction_label_content,0,1,0,1,requires_authorized_T3_HO_cache
-same_label_endpoint_oracle,0,1,0,1,locked_until_primary_freeze
+construction_label_content,1,1,0,1,authorized_T3_HO_construction_view
+same_label_endpoint_oracle,1,1,0,1,post_primary_oracle_boundary_only

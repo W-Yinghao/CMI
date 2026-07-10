@@ -1,10 +1,13 @@
 gate,failed,finding
-exact_cli_auth_absent_blocks_forward,0,No exact C71 CLI token; no forward/re-inference.
+exact_cli_authorization_semantics,0,Exact CLI token controls whether C71 re-inference runs.
 protocol_locked_before_t3_access,0,Protocol exists before any T3-HO access.
 parent_protocol_sha_replayed,0,C70 protocol SHA replayed.
-t3_ho_not_consumed,0,No T3-HO cache/path/outcome consumed.
+t3_ho_consumption_matches_authorization,0,T3-HO cache consumption matches authorization state.
+cache_hashes_match,0,External T3-HO cache and manifest hashes match.
+cache_schema_passed,0,T3-HO cache schema and numeric checks pass.
 risk_register_no_blocking_for_readiness,0,Risk register has no blocking risk for readiness verdict.
-physical_views_not_materialized_without_cache,0,No physical views are materialized without authorized T3-HO cache.
+physical_views_follow_authorization,0,Physical views are materialized only for authorized cache.
+source_view_masks_labels,0,Source view exposes no target labels.
 same_label_oracle_unavailable,0,Same-label oracle remains unavailable at selection time.
 row_iid_not_used,0,No row-level iid inference is used.
 conditional_cs_proxy_only,0,No full conditional-CS claim.

@@ -1,2 +1,2 @@
-test,status,permutations,exceedances,p_value,minimum_p,row_iid_used
-primary_max_stat,not_run_not_authorized,4999,,,0.0002,0
+test,status,observed,permutations,exceedances,p_value,minimum_p,row_iid_used
+full_construction_within_target_centered_spearman,actual_t3_ho,0.637483,4999,0,0.0002,0.0002,0
