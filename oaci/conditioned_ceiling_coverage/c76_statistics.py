@@ -22,14 +22,16 @@ def scale_train_test(train: np.ndarray, test: np.ndarray) -> tuple[np.ndarray, n
     return (train - mean) / std, (test - mean) / std
 
 
-def pairwise_distances(features: np.ndarray) -> np.ndarray:
-    squared = np.maximum(
-        np.sum(features ** 2, axis=1)[:, None]
-        + np.sum(features ** 2, axis=1)[None, :]
-        - 2.0 * features @ features.T,
-        0.0,
+def pairwise_squared_distances(features: np.ndarray) -> np.ndarray:
+    # Preserve C75's registered arithmetic order for exact RBF replay.
+    return np.sum(
+        (features[:, None, :] - features[None, :, :]) ** 2,
+        axis=2,
     )
-    return np.sqrt(squared)
+
+
+def pairwise_distances(features: np.ndarray) -> np.ndarray:
+    return np.sqrt(pairwise_squared_distances(features))
 
 
 def median_positive_distance(features: np.ndarray) -> float:
@@ -79,8 +81,16 @@ def crossfit_association(
         train = targets != held_target
         test = targets == held_target
         train_scaled, test_scaled = scale_train_test(X[train], X[test])
-        bandwidth = bandwidth_factor * median_positive_distance(train_scaled)
-        kernel = kernel_from_distances(pairwise_distances(test_scaled), bandwidth, kernel_family)
+        train_squared = pairwise_squared_distances(train_scaled)
+        train_upper = train_squared[np.triu_indices(len(train_scaled), 1)]
+        train_positive = train_upper[train_upper > 1e-15]
+        median_distance = math.sqrt(float(np.median(train_positive))) if len(train_positive) else 1.0
+        bandwidth = bandwidth_factor * median_distance
+        test_squared = pairwise_squared_distances(test_scaled)
+        if kernel_family == "rbf":
+            kernel = np.exp(-test_squared / (2.0 * max(bandwidth, 1e-12) ** 2))
+        else:
+            kernel = kernel_from_distances(np.sqrt(test_squared), bandwidth, kernel_family)
         fold_rows.append({
             "target_id": int(held_target),
             "statistic_value": association_statistic(kernel, y[test], statistic),

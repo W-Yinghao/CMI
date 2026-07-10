@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 
+from oaci.conditioned_ceiling_coverage import c75_modeling
 from oaci.conditioned_ceiling_coverage import c76_orbit
 from oaci.conditioned_ceiling_coverage import c76_protocol
 from oaci.conditioned_ceiling_coverage import c76_statistics
@@ -125,6 +126,21 @@ def test_c76_registered_association_detects_nonlinear_within_target_signal():
         statistic="centered_hsic",
     )
     assert observed > null
+
+
+def test_c76_rbf_alignment_preserves_c75_arithmetic_order_exactly():
+    rng = np.random.default_rng(765)
+    targets = np.repeat(np.arange(4), 12)
+    features = rng.normal(size=(48, 7))
+    outcome = rng.normal(size=48)
+    c75_value, _ = c75_modeling.crossfit_kernel_alignment_statistic(
+        features, outcome, targets, 1.0,
+    )
+    c76_value, _ = c76_statistics.crossfit_association(
+        features, outcome, targets, kernel_family="rbf", bandwidth_factor=1.0,
+        statistic="normalized_alignment",
+    )
+    assert c76_value == c75_value
 
 
 def test_c76_kernel_ridge_crossfit_recovers_shared_nonlinear_relation():
