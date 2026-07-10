@@ -320,6 +320,7 @@ def finalize() -> dict:
         "This rejects a simple registered-orbit collapse, but it does not uniquely identify a z or W origin. Stability over these transforms is construct robustness, not representation causality.", "",
         "## Association Topology", "",
         f"The target association is weak pooled (`{float(topology['pooled']['association']):.6f}`), stronger within target (`{float(topology['within_target']['association']):.6f}`), and strongest inside target x trajectory cells (`{float(topology['within_target_x_trajectory']['association']):.6f}`). All 9 held-target association folds are positive, but this is not cross-target prediction: the nested KRR correction is negative and only 4/9 targets improve directionally.", "",
+        "Cross-regime transfer is unavailable because the frozen T2 field contains one regime. This is an explicit support limit, not evidence of cross-regime transport.", "",
         "The object is therefore a local nonlinear measurement under heterogeneous conditioning, not a transferable endpoint predictor. C76-S4 and C76-S5 are active; pooled-identity collapse (S3) is inactive.", "",
         "## Prediction And Control", "",
         f"Strict-source mean regret reduction is `{float(actions['strict_source']['mean_regret_reduction']):.6f}`; target-unlabeled is `{float(actions['target_unlabeled']['mean_regret_reduction']):.6f}`. Both regret and top-k routes fail. Neither G3S nor G3T passes all 12 locked T3 qualification gates, so there is no strict-source or target-unlabeled escape hatch and no C77 protocol.", "",
