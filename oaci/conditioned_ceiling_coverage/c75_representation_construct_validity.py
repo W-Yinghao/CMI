@@ -279,8 +279,13 @@ def _redundancy_audit(arrays: dict[str, np.ndarray], utility: np.ndarray) -> dic
         naive_B2 = modeling.crossfit_loto(B2, utility, targets, column_space=False)
         exact_left = arrays["source_logits_minus_b"] if view == "strict_source" else arrays["target_logits_minus_b"]
         exact_right = arrays["source_Wz_summary"] if view == "strict_source" else arrays["target_Wz_summary"]
+        exact_error = float(np.max(np.abs(exact_right - exact_left)))
+        if exact_error != 0.0:
+            raise RuntimeError(
+                f"C75 canonical Wz/logits-minus-b summary identity failed for {view}: {exact_error}"
+            )
         redundancy_rows.append({
-            "view": view, "summary_max_abs_Wz_minus_logits_minus_b": float(np.max(np.abs(exact_right - exact_left))),
+            "view": view, "summary_max_abs_Wz_minus_logits_minus_b": exact_error,
             "B1_rank": next(row["column_rank"] for row in scaling_rows if row["view"] == view and row["stage"] == "B1_logits_minus_b"),
             "B2_rank": next(row["column_rank"] for row in scaling_rows if row["view"] == view and row["stage"] == "B2_plus_Wz"),
             "column_space_prediction_delta_max_abs": float(np.max(np.abs(column_B2.prediction - column_B1.prediction))),

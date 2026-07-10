@@ -186,6 +186,11 @@ def alignment_features(z: np.ndarray, W: np.ndarray) -> np.ndarray:
     return np.concatenate((np.mean(alignment, axis=0), [float(np.mean(np.max(np.abs(alignment), axis=1)))]))
 
 
+def projection_summary(Wz: np.ndarray) -> np.ndarray:
+    canonical = np.asarray(Wz, dtype=float)
+    return np.concatenate((np.mean(canonical, axis=0), np.std(canonical, axis=0)))
+
+
 def _functional_features(
     logits: np.ndarray, probabilities: np.ndarray, predicted: np.ndarray,
     labels: np.ndarray, common_predicted: np.ndarray,
@@ -400,10 +405,10 @@ def extract_feature_cache() -> dict:
                 "F0": F0, "F1": F1, "F2": F2, "F3": F3, "F4": F4,
                 "construct_metrics": construct_metrics, "eval_metrics": eval_metrics,
                 "construct_wz_class": split_construct, "eval_wz_class": split_eval,
-                "source_logits_minus_b": np.concatenate((np.mean(source_logits_minus_b, axis=0), np.std(source_logits_minus_b, axis=0))),
-                "source_Wz_summary": np.concatenate((np.mean(source["Wz"], axis=0), np.std(source["Wz"], axis=0))),
-                "target_logits_minus_b": np.concatenate((np.mean(target_logits_minus_b, axis=0), np.std(target_logits_minus_b, axis=0))),
-                "target_Wz_summary": np.concatenate((np.mean(target["Wz"], axis=0), np.std(target["Wz"], axis=0))),
+                "source_logits_minus_b": projection_summary(source_logits_minus_b),
+                "source_Wz_summary": projection_summary(source_logits_minus_b),
+                "target_logits_minus_b": projection_summary(target_logits_minus_b),
+                "target_Wz_summary": projection_summary(target_logits_minus_b),
                 "source_z_summary": np.concatenate((source_moments, source_spectrum)),
                 "target_z_summary": np.concatenate((target_moments, target_spectrum)),
                 "W_geometry": Wgeometry,

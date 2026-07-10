@@ -94,6 +94,15 @@ def test_c75_registered_z_and_W_feature_dimensions_are_fixed():
     assert c75_data.alignment_features(z, W).shape == (5,)
 
 
+def test_c75_projection_summary_has_one_canonical_float64_reduction_path():
+    rng = np.random.default_rng(759)
+    Wz = rng.normal(size=(4096, 4)).astype(np.float32)
+    logits_minus_b = Wz.astype(float)
+    left = c75_data.projection_summary(logits_minus_b)
+    right = c75_data.projection_summary(logits_minus_b)
+    assert np.array_equal(left, right)
+
+
 def test_c75_column_space_ridge_is_invariant_to_exact_duplicate_columns():
     rng = np.random.default_rng(752)
     train = rng.normal(size=(80, 7))
