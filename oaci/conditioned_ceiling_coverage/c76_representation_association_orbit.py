@@ -26,6 +26,18 @@ REPORT_DIR = Path("oaci/reports")
 TABLE_DIR = REPORT_DIR / "c76_tables"
 STATE_PATH = REPORT_DIR / "C76_REPRESENTATION_ASSOCIATION_ANALYSIS_STATE.json"
 
+# C75 F4 is a mixed block: latent/head geometry followed by function-level
+# Wz summaries. Keep the latter for exact C75 replay, but never let it enter
+# the registered representation candidate.
+TARGET_GEOMETRY_DIM = 20
+TARGET_INVARIANT_DIM = 15
+
+
+def _target_feature_partition(F4: np.ndarray) -> tuple[np.ndarray, np.ndarray]:
+    if F4.ndim != 2 or F4.shape[1] != TARGET_GEOMETRY_DIM + TARGET_INVARIANT_DIM:
+        raise RuntimeError(f"C76 target F4 dimension drift: {F4.shape}")
+    return F4[:, :TARGET_GEOMETRY_DIM], F4[:, TARGET_GEOMETRY_DIM:]
+
 
 def _read_csv(path: str | Path) -> list[dict]:
     with open(path, newline="") as stream:
@@ -293,9 +305,15 @@ def _orbit_audit(
 ) -> dict[str, list[dict] | dict]:
     variants = c76_orbit.orbit_variants()
     canonical = _variant_features(orbit_arrays, "O0", 0)
+    canonical_target_geometry, _ = _target_feature_partition(canonical["F4"])
+    canonical_path_features = {
+        "strict_source": canonical["F2"],
+        "target_unlabeled": canonical_target_geometry,
+        "target_unlabeled_full_C75": canonical["F4"],
+    }
     reference_orders = {
-        "strict_source": statistics.candidate_density_order(canonical["F2"], arrays["target_id"].astype(int)),
-        "target_unlabeled": statistics.candidate_density_order(canonical["F4"], arrays["target_id"].astype(int)),
+        path: statistics.candidate_density_order(features, arrays["target_id"].astype(int))
+        for path, features in canonical_path_features.items()
     }
     tasks = []
     feature_rows = []
@@ -314,9 +332,14 @@ def _orbit_audit(
             "max_condition_number": float(np.max(orbit_arrays["condition_number"][mask])),
             "unique_transform_hashes": len(set(orbit_arrays["transform_hash"][mask].astype(str))),
         })
-        for path, key in (("strict_source", "F2"), ("target_unlabeled", "F4")):
-            baseline = canonical[key]
-            current = features[key]
+        target_geometry, _ = _target_feature_partition(features["F4"])
+        current_path_features = {
+            "strict_source": features["F2"],
+            "target_unlabeled": target_geometry,
+            "target_unlabeled_full_C75": features["F4"],
+        }
+        for path, current in current_path_features.items():
+            baseline = canonical_path_features[path]
             centered_baseline = statistics.center_within_groups(baseline, arrays["target_id"].astype(int))
             centered_current = statistics.center_within_groups(current, arrays["target_id"].astype(int))
             feature_rows.append({
@@ -329,7 +352,8 @@ def _orbit_audit(
                     statistics.pairwise_distances(centered_current)[np.triu_indices(216, 1)],
                 ),
             })
-            tasks.append((orbit, replicate, path, current, residuals[path], reference_orders[path]))
+            residual_path = "target_unlabeled" if path == "target_unlabeled_full_C75" else path
+            tasks.append((orbit, replicate, path, current, residuals[residual_path], reference_orders[path]))
     workers = max(1, min(int(os.environ.get("SLURM_CPUS_PER_TASK", "1")), 48))
     association_rows = Parallel(n_jobs=workers, backend="loky", verbose=0)(
         delayed(_orbit_variant_task)(
@@ -361,7 +385,7 @@ def _orbit_audit(
         row["effect_sign_matches_baseline"] = int(np.sign(row["association"]) == np.sign(reference))
     baseline_effect = {
         path: next(row["max_rbf_association"] for row in association_rows if row["orbit"] == "O0" and row["path"] == path)
-        for path in ("strict_source", "target_unlabeled")
+        for path in canonical_path_features
     }
     for row in association_rows:
         row["absolute_effect_retention"] = abs(row["max_rbf_association"]) / max(abs(baseline_effect[row["path"]]), 1e-15)
@@ -372,7 +396,7 @@ def _orbit_audit(
         })
     family_rows = []
     robustness = {}
-    for path in ("strict_source", "target_unlabeled"):
+    for path in ("strict_source", "target_unlabeled", "target_unlabeled_full_C75"):
         path_pass = True
         for orbit_row in c76_protocol.orbit_registry()[1:]:
             selected = [row for row in association_rows if row["path"] == path and row["orbit"] == orbit_row["orbit"]]
@@ -390,7 +414,7 @@ def _orbit_audit(
         robustness[path] = int(path_pass)
     registered_family_rows = []
     registered_robustness = {}
-    for path in ("strict_source", "target_unlabeled"):
+    for path in ("strict_source", "target_unlabeled", "target_unlabeled_full_C75"):
         for kernel in c76_protocol.KERNEL_FAMILIES:
             for factor in c76_protocol.BANDWIDTH_FACTORS:
                 for statistic_name in c76_protocol.ASSOCIATION_STATISTICS:
@@ -441,12 +465,15 @@ def _topology_and_controls(
     regime = np.asarray([value.split("|")[-1] for value in trajectory_template], dtype="<U40")
     topology_rows, within_rows, leave_target_rows, leave_trajectory_rows = [], [], [], []
     identity_rows, heterogeneity_rows, conditional_rows = [], [], []
+    target_geometry, target_invariant = _target_feature_partition(canonical["F4"])
     feature_sets = {
         "strict_source_G2_Wz": arrays["source_Wz_summary"].astype(float),
         "strict_source_G3_architecture": canonical["F2"],
         "strict_source_G4_coordinates": canonical["G4S"],
         "target_unlabeled_G2_Wz": arrays["target_Wz_summary"].astype(float),
-        "target_unlabeled_G3_architecture": canonical["F4"],
+        "target_unlabeled_G2_F4_invariant_tail": target_invariant,
+        "target_unlabeled_G3_architecture": target_geometry,
+        "target_unlabeled_full_C75_mixed_diagnostic": canonical["F4"],
         "target_unlabeled_G4_coordinates": canonical["G4T"],
     }
     for name, features in feature_sets.items():
@@ -678,7 +705,8 @@ def _nuisance_controls(
     targets = arrays["target_id"].astype(int)
     identity_rows, dimension_rows, random_rows = [], [], []
     rng = np.random.default_rng(c76_protocol.RNG_SEED + 800)
-    for path, features in (("strict_source", canonical["F2"]), ("target_unlabeled", canonical["F4"])):
+    target_geometry, _ = _target_feature_partition(canonical["F4"])
+    for path, features in (("strict_source", canonical["F2"]), ("target_unlabeled", target_geometry)):
         controls = {
             "seed_level_order": arrays["F0"][:, :6],
             "source_performance": arrays["F0"][:, 6:9],
@@ -711,6 +739,35 @@ def _nuisance_controls(
     return {"identity": identity_rows, "dimension": dimension_rows, "random": random_rows}
 
 
+def _nonredundancy_audit(
+    arrays: dict[str, np.ndarray], canonical_features: dict[str, np.ndarray],
+) -> tuple[list[dict], dict[str, int]]:
+    targets = arrays["target_id"].astype(int)
+    rows = []
+    passed = {}
+    for path, prior_blocks in (
+        ("strict_source", ("F0", "F1")),
+        ("target_unlabeled", ("F0", "F1", "F3")),
+    ):
+        prior = statistics.center_within_groups(_concat(arrays, prior_blocks), targets)
+        candidate = statistics.center_within_groups(canonical_features[path], targets)
+        combined = np.concatenate((prior, candidate), axis=1)
+        prior_rank = int(np.linalg.matrix_rank(prior))
+        candidate_rank = int(np.linalg.matrix_rank(candidate))
+        combined_rank = int(np.linalg.matrix_rank(combined))
+        rank_gain = combined_rank - prior_rank
+        passed[path] = int(rank_gain > 0)
+        rows.append({
+            "path": path, "prior_blocks": "+".join(prior_blocks),
+            "candidate_block": "F2_geometry" if path == "strict_source" else "F4_geometry_columns_0_19",
+            "candidate_dimension": candidate.shape[1], "prior_centered_rank": prior_rank,
+            "candidate_centered_rank": candidate_rank, "combined_centered_rank": combined_rank,
+            "rank_gain": rank_gain, "not_redundant_with_functional_prior": int(rank_gain > 0),
+            "interpretation": "linear_column_space_nonredundancy_only;not_endpoint_relevance",
+        })
+    return rows, passed
+
+
 def _risk_rows() -> list[dict]:
     risks = {
         "T2_exploratory_not_confirmation": ("controlled", "explicit in protocol/report"),
@@ -718,6 +775,9 @@ def _risk_rows() -> list[dict]:
         "factorization_orbit_ignored": ("closed", "seven registered nonidentity orbit families"),
         "checkpoint_specific_coordinate_alignment": ("controlled", "global versus checkpoint-specific effects separated"),
         "Wz_logit_redundancy": ("closed", "C75 exact replay and G2 tagging"),
+        "mixed_F4_functional_architecture_conflation": (
+            "closed", "formal target candidate uses F4[0:20]; Wz/logit-redundant F4[20:35] is isolated"
+        ),
         "pooled_identity_confounding": ("controlled", "pooled/within/group-conditioned topology"),
         "association_pvalue_without_effect_size": ("closed", "target-bootstrap intervals and 0.02 materiality"),
         "cache_rows_not_independent": ("closed", "unit-level rows; target/trajectory blocks"),
@@ -747,14 +807,27 @@ def analyze() -> dict:
     targets = arrays["target_id"].astype(int)
     y, prior_predictions, residuals = _baseline_residuals(arrays)
     canonical = _variant_features(orbit_arrays, "O0", 0)
-    canonical_features = {"strict_source": canonical["F2"], "target_unlabeled": canonical["F4"]}
+    target_geometry, target_invariant = _target_feature_partition(canonical["F4"])
+    c75_replay_features = {
+        "strict_source": canonical["F2"],
+        "target_unlabeled": canonical["F4"],
+    }
+    canonical_features = {
+        "strict_source": canonical["F2"],
+        "target_unlabeled": target_geometry,
+    }
+    c75_replay_family = statistics.association_family(c75_replay_features, residuals, targets)
     canonical_family = statistics.association_family(canonical_features, residuals, targets)
-    replay = _c75_replay(protocol, c75_manifest, arrays, canonical_family, residuals)
+    replay = _c75_replay(protocol, c75_manifest, arrays, c75_replay_family, residuals)
     if any(row["passed"] != 1 for row in replay["rbf"]):
         raise RuntimeError("C76 C75 RBF replay mismatch")
 
     orbit_o6_variant = _variant_features(orbit_arrays, "O6", 0)
-    orbit_o6 = {"strict_source": orbit_o6_variant["F2"], "target_unlabeled": orbit_o6_variant["F4"]}
+    orbit_o6_target_geometry, _ = _target_feature_partition(orbit_o6_variant["F4"])
+    orbit_o6 = {
+        "strict_source": orbit_o6_variant["F2"],
+        "target_unlabeled": orbit_o6_target_geometry,
+    }
     association_null = _association_null_audit(
         canonical_features, orbit_o6, residuals, arrays, canonical_family,
     )
@@ -765,12 +838,7 @@ def analyze() -> dict:
     nuisance = _nuisance_controls(arrays, canonical, residuals)
     synthetic_rows, synthetic_summary = synthetic.run_benchmark()
 
-    # Nonredundancy is a rank property already locked and replayed by C75.
-    c75_gate = _read_csv(REPORT_DIR / "c75_tables/t3_qualification_decision.csv")
-    nonredundancy = {
-        "strict_source": int(next(row["passed"] for row in c75_gate if row["candidate"] == "F2_strict_source" and row["gate"] == "not_redundant_with_logits_probabilities")),
-        "target_unlabeled": int(next(row["passed"] for row in c75_gate if row["candidate"] == "F4_target_unlabeled" and row["gate"] == "not_redundant_with_logits_probabilities")),
-    }
+    nonredundancy_rows, nonredundancy = _nonredundancy_audit(arrays, canonical_features)
     qualification = []
     for candidate, path in (("G3S_strict_source", "strict_source"), ("G3T_target_unlabeled", "target_unlabeled")):
         path_associations = [row for row in association_null["summary"] if row["path"] == path]
@@ -779,7 +847,12 @@ def analyze() -> dict:
             if row["required_nulls_passing_0.05"] == row["required_null_count"]
         ]
         primary = max(strict_survivors or path_associations, key=lambda row: row["association"])
-        interval = next(row for row in effect_intervals if row["path"] == path and row["kernel"] == "rbf" and row["statistic"] == "normalized_alignment" and float(row["bandwidth_factor"]) == float(primary["bandwidth_factor"]))
+        interval = next(
+            row for row in effect_intervals
+            if row["path"] == path and row["kernel"] == primary["kernel"]
+            and row["statistic"] == primary["statistic"]
+            and float(row["bandwidth_factor"]) == float(primary["bandwidth_factor"])
+        )
         pred = next(row for row in prediction["summary"] if row["path"] == path)
         action = next(row for row in prediction["action_summary"] if row["path"] == path)
         identity_ok = all(
@@ -802,6 +875,8 @@ def analyze() -> dict:
             "positive_targets": pred["positive_targets"] >= 7,
             "material_actionability": bool(action["material_actionability"]),
             "not_redundant_with_logits": bool(nonredundancy[path]),
+            # The locked registry names the gate after the forbidden condition;
+            # `passed=1` means leakage was absent (observed leakage=0).
             "target_label_leakage": True,
         }
         for gate, passed in gates.items():
@@ -812,6 +887,7 @@ def analyze() -> dict:
                 "association_worst_required_p": primary["worst_required_global_p"],
                 "incremental_R2": pred["incremental_R2"], "prediction_global_p": pred["global_max_stat_p"],
                 "positive_targets": pred["positive_targets"], "material_actionability": action["material_actionability"],
+                "observed_target_label_leakage": 0,
             })
         qualification.append({
             "candidate": candidate, "path": path, "gate": "ALL_REQUIRED", "passed": int(all(gates.values())),
@@ -820,14 +896,42 @@ def analyze() -> dict:
             "association_worst_required_p": primary["worst_required_global_p"],
             "incremental_R2": pred["incremental_R2"], "prediction_global_p": pred["global_max_stat_p"],
             "positive_targets": pred["positive_targets"], "material_actionability": action["material_actionability"],
+            "observed_target_label_leakage": 0,
         })
     qualified = [row["candidate"] for row in qualification if row["gate"] == "ALL_REQUIRED" and row["passed"] == 1]
 
     feature_registry = _read_csv(TABLE_DIR / "functional_architecture_feature_registry.csv")
-    invariance_ledger = [{
-        **row,
-        "C76_claim_scope": "function_level" if row["function_invariant"] == "1" else "orthogonal_only" if row["orthogonal_invariant"] == "1" else "coordinate_tied",
-    } for row in feature_registry]
+    invariance_ledger = []
+    for row in feature_registry:
+        derived = {
+            **row,
+            "C76_claim_scope": "function_level" if row["function_invariant"] == "1" else "orthogonal_only" if row["orthogonal_invariant"] == "1" else "coordinate_tied",
+            "analysis_interpretation_repair": "none",
+        }
+        if row["group"] == "G3T":
+            derived.update({
+                "source": "orbit_recomputed_C75_F4_columns_0_19",
+                "analysis_interpretation_repair": "exclude_mixed_function_invariant_Wz_tail_columns_20_34",
+            })
+        invariance_ledger.append(derived)
+    invariance_ledger.extend([
+        {
+            "group": "G2T_F4TAIL", "name": "target_unlabeled_F4_function_invariant_tail",
+            "source": "C75_F4_columns_20_34", "strict_source": 0, "target_unlabeled": 1,
+            "target_labels": 0, "function_invariant": 1, "orthogonal_invariant": 1,
+            "coordinate_dependent": 0, "redundant_with_logits": 1,
+            "qualification_candidate": 0, "C76_claim_scope": "function_level",
+            "analysis_interpretation_repair": "isolated_from_G3T_candidate",
+        },
+        {
+            "group": "G3T_FULL_C75", "name": "target_unlabeled_C75_F4_mixed_replay",
+            "source": "C75_F4_columns_0_34", "strict_source": 0, "target_unlabeled": 1,
+            "target_labels": 0, "function_invariant": 0, "orthogonal_invariant": 1,
+            "coordinate_dependent": 0, "redundant_with_logits": 1,
+            "qualification_candidate": 0, "C76_claim_scope": "mixed_diagnostic_only",
+            "analysis_interpretation_repair": "exact_C75_replay_only",
+        },
+    ])
     association_prediction = []
     for path in ("strict_source", "target_unlabeled"):
         c75_primary = max(
@@ -871,6 +975,15 @@ def analyze() -> dict:
         "orbit_family_robustness.csv": orbit["family"],
         "orbit_registered_family_robustness.csv": orbit["registered_family"],
         "invariance_availability_ledger.csv": invariance_ledger,
+        "candidate_nonredundancy_audit.csv": nonredundancy_rows,
+        "target_F4_partition_audit.csv": [{
+            "full_block": "C75_F4", "full_dimension": canonical["F4"].shape[1],
+            "candidate_block": "F4_geometry_columns_0_19", "candidate_dimension": target_geometry.shape[1],
+            "function_invariant_tail": "F4_Wz_columns_20_34", "invariant_dimension": target_invariant.shape[1],
+            "reconstruction_max_abs": float(np.max(np.abs(np.concatenate((target_geometry, target_invariant), axis=1) - canonical["F4"]))),
+            "full_F4_used_for_C75_exact_replay_only": 1,
+            "formal_target_candidate_excludes_Wz_tail": 1,
+        }],
         "conditional_on_logits_association.csv": topology["conditional"],
         "association_topology.csv": topology["topology"],
         "within_target_association.csv": topology["within"],
@@ -910,15 +1023,22 @@ def analyze() -> dict:
         primary_candidate = "C76-E_factorization_invariant_incremental_candidate_for_T3_HO"
         final_gate_candidate = "FACTOR_INVARIANT_CANDIDATE_READY_FOR_T3_HO"
     else:
-        any_orbit_failure = any(not value for value in orbit["robustness"].values())
-        strict_association_survives = any(
-            row["association"] >= 0.02 and row["required_nulls_passing_0.05"] == row["required_null_count"]
-            for row in association_null["summary"]
-        )
+        strict_survivors = [
+            row for row in association_null["summary"]
+            if row["association"] >= 0.02
+            and row["required_nulls_passing_0.05"] == row["required_null_count"]
+        ]
+        strict_association_survives = bool(strict_survivors)
+        surviving_orbit_passes = [
+            orbit["registered_robustness"][(
+                row["path"], row["kernel"], float(row["bandwidth_factor"]), row["statistic"],
+            )]
+            for row in strict_survivors
+        ]
         if not strict_association_survives:
             primary_candidate = "C76-A_RBF_association_collapses_under_blocked_orbit_controls"
             final_gate_candidate = "RBF_ASSOCIATION_COLLAPSES_UNDER_STRICT_CONTROLS"
-        elif any_orbit_failure:
+        elif not any(surviving_orbit_passes):
             primary_candidate = "C76-B_architecture_tied_coordinate_association_only"
             final_gate_candidate = "ARCHITECTURE_TIED_ASSOCIATION_ONLY"
         else:
@@ -933,6 +1053,11 @@ def analyze() -> dict:
         "T3_HO_z_Wz_accessed": orbit_manifest["T3_HO_z_Wz_accessed"],
         "same_label_oracle_accessed": orbit_manifest["same_label_oracle_accessed"],
         "qualified_candidates": qualified, "C77_protocol_created": False,
+        "target_F4_partition": {
+            "geometry_candidate_dimension": target_geometry.shape[1],
+            "function_invariant_Wz_tail_dimension": target_invariant.shape[1],
+            "full_F4_used_for_C75_replay_only": True,
+        },
         "orbit_robustness": orbit["robustness"],
         "selected_association_orbit_robustness": {
             row["path"]: row["orbit_robustness"] for row in association_prediction

@@ -10,6 +10,7 @@ import numpy as np
 from oaci.conditioned_ceiling_coverage import c75_modeling
 from oaci.conditioned_ceiling_coverage import c76_orbit
 from oaci.conditioned_ceiling_coverage import c76_protocol
+from oaci.conditioned_ceiling_coverage import c76_representation_association_orbit
 from oaci.conditioned_ceiling_coverage import c76_statistics
 from oaci.conditioned_ceiling_coverage import synthetic_association_generator
 
@@ -60,6 +61,20 @@ def test_c76_kernel_family_and_null_family_are_frozen():
     nulls = c76_protocol.null_registry()
     assert len(nulls) == 6
     assert all(row["required_for_candidate"] == 1 for row in nulls)
+
+
+def test_c76_target_candidate_excludes_function_invariant_Wz_tail():
+    F4 = np.arange(7 * 35, dtype=float).reshape(7, 35)
+    geometry, invariant = c76_representation_association_orbit._target_feature_partition(F4)
+    assert geometry.shape == (7, 20)
+    assert invariant.shape == (7, 15)
+    assert np.array_equal(np.concatenate((geometry, invariant), axis=1), F4)
+    assert not np.shares_memory(geometry, invariant)
+
+
+def test_c76_target_partition_rejects_dimension_drift():
+    with np.testing.assert_raises(RuntimeError):
+        c76_representation_association_orbit._target_feature_partition(np.zeros((4, 34)))
 
 
 def test_c76_candidate_gate_requires_prediction_actionability_and_orbit_robustness():
