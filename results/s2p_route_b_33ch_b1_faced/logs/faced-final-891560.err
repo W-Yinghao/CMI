@@ -1,0 +1,26 @@
+/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1184: FutureWarning: 'n_jobs' has no effect since 1.8 and will be removed in 1.10. You provided 'n_jobs=1', please leave it unspecified.
+  warnings.warn(msg, category=FutureWarning)
+/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1184: FutureWarning: 'n_jobs' has no effect since 1.8 and will be removed in 1.10. You provided 'n_jobs=1', please leave it unspecified.
+  warnings.warn(msg, category=FutureWarning)
+/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1184: FutureWarning: 'n_jobs' has no effect since 1.8 and will be removed in 1.10. You provided 'n_jobs=1', please leave it unspecified.
+  warnings.warn(msg, category=FutureWarning)
+/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1184: FutureWarning: 'n_jobs' has no effect since 1.8 and will be removed in 1.10. You provided 'n_jobs=1', please leave it unspecified.
+  warnings.warn(msg, category=FutureWarning)
+/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1184: FutureWarning: 'n_jobs' has no effect since 1.8 and will be removed in 1.10. You provided 'n_jobs=1', please leave it unspecified.
+  warnings.warn(msg, category=FutureWarning)
+/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1184: FutureWarning: 'n_jobs' has no effect since 1.8 and will be removed in 1.10. You provided 'n_jobs=1', please leave it unspecified.
+  warnings.warn(msg, category=FutureWarning)
+/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1184: FutureWarning: 'n_jobs' has no effect since 1.8 and will be removed in 1.10. You provided 'n_jobs=1', please leave it unspecified.
+  warnings.warn(msg, category=FutureWarning)
+/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1184: FutureWarning: 'n_jobs' has no effect since 1.8 and will be removed in 1.10. You provided 'n_jobs=1', please leave it unspecified.
+  warnings.warn(msg, category=FutureWarning)
+/home/infres/yinwang/anaconda3/envs/eeg2025/lib/python3.13/site-packages/sklearn/linear_model/_logistic.py:1184: FutureWarning: 'n_jobs' has no effect since 1.8 and will be removed in 1.10. You provided 'n_jobs=1', please leave it unspecified.
+  warnings.warn(msg, category=FutureWarning)
+Traceback (most recent call last):
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_faced_final_verification.py", line 745, in <module>
+    main()
+    ~~~~^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_faced_final_verification.py", line 371, in main
+    raise RuntimeError(f"{tag} committed metric reproduction failed: max_diff={max_diff}")
+RuntimeError: H2000_s0 committed metric reproduction failed: max_diff=0.021614480389425927
+srun: error: node42: task 0: Exited with exit code 1

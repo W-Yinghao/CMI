@@ -43,6 +43,7 @@ CKPT_ROOT="${FACED_CKPT_ROOT:-/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/result
 BATCH_SIZE="${FACED_BATCH_SIZE:-48}"
 BOOTSTRAP_REPS="${FACED_BOOTSTRAP_REPS:-5000}"
 NULL_REPS="${FACED_NULL_REPS:-200}"
+SCOPE="${FACED_FINAL_SCOPE:-through_1000}"
 
 echo "Route B FACED final verification host=$(hostname) git=$(git rev-parse HEAD)"
 git status --short
@@ -54,4 +55,5 @@ srun "$PY" s2p/scripts/route_b_faced_final_verification.py \
   --device cuda:0 \
   --batch-size "$BATCH_SIZE" \
   --bootstrap-reps "$BOOTSTRAP_REPS" \
-  --null-reps "$NULL_REPS"
+  --null-reps "$NULL_REPS" \
+  --scope "$SCOPE"

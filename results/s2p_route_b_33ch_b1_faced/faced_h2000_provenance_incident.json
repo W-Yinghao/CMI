@@ -1,0 +1,42 @@
+{
+  "incident": "D2-2 H2000 checkpoints mutated after downstream audit",
+  "detected_by_job": "891560",
+  "d2_2_audit_job": "891546",
+  "d2_2_audit_completed_at": "2026-07-10T03:27:37+02:00",
+  "original_audited_checkpoint_sha256": null,
+  "original_audited_checkpoint_recoverable": false,
+  "current_checkpoints": {
+    "H2000_s0": {
+      "sha256": "749c1c1df966358bea379c597f5bc8cf4702456126f82ce3eb712a279cd9dd9a",
+      "best_checkpoint_epoch": 29,
+      "best_checkpoint_val_loss": 0.22317327496906122,
+      "best_checkpoint_mtime": "2026-07-10T03:54:34+02:00",
+      "last_checkpoint_epoch": 30,
+      "train_log_last_complete_epoch": 29,
+      "run_summary_present": false
+    },
+    "H2000_s1": {
+      "sha256": "3988ba2b108d3240a9f659f420461f18162f164480506a79fd8515015073bf95",
+      "best_checkpoint_epoch": 31,
+      "best_checkpoint_val_loss": 0.22049288110186657,
+      "best_checkpoint_mtime": "2026-07-10T04:44:57+02:00",
+      "last_checkpoint_epoch": 31,
+      "train_log_last_complete_epoch": 31,
+      "run_summary_present": false
+    }
+  },
+  "final_verification_failure": {
+    "cell": "H2000_s0",
+    "max_committed_metric_abs_diff": 0.021614480389425927,
+    "random_released_through_1000_cells_reproduced_before_failure": true
+  },
+  "scientific_status": {
+    "d2_2_h2000_results_load_bearing": false,
+    "h2000_sustains_floor_crossing_claim": "withdrawn_pending_valid_checkpoint",
+    "h2000_reaches_released_band_claim": "withdrawn_pending_valid_checkpoint",
+    "h1000_to_h2000_improvement_claim": "withdrawn_pending_valid_checkpoint",
+    "through_1000_results_affected": false
+  },
+  "training_action": "none",
+  "new_training_requires_pm_approval": true
+}

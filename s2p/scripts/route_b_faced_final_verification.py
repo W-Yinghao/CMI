@@ -23,7 +23,7 @@ sys.path.insert(0, str(SCRIPTS))
 import route_b_faced_downstream_audit as faced
 
 
-TAGS = [
+TAGS_THROUGH_1000 = [
     "random",
     "released",
     "H200_s0",
@@ -32,10 +32,14 @@ TAGS = [
     "H500_s1",
     "H1000_s0",
     "H1000_s1",
+]
+TAGS_FULL = [
+    *TAGS_THROUGH_1000,
     "H2000_s0",
     "H2000_s1",
 ]
-BUDGETS = [200, 500, 1000, 2000]
+BUDGETS_THROUGH_1000 = [200, 500, 1000]
+BUDGETS_FULL = [200, 500, 1000, 2000]
 N_CLASSES = 9
 
 
@@ -224,11 +228,11 @@ def null_bootstrap_mean(null_cm, weights, metric, chunk_size=10):
     return total / len(null_cm)
 
 
-def regression_summary(budget_series, metric):
-    budgets = np.asarray(BUDGETS, dtype=np.float64)
+def regression_summary(budget_series, metric, selected_budgets):
+    budgets = np.asarray(selected_budgets, dtype=np.float64)
     x = np.log2(budgets)
-    y_point = np.asarray([budget_series[h][metric]["point"] for h in BUDGETS])
-    y_boot = np.stack([budget_series[h][metric]["samples"] for h in BUDGETS], axis=1)
+    y_point = np.asarray([budget_series[h][metric]["point"] for h in selected_budgets])
+    y_boot = np.stack([budget_series[h][metric]["samples"] for h in selected_budgets], axis=1)
     linear_x = np.column_stack([np.ones(len(x)), x])
     linear_point = np.linalg.lstsq(linear_x, y_point, rcond=None)[0]
     linear_boot = (np.linalg.pinv(linear_x) @ y_boot.T).T
@@ -237,7 +241,7 @@ def regression_summary(budget_series, metric):
     quad_point = np.linalg.lstsq(quad_x, y_point, rcond=None)[0]
     quad_boot = (np.linalg.pinv(quad_x) @ y_boot.T).T
     loo = []
-    for omitted in BUDGETS:
+    for omitted in selected_budgets:
         keep = budgets != omitted
         xx = np.column_stack([np.ones(int(keep.sum())), x[keep]])
         coef_point = np.linalg.lstsq(xx, y_point[keep], rcond=None)[0]
@@ -294,6 +298,7 @@ def main():
     ap.add_argument("--bootstrap-reps", type=int, default=5000)
     ap.add_argument("--null-reps", type=int, default=200)
     ap.add_argument("--bootstrap-seed", type=int, default=20260710)
+    ap.add_argument("--scope", choices=["through_1000", "full"], default="through_1000")
     ap.add_argument("--self-test", action="store_true")
     args = ap.parse_args()
     if args.self_test:
@@ -302,6 +307,8 @@ def main():
     if args.bootstrap_reps < 1000 or args.null_reps < 50:
         raise ValueError("final verification requires >=1000 bootstraps and >=50 null subspaces")
 
+    selected_tags = TAGS_THROUGH_1000 if args.scope == "through_1000" else TAGS_FULL
+    selected_budgets = BUDGETS_THROUGH_1000 if args.scope == "through_1000" else BUDGETS_FULL
     out = Path(args.out_dir)
     task_rows = read_csv(out / "faced_task_performance.csv")
     l1_rows = read_csv(out / "faced_pairwise_subject_separability.csv")
@@ -311,15 +318,15 @@ def main():
     l1 = {r["tag"]: r for r in l1_rows}
     l4 = {r["tag"]: r for r in l4_rows}
     l5 = {r["tag"]: r for r in l5_rows}
-    missing = [tag for tag in TAGS if tag not in task]
+    missing = [tag for tag in selected_tags if tag not in task]
     if missing:
         raise RuntimeError(f"missing committed task rows: {missing}")
 
     random_gate_threshold = max(0.05, as_float(task["random"], "source_val_kappa") + 0.02)
-    pretrained_tags = [tag for tag in TAGS if tag.startswith("H")]
+    pretrained_tags = [tag for tag in selected_tags if tag.startswith("H")]
     if not all(as_bool(task[tag]["task_gate_pass"]) for tag in pretrained_tags):
         raise RuntimeError("not all pretrained FACED cells pass the frozen task gate")
-    if any(as_bool(task[tag]["target_labels_used_for_selection"]) for tag in TAGS):
+    if any(as_bool(task[tag]["target_labels_used_for_selection"]) for tag in selected_tags):
         raise RuntimeError("target-label firewall violation in committed task table")
 
     device = torch.device(args.device if args.device.startswith("cuda") and torch.cuda.is_available() else "cpu")
@@ -342,7 +349,7 @@ def main():
     prediction_rows = []
     l5_empirical_rows = []
 
-    for tag in TAGS:
+    for tag in selected_tags:
         ckpt = checkpoint_for(tag, args.ckpt_root)
         if ckpt != "random" and not Path(ckpt).exists():
             raise FileNotFoundError(ckpt)
@@ -449,11 +456,11 @@ def main():
         if torch.cuda.is_available():
             torch.cuda.empty_cache()
 
-    base_boot = {tag: bootstrap_metrics(base_cm[tag], weights) for tag in TAGS}
-    removed_boot = {tag: bootstrap_metrics(removed_cm[tag], weights) for tag in TAGS}
-    point_metrics = {tag: metric_from_confusion(base_cm[tag].sum(axis=0)) for tag in TAGS}
+    base_boot = {tag: bootstrap_metrics(base_cm[tag], weights) for tag in selected_tags}
+    removed_boot = {tag: bootstrap_metrics(removed_cm[tag], weights) for tag in selected_tags}
+    point_metrics = {tag: metric_from_confusion(base_cm[tag].sum(axis=0)) for tag in selected_tags}
     budget_series = {}
-    for budget in BUDGETS:
+    for budget in selected_budgets:
         tags = [f"H{budget}_s0", f"H{budget}_s1"]
         budget_series[budget] = {}
         for metric in ["kappa", "bacc", "weighted_f1"]:
@@ -462,7 +469,7 @@ def main():
             budget_series[budget][metric] = {"point": point, "samples": samples}
 
     uncertainty_rows = []
-    for tag in TAGS:
+    for tag in selected_tags:
         for metric in ["kappa", "bacc", "weighted_f1"]:
             rec = {
                 "scope": "checkpoint",
@@ -475,7 +482,7 @@ def main():
             }
             rec.update(summarize(point_metrics[tag][metric], base_boot[tag][metric]))
             uncertainty_rows.append(rec)
-    for budget in BUDGETS:
+    for budget in selected_budgets:
         for metric in ["kappa", "bacc", "weighted_f1"]:
             rec = {
                 "scope": "budget_seed_mean",
@@ -492,7 +499,7 @@ def main():
             uncertainty_rows.append(rec)
 
     comparison_rows = []
-    for budget in BUDGETS:
+    for budget in selected_budgets:
         for reference in ["random", "released"]:
             for metric in ["kappa", "bacc"]:
                 point = budget_series[budget][metric]["point"] - float(point_metrics[reference][metric])
@@ -564,7 +571,7 @@ def main():
                 "null_delta": null_delta,
                 "contrast": contrast,
             }
-    for budget in BUDGETS:
+    for budget in selected_budgets:
         tags = [f"H{budget}_s0", f"H{budget}_s1"]
         for metric in ["kappa", "bacc"]:
             contrast = np.mean([l5_series[tag][metric]["contrast"] for tag in tags], axis=0)
@@ -601,11 +608,11 @@ def main():
             row["subject_intervention_exceeds_null"] = "descriptive_not_cellwise_tested"
 
     response = {
-        metric: regression_summary(budget_series, metric)
+        metric: regression_summary(budget_series, metric, selected_budgets)
         for metric in ["kappa", "bacc"]
     }
     response["analysis_scope"] = "descriptive_budget_response_with_target_subject_cluster_bootstrap"
-    response["n_budget_levels"] = len(BUDGETS)
+    response["n_budget_levels"] = len(selected_budgets)
     response["training_seeds_per_budget"] = 2
     response["monotonic_scaling_established"] = False
 
@@ -635,7 +642,8 @@ def main():
     final_table = []
     random_k = float(point_metrics["random"]["kappa"])
     random_b = float(point_metrics["random"]["bacc"])
-    for label, budget in [("Random", None), ("200h", 200), ("500h", 500), ("1000h", 1000), ("2000h", 2000), ("Released", None)]:
+    table_rows = [("Random", None)] + [(f"{h}h", h) for h in selected_budgets] + [("Released", None)]
+    for label, budget in table_rows:
         if label == "Random":
             k_point, k_samples = random_k, base_boot["random"]["kappa"]
             b_point, b_samples = random_b, base_boot["random"]["bacc"]
@@ -686,7 +694,7 @@ def main():
             }
             for metric in ["kappa", "bacc"]
         }
-        for h in BUDGETS
+        for h in selected_budgets
     }
     any_l5_exceeds = any(
         r["subject_intervention_exceeds_null"]
@@ -695,18 +703,20 @@ def main():
     )
     verification = {
         "phase": "D2_final_confirmatory_verification",
+        "scope": args.scope,
         "downstream_dataset": "FACED",
         "protocol": "frozen_encoder_source_only_probe",
         "all_committed_metrics_reproduced": all(r["reproduction_pass"] for r in reproduction_rows),
         "n_target_subject_clusters": len(subjects),
         "cluster_bootstrap_reps": args.bootstrap_reps,
         "variance_matched_null_reps": args.null_reps,
-        "all_8_pretrained_cells_task_gate_pass": True,
+        "n_evaluated_pretrained_cells": len(pretrained_tags),
+        "all_evaluated_pretrained_cells_task_gate_pass": True,
         "task_gate_threshold_source_val_kappa": random_gate_threshold,
         "any_pretrained_l5_subject_intervention_exceeds_variance_null": any_l5_exceeds,
         "variance_null_contract": "source_val_energy_matched_random_orthobasis_partial_last_direction",
         "l5_confirmatory_metric": "cohen_kappa",
-        "l5_multiple_comparison_control": "Holm across 8 pretrained checkpoints",
+        "l5_multiple_comparison_control": f"Holm across {len(pretrained_tags)} evaluated pretrained checkpoints",
         "budget_floor": budget_floor,
         "subject_separability_near_ceiling": min(
             as_float(l1[tag], "l1_pairwise_subject_bacc_mean") for tag in pretrained_tags
@@ -717,6 +727,11 @@ def main():
         "target_labels_used_for_final_scoring_and_clustered_uncertainty_only": True,
         "fine_tuning_used": False,
         "new_pretraining_used": False,
+        "h2000_included": args.scope == "full",
+        "h2000_confirmatory_exclusion_reason": (
+            None if args.scope == "full"
+            else "D2-2 checkpoint mutated after audit; current H2000 runs incomplete at epochs 29/31"
+        ),
         "h4000_included": False,
         "codebrain_used": False,
         "claim_status": (
