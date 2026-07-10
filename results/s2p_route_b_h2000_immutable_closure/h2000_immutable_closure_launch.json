@@ -1,0 +1,22 @@
+{
+  "phase": "A_H2000_immutable_closure",
+  "closure_job_id": "891605",
+  "dependency": "afterok:890151_6:890151_7",
+  "parent_training_jobs": [
+    "890151_6",
+    "890151_7"
+  ],
+  "launch_git": "8d610d6c35c09798dd6d7d212a9673253ac4efe4",
+  "closure_cpu_only": true,
+  "training_launched": false,
+  "downstream_auto_launch": false,
+  "h4000_launched": false,
+  "later_phases_held": [
+    "B_representation_emergence_decomposition",
+    "C_data_x_optimization",
+    "D_frozen_x_finetuning",
+    "E_cross_task",
+    "F_codebrain"
+  ],
+  "manuscript_writing_allowed": false
+}
