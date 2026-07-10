@@ -1,0 +1,5 @@
+test_scope,command,status,environment,slurm_partition
+focused_c73,python -m pytest oaci/tests/test_c73_attribution_robustness_instrumentation_gate.py -q,green,eeg2025,cpu-high
+c65_c73_slice,python -m pytest oaci/tests/test_c6[5-9]_*.py oaci/tests/test_c7[0-3]_*.py -q,green,eeg2025,cpu-high
+c23_c73_regression,python -m pytest oaci/tests/test_c2[3-9]_*.py oaci/tests/test_c3*.py oaci/tests/test_c4*.py oaci/tests/test_c5*.py oaci/tests/test_c6*.py oaci/tests/test_c7*.py -q,green,eeg2025,cpu-high
+full_oaci_tests,python -m pytest oaci/tests -q,green,eeg2025,cpu-high

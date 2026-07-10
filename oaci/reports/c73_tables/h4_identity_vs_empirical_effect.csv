@@ -1,0 +1,7 @@
+family,target_count,pair_count,mean_rank_flip_rate,mean_identity_accuracy,mean_calibration_slope_log_ratio,mean_increment_beyond_identity,blocked_slope_p,permutations,algebraic_identity_fully_explains_observed_flips,validates_residual_origin
+target_shared,9,61080,0.15303993677375521,1.0,0.2441746614417578,0.0,0.0024,4999,1,0
+magnitude_matched_random_candidate,9,61080,0.06935453738395492,1.0,0.25471890028823274,0.0,0.0018,4999,1,0
+random_sign_construction,9,61080,0.04516843623889504,1.0,0.2406977702794427,0.0,0.0016,4999,1,0
+trajectory_preserving,9,61080,0.0666743800769767,1.0,0.2498263052881168,0.0,0.0028,4999,1,0
+construction_estimated,9,61080,0.045131278344709085,1.0,0.24625486524458445,0.0,0.002,4999,1,0
+candidate_permuted_construction,9,61080,0.04664014032701292,1.0,0.24393462228456725,0.0,0.0022,4999,1,0

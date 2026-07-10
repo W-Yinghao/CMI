@@ -1,0 +1,9 @@
+intervention_family,metric,point_effect,ci_lower,ci_upper,beneficial_SESOI,harmful_SESOI,practically_equivalent_to_zero,conclusion,bootstrap_unit,replicates
+shared_class_vector,gauge_recovery_increment,-0.007230281557047524,-0.0367456595251826,0.026637803818398073,0.05,-0.05,1,practically_insufficient,target,2000
+shared_class_vector,coverage_increment,-0.2222222222222222,-0.5555555555555556,0.0,0.1,-0.1,0,potentially_meaningful_but_unresolved,target,2000
+shared_class_vector,topk_increment,0.0,-0.3333333333333333,0.3333333333333333,0.1,-0.1,0,potentially_meaningful_but_unresolved,target,2000
+shared_class_vector,regret_reduction_bAcc,-0.007374464445494783,-0.019885694816485236,0.002264168930835586,0.01,-0.01,0,potentially_meaningful_but_unresolved,target,2000
+shared_temperature_T1_identity,gauge_recovery_increment,0.0,0.0,0.0,0.05,-0.05,1,practically_insufficient,target,2000
+shared_temperature_T1_identity,coverage_increment,0.0,0.0,0.0,0.1,-0.1,1,practically_insufficient,target,2000
+shared_temperature_T1_identity,topk_increment,0.0,0.0,0.0,0.1,-0.1,1,practically_insufficient,target,2000
+shared_temperature_T1_identity,regret_reduction_bAcc,0.0,0.0,0.0,0.01,-0.01,1,practically_insufficient,target,2000

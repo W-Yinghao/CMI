@@ -1,0 +1,11 @@
+reason,status,evidence,blocks_primary
+protocol_and_parent_provenance,pass,C73 protocol=482fc0cf485e51f2892a42210a71a1394232eb950d6d9df19dc1e48ba541e912;C72 replay=1,0
+frozen_universe_confirmation,exhausted,T2 216 + T3-HO 1052 = all 1268 units; C73 is retrospective robustness,0
+residual_construct,unexplained_candidate_specific_residual,incremental_R2=-0.02705326213712178;all_registered_criteria=0,0
+shared_calibration,potentially_meaningful_but_unresolved,SESOI and target-cluster intervals; p>0.05 is not an insufficiency rule,0
+H4_origin,identity_only,rank-flip crossing identity separated from residual-origin evidence,0
+H5_control,alpha_zero_noncontrol,locked symmetric grid; T3 descriptive only,0
+strict_source_and_Wz,ready_but_not_authorized,dummy_forwards=6;real_EEG_forwards=0,0
+synthetic_stress,pass,grid_rows=351;raw_draws=0,0
+new_training,not_authorized,minimum next stage is frozen re-inference instrumentation if separately authorized,0
+target_population,unresolved,same nine frozen targets; no population claim,0

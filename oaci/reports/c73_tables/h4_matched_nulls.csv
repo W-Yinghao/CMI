@@ -1,0 +1,7 @@
+family,observed_flip_rate,observed_slope,target_cluster_p,target_count,null_role
+target_shared,0.15303993677375521,0.2441746614417578,0.0024,9,structured_intervention
+magnitude_matched_random_candidate,0.06935453738395492,0.25471890028823274,0.0018,9,generic_sensitivity
+random_sign_construction,0.04516843623889504,0.2406977702794427,0.0016,9,generic_sensitivity
+trajectory_preserving,0.0666743800769767,0.2498263052881168,0.0028,9,structured_intervention
+construction_estimated,0.045131278344709085,0.24625486524458445,0.002,9,structured_intervention
+candidate_permuted_construction,0.04664014032701292,0.24393462228456725,0.0022,9,generic_sensitivity

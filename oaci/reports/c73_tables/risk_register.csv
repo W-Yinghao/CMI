@@ -1,0 +1,18 @@
+risk_id,status,evidence,blocking,mitigation,residual_caveat
+full_frozen_universe_already_consumed,open_boundary,216 T2 + 1052 T3-HO = all 1268 frozen physical units,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+retrospective_robustness_not_confirmation,mitigated_by_language_gate,protocol/report mark every T2/T3-HO analysis retrospective,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+decomposition_order_dependence,open_caveat,all 120 orders;order_sensitive=1,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+residual_relabeling_as_gauge,mitigated_unvalidated_term,construct_validated=0,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+H3_pvalue_as_insufficiency,open_caveat,SESOI/bootstrap conclusion=potentially_meaningful_but_unresolved;p>0.05 rule unused,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+H4_algebraic_tautology,mitigated_identity_only,reduces_to_identity=1,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+H5_intervention_family_search,mitigated,locked symmetric local grid;alpha_zero_confirmed=1;no T3 selection,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+candidate_count_confounding,mitigated,raw/effective/top-gap adjusted;effective_dominates=1,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+top1_without_random_context,mitigated,cell-specific 1/M and k/M baselines emitted,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+utility_mismatch_absorbed_into_residual,mitigated,U is separate across bAcc/NLL/ECE/joint/joint-good attribution,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+R2_residual_confused_with_gap_share,mitigated,predictive residual R2 and Shapley gap share reported in separate tables,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+strict_source_path_unavailable,future_campaign_feasible_not_executed,REINFERENCE_ONLY_SOURCE_AND_WZ_CAMPAIGN_FEASIBLE,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+representation_claim_without_Wz,mitigated,dummy z/Wz ABI identity only; no real EEG representation claim,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+multi_candidate_bound_overclaim,still_vacuous_disclosed,top1_repaired=0,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+target_population_overclaim,open_boundary,nine frozen targets; no population generalization,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+raw_cache_in_git,mitigated,only compact tables and path/hash manifests; external caches untouched,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.
+unauthorized_forward_or_training,mitigated,real_EEG_forward=0;training=0;GPU=0;dummy_CPU=6,0,locked rule plus fail-loud report gate,C73 is retrospective robustness on the fully consumed frozen universe.

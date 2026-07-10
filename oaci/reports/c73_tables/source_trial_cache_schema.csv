@@ -1,0 +1,10 @@
+field,dtype,required,label_quarantined,payload_class
+cache_version,string,1,0,metadata
+checkpoint_path_hash,sha256,1,0,metadata
+source_subject_id_hash,sha256,1,0,metadata
+trial_id_hash,sha256,1,0,metadata
+source_class_label,int8,1,0,source_observable_label
+logits,float32[4],1,0,source_trial_signal
+probabilities,float32[4],1,0,source_trial_signal
+representation_ref,external_shard_ref,0,0,external_reference
+content_sha256,sha256,1,0,integrity

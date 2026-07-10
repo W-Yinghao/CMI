@@ -1,0 +1,5 @@
+node,depends_on,unlocks,condition,satisfied
+C73,C72,R1_protocol,source_Wz_feasible,1
+R1_execution,explicit_future_authorization,strict_source_and_Wz_evidence,exact CLI authorization in future milestone,0
+R2_protocol,R1_evidence_or_R1_blocker,reserved_seed_execution,separate PM decision,0
+R3_protocol,R1_then_separate_generality_decision,independent_target_dataset_execution,locked protocol plus explicit authorization,0

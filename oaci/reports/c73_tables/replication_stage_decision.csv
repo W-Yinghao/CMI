@@ -1,0 +1,4 @@
+stage,name,purpose,new_training,reserved_seeds,new_dataset,ready,authorized,minimum_next_stage,decision
+R1,frozen_reinference_source_and_Wz,strict-source trial adversary and representation-projection origin audit,0,0,0,1,0,1,ready_but_not_authorized
+R2,reserved_seed_checkpoint_field,new checkpoint universe on frozen targets,1,1,0,0,0,0,future_protocol_only
+R3,independent_target_or_dataset,target-population and cross-setting generality,0,0,1,0,0,0,future_protocol_only

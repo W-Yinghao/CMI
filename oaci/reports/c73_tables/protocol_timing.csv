@@ -1,0 +1,5 @@
+event,timestamp_utc,commit,row_level_C72_outcomes_read,status
+protocol_lock,2026-07-10T04:55:13Z,,0,protocol_content_frozen
+protocol_commit_and_push,2026-07-10T04:57:48Z,26d3d34,0,before_any_persisted_C73_execution
+earliest_persisted_C73_execution_start,2026-07-10T05:26:04Z,26d3d34,access_occurs_after_process_start_exact_instant_not_persisted,after_protocol_commit
+current_recompute_outcome_access,2026-07-10T05:49:45Z,26d3d34,1,retrospective_robustness_not_independent_confirmation

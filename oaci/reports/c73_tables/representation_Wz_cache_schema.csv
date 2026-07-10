@@ -1,0 +1,11 @@
+field,dtype,required,storage
+checkpoint_path_hash,sha256,1,manifest
+trial_id_hash,sha256,1,manifest
+z,float32[800],1,external_binary_shard
+Wz,float32[4],1,external_binary_shard
+head_bias_b,float32[4],1,manifest_once_per_checkpoint
+logits,float32[4],1,external_binary_shard
+reconstruction_max_abs,float32,1,manifest
+split_role,enum,1,manifest
+target_label,int8,0,quarantined_label_shard
+content_sha256,sha256,1,manifest

@@ -1,0 +1,3 @@
+component,variance,variance_fraction,removed_by_within_target_centering,validates_gauge
+target_common_residual_mean,2.9584305488677367e-33,3.1865510248284534e-30,1,0
+within_target_candidate_residual,0.0009284114786854864,1.0,0,0

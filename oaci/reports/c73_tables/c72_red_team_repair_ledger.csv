@@ -1,0 +1,7 @@
+repair,C72_status,C73_verification,scientific_effect,passed
+I2_float64_identity,fixed_before_final,C72 identity table passed=1,implementation identity only,1
+forbidden_failure_gate_context,fixed_before_final,all forbidden scans passed,claim scanner only,1
+checkpoint_plus_regime_source_join,fixed_before_final,T2=216;T3=1052,changed residual R2,1
+target_blocked_H4_H6,fixed_before_final,C72 H4/H6 target effects and blocked permutations,corrected inference,1
+class_mean_finite_population_bAcc,fixed_before_final,exact class-stratified table replay,full-budget estimand correction,1
+S5_alpha_zero_inactive,fixed_before_final,C72 S5 inactive and alpha=0,removed false closure,1
