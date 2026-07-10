@@ -51,6 +51,43 @@ L6_FIELDS = {
 }
 
 
+def sha256_file(path, chunk_size=8 * 1024 * 1024):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as fobj:
+        while True:
+            chunk = fobj.read(chunk_size)
+            if not chunk:
+                break
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def load_immutable_contract(ckpt_root, manifest_path, go_nogo_path):
+    go_nogo = json.loads(Path(go_nogo_path).read_text())
+    if go_nogo.get("status") != "PASS" or go_nogo.get("faced_reaudit_unlocked") is not True:
+        raise RuntimeError(f"H2000 immutable closure is not PASS: {go_nogo}")
+    manifest_obj = json.loads(Path(manifest_path).read_text())
+    rows = {row["tag"]: row for row in manifest_obj.get("checkpoints", [])}
+    if set(rows) != set(DEFAULT_CELLS):
+        raise RuntimeError(f"immutable manifest cells mismatch: {sorted(rows)}")
+    verified = {}
+    for tag in DEFAULT_CELLS:
+        row = rows[tag]
+        link = Path(ckpt_root) / tag / "best.pth"
+        payload = Path(row["immutable_checkpoint"])
+        if not link.is_symlink():
+            raise RuntimeError(f"immutable checkpoint link missing for {tag}: {link}")
+        if link.resolve() != payload.resolve():
+            raise RuntimeError(f"immutable checkpoint path mismatch for {tag}")
+        if payload.stat().st_mode & 0o222:
+            raise RuntimeError(f"immutable checkpoint is writable for {tag}: {payload}")
+        digest = sha256_file(payload)
+        if digest != row["sha256"]:
+            raise RuntimeError(f"immutable checkpoint SHA mismatch for {tag}")
+        verified[tag] = {**row, "audit_path": str(link), "sha256_verified": digest}
+    return verified
+
+
 def read_csv(path):
     path = Path(path)
     if not path.exists():
@@ -173,7 +210,7 @@ def build_summary(task_rows, l1_rows, elapsed_s):
         "downstream_dataset": "FACED",
         "protocol": "frozen_encoder_source_only_probe",
         "not_full_finetuning_reproduction": True,
-        "phase": "h2000_update",
+        "phase": "h2000_immutable_reaudit",
         "train_subjects": "1-80",
         "val_subjects": "81-100",
         "test_subjects": "101-123",
@@ -228,13 +265,13 @@ def update_notes(path, summary):
     lines = [
         "# FACED Frozen-Probe Verifier Notes",
         "",
-        "- Phase: D2-2 H2000 update.",
+        "- Phase: immutable H2000 re-audit.",
         "- Dataset: FACED native32 LMDB, 10s, 200Hz, 9 classes.",
         "- Split: train subjects 1-80, validation subjects 81-100, test subjects 101-123.",
         "- Encoder is frozen; no fine-tuning or pretraining is launched by this script.",
         "- PCA, classifier, subject subspace, and rank are source train/val only.",
         "- FACED test labels are used only for final scoring.",
-        "- H2000_s0 and H2000_s1 were added to the existing through-1000h audit tables.",
+        "- H2000_s0 and H2000_s1 use SHA-pinned, read-only immutable checkpoints.",
         "- Random and released rows are reused from the D2-1 FACED audit.",
         "- H4000, CodeBrain, fine-tuning, and any extra dataset are excluded.",
         "- H500/H1000/H2000 comparisons are descriptive budget-floor calibration, not a monotonic scaling-law claim.",
@@ -253,6 +290,8 @@ def main():
     ap.add_argument("--batch-size", type=int, default=48)
     ap.add_argument("--pca-dims", nargs="+", type=int, default=[32, 64, 128])
     ap.add_argument("--cells", nargs="*", default=DEFAULT_CELLS)
+    ap.add_argument("--immutable-manifest", required=True)
+    ap.add_argument("--closure-go-nogo", required=True)
     args = ap.parse_args()
 
     t0 = time.time()
@@ -261,6 +300,9 @@ def main():
     cells = args.cells
     if cells != DEFAULT_CELLS:
         raise RuntimeError(f"D2-2 only approves {DEFAULT_CELLS}; got {cells}")
+    immutable = load_immutable_contract(
+        args.ckpt_root, args.immutable_manifest, args.closure_go_nogo
+    )
 
     task_existing = read_csv(out / "faced_task_performance.csv")
     if not task_existing:
@@ -280,6 +322,8 @@ def main():
     protocol["reuse_existing_references"] = ["random", "released"]
     protocol["forbidden"]["h2000_downstream"] = False
     protocol["forbidden"]["h4000_downstream"] = True
+    protocol["immutable_h2000_required"] = True
+    protocol["immutable_manifest"] = str(Path(args.immutable_manifest).resolve())
     faced.write_json(out / "faced_downstream_protocol.json", protocol)
 
     ckpt_rows_new = []
@@ -295,6 +339,10 @@ def main():
             "checkpoint_exists": Path(ckpt).exists(),
             "checkpoint_selection": "pretrain_val_loss_only",
             "h2000_included": True,
+            "immutable_checkpoint": True,
+            "checkpoint_sha256": immutable[tag]["sha256_verified"],
+            "checkpoint_epoch": immutable[tag]["checkpoint_epoch"],
+            "pretrain_best_val_loss": immutable[tag]["best_val_loss"],
         })
     missing = [r for r in ckpt_rows_new if not r["checkpoint_exists"]]
     if missing:
@@ -311,10 +359,16 @@ def main():
     feature_rows_new = []
     for tag in cells:
         ckpt = str(Path(args.ckpt_root) / tag / "best.pth")
+        sha_before = sha256_file(Path(ckpt).resolve())
+        if sha_before != immutable[tag]["sha256_verified"]:
+            raise RuntimeError(f"{tag} immutable SHA changed before feature extraction")
         print(f"FACED D2-2 audit tag={tag} ckpt={ckpt}", flush=True)
         model, loaded = faced.build_encoder(tag, ckpt, device)
         det = faced.deterministic_batch_check(model, X, device)
         feat = faced.extract_features(model, X, device, args.batch_size)
+        sha_after = sha256_file(Path(ckpt).resolve())
+        if sha_after != sha_before:
+            raise RuntimeError(f"{tag} immutable SHA changed during feature extraction")
         feature_rows_new.append({
             "tag": tag,
             "checkpoint": ckpt,
@@ -323,6 +377,8 @@ def main():
             "feature_dim": int(feat.shape[1]),
             "feature_sha16": hashlib.sha256(feat[: min(len(feat), 128)].astype(np.float32).tobytes()).hexdigest()[:16],
             "determinism_max_abs_diff": det,
+            "checkpoint_sha256": sha_after,
+            "immutable_checkpoint": True,
         })
         rec = faced.audit_one(tag, ckpt, feat, y, subj, split, item_index, args.pca_dims, random_source_val_kappa)
         rec["h2000_included"] = True
@@ -353,6 +409,11 @@ def main():
     write_csv(out / "faced_checkpoint_manifest.csv", merge_by_tag(ckpt_rows_existing, ckpt_rows_new))
 
     summary = build_summary(task_rows, l1_rows, time.time() - t0)
+    summary["h2000_checkpoint_provenance"] = "immutable_sha256_pinned"
+    summary["h2000_checkpoint_sha256_by_tag"] = {
+        tag: immutable[tag]["sha256_verified"] for tag in cells
+    }
+    summary["historical_mutable_d2_2_superseded"] = True
     faced.write_json(out / "faced_budget_summary.json", summary)
     faced.write_json(out / "faced_target_label_firewall.json", {
         "target_labels_in_pca_fit": False,
@@ -368,6 +429,10 @@ def main():
         "checkpoint_selection": "pretrain_val_loss_only",
         "normalization": "per_channel_per_1s_patch_zscore",
         "d2_2_reused_reference_rows": ["random", "released"],
+        "h2000_immutable_checkpoints": True,
+        "h2000_checkpoint_sha256_by_tag": {
+            tag: immutable[tag]["sha256_verified"] for tag in cells
+        },
     })
     update_notes(out / "faced_verifier_notes.md", summary)
     print(json.dumps(summary, indent=2, sort_keys=True), flush=True)

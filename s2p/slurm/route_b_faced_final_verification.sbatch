@@ -40,6 +40,9 @@ PY=/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python
 
 OUT_DIR="${FACED_OUT_DIR:-results/s2p_route_b_33ch_b1_faced}"
 CKPT_ROOT="${FACED_CKPT_ROOT:-/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1}"
+H2000_CKPT_ROOT="${H2000_IMMUTABLE_ROOT:-/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable}"
+IMMUTABLE_MANIFEST="${H2000_IMMUTABLE_MANIFEST:-results/s2p_route_b_h2000_immutable_closure/h2000_immutable_checkpoint_manifest.json}"
+CLOSURE_GO_NOGO="${H2000_CLOSURE_GO_NOGO:-results/s2p_route_b_h2000_immutable_closure/h2000_immutable_closure_go_nogo.json}"
 BATCH_SIZE="${FACED_BATCH_SIZE:-48}"
 BOOTSTRAP_REPS="${FACED_BOOTSTRAP_REPS:-5000}"
 NULL_REPS="${FACED_NULL_REPS:-200}"
@@ -51,6 +54,9 @@ nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 
 srun "$PY" s2p/scripts/route_b_faced_final_verification.py \
   --ckpt-root "$CKPT_ROOT" \
+  --h2000-ckpt-root "$H2000_CKPT_ROOT" \
+  --immutable-manifest "$IMMUTABLE_MANIFEST" \
+  --closure-go-nogo "$CLOSURE_GO_NOGO" \
   --out-dir "$OUT_DIR" \
   --device cuda:0 \
   --batch-size "$BATCH_SIZE" \

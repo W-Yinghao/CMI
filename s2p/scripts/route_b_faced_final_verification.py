@@ -8,6 +8,7 @@ L4/L5/L6 mechanism diagnostics. FACED test labels are used only for scoring.
 """
 import argparse
 import csv
+import hashlib
 import json
 import sys
 from pathlib import Path
@@ -67,12 +68,50 @@ def as_bool(value):
     return str(value).lower() == "true"
 
 
-def checkpoint_for(tag, ckpt_root):
+def sha256_file(path, chunk_size=8 * 1024 * 1024):
+    digest = hashlib.sha256()
+    with Path(path).open("rb") as fobj:
+        while True:
+            chunk = fobj.read(chunk_size)
+            if not chunk:
+                break
+            digest.update(chunk)
+    return digest.hexdigest()
+
+
+def checkpoint_for(tag, ckpt_root, h2000_ckpt_root=None):
     if tag == "random":
         return "random"
     if tag == "released":
         return faced.RELEASED_CKPT
+    if tag.startswith("H2000"):
+        if h2000_ckpt_root is None:
+            raise RuntimeError("full verification requires --h2000-ckpt-root")
+        return str(Path(h2000_ckpt_root) / tag / "best.pth")
     return str(Path(ckpt_root) / tag / "best.pth")
+
+
+def load_h2000_immutable_contract(root, manifest_path, go_nogo_path):
+    go_nogo = json.loads(Path(go_nogo_path).read_text())
+    if go_nogo.get("status") != "PASS" or go_nogo.get("faced_reaudit_unlocked") is not True:
+        raise RuntimeError("H2000 immutable closure is not PASS")
+    rows = {
+        row["tag"]: row
+        for row in json.loads(Path(manifest_path).read_text()).get("checkpoints", [])
+    }
+    expected = {"H2000_s0", "H2000_s1"}
+    if set(rows) != expected:
+        raise RuntimeError(f"H2000 immutable manifest mismatch: {sorted(rows)}")
+    for tag, row in rows.items():
+        link = Path(root) / tag / "best.pth"
+        payload = Path(row["immutable_checkpoint"])
+        if not link.is_symlink() or link.resolve() != payload.resolve():
+            raise RuntimeError(f"H2000 immutable path mismatch for {tag}")
+        if payload.stat().st_mode & 0o222:
+            raise RuntimeError(f"H2000 immutable checkpoint is writable for {tag}")
+        if sha256_file(payload) != row["sha256"]:
+            raise RuntimeError(f"H2000 immutable SHA mismatch for {tag}")
+    return rows
 
 
 def metric_from_confusion(cm):
@@ -292,6 +331,9 @@ def self_test():
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--ckpt-root", default=faced.B1_CKPT_ROOT)
+    ap.add_argument("--h2000-ckpt-root")
+    ap.add_argument("--immutable-manifest")
+    ap.add_argument("--closure-go-nogo")
     ap.add_argument("--out-dir", default="results/s2p_route_b_33ch_b1_faced")
     ap.add_argument("--device", default="cuda:0")
     ap.add_argument("--batch-size", type=int, default=48)
@@ -309,6 +351,13 @@ def main():
 
     selected_tags = TAGS_THROUGH_1000 if args.scope == "through_1000" else TAGS_FULL
     selected_budgets = BUDGETS_THROUGH_1000 if args.scope == "through_1000" else BUDGETS_FULL
+    h2000_immutable = {}
+    if args.scope == "full":
+        if not all([args.h2000_ckpt_root, args.immutable_manifest, args.closure_go_nogo]):
+            raise RuntimeError("full scope requires H2000 immutable root, manifest, and closure go/no-go")
+        h2000_immutable = load_h2000_immutable_contract(
+            args.h2000_ckpt_root, args.immutable_manifest, args.closure_go_nogo
+        )
     out = Path(args.out_dir)
     task_rows = read_csv(out / "faced_task_performance.csv")
     l1_rows = read_csv(out / "faced_pairwise_subject_separability.csv")
@@ -350,13 +399,18 @@ def main():
     l5_empirical_rows = []
 
     for tag in selected_tags:
-        ckpt = checkpoint_for(tag, args.ckpt_root)
+        ckpt = checkpoint_for(tag, args.ckpt_root, args.h2000_ckpt_root)
         if ckpt != "random" and not Path(ckpt).exists():
             raise FileNotFoundError(ckpt)
         print(f"final verification tag={tag} checkpoint={ckpt}", flush=True)
+        checkpoint_sha_before = sha256_file(Path(ckpt).resolve()) if tag.startswith("H2000") else None
+        if tag.startswith("H2000") and checkpoint_sha_before != h2000_immutable[tag]["sha256"]:
+            raise RuntimeError(f"{tag} immutable SHA changed before final verification")
         model, _ = faced.build_encoder(tag, ckpt, device)
         det = faced.deterministic_batch_check(model, X, device)
         feat = faced.extract_features(model, X, device, args.batch_size)
+        if tag.startswith("H2000") and sha256_file(Path(ckpt).resolve()) != checkpoint_sha_before:
+            raise RuntimeError(f"{tag} immutable SHA changed during final verification")
         pack = fit_fixed_probe(
             feat,
             y,
@@ -442,6 +496,8 @@ def main():
             "target_bacc_recomputed": target_bacc,
             "max_committed_metric_abs_diff": max_diff,
             "reproduction_pass": max_diff <= 1e-8 and det <= 1e-6,
+            "checkpoint_sha256": checkpoint_sha_before or "",
+            "immutable_checkpoint": tag.startswith("H2000"),
         })
         for i in range(len(yte)):
             prediction_rows.append({
@@ -728,6 +784,11 @@ def main():
         "fine_tuning_used": False,
         "new_pretraining_used": False,
         "h2000_included": args.scope == "full",
+        "h2000_immutable_checkpoints": args.scope == "full",
+        "h2000_checkpoint_sha256_by_tag": (
+            {tag: row["sha256"] for tag, row in h2000_immutable.items()}
+            if args.scope == "full" else {}
+        ),
         "h2000_confirmatory_exclusion_reason": (
             None if args.scope == "full"
             else "D2-2 checkpoint mutated after audit; current H2000 runs incomplete at epochs 29/31"

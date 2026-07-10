@@ -1,18 +1,15 @@
 #!/usr/bin/env bash
-#SBATCH --job-name=s2pFACED2k
+#SBATCH --job-name=s2pFACED2kImm
 #SBATCH --partition=A100,V100,H100,L40S,A40
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=4
 #SBATCH --mem=80G
 #SBATCH --time=06:00:00
 #SBATCH --chdir=/home/infres/yinwang/CMI_AAAI_s2p_faced
-#SBATCH --output=results/s2p_route_b_33ch_b1_faced/logs/faced-h2000-%j.out
-#SBATCH --error=results/s2p_route_b_33ch_b1_faced/logs/faced-h2000-%j.err
+#SBATCH --output=results/s2p_route_b_33ch_b1_faced/logs/faced-h2000-immutable-%j.out
+#SBATCH --error=results/s2p_route_b_33ch_b1_faced/logs/faced-h2000-immutable-%j.err
 
 set -euo pipefail
-
-echo "DISABLED: mutable H2000 downstream entry is forbidden. Use route_b_faced_h2000_immutable_update.sbatch." >&2
-exit 2
 
 if [[ -n "${S2P_REPO_ROOT:-}" ]]; then
   REPO_ROOT="${S2P_REPO_ROOT}"
@@ -24,12 +21,8 @@ else
 fi
 
 REPO_ROOT=$(readlink -f "$REPO_ROOT")
-if [[ ! -d "$REPO_ROOT/s2p" || ! -d "$REPO_ROOT/results" ]]; then
-  echo "ERROR: REPO_ROOT does not look like S2P repo: $REPO_ROOT" >&2
-  exit 2
-fi
-if [[ "$REPO_ROOT" == /var/spool/* ]]; then
-  echo "ERROR: REPO_ROOT resolved to SLURM spool path: $REPO_ROOT" >&2
+if [[ ! -d "$REPO_ROOT/s2p" || "$REPO_ROOT" == /var/spool/* ]]; then
+  echo "ERROR: invalid REPO_ROOT: $REPO_ROOT" >&2
   exit 2
 fi
 
@@ -38,18 +31,23 @@ mkdir -p results/s2p_route_b_33ch_b1_faced/logs
 source /home/infres/yinwang/anaconda3/etc/profile.d/conda.sh
 conda activate eeg2025
 export PYTHONUNBUFFERED=1
+export PYTHONPYCACHEPREFIX="${TMPDIR:-/tmp}/s2p_faced_h2000_immutable_${SLURM_JOB_ID:-local}"
 PY=/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python
 
 OUT_DIR="${FACED_OUT_DIR:-results/s2p_route_b_33ch_b1_faced}"
-CKPT_ROOT="${FACED_CKPT_ROOT:-/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1}"
+CKPT_ROOT="${H2000_IMMUTABLE_ROOT:-/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable}"
+IMMUTABLE_MANIFEST="${H2000_IMMUTABLE_MANIFEST:-results/s2p_route_b_h2000_immutable_closure/h2000_immutable_checkpoint_manifest.json}"
+CLOSURE_GO_NOGO="${H2000_CLOSURE_GO_NOGO:-results/s2p_route_b_h2000_immutable_closure/h2000_immutable_closure_go_nogo.json}"
 BATCH_SIZE="${FACED_BATCH_SIZE:-48}"
 
-echo "Route B FACED H2000 downstream update host=$(hostname) git=$(git rev-parse HEAD)"
+echo "Route B FACED immutable H2000 re-audit host=$(hostname) git=$(git rev-parse HEAD)"
 git status --short
 nvidia-smi --query-gpu=name,memory.total --format=csv,noheader || true
 
 srun "$PY" s2p/scripts/route_b_faced_h2000_update.py \
   --ckpt-root "$CKPT_ROOT" \
+  --immutable-manifest "$IMMUTABLE_MANIFEST" \
+  --closure-go-nogo "$CLOSURE_GO_NOGO" \
   --out-dir "$OUT_DIR" \
   --device cuda:0 \
   --batch-size "$BATCH_SIZE"
