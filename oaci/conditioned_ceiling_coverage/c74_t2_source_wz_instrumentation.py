@@ -154,6 +154,7 @@ def _instrument_unit(row: dict, bundle, protocol: dict, stage: str) -> dict:
     max_identity_abs = 0.0
     max_identity_relative = 0.0
     max_softmax_error = 0.0
+    max_numpy_softmax_cross_impl_error = 0.0
     repeat_logits_error = 0.0
     repeat_z_error = 0.0
     try:
@@ -179,6 +180,8 @@ def _instrument_unit(row: dict, bundle, protocol: dict, stage: str) -> dict:
                 reconstructed = wz + bias
                 probs = torch.softmax(output.logits, dim=1)
                 numpy_logits = output.logits.detach().cpu().numpy().astype(np.float32, copy=False)
+                stored_probs = probs.detach().cpu().numpy().astype(np.float32, copy=False)
+                replayed_probs = torch.softmax(torch.from_numpy(numpy_logits), dim=1).numpy()
                 shifted = numpy_logits - numpy_logits.max(axis=1, keepdims=True)
                 numpy_probs = np.exp(shifted)
                 numpy_probs /= numpy_probs.sum(axis=1, keepdims=True)
@@ -187,10 +190,14 @@ def _instrument_unit(row: dict, bundle, protocol: dict, stage: str) -> dict:
                 max_identity_relative = max(max_identity_relative, _relative_error(reconstructed_np, numpy_logits))
                 max_softmax_error = max(
                     max_softmax_error,
-                    float(np.max(np.abs(probs.detach().cpu().numpy() - numpy_probs))),
+                    float(np.max(np.abs(stored_probs - replayed_probs))),
+                )
+                max_numpy_softmax_cross_impl_error = max(
+                    max_numpy_softmax_cross_impl_error,
+                    float(np.max(np.abs(stored_probs - numpy_probs))),
                 )
                 logits_all[start:stop] = numpy_logits
-                probabilities_all[start:stop] = probs.detach().cpu().numpy()
+                probabilities_all[start:stop] = stored_probs
                 predictions_all[start:stop] = torch.argmax(output.logits, dim=1).detach().cpu().numpy()
                 z_all[start:stop] = output.z.detach().cpu().numpy()
                 wz_all[start:stop] = wz.detach().cpu().numpy()
@@ -315,6 +322,7 @@ def _instrument_unit(row: dict, bundle, protocol: dict, stage: str) -> dict:
             "Wz_plus_b_logits_max_abs": max_identity_abs,
             "Wz_plus_b_logits_max_relative": max_identity_relative,
             "softmax_probability_max_abs": max_softmax_error,
+            "numpy_softmax_cross_implementation_max_abs": max_numpy_softmax_cross_impl_error,
             "hook_z_max_abs": max_hook_error,
             "repeat_logits_max_abs": repeat_logits_error,
             "repeat_z_max_abs": repeat_z_error,

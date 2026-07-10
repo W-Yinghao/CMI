@@ -26,6 +26,10 @@ export OMP_NUM_THREADS="${SLURM_CPUS_PER_TASK}"
 export MKL_NUM_THREADS="${SLURM_CPUS_PER_TASK}"
 export OPENBLAS_NUM_THREADS="${SLURM_CPUS_PER_TASK}"
 export NUMEXPR_NUM_THREADS="${SLURM_CPUS_PER_TASK}"
+# MNE otherwise shares ~/.mne/mne-python.json.lock across array tasks.  A
+# per-process temporary home removes that infrastructure race without changing
+# data, preprocessing, or any scientific parameter.
+export MNE_DONTWRITE_HOME=true
 
 mkdir -p /projects/EEG-foundation-model/yinghao/oaci-c74-t2-source-wz/logs
 cd /home/infres/yinwang/CMI_AAAI_oaci
