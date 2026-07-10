@@ -361,6 +361,7 @@ def _conditional_observability(
     targets = arrays["target_id"].astype(int)
     trajectory = arrays["trajectory_id"].astype(str)
     rows, bandwidth_rows = [], []
+    global_null_families = []
     rng = np.random.default_rng(c75_protocol.RNG_SEED + 500)
     permutations = [
         modeling.blocked_permutation_indices(targets, trajectory, rng, within_trajectory=True)
@@ -388,6 +389,7 @@ def _conditional_observability(
             ])
             observed_stats.append(observed)
             null_by_bandwidth.append(nulls)
+            global_null_families.append(nulls)
             bandwidth_rows.append({
                 "path": path, "bandwidth_factor": factor, "observed_alignment": observed,
                 "null_mean": float(np.mean(nulls)), "null_p95": float(np.quantile(nulls, 0.95)),
@@ -405,13 +407,23 @@ def _conditional_observability(
             "linear_incremental_R2": linear["incremental_R2"], "linear_max_stat_p": linear["max_stat_corrected_p"],
             "exact_conditional_CS": 0, "iid_guarantee_claimed": 0,
         })
+    global_max_null = np.max(np.column_stack(global_null_families), axis=1)
+    for row in rows:
+        row["global_path_bandwidth_max_stat_p"] = (
+            1 + int(np.sum(global_max_null >= row["max_observed_alignment"]))
+        ) / (1 + len(global_max_null))
+        row["global_family_size"] = len(global_null_families)
+    for row in bandwidth_rows:
+        row["global_path_bandwidth_max_stat_p"] = (
+            1 + int(np.sum(global_max_null >= row["observed_alignment"]))
+        ) / (1 + len(global_max_null))
     contract = [
         {"field": "estimand", "value": "incremental conditional observability of held-out utility beyond functional block"},
         {"field": "primary_estimator", "value": "nested LOTO ridge prediction contrast"},
         {"field": "secondary_estimator", "value": "RBF kernel alignment on cross-fitted functional residual"},
         {"field": "dependence", "value": "target and trajectory blocked; trial rows are not iid"},
         {"field": "exact_conditional_CS", "value": "false; proxy distinction explicit"},
-        {"field": "bandwidth", "value": "0.5/1/2 x training-scale median distance; max-stat blocked null"},
+        {"field": "bandwidth", "value": "0.5/1/2 x outer-training-fold standardized median distance; global 2-path x 3-bandwidth max-stat blocked null"},
     ]
     return {"summary": rows, "bandwidth": bandwidth_rows, "contract": contract}
 
@@ -479,6 +491,7 @@ def _risk_rows() -> list[dict]:
         "cache_rows_iid": ("controlled", "unit-level modeling and blocked dependence"),
         "counterfactual_as_mechanism": ("closed", "matched nulls and factorization prevent origin claim"),
         "conditional_CS_proxy_overclaim": ("closed", "proxy/exact distinction in estimator contract"),
+        "conditional_kernel_scale_or_path_multiplicity": ("closed", "outer-training-fold z-score and global 2-path x 3-bandwidth max-stat"),
         "selector_or_checkpoint_artifact": ("closed", "aggregate metrics only; no selected IDs"),
         "raw_cache_in_git": ("closed", "only compact feature cache external"),
         "unauthorized_forward_training_GPU": ("closed", "analysis modules have no model/data forward path"),

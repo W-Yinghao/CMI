@@ -145,6 +145,12 @@ def test_c75_kernel_bandwidth_is_estimated_from_outer_training_targets():
     assert np.isfinite(statistic)
     assert len(bandwidths) == 4
     assert all(value > 0 for value in bandwidths)
+    rescaled, rescaled_bandwidths = c75_modeling.crossfit_kernel_alignment_statistic(
+        features * np.asarray([1.0, 10.0, 100.0]) + np.asarray([2.0, -4.0, 7.0]),
+        residual, targets, 1.0,
+    )
+    assert abs(statistic - rescaled) < 1e-12
+    assert np.allclose(bandwidths, rescaled_bandwidths, atol=1e-12)
 
 
 def test_c75_projection_variance_estimand_accounts_to_one():

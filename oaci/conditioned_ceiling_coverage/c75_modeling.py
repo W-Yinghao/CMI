@@ -277,9 +277,10 @@ def crossfit_kernel_alignment_statistic(
     for held_target in sorted(set(targets.tolist())):
         train = targets != held_target
         test = targets == held_target
+        train_scaled, test_scaled, _, _ = _scale(X[train], X[test])
         bandwidth = max(
-            bandwidth_factor * _median_pairwise_distance(X[train]), 1e-12,
+            bandwidth_factor * _median_pairwise_distance(train_scaled), 1e-12,
         )
-        statistics.append(_kernel_alignment_at_bandwidth(X[test], y[test], bandwidth))
+        statistics.append(_kernel_alignment_at_bandwidth(test_scaled, y[test], bandwidth))
         bandwidths.append(bandwidth)
     return float(np.mean(statistics)), bandwidths
