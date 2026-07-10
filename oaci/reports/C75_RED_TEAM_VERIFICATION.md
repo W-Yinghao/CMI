@@ -1,0 +1,56 @@
+# C75 Red-Team Verification
+
+- Final status: `PASS`
+- Blocking checks passed: `31/31`
+- Total checks passed: `32/32`
+- Main C75 report existed before red-team: `false`
+- Independent C74 input descriptors rehashed: `1080/1080`
+- T3-HO z/Wz touched: `false`
+- Same-label oracle payload accessed: `false`
+
+## Repairs
+
+The initial Wz duplicate audit was invalidated because two summary reductions used different floating-point accumulation paths. The repaired cache uses one canonical float64 projection summary and now preserves B1/B2 rank with prediction deltas below 1e-9.
+
+The initial conditional-observability proxy lacked fold-local scaling and path-wise multiplicity control. The repaired audit uses outer-training-fold z-scoring and a global 2-path x 3-bandwidth max-stat null.
+
+## Claim Boundary
+
+Neither F2 nor F4 passes the locked predictive qualification gates, so no C76 protocol or T3-HO campaign is justified. The preregistered nonlinear kernel proxy is nevertheless significant for both paths and must be disclosed as an association-only counter-result. It is not actionability, exact conditional-CS, a representation origin, a target gauge, or a deployable escape hatch.
+
+## Checks
+
+| Check | Pass | Blocking | Observed | Expected |
+|---|---:|---:|---|---|
+| protocol_hash | 1 | 1 | a42f06909ca05ba96edd28d611783a1ba5ab6ecd8ff91a0e53ee4396dfc97c7b | a42f06909ca05ba96edd28d611783a1ba5ab6ecd8ff91a0e53ee4396dfc97c7b |
+| protocol_precedes_feature_payload | 1 | 1 | 1783696999 | < 1783699494.1563168 |
+| canonical_repair_precedes_feature_payload | 1 | 1 | 1783699364 | < 1783699494.1563168 |
+| final_analysis_code_precedes_state | 1 | 1 | 1783700215 | < 1783700495.331164 |
+| restricted_T2_exact_universe | 1 | 1 | 216 | 216 |
+| T3_HO_zero_overlap | 1 | 1 | 0 | 0 |
+| restricted_five_view_contract | 1 | 1 | ['checkpoint_Wb', 'strict_source_trial', 'target_construction_labels', 'target_evaluation_labels', 'target_unlabeled_representation'] | ['checkpoint_Wb', 'strict_source_trial', 'target_construction_labels', 'target_evaluation_labels', 'target_unlabeled_representation'] |
+| independent_C74_payload_rehash | 1 | 1 | 0 | 0 failures / 1080 descriptors |
+| feature_manifest_information_boundary | 1 | 1 | units=216;rehash=1080;oracle=False;T3=False;identity=0.0 | 216;1080;false;false;0 |
+| registered_feature_dimensions | 1 | 1 | {'F0': (216, 9), 'F1': (216, 25), 'F2': (216, 25), 'F3': (216, 18), 'F4': (216, 35), 'F5': (216, 15)} | locked dimensions |
+| unit_and_block_structure | 1 | 1 | targets={1: 24, 2: 24, 3: 24, 4: 24, 5: 24, 6: 24, 7: 24, 8: 24, 9: 24};cells=Counter({4: 54}) | 24/target;54 cells x4 |
+| canonical_projection_summary_identity | 1 | 1 | True | True |
+| Wz_logit_exact_redundancy | 1 | 1 | [('strict_source', '38', '38', '3.060940390042788e-12'), ('target_unlabeled', '55', '55', '2.8950619679335432e-11')] | rank equal; prediction delta <1e-9 |
+| registered_model_family_complete | 1 | 1 | 30:30:499 | 30:30:499 |
+| incremental_R2_arithmetic | 1 | 1 | True | True |
+| primary_secondary_null_contract | 1 | 1 | True | two 499-replicate nulls; max-stat monotone |
+| T3_qualification_reconstructed | 1 | 1 | {'F2_strict_source': {'incremental_R2': 0, 'observed_above_nested_null_p95': 0, 'leave_target_out_median_positive': 1, 'positive_in_7_of_9_targets': 0, 'max_stat_corrected_p': 0, 'not_redundant_with_logits_probabilities': 1, 'no_target_label_leakage': 1, 'ALL_REQUIRED': 0}, 'F4_target_unlabeled': {'incremental_R2': 0, 'observed_above_nested_null_p95': 0, 'leave_target_out_median_positive': 1, 'positive_in_7_of_9_targets': 0, 'max_stat_corrected_p': 0, 'not_redundant_with_logits_probabilities': 1, 'no_target_label_leakage': 1, 'ALL_REQUIRED': 0}} | exact locked gate reconstruction |
+| no_T3_qualified_candidate | 1 | 1 | [] | [] |
+| construction_label_positive_control | 1 | 1 | dR2=0.4527530979589407;targets=9;p=0.002 | material;>=7/9;p<.05 |
+| projection_stable_but_not_registered_incremental | 1 | 1 | reliable_nuisance_identity_descriptor | stable;incremental=0;no mechanism/gauge |
+| variance_estimand_accounting | 1 | 1 | 36 | 36 rows; sum=1;noncausal |
+| counterfactual_sensitivity_not_origin | 1 | 1 | [('residual_shrink_0.5', '1.0'), ('target_common_replacement', '0.984')] | matched-null nonsignificant;origin=0 |
+| factorization_function_invariance | 1 | 1 | 4 | 4 transforms;function invariant;coordinate noninvariance shown |
+| synthetic_false_positive_and_power | 1 | 1 | {'functionally_redundant': '0.044', 'incremental_representation': '1.0', 'stable_endpoint_irrelevant': '0.026'} | null<=.08;power>=.80 |
+| conditional_proxy_global_correction | 1 | 1 | [('strict_source', '0.004'), ('target_unlabeled', '0.002')] | 2 paths;6-test max-stat;proxy only |
+| nonlinear_proxy_counter_result_disclosed | 1 | 0 | [('strict_source', '0.004'), ('target_unlabeled', '0.002')] | significant preregistered proxy must be disclosed |
+| analysis_claim_boundary | 1 | 1 | True | True |
+| T3_campaign_not_justified | 1 | 1 | T3_HO_representation_campaign_not_justified | not justified;no C76;T3 untouched |
+| risk_register_no_blocker | 1 | 1 | [] | [] |
+| raw_cache_not_in_git | 1 | 1 | [] | [] |
+| artifact_hygiene | 1 | 1 | 254710 | <50000000 |
+| main_report_not_preexisting | 1 | 1 | False | False |

@@ -1,0 +1,17 @@
+candidate,path,gate,passed,incremental_R2,nested_null_p95,max_stat_p,median_target_rho,positive_targets,duplicate_block_rank,architecture_block_rank
+F2_strict_source,P_F2_strict_architecture,incremental_R2,0,0.01619135041359243,0.04400854303717955,1.0,0.29739130434782607,5,38,63
+F2_strict_source,P_F2_strict_architecture,observed_above_nested_null_p95,0,0.01619135041359243,0.04400854303717955,1.0,0.29739130434782607,5,38,63
+F2_strict_source,P_F2_strict_architecture,leave_target_out_median_positive,1,0.01619135041359243,0.04400854303717955,1.0,0.29739130434782607,5,38,63
+F2_strict_source,P_F2_strict_architecture,positive_in_7_of_9_targets,0,0.01619135041359243,0.04400854303717955,1.0,0.29739130434782607,5,38,63
+F2_strict_source,P_F2_strict_architecture,max_stat_corrected_p,0,0.01619135041359243,0.04400854303717955,1.0,0.29739130434782607,5,38,63
+F2_strict_source,P_F2_strict_architecture,not_redundant_with_logits_probabilities,1,0.01619135041359243,0.04400854303717955,1.0,0.29739130434782607,5,38,63
+F2_strict_source,P_F2_strict_architecture,no_target_label_leakage,1,0.01619135041359243,0.04400854303717955,1.0,0.29739130434782607,5,38,63
+F2_strict_source,P_F2_strict_architecture,ALL_REQUIRED,0,0.01619135041359243,0.04400854303717955,1.0,0.29739130434782607,5,38,63
+F4_target_unlabeled,P_F4_target_architecture,incremental_R2,0,-0.20834335698132767,-0.12605585686508758,1.0,0.04521739130434782,5,55,78
+F4_target_unlabeled,P_F4_target_architecture,observed_above_nested_null_p95,0,-0.20834335698132767,-0.12605585686508758,1.0,0.04521739130434782,5,55,78
+F4_target_unlabeled,P_F4_target_architecture,leave_target_out_median_positive,1,-0.20834335698132767,-0.12605585686508758,1.0,0.04521739130434782,5,55,78
+F4_target_unlabeled,P_F4_target_architecture,positive_in_7_of_9_targets,0,-0.20834335698132767,-0.12605585686508758,1.0,0.04521739130434782,5,55,78
+F4_target_unlabeled,P_F4_target_architecture,max_stat_corrected_p,0,-0.20834335698132767,-0.12605585686508758,1.0,0.04521739130434782,5,55,78
+F4_target_unlabeled,P_F4_target_architecture,not_redundant_with_logits_probabilities,1,-0.20834335698132767,-0.12605585686508758,1.0,0.04521739130434782,5,55,78
+F4_target_unlabeled,P_F4_target_architecture,no_target_label_leakage,1,-0.20834335698132767,-0.12605585686508758,1.0,0.04521739130434782,5,55,78
+F4_target_unlabeled,P_F4_target_architecture,ALL_REQUIRED,0,-0.20834335698132767,-0.12605585686508758,1.0,0.04521739130434782,5,55,78

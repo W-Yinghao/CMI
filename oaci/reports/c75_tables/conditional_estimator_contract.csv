@@ -1,0 +1,7 @@
+field,value
+estimand,incremental conditional observability of held-out utility beyond functional block
+primary_estimator,nested LOTO ridge prediction contrast
+secondary_estimator,RBF kernel alignment on cross-fitted functional residual
+dependence,target and trajectory blocked; trial rows are not iid
+exact_conditional_CS,false; proxy distinction explicit
+bandwidth,0.5/1/2 x outer-training-fold standardized median distance; global 2-path x 3-bandwidth max-stat blocked null

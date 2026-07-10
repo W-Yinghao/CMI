@@ -1,0 +1,11 @@
+attempt,job_or_commit,phase,status,superseded,forward,training,reason
+1,fe60552,protocol_lock,passed,0,0,0,protocol and registries committed before payload read
+2,768d37b,pre_payload_implementation,passed,0,0,0,implementation committed before extraction
+3,892409,feature_extraction_initial,completed_then_superseded,1,0,0,independent red-team found float32-vs-float64 summary pseudo-rank
+4,892410,analysis_initial,completed_then_superseded,1,0,0,Wz duplicate block incorrectly increased rank
+5,acd1c45,canonical_Wz_repair,passed,0,0,0,single float64 canonical projection summary and hard identity gate
+6,892425,feature_extraction_repaired,passed,0,0,0,new content-addressed feature payload; old payload dereferenced
+7,892427,analysis_redundancy_repaired,completed_then_superseded,1,0,0,red-team found conditional kernel lacked fold-local scaling/global path correction
+8,cf4c985,conditional_calibration_repair,passed,0,0,0,outer-training z-score and global 2-path x 3-bandwidth max-stat
+9,892437,analysis_final_candidate,passed,0,0,0,all registered analyses recomputed
+10,892453,independent_red_team,running_or_passed,0,0,0,independent full input rehash and table reconstruction

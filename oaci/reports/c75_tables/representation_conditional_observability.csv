@@ -1,0 +1,3 @@
+path,estimator,max_observed_alignment,bandwidth_max_stat_p,linear_incremental_R2,linear_max_stat_p,exact_conditional_CS,iid_guarantee_claimed,global_path_bandwidth_max_stat_p,global_family_size
+strict_source,block_aware_RBF_kernel_alignment_on_functional_crossfit_residual,0.026768950189218054,0.002,0.01619135041359243,1.0,0,0,0.004,6
+target_unlabeled,block_aware_RBF_kernel_alignment_on_functional_crossfit_residual,0.05775235137883344,0.002,-0.20834335698132767,1.0,0,0,0.002,6

@@ -1,0 +1,217 @@
+{
+  "Wz_logit_redundancy": {
+    "strict_source": {
+      "B1_rank": 38,
+      "B2_rank": 38,
+      "column_space_incremental_R2": -1.1870504579292174e-12,
+      "column_space_prediction_delta_max_abs": 3.060940390042788e-12,
+      "identity_max_abs": 0.0,
+      "naive_duplicate_incremental_R2": -0.009436851264785773
+    },
+    "target_unlabeled": {
+      "B1_rank": 55,
+      "B2_rank": 55,
+      "column_space_incremental_R2": -1.090649792701015e-11,
+      "column_space_prediction_delta_max_abs": 2.8950619679335432e-11,
+      "identity_max_abs": 0.0,
+      "naive_duplicate_incremental_R2": -0.0004361878316565537
+    }
+  },
+  "actionability": {
+    "P_F2_strict_architecture": {
+      "delta_top1": 0.1111111111111111,
+      "delta_top3": -0.1111111111111111,
+      "positive_regret_reduction_targets": 5,
+      "regret_reduction": 0.011272141706924341
+    },
+    "P_F4_target_architecture": {
+      "delta_top1": 0.2222222222222222,
+      "delta_top3": 0.0,
+      "positive_regret_reduction_targets": 2,
+      "regret_reduction": 2.4671622769447922e-17
+    },
+    "P_F5_construction_positive": {
+      "delta_top1": 0.2222222222222222,
+      "delta_top3": 0.2222222222222222,
+      "positive_regret_reduction_targets": 3,
+      "regret_reduction": 0.13848631239935585
+    }
+  },
+  "claim_boundary": {
+    "deployability": false,
+    "diagnostic_only": true,
+    "new_training_justified": false,
+    "representation_causality": false,
+    "selector": false,
+    "source_only_escape_hatch": false,
+    "target_gauge": false,
+    "target_population_generalization": false
+  },
+  "conditional_observability_counter_result": {
+    "strict_source": {
+      "exact_conditional_CS": false,
+      "global_six_test_max_stat_p": 0.004,
+      "max_alignment": 0.026768950189218054,
+      "predictive_qualification": false
+    },
+    "target_unlabeled": {
+      "exact_conditional_CS": false,
+      "global_six_test_max_stat_p": 0.002,
+      "max_alignment": 0.05775235137883344,
+      "predictive_qualification": false
+    }
+  },
+  "counterfactual": {
+    "residual_shrink_0.5": {
+      "matched_null_p95": 0.5477995058712194,
+      "max_family_p": 1.0,
+      "mechanism_origin_identified": false,
+      "observed_mean_flip": 0.13232584764365682
+    },
+    "target_common_replacement": {
+      "matched_null_p95": 0.5477995058712194,
+      "max_family_p": 0.984,
+      "mechanism_origin_identified": false,
+      "observed_mean_flip": 0.4735862621039899
+    }
+  },
+  "data_boundary": {
+    "C74_descriptors_rehashed": 1080,
+    "GPU": false,
+    "T2_units": 216,
+    "T3_HO_z_Wz_touched": false,
+    "feature_cache_sha256": "1af5d03c2887ca9008a8f3cf3bf4f0328fc6f4913c026ed8db61a22afacbd12e",
+    "feature_cache_size_bytes": 543712,
+    "forward_passes": 0,
+    "re_inference": 0,
+    "same_label_oracle_accessed": false,
+    "targets": 9,
+    "training": 0
+  },
+  "final_gate": "T3_HO_REPRESENTATION_CAMPAIGN_NOT_JUSTIFIED",
+  "implementation_commits": [
+    "768d37b",
+    "acd1c45",
+    "cf4c985",
+    "9c0127b",
+    "41e8344",
+    "313eb4e",
+    "8141069"
+  ],
+  "milestone": "C75",
+  "parent_C74_result_commit": "fe467b9826c458f0626b775704a60c55ec31b6f8",
+  "projection_construct": {
+    "classification": "reliable_nuisance_identity_descriptor",
+    "mechanism_origin_validated": false,
+    "median_split_spearman": 0.9817391304347824,
+    "minimum_split_spearman": 0.9365217391304346,
+    "positive_cells": 36,
+    "registered_incremental": false
+  },
+  "protocol_sha256": "a42f06909ca05ba96edd28d611783a1ba5ab6ecd8ff91a0e53ee4396dfc97c7b",
+  "qualification": {
+    "C76_protocol_created": false,
+    "T3_HO_campaign_justified": false,
+    "all_required_passes": []
+  },
+  "red_team": {
+    "blocking_checks": 31,
+    "repairs": [
+      "canonical_float_projection_summary",
+      "fold_scaled_global_maxstat_conditional_proxy"
+    ],
+    "status": "PASS",
+    "total_checks": 32
+  },
+  "registered_incremental_relevance": {
+    "F2_strict_source": {
+      "incremental_R2": 0.01619135041359243,
+      "max_stat_corrected_p": 1.0,
+      "median_increment_residual_rho": 0.29739130434782607,
+      "nested_null_p95": 0.04400854303717955,
+      "positive_targets": 5,
+      "qualified": false
+    },
+    "F4_target_unlabeled": {
+      "incremental_R2": -0.20834335698132767,
+      "max_stat_corrected_p": 1.0,
+      "median_increment_residual_rho": 0.04521739130434782,
+      "nested_null_p95": -0.12605585686508758,
+      "positive_targets": 5,
+      "qualified": false
+    },
+    "F5_construction_positive_control": {
+      "incremental_R2": 0.4527530979589407,
+      "max_stat_corrected_p": 0.002,
+      "median_increment_residual_rho": 0.6965217391304346,
+      "nested_null_p95": 0.21522891996228694,
+      "positive_targets": 9,
+      "target_label_derived": true
+    }
+  },
+  "schema_version": "c75_representation_construct_validity_report_v1",
+  "taxonomy": {
+    "primary_active": [
+      "C75-A_stable_projection_construct_functionally_redundant_nonpredictive",
+      "C75-D_factorization_nonidentifiable_functional_logit_level_only",
+      "C75-E_mixed_architecture_tied_representation_signal"
+    ],
+    "primary_inactive": [
+      "C75-B_target_unlabeled_projection_candidate",
+      "C75-C_strict_source_representation_escape_hatch_candidate",
+      "C75-F_cache_protocol_blocker"
+    ],
+    "scope_note": "C75-D is identifiability-only; C75-E is association-only and does not override failed predictive qualification.",
+    "secondary_active": [
+      "S1",
+      "S2",
+      "S3",
+      "S4",
+      "S5",
+      "S6",
+      "S10",
+      "S12"
+    ],
+    "secondary_inactive": [
+      "S7",
+      "S8",
+      "S9",
+      "S11"
+    ]
+  },
+  "variance_estimand": {
+    "candidate_x_trial_residual": {
+      "ci_high": 0.23825677503215043,
+      "ci_low": 0.1751206355293369,
+      "mean_share": 0.20539670960868
+    },
+    "checkpoint_candidate": {
+      "ci_high": 0.4277821452020797,
+      "ci_low": 0.21914475503606984,
+      "mean_share": 0.3109250899793399
+    },
+    "target_common_trial": {
+      "ci_high": 0.5759112828663293,
+      "ci_low": 0.37702666748064867,
+      "mean_share": 0.48367820041198
+    }
+  },
+  "verification": {
+    "C23_C75": {
+      "passed": 504,
+      "slurm_job": 892497
+    },
+    "C65_C75": {
+      "passed": 97,
+      "slurm_job": 892496
+    },
+    "all_stderr_empty": true,
+    "focused_C75": {
+      "passed": 17
+    },
+    "full_OACI": {
+      "passed": 1432,
+      "slurm_job": 892498
+    }
+  }
+}
