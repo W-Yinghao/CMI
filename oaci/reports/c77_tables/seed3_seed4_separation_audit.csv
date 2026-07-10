@@ -1,0 +1,6 @@
+gate,required,observed_contract,blocking
+seed3_only_in_C78,1,1,1
+seed4_absent_from_C78_execution_matrix,1,1,1
+C79_final_protocol_hash_before_seed4_training,1,1,1
+seed3_and_seed4_not_pooled_before_seed4_verdict,1,1,1
+seed4_no_access_in_C77,1,1,1

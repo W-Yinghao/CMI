@@ -1,0 +1,9 @@
+requirement,status,future_need
+dataset_access,not_accessed_in_C77,explicit authorization and content-addressed evidence manifest
+task_label_compatibility,unresolved_by_design,locked motor-imagery mapping without outcome inspection
+preprocessing_compatibility,schema_ready_not_validated,channel/time/filter ABI preflight
+model_architecture_compatibility,conditional,ShallowConvNet geometry preflight and exact hook identity
+target_definition,planned,subject-level LOSO; no reused target subjects
+minimum_target_count,defer_threshold_until_R1,power recalibration from seed4 without outcome tuning
+instrumentation_schema,compatible_by_contract,same five physical information views
+hypothesis_mapping,H1_H7_general_objects_only,lock before any external data open
