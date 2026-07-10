@@ -1,0 +1,4 @@
+partition,availability,time_limit,nodes,gres,C77_authorization,note
+V100,up,2-00:00:00,8,gpu:2(S:0-1),0,read-only scheduler snapshot; availability is not authorization
+V100,up,2-00:00:00,2,gpu:3(S:0-1),0,read-only scheduler snapshot; availability is not authorization
+cpu-high,up,5-00:00:00,2,(null),0,read-only scheduler snapshot; availability is not authorization

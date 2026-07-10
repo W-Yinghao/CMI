@@ -14,63 +14,36 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-10)
 
-The detailed C23-C31 history below remains useful background, but the authoritative tip is now C76:
+The detailed C23-C31 history below remains useful background, but the authoritative tip is now C77:
 
 ```text
-C75 result commit: fb8a412
-C76 protocol SHA:  1a1b4255601d6178ffbe8a8245625845fdb4057c445ca8db25e84b4ddcd8528f
-C76 final gate:    LOCAL_NONLINEAR_MEASUREMENT_NONTRANSPORTABLE
-C76 primary:       C76-D_local_nonlinear_measurement_nontransportable_nonactionable
+C77 protocol commit: 23f549d
+C77 protocol SHA:    cf3ee46645a91d7dbfb25a4ebf6fdca2641932f9e5853fdd573d4e1d7b33ea5a
+C77 final gate:      SEED3_MULTIREGIME_INSTRUMENTED_PILOT_READY_BUT_NOT_AUTHORIZED
+C77 primary:         C77-A_multiregime_seed3_seed4_replication_protocol_ready
 ```
 
-C76 is a no-forward/no-training T2 robustness audit of C75's nonlinear association. It preserves the untouched
-1,052-unit T3-HO z/Wz new-variable holdout. It ran 29 function-preserving orbit variants over all 216 T2 units,
-24 registered kernel/statistic paths, six 499-replicate blocked null families, nested leave-target-out prediction,
-actionability gates, and seven 500-replicate synthetic known cases.
+C77 is protocol/power/readiness only. It recovered exact historical ERM/OACI/SRC identities, with OACI/SRC as the two comparable 40-checkpoint trajectories per level and ERM as a shared one-point stage-1 anchor. SRC remains the C12-falsified negative control, not a method-rescue candidate. Levels 0/1 yield 1,458 planned units per seed.
 
-Gate-first result:
+The 486-cell, 400-replicate synthetic benchmark passed its locked FPR/power/direction gates, but the effective-multiplicity actionability contrast is only 0.0075 and is not material. Independent red team passed 60/60 blocking checks after repairing a locked-ledger mutation. No training, real EEG forward, GPU work, seed-3/4 access, BNCI2014_004 access, checkpoint creation, selector, or manuscript drafting occurred.
 
-```text
-strict-source architecture:
-  best registered effect 0.234144
-  worst six-null max-stat p 0.054
-  strict control pass false
-  incremental R2 -0.042483; prediction max-stat p 0.998; actionability false
-
-target-unlabeled architecture geometry (F4[0:20], Wz tail excluded):
-  Laplacian-HSIC effect 0.237725; target-bootstrap CI [0.195773, 0.277323]
-  worst six-null max-stat p 0.030; all six nulls pass
-  incremental R2 -0.011041; prediction max-stat p 0.820
-  positive prediction targets 4/9; actionability false
-```
-
-The surviving target association is local and diagnostic. It is robust over the registered orbit but does not
-transport as held-out prediction or improve checkpoint actionability. It does not identify W-versus-z origin,
-representation causality, target gauge, source-only rescue, or a deployable method. No C77 protocol was created;
-the T3-HO representation campaign is not justified and the representation branch is saturated under the current
-architecture/frozen universe.
-
-Independent red-team job `892694` passed 26/26 blocking checks after rehashing 1,080/1,080 C74 descriptors. It
-forced three repairs before reporting: isolate C75 F4's 20-d geometry from its 15-d Wz/logit-redundant tail; require
-all six nulls before calling association-prediction separation; and repair synthetic S5 so a random extreme winner
-preserves association without top1 control. Final verification is 18 focused C76,
-115 C65-C76 (job 892715), 522 C23-C76 (job 892716),
-and 1450 full-suite tests (job 892717), all with empty stderr.
+C78 seed-3 is ready but not authorized. Only the future exact CLI token in the locked C78 protocol can authorize its 82-unit target-4/OACI pilot; prompt text and environment variables cannot. Seed 4 remains inaccessible until a final C79 protocol is committed, hashed, and separately authorized.
 
 Authoritative artifacts:
 
 ```text
-oaci/reports/C76_REPRESENTATION_ASSOCIATION_ORBIT.md
-oaci/reports/C76_REPRESENTATION_ASSOCIATION_ORBIT.json
-oaci/reports/C76_RED_TEAM_VERIFICATION.md
-oaci/reports/c76_tables/artifact_manifest.csv
-oaci/reports/c76_tables/execution_attempt_ledger.csv
+oaci/reports/C77_INDEPENDENT_MULTIREGIME_REPLICATION_PROTOCOL.md
+oaci/reports/C77_INDEPENDENT_MULTIREGIME_REPLICATION_PROTOCOL.json
+oaci/reports/C77_REPLICATION_PROTOCOL_RESULT.json
+oaci/reports/C77_RED_TEAM_VERIFICATION.md
+oaci/reports/C78_SEED3_INSTRUMENTED_PILOT_PROTOCOL.json
+oaci/reports/c77_tables/artifact_manifest.csv
 ```
 
-Do not launch C77, T3-HO representation re-inference, new training, GPU work, BNCI2014_004, seeds [3,4], a selector,
-checkpoint recommendations, or manuscript drafting without a new explicit PM instruction.
+Do not start C78 training, use seed 3 or 4, access BNCI2014_004, create checkpoints, or draft manuscript text without a new explicit PM instruction and the exact future authorization interface.
 
 ---
+
 
 ## 1. What C23–C31 established (the mechanism chain)
 

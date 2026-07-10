@@ -1,0 +1,6 @@
+item,status,blocking,reason
+historical_regime_recovery,pass,0,three primary identities and two comparable trajectory regimes
+synthetic_power_false_positive,pass,0,all locked simulation gates
+storage_capacity,pass,0,free_GiB=2791.370;required_reserve_GiB=107.153
+future_V100_partition,pass,0,read-only snapshot; not authorization
+blocking_risks,pass,0,open=0

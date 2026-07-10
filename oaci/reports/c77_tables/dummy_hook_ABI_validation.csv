@@ -1,0 +1,2 @@
+test,device,input_shape,z_shape,logit_shape,W_shape,b_shape,Wz_plus_b_max_abs,repeat_logit_max_abs,state_unchanged,state_bytes,passed,real_EEG_rows_loaded,forward_type
+ShallowConvNet_dummy_hook_ABI,cpu,"[2, 22, 385]","[2, 800]","[2, 4]","[4, 800]",[4],0.0,0.0,1,158424,1,0,dummy_synthetic_only
