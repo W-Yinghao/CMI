@@ -175,3 +175,9 @@ def test_c74_red_team_attempt_ledger_discloses_superseded_runs():
     assert any(row["slurm_job"] == "892140" and row["superseded"] == 1 for row in rows)
     assert rows[-1]["slurm_job"] == "892144"
     assert rows[-1]["status"] == "passed"
+
+
+def test_c74_red_team_counterfactual_uses_registered_float_tolerance():
+    source = Path(red_team.__file__).read_text()
+    assert 'protocol["identity_tolerances"]["Wz_plus_b_logits_max_abs"]' in source
+    assert 'original_Wz_plus_b_vs_stored_logits_max_abs"]) <= reconstruction_tolerance' in source

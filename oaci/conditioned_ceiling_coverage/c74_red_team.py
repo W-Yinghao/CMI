@@ -166,7 +166,19 @@ def run_red_team() -> dict:
     _check(checks, "projection_split_table", len(stability) == 36 and all(row["same_label_oracle_used"] == "0" for row in stability), len(stability), "36; oracle=0")
     counterfactual = _read_csv("projection_counterfactual_feasibility.csv")
     original = [row for row in counterfactual if row["counterfactual"] == "I0_original"]
-    _check(checks, "counterfactual_identity", len(original) == 9 and all(float(row["pairwise_rank_flip_fraction"]) == 0 and int(row["top1_agreement"]) == 1 and float(row["original_Wz_plus_b_vs_stored_logits_max_abs"]) == 0 for row in original), len(original), "9 exact I0 controls")
+    reconstruction_tolerance = float(protocol["identity_tolerances"]["Wz_plus_b_logits_max_abs"])
+    _check(
+        checks, "counterfactual_identity",
+        len(original) == 9 and all(
+            float(row["pairwise_rank_flip_fraction"]) == 0
+            and int(row["top1_agreement"]) == 1
+            and float(row["best_utility_delta"]) == 0
+            and float(row["original_Wz_plus_b_vs_stored_logits_max_abs"]) <= reconstruction_tolerance
+            for row in original
+        ),
+        f"rows={len(original)};max_reconstruction={max(float(row['original_Wz_plus_b_vs_stored_logits_max_abs']) for row in original)}",
+        f"9 exact rank/utility controls; reconstruction<={reconstruction_tolerance}",
+    )
 
     risks = _read_csv("risk_register.csv")
     _check(checks, "risk_register_no_blocker", all(row["blocking"] == "0" for row in risks), [row["risk"] for row in risks if row["blocking"] != "0"], [])
