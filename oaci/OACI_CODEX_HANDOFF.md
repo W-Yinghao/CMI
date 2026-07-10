@@ -14,32 +14,35 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-10)
 
-The detailed C23-C31 history below remains background; the authoritative tip is C78 P0:
+The detailed C23-C31 history below remains background; the authoritative tip is the authorized C78 dual-mode milestone:
 
 ```text
-C78 protocol anchor: 23f549d
-C78 protocol SHA:    ad6f4e034318b879755ca46a719d39cfd3d3c36d7ee8478771d08778a8b71afc
-C78 final gate:      PILOT_READY_BUT_NOT_AUTHORIZED
-C78 P1 execution:    not authorized / not attempted
+C78 no-auth commit: 67bca01
+C78 execution lock: 4ac865f
+C78 successful job: 892832
+C78 final gate:     PILOT_VALID_SRC_CANARY_REQUIRED_BEFORE_FULL_FIELD
+C78 primary:        C78-A_seed3_OACI_ERM_pilot_executed_and_validated
 ```
 
-C78 locked an explicit 82-unit target-4, seed-3, levels-0/1 OACI+ERM canary: two ERM anchors and 80 fixed-cadence OACI trajectory checkpoints. The exact CLI authorization token was not passed. Prompt/generic authorization text and environment values were rejected, so training, real forward, real-data load, GPU request, checkpoint creation, and raw cache emission all remained zero.
+C78 first proved the exact-token guard with a no-auth baseline, then executed the locked target-4/seed-3/levels-0+1 OACI+ERM field after exact authorization. Job 892830 failed the synthetic deterministic gate before data; the repair was committed and job 892832 produced 82/82 checkpoints, optimizer states, and sidecars from source-training subjects only. Target rows/labels and source-audit rows in training were zero.
 
-P0 replayed seven historical code/config identities, the locked environment, storage capacity, physical-view schemas, and a CPU synthetic Wz/logit ABI. Independent red team passed before the report was emitted. No C78 execution taxonomy case is active. Seed 4 and BNCI2014_004 remain untouched; SRC remains unexercised and blocks automatic full-field expansion.
+Post-freeze CPU instrumentation produced 377,856 strict-source and 47,232 target-unlabeled rows over all 82 units. Every checkpoint/optimizer hash replayed; Wz/logit, softmax, hook, and repeat errors were zero. Authorized red-team passed 52/52 blocking checks.
 
-Regression: `focused_C78=12, C65_C78=150, C23_C78=557, full_OACI=1485`.
+This is an execution/instrumentation canary, not a multi-regime or scientific replication. Both levels show only 23/40 source-risk-feasible OACI points, lambda reaches 20, and level-1 surrogate reaches -49.694. SRC remains unexercised, so the 1,458-unit field is not ready or authorized. Seed 4 and BNCI2014_004 remain untouched.
+
+Regression: `focused_C78=29, C65_C78=167, C23_C78=574, full_OACI=1502`.
 
 Authoritative artifacts:
 
 ```text
 oaci/reports/C78_SEED3_INSTRUMENTED_PILOT.md
 oaci/reports/C78_SEED3_INSTRUMENTED_PILOT.json
-oaci/reports/C78_RED_TEAM_VERIFICATION.md
+oaci/reports/C78_AUTHORIZED_RED_TEAM_VERIFICATION.md
 oaci/reports/C78_PROTOCOL_TIMING_AUDIT.md
 oaci/reports/c78_tables/artifact_manifest.csv
 ```
 
-Next action requires PM review. A real C78 P1 must be a new command carrying the exact committed CLI token. It may execute only the 82-unit OACI+ERM field. It may not run SRC, seed 4, BNCI2014_004, or the full seed-3 field.
+Wait for PM review. No SRC canary, full seed-3 expansion, seed 4, or BNCI2014_004 work is authorized.
 
 ---
 

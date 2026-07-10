@@ -1,2 +1,7 @@
-analysis,target_outcomes_opened,measurement_control_claim,cross_regime_claim,escape_hatch_claim,effective_multiplicity_computed,status
-pipeline_smoke,0,0,0,0,0,deferred_until_authorized_P1
+analysis,completed,passed,scientific_claim
+source_loss_leakage_trajectory_sanity,1,1,0
+checkpoint_cadence_completeness,1,1,0
+level_schema_compatibility,1,1,0
+effective_multiplicity_top_gap_feasibility,1,1,0
+C75_C76_feature_block_computability,1,1,0
+physical_view_masking,1,1,0

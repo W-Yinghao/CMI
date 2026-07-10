@@ -1,26 +1,27 @@
-risk,status,blocking_open,blocks_current_no_auth_readiness,blocks_future_P1_if_unpassed,mitigation_or_boundary
-protocol_hash_or_token_ambiguity,closed,0,0,0,full hash and exactly one token field; exact CLI only
-authorization_bypass,closed,0,0,0,prompt/env/substring rejected; current CLI token absent
-target_label_training_leakage,runtime_gate,0,0,1,target load forbidden until all checkpoint retention is frozen
-target_outcome_checkpoint_retention,closed,0,0,0,ERM final plus fixed OACI cadence
-target_outcome_retry_selection,runtime_gate,0,0,1,all failures retained; retries may not inspect target outcomes
-historical_config_drift,closed,0,0,0,historical code blobs and C77 config payloads replayed
-level_1_omission,closed,0,0,0,82-row manifest includes 41 units at each level
-ERM_OACI_false_symmetry,closed,0,0,0,ERM marked shared anchor; OACI marked trajectory
-SRC_not_exercised,accepted_block_on_P2,0,0,0,SRC canary required before any full field
-pilot_called_multiregime_confirmation,closed,0,0,0,pilot is instrumentation/training canary only
-pilot_to_full_silent_escalation,closed,0,0,0,P2 not authorized and not present in pilot manifest
-checkpoint_cadence_incomplete,runtime_gate,0,0,1,must be 40 OACI records per level
-checkpoint_genealogy_mismatch,runtime_gate,0,0,1,ERM parent hash required for all OACI records
-MNE_shared_lock_collision,runtime_gate,0,0,1,future job requires job-local scratch and lock root
-GPU_runtime_reported_as_estimate,closed,0,0,0,P0 labels all GPU values unmeasured; P1 must measure
-nondeterminism_unreported,runtime_gate,0,0,1,tolerances and canary replay mandatory
-instrumentation_schema_drift,runtime_gate,0,0,1,locked schema compared before materialization
-Wz_logit_identity_failure,runtime_gate,0,0,1,dummy passes; every real checkpoint must replay
-source_target_view_leakage,runtime_gate,0,0,1,physical paths and allowed columns independently hashed
-oracle_descriptor_leakage,runtime_gate,0,0,1,oracle path withheld from primary process
-seed4_contamination,closed,0,0,0,seed-4 access counters fixed at zero
-BNCI2014_004_access,closed,0,0,0,dataset denied before import/load
-raw_weights_or_cache_in_git,closed,0,0,0,external-only policy and tracked-file scan
-selector_or_checkpoint_recommendation,closed,0,0,0,no selection output schema exists
-manuscript_drafting,closed,0,0,0,forbidden
+risk,status,blocking_open,mitigation_or_boundary
+protocol_hash_or_token_ambiguity,closed,0,exact token and execution-lock hashes replay
+authorization_bypass,closed,0,no-auth baseline and exact authorized path both retained
+target_label_training_leakage,closed,0,"training loader subjects [1,2,3,7,8,9], target rows/labels zero"
+target_outcome_checkpoint_retention,closed,0,82 fixed cadence units frozen before label access
+target_outcome_retry_selection,closed,0,only failed retry was pre-data deterministic canary
+historical_config_drift,closed,0,historical code/config replayed before every authorized command
+level_1_omission,closed,0,41 units per level
+ERM_OACI_false_symmetry,closed,0,ERM anchor and OACI trajectory reported separately
+SRC_not_exercised,blocks_P2,0,prospective SRC canary or exact-path proof still required
+pilot_called_multiregime_confirmation,closed,0,single-target OACI+ERM canary only
+pilot_to_full_silent_escalation,closed,0,actual unit set equals locked 82
+checkpoint_cadence_incomplete,closed,0,40/40 each level
+checkpoint_genealogy_mismatch,closed,0,all sidecars replayed
+MNE_shared_lock_collision,closed,0,job-local cache/scratch; no collision
+GPU_runtime_reported_as_estimate,closed,0,0.5436 allocated GPU wall-hours measured
+CPU_peak_RAM_unavailable,open_nonblocking_caveat,0,Slurm accounting DB refused connection after completion; do not report estimate
+nondeterminism_unreported,closed,0,synthetic GPU repeat and all inference repeats exact
+instrumentation_schema_drift,closed,0,82 manifests and schemas replayed
+Wz_logit_identity_failure,closed,0,max error zero over all 82 units
+source_target_view_leakage,closed,0,primary target view has no labels
+oracle_descriptor_leakage,closed,0,primary descriptor contains no oracle path
+seed4_contamination,closed,0,zero
+BNCI2014_004_access,closed,0,zero
+raw_weights_or_cache_in_git,closed,0,external only
+selector_or_checkpoint_recommendation,closed,0,no selected ID emitted by smoke
+manuscript_drafting,closed,0,none

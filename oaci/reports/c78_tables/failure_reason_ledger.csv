@@ -1,7 +1,8 @@
 item,status,blocking,reason
-protocol_identity,pass,0,full SHA and anchor replay
-authorization,not_authorized,0,no exact CLI token; expected no-auth branch
-historical_code_config,pass,0,7/7 code/config identities replay
-dummy_ABI,pass,0,"Wz+b/logits, probabilities, z/logit repeat identity"
-real_training,not_attempted,0,authorization absent
-SRC_coverage,deferred,0,"blocks future P2, not current no-auth P0"
+no_auth_guard,pass,0,67bca01 baseline retained
+authorized_GPU_preflight_892830,blocked_repaired,0,CuBLAS deterministic workspace missing; no real data loaded
+authorized_training_892832,pass,0,82 units frozen source-only
+postfreeze_views_892841,pass,0,physical information views separated
+instrumentation_892843_892844,pass,0,82 units; all identity gates
+CPU_peak_RAM,unavailable_caveat,0,Slurm accounting DB connection refused; no estimate substituted
+SRC_coverage,deferred_blocks_P2,0,SRC not exercised in locked pilot

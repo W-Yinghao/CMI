@@ -1,0 +1,3 @@
+level,candidate_count,uniform_random_top1,uniform_random_top5,best_minus_second_bAcc_gap,epsilon,epsilon_optimal_count,bAcc_range,best_checkpoint_id_emitted,scientific_replication_claim
+0,41,0.024390243902439025,0.12195121951219512,0.0014314286466185489,0.01,2,0.11789290507644934,0,0
+1,41,0.024390243902439025,0.12195121951219512,0.01622144818347354,0.01,1,0.1209420141382167,0,0

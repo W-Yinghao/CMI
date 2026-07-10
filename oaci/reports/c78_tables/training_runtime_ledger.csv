@@ -1,2 +1,4 @@
-job_id,GPU_model,wall_seconds_measured,GPU_hours_measured,CPU_hours_measured,peak_RAM_bytes,peak_GPU_memory_bytes,scratch_bytes,external_storage_bytes,retry_count,status
-none,not_allocated,0,0,0,0,0,0,0,0,not_executed_without_authorization
+job_id,stage,GPU_model,wall_seconds_measured,GPU_hours_measured,process_CPU_seconds_measured,peak_RAM_bytes,peak_GPU_memory_bytes,external_storage_bytes,retry_count,status
+892830,GPU_preflight_failed,Tesla V100-PCIE-32GB,unavailable_after_gate_failure,unavailable_after_gate_failure,unavailable,unavailable,unavailable,0,0,blocked_before_data
+892832,source_only_training,Tesla V100-PCIE-32GB,1957.0996627807617,0.5436387952168783,6381.202294731,unavailable_slurm_accounting_db_refused_connection,8659497472,74708228,0,completed
+892843+892844,CPU_instrumentation,none,162.19280409812927,0,6937.4750613040005,unavailable_slurm_accounting_db_refused_connection,0,1798213676,0,completed

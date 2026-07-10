@@ -1,75 +1,109 @@
 # C78 — Seed-3 OACI+ERM Instrumented Training Pilot / Full-Field Expansion Gate
 
-**Final gate:** `PILOT_READY_BUT_NOT_AUTHORIZED`
+**Final gate:** `PILOT_VALID_SRC_CANARY_REQUIRED_BEFORE_FULL_FIELD`
 
-**Primary execution taxonomy:** `not evaluable; no P1 execution occurred`
+**Primary:** `C78-A_seed3_OACI_ERM_pilot_executed_and_validated`
 
-**Secondary active:** `C78-S8 + C78-S9 + C78-S11`
+**Secondary active:** `C78-S1 + C78-S2 + C78-S3 + C78-S4 + C78-S5 + C78-S6 + C78-S7 + C78-S8 + C78-S9 + C78-S11`
 
-## Gate-first result
-
-```text
-planned field:          82 units
-ERM anchors:             2
-OACI trajectory units:  80
-SRC units:                0
-training attempted:       0
-real EEG forward:         0
-real EEG rows loaded:     0
-GPU requested:            0
-checkpoints created:      0
-raw cache rows:           0
-seed-4 access:            0
-BNCI2014_004 access:      0
-```
-
-The exact CLI authorization token was not passed to the C78 command. Prompt text, generic approval language, environment variables, whitespace variants, and substring matches were not accepted. This is therefore the required no-training P0 result, not a failed training run.
-
-## Protocol and scope
-
-- C78 protocol anchor: `23f549d`.
-- Full protocol SHA-256: `ad6f4e034318b879755ca46a719d39cfd3d3c36d7ee8478771d08778a8b71afc`.
-- Accepted C77 result: `285ba1d`; the protocol anchor is its prospective ancestor.
-- Explicit unit manifest: `82/82` unique planned units, target `4`, seed `3`, levels `0 + 1`.
-- Per level: one shared ERM stage-1 final anchor and OACI epochs `4,9,...,199` (`40` fixed-cadence records).
-- The protocol's 1,458-unit `execution_matrix` was not treated as C78 authorization.
-
-Seven historical code/config identities replay byte-exact, including ERM, OACI, the training engine, and the confirmatory manifest. ERM and OACI remain asymmetric: ERM is a shared anchor; OACI is the trajectory.
-
-## P0 readiness
+## Dual-mode provenance
 
 ```text
-locked environment SHA match: 1
-storage free snapshot:         2791.370 GiB
-required temporary reserve:    3.013 GiB
-storage capacity pass:         1
-dummy Wz+b max error:          0.000e+00
-dummy softmax max error:       0.000e+00
-dummy repeat logit/z error:    0.000e+00 / 0.000e+00
+no-auth baseline commit:  67bca01
+no-auth gate:             PILOT_READY_BUT_NOT_AUTHORIZED
+authorized worker commit: 4ac865f (determinism repair 44781eb)
+successful training job:  892832
 ```
 
-The dummy ABI used CPU synthetic inputs only. Real Wz/logit identity, training determinism, target isolation, checkpoint genealogy, cadence completeness, runtime, and cache materialization remain explicit P1 runtime gates; their tables report zero checked real units rather than inheriting the dummy pass.
+The no-auth baseline remains evidence that prompt prose cannot trigger execution. The later exact CLI token authorized only the locked 82-unit field. Job `892830` failed its synthetic deterministic canary before any data load; the failure was retained and repaired prospectively before job `892832`.
 
-## Isolation boundary
+## Execution result
 
-Six physically separate view schemas are locked. The training process receives source training inputs only; target-unlabeled instrumentation and target label views are deferred until all 82 retention decisions and checkpoint manifests are frozen. The same-label-oracle path is unavailable to primary pilot validation. These are execution contracts, not claims that runtime isolation has already passed.
+```text
+planned / actual units:       82 / 82
+ERM anchors:                   2
+OACI trajectory checkpoints: 80
+SRC units:                     0
+levels completed:              0 + 1
+checkpoint hash replay:       82 / 82
+optimizer hash replay:        82 / 82
+GPU:                           Tesla V100-PCIE-32GB
+GPU wall hours:                0.543639
+peak GPU memory:               8.065 GiB
+external payload:              1.675 GiB
+```
+
+CPU peak RAM is unavailable because the Slurm accounting database refused the post-completion query. No estimate is substituted. GPU runtime/memory, process CPU time, storage bytes, checkpoint counts, and cache rows are measured.
+
+## Target isolation
+
+The training process loaded exactly source-training subjects `[1,2,3,7,8,9]` (`3456` rows). It loaded zero target rows, zero target labels, and zero source-audit rows. All 82 retention decisions, checkpoint hashes, optimizer hashes, and sidecars were frozen before target/source-audit provisioning.
+
+Post-freeze views are physically separate:
+
+```text
+strict-source input rows:        4,608
+target-unlabeled input rows:       576
+construction label rows:           261
+evaluation label rows:             315
+same-label-oracle rows:             576
+```
+
+The primary instrumentation descriptor contains no target label, split-role, evaluation, or oracle path.
+
+## Instrumentation
+
+```text
+instrumented units:             82 / 82
+strict-source cache rows:       377,856
+target-unlabeled cache rows:     47,232
+Wz+b/logit max error:                 0
+softmax max error:                    0
+hook-z max error:                     0
+repeat logits/z max error:            0
+failed units:                          0
+```
+
+The registered C75/C76 source and target-unlabeled functional/architecture blocks are computable. C78 does not test their predictive qualification or reopen representation-feature mining.
+
+## Smoke-only observations
+
+Target endpoints were opened only after freeze for pipeline and future-power sanity. No best checkpoint ID or recommendation was emitted.
+
+```text
+level 0: candidate M=41, top-two bAcc gap=0.001431, epsilon-optimal count=2
+level 1: candidate M=41, top-two bAcc gap=0.016221, epsilon-optimal count=1
+random top-1 baseline: 0.024390
+```
+
+The trajectory stress is material to interpretation:
+
+```text
+level 0 OACI source-risk feasible: 23/40; lambda max 20.0
+level 1 OACI source-risk feasible: 23/40; lambda max 20.0; surrogate min -49.694
+```
+
+These are finite pipeline outputs, not evidence of training stability, measurement-control replication, or target control.
 
 ## Red team
 
-Independent red team passed `67/67` blocking checks before this report was created. Its principal repairs were:
+Independent authorized red-team passed `52/52` blocking checks, with four nonblocking stress/caveat checks and `10` recorded repairs. Key repairs:
 
-- `R1_protocol_parent_semantics`: replay now requires the anchor to be an ancestor of accepted C77 result 285ba1d; it correctly retains C76 as its lock-time parent
-- `R2_authorization_phrase`: generic prompt text was rejected; training/forward/GPU/data counters remain zero
-- `R3_execution_taxonomy`: all primary execution taxonomy remains not evaluable; only readiness gate and boundary secondaries are reported
-- `R4_runtime_identity`: dummy and real identity tables are separate; real rows/units checked remain explicitly zero
-- `R5_SRC_coverage`: full seed-3 field remains blocked behind prospective SRC canary or exact-path proof and new PM review
-- `R6_power_materiality`: C78 makes no H2/materiality claim and requires future power re-lock
-- `R7_partition_row_normalization`: partition checks now operate only on rows with a non-empty partition; job 892802 is retained as the blocking failed attempt
+- `R1_no_auth_vs_authorized_provenance`: dual-mode ledger preserves commit 67bca01 and authorized jobs separately
+- `R2_GPU_determinism_gate`: prospective lock repaired with CUBLAS_WORKSPACE_CONFIG=:4096:8; job 892832 passed; failed attempt retained
+- `R3_target_process_isolation`: training loaded source-train subjects only; target was provisioned only after FIELD_FROZEN and inference received an X/ID-only NPZ
+- `R4_dummy_vs_real_identity`: authorized instrumentation checked 425088 real trial-unit rows over 82 checkpoints with all maxima zero
+- `R5_trajectory_stress`: reported as pipeline smoke stress; no stability, replication, or control claim
+- `R6_CPU_peak_RAM`: CPU peak RAM is marked unavailable; no estimate substituted; GPU peak/runtime and storage remain measured
+- `R7_ERM_OACI_asymmetry`: all tables and report keep anchors and trajectories separate
+- `R8_SRC_gap`: full seed-3 expansion is not ready or authorized; final gate requires PM-reviewed SRC canary/path proof
+- `R9_smoke_target_outcomes`: smoke emits no checkpoint ID, best flag, or recommendation and carries diagnostic-only fields
+- `R10_isolation_boolean_semantics`: the rerun checks unsafe visibility fields are false and physical-separation fields are true; the failed review attempt is retained
 
-Regression: focused_C78 12 green (job 892811), C65_C78 150 green (job 892812), C23_C78 557 green (job 892813), full_OACI 1485 green (job 892814).
+Regression: focused_C78 29 green (job 892863), C65_C78 167 green (job 892866), C23_C78 574 green (job 892864), full_OACI 1502 green (job 892865).
 
 ## Decision
 
-C78 is ready for a separately invoked exact-token P1, but it has not trained or instrumented the 82-unit field. Consequently none of `C78-A` through `C78-E` is active. No measurement-control replication, cross-regime transport result, representation mechanism, strict-source escape hatch, selector, checkpoint recommendation, deployability, or target-population claim is made.
+C78 validates the exact historical OACI+ERM seed-3 training and instrumentation path for one target and two deletion levels. It does not constitute multi-regime replication, measurement-control replication, cross-regime transport, source/target-unlabeled escape-hatch evidence, representation mechanism evidence, seed-level confirmation, a selector, or checkpoint control.
 
-Even a future successful OACI+ERM P1 cannot authorize the 1,458-unit expansion. SRC was not exercised, so PM review must first choose a prospective SRC canary or prove that SRC shares the exact validated execution/instrumentation path.
+SRC was not exercised. Therefore the 1,458-unit full seed-3 field is not ready and not authorized. PM review must choose a prospective SRC canary or demonstrate that SRC shares the exact validated execution/instrumentation path before any expansion.

@@ -1,2 +1,2 @@
-levels_expected,levels_executed,schema_identical,checkpoint_counts_match,passed,status
-"[0,1]",[],not_observed,0,0,not_executed_without_authorization
+levels_expected,levels_executed,schema_identical,checkpoint_counts_match,source_trial_rows_per_unit,target_trial_rows_per_unit,passed,status
+"[0,1]","[0,1]",1,1,4608,576,1,executed
