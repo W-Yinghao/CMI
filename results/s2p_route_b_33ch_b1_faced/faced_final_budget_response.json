@@ -1,0 +1,98 @@
+{
+  "analysis_scope": "descriptive_budget_response_with_target_subject_cluster_bootstrap",
+  "bacc": {
+    "leave_one_budget_out": [
+      {
+        "bootstrap_probability_positive": 0.2852,
+        "omitted_budget_h": 200,
+        "slope_bootstrap_sd": 0.00798184134968532,
+        "slope_ci95_high": 0.011210077831454572,
+        "slope_ci95_low": -0.020197597960279125,
+        "slope_point": -0.004428341384863141
+      },
+      {
+        "bootstrap_probability_positive": 0.9968,
+        "omitted_budget_h": 500,
+        "slope_bootstrap_sd": 0.0031856148432037436,
+        "slope_ci95_high": 0.015257462604854513,
+        "slope_ci95_low": 0.0027155682732788026,
+        "slope_point": 0.009218050323766255
+      },
+      {
+        "bootstrap_probability_positive": 0.9994,
+        "omitted_budget_h": 1000,
+        "slope_bootstrap_sd": 0.005796959831408358,
+        "slope_ci95_high": 0.030656760709143978,
+        "slope_ci95_low": 0.008171752440682412,
+        "slope_point": 0.019541147140762303
+      }
+    ],
+    "leave_one_point_sign_stable": false,
+    "linear_slope": {
+      "bootstrap_sd": 0.0031637502174770124,
+      "ci95_high": 0.015746017889137792,
+      "ci95_low": 0.0032751855005770767,
+      "point": 0.009757826845255432
+    },
+    "linear_slope_bootstrap_probability_positive": 0.9978,
+    "metric": "bacc",
+    "monotonic_scaling_established": false,
+    "observed_budget_means_monotone": false,
+    "quadratic_term_centered_log2": {
+      "bootstrap_sd": 0.00524902706785998,
+      "ci95_high": 6.078376238745209e-05,
+      "ci95_low": -0.02063501079008729,
+      "point": -0.01032309681699609
+    },
+    "x": "log2_budget_hours"
+  },
+  "kappa": {
+    "leave_one_budget_out": [
+      {
+        "bootstrap_probability_positive": 0.2874,
+        "omitted_budget_h": 200,
+        "slope_bootstrap_sd": 0.009136257303450803,
+        "slope_ci95_high": 0.012923542156244923,
+        "slope_ci95_low": -0.022958177230875544,
+        "slope_point": -0.005024538368057514
+      },
+      {
+        "bootstrap_probability_positive": 0.9964,
+        "omitted_budget_h": 500,
+        "slope_bootstrap_sd": 0.0038168306574474196,
+        "slope_ci95_high": 0.01804324683142658,
+        "slope_ci95_low": 0.00297832820209529,
+        "slope_point": 0.010798184620869773
+      },
+      {
+        "bootstrap_probability_positive": 0.9992,
+        "omitted_budget_h": 1000,
+        "slope_bootstrap_sd": 0.006626517584657995,
+        "slope_ci95_high": 0.035400938681053075,
+        "slope_ci95_low": 0.009666419487748164,
+        "slope_point": 0.022767612496805395
+      }
+    ],
+    "leave_one_point_sign_stable": false,
+    "linear_slope": {
+      "bootstrap_sd": 0.0037899657675885996,
+      "ci95_high": 0.018522097003490345,
+      "ci95_low": 0.0035593967267125042,
+      "point": 0.011424044889122891
+    },
+    "linear_slope_bootstrap_probability_positive": 0.9974,
+    "metric": "kappa",
+    "monotonic_scaling_established": false,
+    "observed_budget_means_monotone": false,
+    "quadratic_term_centered_log2": {
+      "bootstrap_sd": 0.005923288325906584,
+      "ci95_high": -0.00025725508841002937,
+      "ci95_low": -0.023525548173379617,
+      "point": -0.011969427875935645
+    },
+    "x": "log2_budget_hours"
+  },
+  "monotonic_scaling_established": false,
+  "n_budget_levels": 3,
+  "training_seeds_per_budget": 2
+}

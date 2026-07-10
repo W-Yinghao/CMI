@@ -1,4 +1,17 @@
 {
+  "confirmatory_override": {
+    "artifact": "faced_final_verification.json",
+    "confirmatory_budgets_h": [
+      200,
+      500,
+      1000
+    ],
+    "h2000_d2_2_load_bearing": false,
+    "h2000_exclusion_reason": "D2-2 audited mutable in-flight checkpoints that were overwritten after scoring",
+    "historical_fields_below_include_non_load_bearing_d2_2_h2000": true,
+    "incident_artifact": "faced_h2000_provenance_incident.json",
+    "through_1000_all_metrics_reproduced": true
+  },
   "best_budget_descriptive": {
     "budget_h": 2000,
     "descriptive_only_not_optimality_claim": true,

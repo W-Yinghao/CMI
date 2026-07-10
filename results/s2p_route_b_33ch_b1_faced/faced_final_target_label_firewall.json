@@ -1,0 +1,12 @@
+{
+  "bootstrap_resampling_unit": "FACED target subject",
+  "bootstrap_seed": 20260710,
+  "target_labels_used_for_final_scoring": true,
+  "target_labels_used_for_head_fit": false,
+  "target_labels_used_for_head_selection": false,
+  "target_labels_used_for_pca": false,
+  "target_labels_used_for_rank_or_null_selection": false,
+  "target_labels_used_for_selection": false,
+  "target_labels_used_for_subject_cluster_bootstrap_scoring": true,
+  "target_labels_used_for_subject_subspace": false
+}
