@@ -615,13 +615,14 @@ def _schema_tables() -> tuple[list[dict], list[dict]]:
 
 def _preprocessing_rows(manifests: list[dict], protocol: dict) -> list[dict]:
     job_rows = []
-    seen = set()
+    evidence_hashes = set()
+    raw_resolved_pairs = set()
     for stage in ("P0_pilot", "P1_expansion"):
         for target_id in range(1, 10):
             path = cache.run_root(protocol) / stage / f"target-{target_id:03d}" / "job_manifest.json"
             payload = json.loads(path.read_text())
-            key = (payload["dataset_evidence_hash"], payload["raw_data_fingerprint"], payload["resolved_preprocess_hash"])
-            seen.add(key)
+            evidence_hashes.add(payload["dataset_evidence_hash"])
+            raw_resolved_pairs.add((payload["raw_data_fingerprint"], payload["resolved_preprocess_hash"]))
             job_rows.append({
                 "stage": stage, "target_id": target_id,
                 "dataset_evidence_hash": payload["dataset_evidence_hash"],
@@ -631,8 +632,33 @@ def _preprocessing_rows(manifests: list[dict], protocol: dict) -> list[dict]:
                 "unit_count": payload["unit_count"],
                 "all_gates_passed": int(payload["all_gates_passed"]),
             })
-    if len(seen) != 1 or any(int(row["network_attempt_count"]) for row in job_rows):
-        raise RuntimeError("C74 preprocessing/data evidence differs across jobs")
+    comparison_path = cache.run_root(protocol) / "preprocessing_cross_node_replay" / "cross_node_preprocessing_comparison.json"
+    if not comparison_path.is_file():
+        raise RuntimeError("C74 preprocessing evidence variants require the locked cross-node drift audit")
+    comparison = cache.verify_unit_manifest(comparison_path, rehash_payloads=False)
+    if (
+        len(raw_resolved_pairs) != 1
+        or any(int(row["network_attempt_count"]) for row in job_rows)
+        or not comparison["passed"]
+        or not comparison["raw_fingerprints_equal"]
+        or not comparison["resolved_preprocess_hashes_equal"]
+        or not comparison["trial_ids_equal"]
+        or not comparison["labels_equal"]
+    ):
+        raise RuntimeError("C74 preprocessing/data contract or cross-node drift audit failed")
+    for row in job_rows:
+        row.update({
+            "dataset_evidence_hash_variant_count": len(evidence_hashes),
+            "cross_node_comparison_path": str(comparison_path),
+            "cross_node_comparison_sha256": cache.sha256_file(comparison_path),
+            "cross_node_input_max_abs": comparison["input_max_abs"],
+            "cross_node_input_mean_abs": comparison["input_mean_abs"],
+            "cross_node_z_max_abs": comparison["z_max_abs"],
+            "cross_node_logit_max_abs": comparison["logit_max_abs"],
+            "cross_node_probability_max_abs": comparison["probability_max_abs"],
+            "cross_node_prediction_disagreements": comparison["prediction_disagreements"],
+            "cross_node_drift_passed": int(comparison["passed"]),
+        })
     return job_rows
 
 

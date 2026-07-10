@@ -8,6 +8,7 @@ import pytest
 
 from oaci.conditioned_ceiling_coverage import c74_cache as cache
 from oaci.conditioned_ceiling_coverage import c74_analysis as analysis
+from oaci.conditioned_ceiling_coverage import c74_preprocessing_replay as preprocessing_replay
 from oaci.conditioned_ceiling_coverage import c74_t2_source_wz_instrumentation as c74
 
 
@@ -118,3 +119,12 @@ def test_c74_analysis_never_loads_same_label_oracle_in_primary_feature_path():
     counterfactual_body = source.split("def _counterfactuals", 1)[1].split("def _content_and_abi_tables", 1)[0]
     assert '_descriptor(manifest, "same_label_oracle")' not in counterfactual_body
     assert '_load(_descriptor(manifest, "same_label_oracle")' not in counterfactual_body
+
+
+def test_c74_cross_node_replay_tolerances_are_locked_and_strict():
+    assert preprocessing_replay.REPLICATES == ("nodecpu01", "nodecpu02")
+    assert preprocessing_replay.INPUT_MAX_ABS_TOLERANCE == 1e-5
+    assert preprocessing_replay.INPUT_MEAN_ABS_TOLERANCE == 1e-7
+    assert preprocessing_replay.Z_MAX_ABS_TOLERANCE == 1e-4
+    assert preprocessing_replay.LOGIT_MAX_ABS_TOLERANCE == 1e-4
+    assert preprocessing_replay.PROBABILITY_MAX_ABS_TOLERANCE == 1e-5
