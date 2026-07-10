@@ -91,7 +91,15 @@ def run_red_team() -> dict[str, Any]:
     _check(checks, "instrumentation_82_unique", instrument["unit_count"] == instrument["unique_unit_count"] == 82, f"{instrument['unit_count']}/{instrument['unique_unit_count']}", "82/82")
     _check(checks, "instrumentation_row_counts", instrument["source_rows"] == 377856 and instrument["target_unlabeled_rows"] == 47232, f"{instrument['source_rows']}/{instrument['target_unlabeled_rows']}", "377856/47232")
     _check(checks, "instrumentation_identity_exact", all(float(instrument["identity"][key]) == 0 for key in ("Wz_plus_b_logits_max_abs", "softmax_max_abs", "repeat_max_abs", "hook_z_max_abs")) and instrument["identity"]["failed_units"] == 0, instrument["identity"], "all zero")
-    _check(checks, "instrumentation_physical_isolation", all(value is True for value in instrument["physical_isolation"].values()), instrument["physical_isolation"], "all true")
+    isolation = instrument["physical_isolation"]
+    isolation_pass = (
+        isolation["target_unlabeled_contains_labels"] is False
+        and isolation["instrumentation_received_label_gate_path"] is False
+        and isolation["instrumentation_received_oracle_path"] is False
+        and isolation["source_and_target_input_views_separate"] is True
+        and isolation["construction_evaluation_oracle_separate"] is True
+    )
+    _check(checks, "instrumentation_physical_isolation", isolation_pass, isolation, "unsafe visibility false; physical separation true")
     unit_schema_pass = True
     unit_hash_pass = True
     for item in instrument["units"]:
@@ -162,6 +170,7 @@ def run_red_team() -> dict[str, Any]:
         {"item": "R7_ERM_OACI_asymmetry", "finding": "ERM has one anchor while OACI has 40 trajectory points per level", "resolution": "all tables and report keep anchors and trajectories separate"},
         {"item": "R8_SRC_gap", "finding": "SRC execution/instrumentation path remains unexercised", "resolution": "full seed-3 expansion is not ready or authorized; final gate requires PM-reviewed SRC canary/path proof"},
         {"item": "R9_smoke_target_outcomes", "finding": "post-freeze bAcc/NLL/ECE could be misread as checkpoint selection", "resolution": "smoke emits no checkpoint ID, best flag, or recommendation and carries diagnostic-only fields"},
+        {"item": "R10_isolation_boolean_semantics", "finding": "red-team job 892850 incorrectly required every isolation-ledger boolean to be true, including safe negative fields such as target_unlabeled_contains_labels=false", "resolution": "the rerun checks unsafe visibility fields are false and physical-separation fields are true; the failed review attempt is retained"},
     ]
     blocking_failures = [row for row in checks if row["blocking"] == 1 and row["passed"] == 0]
     _write_csv(CHECKS, checks)
