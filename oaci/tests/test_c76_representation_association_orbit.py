@@ -178,3 +178,45 @@ def test_c76_synthetic_benchmark_separates_null_and_actionable_cases():
     assert by_case["S4_factorization_invariant_endpoint"]["median_orbit_effect_retention"] == 1.0
     assert by_case["S5_association_no_extreme_action"]["median_within_target_association"] > by_case["S0_no_association"]["median_within_target_association"]
     assert abs(by_case["S5_association_no_extreme_action"]["mean_top1_increment"]) < 0.1
+
+
+def test_c76_final_candidate_preserves_association_prediction_boundary():
+    state = json.loads(Path("oaci/reports/C76_REPRESENTATION_ASSOCIATION_ANALYSIS_STATE.json").read_text())
+    assert state["primary_candidate"] == "C76-D_local_nonlinear_measurement_nontransportable_nonactionable"
+    assert state["final_gate_candidate"] == "LOCAL_NONLINEAR_MEASUREMENT_NONTRANSPORTABLE"
+    assert state["qualified_candidates"] == []
+    assert state["C77_protocol_created"] is False
+    assert state["T3_HO_z_Wz_accessed"] is False
+    by_path = {row["path"]: row for row in state["association_prediction"]}
+    assert by_path["strict_source"]["registered_best_passes_all_six_nulls"] == 0
+    assert by_path["strict_source"]["association_prediction_separated"] == 0
+    assert by_path["target_unlabeled"]["registered_best_passes_all_six_nulls"] == 1
+    assert by_path["target_unlabeled"]["association_prediction_separated"] == 1
+    assert by_path["target_unlabeled"]["incremental_R2"] < 0.02
+    assert by_path["target_unlabeled"]["material_actionability"] == 0
+
+
+def test_c76_independent_red_team_passed_before_main_report():
+    rows = list(csv.DictReader(Path("oaci/reports/c76_tables/red_team_checks.csv").open()))
+    assert len(rows) == 26
+    assert all(row["passed"] == "1" for row in rows if row["blocking"] == "1")
+    report = Path("oaci/reports/C76_RED_TEAM_VERIFICATION.md").read_text()
+    assert "Final status: `PASS`" in report
+    assert "Main C76 report existed before red-team: `false`" in report
+    assert "Independent C74 descriptors rehashed: `1080/1080`" in report
+
+
+def test_c76_final_tables_lock_mixed_block_and_synthetic_repairs():
+    partition = next(csv.DictReader(Path("oaci/reports/c76_tables/target_F4_partition_audit.csv").open()))
+    assert partition["candidate_dimension"] == "20"
+    assert partition["invariant_dimension"] == "15"
+    assert partition["full_F4_used_for_C75_exact_replay_only"] == "1"
+    synthetic = {
+        row["case"]: row
+        for row in csv.DictReader(Path("oaci/reports/c76_tables/synthetic_false_positive_control.csv").open())
+    }
+    assert float(synthetic["S0_no_association"]["association_detection_rate"]) <= 0.08
+    assert float(synthetic["S1_coordinate_artifact"]["association_detection_rate"]) <= 0.08
+    assert float(synthetic["S5_association_no_extreme_action"]["association_detection_rate"]) >= 0.80
+    assert abs(float(synthetic["S5_association_no_extreme_action"]["mean_top1_increment"])) < 0.10
+    assert not list(Path("oaci/reports").glob("C77_T3_HO_REPRESENTATION_ASSOCIATION_HOLDOUT_PROTOCOL*"))
