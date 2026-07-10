@@ -1,28 +1,32 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=c78-reg
 #SBATCH --partition=cpu-high
-#SBATCH --cpus-per-task=8
-#SBATCH --mem=32G
-#SBATCH --time=04:00:00
+#SBATCH --cpus-per-task=48
+#SBATCH --mem=96G
+#SBATCH --time=1-00:00:00
 set -euo pipefail
 cd /home/infres/yinwang/CMI_AAAI_oaci
-export PYTHONDONTWRITEBYTECODE=1
+export OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
+export PYTHONPYCACHEPREFIX="/tmp/c78-pycache-${SLURM_JOB_ID}"
 suite="${1:?suite required}"
 case "$suite" in
   focused)
-    python -m pytest -p no:cacheprovider oaci/tests/test_c78_seed3_instrumented_pilot.py -q
+    tests=(oaci/tests/test_c78_seed3_instrumented_pilot.py)
     ;;
   c65)
-    python -m pytest -p no:cacheprovider oaci/tests/test_c6[5-9]_*.py oaci/tests/test_c7[0-8]_*.py -q
+    tests=(oaci/tests/test_c6[5-9]_*.py oaci/tests/test_c7[0-8]_*.py)
     ;;
   c23)
-    python -m pytest -p no:cacheprovider oaci/tests/test_c2[3-9]_*.py oaci/tests/test_c[3-6][0-9]_*.py oaci/tests/test_c7[0-8]_*.py -q
+    tests=(oaci/tests/test_c2[3-9]_*.py oaci/tests/test_c[3-6][0-9]_*.py oaci/tests/test_c7[0-8]_*.py)
     ;;
   full)
-    python -m pytest -p no:cacheprovider oaci/tests -q
+    tests=(oaci/tests)
     ;;
   *)
     echo "unknown suite: $suite" >&2
     exit 2
     ;;
 esac
+/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python -m pytest -q \
+  --basetemp="/tmp/c78-pytest-${SLURM_JOB_ID}" \
+  -o "cache_dir=/tmp/c78-pytest-cache-${SLURM_JOB_ID}" "${tests[@]}"
