@@ -44,14 +44,22 @@ def _artifact_manifest() -> list[dict]:
         c75_protocol.PROTOCOL_PATH, c75_protocol.PROTOCOL_SHA_PATH,
         c75_protocol.TIMING_PATH,
     ]
-    paths.extend(sorted(TABLE_DIR.glob("*.csv")))
+    paths.extend(sorted(
+        path for path in TABLE_DIR.glob("*.csv")
+        if path.name != "artifact_manifest.csv"
+    ))
     paths.extend([
+        Path("oaci/OACI_CODEX_HANDOFF.md"),
         Path("oaci/conditioned_ceiling_coverage/c75_data.py"),
+        Path("oaci/conditioned_ceiling_coverage/c75_finalize.py"),
         Path("oaci/conditioned_ceiling_coverage/c75_modeling.py"),
         Path("oaci/conditioned_ceiling_coverage/c75_projection.py"),
         Path("oaci/conditioned_ceiling_coverage/c75_representation_construct_validity.py"),
         Path("oaci/conditioned_ceiling_coverage/c75_red_team.py"),
         Path("oaci/conditioned_ceiling_coverage/synthetic_factorization_generator.py"),
+        Path("oaci/slurm_c75_analyze.sh"), Path("oaci/slurm_c75_extract.sh"),
+        Path("oaci/slurm_c75_finalize.sh"), Path("oaci/slurm_c75_red_team.sh"),
+        Path("oaci/slurm_c75_regression.sh"),
         Path("oaci/tests/test_c75_representation_construct_validity.py"),
     ])
     result = []
@@ -132,7 +140,7 @@ def finalize() -> dict:
         "milestone": "C75",
         "protocol_sha256": c75_protocol.sha256(c75_protocol.PROTOCOL_PATH),
         "parent_C74_result_commit": c75_protocol.PARENT_COMMIT,
-        "implementation_commits": ["768d37b", "acd1c45", "cf4c985", "9c0127b", "41e8344"],
+        "implementation_commits": ["768d37b", "acd1c45", "cf4c985", "9c0127b", "41e8344", "313eb4e", "8141069"],
         "final_gate": final_gate,
         "taxonomy": {
             "primary_active": active_primary, "primary_inactive": inactive_primary,
