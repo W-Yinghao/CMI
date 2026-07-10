@@ -9,6 +9,7 @@ import pytest
 from oaci.conditioned_ceiling_coverage import c74_cache as cache
 from oaci.conditioned_ceiling_coverage import c74_analysis as analysis
 from oaci.conditioned_ceiling_coverage import c74_preprocessing_replay as preprocessing_replay
+from oaci.conditioned_ceiling_coverage import c74_red_team as red_team
 from oaci.conditioned_ceiling_coverage import c74_t2_source_wz_instrumentation as c74
 
 
@@ -165,3 +166,12 @@ def test_c74_incremental_null_permutes_only_the_new_block():
     assert construction["incremental_exceeds_null_p95"] == 1
     assert construction["null_scheme"] == "permute_new_block_within_target_keep_prior_blocks_and_outcome_fixed"
     assert "target_blocked_null_R2_p95" not in construction
+
+
+def test_c74_red_team_attempt_ledger_discloses_superseded_runs():
+    rows = red_team._attempt_rows()
+    assert len(rows) == 11
+    assert any(row["slurm_job"] == "892076" and row["valid_unit_manifests"] == 0 for row in rows)
+    assert any(row["slurm_job"] == "892140" and row["superseded"] == 1 for row in rows)
+    assert rows[-1]["slurm_job"] == "892144"
+    assert rows[-1]["status"] == "passed"
