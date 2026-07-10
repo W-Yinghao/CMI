@@ -1,0 +1,249 @@
+{
+  "association_contract": {
+    "bandwidth": "outer-training-fold median pairwise L2 distance; recomputed inside every null",
+    "bandwidth_factors": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "bootstrap_replicates": 2000,
+    "effect_materiality_min": 0.02,
+    "fold_scaling": "outer-training-fold mean/std only",
+    "global_max_stat_family_size": 24,
+    "kernel_families": [
+      "rbf",
+      "laplacian"
+    ],
+    "kernel_registry": "oaci/reports/c76_tables/kernel_bandwidth_registry.csv",
+    "outcome": "C75 continuous_joint_utility; unexplained residual is never called gauge",
+    "paths": {
+      "strict_source": "G3S|G0+G1S",
+      "target_unlabeled": "G3T|G0+G1S+G1T"
+    },
+    "statistics": [
+      "normalized_alignment",
+      "centered_hsic"
+    ]
+  },
+  "data_role": {
+    "T2_role": "exploratory_orbit_and_transportability_analysis",
+    "T2_units": 216,
+    "T3_HO_access_in_C76": false,
+    "T3_HO_role": "untouched_new_variable_holdout",
+    "T3_HO_units": 1052,
+    "same_label_oracle_access": false,
+    "target_population_claim_allowed": false
+  },
+  "diagnostic_only_non_deployable": true,
+  "execution_boundary": {
+    "BNCI2014_004": false,
+    "GPU": false,
+    "T3_HO_z_Wz_access": false,
+    "forward_passes": false,
+    "manuscript_drafting": false,
+    "raw_cache_in_git": false,
+    "re_inference": false,
+    "seeds_3_4": false,
+    "selector_or_checkpoint_artifacts": false,
+    "training": false,
+    "unregistered_high_dimensional_search": false
+  },
+  "feature_contract": {
+    "C75_F2_F4_recomputed_for_every_orbit": true,
+    "coordinate_probes": "8 fixed SHA-seeded Rademacher directions; mean-z and W-row projections; no selection",
+    "no_feature_selection": true,
+    "no_outcome_adaptive_transform": true,
+    "registry": "oaci/reports/c76_tables/functional_architecture_feature_registry.csv"
+  },
+  "final_gates": [
+    "RBF_ASSOCIATION_COLLAPSES_UNDER_STRICT_CONTROLS",
+    "ARCHITECTURE_TIED_ASSOCIATION_ONLY",
+    "LOCAL_NONLINEAR_MEASUREMENT_NONTRANSPORTABLE",
+    "FACTOR_INVARIANT_CANDIDATE_READY_FOR_T3_HO",
+    "REPRESENTATION_BRANCH_SATURATED_NO_T3_HO",
+    "CACHE_OR_PROTOCOL_REPAIR_REQUIRED"
+  ],
+  "forbidden_claims": [
+    "association_is_prediction",
+    "association_is_actionability",
+    "representation_origin",
+    "target_gauge",
+    "selector",
+    "checkpoint_recommendation",
+    "deployable",
+    "target_population_generalization",
+    "EEG_minimax_theorem",
+    "manuscript_drafting"
+  ],
+  "locked_registry_tables": {
+    "c75_artifact_hash_lock.csv": {
+      "path": "oaci/reports/c76_tables/c75_artifact_hash_lock.csv",
+      "rows": 14,
+      "sha256": "0b157d8b27642f081c820278f51acd34d2e16ca63efd6fbd783c5c01b5142279",
+      "size_bytes": 2235
+    },
+    "functional_architecture_feature_registry.csv": {
+      "path": "oaci/reports/c76_tables/functional_architecture_feature_registry.csv",
+      "rows": 10,
+      "sha256": "806947e4ffc5543503c3b9d280496bfb952973681eb6a55d8c521feac0bc0c3b",
+      "size_bytes": 873
+    },
+    "kernel_bandwidth_registry.csv": {
+      "path": "oaci/reports/c76_tables/kernel_bandwidth_registry.csv",
+      "rows": 24,
+      "sha256": "110f341be98d5fe9c7a19bb6ab5586119114ceba620741450f62c7ec40b7339a",
+      "size_bytes": 2991
+    },
+    "null_registry.csv": {
+      "path": "oaci/reports/c76_tables/null_registry.csv",
+      "rows": 6,
+      "sha256": "e0adf2732218b8f4b53afaa5968d3affd53c6d382c704f8644660ebb256520fc",
+      "size_bytes": 831
+    },
+    "orbit_transform_registry.csv": {
+      "path": "oaci/reports/c76_tables/orbit_transform_registry.csv",
+      "rows": 8,
+      "sha256": "edbb0a6a3e12a312ca7ce587582f67afe8d0e84e6af0982e83d5a69d00889c53",
+      "size_bytes": 875
+    },
+    "t3_candidate_gate_registry.csv": {
+      "path": "oaci/reports/c76_tables/t3_candidate_gate_registry.csv",
+      "rows": 24,
+      "sha256": "144df28bc80acf88fd984603d66626cbef79e232721ee37f1ca8dd3c184a53b6",
+      "size_bytes": 1610
+    }
+  },
+  "milestone": "C76",
+  "null_contract": {
+    "all_six_required_for_positive_candidate": true,
+    "max_stat": "all 2 paths x 2 kernels x 3 bandwidths x 2 statistics within each null; candidate must pass every required null",
+    "nested_scaling_bandwidth": true,
+    "registry": "oaci/reports/c76_tables/null_registry.csv",
+    "replicates": 499,
+    "rng_seed": 7801
+  },
+  "orbit_contract": {
+    "checkpoint_seed_key": "SHA256(unit_id|orbit|replicate)",
+    "checkpoint_transform_independent_hash_locked": true,
+    "dimension": 800,
+    "functional_tolerance_max_abs": 1e-08,
+    "global_transform_shared_exactly": true,
+    "orbit_robustness_gate": {
+      "all_family_median_absolute_effect_retention_max": 1.25,
+      "all_family_median_absolute_effect_retention_min": 0.8,
+      "all_family_median_candidate_kernel_order_spearman_min": 0.95,
+      "all_family_median_effect_signs_match_baseline": true
+    },
+    "parameter_seed": 7701,
+    "prediction_disagreement_allowed": 0,
+    "probability_tolerance_max_abs": 1e-08,
+    "registry": "oaci/reports/c76_tables/orbit_transform_registry.csv",
+    "replicates_per_nonidentity_family": 4,
+    "row_convention": "z_prime=z@A.T;W_prime=W@inv(A)"
+  },
+  "parent_C75_protocol_sha256": "a42f06909ca05ba96edd28d611783a1ba5ab6ecd8ff91a0e53ee4396dfc97c7b",
+  "parent_C75_result_commit": "fb8a412695ab9df391622c1694bb9bd8cbc567a7",
+  "parent_C75_result_sha256": "bc81456545f23ca9e6d098e4a842eb58872ef6fe20a55695d9c0aa2350bf041f",
+  "prediction_contract": {
+    "actionability_materiality": {
+      "either_route_passes": true,
+      "regret_route": "mean_regret_reduction>=0.02 AND target-bootstrap_CI_low>0 AND positive_targets>=7",
+      "topk_route": "top3_increment>=2/9 AND joint_good_coverage_increment>=2/9 AND exact_target_sign_permutation_p<0.05"
+    },
+    "alpha_grid": [
+      0.01,
+      0.1,
+      1.0,
+      10.0
+    ],
+    "bandwidth_factors": [
+      0.5,
+      1.0,
+      2.0
+    ],
+    "bootstrap": "target cluster then candidate units",
+    "bootstrap_replicates": 2000,
+    "inner_selection": "leave-one-training-target-out MSE; kernel/bandwidth/alpha nested",
+    "kernels": [
+      "rbf",
+      "laplacian"
+    ],
+    "model": "kernel ridge residual correction beyond path functional baseline",
+    "null_replicates": 499,
+    "outer": "leave-one-target-out",
+    "primary_null": "N3 trajectory-preserving; full inner selection repeated inside null",
+    "secondary": "leave-one-trajectory-template-out"
+  },
+  "protocol_lock_timestamp_utc": "2026-07-10T17:29:46Z",
+  "qualification_contract": {
+    "all_gates_required": true,
+    "if_none_pass": "do_not_create_C77;close_representation_branch_under_current_architecture_frozen_universe",
+    "if_pass": "create_locked_C77_protocol_without_T3_access;separate_authorization_still_required",
+    "registry": "oaci/reports/c76_tables/t3_candidate_gate_registry.csv"
+  },
+  "schema_version": "c76_representation_association_protocol_v1",
+  "status": "prospective_derived_outcome_protocol_over_known_T2;exploratory_not_independent_confirmation",
+  "synthetic_contract": {
+    "candidates_per_target": 24,
+    "cases": [
+      "S0_no_association",
+      "S1_coordinate_artifact",
+      "S2_pooled_identity",
+      "S3_local_nonlinear_nontransport",
+      "S4_factorization_invariant_endpoint",
+      "S5_association_no_extreme_action",
+      "S6_predictive_actionable"
+    ],
+    "false_positive_target": 0.05,
+    "replicates": 500,
+    "seed": 7901,
+    "targets": 9
+  },
+  "taxonomy": {
+    "primary": [
+      "C76-A_RBF_association_collapses_under_blocked_orbit_controls",
+      "C76-B_architecture_tied_coordinate_association_only",
+      "C76-C_identity_or_heterogeneity_explains_association",
+      "C76-D_local_nonlinear_measurement_nontransportable_nonactionable",
+      "C76-E_factorization_invariant_incremental_candidate_for_T3_HO",
+      "C76-F_protocol_cache_or_claim_blocker"
+    ],
+    "secondary": [
+      "C76-S1",
+      "C76-S2",
+      "C76-S3",
+      "C76-S4",
+      "C76-S5",
+      "C76-S6",
+      "C76-S7",
+      "C76-S8",
+      "C76-S9",
+      "C76-S10",
+      "C76-S11"
+    ]
+  },
+  "topology_contract": {
+    "conditioning": [
+      "target_identity",
+      "checkpoint_identity_kernel",
+      "seed",
+      "regime",
+      "level",
+      "candidate_order",
+      "source_performance",
+      "construction_competence"
+    ],
+    "levels": [
+      "pooled",
+      "within_target",
+      "within_target_x_trajectory",
+      "within_regime",
+      "leave_target_out",
+      "leave_trajectory_out",
+      "cross_target",
+      "cross_regime"
+    ],
+    "local_nontransport_rule": "within-target significant but nonlinear LOTO qualification fails",
+    "pooled_only_rule": "pooled significant and within-target nonsignificant -> identity_or_heterogeneity"
+  }
+}

@@ -1,0 +1,7 @@
+null,operation,tests,required_for_candidate
+N1_target_block,permute complete 24-candidate target feature blocks after locked candidate-key alignment,pooled_identity,1
+N2_checkpoint_block,permute checkpoint feature rows across targets within seed x level x candidate_order key,checkpoint_identity,1
+N3_trajectory_preserving,permute candidate feature rows within target x trajectory four-candidate cells,C75_local_association,1
+N4_candidate_within_target,permute candidate feature rows within each 24-candidate target,within_target_association,1
+N5_identity_matched,replace architecture block by covariance/dimension-matched Gaussian smooth features conditional on registered metadata,nuisance_geometry,1
+N6_orbit_transformed,checkpoint-specific O6 transform then N3 trajectory-preserving permutation,orbit_conditioned_association,1

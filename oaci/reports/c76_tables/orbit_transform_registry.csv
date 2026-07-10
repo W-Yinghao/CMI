@@ -1,0 +1,9 @@
+orbit,name,scope,family,replicates,orthogonal,general_GL,efficient_structure,condition_bound,multiplicity_family
+O0,identity,global,identity,1,1,1,identity,1.0,0
+O1,global_orthogonal,global,orthogonal,4,1,1,2x2_block_rotations,1.0,1
+O2,checkpoint_specific_orthogonal,checkpoint,orthogonal,4,1,1,2x2_block_rotations,1.0,1
+O3,global_diagonal_scale,global,diagonal,4,0,1,elementwise_scale_0.7_to_1.4,2.0,1
+O4,checkpoint_specific_diagonal_scale,checkpoint,diagonal,4,0,1,elementwise_scale_0.7_to_1.4,2.0,1
+O5,global_well_conditioned_nonorthogonal,global,nonorthogonal,4,0,1,invertible_2x2_upper_triangular_blocks,3.0,1
+O6,checkpoint_specific_well_conditioned_nonorthogonal,checkpoint,nonorthogonal,4,0,1,invertible_2x2_upper_triangular_blocks,3.0,1
+O7,checkpoint_specific_signed_latent_permutation,checkpoint,signed_permutation,4,1,1,latent_coordinate_permutation_and_sign,1.0,1
