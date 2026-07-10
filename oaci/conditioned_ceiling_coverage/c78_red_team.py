@@ -103,7 +103,7 @@ def run_red_team() -> dict[str, Any]:
     env = next(row for row in environment if "environment_prefix" in row)
     _check(checks, "locked_environment_hash", env["environment_hash_match"] == "1", env["conda_explicit_sha256"], env["expected_conda_explicit_sha256"])
     _check(checks, "P0_no_GPU_request", env["GPU_requested"] == "0" and env["CUDA_initialized"] == "0", f"{env['GPU_requested']};{env['CUDA_initialized']}", "0;0")
-    partitions = [row for row in environment if "partition" in row]
+    partitions = [row for row in environment if row.get("partition")]
     _check(checks, "V100_snapshot_available", any(row["partition"] == "V100" and row["availability"] == "up" for row in partitions), partitions, "V100 up")
     _check(checks, "cpu_high_snapshot_available", any(row["partition"] == "cpu-high" and row["availability"] == "up" for row in partitions), partitions, "cpu-high up")
     _check(checks, "partition_snapshot_not_authorization", all(row["authorization"] == "0" for row in partitions), [row["authorization"] for row in partitions], "all zero")
@@ -165,6 +165,7 @@ def run_red_team() -> dict[str, Any]:
         {"item": "R4_runtime_identity", "status": "claim_narrowed", "finding": "dummy Wz identity cannot stand in for 82-unit real identity", "resolution": "dummy and real identity tables are separate; real rows/units checked remain explicitly zero"},
         {"item": "R5_SRC_coverage", "status": "boundary_enforced", "finding": "locked pilot has no SRC execution path", "resolution": "full seed-3 field remains blocked behind prospective SRC canary or exact-path proof and new PM review"},
         {"item": "R6_power_materiality", "status": "caveat_preserved", "finding": "C77 effective-multiplicity synthetic contrast is only 0.0075", "resolution": "C78 makes no H2/materiality claim and requires future power re-lock"},
+        {"item": "R7_partition_row_normalization", "status": "repaired_after_blocking_red_team", "finding": "the first red-team pass treated the environment-summary row's empty partition cell as a scheduler row", "resolution": "partition checks now operate only on rows with a non-empty partition; job 892802 is retained as the blocking failed attempt"},
     ]
     _write_csv(CHECKS_PATH, checks)
     _write_csv(REPAIR_PATH, repairs)
