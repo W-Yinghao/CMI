@@ -86,8 +86,8 @@ Red-team invalidated and superseded two completed analyses before the report: a 
 created pseudo-rank in the exact Wz duplicate block; then the conditional proxy lacked fold-local scaling and global
 2-path x 3-bandwidth correction. The final canonical B1/B2 ranks are 38/38 strict-source and 55/55 target-unlabeled,
 with prediction deltas below 3e-11. Independent red-team job 892453 rehashed 1,080/1,080 descriptors and passed 31/31
-blocking checks (32/32 total) before report generation. Verification is 15 focused C75, 95 C65-C75, 502 C23-C75,
-and 1,430 full-suite tests green.
+blocking checks (32/32 total) before report generation. Final verification is 17 focused C75, 97 C65-C75,
+504 C23-C75, and 1,432 full-suite tests green.
 
 No C76 protocol was created. The T3-HO campaign is not justified under the locked C75 gates. Do not automatically
 continue to T3-HO or training; wait for a new PM decision. GPU work, BNCI2014_004, seeds [3,4], selector artifacts,

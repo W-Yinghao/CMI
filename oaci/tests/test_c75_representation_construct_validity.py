@@ -200,3 +200,27 @@ def test_c75_red_team_independently_reconstructs_locked_qualification():
         }
         assert observed == expected
         assert observed["ALL_REQUIRED"] == 0
+
+
+def test_c75_final_artifact_manifest_replays_hashes_and_sizes():
+    rows = list(csv.DictReader(open(c75_protocol.TABLE_DIR / "artifact_manifest.csv")))
+    assert len(rows) == 64
+    assert all(row["raw_trial_cache"] == "0" for row in rows)
+    for row in rows:
+        path = Path(row["path"])
+        assert path.is_file()
+        assert path.stat().st_size == int(row["size_bytes"])
+        assert _sha256(path) == row["sha256"]
+
+
+def test_c75_final_report_preserves_counter_result_and_stop_gate():
+    report = json.loads(
+        (c75_protocol.REPORT_DIR / "C75_REPRESENTATION_CONSTRUCT_VALIDITY.json").read_text()
+    )
+    assert report["final_gate"] == "T3_HO_REPRESENTATION_CAMPAIGN_NOT_JUSTIFIED"
+    assert "C75-E_mixed_architecture_tied_representation_signal" in report["taxonomy"]["primary_active"]
+    assert report["conditional_observability_counter_result"]["strict_source"]["global_six_test_max_stat_p"] == 0.004
+    assert report["conditional_observability_counter_result"]["target_unlabeled"]["global_six_test_max_stat_p"] == 0.002
+    assert report["qualification"]["all_required_passes"] == []
+    assert report["qualification"]["C76_protocol_created"] is False
+    assert report["data_boundary"]["T3_HO_z_Wz_touched"] is False
