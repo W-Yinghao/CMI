@@ -219,6 +219,8 @@ def run_red_team() -> dict:
     _check(checks, "zero_real_execution_boundary", boundary_pass and state["execution_boundary"] == {"BNCI2014_004_access": 0, "GPU": 0, "checkpoints_created": 0, "re_inference": 0, "real_forward": 0, "seed3_access": 0, "seed4_access": 0, "training": 0}, state["execution_boundary"], "all zero")
     risks = _rows("risk_register.csv")
     _check(checks, "no_open_blocking_risk", not [row for row in risks if row["blocking_open"] == "1"], sum(row["blocking_open"] == "1" for row in risks), 0)
+    analysis_failures = _rows("analysis_failure_reason_ledger.csv")
+    _check(checks, "analysis_failure_ledger_separate_and_clear", len(analysis_failures) == 5 and not [row for row in analysis_failures if row["blocking"] == "1"], f"rows={len(analysis_failures)};blocking={sum(row['blocking']=='1' for row in analysis_failures)}", "5;0;separate from locked protocol ledger")
     external = {row["requirement"]: row for row in _rows("external_dataset_readiness.csv")}
     _check(checks, "external_dataset_not_accessed", external["dataset_access"]["status"] == "not_accessed_in_C77", external["dataset_access"]["status"], "not_accessed_in_C77")
 
@@ -246,6 +248,7 @@ def run_red_team() -> dict:
         {"item": "R3_SRC_history", "status": "repaired_before_protocol_lock", "finding": "blanket no-target-history wording was too broad", "resolution": "SRC disclosed as post-C10, pre-C14 negative control; C12 falsification retained"},
         {"item": "R4_synthetic_multiplicity_effect", "status": "claim_narrowed", "finding": f"registered directional contrast is only {synthetic_metrics['effective_multiplicity_reduces_actionability']:.6f}", "resolution": "passes locked direction only; no material-effect claim; C78 must recalibrate"},
         {"item": "R5_training_runtime", "status": "claim_narrowed", "finding": "no measured C78 GPU runtime exists", "resolution": "compute table reports a budget range, with mandatory P1 recalibration before P2"},
+        {"item": "R6_locked_failure_ledger", "status": "repaired_after_blocking_red_team", "finding": "analysis overwrote a protocol-hash-locked failure ledger", "resolution": "restored locked bytes; post-compute outcomes moved to analysis_failure_reason_ledger.csv"},
     ]
     _write_csv(REPAIR_PATH, repairs)
     _write_csv(CHECKS_PATH, checks)

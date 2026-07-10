@@ -207,7 +207,9 @@ def analyze() -> dict:
         ("blocking_risks", not blocking_risks, f"open={len(blocking_risks)}"),
     ):
         failures.append({"item": item, "status": "pass" if passed else "blocked", "blocking": int(not passed), "reason": reason})
-    _write_csv("failure_reason_ledger.csv", failures)
+    # The protocol-time failure ledger is hash-locked.  Post-compute gate outcomes
+    # are a separate artifact and must never mutate any locked registry table.
+    _write_csv("analysis_failure_reason_ledger.csv", failures)
     attempts = [
         {"attempt": 1, "phase": "C76_replay_and_archaeology", "execution": "metadata_only", "training": 0, "real_forward": 0, "GPU": 0, "seed3_access": 0, "seed4_access": 0, "BNCI2014_004_access": 0, "status": "passed"},
         {"attempt": 2, "phase": "protocol_lock", "execution": protocol_commit, "training": 0, "real_forward": 0, "GPU": 0, "seed3_access": 0, "seed4_access": 0, "BNCI2014_004_access": 0, "status": "passed"},
