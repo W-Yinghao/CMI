@@ -1,5 +1,9 @@
 {
   "checkpoint_selection": "pretrain_val_loss_only",
+  "d2_2_reused_reference_rows": [
+    "random",
+    "released"
+  ],
   "normalization": "per_channel_per_1s_patch_zscore",
   "source_train_subjects": "1-80",
   "source_val_subjects": "81-100",

@@ -7,3 +7,5 @@ H500_s0,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/
 H500_s1,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H500_s1/best.pth,500.0,1,False,True,pretrain_val_loss_only,False
 H1000_s0,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H1000_s0/best.pth,1000.0,0,False,True,pretrain_val_loss_only,False
 H1000_s1,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H1000_s1/best.pth,1000.0,1,False,True,pretrain_val_loss_only,False
+H2000_s0,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H2000_s0/best.pth,2000.0,0,False,True,pretrain_val_loss_only,True
+H2000_s1,/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H2000_s1/best.pth,2000.0,1,False,True,pretrain_val_loss_only,True

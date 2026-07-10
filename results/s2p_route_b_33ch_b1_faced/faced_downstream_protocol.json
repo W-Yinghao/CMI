@@ -1,19 +1,14 @@
 {
   "cells": [
-    "random",
-    "released",
-    "H200_s0",
-    "H200_s1",
-    "H500_s0",
-    "H500_s1",
-    "H1000_s0",
-    "H1000_s1"
+    "H2000_s0",
+    "H2000_s1"
   ],
   "downstream_dataset": "FACED",
   "forbidden": {
     "codebrain": false,
     "fine_tuning": false,
     "h2000_downstream": false,
+    "h4000_downstream": true,
     "pretraining": false,
     "target_labels_for_selection": false
   },
@@ -33,9 +28,13 @@
     128
   ],
   "pca_head_selection": "source_train_fit_source_val_select",
-  "phase": "D2_fleet",
+  "phase": "D2_h2000_update",
   "primary_metric": "cohen_kappa",
   "protocol": "frozen_encoder_source_only_probe",
+  "reuse_existing_references": [
+    "random",
+    "released"
+  ],
   "route": "B_33ch_cbramod_only",
   "secondary_metrics": [
     "weighted_f1",
