@@ -1,0 +1,20 @@
+{
+  "all_read_only": true,
+  "all_sha256_unique": true,
+  "all_strict_reload_pass": true,
+  "completed_at": "2026-07-10T23:13:23.866593+00:00",
+  "downstream_launched": false,
+  "faced_reaudit_unlocked": true,
+  "h4000_launched": false,
+  "immutable_checkpoint_count": 2,
+  "immutable_root": "/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable",
+  "parent_job_ids": [
+    "890151_6",
+    "890151_7"
+  ],
+  "phase": "A_H2000_immutable_closure",
+  "source_root": "/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1",
+  "status": "PASS",
+  "target_labels_used": false,
+  "training_launched": false
+}

@@ -1,0 +1,50 @@
+{
+  "checkpoints": [
+    {
+      "best_val_loss": 0.21505366607258716,
+      "budget_h": 2000,
+      "bytes": 59309689,
+      "checkpoint_epoch": 48,
+      "config_hash_sha256": "9d8a4cc3210ce86c097d1f37cc17dbbc7c46376f688795b438822ad8ed519e49",
+      "immutable_best_link": "/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable/H2000_s0/best.pth",
+      "immutable_checkpoint": "/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable/H2000_s0/best.3c2f568d807e36267f4376ee8b33ce522a41f4dccc094f56f825d7d9f1f896eb.pth",
+      "immutable_mode_octal": "0o444",
+      "route_manifest_hash_sha256": "b9db88ee9c5dc5220c211da6f45199d706a9ac0a2e225932e8788ad3604ca170",
+      "seed": 0,
+      "selected_subjects_sha": "9d164362eca35479",
+      "sha256": "3c2f568d807e36267f4376ee8b33ce522a41f4dccc094f56f825d7d9f1f896eb",
+      "source_checkpoint": "/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H2000_s0/best.pth",
+      "source_git": "b5b9a08ba821bb9fe80a93f2bdc0df5248d52fc9",
+      "strict_reload_immutable": true,
+      "strict_reload_source": true,
+      "tag": "H2000_s0",
+      "target_labels_used": false,
+      "train_total_windows": 240000,
+      "train_val_disjoint": true,
+      "training_epochs_completed": 50
+    },
+    {
+      "best_val_loss": 0.21282545011490583,
+      "budget_h": 2000,
+      "bytes": 59309689,
+      "checkpoint_epoch": 49,
+      "config_hash_sha256": "968110b6b429a1593a9598f4ab185d157ae3611cfb57f1d1abcf3a9532a511fd",
+      "immutable_best_link": "/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable/H2000_s1/best.pth",
+      "immutable_checkpoint": "/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable/H2000_s1/best.492da560503d500bc59d7cd759b7b809cefb473ee6f78c07523fc407b51aa40f.pth",
+      "immutable_mode_octal": "0o444",
+      "route_manifest_hash_sha256": "82e834f386ddeb65a9d09cbf22d22452e599121c3bf026a92694ed1926870539",
+      "seed": 1,
+      "selected_subjects_sha": "a2d485b8f28c6f68",
+      "sha256": "492da560503d500bc59d7cd759b7b809cefb473ee6f78c07523fc407b51aa40f",
+      "source_checkpoint": "/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H2000_s1/best.pth",
+      "source_git": "b5b9a08ba821bb9fe80a93f2bdc0df5248d52fc9",
+      "strict_reload_immutable": true,
+      "strict_reload_source": true,
+      "tag": "H2000_s1",
+      "target_labels_used": false,
+      "train_total_windows": 240000,
+      "train_val_disjoint": true,
+      "training_epochs_completed": 50
+    }
+  ]
+}
