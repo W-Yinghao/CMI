@@ -292,6 +292,21 @@ def collect() -> dict[str, Any]:
     _write("SRC_checkpoint_manifest.csv", checkpoint_rows)
     _write("SRC_checkpoint_genealogy.csv", genealogy_rows)
     _write("SRC_checkpoint_cadence_audit.csv", cadence_rows)
+    trajectory_rows = []
+    for item in field["level_manifests"]:
+        level_manifest = common.verify_manifest(item["path"])
+        trace = level_manifest["trajectory_trace"]
+        c74_cache.verify_shard(trace)
+        trajectory_rows.append({
+            "level": level_manifest["level"], "kind": trace["kind"],
+            "path": trace["path"], "sha256": trace["sha256"],
+            "row_count": trace["row_count"],
+            "fields": "|".join(trace["fields"]),
+            "field_frozen_manifest_sha256": field["manifest_sha256"],
+            "target_outcomes_present": 0,
+            "passed": int(int(trace["row_count"]) == 40),
+        })
+    _write("SRC_trajectory_trace_manifest.csv", trajectory_rows)
     _write("SRC_instrumentation_schema_audit.csv", schema_rows)
     _write("SRC_physical_view_manifest.csv", physical_rows)
     _write("SRC_registered_feature_block_computability.csv", feature_rows)

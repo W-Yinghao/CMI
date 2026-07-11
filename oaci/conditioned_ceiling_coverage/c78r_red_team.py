@@ -46,6 +46,7 @@ def run() -> list[dict[str, Any]]:
     checkpoints = _rows("SRC_checkpoint_manifest.csv")
     genealogy = _rows("SRC_checkpoint_genealogy.csv")
     cadence = _rows("SRC_checkpoint_cadence_audit.csv")
+    trajectories = _rows("SRC_trajectory_trace_manifest.csv")
     compatibility = _rows("cross_regime_schema_compatibility.csv")
     isolation = _rows("SRC_target_isolation_runtime_audit.csv")[0]
     expansion = _rows("full_seed3_expansion_gate.csv")[0]
@@ -83,6 +84,7 @@ def run() -> list[dict[str, Any]]:
     _check(checks, "checkpoint_hashes", len(checkpoints) == 80 and all(row["all_hashes_passed"] == "1" for row in checkpoints), len(checkpoints), 80)
     _check(checks, "genealogy", len(genealogy) == 80 and all(row["passed"] == "1" for row in genealogy), len(genealogy), 80)
     _check(checks, "cadence", len(cadence) == 2 and all(row["passed"] == "1" for row in cadence), cadence, "two 40-point levels")
+    _check(checks, "trajectory_trace_manifest", len(trajectories) == 2 and all(row["passed"] == "1" and row["row_count"] == "40" and c78r.sha256_file(row["path"]) == row["sha256"] for row in trajectories), len(trajectories), "two hash-valid 40-row traces")
     _check(checks, "instrument_units", instrument["unit_count"] == instrument["unique_unit_count"] == 80, instrument["unit_count"], 80)
     _check(checks, "source_rows", instrument["source_rows"] == 368640, instrument["source_rows"], 368640)
     _check(checks, "target_unlabeled_rows", instrument["target_unlabeled_rows"] == 46080, instrument["target_unlabeled_rows"], 46080)
