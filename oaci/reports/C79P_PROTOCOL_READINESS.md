@@ -28,3 +28,18 @@ instrumentation, or CUDA worker.
 
 This gate authorizes no seed-4 work, C80, additional seed, BNCI2014_004, oracle
 analysis, feature/kernel search, or manuscript drafting.
+
+## Regression
+
+```text
+focused:   21 passed
+C65-C79P:  298 passed, 1 intentional skip
+C23-C79P:  705 passed, 1 intentional skip
+full OACI: 1633 passed, 1 intentional skip
+failures:  0
+GPU jobs:  0
+seed-4 jobs: 0
+```
+
+Final report red team: 24/24 checks passed with zero blockers. The sole skip is
+the registered C78F duplicate-finalizer skip after its completed red team.
