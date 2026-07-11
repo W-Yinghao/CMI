@@ -1,0 +1,4 @@
+attempt_id,job_id,stage,target,status,EEG_data_loaded,source_EEG_rows,target_rows,target_labels,optimizer_steps,checkpoints,forward_rows,model_outcomes,retry_reason,replacement_job_id
+1,893354,oaci_erm_pretraining_manifest_route,4,FAILED,1,3456,0,0,0,0,0,0,compatibility_manifest_name_missing,pending
+2,893355,src_training,4,CANCELLED_DEPENDENCY,0,0,0,0,0,0,0,0,predecessor_893354_failed,none
+3,893356,instrumentation,4,CANCELLED_DEPENDENCY,0,0,0,0,0,0,0,0,predecessor_893355_cancelled,none
