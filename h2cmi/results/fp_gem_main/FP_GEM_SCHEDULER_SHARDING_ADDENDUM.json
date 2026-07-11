@@ -1,0 +1,53 @@
+{
+  "status": "frozen_before_p12b_fleet",
+  "reason": "scheduler QOS submit-count limit rejects one-array-element-per-unit launches",
+  "scientific_configuration_changed": false,
+  "runner_changed": false,
+  "config_changed": false,
+  "unit_manifest_changed": false,
+  "max_concurrent_gpu_tasks": 8,
+  "launcher_sha256": "e140a69246ae60287fb15e517150e7c45037cfc9956af4f533bb7e37c472da01",
+  "rejected_zero_job_submissions": [
+    {
+      "partition": "V100",
+      "array": "0-160%6",
+      "scheduler_reason": "QOSMaxSubmitJobPerUserLimit",
+      "job_created": false,
+      "accepted_rows": 0
+    },
+    {
+      "partition": "V100",
+      "array": "0-63%6",
+      "scheduler_reason": "QOSMaxSubmitJobPerUserLimit",
+      "job_created": false,
+      "accepted_rows": 0
+    },
+    {
+      "partition": "V100",
+      "array": "0-31%6",
+      "scheduler_reason": "QOSMaxSubmitJobPerUserLimit",
+      "job_created": false,
+      "accepted_rows": 0
+    }
+  ],
+  "planned_shards": [
+    {
+      "hardware_group": "V100",
+      "array": "0-5%6",
+      "group_count": 161,
+      "stride": 6,
+      "task_unit_counts": [27, 27, 27, 27, 27, 26]
+    },
+    {
+      "hardware_group": "A100",
+      "array": "0-1%2",
+      "group_count": 28,
+      "stride": 2,
+      "task_unit_counts": [14, 14]
+    }
+  ],
+  "v100_exact_coverage": true,
+  "a100_exact_coverage": true,
+  "duplicate_group_indices": 0,
+  "missing_group_indices": 0
+}
