@@ -150,17 +150,18 @@ null, and multiplicity family, and the same-label oracle remained closed.
 ## Final validation
 
 ```text
-focused:    35 passed, 3 pre-authorization-state deselected
-C65-C79E:  312 passed, 1 finalized-C78F skip, 3 deselected
-C23-C79E:  719 passed, 1 finalized-C78F skip, 3 deselected
-full OACI: 1,647 passed, 1 finalized-C78F skip, 3 deselected
+focused:    38 passed, 3 pre-authorization-state deselected
+C65-C79E:  315 passed, 1 finalized-C78F skip, 3 deselected
+C23-C79E:  722 passed, 1 finalized-C78F skip, 3 deselected
+full OACI: 1,650 passed, 1 finalized-C78F skip, 3 deselected
 ```
 
 The first complete regression attempt retained three failures caused by C79E
 reusing two historical Mode-R audit filenames. An additive namespace repair
 restored the exact historical hashes and moved the C79E ledgers to `c79e_*`
 paths. The full rerun passed without changing any scientific output. The C79E
-final-report red team then passed 27/27 checks.
+final-report red team then passed 27/27 checks. A third four-suite run on the
+final report/handoff HEAD also passed; all prior attempts remain preserved.
 
 ## Stop boundary
 

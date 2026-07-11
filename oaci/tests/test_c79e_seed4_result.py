@@ -135,6 +135,12 @@ def test_final_regression_record_has_four_passing_suites():
     assert {row["suite"] for row in rows} == {"focused", "c65_c79e", "c23_c79e", "full_oaci"}
     assert all(row["status"] == "PASS" for row in rows)
     assert all(row["failed"] == "0" for row in rows)
+    assert {row["suite"]: int(row["passed"]) for row in rows} == {
+        "focused": 38,
+        "c65_c79e": 315,
+        "c23_c79e": 722,
+        "full_oaci": 1650,
+    }
 
 
 def test_failed_regression_attempts_are_preserved():

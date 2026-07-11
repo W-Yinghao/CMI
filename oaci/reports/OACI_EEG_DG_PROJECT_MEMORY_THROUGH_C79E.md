@@ -138,16 +138,17 @@ outcome decision.
 authorization preflight: 24 / 24 PASS
 scientific red team:      17 / 17 PASS
 final-report red team:    27 / 27 PASS
-focused regression:      35 passed
-C65-C79E:               312 passed, 1 conditional skip
-C23-C79E:               719 passed, 1 conditional skip
-full OACI:            1,647 passed, 1 conditional skip
+focused regression:      38 passed
+C65-C79E:               315 passed, 1 conditional skip
+C23-C79E:               722 passed, 1 conditional skip
+full OACI:            1,650 passed, 1 conditional skip
 ```
 
 The first complete regression attempt retained three failures caused by C79E
 sharing two Mode-R audit filenames. The additive repair restored exact Mode-R
 hashes, moved C79E ledgers to `c79e_*`, and the complete rerun passed. No
-scientific output changed.
+scientific output changed. A third complete run on the final report/handoff
+HEAD also passed; all earlier attempts are retained.
 
 ## Stop boundary
 
