@@ -1,0 +1,89 @@
+{
+  "analysis_lock": {
+    "commit": "972f47c",
+    "path": "oaci/reports/C80P_ANALYSIS_EXECUTION_LOCK.json",
+    "sha256": "05a99e7ccc357b90b6675756caa680fd16541358bb697fdded89351f1e7ae4a8"
+  },
+  "authorization": {
+    "C80E_authorized": false,
+    "C80E_direct_PI_authorization_required": true,
+    "magic_token_required": false
+  },
+  "budget_design": {
+    "availability_minimum_per_class": 61,
+    "locked_grid": [1, 2, 4, 8, 16, 32, "FULL"],
+    "removed_budget": 64,
+    "removed_budget_reason": "availability_only_infeasible_before_protocol_hash",
+    "scientific_outcomes_used_for_grid": 0
+  },
+  "epistemic_status": {
+    "designed_after_C79E_outcomes": true,
+    "external_validation": false,
+    "independent_confirmation": false,
+    "prospective_to_new_C80_budget_computations": true,
+    "real_data_budget_analysis_executed": false,
+    "retrospective_existing_field_analysis": true
+  },
+  "final_gate": "C80_LABEL_BUDGET_FRONTIER_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION",
+  "implementation": {
+    "commit": "c98e084",
+    "real_data_loader": false,
+    "synthetic_only_in_C80P": true
+  },
+  "information_boundary": {
+    "BNCI2014_004": false,
+    "GPU": false,
+    "active_learning": false,
+    "evaluation_label_value_reads_for_C80": 0,
+    "forward": false,
+    "manuscript": false,
+    "new_feature_kernel_model_search": false,
+    "real_budget_statistics": 0,
+    "reinference": false,
+    "same_label_oracle_accessed": false,
+    "seed5": false,
+    "target4_primary": false,
+    "training": false
+  },
+  "monte_carlo": {
+    "candidate_counts": [256, 512, 1024, 2048],
+    "selected_chains": 2048,
+    "selection_valid": true
+  },
+  "primary": "C80P-A_post_C79_existing_field_label_budget_protocol_locked_complete",
+  "protocol": {
+    "commit": "f5d83b3",
+    "path": "oaci/reports/C80_LABEL_BUDGET_FRONTIER_PROTOCOL.json",
+    "sha256": "c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85"
+  },
+  "red_team": {
+    "blocking_failures": 0,
+    "checks_passed": 36,
+    "checks_total": 36,
+    "status": "PASS"
+  },
+  "registry": {
+    "blank_cells": 0,
+    "bound_cells": 80,
+    "categories_per_path": 16,
+    "conditional_paths": 0,
+    "paths": 5
+  },
+  "regressions": [
+    {"suite": "focused", "job_id": 893765, "passed": 29, "skipped": 0, "deselected": 3, "failed": 0},
+    {"suite": "c65_c80p", "job_id": 893767, "passed": 344, "skipped": 1, "deselected": 3, "failed": 0},
+    {"suite": "c23_c80p", "job_id": 893766, "passed": 751, "skipped": 1, "deselected": 3, "failed": 0},
+    {"suite": "full_oaci", "job_id": 893768, "passed": 1679, "skipped": 1, "deselected": 3, "failed": 0}
+  ],
+  "schema_version": "c80p_protocol_readiness_result_v1",
+  "synthetic_calibration": {
+    "Bstar_cells_passed": 18,
+    "Bstar_cells_total": 18,
+    "familywise_error": 0.044921875,
+    "minimum_Bstar_recovery": 0.96484375,
+    "pseudoreplication_trap_detected": true,
+    "scenario_count": 9,
+    "scenarios_passed": 9,
+    "target_cluster_coverage": 0.953125
+  }
+}

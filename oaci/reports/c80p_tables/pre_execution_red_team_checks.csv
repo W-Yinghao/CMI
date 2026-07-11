@@ -10,6 +10,7 @@ view_isolation_replay,1,4/4
 C79_result_replay,1,11/11
 cross_seed_replay,1,6/6
 regression_skip_replay,1,4/4
+C80P_regressions,1,4/4
 target4_excluded,1,0 primary units
 oracle_closed,1,0
 construction_evaluation_overlap_zero,1,0

@@ -70,6 +70,7 @@ def audit() -> dict[str, Any]:
     result_replay = _rows("c79_scientific_result_replay.csv")
     cross_seed = _rows("c79_cross_seed_replay.csv")
     regressions = _rows("c79_regression_skip_replay.csv")
+    c80_regressions = _rows("regression_verification.csv")
     failure_ledger = _rows("failure_reason_ledger.csv")
     max_payload, oversized = _tracked_payload_scan()
 
@@ -104,6 +105,7 @@ def audit() -> dict[str, Any]:
         ("C79_result_replay", all(row["passed"] == "1" for row in result_replay), f"{len(result_replay)}/{len(result_replay)}"),
         ("cross_seed_replay", all(row["passed"] == "1" for row in cross_seed), f"{len(cross_seed)}/{len(cross_seed)}"),
         ("regression_skip_replay", all(row["passed_replay"] == "1" for row in regressions), f"{len(regressions)}/{len(regressions)}"),
+        ("C80P_regressions", len(c80_regressions) == 4 and all(row["status"] == "PASS" and row["failed"] == "0" for row in c80_regressions), "4/4"),
         ("target4_excluded", all(row["target4_primary"] == "0" for row in field_replay), "0 primary units"),
         ("oracle_closed", all(row["oracle_reachable"] == "0" for row in view_replay), "0"),
         ("construction_evaluation_overlap_zero", all(row["overlap_rows"] == "0" for row in view_replay), "0"),
