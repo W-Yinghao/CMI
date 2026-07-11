@@ -12,10 +12,57 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ---
 
-## 0. Current continuation state (2026-07-11)
+## 0. Current continuation state (2026-07-12)
 
-The authoritative tip is the completed **C79E post-seed-3 prospective seed-4
-replication**:
+The authoritative tip is the completed **C80P cross-seed label-budget frontier
+protocol/readiness milestone**:
+
+```text
+C80P protocol commit:        f5d83b3
+C80P protocol SHA-256:       c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85
+C80P synthetic implementation: c98e084
+C80P analysis lock:          972f47c
+C80P analysis-lock SHA-256:  05a99e7ccc357b90b6675756caa680fd16541358bb697fdded89351f1e7ae4a8
+C80P readiness result:       1b02454
+C80P final gate:             C80_LABEL_BUDGET_FRONTIER_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION
+scientific registry:         5 paths x 16 categories = 80 / 80
+pre-execution red team:      36 / 36
+real-data budget statistics: 0
+C80E authorization received: false
+```
+
+C80P is explicitly designed after C79E and is prospective only to the new C80
+budget computations. It is a retrospective existing-field design study, not
+independent confirmation, new-subject replication, target-population
+confirmation, or external validation. It performed no EEG load, training,
+forward pass, re-inference, GPU work, real-data label-budget computation, or
+same-label-oracle access.
+
+The requested finite budget grid was `[1,2,4,8,16,32,64]` labels per class
+plus `FULL`. The permitted availability-only audit found a minimum construction
+class count of 61. Budget 64 was therefore removed before protocol hashing as
+infeasible; no candidate score or evaluation outcome was computed. The locked
+grid is `[1,2,4,8,16,32,FULL]`, using nested class-stratified uniform sampling
+without replacement and 2,048 Monte Carlo chains.
+
+The future C80E primary object is expected held-evaluation standardized regret
+under the exact C79 P1 construction-label selector. The frontier uses an exact
+target-level max-T family procedure, the locked 0.05 regret-reduction margin,
+at least 6/8 positive targets, a no-catastrophic-target rule, and all-larger-
+budget closure. Seed 3 and seed 4 remain paired training factors over shared
+targets/trials. Reliability is secondary and is not an actionability
+precondition. The exact top-gap/effective-multiplicity path is descriptive
+moderation only and cannot rescue H2/H2R.
+
+Synthetic-only calibration passed all nine registered scenarios, all 18 B*
+seed-scenario cells, family-wise error `0.044922`, target-cluster coverage
+`0.953125`, and the pseudoreplication trap. Regression is green:
+`focused=29`, `C65-C80P=344 pass + 1 conditional skip`,
+`C23-C80P=751 pass + 1 conditional skip`, and
+`full_OACI=1679 pass + 1 conditional skip`.
+
+The accepted scientific base remains the completed **C79E post-seed-3
+prospective seed-4 replication**:
 
 ```text
 C79P replacement protocol:    ec4834c
@@ -120,20 +167,26 @@ Authorization governance: direct, explicit PM authorization is sufficient; no ma
 Current authoritative artifacts:
 
 ```text
-oaci/reports/C79_POST_SEED3_SEED4_REPLICATION_PROTOCOL.json
-oaci/reports/C79_POST_SEED3_SEED4_REPLICATION_PROTOCOL.sha256
-oaci/reports/C79_SEED4_LOCKED_CONFIRMATION.md
-oaci/reports/C79_SEED4_LOCKED_CONFIRMATION.json
-oaci/reports/C79_AUTHORIZED_RED_TEAM_VERIFICATION.md
-oaci/reports/C79E_FINAL_REPORT_RED_TEAM.md
-oaci/reports/C79E_REGRESSION_VERIFICATION.md
-oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C79E.md
+oaci/reports/C80_LABEL_BUDGET_FRONTIER_PROTOCOL.json
+oaci/reports/C80_LABEL_BUDGET_FRONTIER_PROTOCOL.sha256
+oaci/reports/C80_PROTOCOL_TIMING_AUDIT.md
+oaci/reports/C80_LABEL_BUDGET_CLAIM_CONTRACT.md
+oaci/reports/C80P_ANALYSIS_EXECUTION_LOCK.json
+oaci/reports/C80P_PROTOCOL_READINESS.md
+oaci/reports/C80P_PROTOCOL_READINESS.json
+oaci/reports/C80P_PRE_EXECUTION_RED_TEAM.md
+oaci/reports/C80P_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C80P.md
 ```
 
-Stop for PM review. C79E is complete. Do not start C80, seed 5,
-BNCI2014_004, a new target or feature/kernel/model campaign, same-label-oracle
-analysis, checkpoint recommendations, or manuscript drafting without a new
-prospective protocol and direct authorization where required.
+Stop for PI authorization review. C80P is complete, but C80E has not been
+authorized and no real-data frontier has been computed. C80E requires direct
+authorization bound to protocol `f5d83b3`, protocol SHA-256
+`c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85`,
+analysis lock `972f47c`, and the exact seed-3/seed-4 field/view manifests. Do
+not start C80E, seed 5, BNCI2014_004, active acquisition, a new
+feature/kernel/model campaign, same-label-oracle analysis, checkpoint
+recommendations, or manuscript drafting without separate authorization.
 
 ---
 
@@ -213,7 +266,8 @@ overstatements. Expect to be wrong on the first read; the controls exist to catc
 
 - **Repo:** `git@github.com:W-Yinghao/CMI.git`  ·  **Branch:** `oaci` (fully pushed).
 - **Worktree on the lab machine:** `/home/infres/yinwang/CMI_AAAI_oaci`.
-- **C79E final validation = `a12dc8b`**; protocol = `ec4834c`, protocol SHA = `e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587`, field/analysis locks = `35d0c65` / `7cebf2e`, authorization record = `b67ba6c`, scientific red team = `439c8c5`.
+- **C80P readiness result = `1b02454`**; protocol = `f5d83b3`, protocol SHA = `c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85`, synthetic implementation = `c98e084`, analysis lock = `972f47c`, analysis-lock SHA = `05a99e7ccc357b90b6675756caa680fd16541358bb697fdded89351f1e7ae4a8`.
+- **C79E final HEAD = `dadd166`**; final validation = `a12dc8b`, protocol = `ec4834c`, protocol SHA = `e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587`, field/analysis locks = `35d0c65` / `7cebf2e`, authorization record = `b67ba6c`, scientific red team = `439c8c5`.
 - **C78S implementation = `e561a15`**, scope-specific lock = `ce1fb14`, result = `43a046c`, handoff = `48be5b7`, regression-provenance correction = `dcd4c28`; all are unsquashed.
 - **C78F result = `51022f4`**; protocol/lock/repair anchors are `1d210fd`, `a902966`, and `f0d49c2`.
 - C31 remains `611988f`; the complete C23–C78S trail is retained unsquashed on `origin/oaci`.
@@ -277,13 +331,15 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C79E is DONE; stop for PM review)
+## 7. How to continue (C80P is DONE; C80E is NOT authorized)
 
-- Treat `C79-E_seed4_does_not_replicate_either_core_pattern` as the authoritative C79E gate. P1 actionability remains material, but its compound measurement gate is inactive; P2 retains positive local structure but fails the strict seed-4 family.
-- Keep H2R/H4R/H5R as exact-candidate nonqualification results, not universal impossibility or zero-effect claims. Keep H6R descriptive because its fixed Holm decision is inactive.
-- Preserve the shared-target/trial dependence boundary. Two training seeds are not two independent subject populations, and no target-population claim is available.
-- Do not reopen C79E analyses for feature/kernel/model search, p-value pooling, checkpoint matching by outcome, or raw-p rescue.
-- Do not start C80, seed 5, BNCI2014_004, another target, same-label-oracle analysis, checkpoint recommendations, or manuscript drafting without a new PM decision and prospective protocol.
+- Treat `C80_LABEL_BUDGET_FRONTIER_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION` as the authoritative C80P gate. It is a readiness state, not a scientific frontier result.
+- Before any C80E computation, replay protocol `f5d83b3`, SHA-256 `c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85`, lock `972f47c`, and the bound seed-3/seed-4 field/view manifests; require direct PI authorization naming them.
+- Run only the locked existing-field Q0 analysis if authorized: grid `[1,2,4,8,16,32,FULL]`, exact C79 P1 selector, 2,048 nested Monte Carlo chains, all five registry paths unconditionally, and target-cluster simultaneous inference.
+- Keep target 4 excluded, the same-label oracle closed, construction/evaluation views disjoint, and trial ID/row order restricted to join/split/dependence keys.
+- Preserve the C79E component result: P1-M failed while P1-A passed; P2-L failed while exact transport qualification failed again. Do not call this reversal, absence of all signal, or target-label uselessness.
+- Do not reopen C79E or C80P for active acquisition, feature/kernel/model search, H2 rescue, p-value pooling, checkpoint matching by outcome, or raw-p rescue.
+- Do not start C80E, seed 5, BNCI2014_004, another target, same-label-oracle analysis, checkpoint recommendations, or manuscript drafting without separate authorization.
 
 ---
 
@@ -292,13 +348,18 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 DIAGNOSTIC-ONLY. No selector / no target-free detector / no OACI rescue / no joint-deployable-improvement / no
 external-validation-success claim. **No target labels in source or target-unlabeled feature construction**; label
 views stay physically quarantined. Frozen C19 config hash **`664007686afb520f`** remains unchanged. No probe tuning,
-feature selection, checkpoint recommendation, BNCI2014_004 access, seed-4 access, or manuscript prose.
+feature selection, checkpoint recommendation, BNCI2014_004 access, additional
+training-seed execution, or manuscript prose. Existing seed-3/seed-4 views may
+be read only under a separately authorized, scope-locked analysis such as
+C80E.
 
-Historical “no training / no seed 3” defaults were explicitly superseded only for the completed C78/C78R/C78F
-prospective field-generation scopes. C78S and C79P were analysis/protocol-only.
-None of these authorize C79E training. Direct PI authorization needs no magic
-token, but must bind the exact protocol and both scope-specific locks; physical-view
-isolation, red-team, report, commit, and push remain mandatory.
+Historical “no training / no seed 3” defaults were explicitly superseded for
+the completed C78/C78R/C78F field generation and C79E seed-4 replication under
+their scope-specific direct authorizations. C78S, C79P, and C80P were
+analysis/protocol-only. C80P does not authorize C80E. Direct PI authorization
+needs no magic token, but must bind the exact C80 protocol, SHA-256, analysis
+lock, and field/view manifests; physical-view isolation, red-team, report,
+commit, and push remain mandatory.
 
 **FORBIDDEN wording** (the report guards enforce this): "deployable selector", "target-free detector", "OACI rescue",
 "joint deployable improvement", "endpoint/pareto selector", "target oracle as method", "X converges to Y" (without the
@@ -315,8 +376,10 @@ metric). **Oracle quantities are "oracle diagnostic, not deployable."**
   adversarial multi-agent verify after; P0 replay-identity gate before re-inference; prefer real re-inference over
   proxy when GPU idle; reason-code every feature/unit loss and fail loud; two-commit + auto-push + `Co-Authored-By`;
   PM decisions as free-text prose (never a picker); verify against real git, not stale CDN URLs.
-- Updated one-line ledger: *target-good checkpoints exist; registered source-only and target-unlabeled representation
-  paths still fail transport/control, while split-label target information can be reliable and materially actionable
-  inside the seed-3 diagnostic field. That counter-result does not make the signal source-only or deployable; seed-4
-  confirmation remains required.*
+- Updated one-line ledger: *registered source-only and target-unlabeled
+  candidates remain unqualified across two training seeds; construction-label
+  actionability is directionally robust but its compound reliability gate is
+  seed-heterogeneous. C80P has locked, but not run, a policy-specific existing-
+  field label-budget frontier to determine how much independent construction
+  information is needed for low-regret selection.*
 ```
