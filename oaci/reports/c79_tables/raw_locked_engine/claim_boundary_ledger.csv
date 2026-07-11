@@ -1,0 +1,10 @@
+claim,allowed,active
+seed3_exploratory_replication,1,1
+seed_level_confirmation,0,0
+target_population_confirmation,0,0
+all_source_functions_fail,0,0
+all_target_unlabeled_functions_fail,0,0
+representation_causality,0,0
+selector_or_checkpoint_recommendation,0,0
+deployability,0,0
+manuscript_drafting,0,0

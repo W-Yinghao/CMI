@@ -1,0 +1,109 @@
+{
+  "H2R_qualifies": false,
+  "H4R_F2_qualifies": false,
+  "H5R_F4_qualifies": false,
+  "H6R_familywise_active": false,
+  "P1_transition_replicates": false,
+  "P2_local_nontransport_replicates": false,
+  "active_after_Holm_runtime_selection": false,
+  "primary_taxonomy": "C79-E_seed4_does_not_replicate_either_core_pattern",
+  "registered_paths_completed": 10,
+  "same_label_oracle_accessed": false,
+  "schema_version": "c79_seed4_primary_output_freeze_v1",
+  "seed4_only_primary": true,
+  "tables": [
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p1_measurement_reliability.csv",
+      "sha256": "e84060b655acdf2880c53929a26cee5008054491adc6fe9c77de8ab20e017f23"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p1_topk_actionability.csv",
+      "sha256": "80bc0e6d35e2e370e11d885b1400cad5ae41d7936f4f7ae039ab828b32f12447"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p1_regret_materiality.csv",
+      "sha256": "53fb84f7ddab7b871ec07cbf308a9413a88a7cc36876205ca449c87f484ad513"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p1_target_level_effects.csv",
+      "sha256": "df190ddbd057fd931091d250e4cc2b0ce38c481c5ea7e0c33949eb1b40138675"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p1_regime_selection_composition.csv",
+      "sha256": "66fe226d46aaf7d39fb71e75f7bcd0d0ef4f66349e5af9cc0cf04d9ec24a38eb"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p1_failure_reason_ledger.csv",
+      "sha256": "50bb8a8897a6c6f537e0fe15fb7f479162897aaf3f9b03d78e71ca0df83da4b4"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/h2r_model_registry_replay.csv",
+      "sha256": "88cf817fe8ad091d8cd59eeef64ec770251f1646e63788955b44e7f08743d851"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/h2r_held_target_deviance.csv",
+      "sha256": "ced34324dbda25568cb90c991816717af9cda443a3693e78b1af04b62e409601"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/h2r_permutation_summary.csv",
+      "sha256": "f3d4043dd19d68b7587d5d13345028b33706c6a15aaf11d2d28719183493ed5b"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/h2r_target_heterogeneity.csv",
+      "sha256": "0e706fb0862c1b41b545e328d90c4219ef8b49be8842308823c663c69684519e"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p2_local_association.csv",
+      "sha256": "65d7c92960066dcb9ee9349e8f5c75fbe9e884b5a40c8002e7d375c4ec3b8848"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p2_trajectory_cell_effects.csv",
+      "sha256": "b03e391dccd505e61fdee9bef02f01d2628c727e1f16478ccfd3eb8b2c8f3a0c"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p2_blocked_control_summary.csv",
+      "sha256": "536049507b1ecea005619ac4f79d16d518e55368bd52ceae42f1754d39ee19b8"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p2_loto_transport.csv",
+      "sha256": "97d72edc522b7043a57ddd67000c0f2c7175a4c477f09858bb1c43d78a91c16c"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p2_loro_transport.csv",
+      "sha256": "8c5a22b6ea4726f613efb934cd1dbd6fad4671c2e23f811875569782951fa223"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p2_target_regime_heterogeneity.csv",
+      "sha256": "f41b1db351197116a57e4c81b3a29a417670b5ffc8032d6bfe107d0ef0259b3d"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/p2_failure_reason_ledger.csv",
+      "sha256": "ba442305395130b2418ba358715f61776d114e3758c932956ef9bd7e533fa7ba"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/h4r_f2_qualification.csv",
+      "sha256": "48a75e6bfe7ff713ecdbb40780ae47841ea67788a5ff31d461ec66df8627046e"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/h5r_f4_qualification.csv",
+      "sha256": "8cee0d627a440fb89d23e0d4f2a15a71a2a67f127a9e4dbcf121fea3a4b84e07"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/h4r_h5r_failure_reason_ledger.csv",
+      "sha256": "fa63de7f65313539f2ddb87db76ca57f3f17e5102de5aafd584d8a8453c0a47f"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/h6r_positive_control_effect.csv",
+      "sha256": "c7f1ebc8614e56c8f108a0dd0dfed8f1e2f9c8fae15fc5700262008fcd0cf6bf"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/h6r_Holm_family_replay.csv",
+      "sha256": "10dccf0aea65e7b3cb51af40dcf952033cd9ebc587b9367fc87aa99382219488"
+    },
+    {
+      "path": "/home/infres/yinwang/CMI_AAAI/c78f_oaci/oaci/reports/c79_tables/h6r_target_level_effects.csv",
+      "sha256": "ccd937a5abe9e8aa5aafbfc219d6156aebce91637a710460a0ce5d047349303b"
+    }
+  ],
+  "target4_primary": false
+}
