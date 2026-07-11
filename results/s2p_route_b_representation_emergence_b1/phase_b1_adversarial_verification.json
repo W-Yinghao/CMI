@@ -1,0 +1,8 @@
+{
+  "failure": "primary B1 run stopped at the frozen variance-stability gate",
+  "independent_metric_recomputation": false,
+  "phase": "B1_independent_adversarial_verification",
+  "phase_b2_authorized": false,
+  "status": "NOT_RUN_DUE_UPSTREAM_NO_GO",
+  "target_labels_used_for_selection": false
+}

@@ -15,11 +15,12 @@
     "H2000_s0",
     "H2000_s1"
   ],
+  "checksum_input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
   "codebrain": false,
   "feature_layer": "final_encoder_patch_mean_flatten_32x200",
   "fine_tuning": false,
   "geometry": "fold_fit_PCA128_whiten_equal_rank8_projection_overlap",
-  "git_head": "f1e7c88ce6c8d44db3739a4685d4b482e4367bfa",
+  "git_head": "960104e77dd897c7e695924da2e3bff45968cb10",
   "h4000": false,
   "holm_family_size": 3,
   "layerwise": false,

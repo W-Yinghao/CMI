@@ -1,0 +1,20 @@
+{
+  "attempt_job_id": "893011",
+  "checkpoint_objects_completed": 10,
+  "checksum_canary_objects_passed": 10,
+  "commit": "960104e77dd897c7e695924da2e3bff45968cb10",
+  "failure_stage": "cross_fitted_variance_stability_gate",
+  "geometry_bootstrap_objects_completed": 10,
+  "independent_adversarial_verifier_run": false,
+  "phase_b2_authorized": false,
+  "primary_inference_written": false,
+  "scientific_interpretation_allowed": false,
+  "status": "NO_GO",
+  "stop_rule_triggered": true,
+  "target_labels_used_for_selection": false,
+  "unstable_checkpoint_tags": [
+    "released",
+    "H1000_s0"
+  ],
+  "variance_threshold_detail_persisted": false
+}

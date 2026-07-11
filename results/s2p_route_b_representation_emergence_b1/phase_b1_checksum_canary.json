@@ -1,0 +1,90 @@
+{
+  "normalized_input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+  "objects": 10,
+  "phase": "B1_pre_endpoint_checksum_canary",
+  "results": [
+    {
+      "expected_feature_sha256": "e4b5f700795990df0045e2be6cd18d89548c930475e5df0f70f35e0f71f7f558",
+      "input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+      "observed_feature_sha256": "e4b5f700795990df0045e2be6cd18d89548c930475e5df0f70f35e0f71f7f558",
+      "pass": true,
+      "repeat_max_abs_diff": 0.0,
+      "tag": "random"
+    },
+    {
+      "expected_feature_sha256": "e8d236c8f13aeb640ff60b8225906ff14f3ea31146064223ca9bb1d4df86736a",
+      "input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+      "observed_feature_sha256": "e8d236c8f13aeb640ff60b8225906ff14f3ea31146064223ca9bb1d4df86736a",
+      "pass": true,
+      "repeat_max_abs_diff": 0.0,
+      "tag": "released"
+    },
+    {
+      "expected_feature_sha256": "594ac2b815637987d947942679e9d8e2204e14609fabbee748b7fe3d550d0800",
+      "input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+      "observed_feature_sha256": "594ac2b815637987d947942679e9d8e2204e14609fabbee748b7fe3d550d0800",
+      "pass": true,
+      "repeat_max_abs_diff": 0.0,
+      "tag": "H200_s0"
+    },
+    {
+      "expected_feature_sha256": "202ee7c1c308dcbfec6e422382484217a75f3e5c188825c6cc78bc240c2ebdeb",
+      "input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+      "observed_feature_sha256": "202ee7c1c308dcbfec6e422382484217a75f3e5c188825c6cc78bc240c2ebdeb",
+      "pass": true,
+      "repeat_max_abs_diff": 0.0,
+      "tag": "H200_s1"
+    },
+    {
+      "expected_feature_sha256": "7d5c60b5423e72935e536583774f540acd7195c3ed6d46f6ce006b32cb70554f",
+      "input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+      "observed_feature_sha256": "7d5c60b5423e72935e536583774f540acd7195c3ed6d46f6ce006b32cb70554f",
+      "pass": true,
+      "repeat_max_abs_diff": 0.0,
+      "tag": "H500_s0"
+    },
+    {
+      "expected_feature_sha256": "242516d21dd60b1acde9ed16a53fcdde61a3881d4563bce423fc4e9416703bc5",
+      "input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+      "observed_feature_sha256": "242516d21dd60b1acde9ed16a53fcdde61a3881d4563bce423fc4e9416703bc5",
+      "pass": true,
+      "repeat_max_abs_diff": 0.0,
+      "tag": "H500_s1"
+    },
+    {
+      "expected_feature_sha256": "09b28f40ea465fc5e0b39fae5be93ed877a79ebef3467f463df530baa7d17b6a",
+      "input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+      "observed_feature_sha256": "09b28f40ea465fc5e0b39fae5be93ed877a79ebef3467f463df530baa7d17b6a",
+      "pass": true,
+      "repeat_max_abs_diff": 0.0,
+      "tag": "H1000_s0"
+    },
+    {
+      "expected_feature_sha256": "d50185d13c3bdfa5b535f7d4d6d918003b6b068300f340f62b08870a8fe15c6e",
+      "input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+      "observed_feature_sha256": "d50185d13c3bdfa5b535f7d4d6d918003b6b068300f340f62b08870a8fe15c6e",
+      "pass": true,
+      "repeat_max_abs_diff": 0.0,
+      "tag": "H1000_s1"
+    },
+    {
+      "expected_feature_sha256": "0849982ffbe9c4a3d00a4b98c741dfc4878a88000304264feadf66fddbe016db",
+      "input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+      "observed_feature_sha256": "0849982ffbe9c4a3d00a4b98c741dfc4878a88000304264feadf66fddbe016db",
+      "pass": true,
+      "repeat_max_abs_diff": 0.0,
+      "tag": "H2000_s0"
+    },
+    {
+      "expected_feature_sha256": "0bc1ab035795bad4cc6098899ad35ec33334fdf4ec10b47cdf982a883741657c",
+      "input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+      "observed_feature_sha256": "0bc1ab035795bad4cc6098899ad35ec33334fdf4ec10b47cdf982a883741657c",
+      "pass": true,
+      "repeat_max_abs_diff": 0.0,
+      "tag": "H2000_s1"
+    }
+  ],
+  "scientific_endpoints_computed": false,
+  "status": "PASS",
+  "target_labels_read": false
+}

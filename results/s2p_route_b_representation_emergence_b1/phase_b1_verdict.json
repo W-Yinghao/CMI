@@ -1,5 +1,5 @@
 {
-  "error": "random checksum feature no longer matches closure",
+  "error": "variance partition failed the frozen stability gate: H1000_s0,released",
   "error_type": "RuntimeError",
   "phase": "B1_final_representation_decomposition",
   "phase_b2_authorized": false,

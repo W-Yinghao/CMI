@@ -1,0 +1,13 @@
+Traceback (most recent call last):
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_decomposition.py", line 1646, in <module>
+    main()
+    ~~~~^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_decomposition.py", line 1632, in main
+    run(args)
+    ~~~^^^^^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_decomposition.py", line 1465, in run
+    raise RuntimeError(
+        "variance partition failed the frozen stability gate: " + ",".join(unstable_tags)
+    )
+RuntimeError: variance partition failed the frozen stability gate: H1000_s0,released
+srun: error: nodeaudible01: task 0: Exited with exit code 1
