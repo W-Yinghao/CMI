@@ -1,0 +1,11 @@
+{
+  "all_checkpoints_excluded_from_variance_claims": true,
+  "b1_core_may_continue_if_provenance_clean": true,
+  "forensic_use_only": true,
+  "interaction_claim_allowed": false,
+  "phase": "B1_variance_family_disposition",
+  "selective_survivor_reporting_allowed": false,
+  "status": "FAILED_STABILITY_NOT_INTERPRETABLE",
+  "variance_used_in_mechanism_verdict": false,
+  "variance_used_in_primary_inference": false
+}

@@ -1,0 +1,16 @@
+{
+  "component_numeric_comparison_to_original_available": false,
+  "failed_tag_set_exact_match": true,
+  "original_attempt_job_id": "893011",
+  "original_failed_checkpoint_tags": [
+    "H1000_s0",
+    "released"
+  ],
+  "phase": "B1_variance_forensic_reproducibility",
+  "replay_failed_checkpoint_tags": [
+    "H1000_s0",
+    "released"
+  ],
+  "status": "REPRODUCED_AT_TAG_GATE_LEVEL",
+  "variance_scientific_pass_restored": false
+}

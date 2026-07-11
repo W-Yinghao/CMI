@@ -1,0 +1,874 @@
+{
+  "bootstrap_reps": 5000,
+  "bootstrap_seed": 20260711,
+  "components": {
+    "H1000_s0": {
+      "checkpoint_gate_pass": false,
+      "components": {
+        "class_frac": {
+          "bootstrap_ci95_high": 0.0015244919045259001,
+          "bootstrap_ci95_low": -0.0003276627356761499,
+          "bootstrap_ci95_width": 0.00185215464020205,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.0003486847984492247,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.0013235691338485194,
+            -0.00026895067601751297,
+            -8.564062483332368e-06
+          ],
+          "max_fold_deviation": 0.0009748843353992948,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5535440262390495,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "interaction_frac": {
+          "bootstrap_ci95_high": 0.020167080418776715,
+          "bootstrap_ci95_low": 0.002337428363201588,
+          "bootstrap_ci95_width": 0.017829652055575126,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.011379187686239476,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.012628559075372118,
+            0.011389820432355183,
+            0.010119183550991126
+          ],
+          "max_fold_deviation": 0.0012600041352483493,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5535440262390495,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "residual_frac": {
+          "bootstrap_ci95_high": 0.6645263041508306,
+          "bootstrap_ci95_low": 0.4410691306974315,
+          "bootstrap_ci95_width": 0.2234571734533991,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": false,
+          "component_gate_pass": false,
+          "fold_mean": 0.5585232030215912,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.5569210868920055,
+            0.5651044959337184,
+            0.5535440262390495
+          ],
+          "max_fold_deviation": 0.006581292912127168,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5535440262390495,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "subject_frac": {
+          "bootstrap_ci95_high": 0.5484298521101697,
+          "bootstrap_ci95_low": 0.3261322128311093,
+          "bootstrap_ci95_width": 0.22229763927906038,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": false,
+          "component_gate_pass": false,
+          "fold_mean": 0.4297489244937202,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.4291267848987739,
+            0.42377463430994394,
+            0.43634535427244264
+          ],
+          "max_fold_deviation": 0.006596429778722435,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5535440262390495,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        }
+      },
+      "input_feature_sha256": "b61243711cd2f8149f8989f867746603d30999bd817b74f5253665784658dab9"
+    },
+    "H1000_s1": {
+      "checkpoint_gate_pass": true,
+      "components": {
+        "class_frac": {
+          "bootstrap_ci95_high": 0.0013997748183006045,
+          "bootstrap_ci95_low": -0.00019672520745495209,
+          "bootstrap_ci95_width": 0.0015965000257555566,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.0003630279536550319,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.0006867092078587246,
+            0.00015338012372154071,
+            0.00024899452938483045
+          ],
+          "max_fold_deviation": 0.0003236812542036927,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5792317077074455,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "interaction_frac": {
+          "bootstrap_ci95_high": 0.021414458398654537,
+          "bootstrap_ci95_low": 0.0042102248569766566,
+          "bootstrap_ci95_width": 0.017204233541677882,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.012979343907404609,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.014175389375990182,
+            0.013912562626144253,
+            0.01085007972007939
+          ],
+          "max_fold_deviation": 0.0021292641873252183,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5792317077074455,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "residual_frac": {
+          "bootstrap_ci95_high": 0.6662081144492552,
+          "bootstrap_ci95_low": 0.49143330313416217,
+          "bootstrap_ci95_width": 0.17477481131509304,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.5827930255348908,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.5821726977057815,
+            0.5869746711914453,
+            0.5792317077074455
+          ],
+          "max_fold_deviation": 0.0041816456565545446,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5792317077074455,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "subject_frac": {
+          "bootstrap_ci95_high": 0.4958694470434635,
+          "bootstrap_ci95_low": 0.32168788464242026,
+          "bootstrap_ci95_width": 0.1741815624010432,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.4038646026040496,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.4029652037103696,
+            0.3989593860586889,
+            0.4096692180430903
+          ],
+          "max_fold_deviation": 0.005804615439040706,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5792317077074455,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        }
+      },
+      "input_feature_sha256": "790107140b22e28cb749d9e7709caab1a2dd7cbf31b9933c8ea51b8e5f332a39"
+    },
+    "H2000_s0": {
+      "checkpoint_gate_pass": true,
+      "components": {
+        "class_frac": {
+          "bootstrap_ci95_high": 0.0005819601487085466,
+          "bootstrap_ci95_low": -0.0005657894338697232,
+          "bootstrap_ci95_width": 0.00114774958257827,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": -0.00012634317970352914,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.0002170795429476443,
+            -2.599050822900963e-05,
+            -0.0005701185738292221
+          ],
+          "max_fold_deviation": 0.00044377539412569295,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6778223912835007,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "interaction_frac": {
+          "bootstrap_ci95_high": 0.016770225348499448,
+          "bootstrap_ci95_low": 0.006529309170086843,
+          "bootstrap_ci95_width": 0.010240916178412605,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.011641080266809356,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.011831334367569018,
+            0.0132923145966741,
+            0.00979959183618495
+          ],
+          "max_fold_deviation": 0.0018414884306244064,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6778223912835007,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "residual_frac": {
+          "bootstrap_ci95_high": 0.7203271190449392,
+          "bootstrap_ci95_low": 0.6390958788554861,
+          "bootstrap_ci95_width": 0.08123124018945305,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.678581983607048,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.6778223912835007,
+            0.6795353569500047,
+            0.6783882025876387
+          ],
+          "max_fold_deviation": 0.0009533733429566427,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6778223912835007,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "subject_frac": {
+          "bootstrap_ci95_high": 0.35013744547812786,
+          "bootstrap_ci95_low": 0.26821254305477127,
+          "bootstrap_ci95_width": 0.0819249024233566,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.3099032793058461,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.31012919480598256,
+            0.3071983189615502,
+            0.31238232415000566
+          ],
+          "max_fold_deviation": 0.0027049603442959036,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6778223912835007,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        }
+      },
+      "input_feature_sha256": "2c20b670520e47d8a1c7c9db46ee915112be54d96d356e17e57710d195fc05d7"
+    },
+    "H2000_s1": {
+      "checkpoint_gate_pass": true,
+      "components": {
+        "class_frac": {
+          "bootstrap_ci95_high": 0.000989443852322253,
+          "bootstrap_ci95_low": -0.0007054098515010547,
+          "bootstrap_ci95_width": 0.0016948537038233076,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": -2.2020319808497843e-06,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.0007202251686048362,
+            -0.0004679020589797058,
+            -0.0002589292055676797
+          ],
+          "max_fold_deviation": 0.000722427200585686,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6453176131749753,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "interaction_frac": {
+          "bootstrap_ci95_high": 0.017839962999838123,
+          "bootstrap_ci95_low": 0.007001381100134993,
+          "bootstrap_ci95_width": 0.01083858189970313,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.012365472354152758,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.013667277836044133,
+            0.01334323197146224,
+            0.0100859072549519
+          ],
+          "max_fold_deviation": 0.0022795650992008584,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6453176131749753,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "residual_frac": {
+          "bootstrap_ci95_high": 0.6949319023571839,
+          "bootstrap_ci95_low": 0.5935274715560047,
+          "bootstrap_ci95_width": 0.10140443080117922,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.6467200552838327,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.6453176131749753,
+            0.649172550035144,
+            0.6456700026413786
+          ],
+          "max_fold_deviation": 0.0024524947513112627,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6453176131749753,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "subject_frac": {
+          "bootstrap_ci95_high": 0.3949901594270637,
+          "bootstrap_ci95_low": 0.2931620901298093,
+          "bootstrap_ci95_width": 0.10182806929725441,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.3409166743939955,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.34029488382037576,
+            0.3379521200523736,
+            0.34450301930923716
+          ],
+          "max_fold_deviation": 0.0035863449152416793,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6453176131749753,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        }
+      },
+      "input_feature_sha256": "43ad1e530052c6304cbbaad9ff9e21ae10da6256470aa90c3ae3ea29d1b4d9f6"
+    },
+    "H200_s0": {
+      "checkpoint_gate_pass": true,
+      "components": {
+        "class_frac": {
+          "bootstrap_ci95_high": 0.0009414647344533788,
+          "bootstrap_ci95_low": -0.00038909085979697686,
+          "bootstrap_ci95_width": 0.0013305555942503557,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.00015651198162477153,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.0008442215659684529,
+            -0.0001480923882767794,
+            -0.00022659323281735887
+          ],
+          "max_fold_deviation": 0.0006877095843436814,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.7214322619341529,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "interaction_frac": {
+          "bootstrap_ci95_high": 0.01293939424636843,
+          "bootstrap_ci95_low": 0.0031494232364418914,
+          "bootstrap_ci95_width": 0.00978997100992654,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.007776951248570711,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.00850334388227173,
+            0.00786681793484619,
+            0.0069606919285942126
+          ],
+          "max_fold_deviation": 0.0008162593199764982,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.7214322619341529,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "residual_frac": {
+          "bootstrap_ci95_high": 0.7842330192732644,
+          "bootstrap_ci95_low": 0.6531382492763954,
+          "bootstrap_ci95_width": 0.13109476999686898,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.7233297971288496,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.7227840137826927,
+            0.725773115669703,
+            0.7214322619341529
+          ],
+          "max_fold_deviation": 0.0024433185408534452,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.7214322619341529,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "subject_frac": {
+          "bootstrap_ci95_high": 0.33955740647435984,
+          "bootstrap_ci95_low": 0.20815938418711363,
+          "bootstrap_ci95_width": 0.1313980222872462,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.26873673964095496,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.2678684207690671,
+            0.2665081587837275,
+            0.27183363937007027
+          ],
+          "max_fold_deviation": 0.00309689972911531,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.7214322619341529,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        }
+      },
+      "input_feature_sha256": "5e7851e8f017be773e33e4a4b88d92d0ec6a4d7c8f9876f021e3737091659c1e"
+    },
+    "H200_s1": {
+      "checkpoint_gate_pass": true,
+      "components": {
+        "class_frac": {
+          "bootstrap_ci95_high": 0.0010236300209048148,
+          "bootstrap_ci95_low": 0.0002563398992240202,
+          "bootstrap_ci95_width": 0.0007672901216807946,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.0005459136562224328,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.0007991133442030503,
+            0.00027848022591393757,
+            0.0005601473985503106
+          ],
+          "max_fold_deviation": 0.00026743343030849524,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.8153575097261814,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "interaction_frac": {
+          "bootstrap_ci95_high": 0.010724031541507086,
+          "bootstrap_ci95_low": 0.0035889437329554145,
+          "bootstrap_ci95_width": 0.007135087808551672,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.006952520262183731,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.007607628744891373,
+            0.007852606206003403,
+            0.005397325835656417
+          ],
+          "max_fold_deviation": 0.0015551944265273137,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.8153575097261814,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "residual_frac": {
+          "bootstrap_ci95_high": 0.8524369462853829,
+          "bootstrap_ci95_low": 0.7774747587464453,
+          "bootstrap_ci95_width": 0.07496218753893757,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.8167107224022722,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.8153575097261814,
+            0.8178076450807855,
+            0.8169670123998497
+          ],
+          "max_fold_deviation": 0.001353212676090787,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.8153575097261814,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "subject_frac": {
+          "bootstrap_ci95_high": 0.2140839441097292,
+          "bootstrap_ci95_low": 0.1405389259643317,
+          "bootstrap_ci95_width": 0.07354501814539749,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.17579084367932163,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.1762357481847242,
+            0.1740612684872971,
+            0.17707551436594354
+          ],
+          "max_fold_deviation": 0.0017295751920245184,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.8153575097261814,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        }
+      },
+      "input_feature_sha256": "356f22e95664d906fe29aa22fdcab3ce803e5800639fe3585cca931bc29bc1dc"
+    },
+    "H500_s0": {
+      "checkpoint_gate_pass": true,
+      "components": {
+        "class_frac": {
+          "bootstrap_ci95_high": 0.0009064577243973037,
+          "bootstrap_ci95_low": -0.0008245885747443928,
+          "bootstrap_ci95_width": 0.0017310462991416966,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": -0.00013254593108224933,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.00044600754296743653,
+            -0.0008876311271330605,
+            4.398579091887597e-05
+          ],
+          "max_fold_deviation": 0.0007550851960508112,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.623609051913757,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "interaction_frac": {
+          "bootstrap_ci95_high": 0.016887632214731465,
+          "bootstrap_ci95_low": 0.006401671861950298,
+          "bootstrap_ci95_width": 0.010485960352781168,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.01199795403266883,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.013500850558418303,
+            0.012634628687710071,
+            0.009858382851878114
+          ],
+          "max_fold_deviation": 0.0021395711807907156,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.623609051913757,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "residual_frac": {
+          "bootstrap_ci95_high": 0.6854248399574606,
+          "bootstrap_ci95_low": 0.5602949874814339,
+          "bootstrap_ci95_width": 0.1251298524760267,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.6268866431936423,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.6254576314776187,
+            0.6315932461895515,
+            0.623609051913757
+          ],
+          "max_fold_deviation": 0.004706602995909193,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.623609051913757,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "subject_frac": {
+          "bootstrap_ci95_high": 0.42929171031272306,
+          "bootstrap_ci95_low": 0.30312563807263826,
+          "bootstrap_ci95_width": 0.1261660722400848,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.361247948704771,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.36059551042099564,
+            0.3566597562498715,
+            0.3664885794434459
+          ],
+          "max_fold_deviation": 0.005240630738674923,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.623609051913757,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        }
+      },
+      "input_feature_sha256": "0e4db3468b5bbcd494edd053c0f3e834d8e8c81a0400cef45187d73739330861"
+    },
+    "H500_s1": {
+      "checkpoint_gate_pass": true,
+      "components": {
+        "class_frac": {
+          "bootstrap_ci95_high": 0.0016942959339696366,
+          "bootstrap_ci95_low": 0.00013737980984335996,
+          "bootstrap_ci95_width": 0.0015569161241262767,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.0007476457035111755,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.0010044729498402563,
+            0.0006665080890317248,
+            0.0005719560716615457
+          ],
+          "max_fold_deviation": 0.0002568272463290808,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6493465400068227,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "interaction_frac": {
+          "bootstrap_ci95_high": 0.016168058864022998,
+          "bootstrap_ci95_low": 0.005170691759400798,
+          "bootstrap_ci95_width": 0.0109973671046222,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.010903353430772046,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.011561867003845674,
+            0.011622240428738778,
+            0.009525952859731686
+          ],
+          "max_fold_deviation": 0.00137740057104036,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6493465400068227,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "residual_frac": {
+          "bootstrap_ci95_high": 0.7073476127650128,
+          "bootstrap_ci95_low": 0.5890128547470728,
+          "bootstrap_ci95_width": 0.11833475801794002,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.6514524164108072,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.6502025556813262,
+            0.6548081535442729,
+            0.6493465400068227
+          ],
+          "max_fold_deviation": 0.0033557371334657082,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6493465400068227,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "subject_frac": {
+          "bootstrap_ci95_high": 0.4003272283207762,
+          "bootstrap_ci95_low": 0.28175098272368165,
+          "bootstrap_ci95_width": 0.11857624559709457,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.3368965844549095,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.3372311043649878,
+            0.3329030979379566,
+            0.3405555510617841
+          ],
+          "max_fold_deviation": 0.0039934865169529155,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.6493465400068227,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        }
+      },
+      "input_feature_sha256": "e0dd1ef948eacb5ac8fe527d4d183a4351fec748832d000e08a183544d47bedb"
+    },
+    "random": {
+      "checkpoint_gate_pass": true,
+      "components": {
+        "class_frac": {
+          "bootstrap_ci95_high": 0.0002597598288315549,
+          "bootstrap_ci95_low": -0.0004293339865159139,
+          "bootstrap_ci95_width": 0.0006890938153474688,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": -4.694746120172008e-05,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.00015808205662270783,
+            -0.00028621515965017197,
+            -1.2709280577696117e-05
+          ],
+          "max_fold_deviation": 0.0002392676984484519,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.9506492318535607,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "interaction_frac": {
+          "bootstrap_ci95_high": 0.001335741890122054,
+          "bootstrap_ci95_low": -0.004528177797359963,
+          "bootstrap_ci95_width": 0.005863919687482017,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": -0.0015527373472596128,
+          "fold_stability_pass": true,
+          "fold_values": [
+            -0.0024082674165095963,
+            -0.00033785664869836037,
+            -0.001912087976570882
+          ],
+          "max_fold_deviation": 0.0012148806985612525,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.9506492318535607,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "residual_frac": {
+          "bootstrap_ci95_high": 0.971423722866646,
+          "bootstrap_ci95_low": 0.9279949521263537,
+          "bootstrap_ci95_width": 0.04342877074029228,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.9523793060598837,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.9537360036508166,
+            0.9506492318535607,
+            0.9527526826752741
+          ],
+          "max_fold_deviation": 0.0017300742063230956,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.9506492318535607,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "subject_frac": {
+          "bootstrap_ci95_high": 0.07418362494950427,
+          "bootstrap_ci95_low": 0.029191720463101384,
+          "bootstrap_ci95_width": 0.04499190448640289,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.04922037874857757,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.04851418170907036,
+            0.04997483995478786,
+            0.04917211458187448
+          ],
+          "max_fold_deviation": 0.0007544612062102898,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.9506492318535607,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        }
+      },
+      "input_feature_sha256": "9ca8e3e8afddd7a4641d392002db04c458ab97e6d95a14283f4fb33a4d758c50"
+    },
+    "released": {
+      "checkpoint_gate_pass": false,
+      "components": {
+        "class_frac": {
+          "bootstrap_ci95_high": 0.0014369217561746234,
+          "bootstrap_ci95_low": -0.000964678814574379,
+          "bootstrap_ci95_width": 0.0024016005707490026,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 3.055269981190941e-05,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.0017346827368803232,
+            -0.0017561195796043485,
+            0.00011309494215975347
+          ],
+          "max_fold_deviation": 0.001786672279416258,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5652899227616235,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "interaction_frac": {
+          "bootstrap_ci95_high": 0.022822062701567215,
+          "bootstrap_ci95_low": 0.003439085857961884,
+          "bootstrap_ci95_width": 0.01938297684360533,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": true,
+          "component_gate_pass": true,
+          "fold_mean": 0.013007296289821208,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.01416497462427015,
+            0.015407529207621165,
+            0.00944938503757231
+          ],
+          "max_fold_deviation": 0.0035579112522488993,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5652899227616235,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "residual_frac": {
+          "bootstrap_ci95_high": 0.696053690109645,
+          "bootstrap_ci95_low": 0.43557722425897083,
+          "bootstrap_ci95_width": 0.2604764658506742,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": false,
+          "component_gate_pass": false,
+          "fold_mean": 0.5703418775292942,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.5675387238447528,
+            0.5781969859815066,
+            0.5652899227616235
+          ],
+          "max_fold_deviation": 0.007855108452212378,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5652899227616235,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        },
+        "subject_frac": {
+          "bootstrap_ci95_high": 0.5530970975862203,
+          "bootstrap_ci95_low": 0.291441776366773,
+          "bootstrap_ci95_width": 0.2616553212194473,
+          "bootstrap_ci95_width_threshold": 0.2,
+          "bootstrap_stability_pass": false,
+          "component_gate_pass": false,
+          "fold_mean": 0.4166202734810726,
+          "fold_stability_pass": true,
+          "fold_values": [
+            0.41656161879409676,
+            0.4081516043904766,
+            0.4251475972586445
+          ],
+          "max_fold_deviation": 0.008527323777571871,
+          "max_fold_deviation_threshold": 0.1,
+          "minimum_residual_fraction": 0.5652899227616235,
+          "minimum_residual_fraction_threshold": -0.01,
+          "residual_stability_pass": true
+        }
+      },
+      "input_feature_sha256": "1fa98f011fe25e85253dab10e5e495fac454ee8d148e1f19c9165987398347fa"
+    }
+  },
+  "failed_checkpoint_tags": [
+    "H1000_s0",
+    "released"
+  ],
+  "frozen_source_commit": "960104e77dd897c7e695924da2e3bff45968cb10",
+  "frozen_source_sha256": "6574301ca95efe98ee75748a3481a9f55dcd0747af758f4836ae2f39b8d4962f",
+  "phase": "B1_variance_forensic_replay",
+  "thresholds_changed": false
+}

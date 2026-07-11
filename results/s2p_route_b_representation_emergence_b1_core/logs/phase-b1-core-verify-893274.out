@@ -1,0 +1,23 @@
+Phase B1-Core verifier-only host=node05 git=ac9dce9d2e5d86f96ad81d70a4e030c8c8f8bd09
+Phase B1 independent verifier self-tests: PASS
+Phase B1-Core verifier self-tests: PASS
+{
+  "all_features_match_closure": true,
+  "all_hashes_reverified": true,
+  "checkpoint_objects": 10,
+  "clip_group_crossfit_pass": true,
+  "core_verdict_pre_verification_sha256": "313226c253257bffa403e8231d88a492799ee9ea5f2629ac41e0eaa717337616",
+  "failures": [],
+  "geometry_numerical_atol": 1e-07,
+  "geometry_sign_ci_side_and_gate_status_reproduced": true,
+  "phase": "B1_core_independent_adversarial_verification",
+  "phase_b2_authorized": false,
+  "primary_geometry_claim_recomputed": true,
+  "primary_subject_claim_recomputed": true,
+  "primary_task_claim_recomputed": true,
+  "status": "PASS",
+  "target_labels_used_for_selection": false,
+  "variance_partition_status": "FAILED_STABILITY_NOT_INTERPRETABLE",
+  "variance_used_in_verdict": false
+}
+Phase B1-Core verifier-only: PASS

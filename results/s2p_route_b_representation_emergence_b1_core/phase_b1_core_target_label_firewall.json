@@ -1,0 +1,11 @@
+{
+  "target_labels_used_for_checkpoint_selection": false,
+  "target_labels_used_for_final_task_scoring": true,
+  "target_labels_used_for_metric_selection": false,
+  "target_labels_used_for_pca": false,
+  "target_labels_used_for_probe_fit": false,
+  "target_labels_used_for_probe_selection": false,
+  "target_labels_used_for_rank_selection": false,
+  "target_labels_used_for_selection": false,
+  "target_labels_used_for_target_subject_cluster_bootstrap_scoring": true
+}
