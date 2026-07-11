@@ -1,0 +1,5 @@
+check,value,passed
+job_local_TMPDIR,/tmp/c78r-train-${SLURM_JOB_ID},1
+job_local_MNE_cache,${TMPDIR}/mne,1
+C78_external_root_write,0,1
+C78R_external_root_distinct,1,1

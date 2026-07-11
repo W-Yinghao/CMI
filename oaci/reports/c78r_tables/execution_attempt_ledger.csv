@@ -1,0 +1,2 @@
+attempt,mode,job_id,status,authorization_exact,training,real_forward,real_EEG_rows,GPU,checkpoint_count,reason
+1,protocol_preflight,none,completed_no_execution,0,0,0,0,0,0,prospective protocol lock before authorization execution

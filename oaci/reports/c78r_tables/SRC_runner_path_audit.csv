@@ -1,0 +1,5 @@
+component,path,historical_commit,entry,distinct_from_OACI,passed
+objective,oaci/methods/source_robust.py,2555b3623713f802018e69afcf2b7d1449050641,SRCObjective,1,1
+engine,oaci/train/engine.py,2555b3623713f802018e69afcf2b7d1449050641,train_stage2,0,1
+alignment,oaci/runner/plans.py,2555b3623713f802018e69afcf2b7d1449050641,full_domain_alignment,1,1
+initialization,C78 frozen ERM anchors,121cd019a7ce1cace18f54570934c2a33730cf09,read_only_stage2_parent,1,1

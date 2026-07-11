@@ -1,0 +1,35 @@
+check,passed,blocking,observed,expected
+protocol_sha_replay,1,1,8f0a2dd57420a5b9aa66c4174eb10477b93e46946122c6952660aceab4d0d29d,committed SHA file
+parent_result_exact,1,1,121cd019a7ce1cace18f54570934c2a33730cf09,121cd019a7ce1cace18f54570934c2a33730cf09
+exact_token_field,1,1,C78R_SEED3_SRC_CANARY_AUTHORIZED,C78R_SEED3_SRC_CANARY_AUTHORIZED
+exact_CLI_only,1,1,"{'accepted_channel': 'exact_CLI_argument_only', 'argument': '--authorization-token', 'environment_is_authorization': False, 'prompt_text_is_authorization': False, 'required': True, 'substring_or_trimmed_match': False}",CLI exact
+prompt_not_authorization,1,1,False,False
+environment_not_authorization,1,1,False,False
+unit_count,1,1,80,80
+unit_unique,1,1,80,80
+SRC_only,1,1,{'SRC'},{'SRC'}
+target_exact,1,1,{'4'},{'4'}
+seed_exact,1,1,{'3'},{'3'}
+levels_exact,1,1,"{'0', '1'}","{'0', '1'}"
+temperature_exact,1,1,{'0.1'},{'0.1'}
+fixed_cadence,1,1,two 40-point sequences,"[4, 9, 14, 19, 24, 29, 34, 39, 44, 49, 54, 59, 64, 69, 74, 79, 84, 89, 94, 99, 104, 109, 114, 119, 124, 129, 134, 139, 144, 149, 154, 159, 164, 169, 174, 179, 184, 189, 194, 199]"
+historical_byte_replay,1,1,"[1, 1, 1, 1]",all 1
+two_read_only_ERM_anchors,1,1,2,2
+ERM_not_retrained,1,1,False,False
+OACI_not_retrained,1,1,False,False
+guard_before_torch,1,1,authorization before torch,authorization before torch
+guard_before_EEG_loader,1,1,authorization before loader,authorization before loader
+SRC_objective_only,1,1,SRCObjective/train_stage2,SRCObjective/train_stage2
+full_domain_alignment,1,1,present,present
+C78_root_distinct,1,1,/projects/EEG-foundation-model/yinghao/oaci-c78r-src-canary,distinct
+C78_overwrite_forbidden,1,1,False,False
+seed4_forbidden,1,1,False,False
+BNCI004_forbidden,1,1,False,False
+full_expansion_forbidden,1,1,False,False
+remaining_scope_exact,1,1,"{'authorization_in_C78R': False, 'remaining_training_phases': 48, 'remaining_units': 1296, 'required_before_C78F': ['locked_1296_unit_manifest', '48_phase_schedule', 'seed3_science_protocol', 'hierarchical_inference_plan', 'multiple_testing_plan', 'failure_retry_policy', 'compute_storage_budget']}",1296/48
+implementation_hashes,1,1,9,9
+training_script_V100,1,1,V100,V100
+instrumentation_cpu_high,1,1,cpu-high,cpu-high
+no_raw_payload_in_git,1,1,False,False
+no_selector,1,1,False,False
+no_manuscript,1,1,False,False
