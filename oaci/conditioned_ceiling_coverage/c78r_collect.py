@@ -33,6 +33,17 @@ def _tree_bytes(root: Path) -> int:
     return sum(path.stat().st_size for path in root.rglob("*") if path.is_file())
 
 
+def _unit_storage(unit: dict[str, Any], instrumentation_path: str | Path, verify_manifest) -> dict[str, int]:
+    sidecar = verify_manifest(unit["sidecar_path"])
+    instrumentation_root = Path(instrumentation_path).parent
+    return {
+        "checkpoint": Path(unit["checkpoint_path"]).stat().st_size,
+        "optimizer": Path(sidecar["optimizer_state_path"]).stat().st_size,
+        "sidecar": Path(unit["sidecar_path"]).stat().st_size,
+        "trial_cache": _tree_bytes(instrumentation_root),
+    }
+
+
 def _descriptor_fields(unit: dict[str, Any]) -> dict[str, set[str]]:
     return {item["kind"]: set(item["fields"]) for item in unit["shards"]}
 
@@ -209,14 +220,41 @@ def _resource_tables(lock: dict[str, Any], field: dict[str, Any], instrument: di
     c78_external = int(c78_field["execution"]["external_storage_bytes_at_freeze"])
     c78_instrument = c78_common.verify_canonical_manifest(c78_common.instrumentation_gate_path(c78_lock))
     c78_full_external = int(c78_instrument["execution"]["external_storage_bytes"])
-    c78_per_unit = c78_full_external / 82
-    src_per_unit = src_external / 80
-    projected_storage = int(16 * (c78_per_unit + 40 * c78_per_unit + 40 * src_per_unit))
+    c78_instrument_by_id = {item["unit_id"]: item["path"] for item in c78_instrument["units"]}
+    src_instrument_by_id = {item["unit_id"]: item["path"] for item in instrument["units"]}
+    c78_unit_storage = [
+        {"regime": unit["regime"], **_unit_storage(unit, c78_instrument_by_id[unit["unit_id"]], c78_common.verify_canonical_manifest)}
+        for unit in c78_field["units"]
+    ]
+    src_unit_storage = [
+        {"regime": "SRC", **_unit_storage(unit, src_instrument_by_id[unit["unit_id"]], common.verify_manifest)}
+        for unit in field["units"]
+    ]
+    for row in [*c78_unit_storage, *src_unit_storage]:
+        row["total"] = sum(row[key] for key in ("checkpoint", "optimizer", "sidecar", "trial_cache"))
+    c78_variable = sum(row["total"] for row in c78_unit_storage)
+    src_variable = sum(row["total"] for row in src_unit_storage)
+    c78_fixed = c78_full_external - c78_variable
+    src_fixed = src_external - src_variable
+    if c78_fixed < 0 or src_fixed < 0:
+        raise RuntimeError("C78R storage decomposition double-counted external payload")
+    erm_unit = mean(row["total"] for row in c78_unit_storage if row["regime"] == "ERM")
+    oaci_unit = mean(row["total"] for row in c78_unit_storage if row["regime"] == "OACI")
+    src_unit = mean(row["total"] for row in src_unit_storage)
+    remaining_targets = 8
+    projected_variable = int(16 * (erm_unit + 40 * oaci_unit + 40 * src_unit))
+    projected_fixed = int(remaining_targets * (c78_fixed + src_fixed))
+    projected_storage = projected_variable + projected_fixed
     storage_rows = [
-        {"component": "C78_ERM_OACI_measured", "units": 82, "bytes": c78_full_external, "bytes_per_unit": c78_per_unit, "fixed_overhead_separated": 0},
-        {"component": "C78R_SRC_measured", "units": 80, "bytes": src_external, "bytes_per_unit": src_per_unit, "fixed_overhead_separated": 0},
-        {"component": "remaining_1296_unit_projection", "units": 1296, "bytes": projected_storage, "bytes_per_unit": projected_storage / 1296, "fixed_overhead_separated": 0},
-        {"component": "safety_1.25_projection", "units": 1296, "bytes": int(projected_storage * safety), "bytes_per_unit": projected_storage * safety / 1296, "fixed_overhead_separated": 0},
+        {"component": "C78_ERM_unit_variable", "units": 2, "bytes": int(2 * erm_unit), "bytes_per_unit": erm_unit, "bytes_per_trial_row": erm_unit / (8 * 576 + 576), "fixed_overhead_bytes": 0, "measured_or_projected": "measured"},
+        {"component": "C78_OACI_unit_variable", "units": 80, "bytes": int(80 * oaci_unit), "bytes_per_unit": oaci_unit, "bytes_per_trial_row": oaci_unit / (8 * 576 + 576), "fixed_overhead_bytes": 0, "measured_or_projected": "measured"},
+        {"component": "C78R_SRC_unit_variable", "units": 80, "bytes": int(80 * src_unit), "bytes_per_unit": src_unit, "bytes_per_trial_row": src_unit / (8 * 576 + 576), "fixed_overhead_bytes": 0, "measured_or_projected": "measured"},
+        {"component": "C78_fixed_overhead", "units": 0, "bytes": c78_fixed, "bytes_per_unit": 0, "bytes_per_trial_row": 0, "fixed_overhead_bytes": c78_fixed, "measured_or_projected": "measured"},
+        {"component": "C78R_fixed_overhead", "units": 0, "bytes": src_fixed, "bytes_per_unit": 0, "bytes_per_trial_row": 0, "fixed_overhead_bytes": src_fixed, "measured_or_projected": "measured"},
+        {"component": "remaining_1296_unit_variable_projection", "units": 1296, "bytes": projected_variable, "bytes_per_unit": projected_variable / 1296, "bytes_per_trial_row": "mixed", "fixed_overhead_bytes": 0, "measured_or_projected": "projected_from_regime_units"},
+        {"component": "remaining_8_target_fixed_projection", "units": 0, "bytes": projected_fixed, "bytes_per_unit": 0, "bytes_per_trial_row": 0, "fixed_overhead_bytes": projected_fixed, "measured_or_projected": "projected_from_target_roots"},
+        {"component": "remaining_1296_total_projection", "units": 1296, "bytes": projected_storage, "bytes_per_unit": projected_storage / 1296, "bytes_per_trial_row": "mixed", "fixed_overhead_bytes": projected_fixed, "measured_or_projected": "projected"},
+        {"component": "safety_1.25_projection", "units": 1296, "bytes": int(projected_storage * safety), "bytes_per_unit": projected_storage * safety / 1296, "bytes_per_trial_row": "mixed", "fixed_overhead_bytes": int(projected_fixed * safety), "measured_or_projected": "projected_safety"},
     ]
     summary = {
         "C78_level_context_seconds_mean": c78_context,
@@ -224,6 +262,11 @@ def _resource_tables(lock: dict[str, Any], field: dict[str, Any], instrument: di
         "remaining_48_phase_base_GPU_hours": projected_seconds / 3600,
         "remaining_48_phase_safety_GPU_hours": projected_seconds * safety / 3600,
         "C78R_external_bytes": src_external,
+        "C78_fixed_overhead_bytes": c78_fixed,
+        "C78R_fixed_overhead_bytes": src_fixed,
+        "ERM_variable_bytes_per_unit": erm_unit,
+        "OACI_variable_bytes_per_unit": oaci_unit,
+        "SRC_variable_bytes_per_unit": src_unit,
         "remaining_1296_unit_projected_bytes": projected_storage,
         "remaining_1296_unit_safety_bytes": int(projected_storage * safety),
         "C78_training_freeze_bytes": c78_external,
