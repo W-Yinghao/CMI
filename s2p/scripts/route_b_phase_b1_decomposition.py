@@ -136,8 +136,6 @@ def budget_seed(tag):
 
 def make_model(seed=0):
     torch.manual_seed(seed)
-    if torch.cuda.is_available():
-        torch.cuda.manual_seed_all(seed)
     return CBraMod(
         in_dim=200,
         out_dim=200,
@@ -239,8 +237,10 @@ def load_faced(lmdb_path):
             segments[index] = segment
             splits[index] = split_name
     env.close()
-    data -= data.mean(-1, keepdims=True)
-    data /= data.std(-1, keepdims=True) + 1e-6
+    data = (
+        data - data.mean(-1, keepdims=True)
+    ) / (data.std(-1, keepdims=True) + 1e-6)
+    data = np.ascontiguousarray(data.astype(np.float32))
     fold = np.asarray([CLIP_TO_FOLD[int(clip)] for clip in clips], dtype=np.int64)
     return data, labels, subjects, clips, segments, splits, fold, [key for key, _ in ordered]
 
@@ -251,6 +251,79 @@ def load_checksum_from_full(data, keys):
     if missing:
         raise RuntimeError(f"checksum keys missing from FACED load: {missing}")
     return np.ascontiguousarray(np.stack([data[lookup[key]] for key in CHECKSUM_KEYS]))
+
+
+def load_checksum_direct(lmdb_path):
+    env = lmdb.open(str(lmdb_path), readonly=True, lock=False, readahead=False, meminit=False)
+    samples = []
+    with env.begin() as txn:
+        for key in CHECKSUM_KEYS:
+            raw = txn.get(key.encode())
+            if raw is None:
+                raise RuntimeError(f"checksum key missing: {key}")
+            samples.append(np.asarray(pickle.loads(raw)["sample"], dtype=np.float32))
+    env.close()
+    data = np.stack(samples).astype(np.float32)
+    normalized = (
+        data - data.mean(-1, keepdims=True)
+    ) / (data.std(-1, keepdims=True) + 1e-6)
+    return np.ascontiguousarray(normalized.astype(np.float32))
+
+
+def expected_checksum_input(args):
+    verification = json.loads(Path(args.copy_verification_json).read_text())
+    contract = verification["checksum_feature_batch"]
+    if contract["keys"] != CHECKSUM_KEYS:
+        raise RuntimeError("checksum key contract differs from provenance closure")
+    return contract["normalized_float32_sha256"]
+
+
+def run_checksum_canary(args):
+    if not args.pm_authorized:
+        raise RuntimeError("checksum canary requires explicit B1 PM authorization")
+    rows = validate_manifest(args.checkpoint_manifest)
+    expected_input = expected_checksum_input(args)
+    batch = load_checksum_direct(args.faced_lmdb)
+    observed_input = hashlib.sha256(batch.tobytes()).hexdigest()
+    if observed_input != expected_input:
+        raise RuntimeError(
+            f"checksum input contract mismatch expected={expected_input} observed={observed_input}"
+        )
+    device = torch.device(args.device)
+    if device.type != "cuda" or not torch.cuda.is_available():
+        raise RuntimeError("checksum canary requires CUDA")
+    results = []
+    for row in rows:
+        tag = row["tag"]
+        model = build_model(tag, row["immutable_path"], device)
+        first = checksum_feature(model, batch, device)
+        second = checksum_feature(model, batch, device)
+        digest = hashlib.sha256(first.tobytes()).hexdigest()
+        repeat_diff = float(np.max(np.abs(first - second)))
+        passed = digest == row["feature_hash"] and repeat_diff == 0.0
+        results.append({
+            "tag": tag,
+            "input_sha256": observed_input,
+            "expected_feature_sha256": row["feature_hash"],
+            "observed_feature_sha256": digest,
+            "repeat_max_abs_diff": repeat_diff,
+            "pass": passed,
+        })
+        del model
+        torch.cuda.empty_cache()
+        if not passed:
+            raise RuntimeError(f"checksum feature canary failed: {tag}")
+    report = {
+        "phase": "B1_pre_endpoint_checksum_canary",
+        "status": "PASS",
+        "objects": len(results),
+        "normalized_input_sha256": observed_input,
+        "scientific_endpoints_computed": False,
+        "target_labels_read": False,
+        "results": results,
+    }
+    write_json(Path(args.out_dir) / "phase_b1_checksum_canary.json", report)
+    print(json.dumps(report, indent=2, sort_keys=True), flush=True)
 
 
 def validate_manifest(path):
@@ -613,6 +686,9 @@ def run(args):
 
     data, labels, subjects, clips, segments, splits, folds, keys = load_faced(args.faced_lmdb)
     checksum_batch = load_checksum_from_full(data, keys)
+    checksum_input_sha = hashlib.sha256(checksum_batch.tobytes()).hexdigest()
+    if checksum_input_sha != expected_checksum_input(args):
+        raise RuntimeError("full FACED load does not reproduce the closure checksum input")
     source_mask = splits == "source_train"
     val_mask = splits == "source_val"
     target_mask = splits == "target_test"
@@ -635,6 +711,7 @@ def run(args):
         "git_head": subprocess.check_output(["git", "rev-parse", "HEAD"], text=True).strip(),
         "checkpoint_manifest": str(Path(args.checkpoint_manifest).resolve()),
         "checkpoint_manifest_sha256": sha256_file(args.checkpoint_manifest),
+        "checksum_input_sha256": checksum_input_sha,
         "protocol_sha256": sha256_file(args.protocol_doc),
         "redteam_sha256": sha256_file(args.redteam_doc),
         "checkpoint_objects": TAGS,
@@ -1521,6 +1598,10 @@ def main():
         default="results/s2p_route_b_representation_emergence_b0/phase_b0_go_nogo.json",
     )
     parser.add_argument(
+        "--copy-verification-json",
+        default="results/s2p_route_b_phase_b_checkpoint_closure/phase_b_checkpoint_copy_verification.json",
+    )
+    parser.add_argument(
         "--protocol-doc",
         default="docs/S2P_19_REPRESENTATION_EMERGENCE_PROTOCOL.md",
     )
@@ -1537,9 +1618,13 @@ def main():
     parser.add_argument("--batch-size", type=int, default=48)
     parser.add_argument("--pm-authorized", action="store_true")
     parser.add_argument("--self-test", action="store_true")
+    parser.add_argument("--checksum-canary", action="store_true")
     args = parser.parse_args()
     if args.self_test:
         run_self_tests()
+        return
+    if args.checksum_canary:
+        run_checksum_canary(args)
         return
     out = Path(args.out_dir)
     out.mkdir(parents=True, exist_ok=True)

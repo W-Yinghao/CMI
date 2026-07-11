@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_decomposition.py", line 1561, in <module>
+    main()
+    ~~~~^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_decomposition.py", line 1547, in main
+    run(args)
+    ~~~^^^^^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_decomposition.py", line 694, in run
+    raise RuntimeError(f"{tag} checksum feature no longer matches closure")
+RuntimeError: random checksum feature no longer matches closure
+srun: error: nodeaudible01: task 0: Exited with exit code 1

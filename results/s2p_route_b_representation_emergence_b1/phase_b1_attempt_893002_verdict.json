@@ -1,0 +1,12 @@
+{
+  "attempt_job_id": "893002",
+  "commit": "f1e7c88ce6c8d44db3739a4685d4b482e4367bfa",
+  "failure_stage": "pre_endpoint_checksum_gate",
+  "host": "nodeaudible01",
+  "gpu": "NVIDIA A100-SXM4-40GB",
+  "root_cause": "B1 used in-place FACED z-scoring while the provenance closure used out-of-place z-scoring",
+  "scientific_endpoints_computed": false,
+  "status": "FAILED_PRE_ENDPOINT_INPUT_FIDELITY_GATE",
+  "target_labels_used": false,
+  "training_launched": false
+}

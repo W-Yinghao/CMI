@@ -1,0 +1,15 @@
+Phase B1 host=nodeaudible01 gpu=NVIDIA A100-SXM4-40GB git=f1e7c88ce6c8d44db3739a4685d4b482e4367bfa
+Phase B1 synthetic self-tests: PASS
+Phase B1 independent verifier self-tests: PASS
+FACED load=0/10332
+FACED load=1000/10332
+FACED load=2000/10332
+FACED load=3000/10332
+FACED load=4000/10332
+FACED load=5000/10332
+FACED load=6000/10332
+FACED load=7000/10332
+FACED load=8000/10332
+FACED load=9000/10332
+FACED load=10000/10332
+B1 object=random

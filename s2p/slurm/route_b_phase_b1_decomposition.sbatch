@@ -62,6 +62,7 @@ fi
 echo "Phase B1 host=$(hostname) gpu=$GPU_NAME git=$ACTUAL_COMMIT"
 srun "$PY" s2p/scripts/route_b_phase_b1_decomposition.py --self-test
 srun "$PY" s2p/scripts/route_b_phase_b1_verify.py --self-test
+srun "$PY" s2p/scripts/route_b_phase_b1_decomposition.py --pm-authorized --checksum-canary --device cuda:0
 srun "$PY" s2p/scripts/route_b_phase_b1_decomposition.py --pm-authorized --device cuda:0
 srun "$PY" s2p/scripts/route_b_phase_b1_verify.py
 

@@ -1,0 +1,8 @@
+{
+  "error": "random checksum feature no longer matches closure",
+  "error_type": "RuntimeError",
+  "phase": "B1_final_representation_decomposition",
+  "phase_b2_authorized": false,
+  "status": "NO_GO",
+  "target_labels_used_for_selection": false
+}
