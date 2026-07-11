@@ -1,0 +1,62 @@
+risk,status,gate_condition_passed,blocking_open,evidence
+C79_protocol_not_found,closed,1,0,final artifact exists
+C79_protocol_hash_mismatch,closed,1,0,hash replays
+C79_protocol_post_C78S_outcome,OPEN_BLOCKER,0,1,created=2026-07-11T10:43:47Z;first_outcome=2026-07-11T10:41:28Z
+C79_protocol_outcome_adaptive_hypothesis_filter,OPEN_BLOCKER,0,1,H3/H4/H5 selected from active_after_Holm
+C79_exact_scientific_registry_incomplete,OPEN_BLOCKER,0,1,missing exact H1-H6/split/RNG/taxonomy bindings
+C78S_provenance_repair_unreplayed,closed,1,0,independent 8-check replay
+C78S_repair_changed_science,closed,1,0,five report/provenance files only
+seed4_touched_before_authorization,closed_guard,1,0,Mode R counters all zero
+seed4_touched_before_execution_lock,closed_guard,1,0,no execution lock was created
+handoff_text_mistaken_for_authorization,closed_guard,1,0,Mode R only
+training_seed_not_propagated,not_exercised_guarded,1,0,no seed4 training implementation created
+seed3_weight_or_optimizer_reuse,not_exercised_guarded,1,0,no seed4 training or checkpoint creation
+target_label_training_leak,not_exercised_guarded,1,0,no training or label-view opening
+source_audit_used_in_training,not_exercised_guarded,1,0,no training
+target4_in_primary_estimand,not_exercised_guarded,1,0,no C79 analysis executed
+target4_in_primary_null,not_exercised_guarded,1,0,no C79 analysis executed
+target4_in_multiplicity_family,not_exercised_guarded,1,0,no C79 analysis executed
+same_label_oracle_reachable,closed_guard,1,0,no label view opened
+construction_evaluation_overlap,not_exercised_guarded,1,0,seed4 label views not created or opened
+trial_id_used_as_feature,not_exercised_guarded,1,0,no C79 predictive analysis
+row_order_used_as_feature,not_exercised_guarded,1,0,no C79 predictive analysis
+partial_field_scientific_outcome_read,closed_guard,1,0,no seed4 field or outcome exists
+wave_adaptivity_from_scientific_outcomes,not_exercised_guarded,1,0,no waves submitted
+outcome_driven_checkpoint_retention,not_exercised_guarded,1,0,no checkpoints created
+outcome_driven_retry,not_exercised_guarded,1,0,no jobs or retries
+failed_job_hidden,not_exercised_guarded,1,0,no C79 execution attempts
+repair_overwrites_history,closed_guard,1,0,C78S correction is additive; no C79 repair
+collector_repair_changes_locked_analysis,not_exercised_guarded,1,0,no C79 collector or analysis
+checkpoint_or_sidecar_identity_failure,not_exercised_guarded,1,0,no seed4 field
+optimizer_state_identity_failure,not_exercised_guarded,1,0,no seed4 field
+genealogy_or_cadence_mismatch,not_exercised_guarded,1,0,no seed4 field
+ERM_treated_as_trajectory,not_exercised_guarded,1,0,no C79 H3 analysis
+H1_materiality_margin_changed,blocked_before_implementation,1,0,exact H1 registry is missing; no implementation allowed
+H1_pvalue_only_interpretation,closed_claim_guard,1,0,review makes no H1 scientific verdict
+H1_construction_label_called_source_only,closed_claim_guard,1,0,review preserves diagnostic information class
+few_label_sufficiency_overclaim,closed_claim_guard,1,0,review makes no sufficiency claim
+H2_model_substitution,blocked_before_implementation,1,0,exact H2 model is missing; no implementation allowed
+H2_multiplicity_definition_changed,blocked_before_implementation,1,0,no H2 execution
+H3_kernel_retuning,blocked_before_implementation,1,0,exact H3 kernel binding is missing; no implementation allowed
+H3_bandwidth_retuning,blocked_before_implementation,1,0,no H3 execution
+H3_local_association_called_transport,closed_claim_guard,1,0,review makes no transport claim
+H3_association_called_mechanism,closed_claim_guard,1,0,review makes no mechanism claim
+H4_F2_feature_mining,blocked_before_implementation,1,0,no C79 feature implementation
+H5_F4_feature_mining,blocked_before_implementation,1,0,no C79 feature implementation
+candidate_nonqualification_called_impossibility,closed_claim_guard,1,0,review makes no impossibility claim
+H6_Holm_family_changed,blocked_before_implementation,1,0,exact H6 family ordering is missing; no implementation allowed
+H6_raw_p_rescue,closed_claim_guard,1,0,review does not reinterpret C78S H6
+unregistered_seed3_seed4_pooling,not_exercised_guarded,1,0,no C79 analysis executed
+shared_trial_cross_seed_dependence_ignored,not_exercised_guarded,1,0,no cross-seed synthesis
+two_seed_random_effects_overclaim,closed_claim_guard,1,0,no seed-level inference claim
+seed4_called_new_target_population,closed_claim_guard,1,0,review preserves same-target boundary
+candidate_alignment_by_target_outcome,not_exercised_guarded,1,0,no seed4 candidates
+checkpoint_rows_treated_iid,not_exercised_guarded,1,0,no C79 inference
+trial_rows_treated_iid,not_exercised_guarded,1,0,no C79 inference
+raw_cache_or_weights_in_git,closed_guard,1,0,review uses compact Git artifacts only
+large_payload_in_git,closed_guard,1,0,review artifacts are compact text
+unauthorized_GPU_or_forward,closed_guard,1,0,training/forward/GPU counters zero
+BNCI2014_004_scope_creep,closed_guard,1,0,not accessed
+manuscript_scope_creep,closed_guard,1,0,not started
+C80_auto_start,closed_guard,1,0,not started
+report_generated_before_red_team,closed_by_ordered_finalization,1,0,C79_PROTOCOL_REVIEW generated only after 18/18 review red team

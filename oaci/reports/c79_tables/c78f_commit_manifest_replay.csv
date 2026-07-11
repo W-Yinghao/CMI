@@ -1,0 +1,6 @@
+stage,expected_commit,resolved_commit,parents,authored_at,committed_at,subject,exists,ancestor_of_review_anchor
+protocol,1d210fdbf6333755ded53dead92c0f9f7ce7cefe,1d210fdbf6333755ded53dead92c0f9f7ce7cefe,ac60c8d76b007cec1219a819b4c27078e5e9f132,2026-07-11T04:13:59+02:00,2026-07-11T04:13:59+02:00,Lock prospective C78F field and C78S analysis protocols,1,1
+execution_lock,a9029668fad767f58230ec7b8d24fcabae85a642,a9029668fad767f58230ec7b8d24fcabae85a642,1d210fdbf6333755ded53dead92c0f9f7ce7cefe,2026-07-11T04:14:55+02:00,2026-07-11T04:14:55+02:00,Bind direct authorization to C78F execution scope,1,1
+collector_repair,f0d49c2ff038c91779d7d580e8562068b1ad0706,f0d49c2ff038c91779d7d580e8562068b1ad0706,a9029668fad767f58230ec7b8d24fcabae85a642,2026-07-11T06:42:05+02:00,2026-07-11T06:42:05+02:00,Lock additive C78F collector schema repair,1,1
+result,51022f4e247e0217ebb54403d419d121071fe0e7,51022f4e247e0217ebb54403d419d121071fe0e7,f0d49c2ff038c91779d7d580e8562068b1ad0706,2026-07-11T07:04:45+02:00,2026-07-11T07:04:45+02:00,Complete C78F full seed-3 field generation,1,1
+handoff,e74b20ed09a09995709e820f1e7a0db99718cfe4,e74b20ed09a09995709e820f1e7a0db99718cfe4,51022f4e247e0217ebb54403d419d121071fe0e7,2026-07-11T07:06:23+02:00,2026-07-11T07:06:23+02:00,Update OACI handoff through C78F,1,1

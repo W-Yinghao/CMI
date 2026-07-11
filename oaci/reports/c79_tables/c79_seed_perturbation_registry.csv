@@ -1,0 +1,6 @@
+dimension,seed3,seed4,fixed_or_changed,protocol_bound
+training_seed,3,4,changed_registered,1
+raw_EEG_trials,same_BNCI2014_001_trials,not_explicitly_bound,intended_fixed_unproven,0
+construction_evaluation_split,8_target_hashes,not_bound,unresolved,0
+regimes_levels_cadence,ERM_OACI_SRC_levels_0_1_81_per_context,field_units_1458_only,partially_bound,0
+analysis_implementation,e561a15865934036bdccbc1e3b2ff126ad84821f,not_bound,unresolved,0

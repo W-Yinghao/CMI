@@ -1,0 +1,7 @@
+stage,expected_commit,resolved_commit,parents,authored_at,committed_at,subject,exists,ancestor_of_review_anchor
+implementation,e561a15865934036bdccbc1e3b2ff126ad84821f,e561a15865934036bdccbc1e3b2ff126ad84821f,e74b20ed09a09995709e820f1e7a0db99718cfe4,2026-07-11T12:39:18+02:00,2026-07-11T12:39:18+02:00,Lock C78S seed-3 scientific analysis implementation,1,1
+execution_lock,ce1fb14c960f5b2da62b60d65ab40af098cf274e,ce1fb14c960f5b2da62b60d65ab40af098cf274e,e561a15865934036bdccbc1e3b2ff126ad84821f,2026-07-11T12:40:17+02:00,2026-07-11T12:40:17+02:00,Bind C78S authorization to locked analysis scope,1,1
+result,43a046c5ba6632de415bfdbaacfa524d82c5395e,43a046c5ba6632de415bfdbaacfa524d82c5395e,ce1fb14c960f5b2da62b60d65ab40af098cf274e,2026-07-11T13:04:07+02:00,2026-07-11T13:04:07+02:00,Complete C78S seed-3 scientific analysis,1,1
+handoff,48be5b7034bbc51cdeaec402819a1a5dd1233f8a,48be5b7034bbc51cdeaec402819a1a5dd1233f8a,43a046c5ba6632de415bfdbaacfa524d82c5395e,2026-07-11T13:05:17+02:00,2026-07-11T13:05:17+02:00,Update OACI handoff through C78S,1,1
+provenance_correction,dcd4c283573b4cdebe72c8ed3e181403232b28b7,dcd4c283573b4cdebe72c8ed3e181403232b28b7,48be5b7034bbc51cdeaec402819a1a5dd1233f8a,2026-07-11T13:10:21+02:00,2026-07-11T13:10:21+02:00,Correct C78S regression skip provenance,1,1
+final_anchor,ef2a01a4e948143be5eb58c3370142b5eecf7178,ef2a01a4e948143be5eb58c3370142b5eecf7178,dcd4c283573b4cdebe72c8ed3e181403232b28b7,2026-07-11T13:11:13+02:00,2026-07-11T13:11:13+02:00,Record final C78S provenance anchors,1,1
