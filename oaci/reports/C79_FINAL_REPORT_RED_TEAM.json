@@ -1,0 +1,8 @@
+{
+  "blockers": 0,
+  "final_gate": "C79_PROTOCOL_OR_TIMING_REPAIR_REQUIRED",
+  "passed": 21,
+  "positive_execution_readiness": false,
+  "schema_version": "c79_mode_r_final_report_red_team_v1",
+  "total": 21
+}

@@ -78,3 +78,17 @@ authorize strict C79 confirmation as written.
 No C79 Mode-E authorization should be requested until PM resolves that claim and
 protocol category.  No C80, additional seed, BNCI2014_004, feature/kernel search,
 oracle analysis, or manuscript work is authorized.
+
+## Regression and final red team
+
+Authoritative CPU regressions on commit `70c31bb` passed:
+
+```text
+focused C79:   21 passed
+C65-C79:      277 passed, 1 intentional finalized-C78F guard skip
+C23-C79:      684 passed, 1 intentional finalized-C78F guard skip
+full OACI:  1,612 passed, 1 intentional finalized-C78F guard skip
+```
+
+All four stderr logs are empty.  Final-report red team passed `21/21` checks and
+confirmed that the report presents a protocol blocker, not execution readiness.
