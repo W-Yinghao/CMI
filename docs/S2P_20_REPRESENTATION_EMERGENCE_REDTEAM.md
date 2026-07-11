@@ -1,8 +1,12 @@
 # S2P_20 - Representation Emergence Red-Team
 
-**Phase:** B0 adversarial review. **Status:** B1 HOLD.
+**Phase:** B0 adversarial review. **Status:** initial blocker resolved; B1 remains held for PM approval.
 
-## Executive decision
+> Post-closure update: provenance job 892980 and the independent verifier closed the seven-object immutable
+> blocker with no failures. This document retains the original pre-closure attack analysis. The authoritative
+> closure result is S2P_22 and B1 remains unauthorized.
+
+## Executive decision before closure
 
 The FACED clip contract, final feature path, source/target firewall, rank-8 geometry definition, and balanced
 subject-class design are technically viable. B1 is nevertheless NO-GO at this checkpoint because H200/H500/H1000
@@ -163,7 +167,7 @@ B1 must stop without partial interpretation if any of the following occurs:
 Failures are reported as `UNINFORMATIVE` or `NO-GO`, not repaired by an unregistered metric, rank, layer, split, or
 dataset.
 
-## B0 verdict
+## Initial B0 verdict
 
 ```text
 clip identity and grouping:       PASS

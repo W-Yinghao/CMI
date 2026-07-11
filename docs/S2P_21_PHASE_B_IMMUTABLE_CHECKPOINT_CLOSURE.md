@@ -1,6 +1,6 @@
 # S2P_21 - Phase B Immutable Checkpoint Closure
 
-**Status:** provenance-only execution approved. **B1 scientific compute:** held.
+**Status:** COMPLETE / PASS via job 892980. **B1 scientific compute:** held.
 
 ## Purpose
 
@@ -141,4 +141,18 @@ new PM decision after the committed closure package and final provenance red-tea
 
 This job cannot call a trainer, probe, task scorer, geometry analysis, variance decomposition, layer hook,
 fine-tuning path, H4000 launcher, CodeBrain run, or manuscript workflow. It does not auto-launch B1.
+
+## Completion record
+
+- Closure code commit: `57d54d4dd82ca05814335064529c4716a146a0e0`.
+- Seven approved copies created as direct `sha256_<FULL_SHA256>.pt` payloads.
+- Artifact root mode: 0555; payload modes: 0444; symlink count: zero.
+- Complete representation set: one deterministic random contract plus nine physical payloads.
+- Strict reload: 10/10 PASS.
+- Parameter equality: 10/10 PASS.
+- Checksum feature equality: 10/10 PASS with maximum absolute difference exactly 0.
+- Post-closure B0 rerun: PASS, immutable blocker list empty.
+- Independent metadata red-team: PASS, failures empty.
+- Released training provenance remains unverified and its role remains path-validity reference only.
+- `phase_b1_go_recommended=true`; `phase_b1_compute_authorized=false` pending PM review.
 
