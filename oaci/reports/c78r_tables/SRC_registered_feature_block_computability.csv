@@ -1,0 +1,5 @@
+block,required_fields,computable,scientific_test_in_C78R
+C75_F1_strict_source_functional,logits;probabilities;class_margins,1,0
+C75_F2_strict_source_architecture,z;Wz;W;b,1,0
+C75_F3_target_unlabeled_functional,logits;probabilities;class_margins,1,0
+C75_F4_target_unlabeled_architecture,z;Wz;W;b,1,0

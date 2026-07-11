@@ -1,0 +1,3 @@
+level,checkpoint_count,schema_compatible,target_isolation,passed
+0,40,1,1,1
+1,40,1,1,1

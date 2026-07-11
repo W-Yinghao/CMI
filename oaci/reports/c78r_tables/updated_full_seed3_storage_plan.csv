@@ -1,0 +1,10 @@
+component,units,bytes,bytes_per_unit,bytes_per_trial_row,fixed_overhead_bytes,measured_or_projected
+C78_ERM_unit_variable,2,38681728,19340864,3730.8765432098767,0,measured
+C78_OACI_unit_variable,80,1581558339,19769479.2375,3813.5569516782407,0,measured
+C78R_SRC_unit_variable,80,1547309510,19341368.875,3730.973934220679,0,measured
+C78_fixed_overhead,0,177973609,0,0,177973609,measured
+C78R_fixed_overhead,0,239416,0,0,239416,measured
+remaining_1296_unit_variable_projection,1296,25340396616,19552775.166666668,mixed,0,projected_from_regime_units
+remaining_8_target_fixed_projection,0,1425704200,0,0,1425704200,projected_from_target_roots
+remaining_1296_total_projection,1296,26766100816,20652855.567901235,mixed,1425704200,projected
+safety_1.25_projection,1296,33457626020,25816069.459876545,mixed,1782130250,projected_safety

@@ -1,0 +1,3 @@
+job_id,stage,GPU_model,wall_seconds_measured,GPU_hours_measured,process_CPU_seconds_measured,peak_RAM_bytes,peak_GPU_memory_bytes,external_storage_bytes,retry_count,status
+892951,SRC_training,Tesla V100-PCIE-32GB,1577.7233006954193,0.4382564724153942,3115.5933871419998,unavailable_slurm_accounting_DB,8658863616,39484213,0,completed
+892969+892970,CPU_instrumentation,none,136.06292462348938,0,5622.268659726002,unavailable_slurm_accounting_DB,0,1547517494,0,completed

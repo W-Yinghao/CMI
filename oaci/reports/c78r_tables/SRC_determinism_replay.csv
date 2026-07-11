@@ -1,0 +1,2 @@
+synthetic_GPU_repeat_exact,real_repeat_logits_max_abs,real_repeat_z_max_abs,CUBLAS_WORKSPACE_CONFIG,passed
+1,0.0,0.0,:4096:8,1

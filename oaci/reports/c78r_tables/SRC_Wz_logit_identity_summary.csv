@@ -1,0 +1,2 @@
+units_checked,rows_checked,Wz_plus_b_logits_max_abs,failed_units,hook_z_max_abs,repeat_max_abs,softmax_max_abs,passed
+80,414720,0.0,0,0.0,0.0,0.0,1

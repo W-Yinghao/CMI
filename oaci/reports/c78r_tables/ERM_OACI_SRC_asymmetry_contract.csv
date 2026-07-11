@@ -1,0 +1,4 @@
+regime,units_per_level,role,symmetric_trajectory
+ERM,1,shared_anchor,0
+OACI,40,historical_primary_trajectory,1
+SRC,40,historical_negative_control_trajectory,1

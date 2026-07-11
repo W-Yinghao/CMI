@@ -12,37 +12,35 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ---
 
-## 0. Current continuation state (2026-07-10)
+## 0. Current continuation state (2026-07-11)
 
-The detailed C23-C31 history below remains background; the authoritative tip is the authorized C78 dual-mode milestone:
+The authoritative tip is C78R, the authorized target-4/seed-3 historical SRC execution canary:
 
 ```text
-C78 no-auth commit: 67bca01
-C78 execution lock: 4ac865f
-C78 successful job: 892832
-C78 final gate:     PILOT_VALID_SRC_CANARY_REQUIRED_BEFORE_FULL_FIELD
-C78 primary:        C78-A_seed3_OACI_ERM_pilot_executed_and_validated
+C78R protocol commit: 99f710d
+C78R execution lock:  750cb38
+C78R training job:    892951
+C78R final gate:      SRC_CANARY_EXECUTED_AND_VALIDATED_FULL_SEED3_READY_BUT_NOT_AUTHORIZED
+C78R primary:         C78R-A_SRC_canary_executed_and_validated
 ```
 
-C78 first proved the exact-token guard with a no-auth baseline, then executed the locked target-4/seed-3/levels-0+1 OACI+ERM field after exact authorization. Job 892830 failed the synthetic deterministic gate before data; the repair was committed and job 892832 produced 82/82 checkpoints, optimizer states, and sidecars from source-training subjects only. Target rows/labels and source-audit rows in training were zero.
+C78R trained no ERM/OACI. It used the two C78 ERM anchors read-only to initialize the exact C11 SRC stage-2 objective (`smooth_temperature=0.1`), producing 80/80 fixed-cadence SRC checkpoints over levels 0/1. Training target rows/labels and source-audit rows were zero. CPU instrumentation produced 368,640 strict-source and 46,080 target-unlabeled rows; all checkpoint/optimizer and Wz/logit identities passed.
 
-Post-freeze CPU instrumentation produced 377,856 strict-source and 47,232 target-unlabeled rows over all 82 units. Every checkpoint/optimizer hash replayed; Wz/logit, softmax, hook, and repeat errors were zero. Authorized red-team passed 52/52 blocking checks.
+Target 4 now has 162 technical units across asymmetric ERM/OACI/SRC roles. This is technical compatibility only, not multi-regime scientific replication. The remaining 1,296 seed-3 units / 48 phases are ready but not authorized; C78F requires a new locked protocol and PM approval. Seed 4 remains reserved for C79; BNCI2014_004 remains untouched.
 
-This is an execution/instrumentation canary, not a multi-regime or scientific replication. Both levels show only 23/40 source-risk-feasible OACI points, lambda reaches 20, and level-1 surrogate reaches -49.694. SRC remains unexercised, so the 1,458-unit field is not ready or authorized. Seed 4 and BNCI2014_004 remain untouched.
-
-Regression: `focused_C78=29, C65_C78=167, C23_C78=574, full_OACI=1502`.
+Regression: `focused_C78R=15, C65_C78R=182, C23_C78R=589, full_OACI=1517`.
 
 Authoritative artifacts:
 
 ```text
-oaci/reports/C78_SEED3_INSTRUMENTED_PILOT.md
-oaci/reports/C78_SEED3_INSTRUMENTED_PILOT.json
-oaci/reports/C78_AUTHORIZED_RED_TEAM_VERIFICATION.md
-oaci/reports/C78_PROTOCOL_TIMING_AUDIT.md
-oaci/reports/c78_tables/artifact_manifest.csv
+oaci/reports/C78R_SEED3_SRC_CANARY.md
+oaci/reports/C78R_SEED3_SRC_CANARY.json
+oaci/reports/C78R_RED_TEAM_VERIFICATION.md
+oaci/reports/C78R_PROTOCOL_TIMING_AUDIT.md
+oaci/reports/c78r_tables/artifact_manifest.csv
 ```
 
-Wait for PM review. No SRC canary, full seed-3 expansion, seed 4, or BNCI2014_004 work is authorized.
+Wait for PM review. C78F, C79, and external-dataset work are not authorized.
 
 ---
 

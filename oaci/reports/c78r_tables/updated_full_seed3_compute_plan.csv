@@ -1,0 +1,5 @@
+phase,remaining_phases,measurement,seconds_per_phase,projected_seconds,note
+ERM,16,not separately instrumented in C78,included_in_ERM_plus_OACI,0,not reported as zero cost; included below
+OACI_with_shared_ERM,16,C78 target4 level phase,947.7343641519547,15163.749826431274,upper-bound combined ERM+OACI phase
+SRC,16,C78R target4 level phase,758.4833763837814,12135.734022140503,historical SRC stage2 from frozen ERM
+TOTAL_48_PHASE_SCHEDULE,48,phase-level not checkpoint-count extrapolation,mixed,27299.483848571777,base_GPU_hours=7.583190;safety_1.25_GPU_hours=9.478987

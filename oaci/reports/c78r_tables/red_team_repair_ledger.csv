@@ -1,0 +1,8 @@
+item,finding,resolution
+R1_frozen_ERM_initialization,historical SRC requires ERM stage-2 parent while ERM retraining is forbidden,two C78 anchors are hash-locked read-only initialization dependencies; no OACI weight access or target outcome selection
+R2_C78_view_reuse,duplicating trial views would add storage and leakage surface,C78 physical views are linked read-only only after SRC FIELD_FROZEN; primary descriptor excludes label/oracle paths
+R3_resource_phase_semantics,C78 did not separately time ERM and OACI,compute projection uses measured ERM+OACI context cost plus measured SRC phase cost; no checkpoint-count runtime extrapolation
+R4_storage_fixed_overhead,initial collector mixed fixed and per-unit storage,checkpoint/optimizer/sidecar/trial-cache unit bytes and C78/C78R fixed overhead are separated; projection retains a 25% safety envelope
+R5_single_target,target 4 cannot support cross-regime science,C78R is technical compatibility only; all science/transport/actionability claims false
+R6_full_expansion,technical readiness could be confused with authorization,"1,296 units and 48 phases remain explicitly unauthorized behind C78F"
+R7_CPU_peak_RAM,Slurm accounting DB unavailable,reported unavailable without estimate; GPU/runtime/storage remain measured
