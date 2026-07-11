@@ -1,11 +1,10 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=s2p_cb_gate
-#SBATCH --partition=V100-32GB
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
-#SBATCH --output=/home/infres/yinwang/CMI_AAAI_s2p_faced/results/s2p_codebrain_bounded_preflight/slurm-%j.out
-#SBATCH --error=/home/infres/yinwang/CMI_AAAI_s2p_faced/results/s2p_codebrain_bounded_preflight/slurm-%j.err
+#SBATCH --output=results/s2p_codebrain_bounded_preflight/slurm-%j.out
+#SBATCH --error=results/s2p_codebrain_bounded_preflight/slurm-%j.err
 
 # Feasibility-only entry. It must never call Stage-2 training or downstream fine-tuning.
 set -euo pipefail
@@ -19,7 +18,7 @@ else
   exit 2
 fi
 REPO_ROOT="$(readlink -f "${REPO_ROOT}")"
-if [[ "${REPO_ROOT}" == /var/spool/* || ! -d "${REPO_ROOT}/s2p/scripts" ]]; then
+if [[ ! -d "${REPO_ROOT}/s2p/scripts" ]]; then
   echo "ERROR: invalid repository root: ${REPO_ROOT}" >&2
   exit 2
 fi
@@ -42,15 +41,29 @@ cd "${REPO_ROOT}"
 OUT="results/s2p_codebrain_bounded_preflight"
 mkdir -p "${OUT}"
 
-source /home/infres/yinwang/anaconda3/etc/profile.d/conda.sh
-conda activate eeg2025
+required_paths=(
+  S2P_PYTHON
+  CODEBRAIN_ROOT
+  CODEBRAIN_TOKENIZER_PATH
+  CODEBRAIN_RELEASED_PATH
+  FACED_ROOT
+  SEEDV_ROOT
+  ISRUC_FLAT_ROOT
+  ISRUC_PROCESSED_ROOT
+)
+for name in "${required_paths[@]}"; do
+  if [[ -z "${!name:-}" ]]; then
+    echo "ERROR: required environment variable is unset: ${name}" >&2
+    exit 2
+  fi
+done
+
 export PYTHONUNBUFFERED=1
 export PYTORCH_CUDA_ALLOC_CONF=expandable_segments:True
 export PYTHONPATH="${REPO_ROOT}/s2p/scripts:${PYTHONPATH:-}"
-PY=/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python
+PY="${S2P_PYTHON}"
 
 echo "phase=S2P_CodeBrain_Bounded_preflight_only"
-echo "host=$(hostname)"
 echo "git_head=${ACTUAL_COMMIT}"
 echo "start_time=$(date -Is)"
 nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv,noheader

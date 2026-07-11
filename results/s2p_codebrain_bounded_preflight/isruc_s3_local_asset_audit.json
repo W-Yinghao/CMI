@@ -1,0 +1,107 @@
+{
+  "audit_time": "2026-07-11T20:36:21+02:00",
+  "audit_scope": "local_asset_recovery_only",
+  "required_dataset": "ISRUC_S3_Group_III_10_subjects",
+  "required_contract": {
+    "subjects": 10,
+    "split": "rotating_8_train_1_val_1_test_subjects",
+    "epoch_seconds": 30,
+    "sequence_epochs": 20,
+    "channels": 6,
+    "classes": 5,
+    "subject_identity_required": true,
+    "chronological_epoch_order_required": true
+  },
+  "root_scan": {
+    "root": "${EEG_DATA_ROOT}",
+    "max_depth_5_isruc_roots": [
+      "${ISRUC_GROUP_I_PROCESSED_ROOT_A}",
+      "${ISRUC_GROUP_I_PROCESSED_ROOT_B}",
+      "${ISRUC_GROUP_I_RAW_ROOT}",
+      "${ISRUC_FLAT_PARENT}",
+      "${ISRUC_FLAT_ROOT}"
+    ],
+    "exact_name_patterns": [
+      "*group3*",
+      "*subgroupIII*",
+      "ISRUC_S3"
+    ],
+    "exact_name_scan_matches": [],
+    "exact_name_scan_timed_out_after_s": 300,
+    "home_group3_search_matches": []
+  },
+  "processed_isruc_roots": {
+    "04bc8c8b": {
+      "subjects": 100,
+      "recordings": 100,
+      "events": 90187,
+      "metadata_sha256": "51763ef9806f1f52e6186b5dd980c6646052c55782fc6cc920039926b36d7aa4",
+      "events_sha256": "c5e65cd333fc0b5cba1df1142413ebef7550629a6c4e2299ec13d413193904a4"
+    },
+    "128e1b7c": {
+      "subjects": 100,
+      "recordings": 100,
+      "events": 90187,
+      "metadata_sha256": "51763ef9806f1f52e6186b5dd980c6646052c55782fc6cc920039926b36d7aa4",
+      "events_sha256": "c5e65cd333fc0b5cba1df1142413ebef7550629a6c4e2299ec13d413193904a4"
+    },
+    "disposition": "100-subject asset; not an authoritative Group-III substitute"
+  },
+  "group_i_sequence_tree": {
+    "path": "${ISRUC_GROUP_I_SEQUENCE_ROOT}",
+    "sequence_subject_directories": 100,
+    "label_subject_directories": 100,
+    "group3_directories": 0,
+    "sequence_files": 4462,
+    "label_files": 4462,
+    "sample_sequence_shape": [20, 6, 6000],
+    "sample_label_shape": [20],
+    "disposition": "sequence-ready Group-I tree; forbidden as Group-III replacement"
+  },
+  "flat_lmdb": {
+    "path": "${ISRUC_FLAT_ROOT}",
+    "data_mdb_size_bytes": 13168951296,
+    "lmdb_entries_including_metadata": 89285,
+    "declared_numeric_epochs": 89283,
+    "metadata_keys": [
+      "__len__",
+      "__splits__"
+    ],
+    "sample_fields": [
+      "x",
+      "y"
+    ],
+    "sample_shape": [6, 6000],
+    "split_folds": {
+      "fold_0": {"train": 59881, "val": 7290, "test": 22112},
+      "fold_1": {"train": 59203, "val": 7164, "test": 22916},
+      "fold_2": {"train": 59844, "val": 6875, "test": 22564},
+      "fold_3": {"train": 60456, "val": 7136, "test": 21691}
+    },
+    "within_fold_splits_disjoint": true,
+    "four_test_folds_pairwise_disjoint": true,
+    "four_test_fold_union_epochs": 89283,
+    "subject_identity_manifest_present": false,
+    "chronological_epoch_manifest_present": false,
+    "twenty_epoch_sequence_manifest_present": false,
+    "group_iii_rotating_8_1_1_contract_present": false,
+    "disposition": "internally coherent four-fold epoch split, but incompatible with the required Group-III contract"
+  },
+  "native_preprocessing_source": {
+    "script": "${CODEBRAIN_ROOT}/Preprocessing/ISRUC_S3.py",
+    "download_script": "${CODEBRAIN_ROOT}/Preprocessing/get_ISRUC_S3.sh",
+    "expected_output": "subject-named paired seq/labels trees with 20 consecutive epochs",
+    "expected_output_found_locally": false
+  },
+  "audit_disposition": "historical_pre_recovery_evidence",
+  "isruc_s3_contract_pass_at_audit_time": false,
+  "stage2_training_blocked_by_isruc_contract_at_audit_time": true,
+  "subsequent_recovery_summary": "isruc_s3_recovery/isruc_s3_asset_recovery_summary.json",
+  "subsequent_processed_contract": "isruc_s3_recovery/isruc_s3_processed_sequence_contract.json",
+  "current_processed_contract_pass": true,
+  "current_processed_tree_sha256": "b223c03cb811eb45e247e320e7c7ef43279076dcb653aeb08633673e7ac7b9e6",
+  "allowed_next_action": "revalidate the recovered tree in the bounded preflight; never substitute Group-I or flat four-fold LMDB",
+  "training_launched": false,
+  "fine_tuning_launched": false,
+  "target_labels_used_for_selection": false
+}

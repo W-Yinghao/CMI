@@ -25,8 +25,15 @@ from torch.utils.data import DataLoader
 import codebrain_bounded_data as CBD
 
 
-CODEBRAIN = Path("/home/infres/yinwang/CodeBrain")
-TOKENIZER = Path("/home/infres/yinwang/eeg2025/NIPS/CodeBrain/Checkpoints/CodeBrain_Tokenizer.pth")
+def required_env_path(name: str) -> Path:
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(f"required environment variable is unset: {name}")
+    return Path(value).expanduser().resolve()
+
+
+CODEBRAIN = required_env_path("CODEBRAIN_ROOT")
+TOKENIZER = required_env_path("CODEBRAIN_TOKENIZER_PATH")
 EXPECTED_TOKENIZER_SHA256 = "e9560b670d64ea4712fd99a48dc2131326b919744c7d3eb504cf57b1ef3af999"
 CODEBOOK_SIZE = 4096
 EXPECTED_TOKENS_PER_WINDOW = 19 * 30
@@ -59,7 +66,7 @@ def write_csv(path: Path, rows: list[dict]) -> None:
             if field not in fields:
                 fields.append(field)
     with path.open("w", newline="") as f:
-        w = csv.DictWriter(f, fieldnames=fields)
+        w = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         w.writeheader()
         w.writerows(rows)
 
@@ -220,7 +227,7 @@ def main() -> None:
         target_pass = bool(all(row["stream_stratum_gate_pass"] for row in rows))
         canary = native_shape_canary(tokenizer, device, canary_batch)
         result.update({
-            "tokenizer_path": str(TOKENIZER), "tokenizer_sha256": actual_sha,
+            "tokenizer_path": "${CODEBRAIN_TOKENIZER_PATH}", "tokenizer_sha256": actual_sha,
             "device": torch.cuda.get_device_name(0), "cuda_visible_devices": os.getenv("CUDA_VISIBLE_DEVICES"),
             "samples_per_stratum": args.samples_per_stratum,
             "strata": list(by_stratum), "tokenizer_frozen": not any(p.requires_grad for p in tokenizer.parameters()),

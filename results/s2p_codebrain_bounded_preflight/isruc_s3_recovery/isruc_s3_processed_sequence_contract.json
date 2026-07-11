@@ -1,0 +1,39 @@
+{
+  "channel_order": [
+    "F3_A2",
+    "C3_A2",
+    "O1_A2",
+    "F4_A1",
+    "C4_A1",
+    "O2_A1"
+  ],
+  "dataset": "ISRUC_S3_Group_III",
+  "epoch_samples": 6000,
+  "filter": "MNE FIR 0.3-35Hz then 50Hz notch",
+  "fine_tuning_launched": false,
+  "labels_used_for_model_or_protocol_selection": false,
+  "output_root": "${ISRUC_PROCESSED_ROOT}",
+  "processed_sequence_contract_pass": true,
+  "rotating_8_1_1_split_manifest": "isruc_s3_split_manifest.csv",
+  "sequence_epochs": 20,
+  "sequences": 425,
+  "sfreq": 200,
+  "source_asset_manifest": "results/s2p_codebrain_bounded_preflight/isruc_s3_recovery/isruc_s3_subject_asset_manifest.csv",
+  "stage2_training_unblocked_by_isruc_contract": true,
+  "stage_remap": "5_to_4",
+  "subjects": 10,
+  "tail_labels_excluded": 30,
+  "training_launched": false,
+  "tree_sha256": "b223c03cb811eb45e247e320e7c7ef43279076dcb653aeb08633673e7ac7b9e6",
+  "usable_epochs": 8500,
+  "vectorized_filter_equivalence": {
+    "exact_equal": true,
+    "max_abs_diff": 0.0,
+    "mne_version": "1.11.0",
+    "probe_shape": [
+      2,
+      6,
+      6000
+    ]
+  }
+}

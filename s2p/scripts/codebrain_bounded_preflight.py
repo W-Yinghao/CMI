@@ -23,18 +23,24 @@ import numpy as np
 import codebrain_bounded_data as CBD
 
 
-CODEBRAIN = Path("/home/infres/yinwang/CodeBrain")
-TOKENIZER = Path("/home/infres/yinwang/eeg2025/NIPS/CodeBrain/Checkpoints/CodeBrain_Tokenizer.pth")
-RELEASED = Path("/home/infres/yinwang/eeg2025/NIPS/CodeBrain/Checkpoints/CodeBrain.pth")
-FACED = Path("/projects/EEG-foundation-model/FACED_data/processed")
-SEEDV = Path("/projects/EEG-foundation-model/SEED-V_processed_0219")
-ISRUC_FLAT = Path("/projects/EEG-foundation-model/tdoan-24/isruc_200hz/isruc_complete.lmdb")
-ISRUC_SEQUENCE_CANDIDATES = (
-    Path("/projects/EEG-foundation-model/ISRUC_S3/precessed_filter_35"),
-    Path("/projects/EEG-foundation-model/datalake/raw/ISRUC_S3/precessed_filter_35"),
-    Path("/projects/EEG-foundation-model/datalake/raw/ISRUC/precessed_filter_35"),
-    CODEBRAIN / "Preprocessing" / "ISRUC_S3" / "precessed_filter_35",
-)
+def required_env_path(name: str) -> Path:
+    value = os.environ.get(name)
+    if not value:
+        raise RuntimeError(f"required environment variable is unset: {name}")
+    return Path(value).expanduser().resolve()
+
+
+def public_path(name: str, *parts: str) -> str:
+    return str(Path(f"${{{name}}}", *parts))
+
+
+CODEBRAIN = required_env_path("CODEBRAIN_ROOT")
+TOKENIZER = required_env_path("CODEBRAIN_TOKENIZER_PATH")
+RELEASED = required_env_path("CODEBRAIN_RELEASED_PATH")
+FACED = required_env_path("FACED_ROOT")
+SEEDV = required_env_path("SEEDV_ROOT")
+ISRUC_FLAT = required_env_path("ISRUC_FLAT_ROOT")
+ISRUC_SEQUENCE_ROOT = required_env_path("ISRUC_PROCESSED_ROOT")
 
 
 def sha256(path: Path) -> str:
@@ -56,7 +62,7 @@ def write_csv(path: Path, rows: list[dict]) -> None:
             if field not in fields:
                 fields.append(field)
     with path.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fields)
+        writer = csv.DictWriter(f, fieldnames=fields, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 
@@ -76,15 +82,15 @@ def source_provenance() -> dict:
         ["git", "status", "--short", "--untracked-files=no"], cwd=CODEBRAIN, text=True
     ).strip()
     return {
-        "codebrain_repo": str(CODEBRAIN),
+        "codebrain_repo": public_path("CODEBRAIN_ROOT"),
         "codebrain_commit": head,
         "tracked_worktree_clean": not bool(tracked),
         "tracked_status": tracked,
         "source_file_sha256": {str(p.relative_to(CODEBRAIN)): sha256(p) for p in files},
-        "tokenizer_path": str(TOKENIZER),
+        "tokenizer_path": public_path("CODEBRAIN_TOKENIZER_PATH"),
         "tokenizer_size_bytes": TOKENIZER.stat().st_size,
         "tokenizer_sha256": sha256(TOKENIZER),
-        "released_encoder_path": str(RELEASED),
+        "released_encoder_path": public_path("CODEBRAIN_RELEASED_PATH"),
         "released_encoder_size_bytes": RELEASED.stat().st_size,
         "released_encoder_sha256": sha256(RELEASED),
         "tokenizer_role": "released_frozen_target_generator",
@@ -125,7 +131,7 @@ def inspect_faced() -> dict:
     env.close()
     valid = valid and shape == [32, 10, 200]
     return {
-        "dataset": "FACED", "path": str(FACED), "asset_exists": FACED.exists(),
+        "dataset": "FACED", "path": public_path("FACED_ROOT"), "asset_exists": FACED.exists(),
         "native_shape": shape, "split_contract": "subjects_1-80_81-100_101-123 (zero-based 0-79/80-99/100-122)",
         "split_details": split_details, "asset_contract_pass": bool(valid),
         "frozen_role": "primary_cross_subject_mechanism", "fine_tuning_role": "primary_adaptability_control",
@@ -157,7 +163,7 @@ def inspect_seedv() -> dict:
     env.close()
     valid = valid and shape == [62, 1, 200]
     return {
-        "dataset": "SEED-V", "path": str(SEEDV), "asset_exists": SEEDV.exists(),
+        "dataset": "SEED-V", "path": public_path("SEEDV_ROOT"), "asset_exists": SEEDV.exists(),
         "native_shape": shape, "split_contract": "same 16 subjects/session; trials 0-4/5-9/10-14",
         "split_details": split_details, "asset_contract_pass": bool(valid),
         "frozen_role": "same_task_domain_external_validation",
@@ -167,39 +173,119 @@ def inspect_seedv() -> dict:
 
 
 def inspect_isruc() -> dict:
-    sequence_root = None
-    for candidate in ISRUC_SEQUENCE_CANDIDATES:
-        seq = candidate / "seq"
-        lab = candidate / "labels"
-        if all((seq / f"ISRUC-group3-{i}").is_dir() for i in range(1, 11)) and all(
-            (lab / f"ISRUC-group3-{i}").is_dir() for i in range(1, 11)
-        ):
-            sequence_root = candidate
-            break
-    flat = {"path": str(ISRUC_FLAT), "exists": ISRUC_FLAT.exists()}
+    seq = ISRUC_SEQUENCE_ROOT / "seq"
+    lab = ISRUC_SEQUENCE_ROOT / "labels"
+    sequence_root = ISRUC_SEQUENCE_ROOT if (
+        all((seq / f"ISRUC-group3-{i}").is_dir() for i in range(1, 11))
+        and all((lab / f"ISRUC-group3-{i}").is_dir() for i in range(1, 11))
+    ) else None
+    flat = {"path": public_path("ISRUC_FLAT_ROOT"), "exists": ISRUC_FLAT.exists()}
     if ISRUC_FLAT.exists():
         env, keys = lmdb_keys(ISRUC_FLAT)
         flat["has_keys_manifest"] = keys is not None
         flat["entries"] = int(env.stat()["entries"])
         with env.begin(write=False) as txn:
             cursor = txn.cursor()
-            _, raw = next(iter(cursor))
+            key_names = [k.decode("ascii", "replace") for k in cursor.iternext(keys=True, values=False)]
+            flat["metadata_keys"] = sorted(k for k in key_names if not k.isdigit())
+            declared_len = txn.get(b"__len__")
+            flat["declared_numeric_entries"] = int(declared_len.decode()) if declared_len else None
+            split_raw = txn.get(b"__splits__")
+            splits = pickle.loads(split_raw) if split_raw else None
+            raw = txn.get(b"000000")
             item = pickle.loads(raw)
+        if isinstance(splits, dict):
+            fold_summaries = {}
+            test_sets = []
+            for fold, split in sorted(splits.items()):
+                arrays = {name: np.asarray(indices, dtype=np.int64) for name, indices in split.items()}
+                names = list(arrays)
+                overlap = sum(
+                    len(np.intersect1d(arrays[left], arrays[right]))
+                    for i, left in enumerate(names) for right in names[i + 1:]
+                )
+                fold_summaries[fold] = {
+                    "sizes": {name: int(len(indices)) for name, indices in arrays.items()},
+                    "within_fold_overlap": int(overlap),
+                    "union_size": int(len(np.unique(np.concatenate(list(arrays.values()))))),
+                }
+                test_sets.append(arrays["test"])
+            flat["split_fold_count"] = len(fold_summaries)
+            flat["split_fold_summaries"] = fold_summaries
+            flat["test_folds_pairwise_disjoint"] = bool(all(
+                len(np.intersect1d(left, right)) == 0
+                for i, left in enumerate(test_sets) for right in test_sets[i + 1:]
+            ))
+            flat["test_fold_union_size"] = int(len(np.unique(np.concatenate(test_sets))))
         flat["sample_shape"] = list(np.asarray(item["x"]).shape) if isinstance(item, dict) and "x" in item else None
         flat["fields"] = sorted(item) if isinstance(item, dict) else None
         env.close()
-    valid = sequence_root is not None
+    sequence_diagnostic = None
+    if sequence_root is not None:
+        manifest_path = sequence_root / "processed_manifest.json"
+        manifest = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+        pair_counts = {}
+        all_shapes = True
+        all_dtypes = True
+        all_label_domain = True
+        total_pairs = 0
+        for subject in range(1, 11):
+            seq_dir = sequence_root / "seq" / f"ISRUC-group3-{subject}"
+            label_dir = sequence_root / "labels" / f"ISRUC-group3-{subject}"
+            seq_files = {p.name: p for p in seq_dir.glob("*.npy")}
+            label_files = {p.name: p for p in label_dir.glob("*.npy")}
+            stems_match = set(seq_files) == set(label_files)
+            for name in sorted(set(seq_files).intersection(label_files)):
+                x = np.load(seq_files[name], mmap_mode="r")
+                y = np.load(label_files[name], mmap_mode="r")
+                all_shapes = all_shapes and x.shape == (20, 6, 6000) and y.shape == (20,)
+                all_dtypes = all_dtypes and str(x.dtype) == "float64" and str(y.dtype) == "int64"
+                all_label_domain = all_label_domain and set(np.unique(y).tolist()) <= {0, 1, 2, 3, 4}
+            count = len(seq_files) if stems_match else -1
+            pair_counts[str(subject)] = count
+            total_pairs += max(0, count)
+        h = hashlib.sha256()
+        for path in sorted(sequence_root.rglob("*.npy")):
+            h.update(str(path.relative_to(sequence_root)).encode("ascii"))
+            h.update(b"\0")
+            with path.open("rb") as f:
+                for block in iter(lambda: f.read(8 * 1024 * 1024), b""):
+                    h.update(block)
+        actual_tree_sha = h.hexdigest()
+        checks = {
+            "manifest_pass": manifest.get("processed_sequence_contract_pass") is True,
+            "manifest_subjects": manifest.get("subjects") == 10,
+            "manifest_sequence_epochs": manifest.get("sequence_epochs") == 20,
+            "manifest_channel_order": manifest.get("channel_order") == [
+                "F3_A2", "C3_A2", "O1_A2", "F4_A1", "C4_A1", "O2_A1"
+            ],
+            "paired_files": total_pairs == 425 and all(count > 0 for count in pair_counts.values()),
+            "shapes": bool(all_shapes), "dtypes": bool(all_dtypes),
+            "label_domain": bool(all_label_domain),
+            "tree_sha256": actual_tree_sha == manifest.get("tree_sha256"),
+        }
+        sequence_diagnostic = {
+            "manifest_path": public_path("ISRUC_PROCESSED_ROOT", "processed_manifest.json"),
+            "pair_counts_by_subject": pair_counts,
+            "total_sequence_pairs": total_pairs, "actual_tree_sha256": actual_tree_sha,
+            "manifest_tree_sha256": manifest.get("tree_sha256"),
+            "checks": checks, "sequence_contract_pass": bool(all(checks.values())),
+        }
+    valid = bool(sequence_root is not None and sequence_diagnostic["sequence_contract_pass"])
     return {
-        "dataset": "ISRUC_S3", "path": str(sequence_root) if sequence_root else None,
+        "dataset": "ISRUC_S3",
+        "path": public_path("ISRUC_PROCESSED_ROOT") if sequence_root else None,
         "asset_exists": bool(sequence_root), "native_shape": [20, 6, 30, 200] if valid else None,
-        "split_contract": "10-subject leave-one-subject-out with adjacent validation subject",
+        "split_contract": "10-fold rotating 8:1:1 subjects; fold subject=val, next subject=test",
         "sequence_aware_head": "frozen 20-epoch context; 512-d head + one-layer Transformer",
         "asset_contract_pass": bool(valid), "frozen_role": "cross_task_sleep_validation",
         "fine_tuning_role": "sequence_aware_adaptability_control",
+        "sequence_asset_diagnostic": sequence_diagnostic,
         "flat_epoch_asset_diagnostic": flat,
         "blocker": None if valid else (
-            "No CodeBrain-compatible ISRUC_S3 10-subject sequence tree was found. The available flat LMDB has "
-            "global epoch keys and no auditable subject/20-epoch sequence manifest; it cannot be silently substituted."
+            "No verified CodeBrain-compatible ISRUC_S3 10-subject sequence tree is available. The flat LMDB has a "
+            "four-fold global-epoch split, not the required Group-III rotating 8:1:1 subject contract, and cannot "
+            "be silently substituted."
         ),
     }
 
@@ -260,7 +346,8 @@ def main() -> None:
         "downstream_test_labels_read_for_selection": False,
         "test_labels_used_for_budget_or_checkpoint_selection": False,
         "test_labels_used_for_probe_or_hyperparameter_selection": False,
-        "preflight_reads_dataset_keys_and_tensor_shapes_only": True,
+        "preflight_reads_dataset_keys_tensor_shapes_and_label_domain_for_asset_integrity": True,
+        "asset_integrity_label_read_used_for_selection": False,
         "target_labels_final_scoring_only": True,
     }
 

@@ -1,6 +1,11 @@
 # S2P_24 - Bounded CodeBrain Red-Team
 
-**Status:** pretraining launch held pending preflight and downstream-path closure.
+**Status:** pretraining launch held pending SLURM stability and tokenizer-target preflight.
+
+> Post-red-team closure: the missing ISRUC_S3 asset was recovered from the official Cohort III source. Ten source
+> archives and ten extracted-channel MAT files are size/SHA pinned; 10/10 label/MAT pairs align after the official
+> 30-epoch tail exclusion; and the processed 425-sequence tree passes a full content hash. The incompatible flat
+> four-fold LMDB and Group-I tree remain forbidden. See S2P_25.
 
 ## Adversarial findings
 
@@ -70,10 +75,12 @@ there is descriptive. It cannot be pooled with FACED's cross-subject evidence.
 
 ### 12. ISRUC sequence construction cannot be inferred from a flat LMDB
 
-The currently located flat ISRUC store has numeric epoch keys and no auditable subject/20-epoch sequence manifest.
-The native loader expects paired, subject-named sequence and label files. Unless a ten-subject ISRUC_S3 tree is
-found or rebuilt from provenance-complete raw data, ISRUC_S3 remains a launch blocker. Group-I 100-subject assets
-cannot be silently renamed as subgroup III.
+The currently located flat ISRUC store declares 89,283 numeric epochs and a four-fold train/val/test index manifest.
+That manifest is internally disjoint, but it is not the required Group-III ten-subject rotating 8:1:1 contract and
+does not expose subject identity, epoch chronology, or 20-epoch sequence boundaries. The native loader expects
+paired, subject-named sequence and label files. Unless a ten-subject ISRUC_S3 tree is found or rebuilt from
+provenance-complete raw data, ISRUC_S3 remains a launch blocker. Group-I 100-subject assets cannot be silently
+renamed as subgroup III.
 
 The upstream ISRUC loader also zips unsorted sequence and label directory listings. A valid adapter must pair files
 by exact stem and verify labels before splitting.

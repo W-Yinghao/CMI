@@ -1,0 +1,23 @@
+{
+  "all_20_epoch_sequence_feasible": true,
+  "all_content_lengths_exact": true,
+  "all_label_mat_tail30_aligned": true,
+  "all_sha256_pinned": true,
+  "dataset": "ISRUC_S3_Group_III",
+  "fine_tuning_launched": false,
+  "labels_read_for_asset_integrity_only": true,
+  "labels_used_for_model_or_protocol_selection": false,
+  "mat_subject_url_template": "https://dataset.isr.uc.pt/ISRUC_Sleep/ExtractedChannels/subgroupIII-Extractedchannels/subject{subject}.mat",
+  "next_action": "preprocess with pinned CodeBrain-compatible filter/channel/label contract, then verify sequences",
+  "official_source": "https://sleeptight.isr.uc.pt/",
+  "phase": "S2P_CodeBrain_Bounded_ISRUC_S3_asset_recovery",
+  "processed_sequence_contract_pass": false,
+  "raw_asset_contract_pass": true,
+  "raw_subject_url_template": "https://dataset.isr.uc.pt/ISRUC_Sleep/subgroupIII/{subject}.rar",
+  "split_contract": "rotating_8_train_1_val_1_test_subjects",
+  "split_folds": 10,
+  "stage2_training_unblocked_by_this_audit": false,
+  "subjects_expected": 10,
+  "subjects_validated": 10,
+  "training_launched": false
+}

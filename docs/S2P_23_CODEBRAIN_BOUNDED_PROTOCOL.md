@@ -2,6 +2,10 @@
 
 **Status:** FROZEN candidate protocol; preflight only. Project OPEN. Manuscript writing OFF.
 
+> Post-freeze asset closure: the official ISRUC Cohort III 10-subject payloads were recovered and validated, then
+> processed into 425 paired 20-epoch sequences under the pinned native contract. The full tree hash is rechecked by
+> every preflight. This closes the ISRUC asset blocker but does not authorize Stage-2 training.
+
 ## Scientific question
 
 > Does the representation-emergence pattern observed with CBraMod remain detectable under a different EEG
@@ -33,12 +37,26 @@ Stage-2 EEGSSM training conditional on the released tokenizer`, not a fully low-
 
 ## Source contract
 
-- CodeBrain source authority: `/home/infres/yinwang/CodeBrain`, commit pinned by the preflight manifest.
+- CodeBrain source authority: `${CODEBRAIN_ROOT}`, commit pinned by the preflight manifest.
 - Frozen tokenizer: `CodeBrain_Tokenizer.pth`, SHA256 pinned before every gate/run.
 - Released EEGSSM: `CodeBrain.pth`, external path-validity reference only.
 - Native target API: `TFDual.get_codebook_indices` under `eval()` and `no_grad()`.
 - Native Stage-2 output: two 4096-way logits at the positions selected by the 3-D mask.
 - Native normalization: processed volts are converted to microvolts, then the model receives native `/100` input.
+
+Local execution paths are runtime-only bindings and are never expanded into committed reports:
+
+```text
+S2P_REPO_ROOT
+S2P_PYTHON
+CODEBRAIN_ROOT
+CODEBRAIN_TOKENIZER_PATH
+CODEBRAIN_RELEASED_PATH
+FACED_ROOT
+SEEDV_ROOT
+ISRUC_FLAT_ROOT
+ISRUC_PROCESSED_ROOT
+```
 
 The processed TUEG substrate is not the paper corpus reproduction. It is the existing `4704743c` processed corpus,
 whose preprocessing differs from the paper's stated 0.3-75 Hz/notch/raw-corpus contract. All claims are conditional
@@ -129,9 +147,10 @@ trials 0-4 / 5-9 / 10-14. It does not confirm unseen-subject reliance.
 
 ### ISRUC_S3
 
-Cross-task sleep validation. Use the native six-channel, 20-epoch sequence context and a pre-frozen one-layer
-Transformer sequence head. Ten-subject clustering has low power and is interpreted accordingly. A flat epoch store
-without auditable subject and sequence boundaries is not a valid substitute.
+Cross-task sleep validation. Use the native six-channel, 20-consecutive-epoch context and a pre-frozen one-layer
+Transformer sequence head. The native ten-fold contract rotates an 8:1:1 subject split: one fold subject is
+validation and the next subject is test. Ten-subject clustering has low power and is interpreted accordingly. A
+flat epoch store without auditable Group-III subject, chronology, and sequence boundaries is not a valid substitute.
 
 ## Evaluation tracks
 
@@ -181,4 +200,3 @@ monotonic scaling law
 
 The feasibility-only entry may generate metadata, target-utilization, native-shape, and downstream-asset diagnostics.
 It cannot launch Stage-2 or downstream training. Stage-2 remains PM-held even if every preflight item passes.
-
