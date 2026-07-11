@@ -17,6 +17,7 @@ case "${suite}" in
     tests=(
       oaci/tests/test_c79e_authorized_runtime.py
       oaci/tests/test_c79e_analysis_authorization_bridge.py
+      oaci/tests/test_c79e_seed4_result.py
       oaci/tests/test_c79p_post_seed3_protocol.py
     )
     ;;

@@ -1,0 +1,163 @@
+{
+  "authorization": {
+    "analysis_lock_commit": "7cebf2e",
+    "direct_explicit_PI_authorization": true,
+    "field_lock_commit": "35d0c65",
+    "protocol_commit": "ec4834c",
+    "protocol_sha256": "e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587"
+  },
+  "co_primary": {
+    "P1": {
+      "actionability": {
+        "construction_standardized_regret": 0.11066696827732858,
+        "materiality_pass": true,
+        "random_top1_top5_top10": [
+          0.012345679012345678,
+          0.06172839506172839,
+          0.12345679012345678
+        ],
+        "regret_reduction": 0.6867805155048384,
+        "source_standardized_regret": 0.797447483782167,
+        "top1_top5_top10": [
+          0.125,
+          0.5,
+          0.6875
+        ]
+      },
+      "measurement": {
+        "Holm_p": 0.07003891050583658,
+        "ci_high": 0.8337634631382552,
+        "ci_low": 0.6817952453433991,
+        "effect": 0.7564555113866,
+        "pass": false,
+        "raw_p": 0.011673151750972763
+      },
+      "transition_replicates": false
+    },
+    "P2": {
+      "LORO_incremental_R2": -0.03294408371628532,
+      "LORO_qualified": false,
+      "LOTO_incremental_R2": -0.09849749469014357,
+      "LOTO_qualified": false,
+      "local": {
+        "Holm_p": 0.368,
+        "effect": 0.21013679454375883,
+        "pass": false,
+        "positive_trajectory_cells": 32,
+        "trajectory_cells": 32,
+        "worst_control_raw_p": 0.092
+      },
+      "local_nontransport_replicates": false
+    }
+  },
+  "cross_seed": {
+    "all_registered_effect_directions_concordant": true,
+    "combined_p_values_computed": 0,
+    "independent_target_population_claim": false,
+    "P2_gate_decision_differs": true,
+    "P2_local_effect_difference_ci": [
+      -0.06160856530489693,
+      0.004580781915175219
+    ],
+    "P2_local_seed4_minus_seed3": -0.032519497606726025,
+    "shared_target_trial_dependence_declared": true
+  },
+  "epistemic_status": {
+    "designed_after_C78S_outcomes": true,
+    "new_raw_EEG_sample_confirmation": false,
+    "new_target_population_confirmation": false,
+    "outcome_informed_replication": true,
+    "pre_C78S_confirmatory_protocol": false,
+    "prospective_to_seed4_checkpoint_outcomes": true,
+    "same_targets_and_trials_as_seed3": true,
+    "training_seed_robustness_only": true
+  },
+  "field": {
+    "complete_units": 1458,
+    "construction_evaluation_overlap": 0,
+    "construction_rows": 2235,
+    "ERM_anchors": 18,
+    "evaluation_rows": 2373,
+    "external_payload_bytes": 30109676522,
+    "failed_retained_units": 0,
+    "GPU_phase_hours": 8.71590663,
+    "OACI_checkpoints": 720,
+    "primary_units": 1296,
+    "same_label_oracle_accessed": false,
+    "seed": 4,
+    "source_rows": 6718464,
+    "SRC_checkpoints": 720,
+    "target4_engineering_units": 162,
+    "target4_primary": false,
+    "target_unlabeled_rows": 839808,
+    "training_target_label_reads": 0,
+    "training_target_rows": 0
+  },
+  "final_gate": "C79-E_seed4_does_not_replicate_either_core_pattern",
+  "information_boundaries": {
+    "BNCI2014_004": false,
+    "C80": false,
+    "manuscript_drafting": false,
+    "new_feature_kernel_model_search": false,
+    "same_label_oracle": false,
+    "seed5": false,
+    "selector_or_checkpoint_recommendation": false,
+    "target_population_confirmation": false
+  },
+  "milestone": "C79E",
+  "primary_taxonomy": "C79-E_seed4_does_not_replicate_either_core_pattern",
+  "red_team": {
+    "authorization_preflight": "24/24 PASS",
+    "blocking_risks": 0,
+    "scientific_result": "17/17 PASS"
+  },
+  "repairs": {
+    "additive_repairs": 6,
+    "locked_implementation_changes": 0,
+    "outcome_dependent_decisions": 0,
+    "scientific_registry_changes": 0,
+    "seed4_scientific_outcome_accesses": 0
+  },
+  "schema_version": "c79e_seed4_locked_confirmation_result_v1",
+  "secondary": {
+    "H2R": {
+      "Holm_p": 1.0,
+      "incremental_deviance_reduction": -8.717406284615379,
+      "qualifies": false,
+      "raw_p": 0.862
+    },
+    "H4R": {
+      "F2_incremental_R2": -0.09628764196416528,
+      "adjusted_p": 1.0,
+      "qualifies": false
+    },
+    "H5R": {
+      "F4_incremental_R2": 0.010450398396399496,
+      "adjusted_p": 1.0,
+      "qualifies": false
+    },
+    "H6R": {
+      "Holm_p": 0.07003891050583658,
+      "effect": 0.41563504917316746,
+      "familywise_active": false,
+      "raw_p": 0.011673151750972763
+    }
+  },
+  "secondary_taxonomy": [
+    "C79-S3_P1_measurement_not_training_seed_robust",
+    "C79-S5_H2_exact_model_does_not_qualify_again",
+    "C79-S8_P2_local_association_collapses",
+    "C79-S10_H4_F2_does_not_qualify_again",
+    "C79-S12_H5_F4_does_not_qualify_again",
+    "C79-S15_H6_familywise_inactive_on_seed4",
+    "C79-S16_cross_seed_effects_directionally_concordant",
+    "C79-S17_material_training_seed_heterogeneity",
+    "C79-S18_target4_excluded_from_primary",
+    "C79-S19_same_label_oracle_remains_closed",
+    "C79-S20_training_seed_robustness_not_target_population_confirmation",
+    "C79-S21_no_unregistered_cross_seed_rescue",
+    "C79-S22_no_new_feature_or_kernel_campaign",
+    "C79-S23_C80_not_automatically_authorized"
+  ]
+}
+
