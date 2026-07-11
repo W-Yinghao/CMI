@@ -9,10 +9,12 @@
 This directory is an independent project scaffold based on the frozen S2P
 dependency commit `a9134eb5eb7f8486a5e1ee41831823dab39381ed`.
 
-The current scope is **STAR_00A only**: project design, artifact inventory,
-deterministic schedule and manifest implementation, synthetic smoke tests, and
-red-team preflight. It does not authorize or run real STAR EEG training, FACED
-target scoring, SLURM jobs, or STAR_01.
+STAR_00A froze project design, artifact inventory, deterministic schedules, and
+synthetic red-team checks. STAR_00B adds SHA-named immutable H200 starts, the
+complete FACED source_train-only manifest/stream, the exact H200 Route-B SSL
+streams, and a bounded B/C/D ten-step real CBraMod CUDA smoke. STAR_00B does not
+authorize any 3,750-step cell, FACED source_val/test access, target scoring, or
+STAR_01.
 
 Future STAR_01 is restricted to H200_s0/H200_s1 and the four frozen variants
 H200_BASE, H200_SSL_CONT, H200_STAR_TRUE, and H200_STAR_SHUFFLED. All other S2P
@@ -25,6 +27,11 @@ python -m compileall -q star_eeg
 PYTHONPATH=. pytest -q star_eeg/tests
 ```
 
-The artifact-aware preflight additionally needs the environment that can load
-the frozen CBraMod checkpoints. It performs read-only hashing/loading and a toy
-smoke only; it does not read real EEG arrays.
+The STAR_00A artifact-aware preflight additionally needs the environment that
+can load frozen CBraMod checkpoints and remains toy-only. STAR_00B uses the
+dedicated source-only loader and bounded GPU runner; its real-path smoke is
+explicitly separated from scientific training and downstream evaluation.
+
+The STAR_00B artifacts and gate state are summarized in
+`reports/STAR_00B_PREFLIGHT_READOUT.md`. Even with a STAR_00B PASS, the gated
+STAR_01 launcher refuses execution without a new PM approval manifest.

@@ -1,0 +1,72 @@
+{
+  "checkpoints": [
+    {
+      "budget_h": 200,
+      "bytes": 59309689,
+      "channel_contract_hash": "a5bdd85dc42d794bdcf63143fff6677df586f58918da36a3eb179e94fb610462",
+      "checks": {
+        "best_link_is_symlink": true,
+        "best_link_targets_sha_payload": true,
+        "destination_read_only": true,
+        "destination_sha_equals_source": true,
+        "destination_sha_stable_during_reload": true,
+        "destination_strict_reload_pass": true,
+        "sha_named_payload": true,
+        "source_sha_before_equals_star00a": true,
+        "source_sha_stable_during_copy_reload": true
+      },
+      "immutable_best_link": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star_h200_starts_immutable/H200_s0/best.pth",
+      "immutable_checkpoint": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star_h200_starts_immutable/H200_s0/best.64977656005c6ac848af317caa48215eb50c780c869e8cebc930cc6bc5c15e63.pth",
+      "immutable_mode_octal": "0o444",
+      "launcher_accepted_path": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star_h200_starts_immutable/H200_s0/best.64977656005c6ac848af317caa48215eb50c780c869e8cebc930cc6bc5c15e63.pth",
+      "route_manifest_hash": "0c8f405559bc3b39df31658e5b6283f70b225f48d36ec9036a33c5b0c99a074a",
+      "seed": 0,
+      "sha256": "64977656005c6ac848af317caa48215eb50c780c869e8cebc930cc6bc5c15e63",
+      "source_checkpoint": "/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H200_s0/best.pth",
+      "source_git_commit": "c3a6265079de1645a35af482f8e2b11d7564dc7a",
+      "source_sha256_after": "64977656005c6ac848af317caa48215eb50c780c869e8cebc930cc6bc5c15e63",
+      "source_sha256_before": "64977656005c6ac848af317caa48215eb50c780c869e8cebc930cc6bc5c15e63",
+      "strict_reload_immutable": true,
+      "tag": "H200_s0",
+      "training_complete": true
+    },
+    {
+      "budget_h": 200,
+      "bytes": 59309689,
+      "channel_contract_hash": "a5bdd85dc42d794bdcf63143fff6677df586f58918da36a3eb179e94fb610462",
+      "checks": {
+        "best_link_is_symlink": true,
+        "best_link_targets_sha_payload": true,
+        "destination_read_only": true,
+        "destination_sha_equals_source": true,
+        "destination_sha_stable_during_reload": true,
+        "destination_strict_reload_pass": true,
+        "sha_named_payload": true,
+        "source_sha_before_equals_star00a": true,
+        "source_sha_stable_during_copy_reload": true
+      },
+      "immutable_best_link": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star_h200_starts_immutable/H200_s1/best.pth",
+      "immutable_checkpoint": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star_h200_starts_immutable/H200_s1/best.125d0c393e16a5d782125117d0521b79a615552d2ffc30e7a2ddb7a272103736.pth",
+      "immutable_mode_octal": "0o444",
+      "launcher_accepted_path": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star_h200_starts_immutable/H200_s1/best.125d0c393e16a5d782125117d0521b79a615552d2ffc30e7a2ddb7a272103736.pth",
+      "route_manifest_hash": "b484bf9af660741fb72fb46644079eadac21eaed016db5755aeee6d0b72b7f34",
+      "seed": 1,
+      "sha256": "125d0c393e16a5d782125117d0521b79a615552d2ffc30e7a2ddb7a272103736",
+      "source_checkpoint": "/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H200_s1/best.pth",
+      "source_git_commit": "714740e0b6b81e73ef6fd996137bc7b28b876b56",
+      "source_sha256_after": "125d0c393e16a5d782125117d0521b79a615552d2ffc30e7a2ddb7a272103736",
+      "source_sha256_before": "125d0c393e16a5d782125117d0521b79a615552d2ffc30e7a2ddb7a272103736",
+      "strict_reload_immutable": true,
+      "tag": "H200_s1",
+      "training_complete": true
+    }
+  ],
+  "dependency_commit": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "h200_immutable_manifest_hash": "0bda607d27d8b92d73fd3005452f7cadd555200147066f0f190e6330db5b1aa6",
+  "immutable_root": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star_h200_starts_immutable",
+  "launcher_path_policy": "manifest_sha_named_payload_only",
+  "phase": "STAR_00B_H200_immutable_start_closure",
+  "schema_version": 1,
+  "target_data_read": false,
+  "training_run": false
+}

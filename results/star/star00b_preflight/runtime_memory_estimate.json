@@ -1,0 +1,30 @@
+{
+  "basis": "sequential_ten_step_real_A40_smoke",
+  "cold_cache_and_one_time_setup_confounded": true,
+  "observed": {
+    "H200_SSL_CONT": {
+      "naive_linear_projection_hours": 1.2313928703467052,
+      "peak_gpu_memory_bytes": 14744992256,
+      "ten_step_wall_seconds": 11.82137155532837
+    },
+    "H200_STAR_SHUFFLED": {
+      "naive_linear_projection_hours": 0.9807409097750982,
+      "peak_gpu_memory_bytes": 14779721216,
+      "ten_step_wall_seconds": 9.415112733840942
+    },
+    "H200_STAR_TRUE": {
+      "naive_linear_projection_hours": 1.4158391704161961,
+      "peak_gpu_memory_bytes": 14779721216,
+      "ten_step_wall_seconds": 13.592056035995483
+    }
+  },
+  "observed_peak_gpu_memory_gib": 13.76468801498413,
+  "planning_only": true,
+  "recommended_gpu_memory_gib": 24,
+  "recommended_slurm_time_limit_hours": 24,
+  "rough_per_cell_hours_lower": 0.9807409097750982,
+  "rough_per_cell_hours_upper": 1.4158391704161961,
+  "runtime_memory_estimate_hash": "ca5f1975834c0e5a88aece1cd3741c82dbcd64ff42ffc64542178ed40686bc22",
+  "selection_use": false,
+  "variant_runtime_comparison_valid": false
+}

@@ -1,0 +1,26 @@
+{
+  "H2CMI_AND_OACI": "PROTECTED_UNCHANGED",
+  "S2P_PHASE_B": "INDEPENDENT_UNCHANGED",
+  "STAR_00A_DESIGN_AND_RED_TEAM_PREFLIGHT": "PASS",
+  "STAR_00B_REAL_PATH_PREFLIGHT": "PASS",
+  "STAR_00_PROJECT_CHARTER": "PASS",
+  "STAR_01_SCIENTIFIC_TRAINING": "BLOCKED_PENDING_PM_REVIEW",
+  "STAR_H200_ARTIFACT_SUPPLY": "AVAILABLE_IMMUTABLE",
+  "STAR_MANUSCRIPT_CLAIM": "FORBIDDEN",
+  "STAR_TARGET_SCORING": "BLOCKED",
+  "checks": {
+    "anchor_stream": "PASS",
+    "blind_chain": "PASS",
+    "compute_match": "PASS",
+    "h200_immutable_closure": "PASS",
+    "realpath_runner_contract": "PASS",
+    "shuffled_manifest": "PASS",
+    "source_loader_firewall": "PASS",
+    "source_manifest": "PASS",
+    "ssl_stream": "PASS"
+  },
+  "formal_3750_step_training_run": false,
+  "gpu_smoke": "PASS",
+  "star00b_preflight_summary_hash": "09086d91596b564e7f4f93ac7eb42001715b1c91be6a06fba5c2038f1631cc97",
+  "target_metrics_computed": false
+}

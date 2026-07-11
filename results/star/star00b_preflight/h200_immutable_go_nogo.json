@@ -1,0 +1,12 @@
+{
+  "all_read_only": true,
+  "all_source_sha_stable": true,
+  "all_strict_reload_pass": true,
+  "h200_immutable_go_nogo_hash": "8d0e91669b240fc4a047a3945aee2917d84c0ae60575ad294609b9a32e813720",
+  "immutable_checkpoint_count": 2,
+  "launcher_restricted_to_sha_named_payload": true,
+  "phase": "STAR_00B_H200_immutable_start_closure",
+  "status": "PASS",
+  "target_metrics_computed": false,
+  "training_run": false
+}

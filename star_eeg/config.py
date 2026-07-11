@@ -62,5 +62,10 @@ ACTIVE_METHOD_REGISTRY = {
 ACTIVE_IMPORT_PATHS = (
     "star_eeg.objectives.alternating_schedule",
     "star_eeg.objectives.task_anchor",
+    "star_eeg.artifacts.freeze_h200_starts",
+    "star_eeg.data.faced_source_train_loader",
+    "star_eeg.data.anchor_batch_stream",
+    "star_eeg.data.tueg_ssl_batch_stream",
+    "star_eeg.training.real_star_runner",
     "s2p.scripts.route_b_33ch_loader",
 )

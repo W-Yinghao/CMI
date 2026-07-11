@@ -1,0 +1,11 @@
+{
+  "automatic_sync_or_rebase_allowed": false,
+  "branch": "project/star-task-anchor",
+  "merge_base": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "remote_dependency_at_star_creation": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "remote_may_advance_after_creation": true,
+  "required_dependency": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "s2p_h2cmi_oaci_mutated": false,
+  "star00a_baseline": "26c3fca009d0ecbde7e92e7c759c0256caf1361d",
+  "star00b_dependency_hash": "3ce5fe8b2255050032a9ffefcfc8b65f21b4a212a186773d2f5c3c2bbd32b68e"
+}

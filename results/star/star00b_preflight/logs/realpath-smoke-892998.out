@@ -1,0 +1,51 @@
+STAR_00B real-path smoke host=node35 head=26c3fca009d0ecbde7e92e7c759c0256caf1361d
+NVIDIA A40, 46068 MiB
+{
+  "checks": {
+    "all_checkpoints_strict_reload": true,
+    "all_gradients_finite": true,
+    "all_losses_finite": true,
+    "all_parameter_deltas_finite": true,
+    "all_source_starts_unchanged": true,
+    "anchor_x_ids_c_d_equal": true,
+    "anchor_x_tensors_c_d_equal": true,
+    "b_has_two_replacement_ssl_slots": true,
+    "b_temporary_head_unchanged": true,
+    "c_d_have_two_anchor_slots": true,
+    "c_d_temporary_heads_updated": true,
+    "common_ssl_batch_ids_b_c_d_equal": true,
+    "common_ssl_batch_tensors_b_c_d_equal": true,
+    "model_update_scope_b_c_d_equal": true,
+    "same_h200_s0_source_sha": true,
+    "source_only_loader_firewall": true,
+    "start_model_state_hash_b_c_d_equal": true,
+    "true_and_shuffled_label_streams_differ": true
+  },
+  "formal_3750_step_training_run": false,
+  "gpu_names": [
+    "NVIDIA A40"
+  ],
+  "model_seed": 0,
+  "peak_gpu_memory_bytes": {
+    "H200_SSL_CONT": 14744992256,
+    "H200_STAR_SHUFFLED": 14779721216,
+    "H200_STAR_TRUE": 14779721216
+  },
+  "phase": "STAR_00B_realpath_smoke",
+  "realpath_smoke_summary_hash": "7e13885d0d492be7b8796369f8d7e76ec4bda69f8e13f35da2aedbb660d705b8",
+  "scientific_training_run": false,
+  "source_checkpoint_sha": "64977656005c6ac848af317caa48215eb50c780c869e8cebc930cc6bc5c15e63",
+  "status": "PASS",
+  "steps_per_variant": 10,
+  "target_metrics_computed": false,
+  "variants": [
+    "H200_SSL_CONT",
+    "H200_STAR_TRUE",
+    "H200_STAR_SHUFFLED"
+  ],
+  "wall_seconds": {
+    "H200_SSL_CONT": 68.31608653068542,
+    "H200_STAR_SHUFFLED": 9.268446922302246,
+    "H200_STAR_TRUE": 46.268080949783325
+  }
+}

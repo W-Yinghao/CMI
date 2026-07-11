@@ -1,0 +1,42 @@
+{
+  "allowed_lmdb_index_member": "train",
+  "batch_loader_access_audit": {
+    "non_source_sample_reads": 0,
+    "source_sample_reads": 8,
+    "source_val_sample_reads": 0,
+    "status": "PASS",
+    "target_tensors_created": 0,
+    "test_sample_reads": 0
+  },
+  "batch_loader_smoke_labels": [
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0,
+    0
+  ],
+  "batch_loader_smoke_shape": [
+    8,
+    32,
+    10,
+    200
+  ],
+  "inventory_access_audit": {
+    "index_key_reads": 1,
+    "non_source_class_counts_computed": false,
+    "non_source_labels_read": 0,
+    "non_source_tensors_created": 0,
+    "selected_index_member": "train",
+    "source_sample_reads": 6720,
+    "source_val_sample_reads": 0,
+    "test_sample_reads": 0
+  },
+  "non_source_class_counts_computed": false,
+  "source_loader_firewall_hash": "ec747b5f485963f89d737d60003e9fb3b2ac516356fba624f3995e8d89568013",
+  "source_val_deserialized": false,
+  "status": "PASS",
+  "test_deserialized": false
+}

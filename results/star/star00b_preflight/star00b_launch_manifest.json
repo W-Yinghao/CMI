@@ -1,0 +1,17 @@
+{
+  "approved_new_training_cells": [],
+  "planned_training_cells": [
+    "H200_SSL_CONT_s0",
+    "H200_SSL_CONT_s1",
+    "H200_STAR_TRUE_s0",
+    "H200_STAR_TRUE_s1",
+    "H200_STAR_SHUFFLED_s0",
+    "H200_STAR_SHUFFLED_s1"
+  ],
+  "realpath_smoke_summary_hash": "5ed568ec631a4229feae14393e17680d0a4c0259ef4d27d7b148b14de8084dc8",
+  "requires_new_pm_gate": true,
+  "star00b_launch_manifest_hash": "b1077cf48653e97b5acf200769e7d588d091b872d20d7f28b658f6a71af664a7",
+  "star01_runner_execution_allowed": false,
+  "status": "STAR00B_PASS_PENDING_PM_STAR01_APPROVAL",
+  "target_scoring_allowed": false
+}

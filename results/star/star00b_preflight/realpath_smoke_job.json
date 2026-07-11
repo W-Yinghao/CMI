@@ -1,0 +1,15 @@
+{
+  "exit_code": "0:0",
+  "formal_3750_step_training_run": false,
+  "job_id": "893001",
+  "node": "node35",
+  "partition": "A40",
+  "realpath_smoke_job_hash": "835a5688669452fa1b956f2bde20ed21685b04f6be44f9c8742ea4071eaf8c62",
+  "runtime": "00:00:48",
+  "smoke_summary_hash": "5ed568ec631a4229feae14393e17680d0a4c0259ef4d27d7b148b14de8084dc8",
+  "state": "COMPLETED",
+  "stderr": "/home/infres/yinwang/CMI_AAAI_star/results/star/star00b_preflight/logs/realpath-smoke-893001.err",
+  "stdout": "/home/infres/yinwang/CMI_AAAI_star/results/star/star00b_preflight/logs/realpath-smoke-893001.out",
+  "submission_head": "26c3fca009d0ecbde7e92e7c759c0256caf1361d",
+  "target_metrics_computed": false
+}

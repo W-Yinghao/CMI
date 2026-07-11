@@ -14,7 +14,11 @@ PROTECTED_PREFIXES = (
     "oaci/",
     "notes/project_A_observability/",
 )
-ALLOWED_NEW_PREFIXES = ("star_eeg/", "results/star/star00a_preflight/")
+ALLOWED_NEW_PREFIXES = (
+    "star_eeg/",
+    "results/star/star00a_preflight/",
+    "results/star/star00b_preflight/",
+)
 
 
 def classify_protected_paths(paths: Iterable[str]) -> List[str]:

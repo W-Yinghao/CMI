@@ -2,7 +2,7 @@
 
 ## STAR_00A required pass conditions
 
-- Remote S2P dependency ref equals `a9134eb5eb7f8486a5e1ee41831823dab39381ed` exactly.
+- The S2P dependency ref equaled `a9134eb5eb7f8486a5e1ee41831823dab39381ed` when the STAR branch was created. Later remote advancement is allowed only if STAR's merge-base, authority-file hashes, and imported behavior remain pinned to that SHA; rebase or automatic synchronization is forbidden.
 - STAR branch merge-base is that commit and branch name is `project/star-task-anchor`.
 - No S2P scientific, H2CMI, OACI, or other non-STAR path is changed.
 - Ten checkpoint/reference objects are inventoried with path/config, existence, repeated SHA, bytes, stability, strict reload, source commit, route/channel hashes, completion provenance, and role flags.
@@ -18,10 +18,20 @@
 
 If checkpoint checks fail but the scaffold/firewalls pass, infrastructure may pass internally, but the externally reported status must be `STAR_01_BLOCKED_ARTIFACT_SUPPLY`. H200 may not be retrained to repair supply.
 
+## STAR_00B required pass conditions
+
+- H200_s0/s1 are closed as SHA-named, mode-`0444`, strict-reload payloads, and the launcher accepts only their manifest paths.
+- The real FACED manifest contains exactly 6,720 source_train records from 80 subjects, with zero source_val/test sample reads during training-path construction.
+- C/D share exact anchor sample IDs, batch order/boundaries, X tensors, and exposure counts; only the fixed within-subject label mapping differs.
+- B/C/D retain exact optimizer-step compute matching and common SSL streams, while B supplies replacement SSL batches in every anchor slot.
+- A bounded real CBraMod CUDA smoke passes 32-channel FACED / 33-channel TUEG alternation, finite loss/gradients/clipping/deltas, strict checkpoint reload, and source-SHA immutability.
+- The held blind chain requires all six training cells before immutable closure, source-only audit, one all-cell target evaluation, and independent verification.
+- No protected project path changes, formal 3,750-step cell, target metric, target-selected checkpoint, or STAR_01 approval is present.
+
 ## Non-acceptance conditions
 
 STAR_00A fails on a dependency mismatch, protected-path mutation, split ambiguity, target-data access surface, compute mismatch, mutable/non-deterministic shuffle, forbidden active method, non-finite synthetic smoke, or non-deterministic artifact generation.
 
 ## Approval separation
 
-A STAR_00A PASS is not scientific evidence and is not STAR_01 approval. `star01_approved` must remain false. PM review is required before any real training, target scoring, SLURM action, or scientific table.
+A STAR_00A PASS is not scientific evidence and is not STAR_01 approval. The later PM gate permits only STAR_00B artifact closure and bounded real-path smoke. A new PM review remains required before any 3,750-step cell, target scoring, or scientific table.

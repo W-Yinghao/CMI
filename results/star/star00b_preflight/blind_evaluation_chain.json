@@ -1,0 +1,69 @@
+{
+  "blind_evaluation_chain_hash": "a295ca01b5f18e94f8c9742a01addae87c9660d6114c0c6c8f7dc704814e595f",
+  "no_cell_can_be_viewed_before_all_training_finishes": true,
+  "schema_version": 1,
+  "stages": [
+    {
+      "all_cells_submitted_together": true,
+      "cells": [
+        "H200_SSL_CONT_s0",
+        "H200_SSL_CONT_s1",
+        "H200_STAR_TRUE_s0",
+        "H200_STAR_TRUE_s1",
+        "H200_STAR_SHUFFLED_s0",
+        "H200_STAR_SHUFFLED_s1"
+      ],
+      "name": "six_training_jobs",
+      "requires_gate": "STAR_01_SCIENTIFIC_TRAINING_APPROVED",
+      "seed_screening": false,
+      "stage": 1
+    },
+    {
+      "checkpoint_step": 3750,
+      "dependency": "afterok_all_six_training_jobs",
+      "name": "immutable_final_step_closure",
+      "stage": 2
+    },
+    {
+      "dependency": "afterok_immutable_final_step_closure",
+      "name": "source_only_integrity_and_task_gate_audit",
+      "separate_from_training_process": true,
+      "source_val_labels_for_task_gate_only": true,
+      "stage": 3,
+      "target_test_samples_or_labels_read": false
+    },
+    {
+      "cells": [
+        "H200_BASE_s0",
+        "H200_BASE_s1",
+        "H200_SSL_CONT_s0",
+        "H200_SSL_CONT_s1",
+        "H200_STAR_TRUE_s0",
+        "H200_STAR_TRUE_s1",
+        "H200_STAR_SHUFFLED_s0",
+        "H200_STAR_SHUFFLED_s1",
+        "random",
+        "released",
+        "H500_s0",
+        "H500_s1",
+        "H1000_s0",
+        "H1000_s1",
+        "H2000_s0",
+        "H2000_s1"
+      ],
+      "currently_blocked": true,
+      "dependency": "afterok_source_only_audit",
+      "name": "single_all_cells_scoring",
+      "partial_or_adaptive_scoring_forbidden": true,
+      "stage": 4
+    },
+    {
+      "currently_blocked": true,
+      "dependency": "afterok_single_all_cells_scoring",
+      "name": "independent_final_verifier",
+      "stage": 5
+    }
+  ],
+  "status": "PLANNED_NOT_SUBMITTED",
+  "target_scoring_submitted": false
+}

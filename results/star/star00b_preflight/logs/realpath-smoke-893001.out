@@ -1,0 +1,60 @@
+STAR_00B real-path smoke host=node35 head=26c3fca009d0ecbde7e92e7c759c0256caf1361d
+NVIDIA A40, 46068 MiB
+{
+  "checks": {
+    "all_checkpoints_strict_reload": true,
+    "all_gradients_finite": true,
+    "all_losses_finite": true,
+    "all_parameter_deltas_finite": true,
+    "all_source_starts_unchanged": true,
+    "anchor_x_ids_c_d_equal": true,
+    "anchor_x_tensors_c_d_equal": true,
+    "b_has_two_replacement_ssl_slots": true,
+    "b_temporary_head_unchanged": true,
+    "c_d_have_two_anchor_slots": true,
+    "c_d_temporary_heads_updated": true,
+    "common_ssl_batch_ids_b_c_d_equal": true,
+    "common_ssl_batch_tensors_b_c_d_equal": true,
+    "model_update_scope_b_c_d_equal": true,
+    "same_h200_s0_source_sha": true,
+    "source_only_loader_firewall": true,
+    "start_model_state_hash_b_c_d_equal": true,
+    "true_and_shuffled_label_streams_differ": true
+  },
+  "execution_source_hashes": {
+    "star_eeg/data/anchor_batch_stream.py": "f24ff20d3440ab9d93432a5b0995383c22c418068ac8267c5c23b520802f01d5",
+    "star_eeg/data/faced_source_train_loader.py": "273992d1007e1bebe52a1fc1121eab684b3405e77cb08982dc31806b44a91dfb",
+    "star_eeg/data/tueg_ssl_batch_stream.py": "dfad9f0a250ccb7e85c5474a270f0ab87b27538f35ac01a670cfa1d427198d8c",
+    "star_eeg/objectives/alternating_schedule.py": "0c1a0b1fe4f0fbe6bf2f323c401db0ea3bf40b1cba567a17820d10d7ccdbe27c",
+    "star_eeg/runners/run_star00b_realpath_smoke.py": "691b38f45b6ced20bf8b377373383d33281bfd93a51640249178a03eed15aa9d",
+    "star_eeg/slurm/star00b_realpath_smoke.sbatch": "760a6664256541869759548ca7adbce5f47af510c44d6ab585737c29025478de",
+    "star_eeg/training/real_star_runner.py": "8d003a30a9851e27fe20c5d92ba09f22c5f513ce4140e0ecd8ee5a9cb833364a"
+  },
+  "formal_3750_step_training_run": false,
+  "gpu_names": [
+    "NVIDIA A40"
+  ],
+  "model_seed": 0,
+  "peak_gpu_memory_bytes": {
+    "H200_SSL_CONT": 14744992256,
+    "H200_STAR_SHUFFLED": 14779721216,
+    "H200_STAR_TRUE": 14779721216
+  },
+  "phase": "STAR_00B_realpath_smoke",
+  "realpath_smoke_summary_hash": "5ed568ec631a4229feae14393e17680d0a4c0259ef4d27d7b148b14de8084dc8",
+  "scientific_training_run": false,
+  "source_checkpoint_sha": "64977656005c6ac848af317caa48215eb50c780c869e8cebc930cc6bc5c15e63",
+  "status": "PASS",
+  "steps_per_variant": 10,
+  "target_metrics_computed": false,
+  "variants": [
+    "H200_SSL_CONT",
+    "H200_STAR_TRUE",
+    "H200_STAR_SHUFFLED"
+  ],
+  "wall_seconds": {
+    "H200_SSL_CONT": 11.82137155532837,
+    "H200_STAR_SHUFFLED": 9.415112733840942,
+    "H200_STAR_TRUE": 13.592056035995483
+  }
+}
