@@ -225,3 +225,15 @@
   no-vendoring gates. Runtime provenance records the actual `icml` executable;
   the inherited conda label is not treated as environment proof. No GPU job was
   launched during P9A.
+
+- Per PM P9B/P9C, completed the official SPDIM repaired-split three-source-seed baseline. Accepted array `892389` used the committed `0-7%4` launcher with
+  initial `--partition=A40`, then user-approved in-place partition expansion to
+  `H100,A100,L40S,A40,V100`; scientific configuration was unchanged. Eight
+  result-carrying tasks produced `920/920` seeds-1/2 rows. P100 array `892385`
+  remains a zero-result excluded launch because sm_60 is unsupported. Final
+  monitoring used `squeue` only and array `892389` was absent. The seeds-1/2
+  SHA-256 is `0d4cd2031a6ec213ad1312021e5fefca349673732cc94ee92238eb036dcaf452`; the deterministic 1380-row three-seed SHA-256 is
+  `95b8f69556a140dc020415753c9694cf9ebdeed1abb0766dd24f523c491289c3`. Seed-0 source bytes retained SHA-256 `118ec37f3a195d50c24abf24b4c61048cdbc0ffff7d9c0f0bf51c83f7f69229c`. The
+  10,000-replicate paired subject-cluster bootstrap used seed `20260710`
+  after averaging seeds within dataset x target subject x method. No extra
+  seed, method, TeX, H2CMI, geometry-stress, or orthogonal-score work was run.

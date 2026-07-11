@@ -1,0 +1,375 @@
+{
+  "all_requested_datasets": [
+    "BNCI2014_001",
+    "Cho2017",
+    "Lee2019_MI"
+  ],
+  "dataset_macro": {
+    "rct": {
+      "mean_acc": 0.5933333333333334,
+      "mean_bacc": 0.5933333333333334
+    },
+    "source_only_tsmnet": {
+      "mean_acc": 0.5286206896551724,
+      "mean_bacc": 0.5286206896551724
+    },
+    "spdim_bias": {
+      "mean_acc": 0.6012643678160919,
+      "mean_bacc": 0.6012643678160919
+    },
+    "spdim_geodesic": {
+      "mean_acc": 0.5964367816091954,
+      "mean_bacc": 0.5964367816091954
+    }
+  },
+  "datasets": [
+    "Cho2017"
+  ],
+  "deltas": {
+    "rct_minus_source_only_tsmnet": {
+      "mean_acc_delta": 0.06471264367816092,
+      "mean_bacc_delta": 0.06471264367816093,
+      "n": 29
+    },
+    "spdim_bias_minus_rct": {
+      "mean_acc_delta": 0.007931034482758613,
+      "mean_bacc_delta": 0.007931034482758626,
+      "n": 29
+    },
+    "spdim_bias_minus_source_only_tsmnet": {
+      "mean_acc_delta": 0.07264367816091953,
+      "mean_bacc_delta": 0.07264367816091953,
+      "n": 29
+    },
+    "spdim_geodesic_minus_rct": {
+      "mean_acc_delta": 0.003103448275862072,
+      "mean_bacc_delta": 0.0031034482758620775,
+      "n": 29
+    },
+    "spdim_geodesic_minus_source_only_tsmnet": {
+      "mean_acc_delta": 0.067816091954023,
+      "mean_bacc_delta": 0.067816091954023,
+      "n": 29
+    }
+  },
+  "elapsed_seconds": 31703.721049547195,
+  "expected_rows_by_dataset": {
+    "BNCI2014_001": 0,
+    "Cho2017": 116,
+    "Lee2019_MI": 0
+  },
+  "final_squeue_absent": null,
+  "harm": {
+    "rct_vs_source_only_tsmnet": {
+      "harm_count": 5,
+      "harm_rate": 0.1724137931034483,
+      "n": 29
+    },
+    "spdim_bias_vs_rct": {
+      "harm_count": 7,
+      "harm_rate": 0.2413793103448276,
+      "n": 29
+    },
+    "spdim_bias_vs_source_only_tsmnet": {
+      "harm_count": 5,
+      "harm_rate": 0.1724137931034483,
+      "n": 29
+    },
+    "spdim_geodesic_vs_rct": {
+      "harm_count": 6,
+      "harm_rate": 0.20689655172413793,
+      "n": 29
+    },
+    "spdim_geodesic_vs_source_only_tsmnet": {
+      "harm_count": 5,
+      "harm_rate": 0.1724137931034483,
+      "n": 29
+    }
+  },
+  "label": "P9 repaired-split official SPDIM seed shard; part of the approved seeds 1/2 expansion.",
+  "launch_provenance": {
+    "clean_worktree": true,
+    "command_line": "/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368/h2cmi/run_spdim_w1_repaired_seeds12.py --mode run --external-spdim-path /home/infres/yinwang/.cache/h2cmi_external/SPDIM_1b0de0ccd4c48a4ff28f087b866a0b671b029c39 --datasets BNCI2014_001,Cho2017,Lee2019_MI --manifest h2cmi/results/review_completion/w1_repaired_split_manifest.csv --manifest-hash 231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e --target-spec Cho2017=21-49 --shard-id seed2_shard1 --seed 2 --epochs 20 --adapt-epochs 30 --adapt-lr 0.01 --batch-size 64 --val-fraction 0.2 --temporal-filters 4 --spatial-filters 40 --subspace-dims 20 --dtype float32 --spd-device cpu --device cuda --out /home/infres/yinwang/.cache/h2cmi_training_caches/p9_repaired_seeds12_493f649911f354d4deaa307c80be3cb367149fce/seed2_shard1_results.csv --audit /home/infres/yinwang/.cache/h2cmi_training_caches/p9_repaired_seeds12_493f649911f354d4deaa307c80be3cb367149fce/seed2_shard1_audit.md --summary /home/infres/yinwang/.cache/h2cmi_training_caches/p9_repaired_seeds12_493f649911f354d4deaa307c80be3cb367149fce/seed2_shard1_summary.json --digest /home/infres/yinwang/.cache/h2cmi_training_caches/p9_repaired_seeds12_493f649911f354d4deaa307c80be3cb367149fce/seed2_shard1_result_digest.md --legacy-compare /home/infres/yinwang/.cache/h2cmi_training_caches/p9_repaired_seeds12_493f649911f354d4deaa307c80be3cb367149fce/seed2_shard1_legacy_compare.md --failure-trace /home/infres/yinwang/.cache/h2cmi_training_caches/p9_repaired_seeds12_493f649911f354d4deaa307c80be3cb367149fce/seed2_shard1_failure_trace.txt",
+    "config_file": "h2cmi/config.py",
+    "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+    "environment_name": "base",
+    "external_spdim_commit": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+    "git_status_porcelain": "",
+    "launch_commit": "493f649911f354d4deaa307c80be3cb367149fce",
+    "manifest": "h2cmi/results/review_completion/w1_repaired_split_manifest.csv",
+    "manifest_file_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+    "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+    "manifest_hash_matches_p7": true,
+    "run_config_sha256": "842f64d95a25e4b0bb2f1976a734c8dc6d1e88dd09807515a95eea36a10b6dfa",
+    "runner_dirty_allowed": false,
+    "runner_file": "h2cmi/run_spdim_w1_repaired_seed0.py",
+    "runner_file_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+    "slurm_job_id": "892883"
+  },
+  "legacy_compare": {
+    "legacy_rows": 460,
+    "legacy_source": "h2cmi/results/review_completion/spdim_w1_seed0_results.csv",
+    "legacy_status": "diagnostic_only_old_split",
+    "new_dataset_macro": {
+      "rct": {
+        "mean_acc": 0.5933333333333334,
+        "mean_bacc": 0.5933333333333334
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.5286206896551724,
+        "mean_bacc": 0.5286206896551724
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6012643678160919,
+        "mean_bacc": 0.6012643678160919
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.5964367816091954,
+        "mean_bacc": 0.5964367816091954
+      }
+    },
+    "new_per_dataset": {
+      "Cho2017": {
+        "rct": {
+          "mean_acc": 0.5933333333333334,
+          "mean_bacc": 0.5933333333333334,
+          "mean_macro_f1": 0.5860966055557123,
+          "n": 29
+        },
+        "source_only_tsmnet": {
+          "mean_acc": 0.5286206896551724,
+          "mean_bacc": 0.5286206896551724,
+          "mean_macro_f1": 0.39278020595141466,
+          "n": 29
+        },
+        "spdim_bias": {
+          "mean_acc": 0.6012643678160919,
+          "mean_bacc": 0.6012643678160919,
+          "mean_macro_f1": 0.5922638398531996,
+          "n": 29
+        },
+        "spdim_geodesic": {
+          "mean_acc": 0.5964367816091954,
+          "mean_bacc": 0.5964367816091954,
+          "mean_macro_f1": 0.5890602102074559,
+          "n": 29
+        }
+      }
+    },
+    "new_rows": 116,
+    "new_subject_weighted": {
+      "rct": {
+        "mean_acc": 0.5933333333333334,
+        "mean_bacc": 0.5933333333333334,
+        "n": 29
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.5286206896551724,
+        "mean_bacc": 0.5286206896551724,
+        "n": 29
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6012643678160919,
+        "mean_bacc": 0.6012643678160919,
+        "n": 29
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.5964367816091954,
+        "mean_bacc": 0.5964367816091954,
+        "n": 29
+      }
+    },
+    "old_dataset_macro": {
+      "rct": {
+        "mean_acc": 0.6849679487179487,
+        "mean_bacc": 0.6849679487179487
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.8941987179487181,
+        "mean_bacc": 0.8941987179487181
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6706089743589743,
+        "mean_bacc": 0.6706089743589743
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.6693910256410256,
+        "mean_bacc": 0.6693910256410256
+      }
+    },
+    "old_per_dataset": {
+      "Cho2017": {
+        "rct": {
+          "mean_acc": 0.6849679487179487,
+          "mean_bacc": 0.6849679487179487,
+          "mean_macro_f1": 0.4136209680767356,
+          "n": 52
+        },
+        "source_only_tsmnet": {
+          "mean_acc": 0.8941987179487181,
+          "mean_bacc": 0.8941987179487181,
+          "mean_macro_f1": 0.7273541997039045,
+          "n": 52
+        },
+        "spdim_bias": {
+          "mean_acc": 0.6706089743589743,
+          "mean_bacc": 0.6706089743589743,
+          "mean_macro_f1": 0.4077377739201108,
+          "n": 52
+        },
+        "spdim_geodesic": {
+          "mean_acc": 0.6693910256410256,
+          "mean_bacc": 0.6693910256410256,
+          "mean_macro_f1": 0.40716911164047587,
+          "n": 52
+        }
+      }
+    },
+    "old_subject_weighted": {
+      "rct": {
+        "mean_acc": 0.6847632850241546,
+        "mean_bacc": 0.6860074257622334,
+        "n": 115
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.7309855072463767,
+        "mean_bacc": 0.7117724709074035,
+        "n": 115
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6785362318840581,
+        "mean_bacc": 0.676860864003032,
+        "n": 115
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.6781594202898549,
+        "mean_bacc": 0.6788484649495993,
+        "n": 115
+      }
+    },
+    "repaired_status": "w1_repaired_seed0_official_spdim"
+  },
+  "manifest": "h2cmi/results/review_completion/w1_repaired_split_manifest.csv",
+  "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+  "methods": [
+    "source_only_tsmnet",
+    "rct",
+    "spdim_geodesic",
+    "spdim_bias"
+  ],
+  "overall_subject_weighted": {
+    "rct": {
+      "mean_acc": 0.5933333333333334,
+      "mean_bacc": 0.5933333333333334,
+      "n": 29
+    },
+    "source_only_tsmnet": {
+      "mean_acc": 0.5286206896551724,
+      "mean_bacc": 0.5286206896551724,
+      "n": 29
+    },
+    "spdim_bias": {
+      "mean_acc": 0.6012643678160919,
+      "mean_bacc": 0.6012643678160919,
+      "n": 29
+    },
+    "spdim_geodesic": {
+      "mean_acc": 0.5964367816091954,
+      "mean_bacc": 0.5964367816091954,
+      "n": 29
+    }
+  },
+  "p9_controller": {
+    "approved_seeds": [
+      1,
+      2
+    ],
+    "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
+    "executed_seed": 2,
+    "file": "h2cmi/run_spdim_w1_repaired_seeds12.py",
+    "p8_runner_sha256": "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8",
+    "sha256": "3be4f8edabe577b471cf899b17cd1249749092949071334a5c7566a805910207"
+  },
+  "per_dataset": {
+    "Cho2017": {
+      "rct": {
+        "mean_acc": 0.5933333333333334,
+        "mean_bacc": 0.5933333333333334,
+        "mean_macro_f1": 0.5860966055557123,
+        "n": 29
+      },
+      "source_only_tsmnet": {
+        "mean_acc": 0.5286206896551724,
+        "mean_bacc": 0.5286206896551724,
+        "mean_macro_f1": 0.39278020595141466,
+        "n": 29
+      },
+      "spdim_bias": {
+        "mean_acc": 0.6012643678160919,
+        "mean_bacc": 0.6012643678160919,
+        "mean_macro_f1": 0.5922638398531996,
+        "n": 29
+      },
+      "spdim_geodesic": {
+        "mean_acc": 0.5964367816091954,
+        "mean_bacc": 0.5964367816091954,
+        "mean_macro_f1": 0.5890602102074559,
+        "n": 29
+      }
+    }
+  },
+  "result_csv": "/home/infres/yinwang/.cache/h2cmi_training_caches/p9_repaired_seeds12_493f649911f354d4deaa307c80be3cb367149fce/seed2_shard1_results.csv",
+  "result_csv_sha256": "98ca21b317eecb16163d2a23301e17d7101c9b6de31d9d04f8f749556f31cb87",
+  "runtime_environment": {
+    "conda_default_env_inherited_label": "base",
+    "conda_label_is_runtime_proof": false,
+    "cuda_available": true,
+    "cuda_version": "12.8",
+    "device": "cuda",
+    "device_name": "NVIDIA A40",
+    "mne_version": "1.8.0",
+    "moabb_version": "1.2.0",
+    "python_version": "3.9.25",
+    "pytorch_version": "2.8.0+cu128",
+    "sys_executable": "/home/infres/yinwang/anaconda3/envs/icml/bin/python",
+    "sys_prefix": "/home/infres/yinwang/anaconda3/envs/icml"
+  },
+  "shard_id": "seed2_shard1",
+  "source_seed": 2,
+  "split_family": "class_stratified_half",
+  "status": "pass",
+  "stderr_status": "pending_post_slurm_validation",
+  "stdout_status": "pending_post_slurm_validation",
+  "target_spec": "Cho2017=21-49",
+  "validation": {
+    "adapt_eval_disjoint_failures": 0,
+    "dataset_rows": {
+      "Cho2017": 116
+    },
+    "expected_rows_by_dataset": {
+      "Cho2017": 116
+    },
+    "expected_rows_total": 116,
+    "failed_rows": 0,
+    "logits_hash_complete": true,
+    "logits_hash_missing_rows": 0,
+    "manifest_hash": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+    "manifest_hash_matches_p7": true,
+    "method_rows": {
+      "rct": 29,
+      "source_only_tsmnet": 29,
+      "spdim_bias": 29,
+      "spdim_geodesic": 29
+    },
+    "prediction_hash_complete": true,
+    "prediction_hash_missing_rows": 0,
+    "pretrained_weight_detected": false,
+    "row_count": 116,
+    "single_class_adapt_rows": 0,
+    "single_class_eval_rows": 0,
+    "target_label_leakage_detected": false,
+    "target_performance_method_selection_detected": false,
+    "validation_pass": true,
+    "vendoring_detected": false
+  }
+}

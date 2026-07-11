@@ -1,0 +1,193 @@
+job_id=892883
+array_job_id=892389
+array_task_id=5
+seed=2
+shard_index=1
+shard_id=seed2_shard1
+host=node32
+pwd=/home/infres/yinwang/CMI_AAAI_spdim_clean_a8b9368
+launch_commit=493f649911f354d4deaa307c80be3cb367149fce
+manifest_hash=231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e
+target_spec=Cho2017=21-49
+expected_rows=116
+out_root=/home/infres/yinwang/.cache/h2cmi_training_caches/p9_repaired_seeds12_493f649911f354d4deaa307c80be3cb367149fce
+controller_sha256=3be4f8edabe577b471cf899b17cd1249749092949071334a5c7566a805910207
+runner_sha256=946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8
+config_sha256=6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b
+manifest_csv_sha256=e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712
+external_sha=1b0de0ccd4c48a4ff28f087b866a0b671b029c39
+repo_status_porcelain_begin
+repo_status_porcelain_end
+Sat Jul 11 02:02:20 2026
++-----------------------------------------------------------------------------------------+
+| NVIDIA-SMI 590.48.01              Driver Version: 590.48.01      CUDA Version: 13.1     |
++-----------------------------------------+------------------------+----------------------+
+| GPU  Name                 Persistence-M | Bus-Id          Disp.A | Volatile Uncorr. ECC |
+| Fan  Temp   Perf          Pwr:Usage/Cap |           Memory-Usage | GPU-Util  Compute M. |
+|                                         |                        |               MIG M. |
+|=========================================+========================+======================|
+|   0  NVIDIA A40                     Off |   00000000:3B:00.0 Off |                    0 |
+|  0%   52C    P0             68W /  300W |       0MiB /  46068MiB |      0%      Default |
+|                                         |                        |                  N/A |
++-----------------------------------------+------------------------+----------------------+
+
++-----------------------------------------------------------------------------------------+
+| Processes:                                                                              |
+|  GPU   GI   CI              PID   Type   Process name                        GPU Memory |
+|        ID   ID                                                               Usage      |
+|=========================================================================================|
+|  No running processes found                                                             |
++-----------------------------------------------------------------------------------------+
+runtime_sys_executable=/home/infres/yinwang/anaconda3/envs/icml/bin/python
+runtime_sys_prefix=/home/infres/yinwang/anaconda3/envs/icml
+runtime_python_version=3.9.25
+runtime_pytorch_version=2.8.0+cu128
+runtime_cuda_version=12.8
+runtime_cuda_available=True
+runtime_device=cuda
+runtime_device_name=NVIDIA A40
+runtime_moabb_version=1.2.0
+runtime_mne_version=1.8.0
+runtime_conda_default_env_inherited_label=base
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+Adding metadata with 3 columns
+10520 matching events found
+No baseline correction applied
+epoch=  0 gd-step=  129 trn_loss= 0.6895 trn_score=0.5618 val_loss= 0.6881 val_score=0.5673
+epoch= 10 gd-step= 1419 trn_loss= 0.5960 trn_score=0.6875 val_loss= 0.7118 val_score=0.5916
+epoch= 19 gd-step= 2580 trn_loss= 0.8927 trn_score=0.5443 val_loss= 1.0512 val_score=0.5247
+epoch=  0 gd-step=  129 trn_loss= 0.6900 trn_score=0.5580 val_loss= 0.6952 val_score=0.5504
+epoch= 10 gd-step= 1419 trn_loss= 0.6164 trn_score=0.6593 val_loss= 0.7515 val_score=0.5751
+epoch= 19 gd-step= 2580 trn_loss= 0.5875 trn_score=0.6954 val_loss= 0.7761 val_score=0.5727
+epoch=  0 gd-step=  129 trn_loss= 0.6743 trn_score=0.5758 val_loss= 0.6759 val_score=0.5717
+epoch= 10 gd-step= 1419 trn_loss= 0.6965 trn_score=0.6147 val_loss= 0.8016 val_score=0.5703
+epoch= 19 gd-step= 2580 trn_loss= 0.5348 trn_score=0.7297 val_loss= 0.7148 val_score=0.5838
+epoch=  0 gd-step=  129 trn_loss= 0.6674 trn_score=0.5913 val_loss= 0.6699 val_score=0.5877
+epoch= 10 gd-step= 1419 trn_loss= 0.6292 trn_score=0.6590 val_loss= 0.7593 val_score=0.5688
+epoch= 19 gd-step= 2580 trn_loss= 0.5542 trn_score=0.7121 val_loss= 0.7261 val_score=0.5804
+epoch=  0 gd-step=  129 trn_loss= 0.6662 trn_score=0.5908 val_loss= 0.6697 val_score=0.5843
+epoch= 10 gd-step= 1419 trn_loss= 0.7386 trn_score=0.5918 val_loss= 0.8461 val_score=0.5480
+epoch= 19 gd-step= 2580 trn_loss= 0.6670 trn_score=0.6359 val_loss= 0.8536 val_score=0.5523
+epoch=  0 gd-step=  129 trn_loss= 0.7219 trn_score=0.5326 val_loss= 0.7151 val_score=0.5436
+epoch= 10 gd-step= 1419 trn_loss= 0.5963 trn_score=0.6819 val_loss= 0.6953 val_score=0.6013
+epoch= 19 gd-step= 2580 trn_loss= 0.7511 trn_score=0.5935 val_loss= 0.9349 val_score=0.5436
+epoch=  0 gd-step=  129 trn_loss= 0.6697 trn_score=0.5899 val_loss= 0.6697 val_score=0.5891
+epoch= 10 gd-step= 1419 trn_loss= 0.5976 trn_score=0.6824 val_loss= 0.7185 val_score=0.5887
+epoch= 19 gd-step= 2580 trn_loss= 0.5250 trn_score=0.7422 val_loss= 0.7166 val_score=0.5911
+epoch=  0 gd-step=  129 trn_loss= 0.6700 trn_score=0.5818 val_loss= 0.6688 val_score=0.5824
+epoch= 10 gd-step= 1419 trn_loss= 0.6303 trn_score=0.6605 val_loss= 0.7495 val_score=0.5790
+epoch= 19 gd-step= 2580 trn_loss= 0.5190 trn_score=0.7479 val_loss= 0.6948 val_score=0.6032
+epoch=  0 gd-step=  129 trn_loss= 0.6853 trn_score=0.5597 val_loss= 0.6843 val_score=0.5562
+epoch= 10 gd-step= 1419 trn_loss= 0.5907 trn_score=0.6874 val_loss= 0.7155 val_score=0.5901
+epoch= 19 gd-step= 2580 trn_loss= 0.5326 trn_score=0.7361 val_loss= 0.7046 val_score=0.6042
+epoch=  0 gd-step=  129 trn_loss= 0.6700 trn_score=0.5862 val_loss= 0.6715 val_score=0.5819
+epoch= 10 gd-step= 1419 trn_loss= 0.6956 trn_score=0.6055 val_loss= 0.8050 val_score=0.5630
+epoch= 19 gd-step= 2580 trn_loss= 0.5378 trn_score=0.7260 val_loss= 0.7256 val_score=0.5921
+epoch=  0 gd-step=  129 trn_loss= 0.6762 trn_score=0.5761 val_loss= 0.6819 val_score=0.5707
+epoch= 10 gd-step= 1419 trn_loss= 0.7102 trn_score=0.5999 val_loss= 0.8323 val_score=0.5562
+epoch= 19 gd-step= 2580 trn_loss= 0.7728 trn_score=0.5803 val_loss= 0.9569 val_score=0.5455
+epoch=  0 gd-step=  129 trn_loss= 0.6673 trn_score=0.5976 val_loss= 0.6706 val_score=0.5819
+epoch= 10 gd-step= 1419 trn_loss= 0.5654 trn_score=0.7114 val_loss= 0.6861 val_score=0.5911
+epoch= 19 gd-step= 2580 trn_loss= 0.5182 trn_score=0.7521 val_loss= 0.7098 val_score=0.5901
+epoch=  0 gd-step=  129 trn_loss= 0.6968 trn_score=0.5428 val_loss= 0.6972 val_score=0.5431
+epoch= 10 gd-step= 1419 trn_loss= 0.5924 trn_score=0.6857 val_loss= 0.6893 val_score=0.6119
+epoch= 19 gd-step= 2580 trn_loss= 0.5501 trn_score=0.7129 val_loss= 0.7175 val_score=0.5882
+epoch=  0 gd-step=  129 trn_loss= 0.6810 trn_score=0.5689 val_loss= 0.6790 val_score=0.5770
+epoch= 10 gd-step= 1419 trn_loss= 0.6025 trn_score=0.6812 val_loss= 0.7403 val_score=0.5843
+epoch= 19 gd-step= 2580 trn_loss= 0.6699 trn_score=0.6302 val_loss= 0.8606 val_score=0.5601
+epoch=  0 gd-step=  129 trn_loss= 0.6723 trn_score=0.5849 val_loss= 0.6689 val_score=0.5940
+epoch= 10 gd-step= 1419 trn_loss= 0.5829 trn_score=0.6925 val_loss= 0.6835 val_score=0.6143
+epoch= 19 gd-step= 2580 trn_loss= 0.5199 trn_score=0.7456 val_loss= 0.6891 val_score=0.6143
+epoch=  0 gd-step=  129 trn_loss= 0.6767 trn_score=0.5772 val_loss= 0.6736 val_score=0.5843
+epoch= 10 gd-step= 1419 trn_loss= 0.6705 trn_score=0.6262 val_loss= 0.7953 val_score=0.5741
+epoch= 19 gd-step= 2580 trn_loss= 0.7938 trn_score=0.5791 val_loss= 1.0256 val_score=0.5262
+epoch=  0 gd-step=  129 trn_loss= 0.6637 trn_score=0.6036 val_loss= 0.6675 val_score=0.5945
+epoch= 10 gd-step= 1419 trn_loss= 0.5631 trn_score=0.7068 val_loss= 0.6773 val_score=0.6085
+epoch= 19 gd-step= 2580 trn_loss= 0.5944 trn_score=0.6764 val_loss= 0.8004 val_score=0.5727
+epoch=  0 gd-step=  129 trn_loss= 0.6660 trn_score=0.5900 val_loss= 0.6668 val_score=0.5775
+epoch= 10 gd-step= 1419 trn_loss= 0.5800 trn_score=0.6905 val_loss= 0.6846 val_score=0.6047
+epoch= 19 gd-step= 2580 trn_loss= 0.5432 trn_score=0.7237 val_loss= 0.7258 val_score=0.5824
+epoch=  0 gd-step=  129 trn_loss= 0.6761 trn_score=0.5796 val_loss= 0.6829 val_score=0.5586
+epoch= 10 gd-step= 1419 trn_loss= 0.5859 trn_score=0.6915 val_loss= 0.6907 val_score=0.5853
+epoch= 19 gd-step= 2580 trn_loss= 0.6721 trn_score=0.6217 val_loss= 0.8725 val_score=0.5577
+epoch=  0 gd-step=  129 trn_loss= 0.6854 trn_score=0.5631 val_loss= 0.6791 val_score=0.5678
+epoch= 10 gd-step= 1419 trn_loss= 0.7382 trn_score=0.5912 val_loss= 0.8703 val_score=0.5397
+epoch= 19 gd-step= 2580 trn_loss= 0.5553 trn_score=0.7175 val_loss= 0.7331 val_score=0.5891
+epoch=  0 gd-step=  129 trn_loss= 0.7378 trn_score=0.5147 val_loss= 0.7365 val_score=0.5184
+epoch= 10 gd-step= 1419 trn_loss= 0.6808 trn_score=0.6135 val_loss= 0.8036 val_score=0.5620
+epoch= 19 gd-step= 2580 trn_loss= 0.5905 trn_score=0.6795 val_loss= 0.7768 val_score=0.5780
+epoch=  0 gd-step=  129 trn_loss= 0.6994 trn_score=0.5426 val_loss= 0.6966 val_score=0.5431
+epoch= 10 gd-step= 1419 trn_loss= 0.5961 trn_score=0.6781 val_loss= 0.6966 val_score=0.6003
+epoch= 19 gd-step= 2580 trn_loss= 0.5880 trn_score=0.7035 val_loss= 0.7592 val_score=0.5945
+epoch=  0 gd-step=  129 trn_loss= 0.6753 trn_score=0.5752 val_loss= 0.6760 val_score=0.5703
+epoch= 10 gd-step= 1419 trn_loss= 0.5938 trn_score=0.6783 val_loss= 0.6977 val_score=0.5950
+epoch= 19 gd-step= 2580 trn_loss= 0.5370 trn_score=0.7358 val_loss= 0.7440 val_score=0.5795
+epoch=  0 gd-step=  129 trn_loss= 0.6708 trn_score=0.5930 val_loss= 0.6680 val_score=0.5848
+epoch= 10 gd-step= 1419 trn_loss= 0.6959 trn_score=0.6042 val_loss= 0.8158 val_score=0.5518
+epoch= 19 gd-step= 2580 trn_loss= 0.5588 trn_score=0.7034 val_loss= 0.7411 val_score=0.5930
+epoch=  0 gd-step=  129 trn_loss= 0.6935 trn_score=0.5449 val_loss= 0.6916 val_score=0.5625
+epoch= 10 gd-step= 1419 trn_loss= 0.5822 trn_score=0.6880 val_loss= 0.6872 val_score=0.6095
+epoch= 19 gd-step= 2580 trn_loss= 0.5527 trn_score=0.7218 val_loss= 0.7406 val_score=0.5862
+epoch=  0 gd-step=  129 trn_loss= 0.6666 trn_score=0.5969 val_loss= 0.6636 val_score=0.6041
+epoch= 10 gd-step= 1419 trn_loss= 0.5827 trn_score=0.6870 val_loss= 0.6889 val_score=0.6099
+epoch= 19 gd-step= 2580 trn_loss= 0.5146 trn_score=0.7460 val_loss= 0.6855 val_score=0.5992
+epoch=  0 gd-step=  129 trn_loss= 0.7058 trn_score=0.5402 val_loss= 0.7018 val_score=0.5417
+epoch= 10 gd-step= 1419 trn_loss= 0.6085 trn_score=0.6704 val_loss= 0.7179 val_score=0.6032
+epoch= 19 gd-step= 2580 trn_loss= 0.5157 trn_score=0.7522 val_loss= 0.7079 val_score=0.5887
+epoch=  0 gd-step=  129 trn_loss= 0.6709 trn_score=0.5844 val_loss= 0.6727 val_score=0.5790
+epoch= 10 gd-step= 1419 trn_loss= 0.5755 trn_score=0.6985 val_loss= 0.6741 val_score=0.6071
+epoch= 19 gd-step= 2580 trn_loss= 0.5272 trn_score=0.7409 val_loss= 0.6959 val_score=0.6027
+epoch=  0 gd-step=  129 trn_loss= 0.6983 trn_score=0.5514 val_loss= 0.6933 val_score=0.5528
+epoch= 10 gd-step= 1419 trn_loss= 0.5957 trn_score=0.6782 val_loss= 0.7009 val_score=0.5993
+epoch= 19 gd-step= 2580 trn_loss= 0.5255 trn_score=0.7452 val_loss= 0.6896 val_score=0.6056
