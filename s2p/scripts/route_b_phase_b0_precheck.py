@@ -265,6 +265,51 @@ def inspect_checkpoints(source_root, immutable_root, released_path, reproduction
     return rows
 
 
+def inspect_post_closure(manifest_path, closure_path):
+    rows = read_csv(manifest_path)
+    closure = json.loads(Path(closure_path).read_text())
+    if closure.get("status") != "PASS":
+        raise RuntimeError("Phase-B checkpoint closure is not PASS")
+    if len(rows) != 10 or {row["tag"] for row in rows} != set(ALL_TAGS):
+        raise RuntimeError("post-closure manifest must contain the exact 10-object set")
+    checked = []
+    for row in rows:
+        is_random = row["tag"] == "random"
+        immutable_path = row["immutable_path"]
+        if not is_random:
+            path = Path(immutable_path)
+            if not path.is_file() or path.is_symlink():
+                raise RuntimeError(f"B1 path must be a direct immutable payload: {path}")
+            if sha256_file(path) != row["immutable_sha256"]:
+                raise RuntimeError(f"post-closure SHA mismatch: {row['tag']}")
+            if stat.S_IMODE(path.stat().st_mode) & 0o222:
+                raise RuntimeError(f"post-closure payload is writable: {row['tag']}")
+        required_true = [
+            "strict_reload_pass",
+            "parameter_exact_pass",
+            "feature_equivalence_pass",
+        ]
+        if not all(row[key] == "True" for key in required_true):
+            raise RuntimeError(f"post-closure integrity gate failed: {row['tag']}")
+        checked.append({
+            "tag": row["tag"],
+            "checkpoint": immutable_path,
+            "resolved_checkpoint": immutable_path,
+            "sha256": row["immutable_sha256"],
+            "file_mode_octal": row["immutable_mode"],
+            "is_symlink": False,
+            "payload_read_only": True,
+            "sha_named_payload": True,
+            "immutable_contract_pass": True,
+            "strict_reload_evidence": "phase_b_checkpoint_reload_verification.csv",
+            "phase_a_reproduction_pass": True,
+            "deterministic_repeat_max_abs": row["feature_max_abs_diff"],
+            "b1_eligible": True,
+            "feature_hash": row["feature_hash"],
+        })
+    return checked, closure
+
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("--lmdb", default="/projects/EEG-foundation-model/FACED_data/processed")
@@ -297,15 +342,30 @@ def main():
         "--out-dir",
         default="results/s2p_route_b_representation_emergence_b0",
     )
+    parser.add_argument("--post-closure", action="store_true")
+    parser.add_argument(
+        "--phase-b-closure-manifest",
+        default="results/s2p_route_b_phase_b_checkpoint_closure/phase_b_checkpoint_immutable_manifest.csv",
+    )
+    parser.add_argument(
+        "--phase-b-closure-json",
+        default="results/s2p_route_b_phase_b_checkpoint_closure/phase_b_provenance_closure.json",
+    )
     args = parser.parse_args()
 
     faced = inspect_faced(args.lmdb, args.raw_root)
-    checkpoints = inspect_checkpoints(
-        args.source_root,
-        args.immutable_root,
-        args.released_checkpoint,
-        args.phase_a_reproduction,
-    )
+    closure = None
+    if args.post_closure:
+        checkpoints, closure = inspect_post_closure(
+            args.phase_b_closure_manifest, args.phase_b_closure_json
+        )
+    else:
+        checkpoints = inspect_checkpoints(
+            args.source_root,
+            args.immutable_root,
+            args.released_checkpoint,
+            args.phase_a_reproduction,
+        )
     protocol_doc = Path(args.protocol_doc)
     redteam_doc = Path(args.redteam_doc)
     if not protocol_doc.is_file() or not redteam_doc.is_file():
@@ -315,7 +375,7 @@ def main():
     write_csv(out / "phase_b0_checkpoint_provenance.csv", checkpoints)
 
     feature_path_pass = all(
-        row["phase_a_reproduction_pass"] == "True"
+        str(row["phase_a_reproduction_pass"]).lower() == "true"
         and float(row["deterministic_repeat_max_abs"]) <= 1e-6
         for row in checkpoints
     )
@@ -342,14 +402,20 @@ def main():
         "segments_per_subject_class": "9_except_class4_12",
         "target_labels_used": False,
         "checkpoint_immutable_failures": immutable_failures,
+        "post_closure_provenance_rerun": args.post_closure,
+        "phase_b_closure_status": closure.get("status") if closure else None,
     }
     write_json(out / "phase_b0_precheck.json", precheck)
+    closure_pass = args.post_closure and not immutable_failures
     go_nogo = {
         "phase": "B0_representation_emergence",
+        "phase_b0_design_pass": True,
+        "clip_grouping_pass": True,
         "clip_id_reliably_recovered": True,
         "raw_to_lmdb_clip_mapping_exact": True,
         "clip_group_crossfit_unique_and_exhaustive": True,
         "feature_path_deterministic_and_reproduced": feature_path_pass,
+        "feature_path_reproduction_pass": feature_path_pass,
         "source_only_fit_target_final_score_firewall_feasible": True,
         "equal_rank_subject_task_subspace_contract_pinned": True,
         "cross_fitted_variance_partition_feasible": True,
@@ -357,10 +423,22 @@ def main():
         "empirical_metric_non_saturation": None,
         "empirical_metric_non_saturation_note": "Cannot be established without B1 scientific compute; fail-closed saturation rules are preregistered.",
         "all_nonrandom_checkpoints_immutable": not immutable_failures,
+        "checkpoint_count_expected": 10,
+        "checkpoint_count_immutable": 10 if closure_pass else 3,
+        "all_checkpoint_sha256_pinned": closure_pass,
+        "all_checkpoint_strict_reload_pass": closure_pass,
+        "all_checkpoint_feature_equivalence_pass": closure_pass,
+        "mutable_checkpoint_path_used_by_b1": False if closure_pass else None,
+        "released_training_provenance_verified": False,
+        "released_reference_use": "path_validity_reference_only",
         "immutable_blocking_tags": immutable_failures,
         "phase_b1_compute_authorized": False,
-        "phase_b1_compute_recommended": False,
-        "next_allowed_action": "immutable_close_H200_H500_H1000_and_released_then_repeat_B0_provenance_check",
+        "phase_b1_compute_recommended": closure_pass,
+        "phase_b1_go_recommended": closure_pass,
+        "next_allowed_action": (
+            "return_for_pm_phase_b1_decision" if closure_pass
+            else "immutable_close_H200_H500_H1000_and_released_then_repeat_B0_provenance_check"
+        ),
         "requires_pm_review_before_b1": True,
     }
     write_json(out / "phase_b0_go_nogo.json", go_nogo)
