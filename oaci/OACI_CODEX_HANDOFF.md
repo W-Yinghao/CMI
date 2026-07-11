@@ -28,7 +28,7 @@ C79E primary-output freeze:   cfd57cc
 C79E scientific red team:     439c8c5
 C79E result report:           7dee4be
 C79E audit namespace repair:  e48edda
-C79E final validation:        f516c1b
+C79E final validation:        a12dc8b
 C79E final gate:              C79-E_seed4_does_not_replicate_either_core_pattern
 scientific red team:          17 / 17
 final-report red team:        27 / 27
@@ -213,7 +213,7 @@ overstatements. Expect to be wrong on the first read; the controls exist to catc
 
 - **Repo:** `git@github.com:W-Yinghao/CMI.git`  ·  **Branch:** `oaci` (fully pushed).
 - **Worktree on the lab machine:** `/home/infres/yinwang/CMI_AAAI_oaci`.
-- **C79E final validation = `f516c1b`**; protocol = `ec4834c`, protocol SHA = `e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587`, field/analysis locks = `35d0c65` / `7cebf2e`, authorization record = `b67ba6c`, scientific red team = `439c8c5`.
+- **C79E final validation = `a12dc8b`**; protocol = `ec4834c`, protocol SHA = `e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587`, field/analysis locks = `35d0c65` / `7cebf2e`, authorization record = `b67ba6c`, scientific red team = `439c8c5`.
 - **C78S implementation = `e561a15`**, scope-specific lock = `ce1fb14`, result = `43a046c`, handoff = `48be5b7`, regression-provenance correction = `dcd4c28`; all are unsquashed.
 - **C78F result = `51022f4`**; protocol/lock/repair anchors are `1d210fd`, `a902966`, and `f0d49c2`.
 - C31 remains `611988f`; the complete C23–C78S trail is retained unsquashed on `origin/oaci`.

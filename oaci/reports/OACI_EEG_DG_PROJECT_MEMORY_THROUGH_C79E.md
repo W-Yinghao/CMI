@@ -26,7 +26,7 @@ primary-output freeze:        cfd57cc
 scientific red team:          439c8c5
 result report:                7dee4be
 audit namespace repair:       e48edda
-final validation:             f516c1b
+final validation:             a12dc8b
 ```
 
 The historical C79 protocol hash remains preserved but timing-invalid for
