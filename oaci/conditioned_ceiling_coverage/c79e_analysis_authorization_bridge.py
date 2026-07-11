@@ -45,10 +45,11 @@ def build_runtime_analysis_lock() -> tuple[dict[str, Any], str, dict[str, Any]]:
     if record["analysis_lock_sha256"] != analysis_sha or not record["direct_explicit_PI_authorization"]:
         raise PermissionError("C79E analysis authorization record does not bind the locked analysis")
 
+    record_path = str(c79p.AUTHORIZATION_RECORD_PATH.relative_to(c79p.REPO_ROOT))
     expected_unreceived = {
         "C79E_required": True,
         "received": False,
-        "record_path": str(c79p.AUTHORIZATION_RECORD_PATH),
+        "record_path": record_path,
     }
     if analysis_lock["authorization"] != expected_unreceived:
         raise RuntimeError("C79E parent analysis authorization schema drift")
