@@ -2,3 +2,6 @@ attempt_id,job_id,stage,target,status,EEG_data_loaded,source_EEG_rows,target_row
 1,893354,oaci_erm_pretraining_manifest_route,4,FAILED,1,3456,0,0,0,0,0,0,compatibility_manifest_name_missing,pending
 2,893355,src_training,4,CANCELLED_DEPENDENCY,0,0,0,0,0,0,0,0,predecessor_893354_failed,none
 3,893356,instrumentation,4,CANCELLED_DEPENDENCY,0,0,0,0,0,0,0,0,predecessor_893355_cancelled,none
+4,893359,oaci_erm_training,4,COMPLETE,1,3456,0,0,registered,82,0,0,manifest_alias_repair_valid,first_valid
+5,893360,src_training,4,COMPLETE,1,3456,0,0,registered,80,0,0,none,first_valid
+6,893361,target4_instrumentation_spawn_binding,4,FAILED,1,4608,576,0,0,0,0,0,spawn_child_reloaded_default_C78F_target_registry,pending
