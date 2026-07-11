@@ -1,0 +1,5 @@
+target,oaci_erm_job,oaci_erm_node,src_job,src_node,instrumentation_job,oaci_erm_units,src_units,instrumented_units,source_rows,target_unlabeled_rows,workers,threads_per_worker,max_identity_abs,max_softmax_abs,max_hook_abs,max_repeat_logits,max_repeat_z,failed_units,target_training_label_reads,scientific_outcomes_read,engineering_passed,instrumentation_manifest_sha256
+5,893522,node09,893571,node09,893573,82,80,162,746496,93312,1,48,0,0,0,0,0,0,0,0,1,65015cae00877b49637ce115c7e3faee746fa65b3079ba9336ba97986c5f48b5
+2,893523,node43,893572,node43,893574,82,80,162,746496,93312,1,48,0,0,0,0,0,0,0,0,1,d64acadb80cf5617c1e32e807818172bf792a5aad20641c751a24c8c4856f36b
+7,893524,node08,893575,node08,893581,82,80,162,746496,93312,1,48,0,0,0,0,0,0,0,0,1,abd3c24c9e8c80a61b4f8bb8688178b3a2dd976fc8581ca9c955cef44ed38d21
+1,893525,node15,893576,node15,893586,82,80,162,746496,93312,1,48,0,0,0,0,0,0,0,0,1,68adf1248770156cff8729ebda70b8d08b4d9cfd9317ab41a5cdae3b1f45b08a

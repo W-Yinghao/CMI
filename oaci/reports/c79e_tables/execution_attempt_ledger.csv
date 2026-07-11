@@ -24,3 +24,16 @@ attempt_id,job_id,stage,target,status,EEG_data_loaded,source_EEG_rows,target_row
 23,893467,instrumentation,3,COMPLETE,1,4608,576,0,0,0,93312,0,none,first_valid
 24,893470,instrumentation,6,COMPLETE,1,4608,576,0,0,0,93312,0,none,first_valid
 25,893498,wave_A_engineering_gate,all,COMPLETE,0,0,0,0,0,0,0,0,engineering_only_648_units,first_valid
+26,893522,oaci_erm_training,5,COMPLETE,1,3456,0,0,registered,82,0,0,none,first_valid
+27,893523,oaci_erm_training,2,COMPLETE,1,3456,0,0,registered,82,0,0,none,first_valid
+28,893524,oaci_erm_training,7,COMPLETE,1,3456,0,0,registered,82,0,0,none,first_valid
+29,893525,oaci_erm_training,1,COMPLETE,1,3456,0,0,registered,82,0,0,none,first_valid
+30,893571,src_training,5,COMPLETE,1,3456,0,0,registered,80,0,0,predecessor_node_affinity,first_valid
+31,893572,src_training,2,COMPLETE,1,3456,0,0,registered,80,0,0,predecessor_node_affinity,first_valid
+32,893575,src_training,7,COMPLETE,1,3456,0,0,registered,80,0,0,predecessor_node_affinity,first_valid
+33,893576,src_training,1,COMPLETE,1,3456,0,0,registered,80,0,0,predecessor_node_affinity,first_valid
+34,893573,instrumentation,5,COMPLETE,1,4608,576,0,0,0,93312,0,none,first_valid
+35,893574,instrumentation,2,COMPLETE,1,4608,576,0,0,0,93312,0,none,first_valid
+36,893581,instrumentation,7,COMPLETE,1,4608,576,0,0,0,93312,0,none,first_valid
+37,893586,instrumentation,1,COMPLETE,1,4608,576,0,0,0,93312,0,none,first_valid
+38,893595,wave_B_engineering_gate,all,COMPLETE,0,0,0,0,0,0,0,0,engineering_only_648_units,first_valid
