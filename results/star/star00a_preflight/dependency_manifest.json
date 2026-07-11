@@ -1,0 +1,92 @@
+{
+  "authority_files": [
+    {
+      "path": "docs/S2P_16_ROUTE_B_TRAINING_PROTOCOL.md",
+      "sha256": "3ff51dd78ce92fe6dea7fa59f534b33acd5b4980f4337985f039d5db385def0c"
+    },
+    {
+      "path": "docs/S2P_17_ROUTE_B_FINAL_RESULTS.md",
+      "sha256": "f6de9cf514dfa92130da41b912fe5177fb0dcb0e6c42c86607bea3f50ded50a3"
+    },
+    {
+      "path": "docs/S2P_18_ROUTE_B_CLAIM_LEDGER.md",
+      "sha256": "57dad4a76ef1e9b63f06218bc55278b89aba10f9e90237e56385fd8460315237"
+    },
+    {
+      "path": "docs/S2P_19_NEXT_STAGE_SCIENTIFIC_EXPLORATION_PLAN.md",
+      "sha256": "32d493c43cf92990aeabe8af46964f3f4343f763f331105b32e2fe8cc788acc5"
+    },
+    {
+      "path": "docs/S2P_20_H2000_IMMUTABLE_CLOSURE_PROTOCOL.md",
+      "sha256": "10ec08002999173f785c1171de2cbc79636a381e29a47330e849352f09ea2de0"
+    },
+    {
+      "path": "s2p/scripts/run_frontier_cbramod.py",
+      "sha256": "b563bc0e2e251c8206c721908645f7e1e7faa3f649e5dcd265e55e8627f7f520"
+    },
+    {
+      "path": "s2p/scripts/tueg_subject_loader.py",
+      "sha256": "98a8cb66bcc4ced142f8d562bdd4148572b936d0bde03f4b5ce3111da2b8c50d"
+    },
+    {
+      "path": "s2p/scripts/route_b_33ch_loader.py",
+      "sha256": "db33ef963db2ba612e1bfabaf671aa4f7958d9441e7e3ea51dbedf57ff95f32f"
+    },
+    {
+      "path": "s2p/scripts/route_b_train_cbramod.py",
+      "sha256": "10d73a018777fbf3999155701816005fa36af68d219483248c2a27a284388919"
+    },
+    {
+      "path": "s2p/scripts/route_b_faced_downstream_audit.py",
+      "sha256": "e2e314b2b0a8ff38e48e169f13e9916aead218da7c01d2a5fe097ebab9167de9"
+    },
+    {
+      "path": "s2p/scripts/route_b_faced_final_verification.py",
+      "sha256": "d1a47c8c5803b958d2989add94a84fa02e3968cbce9437e280cf0fce0d06c8c0"
+    },
+    {
+      "path": "results/s2p_route_b_33ch_b1_faced/faced_checkpoint_manifest.csv",
+      "sha256": "72d3457d3dd5916eaa282826183e794dec2273e9fe85d9d1f742569a27be7042"
+    },
+    {
+      "path": "results/s2p_route_b_h2000_immutable_closure/h2000_immutable_checkpoint_manifest.json",
+      "sha256": "8f0e0ddf75d5ee7f437fc23219dc4d3564c9e2e95cd7b717c68c753a7d384b72"
+    }
+  ],
+  "boundary": {
+    "branch_merge_base": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+    "checks": {
+      "all_non_star_tracked_paths_unchanged": true,
+      "current_dependency_ref_contains_required_commit": true,
+      "dependency_is_merge_base": true,
+      "h2cmi_files_unchanged": true,
+      "no_unexpected_untracked_paths": true,
+      "oaci_files_unchanged": true,
+      "observability_files_unchanged": true,
+      "s2p_scientific_files_unchanged": true,
+      "star_branch_exact": true
+    },
+    "dependency_commit_expected": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+    "dependency_commit_observed": "22595b1e0a22d8c4861c59609cd68548d4a23b9a",
+    "dependency_commit_observed_at_start": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+    "dependency_remote_advanced_after_verified_start": true,
+    "dependency_remote_exact_at_preflight": false,
+    "h2cmi_files_modified": [],
+    "oaci_files_modified": [],
+    "observability_files_modified": [],
+    "protected_files_modified": [],
+    "required_dependency_was_not_replaced": true,
+    "s2p_files_modified": [],
+    "star_branch": "project/star-task-anchor",
+    "start_time_exact_verification_pass": true,
+    "status": "PASS",
+    "unexpected_changed_paths": [],
+    "unexpected_untracked_paths": []
+  },
+  "dependency_commit": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "dependency_manifest_hash": "069f0067d970d84ae9ac50e60089a82f3696fca0e96b93d751e06ecbbf2a16ac",
+  "s2p_behavior_modified": false,
+  "schema_version": 1,
+  "stable_s2p_utilities_import_only": true,
+  "star_branch": "project/star-task-anchor"
+}

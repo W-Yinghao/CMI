@@ -1,0 +1,72 @@
+{
+  "anchor_step_fraction": 0.2,
+  "base_learning_rate": 0.0005,
+  "batch_size": 64,
+  "checkpoint_save_steps": [
+    750,
+    1500,
+    2250,
+    3000,
+    3750
+  ],
+  "checks": {
+    "anchor_fraction_exact": true,
+    "equal_total_batches": true,
+    "equal_total_steps": true,
+    "ssl_cont_replaces_every_anchor_slot": true,
+    "true_shuffled_semantic_schedule_identical": true,
+    "true_shuffled_update_schedule_identical": true
+  },
+  "compute_match_hash": "08605c5122412f2562c69c50e1ba25c18042088fd74315a5556986a6b9e50d21",
+  "continuation_fraction_of_original_h200_updates": 0.2,
+  "cycle": [
+    "ssl",
+    "ssl",
+    "ssl",
+    "ssl",
+    "anchor_slot"
+  ],
+  "diagnostic_best_pretrain_val_selects_primary": false,
+  "optimizer_family": "AdamW",
+  "original_h200_optimizer_steps": 18750,
+  "primary_checkpoint_selection": "fixed_final_optimizer_step",
+  "primary_checkpoint_step": 3750,
+  "same_base_schedule": true,
+  "same_optimizer_parameter_registry": true,
+  "same_start_checkpoint_within_seed": true,
+  "same_tueg_h200_route_b_source_pool_within_seed": true,
+  "scheduler": "CosineAnnealingLR_by_optimizer_step",
+  "scheduler_eta_min": 1e-05,
+  "schema_version": 1,
+  "shared_ssl_slots_use_identical_common_stream_indices": true,
+  "ssl_cont_anchor_slots_use_separate_replacement_ssl_stream": true,
+  "summaries": {
+    "H200_SSL_CONT": {
+      "anchor_steps": 0,
+      "common_ssl_steps": 3000,
+      "optimizer_steps": 3750,
+      "replacement_ssl_steps": 750,
+      "schedule_hash": "7e65ccc9c1a5e649dbb99c8e0a76f9d42c547cffb041504f9c702ad12c78c69c",
+      "total_batches": 3750
+    },
+    "H200_STAR_SHUFFLED": {
+      "anchor_steps": 750,
+      "common_ssl_steps": 3000,
+      "optimizer_steps": 3750,
+      "replacement_ssl_steps": 0,
+      "schedule_hash": "82abd7ae9c78456ffa26ecfa1a32dabd35bf5cdb016048ae52ad8ae42e68ceca",
+      "total_batches": 3750
+    },
+    "H200_STAR_TRUE": {
+      "anchor_steps": 750,
+      "common_ssl_steps": 3000,
+      "optimizer_steps": 3750,
+      "replacement_ssl_steps": 0,
+      "schedule_hash": "82abd7ae9c78456ffa26ecfa1a32dabd35bf5cdb016048ae52ad8ae42e68ceca",
+      "total_batches": 3750
+    }
+  },
+  "total_optimizer_steps": 3750,
+  "unit": "optimizer_step",
+  "weight_decay": 0.05
+}

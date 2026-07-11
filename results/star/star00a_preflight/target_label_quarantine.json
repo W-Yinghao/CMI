@@ -1,0 +1,28 @@
+{
+  "checks": {
+    "anchor_api_has_source_y": true,
+    "source_train_labels_only_for_gradient": true,
+    "source_val_labels_for_gradient_forbidden": true,
+    "target_class_distribution_during_training_forbidden": true,
+    "target_labels_before_final_scoring_forbidden": true,
+    "target_y_absent_from_training_signatures": true
+  },
+  "status": "PASS",
+  "target_labels_final_scoring_only_in_future_star01": true,
+  "training_forbidden_reads": [
+    "FACED_source_val_labels_for_gradient",
+    "FACED_target_test_labels",
+    "target_metrics",
+    "target_class_distribution"
+  ],
+  "training_function_signatures": {
+    "source_task_anchor_step": "(adapter: star_eeg.objectives.task_anchor.TinyEncoderAdapter, task_head: star_eeg.objectives.task_anchor.TemporaryTaskHead, source_x: Sequence[float], source_y: Sequence[int], learning_rate: float = 0.01) -> Dict[str, object]",
+    "ssl_step": "(adapter: star_eeg.objectives.task_anchor.TinyEncoderAdapter, source_x: Sequence[float], learning_rate: float = 0.01) -> Dict[str, object]"
+  },
+  "training_reads": [
+    "TUEG_unlabeled",
+    "FACED_source_train_X",
+    "FACED_source_train_y"
+  ],
+  "violations": {}
+}

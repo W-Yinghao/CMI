@@ -1,0 +1,42 @@
+{
+  "artifacts": [
+    "run_manifest.json",
+    "dependency_manifest.json",
+    "checkpoint_inventory.json",
+    "faced_split_contract.json",
+    "anchor_manifest_preview.json",
+    "shuffled_manifest_preview.json",
+    "compute_match_contract.json",
+    "target_label_quarantine.json",
+    "no_forbidden_method_guard.json",
+    "preflight_summary.json"
+  ],
+  "checkpoint_access": "read_only_hash_and_strict_reload",
+  "checkpoint_selected_using_target_labels": false,
+  "dependency_commit": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "faced_target_metric_computed": false,
+  "phase": "STAR_00A",
+  "project": "STAR-EEG",
+  "python_executable": "/home/infres/yinwang/anaconda3/envs/icml/bin/python",
+  "real_eeg_loaded": false,
+  "real_training_run": false,
+  "run_manifest_hash": "0a1f4de21cb1ab36e7dd37537647f40523020c925739b0b304b4d1a2c2d0316d",
+  "schema_version": 1,
+  "scope": "design_artifact_inventory_implementation_scaffold_red_team_preflight",
+  "slurm_launched": false,
+  "star01_approved": false,
+  "star_branch": "project/star-task-anchor",
+  "synthetic_training_step_smoke": {
+    "adapter": "tiny_cbramod_compatible_mock",
+    "finite_gradients": true,
+    "finite_losses": true,
+    "real_eeg_used": false,
+    "scientific_metric_computed": false,
+    "ssl_loss": 0.013749999999999993,
+    "ssl_steps": 1,
+    "status": "PASS",
+    "task_anchor_loss": 1.0822825818196689,
+    "task_anchor_steps": 1,
+    "temporary_task_head_discarded": true
+  }
+}

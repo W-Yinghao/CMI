@@ -1,0 +1,201 @@
+{
+  "anchor_manifest_hash": "8dff4eaad88514d915aed0a0a78f0bc9a0e901a6ca513462f0762fa8a4703896",
+  "dataset": "FACED",
+  "dataset_manifest_hash": "07802357d7161cba96f9c68b1082fe03bd47f17aa47872fc9b1367a03e8037ff",
+  "faced_split_hash": "9ca8d6ecd8294a3af7c4fb1044768c4dc8c3bcdde3d389ab6d1685ec5ae0f460",
+  "n_classes": 9,
+  "n_records": 30,
+  "preview_only": true,
+  "real_eeg_loaded": false,
+  "records": [
+    {
+      "label": 0,
+      "sample_id": "synthetic-sub001-00",
+      "split": "source_train",
+      "subject": 1
+    },
+    {
+      "label": 1,
+      "sample_id": "synthetic-sub001-01",
+      "split": "source_train",
+      "subject": 1
+    },
+    {
+      "label": 2,
+      "sample_id": "synthetic-sub001-02",
+      "split": "source_train",
+      "subject": 1
+    },
+    {
+      "label": 3,
+      "sample_id": "synthetic-sub001-03",
+      "split": "source_train",
+      "subject": 1
+    },
+    {
+      "label": 4,
+      "sample_id": "synthetic-sub001-04",
+      "split": "source_train",
+      "subject": 1
+    },
+    {
+      "label": 4,
+      "sample_id": "synthetic-sub001-05",
+      "split": "source_train",
+      "subject": 1
+    },
+    {
+      "label": 5,
+      "sample_id": "synthetic-sub001-06",
+      "split": "source_train",
+      "subject": 1
+    },
+    {
+      "label": 6,
+      "sample_id": "synthetic-sub001-07",
+      "split": "source_train",
+      "subject": 1
+    },
+    {
+      "label": 7,
+      "sample_id": "synthetic-sub001-08",
+      "split": "source_train",
+      "subject": 1
+    },
+    {
+      "label": 8,
+      "sample_id": "synthetic-sub001-09",
+      "split": "source_train",
+      "subject": 1
+    },
+    {
+      "label": 0,
+      "sample_id": "synthetic-sub002-00",
+      "split": "source_train",
+      "subject": 2
+    },
+    {
+      "label": 1,
+      "sample_id": "synthetic-sub002-01",
+      "split": "source_train",
+      "subject": 2
+    },
+    {
+      "label": 2,
+      "sample_id": "synthetic-sub002-02",
+      "split": "source_train",
+      "subject": 2
+    },
+    {
+      "label": 3,
+      "sample_id": "synthetic-sub002-03",
+      "split": "source_train",
+      "subject": 2
+    },
+    {
+      "label": 4,
+      "sample_id": "synthetic-sub002-04",
+      "split": "source_train",
+      "subject": 2
+    },
+    {
+      "label": 4,
+      "sample_id": "synthetic-sub002-05",
+      "split": "source_train",
+      "subject": 2
+    },
+    {
+      "label": 5,
+      "sample_id": "synthetic-sub002-06",
+      "split": "source_train",
+      "subject": 2
+    },
+    {
+      "label": 6,
+      "sample_id": "synthetic-sub002-07",
+      "split": "source_train",
+      "subject": 2
+    },
+    {
+      "label": 7,
+      "sample_id": "synthetic-sub002-08",
+      "split": "source_train",
+      "subject": 2
+    },
+    {
+      "label": 8,
+      "sample_id": "synthetic-sub002-09",
+      "split": "source_train",
+      "subject": 2
+    },
+    {
+      "label": 0,
+      "sample_id": "synthetic-sub003-00",
+      "split": "source_train",
+      "subject": 3
+    },
+    {
+      "label": 1,
+      "sample_id": "synthetic-sub003-01",
+      "split": "source_train",
+      "subject": 3
+    },
+    {
+      "label": 2,
+      "sample_id": "synthetic-sub003-02",
+      "split": "source_train",
+      "subject": 3
+    },
+    {
+      "label": 3,
+      "sample_id": "synthetic-sub003-03",
+      "split": "source_train",
+      "subject": 3
+    },
+    {
+      "label": 4,
+      "sample_id": "synthetic-sub003-04",
+      "split": "source_train",
+      "subject": 3
+    },
+    {
+      "label": 4,
+      "sample_id": "synthetic-sub003-05",
+      "split": "source_train",
+      "subject": 3
+    },
+    {
+      "label": 5,
+      "sample_id": "synthetic-sub003-06",
+      "split": "source_train",
+      "subject": 3
+    },
+    {
+      "label": 6,
+      "sample_id": "synthetic-sub003-07",
+      "split": "source_train",
+      "subject": 3
+    },
+    {
+      "label": 7,
+      "sample_id": "synthetic-sub003-08",
+      "split": "source_train",
+      "subject": 3
+    },
+    {
+      "label": 8,
+      "sample_id": "synthetic-sub003-09",
+      "split": "source_train",
+      "subject": 3
+    }
+  ],
+  "schema_version": 1,
+  "source_val_records_present": false,
+  "split": "source_train",
+  "subjects": [
+    1,
+    2,
+    3
+  ],
+  "target_records_present": false
+}

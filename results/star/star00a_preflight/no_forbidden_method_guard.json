@@ -1,0 +1,22 @@
+{
+  "active_import_paths": [
+    "star_eeg.objectives.alternating_schedule",
+    "star_eeg.objectives.task_anchor",
+    "s2p.scripts.route_b_33ch_loader"
+  ],
+  "active_registry": {
+    "ssl_objective": "native_cbramod_ssl",
+    "target_data_access": "none",
+    "task_head": "temporary_linear_head",
+    "task_objective": "source_task_cross_entropy"
+  },
+  "checks": {
+    "active_import_path_clear": true,
+    "active_registry_clear": true,
+    "target_data_access_disabled": true
+  },
+  "import_violations": {},
+  "registry_violations": {},
+  "scope": "active_registry_config_and_import_path_only",
+  "status": "PASS"
+}

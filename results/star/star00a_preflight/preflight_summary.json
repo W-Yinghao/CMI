@@ -1,0 +1,78 @@
+{
+  "anchor_manifest_preview_hash": "8dff4eaad88514d915aed0a0a78f0bc9a0e901a6ca513462f0762fa8a4703896",
+  "checkpoint_immutability": {
+    "checks": {
+      "all_declared_entries_present": true,
+      "all_payload_paths_exist": true,
+      "all_strict_reload_pass": true,
+      "h200_complete_provenance": true,
+      "h200_count_exact": true,
+      "h200_only_star_starts": true,
+      "inventory_paths_stable": true,
+      "repeated_sha_identical": true
+    },
+    "h200_start_checkpoints_ready": true,
+    "star01_artifact_status": "READY_FOR_PM_REVIEW",
+    "status": "PASS"
+  },
+  "checkpoint_inventory_hash": "89fc5d73ad6864f9f4835118100c6b0955720f1f1d76ad22a7105d01ddab87d9",
+  "compute_match_hash": "08605c5122412f2562c69c50e1ba25c18042088fd74315a5556986a6b9e50d21",
+  "compute_match_red_team": {
+    "checks": {
+      "anchor_fraction_exact": true,
+      "equal_total_batches": true,
+      "equal_total_steps": true,
+      "primary_is_fixed_final_step": true,
+      "schedule_deterministic": true,
+      "scheduler_defined_by_optimizer_step": true,
+      "source_val_does_not_select_primary": true,
+      "ssl_cont_replaces_every_anchor_slot": true,
+      "true_shuffled_semantic_schedule_identical": true,
+      "true_shuffled_update_schedule_identical": true
+    },
+    "compute_match_hash": "08605c5122412f2562c69c50e1ba25c18042088fd74315a5556986a6b9e50d21",
+    "status": "PASS"
+  },
+  "dependency_commit": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "dependency_manifest_hash": "069f0067d970d84ae9ac50e60089a82f3696fca0e96b93d751e06ecbbf2a16ac",
+  "faced_split_hash": "9ca8d6ecd8294a3af7c4fb1044768c4dc8c3bcdde3d389ab6d1685ec5ae0f460",
+  "h200_start_checkpoints_ready": true,
+  "h2cmi_files_modified": [],
+  "infrastructure_pass": true,
+  "oaci_files_modified": [],
+  "preflight_determinism": "PASS",
+  "preflight_summary_hash": "144ef29485ba6349a9c3b20bba3e825d21d7e12a712c07d1dce25fae28ebf879",
+  "real_training_run": false,
+  "red_team": {
+    "checkpoint_immutability": "PASS",
+    "compute_match": "PASS",
+    "dependency_boundary": "PASS",
+    "faced_split_firewall": "PASS",
+    "no_forbidden_method_guard": "PASS",
+    "shuffled_control": "PASS",
+    "synthetic_training_step_smoke": "PASS",
+    "target_label_quarantine": "PASS"
+  },
+  "s2p_files_modified": [],
+  "shuffled_manifest_preview_hash": "03275a9fe3b74271ea970adb39cf9bc1b6a29e070bede8f79100794363ade35e",
+  "shuffled_manifest_red_team": {
+    "checks": {
+      "fixed_manifest_hash": true,
+      "no_epoch_reshuffle": true,
+      "permutation_rng_separate": true,
+      "same_semantic_contract_both_model_seeds": true,
+      "source_train_only": true,
+      "source_val_excluded": true,
+      "target_test_excluded": true,
+      "within_subject_histograms_preserved": true
+    },
+    "shuffled_manifest_hash": "03275a9fe3b74271ea970adb39cf9bc1b6a29e070bede8f79100794363ade35e",
+    "status": "PASS"
+  },
+  "star01_approved": false,
+  "star01_artifact_status": "READY_FOR_PM_REVIEW",
+  "star_branch": "project/star-task-anchor",
+  "status": "PASS",
+  "target_label_quarantine": "PASS",
+  "target_metrics_computed": false
+}
