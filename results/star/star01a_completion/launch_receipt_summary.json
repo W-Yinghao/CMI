@@ -1,0 +1,52 @@
+{
+  "all_six_submitted_together": true,
+  "approval_file_sha256": "01b8118be1ec08a3b32660693e8ced471d27a88e419ac5836f444476b1242eb9",
+  "approval_manifest_hash": "b8e7a4f2f90c8043b616d8b6209a065769cf573825b5bd5acbbe0a08d2e45b67",
+  "approved_branch": "project/star-task-anchor",
+  "approved_cells": [
+    "H200_SSL_CONT_s0",
+    "H200_SSL_CONT_s1",
+    "H200_STAR_TRUE_s0",
+    "H200_STAR_TRUE_s1",
+    "H200_STAR_SHUFFLED_s0",
+    "H200_STAR_SHUFFLED_s1"
+  ],
+  "approved_execution_commit": "0cdcbfed1bb8f783f295e252476a6432b8eb6ba6",
+  "array_job_id": "893038",
+  "array_submission_file_sha256": "a86aebfbe80c6a31011672b1ff252d8da71d3819cd689f9e087a6cacca5b1c03",
+  "array_submission_hash": "d09aaf5679d492bc3742e0f497038ac580f8714bf9a64852234aae3f67d900ae",
+  "array_task_ids": [
+    "893038_0",
+    "893038_1",
+    "893038_2",
+    "893038_3",
+    "893038_4",
+    "893038_5"
+  ],
+  "attempt_id": "attempt_01",
+  "closure_dependency": "afterok:893038",
+  "closure_job_id": "893039",
+  "derivation": "read-only summary of immutable runtime launch metadata",
+  "effective_pending_task_eligibility_after_pm_amendment": [
+    "A40",
+    "A100",
+    "H100",
+    "L40S"
+  ],
+  "frozen_s2p_dependency_commit": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "initial_partition": "A40",
+  "launch_receipt_file_sha256": "ba983707e897aa440ebb9ee61dd154852b127ab703c087b9eb33d2f3ba8e9b39",
+  "launch_receipt_hash": "3ee68baadfe389e957d655ecf3c2a3283aed1cac1a5ed80d7abcc8233178a548",
+  "phase": "STAR_01A_BLIND_SIX_CELL_TRAINING_LAUNCH_SUMMARY",
+  "project": "STAR-EEG",
+  "scheduler_amendment_ledger": "star01a_scheduler_event_ledger.json",
+  "schema_version": 1,
+  "single_array_launch_only": true,
+  "source_runtime_artifacts": {
+    "approval": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star01_control/attempt_01/star01a_approval.b8e7a4f2f90c8043b616d8b6209a065769cf573825b5bd5acbbe0a08d2e45b67.json",
+    "array_submission": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star01_control/attempt_01/array_submission.attempt_01.json",
+    "launch_receipt": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star01_control/attempt_01/launch_receipt.attempt_01.json"
+  },
+  "target_scoring": "BLOCKED",
+  "target_scoring_submitted": false
+}

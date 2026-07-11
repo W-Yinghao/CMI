@@ -19,6 +19,7 @@ ALLOWED_NEW_PREFIXES = (
     "results/star/star00a_preflight/",
     "results/star/star00b_preflight/",
     "results/star/star00c_preflight/",
+    "results/star/star01a_completion/",
 )
 
 

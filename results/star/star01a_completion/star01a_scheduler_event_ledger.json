@@ -1,0 +1,197 @@
+{
+  "array_job_id": "893038",
+  "attempt_id": "attempt_01",
+  "cancel_events": [],
+  "cells": [
+    {
+      "attempt_id": "attempt_01",
+      "cell": "H200_SSL_CONT_s0",
+      "completion_status": "COMPLETE",
+      "gpu_model": "NVIDIA A40",
+      "job_id": "893112",
+      "job_id_changed": false,
+      "migrated": false,
+      "node": "node32",
+      "node_or_gpu_changed_during_run": false,
+      "partition": "A40",
+      "resumed": false,
+      "task_id": "893038_0"
+    },
+    {
+      "attempt_id": "attempt_01",
+      "cell": "H200_SSL_CONT_s1",
+      "completion_status": "COMPLETE",
+      "gpu_model": "NVIDIA A40",
+      "job_id": "893116",
+      "job_id_changed": false,
+      "migrated": false,
+      "node": "node32",
+      "node_or_gpu_changed_during_run": false,
+      "partition": "A40",
+      "resumed": false,
+      "task_id": "893038_1"
+    },
+    {
+      "attempt_id": "attempt_01",
+      "cell": "H200_STAR_TRUE_s0",
+      "completion_status": "COMPLETE",
+      "gpu_model": "NVIDIA L40S",
+      "job_id": "893121",
+      "job_id_changed": false,
+      "migrated": false,
+      "node": "node51",
+      "node_or_gpu_changed_during_run": false,
+      "partition": "L40S",
+      "resumed": false,
+      "task_id": "893038_2"
+    },
+    {
+      "attempt_id": "attempt_01",
+      "cell": "H200_STAR_TRUE_s1",
+      "completion_status": "COMPLETE",
+      "gpu_model": "NVIDIA L40S",
+      "job_id": "893038",
+      "job_id_changed": false,
+      "migrated": false,
+      "node": "node52",
+      "node_or_gpu_changed_during_run": false,
+      "partition": "L40S",
+      "resumed": false,
+      "task_id": "893038_3"
+    },
+    {
+      "attempt_id": "attempt_01",
+      "cell": "H200_STAR_SHUFFLED_s0",
+      "completion_status": "COMPLETE",
+      "gpu_model": "NVIDIA A100-PCIE-40GB",
+      "job_id": "893122",
+      "job_id_changed": false,
+      "migrated": false,
+      "node": "node55",
+      "node_or_gpu_changed_during_run": false,
+      "partition": "A100",
+      "resumed": false,
+      "task_id": "893038_4"
+    },
+    {
+      "attempt_id": "attempt_01",
+      "cell": "H200_STAR_SHUFFLED_s1",
+      "completion_status": "COMPLETE",
+      "gpu_model": "NVIDIA A100-SXM4-40GB",
+      "job_id": "893123",
+      "job_id_changed": false,
+      "migrated": false,
+      "node": "nodeaudible01",
+      "node_or_gpu_changed_during_run": false,
+      "partition": "A100",
+      "resumed": false,
+      "task_id": "893038_5"
+    }
+  ],
+  "closure_dependency": {
+    "closure_job_id": "893039",
+    "closure_status": "PASS",
+    "declared": "afterok:893038",
+    "effective_final_array_job_id": "893038",
+    "satisfied": true,
+    "strictly_bound_to_final_valid_array": true
+  },
+  "closure_job_id": "893039",
+  "events": [
+    {
+      "event": "ARRAY_SUBMITTED",
+      "job_id": "893038",
+      "partition_eligibility": [
+        "A40"
+      ],
+      "qos": "normal",
+      "time": "2026-07-11T05:30:26.696014+02:00"
+    },
+    {
+      "affected_pending_tasks": [
+        "893038_2",
+        "893038_3",
+        "893038_4",
+        "893038_5"
+      ],
+      "event": "PM_AUTHORIZED_PARTITION_ELIGIBILITY_AMENDMENT",
+      "partition_eligibility_after": [
+        "A40",
+        "A100",
+        "H100",
+        "L40S"
+      ],
+      "partition_eligibility_before": [
+        "A40"
+      ],
+      "qos_change": false,
+      "scientific_protocol_modified": false,
+      "source_file_modified": false,
+      "time": null,
+      "time_status": "NOT_PERSISTED; occurred after task 0 completion/task 1 start and before task 2 start"
+    },
+    {
+      "dependency": "afterok:893038",
+      "event": "AFTEROK_CLOSURE_COMPLETED",
+      "job_id": "893039",
+      "status": "PASS",
+      "time": "2026-07-11T14:06:47.229988+02:00"
+    }
+  ],
+  "evidence_limitations": {
+    "driver_version": "NOT_RECORDED",
+    "exact_partition_amendment_timestamp": "NOT_RECORDED",
+    "gpu_uuid": "NOT_RECORDED",
+    "job_state_exit_source": "completion markers plus successful afterok closure",
+    "sacct_status": "CONNECTION_REFUSED",
+    "slurmdbd_available_at_closeout": false,
+    "start_end_time_source": "immutable execution/completion file mtimes"
+  },
+  "formal_attempts": [
+    "attempt_01"
+  ],
+  "initial_submission": {
+    "all_six_submitted_together": true,
+    "array_geometry": "0-5",
+    "array_task_count": 6,
+    "partition": "A40",
+    "qos": "normal",
+    "source_slurm_sha256": "57a8714a7fc0053c78611df977af3490f0831b3469038ffad35147eb1bfc6ee3",
+    "submission_marker_hash": "d09aaf5679d492bc3742e0f497038ac580f8714bf9a64852234aae3f67d900ae",
+    "submitted_at": "2026-07-11T05:30:26.696014+02:00"
+  },
+  "invalidated_attempts": [],
+  "multiple_attempts": false,
+  "partition_changes": [
+    {
+      "affected_tasks": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "from": [
+        "A40"
+      ],
+      "selected": {
+        "2": "L40S",
+        "3": "L40S",
+        "4": "A100",
+        "5": "A100"
+      },
+      "to_eligible_set": [
+        "A40",
+        "A100",
+        "H100",
+        "L40S"
+      ]
+    }
+  ],
+  "phase": "STAR_01A_SCHEDULER_EVENT_LEDGER",
+  "project": "STAR-EEG",
+  "qos_changes": [],
+  "requeue_events": [],
+  "resubmit_events": [],
+  "scheduler_event_ledger_canonical_hash": "79bafd87975137402a66228aea63e3b3524e6bc35a1c8e17be5836bb5fc19eee",
+  "schema_version": 1
+}

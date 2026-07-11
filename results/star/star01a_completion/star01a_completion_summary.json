@@ -1,0 +1,101 @@
+{
+  "approval_manifest_hash": "b8e7a4f2f90c8043b616d8b6209a065769cf573825b5bd5acbbe0a08d2e45b67",
+  "approved_execution_commit": "0cdcbfed1bb8f783f295e252476a6432b8eb6ba6",
+  "array_job_id": "893038",
+  "artifact_file_sha256": {
+    "launch_receipt_summary.json": "a5e9154461bbc1b973652aa03580665d71cecce0ef455ae966bb986812331844",
+    "star01a_closure_go_nogo.json": "26239c3615636491b9099d26a4971eff9d035efa4f86b035ba8f08620cd84307",
+    "star01a_final_checkpoint_manifest.json": "c7bf9d4b46199b3413951ad65873a5a42a55b814620fce29bba83a7abc1022b2",
+    "star01a_hardware_assignment.csv": "addd0cbdb5f2e5953172aba808dd82b2e52bc39169887c403c98a60db248c583",
+    "star01a_report_sha256.txt": "20aa002de0c8ceb3c9f9962f725778a447ea0431177a2935998a4b1dfd718ec8",
+    "star01a_scheduler_event_ledger.json": "e220e8c53856bae3a4d7c1c91a90def8a34f2b7345c9b60578aceb7c682efb68",
+    "star01a_training_completion_matrix.csv": "ef0a1bd7465cb7ec74d51aeef67bff31f561f0dcb26aee920b2e2d505271d365"
+  },
+  "artifact_set_canonical_hash": "30d08f72d6ff731fc720ab1e5cfcfa3d92b6554bfb0d9395b36b2bd804a41748",
+  "attempt_id": "attempt_01",
+  "closure_job_id": "893039",
+  "frozen_s2p_dependency_commit": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "hardware_confound_review": {
+    "all_six_same_gpu_model": false,
+    "classification": "HARDWARE_ALIASED",
+    "exact_d_gpu_models": [
+      "NVIDIA A100-PCIE-40GB",
+      "NVIDIA A100-SXM4-40GB"
+    ],
+    "gate": "FAIL_CONFOUNDED",
+    "gpu_family_by_variant": {
+      "H200_SSL_CONT": [
+        "A40"
+      ],
+      "H200_STAR_SHUFFLED": [
+        "A100"
+      ],
+      "H200_STAR_TRUE": [
+        "L40S"
+      ]
+    },
+    "reason": "GPU family is disjoint and fully aligned with variant: B=A40, C=L40S, D=A100",
+    "required_pre_target_decision": "freeze matched-hardware rerun decision before any target label is read",
+    "same_hardware_major_contrast_available": false,
+    "target_scoring_consequence": "REMAINS_BLOCKED",
+    "variants_cover_same_gpu_model_set": false,
+    "within_seed_b_c_d_same_gpu_model": false
+  },
+  "immutable_closure": {
+    "canonical_hash": "87f34d5f4099157f7e4a25cbb234bf84cac2ed9ba99a6759d643bc0020dae911",
+    "closed_cells": [
+      "H200_SSL_CONT_s0",
+      "H200_SSL_CONT_s1",
+      "H200_STAR_TRUE_s0",
+      "H200_STAR_TRUE_s1",
+      "H200_STAR_SHUFFLED_s0",
+      "H200_STAR_SHUFFLED_s1"
+    ],
+    "source_only_task_audit_next": true,
+    "status": "PASS",
+    "target_scoring_allowed": false
+  },
+  "manuscript_claim": "FORBIDDEN",
+  "phase": "STAR_01A_VERSIONED_TRAINING_COMPLETION_CLOSEOUT",
+  "prohibited_payloads_in_package": {
+    "checkpoint_pth": 0,
+    "faced_feature_arrays": 0,
+    "full_stdout_stderr": 0,
+    "full_telemetry_jsonl": 0,
+    "raw_eeg": 0,
+    "target_predictions": 0
+  },
+  "project": "STAR-EEG",
+  "report_sha256": "b934e0a130f61a99f1fc8e8390bc8e5a0b104ff38944bde9db395793255f7b6c",
+  "schema_version": 1,
+  "scientific_outcome": "NOT_EVALUATED",
+  "six_cell_completion": {
+    "all_attempt_01_continuous": true,
+    "all_final_checkpoint_strict_reload": true,
+    "all_integrity_finite": true,
+    "all_source_checkpoint_sha_unchanged": true,
+    "cells_complete": 6,
+    "cells_expected": 6,
+    "optimizer_steps_each": 3750,
+    "status": "COMPLETE",
+    "telemetry_rows_each": 3750
+  },
+  "source_only_audit": "BLOCKED_PENDING_COMPLETION_CLOSEOUT_AND_PM_HARDWARE_REVIEW",
+  "source_runtime_artifact_sha256": {
+    "approval_manifest": "01b8118be1ec08a3b32660693e8ced471d27a88e419ac5836f444476b1242eb9",
+    "array_submission": "a86aebfbe80c6a31011672b1ff252d8da71d3819cd689f9e087a6cacca5b1c03",
+    "launch_receipt": "ba983707e897aa440ebb9ee61dd154852b127ab703c087b9eb33d2f3ba8e9b39",
+    "runtime_closure_go_nogo": "26239c3615636491b9099d26a4971eff9d035efa4f86b035ba8f08620cd84307",
+    "runtime_final_checkpoint_manifest": "0ba53af4b3e9f3aee84217127af1570963bcf9ee9a0c3d3283532a339207ae34"
+  },
+  "status": "READY_FOR_VERSIONED_REVIEW_WITH_HARDWARE_BLOCKER",
+  "target_data_used": false,
+  "target_metrics_computed": false,
+  "target_scoring": "BLOCKED",
+  "unavailable_but_explicit_metadata": {
+    "driver_version": "NOT_RECORDED_IN_IMMUTABLE_RUNTIME_ARTIFACTS",
+    "gpu_uuid": "NOT_RECORDED_IN_IMMUTABLE_RUNTIME_ARTIFACTS",
+    "slurmdbd_accounting": "UNAVAILABLE_CONNECTION_REFUSED_AT_CLOSEOUT"
+  },
+  "versioned_review_status": "PENDING_PM_REVIEW"
+}
