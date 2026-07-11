@@ -16,5 +16,9 @@ tables and result JSON. In particular:
 - All manifest table hashes and the final report/regression hashes replay exactly.
 
 The first checker invocation used a literal contiguous-string assertion across a
-Markdown line wrap and stopped. The corrected checker normalized the line break;
-it changed no data, statistic, taxonomy, or report content.
+Markdown line wrap and stopped. The corrected checker normalized the line break.
+The audit also rejected an unsupported initial description of the broad-suite
+skip. A dedicated `pytest -rs` replay (`893168`) established that the skip is the
+intentional finalized-C78F guard, not a C78S route branch. Both corrections were
+report/provenance-only; they changed no data, statistic, taxonomy, or scientific
+result.

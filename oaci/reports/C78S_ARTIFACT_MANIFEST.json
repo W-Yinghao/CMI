@@ -131,8 +131,8 @@
     },
     {
       "path": "oaci/reports/c78s_tables/final_report_red_team_checks.csv",
-      "sha256": "f277641b84725d286516d1a745f8e2ac6c1ee5247e456db8c1a11ad133b892ef",
-      "size_bytes": 1304
+      "sha256": "ad11c548bc8f0a894781d2014260e630d8c4a352bb2871c3193d9246d64f7ad1",
+      "size_bytes": 1331
     },
     {
       "path": "oaci/reports/c78s_tables/hierarchical_bootstrap_summary.csv",
@@ -266,8 +266,8 @@
     },
     {
       "path": "oaci/reports/c78s_tables/regression_verification.csv",
-      "sha256": "34e7aa8921306ddad09371153a360313519856b46cde9740a4fc09180e7b0173",
-      "size_bytes": 279
+      "sha256": "fbebcd39fcdf03f1efe80cefac397594751620f34397e8aee876d256cd9db4ad",
+      "size_bytes": 425
     },
     {
       "path": "oaci/reports/c78s_tables/resource_replay.csv",
@@ -302,11 +302,11 @@
   ],
   "regression": {
     "path": "oaci/reports/C78S_REGRESSION_VERIFICATION.md",
-    "sha256": "e67c8c90169da0247391097bd49c397ddb390fb1150548595b5fe249a1fb47d3"
+    "sha256": "cf1a7c66af191f8203c745a411906c7f9aaba47e48810f1e0b9db9c5e40f77e7"
   },
   "final_report_red_team": {
     "path": "oaci/reports/C78S_FINAL_REPORT_RED_TEAM.md",
-    "sha256": "72a97dc2f1c436a9ca6aee3625f5b516e5f696ffdb138cfd01114c3d373ef7a6",
+    "sha256": "0f10b08c11abb5eeb1a8d597bb7de0506354212f2294a70dcea994334fc827d3",
     "json_path": "oaci/reports/C78S_FINAL_REPORT_RED_TEAM.json",
     "json_sha256": "d0f45732f6d0be96cc34059bb057981fe8f55b7215483b6545b3495d9843fef4"
   }

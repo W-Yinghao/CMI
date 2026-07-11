@@ -13,9 +13,9 @@ artifact_table_hashes_replayed,PASS,0,all compact tables match manifest
 final_report_hash_replayed,PASS,0,74ff2c4a958539adfd47e5914e12b22402e53bf2f4d1014535a713809851c2e1
 regression_report_hash_replayed,PASS,0,e67c8c90169da0247391097bd49c397ddb390fb1150548595b5fe249a1fb47d3
 focused_regression,PASS,0,43 passed
-c65_regression,PASS,0,256 passed 1 conditional skip
-c23_regression,PASS,0,663 passed 1 conditional skip
-full_regression,PASS,0,1591 passed 1 conditional skip
+c65_regression,PASS,0,256 passed 1 finalized-C78F guard skip
+c23_regression,PASS,0,663 passed 1 finalized-C78F guard skip
+full_regression,PASS,0,1591 passed 1 finalized-C78F guard skip
 C79_not_authorized,PASS,0,protocol only authorization_received false
 same_label_oracle_not_accessed,PASS,0,false
 seed4_not_accessed,PASS,0,false
