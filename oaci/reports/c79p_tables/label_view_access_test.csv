@@ -1,0 +1,4 @@
+stage,strict_source,target_unlabeled,construction,evaluation,same_label_oracle,passed
+C79P_review_and_implementation,0,0,0,0,0,1
+future_C79E_before_full_field_freeze,1,1,0,0,0,1
+future_C79E_registered_analysis_after_freeze,1,1,1,1,0,1

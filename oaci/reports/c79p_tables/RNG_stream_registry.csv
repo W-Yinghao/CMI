@@ -1,0 +1,10 @@
+path,formula,replicates,adaptive
+P1_M_target_bootstrap,7803+10,2000,0
+ridge_nested_null,7803+1000+replicate,499,0
+ridge_actionability,7803+2000+path_index,499,0
+P2_six_control_maxstat,7803+3000+100000*scheme_index+replicate,499,0
+H2R_stratified_permutation,7803+4000+replicate,499,0
+trial_cluster_bootstrap,7803+5000+target_id,499,0
+crossed_target_bootstrap,7803+6000,2000,0
+hierarchical_trial_stream,7803+6100,499,0
+hierarchical_checkpoint_stream,7803+6200,499,0
