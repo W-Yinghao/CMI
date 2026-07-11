@@ -1,0 +1,42 @@
+{
+  "analysis_paths": [
+    "P1_M",
+    "P1_A",
+    "H2R",
+    "P2_L",
+    "P2_T_LOTO",
+    "P2_T_LORO",
+    "H4R",
+    "H5R",
+    "H6R",
+    "cross_seed_registered_synthesis"
+  ],
+  "authorization_mode": "direct_explicit_PI_authorization_current_execution_conversation",
+  "authorization_record_commit": "b67ba6c9e3e840c82841613f7f4aa785ebce5940",
+  "authorization_record_path": "oaci/reports/C79E_PI_AUTHORIZATION_RECORD.json",
+  "authorization_record_sha256": "2746220db876004d4444fec9173de55cff4d317278028132809a438751bc2167",
+  "bridge_implementation_commit": "16dccf81b4b25d80d5a7ef9bc553fc429add3db1",
+  "bridge_implementation_path": "oaci/conditioned_ceiling_coverage/c79e_analysis_authorization_bridge.py",
+  "bridge_implementation_sha256": "73dea071a44388e89cc2d93a0d565b409311c51b62c24bf715da111a42651d15",
+  "created_at_utc": "2026-07-11T17:01:34Z",
+  "field_generation_scope_changed": false,
+  "parent_analysis_lock_commit": "7cebf2e23226f0380452448e3b78ca96a1834cb2",
+  "parent_analysis_lock_path": "oaci/reports/C79P_SCIENTIFIC_ANALYSIS_EXECUTION_LOCK.json",
+  "parent_analysis_lock_sha256": "97a9b85be495c835a928a397575c0af9801b82d0b66cd9c704abe7d1f235e997",
+  "protocol_commit": "ec4834c74e58ba8423a357e589d8e20ad6b3f8ba",
+  "protocol_sha256": "e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587",
+  "runtime_overlay_changed_paths": [
+    "authorization.received",
+    "authorization.mode",
+    "authorization.record_sha256",
+    "authorization.bridge_lock_sha256"
+  ],
+  "same_label_oracle_authorized": false,
+  "schema_version": "c79e_analysis_authorization_bridge_lock_v1",
+  "scientific_degrees_of_freedom_changed": false,
+  "scientific_registry_changed": false,
+  "seed": 4,
+  "seed4_outcome_access_before_bridge_lock": false,
+  "seed4_outcome_dependent_decision_introduced": false,
+  "target4_primary": false
+}
