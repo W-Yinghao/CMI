@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_core_verify.py", line 373, in <module>
+    main()
+    ~~~~^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_core_verify.py", line 369, in main
+    run(args)
+    ~~~^^^^^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_core_verify.py", line 350, in run
+    raise RuntimeError(f"B1-Core independent verification failed: {failures[:10]}")
+RuntimeError: B1-Core independent verification failed: ['geometry_overlap:random:1', 'geometry_overlap:random:2', 'geometry_overlap:released:0', 'subject_capture:released:0', 'geometry_overlap:released:1', 'geometry_overlap:released:2', 'geometry_overlap:H200_s0:0', 'geometry_overlap:H200_s0:1', 'subject_capture:H200_s0:1', 'geometry_overlap:H200_s1:0']
+srun: error: node05: task 0: Exited with exit code 1

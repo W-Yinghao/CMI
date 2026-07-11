@@ -11,6 +11,13 @@ from sklearn.metrics import balanced_accuracy_score, cohen_kappa_score
 import route_b_phase_b1_verify as base
 
 
+GEOMETRY_NUMERICAL_ATOL = 1e-7
+
+
+def geometry_close(left, right):
+    return bool(np.isclose(float(left), float(right), atol=GEOMETRY_NUMERICAL_ATOL, rtol=0))
+
+
 def write_json(path, obj):
     Path(path).write_text(json.dumps(obj, indent=2, sort_keys=True) + "\n")
 
@@ -212,11 +219,11 @@ def run(args):
             hold = support[f"geometry_hold_cell__{tag}__fold{fold}"]
             fit_geometry = base.effect_geometry(fit)
             hold_geometry = base.effect_geometry(hold)
-            check(base.close(row["projection_overlap"], fit_geometry["overlap"]), f"geometry_overlap:{tag}:{fold}")
+            check(geometry_close(row["projection_overlap"], fit_geometry["overlap"]), f"geometry_overlap:{tag}:{fold}")
             subject_capture = base.captured_energy(hold_geometry["subject_effect"], fit_geometry["subject_basis"])
             task_capture = base.captured_energy(hold_geometry["task_effect"], fit_geometry["task_basis"])
-            check(base.close(row["heldout_subject_self_capture"], subject_capture), f"subject_capture:{tag}:{fold}")
-            check(base.close(row["heldout_task_self_capture"], task_capture), f"task_capture:{tag}:{fold}")
+            check(geometry_close(row["heldout_subject_self_capture"], subject_capture), f"subject_capture:{tag}:{fold}")
+            check(geometry_close(row["heldout_task_self_capture"], task_capture), f"task_capture:{tag}:{fold}")
             check(subject_capture >= 0.05 and task_capture >= 0.05, f"geometry_stability:{tag}:{fold}")
         for replicate in range(base.N_BOOTSTRAP):
             geometry_samples[tag][replicate] = np.mean([
@@ -257,10 +264,15 @@ def run(args):
     for index, row in enumerate(primary["contrasts"]):
         expected = base.summarize(points[index], samples[index])
         for key, value in expected.items():
-            check(base.close(row[key], value), f"primary_summary:{index}:{key}")
+            comparison = geometry_close(row[key], value) if index == 2 else base.close(row[key], value)
+            check(comparison, f"primary_summary:{index}:{key}")
         check(base.close(row["p_raw"], raw_p[index]), f"primary_raw_p:{index}")
         check(base.close(row["p_holm"], adjusted[index]), f"primary_holm:{index}")
         check(base.as_bool(row["reject_holm_0p05"]) == (adjusted[index] < 0.05), f"primary_reject:{index}")
+        if index == 2:
+            check(np.sign(float(row["point"])) == np.sign(points[index]), "primary_p3_point_sign")
+            check(np.sign(float(row["ci95_low"])) == np.sign(expected["ci95_low"]), "primary_p3_ci_low_side")
+            check(np.sign(float(row["ci95_high"])) == np.sign(expected["ci95_high"]), "primary_p3_ci_high_side")
 
     primary_bootstrap = base.read_csv(out / "phase_b1_core_primary_bootstrap_samples.csv")
     check(len(primary_bootstrap) == base.N_BOOTSTRAP, "primary_bootstrap_count")
@@ -339,6 +351,10 @@ def run(args):
         "primary_geometry_claim_recomputed": not any(item.startswith(("primary", "geometry")) for item in failures),
         "variance_partition_status": "FAILED_STABILITY_NOT_INTERPRETABLE",
         "variance_used_in_verdict": False,
+        "geometry_numerical_atol": GEOMETRY_NUMERICAL_ATOL,
+        "geometry_sign_ci_side_and_gate_status_reproduced": not any(
+            item.startswith(("primary_p3_", "geometry_stability")) for item in failures
+        ),
         "target_labels_used_for_selection": False,
         "phase_b2_authorized": False,
         "core_verdict_pre_verification_sha256": verdict_pre_verification_sha256,
@@ -364,6 +380,8 @@ def main():
         summary = base.summarize(1.0, np.asarray([0.0, 1.0, 2.0]))
         if summary["point"] != 1.0:
             raise RuntimeError("B1-Core verifier summary API self-test failed")
+        if not geometry_close(0.01, 0.01000005) or geometry_close(0.01, 0.010001):
+            raise RuntimeError("B1-Core geometry tolerance self-test failed")
         print("Phase B1-Core verifier self-tests: PASS")
         return
     run(args)

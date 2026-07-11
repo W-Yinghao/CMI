@@ -1,0 +1,17 @@
+{
+  "attempt_job_id": "893244",
+  "failure_stage": "independent_geometry_numeric_comparison",
+  "geometry_gate_status_reproduced": true,
+  "geometry_max_absolute_overlap_difference": 5.034038120382833e-09,
+  "geometry_max_absolute_subject_capture_difference": 5.72437225399014e-09,
+  "geometry_minimum_capture": 0.0807405034902103,
+  "independent_verification_completed": false,
+  "p3_ci_side_relative_to_zero_reproduced": true,
+  "p3_holm_decision_reproduced": true,
+  "p3_sign_reproduced": true,
+  "phase_b2_authorized": false,
+  "root_cause": "the verifier applied a generic 1e-10-scale comparison to independently recomputed float32-derived SVD geometry",
+  "scientific_compute_rerun_required": false,
+  "status": "FAILED_OVERSTRICT_NUMERICAL_TOLERANCE",
+  "target_labels_used_for_selection": false
+}
