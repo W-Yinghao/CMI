@@ -70,7 +70,7 @@ def write_csv(path, rows, fieldnames=None):
                 if key not in fieldnames:
                     fieldnames.append(key)
     with path.open("w", newline="") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        writer = csv.DictWriter(f, fieldnames=fieldnames, lineterminator="\n")
         writer.writeheader()
         writer.writerows(rows)
 

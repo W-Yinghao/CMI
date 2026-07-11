@@ -12,6 +12,8 @@
     "pretraining": false,
     "target_labels_for_selection": false
   },
+  "immutable_h2000_required": true,
+  "immutable_manifest": "/home/infres/yinwang/CMI_AAAI_s2p_faced/results/s2p_route_b_h2000_immutable_closure/h2000_immutable_checkpoint_manifest.json",
   "input": {
     "channels": 32,
     "patch_size": 200,

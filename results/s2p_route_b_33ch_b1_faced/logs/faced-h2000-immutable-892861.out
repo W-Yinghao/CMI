@@ -1,3 +1,57 @@
+Route B FACED immutable H2000 re-audit host=node42 git=5da99c70659dd2c5723ea168d770bfac33781388
+?? results/s2p_route_b_33ch_b1_faced/logs/faced-h2000-immutable-892861.err
+?? results/s2p_route_b_33ch_b1_faced/logs/faced-h2000-immutable-892861.out
+Tesla V100-PCIE-32GB, 32768 MiB
+loading FACED from /projects/EEG-foundation-model/FACED_data/processed
+FACED loaded shape=(10332, 32, 10, 200) labels=[0, 1, 2, 3, 4, 5, 6, 7, 8]
+FACED D2-2 audit tag=H2000_s0 ckpt=/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable/H2000_s0/best.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+H2000_s0: target_kappa=0.0682 target_bacc=0.1707 source_val_kappa=0.0764 L1=0.9922
+FACED D2-2 audit tag=H2000_s1 ckpt=/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable/H2000_s1/best.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+H2000_s1: target_kappa=0.0725 target_bacc=0.1753 source_val_kappa=0.0866 L1=0.9908
 {
   "best_budget_descriptive": {
     "budget_h": 500,

@@ -4,6 +4,11 @@
     "random",
     "released"
   ],
+  "h2000_checkpoint_sha256_by_tag": {
+    "H2000_s0": "3c2f568d807e36267f4376ee8b33ce522a41f4dccc094f56f825d7d9f1f896eb",
+    "H2000_s1": "492da560503d500bc59d7cd759b7b809cefb473ee6f78c07523fc407b51aa40f"
+  },
+  "h2000_immutable_checkpoints": true,
   "normalization": "per_channel_per_1s_patch_zscore",
   "source_train_subjects": "1-80",
   "source_val_subjects": "81-100",
