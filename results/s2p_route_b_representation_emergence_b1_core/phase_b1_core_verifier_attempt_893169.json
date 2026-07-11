@@ -1,0 +1,13 @@
+{
+  "attempt_job_id": "893169",
+  "b1_core_artifacts_generated": true,
+  "core_generation_status": "PASS",
+  "failure_stage": "independent_verifier_summary_helper_lookup",
+  "independent_verification_completed": false,
+  "phase_b2_authorized": false,
+  "root_cause": "the verifier called base.summarize_samples while the independent helper is named base.summarize",
+  "scientific_compute_rerun_required": false,
+  "status": "FAILED_VERIFIER_CODE_ONLY",
+  "variance_failed_tag_set_reproduced": true,
+  "variance_partition_status": "FAILED_STABILITY_NOT_INTERPRETABLE"
+}

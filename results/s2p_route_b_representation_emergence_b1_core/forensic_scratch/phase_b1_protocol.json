@@ -20,7 +20,7 @@
   "feature_layer": "final_encoder_patch_mean_flatten_32x200",
   "fine_tuning": false,
   "geometry": "fold_fit_PCA128_whiten_equal_rank8_projection_overlap",
-  "git_head": "a04ed63e8afce79d71a836482b2be372af018dea",
+  "git_head": "9033564c6d712dbdeea0f820e8775bf6ecf05ea2",
   "h4000": false,
   "holm_family_size": 3,
   "layerwise": false,

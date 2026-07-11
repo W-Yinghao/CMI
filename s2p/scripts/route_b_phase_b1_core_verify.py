@@ -255,7 +255,7 @@ def run(args):
     adjusted = base.holm_adjust(raw_p)
     check(len(primary["contrasts"]) == 3, "primary_count")
     for index, row in enumerate(primary["contrasts"]):
-        expected = base.summarize_samples(points[index], samples[index])
+        expected = base.summarize(points[index], samples[index])
         for key, value in expected.items():
             check(base.close(row[key], value), f"primary_summary:{index}:{key}")
         check(base.close(row["p_raw"], raw_p[index]), f"primary_raw_p:{index}")
@@ -361,6 +361,9 @@ def main():
     args = parser.parse_args()
     if args.self_test:
         base.run_self_tests()
+        summary = base.summarize(1.0, np.asarray([0.0, 1.0, 2.0]))
+        if summary["point"] != 1.0:
+            raise RuntimeError("B1-Core verifier summary API self-test failed")
         print("Phase B1-Core verifier self-tests: PASS")
         return
     run(args)

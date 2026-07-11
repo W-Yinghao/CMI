@@ -1,0 +1,12 @@
+Traceback (most recent call last):
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_core_verify.py", line 370, in <module>
+    main()
+    ~~~~^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_core_verify.py", line 366, in main
+    run(args)
+    ~~~^^^^^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_core_verify.py", line 258, in run
+    expected = base.summarize_samples(points[index], samples[index])
+               ^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: module 'route_b_phase_b1_verify' has no attribute 'summarize_samples'
+srun: error: node55: task 0: Exited with exit code 1
