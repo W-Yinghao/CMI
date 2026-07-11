@@ -1,0 +1,2 @@
+target,seed,units,ERM,OACI,SRC,checkpoint_sidecar_replay,source_rows,target_unlabeled_rows,identity_failed_units,identity_abs,softmax_abs,hook_abs,repeat_logits,repeat_z,target_label_reads,scientific_outcomes_read,oracle_access,oaci_GPU_hours,src_GPU_hours,instrumentation_wall_seconds,passed
+4,4,162,2,80,80,162,746496,93312,0,0.0,0.0,0.0,0.0,0.0,0,0,0,0.5515351991520988,0.422568356262313,905.9444959163666,1

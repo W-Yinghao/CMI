@@ -5,3 +5,4 @@ attempt_id,job_id,stage,target,status,EEG_data_loaded,source_EEG_rows,target_row
 4,893359,oaci_erm_training,4,COMPLETE,1,3456,0,0,registered,82,0,0,manifest_alias_repair_valid,first_valid
 5,893360,src_training,4,COMPLETE,1,3456,0,0,registered,80,0,0,none,first_valid
 6,893361,target4_instrumentation_spawn_binding,4,FAILED,1,4608,576,0,0,0,0,0,spawn_child_reloaded_default_C78F_target_registry,pending
+7,893447,target4_instrumentation_single_process,4,COMPLETE,1,4608,576,0,0,0,93312,0,workers_1_locked_CLI_repair,first_valid
