@@ -1,0 +1,141 @@
+{
+  "active_stale_error_count": 0,
+  "classification_counts": {
+    "active_stale_error": 0,
+    "correctly_labeled_legacy_history": 7,
+    "current_valid_statement": 0,
+    "resolved_blocker_history": 0
+  },
+  "excluded_self_referential_outputs": [
+    "h2cmi/results/review_completion/STALE_CLAIM_AUDIT.json",
+    "h2cmi/results/review_completion/STALE_CLAIM_AUDIT.md"
+  ],
+  "hits": [
+    {
+      "classification": "correctly_labeled_legacy_history",
+      "line": 73,
+      "line_text": "The old W1 analysis reported `G = +0.0604` and Cho2017 `G = +0.1227`. These",
+      "match": "G = +0.0604",
+      "path": "h2cmi/results/review_completion/MANUSCRIPT_NUMBERS_READY.md",
+      "pattern_id": "legacy_G_0.0604",
+      "query": "G=+0.0604 / G = +0.0604",
+      "reason": "Hit is confined to the explicit superseded legacy section.",
+      "section": "Superseded Legacy Contiguous-Split Diagnostic"
+    },
+    {
+      "classification": "correctly_labeled_legacy_history",
+      "line": 42,
+      "line_text": "\"current_spdim_p6_can_be_used_as_seed0_baseline\": false,",
+      "match": "current_spdim_p6_can_be_used_as_seed0_baseline\": false",
+      "path": "h2cmi/results/review_completion/w1_legacy_split_quarantine.json",
+      "pattern_id": "legacy_p6_spdim_false",
+      "query": "current_spdim_p6_can_be_used_as_seed0_baseline=false",
+      "reason": "Artifact is an explicit legacy/intermediate execution record.",
+      "section": "json_document"
+    },
+    {
+      "classification": "correctly_labeled_legacy_history",
+      "line": 43,
+      "line_text": "\"current_w1_results_can_be_used_as_confirmatory\": false,",
+      "match": "current_w1_results_can_be_used_as_confirmatory\": false",
+      "path": "h2cmi/results/review_completion/w1_legacy_split_quarantine.json",
+      "pattern_id": "legacy_w1_confirmatory_false",
+      "query": "current_w1_results_can_be_used_as_confirmatory=false",
+      "reason": "Artifact is an explicit legacy/intermediate execution record.",
+      "section": "json_document"
+    },
+    {
+      "classification": "correctly_labeled_legacy_history",
+      "line": 12,
+      "line_text": "\"current_spdim_p6_can_be_used_as_seed0_baseline\": false,",
+      "match": "current_spdim_p6_can_be_used_as_seed0_baseline\": false",
+      "path": "h2cmi/results/review_completion/w1_split_metric_impact_verdict.json",
+      "pattern_id": "legacy_p6_spdim_false",
+      "query": "current_spdim_p6_can_be_used_as_seed0_baseline=false",
+      "reason": "Artifact is an explicit legacy/intermediate execution record.",
+      "section": "json_document"
+    },
+    {
+      "classification": "correctly_labeled_legacy_history",
+      "line": 13,
+      "line_text": "\"current_w1_results_can_be_used_as_confirmatory\": false,",
+      "match": "current_w1_results_can_be_used_as_confirmatory\": false",
+      "path": "h2cmi/results/review_completion/w1_split_metric_impact_verdict.json",
+      "pattern_id": "legacy_w1_confirmatory_false",
+      "query": "current_w1_results_can_be_used_as_confirmatory=false",
+      "reason": "Artifact is an explicit legacy/intermediate execution record.",
+      "section": "json_document"
+    },
+    {
+      "classification": "correctly_labeled_legacy_history",
+      "line": 12,
+      "line_text": "- current_w1_results_can_be_used_as_confirmatory: `False`",
+      "match": "current_w1_results_can_be_used_as_confirmatory: `False",
+      "path": "h2cmi/results/review_completion/w1_split_metric_impact_verdict.md",
+      "pattern_id": "legacy_w1_confirmatory_false",
+      "query": "current_w1_results_can_be_used_as_confirmatory=false",
+      "reason": "Artifact is an explicit legacy/intermediate execution record.",
+      "section": "W1 Split/Metric Impact Verdict"
+    },
+    {
+      "classification": "correctly_labeled_legacy_history",
+      "line": 13,
+      "line_text": "- current_spdim_p6_can_be_used_as_seed0_baseline: `False`",
+      "match": "current_spdim_p6_can_be_used_as_seed0_baseline: `False",
+      "path": "h2cmi/results/review_completion/w1_split_metric_impact_verdict.md",
+      "pattern_id": "legacy_p6_spdim_false",
+      "query": "current_spdim_p6_can_be_used_as_seed0_baseline=false",
+      "reason": "Artifact is an explicit legacy/intermediate execution record.",
+      "section": "W1 Split/Metric Impact Verdict"
+    }
+  ],
+  "patterns": [
+    {
+      "hit_count": 1,
+      "pattern_id": "legacy_G_0.0604",
+      "query": "G=+0.0604 / G = +0.0604"
+    },
+    {
+      "hit_count": 0,
+      "pattern_id": "cho2017_drives",
+      "query": "Cho2017 drives"
+    },
+    {
+      "hit_count": 0,
+      "pattern_id": "no_same_split_official",
+      "query": "no same-split H2CMI official SPDIM"
+    },
+    {
+      "hit_count": 0,
+      "pattern_id": "no_official_spdim",
+      "query": "no official SPDIM"
+    },
+    {
+      "hit_count": 0,
+      "pattern_id": "do_not_claim_official",
+      "query": "Do not claim an official SPDIM comparison"
+    },
+    {
+      "hit_count": 0,
+      "pattern_id": "seed_zero_only",
+      "query": "seed-0 only"
+    },
+    {
+      "hit_count": 3,
+      "pattern_id": "legacy_w1_confirmatory_false",
+      "query": "current_w1_results_can_be_used_as_confirmatory=false"
+    },
+    {
+      "hit_count": 3,
+      "pattern_id": "legacy_p6_spdim_false",
+      "query": "current_spdim_p6_can_be_used_as_seed0_baseline=false"
+    }
+  ],
+  "scan_root": "h2cmi/results/review_completion",
+  "scanned_extensions": [
+    ".md",
+    ".json"
+  ],
+  "scanned_file_count": 122,
+  "status": "pass"
+}

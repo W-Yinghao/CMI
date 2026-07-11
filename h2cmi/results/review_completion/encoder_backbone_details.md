@@ -10,5 +10,6 @@ Recovered from code and bundle sidecars, not memory.
 - Training defaults: Adam via h2cmi/train/trainer.py; defaults lr=1e-3, weight_decay=1e-4, batch_size=64, grad_clip=5, no drop_last. Bundle sidecars record epochs/n_chans/n_train/seed/hash.
 - Split protocol: MI W1 LOSO target subject; V2P cross-session source session -> target session; Sleep W2 leave-one-subject/pair protocol with adaptation/evaluation night split.
 - Geometry optimization: ClassConditionalTTA diagonal affine by default: z = exp(a)*u + b; EM updates prior and optimizes transform by Adam, em_iters default 20, em_lr 5e-2, trust_region=1, trust_region_b=1, logdet_weight=1, Dirichlet/prior anchor.
+- Official SPDIM comparison backbone: P9 uses official TSMNet at external commit `1b0de0ccd4c48a4ff28f087b866a0b671b029c39`; the complete repaired-W1 result is `spdim_w1_repaired_three_seed_results.csv`, and official pretrained weights were not used.
 
-Missing fields are listed in `encoder_backbone_details.json`.
+The remaining unrecovered field is listed in `encoder_backbone_details.json`.

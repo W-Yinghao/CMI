@@ -248,3 +248,12 @@
   audit permits only same-split full-pipeline comparison, not adapter-only
   attribution. No experiment, model run, split change, seed, or method was
   added.
+
+- Per PM P11, canonicalized final repaired-W1 evidence status. Writer-facing W1 values now point only to the P10 freeze; old
+  contiguous-split values are confined to an explicit legacy diagnostic.
+  Official SPDIM is marked complete/resolved by P9. The canonical index
+  classifies current, supporting, superseded, exploratory, blocker, and
+  historical artifacts. The stale-claim scan covers all review-completion
+  Markdown/JSON files and requires zero active errors. P7/P9/P10 result
+  artifacts and the repaired manifest remained unchanged. No experiment was
+  launched.

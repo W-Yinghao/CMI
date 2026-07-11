@@ -1,5 +1,9 @@
 # External Official SPDIM Repository Assessment
 
+status: SUPPORTING_CURRENT_AFTER_P9
+
+canonical_result: `spdim_w1_repaired_three_seed_results.csv`
+
 Repository checked: `https://github.com/fightlesliefigt/SPDIM`
 
 Checked revision: `1b0de0ccd4c48a4ff28f087b866a0b671b029c39`
@@ -30,12 +34,13 @@ Using `/home/infres/yinwang/anaconda3/envs/icml/bin/python` with
 - Imports passed for `torch`, `moabb`, `mne`, `geoopt`, `sklearn`,
   `spdnets.models.TSMNet`, and `spdnets.trainer.Trainer`.
 
-The login-node check reported CUDA unavailable, as expected; GPU execution
-should use SLURM.
+The assessment-time login-node check reported CUDA unavailable, as expected.
+The later P4-P9 execution history and runtime environments are recorded in the
+SPDIM result audits; no additional execution is required for the frozen result.
 
 ## Fit To H2CMI Protocol
 
-The official demo is not a drop-in same-split baseline for H2CMI:
+The official demo was not a drop-in repaired-W1 baseline for H2CMI:
 
 - Demo dataset: `BNCI2015_001`.
 - Demo classes: `right_hand` vs `feet`.
@@ -47,11 +52,10 @@ The official demo is not a drop-in same-split baseline for H2CMI:
   - `Lee2019_MI`: 62 channels
   - `BNCI2014_004`: 3 channels
 
-Therefore the provided pretrained weights cannot be used for a fair H2CMI
-head-to-head on the frozen H2CMI splits. A valid comparison would need to train
-TSMNet source models from the same H2CMI source split and then apply the
-official source-free SPDIM target adaptation on the same adaptation/evaluation
-indices.
+Therefore the provided pretrained weights were not used. P9 resolved this
+mapping by training TSMNet source models from scratch on the repaired-W1 LOSO
+source subjects and applying official source-free SPDIM actions on the exact
+frozen adaptation/evaluation indices.
 
 ## Target-Label Use
 
@@ -59,10 +63,10 @@ The official demo constructs artificial label-shifted target sets with
 `DomainDataset(X_test, y_test, ..., label_ratio=target_label_ratio)`, which uses
 target labels for subsampling the demonstration target distribution.
 
-For H2CMI, this label-based target subsampling must be disabled. The SPDIM
-adaptation routines themselves can be run source-free/unlabeled: they optimize
-information maximization over model predictions on target inputs. Target labels
-should be used only after adaptation for balanced-accuracy evaluation.
+For the accepted P9 run, label-based target subsampling was disabled. The SPDIM
+adaptation routines ran source-free/unlabeled and optimized information
+maximization over model predictions. Target labels were used only after
+adaptation for final metrics.
 
 ## H2CMI Tensor Smoke
 
@@ -83,21 +87,18 @@ Lee2019_MI    (200, 62, 500), labels [0, 1], sessions [0, 1]
 BNCI2014_004  (720, 3, 500),  labels [0, 1], sessions [0, 1, 2, 3, 4]
 ```
 
-## Verdict
+## Current Verdict
 
-Usable, but not drop-in.
+Usable, executed, and complete for the repaired-W1 MI baseline; still not a
+drop-in pretrained baseline.
 
-The repository is sufficiently complete to attempt an official-code SPDIM
-baseline for MI/W1-style binary H2CMI splits after writing an adapter that:
+P9 implemented all five assessment-time requirements: dataset-specific TSMNet
+construction, exact repaired source training, unlabeled official adaptation,
+held-out evaluation, and full seed/split/runtime provenance. The final label is
+`Official SPDIM W1 repaired-split three-source-seed same-split baseline`.
 
-1. Builds official `TSMNet` models with per-dataset channel counts.
-2. Trains source models on the exact frozen H2CMI source split.
-3. Runs official source-free IM/geodesic or IM/bias adaptation on the H2CMI
-   unlabeled adaptation batch only.
-4. Evaluates once on the H2CMI evaluation batch with labels used only for
-   metrics.
-5. Records source seed, split IDs, runtime/failure status, and balanced
-   accuracy with the same cluster bootstrap policy as the other MI results.
-
-The repository does not directly solve Sleep/W2 because it provides a binary
-motor-imagery TSMNet/SPD pipeline, not the H2CMI multiclass sleep representation.
+This does not make H2CMI versus SPDIM an adapter-only comparison. TSMNet and
+H2CMI use different backbones, source objectives, feature spaces, and source
+baselines. The external repository also does not directly solve Sleep/W2
+because it provides a binary motor-imagery TSMNet/SPD pipeline rather than the
+H2CMI multiclass sleep representation.

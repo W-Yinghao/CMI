@@ -1,67 +1,95 @@
 # Review Completion Summary
 
-This package is an additive review-completion artifact audit. It should be accepted as a result/support package, not as proof that all reviewer concerns are solved.
+> **CURRENT STATUS:** P10 is the canonical repaired-W1 evidence freeze.
+> Contiguous-split W1 results are quarantined and may be used only as legacy
+> diagnostics. `MANUSCRIPT_NUMBERS_READY.md` is the canonical all-numbers
+> writer digest.
 
-## Completed Confirmatory Reanalysis
+This package is an additive review-completion result/support package. It does
+not imply that the unresolved orthogonal-score or montage-remapping concerns
+have been solved.
 
-- Four-branch decomposition CIs are complete in `four_branch_complete_ci.csv/json`, including `I_int` for MI/W1 and Sleep/W2.
-- MI dataset heterogeneity is complete in `mi_dataset_heterogeneity_complete_ci.csv`; the MI aggregate is positive but concentrated in Cho2017.
-- Sleep deterministic branch replay is accepted in `sleep_replay_hash_audit.md`; confusion matrices and per-stage recalls are in `sleep_branch_confusion_matrices.json` and `sleep_per_stage_recall.csv`.
-- V2P corrected unit-key reanalysis is complete in `v2p_corrected_*`; the corrected key preserves `(dataset,pair,subject,target_session,source_seed,method)` and avoids collapsing BNCI2014-004 repeated transitions.
-- Existing frozen W1 geometry stress for null/reref/gain/dropout is summarized in `geometry_capacity_existing_ci.csv`.
+## Canonical Repaired-W1 Evidence
 
-## Completed Exploratory/Supplemental Run
+- P7 H2CMI repaired W1 is confirmatory: 115 target subjects, source seeds
+  0/1/2, balanced adaptation/evaluation blocks, and no split overlap.
+- P9 is the complete official SPDIM repaired-split three-source-seed same-split
+  baseline: 1,380 accepted rows covering source-only TSMNet, RCT, SPDIM
+  geodesic, and SPDIM bias.
+- P10 freezes the standardized same-split full-pipeline comparison in
+  `FINAL_REPAIRED_W1_EVIDENCE_FREEZE.md/json` and
+  `w1_repaired_cross_pipeline_results.*`.
+- H2CMI versus SPDIM is not an adapter-only controlled comparison: backbone,
+  source objective, baseline, feature space, and adaptation action family
+  differ.
 
-- Off-diagonal geometry stress was newly executed by SLURM GPU jobs for rotation, cross-channel mixing, stronger reref, and block mixing.
-- Raw rows are under `results/h2cmi/review_completion_offdiag/`.
-- Aggregate table is `geometry_capacity_offdiagonal_results.csv`.
-- Completion validation is in `offdiag_completion_audit.md`: 1,080 raw rows, 0 bad JSON rows, 360 unit x perturbation cells after seed averaging, and 128 CSV data rows.
-- Slurm validation follows `SLURM_MONITORING_POLICY.md`: `sacct` is not used on this server; completion requires job absence from `squeue` plus artifact parse/count/checksum validation.
+Canonical H2CMI repaired-split headlines:
 
-## Manuscript-Ready Numbers
+- `G=+0.0078277 [+0.0026504,+0.0132705]`
+- `P=-0.0096602 [-0.0136878,-0.0057326]`
+- `I_int=+0.0052383 [+0.0012029,+0.0093253]`
+- full joint delta `+0.0034058 [-0.0021352,+0.0091774]`
 
-Use `MANUSCRIPT_NUMBERS_READY.md` as the single writer-facing number digest. Key headline values:
+Canonical official SPDIM subject-weighted headlines:
 
-- MI/W1: `G=+0.0604 [+0.0411,+0.0811]`, `P=-0.0065 [-0.0147,+0.0021]`, `I_int=+0.0043 [-0.0012,+0.0099]`, n=115.
-- Sleep/W2 primary: `G=-0.0201 [-0.0407,+0.0010]`, `P=-0.1439 [-0.1593,-0.1285]`, `I_int=+0.0588 [+0.0425,+0.0758]`, n=75.
-- MI heterogeneity: Cho2017 drives the MI geometry aggregate (`G=+0.1227 [+0.0866,+0.1602]`), while BNCI2014-001 and Lee2019-MI are near zero.
-- V2P q-grid is `{0.1,...,0.9}`; displacement should not be described as utility.
-- Offdiag geometry contrasts are near zero with CIs spanning zero for rotation/block_mixing and non-positive for mixing/strong_reref. Bounded operator-family stress did not show a practically positive advantage for the tested full-covariance/sensor families under these perturbations; montage-layout remapping remains untested.
+- source-only TSMNet `0.5419807 [0.5334460,0.5508986]`
+- RCT `0.6471643 [0.6304244,0.6637672]`
+- SPDIM geodesic `0.6444235 [0.6277308,0.6610388]`
+- SPDIM bias `0.6431530 [0.6264633,0.6599215]`
+- RCT minus source-only `+0.1051836 [+0.0918437,+0.1189907]`
+- SPDIM geodesic minus RCT `-0.0027407 [-0.0046506,-0.0008260]`
+- SPDIM bias minus RCT `-0.0040113 [-0.0072577,-0.0007150]`
 
-## Blockers
+RCT improves over source-only. SPDIM geodesic and bias do not improve over
+RCT. These results do not support equivalence or noninferiority.
 
-- Official SPDIM: external official code exists and imports/smoke-passes, but no same-split H2CMI official SPDIM result has been run. Provided official pretrained weights target BNCI2015_001 with 13 channels and are not compatible with H2CMI 22/62/3-channel MI tensors.
-- Orthogonal-score diagnostic: no result exists. Current code lacks exported score/Fisher APIs and no frozen run artifact exists. Header-only CSVs are blocker placeholders, not negative results.
-- Geometry montage stress: cross-montage/channel-layout remapping remains untested.
+## Supporting Current Evidence
 
-## Claims To Strengthen
+- Sleep deterministic replay, confusion matrices, per-stage recall, and the
+  Sleep rows of the four-branch analysis remain current.
+- Corrected V2P unit-key reanalysis remains current; displacement is not
+  utility, and the oracle-label diagnostic is not deployable.
+- Existing geometry stress for null/reref/gain/dropout remains current.
+- Off-diagonal rotation/mixing/strong-reref/block-mixing stress is accepted as
+  exploratory/supplemental bounded operator-family evidence.
+- Encoder/backbone implementation details remain current, with P9 supplying
+  the official TSMNet/SPDIM runtime configuration.
 
-- The main sleep result can be described as a metric-prior diagnostic under balanced accuracy, supported by deterministic replay and per-stage recall tables.
-- The V2P corrected analysis preserves repeated transitions and supports the distinction between displacement and utility.
-- MI can be described as aggregate-positive but heterogeneous, with Cho2017 carrying most of the geometry effect.
+## Superseded Evidence
 
-## Claims To Weaken
+- Original REVIEW_P0 contiguous-split W1 results, including the old MI
+  four-branch and heterogeneity tables, are legacy diagnostics only.
+- P6 contiguous-split SPDIM seed-0 artifacts are superseded by the repaired
+  split and must not be used as a current baseline.
+- P8 repaired-split seed-0 SPDIM artifacts remain valid execution evidence but
+  are superseded as final-baseline evidence by P9's three-seed packet.
 
-- Do not claim an official SPDIM comparison.
-- Do not call internal `Latent-IM-Diag` SPDIM.
-- Do not claim orthogonal-score evaluation.
-- Do not claim universal diagonal-geometry adequacy; say bounded operator-family stress.
-- Do not imply montage remapping was tested.
+## Current Blockers
 
-## Files To Cite In The Paper
+1. Orthogonal-score estimator/evaluation: score and Fisher interfaces and a
+   frozen evaluation artifact remain unavailable.
+2. Montage-layout or cross-montage remapping stress: not evaluated by the
+   bounded geometry panels.
 
+No additional GPU work is required for the canonical repaired-W1 freeze.
+
+## Current Claim Boundary
+
+- Cite the repaired W1 values only.
+- Describe H2CMI and SPDIM as same-split full-pipeline results, not a controlled
+  adapter-only comparison.
+- Do not claim equivalence, noninferiority, orthogonal-score evaluation, or
+  universal montage robustness.
+- Do not label internal `Latent-IM-Diag` as official SPDIM.
+
+## Canonical Files
+
+- `REVIEW_COMPLETION_CURRENT_STATUS.md/json`
+- `CANONICAL_EVIDENCE_INDEX.md/json`
 - `MANUSCRIPT_NUMBERS_READY.md`
-- `four_branch_complete_ci.csv`
-- `mi_dataset_heterogeneity_complete_ci.csv`
-- `sleep_replay_hash_audit.md`
-- `sleep_branch_confusion_matrices.json`
-- `sleep_per_stage_recall.csv`
-- `v2p_corrected_unit_key_audit.md`
-- `v2p_corrected_grid_summary.csv`
-- `v2p_corrected_method_summary.csv`
-- `geometry_capacity_existing_ci.csv`
-- `geometry_capacity_offdiagonal_results.csv`
-- `offdiag_completion_audit.md`
-- `spdim_external_repo_assessment.md`
-- `spdim_official_baseline_blocker.md`
-- `orthogonal_score_blockers.md`
+- `FINAL_REPAIRED_W1_EVIDENCE_FREEZE.md/json`
+- `w1_repaired_h2cmi_results.csv`
+- `spdim_w1_repaired_three_seed_results.csv`
+- `w1_repaired_cross_pipeline_results.*`
+- `w1_repaired_cross_pipeline_harm.*`
+- `STALE_CLAIM_AUDIT.md/json`

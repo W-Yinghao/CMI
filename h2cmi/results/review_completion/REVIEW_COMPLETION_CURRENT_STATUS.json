@@ -1,0 +1,23 @@
+{
+  "active_stale_error_count": 0,
+  "adapter_only_cross_pipeline_comparison_supported": false,
+  "additional_gpu_required": false,
+  "canonical_all_numbers_digest_path": "h2cmi/results/review_completion/MANUSCRIPT_NUMBERS_READY.md",
+  "canonical_evidence_index_path": "h2cmi/results/review_completion/CANONICAL_EVIDENCE_INDEX.md",
+  "canonical_head_commit": "cfb43d429263c3fbb69a35c086214fdca7d25301",
+  "canonical_w1_freeze_path": "h2cmi/results/review_completion/FINAL_REPAIRED_W1_EVIDENCE_FREEZE.md",
+  "full_pipeline_same_split_comparison_supported": true,
+  "legacy_w1_split_quarantined": true,
+  "montage_layout_remapping_stress_blocked": true,
+  "official_spdim_blocker_resolved": true,
+  "official_spdim_three_seed_baseline_complete": true,
+  "orthogonal_score_blocked": true,
+  "repaired_h2cmi_w1_confirmatory": true,
+  "source_hashes": {
+    "p7_h2cmi": "6d5106a78dad9ce852c8e01ca292ef5b4a37bbeaaaac810a177dccb8b6b9089c",
+    "p9_spdim": "95b8f69556a140dc020415753c9694cf9ebdeed1abb0766dd24f523c491289c3",
+    "repaired_manifest": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e"
+  },
+  "stale_claim_audit_path": "h2cmi/results/review_completion/STALE_CLAIM_AUDIT.md",
+  "status": "pass"
+}

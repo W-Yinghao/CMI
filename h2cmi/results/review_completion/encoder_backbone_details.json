@@ -42,7 +42,15 @@
   "training": "Adam via h2cmi/train/trainer.py; defaults lr=1e-3, weight_decay=1e-4, batch_size=64, grad_clip=5, no drop_last. Bundle sidecars record epochs/n_chans/n_train/seed/hash.",
   "source_splits": "MI W1 LOSO target subject; V2P cross-session source session -> target session; Sleep W2 leave-one-subject/pair protocol with adaptation/evaluation night split.",
   "tta_geometry": "ClassConditionalTTA diagonal affine by default: z = exp(a)*u + b; EM updates prior and optimizes transform by Adam, em_iters default 20, em_lr 5e-2, trust_region=1, trust_region_b=1, logdet_weight=1, Dirichlet/prior anchor.",
+  "official_spdim": {
+    "status": "complete_repaired_w1_three_seed_baseline",
+    "backbone": "official TSMNet",
+    "external_commit": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
+    "canonical_result": "h2cmi/results/review_completion/spdim_w1_repaired_three_seed_results.csv",
+    "result_commit": "8972de878a93e00a5b6cf6b8118bc32adc05eb48",
+    "official_pretrained_weights_used": false
+  },
   "missing_or_not_recovered": [
-    "Exact per-run optimizer state/checkpoints not decoded; official SPDIM config absent."
+    "Exact per-run H2CMI optimizer state was not decoded."
   ]
 }

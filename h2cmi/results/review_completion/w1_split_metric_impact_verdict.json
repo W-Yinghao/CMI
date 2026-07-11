@@ -1,4 +1,12 @@
 {
+  "record_status": "historical_legacy_split_verdict",
+  "superseded_by": [
+    "w1_repaired_h2cmi_results.csv",
+    "spdim_w1_repaired_three_seed_results.csv",
+    "FINAL_REPAIRED_W1_EVIDENCE_FREEZE.json"
+  ],
+  "allowed_use": "legacy contiguous-split diagnosis only",
+  "prohibited_use": "current repaired-W1 result or active SPDIM blocker",
   "approve_spdim_seeds_1_2": false,
   "cho2017_single_class_eval_confirmed": true,
   "current_spdim_p6_can_be_used_as_seed0_baseline": false,
@@ -7,10 +15,10 @@
     "Cho2017 single-class fraction is substantial: 52/52.",
     "The project scorer ignores absent classes rather than assigning absent-class recall zero or one.",
     "REVIEW_P0 reports the W1 geometry effect as Cho2017-driven.",
-    "Full SPDIM expansion remains blocked until PM review after this audit."
+    "Full SPDIM expansion was blocked at P6; repaired-split P9 later resolved it."
   ],
   "main_w1_cho2017_claim_affected": true,
-  "reason": "Cho2017 has single-class evaluation for all 52 W1 targets under contiguous_split; sklearn balanced_accuracy_score ignores absent classes and degenerates to ordinary accuracy on those rows. The main W1 geometry signal is Cho2017-driven, so current W1 aggregate claims are affected and SPDIM seeds 1/2 should not launch.",
+  "reason": "At P6, Cho2017 had single-class evaluation for all 52 W1 targets under contiguous_split; sklearn balanced_accuracy_score ignored absent classes and degenerated to ordinary accuracy on those rows. The then-current W1 geometry signal was affected, so seeds 1/2 were blocked until the repaired protocol; P9 later resolved this blocker.",
   "require_alternative_w1_split": true,
   "require_metric_recompute": true,
   "spdim_p6_cho2017_result_affected": true

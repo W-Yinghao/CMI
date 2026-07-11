@@ -1,23 +1,90 @@
 # Manuscript Numbers Ready
 
+> **CANONICAL W1 STATUS:** The only current W1 source is
+> `FINAL_REPAIRED_W1_EVIDENCE_FREEZE.md` at P10. All contiguous-split W1
+> numbers are superseded. No old-split W1 value may be used as a current
+> result.
+
 This file is the writer-facing digest for the review-completion package. Values are balanced accuracy unless otherwise stated. Intervals are 95% percentile bootstrap CIs unless the table explicitly says no CI was computed.
 
-## Four-Branch Decomposition
+## Canonical Repaired-Split MI/W1 Four-Branch Decomposition
 
-Status: confirmatory reanalysis from frozen Wave0/W1 raw rows. Source artifacts: `four_branch_complete_ci.csv`, `four_branch_complete_ci.json`. The `I_int` CI replaces the older point-only manuscript table entry.
+Status: repaired-split confirmatory P7 result, frozen by P10. Source artifacts:
+`w1_repaired_h2cmi_results.csv`, `w1_repaired_h2cmi_four_branch_ci.csv`, and
+`FINAL_REPAIRED_W1_EVIDENCE_FREEZE.json`. Source seeds are averaged within
+target subject before the subject-cluster bootstrap.
 
-Bootstrap clusters: MI `(target subject)`, Sleep `(sleep subject/night pair)`.
+| quantity | value | 95% CI | n | wording boundary |
+|---|---:|---:|---:|---|
+| BA(I, Unif) | 0.6736216 | [0.6565223, 0.6912903] | 115 | canonical identity/uniform branch mean |
+| BA(I, pi_J) | 0.6639614 | [0.6460370, 0.6822751] | 115 | canonical identity/joint-prior branch mean |
+| BA(T_J, Unif) | 0.6814493 | [0.6634068, 0.6995276] | 115 | canonical joint-geometry/uniform branch mean |
+| BA(T_J, pi_J) | 0.6770274 | [0.6588374, 0.6950935] | 115 | canonical full-joint branch mean |
+| G | +0.0078277 | [+0.0026504, +0.0132705] | 115 | small positive geometry component on the repaired split |
+| P | -0.0096602 | [-0.0136878, -0.0057326] | 115 | negative decision-prior component under balanced accuracy |
+| I_int | +0.0052383 | [+0.0012029, +0.0093253] | 115 | positive interaction component |
+| full joint delta | +0.0034058 | [-0.0021352, +0.0091774] | 115 | CI spans zero; do not claim full-joint improvement |
+
+## Canonical Repaired-Split MI Heterogeneity
+
+Status: repaired-split confirmatory P7 heterogeneity analysis. Source artifact:
+`w1_repaired_h2cmi_dataset_heterogeneity_ci.csv`. The repaired result is small
+and is not driven by the old contiguous Cho2017 evaluation blocks.
+
+| summary | G | P | I_int | full joint delta | wording boundary |
+|---|---:|---:|---:|---:|---|
+| BNCI2014_001, n=9 | +0.0128601 [-0.0041152, +0.0339506] | -0.0087449 [-0.0200617, +0.0015432] | +0.0066872 [-0.0056584, +0.0200617] | +0.0108025 [-0.0072016, +0.0339506] | small dataset; all listed CIs overlap zero |
+| Cho2017, n=52 | +0.0067521 [-0.0004594, +0.0139105] | -0.0108761 [-0.0152674, -0.0064525] | +0.0073504 [+0.0022115, +0.0125219] | +0.0032265 [-0.0030350, +0.0096052] | repaired balanced evaluation blocks; no legacy single-class effect |
+| Lee2019_MI, n=54 | +0.0080247 [-0.0001235, +0.0167901] | -0.0086420 [-0.0161728, -0.0014815] | +0.0029630 [-0.0038272, +0.0096296] | +0.0023457 [-0.0072840, +0.0122222] | small geometry component; negative prior component |
+| subject-weighted, n=115 | +0.0078277 [+0.0026504, +0.0132705] | -0.0096602 [-0.0136878, -0.0057326] | +0.0052383 [+0.0012029, +0.0093253] | +0.0034058 [-0.0021352, +0.0091774] | canonical aggregate |
+| dataset-macro, n=3 | +0.0092123 [+0.0024340, +0.0172130] | -0.0094210 [-0.0140882, -0.0049499] | +0.0056669 [+0.0007107, +0.0110245] | +0.0054582 [-0.0017396, +0.0142792] | dataset-equal diagnostic; full-joint CI spans zero |
+
+## Official SPDIM Repaired-Split Three-Seed Baseline
+
+Status: complete official repaired-split same-split baseline from P9. Source
+artifacts: `spdim_w1_repaired_three_seed_results.csv`,
+`spdim_w1_repaired_three_seed_method_ci.csv`, and
+`spdim_w1_repaired_three_seed_contrast_ci.csv`.
+
+| method | subject-weighted bAcc | 95% CI |
+|---|---:|---:|
+| source-only TSMNet | 0.5419807 | [0.5334460, 0.5508986] |
+| RCT | 0.6471643 | [0.6304244, 0.6637672] |
+| SPDIM geodesic | 0.6444235 | [0.6277308, 0.6610388] |
+| SPDIM bias | 0.6431530 | [0.6264633, 0.6599215] |
+
+Paired subject-weighted contrasts:
+
+| contrast | estimate | 95% CI |
+|---|---:|---:|
+| RCT - source-only | +0.1051836 | [+0.0918437, +0.1189907] |
+| SPDIM geodesic - source-only | +0.1024428 | [+0.0894991, +0.1161096] |
+| SPDIM bias - source-only | +0.1011723 | [+0.0882946, +0.1148618] |
+| SPDIM geodesic - RCT | -0.0027407 | [-0.0046506, -0.0008260] |
+| SPDIM bias - RCT | -0.0040113 | [-0.0072577, -0.0007150] |
+
+The official SPDIM baseline is complete. RCT improves over source-only;
+SPDIM geodesic and bias do not improve over RCT. This is not an equivalence or
+noninferiority result. H2CMI and SPDIM are same-split full-pipeline results,
+not an adapter-only controlled comparison.
+
+## Superseded Legacy Contiguous-Split Diagnostic
+
+The old W1 analysis reported `G = +0.0604` and Cho2017 `G = +0.1227`. These
+values came from the quarantined contiguous split, where Cho2017 evaluation
+blocks were single-class. They are retained only as historical diagnostics and
+must not be cited as current or confirmatory W1 results. Historical source
+artifacts are `four_branch_complete_ci.csv/json` and
+`mi_dataset_heterogeneity_complete_ci.csv`.
+
+## Sleep Four-Branch Decomposition
+
+Status: current Sleep/W2 confirmatory reanalysis from frozen raw rows. Source
+artifacts: `four_branch_complete_ci.csv` and `four_branch_complete_ci.json`.
+Bootstrap cluster: sleep subject/night pair.
 
 | panel | quantity | value | 95% CI | n | wording boundary |
 |---|---|---:|---:|---:|---|
-| MI_W1 | identity_uniform | 0.6712 | [0.6448, 0.6973] | 115 | branch mean, not a mechanism claim |
-| MI_W1 | identity_joint_prior | 0.6647 | [0.6342, 0.6936] | 115 | branch mean |
-| MI_W1 | joint_geometry_uniform | 0.7316 | [0.7115, 0.7519] | 115 | branch mean |
-| MI_W1 | joint_geometry_joint_prior | 0.7294 | [0.7093, 0.7499] | 115 | branch mean |
-| MI_W1 | G | +0.0604 | [+0.0411, +0.0811] | 115 | geometry branch improves MI on average |
-| MI_W1 | P | -0.0065 | [-0.0147, +0.0021] | 115 | prior effect is small/uncertain in MI aggregate |
-| MI_W1 | I_int | +0.0043 | [-0.0012, +0.0099] | 115 | interaction CI now reported; do not overstate |
-| MI_W1 | G+P+I_int | +0.0582 | [+0.0398, +0.0774] | 115 | total joint delta |
 | Sleep_W2_primary | identity_uniform | 0.6572 | [0.6341, 0.6784] | 75 | branch mean |
 | Sleep_W2_primary | identity_joint_prior | 0.5134 | [0.4890, 0.5372] | 75 | branch mean |
 | Sleep_W2_primary | joint_geometry_uniform | 0.6371 | [0.6113, 0.6613] | 75 | branch mean |
@@ -30,18 +97,6 @@ Bootstrap clusters: MI `(target subject)`, Sleep `(sleep subject/night pair)`.
 | Sleep_W2_secondary | P | -0.1300 | [-0.1495, -0.1103] | 75 | secondary protocol check |
 | Sleep_W2_secondary | I_int | +0.0238 | [+0.0031, +0.0449] | 75 | secondary protocol check |
 | Sleep_W2_secondary | G+P+I_int | -0.1293 | [-0.1524, -0.1052] | 75 | secondary protocol check |
-
-## MI Heterogeneity
-
-Status: confirmatory/corrected heterogeneity table. Source artifact: `mi_dataset_heterogeneity_complete_ci.csv`. Bootstrap unit is subject; the subject-weighted summary uses 115 subjects and dataset-equal macro uses three dataset means.
-
-| summary | G | P | I_int | fixed-iterative minus joint-fit geometry | joint-fit geometry minus pooled | wording boundary |
-|---|---:|---:|---:|---:|---:|---|
-| BNCI2014_001, n=9 | +0.0129 [-0.0041, +0.0345] | -0.0087 [-0.0195, +0.0015] | +0.0067 [-0.0057, +0.0201] | +0.0113 [+0.0021, +0.0221] | -0.0175 [-0.0324, -0.0041] | near-zero geometry effect in this dataset |
-| Cho2017, n=52 | +0.1227 [+0.0866, +0.1602] | -0.0019 [-0.0189, +0.0153] | +0.0015 [-0.0087, +0.0115] | -0.0007 [-0.0051, +0.0037] | -0.0011 [-0.0056, +0.0036] | Cho2017 drives the MI aggregate |
-| Lee2019_MI, n=54 | +0.0083 [-0.0001, +0.0176] | -0.0106 [-0.0170, -0.0046] | +0.0067 [+0.0004, +0.0131] | +0.0034 [-0.0002, +0.0071] | -0.0035 [-0.0076, +0.0007] | small geometry effect; prior term slightly negative |
-| subject_weighted, n=115 | +0.0604 [+0.0431, +0.0776] | -0.0065 [-0.0146, +0.0018] | +0.0043 [-0.0012, +0.0098] | +0.0022 [-0.0005, +0.0049] | -0.0035 [-0.0066, -0.0003] | aggregate positive but heterogeneous |
-| dataset_equal_macro, n=3 | +0.0480 [+0.0342, +0.0620] | -0.0071 [-0.0140, -0.0001] | +0.0050 [-0.0008, +0.0109] | +0.0047 [+0.0010, +0.0087] | -0.0074 [-0.0128, -0.0024] | macro summary; do not claim universal MI improvement |
 
 ## Sleep Replay And Per-Stage Recall
 
@@ -139,4 +194,7 @@ Status: implementation audit from code and bundle sidecars. Sources: `encoder_ba
 
 Experiment text-ready description: MI uses MOABB binary motor-imagery tensors with deterministic preprocessing and per-trial channel z-scoring; Sleep uses Sleep-EDF Sleep-Cassette 30s epochs over W/N1/N2/N3/REM with per-epoch z-scoring. The frozen source encoder is `H2Encoder`, combining a temporal EEGNet-like branch, SPD covariance/log-tangent branch, graph/electrode-set branch, fused MLP, split `z_c/z_n`, and optional near-identity canonicalizer. The latent defaults are `z_c_dim=32`, `z_n_dim=16`, `fuse_hidden=128`, `temporal_filters=8`, `spd_rank=8`, `graph_hidden=16`, and bands `[4,8]`, `[8,13]`, `[13,30]`, `[30,45]` Hz. Class-conditionals use a Student-t mixture density with one component/class by default, low-rank+diagonal covariance rank 4, df 8, and eig_floor 1e-2. TTA geometry uses a diagonal affine map `z = exp(a)*u + b` with EM-style prior/transform fitting.
 
-Missing/unrecovered fields: exact per-run optimizer state/checkpoints were not decoded; official same-split SPDIM config is not available because no same-split SPDIM run has been executed.
+Missing/unrecovered field: exact per-run H2CMI optimizer state was not decoded.
+The official SPDIM repaired-split configuration and runtime provenance are now
+recorded in the P9 protocol, result summary, and shard audits; official
+pretrained demo weights were not used.

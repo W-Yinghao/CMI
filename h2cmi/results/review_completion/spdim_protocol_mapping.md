@@ -1,5 +1,8 @@
 # SPDIM Protocol Mapping
 
+Status: implemented and completed by P9 for repaired W1. Canonical result:
+`spdim_w1_repaired_three_seed_results.csv`.
+
 Available same-split comparator: `latent_im_diag_uniform` / `spdim` in internal
 reports. It operates on frozen latent embeddings with a diagonal affine IM-style
 recentering and is not an official SPD-manifold SPDIM implementation.
@@ -25,3 +28,7 @@ Fair H2CMI mapping for an official-code MI/W1 baseline:
 Do not use the repository's provided pretrained demo weights for H2CMI
 head-to-head: they are tied to `BNCI2015_001` and a 13-channel model. Do not use
 the demo's target-label-based artificial subsampling in H2CMI confirmatory runs.
+
+P9 followed this mapping for all 115 targets and source seeds 0/1/2. The
+official result is a same-split full-pipeline baseline, not a controlled
+adapter-only comparison against the H2CMI backbone.
