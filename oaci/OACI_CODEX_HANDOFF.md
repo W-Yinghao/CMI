@@ -21,6 +21,8 @@ C78S protocol SHA:          df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3
 C78S implementation:        e561a15
 C78S execution lock:        ce1fb14
 C78S result commit:         43a046c
+C78S handoff commit:        48be5b7
+C78S provenance correction: dcd4c28
 C78S lock SHA:              aee520820cb7b2b94ab43f4e2bf8a30278a36f479296e145c24eaada99df36ad
 C78S analysis job:          893151 (cpu-high, 48 CPUs)
 C78S final gate:            SEED3_MIXED_RESULTS_C79_PROTOCOL_REVIEW_REQUIRED
@@ -142,7 +144,7 @@ overstatements. Expect to be wrong on the first read; the controls exist to catc
 
 - **Repo:** `git@github.com:W-Yinghao/CMI.git`  ·  **Branch:** `oaci` (fully pushed).
 - **Worktree on the lab machine:** `/home/infres/yinwang/CMI_AAAI_oaci`.
-- **C78S implementation = `e561a15`**, scope-specific lock = `ce1fb14`, result = `43a046c`; all are unsquashed.
+- **C78S implementation = `e561a15`**, scope-specific lock = `ce1fb14`, result = `43a046c`, handoff = `48be5b7`, regression-provenance correction = `dcd4c28`; all are unsquashed.
 - **C78F result = `51022f4`**; protocol/lock/repair anchors are `1d210fd`, `a902966`, and `f0d49c2`.
 - C31 remains `611988f`; the complete C23–C78S trail is retained unsquashed on `origin/oaci`.
 
