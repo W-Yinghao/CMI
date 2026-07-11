@@ -2,9 +2,9 @@
 
 - phase: `P12A_SOURCE_PROVENANCE_AMENDMENT_PRECOMPUTE`
 - CPU dry-run status: `PASS`
-- GPU smoke status: `PENDING`
+- GPU smoke status: `PASS`
 - approve single smoke: `true`
-- approve P12B fleet before smoke: `false`
+- approve P12B fleet after smoke: `true`
 
 ## Static And Artifact Gates
 
@@ -38,8 +38,19 @@ Official TSMNet computes `logeig -> dtype/device conversion -> classifier`. The 
 
 ## Leakage Boundary
 
-Source labels are used only for exact P9 source training and the post-hoc source class-conditional density. Adaptation receives target X/features and a dummy-zero label tensor only for the official RCT API. Evaluation labels are first read after both GEM fits complete. The smoke does not read evaluation labels or compute performance.
+Source labels are used only for exact P9 source training and the post-hoc source class-conditional density. Adaptation receives target X/features and a dummy-zero label tensor only for the official RCT API. Evaluation labels are first read after official SPDIM geodesic/bias and both GEM fits complete. The smoke does not read evaluation labels or compute performance.
 
 ## Checkpoint Availability
 
 No P9 TSMNet checkpoint files were found or recorded. The committed P9 `source_model_sha256` column supplies a provenance reference per dataset x target x seed, but not recoverable weights. Every P12 unit must persist one exact-config retrain and run all six methods from that actual hashed checkpoint. Direct P9 row reuse is prohibited when the actual state hash differs.
+
+## GPU Smoke Gate
+
+- job id: `893433`
+- status: `PASS`
+- smoke payload SHA-256: `4bdcbb27f7303bc99f642119ae996b936c4a77b56a026c393e729bc87c672fe7`
+- exact P9 source-training configuration reproduced: `True`
+- P9 reference state hash matched by retrain (informational, not a gate): `False`
+- all six methods share the reproduced state: `True`
+- feature-hook replay passed: `True`
+- target performance observed: `false`
