@@ -14,29 +14,42 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-11)
 
-The authoritative tip is the completed **C79 Mode-R protocol review**.  It did not
-enter seed-4 Mode E:
+The authoritative tip is the completed **C79P post-seed-3 protocol/readiness
+lock**. It did not enter seed-4 C79E:
 
 ```text
-C79 review implementation: 70c31bb
-C79 report finalization:    d180cbe
-C79 protocol SHA replayed:  7732986513793725d58933d487f5bc8f4fc68bfad0857bb4734a450b41ca5dd4
-C79 Mode-R gate:            C79_PROTOCOL_OR_TIMING_REPAIR_REQUIRED
-C79 primary taxonomy:       C79-F_protocol_timing_provenance_or_isolation_blocker
-C79 review red team:        19/19
-C79 final report red team:  21/21
-seed-4 EEG/jobs/artifacts:   0 / 0 / 0
+C79 Mode-R base:              2ea4ec3
+C79P replacement protocol:    ec4834c
+C79P implementation:          7ce8602
+C79P additive repair:         27d078a
+C79P final field lock:        35d0c65
+C79P final analysis lock:     7cebf2e
+C79P readiness evidence:      ccdbf49
+C79P result:                  07943c0
+C79P protocol SHA-256:        e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587
+C79P final gate:              C79_POST_SEED3_REPLICATION_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION
+C79P primary:                 C79P-A_post_seed3_replication_protocol_locked_complete
+registry completeness:        160 / 160 cells
+pre-execution red team:       20 / 20
+final report red team:        24 / 24
+seed-4 EEG/jobs/artifacts:     0 / 0 / 0
+C79E authorization received:  false
 ```
 
-The protocol hash is valid, but the strict timing/registry claim is not.  The only
-pre-C78S-outcome C79 artifact is explicitly `SKELETON_ONLY_NOT_FINAL_NOT_AUTHORIZED`.
-The final JSON was created at `2026-07-11T10:43:47Z`, after H1, H3-H5, and H2
-outcomes, and first committed with C78S result `43a046c`.  Its generator rule was
-transparently committed before outcomes in `e561a15`, so this is not hidden
-post-outcome code editing; however, that rule selected H3/H4/H5 through
-`active_after_Holm`, and the resulting artifact binds only 2/16 required exact
-H1-H6 registry components.  Under the PM's strict C79 timing rule it cannot authorize
-seed-4 confirmation.
+The historical C79 hash
+`7732986513793725d58933d487f5bc8f4fc68bfad0857bb4734a450b41ca5dd4`
+remains content-valid but cannot authorize execution: its only pre-outcome file was
+explicitly a skeleton, its final form was post-C78S and outcome-adaptive, and it
+bound only 2/16 registry categories. C79P preserves that history and supersedes it
+additively. The replacement is honestly labeled outcome-informed and post-seed-3,
+but prospective to every protected seed-4 checkpoint/model outcome.
+
+C79P locks ten unconditional paths over P1, P2, H2R, H4R, H5R, H6R, and paired
+cross-seed synthesis. Target 4 is engineering-only; the primary seed-4 population
+is targets `[1,2,3,5,6,7,8,9]`, 1,296 of 1,458 expected units. The same-label
+oracle is unreachable. Seed 3 and seed 4 share targets/trials and are not independent
+subject samples. C79P prepares training-seed robustness only, not target-population
+confirmation.
 
 The accepted C78S scientific base remains:
 
@@ -88,11 +101,11 @@ oaci/reports/C78S_ARTIFACT_MANIFEST.json
 oaci/reports/C79_SEED4_LOCKED_CONFIRMATION_PROTOCOL.json
 ```
 
-Wait for PM repair.  The clean next option is a fully specified, prospectively locked
-**post-seed3 seed-4 replication/robustness study**, explicitly labeled as designed
-after C78S outcomes; the alternative is to stop the seed-4 campaign.  Do not claim
-that a replacement protocol predates C78S outcomes.  C79 Mode E, seed 4,
-BNCI2014_004, same-label oracle, C80, and manuscript work remain blocked and untouched.
+Stop for PI review. C79E requires a new direct authorization bound to protocol
+commit `ec4834c`, the exact replacement SHA above, field lock `35d0c65`, and
+analysis lock `7cebf2e`. C79P itself is not authorization. Seed 4,
+BNCI2014_004, the same-label oracle, C80, and manuscript work remain blocked and
+untouched.
 
 ---
 
@@ -172,7 +185,7 @@ overstatements. Expect to be wrong on the first read; the controls exist to catc
 
 - **Repo:** `git@github.com:W-Yinghao/CMI.git`  ·  **Branch:** `oaci` (fully pushed).
 - **Worktree on the lab machine:** `/home/infres/yinwang/CMI_AAAI_oaci`.
-- **C79 Mode-R review = `70c31bb`**, report/regression finalization = `d180cbe`; no execution lock was created.
+- **C79P protocol = `ec4834c`**, implementation repair = `27d078a`, final field/analysis locks = `35d0c65` / `7cebf2e`, readiness result = `07943c0`; both locks record authorization `false`.
 - **C78S implementation = `e561a15`**, scope-specific lock = `ce1fb14`, result = `43a046c`, handoff = `48be5b7`, regression-provenance correction = `dcd4c28`; all are unsquashed.
 - **C78F result = `51022f4`**; protocol/lock/repair anchors are `1d210fd`, `a902966`, and `f0d49c2`.
 - C31 remains `611988f`; the complete C23–C78S trail is retained unsquashed on `origin/oaci`.
@@ -236,12 +249,13 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C79 Mode R is DONE; Mode E is BLOCKED)
+## 7. How to continue (C79P is DONE; C79E awaits direct PI authorization)
 
-- Do not request or infer seed-4 authorization under the current C79 artifact.  Its hash replays, but its strict pre-C78S timing and exact H1-H6 registry do not.
-- PM must choose whether to lock a new **post-seed3** seed-4 replication/robustness protocol, with that timing category stated honestly, or stop the campaign.
-- Any new protocol must bind H1-H6 formulas, splits/hashes, kernels, models, qualification/materiality gates, null RNG streams, multiplicity, dependence, target-4 exclusion, retry/repair policy, and oracle reachability before seed-4 access.
-- Do not reinterpret C78S split-label actionability as source-only selection, OACI rescue, or deployment.  Do not add feature/kernel search, selectors, checkpoint recommendations, BNCI2014_004, oracle analysis, C80, or manuscript prose.
+- Do not execute seed 4 from this handoff. Obtain direct PI authorization that names the exact C79P protocol commit/SHA and both final lock commits.
+- Before any C79E import of historical workers, create the separately committed authorization record required by the fail-closed adapter and re-run its scope checks.
+- Execute only the locked 1,458-unit ERM/OACI/SRC field, freeze it before label provisioning, keep target 4 out of primary inference, and never create or open the same-label oracle.
+- Run all ten registered paths unconditionally. Do not restore `active_after_Holm`, retune kernels/features, pool p-values across seeds, or branch on interim seed-4 outcomes.
+- Do not reinterpret construction-label actionability as source-only selection, OACI/SRC rescue, or deployment. Do not start BNCI2014_004, C80, another seed, oracle analysis, or manuscript prose.
 
 ---
 
@@ -253,9 +267,10 @@ views stay physically quarantined. Frozen C19 config hash **`664007686afb520f`**
 feature selection, checkpoint recommendation, BNCI2014_004 access, seed-4 access, or manuscript prose.
 
 Historical “no training / no seed 3” defaults were explicitly superseded only for the completed C78/C78R/C78F
-prospective field-generation scopes. C78S was analysis-only. None of these authorize further training or C79. Direct PM authorization no
-longer needs a token, but scope/protocol timing, physical-view isolation, red-team, report, commit, and push remain
-mandatory.
+prospective field-generation scopes. C78S and C79P were analysis/protocol-only.
+None of these authorize C79E training. Direct PI authorization needs no magic
+token, but must bind the exact protocol and both scope-specific locks; physical-view
+isolation, red-team, report, commit, and push remain mandatory.
 
 **FORBIDDEN wording** (the report guards enforce this): "deployable selector", "target-free detector", "OACI rescue",
 "joint deployable improvement", "endpoint/pareto selector", "target oracle as method", "X converges to Y" (without the
