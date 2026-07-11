@@ -1,0 +1,11 @@
+path,level,kernel,bandwidth_factor,statistic,association,group_count,positive_group_fraction
+strict_source,pooled,rbf,1.0,normalized_alignment,0.00165710693285639,1,1.0
+strict_source,within_target,rbf,1.0,normalized_alignment,0.011791085219478144,8,0.875
+strict_source,within_target_x_level,rbf,1.0,normalized_alignment,0.014338966541572844,16,0.625
+strict_source,within_target_x_level_x_regime,rbf,1.0,normalized_alignment,0.009668937835331116,32,0.5625
+strict_source,within_regime,rbf,1.0,normalized_alignment,-0.021942689755021807,3,0.6666666666666666
+target_unlabeled,pooled,laplacian,1.0,centered_hsic,0.03524382762197536,1,1.0
+target_unlabeled,within_target,laplacian,1.0,centered_hsic,0.2134448063541552,8,1.0
+target_unlabeled,within_target_x_level,laplacian,1.0,centered_hsic,0.24911169147493578,16,1.0
+target_unlabeled,within_target_x_level_x_regime,laplacian,1.0,centered_hsic,0.24265629215048484,32,1.0
+target_unlabeled,within_regime,laplacian,1.0,centered_hsic,0.1256624019160483,3,1.0

@@ -1,0 +1,2 @@
+metric,reported_raw_precision,aggregate_from_raw_precision,rounded_display_sum_note,passed
+remaining_instrumentation_job_wall_seconds_sum,1417.922018289566,1,1417.924_vs_1417.922018289566_is_nonblocking_rounding,1

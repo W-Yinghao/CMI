@@ -1,0 +1,4 @@
+estimand,mean,ci_low,ci_high,bootstrap,replicates
+construction_evaluation_reliability,0.6925414515241878,0.6059937158729962,0.7668118561688239,target_cluster_x_shared_trial_id_cluster,499
+construction_top5_hit,0.47319639278557113,0.125,0.8125,target_cluster_x_shared_trial_id_cluster,499
+construction_standardized_regret,0.13560639837160077,0.05781573236916946,0.22404593536153625,target_cluster_x_shared_trial_id_cluster,499

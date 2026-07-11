@@ -41,3 +41,17 @@ C78S protocol commit
 The final audit will add the concrete implementation-lock, execution-lock, and
 Slurm job identities. This document does not claim retrospective preregistration
 or independent target-population confirmation.
+
+## Executed identities
+
+```text
+implementation + primary route commit: e561a15
+scope-specific execution-lock commit:  ce1fb14
+execution-lock SHA-256:                 aee520820cb7b2b94ab43f4e2bf8a30278a36f479296e145c24eaada99df36ad
+analysis Slurm job:                     893151 (cpu-high, 48 CPUs)
+result red-team Slurm job:              893154 (cpu-high, 48 CPUs)
+```
+
+The state ledger records the first unlabeled-feature freeze before H1 and all
+later scientific modules. Construction/evaluation payload routing occurred only
+inside job `893151`, after commit `ce1fb14`. The same-label oracle was not opened.

@@ -1,0 +1,251 @@
+{
+  "C79_protocol": {
+    "execution_authorized": false,
+    "path": "oaci/reports/C79_SEED4_LOCKED_CONFIRMATION_PROTOCOL.json",
+    "sha256": "7732986513793725d58933d487f5bc8f4fc68bfad0857bb4734a450b41ca5dd4"
+  },
+  "active_taxonomy": [
+    "C78S-H3_local_nonlinear_association_nontransportable_nonactionable",
+    "C78S-H4_no_registered_strict_source_representation_escape_hatch",
+    "C78S-H5_no_registered_target_unlabeled_representation_actionable_control",
+    "C78S-S1_complete_1296_unit_primary_field_consumed",
+    "C78S-S2_target4_mechanically_excluded",
+    "C78S-S3_same_label_oracle_not_accessed",
+    "C78S-S4_seed3_exploratory_not_confirmation",
+    "C78S-S5_seed4_untouched",
+    "C78S-S6_C79_protocol_ready_execution_not_authorized"
+  ],
+  "authorization": {
+    "mode": "direct_explicit_user_authorization",
+    "received": true,
+    "scope": "C78S_locked_seed3_analysis_only"
+  },
+  "execution_lock_sha256": "aee520820cb7b2b94ab43f4e2bf8a30278a36f479296e145c24eaada99df36ad",
+  "field": {
+    "levels": [
+      0,
+      1
+    ],
+    "primary_targets": [
+      1,
+      2,
+      3,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "regimes": [
+      "ERM",
+      "OACI",
+      "SRC"
+    ],
+    "seed": 3,
+    "seed3_role": "exploratory_replication_not_seed_confirmation",
+    "target4_primary": false,
+    "units": 1296
+  },
+  "final_gate": "SEED3_MIXED_RESULTS_C79_PROTOCOL_REVIEW_REQUIRED",
+  "headline": {
+    "construction_delta_top5": 0.6875,
+    "construction_regret_reduction": 0.6966816506098337,
+    "geometry_deviance_reduction": -9.505920587315757,
+    "geometry_p": 0.896,
+    "local_association": 0.24265629215048484,
+    "reliability_ci_high": 0.8416953313599235,
+    "reliability_ci_low": 0.6999899035087932,
+    "strict_source_incremental_R2": -0.07308583875591457,
+    "target_unlabeled_incremental_R2": 0.005176499403102386,
+    "trajectory_reliability_mean": 0.7708629907592237
+  },
+  "information_boundaries": {
+    "BNCI2014_004": false,
+    "C79_execution": false,
+    "GPU": false,
+    "forward": false,
+    "manuscript_drafting": false,
+    "reinference": false,
+    "row_order_predictor": false,
+    "same_label_oracle_accessed": false,
+    "seed4": false,
+    "selector_or_checkpoint_recommendation": false,
+    "training": false,
+    "trial_id_predictor": false
+  },
+  "milestone": "C78S",
+  "nonoracle_output_manifest": {
+    "manifest_sha256": "d642dc19f60be792ffc4a059474a14547e6872b0cb2443ec7411ddf817d61de4",
+    "path": "/projects/EEG-foundation-model/yinghao/oaci-c78s-seed3-science/protocol_df85699090a65d1e/implementation_5d268e2eeec6bea0/C78S_NONORACLE_PRIMARY_OUTPUTS.json",
+    "sha256": "aa88f2f2835e424b8c1521c6037ecf02f89d21ef43b67819144bb0b154377412"
+  },
+  "primary_freeze_manifest_sha256": "52f732e31bfe70d1104dc013342b52a0f2bfe040f5fda27e4181976683c66c39",
+  "primary_hypotheses": [
+    {
+      "Holm_note": "positive_evidence_requires_Holm_rejection",
+      "Holm_p": 0.058365758754863814,
+      "Holm_reject_0.05": 0,
+      "absence_claim_rule": "actionability_nonqualification_not_null_acceptance",
+      "active_after_Holm": 0,
+      "active_before_Holm": 0,
+      "claim": "measurement_control_separation_replicates",
+      "effect": 0.7708629907592237,
+      "hypothesis": "H1",
+      "material_gate": 0,
+      "raw_p": 0.011673151750972763
+    },
+    {
+      "Holm_note": "positive_evidence_requires_Holm_rejection",
+      "Holm_p": 1,
+      "Holm_reject_0.05": 0,
+      "absence_claim_rule": "not_applicable",
+      "active_after_Holm": 0,
+      "active_before_Holm": 0,
+      "claim": "effective_multiplicity_top_gap_improve_failure_anatomy_beyond_raw_M",
+      "effect": -9.505920587315757,
+      "hypothesis": "H2",
+      "material_gate": 0,
+      "raw_p": 0.896
+    },
+    {
+      "Holm_note": "positive_evidence_requires_Holm_rejection",
+      "Holm_p": 0.012,
+      "Holm_reject_0.05": 1,
+      "absence_claim_rule": "transport_and_actionability_gates_not_p_greater_0.05",
+      "active_after_Holm": 1,
+      "active_before_Holm": 1,
+      "claim": "local_nonlinear_association_nontransportable_nonactionable",
+      "effect": 0.24265629215048484,
+      "hypothesis": "H3",
+      "material_gate": 1,
+      "raw_p": 0.002
+    },
+    {
+      "Holm_note": "nonqualification_does_not_require_accepting_a_null",
+      "Holm_p": 1,
+      "Holm_reject_0.05": 0,
+      "absence_claim_rule": "registered_candidate_nonqualification_only",
+      "active_after_Holm": 1,
+      "active_before_Holm": 1,
+      "claim": "no_registered_strict_source_representation_escape_hatch",
+      "effect": -0.07308583875591457,
+      "hypothesis": "H4",
+      "material_gate": 1,
+      "raw_p": 1
+    },
+    {
+      "Holm_note": "nonqualification_does_not_require_accepting_a_null",
+      "Holm_p": 1,
+      "Holm_reject_0.05": 0,
+      "absence_claim_rule": "registered_candidate_nonqualification_only",
+      "active_after_Holm": 1,
+      "active_before_Holm": 1,
+      "claim": "no_registered_target_unlabeled_representation_actionable_control",
+      "effect": 0.005176499403102386,
+      "hypothesis": "H5",
+      "material_gate": 1,
+      "raw_p": 1
+    },
+    {
+      "Holm_note": "positive_evidence_requires_Holm_rejection",
+      "Holm_p": 0.07782101167315175,
+      "Holm_reject_0.05": 0,
+      "absence_claim_rule": "not_applicable",
+      "active_after_Holm": 0,
+      "active_before_Holm": 1,
+      "claim": "split_label_construction_strongest_registered_nonoracle_positive_control",
+      "effect": 0.40432932651535547,
+      "hypothesis": "H6",
+      "material_gate": 1,
+      "raw_p": 0.019455252918287938
+    }
+  ],
+  "protocol_sha256": "df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3f4884487c7f8",
+  "red_team": {
+    "blocking_failures": 0,
+    "checks": 60,
+    "report": "oaci/reports/C78S_AUTHORIZED_RED_TEAM_VERIFICATION.md",
+    "sha256": "b5642113a7ca9ac51f23fdd925b5078507345c36e5fa4cc209d8b9358152c785",
+    "status": "PASS"
+  },
+  "registered_candidate_gates": {
+    "h3_transport_qualified": 0,
+    "h6_target_effect_mean": 0.40432932651535547,
+    "h6_target_sign_p": 0.019455252918287938,
+    "strict_source": {
+      "all_registered_gates_pass": 0,
+      "gate_interpretation": "no_registered_candidate_qualification",
+      "incremental_R2": -0.07308583875591457,
+      "leave_regime_median": 0.119435571436942,
+      "leave_target_median": -0.020575504437867733,
+      "material_actionability": 1,
+      "max_stat_corrected_p": 1,
+      "path": "strict_source_F2",
+      "positive_targets": 4
+    },
+    "target_unlabeled": {
+      "all_registered_gates_pass": 0,
+      "gate_interpretation": "no_registered_candidate_qualification",
+      "incremental_R2": 0.005176499403102386,
+      "leave_regime_median": -0.030104329173166938,
+      "leave_target_median": 0.23309637420066864,
+      "material_actionability": 1,
+      "max_stat_corrected_p": 1,
+      "path": "target_unlabeled_F4_geometry",
+      "positive_targets": 5
+    }
+  },
+  "schema_version": "c78s_seed3_scientific_analysis_result_v1",
+  "regressions": [
+    {
+      "suite": "focused",
+      "job_id": 893155,
+      "partition": "cpu-high",
+      "cpus": 48,
+      "passed": 43,
+      "skipped": 0,
+      "failed": 0,
+      "stderr_empty": true,
+      "wall_seconds": 1.79
+    },
+    {
+      "suite": "c65_c78s",
+      "job_id": 893156,
+      "partition": "cpu-high",
+      "cpus": 48,
+      "passed": 256,
+      "skipped": 1,
+      "failed": 0,
+      "stderr_empty": true,
+      "wall_seconds": 55.72
+    },
+    {
+      "suite": "c23_c78s",
+      "job_id": 893157,
+      "partition": "cpu-high",
+      "cpus": 48,
+      "passed": 663,
+      "skipped": 1,
+      "failed": 0,
+      "stderr_empty": true,
+      "wall_seconds": 65.4
+    },
+    {
+      "suite": "full_oaci",
+      "job_id": 893158,
+      "partition": "cpu-high",
+      "cpus": 48,
+      "passed": 1591,
+      "skipped": 1,
+      "failed": 0,
+      "stderr_empty": true,
+      "wall_seconds": 425.12
+    }
+  ],
+  "final_report_red_team": {
+    "status": "PASS",
+    "checks": 20,
+    "blocking_failures": 0,
+    "report": "oaci/reports/C78S_FINAL_REPORT_RED_TEAM.md"
+  }
+}

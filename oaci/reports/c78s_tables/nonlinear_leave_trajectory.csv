@@ -1,0 +1,13 @@
+path,held_trajectory_template,row_count,increment_residual_rho
+strict_source,level-0|ERM,8,nan
+strict_source,level-0|OACI,320,0.006379456830633111
+strict_source,level-0|SRC,320,-0.17021467494799752
+strict_source,level-1|ERM,8,nan
+strict_source,level-1|OACI,320,0.10442533618492368
+strict_source,level-1|SRC,320,-0.35591033603843786
+target_unlabeled,level-0|ERM,8,nan
+target_unlabeled,level-0|OACI,320,-0.056509096768523136
+target_unlabeled,level-0|SRC,320,-0.06099156241760173
+target_unlabeled,level-1|ERM,8,nan
+target_unlabeled,level-1|OACI,320,0.03667894706002989
+target_unlabeled,level-1|SRC,320,-0.1363398324202385

@@ -1,0 +1,21 @@
+check,status,blocking,evidence
+final_gate_exact,PASS,0,SEED3_MIXED_RESULTS_C79_PROTOCOL_REVIEW_REQUIRED
+active_taxonomy_exact,PASS,0,H3+H4+H5
+H1_counter_result_explicit,PASS,0,H1 did not replicate
+H1_material_actionability_explicit,PASS,0,top5 and regret gates passed
+H2_inactive_explicit,PASS,0,deviance reduction -9.505921 p 0.896
+H3_association_prediction_separated,PASS,0,local association reported separately from transport
+H4_registered_nonqualification_only,PASS,0,no universal source-function claim
+H5_registered_nonqualification_only,PASS,0,no universal target-unlabeled claim
+H6_Holm_inactive_explicit,PASS,0,Holm p 0.077821
+result_red_team_replayed,PASS,0,60 of 60 zero blockers
+artifact_table_hashes_replayed,PASS,0,all compact tables match manifest
+final_report_hash_replayed,PASS,0,74ff2c4a958539adfd47e5914e12b22402e53bf2f4d1014535a713809851c2e1
+regression_report_hash_replayed,PASS,0,e67c8c90169da0247391097bd49c397ddb390fb1150548595b5fe249a1fb47d3
+focused_regression,PASS,0,43 passed
+c65_regression,PASS,0,256 passed 1 conditional skip
+c23_regression,PASS,0,663 passed 1 conditional skip
+full_regression,PASS,0,1591 passed 1 conditional skip
+C79_not_authorized,PASS,0,protocol only authorization_received false
+same_label_oracle_not_accessed,PASS,0,false
+seed4_not_accessed,PASS,0,false
