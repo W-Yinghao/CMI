@@ -72,10 +72,31 @@ def load_frozen_module(repo_root):
 def find_run_locals(exc):
     trace = exc.__traceback__
     while trace is not None:
-        if trace.tb_frame.f_code.co_name == "run":
+        local_keys = trace.tb_frame.f_locals.keys()
+        if (
+            "variance_rows" in local_keys
+            and "unstable_tags" in local_keys
+        ):
             return dict(trace.tb_frame.f_locals)
         trace = trace.tb_next
     raise RuntimeError("frozen B1 exception did not retain the run frame")
+
+
+def traceback_frame_self_test():
+    def frozen_run():
+        variance_rows = ["sentinel"]
+        unstable_tags = ["sentinel"]
+        raise RuntimeError("sentinel")
+
+    def run():
+        try:
+            frozen_run()
+        except RuntimeError as exc:
+            captured = find_run_locals(exc)
+            if captured.get("variance_rows") != ["sentinel"]:
+                raise RuntimeError("traceback frame selector chose the wrapper frame")
+
+    run()
 
 
 def ensure_hashes_still_match(hash_rows):
@@ -443,6 +464,7 @@ def main():
     if args.self_test:
         module, source_sha = load_frozen_module(Path(args.repo_root).resolve())
         module.run_self_tests()
+        traceback_frame_self_test()
         print(f"Frozen source replay self-test: PASS commit={FROZEN_COMMIT} sha256={source_sha}")
         return
     run(args)

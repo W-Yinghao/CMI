@@ -1,0 +1,41 @@
+{
+  "bootstrap_reps": 5000,
+  "bootstrap_seed": 20260711,
+  "checkpoint_manifest": "/home/infres/yinwang/CMI_AAAI_s2p_faced/results/s2p_route_b_phase_b_checkpoint_closure/phase_b_checkpoint_immutable_manifest.csv",
+  "checkpoint_manifest_sha256": "b47be85a1ba7567551c68538e84912b0034f8b51b50c676c9b8267f478c2d4c1",
+  "checkpoint_objects": [
+    "random",
+    "released",
+    "H200_s0",
+    "H200_s1",
+    "H500_s0",
+    "H500_s1",
+    "H1000_s0",
+    "H1000_s1",
+    "H2000_s0",
+    "H2000_s1"
+  ],
+  "checksum_input_sha256": "d0e17a3513196666a3da2b19cec5e5a1f3f87d78500ea0e656d8ec238481734e",
+  "codebrain": false,
+  "feature_layer": "final_encoder_patch_mean_flatten_32x200",
+  "fine_tuning": false,
+  "geometry": "fold_fit_PCA128_whiten_equal_rank8_projection_overlap",
+  "git_head": "a04ed63e8afce79d71a836482b2be372af018dea",
+  "h4000": false,
+  "holm_family_size": 3,
+  "layerwise": false,
+  "new_pretraining": false,
+  "phase": "B1_final_representation_decomposition",
+  "pm_b1_authorized": true,
+  "primary_family": [
+    "random_minus_H200_subject_nll",
+    "H200_minus_pooled_high_target_nll",
+    "pooled_high_minus_H200_projection_overlap"
+  ],
+  "protocol_sha256": "8a01d5087c105561aa198c0929cdbb6b66e83b85a8111f25e4bce7e3ec40099f",
+  "redteam_sha256": "6eab5e869bd4bc5a77af1e97e52f2ffcbc74b80edb9790eb4acd96e051739d1e",
+  "subject_probe": "PCA128_whiten_C1_lbfgs_clip_group_3fold",
+  "target_labels_used_for_selection": false,
+  "task_probe": "PCA128_whiten_C1_lbfgs_source_train_fit",
+  "variance": "raw6400_cross_fitted_equal_cell_trace"
+}

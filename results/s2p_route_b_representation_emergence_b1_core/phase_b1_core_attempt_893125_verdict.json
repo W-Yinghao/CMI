@@ -1,0 +1,13 @@
+{
+  "attempt_job_id": "893125",
+  "commit": "a04ed63e8afce79d71a836482b2be372af018dea",
+  "failure_stage": "forensic_traceback_frame_persistence",
+  "frozen_scientific_replay_reached_variance_gate": true,
+  "independent_verifier_run": false,
+  "phase_b2_authorized": false,
+  "root_cause": "the persistence wrapper selected its outer run frame instead of the frozen scientific run frame",
+  "scientific_artifacts_persisted": false,
+  "scientific_source_changed": false,
+  "status": "FAILED_LOGGING_ONLY",
+  "target_labels_used_for_selection": false
+}

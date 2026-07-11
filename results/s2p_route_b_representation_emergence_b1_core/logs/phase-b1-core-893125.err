@@ -1,0 +1,11 @@
+Traceback (most recent call last):
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_forensic_core_replay.py", line 452, in <module>
+    main()
+    ~~~~^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_forensic_core_replay.py", line 448, in main
+    run(args)
+    ~~~^^^^^^
+  File "/home/infres/yinwang/CMI_AAAI_s2p_faced/s2p/scripts/route_b_phase_b1_forensic_core_replay.py", line 408, in run
+    raise RuntimeError(f"forensic traceback lacks required frozen state: {missing}")
+RuntimeError: forensic traceback lacks required frozen state: ['hash_rows', 'feature_rows', 'subject_metric_rows', 'subject_cluster_rows', 'subject_pair_rows', 'task_metric_rows', 'task_sample_rows', 'geometry_rows', 'variance_rows', 'variance_samples', 'source_counts', 'target_counts', 'subject_nll_samples', 'subject_margin_samples', 'subject_auc_samples', 'target_nll_samples', 'target_kappa_samples', 'target_bacc_samples', 'geometry_samples', 'geometry_cells', 'geometry_hold_cells', 'primary_rows', 'sensitivity_rows', 'p1_samples', 'p2_samples', 'p3_samples']
+srun: error: nodeaudible01: task 0: Exited with exit code 1
