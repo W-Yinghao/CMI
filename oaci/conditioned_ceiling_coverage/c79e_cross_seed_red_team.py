@@ -298,7 +298,7 @@ def audit() -> dict[str, Any]:
         {"scope": "H5R", "reason": "registered_F4_did_not_qualify", "blocking_provenance_failure": 0},
         {"scope": "H6R", "reason": "fixed_Holm_family_inactive", "blocking_provenance_failure": 0},
     ]
-    write_csv(TABLE_DIR / "failure_reason_ledger.csv", failure_rows)
+    write_csv(TABLE_DIR / "c79e_failure_reason_ledger.csv", failure_rows)
 
     risk_names = [
         "historical_protocol_retroactively_relabelled", "seed4_access_before_replacement_lock",
@@ -315,7 +315,7 @@ def audit() -> dict[str, Any]:
         "BNCI2014_004_scope_creep", "manuscript_scope_creep", "C80_automatic_authorization",
     ]
     risk_rows = [{"risk": name, "status": "CLOSED", "blocking": 0, "evidence": "C79E scientific result red-team replay"} for name in risk_names]
-    write_csv(TABLE_DIR / "risk_register.csv", risk_rows)
+    write_csv(TABLE_DIR / "c79e_risk_register.csv", risk_rows)
 
     checks = [
         ("replacement_protocol_hash", sha256_file(PROTOCOL) == PROTOCOL_SHA),
