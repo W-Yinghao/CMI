@@ -1,0 +1,28 @@
+check,passed,evidence
+direct_authorization_bound,1,direct PI record
+protocol_commit_bound,1,ec4834c74e58ba8423a357e589d8e20ad6b3f8ba
+protocol_sha_bound,1,e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587
+field_lock_bound,1,35d0c65d76a6a094dd4a73cd3412363a70764f7c
+analysis_lock_bound,1,7cebf2e23226f0380452448e3b78ca96a1834cb2
+complete_field_exact,1,1458
+primary_field_exact,1,1296
+target4_excluded,1,engineering only
+target_training_isolation,1,0/0
+construction_evaluation_disjoint,1,overlap 0
+same_label_oracle_closed,1,closed
+all_paths_unconditional,1,10/10
+P1_decision_exact,1,compound fail
+P2_decision_exact,1,compound fail
+H2R_nonqualification_exact,1,unqualified
+H4R_nonqualification_exact,1,unqualified
+H5R_nonqualification_exact,1,unqualified
+H6R_familywise_exact,1,inactive
+scientific_red_team,1,17/17
+no_cross_seed_rescue,1,0 combined p
+P2_gate_heterogeneity_disclosed,1,P2 only
+repairs_additive_non_scientific,1,6/6
+C79E_risks_closed,1,29/29
+Mode_R_manifest_replays_after_namespace_repair,1,29/29
+final_regressions_pass,1,4/4
+final_gate_exact,1,C79-E_seed4_does_not_replicate_either_core_pattern
+claim_and_stop_boundary,1,training-seed only

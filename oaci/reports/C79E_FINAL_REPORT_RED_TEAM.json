@@ -1,0 +1,11 @@
+{
+  "C80_authorized": false,
+  "blocking_failures": 0,
+  "checks_passed": 27,
+  "checks_total": 27,
+  "final_gate": "C79-E_seed4_does_not_replicate_either_core_pattern",
+  "mode_r_history_preserved": true,
+  "passed": true,
+  "same_label_oracle_accessed": false,
+  "schema_version": "c79e_final_report_red_team_v1"
+}

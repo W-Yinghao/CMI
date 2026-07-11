@@ -109,7 +109,47 @@
   "red_team": {
     "authorization_preflight": "24/24 PASS",
     "blocking_risks": 0,
+    "final_report": "27/27 PASS",
     "scientific_result": "17/17 PASS"
+  },
+  "regressions": [
+    {
+      "deselected": 3,
+      "failed": 0,
+      "job_id": 893716,
+      "passed": 35,
+      "skipped": 0,
+      "suite": "focused"
+    },
+    {
+      "deselected": 3,
+      "failed": 0,
+      "job_id": 893717,
+      "passed": 312,
+      "skipped": 1,
+      "suite": "c65_c79e"
+    },
+    {
+      "deselected": 3,
+      "failed": 0,
+      "job_id": 893715,
+      "passed": 719,
+      "skipped": 1,
+      "suite": "c23_c79e"
+    },
+    {
+      "deselected": 3,
+      "failed": 0,
+      "job_id": 893714,
+      "passed": 1647,
+      "skipped": 1,
+      "suite": "full_oaci"
+    }
+  ],
+  "regression_repair": {
+    "first_attempt_failures_preserved": true,
+    "historical_Mode_R_hashes_restored": true,
+    "scientific_outputs_changed": false
   },
   "repairs": {
     "additive_repairs": 6,
@@ -160,4 +200,3 @@
     "C79-S23_C80_not_automatically_authorized"
   ]
 }
-

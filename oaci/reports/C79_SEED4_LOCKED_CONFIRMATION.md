@@ -147,10 +147,24 @@ Authorization/lock preflight passed 24/24 checks, the scientific-result red
 team passed 17/17 checks, target 4 remained outside every primary estimand,
 null, and multiplicity family, and the same-label oracle remained closed.
 
+## Final validation
+
+```text
+focused:    35 passed, 3 pre-authorization-state deselected
+C65-C79E:  312 passed, 1 finalized-C78F skip, 3 deselected
+C23-C79E:  719 passed, 1 finalized-C78F skip, 3 deselected
+full OACI: 1,647 passed, 1 finalized-C78F skip, 3 deselected
+```
+
+The first complete regression attempt retained three failures caused by C79E
+reusing two historical Mode-R audit filenames. An additive namespace repair
+restored the exact historical hashes and moved the C79E ledgers to `c79e_*`
+paths. The full rerun passed without changing any scientific output. The C79E
+final-report red team then passed 27/27 checks.
+
 ## Stop boundary
 
 C79E changes the training-seed robustness evidence only. It does not authorize
 C80, seed 5, BNCI2014_004, new targets, a new feature/kernel/model campaign,
 same-label-oracle analysis, checkpoint recommendations, deployability claims,
 or manuscript drafting.
-

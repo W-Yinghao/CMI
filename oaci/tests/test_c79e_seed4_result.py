@@ -128,3 +128,25 @@ def test_final_report_preserves_claim_and_stop_boundaries():
     assert "does not authorize" in report
     assert "C79-E_seed4_does_not_replicate_either_core_pattern" in report
 
+
+def test_final_regression_record_has_four_passing_suites():
+    rows = _rows("c79e_regression_verification.csv")
+    assert len(rows) == 4
+    assert {row["suite"] for row in rows} == {"focused", "c65_c79e", "c23_c79e", "full_oaci"}
+    assert all(row["status"] == "PASS" for row in rows)
+    assert all(row["failed"] == "0" for row in rows)
+
+
+def test_failed_regression_attempts_are_preserved():
+    rows = _rows("c79e_regression_attempt_ledger.csv")
+    failures = [row for row in rows if row["status"] == "FAIL_RETAINED"]
+    assert {row["job_id"] for row in failures} == {"893710", "893711", "893712"}
+    assert all(row["replacement_job"] not in {"", "none"} for row in failures)
+
+
+def test_c79e_uses_namespaced_risk_and_failure_ledgers():
+    risks = _rows("c79e_risk_register.csv")
+    failures = _rows("c79e_failure_reason_ledger.csv")
+    assert risks and all(row["blocking"] == "0" for row in risks)
+    assert len(failures) == 6
+    assert all(row["blocking_provenance_failure"] == "0" for row in failures)
