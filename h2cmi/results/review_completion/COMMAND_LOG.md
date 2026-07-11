@@ -237,3 +237,14 @@
   10,000-replicate paired subject-cluster bootstrap used seed `20260710`
   after averaging seeds within dataset x target subject x method. No extra
   seed, method, TeX, H2CMI, geometry-stress, or orthogonal-score work was run.
+
+- Per PM P10, completed the CPU-only repaired-W1 comparability audit and final evidence freeze. Source artifacts remained byte-identical: H2CMI
+  `6d5106a78dad9ce852c8e01ca292ef5b4a37bbeaaaac810a177dccb8b6b9089c` and official SPDIM `95b8f69556a140dc020415753c9694cf9ebdeed1abb0766dd24f523c491289c3`. Both packets
+  match repaired manifest `231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e`. The standardized table contains
+  50 pipeline-method-scope rows; the harmonized harm audit contains 120 rows.
+  All newly recomputed intervals are labeled
+  `posthoc_cross_pipeline_comparability_audit` and use 10,000 dataset-stratified target-subject cluster
+  replicates with seed `20260710` after averaging source seeds. The
+  audit permits only same-split full-pipeline comparison, not adapter-only
+  attribution. No experiment, model run, split change, seed, or method was
+  added.
