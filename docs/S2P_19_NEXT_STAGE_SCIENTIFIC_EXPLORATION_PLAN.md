@@ -87,12 +87,15 @@ random, released, H200, H1000, and immutable H2000. Require released > random, a
 split/channel/sequence path, and adequate subject-cluster power. A failed released gate stops the task; no silent
 third-dataset search. Held until A-D review.
 
-### Phase F - Bounded CodeBrain replication
+### Phase F - Bounded CodeBrain replication (ACTIVE BY PM REPRIORITIZATION)
 
 After the CBraMod mechanism questions are resolved, choose two or three budgets around the empirically determined
 threshold. Test subject fingerprint emergence, task transfer, and task-gated L5. Do not make temporal-token claims
 without resolving temporal-code collapse. Do not compare CodeBrain's 19-channel substrate unconditionally with
-CBraMod Route B 33-channel results. Held until A-E review or explicit PM reprioritization.
+CBraMod Route B 33-channel results. The PM invoked the explicit reprioritization after B1-Core: the bounded
+Stage-2 test is now the active candidate phase, while full 1k-9k replication remains a separate deferred project.
+The frozen implementation and claim contract are S2P_23/S2P_24. Training remains held until their fail-closed
+preflight passes and returns for PM review.
 
 ## Unified discipline
 
