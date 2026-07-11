@@ -14,52 +14,55 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-11)
 
-The authoritative tip is C78F, the completed full seed-3 multi-regime field-generation milestone:
+The authoritative tip is C78S, the completed full seed-3 multi-regime scientific analysis:
 
 ```text
-C78F protocol commit:       1d210fd
-C78F execution lock:        a902966
-C78F collector repair:      f0d49c2
-C78F result commit:         51022f4
-C78F primary:               C78F-A_full_seed3_field_executed_and_manifested
-C78F final gate:            FULL_SEED3_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED
-C78S analysis started:      false
+C78S protocol SHA:          df85699090a65d1e1766d754bcebd9eb5648cc13e4441d8074a3f4884487c7f8
+C78S implementation:        e561a15
+C78S execution lock:        ce1fb14
+C78S result commit:         43a046c
+C78S lock SHA:              aee520820cb7b2b94ab43f4e2bf8a30278a36f479296e145c24eaada99df36ad
+C78S analysis job:          893151 (cpu-high, 48 CPUs)
+C78S final gate:            SEED3_MIXED_RESULTS_C79_PROTOCOL_REVIEW_REQUIRED
+C78S active primary:        H3 + H4 + H5
 ```
 
-C78F generated the prospectively locked remaining field over targets `[1,2,3,5,6,7,8,9]`, seed 3, levels 0/1, and exact historical ERM/OACI/SRC paths. Wave A `[8,9,3,6]` and Wave B `[5,2,7,1]` each passed an engineering-only gate; no target scientific outcome entered wave continuation, training, retention, or retry.
+C78S consumed the 1,296-unit primary seed-3 field over targets `[1,2,3,5,6,7,8,9]`, levels 0/1, and exact historical ERM/OACI/SRC paths. Target 4 was mechanically excluded from every primary estimand, null pool, and multiplicity family. Construction/evaluation IDs were disjoint and covered all 576 trials per target. The primary route contained no same-label-oracle descriptor; trial ID and row order were join/split/cluster keys only.
 
 ```text
-remaining units:           1,296 = 16 ERM + 640 OACI + 640 SRC
-complete seed-3 field:     1,458 = 18 ERM + 720 OACI + 720 SRC
-strict-source rows:        6,718,464
-target-unlabeled rows:       839,808
-target training rows/labels:        0/0
-source-audit training rows:           0
-identity failures:                    0
-measured remaining GPU phase wall: 6.862118 h
-measured remaining payload: 26,766,911,921 bytes
+split-label trajectory reliability:  0.770863
+target-cluster 95% CI:               [0.699990, 0.841695]
+construction top-1 / top-5 / top-10: 0.1250 / 0.6875 / 0.7500
+random top-1 / top-5 / top-10:       0.0123 / 0.0617 / 0.1235
+construction standardized regret:    0.0828
+random expected standardized regret: 0.4820
+strict-source F2 incremental R2:     -0.073086
+target-unlabeled F4 incremental R2:   0.005176
+target-unlabeled local association:   0.242656 (worst max-stat p=0.002)
+target-unlabeled nonlinear LOTO R2:  -0.212875
+target-unlabeled nonlinear LORO R2:  -0.085796
 ```
 
-Target 4 remains the previously observed engineering canary and is excluded from every C78S primary test. C78S was hash-locked before remaining-target label-view access but has not started. Seed 4 remains untouched and reserved for C79; BNCI2014_004 remains untouched.
+The key counter-result is H1: prior measurement-control separation did **not** replicate for the split-label target-information class. The measurement was highly reliable and passed the pre-locked top-k/regret materiality gate, so H1 is inactive; it also narrowly misses H1-H6 Holm correction (`p=0.0584`). This does not rescue source-only selection: construction labels are target-label-derived and diagnostic-only.
 
-Collector job `893052` failed only on the compact descriptor key `rows` versus the frozen ABI `row_count`. Additive repair `f0d49c2` passed 10/10 pre-execution red-team checks and replacement job `893055` completed without training, forward, GPU, target-label, or target-metric work. Every execution-locked implementation file remained byte-identical.
+H2 is inactive: the registered effective-multiplicity/top-gap model worsened held-target top-1-miss deviance (`-9.5059`, p=0.896). H3 is active: target-unlabeled geometry retains a local nonlinear association in all 32 eligible trajectory cells and passes six blocked controls, but fixed-kernel held-target/held-regime prediction worsens and actionability does not qualify. H4/H5 mean only that the exact registered strict-source F2 and target-unlabeled F4 candidates fail the full gate; they are not universal impossibility claims. H6 is descriptively strong (`incremental R2=0.4043`, raw p=0.0195) but inactive after Holm (`p=0.0778`).
 
-Final independent red team: `57/57` pass. Regression: `focused=32`, `C65-C78F=214`, `C23-C78F=621`, `full_OACI=1549`, all green.
+Pre-execution red team: `45/45`. Independent scientific result red team: `60/60`. Final report red team: `20/20`. Regression: `focused=43`, `C65-C78S=256 pass + 1 conditional skip`, `C23-C78S=663 pass + 1 conditional skip`, `full_OACI=1591 pass + 1 conditional skip`; all stderr logs are empty.
 
-Authorization governance changed by PM instruction: a direct, explicit user statement such as “I authorize C78F” is authorization. Do not require a magic token. Real execution must still bind that approval to a committed, scope-specific protocol/execution lock before data access or job submission.
+Authorization governance: direct, explicit PM authorization is sufficient; no magic token is required. Real execution must still bind that approval to a committed, scope-specific protocol/execution lock before restricted data access or job submission.
 
 Authoritative artifacts:
 
 ```text
-oaci/reports/C78F_FULL_SEED3_FIELD.md
-oaci/reports/C78F_FULL_SEED3_FIELD.json
-oaci/reports/C78F_AUTHORIZED_RED_TEAM_VERIFICATION.md
-oaci/reports/C78F_COLLECTOR_REPAIR_RED_TEAM.md
-oaci/reports/C78S_SEED3_SCIENTIFIC_ANALYSIS_PROTOCOL.json
-oaci/reports/c78f_tables/artifact_manifest.csv
+oaci/reports/C78S_SEED3_SCIENTIFIC_ANALYSIS.md
+oaci/reports/C78S_SEED3_SCIENTIFIC_ANALYSIS.json
+oaci/reports/C78S_AUTHORIZED_RED_TEAM_VERIFICATION.md
+oaci/reports/C78S_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C78S_ARTIFACT_MANIFEST.json
+oaci/reports/C79_SEED4_LOCKED_CONFIRMATION_PROTOCOL.json
 ```
 
-Wait for PM review. C78S, C79, and external-dataset work are not started or authorized by C78F.
+Wait for PM review. C79 execution, seed 4, BNCI2014_004, and manuscript work remain unauthorized and untouched.
 
 ---
 
@@ -139,8 +142,9 @@ overstatements. Expect to be wrong on the first read; the controls exist to catc
 
 - **Repo:** `git@github.com:W-Yinghao/CMI.git`  ·  **Branch:** `oaci` (fully pushed).
 - **Worktree on the lab machine:** `/home/infres/yinwang/CMI_AAAI_oaci`.
-- **C78F result = `51022f4`** on `origin/oaci`; protocol/lock/repair anchors are `1d210fd`, `a902966`, and `f0d49c2`.
-- C31 remains `611988f`; the complete C23–C78F trail is retained unsquashed on `origin/oaci`.
+- **C78S implementation = `e561a15`**, scope-specific lock = `ce1fb14`, result = `43a046c`; all are unsquashed.
+- **C78F result = `51022f4`**; protocol/lock/repair anchors are `1d210fd`, `a902966`, and `f0d49c2`.
+- C31 remains `611988f`; the complete C23–C78S trail is retained unsquashed on `origin/oaci`.
 
 ---
 
@@ -201,12 +205,12 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C78F is DONE; C78S is locked but not started)
+## 7. How to continue (C78S is DONE; C79 is protocol-only)
 
-- Wait for PM review before C78S. C78F authorization covered generation only and does not silently start analysis.
-- If approved, C78S consumes the complete seed-3 physical views read-only, excludes target 4 from primary tests, and executes the already hash-locked hypotheses/nulls/materiality/multiplicity contract. It performs no training or forward pass.
-- C78S must lock the exact C79 seed-4 confirmation protocol but must not touch seed 4. C79 requires a later explicit authorization.
-- Do not add features, kernels, regimes, endpoints, selectors, checkpoint recommendations, BNCI2014_004 access, or manuscript prose outside the locked protocol.
+- Wait for PM review of the mixed C78S result. Do not silently start C79.
+- C79's protocol is locked, but its execution requires a later direct authorization. Seed 4 has not been accessed.
+- If C79 is approved, analyze seed 4 alone before any seed-3 pooling and preserve the fixed C78S feature, null, multiplicity, materiality, view-isolation, and ERM-anchor contracts.
+- Do not reinterpret C78S split-label actionability as source-only selection, OACI rescue, or deployment. Do not add features, kernels, regimes, endpoints, selectors, checkpoint recommendations, BNCI2014_004 access, or manuscript prose outside the locked C79 protocol.
 
 ---
 
@@ -218,7 +222,7 @@ views stay physically quarantined. Frozen C19 config hash **`664007686afb520f`**
 feature selection, checkpoint recommendation, BNCI2014_004 access, seed-4 access, or manuscript prose.
 
 Historical “no training / no seed 3” defaults were explicitly superseded only for the completed C78/C78R/C78F
-prospective field-generation scopes. They do not authorize any further training or C79. Direct PM authorization no
+prospective field-generation scopes. C78S was analysis-only. None of these authorize further training or C79. Direct PM authorization no
 longer needs a token, but scope/protocol timing, physical-view isolation, red-team, report, commit, and push remain
 mandatory.
 
@@ -237,7 +241,8 @@ metric). **Oracle quantities are "oracle diagnostic, not deployable."**
   adversarial multi-agent verify after; P0 replay-identity gate before re-inference; prefer real re-inference over
   proxy when GPU idle; reason-code every feature/unit loss and fail loud; two-commit + auto-push + `Co-Authored-By`;
   PM decisions as free-text prose (never a picker); verify against real git, not stale CDN URLs.
-- The mechanism chain's one-line ledger entry: *target-good checkpoints exist but the source-only signal is a weak
-  within-target rank whose cross-target gauge (class-conditioned-confidence effective logit bias = target-identity
-  fingerprint) is source-unobservable and only 0-label-transductively recoverable — diagnostic-only, never a selector.*
+- Updated one-line ledger: *target-good checkpoints exist; registered source-only and target-unlabeled representation
+  paths still fail transport/control, while split-label target information can be reliable and materially actionable
+  inside the seed-3 diagnostic field. That counter-result does not make the signal source-only or deployable; seed-4
+  confirmation remains required.*
 ```
