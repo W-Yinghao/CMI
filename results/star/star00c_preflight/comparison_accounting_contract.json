@@ -1,0 +1,29 @@
+{
+  "accounting": {
+    "H200_SSL_CONT": {
+      "anchor_updates": 0,
+      "encoder_updates": 3750,
+      "full_reconstruction_updates": 3750
+    },
+    "H200_STAR_SHUFFLED": {
+      "anchor_updates": 750,
+      "encoder_updates": 3750,
+      "full_reconstruction_updates": 3000
+    },
+    "H200_STAR_TRUE": {
+      "anchor_updates": 750,
+      "encoder_updates": 3750,
+      "full_reconstruction_updates": 3000
+    }
+  },
+  "allowed_wording": "optimizer-update- and batch-count-matched",
+  "batch_count_each": 3750,
+  "c_minus_b_interpretation": "task-anchor allocation versus extra SSL continuation",
+  "c_minus_d_interpretation": "task-semantics contrast",
+  "comparison_accounting_contract_hash": "30242d4c77af89a05081bbe5045bd34fd88b4fdedbaec4e5f5c36d6831a09e4d",
+  "optimizer_steps_each": 3750,
+  "scheduler_steps_each": 3750,
+  "schema_version": 1,
+  "strict_flop_matched": false,
+  "wall_time_must_be_reported": true
+}

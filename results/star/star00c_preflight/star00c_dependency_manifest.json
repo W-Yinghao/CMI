@@ -1,0 +1,11 @@
+{
+  "branch": "project/star-task-anchor",
+  "dependency_commit": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "dependency_merge_base": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "schema_version": 1,
+  "scientific_protocol_hash": "d158be22ed82ef4eddbae68372fd3ec1fe823864b12b7834f30e293a379f3530",
+  "scientific_protocol_unchanged": true,
+  "star00b_baseline": "d63bd3ba6184c02e79caeb001bb25888736d1a84",
+  "star00b_is_ancestor": true,
+  "star00c_dependency_manifest_hash": "4982497ba86faf85829e55a6c9ac3d95bb099e52ffd0754a9ef967bbfae46b68"
+}

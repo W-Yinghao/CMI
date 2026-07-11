@@ -24,13 +24,13 @@ The following are dependencies, not STAR results:
 ## Hypotheses
 
 - **H1:** H200's main gap is not excessive subject information, but task structure not organized for cross-subject access.
-- **H2:** A small source-only task anchor on a fixed H200 checkpoint can produce frozen transfer earlier than compute-matched native SSL continuation.
+- **H2:** A small source-only task anchor on a fixed H200 checkpoint can produce frozen transfer earlier than optimizer-update- and batch-count-matched native SSL continuation. This is not a strict FLOP-matched claim.
 - **H3:** A gain need not reduce subject L1. The stronger mechanism pattern is increased target transfer with high L1 and measured subject-subspace reliance no greater than the matched random null.
 - **H4:** The true-label anchor must beat the fixed shuffled-label anchor. Otherwise a gain cannot be attributed to task semantics.
 
 ## Current authority
 
-STAR_00A alone is authorized. It covers design, artifact inventory, implementation scaffold, deterministic/synthetic smoke, and red-team preflight. It does not authorize STAR_01, real EEG continuation, FACED target scoring, SLURM, a scientific result table, a P1 claim, or manuscript work.
+STAR_00A and STAR_00B are accepted infrastructure/design and real-path preflights. STAR_00C is authorized only for launch locking, persistent provenance, final-code bounded smoke, and the executable array-to-closure chain. After a STAR_00C machine PASS and a commit/artifact-bound approval lock, one blind six-cell STAR_01A array plus its `afterok` immutable closure is conditionally authorized. FACED target scoring, a scientific result table, a P1 claim, and manuscript work remain unauthorized.
 
 ## Success definition for STAR_00A
 

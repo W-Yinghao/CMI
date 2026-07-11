@@ -23,7 +23,7 @@ No TASK_ONLY, additional anchor ratio, CE weight, freeze policy, head, budget, c
 
 ## Fixed continuation compute
 
-The H200 Route B run used 50 × 375 = 18,750 optimizer updates. STAR continuation is frozen at exactly **3,750 optimizer steps**, 20% of that update count. Epoch is not a compute-matching unit.
+The H200 Route B run used 50 × 375 = 18,750 optimizer updates. STAR continuation is frozen at exactly **3,750 optimizer steps**, 20% of that update count. Epoch is not an update-matching unit. B/C/D are optimizer-update-, batch-count-, and scheduler-step-matched, but they are not strict FLOP-matched because anchor steps do not execute full reconstruction and use 32 rather than 33 channels.
 
 - Cycle: optimizer steps 1–4 native SSL; step 5 anchor slot; repeat 750 times.
 - C/D: 3,000 common SSL batches and 750 anchor batches.
@@ -80,7 +80,7 @@ Evaluation reuses the S2P FACED frozen-probe path:
 7. Use 5,000 paired target-subject cluster bootstrap replicates over subjects 101–123 with seed `20260710`; average the two training seeds inside each replicate.
 8. Include random, released, and H500/H1000/H2000 as frozen descriptive references.
 
-Task gate precedes any L4/L5/L6 interpretation. The frozen gate is source-val Kappa at least `0.056362325458434434`. The primary positive classification requires both C cells to pass; every other cell's mechanism readout is suppressed if its task gate fails.
+Task gate precedes any L4/L5/L6 interpretation. The frozen gate is source-val Kappa at least `0.056362325458434434`. The primary positive classification requires both C cells to pass; every other cell's mechanism readout is suppressed if its task gate fails. A task-gate failure does not remove that cell from the later one-shot all-cell target scoring universe; only an integrity or firewall failure can block scoring.
 
 Recompute for every STAR checkpoint cell:
 

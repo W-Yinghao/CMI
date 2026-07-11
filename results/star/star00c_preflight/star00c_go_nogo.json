@@ -1,0 +1,13 @@
+{
+  "STAR_00C_LAUNCH_LOCK_AND_PERSISTENCE": "PASS",
+  "STAR_01A_BLIND_SIX_CELL_TRAINING": "CONDITIONALLY_APPROVED_AFTER_APPROVAL_LOCK",
+  "STAR_TARGET_SCORING": "BLOCKED",
+  "final_code_smoke_job_id": "893028",
+  "formal_3750_step_training_run": false,
+  "red_team_hash": "b4d88a4f3e3ac913ebeaac151efdf3edecb3f736810fd4787e81ac18958d791b",
+  "schema_version": 1,
+  "scientific_protocol_hash": "d158be22ed82ef4eddbae68372fd3ec1fe823864b12b7834f30e293a379f3530",
+  "star00c_go_nogo_hash": "73a35fbbf3ca38148e19715c889d8b9bc5a6cce99b00b1f9a4218004ece21665",
+  "status": "PASS",
+  "target_metrics_computed": false
+}

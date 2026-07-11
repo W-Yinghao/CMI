@@ -98,7 +98,8 @@ def main() -> None:
     for variant in (SSL_CONT, STAR_TRUE, STAR_SHUFFLED):
         summaries[variant] = run_real_star(
             config=RealStarConfig(variant=variant, model_seed=0, optimizer_steps=args.steps),
-            runtime_output_dir=runtime_root / variant,
+            runtime_output_dir=runtime_root / variant / "attempt_00",
+            attempt_id="attempt_00",
             **common,
         )
 

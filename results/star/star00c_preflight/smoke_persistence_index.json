@@ -1,0 +1,49 @@
+{
+  "phase": "STAR_00C_PERSISTENT_REALPATH_SMOKE",
+  "rows": [
+    {
+      "attempt_dir": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star00c_realpath_smoke/job_893028/H200_SSL_CONT/attempt_00",
+      "attempt_tree_read_only": true,
+      "checkpoint_sha256": "0f065536cb4417e2083b6516d3aaaed895a707981a663c6242e563338ea649b2",
+      "completion_checks_pass": true,
+      "completion_hash_valid": true,
+      "execution_manifest_hash_valid": true,
+      "run_manifest_hash_valid": true,
+      "run_summary_hash_valid": true,
+      "same_attempt_reuse_rejected": true,
+      "telemetry_rows": 10,
+      "telemetry_sha256": "b724822ec27ef6b94fdb1450ffa137b9f3610bf3f63e40703ace2935986d437b",
+      "variant": "H200_SSL_CONT"
+    },
+    {
+      "attempt_dir": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star00c_realpath_smoke/job_893028/H200_STAR_TRUE/attempt_00",
+      "attempt_tree_read_only": true,
+      "checkpoint_sha256": "73a501ba2991a5d4e72c3f7434f75e51d1fa6889f458c810f2bdede274898b55",
+      "completion_checks_pass": true,
+      "completion_hash_valid": true,
+      "execution_manifest_hash_valid": true,
+      "run_manifest_hash_valid": true,
+      "run_summary_hash_valid": true,
+      "same_attempt_reuse_rejected": true,
+      "telemetry_rows": 10,
+      "telemetry_sha256": "9e55701ddb76ee1fcca5ed541f6a9cda1197ca44b3be980f4a4ccddb8b192eb3",
+      "variant": "H200_STAR_TRUE"
+    },
+    {
+      "attempt_dir": "/home/infres/yinwang/CMI_AAAI_star_runtime/results/star00c_realpath_smoke/job_893028/H200_STAR_SHUFFLED/attempt_00",
+      "attempt_tree_read_only": true,
+      "checkpoint_sha256": "1cea2110acfa287a3a1907596008367ca59bd9ffa34d99901b77a7b01940f48a",
+      "completion_checks_pass": true,
+      "completion_hash_valid": true,
+      "execution_manifest_hash_valid": true,
+      "run_manifest_hash_valid": true,
+      "run_summary_hash_valid": true,
+      "same_attempt_reuse_rejected": true,
+      "telemetry_rows": 10,
+      "telemetry_sha256": "742bf5b0574c9cc6a8f615f1bbd30a2a71c51c948402d0aaa7ca1c2b8fbbc233",
+      "variant": "H200_STAR_SHUFFLED"
+    }
+  ],
+  "schema_version": 1,
+  "smoke_persistence_index_hash": "c90bfd84fd7ad8e41d2389a01a0e8ebe3077f50e88256482381e595ac3d816c4"
+}

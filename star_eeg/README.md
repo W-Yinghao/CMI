@@ -16,6 +16,12 @@ streams, and a bounded B/C/D ten-step real CBraMod CUDA smoke. STAR_00B does not
 authorize any 3,750-step cell, FACED source_val/test access, target scoring, or
 STAR_01.
 
+STAR_00C adds launch-only hardening: per-step persistent telemetry, hashed run
+manifests/summaries, atomic no-overwrite checkpoints, immutable attempt
+directories, a commit/artifact-bound approval lock, and an executable six-cell
+array-to-afterok-closure chain. It does not change any scientific
+hyperparameter, variant, or gate threshold. Target scoring remains blocked.
+
 Future STAR_01 is restricted to H200_s0/H200_s1 and the four frozen variants
 H200_BASE, H200_SSL_CONT, H200_STAR_TRUE, and H200_STAR_SHUFFLED. All other S2P
 budgets and the released checkpoint are descriptive frozen references only.
@@ -33,5 +39,7 @@ dedicated source-only loader and bounded GPU runner; its real-path smoke is
 explicitly separated from scientific training and downstream evaluation.
 
 The STAR_00B artifacts and gate state are summarized in
-`reports/STAR_00B_PREFLIGHT_READOUT.md`. Even with a STAR_00B PASS, the gated
-STAR_01 launcher refuses execution without a new PM approval manifest.
+`reports/STAR_00B_PREFLIGHT_READOUT.md`; STAR_00C is summarized in
+`reports/STAR_00C_PREFLIGHT_READOUT.md`. Formal training refuses execution
+unless a read-only SHA-named approval manifest binds the clean execution commit,
+exact six-cell universe, and all required artifact/source hashes.

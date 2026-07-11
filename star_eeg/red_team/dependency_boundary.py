@@ -18,6 +18,7 @@ ALLOWED_NEW_PREFIXES = (
     "star_eeg/",
     "results/star/star00a_preflight/",
     "results/star/star00b_preflight/",
+    "results/star/star00c_preflight/",
 )
 
 

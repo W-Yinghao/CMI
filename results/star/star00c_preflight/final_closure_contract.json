@@ -1,0 +1,22 @@
+{
+  "array_cells": [
+    "H200_SSL_CONT_s0",
+    "H200_SSL_CONT_s1",
+    "H200_STAR_TRUE_s0",
+    "H200_STAR_TRUE_s1",
+    "H200_STAR_SHUFFLED_s0",
+    "H200_STAR_SHUFFLED_s1"
+  ],
+  "array_submission": "single Slurm array 0-5",
+  "closure_dependency": "afterok:<six-cell-array-job-id>",
+  "closure_executable": "star_eeg/slurm/star01a_final_closure.sbatch",
+  "closure_outputs": [
+    "star01_final_checkpoint_manifest.json",
+    "star01_training_completion_matrix.csv",
+    "star01_closure_go_nogo.json"
+  ],
+  "final_closure_contract_hash": "cfd7271ca5bb6e276864e1ad602afc7a7b0a615462f0d026490b04de6b0ab8f4",
+  "final_payload_policy": "SHA-named read-only strict-reload",
+  "schema_version": 1,
+  "target_scoring_submitted": false
+}

@@ -1,0 +1,69 @@
+{
+  "actual_approval_created_only_after_clean_STAR00C_commit": true,
+  "approval_lock_contract_hash": "5097bef331261a841cb9b38a6fed67bd9ca1bd70edd7bd29409845f39db1e406",
+  "approval_path_policy": "SHA-named regular read-only external operational manifest",
+  "approved_cells": [
+    "H200_SSL_CONT_s0",
+    "H200_SSL_CONT_s1",
+    "H200_STAR_TRUE_s0",
+    "H200_STAR_TRUE_s1",
+    "H200_STAR_SHUFFLED_s0",
+    "H200_STAR_SHUFFLED_s1"
+  ],
+  "artifact_bindings": {
+    "anchor_manifest": "results/star/star00b_preflight/anchor_manifest.json",
+    "approval_lock_source": "star_eeg/training/approval_lock.py",
+    "closure_slurm_source": "star_eeg/slurm/star01a_final_closure.sbatch",
+    "closure_source": "star_eeg/artifacts/close_star01a_finals.py",
+    "compute_match_contract": "results/star/star00b_preflight/compute_match_contract.json",
+    "h200_immutable_go_nogo": "results/star/star00b_preflight/h200_immutable_go_nogo.json",
+    "h200_immutable_manifest": "results/star/star00b_preflight/h200_immutable_manifest.json",
+    "persistence_source": "star_eeg/training/persistence.py",
+    "runner_source": "star_eeg/training/real_star_runner.py",
+    "shuffled_manifest": "results/star/star00b_preflight/shuffled_label_manifest.json",
+    "slurm_source": "star_eeg/slurm/star01_train_array.sbatch",
+    "submitter_source": "star_eeg/runners/submit_star01a_blind_chain.py",
+    "training_tasks_csv": "results/star/star00b_preflight/star01_training_tasks.csv"
+  },
+  "candidate_artifact_hashes": {
+    "anchor_manifest": "552445d9919c643609888a568dd50a51615e41afaee76b392d90ad78afc5b43e",
+    "approval_lock_source": "a4d480ed95dd1a64622bfb9f2aec2f79d72e0505e33dab08d9bf8d90293e6376",
+    "closure_slurm_source": "499158fcbd3d9e03202ddcb6e0c24c79086bfdce7ecdb5138a9af45fbb730887",
+    "closure_source": "ced8934f464951a1ed4f1086c797da2397cb315ef64d0535f466d4a3a73b630d",
+    "compute_match_contract": "f711de9c6373be07c046330473ee7c47295f990516194f6976e63d9c8cb67878",
+    "h200_immutable_go_nogo": "b719ee2b26ba0d2eb2e22aaa0e44321d0af88b440dc113babc4f1ec3fe11fcfa",
+    "h200_immutable_manifest": "99d095cbaf16c7b66ae4f92fc2c0be58957c955016a5a53d7d59384586a04278",
+    "persistence_source": "c1c9d19270ffc8b5d1dfe4fa4606b92ec2be9d4f1da12c7275e1583f4a97d6ff",
+    "runner_source": "4fe4ff1b0eda4e723fa91de74d232cd413ada2067f459efafe563b27656387fe",
+    "shuffled_manifest": "8d84feb9796213ce7dfe6997159d1abc1dd1ea0044715ad5681255a68ab8c1cb",
+    "slurm_source": "57a8714a7fc0053c78611df977af3490f0831b3469038ffad35147eb1bfc6ee3",
+    "submitter_source": "d0ea192e9cfff667ab730ae48cbe7af856a606e269e2dff726ea23d34a2841be",
+    "training_tasks_csv": "fcee5628d57789799d2f989ce28da7d6a355e6e1fc119826eab5714c7263c7e8"
+  },
+  "formal_array_environment": {
+    "attempt_id_bound_to_STAR_ATTEMPT_ID": true,
+    "task_count": 6,
+    "task_id_bound_to_cell": true,
+    "task_max": 5,
+    "task_min": 0
+  },
+  "phase": "STAR_00C_APPROVAL_LOCK",
+  "required_fields": [
+    "project",
+    "phase",
+    "STAR_01_SCIENTIFIC_TRAINING",
+    "STAR_TARGET_SCORING",
+    "approved_execution_commit",
+    "approved_branch",
+    "approved_cells",
+    "approved_attempt_id",
+    "single_array_launch_only",
+    "optimizer_steps",
+    "primary_checkpoint_step",
+    "all_six_submit_together",
+    "partial_target_scoring_forbidden",
+    "artifact_hashes"
+  ],
+  "schema_version": 1,
+  "weak_single_field_approval_rejected": true
+}

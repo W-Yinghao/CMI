@@ -21,7 +21,7 @@ Do not modify:
 - CEDAR, TALOS, or TTA closeout artifacts
 - pre-existing untracked noise
 
-Stable S2P utilities may be imported read-only. STAR cannot merge/rebase S2P, force-delete a branch/worktree, force-push, launch SLURM, or open a PR without a new PM instruction.
+Stable S2P utilities may be imported read-only. STAR cannot merge/rebase S2P, force-delete a branch/worktree, force-push, or open a PR without a new PM instruction. The current PM instruction permits only the bounded STAR_00C smoke and, after all 00C machine gates and a SHA-bound approval lock pass, one six-cell STAR_01A array plus its `afterok` immutable closure. It does not permit target scoring.
 
 ## No rescue after scientific failure
 

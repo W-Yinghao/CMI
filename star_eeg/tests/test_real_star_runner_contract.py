@@ -34,19 +34,30 @@ def test_real_config_freezes_route_b_training_semantics():
 
 
 def test_formal_path_is_blocked_without_new_pm_manifest(tmp_path):
-    require_launch_approval(RealStarConfig("H200_STAR_TRUE", 0, 20), None)
+    audit = require_launch_approval(
+        RealStarConfig("H200_STAR_TRUE", 0, 20), None, tmp_path
+    )
+    assert audit["status"] == "NOT_REQUIRED_BOUNDED_SMOKE"
     with pytest.raises(PermissionError):
-        require_launch_approval(RealStarConfig("H200_STAR_TRUE", 0, 25), None)
+        require_launch_approval(
+            RealStarConfig("H200_STAR_TRUE", 0, 25), None, tmp_path
+        )
     formal = RealStarConfig("H200_STAR_TRUE", 0, 3750)
     with pytest.raises(PermissionError):
-        require_launch_approval(formal, None)
+        require_launch_approval(formal, None, tmp_path)
     blocked = tmp_path / "blocked.json"
     blocked.write_text(json.dumps({"STAR_01_SCIENTIFIC_TRAINING": "BLOCKED"}))
     with pytest.raises(PermissionError):
-        require_launch_approval(formal, blocked)
-    approved = tmp_path / "approved.json"
-    approved.write_text(json.dumps({"STAR_01_SCIENTIFIC_TRAINING": "APPROVED"}))
-    require_launch_approval(formal, approved)
+        require_launch_approval(formal, blocked, tmp_path)
+
+
+def test_single_field_approved_json_cannot_unlock_formal_path(tmp_path):
+    formal = RealStarConfig("H200_STAR_TRUE", 0, 3750)
+    weak = tmp_path / "approved.json"
+    weak.write_text(json.dumps({"STAR_01_SCIENTIFIC_TRAINING": "APPROVED"}))
+    weak.chmod(0o444)
+    with pytest.raises(PermissionError):
+        require_launch_approval(formal, weak, tmp_path)
 
 
 def test_blind_chain_separates_source_val_gate_and_blocks_target():

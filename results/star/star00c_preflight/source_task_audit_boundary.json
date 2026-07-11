@@ -1,0 +1,27 @@
+{
+  "future_target_scoring_universe": [
+    "H200_BASE_s0",
+    "H200_BASE_s1",
+    "H200_SSL_CONT_s0",
+    "H200_SSL_CONT_s1",
+    "H200_STAR_TRUE_s0",
+    "H200_STAR_TRUE_s1",
+    "H200_STAR_SHUFFLED_s0",
+    "H200_STAR_SHUFFLED_s1",
+    "random",
+    "released",
+    "H500_s0",
+    "H500_s1",
+    "H1000_s0",
+    "H1000_s1",
+    "H2000_s0",
+    "H2000_s1"
+  ],
+  "integrity_or_firewall_failure_may_block_target_stage": true,
+  "schema_version": 1,
+  "source_task_audit_boundary_hash": "c19ec6b61ea479125ea9ad1cf2fc8b084dbe68ef6492f009b00377e74c98a770",
+  "source_val_task_gate_process": "separate_after_immutable_closure",
+  "target_scoring_currently_blocked": true,
+  "task_gate_failure_effect": "suppress_L4_L5_L6_interpretation_for_that_cell_only",
+  "task_gate_failure_may_remove_cell_from_all_cell_target_scoring": false
+}

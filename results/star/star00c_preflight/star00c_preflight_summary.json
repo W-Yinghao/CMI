@@ -1,0 +1,21 @@
+{
+  "STAR_MANUSCRIPT_CLAIM": "FORBIDDEN",
+  "STAR_TARGET_SCORING": "BLOCKED",
+  "checks": {
+    "afterok_closure_contract": "PASS",
+    "approval_lock_contract": "PASS",
+    "final_code_gpu_smoke": "PASS",
+    "no_overwrite_atomic_checkpoint_contract": "PASS",
+    "persistent_runtime_contract": "PASS",
+    "scientific_protocol_unchanged": "PASS",
+    "source_task_audit_boundary": "PASS",
+    "star00b_baseline": "PASS"
+  },
+  "formal_3750_step_training_run": false,
+  "phase": "STAR_00C_LAUNCH_LOCK_AND_PERSISTENCE",
+  "schema_version": 1,
+  "scientific_protocol_hash": "d158be22ed82ef4eddbae68372fd3ec1fe823864b12b7834f30e293a379f3530",
+  "star00c_preflight_summary_hash": "7b60cb142b8a40a9a96b599664f9e10c9249e8ae261b9a76334ad9173b748213",
+  "status": "PASS",
+  "target_metrics_computed": false
+}

@@ -1,0 +1,64 @@
+STAR_00C persistent real-path smoke host=node22 head=d63bd3ba6184c02e79caeb001bb25888736d1a84
+NVIDIA A40, 46068 MiB
+{
+  "checks": {
+    "all_attempt_trees_frozen": true,
+    "all_checkpoint_strict_reload": true,
+    "all_completion_markers_valid": true,
+    "all_losses_gradients_deltas_finite": true,
+    "all_manifest_hashes_valid": true,
+    "all_sources_unchanged": true,
+    "all_ten_telemetry_rows_persisted": true,
+    "anchor_x_ids_c_d_equal": true,
+    "anchor_x_tensors_c_d_equal": true,
+    "b_has_two_replacement_ssl_slots": true,
+    "b_temporary_head_unchanged": true,
+    "c_d_have_two_anchor_slots": true,
+    "c_d_temporary_heads_updated": true,
+    "common_ssl_batch_ids_b_c_d_equal": true,
+    "common_ssl_batch_tensors_b_c_d_equal": true,
+    "comparison_not_claimed_flop_matched": true,
+    "model_update_scope_b_c_d_equal": true,
+    "same_attempt_reuse_rejected": true,
+    "same_h200_s0_source_sha": true,
+    "source_only_loader_firewall": true,
+    "start_model_state_hash_b_c_d_equal": true,
+    "true_shuffled_labels_differ": true,
+    "update_accounting_exact": true
+  },
+  "execution_source_hashes": {
+    "star_eeg/artifacts/close_star01a_finals.py": "ced8934f464951a1ed4f1086c797da2397cb315ef64d0535f466d4a3a73b630d",
+    "star_eeg/runners/run_star00c_realpath_smoke.py": "6ba527f5713ce34b565903e9d2367740ff7fd8b27ee85116c21a7739c6bc0ad1",
+    "star_eeg/runners/run_star01_train.py": "54b0f5fa4c4aefcc3beccd9064859507c901131d7ae1012a835be2319402dd07",
+    "star_eeg/runners/submit_star01a_blind_chain.py": "16dbc16ebbce613112aebcf1005d544425e3001a0767ec0e86f25730a664df02",
+    "star_eeg/slurm/star00c_realpath_smoke.sbatch": "f0aeaaee250b101ff55676f80c933181bb2988cd7d92d8f1504dfabd46d50a3c",
+    "star_eeg/slurm/star01_train_array.sbatch": "57a8714a7fc0053c78611df977af3490f0831b3469038ffad35147eb1bfc6ee3",
+    "star_eeg/slurm/star01a_final_closure.sbatch": "499158fcbd3d9e03202ddcb6e0c24c79086bfdce7ecdb5138a9af45fbb730887",
+    "star_eeg/training/approval_lock.py": "59acc7def816d2c4377f517eb5575becff68a89d53f8a05d3e729108e49ca0d9",
+    "star_eeg/training/persistence.py": "c1c9d19270ffc8b5d1dfe4fa4606b92ec2be9d4f1da12c7275e1583f4a97d6ff",
+    "star_eeg/training/real_star_runner.py": "db3f51c9e7be2306812d7f29db8aba920ad507f07a809777019b2cdcbadda2d6"
+  },
+  "formal_3750_step_training_run": false,
+  "model_seed": 0,
+  "peak_gpu_memory_bytes": {
+    "H200_SSL_CONT": 14744992256,
+    "H200_STAR_SHUFFLED": 14779721216,
+    "H200_STAR_TRUE": 14779721216
+  },
+  "phase": "STAR_00C_FINAL_CODE_REALPATH_SMOKE",
+  "schema_version": 1,
+  "star00c_realpath_smoke_summary_hash": "acc82024a42e928714d0dbd632eee129b32074f31aba80250f0512a96d42bc7a",
+  "status": "PASS",
+  "steps_per_variant": 10,
+  "target_metrics_computed": false,
+  "variants": [
+    "H200_SSL_CONT",
+    "H200_STAR_TRUE",
+    "H200_STAR_SHUFFLED"
+  ],
+  "wall_seconds": {
+    "H200_SSL_CONT": 68.29335975646973,
+    "H200_STAR_SHUFFLED": 12.702637910842896,
+    "H200_STAR_TRUE": 38.407808780670166
+  }
+}

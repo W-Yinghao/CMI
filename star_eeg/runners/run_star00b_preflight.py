@@ -125,7 +125,9 @@ def _runner_contract() -> Dict[str, object]:
             "payload_fields": [
                 "model_state", "task_head_state", "optimizer_state", "scheduler_state",
                 "optimizer_step", "source_checkpoint", "source_checkpoint_sha", "config",
-                "telemetry_hash", "primary_checkpoint", "target_data_used",
+                "config_hash", "schedule_hash", "stream_hash", "telemetry_rows",
+                "telemetry_sha256", "primary_checkpoint", "target_data_used",
+                "approval_manifest_hash",
             ],
             "strict_reload": True,
             "temporary_head_discard_before_frozen_evaluation": True,

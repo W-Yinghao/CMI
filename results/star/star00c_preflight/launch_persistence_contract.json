@@ -1,0 +1,35 @@
+{
+  "checkpoint_policy": "temporary file plus fsync plus atomic no-overwrite hard-link publish",
+  "completion_requires": [
+    "exactly_3750_telemetry_rows",
+    "final_step_3750",
+    "step_3750_strict_reload",
+    "source_sha_before_equals_after",
+    "no_target_access",
+    "all_loss_gradient_delta_finite",
+    "summary_and_telemetry_hashes_verified"
+  ],
+  "formal_layout": {
+    "checkpoints": [
+      "checkpoints/step_0750.pth",
+      "checkpoints/step_1500.pth",
+      "checkpoints/step_2250.pth",
+      "checkpoints/step_3000.pth",
+      "checkpoints/step_3750.pth"
+    ],
+    "completion": "completion.json",
+    "execution_manifest": "execution_manifest.json",
+    "root": "runtime/<cell>/<attempt_NN>",
+    "run_manifest": "run_manifest.json",
+    "run_summary": "run_summary.json",
+    "telemetry": "telemetry.jsonl"
+  },
+  "formal_runner_persists_return_internally": true,
+  "launch_persistence_contract_hash": "ac4b7c8c3a1e5616da4020012f9addabec758579588d0066f7bc3fca95f7e6eb",
+  "output_policy": "absent-or-empty attempt only; atomic claim; completed tree read-only",
+  "phase": "STAR_00C_LAUNCH_LOCK_AND_PERSISTENCE",
+  "rerun_policy": "new attempt_NN directory required",
+  "run_real_star_signature": "(config: star_eeg.training.real_star_runner.RealStarConfig, repo_root: pathlib.Path, immutable_manifest_path: pathlib.Path, immutable_go_nogo_path: pathlib.Path, anchor_manifest_path: pathlib.Path, shuffled_manifest_path: pathlib.Path, faced_lmdb_path: pathlib.Path, contract_dir: pathlib.Path, runtime_output_dir: pathlib.Path, device_name: str, attempt_id: str, launch_approval_path: Optional[pathlib.Path] = None) -> Dict[str, object]",
+  "schema_version": 1,
+  "telemetry_policy": "one canonical JSON row per optimizer step; append, flush, fsync"
+}

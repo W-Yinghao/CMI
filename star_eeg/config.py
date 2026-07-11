@@ -67,5 +67,9 @@ ACTIVE_IMPORT_PATHS = (
     "star_eeg.data.anchor_batch_stream",
     "star_eeg.data.tueg_ssl_batch_stream",
     "star_eeg.training.real_star_runner",
+    "star_eeg.training.persistence",
+    "star_eeg.training.approval_lock",
+    "star_eeg.artifacts.close_star01a_finals",
+    "star_eeg.runners.submit_star01a_blind_chain",
     "s2p.scripts.route_b_33ch_loader",
 )

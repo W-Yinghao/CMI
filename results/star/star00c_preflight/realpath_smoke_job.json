@@ -1,0 +1,12 @@
+{
+  "exit_code": "0:0",
+  "formal_3750_step_training_run": false,
+  "job_id": "893028",
+  "node": "node22",
+  "partition": "A40",
+  "realpath_smoke_job_hash": "e1f630aae7d40da6d0d6cb1f1fae8cc70df9d2dbfc750c65d46e5d6ced051297",
+  "runtime": "00:02:04",
+  "smoke_summary_hash": "b80b9fd587ee3d2df7dc82a8e8007395e9157de8daa21b9a88955cf20f8685bc",
+  "state": "COMPLETED",
+  "target_metrics_computed": false
+}
