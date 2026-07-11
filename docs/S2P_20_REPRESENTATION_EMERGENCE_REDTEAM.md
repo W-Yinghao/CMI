@@ -1,10 +1,11 @@
 # S2P_20 - Representation Emergence Red-Team
 
-**Phase:** B0 adversarial review. **Status:** initial blocker resolved; B1 remains held for PM approval.
+**Phase:** B0/B1 adversarial review. **Status:** provenance blocker resolved; B1 explicitly authorized.
 
 > Post-closure update: provenance job 892980 and the independent verifier closed the seven-object immutable
 > blocker with no failures. This document retains the original pre-closure attack analysis. The authoritative
-> closure result is S2P_22 and B1 remains unauthorized.
+> closure result is S2P_22. B1 was subsequently authorized against authority commit
+> `20ffcf9c91814956a404ca186ad7ee80eb2007cf`; B2 remains unauthorized.
 
 ## Executive decision before closure
 
@@ -72,8 +73,9 @@ margin, and retrieval mAP; apply the preregistered saturation rule. If it fires,
 Whitening is useful for comparing fixed-regularization probes but destroys the natural embedding variance spectrum.
 Using one space for both analyses would make at least one interpretation wrong.
 
-Mitigation: probe endpoints use fold-fit PCA128 whitening; variance and effect-subspace geometry use raw final
-features. Claims must identify the space. PCA128 is fixed for all objects and cannot be selected per checkpoint.
+Mitigation: probe endpoints and effect-subspace geometry use fold-fit PCA128 whitening under the explicit B1 PM
+clarification; variance alone uses raw final features. Claims must identify the space. PCA128 is fixed for all
+objects and cannot be selected per checkpoint.
 
 ### 6. Canonical-correlation and projection-overlap aggregates are not independent
 

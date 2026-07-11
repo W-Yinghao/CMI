@@ -1,6 +1,7 @@
 # S2P_19 - Representation Emergence Protocol
 
-**Phase:** B0. **Status:** FROZEN. **B1 scientific compute:** HELD pending the B0 go/no-go and PM review.
+**Phase:** B0/B1. **Status:** FROZEN. **B1 scientific compute:** GO after provenance authority commit
+`20ffcf9c91814956a404ca186ad7ee80eb2007cf` and explicit PM review.
 
 ## Scientific question
 
@@ -79,12 +80,13 @@ encoded = model.encoder(patch)
 feature = encoded.mean(dim=2).reshape(batch, -1)  # 32 x 200 = 6400
 ```
 
-Two analysis spaces are fixed before B1:
+Two analysis spaces are fixed before B1. The geometry-space wording below is the pre-run clarification required
+by the Phase-B1 PM GO, which explicitly pins geometry to PCA dimension 128; it is made before any B1 result exists.
 
-- **Probe space:** fold-fit or source-train-fit PCA with 128 components and whitening. PCA dimension is fixed for
-  all objects. Logistic probes use `C=1`, `lbfgs`, `max_iter=2000`, and no per-object tuning.
-- **Geometry/variance space:** the unwhitened 6400-dimensional final feature. This preserves the trace meaning of
-  embedding variance. Centering statistics are fit only on the corresponding source-fit partition.
+- **Probe and geometry space:** fold-fit or source-train-fit PCA with 128 components and whitening. PCA dimension
+  is fixed for all objects. Logistic probes use `C=1`, `lbfgs`, `max_iter=2000`, and no per-object tuning.
+- **Variance space:** the unwhitened 6400-dimensional final feature. This preserves the trace meaning of embedding
+  variance. Centering statistics are fit only on the corresponding source-fit partition.
 
 Phase-A selected PCA/C values are recomputed only as a path-fidelity sensitivity. They are not used for Phase-B
 primary continuous contrasts.
@@ -128,10 +130,11 @@ contrasts are frozen. They cannot change any choice.
 
 ## RQ-B3: subject-task geometry
 
-Geometry is fit on source-train clips only. For each fold, compute subject-by-class cell means on fit clips.
+Geometry is fit on source-train clips only in the same fold-fit PCA128-whitened space used by the fixed probes. For
+each fold, compute subject-by-class cell means on fit clips.
 
-- **Subject effects:** class-centered subject means, giving an 80 x 6400 effect matrix.
-- **Task effects:** subject-centered class means, giving a 9 x 6400 effect matrix.
+- **Subject effects:** class-centered subject means, giving an 80 x 128 effect matrix.
+- **Task effects:** subject-centered class means, giving a 9 x 128 effect matrix.
 - **Subject subspace:** top eight right singular directions of the subject-effect matrix.
 - **Task subspace:** all eight nonzero class-discriminant directions.
 
@@ -195,27 +198,30 @@ Geometry and variance bootstraps recompute effect matrices and subspaces under t
 
 ## B1 outputs
 
-If separately authorized after B0, B1 writes under `results/s2p_route_b_representation_emergence_b1/`:
+The authorized B1 writes under `results/s2p_route_b_representation_emergence_b1/`:
 
 ```text
-representation_protocol.json
-representation_checkpoint_manifest.csv
-representation_clip_fold_manifest.csv
-representation_subject_metrics.csv
-representation_task_metrics.csv
-representation_subspace_geometry.csv
-representation_variance_partition.csv
-representation_primary_contrasts.csv
-representation_budget_summary.json
-representation_target_label_firewall.json
-representation_b1_go_nogo.json
+phase_b1_run_manifest.csv
+phase_b1_checkpoint_hash_recheck.csv
+phase_b1_subject_metrics.csv
+phase_b1_task_metrics.csv
+phase_b1_subject_task_geometry.csv
+phase_b1_variance_partition.csv
+phase_b1_primary_inference.json
+phase_b1_sensitivity_results.csv
+phase_b1_target_label_firewall.json
+phase_b1_verdict.json
+phase_b1_adversarial_verification.json
 ```
 
 No layerwise output is part of B1. B2 remains conditional on an interpretable final-layer separation and a new PM
 decision.
 
+Support tables and sufficient statistics may be retained solely to permit independent recomputation. They cannot
+introduce additional endpoints or alter the frozen primary family.
+
 ## B0 execution boundary
 
-B0 computes no representation endpoint. It may inspect keys, raw/LMDB provenance, checkpoint modes and hashes,
-and already committed Phase-A determinism records. Its go/no-go is fail closed. B1 cannot auto-launch.
-
+B0 computed no representation endpoint. It inspected keys, raw/LMDB provenance, checkpoint modes and hashes,
+and committed Phase-A determinism records. Its provenance go/no-go was fail closed. B1 was launched only after a
+separate explicit PM decision; B2 cannot auto-launch.
