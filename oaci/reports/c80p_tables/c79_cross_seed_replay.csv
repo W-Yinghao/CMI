@@ -1,0 +1,7 @@
+check,observed,passed,interpretation
+all_registered_effect_directions_concordant,1,1,directional_concordance
+P2_L_gate_concordant,0,1,training_seed_gate_heterogeneity
+P2_overall_gate_concordant,0,1,training_seed_gate_heterogeneity
+combined_cross_seed_p_values,0,1,no_rescue
+shared_target_trial_dependence_declared,1,1,paired_repeated_not_independent_population
+P2_local_seed4_minus_seed3,-0.032519497606726025,1,effect_difference_CI_includes_zero

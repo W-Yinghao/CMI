@@ -1,0 +1,8 @@
+object,expected_commit,reachable,ancestor_of_C80P_base,passed
+C79_protocol,ec4834c74e58ba8423a357e589d8e20ad6b3f8ba,1,1,1
+C79_implementation_repair,27d078a,1,1,1
+C79_field_lock,35d0c65,1,1,1
+C79_analysis_lock,7cebf2e,1,1,1
+C79P_readiness_result,07943c0,1,1,1
+C79P_handoff,f176a64,1,1,1
+C79E_final_head,dadd1665165cffb173beafa14ee24ea9f41e584a,1,1,1

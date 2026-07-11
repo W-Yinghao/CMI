@@ -1,0 +1,5 @@
+seed,scope,expected_units,observed_units,target4_units,target4_primary,manifest_path,sha256,passed
+3,complete,1458,1458,162,0,oaci/reports/c78f_tables/full_unit_manifest.csv,b90f2d3b9da8ce091c585897c614217fc7064901908c1fb87cbd128d6221e3fc,1
+3,primary,1296,1296,0,0,oaci/reports/c78s_tables/field_replay.csv,20ebdd373dae6352736b421262ce3340690205838d6d43db6ada58ed001c261e,1
+4,complete,1458,1458,162,0,oaci/reports/c79_tables/seed4_field_manifest.csv,5093ee7f984b336683e629dd10656629f98cd3dd884335a538cfedbd10c8879d,1
+4,primary,1296,1296,0,0,oaci/reports/C79_SEED4_FIELD_GENERATION.json,13fc957b89dcb941fc8f4edeb48f3fdbea5796bb3b5cf8ca86a00eec0c33597e,1

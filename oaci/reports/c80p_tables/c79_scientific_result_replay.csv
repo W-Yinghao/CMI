@@ -1,0 +1,12 @@
+path,component,seed4_value,decision,passed
+P1,P1_M_reliability,0.7564555113866,gate_fail_Holm_0.07003891050583658,1
+P1,P1_A_actionability,1,material_pass,1
+P1,compound,0,does_not_replicate,1
+H2R,incremental_deviance_reduction,-8.717406284615379,nonqualified,1
+P2,P2_L_local_association,0.21013679454375883,gate_fail_worst_p_0.092_Holm_0.368,1
+P2,LOTO_incremental_R2,-0.09849749469014357,nonqualified,1
+P2,LORO_incremental_R2,-0.03294408371628532,nonqualified,1
+P2,compound,0,does_not_replicate,1
+H4R,F2_incremental_R2,-0.09628764196416528,nonqualified,1
+H5R,F4_incremental_R2,0.010450398396399496,nonqualified,1
+H6R,effect,0.41563504917316746,familywise_inactive_Holm_0.07003891050583658,1

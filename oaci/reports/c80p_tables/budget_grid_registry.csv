@@ -1,0 +1,9 @@
+budget,requested,finite,feasible_all_targets_classes,primary_locked,status,reason
+1,1,1,1,1,LOCKED,availability_min_61
+2,1,1,1,1,LOCKED,availability_min_61
+4,1,1,1,1,LOCKED,availability_min_61
+8,1,1,1,1,LOCKED,availability_min_61
+16,1,1,1,1,LOCKED,availability_min_61
+32,1,1,1,1,LOCKED,availability_min_61
+64,1,1,0,0,REMOVED_PRE_HASH_INFEASIBLE,targets_2_5_6_7_9_have_class_count_below_64
+FULL,1,0,1,1,LOCKED,all_construction_labels_per_class

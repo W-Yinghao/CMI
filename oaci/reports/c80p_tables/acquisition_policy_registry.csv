@@ -1,0 +1,9 @@
+policy_id,field,value,locked,outcome_dependent
+Q0,sampling,stratified_uniform_without_replacement_within_class,1,0
+Q0,nesting,B1_subset_B2_subset_B4_subset_B8_subset_B16_subset_B32_subset_FULL,1,0
+Q0,shared_candidate_subset,same_sampled_trials_for_all_81_candidates_in_cell,1,0
+Q0,chain_count,2048,1,0
+Q0,RNG,PCG64_SHA256_derived_streams_base_8001,1,0
+Q0,active_learning,false,1,0
+Q0,adaptive_stopping,false,1,0
+Q0,evaluation_informed_sampling,false,1,0
