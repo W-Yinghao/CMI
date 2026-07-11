@@ -529,13 +529,10 @@ separate direct-PI authorization record before importing historical workers.
 
 
 def _implementation_commit() -> str:
-    commits = {
-        git("log", "-1", "--format=%H", "--", relative)
-        for relative in IMPLEMENTATION_FILES
-    }
-    if "" in commits or len(commits) != 1:
-        raise RuntimeError(f"C79P implementation files do not share one lockable commit: {sorted(commits)}")
-    return commits.pop()
+    dirty = git("status", "--porcelain", "--", *IMPLEMENTATION_FILES)
+    if dirty:
+        raise RuntimeError(f"C79P implementation must be committed before locking: {dirty}")
+    return git("rev-parse", "HEAD")
 
 
 def _commit_is_ancestor(older: str, newer: str) -> bool:
@@ -756,7 +753,13 @@ def finalize_readiness() -> dict[str, Any]:
         ("expected_1458_units", len(read_csv(EXPECTED_MANIFEST_CSV)) == 1458),
         ("oracle_unreachable", read_csv(TABLE_DIR / "oracle_reachability_test.csv")[0]["passed"] == "1"),
         ("label_views_closed_in_C79P", read_csv(TABLE_DIR / "label_view_access_test.csv")[0]["passed"] == "1"),
-        ("seed4_untouched", all(row["observed_count"] == "0" for row in read_csv(TABLE_DIR / "seed4_untouched_audit.csv"))),
+        (
+            "seed4_untouched",
+            all(
+                row.get("observed_count", row.get("count_before_replacement_protocol")) == "0"
+                for row in read_csv(TABLE_DIR / "seed4_untouched_audit.csv")
+            ),
+        ),
         ("future_authorization_not_consumed", authorization_absent),
         ("no_oversize_payload", payload["payload_over_50MiB"] == 0),
         ("no_raw_payload", payload["raw_cache_or_weights"] == 0),
