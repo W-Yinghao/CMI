@@ -14,33 +14,52 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-11)
 
-The authoritative tip is C78R, the authorized target-4/seed-3 historical SRC execution canary:
+The authoritative tip is C78F, the completed full seed-3 multi-regime field-generation milestone:
 
 ```text
-C78R protocol commit: 99f710d
-C78R execution lock:  750cb38
-C78R training job:    892951
-C78R final gate:      SRC_CANARY_EXECUTED_AND_VALIDATED_FULL_SEED3_READY_BUT_NOT_AUTHORIZED
-C78R primary:         C78R-A_SRC_canary_executed_and_validated
+C78F protocol commit:       1d210fd
+C78F execution lock:        a902966
+C78F collector repair:      f0d49c2
+C78F result commit:         51022f4
+C78F primary:               C78F-A_full_seed3_field_executed_and_manifested
+C78F final gate:            FULL_SEED3_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED
+C78S analysis started:      false
 ```
 
-C78R trained no ERM/OACI. It used the two C78 ERM anchors read-only to initialize the exact C11 SRC stage-2 objective (`smooth_temperature=0.1`), producing 80/80 fixed-cadence SRC checkpoints over levels 0/1. Training target rows/labels and source-audit rows were zero. CPU instrumentation produced 368,640 strict-source and 46,080 target-unlabeled rows; all checkpoint/optimizer and Wz/logit identities passed.
+C78F generated the prospectively locked remaining field over targets `[1,2,3,5,6,7,8,9]`, seed 3, levels 0/1, and exact historical ERM/OACI/SRC paths. Wave A `[8,9,3,6]` and Wave B `[5,2,7,1]` each passed an engineering-only gate; no target scientific outcome entered wave continuation, training, retention, or retry.
 
-Target 4 now has 162 technical units across asymmetric ERM/OACI/SRC roles. This is technical compatibility only, not multi-regime scientific replication. The remaining 1,296 seed-3 units / 48 phases are ready but not authorized; C78F requires a new locked protocol and PM approval. Seed 4 remains reserved for C79; BNCI2014_004 remains untouched.
+```text
+remaining units:           1,296 = 16 ERM + 640 OACI + 640 SRC
+complete seed-3 field:     1,458 = 18 ERM + 720 OACI + 720 SRC
+strict-source rows:        6,718,464
+target-unlabeled rows:       839,808
+target training rows/labels:        0/0
+source-audit training rows:           0
+identity failures:                    0
+measured remaining GPU phase wall: 6.862118 h
+measured remaining payload: 26,766,911,921 bytes
+```
 
-Regression: `focused_C78R=15, C65_C78R=182, C23_C78R=589, full_OACI=1517`.
+Target 4 remains the previously observed engineering canary and is excluded from every C78S primary test. C78S was hash-locked before remaining-target label-view access but has not started. Seed 4 remains untouched and reserved for C79; BNCI2014_004 remains untouched.
+
+Collector job `893052` failed only on the compact descriptor key `rows` versus the frozen ABI `row_count`. Additive repair `f0d49c2` passed 10/10 pre-execution red-team checks and replacement job `893055` completed without training, forward, GPU, target-label, or target-metric work. Every execution-locked implementation file remained byte-identical.
+
+Final independent red team: `57/57` pass. Regression: `focused=32`, `C65-C78F=214`, `C23-C78F=621`, `full_OACI=1549`, all green.
+
+Authorization governance changed by PM instruction: a direct, explicit user statement such as “I authorize C78F” is authorization. Do not require a magic token. Real execution must still bind that approval to a committed, scope-specific protocol/execution lock before data access or job submission.
 
 Authoritative artifacts:
 
 ```text
-oaci/reports/C78R_SEED3_SRC_CANARY.md
-oaci/reports/C78R_SEED3_SRC_CANARY.json
-oaci/reports/C78R_RED_TEAM_VERIFICATION.md
-oaci/reports/C78R_PROTOCOL_TIMING_AUDIT.md
-oaci/reports/c78r_tables/artifact_manifest.csv
+oaci/reports/C78F_FULL_SEED3_FIELD.md
+oaci/reports/C78F_FULL_SEED3_FIELD.json
+oaci/reports/C78F_AUTHORIZED_RED_TEAM_VERIFICATION.md
+oaci/reports/C78F_COLLECTOR_REPAIR_RED_TEAM.md
+oaci/reports/C78S_SEED3_SCIENTIFIC_ANALYSIS_PROTOCOL.json
+oaci/reports/c78f_tables/artifact_manifest.csv
 ```
 
-Wait for PM review. C78F, C79, and external-dataset work are not authorized.
+Wait for PM review. C78S, C79, and external-dataset work are not started or authorized by C78F.
 
 ---
 
@@ -120,10 +139,8 @@ overstatements. Expect to be wrong on the first read; the controls exist to catc
 
 - **Repo:** `git@github.com:W-Yinghao/CMI.git`  ·  **Branch:** `oaci` (fully pushed).
 - **Worktree on the lab machine:** `/home/infres/yinwang/CMI_AAAI_oaci`.
-- **C31 = `611988f`** on `origin/oaci` — the whole C23–C31 chain is on GitHub. This handoff adds one **doc-only**
-  commit on top of `611988f` (so `origin/oaci` tip = that handoff commit; `611988f` is its immediate parent). Verify
-  the chain: `git -C /home/infres/yinwang/CMI_AAAI_oaci log --oneline origin/oaci | grep -m1 C31` → `611988f`.
-- Recent trail (each rung is its own result→interpretation commit sequence; see §1 table for SHAs).
+- **C78F result = `51022f4`** on `origin/oaci`; protocol/lock/repair anchors are `1d210fd`, `a902966`, and `f0d49c2`.
+- C31 remains `611988f`; the complete C23–C78F trail is retained unsquashed on `origin/oaci`.
 
 ---
 
@@ -184,29 +201,26 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C31 is DONE; no pending rung)
+## 7. How to continue (C78F is DONE; C78S is locked but not started)
 
-C31 is complete, committed, pushed. There is **no pre-specified C32**. Depending on the PM's next instruction:
-
-- **Reproduce / verify:** `git -C /home/infres/yinwang/CMI_AAAI_oaci fetch && git checkout oaci`; run the 99-test
-  regression; `python -m oaci.endpoint_geometry.report` (and any C2x) to regenerate reports; confirm the config hash
-  and both artifact paths. This re-establishes the chain end-to-end.
-- **New rung (C32):** wait for the PM's pre-registered spec (question + lettered taxonomy + hard gates + prior). Build
-  it with the §6 pattern in a new `oaci/<name>/` subpackage over the SAME frozen artifacts + config hash; gate-first;
-  then ultracode adversarial-verify; two-commit; push.
-- **Do NOT** turn any diagnostic into a selector, use the oracle as a feature, put target labels in a feature path,
-  change the config hash, run EEG training, execute BNCI2014_004, use seeds [3,4], or write manuscript prose (the
-  method line is CLOSED and the estimand boundary is locked).
+- Wait for PM review before C78S. C78F authorization covered generation only and does not silently start analysis.
+- If approved, C78S consumes the complete seed-3 physical views read-only, excludes target 4 from primary tests, and executes the already hash-locked hypotheses/nulls/materiality/multiplicity contract. It performs no training or forward pass.
+- C78S must lock the exact C79 seed-4 confirmation protocol but must not touch seed 4. C79 requires a later explicit authorization.
+- Do not add features, kernels, regimes, endpoints, selectors, checkpoint recommendations, BNCI2014_004 access, or manuscript prose outside the locked protocol.
 
 ---
 
-## 8. Standing constraints (VERBATIM — apply to every rung)
+## 8. Standing constraints
 
 DIAGNOSTIC-ONLY. No selector / no target-free detector / no OACI rescue / no joint-deployable-improvement / no
-external-validation-success claim. **No target labels in feature construction** (post-hoc, quarantined only). Frozen
-C19 config hash **`664007686afb520f`** unchanged. No probe tuning. No feature selection. **No re-inference unless
-artifact integrity fails** (and then only P0-replay-gated). No EEG training. No BNCI2014_004 execution. No seeds
-`[3,4]`. No manuscript prose. Auto-push after every commit; `Co-Authored-By` trailer.
+external-validation-success claim. **No target labels in source or target-unlabeled feature construction**; label
+views stay physically quarantined. Frozen C19 config hash **`664007686afb520f`** remains unchanged. No probe tuning,
+feature selection, checkpoint recommendation, BNCI2014_004 access, seed-4 access, or manuscript prose.
+
+Historical “no training / no seed 3” defaults were explicitly superseded only for the completed C78/C78R/C78F
+prospective field-generation scopes. They do not authorize any further training or C79. Direct PM authorization no
+longer needs a token, but scope/protocol timing, physical-view isolation, red-team, report, commit, and push remain
+mandatory.
 
 **FORBIDDEN wording** (the report guards enforce this): "deployable selector", "target-free detector", "OACI rescue",
 "joint deployable improvement", "endpoint/pareto selector", "target oracle as method", "X converges to Y" (without the
