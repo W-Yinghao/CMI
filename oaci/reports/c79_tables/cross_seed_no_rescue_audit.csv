@@ -1,0 +1,9 @@
+check,observed,passed
+seed4_only_primary_decision_preserved,1,1
+combined_p_values_computed,0,1
+better_seed_selected,0,1
+checkpoint_alignment_by_outcome,0,1
+seeds_treated_as_independent_subjects,0,1
+shared_target_trial_dependence_declared,1,1
+P1_or_H6_near_threshold_rescue,0,1
+cross_seed_random_effects_claim,0,1

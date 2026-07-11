@@ -1,3 +1,7 @@
-failure,blocking,status,evidence,required_action
-C79_final_protocol_postdates_C78S_outcomes,1,unresolved,c79_protocol_timing.csv,PM claim/protocol redesign; do not access seed4 under strict-confirmation label
-C79_final_protocol_is_outcome_adaptive_and_incomplete,1,unresolved,c79_protocol_registry.csv;c79_protocol_diff_against_c78s.csv,lock a complete prospective post-seed3 replication protocol or abandon C79 execution
+scope,reason,blocking_provenance_failure
+P1,measurement_Holm_gate_failed_actionability_passed,0
+P2,local_strict_control_Holm_gate_failed_transport_unqualified,0
+H2R,exact_model_did_not_qualify,0
+H4R,registered_F2_did_not_qualify,0
+H5R,registered_F4_did_not_qualify,0
+H6R,fixed_Holm_family_inactive,0
