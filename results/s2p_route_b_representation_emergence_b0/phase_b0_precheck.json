@@ -1,0 +1,113 @@
+{
+  "checkpoint_immutable_failures": [
+    "released",
+    "H200_s0",
+    "H200_s1",
+    "H500_s0",
+    "H500_s1",
+    "H1000_s0",
+    "H1000_s1"
+  ],
+  "clip_group_crossfit_folds": 3,
+  "clip_group_overlap_between_fit_and_holdout": false,
+  "codebrain_launched": false,
+  "faced": {
+    "clip_to_class": [
+      0,
+      0,
+      0,
+      1,
+      1,
+      1,
+      2,
+      2,
+      2,
+      3,
+      3,
+      3,
+      4,
+      4,
+      4,
+      4,
+      5,
+      5,
+      5,
+      6,
+      6,
+      6,
+      7,
+      7,
+      7,
+      8,
+      8,
+      8
+    ],
+    "clip_to_class_sha256": "dc90345077b5f1db4009df59dd91f98df9cc69915e349a389c969e63eec4b5b4",
+    "keys_sha256": "e85572b76744eaf4315b5e2b4ad0eef6ee150d9772c3b94353ca4adadb9130be",
+    "label_map_subjects_checked": [
+      0,
+      40,
+      122
+    ],
+    "max_abs_raw_to_lmdb_reconstruction_error": 5.684341886080802e-14,
+    "n_keys": 10332,
+    "n_subjects": 123,
+    "raw_subject_file": "/projects/EEG-foundation-model/FACED_data/Processed_data/sub000.pkl",
+    "raw_subject_sha256": "3199bb62e78c5092997b7d4dd0f8eb94b785cacaafa7b251fc980ba2697efd72",
+    "raw_subject_shape": [
+      28,
+      32,
+      7500
+    ],
+    "raw_to_lmdb_checks": [
+      {
+        "class_id": 0,
+        "clip_id": 0,
+        "max_abs_reconstruction_error": 2.842170943040401e-14,
+        "segment_id": 0
+      },
+      {
+        "class_id": 0,
+        "clip_id": 0,
+        "max_abs_reconstruction_error": 2.1316282072803006e-14,
+        "segment_id": 1
+      },
+      {
+        "class_id": 0,
+        "clip_id": 0,
+        "max_abs_reconstruction_error": 2.1316282072803006e-14,
+        "segment_id": 2
+      },
+      {
+        "class_id": 4,
+        "clip_id": 14,
+        "max_abs_reconstruction_error": 2.842170943040401e-14,
+        "segment_id": 1
+      },
+      {
+        "class_id": 8,
+        "clip_id": 27,
+        "max_abs_reconstruction_error": 5.684341886080802e-14,
+        "segment_id": 2
+      }
+    ],
+    "split_subject_counts": {
+      "test": 23,
+      "train": 80,
+      "val": 20
+    }
+  },
+  "feature_determinism_tolerance": 1e-06,
+  "feature_path_phase_a_exact_reproduction_10_of_10": true,
+  "fine_tuning_launched": false,
+  "git_head": "a9134eb5eb7f8486a5e1ee41831823dab39381ed",
+  "h4000_launched": false,
+  "phase": "B0_representation_emergence_protocol_precheck",
+  "protocol_sha256": "fc0503d4de21723cd3be31fc7aa956e069c9209b7f6aab18204745ae3459cbb8",
+  "redteam_sha256": "a31ab11ad76d84726e9190c2e9bdc58eb63beb463bee364efdfab42d7c192b34",
+  "scientific_metrics_computed": false,
+  "segments_per_subject_class": "9_except_class4_12",
+  "source_subject_class_cells": 720,
+  "target_labels_used": false,
+  "training_launched": false
+}

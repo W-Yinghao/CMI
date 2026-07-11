@@ -1,0 +1,27 @@
+{
+  "all_nonrandom_checkpoints_immutable": false,
+  "clip_group_crossfit_unique_and_exhaustive": true,
+  "clip_id_reliably_recovered": true,
+  "cross_fitted_variance_partition_feasible": true,
+  "empirical_metric_non_saturation": null,
+  "empirical_metric_non_saturation_note": "Cannot be established without B1 scientific compute; fail-closed saturation rules are preregistered.",
+  "equal_rank_subject_task_subspace_contract_pinned": true,
+  "feature_path_deterministic_and_reproduced": true,
+  "immutable_blocking_tags": [
+    "released",
+    "H200_s0",
+    "H200_s1",
+    "H500_s0",
+    "H500_s1",
+    "H1000_s0",
+    "H1000_s1"
+  ],
+  "metric_definitions_frozen_before_b1": true,
+  "next_allowed_action": "immutable_close_H200_H500_H1000_and_released_then_repeat_B0_provenance_check",
+  "phase": "B0_representation_emergence",
+  "phase_b1_compute_authorized": false,
+  "phase_b1_compute_recommended": false,
+  "raw_to_lmdb_clip_mapping_exact": true,
+  "requires_pm_review_before_b1": true,
+  "source_only_fit_target_final_score_firewall_feasible": true
+}
