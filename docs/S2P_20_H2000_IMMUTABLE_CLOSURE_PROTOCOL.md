@@ -1,6 +1,6 @@
 # S2P_20 - H2000 Immutable Closure Protocol
 
-**Phase:** A. **Status:** FROZEN before H2000 completion. **Training action:** none; existing jobs finish naturally.
+**Phase:** A. **Status:** COMPLETE. **Training action:** none; existing jobs finished naturally.
 
 ## Inputs
 
@@ -77,3 +77,15 @@ FACED audit on the immutable paths:
 
 Only a new full-scope verifier that exactly reproduces the immutable H2000 rows may restore H2000 to the claim
 ledger. H4000 and every later phase remain held during closure.
+
+## Completion record
+
+- Closure job 891605: PASS.
+- H2000_s0: epoch 48, val loss 0.2150536661, SHA256
+  `3c2f568d807e36267f4376ee8b33ce522a41f4dccc094f56f825d7d9f1f896eb`.
+- H2000_s1: epoch 49, val loss 0.2128254501, SHA256
+  `492da560503d500bc59d7cd759b7b809cefb473ee6f78c07523fc407b51aa40f`.
+- Immutable FACED re-audit job 892861: complete.
+- Full confirmatory verifier job 892882: all ten committed objects reproduced exactly; SHA stable before and after
+  feature extraction.
+- H2000 scientific status: restored to the claim ledger. Historical mutable D2-2 values remain invalid.

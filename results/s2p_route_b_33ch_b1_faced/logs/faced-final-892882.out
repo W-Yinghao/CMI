@@ -1,0 +1,310 @@
+Route B FACED final verification host=node42 git=9fccbc50cc53e0e560df3d040e0081c180be87e2
+?? results/s2p_route_b_33ch_b1_faced/logs/faced-final-892882.err
+?? results/s2p_route_b_33ch_b1_faced/logs/faced-final-892882.out
+Tesla V100-PCIE-32GB, 32768 MiB
+final verification tag=random checkpoint=random
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+final verification tag=released checkpoint=/home/infres/yinwang/eeg2025/NIPS/Cbramod_pretrained_weights.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+final verification tag=H200_s0 checkpoint=/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H200_s0/best.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+final verification tag=H200_s1 checkpoint=/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H200_s1/best.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+final verification tag=H500_s0 checkpoint=/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H500_s0/best.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+final verification tag=H500_s1 checkpoint=/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H500_s1/best.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+final verification tag=H1000_s0 checkpoint=/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H1000_s0/best.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+final verification tag=H1000_s1 checkpoint=/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1/H1000_s1/best.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+final verification tag=H2000_s0 checkpoint=/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable/H2000_s0/best.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+final verification tag=H2000_s1 checkpoint=/home/infres/yinwang/CMI_AAAI_s2p_b1_launch/results/s2p_route_b_33ch_b1_immutable/H2000_s1/best.pth
+extract start=0 / 10332
+extract start=480 / 10332
+extract start=960 / 10332
+extract start=1440 / 10332
+extract start=1920 / 10332
+extract start=2400 / 10332
+extract start=2880 / 10332
+extract start=3360 / 10332
+extract start=3840 / 10332
+extract start=4320 / 10332
+extract start=4800 / 10332
+extract start=5280 / 10332
+extract start=5760 / 10332
+extract start=6240 / 10332
+extract start=6720 / 10332
+extract start=7200 / 10332
+extract start=7680 / 10332
+extract start=8160 / 10332
+extract start=8640 / 10332
+extract start=9120 / 10332
+extract start=9600 / 10332
+extract start=10080 / 10332
+{
+  "all_committed_metrics_reproduced": true,
+  "all_evaluated_pretrained_cells_task_gate_pass": true,
+  "any_pretrained_l5_subject_intervention_exceeds_variance_null": false,
+  "budget_floor": {
+    "1000": {
+      "bacc": {
+        "delta_vs_random": 0.033145464304884575,
+        "point_crosses_random_plus_0p02": true
+      },
+      "kappa": {
+        "delta_vs_random": 0.03878946019772173,
+        "point_crosses_random_plus_0p02": true
+      }
+    },
+    "200": {
+      "bacc": {
+        "delta_vs_random": 0.011741814278046159,
+        "point_crosses_random_plus_0p02": false
+      },
+      "kappa": {
+        "delta_vs_random": 0.013716851952743574,
+        "point_crosses_random_plus_0p02": false
+      }
+    },
+    "2000": {
+      "bacc": {
+        "delta_vs_random": 0.035829307568437996,
+        "point_crosses_random_plus_0p02": true
+      },
+      "kappa": {
+        "delta_vs_random": 0.04184101076130598,
+        "point_crosses_random_plus_0p02": true
+      }
+    },
+    "500": {
+      "bacc": {
+        "delta_vs_random": 0.03757380568974772,
+        "point_crosses_random_plus_0p02": true
+      },
+      "kappa": {
+        "delta_vs_random": 0.04381399856577926,
+        "point_crosses_random_plus_0p02": true
+      }
+    }
+  },
+  "claim_status": "task_gated_subject_subspace_effect_does_not_exceed_variance_matched_null",
+  "cluster_bootstrap_reps": 5000,
+  "codebrain_used": false,
+  "downstream_dataset": "FACED",
+  "fine_tuning_used": false,
+  "h2000_checkpoint_sha256_by_tag": {
+    "H2000_s0": "3c2f568d807e36267f4376ee8b33ce522a41f4dccc094f56f825d7d9f1f896eb",
+    "H2000_s1": "492da560503d500bc59d7cd759b7b809cefb473ee6f78c07523fc407b51aa40f"
+  },
+  "h2000_confirmatory_exclusion_reason": null,
+  "h2000_immutable_checkpoints": true,
+  "h2000_included": true,
+  "h4000_included": false,
+  "l5_confirmatory_metric": "cohen_kappa",
+  "l5_multiple_comparison_control": "Holm across 8 evaluated pretrained checkpoints",
+  "monotonic_scaling_established": false,
+  "n_evaluated_pretrained_cells": 8,
+  "n_target_subject_clusters": 23,
+  "new_pretraining_used": false,
+  "phase": "D2_final_confirmatory_verification",
+  "protocol": "frozen_encoder_source_only_probe",
+  "released_comparison_is_descriptive_single_checkpoint": true,
+  "scope": "full",
+  "subject_separability_near_ceiling": true,
+  "target_labels_used_for_final_scoring_and_clustered_uncertainty_only": true,
+  "target_labels_used_for_selection": false,
+  "task_gate_threshold_source_val_kappa": 0.056362325458434434,
+  "variance_matched_null_reps": 200,
+  "variance_null_contract": "source_val_energy_matched_random_orthobasis_partial_last_direction"
+}

@@ -3,7 +3,7 @@
 **Status:** FROZEN scientific control plane. Project OPEN. Scientific exploration ACTIVE. Manuscript writing OFF.
 
 This document supersedes any implication in S2P_17/S2P_18 that the project is ready to close or transition to
-writing. S2P_17 remains the authoritative through-1000 FACED result; H2000 remains pending immutable closure.
+writing. Phase A is complete, and S2P_17 now contains the authoritative immutable through-2000 FACED result.
 
 ## Scientific objective
 
@@ -31,16 +31,16 @@ CBraMod Route B
 33-channel pinned group-mixture pretraining corpus
 FACED native32 downstream
 frozen source-only probe
-H = 200 / 500 / 1000 h, seeds 0 / 1
+H = 200 / 500 / 1000 / 2000 h, seeds 0 / 1
 ```
 
 - H200 remains at the random frozen-transfer floor.
-- H500 and H1000 are above random under paired target-subject uncertainty.
+- H500, H1000, and immutable H2000 are above random under paired target-subject uncertainty.
 - Subject L1 is near ceiling throughout the pretrained range.
-- All six through-1000 cells pass the FACED task gate.
+- All eight through-2000 cells pass the FACED task gate.
 - No task-gated L5 subject intervention exceeds the strictly removed-variance-matched null after Holm correction.
 - The global budget slope is positive but leave-one-budget-out signs are unstable; no monotonic scaling law.
-- Historical D2-2 H2000 values are invalid because the audited checkpoints were mutable and later overwritten.
+- Historical mutable D2-2 H2000 values remain invalid; jobs 892861/892882 supersede them with SHA-pinned results.
 
 ## Questions
 
@@ -52,14 +52,14 @@ H = 200 / 500 / 1000 h, seeds 0 / 1
 
 ## Ordered phases
 
-### Phase A - H2000 immutable closure
+### Phase A - H2000 immutable closure (COMPLETE)
 
-This is the only active execution phase. Let jobs 890151_6 and 890151_7 finish naturally. Require complete logs,
-50 epochs, a done marker, pretrain-val checkpoint selection, strict reload, immutable copy, SHA256, size, epoch,
-val loss, config hash, and route-manifest hash. Only then rerun the identical FACED task/L1/L4/L5/L6 and paired
-target-subject inference. H4000 stays held.
+Jobs 890151_6 and 890151_7 completed naturally. The closure gate pinned epochs 48/49 as read-only SHA-named
+payloads, and jobs 892861/892882 reran and exactly reproduced the full FACED task/L1/L4/L5/L6 and paired
+target-subject inference. H2000 sustains the floor crossing without a detected L5 effect beyond the matched null.
+H4000 stays held.
 
-### Phase B - Representation-emergence decomposition
+### Phase B - Representation-emergence decomposition (NEXT)
 
 Use existing valid checkpoints and source-only feature/probe fits. Pre-freeze continuous, non-ceiling endpoints:
 subject log loss, pairwise AUC/margin, retrieval mAP, cross-subject class margin, class-probe log loss, variance
@@ -109,7 +109,7 @@ CBraMod Route B 33-channel results. Held until A-E review or explicit PM reprior
 
 No project-close recommendation is allowed until all are resolved:
 
-1. immutable H2000 closure and re-audit;
+1. immutable H2000 closure and re-audit (complete);
 2. data-volume versus optimizer-step decomposition;
 3. frozen accessibility versus fine-tuning adaptability;
 4. one gate-passed cross-task replication or a principled cross-task failure;

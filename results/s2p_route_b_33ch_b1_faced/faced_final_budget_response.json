@@ -3,96 +3,112 @@
   "bacc": {
     "leave_one_budget_out": [
       {
-        "bootstrap_probability_positive": 0.2852,
+        "bootstrap_probability_positive": 0.3808,
         "omitted_budget_h": 200,
-        "slope_bootstrap_sd": 0.00798184134968532,
-        "slope_ci95_high": 0.011210077831454572,
-        "slope_ci95_low": -0.020197597960279125,
-        "slope_point": -0.004428341384863141
+        "slope_bootstrap_sd": 0.003331117541283638,
+        "slope_ci95_high": 0.005803811057434253,
+        "slope_ci95_low": -0.007213667471819667,
+        "slope_point": -0.0008722490606548798
       },
       {
-        "bootstrap_probability_positive": 0.9968,
+        "bootstrap_probability_positive": 0.9992,
         "omitted_budget_h": 500,
-        "slope_bootstrap_sd": 0.0031856148432037436,
-        "slope_ci95_high": 0.015257462604854513,
-        "slope_ci95_low": 0.0027155682732788026,
-        "slope_point": 0.009218050323766255
+        "slope_bootstrap_sd": 0.002227817912580652,
+        "slope_ci95_high": 0.011824726512694742,
+        "slope_ci95_low": 0.003167449029662522,
+        "slope_point": 0.007597513683505006
       },
       {
-        "bootstrap_probability_positive": 0.9994,
+        "bootstrap_probability_positive": 0.9982,
         "omitted_budget_h": 1000,
-        "slope_bootstrap_sd": 0.005796959831408358,
-        "slope_ci95_high": 0.030656760709143978,
-        "slope_ci95_low": 0.008171752440682412,
-        "slope_point": 0.019541147140762303
+        "slope_bootstrap_sd": 0.002133338201393073,
+        "slope_ci95_high": 0.01071611111966519,
+        "slope_ci95_low": 0.0023585823563158415,
+        "slope_point": 0.006594645594670388
+      },
+      {
+        "bootstrap_probability_positive": 0.9978,
+        "omitted_budget_h": 2000,
+        "slope_bootstrap_sd": 0.0031637502174770124,
+        "slope_ci95_high": 0.015746017889137792,
+        "slope_ci95_low": 0.0032751855005770767,
+        "slope_point": 0.009757826845255432
       }
     ],
     "leave_one_point_sign_stable": false,
     "linear_slope": {
-      "bootstrap_sd": 0.0031637502174770124,
-      "ci95_high": 0.015746017889137792,
-      "ci95_low": 0.0032751855005770767,
-      "point": 0.009757826845255432
+      "bootstrap_sd": 0.0021717359254950584,
+      "ci95_high": 0.010821626522969374,
+      "ci95_low": 0.0023696210529925697,
+      "point": 0.006561961951977695
     },
-    "linear_slope_bootstrap_probability_positive": 0.9978,
+    "linear_slope_bootstrap_probability_positive": 0.9982,
     "metric": "bacc",
     "monotonic_scaling_established": false,
     "observed_budget_means_monotone": false,
     "quadratic_term_centered_log2": {
-      "bootstrap_sd": 0.00524902706785998,
-      "ci95_high": 6.078376238745209e-05,
-      "ci95_low": -0.02063501079008729,
-      "point": -0.01032309681699609
+      "bootstrap_sd": 0.0017443582523735226,
+      "ci95_high": -0.0009475184601171116,
+      "ci95_low": -0.007813690553990634,
+      "point": -0.004492192736169871
     },
     "x": "log2_budget_hours"
   },
   "kappa": {
     "leave_one_budget_out": [
       {
-        "bootstrap_probability_positive": 0.2874,
+        "bootstrap_probability_positive": 0.38,
         "omitted_budget_h": 200,
-        "slope_bootstrap_sd": 0.009136257303450803,
-        "slope_ci95_high": 0.012923542156244923,
-        "slope_ci95_low": -0.022958177230875544,
-        "slope_point": -0.005024538368057514
+        "slope_bootstrap_sd": 0.003789858184922701,
+        "slope_ci95_high": 0.006642446767667822,
+        "slope_ci95_low": -0.008233713443266875,
+        "slope_point": -0.0009864939022366374
       },
       {
-        "bootstrap_probability_positive": 0.9964,
+        "bootstrap_probability_positive": 0.9996,
         "omitted_budget_h": 500,
-        "slope_bootstrap_sd": 0.0038168306574474196,
-        "slope_ci95_high": 0.01804324683142658,
-        "slope_ci95_low": 0.00297832820209529,
-        "slope_point": 0.010798184620869773
+        "slope_bootstrap_sd": 0.0025607182998853405,
+        "slope_ci95_high": 0.013818789529723369,
+        "slope_ci95_low": 0.003822117309880734,
+        "slope_point": 0.008876956197459832
       },
       {
-        "bootstrap_probability_positive": 0.9992,
+        "bootstrap_probability_positive": 0.9996,
         "omitted_budget_h": 1000,
-        "slope_bootstrap_sd": 0.006626517584657995,
-        "slope_ci95_high": 0.035400938681053075,
-        "slope_ci95_low": 0.009666419487748164,
-        "slope_point": 0.022767612496805395
+        "slope_bootstrap_sd": 0.0024302453762743755,
+        "slope_ci95_high": 0.012444489983448818,
+        "slope_ci95_low": 0.0029890983690016243,
+        "slope_point": 0.007702379245717109
+      },
+      {
+        "bootstrap_probability_positive": 0.9974,
+        "omitted_budget_h": 2000,
+        "slope_bootstrap_sd": 0.0037899657675885996,
+        "slope_ci95_high": 0.018522097003490345,
+        "slope_ci95_low": 0.0035593967267125042,
+        "slope_point": 0.011424044889122891
       }
     ],
     "leave_one_point_sign_stable": false,
     "linear_slope": {
-      "bootstrap_sd": 0.0037899657675885996,
-      "ci95_high": 0.018522097003490345,
-      "ci95_low": 0.0035593967267125042,
-      "point": 0.011424044889122891
+      "bootstrap_sd": 0.0024953423538204033,
+      "ci95_high": 0.012648441252377334,
+      "ci95_low": 0.0028814916051392403,
+      "point": 0.007673953072237571
     },
-    "linear_slope_bootstrap_probability_positive": 0.9974,
+    "linear_slope_bootstrap_probability_positive": 0.9986,
     "metric": "kappa",
     "monotonic_scaling_established": false,
     "observed_budget_means_monotone": false,
     "quadratic_term_centered_log2": {
-      "bootstrap_sd": 0.005923288325906584,
-      "ci95_high": -0.00025725508841002937,
-      "ci95_low": -0.023525548173379617,
-      "point": -0.011969427875935645
+      "bootstrap_sd": 0.0020777489568925547,
+      "ci95_high": -0.0009769850817743701,
+      "ci95_low": -0.009105051227328685,
+      "point": -0.0052443926558189595
     },
     "x": "log2_budget_hours"
   },
   "monotonic_scaling_established": false,
-  "n_budget_levels": 3,
+  "n_budget_levels": 4,
   "training_seeds_per_budget": 2
 }

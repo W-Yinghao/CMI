@@ -23,6 +23,16 @@
         "point_crosses_random_plus_0p02": false
       }
     },
+    "2000": {
+      "bacc": {
+        "delta_vs_random": 0.035829307568437996,
+        "point_crosses_random_plus_0p02": true
+      },
+      "kappa": {
+        "delta_vs_random": 0.04184101076130598,
+        "point_crosses_random_plus_0p02": true
+      }
+    },
     "500": {
       "bacc": {
         "delta_vs_random": 0.03757380568974772,
@@ -39,19 +49,24 @@
   "codebrain_used": false,
   "downstream_dataset": "FACED",
   "fine_tuning_used": false,
-  "h2000_confirmatory_exclusion_reason": "D2-2 checkpoint mutated after audit; current H2000 runs incomplete at epochs 29/31",
-  "h2000_included": false,
+  "h2000_checkpoint_sha256_by_tag": {
+    "H2000_s0": "3c2f568d807e36267f4376ee8b33ce522a41f4dccc094f56f825d7d9f1f896eb",
+    "H2000_s1": "492da560503d500bc59d7cd759b7b809cefb473ee6f78c07523fc407b51aa40f"
+  },
+  "h2000_confirmatory_exclusion_reason": null,
+  "h2000_immutable_checkpoints": true,
+  "h2000_included": true,
   "h4000_included": false,
   "l5_confirmatory_metric": "cohen_kappa",
-  "l5_multiple_comparison_control": "Holm across 6 evaluated pretrained checkpoints",
+  "l5_multiple_comparison_control": "Holm across 8 evaluated pretrained checkpoints",
   "monotonic_scaling_established": false,
-  "n_evaluated_pretrained_cells": 6,
+  "n_evaluated_pretrained_cells": 8,
   "n_target_subject_clusters": 23,
   "new_pretraining_used": false,
   "phase": "D2_final_confirmatory_verification",
   "protocol": "frozen_encoder_source_only_probe",
   "released_comparison_is_descriptive_single_checkpoint": true,
-  "scope": "through_1000",
+  "scope": "full",
   "subject_separability_near_ceiling": true,
   "target_labels_used_for_final_scoring_and_clustered_uncertainty_only": true,
   "target_labels_used_for_selection": false,
