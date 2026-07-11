@@ -1,0 +1,36 @@
+check,passed,evidence
+protocol_hash,1,c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85
+protocol_post_C79_disclosure,1,true
+no_prelock_real_budget_statistics,1,0
+accepted_input_hashes,1,10/10
+registry_complete,1,80/80
+all_registry_paths_unconditional,1,5/5
+field_manifest_replay,1,4/4
+view_isolation_replay,1,4/4
+C79_result_replay,1,11/11
+cross_seed_replay,1,6/6
+regression_skip_replay,1,4/4
+target4_excluded,1,0 primary units
+oracle_closed,1,0
+construction_evaluation_overlap_zero,1,0
+availability_only_no_outcome,1,8/8
+B64_removed_pre_hash,1,min class 61
+locked_budget_grid,1,7 budgets
+implementation_hashes,1,4/4
+analysis_lock_hash,1,05a99e7ccc357b90b6675756caa680fd16541358bb697fdded89351f1e7ae4a8
+analysis_lock_protocol_binding,1,c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85
+analysis_lock_C80E_not_authorized,1,false
+authorization_record_absent,1,absent
+synthetic_scenarios,1,9/9
+synthetic_Bstar_recovery,1,18/18
+synthetic_familywise_error,1,2/2
+synthetic_dependence,1,4/4
+MC_precision_selects_2048,1,2048
+synthetic_failure_retained,1,attempt 1 retained
+no_EEG_GPU_training_imports,1,none
+no_real_payload_loader,1,none
+no_real_result_or_authorization_artifact,1,0
+risk_register_no_blocker,1,29/29
+tracked_payload_under_50MiB,1,max=21936073
+active_learning_closed,1,false
+external_and_manuscript_scope_closed,1,closed

@@ -1,0 +1,2 @@
+real_budget_reliability,real_budget_topk,real_budget_regret,real_budget_coverage,evaluation_label_value_reads_for_C80,same_label_oracle_reads,training,forward,reinference,GPU,passed
+0,0,0,0,0,0,0,0,0,0,1
