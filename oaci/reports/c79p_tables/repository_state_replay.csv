@@ -1,0 +1,6 @@
+item,expected,observed,passed,evidence
+branch,oaci,oaci,1,git_branch_show_current
+review_base,2ea4ec3a9816d0ea7372b9fabda4b1cb7d9c6cae,2ea4ec3a9816d0ea7372b9fabda4b1cb7d9c6cae,1,HEAD_before_C79P_protocol_work
+origin_base,2ea4ec3a9816d0ea7372b9fabda4b1cb7d9c6cae,2ea4ec3a9816d0ea7372b9fabda4b1cb7d9c6cae,1,origin_oaci_before_C79P_protocol_work
+shared_worktree,/home/infres/yinwang/CMI_AAAI_oaci,/home/infres/yinwang/CMI_AAAI_oaci,1,canonical_worktree_resolved
+worktree_clean_before_protocol,true,true,1,git_status_porcelain_empty

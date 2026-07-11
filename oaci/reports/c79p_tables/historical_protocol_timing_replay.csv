@@ -1,0 +1,9 @@
+order,event,commit_or_time,status,eligible_for_future_execution
+1,historical_skeleton_committed,23f549d73803bd23e435f7dae581de29bf62285f,SKELETON_ONLY_NOT_FINAL_NOT_AUTHORIZED,0
+2,adaptive_generator_committed,e561a15865934036bdccbc1e3b2ff126ad84821f,transparent_preoutcome_rule,0
+3,C78S_first_H1_outcome,2026-07-11T10:41:28Z,outcome_available,0
+4,C78S_H3_H4_H5_complete,2026-07-11T10:43:26Z,outcomes_available,0
+5,C78S_H2_complete,2026-07-11T10:43:27Z,outcome_available,0
+6,historical_final_protocol_created,2026-07-11T10:43:47Z,postoutcome_materialization,0
+7,historical_final_protocol_committed,43a046c5ba6632de415bfdbaacfa524d82c5395e,committed_with_C78S_result,0
+8,Mode_R_supersession_decision,2ea4ec3a9816d0ea7372b9fabda4b1cb7d9c6cae,accepted_nonretroactive_supersession,0

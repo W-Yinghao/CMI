@@ -1,0 +1,2 @@
+attempt,phase,status,blocking,root_cause,files_changed,scientific_registry_changed,seed4_outcome_access,outcome_dependent_decision,repair_red_team
+1,post_seed3_protocol_lock,PASS,0,none,protocol_artifacts_only,0,0,0,pending_after_protocol_commit
