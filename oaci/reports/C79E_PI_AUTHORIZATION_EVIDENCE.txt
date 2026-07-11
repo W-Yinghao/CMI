@@ -1,0 +1,14 @@
+Direct PI authorization received in the current execution conversation.
+
+Authorized operative objects:
+- C79 post-seed3 seed4 replication protocol commit: ec4834c
+- protocol SHA-256: e350b7f0c4ee3dfcf6b4f5651c1c7a0e8beac72e478ffb6c1e98e12df814f587
+- field-generation execution-lock commit: 35d0c65
+- scientific-analysis execution-lock commit: 7cebf2e
+
+Authorized scope is limited to seed-4 locked ERM/OACI/SRC field generation,
+instrumentation, full-field freeze, registered construction/evaluation label
+provisioning, and the locked P1/P2/H2R/H4R/H5R/H6R replication analyses.
+
+Not authorized: seed 5, BNCI2014_004, new targets, new feature/kernel/model
+search, same-label oracle, C80, or manuscript drafting.
