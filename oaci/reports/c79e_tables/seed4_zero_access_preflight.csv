@@ -1,0 +1,10 @@
+protected_object,count_before_direct_authorization,count_before_authorization_record_commit,count_before_first_C79E_job,status
+seed4_EEG_loads,0,0,0,PASS
+seed4_Slurm_jobs,0,0,0,PASS
+seed4_checkpoints,0,0,0,PASS
+seed4_optimizer_states,0,0,0,PASS
+seed4_logits_z_Wz_caches,0,0,0,PASS
+seed4_model_specific_target_outcomes,0,0,0,PASS
+seed4_label_views,0,0,0,PASS
+same_label_oracle_openings,0,0,0,PASS
+BNCI2014_004_access,0,0,0,PASS
