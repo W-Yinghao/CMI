@@ -149,9 +149,10 @@ def load_raw_units(config, raw_root: Path, units: list[dict[str, str]]):
             failures.append(f"failed or mismatched unit {key}: {payload.get('failure_reason', payload.get('status'))}")
             continue
         results = payload.get("results", [])
-        if {row["method"] for row in results} != set(runner.NEW_METHODS) or len(results) != 2:
-            failures.append(f"new-method coverage mismatch {key}")
+        if {row["method"] for row in results} != set(METHODS) or len(results) != 6:
+            failures.append(f"six-method coverage mismatch {key}")
             continue
+        source_hashes = {row["source_model_sha256"] for row in results}
         checks = {
             "manifest_hash": payload["manifest_hash"] == runner.MANIFEST_HASH,
             "split_hash": payload["split_hash"] == unit["split_hash"],
@@ -160,8 +161,9 @@ def load_raw_units(config, raw_root: Path, units: list[dict[str, str]]):
             "both_classes_eval": payload["both_classes_eval"],
             "no_target_labels": not payload["target_labels_passed_to_adaptation"],
             "no_target_selection": not payload["target_performance_selection"],
-            "source_state_expected": payload["source_checkpoint"]["source_model_sha256_expected"] == unit["expected_source_model_sha256"],
-            "source_state_exact": payload["source_checkpoint"]["source_model_sha256_actual"] == unit["expected_source_model_sha256"],
+            "p9_reference_state": payload["source_checkpoint"]["p9_reference_source_model_sha256"] == unit["p9_reference_source_model_sha256"],
+            "exact_config_retrain": payload["source_checkpoint"]["source_reproduction_mode"] == "exact_p9_configuration_retrain",
+            "six_methods_share_source_state": source_hashes == {payload["source_checkpoint"]["source_model_sha256_actual"]},
             "source_checkpoint_file": sha256_file(payload["source_checkpoint"]["source_checkpoint_path"]) == payload["source_checkpoint"]["source_checkpoint_file_sha256"],
             "feature_dimension": payload["feature_hook"]["dimension"] == config["feature_space"]["dimension"],
             "feature_semantics": max(
@@ -205,7 +207,9 @@ def load_raw_units(config, raw_root: Path, units: list[dict[str, str]]):
             "stderr_path": str(stderr_path),
             "stderr_sha256": stderr["sha256"],
             "stderr_status": stderr["status"],
-            "source_model_sha256": unit["expected_source_model_sha256"],
+            "source_model_sha256": payload["source_checkpoint"]["source_model_sha256_actual"],
+            "p9_reference_source_model_sha256": unit["p9_reference_source_model_sha256"],
+            "p9_state_hash_matches_actual": payload["source_checkpoint"]["p9_state_hash_matches_actual"],
             "source_checkpoint_file_sha256": payload["source_checkpoint"]["source_checkpoint_file_sha256"],
             "status": "pass",
         })
@@ -217,12 +221,9 @@ def load_raw_units(config, raw_root: Path, units: list[dict[str, str]]):
     return payloads, artifact_rows
 
 
-def flatten_new_rows(payloads):
+def flatten_rows(payloads):
     rows = []
-    source_files = {}
     for payload in payloads:
-        key = (payload["dataset"], payload["target_subject"], payload["source_seed"])
-        source_files[key] = payload["source_checkpoint"]["source_checkpoint_file_sha256"]
         for result in payload["results"]:
             rows.append({
                 "dataset": result["dataset"],
@@ -243,59 +244,12 @@ def flatten_new_rows(payloads):
                 "failure_reason": result["failure_reason"],
                 "source_model_sha256": result["source_model_sha256"],
                 "source_checkpoint_file_sha256": result["source_checkpoint_file_sha256"],
-                "result_origin": "P12_new_method",
+                "result_origin": result["result_origin"],
                 "target_label_leakage_detected": False,
                 "target_performance_selection_detected": False,
                 "classifier_frozen": True,
                 "backbone_frozen": True,
             })
-    return rows, source_files
-
-
-def load_reused_p9(config, source_files, units_by_key):
-    path = ROOT / config["p9_pipeline"]["results_path"]
-    rows = []
-    with path.open(newline="") as handle:
-        for row in csv.DictReader(handle):
-            key = (row["dataset"], int(row["target_subject"]), int(row["source_seed"]))
-            if key not in units_by_key:
-                continue
-            if row["method"] not in runner.P9_METHODS:
-                continue
-            unit = units_by_key[key]
-            if row["source_model_sha256"] != unit["expected_source_model_sha256"]:
-                raise RuntimeError(f"P9 source state mismatch at {key}")
-            if row["split_hash"] != unit["split_hash"]:
-                raise RuntimeError(f"P9 split hash mismatch at {key}")
-            if int(row["n_adapt"]) != int(unit["n_adapt"]) or int(row["n_eval"]) != int(unit["n_eval"]):
-                raise RuntimeError(f"P9 split count mismatch at {key}")
-            rows.append({
-                "dataset": row["dataset"],
-                "target_subject": int(row["target_subject"]),
-                "source_seed": int(row["source_seed"]),
-                "split_family": row["split_family"],
-                "method": row["method"],
-                "n_adapt": int(row["n_adapt"]),
-                "n_eval": int(row["n_eval"]),
-                "class_counts_adapt": class_counts_text(row["class_counts_adapt"]),
-                "class_counts_eval": class_counts_text(row["class_counts_eval"]),
-                "acc": float(row["acc"]),
-                "bacc": float(row["bacc"]),
-                "macro_f1": float(row["macro_f1"]),
-                "prediction_hash": row["prediction_hash"],
-                "logits_hash": row["logits_hash"],
-                "status": row["status"],
-                "failure_reason": row["failure_reason"],
-                "source_model_sha256": row["source_model_sha256"],
-                "source_checkpoint_file_sha256": source_files[key],
-                "result_origin": "P9_committed_reuse",
-                "target_label_leakage_detected": row["target_label_leakage_detected"].lower() == "true",
-                "target_performance_selection_detected": row["method_selection_uses_target_performance"].lower() == "true",
-                "classifier_frozen": True,
-                "backbone_frozen": True,
-            })
-    if len(rows) != 756:
-        raise RuntimeError(f"expected 756 reused P9 rows, found {len(rows)}")
     return rows
 
 
@@ -414,7 +368,7 @@ def write_head_to_head(path: Path, method_rows, contrast_rows, result_sha):
     lines = [
         "# FP-GEM Same-Backbone Head-to-Head",
         "",
-        "Status: frozen P12 two-dataset, three-source-seed comparison. This is not a broad benchmark.",
+        "Status: frozen P12 two-dataset, three-source-seed comparison. All six methods in each unit share one exact-P9-configuration source retrain; this is not a broad benchmark.",
         "",
         "## Mean Balanced Accuracy",
         "",
@@ -444,6 +398,8 @@ def write_head_to_head(path: Path, method_rows, contrast_rows, result_sha):
         "",
         "Accuracy summaries and contrasts are included in the machine-readable packet. Source seeds are averaged within subject/method before every aggregate. Intervals are 10,000-replicate dataset-stratified paired cluster-bootstrap intervals with seed 20260710.",
         "",
+        "P9 did not persist source checkpoint weights. Accordingly, committed P9 rows are provenance references rather than direct inputs here; the four frozen official controls were rerun without tuning from the same persisted unit checkpoint used by Joint-GEM and FP-GEM.",
+        "",
         "No equivalence, noninferiority, broad-benchmark, target-selection, or third-dataset claim is permitted. Interpret estimates only under the precommitted grid in `FP_GEM_METHOD_FREEZE.md`.",
         "",
         f"Final result CSV SHA-256: `{result_sha}`.",
@@ -459,8 +415,9 @@ def write_execution_audit(path, validation, artifact_rows, job_record, queue):
         "",
         f"- status: `{'PASS' if validation['validation_pass'] else 'BLOCKED'}`",
         f"- accepted target-seed tasks: `{validation['accepted_unit_count']}`",
-        f"- new method rows: `{validation['new_row_count']}`",
-        f"- reused P9 rows: `{validation['reused_p9_row_count']}`",
+        f"- new-method rows: `{validation['new_method_row_count']}`",
+        f"- same-checkpoint official-control rows: `{validation['within_unit_control_row_count']}`",
+        f"- directly reused P9 rows: `{validation['reused_p9_row_count']}`",
         f"- final rows: `{validation['final_row_count']}`",
         f"- final squeue absence: `{queue['all_absent']}`",
         f"- stdout statuses: `{dict(stdout_counts)}`",
@@ -472,6 +429,9 @@ def write_execution_audit(path, validation, artifact_rows, job_record, queue):
     ]
     for array in job_record["arrays"]:
         lines.append(f"- array: `{array}`")
+    lines.extend(["", "## Excluded Zero-Result Launches", ""])
+    for launch in job_record.get("excluded_launches", []):
+        lines.append(f"- excluded: `{launch}`")
     lines.extend([
         "",
         "Completion uses only `squeue` absence plus stdout/stderr and artifact parse/count/checksum validation. No Slurm accounting command is used.",
@@ -502,24 +462,21 @@ def main() -> int:
     if not queue["all_absent"]:
         raise RuntimeError(f"accepted P12 jobs remain in squeue: {queue['stdout']}")
     payloads, artifact_rows = load_raw_units(config, raw_root, units)
-    new_rows, source_files = flatten_new_rows(payloads)
-    units_by_key = {
-        (row["dataset"], int(row["target_subject"]), int(row["source_seed"])): row
-        for row in units
-    }
-    reused_rows = load_reused_p9(config, source_files, units_by_key)
+    raw_rows = flatten_rows(payloads)
     final_rows = sorted(
-        reused_rows + new_rows,
+        raw_rows,
         key=lambda row: (runner.SELECTED_DATASETS.index(row["dataset"]), row["target_subject"], row["source_seed"], METHODS.index(row["method"])),
     )
     keys = [(row["dataset"], row["target_subject"], row["source_seed"], row["method"]) for row in final_rows]
     validation = {
         "accepted_unit_count": len(payloads),
-        "new_row_count": len(new_rows),
-        "reused_p9_row_count": len(reused_rows),
+        "new_method_row_count": sum(row["method"] in runner.NEW_METHODS for row in final_rows),
+        "within_unit_control_row_count": sum(row["method"] in runner.P9_METHODS for row in final_rows),
+        "reused_p9_row_count": sum(row["result_origin"] == "P9_committed_reuse" for row in final_rows),
         "final_row_count": len(final_rows),
-        "expected_new_rows": 378,
-        "expected_reused_p9_rows": 756,
+        "expected_new_method_rows": 378,
+        "expected_within_unit_control_rows": 756,
+        "expected_reused_p9_rows": 0,
         "expected_final_rows": 1134,
         "duplicate_keys": len(keys) - len(set(keys)),
         "all_rows_ok": all(row["status"] == "ok" for row in final_rows),
@@ -529,8 +486,16 @@ def main() -> int:
         "all_eval_both_classes": all(payload["both_classes_eval"] for payload in payloads),
         "target_label_leakage_detected": any(payload["target_labels_passed_to_adaptation"] for payload in payloads),
         "target_performance_selection_detected": any(payload["target_performance_selection"] for payload in payloads),
-        "all_source_states_match_p9": all(
-            payload["source_checkpoint"]["source_model_sha256_actual"] == payload["source_checkpoint"]["source_model_sha256_expected"]
+        "all_sources_exact_p9_config_retrains": all(
+            payload["source_checkpoint"]["source_reproduction_mode"] == "exact_p9_configuration_retrain"
+            for payload in payloads
+        ),
+        "p9_reference_state_hash_match_count": sum(
+            payload["source_checkpoint"]["p9_state_hash_matches_actual"] for payload in payloads
+        ),
+        "all_six_methods_share_unit_source_state": all(
+            {row["source_model_sha256"] for row in payload["results"]}
+            == {payload["source_checkpoint"]["source_model_sha256_actual"]}
             for payload in payloads
         ),
         "all_classifiers_frozen": all(
@@ -551,8 +516,9 @@ def main() -> int:
     )
     validation["validation_pass"] = (
         validation["accepted_unit_count"] == 189
-        and validation["new_row_count"] == 378
-        and validation["reused_p9_row_count"] == 756
+        and validation["new_method_row_count"] == 378
+        and validation["within_unit_control_row_count"] == 756
+        and validation["reused_p9_row_count"] == 0
         and validation["final_row_count"] == 1134
         and validation["duplicate_keys"] == 0
         and validation["all_rows_ok"]
@@ -562,7 +528,8 @@ def main() -> int:
         and validation["all_eval_both_classes"]
         and not validation["target_label_leakage_detected"]
         and not validation["target_performance_selection_detected"]
-        and validation["all_source_states_match_p9"]
+        and validation["all_sources_exact_p9_config_retrains"]
+        and validation["all_six_methods_share_unit_source_state"]
         and validation["all_classifiers_frozen"]
         and validation["source_seeds"] == [0, 1, 2]
         and validation["squeue_absence"]

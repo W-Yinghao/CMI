@@ -1138,5 +1138,5 @@
   "entry_count": 189,
   "p9_results_path": "h2cmi/results/review_completion/spdim_w1_repaired_three_seed_results.csv",
   "p9_results_sha256": "95b8f69556a140dc020415753c9694cf9ebdeed1abb0766dd24f523c491289c3",
-  "status": "frozen_expected_source_states"
+  "status": "frozen_p9_reference_source_states"
 }

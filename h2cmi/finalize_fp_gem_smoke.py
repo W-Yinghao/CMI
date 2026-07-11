@@ -67,8 +67,10 @@ def main() -> int:
         "exact_unit": (payload.get("dataset"), payload.get("target_subject"), payload.get("source_seed")) == (
             "BNCI2014_001", 1, 0
         ),
-        "source_state_matches_p9": payload["source_checkpoint"]["source_model_sha256_actual"] == EXPECTED_SOURCE,
-        "source_state_expected_matches_p9": payload["source_checkpoint"]["source_model_sha256_expected"] == EXPECTED_SOURCE,
+        "p9_reference_state_matches_committed_row": payload["source_checkpoint"]["p9_reference_source_model_sha256"] == EXPECTED_SOURCE,
+        "source_reproduction_mode": payload["source_checkpoint"]["source_reproduction_mode"] == "exact_p9_configuration_retrain",
+        "p9_checkpoint_file_unavailable": not payload["source_checkpoint"]["p9_checkpoint_file_available"],
+        "actual_source_state_hash_complete": len(payload["source_checkpoint"]["source_model_sha256_actual"]) == 64,
         "checkpoint_file_checksum": sha256_file(payload["source_checkpoint"]["source_checkpoint_path"])
         == payload["source_checkpoint"]["source_checkpoint_file_sha256"],
         "feature_dimension": payload["feature_hook"]["dimension"] == 210,
@@ -77,9 +79,15 @@ def main() -> int:
             payload["feature_hook"]["adapt_semantic_max_abs_error"],
             payload["feature_hook"]["eval_semantic_max_abs_error"],
         ) <= 1e-7,
-        "prediction_shapes": payload["joint_prediction_shape"] == [72, 2] and payload["fp_prediction_shape"] == [72, 2],
-        "prediction_hashes_complete": bool(payload["joint_prediction_hash"] and payload["fp_prediction_hash"]),
-        "logits_hashes_complete": bool(payload["joint_logits_hash"] and payload["fp_logits_hash"]),
+        "six_method_prediction_shapes": set(payload["method_prediction_shapes"]) == set(runner.P9_METHODS) | set(runner.NEW_METHODS)
+        and all(shape == [72, 2] for shape in payload["method_prediction_shapes"].values()),
+        "six_method_prediction_hashes_complete": set(payload["method_prediction_hashes"]) == set(runner.P9_METHODS) | set(runner.NEW_METHODS)
+        and all(payload["method_prediction_hashes"].values()),
+        "six_method_logits_hashes_complete": set(payload["method_logits_hashes"]) == set(runner.P9_METHODS) | set(runner.NEW_METHODS)
+        and all(payload["method_logits_hashes"].values()),
+        "six_methods_share_source_state": payload["control_reproduction"]["reproduced_source_model_sha256"]
+        == payload["source_checkpoint"]["source_model_sha256_actual"],
+        "p9_rows_not_reused": not payload["control_reproduction"]["p9_rows_reused"],
         "no_performance_metrics": not payload["performance_metrics_computed"],
         "evaluation_labels_not_accessed": not payload["evaluation_labels_accessed"],
         "target_labels_not_passed": not payload["target_labels_passed_to_adaptation"],
@@ -135,7 +143,7 @@ def main() -> int:
         f"- performance metrics computed: `{payload['performance_metrics_computed']}`",
         f"- stderr status: `{stderr['status']}`",
         "",
-        "The smoke validated only source-state reproduction, feature-hook semantics, shapes, finite transforms/logits, frozen parameters, and leakage boundaries. Accuracy and balanced accuracy were neither computed nor recorded and cannot influence the frozen P12 configuration.",
+        "The smoke validated only exact-config source retraining, persisted checkpoint provenance, six-method checkpoint identity, feature-hook semantics, shapes, finite transforms/logits, frozen parameters, and leakage boundaries. Accuracy and balanced accuracy were neither computed nor recorded and cannot influence the frozen P12 configuration.",
         "",
         "## Gate Checks",
         "",
@@ -150,7 +158,9 @@ def main() -> int:
         f"- job id: `{args.job_id}`\n"
         f"- status: `{'PASS' if smoke_pass else 'BLOCKED'}`\n"
         f"- smoke payload SHA-256: `{sha256_file(smoke_path)}`\n"
-        f"- source state reproduced exactly: `{checks['source_state_matches_p9']}`\n"
+        f"- exact P9 source-training configuration reproduced: `{checks['source_reproduction_mode']}`\n"
+        f"- P9 reference state hash matched by retrain (informational, not a gate): `{payload['source_checkpoint']['p9_state_hash_matches_actual']}`\n"
+        f"- all six methods share the reproduced state: `{checks['six_methods_share_source_state']}`\n"
         f"- feature-hook replay passed: `{checks['feature_hook_semantics']}`\n"
         f"- target performance observed: `false`\n"
     )

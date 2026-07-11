@@ -1,6 +1,6 @@
 # Fixed-Prior Geometry EM Method Freeze
 
-Status: **FROZEN BEFORE GPU SMOKE OR TARGET PERFORMANCE OBSERVATION**.
+Status: **FROZEN BEFORE TARGET PERFORMANCE OBSERVATION; SOURCE-PROVENANCE AMENDMENT RECORDED BEFORE A REPLACEMENT SMOKE**.
 
 The paper method name is **Fixed-Prior Geometry EM (FP-GEM)**. The only ablation is **Joint-GEM**. No other method name or method is part of P12.
 
@@ -48,8 +48,9 @@ r_iy proportional to pi_fit[y] * p_y(T(z_i))
 
 - Datasets: `BNCI2014_001`, `Lee2019_MI` only.
 - Source seeds: `0,1,2`; all 63 target subjects; 189 target-seed units.
-- New computation: Joint-GEM and FP-GEM only, 378 rows.
-- Reuse: 756 exact-key P9 rows for source-only TSMNet, RCT, SPDIM geodesic, and SPDIM bias.
+- New methods: Joint-GEM and FP-GEM only, 378 rows.
+- Same-checkpoint controls: 756 rows for source-only TSMNet, RCT, SPDIM geodesic, and SPDIM bias, rerun without tuning from each unit's reproduced source checkpoint.
+- Direct P9 row reuse: 0. P9 checkpoint weights were not persisted, so its 756 selected rows are provenance references rather than exact-checkpoint inputs.
 - Final same-backbone table: 1,134 rows, six methods.
 - Average seeds within dataset x target subject x method first.
 - Cluster bootstrap: 10,000 replicates, seed 20260710, dataset-stratified dataset x target-subject clusters, paired methods preserved.
@@ -57,11 +58,11 @@ r_iy proportional to pi_fit[y] * p_y(T(z_i))
 
 ## Frozen Smoke Gate
 
-One V100 unit only: `BNCI2014_001`, target `1`, source seed `0`. It reports no accuracy or bAcc. It must reproduce P9 source state `f21981a86a61ca0c5129c642a5ecaee301fff0a98466a3fa09d7f89c719b3c43`, validate shape/hook/numerics/leakage, and leave all frozen settings unchanged.
+One V100 unit only: `BNCI2014_001`, target `1`, source seed `0`. It reports no accuracy or bAcc. It must reproduce the exact P9 source-training configuration, persist and hash the resulting checkpoint, prove all six methods share that checkpoint, validate shape/hook/numerics/leakage, and leave all frozen scientific settings unchanged.
 
 ## Source Checkpoint Policy
 
-P9 did not persist checkpoint files. P12 therefore reproduces the exact P9 source-training configuration on the original P9 GPU family, requires exact `hash_state` equality to the committed P9 row before adaptation, and then persists that verified state for retries. A mismatch blocks the unit; it never falls back to a scientifically different source model.
+P9 did not persist checkpoint files. Byte equality to a hash without recoverable weights is not a valid retraining gate: the first clean V100 retrain matched P9's logged trajectory through epoch 10 and differed by only 2e-4 in the printed final loss, while its full-state SHA differed. P12 therefore follows the user-approved fallback: reproduce the exact P9 training configuration on the recorded GPU family, persist the actual state, and run all six methods from that one state. The P9 state hash remains recorded as a reference and is never presented as the loaded checkpoint.
 
 ## Precommitted Interpretation Grid
 
@@ -77,11 +78,11 @@ Smoke performance, target labels, and target performance may not alter this grid
 
 ## Frozen Provenance
 
-- runner SHA-256: `10ddeb80fd2217eaac0c2d203f7024a310fad5e0a237eee91b9ce8ae3508c185`
-- analyzer SHA-256: `1971ff4ed677afbcbea8340151e3463dc937ce2ee93c77dade58d67e6a5cbb4d`
-- config SHA-256: `15543cb1b912f06872c9b4146f2f9da903e5bef5ab7056974ee20adf5b24c0d6`
-- source checkpoint hash index SHA-256: `0a22c34b46f749f49de4e048971fdff3a509a0b65ca799fff3bc809a3d6c35b4`
-- execution unit manifest SHA-256: `dbc4080d7d17c2d6d0cfa74901da31f2c5b79d6079b4acc37c3b73c840149326`
+- runner SHA-256: `720b91b1b43cdf6a983be1cb8413430a06b98d6f4923166fa14614041ec46abd`
+- analyzer SHA-256: `fe5be8b3336ece1814ebbee4a93c94f3cd524823baed37f2e5bd2716e30419b7`
+- config SHA-256: `d44fd98aa5913eb45908b7fd398b04e5a268dd4aaa75f15bcc96819f424bf165`
+- source checkpoint hash index SHA-256: `587685bc9e15a853c62daf8175e2eb6533dd73aa8ae4998e653a36a664f17c91`
+- execution unit manifest SHA-256: `3bb1250b3faf583ff79324326b0159b6a6dd9f8efd3a92ecc21231e31fb2c267`
 - repaired manifest semantic hash: `231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e`
 - P9 result SHA-256: `95b8f69556a140dc020415753c9694cf9ebdeed1abb0766dd24f523c491289c3`
 - P9 runner SHA-256: `946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e82be8`

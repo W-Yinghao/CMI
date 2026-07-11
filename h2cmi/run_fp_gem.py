@@ -60,7 +60,23 @@ P9_RUNNER_SHA256 = "946b28b93f0ddbce395ade7c6a13d30b20f368fe7a1ae22fbefa01f291e8
 P9_CONFIG_SHA256 = "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b"
 MANIFEST_HASH = "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e"
 MANIFEST_FILE_SHA256 = "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712"
-FROZEN_CONFIG_SHA256 = "15543cb1b912f06872c9b4146f2f9da903e5bef5ab7056974ee20adf5b24c0d6"
+FROZEN_CONFIG_SHA256 = "d44fd98aa5913eb45908b7fd398b04e5a268dd4aaa75f15bcc96819f424bf165"
+EXPECTED_P9_SOURCE_TRAINING = {
+    "epochs": 20,
+    "batch_size": 64,
+    "validation_fraction": 0.2,
+    "temporal_filters": 4,
+    "spatial_filters": 40,
+    "subspace_dims": 20,
+    "dtype": "float32",
+    "spd_device": "cpu",
+    "parameter_t": 1.0,
+}
+EXPECTED_P9_OFFICIAL_ADAPTATION = {
+    "epochs": 30,
+    "learning_rate": 0.01,
+    "parameter_t": 1.0,
+}
 
 
 def sha256_file(path: str | Path) -> str:
@@ -120,6 +136,10 @@ def load_config() -> dict[str, Any]:
     config = json.loads(CONFIG_PATH.read_text())
     if tuple(config["datasets"]) != SELECTED_DATASETS or tuple(config["source_seeds"]) != SELECTED_SEEDS:
         raise RuntimeError("FP-GEM dataset/seed scope differs from the frozen P12 config")
+    if config["p9_pipeline"]["source_training"] != EXPECTED_P9_SOURCE_TRAINING:
+        raise RuntimeError("P12 source training differs from the exact frozen P9 configuration")
+    if config["p9_pipeline"]["official_adaptation"] != EXPECTED_P9_OFFICIAL_ADAPTATION:
+        raise RuntimeError("P12 official controls differ from the frozen P9 adaptation configuration")
     return config
 
 
@@ -293,6 +313,29 @@ def capture_preclassifier(
     return torch.cat(features), torch.cat(logits), max_error
 
 
+def forward_logits(
+    model: torch.nn.Module,
+    X: np.ndarray,
+    domains: np.ndarray,
+    *,
+    device: torch.device,
+    dtype: torch.dtype,
+    parameter_t: torch.Tensor,
+    fm_mean: torch.Tensor | None = None,
+    batch_size: int = 256,
+) -> torch.Tensor:
+    outputs = []
+    model.eval()
+    with torch.no_grad():
+        for start in range(0, len(X), batch_size):
+            xb = torch.as_tensor(X[start:start + batch_size], dtype=dtype, device=device)
+            db = torch.as_tensor(domains[start:start + batch_size], dtype=torch.long)
+            outputs.append(model(inputs=xb, domains=db, parameter_t=parameter_t, fm_mean=fm_mean).detach())
+    if not outputs:
+        raise RuntimeError("no logits produced")
+    return torch.cat(outputs)
+
+
 def train_source_model(
     *,
     ep,
@@ -301,21 +344,26 @@ def train_source_model(
     seed: int,
     source_idx: np.ndarray,
     domain_values: list[int],
-    expected_state_hash: str,
+    p9_reference_state_hash: str,
     config: dict[str, Any],
     bn,
     TSMNet,
     Trainer,
     device: torch.device,
     dtype: torch.dtype,
-) -> tuple[torch.nn.Module, np.ndarray, np.ndarray, dict[str, Any]]:
+) -> tuple[torch.nn.Module, Any, np.ndarray, np.ndarray, dict[str, Any]]:
     cfg = config["p9_pipeline"]["source_training"]
     train_idx, val_idx = _source_train_val_split(source_idx, ep.y, ep.subject, cfg["validation_fraction"])
     raw_root = Path(config["execution"]["raw_root"])
     cache = raw_root / "source_checkpoints"
     cache.mkdir(parents=True, exist_ok=True)
-    checkpoint = cache / f"{expected_state_hash}.pt"
-    sidecar = cache / f"{expected_state_hash}.json"
+    stem = f"{dataset}_target{target}_seed{seed}"
+    checkpoint = cache / f"{stem}.pt"
+    sidecar = cache / f"{stem}.json"
+    train_ds = TensorDomainDataset(ep.X[train_idx], ep.y[train_idx], ep.subject[train_idx])
+    val_ds = TensorDomainDataset(ep.X[val_idx], ep.y[val_idx], ep.subject[val_idx])
+    train_loader = _loader(train_ds, cfg["batch_size"], True, seed + target)
+    val_loader = _loader(val_ds, len(val_ds), False, seed)
     # P9 seeded immediately before TSMNet construction. Keep that exact order:
     # model initialization consumes the seeded stream, and training must continue
     # from the resulting RNG state rather than resetting it after construction.
@@ -334,6 +382,13 @@ def train_source_model(
         device=device,
         dtype=dtype,
     )
+    trainer = Trainer(
+        max_epochs=cfg["epochs"],
+        callbacks=[],
+        loss=torch.nn.CrossEntropyLoss(),
+        device=device,
+        dtype=dtype,
+    )
     reused = False
     train_seconds = 0.0
     if checkpoint.exists() and sidecar.exists():
@@ -342,8 +397,16 @@ def train_source_model(
             dataset, target, seed
         ):
             raise RuntimeError("cached source checkpoint unit key mismatch")
-        if meta.get("source_model_sha256") != expected_state_hash:
-            raise RuntimeError("cached source checkpoint sidecar hash mismatch")
+        if meta.get("p9_reference_source_model_sha256") != p9_reference_state_hash:
+            raise RuntimeError("cached source checkpoint P9-reference hash mismatch")
+        if meta.get("p9_runner_sha256") != P9_RUNNER_SHA256 or meta.get("p9_config_sha256") != P9_CONFIG_SHA256:
+            raise RuntimeError("cached source checkpoint P9 configuration mismatch")
+        if meta.get("fp_gem_config_sha256") != FROZEN_CONFIG_SHA256:
+            raise RuntimeError("cached source checkpoint P12 configuration mismatch")
+        if meta.get("source_idx_sha256") != _sha_indices(source_idx):
+            raise RuntimeError("cached source checkpoint source split mismatch")
+        if meta.get("train_idx_sha256") != _sha_indices(train_idx) or meta.get("val_idx_sha256") != _sha_indices(val_idx):
+            raise RuntimeError("cached source checkpoint train/validation split mismatch")
         if meta.get("checkpoint_file_sha256") != sha256_file(checkpoint):
             raise RuntimeError("cached source checkpoint file checksum mismatch")
         try:
@@ -353,17 +416,6 @@ def train_source_model(
         model.load_state_dict(state)
         reused = True
     else:
-        train_ds = TensorDomainDataset(ep.X[train_idx], ep.y[train_idx], ep.subject[train_idx])
-        val_ds = TensorDomainDataset(ep.X[val_idx], ep.y[val_idx], ep.subject[val_idx])
-        train_loader = _loader(train_ds, cfg["batch_size"], True, seed + target)
-        val_loader = _loader(val_ds, len(val_ds), False, seed)
-        trainer = Trainer(
-            max_epochs=cfg["epochs"],
-            callbacks=[],
-            loss=torch.nn.CrossEntropyLoss(),
-            device=device,
-            dtype=dtype,
-        )
         start = time.time()
         trainer.fit(
             model,
@@ -373,11 +425,8 @@ def train_source_model(
         )
         train_seconds = time.time() - start
     actual_state_hash = hash_state(model)
-    if actual_state_hash != expected_state_hash:
-        raise RuntimeError(
-            f"reproduced P9 source state mismatch for {(dataset, target, seed)}: "
-            f"{actual_state_hash} != {expected_state_hash}"
-        )
+    if reused and actual_state_hash != meta.get("source_model_sha256_actual"):
+        raise RuntimeError("cached source checkpoint state hash mismatch")
     if not reused:
         cpu_state = {key: value.detach().cpu() for key, value in model.state_dict().items()}
         tmp = checkpoint.with_suffix(".pt.tmp")
@@ -387,17 +436,23 @@ def train_source_model(
             "dataset": dataset,
             "target_subject": target,
             "source_seed": seed,
-            "source_model_sha256": expected_state_hash,
+            "source_model_sha256_actual": actual_state_hash,
+            "p9_reference_source_model_sha256": p9_reference_state_hash,
+            "p9_state_hash_matches_actual": actual_state_hash == p9_reference_state_hash,
             "checkpoint_file_sha256": sha256_file(checkpoint),
             "p9_runner_sha256": P9_RUNNER_SHA256,
             "p9_config_sha256": P9_CONFIG_SHA256,
+            "fp_gem_config_sha256": FROZEN_CONFIG_SHA256,
             "source_idx_sha256": _sha_indices(source_idx),
             "train_idx_sha256": _sha_indices(train_idx),
             "val_idx_sha256": _sha_indices(val_idx),
         })
-    return model, train_idx, val_idx, {
-        "source_model_sha256_expected": expected_state_hash,
+    return model, trainer, train_idx, val_idx, {
+        "source_reproduction_mode": "exact_p9_configuration_retrain",
+        "p9_checkpoint_file_available": False,
+        "p9_reference_source_model_sha256": p9_reference_state_hash,
         "source_model_sha256_actual": actual_state_hash,
+        "p9_state_hash_matches_actual": actual_state_hash == p9_reference_state_hash,
         "source_checkpoint_path": str(checkpoint),
         "source_checkpoint_file_sha256": sha256_file(checkpoint),
         "source_checkpoint_reused": reused,
@@ -586,14 +641,14 @@ def run_unit(
         raise RuntimeError("manifest class-count gate failed")
     domain_values = sorted(source_subjects + [target])
 
-    source_model, train_idx, val_idx, source_info = train_source_model(
+    source_model, trainer, train_idx, val_idx, source_info = train_source_model(
         ep=ep,
         dataset=dataset,
         target=target,
         seed=seed,
         source_idx=source_idx,
         domain_values=domain_values,
-        expected_state_hash=p9_hashes[key],
+        p9_reference_state_hash=p9_hashes[key],
         config=config,
         bn=bn,
         TSMNet=TSMNet,
@@ -602,6 +657,20 @@ def run_unit(
         dtype=dtype,
     )
     source_state = deepcopy(source_model.state_dict())
+    parameter_t = torch.tensor(
+        config["p9_pipeline"]["official_adaptation"]["parameter_t"],
+        dtype=torch.float64,
+        device="cpu",
+    )
+    target_domains_eval = np.full(len(eval_idx), target, dtype=np.int64)
+    source_only_logits = forward_logits(
+        source_model,
+        ep.X[eval_idx],
+        target_domains_eval,
+        device=device,
+        dtype=dtype,
+        parameter_t=parameter_t,
+    )
     source_features, source_logits, source_hook_error = capture_preclassifier(
         source_model,
         ep.X[train_idx],
@@ -625,6 +694,12 @@ def run_unit(
         device=device,
     )
 
+    adapt_ds = TensorDomainDataset(
+        ep.X[adapt_idx],
+        np.zeros(len(adapt_idx), dtype=np.int64),
+        np.full(len(adapt_idx), target, dtype=np.int64),
+    )
+    adapt_loader = _loader(adapt_ds, len(adapt_ds), False, seed)
     rct_model, rct_info = refit_rct(
         source_state,
         ep=ep,
@@ -638,7 +713,6 @@ def run_unit(
         dtype=dtype,
     )
     target_domains_adapt = np.full(len(adapt_idx), target, dtype=np.int64)
-    target_domains_eval = np.full(len(eval_idx), target, dtype=np.int64)
     adapt_features, adapt_logits, adapt_hook_error = capture_preclassifier(
         rct_model,
         ep.X[adapt_idx],
@@ -656,9 +730,80 @@ def run_unit(
     if max(adapt_hook_error, eval_hook_error) > 1e-7:
         raise RuntimeError("target feature-hook semantic mismatch")
     if not all(torch.isfinite(tensor).all() for tensor in (
-        source_features, source_logits, adapt_features, adapt_logits, eval_features, eval_logits
+        source_features, source_logits, source_only_logits, adapt_features, adapt_logits, eval_features, eval_logits
     )):
         raise RuntimeError("non-finite feature or logit tensor")
+
+    official_cfg = config["p9_pipeline"]["official_adaptation"]
+    geodesic_model, geodesic_rct_info = refit_rct(
+        source_state,
+        ep=ep,
+        domain_values=domain_values,
+        adapt_idx=adapt_idx,
+        target=target,
+        config=config,
+        bn=bn,
+        TSMNet=TSMNet,
+        device=device,
+        dtype=dtype,
+    )
+    geodesic_parameters_before = hash_parameters(geodesic_model)
+    start = time.time()
+    best_t = trainer.get_information_maximization_geodesic(
+        geodesic_model,
+        test_dataloader=adapt_loader,
+        parameter_t=parameter_t.clone(),
+        epochs=official_cfg["epochs"],
+        lr=official_cfg["learning_rate"],
+    )
+    geodesic_seconds = geodesic_rct_info["rct_seconds"] + (time.time() - start)
+    if hash_parameters(geodesic_model) != geodesic_parameters_before:
+        raise RuntimeError("official SPDIM geodesic changed frozen TSMNet parameters")
+    geodesic_logits = forward_logits(
+        geodesic_model,
+        ep.X[eval_idx],
+        target_domains_eval,
+        device=device,
+        dtype=dtype,
+        parameter_t=best_t.detach(),
+    )
+
+    bias_model, bias_rct_info = refit_rct(
+        source_state,
+        ep=ep,
+        domain_values=domain_values,
+        adapt_idx=adapt_idx,
+        target=target,
+        config=config,
+        bn=bn,
+        TSMNet=TSMNet,
+        device=device,
+        dtype=dtype,
+    )
+    bias_parameters_before = hash_parameters(bias_model)
+    start = time.time()
+    trainer.predict(bias_model, adapt_loader, parameter_t=parameter_t.clone())
+    best_mean = trainer.get_information_maximization_bias(
+        bias_model,
+        test_dataloader=adapt_loader,
+        parameter_t=parameter_t.clone(),
+        epochs=official_cfg["epochs"],
+        lr=official_cfg["learning_rate"],
+    )
+    bias_seconds = bias_rct_info["rct_seconds"] + (time.time() - start)
+    if hash_parameters(bias_model) != bias_parameters_before:
+        raise RuntimeError("official SPDIM bias changed frozen TSMNet parameters")
+    bias_logits = forward_logits(
+        bias_model,
+        ep.X[eval_idx],
+        target_domains_eval,
+        device=device,
+        dtype=dtype,
+        parameter_t=parameter_t,
+        fm_mean=best_mean.detach(),
+    )
+    if not torch.isfinite(geodesic_logits).all() or not torch.isfinite(bias_logits).all():
+        raise RuntimeError("non-finite official-control evaluation logits")
 
     tta_cfg = TTAConfig(
         transform="diag_affine",
@@ -721,6 +866,18 @@ def run_unit(
         "source_checkpoint": source_info,
         "source_density": density_info,
         "rct": rct_info,
+        "control_reproduction": {
+            "p9_rows_reused": False,
+            "reason": "P9 checkpoint weights were not persisted; all controls were rerun from the same exact-config source retrain used by GEM",
+            "methods": list(P9_METHODS),
+            "p9_reference_source_model_sha256": p9_hashes[key],
+            "reproduced_source_model_sha256": source_info["source_model_sha256_actual"],
+            "p9_state_hash_matches_actual": source_info["p9_state_hash_matches_actual"],
+            "geodesic_parameter_t": float(best_t.detach().cpu().item()),
+            "bias_mean_sha256": hash_array(best_mean.detach().cpu().numpy()),
+            "geodesic_adapt_seconds": geodesic_seconds,
+            "bias_adapt_seconds": bias_seconds,
+        },
         "feature_hook": {
             "module": "TSMNet.classifier",
             "type": "register_forward_pre_hook",
@@ -770,7 +927,17 @@ def run_unit(
     with torch.no_grad():
         joint_logits = rct_model.classifier(joint.transform.apply(eval_features))
         fixed_logits = rct_model.classifier(fixed.transform.apply(eval_features))
-    if not torch.isfinite(joint_logits).all() or not torch.isfinite(fixed_logits).all():
+    method_logits = {
+        "source_only_tsmnet": source_only_logits,
+        "rct": eval_logits,
+        "spdim_geodesic": geodesic_logits,
+        "spdim_bias": bias_logits,
+        "Joint-GEM": joint_logits,
+        "FP-GEM": fixed_logits,
+    }
+    if set(method_logits) != set(P9_METHODS) | set(NEW_METHODS):
+        raise RuntimeError("six-method control coverage mismatch")
+    if not all(torch.isfinite(logits).all() for logits in method_logits.values()):
         raise RuntimeError("non-finite GEM evaluation logits")
     if smoke:
         return common | {
@@ -778,24 +945,33 @@ def run_unit(
             "mode": "smoke",
             "performance_metrics_computed": False,
             "evaluation_labels_accessed": False,
-            "joint_prediction_shape": list(joint_logits.shape),
-            "fp_prediction_shape": list(fixed_logits.shape),
-            "joint_prediction_hash": hash_array(joint_logits.argmax(1).detach().cpu().numpy()),
-            "fp_prediction_hash": hash_array(fixed_logits.argmax(1).detach().cpu().numpy()),
-            "joint_logits_hash": hash_array(joint_logits.detach().cpu().numpy()),
-            "fp_logits_hash": hash_array(fixed_logits.detach().cpu().numpy()),
+            "method_prediction_shapes": {method: list(logits.shape) for method, logits in method_logits.items()},
+            "method_prediction_hashes": {
+                method: hash_array(logits.argmax(1).detach().cpu().numpy())
+                for method, logits in method_logits.items()
+            },
+            "method_logits_hashes": {
+                method: hash_array(logits.detach().cpu().numpy())
+                for method, logits in method_logits.items()
+            },
         }
 
-    # Runtime target labels are first read after both adaptation fits are complete.
+    # Runtime target labels are first read after every adaptation fit is complete.
     y_eval = np.asarray(ep.y[eval_idx], dtype=np.int64)
     results = []
-    for method, logits, fit, seconds in (
-        ("Joint-GEM", joint_logits, joint, joint_seconds),
-        ("FP-GEM", fixed_logits, fixed, fixed_seconds),
-    ):
+    fit_by_method = {"Joint-GEM": joint, "FP-GEM": fixed}
+    seconds_by_method = {
+        "source_only_tsmnet": 0.0,
+        "rct": rct_info["rct_seconds"],
+        "spdim_geodesic": geodesic_seconds,
+        "spdim_bias": bias_seconds,
+        "Joint-GEM": joint_seconds,
+        "FP-GEM": fixed_seconds,
+    }
+    for method, logits in method_logits.items():
         logits_np = logits.detach().cpu().numpy()
         predictions = logits_np.argmax(1).astype(np.int64)
-        results.append({
+        row = {
             "dataset": dataset,
             "target_subject": target,
             "source_seed": seed,
@@ -812,16 +988,28 @@ def run_unit(
             "source_model_sha256": source_info["source_model_sha256_actual"],
             "source_checkpoint_file_sha256": source_info["source_checkpoint_file_sha256"],
             "density_state_sha256": density_info["density_state_sha256"],
-            "transform_a": fit.transform.a.detach().cpu().numpy().tolist(),
-            "transform_b": fit.transform.b.detach().cpu().numpy().tolist(),
-            "pi_fit": fit.pi_T.detach().cpu().numpy().tolist(),
-            "fit_objective": fit.objective,
-            "adapt_seconds": seconds,
+            "adapt_seconds": seconds_by_method[method],
             "target_label_leakage_detected": False,
             "target_performance_selection_detected": False,
             "classifier_frozen": True,
             "backbone_frozen": True,
-        })
+            "result_origin": "P12_same_checkpoint_control" if method in P9_METHODS else "P12_new_method",
+        }
+        if method in fit_by_method:
+            fit = fit_by_method[method]
+            row.update({
+                "transform_a": fit.transform.a.detach().cpu().numpy().tolist(),
+                "transform_b": fit.transform.b.detach().cpu().numpy().tolist(),
+                "pi_fit": fit.pi_T.detach().cpu().numpy().tolist(),
+                "fit_objective": fit.objective,
+            })
+        elif method == "spdim_geodesic":
+            row["parameter_t"] = float(best_t.detach().cpu().item())
+        elif method == "spdim_bias":
+            row["fm_mean_sha256"] = hash_array(best_mean.detach().cpu().numpy())
+        else:
+            row["parameter_t"] = float(parameter_t.item())
+        results.append(row)
     return common | {
         "status": "ok",
         "mode": "run",
@@ -837,8 +1025,28 @@ def dry_run(config: dict[str, Any]) -> dict[str, Any]:
     manifest = manifest_map(config)
     units = load_units()
     unit_keys = {(row["dataset"], int(row["target_subject"]), int(row["source_seed"])) for row in units}
+    unit_rows = {
+        (row["dataset"], int(row["target_subject"]), int(row["source_seed"])): row
+        for row in units
+    }
     manifest_keys = set(manifest)
     p9_keys = set(p9)
+    unit_reference_hashes_match_p9 = all(
+        unit_rows[key]["p9_reference_source_model_sha256"] == p9[key]
+        for key in unit_keys
+    )
+    unit_split_fields_match_manifest = all(
+        unit_rows[key]["split_hash"] == manifest[key]["split_hash"]
+        and int(unit_rows[key]["n_adapt"]) == int(manifest[key]["n_adapt"])
+        and int(unit_rows[key]["n_eval"]) == int(manifest[key]["n_eval"])
+        for key in unit_keys
+    )
+    unit_hardware_groups_match_freeze = all(
+        row["hardware_group"]
+        == ("A100" if row["dataset"] == "Lee2019_MI" and int(row["source_seed"]) == 2
+            and int(row["target_subject"]) >= 27 else "V100")
+        for row in units
+    )
     hardware_counts = {group: sum(row["hardware_group"] == group for row in units) for group in ("V100", "A100")}
     external = config["p9_pipeline"]["external_spdim_path"]
     bn, TSMNet, _Trainer = _import_official(external)
@@ -878,6 +1086,9 @@ def dry_run(config: dict[str, Any]) -> dict[str, Any]:
     return {
         "dryrun_pass": (
             unit_keys == manifest_keys == p9_keys
+            and unit_reference_hashes_match_p9
+            and unit_split_fields_match_manifest
+            and unit_hardware_groups_match_freeze
             and len(units) == expected["target_seed_units"]
             and hardware_counts == {"V100": 161, "A100": 28}
             and feature_probe["feature_shape"] == [1, config["feature_space"]["dimension"]]
@@ -890,11 +1101,16 @@ def dry_run(config: dict[str, Any]) -> dict[str, Any]:
         "unit_count": len(units),
         "hardware_group_counts": hardware_counts,
         "feature_hook_cpu_probe": feature_probe,
-        "new_rows_expected": len(units) * len(NEW_METHODS),
-        "reused_p9_rows_expected": len(units) * len(P9_METHODS),
+        "new_method_rows_expected": len(units) * len(NEW_METHODS),
+        "within_unit_control_rows_expected": len(units) * len(P9_METHODS),
+        "reused_p9_rows_expected": 0,
+        "p9_reference_rows_expected": len(units) * len(P9_METHODS),
         "final_rows_expected": len(units) * (len(NEW_METHODS) + len(P9_METHODS)),
         "unit_keys_match_manifest": unit_keys == manifest_keys,
         "unit_keys_match_p9": unit_keys == p9_keys,
+        "unit_reference_hashes_match_p9": unit_reference_hashes_match_p9,
+        "unit_split_fields_match_manifest": unit_split_fields_match_manifest,
+        "unit_hardware_groups_match_freeze": unit_hardware_groups_match_freeze,
         "all_adapt_eval_disjoint": all(row["adapt_eval_disjoint"] for row in manifest.values()),
         "all_eval_both_classes": all(row["both_classes_eval"] for row in manifest.values()),
         "all_adapt_both_classes": all(row["both_classes_adapt"] for row in manifest.values()),

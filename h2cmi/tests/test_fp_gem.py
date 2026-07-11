@@ -69,14 +69,22 @@ def test_frozen_config_scope_and_names():
     assert config["method_name"] == "Fixed-Prior Geometry EM (FP-GEM)"
     assert config["ablation_name"] == "Joint-GEM"
     assert config["new_methods_only"] == ["Joint-GEM", "FP-GEM"]
+    assert config["expected_counts"]["reused_p9_rows"] == 0
+    assert config["expected_counts"]["within_unit_control_rows"] == 756
+    assert config["expected_counts"]["final_rows"] == 1134
     assert config["aggregation"]["bootstrap_replicates"] == 10000
     assert config["aggregation"]["bootstrap_seed"] == 20260710
+    assert config["p9_pipeline"]["source_training"] == run_fp_gem.EXPECTED_P9_SOURCE_TRAINING
+    assert config["p9_pipeline"]["official_adaptation"] == run_fp_gem.EXPECTED_P9_OFFICIAL_ADAPTATION
 
 
 def test_target_labels_are_read_only_after_both_gem_fits():
     source = inspect.getsource(run_fp_gem.run_unit)
     assert "ep.y[adapt_idx]" not in source
-    assert source.index("y_eval = np.asarray(ep.y[eval_idx]") > source.index("fixed = tta.fit_variant")
+    y_eval = source.index("y_eval = np.asarray(ep.y[eval_idx]")
+    assert y_eval > source.index("fixed = tta.fit_variant")
+    assert y_eval > source.index("get_information_maximization_geodesic")
+    assert y_eval > source.index("get_information_maximization_bias")
     assert source.index("if smoke:") < source.index("y_eval = np.asarray(ep.y[eval_idx]")
 
 
@@ -84,6 +92,13 @@ def test_p9_seed_precedes_tsmnet_construction_without_reseed():
     source = inspect.getsource(run_fp_gem.train_source_model)
     assert source.index("_set_seed(seed)") < source.index("model = _build_model")
     assert source.count("_set_seed(seed)") == 1
+
+
+def test_unrecoverable_p9_hash_is_reference_not_retraining_gate():
+    source = inspect.getsource(run_fp_gem.train_source_model)
+    assert "p9_reference_state_hash" in source
+    assert "actual_state_hash != p9_reference_state_hash" not in source
+    assert "exact_p9_configuration_retrain" in source
 
 
 def test_bootstrap_shape_and_pairing():

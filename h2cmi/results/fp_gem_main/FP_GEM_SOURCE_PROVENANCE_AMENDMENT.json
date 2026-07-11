@@ -1,0 +1,47 @@
+{
+  "dataset_seed_split_hyperparameters_changed": false,
+  "direct_p9_result_rows_reused": 0,
+  "failed_pre_amendment_launches": [
+    {
+      "accepted_rows": 0,
+      "classification": "zero_result_infrastructure_failure",
+      "job_id": "893415",
+      "reason": "compute node could not access the /tmp launch worktree",
+      "stderr_sha256": "8913d578a2b0a2a1c753c7a21370cc4501ff5b46c80dea63719e288ace9c56a1",
+      "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "target_performance_observed": false
+    },
+    {
+      "accepted_rows": 0,
+      "classification": "zero_result_overstrict_provenance_gate_failure",
+      "evaluation_labels_accessed": false,
+      "gem_executed": false,
+      "job_id": "893416",
+      "p9_epoch_0_10_trace_matches_printed_precision": true,
+      "p9_epoch_19_printed_loss_absolute_difference": 0.0002,
+      "p9_reference_source_model_sha256": "f21981a86a61ca0c5129c642a5ecaee301fff0a98466a3fa09d7f89c719b3c43",
+      "reason": "exact-config V100 retrain produced a different byte-level state hash from unrecoverable P9 weights",
+      "retrained_source_model_sha256": "623fd92a6204d2a106e98d4189b5ca86a335e82ea47a2d91c6aef0cb7b6c1d17",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "5e37e1285a1dc3bf5d5e889ef244de5ca28c0aac15774aee0f1c0714a36d361f",
+      "target_performance_observed": false
+    }
+  ],
+  "new_methods": [
+    "Joint-GEM",
+    "FP-GEM"
+  ],
+  "p9_checkpoint_files_found": false,
+  "p9_checkpoint_weights_recoverable": false,
+  "rationale": "P9 explicitly allowed exact source-training configuration reproduction when checkpoints were unavailable. Because no P9 checkpoint file exists, direct P9 result reuse would not be an exact-checkpoint head-to-head. The amended design reruns the four frozen controls and both GEM methods from one persisted source state per unit.",
+  "scientific_method_changed": false,
+  "source_reproduction_policy": "exact_p9_configuration_retrain",
+  "status": "frozen_before_replacement_smoke",
+  "target_performance_observed": false,
+  "within_unit_controls_rerun": [
+    "source_only_tsmnet",
+    "rct",
+    "spdim_geodesic",
+    "spdim_bias"
+  ]
+}

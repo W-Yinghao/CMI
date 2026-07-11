@@ -1,5 +1,5 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "experiment": "P12 Fixed-Prior Geometry EM same-backbone head-to-head",
   "method_name": "Fixed-Prior Geometry EM (FP-GEM)",
   "ablation_name": "Joint-GEM",
@@ -28,7 +28,7 @@
     "config_sha256": "6f27455570996064b8e8ea360b1e0324a9b8ea2e5995d35297a66697a76e6a6b",
     "external_spdim_path": "/home/infres/yinwang/.cache/h2cmi_external/SPDIM_1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
     "external_spdim_commit": "1b0de0ccd4c48a4ff28f087b866a0b671b029c39",
-    "source_checkpoint_policy": "P9 checkpoint files were not persisted; reproduce the exact P9 source-training configuration, persist the reproduced state, and require exact hash_state equality to the committed P9 source_model_sha256 before adaptation.",
+    "source_checkpoint_policy": "P9 checkpoint files were not persisted. Reproduce the exact P9 source-training configuration on the recorded GPU family, persist and hash that unit checkpoint, and run all six P12 methods from that same reproduced state. The committed P9 source_model_sha256 is a provenance reference, not a recoverable checkpoint or a bitwise retraining gate.",
     "source_training": {
       "epochs": 20,
       "batch_size": 64,
@@ -40,7 +40,13 @@
       "spd_device": "cpu",
       "parameter_t": 1.0
     },
-    "pre_geometry_base": "RCT-refitted TSMNet, matching the base used before the official P9 SPDIM geodesic and bias updates"
+    "pre_geometry_base": "RCT-refitted TSMNet, matching the base used before the official P9 SPDIM geodesic and bias updates",
+    "official_adaptation": {
+      "epochs": 30,
+      "learning_rate": 0.01,
+      "parameter_t": 1.0
+    },
+    "within_unit_control_policy": "Re-run source-only TSMNet, RCT, SPDIM geodesic, and SPDIM bias from the same reproduced source checkpoint used by Joint-GEM and FP-GEM. These are frozen controls, not added methods or tuned reruns. Committed P9 rows remain an external reference because their checkpoint weights were not persisted and their state hashes cannot be loaded."
   },
   "feature_space": {
     "hook_module": "TSMNet.classifier",
@@ -106,7 +112,9 @@
     "source_seed": 0,
     "performance_metrics_permitted": false,
     "required_gates": [
-      "source checkpoint hash matches P9",
+      "exact P9 source-training configuration and source split",
+      "reproduced source checkpoint persisted and hashed",
+      "all six methods share the reproduced source checkpoint",
       "feature dimension and hook semantics",
       "finite source/adaptation/evaluation features",
       "finite density and geometry objectives",
@@ -121,8 +129,10 @@
       "Lee2019_MI": 54
     },
     "target_seed_units": 189,
-    "new_rows": 378,
-    "reused_p9_rows": 756,
+    "new_method_rows": 378,
+    "within_unit_control_rows": 756,
+    "reused_p9_rows": 0,
+    "p9_reference_rows": 756,
     "final_rows": 1134,
     "seed_averaged_subject_method_rows": 378
   },

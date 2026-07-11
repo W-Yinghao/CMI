@@ -18,6 +18,8 @@ UNITS = OUT / "fp_gem_units.csv"
 METHOD_FREEZE = OUT / "FP_GEM_METHOD_FREEZE.md"
 INTEGRATION_AUDIT = OUT / "fp_gem_integration_audit.md"
 COMMAND_LOG = OUT / "COMMAND_LOG.md"
+AMENDMENT_MD = OUT / "FP_GEM_SOURCE_PROVENANCE_AMENDMENT.md"
+AMENDMENT_JSON = OUT / "FP_GEM_SOURCE_PROVENANCE_AMENDMENT.json"
 
 
 def sha256_file(path: str | Path) -> str:
@@ -48,7 +50,7 @@ def build_units(config, source_hashes, manifests):
                     "dataset": dataset,
                     "target_subject": target,
                     "source_seed": seed,
-                    "expected_source_model_sha256": source_hashes[key],
+                    "p9_reference_source_model_sha256": source_hashes[key],
                     "split_hash": manifests[key]["split_hash"],
                     "n_adapt": manifests[key]["n_adapt"],
                     "n_eval": manifests[key]["n_eval"],
@@ -67,7 +69,7 @@ def write_method_freeze(config, runner_sha, analyzer_sha, source_index_sha, unit
     lines = [
         "# Fixed-Prior Geometry EM Method Freeze",
         "",
-        "Status: **FROZEN BEFORE GPU SMOKE OR TARGET PERFORMANCE OBSERVATION**.",
+        "Status: **FROZEN BEFORE TARGET PERFORMANCE OBSERVATION; SOURCE-PROVENANCE AMENDMENT RECORDED BEFORE A REPLACEMENT SMOKE**.",
         "",
         "The paper method name is **Fixed-Prior Geometry EM (FP-GEM)**. The only ablation is **Joint-GEM**. No other method name or method is part of P12.",
         "",
@@ -115,8 +117,9 @@ def write_method_freeze(config, runner_sha, analyzer_sha, source_index_sha, unit
         "",
         "- Datasets: `BNCI2014_001`, `Lee2019_MI` only.",
         "- Source seeds: `0,1,2`; all 63 target subjects; 189 target-seed units.",
-        "- New computation: Joint-GEM and FP-GEM only, 378 rows.",
-        "- Reuse: 756 exact-key P9 rows for source-only TSMNet, RCT, SPDIM geodesic, and SPDIM bias.",
+        "- New methods: Joint-GEM and FP-GEM only, 378 rows.",
+        "- Same-checkpoint controls: 756 rows for source-only TSMNet, RCT, SPDIM geodesic, and SPDIM bias, rerun without tuning from each unit's reproduced source checkpoint.",
+        "- Direct P9 row reuse: 0. P9 checkpoint weights were not persisted, so its 756 selected rows are provenance references rather than exact-checkpoint inputs.",
         "- Final same-backbone table: 1,134 rows, six methods.",
         "- Average seeds within dataset x target subject x method first.",
         "- Cluster bootstrap: 10,000 replicates, seed 20260710, dataset-stratified dataset x target-subject clusters, paired methods preserved.",
@@ -124,11 +127,11 @@ def write_method_freeze(config, runner_sha, analyzer_sha, source_index_sha, unit
         "",
         "## Frozen Smoke Gate",
         "",
-        "One V100 unit only: `BNCI2014_001`, target `1`, source seed `0`. It reports no accuracy or bAcc. It must reproduce P9 source state `f21981a86a61ca0c5129c642a5ecaee301fff0a98466a3fa09d7f89c719b3c43`, validate shape/hook/numerics/leakage, and leave all frozen settings unchanged.",
+        "One V100 unit only: `BNCI2014_001`, target `1`, source seed `0`. It reports no accuracy or bAcc. It must reproduce the exact P9 source-training configuration, persist and hash the resulting checkpoint, prove all six methods share that checkpoint, validate shape/hook/numerics/leakage, and leave all frozen scientific settings unchanged.",
         "",
         "## Source Checkpoint Policy",
         "",
-        "P9 did not persist checkpoint files. P12 therefore reproduces the exact P9 source-training configuration on the original P9 GPU family, requires exact `hash_state` equality to the committed P9 row before adaptation, and then persists that verified state for retries. A mismatch blocks the unit; it never falls back to a scientifically different source model.",
+        "P9 did not persist checkpoint files. Byte equality to a hash without recoverable weights is not a valid retraining gate: the first clean V100 retrain matched P9's logged trajectory through epoch 10 and differed by only 2e-4 in the printed final loss, while its full-state SHA differed. P12 therefore follows the user-approved fallback: reproduce the exact P9 training configuration on the recorded GPU family, persist the actual state, and run all six methods from that one state. The P9 state hash remains recorded as a reference and is never presented as the loaded checkpoint.",
         "",
         "## Precommitted Interpretation Grid",
         "",
@@ -163,7 +166,7 @@ def write_integration_audit(config, dryrun, source_index_sha, units_sha):
     lines = [
         "# FP-GEM Integration Audit",
         "",
-        "- phase: `P12A_PRECOMPUTE`",
+        "- phase: `P12A_SOURCE_PROVENANCE_AMENDMENT_PRECOMPUTE`",
         "- CPU dry-run status: `PASS`",
         "- GPU smoke status: `PENDING`",
         "- approve single smoke: `true`",
@@ -174,11 +177,16 @@ def write_integration_audit(config, dryrun, source_index_sha, units_sha):
         f"- selected datasets: `{dryrun['datasets']}`",
         f"- selected source seeds: `{dryrun['source_seeds']}`",
         f"- target-seed units: `{dryrun['unit_count']}`",
-        f"- expected new rows: `{dryrun['new_rows_expected']}`",
+        f"- expected new-method rows: `{dryrun['new_method_rows_expected']}`",
+        f"- expected same-checkpoint control rows: `{dryrun['within_unit_control_rows_expected']}`",
         f"- expected reused P9 rows: `{dryrun['reused_p9_rows_expected']}`",
+        f"- P9 reference rows: `{dryrun['p9_reference_rows_expected']}`",
         f"- expected final rows: `{dryrun['final_rows_expected']}`",
         f"- exact unit keys match repaired manifest: `{dryrun['unit_keys_match_manifest']}`",
         f"- exact unit keys match P9 source hashes: `{dryrun['unit_keys_match_p9']}`",
+        f"- every unit reference hash matches its P9 row: `{dryrun['unit_reference_hashes_match_p9']}`",
+        f"- every unit split hash/count matches the repaired manifest: `{dryrun['unit_split_fields_match_manifest']}`",
+        f"- every unit hardware group matches the frozen P9-family mapping: `{dryrun['unit_hardware_groups_match_freeze']}`",
         f"- all adaptation/evaluation IDs disjoint: `{dryrun['all_adapt_eval_disjoint']}`",
         f"- all adaptation splits have both classes in the frozen manifest: `{dryrun['all_adapt_both_classes']}`",
         f"- all evaluation splits have both classes: `{dryrun['all_eval_both_classes']}`",
@@ -200,9 +208,74 @@ def write_integration_audit(config, dryrun, source_index_sha, units_sha):
         "",
         "## Checkpoint Availability",
         "",
-        "No P9 TSMNet checkpoint files were found or recorded. The committed P9 `source_model_sha256` column supplies one consistent expected state hash per dataset x target x seed. The runner must reproduce that state exactly before it may execute RCT or GEM.",
+        "No P9 TSMNet checkpoint files were found or recorded. The committed P9 `source_model_sha256` column supplies a provenance reference per dataset x target x seed, but not recoverable weights. Every P12 unit must persist one exact-config retrain and run all six methods from that actual hashed checkpoint. Direct P9 row reuse is prohibited when the actual state hash differs.",
     ]
     INTEGRATION_AUDIT.write_text("\n".join(lines) + "\n")
+
+
+def write_source_provenance_amendment() -> None:
+    payload = {
+        "status": "frozen_before_replacement_smoke",
+        "target_performance_observed": False,
+        "p9_checkpoint_files_found": False,
+        "p9_checkpoint_weights_recoverable": False,
+        "scientific_method_changed": False,
+        "dataset_seed_split_hyperparameters_changed": False,
+        "source_reproduction_policy": "exact_p9_configuration_retrain",
+        "direct_p9_result_rows_reused": 0,
+        "within_unit_controls_rerun": list(runner.P9_METHODS),
+        "new_methods": list(runner.NEW_METHODS),
+        "failed_pre_amendment_launches": [
+            {
+                "job_id": "893415",
+                "classification": "zero_result_infrastructure_failure",
+                "reason": "compute node could not access the /tmp launch worktree",
+                "stdout_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "stderr_sha256": "8913d578a2b0a2a1c753c7a21370cc4501ff5b46c80dea63719e288ace9c56a1",
+                "target_performance_observed": False,
+                "accepted_rows": 0,
+            },
+            {
+                "job_id": "893416",
+                "classification": "zero_result_overstrict_provenance_gate_failure",
+                "reason": "exact-config V100 retrain produced a different byte-level state hash from unrecoverable P9 weights",
+                "p9_reference_source_model_sha256": "f21981a86a61ca0c5129c642a5ecaee301fff0a98466a3fa09d7f89c719b3c43",
+                "retrained_source_model_sha256": "623fd92a6204d2a106e98d4189b5ca86a335e82ea47a2d91c6aef0cb7b6c1d17",
+                "p9_epoch_0_10_trace_matches_printed_precision": True,
+                "p9_epoch_19_printed_loss_absolute_difference": 0.0002,
+                "stdout_sha256": "5e37e1285a1dc3bf5d5e889ef244de5ca28c0aac15774aee0f1c0714a36d361f",
+                "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+                "gem_executed": False,
+                "evaluation_labels_accessed": False,
+                "target_performance_observed": False,
+                "accepted_rows": 0,
+            },
+        ],
+        "rationale": (
+            "P9 explicitly allowed exact source-training configuration reproduction when checkpoints were unavailable. "
+            "Because no P9 checkpoint file exists, direct P9 result reuse would not be an exact-checkpoint head-to-head. "
+            "The amended design reruns the four frozen controls and both GEM methods from one persisted source state per unit."
+        ),
+    }
+    write_json(AMENDMENT_JSON, payload)
+    AMENDMENT_MD.write_text(
+        "# FP-GEM Source-Provenance Amendment\n\n"
+        "Status: **FROZEN BEFORE REPLACEMENT SMOKE; NO TARGET PERFORMANCE OBSERVED**.\n\n"
+        "## Trigger\n\n"
+        "P9 persisted source-state hashes but no TSMNet checkpoint files. Job `893416` reproduced the exact P9 "
+        "BNCI2014-001 target-1 seed-0 training configuration on a Tesla V100. Its epoch 0 and 10 trace matched "
+        "the committed P9 stdout to printed precision; epoch 19 differed by only `0.0002` in printed loss, while "
+        "the full byte-level state SHA differed. The runner stopped before RCT, GEM, evaluation-label access, or any "
+        "target metric. Job `893415` was an earlier zero-result workdir visibility failure.\n\n"
+        "## Frozen Correction\n\n"
+        "For each dataset x target x seed unit, P12 reproduces the exact P9 source-training configuration on the "
+        "recorded GPU family, persists the actual checkpoint, and runs source-only TSMNet, RCT, SPDIM geodesic, "
+        "SPDIM bias, Joint-GEM, and FP-GEM from that same state. The four official controls are unchanged methods "
+        "with unchanged P9 adaptation settings; rerunning them is required because the committed P9 checkpoint "
+        "weights cannot be loaded. Direct P9 row reuse is therefore zero.\n\n"
+        "No dataset, split, source seed, source-training setting, adaptation hyperparameter, FP-GEM definition, "
+        "Joint-GEM definition, bootstrap rule, or interpretation boundary changed.\n"
+    )
 
 
 def main() -> None:
@@ -221,7 +294,7 @@ def main() -> None:
         for key in sorted(source_hashes)
     ]
     write_json(SOURCE_INDEX, {
-        "status": "frozen_expected_source_states",
+        "status": "frozen_p9_reference_source_states",
         "p9_results_path": config["p9_pipeline"]["results_path"],
         "p9_results_sha256": runner.P9_RESULTS_SHA256,
         "entry_count": len(source_entries),
@@ -242,12 +315,18 @@ def main() -> None:
         dryrun,
     )
     write_integration_audit(config, dryrun, source_index_sha, units_sha)
+    write_source_provenance_amendment()
     COMMAND_LOG.write_text(
         "# FP-GEM Command Log\n\n"
-        "- P12A CPU-only freeze generation: `python -m h2cmi.prepare_fp_gem_freeze`. "
-        "No GPU was used. The method/config, 189-unit manifest, exact P9 source-state index, "
-        "smoke gate, statistical estimands, and interpretation grid were frozen before target "
-        "performance observation.\n"
+        "- P12A CPU-only freeze generation: `python -m h2cmi.prepare_fp_gem_freeze`. The method, scope, "
+        "statistical estimands, and interpretation grid were frozen before target performance observation.\n"
+        "- Pre-amendment smoke job `893415`: zero-result infrastructure failure because `/tmp` was not visible "
+        "on the compute node.\n"
+        "- Pre-amendment smoke job `893416`: clean V100 exact-config source retrain; stopped on the overstrict "
+        "unrecoverable P9 byte-hash gate before RCT/GEM/evaluation labels/metrics; accepted rows `0`.\n"
+        "- P12A source-provenance amendment: `python -m h2cmi.prepare_fp_gem_freeze`. Direct P9 row reuse is "
+        "replaced by frozen same-checkpoint reruns of the four official controls; no scientific setting changed "
+        "and no target performance had been observed.\n"
     )
     print(json.dumps({
         "status": "pass",
