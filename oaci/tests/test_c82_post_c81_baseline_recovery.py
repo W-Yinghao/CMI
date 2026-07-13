@@ -302,6 +302,34 @@ def test_schema_dry_run_records_zero_protected_access():
     assert result["expected_method_context_rows"] == 672
 
 
+def test_analysis_lock_hash_and_all_bound_objects_replay():
+    lock, observed = recovery.load_execution_lock()
+    assert observed == recovery.LOCK_SHA_PATH.read_text().strip()
+    assert lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
+    assert len(lock["implementation"]) == 3
+    assert len(lock["registry_artifacts"]) == 19
+    assert len(lock["field_and_view_manifests"]) == 11
+
+
+def test_analysis_lock_binds_exact_frozen_selection():
+    lock, _ = recovery.load_execution_lock()
+    frozen = lock["frozen_selection"]
+    assert frozen["manifest_self_sha256"] == "4677ed3aba7758ea0008c2093b44d6fb81d425930727e5941950179737ebd519"
+    assert frozen["payload_sha256"] == "1ed893acd9190914eb4cb122f3ef26bc1e2355c4103894b816894bd264669257"
+    assert frozen["selection_recomputation_allowed"] is False
+
+
+def test_analysis_lock_protected_scope_is_all_false():
+    lock, _ = recovery.load_execution_lock()
+    scope = lock["scope"]
+    for key in (
+        "training", "forward", "reinference", "GPU", "target4_primary", "same_label_oracle",
+        "selection_recomputation", "new_method", "seed5", "BNCI2014_004",
+    ):
+        assert scope[key] is False
+    assert lock["runtime"]["construction_label_content_reopened"] is False
+
+
 def test_risk_register_contains_all_minimum_risks():
     rows = _table("risk_register.csv")
     assert len(rows) == 33
