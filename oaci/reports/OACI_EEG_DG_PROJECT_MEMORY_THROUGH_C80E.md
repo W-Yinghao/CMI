@@ -1,104 +1,181 @@
-# OACI EEG-DG Project Memory Through C80E Preflight
+# OACI EEG-DG Project Memory Through C80E
 
-## Current gate
-
-```text
-C80E_AUTHORIZATION_PROTOCOL_LOCK_VIEW_OR_DEPENDENCE_BLOCKER
-```
-
-Direct C80E authorization was received on 2026-07-13 for protocol `f5d83b3`,
-protocol SHA-256
-`c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85`,
-analysis lock `972f47c`, and the seed-3/seed-4 field/view manifests enumerated
-by that lock. Preflight stopped before any real budget statistic or C80
-evaluation-label value was computed.
-
-## Accepted C80P base
+## Current gates
 
 ```text
-C80P protocol:                 f5d83b3
-C80P synthetic implementation: c98e084
-C80P analysis lock:            972f47c
-C80P readiness result:         1b02454
-C80P final handoff:            0a55fff
-registry:                      80 / 80
-locked grid:                   [1,2,4,8,16,32,FULL]
-Monte Carlo chains:            2,048
+C80-A_stable_low_regret_label_budget_frontier_across_training_seeds
+C80E_COMPLETE_C81_PROTOCOL_REVIEW_REQUIRED
 ```
 
-Budget 64 was removed before protocol hashing by the registered
-availability-only rule because the minimum construction class count was 61.
-No candidate score or evaluation outcome informed that decision.
+C80E is complete. C81 is not authorized. No seed 5, BNCI2014_004,
+same-label-oracle analysis, active acquisition, new feature/kernel/model search,
+checkpoint recommendation, deployment claim, or manuscript drafting is
+authorized.
 
-## Preflight passes
+## Authorization governance
+
+The PI's direct statement `我明确授权C80E了` was accepted as authoritative.
+No token and no repeated protocol or lock hash were required. The executor
+automatically bound that statement to the repository's single operative C80R
+protocol, lock, and field/view manifest set. This policy is recorded at
+`3d9dd76`.
+
+Authorization remains scope-specific. A direct statement authorizes the named
+milestone and its unique current operative objects; it does not waive protocol
+completeness, view isolation, or scientific claim boundaries and does not
+authorize a later milestone.
+
+## Protocol and repair chronology
+
+The original C80P objects were safely blocked at `6c18fd4` before any budget
+outcome because they lacked complete taxonomy precedence, used a mismatched
+authorization-guard schema, and did not bind a real-data adapter. C80R repaired
+those defects additively:
 
 ```text
-HEAD == origin/oaci at entry:        0a55fff
-protocol hash replay:                pass
-analysis-lock hash replay:           pass
-locked implementation hashes:        4 / 4
-accepted-input hashes:               10 / 10
-registry cells:                      80 / 80, blank 0
-all five paths unconditional:         yes
-target 4 primary:                      0
-same-label oracle reachable:           0
-real budget statistics:                0
-evaluation-label value reads for C80:  0
+C80R repair protocol:          e88a244
+protocol SHA-256:              2d72eb5119056a6520fd33fc0ac14ee6270bfd573b59c36b74be6aa3dc25fe39
+C80R complete adapter:         e5cb41a
+C80R initial complete lock:    f19acd8
+C80E authorization policy:     3d9dd76
+C80E repaired preflight:       7937740
 ```
 
-## Blocking findings
+Authorized job `894641` froze construction-only selections, then stopped before
+evaluation access because a generic descriptor verifier incorrectly required
+32-cell arrays and the seven-budget label vector to have the same first
+dimension. The failure had zero evaluation-label reads, zero evaluation
+outcomes, zero oracle access, and zero target-4 primary use. The frozen
+selection payload was not inspected.
 
-### B1: final taxonomy is not locked
-
-No committed C80 protocol, analysis lock, registry, claim contract,
-implementation, or test contains the required C80-A through C80-E overlap
-precedence. `near-FULL`, which distinguishes C80-C from other positive-frontier
-states, is also undefined. The C80E handoff requires the exact decision table
-to come from the committed protocol and explicitly prohibits executor choice.
-
-### B2: authorization guard and lock schema disagree
-
-The locked `assert_c80e_authorized()` function reads
-`lock.get("protocol_sha256")`. The committed lock stores the protocol hash at
-`lock["protocol"]["sha256"]`. With the authorization record present, the
-locked `run-real` command fails before data access with:
+The additive repair was locked before evaluation access:
 
 ```text
-RuntimeError: C80E authorization/lock binding mismatch
+repair protocol:               c19ef34
+exact descriptor verifier:     37e38d0
+replacement analysis lock:     0797599
+replacement lock SHA-256:      2149895865bd44b4ab8358c76848bb6774abb59d4a203b261864be0ec599ff62
+authorization binding refresh: 2f1c559
 ```
 
-### B3: the real-data adapter is not part of the lock
+No budget, selector, RNG stream, score, threshold, dependence rule, registry
+entry, taxonomy, or report schema changed. Successful CPU job `894646` reused
+the frozen construction selections without recomputation and completed all five
+registered paths in four seconds.
 
-The locked C80 module deliberately contains no real-data loader and its
-`run-real` path raises after authorization. `972f47c` hashes only the pure
-frontier module, synthetic module, C80P tests, and regression script. It does
-not bind an executor for selection freezing, simultaneous target bands, paired
-cross-seed heterogeneity, S1/S2/S3, result freezing, or report schemas against
-the external arrays.
+## Frozen scientific design
 
-## Scientific state
+```text
+primary targets:  [1,2,3,5,6,7,8,9]
+levels:           [0,1]
+training seeds:   [3,4]
+candidates/cell:  81 = 1 ERM + 40 OACI + 40 SRC
+budgets/class:    [1,2,4,8,16,32,FULL]
+policy:           nested stratified uniform sampling without replacement
+Monte Carlo:      2,048 chains used only for numerical integration
+selector:         exact C79 P1 midrank(bAcc,-NLL,-ECE) construction rule
+primary cluster:  target
+```
 
-No C80-A through C80-D result exists. The seed-specific B* values, budget
-curves, reliability/actionability relationship, top-k behavior, target
-heterogeneity, and S3 moderation remain uncomputed.
+`FULL` is cell-specific and ranges from 61 to 81 labels per class. It is not a
+universal numeric budget. Target 4 is excluded from every primary object; the
+same-label oracle remained closed; construction/evaluation views remained
+physically disjoint; trial ID and row order remained keys/clusters only.
 
-The accepted C79E component result remains unchanged: P1-M failed while P1-A
-passed; P2-L failed while fixed-kernel LOTO/LORO qualification failed again;
-aggregate directions were concordant across seeds. This is not reversal or
-absence of all signal.
+The frontier gate is source-relative: regret reduction at least 0.05, exact
+seven-budget max-T p at most 0.05, at least 6/8 positive targets, no target
+below -0.10, and all-larger-budget closure.
 
-## Required repair
+## Primary result
 
-Before any C80 budget outcome, an additive prospective repair must:
+All five paths ran unconditionally. Both seeds qualify at every registered
+budget, giving:
 
-1. preserve `f5d83b3`, `972f47c`, and the blocker ledger in history;
-2. bind complete C80-A through C80-E precedence and define `near-FULL`;
-3. repair and test authorization against the actual nested lock schema;
-4. implement, test, hash, and lock the real-data adapter without changing the
-   registered grid, selector, RNG, thresholds, dependence, or five paths;
-5. issue a new operative protocol hash and analysis lock;
-6. obtain new direct PI authorization bound to those repaired objects.
+```text
+B*_seed3:                         1 label/class
+B*_seed4:                         1 label/class
+ordinal distance:                 0
+registered cross-seed stability: PASS
 
-The current authorization cannot be reused for objects that do not yet exist.
-No C81, seed 5, BNCI2014_004, active acquisition, oracle analysis, new
-feature/kernel/model search, or manuscript drafting is authorized.
+seed3 B=1 regret:                 0.353383
+seed4 B=1 regret:                 0.373705
+seed3 B=1 source-relative gain:   0.426093
+seed4 B=1 source-relative gain:   0.423742
+B=1 max-T p, each seed:           0.042802
+positive targets:                8/8 at every budget, both seeds
+catastrophic targets:            0
+
+seed4-minus-seed3 B=1 gain:      -0.002350
+paired simultaneous 95% CI:      [-0.072244, 0.067543]
+```
+
+The cross-seed rule passes, but the interval is not an equivalence interval
+contained inside the materiality margin. Do not call the seeds statistically
+equivalent.
+
+## Secondary results and interpretation
+
+At B=1, top-1 is only `0.037842`/`0.038391`, top-5 is
+`0.159210`/`0.164825`, and top-10 is `0.280792`/`0.294128` for seeds 3/4.
+The registered source baseline is unusually weak: regret
+`0.779476`/`0.797447`, worse than random expectation
+`0.481982`/`0.497584`. C80-A therefore identifies a stable improvement over
+the registered source baseline, not low absolute regret or reliable top-1
+checkpoint recovery.
+
+Reliability and actionability rise together under the fixed policy, but this is
+concordance, not causality or a reliability prerequisite. Four seed-3 targets
+and three seed-4 targets have nonmonotone curves. Every one of 16
+seed-by-left-out-target analyses changes B* from 1 to 2 or 4. The exact
+one-label boundary is therefore small-target sensitive.
+
+S3 does not show stable moderation: effective-multiplicity and top-gap
+correlation signs reverse across seeds, and raw candidate count is constant.
+This does not rescue the twice-nonqualified H2/H2R model and does not change B*.
+
+## Epistemic boundary
+
+C80 was designed after C79 and is prospective only to the locked budget
+computations. It reuses observed seed-3/seed-4 targets, raw trials, candidate
+fields, and the fixed construction/evaluation split. It is a retrospective
+existing-field design study.
+
+The result does not establish:
+
+```text
+universal one-label sufficiency
+few-label deployment
+absolute low-regret checkpoint recovery
+source-only or target-unlabeled selection
+active acquisition value
+new-subject, target-population, cohort, or dataset generality
+a representation or multiplicity mechanism
+an OACI or SRC rescue
+```
+
+## Integrity and regression
+
+```text
+machine result freeze:       a43aa27
+scientific red-team:         be3e5c7, 32/32 PASS
+final narrative report:      212d864
+final-report red-team:       212d864, 30/30 PASS
+lifecycle regression repair: ebc6afe
+
+focused:   54 passed
+C65-C80E:  369 passed, 1 conditional skip, 3 historical deselections
+C23-C80E:  776 passed, 1 conditional skip, 3 historical deselections
+full OACI: 1,704 passed, 1 conditional skip, 3 historical deselections
+final stderr bytes: 0 for all four accepted jobs
+```
+
+The lifecycle regression repair changed no scientific object. Superseded
+wrong-worktree and obsolete-lifecycle test attempts remain disclosed in
+`c80e_tables/regression_attempt_ledger.csv`.
+
+## Next control point
+
+Stop for PM review. C81 may review a future external-study protocol, but C80E
+does not authorize it. Any next real-data execution requires a new explicit
+scope and must preserve the existing-field, small-target, source-relative, and
+non-deployable interpretation of C80-A.

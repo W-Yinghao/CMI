@@ -14,8 +14,54 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-13)
 
-The authoritative tip is **C80R**, the additive repair and relock completed
-before any budget outcome was computed:
+The authoritative milestone is **C80E complete**:
+
+```text
+C80E authorization policy:      3d9dd76
+C80E repaired preflight:        7937740
+C80E selection repair protocol: c19ef34
+C80E replacement lock:          0797599
+C80E machine result freeze:     a43aa27
+C80E scientific red team:       be3e5c7 (32/32 PASS)
+C80E report/final red team:      212d864 (30/30 PASS)
+C80E lifecycle regression:      ebc6afe
+C80E primary gate:              C80-A_stable_low_regret_label_budget_frontier_across_training_seeds
+project-control gate:           C80E_COMPLETE_C81_PROTOCOL_REVIEW_REQUIRED
+```
+
+The PI's direct C80E authorization was accepted without a token or repeated
+hashes and automatically bound to the unique operative repaired protocol and
+lock. All five paths ran unconditionally on the frozen seed-3/seed-4 primary
+fields. Target 4 remained excluded and the same-label oracle remained closed.
+
+```text
+B*_seed3 / B*_seed4:          1 / 1 label per class
+ordinal grid distance:        0
+cross-seed stability:         PASS under the registered rule
+B=1 regret seed3 / seed4:     0.353383 / 0.373705
+B=1 source-relative gain:     0.426093 / 0.423742
+B=1 max-T p, each seed:       0.042802
+B=1 top-1 seed3 / seed4:      0.037842 / 0.038391
+leave-one-target B* changes:  16 / 16 analyses
+```
+
+The exact C80-A taxonomy is retained, but the scientific claim is narrower: a
+stable **source-relative** regret-reduction frontier under the fixed Q0 policy
+in these existing fields. The source baseline is weaker than random, absolute
+B=1 regret remains substantial, top-1 recovery is about 3.8%, and the one-label
+boundary is small-target sensitive. This is not universal one-label
+sufficiency, deployment, independent confirmation, or external generality.
+
+Final regression on exact clean commit `ebc6afe` is green: focused `54`;
+C65-C80E `369 passed + 1 conditional skip + 3 historical deselections`;
+C23-C80E `776 + 1 + 3`; full OACI `1,704 + 1 + 3`. Final stderr is empty.
+Superseded wrong-worktree and obsolete-lifecycle attempts remain disclosed in
+`reports/c80e_tables/regression_attempt_ledger.csv`.
+
+### Superseded pre-execution state
+
+The following C80R record is retained for chronology. Its instruction to stop
+for C80E authorization is no longer current:
 
 ```text
 C80E safe-stop evidence:       6c18fd4
@@ -29,7 +75,7 @@ C80R readiness gate:           C80_REPAIRED_PROTOCOL_AND_REAL_ADAPTER_LOCKED_REA
 real-data budget statistics:   0
 evaluation-label value reads:  0
 same-label oracle accesses:    0
-new C80E authorization:        absent
+new C80E authorization:        absent at this historical readiness point
 ```
 
 The accepted preflight found three pre-outcome defects in the historical C80P
@@ -50,10 +96,10 @@ paths, and machine-result freezing. The first repaired lock revision
 completeness red team; registry entries and scientific thresholds did not
 change and outcome access remained zero.
 
-The old C80E authorization is not reusable. C80E remains stopped until the PI
-directly authorizes the new protocol `e88a244` / SHA above, lock `f19acd8` / SHA
-above, and manifest digest
-`6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef`.
+At this historical point, the old C80E authorization was not reusable and C80E
+remained stopped pending direct PI authorization of the repaired objects. That
+authorization was subsequently received and is recorded in the authoritative
+C80E section above.
 
 C80R final regression is green on exact clean commit `93d2099`: focused
 `53 passed`; C65-C80R `368 passed, 1 conditional skip, 3 deselected`;
@@ -213,7 +259,7 @@ Pre-execution red team: `45/45`. Independent scientific result red team: `60/60`
 
 Authorization governance: direct, explicit PM authorization is sufficient; no magic token is required. Real execution must still bind that approval to a committed, scope-specific protocol/execution lock before restricted data access or job submission.
 
-Current authoritative artifacts:
+Historical C80R readiness artifacts at that point:
 
 ```text
 oaci/reports/C80R_ADDITIVE_REPAIR_PROTOCOL.json
@@ -240,13 +286,9 @@ oaci/reports/C80P_PRE_EXECUTION_RED_TEAM.md
 oaci/reports/C80P_REGRESSION_VERIFICATION.md
 ```
 
-Stop for PI reauthorization. The repaired protocol, adapter, and lock are
-complete, but the distinct post-repair authorization record is absent; no
-real-data frontier has been computed. Do not resume C80E until direct PI
-authorization binds the repaired protocol/hash, final lock commit/hash, and
-manifest digest. Do not start seed 5,
-BNCI2014_004, active acquisition, a new feature/kernel/model campaign,
-same-label-oracle analysis, checkpoint recommendations, or manuscript drafting.
+Historical stopping instruction: C80R stopped for PI reauthorization with no
+real-data frontier computed. It is retained to document the chronology and is
+superseded by the completed C80E state at the top of this handoff.
 
 ---
 
@@ -391,16 +433,13 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C80E is AUTHORIZED but PRE-OUTCOME BLOCKED)
+## 7. How to continue (C80E complete; C81 review required)
 
-- Treat `C80E_AUTHORIZATION_PROTOCOL_LOCK_VIEW_OR_DEPENDENCE_BLOCKER` as the authoritative current gate. Authorization was received, but C80E scientific execution did not start.
-- Preserve [C80E_AUTHORIZATION_AND_PREFLIGHT.md](reports/C80E_AUTHORIZATION_AND_PREFLIGHT.md), its JSON ledger, and the three blocking findings. Real budget statistics and C80 evaluation-label value reads remain zero.
-- Before any future computation, prospectively bind the missing C80-A through C80-E precedence and `near-FULL` definition, repair the nested-lock authorization guard, and hash a complete real-data adapter for all five paths and result freezing.
-- The repair must be additive, must produce a new operative protocol hash and analysis lock, and requires new direct PI authorization. The existing authorization bound to `f5d83b3` / `972f47c` cannot authorize repaired objects.
+- Treat `C80-A_stable_low_regret_label_budget_frontier_across_training_seeds` as the locked C80 taxonomy and preserve the narrower source-relative interpretation in [C80_LABEL_BUDGET_FRONTIER.md](reports/C80_LABEL_BUDGET_FRONTIER.md).
+- Preserve the failed pre-evaluation job `894641`, additive descriptor repair, successful job `894646`, result hashes, both red teams, and the complete regression-attempt ledger.
+- Do not reinterpret `B*=1` as universal one-label sufficiency. Report the weak source baseline, non-low absolute regret, low top-1 rate, 16/16 leave-one-target B* changes, and existing-field retrospective status.
 - Keep target 4 excluded, the same-label oracle closed, construction/evaluation views disjoint, and trial ID/row order restricted to join/split/dependence keys.
-- Preserve the C79E component result: P1-M failed while P1-A passed; P2-L failed while exact transport qualification failed again. Do not call this reversal, absence of all signal, or target-label uselessness.
-- Do not reopen C79E or C80P for active acquisition, feature/kernel/model search, H2 rescue, p-value pooling, checkpoint matching by outcome, or raw-p rescue.
-- Do not resume C80E until a new direct PI authorization binds `e88a244`, protocol SHA `2d72eb...fe39`, final lock `f19acd8`, lock SHA `e18f2b...b1b82`, and manifest digest `618027...7fef`. Do not start seed 5, BNCI2014_004, another target, same-label-oracle analysis, checkpoint recommendations, or manuscript drafting.
+- Stop for PM review. C80E does not authorize C81, seed 5, BNCI2014_004, another target, active acquisition, same-label-oracle analysis, checkpoint recommendations, or manuscript drafting.
 
 ---
 
@@ -417,11 +456,10 @@ C80E.
 Historical “no training / no seed 3” defaults were explicitly superseded for
 the completed C78/C78R/C78F field generation and C79E seed-4 replication under
 their scope-specific direct authorizations. C78S, C79P, and C80P were
-analysis/protocol-only. C80E later received direct authorization, but preflight
-found that the committed scientific lock is not executable without adding
-unlocked choices. Authorization does not waive lock completeness. Any repair
-must receive a new protocol hash, lock, and direct authorization; physical-view
-isolation, red-team, report, commit, and push remain mandatory.
+analysis/protocol-only. C80E was explicitly authorized and completed as a
+CPU-only read-only existing-field analysis after additive pre-outcome repair
+and relock. Authorization did not waive lock completeness; physical-view
+isolation, red-team, report, commit, and push remained mandatory.
 
 **FORBIDDEN wording** (the report guards enforce this): "deployable selector", "target-free detector", "OACI rescue",
 "joint deployable improvement", "endpoint/pareto selector", "target oracle as method", "X converges to Y" (without the
@@ -440,8 +478,9 @@ metric). **Oracle quantities are "oracle diagnostic, not deployable."**
   PM decisions as free-text prose (never a picker); verify against real git, not stale CDN URLs.
 - Updated one-line ledger: *registered source-only and target-unlabeled
   candidates remain unqualified across two training seeds; construction-label
-  actionability is directionally robust but its compound reliability gate is
-  seed-heterogeneous. C80P has locked, but not run, a policy-specific existing-
-  field label-budget frontier to determine how much independent construction
-  information is needed for low-regret selection.*
+  actionability is directionally robust while compound reliability is
+  seed-heterogeneous. C80E finds a stable source-relative Q0 frontier at one
+  label per class in the existing fields, but absolute regret, top-1 recovery,
+  leave-target sensitivity, and retrospective reuse prevent a universal,
+  deployable, or externally general claim.*
 ```
