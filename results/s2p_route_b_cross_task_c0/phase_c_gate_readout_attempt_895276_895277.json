@@ -1,0 +1,27 @@
+{
+  "phase": "C1_C2_gate_readout",
+  "seedv_job": "895276",
+  "isruc_s3_job": "895277_[0-4]",
+  "status": "FAILED_AT_FEATURE_CONTRACT_VALIDATION",
+  "scientific_compute_started": false,
+  "sequence_head_created": false,
+  "encoder_used_for_training": false,
+  "scientific_endpoint_computed": false,
+  "root_cause": "dataset_contract_name_expected_internal_cli_alias_instead_of_canonical_name",
+  "observed_contract_names": [
+    "SEED-V",
+    "ISRUC_S3_Group_III"
+  ],
+  "incorrect_expected_names": [
+    "seedv",
+    "isruc_s3"
+  ],
+  "patch_scope": "two_schema_expectation_literals_only",
+  "split_changed": false,
+  "metric_changed": false,
+  "head_changed": false,
+  "gate_threshold_changed": false,
+  "post_patch_contract_canary_objects": 10,
+  "post_patch_contract_canary_pass": true,
+  "rerun_same_gate_grid_allowed": true
+}

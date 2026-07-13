@@ -255,7 +255,7 @@ def load_feature_cache(feature_dir, tag, manifest_row_value):
     contract = json.loads(contract_path.read_text())
     if (
         contract.get("status") != "PASS"
-        or contract.get("dataset") != "seedv"
+        or contract.get("dataset") != "SEED-V"
         or contract.get("tag") != tag
         or contract.get("checkpoint_sha256_before") != manifest_row_value["immutable_sha256"]
         or contract.get("checkpoint_sha256_after") != manifest_row_value["immutable_sha256"]

@@ -283,7 +283,7 @@ def load_feature_cache(feature_dir, tag, manifest_value):
     payload_path = feature_dir / f"{tag}_features.npz"
     if (
         contract.get("status") != "PASS"
-        or contract.get("dataset") != "isruc_s3"
+        or contract.get("dataset") != "ISRUC_S3_Group_III"
         or contract.get("tag") != tag
         or contract.get("checkpoint_sha256_before") != manifest_value["immutable_sha256"]
         or contract.get("checkpoint_sha256_after") != manifest_value["immutable_sha256"]
