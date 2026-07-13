@@ -29,6 +29,8 @@ TABLE_DIR = REPORT_DIR / "c81p_tables"
 PROTOCOL_PATH = REPORT_DIR / "C81_AAAI_BASELINE_COMPARISON_PROTOCOL.json"
 PROTOCOL_SHA_PATH = REPORT_DIR / "C81_AAAI_BASELINE_COMPARISON_PROTOCOL.sha256"
 METHOD_REGISTRY_PATH = REPORT_DIR / "C81_BASELINE_METHOD_REGISTRY.json"
+REPAIR_PROTOCOL_PATH = REPORT_DIR / "C81R_SOURCE_SHARD_SCHEMA_REPAIR_PROTOCOL.json"
+REPAIR_PROTOCOL_SHA_PATH = REPORT_DIR / "C81R_SOURCE_SHARD_SCHEMA_REPAIR_PROTOCOL.sha256"
 LOCK_PATH = REPORT_DIR / "C81R_REPAIRED_ANALYSIS_EXECUTION_LOCK.json"
 LOCK_SHA_PATH = REPORT_DIR / "C81R_REPAIRED_ANALYSIS_EXECUTION_LOCK.sha256"
 AUTHORIZATION_PATH = REPORT_DIR / "C81E_PI_AUTHORIZATION_RECORD.json"
@@ -613,6 +615,15 @@ def load_execution_lock() -> tuple[dict[str, Any], str]:
     protocol, protocol_sha = load_protocol()
     if lock["protocol"]["sha256"] != protocol_sha or lock["protocol"]["commit"] != last_commit(PROTOCOL_PATH):
         raise RuntimeError("C81 lock protocol binding mismatch")
+    repair_expected = REPAIR_PROTOCOL_SHA_PATH.read_text().strip()
+    repair_observed = sha256_file(REPAIR_PROTOCOL_PATH)
+    if repair_observed != repair_expected:
+        raise RuntimeError("C81 repair protocol hash mismatch")
+    if (
+        lock["repair_protocol"]["sha256"] != repair_observed
+        or lock["repair_protocol"]["commit"] != last_commit(REPAIR_PROTOCOL_PATH)
+    ):
+        raise RuntimeError("C81 lock repair-protocol binding mismatch")
     if lock["method_registry"]["sha256"] != sha256_file(METHOD_REGISTRY_PATH):
         raise RuntimeError("C81 lock method registry drift")
     if lock["scope"]["target4_primary"] or lock["scope"]["same_label_oracle"]:
@@ -635,6 +646,8 @@ def require_c81e_authorization() -> dict[str, Any]:
         raise RuntimeError("C81E authorization lock binding mismatch")
     if authorization.get("protocol_sha256") != lock["protocol"]["sha256"]:
         raise RuntimeError("C81E authorization protocol binding mismatch")
+    if authorization.get("repair_protocol_sha256") != lock["repair_protocol"]["sha256"]:
+        raise RuntimeError("C81E authorization repair-protocol binding mismatch")
     if authorization.get("field_view_manifest_digest") != lock["field_view_manifest_digest"]:
         raise RuntimeError("C81E authorization manifest binding mismatch")
     return {"lock": lock, "lock_sha256": lock_sha, "authorization": authorization}
@@ -777,6 +790,7 @@ def _selection_stage(context: dict[str, Any]) -> dict[str, Any]:
     manifest = c74_cache.self_hashed_manifest({
         "schema_version": "c81_selection_freeze_v1",
         "protocol_sha256": context["lock"]["protocol"]["sha256"],
+        "repair_protocol_sha256": context["lock"]["repair_protocol"]["sha256"],
         "analysis_lock_sha256": context["lock_sha256"],
         "contexts": 32,
         "methods": list(SELECTION_METHODS),
@@ -1015,6 +1029,7 @@ def _freeze_c81e_results(
     result = {
         "schema_version": "c81_frozen_field_baseline_result_v1",
         "protocol_sha256": context["lock"]["protocol"]["sha256"],
+        "repair_protocol_sha256": context["lock"]["repair_protocol"]["sha256"],
         "analysis_lock_sha256": context["lock_sha256"],
         "selection_manifest_sha256": selection_manifest["manifest_sha256"],
         "contexts": 32,
