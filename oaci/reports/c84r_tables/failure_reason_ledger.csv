@@ -1,0 +1,2 @@
+failure_id,source_milestone,root_cause,scientific_outcome_access,repair,repair_changes_subjects_methods_budgets_inference,status
+C84P_CHANNEL_001,C84P,Lee2019_MI lacks requested FCz,0,drop_FCz_from_all_datasets_exact_intersection,0,CLOSED_BY_PROSPECTIVE_C84R_DECISION
