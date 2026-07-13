@@ -1,0 +1,14 @@
+{
+  "fleet_approved": false,
+  "gpu_gate_required": true,
+  "hyperparameter_change_permitted": false,
+  "natural_transfer_claim_permitted": false,
+  "open_items": [
+    "exact V100 target-1 seed-0 checkpoint and q=0.5 hash reproduction"
+  ],
+  "performance_metrics_permitted_in_gate": false,
+  "review_scope": "P13 frozen manifest, runner, analyzer, launchers, and tests",
+  "status": "conditionally_ready_for_single_gate_only",
+  "target_label_boundary": "builder_only",
+  "verdict": "CONDITIONALLY_READY_FOR_SINGLE_GATE_ONLY"
+}

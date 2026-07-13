@@ -1,0 +1,12 @@
+{
+  "checkpoint_file_sha256_expected": "8ae4e3d0dd15dbe22a6133e36f4672ac6ebec4923f4239feae95c7916548d36d",
+  "dataset": "Lee2019_MI",
+  "fresh_source_training_permitted": false,
+  "full_fleet_approved": false,
+  "performance_metrics_computed": false,
+  "source_only_logits_sha256_expected": "1c9035576ae7389fc04d7803b75c038893f3302f2c5b56d99b7780faabd4ed78",
+  "source_only_prediction_sha256_expected": "eef2221a3c8a95b2631ab98ac334624163144564ae89a3cb143844fd409d8964",
+  "source_seed": 0,
+  "status": "pending_precommitted_probe",
+  "target_subject": 1
+}
