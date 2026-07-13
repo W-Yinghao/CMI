@@ -167,10 +167,10 @@ def test_schema_dry_run_reports_zero_outcomes() -> None:
     audit = adapter.schema_dry_run()
     assert audit["real_budget_statistics"] == 0
     assert audit["evaluation_label_reads"] == 0
-    assert audit["run_real_fail_closed"] is True
+    assert audit["run_real_fail_closed"] is False
 
 
-def test_replacement_lock_replays_adapter_manifests_and_new_authorization_absence() -> None:
+def test_replacement_lock_and_direct_authorization_replay() -> None:
     lock, observed = adapter.load_repaired_lock()
     assert observed == adapter.REPAIRED_LOCK_SHA_PATH.read_text().strip()
     assert observed == "e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82"
@@ -184,8 +184,13 @@ def test_replacement_lock_replays_adapter_manifests_and_new_authorization_absenc
     assert len(lock["field_and_view_manifests"]) == 11
     assert lock["registry"]["bound_cells"] == 80
     assert lock["report_schema"]["selection_outputs_frozen_before_evaluation_open"] is True
-    assert lock["authorization"]["received"] is False
-    assert not adapter.REPAIRED_AUTHORIZATION_PATH.exists()
+    assert lock["authorization"]["received"] is False  # state at lock commit
+    assert adapter.REPAIRED_AUTHORIZATION_PATH.exists()
+    context = adapter.require_repaired_authorization()
+    assert context["authorization"]["authorization_received"] is True
+    assert context["authorization"]["magic_token_required"] is False
+    assert context["authorization"]["PI_must_repeat_hashes"] is False
+    assert context["lock_sha256"] == observed
 
 
 def test_synthetic_result_synthesis_runs_all_paths_and_exact_taxonomy(
