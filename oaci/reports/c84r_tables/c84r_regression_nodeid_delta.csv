@@ -1,0 +1,5 @@
+node_id,milestone,C84P_C23_included,C84R_C23_included,delta_reason,scientific_change
+oaci/tests/test_c34s_artifact_hygiene.py::test_compact_json_loads_and_has_no_row_payloads,C34S,0,1,old_test_c[3-6][0-9]_glob_requires_underscore_after_34_and_omits_suffix_s,0
+oaci/tests/test_c34s_artifact_hygiene.py::test_table_manifest_resolves_and_hashes_match,C34S,0,1,old_test_c[3-6][0-9]_glob_requires_underscore_after_34_and_omits_suffix_s,0
+oaci/tests/test_c34s_artifact_hygiene.py::test_key_c34_numbers_match_committed_csvs,C34S,0,1,old_test_c[3-6][0-9]_glob_requires_underscore_after_34_and_omits_suffix_s,0
+oaci/tests/test_c34s_artifact_hygiene.py::test_no_scientific_value_changes_in_compact_summary,C34S,0,1,old_test_c[3-6][0-9]_glob_requires_underscore_after_34_and_omits_suffix_s,0

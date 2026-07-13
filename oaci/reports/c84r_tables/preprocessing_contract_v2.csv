@@ -1,0 +1,13 @@
+contract_item,locked_value,validation,scope,real_EEG_arrays_loaded,real_labels_read
+interface_id,C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2,exact,all_datasets,0,0
+channel_count,20,exact,all_datasets,0,0
+channel_order_sha256,988e8f89c3001a5144172a10f3a8b30eb50c28d485b900210b91ed1a0cf04f04,exact,all_datasets,0,0
+epoch_rule,"half_open_[0.0,3.0)_480_samples",half_open,all_datasets,0,0
+resample_sfreq_hz,160,anti_aliased,all_datasets,0,0
+expected_n_times,480,exact,all_datasets,0,0
+expected_input_shape,20x480,exact,all_datasets,0,0
+class_mapping_version,C84_LEFT_RIGHT_CLASS_MAPPING_V1,exact,all_datasets,0,0
+Fz_substitution,False,forbidden,all_datasets,0,0
+FCz_interpolation,False,forbidden,all_datasets,0,0
+dataset_specific_mask,False,forbidden,all_datasets,0,0
+zero_filling,False,forbidden,all_datasets,0,0

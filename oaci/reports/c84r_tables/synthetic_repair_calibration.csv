@@ -1,0 +1,31 @@
+scenario,calibration_object,expected,observed,passed,real_EEG_arrays_loaded,real_labels_read,detail
+S0,all_selectors_null,C84-C_no_registered_zero_label_selector_materially_improves_source_in_any_external_dataset,C84-C_no_registered_zero_label_selector_materially_improves_source_in_any_external_dataset,1,0,0,C84P_replay:no registered Q1 method in any dataset
+S1,one_dataset_only,C84-D_external_dataset_source_panel_seed_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_or_target_heterogeneous,1,0,0,C84P_replay:COTT supports Lee only
+S2,same_method_improves_S1,C84-B_same_zero_label_selector_improves_source_across_all_external_datasets_but_not_B1,C84-B_same_zero_label_selector_improves_source_across_all_external_datasets_but_not_B1,1,0,0,C84P_replay:COTT common Q1 intersection
+S3,different_methods,C84-D_external_dataset_source_panel_seed_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_or_target_heterogeneous,1,0,0,C84P_replay:method identity intersection is empty
+S4,same_method_noninferior_B1,C84-A_same_zero_label_selector_matches_B1_across_all_external_datasets,C84-A_same_zero_label_selector_matches_B1_across_all_external_datasets,1,0,0,C84P_replay:COTT common Q1+Q2 intersection
+S5,source_panel_heterogeneity,C84-D_external_dataset_source_panel_seed_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_or_target_heterogeneous,1,0,0,C84P_replay:Cho panel stability gate fails
+S6,training_seed_heterogeneity,C84-D_external_dataset_source_panel_seed_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_or_target_heterogeneous,1,0,0,C84P_replay:Physionet seed stability gate fails
+S7,target_composition_heterogeneity,C84-D_external_dataset_source_panel_seed_or_target_heterogeneous,C84-D_external_dataset_source_panel_seed_or_target_heterogeneous,1,0,0,C84P_replay:Lee LOTO preservation gate fails
+S8,stable_B1_frontier,C84-L1_common_small_budget_frontier_at_or_below_4,C84-L1_common_small_budget_frontier_at_or_below_4,1,0,0,"C84P_replay:{""Cho2017"": 1, ""Lee2019_MI"": 1, ""PhysionetMI"": 1}"
+S9,dataset_heterogeneous_frontier,C84-L3_dataset_heterogeneous_label_budget,C84-L3_dataset_heterogeneous_label_budget,1,0,0,"C84P_replay:{""Cho2017"": 4, ""Lee2019_MI"": 1, ""PhysionetMI"": ""FULL""}"
+S10,ranking_association_without_regret,C84-C_no_registered_zero_label_selector_materially_improves_source_in_any_external_dataset,C84-C_no_registered_zero_label_selector_materially_improves_source_in_any_external_dataset,1,0,0,C84P_replay:Spearman=0.9;Q1 sets remain empty
+S11,topk_without_Q1,C84-C_no_registered_zero_label_selector_materially_improves_source_in_any_external_dataset,C84-C_no_registered_zero_label_selector_materially_improves_source_in_any_external_dataset,1,0,0,C84P_replay:top5 improves;Q1 sets remain empty
+S12,pooled_pseudoreplication_trap,TARGET_CLUSTER_N_22_NULL_NOT_REJECTED,TARGET_CLUSTER_N_22_NULL_NOT_REJECTED,1,0,0,C84P_replay:trial/model rows never enter N
+S13,Physionet_low_label_availability,COMMON_ONLY,COMMON_ONLY,1,0,0,C84P_replay:metadata construction minimum=11
+S14,atomic_field_result_failure,NO_FINAL_DIRECTORY,NO_FINAL_DIRECTORY,1,0,0,C84P_replay:injected failure after first staging artifact
+MAXT_Lee2019_MI,target_cluster_calibration,PASS,PASS,1,0,0,C84P_replay:targets=22;draws=65536
+MAXT_Cho2017,target_cluster_calibration,PASS,PASS,1,0,0,C84P_replay:targets=20;draws=65536
+MAXT_PhysionetMI,target_cluster_calibration,PASS,PASS,1,0,0,C84P_replay:targets=76;draws=65536
+GATE_Q1,panel_seed_aggregation,PASS,PASS,1,0,0,C84P_replay:22 targets x 2 levels x 4 panel-seed cells
+GATE_Q2,panel_seed_aggregation,PASS,PASS,1,0,0,C84P_replay:22 targets x 2 levels x 4 panel-seed cells
+R1,20_channel_exact_intersection,True,True,1,0,0,20/20 exact order
+R2,FCz_reintroduced,True,True,1,0,0,rejected
+R3,Fz_substitution,True,True,1,0,0,rejected
+R4,19_channel_silent_reduction,True,True,1,0,0,rejected
+R5,dataset_specific_mask,True,True,1,0,0,rejected
+R6,wrong_channel_order,True,True,1,0,0,rejected
+R7,wrong_montage_digest,True,True,1,0,0,canonical digest exact
+R8,old_blocked_unit_ID_reuse,True,True,1,0,0,"1,944/1,944 IDs changed"
+R9,target_y_access,True,True,1,0,0,target helper never subscripts structural y slot
+R10,C34S_regression_omission,True,True,1,0,0,four nodes restored
