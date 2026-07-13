@@ -1,0 +1,48 @@
+{
+  "all_geometry_subspaces_stable": true,
+  "cuda_compute_capability": [
+    8,
+    6
+  ],
+  "cuda_device_name": "NVIDIA A40",
+  "cuda_runtime_version": "12.4",
+  "dataset": "ISRUC_S3_Group_III",
+  "downstream_seeds": [
+    0,
+    1,
+    2
+  ],
+  "encoder_frozen": true,
+  "encoder_optimizer_created": false,
+  "feature_payload_sha256": "a4d2c8a9a134970cdd37dcf5cc42219fcde9e9ee8b10368f041401ae48fe4837",
+  "fine_tuning_used": false,
+  "head_architecture": "linear1200_512_gelu_transformer1_h4_ff2048_linear5",
+  "l5_null_payload": "objects_fleet_a40/H2000_s0_isruc_l5_nulls.npz",
+  "l5_null_payload_sha256": "7f4f4f2c8580eb55a34bc95e010214ded1d3816bb4e04965f6a4eae330db3a86",
+  "l5_null_repetitions": 200,
+  "l5_source_val_match_tolerance": 1e-10,
+  "l5_status": "PASS",
+  "prediction_payload": "objects_fleet_a40/H2000_s0_isruc_predictions.npz",
+  "prediction_payload_sha256": "07de63ddd89d3403058619eb30b2de54eb37be91f96e1b0a6e2586430fa50c80",
+  "rotations": 10,
+  "selection": "source_val_kappa_only_earliest_tie",
+  "source_val": {
+    "balanced_accuracy": 0.7485556516420283,
+    "kappa": 0.7133664035064742,
+    "nll": 0.6492093685791173,
+    "weighted_f1": 0.7766354582613892
+  },
+  "stage": "fleet",
+  "status": "PASS",
+  "tag": "H2000_s0",
+  "target_test": {
+    "balanced_accuracy": 0.6684243673524868,
+    "kappa": 0.6091783951014966,
+    "nll": 0.7970282155814172,
+    "weighted_f1": 0.6941167093925528
+  },
+  "target_test_labels_used_for_selection": false,
+  "task_gate_pass": true,
+  "task_gate_reference_random_source_val_kappa": 0.5844120816187628,
+  "torch_version": "2.6.0+cu124"
+}

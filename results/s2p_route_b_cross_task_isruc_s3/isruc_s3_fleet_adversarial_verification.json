@@ -1,0 +1,33 @@
+{
+  "all_object_metrics_recomputed_from_predictions": true,
+  "gate_decision_recomputed": "PASS",
+  "l5_arithmetic_recomputed_from_compact_nulls": true,
+  "l5_holm_recomputed": true,
+  "l5_null_payload_hashes": {
+    "H1000_s0": "a55648fe862a85ce42f3b37e80fea1712b1e48ae4cd4b1a2e664eac12a67e3e1",
+    "H1000_s1": "a872bc2e21ec4180ed11433c6d6a31a259aed932f64aa61cac13eb08e8e140f5",
+    "H2000_s0": "7f4f4f2c8580eb55a34bc95e010214ded1d3816bb4e04965f6a4eae330db3a86",
+    "H2000_s1": "94e0ad5824f3af2d13575901e336a496c00099613b877f95c1a24fb860654498",
+    "H500_s0": "481d57f961a2c76cc19078b2c863d2c4b065e2f0911e9ca7c3e323762a731f43",
+    "H500_s1": "b0c537ec844cec2e62c4699ed289d1e0af11a2b34f430da07d8801116bfcd1ff",
+    "released": "2c8ffbc94d2b476a445705c959e0afe24adc1094e1dfe3d1a42c7951fd6bdac8"
+  },
+  "l5_source_val_variance_match_pass": true,
+  "object_prediction_hashes": {
+    "H1000_s0": "6ff14dc6e524d174dd2fdb6f41dbb6feaa420b5df45c911f4246ac5ce248df73",
+    "H1000_s1": "11d7b70f6d9ba518493eace470af6ef5495fa809b21f4dcfc09373028e5a68de",
+    "H2000_s0": "07de63ddd89d3403058619eb30b2de54eb37be91f96e1b0a6e2586430fa50c80",
+    "H2000_s1": "fee0643383479a5639d73619d7a73af5142afe5358707f893b419cc51fe2b164",
+    "H200_s0": "3a85efe27464afed42d898c9c9d5f12979c55beb074c14c40154b023cf3e5adc",
+    "H200_s1": "e63a707cad03db4d3536454b3e655286b4f578bfe22d820b656f390e09d597cb",
+    "H500_s0": "8e3c3141d66660cc1e49866cd236277863f1f17193398306750f8ffbc743e5d7",
+    "H500_s1": "4f2e91081232e52bc5f59e4711f4a18c27fa65b6bf7e08d68438957f30676e97",
+    "random": "97179c05f3ff2c1b1cafe3452ff45b044ce96115e1142fb62cade8fb95807fce",
+    "released": "ffb8e4e1ad5ad1ba20e8de07a4a43e1370d1bc11b5ce79b166243917a1e92d7f"
+  },
+  "phase": "C2_ISRUC_S3_independent_prediction_recompute",
+  "rotation_identity_consistent": true,
+  "same_downstream_head_hardware_for_all_objects": true,
+  "status": "PASS",
+  "target_labels_used_for_selection": false
+}

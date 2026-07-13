@@ -1,0 +1,62 @@
+{
+  "downstream_head_compute_capabilities": [
+    [
+      8,
+      6
+    ]
+  ],
+  "downstream_head_device_names": [
+    "NVIDIA A40"
+  ],
+  "downstream_seeds": [
+    0,
+    1,
+    2
+  ],
+  "fine_tuning_used": false,
+  "finite_endpoints": true,
+  "fleet_authorized_by_gate": false,
+  "l5_holm_family": [
+    "H500_s0",
+    "H500_s1",
+    "H1000_s0",
+    "H1000_s1",
+    "H2000_s0",
+    "H2000_s1"
+  ],
+  "l5_low_power_interpretation": true,
+  "l5_null_repetitions_per_object": 200,
+  "l5_task_gated_objects": [
+    "released",
+    "H500_s0",
+    "H500_s1",
+    "H1000_s0",
+    "H1000_s1",
+    "H2000_s0",
+    "H2000_s1"
+  ],
+  "low_power_directional_replication": true,
+  "objects": [
+    "random",
+    "released",
+    "H200_s0",
+    "H200_s1",
+    "H500_s0",
+    "H500_s1",
+    "H1000_s0",
+    "H1000_s1",
+    "H2000_s0",
+    "H2000_s1"
+  ],
+  "other_dataset_auto_launch_authorized": false,
+  "phase": "C2_ISRUC_S3_fleet",
+  "random_and_released_predictions_nondegenerate": true,
+  "random_target_kappa": 0.5313710267086881,
+  "released_clears_random_plus_0p02": true,
+  "released_minus_random_target_kappa": 0.15967329630013027,
+  "released_target_kappa": 0.6910443230088184,
+  "rotations": 10,
+  "status": "PASS",
+  "target_label_firewall_pass": true,
+  "test_subjects": 10
+}
