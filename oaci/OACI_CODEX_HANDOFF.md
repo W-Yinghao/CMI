@@ -14,7 +14,8 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-13)
 
-The authoritative milestone is **C81R2 repair readiness complete; C81E held-evaluation execution is not reauthorized**:
+The authoritative milestone is **C81E ended at the registered post-evaluation
+implementation blocker**:
 
 ```text
 C81 base protocol commit:         16a0d2eba4715a1cec78da6a79a182fd416a6629
@@ -25,9 +26,14 @@ C81R2 repaired implementation:    225df1c2066b50abedec4bacf043f6359c715190
 C81R2 execution lock:             f82ffa4b147c0b1329a98649b898691cf1fdc983
 C81R2 lock SHA-256:               13414dde0a88eb8a1a0810b3b36f25c718669d4cfe3178b871239eff6e292705
 C81R2 readiness result:           6118a13df264bc64e79fe6789fc215b1a5e96b55
-C81R2 red team:                   52 / 52 PASS
-C81R2 gate:                       C81_SELECTION_DESCRIPTOR_REPAIR_LOCKED_READY_FOR_PI_REAUTHORIZATION
-held-evaluation statistics:       0
+direct C81R2 authorization:       102e46644d1fceac1e521b63207673c40df2b75f
+machine blocker result:           8801b1c24a939d694efc20972ee89f011ac282c6
+machine blocker SHA-256:          e98bc3f1f0228a40508459a8fe5d4dd3bbc4cf646727fb5ff5e7c5c7084e00f7
+scientific red team:              b4b71b909f168d8eed8f6e6bf5103d08cb0ee023 (36/36 PASS)
+main blocker report:              d88e9c93c9a373c5662d9dcdc01e0c28b220335d
+final verification/memory:        fc3f871ea1fb4479519b3ad6308f9cc4797d3934
+C81E gate:                        C81-E_protocol_input_implementation_or_provenance_blocker
+scientific result rows frozen:    0
 same-label oracle accesses:       0
 ```
 
@@ -47,14 +53,33 @@ verification with an exact per-array shape map, binds the existing payload, and
 forbids selection recomputation. The shared C74 verifier and all scientific
 objects remain unchanged.
 
-Regression on lock `f82ffa4` is green: focused `47`; C65-C81R2 `416 + 1
-conditional skip + 3 historical deselections`; C23-C81R2 `827 + 1 + 3`; full
-OACI `1,751 + 1 + 3`. All stderr files are empty.
+The PI then directly authorized the repaired C81E under policy `3d9dd76`; no
+token or repeated hash recital was required. Authorization commit `102e466`
+bound that statement to the unique C81R2 lock and frozen selection. Authorized
+CPU job `894958` opened the 16 registered evaluation routes and read 4,746
+evaluation-label rows only after selection freeze. It reached all 32 contexts
+and computed 672 method/control rows in memory.
 
-The direct authorization bound at `b2f9fca` was consumed by job `894915` and is
-not reusable for the new lock. Under policy `3d9dd76`, a new direct PI statement
-such as `授权 C81R2 修复后的 C81E 继续执行` is sufficient; no token or repeated
-hash recital is required. Until then, held-evaluation scoring remains stopped.
+The job failed before the first result table was written. Selector/oracle and
+analytic random-control rows contain the same eight fields but use different
+dictionary insertion orders; the strict CSV writer treats ordered keys as the
+schema and raised `C81 table schema drift`. No method-context, Q1/Q2, max-T,
+LOTO, or C81-A/B/C/D output was persisted. The in-memory rows were not printed,
+inspected, or reconstructed.
+
+Because evaluation outcomes had already been read, the locked failure policy
+forbids a patch and rerun under the same protocol identity. Authorization was
+consumed by job `894958` and is inactive. Target-4 primary rows, same-label
+oracle accesses, training, forward, re-inference, and GPU work remain zero.
+All 34 methods are accounted for, but Q1-Q5 are blocked. C81E neither supports
+nor rejects any zero-label method.
+
+Final verification is green: scientific red team `36/36`, final-report red
+team `40/40`, focused `48`, C65-C81E `417 + 1 conditional skip + 3 historical
+deselections`, C23-C81E `828 + 1 + 3`, and full OACI `1,752 + 1 + 3`. All
+stderr files are empty. Stop for PM review: no C81 repair, C82, new method,
+oracle, seed 5, BNCI2014_004, active acquisition, or manuscript experiment is
+authorized.
 
 The latest completed scientific milestone remains **C80E**:
 
