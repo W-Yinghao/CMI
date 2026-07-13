@@ -1,0 +1,65 @@
+{
+  "schema_version": "c81r_source_shard_schema_repair_protocol_v1",
+  "milestone": "C81R",
+  "created_at_utc": "2026-07-13T12:57:44Z",
+  "status": "ADDITIVE_PRE_EVALUATION_NON_SCIENTIFIC_REPAIR_PROTOCOL",
+  "failed_attempt": {
+    "slurm_job_id": "894878",
+    "stage": "evaluation_blind_selection_source_shard_verification",
+    "root_cause": "c74_verify_shard_required_fields_has_exact_set_semantics_but_C81_passed_only_the_required_subset_after_already_validating_subset_presence",
+    "selection_manifest_created": false,
+    "candidate_ranking_frozen": false,
+    "evaluation_label_descriptor_opened": false,
+    "evaluation_label_reads": 0,
+    "baseline_statistics": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "training_forward_reinference_GPU": 0
+  },
+  "superseded_execution_objects": {
+    "base_protocol_commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
+    "base_protocol_sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee",
+    "base_analysis_lock_commit": "541651c2ee3343c12d374a7322c91181a860a2c9",
+    "base_analysis_lock_sha256": "b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1",
+    "base_authorization_record_commit": "26971405fe2596bf6eaabb362f35768982b33ae5",
+    "preserved_in_history": true,
+    "usable_for_further_real_execution": false
+  },
+  "allowed_code_change": {
+    "path": "oaci/conditioned_ceiling_coverage/c81_baseline_comparison.py",
+    "function": "_load_source_context",
+    "before": "verify_shard(shard, required_fields=required_subset)",
+    "after": "retain_explicit_required_subset_presence_check_then_verify_complete_descriptor_hash_size_and_row_count_without_requiring_exact_subset_equality",
+    "shared_c74_verifier_changed": false
+  },
+  "immutable_scientific_objects": {
+    "method_registry_changed": false,
+    "primary_representatives_changed": false,
+    "score_formulas_changed": false,
+    "score_directions_changed": false,
+    "feature_layers_or_temperatures_changed": false,
+    "class_prior_policy_changed": false,
+    "tie_or_randomness_changed": false,
+    "candidate_universe_changed": false,
+    "views_or_information_classes_changed": false,
+    "Q1_Q2_estimands_or_margins_changed": false,
+    "dependence_or_multiplicity_changed": false,
+    "LOTO_or_taxonomy_changed": false,
+    "report_schema_changed": false
+  },
+  "required_validation": [
+    "registered_source_shard_superset_schema_fixture",
+    "exact_base_protocol_and_registry_replay",
+    "selection_stage_source_contains_no_evaluation_view_access",
+    "focused_C81_tests",
+    "repair_red_team",
+    "new_scope_specific_analysis_lock"
+  ],
+  "authorization": {
+    "prior_C81E_authorization_reusable": false,
+    "new_direct_PI_authorization_required_after_repair_lock": true,
+    "magic_token_required": false,
+    "hash_recital_required": false
+  },
+  "repair_readiness_gate": "C81_SOURCE_SHARD_SCHEMA_REPAIR_LOCKED_READY_FOR_PI_REAUTHORIZATION"
+}

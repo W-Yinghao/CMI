@@ -1,0 +1,2 @@
+attempt_id,job_id,stage,status,root_cause,evaluation_labels_read,baseline_statistics,oracle_access,target4_primary,training_forward_GPU,replacement_attempt
+C81E-SEL-001,894878,selection_source_shard_verification,FAILED_PRESERVED,c74_exact_schema_verifier_received_required_subset_for_registered_superset_shard,0,0,0,0,0,PENDING_NEW_LOCK_AND_AUTHORIZATION
