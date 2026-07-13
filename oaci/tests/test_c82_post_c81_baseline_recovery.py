@@ -277,9 +277,10 @@ def test_synthetic_maxT_and_noninferiority_family_is_complete():
     assert all(row["same_target_sign_vectors"] == "256" and row["passed"] == "1" for row in rows)
 
 
-def test_real_entrypoint_fails_closed_without_lock_or_authorization():
-    if recovery.LOCK_PATH.exists():
-        pytest.skip("lock exists in a later lifecycle state")
+def test_real_entrypoint_fails_closed_without_lock_or_authorization(tmp_path, monkeypatch):
+    monkeypatch.setattr(recovery, "LOCK_PATH", tmp_path / "missing_lock.json")
+    monkeypatch.setattr(recovery, "LOCK_SHA_PATH", tmp_path / "missing_lock.sha256")
+    monkeypatch.setattr(recovery, "AUTHORIZATION_PATH", tmp_path / "missing_authorization.json")
     with pytest.raises(recovery.C82ValidationError, match="execution lock is absent"):
         recovery.require_c82e_authorization()
 
