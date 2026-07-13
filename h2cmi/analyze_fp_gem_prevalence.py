@@ -180,6 +180,69 @@ def squeue_absence(job_ids: list[str]) -> dict[str, Any]:
     }
 
 
+def validate_excluded_attempts(
+    job_record: dict[str, Any],
+    raw_root: Path,
+) -> list[dict[str, Any]]:
+    rows: list[dict[str, Any]] = []
+    failures: list[str] = []
+    for retry in job_record.get("retries", []):
+        if "excluded_attempt" not in retry:
+            continue
+        attempt = retry["excluded_attempt"]
+        job_id = str(attempt["job_id"])
+        task_id = str(retry["array_task_id"])
+        directory = raw_root / f"excluded/{job_id}_task{task_id}"
+        raw_candidates = sorted(directory.glob("failed_*.json"))
+        raw_path = raw_candidates[0] if len(raw_candidates) == 1 else directory / "missing.json"
+        stdout_path = directory / f"{job_id}_{task_id}.out"
+        stderr_path = directory / f"{job_id}_{task_id}.err"
+        try:
+            raw_payload = json.loads(raw_path.read_text())
+        except Exception as exc:
+            raw_payload = {}
+            failures.append(f"excluded raw parse failed {raw_path}: {exc}")
+        checks = {
+            "one_raw_file": len(raw_candidates) == 1,
+            "raw_sha256": raw_path.exists()
+            and sha256_file(raw_path) == attempt["raw_sha256"],
+            "stdout_sha256": stdout_path.exists()
+            and sha256_file(stdout_path) == attempt["stdout_sha256"],
+            "stderr_sha256": stderr_path.exists()
+            and sha256_file(stderr_path) == attempt["stderr_sha256"],
+            "failed_before_results": raw_payload.get("status") == "failed"
+            and not raw_payload.get("results"),
+            "failure_reason_matches": attempt["failure_reason"]
+            in raw_payload.get("failure_reason", ""),
+            "unit_key_matches": raw_payload.get("target_subject")
+            == attempt["target_subject"]
+            and raw_payload.get("source_seed") == attempt["source_seed"],
+        }
+        if not all(checks.values()):
+            failures.append(
+                f"excluded attempt gate failed {job_id}_{task_id}: "
+                f"{[name for name, passed in checks.items() if not passed]}"
+            )
+        rows.append({
+            "job_id": job_id,
+            "array_task_id": task_id,
+            "target_subject": attempt["target_subject"],
+            "source_seed": attempt["source_seed"],
+            "failure_reason": attempt["failure_reason"],
+            "raw_path": str(raw_path),
+            "raw_sha256": sha256_file(raw_path) if raw_path.exists() else "",
+            "stdout_path": str(stdout_path),
+            "stdout_sha256": sha256_file(stdout_path) if stdout_path.exists() else "",
+            "stderr_path": str(stderr_path),
+            "stderr_sha256": sha256_file(stderr_path) if stderr_path.exists() else "",
+            "accepted_result_rows": 0,
+            "status": "verified_excluded" if all(checks.values()) else "failed_validation",
+        })
+    if failures:
+        raise RuntimeError("P13 excluded-attempt gate failed:\n" + "\n".join(failures))
+    return rows
+
+
 def load_raw_units(
     config: dict[str, Any],
     units: dict[tuple[int, int], dict[str, Any]],
@@ -665,9 +728,24 @@ def write_execution_audit(
     artifacts: list[dict[str, Any]],
     job_record: dict[str, Any],
     queue: dict[str, Any],
+    job_record_snapshot_sha256: str,
+    excluded_artifacts: list[dict[str, Any]],
 ) -> None:
     stdout_counts = Counter(row["stdout_status"] for row in artifacts)
     stderr_counts = Counter(row["stderr_status"] for row in artifacts)
+    accepted_jobs: dict[str, list[dict[str, Any]]] = defaultdict(list)
+    for row in artifacts:
+        accepted_jobs[row["slurm_array_job_id"]].append(row)
+    canceled_zero_result = [
+        array
+        for array in job_record["arrays"]
+        if array.get("status") == "canceled_pending_zero_result"
+    ]
+    scheduler_handoffs = [
+        array
+        for array in job_record["arrays"]
+        if array.get("status") == "completed_repair_then_canceled_for_scheduler_handoff"
+    ]
     lines = [
         "# FP-GEM Prevalence-Stress Execution Audit",
         "",
@@ -678,13 +756,40 @@ def write_execution_audit(
         f"- final squeue absence: `{queue['all_absent']}`",
         f"- stdout statuses: `{dict(stdout_counts)}`",
         f"- stderr statuses: `{dict(stderr_counts)}`",
+        f"- submission-record snapshot SHA-256: `{job_record_snapshot_sha256}`",
         "",
-        "## Accepted Jobs",
+        "## Accepted Result-Carrying Jobs",
         "",
         f"- checkpoint gate: `{job_record['checkpoint_gate']}`",
     ]
+    for job_id in sorted(accepted_jobs, key=int):
+        rows = accepted_jobs[job_id]
+        groups = sorted({row["hardware_group"] for row in rows})
+        lines.append(f"- job `{job_id}`: accepted units `{len(rows)}`, hardware groups `{groups}`")
+    lines.extend(["", "## Failed And Excluded Attempts", ""])
+    if excluded_artifacts:
+        for attempt in excluded_artifacts:
+            lines.append(f"- `{json.dumps(attempt, sort_keys=True)}`")
+    else:
+        lines.append("- none")
+    lines.extend(["", "## Canceled Zero-Result Launches", ""])
+    if canceled_zero_result:
+        for array in canceled_zero_result:
+            lines.append(f"- `{json.dumps(array, sort_keys=True)}`")
+    else:
+        lines.append("- none")
+    lines.extend(["", "## Verified Post-Artifact Scheduler Handoff", ""])
+    if scheduler_handoffs:
+        for array in scheduler_handoffs:
+            lines.append(f"- `{json.dumps(array, sort_keys=True)}`")
+        lines.append(
+            "- The named unit was atomically complete before cancellation. The interrupted next group supplied zero accepted rows from that attempt and was completed by the frozen resume job. This stderr is not classified as a harmless warning."
+        )
+    else:
+        lines.append("- none")
+    lines.extend(["", "## Effective Submission Commands", ""])
     for array in job_record["arrays"]:
-        lines.append(f"- array: `{array}`")
+        lines.append(f"- job `{array['job_id']}`: `{array['command']}`")
     lines.extend([
         "",
         "Completion uses job absence from `squeue` plus stdout, stderr, artifact parse/count, and checksum gates. No Slurm accounting command is used.",
@@ -708,13 +813,15 @@ def main() -> int:
     config = runner.load_config()
     frozen = runner.validate_frozen_inputs(config)
     units, _ = runner.load_manifest(config)
-    job_record = json.loads(Path(args.job_record).read_text())
+    job_record_path = Path(args.job_record)
+    job_record = json.loads(job_record_path.read_text())
     job_ids = [str(job_record["checkpoint_gate"]["job_id"])] + [
         str(item["job_id"]) for item in job_record["arrays"]
     ]
     queue = squeue_absence(job_ids)
     if not queue["all_absent"]:
         raise RuntimeError(f"accepted P13 jobs remain in squeue: {queue['stdout']}")
+    excluded_artifacts = validate_excluded_attempts(job_record, raw_root)
     payloads, artifacts = load_raw_units(config, units, raw_root, job_record)
     results, geometry, prediction_vectors = flatten(payloads)
     keys = [(row["target_subject"], row["source_seed"], row["q"], row["method"]) for row in results]
@@ -735,6 +842,19 @@ def main() -> int:
                 and row["method"] == "source_only_tsmnet"
             }
             source_hash_consistent &= len(hashes) == 1
+    canceled_zero_result_ids = {
+        str(array["job_id"])
+        for array in job_record["arrays"]
+        if array.get("status") == "canceled_pending_zero_result"
+    }
+    accepted_job_ids = {row["slurm_array_job_id"] for row in artifacts}
+    recorded_excluded_attempt_count = sum(
+        "excluded_attempt" in retry for retry in job_record.get("retries", [])
+    )
+    recorded_scheduler_handoff_count = sum(
+        array.get("status") == "completed_repair_then_canceled_for_scheduler_handoff"
+        for array in job_record["arrays"]
+    )
     validation = {
         "accepted_unit_count": len(payloads),
         "final_result_rows": len(results),
@@ -784,6 +904,33 @@ def main() -> int:
             row["stderr_status"] == "verified_post_artifact_scheduler_handoff"
             for row in artifacts
         ),
+        "job_record_input_sha256": sha256_file(job_record_path),
+        "job_record_launch_commit_matches": job_record.get("launch_commit")
+        == next(iter({payload["provenance"]["launch_commit"] for payload in payloads})),
+        "job_record_runner_sha256_matches": job_record.get("runner_sha256")
+        == next(iter({payload["provenance"]["runner_sha256"] for payload in payloads})),
+        "job_record_config_sha256_matches": job_record.get("config_sha256")
+        == runner.P13_CONFIG_SHA256,
+        "job_record_manifest_sha256_matches": job_record.get("manifest_sha256")
+        == runner.P13_MANIFEST_SHA256,
+        "job_record_expected_units": job_record.get("expected_units"),
+        "job_record_clean_launch": job_record.get("worktree_clean_at_launch") is True,
+        "job_record_max_concurrency": job_record.get("max_concurrent_gpu_tasks"),
+        "job_record_monitoring_policy": job_record.get("monitoring_policy"),
+        "excluded_attempt_count": len(excluded_artifacts),
+        "recorded_excluded_attempt_count": recorded_excluded_attempt_count,
+        "excluded_artifact_file_count": 3 * len(excluded_artifacts),
+        "all_excluded_attempts_verified": all(
+            row["status"] == "verified_excluded" for row in excluded_artifacts
+        ),
+        "all_excluded_attempts_have_zero_accepted_rows": all(
+            row["accepted_result_rows"] == 0 for row in excluded_artifacts
+        ),
+        "canceled_zero_result_job_ids": sorted(canceled_zero_result_ids, key=int),
+        "canceled_zero_result_jobs_contributed_no_units": not (
+            canceled_zero_result_ids & accepted_job_ids
+        ),
+        "recorded_scheduler_handoff_count": recorded_scheduler_handoff_count,
     }
     validation["validation_pass"] = (
         validation["accepted_unit_count"] == 162
@@ -816,6 +963,24 @@ def main() -> int:
         and validation["squeue_absence"]
         and validation["stdout_validation_pass"]
         and validation["stderr_validation_pass"]
+        and validation["verified_scheduler_handoff_count"]
+        == validation["recorded_scheduler_handoff_count"]
+        and validation["job_record_launch_commit_matches"]
+        and validation["job_record_runner_sha256_matches"]
+        and validation["job_record_config_sha256_matches"]
+        and validation["job_record_manifest_sha256_matches"]
+        and validation["job_record_expected_units"] == 162
+        and validation["job_record_clean_launch"]
+        and validation["job_record_max_concurrency"] <= 8
+        and validation["job_record_monitoring_policy"]
+        == "squeue_only_plus_artifact_validation"
+        and validation["excluded_attempt_count"]
+        == validation["recorded_excluded_attempt_count"]
+        and validation["excluded_artifact_file_count"]
+        == 3 * validation["recorded_excluded_attempt_count"]
+        and validation["all_excluded_attempts_verified"]
+        and validation["all_excluded_attempts_have_zero_accepted_rows"]
+        and validation["canceled_zero_result_jobs_contributed_no_units"]
     )
     if not validation["validation_pass"]:
         raise RuntimeError(f"P13 validation failed: {validation}")
@@ -842,11 +1007,28 @@ def main() -> int:
     write_csv(geometry_path, list(geometry[0]), geometry)
     artifact_path = out / "fp_gem_prevalence_job_artifact_manifest.csv"
     write_csv(artifact_path, list(artifacts[0]), artifacts)
+    excluded_artifact_path = out / "fp_gem_prevalence_excluded_artifact_manifest.csv"
+    write_csv(
+        excluded_artifact_path,
+        list(excluded_artifacts[0]),
+        excluded_artifacts,
+    )
+    job_record_snapshot_path = out / "fp_gem_prevalence_submission_record.json"
+    write_json(job_record_snapshot_path, job_record)
+    job_record_snapshot_sha = sha256_file(job_record_snapshot_path)
     geometry_means = geometry_summary(geometry)
     head_path = out / "fp_gem_prevalence_head_to_head.md"
     write_head_to_head(head_path, sensitivity_rows, endpoint_rows, geometry_means, result_sha)
     audit_path = out / "fp_gem_prevalence_execution_audit.md"
-    write_execution_audit(audit_path, validation, artifacts, job_record, queue)
+    write_execution_audit(
+        audit_path,
+        validation,
+        artifacts,
+        job_record,
+        queue,
+        job_record_snapshot_sha,
+        excluded_artifacts,
+    )
     summary = {
         "status": "pass",
         "label": "P13 targeted fixed-reservoir prevalence stress",
@@ -883,6 +1065,10 @@ def main() -> int:
             "fp_gem_prevalence_endpoint_ci.csv": sha256_file(endpoint_path),
             "fp_gem_prevalence_geometry_diagnostic.csv": sha256_file(geometry_path),
             "fp_gem_prevalence_job_artifact_manifest.csv": sha256_file(artifact_path),
+            "fp_gem_prevalence_excluded_artifact_manifest.csv": sha256_file(
+                excluded_artifact_path
+            ),
+            "fp_gem_prevalence_submission_record.json": job_record_snapshot_sha,
             "fp_gem_prevalence_head_to_head.md": sha256_file(head_path),
             "fp_gem_prevalence_execution_audit.md": sha256_file(audit_path),
         },

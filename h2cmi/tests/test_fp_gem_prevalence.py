@@ -163,3 +163,58 @@ def test_scheduler_handoff_stderr_is_narrow_and_post_artifact_only():
             stderr_path, stdout_path, raw_path, payload, job_record
         )
         assert rejected["status"] == "real_or_unexpected_failure"
+
+
+def test_execution_audit_separates_accepted_failed_and_canceled_jobs():
+    validation = {
+        "validation_pass": True,
+        "accepted_unit_count": 1,
+        "final_result_rows": 18,
+        "geometry_rows": 6,
+    }
+    artifacts = [{
+        "slurm_array_job_id": "10",
+        "hardware_group": "V100",
+        "stdout_status": "exists_complete_clean_launch",
+        "stderr_status": "empty",
+    }]
+    record = {
+        "checkpoint_gate": {"job_id": "9", "status": "pass"},
+        "arrays": [
+            {"job_id": "10", "command": "sbatch accepted"},
+            {
+                "job_id": "11",
+                "command": "sbatch canceled",
+                "status": "canceled_pending_zero_result",
+            },
+        ],
+        "retries": [{
+            "excluded_attempt": {
+                "job_id": "8",
+                "failure_reason": "exact-hash mismatch",
+                "raw_sha256": "a" * 64,
+            }
+        }],
+    }
+    with tempfile.TemporaryDirectory() as directory:
+        path = Path(directory) / "audit.md"
+        analyzer.write_execution_audit(
+            path,
+            validation,
+            artifacts,
+            record,
+            {"all_absent": True},
+            "b" * 64,
+            [{
+                "job_id": "8",
+                "failure_reason": "exact-hash mismatch",
+                "status": "verified_excluded",
+            }],
+        )
+        text = path.read_text()
+        assert "Accepted Result-Carrying Jobs" in text
+        assert "Failed And Excluded Attempts" in text
+        assert "Canceled Zero-Result Launches" in text
+        assert "job `10`: accepted units `1`" in text
+        assert "exact-hash mismatch" in text
+        assert "sbatch canceled" in text
