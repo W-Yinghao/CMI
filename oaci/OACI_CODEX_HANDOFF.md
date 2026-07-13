@@ -25,6 +25,7 @@ C80E machine result freeze:     a43aa27
 C80E scientific red team:       be3e5c7 (32/32 PASS)
 C80E report/final red team:      212d864 (30/30 PASS)
 C80E lifecycle regression:      ebc6afe
+C80E regression/memory delivery: 42a9f72
 C80E primary gate:              C80-A_stable_low_regret_label_budget_frontier_across_training_seeds
 project-control gate:           C80E_COMPLETE_C81_PROTOCOL_REVIEW_REQUIRED
 ```

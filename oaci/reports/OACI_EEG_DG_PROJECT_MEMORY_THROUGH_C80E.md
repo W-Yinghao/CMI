@@ -161,6 +161,7 @@ scientific red-team:         be3e5c7, 32/32 PASS
 final narrative report:      212d864
 final-report red-team:       212d864, 30/30 PASS
 lifecycle regression repair: ebc6afe
+regression/memory delivery:   42a9f72
 
 focused:   54 passed
 C65-C80E:  369 passed, 1 conditional skip, 3 historical deselections
