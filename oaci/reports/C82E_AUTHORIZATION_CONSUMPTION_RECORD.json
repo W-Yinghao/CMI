@@ -1,0 +1,8 @@
+{
+  "analysis_lock_sha256": "d5de6d6ff242b9f3d7f9c318cbdd6e1e16c509060bc14cca59292b738a75f5ce",
+  "authorization_consumed_before_selection_payload_or_evaluation_open": true,
+  "authorization_record_sha256": "8e55a9e2b091208598a3b2d87e4e0acf9867b73561046039dac8a550a629ba3a",
+  "protocol_sha256": "9f58c7a8e6b495a6d8f510c0d72d24ede4485908ef94bc078abe8f124b03a8f3",
+  "same_identity_rerun_allowed": false,
+  "schema_version": "c82e_authorization_consumption_v1"
+}
