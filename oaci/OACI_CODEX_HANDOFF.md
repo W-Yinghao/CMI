@@ -24,6 +24,7 @@ C80R protocol SHA-256:         2d72eb5119056a6520fd33fc0ac14ee6270bfd573b59c36b7
 C80R final adapter:            e5cb41a
 C80R replacement lock:         f19acd8
 C80R replacement lock SHA-256: e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82
+C80R readiness result:         101146b
 C80R readiness gate:           C80_REPAIRED_PROTOCOL_AND_REAL_ADAPTER_LOCKED_READY_FOR_PI_REAUTHORIZATION
 real-data budget statistics:   0
 evaluation-label value reads:  0
@@ -53,6 +54,14 @@ The old C80E authorization is not reusable. C80E remains stopped until the PI
 directly authorizes the new protocol `e88a244` / SHA above, lock `f19acd8` / SHA
 above, and manifest digest
 `6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef`.
+
+C80R final regression is green on exact clean commit `93d2099`: focused
+`53 passed`; C65-C80R `368 passed, 1 conditional skip, 3 deselected`;
+C23-C80R `775 passed, 1 conditional skip, 3 deselected`; full OACI
+`1,703 passed, 1 conditional skip, 3 deselected`. All failures and stderr byte
+counts are zero. The skip is the finalized C78F guard, and the three
+deselections are historical C79P preauthorization-state tests; no C80R path
+was skipped or deselected.
 
 The completed **C80P cross-seed label-budget frontier protocol/readiness
 milestone** remains the accepted base:
