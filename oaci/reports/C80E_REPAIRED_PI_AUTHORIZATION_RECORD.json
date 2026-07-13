@@ -1,0 +1,41 @@
+{
+  "schema_version": "c80e_repaired_direct_pi_authorization_v2",
+  "recorded_at_utc": "2026-07-13T09:51:29Z",
+  "authorization_source": "direct_PI_statement_in_current_execution_conversation",
+  "authorization_text_exact": "我明确授权C80E了，你为什么还认为未授权？修改一下授权方式，以我说的为准，不要再要求重复什么token",
+  "authorization_received": true,
+  "magic_token_required": false,
+  "PI_must_repeat_hashes": false,
+  "binding_resolution": "executor_automatically_bound_the_single_current_operative_C80R_protocol_lock_and_manifest_set",
+  "protocol": {
+    "commit": "e88a24484590636f87d0f22798401a762875046a",
+    "path": "oaci/reports/C80R_ADDITIVE_REPAIR_PROTOCOL.json",
+    "sha256": "2d72eb5119056a6520fd33fc0ac14ee6270bfd573b59c36b74be6aa3dc25fe39"
+  },
+  "analysis_lock": {
+    "commit": "f19acd8775f9b0ddf60401739741bec0019d021c",
+    "path": "oaci/reports/C80R_REPAIRED_ANALYSIS_EXECUTION_LOCK.json",
+    "sha256": "e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82"
+  },
+  "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
+  "scope": {
+    "existing_seed3_seed4_primary_fields_read_only": true,
+    "registered_paths": ["P1", "P2", "S1", "S2", "S3"],
+    "training": false,
+    "forward": false,
+    "reinference": false,
+    "GPU": false,
+    "seed5": false,
+    "target4_primary": false,
+    "same_label_oracle": false,
+    "BNCI2014_004": false,
+    "active_learning": false,
+    "new_feature_kernel_model_search": false,
+    "C81": false,
+    "manuscript": false
+  },
+  "scientific_execution_started_at_record_commit": false,
+  "real_budget_statistics_before_record": 0,
+  "evaluation_label_value_reads_before_record": 0,
+  "same_label_oracle_accesses_before_record": 0
+}
