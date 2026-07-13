@@ -82,7 +82,8 @@ def _exact_environment() -> dict[str, Any]:
     script = (
         "import importlib.metadata as m,json,sys,torch,moabb,mne;"
         "print(json.dumps({'prefix':sys.prefix,'python':sys.version.split()[0],"
-        "'distributions':{'torch':m.version('torch'),'moabb':m.version('moabb'),'mne':m.version('mne')},"
+        "'distributions':{'torch':m.version('torch'),'moabb':m.version('moabb'),'mne':m.version('mne'),"
+        "'chardet':m.version('chardet')},"
         "'runtime':{'torch':torch.__version__,'moabb':moabb.__version__,'mne':mne.__version__}}))"
     )
     completed = subprocess.run(
@@ -92,7 +93,7 @@ def _exact_environment() -> dict[str, Any]:
     expected = {
         "prefix": ENV_PREFIX,
         "python": "3.13.7",
-        "distributions": {"torch": "2.6.0", "moabb": "1.5.0", "mne": "1.11.0"},
+        "distributions": {"torch": "2.6.0", "moabb": "1.5.0", "mne": "1.11.0", "chardet": "5.2.0"},
         "runtime": {"torch": "2.6.0+cu124", "moabb": "1.5.0", "mne": "1.11.0"},
     }
     if payload != expected:
@@ -297,6 +298,9 @@ def contract_rows() -> dict[str, list[dict[str, Any]]]:
             {"object": "mne", "historical_locked": "1.11.0", "V3_locked": "1.11.0",
              "distribution_metadata": environment["distributions"]["mne"],
              "runtime_value": environment["runtime"]["mne"], "compatibility": "Requires-Python>=3.10", "real_data_access": 0},
+            {"object": "chardet", "historical_locked": "UNBOUND", "V3_locked": "5.2.0",
+             "distribution_metadata": environment["distributions"]["chardet"],
+             "runtime_value": "NOT_IMPORTED", "compatibility": "stderr_warning_guard", "real_data_access": 0},
         ],
         "loader_source_identity_registry.csv": loader_rows,
         "exact_subject_identity_contract.csv": subject_contract_rows(),
