@@ -1,0 +1,4 @@
+dataset,split_unit,sort_key,construction_count,evaluation_count,overlap_allowed,minimum_construction_per_class,session_run_role,outcome_used
+Lee2019_MI,dataset_x_target_subject_x_class,SHA256(C84_TARGET_SPLIT_V1|dataset|subject|trial_id),floor(n_class_trials/2),n-floor(n/2),0,8,dependence_block_and_report_key_only,0
+Cho2017,dataset_x_target_subject_x_class,SHA256(C84_TARGET_SPLIT_V1|dataset|subject|trial_id),floor(n_class_trials/2),n-floor(n/2),0,8,dependence_block_and_report_key_only,0
+PhysionetMI,dataset_x_target_subject_x_class,SHA256(C84_TARGET_SPLIT_V1|dataset|subject|trial_id),floor(n_class_trials/2),n-floor(n/2),0,8,dependence_block_and_report_key_only,0

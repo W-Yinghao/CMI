@@ -1,0 +1,7 @@
+dataset,canonical_class,native_event_id,included,imagined_only,excluded_event_classes
+Lee2019_MI,left_hand,2,1,1,online_unlabeled
+Lee2019_MI,right_hand,1,1,1,online_unlabeled
+Cho2017,left_hand,1,1,1,real_movement|non_task
+Cho2017,right_hand,2,1,1,real_movement|non_task
+PhysionetMI,left_hand,2,1,1,motor_execution|hands|feet|rest
+PhysionetMI,right_hand,3,1,1,motor_execution|hands|feet|rest

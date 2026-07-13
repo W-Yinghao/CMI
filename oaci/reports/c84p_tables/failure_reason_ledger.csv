@@ -1,0 +1,2 @@
+failure_id,stage,blocking,root_cause,affected_object,real_EEG_or_label_access,outcome_dependent_decision,required_repair,status
+C84P_CHANNEL_001,metadata_compatibility,1,Lee2019_MI metadata/loader has no FCz; requested 21-channel allowlist is 20/21 available,requested_21_channel_primary_allowlist,0,0,PM-approved additive availability-only montage revision; no silent channel drop or FCz/Fz substitution,OPEN

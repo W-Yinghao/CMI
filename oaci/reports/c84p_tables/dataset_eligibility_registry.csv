@@ -1,0 +1,4 @@
+dataset,eligible_subjects,excluded_subjects,source_panel_A,source_panel_B,source_training_per_panel,source_audit_per_panel,target_subjects,sessions,native_sfreq_hz,native_EEG_channels,task,class_names,task_runs,trials_per_class_metadata,metadata_only
+Lee2019_MI,54,NONE,16,16,12,4,22,2,1000,62,left_hand_vs_right_hand_imagery,left_hand|right_hand,offline_training_run_only_in_each_of_two_sessions;online_test_excluded,100 total across two offline sessions (50/session/class),1
+Cho2017,52,NONE,16,16,12,4,20,1,512,64,left_hand_vs_right_hand_imagery,left_hand|right_hand,single MOABB run assembled from imagery trials,100_or_120_before_loader/availability validation,1
+PhysionetMI,108,88,16,16,12,4,76,1,160,64,left_hand_vs_right_hand_imagery,left_hand|right_hand,"imagined unilateral hand runs 4,8,12 only;executed and bilateral runs excluded",approximately_23,1
