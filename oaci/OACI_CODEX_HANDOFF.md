@@ -14,35 +14,45 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-13)
 
-The authoritative tip is the **C80E authorization/protocol-lock preflight
-blocker**, reached before any budget outcome was computed:
+The authoritative tip is **C80R**, the additive repair and relock completed
+before any budget outcome was computed:
 
 ```text
-C80E direct authorization:   received 2026-07-13
-C80E operative protocol:     f5d83b3
-C80E protocol SHA-256:       c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85
-C80E operative analysis lock:972f47c
-C80E preflight gate:         C80E_AUTHORIZATION_PROTOCOL_LOCK_VIEW_OR_DEPENDENCE_BLOCKER
-real-data budget statistics: 0
-evaluation-label value reads:0
-same-label oracle accesses:  0
+C80E safe-stop evidence:       6c18fd4
+C80R repair protocol:          e88a244
+C80R protocol SHA-256:         2d72eb5119056a6520fd33fc0ac14ee6270bfd573b59c36b74be6aa3dc25fe39
+C80R final adapter:            e5cb41a
+C80R replacement lock:         f19acd8
+C80R replacement lock SHA-256: e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82
+C80R readiness gate:           C80_REPAIRED_PROTOCOL_AND_REAL_ADAPTER_LOCKED_READY_FOR_PI_REAUTHORIZATION
+real-data budget statistics:   0
+evaluation-label value reads:  0
+same-label oracle accesses:    0
+new C80E authorization:        absent
 ```
 
-Three pre-outcome defects block execution. First, no committed C80 artifact
-contains the required C80-A through C80-E overlap precedence or defines
-`near-FULL`, although the execution handoff requires that exact decision table
-to come from the committed protocol. Second, the locked authorization guard
-reads a nonexistent top-level `lock.protocol_sha256`; the actual lock stores
-the value at `lock.protocol.sha256`. Third, `972f47c` hashes only the pure
-frontier/synthetic implementation: the locked `run-real` path explicitly has
-no adapter and raises after authorization. No hashed executor binds selection
-freeze, simultaneous bands, paired cross-seed heterogeneity, all five registry
-paths, or result freezing to the external arrays.
+The accepted preflight found three pre-outcome defects in the historical C80P
+execution objects: missing C80-A--E precedence/near-FULL semantics, a nested
+authorization-guard schema mismatch, and no real-data adapter bound by
+`972f47c`. C80R preserves those historical objects and the blocked
+authorization record, then repairs them additively. The machine-locked
+precedence is C80-E blocker, C80-D absent B*, C80-B unstable paired frontier,
+C80-C stable with both B* in `{32,FULL}`, then C80-A. `FULL` remains
+cell-specific and is never rewritten as 61 labels/class.
 
-Do not repair these by executor interpretation. An additive prospective repair
-must preserve the historical objects, bind the complete taxonomy, repair the
-guard, implement/test/hash the adapter, issue a new operative protocol hash and
-analysis lock, and receive new direct authorization before any budget outcome.
+The fail-closed adapter now binds construction-only nested-Q0 selection,
+content-addressed selection freeze, evaluation-after-freeze, source-relative
+top-k/regret, target-cluster simultaneous inference, all-budget paired
+cross-seed heterogeneity, fixed descriptive S3 LOTO, all five unconditional
+paths, and machine-result freezing. The first repaired lock revision
+`9617760` is transparently superseded by `f19acd8` after a preauthorization
+completeness red team; registry entries and scientific thresholds did not
+change and outcome access remained zero.
+
+The old C80E authorization is not reusable. C80E remains stopped until the PI
+directly authorizes the new protocol `e88a244` / SHA above, lock `f19acd8` / SHA
+above, and manifest digest
+`6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef`.
 
 The completed **C80P cross-seed label-budget frontier protocol/readiness
 milestone** remains the accepted base:
@@ -197,6 +207,13 @@ Authorization governance: direct, explicit PM authorization is sufficient; no ma
 Current authoritative artifacts:
 
 ```text
+oaci/reports/C80R_ADDITIVE_REPAIR_PROTOCOL.json
+oaci/reports/C80R_ADDITIVE_REPAIR_PROTOCOL.sha256
+oaci/reports/C80R_REPAIRED_ANALYSIS_EXECUTION_LOCK.json
+oaci/reports/C80R_REPAIRED_ANALYSIS_EXECUTION_LOCK.sha256
+oaci/reports/C80R_IMPLEMENTATION_REPLAY.md
+oaci/reports/C80R_PRE_EXECUTION_RED_TEAM.md
+oaci/reports/C80R_PROTOCOL_READINESS.md
 oaci/reports/C80E_PI_AUTHORIZATION_RECORD.json
 oaci/reports/C80E_AUTHORIZATION_AND_PREFLIGHT.md
 oaci/reports/C80E_AUTHORIZATION_AND_PREFLIGHT.json
@@ -214,10 +231,11 @@ oaci/reports/C80P_PRE_EXECUTION_RED_TEAM.md
 oaci/reports/C80P_REGRESSION_VERIFICATION.md
 ```
 
-Stop for PM/PI repair review. C80E authorization exists, but the operative lock
-is incomplete and internally non-executable; no real-data frontier has been
-computed. Do not resume C80E until the additive repair, new protocol/hash/lock,
-and new direct authorization sequence is complete. Do not start seed 5,
+Stop for PI reauthorization. The repaired protocol, adapter, and lock are
+complete, but the distinct post-repair authorization record is absent; no
+real-data frontier has been computed. Do not resume C80E until direct PI
+authorization binds the repaired protocol/hash, final lock commit/hash, and
+manifest digest. Do not start seed 5,
 BNCI2014_004, active acquisition, a new feature/kernel/model campaign,
 same-label-oracle analysis, checkpoint recommendations, or manuscript drafting.
 
@@ -373,7 +391,7 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 - Keep target 4 excluded, the same-label oracle closed, construction/evaluation views disjoint, and trial ID/row order restricted to join/split/dependence keys.
 - Preserve the C79E component result: P1-M failed while P1-A passed; P2-L failed while exact transport qualification failed again. Do not call this reversal, absence of all signal, or target-label uselessness.
 - Do not reopen C79E or C80P for active acquisition, feature/kernel/model search, H2 rescue, p-value pooling, checkpoint matching by outcome, or raw-p rescue.
-- Do not resume C80E, start seed 5, BNCI2014_004, another target, same-label-oracle analysis, checkpoint recommendations, or manuscript drafting before the repair/authorization sequence above.
+- Do not resume C80E until a new direct PI authorization binds `e88a244`, protocol SHA `2d72eb...fe39`, final lock `f19acd8`, lock SHA `e18f2b...b1b82`, and manifest digest `618027...7fef`. Do not start seed 5, BNCI2014_004, another target, same-label-oracle analysis, checkpoint recommendations, or manuscript drafting.
 
 ---
 
