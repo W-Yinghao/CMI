@@ -12,6 +12,10 @@ score_direction_frozen,1,0,34/34
 class_prior_never_target_label,1,0,4/4
 C80_frontier_replay,1,0,14/14
 C80_LOTO_replay,1,0,16/16
+C80_field_view_manifest_replay,1,0,11/11
+C80_topk_coverage_replay,1,0,14/14
+C80_target_level_replay,1,0,224/224
+C80_result_artifact_hash_replay,1,0,22/22
 C80_authorization_replay,1,0,PASS
 historical_C80_lock_not_misreported_operational,1,0,"{""field_view_manifest_digest"": ""6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef"", ""final_head"": ""111df254dc562bc59342ad823cba3c8b79a64abe"", ""historical_complete_lock_commit"": ""f19acd8775f9b0ddf60401739741bec0019d021c"", ""historical_complete_lock_sha256"": ""e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82"", ""historical_lock_status"": ""superseded_after_pre_evaluation_descriptor_ABI_failure"", ""operative_lock_commit"": ""07975998fe0101e29a98f69e26e76e48bf76b952"", ""operative_lock_sha256"": ""2149895865bd44b4ab8358c76848bb6774abb59d4a203b261864be0ec599ff62"", ""repair_changed_science"": false, ""repair_evaluation_label_reads"": 0, ""replacement_protocol_commit"": ""e88a24484590636f87d0f22798401a762875046a"", ""replacement_protocol_sha256"": ""2d72eb5119056a6520fd33fc0ac14ee6270bfd573b59c36b74be6aa3dc25fe39"", ""result_freeze_commit"": ""a43aa27fa720bb3a744b0267358c8d81370e5abd""}"
 C80_descriptor_repair_non_scientific,1,0,scientific_change=false

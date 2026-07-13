@@ -276,8 +276,15 @@ def test_scope_specific_lock_replays_and_binds_real_adapter():
 
 def test_pre_execution_red_team_passes_all_checks():
     rows = _rows("pre_execution_red_team.csv")
-    assert len(rows) == 39
+    assert len(rows) == 43
     assert all(row["passed"] == "1" and row["blocking"] == "0" for row in rows)
+
+
+def test_C80_field_view_and_result_artifacts_replay_exactly():
+    assert len(_rows("c80e_field_view_manifest_replay.csv")) == 11
+    assert all(row["pass"] == "1" for row in _rows("c80e_field_view_manifest_replay.csv"))
+    assert len(_rows("c80e_result_artifact_hash_replay.csv")) == 22
+    assert all(row["pass"] == "1" for row in _rows("c80e_result_artifact_hash_replay.csv"))
 
 
 @pytest.mark.parametrize("module", [baseline, synthetic])
