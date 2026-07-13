@@ -1,0 +1,2 @@
+attempt_id,job_id,stage,status,exit_code,runtime_seconds,stdout_bytes,stderr_bytes,adapter_invoked,authorization_consumed,selection_payload_opened,evaluation_view_opened,evaluation_label_rows,scientific_rows_frozen,retry_disposition,root_cause
+C82E-ATTEMPT-001,895213,submission_repository_identity_guard,PRE_ADAPTER_GUARD_REJECTED,1:0,0,0,0,0,0,0,0,0,0,CORRECT_WRAPPER_HEAD_AND_RESUBMIT,manually_typed_full_HEAD_did_not_match_committed_HEAD
