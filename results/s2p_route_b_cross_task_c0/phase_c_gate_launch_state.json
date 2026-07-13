@@ -1,0 +1,49 @@
+{
+  "phase": "C1_C2_gate_first_launch",
+  "protocol_commit": "d4aba26d9e3e04752c03204aa8c5427e1c73862f",
+  "slurm_stability_gate": {
+    "probes": 30,
+    "scontrol_pass": 30,
+    "sinfo_pass": 30,
+    "squeue_pass": 30,
+    "status": "PASS"
+  },
+  "slurm_canary": {
+    "submit_pass": true,
+    "query_pass": true,
+    "cancel_pass": true,
+    "post_cancel_query_interpretable": true,
+    "status": "PASS"
+  },
+  "seedv_gate_feature_array": {
+    "job_id": "894944_[0-4]",
+    "objects": [
+      "random",
+      "released",
+      "H200_s0",
+      "H1000_s0",
+      "H2000_s0"
+    ],
+    "state_at_record": "PENDING",
+    "reason_at_record": "QOSMaxGRESPerUser"
+  },
+  "isruc_s3_gate_feature_array": {
+    "job_id": "894945_[0-4]",
+    "objects": [
+      "random",
+      "released",
+      "H200_s0",
+      "H1000_s0",
+      "H2000_s0"
+    ],
+    "state_at_record": "PENDING",
+    "reason_at_record": "QOSMaxGRESPerUser"
+  },
+  "encoder_training_submitted": false,
+  "encoder_fine_tuning_submitted": false,
+  "codebrain_stage2_submitted": false,
+  "fleet_submitted": false,
+  "scheduler_workaround_used": false,
+  "raw_scheduler_report_committed": false,
+  "status": "GATE_FEATURE_ARRAYS_SUBMITTED_PENDING_QOS"
+}
