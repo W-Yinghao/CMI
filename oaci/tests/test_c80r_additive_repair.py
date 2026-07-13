@@ -170,6 +170,24 @@ def test_schema_dry_run_reports_zero_outcomes() -> None:
     assert audit["run_real_fail_closed"] is True
 
 
+def test_replacement_lock_replays_adapter_manifests_and_new_authorization_absence() -> None:
+    lock, observed = adapter.load_repaired_lock()
+    assert observed == adapter.REPAIRED_LOCK_SHA_PATH.read_text().strip()
+    assert observed == "e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82"
+    assert lock["protocol"]["sha256"] == adapter.REPAIR_PROTOCOL_SHA_PATH.read_text().strip()
+    assert lock["implementation"]["commit"].startswith("e5cb41a")
+    adapter_binding = next(
+        row for row in lock["implementation"]["files"]
+        if row["path"].endswith("c80r_existing_field_adapter.py")
+    )
+    assert adapter_binding["sha256"] == adapter._sha256_file(Path(adapter.__file__))
+    assert len(lock["field_and_view_manifests"]) == 11
+    assert lock["registry"]["bound_cells"] == 80
+    assert lock["report_schema"]["selection_outputs_frozen_before_evaluation_open"] is True
+    assert lock["authorization"]["received"] is False
+    assert not adapter.REPAIRED_AUTHORIZATION_PATH.exists()
+
+
 def test_synthetic_result_synthesis_runs_all_paths_and_exact_taxonomy(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
 ) -> None:
