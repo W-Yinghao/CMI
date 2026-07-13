@@ -1,0 +1,16 @@
+dataset,claim_id,status,evidence,boundary
+FACED,subject_structure_early,SUPPORTED,B1-Core P1 random vs H200 continuous subject NLL,cross-subject frozen representation
+FACED,primary_target_nll_later,NOT_ESTABLISHED,B1-Core P2 H200 vs pooled higher target NLL,Kappa/bAcc remain positive sensitivity endpoints only
+FACED,subject_task_overlap_decrease,SUPPORTED,B1-Core rank-8 P3,within-dataset geometry only
+FACED,functional_subject_reliance,NOT_DETECTED,0/8 task-gated cells exceed matched null after Holm,measured linear subject subspace only
+SEED-V,subject_structure_early,SUPPORTED,"5,000 subject-cluster bootstrap random minus H200 subject NLL",within-cohort/session trial-held-out setting
+SEED-V,subject_structure_continues,SUPPORTED,"5,000 subject-cluster bootstrap H200 minus pooled-higher subject NLL",no unseen-subject claim
+SEED-V,subject_task_overlap_decrease,NOT_ESTABLISHED,rank-4 pooled-higher minus H200 overlap,within-dataset geometry only
+SEED-V,task_accessibility_beyond_H200,SUPPORTED,"5,000 subject-cluster bootstrap prospective Kappa endpoint",non-monotonic budget response; no optimum or scaling-law claim
+SEED-V,functional_subject_reliance,NOT_DETECTED,0/8 task-gated cells exceed matched null after Holm,"cohort/session diagnostic, not unseen-subject reliance"
+ISRUC_S3,task_budget_emergence,DIRECTIONALLY_SUPPORTED,H200 below random; H500/H1000/H2000 above random from prediction recompute,10-subject low-power directional replication
+ISRUC_S3,subject_strengthening,DIRECTIONALLY_SUPPORTED,rotation-mean subject NLL,descriptive; repeated rotations are not independent subjects
+ISRUC_S3,subject_task_overlap_decrease,DIRECTIONALLY_SUPPORTED,rotation-mean rank-4 overlap,descriptive and within-dataset only
+ISRUC_S3,functional_subject_reliance,TASK_AND_SEED_DEPENDENT_SIGNAL,3/6 Holm-positive cells with no paired-seed replication,not a general sleep-stage or budget reliance claim
+CROSS_TASK,pooled_eeg_significance,FORBIDDEN,no p-value pooled across datasets,dataset contracts and biological units differ
+CROSS_TASK,monotonic_scaling_law,NOT_ESTABLISHED,SEED-V non-monotonic; FACED endpoint discordance; ISRUC directional only,"four budgets, two pretraining seeds, frozen readouts"

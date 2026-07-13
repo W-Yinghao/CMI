@@ -1,0 +1,31 @@
+{
+  "all_checkpoint_hashes_reverified": true,
+  "best_seed_or_budget_selected": false,
+  "code_commit": "c86e0a2158ef068198ce450e8fd735b86a94b013",
+  "cross_dataset_pvalue_computed": false,
+  "faced_kappa_sensitivity_preserved": true,
+  "faced_primary_target_nll_established": false,
+  "failures": [],
+  "immutable_representation_objects": 10,
+  "independent_fleet_verifier": "PASS",
+  "isruc_l5_paired_seed_replication": false,
+  "isruc_l5_positive_cells": [
+    "H500_s0",
+    "H1000_s0",
+    "H2000_s1"
+  ],
+  "isruc_l5_status": "TASK_AND_SEED_DEPENDENT_RELIANCE_SIGNAL",
+  "isruc_low_power_directional_replication": true,
+  "manuscript_writing_authorized": false,
+  "monotonic_scaling_law_established": false,
+  "new_experiment_authorized": false,
+  "phase": "C_cross_task_frozen_representation_validation",
+  "phase_c_scientific_closure_ready_for_pm_review": true,
+  "project_close_recommended": false,
+  "raw_fleet_complete": true,
+  "seedv_5000_subject_cluster_bootstrap_complete": true,
+  "seedv_budget_response_monotonic": false,
+  "seedv_unseen_subject_claim_allowed": false,
+  "status": "PASS",
+  "target_labels_used_for_selection": false
+}
