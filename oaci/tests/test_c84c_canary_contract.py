@@ -112,6 +112,11 @@ def test_schema_dry_run_has_no_real_access_or_authorization_consumption():
     assert result["authorization_consumed"] is False
 
 
+def test_execution_environment_matches_metadata_loader_identity():
+    assert canary.EXPECTED_CONDA_PREFIX == "/home/infres/yinwang/anaconda3/envs/eeg2025"
+    assert canary.EXPECTED_PYTHON == "3.9.25"
+
+
 def test_real_entrypoint_fails_before_output_without_lock_or_authorization(tmp_path):
     with pytest.raises(canary.C84CCanaryError):
         canary.require_authorization_and_lock(authorization_path=tmp_path / "missing.json", output_root=tmp_path / "external")

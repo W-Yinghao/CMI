@@ -11,7 +11,7 @@ set -euo pipefail
 
 repo=/home/infres/yinwang/CMI_AAAI_oaci
 source /home/infres/yinwang/anaconda3/etc/profile.d/conda.sh
-conda activate /home/infres/yinwang/anaconda3/envs/icml
+conda activate /home/infres/yinwang/anaconda3/envs/eeg2025
 cd "$repo"
 
 python -m oaci.multidataset.c84c_real_canary run-real \
