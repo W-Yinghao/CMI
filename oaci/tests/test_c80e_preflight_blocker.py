@@ -48,17 +48,25 @@ def test_locked_real_route_has_no_adapter_and_fails_before_data_access():
     assert "np.load" not in source
 
 
-def test_no_c80_scientific_result_artifact_exists():
-    forbidden = (
-        "C80_LABEL_BUDGET_FRONTIER.md",
-        "C80_LABEL_BUDGET_FRONTIER.json",
-        "C80E_SCIENTIFIC_RESULT_RED_TEAM.md",
-        "C80E_FINAL_REPORT_RED_TEAM.md",
-    )
-    assert all(not (REPORT_DIR / name).exists() for name in forbidden)
+def test_preflight_safe_stop_precedes_repaired_scientific_result():
     preflight = json.loads(PREFLIGHT_PATH.read_text())
     protected = preflight["protected_state"]
     assert protected["real_budget_statistics_computed"] == 0
     assert protected["evaluation_label_values_read_for_C80E"] == 0
     assert protected["same_label_oracle_accesses"] == 0
     assert protected["target4_primary_rows"] == 0
+
+    repaired_authorization = json.loads(
+        (REPORT_DIR / "C80E_REPAIRED_PI_AUTHORIZATION_RECORD.json").read_text()
+    )
+    result_freeze = json.loads(
+        (REPORT_DIR / "C80E_PRIMARY_RESULT_FREEZE.json").read_text()
+    )
+    assert preflight["recorded_at_utc"] < repaired_authorization["recorded_at_utc"]
+    assert repaired_authorization["recorded_at_utc"] < result_freeze["frozen_at_utc"]
+    assert repaired_authorization["evaluation_outcomes_before_binding_refresh"] == 0
+    assert repaired_authorization["real_budget_statistics_before_record"] == 0
+    assert result_freeze["all_five_paths_unconditional"] is True
+    assert result_freeze["target4_primary"] is False
+    assert result_freeze["same_label_oracle_accessed"] is False
+    assert (REPORT_DIR / result_freeze["result_path"].split("/")[-1]).exists()
