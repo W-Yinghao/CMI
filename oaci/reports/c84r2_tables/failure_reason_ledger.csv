@@ -1,0 +1,3 @@
+failure_id,stage,root_cause,failed_attempt,repair,scientific_registry_changed,real_outcome_access,status
+C84R2-F01,environment_replay,historical_Python_3.9.25_is_incompatible_with_MOABB_1.5.0_and_MNE_1.11.0,historical_environment_identity_replay,dedicated_exact_snapshot_Python_3.13.7_packages_unchanged,0,0,CLOSED_BEFORE_LOCK
+C84R2-F02,environment_snapshot,conda_clone_relinked_pip_overlays_to_CPU_torch_and_MNE_1.10.1,/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3,byte_exact_hardlink_snapshot_c84c-eeg2025-v3-exact,0,0,CLOSED_BEFORE_LOCK

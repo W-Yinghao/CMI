@@ -1,0 +1,5 @@
+qualified_object,distribution,distribution_relative_path,sha256,verified_before_get_data,real_data_access
+moabb.datasets.Lee2019_MI,moabb,moabb/datasets/Lee2019.py,a0234b81923fed15e4a221e011399f76a83873cd43d598ad5c8c71ba54678a6f,1,0
+moabb.datasets.Cho2017,moabb,moabb/datasets/gigadb.py,42e2ef372762cb86aab11a886e1707675477ac776e0468448233de7a4ba71e32,1,0
+moabb.datasets.PhysionetMI,moabb,moabb/datasets/physionet_mi.py,a8abe8097870d804a2d78f500f3c6820962c1c3402f53368e92e7a91068b84ba,1,0
+moabb.paradigms.MotorImagery,moabb,moabb/paradigms/motor_imagery.py,f941a3f17c1bca4211045c28f7df3704c9d428ef689dff2410a478b5bf68651e,1,0

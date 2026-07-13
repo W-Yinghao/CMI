@@ -1,0 +1,9 @@
+check,locked_value,runtime_source,persisted,failure_is_blocking,real_data_access_in_C84R2
+actual_ch_names,exact_20_channel_order,returned_Epochs.ch_names,1,1,0
+actual_sfreq,160.0,returned_Epochs.info[sfreq],1,1,0
+pre_half_open_n_times,480_or_481,returned_Epochs.times_and_get_data,1,1,0
+final_n_times,480,half_open_array,1,1,0
+first_time,0.0,returned_Epochs.times,1,1,0
+final_last_time,479/160,half_open_times,1,1,0
+input_shape,trial_x_20_x_480,normalized_tensor,1,1,0
+bad_or_synthesized_channels,NONE,returned_Epochs.info[bads],1,1,0

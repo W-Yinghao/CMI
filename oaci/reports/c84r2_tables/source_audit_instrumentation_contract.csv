@@ -1,0 +1,11 @@
+field,required_per_unit,unit_count,source_labels_allowed,scientific_metric,persist_and_reload
+dataset,1,243,0,0,1
+level,1,243,0,0,1
+logits,1,243,0,0,1
+panel,1,243,0,0,1
+probabilities,1,243,0,0,1
+seed,1,243,0,0,1
+source_class_label,1,243,1,0,1
+source_domain_id,1,243,0,0,1
+source_trial_id,1,243,0,0,1
+unit_id,1,243,0,0,1

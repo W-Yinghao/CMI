@@ -1,0 +1,2 @@
+object,path,sha256,preserved,operative_for_execution,reason,real_outcome_access
+C84C_EXECUTION_LOCK_V1,oaci/reports/C84C_EXECUTION_LOCK.json,f9cabf8f362917d663e13154910085d5b105740b265789a2323dd7bc0193222b,1,0,runtime_did_not_replay_22_bound_files_or_complete_declared_canary_checks,0

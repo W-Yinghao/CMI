@@ -140,3 +140,18 @@ def test_repair_protocol_hash_replays_and_records_zero_access():
     payload = json.loads(runtime.REPAIR_PROTOCOL_PATH.read_text())
     assert payload["epistemic_status"]["real_EEG_access_before_protocol"] == 0
     assert payload["forbidden"]["C84C_execution_in_C84R2"] is True
+
+
+def test_V3_protocol_hashes_and_environment_repair_replay():
+    canary_path = runtime.REPORT_DIR / "C84_CANARY_PROTOCOL_V3.json"
+    field_path = runtime.REPORT_DIR / "C84_FIELD_GENERATION_PROTOCOL_V3.json"
+    assert runtime.sha256_file(canary_path) == (runtime.REPORT_DIR / "C84_CANARY_PROTOCOL_V3.sha256").read_text().split()[0]
+    assert runtime.sha256_file(field_path) == (runtime.REPORT_DIR / "C84_FIELD_GENERATION_PROTOCOL_V3.sha256").read_text().split()[0]
+    canary = json.loads(canary_path.read_text())
+    field = json.loads(field_path.read_text())
+    assert canary["environment"]["python"] == "3.13.7"
+    assert canary["environment"]["historical_python_3_9_25_replayable"] is False
+    assert canary["parent_external_protocol"]["scientific_interface_changed"] is False
+    assert field["canary_reuse"]["strict_source_artifacts_required"] == 243
+    assert field["canary_reuse"]["target_unlabeled_artifacts_required"] == 243
+    assert field["scope_specific_execution_lock_created_in_C84R2"] is False
