@@ -14,7 +14,69 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-13)
 
-The current no-new-outcome readiness milestone is **C83P**:
+The current metadata-only external-validity milestone is **C84P**:
+
+```text
+C83P accepted base:                    2ecc8efd49d6b9d18b50eae3811be8f2ac4cfa25
+C84 metadata protocol/blocker:         7cf702e
+C84 synthetic implementation:         bd42f71
+C84 guarded regression entrypoint:     edfeefb
+C84P blocker/red-team report:          a1c781c
+C84 external protocol SHA-256:         ebfe9933ac838af22cc6553f81ba87d806996e99ce33158c7a5c30b9a1f5e824
+C84P gate:                              C84_DATASET_CHANNEL_EVENT_RESOURCE_OR_PROTOCOL_RECONCILIATION_REQUIRED
+```
+
+C84P inspected MOABB 1.5.0 metadata and loader source without downloading or
+opening a real EEG array or label. The proposed common 21-channel interface is
+blocked because `Lee2019_MI` has no `FCz`; it exposes 20/21 requested channels.
+`Cho2017` and `PhysionetMI` expose all 21. `Fz` exists in Lee, but substitution,
+interpolation and silent montage reduction are prospectively forbidden.
+
+The metadata-only program otherwise freezes:
+
+```text
+datasets / eligible subjects:   3 / 214
+source panels:                  6 x 16 subjects
+source train/audit per panel:   12 / 4
+external targets:               22 / 20 / 76
+source/target/panel overlap:     0
+requested epoch:                half-open [0,3), 160 Hz, 480 samples
+candidate units / phases:       1,944 / 72
+target contexts:                944
+candidate-context evaluations: 76,464
+synthetic calibration:          20 / 20 PASS
+final red team:                 65 / 65 audit checks PASS, 1 open input blocker
+```
+
+The broad PI authorization statement for C84P/C84C/C84F/C84S is retained as
+authorization intent. It was not consumed for C84C/F/S: all three stage
+protocols are `BLOCKED_NOT_READY_FOR_AUTHORIZATION`, no scope-specific execution
+lock exists, and the required prior gates did not pass. No magic token is
+required, but a future run still must bind a direct stage authorization to the
+unique repaired protocol and lock after the channel contract is reconciled.
+
+Protected state at C84P is zero real EEG/label access, zero downloads, zero
+training/forward/GPU, zero candidate units, zero execution locks, zero oracle or
+BNCI2014_004 access, and zero manuscript drafting. The only allowed next action
+is an additive, availability-only channel-contract reconciliation approved by
+PM. Do not start C84C, C84F or C84S from the current objects.
+
+Accepted C84P regressions:
+
+```text
+focused C84P:   28 passed                         job 895316
+C65-C84P:      514 passed, 1 skip, 3 deselected job 895317
+C23-C84P:      921 passed, 1 skip, 3 deselected job 895318
+full OACI:   1,849 passed, 1 skip, 3 deselected job 895319
+```
+
+All jobs were CPU-only with empty stderr. The sole skip and three historical
+C79P deselections are explicitly accounted for in
+`C84P_REGRESSION_VERIFICATION.md`.
+
+### Prior immutable C83P evidence freeze
+
+C83P remains the accepted no-new-outcome evidence snapshot:
 
 ```text
 C82 accepted scientific base:       34ae76a4a588059ab5a6d82b8116088a14af4ad5
