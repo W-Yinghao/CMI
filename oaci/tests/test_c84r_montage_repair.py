@@ -103,7 +103,9 @@ def test_v2_stage_authorization_is_fresh_and_only_canary_lock_is_future_scope():
 def test_leading_numeric_suite_parser_restores_c34s():
     files = {path.name for path in suites.suite_files("c23")}
     assert "test_c34s_artifact_hygiene.py" in files
+    assert "test_c84r2_canary_runtime_repair.py" in files
     assert suites.milestone_number("test_c34s_artifact_hygiene.py") == 34
+    assert suites.milestone_number("test_c84r2_canary_runtime_repair.py") == 84
     assert {"test_c84_multidataset_external_validity.py", "test_c84r_montage_repair.py",
             "test_c84c_canary_contract.py"} <= {path.name for path in suites.suite_files("focused")}
 

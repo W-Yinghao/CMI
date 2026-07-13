@@ -1,4 +1,4 @@
-"""Leading-numeric pytest suite discovery for C84R regression accounting."""
+"""Leading-numeric pytest suite discovery for suffixed milestone accounting."""
 from __future__ import annotations
 
 import argparse
@@ -9,7 +9,9 @@ from typing import Iterable, Sequence
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 TEST_DIR = REPO_ROOT / "oaci/tests"
-MILESTONE_PATTERN = re.compile(r"^test_c(?P<number>[0-9]+)(?P<suffix>[a-z]*)_.*\.py$")
+MILESTONE_PATTERN = re.compile(
+    r"^test_c(?P<number>[0-9]+)(?P<suffix>[a-z][a-z0-9]*)?_.*\.py$"
+)
 
 
 def milestone_number(path: str | Path) -> int | None:
