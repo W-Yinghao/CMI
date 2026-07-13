@@ -12,10 +12,40 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ---
 
-## 0. Current continuation state (2026-07-12)
+## 0. Current continuation state (2026-07-13)
 
-The authoritative tip is the completed **C80P cross-seed label-budget frontier
-protocol/readiness milestone**:
+The authoritative tip is the **C80E authorization/protocol-lock preflight
+blocker**, reached before any budget outcome was computed:
+
+```text
+C80E direct authorization:   received 2026-07-13
+C80E operative protocol:     f5d83b3
+C80E protocol SHA-256:       c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85
+C80E operative analysis lock:972f47c
+C80E preflight gate:         C80E_AUTHORIZATION_PROTOCOL_LOCK_VIEW_OR_DEPENDENCE_BLOCKER
+real-data budget statistics: 0
+evaluation-label value reads:0
+same-label oracle accesses:  0
+```
+
+Three pre-outcome defects block execution. First, no committed C80 artifact
+contains the required C80-A through C80-E overlap precedence or defines
+`near-FULL`, although the execution handoff requires that exact decision table
+to come from the committed protocol. Second, the locked authorization guard
+reads a nonexistent top-level `lock.protocol_sha256`; the actual lock stores
+the value at `lock.protocol.sha256`. Third, `972f47c` hashes only the pure
+frontier/synthetic implementation: the locked `run-real` path explicitly has
+no adapter and raises after authorization. No hashed executor binds selection
+freeze, simultaneous bands, paired cross-seed heterogeneity, all five registry
+paths, or result freezing to the external arrays.
+
+Do not repair these by executor interpretation. An additive prospective repair
+must preserve the historical objects, bind the complete taxonomy, repair the
+guard, implement/test/hash the adapter, issue a new operative protocol hash and
+analysis lock, and receive new direct authorization before any budget outcome.
+
+The completed **C80P cross-seed label-budget frontier protocol/readiness
+milestone** remains the accepted base:
 
 ```text
 C80P protocol commit:        f5d83b3
@@ -28,7 +58,7 @@ C80P final gate:             C80_LABEL_BUDGET_FRONTIER_PROTOCOL_LOCKED_READY_FOR
 scientific registry:         5 paths x 16 categories = 80 / 80
 pre-execution red team:      36 / 36
 real-data budget statistics: 0
-C80E authorization received: false
+C80E authorization at C80P readiness: false
 ```
 
 C80P is explicitly designed after C79E and is prospective only to the new C80
@@ -167,6 +197,12 @@ Authorization governance: direct, explicit PM authorization is sufficient; no ma
 Current authoritative artifacts:
 
 ```text
+oaci/reports/C80E_PI_AUTHORIZATION_RECORD.json
+oaci/reports/C80E_AUTHORIZATION_AND_PREFLIGHT.md
+oaci/reports/C80E_AUTHORIZATION_AND_PREFLIGHT.json
+oaci/reports/c80e_tables/authorization_lock_replay.csv
+oaci/reports/c80e_tables/failure_reason_ledger.csv
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C80E.md
 oaci/reports/C80_LABEL_BUDGET_FRONTIER_PROTOCOL.json
 oaci/reports/C80_LABEL_BUDGET_FRONTIER_PROTOCOL.sha256
 oaci/reports/C80_PROTOCOL_TIMING_AUDIT.md
@@ -176,17 +212,14 @@ oaci/reports/C80P_PROTOCOL_READINESS.md
 oaci/reports/C80P_PROTOCOL_READINESS.json
 oaci/reports/C80P_PRE_EXECUTION_RED_TEAM.md
 oaci/reports/C80P_REGRESSION_VERIFICATION.md
-oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C80P.md
 ```
 
-Stop for PI authorization review. C80P is complete, but C80E has not been
-authorized and no real-data frontier has been computed. C80E requires direct
-authorization bound to protocol `f5d83b3`, protocol SHA-256
-`c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85`,
-analysis lock `972f47c`, and the exact seed-3/seed-4 field/view manifests. Do
-not start C80E, seed 5, BNCI2014_004, active acquisition, a new
-feature/kernel/model campaign, same-label-oracle analysis, checkpoint
-recommendations, or manuscript drafting without separate authorization.
+Stop for PM/PI repair review. C80E authorization exists, but the operative lock
+is incomplete and internally non-executable; no real-data frontier has been
+computed. Do not resume C80E until the additive repair, new protocol/hash/lock,
+and new direct authorization sequence is complete. Do not start seed 5,
+BNCI2014_004, active acquisition, a new feature/kernel/model campaign,
+same-label-oracle analysis, checkpoint recommendations, or manuscript drafting.
 
 ---
 
@@ -331,15 +364,16 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C80P is DONE; C80E is NOT authorized)
+## 7. How to continue (C80E is AUTHORIZED but PRE-OUTCOME BLOCKED)
 
-- Treat `C80_LABEL_BUDGET_FRONTIER_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION` as the authoritative C80P gate. It is a readiness state, not a scientific frontier result.
-- Before any C80E computation, replay protocol `f5d83b3`, SHA-256 `c6292597f5610cb96e8eaf0313eaa741f8fa9b11dd89ff9e4d84db1fa33add85`, lock `972f47c`, and the bound seed-3/seed-4 field/view manifests; require direct PI authorization naming them.
-- Run only the locked existing-field Q0 analysis if authorized: grid `[1,2,4,8,16,32,FULL]`, exact C79 P1 selector, 2,048 nested Monte Carlo chains, all five registry paths unconditionally, and target-cluster simultaneous inference.
+- Treat `C80E_AUTHORIZATION_PROTOCOL_LOCK_VIEW_OR_DEPENDENCE_BLOCKER` as the authoritative current gate. Authorization was received, but C80E scientific execution did not start.
+- Preserve [C80E_AUTHORIZATION_AND_PREFLIGHT.md](reports/C80E_AUTHORIZATION_AND_PREFLIGHT.md), its JSON ledger, and the three blocking findings. Real budget statistics and C80 evaluation-label value reads remain zero.
+- Before any future computation, prospectively bind the missing C80-A through C80-E precedence and `near-FULL` definition, repair the nested-lock authorization guard, and hash a complete real-data adapter for all five paths and result freezing.
+- The repair must be additive, must produce a new operative protocol hash and analysis lock, and requires new direct PI authorization. The existing authorization bound to `f5d83b3` / `972f47c` cannot authorize repaired objects.
 - Keep target 4 excluded, the same-label oracle closed, construction/evaluation views disjoint, and trial ID/row order restricted to join/split/dependence keys.
 - Preserve the C79E component result: P1-M failed while P1-A passed; P2-L failed while exact transport qualification failed again. Do not call this reversal, absence of all signal, or target-label uselessness.
 - Do not reopen C79E or C80P for active acquisition, feature/kernel/model search, H2 rescue, p-value pooling, checkpoint matching by outcome, or raw-p rescue.
-- Do not start C80E, seed 5, BNCI2014_004, another target, same-label-oracle analysis, checkpoint recommendations, or manuscript drafting without separate authorization.
+- Do not resume C80E, start seed 5, BNCI2014_004, another target, same-label-oracle analysis, checkpoint recommendations, or manuscript drafting before the repair/authorization sequence above.
 
 ---
 
@@ -356,10 +390,11 @@ C80E.
 Historical “no training / no seed 3” defaults were explicitly superseded for
 the completed C78/C78R/C78F field generation and C79E seed-4 replication under
 their scope-specific direct authorizations. C78S, C79P, and C80P were
-analysis/protocol-only. C80P does not authorize C80E. Direct PI authorization
-needs no magic token, but must bind the exact C80 protocol, SHA-256, analysis
-lock, and field/view manifests; physical-view isolation, red-team, report,
-commit, and push remain mandatory.
+analysis/protocol-only. C80E later received direct authorization, but preflight
+found that the committed scientific lock is not executable without adding
+unlocked choices. Authorization does not waive lock completeness. Any repair
+must receive a new protocol hash, lock, and direct authorization; physical-view
+isolation, red-team, report, commit, and push remain mandatory.
 
 **FORBIDDEN wording** (the report guards enforce this): "deployable selector", "target-free detector", "OACI rescue",
 "joint deployable improvement", "endpoint/pareto selector", "target oracle as method", "X converges to Y" (without the
