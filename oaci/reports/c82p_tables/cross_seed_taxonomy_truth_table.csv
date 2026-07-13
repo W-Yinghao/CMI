@@ -1,0 +1,9 @@
+case_id,seed3_A,seed4_A,seed3_B,seed4_B,seed_categories_match,LOTO_preserved,blocker,expected_gate,reason
+T1,U7,U7,U7,U7,1,16,0,C82-A_same_zero_label_selector_matches_one_label_frontier_across_seeds,same_method_Q1_Q2_both_seeds
+T2,U7,U14,U7,U14,1,16,0,C82-D_zero_label_comparison_training_seed_method_identity_or_target_heterogeneous,different_A_methods
+T3,NONE,NONE,U5,U5,1,16,0,C82-B_same_zero_label_selector_improves_source_but_not_one_label_frontier,same_method_Q1_both_no_common_A
+T4,NONE,NONE,U5,U14,1,16,0,C82-D_zero_label_comparison_training_seed_method_identity_or_target_heterogeneous,different_B_methods
+T5,NONE,NONE,NONE,NONE,1,16,0,C82-C_no_registered_zero_label_selector_materially_improves_source,no_common_Q1_method
+T6,U7,U7,U7,U7,1,11,0,C82-D_zero_label_comparison_training_seed_method_identity_or_target_heterogeneous,LOTO_below_12
+T7,U7,U7,U7,U7,0,16,0,C82-D_zero_label_comparison_training_seed_method_identity_or_target_heterogeneous,seed_category_mismatch
+T8,U7,U7,U7,U7,1,16,1,C82-E_post_C81_recovery_protocol_implementation_or_provenance_blocker,blocker_precedence
