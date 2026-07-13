@@ -269,11 +269,17 @@ def test_run_real_fails_closed_without_direct_C81E_authorization(tmp_path, monke
 
 def test_scope_specific_lock_replays_and_binds_real_adapter():
     lock, lock_sha = baseline.load_execution_lock()
-    assert lock_sha == "bea92b798d47c35cc11aa19d7619c60de0b899336577e354338a10d798ec13cc"
+    assert lock_sha == "3093201d3f2959d828cb9debb8a4aeb9252f5385b9e8f806445cff05307a8b1c"
     assert lock["repair_protocol"]["sha256"] == "ba0434b4ea7965691dafaf506547af64f851c57bdca330a0a5c88e4fa7ba1b15"
     assert lock["runtime"]["entrypoint"].endswith("c81_baseline_comparison run-real")
     assert lock["runtime"]["selection_manifest_freeze_required"] is True
     assert lock["runtime"]["evaluation_requires_selection_hash_replay"] is True
+
+
+def test_repaired_lock_implementation_and_correction_commits_are_reachable():
+    lock, _ = baseline.load_execution_lock()
+    for item in [*lock["implementation"], lock["provenance_correction"]]:
+        baseline._git("cat-file", "-e", f"{item['commit']}^{{commit}}")
 
 
 def test_source_loader_accepts_registered_superset_schema(tmp_path):

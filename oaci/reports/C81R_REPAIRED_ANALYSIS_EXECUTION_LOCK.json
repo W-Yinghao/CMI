@@ -1,5 +1,5 @@
 {
-  "schema_version": "c81r_repaired_analysis_execution_lock_v1",
+  "schema_version": "c81r_repaired_analysis_execution_lock_v2",
   "milestone": "C81R",
   "status": "REPAIRED_LOCK_READY_FOR_DIRECT_PI_REAUTHORIZATION_NOT_AUTHORIZED",
   "created_at_utc": "2026-07-13T13:01:48Z",
@@ -19,6 +19,17 @@
     "history_preserved": true,
     "reason": "pre_evaluation_source_shard_exact_subset_schema_verifier_failure"
   },
+  "supersedes_repaired_lock_revision": {
+    "commit": "6633fd75fead18889249b0e336790a8a65bba454",
+    "sha256": "bea92b798d47c35cc11aa19d7619c60de0b899336577e354338a10d798ec13cc",
+    "history_preserved": true,
+    "reason": "pre_reauthorization_malformed_historical_implementation_commit_identity"
+  },
+  "provenance_correction": {
+    "commit": "29f4555b65273bf2329c0154704233cc746ce8f0",
+    "path": "oaci/reports/C81R_LOCK_PROVENANCE_CORRECTION.json",
+    "sha256": "f0a9db5f3327af20b186a70398432322679d2c340c4eca32a9e0dd5373227dcd"
+  },
   "method_registry": {
     "commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
     "path": "oaci/reports/C81_BASELINE_METHOD_REGISTRY.json",
@@ -35,7 +46,7 @@
       "role": "locked_scores_two_stage_real_adapter_repaired_source_schema_guard_dependence_inference_and_taxonomy"
     },
     {
-      "commit": "d17ffa65a3e7cffeb5cac65292e7840787f6845d",
+      "commit": "d17ffa62a63b929d36d03f74e4ce79794cd9601b",
       "path": "oaci/conditioned_ceiling_coverage/c81_synthetic_baseline_benchmark.py",
       "sha256": "bd9e69691917b9e57f2ceaa50c52addb8dd373b4c36f97ce4335cceb672bd6e3",
       "role": "locked_synthetic_calibration"
