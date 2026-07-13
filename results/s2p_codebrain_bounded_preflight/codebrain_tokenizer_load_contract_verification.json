@@ -1,0 +1,11 @@
+{
+  "codebrain_source_commit": "071f8d7a45dfe57d5a26c12b73549afa3c24386a",
+  "loader_call": "model.load_state_dict(weights)",
+  "loader_source": "Models/modeling_tokenizer.py",
+  "loader_source_sha256": "fdedfdca23e1e7cbc2eb24277deb041d1b63ec9c60819f4d367f181b9b3551c2",
+  "native_default_strict_true": true,
+  "released_checkpoint_sha256": "e9560b670d64ea4712fd99a48dc2131326b919744c7d3eb504cf57b1ef3af999",
+  "strict_reload_pass": true,
+  "successful_model_construction": true,
+  "verification_basis": "native load_state_dict default strict contract plus successful model construction"
+}

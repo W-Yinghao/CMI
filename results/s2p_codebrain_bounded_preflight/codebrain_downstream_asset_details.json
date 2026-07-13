@@ -1,0 +1,427 @@
+[
+  {
+    "asset_contract_pass": true,
+    "asset_exists": true,
+    "dataset": "FACED",
+    "fine_tuning_role": "primary_adaptability_control",
+    "frozen_role": "primary_cross_subject_mechanism",
+    "native_shape": [
+      32,
+      10,
+      200
+    ],
+    "path": "${FACED_ROOT}",
+    "split_contract": "subjects_1-80_81-100_101-123 (zero-based 0-79/80-99/100-122)",
+    "split_details": {
+      "test": {
+        "clips": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "keys": 1932,
+        "segments": [
+          0,
+          1,
+          2
+        ],
+        "subject_ids": [
+          100,
+          101,
+          102,
+          103,
+          104,
+          105,
+          106,
+          107,
+          108,
+          109,
+          110,
+          111,
+          112,
+          113,
+          114,
+          115,
+          116,
+          117,
+          118,
+          119,
+          120,
+          121,
+          122
+        ],
+        "subjects": 23
+      },
+      "train": {
+        "clips": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "keys": 6720,
+        "segments": [
+          0,
+          1,
+          2
+        ],
+        "subject_ids": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27,
+          28,
+          29,
+          30,
+          31,
+          32,
+          33,
+          34,
+          35,
+          36,
+          37,
+          38,
+          39,
+          40,
+          41,
+          42,
+          43,
+          44,
+          45,
+          46,
+          47,
+          48,
+          49,
+          50,
+          51,
+          52,
+          53,
+          54,
+          55,
+          56,
+          57,
+          58,
+          59,
+          60,
+          61,
+          62,
+          63,
+          64,
+          65,
+          66,
+          67,
+          68,
+          69,
+          70,
+          71,
+          72,
+          73,
+          74,
+          75,
+          76,
+          77,
+          78,
+          79
+        ],
+        "subjects": 80
+      },
+      "val": {
+        "clips": [
+          0,
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          7,
+          8,
+          9,
+          10,
+          11,
+          12,
+          13,
+          14,
+          15,
+          16,
+          17,
+          18,
+          19,
+          20,
+          21,
+          22,
+          23,
+          24,
+          25,
+          26,
+          27
+        ],
+        "keys": 1680,
+        "segments": [
+          0,
+          1,
+          2
+        ],
+        "subject_ids": [
+          80,
+          81,
+          82,
+          83,
+          84,
+          85,
+          86,
+          87,
+          88,
+          89,
+          90,
+          91,
+          92,
+          93,
+          94,
+          95,
+          96,
+          97,
+          98,
+          99
+        ],
+        "subjects": 20
+      }
+    }
+  },
+  {
+    "asset_contract_pass": true,
+    "asset_exists": true,
+    "cross_subject_reliance_confirmation_allowed": false,
+    "dataset": "SEED-V",
+    "fine_tuning_role": "same_task_domain_adaptability_control",
+    "frozen_role": "same_task_domain_external_validation",
+    "native_shape": [
+      62,
+      1,
+      200
+    ],
+    "path": "${SEEDV_ROOT}",
+    "split_contract": "same 16 subjects/session; trials 0-4/5-9/10-14",
+    "split_details": {
+      "test": {
+        "keys": 39377,
+        "recordings": 47,
+        "subject_sessions": 47,
+        "subjects": 16,
+        "trials": [
+          10,
+          11,
+          12,
+          13,
+          14
+        ]
+      },
+      "train": {
+        "keys": 33693,
+        "recordings": 47,
+        "subject_sessions": 47,
+        "subjects": 16,
+        "trials": [
+          0,
+          1,
+          2,
+          3,
+          4
+        ]
+      },
+      "val": {
+        "keys": 41931,
+        "recordings": 47,
+        "subject_sessions": 47,
+        "subjects": 16,
+        "trials": [
+          5,
+          6,
+          7,
+          8,
+          9
+        ]
+      }
+    }
+  },
+  {
+    "asset_contract_pass": true,
+    "asset_exists": true,
+    "blocker": null,
+    "dataset": "ISRUC_S3",
+    "fine_tuning_role": "sequence_aware_adaptability_control",
+    "flat_epoch_asset_diagnostic": {
+      "declared_numeric_entries": 89283,
+      "entries": 89285,
+      "exists": true,
+      "fields": [
+        "x",
+        "y"
+      ],
+      "has_keys_manifest": false,
+      "metadata_keys": [
+        "__len__",
+        "__splits__"
+      ],
+      "path": "${ISRUC_FLAT_ROOT}",
+      "sample_shape": [
+        6,
+        6000
+      ],
+      "split_fold_count": 4,
+      "split_fold_summaries": {
+        "fold_0": {
+          "sizes": {
+            "test": 22112,
+            "train": 59881,
+            "val": 7290
+          },
+          "union_size": 89283,
+          "within_fold_overlap": 0
+        },
+        "fold_1": {
+          "sizes": {
+            "test": 22916,
+            "train": 59203,
+            "val": 7164
+          },
+          "union_size": 89283,
+          "within_fold_overlap": 0
+        },
+        "fold_2": {
+          "sizes": {
+            "test": 22564,
+            "train": 59844,
+            "val": 6875
+          },
+          "union_size": 89283,
+          "within_fold_overlap": 0
+        },
+        "fold_3": {
+          "sizes": {
+            "test": 21691,
+            "train": 60456,
+            "val": 7136
+          },
+          "union_size": 89283,
+          "within_fold_overlap": 0
+        }
+      },
+      "test_fold_union_size": 89283,
+      "test_folds_pairwise_disjoint": true
+    },
+    "frozen_role": "cross_task_sleep_validation",
+    "native_shape": [
+      20,
+      6,
+      30,
+      200
+    ],
+    "path": "${ISRUC_PROCESSED_ROOT}",
+    "sequence_asset_diagnostic": {
+      "actual_tree_sha256": "b223c03cb811eb45e247e320e7c7ef43279076dcb653aeb08633673e7ac7b9e6",
+      "checks": {
+        "dtypes": true,
+        "label_domain": true,
+        "manifest_channel_order": true,
+        "manifest_pass": true,
+        "manifest_sequence_epochs": true,
+        "manifest_subjects": true,
+        "paired_files": true,
+        "shapes": true,
+        "tree_sha256": true
+      },
+      "manifest_path": "${ISRUC_PROCESSED_ROOT}/processed_manifest.json",
+      "manifest_tree_sha256": "b223c03cb811eb45e247e320e7c7ef43279076dcb653aeb08633673e7ac7b9e6",
+      "pair_counts_by_subject": {
+        "1": 46,
+        "10": 38,
+        "2": 45,
+        "3": 39,
+        "4": 38,
+        "5": 45,
+        "6": 41,
+        "7": 39,
+        "8": 48,
+        "9": 46
+      },
+      "sequence_contract_pass": true,
+      "total_sequence_pairs": 425
+    },
+    "sequence_aware_head": "frozen 20-epoch context; 512-d head + one-layer Transformer",
+    "split_contract": "10-fold rotating 8:1:1 subjects; fold subject=val, next subject=test"
+  }
+]

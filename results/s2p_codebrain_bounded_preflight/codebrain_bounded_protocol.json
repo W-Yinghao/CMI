@@ -1,0 +1,47 @@
+{
+  "budget_subsets_nested": true,
+  "budgets_h": [
+    200,
+    1000,
+    2000
+  ],
+  "downstream_datasets": [
+    "FACED",
+    "SEED-V",
+    "ISRUC_S3"
+  ],
+  "encoder": "native_EEGSSM_Stage2_8layer_hidden200",
+  "epochs": 10,
+  "evaluation_tracks": [
+    "frozen_representation_audit",
+    "unified_full_finetuning_control"
+  ],
+  "fine_tuning_primary_metric": "cohen_kappa",
+  "fine_tuning_seeds": [
+    0,
+    1,
+    2,
+    3,
+    4
+  ],
+  "frozen_primary_task_metric": "target_negative_log_likelihood",
+  "mask_ratio": 0.5,
+  "mask_shape": [
+    "B",
+    19,
+    30
+  ],
+  "not_full_codebrain_replication": true,
+  "objective": "native_masked_temporal_CE_plus_frequency_CE",
+  "optimizer_updates_matched_across_budgets": false,
+  "phase": "S2P_CodeBrain_Bounded_cross_architecture_representation_emergence",
+  "pretraining_init_seeds": [
+    0,
+    1
+  ],
+  "same_subset_across_init_seeds": true,
+  "subset_seed": 941731,
+  "target_labels_used_for_selection": false,
+  "tokenizer": "released_TFDual_frozen",
+  "training_authorized_by_this_preflight": false
+}

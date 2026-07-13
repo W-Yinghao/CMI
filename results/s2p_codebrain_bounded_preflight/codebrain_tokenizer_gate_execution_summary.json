@@ -1,0 +1,16 @@
+{
+  "all_expected_gate_artifacts_present": true,
+  "compute_scope": "tokenizer_target_distribution_and_native_shape_canary_only",
+  "fine_tuning_launched": false,
+  "native_completion_marker_present": true,
+  "optimizer_constructed": false,
+  "scheduler_canary_pass": true,
+  "scheduler_stability_probes_passed": 30,
+  "scheduler_stability_probes_required": 30,
+  "slurm_accounting_available": false,
+  "s2p_commit": "b933029a9301107a8edd82feaf73f726b909c085",
+  "stage2_training_launched": false,
+  "stderr_disposition": "warnings_only_no_exception",
+  "target_label_firewall_pass": true,
+  "training_checkpoint_created": false
+}

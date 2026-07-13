@@ -1,0 +1,8 @@
+{
+  "asset_integrity_label_read_used_for_selection": false,
+  "downstream_test_labels_read_for_selection": false,
+  "preflight_reads_dataset_keys_tensor_shapes_and_label_domain_for_asset_integrity": true,
+  "target_labels_final_scoring_only": true,
+  "test_labels_used_for_budget_or_checkpoint_selection": false,
+  "test_labels_used_for_probe_or_hyperparameter_selection": false
+}

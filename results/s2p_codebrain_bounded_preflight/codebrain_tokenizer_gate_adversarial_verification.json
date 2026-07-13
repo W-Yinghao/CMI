@@ -1,0 +1,13 @@
+{
+  "all_stratum_stream_pairs_present": true,
+  "artifact_family_complete": true,
+  "expected_metric_rows": 8,
+  "firewall_consistent": true,
+  "frequency_all_strata_pass": true,
+  "metric_rows_verified": 8,
+  "native_shape_checks_all_pass": true,
+  "temporal_all_strata_fail": true,
+  "training_or_finetuning_called": false,
+  "verdict_consistent_with_metrics": true,
+  "verification_pass": true
+}

@@ -1,0 +1,24 @@
+{
+  "codebrain_commit": "071f8d7a45dfe57d5a26c12b73549afa3c24386a",
+  "codebrain_repo": "${CODEBRAIN_ROOT}",
+  "released_encoder_path": "${CODEBRAIN_RELEASED_PATH}",
+  "released_encoder_role": "path_validity_external_reference",
+  "released_encoder_sha256": "d9714b8732c9883a04d022ee66254cd578ae1fa27f5458e6ab7f1aa96e9a7352",
+  "released_encoder_size_bytes": 60901006,
+  "source_file_sha256": {
+    "Models/SSSM.py": "e2fe5f7364907129507f3a9e946df9f9e44e10c3511efdcf772fab46d6fa278f",
+    "Models/model_for_faced.py": "ca98d2a80f17da8e0a4479cda7dd9645fb725b4b95fcce877ae1bc6f2763cbf4",
+    "Models/model_for_isruc.py": "e4a87241367d6f348ff475d52e506f18262ed2692afa4339fa65dd9fded305f8",
+    "Models/model_for_seedv.py": "e88be6bd84909c00519ed1d8463d298975dbc13971dae188835727cee4e3831d",
+    "Models/modeling_tokenizer.py": "fdedfdca23e1e7cbc2eb24277deb041d1b63ec9c60819f4d367f181b9b3551c2",
+    "Pretrain/Trainer.py": "b798fcb224575744927f51231a969cbd13af6f26b6cd4fc39ceeb038386db237",
+    "Pretrain/pretrain_EEGSSM.py": "7bf6fe7dca837669a9d7da6b855bd32435c226e0b26a0088ddc71d5cfd81cc01"
+  },
+  "stage2_scope": "fixed_released_tokenizer_native_EEGSSM_only",
+  "tokenizer_path": "${CODEBRAIN_TOKENIZER_PATH}",
+  "tokenizer_role": "released_frozen_target_generator",
+  "tokenizer_sha256": "e9560b670d64ea4712fd99a48dc2131326b919744c7d3eb504cf57b1ef3af999",
+  "tokenizer_size_bytes": 112295818,
+  "tracked_status": "",
+  "tracked_worktree_clean": true
+}

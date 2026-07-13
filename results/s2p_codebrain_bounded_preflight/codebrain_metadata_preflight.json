@@ -1,0 +1,13 @@
+{
+  "budget_metadata_pass": true,
+  "downstream_asset_contract_pass": true,
+  "fine_tuning_launched": false,
+  "launch_blockers": [],
+  "launch_bounded_stage2": false,
+  "native_shape_canary_pass": null,
+  "phase": "S2P_CodeBrain_Bounded_cross_architecture_representation_emergence",
+  "source_provenance_pass": true,
+  "target_labels_used_for_selection": false,
+  "tokenizer_target_gate_pass": null,
+  "training_launched": false
+}

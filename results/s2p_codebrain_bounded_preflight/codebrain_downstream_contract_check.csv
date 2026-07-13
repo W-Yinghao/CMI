@@ -1,0 +1,4 @@
+dataset,path,asset_exists,native_shape,split_contract,asset_contract_pass,frozen_role,fine_tuning_role,blocker
+FACED,${FACED_ROOT},True,"[32, 10, 200]",subjects_1-80_81-100_101-123 (zero-based 0-79/80-99/100-122),True,primary_cross_subject_mechanism,primary_adaptability_control,
+SEED-V,${SEEDV_ROOT},True,"[62, 1, 200]",same 16 subjects/session; trials 0-4/5-9/10-14,True,same_task_domain_external_validation,same_task_domain_adaptability_control,
+ISRUC_S3,${ISRUC_PROCESSED_ROOT},True,"[20, 6, 30, 200]","10-fold rotating 8:1:1 subjects; fold subject=val, next subject=test",True,cross_task_sleep_validation,sequence_aware_adaptability_control,

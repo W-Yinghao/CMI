@@ -1,0 +1,73 @@
+{
+  "cuda_visible_devices": "0",
+  "device": "Tesla V100S-PCIE-32GB",
+  "exception": null,
+  "frequency_target_non_degenerate": true,
+  "native_shape_canary": {
+    "backward_called": false,
+    "checks": {
+      "finite_loss": true,
+      "input_shape": true,
+      "logit_shape": true,
+      "mask_shape": true,
+      "masked_target_count": true,
+      "target_shape": true,
+      "tokenizer_deterministic": true
+    },
+    "frequency_ce": 8.465712547302246,
+    "input_shape": [
+      8,
+      19,
+      30,
+      200
+    ],
+    "logits_f_shape": [
+      2279,
+      4096
+    ],
+    "logits_t_shape": [
+      2279,
+      4096
+    ],
+    "mask_shape": [
+      8,
+      19,
+      30
+    ],
+    "n_masked": 2279,
+    "native_shape_canary_pass": true,
+    "optimizer_constructed": false,
+    "target_f_shape": [
+      8,
+      570
+    ],
+    "target_t_shape": [
+      8,
+      570
+    ],
+    "temporal_ce": 7.675994873046875,
+    "trainer_called": false
+  },
+  "native_shape_canary_pass": true,
+  "samples_per_stratum": 256,
+  "strata": [
+    "H200",
+    "H1000_increment",
+    "H2000_increment",
+    "pretrain_val"
+  ],
+  "temporal_target_non_degenerate": false,
+  "thresholds": {
+    "maximum_dominant_code_fraction": 0.95,
+    "minimum_effective_perplexity": 8.0,
+    "minimum_unique_codes": 16,
+    "minimum_unique_sequence_fraction": 0.05,
+    "minimum_unique_sequences": 16,
+    "minimum_windows_per_stratum": 256
+  },
+  "tokenizer_frozen": true,
+  "tokenizer_path": "${CODEBRAIN_TOKENIZER_PATH}",
+  "tokenizer_sha256": "e9560b670d64ea4712fd99a48dc2131326b919744c7d3eb504cf57b1ef3af999",
+  "tokenizer_target_gate_pass": false,
+  "training_called": false
+}
