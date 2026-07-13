@@ -123,6 +123,26 @@ def test_real_entrypoint_fails_before_output_without_lock_or_authorization(tmp_p
     assert not (tmp_path / "external").exists()
 
 
+def test_execution_lock_replays_and_binds_final_adapter():
+    lock_path = canary.EXECUTION_LOCK_PATH
+    expected = canary.EXECUTION_LOCK_SHA_PATH.read_text().split()[0]
+    assert canary.sha256_file(lock_path) == expected
+    lock = json.loads(lock_path.read_text())
+    assert lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
+    assert lock["scope"]["total_units"] == 243
+    assert lock["scope"]["C84F"] is False and lock["scope"]["C84S"] is False
+    assert lock["interface"]["montage_sha256"] == canary.MONTAGE_SHA256
+    adapter = next(row for row in lock["implementation"]["files"]
+                   if row["path"] == "oaci/multidataset/c84c_real_canary.py")
+    assert adapter["sha256"] == canary.sha256_file(Path(canary.__file__))
+    assert lock["authorization"]["record_present_at_lock"] is False
+
+
+def test_C84R_creates_no_field_or_science_execution_lock():
+    names = {path.name for path in canary.REPORT_DIR.glob("C84*EXECUTION_LOCK*.json")}
+    assert names == {"C84C_EXECUTION_LOCK.json"}
+
+
 def test_canary_protocol_forbids_all_scientific_outputs():
     payload = json.loads(canary.CANARY_PROTOCOL_PATH.read_text())
     forbidden = set(payload["forbidden_outputs"])
