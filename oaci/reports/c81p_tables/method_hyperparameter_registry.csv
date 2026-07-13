@@ -1,0 +1,15 @@
+method_id,parameter,value,selection_basis
+U3,temperature,1.0,prospective_fixed
+U7,confidence,maximum_softmax,ATC_MC_primary
+U7,threshold,stable_source_confidence_order_statistic_at_1_minus_domain_balanced_BAcc,no_interpolation
+U11,p_norm,4,official_default
+U11,delta_branch,5.0,official_code
+U12,transport_cost,L_infinity,paper
+U12,prior,source_empirical_primary,no_target_labels
+U13,prior_sensitivity,uniform_secondary,prospective
+U14,feature_layer,softmax_output,paper
+U14,temperature,0.05,paper
+U14,self_neighbor,excluded,paper
+U15,pairs,all_unordered_candidate_pairs,paper
+U15,proportion_correction,(count+0.5)/(n+1),prevents_infinite_probit
+U15,line_fit,unweighted_OLS_target_agreement_probit_on_source_agreement_probit,paper

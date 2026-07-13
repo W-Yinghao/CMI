@@ -1,0 +1,35 @@
+method_id,reference_key,canonical_url,formula_locked,implementation_source,declared_deviation,fidelity_status,outcome_tuned
+B0,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+B1,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+B2,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+B3,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+B4O,internal_or_elementary_control,,1,internal_frozen_contract,B4 expanded prospectively into one midpoint per trajectory family,LOCKED_WITH_DECLARED_ADAPTATION,0
+B4S,internal_or_elementary_control,,1,internal_frozen_contract,B4 expanded prospectively into one midpoint per trajectory family,LOCKED_WITH_DECLARED_ADAPTATION,0
+B5,internal_or_elementary_control,,1,internal_frozen_contract,never enters selector comparison or taxonomy,LOCKED_WITH_DECLARED_ADAPTATION,0
+S1,internal_or_elementary_control,,1,internal_frozen_contract,frozen source audit rather than a newly held-out source training fold,LOCKED_WITH_DECLARED_ADAPTATION,0
+S2,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+S3,internal_or_elementary_control,,1,internal_frozen_contract,required folds do not exist and new training is forbidden,EXCLUDED_BEFORE_HASH,0
+S4,internal_or_elementary_control,,1,internal_frozen_contract,committed compact artifacts contain qualification aggregates but no execution-bound per-candidate selector descriptor,EXCLUDED_BEFORE_HASH,0
+U1,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+U2,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+U3,internal_or_elementary_control,,1,internal_frozen_contract,temperature fixed prospectively at 1,LOCKED_WITH_DECLARED_ADAPTATION,0
+U4,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+U5,NuclearNorm,https://proceedings.mlr.press/v202/deng23e.html,1,faithful_numpy_reimplementation,none,LOCKED_EXACT_OR_ELEMENTARY,0
+U6,DoC,https://openaccess.thecvf.com/content/ICCV2021/html/Guillory_Predicting_With_Confidence_on_Unseen_Distributions_ICCV_2021_paper.html,1,faithful_numpy_reimplementation,balanced-accuracy adaptation is declared because the endpoint is balanced accuracy,LOCKED_WITH_DECLARED_ADAPTATION,0
+U7,ATC,https://openreview.net/forum?id=wcrff7Gh0RR,1,faithful_numpy_reimplementation,ATC-MC fixed; balanced domain weighting matches the registered endpoint,LOCKED_WITH_DECLARED_ADAPTATION,0
+U8,IWCV,https://www.jmlr.org/papers/v8/sugiyama07a.html,1,faithful_numpy_reimplementation,no frozen density-ratio estimator exists; fitting one is a new model,EXCLUDED_BEFORE_HASH,0
+U9,DEV,https://proceedings.mlr.press/v97/you19a.html,1,faithful_numpy_reimplementation,required discriminator is absent and fitting it is forbidden,EXCLUDED_BEFORE_HASH,0
+U10,IW_GAE,https://arxiv.org/abs/2310.10611,1,faithful_numpy_reimplementation,groups and fitted weights are absent; creating them would invent a new estimator,EXCLUDED_BEFORE_HASH,0
+U11,MaNo,https://arxiv.org/abs/2405.18979,1,official_code_commit_b9c026261319e4967e090ac9a8c37615b8267273,order-invariant whole-set delta replaces official first-five-loader-batch estimate; p=4 and scaling branch otherwise exact to official commit b9c0262,LOCKED_WITH_DECLARED_ADAPTATION,0
+U12,COT_COTT,https://papers.neurips.cc/paper_files/paper/2023/hash/38fd51cf36f28566230a93a5fbeaabbf-Abstract-Conference.html,1,faithful_numpy_reimplementation,noninteger prior counts use deterministic largest-remainder apportionment tied by class ID,LOCKED_WITH_DECLARED_ADAPTATION,0
+U13,COT_COTT,https://papers.neurips.cc/paper_files/paper/2023/hash/38fd51cf36f28566230a93a5fbeaabbf-Abstract-Conference.html,1,faithful_numpy_reimplementation,source empirical prior primary; uniform prior registered sensitivity only,LOCKED_WITH_DECLARED_ADAPTATION,0
+U14,SND,https://openaccess.thecvf.com/content/ICCV2021/html/Saito_Tune_It_the_Right_Way_Unsupervised_Validation_of_Domain_Adaptation_ICCV_2021_paper.html,1,faithful_numpy_reimplementation,paper softmax-output feature layer fixed; diagonal excluded exactly,LOCKED_WITH_DECLARED_ADAPTATION,0
+U15,ALine,https://papers.nips.cc/paper_files/paper/2022/hash/7a8d388b7a17df480856dff1cc079b08-Abstract-Conference.html,1,faithful_numpy_reimplementation,agreement proportions use fixed Jeffreys correction (count+0.5)/(n+1); pairs are fit observations but never scientific N,LOCKED_WITH_DECLARED_ADAPTATION,0
+U16,AccuracyOnLine,https://proceedings.mlr.press/v139/miller21b.html,1,faithful_numpy_reimplementation,evaluation labels make this measurement-only and exclude it from selection taxonomy,LOCKED_WITH_DECLARED_ADAPTATION,0
+L1,internal_or_elementary_control,,1,internal_frozen_contract,post-C80 outcome-informed primary labeled comparator,LOCKED_WITH_DECLARED_ADAPTATION,0
+L2,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+L3,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+L4,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+L5,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+L6,internal_or_elementary_control,,1,internal_frozen_contract,none,LOCKED_EXACT_OR_ELEMENTARY,0
+L7,internal_or_elementary_control,,1,internal_frozen_contract,FULL remains cell-specific and is not relabeled 61,LOCKED_WITH_DECLARED_ADAPTATION,0

@@ -1,0 +1,172 @@
+{
+  "schema_version": "c81_aaai_baseline_comparison_protocol_v1",
+  "milestone": "C81P",
+  "created_at_utc": "2026-07-13T13:05:00Z",
+  "status": "PROSPECTIVE_TO_NEW_BASELINE_COMPUTATIONS_PROTOCOL_LOCK",
+  "epistemic_status": {
+    "designed_after_C79_and_C80_outcomes": true,
+    "prospective_to_new_C81_baseline_computations": true,
+    "existing_field_comparative_audit": true,
+    "independent_confirmation": false,
+    "external_validation": false,
+    "new_subject_or_dataset_evidence": false,
+    "outcome_informed_baseline_choice": true
+  },
+  "authorization": {
+    "C81P_requires_execution_authorization": false,
+    "C81E_requires_direct_PI_authorization": true,
+    "magic_token_required": false,
+    "PI_hash_recital_required": false,
+    "binding_policy_commit": "3d9dd76",
+    "binding_rule": "server_record_binds_direct_PI_authorization_to_the_single_current_scope_specific_C81_protocol_and_execution_lock",
+    "authorization_does_not_carry_to_another_milestone": true
+  },
+  "scope": {
+    "training": false,
+    "forward": false,
+    "reinference": false,
+    "GPU": false,
+    "seed5": false,
+    "target4_primary": false,
+    "same_label_oracle": false,
+    "BNCI2014_004": false,
+    "active_acquisition": false,
+    "new_candidate_models": false,
+    "new_feature_kernel_model_search": false,
+    "manuscript_experiments": false,
+    "real_baseline_computation_in_C81P": false
+  },
+  "accepted_C80_operating_objects": {
+    "replacement_protocol_commit": "e88a24484590636f87d0f22798401a762875046a",
+    "replacement_protocol_sha256": "2d72eb5119056a6520fd33fc0ac14ee6270bfd573b59c36b74be6aa3dc25fe39",
+    "historical_complete_lock_commit": "f19acd8775f9b0ddf60401739741bec0019d021c",
+    "historical_complete_lock_sha256": "e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82",
+    "historical_lock_status": "superseded_after_pre_evaluation_descriptor_ABI_failure",
+    "operative_lock_commit": "07975998fe0101e29a98f69e26e76e48bf76b952",
+    "operative_lock_sha256": "2149895865bd44b4ab8358c76848bb6774abb59d4a203b261864be0ec599ff62",
+    "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
+    "result_freeze_commit": "a43aa27fa720bb3a744b0267358c8d81370e5abd",
+    "final_head": "111df254dc562bc59342ad823cba3c8b79a64abe",
+    "repair_changed_science": false,
+    "repair_evaluation_label_reads": 0
+  },
+  "candidate_universe": {
+    "training_seeds": [3, 4],
+    "primary_targets": [1, 2, 3, 5, 6, 7, 8, 9],
+    "engineering_only_targets": [4],
+    "levels": [0, 1],
+    "regimes": {"ERM": 1, "OACI": 40, "SRC": 40},
+    "candidates_per_context": 81,
+    "contexts": 32,
+    "primary_candidates": 2592,
+    "selection_is_within_context": true,
+    "ERM_role": "single_anchor_not_trajectory"
+  },
+  "information_hierarchy": {
+    "I0": "no_target_information",
+    "IS": "strict_source_labels_and_outputs_only",
+    "IU": "target_unlabeled_outputs_or_frozen_representations_only",
+    "ISU": "source_calibration_plus_target_unlabeled_outputs",
+    "ILc": "independent_target_construction_labels_under_frozen_Q0",
+    "IOr": "same_label_or_evaluation_oracle_descriptive_ceiling_only"
+  },
+  "physical_view_contract": {
+    "selection_stage_allowed_views": ["strict_source_trial_view", "source_audit_label_view", "target_unlabeled_trial_view", "target_construction_view", "trajectory_genealogy_metadata"],
+    "evaluation_stage_view": "target_evaluation_view",
+    "same_label_oracle_view_reachable": false,
+    "evaluation_opened_only_after_selection_freeze": true,
+    "trial_id_role": "join_split_and_dependence_key_only",
+    "row_order_role": "alignment_only_never_predictor",
+    "target4_excluded_from_primary": true
+  },
+  "method_registry_path": "oaci/reports/C81_BASELINE_METHOD_REGISTRY.json",
+  "availability_registry_path": "oaci/reports/c81p_tables/baseline_availability_registry.csv",
+  "primary_family_representatives": {
+    "R0": "B0_uniform_random",
+    "R1": "B1_ERM_anchor",
+    "R2": "S1_source_validation_balanced_accuracy",
+    "R3": "U7_ATC_MC",
+    "R4": "U5_normalized_nuclear_norm",
+    "R5": "U11_MaNo_p4",
+    "R6": "U13_COTT_source_empirical_prior",
+    "R7": "U14_SND_softmax_tau_0.05",
+    "R8": "U15_ALine_all_pairs",
+    "R9": "UNAVAILABLE_NO_FAITHFUL_TRAINING_FREE_IMPORTANCE_WEIGHTING_MEMBER",
+    "R10": "L1_frozen_Q0_B1",
+    "R11": "L7_frozen_Q0_FULL"
+  },
+  "representative_freeze_rules": {
+    "best_of_many_representative_switching": false,
+    "R1_reason": "ERM_is_the_single_fixed_historical_anchor;_final_OACI_and_SRC_are_secondary_controls",
+    "R2_fallback_reason": "true_Source_LODO_retrained_folds_do_not_exist_in_the_frozen_candidate_field",
+    "R9_exclusion_reason": "IWCV_DEV_and_IW_GAE_require_an_absent_density_ratio_domain_discriminator_or_new_fitted_weights",
+    "excluded_family_cannot_enter_primary_multiplicity": true
+  },
+  "score_and_tie_contract": {
+    "higher_score_is_better": true,
+    "candidate_tie_rule": "smallest_canonical_candidate_index",
+    "class_tie_rule": "smallest_class_id",
+    "invalid_score_rule": "method_context_failure_no_fallback_to_another_method",
+    "score_direction_may_not_change_after_outcomes": true,
+    "target_label_prior_forbidden": true
+  },
+  "primary_estimands": {
+    "selected_candidate": "argmax_locked_method_score_within_each_81_candidate_context",
+    "endpoints": ["held_evaluation_standardized_regret", "selected_candidate_held_evaluation_utility", "source_relative_regret_gain"],
+    "secondary_decision_endpoints": ["top1", "top5", "top10", "coverage", "catastrophic_target_failure"],
+    "secondary_measurement_endpoints": ["within_target_Spearman", "within_target_Kendall", "pairwise_ordering_accuracy", "utility_estimation_MAE", "incremental_R2", "accuracy_calibration"],
+    "measurement_cannot_substitute_for_regret": true,
+    "standardized_regret_formula": "(max_utility-selected_utility)/(max_utility-min_utility),flat_field_zero"
+  },
+  "comparative_questions": {
+    "Q1": "zero_label_primary_representative_materially_improves_strict_source",
+    "Q2": "zero_label_primary_representative_noninferior_to_Q0_B1",
+    "Q3": "conclusions_across_regret_topk_and_exact_top1",
+    "Q4": "paired_seed_LOTO_and_where_applicable_LORO_robustness",
+    "Q5": "fixed_information_class_transition_I0_to_IS_to_IU_ISU_to_ILc"
+  },
+  "primary_inference": {
+    "principal_cluster": "target",
+    "seed_role": "paired_training_factor",
+    "levels_and_regimes": "repeated_within_target",
+    "checkpoint_trial_pair_MC_iid": false,
+    "alpha": 0.05,
+    "material_regret_margin": 0.05,
+    "noninferiority_margin_vs_Q0_B1": 0.05,
+    "positive_targets_min": 6,
+    "catastrophic_improvement_floor": -0.10,
+    "catastrophic_noninferiority_excess": 0.20,
+    "exact_signflip_count": 256,
+    "simultaneous_procedure": "shared_target_signflip_maxT_across_all_available_zero_label_primary_representatives_and_both_seeds_within_each_Q1_or_Q2_family",
+    "Q1_pass": "mean_source_minus_method_regret_at_least_0.05_and_maxT_p_at_most_0.05_and_at_least_6_of_8_positive_targets_and_no_target_below_-0.10",
+    "Q2_pass": "mean_method_minus_Q0B1_regret_at_most_0.05_and_simultaneous_one_sided_upper_bound_at_most_0.05_and_at_least_6_of_8_targets_with_difference_at_most_0.05_and_no_target_above_0.20",
+    "LOTO_stability_rule": "full_panel_seed_categories_match_and_at_least_12_of_16_seed_x_left_out_target_panels_retain_the_full_panel_category",
+    "LORO_rule": "report_for_regime_dependent_scores_only_without_redefining_primary_selection_universe",
+    "small_target_limitation_mandatory": true
+  },
+  "primary_taxonomy_precedence": [
+    {"priority": 1, "label": "C81-E_protocol_input_implementation_or_provenance_blocker", "rule": "any_open_protocol_input_implementation_view_dependence_or_provenance_blocker"},
+    {"priority": 2, "label": "C81-D_baseline_comparison_training_seed_or_target_heterogeneous", "rule": "seed_specific_A_B_C_categories_differ_or_fewer_than_12_of_16_LOTO_panels_preserve_the_full_panel_category"},
+    {"priority": 3, "label": "C81-A_zero_label_selector_matches_one_label_frontier", "rule": "stable_and_at_least_one_fixed_zero_label_primary_representative_passes_Q1_and_Q2_in_both_seeds"},
+    {"priority": 4, "label": "C81-B_zero_label_improves_source_but_not_one_label_frontier", "rule": "stable_and_at_least_one_fixed_zero_label_primary_representative_passes_Q1_in_both_seeds_but_none_of_those_pass_Q2_in_both_seeds"},
+    {"priority": 5, "label": "C81-C_no_registered_zero_label_selector_materially_improves_source", "rule": "stable_and_no_fixed_zero_label_primary_representative_passes_Q1_in_both_seeds"}
+  ],
+  "randomness": {
+    "base_seed": 810081,
+    "random_control": "analytic_uniform_expectation_over_81_candidates",
+    "random_tie_sampling": false,
+    "synthetic_replicates": 512,
+    "all_streams_derived_by_SHA256_from_base_seed_scenario_replication"
+      : true
+  },
+  "synthetic_calibration": {
+    "scenarios": ["S0_all_methods_null", "S1_local_confidence_nontransport", "S2_ALine_shared_relation", "S3_ALine_pair_dependence_failure", "S4_SND_association_without_actionability", "S5_ATC_DoC_covariate_shift_success", "S6_ATC_DoC_class_conditional_failure", "S7_COTT_prior_mismatch_success", "S8_source_only_weak_ranking", "S9_one_label_regret_without_top1", "S10_zero_label_matches_B1", "S11_target_heterogeneous_ranking", "S12_pseudoreplication_trap"],
+    "required_checks": ["score_direction", "ranking_recovery", "regret", "noninferiority", "familywise_error", "cross_seed_classification", "LOTO", "pair_dependence", "taxonomy"],
+    "real_field_scores_allowed": false
+  },
+  "claim_contract": {
+    "allowed": "field_and_policy_specific_comparison_of_fixed_information_classes_on_the_frozen_candidate_field",
+    "forbidden": ["independent_confirmation", "external_validation", "universal_one_label_sufficiency", "information_theoretic_impossibility", "deployability", "causal_representation_mechanism", "new_DG_method", "best_of_many_baseline_claim", "top1_success_inferred_from_regret", "low_absolute_regret_inferred_from_source_relative_gain"]
+  },
+  "C81P_final_gates": ["C81_AAAI_BASELINE_COMPARISON_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION", "C81_BASELINE_PROTOCOL_INPUT_OR_IMPLEMENTATION_REPAIR_REQUIRED"]
+}
