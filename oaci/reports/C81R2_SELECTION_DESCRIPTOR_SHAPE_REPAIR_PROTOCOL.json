@@ -1,0 +1,102 @@
+{
+  "schema_version": "c81r2_selection_descriptor_shape_repair_protocol_v1",
+  "milestone": "C81R2",
+  "created_at_utc": "2026-07-13T13:31:12Z",
+  "status": "ADDITIVE_PRE_EVALUATION_NON_SCIENTIFIC_REPAIR_PROTOCOL",
+  "failed_attempt": {
+    "slurm_job_id": "894915",
+    "stage": "post_selection_freeze_descriptor_replay",
+    "selection_job_status": "COMPLETED",
+    "root_cause": "generic_C74_shard_verifier_requires_one_common_first_dimension_but_the_registered_C81_selection_payload_contains_32_context_rows_and_19_method_identifier_rows",
+    "selection_manifest_created": true,
+    "selection_manifest_sha256": "4677ed3aba7758ea0008c2093b44d6fb81d425930727e5941950179737ebd519",
+    "selection_file_sha256": "b02cf6b80127858ef0ab57f5c6e4954715dc9d5aaea77b64cdb9bf13f09ea8a4",
+    "selection_payload_sha256": "1ed893acd9190914eb4cb122f3ef26bc1e2355c4103894b816894bd264669257",
+    "selection_payload_inspected": false,
+    "evaluation_label_descriptor_opened": false,
+    "evaluation_label_reads": 0,
+    "held_evaluation_statistics": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "training_forward_reinference_GPU": 0
+  },
+  "superseded_execution_objects": {
+    "base_protocol_commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
+    "base_protocol_sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee",
+    "first_repair_protocol_commit": "6371b2220979b61cabfb105521036bb02f47aaea",
+    "first_repair_protocol_sha256": "ba0434b4ea7965691dafaf506547af64f851c57bdca330a0a5c88e4fa7ba1b15",
+    "first_repaired_implementation_commit": "570316310ccb2b0b2acb8a10952ac73431ffd2ae",
+    "first_repaired_implementation_sha256": "b922139e77265d11135982d494832e63204c22ff2a29b7619055ad4259463f02",
+    "first_repaired_analysis_lock_commit": "bad8db494765f3f921443bf5e8cdd5db569861a9",
+    "first_repaired_analysis_lock_sha256": "3093201d3f2959d828cb9debb8a4aeb9252f5385b9e8f806445cff05307a8b1c",
+    "first_repaired_authorization_binding_commit": "b2f9fca425c7249fe15f300e869252a2a9954b72",
+    "preserved_in_history": true,
+    "usable_for_further_evaluation_execution": false
+  },
+  "frozen_selection_preservation": {
+    "manifest_path": "/projects/EEG-foundation-model/yinghao/oaci-c81-baselines/protocol_cbdb42f54956b685/repair_ba0434b4ea796569/implementation_b922139e77265d11/selection/C81_SELECTIONS_FROZEN.json",
+    "manifest_file_sha256": "b02cf6b80127858ef0ab57f5c6e4954715dc9d5aaea77b64cdb9bf13f09ea8a4",
+    "manifest_self_sha256": "4677ed3aba7758ea0008c2093b44d6fb81d425930727e5941950179737ebd519",
+    "payload_path": "/projects/EEG-foundation-model/yinghao/oaci-c81-baselines/protocol_cbdb42f54956b685/repair_ba0434b4ea796569/implementation_b922139e77265d11/selection/payload/c81_locked_baseline_selection_sha256_1ed893acd9190914.npz",
+    "payload_sha256": "1ed893acd9190914eb4cb122f3ef26bc1e2355c4103894b816894bd264669257",
+    "payload_size_bytes": 415284,
+    "contexts": 32,
+    "methods": 19,
+    "selection_recomputation_allowed": false,
+    "score_or_rank_change_allowed": false,
+    "new_lock_must_bind_exact_manifest_and_payload": true
+  },
+  "allowed_code_change": {
+    "path": "oaci/conditioned_ceiling_coverage/c81_baseline_comparison.py",
+    "functions": ["_selection_stage", "_load_selection"],
+    "before": "generic_c74_verify_shard_requires_all_array_first_dimensions_to_equal_descriptor_row_count",
+    "after": "C81_specific_selection_descriptor_verifier_replays_file_hash_size_fields_and_the_complete_registered_per_array_shape_map_before_loading",
+    "shared_c74_verifier_changed": false,
+    "selection_formula_changed": false,
+    "selection_payload_changed": false
+  },
+  "registered_shape_contract": {
+    "cell_seed": [32],
+    "cell_target": [32],
+    "cell_level": [32],
+    "candidate_global_indices": [32, 81],
+    "method_ids": [19],
+    "scores": [32, 19, 81],
+    "selected_top10": [32, 19, 10],
+    "aline_slope": [32],
+    "aline_intercept": [32],
+    "aline_pair_R2": [32]
+  },
+  "immutable_scientific_objects": {
+    "method_registry_changed": false,
+    "primary_representatives_changed": false,
+    "score_formulas_changed": false,
+    "score_directions_changed": false,
+    "feature_layers_or_temperatures_changed": false,
+    "class_prior_policy_changed": false,
+    "tie_or_randomness_changed": false,
+    "candidate_universe_changed": false,
+    "views_or_information_classes_changed": false,
+    "Q1_Q2_estimands_or_margins_changed": false,
+    "dependence_or_multiplicity_changed": false,
+    "LOTO_or_taxonomy_changed": false,
+    "report_schema_changed": false
+  },
+  "required_validation": [
+    "mixed_dimension_selection_descriptor_fixture",
+    "exact_frozen_manifest_self_hash_replay",
+    "exact_frozen_payload_hash_size_field_and_shape_replay",
+    "selection_scores_and_ranks_not_inspected_or_recomputed",
+    "evaluation_view_access_remains_zero",
+    "focused_and_cumulative_C81_regressions",
+    "repair_red_team",
+    "new_scope_specific_analysis_lock_binding_frozen_selection"
+  ],
+  "authorization": {
+    "prior_C81E_authorization_reusable": false,
+    "new_direct_PI_authorization_required_after_repair_lock": true,
+    "magic_token_required": false,
+    "hash_recital_required": false
+  },
+  "repair_readiness_gate": "C81_SELECTION_DESCRIPTOR_REPAIR_LOCKED_READY_FOR_PI_REAUTHORIZATION"
+}
