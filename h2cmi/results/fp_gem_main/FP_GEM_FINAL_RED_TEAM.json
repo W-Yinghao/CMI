@@ -1,0 +1,119 @@
+{
+  "adversarial_findings": [
+    "P9 checkpoint files were unavailable; this packet uses exact-P9-configuration retrains, and all six methods share one persisted source checkpoint within each target-seed unit.",
+    "The actual P12 source-state hashes do not match the P9 reference hashes, so direct P9 checkpoint or direct committed-row reuse must not be claimed.",
+    "FP-GEM improves over source-only, but its subject-weighted contrast is negative against RCT and both SPDIM variants.",
+    "FP-GEM minus Joint-GEM is small and its subject-weighted interval crosses zero; a general fixed-prior superiority claim is not supported.",
+    "No equivalence, noninferiority, broad-benchmark, or target-tuned claim is supported."
+  ],
+  "checks": {
+    "all_rows_ok": true,
+    "artifact_manifest_all_pass": true,
+    "backbone_and_classifier_frozen": true,
+    "bootstrap_policy_exact": true,
+    "claim_gate_expected": true,
+    "contrast_points_and_cis_recompute": true,
+    "dataset_subject_counts": true,
+    "eight_result_tasks_complete": true,
+    "excluded_attempts_zero_accepted_rows": true,
+    "final_squeue_absent": true,
+    "hashes_complete": true,
+    "method_points_and_cis_recompute": true,
+    "method_set_exact": true,
+    "no_target_label_leakage": true,
+    "no_target_performance_selection": true,
+    "per_subject_file_recomputes": true,
+    "raw_classifier_frozen": true,
+    "raw_exact_p9_config_retrain_disclosed": true,
+    "raw_fp_prior_fixed": true,
+    "raw_runner_config_manifest_frozen": true,
+    "raw_split_and_leakage_gates": true,
+    "raw_unit_count_189": true,
+    "result_checksum_matches_summary": true,
+    "result_origins_disclosed": true,
+    "result_rows_1134": true,
+    "seed_average_first": true,
+    "six_methods_share_each_checkpoint_file": true,
+    "six_methods_share_each_source_state": true,
+    "source_seeds_exact": true,
+    "unique_result_keys": true,
+    "unit_count_189": true
+  },
+  "claim_gate": {
+    "broad_benchmark_claim_supported": false,
+    "direct_p9_checkpoint_reuse_claim_supported": false,
+    "equivalence_or_noninferiority_supported": false,
+    "fp_gem_improves_over_joint_gem_subject_weighted_supported": false,
+    "fp_gem_improves_over_rct_supported": false,
+    "fp_gem_improves_over_source_only_supported": true,
+    "fp_gem_improves_over_spdim_bias_supported": false,
+    "fp_gem_improves_over_spdim_geodesic_supported": false
+  },
+  "counts": {
+    "artifact_manifest_rows": 189,
+    "contrast_rows": 40,
+    "p9_reference_state_hash_match_count": 0,
+    "per_subject_rows": 378,
+    "result_origin_counts": {
+      "P12_new_method": 378,
+      "P12_same_checkpoint_control": 756
+    },
+    "result_rows": 1134,
+    "unit_count": 189
+  },
+  "frozen_hashes": {
+    "config_sha256": "d44fd98aa5913eb45908b7fd398b04e5a268dd4aaa75f15bcc96819f424bf165",
+    "manifest_semantic_sha256": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+    "result_sha256": "f3e4ca699b81e4fa2cab404109aa2dfe7aa1fbe58f25e2779d3d11651e40d48d",
+    "runner_sha256": "720b91b1b43cdf6a983be1cb8413430a06b98d6f4923166fa14614041ec46abd"
+  },
+  "red_team_pass": true,
+  "status": "pass",
+  "subject_weighted_bacc_contrasts": {
+    "Joint-GEM": {
+      "ci_high": 0.006196355085243965,
+      "ci_low": -0.0002674897119340214,
+      "comparison": "FP-GEM minus Joint-GEM",
+      "dataset": "ALL",
+      "estimand": "subject_weighted",
+      "estimate": 0.002874779541446104,
+      "metric": "bacc"
+    },
+    "rct": {
+      "ci_high": -0.009882348618459703,
+      "ci_low": -0.021822604350382004,
+      "comparison": "FP-GEM minus rct",
+      "dataset": "ALL",
+      "estimand": "subject_weighted",
+      "estimate": -0.01588771310993542,
+      "metric": "bacc"
+    },
+    "source_only_tsmnet": {
+      "ci_high": 0.13466343327454472,
+      "ci_low": 0.09638661081716642,
+      "comparison": "FP-GEM minus source_only_tsmnet",
+      "dataset": "ALL",
+      "estimand": "subject_weighted",
+      "estimate": 0.1150146972369196,
+      "metric": "bacc"
+    },
+    "spdim_bias": {
+      "ci_high": -0.002721781305114667,
+      "ci_low": -0.015429232804232607,
+      "comparison": "FP-GEM minus spdim_bias",
+      "dataset": "ALL",
+      "estimand": "subject_weighted",
+      "estimate": -0.009129923574368148,
+      "metric": "bacc"
+    },
+    "spdim_geodesic": {
+      "ci_high": -0.005855085243974091,
+      "ci_low": -0.017025352733685894,
+      "comparison": "FP-GEM minus spdim_geodesic",
+      "dataset": "ALL",
+      "estimand": "subject_weighted",
+      "estimate": -0.011549088771311222,
+      "metric": "bacc"
+    }
+  }
+}

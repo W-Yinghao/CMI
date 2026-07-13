@@ -1,0 +1,227 @@
+{
+  "accepted_result_tasks": [
+    {
+      "array_job_id": "893448",
+      "array_task_id": "1",
+      "compute_capability": "7.0",
+      "device_name": "Tesla V100-PCIE-16GB",
+      "host": "node42",
+      "job_id": "893450",
+      "result_rows": 162,
+      "source_units": 27,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_status": "empty",
+      "stdout_sha256": "b8313c7911f318cbadf37c823512cb0f14f883b9b0b6a8f6e55717b79cc0c8fa",
+      "stdout_status": "shard_complete"
+    },
+    {
+      "array_job_id": "893448",
+      "array_task_id": "2",
+      "compute_capability": "7.0",
+      "device_name": "Tesla V100-PCIE-16GB",
+      "host": "node42",
+      "job_id": "893451",
+      "result_rows": 162,
+      "source_units": 27,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_status": "empty",
+      "stdout_sha256": "eb226513fc8feccfb1b11b491537d6affea5a84c23f31464fe64ee85373f0fac",
+      "stdout_status": "shard_complete"
+    },
+    {
+      "array_job_id": "893448",
+      "array_task_id": "3",
+      "compute_capability": "7.0",
+      "device_name": "Tesla V100S-PCIE-32GB",
+      "host": "node43",
+      "job_id": "893452",
+      "result_rows": 162,
+      "source_units": 27,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_status": "empty",
+      "stdout_sha256": "3005f8dcd1ea9d1c229cc3da6cd5730c625110c676a8481efe08b37ff2d9e3b3",
+      "stdout_status": "shard_complete"
+    },
+    {
+      "array_job_id": "893448",
+      "array_task_id": "4",
+      "compute_capability": "7.0",
+      "device_name": "Tesla V100S-PCIE-32GB",
+      "host": "node15",
+      "job_id": "893455",
+      "result_rows": 162,
+      "source_units": 27,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_status": "empty",
+      "stdout_sha256": "93f12447185005d0ae9e1034ae7fffd0864fde07c5fc5dd26094467c2688f1b1",
+      "stdout_status": "shard_complete"
+    },
+    {
+      "array_job_id": "893448",
+      "array_task_id": "5",
+      "compute_capability": "7.0",
+      "device_name": "Tesla V100-PCIE-16GB",
+      "host": "node11",
+      "job_id": "893448",
+      "result_rows": 156,
+      "source_units": 26,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_status": "empty",
+      "stdout_sha256": "b296f7c92e62b710bf7a5a57af2c74bdbad97874431ed924928eae8df24c4dcc",
+      "stdout_status": "shard_complete"
+    },
+    {
+      "array_job_id": "893453",
+      "array_task_id": "0",
+      "compute_capability": "8.0",
+      "device_name": "NVIDIA A100-PCIE-40GB",
+      "host": "node55",
+      "job_id": "893454",
+      "result_rows": 84,
+      "source_units": 14,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_status": "empty",
+      "stdout_sha256": "43e93f1979f10094a4e86d5d9f7d328e2c02cd7d64fa2e4d48f15e879d9c24d1",
+      "stdout_status": "shard_complete"
+    },
+    {
+      "array_job_id": "893453",
+      "array_task_id": "1",
+      "compute_capability": "8.0",
+      "device_name": "NVIDIA A100-PCIE-40GB",
+      "host": "node07",
+      "job_id": "893453",
+      "result_rows": 84,
+      "source_units": 14,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_status": "empty",
+      "stdout_sha256": "cd7ccd59520f9de745db84ceee9ea0b0acf0e79f7a1728226ed0cc0c138448ca",
+      "stdout_status": "shard_complete"
+    },
+    {
+      "array_job_id": "893456",
+      "array_task_id": "0",
+      "compute_capability": "7.0",
+      "device_name": "Tesla V100S-PCIE-32GB",
+      "host": "node10",
+      "job_id": "893456",
+      "result_rows": 162,
+      "source_units": 27,
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stderr_status": "empty",
+      "stdout_sha256": "68cc2c32dad021d13f20c2b0afc5e258b2d4330c6bc4e765f7a3a39a4ace077d",
+      "stdout_status": "shard_complete"
+    }
+  ],
+  "arrays": [
+    {
+      "accepted_result_tasks": ["1", "2", "3", "4", "5"],
+      "array": "0-5%6",
+      "hardware_group": "V100",
+      "job_id": "893448",
+      "launch_commit": "e6c491560c14ae44cbb2bd03e0d8c1214e07da56",
+      "result_rows": 804,
+      "scientific_configuration_changed": false,
+      "source_units": 134,
+      "submit_command": "sbatch --parsable -p V100 --array=0-5%6 --export=ALL,FP_GEM_REPO=/home/infres/yinwang/CMI_AAAI/.codex_p12_launch_5b71ee8,FP_GEM_GROUP=V100,FP_GEM_GROUP_COUNT=161,FP_GEM_GROUP_STRIDE=6 scripts/fp_gem_array.slurm",
+      "working_directory": "/home/infres/yinwang/CMI_AAAI/.codex_p12_launch_5b71ee8"
+    },
+    {
+      "accepted_result_tasks": ["0", "1"],
+      "array": "0-1%2",
+      "hardware_group": "A100",
+      "job_id": "893453",
+      "launch_commit": "e6c491560c14ae44cbb2bd03e0d8c1214e07da56",
+      "result_rows": 168,
+      "scientific_configuration_changed": false,
+      "source_units": 28,
+      "submit_command": "sbatch --parsable -p A100 --array=0-1%2 --export=ALL,FP_GEM_REPO=/home/infres/yinwang/CMI_AAAI/.codex_p12_launch_5b71ee8,FP_GEM_GROUP=A100,FP_GEM_GROUP_COUNT=28,FP_GEM_GROUP_STRIDE=2 scripts/fp_gem_array.slurm",
+      "working_directory": "/home/infres/yinwang/CMI_AAAI/.codex_p12_launch_5b71ee8"
+    },
+    {
+      "accepted_result_tasks": ["0"],
+      "array": "0-0%1",
+      "hardware_group": "V100",
+      "job_id": "893456",
+      "launch_commit": "e6c491560c14ae44cbb2bd03e0d8c1214e07da56",
+      "result_rows": 162,
+      "scientific_configuration_changed": false,
+      "source_units": 27,
+      "submit_command": "sbatch --parsable -p V100 --array=0-0%1 --export=ALL,FP_GEM_REPO=/home/infres/yinwang/CMI_AAAI/.codex_p12_launch_5b71ee8,FP_GEM_GROUP=V100,FP_GEM_GROUP_COUNT=161,FP_GEM_GROUP_STRIDE=6 scripts/fp_gem_array.slurm",
+      "working_directory": "/home/infres/yinwang/CMI_AAAI/.codex_p12_launch_5b71ee8"
+    }
+  ],
+  "excluded_launches": [
+    {
+      "accepted_rows": 0,
+      "job_id": "893415",
+      "reason": "compute node could not see the pre-amendment temporary worktree",
+      "status": "zero_result_infrastructure_failure"
+    },
+    {
+      "accepted_rows": 0,
+      "job_id": "893416",
+      "reason": "overstrict unrecoverable P9 byte-hash gate stopped before RCT, GEM, evaluation labels, or performance",
+      "status": "zero_result_pre_amendment_gate_stop"
+    },
+    {
+      "accepted_rows": 0,
+      "array_job_id": "893448",
+      "array_task_id": "0",
+      "failed_payload_sha256": "2dca2cab184c00f6a696c9b1ca8f64d5136562242808c4cf53cbf9cba3162662",
+      "job_id": "893449",
+      "reason": "cached smoke checkpoint reload omitted custom SPD batch-normalization source-domain running buffers",
+      "retry_job_id": "893456",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "stdout_sha256": "d311a2fde4d5b28c65a0f67a9fc8d4c66a3fcbfee2dce3a6797ee27356123082",
+      "status": "failed_attempt_excluded"
+    },
+    {
+      "accepted_rows": 0,
+      "job_created": false,
+      "reason": "QOSMaxSubmitJobPerUserLimit",
+      "requested_array": "0-160%6",
+      "status": "scheduler_rejected_before_job_creation"
+    },
+    {
+      "accepted_rows": 0,
+      "job_created": false,
+      "reason": "QOSMaxSubmitJobPerUserLimit",
+      "requested_array": "0-63%6",
+      "status": "scheduler_rejected_before_job_creation"
+    },
+    {
+      "accepted_rows": 0,
+      "job_created": false,
+      "reason": "QOSMaxSubmitJobPerUserLimit",
+      "requested_array": "0-31%6",
+      "status": "scheduler_rejected_before_job_creation"
+    }
+  ],
+  "frozen_execution": {
+    "config_sha256": "d44fd98aa5913eb45908b7fd398b04e5a268dd4aaa75f15bcc96819f424bf165",
+    "launch_commit": "e6c491560c14ae44cbb2bd03e0d8c1214e07da56",
+    "manifest_file_sha256": "e9ebe6e9421bdcf10f8a952623285cec0842f5cb6b868e8147f13dde23e8a712",
+    "manifest_semantic_sha256": "231246def0ac1dd8cef02920b77502767467738a839ca0a99673117df31b6d8e",
+    "runner_sha256": "720b91b1b43cdf6a983be1cb8413430a06b98d6f4923166fa14614041ec46abd",
+    "scientific_configuration_changed_between_attempt_and_retry": false,
+    "worktree_clean_at_launch": true
+  },
+  "runtime": {
+    "cuda_version": "12.8",
+    "mne_version": "1.8.0",
+    "moabb_version": "1.2.0",
+    "python_version": "3.9.25",
+    "pytorch_version": "2.8.0+cu128",
+    "sys_executable": "/home/infres/yinwang/anaconda3/envs/icml/bin/python",
+    "sys_prefix": "/home/infres/yinwang/anaconda3/envs/icml"
+  },
+  "smoke": {
+    "job_id": "893433",
+    "launch_commit": "5b71ee841384327ad01e02f57f49378285266195",
+    "result_rows": 0,
+    "smoke_payload_sha256": "4bdcbb27f7303bc99f642119ae996b936c4a77b56a026c393e729bc87c672fe7",
+    "status": "pass_no_performance",
+    "submit_command": "sbatch --parsable -p V100 --export=ALL,FP_GEM_REPO=/home/infres/yinwang/CMI_AAAI/.codex_p12_launch_5b71ee8 scripts/fp_gem_smoke.slurm"
+  }
+}
