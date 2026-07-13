@@ -52,6 +52,15 @@ def compact_counts(value: Any) -> str:
     return json.dumps([int(item) for item in value], separators=(",", ":"))
 
 
+def hash_array(value: Any, dtype: Any) -> str:
+    array = np.ascontiguousarray(np.asarray(value, dtype=dtype))
+    digest = hashlib.sha256()
+    digest.update(str(array.dtype).encode())
+    digest.update(str(tuple(array.shape)).encode())
+    digest.update(array.tobytes())
+    return digest.hexdigest()
+
+
 def verified_post_artifact_scheduler_handoff(
     lines: list[str],
     path: Path,
@@ -277,10 +286,120 @@ def load_raw_units(
         expected_geometry_keys = {
             (float(q), method) for q in Q_VALUES for method in ("Joint-GEM", "FP-GEM")
         }
+        p12_payload = json.loads(Path(unit["p12_raw_path"]).read_text())
+        p12_metrics = {row["method"]: row for row in p12_payload["results"]}
+        expected_counts = {"0.1": [5, 45], "0.5": [25, 25], "0.9": [45, 5]}
+
+        def batch_for(row: dict[str, Any]) -> dict[str, Any]:
+            return unit["batches"][f"{float(row['q']):.1f}"]
+
+        geometry_lookup = {
+            (float(row["q"]), row["method"]): row for row in geometry
+        }
+
+        def geometry_internal_consistency(row: dict[str, Any]) -> bool:
+            q = float(row["q"])
+            method = row["method"]
+            center = geometry_lookup.get((0.5, method), {})
+            a = np.asarray(row["log_scale_vector"], dtype=np.float32)
+            b = np.asarray(row["translation_vector"], dtype=np.float32)
+            center_a = np.asarray(center.get("log_scale_vector", []), dtype=np.float32)
+            center_b = np.asarray(center.get("translation_vector", []), dtype=np.float32)
+            if a.shape != center_a.shape or b.shape != center_b.shape:
+                return False
+            a_displacement = float(np.linalg.norm(a - center_a))
+            b_displacement = float(np.linalg.norm(b - center_b))
+            total_displacement = float(np.hypot(a_displacement, b_displacement))
+            fitted_prior = np.asarray(row["fitted_prior"], dtype=np.float64)
+            source_prior = np.asarray(row["source_prior"], dtype=np.float64)
+            return bool(
+                hash_array(a, np.float32) == row["log_scale_vector_hash"]
+                and hash_array(b, np.float32) == row["translation_vector_hash"]
+                and np.isclose(np.linalg.norm(a), row["log_scale_norm"], rtol=1e-6, atol=1e-7)
+                and np.isclose(np.linalg.norm(b), row["translation_norm"], rtol=1e-6, atol=1e-7)
+                and np.isclose(
+                    a_displacement,
+                    row["log_scale_displacement_from_q05"],
+                    rtol=1e-6,
+                    atol=1e-7,
+                )
+                and np.isclose(
+                    b_displacement,
+                    row["translation_displacement_from_q05"],
+                    rtol=1e-6,
+                    atol=1e-7,
+                )
+                and np.isclose(
+                    total_displacement,
+                    row["geometry_displacement_from_q05"],
+                    rtol=1e-6,
+                    atol=1e-7,
+                )
+                and fitted_prior.shape == (2,)
+                and source_prior.shape == (2,)
+                and np.isclose(fitted_prior.sum(), 1.0, atol=1e-7)
+                and np.isclose(source_prior.sum(), 1.0, atol=1e-7)
+                and (method != "FP-GEM" or np.allclose(fitted_prior, source_prior, atol=1e-7))
+                and (q != 0.5 or np.isclose(total_displacement, 0.0, atol=1e-7))
+            )
+
+        def reused_metrics_match(row: dict[str, Any]) -> bool:
+            q = float(row["q"])
+            method = row["method"]
+            should_reuse = q == 0.5 or method == "source_only_tsmnet"
+            expected_origin = (
+                "P12_q05_reused"
+                if q == 0.5
+                else "P12_source_only_reused"
+                if method == "source_only_tsmnet"
+                else "P13_new_prevalence_adaptation"
+            )
+            if row["result_origin"] != expected_origin:
+                return False
+            if not should_reuse:
+                return True
+            reference = p12_metrics[method]
+            return all(
+                float(row[metric]) == float(reference[metric])
+                for metric in ("acc", "bacc", "macro_f1")
+            )
+
         provenance = payload.get("provenance", {})
         checks = {
             "result_coverage": len(rows) == 18 and result_keys == expected_result_keys,
             "geometry_coverage": len(geometry) == 6 and geometry_keys == expected_geometry_keys,
+            "result_manifest_binding": all(
+                row["adaptation_manifest_hash"]
+                == batch_for(row)["adaptation_manifest_hash"]
+                and row["class_counts_adapt"]
+                == expected_counts[f"{float(row['q']):.1f}"]
+                and row["n_adapt"] == 50
+                and row["n_eval"] == 50
+                and row["class_counts_eval"] == [25, 25]
+                and row["checkpoint_hash"] == unit["checkpoint_sha256"]
+                for row in rows
+            ),
+            "prediction_vectors_and_hashes": all(
+                len(row["prediction_vector"]) == 50
+                and hash_array(row["prediction_vector"], np.int64)
+                == row["prediction_hash"]
+                for row in rows
+            ),
+            "reused_metrics_and_origins": all(reused_metrics_match(row) for row in rows),
+            "metric_ranges": all(
+                0.0 <= float(row[metric]) <= 1.0
+                for row in rows
+                for metric in ("acc", "bacc", "macro_f1")
+            ),
+            "geometry_manifest_binding": all(
+                row["adaptation_manifest_hash"]
+                == batch_for(row)["adaptation_manifest_hash"]
+                and row["checkpoint_hash"] == unit["checkpoint_sha256"]
+                for row in geometry
+            ),
+            "geometry_internal_consistency": all(
+                geometry_internal_consistency(row) for row in geometry
+            ),
             "checkpoint_hash": payload["checkpoint"]["checkpoint_sha256"] == unit["checkpoint_sha256"],
             "source_state_hash": payload["checkpoint"]["source_model_sha256"] == unit["source_model_sha256"],
             "checkpoint_file_unchanged": sha256_file(unit["checkpoint_path"]) == unit["checkpoint_sha256"],
