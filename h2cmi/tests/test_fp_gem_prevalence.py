@@ -1,5 +1,8 @@
 import inspect
 import json
+import os
+import tempfile
+from pathlib import Path
 
 import numpy as np
 import torch
@@ -106,3 +109,57 @@ def test_seed_average_sensitivity_and_paired_bootstrap():
         assert primary["support_rule_pass"] is False
     finally:
         analyzer.BOOTSTRAP_REPLICATES = old_replicates
+
+
+def test_scheduler_handoff_stderr_is_narrow_and_post_artifact_only():
+    payload = {
+        "status": "ok",
+        "dataset": "Lee2019_MI",
+        "target_subject": 2,
+        "source_seed": 1,
+        "provenance": {
+            "slurm_array_job_id": "894879",
+            "slurm_array_task_id": "4",
+            "runtime": {"hostname": "node11"},
+        },
+    }
+    job_record = {
+        "arrays": [{
+            "job_id": "894879",
+            "array_range": "4-4",
+            "status": "completed_repair_then_canceled_for_scheduler_handoff",
+            "accepted_unit_keys": ["Lee2019_MI:2:1"],
+        }]
+    }
+    with tempfile.TemporaryDirectory() as directory:
+        root = Path(directory)
+        raw_path = root / "unit.json"
+        stdout_path = root / "job.out"
+        stderr_path = root / "job.err"
+        raw_path.write_text("{}\n")
+        stdout_path.write_text(
+            f'{{"out": "{raw_path}", "rows": 18, "status": "ok"}}\n'
+        )
+        stderr_path.write_text(
+            "slurmstepd: error: *** JOB 894879 ON node11 CANCELLED AT 2026-07-13T15:28:13 ***\n"
+        )
+        os.utime(raw_path, ns=(1_000_000_000, 1_000_000_000))
+        os.utime(stdout_path, ns=(2_000_000_000, 2_000_000_000))
+        os.utime(stderr_path, ns=(3_000_000_000, 3_000_000_000))
+        accepted = analyzer.accepted_stderr(
+            stderr_path, stdout_path, raw_path, payload, job_record
+        )
+        assert accepted["status"] == "verified_post_artifact_scheduler_handoff"
+
+        payload["provenance"]["runtime"]["hostname"] = "node12"
+        rejected = analyzer.accepted_stderr(
+            stderr_path, stdout_path, raw_path, payload, job_record
+        )
+        assert rejected["status"] == "real_or_unexpected_failure"
+
+        payload["provenance"]["runtime"]["hostname"] = "node11"
+        os.utime(raw_path, ns=(4_000_000_000, 4_000_000_000))
+        rejected = analyzer.accepted_stderr(
+            stderr_path, stdout_path, raw_path, payload, job_record
+        )
+        assert rejected["status"] == "real_or_unexpected_failure"

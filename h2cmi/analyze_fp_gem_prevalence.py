@@ -5,6 +5,7 @@ import argparse
 import csv
 import hashlib
 import json
+import re
 import subprocess
 from collections import Counter, defaultdict
 from pathlib import Path
@@ -21,6 +22,11 @@ Q_VALUES = runner.Q_VALUES
 BOOTSTRAP_REPLICATES = 10_000
 BOOTSTRAP_SEED = 20_260_710
 COMPARATORS = ("Joint-GEM", "rct", "spdim_geodesic", "spdim_bias")
+SCHEDULER_HANDOFF_RE = re.compile(
+    r"^slurmstepd: error: \*\*\* JOB (?P<job_id>[0-9]+) ON "
+    r"(?P<node>[A-Za-z0-9._-]+) CANCELLED AT "
+    r"[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2} \*\*\*$"
+)
 
 
 def sha256_file(path: str | Path) -> str:
@@ -46,7 +52,61 @@ def compact_counts(value: Any) -> str:
     return json.dumps([int(item) for item in value], separators=(",", ":"))
 
 
-def accepted_stderr(path: Path) -> dict[str, Any]:
+def verified_post_artifact_scheduler_handoff(
+    lines: list[str],
+    path: Path,
+    stdout_path: Path,
+    raw_path: Path,
+    payload: dict[str, Any],
+    job_record: dict[str, Any],
+) -> dict[str, Any]:
+    match = SCHEDULER_HANDOFF_RE.fullmatch(lines[0]) if len(lines) == 1 else None
+    provenance = payload.get("provenance", {})
+    job_id = str(provenance.get("slurm_array_job_id", ""))
+    task_id = str(provenance.get("slurm_array_task_id", ""))
+    unit_key = ":".join(
+        str(value)
+        for value in (payload.get("dataset"), payload.get("target_subject"), payload.get("source_seed"))
+    )
+    matching_records = [
+        entry
+        for entry in job_record.get("arrays", [])
+        if str(entry.get("job_id", "")) == job_id
+    ]
+    entry = matching_records[0] if len(matching_records) == 1 else {}
+    stdout_text = stdout_path.read_text(errors="replace") if stdout_path.exists() else ""
+    checks = {
+        "single_exact_cancellation_line": match is not None,
+        "job_id_matches_payload": bool(match) and match.group("job_id") == job_id,
+        "node_matches_payload": bool(match)
+        and match.group("node") == provenance.get("runtime", {}).get("hostname"),
+        "single_matching_job_record": len(matching_records) == 1,
+        "record_marks_scheduler_handoff": entry.get("status")
+        == "completed_repair_then_canceled_for_scheduler_handoff",
+        "record_names_only_this_accepted_unit": entry.get("accepted_unit_keys") == [unit_key],
+        "record_names_exact_array_task": entry.get("array_range") == f"{task_id}-{task_id}",
+        "raw_payload_ok": payload.get("status") == "ok",
+        "stdout_names_completed_raw": stdout_path.exists()
+        and f'"out": "{raw_path}"' in stdout_text
+        and '"rows": 18' in stdout_text
+        and '"status": "ok"' in stdout_text,
+        "raw_stdout_cancellation_order": raw_path.exists()
+        and stdout_path.exists()
+        and path.exists()
+        and raw_path.stat().st_mtime_ns
+        < stdout_path.stat().st_mtime_ns
+        < path.stat().st_mtime_ns,
+    }
+    return {"verified": all(checks.values()), "checks": checks}
+
+
+def accepted_stderr(
+    path: Path,
+    stdout_path: Path,
+    raw_path: Path,
+    payload: dict[str, Any],
+    job_record: dict[str, Any],
+) -> dict[str, Any]:
     text = path.read_text(errors="replace") if path.exists() else ""
     lines = [line.strip() for line in text.splitlines() if line.strip()]
     harmless_exact = {
@@ -64,12 +124,17 @@ def accepted_stderr(path: Path) -> dict[str, Any]:
         "out of memory",
     )
     failures = [line for line in lines if any(token in line.lower() for token in forbidden)]
+    handoff = verified_post_artifact_scheduler_handoff(
+        lines, path, stdout_path, raw_path, payload, job_record
+    )
     if not path.exists():
         status = "missing"
     elif not lines:
         status = "empty"
     elif not unexpected and not failures:
         status = "known_harmless_warnings_only"
+    elif handoff["verified"] and not failures:
+        status = "verified_post_artifact_scheduler_handoff"
     else:
         status = "real_or_unexpected_failure"
     return {
@@ -78,6 +143,8 @@ def accepted_stderr(path: Path) -> dict[str, Any]:
         "status": status,
         "unexpected_lines": unexpected[:20],
         "real_failure_lines": failures[:20],
+        "scheduler_handoff_verified": handoff["verified"],
+        "scheduler_handoff_checks": handoff["checks"],
     }
 
 
@@ -117,6 +184,7 @@ def load_raw_units(
     config: dict[str, Any],
     units: dict[tuple[int, int], dict[str, Any]],
     raw_root: Path,
+    job_record: dict[str, Any],
 ) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
     payloads: list[dict[str, Any]] = []
     artifacts: list[dict[str, Any]] = []
@@ -192,11 +260,15 @@ def load_raw_units(
         stdout_path = raw_root / f"logs/{array_job}_{array_task}.out"
         stderr_path = raw_root / f"logs/{array_job}_{array_task}.err"
         stdout = accepted_stdout(stdout_path, payload)
-        stderr = accepted_stderr(stderr_path)
+        stderr = accepted_stderr(stderr_path, stdout_path, path, payload, job_record)
         if stdout["status"] != "exists_complete_clean_launch":
             failures.append(f"stdout gate failed {(target, seed)}: {stdout}")
             continue
-        if stderr["status"] not in {"empty", "known_harmless_warnings_only"}:
+        if stderr["status"] not in {
+            "empty",
+            "known_harmless_warnings_only",
+            "verified_post_artifact_scheduler_handoff",
+        }:
             failures.append(f"stderr gate failed {(target, seed)}: {stderr}")
             continue
         artifacts.append({
@@ -214,6 +286,7 @@ def load_raw_units(
             "stderr_path": str(stderr_path),
             "stderr_sha256": stderr["sha256"],
             "stderr_status": stderr["status"],
+            "scheduler_handoff_verified": stderr["scheduler_handoff_verified"],
             "launch_commit": provenance["launch_commit"],
             "runner_sha256": provenance["runner_sha256"],
             "checkpoint_sha256": unit["checkpoint_sha256"],
@@ -642,7 +715,7 @@ def main() -> int:
     queue = squeue_absence(job_ids)
     if not queue["all_absent"]:
         raise RuntimeError(f"accepted P13 jobs remain in squeue: {queue['stdout']}")
-    payloads, artifacts = load_raw_units(config, units, raw_root)
+    payloads, artifacts = load_raw_units(config, units, raw_root, job_record)
     results, geometry, prediction_vectors = flatten(payloads)
     keys = [(row["target_subject"], row["source_seed"], row["q"], row["method"]) for row in results]
     geometry_keys = [(row["target_subject"], row["source_seed"], row["q"], row["method"]) for row in geometry]
@@ -698,7 +771,19 @@ def main() -> int:
         "q_values": sorted({row["q"] for row in results}),
         "squeue_absence": queue["all_absent"],
         "stdout_validation_pass": all(row["stdout_status"] == "exists_complete_clean_launch" for row in artifacts),
-        "stderr_validation_pass": all(row["stderr_status"] in {"empty", "known_harmless_warnings_only"} for row in artifacts),
+        "stderr_validation_pass": all(
+            row["stderr_status"]
+            in {
+                "empty",
+                "known_harmless_warnings_only",
+                "verified_post_artifact_scheduler_handoff",
+            }
+            for row in artifacts
+        ),
+        "verified_scheduler_handoff_count": sum(
+            row["stderr_status"] == "verified_post_artifact_scheduler_handoff"
+            for row in artifacts
+        ),
     }
     validation["validation_pass"] = (
         validation["accepted_unit_count"] == 162
