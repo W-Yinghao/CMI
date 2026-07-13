@@ -1,0 +1,3 @@
+method,replicates,familywise_error,threshold,passed,real_field_score_used
+exact_shared_target_signflip_maxT,512,0.05078125,0.06,1,0
+twelve_unadjusted_signflip_tests,512,0.4375,0.06,1,0

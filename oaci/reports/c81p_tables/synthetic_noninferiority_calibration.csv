@@ -1,0 +1,4 @@
+scenario,mean_difference,expected_noninferior,observed_all_noninferior,passed,real_field_score_used
+clearly_noninferior,-0.04043415981397915,1,1,1,0
+at_margin_with_uncertainty,0.0494205852802854,0,0,1,0
+clearly_inferior,0.140110911066561,0,0,1,0
