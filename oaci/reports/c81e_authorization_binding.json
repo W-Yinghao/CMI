@@ -1,0 +1,24 @@
+{
+  "schema_version": "c81e_authorization_binding_v1",
+  "authorization_record_path": "oaci/reports/C81E_PI_AUTHORIZATION_RECORD.json",
+  "authorization_record_sha256": "ef7555e21ba48ef5c1c9f420a9fbf3e4c78e206053ee7166123f514ec4b70d04",
+  "authorization_received": true,
+  "authorization_text_exact": "现在我明确授权C81E",
+  "binding_policy_commit": "3d9dd76",
+  "protocol": {
+    "commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
+    "sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee"
+  },
+  "analysis_lock": {
+    "commit": "541651c2ee3343c12d374a7322c91181a860a2c9",
+    "sha256": "b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1"
+  },
+  "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
+  "base_head_before_authorized_execution": "89c6afb56bf0a386200d5ce4e54c0d14153bcde8",
+  "magic_token_required": false,
+  "hash_recital_required": false,
+  "scientific_execution_started": false,
+  "real_baseline_statistics_before_binding": 0,
+  "evaluation_label_reads_before_binding": 0,
+  "same_label_oracle_accesses_before_binding": 0
+}

@@ -261,7 +261,8 @@ def test_protocol_audit_records_zero_real_statistics_and_label_reads():
     assert audit["same_label_oracle_accesses"] == 0
 
 
-def test_run_real_fails_closed_without_direct_C81E_authorization():
+def test_run_real_fails_closed_without_direct_C81E_authorization(tmp_path, monkeypatch):
+    monkeypatch.setattr(baseline, "AUTHORIZATION_PATH", tmp_path / "absent_authorization.json")
     with pytest.raises(RuntimeError):
         baseline.run_real()
 
@@ -310,6 +311,12 @@ def test_risk_register_has_no_open_blocker():
     assert all(row["blocking"] == "0" for row in rows)
 
 
-def test_no_real_C81_result_exists_during_C81P():
+def test_C81P_readiness_precedes_direct_C81E_authorization():
+    readiness = json.loads((baseline.REPORT_DIR / "C81P_PROTOCOL_READINESS.json").read_text())
+    authorization = json.loads(baseline.AUTHORIZATION_PATH.read_text())
+    assert readiness["protected_state"]["C81E_authorized"] is False
+    assert readiness["protected_state"]["real_baseline_statistics"] == 0
+    assert authorization["authorization_received"] is True
+    assert authorization["protocol_sha256"] == readiness["protocol"]["sha256"]
+    assert authorization["analysis_lock_sha256"] == readiness["analysis_lock"]["sha256"]
     assert not (baseline.REPORT_DIR / "C81_FROZEN_FIELD_BASELINE_COMPARISON.json").exists()
-    assert not baseline.AUTHORIZATION_PATH.exists()

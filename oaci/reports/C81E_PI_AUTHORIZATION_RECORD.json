@@ -1,0 +1,40 @@
+{
+  "schema_version": "c81e_direct_pi_authorization_v1",
+  "recorded_at_utc": "2026-07-13T12:50:56Z",
+  "authorization_source": "direct_PI_statement_in_current_execution_conversation",
+  "authorization_text_exact": "现在我明确授权C81E",
+  "authorization_received": true,
+  "magic_token_required": false,
+  "PI_must_repeat_hashes": false,
+  "binding_policy_commit": "3d9dd76",
+  "binding_resolution": "executor_automatically_bound_the_direct_C81E_authorization_to_the_single_current_scope_specific_protocol_lock_and_manifest_set",
+  "protocol_commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
+  "protocol_sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee",
+  "analysis_lock_commit": "541651c2ee3343c12d374a7322c91181a860a2c9",
+  "analysis_lock_sha256": "b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1",
+  "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
+  "scope": {
+    "existing_seed3_seed4_primary_fields_read_only": true,
+    "registered_C81_baseline_comparison": true,
+    "training": false,
+    "forward": false,
+    "reinference": false,
+    "GPU": false,
+    "seed5": false,
+    "target4_primary": false,
+    "same_label_oracle": false,
+    "BNCI2014_004": false,
+    "active_acquisition": false,
+    "new_candidate_or_feature_kernel_model_search": false,
+    "C82": false,
+    "manuscript_experiments": false
+  },
+  "protected_state_before_record": {
+    "real_C81_baseline_statistics": 0,
+    "new_real_candidate_rankings": 0,
+    "baseline_specific_evaluation_label_reads": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "training_forward_reinference_GPU": 0
+  }
+}
