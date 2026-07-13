@@ -1,0 +1,13 @@
+table_id,content_class,source_artifact,role
+S01,all_34_methods_and_availability,oaci/reports/C81_BASELINE_METHOD_REGISTRY.json,34-method fixed registry and feasibility
+S02,all_21_context_methods,oaci/reports/c82e_tables/seed_specific_method_results.csv,seed-level results for all emitted context methods
+S03,target_level_effects,oaci/reports/c82e_tables/target_level_catastrophic_failures.csv,target-cluster heterogeneity
+S04,all_Q0_budgets_seed3,oaci/reports/c80e_tables/seed3_budget_frontier.csv,seven-point C80 curve
+S05,all_Q0_budgets_seed4,oaci/reports/c80e_tables/seed4_budget_frontier.csv,seven-point C80 curve
+S06,measurement_metrics,oaci/reports/c82e_tables/method_measurement_metrics.csv,applicability-constrained measurement outputs
+S07,selected_regimes,oaci/reports/c82e_tables/selected_regime_distribution.csv,descriptive selected-regime distribution
+S08,coverage,oaci/reports/c82e_tables/coverage_summary.csv,registered top-k coverage
+S09,C82_red_team,oaci/reports/c82e_tables/scientific_result_red_team.csv,59 scientific checks
+S10,C82_provenance,oaci/reports/C82E_EXECUTION_RESULT_IDENTITY.json,"authorization, views, result identity"
+S11,repair_history,oaci/reports/C81_OVERALL_REPORT_GITHUB_AUDIT_ADDENDUM.json,C81 blocker audit
+S12,C82_interpretation_addendum,oaci/reports/C82E_PM_GITHUB_AUDIT_ADDENDUM.json,LOTO and Q5 wording limits

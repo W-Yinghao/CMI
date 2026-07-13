@@ -1,0 +1,10 @@
+element_id,value,units,role,source_artifact,qualifier
+training_seeds,2,seeds,paired training factor,oaci/reports/C81_AAAI_BASELINE_COMPARISON_PROTOCOL.json,not independent populations
+primary_targets,8,targets,principal scientific clusters,oaci/reports/C81_AAAI_BASELINE_COMPARISON_PROTOCOL.json,target4 excluded
+levels,2,levels,repeated within target,oaci/reports/C81_AAAI_BASELINE_COMPARISON_PROTOCOL.json,not independent subjects
+candidates_per_context,81,candidates,fixed candidate universe,oaci/reports/C81_AAAI_BASELINE_COMPARISON_PROTOCOL.json,1 ERM plus 40 OACI plus 40 SRC
+contexts,32,contexts,seed-target-level contexts,oaci/reports/C82_POST_C81_BASELINE_RECOVERY.json,not scientific N
+selection_freeze,1,barrier,selection precedes evaluation,oaci/reports/C82E_EXECUTION_RESULT_IDENTITY.json,selection recomputation forbidden
+physical_disjointness,1,contract,construction/evaluation split,oaci/reports/C82_ANALYSIS_EXECUTION_LOCK.json,evaluation never enters selector
+target4_primary,0,rows,engineering-only exclusion,oaci/reports/C82E_EXECUTION_RESULT_IDENTITY.json,no primary use
+oracle_access,0,events,same-label oracle closure,oaci/reports/C82E_EXECUTION_RESULT_IDENTITY.json,"descriptive ceiling B5 is evaluation denominator, not oracle selector"

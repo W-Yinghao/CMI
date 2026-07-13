@@ -1,0 +1,10 @@
+element_id,axis,label,predecessor,empirical_scale,allowed_claim,forbidden_claim
+I0,information,no target information,NONE,0,information-class label,ordinal performance guarantee
+IS,information,strict-source information,I0,0,source-only selection class,target transport
+IU_ISU,information,target-unlabeled or source-calibrated unlabeled,IS,0,zero-target-label classes,homogeneous method family
+ILc,information,independent target-construction labels,IU_ISU,0,construction-label class,deployment-free information
+L1,evidence,reliability,NONE,0,distinct evidence level,prediction
+L2,evidence,association,L1,0,distinct evidence level,causality
+L3,evidence,prediction,L2,0,distinct evidence level,transport
+L4,evidence,transport,L3,0,distinct evidence level,actionability
+L5,evidence,actionability,L4,0,decision endpoint,deployability

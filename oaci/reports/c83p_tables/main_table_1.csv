@@ -1,0 +1,13 @@
+method_id,method,information_class,required_views,role,registered_deviation,claim_boundary
+B0,Uniform random candidate,I0,NONE,FEASIBLE_PRIMARY,none,fixed_method_not_best_of_many
+B1,ERM anchor,I0,trajectory_genealogy_metadata,FEASIBLE_PRIMARY,none,fixed_method_not_best_of_many
+B5,Oracle-best candidate,IOr,target_evaluation_view,CEILING_ONLY_NOT_SELECTOR,never enters selector comparison or taxonomy,denominator_ceiling_only
+S1,Source-validation balanced accuracy,IS,strict_source_trial_view|source_audit_label_view,FEASIBLE_PRIMARY,frozen source audit rather than a newly held-out source training fold,fixed_method_not_best_of_many
+U5,Normalized nuclear norm,IU,target_unlabeled_trial_view,FEASIBLE_PRIMARY,none,fixed_method_not_best_of_many
+U7,Average Thresholded Confidence MC,ISU,strict_source_trial_view|source_audit_label_view|target_unlabeled_trial_view,FEASIBLE_PRIMARY,ATC-MC fixed; balanced domain weighting matches the registered endpoint,fixed_method_not_best_of_many
+U11,MaNo p4,IU,target_unlabeled_trial_view,FEASIBLE_PRIMARY,order-invariant whole-set delta replaces official first-five-loader-batch estimate; p=4 and scaling branch otherwise exact to official commit b9c0262,fixed_method_not_best_of_many
+U13,Confidence Optimal Transport with Thresholding,ISU,strict_source_trial_view|source_audit_label_view|target_unlabeled_trial_view,FEASIBLE_PRIMARY,source empirical prior primary; uniform prior registered sensitivity only,fixed_method_not_best_of_many
+U14,Soft Neighborhood Density,IU,target_unlabeled_trial_view,FEASIBLE_PRIMARY,paper softmax-output feature layer fixed; diagonal excluded exactly,fixed_method_not_best_of_many
+U15,Agreement-on-the-Line,ISU,strict_source_trial_view|source_audit_label_view|target_unlabeled_trial_view,FEASIBLE_PRIMARY,agreement proportions use fixed Jeffreys correction (count+0.5)/(n+1); pairs are fit observations but never scientific N,fixed_method_not_best_of_many
+L1,Frozen Q0 B=1,ILc,target_construction_view,FEASIBLE_PRIMARY_FIXED_COMPARATOR,post-C80 outcome-informed primary labeled comparator,fixed_method_not_best_of_many
+L7,Frozen Q0 FULL,ILc,target_construction_view,FEASIBLE_PRIMARY_FIXED_COMPARATOR,FULL remains cell-specific and is not relabeled 61,fixed_method_not_best_of_many

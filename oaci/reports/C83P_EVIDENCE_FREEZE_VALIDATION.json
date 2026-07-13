@@ -1,0 +1,11 @@
+{
+  "schema_version": "c83p_evidence_freeze_validation_v1",
+  "checks": 20,
+  "passed": 20,
+  "failed": 0,
+  "blocking": 0,
+  "new_real_data_statistics": 0,
+  "EEG_or_label_view_accesses": 0,
+  "manuscript_prose_created": false,
+  "gate": "C83_AAAI_EVIDENCE_CLAIM_FIGURE_TABLE_FREEZE_READY_FOR_MANUSCRIPT_AUTHORIZATION"
+}
