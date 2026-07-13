@@ -14,48 +14,47 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-13)
 
-The authoritative milestone is **C81P complete, C81E not authorized**:
+The authoritative milestone is **C81R2 repair readiness complete; C81E held-evaluation execution is not reauthorized**:
 
 ```text
-C81P protocol commit:          16a0d2eba4715a1cec78da6a79a182fd416a6629
-C81P protocol SHA-256:         cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee
-C81P method registry SHA-256:  ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120
-C81P implementation commit:    d17ffa62a63b929d36d03f74e4ce79794cd9601b
-C81P analysis lock commit:     541651c2ee3343c12d374a7322c91181a860a2c9
-C81P analysis lock SHA-256:    b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1
-C81P pre-execution red team:   43 / 43 PASS
-C81P final-report red team:    40 / 40 PASS
-C81P final gate:               C81_AAAI_BASELINE_COMPARISON_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION
-C81E authorization:           absent
-real C81 baseline statistics: 0
+C81 base protocol commit:         16a0d2eba4715a1cec78da6a79a182fd416a6629
+C81 base protocol SHA-256:        cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee
+C81 source-schema repair:         6371b2220979b61cabfb105521036bb02f47aaea
+C81R2 descriptor repair:          5062f5ade0f45d6fd34f80556fb77470c2c6d717
+C81R2 repaired implementation:    225df1c2066b50abedec4bacf043f6359c715190
+C81R2 execution lock:             f82ffa4b147c0b1329a98649b898691cf1fdc983
+C81R2 lock SHA-256:               13414dde0a88eb8a1a0810b3b36f25c718669d4cfe3178b871239eff6e292705
+C81R2 readiness result:           6118a13df264bc64e79fe6789fc215b1a5e96b55
+C81R2 red team:                   52 / 52 PASS
+C81R2 gate:                       C81_SELECTION_DESCRIPTOR_REPAIR_LOCKED_READY_FOR_PI_REAUTHORIZATION
+held-evaluation statistics:       0
+same-label oracle accesses:       0
 ```
 
-C81P prospectively locks a same-field comparison across `I0`, `IS`, `IU`,
-`ISU`, and `ILc`. The 34-method registry freezes six zero-label primary
-representatives: ATC, NuclearNorm, MaNo, COTT, SND, and ALine. Source-validation
-balanced accuracy is the registered strict-source fallback because true
-Source-LODO retraining folds are unavailable. The importance-weighting family
-has no faithful training-free representative in the frozen inputs and remains
-unavailable rather than being improvised after outcomes.
+C81P locked the 34-method same-field comparison, including fixed zero-label
+representatives ATC, NuclearNorm, MaNo, COTT, SND, and ALine. Selection job
+`894915` completed under direct PI authorization and froze all 32 contexts and
+19 feasible selectors without evaluation-label, oracle, target-4, training,
+forward, or GPU access. Its manifest self-hash is
+`4677ed3aba7758ea0008c2093b44d6fb81d425930727e5941950179737ebd519`;
+the external payload hash is
+`1ed893acd9190914eb4cb122f3ef26bc1e2355c4103894b816894bd264669257`.
 
-The universe is 2 seeds x 8 primary targets x 2 levels x 81 candidates = 2,592
-candidates. Target 4 remains excluded; selection freezes before evaluation
-labels open; the same-label oracle is unreachable. Target is the principal
-cluster, seed is paired, and trials/checkpoints/ALine pairs are not treated as
-independent N. Q1 uses material improvement over strict source; Q2 uses a
-locked 0.05 noninferiority margin against frozen Q0 B=1. Both use exact
-shared-target max-T inference and locked LOTO stability.
+The independent freeze audit then stopped before evaluation because the generic
+C74 verifier assumed one common array length, while the registered payload has
+32 context rows and 19 method identifiers. C81R2 fixes only that descriptor
+verification with an exact per-array shape map, binds the existing payload, and
+forbids selection recomputation. The shared C74 verifier and all scientific
+objects remain unchanged.
 
-C80 replay is complete: 22/22 result hashes, 11/11 field/view objects, 14/14
-frontier rows, 224/224 target-level rows, and 16/16 LOTO rows. Synthetic-only
-calibration passed 20/20 checks. Final clean-commit regression is green:
-focused `43`; C65-C81P `412 + 1 conditional skip + 3 historical deselections`;
-C23-C81P `823 + 1 + 3`; full OACI `1,747 + 1 + 3`; accepted stderr is empty.
+Regression on lock `f82ffa4` is green: focused `47`; C65-C81R2 `416 + 1
+conditional skip + 3 historical deselections`; C23-C81R2 `827 + 1 + 3`; full
+OACI `1,751 + 1 + 3`. All stderr files are empty.
 
-No real baseline score, real candidate ranking, evaluation-label value, or
-oracle value was accessed. Under authorization policy `3d9dd76`, a direct PI
-statement naming C81E is sufficient; no magic token or repeated hash recital is
-required. C81P itself does not authorize C81E or any expanded scope.
+The direct authorization bound at `b2f9fca` was consumed by job `894915` and is
+not reusable for the new lock. Under policy `3d9dd76`, a new direct PI statement
+such as `授权 C81R2 修复后的 C81E 继续执行` is sufficient; no token or repeated
+hash recital is required. Until then, held-evaluation scoring remains stopped.
 
 The latest completed scientific milestone remains **C80E**:
 
