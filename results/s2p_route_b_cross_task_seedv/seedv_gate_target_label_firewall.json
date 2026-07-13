@@ -1,0 +1,12 @@
+{
+  "dataset": "SEED-V",
+  "pass": true,
+  "stage": "gate",
+  "target_labels_used_for_selection": false,
+  "test_split_use": "final_scoring_only",
+  "test_split_used_for_pca": false,
+  "test_split_used_for_probe_fit": false,
+  "test_split_used_for_task_gate": false,
+  "trial_group_leakage": false,
+  "window_as_independent_inference_unit": false
+}

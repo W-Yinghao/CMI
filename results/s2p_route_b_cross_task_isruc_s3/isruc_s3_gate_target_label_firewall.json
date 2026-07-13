@@ -1,0 +1,11 @@
+{
+  "dataset": "ISRUC_S3_Group_III",
+  "encoder_frozen": true,
+  "encoder_optimizer_created": false,
+  "flat_epoch_head_used": false,
+  "pass": true,
+  "sequence_overlap": false,
+  "stage": "gate",
+  "target_test_labels_used_for_selection": false,
+  "validation_subject_used_for_head_selection_only": true
+}

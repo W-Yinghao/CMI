@@ -1,0 +1,23 @@
+{
+  "all_geometry_subspaces_stable": false,
+  "feature_determinism_pass": true,
+  "fine_tuning_used": false,
+  "fleet_authorized_by_gate": true,
+  "objects": [
+    "random",
+    "released",
+    "H200_s0",
+    "H1000_s0",
+    "H2000_s0"
+  ],
+  "other_dataset_auto_launch_authorized": false,
+  "phase": "C1_SEED-V_gate",
+  "random_target_kappa": 0.13829787234042556,
+  "released_clears_random_plus_0p02": true,
+  "released_minus_random_target_kappa": 0.10106382978723405,
+  "released_target_kappa": 0.23936170212765961,
+  "status": "PASS",
+  "target_label_firewall_pass": true,
+  "trial_group_crossfit_pass": true,
+  "unseen_subject_replication_claim_allowed": false
+}

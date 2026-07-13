@@ -1,0 +1,6 @@
+tag,subject_nll,subject_accuracy_diagnostic,pairwise_subject_auc,pairwise_subject_margin,crossfit
+random,0.37707415985808385,0.9361702127659575,0.9990246913580247,0.9437982769476043,three_trial_blocks_train_val_test
+released,0.03382635887552866,0.9985815602836879,1.0,0.9926443561911583,three_trial_blocks_train_val_test
+H200_s0,0.06407437386334448,1.0,1.0,0.983568672173553,three_trial_blocks_train_val_test
+H1000_s0,0.03231709594837794,1.0,1.0,0.9937000137236384,three_trial_blocks_train_val_test
+H2000_s0,0.04011785542436762,1.0,1.0,0.9913085907697677,three_trial_blocks_train_val_test

@@ -1,0 +1,23 @@
+{
+  "analysis_unit": "trial_mean",
+  "canary_feature_sha256": "945badfa72000de10594360bfd2043f7b8c6e7bdca4284ac5697cab2d20acf22",
+  "canary_repeat_max_abs_diff": 0.0,
+  "checkpoint_path": "${PHASE_B_ARTIFACT_ROOT}/sha256_e7bbacd8e5f1965a2b893aa577c672fd04422f5be5cbb208660a5a49461ac549.pt",
+  "checkpoint_sha256_after": "e7bbacd8e5f1965a2b893aa577c672fd04422f5be5cbb208660a5a49461ac549",
+  "checkpoint_sha256_before": "e7bbacd8e5f1965a2b893aa577c672fd04422f5be5cbb208660a5a49461ac549",
+  "dataset": "SEED-V",
+  "encoder_frozen": true,
+  "encoder_optimizer_created": false,
+  "feature_dimension": 12400,
+  "fine_tuning_used": false,
+  "items": 705,
+  "native_channels": 62,
+  "normalization": "per_channel_per_1s_patch_zscore",
+  "patches": 1,
+  "payload": "features/H500_s0_features.npz",
+  "payload_sha256": "09daf5bc75297c906588de0e44b1fba6f4c93225bbf19d8aa6038525cd8d41ef",
+  "status": "PASS",
+  "strict_reload_pass": true,
+  "tag": "H500_s0",
+  "trial_ids_sha256": "9637428e1247fc422b5dfd7c112f7f39d5e48a12aae88b76d574a6976081848c"
+}

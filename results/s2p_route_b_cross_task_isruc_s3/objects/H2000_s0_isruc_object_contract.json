@@ -1,0 +1,33 @@
+{
+  "all_geometry_subspaces_stable": true,
+  "dataset": "ISRUC_S3_Group_III",
+  "downstream_seeds": [
+    0,
+    1,
+    2
+  ],
+  "encoder_frozen": true,
+  "encoder_optimizer_created": false,
+  "feature_payload_sha256": "a4d2c8a9a134970cdd37dcf5cc42219fcde9e9ee8b10368f041401ae48fe4837",
+  "fine_tuning_used": false,
+  "head_architecture": "linear1200_512_gelu_transformer1_h4_ff2048_linear5",
+  "prediction_payload": "objects/H2000_s0_isruc_predictions.npz",
+  "prediction_payload_sha256": "8659d5927bc098719a69bd90e5623bb5b33d85fc345a760d73d707260d39d298",
+  "rotations": 10,
+  "selection": "source_val_kappa_only_earliest_tie",
+  "source_val": {
+    "balanced_accuracy": 0.7446375937728347,
+    "kappa": 0.712292770074002,
+    "nll": 0.6519925304238289,
+    "weighted_f1": 0.7734636857420135
+  },
+  "status": "PASS",
+  "tag": "H2000_s0",
+  "target_test": {
+    "balanced_accuracy": 0.6541667032870893,
+    "kappa": 0.5983238376469038,
+    "nll": 0.8032856606723606,
+    "weighted_f1": 0.6816153798819122
+  },
+  "target_test_labels_used_for_selection": false
+}

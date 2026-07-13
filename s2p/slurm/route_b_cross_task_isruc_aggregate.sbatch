@@ -31,6 +31,9 @@ STAGE="${S2P_PHASE_C_STAGE:-gate}"
 GATE_ARGS=()
 if [[ "$STAGE" == "fleet" ]]; then
   GATE_ARGS=(--gate-json "$ROOT/isruc_s3_gate_verdict.json")
+  OBJECT_DIR="$ROOT/objects_fleet"
+else
+  OBJECT_DIR="$ROOT/objects"
 fi
 srun "$PY" s2p/scripts/route_b_cross_task_isruc_aggregate.py \
-  --stage "$STAGE" --object-dir "$ROOT/objects" --out-dir "$ROOT" "${GATE_ARGS[@]}"
+  --stage "$STAGE" --object-dir "$OBJECT_DIR" --out-dir "$ROOT" "${GATE_ARGS[@]}"

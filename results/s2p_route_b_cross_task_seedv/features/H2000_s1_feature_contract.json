@@ -1,0 +1,23 @@
+{
+  "analysis_unit": "trial_mean",
+  "canary_feature_sha256": "ea4d16610a7ce5a41030198b9fefef3d5dc3b51ceca4170e4e4e7b24b9349403",
+  "canary_repeat_max_abs_diff": 0.0,
+  "checkpoint_path": "${PHASE_B_ARTIFACT_ROOT}/best.492da560503d500bc59d7cd759b7b809cefb473ee6f78c07523fc407b51aa40f.pth",
+  "checkpoint_sha256_after": "492da560503d500bc59d7cd759b7b809cefb473ee6f78c07523fc407b51aa40f",
+  "checkpoint_sha256_before": "492da560503d500bc59d7cd759b7b809cefb473ee6f78c07523fc407b51aa40f",
+  "dataset": "SEED-V",
+  "encoder_frozen": true,
+  "encoder_optimizer_created": false,
+  "feature_dimension": 12400,
+  "fine_tuning_used": false,
+  "items": 705,
+  "native_channels": 62,
+  "normalization": "per_channel_per_1s_patch_zscore",
+  "patches": 1,
+  "payload": "features/H2000_s1_features.npz",
+  "payload_sha256": "a446fe6bcc36799259f46c5fd10c74ea3d338e027edd29aedb885b683f477e6f",
+  "status": "PASS",
+  "strict_reload_pass": true,
+  "tag": "H2000_s1",
+  "trial_ids_sha256": "9637428e1247fc422b5dfd7c112f7f39d5e48a12aae88b76d574a6976081848c"
+}

@@ -1,0 +1,15 @@
+{
+  "all_object_metrics_recomputed_from_predictions": true,
+  "gate_decision_recomputed": "PASS",
+  "object_prediction_hashes": {
+    "H1000_s0": "485e1c24f755e544929505ed783699c94f2db6533a75234a51e9bc46245a97fb",
+    "H2000_s0": "8659d5927bc098719a69bd90e5623bb5b33d85fc345a760d73d707260d39d298",
+    "H200_s0": "2066ff5b756f5fc405c6e4aa3437b99dcdefe01da55f363949341472b89fa73f",
+    "random": "d4d6d2cbbd483c5aab3ec1091351f26a763223ed37cb01f64b6fa18eca47a28a",
+    "released": "f211e9e2af7ac4bb4949bbc226f56f02cde541fa874734f50421346ea320eb0c"
+  },
+  "phase": "C2_ISRUC_S3_independent_prediction_recompute",
+  "rotation_identity_consistent": true,
+  "status": "PASS",
+  "target_labels_used_for_selection": false
+}
