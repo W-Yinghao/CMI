@@ -1,0 +1,56 @@
+{
+  "schema_version": "c82e_pm_github_audit_addendum_v1",
+  "milestone": "C82E_PM_audit_addendum",
+  "additive_only": true,
+  "historical_report_rewritten": false,
+  "accepted_gate": "C82-D_zero_label_comparison_training_seed_method_identity_or_target_heterogeneous",
+  "gate_changed": false,
+  "result_content_changed": false,
+  "audit_scope": {
+    "committed_compact_artifacts_only": true,
+    "EEG_arrays_opened": false,
+    "construction_or_evaluation_views_opened": false,
+    "frozen_selection_payload_loaded": false,
+    "same_label_oracle_opened": false,
+    "new_real_data_statistics": 0
+  },
+  "loto_semantics": {
+    "prospective_registry_primary_key": "held_out_target|method_id",
+    "emitted_primary_key": "seed|left_out_target",
+    "emitted_rows": 16,
+    "implementation_uses_full_panel_cross_seed_common_method_set": true,
+    "seed3_full_category": "B",
+    "seed4_full_category": "C",
+    "common_B_method_set": [],
+    "global_method_aware_panels_preserved": 7,
+    "global_panels_total": 16,
+    "registered_threshold": 12,
+    "authoritative_wording": "The registered global method-aware stability rule preserved 7/16 panels. The full-panel categories already differed across seeds, and the common B-method set was empty.",
+    "forbidden_wording": "Every seed-3 LOTO panel independently demonstrated that COTT lost Q1.",
+    "per_panel_per_method_Q1_ledger_emitted": false,
+    "primary_gate_affected": false
+  },
+  "q5_semantics": {
+    "information_class_membership_fixed": true,
+    "displayed_method_selected_by_observed_minimum_regret": true,
+    "tie_breaker": "method_id",
+    "authoritative_wording": "descriptive best registered method within a fixed class",
+    "forbidden_wording": [
+      "a prospectively fixed class representative",
+      "an inferential winner across methods"
+    ],
+    "inferential_decisions_affected": false
+  },
+  "identity_replay": {
+    "result_sha256": "d8060e6636adf7fcca7a0ace0e47bb7043676b7681569e09fb8705dcb8d5a8b7",
+    "artifact_manifest_sha256": "910e2ff1d8445dae262be82d417140cd44fc48be1306f2bbe5a439ec3549f0a2",
+    "loto_table_sha256": "8776693481efcb24e87f89fafadd01bbb4e656958a6075970a256da2e882afb3",
+    "q5_table_sha256": "98a8e3563a5c64c8bf4f4b3404c5a90ce8f6ec2256b7163565f4def84d4d04ed"
+  },
+  "final_disposition": {
+    "C82_D_preserved": true,
+    "C81_E_preserved": true,
+    "new_scientific_result": false,
+    "interpretation_narrowed_only": true
+  }
+}
