@@ -1,7 +1,15 @@
 {
-  "schema_version": "c80r_repaired_analysis_execution_lock_v1",
+  "schema_version": "c80r_repaired_analysis_execution_lock_v2",
   "milestone": "C80R",
   "status": "LOCKED_READY_FOR_NEW_PI_REAUTHORIZATION_C80E_NOT_AUTHORIZED",
+  "additive_lock_supersession": {
+    "superseded_lock_commit": "96177607d36210f9cd31ed3209e8bf5d2340f8d8",
+    "superseded_lock_sha256": "468d4e7d96ebe1d6319945078fa47cf9b1839e63e8decf5b1d1acb90e3e01322",
+    "reason": "preauthorization_red_team_completed_registered_topk_secondary_bands_cross_seed_budget_rows_and_S3_LOTO",
+    "scientific_registry_changed": false,
+    "real_budget_outcomes_accessed": 0,
+    "history_rewritten": false
+  },
   "protocol": {
     "commit": "e88a24484590636f87d0f22798401a762875046a",
     "path": "oaci/reports/C80R_ADDITIVE_REPAIR_PROTOCOL.json",
@@ -16,7 +24,7 @@
     "old_authorization_reusable": false
   },
   "implementation": {
-    "commit": "0e9dedc8fe3fbebbda16be519404ddefe3dae791",
+    "commit": "e5cb41a5cd389674e3ec201d5c5f68a361c2fed3",
     "files": [
       {
         "path": "oaci/conditioned_ceiling_coverage/c80_label_budget_frontier.py",
@@ -25,7 +33,7 @@
       },
       {
         "path": "oaci/conditioned_ceiling_coverage/c80r_existing_field_adapter.py",
-        "sha256": "f82f0bd31c9a85f8e24e12b8b7ff931f10d0288ad419ab9168863dd4868220ea",
+        "sha256": "7e5ac0ba829bf5f233ed469f6fb8f6da4054d0bf4d024a0736a45e3674f1b56c",
         "role": "fail_closed_real_data_adapter_selection_evaluation_and_result_freeze"
       },
       {
@@ -216,7 +224,7 @@
     "all_five_paths_required": true
   },
   "runtime": {
-    "external_result_root": "/projects/EEG-foundation-model/yinghao/oaci-c80-existing-field/protocol_2d72eb5119056a65/implementation_f82f0bd31c9a85f8",
+    "external_result_root": "/projects/EEG-foundation-model/yinghao/oaci-c80-existing-field/protocol_2d72eb5119056a65/implementation_7e5ac0ba829bf5f2",
     "primary_targets": [1, 2, 3, 5, 6, 7, 8, 9],
     "target4_primary": false,
     "same_label_oracle_reachable": false,
