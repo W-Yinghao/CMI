@@ -72,6 +72,14 @@ def load_protocol() -> tuple[dict[str, Any], str]:
     return protocol, observed
 
 
+def historical_authorization_usable() -> bool:
+    """The preserved C80E preflight authorization cannot authorize a repaired run."""
+    if not AUTHORIZATION_PATH.exists():
+        return False
+    record = json.loads(AUTHORIZATION_PATH.read_text())
+    return bool(record.get("authorization_received")) and not bool(record.get("execution_blocked_by_preflight"))
+
+
 def registry_audit() -> dict[str, int]:
     rows = read_csv(TABLE_DIR / "scientific_registry.csv")
     if len(rows) != 5:
@@ -112,7 +120,7 @@ def protocol_audit() -> dict[str, Any]:
         "registry": registry,
         "real_budget_statistics": 0,
         "same_label_oracle_accessed": False,
-        "C80E_authorized": AUTHORIZATION_PATH.exists(),
+        "C80E_authorized": historical_authorization_usable(),
     }
 
 
@@ -250,8 +258,13 @@ def assert_c80e_authorized() -> dict[str, Any]:
         raise RuntimeError("C80E direct PI authorization record is absent")
     lock = json.loads(LOCK_PATH.read_text())
     authorization = json.loads(AUTHORIZATION_PATH.read_text())
+    if authorization.get("execution_blocked_by_preflight"):
+        raise RuntimeError("historical C80E authorization is blocked and not reusable")
     protocol_sha = PROTOCOL_SHA_PATH.read_text().strip()
-    if lock.get("protocol_sha256") != protocol_sha or authorization.get("protocol_sha256") != protocol_sha:
+    lock_protocol = lock.get("protocol")
+    if not isinstance(lock_protocol, dict) or set(("commit", "path", "sha256")) - set(lock_protocol):
+        raise RuntimeError("C80E analysis lock protocol schema mismatch")
+    if lock_protocol["sha256"] != protocol_sha or authorization.get("protocol_sha256") != protocol_sha:
         raise RuntimeError("C80E authorization/lock binding mismatch")
     return authorization
 
@@ -266,7 +279,7 @@ def binding_contract() -> dict[str, Any]:
         "target4_primary": False,
         "same_label_oracle": False,
         "real_budget_analysis_started": False,
-        "C80E_authorized": AUTHORIZATION_PATH.exists(),
+        "C80E_authorized": historical_authorization_usable(),
         "success_gate": protocol["C80P_success_gate"],
     }
 

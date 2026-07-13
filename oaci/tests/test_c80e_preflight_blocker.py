@@ -36,7 +36,7 @@ def test_locked_protocol_has_no_required_final_taxonomy_decision_table():
 
 def test_locked_authorization_guard_replays_schema_mismatch_without_data_access():
     assert AUTHORIZATION_PATH.exists()
-    with pytest.raises(RuntimeError, match="authorization/lock binding mismatch"):
+    with pytest.raises(RuntimeError, match="blocked and not reusable"):
         frontier.assert_c80e_authorized()
 
 

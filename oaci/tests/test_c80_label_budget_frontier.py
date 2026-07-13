@@ -230,6 +230,8 @@ def test_no_real_budget_result_artifact_exists():
         "C80_LABEL_BUDGET_FRONTIER_RESULT.json",
         "C80_REAL_DATA_BUDGET_CURVE.csv",
         "C80_BSTAR_RESULT.csv",
-        "C80E_PI_AUTHORIZATION_RECORD.json",
     ]
     assert all(not (frontier.REPORT_DIR / name).exists() for name in forbidden)
+    historical = json.loads((frontier.REPORT_DIR / "C80E_PI_AUTHORIZATION_RECORD.json").read_text())
+    assert historical["execution_blocked_by_preflight"] is True
+    assert frontier.historical_authorization_usable() is False
