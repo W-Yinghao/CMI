@@ -14,7 +14,50 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-13)
 
-The authoritative milestone is **C80E complete**:
+The authoritative milestone is **C81P complete, C81E not authorized**:
+
+```text
+C81P protocol commit:          16a0d2eba4715a1cec78da6a79a182fd416a6629
+C81P protocol SHA-256:         cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee
+C81P method registry SHA-256:  ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120
+C81P implementation commit:    d17ffa62a63b929d36d03f74e4ce79794cd9601b
+C81P analysis lock commit:     541651c2ee3343c12d374a7322c91181a860a2c9
+C81P analysis lock SHA-256:    b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1
+C81P pre-execution red team:   43 / 43 PASS
+C81P final-report red team:    40 / 40 PASS
+C81P final gate:               C81_AAAI_BASELINE_COMPARISON_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION
+C81E authorization:           absent
+real C81 baseline statistics: 0
+```
+
+C81P prospectively locks a same-field comparison across `I0`, `IS`, `IU`,
+`ISU`, and `ILc`. The 34-method registry freezes six zero-label primary
+representatives: ATC, NuclearNorm, MaNo, COTT, SND, and ALine. Source-validation
+balanced accuracy is the registered strict-source fallback because true
+Source-LODO retraining folds are unavailable. The importance-weighting family
+has no faithful training-free representative in the frozen inputs and remains
+unavailable rather than being improvised after outcomes.
+
+The universe is 2 seeds x 8 primary targets x 2 levels x 81 candidates = 2,592
+candidates. Target 4 remains excluded; selection freezes before evaluation
+labels open; the same-label oracle is unreachable. Target is the principal
+cluster, seed is paired, and trials/checkpoints/ALine pairs are not treated as
+independent N. Q1 uses material improvement over strict source; Q2 uses a
+locked 0.05 noninferiority margin against frozen Q0 B=1. Both use exact
+shared-target max-T inference and locked LOTO stability.
+
+C80 replay is complete: 22/22 result hashes, 11/11 field/view objects, 14/14
+frontier rows, 224/224 target-level rows, and 16/16 LOTO rows. Synthetic-only
+calibration passed 20/20 checks. Final clean-commit regression is green:
+focused `43`; C65-C81P `412 + 1 conditional skip + 3 historical deselections`;
+C23-C81P `823 + 1 + 3`; full OACI `1,747 + 1 + 3`; accepted stderr is empty.
+
+No real baseline score, real candidate ranking, evaluation-label value, or
+oracle value was accessed. Under authorization policy `3d9dd76`, a direct PI
+statement naming C81E is sufficient; no magic token or repeated hash recital is
+required. C81P itself does not authorize C81E or any expanded scope.
+
+The latest completed scientific milestone remains **C80E**:
 
 ```text
 C80E authorization policy:      3d9dd76

@@ -1,0 +1,41 @@
+check_id,passed,blocking,evidence
+final_gate_exact,1,0,C81_AAAI_BASELINE_COMPARISON_PROTOCOL_LOCKED_READY_FOR_PI_AUTHORIZATION
+protocol_identity_exact,1,0,16a0d2e/cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee
+analysis_lock_identity_exact,1,0,541651c/b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1
+method_registry_identity_exact,1,0,ef48ecf7fcc55188b78b0878d86f07f6239fe4f6c88bbc854829b3a1c7a1a120
+C80_operative_lock_distinguished,1,0,0797599 operative; f19acd8 historical
+C80_result_hash_replay_complete,1,0,22/22
+C80_field_view_replay_complete,1,0,11/11
+C80_frontier_and_LOTO_replay_complete,1,0,14/14 frontier and 16/16 LOTO
+candidate_universe_exact,1,0,2 seeds x 8 targets x 2 levels x 81 = 2592
+target4_excluded,1,0,0 primary rows
+same_label_oracle_closed,1,0,0 accesses
+construction_evaluation_separation,1,0,two-stage content-addressed selection freeze
+trial_id_row_order_not_features,1,0,keys and dependence only
+method_registry_frozen,1,0,34 unique methods
+family_representatives_frozen,1,0,12 representatives; replacements forbidden
+zero_label_representatives_fixed,1,0,U7 U5 U11 U13 U14 U15
+Source_LODO_fallback_declared,1,0,S1 source-validation balanced accuracy
+importance_weighting_unavailability_declared,1,0,R9 unavailable before outcomes
+score_directions_and_priors_frozen,1,0,34/34 directions; target labels never set priors
+all_registered_paths_unconditional,1,0,19 score paths
+target_cluster_inference,1,0,target principal cluster; seed paired
+ALine_pair_dependence_preserved,1,0,3240 pairs/context not scientific N
+Q1_Q2_multiplicity_locked,1,0,shared-target exact maxT 256 sign patterns
+LOTO_rule_locked,1,0,12/16 retention plus matching seed categories
+taxonomy_exhaustive,1,0,C81-E then D then A/B/C
+synthetic_calibration_complete,1,0,20/20
+pre_execution_red_team_complete,1,0,43/43
+risk_register_closed,1,0,27/27
+real_baseline_statistics_zero,1,0,0
+evaluation_label_reads_zero,1,0,0
+C81E_authorization_absent,1,0,fail-closed
+scope_no_training_forward_GPU,1,0,0
+no_external_or_deployment_claim,1,0,claim contract enforced
+no_manuscript_experiment,1,0,scope false
+accepted_regression_green,1,0,43/412/823/1747 passed
+accepted_regression_stderr_empty,1,0,4/4
+regression_attempts_preserved,1,0,18/18 ledger rows
+no_tracked_payload_over_50MiB,1,0,PASS
+no_raw_cache_weight_optimizer_payload,1,0,PASS
+readiness_not_execution_authorization,1,0,C81E remains unauthorized
