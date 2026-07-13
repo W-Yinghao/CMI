@@ -155,3 +155,47 @@ def test_V3_protocol_hashes_and_environment_repair_replay():
     assert field["canary_reuse"]["strict_source_artifacts_required"] == 243
     assert field["canary_reuse"]["target_unlabeled_artifacts_required"] == 243
     assert field["scope_specific_execution_lock_created_in_C84R2"] is False
+
+
+def test_execution_lock_v2_hash_and_all_bound_objects_replay():
+    lock_path = runtime.REPORT_DIR / "C84C_EXECUTION_LOCK_V2.json"
+    sidecar = runtime.REPORT_DIR / "C84C_EXECUTION_LOCK_V2.sha256"
+    assert runtime.verify_lock_self(lock_path, sidecar) == sidecar.read_text().split()[0]
+    lock = json.loads(lock_path.read_text())
+    replay = runtime.verify_bound_object_registry(lock)
+    assert len(replay) == lock["runtime_bound_object_count"] == 63
+    assert all(row["replay_pass"] for row in replay)
+    assert len(runtime.verify_protocol_sidecars(lock)) == 6
+    assert runtime.verify_candidate_identity(lock)["canary_unit_count"] == 243
+
+
+def test_execution_lock_v2_exact_environment_and_loader_sources_replay():
+    lock = json.loads((runtime.REPORT_DIR / "C84C_EXECUTION_LOCK_V2.json").read_text())
+    observed = runtime.verify_distribution_environment(lock)
+    assert observed["python"] == "3.13.7"
+    assert observed["distributions"] == {
+        "chardet": "5.2.0", "mne": "1.11.0", "moabb": "1.5.0", "torch": "2.6.0",
+    }
+    sources = runtime.verify_loader_source_files(lock)
+    assert len(sources) == 4
+    assert all(row["before_get_data"] for row in sources)
+
+
+def test_execution_lock_v2_has_no_authorization_or_field_science_lock():
+    lock = json.loads((runtime.REPORT_DIR / "C84C_EXECUTION_LOCK_V2.json").read_text())
+    assert lock["status"] == runtime.LOCK_READY_STATUS
+    assert lock["historical_lock_supersession"]["operative_for_execution"] is False
+    assert lock["authorization"]["record_present_at_lock"] is False
+    assert not runtime.AUTHORIZATION_RECORD_PATH.exists()
+    names = {path.name for path in runtime.REPORT_DIR.glob("C84*EXECUTION_LOCK*.json")}
+    assert names == {"C84C_EXECUTION_LOCK.json", "C84C_EXECUTION_LOCK_V2.json"}
+
+
+def test_missing_authorization_fails_before_output_root(tmp_path, monkeypatch):
+    monkeypatch.setenv("CUBLAS_WORKSPACE_CONFIG", ":4096:8")
+    monkeypatch.setenv("PYTHONHASHSEED", "0")
+    with pytest.raises(runtime.C84R2RuntimeError):
+        runtime.require_authorization_and_lock(
+            authorization_path=tmp_path / "missing.json", output_root=tmp_path / "external",
+        )
+    assert not (tmp_path / "external").exists()

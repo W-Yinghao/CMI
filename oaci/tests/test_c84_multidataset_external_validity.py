@@ -266,14 +266,15 @@ def test_risk_and_failure_ledgers_expose_channel_blocker():
     assert failures[0]["real_EEG_or_label_access"] == "0"
 
 
-def test_C84P_historical_commit_had_no_lock_and_C84R_adds_only_C84C():
+def test_C84P_historical_commit_had_no_lock_and_only_C84C_locks_exist():
     historical = subprocess.run(
         ["git", "ls-tree", "-r", "--name-only", "df95f1375f1883dd706a63f65ee9b6313fa1a779", "oaci/reports"],
         cwd=protocol.REPO_ROOT, check=True, capture_output=True, text=True,
     ).stdout.splitlines()
     assert not [path for path in historical if "C84" in path and "EXECUTION_LOCK" in path]
     assert {path.name for path in protocol.REPORT_DIR.glob("C84*EXECUTION_LOCK*.json")} == {
-        "C84C_EXECUTION_LOCK.json"
+        "C84C_EXECUTION_LOCK.json",
+        "C84C_EXECUTION_LOCK_V2.json",
     }
     forbidden = {".npy", ".npz", ".pt", ".pth", ".ckpt", ".pkl", ".fif", ".edf", ".gdf", ".mat"}
     c84_paths = [path for path in (protocol.REPO_ROOT / "oaci").rglob("*C84*") if path.is_file()]
