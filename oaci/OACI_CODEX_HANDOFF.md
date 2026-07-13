@@ -14,65 +14,84 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-13)
 
-The current metadata-only external-validity milestone is **C84P**:
+The current no-real-data external-validity milestone is **C84R**:
 
 ```text
-C83P accepted base:                    2ecc8efd49d6b9d18b50eae3811be8f2ac4cfa25
-C84 metadata protocol/blocker:         7cf702e
-C84 synthetic implementation:         bd42f71
-C84 guarded regression entrypoint:     edfeefb
-C84P blocker/red-team report:          a1c781c
-C84 external protocol SHA-256:         ebfe9933ac838af22cc6553f81ba87d806996e99ce33158c7a5c30b9a1f5e824
-C84P gate:                              C84_DATASET_CHANNEL_EVENT_RESOURCE_OR_PROTOCOL_RECONCILIATION_REQUIRED
+C84P accepted blocked base:             df95f1375f1883dd706a63f65ee9b6313fa1a779
+C84R repair protocol commit:            482a725abc6bf1f0e5d33be76ea17d37bcfaa6c3
+C84R repair protocol SHA-256:            a6a1fd85ef1b7520a55ef8e075933d08bf6639cbf89bbcf761dec2a753ab1c91
+C84 V2 stage-protocol commit:            a5d9fd0a0e76a7e0c6a49b87048d642eb8c0da6a
+C84C real-adapter implementation:        f23b43d2ee5cf56e01e57fcb256894f474121bce
+C84C environment alignment:              e91b71c5e0cd99d90c8ac9c44e2736a4cfc18f4f
+C84C execution-lock commit:              4eaad36cafefb2645f1d5c6e393ae5a51ff33af9
+C84C execution-lock SHA-256:              f9cabf8f362917d663e13154910085d5b105740b265789a2323dd7bc0193222b
+C84R readiness verification:             6158258
+C84R gate:                                C84_COMMON_20_CHANNEL_MONTAGE_REPAIRED_CANARY_LOCKED_READY_FOR_PI_AUTHORIZATION
 ```
 
-C84P inspected MOABB 1.5.0 metadata and loader source without downloading or
-opening a real EEG array or label. The proposed common 21-channel interface is
-blocked because `Lee2019_MI` has no `FCz`; it exposes 20/21 requested channels.
-`Cho2017` and `PhysionetMI` expose all 21. `Fz` exists in Lee, but substitution,
-interpolation and silent montage reduction are prospectively forbidden.
-
-The metadata-only program otherwise freezes:
+C84R preserves the blocked 21-channel protocols and prospectively replaces
+them with the exact cross-dataset 20-channel intersection:
 
 ```text
-datasets / eligible subjects:   3 / 214
-source panels:                  6 x 16 subjects
-source train/audit per panel:   12 / 4
-external targets:               22 / 20 / 76
-source/target/panel overlap:     0
-requested epoch:                half-open [0,3), 160 Hz, 480 samples
-candidate units / phases:       1,944 / 72
-target contexts:                944
-candidate-context evaluations: 76,464
-synthetic calibration:          20 / 20 PASS
-final red team:                 65 / 65 audit checks PASS, 1 open input blocker
+FC5 FC3 FC1 FC2 FC4 FC6
+C5 C3 C1 Cz C2 C4 C6
+CP5 CP3 CP1 CPz CP2 CP4 CP6
+
+montage SHA-256:
+  988e8f89c3001a5144172a10f3a8b30eb50c28d485b900210b91ed1a0cf04f04
 ```
 
-The broad PI authorization statement for C84P/C84C/C84F/C84S is retained as
-authorization intent. It was not consumed for C84C/F/S: all three stage
-protocols are `BLOCKED_NOT_READY_FOR_AUTHORIZATION`, no scope-specific execution
-lock exists, and the required prior gates did not pass. No magic token is
-required, but a future run still must bind a direct stage authorization to the
-unique repaired protocol and lock after the channel contract is reconciled.
-
-Protected state at C84P is zero real EEG/label access, zero downloads, zero
-training/forward/GPU, zero candidate units, zero execution locks, zero oracle or
-BNCI2014_004 access, and zero manuscript drafting. The only allowed next action
-is an additive, availability-only channel-contract reconciliation approved by
-PM. Do not start C84C, C84F or C84S from the current objects.
-
-Accepted C84P regressions:
+`FCz` is dropped from all datasets. `Fz` substitution, interpolation, zero
+filling, silent reduction and dataset-specific masks are forbidden. The V2
+stage protocol hashes are:
 
 ```text
-focused C84P:   28 passed                         job 895316
-C65-C84P:      514 passed, 1 skip, 3 deselected job 895317
-C23-C84P:      921 passed, 1 skip, 3 deselected job 895318
-full OACI:   1,849 passed, 1 skip, 3 deselected job 895319
+external: 522e6fe8372f8c73741ed146a27068076db8c3d7087f4c4a36760fe0328b7c2f
+canary:   f8e265f0969b9343526c4f6e09fef145d64149d159ea79b803cc983ae2761988
+field:    b6ecd3fb5cc2f1ded872cefad42ca38c172696e4169efc58a86a5a3a90395b62
+science:  dc33b22527352bd42989c26f6771b4a49dc1443d458962587ca3d70ad76dd631
 ```
 
-All jobs were CPU-only with empty stderr. The sole skip and three historical
-C79P deselections are explicitly accounted for in
-`C84P_REGRESSION_VERIFICATION.md`.
+The subject registry replays all 214 assignments bit-for-bit. The fixed field
+remains 1,944 units, 72 phases, 944 target contexts and 76,464 candidate-context
+evaluations. All 1,944 planned unit IDs are unique, bind the V2 interface and
+montage digest, and differ from the blocked 21-channel plan.
+
+C84C is implemented and scope-locked but not executed:
+
+```text
+datasets:          Lee2019_MI / Cho2017 / PhysionetMI
+panel/seed/level:  A / 5 / 0
+targets:           19 / 24 / 106
+units/phases:      243 / 9
+remaining C84F:    1,701 units / 63 phases after a reusable canary
+role:              engineering only
+```
+
+The guard requires a fresh direct C84C authorization and exact protocol/lock,
+HEAD/remote, environment and output-root replay before any loader call. The
+target-unlabeled payload has no label field. No current authorization record
+exists. No C84F or C84S execution lock exists. A future direct statement
+`授权 C84C` may be bound to the unique current C84C lock under policy `3d9dd76`;
+the text in this handoff is not authorization.
+
+Protected C84R state is zero EEG arrays, labels, downloads, training, forward,
+GPU jobs, candidate units and selector outcomes. C84R ran no canary. It created
+no raw EEG, weight, optimizer or cache payload in Git.
+
+Accepted C84R regressions on lock commit `4eaad36`:
+
+```text
+focused C84R:   56 passed                         job 895347
+C65-C84R:      542 passed, 1 skip, 3 deselected job 895348
+C23-C84R:      953 passed, 1 skip, 3 deselected job 895349
+full OACI:   1,877 passed, 1 skip, 3 deselected job 895350
+```
+
+All jobs were CPU-only in `eeg2025` with empty stderr. The corrected
+leading-numeric suite parser restores all four C34S nodes and includes suffix
+milestones. Synthetic repair calibration passed 30/30 and the final readiness
+red team passed 42/42.
 
 ### Prior immutable C83P evidence freeze
 
