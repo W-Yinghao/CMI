@@ -266,6 +266,20 @@ def test_run_real_fails_closed_without_direct_C81E_authorization():
         baseline.run_real()
 
 
+def test_scope_specific_lock_replays_and_binds_real_adapter():
+    lock, lock_sha = baseline.load_execution_lock()
+    assert lock_sha == "b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1"
+    assert lock["runtime"]["entrypoint"].endswith("c81_baseline_comparison run-real")
+    assert lock["runtime"]["selection_manifest_freeze_required"] is True
+    assert lock["runtime"]["evaluation_requires_selection_hash_replay"] is True
+
+
+def test_pre_execution_red_team_passes_all_checks():
+    rows = _rows("pre_execution_red_team.csv")
+    assert len(rows) == 39
+    assert all(row["passed"] == "1" and row["blocking"] == "0" for row in rows)
+
+
 @pytest.mark.parametrize("module", [baseline, synthetic])
 def test_C81P_modules_import_no_EEG_GPU_or_training_packages(module):
     tree = ast.parse(Path(module.__file__).read_text())

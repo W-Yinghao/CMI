@@ -1,0 +1,40 @@
+check_id,passed,blocking,evidence
+protocol_hash_replay,1,0,cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee
+protocol_commit_precedes_implementation,1,0,16a0d2eba4715a1cec78da6a79a182fd416a6629
+lock_hash_replay,1,0,b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1
+lock_binds_protocol,1,0,"{""commit"": ""16a0d2eba4715a1cec78da6a79a182fd416a6629"", ""path"": ""oaci/reports/C81_AAAI_BASELINE_COMPARISON_PROTOCOL.json"", ""sha256"": ""cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee""}"
+lock_binds_implementation,1,0,"[{""commit"": ""d17ffa65a3e7cffeb5cac65292e7840787f6845d"", ""path"": ""oaci/conditioned_ceiling_coverage/c81_baseline_comparison.py"", ""role"": ""locked_scores_two_stage_real_adapter_dependence_inference_and_taxonomy"", ""sha256"": ""f538fd9c930514dfb2c3a49cc0f916e083723de5c8c491cc1977e27dd4109af6""}, {""commit"": ""d17ffa65a3e7cffeb5cac65292e7840787f6845d"", ""path"": ""oaci/conditioned_ceiling_coverage/c81_synthetic_baseline_benchmark.py"", ""role"": ""locked_synthetic_calibration"", ""sha256"": ""bd9e69691917b9e57f2ceaa50c52addb8dd373b4c36f97ce4335cceb672bd6e3""}]"
+method_registry_unique,1,0,34
+primary_representatives_fixed,1,0,"[""U7"", ""U5"", ""U11"", ""U13"", ""U14"", ""U15""]"
+unavailable_methods_excluded,1,0,5/5
+all_registered_methods_unconditional,1,0,19
+score_direction_frozen,1,0,34/34
+class_prior_never_target_label,1,0,4/4
+C80_frontier_replay,1,0,14/14
+C80_LOTO_replay,1,0,16/16
+C80_authorization_replay,1,0,PASS
+historical_C80_lock_not_misreported_operational,1,0,"{""field_view_manifest_digest"": ""6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef"", ""final_head"": ""111df254dc562bc59342ad823cba3c8b79a64abe"", ""historical_complete_lock_commit"": ""f19acd8775f9b0ddf60401739741bec0019d021c"", ""historical_complete_lock_sha256"": ""e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82"", ""historical_lock_status"": ""superseded_after_pre_evaluation_descriptor_ABI_failure"", ""operative_lock_commit"": ""07975998fe0101e29a98f69e26e76e48bf76b952"", ""operative_lock_sha256"": ""2149895865bd44b4ab8358c76848bb6774abb59d4a203b261864be0ec599ff62"", ""repair_changed_science"": false, ""repair_evaluation_label_reads"": 0, ""replacement_protocol_commit"": ""e88a24484590636f87d0f22798401a762875046a"", ""replacement_protocol_sha256"": ""2d72eb5119056a6520fd33fc0ac14ee6270bfd573b59c36b74be6aa3dc25fe39"", ""result_freeze_commit"": ""a43aa27fa720bb3a744b0267358c8d81370e5abd""}"
+C80_descriptor_repair_non_scientific,1,0,scientific_change=false
+synthetic_scenarios,1,0,13/13
+synthetic_familywise,1,0,2/2
+synthetic_pair_dependence,1,0,2/2
+synthetic_noninferiority,1,0,3/3
+target_principal_cluster,1,0,target
+seed_paired_factor,1,0,paired
+pairs_trials_checkpoints_not_iid,1,0,not_iid
+target4_excluded,1,0,0 rows
+oracle_closed,1,0,closed
+trial_id_not_feature,1,0,join_split_and_dependence_key_only
+row_order_not_feature,1,0,alignment_only_never_predictor
+selection_before_evaluation,1,0,two-stage
+C81E_authorization_absent,1,0,/home/infres/yinwang/CMI_AAAI_oaci/oaci/reports/C81E_PI_AUTHORIZATION_RECORD.json
+real_baseline_statistics_zero,1,0,0
+evaluation_label_reads_zero,1,0,0
+real_result_absent,1,0,absent
+run_real_fail_closed,1,0,direct C81E PI authorization record is absent
+no_EEG_or_training_imports,1,0,[]
+risk_register_no_blocker,1,0,27/27
+no_tracked_payload_over_50MiB,1,0,[]
+no_raw_weight_or_cache_in_new_paths,1,0,PASS
+no_manuscript_scope,1,0,false
+no_GPU_training_forward_scope,1,0,all false
