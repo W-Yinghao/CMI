@@ -14,7 +14,62 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-13)
 
-The authoritative scientific milestone is **C82E**:
+The current no-new-outcome readiness milestone is **C83P**:
+
+```text
+C82 accepted scientific base:       34ae76a4a588059ab5a6d82b8116088a14af4ad5
+C82 PM interpretation addendum:     5cee693132bc950d7e0ad9c3c9028e7cb1fcfcf7
+C83 evidence-freeze implementation: c927b3a80bc1b75ed4d9ec0d7d2460342574ffe2
+C83 readiness verification:         32abc29
+C83P gate:                           C83_AAAI_EVIDENCE_CLAIM_FIGURE_TABLE_FREEZE_READY_FOR_MANUSCRIPT_AUTHORIZATION
+```
+
+C83P reads committed compact C80/C82 metadata only. It computed no new
+real-data statistic, opened no EEG or label view, loaded no selection payload,
+and drafted no manuscript section. It freezes:
+
+```text
+supported claims:                 C1-C10
+forbidden expansions:             10
+authoritative number identities: 928 / 928 exact source-key replay
+main figure contracts:             4 (no figures rendered)
+main table contracts:              3
+baseline fidelity rows:           34 / 34
+reviewer risks:                    17 / 17 closed by disclosure/narrowing
+metadata validation:               20 / 20 PASS
+final report red team:             52 / 52 PASS
+```
+
+The mandatory C82 PM addendum was committed before the C83 claim/number/table
+contracts. It makes two boundaries authoritative:
+
+1. C82's `7/16` is the registered global cross-seed common-method LOTO rule.
+   The full-panel categories are B/C and the common B set is empty. The table
+   does not prove that COTT independently lost Q1 in every seed-3 LOTO panel.
+2. Q5 reports the descriptive best registered method within each fixed
+   information class. It is not a prospectively fixed class representative or
+   an inferential winner across methods.
+
+Accepted C83P regressions:
+
+```text
+focused C83P:   26 passed                         job 895253
+C65-C83P:      486 passed, 1 skip, 3 deselected job 895254
+C23-C83P:      897 passed, 1 skip, 3 deselected job 895255
+full OACI:   1,821 passed, 1 skip, 3 deselected job 895256
+```
+
+All jobs were CPU-only and all stderr files are empty. The C78F conditional
+skip and three historical C79P deselections are explicitly accounted for.
+
+C83P does not authorize manuscript drafting. A future direct PI statement must
+separately authorize drafting from the C83 evidence freeze. It also authorizes
+no new experiment, C84, seed 5, BNCI2014_004, active acquisition, target4
+primary use, or same-label oracle work.
+
+### Scientific base: C82E
+
+The authoritative scientific result remains **C82E**:
 
 ```text
 C82 protocol:                    8b0df50b3707dbb3af4a459b6dc6de36c97d562f
@@ -81,10 +136,12 @@ targets), while seed 4 failed (`p=0.101167`, 7/8 favorable, negative worst
 target). Q0 B=1 regret remained `0.353383 / 0.373705`. COTT minus Q0 B=1 was
 `-0.014743 / 0.091630`, but both simultaneous noninferiority gates failed.
 
-Every seed-3 leave-one-target panel lost the full-panel COTT method identity,
-even when another method preserved qualitative category B. Seed 4 preserved C
-in 7/8 panels; leaving out target 2 changed it to B. The exact taxonomy
-therefore selects C82-D before A/B/C.
+The registered global method-aware LOTO rule preserved 7/16 panels, below the
+12/16 threshold. The full-panel categories already differed across seeds and
+the common B-method set was empty. The frozen LOTO table does not contain the
+per-panel, per-method Q1 ledger needed to claim that COTT independently lost Q1
+in every seed-3 panel. The B/C mismatch and empty method intersections already
+select C82-D before A/B/C.
 
 This does not establish universal zero-label impossibility, universal one-label
 sufficiency, external validity, new-subject replication, causal mechanism,
