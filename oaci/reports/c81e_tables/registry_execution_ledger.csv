@@ -1,0 +1,8 @@
+path,status,rows_frozen,decision
+selection,COMPLETED_AND_FROZEN,32,NOT_A_SCIENTIFIC_RESULT
+held_evaluation_context_metrics,COMPUTED_IN_MEMORY_WRITE_BLOCKED,0,BLOCKED
+Q1_zero_label_vs_source,NOT_EXECUTED,0,BLOCKED
+Q2_zero_label_vs_Q0_B1,NOT_EXECUTED,0,BLOCKED
+Q3_objective_dependence,NOT_EXECUTED,0,BLOCKED
+Q4_cross_seed_LOTO,NOT_EXECUTED,0,BLOCKED
+Q5_information_class_transition,NOT_EXECUTED,0,BLOCKED

@@ -1,0 +1,35 @@
+{
+  "schema_version": "c81e_final_blocker_report_v1",
+  "machine_blocker_result_path": "oaci/reports/C81_FROZEN_FIELD_BASELINE_COMPARISON.json",
+  "machine_blocker_result_sha256": "e98bc3f1f0228a40508459a8fe5d4dd3bbc4cf646727fb5ff5e7c5c7084e00f7",
+  "machine_blocker_result_commit": "8801b1c24a939d694efc20972ee89f011ac282c6",
+  "scientific_red_team_commit": "b4b71b909f168d8eed8f6e6bf5103d08cb0ee023",
+  "scientific_red_team": "36_of_36_PASS",
+  "execution_job": "894958",
+  "execution_status": "POST_EVALUATION_PRE_RESULT_FREEZE_BLOCKER",
+  "registered_methods_accounted": 34,
+  "selection_methods_frozen": 19,
+  "contexts": 32,
+  "scientific_rows_frozen": 0,
+  "component_decisions": {
+    "Q1_zero_label_vs_strict_source": "BLOCKED",
+    "Q2_zero_label_vs_Q0_B1": "BLOCKED",
+    "Q3_objective_dependence": "BLOCKED",
+    "Q4_cross_seed_and_LOTO": "BLOCKED",
+    "Q5_information_class_transition": "BLOCKED"
+  },
+  "protected_boundaries": {
+    "target4_primary_rows": 0,
+    "same_label_oracle_accesses": 0,
+    "training": 0,
+    "forward": 0,
+    "reinference": 0,
+    "GPU": 0,
+    "selection_recomputed": false,
+    "same_protocol_retry_allowed": false
+  },
+  "primary_taxonomy": "C81-E_protocol_input_implementation_or_provenance_blocker",
+  "scientific_comparison_available": false,
+  "external_validity_claim": false,
+  "C82_authorized": false
+}
