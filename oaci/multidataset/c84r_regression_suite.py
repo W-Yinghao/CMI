@@ -32,6 +32,8 @@ def suite_files(suite: str, test_dir: Path = TEST_DIR) -> list[Path]:
             "test_c84_multidataset_external_validity.py",
             "test_c84r_montage_repair.py",
             "test_c84c_canary_contract.py",
+            "test_c84r2_canary_runtime_repair.py",
+            "test_c84c_complete_engineering_replay.py",
         )
         return [test_dir / name for name in names]
     if suite == "c65":

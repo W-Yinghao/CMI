@@ -1,0 +1,7 @@
+fixture,object_type,mutation,expected,observed,passed,before_output_root,before_real_data
+RH01,implementation_file,bytes_changed,FAIL_CLOSED,FAIL_CLOSED,1,1,1
+RH02,bound_registry,CSV_value_changed,FAIL_CLOSED,FAIL_CLOSED,1,1,1
+RH03,protocol_sidecar,protocol_bytes_changed,FAIL_CLOSED,FAIL_CLOSED,1,1,1
+RH04,montage,channel_order_reversed,FAIL_CLOSED,FAIL_CLOSED,1,1,1
+RH05,candidate_identity,canary_ID_digest_changed,FAIL_CLOSED,FAIL_CLOSED,1,1,1
+RH06,clean_repository,HEAD_differs_from_origin,FAIL_CLOSED,FAIL_CLOSED,1,1,1
