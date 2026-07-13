@@ -14,7 +14,101 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-13)
 
-The authoritative execution-readiness milestone is **C82P**:
+The authoritative scientific milestone is **C82E**:
+
+```text
+C82 protocol:                    8b0df50b3707dbb3af4a459b6dc6de36c97d562f
+C82 protocol SHA-256:            9f58c7a8e6b495a6d8f510c0d72d24ede4485908ef94bc078abe8f124b03a8f3
+C82 analysis lock:               6c6739c61d362bc33df6d8b016e4cda724772a62
+C82 analysis-lock SHA-256:       d5de6d6ff242b9f3d7f9c318cbdd6e1e16c509060bc14cca59292b738a75f5ce
+direct authorization:            5644157
+pre-adapter attempt ledger:      24f5ee1
+machine result freeze:           ce0564d
+scientific red team:             61b3fe2 (59/59 PASS)
+main report:                     d4c035d
+regression verification:         b88c757
+final-report red team:           35f87a2 (50/50 PASS)
+C82E gate:                       C82-D_zero_label_comparison_training_seed_method_identity_or_target_heterogeneous
+```
+
+C82 is an explicitly post-C81-outcome-access recovery. It reuses the exact C81
+selection frozen before C81 evaluation access and produces a new result
+identity; historical C81 remains C81-E. Direct PI authorization under policy
+`3d9dd76` was consumed before the preserved selection or target-evaluation
+descriptors were opened. No token or repeated hash recital was required.
+
+The first Slurm submission, job `895213`, was rejected in zero seconds by a
+mistyped shell-level HEAD guard. It never invoked the adapter and did not
+consume authorization. The additive wrapper-only correction is preserved. Job
+`895214` was the single scientific execution and completed in four seconds with
+`ExitCode=0:0`, GPU 0, and empty stderr.
+
+```text
+result SHA-256:             d8060e6636adf7fcca7a0ace0e47bb7043676b7681569e09fb8705dcb8d5a8b7
+artifact-manifest SHA-256:  910e2ff1d8445dae262be82d417140cd44fc48be1306f2bbe5a439ec3549f0a2
+method-context rows:        672 / 672
+registered result tables:    23 / 23
+table hashes / row counts:    23 / 23 / 23 / 23
+selection recomputation:       0
+target-evaluation views:      16
+evaluation-label rows:     4,746
+target4 primary rows:          0
+same-label oracle accesses:    0
+```
+
+The registered component result is:
+
+```text
+seed 3:
+  COTT / U13 passes Q1 versus strict source
+  no zero-label method passes Q2 versus Q0 B=1
+  category B
+
+seed 4:
+  no zero-label method passes Q1
+  no zero-label method passes Q2
+  category C
+
+common A methods: none
+common B methods: none
+method-aware LOTO preservation: 7 / 16, below required 12 / 16
+```
+
+COTT standardized regret was `0.338641 / 0.465335` for seed 3/4 versus strict
+source `0.779476 / 0.804823`. Its Q1 source-relative improvement was
+`0.440835 / 0.339488`; seed 3 passed (`max-T p=0.015564`, 8/8 favorable
+targets), while seed 4 failed (`p=0.101167`, 7/8 favorable, negative worst
+target). Q0 B=1 regret remained `0.353383 / 0.373705`. COTT minus Q0 B=1 was
+`-0.014743 / 0.091630`, but both simultaneous noninferiority gates failed.
+
+Every seed-3 leave-one-target panel lost the full-panel COTT method identity,
+even when another method preserved qualitative category B. Seed 4 preserved C
+in 7/8 panels; leaving out target 2 changed it to B. The exact taxonomy
+therefore selects C82-D before A/B/C.
+
+This does not establish universal zero-label impossibility, universal one-label
+sufficiency, external validity, new-subject replication, causal mechanism,
+cross-regime selector transport, or deployability. Training, forward,
+re-inference, GPU, construction-label reopening, target 4, and oracle work were
+zero. Stop for PM review; C82 does not authorize C83, seed 5, BNCI2014_004,
+active acquisition, new methods, or manuscript experiments.
+
+Accepted regressions on the locked report commit:
+
+```text
+focused C82: 43 passed                         job 895215
+C65-C82:     460 passed, 1 skip, 3 deselected job 895221
+C23-C82:     871 passed, 1 skip, 3 deselected job 895222
+full OACI: 1,795 passed, 1 skip, 3 deselected job 895218
+```
+
+All accepted stderr files are empty. The one skip is the finalized C78F
+conditional test; the three deselections are historical C79P preauthorization
+tests. Diagnostic enumeration attempts are preserved but not accepted.
+
+### C82P readiness chronology
+
+The preceding execution-readiness milestone was **C82P**:
 
 ```text
 C81 additive GitHub audit:       6f73bbc0ecdbe61db07e6d57cffabb98faab468d
