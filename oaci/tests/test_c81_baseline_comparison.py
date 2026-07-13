@@ -396,11 +396,31 @@ def test_C81P_readiness_precedes_direct_C81E_authorization():
     authorization = json.loads(baseline.AUTHORIZATION_PATH.read_text())
     assert readiness["protected_state"]["C81E_authorized"] is False
     assert readiness["protected_state"]["real_baseline_statistics"] == 0
-    assert authorization["authorization_received"] is True
+    assert authorization["authorization_received"] is False
+    assert authorization["authorization_historically_received"] is True
+    assert authorization["authorization_consumed_by_job_id"] == "894958"
     assert authorization["protocol_sha256"] == readiness["protocol"]["sha256"]
     assert authorization["binding_history"][0]["analysis_lock_sha256"] == readiness["analysis_lock"]["sha256"]
     assert authorization["analysis_lock_sha256"] == baseline.LOCK_SHA_PATH.read_text().split()[0]
     assert authorization["binding_history"][-1]["status"] == (
         "operative_C81R2_lock_directly_reauthorized_for_preserved_selection_replay_and_held_evaluation"
     )
-    assert not (baseline.REPORT_DIR / "C81_FROZEN_FIELD_BASELINE_COMPARISON.json").exists()
+    result = json.loads((baseline.REPORT_DIR / "C81_FROZEN_FIELD_BASELINE_COMPARISON.json").read_text())
+    assert result["primary_taxonomy"] == "C81-E_protocol_input_implementation_or_provenance_blocker"
+    assert result["protected_state"]["method_context_rows_frozen"] == 0
+    assert result["protected_state"]["same_label_oracle_accesses"] == 0
+
+
+def test_C81E_blocker_consumes_authorization_and_forbids_same_protocol_rerun():
+    result = json.loads((baseline.REPORT_DIR / "C81_FROZEN_FIELD_BASELINE_COMPARISON.json").read_text())
+    assert result["blocker"]["affected_outcomes_were_read"] is True
+    assert result["blocker"]["rerun_under_current_protocol_forbidden"] is True
+    assert result["component_decisions"] == {
+        "Q1_zero_label_vs_strict_source": "BLOCKED_NO_FROZEN_RESULT",
+        "Q2_zero_label_vs_Q0_B1": "BLOCKED_NO_FROZEN_RESULT",
+        "Q3_objective_dependence": "BLOCKED_NO_FROZEN_RESULT",
+        "Q4_cross_seed_and_LOTO": "BLOCKED_NO_FROZEN_RESULT",
+        "Q5_information_class_transition": "BLOCKED_NO_FROZEN_RESULT",
+    }
+    with pytest.raises(RuntimeError, match="authorization not received"):
+        baseline.require_c81e_authorization()

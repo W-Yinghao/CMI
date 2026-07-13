@@ -1,8 +1,12 @@
 {
   "schema_version": "c81e_c81r2_authorization_binding_v3",
   "authorization_record_path": "oaci/reports/C81E_PI_AUTHORIZATION_RECORD.json",
-  "authorization_record_sha256": "f96f54b2472f7559b568056071ed9c247b1d37e7e492170555c8a35be22a3043",
-  "authorization_received": true,
+  "authorization_record_sha256": "c7304e0e3e8129ff3484c2e5dcfebd2f43fba5f77817e35ad142f389392bf521",
+  "authorization_received": false,
+  "authorization_historically_received": true,
+  "authorization_active": false,
+  "authorization_consumed_by_job_id": "894958",
+  "authorization_consumption_result": "C81_E_post_evaluation_pre_result_freeze_blocker",
   "authorization_text_exact": "授权 C81R2 修复后的 C81E 继续执行",
   "binding_policy_commit": "3d9dd76",
   "protocol": {
@@ -30,7 +34,8 @@
   "base_head_before_C81R2_authorized_evaluation": "77af370c000daea626af4eb038482559deacfb99",
   "magic_token_required": false,
   "hash_recital_required": false,
-  "held_evaluation_execution_started_after_C81R2_repair": false,
+  "held_evaluation_execution_started_after_C81R2_repair": true,
+  "held_evaluation_result_frozen": false,
   "real_baseline_statistics_before_binding": 0,
   "evaluation_label_reads_before_binding": 0,
   "same_label_oracle_accesses_before_binding": 0
