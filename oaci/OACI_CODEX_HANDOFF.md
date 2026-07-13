@@ -14,8 +14,76 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-13)
 
-The authoritative milestone is **C81E ended at the registered post-evaluation
-implementation blocker**:
+The authoritative execution-readiness milestone is **C82P**:
+
+```text
+C81 additive GitHub audit:       6f73bbc0ecdbe61db07e6d57cffabb98faab468d
+C82 replacement protocol:        8b0df50b3707dbb3af4a459b6dc6de36c97d562f
+C82 protocol SHA-256:             9f58c7a8e6b495a6d8f510c0d72d24ede4485908ef94bc078abe8f124b03a8f3
+C82 applicability narrowing:      dc3362f
+C82 mechanical implementation:    7f107f9
+C82 pre-lock validation:          192b4d6
+C82 execution-lock replay tests:  5f5ba08
+C82 analysis execution lock:      6c6739c61d362bc33df6d8b016e4cda724772a62
+C82 analysis-lock SHA-256:         d5de6d6ff242b9f3d7f9c318cbdd6e1e16c509060bc14cca59292b738a75f5ce
+C82P gate:                        C82_POST_C81_COMPARATIVE_RECOVERY_PROTOCOL_AND_IMPLEMENTATION_LOCKED_READY_FOR_PI_AUTHORIZATION
+```
+
+C82P is a post-C81-outcome-access recovery protocol. It preserves C81-E and
+does not reconstruct the 672 unfrozen C81 rows. The operative implementation
+reuses, without scientific inspection or recomputation, the exact frozen C81
+selection manifest and payload:
+
+```text
+selection manifest self SHA-256: 4677ed3aba7758ea0008c2093b44d6fb81d425930727e5941950179737ebd519
+selection payload SHA-256:       1ed893acd9190914eb4cb122f3ef26bc1e2355c4103894b816894bd264669257
+payload bytes:                   415,284
+contexts / methods:              32 / 19
+field/view manifest digest:      6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef
+selection recomputation:         forbidden
+```
+
+The recovery path uses a canonical 16-field schema, validates all expected 672
+method-context rows before publication, writes all 23 registered tables under a
+staging directory, and atomically exposes the result only after table and
+manifest validation. Q1-Q5, max-T/noninferiority, all 16 method-aware LOTO
+panels, U16, applicable measurement outputs, and the final taxonomy share that
+single result-freeze path. LORO is formally removed because C81 did not bind a
+coherent mixed-candidate estimand; C82 makes no cross-regime selector-transport
+claim.
+
+The corrected taxonomy preserves method identity across seeds. Different
+methods passing in seed 3 and seed 4 must map to C82-D; C82-A or C82-B requires
+one fixed method to support the corresponding claim in both seeds. The full
+synthetic public-entrypoint benchmark passed all A-E branches, 23/23 result
+tables, canonical 672-row construction, same-method logic, partial-write
+isolation, and post-evaluation authorization-consumption behavior without
+opening any real field or label view.
+
+```text
+focused C82P: 43 passed                         job 895177
+C65-C82P:     460 passed, 1 skip, 3 deselected job 895178
+C23-C82P:     871 passed, 1 skip, 3 deselected job 895179
+full OACI:  1,795 passed, 1 skip, 3 deselected job 895180
+final red team: 59 / 59 PASS
+open blocking risks: 0
+```
+
+All accepted stderr files are empty. At readiness, C82E authorization is
+absent; real C82 evaluation-view opens, scientific rows, selection
+recomputations, target-4 primary rows, oracle accesses, training, forward,
+re-inference, and GPU work are all zero. The pre-readiness phrase `授权 C82E`
+was not consumed and cannot carry forward. Under policy `3d9dd76`, the next
+step requires one new direct `授权 C82E`; no token or repeated hash recital is
+required, and the server binds it to the unique protocol and lock above.
+
+The latest valid scientific result remains **C80E**. C82P authorizes neither
+C82E nor C83, training, GPU, target 4, the oracle, seed 5, BNCI2014_004, active
+acquisition, new methods, or manuscript work.
+
+### Historical C81 disposition
+
+C81E ended at the registered post-evaluation implementation blocker:
 
 ```text
 C81 base protocol commit:         16a0d2eba4715a1cec78da6a79a182fd416a6629
