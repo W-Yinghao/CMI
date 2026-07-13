@@ -558,20 +558,23 @@ def main():
     parser.add_argument("--feature-dir", type=Path, required=True)
     parser.add_argument("--rotation-manifest", type=Path, required=True)
     parser.add_argument("--out-dir", type=Path, required=True)
-    parser.add_argument("--gate-task-csv", type=Path)
+    parser.add_argument("--fleet-random-contract", type=Path)
     parser.add_argument("--device", default="cuda:0")
     args = parser.parse_args()
 
     gate_random_kappa = None
-    if args.stage == "fleet":
-        if args.gate_task_csv is None:
-            raise RuntimeError("ISRUC fleet requires the frozen gate task table")
-        random_rows = [
-            row for row in read_csv(args.gate_task_csv) if row["tag"] == "random"
-        ]
-        if len(random_rows) != 1:
-            raise RuntimeError("ISRUC gate task table must contain one random row")
-        gate_random_kappa = float(random_rows[0]["source_val_kappa"])
+    if args.stage == "fleet" and args.tag != "random":
+        if args.fleet_random_contract is None:
+            raise RuntimeError("ISRUC fleet objects require the same-hardware random contract")
+        random_contract = json.loads(args.fleet_random_contract.read_text())
+        if (
+            random_contract.get("status") != "PASS"
+            or random_contract.get("stage") != "fleet"
+            or random_contract.get("tag") != "random"
+            or random_contract.get("cuda_device_name") != "NVIDIA A40"
+        ):
+            raise RuntimeError("ISRUC same-hardware random contract is invalid")
+        gate_random_kappa = float(random_contract["source_val"]["kappa"])
 
     rows = validate_manifest(args.checkpoint_manifest)
     data, feature_contract = load_feature_cache(
@@ -697,7 +700,7 @@ def main():
     l5_per_subject = []
     l5_leave_one = []
     l5_payload = None
-    if args.stage == "fleet":
+    if args.stage == "fleet" and args.tag != "random":
         task_gate_pass = (
             val_metric["kappa"] >= 0.05
             and val_metric["kappa"] >= gate_random_kappa + 0.02
@@ -773,6 +776,10 @@ def main():
         ),
         "l5_null_payload_sha256": sha256_file(l5_path) if l5_path is not None else None,
         "l5_source_val_match_tolerance": MATCH_TOLERANCE,
+        "cuda_device_name": torch.cuda.get_device_name(device),
+        "cuda_compute_capability": list(torch.cuda.get_device_capability(device)),
+        "torch_version": torch.__version__,
+        "cuda_runtime_version": torch.version.cuda,
         "encoder_frozen": True,
         "encoder_optimizer_created": False,
         "fine_tuning_used": False,

@@ -160,6 +160,17 @@ def main():
         geometry_rows.extend(read_csv(args.object_dir / f"{tag}_isruc_geometry.csv"))
 
     by_tag = {row["tag"]: row for row in rows}
+    device_names = {contract.get("cuda_device_name") for contract in contracts.values()}
+    compute_capabilities = {
+        tuple(contract.get("cuda_compute_capability", []))
+        for contract in contracts.values()
+    }
+    if args.stage == "fleet" and (
+        device_names != {"NVIDIA A40"} or len(compute_capabilities) != 1
+    ):
+        raise RuntimeError(
+            "ISRUC fleet objects were not fit on one pinned A40 hardware contract"
+        )
     random_val = by_tag["random"]["source_val_kappa"]
     for row in rows:
         row["task_gate_pass"] = (
@@ -248,6 +259,12 @@ def main():
             row["tag"] for row in l5_rows if row["tag"].startswith("H")
         ],
         "l5_low_power_interpretation": args.stage == "fleet",
+        "downstream_head_device_names": sorted(
+            value for value in device_names if value is not None
+        ),
+        "downstream_head_compute_capabilities": [
+            list(value) for value in sorted(compute_capabilities)
+        ],
     }
     write_json(args.out_dir / f"{prefix}_verdict.json", verdict)
     verification = {
@@ -273,6 +290,10 @@ def main():
             tag: contracts[tag]["l5_null_payload_sha256"] for tag in l5_payloads
         },
         "l5_holm_recomputed": args.stage == "fleet",
+        "same_downstream_head_hardware_for_all_objects": bool(
+            args.stage != "fleet"
+            or (device_names == {"NVIDIA A40"} and len(compute_capabilities) == 1)
+        ),
     }
     write_json(args.out_dir / f"{prefix}_adversarial_verification.json", verification)
     print(json.dumps(verdict, indent=2, sort_keys=True))

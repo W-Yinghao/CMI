@@ -1,0 +1,14 @@
+{
+  "attempt_job": "895321_[0-9]",
+  "disposition": "STOPPED_BEFORE_SCIENTIFIC_AGGREGATION",
+  "reason": "mixed_gpu_downstream_head_hardware_was_not_audited_or_pinned",
+  "completed_object_observed": "random",
+  "random_gate_source_val_kappa": 0.5923627786818499,
+  "random_mixed_attempt_source_val_kappa": 0.5844120816187628,
+  "source_val_absolute_difference": 0.007950697063087048,
+  "partial_artifacts_retained_for_incident_diagnosis": true,
+  "partial_artifacts_used_for_science": false,
+  "replacement_policy": "A40_only_random_first_then_remaining_objects",
+  "encoder_training_started": false,
+  "encoder_fine_tuning_started": false
+}

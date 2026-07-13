@@ -43,3 +43,12 @@ The two passing gates authorize only the corresponding ten-object frozen-readout
 encoder pretraining, encoder fine-tuning, H4000, CodeBrain Stage-2, another downstream dataset, Phase B2, or
 manuscript work. Task-gated L5 uses 200 source-validation-energy-matched random orthobases per interpretable
 object and applies Holm correction across all task-gated pretrained cells within each dataset.
+
+## ISRUC fleet hardware addendum
+
+Mixed A40/V100 scheduling in fleet attempt `895321` changed the fixed-seed random sequence-head source-validation
+Kappa by `0.0079506971` relative to the gate run. The attempt was stopped before aggregation. ISRUC fleet
+sequence-head fitting is therefore pinned to A40 hardware, records its CUDA/PyTorch device contract, and runs the
+A40 random object before all other objects. The remaining objects use that same-fleet random source-validation
+Kappa for their task gate. The stopped mixed-hardware attempt is infrastructure evidence only and cannot enter a
+scientific comparison.

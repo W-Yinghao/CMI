@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #SBATCH --job-name=s2pCisruc
-#SBATCH --partition=A100,H100,A40,L40S,V100
+#SBATCH --partition=A40
 #SBATCH --gres=gpu:1
 #SBATCH --cpus-per-task=8
 #SBATCH --mem=64G
@@ -43,8 +43,15 @@ if json.loads(Path("results/s2p_route_b_cross_task_isruc_s3/isruc_s3_gate_verdic
 PY
   (( TASK_ID >= 0 && TASK_ID < 10 )) || { echo "ERROR: fleet task must be 0-9" >&2; exit 2; }
   TAG="${FLEET_TAGS[$TASK_ID]}"
-  OBJECT_DIR="$ROOT/objects_fleet"
-  GATE_ARGS=(--gate-task-csv "$ROOT/isruc_s3_gate_task_performance.csv")
+  OBJECT_DIR="$ROOT/objects_fleet_a40"
+  if [[ "$TASK_ID" != "0" ]]; then
+    RANDOM_CONTRACT="$OBJECT_DIR/random_isruc_object_contract.json"
+    [[ -f "$RANDOM_CONTRACT" ]] || {
+      echo "ERROR: run and close the A40 random fleet object before other tasks" >&2
+      exit 2
+    }
+    GATE_ARGS=(--fleet-random-contract "$RANDOM_CONTRACT")
+  fi
 else
   echo "ERROR: invalid stage" >&2
   exit 2

@@ -31,7 +31,7 @@ STAGE="${S2P_PHASE_C_STAGE:-gate}"
 GATE_ARGS=()
 if [[ "$STAGE" == "fleet" ]]; then
   GATE_ARGS=(--gate-json "$ROOT/isruc_s3_gate_verdict.json")
-  OBJECT_DIR="$ROOT/objects_fleet"
+  OBJECT_DIR="$ROOT/objects_fleet_a40"
 else
   OBJECT_DIR="$ROOT/objects"
 fi
