@@ -31,8 +31,10 @@ PROTOCOL_SHA_PATH = REPORT_DIR / "C81_AAAI_BASELINE_COMPARISON_PROTOCOL.sha256"
 METHOD_REGISTRY_PATH = REPORT_DIR / "C81_BASELINE_METHOD_REGISTRY.json"
 REPAIR_PROTOCOL_PATH = REPORT_DIR / "C81R_SOURCE_SHARD_SCHEMA_REPAIR_PROTOCOL.json"
 REPAIR_PROTOCOL_SHA_PATH = REPORT_DIR / "C81R_SOURCE_SHARD_SCHEMA_REPAIR_PROTOCOL.sha256"
-LOCK_PATH = REPORT_DIR / "C81R_REPAIRED_ANALYSIS_EXECUTION_LOCK.json"
-LOCK_SHA_PATH = REPORT_DIR / "C81R_REPAIRED_ANALYSIS_EXECUTION_LOCK.sha256"
+SELECTION_REPAIR_PROTOCOL_PATH = REPORT_DIR / "C81R2_SELECTION_DESCRIPTOR_SHAPE_REPAIR_PROTOCOL.json"
+SELECTION_REPAIR_PROTOCOL_SHA_PATH = REPORT_DIR / "C81R2_SELECTION_DESCRIPTOR_SHAPE_REPAIR_PROTOCOL.sha256"
+LOCK_PATH = REPORT_DIR / "C81R2_REPAIRED_ANALYSIS_EXECUTION_LOCK.json"
+LOCK_SHA_PATH = REPORT_DIR / "C81R2_REPAIRED_ANALYSIS_EXECUTION_LOCK.sha256"
 AUTHORIZATION_PATH = REPORT_DIR / "C81E_PI_AUTHORIZATION_RECORD.json"
 C81E_TABLE_DIR = REPORT_DIR / "c81e_tables"
 
@@ -48,6 +50,18 @@ SELECTION_METHODS = (
 )
 MATERIAL_MARGIN = 0.05
 NONINFERIORITY_MARGIN = 0.05
+SELECTION_ARRAY_SHAPES = {
+    "cell_seed": (32,),
+    "cell_target": (32,),
+    "cell_level": (32,),
+    "candidate_global_indices": (32, 81),
+    "method_ids": (19,),
+    "scores": (32, 19, 81),
+    "selected_top10": (32, 19, 10),
+    "aline_slope": (32,),
+    "aline_intercept": (32,),
+    "aline_pair_R2": (32,),
+}
 
 
 def sha256_file(path: str | Path) -> str:
@@ -624,6 +638,16 @@ def load_execution_lock() -> tuple[dict[str, Any], str]:
         or lock["repair_protocol"]["commit"] != last_commit(REPAIR_PROTOCOL_PATH)
     ):
         raise RuntimeError("C81 lock repair-protocol binding mismatch")
+    selection_repair_expected = SELECTION_REPAIR_PROTOCOL_SHA_PATH.read_text().split()[0]
+    selection_repair_observed = sha256_file(SELECTION_REPAIR_PROTOCOL_PATH)
+    if selection_repair_observed != selection_repair_expected:
+        raise RuntimeError("C81 selection-descriptor repair protocol hash mismatch")
+    if (
+        lock["selection_descriptor_repair_protocol"]["sha256"] != selection_repair_observed
+        or lock["selection_descriptor_repair_protocol"]["commit"]
+        != last_commit(SELECTION_REPAIR_PROTOCOL_PATH)
+    ):
+        raise RuntimeError("C81 lock selection-descriptor repair binding mismatch")
     if lock["method_registry"]["sha256"] != sha256_file(METHOD_REGISTRY_PATH):
         raise RuntimeError("C81 lock method registry drift")
     if lock["scope"]["target4_primary"] or lock["scope"]["same_label_oracle"]:
@@ -648,6 +672,11 @@ def require_c81e_authorization() -> dict[str, Any]:
         raise RuntimeError("C81E authorization protocol binding mismatch")
     if authorization.get("repair_protocol_sha256") != lock["repair_protocol"]["sha256"]:
         raise RuntimeError("C81E authorization repair-protocol binding mismatch")
+    if (
+        authorization.get("selection_descriptor_repair_protocol_sha256")
+        != lock["selection_descriptor_repair_protocol"]["sha256"]
+    ):
+        raise RuntimeError("C81E authorization selection-descriptor repair binding mismatch")
     if authorization.get("field_view_manifest_digest") != lock["field_view_manifest_digest"]:
         raise RuntimeError("C81E authorization manifest binding mismatch")
     return {"lock": lock, "lock_sha256": lock_sha, "authorization": authorization}
@@ -673,6 +702,44 @@ def _self_hashed_manifest(path: str | Path) -> dict[str, Any]:
     if canonical_sha256(payload) != expected:
         raise RuntimeError(f"C81 self-hashed manifest mismatch: {path}")
     return manifest
+
+
+def _verify_selection_descriptor(descriptor: dict[str, Any]) -> Path:
+    """Replay the heterogeneous selection payload under its exact shape contract."""
+    if descriptor.get("kind") != "c81_locked_baseline_selection":
+        raise RuntimeError("C81 selection descriptor kind drift")
+    if int(descriptor.get("row_count", -1)) != 32:
+        raise RuntimeError("C81 selection descriptor context count drift")
+    if set(descriptor.get("fields", ())) != set(SELECTION_ARRAY_SHAPES):
+        raise RuntimeError("C81 selection descriptor field drift")
+    path = _verify_file(descriptor["path"], descriptor["sha256"])
+    if path.stat().st_size != int(descriptor["size_bytes"]):
+        raise RuntimeError("C81 selection descriptor size drift")
+    with np.load(path, allow_pickle=False) as payload:
+        if set(payload.files) != set(SELECTION_ARRAY_SHAPES):
+            raise RuntimeError("C81 selection payload field drift")
+        observed_shapes = {name: payload[name].shape for name in payload.files}
+    if observed_shapes != SELECTION_ARRAY_SHAPES:
+        raise RuntimeError(f"C81 selection payload shape drift: {observed_shapes}")
+    return path
+
+
+def _verify_preserved_selection_binding(
+    context: dict[str, Any], manifest_path: Path, manifest: dict[str, Any],
+) -> None:
+    binding = context["lock"]["frozen_selection"]
+    if sha256_file(manifest_path) != binding["manifest_file_sha256"]:
+        raise RuntimeError("C81 preserved selection manifest file drift")
+    if manifest["manifest_sha256"] != binding["manifest_self_sha256"]:
+        raise RuntimeError("C81 preserved selection manifest self-hash drift")
+    if manifest["analysis_lock_sha256"] != binding["origin_analysis_lock_sha256"]:
+        raise RuntimeError("C81 preserved selection origin-lock drift")
+    if manifest["descriptor"]["sha256"] != binding["payload_sha256"]:
+        raise RuntimeError("C81 preserved selection payload binding drift")
+    if manifest["evaluation_labels_accessed"] or manifest["same_label_oracle_accessed"]:
+        raise RuntimeError("C81 preserved selection isolation drift")
+    if manifest["target4_accessed"]:
+        raise RuntimeError("C81 preserved selection target4 drift")
 
 
 def _load_source_context(
@@ -729,8 +796,11 @@ def _selection_stage(context: dict[str, Any]) -> dict[str, Any]:
     manifest_path = external_root / "selection" / "C81_SELECTIONS_FROZEN.json"
     if manifest_path.exists():
         manifest = _self_hashed_manifest(manifest_path)
-        c74_cache.verify_shard(manifest["descriptor"])
+        _verify_selection_descriptor(manifest["descriptor"])
+        _verify_preserved_selection_binding(context, manifest_path, manifest)
         return manifest
+    if not context["lock"]["frozen_selection"]["selection_recomputation_allowed"]:
+        raise RuntimeError("C81 frozen selection is absent and recomputation is forbidden")
     cells = []
     score_blocks = []
     order_blocks = []
@@ -806,7 +876,7 @@ def _selection_stage(context: dict[str, Any]) -> dict[str, Any]:
 
 
 def _load_selection(manifest: dict[str, Any]) -> dict[str, np.ndarray]:
-    c74_cache.verify_shard(manifest["descriptor"])
+    _verify_selection_descriptor(manifest["descriptor"])
     with np.load(manifest["descriptor"]["path"], allow_pickle=False) as payload:
         arrays = {name: payload[name] for name in payload.files}
     expected = {
@@ -818,6 +888,8 @@ def _load_selection(manifest: dict[str, Any]) -> dict[str, np.ndarray]:
     for name, shape in expected.items():
         if arrays[name].shape != shape:
             raise RuntimeError(f"C81 selection payload shape drift: {name}")
+    if tuple(arrays["method_ids"].astype(str)) != SELECTION_METHODS:
+        raise RuntimeError("C81 selection method order drift")
     return arrays
 
 
@@ -1030,6 +1102,9 @@ def _freeze_c81e_results(
         "schema_version": "c81_frozen_field_baseline_result_v1",
         "protocol_sha256": context["lock"]["protocol"]["sha256"],
         "repair_protocol_sha256": context["lock"]["repair_protocol"]["sha256"],
+        "selection_descriptor_repair_protocol_sha256": context["lock"][
+            "selection_descriptor_repair_protocol"
+        ]["sha256"],
         "analysis_lock_sha256": context["lock_sha256"],
         "selection_manifest_sha256": selection_manifest["manifest_sha256"],
         "contexts": 32,

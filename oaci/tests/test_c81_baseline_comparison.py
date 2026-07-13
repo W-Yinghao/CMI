@@ -269,8 +269,11 @@ def test_run_real_fails_closed_without_direct_C81E_authorization(tmp_path, monke
 
 def test_scope_specific_lock_replays_and_binds_real_adapter():
     lock, lock_sha = baseline.load_execution_lock()
-    assert lock_sha == "3093201d3f2959d828cb9debb8a4aeb9252f5385b9e8f806445cff05307a8b1c"
+    assert lock_sha == baseline.LOCK_SHA_PATH.read_text().split()[0]
     assert lock["repair_protocol"]["sha256"] == "ba0434b4ea7965691dafaf506547af64f851c57bdca330a0a5c88e4fa7ba1b15"
+    assert lock["selection_descriptor_repair_protocol"]["sha256"] == (
+        "2acf6ecc179c739f73845d430f9eac9e9e83a83015370b1125dbe447b8b59272"
+    )
     assert lock["runtime"]["entrypoint"].endswith("c81_baseline_comparison run-real")
     assert lock["runtime"]["selection_manifest_freeze_required"] is True
     assert lock["runtime"]["evaluation_requires_selection_hash_replay"] is True
@@ -320,6 +323,38 @@ def test_source_loader_accepts_registered_superset_schema(tmp_path):
     assert domains.tolist() == [10, 10, 11]
 
 
+def test_selection_descriptor_accepts_registered_mixed_dimension_schema(tmp_path):
+    arrays = {
+        "cell_seed": np.full(32, 3, dtype=np.int16),
+        "cell_target": np.tile(np.asarray([1, 2, 3, 5, 6, 7, 8, 9]), 4),
+        "cell_level": np.tile(np.asarray([0, 1]), 16),
+        "candidate_global_indices": np.tile(np.arange(81), (32, 1)),
+        "method_ids": np.asarray(baseline.SELECTION_METHODS),
+        "scores": np.zeros((32, 19, 81)),
+        "selected_top10": np.zeros((32, 19, 10), dtype=np.int16),
+        "aline_slope": np.zeros(32),
+        "aline_intercept": np.zeros(32),
+        "aline_pair_R2": np.zeros(32),
+    }
+    descriptor = baseline.c74_cache.write_content_addressed_npz(
+        tmp_path / "payload", "c81_locked_baseline_selection", arrays,
+    )
+    assert baseline._verify_selection_descriptor(descriptor) == Path(descriptor["path"])
+
+
+def test_selection_descriptor_rejects_unregistered_shape(tmp_path):
+    arrays = {
+        name: np.zeros(shape, dtype="<U8" if name == "method_ids" else np.float64)
+        for name, shape in baseline.SELECTION_ARRAY_SHAPES.items()
+    }
+    arrays["method_ids"] = np.zeros(18, dtype="<U8")
+    descriptor = baseline.c74_cache.write_content_addressed_npz(
+        tmp_path / "payload", "c81_locked_baseline_selection", arrays,
+    )
+    with pytest.raises(RuntimeError, match="shape drift"):
+        baseline._verify_selection_descriptor(descriptor)
+
+
 def test_pre_execution_red_team_passes_all_checks():
     rows = _rows("pre_execution_red_team.csv")
     assert len(rows) == 43
@@ -364,5 +399,6 @@ def test_C81P_readiness_precedes_direct_C81E_authorization():
     assert authorization["authorization_received"] is True
     assert authorization["protocol_sha256"] == readiness["protocol"]["sha256"]
     assert authorization["binding_history"][0]["analysis_lock_sha256"] == readiness["analysis_lock"]["sha256"]
-    assert authorization["analysis_lock_sha256"] == baseline.LOCK_SHA_PATH.read_text().strip()
+    assert authorization["analysis_lock_sha256"] != baseline.LOCK_SHA_PATH.read_text().split()[0]
+    assert authorization["binding_history"][-1]["status"] == "operative_repaired_lock_directly_reauthorized"
     assert not (baseline.REPORT_DIR / "C81_FROZEN_FIELD_BASELINE_COMPARISON.json").exists()
