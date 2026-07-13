@@ -1,6 +1,7 @@
 """Synthetic/schema-only tests for the C80R additive repair."""
 from __future__ import annotations
 
+import csv
 import json
 from pathlib import Path
 
@@ -167,3 +168,61 @@ def test_schema_dry_run_reports_zero_outcomes() -> None:
     assert audit["real_budget_statistics"] == 0
     assert audit["evaluation_label_reads"] == 0
     assert audit["run_real_fail_closed"] is True
+
+
+def test_synthetic_result_synthesis_runs_all_paths_and_exact_taxonomy(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    table_dir = tmp_path / "tables"
+    result_path = tmp_path / "result.json"
+    monkeypatch.setattr(adapter, "RESULT_TABLE_DIR", table_dir)
+    monkeypatch.setattr(adapter, "RESULT_PATH", result_path)
+    selection = {
+        "cell_seed": np.repeat([3, 4], 16),
+        "cell_target": np.tile(np.repeat(frontier.PRIMARY_TARGETS, 2), 2),
+        "cell_level": np.tile([0, 1], 16),
+        "full_class_counts": np.full((32, 4), 61, dtype=int),
+    }
+    monkeypatch.setattr(adapter, "_load_selection", lambda manifest: selection)
+    cell_rows = []
+    regime_rows = []
+    geometry_rows = []
+    for seed in (3, 4):
+        for target in frontier.PRIMARY_TARGETS:
+            for level in (0, 1):
+                for budget in frontier.BUDGETS:
+                    cell_rows.append({
+                        "seed": seed, "target": target, "level": level, "budget": budget,
+                        "expected_standardized_regret": 0.1,
+                        "regret_reduction_vs_source": 0.2,
+                        "reliability": 0.5,
+                        "top1": 0.25, "top5": 0.75, "top10": 0.9,
+                        "source_top1": 0.0, "source_top5": 0.5, "source_top10": 0.6,
+                        "coverage_top1": 0.3, "coverage_top5": 0.8, "coverage_top10": 0.95,
+                        "material_actionability": 1,
+                    })
+                    regime_rows.append({
+                        "seed": seed, "target": target, "level": level, "budget": budget,
+                        "ERM_fraction": 0.1, "OACI_fraction": 0.5, "SRC_fraction": 0.4,
+                    })
+                    geometry_rows.append({
+                        "seed": seed, "target": target, "level": level, "budget": budget,
+                        "raw_M": 81,
+                        "effective_M_epsilon_0.05": 2 + target + level,
+                        "top_two_gap": 0.01 * target + 0.001 * level,
+                        "regret_reduction_vs_source": 0.2 + 0.001 * target,
+                    })
+    result = adapter._summarize_results(
+        cell_rows, regime_rows, geometry_rows,
+        {"lock": {"protocol": {"sha256": "a" * 64}}, "lock_sha256": "b" * 64},
+        {"manifest_sha256": "c" * 64},
+    )
+    assert result["primary_taxonomy"] == "C80-A_stable_low_regret_label_budget_frontier_across_training_seeds"
+    assert result["all_five_paths_unconditional"] is True
+    registry = list(csv.DictReader((table_dir / "registry_execution_ledger.csv").open()))
+    assert [row["path"] for row in registry] == ["P1", "P2", "S1", "S2", "S3"]
+    cross_seed = list(csv.DictReader((table_dir / "cross_seed_frontier_stability.csv").open()))
+    assert len(cross_seed) == 7
+    assert all(row["registered_stability_pass"] == "1" for row in cross_seed)
+    assert len(list(csv.DictReader((table_dir / "reliability_actionability_summary.csv").open()))) == 14
+    assert len(list(csv.DictReader((table_dir / "topgap_multiplicity_moderation.csv").open()))) == 378

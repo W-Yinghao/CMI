@@ -282,6 +282,8 @@ def _load_label_view(
 
 
 def _route(path: Path, expected_sha: str) -> dict[str, Any]:
+    if not path.is_absolute():
+        path = REPO_ROOT / path
     if _sha256_file(path) != expected_sha:
         raise RuntimeError(f"C80 route hash drift: {path}")
     raw = path.read_text()
@@ -502,16 +504,9 @@ def paired_cross_seed_stability(
             "reason": "one_or_both_Bstar_absent",
         }
     common_index = max(frontier.BUDGETS.index(bstar_seed3), frontier.BUDGETS.index(bstar_seed4))
-    differences = right - left
-    mean = np.mean(differences, axis=0)
-    se = np.std(differences, axis=0, ddof=1) / math.sqrt(8)
-    safe_se = np.where(se > 1e-15, se, 1.0)
-    rng = np.random.default_rng(8033)
-    sampled = rng.integers(0, 8, size=(replicates, 8))
-    boot = np.mean(differences[sampled], axis=1)
-    max_deviation = np.max(np.abs((boot - mean) / safe_se), axis=1)
-    critical = float(np.quantile(max_deviation, 0.95))
-    lower, upper = mean - critical * se, mean + critical * se
+    paired_band = paired_difference_band(left, right, replicates=replicates)
+    mean = paired_band["mean"]
+    lower, upper = paired_band["lower"], paired_band["upper"]
     paired_mean = float(mean[common_index])
     heterogeneity_pass = abs(paired_mean) <= 0.05 and lower[common_index] <= 0 <= upper[common_index]
     direction_pass = (
@@ -529,6 +524,34 @@ def paired_cross_seed_stability(
         "heterogeneity_pass": bool(heterogeneity_pass),
         "direction_concordance_pass": bool(direction_pass),
         "reason": "all_registered_stability_gates_pass" if passed else "registered_stability_gate_failed",
+    }
+
+
+def paired_difference_band(
+    seed3_effects: np.ndarray,
+    seed4_effects: np.ndarray,
+    *,
+    replicates: int = BOOTSTRAP_REPLICATES,
+) -> dict[str, np.ndarray | float]:
+    left = np.asarray(seed3_effects, dtype=float)
+    right = np.asarray(seed4_effects, dtype=float)
+    if left.shape != right.shape or left.shape != (8, 7):
+        raise RuntimeError("C80 paired difference band requires paired 8x7 arrays")
+    differences = right - left
+    mean = np.mean(differences, axis=0)
+    se = np.std(differences, axis=0, ddof=1) / math.sqrt(8)
+    safe_se = np.where(se > 1e-15, se, 1.0)
+    rng = np.random.default_rng(8033)
+    sampled = rng.integers(0, 8, size=(replicates, 8))
+    boot = np.mean(differences[sampled], axis=1)
+    max_deviation = np.max(np.abs((boot - mean) / safe_se), axis=1)
+    critical = float(np.quantile(max_deviation, 0.95))
+    return {
+        "mean": mean,
+        "se": se,
+        "critical": critical,
+        "lower": mean - critical * se,
+        "upper": mean + critical * se,
     }
 
 
@@ -688,12 +711,14 @@ def _evaluation_stage(context: dict[str, Any], selection_manifest: dict[str, Any
                 evaluated = evaluate_selection_fixture(fixture, utility, joint_good)
                 source_order = selection["source_top10"][cell_position].astype(int)
                 source_regret = frontier.standardized_regret(utility, int(source_order[0]))
+                best = int(np.argmax(utility))
+                source_topk = {k: int(best in set(map(int, source_order[:k]))) for k in TOP_K}
+                source_coverage = {k: int(np.any(joint_good[source_order[:k]])) for k in TOP_K}
                 random_expected_regret = float(np.mean([
                     frontier.standardized_regret(utility, index) for index in range(81)
                 ]))
                 regimes = arrays["regime"][indices].astype(str)
                 selected_regimes = regimes[fixture["orders"][:, :, 0]]
-                best = int(np.argmax(utility))
                 effective = int(np.sum(float(np.max(utility)) - utility <= 0.05 + 1e-15))
                 true_order = np.argsort(utility)[::-1]
                 top_gap = float(utility[true_order[0]] - utility[true_order[1]])
@@ -711,9 +736,18 @@ def _evaluation_stage(context: dict[str, Any], selection_manifest: dict[str, Any
                         "top1": float(np.mean(evaluated["top1"][:, budget_index])),
                         "top5": float(np.mean(evaluated["top5"][:, budget_index])),
                         "top10": float(np.mean(evaluated["top10"][:, budget_index])),
+                        "source_top1": source_topk[1],
+                        "source_top5": source_topk[5],
+                        "source_top10": source_topk[10],
+                        "delta_top1_vs_source": float(np.mean(evaluated["top1"][:, budget_index])) - source_topk[1],
+                        "delta_top5_vs_source": float(np.mean(evaluated["top5"][:, budget_index])) - source_topk[5],
+                        "delta_top10_vs_source": float(np.mean(evaluated["top10"][:, budget_index])) - source_topk[10],
                         "coverage_top1": float(np.mean(evaluated["coverage_top1"][:, budget_index])),
                         "coverage_top5": float(np.mean(evaluated["coverage_top5"][:, budget_index])),
                         "coverage_top10": float(np.mean(evaluated["coverage_top10"][:, budget_index])),
+                        "source_coverage_top1": source_coverage[1],
+                        "source_coverage_top5": source_coverage[5],
+                        "source_coverage_top10": source_coverage[10],
                         "reliability": float(np.nanmean(evaluated["reliability"][:, budget_index])),
                         "probability_beats_random_expectation": float(np.mean(evaluated["regret"][:, budget_index] < random_expected_regret)),
                         "random_expected_regret": random_expected_regret,
@@ -721,6 +755,13 @@ def _evaluation_stage(context: dict[str, Any], selection_manifest: dict[str, Any
                         "same_label_oracle_accessed": 0,
                         "target4_primary": 0,
                     }
+                    row["material_topk_component"] = int(max(
+                        row["delta_top5_vs_source"], row["delta_top10_vs_source"],
+                    ) >= 0.05)
+                    row["material_regret_component"] = int(row["regret_reduction_vs_source"] >= 0.05)
+                    row["material_actionability"] = int(
+                        row["material_topk_component"] or row["material_regret_component"]
+                    )
                     cell_rows.append(row)
                     counts = {name: int(np.sum(selected_regimes[:, budget_index] == name)) for name in ("ERM", "OACI", "SRC")}
                     regime_rows.append({
@@ -740,18 +781,22 @@ def _evaluation_stage(context: dict[str, Any], selection_manifest: dict[str, Any
     return _summarize_results(cell_rows, regime_rows, geometry_rows, context, selection_manifest)
 
 
-def _target_effect_matrix(cell_rows: list[dict[str, Any]], seed: int) -> np.ndarray:
+def _target_metric_matrix(cell_rows: list[dict[str, Any]], seed: int, metric: str) -> np.ndarray:
     matrix = np.empty((8, 7), dtype=float)
     for target_index, target in enumerate(frontier.PRIMARY_TARGETS):
         for budget_index, budget in enumerate(frontier.BUDGETS):
             values = [
-                row["regret_reduction_vs_source"] for row in cell_rows
+                row[metric] for row in cell_rows
                 if row["seed"] == seed and row["target"] == target and str(row["budget"]) == str(budget)
             ]
             if len(values) != 2:
                 raise RuntimeError("C80 target effect aggregation drift")
             matrix[target_index, budget_index] = float(np.mean(values))
     return matrix
+
+
+def _target_effect_matrix(cell_rows: list[dict[str, Any]], seed: int) -> np.ndarray:
+    return _target_metric_matrix(cell_rows, seed, "regret_reduction_vs_source")
 
 
 def _summarize_results(
@@ -806,12 +851,23 @@ def _summarize_results(
             "near_FULL": int(qualification["Bstar"] in NEAR_FULL),
             "FULL_is_cell_specific_not_61": 1,
         })
-    stability_rows = [{
-        "Bstar_seed3": qualifications[3]["Bstar"] if qualifications[3]["Bstar"] is not None else "ABSENT",
-        "Bstar_seed4": qualifications[4]["Bstar"] if qualifications[4]["Bstar"] is not None else "ABSENT",
-        **stability,
-        "taxonomy": taxonomy,
-    }]
+    paired_band = paired_difference_band(target_matrices[3], target_matrices[4])
+    stability_rows = []
+    for index, budget in enumerate(frontier.BUDGETS):
+        stability_rows.append({
+            "budget": budget,
+            "Bstar_seed3": qualifications[3]["Bstar"] if qualifications[3]["Bstar"] is not None else "ABSENT",
+            "Bstar_seed4": qualifications[4]["Bstar"] if qualifications[4]["Bstar"] is not None else "ABSENT",
+            "Bstar_grid_distance": stability["Bstar_grid_distance"],
+            "seed3_mean_regret_reduction": float(np.mean(target_matrices[3][:, index])),
+            "seed4_mean_regret_reduction": float(np.mean(target_matrices[4][:, index])),
+            "paired_seed4_minus_seed3": float(paired_band["mean"][index]),
+            "paired_simultaneous_ci_low": float(paired_band["lower"][index]),
+            "paired_simultaneous_ci_high": float(paired_band["upper"][index]),
+            "common_larger_budget": stability["common_larger_budget"],
+            "registered_stability_pass": int(stability["pass"]),
+            "taxonomy": taxonomy,
+        })
     leave_one_rows = []
     for seed in (3, 4):
         for left_out_index, left_out_target in enumerate(frontier.PRIMARY_TARGETS):
@@ -825,28 +881,90 @@ def _summarize_results(
                 "classification_changed": int(sensitivity["Bstar"] != qualifications[seed]["Bstar"]),
                 "descriptive_sensitivity_only": 1,
             })
+    secondary_matrices = {
+        (seed, metric): _target_metric_matrix(cell_rows, seed, metric)
+        for seed in (3, 4)
+        for metric in (
+            "reliability", "top1", "top5", "top10", "source_top1", "source_top5", "source_top10",
+            "coverage_top1", "coverage_top5", "coverage_top10", "regret_reduction_vs_source",
+            "material_actionability",
+        )
+    }
+    secondary_bands = {
+        key: simultaneous_target_band(matrix, seed=8051)
+        for key, matrix in secondary_matrices.items()
+    }
+    reliability_rows = []
+    topk_rows = []
+    for seed in (3, 4):
+        for index, budget in enumerate(frontier.BUDGETS):
+            reliability_band = secondary_bands[(seed, "reliability")]
+            regret_band = secondary_bands[(seed, "regret_reduction_vs_source")]
+            reliability_rows.append({
+                "seed": seed,
+                "budget": budget,
+                "reliability_mean": float(reliability_band["mean"][index]),
+                "reliability_simultaneous_low": float(reliability_band["lower"][index]),
+                "reliability_simultaneous_high": float(reliability_band["upper"][index]),
+                "regret_reduction_mean": float(regret_band["mean"][index]),
+                "regret_reduction_simultaneous_low": float(regret_band["lower"][index]),
+                "regret_reduction_simultaneous_high": float(regret_band["upper"][index]),
+                "material_actionability_target_fraction": float(np.mean(
+                    secondary_matrices[(seed, "material_actionability")][:, index]
+                )),
+                "reliability_is_actionability_precondition": 0,
+            })
+            row: dict[str, Any] = {"seed": seed, "budget": budget}
+            for k in TOP_K:
+                budget_band = secondary_bands[(seed, f"top{k}")]
+                source_band = secondary_bands[(seed, f"source_top{k}")]
+                coverage_band = secondary_bands[(seed, f"coverage_top{k}")]
+                row.update({
+                    f"top{k}": float(budget_band["mean"][index]),
+                    f"top{k}_simultaneous_low": float(budget_band["lower"][index]),
+                    f"top{k}_simultaneous_high": float(budget_band["upper"][index]),
+                    f"source_top{k}": float(source_band["mean"][index]),
+                    f"delta_top{k}_vs_source": float(budget_band["mean"][index] - source_band["mean"][index]),
+                    f"coverage_top{k}": float(coverage_band["mean"][index]),
+                })
+            row["material_topk_component"] = int(max(
+                row["delta_top5_vs_source"], row["delta_top10_vs_source"],
+            ) >= 0.05)
+            topk_rows.append(row)
     geometry_summary = []
     for seed in (3, 4):
         for budget in frontier.BUDGETS:
             rows = [row for row in geometry_rows if row["seed"] == seed and str(row["budget"]) == str(budget)]
             for variable in ("raw_M", "effective_M_epsilon_0.05", "top_two_gap"):
-                rho = stats.spearmanr(
-                    [row[variable] for row in rows], [row["regret_reduction_vs_source"] for row in rows],
-                ).statistic
-                geometry_summary.append({
-                    "seed": seed, "budget": budget, "variable": variable,
-                    "Spearman_regret_reduction": float(rho) if math.isfinite(float(rho)) else math.nan,
-                    "inferential_qualification": 0,
-                    "H2_rescue": 0,
-                })
+                for left_out in (None, *frontier.PRIMARY_TARGETS):
+                    included = [row for row in rows if left_out is None or row["target"] != left_out]
+                    x = np.asarray([row[variable] for row in included], dtype=float)
+                    y = np.asarray([row["regret_reduction_vs_source"] for row in included], dtype=float)
+                    if len(set(x.tolist())) < 2 or len(set(y.tolist())) < 2:
+                        rho = math.nan
+                    else:
+                        correlation = stats.spearmanr(x, y)
+                        rho = float(
+                            correlation.statistic if hasattr(correlation, "statistic") else correlation.correlation
+                        )
+                    geometry_summary.append({
+                        "seed": seed,
+                        "budget": budget,
+                        "variable": variable,
+                        "left_out_target": left_out if left_out is not None else "NONE",
+                        "Spearman_regret_reduction": rho,
+                        "direction": "positive" if math.isfinite(rho) and rho > 0 else "nonpositive_or_undefined",
+                        "inferential_qualification": 0,
+                        "H2_rescue": 0,
+                    })
     _write_csv(RESULT_TABLE_DIR / "seed3_budget_frontier.csv", [row for row in frontier_rows if row["seed"] == 3])
     _write_csv(RESULT_TABLE_DIR / "seed4_budget_frontier.csv", [row for row in frontier_rows if row["seed"] == 4])
     _write_csv(RESULT_TABLE_DIR / "seed_specific_bstar.csv", bstar_rows)
     _write_csv(RESULT_TABLE_DIR / "cross_seed_frontier_stability.csv", stability_rows)
     _write_csv(RESULT_TABLE_DIR / "target_level_regret.csv", cell_rows)
     _write_csv(RESULT_TABLE_DIR / "leave_one_target_out_sensitivity.csv", leave_one_rows)
-    _write_csv(RESULT_TABLE_DIR / "topk_coverage_summary.csv", cell_rows)
-    _write_csv(RESULT_TABLE_DIR / "reliability_actionability_summary.csv", cell_rows)
+    _write_csv(RESULT_TABLE_DIR / "topk_coverage_summary.csv", topk_rows)
+    _write_csv(RESULT_TABLE_DIR / "reliability_actionability_summary.csv", reliability_rows)
     _write_csv(RESULT_TABLE_DIR / "regime_selection_summary.csv", regime_rows)
     _write_csv(RESULT_TABLE_DIR / "topgap_multiplicity_moderation.csv", geometry_summary)
     _write_csv(RESULT_TABLE_DIR / "simultaneous_inference_summary.csv", inference_rows)
@@ -887,6 +1005,10 @@ def _summarize_results(
         "external_validity_claim": False,
     }
     c74_cache.atomic_json(RESULT_PATH, result)
+    return result
+
+
+def _freeze_result_artifact_manifest() -> None:
     artifact_paths = [
         RESULT_PATH,
         *sorted(RESULT_TABLE_DIR.glob("*.csv")),
@@ -898,7 +1020,6 @@ def _summarize_results(
         "raw_payload": 0,
     } for path in artifact_paths if path.name != "result_artifact_manifest.csv"]
     _write_csv(RESULT_TABLE_DIR / "result_artifact_manifest.csv", artifact_rows)
-    return result
 
 
 def run_real() -> dict[str, Any]:
@@ -943,6 +1064,7 @@ def run_real() -> dict[str, Any]:
         "outcome_dependent_retry": 0,
         "same_label_oracle_accessed": 0,
     }])
+    _freeze_result_artifact_manifest()
     return result
 
 
