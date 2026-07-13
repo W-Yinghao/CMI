@@ -1,17 +1,35 @@
 {
-  "schema_version": "c81e_direct_pi_authorization_v1",
+  "schema_version": "c81e_repaired_direct_pi_authorization_v2",
   "recorded_at_utc": "2026-07-13T12:50:56Z",
+  "reauthorized_at_utc": "2026-07-13T13:20:02Z",
+  "binding_revision": 2,
   "authorization_source": "direct_PI_statement_in_current_execution_conversation",
-  "authorization_text_exact": "现在我明确授权C81E",
+  "authorization_text_exact": "授权修复后的 C81E",
   "authorization_received": true,
   "magic_token_required": false,
   "PI_must_repeat_hashes": false,
   "binding_policy_commit": "3d9dd76",
-  "binding_resolution": "executor_automatically_bound_the_direct_C81E_authorization_to_the_single_current_scope_specific_protocol_lock_and_manifest_set",
+  "binding_resolution": "executor_automatically_bound_the_new_direct_authorization_to_the_single_current_repaired_C81E_protocol_lock_and_manifest_set",
   "protocol_commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
   "protocol_sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee",
-  "analysis_lock_commit": "541651c2ee3343c12d374a7322c91181a860a2c9",
-  "analysis_lock_sha256": "b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1",
+  "repair_protocol_commit": "6371b2220979b61cabfb105521036bb02f47aaea",
+  "repair_protocol_sha256": "ba0434b4ea7965691dafaf506547af64f851c57bdca330a0a5c88e4fa7ba1b15",
+  "repaired_implementation_commit": "570316310ccb2b0b2acb8a10952ac73431ffd2ae",
+  "repaired_implementation_sha256": "b922139e77265d11135982d494832e63204c22ff2a29b7619055ad4259463f02",
+  "analysis_lock_commit": "bad8db494765f3f921443bf5e8cdd5db569861a9",
+  "analysis_lock_sha256": "3093201d3f2959d828cb9debb8a4aeb9252f5385b9e8f806445cff05307a8b1c",
+  "binding_history": [
+    {
+      "analysis_lock_commit": "541651c2ee3343c12d374a7322c91181a860a2c9",
+      "analysis_lock_sha256": "b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1",
+      "status": "consumed_by_preflight_and_failed_selection_attempt_894878_not_reusable"
+    },
+    {
+      "analysis_lock_commit": "bad8db494765f3f921443bf5e8cdd5db569861a9",
+      "analysis_lock_sha256": "3093201d3f2959d828cb9debb8a4aeb9252f5385b9e8f806445cff05307a8b1c",
+      "status": "operative_repaired_lock_directly_reauthorized"
+    }
+  ],
   "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
   "scope": {
     "existing_seed3_seed4_primary_fields_read_only": true,
@@ -30,6 +48,16 @@
     "manuscript_experiments": false
   },
   "protected_state_before_record": {
+    "real_C81_baseline_statistics": 0,
+    "new_real_candidate_rankings": 0,
+    "baseline_specific_evaluation_label_reads": 0,
+    "same_label_oracle_accesses": 0,
+    "target4_primary_rows": 0,
+    "training_forward_reinference_GPU": 0
+  },
+  "protected_state_before_reauthorization": {
+    "failed_selection_attempts_preserved": 1,
+    "selection_manifests": 0,
     "real_C81_baseline_statistics": 0,
     "new_real_candidate_rankings": 0,
     "baseline_specific_evaluation_label_reads": 0,

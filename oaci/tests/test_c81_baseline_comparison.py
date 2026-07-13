@@ -363,5 +363,6 @@ def test_C81P_readiness_precedes_direct_C81E_authorization():
     assert readiness["protected_state"]["real_baseline_statistics"] == 0
     assert authorization["authorization_received"] is True
     assert authorization["protocol_sha256"] == readiness["protocol"]["sha256"]
-    assert authorization["analysis_lock_sha256"] == readiness["analysis_lock"]["sha256"]
+    assert authorization["binding_history"][0]["analysis_lock_sha256"] == readiness["analysis_lock"]["sha256"]
+    assert authorization["analysis_lock_sha256"] == baseline.LOCK_SHA_PATH.read_text().strip()
     assert not (baseline.REPORT_DIR / "C81_FROZEN_FIELD_BASELINE_COMPARISON.json").exists()

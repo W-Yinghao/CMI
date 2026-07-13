@@ -1,23 +1,27 @@
 {
-  "schema_version": "c81e_authorization_binding_v1",
+  "schema_version": "c81e_repaired_authorization_binding_v2",
   "authorization_record_path": "oaci/reports/C81E_PI_AUTHORIZATION_RECORD.json",
-  "authorization_record_sha256": "ef7555e21ba48ef5c1c9f420a9fbf3e4c78e206053ee7166123f514ec4b70d04",
+  "authorization_record_sha256": "697ac7463665de31965e06719af2d87df9ac8c52be0a76cde31ff040b04784ed",
   "authorization_received": true,
-  "authorization_text_exact": "现在我明确授权C81E",
+  "authorization_text_exact": "授权修复后的 C81E",
   "binding_policy_commit": "3d9dd76",
   "protocol": {
     "commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
     "sha256": "cbdb42f54956b685c27a1718c37d7c56c513084817a5c69fb29f06bfb67ad3ee"
   },
+  "repair_protocol": {
+    "commit": "6371b2220979b61cabfb105521036bb02f47aaea",
+    "sha256": "ba0434b4ea7965691dafaf506547af64f851c57bdca330a0a5c88e4fa7ba1b15"
+  },
   "analysis_lock": {
-    "commit": "541651c2ee3343c12d374a7322c91181a860a2c9",
-    "sha256": "b383707f58063c10f719194a995ab34094f6dcefe08c1e71837644db83dc94f1"
+    "commit": "bad8db494765f3f921443bf5e8cdd5db569861a9",
+    "sha256": "3093201d3f2959d828cb9debb8a4aeb9252f5385b9e8f806445cff05307a8b1c"
   },
   "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
-  "base_head_before_authorized_execution": "89c6afb56bf0a386200d5ce4e54c0d14153bcde8",
+  "base_head_before_repaired_authorized_execution": "4554e40b1a386b9b16eb5ac4f362e8978ec87065",
   "magic_token_required": false,
   "hash_recital_required": false,
-  "scientific_execution_started": false,
+  "scientific_execution_started_after_repair": false,
   "real_baseline_statistics_before_binding": 0,
   "evaluation_label_reads_before_binding": 0,
   "same_label_oracle_accesses_before_binding": 0
