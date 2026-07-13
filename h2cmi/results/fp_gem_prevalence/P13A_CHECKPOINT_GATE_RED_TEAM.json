@@ -1,0 +1,17 @@
+{
+  "all_six_prediction_and_logits_hashes_match": true,
+  "both_gem_geometry_hashes_match": true,
+  "checkpoint_hash_matches": true,
+  "clean_launch": true,
+  "evaluation_labels_accessed": false,
+  "fleet_approved_under_frozen_protocol": true,
+  "fresh_source_training_performed": false,
+  "gate_job_id": "894726",
+  "performance_metrics_computed": false,
+  "source_density_hash_matches": true,
+  "squeue_absent": true,
+  "status": "pass_for_frozen_fleet",
+  "stderr_status": "empty",
+  "target_labels_passed_to_adaptation": false,
+  "verdict": "PASS_FOR_FROZEN_FLEET"
+}

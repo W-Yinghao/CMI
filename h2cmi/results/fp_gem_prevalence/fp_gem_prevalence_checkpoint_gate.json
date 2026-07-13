@@ -1,12 +1,70 @@
 {
-  "checkpoint_file_sha256_expected": "8ae4e3d0dd15dbe22a6133e36f4672ac6ebec4923f4239feae95c7916548d36d",
+  "all_six_prediction_and_logits_hashes_match": true,
+  "both_gem_geometry_hashes_match": true,
+  "checkpoint": {
+    "alias_safe_buffer_clone_count": 216,
+    "checkpoint_file_sha256": "8ae4e3d0dd15dbe22a6133e36f4672ac6ebec4923f4239feae95c7916548d36d",
+    "loaded_source_model_sha256": "9d088de5208bfb276919392d1167804faa89eab84b30b7053a96351251bf2d1d"
+  },
   "dataset": "Lee2019_MI",
-  "fresh_source_training_permitted": false,
-  "full_fleet_approved": false,
+  "elapsed_seconds": 1835.9235637187958,
+  "evaluation_labels_accessed": false,
+  "fleet_approved": true,
+  "fresh_source_training_performed": false,
+  "job_id": "894726",
+  "method_hashes": {
+    "FP-GEM": {
+      "logits_hash": "a24cd95ceb4b8d8c681db60e36d25bd38b2eaa293fa081c9947234f874402e81",
+      "prediction_hash": "9c82d779c3a1f25fb6ec65a3524ed03d34688ea4182742b367c46895fd07fa9a"
+    },
+    "Joint-GEM": {
+      "logits_hash": "e0f2b74d9be1df742b8f648e89449f763c0af1602c5ea83e1d124344cefe97ae",
+      "prediction_hash": "9c82d779c3a1f25fb6ec65a3524ed03d34688ea4182742b367c46895fd07fa9a"
+    },
+    "rct": {
+      "logits_hash": "0257856927089a89258531de3343efc7ea1e4486a970a616af8bc5e667c65cb1",
+      "prediction_hash": "9c82d779c3a1f25fb6ec65a3524ed03d34688ea4182742b367c46895fd07fa9a"
+    },
+    "source_only_tsmnet": {
+      "logits_hash": "1c9035576ae7389fc04d7803b75c038893f3302f2c5b56d99b7780faabd4ed78",
+      "prediction_hash": "eef2221a3c8a95b2631ab98ac334624163144564ae89a3cb143844fd409d8964"
+    },
+    "spdim_bias": {
+      "logits_hash": "588a6484b6aaa8eb75f02492ae3547f8322be66f4a1d5d7104778a3564174883",
+      "prediction_hash": "9c82d779c3a1f25fb6ec65a3524ed03d34688ea4182742b367c46895fd07fa9a"
+    },
+    "spdim_geodesic": {
+      "logits_hash": "2820bf7042c94a53f4fcea2b0048d7e496258f63c1dbcd04d80b994d3f5610b9",
+      "prediction_hash": "9c82d779c3a1f25fb6ec65a3524ed03d34688ea4182742b367c46895fd07fa9a"
+    }
+  },
   "performance_metrics_computed": false,
-  "source_only_logits_sha256_expected": "1c9035576ae7389fc04d7803b75c038893f3302f2c5b56d99b7780faabd4ed78",
-  "source_only_prediction_sha256_expected": "eef2221a3c8a95b2631ab98ac334624163144564ae89a3cb143844fd409d8964",
+  "preclassifier_replay_max_abs_error": 0.0,
+  "provenance": {
+    "clean_worktree": true,
+    "config_sha256": "12acd01fbad33cdc5feadf2fe54da0c7423960ab6f1bfa7c8a7005ff76b87e2f",
+    "gate_json_sha256": "4c8ef4631d6bcfe09d2d13443238c146b206f6bd1c07c8933b72be855f8b1535",
+    "launch_commit": "7b48813e1430a700a8246604e9def58772e09a4f",
+    "manifest_sha256": "8c5b160fcec5ffeaded7faaf196f9753d7e0f7f15e583f8a18a5651ddf1c5802",
+    "runner_sha256": "e5b4450e4e8bb9f715fd9ef4e12b6f26d415c9cac4592ab154430f6550903d9e",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "stdout_sha256": "5f46999284fd88b2fed62c46d1615384319fd8423d25b440a9f464905ebb50e8"
+  },
+  "runtime": {
+    "compute_capability": [7, 0],
+    "cuda_version": "12.8",
+    "device_name": "Tesla V100-PCIE-32GB",
+    "mne_version": "1.8.0",
+    "moabb_version": "1.2.0",
+    "python_version": "3.9.25",
+    "pytorch_version": "2.8.0+cu128",
+    "sys_executable": "/home/infres/yinwang/anaconda3/envs/icml/bin/python"
+  },
+  "source_density_sha256": "62dd6b7b2713f2fc222c271b29210d7a966c87a81fed621b8f1a7361dd8ad3a2",
   "source_seed": 0,
-  "status": "pending_precommitted_probe",
+  "squeue_absent": true,
+  "status": "pass",
+  "stderr_status": "empty",
+  "target_labels_passed_to_adaptation": false,
   "target_subject": 1
 }
