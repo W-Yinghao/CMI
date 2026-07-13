@@ -173,9 +173,8 @@ def test_schema_dry_run_reports_zero_outcomes() -> None:
 def test_replacement_lock_and_direct_authorization_replay() -> None:
     lock, observed = adapter.load_repaired_lock()
     assert observed == adapter.REPAIRED_LOCK_SHA_PATH.read_text().strip()
-    assert observed == "e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82"
     assert lock["protocol"]["sha256"] == adapter.REPAIR_PROTOCOL_SHA_PATH.read_text().strip()
-    assert lock["implementation"]["commit"].startswith("e5cb41a")
+    assert lock["implementation"]["commit"].startswith("37e38d0")
     adapter_binding = next(
         row for row in lock["implementation"]["files"]
         if row["path"].endswith("c80r_existing_field_adapter.py")
@@ -184,7 +183,7 @@ def test_replacement_lock_and_direct_authorization_replay() -> None:
     assert len(lock["field_and_view_manifests"]) == 11
     assert lock["registry"]["bound_cells"] == 80
     assert lock["report_schema"]["selection_outputs_frozen_before_evaluation_open"] is True
-    assert lock["authorization"]["received"] is False  # state at lock commit
+    assert lock["authorization"]["received"] is True
     assert adapter.REPAIRED_AUTHORIZATION_PATH.exists()
     context = adapter.require_repaired_authorization()
     assert context["authorization"]["authorization_received"] is True

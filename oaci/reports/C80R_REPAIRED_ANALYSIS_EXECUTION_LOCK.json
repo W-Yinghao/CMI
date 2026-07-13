@@ -1,15 +1,28 @@
 {
-  "schema_version": "c80r_repaired_analysis_execution_lock_v2",
+  "schema_version": "c80r_repaired_analysis_execution_lock_v3",
   "milestone": "C80R",
-  "status": "LOCKED_READY_FOR_NEW_PI_REAUTHORIZATION_C80E_NOT_AUTHORIZED",
+  "status": "LOCKED_AFTER_SELECTION_DESCRIPTOR_REPAIR_AUTHORIZED_C80E_RESUME_PENDING_BINDING_REPLAY",
   "additive_lock_supersession": {
-    "superseded_lock_commit": "96177607d36210f9cd31ed3209e8bf5d2340f8d8",
-    "superseded_lock_sha256": "468d4e7d96ebe1d6319945078fa47cf9b1839e63e8decf5b1d1acb90e3e01322",
-    "reason": "preauthorization_red_team_completed_registered_topk_secondary_bands_cross_seed_budget_rows_and_S3_LOTO",
+    "superseded_lock_commit": "f19acd8775f9b0ddf60401739741bec0019d021c",
+    "superseded_lock_sha256": "e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82",
+    "reason": "pre_evaluation_descriptor_ABI_repair_for_registered_32_cell_and_7_budget_axes",
     "scientific_registry_changed": false,
-    "real_budget_outcomes_accessed": 0,
+    "evaluation_budget_outcomes_accessed": 0,
+    "selection_payload_values_inspected": false,
     "history_rewritten": false
   },
+  "prior_lock_revisions": [
+    {
+      "commit": "96177607d36210f9cd31ed3209e8bf5d2340f8d8",
+      "sha256": "468d4e7d96ebe1d6319945078fa47cf9b1839e63e8decf5b1d1acb90e3e01322",
+      "status": "superseded_preauthorization_reporting_completeness"
+    },
+    {
+      "commit": "f19acd8775f9b0ddf60401739741bec0019d021c",
+      "sha256": "e18f2b5f1d79b6fcd96207339c5842e30b7aecb5bc22b8939a475487068b1b82",
+      "status": "superseded_after_pre_evaluation_descriptor_ABI_failure"
+    }
+  ],
   "protocol": {
     "commit": "e88a24484590636f87d0f22798401a762875046a",
     "path": "oaci/reports/C80R_ADDITIVE_REPAIR_PROTOCOL.json",
@@ -24,7 +37,7 @@
     "old_authorization_reusable": false
   },
   "implementation": {
-    "commit": "e5cb41a5cd389674e3ec201d5c5f68a361c2fed3",
+    "commit": "37e38d0fb880a021b5017ce927d0329ab40ababf",
     "files": [
       {
         "path": "oaci/conditioned_ceiling_coverage/c80_label_budget_frontier.py",
@@ -33,8 +46,8 @@
       },
       {
         "path": "oaci/conditioned_ceiling_coverage/c80r_existing_field_adapter.py",
-        "sha256": "7e5ac0ba829bf5f233ed469f6fb8f6da4054d0bf4d024a0736a45e3674f1b56c",
-        "role": "fail_closed_real_data_adapter_selection_evaluation_and_result_freeze"
+        "sha256": "dae306166227ba588c5a74af1b5a009464ee614dfbb0efea76a2a006a21128b7",
+        "role": "fail_closed_real_data_adapter_with_registered_heterogeneous_selection_descriptor_verifier"
       },
       {
         "path": "oaci/conditioned_ceiling_coverage/c80_synthetic_label_budget.py",
@@ -57,6 +70,19 @@
     "real_run_entrypoint": "python -m oaci.conditioned_ceiling_coverage.c80r_existing_field_adapter run-real",
     "selection_and_evaluation_are_separate_frozen_stages": true,
     "all_paths_unconditional": true
+  },
+  "selection_descriptor_repair": {
+    "protocol_commit": "c19ef34",
+    "protocol_path": "oaci/reports/C80E_SELECTION_DESCRIPTOR_REPAIR_PROTOCOL.json",
+    "protocol_sha256": "03b7a00a06e18c8e7a9d7b42adba5954cebadac681d2eec08bfe07ad1df543ce",
+    "failed_job": 894641,
+    "failure_before_evaluation_view_open": true,
+    "selection_manifest_path": "/projects/EEG-foundation-model/yinghao/oaci-c80-existing-field/protocol_2d72eb5119056a65/implementation_7e5ac0ba829bf5f2/selection/SELECTION_OUTPUTS_FROZEN.json",
+    "selection_manifest_file_sha256": "66494a66e24cb5cda2128b2e1ca3b11e8233ff7ca7c8587068c7c8f0b72f7530",
+    "selection_manifest_self_sha256": "b0c856b7ff88490a93c242048e17dae8666cb7bffe55a86ca7660312b9cf8c73",
+    "selection_payload_sha256": "a0bf1ae048afcff5ab78d79ea7a4bd6243ec05dd373d987b98af83994d8beda6",
+    "reuse_without_recomputation": true,
+    "scientific_registry_changed": false
   },
   "field_and_view_manifests": [
     {
@@ -238,17 +264,23 @@
   },
   "authorization": {
     "C80E_required": true,
-    "received": false,
+    "received": true,
     "new_record_path": "oaci/reports/C80E_REPAIRED_PI_AUTHORIZATION_RECORD.json",
+    "direct_PI_statement_sufficient": true,
+    "magic_token_required": false,
+    "PI_hash_repetition_required": false,
+    "automatic_binding_refresh_after_this_lock_required": true,
     "old_authorization_reusable": false,
     "must_bind_protocol_lock_and_manifest_digest": true
   },
   "protected_state_at_lock": {
-    "real_budget_statistics": 0,
+    "construction_only_selection_freeze_exists": true,
+    "selection_payload_values_inspected": false,
+    "held_evaluation_budget_statistics": 0,
     "evaluation_label_value_reads_for_C80": 0,
     "same_label_oracle_accesses": 0,
     "target4_primary_rows": 0,
     "training_forward_reinference_GPU": 0
   },
-  "readiness_gate": "C80_REPAIRED_PROTOCOL_AND_REAL_ADAPTER_LOCKED_READY_FOR_PI_REAUTHORIZATION"
+  "readiness_gate": "C80E_SELECTION_DESCRIPTOR_REPAIR_RELOCKED_RESUME_ALLOWED"
 }
