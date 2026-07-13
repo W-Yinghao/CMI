@@ -1,0 +1,8 @@
+budget,registered,finite,minimum_class_availability,feasible,FULL_cell_specific
+1,1,1,61,1,0
+2,1,1,61,1,0
+4,1,1,61,1,0
+8,1,1,61,1,0
+16,1,1,61,1,0
+32,1,1,61,1,0
+FULL,1,0,61,1,1
