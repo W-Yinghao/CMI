@@ -1,9 +1,9 @@
 {
-  "schema_version": "c81e_repaired_authorization_binding_v2",
+  "schema_version": "c81e_c81r2_authorization_binding_v3",
   "authorization_record_path": "oaci/reports/C81E_PI_AUTHORIZATION_RECORD.json",
-  "authorization_record_sha256": "697ac7463665de31965e06719af2d87df9ac8c52be0a76cde31ff040b04784ed",
+  "authorization_record_sha256": "f96f54b2472f7559b568056071ed9c247b1d37e7e492170555c8a35be22a3043",
   "authorization_received": true,
-  "authorization_text_exact": "授权修复后的 C81E",
+  "authorization_text_exact": "授权 C81R2 修复后的 C81E 继续执行",
   "binding_policy_commit": "3d9dd76",
   "protocol": {
     "commit": "16a0d2eba4715a1cec78da6a79a182fd416a6629",
@@ -13,15 +13,24 @@
     "commit": "6371b2220979b61cabfb105521036bb02f47aaea",
     "sha256": "ba0434b4ea7965691dafaf506547af64f851c57bdca330a0a5c88e4fa7ba1b15"
   },
+  "selection_descriptor_repair_protocol": {
+    "commit": "5062f5ade0f45d6fd34f80556fb77470c2c6d717",
+    "sha256": "2acf6ecc179c739f73845d430f9eac9e9e83a83015370b1125dbe447b8b59272"
+  },
   "analysis_lock": {
-    "commit": "bad8db494765f3f921443bf5e8cdd5db569861a9",
-    "sha256": "3093201d3f2959d828cb9debb8a4aeb9252f5385b9e8f806445cff05307a8b1c"
+    "commit": "f82ffa4b147c0b1329a98649b898691cf1fdc983",
+    "sha256": "13414dde0a88eb8a1a0810b3b36f25c718669d4cfe3178b871239eff6e292705"
+  },
+  "frozen_selection": {
+    "manifest_self_sha256": "4677ed3aba7758ea0008c2093b44d6fb81d425930727e5941950179737ebd519",
+    "payload_sha256": "1ed893acd9190914eb4cb122f3ef26bc1e2355c4103894b816894bd264669257",
+    "selection_recomputation_allowed": false
   },
   "field_view_manifest_digest": "6180275dcef26bdda4ae4b291d1ef6dc83434462ecacee0350fa94ae9c6a7fef",
-  "base_head_before_repaired_authorized_execution": "4554e40b1a386b9b16eb5ac4f362e8978ec87065",
+  "base_head_before_C81R2_authorized_evaluation": "77af370c000daea626af4eb038482559deacfb99",
   "magic_token_required": false,
   "hash_recital_required": false,
-  "scientific_execution_started_after_repair": false,
+  "held_evaluation_execution_started_after_C81R2_repair": false,
   "real_baseline_statistics_before_binding": 0,
   "evaluation_label_reads_before_binding": 0,
   "same_label_oracle_accesses_before_binding": 0
