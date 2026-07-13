@@ -1,0 +1,39 @@
+check_id,passed,blocking,evidence
+failed_job_preserved,1,0,894878
+failed_stdout_hash_recorded,1,0,e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+failed_stderr_hash_recorded,1,0,7f5c2a930befe0386530c4ce0d6121e8b1934b27b9f266384228394f30c6de9a
+failure_before_selection_manifest,1,0,0 manifests
+failure_before_evaluation_descriptor,1,0,0 reads
+failure_before_baseline_statistics,1,0,0 statistics
+failure_before_oracle_or_target4,1,0,0 accesses
+repair_protocol_committed_first,1,0,6371b22
+repair_protocol_hash_replay,1,0,ba0434b4ea7965691dafaf506547af64f851c57bdca330a0a5c88e4fa7ba1b15
+root_cause_exact_semantics_confirmed,1,0,c74_verify_shard compares fields by exact equality
+required_subset_check_retained,1,0,explicit schema subset guard precedes verifier
+complete_descriptor_verification_retained,1,0,hash size row count and array consistency
+shared_c74_verifier_unchanged,1,0,no shared file diff
+registered_superset_fixture_passed,1,0,test_source_loader_accepts_registered_superset_schema
+score_formulas_unchanged,1,0,0 score-function diffs
+representatives_and_registry_unchanged,1,0,34 methods and 6 zero-label primary
+views_and_information_classes_unchanged,1,0,selection remains evaluation-blind
+inference_and_taxonomy_unchanged,1,0,Q1 Q2 maxT LOTO and precedence identical
+repair_metadata_added_only,1,0,repair hash added to selection/result identity
+historical_lock_preserved,1,0,541651c
+initial_repaired_lock_preserved,1,0,6633fd7
+historical_commit_typo_disclosed,1,0,d17ffa65 invalid versus d17ffa62 reachable
+provenance_correction_committed,1,0,29f4555
+all_final_lock_commits_reachable,1,0,PASS
+final_repaired_lock_hash_replay,1,0,3093201d3f2959d828cb9debb8a4aeb9252f5385b9e8f806445cff05307a8b1c
+final_repaired_lock_commit,1,0,bad8db494765f3f921443bf5e8cdd5db569861a9
+old_authorization_rejected,1,0,C81E authorization lock binding mismatch
+new_authorization_absent,1,0,required before real retry
+focused_regression,1,0,45 passed job 894892
+c65_regression,1,0,414 passed 1 skip 3 deselected job 894893
+c23_regression,1,0,825 passed 1 skip 3 deselected job 894894
+full_regression,1,0,1749 passed 1 skip 3 deselected job 894895
+accepted_stderr_empty,1,0,4/4
+no_external_selection_root,1,0,absent
+no_GPU_training_forward,1,0,0
+no_scientific_registry_change,1,0,PASS
+no_outcome_dependent_decision,1,0,PASS
+ready_gate_exact,1,0,C81_SOURCE_SHARD_SCHEMA_REPAIR_LOCKED_READY_FOR_PI_REAUTHORIZATION
