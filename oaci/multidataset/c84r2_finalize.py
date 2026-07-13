@@ -124,6 +124,18 @@ def all_values(path: Path, field: str, expected: str) -> bool:
     return bool(rows) and all(row[field] == expected for row in rows)
 
 
+def attempt_ledger_contract_passes() -> bool:
+    rows = read_csv(TABLE_DIR / "attempt_ledger_contract.csv")
+    ordered = sorted(rows, key=lambda row: int(row["order"]))
+    return (
+        [row["stage"] for row in ordered[:3]]
+        == ["preauthorization_bound_replay", "authorization_consumption", "attempt_ledger_start"]
+        and all(row["inside_failure_ledger"] == "0" for row in ordered[:2])
+        and all(row["inside_failure_ledger"] == "1" for row in ordered[2:])
+        and all(row["access_counters_persisted"] == "1" for row in ordered[2:])
+    )
+
+
 def tracked_payload_hygiene() -> tuple[bool, bool]:
     forbidden = {".npy", ".npz", ".pt", ".pth", ".ckpt", ".fif", ".edf", ".gdf", ".mat"}
     tracked = [REPO_ROOT / item for item in git("ls-files").splitlines()]
@@ -168,7 +180,7 @@ def red_team_rows(regressions: Sequence[Mapping[str, Any]]) -> list[dict[str, An
         "persisted_replay_contract_blocking": all_values(TABLE_DIR / "persisted_artifact_replay_contract.csv", "failure_is_blocking", "1"),
         "optimizer_load_contract": all_values(TABLE_DIR / "optimizer_replay_contract.csv", "load_required", "1"),
         "deterministic_prefix_three_datasets": len(read_csv(TABLE_DIR / "deterministic_prefix_contract.csv")) == 3,
-        "attempt_ledger_all_stages_wrapped": all_values(TABLE_DIR / "attempt_ledger_contract.csv", "inside_failure_ledger", "1"),
+        "attempt_ledger_starts_immediately_after_consumption": attempt_ledger_contract_passes(),
         "complete_gate_all_components_243": all_values(TABLE_DIR / "canary_complete_gate.csv", "required", "243"),
         "synthetic_calibration_all_pass": all_values(TABLE_DIR / "synthetic_calibration.csv", "passed", "1"),
         "risk_register_no_open_blocker": all(row["blocking"] == "0" for row in read_csv(TABLE_DIR / "risk_register.csv")),
@@ -283,12 +295,16 @@ Final gate: `{GATE}`.
 """, encoding="utf-8")
 
 
-def generate(jobs: Mapping[str, int]) -> dict[str, Any]:
-    tested_commit = git("rev-parse", "HEAD")
-    if git("rev-parse", "origin/oaci") != tested_commit:
+def generate(jobs: Mapping[str, int], tested_commit: str) -> dict[str, Any]:
+    current_commit = git("rev-parse", "HEAD")
+    if git("rev-parse", "origin/oaci") != current_commit:
         raise RuntimeError("C84R2 finalizer requires HEAD == origin/oaci")
     subprocess.run(
-        ["git", "merge-base", "--is-ancestor", LOCK_COMMIT, tested_commit],
+        ["git", "merge-base", "--is-ancestor", LOCK_COMMIT, current_commit],
+        cwd=REPO_ROOT, check=True, capture_output=True, text=True,
+    )
+    subprocess.run(
+        ["git", "merge-base", "--is-ancestor", tested_commit, current_commit],
         cwd=REPO_ROOT, check=True, capture_output=True, text=True,
     )
     if git("status", "--porcelain"):
@@ -315,8 +331,9 @@ def generate(jobs: Mapping[str, int]) -> dict[str, Any]:
 def main(argv: Sequence[str] | None = None) -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--jobs", required=True, help="focused:ID,c65:ID,c23:ID,full:ID")
+    parser.add_argument("--tested-commit", required=True)
     args = parser.parse_args(argv)
-    print(json.dumps(generate(parse_jobs(args.jobs)), sort_keys=True))
+    print(json.dumps(generate(parse_jobs(args.jobs), args.tested_commit), sort_keys=True))
     return 0
 
 
