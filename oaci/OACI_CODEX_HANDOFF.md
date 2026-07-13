@@ -12,86 +12,90 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ---
 
-## 0. Current continuation state (2026-07-13)
+## 0. Current continuation state (2026-07-14)
 
-The current no-real-data external-validity milestone is **C84R**:
-
-```text
-C84P accepted blocked base:             df95f1375f1883dd706a63f65ee9b6313fa1a779
-C84R repair protocol commit:            482a725abc6bf1f0e5d33be76ea17d37bcfaa6c3
-C84R repair protocol SHA-256:            a6a1fd85ef1b7520a55ef8e075933d08bf6639cbf89bbcf761dec2a753ab1c91
-C84 V2 stage-protocol commit:            a5d9fd0a0e76a7e0c6a49b87048d642eb8c0da6a
-C84C real-adapter implementation:        f23b43d2ee5cf56e01e57fcb256894f474121bce
-C84C environment alignment:              e91b71c5e0cd99d90c8ac9c44e2736a4cfc18f4f
-C84C execution-lock commit:              4eaad36cafefb2645f1d5c6e393ae5a51ff33af9
-C84C execution-lock SHA-256:              f9cabf8f362917d663e13154910085d5b105740b265789a2323dd7bc0193222b
-C84R readiness verification:             6158258
-C84R gate:                                C84_COMMON_20_CHANNEL_MONTAGE_REPAIRED_CANARY_LOCKED_READY_FOR_PI_AUTHORIZATION
-```
-
-C84R preserves the blocked 21-channel protocols and prospectively replaces
-them with the exact cross-dataset 20-channel intersection:
+The current no-real-data external-validity milestone is **C84R2**:
 
 ```text
-FC5 FC3 FC1 FC2 FC4 FC6
-C5 C3 C1 Cz C2 C4 C6
-CP5 CP3 CP1 CPz CP2 CP4 CP6
-
-montage SHA-256:
-  988e8f89c3001a5144172a10f3a8b30eb50c28d485b900210b91ed1a0cf04f04
+C84R accepted base:                       2fc5e797119ce1defc5e24c9063bb103b219a705
+C84R2 repair protocol commit:             6c7e59f907431e073b2f8e580c4f25cb9e052a50
+C84R2 repair protocol SHA-256:             ff7c01f1760aaa19f2019672ad5426c8c28eba6c7071cd3b78b39bfe69dc8874
+C84R2 final implementation/environment:   ddaa6d4531f13922481f53b827f13e62280d7968
+C84C V2 execution-lock commit:            270fbb0d9f47f9bf6a2888ee58fd7ca6eadff0ea
+C84C V2 execution-lock SHA-256:            2e38dcd63c02a887b1dcf7eaa26749709dbfb5187373de7808efae21afb0285b
+C84R2 readiness verification:             b551f19
+C84R2 gate:                                C84C_RUNTIME_LOCK_AND_COMPLETE_ENGINEERING_REPLAY_READY_FOR_PI_AUTHORIZATION
 ```
 
-`FCz` is dropped from all datasets. `Fz` substitution, interpolation, zero
-filling, silent reduction and dataset-specific masks are forbidden. The V2
-stage protocol hashes are:
+C84R2 retains the accepted C84R scientific interface: the exact 20-channel
+intersection with montage SHA-256
+`988e8f89c3001a5144172a10f3a8b30eb50c28d485b900210b91ed1a0cf04f04`.
+`FCz`, `Fz` substitution, interpolation, zero filling and dataset-specific masks
+remain excluded. Subject partitions, 1,944 unit identities, candidate arithmetic,
+methods, budgets and inference are unchanged.
+
+The operative future stage objects are:
 
 ```text
-external: 522e6fe8372f8c73741ed146a27068076db8c3d7087f4c4a36760fe0328b7c2f
-canary:   f8e265f0969b9343526c4f6e09fef145d64149d159ea79b803cc983ae2761988
-field:    b6ecd3fb5cc2f1ded872cefad42ca38c172696e4169efc58a86a5a3a90395b62
-science:  dc33b22527352bd42989c26f6771b4a49dc1443d458962587ca3d70ad76dd631
+external V2: 522e6fe8372f8c73741ed146a27068076db8c3d7087f4c4a36760fe0328b7c2f
+canary V3:   34cf9e9daca2578ed22c64345e014c0b9fa08b31c4c04939ba13c112c5f57dac
+field V3:    1a6d39443194501d8b09bd44fa87fd77a5665b5a215ccec7c9ec0b3ef865af81
+science V2:  dc33b22527352bd42989c26f6771b4a49dc1443d458962587ca3d70ad76dd631
 ```
 
-The subject registry replays all 214 assignments bit-for-bit. The fixed field
-remains 1,944 units, 72 phases, 944 target contexts and 76,464 candidate-context
-evaluations. All 1,944 planned unit IDs are unique, bind the V2 interface and
-montage digest, and differ from the blocked 21-channel plan.
+The historical C84C V1 lock at `4eaad36` / `f9cabf8f...3222b` remains preserved
+but is non-operative. Its ancestor-only guard and incomplete canary coverage are
+superseded additively by V3/V2. The new guard replays 63/63 bound repository
+objects by SHA-256 and current Git blob, 6/6 protocol hashes, the montage and
+243-unit digest before output-root creation or loader import.
 
-C84C is implemented and scope-locked but not executed:
+C84C remains engineering-only and unexecuted:
 
 ```text
 datasets:          Lee2019_MI / Cho2017 / PhysionetMI
 panel/seed/level:  A / 5 / 0
 targets:           19 / 24 / 106
 units/phases:      243 / 9
-remaining C84F:    1,701 units / 63 phases after a reusable canary
+source artifacts:  243 required
+target artifacts:  243 required
 role:              engineering only
 ```
 
-The guard requires a fresh direct C84C authorization and exact protocol/lock,
-HEAD/remote, environment and output-root replay before any loader call. The
-target-unlabeled payload has no label field. No current authorization record
-exists. No C84F or C84S execution lock exists. A future direct statement
-`授权 C84C` may be bound to the unique current C84C lock under policy `3d9dd76`;
-the text in this handoff is not authorization.
+The runtime binds a dedicated exact environment at
+`/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3-exact`: Python 3.13.7,
+torch 2.6.0+cu124, MOABB 1.5.0, MNE 1.11.0 and chardet 5.2.0. It verifies four
+MOABB loader/paradigm source hashes before loader-class import and before any
+download or `get_data()` call. The historical Python 3.9.25 declaration is
+explicitly superseded because MOABB 1.5.0 and MNE 1.11.0 require Python >=3.10.
 
-Protected C84R state is zero EEG arrays, labels, downloads, training, forward,
-GPU jobs, candidate units and selector outcomes. C84R ran no canary. It created
-no raw EEG, weight, optimizer or cache payload in Git.
+The canary implementation now enforces exact loaded source-train/source-audit/
+target subject sets, actual ordered 20-channel Epochs at 160 Hz, half-open 480
+samples, strict-source and target-unlabeled persisted instrumentation for every
+unit, checkpoint/optimizer/sidecar reload, saved softmax and `Wz+b` replay,
+repeat logits/z, genealogy and deterministic-prefix fingerprints. The attempt
+ledger starts immediately after authorization consumption and before protected
+imports or CUDA checks.
 
-Accepted C84R regressions on lock commit `4eaad36`:
+No current C84C authorization record exists. No C84F or C84S execution lock
+exists. A future direct statement `授权 C84C` may be bound to the unique current
+C84C V3 protocol and V2 lock under policy `3d9dd76`; text in this handoff is not
+authorization. Protected C84R2 state remains zero EEG arrays, labels, downloads,
+training, forward, GPU jobs, candidate units and instrumentation artifacts.
+
+Accepted C84R2 regressions at verification commit `ecd1f5b`:
 
 ```text
-focused C84R:   56 passed                         job 895347
-C65-C84R:      542 passed, 1 skip, 3 deselected job 895348
-C23-C84R:      953 passed, 1 skip, 3 deselected job 895349
-full OACI:   1,877 passed, 1 skip, 3 deselected job 895350
+focused C84R2:   90 passed                         job 895362
+C65-C84R2:      576 passed, 1 skip, 3 deselected job 895363
+C23-C84R2:      987 passed, 1 skip, 3 deselected job 895364
+full OACI:    1,911 passed, 1 skip, 3 deselected job 895365
 ```
 
-All jobs were CPU-only in `eeg2025` with empty stderr. The corrected
-leading-numeric suite parser restores all four C34S nodes and includes suffix
-milestones. Synthetic repair calibration passed 30/30 and the final readiness
-red team passed 42/42.
+All jobs were CPU-only in the dedicated exact environment with empty stderr.
+The parser now accepts alphabetic and digit-bearing suffix milestones, preserving
+C34S and C84R2 nodes. The initial C65/C23 omission is retained in the additive
+failure ledger. Synthetic calibration passed, and final readiness red-team passed
+37/37.
 
 ### Prior immutable C83P evidence freeze
 
