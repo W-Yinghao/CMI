@@ -1,0 +1,23 @@
+{
+  "auto_launch_fleet": false,
+  "auto_launch_gate": false,
+  "checkpoint_objects_expected": 10,
+  "checkpoint_objects_hash_verified": 10,
+  "encoder_fine_tuning_launched": false,
+  "encoder_training_launched": false,
+  "isruc_s3_asset_contract_pass": true,
+  "isruc_s3_gate_ready": true,
+  "isruc_s3_sequence_overlap": false,
+  "isruc_s3_split": "rotating_8_1_1_subject_wise",
+  "mutable_checkpoint_path_used": false,
+  "phase": "C0_cross_task_protocol_and_asset_precheck",
+  "protocol_sha256": "3a1717a951fc973cefa79a72f049ec002c381ea19d5c3016706306bc8a66b8d4",
+  "redteam_sha256": "dbdab709d6b2225a8800334abc590aa8280bb243cbd798195a846dc5fc2d9e73",
+  "scientific_endpoint_computed": false,
+  "seedv_asset_contract_pass": true,
+  "seedv_gate_ready": true,
+  "seedv_primary_analysis_unit": "trial_mean",
+  "seedv_trial_group_leakage": false,
+  "status": "PASS",
+  "target_labels_used_for_selection": false
+}

@@ -1,0 +1,28 @@
+{
+  "channel_order": [
+    "F3_A2",
+    "C3_A2",
+    "O1_A2",
+    "F4_A1",
+    "C4_A1",
+    "O2_A1"
+  ],
+  "channel_order_sha256": "29581372679337aa95267e1a3a35c7a607686bc854054f4d1db2bc0868db8c67",
+  "classes": 5,
+  "dataset": "ISRUC_S3_Group_III",
+  "epochs": 8500,
+  "multiple_channel_orders_detected": false,
+  "processed_filter_equivalence_max_abs_diff": 0.0,
+  "root": "${ISRUC_PROCESSED_ROOT}",
+  "rotations": 10,
+  "sequence_contract_pass": true,
+  "sequence_shape": [
+    20,
+    6,
+    6000
+  ],
+  "sequences": 425,
+  "split": "rotating_8_1_1_subject_wise",
+  "subjects": 10,
+  "tree_sha256": "b223c03cb811eb45e247e320e7c7ef43279076dcb653aeb08633673e7ac7b9e6"
+}
