@@ -1,0 +1,32 @@
+{
+  "phase": "C1_C2_gate_feature_verification",
+  "status": "PASS",
+  "seedv": {
+    "objects_expected": 5,
+    "objects_verified": 5,
+    "items_per_object": 705,
+    "analysis_unit": "trial_mean",
+    "feature_dimension": 12400,
+    "payload_sha256_match": true,
+    "checkpoint_sha256_stable": true,
+    "feature_repeat_exact": true
+  },
+  "isruc_s3": {
+    "objects_expected": 5,
+    "objects_verified": 5,
+    "sequences_per_object": 425,
+    "epochs_per_object": 8500,
+    "analysis_unit": "20_epoch_sequence",
+    "feature_dimension": 1200,
+    "payload_sha256_match": true,
+    "checkpoint_sha256_stable": true,
+    "feature_repeat_exact": true
+  },
+  "encoder_frozen": true,
+  "encoder_optimizer_created": false,
+  "fine_tuning_used": false,
+  "scientific_task_endpoint_computed": false,
+  "sacct_available": false,
+  "local_success_contract_used": true,
+  "approve_gate_readout_compute": true
+}

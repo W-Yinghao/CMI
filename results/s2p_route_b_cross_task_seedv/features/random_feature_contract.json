@@ -1,0 +1,23 @@
+{
+  "analysis_unit": "trial_mean",
+  "canary_feature_sha256": "c79e704d5413aa118392ca6778c5930aedaea0e3e177e738d5b6d9108570e851",
+  "canary_repeat_max_abs_diff": 0.0,
+  "checkpoint_path": "random_init_contract://sha256_bd692ccd0d900b2de04f9a433fc1ce3e68015d61e874e15f2158cbdd314c6641",
+  "checkpoint_sha256_after": "bd692ccd0d900b2de04f9a433fc1ce3e68015d61e874e15f2158cbdd314c6641",
+  "checkpoint_sha256_before": "bd692ccd0d900b2de04f9a433fc1ce3e68015d61e874e15f2158cbdd314c6641",
+  "dataset": "SEED-V",
+  "encoder_frozen": true,
+  "encoder_optimizer_created": false,
+  "feature_dimension": 12400,
+  "fine_tuning_used": false,
+  "items": 705,
+  "native_channels": 62,
+  "normalization": "per_channel_per_1s_patch_zscore",
+  "patches": 1,
+  "payload": "features/random_features.npz",
+  "payload_sha256": "34da418acaf5a43bfda02f58da801b6a12320bf95e5435471e330d6fa5444fea",
+  "status": "PASS",
+  "strict_reload_pass": true,
+  "tag": "random",
+  "trial_ids_sha256": "9637428e1247fc422b5dfd7c112f7f39d5e48a12aae88b76d574a6976081848c"
+}

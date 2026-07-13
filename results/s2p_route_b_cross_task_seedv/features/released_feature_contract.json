@@ -1,0 +1,23 @@
+{
+  "analysis_unit": "trial_mean",
+  "canary_feature_sha256": "fab526b13ed1a1e2e46d5fd3ff3b3e1790a4c5a35f034d353b2937e39cbcd89c",
+  "canary_repeat_max_abs_diff": 0.0,
+  "checkpoint_path": "${PHASE_B_ARTIFACT_ROOT}/sha256_0792cb808c14e6b7a2bb2ce1dff379bc47bc54c49a779825bdfeb33bf8157178.pt",
+  "checkpoint_sha256_after": "0792cb808c14e6b7a2bb2ce1dff379bc47bc54c49a779825bdfeb33bf8157178",
+  "checkpoint_sha256_before": "0792cb808c14e6b7a2bb2ce1dff379bc47bc54c49a779825bdfeb33bf8157178",
+  "dataset": "SEED-V",
+  "encoder_frozen": true,
+  "encoder_optimizer_created": false,
+  "feature_dimension": 12400,
+  "fine_tuning_used": false,
+  "items": 705,
+  "native_channels": 62,
+  "normalization": "per_channel_per_1s_patch_zscore",
+  "patches": 1,
+  "payload": "features/released_features.npz",
+  "payload_sha256": "a3722d7d708e2d4674238e5310bf41800314664b7c18c59613a829127a4a8d56",
+  "status": "PASS",
+  "strict_reload_pass": true,
+  "tag": "released",
+  "trial_ids_sha256": "9637428e1247fc422b5dfd7c112f7f39d5e48a12aae88b76d574a6976081848c"
+}

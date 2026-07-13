@@ -1,6 +1,7 @@
 {
   "phase": "C1_C2_gate_first_launch",
   "protocol_commit": "d4aba26d9e3e04752c03204aa8c5427e1c73862f",
+  "launch_commit": "df6cff532d6011827d8069714eeac9b97d8323e7",
   "slurm_stability_gate": {
     "probes": 30,
     "scontrol_pass": 30,
@@ -15,8 +16,15 @@
     "post_cancel_query_interpretable": true,
     "status": "PASS"
   },
+  "superseded_prestart_arrays": {
+    "seedv": "894944_[0-4]",
+    "isruc_s3": "894945_[0-4]",
+    "disposition": "CANCELLED_WHILE_ALL_TASKS_PENDING_BEFORE_WRAPPER_START",
+    "training_or_feature_compute_started": false,
+    "reason": "expected_commit_pin_updated_before_dispatch"
+  },
   "seedv_gate_feature_array": {
-    "job_id": "894944_[0-4]",
+    "job_id": "894974_[0-4]",
     "objects": [
       "random",
       "released",
@@ -24,11 +32,12 @@
       "H1000_s0",
       "H2000_s0"
     ],
-    "state_at_record": "PENDING",
-    "reason_at_record": "QOSMaxGRESPerUser"
+    "state": "COMPLETED_BY_LOCAL_SUCCESS_CONTRACT",
+    "tasks_with_contract": 5,
+    "nonempty_stderr_files": 0
   },
   "isruc_s3_gate_feature_array": {
-    "job_id": "894945_[0-4]",
+    "job_id": "894975_[0-4]",
     "objects": [
       "random",
       "released",
@@ -36,14 +45,23 @@
       "H1000_s0",
       "H2000_s0"
     ],
-    "state_at_record": "PENDING",
-    "reason_at_record": "QOSMaxGRESPerUser"
+    "state": "COMPLETED_BY_LOCAL_SUCCESS_CONTRACT",
+    "tasks_with_contract": 5,
+    "nonempty_stderr_files": 0
   },
+  "sacct_available": false,
+  "local_completion_evidence": [
+    "feature_contract_status_pass",
+    "payload_sha256_match",
+    "checkpoint_sha256_before_after_match",
+    "feature_repeat_max_abs_diff_zero",
+    "stderr_empty"
+  ],
   "encoder_training_submitted": false,
   "encoder_fine_tuning_submitted": false,
   "codebrain_stage2_submitted": false,
   "fleet_submitted": false,
   "scheduler_workaround_used": false,
   "raw_scheduler_report_committed": false,
-  "status": "GATE_FEATURE_ARRAYS_SUBMITTED_PENDING_QOS"
+  "status": "GATE_FEATURE_EXTRACTION_PASS"
 }
