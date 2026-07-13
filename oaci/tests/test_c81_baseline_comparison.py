@@ -275,6 +275,44 @@ def test_scope_specific_lock_replays_and_binds_real_adapter():
     assert lock["runtime"]["evaluation_requires_selection_hash_replay"] is True
 
 
+def test_source_loader_accepts_registered_superset_schema(tmp_path):
+    arrays = {
+        "probabilities": np.full((3, 4), 0.25),
+        "source_class_label": np.asarray([0, 1, 2], dtype=np.int16),
+        "source_domain_id": np.asarray([10, 10, 11], dtype=np.int16),
+        "logits": np.zeros((3, 4), dtype=np.float64),
+    }
+    shard = baseline.c74_cache.write_content_addressed_npz(
+        tmp_path / "payload", "strict_source_trial", arrays,
+    )
+    unit_manifest = {
+        "unit_id": "unit-1",
+        "target": 1,
+        "shards": [shard],
+    }
+    unit_path = tmp_path / "unit.json"
+    unit_path.write_text(json.dumps(unit_manifest, sort_keys=True))
+    instrumentation_path = tmp_path / "instrumentation.json"
+    instrumentation_path.write_text(json.dumps({
+        "target": 1,
+        "all_gates_passed": True,
+        "units": [{
+            "unit_id": "unit-1",
+            "path": str(unit_path),
+            "sha256": baseline.sha256_file(unit_path),
+        }],
+    }, sort_keys=True))
+    route = {"views": {"1": {"instrumentation_manifest": str(instrumentation_path)}}}
+
+    probabilities, labels, domains = baseline._load_source_context(
+        route, 1, np.asarray(["unit-1"]),
+    )
+
+    assert probabilities.shape == (1, 3, 4)
+    assert labels.tolist() == [0, 1, 2]
+    assert domains.tolist() == [10, 10, 11]
+
+
 def test_pre_execution_red_team_passes_all_checks():
     rows = _rows("pre_execution_red_team.csv")
     assert len(rows) == 43

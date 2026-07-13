@@ -685,7 +685,7 @@ def _load_source_context(
         shard = next(row for row in manifest["shards"] if row["kind"] == "strict_source_trial")
         if {"probabilities", "source_class_label", "source_domain_id"} - set(shard["fields"]):
             raise RuntimeError("C81 strict-source schema drift")
-        c74_cache.verify_shard(shard, required_fields={"probabilities", "source_class_label", "source_domain_id"})
+        c74_cache.verify_shard(shard)
         with np.load(shard["path"], allow_pickle=False) as payload:
             probabilities = payload["probabilities"].astype(np.float64)
             labels = payload["source_class_label"].astype(np.int16)
