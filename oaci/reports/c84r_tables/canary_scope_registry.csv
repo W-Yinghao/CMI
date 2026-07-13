@@ -1,0 +1,4 @@
+dataset,panel,seed,level,units,training_phases,target_subject,engineering_only,scientific_metrics
+Lee2019_MI,A,5,0,81,3,19,1,0
+Cho2017,A,5,0,81,3,24,1,0
+PhysionetMI,A,5,0,81,3,106,1,0

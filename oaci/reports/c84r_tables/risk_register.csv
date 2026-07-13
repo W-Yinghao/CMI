@@ -1,0 +1,13 @@
+risk,blocking,status,control,real_outcome_access
+historical_21_channel_protocol_rewritten,0,CLOSED_BY_C84R_LOCKED_CONTROL,additive V2 filenames and supersession ledger,0
+FCz_reintroduced,0,CLOSED_BY_C84R_LOCKED_CONTROL,exact montage digest validation,0
+Fz_substitution,0,CLOSED_BY_C84R_LOCKED_CONTROL,Fz forbidden by V2 channel contract,0
+channel_interpolation,0,CLOSED_BY_C84R_LOCKED_CONTROL,interpolation false and fail-closed,0
+dataset_specific_mask,0,CLOSED_BY_C84R_LOCKED_CONTROL,all datasets exact 20/20 order,0
+subject_partition_drift,0,CLOSED_BY_C84R_LOCKED_CONTROL,214-row bit-for-bit replay,0
+old_unit_ID_reused,0,CLOSED_BY_C84R_LOCKED_CONTROL,"1,944 migration rows require changed identity",0
+target_labels_reaching_canary,0,CLOSED_BY_C84R_LOCKED_CONTROL,target-unlabeled payload schema excludes y,0
+unauthorized_C84C,0,CLOSED_BY_C84R_LOCKED_CONTROL,guard precedes loader import,0
+C84F_or_C84S_lock_created,0,CLOSED_BY_C84R_LOCKED_CONTROL,C84R creates C84C lock only,0
+raw_EEG_or_weights_in_git,0,CLOSED_BY_C84R_LOCKED_CONTROL,payload hygiene scan,0
+C34S_regression_omitted,0,CLOSED_BY_C84R_LOCKED_CONTROL,leading-numeric suite parser,0
