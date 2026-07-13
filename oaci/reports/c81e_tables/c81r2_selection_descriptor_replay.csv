@@ -1,0 +1,11 @@
+field,expected_shape,observed_shape,pass
+cell_seed,32,32,1
+cell_target,32,32,1
+cell_level,32,32,1
+candidate_global_indices,32x81,32x81,1
+method_ids,19,19,1
+scores,32x19x81,32x19x81,1
+selected_top10,32x19x10,32x19x10,1
+aline_slope,32,32,1
+aline_intercept,32,32,1
+aline_pair_R2,32,32,1
