@@ -1,0 +1,201 @@
+{
+  "authorization": {
+    "authorization_inherited": false,
+    "direct_statement_after_readiness": "\u6388\u6743 C84C",
+    "fresh_record_required": true,
+    "record_must_bind": [
+      "C84_CANARY_PROTOCOL_V3",
+      "C84C_EXECUTION_LOCK_V2",
+      "C84R2_repair_protocol",
+      "20_channel_montage_sha256",
+      "243_canary_unit_ID_digest"
+    ]
+  },
+  "base": {
+    "C84P_HEAD": "df95f1375f1883dd706a63f65ee9b6313fa1a779",
+    "C84R_HEAD": "2fc5e797119ce1defc5e24c9063bb103b219a705",
+    "historical_C84C_lock_commit": "4eaad36cafefb2645f1d5c6e393ae5a51ff33af9",
+    "historical_C84C_lock_path": "oaci/reports/C84C_EXECUTION_LOCK.json",
+    "historical_C84C_lock_sha256": "f9cabf8f362917d663e13154910085d5b105740b265789a2323dd7bc0193222b",
+    "historical_lock_execution_authority": false,
+    "historical_lock_preserved": true,
+    "montage_sha256": "988e8f89c3001a5144172a10f3a8b30eb50c28d485b900210b91ed1a0cf04f04",
+    "repair_protocol_commit": "482a725abc6bf1f0e5d33be76ea17d37bcfaa6c3",
+    "repair_protocol_sha256": "a6a1fd85ef1b7520a55ef8e075933d08bf6639cbf89bbcf761dec2a753ab1c91"
+  },
+  "canary_complete_gate": {
+    "checkpoint_state_sidecar_units": 243,
+    "persisted_replay_required": true,
+    "source_audit_artifacts": 243,
+    "target_unlabeled_artifacts": 243,
+    "unit_count": 243
+  },
+  "created_at_utc": "2026-07-13T22:47:24Z",
+  "deterministic_prefix": {
+    "CUBLAS_WORKSPACE_CONFIG": ":4096:8",
+    "PYTHONHASHSEED": "0",
+    "full_duplicate_training": false,
+    "per_dataset": true,
+    "required_fingerprints": [
+      "model_init_state_sha256",
+      "materialized_plan_sha256",
+      "first_registered_batch_ID_sha256",
+      "repeated_short_prefix_state_sha256",
+      "deterministic_algorithm_configuration"
+    ]
+  },
+  "environment_and_loader_identity": {
+    "distribution_versions": {
+      "MNE": "1.11.0",
+      "MOABB": "1.5.0",
+      "torch": "2.6.0+cu124"
+    },
+    "loader_identity_before_get_data": true,
+    "loader_identity_may_follow_authorization_consumption": true,
+    "loader_identity_must_precede_download": true,
+    "loader_identity_must_precede_get_data": true,
+    "python": "3.9.25"
+  },
+  "epistemic_status": {
+    "availability_and_engineering_repair_only": true,
+    "outcome_dependent_choice": false,
+    "prospective_to_all_C84_real_data_and_outcomes": true,
+    "real_EEG_access_before_protocol": 0,
+    "real_label_access_before_protocol": 0,
+    "scientific_registry_changed": false
+  },
+  "failure_gate": "C84C_RUNTIME_BINDING_ENVIRONMENT_VIEW_OR_ARTIFACT_REPLAY_REQUIRED",
+  "forbidden": {
+    "C84C_execution_in_C84R2": true,
+    "C84F_execution_or_lock": true,
+    "C84S_execution_or_lock": true,
+    "dataset_download": true,
+    "forward_or_GPU": true,
+    "real_EEG_or_label_access": true,
+    "same_label_oracle": true,
+    "scientific_selector_or_target_metric": true,
+    "target_y_index_hash_repr_convert_or_log": true,
+    "training": true
+  },
+  "immutable_scientific_objects": {
+    "budgets_changed": false,
+    "candidate_count_changed": false,
+    "candidate_unit_IDs_changed": false,
+    "external_20_channel_interface_changed": false,
+    "inference_changed": false,
+    "method_registry_changed": false,
+    "montage_changed": false,
+    "subject_partitions_changed": false
+  },
+  "interface_replay": {
+    "actual_ch_names_required": true,
+    "actual_post_resample_sfreq_hz": 160,
+    "expected_final_input_shape": [
+      20,
+      480
+    ],
+    "half_open_epoch": "[0.0,3.0)",
+    "interpolation_or_bad_channel_synthesis": false,
+    "locked_channels": [
+      "FC5",
+      "FC3",
+      "FC1",
+      "FC2",
+      "FC4",
+      "FC6",
+      "C5",
+      "C3",
+      "C1",
+      "Cz",
+      "C2",
+      "C4",
+      "C6",
+      "CP5",
+      "CP3",
+      "CP1",
+      "CPz",
+      "CP2",
+      "CP4",
+      "CP6"
+    ],
+    "persist_first_last_time": true,
+    "persist_pre_half_open_n_times": true,
+    "return_epochs_or_equivalent_metadata": true
+  },
+  "instrumentation": {
+    "source_audit_fields": [
+      "logits",
+      "probabilities",
+      "source_class_label",
+      "source_domain_id",
+      "source_trial_id",
+      "dataset",
+      "panel",
+      "seed",
+      "level",
+      "unit_id"
+    ],
+    "source_metrics_reported": false,
+    "target_label_fields": 0,
+    "target_unlabeled_fields": [
+      "logits",
+      "probabilities",
+      "z",
+      "Wz_plus_b",
+      "target_trial_id",
+      "dataset",
+      "target_subject_id",
+      "unit_id"
+    ]
+  },
+  "milestone": "C84R2",
+  "persisted_replay": {
+    "all_rows_validated_after_reload": true,
+    "checkpoint_state_schema": true,
+    "genealogy_links": true,
+    "optimizer_expected_labels_and_steps": true,
+    "optimizer_load": true,
+    "repeat_forward_logits_and_z": true,
+    "saved_softmax_replay": true,
+    "saved_Wz_plus_b_replay": true,
+    "sidecar_canonical_schema": true,
+    "source_artifact_fields_shapes_row_IDs": true,
+    "target_artifact_fields_shapes_row_IDs": true
+  },
+  "runtime_attempt_order": [
+    "preauthorization_lock_and_environment_metadata_replay",
+    "authorization_consumption",
+    "attempt_ledger_start",
+    "package_imports_and_exact_version_replay",
+    "CUDA_check",
+    "loader_source_identity_replay",
+    "dataset_access",
+    "training",
+    "instrumentation",
+    "manifest_publication"
+  ],
+  "runtime_bound_replay": {
+    "authorization_binding": true,
+    "candidate_ID_function_and_canary_digest": true,
+    "clean_HEAD_equals_origin_oaci": true,
+    "dataset_registry": true,
+    "execution_lock_hash": true,
+    "implementation_file_blob_or_sha256": true,
+    "montage_list_order_digest": true,
+    "protocol_hashes": true,
+    "registry_and_table_hashes": true,
+    "repair_protocol_hash": true,
+    "resource_estimate_hash": true,
+    "subject_partition_hashes": true
+  },
+  "schema_version": "c84r2_canary_runtime_and_replay_repair_protocol_v1",
+  "source_target_identity": {
+    "persist_exact_subject_lists_and_trial_counts": true,
+    "source_audit_exact_count": 4,
+    "source_training_exact_count": 12,
+    "sets_disjoint": true,
+    "target_exact_count": 1
+  },
+  "status": "LOCKED_REPAIR_PROTOCOL_NO_REAL_ACCESS",
+  "success_gate": "C84C_RUNTIME_LOCK_AND_COMPLETE_ENGINEERING_REPLAY_READY_FOR_PI_AUTHORIZATION"
+}
