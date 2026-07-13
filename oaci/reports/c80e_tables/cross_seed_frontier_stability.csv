@@ -1,0 +1,8 @@
+budget,Bstar_seed3,Bstar_seed4,Bstar_grid_distance,seed3_mean_regret_reduction,seed4_mean_regret_reduction,paired_seed4_minus_seed3,paired_simultaneous_ci_low,paired_simultaneous_ci_high,common_larger_budget,registered_stability_pass,taxonomy
+1,1,1,0,0.426092786538936,0.42374240248226924,-0.002350384056666783,-0.07224394283001591,0.06754317471668235,1,1,C80-A_stable_low_regret_label_budget_frontier_across_training_seeds
+2,1,1,0,0.5012670192007567,0.49724552259893784,-0.004021496601818796,-0.07534362579691062,0.06730063259327304,1,1,C80-A_stable_low_regret_label_budget_frontier_across_training_seeds
+4,1,1,0,0.5628741653009358,0.5649675154980878,0.002093350197151997,-0.07098528420145823,0.07517198459576223,1,1,C80-A_stable_low_regret_label_budget_frontier_across_training_seeds
+8,1,1,0,0.6131658308501905,0.6163190284482268,0.0031531975980363114,-0.07311359168905479,0.07941998688512741,1,1,C80-A_stable_low_regret_label_budget_frontier_across_training_seeds
+16,1,1,0,0.644940339653889,0.6528234689797674,0.007883129325878507,-0.0683985250041339,0.08416478365589092,1,1,C80-A_stable_low_regret_label_budget_frontier_across_training_seeds
+32,1,1,0,0.6676053289902208,0.679761821657211,0.012156492666990093,-0.06854076327337888,0.09285374860735907,1,1,C80-A_stable_low_regret_label_budget_frontier_across_training_seeds
+FULL,1,1,0,0.6966816506098337,0.6867805155048385,-0.009901135104995157,-0.12149325225718444,0.10169098204719412,1,1,C80-A_stable_low_regret_label_budget_frontier_across_training_seeds

@@ -1,2 +1,3 @@
 attempt,job_id,stage,state,exit_code,runtime,selection_frozen,selection_payload_values_inspected,evaluation_label_reads,evaluation_outcomes,same_label_oracle_accesses,target4_primary_rows,retry_reason,replacement_job_id
-1,894641,selection_descriptor_verification_before_evaluation_open,FAILED,1:0,00:07:03,1,0,0,0,0,0,heterogeneous_first_dimension_descriptor_requires_registered_selection_specific_verifier,PENDING
+1,894641,selection_descriptor_verification_before_evaluation_open,FAILED,1:0,00:07:03,1,0,0,0,0,0,heterogeneous_first_dimension_descriptor_requires_registered_selection_specific_verifier,894646
+2,894646,evaluation_and_all_registered_paths,COMPLETED,0:0,00:00:04,1,0,16,224,0,0,additive_descriptor_repair_reused_frozen_selection,NONE
