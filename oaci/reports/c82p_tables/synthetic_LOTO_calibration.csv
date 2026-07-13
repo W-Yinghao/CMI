@@ -1,0 +1,7 @@
+scenario,panels,same_method_column_present,preserved,passed,real_field_used
+same_method_A,16,1,16,1,0
+same_method_B,16,1,16,1,0
+stable_C,16,1,16,1,0
+different_A_methods,16,1,0,1,0
+different_B_methods,16,1,0,1,0
+blocker_E,16,1,16,1,0
