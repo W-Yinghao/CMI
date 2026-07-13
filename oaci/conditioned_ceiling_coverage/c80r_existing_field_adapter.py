@@ -39,6 +39,17 @@ EXPECTED_PATHS = ("P1", "P2", "S1", "S2", "S3")
 NEAR_FULL = (32, "FULL")
 TOP_K = (1, 5, 10)
 BOOTSTRAP_REPLICATES = 8192
+SELECTION_ARRAY_SCHEMA = {
+    "budget_labels": ((7,), np.dtype("<U8")),
+    "candidate_global_indices": ((32, 81), np.dtype(np.int16)),
+    "cell_level": ((32,), np.dtype(np.int16)),
+    "cell_seed": ((32,), np.dtype(np.int16)),
+    "cell_target": ((32,), np.dtype(np.int16)),
+    "construction_scores": ((32, 2048, 7, 81), np.dtype(np.float32)),
+    "full_class_counts": ((32, 4), np.dtype(np.int16)),
+    "selected_top10": ((32, 2048, 7, 10), np.dtype(np.int16)),
+    "source_top10": ((32, 10), np.dtype(np.int16)),
+}
 
 
 def _canonical_bytes(value: Any) -> bytes:
@@ -247,6 +258,29 @@ def _verify_self_hashed_manifest(path: Path) -> dict[str, Any]:
     if supplied != observed:
         raise RuntimeError(f"C80 self-hashed manifest mismatch: {path}")
     return payload
+
+
+def _verify_selection_shard(descriptor: dict[str, Any]) -> None:
+    """Verify the registered heterogeneous-axis selection payload exactly."""
+    path = Path(descriptor["path"])
+    if not path.is_file():
+        raise FileNotFoundError(path)
+    if _sha256_file(path) != descriptor["sha256"]:
+        raise RuntimeError(f"C80 selection shard hash mismatch: {path}")
+    if path.stat().st_size != int(descriptor["size_bytes"]):
+        raise RuntimeError(f"C80 selection shard size mismatch: {path}")
+    required_fields = set(SELECTION_ARRAY_SCHEMA)
+    if set(descriptor.get("fields", ())) != required_fields or int(descriptor.get("row_count", -1)) != 32:
+        raise RuntimeError(f"C80 selection descriptor schema mismatch: {path}")
+    with np.load(path, allow_pickle=False) as shard:
+        if set(shard.files) != required_fields:
+            raise RuntimeError(f"C80 selection shard field mismatch: {path}")
+        for name, (expected_shape, expected_dtype) in SELECTION_ARRAY_SCHEMA.items():
+            if shard[name].shape != expected_shape or shard[name].dtype != expected_dtype:
+                raise RuntimeError(
+                    f"C80 selection shard array mismatch: {name} "
+                    f"shape={shard[name].shape} dtype={shard[name].dtype}"
+                )
 
 
 def _load_unlabeled(manifest_path: Path) -> dict[str, np.ndarray]:
@@ -573,7 +607,7 @@ def _selection_stage(context: dict[str, Any]) -> dict[str, Any]:
     manifest_path = external_root / "selection" / "SELECTION_OUTPUTS_FROZEN.json"
     if manifest_path.exists():
         manifest = _verify_self_hashed_manifest(manifest_path)
-        c74_cache.verify_shard(manifest["descriptor"])
+        _verify_selection_shard(manifest["descriptor"])
         return manifest
     all_cells: list[dict[str, Any]] = []
     all_scores = []
@@ -648,7 +682,7 @@ def _selection_stage(context: dict[str, Any]) -> dict[str, Any]:
 
 
 def _load_selection(manifest: dict[str, Any]) -> dict[str, np.ndarray]:
-    c74_cache.verify_shard(manifest["descriptor"])
+    _verify_selection_shard(manifest["descriptor"])
     with np.load(manifest["descriptor"]["path"], allow_pickle=False) as shard:
         return {name: shard[name] for name in shard.files}
 

@@ -193,6 +193,34 @@ def test_replacement_lock_and_direct_authorization_replay() -> None:
     assert context["lock_sha256"] == observed
 
 
+def test_selection_specific_verifier_accepts_registered_heterogeneous_axes(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
+) -> None:
+    arrays = {
+        "budget_labels": np.asarray(["1", "FULL"], dtype="<U8"),
+        "candidate_global_indices": np.zeros((3, 4), dtype=np.int16),
+        "cell_level": np.zeros(3, dtype=np.int16),
+        "cell_seed": np.full(3, 3, dtype=np.int16),
+        "cell_target": np.arange(3, dtype=np.int16),
+        "construction_scores": np.zeros((3, 5, 2, 4), dtype=np.float32),
+        "full_class_counts": np.ones((3, 4), dtype=np.int16),
+        "selected_top10": np.zeros((3, 5, 2, 2), dtype=np.int16),
+        "source_top10": np.zeros((3, 2), dtype=np.int16),
+    }
+    descriptor = adapter.c74_cache.write_content_addressed_npz(
+        tmp_path, "selection_fixture", arrays,
+    )
+    schema = {name: (value.shape, value.dtype) for name, value in arrays.items()}
+    monkeypatch.setattr(adapter, "SELECTION_ARRAY_SCHEMA", schema)
+    descriptor["row_count"] = 32
+    with pytest.raises(RuntimeError, match="row-count mismatch"):
+        adapter.c74_cache.verify_shard(descriptor)
+    adapter._verify_selection_shard(descriptor)
+    descriptor["fields"] = descriptor["fields"][:-1]
+    with pytest.raises(RuntimeError, match="descriptor schema mismatch"):
+        adapter._verify_selection_shard(descriptor)
+
+
 def test_synthetic_result_synthesis_runs_all_paths_and_exact_taxonomy(
     monkeypatch: pytest.MonkeyPatch, tmp_path: Path,
 ) -> None:
