@@ -124,3 +124,23 @@ analysis. It does not authorize training, forward/re-inference, GPU, target4,
 oracle work, BNCI2014_004, active acquisition, seed5, C81, or manuscript
 drafting.
 
+## Final Readiness Verification
+
+The C80R pre-execution red team passed `40/40`. Final regressions were run on
+the exact clean commit `93d2099f14b8739089e640c0e6078f02ed5cc435`:
+
+```text
+focused job 894616: 53 passed
+C65 job 894617:     368 passed, 1 conditional skip, 3 deselected
+C23 job 894618:     775 passed, 1 conditional skip, 3 deselected
+full job 894619:   1703 passed, 1 conditional skip, 3 deselected
+```
+
+All failures and stderr byte counts were zero. The skip is the finalized C78F
+guard; the deselections are the three historical C79P preauthorization-state
+tests. No C80R test or registry path was skipped. Earlier log-placement and
+cumulative-glob issues are retained as closed, non-scientific repair events.
+
+The operative final report is `C80R_PROTOCOL_READINESS.{md,json}`. It does not
+change the protected state: no new C80E authorization record exists, no real
+budget result exists, and `run-real` remains fail-closed.
