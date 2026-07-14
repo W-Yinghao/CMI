@@ -11,6 +11,7 @@ import pytest
 
 from oaci.multidataset import c84l1_canary as canary
 from oaci.multidataset import c84l1_runtime_guard as runtime
+from oaci.multidataset import c84l1r1_runtime_repair as replacement_runtime
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -139,18 +140,20 @@ def test_bound_object_candidate_and_accepted_manifest_tampering_fail_closed():
         runtime.verify_c84c_level0_binding(accepted_drift)
 
 
-def test_fresh_level1_authorization_is_absent_and_prior_authorization_not_reusable():
+def test_historical_level1_authorization_is_consumed_and_not_reusable():
     lock = json.loads(runtime.EXECUTION_LOCK_PATH.read_text())
     assert lock["authorization"]["record_present_at_lock"] is False
     assert lock["authorization"]["C84C_authorization_reusable"] is False
-    assert not runtime.AUTHORIZATION_RECORD_PATH.exists()
-    with pytest.raises(runtime.C84L1RuntimeError, match="fresh direct C84L1C"):
-        runtime.verify_authorization_record(
-            lock,
-            runtime.verify_lock_self(runtime.EXECUTION_LOCK_PATH, runtime.EXECUTION_LOCK_SHA_PATH),
-            "not-consumable-before-lock-commit",
-            runtime.AUTHORIZATION_RECORD_PATH,
-        )
+    assert runtime.AUTHORIZATION_RECORD_PATH.is_file()
+    result = runtime.verify_authorization_record(
+        lock,
+        runtime.verify_lock_self(runtime.EXECUTION_LOCK_PATH, runtime.EXECUTION_LOCK_SHA_PATH),
+        runtime.prior.commit_for_path(runtime.EXECUTION_LOCK_PATH),
+        runtime.AUTHORIZATION_RECORD_PATH,
+    )
+    assert result["authorized_stage"] == "C84L1C"
+    assert result["C84F"] is False and result["C84S"] is False
+    assert not replacement_runtime.AUTHORIZATION_RECORD_PATH.exists()
 
 
 def test_complete_gate_requires_all_243_artifact_families():
@@ -209,8 +212,10 @@ def test_slurm_wrapper_locks_deterministic_environment_and_only_calls_C84L1C():
     assert "C84F" not in text and "C84S" not in text
 
 
-def test_C84L1P_has_no_authorization_or_real_payload():
-    assert not runtime.AUTHORIZATION_RECORD_PATH.exists()
+def test_post_attempt_lifecycle_has_no_replacement_authorization_or_tracked_payload():
+    assert runtime.AUTHORIZATION_RECORD_PATH.is_file()
+    assert not replacement_runtime.AUTHORIZATION_RECORD_PATH.exists()
+    assert not replacement_runtime.DEFAULT_EXTERNAL_ROOT.exists()
     forbidden = {".npy", ".npz", ".pt", ".pth", ".ckpt", ".fif", ".edf", ".gdf", ".mat"}
     tracked = [Path(line) for line in __import__("subprocess").run(
         ["git", "ls-files", "oaci"], cwd=ROOT, text=True, capture_output=True, check=True,
