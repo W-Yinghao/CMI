@@ -1,0 +1,14 @@
+artifact,field_order,field,type_contract,target_label_or_derived,source_label_allowed,required
+field_unit_descriptor,0,unit_id,scalar_or_row_key,0,0,1
+field_unit_descriptor,1,checkpoint,scalar_or_row_key,0,0,1
+field_unit_descriptor,2,optimizer,scalar_or_row_key,0,0,1
+field_unit_descriptor,3,training_sidecar,scalar_or_row_key,0,0,1
+field_unit_descriptor,4,source_audit,scalar_or_row_key,0,0,1
+field_unit_descriptor,5,complete_target_unlabeled,scalar_or_row_key,0,0,1
+field_unit_descriptor,6,target_context_index,scalar_or_row_key,0,0,1
+field_unit_descriptor,7,interface_id,scalar_or_row_key,0,0,1
+field_unit_descriptor,8,protocol_sha256,scalar_or_row_key,0,0,1
+field_unit_descriptor,9,model_reuse_provenance,scalar_or_row_key,0,0,1
+field_unit_descriptor,10,target_artifact_provenance,scalar_or_row_key,0,0,1
+field_unit_descriptor,11,canary_subset_replay,scalar_or_row_key,0,0,1
+field_unit_descriptor,12,failure_retry_provenance,scalar_or_row_key,0,0,1

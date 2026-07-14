@@ -1,0 +1,9 @@
+check,required,tolerance,failure_action
+dataset_unit_target_trial_ID_exact_match,1,exact,BLOCK_COMPLETE_FIELD
+logits,1,1e-6,BLOCK_COMPLETE_FIELD
+probabilities,1,1e-6,BLOCK_COMPLETE_FIELD
+z,1,1e-6,BLOCK_COMPLETE_FIELD
+Wz_plus_b,1,1e-5,BLOCK_COMPLETE_FIELD
+classifier_weight,1,exact_hash,BLOCK_COMPLETE_FIELD
+classifier_bias,1,exact_hash,BLOCK_COMPLETE_FIELD
+canary_artifact_sha256,1,manifest_exact,BLOCK_COMPLETE_FIELD

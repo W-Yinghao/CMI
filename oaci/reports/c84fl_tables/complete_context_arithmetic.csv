@@ -1,0 +1,5 @@
+dataset,target_subjects,panels,training_seeds,levels,target_contexts,candidates_per_context,candidate_context_slices,C84C_target_contexts,C84C_candidate_context_slices,remaining_target_contexts,remaining_candidate_context_slices
+Lee2019_MI,22,2,2,2,176,81,14256,1,81,175,14175
+Cho2017,20,2,2,2,160,81,12960,1,81,159,12879
+PhysionetMI,76,2,2,2,608,81,49248,1,81,607,49167
+TOTAL,118,2,2,2,944,81,76464,3,243,941,76221

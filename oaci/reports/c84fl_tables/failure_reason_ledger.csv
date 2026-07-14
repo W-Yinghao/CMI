@@ -1,0 +1,2 @@
+failure_id,stage,blocking,reason,real_data_access,scientific_outcome_access,repair_required
+NONE,C84FL_protocol,0,no_failure,0,0,0
