@@ -1,0 +1,5 @@
+budget_h,seeds,unique_windows,epochs,steps_per_epoch,total_optimizer_updates,total_sample_presentations,presentation_hours_equivalent,dropped_tail_windows_per_epoch,lr_t_max_updates,same_schedule_across_seeds
+200,0;1,24000,50,375,18750,1200000,10000.000000,0,18750,true
+500,0;1,60000,50,937,46850,2998400,24986.666667,32,46850,true
+1000,0;1,120000,50,1875,93750,6000000,50000.000000,0,93750,true
+2000,0;1,240000,50,3750,187500,12000000,100000.000000,0,187500,true

@@ -1,0 +1,9 @@
+tag,budget_h,seed,selected_epoch,selected_optimizer_updates,selected_sample_presentations,selected_presentation_hours_equivalent,best_val_loss,optimizer_state_step,scheduler_last_epoch,scheduler_t_max,selection_metric,target_labels_used_for_selection,checkpoint_metadata_pass
+H200_s0,200,0,49,18375,1176000,9800.000000,0.31628654897213,18375,18375,18750,pretrain_val_loss_only,false,true
+H200_s1,200,1,50,18750,1200000,10000.000000,0.32015835121274,18750,18750,18750,pretrain_val_loss_only,false,true
+H500_s0,500,0,49,45913,2938432,24486.933333,0.258377205580473,45913,45913,46850,pretrain_val_loss_only,false,true
+H500_s1,500,1,46,43102,2758528,22987.733333,0.254978316215177,43102,43102,46850,pretrain_val_loss_only,false,true
+H1000_s0,1000,0,50,93750,6000000,50000.000000,0.229086015063028,93750,93750,93750,pretrain_val_loss_only,false,true
+H1000_s1,1000,1,50,93750,6000000,50000.000000,0.229525955704351,93750,93750,93750,pretrain_val_loss_only,false,true
+H2000_s0,2000,0,48,180000,11520000,96000.000000,0.215053666072587,180000,180000,187500,pretrain_val_loss_only,false,true
+H2000_s1,2000,1,49,183750,11760000,98000.000000,0.212825450114906,183750,183750,187500,pretrain_val_loss_only,false,true

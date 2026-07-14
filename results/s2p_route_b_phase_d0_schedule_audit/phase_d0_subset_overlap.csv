@@ -1,0 +1,17 @@
+comparison_type,seed_or_budget,left_tag,right_tag,left_windows,right_windows,intersection_windows,left_coverage_fraction,identical,left_nested_in_right
+same_seed_budget_pair,0,H200_s0,H500_s0,24000,60000,2911,0.121291667,false,false
+same_seed_budget_pair,0,H200_s0,H1000_s0,24000,120000,5125,0.213541667,false,false
+same_seed_budget_pair,0,H200_s0,H2000_s0,24000,240000,12338,0.514083333,false,false
+same_seed_budget_pair,0,H500_s0,H1000_s0,60000,120000,10764,0.179400000,false,false
+same_seed_budget_pair,0,H500_s0,H2000_s0,60000,240000,36490,0.608166667,false,false
+same_seed_budget_pair,0,H1000_s0,H2000_s0,120000,240000,62414,0.520116667,false,false
+same_seed_budget_pair,1,H200_s1,H500_s1,24000,60000,3087,0.128625000,false,false
+same_seed_budget_pair,1,H200_s1,H1000_s1,24000,120000,4640,0.193333333,false,false
+same_seed_budget_pair,1,H200_s1,H2000_s1,24000,240000,12469,0.519541667,false,false
+same_seed_budget_pair,1,H500_s1,H1000_s1,60000,120000,12922,0.215366667,false,false
+same_seed_budget_pair,1,H500_s1,H2000_s1,60000,240000,32278,0.537966667,false,false
+same_seed_budget_pair,1,H1000_s1,H2000_s1,120000,240000,57546,0.479550000,false,false
+same_budget_seed_pair,200,H200_s0,H200_s1,24000,24000,751,0.031291667,false,false
+same_budget_seed_pair,500,H500_s0,H500_s1,60000,60000,6410,0.106833333,false,false
+same_budget_seed_pair,1000,H1000_s0,H1000_s1,120000,120000,30033,0.250275000,false,false
+same_budget_seed_pair,2000,H2000_s0,H2000_s1,240000,240000,122313,0.509637500,false,false

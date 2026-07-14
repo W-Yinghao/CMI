@@ -1,0 +1,23 @@
+{
+  "absolute_paths_persisted": false,
+  "contract_files": {
+    "route_b_b1_training_tasks.csv": "3022955fcb79c0fd26b2837b262eee92ce7b63ccc88d9275b5b7adc4e063e72f",
+    "route_b_canonical_channel_order.json": "a5bdd85dc42d794bdcf63143fff6677df586f58918da36a3eb179e94fb610462",
+    "route_b_channel_group_manifest.csv": "0bbf08ab7415ae313ad83aa7a7af86a3e2639d6bb49f435e3fb42978bb0bc2ff",
+    "route_b_downstream_sanity.csv": "b699f8d0d21c6d4644942ec061018108afd91ad3e1149243fe3250a49253e5ae",
+    "route_b_downstream_sanity_manifest.json": "12bd0d0fa196a5ca8fcf18ff78f18374156e284a0631e56a9b68c105f1bcc76d",
+    "route_b_group_mix_by_budget.csv": "e138202e03ef14397a3ed41049b108477844e48cf41c278d4d8722b2c2cb4224",
+    "route_b_reference_scheme_manifest.csv": "576a36122ad1f8d5ba2c0213358e3b074160cd67cf9003d1917c97db54825173",
+    "route_b_sampling_contract_check.csv": "7abb7af29f617b9edaa89a906d7cd623c92d9c365e4f34d4e9ef5527134bfda6",
+    "route_b_training_go_nogo.json": "242b57d7da92db950419b9d21f5eac0b046553106844b55bf1d2e33be1219c4b"
+  },
+  "external_log_root": "${B1_LAUNCH_ROOT}/results/s2p_route_b_33ch_b1",
+  "immutable_manifest_sha256": "b47be85a1ba7567551c68538e84912b0034f8b51b50c676c9b8267f478c2d4c1",
+  "loader_sha256": "db33ef963db2ba612e1bfabaf671aa4f7958d9441e7e3ea51dbedf57ff95f32f",
+  "phase": "D0_route_b_schedule_and_presentations_audit",
+  "repo_head": "94509e6511926fa60221f2d529959c58dfbaf644",
+  "trainer_sha256": "10d73a018777fbf3999155701816005fa36af68d219483248c2a27a284388919",
+  "training_invoked": false,
+  "tueg_metadata_logical_path": "${TUEG_PROCESSED_ROOT}/metadata.parquet",
+  "tueg_metadata_sha256": "bb5a920f9743c77e29117fa787255d13cdbac6f1f04011191bdc63d68e2cad48"
+}

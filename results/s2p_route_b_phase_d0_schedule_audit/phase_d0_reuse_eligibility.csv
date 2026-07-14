@@ -1,0 +1,9 @@
+tag,candidate_d1_cell,schedule_match,shared_nested_subset_match,validation_cadence_match,reuse_recommended,reason
+H200_s0,U200_P_low,true,false,false,false,current H200 is not nested in current H1000 and validation cadence is epoch-aligned
+H200_s1,U200_P_low,true,false,false,false,current H200 is not nested in current H1000 and validation cadence is epoch-aligned
+H500_s0,not_in_D1_factorial,false,false,false,false,budget is outside the proposed 200h x 1000h factorial
+H500_s1,not_in_D1_factorial,false,false,false,false,budget is outside the proposed 200h x 1000h factorial
+H1000_s0,U1000_P_high,true,false,true,false,current H1000 subsets differ across init seeds and have no nested shared H200 subset
+H1000_s1,U1000_P_high,true,false,true,false,current H1000 subsets differ across init seeds and have no nested shared H200 subset
+H2000_s0,not_in_D1_factorial,false,false,false,false,budget is outside the proposed 200h x 1000h factorial
+H2000_s1,not_in_D1_factorial,false,false,false,false,budget is outside the proposed 200h x 1000h factorial

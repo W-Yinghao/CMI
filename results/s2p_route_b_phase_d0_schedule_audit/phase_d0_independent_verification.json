@@ -1,0 +1,90 @@
+{
+  "checks": [
+    {
+      "check": "run_count",
+      "detail": "observed=8 expected=8",
+      "pass": true
+    },
+    {
+      "check": "checkpoint_count",
+      "detail": "observed=8 expected=8",
+      "pass": true
+    },
+    {
+      "check": "subset_count",
+      "detail": "observed=8 expected=8",
+      "pass": true
+    },
+    {
+      "check": "d1_cell_count",
+      "detail": "observed=8 expected=8",
+      "pass": true
+    },
+    {
+      "check": "schedule_formula_replay",
+      "detail": "failures=",
+      "pass": true
+    },
+    {
+      "check": "tag_join",
+      "detail": "schedule=['H1000_s0', 'H1000_s1', 'H2000_s0', 'H2000_s1', 'H200_s0', 'H200_s1', 'H500_s0', 'H500_s1']",
+      "pass": true
+    },
+    {
+      "check": "raw_subset_rebuild",
+      "detail": "failures=",
+      "pass": true
+    },
+    {
+      "check": "h200_h1000_comparisons_present",
+      "detail": "observed=2 expected=2",
+      "pass": true
+    },
+    {
+      "check": "h200_not_nested",
+      "detail": "H200_s0->H1000_s0=0.213541667;H200_s1->H1000_s1=0.193333333",
+      "pass": true
+    },
+    {
+      "check": "raw_overlap_replay",
+      "detail": "failures=",
+      "pass": true
+    },
+    {
+      "check": "subsets_differ_across_seeds",
+      "detail": "comparisons=4",
+      "pass": true
+    },
+    {
+      "check": "validation_pool_fixed",
+      "detail": "distinct_validation_hashes=1",
+      "pass": true
+    },
+    {
+      "check": "d1_factorial_replay",
+      "detail": "failures=",
+      "pass": true
+    },
+    {
+      "check": "reuse_fail_closed",
+      "detail": "rows=8",
+      "pass": true
+    },
+    {
+      "check": "verdict_no_launch",
+      "detail": "D0 pass with all compute launch flags false",
+      "pass": true
+    },
+    {
+      "check": "verdict_matches_subsets",
+      "detail": "subset and validation dispositions agree",
+      "pass": true
+    }
+  ],
+  "failures": [],
+  "pass": true,
+  "phase": "D0_route_b_schedule_and_presentations_audit",
+  "phase_d1_training_authorized": false,
+  "training_launched": false,
+  "verifier": "independent_formula_and_contract_replay"
+}
