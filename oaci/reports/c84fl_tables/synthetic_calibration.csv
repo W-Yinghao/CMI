@@ -1,0 +1,13 @@
+scenario,contract,expected,observed,passed,real_EEG_access,training_forward_GPU
+S0,complete_arithmetic,1944,1944,1,0,0
+S1,C84C_reuse,243,243,1,0,0
+S2,remaining_units,1701,1701,1,0,0
+S3,wave_A,729,729,1,0,0
+S4,wave_B0,243,243,1,0,0
+S5,wave_B1,729,729,1,0,0
+S6,target_contexts,944,944,1,0,0
+S7,candidate_context_slices,76464,76464,1,0,0
+S8,canary_context_scope,3,3,1,0,0
+S9,target_label_fields,0,0,1,0,0
+S10,level1_intervention_bound,1,0,0,0,0
+S11,execution_lock_creation,0,0,1,0,0

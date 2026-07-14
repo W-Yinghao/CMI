@@ -22,3 +22,4 @@ resource_envelope_exceeded,CLOSED_BY_PROTOCOL_CONTROL,0,250 GPU-hour and 2-TiB h
 C84S_scope_creep,CLOSED_BY_PROTOCOL_CONTROL,0,no C84S execution lock or target label view,0
 raw_EEG_weights_cache_in_Git,CLOSED_BY_PROTOCOL_CONTROL,0,50-MiB and prohibited-suffix scan,0
 prior_C84C_authorization_reused,CLOSED_BY_PROTOCOL_CONTROL,0,fresh C84F record required,0
+level1_training_intervention_undefined,OPEN_BLOCKING,1,additive_pre_outcome_protocol_repair_required,0

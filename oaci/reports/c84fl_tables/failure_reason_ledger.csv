@@ -1,2 +1,3 @@
 failure_id,stage,blocking,reason,real_data_access,scientific_outcome_access,repair_required
-NONE,C84FL_protocol,0,no_failure,0,0,0
+NONE_AT_PROTOCOL_GENERATION,C84FL_protocol,0,planning_arithmetic_and_reuse_replay_passed,0,0,0
+C84FL-B001,implementation_reconciliation,1,level1_training_intervention_not_registered,0,0,1
