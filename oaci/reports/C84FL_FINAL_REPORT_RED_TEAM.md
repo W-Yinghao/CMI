@@ -28,6 +28,8 @@ Additional final checks passed:
 - No tracked file exceeds 50 MiB.
 - No active C84 job remains.
 - Focused, C65, C23 and full regressions passed with empty stderr.
+- The complete Markdown and JSON report identities replay against the committed
+  two-entry SHA-256 sidecar.
 
 The final red-team outcome is therefore **safe blocker preservation**, not
 execution readiness.

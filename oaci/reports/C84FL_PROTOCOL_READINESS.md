@@ -1,5 +1,11 @@
 # C84FL Protocol Readiness
 
+The complete lifecycle report and machine-readable summary are:
+
+- `C84FL_OVERALL_REPORT.md`
+- `C84FL_OVERALL_REPORT.json`
+- `C84FL_OVERALL_REPORT.sha256`
+
 ## Final Gate
 
 ```text

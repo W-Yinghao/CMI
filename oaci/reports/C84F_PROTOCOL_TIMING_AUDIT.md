@@ -29,5 +29,25 @@ cannot drive model retention, retries, wave release, or scientific inference.
 
 ## Stop boundary
 
-C84FL creates an implementation and execution lock only. It does not authorize
-or execute C84F, and it does not create a C84S execution lock.
+C84FL was intended to create an implementation and execution lock only. During
+implementation reconciliation it found that level 1 had been enumerated but no
+level-1 training intervention was bound. It therefore stopped before creating
+the full-field adapter or `C84F_EXECUTION_LOCK.json`.
+
+The actual C84FL state is:
+
+| Protected object or event | State |
+|---|---:|
+| C84F full-field adapter created | 0 |
+| C84F execution lock created | 0 |
+| C84F authorization record created | 0 |
+| C84S execution lock created | 0 |
+| C84FL real EEG/label access | 0 |
+| C84FL training/forward/GPU | 0 |
+
+The planning protocol remains preserved, but it is not an execution lock. The
+operative C84FL gate is:
+
+```text
+C84F_CANARY_REUSE_DATA_VIEW_IMPLEMENTATION_RESOURCE_OR_MANIFEST_RECONCILIATION_REQUIRED
+```

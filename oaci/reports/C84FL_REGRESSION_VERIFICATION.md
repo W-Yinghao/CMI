@@ -28,3 +28,17 @@ jobs exited `0:0`; stdout and empty-stderr hashes are recorded in
 
 These passing regressions verify the fail-closed blocker state. They do not
 resolve the missing level-1 intervention and do not authorize C84F.
+
+## Post-report integrity verification
+
+After adding the complete Markdown/JSON report and SHA-256 sidecar, the two
+focused C84FL contract files were rerun locally in the same exact environment:
+
+```text
+15 passed
+```
+
+The added check replays both report hashes, parses the JSON, verifies the
+operative failure gate and 972-unit level-1 impact, and confirms that no C84F
+execution lock was created. This documentation-only verification accessed no
+real EEG, label view, training path, forward path, or GPU.

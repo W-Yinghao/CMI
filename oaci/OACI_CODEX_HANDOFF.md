@@ -24,6 +24,10 @@ C84FL blocker audit commit:     e141d2a7531d15ac6a420bdb3ee9163395e57407
 C84FL gate:                     C84F_CANARY_REUSE_DATA_VIEW_IMPLEMENTATION_RESOURCE_OR_MANIFEST_RECONCILIATION_REQUIRED
 ```
 
+The complete review artifact is
+[`reports/C84FL_OVERALL_REPORT.md`](reports/C84FL_OVERALL_REPORT.md), with a
+machine-readable companion and SHA-256 sidecar.
+
 C84FL replayed and registered all 243 reusable C84C model/state/source-audit
 objects, all 1,944 planned unit IDs, the remaining 1,701-unit/63-phase scope,
 the 729/243/729 waves, 944 target contexts and 76,464 candidate-context slices.

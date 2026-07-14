@@ -1,4 +1,5 @@
 import csv
+import hashlib
 import json
 from pathlib import Path
 
@@ -82,3 +83,23 @@ def test_protocol_hash_sidecar_replays():
     path = REPORTS / "C84F_FULL_FIELD_EXECUTION_AND_MANIFEST_PROTOCOL.json"
     expected = (path.with_suffix(".sha256").read_text().split()[0])
     assert protocol.sha256_file(path) == expected
+
+
+def test_overall_report_is_machine_readable_and_hash_bound():
+    markdown = REPORTS / "C84FL_OVERALL_REPORT.md"
+    machine = REPORTS / "C84FL_OVERALL_REPORT.json"
+    sidecar = REPORTS / "C84FL_OVERALL_REPORT.sha256"
+    assert markdown.exists() and machine.exists() and sidecar.exists()
+    payload = json.loads(machine.read_text())
+    assert payload["final_gate"] == reconciliation.FAIL_GATE
+    assert payload["arithmetic"]["remaining_level1_units"] == 972
+    assert not payload["execution_objects"]["c84f_execution_lock_created"]
+    expected = {
+        row.split()[1]: row.split()[0]
+        for row in sidecar.read_text().splitlines()
+        if row.strip()
+    }
+    assert expected == {
+        "C84FL_OVERALL_REPORT.md": hashlib.sha256(markdown.read_bytes()).hexdigest(),
+        "C84FL_OVERALL_REPORT.json": hashlib.sha256(machine.read_bytes()).hexdigest(),
+    }

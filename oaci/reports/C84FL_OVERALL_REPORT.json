@@ -1,0 +1,200 @@
+{
+  "accepted_c84c": {
+    "authorization_commit": "6949b62a51f7cd092c63be4ca24654e9ab7db068",
+    "candidate_units": 243,
+    "complete_manifest_sha256": "530471ef370d5fa13a88e7e53cf1add558b8444b66675496187aa192b0606f2b",
+    "failed_job_preserved": 895366,
+    "final_head": "f7bbd27579308e01ed5c0388cb728cc7417978ac",
+    "result_commit": "2f541e526deb79091ad164b0d37419941e6f662b",
+    "result_json_sha256": "bec3a8b205a3d13fdb848ce1f82f71f903d05a97f746fdae25b3b4cce40e67f0",
+    "source_audit_artifacts": 243,
+    "successful_job": 895441,
+    "target_unlabeled_canary_artifacts": 243,
+    "training_phases": 9
+  },
+  "arithmetic": {
+    "canary_candidate_context_slices": 243,
+    "canary_target_contexts": 3,
+    "candidate_context_slices": 76464,
+    "complete_training_phases": 72,
+    "complete_units": 1944,
+    "remaining_candidate_context_slices": 76221,
+    "remaining_level0_units": 729,
+    "remaining_level1_units": 972,
+    "remaining_target_contexts": 941,
+    "remaining_training_phases": 63,
+    "remaining_units": 1701,
+    "reused_units": 243,
+    "target_contexts": 944,
+    "target_subjects": 118
+  },
+  "audit": {
+    "blocking_failures": 2,
+    "checks": 12,
+    "expected_nonblocking_failures": 2,
+    "passed": 8,
+    "synthetic_failed_contract": "level1_intervention_bound",
+    "synthetic_scenarios": 12
+  },
+  "blocker": {
+    "affected_remaining_units": 972,
+    "historical_c78_level1": "target_specific_source_domain_by_class_deletion",
+    "level1_intervention_bound": false,
+    "reason": "C84 enumerates level 1 but binds no fixed-zoo training intervention or outcome-free cell-selection rule",
+    "repair": "additive_pre_execution_scientific_protocol_required",
+    "target_specific_retraining_allowed_in_c84": false
+  },
+  "chronology": {
+    "blocker_audit_commit": "e141d2a7531d15ac6a420bdb3ee9163395e57407",
+    "handoff_base_commit": "16db04e18d2c7c4008b12f41c4f9e8dc9acf7680",
+    "planning_protocol_commit": "26f798ede818955927237b726e333590e80a13fa"
+  },
+  "execution_objects": {
+    "c84f_authorization_record_created": false,
+    "c84f_execution_lock_created": false,
+    "c84f_full_field_adapter_created": false,
+    "c84s_execution_lock_created": false
+  },
+  "field_design": {
+    "artifact_layout": "one_all_target_artifact_per_candidate_unit_with_context_index",
+    "barrier_order": [
+      "dataset_input_freeze",
+      "complete_model_field_freeze",
+      "complete_target_unlabeled_instrumentation",
+      "atomic_complete_field_freeze"
+    ],
+    "candidate_identity_salt": "C84_FIXED_ZOO_LEFT_RIGHT_20CH_V2",
+    "datasets": {
+      "Cho2017": {
+        "candidate_context_slices": 12960,
+        "target_contexts": 160,
+        "target_subjects": 20
+      },
+      "Lee2019_MI": {
+        "candidate_context_slices": 14256,
+        "target_contexts": 176,
+        "target_subjects": 22
+      },
+      "PhysionetMI": {
+        "candidate_context_slices": 49248,
+        "target_contexts": 608,
+        "target_subjects": 76
+      }
+    },
+    "waves": {
+      "A": {
+        "phases": 27,
+        "units": 729
+      },
+      "B0": {
+        "phases": 9,
+        "units": 243
+      },
+      "B1": {
+        "phases": 27,
+        "units": 729
+      },
+      "C84C_REUSE": {
+        "phases": 9,
+        "units": 243
+      }
+    }
+  },
+  "final_gate": "C84F_CANARY_REUSE_DATA_VIEW_IMPLEMENTATION_RESOURCE_OR_MANIFEST_RECONCILIATION_REQUIRED",
+  "interface": {
+    "channels": [
+      "FC5",
+      "FC3",
+      "FC1",
+      "FC2",
+      "FC4",
+      "FC6",
+      "C5",
+      "C3",
+      "C1",
+      "Cz",
+      "C2",
+      "C4",
+      "C6",
+      "CP5",
+      "CP3",
+      "CP1",
+      "CPz",
+      "CP2",
+      "CP4",
+      "CP6"
+    ],
+    "epoch_rule": "half_open_[0.0,3.0)_480_samples",
+    "id": "C84_LEFT_RIGHT_20CH_160HZ_0_3S_V2",
+    "montage_sha256": "988e8f89c3001a5144172a10f3a8b30eb50c28d485b900210b91ed1a0cf04f04",
+    "sample_rate_hz": 160,
+    "target_labels": false
+  },
+  "milestone": "C84FL",
+  "planning_protocol": {
+    "path": "oaci/reports/C84F_FULL_FIELD_EXECUTION_AND_MANIFEST_PROTOCOL.json",
+    "sha256": "c6ab7dbed08711ceacd355183c4ad0f30d1fbef0804df86fc9159ab90327c28c",
+    "status": "planning_protocol_preserved_execution_lock_not_created"
+  },
+  "protected_state": {
+    "active_c84_jobs": 0,
+    "c84fl_gpu_jobs": 0,
+    "c84fl_training_or_forward": 0,
+    "remaining_subject_eeg_access": 0,
+    "same_label_oracle_access": 0,
+    "scientific_outcome_access": 0,
+    "target_label_access": 0,
+    "tracked_files_over_50_mib": 0,
+    "tracked_raw_eeg_weights_or_cache": 0
+  },
+  "regression": {
+    "C23": {
+      "deselected": 3,
+      "job": 895696,
+      "passed": 1023,
+      "skipped": 1,
+      "stderr_bytes": 0
+    },
+    "C65": {
+      "deselected": 3,
+      "job": 895695,
+      "passed": 612,
+      "skipped": 1,
+      "stderr_bytes": 0
+    },
+    "focused": {
+      "job": 895694,
+      "passed": 126,
+      "stderr_bytes": 0
+    },
+    "full": {
+      "deselected": 3,
+      "job": 895697,
+      "passed": 1947,
+      "skipped": 1,
+      "stderr_bytes": 0
+    },
+    "post_report_local_focused_passed": 15
+  },
+  "resource_projection": {
+    "complete_derived_bytes": 50175040112,
+    "complete_linear_training_gpu_hours": 14.175556,
+    "download_plus_derived_bytes": 243448568432,
+    "external_hard_limit_bytes": 2199023255552,
+    "gpu_hard_limit_hours": 250,
+    "remaining_linear_training_gpu_hours": 12.403611
+  },
+  "reuse": {
+    "canary_target_artifacts_are_complete_field": false,
+    "canary_target_subset_replay_required": true,
+    "failed_job_895366_artifacts_reusable": false,
+    "reusable_objects": [
+      "candidate_id",
+      "checkpoint",
+      "optimizer_state",
+      "genealogy_sidecar",
+      "strict_source_audit"
+    ]
+  },
+  "schema_version": "c84fl_overall_report_v1"
+}
