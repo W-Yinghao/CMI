@@ -123,3 +123,33 @@ def test_historical_lock_and_failed_attempt_are_preserved():
     assert failed["frozen_partial_state"]["complete_units"] == 73
     assert failed["protected_state"]["target_y_accesses"] == 0
     assert failed["governance"]["failed_root_reusable"] is False
+
+
+def test_replacement_execution_lock_replays_exact_scope_and_implementation():
+    lock_path = REPO_ROOT / "oaci/reports/C84L1C_EXECUTION_LOCK_V2.json"
+    lock = json.loads(lock_path.read_text())
+    assert runtime.verify_lock_self(lock_path, runtime.EXECUTION_LOCK_SHA_PATH) == (
+        "f9ebd88c72915bb41ba2d2d84a2a00c6748272021d48043c299bce52a1ad3813"
+    )
+    assert lock["status"] == runtime.LOCK_READY_STATUS
+    assert lock["implementation_commit"] == "d0159d1b2db26d796ae3f9853329a5851aa93222"
+    assert lock["implementation"]["entrypoint"] == "python -m oaci.multidataset.c84l1_canary_v2 run-real"
+    assert lock["runtime_bound_object_count"] == 125
+    assert lock["scope"]["total_units"] == 243
+    assert lock["instrumentation"]["linear_replay_abs_tolerance"] == 2e-5
+    assert lock["instrumentation"]["strict_identity_abs_tolerance"] == 1e-6
+    assert lock["historical_failed_attempt"]["partial_artifacts_reusable"] is False
+    assert lock["authorization"]["record_present_at_lock"] is False
+
+
+def test_replacement_authorization_fails_closed_without_creating_external_root(tmp_path):
+    lock = json.loads(runtime.EXECUTION_LOCK_PATH.read_text())
+    missing = tmp_path / "missing-authorization.json"
+    with pytest.raises(runtime.C84L1R1RuntimeError, match="authorization record is absent"):
+        runtime.verify_authorization_record(
+            lock,
+            runtime.verify_lock_self(runtime.EXECUTION_LOCK_PATH, runtime.EXECUTION_LOCK_SHA_PATH),
+            "afc5a6b",
+            missing,
+        )
+    assert not runtime.DEFAULT_EXTERNAL_ROOT.exists()
