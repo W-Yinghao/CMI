@@ -111,7 +111,7 @@ def test_replacement_runtime_requires_new_objects_and_fresh_authorization(tmp_pa
     assert runtime.EXECUTION_LOCK_PATH.name == "C84C_EXECUTION_LOCK_V3.json"
     assert runtime.CANARY_PROTOCOL_PATH.name == "C84_CANARY_PROTOCOL_V4.json"
     assert runtime.AUTHORIZATION_RECORD_PATH.name == "C84C_PI_AUTHORIZATION_RECORD_V3.json"
-    assert not runtime.AUTHORIZATION_RECORD_PATH.exists()
+    assert runtime.AUTHORIZATION_RECORD_PATH.exists()
     assert runtime.DEFAULT_EXTERNAL_ROOT.name == "oaci-c84-canary-v4"
     assert not (tmp_path / "output").exists()
 

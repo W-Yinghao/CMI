@@ -37,14 +37,21 @@ def test_execution_lock_v3_binds_scope_identity_and_split_tolerances():
     assert lock["runtime"]["failed_root_reusable"] is False
 
 
-def test_execution_lock_v3_preserves_failed_attempt_and_requires_fresh_authorization(tmp_path):
+def test_execution_lock_v3_preserves_failed_attempt_and_binds_fresh_authorization(tmp_path):
     lock = _lock()
     historical = lock["historical_lock_supersession"]
     assert historical["authorization_consumed_by_job"] == 895366
     assert historical["operative_for_execution"] is False
     assert lock["authorization"]["historical_authorization_reusable"] is False
     assert lock["authorization"]["failed_authorization_reused"] is False
-    assert not runtime.AUTHORIZATION_RECORD_PATH.exists()
+    record = runtime.verify_authorization_record(
+        lock,
+        "c198607fb9e46ea2353ffa57d6b71bfa966c36e8ece53fdc40292681bba8bd1a",
+        "a5feff377a18283dbe050d2feaa54126e5f924a9",
+        runtime.AUTHORIZATION_RECORD_PATH,
+    )
+    assert record["failed_authorization_reused"] is False
+    assert record["authorized_stage"] == "C84C"
     with pytest.raises(runtime.C84R3RuntimeError, match="fresh direct C84C replacement authorization"):
         runtime.verify_authorization_record(lock, "lock-sha", "lock-commit", tmp_path / "missing.json")
 
