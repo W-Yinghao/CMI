@@ -14,54 +14,43 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-14)
 
-The current external-validity milestone is the **C84FL fail-closed protocol and
-implementation reconciliation stop**:
+The current external-validity milestone is **C84L1P**, the prospective fixed-panel
+source-support deletion protocol and level-1 engineering-canary lock:
 
 ```text
-C84F planning protocol commit:  26f798ede818955927237b726e333590e80a13fa
-C84F planning protocol SHA-256: c6ab7dbed08711ceacd355183c4ad0f30d1fbef0804df86fc9159ab90327c28c
-C84FL blocker audit commit:     e141d2a7531d15ac6a420bdb3ee9163395e57407
-C84FL gate:                     C84F_CANARY_REUSE_DATA_VIEW_IMPLEMENTATION_RESOURCE_OR_MANIFEST_RECONCILIATION_REQUIRED
+C84FL blocked base:       6d6030f17dc2cdf8c8b180a9376632e238d42e75
+C84L1 protocol commit:    a90f0051ed41937737ac7ac0258a882d45cefb33
+C84L1 verification base:  12dc54fe0f853234b47913bd71f885b7b158414a
+repair protocol SHA-256:  b9fed16afe9961d0d25f4801fa29859a8acb87c091e125ffe57e20e72ad00f35
+C84L1C lock commit:       3eafd70795344c43e0c6326e5c190ecaea4c2934
+C84L1C lock SHA-256:      d6ccab97ebfbb1e1d571b71d5062e88dcfa08371ae9d53526cf7c25f45220e58
+gate:                     C84_LEVEL1_FIXED_PANEL_SUPPORT_DELETION_LOCKED_READY_FOR_ENGINEERING_CANARY_AUTHORIZATION
 ```
 
-The complete review artifact is
-[`reports/C84FL_OVERALL_REPORT.md`](reports/C84FL_OVERALL_REPORT.md), with a
-machine-readable companion and SHA-256 sidecar.
+Level 0 and all 972 level-0 IDs remain unchanged. Level 1 now deletes the fixed
+first source-training subject × `left_hand` cell before support and plan
+materialization: Lee A/B 31/16, Cho A/B 17/37, Physionet A/B 103/109. Exactly
+one of 24 cells is absent and every retained cell must have at least eight rows.
 
-C84FL replayed and registered all 243 reusable C84C model/state/source-audit
-objects, all 1,944 planned unit IDs, the remaining 1,701-unit/63-phase scope,
-the 729/243/729 waves, 944 target contexts and 76,464 candidate-context slices.
-It correctly treats the 243 C84C target artifacts as only three canary target
-slices, not a complete field.
+The 972 historical planned level-1 IDs remain preserved but non-operative; 972
+new IDs bind the deletion registry. The complete operative universe remains
+1,944 units. The future C84L1C scope is panel A / seed 5 / level 1, 243 units / 9
+phases, targets 19/24/106, engineering only.
 
-The stop is caused by a protocol-level gap discovered before adapter
-implementation: C84 enumerates levels 0 and 1 but never defines the level-1
-training intervention. The executable C84C constructor is fixed to level 0.
-Historical C78 level 1 requires a registered target-specific deleted
-source-domain-by-class cell, while C84 is a target-independent fixed-zoo design
-and binds no replacement cell or deterministic choice rule. Inventing that rule
-would change the scientific training object after lock. Of the remaining 1,701
-units, 729 level-0 units are mechanically parameterizable and 972 level-1 units
-are undefined; therefore no complete execution lock can be issued.
+The lock binds 39 implementation files and 107 runtime objects plus the accepted
+C84C manifest, plan hashes and model/source-audit registry. No C84L1C
+authorization record or external root exists. No real EEG, label, training,
+forward, GPU or target metric occurred in C84L1P. C84F/C84S have no lock.
 
-No full-field adapter, C84F execution lock, C84F authorization record or C84S
-lock exists. C84FL accessed no real EEG/labels, performed no training/forward,
-and allocated no GPU. The C84C accepted field remains unchanged and reusable
-after a future prospective level-1 repair.
+Regression: focused 163, C65 649,
+C23 1060, full 1984 passed; the
+cumulative suites have one explained C78F skip and three established C79
+deselections, with all stderr empty.
 
-Accepted C84FL blocker-state regressions:
-
-```text
-focused C84FL:   126 passed                         job 895694
-C65-C84FL:       612 passed, 1 skip, 3 deselected job 895695
-C23-C84FL:     1,023 passed, 1 skip, 3 deselected job 895696
-full OACI:     1,947 passed, 1 skip, 3 deselected job 895697
-```
-
-All four jobs were CPU-only with empty stderr. The next valid action is an
-additive, pre-execution PM protocol that defines level 1 per dataset and panel,
-including exact source rows/cell identity, support graph and RNG/plans. Only
-after that repair may a full-field adapter and C84F execution lock be created.
+The complete report is `reports/C84L1P_OVERALL_REPORT.md`. The next permissible
+action is a fresh direct `授权 C84L1C`; after successful canary review, C84FL2 may
+lock the remaining 1,458 units / 54 phases. This handoff does not authorize any
+real execution.
 
 ### Accepted C84C engineering base
 
