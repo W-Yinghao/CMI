@@ -1,0 +1,3 @@
+attempt_job,role,status,authorization_reused,artifacts_reused,target_y_access,target_scientific_metrics,retry_disposition
+895928,historical_failed_attempt,FAILED_PRESERVED,0,0,0,0,SUPERSEDED_BY_REPAIR_RELOCK_FRESH_AUTH
+896066,authorized_replacement,APPLICATION_COMPLETE,0,0,0,0,NOT_APPLICABLE

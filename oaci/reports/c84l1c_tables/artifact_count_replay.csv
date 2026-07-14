@@ -1,0 +1,16 @@
+dataset,artifact_kind,expected,observed,status
+Lee2019_MI,checkpoints,81,81,PASS
+Lee2019_MI,optimizer_states,81,81,PASS
+Lee2019_MI,sidecars,81,81,PASS
+Lee2019_MI,source_audit,81,81,PASS
+Lee2019_MI,target_unlabeled,81,81,PASS
+Cho2017,checkpoints,81,81,PASS
+Cho2017,optimizer_states,81,81,PASS
+Cho2017,sidecars,81,81,PASS
+Cho2017,source_audit,81,81,PASS
+Cho2017,target_unlabeled,81,81,PASS
+PhysionetMI,checkpoints,81,81,PASS
+PhysionetMI,optimizer_states,81,81,PASS
+PhysionetMI,sidecars,81,81,PASS
+PhysionetMI,source_audit,81,81,PASS
+PhysionetMI,target_unlabeled,81,81,PASS

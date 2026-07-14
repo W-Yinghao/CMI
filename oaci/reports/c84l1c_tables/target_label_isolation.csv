@@ -1,0 +1,10 @@
+counter,expected,observed,status
+target_y_accesses,0,0,PASS
+target_label_fields,0,0,PASS
+training_target_rows,0,0,PASS
+training_target_labels,0,0,PASS
+source_audit_rows_used_in_training,0,0,PASS
+target_outcome_retention,0,0,PASS
+target_outcome_retry,0,0,PASS
+target_scientific_metrics,0,0,PASS
+construction_evaluation_oracle_access,0,0,PASS

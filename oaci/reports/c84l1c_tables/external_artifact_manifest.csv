@@ -1,0 +1,7 @@
+object,path,sha256,bytes,status
+complete_manifest,/projects/EEG-foundation-model/yinghao/oaci-c84-level1-canary-v2/lock_f9ebd88c72915bb41ba2/C84L1C_COMPLETE_ENGINEERING_MANIFEST.json,3cf1366ccf40efc82a6bb2ffef56045e83c0f0e9670429973f23252371ad1c18,303526,PASS
+partial_manifest,/projects/EEG-foundation-model/yinghao/oaci-c84-level1-canary-v2/lock_f9ebd88c72915bb41ba2/partial_artifact_manifest.json,91eb2226a66489daeb017ac342ed12b113b4c06b34345cf0baafdb5935ea3dc5,201725,PASS
+authorization_consumed,/projects/EEG-foundation-model/yinghao/oaci-c84-level1-canary-v2/lock_f9ebd88c72915bb41ba2/authorization_consumed.json,c11e73fd1be1264dd61719d3f149142ebe5e9cd442b621a2fda220fae0417552,860,PASS
+attempt_ledger,/projects/EEG-foundation-model/yinghao/oaci-c84-level1-canary-v2/lock_f9ebd88c72915bb41ba2/execution_attempts.jsonl,611bef2f9c6acd75867a3dae8fc032d50c5545895c207c8a0aba1469425dc8fd,6252,PASS
+slurm_stdout,/home/infres/yinwang/CMI_AAAI/c84l1c_v2_logs/c84l1c-v2-896066.out,0b5388d3ad46ae0172c1e520edc970ba40de9997249ebec89215f0ea9d615b92,332338,PASS
+slurm_stderr,/home/infres/yinwang/CMI_AAAI/c84l1c_v2_logs/c84l1c-v2-896066.err,480ef0dd64c2a11b54b74b461e6169b28116f84168c25fb5234e6bdaf177ab27,1615,PASS
