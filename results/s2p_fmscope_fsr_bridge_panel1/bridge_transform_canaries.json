@@ -1,0 +1,22 @@
+{
+  "canaries": [
+    {
+      "dataset": "eegmat",
+      "fold": 0,
+      "global_subject_transformed_sha256": "f99dcf847041b51193318fd4c08ce6fa18ddcef143be6d01e58c3eb07fd227ed",
+      "outer_seed": 42,
+      "quantization_decimals": 8,
+      "source_subject_test_transformed_sha256": "04a3673689978052818bcedfd1c26186886386b4a9a3abd5249fbadb4fb78cff",
+      "source_subject_train_transformed_sha256": "925eacaf89d6b00d608e52e7695bb0850e4315dce8c562057a8c7c3384718721"
+    },
+    {
+      "dataset": "sleepdep",
+      "fold": 0,
+      "global_subject_transformed_sha256": "58b086c358f4eb7eb6f5b365b79da1727267c8ab98b446ad929a0370ab67f3f3",
+      "outer_seed": 42,
+      "quantization_decimals": 8,
+      "source_subject_test_transformed_sha256": "d1ea86c39f4347d900ae9c9ac74ba5b4484c0be5842a04f80fc950d5be829507",
+      "source_subject_train_transformed_sha256": "02e9dbe1768a18aa4e6c178e513fb37599c00db829d15780003a21a2f8203e56"
+    }
+  ]
+}

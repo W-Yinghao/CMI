@@ -1,0 +1,13 @@
+{
+  "best_seed_fold_draw_selection": false,
+  "global_oracle_classification": "TRANSDUCTIVE_DIAGNOSTIC_ONLY",
+  "global_oracle_uses_complete_cohort_features": true,
+  "global_oracle_uses_complete_cohort_subject_ids": true,
+  "heldout_information_used_for_rank_or_null_selection": false,
+  "heldout_subject_ids_use": "POST_HOC_TRANSFERABILITY_DIAGNOSTIC_ONLY",
+  "heldout_task_labels_use": "FROZEN_STRATIFIED_OUTER_SPLIT_AND_FINAL_SCORING_ONLY",
+  "pass": true,
+  "source_only_eraser_uses_heldout_features": false,
+  "source_only_eraser_uses_heldout_subject_ids": false,
+  "source_task_head_uses_heldout_features_or_labels": false
+}

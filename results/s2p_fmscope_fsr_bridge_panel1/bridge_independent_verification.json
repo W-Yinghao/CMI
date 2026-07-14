@@ -1,0 +1,115 @@
+{
+  "all_checks_pass": true,
+  "checks": [
+    {
+      "check": "official_commit",
+      "detail": "09885016a00db6c7de0074304c455c50685100c9",
+      "pass": true
+    },
+    {
+      "check": "eegmat_cache_hash",
+      "detail": "b4ed9917eeb9cac2eaea911903700da7ce269c40ebb53d0039e93d88403875bc",
+      "pass": true
+    },
+    {
+      "check": "eegmat_shape",
+      "detail": "(1707, 200)",
+      "pass": true
+    },
+    {
+      "check": "eegmat_asset_manifest",
+      "detail": "{'dataset': 'eegmat', 'role': 'positive_reference', 'external_repository': 'https://github.com/Jimmy110101013/fmscope', 'external_commit': '09885016a00db6c7de0074304c455c50685100c9', 'cache_relative_path': 'reproduction/data/features_cache/frozen_cbramod_eegmat_perwindow.npz', 'cache_sha256': 'b4ed9917eeb9cac2eaea911903700da7ce269c40ebb53d0039e93d88403875bc', 'cache_size_bytes': '1271925', 'feature_rows': '1707', 'feature_dim': '200', 'subjects': '36', 'recordings': '72', 'labels': '2', 'raw_eeg_in_repository': 'False'}",
+      "pass": true
+    },
+    {
+      "check": "sleepdep_cache_hash",
+      "detail": "da8280e0a469f41c65cea97572dd37e6bd2fd104c05a83d49b26684645a2b091",
+      "pass": true
+    },
+    {
+      "check": "sleepdep_shape",
+      "detail": "(4207, 200)",
+      "pass": true
+    },
+    {
+      "check": "sleepdep_asset_manifest",
+      "detail": "{'dataset': 'sleepdep', 'role': 'no_consensus_negative_control', 'external_repository': 'https://github.com/Jimmy110101013/fmscope', 'external_commit': '09885016a00db6c7de0074304c455c50685100c9', 'cache_relative_path': 'reproduction/data/features_cache/frozen_cbramod_sleepdep_perwindow.npz', 'cache_sha256': 'da8280e0a469f41c65cea97572dd37e6bd2fd104c05a83d49b26684645a2b091', 'cache_size_bytes': '3131881', 'feature_rows': '4207', 'feature_dim': '200', 'subjects': '36', 'recordings': '72', 'labels': '2', 'raw_eeg_in_repository': 'False'}",
+      "pass": true
+    },
+    {
+      "check": "b0_eegmat_gate_replay",
+      "detail": "{'dataset': 'eegmat', 'role': 'positive_reference', 'embed_dim': '200', 'n_subjects': '36', 'rank_subject_axis': '35', 'degenerate': 'False', 'cond_shrunk': '5120.507153288784', 'chance': '0.027777777777777776', 'subj_ba_linear_pre': '0.7046913580246914', 'subj_ba_linear_post': '0.0', 'subj_ba_mlp_post': '0.025308641975308643', 'label_ba_raw': '0.6944444444444443', 'label_ba_erased': '0.75', 'label_ba_delta': '0.05555555555555558', 'label_ba_raw_std': '1.1102230246251565e-16', 'label_ba_erased_std': '0.0', 'label_ba_delta_std': '0.0', 'gate': '0.55', 'interpretable': 'True', 'historical_bundled_delta': '0.06018518518518512', 'live_minus_historical_delta': '-0.004629629629629539'}",
+      "pass": true
+    },
+    {
+      "check": "b0_sleepdep_execution_replay",
+      "detail": "{'dataset': 'sleepdep', 'role': 'no_consensus_negative_control', 'embed_dim': '200', 'n_subjects': '36', 'rank_subject_axis': '35', 'degenerate': 'False', 'cond_shrunk': '10560.257897064996', 'chance': '0.027777777777777776', 'subj_ba_linear_pre': '0.7320760233918128', 'subj_ba_linear_post': '0.0036111111111111114', 'subj_ba_mlp_post': '0.05543859649122808', 'label_ba_raw': '0.5694444444444444', 'label_ba_erased': '0.6111111111111112', 'label_ba_delta': '0.04166666666666674', 'label_ba_raw_std': '0.0', 'label_ba_erased_std': '0.0', 'label_ba_delta_std': '0.0', 'gate': '0.55', 'interpretable': 'True', 'historical_bundled_delta': '0.0092592592592593', 'live_minus_historical_delta': '0.03240740740740744'}",
+      "pass": true
+    },
+    {
+      "check": "fold_assignments_exact",
+      "detail": "observed=2160 expected=2160",
+      "pass": true
+    },
+    {
+      "check": "fresh_row_count",
+      "detail": "90",
+      "pass": true
+    },
+    {
+      "check": "exact_row_count",
+      "detail": "90",
+      "pass": true
+    },
+    {
+      "check": "random_row_count",
+      "detail": "12000",
+      "pass": true
+    },
+    {
+      "check": "random_draw_contract",
+      "detail": "groups=120 failures=[]",
+      "pass": true
+    },
+    {
+      "check": "same_rank_contract",
+      "detail": "[]",
+      "pass": true
+    },
+    {
+      "check": "variance_match_contract",
+      "detail": "[]",
+      "pass": true
+    },
+    {
+      "check": "claim_ledger_independent_replay",
+      "detail": "[]",
+      "pass": true
+    },
+    {
+      "check": "transform_canaries_independent",
+      "detail": "[]",
+      "pass": true
+    },
+    {
+      "check": "subject_method_metric_canaries",
+      "detail": "{'metric_failures': [], 'prediction_hash_differences_from_algebraic_order': [('eegmat', 'global_subject_leace', 'fresh', 'prediction_sha256'), ('eegmat', 'global_subject_leace', 'exact', 'prediction_sha256'), ('eegmat', 'source_subject_leace', 'fresh', 'prediction_sha256'), ('eegmat', 'source_subject_leace', 'exact', 'prediction_sha256'), ('sleepdep', 'global_subject_leace', 'fresh', 'prediction_sha256'), ('sleepdep', 'global_subject_leace', 'exact', 'prediction_sha256'), ('sleepdep', 'source_subject_leace', 'fresh', 'prediction_sha256'), ('sleepdep', 'source_subject_leace', 'exact', 'prediction_sha256')], 'nll_tolerance': 1e-05, 'ba_kappa_tolerance': 1e-12}",
+      "pass": true
+    },
+    {
+      "check": "target_information_firewall",
+      "detail": "{'best_seed_fold_draw_selection': False, 'global_oracle_classification': 'TRANSDUCTIVE_DIAGNOSTIC_ONLY', 'global_oracle_uses_complete_cohort_features': True, 'global_oracle_uses_complete_cohort_subject_ids': True, 'heldout_information_used_for_rank_or_null_selection': False, 'heldout_subject_ids_use': 'POST_HOC_TRANSFERABILITY_DIAGNOSTIC_ONLY', 'heldout_task_labels_use': 'FROZEN_STRATIFIED_OUTER_SPLIT_AND_FINAL_SCORING_ONLY', 'pass': True, 'source_only_eraser_uses_heldout_features': False, 'source_only_eraser_uses_heldout_subject_ids': False, 'source_task_head_uses_heldout_features_or_labels': False}",
+      "pass": true
+    },
+    {
+      "check": "analysis_go_nogo_scope",
+      "detail": "{'b0_exact_replication_pass': True, 'eegmat_positive_reference_pass': True, 'exact_head_complete': True, 'external_assets_hash_pinned': True, 'fine_tuning_used': False, 'foundation_training_used': False, 'four_protocols_complete': True, 'fresh_probe_complete': True, 'independent_verifier_pass': True, 'launch_panel2': False, 'launch_phase_d1_training': False, 'panel1_compute_complete': True, 'panel1_pm_review_ready': True, 'panel1_scientific_closure': False, 'same_rank_random_draws_per_fold': 100, 'sleepdep_negative_control_execution_pass': True, 'target_information_firewall_pass': True, 'variance_match_tolerance': 1e-10, 'variance_matched_random_draws_per_fold': 100}",
+      "pass": true
+    }
+  ],
+  "manuscript_writing_authorized": false,
+  "panel1_scientific_closure_recommended": true,
+  "panel2_auto_launch": false,
+  "phase_d1_training_auto_launch": false,
+  "verifier": "independent_low_level_panel1_replay"
+}

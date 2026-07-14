@@ -1,0 +1,185 @@
+{
+  "cell_endpoint_results": [
+    {
+      "dataset": "eegmat",
+      "endpoint": "fresh_probe",
+      "identity_specificity_verdict": "POSITIVE_NOT_FAMILYWISE_SPECIFIC",
+      "information_regime": "global",
+      "same_rank_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.019801980198019802,
+        "holm_adjusted_p_eight_cell_family": 0.13861386138613863,
+        "mean_delta_balanced_accuracy": 0.014690476190476181,
+        "std_delta_balanced_accuracy": 0.015087641079744677
+      },
+      "subject_leace_mean_delta_balanced_accuracy": 0.0517857142857143,
+      "variance_matched_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.0297029702970297,
+        "holm_adjusted_p_eight_cell_family": 0.0891089108910891,
+        "mean_delta_balanced_accuracy": 0.025636904761904757,
+        "std_delta_balanced_accuracy": 0.012387765161793692
+      }
+    },
+    {
+      "dataset": "eegmat",
+      "endpoint": "exact_head",
+      "identity_specificity_verdict": "REMOVAL_HARMS_ENDPOINT",
+      "information_regime": "global",
+      "same_rank_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.9702970297029703,
+        "holm_adjusted_p_eight_cell_family": 1.0,
+        "mean_delta_balanced_accuracy": -0.0014404761904761912,
+        "std_delta_balanced_accuracy": 0.014504541939331697
+      },
+      "subject_leace_mean_delta_balanced_accuracy": -0.03035714285714286,
+      "variance_matched_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.009900990099009901,
+        "holm_adjusted_p_eight_cell_family": 0.07920792079207921,
+        "mean_delta_balanced_accuracy": -0.11641666666666667,
+        "std_delta_balanced_accuracy": 0.030800676721125877
+      }
+    },
+    {
+      "dataset": "eegmat",
+      "endpoint": "fresh_probe",
+      "identity_specificity_verdict": "NO_ENDPOINT_CHANGE",
+      "information_regime": "source",
+      "same_rank_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.8415841584158416,
+        "holm_adjusted_p_eight_cell_family": 1.0,
+        "mean_delta_balanced_accuracy": 0.012678571428571421,
+        "std_delta_balanced_accuracy": 0.013938917318773595
+      },
+      "subject_leace_mean_delta_balanced_accuracy": 0.0,
+      "variance_matched_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.9801980198019802,
+        "holm_adjusted_p_eight_cell_family": 1.0,
+        "mean_delta_balanced_accuracy": 0.024648809523809517,
+        "std_delta_balanced_accuracy": 0.013547149820987883
+      }
+    },
+    {
+      "dataset": "eegmat",
+      "endpoint": "exact_head",
+      "identity_specificity_verdict": "POSITIVE_NOT_FAMILYWISE_SPECIFIC",
+      "information_regime": "source",
+      "same_rank_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.10891089108910891,
+        "holm_adjusted_p_eight_cell_family": 0.5445544554455446,
+        "mean_delta_balanced_accuracy": -0.0011547619047619067,
+        "std_delta_balanced_accuracy": 0.01377733493712481
+      },
+      "subject_leace_mean_delta_balanced_accuracy": 0.014285714285714258,
+      "variance_matched_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.009900990099009901,
+        "holm_adjusted_p_eight_cell_family": 0.07920792079207921,
+        "mean_delta_balanced_accuracy": -0.11555357142857142,
+        "std_delta_balanced_accuracy": 0.026891612985786132
+      }
+    },
+    {
+      "dataset": "sleepdep",
+      "endpoint": "fresh_probe",
+      "identity_specificity_verdict": "POSITIVE_NOT_FAMILYWISE_SPECIFIC",
+      "information_regime": "global",
+      "same_rank_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.019801980198019802,
+        "holm_adjusted_p_eight_cell_family": 0.13861386138613863,
+        "mean_delta_balanced_accuracy": 0.010226190476190476,
+        "std_delta_balanced_accuracy": 0.016266184962053197
+      },
+      "subject_leace_mean_delta_balanced_accuracy": 0.04464285714285713,
+      "variance_matched_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.009900990099009901,
+        "holm_adjusted_p_eight_cell_family": 0.07920792079207921,
+        "mean_delta_balanced_accuracy": 0.006690476190476186,
+        "std_delta_balanced_accuracy": 0.012843886241124123
+      }
+    },
+    {
+      "dataset": "sleepdep",
+      "endpoint": "exact_head",
+      "identity_specificity_verdict": "POSITIVE_NOT_FAMILYWISE_SPECIFIC",
+      "information_regime": "global",
+      "same_rank_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.009900990099009901,
+        "holm_adjusted_p_eight_cell_family": 0.07920792079207921,
+        "mean_delta_balanced_accuracy": 0.005363095238095239,
+        "std_delta_balanced_accuracy": 0.016673428290682166
+      },
+      "subject_leace_mean_delta_balanced_accuracy": 0.058928571428571414,
+      "variance_matched_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.009900990099009901,
+        "holm_adjusted_p_eight_cell_family": 0.07920792079207921,
+        "mean_delta_balanced_accuracy": -0.05470238095238097,
+        "std_delta_balanced_accuracy": 0.02709088094990676
+      }
+    },
+    {
+      "dataset": "sleepdep",
+      "endpoint": "fresh_probe",
+      "identity_specificity_verdict": "REMOVAL_HARMS_ENDPOINT",
+      "information_regime": "source",
+      "same_rank_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.900990099009901,
+        "holm_adjusted_p_eight_cell_family": 1.0,
+        "mean_delta_balanced_accuracy": 0.013119047619047619,
+        "std_delta_balanced_accuracy": 0.012554970861837116
+      },
+      "subject_leace_mean_delta_balanced_accuracy": -0.00357142857142857,
+      "variance_matched_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.8415841584158416,
+        "holm_adjusted_p_eight_cell_family": 1.0,
+        "mean_delta_balanced_accuracy": 0.012416666666666663,
+        "std_delta_balanced_accuracy": 0.014988910939609534
+      }
+    },
+    {
+      "dataset": "sleepdep",
+      "endpoint": "exact_head",
+      "identity_specificity_verdict": "REMOVAL_HARMS_ENDPOINT",
+      "information_regime": "source",
+      "same_rank_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.7227722772277227,
+        "holm_adjusted_p_eight_cell_family": 1.0,
+        "mean_delta_balanced_accuracy": 0.007190476190476192,
+        "std_delta_balanced_accuracy": 0.015764119606240235
+      },
+      "subject_leace_mean_delta_balanced_accuracy": -0.0017857142857142904,
+      "variance_matched_random": {
+        "empirical_one_sided_p_random_ge_subject": 0.019801980198019802,
+        "holm_adjusted_p_eight_cell_family": 0.07920792079207921,
+        "mean_delta_balanced_accuracy": -0.06077976190476192,
+        "std_delta_balanced_accuracy": 0.02579904691585363
+      }
+    }
+  ],
+  "diagnostic_to_deployment_gaps": [
+    {
+      "dataset": "eegmat",
+      "endpoint": "fresh_probe",
+      "global_minus_source_delta_balanced_accuracy": 0.0517857142857143
+    },
+    {
+      "dataset": "eegmat",
+      "endpoint": "exact_head",
+      "global_minus_source_delta_balanced_accuracy": -0.044642857142857116
+    },
+    {
+      "dataset": "sleepdep",
+      "endpoint": "fresh_probe",
+      "global_minus_source_delta_balanced_accuracy": 0.0482142857142857
+    },
+    {
+      "dataset": "sleepdep",
+      "endpoint": "exact_head",
+      "global_minus_source_delta_balanced_accuracy": 0.06071428571428571
+    }
+  ],
+  "fresh_probe_and_exact_head_separate": true,
+  "multiplicity": "Holm across 8 dataset_x_regime_x_endpoint cells per null family",
+  "no_cross_cell_pooled_inference": true,
+  "primary_metric": "recording_balanced_accuracy",
+  "random_repetitions": 100,
+  "same_rank_random_primary": true,
+  "variance_matched_random_sensitivity": true
+}

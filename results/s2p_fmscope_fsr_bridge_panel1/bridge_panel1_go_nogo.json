@@ -1,0 +1,21 @@
+{
+  "b0_exact_replication_pass": true,
+  "eegmat_positive_reference_pass": true,
+  "exact_head_complete": true,
+  "external_assets_hash_pinned": true,
+  "fine_tuning_used": false,
+  "foundation_training_used": false,
+  "four_protocols_complete": true,
+  "fresh_probe_complete": true,
+  "independent_verifier_pass": true,
+  "launch_panel2": false,
+  "launch_phase_d1_training": false,
+  "panel1_compute_complete": true,
+  "panel1_pm_review_ready": true,
+  "panel1_scientific_closure": false,
+  "same_rank_random_draws_per_fold": 100,
+  "sleepdep_negative_control_execution_pass": true,
+  "target_information_firewall_pass": true,
+  "variance_match_tolerance": 1e-10,
+  "variance_matched_random_draws_per_fold": 100
+}

@@ -1,0 +1,19 @@
+{
+  "datasets": [
+    {
+      "dataset": "eegmat",
+      "local_rank": 35,
+      "public_rank": 35,
+      "transformed_max_abs_diff": 3.7470027081099033e-16
+    },
+    {
+      "dataset": "sleepdep",
+      "local_rank": 35,
+      "public_rank": 35,
+      "transformed_max_abs_diff": 1.1518563880486e-15
+    }
+  ],
+  "operator_equivalence_pass": true,
+  "public_commit": "09885016a00db6c7de0074304c455c50685100c9",
+  "tolerance": 1e-10
+}
