@@ -272,10 +272,9 @@ def test_C84P_historical_commit_had_no_lock_and_only_C84C_locks_exist():
         cwd=protocol.REPO_ROOT, check=True, capture_output=True, text=True,
     ).stdout.splitlines()
     assert not [path for path in historical if "C84" in path and "EXECUTION_LOCK" in path]
-    assert {path.name for path in protocol.REPORT_DIR.glob("C84*EXECUTION_LOCK*.json")} == {
-        "C84C_EXECUTION_LOCK.json",
-        "C84C_EXECUTION_LOCK_V2.json",
-    }
+    current = {path.name for path in protocol.REPORT_DIR.glob("C84*EXECUTION_LOCK*.json")}
+    assert {"C84C_EXECUTION_LOCK.json", "C84C_EXECUTION_LOCK_V2.json"} <= current
+    assert not any(name.startswith(("C84F_", "C84S_")) for name in current)
     forbidden = {".npy", ".npz", ".pt", ".pth", ".ckpt", ".pkl", ".fif", ".edf", ".gdf", ".mat"}
     c84_paths = [path for path in (protocol.REPO_ROOT / "oaci").rglob("*C84*") if path.is_file()]
     assert not any(path.suffix.lower() in forbidden for path in c84_paths)

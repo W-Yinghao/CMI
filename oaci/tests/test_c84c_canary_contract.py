@@ -138,9 +138,10 @@ def test_execution_lock_replays_and_binds_final_adapter():
     assert lock["authorization"]["record_present_at_lock"] is False
 
 
-def test_C84R2_preserves_V1_and_adds_only_the_V2_canary_lock():
+def test_C84R2_preserves_V1_and_V2_while_later_locks_remain_canary_only():
     names = {path.name for path in canary.REPORT_DIR.glob("C84*EXECUTION_LOCK*.json")}
-    assert names == {"C84C_EXECUTION_LOCK.json", "C84C_EXECUTION_LOCK_V2.json"}
+    assert {"C84C_EXECUTION_LOCK.json", "C84C_EXECUTION_LOCK_V2.json"} <= names
+    assert not any(name.startswith(("C84F_", "C84S_")) for name in names)
 
 
 def test_canary_protocol_forbids_all_scientific_outputs():
