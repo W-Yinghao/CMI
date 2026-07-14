@@ -107,7 +107,10 @@ def test_leading_numeric_suite_parser_restores_c34s():
     assert suites.milestone_number("test_c34s_artifact_hygiene.py") == 34
     assert suites.milestone_number("test_c84r2_canary_runtime_repair.py") == 84
     assert {"test_c84_multidataset_external_validity.py", "test_c84r_montage_repair.py",
-            "test_c84c_canary_contract.py"} <= {path.name for path in suites.suite_files("focused")}
+            "test_c84c_canary_contract.py", "test_c84l1_intervention.py",
+            "test_c84l1_protocol_lock.py", "test_c84l1_canary_contract.py"} <= {
+                path.name for path in suites.suite_files("focused")
+            }
 
 
 def test_migration_table_is_complete_and_changed():
