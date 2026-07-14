@@ -1,0 +1,57 @@
+{
+  "best_val_used_for_primary": false,
+  "common_step_based_lr_schedule": true,
+  "compute_budget_pm_approved": false,
+  "downstream_submitted": false,
+  "estimated_snapshot_storage_bytes": 948955024,
+  "estimated_training_gpu_hours_range": [
+    103.624,
+    168.772
+  ],
+  "exposure_updates": [
+    18750,
+    93750
+  ],
+  "external_validation_datasets": [
+    "SEED-V",
+    "ISRUC_S3"
+  ],
+  "faced_primary_metric": "cohen_kappa",
+  "fixed_group_mix_exact": true,
+  "fixed_update_primary_snapshots": true,
+  "historical_checkpoints_used_as_factorial_cells": false,
+  "immutable_snapshots": 16,
+  "independent_verifier_pass": true,
+  "init_seeds": [
+    0,
+    1
+  ],
+  "launch_phase_d1": false,
+  "launch_status": "HELD_FOR_PM_TRAINING_AUTHORIZATION",
+  "loader_and_mask_seed_fields_separate": true,
+  "lr_high_horizon_updates": 93750,
+  "phase": "D1_unique_data_x_cumulative_exposure_protocol_preflight",
+  "protocol_preflight_pass": true,
+  "same_initial_state_across_u_arms": true,
+  "same_subset_across_init_seeds": true,
+  "scientific_name": "Unique-data volume x cumulative training exposure",
+  "stream_seed_separate_and_preregistered": true,
+  "subject_disjoint_pretrain_val_preserved": true,
+  "subset_seed_separate_from_init_seed": true,
+  "subset_seeds": [
+    0,
+    1
+  ],
+  "target_labels_used": false,
+  "target_nll_secondary": true,
+  "training_submitted": false,
+  "training_trajectories": 8,
+  "u200_nested_in_u1000": true,
+  "unique_data_levels_h": [
+    200,
+    1000
+  ],
+  "validation_every_updates": 1875,
+  "variance_partition_reintroduced": false,
+  "warmup_updates": 0
+}

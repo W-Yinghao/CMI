@@ -1,0 +1,20 @@
+{
+  "blockers": [],
+  "common_high_horizon_lr": "PASS",
+  "fixed_group_mix": "PASS",
+  "fixed_update_primary_snapshots": "PASS",
+  "fully_crossed_subset_init": "PASS",
+  "historical_checkpoint_reuse": "FORBIDDEN_IN_PRIMARY_FACTORIAL",
+  "launch_phase_d1": false,
+  "nested_windows": "PASS",
+  "phase": "D1_unique_data_x_cumulative_exposure_design_redteam",
+  "remaining_scientific_limits": [
+    "U changes windows, subjects, recordings, and population breadth together",
+    "P changes updates, presentations, repeated exposure, and mask draws together",
+    "two subset seeds and two initialization seeds provide limited training-level replication",
+    "P_high continuation shares trajectory history with P_low by design"
+  ],
+  "validation_cadence": "PASS",
+  "variance_partition": "PERMANENTLY_EXCLUDED",
+  "verdict": "PASS_PROTOCOL_ONLY_TRAINING_HELD"
+}

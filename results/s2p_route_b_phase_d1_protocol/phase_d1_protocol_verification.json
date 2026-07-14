@@ -1,0 +1,75 @@
+{
+  "checks": [
+    {
+      "check": "four_subset_manifests",
+      "detail": "[(0, 200), (0, 1000), (1, 200), (1, 1000)]",
+      "pass": true
+    },
+    {
+      "check": "no_duplicate_windows",
+      "detail": "",
+      "pass": true
+    },
+    {
+      "check": "exact_window_counts",
+      "detail": "",
+      "pass": true
+    },
+    {
+      "check": "exact_nested_u200_in_u1000",
+      "detail": "",
+      "pass": true
+    },
+    {
+      "check": "fixed_group_mix_exact",
+      "detail": "",
+      "pass": true
+    },
+    {
+      "check": "subject_exposure_replay",
+      "detail": "",
+      "pass": true
+    },
+    {
+      "check": "fully_crossed_initial_pairing",
+      "detail": "",
+      "pass": true
+    },
+    {
+      "check": "sixteen_fixed_update_snapshots",
+      "detail": "",
+      "pass": true
+    },
+    {
+      "check": "common_high_horizon_lr",
+      "detail": "",
+      "pass": true
+    },
+    {
+      "check": "fixed_update_validation_cadence",
+      "detail": "",
+      "pass": true
+    },
+    {
+      "check": "snapshot_fail_closed_contract",
+      "detail": "fixed updates, no overwrite, no early stop, no target labels",
+      "pass": true
+    },
+    {
+      "check": "compute_budget_present",
+      "detail": "{'aggregate_optimistic': 103.624444, 'aggregate_conservative': 168.771667}",
+      "pass": true
+    },
+    {
+      "check": "launch_remains_held",
+      "detail": "HELD_FOR_PM_TRAINING_AUTHORIZATION",
+      "pass": true
+    }
+  ],
+  "downstream_launched": false,
+  "failures": [],
+  "pass": true,
+  "phase": "D1_protocol_preflight_independent_verification",
+  "phase_d1_training_authorized": false,
+  "training_launched": false
+}

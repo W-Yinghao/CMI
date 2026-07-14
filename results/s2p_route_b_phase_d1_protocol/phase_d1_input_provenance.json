@@ -1,0 +1,20 @@
+{
+  "absolute_paths_persisted": false,
+  "b1_benchmark_root_logical_path": "${B1_LAUNCH_ROOT}/results/s2p_route_b_33ch_b1",
+  "cbramod_root_logical_path": "${CBRAMOD_ROOT}",
+  "cbramod_source_files": {
+    "models/cbramod.py": "ddae5d17752857ffc051de81719477e119195a43c8c8559c79bb96293ba61ac2",
+    "models/criss_cross_transformer.py": "b1002e3e1d04e473726bb01c1f08cee5141d2306615b6af12ba6399f3ff63259",
+    "utils/util.py": "acb07a4c862803a59d219e920a849eba86c968854f4f814b9dad8402aaf252ff"
+  },
+  "d0_go_nogo_sha256": "8635309e6ddaa17e8dc1b31324ed35c1c5e1ede9586cc0fa3919099acd906e32",
+  "downstream_invoked": false,
+  "fixed_val_subjects_sha256": "219fff3eb74c5d9d622f13e47b4756f7ddd4a18e7b3cc77a32cdbae063e8b0d7",
+  "model_source_sha256": "becf308bb2fe18a32f71fcc7e95953cbd6fa78b7ca31eb28f7b8b7f77a301a36",
+  "repo_input_head": "95d8d43800dc54fa63dbd2ba9753ea6d346ec0be",
+  "route_b_channel_order_sha256": "a5bdd85dc42d794bdcf63143fff6677df586f58918da36a3eb179e94fb610462",
+  "route_b_group_mix_sha256": "e138202e03ef14397a3ed41049b108477844e48cf41c278d4d8722b2c2cb4224",
+  "training_invoked": false,
+  "tueg_metadata_logical_path": "${TUEG_PROCESSED_ROOT}/metadata.parquet",
+  "tueg_metadata_sha256": "bb5a920f9743c77e29117fa787255d13cdbac6f1f04011191bdc63d68e2cad48"
+}
