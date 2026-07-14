@@ -519,8 +519,15 @@ def _update_handoff(
     intro = f"""# OACI (Direction 1) - Codex Handoff
 
 **Purpose.** Everything a fresh agent needs to continue the OACI mechanism-audit
-and external-validity line without losing chronology, authorization boundaries
-or immutable evidence identities.
+and external-validity line without losing scientific context, chronology,
+authorization boundaries or immutable evidence identities. Read the scientific
+and collaboration sections before acting.
+
+> **One-sentence orientation.** OACI is a strict-DG (source-only, no target data)
+> EEG mechanism study. The method line is closed/negative; the surviving
+> diagnostic chain explains why source-only competence selection fails to
+> transport. C84 is a separate prospective external-validity branch and does
+> not turn historical diagnostics into a deployable method or selector.
 
 ---
 
@@ -544,7 +551,7 @@ gate:                       {protocol.SUCCESS_GATE}
 
 The lock reuses 243 accepted C84C level-0 and 243 accepted C84L1C level-1
 model/state/source-audit units. It rejects failed jobs 895366 and 895928. The
-remaining scope is 1,458 units / 54 phases in three paired waves of 486 units / 
+remaining scope is 1,458 units / 54 phases in three paired waves of 486 units /
 18 phases. Levels share model initialization; level 0 is the full source panel
 and level 1 is the fixed registered subject x `left_hand` deletion.
 

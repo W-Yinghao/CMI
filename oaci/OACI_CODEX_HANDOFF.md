@@ -1,73 +1,63 @@
-# OACI (Direction 1) — Codex Handoff
+# OACI (Direction 1) - Codex Handoff
 
-**Purpose.** Everything a fresh agent (Codex) needs to continue the **OACI mechanism-audit line** with no loss of
-context. Two things come FIRST, by the PM's instruction: **(§1) what C23–C31 actually established**, and **(§2) how
-this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2026-07-08. Read §1–§2 before anything.
+**Purpose.** Everything a fresh agent needs to continue the OACI mechanism-audit
+and external-validity line without losing scientific context, chronology,
+authorization boundaries or immutable evidence identities. Read the scientific
+and collaboration sections before acting.
 
-> **One-sentence orientation.** OACI is a **strict-DG (source-only, no target data) EEG mechanism study**. The method
-> line is **CLOSED / NEGATIVE** (C8 stop, C14 falsified, C21 estimand boundary locked). What survives is a
-> **read-only, DIAGNOSTIC-ONLY mechanism chain (C22→C31)** that dissects *why* source-only competence selection fails
-> to transport. **It is not a deployable method, has no selector, and never uses an oracle as a feature.** Nothing here
-> imports `cmi/` or `h2cmi/`.
+> **One-sentence orientation.** OACI is a strict-DG (source-only, no target data)
+> EEG mechanism study. The method line is closed/negative; the surviving
+> diagnostic chain explains why source-only competence selection fails to
+> transport. C84 is a separate prospective external-validity branch and does
+> not turn historical diagnostics into a deployable method or selector.
 
 ---
 
 ## 0. Current continuation state (2026-07-14)
 
-The current external-validity milestone is the completed **C84L1C** fixed-panel
-level-1 engineering canary:
+C84FL2 has completed the no-real-data dual-level full-field implementation and
+C84F execution-lock readiness milestone:
 
 ```text
-C84L1P readiness HEAD:       a0ec77b3a41084106713bf1f259e1daad2004607
-historical authorization:    05bfca18c58b67b6cc0b7c5d57dfc7dc1036f8ea
-failed job:                  895928
-C84L1R1 repair commit:       e35ba0bfb412fbdcbc6fb127db05af1d91f51440
-replacement implementation: d0159d1b2db26d796ae3f9853329a5851aa93222
-replacement lock commit:     afc5a6b5aedbb0e9d9b09acba0997657513e5268
-fresh authorization commit:  60dd725026559f880dde71907eb69773d51961d9
-successful job:              896066
-result commit:               a5820eb
-verification base:           ffdd7504d6fb0a31f8ad619f590cd7bbe4a3b4b8
-repair protocol SHA-256:     2e199f6f63dffd1b02c1e31102ed189e31bf6e4961465394230f8e9de1d4ddf0
-canary V2 SHA-256:           6e6bcb6b60726c76c8db0afc48e954d0e4a1cf68bfd29796987bfd6828355616
-field V6 SHA-256:            cd8646403a7564e9d1a7e3d64104483cbd56ac85bebaafa1244afdde8a8ed310
-replacement lock SHA-256:    f9ebd88c72915bb41ba2d2d84a2a00c6748272021d48043c299bce52a1ad3813
-complete manifest SHA-256:   3cf1366ccf40efc82a6bb2ffef56045e83c0f0e9670429973f23252371ad1c18
-result JSON SHA-256:         5bcccf351704c427d148ca1f44de26ef7e0b137d8de56aa0cf9ca3f6723abaf5
-gate:                        C84L1C_COMPLETE_ENGINEERING_REPLAY_PASSED_C84FL2_REVIEW_REQUIRED
+accepted base:              4d2ca75b2fc149c80c3e51e93709aab12e67813a
+C84FL2 protocol commit:     24a21d795ccfaa8cfd816f77eaa9f41867fad847
+C84FL2 implementation:      96af9f3751451f7def6d9b35b8ab395675e41394
+C84F lock commit:           47bf20fbc341c136da0e3ed997a490fb0f135c49
+verification/report base:   2a957a264293e119f5e5b0c8d89bcf3410eef755
+reconciliation SHA-256:     2ac679a5308d5d972b14d38e01cbc0d875ca6c5e547b752945fc831e38081f62
+field V7 SHA-256:           9db0219befecb11cf72386b96e28ee9d9430c3df5d7947298f102492f072b737
+full-field V2 SHA-256:      dafc44dbc24ea5d4d1cea61207479cbd986c9f8129b111682a00f15a44b1d15d
+C84F lock SHA-256:          f9df9dcefea59b05bfea24d1b744d82bfc933d76efde3f9aececf67401ea6b05
+gate:                       C84F_DUAL_LEVEL_FULL_FIELD_IMPLEMENTATION_AND_EXECUTION_LOCK_READY_FOR_PI_AUTHORIZATION
 ```
 
-Replacement job `896066` completed all three datasets, nine phases and 243
-level-1 units. It froze and byte/hash-replayed 243 checkpoints, optimizer
-states, sidecars, strict-source audit artifacts and canary target-unlabeled
-artifacts. Lee subject 31, Cho subject 17 and Physionet subject 103 each had the
-fixed `left_hand` source-training cell removed; every dataset retained exactly
-23/24 cells above the registered support floor. Paired model initialization and
-accepted C84C level-0 plan replay passed.
+The lock reuses 243 accepted C84C level-0 and 243 accepted C84L1C level-1
+model/state/source-audit units. It rejects failed jobs 895366 and 895928. The
+remaining scope is 1,458 units / 54 phases in three paired waves of 486 units /
+18 phases. Levels share model initialization; level 0 is the full source panel
+and level 1 is the fixed registered subject x `left_hand` deletion.
 
-The maximum in-memory linear replay error was `1.0967254638671875e-5` and the
-maximum persisted error was `3.337860107421875e-6`, both below `2e-5`.
-Softmax, repeat-logit and repeat-z errors were zero below `1e-6`. Target-y,
-target-label fields, construction/evaluation/oracle access, target scientific
-metrics and outcome-driven retention/retry were all zero.
+C84F enforces a no-new-target-access barrier until the atomic 1,944-unit model
+field freezes. It then permits label-free instrumentation of 118 subjects, 944
+contexts and 76,464 candidate-context slices. The six canary contexts are replay
+witnesses only. Linear tolerance is fixed at 2e-5 and strict replay tolerances at
+1e-6; target failure cannot retrain.
 
-Scheduler evidence is `squeue` plus the application attempt ledger; `sacct` was
-not used. Historical failed job `895928` remains preserved and nonreusable. Its
-authorization and partial artifacts were not reused by job `896066`.
+Runtime replay covers 79 repository objects, 38 implementation files, seven
+protocols, all 1,944 IDs and 2,430 dual-canary external artifacts. Synthetic
+validation is 25/25 and red team 66/66 PASS.
 
-Regression: focused 183, C65 669, C23 1,080 and full 2,004 passed. The
+Regression: focused 227, C65 713,
+C23 1124 and full 2048 passed. The
 cumulative suites have one explained C78F skip and three established C79
-deselections; all stderr is empty and no C84L1C job remains in `squeue`.
+deselections; all stderr is empty. Scheduler monitoring used `squeue`, not
+`sacct`.
 
-After PM review, C84C plus C84L1C provide 486 reusable model/state/source-audit
-units and 18 phases. Their six target contexts / 486 candidate-context slices
-are subset witnesses only. C84FL2 must still lock the remaining 1,458 units / 54
-phases and complete 944 contexts / 76,464 slices. C84F and C84S remain unlocked
-and unauthorized.
-
-The complete report is `reports/C84L1C_OVERALL_REPORT.md`. The next permissible
-action is PM review and a separate C84FL2 protocol/implementation milestone;
-this handoff authorizes no further execution.
+No real EEG, label, remaining training, forward, GPU or scientific outcome was
+accessed in C84FL2. C84F is not authorized or executed; C84S has no lock. The
+complete report is `reports/C84FL2_OVERALL_REPORT.md`. The next permissible
+action is PM review followed by a fresh direct `授权 C84F` statement
+bound to the unique current lock. This handoff itself authorizes nothing.
 
 ### Accepted C84C engineering base
 
