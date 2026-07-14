@@ -14,8 +14,54 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-14)
 
-The current external-validity milestone is the completed **C84C engineering
-canary**:
+The current external-validity milestone is the **C84FL fail-closed protocol and
+implementation reconciliation stop**:
+
+```text
+C84F planning protocol commit:  26f798ede818955927237b726e333590e80a13fa
+C84F planning protocol SHA-256: c6ab7dbed08711ceacd355183c4ad0f30d1fbef0804df86fc9159ab90327c28c
+C84FL blocker audit commit:     e141d2a7531d15ac6a420bdb3ee9163395e57407
+C84FL gate:                     C84F_CANARY_REUSE_DATA_VIEW_IMPLEMENTATION_RESOURCE_OR_MANIFEST_RECONCILIATION_REQUIRED
+```
+
+C84FL replayed and registered all 243 reusable C84C model/state/source-audit
+objects, all 1,944 planned unit IDs, the remaining 1,701-unit/63-phase scope,
+the 729/243/729 waves, 944 target contexts and 76,464 candidate-context slices.
+It correctly treats the 243 C84C target artifacts as only three canary target
+slices, not a complete field.
+
+The stop is caused by a protocol-level gap discovered before adapter
+implementation: C84 enumerates levels 0 and 1 but never defines the level-1
+training intervention. The executable C84C constructor is fixed to level 0.
+Historical C78 level 1 requires a registered target-specific deleted
+source-domain-by-class cell, while C84 is a target-independent fixed-zoo design
+and binds no replacement cell or deterministic choice rule. Inventing that rule
+would change the scientific training object after lock. Of the remaining 1,701
+units, 729 level-0 units are mechanically parameterizable and 972 level-1 units
+are undefined; therefore no complete execution lock can be issued.
+
+No full-field adapter, C84F execution lock, C84F authorization record or C84S
+lock exists. C84FL accessed no real EEG/labels, performed no training/forward,
+and allocated no GPU. The C84C accepted field remains unchanged and reusable
+after a future prospective level-1 repair.
+
+Accepted C84FL blocker-state regressions:
+
+```text
+focused C84FL:   126 passed                         job 895694
+C65-C84FL:       612 passed, 1 skip, 3 deselected job 895695
+C23-C84FL:     1,023 passed, 1 skip, 3 deselected job 895696
+full OACI:     1,947 passed, 1 skip, 3 deselected job 895697
+```
+
+All four jobs were CPU-only with empty stderr. The next valid action is an
+additive, pre-execution PM protocol that defines level 1 per dataset and panel,
+including exact source rows/cell identity, support graph and RNG/plans. Only
+after that repair may a full-field adapter and C84F execution lock be created.
+
+### Accepted C84C engineering base
+
+The completed **C84C engineering canary** remains the accepted reusable base:
 
 ```text
 C84C authorization commit:                 6949b62a51f7cd092c63be4ca24654e9ab7db068
@@ -868,13 +914,20 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C80E complete; C81 review required)
+## 7. How to continue (C84FL level-1 repair required)
 
-- Treat `C80-A_stable_low_regret_label_budget_frontier_across_training_seeds` as the locked C80 taxonomy and preserve the narrower source-relative interpretation in [C80_LABEL_BUDGET_FRONTIER.md](reports/C80_LABEL_BUDGET_FRONTIER.md).
-- Preserve the failed pre-evaluation job `894641`, additive descriptor repair, successful job `894646`, result hashes, both red teams, and the complete regression-attempt ledger.
-- Do not reinterpret `B*=1` as universal one-label sufficiency. Report the weak source baseline, non-low absolute regret, low top-1 rate, 16/16 leave-one-target B* changes, and existing-field retrospective status.
-- Keep target 4 excluded, the same-label oracle closed, construction/evaluation views disjoint, and trial ID/row order restricted to join/split/dependence keys.
-- Stop for PM review. C80E does not authorize C81, seed 5, BNCI2014_004, another target, active acquisition, same-label-oracle analysis, checkpoint recommendations, or manuscript drafting.
+- Preserve protocol commit `26f798e` and blocker commit `e141d2a`; do not rewrite
+  them or mislabel the planning protocol as an execution lock.
+- Prospectively define level 1 for every dataset/panel before implementing the
+  adapter. Bind exact source rows/cell identity, support graph, sampler/RNG,
+  model initialization and relation to the historical C78 deletion level.
+- Preserve all 243 C84C model/state/source-audit objects and the three canary
+  target slices. Do not reuse job-895366 artifacts.
+- After the repair protocol commit, implement and test the 1,701-unit field,
+  create a new scope-specific C84F lock, then wait for fresh direct PI
+  authorization.
+- Do not access remaining-subject EEG, train, forward, use GPU, open target
+  labels, create a C84S lock, or claim external validity before those steps.
 
 ---
 
