@@ -1,0 +1,6 @@
+object,old_value,new_value,scope,scientific_registry_changed,outcome_dependent_scientific_decision
+Wz_plus_b_float32_max_abs_tolerance,1e-6,1e-5,1040_term_linear_reconstruction_only,0,0
+softmax_max_abs_tolerance,1e-6,1e-6,unchanged,0,0
+repeat_logits_max_abs_tolerance,1e-6,1e-6,unchanged,0,0
+repeat_z_max_abs_tolerance,1e-6,1e-6,unchanged,0,0
+model_training_data_candidate_IDs,unchanged,unchanged,all_scientific_and_field_objects,0,0
