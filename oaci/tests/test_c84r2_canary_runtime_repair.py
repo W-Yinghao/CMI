@@ -181,14 +181,20 @@ def test_execution_lock_v2_exact_environment_and_loader_sources_replay():
     assert all(row["before_get_data"] for row in sources)
 
 
-def test_execution_lock_v2_has_no_authorization_or_field_science_lock():
+def test_execution_lock_v2_preserves_authorization_lifecycle_and_has_no_field_science_lock():
     lock = json.loads((runtime.REPORT_DIR / "C84C_EXECUTION_LOCK_V2.json").read_text())
     assert lock["status"] == runtime.LOCK_READY_STATUS
     assert lock["historical_lock_supersession"]["operative_for_execution"] is False
     assert lock["authorization"]["record_present_at_lock"] is False
-    assert not runtime.AUTHORIZATION_RECORD_PATH.exists()
+    if runtime.AUTHORIZATION_RECORD_PATH.exists():
+        record = json.loads(runtime.AUTHORIZATION_RECORD_PATH.read_text())
+        failure = json.loads((runtime.REPORT_DIR / "C84C_FAILED_ATTEMPT_895366.json").read_text())
+        assert record["direct_explicit_PI_authorization"] is True
+        assert failure["authorization_consumed"] is True
+        assert failure["job_id"] == 895366
     names = {path.name for path in runtime.REPORT_DIR.glob("C84*EXECUTION_LOCK*.json")}
-    assert names == {"C84C_EXECUTION_LOCK.json", "C84C_EXECUTION_LOCK_V2.json"}
+    assert {"C84C_EXECUTION_LOCK.json", "C84C_EXECUTION_LOCK_V2.json"} <= names
+    assert not any(name.startswith(("C84F_", "C84S_")) for name in names)
 
 
 def test_missing_authorization_fails_before_output_root(tmp_path, monkeypatch):
