@@ -1,0 +1,7 @@
+dataset,panel,level,level_intervention_id,source_training_order,deleted_source_subject,deleted_subject_is_first_locked,deleted_class,deleted_class_id,minimum_cell_support,target_independent,alternative_cell_allowed,outcome_dependent_choice
+Lee2019_MI,A,1,C84_LEVEL1_FIXED_PANEL_LEFT_HAND_CELL_DELETION_V1,31|28|5|32|21|54|18|10|13|4|24|15,31,1,left_hand,0,8,1,0,0
+Lee2019_MI,B,1,C84_LEVEL1_FIXED_PANEL_LEFT_HAND_CELL_DELETION_V1,16|39|44|49|36|7|2|27|3|38|23|30,16,1,left_hand,0,8,1,0,0
+Cho2017,A,1,C84_LEVEL1_FIXED_PANEL_LEFT_HAND_CELL_DELETION_V1,17|38|49|52|33|51|18|46|19|28|35|23,17,1,left_hand,0,8,1,0,0
+Cho2017,B,1,C84_LEVEL1_FIXED_PANEL_LEFT_HAND_CELL_DELETION_V1,37|8|13|29|5|27|42|32|26|6|22|15,37,1,left_hand,0,8,1,0,0
+PhysionetMI,A,1,C84_LEVEL1_FIXED_PANEL_LEFT_HAND_CELL_DELETION_V1,103|9|99|101|24|28|18|25|19|89|84|83,103,1,left_hand,0,8,1,0,0
+PhysionetMI,B,1,C84_LEVEL1_FIXED_PANEL_LEFT_HAND_CELL_DELETION_V1,109|49|14|91|26|51|6|66|81|2|11|46,109,1,left_hand,0,8,1,0,0

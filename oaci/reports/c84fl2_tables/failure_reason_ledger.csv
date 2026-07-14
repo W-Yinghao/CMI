@@ -1,0 +1,2 @@
+failure_id,stage,blocking,reason,real_data_access,scientific_outcome_access,repair_required
+NONE,C84FL2_protocol_generation,0,dual_canary_and_protocol_reconciliation_passed,0,0,0

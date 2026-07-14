@@ -1,0 +1,15 @@
+artifact,field_order,field,required,target_label_or_derived
+C84F_FIELD_UNIT_DESCRIPTOR,1,unit_id,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,2,checkpoint,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,3,optimizer,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,4,training_sidecar,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,5,source_audit,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,6,complete_target_unlabeled,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,7,target_context_index,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,8,interface_id,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,9,protocol_identities,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,10,level_intervention_id,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,11,model_reuse_provenance,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,12,target_artifact_provenance,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,13,canary_subset_replay,1,0
+C84F_FIELD_UNIT_DESCRIPTOR,14,failed_attempt_provenance,1,0
