@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import hashlib
 from pathlib import Path
 
 import numpy as np
@@ -113,3 +114,24 @@ def test_replacement_runtime_requires_new_objects_and_fresh_authorization(tmp_pa
     assert not runtime.AUTHORIZATION_RECORD_PATH.exists()
     assert runtime.DEFAULT_EXTERNAL_ROOT.name == "oaci-c84-canary-v4"
     assert not (tmp_path / "output").exists()
+
+
+def test_v4_protocols_bind_split_tolerances_and_no_failed_reuse():
+    canary_bytes = runtime.CANARY_PROTOCOL_PATH.read_bytes()
+    canary = json.loads(canary_bytes)
+    canary_sha = hashlib.sha256(canary_bytes).hexdigest()
+    assert runtime.CANARY_PROTOCOL_SHA_PATH.read_text().split()[0] == canary_sha
+    assert canary["instrumentation"]["linear_z_classifier_logits_abs_tolerance"] == 1e-5
+    assert canary["instrumentation"]["softmax_repeat_logits_repeat_z_abs_tolerance"] == 1e-6
+    assert canary["engineering_failure_895366"]["target_y_access"] == 0
+    assert canary["engineering_failure_895366"]["failed_artifact_reuse_allowed"] is False
+    assert canary["retry"]["retrain_all_243_units"] is True
+    assert canary["authorization"]["historical_authorization_reusable"] is False
+
+    field_bytes = runtime.FIELD_PROTOCOL_PATH.read_bytes()
+    field = json.loads(field_bytes)
+    assert runtime.FIELD_PROTOCOL_SHA_PATH.read_text().split()[0] == hashlib.sha256(field_bytes).hexdigest()
+    assert field["parent_canary_protocol_v4_sha256"] == canary_sha
+    assert "parent_canary_protocol_v3_sha256" not in field
+    assert field["canary_reuse"]["failed_attempt_895366_units_reusable"] == 0
+    assert field["canary_reuse"]["replacement_units_required"] == 243
