@@ -1,0 +1,2 @@
+job_id,state,exit_code,runtime,start,end,partition,node,cpus,memory,gpu,restarts,command,scheduler_record_source,environment,CUBLAS_WORKSPACE_CONFIG,PYTHONHASHSEED,scientific_output,status
+895441,COMPLETED,0:0,01:46:19,2026-07-14T11:17:17,2026-07-14T13:03:36,V100,node43,8,64G,1,0,/home/infres/yinwang/CMI_AAAI_oaci/oaci/slurm_c84c_canary_v3.sh,scontrol_show_job_captured_immediately_after_completion_before_controller_purge,c84c-eeg2025-v3-exact,:4096:8,0,0,PASS

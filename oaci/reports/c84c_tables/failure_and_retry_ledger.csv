@@ -1,0 +1,4 @@
+attempt_job,role,status,authorization_reused,artifacts_reused,target_y_access,target_scientific_metrics,retry_disposition
+895366,historical_failed_attempt,FAILED_PRESERVED,0,0,0,0,SUPERSEDED_BY_REPAIR_RELOCK_FRESH_AUTH
+895441,authorized_replacement,COMPLETED,0,0,0,0,NOT_APPLICABLE
+local_collector_1,post_execution_report_collector,FAILED_BEFORE_REPORT_WRITE,0,0,0,0,SCHEDULER_RECORD_PURGED_USE_CAPTURED_SNAPSHOT

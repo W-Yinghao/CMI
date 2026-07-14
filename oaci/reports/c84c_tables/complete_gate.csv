@@ -1,0 +1,7 @@
+gate_item,expected,observed,status
+candidate_units,243,243,PASS
+training_phases,9,9,PASS
+checkpoints_states_sidecars,243,243,PASS
+persisted_replay_units,243,243,PASS
+source_audit_artifacts,243,243,PASS
+target_unlabeled_artifacts,243,243,PASS

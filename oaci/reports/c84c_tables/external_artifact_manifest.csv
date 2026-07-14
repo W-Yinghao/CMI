@@ -1,0 +1,7 @@
+object,path,sha256,bytes,replay_status
+complete_manifest,/projects/EEG-foundation-model/yinghao/oaci-c84-canary-v4/lock_c198607fb9e46ea2353f/C84C_COMPLETE_CANARY_MANIFEST.json,530471ef370d5fa13a88e7e53cf1add558b8444b66675496187aa192b0606f2b,253356,PASS
+partial_manifest,/projects/EEG-foundation-model/yinghao/oaci-c84-canary-v4/lock_c198607fb9e46ea2353f/partial_artifact_manifest.json,f273964ff9dcb0d41b851af43f1a5fe6168176be767b22a8b6b09fcfc2bff85e,201718,PASS
+authorization_consumed,/projects/EEG-foundation-model/yinghao/oaci-c84-canary-v4/lock_c198607fb9e46ea2353f/authorization_consumed.json,93d140e69a98e1de0164a0838c7c86d9a4a2d28fdf91a5703648f632cf5aa1e1,776,PASS
+attempt_ledger,/projects/EEG-foundation-model/yinghao/oaci-c84-canary-v4/lock_c198607fb9e46ea2353f/execution_attempts.jsonl,0d843ab90363141a2fda5619d6a1b4a93f2fda565fbfb42292368bbb13879a0a,6231,PASS
+slurm_stdout,/projects/EEG-foundation-model/yinghao/oaci-c84-canary-v4/slurm-895441.out,c3fbd47fbfd66f1794cfa8f86e912351d74491bc0d83b60e9d734ef252dfebf6,275476,PASS
+slurm_stderr,/projects/EEG-foundation-model/yinghao/oaci-c84-canary-v4/slurm-895441.err,e89bf4633f8c585fd41f2a287605ca7885032307cffe49850b89b2b6777ab8bd,1224797,PASS
