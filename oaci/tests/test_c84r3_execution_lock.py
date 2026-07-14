@@ -56,10 +56,14 @@ def test_execution_lock_v3_preserves_failed_attempt_and_binds_fresh_authorizatio
         runtime.verify_authorization_record(lock, "lock-sha", "lock-commit", tmp_path / "missing.json")
 
 
-def test_no_c84f_or_c84s_execution_lock_exists():
+def test_historical_canary_lock_is_preserved_before_unexecuted_field_lock():
     names = {path.name for path in runtime.REPORT_DIR.glob("C84*EXECUTION_LOCK*.json")}
     assert "C84C_EXECUTION_LOCK_V3.json" in names
-    assert not any(name.startswith(("C84F_", "C84S_")) for name in names)
+    assert "C84F_EXECUTION_LOCK.json" in names
+    field_lock = json.loads((runtime.REPORT_DIR / "C84F_EXECUTION_LOCK.json").read_text())
+    assert field_lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
+    assert field_lock["scope"]["real_execution_at_lock"] is False
+    assert not any(name.startswith("C84S_") for name in names)
 
 
 def test_c84r3_readiness_is_reauthorization_only_and_red_team_complete():

@@ -4,6 +4,7 @@ import csv
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 
 from oaci.multidataset import c84l1_protocols as protocol
 from oaci.multidataset import c84r_v2_protocols as historical
@@ -98,7 +99,15 @@ def test_level1_canary_scope_is_exact_and_science_is_forbidden():
     )
 
 
-def test_only_C84L1C_execution_lock_is_created_by_C84L1P():
+def test_C84L1P_historical_commit_only_created_canary_lock():
+    historical = subprocess.run(
+        ["git", "ls-tree", "-r", "--name-only", "a0ec77b", "oaci/reports"],
+        cwd=ROOT, check=True, capture_output=True, text=True,
+    ).stdout.splitlines()
+    historical_locks = {Path(path).name for path in historical if "EXECUTION_LOCK" in path}
+    assert "C84L1C_EXECUTION_LOCK.json" in historical_locks
+    assert not any(name.startswith(("C84F_", "C84S_")) for name in historical_locks)
     lock_names = {path.name for path in REPORTS.glob("C84*EXECUTION_LOCK*.json")}
     assert "C84L1C_EXECUTION_LOCK.json" in lock_names
-    assert not any(name.startswith(("C84F_", "C84S_")) for name in lock_names)
+    assert "C84F_EXECUTION_LOCK.json" in lock_names
+    assert not any(name.startswith("C84S_") for name in lock_names)

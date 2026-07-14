@@ -2,6 +2,7 @@ import csv
 import hashlib
 import json
 from pathlib import Path
+import subprocess
 
 from oaci.multidataset import c84fl_protocol as protocol
 from oaci.multidataset import c84fl_reconciliation as reconciliation
@@ -72,11 +73,16 @@ def test_remaining_scope_contains_972_undefined_level1_units():
     assert sum(row["level"] == "0" for row in remaining) == 729
 
 
-def test_failure_state_creates_no_execution_or_science_lock():
-    assert not (REPORTS / "C84F_EXECUTION_LOCK.json").exists()
-    assert not (REPORTS / "C84F_EXECUTION_LOCK.sha256").exists()
+def test_historical_C84FL_failure_had_no_lock_and_current_field_lock_is_unexecuted():
+    historical = subprocess.run(
+        ["git", "ls-tree", "-r", "--name-only", "6d6030f17dc2cdf8c8b180a9376632e238d42e75", "oaci/reports"],
+        cwd=ROOT, check=True, capture_output=True, text=True,
+    ).stdout.splitlines()
+    assert "oaci/reports/C84F_EXECUTION_LOCK.json" not in historical
+    lock = json.loads((REPORTS / "C84F_EXECUTION_LOCK.json").read_text())
+    assert lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
+    assert lock["scope"]["real_execution_at_lock"] is False
     assert not any(REPORTS.glob("C84S*EXECUTION_LOCK*.json"))
-    assert not (ROOT / "oaci/multidataset/c84f_full_field.py").exists()
 
 
 def test_protocol_hash_sidecar_replays():
