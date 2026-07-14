@@ -1,0 +1,37 @@
+{
+  "authoring_gate_pass": true,
+  "claim_gate": {
+    "broad_benchmark_claim_supported": false,
+    "equivalence_claim_supported": false,
+    "fp_gem_improves_over_rct_supported": false,
+    "fp_gem_improves_over_spdim_bias_supported": false,
+    "fp_gem_improves_over_spdim_geodesic_supported": false,
+    "fp_gem_improves_over_source_only_supported": true,
+    "fp_gem_lower_sensitivity_than_joint_supported": false,
+    "fp_gem_lower_sensitivity_than_rct_supported": true,
+    "fp_gem_lower_sensitivity_than_spdim_supported": false,
+    "noninferiority_claim_supported": false,
+    "sota_claim_supported": false,
+    "universal_prevalence_robustness_supported": false
+  },
+  "p12_independent_review": {
+    "all_checks_pass": true,
+    "check_count": 31,
+    "failed_checks": [],
+    "result_sha256": "f3e4ca699b81e4fa2cab404109aa2dfe7aa1fbe58f25e2779d3d11651e40d48d",
+    "subject_clusters": 63,
+    "target_seed_units": 189
+  },
+  "p13_independent_review": {
+    "bootstrap_replicates": 10000,
+    "bootstrap_seed": 20260710,
+    "independent_ci_recompute_errors": 0,
+    "independent_metric_recompute_errors": 0,
+    "prediction_rows": 2916,
+    "q05_exact_units": 162,
+    "result_sha256": "cf9e403eb8be1c0548a95f9007eb7089ee3f93d8bee2401af22587903bffdb2f",
+    "subject_clusters": 54
+  },
+  "review_stage": "pre_write",
+  "status": "pass"
+}

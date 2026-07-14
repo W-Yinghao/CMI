@@ -1,0 +1,16 @@
+{
+  "allowed_claim": "FP-GEM was less sensitive than RCT on the frozen Lee2019_MI intervention, but was not distinguishable from Joint-GEM or SPDIM and had lower endpoint accuracy than the strongest baselines.",
+  "placement": "appendix",
+  "primary_claim_supported": false,
+  "prohibited_claims": [
+    "FP-GEM is prevalence-invariant",
+    "FP-GEM is more robust than Joint-GEM",
+    "FP-GEM is more robust than SPDIM",
+    "FP-GEM performs better under prevalence stress",
+    "sensitivity improvement implies utility improvement"
+  ],
+  "result_sha256": "cf9e403eb8be1c0548a95f9007eb7089ee3f93d8bee2401af22587903bffdb2f",
+  "role": "limitation_and_boundary_test",
+  "source_artifact": "h2cmi/results/fp_gem_prevalence/fp_gem_prevalence_results.csv",
+  "status": "frozen_boundary"
+}

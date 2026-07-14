@@ -1,22 +1,36 @@
 # Canonical Evidence Index
 
-Canonical scientific head: `cfb43d429263c3fbb69a35c086214fdca7d25301`.
+Canonical repaired-W1 scientific head: `cfb43d429263c3fbb69a35c086214fdca7d25301`.
 
-`result_commit=P11_THIS_COMMIT` is a non-hash sentinel meaning the Git commit containing this index. It avoids falsely attributing uncommitted P11 content to the P10 scientific head. The two self-referential index files omit SHA-256 because embedding their own digest would be circular; their Git blobs provide integrity.
+Canonical FP-GEM result head: `b5fb51581b634a194f395aa151babf4f5817ccae`.
 
-Use `canonical_current` artifacts for current W1 numbers. Historical and superseded artifacts remain available only under their listed allowed use.
+`result_commit=P11_THIS_COMMIT` identifies artifacts committed with P11. `result_commit=P14_THIS_COMMIT` identifies the Git commit containing this updated index and the listed P14 artifacts. These sentinels avoid falsely attributing writer-facing content to an earlier scientific result commit. The two self-referential index files omit SHA-256 because embedding their own digest would be circular; their Git blobs provide integrity.
+
+Use `canonical_current` artifacts for current repaired-W1 and FP-GEM evidence. Historical and superseded artifacts remain available only under their listed allowed use.
 
 ## canonical_current
 
 | path | result commit | SHA-256 | superseded by | allowed use | prohibited use |
 |---|---|---|---|---|---|
-| `h2cmi/results/review_completion/CANONICAL_EVIDENCE_INDEX.json` | `P11_THIS_COMMIT` | `n/a` | `n/a` | canonical artifact-status index | using the index as a scientific result |
-| `h2cmi/results/review_completion/CANONICAL_EVIDENCE_INDEX.md` | `P11_THIS_COMMIT` | `n/a` | `n/a` | canonical artifact-status index | using the index as a scientific result |
+| `h2cmi/results/review_completion/CANONICAL_EVIDENCE_INDEX.json` | `P14_THIS_COMMIT` | `n/a` | `n/a` | canonical artifact-status index | using the index as a scientific result |
+| `h2cmi/results/review_completion/CANONICAL_EVIDENCE_INDEX.md` | `P14_THIS_COMMIT` | `n/a` | `n/a` | canonical artifact-status index | using the index as a scientific result |
+| `h2cmi/results/fp_gem_main/FINAL_FP_GEM_STORY_FREEZE.json` | `P14_THIS_COMMIT` | `30cc7bbbabe96b48bf7e9c8f48af90729d08c8891b6dc44f6a8e88cece86601d` | `n/a` | writer-facing final FP-GEM story and claim gate | claims outside the frozen P14 claim gate |
+| `h2cmi/results/fp_gem_main/FINAL_FP_GEM_STORY_FREEZE.md` | `P14_THIS_COMMIT` | `8044453a07766aacfe3360c69721c43991d1e5cad3ba27c7ff631b9bdd6cd76c` | `n/a` | writer-facing final FP-GEM story and claim gate | claims outside the frozen P14 claim gate |
+| `h2cmi/results/fp_gem_main/FP_GEM_EVIDENCE_HIERARCHY.json` | `P14_THIS_COMMIT` | `5b8d3ca2ba80d205bfd988b28f8b0b1fdfcd66855e5a5965428ec8130e25bdaf` | `n/a` | final main-text and appendix placement hierarchy | promotion of P13 to the main empirical headline |
+| `h2cmi/results/fp_gem_main/FP_GEM_EVIDENCE_HIERARCHY.md` | `P14_THIS_COMMIT` | `53ceaaca3d1d1c1deb2de38727da9927ec7f7a34966203f23274b90ec4928701` | `n/a` | final main-text and appendix placement hierarchy | promotion of P13 to the main empirical headline |
+| `h2cmi/results/fp_gem_main/fp_gem_results.csv` | `3bba1d0bb4f803948e855b6fa707e64b13f2a99a` | `f3e4ca699b81e4fa2cab404109aa2dfe7aa1fbe58f25e2779d3d11651e40d48d` | `n/a` | canonical P12 same-backbone six-method result | broad-benchmark or FP-GEM-over-RCT/SPDIM claim |
+| `h2cmi/results/fp_gem_main/fp_gem_final_head_to_head.csv` | `P14_THIS_COMMIT` | `1e652e5271a652f304232e06977adfa59f0c8700b72a92b8a8539eb82070d7f0` | `n/a` | P14 standardized P12 same-backbone table | description as a broad benchmark |
+| `h2cmi/results/fp_gem_main/fp_gem_final_head_to_head.md` | `P14_THIS_COMMIT` | `0136335b3a4ddf7f1106eae37ef90821285dae487677468920f497a54c3bff67` | `n/a` | P14 standardized P12 same-backbone table | description as a broad benchmark |
+| `h2cmi/results/fp_gem_main/fp_gem_theory_to_evidence.csv` | `P14_THIS_COMMIT` | `ce4d1731eb9757568d58fbe30f3c839916adeb7e574b18e49c97d60093e54889` | `n/a` | complete six-row FP-GEM empirical evidence spine | addition of unlisted main-spine experiments |
+| `h2cmi/results/fp_gem_main/fp_gem_theory_to_evidence.md` | `P14_THIS_COMMIT` | `1eeb759ce5645168dbde44748b8c3c1e5a1ad9670e5e7f00e0c6cc86b833e3d0` | `n/a` | complete six-row FP-GEM empirical evidence spine | addition of unlisted main-spine experiments |
+| `h2cmi/results/fp_gem_prevalence/P13_MANUSCRIPT_BOUNDARY.json` | `P14_THIS_COMMIT` | `d1ce98197f9203d0fc1ecda54f78baf33e04d92984f6908fc0cdbf2519877b63` | `n/a` | canonical P13 appendix placement and claim boundary | main-headline or broad prevalence-robustness claim |
+| `h2cmi/results/fp_gem_prevalence/P13_MANUSCRIPT_BOUNDARY.md` | `P14_THIS_COMMIT` | `acef6c982e368edf1ba29a9e325f0804e8288d32f068f4b8d27ba39441250da0` | `n/a` | canonical P13 appendix placement and claim boundary | main-headline or broad prevalence-robustness claim |
+| `h2cmi/results/fp_gem_prevalence/fp_gem_prevalence_results.csv` | `b5fb51581b634a194f395aa151babf4f5817ccae` | `cf9e403eb8be1c0548a95f9007eb7089ee3f93d8bee2401af22587903bffdb2f` | `n/a` | canonical P13 appendix boundary result | main-headline or universal prevalence-robustness claim |
 | `h2cmi/results/review_completion/FINAL_REPAIRED_W1_EVIDENCE_FREEZE.json` | `cfb43d429263c3fbb69a35c086214fdca7d25301` | `f215884b6608a69e14b017af782e459ec00bf7cd7bcc4902f09b7a62ed21ffa4` | `n/a` | canonical repaired-W1 verdict and claim gate | legacy-split reinterpretation or adapter-only attribution |
 | `h2cmi/results/review_completion/FINAL_REPAIRED_W1_EVIDENCE_FREEZE.md` | `cfb43d429263c3fbb69a35c086214fdca7d25301` | `64b85331c398ce32b4d639a31b163c65bf8a85f04c1cd618d4ecc1162662c9b1` | `n/a` | canonical repaired-W1 verdict and claim gate | legacy-split reinterpretation or adapter-only attribution |
 | `h2cmi/results/review_completion/MANUSCRIPT_NUMBERS_READY.md` | `P11_THIS_COMMIT` | `8f36455e2fd2db5afe8b2166ca4fbd30009fa37853e7778f503a53a21f248817` | `n/a` | current writer/status entry point | use of superseded W1 headlines |
-| `h2cmi/results/review_completion/REVIEW_COMPLETION_CURRENT_STATUS.json` | `P11_THIS_COMMIT` | `99eee8dd3c0901ade7a514496e49ed998b3e8d69f764670dad10bcf94b83456f` | `n/a` | current writer/status entry point | use of superseded W1 headlines |
-| `h2cmi/results/review_completion/REVIEW_COMPLETION_CURRENT_STATUS.md` | `P11_THIS_COMMIT` | `82b21880789f61458ba193819803f5c8cb944eadc5aaff8aa66befa3fd37da74` | `n/a` | current writer/status entry point | use of superseded W1 headlines |
+| `h2cmi/results/review_completion/REVIEW_COMPLETION_CURRENT_STATUS.json` | `P14_THIS_COMMIT` | `02a8671d88c12556c41b469ed2cf9b6d8ffe49a32ee596443881758ca55f9e3a` | `n/a` | current writer/status entry point | use of superseded W1 or prohibited FP-GEM claims |
+| `h2cmi/results/review_completion/REVIEW_COMPLETION_CURRENT_STATUS.md` | `P14_THIS_COMMIT` | `005cc40813d20af3419f94130238af8af89b4c56c7f06fd9b03e55e96b2ba56a` | `n/a` | current writer/status entry point | use of superseded W1 or prohibited FP-GEM claims |
 | `h2cmi/results/review_completion/spdim_w1_repaired_three_seed_results.csv` | `8972de878a93e00a5b6cf6b8118bc32adc05eb48` | `95b8f69556a140dc020415753c9694cf9ebdeed1abb0766dd24f523c491289c3` | `n/a` | official repaired-split three-seed SPDIM baseline | seed-zero-only or adapter-only cross-pipeline claim |
 | `h2cmi/results/review_completion/w1_repaired_cross_pipeline_harm.csv` | `cfb43d429263c3fbb69a35c086214fdca7d25301` | `35b9616be6aae84a6d433dbda09f7d7a07dc3498d98e3cc5fe9788ac3e167e38` | `n/a` | same-split full-pipeline reporting under P10 | controlled adapter-only attribution |
 | `h2cmi/results/review_completion/w1_repaired_cross_pipeline_harm.md` | `cfb43d429263c3fbb69a35c086214fdca7d25301` | `e60dbe9961e6e306f3dfd2965f8c7bff7545b5f103c4345a2d10d82000e44f08` | `n/a` | same-split full-pipeline reporting under P10 | controlled adapter-only attribution |
@@ -31,6 +45,16 @@ Use `canonical_current` artifacts for current W1 numbers. Historical and superse
 
 | path | result commit | SHA-256 | superseded by | allowed use | prohibited use |
 |---|---|---|---|---|---|
+| `h2cmi/results/fp_gem_main/FP_GEM_FINAL_RED_TEAM.json` | `3bba1d0bb4f803948e855b6fa707e64b13f2a99a` | `df855eddce5371fcb89886140b2923c7522dc6a2fe0cf2a60999abd95fd2724e` | `n/a` | support P12 canonical same-backbone result | override of the P14 claim gate |
+| `h2cmi/results/fp_gem_main/FP_GEM_FINAL_RED_TEAM.md` | `3bba1d0bb4f803948e855b6fa707e64b13f2a99a` | `3c6cbef9849b44a2180918fcae99eb5f12f1b4c405c3c30b1a1a8a9d2b6074c9` | `n/a` | support P12 canonical same-backbone result | override of the P14 claim gate |
+| `h2cmi/results/fp_gem_main/P14_PREWRITE_RED_TEAM.json` | `P14_THIS_COMMIT` | `80dbf0c0c0d4114d4f3c27a60478d09ce8de89e8f9fe6ba7163e793f8e707693` | `n/a` | P14 pre-write adversarial claim gate | substitution for source results |
+| `h2cmi/results/fp_gem_main/P14_PREWRITE_RED_TEAM.md` | `P14_THIS_COMMIT` | `df44654d7b0990fd82f346df017355375d6d10b04d07919d49f6d2eb57d72e3b` | `n/a` | P14 pre-write adversarial claim gate | substitution for source results |
+| `h2cmi/results/fp_gem_main/fp_gem_head_to_head.md` | `3bba1d0bb4f803948e855b6fa707e64b13f2a99a` | `cc8e5afe9b661d49b3523b65604a0ae1f5ac1a6b9f7ba414caa6cb12601c3079` | `n/a` | support P12 canonical same-backbone result | description as a broad benchmark |
+| `h2cmi/results/fp_gem_main/fp_gem_summary.json` | `3bba1d0bb4f803948e855b6fa707e64b13f2a99a` | `9aec686442fb0a1461f1cd64b8c5927bb2dc63c4e972344b560a43bf5ab7c1e1` | `n/a` | machine-readable support for P12 canonical result | override of the P14 claim gate |
+| `h2cmi/results/fp_gem_prevalence/P13_FINAL_RED_TEAM.json` | `b5fb51581b634a194f395aa151babf4f5817ccae` | `61faf83c70c2b53147efb2fc5c2c6d70e18d31f28704f62b40c14334337b76a0` | `n/a` | support P13 canonical appendix boundary result | promotion of P13 to the main empirical headline |
+| `h2cmi/results/fp_gem_prevalence/P13_FINAL_RED_TEAM.md` | `b5fb51581b634a194f395aa151babf4f5817ccae` | `87ef5f9f73fea404e5d61044cc0da2d026219b4fc0f7e9000995467c106c4905` | `n/a` | support P13 canonical appendix boundary result | promotion of P13 to the main empirical headline |
+| `h2cmi/results/fp_gem_prevalence/fp_gem_prevalence_head_to_head.md` | `b5fb51581b634a194f395aa151babf4f5817ccae` | `0b23bf9271c4134103d6db2e3230f8f703b642bf02b9fe632fa95e0821f423c2` | `n/a` | support P13 canonical appendix boundary result | main-headline or universal prevalence-robustness claim |
+| `h2cmi/results/fp_gem_prevalence/fp_gem_prevalence_summary.json` | `b5fb51581b634a194f395aa151babf4f5817ccae` | `cb2609a7377e8fd638132f1b411eb3585f97d4333fe8fa4a0204b77a5a1d2350` | `n/a` | machine-readable support for P13 appendix result | main-headline or universal prevalence-robustness claim |
 | `h2cmi/results/review_completion/README.md` | `29a219596a976c1300443dfcd4e890d6010db7e9` | `8439d25bd23b44f70cf608b61b3f89056dc57eaa5407323979f05aae28465092` | `n/a` | support canonical results or implementation detail | override of the P10 claim gate |
 | `h2cmi/results/review_completion/REVIEW_COMPLETION_SUMMARY.md` | `P11_THIS_COMMIT` | `c705430492b380cbc905151099be3130540528171572c03cb2635834a38e6a1e` | `n/a` | support canonical results or implementation detail | override of the P10 claim gate |
 | `h2cmi/results/review_completion/STALE_CLAIM_AUDIT.json` | `P11_THIS_COMMIT` | `92ef4a42f53fc76172c648253f91d01928b15687c1f946eb1b0811c8b948927a` | `n/a` | support canonical results or implementation detail | override of the P10 claim gate |

@@ -1,0 +1,20 @@
+{
+  "appendix_evidence": [
+    "P13 prevalence stress",
+    "four-branch full audit tables",
+    "off-diagonal geometry stress",
+    "routing and montage-support audits",
+    "provenance and execution details"
+  ],
+  "main_method": "Fixed-Prior Geometry EM (FP-GEM)",
+  "main_text_evidence": [
+    "observational-equivalence theory",
+    "prior-induced geometry-force theory",
+    "FP-GEM method",
+    "controlled fixed-prior-versus-joint evidence",
+    "Sleep fixed-prior-versus-joint result",
+    "P12 same-backbone FP-GEM/SPDIM head-to-head"
+  ],
+  "p13_main_empirical_headline": false,
+  "status": "frozen"
+}

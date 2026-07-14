@@ -1,5 +1,5 @@
 {
-  "artifact_count": 146,
+  "artifact_count": 168,
   "artifacts": [
     {
       "allowed_use": "canonical artifact-status index",
@@ -7,7 +7,7 @@
       "notes": "Self-referential checksum is intentionally omitted; Git records the containing blob.",
       "path": "h2cmi/results/review_completion/CANONICAL_EVIDENCE_INDEX.json",
       "prohibited_use": "using the index as a scientific result",
-      "result_commit": "P11_THIS_COMMIT",
+      "result_commit": "P14_THIS_COMMIT",
       "sha256": null,
       "status": "canonical_current",
       "superseded_by": null
@@ -18,9 +18,251 @@
       "notes": "Self-referential checksum is intentionally omitted; Git records the containing blob.",
       "path": "h2cmi/results/review_completion/CANONICAL_EVIDENCE_INDEX.md",
       "prohibited_use": "using the index as a scientific result",
-      "result_commit": "P11_THIS_COMMIT",
+      "result_commit": "P14_THIS_COMMIT",
       "sha256": null,
       "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "writer-facing final FP-GEM story and claim gate",
+      "exists_in_worktree": true,
+      "notes": "P14 final method-story entry point",
+      "path": "h2cmi/results/fp_gem_main/FINAL_FP_GEM_STORY_FREEZE.json",
+      "prohibited_use": "claims outside the frozen P14 claim gate",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "30cc7bbbabe96b48bf7e9c8f48af90729d08c8891b6dc44f6a8e88cece86601d",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "writer-facing final FP-GEM story and claim gate",
+      "exists_in_worktree": true,
+      "notes": "P14 final method-story entry point",
+      "path": "h2cmi/results/fp_gem_main/FINAL_FP_GEM_STORY_FREEZE.md",
+      "prohibited_use": "claims outside the frozen P14 claim gate",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "8044453a07766aacfe3360c69721c43991d1e5cad3ba27c7ff631b9bdd6cd76c",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "final main-text and appendix placement hierarchy",
+      "exists_in_worktree": true,
+      "notes": "P14 evidence placement freeze",
+      "path": "h2cmi/results/fp_gem_main/FP_GEM_EVIDENCE_HIERARCHY.json",
+      "prohibited_use": "promotion of P13 to the main empirical headline",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "5b8d3ca2ba80d205bfd988b28f8b0b1fdfcd66855e5a5965428ec8130e25bdaf",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "final main-text and appendix placement hierarchy",
+      "exists_in_worktree": true,
+      "notes": "P14 evidence placement freeze",
+      "path": "h2cmi/results/fp_gem_main/FP_GEM_EVIDENCE_HIERARCHY.md",
+      "prohibited_use": "promotion of P13 to the main empirical headline",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "53ceaaca3d1d1c1deb2de38727da9927ec7f7a34966203f23274b90ec4928701",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "canonical P12 same-backbone six-method result",
+      "exists_in_worktree": true,
+      "notes": "P12 accepted result; two datasets and three source seeds",
+      "path": "h2cmi/results/fp_gem_main/fp_gem_results.csv",
+      "prohibited_use": "broad-benchmark or FP-GEM-over-RCT/SPDIM claim",
+      "result_commit": "3bba1d0bb4f803948e855b6fa707e64b13f2a99a",
+      "sha256": "f3e4ca699b81e4fa2cab404109aa2dfe7aa1fbe58f25e2779d3d11651e40d48d",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "P14 standardized P12 same-backbone table",
+      "exists_in_worktree": true,
+      "notes": "Derived only from the committed P12 result",
+      "path": "h2cmi/results/fp_gem_main/fp_gem_final_head_to_head.csv",
+      "prohibited_use": "description as a broad benchmark",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "1e652e5271a652f304232e06977adfa59f0c8700b72a92b8a8539eb82070d7f0",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "P14 standardized P12 same-backbone table",
+      "exists_in_worktree": true,
+      "notes": "Derived only from the committed P12 result",
+      "path": "h2cmi/results/fp_gem_main/fp_gem_final_head_to_head.md",
+      "prohibited_use": "description as a broad benchmark",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "0136335b3a4ddf7f1106eae37ef90821285dae487677468920f497a54c3bff67",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "complete six-row FP-GEM empirical evidence spine",
+      "exists_in_worktree": true,
+      "notes": "P14 theory-to-evidence freeze",
+      "path": "h2cmi/results/fp_gem_main/fp_gem_theory_to_evidence.csv",
+      "prohibited_use": "addition of unlisted experiments to the main evidence spine",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "ce4d1731eb9757568d58fbe30f3c839916adeb7e574b18e49c97d60093e54889",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "complete six-row FP-GEM empirical evidence spine",
+      "exists_in_worktree": true,
+      "notes": "P14 theory-to-evidence freeze",
+      "path": "h2cmi/results/fp_gem_main/fp_gem_theory_to_evidence.md",
+      "prohibited_use": "addition of unlisted experiments to the main evidence spine",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "1eeb759ce5645168dbde44748b8c3c1e5a1ad9670e5e7f00e0c6cc86b833e3d0",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "canonical P13 appendix placement and claim boundary",
+      "exists_in_worktree": true,
+      "notes": "P14 freezes P13 as a limitation and boundary test",
+      "path": "h2cmi/results/fp_gem_prevalence/P13_MANUSCRIPT_BOUNDARY.json",
+      "prohibited_use": "main-headline or broad prevalence-robustness claim",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "d1ce98197f9203d0fc1ecda54f78baf33e04d92984f6908fc0cdbf2519877b63",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "canonical P13 appendix placement and claim boundary",
+      "exists_in_worktree": true,
+      "notes": "P14 freezes P13 as a limitation and boundary test",
+      "path": "h2cmi/results/fp_gem_prevalence/P13_MANUSCRIPT_BOUNDARY.md",
+      "prohibited_use": "main-headline or broad prevalence-robustness claim",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "acef6c982e368edf1ba29a9e325f0804e8288d32f068f4b8d27ba39441250da0",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "canonical P13 appendix boundary result",
+      "exists_in_worktree": true,
+      "notes": "P13 accepted result under the frozen Lee2019-MI prevalence intervention",
+      "path": "h2cmi/results/fp_gem_prevalence/fp_gem_prevalence_results.csv",
+      "prohibited_use": "main-headline or universal prevalence-robustness claim",
+      "result_commit": "b5fb51581b634a194f395aa151babf4f5817ccae",
+      "sha256": "cf9e403eb8be1c0548a95f9007eb7089ee3f93d8bee2401af22587903bffdb2f",
+      "status": "canonical_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "support P12 canonical same-backbone result",
+      "exists_in_worktree": true,
+      "notes": "Independent P12 completion and claim review",
+      "path": "h2cmi/results/fp_gem_main/FP_GEM_FINAL_RED_TEAM.json",
+      "prohibited_use": "override of the P14 claim gate",
+      "result_commit": "3bba1d0bb4f803948e855b6fa707e64b13f2a99a",
+      "sha256": "df855eddce5371fcb89886140b2923c7522dc6a2fe0cf2a60999abd95fd2724e",
+      "status": "supporting_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "support P12 canonical same-backbone result",
+      "exists_in_worktree": true,
+      "notes": "Independent P12 completion and claim review",
+      "path": "h2cmi/results/fp_gem_main/FP_GEM_FINAL_RED_TEAM.md",
+      "prohibited_use": "override of the P14 claim gate",
+      "result_commit": "3bba1d0bb4f803948e855b6fa707e64b13f2a99a",
+      "sha256": "3c6cbef9849b44a2180918fcae99eb5f12f1b4c405c3c30b1a1a8a9d2b6074c9",
+      "status": "supporting_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "P14 pre-write adversarial claim gate",
+      "exists_in_worktree": true,
+      "notes": "Completed before P14 writer-facing authoring",
+      "path": "h2cmi/results/fp_gem_main/P14_PREWRITE_RED_TEAM.json",
+      "prohibited_use": "substitution for source results",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "80dbf0c0c0d4114d4f3c27a60478d09ce8de89e8f9fe6ba7163e793f8e707693",
+      "status": "supporting_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "P14 pre-write adversarial claim gate",
+      "exists_in_worktree": true,
+      "notes": "Completed before P14 writer-facing authoring",
+      "path": "h2cmi/results/fp_gem_main/P14_PREWRITE_RED_TEAM.md",
+      "prohibited_use": "substitution for source results",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "df44654d7b0990fd82f346df017355375d6d10b04d07919d49f6d2eb57d72e3b",
+      "status": "supporting_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "support P12 canonical same-backbone result",
+      "exists_in_worktree": true,
+      "notes": "P12 original result digest",
+      "path": "h2cmi/results/fp_gem_main/fp_gem_head_to_head.md",
+      "prohibited_use": "description as a broad benchmark",
+      "result_commit": "3bba1d0bb4f803948e855b6fa707e64b13f2a99a",
+      "sha256": "cc8e5afe9b661d49b3523b65604a0ae1f5ac1a6b9f7ba414caa6cb12601c3079",
+      "status": "supporting_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "machine-readable support for P12 canonical result",
+      "exists_in_worktree": true,
+      "notes": "P12 aggregation and execution summary",
+      "path": "h2cmi/results/fp_gem_main/fp_gem_summary.json",
+      "prohibited_use": "override of the P14 claim gate",
+      "result_commit": "3bba1d0bb4f803948e855b6fa707e64b13f2a99a",
+      "sha256": "9aec686442fb0a1461f1cd64b8c5927bb2dc63c4e972344b560a43bf5ab7c1e1",
+      "status": "supporting_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "support P13 canonical appendix boundary result",
+      "exists_in_worktree": true,
+      "notes": "Independent P13 completion and claim review",
+      "path": "h2cmi/results/fp_gem_prevalence/P13_FINAL_RED_TEAM.json",
+      "prohibited_use": "promotion of P13 to the main empirical headline",
+      "result_commit": "b5fb51581b634a194f395aa151babf4f5817ccae",
+      "sha256": "61faf83c70c2b53147efb2fc5c2c6d70e18d31f28704f62b40c14334337b76a0",
+      "status": "supporting_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "support P13 canonical appendix boundary result",
+      "exists_in_worktree": true,
+      "notes": "Independent P13 completion and claim review",
+      "path": "h2cmi/results/fp_gem_prevalence/P13_FINAL_RED_TEAM.md",
+      "prohibited_use": "promotion of P13 to the main empirical headline",
+      "result_commit": "b5fb51581b634a194f395aa151babf4f5817ccae",
+      "sha256": "87ef5f9f73fea404e5d61044cc0da2d026219b4fc0f7e9000995467c106c4905",
+      "status": "supporting_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "support P13 canonical appendix boundary result",
+      "exists_in_worktree": true,
+      "notes": "P13 original result digest",
+      "path": "h2cmi/results/fp_gem_prevalence/fp_gem_prevalence_head_to_head.md",
+      "prohibited_use": "main-headline or universal prevalence-robustness claim",
+      "result_commit": "b5fb51581b634a194f395aa151babf4f5817ccae",
+      "sha256": "0b23bf9271c4134103d6db2e3230f8f703b642bf02b9fe632fa95e0821f423c2",
+      "status": "supporting_current",
+      "superseded_by": null
+    },
+    {
+      "allowed_use": "machine-readable support for P13 appendix boundary result",
+      "exists_in_worktree": true,
+      "notes": "P13 aggregation and execution summary",
+      "path": "h2cmi/results/fp_gem_prevalence/fp_gem_prevalence_summary.json",
+      "prohibited_use": "main-headline or universal prevalence-robustness claim",
+      "result_commit": "b5fb51581b634a194f395aa151babf4f5817ccae",
+      "sha256": "cb2609a7377e8fd638132f1b411eb3585f97d4333fe8fa4a0204b77a5a1d2350",
+      "status": "supporting_current",
       "superseded_by": null
     },
     {
@@ -48,7 +290,7 @@
     {
       "allowed_use": "current writer/status entry point",
       "exists_in_worktree": true,
-      "notes": "P11 canonical pointer",
+      "notes": "P14 current status pointer; P7/P9/P10/P11 history retained",
       "path": "h2cmi/results/review_completion/MANUSCRIPT_NUMBERS_READY.md",
       "prohibited_use": "use of superseded W1 headlines",
       "result_commit": "P11_THIS_COMMIT",
@@ -62,19 +304,19 @@
       "notes": "P11 canonical pointer",
       "path": "h2cmi/results/review_completion/REVIEW_COMPLETION_CURRENT_STATUS.json",
       "prohibited_use": "use of superseded W1 headlines",
-      "result_commit": "P11_THIS_COMMIT",
-      "sha256": "99eee8dd3c0901ade7a514496e49ed998b3e8d69f764670dad10bcf94b83456f",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "02a8671d88c12556c41b469ed2cf9b6d8ffe49a32ee596443881758ca55f9e3a",
       "status": "canonical_current",
       "superseded_by": null
     },
     {
       "allowed_use": "current writer/status entry point",
       "exists_in_worktree": true,
-      "notes": "P11 canonical pointer",
+      "notes": "P14 current status pointer; P7/P9/P10/P11 history retained",
       "path": "h2cmi/results/review_completion/REVIEW_COMPLETION_CURRENT_STATUS.md",
       "prohibited_use": "use of superseded W1 headlines",
-      "result_commit": "P11_THIS_COMMIT",
-      "sha256": "82b21880789f61458ba193819803f5c8cb944eadc5aaff8aa66befa3fd37da74",
+      "result_commit": "P14_THIS_COMMIT",
+      "sha256": "005cc40813d20af3419f94130238af8af89b4c56c7f06fd9b03e55e96b2ba56a",
       "status": "canonical_current",
       "superseded_by": null
     },
@@ -1608,6 +1850,7 @@
       "superseded_by": null
     }
   ],
+  "canonical_fp_gem_result_head": "b5fb51581b634a194f395aa151babf4f5817ccae",
   "canonical_scientific_head": "cfb43d429263c3fbb69a35c086214fdca7d25301",
   "coverage_validation": {
     "top_level_md_json_csv_count": 143,
@@ -1615,9 +1858,14 @@
   },
   "result_commit_provenance_validation": {
     "absent_external_artifacts": 1,
-    "commit_blob_pairs_verified": 124,
+    "commit_blob_pairs_verified": 134,
     "mismatches": [],
-    "p11_containing_commit_sentinels": 21
+    "p11_containing_commit_sentinels": 17,
+    "p14_containing_commit_sentinels": 16
+  },
+  "p14_result_commit_sentinel": {
+    "meaning": "The Git commit containing the P14 index, status pointers, and writer-facing artifacts.",
+    "value": "P14_THIS_COMMIT"
   },
   "result_commit_sentinel": {
     "meaning": "The Git commit containing this index and the listed P11 artifact.",
@@ -1625,12 +1873,12 @@
   },
   "status": "pass",
   "status_counts": {
-    "canonical_current": 16,
+    "canonical_current": 28,
     "exploratory_only": 11,
     "historical_execution_audit": 34,
     "superseded_intermediate": 15,
     "superseded_legacy_split": 10,
-    "supporting_current": 53,
+    "supporting_current": 63,
     "unresolved_blocker": 7
   },
   "status_definitions": {
