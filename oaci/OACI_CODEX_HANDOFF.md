@@ -14,8 +14,47 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-14)
 
-The current external-validity milestone is **C84R3**, an additive engineering
-repair after the first authorized C84C attempt stopped safely:
+The current external-validity milestone is the completed **C84C engineering
+canary**:
+
+```text
+C84C authorization commit:                 6949b62a51f7cd092c63be4ca24654e9ab7db068
+C84C Slurm job:                            895441
+C84C result commit:                        2f541e526deb79091ad164b0d37419941e6f662b
+C84C complete manifest SHA-256:             530471ef370d5fa13a88e7e53cf1add558b8444b66675496187aa192b0606f2b
+C84C gate:                                 C84C_COMPLETE_ENGINEERING_REPLAY_PASSED_C84F_REVIEW_REQUIRED
+```
+
+Replacement job `895441` completed all three datasets, nine training phases and
+243 candidate units. It froze 243 checkpoint/state/sidecar identities, 243
+strict-source audit artifacts and 243 target-unlabeled artifacts. Every artifact
+passed persisted replay. The exact 20-channel order, 160-Hz interface, half-open
+480-sample epoch, locked source/audit/target subjects and no-interpolation rule
+passed for Lee2019_MI, Cho2017 and PhysionetMI.
+
+The maximum persisted linear replay error was `6.67572021484375e-6`, below the
+locked `1e-5` float32 threshold. Softmax, repeat-logit and repeat-z maximum
+errors were zero under `1e-6`. Target-y access, target-label fields, target
+scientific metrics, target-outcome retention/retry, construction/evaluation
+view access and same-label-oracle access were all zero. C84C computed no target
+accuracy, selector score, regret, Q1/Q2 or label-budget result.
+
+Accepted C84C regressions at result commit `2f541e5`:
+
+```text
+focused C84C:   112 passed                         job 895528
+C65-C84C:       598 passed, 1 skip, 3 deselected job 895530
+C23-C84C:     1,009 passed, 1 skip, 3 deselected job 895531
+full OACI:    1,933 passed, 1 skip, 3 deselected job 895529
+```
+
+All regression jobs were CPU-only with empty stderr. The final C84C report
+red-team passed 56/56. C84C is engineering-only and does not establish external
+validity. C84F and C84S remain unauthorized and have no execution locks.
+
+### Historical C84R3 repair and failed attempt
+
+The operative C84C objects were:
 
 ```text
 C84R3 repair protocol commit:             1c523a4749444136a00b502204b0ed06cac0e5d2
@@ -26,42 +65,16 @@ C84C V4 protocol SHA-256:                  cc54b5e6f92e4b0d338bf297c92823b4d60a8
 C84 field V4 protocol SHA-256:             eff7ebbc2e4f91830a3df1d679adfcae6eae2ab8a1e91c64ed28df7fce96aa12
 C84C V3 execution-lock commit:             a5feff377a18283dbe050d2feaa54126e5f924a9
 C84C V3 execution-lock SHA-256:             c198607fb9e46ea2353ffa57d6b71bfa966c36e8ece53fdc40292681bba8bd1a
-C84R3 verification base:                   91e39690f4de39b13465d6505fa292793f75482e
-C84R3 gate:                                C84C_FLOAT32_REPLAY_REPAIRED_AND_RELOCKED_READY_FOR_FRESH_PI_AUTHORIZATION
+C84R3 readiness gate:                      C84C_FLOAT32_REPLAY_REPAIRED_AND_RELOCKED_READY_FOR_FRESH_PI_AUTHORIZATION
 ```
 
-Authorized C84C job `895366` consumed the V2 authorization and failed at the
-first Lee instrumentation unit because the single `1e-6` replay threshold was
-too strict for a 1040-term float32 `z @ W.T + b` reconstruction. The observed
-maximum error was `2.86102294921875e-6`; softmax, repeat-logit and repeat-z
-errors were all zero. The preserved attempt materialized three Lee views, read
-two source-label arrays and completed three training phases, but target-y access,
-target scientific metrics, complete units, source artifacts and target artifacts
-all remained zero.
-
-C84R3 changes only the float32 linear reconstruction maximum absolute tolerance
-to `1e-5`. Softmax, repeat-logit and repeat-z checks remain `1e-6`. Training,
-models, data views, subject partitions, montage, candidate IDs and scientific
-contracts are unchanged. The failed root is preserved and cannot be reused; a
-replacement must retrain all 243 units in the new content-addressed V4 root.
-
-The V3 lock binds 72 repository objects and seven protocols by SHA-256 and Git
-blob. The replacement external root and V3 authorization record are absent.
-The authorization consumed by job `895366` cannot be reused. A fresh direct
-`授权 C84C` statement must be bound to the V4 protocol and V3 lock before any
-replacement dataset access. C84F and C84S remain unauthorized and have no locks.
-
-Accepted C84R3 regressions:
-
-```text
-focused C84R3:   102 passed                         job 895371
-C65-C84R3:       588 passed, 1 skip, 3 deselected job 895372
-C23-C84R3:       999 passed, 1 skip, 3 deselected job 895373
-full OACI:     1,923 passed, 1 skip, 3 deselected job 895374
-```
-
-All jobs were CPU-only with empty stderr. Synthetic calibration passed 12/12
-and the final readiness red-team passed 37/37.
+Historical job `895366` consumed its authorization and stopped safely at the
+first Lee instrumentation unit because the original `1e-6` linear replay
+threshold rejected a float32 error of `2.86102294921875e-6`. It had zero
+target-y access, zero target scientific metrics and zero complete units. C84R3
+changed only the linear tolerance to `1e-5`; strict identity tolerances remained
+`1e-6`. Job `895441` used a fresh authorization and external root and reused no
+failed artifact.
 
 ### Historical C84R2 readiness before job 895366
 
