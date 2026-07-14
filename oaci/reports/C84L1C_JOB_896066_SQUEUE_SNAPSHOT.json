@@ -1,0 +1,24 @@
+{
+  "allocation": {
+    "cpus": 8,
+    "gpu": "V100:1",
+    "memory": "64G",
+    "partition": "V100"
+  },
+  "application_complete": true,
+  "application_complete_manifest_sha256": "3cf1366ccf40efc82a6bb2ffef56045e83c0f0e9670429973f23252371ad1c18",
+  "attempt_completed_at_utc": "2026-07-14T19:41:58.124065479Z",
+  "attempt_elapsed_seconds": 4355.285093888,
+  "attempt_started_at_utc": "2026-07-14T18:29:22.838971760Z",
+  "command": "oaci/slurm_c84l1c_canary_v2.sh",
+  "exit_code": "UNAVAILABLE_SQUEUE_ONLY",
+  "job_id": 896066,
+  "job_name": "c84l1c-v2",
+  "last_observed_runtime": "1:12:18",
+  "node": "node42",
+  "sacct_used": false,
+  "schema_version": "c84l1c_squeue_scheduler_snapshot_v1",
+  "source": "squeue_polling_plus_application_attempt_ledger",
+  "squeue_final_state": "ABSENT_AFTER_APPLICATION_COMPLETE",
+  "squeue_observed_running": true
+}
