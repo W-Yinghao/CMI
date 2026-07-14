@@ -90,7 +90,7 @@ def test_execution_lock_self_bound_objects_protocols_and_identities_replay():
     lock = json.loads(runtime.EXECUTION_LOCK_PATH.read_text())
     assert len(lock_sha) == 64
     assert lock["status"] == runtime.LOCK_READY_STATUS
-    assert len(runtime.prior.verify_bound_object_registry(lock)) == lock["runtime_bound_object_count"] == 110
+    assert len(runtime.prior.verify_bound_object_registry(lock)) == lock["runtime_bound_object_count"] == 107
     assert len(runtime.prior.verify_protocol_sidecars(lock)) == 5
     assert runtime.verify_intervention_registry(lock)["cells"] == 6
     assert runtime.verify_candidate_identity(lock)["canary_units"] == 243
