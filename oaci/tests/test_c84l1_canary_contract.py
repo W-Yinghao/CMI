@@ -3,6 +3,7 @@ from __future__ import annotations
 import ast
 import importlib
 import json
+from copy import deepcopy
 from pathlib import Path
 import sys
 
@@ -82,6 +83,74 @@ def test_real_entrypoint_fails_before_output_without_lock_or_authorization(tmp_p
             lock_sha_path=tmp_path / "missing-lock.sha256",
         )
     assert not (tmp_path / "external").exists()
+
+
+def test_execution_lock_self_bound_objects_protocols_and_identities_replay():
+    lock_sha = runtime.verify_lock_self(runtime.EXECUTION_LOCK_PATH, runtime.EXECUTION_LOCK_SHA_PATH)
+    lock = json.loads(runtime.EXECUTION_LOCK_PATH.read_text())
+    assert len(lock_sha) == 64
+    assert lock["status"] == runtime.LOCK_READY_STATUS
+    assert len(runtime.prior.verify_bound_object_registry(lock)) == lock["runtime_bound_object_count"] == 110
+    assert len(runtime.prior.verify_protocol_sidecars(lock)) == 5
+    assert runtime.verify_intervention_registry(lock)["cells"] == 6
+    assert runtime.verify_candidate_identity(lock)["canary_units"] == 243
+    assert runtime.verify_c84c_level0_binding(lock)["reusable_units"] == 243
+
+
+def test_lock_binds_exact_scope_and_accepted_level0_plan_model_registry():
+    lock = json.loads(runtime.EXECUTION_LOCK_PATH.read_text())
+    assert lock["scope"] == {
+        "C84F": False,
+        "C84S": False,
+        "datasets": ["Lee2019_MI", "Cho2017", "PhysionetMI"],
+        "engineering_only": True,
+        "level": 1,
+        "source_panel": "A",
+        "targets": {"Cho2017": 24, "Lee2019_MI": 19, "PhysionetMI": 106},
+        "total_units": 243,
+        "training_phases": 9,
+        "training_seed": 5,
+        "units_per_dataset": 81,
+    }
+    accepted = lock["accepted_C84C_level0"]
+    assert accepted["manifest_sha256"] == "530471ef370d5fa13a88e7e53cf1add558b8444b66675496187aa192b0606f2b"
+    assert accepted["unit_ID_digest"] == "4ada05be758975e7c28429819d804b4064a1bdcfd99fe7a4752a3bdbded6d396"
+    assert accepted["model_unit_registry_sha256"] == (
+        "0f455f9a605dc4427f9a8c10c1ff3e8fa0880bedbb383d283a165e6d3107b2cf"
+    )
+    assert all(len(row["plan_hashes"]) == 4 for row in accepted["datasets"].values())
+
+
+def test_bound_object_candidate_and_accepted_manifest_tampering_fail_closed():
+    lock = json.loads(runtime.EXECUTION_LOCK_PATH.read_text())
+    bound_drift = deepcopy(lock)
+    bound_drift["runtime_bound_objects"][0]["sha256"] = "0" * 64
+    with pytest.raises(runtime.prior.base.C84R2RuntimeError, match="runtime-bound SHA-256 drift"):
+        runtime.prior.verify_bound_object_registry(bound_drift)
+
+    candidate_drift = deepcopy(lock)
+    candidate_drift["candidate_identity"]["canary_unit_ID_digest"] = "0" * 64
+    with pytest.raises(runtime.C84L1RuntimeError, match="243-unit candidate identity drift"):
+        runtime.verify_candidate_identity(candidate_drift)
+
+    accepted_drift = deepcopy(lock)
+    accepted_drift["accepted_C84C_level0"]["datasets"]["Lee2019_MI"]["plan_hashes"][0] = "0" * 64
+    with pytest.raises(runtime.C84L1RuntimeError, match="plan/model registry replay failed"):
+        runtime.verify_c84c_level0_binding(accepted_drift)
+
+
+def test_fresh_level1_authorization_is_absent_and_prior_authorization_not_reusable():
+    lock = json.loads(runtime.EXECUTION_LOCK_PATH.read_text())
+    assert lock["authorization"]["record_present_at_lock"] is False
+    assert lock["authorization"]["C84C_authorization_reusable"] is False
+    assert not runtime.AUTHORIZATION_RECORD_PATH.exists()
+    with pytest.raises(runtime.C84L1RuntimeError, match="fresh direct C84L1C"):
+        runtime.verify_authorization_record(
+            lock,
+            runtime.verify_lock_self(runtime.EXECUTION_LOCK_PATH, runtime.EXECUTION_LOCK_SHA_PATH),
+            "not-consumable-before-lock-commit",
+            runtime.AUTHORIZATION_RECORD_PATH,
+        )
 
 
 def test_complete_gate_requires_all_243_artifact_families():

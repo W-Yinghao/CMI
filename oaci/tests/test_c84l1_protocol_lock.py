@@ -98,7 +98,7 @@ def test_level1_canary_scope_is_exact_and_science_is_forbidden():
     )
 
 
-def test_no_C84F_or_C84S_execution_lock_is_created_by_C84L1P():
+def test_only_C84L1C_execution_lock_is_created_by_C84L1P():
     lock_names = {path.name for path in REPORTS.glob("C84*EXECUTION_LOCK*.json")}
-    assert "C84L1C_EXECUTION_LOCK.json" not in lock_names
+    assert "C84L1C_EXECUTION_LOCK.json" in lock_names
     assert not any(name.startswith(("C84F_", "C84S_")) for name in lock_names)

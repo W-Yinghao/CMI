@@ -72,9 +72,6 @@ NEW_REGISTRY_PATHS = (
     "oaci/reports/c84l1p_tables/level1_canary_scope.csv",
     "oaci/reports/c84l1p_tables/level1_canary_view_contract.csv",
     "oaci/reports/c84l1p_tables/level1_artifact_schema.csv",
-    "oaci/tests/test_c84l1_intervention.py",
-    "oaci/tests/test_c84l1_protocol_lock.py",
-    "oaci/tests/test_c84l1_canary_contract.py",
 )
 PROTOCOL_STEMS = (
     "C84L1_FIXED_PANEL_SUPPORT_DELETION_PROTOCOL",
