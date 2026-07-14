@@ -1,0 +1,270 @@
+{
+  "arrays": [
+    {
+      "array_range": "0-5",
+      "command": "sbatch --parsable --partition=V100 --array=0-5 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 6,
+      "group": "V100",
+      "group_count": 134,
+      "job_id": "894784",
+      "stride": 6
+    },
+    {
+      "array_range": "0-1",
+      "command": "sbatch --parsable --partition=A100 --array=0-1 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=A100,FP_GEM_P13_GROUP_COUNT=28,FP_GEM_P13_GROUP_STRIDE=2 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 2,
+      "group": "A100",
+      "group_count": 28,
+      "job_id": "894790",
+      "stride": 2
+    },
+    {
+      "array_range": "4-4",
+      "command": "sbatch --parsable --partition=V100 --array=4-4 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 1,
+      "group": "V100",
+      "group_count": 134,
+      "job_id": "894841",
+      "role": "exact_failed_task_retry",
+      "stride": 6
+    },
+    {
+      "array_range": "2-2",
+      "command": "sbatch --parsable --partition=V100 --array=2-2 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 1,
+      "group": "V100",
+      "group_count": 134,
+      "job_id": "894863",
+      "role": "exact_failed_task_retry",
+      "stride": 6
+    },
+    {
+      "accepted_rows": 0,
+      "array_range": "4-4",
+      "command": "sbatch --parsable --partition=V100 --nodelist=node42 --array=4-4 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 1,
+      "group": "V100",
+      "group_count": 134,
+      "job_id": "894872",
+      "node_constraint": "node42",
+      "role": "exact_failed_task_hardware_reproduction_retry",
+      "status": "canceled_pending_zero_result",
+      "stride": 6
+    },
+    {
+      "accepted_unit_keys": [
+        "Lee2019_MI:2:1"
+      ],
+      "array_range": "4-4",
+      "command": "sbatch --parsable --partition=V100 --nodelist=node11 --array=4-4 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 1,
+      "group": "V100",
+      "group_count": 134,
+      "job_id": "894879",
+      "node_constraint": "node11",
+      "role": "exact_failed_task_hardware_reproduction_retry",
+      "status": "completed_repair_then_canceled_for_scheduler_handoff",
+      "stride": 6
+    },
+    {
+      "array_range": "2-2",
+      "command": "sbatch --parsable --partition=V100 --nodelist=node11 --array=2-2 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 1,
+      "group": "V100",
+      "group_count": 134,
+      "job_id": "894897",
+      "node_constraint": "node11",
+      "role": "exact_failed_task_hardware_reproduction_retry",
+      "stride": 6
+    },
+    {
+      "accepted_rows": 0,
+      "array_range": "3-3",
+      "command": "sbatch --parsable --partition=V100 --nodelist=node10 --array=3-3 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 1,
+      "group": "V100",
+      "group_count": 134,
+      "job_id": "894902",
+      "node_constraint": "node10",
+      "role": "exact_failed_task_hardware_reproduction_retry",
+      "status": "canceled_pending_zero_result",
+      "stride": 6
+    },
+    {
+      "array_range": "3-3",
+      "command": "sbatch --parsable --partition=V100 --nodelist=node15 --array=3-3 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 1,
+      "group": "V100",
+      "group_count": 134,
+      "job_id": "894903",
+      "node_constraint": "node15",
+      "role": "exact_failed_task_hardware_reproduction_retry",
+      "stride": 6
+    },
+    {
+      "array_range": "4-4",
+      "command": "sbatch --parsable --partition=V100 --array=4-4 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 1,
+      "group": "V100",
+      "group_count": 134,
+      "job_id": "894918",
+      "role": "post_repair_task_resume",
+      "stride": 6
+    },
+    {
+      "array_range": "0-0",
+      "command": "sbatch --parsable --partition=V100 --nodelist=node43 --array=0-0 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "concurrency": 1,
+      "group": "V100",
+      "group_count": 134,
+      "job_id": "894921",
+      "node_constraint": "node43",
+      "role": "exact_failed_task_hardware_reproduction_retry",
+      "stride": 6
+    }
+  ],
+  "checkpoint_gate": {
+    "artifact_sha256": "4c8ef4631d6bcfe09d2d13443238c146b206f6bd1c07c8933b72be855f8b1535",
+    "command": "sbatch --parsable --partition=V100 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_7b48813 scripts/fp_gem_prevalence_checkpoint_gate.slurm",
+    "job_id": "894726",
+    "status": "pass"
+  },
+  "config_sha256": "12acd01fbad33cdc5feadf2fe54da0c7423960ab6f1bfa7c8a7005ff76b87e2f",
+  "expected_units": 162,
+  "launch_commit": "afa21f2e9ae3b448bab271f30a399eb6cad765b0",
+  "launch_repo": "/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2",
+  "manifest_sha256": "8c5b160fcec5ffeaded7faaf196f9753d7e0f7f15e583f8a18a5651ddf1c5802",
+  "max_concurrent_gpu_tasks": 8,
+  "monitoring_policy": "squeue_only_plus_artifact_validation",
+  "retries": [
+    {
+      "array_task_id": 4,
+      "command": "sbatch --parsable --partition=V100 --array=4-4 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "excluded_attempt": {
+        "failure_reason": "P13 source density does not reproduce P12",
+        "job_id": "894784",
+        "raw_sha256": "4f6bf732a15e8de69d623a98f5eff540e99f2f8af3cc2d0aff007df9b03ba739",
+        "source_seed": 1,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "7b6edc179735b001bef6204223d17780c726219c1d7c206578936016b08d841b",
+        "target_subject": 2
+      },
+      "group": "V100",
+      "job_id": "894841",
+      "reason": "exact frozen task retry after fail-closed density-state hash mismatch"
+    },
+    {
+      "array_task_id": 2,
+      "command": "sbatch --parsable --partition=V100 --array=2-2 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "excluded_attempt": {
+        "failure_reason": "P13 source density does not reproduce P12",
+        "job_id": "894784",
+        "raw_sha256": "381dc8b1377717731b03683686c044e9ac858e463f173bc2cb03b658df2e09b7",
+        "source_seed": 2,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "9d2c652045a893dcc349411d921e9218e087aa50319f12e86e913d75ac77c56b",
+        "target_subject": 3
+      },
+      "group": "V100",
+      "job_id": "894863",
+      "reason": "exact frozen task retry after fail-closed density-state hash mismatch"
+    },
+    {
+      "array_task_id": 4,
+      "command": "sbatch --parsable --partition=V100 --nodelist=node42 --array=4-4 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "excluded_attempt": {
+        "failure_reason": "P13 source density does not reproduce P12",
+        "job_id": "894841",
+        "raw_sha256": "30a5343e9119ed60687172b58bbafd7468c202be7dcfb8e5408a8b0b7c549146",
+        "source_seed": 1,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "02dc575118aa7e5df637fb1d7fe1db2f17b0be53b3dd9d7907c7af659500636d",
+        "target_subject": 2
+      },
+      "group": "V100",
+      "job_id": "894872",
+      "node_constraint": "node42",
+      "reason": "repeat exact-hash failure on node43; reproduce the P12 unit on its original node42 resource",
+      "status": "canceled_pending_zero_result"
+    },
+    {
+      "array_task_id": 4,
+      "command": "sbatch --parsable --partition=V100 --nodelist=node11 --array=4-4 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "group": "V100",
+      "job_id": "894879",
+      "node_constraint": "node11",
+      "reason": "node42 retry remained pending; use the same P12 V100-PCIE-16GB hardware class on idle node11",
+      "status": "completed_repair_then_canceled_for_scheduler_handoff"
+    },
+    {
+      "array_task_id": 2,
+      "command": "sbatch --parsable --partition=V100 --nodelist=node11 --array=2-2 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "excluded_attempt": {
+        "failure_reason": "P13 source density does not reproduce P12",
+        "job_id": "894863",
+        "raw_sha256": "ad29cb0ae3bc1b14c875967f07917758c804846b090b69c7913e9805ae4a28cd",
+        "source_seed": 2,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "8c612cf4768bb4660aed7f121cade33afc1aeda5b2700e12904343bef2e85ac0",
+        "target_subject": 3
+      },
+      "group": "V100",
+      "job_id": "894897",
+      "node_constraint": "node11",
+      "reason": "repeat exact-hash failure on V100S node43; reproduce on the P12 unit's original V100-PCIE-16GB node11"
+    },
+    {
+      "array_task_id": 3,
+      "command": "sbatch --parsable --partition=V100 --nodelist=node10 --array=3-3 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "excluded_attempt": {
+        "failure_reason": "P13 source density does not reproduce P12",
+        "job_id": "894784",
+        "raw_sha256": "1e96ff24bede46bcd769d15a99bed2ce4225fe6dee17916521eac4816d986ef8",
+        "source_seed": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "bd88fbe106189544ce9be8af24d1f8f1e9cfb4f1084930012347fb61d0a0ca18",
+        "target_subject": 6
+      },
+      "group": "V100",
+      "job_id": "894902",
+      "node_constraint": "node10",
+      "reason": "reproduce the fail-closed unit on its P12 original V100S node",
+      "status": "canceled_pending_zero_result"
+    },
+    {
+      "array_task_id": 3,
+      "command": "sbatch --parsable --partition=V100 --nodelist=node15 --array=3-3 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "group": "V100",
+      "job_id": "894903",
+      "node_constraint": "node15",
+      "reason": "node10 retry remained pending; use the same P12 Tesla V100S-PCIE-32GB hardware class on node15"
+    },
+    {
+      "array_task_id": 4,
+      "command": "sbatch --parsable --partition=V100 --array=4-4 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "group": "V100",
+      "job_id": "894918",
+      "reason": "resume frozen task4 after exact hardware repair; completed units are skipped"
+    },
+    {
+      "array_task_id": 0,
+      "command": "sbatch --parsable --partition=V100 --nodelist=node43 --array=0-0 --export=ALL,FP_GEM_P13_REPO=/home/infres/yinwang/.cache/h2cmi_training_caches/fp_gem_p13/repo_afa21f2,FP_GEM_P13_GROUP=V100,FP_GEM_P13_GROUP_COUNT=134,FP_GEM_P13_GROUP_STRIDE=6 scripts/fp_gem_prevalence_array.slurm",
+      "excluded_attempt": {
+        "failure_reason": "P13 source density does not reproduce P12",
+        "job_id": "894784",
+        "raw_sha256": "ea337125485869b1b34a61c984e3e5e9984e3848d85c6221c794bd1d9078e456",
+        "source_seed": 0,
+        "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "stdout_sha256": "be442266299709333981dfadabee48549bc5b6a7b5bd849b4c61d28136105811",
+        "target_subject": 5
+      },
+      "group": "V100",
+      "job_id": "894921",
+      "node_constraint": "node43",
+      "reason": "reproduce the fail-closed unit on its P12 original Tesla V100S-PCIE-32GB node"
+    }
+  ],
+  "runner_sha256": "e5b4450e4e8bb9f715fd9ef4e12b6f26d415c9cac4592ab154430f6550903d9e",
+  "submitted_at": "2026-07-13T14:01:44+02:00",
+  "worktree_clean_at_launch": true
+}

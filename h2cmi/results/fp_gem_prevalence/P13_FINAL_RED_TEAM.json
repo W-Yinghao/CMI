@@ -1,0 +1,42 @@
+{
+  "dataset": "Lee2019_MI",
+  "evaluation_class_counts": {
+    "25,25": 162
+  },
+  "external_sensitivity_comparisons": {
+    "FP-GEM minus rct": {
+      "ci_high": -0.0010493827160493738,
+      "ci_low": -0.011419753086419751,
+      "estimate": -0.006111111111111117
+    },
+    "FP-GEM minus spdim_bias": {
+      "ci_high": 0.00925925925925927,
+      "ci_low": -0.006111111111111102,
+      "estimate": 0.0014814814814814827
+    },
+    "FP-GEM minus spdim_geodesic": {
+      "ci_high": 0.005000000000000029,
+      "ci_low": -0.004753086419753052,
+      "estimate": 6.172839506174935e-05
+    }
+  },
+  "final_squeue_absence": true,
+  "geometry_rows": 972,
+  "independent_ci_recompute_errors": 0,
+  "independent_metric_recompute_errors": 0,
+  "per_subject_rows": 324,
+  "primary_comparison": {
+    "ci_high": 0.002098765432098762,
+    "ci_low": -0.003641975308641996,
+    "estimate": -0.0007407407407407481
+  },
+  "primary_method_claim_supported": false,
+  "q05_exact_units": 162,
+  "raw_result_rows": 2916,
+  "raw_units": 162,
+  "residual_limit": "New-q logits vectors were not persisted, so their hashes are complete but cannot be independently regenerated; q=0.5 logits reproduce P12 exactly.",
+  "result_csv_rows": 2916,
+  "result_sha256": "cf9e403eb8be1c0548a95f9007eb7089ee3f93d8bee2401af22587903bffdb2f",
+  "review": "independent_final_red_team",
+  "status": "pass"
+}
