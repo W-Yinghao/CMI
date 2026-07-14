@@ -1,0 +1,7 @@
+check,historical_value,replacement_value,changed,scientific_change
+linear_reconstruction_abs_tolerance,0.00001,0.00002,true,false
+softmax_abs_tolerance,0.000001,0.000001,false,false
+repeat_logits_abs_tolerance,0.000001,0.000001,false,false
+repeat_z_abs_tolerance,0.000001,0.000001,false,false
+training_models_data_candidate_IDs_deletion,unchanged,unchanged,false,false
+failed_root_reuse,forbidden,forbidden,false,false

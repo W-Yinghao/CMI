@@ -1,0 +1,79 @@
+{
+  "authorization": {
+    "failed_authorization_consumed": true,
+    "fresh_direct_C84L1C_authorization_required_after_new_lock": true,
+    "historical_authorization_reusable": false,
+    "shortest_future_statement": "授权 C84L1C"
+  },
+  "base": {
+    "C84L1C_execution_lock_commit": "3eafd70795344c43e0c6326e5c190ecaea4c2934",
+    "C84L1C_execution_lock_sha256": "d6ccab97ebfbb1e1d571b71d5062e88dcfa08371ae9d53526cf7c25f45220e58",
+    "C84L1_repair_protocol_sha256": "b9fed16afe9961d0d25f4801fa29859a8acb87c091e125ffe57e20e72ad00f35",
+    "canary_protocol_V1_sha256": "88dad89054b4201be13ef5e6d63693bdfbc31a8646432f7e1a8c1d6ab094091b",
+    "failed_attempt_job": 895928,
+    "failed_attempt_manifest_sha256": "ba67a4a0f8a516085b3eb020c353c401c2eafdd1981eb880c5c63587ac31b091"
+  },
+  "epistemic_status": {
+    "designed_after_engineering_failure": true,
+    "real_EEG_access_occurred": true,
+    "source_labels_read": true,
+    "target_scientific_outcome_access_occurred": false,
+    "target_y_access_occurred": false
+  },
+  "failure": {
+    "complete_units": 73,
+    "error_type": "C84R3RuntimeError",
+    "failed_unit_id": "c84l1_3694c9bcfa6865ae595f4607e9c03a0f",
+    "observed_Wz_plus_b_max_abs_error": 0.00001239776611328125,
+    "repeat_logits_max_abs_error": 0.0,
+    "repeat_z_max_abs_error": 0.0,
+    "softmax_max_abs_error": 0.0,
+    "stage": "level1_training_and_instrumentation:Lee2019_MI"
+  },
+  "forbidden": {
+    "C84F_or_C84S_execution_or_lock": true,
+    "reuse_failed_partial_artifacts": true,
+    "same_label_oracle": true,
+    "scientific_metric_or_threshold_change": true,
+    "silent_rerun": true,
+    "target_outcome_driven_decision": true
+  },
+  "milestone": "C84L1R1",
+  "numerical_calibration": {
+    "completed_level1_artifacts_inspected": 73,
+    "engineering_fields_only": true,
+    "max_abs_classifier_bias": 0.03824228420853615,
+    "max_abs_classifier_weight": 0.31851330399513245,
+    "max_abs_logits": 12.266913414001465,
+    "max_abs_persisted_Wz_plus_b_difference": 0.00000762939453125,
+    "max_abs_z": 5.266300678253174,
+    "p95_abs_persisted_Wz_plus_b_difference": 0.000005912780761718746,
+    "scientific_endpoint_computed": false,
+    "target_label_used": false
+  },
+  "repair": {
+    "candidate_IDs_changed": false,
+    "data_views_changed": false,
+    "linear_reconstruction_abs_tolerance": 0.00002,
+    "model_or_training_changed": false,
+    "new_external_content_addressed_root_required": true,
+    "new_scope_specific_execution_lock_required": true,
+    "scientific_registry_changed": false,
+    "softmax_repeat_logits_repeat_z_abs_tolerance": 0.000001,
+    "source_subjects_targets_channels_epochs_or_deletion_changed": false,
+    "tolerance_scope": "float32_1040_term_z_classifier_CPU_GPU_linear_reconstruction_only"
+  },
+  "required_validation": {
+    "observed_1_2397766e_5_fixture_passes": true,
+    "perturbation_above_2e_5_fails": true,
+    "persisted_numpy_reconstruction_uses_same_linear_tolerance": true,
+    "strict_identity_checks_remain_1e_6": true,
+    "synthetic_and_full_regressions_required": true
+  },
+  "retry": {
+    "failed_root_preserved": true,
+    "retrain_all_243_units": true,
+    "reuse_checkpoint_optimizer_sidecar_or_instrumentation": false
+  },
+  "schema_version": "c84l1r1_float32_linear_replay_repair_protocol_v1"
+}
