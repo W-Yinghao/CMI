@@ -153,7 +153,21 @@ def test_historical_level1_authorization_is_consumed_and_not_reusable():
     )
     assert result["authorized_stage"] == "C84L1C"
     assert result["C84F"] is False and result["C84S"] is False
-    assert not replacement_runtime.AUTHORIZATION_RECORD_PATH.exists()
+    assert replacement_runtime.AUTHORIZATION_RECORD_PATH.is_file()
+    replacement_lock = json.loads(replacement_runtime.EXECUTION_LOCK_PATH.read_text())
+    replacement = replacement_runtime.verify_authorization_record(
+        replacement_lock,
+        replacement_runtime.verify_lock_self(
+            replacement_runtime.EXECUTION_LOCK_PATH,
+            replacement_runtime.EXECUTION_LOCK_SHA_PATH,
+        ),
+        replacement_runtime.prior.commit_for_path(replacement_runtime.EXECUTION_LOCK_PATH),
+        replacement_runtime.AUTHORIZATION_RECORD_PATH,
+    )
+    assert replacement["authorized_stage"] == "C84L1C"
+    assert replacement["failed_authorization_reused"] is False
+    assert replacement["failed_partial_artifacts_reused"] is False
+    assert replacement["C84F"] is False and replacement["C84S"] is False
 
 
 def test_complete_gate_requires_all_243_artifact_families():
@@ -212,10 +226,17 @@ def test_slurm_wrapper_locks_deterministic_environment_and_only_calls_C84L1C():
     assert "C84F" not in text and "C84S" not in text
 
 
-def test_post_attempt_lifecycle_has_no_replacement_authorization_or_tracked_payload():
+def test_post_replacement_lifecycle_preserves_complete_manifest_and_no_tracked_payload():
     assert runtime.AUTHORIZATION_RECORD_PATH.is_file()
-    assert not replacement_runtime.AUTHORIZATION_RECORD_PATH.exists()
-    assert not replacement_runtime.DEFAULT_EXTERNAL_ROOT.exists()
+    assert replacement_runtime.AUTHORIZATION_RECORD_PATH.is_file()
+    complete_manifest = (
+        replacement_runtime.DEFAULT_EXTERNAL_ROOT
+        / "lock_f9ebd88c72915bb41ba2"
+        / "C84L1C_COMPLETE_ENGINEERING_MANIFEST.json"
+    )
+    assert replacement_runtime.sha256_file(complete_manifest) == (
+        "3cf1366ccf40efc82a6bb2ffef56045e83c0f0e9670429973f23252371ad1c18"
+    )
     forbidden = {".npy", ".npz", ".pt", ".pth", ".ckpt", ".fif", ".edf", ".gdf", ".mat"}
     tracked = [Path(line) for line in __import__("subprocess").run(
         ["git", "ls-files", "oaci"], cwd=ROOT, text=True, capture_output=True, check=True,

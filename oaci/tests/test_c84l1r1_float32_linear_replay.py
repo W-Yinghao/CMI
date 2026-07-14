@@ -82,7 +82,12 @@ def test_replacement_root_and_authorization_paths_are_additive():
     assert runtime.DEFAULT_EXTERNAL_ROOT.name == "oaci-c84-level1-canary-v2"
     assert runtime.DEFAULT_EXTERNAL_ROOT != runtime.base.DEFAULT_EXTERNAL_ROOT
     assert runtime.AUTHORIZATION_RECORD_PATH.name == "C84L1C_PI_AUTHORIZATION_RECORD_V2.json"
-    assert not runtime.AUTHORIZATION_RECORD_PATH.exists()
+    assert runtime.AUTHORIZATION_RECORD_PATH.is_file()
+    authorization = json.loads(runtime.AUTHORIZATION_RECORD_PATH.read_text())
+    assert authorization["schema_version"] == "c84l1c_direct_pi_authorization_record_v2"
+    assert authorization["failed_authorization_reused"] is False
+    assert authorization["failed_partial_artifacts_reused"] is False
+    assert authorization["C84F"] is False and authorization["C84S"] is False
 
 
 def test_replacement_protocol_preserves_scope_and_changes_only_tolerance_contract():
@@ -142,9 +147,17 @@ def test_replacement_execution_lock_replays_exact_scope_and_implementation():
     assert lock["authorization"]["record_present_at_lock"] is False
 
 
-def test_replacement_authorization_fails_closed_without_creating_external_root(tmp_path):
+def test_missing_replacement_authorization_fails_closed_without_mutating_completed_root(tmp_path):
     lock = json.loads(runtime.EXECUTION_LOCK_PATH.read_text())
     missing = tmp_path / "missing-authorization.json"
+    complete_manifest = (
+        runtime.DEFAULT_EXTERNAL_ROOT
+        / "lock_f9ebd88c72915bb41ba2"
+        / "C84L1C_COMPLETE_ENGINEERING_MANIFEST.json"
+    )
+    assert runtime.sha256_file(complete_manifest) == (
+        "3cf1366ccf40efc82a6bb2ffef56045e83c0f0e9670429973f23252371ad1c18"
+    )
     with pytest.raises(runtime.C84L1R1RuntimeError, match="authorization record is absent"):
         runtime.verify_authorization_record(
             lock,
@@ -152,4 +165,6 @@ def test_replacement_authorization_fails_closed_without_creating_external_root(t
             "afc5a6b",
             missing,
         )
-    assert not runtime.DEFAULT_EXTERNAL_ROOT.exists()
+    assert runtime.sha256_file(complete_manifest) == (
+        "3cf1366ccf40efc82a6bb2ffef56045e83c0f0e9670429973f23252371ad1c18"
+    )
