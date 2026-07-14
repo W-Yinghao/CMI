@@ -31,6 +31,11 @@ DEFAULT_EXTERNAL_ROOT = Path("/projects/EEG-foundation-model/yinghao/oaci-c84-le
 LOCK_READY_STATUS = "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
 LINEAR_REPLAY_ABS_TOLERANCE = prior.LINEAR_REPLAY_ABS_TOLERANCE
 STRICT_IDENTITY_ABS_TOLERANCE = prior.STRICT_IDENTITY_ABS_TOLERANCE
+MODEL_REUSE_FIELDS = (
+    "unit_id", "dataset", "regime", "epoch", "trajectory_order", "model_state_hash",
+    "parent_ERM_model_state_hash", "previous_trajectory_model_state_hash",
+    "checkpoint_sha256", "optimizer_sha256", "source_audit_sha256", "sidecar_sha256",
+)
 
 
 class C84L1RuntimeError(prior.C84R3RuntimeError):
@@ -86,15 +91,76 @@ def verify_intervention_registry(lock: Mapping[str, Any]) -> dict[str, Any]:
 
 def verify_candidate_identity(lock: Mapping[str, Any]) -> dict[str, Any]:
     registry_sha = lock["level_intervention"]["registry_sha256"]
-    _, rows, _, operative = protocol.identity_rows(registry_sha)
+    _, rows, supersession, operative = protocol.identity_rows(registry_sha)
     canary = sorted(row["unit_id"] for row in rows if int(row["C84L1C_canary"]) == 1)
+    level1 = sorted(row["unit_id"] for row in rows)
+    operative_ids = sorted(row["unit_id"] for row in operative)
+    blocked = sorted(row["historical_planned_level1_unit_id"] for row in supersession)
     digest = sha256_bytes(canonical_bytes(canary))
     binding = lock.get("candidate_identity", {})
     if len(canary) != 243 or digest != binding.get("canary_unit_ID_digest"):
         raise C84L1RuntimeError("C84L1C 243-unit candidate identity drift")
+    if sha256_bytes(canonical_bytes(level1)) != binding.get("level1_unit_ID_digest"):
+        raise C84L1RuntimeError("C84L1C complete level-1 candidate identity drift")
+    if sha256_bytes(canonical_bytes(operative_ids)) != binding.get("operative_unit_ID_digest"):
+        raise C84L1RuntimeError("C84L1C operative complete-field candidate identity drift")
+    if sha256_bytes(canonical_bytes(blocked)) != binding.get("blocked_level1_unit_ID_digest"):
+        raise C84L1RuntimeError("C84L1C historical blocked level-1 identity drift")
     if len(operative) != 1944 or int(binding.get("operative_unit_count", -1)) != 1944:
         raise C84L1RuntimeError("C84L1C lock does not bind the 1,944-unit operative universe")
-    return {"canary_units": 243, "canary_unit_ID_digest": digest, "operative_units": 1944}
+    return {
+        "canary_units": 243,
+        "canary_unit_ID_digest": digest,
+        "level1_units": 972,
+        "operative_units": 1944,
+        "replay_pass": True,
+    }
+
+
+def summarize_accepted_c84c_manifest(path: Path) -> dict[str, Any]:
+    """Summarize only accepted engineering identities, never target values."""
+    manifest = read_json(path)
+    if manifest.get("unit_count") != 243 or manifest.get("training_phases") != 9:
+        raise C84L1RuntimeError("accepted C84C manifest arithmetic drift")
+    if manifest.get("target_label_access") != 0 or manifest.get("target_scientific_metrics") != 0:
+        raise C84L1RuntimeError("accepted C84C manifest contains protected target access")
+    datasets = manifest.get("datasets")
+    if not isinstance(datasets, list) or len(datasets) != 3:
+        raise C84L1RuntimeError("accepted C84C manifest dataset registry drift")
+    summaries: dict[str, Any] = {}
+    all_units: list[dict[str, Any]] = []
+    for dataset_row in datasets:
+        dataset = str(dataset_row.get("dataset"))
+        units = dataset_row.get("units")
+        fingerprint = dataset_row.get("deterministic_prefix")
+        if dataset not in protocol.historical.DATASET_ORDER or not isinstance(units, list) or len(units) != 81:
+            raise C84L1RuntimeError("accepted C84C dataset/unit identity drift")
+        if not isinstance(fingerprint, Mapping) or len(fingerprint.get("plan_hashes", ())) != 4:
+            raise C84L1RuntimeError("accepted C84C plan-hash registry drift")
+        normalized = []
+        for unit in units:
+            if any(field not in unit for field in MODEL_REUSE_FIELDS):
+                raise C84L1RuntimeError("accepted C84C model reuse field is absent")
+            normalized.append({field: unit[field] for field in MODEL_REUSE_FIELDS})
+        normalized.sort(key=lambda row: row["unit_id"])
+        all_units.extend(normalized)
+        summaries[dataset] = {
+            "unit_count": 81,
+            "unit_ID_digest": sha256_bytes(canonical_bytes([row["unit_id"] for row in normalized])),
+            "model_unit_registry_sha256": sha256_bytes(canonical_bytes(normalized)),
+            "plan_hashes": list(fingerprint["plan_hashes"]),
+            "deterministic_prefix_sha256": dataset_row["deterministic_prefix_sha256"],
+            "deterministic_prefix_model_init_sha256": fingerprint["model_init_state_sha256"],
+        }
+    if set(summaries) != set(protocol.historical.DATASET_ORDER):
+        raise C84L1RuntimeError("accepted C84C dataset names drift")
+    all_units.sort(key=lambda row: row["unit_id"])
+    return {
+        "unit_count": 243,
+        "unit_ID_digest": sha256_bytes(canonical_bytes([row["unit_id"] for row in all_units])),
+        "model_unit_registry_sha256": sha256_bytes(canonical_bytes(all_units)),
+        "datasets": summaries,
+    }
 
 
 def verify_c84c_level0_binding(lock: Mapping[str, Any]) -> dict[str, Any]:
@@ -104,7 +170,21 @@ def verify_c84c_level0_binding(lock: Mapping[str, Any]) -> dict[str, Any]:
         raise C84L1RuntimeError("accepted C84C level-0 manifest replay failed")
     if int(binding.get("reusable_units", -1)) != 243:
         raise C84L1RuntimeError("accepted C84C level-0 reuse count drift")
-    return {"manifest_sha256": binding["manifest_sha256"], "reusable_units": 243, "replay_pass": True}
+    observed = summarize_accepted_c84c_manifest(manifest)
+    expected = {
+        "unit_count": binding.get("reusable_units"),
+        "unit_ID_digest": binding.get("unit_ID_digest"),
+        "model_unit_registry_sha256": binding.get("model_unit_registry_sha256"),
+        "datasets": binding.get("datasets"),
+    }
+    if observed != expected:
+        raise C84L1RuntimeError("accepted C84C plan/model registry replay failed")
+    return {
+        "manifest_sha256": binding["manifest_sha256"],
+        "reusable_units": 243,
+        "model_unit_registry_sha256": observed["model_unit_registry_sha256"],
+        "replay_pass": True,
+    }
 
 
 def verify_authorization_record(
