@@ -14,43 +14,51 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-14)
 
-The current external-validity milestone is **C84L1P**, the prospective fixed-panel
-source-support deletion protocol and level-1 engineering-canary lock:
+The current external-validity milestone is **C84L1R1**, an additive numerical
+replay repair after the first authorized level-1 engineering canary stopped:
 
 ```text
-C84FL blocked base:       6d6030f17dc2cdf8c8b180a9376632e238d42e75
-C84L1 protocol commit:    a90f0051ed41937737ac7ac0258a882d45cefb33
-C84L1 verification base:  12dc54fe0f853234b47913bd71f885b7b158414a
-repair protocol SHA-256:  b9fed16afe9961d0d25f4801fa29859a8acb87c091e125ffe57e20e72ad00f35
-C84L1C lock commit:       3eafd70795344c43e0c6326e5c190ecaea4c2934
-C84L1C lock SHA-256:      d6ccab97ebfbb1e1d571b71d5062e88dcfa08371ae9d53526cf7c25f45220e58
-gate:                     C84_LEVEL1_FIXED_PANEL_SUPPORT_DELETION_LOCKED_READY_FOR_ENGINEERING_CANARY_AUTHORIZATION
+C84L1P readiness HEAD:       a0ec77b3a41084106713bf1f259e1daad2004607
+historical authorization:    05bfca18c58b67b6cc0b7c5d57dfc7dc1036f8ea
+failed job:                  895928
+C84L1R1 repair commit:       e35ba0bfb412fbdcbc6fb127db05af1d91f51440
+replacement implementation: d0159d1b2db26d796ae3f9853329a5851aa93222
+replacement lock commit:     afc5a6b5aedbb0e9d9b09acba0997657513e5268
+repair protocol SHA-256:     2e199f6f63dffd1b02c1e31102ed189e31bf6e4961465394230f8e9de1d4ddf0
+canary V2 SHA-256:           6e6bcb6b60726c76c8db0afc48e954d0e4a1cf68bfd29796987bfd6828355616
+field V6 SHA-256:            cd8646403a7564e9d1a7e3d64104483cbd56ac85bebaafa1244afdde8a8ed310
+replacement lock SHA-256:    f9ebd88c72915bb41ba2d2d84a2a00c6748272021d48043c299bce52a1ad3813
+gate:                        C84L1C_FLOAT32_REPLAY_REPAIRED_AND_RELOCKED_READY_FOR_FRESH_PI_AUTHORIZATION
 ```
 
-Level 0 and all 972 level-0 IDs remain unchanged. Level 1 now deletes the fixed
-first source-training subject × `left_hand` cell before support and plan
-materialization: Lee A/B 31/16, Cho A/B 17/37, Physionet A/B 103/109. Exactly
-one of 24 cells is absent and every retained cell must have at least eight rows.
+Job `895928` consumed the original authorization and entered Lee2019_MI. It
+completed three training phases and 73 complete units, then failed on the next
+SRC unit because float32 `zW+b` replay error
+`1.239776611328125e-5` exceeded `1e-5`. Target-y,
+construction/evaluation/oracle, target scientific metrics and outcome decisions
+were all zero. The failed root and partial manifest remain preserved and
+nonreusable.
 
-The 972 historical planned level-1 IDs remain preserved but non-operative; 972
-new IDs bind the deletion registry. The complete operative universe remains
-1,944 units. The future C84L1C scope is panel A / seed 5 / level 1, 243 units / 9
-phases, targets 19/24/106, engineering only.
+C84L1R1 changes only the 1040-term CPU/GPU float32 reconstruction tolerance to
+`2e-5`; saved-softmax, repeat-logit and repeat-z checks remain `1e-6`. Level 0,
+all candidate IDs, fixed deletion cells, model/training identity, data views and
+scientific contracts are unchanged. The replacement must retrain all 243 units
+in a fresh root.
 
-The lock binds 39 implementation files and 107 runtime objects plus the accepted
-C84C manifest, plan hashes and model/source-audit registry. No C84L1C
-authorization record or external root exists. No real EEG, label, training,
-forward, GPU or target metric occurred in C84L1P. C84F/C84S have no lock.
+The replacement lock binds 44 implementation files, 125 runtime objects and
+five protocol identities. The fresh V2 authorization record and replacement
+external root are absent. The runtime completes all byte/hash replays, then
+fails before root creation when authorization is absent. C84F/C84S have no
+execution lock.
 
-Regression: focused 163, C65 649,
-C23 1060, full 1984 passed; the
-cumulative suites have one explained C78F skip and three established C79
-deselections, with all stderr empty.
+Regression: focused 175, C65 661, C23 1,072 and full 1,996 passed. The cumulative
+suites have one explained C78F skip and three established C79 deselections; all
+stderr is empty and `squeue` shows no active job.
 
-The complete report is `reports/C84L1P_OVERALL_REPORT.md`. The next permissible
-action is a fresh direct `授权 C84L1C`; after successful canary review, C84FL2 may
-lock the remaining 1,458 units / 54 phases. This handoff does not authorize any
-real execution.
+The complete report is `reports/C84L1R1_OVERALL_REPORT.md`. The next permissible
+action is a new direct `授权 C84L1C`, bound to canary V2 and execution lock V2.
+The authorization consumed by job `895928` cannot be reused. This handoff does
+not authorize real execution.
 
 ### Accepted C84C engineering base
 

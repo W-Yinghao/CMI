@@ -1,0 +1,13 @@
+case_id,fixture,expected,observed,status,real_data_access
+S01,observed_1.239776611328125e-5_linear_error,PASS_AT_2e-5,PASS_AT_2e-5,PASS,0
+S02,linear_error_above_2e-5,FAIL_CLOSED,FAIL_CLOSED,PASS,0
+S03,strict_identity_error_above_1e-6,FAIL_CLOSED,FAIL_CLOSED,PASS,0
+S04,persisted_target_artifact_uses_split_tolerance,PASS,PASS,PASS,0
+S05,nonfinite_identity_error,FAIL_CLOSED,FAIL_CLOSED,PASS,0
+S06,unknown_identity_field,FAIL_CLOSED,FAIL_CLOSED,PASS,0
+S07,replacement_root_and_authorization_paths,ADDITIVE_V2,ADDITIVE_V2,PASS,0
+S08,replacement_canary_scope_and_candidate_identity,UNCHANGED,UNCHANGED,PASS,0
+S09,failed_partial_artifact_reuse,FORBIDDEN,FORBIDDEN,PASS,0
+S10,replacement_schema_dry_run,243_UNITS_9_PHASES,243_UNITS_9_PHASES,PASS,0
+S11,historical_lock_and_failed_attempt,PRESERVED_NONOPERATIVE,PRESERVED_NONOPERATIVE,PASS,0
+S12,fresh_authorization_absent,FAIL_BEFORE_EXTERNAL_ROOT,FAIL_BEFORE_EXTERNAL_ROOT,PASS,0
