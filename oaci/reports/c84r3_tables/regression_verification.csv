@@ -1,0 +1,5 @@
+suite,job_id,commit,passed,skipped,deselected,elapsed,environment,allocation,stderr_bytes,stdout_sha256,status,skip_reason,deselection_reason
+focused,895371,91e39690f4de39b13465d6505fa292793f75482e,102,0,0,2.92s,c84c-eeg2025-v3-exact,cpu-high|48_CPU|96G|GPU_0,0,0054dace48a8645e4e7396bd4fa9605bdef3fb3cb0a76fe2bb6069cf8ba401c9,PASS,NONE,NONE
+C65,895372,91e39690f4de39b13465d6505fa292793f75482e,588,1,3,34.86s,c84c-eeg2025-v3-exact,cpu-high|48_CPU|96G|GPU_0,0,e3f19f2ad0aea567ef89e64034f93d10e45ca90843ddb1a8aaa017924fd20b24,PASS,C78F already finalized,three historical C79 authorization-state tests
+C23,895373,91e39690f4de39b13465d6505fa292793f75482e,999,1,3,64.29s,c84c-eeg2025-v3-exact,cpu-high|48_CPU|96G|GPU_0,0,9ede22096698115888367f857188189ffab687aa05e1d0f109036431b423ca41,PASS,C78F already finalized,three historical C79 authorization-state tests
+full,895374,91e39690f4de39b13465d6505fa292793f75482e,1923,1,3,260.64s,c84c-eeg2025-v3-exact,cpu-high|48_CPU|96G|GPU_0,0,5b30e2ba353b21e66a162f5e524db71376da7aa4d4a54b6f1b8b5125218e8ede,PASS,C78F already finalized,three historical C79 authorization-state tests

@@ -1,0 +1,13 @@
+case_id,fixture,expected,observed,pass,real_data_access
+S01,observed_2.86102294921875e-6_linear_error,PASS_AT_1e-5,PASS_AT_1e-5,1,0
+S02,linear_error_above_1e-5,FAIL_CLOSED,FAIL_CLOSED,1,0
+S03,repeat_logits_error_above_1e-6,FAIL_CLOSED,FAIL_CLOSED,1,0
+S04,in_memory_split_tolerance,PASS,PASS,1,0
+S05,persisted_split_tolerance,PASS,PASS,1,0
+S06,V4_protocol_hash_and_parent_replay,PASS,PASS,1,0
+S07,72_runtime_bound_objects,PASS,PASS,1,0
+S08,243_candidate_ID_digest,PASS,PASS,1,0
+S09,fresh_authorization_missing,FAIL_BEFORE_OUTPUT_ROOT,FAIL_BEFORE_OUTPUT_ROOT,1,0
+S10,failed_root_reuse,FORBIDDEN,FORBIDDEN,1,0
+S11,C84F_or_C84S_lock,ABSENT,ABSENT,1,0
+S12,target_label_or_scientific_output,ABSENT,ABSENT,1,0

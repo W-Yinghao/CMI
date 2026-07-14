@@ -1,0 +1,4 @@
+check,observed,pass,output_root_created,real_data_access
+full_guard_missing_fresh_authorization,C84R3RuntimeError,1,0,0
+fresh_authorization_record,ABSENT,1,0,0
+replacement_external_root,ABSENT,1,0,0

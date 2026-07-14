@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import csv
 import json
 
 import pytest
@@ -52,3 +53,19 @@ def test_no_c84f_or_c84s_execution_lock_exists():
     names = {path.name for path in runtime.REPORT_DIR.glob("C84*EXECUTION_LOCK*.json")}
     assert "C84C_EXECUTION_LOCK_V3.json" in names
     assert not any(name.startswith(("C84F_", "C84S_")) for name in names)
+
+
+def test_c84r3_readiness_is_reauthorization_only_and_red_team_complete():
+    readiness = json.loads((runtime.REPORT_DIR / "C84R3_PROTOCOL_READINESS.json").read_text())
+    assert readiness["gate"] == (
+        "C84C_FLOAT32_REPLAY_REPAIRED_AND_RELOCKED_READY_FOR_FRESH_PI_AUTHORIZATION"
+    )
+    assert readiness["failed_authorization_consumed"] is True
+    assert readiness["fresh_authorization_record_present"] is False
+    assert readiness["replacement_real_data_access"] == 0
+    assert readiness["runtime_bound_objects"] == 72
+    assert readiness["final_red_team"] == "37/37 PASS"
+    with (runtime.REPORT_DIR / "c84r3_tables/final_report_red_team.csv").open(newline="") as handle:
+        rows = list(csv.DictReader(handle))
+    assert len(rows) == 37
+    assert all(row["status"] == "PASS" for row in rows)

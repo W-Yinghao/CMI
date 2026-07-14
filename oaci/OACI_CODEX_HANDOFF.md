@@ -14,7 +14,58 @@ this PM works with you**. Then the repo/env/how-to-continue mechanics. Written 2
 
 ## 0. Current continuation state (2026-07-14)
 
-The current no-real-data external-validity milestone is **C84R2**:
+The current external-validity milestone is **C84R3**, an additive engineering
+repair after the first authorized C84C attempt stopped safely:
+
+```text
+C84R3 repair protocol commit:             1c523a4749444136a00b502204b0ed06cac0e5d2
+C84R3 repair protocol SHA-256:             cdbdb9a25dc29b6a37ac9eb65f130f44efa120042dfb7ddb140cf3db103ec196
+C84R3 runtime implementation commit:       10c60d92f61dd091fef7a08f686a7ce85d99eb07
+C84C V4 protocol commit:                   bf33ad635ba46cba38636a6a140f3f580f6dab78
+C84C V4 protocol SHA-256:                  cc54b5e6f92e4b0d338bf297c92823b4d60a8628a55dcff547ef9d808ee43afb
+C84 field V4 protocol SHA-256:             eff7ebbc2e4f91830a3df1d679adfcae6eae2ab8a1e91c64ed28df7fce96aa12
+C84C V3 execution-lock commit:             a5feff377a18283dbe050d2feaa54126e5f924a9
+C84C V3 execution-lock SHA-256:             c198607fb9e46ea2353ffa57d6b71bfa966c36e8ece53fdc40292681bba8bd1a
+C84R3 verification base:                   91e39690f4de39b13465d6505fa292793f75482e
+C84R3 gate:                                C84C_FLOAT32_REPLAY_REPAIRED_AND_RELOCKED_READY_FOR_FRESH_PI_AUTHORIZATION
+```
+
+Authorized C84C job `895366` consumed the V2 authorization and failed at the
+first Lee instrumentation unit because the single `1e-6` replay threshold was
+too strict for a 1040-term float32 `z @ W.T + b` reconstruction. The observed
+maximum error was `2.86102294921875e-6`; softmax, repeat-logit and repeat-z
+errors were all zero. The preserved attempt materialized three Lee views, read
+two source-label arrays and completed three training phases, but target-y access,
+target scientific metrics, complete units, source artifacts and target artifacts
+all remained zero.
+
+C84R3 changes only the float32 linear reconstruction maximum absolute tolerance
+to `1e-5`. Softmax, repeat-logit and repeat-z checks remain `1e-6`. Training,
+models, data views, subject partitions, montage, candidate IDs and scientific
+contracts are unchanged. The failed root is preserved and cannot be reused; a
+replacement must retrain all 243 units in the new content-addressed V4 root.
+
+The V3 lock binds 72 repository objects and seven protocols by SHA-256 and Git
+blob. The replacement external root and V3 authorization record are absent.
+The authorization consumed by job `895366` cannot be reused. A fresh direct
+`授权 C84C` statement must be bound to the V4 protocol and V3 lock before any
+replacement dataset access. C84F and C84S remain unauthorized and have no locks.
+
+Accepted C84R3 regressions:
+
+```text
+focused C84R3:   102 passed                         job 895371
+C65-C84R3:       588 passed, 1 skip, 3 deselected job 895372
+C23-C84R3:       999 passed, 1 skip, 3 deselected job 895373
+full OACI:     1,923 passed, 1 skip, 3 deselected job 895374
+```
+
+All jobs were CPU-only with empty stderr. Synthetic calibration passed 12/12
+and the final readiness red-team passed 37/37.
+
+### Historical C84R2 readiness before job 895366
+
+The preceding no-real-data readiness milestone was **C84R2**:
 
 ```text
 C84R accepted base:                       2fc5e797119ce1defc5e24c9063bb103b219a705
@@ -49,7 +100,7 @@ superseded additively by V3/V2. The new guard replays 63/63 bound repository
 objects by SHA-256 and current Git blob, 6/6 protocol hashes, the montage and
 243-unit digest before output-root creation or loader import.
 
-C84C remains engineering-only and unexecuted:
+At C84R2 readiness, C84C remained engineering-only and unexecuted:
 
 ```text
 datasets:          Lee2019_MI / Cho2017 / PhysionetMI
@@ -76,11 +127,10 @@ repeat logits/z, genealogy and deterministic-prefix fingerprints. The attempt
 ledger starts immediately after authorization consumption and before protected
 imports or CUDA checks.
 
-No current C84C authorization record exists. No C84F or C84S execution lock
-exists. A future direct statement `授权 C84C` may be bound to the unique current
-C84C V3 protocol and V2 lock under policy `3d9dd76`; text in this handoff is not
-authorization. Protected C84R2 state remains zero EEG arrays, labels, downloads,
-training, forward, GPU jobs, candidate units and instrumentation artifacts.
+At C84R2 readiness no C84C authorization record existed, and its protected state
+was zero EEG arrays, labels, downloads, training, forward, GPU jobs, candidate
+units and instrumentation artifacts. That historical state ended when job
+`895366` consumed its authorization; the C84R3 section above is authoritative.
 
 Accepted C84R2 regressions at verification commit `ecd1f5b`:
 
