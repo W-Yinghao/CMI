@@ -146,3 +146,21 @@ def test_canary_artifacts_replay_before_fresh_authorization_check():
     source = Path(runtime.__file__).read_text(encoding="utf-8")
     function = source[source.index("def require_authorization_and_lock"):]
     assert function.index("verify_dual_canary_reuse") < function.index("verify_authorization_record")
+
+
+def test_replacement_target_stage_lock_is_self_consistent_and_not_pre_authorized():
+    lock_path = REPORTS / "C84F_TARGET_STAGE_EXECUTION_LOCK.json"
+    sidecar_path = REPORTS / "C84F_TARGET_STAGE_EXECUTION_LOCK.sha256"
+    expected = sidecar_path.read_text(encoding="ascii").split()[0]
+    assert hashlib.sha256(lock_path.read_bytes()).hexdigest() == expected
+    lock = json.loads(lock_path.read_text(encoding="utf-8"))
+    assert lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
+    assert lock["implementation"]["target_stage_training_callable"] is False
+    assert lock["implementation"]["entrypoint"].endswith(
+        "oaci.multidataset.c84fr1_target_stage_repair run-real"
+    )
+    assert lock["scope"]["model_units_replayed"] == 1944
+    assert lock["scope"]["canary_artifact_files_replayed_before_target_access"] == 2430
+    assert lock["frozen_failed_attempt"]["model_retraining_allowed"] is False
+    assert lock["authorization"]["record_present_at_lock"] is False
+    assert all(lock["forbidden"].values())

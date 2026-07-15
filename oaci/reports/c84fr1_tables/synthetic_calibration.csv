@@ -1,0 +1,13 @@
+check,passed,status
+dictionary_insertion_order_irrelevant,1,PASS
+missing_raw_field_fails,1,PASS
+unknown_raw_field_fails,1,PASS
+target_runtime_has_no_training_import,1,PASS
+model_units_replayed,1,PASS
+model_artifact_files_replayed,1,PASS
+historical_target_X_arrays,1,PASS
+historical_target_y_zero,1,PASS
+historical_scientific_metrics_zero,1,PASS
+old_target_registry_absent,1,PASS
+old_target_artifact_directory_absent,1,PASS
+old_complete_manifest_absent,1,PASS
