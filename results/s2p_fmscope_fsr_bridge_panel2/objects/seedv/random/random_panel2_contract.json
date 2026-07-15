@@ -1,0 +1,18 @@
+{
+  "canary": false,
+  "dataset": "seedv",
+  "feature_payload": "${PHASE_C_FEATURE_ROOT}/random_features.npz",
+  "feature_payload_sha256": "34da418acaf5a43bfda02f58da801b6a12320bf95e5435471e330d6fa5444fea",
+  "feature_shape": [
+    705,
+    200
+  ],
+  "four_arm_contract": true,
+  "fresh_and_exact_separate": true,
+  "phase": "FMScope_FSR_Bridge_Panel2",
+  "random_draws_per_null": 100,
+  "representation": "final_channel_and_patch_mean_200d",
+  "status": "PASS_OBJECT",
+  "tag": "random",
+  "target_labels_used_for_selection": false
+}

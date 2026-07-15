@@ -1,0 +1,444 @@
+{
+  "all_object_metrics_recomputed_from_predictions": true,
+  "all_random_draw_families_complete": true,
+  "checks": [
+    {
+      "check": "random_feature_payload_hash",
+      "pass": true
+    },
+    {
+      "check": "random_unit_identity_equal",
+      "pass": true
+    },
+    {
+      "check": "random_fresh_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "random_exact_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "random_fresh_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "random_exact_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "random_fresh_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "random_exact_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "random_random_null_complete",
+      "pass": true
+    },
+    {
+      "check": "random_variance_match",
+      "pass": true
+    },
+    {
+      "check": "released_feature_payload_hash",
+      "pass": true
+    },
+    {
+      "check": "released_unit_identity_equal",
+      "pass": true
+    },
+    {
+      "check": "released_fresh_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "released_exact_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "released_fresh_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "released_exact_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "released_fresh_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "released_exact_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "released_random_null_complete",
+      "pass": true
+    },
+    {
+      "check": "released_variance_match",
+      "pass": true
+    },
+    {
+      "check": "H200_s0_feature_payload_hash",
+      "pass": true
+    },
+    {
+      "check": "H200_s0_unit_identity_equal",
+      "pass": true
+    },
+    {
+      "check": "H200_s0_fresh_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s0_exact_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s0_fresh_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s0_exact_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s0_fresh_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s0_exact_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s0_random_null_complete",
+      "pass": true
+    },
+    {
+      "check": "H200_s0_variance_match",
+      "pass": true
+    },
+    {
+      "check": "H200_s1_feature_payload_hash",
+      "pass": true
+    },
+    {
+      "check": "H200_s1_unit_identity_equal",
+      "pass": true
+    },
+    {
+      "check": "H200_s1_fresh_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s1_exact_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s1_fresh_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s1_exact_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s1_fresh_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s1_exact_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H200_s1_random_null_complete",
+      "pass": true
+    },
+    {
+      "check": "H200_s1_variance_match",
+      "pass": true
+    },
+    {
+      "check": "H500_s0_feature_payload_hash",
+      "pass": true
+    },
+    {
+      "check": "H500_s0_unit_identity_equal",
+      "pass": true
+    },
+    {
+      "check": "H500_s0_fresh_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s0_exact_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s0_fresh_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s0_exact_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s0_fresh_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s0_exact_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s0_random_null_complete",
+      "pass": true
+    },
+    {
+      "check": "H500_s0_variance_match",
+      "pass": true
+    },
+    {
+      "check": "H500_s1_feature_payload_hash",
+      "pass": true
+    },
+    {
+      "check": "H500_s1_unit_identity_equal",
+      "pass": true
+    },
+    {
+      "check": "H500_s1_fresh_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s1_exact_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s1_fresh_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s1_exact_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s1_fresh_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s1_exact_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H500_s1_random_null_complete",
+      "pass": true
+    },
+    {
+      "check": "H500_s1_variance_match",
+      "pass": true
+    },
+    {
+      "check": "H1000_s0_feature_payload_hash",
+      "pass": true
+    },
+    {
+      "check": "H1000_s0_unit_identity_equal",
+      "pass": true
+    },
+    {
+      "check": "H1000_s0_fresh_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s0_exact_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s0_fresh_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s0_exact_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s0_fresh_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s0_exact_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s0_random_null_complete",
+      "pass": true
+    },
+    {
+      "check": "H1000_s0_variance_match",
+      "pass": true
+    },
+    {
+      "check": "H1000_s1_feature_payload_hash",
+      "pass": true
+    },
+    {
+      "check": "H1000_s1_unit_identity_equal",
+      "pass": true
+    },
+    {
+      "check": "H1000_s1_fresh_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s1_exact_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s1_fresh_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s1_exact_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s1_fresh_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s1_exact_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H1000_s1_random_null_complete",
+      "pass": true
+    },
+    {
+      "check": "H1000_s1_variance_match",
+      "pass": true
+    },
+    {
+      "check": "H2000_s0_feature_payload_hash",
+      "pass": true
+    },
+    {
+      "check": "H2000_s0_unit_identity_equal",
+      "pass": true
+    },
+    {
+      "check": "H2000_s0_fresh_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s0_exact_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s0_fresh_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s0_exact_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s0_fresh_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s0_exact_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s0_random_null_complete",
+      "pass": true
+    },
+    {
+      "check": "H2000_s0_variance_match",
+      "pass": true
+    },
+    {
+      "check": "H2000_s1_feature_payload_hash",
+      "pass": true
+    },
+    {
+      "check": "H2000_s1_unit_identity_equal",
+      "pass": true
+    },
+    {
+      "check": "H2000_s1_fresh_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s1_exact_head_source_only_unchanged_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s1_fresh_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s1_exact_head_global_oracle_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s1_fresh_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s1_exact_head_source_only_subject_leace_metrics",
+      "pass": true
+    },
+    {
+      "check": "H2000_s1_random_null_complete",
+      "pass": true
+    },
+    {
+      "check": "H2000_s1_variance_match",
+      "pass": true
+    },
+    {
+      "check": "P2_H1_estimate",
+      "pass": true
+    },
+    {
+      "check": "P2_H2_estimate",
+      "pass": true
+    },
+    {
+      "check": "P2_H3_estimate",
+      "pass": true
+    },
+    {
+      "check": "P2_H1_same_rank_empirical_p",
+      "pass": true
+    },
+    {
+      "check": "P2_H1_variance_matched_empirical_p",
+      "pass": true
+    },
+    {
+      "check": "P2_H2_same_rank_empirical_p",
+      "pass": true
+    },
+    {
+      "check": "P2_H2_variance_matched_empirical_p",
+      "pass": true
+    },
+    {
+      "check": "target_label_firewall",
+      "pass": true
+    }
+  ],
+  "checks_passed": 108,
+  "checks_total": 108,
+  "dataset": "seedv",
+  "phase": "FMScope_FSR_Bridge_Panel2_independent_verification",
+  "status": "PASS",
+  "target_labels_used_for_selection": false
+}

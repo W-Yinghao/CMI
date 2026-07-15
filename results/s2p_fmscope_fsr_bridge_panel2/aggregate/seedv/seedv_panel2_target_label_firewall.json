@@ -1,0 +1,8 @@
+{
+  "best_seed_or_budget_selected": false,
+  "dataset": "seedv",
+  "target_labels_final_scoring_only": true,
+  "target_labels_used_for_operator_fit": false,
+  "target_labels_used_for_selection": false,
+  "target_subject_ids_used_for_final_transferability_diagnostic": true
+}

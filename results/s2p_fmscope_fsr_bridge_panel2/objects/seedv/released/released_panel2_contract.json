@@ -1,0 +1,18 @@
+{
+  "canary": false,
+  "dataset": "seedv",
+  "feature_payload": "${PHASE_C_FEATURE_ROOT}/released_features.npz",
+  "feature_payload_sha256": "a3722d7d708e2d4674238e5310bf41800314664b7c18c59613a829127a4a8d56",
+  "feature_shape": [
+    705,
+    200
+  ],
+  "four_arm_contract": true,
+  "fresh_and_exact_separate": true,
+  "phase": "FMScope_FSR_Bridge_Panel2",
+  "random_draws_per_null": 100,
+  "representation": "final_channel_and_patch_mean_200d",
+  "status": "PASS_OBJECT",
+  "tag": "released",
+  "target_labels_used_for_selection": false
+}

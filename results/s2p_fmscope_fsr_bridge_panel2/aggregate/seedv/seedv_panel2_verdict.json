@@ -1,0 +1,12 @@
+{
+  "P2_H1_source_only_identity_specific_utility": false,
+  "P2_H2_global_source_gap": false,
+  "P2_H3_exact_head_cost_reduces": false,
+  "P2_H4_axis_transferability_high": true,
+  "all_four_arm_objects_complete": true,
+  "dataset": "seedv",
+  "interaction_claim_allowed": false,
+  "objects": 10,
+  "status": "PASS_AGGREGATE",
+  "target_labels_used_for_selection": false
+}

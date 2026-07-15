@@ -1,0 +1,3 @@
+tag,dataset,information_regime,subject_task_projection_overlap,task_subspace_rank,subject_subspace_rank,baseline_source_val_kappa,baseline_target_kappa
+H200_s1,seedv,global_oracle,0.833632406280086,4,15,0.04255319148936165,0.12234042553191493
+H200_s1,seedv,source_only,0.8345620824666493,4,15,0.04255319148936165,0.12234042553191493

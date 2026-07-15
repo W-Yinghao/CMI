@@ -1,0 +1,18 @@
+{
+  "canary": false,
+  "dataset": "seedv",
+  "feature_payload": "${PHASE_C_FEATURE_ROOT}/H200_s0_features.npz",
+  "feature_payload_sha256": "87e800c10da3a681bc7d3c69b3d975b351757c8d222898b6df1433ecdfcc3a15",
+  "feature_shape": [
+    705,
+    200
+  ],
+  "four_arm_contract": true,
+  "fresh_and_exact_separate": true,
+  "phase": "FMScope_FSR_Bridge_Panel2",
+  "random_draws_per_null": 100,
+  "representation": "final_channel_and_patch_mean_200d",
+  "status": "PASS_OBJECT",
+  "tag": "H200_s0",
+  "target_labels_used_for_selection": false
+}

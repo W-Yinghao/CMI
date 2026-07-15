@@ -1,0 +1,56 @@
+{
+  "P2_H4": {
+    "all_training_checkpoints_above_half": true,
+    "mean_target_subject_scatter_removed_fraction": 0.9769803907658073,
+    "min_target_subject_scatter_removed_fraction": 0.960291179550777
+  },
+  "cross_dataset_pooled_p_value": false,
+  "dataset": "seedv",
+  "hypotheses": {
+    "P2_H1": {
+      "bootstrap_p_one_sided": 0.5078984203159368,
+      "ci_high": 0.026602147360126015,
+      "ci_low": -0.025709219858156034,
+      "dataset": "seedv",
+      "estimate": -3.700743415417188e-17,
+      "holm_adjusted_p": 0.9405940594059405,
+      "hypothesis": "P2_H1",
+      "primary_pass": false,
+      "raw_primary_p": 0.9405940594059405,
+      "same_rank_empirical_p": 0.9405940594059405,
+      "task_gate_all_required_cells_pass": false,
+      "variance_matched_empirical_p": 0.5544554455445545
+    },
+    "P2_H2": {
+      "bootstrap_p_one_sided": 0.3837232553489302,
+      "ci_high": 0.027777777777777807,
+      "ci_low": -0.021701388888888916,
+      "dataset": "seedv",
+      "estimate": 0.0035460992907801283,
+      "holm_adjusted_p": 0.7128712871287128,
+      "hypothesis": "P2_H2",
+      "primary_pass": false,
+      "raw_primary_p": 0.3564356435643564,
+      "same_rank_empirical_p": 0.2871287128712871,
+      "task_gate_all_required_cells_pass": false,
+      "variance_matched_empirical_p": 0.3564356435643564
+    },
+    "P2_H3": {
+      "bootstrap_p_one_sided": 0.0013997200559888023,
+      "ci_high": 0.09219858156028375,
+      "ci_low": 0.017730496453900717,
+      "dataset": "seedv",
+      "estimate": 0.05407801418439717,
+      "holm_adjusted_p": 0.004199160167966407,
+      "hypothesis": "P2_H3",
+      "primary_pass": false,
+      "raw_primary_p": 0.0013997200559888023,
+      "task_gate_all_required_cells_pass": false
+    }
+  },
+  "phase": "FMScope_FSR_Bridge_Panel2",
+  "primary_utility_metric": "cohen_kappa",
+  "random_draws_per_null": 100,
+  "target_labels_used_for_selection": false,
+  "target_subject_bootstrap_replicates": 5000
+}
