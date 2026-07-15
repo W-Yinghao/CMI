@@ -13,51 +13,61 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state (2026-07-14)
+## 0. Current continuation state (2026-07-15)
 
-C84FL2 has completed the no-real-data dual-level full-field implementation and
-C84F execution-lock readiness milestone:
+The original authorized C84F job `896185` completed all source-only training and
+froze the full model field, then stopped safely during target trial-registry
+construction. C84FR1 has additively repaired and relocked only that target stage:
 
 ```text
-accepted base:              4d2ca75b2fc149c80c3e51e93709aab12e67813a
-C84FL2 protocol commit:     24a21d795ccfaa8cfd816f77eaa9f41867fad847
-C84FL2 implementation:      96af9f3751451f7def6d9b35b8ab395675e41394
-C84F lock commit:           47bf20fbc341c136da0e3ed997a490fb0f135c49
-verification/report base:   2a957a264293e119f5e5b0c8d89bcf3410eef755
-reconciliation SHA-256:     2ac679a5308d5d972b14d38e01cbc0d875ca6c5e547b752945fc831e38081f62
-field V7 SHA-256:           9db0219befecb11cf72386b96e28ee9d9430c3df5d7947298f102492f072b737
-full-field V2 SHA-256:      dafc44dbc24ea5d4d1cea61207479cbd986c9f8129b111682a00f15a44b1d15d
-C84F lock SHA-256:          f9df9dcefea59b05bfea24d1b744d82bfc933d76efde3f9aececf67401ea6b05
-gate:                       C84F_DUAL_LEVEL_FULL_FIELD_IMPLEMENTATION_AND_EXECUTION_LOCK_READY_FOR_PI_AUTHORIZATION
+original C84F lock commit:          47bf20fbc341c136da0e3ed997a490fb0f135c49
+original C84F lock SHA-256:         f9df9dcefea59b05bfea24d1b744d82bfc933d76efde3f9aececf67401ea6b05
+failed authorized job:              896185
+failure-evidence commit:            d35fc3d
+C84FR1 protocol commit:             74a71e0b0cf70cad39f3525b314e3f12be532d7a
+C84FR1 protocol SHA-256:            eb14721c9e78305f6c8e687e01a8f0951c192cc953b288b96c45c9cb1cdc1cd0
+C84FR1 implementation commit:       3dd69b9636cf479080e64b0ef0e3071c781a264f
+C84FR1 replacement-lock commit:     3c000e1ec3906d82a30f5778dc9a414f4b527149
+C84FR1 replacement-lock SHA-256:    2e888b6497ec455a325ae23f3396726eeb4492ce4cb36fed6f11633f2d92ae34
+gate:                               C84F_TARGET_STAGE_CANONICAL_REGISTRY_REPAIR_LOCKED_READY_FOR_PI_REAUTHORIZATION
 ```
 
-The lock reuses 243 accepted C84C level-0 and 243 accepted C84L1C level-1
-model/state/source-audit units. It rejects failed jobs 895366 and 895928. The
-remaining scope is 1,458 units / 54 phases in three paired waves of 486 units /
-18 phases. Levels share model initialization; level 0 is the full source panel
-and level 1 is the fixed registered subject x `left_hand` deletion.
+Job `896185` trained all remaining 1,458 units / 54 phases and atomically froze
+1,944/1,944 candidate units, 72/72 phases, 7,776 model/state/source-audit
+artifacts and 972 units per level. Its model-field manifest SHA-256 is
+`d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2`.
+Training target rows/labels, source-audit rows used in training and
+target-outcome retention/retry were all zero.
 
-C84F enforces a no-new-target-access barrier until the atomic 1,944-unit model
-field freezes. It then permits label-free instrumentation of 118 subjects, 944
-contexts and 76,464 candidate-context slices. The six canary contexts are replay
-witnesses only. Linear tolerance is fixed at 2e-5 and strict replay tolerances at
-1e-6; target failure cannot retrain.
+After the model freeze, the job loaded label-free X for all 118 target subjects
+and wrote raw-input manifest SHA-256
+`9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd`.
+It then raised `TypeError: '<' not supported between instances of 'dict' and
+'dict'` while directly sorting raw-file dictionaries. It froze zero target trial
+rows, zero target artifacts and zero context slices. Target-y access, target
+labels, selector scores, scientific metrics and oracle access remained zero.
+The failed root and consumed authorization are preserved and cannot be reused.
 
-Runtime replay covers 79 repository objects, 38 implementation files, seven
-protocols, all 1,944 IDs and 2,430 dual-canary external artifacts. Synthetic
-validation is 25/25 and red team 66/66 PASS.
+C84FR1 replaces only direct dictionary comparison with a validated canonical
+`(path, bytes, sha256)` key. Its target-only entrypoint has no training import or
+callable. Before any new target access, it replays the 1,944-unit model manifest,
+all 7,776 model artifacts, all 2,430 dual-canary files, repository bytes,
+protocols, environment, loader identities, candidate IDs and the historical raw
+manifest. It requires a fresh content-addressed root and exact replay of all six
+canary contexts. Numerical gates remain 2e-5 for linear reconstruction and 1e-6
+for softmax/repeat identity.
 
-Regression: focused 227, C65 713,
-C23 1124 and full 2048 passed. The
-cumulative suites have one explained C78F skip and three established C79
-deselections; all stderr is empty. Scheduler monitoring used `squeue`, not
-`sacct`.
+C84FR1 verification passed 12/12 synthetic checks and 34/34 final red-team
+checks. Regression jobs `896544`-`896547` reported focused 242, C65 728, C23
+1,139 and full 2,063 passed. Cumulative suites retain one explained C78F skip
+and three established C79 deselections; all stderr files are empty. Monitoring
+used `squeue`, never `sacct`, and no C84FR1 job remains active.
 
-No real EEG, label, remaining training, forward, GPU or scientific outcome was
-accessed in C84FL2. C84F is not authorized or executed; C84S has no lock. The
-complete report is `reports/C84FL2_OVERALL_REPORT.md`. The next permissible
-action is PM review followed by a fresh direct `授权 C84F` statement
-bound to the unique current lock. This handoff itself authorizes nothing.
+The replacement target stage is **not authorized**. The shortest next valid PI
+statement is `授权 C84F target-stage repair`; it must bind the unique replacement
+lock above. The old C84F authorization cannot transfer. Until then, do not reload
+target X, run forward, create target artifacts or start C84S. C84S still has no
+execution lock. This handoff itself authorizes nothing.
 
 ### Accepted C84C engineering base
 

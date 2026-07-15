@@ -26,5 +26,13 @@
 - RT24 `target_scope_unchanged`: PASS
 - RT25 `protocol_precedes_implementation`: PASS
 - RT26 `fresh_authorization_required`: PASS
+- RT27 `focused_regression_242_passed`: PASS
+- RT28 `C65_regression_728_passed_1_skip_3_deselected`: PASS
+- RT29 `C23_regression_1139_passed_1_skip_3_deselected`: PASS
+- RT30 `full_regression_2063_passed_1_skip_3_deselected`: PASS
+- RT31 `all_regression_stderr_empty`: PASS
+- RT32 `skip_and_deselection_reasons_exact`: PASS
+- RT33 `no_active_C84FR1_job_by_squeue`: PASS
+- RT34 `Git_payload_and_artifact_hygiene`: PASS
 
-Gate: `C84F_TARGET_STAGE_CANONICAL_REGISTRY_REPAIR_LOCKED_READY_FOR_PI_REAUTHORIZATION`. Result: 26/26 PASS.
+Gate: `C84F_TARGET_STAGE_CANONICAL_REGISTRY_REPAIR_LOCKED_READY_FOR_PI_REAUTHORIZATION`. Result: 34/34 PASS.
