@@ -1,0 +1,5 @@
+section,required,status
+identity,unit_id|dataset|artifact_path|artifact_sha256,LOCKED
+digests,21 field dtype|shape|bytes|sha256,LOCKED
+contexts,target offsets|trial count|trial ID sha256,LOCKED
+numerics,same backend|saved replay|cross backend diagnostics,LOCKED

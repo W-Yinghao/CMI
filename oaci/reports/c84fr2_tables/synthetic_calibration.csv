@@ -1,0 +1,10 @@
+check,passed,status
+same_backend_fixture,1,PASS
+digest_registry_complete,1,PASS
+saved_output_replay_strict,1,PASS
+exact_persistence_round_trip,1,PASS
+tampered_z_digest_fails,1,PASS
+legacy_2_193450927734375e_05_is_diagnostic_only,1,PASS
+static_1_oaci/multidataset/c84fr2_target_stage.py,1,PASS
+static_2_oaci/multidataset/c84fr2_target_numerical_replay.py,1,PASS
+static_3_oaci/multidataset/c84fr2_runtime_guard.py,1,PASS

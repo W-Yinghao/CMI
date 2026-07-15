@@ -1,0 +1,2 @@
+object,model_output,direct_output,device,runtime,max_abs_tolerance,canonical_Wz_plus_b,status
+direct_classifier_identity,output.logits,"torch.nn.functional.linear(output.z,weight,bias)",same_GPU,PyTorch_float32,1e-6,1,LOCKED

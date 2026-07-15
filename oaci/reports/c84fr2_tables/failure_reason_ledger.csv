@@ -1,0 +1,4 @@
+failure_id,object,reason,blocking,disposition
+C84FR2-HIST-001,job_896185,raw_dictionary_sort_TypeError,0,PRESERVED_MODEL_FIELD_REUSED
+C84FR2-HIST-002,job_896550,cross_backend_float32_gate,0,PRESERVED_PARTIAL_TARGET_ARTIFACTS_REJECTED
+C84FR2-AUTH-001,replacement_execution,fresh_PI_authorization_absent,0,EXPECTED_READINESS_STOP
