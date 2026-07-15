@@ -15,11 +15,11 @@ and collaboration sections before acting.
 
 ## 0. Current continuation state (2026-07-15)
 
-C84FR2 has additively repaired and relocked the target-only numerical and
-persistence contract. It stopped before real target reload at:
+C84F target-stage replacement job `897048` completed the locked label-free
+field and stopped at:
 
 ```text
-C84F_TARGET_INSTRUMENTATION_SAME_BACKEND_REPLAY_REPAIRED_READY_FOR_PI_REAUTHORIZATION
+C84_MULTI_DATASET_DUAL_LEVEL_FIXED_ZOO_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED
 ```
 
 Operative identities:
@@ -27,43 +27,44 @@ Operative identities:
 ```text
 C84FR2 repair protocol commit:      27fc479ecd4131ceb4f79982cb0890f517709d2e
 C84FR2 repair protocol SHA-256:     4480530f05f0814b712edf23a51f08e64820ddea220d6b26f4dc7bb0f2a541bf
-backend diagnostic commit:          6e727b80645c08362d75a98da5ef4ee52f2f1d9d
 target instrumentation V2 commit:   b527b82950690d09e73e5f3468d994cf11b56413
 target instrumentation V2 SHA-256:  2387b3a1a81dd061b7cc723820d41829e0237e5be0f243bc423422a173f72671
-C84FR2 implementation commit:       a64c6815ad512d0b8bc7158cd61ff2147f24948a
 C84FR2 execution-lock commit:       34eb5efad16f1f8a320b08435363939089c8037a
 C84FR2 execution-lock SHA-256:      f0c369ee273352b47e36ce426108d78a2d4193180afbf0aecfbbeb3d4980ba47
+authorization commit:               fc40914d104bde8522c82106b615f2e29ad38e9c
+complete-field manifest SHA-256:    cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8
 ```
 
-The new contract retains the frozen 1,944-unit model field and the exact
-118-subject, 9,621-row label-free target registry. It rejects all six NPZ and
-five context indices from failed job `896550`. Future artifacts must pass a
-same-GPU/PyTorch direct classifier identity gate at `1e-6`, exact pre-write and
-post-reload dtype/shape/byte SHA-256 equality for all 21 fields, and saved
-`Wz_plus_b`/logits, softmax, repeat-logit and repeat-z replay at `1e-6`.
-CPU PyTorch, NumPy float32, and NumPy float64 reconstructions are finite-value
-diagnostics only and cannot change retention or thresholds.
+The frozen model field remains exactly 1,944 units and 7,776 model artifacts;
+job `897048` invoked no training. It replayed the immutable 118-subject,
+9,621-row label-free target registry before forward, then atomically froze
+1,944 target artifacts, 1,944 context/digest sidecars, 944 target contexts,
+76,464 candidate-context slices and 486 canary witnesses. A separate streaming
+post-execution audit replayed every NPZ and sidecar hash, every registered field
+digest, exact directory membership and all aggregate counts.
 
-The historical `2e-5` threshold was not widened. Post-protocol inspection of
-the six immutable NPZ files reproduced the failing NumPy float32 value exactly:
-`2.193450927734375e-05`; the same saved arrays produced
-`1.239776611328125e-05` under CPU PyTorch and `1.0063620615952118e-05`
-under NumPy float64. This diagnostic does not substitute for the future
-same-GPU gate.
+The same-GPU/PyTorch direct classifier, saved `Wz_plus_b`/logits, repeat logits
+and repeat z had maximum error zero. Saved softmax replay was
+`1.1920928955078125e-07`, below `1e-6`. CPU PyTorch and NumPy reconstruction
+differences remain finite diagnostic-only quantities and did not affect model
+retention, retry, thresholds or field identity.
 
-The lock binds 38 repository objects, 19 implementation files, 7,776 frozen
-model artifacts, 2,430 canary files, and all frozen target-input identities.
-Synthetic calibration passed 9/9 and final red team passed 56/56. Regression:
-focused 30, C65 758, C23 1,169, full OACI 2,093 passed; cumulative suites retain
-one explained C78F skip and three established C79 deselections. Accepted stderr
-files are empty.
+Model retraining, target-y operations, target-label fields,
+construction/evaluation labels, same-label-oracle access, selector scores,
+scientific statistics and target scientific metrics are all zero. Historical
+jobs `896185` and `896550`, their consumed authorizations and all partial target
+objects remain immutable failed-attempt evidence and were not reused.
 
-C84FR2 is not authorized for real execution. The shortest valid future direct
-statement is `授权 C84F target-stage numerical replay repair`, bound to the V2
-lock above. Until then, do not reload target X, run forward/GPU, create target
-artifacts, train, access target labels, compute selector/scientific outputs, or
-start C84S. Jobs `896185` and `896550` and their consumed authorizations remain
-immutable failed attempts. C84S still has no execution lock.
+Final report red-team passed 68/68. Post-execution regressions passed with 30
+focused, 758 C65, 1,169 C23 and 2,093 full-OACI tests. Cumulative suites retain
+one explained finalized-C78F skip and three established C79 authorization-state
+deselections; all regression stderr files are empty.
+
+C84F has produced engineering field evidence only. It does not establish target
+accuracy, selector performance, Q1/Q2, a label-budget frontier, level effects,
+same-method recurrence or external validity. C84S remains unauthorized and has
+no execution lock. The next permissible work is PM review followed by a
+separate C84S implementation, analysis lock and fresh direct authorization.
 
 ### Accepted C84C engineering base
 
@@ -102,7 +103,8 @@ full OACI:    1,933 passed, 1 skip, 3 deselected job 895529
 
 All regression jobs were CPU-only with empty stderr. The final C84C report
 red-team passed 56/56. C84C is engineering-only and does not establish external
-validity. C84F and C84S remain unauthorized and have no execution locks.
+validity. At that historical C84C gate, C84F and C84S were unauthorized and had
+no execution locks; the current C84F/C84S state is given in Section 0.
 
 ### Historical C84R3 repair and failed attempt
 

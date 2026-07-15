@@ -1,0 +1,118 @@
+{
+  "schema_version": "c84fr2_complete_field_execution_report_v1",
+  "milestone": "C84F_TARGET_STAGE_NUMERICAL_REPLAY_REPAIR",
+  "gate": "C84_MULTI_DATASET_DUAL_LEVEL_FIXED_ZOO_FIELD_EXECUTED_AND_MANIFESTED_ANALYSIS_NOT_STARTED",
+  "execution": {
+    "job_id": 897048,
+    "partition": "V100",
+    "node": "node11",
+    "requested_wall": "05:00:00",
+    "application_wall_seconds": 7322.999471096,
+    "authorization_commit": "fc40914d104bde8522c82106b615f2e29ad38e9c",
+    "authorization_record_sha256": "b05ba5dd5c6a6393038d491a5b1407c7a973b0c20494963e44b91311b482a05b",
+    "execution_lock_commit": "34eb5efad16f1f8a320b08435363939089c8037a",
+    "execution_lock_sha256": "f0c369ee273352b47e36ce426108d78a2d4193180afbf0aecfbbeb3d4980ba47"
+  },
+  "stage_seconds": {
+    "guard_import_and_frozen_input_barrier": 12.452210921,
+    "target_X_and_registry_replay": 1240.043069406,
+    "complete_target_instrumentation": 5806.071385733,
+    "aggregate_and_atomic_manifest_publication": 264.432805036
+  },
+  "frozen_inputs": {
+    "model_field_manifest_sha256": "d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2",
+    "model_units": 1944,
+    "model_artifact_files_replayed": 7776,
+    "dual_canary_files_replayed": 2430,
+    "target_raw_manifest_sha256": "9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd",
+    "target_trial_registry_sha256": "52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8",
+    "target_subjects": 118,
+    "target_registry_rows": 9621,
+    "historical_partial_objects_replayed_and_rejected": 11
+  },
+  "complete_field": {
+    "complete_manifest_sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8",
+    "target_artifacts": 1944,
+    "context_digest_sidecars": 1944,
+    "target_contexts": 944,
+    "candidate_context_slices": 76464,
+    "canary_unit_witnesses": 486,
+    "target_artifact_bytes": 48018748054,
+    "context_digest_sidecar_bytes": 24209257,
+    "external_root_total_bytes": 48058685017,
+    "external_root_file_count": 3896,
+    "artifact_hashes_replayed": 1944,
+    "sidecar_hashes_replayed": 1944
+  },
+  "numerical_identity": {
+    "same_backend_GPU_PyTorch_max_abs_error": 0.0,
+    "same_backend_tolerance": 1e-06,
+    "saved_Wz_plus_b_vs_logits_max_abs_error": 0.0,
+    "saved_softmax_max_abs_error": 1.1920928955078125e-07,
+    "repeat_logits_max_abs_error": 0.0,
+    "repeat_z_max_abs_error": 0.0,
+    "strict_replay_tolerance": 1e-06,
+    "cross_backend_diagnostic_only": true,
+    "cross_backend_max_abs_error": {
+      "CPU_PyTorch_float32": 4.57763671875e-05,
+      "NumPy_float32": 4.1961669921875e-05,
+      "NumPy_float64": 1.1513513614502813e-05
+    }
+  },
+  "protected_counters": {
+    "model_retraining": 0,
+    "training_phases_started": 0,
+    "target_y_accesses": 0,
+    "target_label_fields": 0,
+    "target_construction_labels": 0,
+    "target_evaluation_labels": 0,
+    "same_label_oracle": 0,
+    "selector_scores": 0,
+    "scientific_statistics": 0,
+    "target_scientific_metrics": 0,
+    "C84S_authorized": false
+  },
+  "logs": {
+    "stdout_sha256": "d62ba398d3b15d5d7181bb7fa80c5de346d91fb79cde77a602e3cd33b1545b74",
+    "stderr_sha256": "460688ec39ffbe001d7e3fb2f710dabce78de43448ef3e9ed41aab2f78766700",
+    "stderr_bytes": 1900,
+    "explained_warning_lines": 20,
+    "traceback_markers": 0,
+    "scheduler_terminal_state_claimed": false,
+    "application_complete_event": true
+  },
+  "pre_submission_reporting": {
+    "operator_summary_failures": 2,
+    "protected_runtime_guard_passed_before_each_failure": true,
+    "authorization_consumed": false,
+    "protected_package_imports": 0,
+    "real_data_accesses": 0,
+    "final_no_data_preflight": "PASS",
+    "scientific_or_field_effect": false
+  },
+  "verification": {
+    "final_report_red_team": {
+      "passed": 68,
+      "total": 68
+    },
+    "regression": {
+      "focused_passed": 30,
+      "C65_passed": 758,
+      "C23_passed": 1169,
+      "full_passed": 2093,
+      "cumulative_skipped": 1,
+      "cumulative_deselected": 3,
+      "all_exit_codes_zero": true,
+      "all_stderr_empty": true
+    }
+  },
+  "scientific_boundary": {
+    "field_generation_only": true,
+    "target_accuracy_available": false,
+    "selector_performance_available": false,
+    "Q1_Q2_available": false,
+    "label_budget_frontier_available": false,
+    "external_validity_established": false,
+    "C84S_lock_present": false
+  }
+}
