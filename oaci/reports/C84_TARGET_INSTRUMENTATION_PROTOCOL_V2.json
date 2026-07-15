@@ -1,0 +1,128 @@
+{
+  "artifact_contract": {
+    "artifact_schema": "c84f_target_unlabeled_v2",
+    "canonical_Wz_plus_b": "same_GPU_PyTorch_torch.nn.functional.linear_output",
+    "fields": [
+      "unit_id",
+      "dataset",
+      "panel",
+      "training_seed",
+      "level",
+      "level_intervention_id",
+      "regime",
+      "epoch",
+      "trajectory_order",
+      "target_subject_id",
+      "target_trial_id",
+      "session",
+      "run",
+      "logits",
+      "probabilities",
+      "z",
+      "Wz_plus_b",
+      "classifier_weight",
+      "classifier_bias",
+      "repeat_logits",
+      "repeat_z"
+    ],
+    "target_label_fields": 0
+  },
+  "complete_field_contract": {
+    "candidate_context_slices": 76464,
+    "canary_unit_witnesses": 486,
+    "context_digest_sidecars": 1944,
+    "model_field_manifest_sha256": "d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2",
+    "schema_version": "c84f_complete_field_manifest_v2",
+    "target_artifacts": 1944,
+    "target_contexts": 944,
+    "target_raw_manifest_sha256": "9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd",
+    "target_subjects": 118,
+    "target_trial_registry_rows": 9621,
+    "target_trial_registry_sha256": "52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8"
+  },
+  "context_digest_sidecar": {
+    "artifact_schema_version": "c84f_target_unlabeled_v2",
+    "context_fields": [
+      "dataset",
+      "target_subject_id",
+      "row_start_inclusive",
+      "row_end_exclusive",
+      "trial_count",
+      "trial_id_sha256"
+    ],
+    "digest_algorithm": "sha256(dtype|shape|canonical_contiguous_bytes)",
+    "digest_fields": [
+      "dtype",
+      "shape",
+      "bytes",
+      "sha256"
+    ],
+    "exact_prewrite_postreload_equality": true,
+    "missing_or_unknown_artifact_field_policy": "FAIL",
+    "schema_version": "c84f_target_context_and_digest_index_v2"
+  },
+  "cross_backend_diagnostics": {
+    "CPU_PyTorch_float32": true,
+    "NumPy_float32": true,
+    "NumPy_float64": true,
+    "finite_required": true,
+    "gate_effect": false,
+    "reported_statistics": [
+      "max_abs_error",
+      "p95_abs_error",
+      "p99_abs_error",
+      "feature_dimension",
+      "logit_abs_max",
+      "logit_abs_p95"
+    ]
+  },
+  "execution": {
+    "candidate_retention_logic": false,
+    "checkpoint_write": false,
+    "fresh_content_addressed_root_required": true,
+    "model_retraining": false,
+    "model_state_update": false,
+    "optimizer_creation": false,
+    "partial_final_manifest_publication": false,
+    "selector_or_scientific_import": false,
+    "target_only": true,
+    "training_callable": false,
+    "training_import": false
+  },
+  "historical_partial_root": {
+    "complete_context_indices": 5,
+    "npz_files": 6,
+    "reusable": false,
+    "root": "/projects/EEG-foundation-model/yinghao/oaci-c84-full-field-target-repair-v1/lock_2e888b6497ec455a325a",
+    "source_job": 896550
+  },
+  "numerical_gates": {
+    "cross_backend_magnitude_gate": false,
+    "historical_2e5_widened": false,
+    "nonfinite_diagnostic_blocks": true,
+    "repeat_logits_max_abs": 1e-06,
+    "repeat_z_max_abs": 1e-06,
+    "same_backend_direct_linear_max_abs": 1e-06,
+    "saved_Wz_plus_b_vs_logits_max_abs": 1e-06,
+    "saved_softmax_max_abs": 1e-06
+  },
+  "protected_counters": {
+    "C84S": 0,
+    "construction_labels": 0,
+    "evaluation_labels": 0,
+    "same_label_oracle": 0,
+    "scientific_statistics": 0,
+    "selector_scores": 0,
+    "target_y_operations": 0,
+    "training_invocations": 0
+  },
+  "registry_reuse": {
+    "copy_frozen_registry_bytes_after_exact_replay": true,
+    "derive_non_label_trial_identity_after_future_authorization": true,
+    "exact_canonical_trial_order_required_before_first_forward": true,
+    "reload_target_X_during_readiness": false
+  },
+  "repair_protocol_sha256": "4480530f05f0814b712edf23a51f08e64820ddea220d6b26f4dc7bb0f2a541bf",
+  "schema_version": "c84_target_instrumentation_protocol_v2",
+  "status": "PROTOCOL_ONLY_NOT_AUTHORIZED"
+}
