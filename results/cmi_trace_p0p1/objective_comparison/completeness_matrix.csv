@@ -7,3 +7,11 @@ BNCI2014_001,erm,27,27,True
 BNCI2014_001,irm,27,27,True
 BNCI2014_001,label_coral,27,27,True
 BNCI2014_001,vrex,27,27,True
+BNCI2015_001,cigl_graph_node,36,36,True
+BNCI2015_001,cigl_nested,36,36,True
+BNCI2015_001,cond_dann,36,36,True
+BNCI2015_001,coral,36,36,True
+BNCI2015_001,erm,36,36,True
+BNCI2015_001,irm,36,36,True
+BNCI2015_001,label_coral,36,36,True
+BNCI2015_001,vrex,36,36,True
