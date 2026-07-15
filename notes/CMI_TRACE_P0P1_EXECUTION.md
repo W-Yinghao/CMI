@@ -111,3 +111,65 @@ target-label selection. A null/contradictory result triggers an honest scope red
 
 P1.2 headline (verified): neural posterior-KL ruler vs MC-truth Pearson **0.999** / MAE **0.046 nats** /
 calib slope 0.884; kNN rank-correlated (0.948) but ~2.5× magnitude-biased; capacity h=2 underfits, h=32 best.
+
+---
+
+# FINAL REPORT — CMI-Trace P0/P1 revision
+
+1. **Branch / final SHA**: `agent/cmi-trace-p0p1` @ `311358b` (17 commits, pushed to origin).
+2. **Base branches/SHAs**: CIGL `project/cigl-functional-cmi@c1d55be` (latest descendant with code + manuscript
+   + `results/cigl_r123/final/`); TOS `tos@1c65d79` (code subtree copied-with-provenance; CIGL/TOS are
+   divergent histories — no merge). Env: `eeg2025` (GPU, torch 2.6.0+cu124); `c84c-eeg2025-v3` (CPU tests).
+3. **Files changed**: 188 vs base (~133 = TOS subtree import; the rest new CMI-Trace code/tests/config/docs).
+   New code: `cmi/methods/dg_penalties.py` (label_coral, graph_moment_penalty), `cmi/train/trainer.py`
+   (graph-aware penalty branch), `cmi/eval/{objective_effect_report,conditional_subject_leakage,
+   multicapacity_probe,reliance_audit}.py`, `cmi/eval/baseline_registry.py` (OBJECTIVE_METHODS),
+   `cmi/eval/graph_leakage.py` (capacity knob), `scripts/run_cmi_trace_objective_comparison.py`,
+   `scripts/aggregate_cmi_trace_objective.py`, `scripts/run_cmi_trace_tos_cmi_bridge.py`,
+   `tos_cmi/eeg/{deployment_ci,fmscope_protocol_bridge}.py`, `synthetic/true_cmi.py`,
+   `configs/cmi_trace_p0p1.yaml`, `paper/cmi_trace/*`.
+4. **Tests**: 65 new CMI-Trace tests all pass (P0.1 10, P0.2 10, P0.4 8, P0.5 9, P1.1 5, P1.2 10, P1.3 6,
+   P1.4 7) + graph_leakage backcompat 13 + 77 pre-existing regression — **0 failures, 0 regressions**.
+5. **Jobs**: `896396` BNCI2014_001 — **COMPLETE** (216/216 cells, ~5.7 GPU-h). `896397` BNCI2015_001 —
+   RUNNING (~171/288 cells). (Superseded: 896355-360, 896388 — NFS-lock/datalake-perm, fixed.)
+6. **Completeness**: BNCI2014_001 = 8 methods × 9 folds × 3 seeds = 216/216 (all `complete=True`).
+   BNCI2015_001 = pending job 896397; re-run `scripts/aggregate_cmi_trace_objective.py` on completion.
+7. **Main objective→effect table (BNCI2014_001, fold-cluster 95% CI)**: `objective_table.tex` /
+   `objective_effect_summary.csv`. See the claim ledger table. Every objective REDUCES measured encoder-CMI;
+   NONE reduces exact-head reliance (R_rel(k=2) rises for the strongest reducers); target gains modest, none
+   clears +0.01. **This is the measurement→control gap, now shown across CORAL/C-CORAL/IRMv1/V-REx/adversarial/
+   encoder-CMI on one backbone.**
+8. **FMScope 2×2**: code + 9/9 tests (oracle vs source-only × subject vs random; oracle tagged
+   non-deployable; empirical==repo LEACE + Ledoit-Wolf variant; verdict contract). Real frozen dumps ABSENT
+   (pruned) → validated on synthetic; regeneration command documented. NUMBERS PENDING dumps.
+9. **TOS CMI bridge (P1.1)**: flat-feature ruler + 3-way cross-fitting, 5/5 tests. Synthetic demo:
+   full kl 0.257/residual 0.98 → TOS_VD kl 0.023/residual 0.50 (chance); random-k kl 0.225/residual 0.97
+   (subject axis specifically removed). Real EEGNet/TSMNet PENDING frozen dumps.
+10. **Synthetic truth (P1.2)**: full 39-setting sweep. Neural ruler vs MC-truth Pearson 0.999 / MAE 0.046
+    nats / slope 0.884; kNN Pearson 0.948 but ~2.5× magnitude-biased; capacity h=2 underfits, h=32 best.
+    Neither estimator called "unbiased".
+11. **Exact-head rank sensitivity (P1.4)**: real BNCI2014_001 fold0 ERM — R_rel(k=2)=+0.010 above random
+    control CI [−0.003,+0.005]; monotone in k=1..7; firewall passed; replay error 1e-6. Full per-fold sweep
+    runs on-cluster.
+12. **Claims**: CONFIRMED — P0.1 same-backbone comparison (BNCI2014), P0.2 audit + cluster CI + both
+    non-implications (ΔÎ_enc<0 ⇏ ΔR_rel<0, real cluster-CI evidence), P0.4 CI semantics, P0.5 code + oracle
+    non-deployability, P1.1/1.2/1.3/1.4 code, P1.2 calibration. WEAKENED — none. OVERTURNED — none.
+    PENDING — BNCI2015_001 objective numbers (job running); FMScope/TOS real-dump numbers (dumps pruned);
+    manuscript table/figure FINALIZATION (regenerate from CSVs). No result was tuned after seeing target.
+13. **Remaining blockers before AAAI submission**: (a) BNCI2015_001 job completion → re-aggregate + regen
+    Fig4D forest across both datasets; (b) regenerate frozen EEGNet/TSMNet dumps (GPU) to populate the
+    FMScope bridge + P1.1 real matrix + deployment CI numbers; (c) recompile the LaTeX after the real table +
+    Figures 3/4D are dropped into the PENDING placeholders; (d) secondary nested rows
+    (coral_nested/label_coral_nested/irm_nested/vrex_nested) if the reviewer wants selected-λ sensitivity.
+
+## GO / NO-GO verdict
+
+**GO — with the current scope RETAINED.** P0.1 completed on BNCI2014_001 (all four invariance families run
+on the same DGCNN adapter under strict source-only LOSO), so the manuscript keeps the "what domain-invariance
+objectives remove" framing. The real result strengthens, not weakens, the contribution: on one backbone,
+every objective measurably reduces encoder-CMI, but this does NOT reduce original-head reliance (it rises for
+the strongest reducers) and does not yield a confirmed target gain — a clean, cluster-CI-backed
+measurement→control gap. The scope reduction contingency (narrow to encoder-CMI-only) is NOT triggered.
+Honest caveats: (i) only 1 of 2 datasets fully aggregated in-session (BNCI2015 running); (ii) raw moment gaps
+are scale-sensitive (cond-DANN inflated); (iii) FMScope/TOS/deployment real numbers await regenerated dumps.
+None of these undercut the core claim; they are finalization steps, not open scientific questions.
