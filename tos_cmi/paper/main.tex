@@ -1,0 +1,55 @@
+\documentclass[10pt]{article}
+
+\usepackage[margin=1in]{geometry}
+\usepackage{times}
+\usepackage{amsmath,amssymb,amsfonts}
+\usepackage{graphicx}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{xcolor}
+\usepackage{natbib}
+\usepackage{hyperref}
+\usepackage{caption}
+\usepackage{subcaption}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,shapes.geometric}
+
+\graphicspath{{figures/}}
+
+% --- draft-mode claim tags (traceability to claim_evidence_table.md; hidden in the PDF) ---
+\newif\ifshowclaimtags
+\showclaimtagsfalse
+\newcommand{\claimtag}[1]{\ifshowclaimtags\textcolor{blue}{[#1]}\fi}
+
+\title{Selective Conditional Invariance in Task-Orthogonal EEG Subspaces:\\
+A Measurement-to-Control Study}
+\author{Anonymous}
+\date{}
+
+\begin{document}
+\maketitle
+
+\input{sections/abstract}
+
+\input{sections/intro}
+
+\input{sections/method}
+
+% Fig 1 (pipeline schematic) is defined inside sections/method.tex after the localization subsection.
+
+\input{sections/synthetic}
+
+\input{sections/results}
+
+\input{sections/related}
+
+\input{sections/discussion}
+
+\input{sections/conclusion}
+
+\bibliographystyle{plainnat}
+\bibliography{references}
+
+\input{sections/appendix}
+
+\end{document}

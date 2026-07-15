@@ -1,0 +1,52 @@
+\section{Related work}
+
+\subsection{EEG domain generalization and cross-subject invariance}
+Cross-subject transfer is a long-standing problem in EEG/BCI decoding, where subject- and session-specific
+statistics dominate. Riemannian/SPD pipelines align second-order statistics on the manifold
+\citep{barachant2012multiclass,zanini2018transfer,yger2017riemannian}, and batch/domain alignment layers such as the SPD
+batch-normalization in TSMNet target calibration-free cross-subject decoding \citep{huang2017spdnet,kobler2022spd};
+convolutional architectures such as EEGNet and ShallowConvNet are standard decoders
+\citep{lawhern2018eegnet,schirrmeister2017deep}. These methods aim to \emph{produce} an invariant or aligned representation.
+\textbf{Difference:} we do not propose another aligned encoder; we take a \emph{fixed} representation and ask, by
+direct measurement, whether its residual conditional domain information is localizable, removable, and
+worth removing --- and find that removability and benefit are representation-dependent.
+
+\subsection{Conditional invariance, CMI penalties, and adversarial domain removal}
+A large body of domain-generalization work penalizes dependence on the domain, either marginally or
+conditionally on the label: adversarial domain removal \citep{ganin2016dann,long2018cdan}, moment matching
+\citep{sun2016deepcoral,gretton2012mmd,long2015dan}, invariance penalties \citep{arjovsky2019irm,krueger2021rex}, and conditional-mutual-information /
+LPC-style penalties that target $I(Z;D|Y)$ \citep{belghazi2018mine,mukherjee2020ccmi,cha2022miro}. These are typically
+applied as always-on training regularizers tuned by a strength hyperparameter.
+\textbf{Difference:} we show that on a high-dimensional SPD latent a global conditional penalty reduces the
+leakage \emph{proxy} mainly by collapsing the representation (an objective-scaling pathology), and that where it
+does reduce leakage without collapse (a compact latent) target accuracy does not improve. We therefore
+treat the conditional-invariance objective as something to \emph{certify before applying}, not to apply by default.
+
+\subsection{Selective erasure, concept removal, and task-preserving projection}
+Removing a specific attribute from a representation while preserving task information is studied as concept
+erasure / guarding --- iterative nullspace projection and closed-form linear erasure
+\citep{ravfogel2020inlp,ravfogel2022rlace,belrose2023leace} --- and more broadly as subspace/feature removal. These methods typically
+\emph{erase} a targeted concept and report that it is no longer (linearly) decodable; a closely related
+line studies task-preserving (oblique) concept removal \citep{holstege2025taskpreserving}.
+\textbf{Difference:} we do \emph{not} compete with concept erasure as an eraser --- we use it as a
+\emph{control}. Indeed we find that an optimal closed-form linear eraser (LEACE) removes more subject
+information than our score-Fisher deletion at equal task cost (\S4.4), so the projection is not our
+contribution. Our contribution is the measurement-to-control audit: a conditional \textbf{score-Fisher}
+localization (second-order in the log-likelihood scores, so it sees covariance/synergy leakage a
+first-moment statistic misses) used for diagnosis, a conditional task-risk certificate with refusal, and
+the empirical finding that even optimal linear erasure leaves a nonlinearly recoverable residual and does
+not establish a generalization benefit --- i.e.\ successful erasure is necessary- but not
+sufficient-evidence of usable control.
+
+\subsection{Certification, abstention, and safe intervention}
+Reliable ML increasingly couples decisions to calibrated uncertainty and the option to abstain
+\citep{geifman2017selective,geifman2019selectivenet,shafer2008conformal}, and causal/effect
+estimation uses cross-fitted, one-step (doubly-robust) estimators with explicit power considerations
+\citep{chernozhukov2018doubleml}.
+\textbf{Difference:} we import this discipline into representation intervention. Rather than always deleting a
+``domain-rich'' subspace, we estimate the conditional task risk it carries with a cross-fitted plug-in
+log-ratio gate and a power floor, and make \textbf{refusal (the identity map) a first-class control decision}
+when a safe, useful deletion cannot be certified at the available sample size.
+
+We do not claim a stronger invariant regularizer; we show a measurement-to-control gap for conditional
+domain leakage in EEG representations, and fold explicit certification and refusal into the method.
