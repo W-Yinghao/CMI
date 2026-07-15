@@ -15,59 +15,56 @@ and collaboration sections before acting.
 
 ## 0. Current continuation state (2026-07-15)
 
-The original authorized C84F job `896185` completed all source-only training and
-froze the full model field, then stopped safely during target trial-registry
-construction. C84FR1 has additively repaired and relocked only that target stage:
+The authorized C84FR1 target-only replacement job `896550` stopped at the
+unchanged numerical replay gate after successfully repairing the target trial
+registry. The current gate is:
 
 ```text
-original C84F lock commit:          47bf20fbc341c136da0e3ed997a490fb0f135c49
-original C84F lock SHA-256:         f9df9dcefea59b05bfea24d1b744d82bfc933d76efde3f9aececf67401ea6b05
-failed authorized job:              896185
-failure-evidence commit:            d35fc3d
+C84F_TARGET_INSTRUMENTATION_NUMERICAL_GATE_REPAIR_REQUIRED
+```
+
+Operative identities and attempt evidence:
+
+```text
+original C84F model-field job:      896185
+frozen model-field manifest SHA:   d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2
 C84FR1 protocol commit:             74a71e0b0cf70cad39f3525b314e3f12be532d7a
 C84FR1 protocol SHA-256:            eb14721c9e78305f6c8e687e01a8f0951c192cc953b288b96c45c9cb1cdc1cd0
 C84FR1 implementation commit:       3dd69b9636cf479080e64b0ef0e3071c781a264f
 C84FR1 replacement-lock commit:     3c000e1ec3906d82a30f5778dc9a414f4b527149
 C84FR1 replacement-lock SHA-256:    2e888b6497ec455a325ae23f3396726eeb4492ce4cb36fed6f11633f2d92ae34
-gate:                               C84F_TARGET_STAGE_CANONICAL_REGISTRY_REPAIR_LOCKED_READY_FOR_PI_REAUTHORIZATION
+C84FR1 authorization commit:        5bf6466f268ca969a6cb507ea27983c17aef6741
+authorized target-only job:         896550
+authorization consumption SHA-256: 87221e3e80dc025755b994e39d87a7338f45dc5b2b95f2e252f3824743375058
 ```
 
-Job `896185` trained all remaining 1,458 units / 54 phases and atomically froze
-1,944/1,944 candidate units, 72/72 phases, 7,776 model/state/source-audit
-artifacts and 972 units per level. Its model-field manifest SHA-256 is
-`d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2`.
-Training target rows/labels, source-audit rows used in training and
-target-outcome retention/retry were all zero.
+Job `896550` replayed the frozen 1,944-unit model field and all 7,776 bound
+model artifacts without training. It loaded and validated label-free X for all
+118 targets, exactly replayed raw-input manifest SHA-256
+`9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd`,
+and froze a 9,621-row target-unlabeled trial registry with SHA-256
+`52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8`.
 
-After the model freeze, the job loaded label-free X for all 118 target subjects
-and wrote raw-input manifest SHA-256
-`9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd`.
-It then raised `TypeError: '<' not supported between instances of 'dict' and
-'dict'` while directly sorting raw-file dictionaries. It froze zero target trial
-rows, zero target artifacts and zero context slices. Target-y access, target
-labels, selector scores, scientific metrics and oracle access remained zero.
-The failed root and consumed authorization are preserved and cannot be reused.
+During complete target instrumentation, persisted linear replay for unit
+`c84l1_00cb2c89efa87efe281dbb9229c63e53` (Cho2017, panel B, seed 6,
+level 1, SRC epoch 149) was `2.193450927734375e-05`, above the locked
+`2e-05` threshold. The runtime did not widen the threshold and did not retry.
+Five artifacts and 268 candidate-context slices completed; a sixth NPZ exists
+without a context index. No complete-field manifest was published, and all
+partial target artifacts are evidence only and not automatically reusable.
 
-C84FR1 replaces only direct dictionary comparison with a validated canonical
-`(path, bytes, sha256)` key. Its target-only entrypoint has no training import or
-callable. Before any new target access, it replays the 1,944-unit model manifest,
-all 7,776 model artifacts, all 2,430 dual-canary files, repository bytes,
-protocols, environment, loader identities, candidate IDs and the historical raw
-manifest. It requires a fresh content-addressed root and exact replay of all six
-canary contexts. Numerical gates remain 2e-5 for linear reconstruction and 1e-6
-for softmax/repeat identity.
+The 1,944-unit model field remains valid and unchanged. Protected counters are
+zero for retraining, target-y access, target-label fields, selector scores,
+scientific metrics, oracle access and C84S. The authorization is consumed and
+cannot be reused. The failure root, attempt ledger and partial manifest are
+preserved. Monitoring used `squeue`, never `sacct`, and no C84 job remains
+active.
 
-C84FR1 verification passed 12/12 synthetic checks and 34/34 final red-team
-checks. Regression jobs `896544`-`896547` reported focused 242, C65 728, C23
-1,139 and full 2,063 passed. Cumulative suites retain one explained C78F skip
-and three established C79 deselections; all stderr files are empty. Monitoring
-used `squeue`, never `sacct`, and no C84FR1 job remains active.
-
-The replacement target stage is **not authorized**. The shortest next valid PI
-statement is `授权 C84F target-stage repair`; it must bind the unique replacement
-lock above. The old C84F authorization cannot transfer. Until then, do not reload
-target X, run forward, create target artifacts or start C84S. C84S still has no
-execution lock. This handoff itself authorizes nothing.
+Do not widen the numerical gate, retry, reuse partial target artifacts or start
+C84S under the current identity. Any target-instrumentation change requires an
+additive protocol, a new implementation lock, PM review and fresh direct
+authorization. C84S still has no execution lock. The detailed evidence is in
+`C84FR1_FAILED_ATTEMPT_896550.{md,json}`.
 
 ### Accepted C84C engineering base
 
