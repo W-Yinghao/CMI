@@ -1,0 +1,101 @@
+# CMI-Trace P0/P1 frozen experiment configuration.
+# FROZEN BEFORE the full run. Method grids for nested source-only selection are declared here and MUST NOT
+# be edited after any full job is launched (a new grid = a new config hash = a new experiment). The config
+# hash of this file (sha256 of the canonical bytes) is recorded in results/cmi_trace_p0p1/manifest.json and
+# stamped into every result row's firewall metadata.
+schema_version: 1
+title: "CMI-Trace: same-backbone objective comparison + objective-effect audit (P0.1/P0.2)"
+
+# --------------------------------------------------------------------- same-backbone contract (P0.1/P0.2)
+backbone: dgcnn_forward_graph_adapter        # cmi.models.graph_task_backbones.build_graph_task_backbone
+protocol: loso                               # leave-one-subject-out, domain = subject
+source_only: true
+target_firewall: eval_only                   # target labels/covariates never in train/select/probe/subspace/k
+audit_objects: [graph_z, node_z]
+null: within_label_permutation               # domain permuted WITHIN label
+representation_primary: graph_z              # moment/risk/reliance columns; node_z is the structured secondary
+seed_before_build: true                      # seed process BEFORE backbone construction; clone init across methods
+
+# --------------------------------------------------------------------- datasets / folds / seeds
+datasets:
+  BNCI2014_001: {n_folds: 9,  n_classes: 4}
+  BNCI2015_001: {n_folds: 12, n_classes: 2}
+seeds: [0, 1, 2]
+
+# --------------------------------------------------------------------- optimizer / protocol budget (shared)
+train:
+  epochs: 80
+  warmup: 16                                 # = epochs // 5 (matches proven audit protocol)
+  bs: 64
+  probe_epochs: 100
+  n_perm_main: 50                            # permutation-null repetitions for the leakage audit
+  resample: 128
+  tmin: 0.5
+  tmax: 3.5
+  enc_train_frac: 0.7                        # encoder-train vs source-probe-pool split (source-only)
+  train_frac: 0.7                            # audit probe fit/eval split within the source pool
+  min_per_cell: 2
+
+# --------------------------------------------------------------------- objective method set (main table)
+# Fixed-anchor rows (pre-registered strengths). Adversarial rows kept from R2 (not rerun unless hash differs).
+methods_fixed:
+  erm:             "erm:0"
+  cigl_graph_node: "graphcmi:0.010:0.010:0.000"    # pre-registered CMI anchor lambda_g=lambda_node=0.010
+  coral:           "coral:0.010:0.010"             # graph readout + mean node (P0.1 primary representation)
+  label_coral:     "label_coral:0.010:0.010"       # conditional-CORAL, graph readout + mean node
+  irm:             "irm:1.000"                      # IRMv1 penalty weight (DomainBed-canonical unit)
+  vrex:            "vrex:1.000"                      # V-REx risk-variance weight
+  cond_dann:       "cdann:1.000"                    # conditional adversarial comparator (kept from R2)
+  cdan:            "cdan:1.000"                      # CDAN multilinear comparator (kept from R2)
+
+# Nested-selected sensitivity rows. Selection = SOURCE-ONLY nested leave-one-source-domain validation over
+# these frozen grids (lambda=0=ERM always a candidate). Select by mean inner source-val balanced accuracy;
+# tie-break by lower source-val CE, then smaller regularization weight. NO target labels.
+selection:
+  rule: source_val_bacc
+  tie_break: [source_val_ce, smaller_lambda]
+  cv_mode: leave_one_domain                  # inner leave-one-source-subject-out
+  val_frac: 0.3                              # used only if cv_mode=random
+  grids:
+    cigl_nested:        {method: graphcmi,    graph_node_tied: true, lams: [0.0, 0.003, 0.010, 0.030]}
+    coral_nested:       {method: coral,       graph_node_tied: true, lams: [0.0, 0.010, 0.100, 1.000]}
+    label_coral_nested: {method: label_coral, graph_node_tied: true, lams: [0.0, 0.010, 0.100, 1.000]}
+    irm_nested:         {method: irm,         graph_node_tied: false, lams: [0.0, 0.100, 1.000, 10.000]}
+    vrex_nested:        {method: vrex,        graph_node_tied: false, lams: [0.0, 0.100, 1.000, 10.000]}
+
+# --------------------------------------------------------------------- objective-effect audit columns (P0.2)
+objective_effect_audit:
+  moment_gaps: [marginal_graph, class_conditional_graph]
+  cmi: [graph_posterior_kl, graph_retrained_null, node_posterior_kl, node_retrained_null]
+  risk: [per_domain_risk_variance, irmv1_diagnostic_posthoc]
+  geometry: [feature_norm, top_singular_value, effective_rank]
+  reliance:
+    primary_k: 2
+    conditionings: [label_conditional, marginal_domain, random_subspace]
+    n_random_spans: 50
+    rank_sensitivity: [1, 2, 3, 4, 5, 6, 7]
+    replay_tolerance: 1.0e-4
+  endpoints: [target_balanced_acc, source_balanced_acc]
+
+# --------------------------------------------------------------------- main uncertainty (P0.2/P0.6)
+inference:
+  statistical_unit: held_out_subject_outer_fold
+  main_interval: cluster_bootstrap_95        # paired fold/subject cluster; seeds within a fold travel together
+  n_boot: 10000
+  seed_sd: descriptive_only
+
+# --------------------------------------------------------------------- deployment CI semantics (P0.4)
+deployment_ci:
+  practical_threshold: 0.01                  # delta balanced accuracy
+  confirmed_practical_benefit: "lower_95_CI(delta_bAcc) > +0.01"
+  practical_gain_ruled_out:   "upper_95_CI(delta_bAcc) < +0.01"
+  otherwise: inconclusive
+
+# --------------------------------------------------------------------- FMScope bridge (P0.5)
+fmscope_bridge:
+  design_2x2:
+    fit_regimes: [ORACLE_GLOBAL_GEOMETRY, strict_source_only]
+    removals: [subject_specific_erasure, same_rank_random]
+  n_random_draws: 20
+  leace_variants: [current, ledoit_wolf]
+  oracle_is_deployable_dg: false             # ORACLE_GLOBAL_GEOMETRY is a diagnostic, never DG

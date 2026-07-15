@@ -1,0 +1,18 @@
+{
+  "experiment": "cmi_trace_p0p1",
+  "integration_branch": "agent/cmi-trace-p0p1",
+  "base_cigl_branch": "project/cigl-functional-cmi",
+  "base_cigl_sha": "c1d55be6f3d196833e89d50b6e0c5a8e3904e8f7",
+  "base_tos_branch": "tos",
+  "base_tos_sha": "1c65d7927d5a4906065fdd21e667eb19f30e2088",
+  "config_file": "configs/cmi_trace_p0p1.yaml",
+  "config_sha256": "002e92410aed2d17e600bfe15ab6e8f87797e69e745d8781be7fad369dcd032e",
+  "conda_env": "c84c-eeg2025-v3",
+  "torch": "2.6.0",
+  "backbone": "dgcnn_forward_graph_adapter",
+  "datasets": {"BNCI2014_001": 9, "BNCI2015_001": 12},
+  "seeds": [0, 1, 2],
+  "created_at_repo_sha": "c1d55be6f3d196833e89d50b6e0c5a8e3904e8f7",
+  "status": "code_frozen_jobs_pending",
+  "firewall": "strict_source_only_target_eval_only"
+}
