@@ -46,5 +46,15 @@
 - RT44 `486_canary_witnesses`: PASS
 - RT45 `protocol_precedes_implementation`: PASS
 - RT46 `fresh_authorization_required`: PASS
+- RT47 `focused_30_passed`: PASS
+- RT48 `C65_758_passed_1_skip_3_deselected`: PASS
+- RT49 `C23_1169_passed_1_skip_3_deselected`: PASS
+- RT50 `full_OACI_2093_passed_1_skip_3_deselected`: PASS
+- RT51 `C78F_skip_reason_exact`: PASS
+- RT52 `C79_three_deselections_exact`: PASS
+- RT53 `initial_C65_failure_attempt_preserved`: PASS
+- RT54 `accepted_regression_stderr_empty`: PASS
+- RT55 `regressions_no_target_reload_forward_or_GPU`: PASS
+- RT56 `Git_payload_under_50MiB_no_raw_or_weights`: PASS
 
-Gate: `C84F_TARGET_INSTRUMENTATION_SAME_BACKEND_REPLAY_REPAIRED_READY_FOR_PI_REAUTHORIZATION`. Result: 46/46 PASS.
+Gate: `C84F_TARGET_INSTRUMENTATION_SAME_BACKEND_REPLAY_REPAIRED_READY_FOR_PI_REAUTHORIZATION`. Result: 56/56 PASS.

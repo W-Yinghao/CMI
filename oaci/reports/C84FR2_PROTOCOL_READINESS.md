@@ -4,6 +4,8 @@ Repair protocol SHA-256: `4480530f05f0814b712edf23a51f08e64820ddea220d6b26f4dc7b
 
 The lock binds 38 repository objects and 19 implementation files, the frozen 1,944-unit model field, 7,776 model artifacts, 2,430 dual-canary witness files, the 118-subject/9,621-row label-free target registry, and all 11 rejected partial target objects from job 896550.
 
-Synthetic calibration: 9/9 PASS. Red team: 46/46 PASS. No target X reload, forward, GPU, training, label, selector, scientific metric, oracle, or C84S work occurred during C84FR2.
+Synthetic calibration: 9/9 PASS. Final red team: 56/56 PASS. Focused/C65/C23/full regressions reported 30, 758, 1,169, and 2,093 passed respectively. Cumulative suites retain one explained C78F skip and the three established C79 deselections; all accepted stderr files are empty. The initial C65 invocation without those deselections is preserved as a failed regression attempt.
+
+No target X reload, forward, GPU, training, label, selector, scientific metric, oracle, or C84S work occurred during C84FR2.
 
 Gate: `C84F_TARGET_INSTRUMENTATION_SAME_BACKEND_REPLAY_REPAIRED_READY_FOR_PI_REAUTHORIZATION`. Real target-stage execution is not authorized.

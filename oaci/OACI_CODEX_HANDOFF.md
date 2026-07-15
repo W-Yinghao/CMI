@@ -15,56 +15,55 @@ and collaboration sections before acting.
 
 ## 0. Current continuation state (2026-07-15)
 
-The authorized C84FR1 target-only replacement job `896550` stopped at the
-unchanged numerical replay gate after successfully repairing the target trial
-registry. The current gate is:
+C84FR2 has additively repaired and relocked the target-only numerical and
+persistence contract. It stopped before real target reload at:
 
 ```text
-C84F_TARGET_INSTRUMENTATION_NUMERICAL_GATE_REPAIR_REQUIRED
+C84F_TARGET_INSTRUMENTATION_SAME_BACKEND_REPLAY_REPAIRED_READY_FOR_PI_REAUTHORIZATION
 ```
 
-Operative identities and attempt evidence:
+Operative identities:
 
 ```text
-original C84F model-field job:      896185
-frozen model-field manifest SHA:   d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2
-C84FR1 protocol commit:             74a71e0b0cf70cad39f3525b314e3f12be532d7a
-C84FR1 protocol SHA-256:            eb14721c9e78305f6c8e687e01a8f0951c192cc953b288b96c45c9cb1cdc1cd0
-C84FR1 implementation commit:       3dd69b9636cf479080e64b0ef0e3071c781a264f
-C84FR1 replacement-lock commit:     3c000e1ec3906d82a30f5778dc9a414f4b527149
-C84FR1 replacement-lock SHA-256:    2e888b6497ec455a325ae23f3396726eeb4492ce4cb36fed6f11633f2d92ae34
-C84FR1 authorization commit:        5bf6466f268ca969a6cb507ea27983c17aef6741
-authorized target-only job:         896550
-authorization consumption SHA-256: 87221e3e80dc025755b994e39d87a7338f45dc5b2b95f2e252f3824743375058
+C84FR2 repair protocol commit:      27fc479ecd4131ceb4f79982cb0890f517709d2e
+C84FR2 repair protocol SHA-256:     4480530f05f0814b712edf23a51f08e64820ddea220d6b26f4dc7bb0f2a541bf
+backend diagnostic commit:          6e727b80645c08362d75a98da5ef4ee52f2f1d9d
+target instrumentation V2 commit:   b527b82950690d09e73e5f3468d994cf11b56413
+target instrumentation V2 SHA-256:  2387b3a1a81dd061b7cc723820d41829e0237e5be0f243bc423422a173f72671
+C84FR2 implementation commit:       a64c6815ad512d0b8bc7158cd61ff2147f24948a
+C84FR2 execution-lock commit:       34eb5efad16f1f8a320b08435363939089c8037a
+C84FR2 execution-lock SHA-256:      f0c369ee273352b47e36ce426108d78a2d4193180afbf0aecfbbeb3d4980ba47
 ```
 
-Job `896550` replayed the frozen 1,944-unit model field and all 7,776 bound
-model artifacts without training. It loaded and validated label-free X for all
-118 targets, exactly replayed raw-input manifest SHA-256
-`9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd`,
-and froze a 9,621-row target-unlabeled trial registry with SHA-256
-`52526aaf7d9bd941bac693a0947971dc35b9083c1c783619f97055926aceabb8`.
+The new contract retains the frozen 1,944-unit model field and the exact
+118-subject, 9,621-row label-free target registry. It rejects all six NPZ and
+five context indices from failed job `896550`. Future artifacts must pass a
+same-GPU/PyTorch direct classifier identity gate at `1e-6`, exact pre-write and
+post-reload dtype/shape/byte SHA-256 equality for all 21 fields, and saved
+`Wz_plus_b`/logits, softmax, repeat-logit and repeat-z replay at `1e-6`.
+CPU PyTorch, NumPy float32, and NumPy float64 reconstructions are finite-value
+diagnostics only and cannot change retention or thresholds.
 
-During complete target instrumentation, persisted linear replay for unit
-`c84l1_00cb2c89efa87efe281dbb9229c63e53` (Cho2017, panel B, seed 6,
-level 1, SRC epoch 149) was `2.193450927734375e-05`, above the locked
-`2e-05` threshold. The runtime did not widen the threshold and did not retry.
-Five artifacts and 268 candidate-context slices completed; a sixth NPZ exists
-without a context index. No complete-field manifest was published, and all
-partial target artifacts are evidence only and not automatically reusable.
+The historical `2e-5` threshold was not widened. Post-protocol inspection of
+the six immutable NPZ files reproduced the failing NumPy float32 value exactly:
+`2.193450927734375e-05`; the same saved arrays produced
+`1.239776611328125e-05` under CPU PyTorch and `1.0063620615952118e-05`
+under NumPy float64. This diagnostic does not substitute for the future
+same-GPU gate.
 
-The 1,944-unit model field remains valid and unchanged. Protected counters are
-zero for retraining, target-y access, target-label fields, selector scores,
-scientific metrics, oracle access and C84S. The authorization is consumed and
-cannot be reused. The failure root, attempt ledger and partial manifest are
-preserved. Monitoring used `squeue`, never `sacct`, and no C84 job remains
-active.
+The lock binds 38 repository objects, 19 implementation files, 7,776 frozen
+model artifacts, 2,430 canary files, and all frozen target-input identities.
+Synthetic calibration passed 9/9 and final red team passed 56/56. Regression:
+focused 30, C65 758, C23 1,169, full OACI 2,093 passed; cumulative suites retain
+one explained C78F skip and three established C79 deselections. Accepted stderr
+files are empty.
 
-Do not widen the numerical gate, retry, reuse partial target artifacts or start
-C84S under the current identity. Any target-instrumentation change requires an
-additive protocol, a new implementation lock, PM review and fresh direct
-authorization. C84S still has no execution lock. The detailed evidence is in
-`C84FR1_FAILED_ATTEMPT_896550.{md,json}`.
+C84FR2 is not authorized for real execution. The shortest valid future direct
+statement is `授权 C84F target-stage numerical replay repair`, bound to the V2
+lock above. Until then, do not reload target X, run forward/GPU, create target
+artifacts, train, access target labels, compute selector/scientific outputs, or
+start C84S. Jobs `896185` and `896550` and their consumed authorizations remain
+immutable failed attempts. C84S still has no execution lock.
 
 ### Accepted C84C engineering base
 
