@@ -85,6 +85,31 @@ bootstrap** (seeds within a fold travel together). Seed SD is descriptive only.
 
 ---
 
+## REAL RESULT — BNCI2014_001 complete (job 896396, 8 methods × 27 cells, fold-cluster 95% CI)
+
+Directly evidences the measurement→control gap across the full objective family:
+
+| Method | target bAcc Δ vs ERM | graph-CMI Δ vs ERM | R_rel(k=2) Δ vs ERM | R_rel random control |
+|--------|----------------------|--------------------|--------------------|---------------------|
+| CORAL | +0.005 [+0.000,+0.009] | −0.130 [−0.136,−0.124] | +0.003 [−0.001,+0.007] | −0.001 |
+| C-CORAL | +0.004 [−0.001,+0.009] | −0.120 [−0.126,−0.115] | +0.002 [−0.003,+0.007] | −0.003 |
+| IRMv1 | +0.011 [+0.004,+0.019] | −0.036 [−0.039,−0.032] | +0.004 [−0.003,+0.010] | +0.000 |
+| V-REx | −0.002 [−0.007,+0.005] | −0.075 [−0.085,−0.066] | −0.002 [−0.005,+0.002] | −0.001 |
+| cond-DANN | +0.003 [−0.015,+0.023] | −0.953 [−1.001,−0.905] | +0.028 [+0.013,+0.047] | +0.018 (elevated!) |
+| Enc-CMI (0.010) | +0.008 [+0.001,+0.016] | −0.571 [−0.623,−0.525] | +0.015 [+0.002,+0.029] | +0.001 |
+| Enc-CMI (nested) | +0.012 [+0.004,+0.021] | −0.619 [−0.766,−0.458] | +0.034 [+0.011,+0.057] | +0.001 |
+
+- **ALL objectives reduce measured encoder-CMI** (every graph-CMI Δ CI excludes 0).
+- **None reduces exact-head reliance**; R_rel(k=2) RISES for the strongest reducers (Enc-CMI/cond-DANN, CIs
+  exclude 0 on the positive side). Enc-CMI's rise is above its random control (subject-subspace-specific);
+  cond-DANN's random control is also elevated (partly a scale/dimensionality effect — see moment-gap caveat).
+- **Target gains modest**; NONE clears the +0.01 confirmed-benefit lower-CI threshold (best lower bound
+  +0.004, Enc-CMI-nested). Deployment verdict per P0.4: no CONFIRMED practical benefit.
+- CAVEAT: raw moment gaps are scale-sensitive; all 27 cond-DANN cells show inflated gaps (adversarial GRL
+  inflates feature norm — read alongside the feature_norm column). A scale-normalized moment gap is future work.
+- STATUS: BNCI2014_001 CONFIRMED (`objective_effect_summary.csv`, `paired_deltas.csv`, `objective_table.tex`,
+  `fig3_cmi_reliance_bacc.png`). BNCI2015_001 PENDING (job 896397 running); re-aggregate on completion.
+
 ## Non-implications the paper must state explicitly (replaces the old causal chain)
 
 The old figure chain `CMI reduction ⇒ removability ⇒ predictor use ⇒ target gain` is REPLACED by two
