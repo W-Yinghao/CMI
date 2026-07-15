@@ -188,7 +188,7 @@ def task_metrics(head, features, labels, subjects, unit_ids, n_classes):
         "prediction_sha256": array_sha(probabilities),
     }
     support = {
-        "probabilities": probabilities.astype(np.float32),
+        "probabilities": np.ascontiguousarray(probabilities.astype(np.float64)),
         "labels": pooled_labels.astype(np.int64),
         "subjects": pooled_subjects.astype(np.int64),
         "units": pooled_units,
