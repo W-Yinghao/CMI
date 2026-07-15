@@ -130,10 +130,10 @@ calib slope 0.884; kNN rank-correlated (0.948) but ~2.5× magnitude-biased; capa
    `configs/cmi_trace_p0p1.yaml`, `paper/cmi_trace/*`.
 4. **Tests**: 65 new CMI-Trace tests all pass (P0.1 10, P0.2 10, P0.4 8, P0.5 9, P1.1 5, P1.2 10, P1.3 6,
    P1.4 7) + graph_leakage backcompat 13 + 77 pre-existing regression — **0 failures, 0 regressions**.
-5. **Jobs**: `896396` BNCI2014_001 — **COMPLETE** (216/216 cells, ~5.7 GPU-h). `896397` BNCI2015_001 —
-   RUNNING (~171/288 cells). (Superseded: 896355-360, 896388 — NFS-lock/datalake-perm, fixed.)
-6. **Completeness**: BNCI2014_001 = 8 methods × 9 folds × 3 seeds = 216/216 (all `complete=True`).
-   BNCI2015_001 = pending job 896397; re-run `scripts/aggregate_cmi_trace_objective.py` on completion.
+5. **Jobs**: `896396` BNCI2014_001 — **COMPLETE** (216/216 cells). `896397` BNCI2015_001 — **COMPLETE**
+   (288/288 cells). (Superseded: 896355-360, 896388 — NFS-lock/datalake-perm, fixed.)
+6. **Completeness**: BNCI2014_001 = 8×9×3 = 216/216; BNCI2015_001 = 8×12×3 = 288/288. **ALL cells present,
+   both datasets `complete=True`.**
 7. **Main objective→effect table (BNCI2014_001, fold-cluster 95% CI)**: `objective_table.tex` /
    `objective_effect_summary.csv`. See the claim ledger table. Every objective REDUCES measured encoder-CMI;
    NONE reduces exact-head reliance (R_rel(k=2) rises for the strongest reducers); target gains modest, none
@@ -164,12 +164,14 @@ calib slope 0.884; kNN rank-correlated (0.948) but ~2.5× magnitude-biased; capa
 
 ## GO / NO-GO verdict
 
-**GO — with the current scope RETAINED.** P0.1 completed on BNCI2014_001 (all four invariance families run
-on the same DGCNN adapter under strict source-only LOSO), so the manuscript keeps the "what domain-invariance
-objectives remove" framing. The real result strengthens, not weakens, the contribution: on one backbone,
-every objective measurably reduces encoder-CMI, but this does NOT reduce original-head reliance (it rises for
-the strongest reducers) and does not yield a confirmed target gain — a clean, cluster-CI-backed
-measurement→control gap. The scope reduction contingency (narrow to encoder-CMI-only) is NOT triggered.
-Honest caveats: (i) only 1 of 2 datasets fully aggregated in-session (BNCI2015 running); (ii) raw moment gaps
-are scale-sensitive (cond-DANN inflated); (iii) FMScope/TOS/deployment real numbers await regenerated dumps.
-None of these undercut the core claim; they are finalization steps, not open scientific questions.
+**GO — with the current scope RETAINED.** P0.1 completed on BOTH datasets (BNCI2014_001 216/216 +
+BNCI2015_001 288/288): all four invariance families run on the same DGCNN adapter under strict source-only
+LOSO, so the manuscript keeps the "what domain-invariance objectives remove" framing. The real result
+**strengthens** the contribution and **replicates across two datasets**: every objective measurably reduces
+encoder-CMI (all graph-CMI Δ CIs exclude 0 on both datasets), but this does NOT reduce original-head reliance
+(R_rel(k=2) rises for most methods, CIs excluding 0 on both datasets) and does not yield a confirmed target
+gain (modest/none on BNCI2014, null-or-negative on BNCI2015). A clean, cluster-CI-backed, two-dataset
+measurement→control gap. The scope-reduction contingency (narrow to encoder-CMI-only) is NOT triggered.
+Honest caveats: (i) raw moment gaps are scale-sensitive (cond-DANN inflated — read with feature_norm);
+(ii) FMScope/TOS/deployment real numbers await regenerated frozen dumps (code + tests done). Neither
+undercuts the core claim; they are finalization steps, not open scientific questions.

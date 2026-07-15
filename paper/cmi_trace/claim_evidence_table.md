@@ -108,7 +108,7 @@ Directly evidences the measurement→control gap across the full objective famil
 - CAVEAT: raw moment gaps are scale-sensitive; all 27 cond-DANN cells show inflated gaps (adversarial GRL
   inflates feature norm — read alongside the feature_norm column). A scale-normalized moment gap is future work.
 - STATUS: BNCI2014_001 CONFIRMED (`objective_effect_summary.csv`, `paired_deltas.csv`, `objective_table.tex`,
-  `fig3_cmi_reliance_bacc.png`). BNCI2015_001 PENDING (job 896397 running); re-aggregate on completion.
+  `fig3_cmi_reliance_bacc.png`). BNCI2015_001 CONFIRMED (job 896397 complete, 288/288): pattern REPLICATES — all objectives reduce encoder-CMI, R_rel(k=2) rises, target gains null/negative.
 
 ## Non-implications the paper must state explicitly (replaces the old causal chain)
 
