@@ -185,6 +185,11 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
     is_adv = method in dgp.ADV_METHODS
     is_pen = method in dgp.PENALTY_METHODS
     is_gdro = method == "groupdro"
+    # graph-aware moment penalties (coral/label_coral) run on graph readout + channel-mean node feature,
+    # matching encoder-CMI's (graph, node) objects — but ONLY when the backbone exposes forward_graph.
+    # Otherwise they fall through to the flat is_pen path on z (single graph-readout object).
+    uses_graph_pen = (method in dgp.GRAPH_PEN_METHODS
+                      and callable(getattr(backbone, "forward_graph", None)))
 
     # adversarial frameworks own a discriminator, optimized jointly via gradient reversal
     disc = ((dgp.make_cdan_discriminator(backbone.z_dim, n_dom, n_cls) if method == "cdan"
@@ -349,6 +354,18 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                             diag["stepA_edge_correct"] += int((epred == db).sum()); diag["stepA_edge_total"] += int(db.numel())
                             diag["stepA_edge_loss"].append(_scalar(edge_post.step_a_loss(el, yb, db)))
                 continue
+            if uses_graph_pen:                            # coral/label_coral on graph readout + mean node
+                warm = min(1.0, ep / max(1, warmup))
+                logits, gz, nz, _ = backbone.forward_graph(xb)
+                ce = F.cross_entropy(logits, yb, weight=ce_weight)
+                pen, _sd = dgp.graph_moment_penalty(method, gz, nz, yb, db, n_cls, n_dom, lam, gamma)
+                loss = ce + warm * pen
+                opt_main.zero_grad(); loss.backward(); opt_main.step()
+                if last_epoch:
+                    diag["inloop_reg"].append(_scalar(pen))
+                    diag["inloop_ce"].append(_scalar(ce))
+                    diag.setdefault("graph_pen_support", []).append(_sd)
+                continue
             # Step A: fit auxiliary predictor(s) on detached Z (CMI posteriors, or IIB's h)
             fits_qdzy = uses_cmi or is_dual or is_dualc or is_dualpc or is_dualpc_hinge or is_dualpc_marginal
             if fits_qdzy or is_iib:
@@ -462,6 +479,7 @@ def train_model(backbone, Xtr, ytr, dtr, n_cls, method="lpc_prior", lam=1.0, gam
                     loss = loss + gamma * sup_con_loss(z, yb, db, cross_domain=True)
                 if is_pen:
                     pen = {"coral": lambda: dgp.coral(z, db, n_dom),
+                           "label_coral": lambda: dgp.label_coral(z, yb, db, n_cls, n_dom),
                            "mmd": lambda: dgp.mmd(z, db, n_dom),
                            "irm": lambda: dgp.irm(logits, yb, db, n_dom),
                            "vrex": lambda: dgp.vrex(logits, yb, db, n_dom),

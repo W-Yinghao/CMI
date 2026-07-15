@@ -219,6 +219,8 @@ def run(args):
             lam, gamma = nums[0], nums[1]
         elif method == "graphcmi":                   # graphcmi:<lam=global>:<lam_node>:<lam_edge>
             lam, gamma, lam_edge = nums[0], (nums[1] if len(nums) > 1 else 0.0), (nums[2] if len(nums) > 2 else 0.0)
+        elif method in ("coral", "label_coral"):     # coral/label_coral:<lam_graph>:<lam_node> (graph-aware)
+            lam, gamma = nums[0], (nums[1] if len(nums) > 1 else 0.0)
         elif method in ("dual", "dualc", "dualpc", "dualpc_hinge", "dualpc_marginal"):
             # dualpc:<lam=reference-factorized P(Z)>:<gamma=JS-consistency P(Y|Z)>
             # dualpc_marginal keeps the direct marginal I_w(Z;D) ablation.

@@ -2,6 +2,9 @@
 
 Frameworks (DomainBed-style), all operating on the same backbone (logits, Z) interface:
   coral    : align mean+covariance of Z across source domains (Deep CORAL)
+  label_coral : standalone class-CONDITIONAL CORAL — align mean+cov WITHIN each class across source
+             domains (a.k.a. conditional-CORAL / C-CORAL). Distinct from `scldgn`'s composite per-class
+             CORAL: no supervised-contrastive term, explicit (Y,D) support handling, declared weighting.
   mmd      : Gaussian-kernel MMD of Z across source domains
   irm      : invariant risk minimization gradient penalty (dummy-scale grad)
   vrex     : variance of per-domain risks (V-REx)
@@ -18,8 +21,11 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-PENALTY_METHODS = {"coral", "mmd", "irm", "vrex", "chsic", "scldgn"}
+PENALTY_METHODS = {"coral", "label_coral", "mmd", "irm", "vrex", "chsic", "scldgn"}
 ADV_METHODS = {"dann", "cdann", "cdan"}   # cdan = CDAN multilinear conditioning (R2, additive)
+# moment-matching penalties applied to the SAME representation objects encoder-CMI controls (graph
+# readout + channel-mean node feature) when the backbone exposes forward_graph; else flat z.
+GRAPH_PEN_METHODS = {"coral", "label_coral"}
 DG_METHODS = PENALTY_METHODS | ADV_METHODS | {"groupdro"}
 
 
@@ -58,6 +64,78 @@ def coral(z, d, n_dom):
             cd = (_cov(gs[i]) - _cov(gs[j])).pow(2).mean()
             pens.append(md + cd)
     return torch.stack(pens).mean() if pens else z.new_zeros(())
+
+
+def _coral_pair(a, b):
+    """CORAL discrepancy between two feature groups: squared mean gap + squared covariance gap."""
+    md = (a.mean(0) - b.mean(0)).pow(2).mean()
+    cd = (_cov(a) - _cov(b)).pow(2).mean()
+    return md + cd
+
+
+def label_coral(z, y, d, n_cls, n_dom, min_n=4, return_support=False):
+    """Standalone class-CONDITIONAL CORAL (conditional-CORAL / C-CORAL).
+
+    For each class c that has adequate support (>= min_n samples) in AT LEAST TWO source domains, align the
+    per-domain mean+covariance of z WITHIN that class across those domains, then aggregate. Declared
+    weighting rule: equal weight per QUALIFYING class (mean over classes), and within a class the mean over
+    unordered qualifying domain-pairs. Class/domain cells with < min_n samples are SKIPPED EXPLICITLY (they
+    are recorded in the returned support diagnostics), never silently treated as zero evidence.
+
+    Key contrast vs marginal CORAL: because alignment is done WITHIN each class, a pure label-prior
+    (class-proportion) shift across domains — with matched within-class moments — yields ~0 penalty. A
+    within-class moment gap yields a positive penalty. (n_cls kept for API symmetry; classes present in y
+    are what actually drive the sum.)"""
+    per_class_pens, support, skipped = [], {}, []
+    classes = range(n_cls) if n_cls else [int(c) for c in torch.unique(y)]
+    for c in classes:
+        mc = (y == c)
+        doms = []
+        for i in range(n_dom):
+            n = int((mc & (d == i)).sum())
+            if n >= min_n:
+                doms.append(i)
+            elif n > 0:
+                skipped.append((int(c), int(i), n))     # under-supported (Y,D) cell: recorded, not dropped-silently
+        support[int(c)] = [int(x) for x in doms]
+        if len(doms) < 2:
+            continue
+        gs = [z[mc & (d == i)] for i in doms]
+        pens = [_coral_pair(gs[a], gs[b]) for a in range(len(gs)) for b in range(a + 1, len(gs))]
+        per_class_pens.append(torch.stack(pens).mean())
+    pen = torch.stack(per_class_pens).mean() if per_class_pens else z.new_zeros(())
+    if return_support:
+        diag = dict(min_n=int(min_n),
+                    qualifying_classes=[c for c in support if len(support[c]) >= 2],
+                    per_class_domains=support,
+                    skipped_cells=skipped,
+                    n_qualifying_classes=len(per_class_pens),
+                    n_skipped_cells=len(skipped))
+        return pen, diag
+    return pen
+
+
+def graph_moment_penalty(kind, gz, nz, y, d, n_cls, n_dom, lam_graph, lam_node):
+    """Apply a moment-matching DG penalty (kind in GRAPH_PEN_METHODS) to the SAME representation objects
+    encoder-CMI controls: the graph readout `gz` (weight lam_graph) and the channel-MEAN node feature
+    nz.mean(1) (weight lam_node), matching the node-CMI term's (1/C) Σ_v structure. Returns (penalty tensor,
+    support diag). Graph-only ablation = lam_node 0."""
+    if kind == "coral":
+        pg = coral(gz, d, n_dom)
+        pn = coral(nz.mean(1), d, n_dom) if lam_node else gz.new_zeros(())
+        sd = {}
+    elif kind == "label_coral":
+        pg, sd_g = label_coral(gz, y, d, n_cls, n_dom, return_support=True)
+        if lam_node:
+            pn, sd_n = label_coral(nz.mean(1), y, d, n_cls, n_dom, return_support=True)
+        else:
+            pn, sd_n = gz.new_zeros(()), {}
+        sd = {"graph": sd_g, "node": sd_n}
+    else:
+        raise ValueError(f"graph_moment_penalty: unsupported kind '{kind}'")
+    pen = lam_graph * pg + lam_node * pn
+    sd["graph_pen"] = float(pg.detach()); sd["node_pen"] = float(pn.detach())
+    return pen, sd
 
 
 def scldgn(z, y, d, n_cls, n_dom, temperature=0.1):
