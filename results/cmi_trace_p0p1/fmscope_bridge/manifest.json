@@ -1,0 +1,55 @@
+{
+  "phase": "CMI_TRACE_P0P5_fmscope_protocol_bridge",
+  "purpose": "Reconcile a POSITIVE FMScope cohort-conditioned erasure result with the strict source-only TOS deployment result by running BOTH protocols on the SAME frozen features, as a 2x2 design (only the eraser-fit population differs; the task probe is identical).",
+  "code": "tos_cmi/eeg/fmscope_protocol_bridge.py",
+  "tests": "tos_cmi/tests/test_fmscope_bridge.py",
+  "design_2x2": {
+    "rows_fit_regime": {
+      "ORACLE_GLOBAL_GEOMETRY": "fit LEACE on the WHOLE cohort's frozen features + subject ids INCLUDING the outer test subject, NO task labels; subject-disjoint task probe. ORACLE DIAGNOSTIC -- never DG, never deployable.",
+      "strict_source_only": "fit LEACE on SOURCE subjects only; train head on SOURCE only; score TARGET only at the end (the deployable DG contract)."
+    },
+    "cols_removal": {
+      "subject_leace": "LEACE removes the linear subject-identity concept",
+      "random_rank": "remove the SAME rank k in the SAME whitened geometry, averaged over >= n_random draws"
+    },
+    "cells": {
+      "A": "ORACLE_GLOBAL_GEOMETRY x subject_leace (diagnostic, non-deployable)",
+      "B": "strict_source_only x subject_leace (deployable/DG-eligible)",
+      "C": "ORACLE_GLOBAL_GEOMETRY x random_rank (diagnostic, non-deployable)",
+      "D": "strict_source_only x random_rank (deployable/DG-eligible)"
+    }
+  },
+  "leace_variants": ["empirical (== repository leace_eraser)", "ledoit_wolf (LW-whitened LEACE; rules out implementation-only conditioning explanation)"],
+  "paired_cluster_CIs": [
+    "A_vs_full  (global LEACE vs full)",
+    "B_vs_full  (source-only LEACE vs full)",
+    "A_vs_C     (global LEACE vs global random-rank)",
+    "B_vs_D     (source-only LEACE vs source-only random-rank)",
+    "C_vs_full  (global random-rank vs full; conditioning control)",
+    "lw_vs_empirical (Ledoit-Wolf LEACE vs current LEACE, per cell A and B)"
+  ],
+  "interpretation_verdict_contract": {
+    "global_pos & source_null": "target_cohort_conditioned_geometry_explains_discrepancy",
+    "global_pos & random_pos & not_above_random": "dimensionality_or_conditioning_effect",
+    "global_pos & source_pos & both_above_random": "transferable_subject_axis_benefit",
+    "frozen_fm_pos & task_trained_null": "representation_geometry_difference (requires a 2nd, task-trained feature set; not evaluated with a single frozen feature set)",
+    "otherwise": "no_clear_pattern",
+    "positive_def": "paired delta balanced-accuracy 95% fold-cluster CI lower bound > 0",
+    "rule": "The ORACLE (global) mode is NEVER labelled DG."
+  },
+  "firewall": "source_only_fit(Zs, ys, subj_s, whiten) takes NO target argument; source-only eraser + head are provably a function of source rows; target enters ONLY the final _task_metrics scoring. Enforced by tests test_firewall_*.",
+  "status": "CODE_FROZEN; PENDING_FROZEN_DUMPS. Real per-fold frozen .npz dumps are pruned from the repo (only erasure_report.json summaries are committed). NO real bridge numbers are reported here -- do not infer any. Validated end-to-end on SYNTHETIC gaussian dumps only (9/9 tests pass).",
+  "real_run_when_dumps_exist": {
+    "step_1_regenerate_dumps_GPU": [
+      "python -m tos_cmi.run_eeg_frozen_pilot --dataset BNCI2014_001 --backbone EEGNet --target-subjects all --configs erm:0 --seed 0 --device cuda --out-root tos_cmi/results/tos_cmi_eeg_frozen",
+      "python -m tos_cmi.run_eeg_frozen_pilot --dataset BNCI2014_001 --backbone TSMNet --target-subjects all --configs erm:0 --seed 0 --device cuda --out-root tos_cmi/results/tos_cmi_eeg_frozen",
+      "(repeat with --seed 1 --seed 2 for multi-seed fold-cluster CIs; each writes <DATASET>_<BACKBONE>_LOSO/sub<tgt>_erm_lam0_seed<seed>.npz)"
+    ],
+    "step_2_run_bridge": "python -m tos_cmi.eeg.fmscope_protocol_bridge --dataset BNCI2014_001 --nrandom 20",
+    "outputs": "results/cmi_trace_p0p1/fmscope_bridge/<DATASET>/fmscope_bridge_{rows.csv,rows.jsonl,summary.json}"
+  },
+  "synthetic_smoke_run": {
+    "command": "python -m tos_cmi.eeg.fmscope_protocol_bridge --synthetic-demo --nrandom 20",
+    "output_dir": "results/cmi_trace_p0p1/fmscope_bridge/synthetic/ (gitignored; tagged data_source=SYNTHETIC_SMOKE; NOT a scientific result)"
+  }
+}

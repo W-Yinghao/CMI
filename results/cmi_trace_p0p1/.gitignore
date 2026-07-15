@@ -1,5 +1,10 @@
-# raw per-fold audit sidecars (large frozen features) and synthetic smoke outputs are NOT committed;
-# only lightweight summary CSVs / manifests are. Regenerate from the runners (see notes/CMI_TRACE_P0P1_EXECUTION.md).
+# Raw per-fold audit sidecars (large frozen features) + partial/regenerable per-cell run artifacts are NOT
+# committed; only lightweight AGGREGATED summary CSVs (at each results subdir root) + manifests are.
+# Regenerate per-cell artifacts from the runners (see notes/CMI_TRACE_P0P1_EXECUTION.md).
 */audit/
 synthetic/
 *.audit.npz
+objective_comparison/BNCI2014_001/
+objective_comparison/BNCI2015_001/
+objective_comparison/synthetic/
+fmscope_bridge/synthetic/
