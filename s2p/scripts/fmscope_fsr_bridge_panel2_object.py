@@ -518,7 +518,10 @@ def main():
         "dataset": args.dataset,
         "tag": args.tag,
         "representation": "final_channel_and_patch_mean_200d",
-        "feature_payload": str(args.feature_payload),
+        "feature_payload": (
+            "${PANEL2_FEATURE_ROOT}/" if args.dataset == "faced" else "${PHASE_C_FEATURE_ROOT}/"
+        )
+        + args.feature_payload.name,
         "feature_payload_sha256": sha256_file(args.feature_payload),
         "feature_shape": list(features.shape),
         "random_draws_per_null": args.n_random,

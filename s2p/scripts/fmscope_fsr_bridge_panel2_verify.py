@@ -59,6 +59,7 @@ def main():
     parser.add_argument("--dataset", choices=("faced", "seedv"), required=True)
     parser.add_argument("--object-root", type=Path, required=True)
     parser.add_argument("--aggregate-dir", type=Path, required=True)
+    parser.add_argument("--feature-root", type=Path, required=True)
     parser.add_argument("--out-json", type=Path, required=True)
     args = parser.parse_args()
     all_metrics = read_csv(args.aggregate_dir / f"{args.dataset}_panel2_metrics.csv")
@@ -72,7 +73,7 @@ def main():
     for tag in TAGS:
         root = args.object_root / tag
         contract = json.loads((root / f"{tag}_panel2_contract.json").read_text())
-        payload = Path(contract["feature_payload"])
+        payload = args.feature_root / Path(contract["feature_payload"]).name
         checks.append(
             {
                 "check": f"{tag}_feature_payload_hash",
