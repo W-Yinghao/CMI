@@ -1,0 +1,9 @@
+dataset,method,expected_cells,present_cells,complete
+BNCI2014_001,cigl_graph_node,27,27,True
+BNCI2014_001,cigl_nested,27,27,True
+BNCI2014_001,cond_dann,27,27,True
+BNCI2014_001,coral,27,27,True
+BNCI2014_001,erm,27,27,True
+BNCI2014_001,irm,27,27,True
+BNCI2014_001,label_coral,27,27,True
+BNCI2014_001,vrex,27,27,True
