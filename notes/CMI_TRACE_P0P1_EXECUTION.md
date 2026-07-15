@@ -46,3 +46,39 @@ target-label selection. A null/contradictory result triggers an honest scope red
 ## Stage log
 
 - Stage 1 (provenance/preflight): DONE. Branch + worktree created; base SHAs recorded; env + harness validated.
+- Stage 3 (P0.1 methods): DONE @14bf514. label_coral (conditional-CORAL) + graph-aware coral/label_coral
+  (graph readout + mean node) + IRM/VREX activated in OBJECTIVE_METHODS registry; run_loso config parse;
+  10/10 tests; CPU smoke all methods train on DGCNN adapter.
+- Stage 5 (config freeze): DONE @f8abcdf. configs/cmi_trace_p0p1.yaml config_sha256=002e9241...
+- Stage 7 (P0.2 audit + cluster CI): DONE @b19d19d. cmi/eval/objective_effect_report.py (artifact-driven,
+  reads .audit.npz; moment gaps / risk var / IRM diag / geometry / reliance k=2 + random control; paired
+  fold-cluster bootstrap CI). scripts/run_cmi_trace_objective_comparison.py + aggregate_cmi_trace_objective.py.
+  10/10 tests. Validated END-TO-END on REAL BNCI2014_001 fold0 (erm R_rel_k2=+0.038, random ctrl -0.003,
+  firewall passed).
+- Stage 8 (P0.4 deployment CI): DONE @5279447. tos_cmi/eeg/deployment_ci.py three-state (confirmed via
+  lower>+0.01 / ruled-out via UPPER<+0.01 / inconclusive) + deployable_benefit gating; 8/8 tests.
+
+### P0.1 full LOSO fleet — LAUNCHED (Stage 6)
+
+- Env fix: `c84c-eeg2025-v3` torch is CPU-only (cuda_build None); GPU env is **`eeg2025`** (torch 2.6.0+cu124).
+  First 6 submissions (896348-896353) correctly FAILED CLOSED ("CUDA not available; refusing CPU fallback") —
+  no results written. Resubmitted on `eeg2025`.
+- Submitted 6 GPU jobs (2 datasets x 3 seeds), all 8 OBJECTIVE_PRIMARY methods, all LOSO folds, resumable:
+  | dataset       | seed | jobid   |
+  |---------------|------|---------|
+  | BNCI2014_001  | 0    | 896355  |
+  | BNCI2014_001  | 1    | 896356  |
+  | BNCI2014_001  | 2    | 896357  |
+  | BNCI2015_001  | 0    | 896358  |
+  | BNCI2015_001  | 1    | 896359  |
+  | BNCI2015_001  | 2    | 896360  |
+- All 6 RUNNING on A100 nodes (node04/05/06/54/56) as of launch; training real data confirmed (fold0/erm).
+- Command per cell: `run_cmi_trace_objective_comparison.py --epochs 80 --probe_epochs 100 --n_perm 50
+  --select_epochs 40 --select_inner_folds 3 --primary_k 2`. Writes per-cell JSON + verified `.audit.npz` +
+  raw_rows.jsonl under results/cmi_trace_p0p1/objective_comparison/<dataset>/.
+- Aggregate when done: `python scripts/aggregate_cmi_trace_objective.py`
+  (reads raw_rows.jsonl -> objective_effect_summary.csv / paired_deltas.csv / cluster_intervals.csv /
+  selected_hparams.csv / completeness_matrix.csv). These runs need GPU-hours and will NOT complete within
+  the implementation session; results are PENDING and must not be pre-empted by fabricated numbers.
+- Secondary nested rows (coral_nested/label_coral_nested/irm_nested/vrex_nested) deferred to a follow-up
+  launch (`OBJ_METHODS="coral_nested label_coral_nested irm_nested vrex_nested"`) to bound first-launch cost.

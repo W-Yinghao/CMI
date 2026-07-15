@@ -7,12 +7,31 @@
   "base_tos_sha": "1c65d7927d5a4906065fdd21e667eb19f30e2088",
   "config_file": "configs/cmi_trace_p0p1.yaml",
   "config_sha256": "002e92410aed2d17e600bfe15ab6e8f87797e69e745d8781be7fad369dcd032e",
-  "conda_env": "c84c-eeg2025-v3",
+  "conda_env": "eeg2025 (GPU, torch 2.6.0+cu124); c84c-eeg2025-v3 is CPU-only for local tests",
   "torch": "2.6.0",
   "backbone": "dgcnn_forward_graph_adapter",
-  "datasets": {"BNCI2014_001": 9, "BNCI2015_001": 12},
-  "seeds": [0, 1, 2],
+  "datasets": {
+    "BNCI2014_001": 9,
+    "BNCI2015_001": 12
+  },
+  "seeds": [
+    0,
+    1,
+    2
+  ],
   "created_at_repo_sha": "c1d55be6f3d196833e89d50b6e0c5a8e3904e8f7",
-  "status": "code_frozen_jobs_pending",
-  "firewall": "strict_source_only_target_eval_only"
+  "status": "code_frozen; P0.1 fleet RUNNING (jobs 896355-896360); results pending GPU-hours",
+  "firewall": "strict_source_only_target_eval_only",
+  "p01_job_ids": {
+    "BNCI2014_001": {
+      "0": 896355,
+      "1": 896356,
+      "2": 896357
+    },
+    "BNCI2015_001": {
+      "0": 896358,
+      "1": 896359,
+      "2": 896360
+    }
+  }
 }
