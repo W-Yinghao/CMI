@@ -82,3 +82,32 @@ target-label selection. A null/contradictory result triggers an honest scope red
   the implementation session; results are PENDING and must not be pre-empted by fabricated numbers.
 - Secondary nested rows (coral_nested/label_coral_nested/irm_nested/vrex_nested) deferred to a follow-up
   launch (`OBJ_METHODS="coral_nested label_coral_nested irm_nested vrex_nested"`) to bound first-launch cost.
+
+### Data-access + infra issues resolved (Stage 6 addendum)
+
+- **NFS file-lock collision**: 3 concurrent per-seed jobs loading the SAME moabb cache hit
+  `OSError: [Errno 37] No locks available`. Fix: ONE job per dataset with all 3 seeds (data loaded once).
+- **BNCI2015_001 permission-denied**: `--export=ALL` inherited a shell env resolving BNCI to the
+  permission-denied shared datalake (`/projects/.../datalake/raw`). Fixed by downloading BNCI2015_001 fresh
+  to the writable home cache and pinning `MNE_DATASETS_BNCI_PATH=/home/infres/yinwang/mne_data` in the sbatch.
+  BNCI2015_001 now loads (5600×13×384, 2 classes, 12 subjects).
+- Superseding job IDs: **896396** (BNCI2014_001 seeds 0/1/2), **896397** (BNCI2015_001 seeds 0/1/2), both
+  RUNNING on GPU, resumable. Earlier 896355-360 / 896388 superseded.
+
+### Stage status summary (code + tests)
+
+| Task | Status | Tests | Commit |
+|------|--------|-------|--------|
+| P0.1 methods + selector + registry | DONE | 10/10 | 14bf514 |
+| P0.2 objective→effect audit + cluster CI + runner | DONE (real-data validated) | 10/10 | b19d19d |
+| P0.4 deployment CI three-state | DONE | 8/8 | 5279447 |
+| P0.5 FMScope bridge (2×2 oracle/source × subj/random) | DONE (synthetic; real dumps absent) | 9/9 | a1df27e |
+| P1.1 flat-feature CMI ruler + cross-fitting | DONE (synthetic + real BNCI2014 smoke) | 5/5 | 618b36f |
+| P1.2 synthetic ground-truth CMI | DONE (full 39-setting sweep) | 10/10 | a64c17b |
+| P1.3 multi-capacity probe + familywise null | DONE | 6/6 (+13 backcompat) | 2f60af7 |
+| P1.4 exact-head reliance hardening | DONE | 7/7 | 2f60af7 |
+| P0.3/P0.6/P1.5 manuscript | ledger + integration spec DONE; LaTeX edits delegated | gate PASS | 686bd9a |
+| **P0.1 full LOSO results** | **PENDING GPU-hours (896396/896397 RUNNING)** | — | — |
+
+P1.2 headline (verified): neural posterior-KL ruler vs MC-truth Pearson **0.999** / MAE **0.046 nats** /
+calib slope 0.884; kNN rank-correlated (0.948) but ~2.5× magnitude-biased; capacity h=2 underfits, h=32 best.
