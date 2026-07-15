@@ -32,6 +32,7 @@ TARGET_NPZ_FIELDS = frozenset({
     "logits", "probabilities", "z", "Wz_plus_b", "classifier_weight",
     "classifier_bias", "repeat_logits", "repeat_z",
 })
+RAW_FILE_FIELDS = frozenset({"path", "bytes", "sha256"})
 
 
 class C84FTargetInstrumentationError(manifests.C84FManifestError):
@@ -189,6 +190,30 @@ def raw_file_identities(paths: Iterable[str | Path]) -> tuple[dict[str, Any], ..
     return tuple(rows)
 
 
+def canonical_raw_file_rows(rows: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """Validate and order raw-file identities without relying on dict order."""
+    values = []
+    for row in rows:
+        value = dict(row)
+        if set(value) != RAW_FILE_FIELDS:
+            raise C84FTargetInstrumentationError(
+                "raw-file identity field-set drift: "
+                f"missing={sorted(RAW_FILE_FIELDS - set(value))} "
+                f"unknown={sorted(set(value) - RAW_FILE_FIELDS)}"
+            )
+        path = str(value["path"])
+        byte_count = int(value["bytes"])
+        digest = str(value["sha256"])
+        if not path or byte_count <= 0:
+            raise C84FTargetInstrumentationError("raw-file identity path/byte count is invalid")
+        if len(digest) != 64 or any(character not in "0123456789abcdef" for character in digest):
+            raise C84FTargetInstrumentationError("raw-file identity SHA-256 is invalid")
+        values.append({"path": path, "bytes": byte_count, "sha256": digest})
+    if not values:
+        raise C84FTargetInstrumentationError("target view has no raw-file identities")
+    return sorted(values, key=lambda row: (row["path"], row["bytes"], row["sha256"]))
+
+
 def _dataset_and_paradigm(dataset_code: str, loader_classes: tuple[Any, Any, Any, Any]) -> tuple[Any, Any]:
     Lee2019_MI, Cho2017, PhysionetMI, MotorImagery = loader_classes
     factories = {
@@ -242,7 +267,7 @@ def target_trial_registry_rows(views: Mapping[str, Sequence[TargetSubjectView]])
     rows = []
     for dataset in protocol.DATASETS:
         for view in views.get(dataset, ()):
-            raw_list = sorted(dict(row) for row in view.raw_files)
+            raw_list = canonical_raw_file_rows(view.raw_files)
             raw_digest = hashlib.sha256(manifests.canonical_bytes(raw_list)).hexdigest()
             raw_paths = "|".join(row["path"] for row in raw_list)
             raw_bytes = sum(int(row["bytes"]) for row in raw_list)
