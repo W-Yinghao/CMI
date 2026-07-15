@@ -1,0 +1,113 @@
+{
+  "table": {
+    "full": {
+      "posterior_kl_nats": 0.2571987211704254,
+      "excess_over_null": 0.23585672161231439,
+      "null_mean": 0.021341999558111033,
+      "perm_p": 0.0625,
+      "conditional_entropy_d_given_y": 1.3862943611198906,
+      "normalized_leakage": 0.185529659777778,
+      "critic_acc": 0.9583333333333334,
+      "prior_acc": 0.25,
+      "critic_advantage": 0.7083333333333334,
+      "n_ptrain": 208,
+      "n_peval": 216,
+      "subject_residual_linear": 0.9761591478696743,
+      "subject_residual_mlp": 0.9850877192982457
+    },
+    "TOS_VD": {
+      "posterior_kl_nats": 0.023318754509091377,
+      "excess_over_null": 0.015495682631929715,
+      "null_mean": 0.007823071877161662,
+      "perm_p": 0.0625,
+      "conditional_entropy_d_given_y": 1.3862943611198906,
+      "normalized_leakage": 0.016820925744986642,
+      "critic_acc": 0.4351851851851852,
+      "prior_acc": 0.25,
+      "critic_advantage": 0.18518518518518517,
+      "n_ptrain": 208,
+      "n_peval": 216,
+      "subject_residual_linear": 0.5016059018380999,
+      "subject_residual_mlp": 0.4849394671376096
+    },
+    "random_k": {
+      "posterior_kl_nats": 0.22451747953891754,
+      "excess_over_null": 0.2057370711117983,
+      "null_mean": 0.018780408427119255,
+      "perm_p": 0.0625,
+      "conditional_entropy_d_given_y": 1.3862943611198906,
+      "normalized_leakage": 0.16195512716184282,
+      "critic_acc": 0.9490740740740741,
+      "prior_acc": 0.25,
+      "critic_advantage": 0.6990740740740741,
+      "n_ptrain": 208,
+      "n_peval": 216,
+      "subject_residual_linear": 0.9672305764411028,
+      "subject_residual_mlp": 0.9704773296878559
+    }
+  },
+  "split_diag": {
+    "n_eraser": 216,
+    "n_ptrain": 208,
+    "n_peval": 216,
+    "disjoint": true,
+    "eraser_split": {
+      "n_trials": 640,
+      "n_train": 216,
+      "n_val": 424,
+      "n_classes": 2,
+      "n_domains": 4,
+      "n_cells_total": 8,
+      "n_cells_split": 8,
+      "n_cells_low_support": 0,
+      "low_support_cells": [],
+      "train_domain_support": [
+        54,
+        54,
+        54,
+        54
+      ],
+      "val_domain_support": [
+        106,
+        106,
+        106,
+        106
+      ],
+      "missing_val_domains": [],
+      "missing_train_domains": [],
+      "train_frac": 0.34,
+      "min_per_cell": 2
+    },
+    "posterior_split": {
+      "n_trials": 424,
+      "n_train": 208,
+      "n_val": 216,
+      "n_classes": 2,
+      "n_domains": 4,
+      "n_cells_total": 8,
+      "n_cells_split": 8,
+      "n_cells_low_support": 0,
+      "low_support_cells": [],
+      "train_domain_support": [
+        52,
+        52,
+        52,
+        52
+      ],
+      "val_domain_support": [
+        54,
+        54,
+        54,
+        54
+      ],
+      "missing_val_domains": [],
+      "missing_train_domains": [],
+      "train_frac": 0.5,
+      "min_per_cell": 2
+    }
+  },
+  "eraser_skips": {
+    "LEACE_skip_reason": "1-dimensional array given. Array must be at least two-dimensional"
+  },
+  "k": 2
+}
