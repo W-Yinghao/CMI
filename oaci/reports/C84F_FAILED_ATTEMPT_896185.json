@@ -1,0 +1,88 @@
+{
+  "artifacts": {
+    "authorization_consumed": {
+      "bytes": 691,
+      "sha256": "aaff628205f3c85c8eea292790bdd00b0e8c8f815a8545cd7726f3d3845f11cf"
+    },
+    "execution_attempts": {
+      "bytes": 8118,
+      "sha256": "1512de2fb37153bee9abee54be92fb1e2843052cae979557f415492ea86328c1"
+    },
+    "model_field_manifest": {
+      "bytes": 4924265,
+      "sha256": "d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2"
+    },
+    "partial_artifact_manifest": {
+      "bytes": 1181457,
+      "sha256": "445dfd93118ad77d4ad2cf8131170ec611bf72cc66d4943bc2ab08ef38eebb2b"
+    },
+    "slurm_stderr": {
+      "bytes": 9210718,
+      "sha256": "25a8d30213443b57272f493baeeb1bea9cda3afceea121b673bd729d280d439b"
+    },
+    "slurm_stdout": {
+      "bytes": 82370,
+      "sha256": "496c9d5b592c8a07a5cd117508c07913607168a0866403e949c4f036bf2d643f"
+    },
+    "target_raw_input_manifest": {
+      "bytes": 156940,
+      "sha256": "9539747e903dfe67295ee04a97441b85c0bb2179c9ef1bd2177788865e0ba5fd"
+    }
+  },
+  "attempt": {
+    "failed_at_utc": "2026-07-15T10:05:01.290143200Z",
+    "job_id": 896185,
+    "output_root": "/projects/EEG-foundation-model/yinghao/oaci-c84-full-field-v1/lock_f9df9dcefea59b05bfea",
+    "root_bytes_at_failure": 860834885,
+    "root_files_at_failure": 5839,
+    "started_at_utc": "2026-07-14T21:55:46.573401300Z"
+  },
+  "cache_audit": {
+    "current_job_repeated_download_urls": 0,
+    "home_mne_data_contains_only": "MNE-bnci-data",
+    "lee2019_reused_shared_cache": true,
+    "cho2017_reused_shared_cache": true,
+    "physionet_personal_cache_required_files": 864,
+    "physionet_personal_cache_files_at_failure": 864,
+    "shared_physionet_cache_files": 654,
+    "shared_physionet_cache_readable_by_executor": false,
+    "shared_physionet_runs": [4, 6, 8, 10, 12, 14]
+  },
+  "error": {
+    "line": 245,
+    "message": "'<' not supported between instances of 'dict' and 'dict'",
+    "module": "oaci.multidataset.c84f_target_instrumentation",
+    "operation": "sorted(dict(row) for row in view.raw_files)",
+    "stage": "complete_target_unlabeled_registry_after_model_freeze",
+    "type": "TypeError"
+  },
+  "frozen_state": {
+    "candidate_units": 1944,
+    "model_field_manifest_complete": true,
+    "new_training_units": 1458,
+    "reused_training_units": 486,
+    "target_EEG_arrays_loaded": 118,
+    "target_context_slices": 0,
+    "target_registry_trials": 0,
+    "target_unlabeled_artifacts": 0,
+    "training_phases": 72
+  },
+  "gate": "C84F_TARGET_REGISTRY_CANONICAL_ORDER_REPAIR_REQUIRED_NO_OUTCOME_CONTAMINATION",
+  "isolation": {
+    "same_label_oracle_access": 0,
+    "scientific_statistics": 0,
+    "selector_scores": 0,
+    "target_construction_labels": 0,
+    "target_evaluation_labels": 0,
+    "target_scientific_metrics": 0,
+    "target_y_accesses": 0
+  },
+  "retry_policy": {
+    "authorization_consumed": true,
+    "automatic_retry_allowed": false,
+    "model_retraining_allowed": false,
+    "old_lock_reusable": false,
+    "required_action": "additive_target_stage_repair_new_lock_fresh_PI_authorization"
+  },
+  "schema_version": "c84f_failed_attempt_evidence_v1"
+}

@@ -1,0 +1,25 @@
+{
+  "allocation": {
+    "cpus": 8,
+    "gpu": "V100:1",
+    "memory": "64G",
+    "node": "node08",
+    "partition": "V100",
+    "time_limit": "2-00:00:00"
+  },
+  "application_complete": false,
+  "application_failed": true,
+  "attempt_failed_at_utc": "2026-07-15T10:05:01.290143200Z",
+  "attempt_started_at_utc": "2026-07-14T21:55:46.573401300Z",
+  "error_type": "TypeError",
+  "exit_code": "UNAVAILABLE_SQUEUE_ONLY",
+  "job_id": 896185,
+  "job_name": "c84f-full-field",
+  "last_application_stage": "complete_target_unlabeled_registry_after_model_freeze",
+  "model_field_manifest_sha256": "d8931b81a3d68f4b1e098ac6e3ede3cd44cdb6c70cdef9f18a76e0a8c62ecdb2",
+  "sacct_used": false,
+  "schema_version": "c84f_squeue_failure_snapshot_v1",
+  "source": "squeue_polling_plus_application_attempt_ledger",
+  "squeue_final_state": "ABSENT_AFTER_APPLICATION_FAILURE",
+  "squeue_observed_running": true
+}
