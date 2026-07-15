@@ -1,0 +1,5 @@
+# raw per-fold audit sidecars (large frozen features) and synthetic smoke outputs are NOT committed;
+# only lightweight summary CSVs / manifests are. Regenerate from the runners (see notes/CMI_TRACE_P0P1_EXECUTION.md).
+*/audit/
+synthetic/
+*.audit.npz
