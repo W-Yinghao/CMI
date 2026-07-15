@@ -15,3 +15,21 @@ regularizing, (b) operating strictly source-only with target labels evaluation-o
 a graph/node penalty on a task-capable static-adjacency backbone rather than claiming a general
 edge/dynamic-graph method. A positioning grid and per-citation verification status are kept in
 \texttt{../cigl/RELATED\_WORK\_MATRIX.md} and \texttt{../cigl/CITATION\_TODO\_QUEUE.md}.
+
+% CMI-Trace P0.5 related-work correction (exact prose from paper/cmi_trace/MANUSCRIPT_INTEGRATION.md).
+% arXiv IDs are cited inline as text (no \citep key added, because REFERENCES_DRAFT.bib lives outside
+% paper/cigl_latex/ and this revision is scoped to that directory only).
+{\sloppy
+\paragraph{Concurrent subject-identity audits.}
+Two concurrent audits of subject identity in EEG foundation models are complementary to ours but ask
+different questions. \textbf{Lin, Wu, and Jung (arXiv:2606.06647)} study \emph{marginal} subject dominance
+in frozen foundation-model features --- LEACE-based erasure, the spectral carrier of subject identity, and
+the consistency of the task axis --- i.e.\ a geometry/erasure audit of the marginal subject signal.
+\textbf{Tai (arXiv:2606.09189)} is a \emph{privacy / attribute-leakage} study auditing cross-encoder
+attribute transfer (whether attributes leak across independently trained encoders), not a marginal
+subject-variance audit. We therefore do \textbf{not} describe both as ``marginal subject-variance audits.''
+Crucially, FMScope's cohort-conditioned \emph{frozen-feature} diagnostic (an oracle that fits the erasure
+geometry on the whole cohort, including the held-out subject's features) and our strict source-only
+\emph{unseen-subject deployment} ask different questions and \textbf{can both be correct}: cohort-conditioned
+geometry can be erasable while the same axis is not identifiable, or removable, from source subjects alone
+(P0.5 bridge, oracle vs source-only).\par}

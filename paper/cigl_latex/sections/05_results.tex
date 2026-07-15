@@ -24,6 +24,18 @@ retention.
 \input{tables/table3_bnci2014}
 \input{tables/table4_bnci2015}
 
+% ===== CMI-Trace result-dependent artifacts: DO NOT fabricate; generated after P0.1 completes =====
+% PENDING P0.1 results: same-backbone objective-comparison table (ERM/CORAL/C-CORAL/IRMv1/V-REx/
+%   conditional-adversarial/Encoder-CMI on the shared static-adjacency DGCNN, source-only LOSO) --
+%   regenerate via paper/cmi_trace/tables/build_objective_table.py from objective_effect_summary.csv.
+%   Main uncertainty = paired fold/subject-cluster 95% bootstrap CI (NOT seed SD). Jobs 896396/896397.
+% PENDING P0.1 results: Figure 3 (three panels, each with cluster CI) -- A: relative graph/node CMI
+%   reduction; B: paired target ΔbAcc; C: exact-head ΔR_rel(k=2) -- regenerate via
+%   paper/cmi_trace/figures/make_fig3_cmi_reliance_bacc.py.
+% PENDING P0.1 results: Figure 4D forest plot over all NINE valid dataset-backbone cells (vertical
+%   reference lines at 0 and +0.01) -- regenerate via paper/cmi_trace/figures/make_fig4d_forest.py.
+% ===============================================================================================
+
 \begin{figure}[t]
   \centering
   \includegraphics[width=0.62\linewidth]{figures/fig2_reduction_vs_retention_draft.png}
