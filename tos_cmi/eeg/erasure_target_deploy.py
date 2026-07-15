@@ -33,6 +33,7 @@ from sklearn.metrics import balanced_accuracy_score, log_loss
 from tos_cmi.score_fisher import (ScoreFisherConfig, _metric, _cross_fit_fisher, _SplitPlan,
                                   candidate_order, _m_proj)
 from tos_cmi.eeg.erasure_baselines import _ids, leace_eraser, inlp_eraser, rlace_eraser
+from tos_cmi.eeg.deployment_ci import (deployment_ci_state, deployable_benefit, PRACTICAL_THRESHOLD)
 
 RESULTS = "tos_cmi/results/tos_cmi_eeg_frozen"
 DATASET = "BNCI2014_001"   # overridden by --dataset; DIRS/OUT are rebuilt in main()
@@ -192,13 +193,24 @@ def aggregate(all_rows):
                 # improvement = bAcc delta CI excludes 0 above, OR NLL delta CI excludes 0 below (lower=better)
                 improves = bool(b_lo > 0 or n_hi < 0)
                 worsens = bool(b_hi < 0 or n_lo > 0)
+                # P0.4 three-state PRACTICAL deployment decision on delta bAcc @ +0.01 threshold. 'ruled out'
+                # uses the UPPER bound (never the lower); a deployable claim additionally needs source-task
+                # safety + beating same-rank random removal (see deployable_benefit).
+                ci_state = deployment_ci_state(b_lo, b_hi, PRACTICAL_THRESHOLD)
+                src_safe = bool(rec["src_bacc_mean"] >= rs[0]["chance_task"])
+                rnd = idx.get((bb, rs[0]["seed"], rs[0]["fold"], "random_k"))
+                beats_random = bool(rnd is None or rec["tgt_bacc_mean"] > rnd["tgt_bacc"])
+                deployable = deployable_benefit(ci_state, src_safe, beats_random)
                 rec.update({"dtgt_bacc": b_m, "dtgt_bacc_lo": b_lo, "dtgt_bacc_hi": b_hi,
                             "dtgt_nll": n_m, "dtgt_nll_lo": n_lo, "dtgt_nll_hi": n_hi,
-                            "improves_target": improves, "worsens_target": worsens})
+                            "improves_target": improves, "worsens_target": worsens,
+                            "deploy_ci_state": ci_state, "practical_threshold": PRACTICAL_THRESHOLD,
+                            "deployable_benefit": deployable})
                 paired.append({"backbone": bb, "method": nm,
                                "dtgt_bacc": b_m, "dtgt_bacc_lo": b_lo, "dtgt_bacc_hi": b_hi,
                                "dtgt_nll": n_m, "dtgt_nll_lo": n_lo, "dtgt_nll_hi": n_hi,
-                               "improves_target": improves})
+                               "improves_target": improves, "deploy_ci_state": ci_state,
+                               "deployable_benefit": deployable})
             summary[(bb, nm)] = rec
     return summary, paired
 
