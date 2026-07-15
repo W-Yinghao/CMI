@@ -144,15 +144,34 @@ def _trial_split(n, seed, train_frac=0.7):
 
 
 # --------------------------------------------------------------------------- the conditional probe
+def _build_probe(in_dim, n_domains, probe_hidden, dropout):
+    """Capacity-parameterized domain probe. probe_hidden: [] -> LINEAR; [h] -> one-hidden MLP (mlp_small,
+    the default/primary); [h1,h2,...] -> deeper MLP with dropout (mlp_large). Backward compatible: the
+    default single-hidden layer reproduces the original probe exactly (dropout 0)."""
+    layers, prev = [], int(in_dim)
+    for h in probe_hidden:
+        layers += [nn.Linear(prev, int(h)), nn.ReLU()]
+        if dropout and dropout > 0:
+            layers += [nn.Dropout(float(dropout))]
+        prev = int(h)
+    layers += [nn.Linear(prev, int(n_domains))]
+    return nn.Sequential(*layers)
+
+
 def fit_conditional_domain_probe(features, y, d, n_classes, n_domains, *,
                                  train_idx=None, val_idx=None, hidden_dim=64, epochs=100,
-                                 lr=1e-3, weight_decay=1e-3, seed=0, device="cpu", smoothing=1e-3):
+                                 lr=1e-3, weight_decay=1e-3, seed=0, device="cpu", smoothing=1e-3,
+                                 probe_hidden=None, dropout=0.0):
     """Fit q(D | features, Y) on a train split, evaluate the leakage proxy on a disjoint val split.
 
     features: [N, F] frozen detached. y, d: [N]. The probe sees Y (one-hot) so the KL-to-π_y(D)
     measures leakage that survives CONDITIONING on the label. π_y is estimated from the TRAIN split
     only (never uses val-D). Returns a result dict; `val_kl` is the per-sample held-out KL so callers
     (e.g. the node map) can re-aggregate it.
+
+    probe_hidden (P1.3 capacity family): None -> [hidden_dim] (back-compatible mlp_small); [] -> LINEAR;
+    [h1,h2] -> deeper MLP (mlp_large). `dropout` applies to MLP hidden layers only. `train_loss` (final
+    epoch CE) is returned as an underfitting/convergence diagnostic.
     """
     torch.manual_seed(int(seed))
     X = _feat_tensor(features, device)
@@ -167,16 +186,19 @@ def fit_conditional_domain_probe(features, y, d, n_classes, n_domains, *,
     d_t = torch.as_tensor(d_np, dtype=torch.long, device=device)
     y_oh = F.one_hot(y_t, int(n_classes)).float()
 
-    probe = nn.Sequential(nn.Linear(Fdim + int(n_classes), int(hidden_dim)), nn.ReLU(),
-                          nn.Linear(int(hidden_dim), int(n_domains))).to(device)
+    arch = [int(hidden_dim)] if probe_hidden is None else list(probe_hidden)
+    probe = _build_probe(Fdim + int(n_classes), n_domains, arch, dropout).to(device)
     opt = torch.optim.Adam(probe.parameters(), lr=lr, weight_decay=weight_decay)
     inp = torch.cat([X, y_oh], dim=1)
     inp_tr, d_tr = inp[tr], d_t[tr]
     probe.train()
+    train_loss = float("nan")
     for _ in range(int(epochs)):
         opt.zero_grad()
-        F.cross_entropy(probe(inp_tr), d_tr).backward()
+        loss = F.cross_entropy(probe(inp_tr), d_tr)
+        loss.backward()
         opt.step()
+        train_loss = float(loss.detach().cpu())
 
     # π_y from the TRAIN split (so a permuted-D null preserves it but the probe can't fit D)
     pi_y = compute_label_domain_prior(y_np[_np(tr)], d_np[_np(tr)], n_classes, n_domains, smoothing)
@@ -196,6 +218,7 @@ def fit_conditional_domain_probe(features, y, d, n_classes, n_domains, *,
                 domain_acc=dom_acc,
                 prior_acc=prior_acc,
                 leakage_advantage=dom_acc - prior_acc,
+                train_loss=float(train_loss),
                 n_train=int(tr.numel()), n_val=int(va.numel()))
 
 

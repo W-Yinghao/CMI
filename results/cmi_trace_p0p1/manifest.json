@@ -20,18 +20,11 @@
     2
   ],
   "created_at_repo_sha": "c1d55be6f3d196833e89d50b6e0c5a8e3904e8f7",
-  "status": "code_frozen; P0.1 fleet RUNNING (jobs 896355-896360); results pending GPU-hours",
+  "status": "code_frozen; P0.1 fleet RUNNING (896396 BNCI2014, 896397 BNCI2015); results pending GPU-hours",
   "firewall": "strict_source_only_target_eval_only",
   "p01_job_ids": {
-    "BNCI2014_001": {
-      "0": 896355,
-      "1": 896356,
-      "2": 896357
-    },
-    "BNCI2015_001": {
-      "0": 896358,
-      "1": 896359,
-      "2": 896360
-    }
+    "BNCI2014_001": 896396,
+    "BNCI2015_001": 896397,
+    "note": "one job per dataset, all seeds; earlier per-seed jobs 896355-360 superseded (NFS-lock + datalake-perm issues fixed)"
   }
 }
