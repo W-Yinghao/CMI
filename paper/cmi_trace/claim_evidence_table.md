@@ -18,8 +18,8 @@ bootstrap** (seeds within a fold travel together). Seed SD is descriptive only.
 
 | # | Claim | Script | Raw artifact | Aggregation | Seeds×Folds | CI | Status | Allowed / Forbidden wording |
 |---|-------|--------|--------------|-------------|-------------|----|--------|------------------------------|
-| 1.1 | CORAL, conditional-CORAL, IRMv1, V-REx run on the SAME DGCNN adapter + source-only LOSO as ERM/encoder-CMI/adversarial | `scripts/run_cmi_trace_objective_comparison.py` (methods via `_train_eval`, `OBJECTIVE_METHODS`) | `results/cmi_trace_p0p1/objective_comparison/<ds>/*.json` + `.audit.npz` | `raw_rows.jsonl` | 3×(9,12) | — | PENDING (jobs 896396 BNCI2014_001, 896397 BNCI2015_001) | ALLOWED: "same backbone, same source-only protocol". FORBIDDEN: leaderboard-across-architectures |
-| 1.2 | Nested-selected encoder-CMI (`cigl_nested`) chosen by SOURCE-ONLY nested leave-one-source-domain val, no target labels | same runner (`_inner_source_select`) | `selected_hparams.csv` | `aggregate_cmi_trace_objective.py` | 3×(9,12) | — | PENDING | ALLOWED: "source-only nested selection". FORBIDDEN: any target-tuned λ |
+| 1.1 | CORAL, conditional-CORAL, IRMv1, V-REx run on the SAME DGCNN adapter + source-only LOSO as ERM/encoder-CMI/adversarial | `scripts/run_cmi_trace_objective_comparison.py` (methods via `_train_eval`, `OBJECTIVE_METHODS`) | `results/cmi_trace_p0p1/objective_comparison/<ds>/*.json` + `.audit.npz` | `raw_rows.jsonl` | 3×(9,12) | — | CONFIRMED (both jobs complete: BNCI2014 216/216, BNCI2015 288/288) | ALLOWED: "same backbone, same source-only protocol". FORBIDDEN: leaderboard-across-architectures |
+| 1.2 | Nested-selected encoder-CMI (`cigl_nested`) chosen by SOURCE-ONLY nested leave-one-source-domain val, no target labels | same runner (`_inner_source_select`) | `selected_hparams.csv` | `aggregate_cmi_trace_objective.py` | 3×(9,12) | — | CONFIRMED (selected_hparams.csv, both datasets) | ALLOWED: "source-only nested selection". FORBIDDEN: any target-tuned λ |
 | 1.3 | conditional-CORAL ignores a pure label-prior shift; detects a within-class domain moment gap | `cmi/methods/dg_penalties.py::label_coral` | unit tests | `tests/test_cmi_trace_dg_penalties.py` | — | — | CONFIRMED (10/10 tests) | ALLOWED: "class-conditional moment alignment" |
 | 1.4 | Identical initialization across methods (seed-before-build, cloned init) | `_train_eval` (`torch.manual_seed` before `build_graph_task_backbone`) | test | `tests/test_cmi_trace_dg_penalties.py::test_identical_initialization_seed_before_build` | — | — | CONFIRMED | — |
 
@@ -27,9 +27,9 @@ bootstrap** (seeds within a fold travel together). Seed SD is descriptive only.
 
 | # | Claim | Script | Raw artifact | Aggregation | CI | Status | Wording |
 |---|-------|--------|--------------|-------------|----|--------|---------|
-| 2.1 | Every trained model receives the SAME audit: moment gaps, graph/node CMI + null, per-domain risk var, IRMv1 diag, feature norm/top-sv/eff-rank, exact-head reliance R_rel(k=2), same-rank random control | `cmi/eval/objective_effect_report.py` (artifact-driven, reads `.audit.npz`) | `raw_rows.jsonl` | `objective_effect_summary.csv` | cluster 95% | PENDING (jobs running); code CONFIRMED (10/10 tests + real BNCI2014_001 fold0 smoke) | ALLOWED: "same audit for every objective" |
+| 2.1 | Every trained model receives the SAME audit: moment gaps, graph/node CMI + null, per-domain risk var, IRMv1 diag, feature norm/top-sv/eff-rank, exact-head reliance R_rel(k=2), same-rank random control | `cmi/eval/objective_effect_report.py` (artifact-driven, reads `.audit.npz`) | `raw_rows.jsonl` | `objective_effect_summary.csv` | cluster 95% | CONFIRMED (both datasets complete; 10/10 tests) | ALLOWED: "same audit for every objective" |
 | 2.2 | Main intervals are paired fold/subject-cluster CIs (not seed SD) | `objective_effect_report.cluster_bootstrap_ci` | — | `cluster_intervals.csv`, `paired_deltas.csv` | cluster 95% | CONFIRMED (method + tests) | FORBIDDEN: reporting seed SD as the main interval |
-| 2.3 | ΔI_enc < 0 does NOT imply ΔR_rel < 0 (measurement→control gap) | audit joins CMI + reliance per model | `paired_deltas.csv` (graph_kl vs R_rel_k2) | cluster CI | PENDING (needs real runs) | ALLOWED: two explicit non-implications (see MANUSCRIPT_INTEGRATION) |
+| 2.3 | ΔI_enc < 0 does NOT imply ΔR_rel < 0 (measurement→control gap) | audit joins CMI + reliance per model | `paired_deltas.csv` (graph_kl vs R_rel_k2) | cluster CI | CONFIRMED (real cluster-CI, BOTH datasets: graph-CMI down w/ CIs excluding 0, R_rel(k=2) up) | ALLOWED: two explicit non-implications (see MANUSCRIPT_INTEGRATION) |
 
 ## P0.4 — deployment CI semantics
 
@@ -56,7 +56,7 @@ bootstrap** (seeds within a fold travel together). Seed SD is descriptive only.
 
 | # | Claim | Script | Artifact | Status | Wording |
 |---|-------|--------|----------|--------|---------|
-| 1.2a | Monte-Carlo TRUTH I(Z;D|Y) from exact DGP densities + reported MC SE; ranking/calibration/MAE vs neural ruler and kNN across the 39 settings | `synthetic/true_cmi.py` (+ sanity_check/validate_proxy) | `results/cmi_trace_p0p1/synthetic_truth/` | PENDING (delegated agent) | FORBIDDEN: calling either estimator "unbiased" |
+| 1.2a | Monte-Carlo TRUTH I(Z;D|Y) from exact DGP densities + reported MC SE; ranking/calibration/MAE vs neural ruler and kNN across the 39 settings | `synthetic/true_cmi.py` (+ sanity_check/validate_proxy) | `results/cmi_trace_p0p1/synthetic_truth/` | CONFIRMED (10/10 tests; full 39-setting sweep: ruler vs truth Pearson 0.999/MAE 0.046 nats; kNN ~2.5x biased) | FORBIDDEN: calling either estimator "unbiased" |
 
 ## P1.3 — multi-capacity probe + valid familywise null
 
