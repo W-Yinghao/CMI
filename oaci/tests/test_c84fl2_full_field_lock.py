@@ -45,8 +45,10 @@ def test_protocol_chronology_and_protected_state() -> None:
     assert reconciliation["field_arithmetic"]["candidate_context_slices"] == 76464
 
 
-def test_no_authorization_or_scientific_execution_lock_in_protocol_stage() -> None:
-    assert not runtime.AUTHORIZATION_RECORD_PATH.exists()
+def test_readiness_snapshot_had_no_authorization_or_scientific_execution_lock() -> None:
+    readiness = json.loads((REPORT_DIR / "C84FL2_PROTOCOL_READINESS.json").read_text())
+    assert readiness["authorization_record_present"] is False
+    assert readiness["C84S_lock_present"] is False
     assert not (REPORT_DIR / "C84S_EXECUTION_LOCK.json").exists()
     if runtime.EXECUTION_LOCK_PATH.exists():
         lock = json.loads(runtime.EXECUTION_LOCK_PATH.read_text(encoding="utf-8"))
