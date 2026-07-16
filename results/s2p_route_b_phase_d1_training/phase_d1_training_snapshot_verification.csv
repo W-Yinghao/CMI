@@ -1,0 +1,17 @@
+trajectory_id,subset_seed,init_seed,unique_data_h,snapshot_role,global_update,immutable_sha256,contract_identity_pass,code_commit_pass,fixed_schedule_pass,selection_firewall_pass,completion_pass,validation_schedule_pass,event_cardinality_pass,path_inside_training_root,path_exists,hash_pass,read_only,fixed_update_pass,strict_reload_pass,model_exact_pass,optimizer_exact_pass,scheduler_exact_pass,feature_exact_pass,snapshot_firewall_pass,all_pass
+SS0_IS0_U200,0,0,200,P_low,18750,371485c4096fa3c07756cfb32c2bb3248be178544d17551fac3b430402fd1147,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS0_IS0_U200,0,0,200,P_high,93750,c171893982e5e1e3649c7e636d8fa37b71aa1f924704ff785d5d915ec2fc5a8f,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS0_IS0_U1000,0,0,1000,P_low,18750,359adac4c6b2fba8c52c55fe0394e9f67b45f0cbb03a547729bb180c981e0c45,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS0_IS0_U1000,0,0,1000,P_high,93750,ee6dad71ea93a497d6c6bfa7105a57760e079a551931fcaf419b301ed2413ff4,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS0_IS1_U200,0,1,200,P_low,18750,33ffe78bc7038abb32f38e42a3a8340773c5486b0500f98ec4a4a6c80b65dea0,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS0_IS1_U200,0,1,200,P_high,93750,11867d3d8f6e3b76a3b011b5286db8ac7ef9f8d14d6d75805412be2a66057999,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS0_IS1_U1000,0,1,1000,P_low,18750,f1ec4d745d1f379fa450b1b071ab5b2ea27fde1595e49b73e8ee3127734316a7,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS0_IS1_U1000,0,1,1000,P_high,93750,86371f3ab2d9bee801d6d3f978de7becad6ef45de2ca07cb89b29a88355b97fa,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS1_IS0_U200,1,0,200,P_low,18750,91d077d716efbac8cb5b86e40b899d6b29b55eee205c90c8e1cef5774a700edf,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS1_IS0_U200,1,0,200,P_high,93750,f7ed183898c0eed84977294a1b8f62717574a3bdd936e981447aae657a0b0f41,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS1_IS0_U1000,1,0,1000,P_low,18750,3043c4586a8a14e08eef92641a7e2c5dd087cb673c43a9b4319c6485fecd7519,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS1_IS0_U1000,1,0,1000,P_high,93750,f04f5a707c97f8a9eeb63befdb853829209d745fa5796eeb0aeecee354864897,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS1_IS1_U200,1,1,200,P_low,18750,0cbd31b6504fe14a815db20729890532955743f072a4cfaff5a7a3ee454a4d0d,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS1_IS1_U200,1,1,200,P_high,93750,9567b714f7b4f47db9191a1c939951fdec45057db833f86bc4e4475ca7f37ea9,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS1_IS1_U1000,1,1,1000,P_low,18750,b12d87eec2a9564555ff9ede5197bc6c17eaff2fa77197c9a15b5dd1c1ca684f,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True
+SS1_IS1_U1000,1,1,1000,P_high,93750,098fb525a450bf4723da69efeabe6f78d719a428b20f43afc2cc8feb04026c0b,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True,True

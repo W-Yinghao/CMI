@@ -1,0 +1,17 @@
+{
+  "all_run_and_snapshot_checks_pass": true,
+  "approve_downstream_recommended": false,
+  "best_val_used_for_primary": false,
+  "downstream_called": false,
+  "downstream_status": "HELD_UNTIL_PANEL2_CLOSES",
+  "fixed_update_primary_snapshots": true,
+  "immutable_snapshots_expected": 16,
+  "immutable_snapshots_verified": 16,
+  "phase": "D1_pretraining_provenance_gate",
+  "same_subset_across_init_seeds_pass": true,
+  "status": "PASS",
+  "target_labels_used": false,
+  "training_trajectories_completed": 8,
+  "training_trajectories_expected": 8,
+  "u_arm_pairing_pass": true
+}

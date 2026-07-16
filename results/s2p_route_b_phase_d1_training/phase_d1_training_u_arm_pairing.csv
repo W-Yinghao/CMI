@@ -1,0 +1,5 @@
+subset_seed,init_seed,same_initial_state_across_u,same_stream_seed_across_u,same_lr_at_p_low,same_lr_at_p_high,all_pass
+0,0,True,True,True,True,True
+0,1,True,True,True,True,True
+1,0,True,True,True,True,True
+1,1,True,True,True,True,True

@@ -1,0 +1,5 @@
+unique_data_h,snapshot_role,global_update,lr_after_update,immutable_sha256,path_exists,hash_pass,read_only,strict_reload_pass,optimizer_state_exact_pass,scheduler_state_exact_pass,feature_exact_pass,all_pass
+200,P_low,2,0.000255,962b5f44c6187399c4b620326c3b585f5b8b5f993c623577d02dd24964270f6c,True,True,True,True,True,True,True,True
+200,P_high,4,1e-05,761c86acbfa68df4046d4298731166fcc00735cc283161b47f88d29cba39138d,True,True,True,True,True,True,True,True
+1000,P_low,2,0.000255,ebb7eff3270c6e5be77c8ed38672f25754dd4f0386c71dc7f88bc29365ba323d,True,True,True,True,True,True,True,True
+1000,P_high,4,1e-05,fbb6a24f6d120046b2b5525b24bdc2a76c9af28198f94a8e05a0aafc90df0d95,True,True,True,True,True,True,True,True

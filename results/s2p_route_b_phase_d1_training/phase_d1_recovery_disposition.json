@@ -1,0 +1,11 @@
+{
+  "cancelled_attempts_enter_scientific_set": false,
+  "cancelled_before_fixed_snapshot": true,
+  "canonical_trajectories_completed": 8,
+  "partial_artifacts_preserved_locally": true,
+  "rerun_from_update_zero": true,
+  "rerun_trajectory_count": 2,
+  "resume_used": false,
+  "scientific_grid_changed": false,
+  "status": "CLOSED_WITH_EXACT_RERUN"
+}

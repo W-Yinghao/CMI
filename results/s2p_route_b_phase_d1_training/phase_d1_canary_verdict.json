@@ -1,0 +1,17 @@
+{
+  "downstream_called": false,
+  "fixed_updates_2_and_4": true,
+  "launch_eight_trajectories_recommended": true,
+  "phase": "D1_implementation_canary",
+  "same_initial_state_across_u_arms": true,
+  "same_lr_at_matched_updates": true,
+  "same_stream_contract_across_u_arms": true,
+  "snapshot_closures_all_pass": true,
+  "status": "PASS",
+  "target_labels_used": false,
+  "trainer_called": true,
+  "u_arms": [
+    200,
+    1000
+  ]
+}
