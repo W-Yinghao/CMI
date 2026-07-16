@@ -1,0 +1,71 @@
+{
+  "schema_version": "c84a_pm_realized_policy_use_addendum_v1",
+  "milestone": "C85P_PHASE0",
+  "status": "ADDITIVE_PM_INTERPRETATION_NO_NEW_EMPIRICAL_STATISTIC",
+  "source": {
+    "c84a_final_head": "218d19e2ef1b4b5e7517008cbcb60d4b6bbc3e42",
+    "c84a_report_sha256": "bafdaad0eb18ca17b56aecddc90eee9e9359555d9a5f93e736bfba938fd23d0b",
+    "mano_profile_path": "oaci/reports/c84a_tables/mano_cross_dataset_decision_profile.csv",
+    "mano_profile_sha256": "df0f1e2b321ef335ec94946bcd4061fa35194e36c8f358324173631385b160d6"
+  },
+  "realized_action_equivalence": [
+    {
+      "dataset": "Lee2019_MI",
+      "method_id": "U11",
+      "reference": "B1_ERM",
+      "equivalent_contexts": 175,
+      "total_contexts": 176,
+      "fraction": 0.9943181818181818,
+      "interpretation": "NEAR_COLLAPSE_FROZEN_CONTEXT_FIELD"
+    },
+    {
+      "dataset": "Cho2017",
+      "method_id": "U11",
+      "reference": "B1_ERM",
+      "equivalent_contexts": 160,
+      "total_contexts": 160,
+      "fraction": 1.0,
+      "interpretation": "EXACT_COLLAPSE_FROZEN_CONTEXT_FIELD"
+    },
+    {
+      "dataset": "PhysionetMI",
+      "method_id": "U11",
+      "reference": "B1_ERM",
+      "equivalent_contexts": 607,
+      "total_contexts": 608,
+      "fraction": 0.9983552631578947,
+      "interpretation": "NEAR_COLLAPSE_FROZEN_CONTEXT_FIELD"
+    }
+  ],
+  "frozen_science": {
+    "primary_gate": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "frontier_tag": "C84-L4",
+    "taxonomy_changed": false,
+    "new_statistic": false,
+    "raw_artifact_access": false
+  },
+  "required_interpretations": {
+    "mano_cho": "The registered formula qualifies, but its realized Cho action map is exactly B1 and does not establish incremental target-unlabeled information value over B1.",
+    "mano_other": "Lee and Physionet are near-equivalent to B1 in the frozen context field; this is descriptive and not an almost-sure population statement.",
+    "cott_q2": "COTT Q2 passes do not imply a qualified one-label frontier.",
+    "c84_l4": "C84-L4 does not imply that labels contain no value."
+  },
+  "forbidden_expansions": [
+    "MaNo has incremental target-unlabeled information value in Cho",
+    "labels are less informative than unlabeled data",
+    "C84-L4 means labels have no value",
+    "the C84 taxonomy is changed"
+  ],
+  "protected_counters": {
+    "EEG_arrays": 0,
+    "direct_label_views": 0,
+    "candidate_arrays": 0,
+    "selector_calls": 0,
+    "Q0_calls": 0,
+    "inference_calls": 0,
+    "training_calls": 0,
+    "forward_calls": 0,
+    "GPU_calls": 0,
+    "oracle_calls": 0
+  }
+}

@@ -1,0 +1,152 @@
+{
+  "schema_version": "c85_tpami_decision_theory_protocol_v1",
+  "milestone": "C85P",
+  "designed_at": "2026-07-16T18:04:52+02:00",
+  "protocol_status": "LOCKED_PROSPECTIVE_TO_C85T_PROOFS_AND_SYNTHETIC_RESULTS",
+  "starting_identity": {
+    "head": "218d19e2ef1b4b5e7517008cbcb60d4b6bbc3e42",
+    "origin_oaci": "218d19e2ef1b4b5e7517008cbcb60d4b6bbc3e42",
+    "c84a_implementation_commit": "4076459996e2feecc9b7fa3aa6c036932f59f30e",
+    "c84a_gate": "C84_POST_SCIENTIFIC_HETEROGENEITY_AND_TPAMI_THEORY_BRIDGE_AUDIT_COMPLETE_C85_PROTOCOL_REVIEW_REQUIRED",
+    "c84s_primary_gate": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+    "c84s_frontier_tag": "C84-L4"
+  },
+  "scientific_objective": "Prospectively lock a standard statistical-decision framework that separates statistical experiments, unrestricted and registered policy classes, realized action use, candidate action geometry, and robust target risk under distribution shift.",
+  "formal_state_action_experiment": {
+    "state": "theta in Theta",
+    "actions": "A={1,...,M}",
+    "utility": "u_theta(a) in [0,1]",
+    "optimal_action": "a_star(theta) in argmax_a u_theta(a)",
+    "loss": "ell(theta,a)=max_j u_theta(j)-u_theta(a)",
+    "experiment": "E=(Z,{P_theta^E:theta in Theta})",
+    "decision_rule": "delta:Z to probability distributions over A",
+    "population_indices": ["dataset_or_cohort_d", "target_group_g", "environment_distribution_Pi"]
+  },
+  "risk_functionals": {
+    "mean": "R_mean(delta;E,Pi)=E_{theta~Pi,Z~P_theta^E,a~delta(Z)} ell(theta,a)",
+    "worst_group": "R_worst(delta;E,G)=sup_{g in G} E[ell(theta,a)|g]",
+    "upper_tail_CVaR": "CVaR_alpha(L)=inf_eta {eta + E[(L-eta)_+]/(1-alpha)} for arbitrary symbolic alpha in (0,1)",
+    "cvar_convention": "upper loss tail beyond confidence level alpha; no C84-derived alpha is selected"
+  },
+  "information_policy_separation": {
+    "unrestricted_rules": "D(E)=all measurable randomized decision rules under E",
+    "registered_rules": "Delta(E) subset of D(E)",
+    "unrestricted_risk": "R_star(E)=inf_{delta in D(E)} R(delta;E)",
+    "registered_risk": "R_Delta(E)=inf_{delta in Delta(E)} R(delta;E)",
+    "approximation_optimization_gap": "G_Delta(E)=R_Delta(E)-R_star(E)>=0"
+  },
+  "realized_policy_use": {
+    "reference_rule": "delta_0",
+    "action_divergence": "P[delta_E(Z_E) != delta_0]",
+    "action_entropy": "H(delta_E(Z_E))",
+    "incremental_fixed_policy_risk_value": "R(delta_0)-R(delta_E)",
+    "collapse_condition": "delta_E(Z_E)=delta_0 almost surely under the evaluation distribution"
+  },
+  "partial_identification": {
+    "identified_set": "U(z)={u in [0,1]^M: u is compatible with z and the registered assumption lattice}",
+    "minimax_regret": "min_{q in simplex(A)} sup_{u in U(z)} sum_a q_a(max_j u_j-u_a)",
+    "finite_extreme_point_LP": "minimize t over q,t subject to q>=0, sum q=1, and sum_a q_a(max_j u_j^k-u_a^k)<=t for every registered extreme point k",
+    "randomization": "allowed and reported; pure-action restriction is a separate policy class",
+    "point_identification": "U(z) is a singleton",
+    "nontrivial_diameter": "sup_{u,v in U(z)} ||u-v||_infinity > 0"
+  },
+  "near_optimal_geometry": {
+    "set": "A_epsilon(theta)={a:u_star(theta)-u_theta(a)<=epsilon}",
+    "soft_weights": "w_a(tau)=exp(-Delta_a/tau)/sum_j exp(-Delta_j/tau)",
+    "hill_2": "1/sum_a w_a(tau)^2",
+    "entropy_effective_size": "exp(-sum_a w_a(tau) log w_a(tau))",
+    "parameter_policy": "epsilon>0 and tau>0 remain symbolic in theory; synthetic values are fixed independently in the generator contract; no C84 utility vector is read"
+  },
+  "costly_label_model": {
+    "query": "L_t=(loss_t(a_1),...,loss_t(a_M)) reveals a full frozen-candidate loss vector for one target trial",
+    "not_bandit": "one query observes all candidate losses, unlike one-arm-per-pull bandits",
+    "registered_future_classes": ["passive_stratified_sampling", "active_testing", "pairwise_difference_variance_design", "consensus_disagreement_acquisition", "stopping_rules", "importance_weighting"],
+    "execution_authorized": false
+  },
+  "theorem_targets": [
+    {
+      "id": "T1",
+      "name": "Blackwell risk monotonicity",
+      "target": "Under common state/action/loss spaces and unrestricted measurable decision rules, a Blackwell-more-informative experiment cannot have larger optimal risk.",
+      "status_at_C85P": "OPEN",
+      "literature_class": "CLASSICAL_THEOREM",
+      "c85t_obligation": "state measurable-space and randomization assumptions and provide a self-contained proof or exact cited theorem mapping"
+    },
+    {
+      "id": "T2",
+      "name": "Restricted-policy nonmonotonicity",
+      "target": "A finite Blackwell-dominating experiment can have higher realized registered-policy risk when policy classes are non-nested or the richer policy is poorly optimized.",
+      "status_at_C85P": "OPEN",
+      "literature_class": "PROJECT_COUNTEREXAMPLE_TARGET",
+      "c85t_obligation": "exhaustively enumerate the protocol-locked finite example"
+    },
+    {
+      "id": "T3",
+      "name": "Policy-collapse equivalence",
+      "target": "Almost-sure equality of two fixed action rules implies identical action loss and risk and zero incremental realized action value, without implying experiment equivalence.",
+      "status_at_C85P": "OPEN",
+      "literature_class": "ELEMENTARY_PROPOSITION_TARGET",
+      "c85t_obligation": "prove equality including randomized-action conventions"
+    },
+    {
+      "id": "T4",
+      "name": "Two-state Le Cam regret lower bound",
+      "target": "For equal-prior two-state finite models with distinct optimal actions and wrong-action regret at least Delta, prove the exact average-risk lower bound in terms of total variation.",
+      "candidate_form": "R_bar >= (Delta/2)*(1-TV(P0,P1))",
+      "status_at_C85P": "OPEN",
+      "literature_class": "CLASSICAL_METHOD_PROJECT_SPECIALIZATION",
+      "c85t_obligation": "derive constants, handle randomization and state the action-separation condition; do not assume candidate form"
+    },
+    {
+      "id": "T5",
+      "name": "Finite multi-candidate Fano extension",
+      "target": "A finite packing lower bound for candidate-selection regret under separated optimal actions.",
+      "status_at_C85P": "OPEN",
+      "literature_class": "CLASSICAL_METHOD_PROJECT_SPECIALIZATION",
+      "c85t_obligation": "define packing, information bound, loss separation and exact constants; may remain OPEN"
+    },
+    {
+      "id": "T6",
+      "name": "Mean-tail non-equivalence",
+      "target": "A finite policy comparison with positive mean improvement and majority benefit but worse worst-group and upper-tail CVaR risk.",
+      "status_at_C85P": "OPEN",
+      "literature_class": "PROJECT_COUNTEREXAMPLE_TARGET",
+      "c85t_obligation": "exhaustively verify the protocol-locked group-loss example for symbolic alpha intervals"
+    },
+    {
+      "id": "T7",
+      "name": "Near-optimal-set selection bound",
+      "target": "Under explicitly registered sub-Gaussian pairwise utility-estimation errors, bound selection outside A_epsilon using gap- and scale-weighted terms rather than raw M.",
+      "status_at_C85P": "OPEN",
+      "literature_class": "PROJECT_BOUND_TARGET",
+      "c85t_obligation": "prove dependence structure or use a valid union bound and identify every constant"
+    }
+  ],
+  "theorem_status_vocabulary": ["PROVED", "PROVED_FINITE_MODEL_ONLY", "COUNTEREXAMPLE", "CONJECTURE", "OPEN", "INVALIDATED"],
+  "synthetic_contract": {
+    "path": "oaci/reports/c85p_tables/synthetic_generator_contract.json",
+    "status": "LOCKED_NOT_EXECUTED",
+    "scenario_ids": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7", "S8", "S9", "S10"]
+  },
+  "empirical_bridge": {
+    "allowed_labels": ["COTT_like_average_tail_separation", "MaNo_like_policy_collapse", "Cho_like_cohort_specific_qualification", "label_frontier_heterogeneity"],
+    "forbidden_parameter_sources": ["C84_theorem_constants", "C84_CVaR_alpha", "C84_epsilon", "C84_tau", "C84_synthetic_gaps", "C84_active_policy_hyperparameters"],
+    "c84_taxonomy_changed": false
+  },
+  "literature_audit_policy": {
+    "primary_or_canonical_sources_required": true,
+    "exact_conditions_verified_before_attribution": true,
+    "categories": ["CLASSICAL_THEOREM", "NEW_PROOF_TARGET", "COUNTEREXAMPLE_TARGET", "CONJECTURE", "EMPIRICAL_ANALOGY"],
+    "memory_only_attribution_forbidden": true
+  },
+  "execution_boundary": {
+    "allowed": ["compact_committed_reports", "primary_theory_literature", "protocol_and_registry_writes", "schema_validation", "finite_meta_level_contract_tests"],
+    "forbidden": ["EEG_arrays", "direct_label_roots", "target_logits", "source_arrays", "model_checkpoints", "selectors", "Q0", "empirical_inference", "new_empirical_p_values", "training", "forward", "GPU", "active_acquisition_execution", "C85_real_data_lock", "manuscript_changes"],
+    "C85T_started": false,
+    "C85E_authorized": false
+  },
+  "final_gates": {
+    "success": "C85_TPAMI_DECISION_THEORY_PROTOCOL_LOCKED_READY_FOR_PROOF_AND_SYNTHETIC_EXECUTION",
+    "failure": "C85_DECISION_THEORY_ASSUMPTION_THEOREM_STATUS_OR_EMPIRICAL_BRIDGE_RECONCILIATION_REQUIRED"
+  }
+}
