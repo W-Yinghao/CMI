@@ -70,6 +70,7 @@ def run_real(*, authorization_path: Path, output_root: Path) -> dict[str, Any]:
         "head": binding["head"], "lock_sha256": binding["lock_sha256"],
         "protocol_replay": binding["protocol_replay"],
         "environment_replay": binding["environment_replay"],
+        "readiness_replay": binding["readiness_replay"],
         "external_replay": binding["external_replay"],
         "completed_before_authorization_consumption": True,
     })

@@ -30,6 +30,9 @@ MODEL_FIELD_MANIFEST_PATH = Path(
     "lock_f9df9dcefea59b05bfea/C84F_MODEL_FIELD_MANIFEST.json"
 )
 DEFAULT_OUTPUT_ROOT = Path("/projects/EEG-foundation-model/yinghao/oaci-c84s-analysis-v3")
+SYNTHETIC_ROOT = Path(
+    "/projects/EEG-foundation-model/yinghao/oaci-c84sr1-production-synthetic-v1"
+)
 LOCK_READY_STATUS = "LOCKED_READY_FOR_FRESH_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
 EXPECTED = {
     "repair": "3bdfbf67f1e1697a1488ccb5b7148494db06586ea9ff4318f16e030b88e7be2a",
@@ -194,6 +197,25 @@ def verify_bound_repository_objects(lock: Mapping[str, Any]) -> None:
                 f"bound implementation Git blob drift: {identity['path']}")
 
 
+def verify_lock_bound_readiness(lock: Mapping[str, Any]) -> dict[str, Any]:
+    for relative, expected in lock["readiness_table_hashes"].items():
+        path = REPO_ROOT / relative
+        require(path.is_file() and sha256_file(path) == expected,
+                f"C84SR1 readiness table drift: {relative}")
+    synthetic = lock["production_path_synthetic_calibration"]
+    path = Path(synthetic["summary_path"])
+    require(path.is_file() and sha256_file(path) == synthetic["summary_sha256"],
+            "C84SR1 full-scale synthetic summary drift")
+    payload = read_json(path)
+    require(payload["status"] == "PASS" and payload["full_scale_Q0_records"] == 9110448 and
+            payload["full_scale_method_context_rows"] == 18608,
+            "C84SR1 full-scale synthetic summary is incomplete")
+    return {
+        "readiness_tables": len(lock["readiness_table_hashes"]),
+        "synthetic_summary_sha256": synthetic["summary_sha256"],
+    }
+
+
 def static_process_isolation_audit() -> list[dict[str, Any]]:
     checks: list[dict[str, Any]] = []
     for relative in IMPLEMENTATION_PATHS:
@@ -293,6 +315,7 @@ def pre_label_access_guard(
     head = verify_clean_synced_branch()
     protocols = verify_protocol_inputs()
     verify_bound_repository_objects(lock)
+    readiness = verify_lock_bound_readiness(lock)
     environment = verify_environment_and_loader_sources()
     authorization = verify_authorization(lock, lock_sha, authorization_path)
     require(Path(output_root).resolve() == Path(lock["execution"]["output_root"]).resolve(),
@@ -307,6 +330,7 @@ def pre_label_access_guard(
         "head": head, "lock": lock, "lock_sha256": lock_sha,
         "authorization": authorization, "protocol_replay": protocols,
         "environment_replay": environment, "external_replay": external,
+        "readiness_replay": readiness,
         "output_root": str(output_root),
     }
 
@@ -351,6 +375,16 @@ def build_execution_lock(*, implementation_commit: str) -> dict[str, Any]:
         "unit_id", "artifact_kind", "path", "bytes", "expected_sha256",
     )} for row in external_rows])
     repository_sha = write_csv(TABLE_DIR / "runtime_bound_object_registry.csv", repository_rows)
+    readiness_table_hashes = {
+        str(path.relative_to(REPO_ROOT)): sha256_file(path)
+        for path in sorted(TABLE_DIR.glob("*.csv"))
+    }
+    synthetic_summary_path = SYNTHETIC_ROOT / "C84SR1_SYNTHETIC_CALIBRATION.json"
+    require(synthetic_summary_path.is_file(), "C84SR1 full-scale synthetic summary absent")
+    synthetic = read_json(synthetic_summary_path)
+    require(synthetic["status"] == "PASS" and synthetic["full_scale_Q0_records"] == 9110448 and
+            synthetic["full_scale_method_context_rows"] == 18608,
+            "C84SR1 full-scale synthetic summary incomplete")
     lock = {
         "schema_version": "c84s_analysis_execution_lock_v3",
         "milestone": "C84SR1",
@@ -378,6 +412,23 @@ def build_execution_lock(*, implementation_commit: str) -> dict[str, Any]:
             "path": "oaci/reports/c84sr1_tables/runtime_bound_object_registry.csv",
             "sha256": repository_sha, "rows": len(repository_rows),
         },
+        "readiness_table_hashes": readiness_table_hashes,
+        "production_path_synthetic_calibration": {
+            "root": str(SYNTHETIC_ROOT),
+            "summary_path": str(synthetic_summary_path),
+            "summary_sha256": sha256_file(synthetic_summary_path),
+            "status": synthetic["status"],
+            "contexts": synthetic["contexts"],
+            "Q0_chains": synthetic["full_scale_Q0_chains"],
+            "Q0_records": synthetic["full_scale_Q0_records"],
+            "method_context_rows": synthetic["full_scale_method_context_rows"],
+            "selection_freeze_sha256": synthetic["full_selection_manifest_sha256"],
+            "result_sha256": synthetic["full_result_sha256"],
+            "branch_results": synthetic["branch_results"],
+            "precomputed_method_context_rows_injected": synthetic["precomputed_method_context_rows_injected"],
+            "real_field_array_access": synthetic["real_field_array_access"],
+            "real_target_label_access": synthetic["real_target_label_access"],
+        },
         "environment": {**LOCKED_ENVIRONMENT, "GPU_required": False},
         "loader_sources": list(LOADER_SOURCE_IDENTITIES),
         "static_process_isolation_sha256": canonical_sha256(static_checks),
@@ -390,6 +441,16 @@ def build_execution_lock(*, implementation_commit: str) -> dict[str, Any]:
             "measurement_applicability_flags": True,
             "context_catastrophic_field_removed": True,
             "atomic_stage_publication": True,
+            "Q0_shard_schema": "c84sr1_q0_context_shard_v1",
+            "selection_freeze_schema": "c84sr1_selection_freeze_manifest_v2",
+            "method_context_schema": "c84sr1_method_context_v2",
+            "result_schema": "c84sr1_result_v2",
+            "result_table_registry_sha256": readiness_table_hashes[
+                "oaci/reports/c84sr1_tables/result_table_registry.csv"
+            ],
+            "measurement_applicability_sha256": readiness_table_hashes[
+                "oaci/reports/c84sr1_tables/measurement_applicability.csv"
+            ],
         },
         "resource_envelope": {
             "RAM_GiB": 128, "CPU_workers": 32, "output_GiB": 40,
@@ -406,6 +467,16 @@ def build_execution_lock(*, implementation_commit: str) -> dict[str, Any]:
             "record_present_at_lock": False,
             "fresh_direct_statement": "授权 C84S",
             "historical_authorization_migrates": False,
+        },
+        "attempt_and_failure_policy": {
+            "authorization_consumed_before_stage_A": True,
+            "lifecycle_attempt_ledger": "C84S_LIFECYCLE_ATTEMPT.json",
+            "per_stage_attempt_ledgers": True,
+            "stage_B_failure_keeps_evaluation_sealed": True,
+            "stage_C_failure_preserves_selection_freeze": True,
+            "partial_final_root_publishable": False,
+            "automatic_retry": False,
+            "implementation_change_requires_additive_protocol_and_lock": True,
         },
         "historical_locks": {
             "V1_sha256": EXPECTED["historical_lock_v1"],
