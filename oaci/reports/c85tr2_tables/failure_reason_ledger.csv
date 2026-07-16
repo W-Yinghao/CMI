@@ -1,0 +1,5 @@
+reason,historical_blocker,V3_control,readiness_status
+V2 importable capability minting,1,receipt-validated committed-path context,REPAIRED
+V2 callback after final rename,1,terminal bundle before one rename,REPAIRED
+V2 terminal FAILED masking,1,primary/secondary exception precedence,REPAIRED
+V2 weak semantic replay,1,artifact-derived semantic replay,REPAIRED

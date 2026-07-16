@@ -1,0 +1,17 @@
+object,required_identity,disposition
+exact scenario key set,S0..S10 exactly,blocking
+S10 exact arithmetic,11/40|0|3/5|13/40,blocking
+S8 rational certificate,all required LP fields,blocking
+S6/S7 replicate IDs,4096 unique canonical IDs each,blocking
+S6/S7 selected action,within contract action set,blocking
+S6/S7 indicators/regret,rederived from selected action,blocking
+S9 selected action,0..3,blocking
+S9 raw dtype/count,<i8|51|46,blocking
+S9 digest fields,lowercase 64-hex and deterministic consumed-stream replay,blocking
+S9 aggregates,recomputed from reloaded arrays,blocking
+proof candidate coverage,T1..T7 exactly,blocking
+proof file/CSV hash,exact,blocking
+proof statement SHA,bound statement,blocking
+formal theorem status,OPEN for T1..T7,blocking
+authorization/result identity,lock|auth|attempt|root|HEAD exact,blocking
+protected counters,zero,blocking
