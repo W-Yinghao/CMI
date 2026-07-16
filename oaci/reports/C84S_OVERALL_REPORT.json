@@ -1,0 +1,169 @@
+{
+  "schema_version": "c84s_overall_report_v1",
+  "status": "COMPLETE",
+  "primary_gate": "C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous",
+  "label_frontier_tag": "C84-L4",
+  "epistemic_status": "harmonized_binary_MI_external_cohort_evidence_not_universal_EEG_validity",
+  "identities": {
+    "C84SR3_repair_protocol_commit": "91f984503fa84b53fae32948d0cf49e7ede12b8f",
+    "C84SR3_repair_protocol_sha256": "5c783db9113697b2c710af4c1f1bafd66a3096be7a1b5cbac8aa03ca2a9c3080",
+    "lock_bound_implementation_commit": "815d0ccd3f2ef245ea66c734165905d3a08ac105",
+    "C84S_V5_lock_commit": "2d03eb05e0cec352d08cdb6f48170be56876e77b",
+    "C84S_V5_lock_sha256": "030be9c9ebac401ca9e7ae5e51bb1ce99b592faceac00fac8781070420b0b846",
+    "authorization_commit": "47d405e96c1b0d3d2d35cd8bf5e14f95a3e933bb",
+    "authorization_record_sha256": "3446e3562a8dd5db51c9f56a03765bf040f9678ee527ea13a4cf75e63dd575e1",
+    "authorization_consumption_sha256": "ca362a16a49e349ea0945e64fb0636be3a59424cf8e146428e31d9e1c16b00de",
+    "complete_field_manifest_sha256": "cfffcac1a55148941b809b69bed2c9a8957a94729ed7f2c2c29ed8d48c0134d8",
+    "selection_freeze_sha256": "30ad539c8758a15701a582f0391671682107beb694860c9c531856425f2c7df4",
+    "scientific_result_sha256": "5590f85c3552ec0176a015e34296059a950dd2c5853a51aa140657cf53d79ee7",
+    "result_artifact_manifest_sha256": "516ae135125d66233c9ee87aa71e5b40941fcb9140a63c036f58b40fce11a2b5",
+    "result_identity_sha256": "9a2a1686c53409a2d5eb0d68c82f898406772c8e49e1f6e630e67c58f8ff9e44"
+  },
+  "execution": {
+    "slurm_job": 898488,
+    "partition": "cpu-high",
+    "cpus": 48,
+    "memory_GiB": 128,
+    "GPU": 0,
+    "wall_limit_hours": 48,
+    "scheduler_monitor": "squeue",
+    "sacct_used": false,
+    "post_consumption_seconds": 2975.919782144,
+    "stage_seconds": {
+      "Stage_A_immutable_replay": 0.193558528,
+      "Stage_B_selection_freeze": 2297.316326656,
+      "Stage_C_held_evaluation": 678.290923264
+    },
+    "slurm_stderr_bytes": 0,
+    "stage_A_stderr_bytes": 0,
+    "stage_B_stderr_bytes": 0,
+    "stage_C_stderr_bytes": 226,
+    "stage_C_warning": "SciPy ConstantInputWarning for an undefined Spearman correlation on a constant score vector; no traceback and no decision substitution"
+  },
+  "selection_freeze": {
+    "contexts": 944,
+    "candidate_score_rows": 535248,
+    "candidate_rank_rows": 535248,
+    "fixed_default_rows": 4720,
+    "Q0_shards": 944,
+    "Q0_records": 8750000,
+    "Q0_sample_digest_rows": 1093750,
+    "Q0_regime_rows": 15648,
+    "Q0_coverage_rows": 5216,
+    "Q0_chains": 2048,
+    "evaluation_descriptor_received": false,
+    "same_label_oracle_accessed": false,
+    "Lee_Q0_B32_status": "INPUT_UNAVAILABLE_NO_SELECTION_OR_RESULT_ROW"
+  },
+  "result_freeze": {
+    "table_count": 18,
+    "method_context_rows": 18432,
+    "target_level_method_rows": 1416,
+    "dataset_Q1_Q2_rows": 18,
+    "level_specific_Q1_Q2_rows": 36,
+    "panel_seed_rows": 18,
+    "LOTO_rows": 118,
+    "label_frontier_rows": 15,
+    "Q0_regime_rows": 12816,
+    "Q0_monte_carlo_rows": 4272,
+    "all_tables_validated_before_publication": true
+  },
+  "dataset_results": {
+    "Lee2019_MI": {
+      "category": "C",
+      "A_methods": [],
+      "B_methods": [],
+      "COTT": {
+        "Q1_pass": false,
+        "Q1_mean": 0.1480384866582616,
+        "Q1_pvalue": 0.006759540412286189,
+        "Q1_favorable_targets": 20,
+        "Q1_target_count": 22,
+        "Q1_worst_target": -0.10787324378695262,
+        "Q2_pass": true,
+        "Q2_mean_excess": -0.15529807539785215,
+        "Q2_simultaneous_upper": -0.08591992168704436
+      },
+      "Bstar": null,
+      "level0_Bstar": null,
+      "level1_Bstar": null,
+      "LOTO_category_preserved": 21,
+      "LOTO_total": 22
+    },
+    "Cho2017": {
+      "category": "A",
+      "A_methods": ["U11"],
+      "B_methods": ["U11"],
+      "MaNo": {
+        "Q1_pass": true,
+        "Q1_mean": 0.19770319393471367,
+        "Q1_pvalue": 0.00004577566870622702,
+        "Q1_favorable_targets": 19,
+        "Q1_target_count": 20,
+        "Q1_worst_target": -0.01676452407346407,
+        "Q2_pass": true,
+        "Q2_mean_excess": -0.1674572891568034,
+        "Q2_simultaneous_upper": -0.0985244841830955
+      },
+      "Bstar": 8,
+      "level0_Bstar": "FULL",
+      "level1_Bstar": 4,
+      "LOTO_category_preserved": 20,
+      "LOTO_total": 20
+    },
+    "PhysionetMI": {
+      "category": "C",
+      "A_methods": [],
+      "B_methods": [],
+      "COTT": {
+        "Q1_pass": false,
+        "Q1_mean": 0.09664007199525669,
+        "Q1_pvalue": 0.028319880372919114,
+        "Q1_favorable_targets": 57,
+        "Q1_target_count": 76,
+        "Q1_worst_target": -0.310447119102707,
+        "Q2_pass": true,
+        "Q2_mean_excess": -0.06503234167578735,
+        "Q2_simultaneous_upper": -0.03023328275535124
+      },
+      "Bstar": null,
+      "level0_Bstar": null,
+      "level1_Bstar": null,
+      "LOTO_category_preserved": 76,
+      "LOTO_total": 76
+    }
+  },
+  "cross_dataset": {
+    "A_intersection": [],
+    "B_intersection": [],
+    "LEVEL_HETEROGENEITY": true,
+    "hidden_level_Q1_pass": true,
+    "reason_for_D": [
+      "dataset_categories_A_C_C",
+      "empty_same_method_A_and_B_intersections",
+      "Lee_level_specific_Q1_disagreement"
+    ],
+    "reason_for_L4": "Lee2019_MI_and_PhysionetMI_have_no_qualifying_primary_grid_Bstar"
+  },
+  "protected_counters": {
+    "stage_A_label_loader_calls": 0,
+    "target_label_rows_reloaded": 0,
+    "construction_label_access": 1,
+    "evaluation_label_access": 1,
+    "selector_score_contexts": 944,
+    "scientific_result_rows": 18432,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "same_label_oracle": 0,
+    "C85_authorized": false
+  },
+  "claim_boundary": {
+    "universal_zero_label_impossibility": false,
+    "universal_one_label_sufficiency": false,
+    "universal_EEG_external_validity": false,
+    "exact_four_class_replication": false,
+    "C85_authorized": false,
+    "manuscript_changes_authorized": false
+  }
+}

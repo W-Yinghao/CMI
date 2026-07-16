@@ -15,48 +15,63 @@ and collaboration sections before acting.
 
 ## 0. Current continuation state (2026-07-16)
 
-C84SR3 completed the additive Q0 secondary-budget availability and atomic
-failure repair and stopped at:
+C84S V5 completed the harmonized multi-dataset scientific execution under
+Slurm job `898488`. The authoritative gates are:
 
 ```text
-C84S_SECONDARY_Q0_AVAILABILITY_AND_ATOMIC_FAILURE_REPAIRED_V5_LOCK_READY_FOR_FRESH_PI_AUTHORIZATION
+C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous
+
+C84-L4
 ```
 
-Authoritative current identities:
+Authoritative identities:
 
 ```text
-C84SR3 repair protocol commit:  91f984503fa84b53fae32948d0cf49e7ede12b8f
-C84SR3 repair protocol SHA-256: 5c783db9113697b2c710af4c1f1bafd66a3096be7a1b5cbac8aa03ca2a9c3080
-lock-bound implementation:      815d0ccd3f2ef245ea66c734165905d3a08ac105
-C84S V5 lock commit:            2d03eb05e0cec352d08cdb6f48170be56876e77b
-C84S V5 lock SHA-256:           030be9c9ebac401ca9e7ae5e51bb1ce99b592faceac00fac8781070420b0b846
-accepted regression commit:     4cbe49d68b280d90c3b49ec82cbbbf9e8df95ed9
+C84SR3 repair protocol commit:   91f984503fa84b53fae32948d0cf49e7ede12b8f
+C84SR3 repair protocol SHA-256:  5c783db9113697b2c710af4c1f1bafd66a3096be7a1b5cbac8aa03ca2a9c3080
+lock-bound implementation:       815d0ccd3f2ef245ea66c734165905d3a08ac105
+C84S V5 lock commit:             2d03eb05e0cec352d08cdb6f48170be56876e77b
+C84S V5 lock SHA-256:            030be9c9ebac401ca9e7ae5e51bb1ce99b592faceac00fac8781070420b0b846
+authorization commit:            47d405e96c1b0d3d2d35cd8bf5e14f95a3e933bb
+authorization record SHA-256:    3446e3562a8dd5db51c9f56a03765bf040f9678ee527ea13a4cf75e63dd575e1
+authorization consumption SHA:   ca362a16a49e349ea0945e64fb0636be3a59424cf8e146428e31d9e1c16b00de
+selection-freeze SHA-256:         30ad539c8758a15701a582f0391671682107beb694860c9c531856425f2c7df4
+scientific result SHA-256:        5590f85c3552ec0176a015e34296059a950dd2c5853a51aa140657cf53d79ee7
+result manifest SHA-256:          516ae135125d66233c9ee87aa71e5b40941fcb9140a63c036f58b40fce11a2b5
+result identity SHA-256:          9a2a1686c53409a2d5eb0d68c82f898406772c8e49e1f6e630e67c58f8ff9e44
 ```
 
-Authorized V4 job `898192` consumed its authorization, replayed immutable Stage
-A and entered Stage B, then stopped before one complete selector context because
-Lee has 25 construction labels/class and secondary Q0 B32 requires 32/class.
-Evaluation access, selector contexts and scientific rows remained 0. NFS cleanup
-then masked the primary error; both errors and the hidden residual staging path
-remain preserved. The V4 authorization is consumed and non-reusable.
+Stage A replayed the immutable historical label views without loader calls.
+Stage B atomically froze 944 contexts, 535,248 score rows, 535,248 rank rows,
+4,720 fixed rows, 944 Q0 shards and 8,750,000 Q0 records before evaluation was
+released. Stage C atomically froze 18,432 method-context rows and 18 registered
+result tables. Training, forward, GPU and oracle access were zero.
 
-V5 leaves the common primary grid `[1,2,4,8,FULL]` unchanged. Lee operates
-secondary B16 and records B32 as input-unavailable with no selection/result row;
-Cho retains B16/B32. No replacement sampling, FULL substitution, method,
-threshold or inference change occurred. Atomic Stage-B cleanup now preserves the
-primary exception, and V5 has a receipt-specific immutable Stage-A replay path.
+Dataset categories are:
 
-The exact synthetic production path passed 944 contexts, 2,048 Q0 chains,
-8,750,000 Q0 records and 18,432 method-context rows, including all primary and
-label-frontier taxonomy branches. Readiness byte-hashed 7,776 frozen external
-files (48,072,941,176 bytes). Regressions passed with 367 focused, 853 C65,
-1,264 C23 and 2,188 full tests; all accepted stderr is empty.
+```text
+Lee2019_MI:  C
+Cho2017:     A, supported by U11/MaNo passing Q1 and Q2
+PhysionetMI: C
+```
 
-The complete report is `oaci/reports/C84SR3_OVERALL_REPORT.md`. C84SR3 is
-readiness only: no V5 authorization record, new label reload, evaluation access,
-real selector score or scientific statistic exists. The next valid action is a
-fresh direct `授权 C84S` statement bound to the V5 lock. It does not authorize
-C85.
+The common A and B method intersections are empty. Lee has active level
+heterogeneity: U13/COTT passes Q1+Q2 at level 0 but fails Q1 at level 1. COTT
+passes Q2 in all three datasets, but Lee and Physionet fail Q1 through the
+registered worst-target robustness floor despite positive average effects.
+
+The passive primary-grid B* values are Lee `NONE`, Cho `8`, and Physionet
+`NONE`, producing C84-L4. LOTO category preservation is 21/22, 20/20 and 76/76,
+respectively. These thresholds pass and do not erase dataset or level
+heterogeneity.
+
+The full report is `oaci/reports/C84S_OVERALL_REPORT.md`; the compact project
+memory is `oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C84S.md`. C84S does
+not prove universal external validity, universal zero-label impossibility or
+universal one-label sufficiency. C85, new methods, retuning, active acquisition,
+new datasets, oracle access and manuscript changes remain unauthorized. The
+next action requires separate PM direction and should start with a complete
+scientific/provenance audit and theory-gap analysis.
 
 ### Frozen C84F field base
 
