@@ -1,6 +1,6 @@
 # C84SR1 Final Report Red Team
 
-Result: **59 / 59 PASS**
+Result: **65 / 65 PASS**
 
 - PASS: `historical_locks_preserved`
 - PASS: `V2_authorization_unconsumed`
@@ -61,3 +61,9 @@ Result: **59 / 59 PASS**
 - PASS: `real_labels_zero`
 - PASS: `real_scores_zero`
 - PASS: `real_science_zero`
+- PASS: `focused_regression_19_passed`
+- PASS: `C65_regression_832_passed_1_skipped_3_deselected`
+- PASS: `C23_regression_1243_passed_1_skipped_3_deselected`
+- PASS: `full_regression_2167_passed_1_skipped_3_deselected`
+- PASS: `accepted_regression_stderr_empty`
+- PASS: `no_active_C84SR1_regression_job`
