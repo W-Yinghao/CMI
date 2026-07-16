@@ -1,0 +1,71 @@
+{
+  "schema_version": "c84s_authorized_preflight_blocker_v1",
+  "recorded_at_utc": "2026-07-16T04:09:45Z",
+  "authorization": {
+    "direct_statement_received": true,
+    "direct_statement_exact": "授权 C84S",
+    "binding_policy_commit": "3d9dd76",
+    "intended_stage": "C84S",
+    "intended_analysis_lock_commit": "33075c97afd87f05d2856463c43be3246d83f95c",
+    "intended_analysis_lock_sha256": "94c896f0f00c53441095da6225f9ac574eb4a9baa904821a5dab3f11ea76f75c",
+    "active_authorization_record_created": false,
+    "authorization_consumed": false,
+    "authorization_carries_to_repair_lock": false
+  },
+  "preflight": {
+    "head": "e1f0a16d86f349c81c7b5decf826da7e153c1e4e",
+    "head_equals_origin_oaci": true,
+    "clean_worktree_before_blocker_record": true,
+    "analysis_lock_sha256_replay": true,
+    "bound_repository_objects_replayed": 12,
+    "readiness_tables_replayed": 21,
+    "target_artifact_registry_rows_replayed": 3888,
+    "static_isolation_checks_passed": 16,
+    "active_C84S_jobs_before_blocker": 0,
+    "real_target_label_access": 0,
+    "real_selector_scores": 0,
+    "real_scientific_statistics": 0,
+    "training": 0,
+    "forward": 0,
+    "GPU": 0,
+    "same_label_oracle": 0
+  },
+  "blocker": {
+    "gate": "C84S_LABEL_VIEW_SELECTOR_INFERENCE_TAXONOMY_OR_PROVENANCE_RECONCILIATION_REQUIRED",
+    "stage": "pre_label_access_pre_authorization_consumption",
+    "classification": "locked_real_execution_path_incomplete",
+    "findings": [
+      "No lock-bound real C84S command or orchestration entrypoint invokes Stage A, Stage B, the selection freeze, Stage C, and final publication in the required one-way order.",
+      "The lock contains per-context artifact loading and selector formulas but no bound production adapter that enumerates all 944 contexts and materializes the complete zero-label, fixed-default, Q0, and access-ledger selection payloads.",
+      "The lock contains held-evaluation metric functions and a Stage-C table writer but no bound production adapter that consumes the immutable selection freeze plus evaluation labels and materializes the canonical 18608 method-context rows.",
+      "The executable contract does not define how 2048 Q0 chains are integrated into one method-context decision row, including standardized regret, top-k, selected regime, coverage, and applicable measurement outputs.",
+      "The S0-S20 synthetic benchmark directly fabricates method-context rows and enters c84s_analysis.run_analysis_and_freeze; it does not execute the real Stage-B-to-Stage-C transformation that is missing.",
+      "Creating an ad hoc Python or shell orchestrator after the execution lock would introduce unbound scientific implementation and is therefore forbidden."
+    ]
+  },
+  "existing_bound_components": {
+    "real_label_provisioner": "oaci.multidataset.c84s_label_views.provision_real_label_views",
+    "context_artifact_loader": "oaci.multidataset.c84s_selectors.load_frozen_context_artifacts",
+    "selector_formula": "oaci.multidataset.c84s_selectors.score_context",
+    "Q0_chain_selector": "oaci.multidataset.c84s_q0_budget.select_chain",
+    "selection_freezer": "oaci.multidataset.c84s_selection_freeze.freeze_selection",
+    "held_evaluation_metrics": "oaci.multidataset.c84s_evaluation",
+    "Stage_C_writer": "oaci.multidataset.c84s_analysis.run_analysis_and_freeze"
+  },
+  "required_additive_repair_before_real_labels": [
+    "Register executable Q0 chain-integration and method-context materialization semantics before implementation.",
+    "Implement separate lock-bound Stage-A, Stage-B, and Stage-C real entrypoints with immutable persisted handoffs and an attempt/authorization-consumption ledger.",
+    "Implement complete 944-context selection orchestration and exact 18608-row held-evaluation materialization without changing methods, formulas, thresholds, budgets, or taxonomy.",
+    "Run a production-path synthetic benchmark through label provisioning, context loading, selection, selection freeze, held evaluation, inference, and atomic final publication without directly injecting method-context rows.",
+    "Create a replacement analysis execution lock and obtain a fresh direct PI authorization; this authorization must not migrate."
+  ],
+  "disposition": {
+    "label_access_started": false,
+    "selection_started": false,
+    "scientific_execution_started": false,
+    "C84S_result_exists": false,
+    "C84F_field_unchanged": true,
+    "C84S_V2_lock_authorization_consumed": false,
+    "fresh_authorization_required_after_repair": true
+  }
+}
