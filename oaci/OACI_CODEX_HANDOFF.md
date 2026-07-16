@@ -13,7 +13,124 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state (2026-07-16)
+## 0. Current continuation state through C84A (2026-07-16)
+
+C84A completed the read-only post-C84S heterogeneity audit and decision-theory
+bridge. It stopped at:
+
+```text
+C84_POST_SCIENTIFIC_HETEROGENEITY_AND_TPAMI_THEORY_BRIDGE_AUDIT_COMPLETE_C85_PROTOCOL_REVIEW_REQUIRED
+```
+
+The underlying confirmatory results remain unchanged:
+
+```text
+C84-D_external_dataset_source_panel_seed_level_or_target_heterogeneous
+
+C84-L4
+```
+
+C84A implementation/report commit:
+
+```text
+4076459996e2feecc9b7fa3aa6c036932f59f30e
+```
+
+The audit replayed the C84S lock, authorization, Stage A/B/C lifecycle,
+selection freeze, result identity, all 18 frozen table hashes/row counts, 944
+contexts, 18,432 method-context rows, protected counters, red teams and
+regressions. It read no EEG X, direct label roots, target-logit/source arrays,
+checkpoints, selector/Q0/inference callable, training, forward, GPU or oracle.
+It computed no new p-value or scientific gate.
+
+All newly derived order statistics and threshold distances are tagged
+`POST_C84S_EXPLORATORY_DESCRIPTIVE`. The principal audit findings are:
+
+```text
+COTT:
+  positive mean Q1 effect in Lee / Cho / Physionet
+  Q2 PASS in all three
+  Q1 FAIL in all three through the registered target-tail floor
+
+Lee COTT:
+  2 adverse targets
+  one near-boundary floor breach: target 8 at -0.107873
+  target 8 is the only LOTO category change, C -> A
+
+Cho COTT:
+  2 adverse targets
+  one deep floor breach: target 3 at -0.305171
+
+Physionet COTT:
+  19 adverse targets
+  9 floor breaches
+  worst -0.310447
+
+Cho MaNo:
+  Q1/Q2 PASS
+  mean Spearman 0.000960
+  top1/top5/top10 0.0500 / 0.15625 / 0.24375
+  ERM regime in 160/160 contexts
+```
+
+The MaNo concentration is descriptive and does not identify a causal
+mechanism or near-optimal action density. The allowed compact tables do not
+contain the full 81-candidate utility geometry.
+
+Label-frontier decomposition:
+
+```text
+Lee:
+  no B*; B=8 and FULL fail the worst-target component
+
+Cho:
+  B*=8; level0=FULL; level1=4
+
+Physionet:
+  no B*; B=8/FULL fail max-T, favorable-target and worst-target components
+```
+
+The decision-theory bridge separates unrestricted optimal risk,
+registered-policy risk and policy approximation/optimization gap. Observed
+COTT/MaNo-versus-Q0 regret ordering under non-nested fixed policies does not
+establish Blackwell dominance or that labels lack value. No Blackwell, Le Cam,
+minimax or CVaR theorem is proved.
+
+Accepted C84A regressions on `40764599`:
+
+```text
+focused job 898806:
+  256 passed
+
+C65 job 898807:
+  867 passed, 1 skipped, 3 deselected
+
+C23 job 898808:
+  1,278 passed, 1 skipped, 3 deselected
+
+full job 898809:
+  2,202 passed, 1 skipped, 3 deselected
+```
+
+All accepted stderr files are empty. The initial wrong-Python focused attempt
+is preserved as rejected environment evidence. `squeue` showed zero active
+C84/C85 jobs; `sacct` was not used.
+
+Authoritative C84A documents:
+
+```text
+oaci/reports/C84A_POST_SCIENTIFIC_HETEROGENEITY_AUDIT.md
+oaci/reports/C84A_TPAMI_DECISION_THEORY_BRIDGE.md
+oaci/reports/C84A_CLAIM_CONTRACT.csv
+oaci/reports/C84A_REGRESSION_VERIFICATION.md
+oaci/reports/OACI_EEG_DG_PROJECT_MEMORY_THROUGH_C84A.md
+```
+
+C85, active acquisition, new datasets/model zoos and manuscript work remain
+unauthorized. A future step must start with direct PM protocol review and must
+not treat C84A's post-outcome summaries as independent evidence.
+
+### Frozen C84S result entering C84A
 
 C84S V5 completed the harmonized multi-dataset scientific execution under
 Slurm job `898488`. The authoritative gates are:
@@ -988,20 +1105,19 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C84FL level-1 repair required)
+## 7. How to continue (C85 protocol review required)
 
-- Preserve protocol commit `26f798e` and blocker commit `e141d2a`; do not rewrite
-  them or mislabel the planning protocol as an execution lock.
-- Prospectively define level 1 for every dataset/panel before implementing the
-  adapter. Bind exact source rows/cell identity, support graph, sampler/RNG,
-  model initialization and relation to the historical C78 deletion level.
-- Preserve all 243 C84C model/state/source-audit objects and the three canary
-  target slices. Do not reuse job-895366 artifacts.
-- After the repair protocol commit, implement and test the 1,701-unit field,
-  create a new scope-specific C84F lock, then wait for fresh direct PI
-  authorization.
-- Do not access remaining-subject EEG, train, forward, use GPU, open target
-  labels, create a C84S lock, or claim external validity before those steps.
+- Preserve C84S gates C84-D/C84-L4 and all C84A exploratory tags; C84A does not
+  create a new confirmatory result.
+- Use `c84a_tables/theory_gap_registry.csv` and
+  `next_experiment_decision_matrix.csv` only to structure PM review.
+- Any robust-risk, active-label, candidate-geometry, heterogeneous-zoo or new-
+  dataset direction requires an additive prospective protocol and an untouched
+  population where applicable.
+- Do not infer Blackwell dominance, unrestricted label value, minimax
+  optimality or a causal support-deletion mechanism from C84A.
+- Do not start C85, active acquisition, new data/model execution, selector
+  retuning or manuscript changes without a new direct authorization.
 
 ---
 

@@ -171,6 +171,24 @@ policy. Each requires assumptions and untouched populations not supplied by
 C84A. The decision matrix is advisory only: C85, active acquisition, new data,
 new model zoos, and manuscript work remain unauthorized.
 
+## Verification
+
+The read-only generator passed 75/75 internal checks and its focused test file
+passed 14/14. Accepted Slurm regressions at implementation commit `40764599`
+were:
+
+```text
+focused:  256 passed
+C65:      867 passed, 1 skipped, 3 deselected
+C23:    1,278 passed, 1 skipped, 3 deselected
+full:   2,202 passed, 1 skipped, 3 deselected
+```
+
+All accepted stderr files are empty. The initial wrong-environment focused
+attempt is preserved in `C84A_REGRESSION_VERIFICATION.md` and is not counted as
+accepted. `squeue` showed zero active C84/C85 jobs after completion; `sacct`
+was not used.
+
 ## Claim Boundary
 
 Supported: COTT has cross-cohort positive-average value with registered tail

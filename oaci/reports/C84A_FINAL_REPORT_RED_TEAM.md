@@ -81,3 +81,18 @@ Final gate: `C84_POST_SCIENTIFIC_HETEROGENEITY_AND_TPAMI_THEORY_BRIDGE_AUDIT_COM
 | git_payload_hygiene | 1 | no generated file >50 MiB |
 
 All checks passed. C84-D and C84-L4 remain immutable. C85 and manuscript work remain unauthorized.
+
+## Post-Regression Closeout
+
+| Check | Pass | Evidence |
+|---|---:|---|
+| focused_regression | 1 | job 898806; 256 passed; stderr empty |
+| C65_regression | 1 | job 898807; 867 passed, 1 skipped, 3 deselected; stderr empty |
+| C23_regression | 1 | job 898808; 1,278 passed, 1 skipped, 3 deselected; stderr empty |
+| full_regression | 1 | job 898809; 2,202 passed, 1 skipped, 3 deselected; stderr empty |
+| initial_failure_preserved | 1 | wrong Python 3.9.13 attempt disclosed and rejected |
+| result_report_checksum | 1 | Markdown and JSON sidecar replay after regression closeout |
+| active_job_count | 1 | squeue reports zero C84/C85 jobs |
+| sacct_claim_guard | 1 | sacct not used or claimed |
+| C85_authorization_guard | 1 | false |
+| manuscript_authorization_guard | 1 | false |

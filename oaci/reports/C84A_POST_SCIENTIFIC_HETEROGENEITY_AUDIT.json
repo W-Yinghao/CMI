@@ -217,5 +217,48 @@
     "checks": 75,
     "passed": 75,
     "failed": 0
+  },
+  "regression_verification": {
+    "implementation_commit": "4076459996e2feecc9b7fa3aa6c036932f59f30e",
+    "initial_rejected_attempt": {
+      "environment": "default_python_3.9.13",
+      "passed": 255,
+      "failed": 1,
+      "reason": "exact_environment_expected_python_3.13.7"
+    },
+    "accepted": {
+      "focused": {
+        "job": 898806,
+        "passed": 256,
+        "failed": 0,
+        "stderr_bytes": 0
+      },
+      "C65": {
+        "job": 898807,
+        "passed": 867,
+        "failed": 0,
+        "skipped": 1,
+        "deselected": 3,
+        "stderr_bytes": 0
+      },
+      "C23": {
+        "job": 898808,
+        "passed": 1278,
+        "failed": 0,
+        "skipped": 1,
+        "deselected": 3,
+        "stderr_bytes": 0
+      },
+      "full": {
+        "job": 898809,
+        "passed": 2202,
+        "failed": 0,
+        "skipped": 1,
+        "deselected": 3,
+        "stderr_bytes": 0
+      }
+    },
+    "active_C84_or_C85_jobs_after_completion": 0,
+    "sacct_used": false
   }
 }
