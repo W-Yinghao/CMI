@@ -1,0 +1,7 @@
+object,expected,synthetic_observed,pass
+candidate_score_rows,535248,535248,1
+candidate_rank_rows,535248,535248,1
+fixed_default_rows,4720,4720,1
+Q0_records,9110448,9110448,1
+Q0_shards,944,944,1
+method_context_rows,18608,18608,1

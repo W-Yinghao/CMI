@@ -149,6 +149,7 @@ def test_C84R2_preserves_V1_and_V2_while_current_field_lock_is_unexecuted():
     assert science_locks == {
         "C84S_ANALYSIS_EXECUTION_LOCK.json",
         "C84S_ANALYSIS_EXECUTION_LOCK_V2.json",
+        "C84S_ANALYSIS_EXECUTION_LOCK_V3.json",
     }
     science_lock = json.loads(
         (canary.REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK_V2.json").read_text()

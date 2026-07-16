@@ -1,0 +1,8 @@
+resource,estimate,units,hard_limit,within_envelope
+existing_external_field_read,48072941176,bytes,read_only,1
+Q0_candidate_order_uncompressed,737946288,bytes,42949672960,1
+synthetic_external_root,369775815,bytes,42949672960,1
+RAM,128,GiB,128,1
+CPU_workers,32,workers,32,1
+GPU,0,GPU,0,1
+wall,48,hours,48,1
