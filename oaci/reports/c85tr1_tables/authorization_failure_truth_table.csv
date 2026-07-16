@@ -1,0 +1,7 @@
+case,consume,execute,result
+fresh authorization fresh exact root,1,1,PASS
+receipt already exists same root,0,0,FAIL
+receipt already exists different root,0,0,FAIL
+authorization output differs CLI,0,0,FAIL
+lock SHA or commit differs,0,0,FAIL
+protected field true,0,0,FAIL

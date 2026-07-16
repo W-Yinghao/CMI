@@ -1,0 +1,7 @@
+property,value,blocking
+schema,c85t_direct_pi_authorization_record_v2,1
+authorization_SHA,canonical record hash with self-referential ledger path normalized,1
+consumption,O_CREAT|O_EXCL,1
+output_root,exact absolute content-addressed root,1
+ledger_path,exact absolute path derived from authorization SHA-256,1
+post_failure_reuse,forbidden,1

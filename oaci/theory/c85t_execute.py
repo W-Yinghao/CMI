@@ -25,7 +25,7 @@ from .c85t_result_manifest import (
     sha256_file,
     write_attempt_ledger,
 )
-from .c85t_rng import REGISTERED_EXECUTION_TOKEN, validate_environment
+from .c85t_rng import validate_environment
 
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -112,14 +112,23 @@ def replay_bound_repository_objects(lock: Mapping[str, Any]) -> dict[str, int]:
             raise DecisionContractError("duplicate C85T bound path")
         observed.add(relative)
         path = REPO_ROOT / relative
-        if not path.is_file():
-            raise DecisionContractError(f"C85T bound path is absent: {relative}")
-        if path.stat().st_size != row["size_bytes"] or sha256_file(path) != row["sha256"]:
+        current_matches = (
+            path.is_file()
+            and path.stat().st_size == row["size_bytes"]
+            and sha256_file(path) == row["sha256"]
+            and _run_git("hash-object", "--", relative) == row["git_blob"]
+        )
+        if current_matches:
+            bytes_replayed += path.stat().st_size
+            continue
+        if lock.get("schema_version") != LOCK_SCHEMA:
             raise DecisionContractError(f"C85T bound bytes drifted: {relative}")
-        blob = _run_git("hash-object", "--", relative)
-        if blob != row["git_blob"]:
-            raise DecisionContractError(f"C85T bound Git blob drifted: {relative}")
-        bytes_replayed += path.stat().st_size
+        # The V1 lock is superseded. Replay its immutable archived Git blob rather
+        # than treating post-repair working-tree bytes as executable V1 bytes.
+        archived_size = int(_run_git("cat-file", "-s", row["git_blob"]))
+        if archived_size != row["size_bytes"]:
+            raise DecisionContractError(f"C85T archived blob drifted: {relative}")
+        bytes_replayed += archived_size
     return {"object_count": len(rows), "bytes_replayed": bytes_replayed}
 
 
@@ -232,6 +241,10 @@ def _proof_status_csv(statuses: Mapping[str, str]) -> str:
 
 
 def run_real(*, lock_path: Path, output_root: Path) -> dict[str, Any]:
+    raise DecisionContractError(
+        "historical C85T V1 coordinator is superseded and cannot execute"
+    )
+    # Unreachable historical code is retained below solely as Git history context.
     lock_preview, _ = replay_execution_lock(lock_path)
     authorization_path = REPO_ROOT / lock_preview["authorization_record_path"]
     replay = preflight(
@@ -266,10 +279,10 @@ def run_real(*, lock_path: Path, output_root: Path) -> dict[str, Any]:
 
     try:
         exact = execute_registered_exact_scenarios(
-            replay["contract"], execution_token=REGISTERED_EXECUTION_TOKEN
+            replay["contract"], capability=None
         )
         monte_carlo = execute_registered_monte_carlo(
-            replay["contract"], execution_token=REGISTERED_EXECUTION_TOKEN
+            replay["contract"], capability=None
         )
         protocol = json.loads(OPERATIONALIZATION_PROTOCOL.read_text())
         with AtomicResultWriter(output_root) as writer:
@@ -281,7 +294,7 @@ def run_real(*, lock_path: Path, output_root: Path) -> dict[str, Any]:
                 statements=protocol["proof_statements"],
                 exact_results=exact,
                 output_dir=proof_dir,
-                execution_token=REGISTERED_EXECUTION_TOKEN,
+                capability=None,
             )
             writer.write_text("theorem_status_transitions.csv", _proof_status_csv(statuses))
             result = {

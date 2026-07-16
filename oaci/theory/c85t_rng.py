@@ -1,7 +1,7 @@
 """Deterministic RNG contract for future C85T execution.
 
 C85TL may exercise this module only with ``SHADOW_*`` scenario identifiers.
-Registered S0-S10 streams require an execution-time authorization token.
+Registered S0-S10 streams require a private, authorization-bound capability.
 """
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ from typing import Final, Sequence
 import numpy as np
 
 from .c85_decision_experiments import DecisionContractError
+from .c85t_execution_guard import require_registered_capability
 
 
 REPO_ROOT: Final = Path(__file__).resolve().parents[2]
@@ -30,7 +31,6 @@ SHADOW_SCENARIOS: Final = (
     "SHADOW_RADEMACHER_B",
 )
 SEED_NAMESPACE: Final = "C85_SYNTHETIC_V1"
-REGISTERED_EXECUTION_TOKEN: Final = "C85T_LOCKED_EXECUTION_AUTHORIZATION_REPLAYED"
 
 EXPECTED_NUMPY_FILES: Final = {
     "lib/python3.13/site-packages/numpy/__init__.py": (
@@ -92,7 +92,7 @@ def deterministic_seed(
     scenario_id: str,
     replicate_id: int,
     *,
-    execution_token: str | None = None,
+    capability: object | None = None,
 ) -> int:
     """Return the locked low-64 little-endian SHA-256 seed.
 
@@ -102,12 +102,11 @@ def deterministic_seed(
     if not isinstance(replicate_id, int) or not 0 <= replicate_id <= 4095:
         raise DecisionContractError("replicate ID must be an integer in 0..4095")
     if scenario_id in REGISTERED_SCENARIOS:
-        if execution_token != REGISTERED_EXECUTION_TOKEN:
-            raise DecisionContractError(
-                "registered S0-S10 RNG requires consumed C85T authorization"
-            )
+        require_registered_capability(capability)
     elif scenario_id not in SHADOW_SCENARIOS:
         raise DecisionContractError("unknown C85T RNG scenario identifier")
+    elif capability is not None:
+        raise DecisionContractError("shadow RNG must not receive a registered capability")
     payload = f"{SEED_NAMESPACE}|{scenario_id}|{replicate_id}".encode("ascii")
     return int.from_bytes(hashlib.sha256(payload).digest()[:8], "little")
 
@@ -116,10 +115,10 @@ def generator(
     scenario_id: str,
     replicate_id: int,
     *,
-    execution_token: str | None = None,
+    capability: object | None = None,
 ) -> np.random.Generator:
     seed = deterministic_seed(
-        scenario_id, replicate_id, execution_token=execution_token
+        scenario_id, replicate_id, capability=capability
     )
     return np.random.Generator(np.random.PCG64DXSM(seed))
 
@@ -129,12 +128,12 @@ def draw_standard_normal(
     replicate_id: int,
     action_count: int,
     *,
-    execution_token: str | None = None,
+    capability: object | None = None,
 ) -> np.ndarray:
     if not isinstance(action_count, int) or action_count <= 0:
         raise DecisionContractError("action count must be positive")
     values = generator(
-        scenario_id, replicate_id, execution_token=execution_token
+        scenario_id, replicate_id, capability=capability
     ).standard_normal(action_count, dtype=np.float64)
     return np.asarray(values, dtype="<f8")
 
@@ -142,16 +141,32 @@ def draw_standard_normal(
 def draw_s9_rademacher_prefixes(
     scenario_id: str,
     replicate_id: int,
-    *,
-    execution_token: str | None = None,
 ) -> tuple[np.ndarray, np.ndarray]:
-    """Draw 51 L values followed by 46 H values from one generator."""
+    """Replay the superseded uint8 shadow fixture; registered use is forbidden."""
 
-    rng = generator(scenario_id, replicate_id, execution_token=execution_token)
+    if scenario_id not in SHADOW_SCENARIOS:
+        raise DecisionContractError("legacy uint8 Rademacher path is shadow-only")
+    rng = generator(scenario_id, replicate_id)
     low = rng.integers(0, 2, size=51, dtype=np.uint8)
     high = rng.integers(0, 2, size=46, dtype=np.uint8)
     low = (2 * low.astype(np.int8) - 1).astype(np.int8, copy=False)
     high = (2 * high.astype(np.int8) - 1).astype(np.int8, copy=False)
+    return low, high
+
+
+def draw_s9_rademacher_int64(
+    scenario_id: str,
+    replicate_id: int,
+    *,
+    capability: object | None = None,
+) -> tuple[np.ndarray, np.ndarray]:
+    """Draw and map the operative 51-L/46-H stream as little-endian int64."""
+
+    rng = generator(scenario_id, replicate_id, capability=capability)
+    low_raw = rng.integers(0, 2, size=51, dtype=np.int64)
+    high_raw = rng.integers(0, 2, size=46, dtype=np.int64)
+    low = np.asarray(2 * low_raw - 1, dtype="<i8")
+    high = np.asarray(2 * high_raw - 1, dtype="<i8")
     return low, high
 
 
@@ -210,3 +225,11 @@ def canonical_float64_bytes(values: Sequence[float] | np.ndarray) -> bytes:
 def canonical_array_sha256(values: Sequence[float] | np.ndarray) -> str:
     return hashlib.sha256(canonical_float64_bytes(values)).hexdigest()
 
+
+def canonical_int64_bytes(values: Sequence[int] | np.ndarray) -> bytes:
+    array = np.asarray(values, dtype="<i8")
+    return np.ascontiguousarray(array).tobytes(order="C")
+
+
+def canonical_int64_sha256(values: Sequence[int] | np.ndarray) -> str:
+    return hashlib.sha256(canonical_int64_bytes(values)).hexdigest()

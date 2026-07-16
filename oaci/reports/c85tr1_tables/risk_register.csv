@@ -1,0 +1,5 @@
+risk,control,residual,status
+authorization replay,global O_EXCL receipt and exact-root binding,external filesystem availability,CONTROLLED
+RNG byte drift,int64 raw digest and environment binding,environment drift fails closed,CONTROLLED
+aggregate-only evidence,persist and reload every replicate array,none within locked schema,CONTROLLED
+same-process proof approval,C85T/C85V stage separation,future C85V quality,DEFERRED_TO_C85V

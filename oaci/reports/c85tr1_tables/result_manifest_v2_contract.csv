@@ -1,0 +1,6 @@
+object,required_count,formal_status
+scenario_results,11,OPEN
+S6_S7_logical_replicate_rows,8192,OPEN
+S9_logical_replicate_design_rows,8192,OPEN
+S9_raw_draw_digest_rows,4096,OPEN
+proof_candidates,7,OPEN

@@ -6,6 +6,7 @@ import argparse
 import csv
 from datetime import datetime, timezone
 import hashlib
+from io import BytesIO
 import json
 import os
 from pathlib import Path
@@ -13,6 +14,9 @@ import shutil
 import subprocess
 from typing import Any
 from uuid import uuid4
+import zipfile
+
+import numpy as np
 
 from .c85_decision_experiments import DecisionContractError
 
@@ -29,6 +33,21 @@ READINESS_SUCCESS_GATE = (
 )
 READINESS_FAILURE_GATE = (
     "C85T_RNG_ESTIMAND_PROOF_STATUS_OR_EXECUTION_PROVENANCE_RECONCILIATION_REQUIRED"
+)
+RESULT_SCHEMA_V2 = "c85t_synthetic_validation_and_proof_candidates_result_v2"
+MANIFEST_SCHEMA_V2 = "c85t_atomic_result_manifest_v2"
+SUCCESS_GATE_V2 = (
+    "C85T_SYNTHETIC_VALIDATION_AND_PROOF_CANDIDATES_FROZEN_"
+    "C85V_REVIEW_REQUIRED"
+)
+PROOF_FILENAMES_V2 = (
+    "T1_blackwell_monotonicity.md",
+    "T2_restricted_policy_counterexamples.md",
+    "T3_policy_collapse.md",
+    "T4_two_state_lecam_regret_bound.md",
+    "T5_fano_extension.md",
+    "T6_mean_tail_counterexample.md",
+    "T7_near_optimal_union_bound.md",
 )
 
 
@@ -174,6 +193,250 @@ def replay_manifest(root: Path) -> dict[str, Any]:
     }
     if actual != observed_paths:
         raise DecisionContractError("C85T artifact manifest coverage drifted")
+    return manifest
+
+
+def write_deterministic_npz(path: Path, arrays: dict[str, np.ndarray]) -> None:
+    """Write non-object NPY members with fixed ZIP metadata and canonical order."""
+
+    if not arrays:
+        raise DecisionContractError("deterministic NPZ requires at least one array")
+    path.parent.mkdir(parents=True, exist_ok=True)
+    if path.exists():
+        raise DecisionContractError("deterministic NPZ path must be fresh")
+    with zipfile.ZipFile(path, "w", compression=zipfile.ZIP_STORED) as archive:
+        for name in sorted(arrays):
+            if not name or "/" in name or "\\" in name:
+                raise DecisionContractError("invalid NPZ member name")
+            array = np.asarray(arrays[name])
+            if array.dtype.hasobject or not np.isfinite(array).all():
+                raise DecisionContractError("NPZ arrays must be non-object and finite")
+            buffer = BytesIO()
+            np.lib.format.write_array(
+                buffer, np.ascontiguousarray(array), allow_pickle=False
+            )
+            info = zipfile.ZipInfo(f"{name}.npy", date_time=(1980, 1, 1, 0, 0, 0))
+            info.compress_type = zipfile.ZIP_STORED
+            info.external_attr = 0o100644 << 16
+            archive.writestr(info, buffer.getvalue())
+
+
+def read_deterministic_npz(path: Path) -> dict[str, np.ndarray]:
+    with np.load(path, allow_pickle=False) as loaded:
+        arrays = {name: np.asarray(loaded[name]) for name in sorted(loaded.files)}
+    if any(value.dtype.hasobject or not np.isfinite(value).all() for value in arrays.values()):
+        raise DecisionContractError("persisted NPZ contains object or nonfinite arrays")
+    return arrays
+
+
+def _required_v2_artifacts() -> set[str]:
+    required = {
+        "exact_scenario_results.json",
+        "monte_carlo_summary.json",
+        "S6_replicates.npz",
+        "S7_replicates.npz",
+        "S9_replicates.npz",
+        "S9_raw_draw_digest_registry.csv",
+        "proof_candidate_dispositions.csv",
+        "authorization_consumed.json",
+        "C85T_RESULT.json",
+    }
+    required.update(f"c85t_proof_candidates/{name}" for name in PROOF_FILENAMES_V2)
+    return required
+
+
+def _validate_v2_result_root(root: Path, result: dict[str, Any]) -> dict[str, int]:
+    actual = {
+        str(path.relative_to(root))
+        for path in root.rglob("*")
+        if path.is_file() and path.name != "C85T_RESULT_ARTIFACT_MANIFEST.json"
+    }
+    missing = _required_v2_artifacts() - actual
+    if missing:
+        raise DecisionContractError(f"C85T V2 required artifact is absent: {min(missing)}")
+    from .c85t_monte_carlo import (
+        _summarize_s9_arrays_v2,
+        summarize_near_replicates_v2,
+    )
+
+    summaries = json.loads((root / "monte_carlo_summary.json").read_text())
+    population = np.asarray(summaries["S9_population_mean_losses"], dtype="<f8")
+    logical_near_rows = 0
+    for scenario_id in ("S6", "S7"):
+        arrays = read_deterministic_npz(root / f"{scenario_id}_replicates.npz")
+        replay = summarize_near_replicates_v2(
+            scenario_id, arrays, summaries[scenario_id]["geometry"]
+        )
+        if replay != summaries[scenario_id]:
+            raise DecisionContractError(
+                f"{scenario_id} aggregate does not replay from saved arrays"
+            )
+        logical_near_rows += int(arrays["replicate_id"].size)
+    s9_arrays = read_deterministic_npz(root / "S9_replicates.npz")
+    s9_replay = _summarize_s9_arrays_v2(s9_arrays, population)
+    for key in ("analytic_variance", "universal_active_superiority_claim"):
+        s9_replay[key] = summaries["S9"][key]
+    if s9_replay != summaries["S9"]:
+        raise DecisionContractError("S9 aggregate does not replay from saved arrays")
+    with (root / "S9_raw_draw_digest_registry.csv").open(newline="") as handle:
+        raw_rows = list(csv.DictReader(handle))
+    if len(raw_rows) != 4096 or [int(row["replicate_id"]) for row in raw_rows] != list(range(4096)):
+        raise DecisionContractError("S9 raw-draw digest registry coverage drifted")
+    with (root / "proof_candidate_dispositions.csv").open(newline="") as handle:
+        dispositions = list(csv.DictReader(handle))
+    if len(dispositions) != 7 or any(row["formal_status"] != "OPEN" for row in dispositions):
+        raise DecisionContractError("proof-candidate formal status must remain OPEN")
+    if result.get("scenario_count") != 11:
+        raise DecisionContractError("C85T V2 scenario count drifted")
+    if result.get("formal_theorem_statuses") != {f"T{i}": "OPEN" for i in range(1, 8)}:
+        raise DecisionContractError("C85T V2 theorem status transitioned")
+    if result.get("real_project_data_access") != 0 or result.get("active_acquisition") != 0:
+        raise DecisionContractError("C85T V2 protected counter is nonzero")
+    return {
+        "scenario_results": 11,
+        "S6_S7_logical_replicate_rows": logical_near_rows,
+        "S9_logical_replicate_design_rows": 8192,
+        "S9_raw_draw_digest_rows": len(raw_rows),
+        "proof_candidates": len(dispositions),
+        "formal_theorem_status_OPEN": 7,
+    }
+
+
+class AtomicResultWriterV2(AbstractContextManager["AtomicResultWriterV2"]):
+    """Atomic V2 writer that validates persisted replicates before publication."""
+
+    def __init__(self, output_root: Path, *, failure_injection: str | None = None):
+        self.output_root = output_root.resolve()
+        self.staging_root = self.output_root.with_name(
+            f".{self.output_root.name}.staging-{uuid4().hex}"
+        )
+        self.failure_injection = failure_injection
+        self._published = False
+        self.failed_root: Path | None = None
+
+    def __enter__(self) -> "AtomicResultWriterV2":
+        if self.output_root.exists():
+            raise DecisionContractError("C85T V2 output root must be absent")
+        self.staging_root.mkdir(parents=True, exist_ok=False)
+        return self
+
+    def path(self, relative: str | Path) -> Path:
+        path = (self.staging_root / relative).resolve()
+        if self.staging_root not in path.parents and path != self.staging_root:
+            raise DecisionContractError("C85T V2 result path escapes staging")
+        path.parent.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def write_json(self, relative: str | Path, value: Any) -> Path:
+        path = self.path(relative)
+        path.write_bytes(canonical_json_bytes(value))
+        return path
+
+    def write_text(self, relative: str | Path, value: str) -> Path:
+        path = self.path(relative)
+        path.write_text(value)
+        return path
+
+    def write_npz(self, relative: str | Path, arrays: dict[str, np.ndarray]) -> Path:
+        path = self.path(relative)
+        write_deterministic_npz(path, arrays)
+        return path
+
+    def _artifact_rows(self) -> list[dict[str, Any]]:
+        return [
+            {
+                "path": str(path.relative_to(self.staging_root)),
+                "size_bytes": path.stat().st_size,
+                "sha256": sha256_file(path),
+            }
+            for path in sorted(self.staging_root.rglob("*"))
+            if path.is_file()
+            and path.name != "C85T_RESULT_ARTIFACT_MANIFEST.json"
+        ]
+
+    def publish(
+        self,
+        result: dict[str, Any],
+        *,
+        manifest_completed_callback: Any = None,
+        atomic_publish_callback: Any = None,
+    ) -> Path:
+        if result.get("schema_version") != RESULT_SCHEMA_V2:
+            raise DecisionContractError("C85T V2 result schema drifted")
+        if result.get("final_gate") != SUCCESS_GATE_V2:
+            raise DecisionContractError("C85T V2 success gate drifted")
+        if self.failure_injection == "before_result":
+            raise RuntimeError("C85T_V2_SHADOW_FAILURE_BEFORE_RESULT")
+        self.write_json("C85T_RESULT.json", result)
+        counts = _validate_v2_result_root(self.staging_root, result)
+        rows = self._artifact_rows()
+        manifest = {
+            "schema_version": MANIFEST_SCHEMA_V2,
+            "created_at_utc": utc_now(),
+            "artifact_count": len(rows),
+            "counts": counts,
+            "artifacts": rows,
+        }
+        if self.failure_injection == "before_manifest":
+            raise RuntimeError("C85T_V2_SHADOW_FAILURE_BEFORE_MANIFEST")
+        self.write_json("C85T_RESULT_ARTIFACT_MANIFEST.json", manifest)
+        replay_manifest_v2(self.staging_root)
+        if manifest_completed_callback is not None:
+            manifest_completed_callback(
+                sha256_file(
+                    self.staging_root / "C85T_RESULT_ARTIFACT_MANIFEST.json"
+                )
+            )
+        if self.failure_injection == "before_publish":
+            raise RuntimeError("C85T_V2_SHADOW_FAILURE_BEFORE_PUBLISH")
+        os.replace(self.staging_root, self.output_root)
+        self._published = True
+        if atomic_publish_callback is not None:
+            atomic_publish_callback(
+                sha256_file(self.output_root / "C85T_RESULT_ARTIFACT_MANIFEST.json")
+            )
+        return self.output_root
+
+    def __exit__(self, exc_type: Any, exc: Any, traceback: Any) -> bool:
+        if not self._published and self.staging_root.exists():
+            if exc_type is None:
+                shutil.rmtree(self.staging_root)
+            else:
+                self.failed_root = self.output_root.with_name(
+                    f"{self.output_root.name}.failed-{uuid4().hex}"
+                )
+                os.replace(self.staging_root, self.failed_root)
+        return False
+
+
+def replay_manifest_v2(root: Path) -> dict[str, Any]:
+    path = root / "C85T_RESULT_ARTIFACT_MANIFEST.json"
+    if not path.is_file():
+        raise DecisionContractError("C85T V2 manifest is absent")
+    manifest = json.loads(path.read_text())
+    if manifest.get("schema_version") != MANIFEST_SCHEMA_V2:
+        raise DecisionContractError("C85T V2 manifest schema drifted")
+    rows = manifest.get("artifacts")
+    if not isinstance(rows, list) or manifest.get("artifact_count") != len(rows):
+        raise DecisionContractError("C85T V2 manifest count drifted")
+    observed: set[str] = set()
+    for row in rows:
+        relative = row["path"]
+        if relative in observed:
+            raise DecisionContractError("duplicate C85T V2 artifact path")
+        observed.add(relative)
+        artifact = root / relative
+        if not artifact.is_file() or artifact.stat().st_size != row["size_bytes"]:
+            raise DecisionContractError(f"C85T V2 artifact is absent: {relative}")
+        if sha256_file(artifact) != row["sha256"]:
+            raise DecisionContractError(f"C85T V2 artifact hash drifted: {relative}")
+    actual = {
+        str(item.relative_to(root))
+        for item in root.rglob("*")
+        if item.is_file() and item.name != path.name
+    }
+    if observed != actual:
+        raise DecisionContractError("C85T V2 manifest coverage drifted")
     return manifest
 
 

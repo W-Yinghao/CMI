@@ -1,0 +1,5 @@
+reason,historical_blocker,V2_control,readiness_status
+historical static capability,1,private consumed-authorization capability,REPAIRED
+historical uint8 S9 draws,1,little-endian int64 raw draw freeze,REPAIRED
+historical aggregate-only persistence,1,NPZ replicate arrays and exact replay,REPAIRED
+historical proof auto-transition,1,formal OPEN through C85T,REPAIRED

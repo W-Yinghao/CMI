@@ -6,13 +6,14 @@ proof, run an audit, or change a theorem status.
 from __future__ import annotations
 
 from dataclasses import dataclass
+import csv
 import hashlib
 from pathlib import Path
 from typing import Any, Mapping
 
 from .c85_decision_experiments import DecisionContractError
 from .c85_lower_bound_contracts import TheoremStatus
-from .c85t_rng import REGISTERED_EXECUTION_TOKEN
+from .c85t_execution_guard import require_registered_capability
 
 
 THEOREM_IDS = tuple(f"T{index}" for index in range(1, 8))
@@ -110,9 +111,9 @@ def apply_status_transition(candidate: ProofCandidate, audit: ProofAudit) -> The
         if candidate.theorem_id != "T5":
             raise DecisionContractError("only T5 may remain OPEN at successful C85T")
         return TheoremStatus.OPEN
-    if audit.verdict != "PASS" or not audit.checks:
-        raise DecisionContractError("non-OPEN theorem transition requires independent PASS")
-    return candidate.proposed_status
+    raise DecisionContractError(
+        "independent PASS and every non-OPEN transition are reserved for future C85V"
+    )
 
 
 def render_proof_markdown(candidate: ProofCandidate, audit: ProofAudit) -> str:
@@ -294,24 +295,127 @@ def execute_proof_pipeline(
     statements: Mapping[str, str],
     exact_results: Mapping[str, Any],
     output_dir: Path,
-    execution_token: str,
+    capability: object,
 ) -> dict[str, str]:
-    """Render proof artifacts only in the future authorized C85T run."""
+    """The historical status-transition pipeline is non-operative."""
 
-    if execution_token != REGISTERED_EXECUTION_TOKEN:
-        raise DecisionContractError("proof execution requires C85T authorization")
-    if output_dir.exists():
-        raise DecisionContractError("proof output directory must be fresh")
+    require_registered_capability(capability)
+    raise DecisionContractError(
+        "C85T cannot execute proof status transitions; use proof candidates for C85V"
+    )
+
+
+_CANDIDATE_DISPOSITIONS = {
+    "T1": "PROPOSED_PROOF",
+    "T2": "PROPOSED_COUNTEREXAMPLE",
+    "T3": "PROPOSED_PROOF",
+    "T4": "PROPOSED_PROOF",
+    "T5": "INCOMPLETE_OPEN",
+    "T6": "PROPOSED_COUNTEREXAMPLE",
+    "T7": "PROPOSED_PROOF",
+}
+_INTERNAL_CHECK_LABEL = "PROOF_CANDIDATE_SCHEMA_AND_INTERNAL_CONSISTENCY"
+
+
+def _candidate_internal_checks(candidate: ProofCandidate) -> tuple[str, ...]:
+    validate_proof_candidate(candidate)
+    if candidate.simulation_used_as_proof or candidate.citation_used_as_complete_proof:
+        raise DecisionContractError("proof candidate violates evidence-role separation")
+    return (
+        "exact statement is nonempty and SHA-256 bound",
+        "assumptions are nonempty",
+        "boundary cases are nonempty",
+        "simulation is not presented as proof",
+        "citation is not presented as a complete project proof",
+    )
+
+
+def _render_proof_candidate_v2(candidate: ProofCandidate) -> str:
+    checks = _candidate_internal_checks(candidate)
+    assumptions = "\n".join(f"- {value}" for value in candidate.assumptions)
+    boundaries = "\n".join(f"- {value}" for value in candidate.boundary_cases)
+    check_text = "\n".join(f"- {value}" for value in checks)
+    disposition = _CANDIDATE_DISPOSITIONS[candidate.theorem_id]
+    return (
+        f"# {candidate.theorem_id} Proof Candidate\n\n"
+        "## Exact Statement\n\n"
+        f"{candidate.exact_statement}\n\n"
+        f"Statement SHA-256: `{_statement_sha(candidate.exact_statement)}`\n\n"
+        "## Assumptions\n\n"
+        f"{assumptions}\n\n"
+        "## Proof Candidate Or Counterexample\n\n"
+        f"{candidate.proof_or_counterexample}\n\n"
+        "## Boundary Cases\n\n"
+        f"{boundaries}\n\n"
+        "## Candidate Disposition\n\n"
+        f"`{disposition}`\n\n"
+        "## Proof Candidate Schema And Internal Consistency\n\n"
+        f"Check class: `{_INTERNAL_CHECK_LABEL}`\n\n"
+        f"{check_text}\n\n"
+        "This is not an independent proof review and cannot transition theorem status.\n\n"
+        "## Formal Status\n\n"
+        "`OPEN`\n"
+    )
+
+
+def validate_proof_candidate_markdown_v2(text: str, theorem_id: str) -> None:
+    required = (
+        f"# {theorem_id} Proof Candidate",
+        "## Exact Statement",
+        "Statement SHA-256:",
+        "## Assumptions",
+        "## Proof Candidate Or Counterexample",
+        "## Boundary Cases",
+        "## Candidate Disposition",
+        _INTERNAL_CHECK_LABEL,
+        "not an independent proof review",
+        "## Formal Status\n\n`OPEN`",
+    )
+    if any(value not in text for value in required):
+        raise DecisionContractError("C85T V2 proof candidate schema is incomplete")
+    if "INDEPENDENT_PROOF_RED_TEAM" in text or "Final Status\n\n`PROVED" in text:
+        raise DecisionContractError("C85T proof candidate claims a dispositive review")
+
+
+def execute_proof_candidate_pipeline_v2(
+    *,
+    statements: Mapping[str, str],
+    exact_results: Mapping[str, Any],
+    output_dir: Path,
+    dispositions_path: Path,
+    capability: object,
+) -> dict[str, dict[str, str]]:
+    """Freeze candidates and OPEN statuses for later independent C85V review."""
+
+    require_registered_capability(capability)
+    if output_dir.exists() or dispositions_path.exists():
+        raise DecisionContractError("C85T V2 proof-candidate outputs must be fresh")
     candidates = _future_candidates(statements, exact_results)
-    audits = _future_independent_audits(candidates)
     output_dir.mkdir(parents=True)
-    statuses: dict[str, str] = {}
+    rows: list[dict[str, str]] = []
+    result: dict[str, dict[str, str]] = {}
     for theorem_id in THEOREM_IDS:
-        text = render_proof_markdown(candidates[theorem_id], audits[theorem_id])
-        validate_rendered_proof(text, theorem_id)
-        (output_dir / PROOF_FILENAMES[theorem_id]).write_text(text)
-        statuses[theorem_id] = apply_status_transition(
-            candidates[theorem_id], audits[theorem_id]
-        ).value
-    return statuses
-
+        candidate = candidates[theorem_id]
+        text = _render_proof_candidate_v2(candidate)
+        validate_proof_candidate_markdown_v2(text, theorem_id)
+        path = output_dir / PROOF_FILENAMES[theorem_id]
+        path.write_text(text)
+        disposition = _CANDIDATE_DISPOSITIONS[theorem_id]
+        row = {
+            "theorem_id": theorem_id,
+            "historical_status": "OPEN",
+            "candidate_disposition": disposition,
+            "formal_status": "OPEN",
+            "check_class": _INTERNAL_CHECK_LABEL,
+            "proof_candidate_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+        }
+        rows.append(row)
+        result[theorem_id] = dict(row)
+    dispositions_path.parent.mkdir(parents=True, exist_ok=True)
+    with dispositions_path.open("w", newline="") as handle:
+        writer = csv.DictWriter(handle, fieldnames=tuple(rows[0]))
+        writer.writeheader()
+        writer.writerows(rows)
+    if any(row["formal_status"] != "OPEN" for row in rows):
+        raise DecisionContractError("C85T V2 attempted a theorem status transition")
+    return result

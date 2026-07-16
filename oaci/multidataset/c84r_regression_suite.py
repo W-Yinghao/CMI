@@ -57,6 +57,9 @@ def suite_files(suite: str, test_dir: Path = TEST_DIR) -> list[Path]:
             "test_c85r_protocol_lock.py",
             "test_c85t_shadow_execution.py",
             "test_c85tl_execution_lock.py",
+            "test_c85tr1_execution_guard.py",
+            "test_c85tr1_replicate_persistence.py",
+            "test_c85tr1_lock.py",
         )
         return [test_dir / name for name in names]
     if suite == "c65":

@@ -12,7 +12,7 @@ import math
 from typing import Any, Mapping, Sequence
 
 from .c85_decision_experiments import DecisionContractError
-from .c85t_rng import REGISTERED_EXECUTION_TOKEN
+from .c85t_execution_guard import require_registered_capability
 
 
 def as_fraction(value: Any) -> Fraction:
@@ -320,12 +320,11 @@ def _serialize(value: Any) -> Any:
 
 
 def execute_registered_exact_scenarios(
-    contract: Mapping[str, Any], *, execution_token: str
+    contract: Mapping[str, Any], *, capability: object
 ) -> dict[str, Any]:
     """Execute authoritative exact portions after runtime authorization replay."""
 
-    if execution_token != REGISTERED_EXECUTION_TOKEN:
-        raise DecisionContractError("registered exact scenarios require C85T authorization")
+    require_registered_capability(capability)
     scenarios = {row["id"]: row for row in contract["scenarios"]}
     if tuple(scenarios) != tuple(f"S{i}" for i in range(11)):
         raise DecisionContractError("registered scenario order drifted")
@@ -388,4 +387,3 @@ def execute_registered_exact_scenarios(
     }
     output["S10"] = exact_s10_audit()
     return _serialize(output)
-
