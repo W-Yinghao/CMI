@@ -2,7 +2,8 @@ from pathlib import Path
 
 import pytest
 
-from oaci.multidataset.c84sr1_common import AUTHORIZATION_PATH
+from oaci.multidataset.c84s_common import read_json, sha256_file
+from oaci.multidataset.c84sr1_common import AUTHORIZATION_PATH, LOCK_PATH
 from oaci.multidataset.c84sr1_runtime_guard import (
     EXPECTED, PROTOCOL_INPUTS, external_artifact_rows,
     static_process_isolation_audit, verify_protocol_inputs,
@@ -41,5 +42,8 @@ def test_synthetic_complete_arithmetic_without_real_field_values():
     assert sum(len(row.candidates) for row in contexts) == 76464
 
 
-def test_replacement_authorization_absent_during_readiness():
-    assert not AUTHORIZATION_PATH.exists()
+def test_v3_authorization_was_absent_at_lock_and_is_now_preserved():
+    lock = read_json(LOCK_PATH)
+    assert lock["authorization"]["record_present_at_lock"] is False
+    assert AUTHORIZATION_PATH.is_file()
+    assert sha256_file(AUTHORIZATION_PATH) == "441de7edc9a40da6bdf66faad2677d0abca2ca6119a1a9f599bc8727087371ee"

@@ -6,7 +6,7 @@ from oaci.multidataset.c84sr1_common import (
 )
 from oaci.multidataset.c84sr1_runtime_guard import (
     LOCK_READY_STATUS, verify_lock_bound_readiness,
-    verify_bound_repository_objects, verify_lock_self,
+    verify_lock_self,
 )
 
 
@@ -19,13 +19,19 @@ def test_v3_lock_self_identity_and_status():
     assert lock["analysis_contract"]["method_context_rows"] == 18_608
 
 
-def test_v3_lock_replays_bound_implementation_and_readiness():
+def test_v3_lock_is_preserved_but_nonoperative_after_additive_sr2_repair():
     lock = read_json(LOCK_PATH)
-    verify_bound_repository_objects(lock)
     replay = verify_lock_bound_readiness(lock)
     assert replay["readiness_tables"] >= 10
     assert replay["synthetic_summary_sha256"] == "26e80934c75caae512d038e7939283ddef0b0d620c1c0686fe8cf55c1d5e8799"
     assert len(lock["runtime_bound_repository_objects"]) == 21
+    current = {
+        row["path"]: sha256_file(Path(row["path"]))
+        for row in lock["runtime_bound_repository_objects"]
+    }
+    drift = [row["path"] for row in lock["runtime_bound_repository_objects"]
+             if current[row["path"]] != row["sha256"]]
+    assert drift == ["oaci/multidataset/c84sr1_context_enumerator.py"]
 
 
 def test_v3_lock_preserves_historical_nonoperative_locks():
@@ -38,10 +44,11 @@ def test_v3_lock_preserves_historical_nonoperative_locks():
     }
 
 
-def test_v3_lock_requires_fresh_authorization_and_has_zero_real_outcome_access():
+def test_v3_authorization_is_preserved_as_consumed_failed_attempt_evidence():
     lock = read_json(LOCK_PATH)
     synthetic = lock["production_path_synthetic_calibration"]
-    assert not AUTHORIZATION_PATH.exists()
+    assert AUTHORIZATION_PATH.is_file()
+    assert sha256_file(AUTHORIZATION_PATH) == "441de7edc9a40da6bdf66faad2677d0abca2ca6119a1a9f599bc8727087371ee"
     assert lock["authorization"]["record_present_at_lock"] is False
     assert lock["authorization"]["historical_authorization_migrates"] is False
     assert synthetic["real_field_array_access"] == 0

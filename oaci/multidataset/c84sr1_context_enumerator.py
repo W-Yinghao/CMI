@@ -13,6 +13,10 @@ from .c84sr1_common import (
 
 
 REGIME_RANK = {"ERM": 0, "OACI": 1, "SRC": 2}
+LEVEL_INTERVENTION_IDS = {
+    0: "C84_LEVEL0_FULL_SOURCE_PANEL_V1",
+    1: "C84_LEVEL1_FIXED_PANEL_LEFT_HAND_CELL_DELETION_V1",
+}
 
 
 @dataclass(frozen=True)
@@ -53,6 +57,33 @@ class ContextDescriptor:
         )
 
 
+def resolve_level_intervention_id(
+    raw: Mapping[str, Any], sidecar: Mapping[str, Any],
+) -> str:
+    """Resolve the frozen intervention identity across historical sidecar schemas."""
+    require("level_intervention_id" in raw,
+            "complete-field descriptor lacks level intervention identity")
+    level = int(sidecar["level"])
+    require(level in LEVEL_INTERVENTION_IDS, "candidate level intervention is undefined")
+    expected = LEVEL_INTERVENTION_IDS[level]
+    authoritative = str(raw["level_intervention_id"])
+    require(authoritative == expected,
+            "complete-field level intervention differs from locked level definition")
+    if "level_intervention_id" in sidecar:
+        require(str(sidecar["level_intervention_id"]) == authoritative,
+                "sidecar/complete-field level intervention drift")
+        return authoritative
+
+    require(
+        raw.get("model_reuse_provenance") == "C84C"
+        and str(sidecar["panel"]) == "A"
+        and int(sidecar["seed"]) == 5
+        and level == 0,
+        "level intervention absent outside exact historical C84C compatibility scope",
+    )
+    return authoritative
+
+
 def _candidate_from_field_descriptor(raw: Mapping[str, Any]) -> CandidateDescriptor:
     sidecar_identity = raw["training_sidecar"]
     sidecar_path = Path(sidecar_identity["path"])
@@ -72,11 +103,12 @@ def _candidate_from_field_descriptor(raw: Mapping[str, Any]) -> CandidateDescrip
     require((regime == "ERM" and trajectory_order == 0) or
             (regime != "ERM" and 1 <= trajectory_order <= 40),
             "candidate trajectory order drift")
+    level_intervention_id = resolve_level_intervention_id(raw, sidecar)
     return CandidateDescriptor(
         dataset=dataset, panel=panel, training_seed=seed, level=level,
         regime=regime, epoch=int(sidecar["epoch"]), trajectory_order=trajectory_order,
         unit_id=str(raw["unit_id"]),
-        level_intervention_id=str(sidecar["level_intervention_id"]),
+        level_intervention_id=level_intervention_id,
         source_audit_path=str(raw["source_audit"]["path"]),
         source_audit_sha256=str(raw["source_audit"]["sha256"]),
         target_artifact_path=str(raw["complete_target_unlabeled"]["path"]),
