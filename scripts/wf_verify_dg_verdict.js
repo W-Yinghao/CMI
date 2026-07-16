@@ -1,6 +1,10 @@
+// HISTORICAL: this workflow tested the hypothesis "NO_CONFIRMED_TICKET on both datasets" and REFUTED it.
+// Adjudicated outcome = TARGET_HINDSIGHT_ONLY (existence confirmed under the mechanism-matched greedy oracle;
+// the prefix oracle/selector that produced the NO_CONFIRMED hypothesis was too weak). Kept for provenance;
+// the CONTEXT string below states the initial (refuted) hypothesis on purpose.
 export const meta = {
   name: 'verify-dg-identifiability-verdict',
-  description: 'Adversarially verify the hardened DG-identifiability verdict (NO_CONFIRMED_TICKET both datasets)',
+  description: 'Adversarially test the initial NO_CONFIRMED_TICKET hypothesis -> REFUTED to TARGET_HINDSIGHT_ONLY',
   phases: [
     { title: 'Refute', detail: '5 independent skeptics each attack the verdict from one angle' },
     { title: 'Adjudicate', detail: 'synthesize surviving refutations -> hold / qualify / flip' },

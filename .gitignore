@@ -57,3 +57,4 @@ paper/cigl_latex/**/*.out
 paper/cigl_latex/**/*.fls
 paper/cigl_latex/**/*.fdb_latexmk
 paper/cigl_latex/**/*.synctex.gz
+tos_cmi/results/tos_cmi_eeg_frozen/*/sub*.npz

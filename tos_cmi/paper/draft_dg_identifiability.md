@@ -10,11 +10,14 @@ C12/C13 established that no source-fitted eraser built to reduce measured condit
 `I(Z;D|Y)` yields a practically meaningful target-bAcc gain in any valid dataset–backbone cell. A natural
 objection: those erasers minimize *leakage*, whereas domain generalization asks to minimize the risk
 contributed by the *subject-unstable, task-bearing* part of the representation. The exact-head-null oracle
-sharpens this — on real EEGNet the safely-removable subject leakage sits largely in the task head's
-nullspace (functionally **unused**), so removing it is provably task-safe yet cannot change the decision.
-Safe removability and DG relevance are therefore different objects a priori. This section asks the
-DG-relevant question directly, with the objective inverted: **minimize source-held-out risk** (source-LOSO),
-with subject-CMI demoted from objective to post-hoc certification constraint.
+sharpens this — **on the task-trained DGCNN graph representation (which stores a replayable linear task head),
+most measured conditional subject leakage lies in the exact nullspace of that head** (functionally **unused**),
+so removing it is provably task-safe yet cannot change the decision. (The DG-identifiability experiments below
+use the EEGNet frozen representation, which has no replayable original head; there the head-defined "contested"
+subspace uses a fresh source-fitted linear head.) Safe removability and DG relevance are therefore different
+objects a priori. This section asks the DG-relevant question directly, with the objective inverted:
+**minimize source-held-out risk** (source-LOSO), with subject-CMI demoted from objective to post-hoc
+certification constraint.
 
 ## Two questions, two oracles — and why the oracle must be mechanism-matched
 
@@ -26,10 +29,15 @@ with subject-CMI demoted from objective to post-hoc certification constraint.
   ordered basis. (Restricting to top-k *prefix* deletion is a strictly weaker oracle and can spuriously
   report ~0 — a pitfall we hit and corrected.)
 
-- **Source identifiability (the deployable question).** A **greedy source-only** selector that maximizes
-  source-LOSO held-out bAcc over arbitrary coordinates — the exact mechanism a supermask implements, driven
-  by source data only — is applied to the true target. Identifiability requires its target gain to be
-  positive, beat matched-rank random, and align (principal angles) with the greedy target ticket.
+- **Source identifiability (the deployable question).** A greedy source-only selector over **an
+  outer-source-fitted basis with source-LOSO utility selection**: the candidate basis is estimated from all
+  outer-source subjects, then directions are added greedily to maximize source-leave-one-subject-out held-out
+  bAcc (each source subject's own head-fit excludes it, but its features do enter the fixed basis estimate —
+  so this is *not* a fully-nested meta-validation; the information advantage only makes the source selector
+  more favorable, so a negative result is conservative). The true outer target is never used in selection.
+  The selected deletion is applied to the true target; identifiability requires its target gain to be
+  positive, beat matched-rank random, and align (principal angles) with the greedy target ticket. (The
+  separate refittable *prefix* rule of the nested-meta selector is the only fully-nested construction here.)
 
 Candidate bases: marginal subject span (`marg`), label-conditional subject offsets (`cond`, aligned to
 `I(Z;D|Y)`), decision-rule disagreement (`rule`), task-gradient disagreement (`grad`); each also restricted
@@ -39,11 +47,14 @@ to the **contested** subspace (row space of the class-centered source head — d
 ## Synthetic anchor — the machinery is honest in both directions
 
 On a spurious-task DGP (`Z=[Z_inv|Z_spur|Z_id]`, `Z_spur` predictive-within-source but sign-unstable across
-subjects): the cross-fit greedy oracle finds the real ticket (deleting `Z_spur`) beating random; the greedy
-source-only selector **recovers** it when the shortcut is source-visibly unstable (balanced sign,
-Δ_src +0.032 beating random −0.033; and a strong majority shortcut Δ_src +0.150, subspace alignment 1.0);
-and the old CMI-minimizing selector picks functionally-unused `Z_id`/`Z_inv` and is worse for DG. So the
-audit *can* say yes; its "no" on real EEG is a finding, not a dead selector.
+subjects; full table in `notes/DG_SYNTHETIC_SELECTOR_TABLE.md`): the cross-fit greedy oracle finds the real
+ticket (deleting `Z_spur`) beating random; the greedy source-only selector **recovers** it both when the
+shortcut is source-visibly *balanced* (Δ_src +0.032 beating random −0.033) and when it is a *strong
+majority* shortcut (Δ_src +0.150, subspace alignment 1.0) — the greedy source selector is strictly more
+expressive than the nested-prefix rule (which correctly *refuses* the majority shortcut under its no-harm
+gate). Because the *stronger* greedy source selector recovers these synthetic tickets, its failure on real
+EEG is genuine source-unobservability, not a dead selector. (The proxy-reduction selector instead picks
+functionally-unused `Z_id`/`Z_inv` and is worse for DG.)
 
 ## Real EEG — the verified verdict: TARGET_HINDSIGHT_ONLY
 
@@ -71,8 +82,19 @@ positive (**+0.0024 [+0.0013,+0.0036]**, beating matched-rank random −0.007), 
 that basis's oracle gain (+0.035), does **not** replicate on BNCI2014, and has low subspace alignment (0.42):
 `SOURCE_DETECTABLE_TINY`, not practical (RecoveryRatio ≈ 0.07 ≪ 0.25). The earlier nested selector was
 prefix-only and could not even *express* the greedy ticket; the mechanism-matched greedy source selector,
-which can, still fails. Directly minimizing conditional subject leakage (CMI-only) is harmful on both datasets
+which can, still fails. A **selector that maximizes reduction of a linear within-label subject-decodability
+proxy** (the cheap search-time proxy, not the validated posterior-KL ruler) is harmful on both datasets
 (−0.010 / −0.063, LCB < 0).
+
+Subject-leakage certification (posterior-KL ruler, MLP-small & MLP-large, retrained within-label permutation
+null, matched-rank random control, on source Z; `results/cmi_trace_dg_identifiability/cmi_cert_*.jsonl`): the
+target-hindsight ticket reduces validated conditional subject leakage more than matched-rank random in **only
+1 of 4** (dataset × critic-capacity) cells — BNCI2014 with the high-capacity critic (ΔÎ_enc +0.035
+[+0.001,+0.083] vs random +0.008). On **BNCI2015 a matched-rank random deletion reduces leakage as much** as
+the ticket (+0.026 [+0.012,+0.041] vs ticket +0.022 [+0.005,+0.040]), and with the low-capacity critic the
+reduction is negligible and not ticket-specific. So the ticket is best described as **a deletion within a
+subject-derived basis**; its within-target DG benefit is **not robustly attributable to validated
+subject-leakage removal** — which itself is a further instance of *leakage amount ≠ DG relevance*.
 
 ## The claim boundary
 

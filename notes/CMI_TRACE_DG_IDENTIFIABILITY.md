@@ -45,6 +45,22 @@ BNCI2014, low alignment → SOURCE_DETECTABLE_TINY, not practical (RecoveryRatio
 −0.010/−0.063 (solid). Nested prefix selector also refuses (k*=0) except isolated rule/full k*>0 that are
 harmful/null (prose "k*=0 everywhere" was overstated; corrected).
 
+## Closeout patch (branch agent/cmi-trace-targetx-observability, PM-directed before Fork 2)
+- P0.1 exact-head-null nullspace result is on DGCNN graph rep (stored head), NOT EEGNet — fixed in draft+C14.
+- P0.2 the harmful "CMI-only" selector optimizes a LINEAR within-label subject-decodability PROXY, not the
+  validated posterior-KL ruler — renamed in draft+C14+docstring.
+- P0.3 CMI CERTIFICATION (posterior-KL ruler, MLP-small+large, perm null, matched-rank random, source Z):
+  ticket ΔÎ_enc > random in ONLY 1/4 (dataset×capacity) cells — BNCI2014/large +0.035 [+0.001,+0.083] vs
+  random +0.008; BNCI2015 random reduces leakage as much (+0.026 vs ticket +0.022), MLP-small negligible.
+  => ticket is "a deletion within a subject-derived basis", NOT robustly a subject-leakage-specific deletion.
+  Further instance of leakage amount ≠ DG relevance.
+- P0.4 greedy source selector = outer-source-fitted basis + source-LOSO selection (NOT fully-nested;
+  info-advantage is conservative for a negative) — clarified in draft+docstring.
+- P0.5 wf_verify meta marked historical (tested-and-refuted NO_CONFIRMED); explicit synthetic DGP×selector
+  table `notes/DG_SYNTHETIC_SELECTOR_TABLE.md` (majority shortcut: nested-prefix refuses / greedy-source
+  recovers +0.150 — greedy-source is stronger, so its real-EEG failure = genuine source-unobservability).
+- F2.0 target-X observability PRE-REG frozen: `notes/TARGETX_OBSERVABILITY_PREREG.md`.
+
 ## Decision (per pre-registered A/B/C-style matrix + strict P2 gate)
 The 8-condition P2 gate FAILS at condition 2 (source identifiability: greedy source LCB ≤ 0 / TINY unreplicated)
 and 3 (RecoveryRatio ≥ 0.25). **Do NOT build the source-only differentiable subspace supermask (P2)** — it

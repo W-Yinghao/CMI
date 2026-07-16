@@ -415,8 +415,11 @@ def _source_loso_gain(Zs, ys, ds, B, S, seed=0):
 
 def source_greedy_select(Zs, ys, ds, B, seed=0, max_k=None, tol=1e-4):
     """Greedy forward selection of an ARBITRARY-coordinate deletion set maximizing source-LOSO held-out bAcc
-    (source-only; mechanism-matched to the greedy target oracle and to a differentiable supermask). Returns
-    the selected index list (refittable rule = 'greedily delete directions that improve source-heldout risk')."""
+    (source-only; mechanism-matched to the greedy target oracle and to a differentiable supermask). NOTE: the
+    basis B is passed in already estimated on ALL outer-source subjects; each source subject is excluded only
+    from its own head-fit, not from the fixed basis estimate -> this is 'outer-source-fitted basis + source-
+    LOSO utility selection', NOT a fully-nested meta-validation (the extra info only favors the selector, so a
+    negative transfer result is conservative). Returns the selected index list."""
     r = B.shape[0]; max_k = r if max_k is None else min(max_k, r)
     S, cur = [], 0.0
     for _ in range(max_k):
