@@ -1,0 +1,7 @@
+check,expected,observed,pass
+contexts,944,944,1
+Q0_chains,2048,2048,1
+Q0_records,8750000,8750000,1
+method_context_rows,18432,18432,1
+Lee_B32_result_rows,0,0,1
+precomputed_rows_injected,0,0,1
