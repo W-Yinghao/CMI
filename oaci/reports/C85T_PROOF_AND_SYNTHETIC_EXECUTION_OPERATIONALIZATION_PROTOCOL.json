@@ -1,0 +1,249 @@
+{
+  "schema_version": "c85t_proof_and_synthetic_execution_operationalization_protocol_v1",
+  "milestone": "C85TL",
+  "created_at_utc": "2026-07-16T20:09:51Z",
+  "status": "PROTOCOL_LOCKED_BEFORE_C85T_IMPLEMENTATION_OR_LOCK_NO_SCIENTIFIC_EXECUTION",
+  "starting_identity": {
+    "head": "48022a6ca9683efbe918fb951c8885e107fd8ee4",
+    "origin_oaci": "48022a6ca9683efbe918fb951c8885e107fd8ee4",
+    "c85p_protocol_commit": "2449be1c24e313922688b5e957ce6d19cb75d9d6",
+    "c85p_protocol_sha256": "af4c2cb35a6b6555d6c9ded3105eb7ad4f061ba237d3e8cc3ed6f5a18aede006",
+    "c85r_repair_protocol_commit": "03bb684e59e3432ae6f484c8c8a537213f52a6cd",
+    "c85r_repair_protocol_sha256": "e37bb444fdd174ba4ca1f95e91d9193378f11dd0ef2aeac3e03cbf6249a34b68",
+    "c85r_implementation_commit": "360c422f3110d61cfef5d09fead78562bb52c497",
+    "operative_v2_contract_sha256": "e055c2a785374a3067ce90746a5941b39847b88a4f33e4ff8da5ca8adfde355a",
+    "c85r_overall_markdown_sha256": "a366112536b3dd04769f7e4cdcf5b171c0b2c2218be2ce633c2d886da08929b9",
+    "c85r_overall_json_sha256": "639c0db9d91b200a8e04904593120c0844c7531ecda749249d49084b07b7ec58"
+  },
+  "chronology": {
+    "C85T_authorized": false,
+    "S0_S10_scientific_results_before_protocol": 0,
+    "T1_T7_proofs_completed_before_protocol": 0,
+    "theorem_status_transitions_before_protocol": 0,
+    "protocol_precedes_implementation": true,
+    "protocol_precedes_execution_lock": true,
+    "outcome_informed_choice": false
+  },
+  "bound_foundations": {
+    "C85P_protocol": "IMMUTABLE",
+    "C85P_historical_registries": "IMMUTABLE",
+    "C85R_repair_protocol": "IMMUTABLE",
+    "C85R_v2_generator": "OPERATIVE_IMMUTABLE",
+    "C85R_semantic_tables": "IMMUTABLE",
+    "T1_T7_status_entering_C85TL": "OPEN"
+  },
+  "environment": {
+    "prefix": "/home/infres/yinwang/anaconda3/envs/c84c-eeg2025-v3-exact",
+    "python": "3.13.7",
+    "numpy_runtime_version": "2.4.4",
+    "numpy_conda_list_version": "2.4.4",
+    "numpy_importlib_metadata_first_match": "2.3.3",
+    "numpy_metadata_ambiguity": "Both numpy-2.3.3.dist-info and numpy-2.4.4.dist-info are present; runtime modules are 2.4.4. The exact dual-metadata state is bound and must not be normalized during C85T.",
+    "runtime_files": [
+      {"module": "numpy", "relative_to_prefix": "lib/python3.13/site-packages/numpy/__init__.py", "bytes": 25946, "sha256": "2e8da3e4385e79c4885b3f7324a8b957e6f01732b239e99e266a12c62a008b8d"},
+      {"module": "numpy.version", "relative_to_prefix": "lib/python3.13/site-packages/numpy/version.py", "bytes": 293, "sha256": "0210aea664834faf54cdd051807f66d751d087e26489bea49f407f6f8e8790dc"},
+      {"module": "numpy.random", "relative_to_prefix": "lib/python3.13/site-packages/numpy/random/__init__.py", "bytes": 7480, "sha256": "585ce7b73b5454d6a25c2a50967f2dc322fc1d214d4bb5c0589949b105e06ea9"},
+      {"module": "numpy.random._generator", "relative_to_prefix": "lib/python3.13/site-packages/numpy/random/_generator.cpython-313-x86_64-linux-gnu.so", "bytes": 809408, "sha256": "7bf16558f84b1ab33f74564b00b1dc22b7b5c98dbdf84d4080d098a55a0ac3e2"},
+      {"module": "numpy.random._pcg64", "relative_to_prefix": "lib/python3.13/site-packages/numpy/random/_pcg64.cpython-313-x86_64-linux-gnu.so", "bytes": 141216, "sha256": "2524bfa5f1382e4876a02b7bb2db1478e91928b656b7b10081a0ab75cb77277c"},
+      {"module": "numpy.random.bit_generator", "relative_to_prefix": "lib/python3.13/site-packages/numpy/random/bit_generator.cpython-313-x86_64-linux-gnu.so", "bytes": 217952, "sha256": "d2e9e7c44224dd62fd08166ca0f8dea28f3aed2553216eab79335a2a60ca549d"},
+      {"module": "numpy.random._common", "relative_to_prefix": "lib/python3.13/site-packages/numpy/random/_common.cpython-313-x86_64-linux-gnu.so", "bytes": 257624, "sha256": "2ccca5b02271b61cfe7501982719fd73fbb272d1153f8485de406a6805a0926d"},
+      {"module": "numpy-2.3.3-METADATA", "relative_to_prefix": "lib/python3.13/site-packages/numpy-2.3.3.dist-info/METADATA", "bytes": 62117, "sha256": "661ed2938131e161a5f723099c7236e709e705dec856d1ef37527d37d0ac4dc6"},
+      {"module": "numpy-2.3.3-RECORD", "relative_to_prefix": "lib/python3.13/site-packages/numpy-2.3.3.dist-info/RECORD", "bytes": 108814, "sha256": "3da1ea45333b7e59d8cb6cda47a242da92916050125db222881901b0bfcebae6"},
+      {"module": "numpy-2.4.4-METADATA", "relative_to_prefix": "lib/python3.13/site-packages/numpy-2.4.4.dist-info/METADATA", "bytes": 6608, "sha256": "8f9e04338ffa930868a2d157ce44f6e4cb7ac524b968fb13d04187a6ac575282"},
+      {"module": "numpy-2.4.4-RECORD", "relative_to_prefix": "lib/python3.13/site-packages/numpy-2.4.4.dist-info/RECORD", "bytes": 110452, "sha256": "61b4277a1cb01c55aad8dd9d7df01c8fbd8dec62650d2101902e651dfb37187f"}
+    ],
+    "fail_closed_on_any_identity_drift": true
+  },
+  "scenario_execution_modes": {
+    "S0": "EXACT_ENUMERATION",
+    "S1": "EXACT_ENUMERATION",
+    "S2": "EXACT_ENUMERATION",
+    "S3": "EXACT_RANK_AND_REGRET",
+    "S4": "EXACT_TOPK_AND_REGRET",
+    "S5": "EXACT_FINITE_MEAN_WORST_CVAR_DERIVATION",
+    "S6": "EXACT_GEOMETRY_PLUS_4096_MONTE_CARLO",
+    "S7": "EXACT_GEOMETRY_PLUS_4096_MONTE_CARLO",
+    "S8": "EXACT_RATIONAL_MINIMAX_REGRET_LP",
+    "S9": "EXACT_LAW_ALLOCATION_VARIANCE_PLUS_4096_MONTE_CARLO",
+    "S10": "EXACT_FINITE_RISK_AND_GARBLING_ENUMERATION",
+    "exact_result_authoritative_where_available": true,
+    "monte_carlo_may_overwrite_exact_result": false
+  },
+  "rng": {
+    "library": "numpy.random",
+    "generator": "numpy.random.Generator",
+    "bit_generator": "numpy.random.PCG64DXSM",
+    "seed_expression": "low64(SHA256(C85_SYNTHETIC_V1|scenario_id|replicate_id))",
+    "sha256_low64_byte_order": "little",
+    "replicate_ids": "0..4095",
+    "action_order": "canonical_integer_order",
+    "array_dtype": "float64",
+    "exact_rational_objects_remain_rational": true,
+    "parallel_nondeterministic_reduction": false,
+    "substream_policy": "one freshly seeded Generator per scenario and replicate; no generator state is shared across replicate IDs",
+    "shadow_fixture_ids": ["SHADOW_NORMAL_A", "SHADOW_RADEMACHER_A", "SHADOW_RADEMACHER_B"],
+    "shadow_fixture_is_registered_scenario": false
+  },
+  "S6_S7_draw_order": {
+    "per_replicate": "one standard_normal vector of length M in canonical action order",
+    "scale": "pairwise_sigma/sqrt(2)",
+    "estimated_utility": "u_hat=u+xi",
+    "selection": "first canonical argmax",
+    "draws_per_replicate": "M standard normals",
+    "shared_pairwise_dependence": "all pairwise differences use the same sampled xi_star"
+  },
+  "S6_S7_estimands": {
+    "per_replicate": ["selected_action", "top1_indicator", "outside_A_epsilon_indicator", "selection_regret"],
+    "exact_geometry": ["A_epsilon", "near_optimal_count", "Hill_2_effective_size", "entropy_effective_size", "T7_primary_bound", "historical_looser_diagnostic"],
+    "monte_carlo": ["top1_probability", "outside_probability", "mean_regret", "Monte_Carlo_standard_errors", "descriptive_95_percent_intervals"],
+    "confidence_interval_convention": "estimate plus or minus 1.96 times Monte Carlo SE, clipped to [0,1] for probabilities only",
+    "simulation_proves_T7": false
+  },
+  "S9_draw_order": {
+    "conditional_query_independence": "Rademacher values are iid within each stratum and replicate",
+    "random_stratum_draw": false,
+    "per_replicate_draws": ["51 L Rademacher values", "46 H Rademacher values"],
+    "passive_prefix": {"L": 51, "H": 13},
+    "Neyman_prefix": {"L": 18, "H": 46},
+    "common_random_numbers": true,
+    "integer_draw": "Generator.integers(0,2,size=...,dtype=int64)",
+    "mapping": {"0": -1, "1": 1}
+  },
+  "S9_estimands": {
+    "designs": ["passive", "Neyman"],
+    "all_action_estimator": "mu_hat_a=(4/5)*mean_L(loss_a)+(1/5)*mean_H(loss_a)",
+    "selection": "argmin_a mu_hat_a",
+    "tie_rule": "first_canonical_action_index",
+    "population_mean_losses": ["3/10", "7/20", "13/20", "17/20"],
+    "true_best_action": 0,
+    "estimated_top2": "first two actions under stable ascending order of (mu_hat_a,action_index)",
+    "per_replicate": ["selected_action", "correct_best_indicator", "selection_regret_from_population_means", "true_best_in_estimated_top2", "D_hat=mu_hat_1-mu_hat_0", "design"],
+    "aggregate": ["mean_selection_regret", "correct_best_probability", "top2_coverage", "mean_D_hat", "sample_variance_D_hat", "Monte_Carlo_SEs", "paired_passive_minus_Neyman_differences"],
+    "analytic_D_hat_variance_authoritative": true,
+    "universal_active_superiority_claim": false
+  },
+  "S5_T6_candidate": {
+    "candidate_policy_CVaR_worse_region": "alpha in (13/20,1)",
+    "status": "OPEN_PROOF_TARGET_NOT_DERIVED_IN_C85TL",
+    "historical_alpha_intervals_preserved": true,
+    "endpoints_allowed": false,
+    "C85T_must_verify_or_invalidate": true
+  },
+  "S8_exact_LP": {
+    "arithmetic": "exact rational certificate",
+    "identified_set": "three registered utility extreme points",
+    "randomization_allowed": true,
+    "canonical_tie_rule": "lexicographically smallest rational action distribution among exact optima",
+    "required_outputs": ["identified_set_infinity_norm_diameter", "optimal_randomized_action_distribution", "minimax_regret", "all_extreme_point_constraint_slacks", "pure_action_minimax_regret", "randomization_gain"],
+    "floating_solver_authoritative": false
+  },
+  "proof_statements": {
+    "T1": "For common state, action and loss spaces, if E1 is an observation-only Markov garbling of E2, every randomized rule under E1 has a composed randomized rule under E2 with identical statewise risk; hence unrestricted Bayes optimal risk under E2 is no larger for every prior.",
+    "T2": "The exact finite S1 and repaired S10 objects exhibit a Blackwell-richer experiment whose registered restricted-policy risk is strictly larger than the coarser registered-policy risk while unrestricted risk is nonincreasing.",
+    "T3": "If two randomized action kernels are equal P_theta^E-almost surely for every state in the comparison, then their statewise action-loss laws and risks are equal; any prior or registered group aggregation is equal, so incremental fixed-policy risk value is zero.",
+    "T4": "Under equal prior on two states, common observation space, disjoint optimal-action sets with an explicit decoder, and regret at least Delta for every nonoptimal action, every randomized decision rule has average regret at least (Delta/2)*(1-TV(P0,P1)).",
+    "T5": "For K uniformly distributed states with state-specific optimal actions and wrong-action regret at least Delta, average regret is at least Delta*[1-((1/K)sum_j KL(P_j||P_bar)+log 2)/log K] under the registered finite Fano conditions; the right side may be truncated below at zero.",
+    "T6": "For the exact S5 ten-group loss distributions, the policy improves mean loss and nine group losses but worsens worst-group loss; its upper-loss CVaR exceeds the reference exactly on the candidate region alpha in (13/20,1), subject to C85T derivation or invalidation.",
+    "T7": "Under E exp(lambda*(xi_i-xi_star)) <= exp(lambda^2*sigma_i^2/2), first-argmax selection satisfies P(selected outside A_epsilon) <= min(1,sum_{i:Delta_i>epsilon} exp[-Delta_i^2/(2*sigma_i^2)]), without an independence assumption."
+  },
+  "proof_artifacts": {
+    "required_paths": {
+      "T1": "oaci/reports/c85t_proofs/T1_blackwell_monotonicity.md",
+      "T2": "oaci/reports/c85t_proofs/T2_restricted_policy_counterexamples.md",
+      "T3": "oaci/reports/c85t_proofs/T3_policy_collapse.md",
+      "T4": "oaci/reports/c85t_proofs/T4_two_state_lecam_regret_bound.md",
+      "T5": "oaci/reports/c85t_proofs/T5_fano_extension.md",
+      "T6": "oaci/reports/c85t_proofs/T6_mean_tail_counterexample.md",
+      "T7": "oaci/reports/c85t_proofs/T7_near_optimal_union_bound.md"
+    },
+    "required_sections": ["Exact Statement", "Assumptions", "Proof Or Counterexample", "Boundary Cases", "Independent Red Team", "Final Status"],
+    "C85TL_creates_proof_files": false,
+    "C85T_atomic_result_root_contains_proof_files": true
+  },
+  "theorem_transitions": {
+    "T1": ["PROVED", "PROVED_FINITE_MODEL_ONLY"],
+    "T2": ["COUNTEREXAMPLE", "INVALIDATED"],
+    "T3": ["PROVED", "PROVED_FINITE_MODEL_ONLY"],
+    "T4": ["PROVED", "PROVED_FINITE_MODEL_ONLY", "INVALIDATED"],
+    "T5": ["PROVED", "PROVED_FINITE_MODEL_ONLY", "OPEN", "INVALIDATED"],
+    "T6": ["COUNTEREXAMPLE", "INVALIDATED"],
+    "T7": ["PROVED", "PROVED_FINITE_MODEL_ONLY", "INVALIDATED"],
+    "simulation_can_produce_PROVED": false,
+    "citation_alone_can_produce_PROVED": false,
+    "failed_proof_retained": true,
+    "T5_may_remain_OPEN": true,
+    "all_non_OPEN_transitions_require_independent_PASS": true
+  },
+  "implementation": {
+    "modules": [
+      "oaci/theory/c85t_rng.py",
+      "oaci/theory/c85t_exact_scenarios.py",
+      "oaci/theory/c85t_monte_carlo.py",
+      "oaci/theory/c85t_proofs.py",
+      "oaci/theory/c85t_result_manifest.py",
+      "oaci/theory/c85t_execute.py"
+    ],
+    "public_command": "python -m oaci.theory.c85t_execute run-locked --execution-lock <path> --output-root <fresh-root>",
+    "unbound_notebook_python_c_or_shell_glue_allowed": false,
+    "C85TL_may_run_public_command": false
+  },
+  "atomic_execution": {
+    "preflight_before_attempt": ["lock_self_hash", "bound_repository_bytes_and_Git_blobs", "environment_and_RNG_source", "V2_contract", "fresh_authorization", "fresh_output_root"],
+    "attempt_ledger_before_scenario_execution": true,
+    "stage_order": ["exact_scenarios", "S6_S7_S9_monte_carlo", "proof_artifacts", "independent_proof_audits", "status_transitions", "atomic_result_manifest"],
+    "partial_result_root_valid": false,
+    "final_manifest_schema": "c85t_atomic_result_manifest_v1",
+    "result_gate": "C85T_DECISION_THEORY_PROOF_AUDIT_AND_SYNTHETIC_VALIDATION_COMPLETE_C85E_PROTOCOL_REVIEW_REQUIRED"
+  },
+  "result_schemas": {
+    "scenario_result_rows": 11,
+    "S6_S7_replicate_rows": 8192,
+    "S9_replicate_design_rows": 8192,
+    "proof_artifacts": 7,
+    "proof_audits": 7,
+    "theorem_status_rows": 7,
+    "exact_result_overrides_monte_carlo": true,
+    "all_array_fields": "float64_or_exact_rational_text",
+    "hash_every_result_artifact": true
+  },
+  "resource_envelope": {
+    "device": "CPU_ONLY",
+    "GPU": 0,
+    "deterministic_worker_count": 1,
+    "maximum_CPU_threads": 1,
+    "maximum_memory_GiB": 4,
+    "maximum_wall_minutes": 60,
+    "maximum_external_payload_MiB": 100,
+    "maximum_Git_file_MiB": 50,
+    "parallel_nondeterministic_reduction": false,
+    "scope_reduction_at_runtime": false
+  },
+  "failure_policy": {
+    "before_authorization_consumption": "stop with no execution and leave authorization unused",
+    "after_authorization_consumption": "preserve attempt ledger and staging root; no automatic retry",
+    "proof_failure": "retain failed proof/audit, leave permitted OPEN only for T5, otherwise final gate fails",
+    "simulation_failure": "no status transition and no final manifest",
+    "atomic_publication_failure": "no final result root; preserve hidden staging path",
+    "implementation_change": "new additive protocol, new lock and fresh authorization",
+    "outcome_driven_parameter_change": false
+  },
+  "authorization": {
+    "record_path": "oaci/reports/C85T_PI_AUTHORIZATION_RECORD.json",
+    "record_schema": "c85t_direct_pi_authorization_record_v1",
+    "direct_statement": "授权 C85T",
+    "currently_authorized": false,
+    "historical_authorization_reusable": false,
+    "C85E": false,
+    "active_acquisition": false,
+    "new_data_or_model_zoo": false,
+    "manuscript": false
+  },
+  "C85TL_validation_boundary": {
+    "allowed": ["static_import_audit", "hash_and_chronology_replay", "shadow_RNG_fixtures", "shadow_exact_enumeration", "shadow_Monte_Carlo", "shadow_S9_estimator", "proof_schema", "status_fail_closed", "atomic_failure_injection"],
+    "forbidden": ["S0_S10_execution", "locked_scenario_result_generation", "T1_T7_proof_completion", "theorem_status_transition", "real_project_data", "active_acquisition", "C85E", "manuscript_work"]
+  },
+  "final_gates": {
+    "success": "C85T_PROOF_AND_SYNTHETIC_EXECUTION_IMPLEMENTED_AND_LOCKED_READY_FOR_PI_AUTHORIZATION",
+    "failure": "C85T_RNG_ESTIMAND_PROOF_STATUS_OR_EXECUTION_PROVENANCE_RECONCILIATION_REQUIRED"
+  }
+}
