@@ -1,0 +1,4 @@
+{"dataset": "BNCI2014_001", "subject": "1", "seed": 0, "selected_action": "rank2_0-3", "selected_rank": 2, "rule_matches_main_selector": true, "di_specific_linear": 0.4661618789039417, "di_specific_mlp_small": 0.019506528429701575}
+{"dataset": "BNCI2014_001", "subject": "2", "seed": 0, "selected_action": "identity", "selected_rank": 0, "rule_matches_main_selector": true, "di_specific_linear": 0.0, "di_specific_mlp_small": 0.0}
+{"dataset": "BNCI2015_001", "subject": "10", "seed": 0, "selected_action": "singleton_5", "selected_rank": 1, "rule_matches_main_selector": true, "di_specific_linear": 0.0003203660533696029, "di_specific_mlp_small": -0.0006490112309620599}
+{"dataset": "BNCI2015_001", "subject": "11", "seed": 0, "selected_action": "identity", "selected_rank": 0, "rule_matches_main_selector": true, "di_specific_linear": 0.0, "di_specific_mlp_small": 0.0}
