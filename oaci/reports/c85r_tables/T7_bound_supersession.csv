@@ -1,0 +1,3 @@
+version,role,expression,uses_Delta_minus_epsilon,primary_target,independence_required,theorem_status
+historical_C85P,looser_candidate_diagnostic,"min(1,sum_{i:Delta_i>epsilon} exp(-(Delta_i-epsilon)^2/(2*sigma_i^2)))",1,0,0,OPEN
+C85R_V2,primary_union_bound_target,"min(1,sum_{i:Delta_i>epsilon} exp(-Delta_i^2/(2*sigma_i^2)))",0,1,0,OPEN

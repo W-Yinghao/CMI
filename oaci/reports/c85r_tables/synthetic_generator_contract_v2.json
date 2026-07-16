@@ -1,0 +1,248 @@
+{
+  "schema_version": "c85_synthetic_generator_contract_v2",
+  "status": "SEMANTICALLY_REPAIRED_LOCKED_NOT_SCIENTIFICALLY_EXECUTED",
+  "supersedes": {
+    "schema_version": "c85_synthetic_generator_contract_v1",
+    "path": "oaci/reports/c85p_tables/synthetic_generator_contract.json",
+    "sha256": "c87fec6a6572291fad8849f6c08bea2cb3f49467e243ded1d44c1f38e3d0b297",
+    "historical_object_modified": false,
+    "reason": "S10 contradiction and missing S9/S6/S7 generative semantics"
+  },
+  "repair_protocol": {
+    "path": "oaci/reports/C85R_SYNTHETIC_CONTRACT_SEMANTIC_REPAIR_PROTOCOL.json",
+    "sha256": "e37bb444fdd174ba4ca1f95e91d9193378f11dd0ef2aeac3e03cbf6249a34b68",
+    "protocol_precedes_v2_implementation": true
+  },
+  "seed_rule": "low64(SHA256('C85_SYNTHETIC_V1|' + scenario_id + '|' + replicate_id))",
+  "numeric_policy": {
+    "utilities": "finite rational values in [0,1]",
+    "loss": "selection regret",
+    "comparison_tolerance": "1e-12",
+    "default_replicates": 4096,
+    "exact_enumeration_preferred": true
+  },
+  "outcome_informed_design": false,
+  "theorem_statuses": {
+    "T1": "OPEN",
+    "T2": "OPEN",
+    "T3": "OPEN",
+    "T4": "OPEN",
+    "T5": "OPEN",
+    "T6": "OPEN",
+    "T7": "OPEN"
+  },
+  "semantic_validation": {
+    "status": "SEMANTICALLY_VALIDATED_NOT_SCIENTIFICALLY_EXECUTED",
+    "allowed_checks": [
+      "S10 exact finite risk enumeration",
+      "S9 support range moments allocations and analytic variance",
+      "S6 S7 covariance and pairwise scale identity",
+      "scenario schema and seed replay",
+      "theorem OPEN status replay"
+    ],
+    "scientific_simulation_executed": false,
+    "proof_executed": false
+  },
+  "scenarios": [
+    {
+      "id": "S0",
+      "name": "no_information",
+      "states": [0, 1],
+      "state_probabilities": [0.5, 0.5],
+      "utilities": [[1.0, 0.0], [0.0, 1.0]],
+      "observation_channel": [[1.0], [1.0]],
+      "policy_class": "all_constant_randomized_rules",
+      "risk_functionals": ["mean"],
+      "sample_size": 4096,
+      "success_criterion": "optimal mean regret equals 0.5",
+      "theorem_targets": ["T1", "T4"]
+    },
+    {
+      "id": "S1",
+      "name": "richer_experiment_worse_restricted_policy",
+      "states": [0, 1],
+      "state_probabilities": [0.5, 0.5],
+      "utilities": [[1.0, 0.0], [0.0, 1.0]],
+      "experiments": {"E1": [[1.0], [1.0]], "E2": [[1.0, 0.0], [0.0, 1.0]]},
+      "registered_policies": {"E1": "always_action_0", "E2": "choose_action_1_minus_observed_state"},
+      "risk_functionals": ["mean"],
+      "sample_size": 0,
+      "success_criterion": "E2 Blackwell-dominates E1; unrestricted E2 risk is no larger; registered E2 risk is strictly larger",
+      "theorem_targets": ["T1", "T2"]
+    },
+    {
+      "id": "S2",
+      "name": "exact_policy_collapse",
+      "states": [0, 1, 2],
+      "state_probabilities": [0.2, 0.3, 0.5],
+      "utilities": [[1.0, 0.7, 0.2], [0.4, 1.0, 0.3], [0.8, 0.6, 1.0]],
+      "observation_channel": [[0.8, 0.2], [0.3, 0.7], [0.5, 0.5]],
+      "registered_policy": "always_action_0_despite_observation",
+      "reference_policy": "always_action_0",
+      "risk_functionals": ["mean", "worst_group"],
+      "sample_size": 4096,
+      "success_criterion": "action divergence is zero and fixed-policy risks are exactly equal",
+      "theorem_targets": ["T3"]
+    },
+    {
+      "id": "S3",
+      "name": "weak_global_rank_low_regret",
+      "states": [0],
+      "state_probabilities": [1.0],
+      "utilities": [[1.0, 0.995, 0.99, 0.75, 0.5, 0.25]],
+      "selector_scores": [[0.1, 1.0, 0.2, 0.9, 0.3, 0.8]],
+      "policy": "argmax_score_first_index_tie_break",
+      "epsilon": 0.01,
+      "risk_functionals": ["mean"],
+      "sample_size": 0,
+      "success_criterion": "selected action is epsilon-near-optimal while absolute Spearman is below 0.4",
+      "theorem_targets": ["T7"]
+    },
+    {
+      "id": "S4",
+      "name": "high_topk_poor_regret",
+      "states": [0],
+      "state_probabilities": [1.0],
+      "utilities": [[1.0, 0.99, 0.98, 0.2, 0.1]],
+      "selected_action": 3,
+      "reported_topk_candidate_set": [0, 1, 2, 3],
+      "risk_functionals": ["mean"],
+      "sample_size": 0,
+      "success_criterion": "top4 localization is one while selected regret is at least 0.75",
+      "theorem_targets": ["T7"]
+    },
+    {
+      "id": "S5",
+      "name": "positive_mean_adverse_tail",
+      "groups": ["g0", "g1", "g2", "g3", "g4", "g5", "g6", "g7", "g8", "g9"],
+      "group_probabilities": [0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1],
+      "reference_losses": [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+      "policy_losses": [0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 0.3, 1.0],
+      "alpha_intervals": [[0.0, 0.8], [0.8, 0.9], [0.9, 1.0]],
+      "risk_functionals": ["mean", "worst_group", "upper_tail_CVaR"],
+      "sample_size": 0,
+      "success_criterion": "policy improves mean and 9/10 groups but has worse worst-group risk and worse CVaR for a protocol-derived alpha interval",
+      "theorem_targets": ["T6"]
+    },
+    {
+      "id": "S6",
+      "name": "dense_near_tie_action_set",
+      "states": [0],
+      "state_probabilities": [1.0],
+      "utilities": [[1.0, 0.999, 0.998, 0.997, 0.996, 0.7, 0.4, 0.1]],
+      "epsilon": 0.005,
+      "tau": 0.01,
+      "pairwise_sigma": 0.02,
+      "estimation_error_law": {
+        "estimated_utility": "u_hat_a=u_a+xi_a",
+        "action_errors": "iid Normal(0,pairwise_sigma^2/2)",
+        "selection": "argmax u_hat with first canonical action index tie rule",
+        "pairwise_difference": "xi_i-xi_star is Normal(0,pairwise_sigma^2)",
+        "pairwise_dependence": "differences share xi_star and are not independent"
+      },
+      "required_C85T_outputs": ["epsilon_near_optimal_set", "Hill_2_effective_size", "entropy_effective_size", "top_1_probability", "probability_selected_outside_A_epsilon", "mean_regret", "registered_T7_probability_bound", "Monte_Carlo_standard_error"],
+      "risk_functionals": ["mean"],
+      "sample_size": 4096,
+      "success_criterion": "near-optimal count is 5 and both effective-size summaries exceed 3",
+      "theorem_targets": ["T7"]
+    },
+    {
+      "id": "S7",
+      "name": "sparse_large_gap_action_set",
+      "states": [0],
+      "state_probabilities": [1.0],
+      "utilities": [[1.0, 0.75, 0.5, 0.25, 0.0]],
+      "epsilon": 0.05,
+      "tau": 0.01,
+      "pairwise_sigma": 0.02,
+      "estimation_error_law": {
+        "estimated_utility": "u_hat_a=u_a+xi_a",
+        "action_errors": "iid Normal(0,pairwise_sigma^2/2)",
+        "selection": "argmax u_hat with first canonical action index tie rule",
+        "pairwise_difference": "xi_i-xi_star is Normal(0,pairwise_sigma^2)",
+        "pairwise_dependence": "differences share xi_star and are not independent"
+      },
+      "required_C85T_outputs": ["epsilon_near_optimal_set", "Hill_2_effective_size", "entropy_effective_size", "top_1_probability", "probability_selected_outside_A_epsilon", "mean_regret", "registered_T7_probability_bound", "Monte_Carlo_standard_error"],
+      "risk_functionals": ["mean"],
+      "sample_size": 4096,
+      "success_criterion": "near-optimal count is 1 and both effective-size summaries are below 1.01",
+      "theorem_targets": ["T7"]
+    },
+    {
+      "id": "S8",
+      "name": "partial_identification_minimax_regret",
+      "actions": [0, 1, 2],
+      "utility_extreme_points": [[1.0, 0.6, 0.0], [0.2, 1.0, 0.6], [0.6, 0.2, 1.0]],
+      "randomization_allowed": true,
+      "risk_functionals": ["minimax_regret"],
+      "sample_size": 0,
+      "success_criterion": "identified-set diameter is positive and the finite LP returns a feasible minimax rule",
+      "theorem_targets": []
+    },
+    {
+      "id": "S9",
+      "name": "passive_vs_active_full_information_labels",
+      "actions": [0, 1, 2, 3],
+      "query_observation": "one queried target reveals the loss vector for all four actions",
+      "strata": ["L", "H"],
+      "historical_stratum_alias": {"L": "low_variance", "H": "high_pairwise_variance"},
+      "stratum_probabilities": ["4/5", "1/5"],
+      "pairwise_loss_sd": [0.02, 0.2],
+      "rademacher": {"support": [-1, 1], "probabilities": ["1/2", "1/2"]},
+      "loss_vector_law": {
+        "action_0": "3/10",
+        "action_1": "3/10+1/20+sigma_h*R",
+        "action_2": "13/20",
+        "action_3": "17/20",
+        "sigma": {"L": "1/50", "H": "1/5"}
+      },
+      "population_mean_losses": ["3/10", "7/20", "13/20", "17/20"],
+      "unique_population_optimal_action": 0,
+      "pairwise_difference_1_minus_0": {
+        "law": "1/20+sigma_h*R",
+        "mean": "1/20",
+        "sd": {"L": "1/50", "H": "1/5"}
+      },
+      "query_budget": 64,
+      "rounding_rule": "deterministic largest remainder; ties by canonical stratum order L then H",
+      "passive_policy": "sample_strata_in_population_proportion",
+      "passive_allocation_basis": "allocation proportional to stratum probability",
+      "passive_allocation": {"L": 51, "H": 13},
+      "active_policy": "Neyman_style_allocation_proportional_to_stratum_probability_times_pairwise_sd",
+      "active_allocation_basis": "Neyman allocation proportional to stratum probability times pairwise SD",
+      "neyman_allocation": {"L": 18, "H": 46},
+      "estimator": "D_hat=(4/5)*mean_L(loss1-loss0)+(1/5)*mean_H(loss1-loss0)",
+      "analytic_variance": "sum_h p_h^2*sigma_h^2/n_h",
+      "risk_functionals": ["selection_regret", "top_k"],
+      "sample_size": 4096,
+      "success_criterion": "report design-weighted estimands and distinguish full-information queries from one-arm pulls; no universal active advantage required",
+      "V2_semantic_criterion": "validate the joint loss-vector law and compare fixed-scenario analytic variances without claiming universal active superiority",
+      "universal_active_superiority_claim_allowed": false,
+      "theorem_targets": []
+    },
+    {
+      "id": "S10",
+      "name": "information_dominance_policy_approximation_reversal",
+      "states": [0, 1, 2],
+      "state_probabilities": [0.25, 0.5, 0.25],
+      "utilities": [[1.0, 0.4, 0.0], [0.3, 1.0, 0.2], [0.0, 0.5, 1.0]],
+      "experiments": {"coarse": [[1.0, 0.0], [0.5, 0.5], [0.0, 1.0]], "rich": [[1.0, 0.0, 0.0], [0.0, 1.0, 0.0], [0.0, 0.0, 1.0]]},
+      "garbling_rich_to_coarse": [[1.0, 0.0], [0.5, 0.5], [0.0, 1.0]],
+      "registered_policies": {"coarse": "Bayes_optimal_within_coarse", "rich": "always_action_0"},
+      "historical_registered_policy": {"rich": "always_action_1", "status": "SUPERSEDED_CONTRADICTORY_EQUAL_RISK"},
+      "expected_exact_risks": {
+        "coarse_unrestricted": "11/40",
+        "coarse_registered": "11/40",
+        "rich_unrestricted": "0",
+        "rich_registered": "3/5",
+        "rich_policy_approximation_gap": "3/5",
+        "registered_policy_reversal": "13/40"
+      },
+      "registered_reversal_attribution": "restricted or non-nested registered policy classes only",
+      "risk_functionals": ["mean"],
+      "sample_size": 0,
+      "success_criterion": "rich Blackwell-dominates coarse, rich unrestricted risk is lower, and rich registered-policy risk exceeds coarse registered-policy risk with positive approximation gap",
+      "theorem_targets": ["T1", "T2"]
+    }
+  ]
+}

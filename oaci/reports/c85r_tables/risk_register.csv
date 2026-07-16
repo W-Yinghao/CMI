@@ -1,0 +1,13 @@
+risk_id,risk,mitigation,blocking_if_open,status
+R01,historical contract rewritten,immutable SHA and supersession ledger,1,CLOSED_AT_READINESS
+R02,S10 utility table tuned,minimal policy-only comparison,1,CLOSED_AT_READINESS
+R03,S9 active superiority generalized,fixed-scenario variance only,1,CLOSED_AT_READINESS
+R04,"S9 loss exits [0,1]",exact support enumeration,1,CLOSED_AT_READINESS
+R05,S6/S7 pairwise errors called independent,shared-star covariance registry,1,CLOSED_AT_READINESS
+R06,T7 looser diagnostic remains primary,explicit V2 supersession,1,CLOSED_AT_READINESS
+R07,T3 coupled draw substituted for kernel equality,proof precision addendum,1,CLOSED_AT_READINESS
+R08,T4 optimal-action sets overlap silently,unique/disjoint condition,1,CLOSED_AT_READINESS
+R09,T6 uses alpha endpoint,open interval contract,1,CLOSED_AT_READINESS
+R10,semantic preflight called scientific simulation,zero-replicate execution counters,1,CLOSED_AT_READINESS
+R11,theorem status changes in repair,all OPEN replay,1,CLOSED_AT_READINESS
+R12,real project arrays or active acquisition accessed,static import and boundary tests,1,CLOSED_AT_READINESS

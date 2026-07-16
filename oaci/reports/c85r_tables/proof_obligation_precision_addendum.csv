@@ -1,0 +1,4 @@
+theorem_id,clarification,required_condition,excluded_shortcut,status
+T3,"For randomized rules, equality means equality of action kernels for P_theta^E-almost every observation under every state or prior in the claimed comparison; equality of one coupled draw is insufficient.",statewise almost-sure action-kernel equality,one coupled action draw,OPEN
+T4,"Require unique different optimal actions or disjoint optimal-action sets with an explicit decoder, every nonoptimal action in state j has regret at least Delta, equal prior, common observation space, randomized rules allowed, and fixed TV convention.",unique different optima or disjoint optimum sets plus decoder,distinct named actions without separation,OPEN
+T6,"Derive the exact S5 CVaR alpha region only in C85T; alpha remains in the open interval (0,1).","derive exact alpha region inside (0,1)",alpha endpoints 0 or 1,OPEN

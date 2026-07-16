@@ -1,0 +1,5 @@
+object,historical_sha256,issue,v2_action,in_place_modified,operative_status
+historical_generator_contract_v1,c87fec6a6572291fad8849f6c08bea2cb3f49467e243ded1d44c1f38e3d0b297,schema-valid but semantic blockers in S10/S9/S6/S7,preserve immutable and add V2,0,SUPERSEDED_FOR_C85T_BY_V2
+S10,c87fec6a6572291fad8849f6c08bea2cb3f49467e243ded1d44c1f38e3d0b297,registered risks equal 11/40,change only rich registered policy to always action 0,0,V2_REPAIRED
+S9,c87fec6a6572291fad8849f6c08bea2cb3f49467e243ded1d44c1f38e3d0b297,joint loss-vector law absent,add exact two-stratum Rademacher full-information law,0,V2_COMPLETED
+S6_S7,c87fec6a6572291fad8849f6c08bea2cb3f49467e243ded1d44c1f38e3d0b297,stochastic action-error law absent,add iid Gaussian action errors and shared-star dependence,0,V2_COMPLETED

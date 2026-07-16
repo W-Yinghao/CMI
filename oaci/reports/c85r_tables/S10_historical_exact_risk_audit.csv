@@ -1,0 +1,7 @@
+object,policy,exact_risk,decimal_risk,comparison,status
+coarse_Bayes_policy,y0->1|y1->1,11/40,0.27500000000000002,historical_coarse_registered,EXACT_PREFLIGHT_PASS
+historical_rich_registered,always_action_1,11/40,0.27500000000000002,equals_coarse_not_strictly_greater,HISTORICAL_CONTRADICTION_DETECTED
+V2_rich_unrestricted,statewise_optimal,0,0,strictly_below_coarse,EXACT_PREFLIGHT_PASS
+V2_rich_registered,always_action_0,3/5,0.59999999999999998,strictly_above_coarse,EXACT_PREFLIGHT_PASS
+V2_rich_policy_gap,registered_minus_unrestricted,3/5,0.59999999999999998,positive,EXACT_PREFLIGHT_PASS
+V2_registered_reversal,rich_registered_minus_coarse_registered,13/40,0.32500000000000001,13/40,EXACT_PREFLIGHT_PASS
