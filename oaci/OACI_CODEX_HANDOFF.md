@@ -13,7 +13,95 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85R (2026-07-16)
+## 0. Current continuation state through C85TL (2026-07-16)
+
+C85TL implemented and locked the only future C85T proof/synthetic execution
+path. It stopped at:
+
+```text
+C85T_PROOF_AND_SYNTHETIC_EXECUTION_IMPLEMENTED_AND_LOCKED_READY_FOR_PI_AUTHORIZATION
+```
+
+Authoritative C85TL identities:
+
+```text
+protocol-before-implementation commit:
+  7e8ffdffcbd8aef5a59e6bfa9a2fe0c5aa20a28f
+
+operationalization protocol SHA-256:
+  6543d6ebbfccb8158f8f48a4fe6409c6243a708bbb0358d350932dd249e6b7c2
+
+final implementation commit:
+  dad9d39cccf02771d4e643c0649fd66ab660a1c0
+
+operative execution-lock commit:
+  9d414ebb889b2cfc3fefa19fa98d7ea5ca9fd691
+
+operative execution-lock SHA-256:
+  4a289a46040b10855c6f23def53c328bdce0a8b1c71b7e90523887b6c1db7991
+
+runtime-bound registry SHA-256:
+  998370ffd3dc7572339b5d3ab1e876519ea4c0bf592842044fe20922d2d30631
+```
+
+The initial lock commit `68101202` was never authorized. Its creation timestamp
+was found to postdate its Git commit; only that metadata was corrected before
+authorization, and all four regressions were rerun under the operative
+`9d414ebb` lock.
+
+C85TL binds Python 3.13.7, NumPy runtime 2.4.4, the observed 2.3.3 first-match
+metadata, both NumPy dist-info trees, PCG64DXSM, the low64 little-endian SHA
+seed, canonical draw order, and serial float64 reduction. The runtime lock
+contains 106 repository objects plus a separately bound runtime registry.
+
+Future execution modes are exact for S0-S5/S8/S10 and exact plus 4,096 Monte
+Carlo replicates for S6/S7/S9. S9 now has one-generator `51 L -> 46 H` draws,
+passive `51/13` and Neyman `18/46` prefixes, estimators for all four actions,
+canonical argmin, top-2, population regret, paired differences, and analytic
+variance precedence. S8 has an exact rational LP certificate schema. S5's
+candidate `(13/20,1)` CVaR region remains a proof target.
+
+Proof/status rules are byte-locked: simulation and citation alone cannot prove,
+every non-OPEN transition requires independent PASS, and T5 may remain OPEN.
+No canonical proof file was rendered and T1-T7 all remain OPEN.
+
+Accepted final-lock regressions:
+
+```text
+focused: 348 passed
+C65:     959 passed, 1 skipped, 3 deselected
+C23:   1,370 passed, 1 skipped, 3 deselected
+full:  2,294 passed, 1 skipped, 3 deselected
+```
+
+All accepted stderr files are empty. `squeue` showed zero active C84/C85/OACI
+jobs; `sacct` was not used.
+
+The lock status is:
+
+```text
+LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED
+```
+
+No C85T authorization record exists. The future shortest direct statement is
+`授权 C85T`. C85E, active acquisition, real project data, new data/model zoos,
+and manuscript work remain unauthorized.
+
+Authoritative C85TL documents:
+
+```text
+oaci/reports/C85T_PROOF_AND_SYNTHETIC_EXECUTION_OPERATIONALIZATION_PROTOCOL.json
+oaci/reports/C85T_EXECUTION_LOCK.json
+oaci/reports/C85TL_OVERALL_REPORT.md
+oaci/reports/C85TL_OVERALL_REPORT.json
+oaci/reports/C85TL_OVERALL_REPORT.sha256
+oaci/reports/C85TL_PROTOCOL_READINESS.md
+oaci/reports/C85TL_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85TL_REGRESSION_VERIFICATION.md
+oaci/reports/c85tl_tables/
+```
+
+### Prior continuation state through C85R
 
 C85R additively repaired the synthetic generator's semantic satisfiability. It
 stopped at:
@@ -1257,19 +1345,19 @@ Run a rung's report: `python -m oaci.<subpackage>.report --out-dir oaci/reports`
 
 ---
 
-## 7. How to continue (C85 protocol review required)
+## 7. How to continue (fresh C85T authorization required)
 
-- Preserve C84S gates C84-D/C84-L4 and all C84A exploratory tags; C84A does not
-  create a new confirmatory result.
-- Use `c84a_tables/theory_gap_registry.csv` and
-  `next_experiment_decision_matrix.csv` only to structure PM review.
-- Any robust-risk, active-label, candidate-geometry, heterogeneous-zoo or new-
-  dataset direction requires an additive prospective protocol and an untouched
-  population where applicable.
-- Do not infer Blackwell dominance, unrestricted label value, minimax
-  optimality or a causal support-deletion mechanism from C84A.
-- Do not start C85, active acquisition, new data/model execution, selector
-  retuning or manuscript changes without a new direct authorization.
+- Preserve C84S gates C84-D/C84-L4, all C84A exploratory tags, the C85P theory
+  protocol, and the C85R V2 scenario law.
+- C85T may start only after the exact fresh direct statement `授权 C85T` is
+  bound to lock SHA `4a289a46040b...` and lock commit `9d414ebb...`.
+- Use only `python -m oaci.theory.c85t_execute run-locked`; no notebook,
+  `python -c`, unbound shell glue, alternate RNG, or parallel reduction may
+  create a result.
+- T5 may remain OPEN. Simulation cannot prove any theorem, and every other
+  non-OPEN transition requires the locked independent proof red team.
+- Do not access real project data or start C85E, active acquisition, new data/
+  model execution, selector retuning, or manuscript changes.
 
 ---
 
