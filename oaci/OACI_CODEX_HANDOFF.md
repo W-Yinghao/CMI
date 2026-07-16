@@ -13,7 +13,89 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C85P (2026-07-16)
+## 0. Current continuation state through C85R (2026-07-16)
+
+C85R additively repaired the synthetic generator's semantic satisfiability. It
+stopped at:
+
+```text
+C85_SYNTHETIC_CONTRACT_V2_SEMANTICALLY_REPAIRED_READY_FOR_C85T_PM_REVIEW
+```
+
+Authoritative C85R identities:
+
+```text
+protocol-before-V2 commit:
+  03bb684e59e3432ae6f484c8c8a537213f52a6cd
+
+implementation commit:
+  360c422f3110d61cfef5d09fead78562bb52c497
+
+repair protocol SHA-256:
+  e37bb444fdd174ba4ca1f95e91d9193378f11dd0ef2aeac3e03cbf6249a34b68
+
+operative V2 generator SHA-256:
+  e055c2a785374a3067ce90746a5941b39847b88a4f33e4ff8da5ca8adfde355a
+```
+
+The historical C85P protocol, V1 generator, registries, and reports remain
+immutable. The previous C85P readiness gate is superseded because its V1
+generator was schema-valid but had three semantic blockers:
+
+```text
+S10:
+  historical coarse and rich registered risks were both 11/40
+
+S9:
+  no joint full-information loss-vector law
+
+S6/S7:
+  no stochastic estimation-error law or dependence contract
+```
+
+V2 changes only S10's rich registered policy to always action 0, giving exact
+rich registered risk `3/5` and reversal `13/40`. S9 now has the exact two-
+stratum Rademacher loss-vector law and fixed allocations `51/13` versus
+`18/46`. S6/S7 use iid Gaussian action errors with variance
+`pairwise_sigma^2/2`; pairwise differences share `xi_star` and have correlation
+`1/2`.
+
+T7's primary open target uses `Delta_i^2`; the historical
+`(Delta_i-epsilon)^2` expression is a looser diagnostic. T3/T4/T6 proof
+conditions are clarified. T1-T7 all remain `OPEN`.
+
+Exact C85R status:
+
+```text
+SEMANTICALLY_VALIDATED_NOT_SCIENTIFICALLY_EXECUTED
+```
+
+No S0-S10 4,096-replicate simulation or project proof ran. Accepted
+regressions at `360c422f`:
+
+```text
+focused: 321 passed
+C65:     932 passed, 1 skipped, 3 deselected
+C23:   1,343 passed, 1 skipped, 3 deselected
+full:  2,267 passed, 1 skipped, 3 deselected
+```
+
+All accepted stderr files are empty. C85T requires separate PM review and is
+not authorized. C85E, active acquisition, new data/model zoos, and manuscript
+work remain unauthorized.
+
+Authoritative C85R documents:
+
+```text
+oaci/reports/C85R_SYNTHETIC_CONTRACT_SEMANTIC_REPAIR_PROTOCOL.json
+oaci/reports/c85r_tables/synthetic_generator_contract_v2.json
+oaci/reports/C85R_PROTOCOL_READINESS.md
+oaci/reports/C85R_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85R_REGRESSION_VERIFICATION.md
+oaci/reports/c85r_tables/
+```
+
+### Prior continuation state through C85P
 
 C85P completed the prospective TPAMI statistical-decision theory protocol
 lock. It stopped at:
