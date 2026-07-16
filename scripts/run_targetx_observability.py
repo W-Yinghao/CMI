@@ -68,33 +68,49 @@ def main():
     if a.manifest_only:
         return
     smoke = not a.full
-    out_rows = []
+    tag = "smoke" if smoke else "full"
+    n_smoke_subj = 2                                             # F2.0d engineering smoke: 2 subjects / dataset
+    fold_rows, action_rows, completeness = [], [], []
     for ds in DATASETS:
         cells = _cells(ds, a.backbone, a.seeds)
         if smoke:
-            cells = cells[:1]                                   # 1 subject / dataset
+            cells = cells[:n_smoke_subj]
         for cp in cells:
             f = feat_from_tos_dump(cp)
-            res = audit_fold(f, seed=int(f["seed"]), family="cond", smoke=smoke)
-            if res is None:
+            res = audit_fold(f, seed=int(f["seed"]), family="cond", smoke=smoke,
+                             n_random_per_rank=(8 if smoke else 50))
+            ok = res is not None
+            completeness.append(dict(dataset=ds, subject=f["heldout_subject"], seed=int(f["seed"]),
+                                     status=("ok" if ok else "excluded"), reason=("" if ok else "empty_basis")))
+            if not ok:
                 continue
-            # strip the bulky per-action rows for the summary jsonl (keep firewall + selection + a few scores)
             slim = {k: res[k] for k in ("dataset", "heldout_subject", "seed", "session_info", "firewall",
-                                        "n_actions", "selected_action", "selected_S", "delta_tx", "delta_random_mean")}
-            slim["g1_top3"] = sorted(([rw["action"], rw["scores"].get("G1"), rw["utility"]] for rw in res["rows"] if rw["S"]),
-                                     key=lambda t: -(t[1] or -9))[:3]
-            out_rows.append(slim)
-            print(f"  {ds} sub{res['heldout_subject']}: n_actions={res['n_actions']} "
-                  f"selected={res['selected_action']} Δ_TX={res['delta_tx']:+.3f} "
-                  f"Δ_rand={res['delta_random_mean']:+.3f} fallback={res['session_info']['fallback_used']} "
-                  f"| firewall query_x_in_selection={res['firewall']['query_x_used_for_selection']} "
-                  f"target_greedy_in_actions={res['firewall']['target_greedy_in_action_set']}")
-    tag = "smoke" if smoke else "full"
-    fp = OUT / f"targetx_observability_{tag}.jsonl"
-    with open(fp, "w") as fh:
-        for r in out_rows:
+                                        "n_actions", "n_informed", "n_random", "selected_action", "selected_rank",
+                                        "delta_tx_macro", "delta_tx_pooled", "delta_random_macro_mean", "selector_diag")}
+            fold_rows.append(slim)
+            for rw in res["rows"]:                               # PRESERVE all per-action rows (P0.4)
+                action_rows.append(dict(dataset=ds, subject=res["heldout_subject"], seed=res["seed"],
+                                        action=rw["action"], kind=rw["kind"], rank=rw["rank"],
+                                        eligible=rw["eligible"], G1=rw["scores"].get("G1"),
+                                        utility_macro=rw["utility_macro"], utility_pooled=rw["utility_pooled"]))
+            print(f"  {ds} sub{res['heldout_subject']}: informed={res['n_informed']} random={res['n_random']} "
+                  f"selected={res['selected_action']}(rank{res['selected_rank']}) "
+                  f"Δmacro={res['delta_tx_macro']:+.3f} Δpooled={res['delta_tx_pooled']:+.3f} "
+                  f"Δrand_macro={res['delta_random_macro_mean']:+.3f} "
+                  f"| qx_sel={res['firewall']['query_x_used_for_selection']} "
+                  f"tgtgreedy={res['firewall']['target_greedy_in_action_set']} "
+                  f"rand_selectable={res['firewall']['random_controls_selectable']}")
+    OUT.mkdir(parents=True, exist_ok=True)
+    with open(OUT / f"targetx_action_rows_{tag}.jsonl", "w") as fh:
+        for r in action_rows:
             fh.write(json.dumps(r, default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o)) + "\n")
-    print(f"[targetx-{tag}] wrote {len(out_rows)} rows -> {fp}")
+    with open(OUT / f"targetx_fold_summary_{tag}.jsonl", "w") as fh:
+        for r in fold_rows:
+            fh.write(json.dumps(r, default=lambda o: o.tolist() if hasattr(o, "tolist") else str(o)) + "\n")
+    with open(OUT / f"targetx_completeness_matrix_{tag}.csv", "w", newline="") as fh:
+        w = csv.DictWriter(fh, fieldnames=["dataset", "subject", "seed", "status", "reason"]); w.writeheader()
+        [w.writerow(r) for r in completeness]
+    print(f"[targetx-{tag}] {len(fold_rows)} folds, {len(action_rows)} action rows -> {OUT}")
 
 
 if __name__ == "__main__":

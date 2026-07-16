@@ -29,7 +29,10 @@ from cmi.eval.conditional_subject_leakage import three_way_support_split
 from cmi.eval.graph_leakage import fit_conditional_domain_probe
 
 OUT = REPO / "results" / "cmi_trace_dg_identifiability"
-CAPS = [("linear", 8), ("small", 32), ("large", 128)]     # probe capacities (PM: linear / MLP-small / MLP-large)
+# NOTE (amendment 02 B6): 'tiny_mlp' is a hidden_dim=8 NEURAL posterior, NOT a true linear logistic probe.
+# Gate 5 (F2.1) will add a true linear posterior + the fully-retrained within-label permutation null; the
+# paired raw-KL difference here is a fast SCREENING statistic, not a null-calibrated ruler.
+CAPS = [("tiny_mlp", 8), ("small", 32), ("large", 128)]
 
 
 def _del(Z, B, S):
@@ -82,33 +85,37 @@ def main():
             if B.shape[0] == 0:
                 continue
             r = B.shape[0]
-            # split-specific greedy tickets: select on target T_select, source head on the ERASER partition
+            # split-specific greedy tickets: select on target T_select, source head on the ERASER partition.
+            # An EMPTY ticket stays identity (amendment 02 B6) -- never force-delete direction 0.
             splits = _target_splits(yt, a.n_target_splits, 0.5, sd)
             S_splits = [_select_subset(Zs[er], ys[er], Zt[sel], yt[sel], B, "greedy", a.max_rank, sd) for sel in splits]
-            S_splits = [S for S in S_splits if S] or [[0]]                        # ensure non-empty
-            S_src = source_greedy_select(Zs, ys, ds, B, seed=sd, max_k=a.max_rank) or [0]
-            kbar = max(1, int(round(np.mean([len(S) for S in S_splits]))))
+            S_src = source_greedy_select(Zs, ys, ds, B, seed=sd, max_k=a.max_rank)   # may be empty -> identity
             rng = np.random.default_rng(1000 + sd)
-            S_rands = [list(rng.choice(r, min(kbar, r), replace=False)) for _ in range(a.n_random)]
+            # per-split EXACT-rank random controls (matched to each ticket's own rank), not the average rank
+            rand_by_split = [[list(rng.choice(r, min(len(S), r), replace=False)) for _ in range(a.n_random)]
+                             if len(S) > 0 else [[]] for S in S_splits]
             row = dict(dataset=a.dataset, backbone=a.backbone, heldout_subject=hs, seed=sd, family=a.family,
-                       k_ticket=kbar, k_src=len(S_src), rank=r, n_ptrain=int(pt.size), n_peval=int(pe.size),
-                       git_sha=sha)
+                       k_ticket=float(np.mean([len(S) for S in S_splits])), k_src=len(S_src), rank=r,
+                       n_empty_tickets=int(sum(len(S) == 0 for S in S_splits)),
+                       n_ptrain=int(pt.size), n_peval=int(pe.size), git_sha=sha)
             for tag, hd in CAPS:
                 kl_full = _kl(Zs, ys, ds, n_cls, n_dom, pt, pe, hd, a.epochs, sd, a.device)
-                kl_tkt = float(np.mean([_kl(_del(Zs, B, S), ys, ds, n_cls, n_dom, pt, pe, hd, a.epochs, sd, a.device)
-                                        for S in S_splits]))
+                dI_spec_per_split, kl_tkts, kl_rnds = [], [], []
+                for S, rands in zip(S_splits, rand_by_split):
+                    kl_t = _kl(_del(Zs, B, S), ys, ds, n_cls, n_dom, pt, pe, hd, a.epochs, sd, a.device)  # empty S -> kl_full
+                    kl_r = float(np.mean([_kl(_del(Zs, B, Sr), ys, ds, n_cls, n_dom, pt, pe, hd, a.epochs, sd, a.device)
+                                          for Sr in rands]))
+                    dI_spec_per_split.append(kl_r - kl_t); kl_tkts.append(kl_t); kl_rnds.append(kl_r)
                 kl_src = _kl(_del(Zs, B, S_src), ys, ds, n_cls, n_dom, pt, pe, hd, a.epochs, sd, a.device)
-                kl_rnds = [_kl(_del(Zs, B, S), ys, ds, n_cls, n_dom, pt, pe, hd, a.epochs, sd, a.device) for S in S_rands]
-                kl_rnd = float(np.mean(kl_rnds))
-                row[f"kl_{tag}_full"] = kl_full; row[f"kl_{tag}_ticket"] = kl_tkt
-                row[f"kl_{tag}_source"] = kl_src; row[f"kl_{tag}_random"] = kl_rnd
-                row[f"dI_ticket_{tag}"] = float(kl_full - kl_tkt)                 # leakage removed by ticket
-                row[f"dI_random_{tag}"] = float(kl_full - kl_rnd)                 # by random (matched rank)
-                row[f"dI_specific_{tag}"] = float(kl_rnd - kl_tkt)               # PAIRED: ticket beyond random
+                row[f"kl_{tag}_full"] = kl_full; row[f"kl_{tag}_ticket"] = float(np.mean(kl_tkts))
+                row[f"kl_{tag}_source"] = kl_src; row[f"kl_{tag}_random"] = float(np.mean(kl_rnds))
+                row[f"dI_ticket_{tag}"] = float(kl_full - np.mean(kl_tkts))
+                row[f"dI_random_{tag}"] = float(kl_full - np.mean(kl_rnds))
+                row[f"dI_specific_{tag}"] = float(np.mean(dI_spec_per_split))     # paired, per-split exact-rank
             row["dI_specific_max"] = float(max(row[f"dI_specific_{t}"] for t, _ in CAPS))
             fh.write(json.dumps(row) + "\n"); fh.flush()
-            print(f"  [{i+1}/{len(cells)}] sub{hs} seed{sd} k={kbar} "
-                  f"dI_spec(lin/sm/lg)={row['dI_specific_linear']:+.4f}/{row['dI_specific_small']:+.4f}/"
+            print(f"  [{i+1}/{len(cells)}] sub{hs} seed{sd} kbar={row['k_ticket']:.1f} empty={row['n_empty_tickets']} "
+                  f"dI_spec(tiny/sm/lg)={row['dI_specific_tiny_mlp']:+.4f}/{row['dI_specific_small']:+.4f}/"
                   f"{row['dI_specific_large']:+.4f} ({time.time()-t0:.0f}s)", flush=True)
     print(f"[cmi-cert2] wrote -> {raw}", flush=True)
 

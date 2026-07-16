@@ -39,7 +39,7 @@ def main():
         print(f"\n== {ds} EEGNet  CORRECTED paired CMI certification (dI_specific = mean kl(random) - kl(ticket);"
               f" subject-cluster 95% CI, n={len(dr)} rows) ==")
         print(f"   {'capacity':9s} {'dI_specific (ticket beyond random)':>36s} {'dI_ticket':>11s} {'dI_random':>11s}")
-        for tag in ["linear", "small", "large"]:
+        for tag in ["tiny_mlp", "small", "large"]:
             spec = _ci(dr, f"dI_specific_{tag}"); dit = _ci(dr, f"dI_ticket_{tag}"); dir_ = _ci(dr, f"dI_random_{tag}")
             summary[f"{ds}|{tag}"] = spec
             cert = spec["lo"] > 0
