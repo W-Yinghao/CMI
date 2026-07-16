@@ -198,7 +198,14 @@ def test_execution_lock_v2_preserves_authorization_lifecycle_before_unexecuted_f
     field_lock = json.loads((runtime.REPORT_DIR / "C84F_EXECUTION_LOCK.json").read_text())
     assert field_lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
     assert field_lock["scope"]["real_execution_at_lock"] is False
-    assert not any(name.startswith("C84S_") for name in names)
+    science_locks = {name for name in names if name.startswith("C84S_")}
+    assert science_locks == {"C84S_ANALYSIS_EXECUTION_LOCK.json"}
+    science_lock = json.loads(
+        (runtime.REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK.json").read_text()
+    )
+    assert science_lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
+    assert science_lock["authorization"]["record_present_at_lock"] is False
+    assert not (runtime.REPORT_DIR / "C84S_PI_AUTHORIZATION_RECORD.json").exists()
 
 
 def test_missing_authorization_fails_before_output_root(tmp_path, monkeypatch):

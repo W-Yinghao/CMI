@@ -110,4 +110,9 @@ def test_C84L1P_historical_commit_only_created_canary_lock():
     lock_names = {path.name for path in REPORTS.glob("C84*EXECUTION_LOCK*.json")}
     assert "C84L1C_EXECUTION_LOCK.json" in lock_names
     assert "C84F_EXECUTION_LOCK.json" in lock_names
-    assert not any(name.startswith("C84S_") for name in lock_names)
+    science_locks = {name for name in lock_names if name.startswith("C84S_")}
+    assert science_locks == {"C84S_ANALYSIS_EXECUTION_LOCK.json"}
+    science_lock = json.loads((REPORTS / "C84S_ANALYSIS_EXECUTION_LOCK.json").read_text())
+    assert science_lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
+    assert science_lock["authorization"]["record_present_at_lock"] is False
+    assert not (REPORTS / "C84S_PI_AUTHORIZATION_RECORD.json").exists()

@@ -278,7 +278,14 @@ def test_C84P_historical_commit_had_no_lock_and_current_field_lock_is_unexecuted
     field_lock = json.loads((protocol.REPORT_DIR / "C84F_EXECUTION_LOCK.json").read_text())
     assert field_lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
     assert field_lock["scope"]["real_execution_at_lock"] is False
-    assert not any(name.startswith("C84S_") for name in current)
+    science_locks = {name for name in current if name.startswith("C84S_")}
+    assert science_locks == {"C84S_ANALYSIS_EXECUTION_LOCK.json"}
+    science_lock = json.loads(
+        (protocol.REPORT_DIR / "C84S_ANALYSIS_EXECUTION_LOCK.json").read_text()
+    )
+    assert science_lock["status"] == "LOCKED_READY_FOR_DIRECT_PI_AUTHORIZATION_NOT_AUTHORIZED"
+    assert science_lock["authorization"]["record_present_at_lock"] is False
+    assert not (protocol.REPORT_DIR / "C84S_PI_AUTHORIZATION_RECORD.json").exists()
     forbidden = {".npy", ".npz", ".pt", ".pth", ".ckpt", ".pkl", ".fif", ".edf", ".gdf", ".mat"}
     c84_paths = [path for path in (protocol.REPO_ROOT / "oaci").rglob("*C84*") if path.is_file()]
     assert not any(path.suffix.lower() in forbidden for path in c84_paths)
