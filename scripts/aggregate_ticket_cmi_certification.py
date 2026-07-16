@@ -1,7 +1,9 @@
 #!/usr/bin/env python
-"""Aggregate P0.3 ticket CMI certification -> per (dataset, MLP-size) cluster CIs of the leakage removed
-(delta_I = excess_over_null(full) - excess_over_null(deleted)). Certified iff ticket delta_I LCB>0 AND
-ticket mean > random mean."""
+"""Aggregate the CORRECTED (F2.0b) ticket CMI certification -> paired dI_specific cluster CIs + verdict.
+
+Certified iff cluster LCB95(dI_specific) > 0 at the PRIMARY (large) capacity, where
+  dI_specific = mean_i kl(random_i) - kl(ticket)   (paired; positive => ticket removes MORE leakage than a
+matched-rank random deletion). Robustness across {linear, small, large} capacities is reported."""
 from __future__ import annotations
 import glob, json, sys
 from collections import defaultdict
@@ -27,29 +29,31 @@ def _ci(rr, key):
 
 def main():
     rows = []
-    for fp in glob.glob(str(OUT / "*/cmi_cert_seed*.jsonl")):
+    for fp in glob.glob(str(OUT / "*/cmi_cert2_seed*.jsonl")):
         rows += [json.loads(l) for l in open(fp) if l.strip()]
     if not rows:
-        sys.exit("[cmi-cert-agg] no rows")
+        sys.exit("[cmi-cert2-agg] no rows (run the corrected certification first)")
     summary = {}
     for ds in sorted({r["dataset"] for r in rows}):
         dr = [r for r in rows if r["dataset"] == ds]
-        print(f"\n== {ds} EEGNet  posterior-KL leakage-removed ΔÎ (excess-over-null; subject-cluster 95% CI, n={len(dr)} rows) ==")
-        print(f"   {'MLP':6s} {'subset':14s} {'ΔÎ (leakage removed)':>26s} {'perm_p':>7s}")
-        for tag in ["small", "large"]:
-            for name in ["ticket", "source_greedy", "random_k"]:
-                ci = _ci(dr, f"dI_{tag}_{name}"); pp = _ci(dr, f"permp_{tag}_{name}")
-                summary[f"{ds}|{tag}|{name}"] = ci
-                cert = ci["lo"] > 0
-                print(f"   {tag:6s} {name:14s} {ci['mean']:+.4f} [{ci['lo']:+.4f},{ci['hi']:+.4f}]"
-                      f"   {pp['mean']:.3f}  {'<-- reduces leakage (LCB>0)' if cert else ''}")
-            # certified verdict: ticket LCB>0 AND ticket>random
-            tk = summary[f"{ds}|{tag}|ticket"]; rn = summary[f"{ds}|{tag}|random_k"]
-            verdict = ("CERTIFIED" if (tk["lo"] > 0 and tk["mean"] > rn["mean"] + 1e-6)
-                       else "NOT-certified (ticket not > random and/or LCB<=0)")
-            print(f"   -> {tag}: ticket vs random => {verdict}")
-    json.dump({k: v for k, v in summary.items()}, open(OUT / "cmi_cert_summary.json", "w"), indent=2, default=float)
-    print(f"\n[cmi-cert-agg] wrote -> {OUT/'cmi_cert_summary.json'}")
+        print(f"\n== {ds} EEGNet  CORRECTED paired CMI certification (dI_specific = mean kl(random) - kl(ticket);"
+              f" subject-cluster 95% CI, n={len(dr)} rows) ==")
+        print(f"   {'capacity':9s} {'dI_specific (ticket beyond random)':>36s} {'dI_ticket':>11s} {'dI_random':>11s}")
+        for tag in ["linear", "small", "large"]:
+            spec = _ci(dr, f"dI_specific_{tag}"); dit = _ci(dr, f"dI_ticket_{tag}"); dir_ = _ci(dr, f"dI_random_{tag}")
+            summary[f"{ds}|{tag}"] = spec
+            cert = spec["lo"] > 0
+            print(f"   {tag:9s} {spec['mean']:+.4f} [{spec['lo']:+.4f},{spec['hi']:+.4f}]     "
+                  f"{dit['mean']:+.4f}   {dir_['mean']:+.4f}   {'<-- LCB>0' if cert else ''}")
+        mx = _ci(dr, "dI_specific_max")
+        prim = summary[f"{ds}|large"]
+        verdict = ("CERTIFIED (primary large-capacity LCB>0)" if prim["lo"] > 0
+                   else "NOT-certified (ticket does not remove more validated leakage than matched-rank random)")
+        print(f"   max-over-capacity dI_specific {mx['mean']:+.4f} [{mx['lo']:+.4f},{mx['hi']:+.4f}] (optimistic; selection-inflated)")
+        print(f"   -> {ds}: {verdict}")
+        summary[f"{ds}|verdict"] = verdict
+    json.dump(summary, open(OUT / "cmi_cert2_summary.json", "w"), indent=2, default=float)
+    print(f"\n[cmi-cert2-agg] wrote -> {OUT/'cmi_cert2_summary.json'}")
 
 
 if __name__ == "__main__":

@@ -86,23 +86,26 @@ which can, still fails. A **selector that maximizes reduction of a linear within
 proxy** (the cheap search-time proxy, not the validated posterior-KL ruler) is harmful on both datasets
 (−0.010 / −0.063, LCB < 0).
 
-Subject-leakage certification (posterior-KL ruler, MLP-small & MLP-large, retrained within-label permutation
-null, matched-rank random control, on source Z; `results/cmi_trace_dg_identifiability/cmi_cert_*.jsonl`): the
-target-hindsight ticket reduces validated conditional subject leakage more than matched-rank random in **only
-1 of 4** (dataset × critic-capacity) cells — BNCI2014 with the high-capacity critic (ΔÎ_enc +0.035
-[+0.001,+0.083] vs random +0.008). On **BNCI2015 a matched-rank random deletion reduces leakage as much** as
-the ticket (+0.026 [+0.012,+0.041] vs ticket +0.022 [+0.005,+0.040]), and with the low-capacity critic the
-reduction is negligible and not ticket-specific. So the ticket is best described as **a deletion within a
-subject-derived basis**; its within-target DG benefit is **not robustly attributable to validated
-subject-leakage removal** — which itself is a further instance of *leakage amount ≠ DG relevance*.
+Subject-leakage certification (CORRECTED cross-fit protocol: cond basis fit on the source eraser-fit split
+disjoint from the posterior train/eval trials; split-specific greedy ticket applied identically; paired
+ΔÎ_specific = mean_i ΔÎ(random_i) − ΔÎ(ticket) at capacities {linear, small, large}, subject-cluster 95% CI;
+`cmi_cert2_*.jsonl`): the ticket is **NOT certified** as a subject-leakage-specific deletion on either
+dataset — at the primary (high-capacity) critic ΔÎ_specific = −0.007 [−0.035,+0.027] (BNCI2014) and −0.011
+[−0.032,+0.011] (BNCI2015), both LCB < 0; the ticket removes **no more validated conditional subject leakage
+than a matched-rank random deletion** (ticket +0.040 vs random +0.047; ticket +0.025 vs random +0.036). So
+the ticket is definitively **a deletion within a subject-derived basis**, and its within-target DG benefit is
+**not attributable to validated subject-leakage removal** — a sharp further instance of *leakage amount ≠ DG
+relevance*. (The earlier "1/4 cells certified" pass was an artifact of certifying a re-selected full-target
+ticket without the eraser-fit split or a paired control; it is retracted.)
 
 ## The claim boundary
 
 > On real EEG a subject-subspace deletion that improves within-target generalization **exists** (cross-fitted,
 > above matched-rank random, mechanism-matched greedy selection), yet a source-only selector — including the
-> greedy selector that matches the deletion mechanism exactly — does **not** recover it, and directly
-> minimizing conditional subject leakage is harmful. The gap is one of **source observability**, established
-> for the tested bases and selectors — not a universal impossibility theorem.
+> greedy selector that matches the deletion mechanism exactly — does **not** recover it, and **selecting
+> deletions by maximal reduction of a linear within-label subject-decodability proxy** is harmful on both
+> datasets. The gap is one of **source observability**, established for the tested bases and selectors — not a
+> universal impossibility theorem.
 
 The measurement→action chain has four distinct links, and each real-EEG result breaks the *next*:
 
