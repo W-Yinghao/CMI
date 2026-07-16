@@ -13,7 +13,74 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state through C84A (2026-07-16)
+## 0. Current continuation state through C85P (2026-07-16)
+
+C85P completed the prospective TPAMI statistical-decision theory protocol
+lock. It stopped at:
+
+```text
+C85_TPAMI_DECISION_THEORY_PROTOCOL_LOCKED_READY_FOR_PROOF_AND_SYNTHETIC_EXECUTION
+```
+
+Authoritative C85P identities:
+
+```text
+protocol-before-implementation commit:
+  2449be1c24e313922688b5e957ce6d19cb75d9d6
+
+implementation commit:
+  73844601d82037cfe9b8f31cb21bc53bd9b5f334
+
+protocol SHA-256:
+  af4c2cb35a6b6555d6c9ded3105eb7ad4f061ba237d3e8cc3ed6f5a18aede006
+
+S0-S10 generator-contract SHA-256:
+  c87fec6a6572291fad8849f6c08bea2cb3f49467e243ded1d44c1f38e3d0b297
+```
+
+C85P added the C84A PM realized-policy-use addendum. Cho MaNo is exactly
+B1-equivalent in 160/160 frozen contexts; Lee and Physionet are B1-equivalent
+in 175/176 and 607/608 contexts. Cho's frozen Q1/Q2 pass and the C84-D/C84-L4
+taxonomy remain unchanged. The action collapse means zero incremental realized
+value through that fixed Cho action map, not that the unlabeled experiment
+contains no information.
+
+The protocol distinguishes statistical experiments, unrestricted and
+registered policy risk, policy approximation/optimization gap, realized action
+dependence, partial identification/minimax regret, mean/worst/CVaR risk,
+near-optimal action geometry, and full-information costly-label testing. Every
+T1-T7 project theorem target is `OPEN`. S0-S10 are fixed but explicitly not
+executed. No C85T proof or synthetic result exists.
+
+Accepted C85P regressions at `73844601`:
+
+```text
+focused: 291 passed
+C65:     902 passed, 1 skipped, 3 deselected
+C23:   1,313 passed, 1 skipped, 3 deselected
+full:  2,237 passed, 1 skipped, 3 deselected
+```
+
+All accepted stderr files are empty. `squeue` showed zero active C84/C85 jobs;
+`sacct` was not used.
+
+C85T is the only possible next milestone after PM review. It remains
+no-real-data proof/counterexample/synthetic work under the exact locked
+protocol. C85E, active acquisition, new datasets/model zoos, and manuscript
+work remain unauthorized.
+
+Authoritative C85P documents:
+
+```text
+oaci/reports/C85_TPAMI_DECISION_THEORY_PROTOCOL.json
+oaci/reports/C85P_PROTOCOL_READINESS.md
+oaci/reports/C85P_FINAL_REPORT_RED_TEAM.md
+oaci/reports/C85P_REGRESSION_VERIFICATION.md
+oaci/reports/C84A_PM_REALIZED_POLICY_USE_ADDENDUM.md
+oaci/reports/c85p_tables/
+```
+
+### Prior continuation state through C84A
 
 C84A completed the read-only post-C84S heterogeneity audit and decision-theory
 bridge. It stopped at:
