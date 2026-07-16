@@ -13,7 +13,53 @@ and collaboration sections before acting.
 
 ---
 
-## 0. Current continuation state (2026-07-15)
+## 0. Current continuation state (2026-07-16)
+
+C84SR2 completed the additive Stage-B field-descriptor compatibility repair and
+stopped at:
+
+```text
+C84S_STAGE_B_FIELD_DESCRIPTOR_COMPATIBILITY_REPAIRED_AND_V4_LOCK_READY_FOR_FRESH_PI_AUTHORIZATION
+```
+
+Authoritative current identities:
+
+```text
+C84SR2 repair protocol commit:  5fa4366f57087f07cf6e290a84f37abbb1ef97c8
+C84SR2 repair protocol SHA-256: 6d7853cd60a85c9f3516cb21fda1c75909f0963e96ad2ac0292647bdc93f1aef
+lock-bound implementation:      a737e2b91578aa7e85aab948ca4b0e64929c3073
+C84S V4 lock commit:            8528bd142bbf6c4cca047bdcc558133eebf5e757
+C84S V4 lock SHA-256:           582e5074b4b17d62ff1e5fbfd992f037dd3082b7763b22d707630aa19db81c3d
+accepted regression commit:     b08538d3f399c77bb188246d23472cb5fd39ded5
+```
+
+Authorized V3 job `897843` consumed its authorization and completed Stage A,
+then failed before the first selector score because 243 historical reused C84C
+training sidecars omitted the later `level_intervention_id` field. Evaluation
+access, selector contexts and scientific rows remained 0. The V3 authorization
+is consumed and non-reusable.
+
+The complete field descriptor contains the authoritative intervention identity
+for all 1,944 units. Exactly 1,701 sidecars carry and match it. The 243 omissions
+are exactly C84C panel-A/seed-5/level-0 units and resolve to
+`C84_LEVEL0_FULL_SOURCE_PANEL_V1`; every other omission or mismatch fails
+closed. No candidate, method, score, threshold, budget or inference rule
+changed.
+
+V4 reuses the immutable V3 Stage-A views without a new label-loader call. The
+construction handoff and evaluation seal replay exactly, and evaluation remains
+unavailable to Stage B until selection freeze. A full synthetic run passed 944
+contexts, 2,048 Q0 chains, 9,110,448 Q0 records and 18,608 method-context rows.
+Regressions passed with 242 focused, 843 C65, 1,254 C23 and 2,178 full tests;
+accepted stderr is empty.
+
+The complete report is `oaci/reports/C84SR2_OVERALL_REPORT.md`. C84SR2 is
+readiness only: no V4 authorization record, real evaluation access, real
+selector score or real scientific statistic exists. The next valid action is a
+fresh direct `授权 C84S` statement bound to the V4 lock. It does not authorize
+C85.
+
+### Frozen C84F field base
 
 C84F target-stage replacement job `897048` completed the locked label-free
 field and stopped at:
@@ -67,11 +113,10 @@ and 2,093 full-OACI tests. Cumulative suites retain one explained
 finalized-C78F skip and three established C79 authorization-state deselections;
 all regression stderr files are empty.
 
-C84F has produced engineering field evidence only. It does not establish target
+C84F produced engineering field evidence only. It did not establish target
 accuracy, selector performance, Q1/Q2, a label-budget frontier, level effects,
-same-method recurrence or external validity. C84S remains unauthorized and has
-no execution lock. The next permissible work is PM review followed by a
-separate C84S implementation, analysis lock and fresh direct authorization.
+same-method recurrence or external validity. At that historical C84F gate C84S
+had no execution lock; the C84SR2 state above is now authoritative.
 
 ### Accepted C84C engineering base
 

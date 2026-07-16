@@ -1,6 +1,6 @@
 # C84SR2 Final Report Red Team
 
-Result: **44 / 44 PASS**
+Result: **50 / 50 PASS**
 
 - PASS: `repair_protocol_precedes_implementation`
 - PASS: `V3_lock_preserved`
@@ -46,3 +46,9 @@ Result: **44 / 44 PASS**
 - PASS: `Git_payload_hygiene`
 - PASS: `real_scores_zero`
 - PASS: `real_science_zero`
+- PASS: `overall_report_markdown_and_json_exact`
+- PASS: `overall_report_hash_sidecar_replays`
+- PASS: `regression_attempt_ledger_preserves_both_rounds`
+- PASS: `accepted_regression_stderr_empty`
+- PASS: `project_memory_and_handoff_current`
+- PASS: `no_active_C84_or_C85_job_at_finalization`
