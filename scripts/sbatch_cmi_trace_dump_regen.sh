@@ -18,7 +18,9 @@ DR_DATASET="${DR_DATASET:-BNCI2014_001}"
 DR_BACKBONE="${DR_BACKBONE:-EEGNet}"
 DR_SEED="${DR_SEED:-0}"
 
-PY=/home/infres/yinwang/anaconda3/envs/eeg2025/bin/python
+# EEGNet dumps: env icml (moabb 1.2.0 + braindecode 0.8 compatible; eeg2025 has moabb-1.5/torchaudio env-rot).
+# TSMNet dumps: eeg2025 (has spdnets) — BLOCKED by torchaudio ABI break; see execution note.
+PY="${DR_PY:-/home/infres/yinwang/anaconda3/envs/icml/bin/python}"
 echo "host=$(hostname) commit=$(git rev-parse --short HEAD) dataset=${DR_DATASET} backbone=${DR_BACKBONE} seed=${DR_SEED}"
 if ! "$PY" -c "import torch,sys; sys.exit(0 if torch.cuda.is_available() else 1)"; then
   echo "FATAL: CUDA unavailable on $(hostname); refusing CPU fallback." >&2; exit 1
