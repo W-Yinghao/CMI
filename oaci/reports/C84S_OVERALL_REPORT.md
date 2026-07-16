@@ -329,7 +329,36 @@ generally effective, that zero-label selection is generally impossible, that
 one label is generally sufficient, or that a fixed passive label budget is
 deployable across EEG datasets.
 
-## 14. Authorization Boundary
+## 14. Verification And Reporting
+
+The initial scientific report was committed at
+`c2f92f65c310aa895f6a2bcb060df07a6fbf475b`. Scientific red-team passed
+64/64 checks and final-report red-team passed 72/72 checks.
+
+Post-execution CPU regressions used the locked
+`c84c-eeg2025-v3-exact` environment:
+
+| Suite | Slurm job | Result | Pytest time | stderr |
+|---|---:|---|---:|---:|
+| focused C84 | 898593 | 367 passed | 75.32 s | 0 bytes |
+| C65 cumulative | 898594 | 853 passed, 1 skipped, 3 deselected | 108.64 s | 0 bytes |
+| C23 cumulative | 898619 | 1,264 passed, 1 skipped, 3 deselected | 165.47 s | 0 bytes |
+| full OACI | 898621 | 2,188 passed, 1 skipped, 3 deselected | 488.13 s | 0 bytes |
+
+The skip is the finalized C78F field test. The three deselections are the
+established C79 tests whose premise is that a later authorization record is
+absent. Two initial C23/full submission pairs (`898595/898596` and
+`898615/898616`) were rejected by the regression script before pytest because
+the report worktree was transiently uncommitted or not yet visible as clean on
+the compute node. They are preserved as failed preflight attempts. Read-only
+job `898617` then confirmed exact `HEAD == origin/oaci` and a clean compute-node
+worktree before the accepted retries.
+
+Tracked Git hygiene passed: no tracked file exceeds 50 MiB, and no raw EEG,
+checkpoint, weight, optimizer or NumPy cache artifact entered Git. The final
+C84S external root has no residual staging directory and no traceback.
+
+## 15. Authorization Boundary
 
 C84S completion does not authorize C85, new selectors, retuning, additional
 datasets, active acquisition, oracle access or manuscript changes. The next

@@ -158,6 +158,60 @@
     "same_label_oracle": 0,
     "C85_authorized": false
   },
+  "verification": {
+    "initial_scientific_report_commit": "c2f92f65c310aa895f6a2bcb060df07a6fbf475b",
+    "scientific_red_team": {
+      "passed": 64,
+      "total": 64
+    },
+    "final_report_red_team": {
+      "passed": 72,
+      "total": 72
+    },
+    "regressions": {
+      "focused": {
+        "job": 898593,
+        "passed": 367,
+        "failed": 0,
+        "skipped": 0,
+        "deselected": 0,
+        "pytest_seconds": 75.32,
+        "stderr_bytes": 0
+      },
+      "C65": {
+        "job": 898594,
+        "passed": 853,
+        "failed": 0,
+        "skipped": 1,
+        "deselected": 3,
+        "pytest_seconds": 108.64,
+        "stderr_bytes": 0
+      },
+      "C23": {
+        "job": 898619,
+        "passed": 1264,
+        "failed": 0,
+        "skipped": 1,
+        "deselected": 3,
+        "pytest_seconds": 165.47,
+        "stderr_bytes": 0
+      },
+      "full": {
+        "job": 898621,
+        "passed": 2188,
+        "failed": 0,
+        "skipped": 1,
+        "deselected": 3,
+        "pytest_seconds": 488.13,
+        "stderr_bytes": 0
+      }
+    },
+    "rejected_pre_pytest_jobs": [898595, 898596, 898615, 898616],
+    "compute_node_git_preflight_job": 898617,
+    "sacct_used": false,
+    "tracked_file_over_50_MiB": 0,
+    "raw_EEG_weights_or_cache_in_Git": 0
+  },
   "claim_boundary": {
     "universal_zero_label_impossibility": false,
     "universal_one_label_sufficiency": false,
